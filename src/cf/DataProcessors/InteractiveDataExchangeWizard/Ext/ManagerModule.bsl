@@ -48,12 +48,12 @@ Procedure GetExchangeMessageToTemporaryDirectory(Parameters, TempStorageAddress)
 		TempFileName = "";
 		If ValueIsFilled(CommonSettings.MessageForDataMapping) Then
 	
-			WSPassiveModeFileIB = Common.FileInfobase()
-				And Parameters.ExchangeMessagesTransportKind	= Enums.ExchangeMessagesTransportTypes.WSPassiveMode;
-				
-			TempFileName = DataExchangeServer.GetFileFromStorage(CommonSettings.MessageForDataMapping, WSPassiveModeFileIB);
+			PassiveModeFileInformation = Common.FileInfobase()
+				And ExchangeMessagesTransport.TransportParameter(Parameters.TransportID, "PassiveMode");
 			
-			File = New File(TempFileName);			
+			TempFileName = DataExchangeServer.GetFileFromStorage(CommonSettings.MessageForDataMapping, PassiveModeFileInformation);
+			
+			File = New File(TempFileName);
 			If File.Exists() And File.IsFile() Then
 				// Put the message info for mapping back to the storage.
 				// Intended to restore the data in case of abnormal analysis termination.
@@ -90,50 +90,31 @@ Procedure GetExchangeMessageToTemporaryDirectory(Parameters, TempStorageAddress)
 			
 			Parameters.Insert("ErrorMessage", ErrorMessage);
 		EndIf;
+	
+	Else
 		
-	ElsIf Parameters.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.COM Then
+		InitializationParameters = ExchangeMessagesTransport.InitializationParameters();
+		InitializationParameters.Peer = Parameters.InfobaseNode;
+		FillPropertyValues(InitializationParameters, Parameters);
 		
-		StructureOfData = DataExchangeServer.GetExchangeMessageToTempDirectoryFromCorrespondentInfobase(Cancel, Parameters.InfobaseNode, False);
+		Transport = ExchangeMessagesTransport.Initialize(InitializationParameters);
 		
-	ElsIf Parameters.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WS Then
+		If Transport.GetData() Then
+			StructureOfData.ExchangeMessageFileName = Transport.ExchangeMessage;
+			StructureOfData.TempExchangeMessagesDirectoryName = Transport.TempDirectory;
+			
+			File = New File(Transport.ExchangeMessage);
+			If File.Exists() Then
+				StructureOfData.DataPackageFileID = File.GetModificationTime();
+			EndIf;
+			
+		Else
+			
+			Cancel = True;
 		
-		StructureOfData = DataExchangeWebService.GetExchangeMessageToTempDirectoryFromCorrespondentInfobaseViaWebService(
-			Cancel,
-			Parameters.InfobaseNode,
-			Parameters.FileID,
-			Parameters.TimeConsumingOperation,
-			Parameters.OperationID,
-			Parameters.WSPassword);
-		
-	Else // FILE, FTP, EMAIL
-		
-		StructureOfData = DataExchangeServer.GetExchangeMessageToTemporaryDirectory(Cancel, Parameters.InfobaseNode, Parameters.ExchangeMessagesTransportKind, False);
+		EndIf;
 		
 	EndIf;
-	
-	Parameters.Cancel                                = Cancel;
-	Parameters.TempExchangeMessagesDirectoryName = StructureOfData.TempExchangeMessagesDirectoryName;
-	Parameters.DataPackageFileID       = StructureOfData.DataPackageFileID;
-	Parameters.ExchangeMessageFileName              = StructureOfData.ExchangeMessageFileName;
-	
-	PutToTempStorage(Parameters, TempStorageAddress);
-	
-EndProcedure
-
-// For internal use.
-// Gets an exchange message from the correspondent infobase via web service to the temporary directory of OS user.
-//
-Procedure GetExchangeMessageFromCorrespondentToTemporaryDirectory(Parameters, TempStorageAddress) Export
-	
-	Cancel = False;
-	
-	SetPrivilegedMode(True);
-	
-	StructureOfData = DataExchangeWebService.GetExchangeMessageToTempDirectoryFromCorrespondentInfobaseViaWebServiceTimeConsumingOperationCompletion(
-		Cancel,
-		Parameters.InfobaseNode,
-		Parameters.FileID,
-		Parameters.WSPassword);
 	
 	Parameters.Cancel                                = Cancel;
 	Parameters.TempExchangeMessagesDirectoryName = StructureOfData.TempExchangeMessagesDirectoryName;
@@ -174,18 +155,19 @@ Procedure RunDataExport(Parameters, TempStorageAddress) Export
 	ExchangeParameters.ExecuteImport1            = False;
 	ExchangeParameters.ExecuteExport2            = True;
 	ExchangeParameters.TimeConsumingOperationAllowed  = True;
-	ExchangeParameters.ExchangeMessagesTransportKind = Parameters.ExchangeMessagesTransportKind;
+	ExchangeParameters.TransportID      = Parameters.TransportID;
 	ExchangeParameters.TimeConsumingOperation           = Parameters.TimeConsumingOperation;
 	ExchangeParameters.OperationID        = Parameters.OperationID;
 	ExchangeParameters.FileID           = Parameters.FileID;
-	ExchangeParameters.AuthenticationParameters      = Parameters.WSPassword;
+	ExchangeParameters.AuthenticationData         = Parameters.AuthenticationData;
 	
 	DataExchangeServer.ExecuteDataExchangeForInfobaseNode(Parameters.InfobaseNode, ExchangeParameters, Cancel);
 	
 	Parameters.TimeConsumingOperation      = ExchangeParameters.TimeConsumingOperation;
 	Parameters.OperationID   = ExchangeParameters.OperationID;
 	Parameters.FileID      = ExchangeParameters.FileID;
-	Parameters.WSPassword                = ExchangeParameters.AuthenticationParameters;
+	Parameters.AuthenticationData    = ExchangeParameters.AuthenticationData;
+	
 	Parameters.Cancel                   = Cancel;
 	
 	PutToTempStorage(Parameters, TempStorageAddress);
@@ -193,6 +175,12 @@ Procedure RunDataExport(Parameters, TempStorageAddress) Export
 EndProcedure
 
 // For internal use.
+// 
+// Parameters:
+//  StatisticsInformation - ValueTable 
+// 
+// Returns:
+//  Boolean - All data is mapped
 //
 Function AllDataMapped(StatisticsInformation) Export
 	
@@ -201,6 +189,12 @@ Function AllDataMapped(StatisticsInformation) Export
 EndFunction
 
 // For internal use.
+// 
+// Parameters:
+//  StatisticsInformation - ValueTable 
+// 
+// Returns:
+//  Boolean - Unmapped master data found
 //
 Function HasUnmappedMasterData(StatisticsInformation) Export
 	Return (StatisticsInformation.FindRows(New Structure("PictureIndex, IsMasterData", 1, True)).Count() > 0);
@@ -214,7 +208,7 @@ Procedure OnStartRecordData(RegistrationSettings, HandlerParameters, ContinueWai
 		NStr("en = 'Register data for export (%1)';"),
 		RegistrationSettings.ExchangeNode);
 
-	If HasActiveBackgroundJobs(BackgroundJobKey) Then
+	If DataExchangeServer.HasActiveBackgroundJobs(BackgroundJobKey) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Data registration for initial export to ""%1"" is already running.';"),
 			RegistrationSettings.ExchangeNode);
@@ -229,7 +223,6 @@ Procedure OnStartRecordData(RegistrationSettings, HandlerParameters, ContinueWai
 		RegistrationSettings.ExchangeNode);
 	ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
 	ExecutionParameters.RunNotInBackground1    = False;
-	ExecutionParameters.RunInBackground      = True;
 	
 	BackgroundJob = TimeConsumingOperations.ExecuteInBackground(
 		"DataProcessors.InteractiveDataExchangeWizard.RegisterDataforExport",
@@ -265,11 +258,11 @@ Procedure OnStartExportDataForMapping(ExportSettings1, HandlerParameters, Contin
 		ExportSettings1.ExchangeNode);
 
 	ActiveBackgroundJobs = Undefined;
-	If HasActiveBackgroundJobs(BackgroundJobKey, ActiveBackgroundJobs) Then
+	If DataExchangeServer.HasActiveBackgroundJobs(BackgroundJobKey, ActiveBackgroundJobs) Then
 		FinishBackgroundTasks(BackgroundJobKey, ActiveBackgroundJobs);
 	EndIf;
 	
-	If HasActiveBackgroundJobs(BackgroundJobKey) Then
+	If DataExchangeServer.HasActiveBackgroundJobs(BackgroundJobKey) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Data to map for ""%1"" is already being exported.';"),
 			ExportSettings1.ExchangeNode);
@@ -284,7 +277,6 @@ Procedure OnStartExportDataForMapping(ExportSettings1, HandlerParameters, Contin
 		ExportSettings1.ExchangeNode);
 	ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
 	ExecutionParameters.RunNotInBackground1    = False;
-	ExecutionParameters.RunInBackground      = True;
 	
 	BackgroundJob = TimeConsumingOperations.ExecuteInBackground(
 		"DataProcessors.InteractiveDataExchangeWizard.ExportDataForMapping",
@@ -368,11 +360,13 @@ Procedure ExportDataForMapping(Parameters, ResultAddress) Export
 	ExchangeParameters = DataExchangeServer.ExchangeParameters();
 	ExchangeParameters.ExecuteImport1 = False;
 	ExchangeParameters.ExecuteExport2 = True;
-	ExchangeParameters.ExchangeMessagesTransportKind = ExportSettings1.TransportKind;
+	ExchangeParameters.TransportID = ExportSettings1.TransportID;
+	ExchangeParameters.TransportSettings = ExportSettings1.TransportSettings;
+	
 	ExchangeParameters.MessageForDataMapping = True;
 	
-	If ExportSettings1.Property("WSPassword") Then
-		ExchangeParameters.Insert("AuthenticationParameters", ExportSettings1.WSPassword);
+	If ExportSettings1.Property("AuthenticationData") Then
+		ExchangeParameters.Insert("AuthenticationData", ExportSettings1.AuthenticationData);
 	EndIf;
 	
 	Cancel = False;
@@ -497,18 +491,6 @@ Procedure InitializeTimeConsumingOperationHandlerParameters(HandlerParameters, B
 	
 EndProcedure
 
-Function HasActiveBackgroundJobs(BackgroundJobKey, ActiveBackgroundJobs = Undefined)
-	
-	Filter = New Structure;
-	Filter.Insert("Key",      BackgroundJobKey);
-	Filter.Insert("State", BackgroundJobState.Active);
-	
-	ActiveBackgroundJobs = BackgroundJobs.GetBackgroundJobs(Filter);
-	
-	Return (ActiveBackgroundJobs.Count() > 0);
-	
-EndFunction
-
 Procedure FinishBackgroundTasks(BackgroundJobKey, ActiveBackgroundJobs)
 	
 	Pauses = New Array;
@@ -522,12 +504,12 @@ Procedure FinishBackgroundTasks(BackgroundJobKey, ActiveBackgroundJobs)
 		
 		TimeConsumingOperations.CancelJobExecution(BackgroundJob.UUID);
 		
-		While HasActiveBackgroundJobs(BackgroundJobKey) And Iteration < Pauses.Count() Do	
+		While DataExchangeServer.HasActiveBackgroundJobs(BackgroundJobKey) And Iteration < Pauses.Count() Do
 			Pause = Pauses[Iteration];
 			BackgroundJob.WaitForExecutionCompletion(Pause);
-			Iteration = Iteration + 1;	
+			Iteration = Iteration + 1;
 		EndDo;
-							
+		
 	EndDo;
 	
 EndProcedure
@@ -659,7 +641,7 @@ Function AutomaticDataMappingResult(Val Peer,
 	InteractiveDataExchangeWizard.ExchangeMessageFileName = ExchangeMessageFileName;
 	InteractiveDataExchangeWizard.TempExchangeMessagesDirectoryName = TempExchangeMessagesDirectoryName;
 	InteractiveDataExchangeWizard.ExchangePlanName = DataExchangeCached.GetExchangePlanName(Peer);
-	InteractiveDataExchangeWizard.ExchangeMessagesTransportKind = Undefined;
+	InteractiveDataExchangeWizard.TransportID = "";
 	
 	InteractiveDataExchangeWizard.StatisticsInformation.Load(StatisticsInformation);
 	
@@ -750,3 +732,4 @@ EndProcedure
 #EndRegion
 
 #EndIf
+

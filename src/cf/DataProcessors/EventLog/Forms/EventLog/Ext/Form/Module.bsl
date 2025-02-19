@@ -200,7 +200,7 @@ Procedure LogSelection(Item, RowSelected, Field, StandardProcessing)
 	ChoiceParameters.Insert("DateInterval", DateInterval);
 	ChoiceParameters.Insert("EventLogFilter", EventLogFilter);
 	ChoiceParameters.Insert("NotificationHandlerForSettingDateInterval",
-		New NotifyDescription("SetPeriodForViewingCompletion", ThisObject));
+		New CallbackDescription("SetPeriodForViewingCompletion", ThisObject));
 	
 	EventLogClient.EventsChoice(ChoiceParameters);
 EndProcedure
@@ -212,7 +212,7 @@ Procedure LogOnActivateField(Item)
 		Item.CurrentItem <> Items.Date
 		And Item.CurrentItem <> Items.Date2;
 	
-	Items.SetFilterByValueInCurrentColumn.Enabled
+	Items.SetFilterByValue.Enabled
 		= CanFilterCurrentColumnByValue;
 	
 	Items.SetFilterByValueInCurrentColumn2.Enabled
@@ -268,7 +268,7 @@ Procedure RefreshCurrentList()
 	
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
-	CallbackOnCompletion = New NotifyDescription("RefreshCurrentListCompletion", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("RefreshCurrentListCompletion", ThisObject);
 	
 	TimeConsumingOperationsClient.WaitCompletion(ExecutionResult, CallbackOnCompletion, IdleParameters);
 	
@@ -325,7 +325,7 @@ EndProcedure
 &AtClient
 Procedure SetPeriodForViewing()
 	
-	Notification = New NotifyDescription("SetPeriodForViewingCompletion", ThisObject);
+	Notification = New CallbackDescription("SetPeriodForViewingCompletion", ThisObject);
 	EventLogClient.SetPeriodForViewing(DateInterval, EventLogFilter, Notification)
 	
 EndProcedure

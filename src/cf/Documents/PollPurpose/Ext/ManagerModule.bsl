@@ -36,7 +36,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// StandardSubsystems.ReportsOptions
+// СтандартныеПодсистемы.VariantsОтчетов
 
 // Defines the list of report commands.
 //
@@ -59,7 +59,7 @@ EndProcedure
 
 // End StandardSubsystems.ReportsOptions
 
-// StandardSubsystems.MessagesTemplates
+// СтандартныеПодсистемы.ШаблоныСообщений
 
 // Called when preparing message templates. Overrides the list of attributes and attachments.
 //
@@ -93,7 +93,7 @@ Procedure OnCreateMessage(Message, MessageSubject, AdditionalParameters) Export
 	
 EndProcedure
 
-// Fills in a list of text message recipients when sending a message generated from template.
+// Populates a list of recipients (in case the message is generated from a template).
 //
 // Parameters:
 //   SMSMessageRecipients - ValueTable:
@@ -112,12 +112,12 @@ Procedure OnFillRecipientsPhonesInMessage(SMSMessageRecipients, MessageSubject) 
 	
 EndProcedure
 
-// Fills in a list of email recipients upon sending a message generated from a template.
+// Populates a list of recipients (in case the message is generated from a template).
 //
 // Parameters:
-//   EmailRecipients - ValueTable - a list of mail recipients:
+//   EmailRecipients - ValueTable - List of message recipients:
 //     * SendingOption - String - Messaging options: "Whom" (To), "Copy" (CC), "HiddenCopy" (BCC), and "ReplyTo".
-//     * Address           - String - a recipient email address.
+//     * Address           - String - Recipient's email address.
 //     * Presentation   - String - an email recipient presentation.
 //     * Contact         - Arbitrary - a contact that owns the email address.
 //  MessageSubject - AnyRef - a reference to an object that is a data source.

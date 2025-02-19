@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<Customizable>false</Customizable>
 	<CommandSet>
 		<ExcludedCommand>Abort</ExcludedCommand>
@@ -547,15 +547,9 @@
 										<Title formatted="false">
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>High-performance mode is recommended for the client/server infobase,
-where it is much more efficient than the standard mode. 
+												<v8:content>The high-performance mode is the primary option for all types of applications in client/server and file infobases.
 
-In a multiuser file infobase, it might restrict the performance
-of concurrent users, so the standard mode would be preferable.
-
-If there is only one user in the file infobase or data is entered by multiple users
-not intensively, the high-performance mode imposes no further restrictions and
-will speed up viewing lists and generating reports compared to the standard mode.</v8:content>
+The standard mode is considered outdated and has been retained for backward compatibility. Its support will be discontinued in future releases. Note that the standard mode either does not support or only partially supports certain features, such as reporting on permissions for a specific document, and information on access restrictions.</v8:content>
 											</v8:item>
 										</Title>
 									</ExtendedTooltip>
@@ -563,6 +557,27 @@ will speed up viewing lists and generating reports compared to the standard mode
 										<Event name="OnChange">LimitAccessAtRecordLevelUniversallyOnChange</Event>
 									</Events>
 								</InputField>
+								<PictureDecoration name="StandardOptionObsolete" id="2319">
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Standard option is obsolete</v8:content>
+										</v8:item>
+									</Title>
+									<ToolTip>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>The standard option is obsolete. We recommend that you select the high-performance option.</v8:content>
+										</v8:item>
+									</ToolTip>
+									<ToolTipRepresentation>ShowRight</ToolTipRepresentation>
+									<Picture>
+										<xr:Ref>CommonPicture.Warning</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<ContextMenu name="StandardOptionObsoleteContextMenu" id="2320"/>
+									<ExtendedTooltip name="StandardOptionObsoleteExtendedTooltip" id="2321"/>
+								</PictureDecoration>
 								<Button name="AccessUpdateOnRecordsLevel" id="2219">
 									<Type>Hyperlink</Type>
 									<CommandName>Form.Command.AccessUpdateOnRecordsLevel</CommandName>

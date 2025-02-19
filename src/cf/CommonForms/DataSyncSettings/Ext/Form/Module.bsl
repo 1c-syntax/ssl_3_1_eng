@@ -118,11 +118,49 @@ Procedure ApplicationsListSelection(Item, RowSelected, Field, StandardProcessing
 				
 		EndIf;
 		
+	ElsIf Field.Name = "ApplicationsListTransportPicture" Then
+		
+		CurrentData = Items.ApplicationsList.CurrentData;
+		
+		If ValueIsFilled(CurrentData.TransportID) Then
+		
+			FullNameOfConfigurationForm = ExchangeMessageTransportServerCall.FullNameOfConfigurationForm(
+				CurrentData.TransportID);
+
+			TransportSettings = ExchangeMessageTransportServerCall.TransportSettings(
+				CurrentData.InfobaseNode, CurrentData.TransportID); 
+			
+			FormParameters = New Structure("TransportSettings", TransportSettings);
+
+			AdditionalParameters = New Structure;
+			AdditionalParameters.Insert("Peer", CurrentData.InfobaseNode);
+			AdditionalParameters.Insert("TransportID", CurrentData.TransportID);
+
+			Notification = New CallbackDescription("SaveTransportSettings", ThisObject, AdditionalParameters);
+
+			OpenForm(FullNameOfConfigurationForm, FormParameters,,,,, Notification, FormWindowOpeningMode.LockOwnerWindow);
+			
+		EndIf;
+		
 	Else
 		
 		RunACommandWithAPreliminaryCheck("ChangeSynchronizationSettings");
 		
 	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure SaveTransportSettings(Result, AdditionalParameters) Export
+	
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	ExchangeMessageTransportServerCall.SaveTransportSettings(
+		AdditionalParameters.Peer,
+		AdditionalParameters.TransportID,
+		Result);
 	
 EndProcedure
 
@@ -205,7 +243,7 @@ Procedure NewPredefinedNodeCode(Command)
 			
 	Else
 		
-		NotificationProcessing = New NotifyDescription("NewPredefinedNodeCodeCompletion", ThisObject);
+		NotificationProcessing = New CallbackDescription("NewPredefinedNodeCodeCompletion", ThisObject);
 		List.ShowChooseItem(NotificationProcessing, NStr("en = 'Select an exchange plan';"))	
 	
 	EndIf;
@@ -296,11 +334,8 @@ EndProcedure
 &AtClient
 Procedure ChangeIBPrefix(Command)
 	
-	FormParameters = New Structure("Prefix", IBPrefix);
+	DataExchangeClient.OpenInfobasePrefixChangeForm(IBPrefix);
 	
-	OpenForm("DataProcessor.DataExchangeCreationWizard.Form.ChangeInfobaseNodePrefix",FormParameters,,,,,, 
-		FormWindowOpeningMode.LockOwnerWindow);
-
 EndProcedure
 
 #EndRegion
@@ -325,6 +360,7 @@ Procedure SynchronizationExecutionCommandProcessing(CurrentData, UseAddlFilters 
 	DescriptionOfTheApplicationString.Insert("StartDataExchangeFromCorrespondent",	CurrentData.StartDataExchangeFromCorrespondent);
 	DescriptionOfTheApplicationString.Insert("InteractiveSendingAvailable",	CurrentData.InteractiveSendingAvailable);
 	DescriptionOfTheApplicationString.Insert("DataExchangeOption",			CurrentData.DataExchangeOption);
+	DescriptionOfTheApplicationString.Insert("TransportID",		CurrentData.TransportID);
 	DescriptionOfTheApplicationString.Insert("UseAddlFilters",			UseAddlFilters);
 	DescriptionOfTheApplicationString.Insert("ThisIsTheInitialUpload",			False);
 	DescriptionOfTheApplicationString.Insert("ErrorDescription",					Undefined);
@@ -370,8 +406,9 @@ Procedure OpenSynchronizationParametersSettingForm(CurrentData)
 	DescriptionOfTheApplicationString.Insert("ExternalSystem",					CurrentData.ExternalSystem);
 	DescriptionOfTheApplicationString.Insert("CorrespondentDataArea",	CurrentData.DataArea);
 	DescriptionOfTheApplicationString.Insert("IsExchangeWithApplicationInService",	CurrentData.IsExchangeWithApplicationInService);
+	DescriptionOfTheApplicationString.Insert("TransportID", 		CurrentData.TransportID);
 	DescriptionOfTheApplicationString.Insert("ThisIsTheInitialUpload",			True);
-	
+		
 	ChecksResults = ServerChecksBeforeExecutingCommands(DescriptionOfTheApplicationString, DataToCompleteSetup, "Minimum");
 	If ChecksResults.ContinueNewSynchronizationSetup Then
 		
@@ -382,7 +419,7 @@ Procedure OpenSynchronizationParametersSettingForm(CurrentData)
 		WizardParameters = New Structure;
 		WizardParameters.Insert("Key", DescriptionOfTheApplicationString.InfobaseNode);
 		
-		ClosingNotification1 = New NotifyDescription("AfterTheSynchronizationSettingsAreCompleted", ThisObject);
+		ClosingNotification1 = New CallbackDescription("AfterTheSynchronizationSettingsAreCompleted", ThisObject);
 		
 		NameOfFormToOpen_ = StrTemplate("ExchangePlan.%1.ObjectForm", DescriptionOfTheApplicationString.ExchangePlanName);
 		OpenForm(NameOfFormToOpen_, WizardParameters, ThisObject, , , , ClosingNotification1, FormWindowOpeningMode.LockOwnerWindow);
@@ -449,7 +486,7 @@ Procedure OpenTheSynchronizationResults(CurrentRowData = Undefined, NameOfTheEve
 	FormParameters.Insert("SelectionOfExchangeNodes", SelectionOfExchangePlanNodes);
 	FormParameters.Insert("SelectingTypesOfWarnings", SelectingTypesOfWarnings);
 	
-	NotifyDescription = New NotifyDescription("AfterOpeningTheWarningsForm", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterOpeningTheWarningsForm", ThisObject);
 	
 	OpenForm("InformationRegister.DataExchangeResults.Form.SynchronizationWarnings", FormParameters, ThisObject, , , , NotifyDescription);
 	
@@ -519,8 +556,9 @@ Procedure ExecuteInitialDataExport(CurrentData)
 	DescriptionOfTheApplicationString.Insert("ExternalSystem",					CurrentData.ExternalSystem);
 	DescriptionOfTheApplicationString.Insert("CorrespondentDataArea",	CurrentData.DataArea);
 	DescriptionOfTheApplicationString.Insert("IsExchangeWithApplicationInService",	CurrentData.IsExchangeWithApplicationInService);
+	DescriptionOfTheApplicationString.Insert("TransportID",		CurrentData.TransportID);
 	DescriptionOfTheApplicationString.Insert("ThisIsTheInitialUpload",			True);
-	
+		
 	ContinueNewSynchronizationSetup = Not SynchronizationSetupCompleted(DescriptionOfTheApplicationString, DataToCompleteSetup);
 	If ContinueNewSynchronizationSetup Then
 		
@@ -543,7 +581,7 @@ Procedure ExecuteInitialDataExport(CurrentData)
 			
 		EndIf;
 		
-		ClosingNotification1 = New NotifyDescription("InitialDataExportCompletion", ThisObject);
+		ClosingNotification1 = New CallbackDescription("InitialDataExportCompletion", ThisObject);
 		
 		NameOfFormToOpen_ = "DataProcessor.InteractiveDataExchangeWizard.Form.ExportMappingData";
 		OpenForm(NameOfFormToOpen_, WizardParameters, ThisObject, , , , ClosingNotification1, FormWindowOpeningMode.LockOwnerWindow);
@@ -608,6 +646,32 @@ Procedure RunACommandWithAPreliminaryCheck(CommandByLine)
 		
 	EndIf;
 	
+	CommandsForAuthenticationVerification = 
+		"RunSync, 
+		|RunSyncWithAdditionalFilters,
+		|InitialDataExport,
+		|DeleteSynchronizationSetting";
+		
+	If StrFind(CommandsForAuthenticationVerification, CommandByLine) > 0 Then
+		
+		AdditionalParameters = New Structure;
+		AdditionalParameters.Insert("Peer", CurrentData.InfobaseNode);
+		AdditionalParameters.Insert("CommandByLine", CommandByLine);
+		
+		AuthenticationParameters = ExchangeMessagesTransportClient.AuthenticationParameters();
+		AuthenticationParameters.Peer = CurrentData.InfobaseNode;
+		AuthenticationParameters.TransportID = CurrentData.TransportID;
+		
+		AuthenticationRequired = False;
+		ClosingNotification1 = New CallbackDescription("EndOfAuthentication", ThisObject, AdditionalParameters);
+		ExchangeMessagesTransportClient.StartOfAuthentication(AuthenticationParameters, AuthenticationRequired, ClosingNotification1);
+			
+		If AuthenticationRequired Then
+			Return;
+		EndIf;
+		
+	EndIf;
+	
 	If CommandByLine = "RunSync" Then
 		
 		SynchronizationExecutionCommandProcessing(CurrentData, False);
@@ -664,6 +728,20 @@ Procedure RunACommandWithAPreliminaryCheck(CommandByLine)
 	
 EndProcedure
 
+&AtClient
+Procedure EndOfAuthentication(AuthenticationData, AdditionalParameters) Export 
+	
+	If Not ValueIsFilled(AuthenticationData) Then
+		Return;
+	EndIf;
+	
+	ExchangeMessageTransportServerCall.SetDataSynchronizationPassword(
+		AdditionalParameters.Peer, AuthenticationData);
+	
+	RunACommandWithAPreliminaryCheck(AdditionalParameters.CommandByLine);
+	
+EndProcedure
+
 &AtServerNoContext
 Function SynchronizationSetupCompleted(ApplicationRow, DataToCompleteSetup = Undefined)
 	
@@ -687,18 +765,13 @@ Function SynchronizationSetupCompleted(ApplicationRow, DataToCompleteSetup = Und
 	EndIf;
 	
 	MessagesNumbers = Common.ObjectAttributesValues(ApplicationRow.InfobaseNode, "ReceivedNo, SentNo");
-	TransportKind   = InformationRegisters.DataExchangeTransportSettings.DefaultExchangeMessagesTransportKind(ApplicationRow.InfobaseNode);
 	
-	If Not ValueIsFilled(TransportKind) Then
-		
-		TransportKind = Enums.ExchangeMessagesTransportTypes.WSPassiveMode;
-		
-	EndIf;
+	PassiveMode = ExchangeMessagesTransport.TransportParameter(ApplicationRow.TransportID, "PassiveMode");
 	
 	DataToCompleteSetup = New Structure;
 	DataToCompleteSetup.Insert("SettingID",    SettingID);
 	DataToCompleteSetup.Insert("SettingOptionDetails", SettingOptionDetails);
-	DataToCompleteSetup.Insert("IsPassiveConnection",      TransportKind = Enums.ExchangeMessagesTransportTypes.WSPassiveMode);
+	DataToCompleteSetup.Insert("IsPassiveConnection",      PassiveMode);
 	
 	Return DataExchangeServer.SynchronizationSetupCompleted(ApplicationRow.InfobaseNode)
 		And Not (MessagesNumbers.ReceivedNo = 0
@@ -941,7 +1014,7 @@ Procedure OpenInteractiveSynchronizationWizard(AdditionalParameters)
 	
 	AuxiliaryParameters = New Structure;
 	AuxiliaryParameters.Insert("WizardParameters", WizardParameters);
-	AuxiliaryParameters.Insert("ClosingNotification1", New NotifyDescription("AfterClosingTheExchangeAssistant", ThisObject, AdditionalParameters));
+	AuxiliaryParameters.Insert("ClosingNotification1", New CallbackDescription("AfterClosingTheExchangeAssistant", ThisObject, AdditionalParameters));
 	
 	DataExchangeClient.OpenObjectsMappingWizardCommandProcessing(AdditionalParameters.InfobaseNode, ThisObject, AuxiliaryParameters);
 	
@@ -958,7 +1031,7 @@ Procedure OpenAutomaticSynchronizationWizard(AdditionalParameters)
 		
 	AuxiliaryParameters = New Structure;
 	AuxiliaryParameters.Insert("WizardParameters", WizardParameters);
-	AuxiliaryParameters.Insert("ClosingNotification1", New NotifyDescription("AfterClosingTheExchangeAssistant", ThisObject, AdditionalParameters));
+	AuxiliaryParameters.Insert("ClosingNotification1", New CallbackDescription("AfterClosingTheExchangeAssistant", ThisObject, AdditionalParameters));
 	
 	DataExchangeClient.ExecuteDataExchangeCommandProcessing(AdditionalParameters.InfobaseNode, ThisObject, , True, AuxiliaryParameters);
 	
@@ -1069,7 +1142,7 @@ Procedure FinishSettingUpSynchronizationInTheDialog(DescriptionOfTheApplicationS
 	AdditionalParameters.Insert("CurrentData", DescriptionOfTheApplicationString);
 	AdditionalParameters.Insert("DataToCompleteSetup", DataToCompleteSetup);
 	
-	CompletionNotification = New NotifyDescription("QuestionContinueSynchronizationSetupCompletion", ThisObject, AdditionalParameters);
+	CompletionNotification = New CallbackDescription("QuestionContinueSynchronizationSetupCompletion", ThisObject, AdditionalParameters);
 	
 	If DescriptionOfTheApplicationString.ThisIsTheInitialUpload Then
 		
@@ -1116,7 +1189,7 @@ Procedure OpenNewSynchronizationSetupWizardForm(CurrentData, DataToCompleteSetup
 		
 	EndIf;
 	
-	ClosingNotification1 = New NotifyDescription("AfterTheSynchronizationSettingsAreCompleted", ThisObject);
+	ClosingNotification1 = New CallbackDescription("AfterTheSynchronizationSettingsAreCompleted", ThisObject);
 	
 	If CurrentData.ExternalSystem Then
 		
@@ -1199,7 +1272,7 @@ Procedure UserDialogWithIncompatibleRules(DescriptionOfTheApplicationString, Err
 		
 	EndIf;
 	
-	Notification = New NotifyDescription("AfterConversionRulesCheckForCompatibility", ThisObject, DescriptionOfTheApplicationString);
+	Notification = New CallbackDescription("AfterConversionRulesCheckForCompatibility", ThisObject, DescriptionOfTheApplicationString);
 	
 	StandardSubsystemsClient.ShowQuestionToUser(Notification, ErrorDescription.ErrorText, Buttons, FormParameters);
 	
@@ -1229,13 +1302,13 @@ EndProcedure
 &AtClient
 Procedure OpenTheFormWaitingForTheEndOfTheConfiguration(BackgroundTaskSettings, DescriptionOfTheApplicationString)
 	
-	ClosingNotification1 = New NotifyDescription("AfterTheSynchronizationSettingsAreCompleted", ThisObject);
+	ClosingNotification1 = New CallbackDescription("AfterTheSynchronizationSettingsAreCompleted", ThisObject);
 	
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("WizardParameters",  DescriptionOfTheApplicationString);
 	AdditionalParameters.Insert("ClosingNotification1", ClosingNotification1);
 	
-	CallbackOnCompletion = New NotifyDescription("OnCompleteGettingSettingsOptionsOfDataExchangeWithExternalSystems", ThisObject, AdditionalParameters);
+	CallbackOnCompletion = New CallbackDescription("OnCompleteGettingSettingsOptionsOfDataExchangeWithExternalSystems", ThisObject, AdditionalParameters);
 
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = True;
@@ -1268,7 +1341,7 @@ Procedure DisabledScenariosWarningDetailsURLProcessing(Item, FormattedStringURL,
 		
 		StandardProcessing = False;
 		
-		Notification = New NotifyDescription("AfterSelectingDisabledScript", ThisObject);
+		Notification = New CallbackDescription("AfterSelectingDisabledScript", ThisObject);
 		ShowChooseFromMenu(Notification, DisabledScenarios, Items.DisabledScenariosWarningDetails);
 		
 	EndIf;
@@ -1322,7 +1395,6 @@ Function BackgroundJobSettingsOptionsOfDataExchangeWithExternalSystems(ExchangeN
 		
 		ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 		ExecutionParameters.BackgroundJobDescription = NStr("en = 'Get available setup options for data exchange with external systems';");
-		ExecutionParameters.RunInBackground = True;
 		
 		BackgroundJob = TimeConsumingOperations.ExecuteInBackground(
 			"DataExchangeWithExternalSystems.OnGetDataExchangeSettingsOptions",
@@ -1656,6 +1728,7 @@ Procedure SetFormItemsView()
 	Items.ApplicationsListContextMenuDataExchangeExecutionGroup.Enabled = HasConfiguredExchanges;
 	Items.ApplicationsListContextMenuControlGroup.Enabled  = HasRightsToAdministerExchanges And HasConfiguredExchanges;
 	Items.ApplicationsListContextMenuEventsGroup.Enabled     = HasViewEventLogRights And HasConfiguredExchanges;
+	Items.ApplicationsListImportDataSyncRules.Enabled = Not SaaSModel And HasConfiguredExchanges;
 	
 	// Item visibility in the form header.
 	Items.InfoPanelUpdateRequired.Visible = UpdateRequired;
@@ -1705,7 +1778,7 @@ Procedure SetFormItemsView()
 		WarningText = StrTemplate(Template, "ScenariosList");
 		
 		Items.DisabledScenariosWarningDetails.Title = StringFunctions.FormattedString(WarningText);
-				
+		
 	EndIf;
 	
 EndProcedure
@@ -1771,23 +1844,7 @@ Procedure RefreshApplicationsList(UpdateSaaSApplications = False)
 			
 		Else
 			
-			TransportKind = InformationRegisters.DataExchangeTransportSettings.DefaultExchangeMessagesTransportKind(
-				ApplicationRow.InfobaseNode);
-			
-			If TransportKind = Enums.ExchangeMessagesTransportTypes.WS
-				Or TransportKind = Enums.ExchangeMessagesTransportTypes.ExternalSystem Then
-				ApplicationRow.ApplicationOperationMode = 1; // Service
-			Else
-				ApplicationRow.ApplicationOperationMode = 0;
-			EndIf;
-				
-			If Not ValueIsFilled(TransportKind)
-				Or (TransportKind = Enums.ExchangeMessagesTransportTypes.WSPassiveMode) Then
-				// Exchange with this infobase is set up via WS.
-				ApplicationRow.StartDataExchangeFromCorrespondent = True;
-			EndIf;
-			
-			ApplicationRow.ExternalSystem = (TransportKind = Enums.ExchangeMessagesTransportTypes.ExternalSystem);
+			ApplicationRow.StartDataExchangeFromCorrespondent = ExchangeMessagesTransport.TransportParameter(ApplicationRow.TransportID, "PassiveMode");
 			
 			ApplicationRow.InteractiveSendingAvailable =
 				Not DataExchangeCached.IsDistributedInfobaseExchangePlan(ApplicationRow.ExchangePlanName)
@@ -1795,6 +1852,8 @@ Procedure RefreshApplicationsList(UpdateSaaSApplications = False)
 				And Not ApplicationRow.ExternalSystem;
 			
 		EndIf;
+			
+		ApplicationRow.TransportPicture = ExchangeMessagesTransport.TransportParameter(ApplicationRow.TransportID, "Picture");
 		
 		ApplicationRow.InteractiveSendingAvailable = ApplicationRow.InteractiveSendingAvailable
 			And Not (ApplicationRow.DataExchangeOption = "ReceiveOnly");
@@ -1871,6 +1930,5 @@ Procedure GetDisabledScenarios()
 	DisabledScenarios.LoadValues(Array);
 	
 EndProcedure
-
 
 #EndRegion

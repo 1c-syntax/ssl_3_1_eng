@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<CommandInterface xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<CommandInterface xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<CommandsVisibility>
 		<Command name="Catalog.Users.StandardCommand.OpenList">
 			<Visibility>
@@ -566,7 +566,7 @@
 				<xr:Common>false</xr:Common>
 			</Visibility>
 		</Command>
-		<Command name="DataProcessor.EnableDiscussions.Command.SettingsOfMessagesFromOtherApplications">
+		<Command name="DataProcessor.EnableDiscussions.Command.SettingsOfMessagesFromOtherApps">
 			<Visibility>
 				<xr:Common>false</xr:Common>
 			</Visibility>
@@ -1062,7 +1062,7 @@
 		<Command name="CommonForm.PasswordsRecovery.StandardCommand.Open">
 			<CommandGroup>ActionsPanelTools</CommandGroup>
 		</Command>
-		<Command name="DataProcessor.EnableDiscussions.Command.SettingsOfMessagesFromOtherApplications">
+		<Command name="DataProcessor.EnableDiscussions.Command.SettingsOfMessagesFromOtherApps">
 			<CommandGroup>ActionsPanelTools</CommandGroup>
 		</Command>
 		<Command name="100:cb81fb9f-16a2-4265-92a9-b827ca2fd588">

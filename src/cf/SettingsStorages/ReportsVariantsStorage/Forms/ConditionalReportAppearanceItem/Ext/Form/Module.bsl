@@ -790,7 +790,7 @@ Procedure ChangeTheField(Item, Cancel, ThisIsAnAddendum = True)
 	ChoiceParameters.Insert("SettingsStructureItemID", SettingsStructureItemID);
 	
 	AdditionalParameters = New Structure("Item, TheCurrentRecordOfTheDesignCollection", Item, TheCurrentRecordOfTheDesignCollection);
-	Handler = New NotifyDescription("AfterSelectingAField", ThisObject, AdditionalParameters);
+	Handler = New CallbackDescription("AfterSelectingAField", ThisObject, AdditionalParameters);
 	
 	OpenForm("SettingsStorage.ReportsVariantsStorage.Form.SelectReportField",
 		ChoiceParameters, ThisObject, UUID,,, Handler);

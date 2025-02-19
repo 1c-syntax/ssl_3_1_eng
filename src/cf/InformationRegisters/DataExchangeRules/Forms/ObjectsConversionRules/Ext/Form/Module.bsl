@@ -183,7 +183,7 @@ Procedure ExchangeProtocolFileStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	DialogSettings = New Structure;
 	DialogSettings.Insert("Filter", NStr("en = 'Text document (*.txt)';")+ "|*.txt" );
-	DialogSettings.Insert("CheckFileExist", False);
+	DialogSettings.Insert("CheckFileExistence", False);
 	
 	StandardProcessing = False;
 	DataExchangeClient.FileSelectionHandler(Record, "ExchangeProtocolFileName", StandardProcessing, DialogSettings);
@@ -224,7 +224,7 @@ Procedure ImportRules(Command)
 	DialogParameters.Insert("Filter", NStr("en = 'ZIP archive (*.zip)';") + "|*.zip");
 	DialogParameters.Insert("FullFileName", NameParts.FullName);
 	
-	Notification = New NotifyDescription("ImportRulesCompletion", ThisObject);
+	Notification = New CallbackDescription("ImportRulesCompletion", ThisObject);
 	DataExchangeClient.SelectAndSendFileToServer(Notification, DialogParameters, UUID);
 	
 EndProcedure
@@ -370,7 +370,7 @@ Procedure PerformRuleImport(Val PutFileAddress, Val FileName, Val IsArchive)
 	ErrorText = NStr("en = 'Errors occurred when importing the rules.
 	                         |Go to the event log?';");
 	
-	Notification = New NotifyDescription("ShowEventLogWhenErrorOccurred", ThisObject);
+	Notification = New CallbackDescription("ShowEventLogWhenErrorOccurred", ThisObject);
 	ShowQueryBox(Notification, ErrorText, QuestionDialogMode.YesNo, ,DialogReturnCode.No);
 EndProcedure
 
@@ -491,13 +491,13 @@ EndProcedure
 &AtClient
 Procedure AllowExternalResource(WriteParameters)
 	
-	ClosingNotification1 = New NotifyDescription("AllowExternalResourceCompletion", ThisObject, WriteParameters);
+	ClosingNotification1 = New CallbackDescription("AllowExternalResourceCompletion", ThisObject, WriteParameters);
 	If CommonClient.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
 		Queries = CreateRequestToUseExternalResources(Record);
 		ModuleSafeModeManagerClient = CommonClient.CommonModule("SafeModeManagerClient");
 		ModuleSafeModeManagerClient.ApplyExternalResourceRequests(Queries, ThisObject, ClosingNotification1);
 	Else
-		ExecuteNotifyProcessing(ClosingNotification1, DialogReturnCode.OK);
+		RunCallback(ClosingNotification1, DialogReturnCode.OK);
 	EndIf;
 	
 EndProcedure

@@ -92,10 +92,10 @@ Procedure OnAddSessionParameterSettingHandlers(Handlers) Export
 	
 EndProcedure
 
-// Allows you to set parameters values required for the operation of the client code when
+// Allows you to set parameters values required for the operation of client-side code when
 // starting configuration (in the BeforeStart or OnStart event handlers) 
 // without additional server calls. 
-// To get the values of these parameters from the client code
+// To get the values of these parameters from client-side code
 // See StandardSubsystemsClient.ClientParametersOnStart.
 //
 // Important: do not use cache reset commands of modules that reuse return values 
@@ -112,9 +112,9 @@ Procedure OnAddClientParametersOnStart(Parameters) Export
 	
 EndProcedure
 
-// Allows you to set parameters values required for the operation of the client code
-// configuration without additional server calls.
-// To get these parameters from the client code
+// Allows you to set parameters values required for the operation of client-side code
+// without additional server calls.
+// To get these parameters from client-side code
 // See StandardSubsystemsClient.ClientRunParameters.
 //
 // Parameters:
@@ -238,24 +238,26 @@ Procedure AfterReplaceRefs(Result, ExecutionParameters, SearchTable) Export
 
 EndProcedure
 
-// It is called when the infobase is updated to account to consider renaming subsystems and roles in the configuration.
-// Otherwise, there will be an asynchronization between the configuration metadata and 
-// the items of the MetadataObjectsIDs directory, which will lead to various errors when the configuration is running.
-// See also: Common.MetadataObjectID, Common.MetadataObjectsIDs.
+// Called during an infobase update in order to consider renamed subsystems.
+// Otherwise, there may be discrepancies between metadata objects 
+// and items of the "MetadataObjectIDs" catalog, leading to configuration failures.
+// To acknowledge renamed subsystem, use the procedure "Common.AddRenaming".
 //
-// In this procedure, specify renaming only for the subsystems and roles for each version of the configuration. 
-// Do not specify renaming of the remaining metadata objects, since they are processed automatically.
+// If the configuration supports a version upgrade and its library version is 3.1.5 or earlier, 
+// you also need to acknowledge renamed roles.
+//
+// 1C:Enterprise will handle other types of renamed metadata automatically.
+// See also: Common.MetadataObjectID, Common.MetadataObjectIDs.
 //
 // Parameters:
-//  Total - ValueTable - a table of renamings that requires filling.
-//                           See Common.AddRenaming.
+//  Renamings - Structure - Information about renamings that are to be filled by the procedure 
+//                               "Common.AddRenaming".
 //
 // Example:
-//	Common.AddRenaming(Total, "2.1.2.14",
-//		"Subsystem.ServiceSubsystems",
-//		"Subsystem.UtilitySubsystems");
+//	Common.AddRenaming(Renaming_, "2.1.2.14",
+//		"Subsystem.ServiceSubsystems", "Subsystem.UtilitySubsystems");
 //
-Procedure OnAddMetadataObjectsRenaming(Total) Export
+Procedure OnAddMetadataObjectsRenaming(Renamings) Export
 	
 	
 	
@@ -384,7 +386,7 @@ EndProcedure
 //			ModuleMonitoringCenterInternal = Common.CommonModule("MonitoringCenterInternal");
 //			ModuleMonitoringCenterInternal.OnReceiptRecurringClientDataOnServer(Parameters, Results);
 //		EndIf;
-//	Exception
+//	Except
 //		ServerNotifications.HandleError(ErrorInfo());
 //	EndTry;
 //	ServerNotifications.AddIndicator(Results, StartMoment,
@@ -394,8 +396,7 @@ Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Handlers of data sending and receiving to exchange in an infobase.
+#Region DataSendAndReceiveHandlersForExchangeInDistributedInfobase
 
 // Additional handler for the event of the same name that occurs during data exchange in a distributed infobase.
 // It is executed after basic library algorithms are executed.
@@ -403,9 +404,9 @@ EndProcedure
 //
 // Parameters:
 //  Source                  - ExchangePlanObject - a node, for which the exchange is performed.
-//  DataElement             - Arbitrary - see the details of the handler of the same name in the Syntax Assistant.
-//  ItemSend          - DataItemSend - see the details of the handler of the same name in the Syntax Assistant.
-//  InitialImageCreating  - Boolean - see the details of the handler of the same name in the Syntax Assistant.
+//  DataElement             - Arbitrary - See the same-name handler in Syntax Assistant.
+//  ItemSend          - DataItemSend - See the same-name handler in Syntax Assistant.
+//  InitialImageCreating  - Boolean - See the same-name handler in Syntax Assistant.
 //
 Procedure OnSendDataToSlave(Source, DataElement, ItemSend, InitialImageCreating) Export
 	
@@ -417,8 +418,8 @@ EndProcedure
 //
 // Parameters:
 //  Source          - ExchangePlanObject - a node, for which the exchange is performed.
-//  DataElement     - Arbitrary - see the details of the handler of the same name in the Syntax Assistant.
-//  ItemSend  - DataItemSend - see the details of the handler of the same name in the Syntax Assistant.
+//  DataElement     - Arbitrary - See the same-name handler in Syntax Assistant.
+//  ItemSend  - DataItemSend - See the same-name handler in Syntax Assistant.
 //
 Procedure OnSendDataToMaster(Source, DataElement, ItemSend) Export
 	
@@ -430,9 +431,9 @@ EndProcedure
 //
 // Parameters:
 //  Source          - ExchangePlanObject - a node, for which the exchange is performed.
-//  DataElement     - Arbitrary - see the details of the handler of the same name in the Syntax Assistant.
-//  ItemReceive - DataItemReceive - see the details of the handler of the same name in the Syntax Assistant.
-//  SendBack     - Boolean - see the details of the handler of the same name in the Syntax Assistant.
+//  DataElement     - Arbitrary - See the same-name handler in Syntax Assistant.
+//  ItemReceive - DataItemReceive - See the same-name handler in Syntax Assistant.
+//  SendBack     - Boolean - See the same-name handler in Syntax Assistant.
 //
 Procedure OnReceiveDataFromSlave(Source, DataElement, ItemReceive, SendBack) Export
 	
@@ -444,9 +445,9 @@ EndProcedure
 //
 // Parameters:
 //  Source          - ExchangePlanObject - a node, for which the exchange is performed.
-//  DataElement     - Arbitrary - see the details of the handler of the same name in the Syntax Assistant.
-//  ItemReceive - DataItemReceive - see the details of the handler of the same name in the Syntax Assistant.
-//  SendBack     - Boolean - see the details of the handler of the same name in the Syntax Assistant.
+//  DataElement     - Arbitrary - See the same-name handler in Syntax Assistant.
+//  ItemReceive - DataItemReceive - See the same-name handler in Syntax Assistant.
+//  SendBack     - Boolean - See the same-name handler in Syntax Assistant.
 //
 Procedure OnReceiveDataFromMaster(Source, DataElement, ItemReceive, SendBack) Export
 	
@@ -461,5 +462,7 @@ EndProcedure
 Procedure WhenDefiningAFeatureThisIsTheBasicVersionOfTheConfiguration(ThisIsBasic) Export 
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

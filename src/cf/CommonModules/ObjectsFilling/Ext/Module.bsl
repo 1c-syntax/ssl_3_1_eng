@@ -21,8 +21,7 @@ Function ObjectsWithFillingCommands() Export
 	Return Array;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // See AttachableCommandsOverridable.OnDefineAttachableObjectsSettingsComposition
 Procedure OnDefineAttachableObjectsSettingsComposition(InterfaceSettings4) Export
@@ -52,7 +51,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	ObjectsFillingOverridable.BeforeAddFillCommands(FillingCommands, FormSettings, StandardProcessing);
 	FillingCommands.FillValues(True, "Processed1");
 	
-	AllowedTypes = New Array; // 
+	AllowedTypes = New Array; // Типы источников, которые пользователь может изменять (см. ниже проверку права "Изменение").
 	If StandardProcessing Then
 		ObjectsWithFillingCommands = ObjectsWithFillingCommands();
 		For Each Source In Sources.Rows Do
@@ -101,6 +100,8 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 		EndIf;
 	EndDo;
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 

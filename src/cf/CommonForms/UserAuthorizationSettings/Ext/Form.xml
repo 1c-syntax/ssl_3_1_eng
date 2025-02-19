@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<Title>
 		<v8:item>
 			<v8:lang>en</v8:lang>
@@ -456,7 +456,7 @@ when the user cannot change the password.</v8:content>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Prevent re-use of recent passwords</v8:content>
+													<v8:content>Prevent reuse of recent passwords</v8:content>
 												</v8:item>
 											</Title>
 											<Behavior>Usual</Behavior>
@@ -470,7 +470,7 @@ when the user cannot change the password.</v8:content>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Prevent re-use of this many recent passwords:</v8:content>
+															<v8:content>Prevent reuse of this many recent passwords:</v8:content>
 														</v8:item>
 													</Title>
 													<TitleLocation>Right</TitleLocation>
@@ -486,7 +486,7 @@ when the user cannot change the password.</v8:content>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Prevent re-use of recent passwords</v8:content>
+															<v8:content>Prevent reuse of recent passwords</v8:content>
 														</v8:item>
 													</Title>
 													<TitleLocation>None</TitleLocation>
@@ -500,7 +500,7 @@ when the user cannot change the password.</v8:content>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Notify users on password expiration</v8:content>
+													<v8:content>Notification before password expires</v8:content>
 												</v8:item>
 											</Title>
 											<Behavior>Usual</Behavior>
@@ -530,7 +530,7 @@ when the user cannot change the password.</v8:content>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Notify users on password expiration</v8:content>
+															<v8:content>Notification before password expires</v8:content>
 														</v8:item>
 													</Title>
 													<TitleLocation>None</TitleLocation>
@@ -990,7 +990,7 @@ when the user cannot change the password.</v8:content>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Prevent re-use of recent passwords</v8:content>
+													<v8:content>Prevent reuse of recent passwords</v8:content>
 												</v8:item>
 											</Title>
 											<Behavior>Usual</Behavior>
@@ -1004,7 +1004,7 @@ when the user cannot change the password.</v8:content>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Prevent re-use of this many recent passwords:</v8:content>
+															<v8:content>Prevent reuse of this many recent passwords:</v8:content>
 														</v8:item>
 													</Title>
 													<TitleLocation>Right</TitleLocation>
@@ -1020,7 +1020,7 @@ when the user cannot change the password.</v8:content>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Prevent re-use of recent passwords</v8:content>
+															<v8:content>Prevent reuse of recent passwords</v8:content>
 														</v8:item>
 													</Title>
 													<TitleLocation>None</TitleLocation>
@@ -1034,7 +1034,7 @@ when the user cannot change the password.</v8:content>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Notify users on password expiration</v8:content>
+													<v8:content>Notification before password expires</v8:content>
 												</v8:item>
 											</Title>
 											<Behavior>Usual</Behavior>
@@ -1064,7 +1064,7 @@ when the user cannot change the password.</v8:content>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Notify users on password expiration</v8:content>
+															<v8:content>Notification before password expires</v8:content>
 														</v8:item>
 													</Title>
 													<TitleLocation>None</TitleLocation>
@@ -1170,7 +1170,7 @@ Not applicable to administrators.</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Notify users on access expiration</v8:content>
+									<v8:content>Notification before access expires</v8:content>
 								</v8:item>
 							</Title>
 							<Behavior>Usual</Behavior>
@@ -1184,7 +1184,7 @@ Not applicable to administrators.</v8:content>
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Notify user this many days before access expires:</v8:content>
+											<v8:content>Notification lead time before access expires:</v8:content>
 										</v8:item>
 									</Title>
 									<TitleLocation>Right</TitleLocation>
@@ -1200,7 +1200,7 @@ Not applicable to administrators.</v8:content>
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Notify users on access expiration</v8:content>
+											<v8:content>Notification before access expires</v8:content>
 										</v8:item>
 									</Title>
 									<TitleLocation>None</TitleLocation>
@@ -1679,7 +1679,7 @@ the app without requiring manual password entry each time.</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Show in list</v8:content>
+									<v8:content>Show in choice list</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Vertical</Group>
@@ -1693,7 +1693,7 @@ the app without requiring manual password entry each time.</v8:content>
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Setting "Show in choice list" in user card</v8:content>
+											<v8:content>"Show in choice list" checkbox in user cards</v8:content>
 										</v8:item>
 									</Title>
 									<TitleLocation>Top</TitleLocation>
@@ -1706,7 +1706,7 @@ the app without requiring manual password entry each time.</v8:content>
 												<Presentation>
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>Enable for new users</v8:content>
+														<v8:content>Selected for new users</v8:content>
 													</v8:item>
 												</Presentation>
 												<Value xsi:type="xs:string">EnabledForNewUsers</Value>
@@ -1719,7 +1719,7 @@ the app without requiring manual password entry each time.</v8:content>
 												<Presentation>
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>Disable for new users</v8:content>
+														<v8:content>Cleared for new users</v8:content>
 													</v8:item>
 												</Presentation>
 												<Value xsi:type="xs:string">DisabledForNewUsers</Value>
@@ -1732,7 +1732,7 @@ the app without requiring manual password entry each time.</v8:content>
 												<Presentation>
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>Enable and hide for all users</v8:content>
+														<v8:content>Selected and hidden for all users</v8:content>
 													</v8:item>
 												</Presentation>
 												<Value xsi:type="xs:string">HiddenAndEnabledForAllUsers</Value>
@@ -1745,7 +1745,7 @@ the app without requiring manual password entry each time.</v8:content>
 												<Presentation>
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>Disable and hide for all users</v8:content>
+														<v8:content>Cleared and hidden for all users</v8:content>
 													</v8:item>
 												</Presentation>
 												<Value xsi:type="xs:string">HiddenAndDisabledForAllUsers</Value>
@@ -1764,7 +1764,7 @@ the app without requiring manual password entry each time.</v8:content>
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Note to locking the setting of the Show in list checkbox (external users)</v8:content>
+											<v8:content>A note about why the "Show in choice list" checkbox is disabled (external users)</v8:content>
 										</v8:item>
 									</Title>
 									<ToolTip>
@@ -1787,7 +1787,7 @@ the app without requiring manual password entry each time.</v8:content>
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Note to locking the setting of the Show in list checkbox (separation is enabled)</v8:content>
+											<v8:content>A note about why the "Show in choice list" checkbox is disabled (data separation enabled)</v8:content>
 										</v8:item>
 									</Title>
 									<ToolTip>
@@ -2085,7 +2085,7 @@ the app without requiring manual password entry each time.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Prevent re-use of recent passwords</v8:content>
+					<v8:content>Prevent reuse of recent passwords</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2154,7 +2154,7 @@ the app without requiring manual password entry each time.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Prevent re-use of this many recent passwords:</v8:content>
+					<v8:content>Prevent reuse of this many recent passwords:</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2228,7 +2228,7 @@ the app without requiring manual password entry each time.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Notify users on password expiration</v8:content>
+					<v8:content>Notification before password expires</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2260,7 +2260,7 @@ the app without requiring manual password entry each time.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Setting "Show in choice list" in user card</v8:content>
+					<v8:content>"Show in choice list" checkbox in user cards</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2416,7 +2416,7 @@ the app without requiring manual password entry each time.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Notify users on password expiration</v8:content>
+					<v8:content>Notification before password expires</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2432,7 +2432,7 @@ the app without requiring manual password entry each time.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Prevent re-use of this many recent passwords:</v8:content>
+					<v8:content>Prevent reuse of this many recent passwords:</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2443,7 +2443,7 @@ the app without requiring manual password entry each time.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Prevent re-use of recent passwords</v8:content>
+					<v8:content>Prevent reuse of recent passwords</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2526,7 +2526,7 @@ the app without requiring manual password entry each time.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Notify users on access expiration</v8:content>
+					<v8:content>Notification before access expires</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2542,7 +2542,7 @@ the app without requiring manual password entry each time.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Notify user this many days before access expires:</v8:content>
+					<v8:content>Notification lead time before access expires:</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

@@ -19,16 +19,58 @@ Procedure BeforeWrite(Cancel, Replacing)
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
-		FilterElement = Filter.Find("Object");
-		If FilterElement <> Undefined Then
-			ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");
-			SetPrivilegedMode(True);
-			ModuleObjectsVersioning.WriteObjectVersion(FilterElement.Value);
-			SetPrivilegedMode(False);
+		ModifiedObjects = UnloadColumn("Object");
+		ModifiedObjects = CommonClientServer.CollapseArray(ModifiedObjects);
+
+		If ModifiedObjects.Count() = 0 Then
+			If ValueIsFilled(Filter.Object.Value) Then
+				ModifiedObjects.Add(Filter.Object.Value);
+			Else
+				ModifiedObjects = AllObjects();
+			EndIf;
 		EndIf;
+		
+		ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");
+		SetPrivilegedMode(True);
+		
+		For Each Ref In ModifiedObjects Do
+			If Common.IsRecordSetDeletion(Replacing) Then
+				ObjectRecords = New Array;
+			Else
+				AllRecords = Unload();
+				ObjectRecords = AllRecords.FindRows(New Structure("Object", Ref));
+			EndIf;
+			
+			ModifiedObject = Ref.GetObject();
+			If ModifiedObject <> Undefined Then
+				ModifiedObject.AdditionalProperties.Insert("WrittenAdditionalInfo", ObjectRecords);
+				ModuleObjectsVersioning.WriteObjectVersion(ModifiedObject);
+			EndIf;
+		EndDo;
+		
+		SetPrivilegedMode(False);
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
+
+#Region Private
+
+Function AllObjects()
+	
+	QueryText =
+	"SELECT
+	|	AdditionalInfo.Object AS Object
+	|FROM
+	|	InformationRegister.AdditionalInfo AS AdditionalInfo
+	|GROUP BY
+	|	AdditionalInfo.Object";
+	
+	Query = New Query(QueryText);
+	Return Query.Execute().Unload().UnloadColumn("Object");
+	
+EndFunction
 
 #EndRegion
 

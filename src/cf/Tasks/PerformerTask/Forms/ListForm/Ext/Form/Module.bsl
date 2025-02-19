@@ -218,7 +218,7 @@ Procedure OpenTaskSubject(Command)
 	ShowValue(, Items.List.CurrentData.SubjectOf);
 EndProcedure
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

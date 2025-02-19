@@ -135,7 +135,7 @@ Procedure AdditionalDetailProcessing(Form, Data, Item, Details, StandardProcessi
 	
 	ReportField = Form.Items.ReportSpreadsheetDocument; // SpreadsheetDocumentField
 	
-	Handler = New NotifyDescription("ExecuteDecryption", ThisObject, AdditionalParameters);
+	Handler = New CallbackDescription("ExecuteDecryption", ThisObject, AdditionalParameters);
 	DetailProcessing.ShowActionChoice(Handler, Details, MainMenu, AdditionalMenu,, ReportField);
 	
 	StandardProcessing = False;
@@ -484,7 +484,7 @@ Procedure SetRowHeight(Form, Command, TitleProperties = Undefined,
 		HandlerParameters.Insert("TitleProperties", TitleProperties);
 		HandlerParameters.Insert("FieldSizeParameters", LineHeightParameters);
 		
-		Handler = New NotifyDescription("AfterEnteringTheReportLineHeight", ThisObject, HandlerParameters);
+		Handler = New CallbackDescription("AfterEnteringTheReportLineHeight", ThisObject, HandlerParameters);
 		ShowInputNumber(Handler, LineHeightParameters.Size, NStr("en = 'Row height';"), 5);
 		
 		Return;
@@ -532,7 +532,7 @@ Procedure SetColumnWidth(Form, Command, TitleProperties = Undefined,
 		HandlerParameters.Insert("TitleProperties", TitleProperties);
 		HandlerParameters.Insert("FieldSizeParameters", ColumnWidthParameters);
 		
-		Handler = New NotifyDescription("AfterEnteringTheWidthOfTheReportColumn", ThisObject, HandlerParameters);
+		Handler = New CallbackDescription("AfterEnteringTheWidthOfTheReportColumn", ThisObject, HandlerParameters);
 		ShowInputNumber(Handler, ColumnWidthParameters.Size, NStr("en = 'Column width';"), 5);
 		
 		Return;
@@ -587,7 +587,7 @@ Procedure ApplyAppearanceMore(Form, Command, TitleProperties = Undefined, Value 
 	HandlerParameters.Insert("CommandAction", CommandAction(Command));
 	HandlerParameters.Insert("TitleProperties", TitleProperties);
 	
-	Handler = New NotifyDescription("AfterChangingTheLayoutElementOfTheReportGrouping", ThisObject, HandlerParameters);
+	Handler = New CallbackDescription("AfterChangingTheLayoutElementOfTheReportGrouping", ThisObject, HandlerParameters);
 	
 	OpenForm("SettingsStorage.ReportsVariantsStorage.Form.ConditionalReportAppearanceItem",
 		DesignParameters, Form, Form.UUID,,, Handler);
@@ -731,7 +731,7 @@ Procedure RenameField(Form, Command, Title = "") Export
 	If Not ValueIsFilled(Title) Then 
 		
 		HandlerParameters = New Structure("Form, Command", Form, Command);
-		Handler = New NotifyDescription("AfterEnteringTheReportFieldTitle", ThisObject, HandlerParameters);
+		Handler = New CallbackDescription("AfterEnteringTheReportFieldTitle", ThisObject, HandlerParameters);
 		
 		CurrentTitle = CurrentReportFieldTitle(ReportField, FieldDetails);
 		
@@ -837,8 +837,8 @@ Procedure InsertAFieldInTheGroupingFields(Group, Group2, SelectedField, CurrentF
 		Return;
 	EndIf;
 	
-	TheCurrentFieldIsAPeriod = (FieldRoles.TimeIntervals[CurrentField] <> Undefined);
-	TheSelectedFieldIsAPeriod = (FieldRoles.TimeIntervals[SelectedField.Field] <> Undefined);
+	TheCurrentFieldIsAPeriod = (FieldRoles.TimeIntervals_[CurrentField] <> Undefined);
+	TheSelectedFieldIsAPeriod = (FieldRoles.TimeIntervals_[SelectedField.Field] <> Undefined);
 	
 	If TheCurrentFieldIsAPeriod And Not TheSelectedFieldIsAPeriod
 		Or Not TheCurrentFieldIsAPeriod And TheSelectedFieldIsAPeriod Then 
@@ -2326,7 +2326,7 @@ EndProcedure
 //  Action - String
 //
 // Returns:
-//  NotifyDescription
+//  CallbackDescription
 //
 Function ReportFieldSelectionHandler(Form, Action)
 	
@@ -2335,7 +2335,7 @@ Function ReportFieldSelectionHandler(Form, Action)
 	HandlerParameters.Insert("Action", Action);
 	HandlerParameters.Insert("TitleProperties", ReportTitleProperties(Form));
 	
-	Return New NotifyDescription("AfterSelectingAField", Form, HandlerParameters);
+	Return New CallbackDescription("AfterSelectingAField", Form, HandlerParameters);
 	
 EndFunction
 
@@ -2600,12 +2600,12 @@ Procedure ExcludeUnavailableReportFields(MainField, Form, Command)
 			MainField.Delete(IndexOf);
 			
 		ElsIf TitleProperties.Period
-			And FieldRoles.TimeIntervals[AvailableField.Field] = Undefined Then 
+			And FieldRoles.TimeIntervals_[AvailableField.Field] = Undefined Then 
 			
 			MainField.Delete(IndexOf);
 			
 		ElsIf Not TitleProperties.Period
-			And FieldRoles.TimeIntervals[AvailableField.Field] <> Undefined Then 
+			And FieldRoles.TimeIntervals_[AvailableField.Field] <> Undefined Then 
 			
 			MainField.Delete(IndexOf);
 			
@@ -2889,7 +2889,7 @@ Function IndexOfTheSelectedField(SourceFieldIndex, FinalCollectionOfFields, Fiel
 		
 		If MovementParameters.Response = Undefined Then 
 			
-			Handler = New NotifyDescription("ContinueMovingTheFieldVertically", ThisObject, MovementParameters);
+			Handler = New CallbackDescription("ContinueMovingTheFieldVertically", ThisObject, MovementParameters);
 			
 			QuestionTextTemplate = NStr("en = 'The grouping already contains a similar field: %1.
 				|Delete the field?';");
@@ -3076,7 +3076,7 @@ Function DataAreaContextMenu(TitleProperties, AvailableCompareTypes)
 	
 	ContextMenu.Add(DesignSubmenu, NStr("en = 'Format';"),, PictureLib.DataCompositionConditionalAppearance);
 	
-	// Decrypt.
+	// Drill down.
 	ContextMenu.Add("DecodeByDetailedRecords", NStr("en = 'Drill down by detailed records';"));
 	
 	Return ContextMenu;
@@ -3688,7 +3688,7 @@ Procedure ChangeFormula(Form, Settings, DataPath, CollectionName = "SelectionAva
 	AdditionalParameters.Insert("FieldsCollection", Settings.SelectionAvailableFields);
 	AdditionalParameters.Insert("Formula", Formula);
 	
-	Handler = New NotifyDescription("AfterChangingTheFormula", Form, AdditionalParameters);
+	Handler = New CallbackDescription("AfterChangingTheFormula", Form, AdditionalParameters);
 	FormulasConstructorClient.StartEditingTheFormula(FormulaEditingOptions, Handler);
 	
 EndProcedure

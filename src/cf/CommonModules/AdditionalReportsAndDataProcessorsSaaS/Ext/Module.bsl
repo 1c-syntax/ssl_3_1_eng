@@ -646,7 +646,7 @@ Procedure InstallSuppliedDataProcessorToDataArea(Val InstallationDetails, Val Qu
 			
 			Manager = InformationRegisters.SuppliedAdditionalReportAndDataProcessorInstallationQueueInDataArea.CreateRecordManager();
 			Manager.SuppliedDataProcessor = SuppliedDataProcessor;
-			Manager.InstallationParameters1 = New ValueStorage(Context);
+			Manager.InstallationParameters1 = New ValueStorage(Context, New Deflation(9));
 			Manager.Write();
 			
 			WriteLogEvent(NStr("en = 'Additional built-in reports and data processors. Installation to the data area is deferred';",
@@ -982,10 +982,10 @@ EndProcedure
 //
 // Parameters:
 //  NamesAndAliasesMap - Map of KeyAndValue:
-//   Key - Method alias, for example: ClearDataArea
-//   Value - a name of the method to be called, for example, SaaS.ClearDataArea
-//    You can specify Undefined as a value, in this case, the name is assumed to be 
-//    the same as an alias.
+//   Key is the method alias. For example, ClearDataArea.
+//   Value is the name of the method to be called. For example, SaaSOperations.ClearDataArea.
+//    If Undefined, it is assumed that the name matches the alias. 
+//    
 //
 Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 	
@@ -1421,7 +1421,7 @@ EndFunction
 //
 Function SuppliedDataKindID()
 	
-	Return "ARandDP"; // Not localizable.
+	Return "ARandDP"; // Do not localize.
 	
 EndFunction
 

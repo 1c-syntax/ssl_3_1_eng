@@ -70,11 +70,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	// 5. Reference replacement issues.
 	Step = AddWizardStep(Items.RetryMergeStep);
-	Step.BackButton.Title = NStr("en = '< To Beginning';");
+	Step.BackButton.Title = NStr("en = '< To beginning';");
 	Step.BackButton.ToolTip = NStr("en = 'Return to selection of the main item.';");
 	Step.NextButton.DefaultButton = True;
 	Step.NextButton.Title = NStr("en = 'Merge again';");
-	Step.NextButton.ToolTip = NStr("en = 'Merge again';");
+	Step.NextButton.ToolTip = NStr("en = 'Repeat merge';");
 	Step.CancelButton.Title = NStr("en = 'Cancel';");
 	Step.CancelButton.ToolTip = NStr("en = 'Close merge results.';");
 	
@@ -113,7 +113,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		Buttons.Add(DialogReturnCode.Abort, NStr("en = 'Cancel merging';"));
 		Buttons.Add(DialogReturnCode.No,      NStr("en = 'Continue merging';"));
 		
-		Handler = New NotifyDescription("AfterConfirmCancelJob", ThisObject);
+		Handler = New CallbackDescription("AfterConfirmCancelJob", ThisObject);
 		ShowQueryBox(Handler, QueryText, Buttons, , DialogReturnCode.No);
 		
 	EndIf;
@@ -219,7 +219,7 @@ Procedure UsageInstancesBeforeDeleteRow(Item, Cancel)
 		NStr("en = 'Delete item %1 from the merge list?';"),
 		String(Ref) + ?(IsBlankString(Code), "", " (" + Code + ")" ));
 	
-	Notification = New NotifyDescription("UsageInstancesBeforeDeleteRowCompletion", ThisObject, New Structure);
+	Notification = New CallbackDescription("UsageInstancesBeforeDeleteRowCompletion", ThisObject, New Structure);
 	Notification.AdditionalParameters.Insert("CurrentRow", Item.CurrentRow);
 	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo);
 EndProcedure
@@ -378,8 +378,7 @@ EndProcedure
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Wizard API
+#Region WizardPageNavigation
 
 &AtServer
 Procedure InitializeStepByStepWizardSettings()
@@ -516,8 +515,9 @@ Procedure GoToWizardStep1(Val StepOrIndexOrFormGroup)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Wizard events
+#EndRegion
+
+#Region WizardEvents
 
 &AtClient
 Procedure OnActivateWizardStep()
@@ -602,8 +602,9 @@ Procedure WizardStepCancel()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Internal procedures for item merging
+#EndRegion
+
+#Region ItemsMergeUtilityProcedures
 
 &AtServer
 Procedure SetConditionalAppearance()
@@ -985,8 +986,9 @@ Function CheckCanReplaceReferences()
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Long-running operation management
+#EndRegion
+
+#Region TimeConsumingOperations1
 
 &AtClient
 Procedure StartDeterminingUseLocations()
@@ -995,7 +997,7 @@ Procedure StartDeterminingUseLocations()
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	WaitSettings.OutputIdleWindow = False;
 	
-	Handler = New NotifyDescription("AfterCompleteDeterminingUseLocations", ThisObject);
+	Handler = New CallbackDescription("AfterCompleteDeterminingUseLocations", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(Job, Handler, WaitSettings);
 	
 EndProcedure
@@ -1049,7 +1051,7 @@ Procedure StartReplacingLinks()
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	WaitSettings.OutputIdleWindow = False;
 	
-	Handler = New NotifyDescription("AfterCompletionReplacingLinks", ThisObject);
+	Handler = New CallbackDescription("AfterCompletionReplacingLinks", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(Job, Handler, WaitSettings);
 	
 EndProcedure
@@ -1233,8 +1235,9 @@ Procedure AfterConfirmCancelJob(Response, ExecutionParameters) Export
 	EndIf;
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Wizard's internal procedures and functions
+#EndRegion
+
+#Region WizardUtilityProceduresAndFunctions
 
 // Description of wizard button settings.
 //
@@ -1272,5 +1275,7 @@ Procedure UpdateWizardButtonProperties(WizardButton, LongDesc)
 	WizardButton.ExtendedTooltip.Title = LongDesc.ToolTip;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

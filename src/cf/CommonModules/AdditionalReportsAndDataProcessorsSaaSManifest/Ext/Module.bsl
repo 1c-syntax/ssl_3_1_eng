@@ -288,7 +288,7 @@ Function GenerateManifest(Val DataProcessorObject2, Val VersionObject1, Val Repo
 	
 EndFunction
 
-// Fills in the DataProcessorObject, VersionObject, and ReportOptions objects with data read from a manifest
+// Fills in the DataProcessorObject2, VersionObject1, and ReportOptions objects with data read from a manifest
 // of an additional report or a data processor.
 //
 // Parameters:
@@ -353,20 +353,16 @@ Procedure ReadManifest(Val Manifest, DataProcessorObject2, VersionObject1, Repor
 		Resolution.PermissionKind = XDTOType.Name;
 		
 		Parameters = New Structure();
-		
 		For Each XDTOProperty In XDTOType.Properties Do
 			
 			Container = Permission.GetXDTO(XDTOProperty.Name);
-			
 			If Container <> Undefined Then
 				Parameters.Insert(XDTOProperty.Name, Container.Value);
 			Else
 				Parameters.Insert(XDTOProperty.Name);
 			EndIf;
-			
 		EndDo;
-		
-		Resolution.Parameters = New ValueStorage(Parameters);
+		Resolution.Parameters = New ValueStorage(Parameters, New Deflation(9));
 		
 	EndDo;
 	

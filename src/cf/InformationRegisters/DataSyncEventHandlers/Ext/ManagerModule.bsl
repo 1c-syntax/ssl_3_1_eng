@@ -42,11 +42,11 @@ Procedure RegisterInfobaseDataUpdate() Export
 		NameOfTheStringExchangePlan = StrTemplate(TextTemplate1, ExchangePlanName);
 		Query.Text = StrReplace(Query.Text, "&ExchangePlanName", NameOfTheStringExchangePlan);
 		
-		NodeSelection = Query.Execute().Select();
-		While NodeSelection.Next() Do
+		NodesSelection = Query.Execute().Select();
+		While NodesSelection.Next() Do
 			
 			RecordStructure = New Structure;
-			RecordStructure.Insert("InfobaseNode", NodeSelection.Ref);
+			RecordStructure.Insert("InfobaseNode", NodesSelection.Ref);
 			RecordStructure.Insert("Event", "AfterGetData");
 			RecordStructure.Insert("Handler", "InfobaseUpdate");
 			DataExchangeInternal.AddRecordToInformationRegister(RecordStructure, "DataSyncEventHandlers");

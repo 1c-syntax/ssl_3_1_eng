@@ -48,8 +48,8 @@ Procedure CreateScenario(
 	Description = NStr("en = 'Synchronize data with %1 automatically';");
 	Description = StringFunctionsClientServer.SubstituteParametersToString(Description,
 			String(InfobaseNode));
-	
-	ExchangeTransportKind = InformationRegisters.DataExchangeTransportSettings.DefaultExchangeMessagesTransportKind(InfobaseNode);
+			
+	TransportID = ExchangeMessagesTransport.DefaultTransport(InfobaseNode);
 	
 	DataExchangeScenario = CreateItem();
 	
@@ -62,12 +62,12 @@ Procedure CreateScenario(
 	
 	// A table.
 	TableRow = DataExchangeScenario.ExchangeSettings.Add();
-	TableRow.ExchangeTransportKind = ExchangeTransportKind;
+	TableRow.TransportID = TransportID;
 	TableRow.CurrentAction = Enums.ActionsOnExchange.DataImport;
 	TableRow.InfobaseNode = InfobaseNode;
 	
 	TableRow = DataExchangeScenario.ExchangeSettings.Add();
-	TableRow.ExchangeTransportKind = ExchangeTransportKind;
+	TableRow.TransportID = TransportID;
 	TableRow.CurrentAction = Enums.ActionsOnExchange.DataExport;
 	TableRow.InfobaseNode = InfobaseNode;
 	
@@ -111,6 +111,12 @@ EndFunction
 
 // Gets a scheduled job schedule.
 // If a scheduled job is not specified, the function returns an empty schedule (by default).
+// 
+// Parameters:
+//  ExchangeExecutionSettings - Structure - Exchange settings structure
+// 
+// Returns:
+//  JobSchedule - Get data exchange schedule
 //
 Function GetDataExchangeExecutionSchedule(ExchangeExecutionSettings) Export
 	
@@ -136,8 +142,8 @@ Procedure UpdateScheduledJobData(Cancel, JobSchedule, CurrentObject) Export
 		Return;
 	EndIf;
 
-	If IsBlankString(CurrentObject.Code) Then	
-		CurrentObject.SetNewCode();		
+	If IsBlankString(CurrentObject.Code) Then
+		CurrentObject.SetNewCode();
 	EndIf;
 	
 	If Common.DataSeparationEnabled() Then
@@ -431,7 +437,7 @@ EndProcedure
 Procedure AddDataExchangeScenarioSettingsRows(
 		ExchangeSettings, InfobaseNode, CurrentAction)
 		
-	ExchangeTransportKind = InformationRegisters.DataExchangeTransportSettings.DefaultExchangeMessagesTransportKind(InfobaseNode);
+	TransportID = ExchangeMessagesTransport.DefaultTransport(InfobaseNode);	
 	
 	If CurrentAction = Enums.ActionsOnExchange.DataExport Then
 		// Adding data export in a loop.
@@ -449,8 +455,8 @@ Procedure AddDataExchangeScenarioSettingsRows(
 				NewRow = ExchangeSettings.Insert(ReverseIndex + 1);
 				
 				NewRow.InfobaseNode = InfobaseNode;
-				NewRow.ExchangeTransportKind    = ExchangeTransportKind;
-				NewRow.CurrentAction    = CurrentAction;
+				NewRow.TransportID = TransportID;	
+				NewRow.CurrentAction = CurrentAction;
 				
 				Break;
 			EndIf;
@@ -464,8 +470,8 @@ Procedure AddDataExchangeScenarioSettingsRows(
 			NewRow = ExchangeSettings.Add();
 			
 			NewRow.InfobaseNode = InfobaseNode;
-			NewRow.ExchangeTransportKind    = ExchangeTransportKind;
-			NewRow.CurrentAction    = CurrentAction;
+			NewRow.TransportID = TransportID;
+			NewRow.CurrentAction = CurrentAction;
 			
 		EndIf;
 	ElsIf CurrentAction = Enums.ActionsOnExchange.DataImport Then
@@ -477,8 +483,8 @@ Procedure AddDataExchangeScenarioSettingsRows(
 				NewRow = ExchangeSettings.Insert(ExchangeSettings.IndexOf(TableRow));
 				
 				NewRow.InfobaseNode = InfobaseNode;
-				NewRow.ExchangeTransportKind    = ExchangeTransportKind;
-				NewRow.CurrentAction    = CurrentAction;
+				NewRow.TransportID = TransportID;
+				NewRow.CurrentAction = CurrentAction;
 				
 				Break;
 			EndIf;
@@ -490,10 +496,9 @@ Procedure AddDataExchangeScenarioSettingsRows(
 		If ExchangeSettings.FindRows(Filter).Count() = 0 Then
 			
 			NewRow = ExchangeSettings.Insert(0);
-			
 			NewRow.InfobaseNode = InfobaseNode;
-			NewRow.ExchangeTransportKind    = ExchangeTransportKind;
-			NewRow.CurrentAction    = CurrentAction;
+			NewRow.TransportID = TransportID;
+			NewRow.CurrentAction = CurrentAction;
 			
 		EndIf;
 	EndIf;

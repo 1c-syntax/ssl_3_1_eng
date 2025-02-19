@@ -25,6 +25,7 @@
 //         
 //                                                                 
 //
+
 #Region Variables
 
 &AtClient
@@ -38,6 +39,9 @@ Var SkipCurrentPageCancelControl;
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	IsStartedFromAnotherApplication = False;
+	
+	Parameters.Property("IsExchangeWithApplicationInService", ExchangeBetweenSaaSApplications);
+	Parameters.Property("CorrespondentDataArea",  CorrespondentDataArea);
 	
 	If Parameters.Property("InfobaseNode", Object.InfobaseNode) Then
 		
@@ -62,13 +66,24 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	EndIf;
 	
+	InitializeExchangeMessagesTransportSettings();
+	
+	If Not ValueIsFilled(Object.TransportID) Then
+		
+		Text = NStr("en = 'Default connection settings are not configured. Synchronization is aborted.';", 
+			Common.DefaultLanguageCode());
+		
+		Raise Text;
+		
+	EndIf;
+	
 	// Interactive data exchange is supported only for universal exchanges.
 	If Not DataExchangeCached.IsUniversalDataExchangeNode(Object.InfobaseNode) Then
 		Raise NStr("en = 'The selected node does not support settings-based data exchange.';");
 	EndIf;
 	
 	// Check whether exchange settings match the filter.
-	AllNodes = DataExchangeEvents.AllExchangePlanNodes(Object.ExchangePlanName);
+	AllNodes = DataExchangeCached.ExchangePlanNodes(Object.ExchangePlanName);
 	If AllNodes.Find(Object.InfobaseNode) = Undefined Then
 		Raise NStr("en = 'The selected node does not provide data mapping.';");
 	EndIf;
@@ -94,7 +109,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SaaSModel = Common.DataSeparationEnabled()
 		And Common.SeparatedDataUsageAvailable();
 		
-	Parameters.Property("ExchangeMessagesTransportKind", Object.ExchangeMessagesTransportKind);	
+	Parameters.Property("TransportID", Object.TransportID);
 	Parameters.Property("CorrespondentDataArea",  CorrespondentDataArea);
 	
 	Parameters.Property("ExportAdditionMode",            ExportAdditionMode);
@@ -118,17 +133,25 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		InitializeExportAdditionAttributes();
 	EndIf;
 	
-	InitializeExchangeMessagesTransportSettings();
-	
-	If ExchangeViaInternalPublication Then
-		ModuleDataExchangeInternalPublication = Common.CommonModule("DataExchangeInternalPublication");
-		HasNodeScheduledExchange = ModuleDataExchangeInternalPublication.HasNodeScheduledExchange(
-			Object.InfobaseNode, 
-			ScenarioUsingInternalPublication,
-			IDOfExchangeViaInternalPublication);
+	TransportSettings = ExchangeMessagesTransport.DefaultTransportSettings(
+		Object.InfobaseNode,
+		Object.TransportID);
+
+	If Object.TransportID = "SM" And TransportSettings.InternalPublication Then
+		ExchangeViaInternalPublication = True;
+		CorrespondentDataArea = TransportSettings.CorrespondentDataArea; 
+	Else
+		ExchangeViaInternalPublication = False;
 	EndIf;
 	
-	Items.GroupWarningWhenSharingViaInternalPublishing.Visible = ExchangeViaInternalPublication;
+	AuthenticationData = ExchangeMessagesTransport.DataSynchronizationPassword(Object.InfobaseNode);
+	
+	UseProgressBar = ExchangeMessagesTransport.TransportParameter(Object.TransportID, "UseProgress");
+
+	Items.GroupWarningWhenSharingViaInternalPublishing.Visible = 
+		ExchangeViaInternalPublication And Not MessageReceivedForDataMapping;
+	
+	FillNavigationTable();
 	
 EndProcedure
 
@@ -166,7 +189,7 @@ Procedure OnClose(Exit)
 		If (EndDataMapping And Not SkipGettingData)
 			Or (DataImportResult = "Warning_ExchangeMessageAlreadyAccepted")
 			Or DeleteMessageForMapping Then
-			DeleteMessageForDataMapping(Object.InfobaseNode, Object.ExchangeMessagesTransportKind);
+			DeleteMessageForDataMapping(Object.InfobaseNode, Object.TransportID);
 		EndIf;
 	EndIf;
 	
@@ -231,32 +254,7 @@ EndProcedure
 
 #Region FormHeaderItemsEventHandlers
 
-////////////////////////////////////////////////////////////////////////////////
-// StartPage page
-
-&AtClient
-Procedure ExchangeMessagesTransportKindOnChange(Item)
-	
-	OnChangeExchangeMessagesTransportKind();
-	
-EndProcedure
-
-&AtClient
-Procedure ExchangeMessagesTransportKindClearing(Item, StandardProcessing)
-	
-	StandardProcessing = False;
-	
-EndProcedure
-
-&AtClient
-Procedure DataExchangeDirectoryClick(Item)
-	
-	OpenNodeDataExchangeDirectory();
-	
-EndProcedure
-
-////////////////////////////////////////////////////////////////////////////////
-// StatisticsPage page
+#Region StatisticsInformationPagePage
 
 &AtClient
 Procedure EndDataMappingOnChange(Item)
@@ -272,8 +270,9 @@ Procedure LoadMessageAfterMappingOnChange(Item)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// QuestionAboutExportContentPage page
+#EndRegion
+
+#Region QuestionAboutExportCompositionPagePage
 
 &AtClient
 Procedure ExportAdditionExportVariantOnChange(Item)
@@ -296,6 +295,8 @@ Procedure ExportAdditionNodeScenarioFilterPeriodClearing(Item, StandardProcessin
 	// Forbid period clearing.
 	StandardProcessing = False;
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -378,31 +379,7 @@ Procedure CompleteSynchronizationOnServer()
     
 EndProcedure
 
-
-////////////////////////////////////////////////////////////////////////////////
-// StartPage page
-
-&AtClient
-Procedure OpenDataExchangeDirectory(Command)
-	
-	OpenNodeDataExchangeDirectory();
-	
-EndProcedure
-
-&AtClient
-Procedure ConfigureExchangeMessagesTransportParameters(Command)
-	
-	Filter              = New Structure("Peer", Object.InfobaseNode);
-	FillingValues = New Structure("Peer", Object.InfobaseNode);
-	
-	Notification = New NotifyDescription("ConfigureExchangeMessagesTransportParametersCompletion", ThisObject);
-	DataExchangeClient.OpenInformationRegisterWriteFormByFilter(Filter,
-		FillingValues, "DataExchangeTransportSettings", ThisObject, , , Notification);
-
-EndProcedure
-
-////////////////////////////////////////////////////////////////////////////////
-// StatisticsPage page
+#Region StatisticsInformationPagePage
 
 &AtClient
 Procedure RefreshAllMappingInformation(Command)
@@ -469,7 +446,7 @@ Procedure RunDataImportForRow(Command)
 		NString = NStr("en = 'Unmapped objects are found.
 		                     |When you import the data, duplicates of these objects will be created. Do you want to continue?';");
 		
-		Notification = New NotifyDescription("ExecuteDataImportForRowQuestionUnmapped", ThisObject, New Structure);
+		Notification = New CallbackDescription("ExecuteDataImportForRowQuestionUnmapped", ThisObject, New Structure);
 		Notification.AdditionalParameters.Insert("SelectedRows", SelectedRows);
 		ShowQueryBox(Notification, NString, QuestionDialogMode.YesNo, , DialogReturnCode.No);
 		Return;
@@ -515,8 +492,9 @@ Procedure OpenMappingForm(Command)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// MappingCompletePage page
+#EndRegion
+
+#Region MappingCompletePagePage
 
 &AtClient
 Procedure GoToDataImportEventLog(Command)
@@ -532,8 +510,9 @@ Procedure GoToDataExportEventLog(Command)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// QuestionAboutExportContentPage page
+#EndRegion
+
+#Region QuestionAboutExportCompositionPagePage
 
 &AtClient
 Procedure ExportAdditionGeneralDocumentsFilter(Command)
@@ -560,7 +539,7 @@ Procedure ExportAdditionClearGeneralFilter(Command)
 	
 	TitleText = NStr("en = 'Confirm operation';");
 	QueryText   = NStr("en = 'Do you want to clear the common filter?';");
-	NotifyDescription = New NotifyDescription("ExportAdditionClearGeneralFilterCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("ExportAdditionClearGeneralFilterCompletion", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);
 	
 EndProcedure
@@ -569,7 +548,7 @@ EndProcedure
 Procedure ExportAdditionClearDetailedFilter(Command)
 	TitleText = NStr("en = 'Confirm operation';");
 	QueryText   = NStr("en = 'Do you want to clear the detailed filter?';");
-	NotifyDescription = New NotifyDescription("ExportAdditionClearDetailedFilterCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("ExportAdditionClearDetailedFilterCompletion", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);
 EndProcedure
 
@@ -582,10 +561,12 @@ Procedure ExportAdditionFiltersHistory(Command)
 	Text = NStr("en = 'Save current setting…';");
 	VariantList.Add(1, Text, , PictureLib.SaveReportSettings);
 	
-	NotifyDescription = New NotifyDescription("ExportAdditionFilterHistoryMenuSelection", ThisObject);
+	NotifyDescription = New CallbackDescription("ExportAdditionFilterHistoryMenuSelection", ThisObject);
 	ShowChooseFromMenu(NotifyDescription, VariantList, Items.ExportAdditionFiltersHistory);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -937,13 +918,6 @@ Procedure InitializeDataProcessorVariables()
 EndProcedure
 
 &AtClient
-Procedure ConfigureExchangeMessagesTransportParametersCompletion(ClosingResult, AdditionalParameters) Export
-	
-	InitializeExchangeMessagesTransportSettings();
-	
-EndProcedure
-
-&AtClient
 Procedure ExportAdditionFiltersHistoryCompletion(Response, SettingPresentation) Export
 	
 	If Response = DialogReturnCode.Yes Then
@@ -984,7 +958,7 @@ Procedure ExportAdditionFilterHistoryMenuSelection(Val SelectedElement, Val Addi
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Do you want to restore ""%1"" settings?';"), SettingPresentation);
 		
-		NotifyDescription = New NotifyDescription("ExportAdditionFiltersHistoryCompletion", ThisObject, SettingPresentation);
+		NotifyDescription = New CallbackDescription("ExportAdditionFiltersHistoryCompletion", ThisObject, SettingPresentation);
 		ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);
 		
 	ElsIf SettingPresentation=1 Then
@@ -1019,28 +993,13 @@ Procedure ExecuteDataImportForRowContinued(Val SelectedRows)
 		NString = NStr("en = 'Errors occurred during data import.
 		                     |Do you want to view the event log?';");
 		
-		NotifyDescription = New NotifyDescription("GoToEventLog", ThisObject);
+		NotifyDescription = New CallbackDescription("GoToEventLog", ThisObject);
 		ShowQueryBox(NotifyDescription, NString, QuestionDialogMode.YesNo, ,DialogReturnCode.No);
 		Return;
 	EndIf;
 		
 	ExpandStatisticsTree(RowsKeys[RowsKeys.UBound()]);
 	ShowUserNotification(NStr("en = 'Data import completed.';"));
-EndProcedure
-
-&AtClient
-Procedure OpenNodeDataExchangeDirectory()
-	
-	// Server call without context.
-	DirectoryName = GetDirectoryNameAtServer(Object.ExchangeMessagesTransportKind, Object.InfobaseNode);
-	
-	If IsBlankString(DirectoryName) Then
-		ShowMessageBox(, NStr("en = 'Data synchronization directory is not specified.';"));
-		Return;
-	EndIf;
-	
-	FileSystemClient.OpenExplorer(DirectoryName);
-	
 EndProcedure
 
 &AtClient
@@ -1193,81 +1152,12 @@ EndProcedure
 &AtServer
 Procedure InitializeExchangeMessagesTransportSettings()
 	
-	TransportSettings = InformationRegisters.DataExchangeTransportSettings.TransportSettings(Object.InfobaseNode);
-	DefaultTransportKind = TransportSettings.DefaultExchangeMessagesTransportKind;
-	CorrespondentEndpoint = TransportSettings.WSCorrespondentEndpoint;
-	
-	ConfiguredTransportKinds = InformationRegisters.DataExchangeTransportSettings.ConfiguredTransportKinds(Object.InfobaseNode);
+	TransportID = ExchangeMessagesTransport.DefaultTransport(Object.InfobaseNode);
 	
 	SkipTransportPage = True;
 	
-	If ConfiguredTransportKinds.Count() > 1
-		And Not ValueIsFilled(Object.ExchangeMessagesTransportKind) Then
-		SkipTransportPage = ExportAdditionExtendedMode;
-	EndIf;
-	
-	If Not ValueIsFilled(Object.ExchangeMessagesTransportKind) Then
-		Object.ExchangeMessagesTransportKind = DefaultTransportKind;
-	EndIf;
-	
-	StartDataExchangeFromCorrespondent = Not ValueIsFilled(Object.ExchangeMessagesTransportKind);
-		
-	ExchangeBetweenSaaSApplications = SaaSModel
-		And (Object.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.FILE
-			Or Object.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.FTP);
-
-	ExchangeViaInternalPublication = SaaSModel
-		And Object.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WS
-		And ValueIsFilled(CorrespondentEndpoint);
-		
-	OnChangeExchangeMessagesTransportKind(True, ConfiguredTransportKinds);
-	
-EndProcedure
-
-&AtServer
-Procedure OnChangeExchangeMessagesTransportKind(Initialize = False, ConfiguredTransportKinds = Undefined)
-	
-	ExchangeOverExternalConnection = (Object.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.COM);
-	ExchangeOverWebService         = (Object.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WS);
-	
-	If ExchangeOverWebService Then
-		SettingsStructure_ = InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(Object.InfobaseNode);
-		FillPropertyValues(ThisObject, SettingsStructure_, "WSRememberPassword");
-		If WSRememberPassword Then
-			WSPassword = String(ThisObject.UUID);
-		EndIf;
-	EndIf;
-	
-	UseProgressBar = Not ExchangeOverWebService And Not ExchangeBetweenSaaSApplications And Not ExchangeViaInternalPublication;
-	
-	If Initialize Then
-		SkipTransportPage = SkipTransportPage And (Not ExchangeOverWebService Or WSRememberPassword);
-		FillNavigationTable();
-		
-		Items.ConfigureExchangeMessagesTransportParameters.Visible = DataExchangeServer.HasRightsToAdministerExchanges();
-		
-		DataExchangeServer.FillChoiceListWithAvailableTransportTypes(Object.InfobaseNode,
-			Items.ExchangeMessagesTransportKind, ConfiguredTransportKinds);
-			
-		TransportChoiceList = Items.ExchangeMessagesTransportKind.ChoiceList;
-	
-		If TransportChoiceList.Count() = 0 Then
-			TransportChoiceList.Add(Undefined, NStr("en = 'no connections are configured';"));
-			
-			Items.ExchangeMessageTransportKindAsString.TextColor = StyleColors.ErrorNoteText
-		Else
-			Items.ExchangeMessageTransportKindAsString.TextColor = New Color;
-		EndIf;
-		
-		Items.ExchangeMessageTransportKindAsString.Title = TransportChoiceList[0].Presentation;
-		Items.ExchangeMessageTransportKindAsString.Visible = (TransportChoiceList.Count() = 1);
-		Items.ExchangeMessagesTransportKind.Visible        = Not Items.ExchangeMessageTransportKindAsString.Visible;
-		
-		Items.WSPassword.Visible          = ExchangeOverWebService And Not WSRememberPassword;
-		Items.WSPasswordLabel.Visible   = ExchangeOverWebService And Not WSRememberPassword;
-	    Items.WSRememberPassword.Visible = ExchangeOverWebService And Not WSRememberPassword;
-		
-		SetExchangeDirectoryOpeningButtonVisible();
+	If Not ValueIsFilled(Object.TransportID) Then
+		Object.TransportID = TransportID;
 	EndIf;
 	
 EndProcedure
@@ -1305,20 +1195,6 @@ Function GetStatisticsTableRowIndexes(RowsKeys)
 	Return RowIndexes;
 	
 EndFunction
-
-&AtServer
-Procedure SetExchangeDirectoryOpeningButtonVisible()
-	
-	ButtonVisibility = (Object.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.FILE
-		Or Object.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.FTP);
-	
-	Items.DataExchangeDirectory.Visible = ButtonVisibility;
-	
-	If ButtonVisibility Then
-		Items.DataExchangeDirectory.Title = GetDirectoryNameAtServer(Object.ExchangeMessagesTransportKind, Object.InfobaseNode);
-	EndIf;
-	
-EndProcedure
 
 &AtServer
 Procedure CheckWhetherTransferToNewExchangeIsRequired()
@@ -1637,7 +1513,7 @@ Procedure GetDataExchangesStates(DataImportResult, DataExportResult, Val Infobas
 EndProcedure
 
 &AtServerNoContext
-Procedure DeleteMessageForDataMapping(ExchangeNode, ExchangeMessagesTransportKind = Undefined)
+Procedure DeleteMessageForDataMapping(Val ExchangeNode, Val TransportID = Undefined)
 	
 	SetPrivilegedMode(True);
 	
@@ -1646,10 +1522,10 @@ Procedure DeleteMessageForDataMapping(ExchangeNode, ExchangeMessagesTransportKin
 	
 	If ValueIsFilled(CommonSettings.MessageForDataMapping) Then
 		
-		WSPassiveModeFileIB = ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WSPassiveMode
-			And Common.FileInfobase(); 
-		
-		MessageFileNameInStorage = DataExchangeServer.GetFileFromStorage(CommonSettings.MessageForDataMapping, WSPassiveModeFileIB);
+		PassiveModeFileInformation = Common.FileInfobase() 
+			And ExchangeMessagesTransport.TransportParameter(TransportID, "PassiveMode");
+			
+		MessageFileNameInStorage = DataExchangeServer.GetFileFromStorage(CommonSettings.MessageForDataMapping, PassiveModeFileInformation);
 		
 		File = New File(MessageFileNameInStorage);
 		If File.Exists() And File.IsFile() Then
@@ -1687,33 +1563,9 @@ Procedure EndExecutingTimeConsumingOperation(JobID)
 	TimeConsumingOperations.CancelJobExecution(JobID);
 EndProcedure
 
-&AtServerNoContext
-Function GetDirectoryNameAtServer(ExchangeMessagesTransportKind, InfobaseNode)
-	
-	Return InformationRegisters.DataExchangeTransportSettings.DataExchangeDirectoryName(ExchangeMessagesTransportKind, InfobaseNode);
-	
-EndFunction
-
-&AtServerNoContext
-Function TimeConsumingOperationState(Val OperationID, ExchangeNode, GetPasswordFromSessionData, ErrorMessageString = "")
-	
-	AuthenticationParameters = Undefined;
-	If GetPasswordFromSessionData Then
-		AuthenticationParameters = DataExchangeServer.DataSynchronizationPassword(ExchangeNode);
-	EndIf;
-	
-	Return DataExchangeInternal.TimeConsumingOperationStateForInfobaseNode(
-		OperationID,
-		ExchangeNode,
-		AuthenticationParameters,
-		ErrorMessageString);
-	
-EndFunction
-
 #EndRegion
 
-////////////////////////////////////////////////////////////////////////////////
-// Idle handlers.
+#Region IdleHandlers
 
 &AtClient
 Procedure TimeConsumingOperationIdleHandler()
@@ -1721,20 +1573,7 @@ Procedure TimeConsumingOperationIdleHandler()
 	TimeConsumingOperationCompleted         = False;
 	TimeConsumingOperationCompletedWithError = False;
 	
-	If ExchangeOverWebService Then
-		GetPasswordFromSessionData = (Not SkipTransportPage And Not WSRememberPassword);
-		ActionState = TimeConsumingOperationState(OperationID, Object.InfobaseNode, GetPasswordFromSessionData, ErrorMessage);
-		
-		If ActionState = Undefined
-			And RetryCountOnConnectionError < 5 Then
-			RetryCountOnConnectionError = RetryCountOnConnectionError + 1;
-			AttachIdleHandler("TimeConsumingOperationIdleHandler", 30, True);
-			Return;
-	EndIf;
-	Else
-		// Exchange via COM connection.
-		ActionState = DataExchangeServerCall.JobState(JobID);
-	EndIf;
+	ActionState = DataExchangeServerCall.JobState(JobID);
 	
 	If ActionState = "Active" Or ActionState = "Active" Then
 		AttachIdleHandler("TimeConsumingOperationIdleHandler", 30, True);
@@ -1755,8 +1594,9 @@ Procedure TimeConsumingOperationIdleHandler()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and function of the master.
+#EndRegion
+
+#Region WizardProceduresAndFunctions
 
 &AtClient
 Function GetSelectedRowKeys(SelectedRows)
@@ -1851,8 +1691,9 @@ Procedure ExpandStatisticsTree(Composite = "")
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// SECTION OF PROCESSING BACKGROUND JOBS
+#EndRegion
+
+#Region BackgroundJobProcessingSection
 
 &AtClient
 Function BackgroundJobParameters()
@@ -1896,11 +1737,11 @@ Procedure BackgroundJobStartClient(JobParameters, Cancel, GetPasswordFromSession
 		IdleParameters.OutputIdleWindow  = False;
 		IdleParameters.OutputMessages     = True;
 		
-		BackgroundJobCompletionNotification = New NotifyDescription("BackgroundJobCompletionNotification", ThisObject);
+		BackgroundJobCompletionNotification = New CallbackDescription("BackgroundJobCompletionNotification", ThisObject);
 		
 		If UseProgressBar Then
 			IdleParameters.OutputProgressBar     = True;
-			IdleParameters.ExecutionProgressNotification = New NotifyDescription("BackgroundJobExecutionProgress", ThisObject);
+			IdleParameters.ExecutionProgressNotification = New CallbackDescription("BackgroundJobExecutionProgress", ThisObject);
 			IdleParameters.Interval                       = 1;
 		EndIf;
 		
@@ -1944,12 +1785,7 @@ Function BackgroundJobStartAtServer(JobParameters, GetPasswordFromSessionData)
 	OperationStartDate  = CurrentSessionDate();
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.BackgroundJobDescription = JobParameters.JobDescription;
-	
-	If GetPasswordFromSessionData Then
-		SessionDataPassword = New Structure("WSPassword", DataExchangeServer.DataSynchronizationPassword(Object.InfobaseNode));
-		FillPropertyValues(JobParameters.MethodParameters, SessionDataPassword);
-	EndIf;
-	
+
 	Result = TimeConsumingOperations.ExecuteInBackground(
 		JobParameters.MethodToExecute,
 		JobParameters.MethodParameters,
@@ -1997,144 +1833,14 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 ////////////////////////////////////////////////////////////////////////////////
 // SECTION OF STEP CHANGE HANDLERS
 
 #Region NavigationEventHandlers
 
-&AtClient
-Function Attachable_BeginningPageOnOpen(Cancel, SkipPage, IsMoveNext)
-	
-	SkipPage = IsMoveNext And SkipTransportPage;
-	Return Undefined;
-	
-EndFunction
-
-&AtClient
-Function Attachable_BeginningPageOnGoNext(Cancel)
-	
-	If SkipTransportPage Then
-		Return Undefined;
-	EndIf;
-	
-	// Check filling of form attributes.
-	If Object.InfobaseNode.IsEmpty() Then
-		
-		NString = NStr("en = 'Please specify the infobase node.';");
-		CommonClient.MessageToUser(NString, , "Object.InfobaseNode", , Cancel);
-		
-	ElsIf Object.ExchangeMessagesTransportKind.IsEmpty()
-		And Not MessageReceivedForDataMapping Then
-		
-		NString = NStr("en = 'Please specify the connection option.';");
-		CommonClient.MessageToUser(NString, , "Object.ExchangeMessagesTransportKind", , Cancel);
-		
-	ElsIf ExchangeOverWebService And IsBlankString(WSPassword) Then
-		
-		NString = NStr("en = 'Please enter the password.';");
-		CommonClient.MessageToUser(NString, , "WSPassword", , Cancel);
-		
-	EndIf;
-	
-	Return Undefined;
-	
-EndFunction
-
-&AtClient
-Function Attachable_ConnectionTestWaitingPageTimeConsumingOperationProcessing(Cancel, GoToNext)
-	
-	If ExchangeOverExternalConnection Then
-		DataExchangeClient.CheckAndRegisterCOMConnector(Object.InfobaseNode);
-		Return Undefined;
-	EndIf;
-	
-	If ExchangeOverWebService Then
-		TestConnectionAndSaveSettings(Cancel);
-		
-		If Cancel Then
-			ShowMessageBox(, NStr("en = 'Cannot perform the operation.';"));
-		EndIf;
-	EndIf;
-	
-	Return Undefined;
-	
-EndFunction
-
-&AtServer
-Procedure TestConnectionAndSaveSettings(Cancel)
-	
-	AuthenticationParameters = Undefined;
-	If Not SkipTransportPage Then
-		AuthenticationParameters = New Structure;
-		AuthenticationParameters.Insert("UseCurrentUser", False);
-		AuthenticationParameters.Insert("Password", WSPassword);
-	EndIf;
-	
-	SetPrivilegedMode(True);
-	ConnectionParameters = InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(
-		Object.InfobaseNode, AuthenticationParameters);
-		
-	ErrorMessage              = "";
-	ErrorMessageToUser  = "";
-	SettingCompleted             = True;
-	DataReceivedForMapping = False;
-	
-	HasConnection = DataExchangeWebService.CorrespondentConnectionEstablished(Object.InfobaseNode,
-		ConnectionParameters, ErrorMessageToUser, SettingCompleted, DataReceivedForMapping);
-		
-	If Not HasConnection Then
-		ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot connect to the web application. Reason: ""%1.""
-			|Ensure that:
-			| - The password is correct.
-			| - The connection address is correct.
-			| - The application is available.
-			| - Web app synchronization is configured.
-			|Then, restart synchronization.';"),
-			ErrorMessageToUser);
-		Cancel = True;
-	ElsIf Not SettingCompleted Then
-		ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'To continue, set up synchronization in ""%1"". The data exchange is canceled.';"),
-			PeerInfobaseName);
-		Cancel = True;
-	ElsIf DataReceivedForMapping Then
-		ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'To continue, open %1 and import the data mapping message. The data exchange is canceled.';"),
-			PeerInfobaseName);
-		Cancel = True;
-	EndIf;
-	
-	If HasConnection And Not SkipTransportPage And WSRememberPassword Then
-		Try
-			// Updating record in the information register.
-			RecordStructure = New Structure;
-			RecordStructure.Insert("Peer", Object.InfobaseNode);
-			RecordStructure.Insert("WSRememberPassword", True);
-			RecordStructure.Insert("WSPassword", WSPassword);
-			
-			InformationRegisters.DataExchangeTransportSettings.UpdateRecord(RecordStructure);
-			
-			WSPassword = String(ThisObject.UUID);
-		Except
-			ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
-			
-			WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
-				EventLogLevel.Error, , , ErrorMessage);
-				
-			Common.MessageToUser(ErrorMessage, , , , Cancel);
-			Return;
-		EndTry;
-	EndIf;
-	
-	If Cancel Then
-		Common.MessageToUser(ErrorMessage);
-	EndIf;
-	
-EndProcedure
-
-////////////////////////////////////////////////////////////////////////////////
-// Pages for checking running synchronizations.
+#Region RunningSyncCheckPages
 
 &AtClient
 Function Attachable_PageDataExchangeJobCheck_OnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2175,9 +1881,8 @@ EndFunction
 &AtClient
 Function Attachable_PageDataExchangeTasksCheck_OnNavigateNext(Cancel)
 	
-	If HasNodeScheduledExchange Then
-		CancelQueueAndResumeOnServer();
-	EndIf;
+	CancelQueueAndResumeOnServer();
+	ExecuteMoveNext();
 	
 	Return Undefined;
 	
@@ -2187,14 +1892,17 @@ EndFunction
 Procedure CancelQueueAndResumeOnServer()
 	
 	ModuleDataExchangeInternalPublication = Common.CommonModule("DataExchangeInternalPublication");
-	ModuleDataExchangeInternalPublication.CancelTaskQueue(Object.InfobaseNode, 
+	ModuleDataExchangeInternalPublication.CancelTaskQueue(
+		Object.InfobaseNode, 
 	    ScenarioUsingInternalPublication,
-		IDOfExchangeViaInternalPublication);
+		IDOfExchangeViaInternalPublication,
+		CorrespondentDataArea);
 		
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Pages of data receipt processing (exchange message transport).
+#EndRegion
+
+#Region DataReceiptProcessingPagesExchangeMessageTransport
 
 &AtClient
 Function Attachable_DataAnalysisWaitingPageOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2211,7 +1919,7 @@ Function Attachable_DataAnalysisWaitingPageTimeConsumingOperationProcessing(Canc
 	SkipGettingData = False;
 	GoToNext              = False;
 	
-	GetPasswordFromSessionData = (Not SkipTransportPage And Not WSRememberPassword);
+	GetPasswordFromSessionData = False;
 	
 	MethodParameters = New Structure;
 	MethodParameters.Insert("Cancel", False);
@@ -2222,9 +1930,9 @@ Function Attachable_DataAnalysisWaitingPageTimeConsumingOperationProcessing(Canc
 	MethodParameters.Insert("ExchangeMessageFileName",              Object.ExchangeMessageFileName);
 	MethodParameters.Insert("InfobaseNode",               Object.InfobaseNode);
 	MethodParameters.Insert("TempExchangeMessagesDirectoryName", Object.TempExchangeMessagesDirectoryName);
-	MethodParameters.Insert("ExchangeMessagesTransportKind",         Object.ExchangeMessagesTransportKind);
-	MethodParameters.Insert("WSPassword",                             Undefined);
 	
+	MethodParameters.Insert("TransportID", Object.TransportID);
+	MethodParameters.Insert("AuthenticationData", AuthenticationData);
 	MethodParameters.Insert("MessageReceivedForDataMapping", MessageReceivedForDataMapping);
 	MethodParameters.Insert("TempDirectoryIDForExchange", "");
 	
@@ -2260,63 +1968,6 @@ Procedure DataReceiptToTemporaryFolderCompletion()
 	
 EndProcedure
 
-&AtClient
-Function Attachable_DataAnalysisWaitingPageTimeConsumingOperationCompletionTimeConsumingOperationProcessing(Cancel, GoToNext)
-	
-	If SkipGettingData Then
-		Return Undefined;
-	EndIf;
-	
-	If TimeConsumingOperationCompleted
-		And Not TimeConsumingOperationCompletedWithError Then
-		
-		// Get the file prepared at the correspondent to the temporary directory.
-		If Not ValueIsFilled(Object.ExchangeMessageFileName) Then
-			
-			GetPasswordFromSessionData = (Not SkipTransportPage And Not WSRememberPassword);
-			
-			GoToNext = False;
-			
-			MethodParameters = New Structure;
-			MethodParameters.Insert("Cancel",                                False);
-			MethodParameters.Insert("FileID",                   FileID);
-			MethodParameters.Insert("DataPackageFileID",       DataPackageFileID);
-			MethodParameters.Insert("InfobaseNode",               Object.InfobaseNode);
-			MethodParameters.Insert("ExchangeMessageFileName",              Object.ExchangeMessageFileName);
-			MethodParameters.Insert("TempExchangeMessagesDirectoryName", Object.TempExchangeMessagesDirectoryName);
-			MethodParameters.Insert("WSPassword",                             Undefined);
-			
-			JobParameters = BackgroundJobParameters();
-			JobParameters.MethodToExecute     = "DataProcessors.InteractiveDataExchangeWizard.GetExchangeMessageFromCorrespondentToTemporaryDirectory";
-			JobParameters.MethodParameters      = MethodParameters;
-			JobParameters.JobDescription  = NStr("en = 'Get exchange message file to temporary directory';");
-			JobParameters.CompletionHandler = "CorrespondentDataReceiptToTemporaryFolderCompletion";
-			
-			BackgroundJobStartClient(JobParameters, Cancel, GetPasswordFromSessionData);
-			
-		EndIf;
-		
-	EndIf;
-	
-	Return Undefined;
-	
-EndFunction
-
-&AtClient
-Procedure CorrespondentDataReceiptToTemporaryFolderCompletion()
-	
-	ProcessBackgroundJobExecutionStatus("DataImport");
-	
-	If ValueIsFilled(ErrorMessage) Then
-		SkipGettingData = True;
-	Else
-		GetDataToTemporaryDirectoryAtServerCompletion();
-	EndIf;
-	
-	AttachIdleHandler("ExecuteMoveNext", 0.1, True);
-	
-EndProcedure
-
 &AtServer
 Procedure GetDataToTemporaryDirectoryAtServerCompletion()
 	
@@ -2343,8 +1994,6 @@ Procedure GetDataToTemporaryDirectoryAtServerCompletion()
 			
 		Else
 			
-			FillPropertyValues(ThisObject, MethodExecutionResult, , "WSPassword");
-			
 			Object.ExchangeMessageFileName              = MethodExecutionResult.ExchangeMessageFileName;
 			Object.TempExchangeMessagesDirectoryName = MethodExecutionResult.TempExchangeMessagesDirectoryName;
 			
@@ -2369,8 +2018,9 @@ Procedure GetDataToTemporaryDirectoryAtServerCompletion()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Data analysis pages (automatic data mapping).
+#EndRegion
+
+#Region DataAnalysisPagesAutomaticDataMapping
 
 &AtClient
 Function Attachable_DataAnalysisPageOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2504,8 +2154,9 @@ Procedure AtalyzeDataAtServerCompletion()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Pages of data mapping processing (interactive data mapping).
+#EndRegion
+
+#Region DataMappingProcessingPagesInteractiveDataMapping
 
 &AtClient
 Function Attachable_StatisticsInformationPageOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2549,7 +2200,7 @@ Function Attachable_StatisticsInformationPageOnGoNext(Cancel)
 	                       |duplication of list items.
 	                       |Do you want to continue?';");
 	
-	Notification = New NotifyDescription("StatisticsPageOnGoNextQuestionCompletion", ThisObject);
+	Notification = New CallbackDescription("StatisticsPageOnGoNextQuestionCompletion", ThisObject);
 	
 	ShowQueryBox(Notification, Message, Buttons,, DialogReturnCode.Yes);
 	
@@ -2578,8 +2229,9 @@ Procedure Attachable_GoStepForwardWithDeferredProcessing()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Pages of data import processing
+#EndRegion
+
+#Region DataImportProcessingPages
 
 &AtClient
 Function Attachable_DataImportOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2647,7 +2299,7 @@ Procedure DataImportCompletion()
 		
 		If (EndDataMapping And Not SkipGettingData)
 			Or (CurrentDataImportResult = "Warning_ExchangeMessageAlreadyAccepted") Then
-			DeleteMessageForDataMapping(Object.InfobaseNode, Object.ExchangeMessagesTransportKind);
+			DeleteMessageForDataMapping(Object.InfobaseNode, Object.TransportID); 
 		EndIf;
 		
 	EndIf;
@@ -2656,8 +2308,9 @@ Procedure DataImportCompletion()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Additional export pages (registration to additional data export).
+#EndRegion
+
+#Region AdditionalExportPagesRegisterAdditionalDataForExport
 
 &AtClient
 Function Attachable_QuestionAboutExportCompositionPageOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2800,8 +2453,9 @@ Procedure OnCompleteDataRecordingAtServer(HandlerParameters, DataRegistered, Err
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Data export processing pages
+#EndRegion
+
+#Region DataExportProcessingPages
 
 &AtClient
 Function Attachable_DataExportOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2817,26 +2471,6 @@ Function Attachable_DataExportWaitingPageTimeConsumingOperationProcessing(Cancel
 	
 	GoToNext = False;
 	OnStartExportData(Cancel);
-	
-	Return Undefined;
-	
-EndFunction
-
-&AtClient
-Function Attachable_DataExportWaitingPageTimeConsumingOperationCompletionTimeConsumingOperationProcessing(Cancel, GoToNext)
-	
-	If TimeConsumingOperationCompleted Then
-		If TimeConsumingOperationCompletedWithError Then
-			DataExchangeServerCall.WriteExchangeFinishWithError(
-				Object.InfobaseNode,
-				"DataExport",
-				OperationStartDate,
-				ErrorMessage);
-		Else
-			DataExchangeServerCall.RecordDataExportInTimeConsumingOperationMode(
-				Object.InfobaseNode, OperationStartDate);
-		EndIf;
-	EndIf;
 	
 	Return Undefined;
 	
@@ -2870,17 +2504,17 @@ Procedure OnStartExportData(Cancel)
 			DataExportIdleHandlerParameters.CurrentInterval, True);
 		
 	Else
-		GetPasswordFromSessionData = (Not SkipTransportPage And Not WSRememberPassword);
+		GetPasswordFromSessionData = False;
 		
 		MethodParameters = New Structure;
-		MethodParameters.Insert("InfobaseNode",       Object.InfobaseNode);
-		MethodParameters.Insert("ExchangeMessagesTransportKind", Object.ExchangeMessagesTransportKind);
-		MethodParameters.Insert("ExchangeMessageFileName",      Object.ExchangeMessageFileName);
-		MethodParameters.Insert("TimeConsumingOperation",           TimeConsumingOperation);
-		MethodParameters.Insert("OperationID",        OperationID);
-		MethodParameters.Insert("FileID",           FileID);
-		MethodParameters.Insert("WSPassword",                     Undefined);
-		MethodParameters.Insert("Cancel",                        False);
+		MethodParameters.Insert("InfobaseNode", Object.InfobaseNode);
+		MethodParameters.Insert("TransportID", Object.TransportID);
+		MethodParameters.Insert("ExchangeMessageFileName", Object.ExchangeMessageFileName);
+		MethodParameters.Insert("TimeConsumingOperation", TimeConsumingOperation);
+		MethodParameters.Insert("OperationID", OperationID);
+		MethodParameters.Insert("FileID", FileID);
+		MethodParameters.Insert("AuthenticationData", AuthenticationData);
+		MethodParameters.Insert("Cancel", False);
 		
 		JobParameters = BackgroundJobParameters();
 		JobParameters.MethodToExecute     = "DataProcessors.InteractiveDataExchangeWizard.RunDataExport";
@@ -3105,8 +2739,9 @@ Procedure OnCompleteDataExportViaInternalPublication()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Summary information pages.
+#EndRegion
+
+#Region SummaryInfoPages
 
 &AtClient
 Function Attachable_MappingCompletePageOnOpen(Cancel, SkipPage, Val IsMoveNext)
@@ -3123,8 +2758,11 @@ EndFunction
 
 #EndRegion
 
-////////////////////////////////////////////////////////////////////////////////
-// NAVIGATION INITIALIZATION SECTION
+#EndRegion
+
+#EndRegion
+
+#Region NavigationInitialization
 
 &AtServer
 Procedure FillNavigationTable()
@@ -3139,9 +2777,7 @@ Procedure FillNavigationTable()
 	
 	NavigationTable.Clear();
 	
-	NavigationTableNewRow("StartingPage", "NavigationStartPage", "Attachable_BeginningPageOnOpen", "Attachable_BeginningPageOnGoNext");
-	
-	If ExchangeBetweenSaaSApplications Or ExchangeViaInternalPublication Then
+	If ExchangeBetweenSaaSApplications Then
 		
 		If MessageReceivedForDataMapping Then
 			// Getting data (exchange message transport.
@@ -3165,12 +2801,6 @@ Procedure FillNavigationTable()
 				"Attachable_DataImportOnOpen");
 			
 		ElsIf SendData Then
-			
-			If ExchangeViaInternalPublication Then
-				NavigationTableNewRow("PageCheckExchangeTasks", "NavigationPageFollowUp", 
-					"Attachable_PageDataExchangeJobCheck_OnOpen",
-					"Attachable_PageDataExchangeTasksCheck_OnNavigateNext");	
-			EndIf;
 			
 			If ExportAdditionMode Then
 				DataExportResult = "";
@@ -3231,6 +2861,13 @@ Procedure FillNavigationTable()
 		EndIf;
 		
 		If SendData Then
+			
+			If ExchangeViaInternalPublication Then
+				NavigationTableNewRow("PageCheckExchangeTasks", "NavigationPageFollowUp", 
+					"Attachable_PageDataExchangeJobCheck_OnOpen",
+					"Attachable_PageDataExchangeTasksCheck_OnNavigateNext");
+			EndIf;
+			
 			If ExportAdditionMode Then
 				// Data export setup.
 				DataExportResult = "";

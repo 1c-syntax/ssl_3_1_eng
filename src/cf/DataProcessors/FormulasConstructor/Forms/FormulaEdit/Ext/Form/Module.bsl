@@ -59,7 +59,7 @@ EndProcedure
 &AtClient
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
-	NotifyDescription = New NotifyDescription("ConfirmAndClose", ThisObject);
+	NotifyDescription = New CallbackDescription("ConfirmAndClose", ThisObject);
 	CommonClient.ShowFormClosingConfirmation(NotifyDescription, Cancel, Exit);
 	
 	If Modified Or Exit Then
@@ -279,7 +279,7 @@ Procedure Attachable_OperatorsDragEnd(Item, DragParameters, StandardProcessing)
 	
 	If FormulasConstructorClient.TheSelectedFieldInTheFieldList(ThisObject, NameOfTheListOfOperators()).DataPath = "Format" Then
 		RowFormat = New FormatStringWizard;
-		RowFormat.Show(New NotifyDescription("OperatorsDragEndCompletion", ThisObject, New Structure("RowFormat", RowFormat)));
+		RowFormat.Show(New CallbackDescription("OperatorsDragEndCompletion", ThisObject, New Structure("RowFormat", RowFormat)));
 	EndIf;
 	
 EndProcedure

@@ -12,7 +12,7 @@
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
-		
+	
 	// Verify that the form is opened with the required parameters
 	If Not Parameters.Property("ExchangePlanName") Then
 		
@@ -48,17 +48,17 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	RefExists   = False;
 	SettingCompleted = False;
 	
-	If ValueIsFilled(ExchangeNode) Then
-		SettingCompleted = SynchronizationSetupCompleted(ExchangeNode, RefExists);
+	If ValueIsFilled(Object.InfobaseNode) Then
+		SettingCompleted = SynchronizationSetupCompleted(Object.InfobaseNode, RefExists);
 		If Not RefExists Then
 			// Closing form when deleting synchronization setup.
 			Return;
 		EndIf;
 	EndIf;
 	
-	If Not ValueIsFilled(ExchangeNode)
+	If Not ValueIsFilled(Object.InfobaseNode)
 		Or Not SettingCompleted
-		Or (DIBSetup And Not ContinueSetupInSubordinateDIBNode And Not InitialImageCreated(ExchangeNode))Then
+		Or (DIBSetup And Not ContinueSetupInSubordinateDIBNode And Not InitialImageCreated(Object.InfobaseNode))Then
 		WarningText = NStr("en = 'The data synchronization setup is not completed.
 		|Do you want to close the wizard? You can continue the setup later.';");
 		CommonClient.ShowArbitraryFormClosingConfirmation(
@@ -81,6 +81,19 @@ EndProcedure
 #Region FormCommandsEventHandlers
 
 &AtClient
+Procedure SelectTransportType(Command)
+	
+	FormParameters = New Structure("ExchangePlanName, TransportID, SettingID, WizardRunOption");
+	FillPropertyValues(FormParameters, Object);
+	
+	ClosingNotification1 = New CallbackDescription("SelectTransportTypeCompletion", ThisObject);
+	
+	OpenForm("DataProcessor.DataExchangeCreationWizard.Form.SelectTransportType",
+		FormParameters, ThisForm,,,, ClosingNotification1, FormWindowOpeningMode.LockOwnerWindow);
+	
+EndProcedure
+
+&AtClient
 Procedure DataSyncDetails(Command)
 	
 	DataExchangeClient.OpenSynchronizationDetails(SettingOptionDetails.DetailedExchangeInformation);
@@ -89,72 +102,91 @@ EndProcedure
 
 &AtClient
 Procedure SetUpConnectionParameters(Command)
+		
+	FullNameOfConfigurationForm = ExchangeMessageTransportServerCall.FullNameOfFirstSetupForm(Object.TransportID);
 	
-	If IsExchangeWithApplicationInService
-		And (Not NewSYnchronizationSetting
-			Or Not CurrentSetupStep = "ConnectionSetup") Then
-		WarnString = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Connection to ""%1"" is already configured.
-			|Editing the connection parameters is not allowed.';"), ExchangeNode);
-		ShowMessageBox(, WarnString);
+	ConnectionSettings = ExchangeMessagesTransportClientServer.ConnectionSettingsForProcessing(Object);
+	
+	FormParameters = New Structure;
+	FormParameters.Insert("ConnectionSettings", ConnectionSettings);
+	FormParameters.Insert("SettingID", ConnectionSettings.SettingID);
+	FormParameters.Insert("TransportSettings", ConnectionSettings.TransportSettings);
+		
+	AdditionalParameters = New Structure;
+	AdditionalParameters.Insert("TransportID", Object.TransportID);
+	
+	ClosingNotification1 = New CallbackDescription("SetUpConnectionParametersCompletion", ThisObject, AdditionalParameters);
+	
+	OpenForm(FullNameOfConfigurationForm, FormParameters,,,,, 
+		ClosingNotification1, FormWindowOpeningMode.LockOwnerWindow);
+	
+EndProcedure
+
+&AtClient
+Procedure ConfigureGeneralParameters(Command)
+	
+	If ValueIsFilled(Object.AuthenticationData) Then
+		ConfigureCommonParametersFollowUp();
 		Return;
 	EndIf;
 	
-	ClosingNotification1 = New NotifyDescription("SetUpConnectionParametersCompletion", ThisObject);
+	AuthenticationParameters = ExchangeMessagesTransportClient.AuthenticationParameters();
+	AuthenticationParameters.Peer = Object.InfobaseNode;
+	AuthenticationParameters.ExchangePlanName = Object.ExchangePlanName;
+	AuthenticationParameters.TransportID = Object.TransportID;
+	AuthenticationParameters.TransportSettings = Object.TransportSettings;
 	
-	If DataExchangeWithExternalSystem Then
-		If CommonClient.SubsystemExists("OnlineUserSupport.DataExchangeWithExternalSystems") Then
-			Context = New Structure;
-			Context.Insert("SettingID", SettingID);
-			Context.Insert("ConnectionParameters", ExternalSystemConnectionParameters);
-			Context.Insert("Peer", ExchangeNode);
-			
-			If NewSYnchronizationSetting
-				And CurrentSetupStep = "ConnectionSetup" Then
-				Context.Insert("Mode", "New_Connection");
-			Else
-				Context.Insert("Mode", "EditConnectionParameters");
-			EndIf;
-			
-			Cancel = False;
-			WizardFormName  = "";
-			WizardParameters = New Structure;
-			
-			ModuleDataExchangeWithExternalSystemsClient = CommonClient.CommonModule("DataExchangeWithExternalSystemsClient");
-			ModuleDataExchangeWithExternalSystemsClient.BeforeSettingConnectionSettings(
-				Context, Cancel, WizardFormName, WizardParameters);
-			
-			If Not Cancel Then
-				OpenForm(WizardFormName,
-					WizardParameters, ThisObject, , , , ClosingNotification1, FormWindowOpeningMode.LockOwnerWindow);
-			EndIf;
-		EndIf;
-		Return;
-	ElsIf CurrentSetupStep = "ConnectionSetup" Then
-		WizardParameters = New Structure;
-		WizardParameters.Insert("ExchangePlanName",         ExchangePlanName);
-		WizardParameters.Insert("SettingID", SettingID);
-		If ContinueSetupInSubordinateDIBNode Then
-			WizardParameters.Insert("ContinueSetupInSubordinateDIBNode");
-		EndIf;
-		
-		OpenForm("DataProcessor.DataExchangeCreationWizard.Form.ConnectionSetup",
-			WizardParameters, ThisObject, , , , ClosingNotification1, FormWindowOpeningMode.LockOwnerWindow);
-	Else
-		Filter              = New Structure("Peer", ExchangeNode);
-		FillingValues = New Structure("Peer", ExchangeNode);
-		
-		DataExchangeClient.OpenInformationRegisterWriteFormByFilter(Filter,
-			FillingValues, "DataExchangeTransportSettings", ThisObject);
+	AuthenticationRequired = False;
+	ClosingNotification1 = New CallbackDescription("ConfigureGeneralSettingsEndAuthentication", ThisObject);
+	ExchangeMessagesTransportClient.StartOfAuthentication(AuthenticationParameters, AuthenticationRequired, ClosingNotification1);
+	
+	If Not AuthenticationRequired Then
+		ConfigureCommonParametersFollowUp();
 	EndIf;
 	
 EndProcedure
 
 &AtClient
-Procedure GetConnectionConfirmation(Command)
+Procedure ConfigureGeneralSettingsEndAuthentication(AuthenticationData, AdditionalParameters) Export 
 	
-	If Not DataExchangeWithExternalSystem
-		Or XDTOCorrespondentSettingsReceived(ExchangeNode) Then
+	If Not ValueIsFilled(AuthenticationData) Then
+		Return;
+	EndIf;
+	
+	Object.AuthenticationData = AuthenticationData;
+	
+	ConfigureCommonParametersFollowUp();
+	
+EndProcedure
+
+&AtClient
+Procedure ConfigureCommonParametersFollowUp()
+
+	FormParameters = New Structure;
+	
+	ConnectionSettings = ExchangeMessagesTransportClientServer.StructureOfConnectionSettings();
+	FillPropertyValues(ConnectionSettings, Object);
+	
+	ConnectionSettings.ExchangePlanName = Object.ExchangePlanName;
+	ConnectionSettings.SettingID = Object.SettingID;
+	
+	FormParameters.Insert("ConnectionSettings", ConnectionSettings);
+	
+	If ContinueSetupInSubordinateDIBNode Then
+		FormParameters.Insert("ContinueSetupInSubordinateDIBNode");
+	EndIf;
+	
+	ClosingNotification1 = New CallbackDescription("SetUpCommonParametersCompletion", ThisObject);
+	
+	OpenForm("DataProcessor.DataExchangeCreationWizard.Form.SetUpCommonParameters", 
+		FormParameters, ThisForm,,,, ClosingNotification1, FormWindowOpeningMode.LockOwnerWindow);
+	
+EndProcedure
+
+&AtClient
+Procedure GetConnectionConfirmation(Command)
+		
+	If XDTOCorrespondentSettingsReceived(Object.InfobaseNode) Then
 		ShowMessageBox(, NStr("en = 'The connection is confirmed.';"));
 		Return;
 	EndIf;
@@ -162,7 +194,7 @@ Procedure GetConnectionConfirmation(Command)
 	If CommonClient.SubsystemExists("OnlineUserSupport.DataExchangeWithExternalSystems") Then
 		Context = New Structure;
 		Context.Insert("Mode",                  "ConfirmConnection");
-		Context.Insert("Peer",          ExchangeNode);
+		Context.Insert("Peer",          Object.InfobaseNode);
 		Context.Insert("SettingID", "SettingID");
 		Context.Insert("ConnectionParameters",   ExternalSystemConnectionParameters);
 		
@@ -175,7 +207,7 @@ Procedure GetConnectionConfirmation(Command)
 			Context, Cancel, WizardFormName, WizardParameters);
 		
 		If Not Cancel Then
-			ClosingNotification1 = New NotifyDescription("GetConnectionConfirmationCompletion", ThisObject);
+			ClosingNotification1 = New CallbackDescription("GetConnectionConfirmationCompletion", ThisObject);
 			OpenForm(WizardFormName,
 				WizardParameters, ThisObject, , , , ClosingNotification1, FormWindowOpeningMode.LockOwnerWindow);
 		EndIf;
@@ -186,7 +218,7 @@ EndProcedure
 &AtClient
 Procedure ConfigureDataExportImportRules(Command)
 	
-	ContinueNotification = New NotifyDescription("SetDataSendingAndReceivingRulesFollowUp", ThisObject);
+	ContinueNotification = New CallbackDescription("SetDataSendingAndReceivingRulesFollowUp", ThisObject);
 	
 	// For XDTO exchange plans, get the peer infobase's settings before configuring the exchange rules.
 	// 
@@ -203,16 +235,16 @@ Procedure ConfigureDataExportImportRules(Command)
 	Result.Insert("ContinueSetup",            True);
 	Result.Insert("DataReceivedForMapping", DataReceivedForMapping);
 	
-	ExecuteNotifyProcessing(ContinueNotification, Result);
+	RunCallback(ContinueNotification, Result);
 	
 EndProcedure
 
 &AtClient
 Procedure CreateInitialDIBImage(Command)
 	
-	WizardParameters = New Structure("Key, Node", ExchangeNode, ExchangeNode);
+	WizardParameters = New Structure("Key, Node", Object.InfobaseNode, Object.InfobaseNode);
 			
-	ClosingNotification1 = New NotifyDescription("CreateInitialDIBImageCompletion", ThisObject);
+	ClosingNotification1 = New CallbackDescription("CreateInitialDIBImageCompletion", ThisObject);
 	OpenForm(InitialImageCreationFormName,
 		WizardParameters, ThisObject, , , , ClosingNotification1, FormWindowOpeningMode.LockOwnerWindow);
 	
@@ -221,7 +253,7 @@ EndProcedure
 &AtClient
 Procedure MapAndExportData(Command)
 	
-	ContinueNotification = New NotifyDescription("MapAndExportDataFollowUp", ThisObject);
+	ContinueNotification = New CallbackDescription("MapAndExportDataFollowUp", ThisObject);
 	
 	WizardParameters = New Structure;
 	WizardParameters.Insert("SendData",     False);
@@ -235,7 +267,7 @@ Procedure MapAndExportData(Command)
 	AuxiliaryParameters.Insert("WizardParameters",  WizardParameters);
 	AuxiliaryParameters.Insert("ClosingNotification1", ContinueNotification);
 	
-	DataExchangeClient.OpenObjectsMappingWizardCommandProcessing(ExchangeNode,
+	DataExchangeClient.OpenObjectsMappingWizardCommandProcessing(Object.InfobaseNode,
 		ThisObject, AuxiliaryParameters);
 	
 EndProcedure
@@ -247,21 +279,57 @@ Procedure ExecuteInitialDataExport(Command)
 	
 	BeforePerformingTheInitialUpload(Cancel);
 	If Cancel Then
-		
 		Return;
-		
 	EndIf;
 	
+	If ValueIsFilled(Object.AuthenticationData) Then
+		ExecuteInitialDataExportFollowUp();
+		Return;
+	EndIf;
+	
+	AuthenticationParameters = ExchangeMessagesTransportClient.AuthenticationParameters();
+	AuthenticationParameters.Peer = Object.InfobaseNode;
+	AuthenticationParameters.ExchangePlanName = Object.ExchangePlanName;
+	AuthenticationParameters.TransportID = Object.TransportID;
+	AuthenticationParameters.TransportSettings = Object.TransportSettings;
+	
+	AuthenticationRequired = False;
+	ClosingNotification1 = New CallbackDescription("PerformInitialDataUploadEndAuthentication", ThisObject);
+	ExchangeMessagesTransportClient.StartOfAuthentication(AuthenticationParameters, AuthenticationRequired, ClosingNotification1);
+	
+	If Not AuthenticationRequired Then
+		ExecuteInitialDataExportFollowUp();
+	EndIf;
+		
+EndProcedure
+	
+&AtClient
+Procedure PerformInitialDataUploadEndAuthentication(AuthenticationData, AdditionalParameters) Export 
+	
+	If Not ValueIsFilled(AuthenticationData) Then
+		Return;
+	EndIf;
+	
+	Object.AuthenticationData = AuthenticationData;
+	
+	ExecuteInitialDataExportFollowUp();
+	
+EndProcedure
+	
+&AtClient 
+Procedure ExecuteInitialDataExportFollowUp()
+	
 	WizardParameters = New Structure;
-	WizardParameters.Insert("ExchangeNode", ExchangeNode);
+	WizardParameters.Insert("ExchangeNode", Object.InfobaseNode);
 	WizardParameters.Insert("InitialExport");
+	WizardParameters.Insert("AuthenticationData", Object.AuthenticationData);
 	
 	If SaaSModel Then
 		WizardParameters.Insert("IsExchangeWithApplicationInService", IsExchangeWithApplicationInService);
 		WizardParameters.Insert("CorrespondentDataArea",  CorrespondentDataArea);
 	EndIf;
 	
-	ClosingNotification1 = New NotifyDescription("ExecuteInitialDataExportCompletion", ThisObject);
+	ClosingNotification1 = New CallbackDescription("ExecuteInitialDataExportCompletion", ThisObject);
 	OpenForm("DataProcessor.InteractiveDataExchangeWizard.Form.ExportMappingData",
 		WizardParameters, ThisObject, , , , ClosingNotification1, FormWindowOpeningMode.LockOwnerWindow);
 	
@@ -274,113 +342,7 @@ EndProcedure
 &AtClient
 Procedure BeforePerformingTheInitialUpload(Cancel)
 	
-	ArrayOfValues = New Array(3);
-	ArrayOfValues[0] = PredefinedValue("Enum.ExchangeMessagesTransportTypes.COM");
-	ArrayOfValues[1] = PredefinedValue("Enum.ExchangeMessagesTransportTypes.WS");
-	// Skip the check for "WSPassiveMode".
-	//                    The peer infobase can get the info when establishing a passive connection.
-	
-	ModeOfTransportSupportsDirectConnection = (ArrayOfValues.Find(TransportKind) <> Undefined);
-	If Not ModeOfTransportSupportsDirectConnection
-		Or DataMappingSupported Then
-		
-		Return;
-		
-	EndIf;
-	
-	CheckResult = CorrespondentSetupIsComplete(ExchangeNode, TransportKind);
-	If Not CheckResult.SettingCompleted Then
-		
-		Cancel = True;
-		ShowMessageBox(Undefined, CheckResult.ErrorMessage);
-		
-	EndIf;
-	
 EndProcedure
-
-&AtServerNoContext
-Function CorrespondentSetupIsComplete(ExchangeNode, TransportKind)
-	
-	CheckData = New Structure;
-	CheckData.Insert("ErrorMessage", "");
-	CheckData.Insert("ErrorMessageToUser", "");
-	CheckData.Insert("SettingCompleted", False);
-	CheckData.Insert("DataReceivedForMapping", False);
-	
-	SetPrivilegedMode(True);
-	If TransportKind = Enums.ExchangeMessagesTransportTypes.WS Then
-	
-		ConnectionParameters = InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(ExchangeNode, Undefined);
-				
-		HasConnection = DataExchangeWebService.CorrespondentConnectionEstablished(ExchangeNode,
-			ConnectionParameters, CheckData.ErrorMessageToUser, CheckData.SettingCompleted, CheckData.DataReceivedForMapping);
-		
-		PeerInfobaseName = Common.ObjectAttributeValue(ExchangeNode, "Description");
-			
-		If Not HasConnection Then
-			
-			MessageTemplate = NStr("en = 'Cannot connect to the %1 application. Reason: ""%2"".
-				|Ensure that:
-				| - The password is correct.
-				| - The connection address is correct.
-				| - The application is available.
-				| - Web app synchronization is configured.
-				|Then, restart synchronization.';", Common.DefaultLanguageCode());
-			CheckData.ErrorMessage = StrTemplate(MessageTemplate, PeerInfobaseName, 
-				CheckData.ErrorMessageToUser);
-			
-		ElsIf Not CheckData.SettingCompleted Then
-			
-			MessageTemplate = NStr("en = 'To continue, set up synchronization in ""%1"". 
-				|The data exchange is canceled.';", Common.DefaultLanguageCode());
-			CheckData.ErrorMessage = StrTemplate(MessageTemplate,PeerInfobaseName);
-			
-		EndIf;
-		
-	Else
-		
-		ExternalConnection = DataExchangeCached.GetExternalConnectionForInfobaseNode(ExchangeNode, CheckData.ErrorMessage);
-		If ExternalConnection = Undefined Then
-			
-			Return CheckData;
-			
-		EndIf;
-		
-		ExchangePlanName = DataExchangeCached.GetExchangePlanName(ExchangeNode);
-		
-		ThisExchangePlanNode = DataExchangeCached.GetThisExchangePlanNode(ExchangePlanName);
-		NodeCode = DataExchangeServer.NodeIDForExchange(ThisExchangePlanNode);
-		
-		ExternalConnectionExchangePlanNode = ExternalConnection.DataExchangeServer.ExchangePlanNodeByCode(ExchangePlanName, NodeCode);
-		If ExternalConnectionExchangePlanNode = Undefined Then
-			
-			MessageTemplate = NStr("en = 'Error. In the ""%1"" application, the synchronization setting for this application is not found.
-					|The data exchange is canceled.';", Common.DefaultLanguageCode());
-			CheckData.ErrorMessage = StrTemplate(MessageTemplate, PeerInfobaseName);
-			
-		EndIf;
-		
-		CheckData.SettingCompleted = ExternalConnection.DataExchangeServer.SynchronizationSetupCompleted(ExternalConnectionExchangePlanNode);
-		If Not CheckData.SettingCompleted Then
-				
-			MessageTemplate = NStr("en = 'To continue, set up synchronization in ""%1"". 
-				|The data exchange is canceled.';", Common.DefaultLanguageCode());
-			CheckData.ErrorMessage = StrTemplate(MessageTemplate, PeerInfobaseName);
-			
-		EndIf;
-		
-	EndIf;
-	
-	Return CheckData;
-	
-EndFunction
-
-&AtServerNoContext
-Function ReadTheTransportModeForTheNode(ExchangeNode)
-	
-	Return InformationRegisters.DataExchangeTransportSettings.DefaultExchangeMessagesTransportKind(ExchangeNode);
-	
-EndFunction
 
 &AtServerNoContext
 Function SynchronizationSetupStatus(ExchangeNode)
@@ -414,57 +376,89 @@ EndFunction
 &AtClient
 Procedure SetUpConnectionParametersCompletion(ClosingResult, AdditionalParameters) Export
 	
-	If ClosingResult <> Undefined
-		And TypeOf(ClosingResult) = Type("Structure") Then
+	If ClosingResult = Undefined Then
+		Return;
+	EndIf;
+	
+	Object.TransportSettings = ClosingResult;
+	
+	If CurrentSetupStep = "ConnectionSetup" Then
+		GoToNextSetupStage();
+	EndIf;
+	
+EndProcedure
+
+&AtClient 
+Procedure SelectTransportTypeCompletion(ClosingResult, AdditionalParameters) Export
+	
+	If ClosingResult = Undefined Then
+		Return;
+	EndIf;
 		
-		If ClosingResult.Property("ExchangeNode") Then
-			ExchangeNode = ClosingResult.ExchangeNode;
-			UniqueKey = ExchangePlanName + "_" + SettingID + "_" + ExchangeNode.UUID();
-			
-			If DataExchangeWithExternalSystem Then
-				UpdateExternalSystemConnectionParameters(ExchangeNode, ExternalSystemConnectionParameters);
-			EndIf;
-			
-			If ValueIsFilled(ExchangeNode) Then
-				
-				TransportKind = ReadTheTransportModeForTheNode(ExchangeNode);
-				
-			EndIf;
-			
+	For Each KeyAndValue In ClosingResult Do
+		If ValueIsFilled(KeyAndValue.Value) Then
+			Object[KeyAndValue.Key] = KeyAndValue.Value;
 		EndIf;
+	EndDo;
+	
+	TransportSettingsAvailable = ValueIsFilled(Object.TransportSettings);
+
+	If CurrentSetupStep = "SelectTransportType" Then
 		
-		If SaaSModel Then
-			ClosingResult.Property("IsExchangeWithApplicationInService", IsExchangeWithApplicationInService);
-			ClosingResult.Property("CorrespondentDataArea",  CorrespondentDataArea);
-		EndIf;
+		GoToNextSetupStage();
 		
-		If ClosingResult.Property("HasDataToMap")
-			And ClosingResult.HasDataToMap Then
-			DataReceivedForMapping = True;
-		EndIf;
-		
-		FillSetupStagesTable();
-		UpdateCurrentSettingsStateDisplay();
-		
-		If CurrentSetupStep = "ConnectionSetup" Then
+		If Object.WizardRunOption = "ContinueDataExchangeSetup" 
+			And TransportSettingsAvailable
+			And Not SettingUpSubAssetInCorrespondentOnServer() Then
+			
 			GoToNextSetupStage();
+			
 		EndIf;
 		
 	EndIf;
 	
 EndProcedure
 
-&AtServerNoContext
-Procedure UpdateExternalSystemConnectionParameters(ExchangeNode, ExternalSystemConnectionParameters)
+&AtServer
+Function SettingUpSubAssetInCorrespondentOnServer()
 	
-	ExternalSystemConnectionParameters = InformationRegisters.DataExchangeTransportSettings.ExternalSystemTransportSettings(ExchangeNode);
+	Return ExchangeMessagesTransport.TransportParameter(
+		Object.TransportID, "SettingUpSubAssetInCorrespondent");
+	
+EndFunction
+
+&AtClient
+Procedure SetUpCommonParametersCompletion(ClosingResult, AdditionalParameters) Export
+	
+	If ClosingResult = Undefined Then
+		Return;
+	EndIf;
+	
+	Object.InfobaseNode = ClosingResult.ExchangeNode;
+	
+	If ValueIsFilled(Object.AuthenticationData) Then
+		ExchangeMessageTransportServerCall.SetDataSynchronizationPassword(
+			Object.InfobaseNode, Object.AuthenticationData);
+	EndIf;
+		
+	If ClosingResult.Property("HasDataToMap")
+		And ClosingResult.HasDataToMap Then
+		DataReceivedForMapping = True;
+	EndIf;
+	
+	FillSetupStagesTable();
+	UpdateCurrentSettingsStateDisplay();
+	
+	If CurrentSetupStep = "CommonParameters" Then
+		GoToNextSetupStage();
+	EndIf;
 	
 EndProcedure
 
 &AtClient
 Procedure GetConnectionConfirmationCompletion(Result, AdditionalParameters) Export
 	
-	If XDTOCorrespondentSettingsReceived(ExchangeNode) Then
+	If XDTOCorrespondentSettingsReceived(Object.InfobaseNode) Then
 		GoToNextSetupStage();
 	EndIf;
 	
@@ -473,12 +467,12 @@ EndProcedure
 &AtClient
 Procedure ExecuteXDTOSettingsImportIfNecessary(AbortSetup, ContinueNotification)
 	
-	SetupStatus = SynchronizationSetupStatus(ExchangeNode);
+	SetupStatus = SynchronizationSetupStatus(Object.InfobaseNode);
 	If Not SetupStatus.SynchronizationSetupCompleted
-			And Not SetupStatus.XDTOCorrespondentSettingsReceived Then
+		And Not SetupStatus.XDTOCorrespondentSettingsReceived Then
 		
 		ImportParameters = New Structure;
-		ImportParameters.Insert("ExchangeNode", ExchangeNode);
+		ImportParameters.Insert("ExchangeNode", Object.InfobaseNode);
 		
 		OpenForm("DataProcessor.DataExchangeCreationWizard.Form.XDTOSettingsImport",
 			ImportParameters, ThisObject, , , , ContinueNotification, FormWindowOpeningMode.LockOwnerWindow);
@@ -507,32 +501,32 @@ Procedure SetDataSendingAndReceivingRulesFollowUp(ClosingResult, AdditionalParam
 	FillSetupStagesTable();
 	UpdateCurrentSettingsStateDisplay();
 	
-	ClosingNotification1 = New NotifyDescription("ConfigureDataExportImportRulesCompletion", ThisObject);
+	ClosingNotification1 = New CallbackDescription("ConfigureDataExportImportRulesCompletion", ThisObject);
 	
 	CheckParameters = New Structure;
-	CheckParameters.Insert("Peer",          ExchangeNode);
-	CheckParameters.Insert("ExchangePlanName",         ExchangePlanName);
-	CheckParameters.Insert("SettingID", SettingID);
+	CheckParameters.Insert("Peer",          Object.InfobaseNode);
+	CheckParameters.Insert("ExchangePlanName",         Object.ExchangePlanName);
+	CheckParameters.Insert("SettingID", Object.SettingID);
 	
 	SetupExecuted = False;
 	BeforeDataSynchronizationSetup(CheckParameters, SetupExecuted, DataSyncSettingsWizardFormName);
 	
 	If SetupExecuted Then
 		ShowMessageBox(, NStr("en = 'The rules for sending and receiving data are configured.';"));
-		ExecuteNotifyProcessing(ClosingNotification1, True);
+		RunCallback(ClosingNotification1, True);
 		Return;
 	EndIf;
 	
 	WizardParameters = New Structure;
 	
 	If IsBlankString(DataSyncSettingsWizardFormName) Then
-		WizardParameters.Insert("Key", ExchangeNode);
+		WizardParameters.Insert("Key", Object.InfobaseNode);
 		WizardParameters.Insert("WizardFormName", "ExchangePlan.[ExchangePlanName].ObjectForm");
 		
 		WizardParameters.WizardFormName = StrReplace(WizardParameters.WizardFormName,
-			"[ExchangePlanName]", ExchangePlanName);
+			"[ExchangePlanName]", Object.ExchangePlanName);
 	Else
-		WizardParameters.Insert("ExchangeNode", ExchangeNode);
+		WizardParameters.Insert("ExchangeNode", Object.InfobaseNode);
 		WizardParameters.Insert("WizardFormName", DataSyncSettingsWizardFormName);
 	EndIf;
 	
@@ -545,7 +539,7 @@ EndProcedure
 Procedure ConfigureDataExportImportRulesCompletion(ClosingResult, AdditionalParameters) Export
 	
 	If CurrentSetupStep = "RulesSetting"
-		And SynchronizationSetupCompleted(ExchangeNode) Then
+		And SynchronizationSetupCompleted(Object.InfobaseNode) Then
 		Notify("Write_ExchangePlanNode");
 		If ContinueSetupInSubordinateDIBNode Then
 			RefreshInterface();
@@ -559,7 +553,7 @@ EndProcedure
 Procedure MapAndExportDataFollowUp(ClosingResult, AdditionalParameters) Export
 	
 	If CurrentSetupStep = "MapAndImport"
-		And DataForMappingImported(ExchangeNode) Then
+		And DataForMappingImported(Object.InfobaseNode) Then
 		GoToNextSetupStage();
 	EndIf;
 	
@@ -569,7 +563,7 @@ EndProcedure
 Procedure CreateInitialDIBImageCompletion(ClosingResult, AdditionalParameters) Export
 	
 	If CurrentSetupStep = "InitialDIBImage"
-		And InitialImageCreated(ExchangeNode) Then
+		And InitialImageCreated(Object.InfobaseNode) Then
 		GoToNextSetupStage();
 	EndIf;
 	
@@ -581,7 +575,7 @@ EndProcedure
 Procedure ExecuteInitialDataExportCompletion(ClosingResult, AdditionalParameters) Export
 	
 	If CurrentSetupStep = "InitialDataExport"
-		And ClosingResult = ExchangeNode Then
+		And ClosingResult = Object.InfobaseNode Then
 		GoToNextSetupStage();
 	EndIf;
 	
@@ -591,7 +585,7 @@ EndProcedure
 Procedure UpdateCurrentSettingsStateDisplay()
 	
 	// Visibility of setup items.
-	For Each SetupStage In SetupSteps Do 		
+	For Each SetupStage In SetupSteps Do
 		CommonClientServer.SetFormItemProperty(Items, SetupStage.Group, "Visible", SetupStage.Used);
 	EndDo;
 	
@@ -600,7 +594,7 @@ Procedure UpdateCurrentSettingsStateDisplay()
 		For Each SetupStage In SetupSteps Do
 			Items[SetupStage.Group].Enabled = True;
 			Items[SetupStage.Button].Font = CommonClient.StyleFont("SynchronizationSetupWizardCommandStandardFont");
-					
+			
 			// Green flag is only for the main setting stages.
 			If SetupStage.IsMain Then
 				Items[SetupStage.Panel].CurrentPage = Items[SetupStage.PageSuccessfully];
@@ -636,7 +630,17 @@ Procedure UpdateCurrentSettingsStateDisplay()
 		EndDo;
 		
 	EndIf;
-			
+	
+	StepsAfterActivation = "RulesSetting,InitialDIBImage,MapAndImport,InitialDataExport,ConfirmConnection"; 
+	If StrFind(StepsAfterActivation, CurrentSetupStep) > 0 Then
+		
+		Items.SelectTransportType.Enabled = False;
+		Items.SetUpConnectionParameters.Enabled = False;
+		Items.GetConnectionConfirmation.Enabled = False;
+		Items.ConfigureGeneralParameters.Enabled = False;
+	
+	EndIf;
+	
 EndProcedure
 
 &AtClient
@@ -660,13 +664,13 @@ Procedure GoToNextSetupStage()
 		
 		If CurrentSetupStep = "RulesSetting" Then
 			CheckParameters = New Structure;
-			CheckParameters.Insert("Peer",          ExchangeNode);
-			CheckParameters.Insert("ExchangePlanName",         ExchangePlanName);
-			CheckParameters.Insert("SettingID", SettingID);
+			CheckParameters.Insert("Peer",          Object.InfobaseNode);
+			CheckParameters.Insert("ExchangePlanName",         Object.ExchangePlanName);
+			CheckParameters.Insert("SettingID", Object.SettingID);
 			
-			SetupExecuted = SynchronizationSetupCompleted(ExchangeNode);
+			SetupExecuted = SynchronizationSetupCompleted(Object.InfobaseNode);
 			If Not SetupExecuted Then
-				If Not XDTOSetup Or XDTOCorrespondentSettingsReceived(ExchangeNode) Then
+				If Not XDTOSetup Or XDTOCorrespondentSettingsReceived(Object.InfobaseNode) Then
 					BeforeDataSynchronizationSetup(CheckParameters, SetupExecuted, DataSyncSettingsWizardFormName);
 				EndIf;
 			EndIf;
@@ -747,7 +751,6 @@ EndProcedure
 Procedure InitializeFormAttributes()
 	
 	Parameters.Property("SettingOptionDetails",    SettingOptionDetails);
-	Parameters.Property("DataExchangeWithExternalSystem", DataExchangeWithExternalSystem);
 	
 	NewSYnchronizationSetting = Parameters.Property("NewSYnchronizationSetting");
 	ContinueSetupInSubordinateDIBNode = Parameters.Property("ContinueSetupInSubordinateDIBNode");
@@ -756,66 +759,121 @@ Procedure InitializeFormAttributes()
 		And Common.SeparatedDataUsageAvailable();
 	
 	If NewSYnchronizationSetting Then
-		ExchangePlanName         = Parameters.ExchangePlanName;
-		SettingID = Parameters.SettingID;
+		Object.ExchangePlanName         = Parameters.ExchangePlanName;
+		Object.SettingID = Parameters.SettingID;
 		
-		If DataExchangeWithExternalSystem Then
-			Parameters.Property("ExternalSystemConnectionParameters", ExternalSystemConnectionParameters);
-		Else
-			If Not ContinueSetupInSubordinateDIBNode Then
-				If DataExchangeServer.IsSubordinateDIBNode() Then
-					DIBExchangePlanName = DataExchangeServer.MasterNode().Metadata().Name;
-					
-					ContinueSetupInSubordinateDIBNode = (ExchangePlanName = DIBExchangePlanName)
-						And Not Constants.SubordinateDIBNodeSetupCompleted.Get();
-				EndIf;
-			EndIf;
-			
-			If ContinueSetupInSubordinateDIBNode Then
-				DataExchangeServer.OnContinueSubordinateDIBNodeSetup();
-				ExchangeNode = DataExchangeServer.MasterNode();
+		If Not ContinueSetupInSubordinateDIBNode Then
+			If DataExchangeServer.IsSubordinateDIBNode() Then
+				DIBExchangePlanName = DataExchangeServer.MasterNode().Metadata().Name;
+				
+				ContinueSetupInSubordinateDIBNode = (Object.ExchangePlanName = DIBExchangePlanName)
+				And Not Constants.SubordinateDIBNodeSetupCompleted.Get();
 			EndIf;
 		EndIf;
-	Else
-		ExchangeNode = Parameters.ExchangeNode;
 		
-		ExchangePlanName         = DataExchangeCached.GetExchangePlanName(ExchangeNode);
-		SettingID = DataExchangeServer.SavedExchangePlanNodeSettingOption(ExchangeNode);
+		If ContinueSetupInSubordinateDIBNode Then
+			
+			DataExchangeServer.OnContinueSubordinateDIBNodeSetup();
+			Object.InfobaseNode = DataExchangeServer.MasterNode();
+			Object.WizardRunOption = "ContinueDataExchangeSetup";
+			
+		Else
+			
+			Object.WizardRunOption = "NewSynchronization";
+			
+		EndIf;
+		
+	Else
+		Object.InfobaseNode = Parameters.ExchangeNode;
+		
+		Object.ExchangePlanName         = DataExchangeCached.GetExchangePlanName(Object.InfobaseNode);
+		Object.SettingID = DataExchangeServer.SavedExchangePlanNodeSettingOption(Object.InfobaseNode);
 		
 		If SaaSModel Then
 			Parameters.Property("CorrespondentDataArea",  CorrespondentDataArea);
 			Parameters.Property("IsExchangeWithApplicationInService", IsExchangeWithApplicationInService);
 		EndIf;
 		
-		If DataExchangeWithExternalSystem Then
-			UpdateExternalSystemConnectionParameters(ExchangeNode, ExternalSystemConnectionParameters);
-		EndIf;
+		Object.WizardRunOption = "ContinueDataExchangeSetup";
 	EndIf;
-	
-	If ContinueSetupInSubordinateDIBNode
-		Or (Not DataExchangeWithExternalSystem
-			And SettingOptionDetails = Undefined) Then
+		
+	If ContinueSetupInSubordinateDIBNode Or SettingOptionDetails = Undefined Then
+		
 		ModuleWizard = DataExchangeServer.ModuleDataExchangeCreationWizard();
 		SettingOptionDetails = ModuleWizard.SettingOptionDetailsStructure();
 		
-		SettingsValuesForOption = DataExchangeServer.ExchangePlanSettingValue(ExchangePlanName,
+		SettingsValuesForOption = DataExchangeServer.ExchangePlanSettingValue(Object.ExchangePlanName,
 			"CorrespondentConfigurationDescription,
 			|NewDataExchangeCreationCommandTitle,
 			|ExchangeCreateWizardTitle,
 			|BriefExchangeInfo,
 			|DetailedExchangeInformation",
-			SettingID);
+			Object.SettingID);
 			
 		FillPropertyValues(SettingOptionDetails, SettingsValuesForOption);
 		SettingOptionDetails.PeerInfobaseName = SettingsValuesForOption.CorrespondentConfigurationDescription;
+		
+		JSONText = Constants.SubordinateDIBNodeSettings.Get();
+		
+		If ValueIsFilled(JSONText) Then
+			
+			ConnectionSettings = ExchangeMessagesTransport.ConnectionSettingsFromJSON(JSONText);
+			
+			If  ValueIsFilled(ConnectionSettings.TransportID)
+				And ConnectionSettings.Property("TransportSettings") Then
+
+				// Save to a safe storage
+				AttributesForSecureStorage = ExchangeMessagesTransport.TransportParameter(
+				ConnectionSettings.TransportID, "AttributesForSecureStorage");
+
+				TransportSettings = ConnectionSettings.TransportSettings;
+
+				SetPrivilegedMode(True);
+
+				For Each Attribute In AttributesForSecureStorage Do
+
+					Value = TransportSettings[Attribute];
+
+					If ValueIsFilled(Value) Then
+
+						Value_ID = String(New UUID);
+						Common.WriteDataToSecureStorage(Value_ID, Value);
+						TransportSettings[Attribute] = Value_ID;
+
+					EndIf;
+
+				EndDo;
+
+				SetPrivilegedMode(False);
+				
+			EndIf;
+			
+		Else
+			
+			ConnectionSettings = New Structure;
+			ConnectionSettings.Insert("SecondInfobaseDescription", ExchangePlans.MasterNode().Description);
+			ConnectionSettings.Insert("DestinationInfobasePrefix", ExchangePlans.MasterNode().Code);
+			
+		EndIf;
+		
+		FillPropertyValues(Object, ConnectionSettings);
+		
 	EndIf;
 	
-	TransportKind = Undefined;
-	If ValueIsFilled(ExchangeNode) Then
-		SettingCompleted = SynchronizationSetupCompleted(ExchangeNode);
-		TransportKind = InformationRegisters.DataExchangeTransportSettings.DefaultExchangeMessagesTransportKind(ExchangeNode);
-		TransportSettingsAvailable = ValueIsFilled(TransportKind);
+	If ValueIsFilled(Object.InfobaseNode)
+		And Not ValueIsFilled(Object.TransportID)
+		And Not ValueIsFilled(Object.TransportSettings) Then
+		
+		SettingCompleted = SynchronizationSetupCompleted(Object.InfobaseNode);
+		
+		Object.TransportSettings = ExchangeMessagesTransport.DefaultTransportSettings(
+			Object.InfobaseNode, Object.TransportID);
+		
 	EndIf;
+	
+	TransportSettingsAvailable = ValueIsFilled(Object.TransportSettings)
+		Or ValueIsFilled(Object.TransportID) 
+			And ExchangeMessagesTransport.TransportParameter(Object.TransportID, "PassiveMode");
 	
 	Backup = Not SaaSModel
 		And Not ContinueSetupInSubordinateDIBNode
@@ -828,38 +886,47 @@ Procedure InitializeFormAttributes()
 			ModuleIBBackupServer.BackupDataProcessorURL();
 	EndIf;
 		
-	DIBSetup                  = DataExchangeCached.IsDistributedInfobaseExchangePlan(ExchangePlanName);
-	XDTOSetup                 = DataExchangeServer.IsXDTOExchangePlan(ExchangePlanName);
-	UniversalExchangeSetup = DataExchangeCached.IsStandardDataExchangeNode(ExchangePlanName); // No conversion rules.
+	DIBSetup = DataExchangeCached.IsDistributedInfobaseExchangePlan(Object.ExchangePlanName);
+	XDTOSetup = DataExchangeServer.IsXDTOExchangePlan(Object.ExchangePlanName);
+	UniversalExchangeSetup = DataExchangeCached.IsStandardDataExchangeNode(Object.ExchangePlanName); // No conversion rules.
 	
 	InteractiveSendingAvailable = Not DIBSetup And Not UniversalExchangeSetup;
 	
-	If Not DataExchangeWithExternalSystem Then
-	
-		If NewSYnchronizationSetting
-			Or DIBSetup
-			Or UniversalExchangeSetup Then
-			DataReceivedForMapping = False;
-		ElsIf IsExchangeWithApplicationInService Then
-			DataReceivedForMapping = DataExchangeServer.MessageWithDataForMappingReceived(ExchangeNode);
+	If NewSYnchronizationSetting
+		Or DIBSetup
+		Or UniversalExchangeSetup Then
+		
+		DataReceivedForMapping = False;
+		
+	ElsIf IsExchangeWithApplicationInService Then
+		
+		DataReceivedForMapping = DataExchangeServer.MessageWithDataForMappingReceived(Object.InfobaseNode);
+		
+	Else
+		
+		DirectConnection = ExchangeMessagesTransport.TransportParameter(Object.TransportID, "DirectConnection");
+		
+		If DirectConnection And TransportSettingsAvailable Then
+			DataReceivedForMapping = DataExchangeServer.MessageWithDataForMappingReceived(Object.InfobaseNode);
 		Else
-			If TransportKind = Enums.ExchangeMessagesTransportTypes.COM
-				Or TransportKind = Enums.ExchangeMessagesTransportTypes.WS
-				Or TransportKind = Enums.ExchangeMessagesTransportTypes.WSPassiveMode
-				Or Not TransportSettingsAvailable Then
-				DataReceivedForMapping = DataExchangeServer.MessageWithDataForMappingReceived(ExchangeNode);
-			Else
-				DataReceivedForMapping = True;
-			EndIf;
+			DataReceivedForMapping = True;
 		EndIf;
 		
 	EndIf;
-	
-	SettingsValuesForOption = DataExchangeServer.ExchangePlanSettingValue(ExchangePlanName,
+		
+	SettingsValuesForOption = DataExchangeServer.ExchangePlanSettingValue(Object.ExchangePlanName,
 		"InitialImageCreationFormName,
 		|DataSyncSettingsWizardFormName,
-		|DataMappingSupported",
-		SettingID);
+		|DataMappingSupported,
+		|CorrespondentConfigurationName,
+		|CorrespondentExchangePlanName,
+		|ExchangeFormat,
+		|SettingsFileNameForDestination,
+		|CorrespondentConfigurationDescription,
+		|BriefExchangeInfo,
+		|DetailedExchangeInformation",
+		Object.SettingID);
+		
 	FillPropertyValues(ThisObject, SettingsValuesForOption);
 	
 	If IsBlankString(InitialImageCreationFormName)
@@ -867,31 +934,90 @@ Procedure InitializeFormAttributes()
 		InitialImageCreationFormName = "CommonForm.[InitialImageCreationForm]";
 		InitialImageCreationFormName = StrReplace(InitialImageCreationFormName,
 			"[InitialImageCreationForm]", "CreateInitialImageWithFiles");
+	EndIf; 
+	
+	FillPropertyValues(Object, SettingsValuesForOption);
+	
+	If Not ValueIsFilled(Object.CorrespondentExchangePlanName) Then
+		Object.CorrespondentExchangePlanName = Object.ExchangePlanName;
+	EndIf;
+	
+	If SaaSModel Then
+		
+		ModuleDataExchangeSaaS = Common.CommonModule("DataExchangeSaaS");
+		Object.ThisInfobaseDescription = ModuleDataExchangeSaaS.GeneratePredefinedNodeDescription();
+		
+	Else
+		
+		// This infobase presentation.
+		Object.ThisInfobaseDescription = DataExchangeServer.PredefinedExchangePlanNodeDescription(Object.ExchangePlanName);
+		If IsBlankString(Object.ThisInfobaseDescription) Then
+			Object.ThisInfobaseDescription = DataExchangeCached.ThisInfobaseName();
+		EndIf;
+		
+		If Not ValueIsFilled(Object.SecondInfobaseDescription) Then
+			Object.SecondInfobaseDescription = SettingsValuesForOption.CorrespondentConfigurationDescription;
+		EndIf;
+				
+	EndIf;
+	
+	Object.SourceInfobaseID = 
+		DataExchangeServer.PredefinedExchangePlanNodeCode(Object.ExchangePlanName);
+	
+	If XDTOSetup Then
+		
+		Object.UsePrefixesForExchangeSettings = 
+			Not DataExchangeXDTOServer.VersionWithDataExchangeIDSupported(
+			ExchangePlans[Object.ExchangePlanName].EmptyRef());
+	
+		If IsBlankString(Object.SourceInfobaseID) Then
+			Object.SourceInfobaseID = 
+				?(Object.UsePrefixesForExchangeSettings,
+					Object.SourceInfobasePrefix,
+					String(New UUID));
+		EndIf;
+		
+	Else
+		Object.UsePrefixesForExchangeSettings = True;
+	EndIf;
+	
+	Object.UsePrefixesForCorrespondentExchangeSettings = True;
+	
+	If Not ValueIsFilled(Object.SourceInfobasePrefix) Then
+		
+		InfobasePrefix = GetFunctionalOption("InfobasePrefix");
+		
+		If ValueIsFilled(InfobasePrefix) Then
+			Object.SourceInfobasePrefix = InfobasePrefix;
+		Else
+			DataExchangeOverridable.OnDetermineDefaultInfobasePrefix(Object.SourceInfobasePrefix);
+		EndIf;
+	
 	EndIf;
 	
 	CurrentSetupStep = "";
-	If NewSYnchronizationSetting Then
-		CurrentSetupStep = "ConnectionSetup";
-	ElsIf DataExchangeWithExternalSystem
-		And Not XDTOCorrespondentSettingsReceived(ExchangeNode) Then
-		CurrentSetupStep = "ConfirmConnection";
-	ElsIf Not SynchronizationSetupCompleted(ExchangeNode) Then
+	If (NewSYnchronizationSetting And Not ContinueSetupInSubordinateDIBNode)
+		Or (ContinueSetupInSubordinateDIBNode And Not TransportSettingsAvailable) Then
+		CurrentSetupStep = "SelectTransportType";
+	ElsIf NewSYnchronizationSetting And ContinueSetupInSubordinateDIBNode Then
+		CurrentSetupStep = "CommonParameters";
+	ElsIf Not SynchronizationSetupCompleted(Object.InfobaseNode) Then
 		CurrentSetupStep = "RulesSetting";
 	ElsIf DIBSetup
 		And Not ContinueSetupInSubordinateDIBNode
-		And Not InitialImageCreated(ExchangeNode) Then
+		And Not InitialImageCreated(Object.InfobaseNode) Then
 		If Not IsBlankString(InitialImageCreationFormName) Then
 			CurrentSetupStep = "InitialDIBImage";
 		EndIf;
-	ElsIf ValueIsFilled(ExchangeNode) Then
-		MessagesNumbers = Common.ObjectAttributesValues(ExchangeNode, "ReceivedNo, SentNo");
+	ElsIf ValueIsFilled(Object.InfobaseNode) Then
+		MessagesNumbers = Common.ObjectAttributesValues(Object.InfobaseNode, "ReceivedNo, SentNo");
 		If MessagesNumbers.ReceivedNo = 0
 			And MessagesNumbers.SentNo = 0
-			And DataExchangeServer.MessageWithDataForMappingReceived(ExchangeNode) Then
+			And DataExchangeServer.MessageWithDataForMappingReceived(Object.InfobaseNode) Then
 			CurrentSetupStep = "MapAndImport";
 		EndIf;
 	EndIf;
-		
+	
 EndProcedure
 
 &AtClient
@@ -913,7 +1039,20 @@ EndFunction
 Procedure FillSetupStagesTable()
 	
 	SetupSteps.Clear();
-
+	
+	// Select transport type
+	TheStageIsUsed = NewSYnchronizationSetting
+		Or (ContinueSetupInSubordinateDIBNode And Not TransportSettingsAvailable);
+	
+	FormItems = New Structure;
+	FormItems.Insert("Group"			, Items.TransportTypeSelectionGroup.Name);
+	FormItems.Insert("Panel"			, Items.TransportTypeSelectionPanel.Name);
+	FormItems.Insert("PageSuccessfully", Items.TransportTypeSelectionPageIsSuccessful.Name);
+	FormItems.Insert("PageCurrent", Items.CurTransportTypeSelectionPage.Name);
+	FormItems.Insert("EmptySpacePage"	, Items.TransportTypeSelectionPageIsEmpty.Name);
+	
+	AddSetupStage("SelectTransportType", "SelectTransportType", FormItems, TheStageIsUsed);
+		
 	// Configure connection.
 	TheStageIsUsed = TransportSettingsAvailable Or NewSYnchronizationSetting;
 	
@@ -925,72 +1064,80 @@ Procedure FillSetupStagesTable()
 	FormItems.Insert("EmptySpacePage"	, Items.ConnectionSetupPageEmpty.Name);
 	
 	AddSetupStage("ConnectionSetup", "SetUpConnectionParameters", FormItems, TheStageIsUsed);
-
-	// Confirm connection.	
-	TheStageIsUsed = DataExchangeWithExternalSystem;
+	
+	// Common synchronization parameters
+	TheStageIsUsed = TransportSettingsAvailable Or NewSYnchronizationSetting;
 	
 	FormItems = New Structure;
-	FormItems.Insert("Group"			, Items.ConnectionConfirmationGroup.Name);
-	FormItems.Insert("Panel"			, Items.ConnectionConfirmationPanel.Name);
+	FormItems.Insert("Group" , Items.GroupCommonParameters.Name);
+	FormItems.Insert("Panel" , Items.GeneralParametersPanel.Name);
+	FormItems.Insert("PageSuccessfully", Items.GeneralParametersPageIsSuccessful.Name);
+	FormItems.Insert("PageCurrent", Items.GeneralParametersCurPage.Name);
+	FormItems.Insert("EmptySpacePage", Items.GeneralParametersPageIsEmpty.Name);
+	
+	AddSetupStage("CommonParameters", "ConfigureGeneralParameters", FormItems, TheStageIsUsed);
+	
+	// Confirm connection.
+	TheStageIsUsed = False;
+	
+	FormItems = New Structure;
+	FormItems.Insert("Group", Items.ConnectionConfirmationGroup.Name);
+	FormItems.Insert("Panel", Items.ConnectionConfirmationPanel.Name);
 	FormItems.Insert("PageSuccessfully", Items.ConnectionConfirmationStepSucceededPage.Name);
 	FormItems.Insert("PageCurrent", Items.ConnectionConfirmationStepInProgressPage.Name);
-	FormItems.Insert("EmptySpacePage"	, Items.ConnectionConfirmationStepToProcessPage.Name);
+	FormItems.Insert("EmptySpacePage", Items.ConnectionConfirmationStepToProcessPage.Name);
 	
 	AddSetupStage("ConfirmConnection", "GetConnectionConfirmation", FormItems, TheStageIsUsed);
 		
 	// Configure synchronization rules.
 	FormItems = New Structure;
-	FormItems.Insert("Group"			, Items.RulesSetupGroup.Name);
-	FormItems.Insert("Panel"			, Items.RulesSetupPanel.Name);
+	FormItems.Insert("Group", Items.RulesSetupGroup.Name);
+	FormItems.Insert("Panel", Items.RulesSetupPanel.Name);
 	FormItems.Insert("PageSuccessfully", Items.RulesSetupSuccessfulPage.Name);
 	FormItems.Insert("PageCurrent", Items.RulesSetupPageActive.Name);
-	FormItems.Insert("EmptySpacePage"	, Items.RulesSetupPageEmpty.Name);
+	FormItems.Insert("EmptySpacePage", Items.RulesSetupPageEmpty.Name);
 	
 	AddSetupStage("RulesSetting", "SetSendingAndReceivingRules", FormItems, True);
 		
-	// Initial DIB image	
-	TheStageIsUsed = Not DataExchangeWithExternalSystem
-		And DIBSetup
+	// Initial DIB image
+	TheStageIsUsed = DIBSetup
 		And Not ContinueSetupInSubordinateDIBNode
 		And Not IsBlankString(InitialImageCreationFormName);
 		
 	FormItems = New Structure;
-	FormItems.Insert("Group"			, Items.InitialDIBImageGroup.Name);
-	FormItems.Insert("Panel"			, Items.InitialDIBImagePanel.Name);
+	FormItems.Insert("Group", Items.InitialDIBImageGroup.Name);
+	FormItems.Insert("Panel", Items.InitialDIBImagePanel.Name);
 	FormItems.Insert("PageSuccessfully", Items.InitialDIBImagePageSuccessful.Name);
 	FormItems.Insert("PageCurrent", Items.InitialDIBImagePageActive.Name);
-	FormItems.Insert("EmptySpacePage"	, Items.InitialDIBImagePageEmpty.Name);
+	FormItems.Insert("EmptySpacePage", Items.InitialDIBImagePageEmpty.Name);
 	
 	AddSetupStage("InitialDIBImage", "CreateInitialDIBImage", FormItems, TheStageIsUsed);
 		
-	// Map and import data	
-	TheStageIsUsed = Not DataExchangeWithExternalSystem 
-		And Not DIBSetup
+	// Map and import data
+	TheStageIsUsed = Not DIBSetup 
 		And Not UniversalExchangeSetup
-		And DataReceivedForMapping
+		And DataReceivedForMapping 
 		And DataMappingSupported <> False;
 		
 	FormItems = New Structure;
-	FormItems.Insert("Group"			, Items.MapAndImportGroup.Name);
-	FormItems.Insert("Panel"			, Items.MapAndImportPanel.Name);
+	FormItems.Insert("Group", Items.MapAndImportGroup.Name);
+	FormItems.Insert("Panel", Items.MapAndImportPanel.Name);
 	FormItems.Insert("PageSuccessfully", Items.MapAndImportPageSuccessful.Name);
 	FormItems.Insert("PageCurrent", Items.MapAndImportPageActive.Name);
-	FormItems.Insert("EmptySpacePage"	, Items.MapAndImportPageEmpty.Name);
+	FormItems.Insert("EmptySpacePage", Items.MapAndImportPageEmpty.Name);
 	
 	AddSetupStage("MapAndImport", "MapAndExportData", FormItems, TheStageIsUsed);
 		
 	// Initial data export
-	TheStageIsUsed = Not DataExchangeWithExternalSystem
-		And InteractiveSendingAvailable
-		And (TransportSettingsAvailable
-			Or NewSYnchronizationSetting);
-			
+	TheStageIsUsed = InteractiveSendingAvailable 
+		And (TransportSettingsAvailable Or NewSYnchronizationSetting);
+
 	FormItems = New Structure;
-	FormItems.Insert("Group"			, Items.InitialDataExportGroup.Name);
-	FormItems.Insert("Panel"			, Items.InitialDataExportPanel.Name);
+	FormItems.Insert("Group", Items.InitialDataExportGroup.Name);
+	FormItems.Insert("Panel", Items.InitialDataExportPanel.Name);
 	FormItems.Insert("PageSuccessfully", Items.InitialDataExportPageSuccessful.Name);
 	FormItems.Insert("PageCurrent", Items.InitialDataExportPageActive.Name);
-	FormItems.Insert("EmptySpacePage"	, Items.InitialDataExportPageEmpty.Name);
+	FormItems.Insert("EmptySpacePage", Items.InitialDataExportPageEmpty.Name);
 	
 	AddSetupStage("InitialDataExport", "ExecuteInitialDataExport", FormItems, TheStageIsUsed);
 	
@@ -1013,6 +1160,8 @@ Procedure SetInitialFormItemsView()
 	EndIf;
 	
 EndProcedure
+
+
 
 #EndRegion
 

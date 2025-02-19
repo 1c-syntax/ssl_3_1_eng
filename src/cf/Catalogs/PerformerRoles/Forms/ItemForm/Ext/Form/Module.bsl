@@ -118,7 +118,7 @@ EndProcedure
 
 &AtClient
 Procedure SelectPurpose(Command)
-	NotifyDescription = New NotifyDescription("AfterAssignmentChoice", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterAssignmentChoice", ThisObject);
 	UsersInternalClient.SelectPurpose(ThisObject, NStr("en = 'Select role assignment';"),,, NotifyDescription);
 EndProcedure
 

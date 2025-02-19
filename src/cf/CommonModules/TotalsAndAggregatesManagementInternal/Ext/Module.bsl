@@ -15,7 +15,22 @@ Procedure CalculateTotals() Export
 	
 	SessionDate = CurrentSessionDate();
 	AccumulationRegisterPeriod  = EndOfMonth(AddMonth(SessionDate, -1)); // End of the last month.
-	AccountingRegisterPeriod = EndOfMonth(SessionDate); // End of the last month.
+	AccountingRegisterPeriod = EndOfMonth(SessionDate); // End of the current month.
+	
+	SetMinimumPeriod = False;
+	MinimumPeriodOfCalculatedTotalsOfAccumulationRegisters = Date(1,1,1);
+	MinimumPeriodOfCalculatedTotalsOfAccountingRegisters = Date(1,1,1);
+	
+	NumberOfMonthsOfMinimumPeriodOfCalculatedTotals =
+		Constants.NumberOfMonthsOfMinimumPeriodOfCalculatedTotals.Get();
+	If ValueIsFilled(NumberOfMonthsOfMinimumPeriodOfCalculatedTotals) Then
+		SetMinimumPeriod = True;
+		
+		MinimumPeriodOfCalculatedTotalsOfAccumulationRegisters =
+			BegOfMonth(AddMonth(SessionDate, -(NumberOfMonthsOfMinimumPeriodOfCalculatedTotals - 1)));
+		MinimumPeriodOfCalculatedTotalsOfAccountingRegisters =
+			BegOfMonth(AddMonth(SessionDate, -(NumberOfMonthsOfMinimumPeriodOfCalculatedTotals - 2)));
+	EndIf;
 	
 	Cache = SplitCheckCache();
 	
@@ -29,10 +44,24 @@ Procedure CalculateTotals() Export
 			Continue;
 		EndIf;
 		AccumulationRegisterManager = AccumulationRegisters[MetadataRegister.Name]; // AccumulationRegisterManager
-		If AccumulationRegisterManager.GetMaxTotalsPeriod() >= AccumulationRegisterPeriod Then
+		MaximumPeriodOfCalculatedTotals = AccumulationRegisterManager.GetMaxTotalsPeriod();
+		MinimumPeriodOfCalculatedTotals = AccumulationRegisterManager.GetMinTotalsPeriod();
+		If MaximumPeriodOfCalculatedTotals >= AccumulationRegisterPeriod
+			And (Not SetMinimumPeriod 
+				Or MinimumPeriodOfCalculatedTotals = MinimumPeriodOfCalculatedTotalsOfAccumulationRegisters)Then
 			Continue;
 		EndIf;
-		AccumulationRegisterManager.SetMaxTotalsPeriod(AccumulationRegisterPeriod);
+		If MaximumPeriodOfCalculatedTotals < AccumulationRegisterPeriod
+			And (SetMinimumPeriod
+				And MinimumPeriodOfCalculatedTotals <> MinimumPeriodOfCalculatedTotalsOfAccumulationRegisters) Then
+				AccumulationRegisterManager.SetMinAndMaxTotalsPeriods(
+					MinimumPeriodOfCalculatedTotalsOfAccumulationRegisters, AccumulationRegisterPeriod);
+		ElsIf MaximumPeriodOfCalculatedTotals < AccumulationRegisterPeriod Then
+			AccumulationRegisterManager.SetMaxTotalsPeriod(AccumulationRegisterPeriod);
+		ElsIf SetMinimumPeriod
+			And MinimumPeriodOfCalculatedTotals <> MinimumPeriodOfCalculatedTotalsOfAccumulationRegisters Then
+			AccumulationRegisterManager.SetMinTotalsPeriod(MinimumPeriodOfCalculatedTotalsOfAccumulationRegisters);
+		EndIf;
 		If Not AccumulationRegisterManager.GetTotalsUsing()
 			Or Not AccumulationRegisterManager.GetPresentTotalsUsing() Then
 			Continue;
@@ -46,10 +75,24 @@ Procedure CalculateTotals() Export
 			Continue;
 		EndIf;
 		AccountingRegisterManager = AccountingRegisters[MetadataRegister.Name]; // AccountingRegisterManager
-		If AccountingRegisterManager.GetTotalsPeriod() >= AccountingRegisterPeriod Then
+		MaximumPeriodOfCalculatedTotals = AccountingRegisterManager.GetTotalsPeriod();
+		MinimumPeriodOfCalculatedTotals = AccountingRegisterManager.GetMinTotalsPeriod();
+		If MaximumPeriodOfCalculatedTotals >= AccountingRegisterPeriod
+			And (Not SetMinimumPeriod 
+				Or MinimumPeriodOfCalculatedTotals = MinimumPeriodOfCalculatedTotalsOfAccountingRegisters) Then
 			Continue;
 		EndIf;
-		AccountingRegisterManager.SetMaxTotalsPeriod(AccountingRegisterPeriod);
+		If MaximumPeriodOfCalculatedTotals < AccountingRegisterPeriod
+			And (SetMinimumPeriod
+				And MinimumPeriodOfCalculatedTotals <> MinimumPeriodOfCalculatedTotalsOfAccountingRegisters) Then
+				AccountingRegisterManager.SetMinAndMaxTotalsPeriods(
+					MinimumPeriodOfCalculatedTotalsOfAccountingRegisters, AccountingRegisterPeriod);
+		ElsIf MaximumPeriodOfCalculatedTotals < AccountingRegisterPeriod Then
+			AccountingRegisterManager.SetMaxTotalsPeriod(AccountingRegisterPeriod);
+		ElsIf SetMinimumPeriod
+			And MinimumPeriodOfCalculatedTotals <> MinimumPeriodOfCalculatedTotalsOfAccountingRegisters Then
+			AccountingRegisterManager.SetMinTotalsPeriod(MinimumPeriodOfCalculatedTotalsOfAccountingRegisters);
+		EndIf;
 		If Not AccountingRegisterManager.GetTotalsUsing()
 			Or Not AccountingRegisterManager.GetPresentTotalsUsing() Then
 			Continue;
@@ -65,8 +108,7 @@ Procedure CalculateTotals() Export
 	EndIf;
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
 Procedure OnAddUpdateHandlers(Handlers) Export
@@ -142,10 +184,11 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Scheduled job runtime.
+#Region ScheduledJobsExecution
 
 // TotalsPeriodSetup scheduled job handler.
 Procedure TotalsPeriodSetupJobHandler() Export
@@ -222,8 +265,9 @@ Procedure RebuildAggregates()
 	EndDo;
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// For file mode operation.
+#EndRegion
+
+#Region ForOperatingInFileMode
 
 // Returns True if the infobase operates in the file mode and split is disabled.
 Function LocalFileOperationMode()
@@ -276,8 +320,9 @@ Procedure WriteTotalsAndAggregatesParameters(Parameters) Export
 	Constants.TotalsAndAggregatesParameters.Set(New ValueStorage(Parameters));
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+#EndRegion
+
+#Region InfobaseUpdate
 
 // [2.3.4.7] Updates usage of UpdateAggregates and RebuildAggregates scheduled jobs.
 Procedure UpdateScheduledJobUsage() Export
@@ -290,8 +335,9 @@ Procedure UpdateScheduledJobUsage() Export
 	UpdateScheduledJob(Metadata.ScheduledJobs.TotalsPeriodSetup, True);
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Miscellaneous.
+#EndRegion
+
+#Region Others
 
 // Secondary for UpdateScheduledJobsUsage procedure.
 Procedure UpdateScheduledJob(ScheduledJobMetadata, Use)
@@ -417,5 +463,7 @@ Function HasRegistersWithAggregates()
 	
 	Return False;
 EndFunction
+
+#EndRegion
 
 #EndRegion

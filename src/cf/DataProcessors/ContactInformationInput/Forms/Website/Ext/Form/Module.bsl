@@ -29,12 +29,15 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Data = ContactsManagerInternal.JSONToContactInformationByFields(FieldValues, Enums.ContactInformationTypes.WebPage);
 	Else
 		
-		If ContactsManagerInternalCached.IsLocalizationModuleAvailable() 
-			And ContactsManagerClientServer.IsXMLContactInformation(FieldValues) Then
+		If ContactsManagerClientServer.IsXMLContactInformation(FieldValues) Then
 				
-				ModuleContactsManagerLocalization = Common.CommonModule("ContactsManagerLocalization");
 				ReadResults = New Structure;
-				ContactInformation = ModuleContactsManagerLocalization.ContactsFromXML(FieldValues, ContactInformationType, ReadResults);
+				ContactInformation = Undefined;
+				ContactsManagerLocalization.OnConvertContactInformationFromXML(FieldValues, ContactInformation, ContactInformationType, ReadResults);
+				If ContactInformation = Undefined Then
+					Return;
+				EndIf;
+				
 				If ReadResults.Property("ErrorText") Then
 					// Recognition errors. A warning must be displayed when opening the form.
 					ContactInformation.Presentation = Parameters.Presentation;

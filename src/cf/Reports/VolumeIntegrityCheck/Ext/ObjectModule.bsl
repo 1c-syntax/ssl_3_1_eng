@@ -33,7 +33,7 @@ EndProcedure
 //  See "ManagedForm.OnCreateAtServer" in Syntax Assistant.
 //
 // Parameters:
-//   Form - ClientApplicationForm - Report form
+//   Form - ClientApplicationForm - Report form.
 //   Cancel - Boolean - The value is passed "as is" from the handler parameters.
 //   StandardProcessing - Boolean - The value is passed "as is" from the handler parameters.
 //

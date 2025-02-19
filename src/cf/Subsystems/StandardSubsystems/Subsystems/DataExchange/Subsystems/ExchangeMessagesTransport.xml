@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
+	<Subsystem uuid="7ee7cccc-4e52-464c-9c20-5c0dfbed7e5f">
+		<Properties>
+			<Name>ExchangeMessagesTransport</Name>
+			<Synonym>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Exchange message transport</v8:content>
+				</v8:item>
+			</Synonym>
+			<Comment/>
+			<IncludeHelpInContents>true</IncludeHelpInContents>
+			<IncludeInCommandInterface>false</IncludeInCommandInterface>
+			<UseOneCommand>false</UseOneCommand>
+			<Explanation/>
+			<Picture/>
+			<Content>
+				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.ExchangeMessageTransportEMAIL</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.ExchangeMessageTransportFILE</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.ExchangeMessageTransportFTP</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.ExchangeMessagesTransport</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.ExchangeMessagesTransportCashed</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.ExchangeMessagesTransportOverridable</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.ExchangeMessagesTransportClient</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.ExchangeMessageTransportServerCall</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.ExchangeMessagesTransportClientServer</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.ExchangeMessageTransportWS</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.ExchangeMessageTransportPassiveMode</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.ExchangeMessageTransportCOM</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.ExchangeMessageTransportSM</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.ExchangeMessageTransportHTTP</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">HTTPService.exchange_dsl_1_0_0_1</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.ConnectionSettings</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.DataExchangeWebService</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.ExchangeWebServiceOperationData</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">WebService.Exchange</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">WebService.Exchange_2_0_1_6</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">WebService.Exchange_3_0_1_1</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">WebService.Exchange_3_0_2_1</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">WebService.Exchange_3_0_2_2</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Catalog.ExchangeMessageTransportSettings</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.GooggleDrive</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.YandexDisk</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.TransportFTP</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.TransportFresh</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.TransportCOM</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.TransportWS</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.TransportHTTP</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.TransportPassiveMode</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.TransportDataTransfer</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.ExchangeMessageTransportGoogleDrive</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.ExchangeMessageTransportYandexDisk</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.TransportEmail</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.DefaultTransport</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.TransportESB1C</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.ExchangeMessageTransportESB1C</xr:Item>
+			</Content>
+		</Properties>
+		<ChildObjects/>
+	</Subsystem>
+</MetaDataObject>

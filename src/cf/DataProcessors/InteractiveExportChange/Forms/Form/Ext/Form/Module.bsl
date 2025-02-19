@@ -107,7 +107,7 @@ Procedure AdditionalRegistrationBeforeDeleteRow(Item, Cancel)
 	
 	QuestionTitle = NStr("en = 'Confirm operation';");
 	
-	Notification = New NotifyDescription("AdditionalRegistrationBeforeDeleteRowCompletion", ThisObject, New Structure);
+	Notification = New CallbackDescription("AdditionalRegistrationBeforeDeleteRowCompletion", ThisObject, New Structure);
 	Notification.AdditionalParameters.Insert("SelectedRows", Selected3);
 	
 	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo, , ,QuestionTitle);
@@ -131,7 +131,7 @@ Procedure AdditionalRegistrationChoiceProcessing(Item, ValueSelected, StandardPr
 				QueryText  = StrReplace(QueryText, "%1", SettingPresentation);
 				TitleText = NStr("en = 'Confirm operation';");
 				
-				Notification = New NotifyDescription("AdditionalRegistrationChoiceProcessingCompletion", ThisObject, New Structure);
+				Notification = New CallbackDescription("AdditionalRegistrationChoiceProcessingCompletion", ThisObject, New Structure);
 				Notification.AdditionalParameters.Insert("SettingPresentation", SettingPresentation);
 				
 				ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo, , , TitleText);
@@ -185,7 +185,7 @@ Procedure UpdateCountClient(Command)
 		IdleParameters.OutputIdleWindow  = False;
 		IdleParameters.OutputMessages     = True;
 		
-		CallbackOnCompletion = New NotifyDescription("BackgroundJobCompletion", ThisObject);
+		CallbackOnCompletion = New CallbackDescription("BackgroundJobCompletion", ThisObject);
 		TimeConsumingOperationsClient.WaitCompletion(Result, CallbackOnCompletion, IdleParameters);
 		
 	Else
@@ -203,7 +203,7 @@ Procedure FiltersSettings(Command)
 	Text = NStr("en = 'Save current setting…';");
 	VariantList.Add(1, Text, , PictureLib.SaveReportSettings);
 	
-	Notification = New NotifyDescription("FiltersSettingsOptionSelectionCompletion", ThisObject);
+	Notification = New CallbackDescription("FiltersSettingsOptionSelectionCompletion", ThisObject);
 	
 	ShowChooseFromMenu(Notification, VariantList, Items.FiltersSettings);
 EndProcedure
@@ -235,7 +235,7 @@ Procedure FiltersSettingsOptionSelectionCompletion(Val SelectedElement, Val Addi
 		QueryText   = NStr("en = 'Do you want to restore ""%1"" settings?';");
 		QueryText   = StrReplace(QueryText, "%1", SettingPresentation);
 		
-		Notification = New NotifyDescription("FiltersSettingsCompletion", ThisObject, New Structure);
+		Notification = New CallbackDescription("FiltersSettingsCompletion", ThisObject, New Structure);
 		Notification.AdditionalParameters.Insert("SettingPresentation", SettingPresentation);
 		
 		ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo, , , TitleText);

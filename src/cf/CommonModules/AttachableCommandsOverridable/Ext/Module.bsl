@@ -14,18 +14,18 @@
 // in addition to those already listed in the standard package (print forms, reports and population commands).
 //
 // Parameters:
-//   AttachableCommandsKinds - ValueTable - supported command kinds:
-//       * Name         - String            - a command kind name. It must meet the requirements of naming variables and
-//                                           be unique (do not match the names of other kinds).
-//                                           It can correspond to the name of the subsystem responsible for the output of these commands.
-//                                           These names are reserved: Print, Reports, and ObjectsFilling.
-//       * SubmenuName  - String            - a submenu name for placing commands of this kind on the object forms.
-//       * Title   - String            - the name of the submenu that is displayed to a user.
-//       * Picture    - Picture          - a submenu picture.
-//       * Representation - ButtonRepresentation - a submenu representation mode.
-//       * Order     - Number             - submenu order in the command bar of the form object in relation 
-//                                           to other submenus. It is used when automatically creating a submenu 
-//                                           in the object form.
+//   AttachableCommandsKinds - ValueTable - Supported command types:
+//       * Name         - String            - The name of the command type. The name must conform to variable naming conventions
+//                                           and be unique (it shouldn't match the names of other types).
+//                                           It can match the name of the subsystem responsible for displaying these commands.
+//                                           The following names are reserved: Print, Reports, and ObjectsFilling.
+//       * SubmenuName  - String            - Name of the submenu that will contain the commands of this type on the object forms.
+//       * Title   - String            - Name of the submenu displayed to users.
+//       * Picture    - Picture          - Submenu picture.
+//       * Representation - ButtonRepresentation - Submenu display mode.
+//       * Order     - Number             - Order in which the submenu appears in the command bar in relation to other submenus. 
+//                                           It applies when a submenu is created automatically in the form object. 
+//                                           
 //
 // Example:
 //
@@ -102,8 +102,8 @@ EndProcedure
 //         See column content in AttachableCommandsOverridable.OnDefineAttachableObjectsSettingsComposition.
 //   
 //   Commands - ValueTable - write the generated commands to this parameter for output in submenu: 
-//       * Kind - String - Command kind.
-//           Details See AttachableCommandsOverridable.OnDefineAttachableCommandsKinds.
+//       * Kind - String - Command type.
+//            See AttachableCommandsOverridable.OnDefineAttachableCommandsKinds.
 //       * Id - String - a command ID.
 //       
 //       1) Appearance settings.

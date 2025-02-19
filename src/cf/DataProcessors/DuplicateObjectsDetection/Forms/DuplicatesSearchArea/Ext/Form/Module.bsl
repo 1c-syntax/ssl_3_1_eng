@@ -8,14 +8,10 @@
 //
 //
 
-// Expected parameters:
+// Возвращается результатом выбора:
 //
-//     DuplicatesSearchArea - String - The full name of the metadata table for the given search area.
-//
-// Return value (as a selection result):
-//
-//     Undefined - Editing is canceled.
-//     String - Address of the new composer settings in a temporary storage.
+//     Неопределено - Отказ от редактирования.
+//     Строка       - Адрес временного хранилища новых настроек компоновщика.
 //
 
 #Region FormEventHandlers
@@ -23,8 +19,8 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	Parameters.Property("DuplicatesSearchArea", DefaultArea);
-	Parameters.Property("SettingsAddress", SettingsAddress);
+	DefaultArea = Parameters.DuplicatesSearchArea;
+	SettingsAddress = Parameters.SettingsAddress;
 	
 	InitializeSearchForDuplicatesAreasList();
 EndProcedure
@@ -63,10 +59,8 @@ Procedure MakeChoice(Val RowID)
 		Return;
 		
 	ElsIf Item.Value = DefaultArea Then
-		// No changes were made.
 		Close();
 		Return;
-		
 	EndIf;
 	
 	NotifyChoice(Item.Value);

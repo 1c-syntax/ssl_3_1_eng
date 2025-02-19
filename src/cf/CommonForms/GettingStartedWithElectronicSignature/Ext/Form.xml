@@ -1,0 +1,418 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
+	<Width>60</Width>
+	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
+	<Group>AlwaysHorizontal</Group>
+	<AutoCommandBar name="FormCommandBar" id="-1">
+		<HorizontalAlign>Right</HorizontalAlign>
+		<Autofill>false</Autofill>
+	</AutoCommandBar>
+	<Events>
+		<Event name="NotificationProcessing">NotificationProcessing</Event>
+		<Event name="OnOpen">OnOpen</Event>
+		<Event name="BeforeClose">BeforeClose</Event>
+		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
+	</Events>
+	<ChildItems>
+		<PictureDecoration name="DecorationOfComponentInstallation" id="68">
+			<GroupVerticalAlign>Top</GroupVerticalAlign>
+			<PictureSize>AutoSize</PictureSize>
+			<Picture>
+				<xr:Ref>CommonPicture.IconForInstallingBOTComponent</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<ContextMenu name="DecorationOfComponentInstallationContextMenu" id="69"/>
+			<ExtendedTooltip name="DecorationOfComponentInstallationExtendedTooltip" id="70"/>
+		</PictureDecoration>
+		<LabelDecoration name="Indent2" id="105">
+			<Width>1</Width>
+			<ContextMenu name="Indent2ContextMenu" id="106"/>
+			<ExtendedTooltip name="Indent2ExtendedTooltip" id="107"/>
+		</LabelDecoration>
+		<UsualGroup name="InstallationGroup" id="64">
+			<Group>AlwaysHorizontal</Group>
+			<Representation>None</Representation>
+			<ShowTitle>false</ShowTitle>
+			<ExtendedTooltip name="InstallationGroupExtendedTooltip" id="65"/>
+			<ChildItems>
+				<UsualGroup name="GroupComponents" id="66">
+					<Group>Vertical</Group>
+					<Representation>None</Representation>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="GroupComponentsExtendedTooltip" id="67"/>
+					<ChildItems>
+						<UsualGroup name="InstallationGroupHeader" id="87">
+							<Group>AlwaysHorizontal</Group>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="InstallationGroupHeaderExtendedTooltip" id="88"/>
+							<ChildItems>
+								<LabelDecoration name="DecorationPartOfComponentIsInstalled" id="61">
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<ContextMenu name="DecorationPartOfComponentIsInstalledContextMenu" id="62"/>
+									<ExtendedTooltip name="DecorationPartOfComponentIsInstalledExtendedTooltip" id="63"/>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="GeneralChecksGroup" id="57">
+							<VerticalStretch>false</VerticalStretch>
+							<Group>AlwaysHorizontal</Group>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GeneralChecksGroupExtendedTooltip" id="58"/>
+							<ChildItems>
+								<UsualGroup name="VerificationGroup" id="29">
+									<Group>Vertical</Group>
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="VerificationGroupExtendedTooltip" id="30"/>
+									<ChildItems>
+										<UsualGroup name="GroupCheckingInstallationOf1CExtension" id="31">
+											<Group>AlwaysHorizontal</Group>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="GroupCheckingInstallationOf1CExtensionExtendedTooltip" id="32"/>
+											<ChildItems>
+												<PictureField name="_1CExtensionIsInstalled" id="33">
+													<DataPath>StateOfInstallationOfExtensionOfWorkWith1CEnterprise</DataPath>
+													<TitleLocation>None</TitleLocation>
+													<GroupVerticalAlign>Top</GroupVerticalAlign>
+													<HorizontalStretch>false</HorizontalStretch>
+													<VerticalStretch>false</VerticalStretch>
+													<ValuesPicture>
+														<xr:Ref>CommonPicture.StatesOfInstallationOfComponentsForBOTOperation</xr:Ref>
+														<xr:LoadTransparent>false</xr:LoadTransparent>
+													</ValuesPicture>
+													<Border width="1">
+														<v8ui:style xsi:type="v8ui:ControlBorderType">WithoutBorder</v8ui:style>
+													</Border>
+													<ContextMenu name="_1CExtensionIsInstalledContextMenu" id="34"/>
+													<ExtendedTooltip name="_1CExtensionIsInstalledExtendedTooltip" id="35"/>
+												</PictureField>
+												<UsualGroup name="GroupCheckingInstallationOf1CExtensionExplanation" id="36">
+													<Group>Vertical</Group>
+													<Representation>None</Representation>
+													<ShowTitle>false</ShowTitle>
+													<ExtendedTooltip name="GroupCheckingInstallationOf1CExtensionExplanationExtendedTooltip" id="37"/>
+													<ChildItems>
+														<LabelDecoration name="_1CDecorationExtensionIsInstalled" id="38">
+															<ContextMenu name="_1CDecorationExtensionIsInstalledContextMenu" id="39"/>
+															<ExtendedTooltip name="_1CDecorationExtensionIsInstalledExtendedTooltip" id="40"/>
+														</LabelDecoration>
+													</ChildItems>
+												</UsualGroup>
+											</ChildItems>
+										</UsualGroup>
+										<UsualGroup name="GroupCheckingInstallationOfItemInstanceExtension" id="44">
+											<Group>AlwaysHorizontal</Group>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="GroupCheckingInstallationOfItemInstanceExtensionExtendedTooltip" id="45"/>
+											<ChildItems>
+												<PictureField name="ItemInstanceExtensionIsInstalled" id="46">
+													<DataPath>StateOfCryptographyExtensionInstallation</DataPath>
+													<TitleLocation>None</TitleLocation>
+													<GroupVerticalAlign>Top</GroupVerticalAlign>
+													<HorizontalStretch>false</HorizontalStretch>
+													<VerticalStretch>false</VerticalStretch>
+													<ValuesPicture>
+														<xr:Ref>CommonPicture.StatesOfInstallationOfComponentsForBOTOperation</xr:Ref>
+														<xr:LoadTransparent>false</xr:LoadTransparent>
+													</ValuesPicture>
+													<Border width="1">
+														<v8ui:style xsi:type="v8ui:ControlBorderType">WithoutBorder</v8ui:style>
+													</Border>
+													<ContextMenu name="ItemInstanceExtensionIsInstalledContextMenu" id="47"/>
+													<ExtendedTooltip name="ItemInstanceExtensionIsInstalledExtendedTooltip" id="48"/>
+												</PictureField>
+												<UsualGroup name="GroupCheckingInstallationOfItemInstanceExtensionExplanation" id="49">
+													<Group>Vertical</Group>
+													<Representation>None</Representation>
+													<ShowTitle>false</ShowTitle>
+													<ExtendedTooltip name="GroupCheckingInstallationOfItemInstanceExtensionExplanationExtendedTooltip" id="50"/>
+													<ChildItems>
+														<LabelDecoration name="DecorationItemInstanceExtensionIsInstalled" id="51">
+															<ContextMenu name="DecorationItemInstanceExtensionIsInstalledContextMenu" id="52"/>
+															<ExtendedTooltip name="DecorationItemInstanceExtensionIsInstalledExtendedTooltip" id="53"/>
+														</LabelDecoration>
+													</ChildItems>
+												</UsualGroup>
+											</ChildItems>
+										</UsualGroup>
+										<UsualGroup name="ComponentsInstallationVerificationGroup" id="16">
+											<Group>AlwaysHorizontal</Group>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="ComponentsInstallationVerificationGroupExtendedTooltip" id="17"/>
+											<ChildItems>
+												<PictureField name="AddInInstalled" id="18">
+													<DataPath>InstallationStateOfExtraCryptoAPIComponent</DataPath>
+													<TitleLocation>None</TitleLocation>
+													<GroupVerticalAlign>Top</GroupVerticalAlign>
+													<HorizontalStretch>false</HorizontalStretch>
+													<VerticalStretch>false</VerticalStretch>
+													<ValuesPicture>
+														<xr:Ref>CommonPicture.StatesOfInstallationOfComponentsForBOTOperation</xr:Ref>
+														<xr:LoadTransparent>false</xr:LoadTransparent>
+													</ValuesPicture>
+													<Border width="1">
+														<v8ui:style xsi:type="v8ui:ControlBorderType">WithoutBorder</v8ui:style>
+													</Border>
+													<ContextMenu name="AddInInstalledContextMenu" id="19"/>
+													<ExtendedTooltip name="AddInInstalledExtendedTooltip" id="20"/>
+												</PictureField>
+												<UsualGroup name="GroupInstallationVerificationComponentsExplanation" id="21">
+													<Group>Vertical</Group>
+													<Representation>None</Representation>
+													<ShowTitle>false</ShowTitle>
+													<ExtendedTooltip name="GroupInstallationVerificationComponentsExplanationExtendedTooltip" id="22"/>
+													<ChildItems>
+														<LabelDecoration name="ComponentDecorationIsInstalled" id="23">
+															<ContextMenu name="ComponentDecorationIsInstalledContextMenu" id="24"/>
+															<ExtendedTooltip name="ComponentDecorationIsInstalledExtendedTooltip" id="25"/>
+														</LabelDecoration>
+													</ChildItems>
+												</UsualGroup>
+											</ChildItems>
+										</UsualGroup>
+									</ChildItems>
+								</UsualGroup>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="GroupInstallSimultaneously" id="82">
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GroupInstallSimultaneouslyExtendedTooltip" id="83"/>
+							<ChildItems>
+								<PictureDecoration name="Indent1" id="84">
+									<Picture>
+										<xr:Ref>CommonPicture.IsEmpty</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<ContextMenu name="Indent1ContextMenu" id="85"/>
+									<ExtendedTooltip name="Indent1ExtendedTooltip" id="86"/>
+								</PictureDecoration>
+								<Button name="SetAll" id="59">
+									<Type>UsualButton</Type>
+									<AutoMaxHeight>false</AutoMaxHeight>
+									<MaxHeight>1</MaxHeight>
+									<VerticalStretch>true</VerticalStretch>
+									<GroupVerticalAlign>Center</GroupVerticalAlign>
+									<CommandName>Form.Command.SetAll</CommandName>
+									<ExtendedTooltip name="SetAllExtendedTooltip" id="60"/>
+								</Button>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="CryptoproviderInstallationVerificationGroup" id="12">
+							<Group>Vertical</Group>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="CryptoproviderInstallationVerificationGroupExtendedTooltip" id="13"/>
+							<ChildItems>
+								<UsualGroup name="GroupIsBeingVerified" id="95">
+									<Visible>false</Visible>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="GroupIsBeingVerifiedExtendedTooltip" id="96"/>
+									<ChildItems>
+										<PictureDecoration name="DecorationPictureCheckInProgress" id="97">
+											<Picture>
+												<xr:Ref>CommonPicture.TimeConsumingOperation16</xr:Ref>
+												<xr:LoadTransparent>false</xr:LoadTransparent>
+											</Picture>
+											<ContextMenu name="DecorationPictureCheckInProgressContextMenu" id="98"/>
+											<ExtendedTooltip name="DecorationPictureCheckInProgressExtendedTooltip" id="99"/>
+										</PictureDecoration>
+										<LabelDecoration name="DecorationInscriptionIsBeingChecked" id="100">
+											<ContextMenu name="DecorationInscriptionIsBeingCheckedContextMenu" id="101"/>
+											<ExtendedTooltip name="DecorationInscriptionIsBeingCheckedExtendedTooltip" id="102"/>
+										</LabelDecoration>
+									</ChildItems>
+								</UsualGroup>
+								<UsualGroup name="CryptoproviderInstallationStateGroup" id="103">
+									<Group>AlwaysHorizontal</Group>
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="CryptoproviderInstallationStateGroupExtendedTooltip" id="104"/>
+									<ChildItems>
+										<PictureField name="CryptoproviderIsInstalled" id="1">
+											<DataPath>StateOfCryptoproviderInstallation</DataPath>
+											<TitleLocation>None</TitleLocation>
+											<GroupVerticalAlign>Top</GroupVerticalAlign>
+											<HorizontalStretch>false</HorizontalStretch>
+											<VerticalStretch>false</VerticalStretch>
+											<ValuesPicture>
+												<xr:Ref>CommonPicture.StatesOfInstallationOfComponentsForBOTOperation</xr:Ref>
+												<xr:LoadTransparent>false</xr:LoadTransparent>
+											</ValuesPicture>
+											<Border width="1">
+												<v8ui:style xsi:type="v8ui:ControlBorderType">WithoutBorder</v8ui:style>
+											</Border>
+											<ContextMenu name="CryptoproviderIsInstalledContextMenu" id="2"/>
+											<ExtendedTooltip name="CryptoproviderIsInstalledExtendedTooltip" id="3"/>
+										</PictureField>
+										<UsualGroup name="CryptoproviderInstallationVerificationGroupExplanation" id="14">
+											<Width>50</Width>
+											<Group>Vertical</Group>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="CryptoproviderInstallationVerificationGroupExplanationExtendedTooltip" id="15"/>
+											<ChildItems>
+												<LabelDecoration name="DecorationCryptoproviderIsInstalled" id="4">
+													<AutoMaxWidth>false</AutoMaxWidth>
+													<ContextMenu name="DecorationCryptoproviderIsInstalledContextMenu" id="5"/>
+													<ExtendedTooltip name="DecorationCryptoproviderIsInstalledExtendedTooltip" id="6"/>
+												</LabelDecoration>
+												<LabelDecoration name="DecorationCryptoproviderInstalledExplanation" id="9">
+													<AutoMaxWidth>false</AutoMaxWidth>
+													<VerticalStretch>true</VerticalStretch>
+													<Title formatted="true"/>
+													<ContextMenu name="DecorationCryptoproviderInstalledExplanationContextMenu" id="10"/>
+													<ExtendedTooltip name="DecorationCryptoproviderInstalledExplanationExtendedTooltip" id="11"/>
+													<Events>
+														<Event name="URLProcessing">DecorationCryptoproviderInstalledExplanationURLProcessing</Event>
+													</Events>
+												</LabelDecoration>
+											</ChildItems>
+										</UsualGroup>
+									</ChildItems>
+								</UsualGroup>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="GroupContinuesToWork" id="75">
+							<Visible>false</Visible>
+							<HorizontalStretch>true</HorizontalStretch>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GroupContinuesToWorkExtendedTooltip" id="76"/>
+							<ChildItems>
+								<LabelDecoration name="SceneryIsAllSet" id="79">
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<ContextMenu name="SceneryIsAllSetContextMenu" id="80"/>
+									<ExtendedTooltip name="SceneryIsAllSetExtendedTooltip" id="81"/>
+								</LabelDecoration>
+								<Button name="ContinueWork" id="77">
+									<Type>UsualButton</Type>
+									<DefaultButton>true</DefaultButton>
+									<GroupHorizontalAlign>Right</GroupHorizontalAlign>
+									<CommandName>Form.Command.ContinueWork</CommandName>
+									<ExtendedTooltip name="ContinueWorkExtendedTooltip" id="78"/>
+								</Button>
+							</ChildItems>
+						</UsualGroup>
+					</ChildItems>
+				</UsualGroup>
+			</ChildItems>
+		</UsualGroup>
+	</ChildItems>
+	<Attributes>
+		<Attribute name="Object" id="1">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+			<MainAttribute>true</MainAttribute>
+		</Attribute>
+		<Attribute name="StateOfCryptoproviderInstallation" id="2">
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>1</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Nonnegative</v8:AllowedSign>
+				</v8:NumberQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="InstallationStateOfExtraCryptoAPIComponent" id="3">
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>1</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Nonnegative</v8:AllowedSign>
+				</v8:NumberQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="StateOfCryptographyExtensionInstallation" id="4">
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>1</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Nonnegative</v8:AllowedSign>
+				</v8:NumberQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="StateOfInstallationOfExtensionOfWorkWith1CEnterprise" id="5">
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>1</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Nonnegative</v8:AllowedSign>
+				</v8:NumberQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="NameOfRequiredComponent" id="9">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="RequireReboot" id="6">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="CheckCryptoprovider" id="7">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+	</Attributes>
+	<Commands>
+		<Command name="SetAll" id="2">
+			<Action>SetAll</Action>
+			<Representation>TextPicture</Representation>
+		</Command>
+		<Command name="ContinueWork" id="3">
+			<Action>ContinueWork</Action>
+		</Command>
+	</Commands>
+	<Parameters>
+		<Parameter name="ExpansionOfWorkOfS1CByEnterpriseIsEstablished">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="ExtensionOfWorkWithCryptographyIsEstablished">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="ExtraCryptoAPIComponentIsInstalled">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="CryptoproviderIsInstalled">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="NameOfRequiredComponent">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+	</Parameters>
+</Form>

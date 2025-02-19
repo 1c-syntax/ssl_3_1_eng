@@ -57,16 +57,16 @@ Function CurrencyCodes() Export
 	Query = New Query(QueryText);
 	
 	Currencies = Query.Execute().Unload();
-	CopiedLines = New Array;
+	RowsToCopy = New Array;
 	
 	For Each Currency In Currencies Do
 		// A currency is included in the formula if its char code contains letters.
 		If ValueIsFilled(StrConcat(StrSplit(Currency.AlphabeticCode, "0123456789", False), "")) Then
-			CopiedLines.Add(Currency);
+			RowsToCopy.Add(Currency);
 		EndIf;
 	EndDo;
 	
-	Result = Currencies.Copy(CopiedLines);
+	Result = Currencies.Copy(RowsToCopy);
 	Result.Indexes.Add("Ref");
 	
 	Return Result;
@@ -91,7 +91,11 @@ Function CurrencyRateByFormula(Formula, Period, CurrencyCodes = Undefined) Expor
 	|////////////////////////////////////////////////////////////////////////////////
 	|SELECT
 	|	Currencies.AlphabeticCode AS AlphabeticCode,
-	|	ISNULL(CurrencyRatesCut.Rate, 1) / ISNULL(CurrencyRatesCut.Repetition, 1) AS Rate
+	|	CASE
+	|		WHEN ISNULL(CurrencyRatesCut.Repetition, 1) > 0
+	|			THEN ISNULL(CurrencyRatesCut.Rate, 1) / ISNULL(CurrencyRatesCut.Repetition, 1)
+	|		ELSE 1
+	|	END AS Rate
 	|FROM
 	|	Currencies AS Currencies
 	|		LEFT JOIN InformationRegister.ExchangeRates.SliceLast(&Period, ) AS CurrencyRatesCut

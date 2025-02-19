@@ -13,12 +13,13 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
-	RecordStructure = Undefined;
 	If Parameters.RecordStructure = Undefined Then
 		Common.MessageToUser(NStr(
 			"en = 'You can view a report snapshot only from the list of user report snapshots.';"), , , , Cancel);
 		Return;
 	EndIf;
+	
+	RecordStructure = Parameters.RecordStructure;
 
 	FillPropertyValues(ThisObject, RecordStructure);
 

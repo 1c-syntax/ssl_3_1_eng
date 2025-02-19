@@ -68,8 +68,7 @@ EndProcedure
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Server call, Server.
+#Region ServerCallServer
 
 &AtServer
 Procedure SaveThisFormSettings()
@@ -81,8 +80,9 @@ Procedure SaveThisFormSettings()
 		FormSettings);
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Server.
+#EndRegion
+
+#Region Server
 
 &AtServer
 Procedure ReadThisFormSettings()
@@ -211,7 +211,7 @@ Function AvailableReportsOptions()
 	Query = New Query(
 	"SELECT ALLOWED
 	|	ReportsOptions.Ref AS Ref,
-	|	ReportsOptions.Report AS Report,
+	|	ReportsOptions.Report AS RefOfReport,
 	|	ReportsOptions.VariantKey AS VariantKey,
 	|	ReportsOptions.Description AS Description,
 	|	CASE
@@ -268,7 +268,10 @@ Function AvailableReportsOptions()
 	Query.SetParameter("CurrentUser", Users.AuthorizedUser());
 	Query.SetParameter("DIsabledApplicationOptions", ReportsOptionsCached.DIsabledApplicationOptions());
 	
-	Return Query.Execute().Unload();
+	AvailableReportsOptions = Query.Execute().Unload();
+	AvailableReportsOptions.Columns.RefOfReport.Name = "Report";
+	
+	Return AvailableReportsOptions;
 	
 EndFunction
 
@@ -389,5 +392,7 @@ Function DetermineOutputGroup(SubsystemPresentation)
 	
 	Return Var_Group;
 EndFunction
+
+#EndRegion
 
 #EndRegion

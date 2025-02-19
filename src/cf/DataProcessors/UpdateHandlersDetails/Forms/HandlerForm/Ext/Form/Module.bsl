@@ -116,7 +116,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
 	If Modified Then
 		Cancel = True;
-		ResponseHandler1 = New NotifyDescription("FormClosingCompletion", ThisObject);
+		ResponseHandler1 = New CallbackDescription("FormClosingCompletion", ThisObject);
 		ShowQueryBox(ResponseHandler1, NStr("en = 'The data has been changed. Do you want to save the changes?';"), QuestionDialogMode.YesNoCancel);
 	EndIf;
 	
@@ -231,7 +231,7 @@ EndProcedure
 &AtClient
 Procedure CheckProcedureOnChange(Item)
 	
-	NotifyDescription = New NotifyDescription("ProcedureChecksFinishingTextInputAfterQuestion", ThisObject, Item.EditText);
+	NotifyDescription = New CallbackDescription("ProcedureChecksFinishingTextInputAfterQuestion", ThisObject, Item.EditText);
 	If Item.EditText <> StandardCheckProcedure() Then
 		ShowQueryBox(NotifyDescription, TextWarningChangedCheckProcedure(True), QuestionDialogMode.YesNo);
 	EndIf;
@@ -302,7 +302,7 @@ Procedure CommentStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	StandardProcessing = False;
 	
-	Notification = New NotifyDescription("CommentStartChoiceCompletion", ThisObject);
+	Notification = New CallbackDescription("CommentStartChoiceCompletion", ThisObject);
 	CommonClient.ShowMultilineTextEditingForm(
 		Notification, Items.Comment.EditText, NStr("en = 'Internal comment';"));
 	
@@ -577,7 +577,7 @@ Procedure AddAttributeTypesToObjectsToLock(Command)
 	ObjectsNames.SortByValue();
 	
 	AdditionalParameters = New Structure("TableName", "ObjectsToLock");
-	ChoiceHandler = New NotifyDescription("MetadataObjectChoiceCompletion", ThisObject, AdditionalParameters);
+	ChoiceHandler = New CallbackDescription("MetadataObjectChoiceCompletion", ThisObject, AdditionalParameters);
 	ObjectsNames.ShowChooseItem(ChoiceHandler, NStr("en = 'Select metadata object';"));
 	
 EndProcedure
@@ -833,7 +833,7 @@ Procedure SelectMetadataObject(Item, CurrentValue = "", TableName = Undefined)
 	EndIf;
 	
 	ChoiceHandlerParameters = ChoiceHandlerParameters(TableName, CurrentValue);
-	ChoiceHandler = New NotifyDescription("MetadataObjectChoiceProcessing1", ThisObject, ChoiceHandlerParameters);
+	ChoiceHandler = New CallbackDescription("MetadataObjectChoiceProcessing1", ThisObject, ChoiceHandlerParameters);
 	
 	ChoiceFormName = "DataProcessor.UpdateHandlersDetails.Form.MetadataObjectsIDsChoiceForm";
 	If Not StartFromConfiguration Then
@@ -1287,7 +1287,7 @@ Procedure SelectTheMetadataObjectSDetails(Attributes, TableName, ObjectName)
 	ObjectName = StrConcat(Names, ".");
 	
 	AdditionalParameters = New Structure("TableName, ObjectName", TableName, ObjectName);
-	ChoiceHandler = New NotifyDescription("CompletingTheSelectionOfTheMetadataObjectSProps", ThisObject, AdditionalParameters);
+	ChoiceHandler = New CallbackDescription("CompletingTheSelectionOfTheMetadataObjectSProps", ThisObject, AdditionalParameters);
 	Attributes.ShowChooseItem(ChoiceHandler, NStr("en = 'Select an object attribute';"));
 	
 EndProcedure

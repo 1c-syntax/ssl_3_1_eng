@@ -222,7 +222,7 @@ Procedure Attachable_StartChoiceOfTableQuestionsTextCells(Item, ChoiceData, Stan
 	StandardProcessing = False;
 
 	AdditionalParameters = New Structure("Item", Item);
-	HandlerNotifications = New NotifyDescription("EditMultilineTextOnEnd", ThisObject,
+	HandlerNotifications = New CallbackDescription("EditMultilineTextOnEnd", ThisObject,
 		AdditionalParameters);
 	CommonClient.ShowMultilineTextEditingForm(HandlerNotifications,
 		Item.EditText);
@@ -292,9 +292,9 @@ EndProcedure
 &AtClient
 Procedure FillingFormEndAndClose(Command)
 
-	OnCloseNotifyHandler = New NotifyDescription("PromptForAcceptingQuestionnaireAfterCompletion", ThisObject);
+	OnCloseNotifyHandler = New CallbackDescription("PromptForAcceptingQuestionnaireAfterCompletion", ThisObject);
 	ShowQueryBox(OnCloseNotifyHandler, 
-		NStr("en = 'You will not be able to edit your responses
+		NStr("en = 'You will not be able to edit your answers
 			|after you submit the questionnaire.
 			|Would you like to submit it?';"), QuestionDialogMode.YesNo);
 
@@ -333,8 +333,7 @@ EndProcedure
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Setting form attributes values.
+#Region SettingFormDetailsValues
 
 &AtServer
 Procedure SetSectionFillingFormAttributesValues()
@@ -694,8 +693,9 @@ Procedure SetAttributeValuesComplexQuestion(DoQueryBox, SelectionQuestion, TreeR
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Convert questionnaire entry data into a document table.
+#EndRegion
+
+#Region ConvertingQuestionnaireAnswersIntoDocTabularSection
 
 &AtServer
 Function EndEditFillingForm(WriteMode)
@@ -1115,8 +1115,9 @@ Procedure FillAnswersComplexQuestion(TreeRow)
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Miscellaneous.
+#EndRegion
+
+#Region Other
 
 &AtServer
 Procedure CreateFormAccordingToSection()
@@ -1269,7 +1270,7 @@ Function CheckQuestionnaireFilling()
 
 	Selection = Result.Select();
 	While Selection.Next() Do
-		Common.MessageToUser(NStr("en = 'No response was given to question';") + "- " 
+		Common.MessageToUser(NStr("en = 'Question not answered';") + "- " 
 			+ StrReplace(Selection.Ref.FullCode(), "/", ".") + " " + Selection.Wording);
 	EndDo;
 
@@ -1716,5 +1717,7 @@ Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 EndProcedure
 
 // End StandardSubsystems.AttachableCommands
+
+#EndRegion
 
 #EndRegion

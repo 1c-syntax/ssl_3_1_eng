@@ -371,7 +371,7 @@ Procedure AskAboutUserNotification(Cancel)
 	Cancel = True;
 	UsersNotificationQuestionSpecified = True;
 
-	Handler = New NotifyDescription("AfterAQuestionAboutNotifyingUsers", ThisObject);
+	Handler = New CallbackDescription("AfterAQuestionAboutNotifyingUsers", ThisObject);
 	ReportsOptionsInternalClient.AskAboutUserNotification(Handler, UsersCount);
 
 EndProcedure

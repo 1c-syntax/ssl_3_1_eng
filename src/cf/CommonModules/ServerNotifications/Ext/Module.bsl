@@ -104,7 +104,7 @@ EndProcedure
 //			ModuleMonitoringCenterInternal = Common.CommonModule("MonitoringCenterInternal");
 //			ModuleMonitoringCenterInternal.OnReceiptRecurringClientDataOnServer(Parameters, Results);
 //		EndIf;
-//	Exception
+//	Except
 //		ServerNotifications.HandleError(ErrorInfo());
 //	EndTry;
 //	ServerNotifications.AddIndicator(Results, StartMoment,
@@ -135,7 +135,7 @@ EndProcedure
 //			ModuleMonitoringCenterInternal = Common.CommonModule("MonitoringCenterInternal");
 //			ModuleMonitoringCenterInternal.OnReceiptRecurringClientDataOnServer(Parameters, Results);
 //		EndIf;
-//	Exception
+//	Except
 //		ServerNotifications.HandleError(ErrorInfo());
 //	EndTry;
 //	ServerNotifications.AddIndicator(Results, StartMoment,
@@ -315,7 +315,7 @@ Procedure SendServerNotificationWithGroupID(NameOfAlert, Result, SMSMessageRecip
 	NewRecord.AddedOn = AddedOn;
 	NewRecord.DateAddedMilliseconds = DateAddedMilliseconds;
 	NewRecord.SMSMessageRecipients = AddresseesIDs;
-	NewRecord.NotificationContent = New ValueStorage(NotificationContent);
+	NewRecord.NotificationContent = New ValueStorage(NotificationContent, New Deflation(9));
 	NewRecord.GroupID = Lower(AdditionalParameters.GroupID);
 	NewRecord.NotificationTypeInGroup = Lower(AdditionalParameters.NotificationTypeInGroup);
 	
@@ -324,7 +324,7 @@ Procedure SendServerNotificationWithGroupID(NameOfAlert, Result, SMSMessageRecip
 		NewRecord.DataAreaAuxiliaryData = 0;
 	EndIf;
 	
-	ClientNotificationsAreAvailable = ServerNotificationsInternalCached.ClientNotificationsAreAvailable();
+	AreClientNotificationsAvailable = ServerNotificationsInternalCached.AreClientNotificationsAvailable();
 	RunDeferredDelivery = False;
 	
 	If ValueIsFilled(DeliveryDeferral) Then
@@ -337,7 +337,7 @@ Procedure SendServerNotificationWithGroupID(NameOfAlert, Result, SMSMessageRecip
 		EndIf;
 		
 	ElsIf SendImmediately
-	        And (ClientNotificationsAreAvailable
+	        And (AreClientNotificationsAvailable
 	           Or IsCurrentUserRegisteredInInteractionSystem()) Then
 		
 		If SendMessageImmediately(NotificationID, AddedOn, NotificationContent) Then
@@ -350,7 +350,7 @@ Procedure SendServerNotificationWithGroupID(NameOfAlert, Result, SMSMessageRecip
 	EndIf;
 	
 	If ValueIsFilled(NewRecord.DeferralOfWritingToCollaborationSystem)
-	   And Not ClientNotificationsAreAvailable
+	   And Not AreClientNotificationsAvailable
 	   And Not CollaborationSystemConnected() Then
 		
 		NewRecord.DeferralOfWritingToCollaborationSystem = 0;
@@ -358,7 +358,7 @@ Procedure SendServerNotificationWithGroupID(NameOfAlert, Result, SMSMessageRecip
 	EndIf;
 	
 	If Not AdditionalParameters.Replace
-	   And ClientNotificationsAreAvailable
+	   And AreClientNotificationsAvailable
 	   And ValueIsFilled(NewRecord.CollaborationSystemRecordDate) Then
 		
 		Return;
@@ -450,7 +450,7 @@ Function SendMessageImmediately(NotificationID, AddedOn, NotificationContent)
 	Data.AddedOn          = AddedOn;
 	Data.WasSentFromQueue     = False;
 	
-	If ServerNotificationsInternalCached.ClientNotificationsAreAvailable() Then
+	If ServerNotificationsInternalCached.AreClientNotificationsAvailable() Then
 		Return SendNotification(Data);
 	EndIf;
 	
@@ -554,7 +554,7 @@ Function NewServerNotificationToClient()
 EndFunction
 
 // Parameters:
-//   Store - Undefined
+//   Storage - Undefined
 //             - ValueStorage
 //
 // Returns:
@@ -563,18 +563,18 @@ EndFunction
 //   * Result     - See SendServerNotification.Result
 //   * SMSMessageRecipients      - See SendServerNotification.SMSMessageRecipients
 //
-Function NotificationNewContent(Store = Undefined)
+Function NotificationNewContent(Storage = Undefined)
 	
 	Content = New Structure;
 	Content.Insert("NameOfAlert", "");
 	Content.Insert("Result");
 	Content.Insert("SMSMessageRecipients", New Map);
 	
-	If TypeOf(Store) <> Type("ValueStorage") Then
+	If TypeOf(Storage) <> Type("ValueStorage") Then
 		Return Content;
 	EndIf;
 	
-	CurrentContent = Store.Get();
+	CurrentContent = Storage.Get();
 	If TypeOf(CurrentContent) = Type("Structure") Then
 		FillPropertyValues(Content, CurrentContent);
 	EndIf;
@@ -781,8 +781,8 @@ Function SessionUndeliveredServerNotifications(Val Parameters) Export
 	NameOfNotificationAllSessionsSleepingJobDisabled = NameOfNotificationAllSessionsSleepingJobDisabled();
 	NewServerNotifications = New Array;
 	While Selection.Next() Do
-		Store = Selection.NotificationContent;
-		Content = NotificationNewContent(Store);
+		Storage = Selection.NotificationContent;
+		Content = NotificationNewContent(Storage);
 		If ValueIsFilled(Content.NameOfAlert) Then
 			If Content.NameOfAlert = NameOfNotificationAllSessionsSleepingJobDisabled Then
 				If Not ServiceAdministratorSession Then
@@ -1048,9 +1048,9 @@ EndFunction
 
 Procedure SendPreparedServerNotifications(SendStatus, MaxIntervalByUser)
 	
-	ClientNotificationsAreAvailable = ServerNotificationsInternalCached.ClientNotificationsAreAvailable();
+	AreClientNotificationsAvailable = ServerNotificationsInternalCached.AreClientNotificationsAvailable();
 	
-	If Not ClientNotificationsAreAvailable Then
+	If Not AreClientNotificationsAvailable Then
 		If Not IsCurrentUserRegisteredInInteractionSystem() Then
 			Return;
 		EndIf;
@@ -1074,8 +1074,8 @@ Procedure SendPreparedServerNotifications(SendStatus, MaxIntervalByUser)
 	Context.Insert("SuccessfullNotificationsDatesByUsers", New Map);
 	
 	While Selection.Next() Do
-		Store = Selection.NotificationContent;
-		Content = NotificationNewContent(Store);
+		Storage = Selection.NotificationContent;
+		Content = NotificationNewContent(Storage);
 		If ValueIsFilled(Content.NameOfAlert) Then
 			Data = MessageNewData();
 			Data.NameOfAlert           = Content.NameOfAlert;
@@ -1087,7 +1087,7 @@ Procedure SendPreparedServerNotifications(SendStatus, MaxIntervalByUser)
 				If Not MessageAlreadyDelivered(SendStatus, Selection, "AllUsers") Then
 					Data.SMSMessageRecipients = Undefined;
 					Data.Errors = Context.FailedNotificationsDatesByUsers;
-					MessageSent = ?(ClientNotificationsAreAvailable, SendNotification(Data),
+					MessageSent = ?(AreClientNotificationsAvailable, SendNotification(Data),
 						SendMessage(Data, GlobalChatID));
 					If MessageSent Then
 						Context.SuccessfullNotificationsDatesByUsers.Insert("AllUsers", CurrentSessionDate());
@@ -1133,12 +1133,12 @@ EndProcedure
 
 Procedure SendTargetedMessage(Data, SMSMessageRecipients, Context)
 	
-	ClientNotificationsAreAvailable = ServerNotificationsInternalCached.ClientNotificationsAreAvailable();
+	AreClientNotificationsAvailable = ServerNotificationsInternalCached.AreClientNotificationsAvailable();
 	
-	If ClientNotificationsAreAvailable Or SMSMessageRecipients.Count() > 20 Then
+	If AreClientNotificationsAvailable Or SMSMessageRecipients.Count() > 20 Then
 		Data.SMSMessageRecipients = SMSMessageRecipients;
 		IdentifyFailedNotificationsDates(Data, Context.FailedNotificationsDatesByUsers);
-		MessageSent = ?(ClientNotificationsAreAvailable, SendNotification(Data),
+		MessageSent = ?(AreClientNotificationsAvailable, SendNotification(Data),
 			SendMessage(Data, Context.GlobalChatID));
 		
 		If MessageSent Then
@@ -1573,7 +1573,7 @@ Procedure UpdateSendStatus(NewSendStatus, PropertiesNames)
 		EndDo;
 		If Write Then
 			ValueManager = ServiceValueManager(Constants.ServerNotificationsSendStatus);
-			ValueManager.Value = New ValueStorage(SendStatus);
+			ValueManager.Value = New ValueStorage(SendStatus, New Deflation(9));
 			ValueManager.Write();
 		EndIf;
 		CommitTransaction();
@@ -1621,7 +1621,7 @@ Function SendStatusOnBackgroundJobStart()
 		Else
 			SendStatus.BackgroundJobIdentifier = CurrentBackgroundJob.UUID;
 			ValueManager = ServiceValueManager(Constants.ServerNotificationsSendStatus);
-			ValueManager.Value = New ValueStorage(SendStatus);
+			ValueManager.Value = New ValueStorage(SendStatus, New Deflation(9));
 			ValueManager.Write();
 		EndIf;
 		CommitTransaction();
@@ -1693,7 +1693,7 @@ EndProcedure
 // Intended for the SendServerNotificationWithGroupID procedure.
 Procedure StartDeliverDeferredServerNotifications(Launched = False)
 	
-	If Not ServerNotificationsInternalCached.ClientNotificationsAreAvailable()
+	If Not ServerNotificationsInternalCached.AreClientNotificationsAvailable()
 	   And Not IsCurrentUserRegisteredInInteractionSystem()
 	 Or Common.FileInfobase() // Starting the delivery is pointless as the job will be waiting for a long-running operation job.
 	 Or ExclusiveMode() // Starting the delivery is prohibited as all changes within the session will be blocked.
@@ -1735,7 +1735,7 @@ Procedure ServerNotificationsDeferredDelivery() Export
 	EndIf;
 	
 	If IsDeferredServerAlertsDeliveryRunning(CurrentBackgroundJob)
-	 Or Not ServerNotificationsInternalCached.ClientNotificationsAreAvailable()
+	 Or Not ServerNotificationsInternalCached.AreClientNotificationsAvailable()
 	   And Not IsCurrentUserRegisteredInInteractionSystem() Then
 		Return;
 	EndIf;
@@ -1983,7 +1983,7 @@ Function ServerNotificationsParametersThisSession() Export
 		NewRecord.SessionKey = Parameters.SessionKey;
 		NewRecord.IBUserID =
 			InfoBaseUsers.CurrentUser().UUID;
-		NewRecord.Notifications = New ValueStorage(RepeatedNotificationToSave(RecurringNotifications));
+		NewRecord.Notifications = New ValueStorage(RepeatedNotificationToSave(RecurringNotifications), New Deflation(9));
 		NewRecord.AddedOn = CurrentSessionDate();
 		RecordSet.Write();
 		ConfigureJobSendServerNotificationsToClients(True, Parameters.MinimumPeriod, True);
@@ -2434,148 +2434,12 @@ EndFunction
 
 Function InfobaseDummyUser()
 	
-	UserName = InternalUsername();
-	IBUser = InfoBaseUsers.FindByName(UserName);
-	WriteIBUser = False;
-	
-	Properties = New Structure;
-	Properties.Insert("Name", UserName);
-	Properties.Insert("FullName", UserName);
-	Properties.Insert("StandardAuthentication", False);
-	Properties.Insert("CannotChangePassword", True);
-	Properties.Insert("ShowInList", False);
-	Properties.Insert("OpenIDAuthentication", False);
-	Properties.Insert("OpenIDConnectAuthentication", False);
-	Properties.Insert("AccessTokenAuthentication", False);
-	Properties.Insert("OSAuthentication", False);
-	Properties.Insert("OSUser", "");
-	
-	If IBUser = Undefined Then
-		If InfoBaseUsers.GetUsers().Count() = 0 Then 
-			Return Undefined;
-		EndIf;
-		IBUser = InfoBaseUsers.CreateUser();
-		WriteIBUser = True;
-	Else
-		CurrentProperties = New Structure(New FixedStructure(Properties));
-		FillPropertyValues(CurrentProperties, IBUser);
-		For Each KeyAndValue In Properties Do
-			If CurrentProperties[KeyAndValue.Key] <> Properties[KeyAndValue.Key] Then
-				WriteIBUser = True;
-				Break;
-			EndIf;
-		EndDo;
-		Role = Undefined;
-		For Each Role In IBUser.Roles Do
-			Break;
-		EndDo;
-		If Not IBUser.PasswordIsSet
-		 Or Role <> Undefined Then
-			WriteIBUser = True;
-		EndIf;
-	EndIf;
-	
-	If WriteIBUser Then
-		FillPropertyValues(IBUser, Properties);
-		NewPassword = String(New UUID);
-		If UsersInternal.IsSettings8_3_26Available() Then
-			// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
-			IBUser.StoredPasswordValue =
-				Eval("EvaluateStoredUserPasswordValue(NewPassword)");
-			// ACC:488-on
-		Else
-			IBUser.StoredPasswordValue =
-				Users.PasswordHashString(NewPassword);
-		EndIf;
-		IBUser.Roles.Clear();
-		IBUser.Write();
-	EndIf;
-	
-	If InformationRegisters.ApplicationRuntimeParameters.UpdateRequired1() Then
-		Return IBUser;
-	EndIf;
-	
-	IBUserID = IBUser.UUID;
-	
-	Query = New Query;
-	Query.SetParameter("IBUserID", IBUserID);
-	Query.Text =
-	"SELECT
-	|	TRUE AS TrueValue
-	|FROM
-	|	Catalog.Users AS Users
-	|WHERE
-	|	Users.IBUserID = &IBUserID";
-	
-	If Not Query.Execute().IsEmpty() Then
-		Return IBUser;
-	EndIf;
-	
-	Query = New Query;
-	Query.SetParameter("Description", IBUser.FullName);
-	Query.Text =
-	"SELECT
-	|	Users.Ref AS Ref
-	|FROM
-	|	Catalog.Users AS Users
-	|WHERE
-	|	Users.Description = &Description
-	|	AND Users.IsInternal";
-	
+	Properties = Users.NewIBUserDetails(, True);
+	Properties.Name = InternalUsername();
 	RefToNew = Catalogs.Users.GetRef(
 		New UUID("ea3b6bcf-d6d8-11ee-886a-b06ebfbf08c7"));
 	
-	Block = New DataLock;
-	LockItem = Block.Add("Catalog.Users");
-	LockItem.SetValue("Ref", RefToNew);
-	
-	Selection = Query.Execute().Select();
-	If Selection.Next() Then
-		RefToExisting = Selection.Ref; // CatalogRef.Users
-		LockItem = Block.Add("Catalog.Users");
-		LockItem.SetValue("Ref", RefToExisting);
-	Else
-		RefToExisting = Undefined;
-	EndIf;
-	
-	BeginTransaction();
-	Try
-		Block.Lock();
-		User = RefToNew.GetObject();
-
-		If User = Undefined
-		   And ValueIsFilled(RefToExisting) Then
-			
-			User = RefToExisting.GetObject();
-			If User <> Undefined Then
-				ExistingInfobaseUser = InfoBaseUsers.FindByUUID(
-					User.IBUserID);
-				If ExistingInfobaseUser <> Undefined Then
-					User = Undefined;
-				EndIf;
-			EndIf;
-		EndIf;
-		
-		If User = Undefined Then
-			User = Catalogs.Users.CreateItem();
-			User.SetNewObjectRef(RefToNew);
-		EndIf;
-		
-		IBUserDetails = New Structure;
-		IBUserDetails.Insert("Action", "Write");
-		IBUserDetails.Insert("UUID", IBUserID);
-		
-		User.Description = IBUser.FullName;
-		User.IsInternal = True;
-		User.AdditionalProperties.Insert("IBUserDetails", IBUserDetails);
-		User.Write();
-		CommitTransaction();
-	Except
-		RollbackTransaction();
-		Raise;
-	EndTry;
-	
-	Return IBUser;
+	Return Users.InfobaseDummyUser(Properties, RefToNew);
 	
 EndFunction
 
@@ -2608,7 +2472,7 @@ EndFunction
 
 Function CollaborationSystemConnected(RefreshCache = False, DeliverWithoutCS = Undefined) Export
 	
-	If ServerNotificationsInternalCached.ClientNotificationsAreAvailable() Then
+	If ServerNotificationsInternalCached.AreClientNotificationsAvailable() Then
 		Return False;
 	EndIf;
 	
@@ -2883,12 +2747,12 @@ Function SendNotification(Data)
 		SessionsNumbers = Undefined;
 	EndIf;
 	
-	NotificationKey = ServerNotificationsInternalClientServer.KeyForServerSideNotifications();
+	Notification_Key = ServerNotificationsInternalClientServer.ServerNotificationsNotificationsKey();
 	
 	If SessionsNumbers = Undefined Then
-		ClientNotificationManager().SendNotification(NotificationKey, Data);
+		ClientNotificationManager().SendNotification(Notification_Key, Data);
 	Else
-		ClientNotificationManager().SendNotification(NotificationKey, Data, SessionsNumbers);
+		ClientNotificationManager().SendNotification(Notification_Key, Data, SessionsNumbers);
 	EndIf;
 	
 	Return True;

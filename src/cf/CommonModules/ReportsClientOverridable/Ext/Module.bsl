@@ -89,7 +89,7 @@ EndProcedure
 //    * Marked           - ValueList - Previously selected values.
 //    * ChoiceParameters      - Array of ChoiceParameter - Configured choice parameters.
 // 
-//   ClosingNotification1 - NotifyDescription - Choice result notification.
+//   ClosingNotification1 - CallbackDescription - Choice result notification.
 //                           Runs after a user selects an Array or ValueList item.
 //
 //   StandardProcessing - Boolean - If False, the standard form won't open.
@@ -166,7 +166,7 @@ EndProcedure
 //   StandardProcessing - Boolean - If True, the standard period selection dialog box will be used.
 //       If it is set to False, the standard dialog box will not open.
 //
-//   ResultHandler - NotifyDescription - Period selection handler.
+//   ResultHandler - CallbackDescription - Period selection handler.
 //       The following type values can be passed to the ResultHandler as the result::
 //       Undefined - User canceled the period input.
 //       StandardPeriod - Period specified by the user.

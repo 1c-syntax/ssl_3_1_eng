@@ -188,7 +188,7 @@ Procedure AddToGroup(Command)
 	FormParameters.Insert("GroupsUser", Parameters.User);
 	
 	OpenForm("Catalog.AccessGroups.Form.SelectGroupsByEmployeeResponsible", FormParameters, ThisObject,
-		,,, New NotifyDescription("IncludeExcludeFromGroup", ThisObject, True));
+		,,, New CallbackDescription("IncludeExcludeFromGroup", ThisObject, True));
 	
 EndProcedure
 
@@ -252,8 +252,7 @@ Procedure AccessRightsReport(Command)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Required by a role interface.
+#Region ForRolesInterfaceOperation
 
 &AtClient
 Procedure RolesBySubsystemsGroup(Command)
@@ -262,6 +261,8 @@ Procedure RolesBySubsystemsGroup(Command)
 	UsersInternalClient.ExpandRoleSubsystems(ThisObject);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -284,7 +285,7 @@ Procedure IncludeExcludeFromGroup(AccessGroup, IncludeInAccessGroup) Export
 	   And AccessGroup = AdministratorsAccessGroup Then
 		
 		UsersInternalClient.RequestPasswordForAuthenticationInService(
-			New NotifyDescription(
+			New CallbackDescription(
 				"IncludeExcludeFromGroupCompletion", ThisObject, AdditionalParameters),
 			ThisObject,
 			ServiceUserPassword);
@@ -626,8 +627,7 @@ Procedure FillRoles()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Required by a role interface.
+#Region ForRolesInterfaceOperation
 
 &AtServer
 Procedure ProcessRolesInterface(Action, MainParameter = Undefined)
@@ -655,5 +655,7 @@ Procedure ProcessRolesInterface(Action, MainParameter = Undefined)
 	UsersInternal.ProcessRolesInterface(Action, ActionParameters);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

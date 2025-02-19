@@ -32,9 +32,11 @@ Procedure SaveUserReportSnapshot(ReportResult, ReportSettings) Export
 	
 	RecordManager.UserSettingsHash = Common.CheckSumString(
 		ReportSettings.ResultProperties.SettingsComposer.UserSettings);
-	RecordManager.UserSetting = New ValueStorage(ReportSettings.ResultProperties.SettingsComposer.UserSettings);
+	RecordManager.UserSetting = New ValueStorage(
+		ReportSettings.ResultProperties.SettingsComposer.UserSettings,
+		New Deflation(9));
 
-	RecordManager.ReportResult = New ValueStorage(ReportResult);
+	RecordManager.ReportResult = New ValueStorage(ReportResult, New Deflation(9));
 	RecordManager.UpdateDate = CurrentSessionDate();
 	RecordManager.LastViewedDate = CurrentSessionDate();
 	
@@ -76,7 +78,7 @@ Procedure UpdateUserReportsSnapshots(FillParameters, StorageAddress) Export
 		Query.Text = 
 		"SELECT
 		|	ReportsSnapshots.User AS User,
-		|	ReportsSnapshots.Report AS Report,
+		|	ReportsSnapshots.Report AS RefOfReport,
 		|	ReportsSnapshots.Variant AS Variant,
 		|	ReportsSnapshots.UserSettingsHash AS UserSettingsHash
 		|INTO SavedReportsSnapshots
@@ -93,7 +95,8 @@ Procedure UpdateUserReportsSnapshots(FillParameters, StorageAddress) Export
 		|////////////////////////////////////////////////////////////////////////////////
 		|SELECT
 		|	ReportsSnapshots.User AS User,
-		|	ReportsSnapshots.Report AS Report,
+		|	ReportsSnapshots.Report AS RefOfReport,
+		|	&ReportName AS ReportName,
 		|	ReportsSnapshots.Variant AS Variant,
 		|	ReportsSnapshots.Variant.VariantKey AS VariantKey,
 		|	ReportsSnapshots.UserSettingsHash AS UserSettingsHash,
@@ -102,7 +105,7 @@ Procedure UpdateUserReportsSnapshots(FillParameters, StorageAddress) Export
 		|	InformationRegister.ReportsSnapshots AS ReportsSnapshots
 		|		INNER JOIN SavedReportsSnapshots AS SavedReportsSnapshots
 		|		ON ReportsSnapshots.User = SavedReportsSnapshots.User
-		|			AND ReportsSnapshots.Report = SavedReportsSnapshots.Report
+		|			AND ReportsSnapshots.Report = SavedReportsSnapshots.RefOfReport
 		|			AND ReportsSnapshots.Variant = SavedReportsSnapshots.Variant
 		|			AND ReportsSnapshots.UserSettingsHash = SavedReportsSnapshots.UserSettingsHash
 		|WHERE
@@ -112,7 +115,8 @@ Procedure UpdateUserReportsSnapshots(FillParameters, StorageAddress) Export
 		Query.Text = 
 		"SELECT
 		|	ReportsSnapshots.User AS User,
-		|	ReportsSnapshots.Report AS Report,
+		|	ReportsSnapshots.Report AS RefOfReport,
+		|	&ReportName AS ReportName,
 		|	ReportsSnapshots.Variant AS Variant,
 		|	ReportsSnapshots.Variant.VariantKey AS VariantKey,
 		|	ReportsSnapshots.UserSettingsHash AS UserSettingsHash,
@@ -127,23 +131,49 @@ Procedure UpdateUserReportsSnapshots(FillParameters, StorageAddress) Export
 		Query.Text = StrReplace(Query.Text, "ReportsOptions", CatalogNameReportOptions);
 	EndIf;
 	
+	ReportName = "CASE
+	|		WHEN VALUETYPE(ReportsSnapshots.Report) = TYPE(Catalog.MetadataObjectIDs)
+	|			THEN CAST(ReportsSnapshots.Report AS Catalog.MetadataObjectIDs).Name
+	|		WHEN VALUETYPE(ReportsSnapshots.Report) = TYPE(Catalog.ExtensionObjectIDs)
+	|			THEN CAST(ReportsSnapshots.Report AS Catalog.ExtensionObjectIDs).Name
+	|		ELSE ReportsSnapshots.Report
+	|	END";
+	
+	If Common.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then 
+		ModuleAdditionalReportsAndDataProcessors = Common.CommonModule("AdditionalReportsAndDataProcessors");
+		AdditionalReportTableName = ModuleAdditionalReportsAndDataProcessors.AdditionalReportTableName();
+		
+		ReportName = StringFunctionsClientServer.SubstituteParametersToString("CASE
+			|		WHEN VALUETYPE(ReportsSnapshots.Report) = TYPE(Catalog.MetadataObjectIDs)
+			|			THEN CAST(ReportsSnapshots.Report AS Catalog.MetadataObjectIDs).Name
+			|		WHEN VALUETYPE(ReportsSnapshots.Report) = TYPE(Catalog.ExtensionObjectIDs)
+			|			THEN CAST(ReportsSnapshots.Report AS Catalog.ExtensionObjectIDs).Name
+			|		WHEN VALUETYPE(ReportsSnapshots.Report) = TYPE(%1)
+			|			THEN CAST(ReportsSnapshots.Report AS %1).ObjectName
+			|		ELSE ReportsSnapshots.Report
+			|	END", AdditionalReportTableName);
+	EndIf;
+	
+	Query.Text = StrReplace(Query.Text, "&ReportName", ReportName);
+	
 	Selection = Query.Execute().Select();
 	
 	While Selection.Next() Do
 	
 		RecordManager = InformationRegisters.ReportsSnapshots.CreateRecordManager();
-		FillPropertyValues(RecordManager, Selection, "User, Report, Variant, UserSettingsHash");
+		FillPropertyValues(RecordManager, Selection, "User, Variant, UserSettingsHash");
+		RecordManager.Report = Selection.RefOfReport;
 	
 		ReportGenerationParameters = ReportsOptions.ReportGenerationParameters();
 	
 		ReportGenerationParameters.OptionRef1 = Selection.Variant;
-		ReportGenerationParameters.RefOfReport = Selection.Report;
+		ReportGenerationParameters.RefOfReport = Selection.RefOfReport;
 		ReportGenerationParameters.VariantKey = Selection.VariantKey;
 		ReportGenerationParameters.DCUserSettings = Selection.UserSetting.Get();
 		If Not IsBlankString(CatalogNameReportOptions) Then
-			VariantKey = Selection.Report.Name;
+			VariantKey = Selection.ReportName;
 			ReportGenerationParameters.VariantKey = VariantKey;
-			ReportGenerationParameters.OptionRef1 = ReportsOptions.ReportVariant(Selection.Report, VariantKey);
+			ReportGenerationParameters.OptionRef1 = ReportsOptions.ReportVariant(Selection.RefOfReport, VariantKey);
 		EndIf;
 		
 		Generation1 = ReportsOptions.GenerateReport(ReportGenerationParameters, True, False);
@@ -151,12 +181,12 @@ Procedure UpdateUserReportsSnapshots(FillParameters, StorageAddress) Export
 		If Not Generation1.Success Then
 			WriteLogEvent(NStr("en = 'Update report snapshots';", Common.DefaultLanguageCode()),
 			EventLogLevel.Error,
-			Common.MetadataObjectByID(Selection.Report),
+			Common.MetadataObjectByID(Selection.RefOfReport),
 			Selection.Variant,
 			Generation1.ErrorText);
 		EndIf;
 		
-		RecordManager.ReportResult = New ValueStorage(Generation1.SpreadsheetDocument, New Deflation);
+		RecordManager.ReportResult = New ValueStorage(Generation1.SpreadsheetDocument, New Deflation(9));
 		RecordManager.UserSetting = Selection.UserSetting;
 		RecordManager.UpdateDate = CurrentSessionDate();
 		RecordManager.LastViewedDate = CurrentSessionDate();
@@ -195,7 +225,7 @@ Function UserReportsSnapshots(User, CatalogNameReportOptions) Export
 	Query.Text =
 	"SELECT
 	|	ReportsSnapshots.User AS User,
-	|	ReportsSnapshots.Report AS Report,
+	|	ReportsSnapshots.Report AS RefOfReport,
 	|	ReportsSnapshots.Variant AS Variant,
 	|	ReportsSnapshots.Variant.Description AS OptionDescription,
 	|	ReportsSnapshots.UserSettingsHash AS UserSettingsHash,
@@ -217,8 +247,11 @@ Function UserReportsSnapshots(User, CatalogNameReportOptions) Export
 	If Not IsBlankString(CatalogNameReportOptions) Then
 		Query.Text = StrReplace(Query.Text, "ReportsOptions", CatalogNameReportOptions);
 	EndIf;
+	
+	UserReportsSnapshots = Query.Execute().Unload();
+	UserReportsSnapshots.Columns.RefOfReport.Name = "Report";
 
-	Return Query.Execute().Unload();
+	Return UserReportsSnapshots;
 
 EndFunction
 

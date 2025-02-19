@@ -92,7 +92,7 @@ Procedure HistoryBeforeDeleteRow(Item, Cancel)
 	EndIf;
 	If Not Cancel Then
 		AdditionalParameters = New Structure("RowID", Item.CurrentRow);
-		Notification = New NotifyDescription("AfterAnswerToQuestionAboutDeletion", ThisObject, AdditionalParameters);
+		Notification = New CallbackDescription("AfterAnswerToQuestionAboutDeletion", ThisObject, AdditionalParameters);
 		ShowQueryBox(Notification, NStr("en = 'Do you want to remove address registered on';") + " " + Format(ValidFrom, "DLF=DD")+ "?", QuestionDialogMode.YesNo);
 	EndIf;
 	Cancel = True;
@@ -273,7 +273,7 @@ Procedure OpenAddressEditForm(Val RowSelected)
 		AdditionalParameters = New Structure("ValidFrom, New", RowData.ValidFrom, Not ValueIsFilled(RowData.FieldValues));
 	EndIf;
 	
-	Notification = New NotifyDescription("AfterAddressEdit", ThisObject, AdditionalParameters);
+	Notification = New CallbackDescription("AfterAddressEdit", ThisObject, AdditionalParameters);
 	ContactsManagerClient.OpenContactInformationForm(OpeningParameters,, Notification);
 	
 EndProcedure

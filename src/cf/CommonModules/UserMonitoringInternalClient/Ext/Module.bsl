@@ -50,7 +50,7 @@ Procedure OnProcessDetails(ReportForm, Item, Details, StandardProcessing) Export
 		HandlerParameters = New Structure;
 		HandlerParameters.Insert("Details", Details);
 		HandlerParameters.Insert("ReportForm", ReportForm);
-		Handler = New NotifyDescription("ResultDetailProcessingCompletion", ThisObject, HandlerParameters);
+		Handler = New CallbackDescription("ResultDetailProcessingCompletion", ThisObject, HandlerParameters);
 		ReportForm.ShowChooseFromMenu(Handler, DetailsOption);
 		
 	ElsIf DetailsType <> Undefined Then

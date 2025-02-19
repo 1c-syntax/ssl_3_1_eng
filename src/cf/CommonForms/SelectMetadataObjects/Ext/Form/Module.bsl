@@ -198,7 +198,7 @@ Procedure SelectExecute()
 		SelectRefs(SelectedMetadataObjects);
 	EndIf;
 	
-	If OnCloseNotifyDescription = Undefined Then
+	If CallbackDescriptionOnClose = Undefined Then
 		Notify("SelectMetadataObjects", SelectedMetadataObjects, UUIDSource);
 	EndIf;
 	

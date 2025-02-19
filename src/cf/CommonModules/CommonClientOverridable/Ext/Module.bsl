@@ -30,12 +30,12 @@
 //   * AdditionalParametersOfCommandLine - String - a return value. Has a point when Cancel
 //                              and Restart are True.
 //
-//   * InteractiveHandler - NotifyDescription - The return value. To open the window that prevents opening the app,
+//   * InteractiveHandler - CallbackDescription - The return value. To open the window that prevents opening the app,
 //                              assign the parameter to the details of the notification handler
 //                              that opens the window. 
 //
-//   * ContinuationHandler   - NotifyDescription - If there is a window that prevents signing in to the app, the closure handler
-//                              of this window must execute the ContinuationHandler notification. 
+//   * ContinuationHandler   - CallbackDescription - If there is a window that blocks logging in to the application, the closure handler
+//                              of that window must execute the ContinuationHandler notification. 
 //
 //   * Modules                 - Array - references to the modules that will run the procedure after the return.
 //                              You can add modules only by calling an overridable module procedure.
@@ -43,15 +43,15 @@
 //                              are made to a number of subsystems. See the example for SSLSubsystemsIntegrationClient.BeforeStart.
 //
 // Example:
-//  The below code opens a window that blocks signing in to an application.
+//  The below code opens a window that blocks the login to the application.
 //
 //		If OpenWindowOnStart Then
-//			Parameter.InteractiveHandler = New NotificationDetails("OpenWindow", ThisObject);
+//			Parameter.InteractiveHandler = New NotifyDescription("OpenWindow", ThisObject);
 //		EndIf;
 //
 //	Procedure OpenWindow(Parameters, AdditionalParameters) Export
 //		// Showing the window. Once the window is closed, calling the OpenWindowCompletion notification handler.
-//		Notification = New NotificationDetails("OpenWindowCompletion", ThisObject, Parameters);
+//		Notification = New NotifyDescription("OpenWindowCompletion", ThisObject, Parameters);
 //		Form = OpenForm(… ,,, … Notification);
 //		If Not Form.IsOpen() Then // If OnCreateAtServer Cancel is True.
 //			ExecuteNotifyProcessing(Parameters.ContinuationHandler);
@@ -86,12 +86,12 @@ EndProcedure
 //   * AdditionalParametersOfCommandLine - String - a return value. Has a point
 //                              when Cancel and Restart are True.
 //
-//   * InteractiveHandler - NotifyDescription - a return value. To open the window that locks the application
+//   * InteractiveHandler - CallbackDescription - a return value. To open the window that locks the application
 //                              start, pass the notification description handler
 //                              that opens the window. See the BeforeStart for an example.
 //
-//   * ContinuationHandler   - NotifyDescription - If there is a window that prevents signing in to the app, the closure handler
-//                              of this window must execute the ContinuationHandler notification.
+//   * ContinuationHandler   - CallbackDescription - If there is a window that blocks logging in to the application, the closure handler
+//                              of that window must execute the ContinuationHandler notification.
 //                              
 //   * Modules                 - Array - references to the modules that will run the procedure after the return.
 //                              You can add modules only by calling an overridable module procedure.
@@ -101,9 +101,7 @@ EndProcedure
 Procedure OnStart(Parameters) Export
 	
 	
-	
-	
-	
+		
 EndProcedure
 
 // The procedure is called to process the application startup parameters
@@ -211,8 +209,8 @@ EndProcedure
 //			ModuleMonitoringCenterClientInternal = CommonClient.CommonModule("MonitoringCenterClientInternal");
 //			ModuleMonitoringCenterClientInternal.BeforeRecurringClientDataSendToServer(Parameters);
 //		EndIf;
-//	Exception
-//		ServerNotificationsClient.HandleError(ErrorInformation());
+//	Except
+//		ServerNotificationsClient.HandleError(ErrorInfo());
 //	EndTry;
 //	ServerNotificationsClient.AddIndicator(StartMoment,
 //		"MonitoringCenterClientInternal.BeforeRecurringClientDataSendToServer");
@@ -231,8 +229,8 @@ EndProcedure
 //
 // Parameters:
 //  Results - Map of KeyAndValue:
-//    * Key     - String       - Name of the parameter returned by server.
-//    * Value - Arbitrary - Value of the parameter returned by server.
+//    * Key     - String       - Name of the parameter returned by the server.
+//    * Value - Arbitrary - Value of the parameter returned by the server.
 //
 // Example:
 //	StartMoment = CurrentUniversalDateInMilliseconds();
@@ -241,13 +239,70 @@ EndProcedure
 //			ModuleMonitoringCenterClientInternal = CommonClient.CommonModule("MonitoringCenterClientInternal");
 //			ModuleMonitoringCenterClientInternal.BeforeRecurringClientDataSendToServer(Parameters);
 //		EndIf;
-//	Exception
-//		ServerNotificationsClient.HandleError(ErrorInformation());
+//	Except
+//		ServerNotificationsClient.HandleError(ErrorInfo());
 //	EndTry;
 //	ServerNotificationsClient.AddIndicator(StartMoment,
 //		"MonitoringCenterClientInternal.AfterRecurringReceiptOfClientDataOnServer");
 //
 Procedure AfterRecurringReceiptOfClientDataOnServer(Results) Export
+	
+EndProcedure
+
+// Called (following a standard delay) when a user makes an entry into the search box.
+// When an event is called in the "SearchPlan" parameter, passes a copy of the plan set in the global search manager.
+// You can alter "SearchPlan" within the handler's body.
+//
+// Parameters:
+//  SearchString - String - Search string 
+//  SearchPlan - GlobalSearchPlan - The current execution plan of the global search
+//
+Procedure OnGlobalSearch(SearchString, SearchPlan) Export
+			
+EndProcedure
+
+// Called when a user selects a global search result. 
+// If it is set to "True" when the handler of the "StandardProcessing" event,
+// then one of the following actions is performed (depending on
+// the type of value used in the "GlobalSearchResultItem" object):
+//	String - Navigates to the URL. If the link refers to help, opens the help page.
+//		CollaborationSystemConversationID, CollaborationSystemUserID - Opens the conversation.
+//	CollaborationSystemMessageID - Opens the conversation and sets the cursor to the given message.
+//	Any other type - Calls the "ShowValue" method with the specified value.
+//	
+//
+// Parameters:
+//  ResultItem - GlobalSearchResultItem - Selected search result.
+//  StandardProcessing - Boolean - this parameter stores the flag of whether the standard(system) event processing is executed. If this parameter is 
+//                         set to False in the processing procedure, standard processing
+//                         is skipped.
+//
+Procedure OnGlobalSearchResultChoice(ResultItem, StandardProcessing) Export
+	
+EndProcedure
+
+// It is called when a user clicks in the global search item the hyperlink specified in the "Action" property.
+//
+// Parameters:
+//  ResultItem - GlobalSearchResultItem - The global search item where the link was activated.
+//                      
+//  Action - Arbitrary - Value specified for the activated hyperlink.
+//
+Procedure OnGlobalSearchResultActionChoice(ResultItem, Action) Export
+	
+EndProcedure
+
+// It is called when a user navigates a URL within the app or
+// accesses the app via an external link or a mobile app link.
+//
+// Parameters:
+//  URLNavigationData - URLNavigationData - Navigational data of the URL.
+//  StandardProcessing - Boolean - The parameter takes the flag indicating whether standard URL handling is enabled.
+//   If set to "False", the standard handling is skipped.
+//   
+//
+Procedure NavigationByURLProcessing(URLNavigationData,
+	StandardProcessing) Export
 	
 EndProcedure
 

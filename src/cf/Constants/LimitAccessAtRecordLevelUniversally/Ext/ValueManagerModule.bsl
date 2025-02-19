@@ -33,7 +33,7 @@ Procedure BeforeWrite(Cancel)
 	NewValue = Value;
 	
 	If Value And Not PreviousValue2 Then // Enabled.
-		InformationRegisters.AccessRestrictionParameters.UpdateRegisterData();
+		InformationRegisters.AccessRestrictionParameters.UpdateRegisterData(, True);
 	EndIf;
 	
 	If Value = PreviousValue2 Then
@@ -42,7 +42,7 @@ Procedure BeforeWrite(Cancel)
 	
 	If Common.IsStandaloneWorkplace() Then
 		ErrorText =
-			NStr("en = 'To change the app mode (Standard or High-performance), go to the app in the service.';");
+			NStr("en = 'The operation mode (standard or high-performance) can only be changed in the SaaS version.';");
 		Raise ErrorText;
 	ElsIf Common.IsSubordinateDIBNode() Then
 		ErrorText =

@@ -18,6 +18,10 @@ Procedure BeforeWrite(Cancel, Replacing)
 		Return;
 	EndIf;
 	
+	If Common.IsRecordSetDeletion(Replacing) Then
+		Return;
+	EndIf;
+	
 	For Each Record In ThisObject Do
 		RevocationListData = Record.RevocationList.Get();
 		If RevocationListData = Undefined Then

@@ -62,7 +62,7 @@ EndProcedure
 &AtClient
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
-	Notification = New NotifyDescription("SaveAndLoad", ThisObject);
+	Notification = New CallbackDescription("SaveAndLoad", ThisObject);
 	CommonClient.ShowFormClosingConfirmation(Notification, Cancel, Exit);
 	
 EndProcedure

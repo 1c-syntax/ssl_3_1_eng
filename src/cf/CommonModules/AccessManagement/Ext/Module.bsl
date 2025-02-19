@@ -10,14 +10,13 @@
 
 #Region Public
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions used to check rights.
+#Region ProceduresAndFunctionsForCheckingAccessRights
 
-// Checks whether the user has a role in one of the profiles of the access groups, to which they belong. 
-// For example, the ViewEventLog role, the UnpostedDocumentsPrint role.
-//
-// If an object (or access value sets) is specified, it is required to check
-// whether the access group provides the Read right for the specified object (or the specified access value set is allowed).
+// Verifies that the user has a role (additional access right) in one of the profiles of the access groups
+// they are part of, considering that at least one access group in the profile grants the Read right for the object
+// (or if the access value set is allowed for the access group).
+// 
+// To verify only roles, use the "Users.RolesAvailable" function.
 //
 // Parameters:
 //  Role           - String - Role name.
@@ -465,14 +464,13 @@ Function HasRight(Right, ObjectReference, Val User = Undefined) Export
 	
 EndFunction
 
-// Checks whether the specified user is allowed
-// to read an object from the database at the level of rights and record.
-// When a record set is specified, the database records
-// corresponding to the Filter property are checked.
+// Verifies that the specified user is permitted to read an object or a record set 
+// from the database, both at the record level and the access rights level.
 //
-// Warning: if the subsystem operates in standard restriction mode, and
-// a user is specified, but not the current one,
-// an exception will be raised (for checking, use the HighPerformanceMode function).
+// Note: if the subsystem operates in the standard mode, then:
+// a) If a user other than the current user is specified, an exception will be raised.
+// b) Only the database object is checked (the in-memory object is not).
+// To check the operation mode, use the ProductiveOption function.
 //
 // Parameters:
 //  DataDetails - CatalogRef
@@ -482,11 +480,11 @@ EndFunction
 //                 - ChartOfCalculationTypesRef
 //                 - BusinessProcessRef
 //                 - TaskRef
-//                 - ExchangePlanRef - a reference to the object to be checked.
+//                 - ExchangePlanRef - — a reference to the object in the database to be checked.
 //                 - InformationRegisterRecordKey
 //                 - AccumulationRegisterRecordKey
 //                 - AccountingRegisterRecordKey
-//                 - CalculationRegisterRecordKey - a record key to be checked.
+//                 - CalculationRegisterRecordKey - — a record key in the database to be checked.
 //                 - CatalogObject
 //                 - DocumentObject
 //                 - ChartOfCharacteristicTypesObject
@@ -494,12 +492,17 @@ EndFunction
 //                 - ChartOfCalculationTypesObject
 //                 - BusinessProcessObject
 //                 - TaskObject
-//                 - ExchangePlanObject - — the object in memory and database to be checked.
+//                 - ExchangePlanObject - The object in memory and database to be checked.
 //                 - InformationRegisterRecordSet
 //                 - AccumulationRegisterRecordSet
 //                 - AccountingRegisterRecordSet
-//                 - CalculationRegisterRecordSet - — a record set with the configured Filter property
-//                     used to determine the database records to be checked.
+//                 - CalculationRegisterRecordSet - A set of records in memory and in the database that need to be verified.
+//                     An optional "Replacing" property (Boolean, ReplacementMode) can be added to the "AdditionalProperties" structure.
+//                     If not specified, it defaults to True.
+//                     If "Replacing" is "False" or "ReplacementMode.Addition", database records are not checked.
+//                     If "Replacing" is "True" or "ReplacementMode.Replacing", records for verification will be retrieved from the database
+//                     based on the Filter property settings.
+//                     Otherwise, they will be retrieved using the row keys from the record set.
 //
 //  User   - CatalogRef.Users
 //                 - CatalogRef.ExternalUsers
@@ -516,16 +519,17 @@ Function ReadingAllowed(DataDetails, User = Undefined) Export
 	
 EndFunction
 
-// Checks whether the specified user is allowed
-// to change an object in the database to an object in memory at the level of rights and record.
-// For a new object, the object in memory is checked only.
-// If a reference or a record key is specified, the object in the database is checked only.
+// Verifies that the specified user is permitted to replace the object in the database with
+// the object in memory, both at the record level and the access rights level.
+// For newly created objects, only the in-memory object is checked.
+// If a reference or record key is provided, only the database object is verified.
 //
-// Warning: if the subsystem operates in standard restriction mode,
-// and not in universal restriction mode,
-// the Edit right to the table is checked; at the record level only the Read right is checked.
-// If a user is specified, but not the current one,
-// an exception will be raised (for checking, use the HighPerformanceMode function).
+// Note: if the subsystem operates in the standard mode, then:
+// a) If a user other than the current user is specified, an exception will be raised.
+// b) Only the database object is checked (the in-memory object is not verified),
+//    and at the record level, only the "Read" right is verified, while the "Update" right is checked for the table as a whole.
+//    To check the operation mode, use the ProductiveOption function.
+// 
 //
 // Parameters:
 //  DataDetails - CatalogRef
@@ -551,8 +555,13 @@ EndFunction
 //                 - InformationRegisterRecordSet
 //                 - AccumulationRegisterRecordSet
 //                 - AccountingRegisterRecordSet
-//                 - CalculationRegisterRecordSet - — the record set in memory and database
-//                                                to be checked.
+//                 - CalculationRegisterRecordSet - A set of records in memory and in the database that need toi be verified.<plch id="1">
+//                     An optional "Replacing" property (Boolean, ReplacementMode) can be added to the "AdditionalProperties" structure.<plch id="1">
+//                     If not specified, it defaults to True.<plch id="1">
+//                     If "Replacing" is "False" or "ReplacementMode.Addition", database records are not checked.<plch id="1">
+//                     If "Replacing" is "True" or "ReplacementMode.Replacing", records for verification will be retrieved from the database<plch id="1">
+//                     based on the Filter property settings.<plch id="1">
+//                     Otherwise, they will be retrieved using the row keys from the record set.
 //
 //  User   - CatalogRef.Users
 //                 - CatalogRef.ExternalUsers
@@ -591,8 +600,80 @@ Procedure CheckChangeAllowed(DataDetails) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures for including and excluding a user in access group profile.
+// 
+// 
+// 
+// 
+//
+// 
+// 
+// 
+// 
+//
+// 
+// 
+// 
+// 
+//
+// 
+// 
+//
+// Parameters:
+//  DataDetails - CatalogRef
+//                 - DocumentRef
+//                 - ChartOfCharacteristicTypesRef
+//                 - ChartOfAccountsRef
+//                 - ChartOfCalculationTypesRef
+//                 - BusinessProcessRef
+//                 - TaskRef
+//                 - ExchangePlanRef - reference to object.
+//                 - Array of CatalogRef
+//                 - Array of DocumentRef
+//                 - Array of ChartOfCharacteristicTypesRef
+//                 - Array of ChartOfAccountsRef
+//                 - Array of ChartOfCalculationTypesRef
+//                 - Array of BusinessProcessRef
+//                 - Array of TaskRef
+//                 - Array of ExchangePlanRef - 
+//                 - InformationRegisterRecordKey
+//                 - AccumulationRegisterRecordKey
+//                 - AccountingRegisterRecordKey
+//                 - CalculationRegisterRecordKey - 
+//                     
+//                 - InformationRegisterRecordSet
+//                 - AccumulationRegisterRecordSet
+//                 - AccountingRegisterRecordSet
+//                 - CalculationRegisterRecordSet - 
+//                     
+//                     
+//                     
+//                     
+//
+//  ForExternalUsers - Boolean - 
+//                          - Undefined - 
+//
+//  UsersContent - Undefined - 
+//                      - Array of CatalogRef.Users, CatalogRef.ExternalUsers - 
+//                        
+//
+// Returns:
+//  ValueTable:
+//    * UserWithRight - CatalogRef.Users
+//                          - CatalogRef.ExternalUsers - 
+//    * RightUpdate - Boolean - 
+//                                
+//    
+//
+Function AccessRightsToData(DataDetails, ForExternalUsers = False, UsersContent = Undefined) Export
+	
+	Return AccessManagementInternal.AccessRightsToData(DataDetails,
+		ForExternalUsers, UsersContent);
+	
+EndFunction
+
+#EndRegion
+
+#Region ProceduresToIncludeExcludeUserInAccessGroupsProfile
 
 // Assigning an access group profile to a user by including
 // them in a personal access group (only for simplified setting of rights).
@@ -629,8 +710,9 @@ Procedure DisableUserProfile(User, Profile = Undefined) Export
 	EnableDisableUserProfile(User, Profile, False);
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions used to get common subsystem settings.
+#EndRegion
+
+#Region ProceduresAndFunctionsToGetSubsystemCommonSettings
 
 // Checks whether access restriction is used at the record level.
 //
@@ -665,8 +747,9 @@ Function ProductiveOption() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions used for setting client application form interface.
+#EndRegion
+
+#Region ProceduresAndFunctionsForCustomizingManagedFormInterface
 
 // The OnReadAtServer form event handler, which is embedded into item forms of catalogs, documents, register records,
 // and other objects to lock the form if data changes are denied.
@@ -739,7 +822,7 @@ EndProcedure
 //
 // If the database already contains an access value group that does not provide access to change the access value
 // or the number of access value groups, which provide access to change the access values, is zero,
-// the ViewOnly form parameter is set to True.
+// the ReadOnly form parameter is set to True.
 //
 // If neither a restriction at the record level or restriction by access kind is used,
 // the form item is hidden.
@@ -794,7 +877,7 @@ Procedure OnCreateAccessValueForm(Form, AdditionalParameters = Undefined,
 	
 	If TypeOf(ValueType) <> Type("Type") Then
 		Try
-			FormObject = Form.Object; // DefinedType.AccessValue - 
+			FormObject = Form.Object; // DefinedType.AccessValue - Object's actual "FormDataStructure".
 			AccessValueType = TypeOf(FormObject.Ref);
 		Except
 			ErrorInfo = ErrorInfo();
@@ -1268,8 +1351,9 @@ Function RightsByIDs(IDs = Undefined) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for access value set management.
+#EndRegion
+
+#Region ProceduresAndFunctionsToManageAccessValueSets
 
 // Checks whether the procedure of filling in access value sets is provided for the metadata object.
 // 
@@ -1607,8 +1691,9 @@ Procedure UpdateAccessValuesSets(ReferenceOrObject, IBUpdate = False) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions used in the overridable module.
+#EndRegion
+
+#Region ProceduresAndFunctionsUsedInOverridableModule
 
 // Returns a structure used for easier description of built-in profiles.
 //
@@ -1644,27 +1729,27 @@ EndProcedure
 // Example:
 // 
 //	// User profile.
-//	ProfileDetails = AccessManagement.NewAccessGroupProfileDetails(),
-//	ProfileDetails.Name = User;
-//	ProfileDetails.ID = 09e56dbf-90a0-11de-862c-001d600d9ad2;
+//	ProfileDetails = AccessManagement.NewAccessGroupProfileDescription(),
+//	ProfileDetails.Name = "User";
+//	ProfileDetails.Id = "09e56dbf-90a0-11de-862c-001d600d9ad2";
 //	ProfileDetails.Description = NStr("en = 'User'", Common.DefaultLanguageCode());
-//	// Redefining an assignment.
-//	CommonClientServer.SupplementArray(ProfileDetails.Assignment,
+//	// Redefine an assignment.
+//	CommonClientServer.SupplementArray(ProfileDetails.Purpose,
 //		Metadata.DefinedTypes.ExternalUser.Type.Types());
-//	ProfileDetails.Details =
+//	ProfileDetails.LongDesc =
 //		NStr("en = 'Common actions allowed for most users.
 //		           |As a rule, these are rights to view the infobase data.'");
-//	// Using 1C: Enterprise.
+//	// Use 1C:Enterprise.
 //	ProfileDetails.Roles.Add("StartThinClient");
 //	ProfileDetails.Roles.Add("OutputToPrinterFileClipboard");
 //	ProfileDetails.Roles.Add("SaveUserData");
 //	// …
-//	// Using the application.
+//	// Use the application.
 //	ProfileDetails.Roles.Add("BasicAccessSSL");
 //	ProfileDetails.Roles.Add("ViewApplicationChangeLog");
 //	ProfileDetails.Roles.Add("EditCurrentUser");
 //	// …
-//	// Using master data.
+//	// Use master data.
 //	ProfileDetails.Roles.Add("ReadBasicMasterData");
 //	ProfileDetails.Roles.Add("ReadCommonBasicMasterData");
 //	// …
@@ -1680,11 +1765,11 @@ EndProcedure
 //	// …
 //	// Profile access restriction kinds.
 //	ProfileDetails.AccessKinds.Add("Companies");
-//	ProfileDetails.AccessKinds.Add("Users", "Preset");
-//	ProfileDetails.AccessKinds.Add("BusinessTransactions", "Preset");
+//	ProfileDetails.AccessKinds.Add("Users", "Predefined");
+//	ProfileDetails.AccessKinds.Add("BusinessTransactions", "Predefined");
 //	ProfileDetails.AccessValues.Add("BusinessTransactions",
-//		"Enumeration.BusinessTransactions.IssueCashToAdvanceHolder");
-//	/ …
+//		"Enum.BusinessTransactions.IssueCashToAdvanceHolder");
+//	…
 //	ProfilesDetails.Add(ProfileDetails);
 //
 Function NewAccessGroupProfileDescription() Export
@@ -1771,8 +1856,9 @@ Procedure AddExtraAccessKindTypes(AccessKind, ValuesType,
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions used for infobase update.
+#EndRegion
+
+#Region ProceduresAndFunctionsForUpdatingInfobase
 
 // Replaces roles in profiles, except for built-in profiles updated automatically.
 // It is called from the exclusive update handler.
@@ -1787,7 +1873,7 @@ EndProcedure
 //
 Procedure ReplaceRolesInProfiles(RolesToReplace) Export
 	
-	UsersInternal.CheckSafeModeIsDisabled(
+	UsersInternal.CheckIfSafeModeOff(
 		"AccessManagement.ReplaceRolesInProfiles");
 	
 	RolesRefsToReplace = New Map;
@@ -1958,7 +2044,7 @@ EndFunction
 //  
 Procedure ReplaceRightsInObjectsRightsSettings(RenamedTable) Export
 	
-	UsersInternal.CheckSafeModeIsDisabled(
+	UsersInternal.CheckIfSafeModeOff(
 		"AccessManagement.ReplaceRightsInObjectsRightsSettings");
 	
 	// ACC:96-off - No.434. Using JOIN is acceptable as the rows should be unique and
@@ -2129,8 +2215,9 @@ Procedure ReplaceRightsInObjectsRightsSettings(RenamedTable) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions used to update internal data.
+#EndRegion
+
+#Region ProceduresAndFunctionsToUpdateInternalData
 
 // Updates a role list of infobase users by their current
 // access groups. Infobase users with the FullAccess role are skipped.
@@ -2144,7 +2231,7 @@ EndProcedure
 //     If Type = Catalog.ExternalUsers, all external user roles are updated,
 //     otherwise, all user roles are updated.
 //
-//  ServiceUserPassword - String - Password to sign in the Service Manager.
+//  ServiceUserPassword - String - Password used to log in to Service Manager.
 //
 Procedure UpdateUserRoles(Val UsersArray = Undefined, Val ServiceUserPassword = Undefined) Export
 	
@@ -2229,13 +2316,13 @@ EndProcedure
 //	Except
 //		AccessManagement.DisableAccessKeysUpdate(False);
 //		//…
-//		RaiseException
+//		Raise
 //	EndTry;
 //
 //  Option 2. Recording an object set in the transaction (TransactionActive() = True).
 //
 //	AccessManagement.DisableAccessKeysUpdate(True);
-//	StartTransaction();
+//	BeginTransaction();
 //	Try
 //		DataLock.Lock();
 //		// …
@@ -2244,10 +2331,10 @@ EndProcedure
 //		AccessManagement.DisableAccessKeysUpdate(False);
 //		CommitTransaction();
 //	Except
-//		CancelTransaction();
+//		RollbackTransaction();
 //		AccessManagement.DisableAccessKeysUpdate(False, False);
 //		//…
-//		RaiseException;
+//		Raise;
 //	EndTry;
 //
 Procedure DisableAccessKeysUpdate(Disconnect, ScheduleUpdate1 = True) Export
@@ -2256,7 +2343,7 @@ Procedure DisableAccessKeysUpdate(Disconnect, ScheduleUpdate1 = True) Export
 		Return;
 	EndIf;
 	
-	UsersInternal.CheckSafeModeIsDisabled(
+	UsersInternal.CheckIfSafeModeOff(
 		"AccessManagement.DisableAccessKeysUpdate");
 	
 	If Disconnect And Not Users.IsFullUser() Then
@@ -2340,26 +2427,16 @@ Procedure DisableAccessKeysUpdate(Disconnect, ScheduleUpdate1 = True) Export
 	
 EndProcedure
 
-// Adds deferred update handler that enables the universal restriction of access
-// (enables the LimitAccessAtRecordLevelUniversally constant).
-// Use only in final standard solutions, not in the library distributions.
-//
-// For the file infobase, a handler is not added (except for the initial filling).
-// Accordingly, in client server bases with DIB, a handler is also not added,
-// as DIB might contain file infobases (if case the opposite is true, the behavior can be overridden).
+// 
+// 
+// 
 //
 // Parameters:
 //  Version      - String - Version to be used in "InfobaseUpdate.NewUpdateHandlersTable".
 //                  Pass an empty string if "IsInitialPopulationOnly" is set to "True".
 //  Handlers - See InfobaseUpdate.NewUpdateHandlerTable
-//  IsInitialPopulationOnly - Boolean - Indicates whether only an initial population handler should be added.
-//                  It is intended for cases where only newly created infobases are planned to
-//                  be switched to the high-performance mode.
-//  ExclusiveOfDIB - Boolean - Indicates whether an update handler should be added ignoring the DIB presence.
-//                  It is required in cases where you need to switch client/server infobases to high-performance mode
-//                  as it is assumed that a DIB does not include file infobases, at least ones with many active users
-//                  that modify RLS data concurrently.
-//                  
+//  ObsoleteIsInitialPopulationOnly - Boolean - 
+//  ObsoleteExclusiveOfDIB - Boolean - 
 //
 // Example:
 //	Procedure OnAddUpdateHandlers(Handlers) Export
@@ -2367,7 +2444,7 @@ EndProcedure
 //	EndProcedure
 //
 Procedure AddUpdateHandlerToEnableUniversalRestriction(Version, Handlers,
-			IsInitialPopulationOnly = False, ExclusiveOfDIB = False) Export
+			ObsoleteIsInitialPopulationOnly = False, ObsoleteExclusiveOfDIB = False) Export
 	
 	If Common.IsSubordinateDIBNode()
 	 Or Common.SeparatedDataUsageAvailable()
@@ -2379,38 +2456,6 @@ Procedure AddUpdateHandlerToEnableUniversalRestriction(Version, Handlers,
 	Handler.InitialFilling = True;
 	Handler.Procedure = "InformationRegisters.AccessRestrictionParameters.EnableUniversalRecordLevelAccessRestriction";
 	Handler.ExecutionMode = "Seamless";
-	
-	If IsInitialPopulationOnly
-	 Or Common.FileInfobase() Then
-		Return;
-	EndIf;
-	
-	DIBEnabled = False;
-	If Not ExclusiveOfDIB
-	   And Not Common.DataSeparationEnabled()
-	   And Common.SubsystemExists("StandardSubsystems.DataExchange") Then
-		
-		ExchangePlansNames = New Array;
-		For Each ExchangePlan In Metadata.ExchangePlans Do
-			If ExchangePlan.DistributedInfoBase Then
-				ExchangePlansNames.Add(ExchangePlan.Name);
-			EndIf;
-		EndDo;
-		ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
-		Table = ModuleDataExchangeServer.DataExchangeMonitorTable(ExchangePlansNames);
-		Boundary = CurrentSessionDate() - ('00010701' - '00010101');
-		For Each String In Table Do
-			If Not ValueIsFilled(String.LastRunDate)
-			 Or String.LastRunDate > Boundary Then
-				DIBEnabled = True;
-				Break;
-			EndIf;
-		EndDo;
-	EndIf;
-	
-	If DIBEnabled Then
-		Return;
-	EndIf;
 	
 	Handler = Handlers.Add();
 	Handler.Version = Version;
@@ -2424,6 +2469,25 @@ Procedure AddUpdateHandlerToEnableUniversalRestriction(Version, Handlers,
 	Handler.ObjectsToChange = "InformationRegister.AccessRestrictionParameters";
 	
 EndProcedure
+
+// 
+// 
+// 
+//
+// 
+// 
+//
+// Parameters:
+//  Table - String - Full name of a metadata object.
+//          - Array of String - 
+//
+Procedure ScheduleAccessUpdate(Table) Export
+	
+	AccessManagementInternal.ScheduleAccessUpdate(Table);
+	
+EndProcedure
+
+#EndRegion
 
 #Region ForCallsFromOtherSubsystems
 
@@ -2458,7 +2522,7 @@ EndFunction
 
 // End ServiceSubsystems.TMPAMEM
 
-// Development.RightsAndAccessRestrictionsDevelopment
+// Разработка.РазработкаПравИОграниченийДоступа
 
 // Assignment: to call ASDS restrictions from the constructor.
 // 
@@ -2639,6 +2703,72 @@ Function RestrictionStructure(ParsedRestriction) Export
 EndFunction
 
 // End Development.RightsAndAccessRestrictionsDevelopment
+
+// ТехнологияСервиса.ServiceUsers
+
+// Sets user permissions according to the provided access groups 
+// (in case of simplified mode, access group profiles) and user groups.
+// 
+// Parameters:
+//  User - CatalogRef.Users
+//  AccessGroups - Array of CatalogRef.AccessGroups, CatalogRef.AccessGroupProfiles
+//  UserGroups - Array of CatalogRef.UserGroups
+//
+Procedure SetUserRights(User, AccessGroups, UserGroups) Export
+	
+	If Not Common.SubsystemExists("StandardSubsystems.SaaSOperations.AccessManagementSaaS") Then
+		Return;
+	EndIf;
+	
+	ModuleAccessManagementInternalSaaS = 
+		Common.CommonModule("AccessManagementInternalSaaS");
+	
+	ModuleAccessManagementInternalSaaS.SetUserRights(
+		User, 
+		AccessGroups, 
+		UserGroups);
+		
+EndProcedure
+
+// Updates an access group profile from a template from Service Manager
+// 
+// Parameters:
+//  TemplateName - String
+//  Comment - String
+//  IdentifierTemplate - UUID
+//  TemplateRoles - Array of String - Full names of the role metadata objects 
+//  IsDisconnection - Boolean
+//
+Procedure UpdateAccessGroupsProfileByTemplate(TemplateName, Comment, IdentifierTemplate, TemplateRoles, IsDisconnection) Export
+	
+	If Not Common.SubsystemExists("StandardSubsystems.SaaSOperations.AccessManagementSaaS") Then
+		Return;
+	EndIf;
+	
+	ModuleAccessManagementInternalSaaS = 
+		Common.CommonModule("AccessManagementInternalSaaS");
+				
+	ModuleAccessManagementInternalSaaS.UpdateAccessGroupsProfileByTemplate(
+		TemplateName, 
+		Comment, 
+		IdentifierTemplate, 
+		TemplateRoles, 
+		IsDisconnection);
+		
+EndProcedure
+
+// Sends access groups to the Service Manager during a version upgrade.
+Procedure SendAccessGroupsToServiceManagerOnMigrateToNewVersion() Export
+	If Not Common.SubsystemExists("StandardSubsystems.SaaSOperations.AccessManagementSaaS") Then
+		Return;
+	EndIf;
+	
+	ModuleAccessManagementInternalSaaS = 
+		Common.CommonModule("AccessManagementInternalSaaS");
+	ModuleAccessManagementInternalSaaS.SendAccessGroupsToServiceManagerOnMigrateToNewVersion();
+EndProcedure
+
+// End CloudTechnology.ServiceUsers
 
 #EndRegion
 
@@ -3079,7 +3209,7 @@ Procedure FillDestinationByResultSets(Receiver, ResultSets)
 	
 EndProcedure
 
-// For the OnCreateAccessValueForm and AccessValuesGroupsAllowingAccessValuesChange procedures.
+// For the OnCreateAccessValueForm and AccessValuesGroupsAllowingAccessValuesChange procedures.
 Function AccessValueGroupsProperties(AccessValueType, ErrorTitle)
 	
 	SetPrivilegedMode(True);
@@ -3134,7 +3264,7 @@ EndProcedure
 // For the EnableProfileForUser and DisableProfileForUser procedures.
 Procedure EnableDisableUserProfile(User, Profile, Enable, Source = Undefined) Export
 	
-	UsersInternal.CheckSafeModeIsDisabled(
+	UsersInternal.CheckIfSafeModeOff(
 		"AccessManagement.EnableDisableUserProfile");
 	
 	If Not AccessManagementInternal.SimplifiedAccessRightsSetupInterface() Then

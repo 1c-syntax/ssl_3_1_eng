@@ -89,7 +89,7 @@ EndProcedure
 
 &AtClient
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
-	NotifyDescription = New NotifyDescription("BeforeCloseConfirmationReceived", ThisObject);
+	NotifyDescription = New CallbackDescription("BeforeCloseConfirmationReceived", ThisObject);
 	CommonClient.ShowFormClosingConfirmation(NotifyDescription, Cancel, Exit);
 EndProcedure
 
@@ -99,9 +99,9 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 	FillObjectAttributes();
 	
 	HandlersBeforeWrite = New Array;
-	HandlersBeforeWrite.Add(New NotifyDescription("CheckFillingBeforeWrite", ThisObject, WriteParameters));
-	HandlersBeforeWrite.Add(New NotifyDescription("ValidatePermissionsBeforeWrite", ThisObject, WriteParameters));
-	HandlersBeforeWrite.Add(New NotifyDescription("CheckPasswordBeforeWrite", ThisObject, WriteParameters));
+	HandlersBeforeWrite.Add(New CallbackDescription("CheckFillingBeforeWrite", ThisObject, WriteParameters));
+	HandlersBeforeWrite.Add(New CallbackDescription("ValidatePermissionsBeforeWrite", ThisObject, WriteParameters));
+	HandlersBeforeWrite.Add(New CallbackDescription("CheckPasswordBeforeWrite", ThisObject, WriteParameters));
 	
 	AttachHandlersBeforeWrite(HandlersBeforeWrite, ThisObject, Cancel, WriteParameters);
 	
@@ -483,14 +483,14 @@ EndProcedure
 Procedure ValidatePermissionsBeforeWrite(Cancel, WriteParameters) Export
 	
 	Cancel = True;
-	NotifyDescription = New NotifyDescription("AfterCheckPermissions", ThisObject, WriteParameters);
+	NotifyDescription = New CallbackDescription("AfterCheckPermissions", ThisObject, WriteParameters);
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
 		ModuleSafeModeManagerClient = CommonClient.CommonModule("SafeModeManagerClient");
 		ModuleSafeModeManagerClient.ApplyExternalResourceRequests(
 			RequestsForPermissionToUseExternalResources(), ThisObject, NotifyDescription);
 	Else
-		ExecuteNotifyProcessing(NotifyDescription, DialogReturnCode.OK);
+		RunCallback(NotifyDescription, DialogReturnCode.OK);
 	EndIf;
 	
 EndProcedure
@@ -501,8 +501,13 @@ Procedure CheckPasswordBeforeWrite(Cancel, WriteParameters) Export
 	If Not PasswordCheckExecuted(WriteParameters) Then
 		Cancel = True;
 		PasswordCheck = "";
-		NotifyDescription = New NotifyDescription("AfterPasswordEnter", ThisObject, WriteParameters);
-		OpenForm("Catalog.EmailAccounts.Form.CheckAccountAccess", , ThisObject, , , , NotifyDescription);
+		NotifyDescription = New CallbackDescription("AfterPasswordEnter", ThisObject, WriteParameters);
+		
+		If Object.EmailServiceAuthorization Then
+			OpenHelpFormSettings(True, NotifyDescription);
+		Else
+			OpenForm("Catalog.EmailAccounts.Form.CheckAccountAccess", , ThisObject, , , , NotifyDescription);
+		EndIf;
 	EndIf;
 	
 EndProcedure
@@ -594,7 +599,7 @@ Procedure ExecuteSettingsCheck()
 	If Modified Then
 		Write(New Structure("CheckSettings"));
 	Else
-		NotifyDescription = New NotifyDescription("ShowCorrectionMethod", ThisObject);
+		NotifyDescription = New CallbackDescription("ShowCorrectionMethod", ThisObject);
 		OpeningParameters = New Structure("Account", Object.Ref);
 		OpenForm("Catalog.EmailAccounts.Form.ValidatingAccountSettings",
 			OpeningParameters, ThisObject, , , , NotifyDescription);
@@ -605,7 +610,7 @@ EndProcedure
 Procedure OnCompleteSetup(Result, OnlyAuthorization) Export
 		
 	If OnlyAuthorization Then
-		If Result <> True Then
+		If Not ValueIsFilled(Result) Then
 			Object.EmailServiceAuthorization = False;
 			AuthenticationOption = "Password";
 #If MobileClient Then
@@ -706,7 +711,7 @@ Procedure AttachHandlersBeforeWrite(Handlers, Form, Cancel, WriteParameters)
 	For Each Validation In WriteParameters.HandlersBeforeWrite Do
 		If Validation.Value = False Then
 			Cancel = True;
-			NotifyDescription = New NotifyDescription(Validation.Key, Form, WriteParameters);
+			NotifyDescription = New CallbackDescription(Validation.Key, Form, WriteParameters);
 			
 			ParameterName = "StandardSubsystems.IdleHandlerBeforeWriteInForm";
 			If ApplicationParameters[ParameterName] = Undefined Then
@@ -739,7 +744,7 @@ Procedure ExecuteCheckBeforeWriteInForm()
 		IdleHandlers.Delete(0);
 		WriteParameters.HandlersBeforeWrite[ProcedureName] = True;
 		Cancel = False;
-		ExecuteNotifyProcessing(NotifyDescription, Cancel);
+		RunCallback(NotifyDescription, Cancel);
 		If Not Cancel Then
 			Form.Write(WriteParameters);
 		EndIf;
@@ -748,9 +753,12 @@ Procedure ExecuteCheckBeforeWriteInForm()
 EndProcedure
 
 &AtClient
-Procedure OpenHelpFormSettings(OnlyAuthorization = False)
+Procedure OpenHelpFormSettings(Val OnlyAuthorization = False, Val NotifyDescription = Undefined)
 	
-	NotifyDescription = New NotifyDescription("OnCompleteSetup", ThisObject, OnlyAuthorization);
+	If NotifyDescription = Undefined Then
+		NotifyDescription = New CallbackDescription("OnCompleteSetup", ThisObject, OnlyAuthorization);
+	EndIf;
+	
 	OpeningParameters = New Structure;
 	OpeningParameters.Insert("Key", Object.Ref);
 	If OnlyAuthorization Then

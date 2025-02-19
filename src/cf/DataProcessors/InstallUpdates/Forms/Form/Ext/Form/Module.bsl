@@ -177,8 +177,7 @@ EndProcedure
 
 #Region FormHeaderItemsEventHandlers
 
-////////////////////////////////////////////////////////////////////////////////
-// UpdateFile page.
+#Region UpdateFilePage
 
 &AtClient
 Procedure UpdateFileRequiredRadioButtonsOnChange(Item)
@@ -193,8 +192,9 @@ Procedure UpdateFileFieldStartChoice(Item, ChoiceData, StandardProcessing)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// AfterInstallPatches page.
+#EndRegion
+
+#Region AfterInstallUpdatesPage
 
 &AtClient
 Procedure ActiveUsersDecorationURLProcessing(Item, FormattedStringURL, StandardProcessing)
@@ -210,8 +210,9 @@ Procedure PatchInstallationErrorLabelURLProcessing(Item, FormattedStringURL, Sta
 	EventLogClient.OpenEventLog(LogFilter);
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// SelectUpdateModeFile page.
+#EndRegion
+
+#Region SelectUpdateModePageFile
 
 &AtClient
 Procedure ActionsListLabelClick(Item)
@@ -236,7 +237,7 @@ Procedure BackupLabelClick(Item)
 	BackupParameters.Insert("IBBackupDirectoryName",       Object.IBBackupDirectoryName);
 	BackupParameters.Insert("RestoreInfobase", Object.RestoreInfobase);
 	
-	NotifyDescription = New NotifyDescription("AfterCloseBackupForm", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterCloseBackupForm", ThisObject);
 	ConfigurationUpdateClient.ShowBackup(BackupParameters, NotifyDescription);
 	
 EndProcedure
@@ -251,8 +252,9 @@ Procedure AfterCloseBackupForm(Result, AdditionalParameters) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// SelectUpdateModeServer page.
+#EndRegion
+
+#Region SelectUpdateModePageServer
 
 &AtClient
 Procedure UpdateRadioButtonsOnChange(Item)
@@ -332,7 +334,7 @@ Procedure DecorationNotifyUsersURLProcessing(Item, FormattedStringURL, StandardP
 	ChoiceList.Add("15", NStr("en = '15 minutes';"));
 	ChoiceList.Add("30", NStr("en = '30 minutes';"));
 	
-	Notification = New NotifyDescription("AfterNotificationIntervalSelected", ThisObject);
+	Notification = New CallbackDescription("AfterNotificationIntervalSelected", ThisObject);
 	ShowChooseFromMenu(Notification, ChoiceList, Items.DecorationForSubmenu);
 EndProcedure
 
@@ -340,6 +342,8 @@ EndProcedure
 Procedure ShouldNotifyUsersOnChange(Item)
 	Items.DecorationNotifyUsers.Enabled = ShouldNotifyUsers;
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -409,7 +413,7 @@ Procedure BeforeOpenPage(Val NewPage = Undefined)
 	NextButtonAvailable = True;
 	CloseButtonAvailable = True;
 	NextButtonFunction = True; // True means "Next", False means "Ready".
-	CloseButtonFunction = True; // True means "Next", False means "Ready".
+	CloseButtonFunction = True; // True means "Cancel", False means "Close".
 	
 	Items.NextButton.Representation = ButtonRepresentation.Text;
 	
@@ -531,7 +535,7 @@ Procedure SelectUpdateFile()
 	ImportParameters.Dialog.Directory = TheDirectoryOfTheUpdateFile(Items.UpdateFileField.EditText);
 	
 	FileSystemClient.ImportFiles(
-		New NotifyDescription("AfterSelectingTheUpdateFiles", ThisObject),
+		New CallbackDescription("AfterSelectingTheUpdateFiles", ThisObject),
 		ImportParameters);
 	
 EndProcedure
@@ -841,7 +845,7 @@ Procedure NavigateFromUpdateFilePage()
 		EndIf;
 	EndIf;
 	
-	Handler = New NotifyDescription("CheckUpdateFilesApplicability", ThisObject);
+	Handler = New CallbackDescription("CheckUpdateFilesApplicability", ThisObject);
 	UsersInternalClient.ShowSecurityWarning(Handler,
 		UsersInternalClientServer.SecurityWarningKinds().BeforeSelectUpdateFile);
 	
@@ -908,7 +912,7 @@ EndFunction
 &AtClient
 Procedure ProceedToPatchesInstallation()
 	
-	NotifyDescription = New NotifyDescription("ContinueInstallUpdates", ThisObject);
+	NotifyDescription = New CallbackDescription("ContinueInstallUpdates", ThisObject);
 	
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.FormIdentifier = UUID;
@@ -979,7 +983,7 @@ Procedure ProceedToUpdateModeSelection(IsMoveNext = False)
 	
 	If AdministrationParameters = Undefined Then
 		
-		NotifyDescription = New NotifyDescription("AfterGetAdministrationParameters", ThisObject, IsMoveNext);
+		NotifyDescription = New CallbackDescription("AfterGetAdministrationParameters", ThisObject, IsMoveNext);
 		FormCaption = NStr("en = 'Install update';");
 		If IsFileInfobase Then
 			NoteLabel = NStr("en = 'To install the update, enter
@@ -1007,7 +1011,7 @@ Procedure OnUpdateLegalityCheck()
 	
 	If UpdateFileRequired = 1 Then
 		If CommonClient.SubsystemExists("StandardSubsystems.SoftwareLicenseCheck") Then
-			Notification = New NotifyDescription("OnUpdateLegalityCheckCompletion", ThisObject);
+			Notification = New CallbackDescription("OnUpdateLegalityCheckCompletion", ThisObject);
 			ModuleSoftwareLicenseCheckClient = CommonClient.CommonModule("SoftwareLicenseCheckClient");
 			ModuleSoftwareLicenseCheckClient.ShowLegitimateSoftwareCheck(Notification);
 			Return;
@@ -1078,8 +1082,7 @@ Function SelectUpdateModePageParametersServer(MessagesForEventLog)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Scheduling updates.
+#Region SchedulingUpdateAtGivenTime
 
 // Returns a file directory (a partial path without a file name).
 //
@@ -1160,5 +1163,7 @@ Procedure AfterNotificationIntervalSelected(Result, AdditionalParameters) Export
 	NotificationInterval = XMLValue(Type("Number"), Result.Value);
 #EndIf
 EndProcedure
+
+#EndRegion
 
 #EndRegion

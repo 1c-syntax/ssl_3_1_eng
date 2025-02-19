@@ -10,8 +10,8 @@
 
 #Region Public
 
-// Is called by following a link or double-clicking a cell 
-// of a spreadsheet document that contains application release notes (common template AppReleaseNotes).
+// Called by following a link or double-clicking a cell 
+// in a spreadsheet document that contains application release notes (SystemReleaseNotes common template).
 //
 // Parameters:
 //   Area - SpreadsheetDocumentRange - a document area 

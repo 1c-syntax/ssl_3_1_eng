@@ -39,7 +39,7 @@ Procedure Attachable_ExpandTheCurrentFieldListItem()
 EndProcedure
 
 &AtClient
-Procedure Attachable_FillInTheListOfAvailableFields(FillParameters) Export // ACC:78 The procedure is called from common module FormulaConstructorClient.
+Procedure Attachable_FillInTheListOfAvailableFields(FillParameters) Export // ACC:78 - The procedure is called from "FormulaConstructorClient.StartSearchInFieldsList".
 	
 	FillInTheListOfAvailableFields(FillParameters);
 	
@@ -81,7 +81,7 @@ Procedure HideUnusedCommands()
 	
 	FormulaEditingCommands = New Array;
 	
-	For Each Item In Items.AvailableFieldsContextMenu.ChildItems Do // 
+	For Each Item In Items.AvailableFieldsContextMenu.ChildItems Do // ACC:275  элемент добавляется программно.
 		
 		Item.Visible = TypeOf(Item) = Type("FormButton")
 			And NamesOfFormulaEditingCommands.Find(Item.CommandName) <> Undefined;
@@ -145,7 +145,7 @@ Procedure Attachable_FormulaEditorHandlerServer(Parameter, AdditionalParameters)
 EndProcedure
 
 &AtClient
-Procedure Attachable_FormulaEditorHandlerClient(Parameter, AdditionalParameters = Undefined) Export // ACC:78 - Procedure is called from FormulaConstructorClient.StartSearchInFieldsList. 
+Procedure Attachable_FormulaEditorHandlerClient(Parameter, AdditionalParameters = Undefined) Export // ACC:78 - The procedure is called from "FormulaConstructorClient.StartSearchInFieldsList". 
 	FormulasConstructorClient.FormulaEditorHandler(ThisObject, Parameter, AdditionalParameters);
 	If AdditionalParameters.RunAtServer Then
 		Attachable_FormulaEditorHandlerServer(Parameter, AdditionalParameters);
@@ -183,7 +183,7 @@ Procedure AddFormula(Command)
 	FormulaEditingOptions.Description = NewFieldDescr();
 	FormulaEditingOptions.ForQuery = True;
 	
-	Handler = New NotifyDescription("AfterAddingTheFormula", ThisObject);
+	Handler = New CallbackDescription("AfterAddingTheFormula", ThisObject);
 	FormulasConstructorClient.StartEditingTheFormula(FormulaEditingOptions, Handler);
 	
 EndProcedure
@@ -556,7 +556,7 @@ Function NamesOfFormulaEditingCommands()
 EndFunction
 
 // Parameters:
-//  SelectedField - 
+//  SelectedField - See ListOfAvailableFields.Field
 // 
 // Returns:
 //  Boolean

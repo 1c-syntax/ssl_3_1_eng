@@ -13,29 +13,26 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	If DigitalSignature.CommonSettings().CertificateIssueRequestAvailable
-	   And Not Parameters.HideApplication Then
-		Items.AddCertificateIssueRequest.Visible = True;
-	Else
-		Items.AddCertificateIssueRequest.Visible = False;
-	EndIf;
-	
-	If Not DigitalSignature.AddEditDigitalSignatures() Then
+	Items.AddCertificateIssueRequest.Visible = 
+		DigitalSignature.CommonSettings().CertificateIssueRequestAvailable And Not Parameters.HideApplication;
 		
-		Items.AddToSignAndEncrypt.Title = NStr("en = 'Add to encrypt and decrypt...';");
-		PurposeToSignAndEncrypt = "ToEncryptAndDecrypt";
-		
-	ElsIf Not DigitalSignature.UseEncryption()
+	If DigitalSignature.AddEditDigitalSignatures()
+		And Not DigitalSignature.UseEncryption()
 		And Not Items.AddCertificateIssueRequest.Visible Then
-	
+		
 		Cancel = True;
 		Return;
 		
-	Else
-		
-		Items.AddToSignAndEncrypt.Title = NStr("en = 'Add to sign and encrypt...';");
-		PurposeToSignAndEncrypt = "ToSignEncryptAndDecrypt";
 	EndIf;
+	
+	CertificateAdditionCommandProperties = DigitalSignatureInternal.CertificateAdditionCommandProperties();
+	Items.AddToSignAndEncrypt.Title = StrReplace(
+		CertificateAdditionCommandProperties.Title, "For", NStr("en = 'Add for';"));
+	PurposeToSignAndEncrypt = CertificateAdditionCommandProperties.Purpose;
+	
+	CertificateAdditionCommandProperties = DigitalSignatureInternal.CertificateAdditionCommandProperties(True);
+	Items.AddForSigningAndEncryptionFromFiles.Title = StrReplace(
+		CertificateAdditionCommandProperties.Title, "For", NStr("en = 'Add for';"));
 	
 EndProcedure
 
@@ -47,6 +44,13 @@ EndProcedure
 Procedure AddToSignAndEncrypt(Command)
 	
 	Close(PurposeToSignAndEncrypt);
+	
+EndProcedure
+
+&AtClient
+Procedure AddForSigningAndEncryptionFromFiles(Command)
+	
+	Close("ForSigningEncryptionAndDecryptionFromFiles");
 	
 EndProcedure
 

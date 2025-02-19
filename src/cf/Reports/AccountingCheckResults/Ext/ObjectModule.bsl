@@ -183,9 +183,9 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 	
 EndProcedure
 
-// This procedure is called in the OnLoadVariantAtServer event handler of a report form after executing the form code.
-// For more detailed description go to the syntax assistant, namely, to the extension section
-// of the report managed form.
+// This procedure is called within the "OnLoadVariantAtServer" event handler after executing the report form code.
+// For details, see managed report form extensions in Syntax Assistant.
+// 
 //
 // Parameters:
 //   Form - ClientApplicationForm - a report form.

@@ -57,7 +57,7 @@ Function ParseSearchStringIntoWordArray(SearchString) Export
 	QuotationMarkOpened = False;
 	For CharacterNumber = 1 To StringLength Do
 		CharCode = CharCode(SearchString, CharacterNumber);
-		If CharCode = 34 Then // 34 - Double quotation mark (").
+		If CharCode = 34 Then // 34 - Double quotation mark (").
 			QuotationMarkOpened = Not QuotationMarkOpened;
 		ElsIf QuotationMarkOpened
 			Or (CharCode >= 48 And CharCode <= 57) // Numerics.

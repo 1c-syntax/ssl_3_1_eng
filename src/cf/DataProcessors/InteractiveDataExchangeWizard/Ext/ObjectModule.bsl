@@ -12,8 +12,7 @@
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Internal export procedures and functions.
+#Region ExportServiceProceduresAndFunctions
 
 // Gets object mapping statistics for the StatisticsInformation table rows.
 //
@@ -297,8 +296,10 @@ Function IsMasterDataTypeName(DestinationTypeString)
 	EndIf;
 	Return True;
 EndFunction
-////////////////////////////////////////////////////////////////////////////////
-// Functions for retrieving properties.
+
+#EndRegion
+
+#Region PropertyFunctions
 
 // Data of the StatisticsInformation tabular section.
 //
@@ -310,6 +311,8 @@ Function StatisticsTable() Export
 	Return StatisticsInformation.Unload();
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion
 

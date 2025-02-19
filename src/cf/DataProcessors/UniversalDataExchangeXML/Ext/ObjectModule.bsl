@@ -15,21 +15,20 @@
 ////////////////////////////////////////////////////////////////////////////////
 // ACRONYMS IN VARIABLE NAMES
 
-//  OCR - Object conversion rule
-//  OCR - Property conversion rules
-//  PGCR - Property group conversion rule
-//  VCR - Value conversion rule
-//  DER - Data export rule
-//  DCR - Data cleansing rule
+//  ПКО  - правило конвертации объектов.
+//  ПКС  - правило конвертации свойств объектов.
+//  ПКГС - правило конвертации группы свойств объектов.
+//  ПКЗ  - правило конвертации значений объектов.
+//  ПВД  - правило выгрузки данных.
+//  ПОД  - правило очистки данных.
 
-////////////////////////////////////////////////////////////////////////////////
-// AUXILIARY MODULE VARIABLES FOR CREATING ALGORITHMS (FOR BOTH IMPORT AND EXPORT)
+#Region ModuleAuxiliaryVariablesForWritingAlgorithmsCommonForImportAndExport
 
 Var Conversion  Export;  // Structure containing conversion properties (name, id, exchange event handlers).
 
 Var Algorithms    Export;  // Structure containing used algorithms.
 Var Queries      Export;  // Structure containing used queries.
-Var AdditionalDataProcessors Export;  // Structure containing used queries.
+Var AdditionalDataProcessors Export;  // Structure containing used external data processors.
 
 Var Rules      Export;  // A structure containing OCR references.
 
@@ -44,18 +43,18 @@ Var ParametersInitialized Export;  // If True, the required conversion parameter
 Var mDataProtocolFile Export; // A data exchange log file.
 Var CommentObjectProcessingFlag Export;
 
-Var EventHandlersExternalDataProcessor Export; // "ExternalDataProcessorsManager" object for calling export procedures
-                                                   // 
+Var EventHandlersExternalDataProcessor Export; // The object "ExternalDataProcessorsManager" is intended to call the
+                                                   // handlers' export procedures during data exchange.
 
-Var CommonProceduresFunctions;  // Variable containing a reference to the handler instance (ThisObject).
-                              // 
+Var CommonProceduresFunctions;  // The variable stores the reference to the current handler instance ("ThisObject").
+                              // It's intended to call export procedures from event handlers.
 
 Var mHandlerParameterTemplate; // A spreadsheet containing handler parameters.
-Var mCommonProceduresFunctionsTemplate;  // Spreadsheet document with handler parameters.
-                                    // 
+Var mCommonProceduresFunctionsTemplate;  // A text document containing comments, global variables,
+                                    // and wrappers for common procedures and functions.
 
 Var mDataProcessingModes; // A structure containing data processor's modes.
-Var DataProcessingMode;   // The structure that contains modes of using this data processor.
+Var DataProcessingMode;   // It contains current value of data processing mode.
 
 Var mAlgorithmDebugModes; // A structure containing debugging algorithms' modes.
 Var IntegratedAlgorithms; // The structure containing algorithms with integrated codes of nested algorithms.
@@ -64,8 +63,9 @@ Var HandlersNames; // Structure containing names of all exchange rule handlers.
 
 Var ConfigurationSeparators; // Array of configuration separators.
 
-////////////////////////////////////////////////////////////////////////////////
-// FLAGS THAT SHOW WHETHER GLOBAL EVENT HANDLERS EXIST
+#EndRegion
+
+#Region GlobalEventHandlersAvailabilityFlags
 
 Var HasBeforeExportObjectGlobalHandler;
 Var HasAfterExportObjectGlobalHandler;
@@ -78,15 +78,16 @@ Var HasAfterObjectImportGlobalHandler;
 Var DestinationPlatformVersion;
 Var DestinationPlatform;
 
-////////////////////////////////////////////////////////////////////////////////
-// VARIABLES THAT ARE USED IN EXCHANGE HANDLERS (BOTH FOR IMPORT AND EXPORT)
+#EndRegion
+
+#Region ExchangeDataProcessorsVariablesCommonForImportAndExport
 
 Var deStringType;                  // Type("String")
 Var deBooleanType;                  // Type("Boolean")
-Var deNumberType;                   // Type("Boolean")
-Var deDateType;                    // Type("Number")
-Var deValueStorageType;       // Type("Date")
-Var deUUIDType; // Type("ValueStorage")
+Var deNumberType;                   // Type("Number")
+Var deDateType;                    // Type("Date")
+Var deValueStorageType;       // Type("ValueStorage")
+Var deUUIDType; // Type("UUID")
 Var deBinaryDataType;          // Type("BinaryData")
 Var deAccumulationRecordTypeType;   // Type("AccumulationRecordType")
 Var deObjectDeletionType;         // Type("ObjectDeletion")
@@ -105,31 +106,33 @@ Var deMessages;             // Map: Key - An error code; Value - Error details.
 Var mExchangeRuleTemplateList Export;
 
 
-////////////////////////////////////////////////////////////////////////////////
-// EXPORT PROCESSING MODULE VARIABLES
+#EndRegion
+
+#Region VariablesOfExportProcessModule
  
 Var mExportedObjectCounter Export;   // Number - Exported object counter.
 Var mSnCounter Export;   // Number - NBSp counter.
-Var mPropertyConversionRuleTable;      // ValueTable - Template for restoring the table structure by copying.
+Var mPropertyConversionRuleTable;      // ValueTable - A template for restoring the table structure by copying.
                                              //                   
 Var mXMLRules;                           // XML string that contains exchange rule description.
 Var mTypesForDestinationRow;
 
 
-////////////////////////////////////////////////////////////////////////////////
-// IMPORT PROCESSING MODULE VARIABLES
+#EndRegion
+
+#Region VariablesOfImportProcessModule
  
 Var mImportedObjectCounter Export;// Number - Imported object counter.
 
-Var mExchangeFileAttributes Export;       // Structure. After opening the file 
-                                          //  
+Var mExchangeFileAttributes Export;       // A structure containing (after the file opens) the 
+                                          // exchange file attributes for the given format. 
                                           // 
 
 Var ImportedObjects Export;         // Map. Key - Object sequence number in the file.
-                                          // 
+                                          // Value - Reference to the imported object.
 Var ImportedGlobalObjects Export;
-Var ImportedObjectToStoreCount Export;  // Number of the stored imported objects. 
-                                          //  
+Var ImportedObjectToStoreCount Export;  // Number of stored imported objects. 
+                                          // If the number of imported object exceeds the value of this variable, the ImportedObjects map is cleared. 
                                           // 
 Var RememberImportedObjects Export;
 
@@ -153,10 +156,13 @@ Var EventsAfterParametersImport Export;
 
 Var CurrentNestingLevelExportByRule;
 
-////////////////////////////////////////////////////////////////////////////////
-// VARIABLES TO STORE STANDARD SUBSYSTEM MODULES
+#EndRegion
+
+#Region VariablesForStoringStandardSubsystemsModules
 
 Var ModulePeriodClosingDates;
+
+#EndRegion
 
 #EndRegion
 
@@ -965,7 +971,7 @@ Procedure deWriteElement(Object, Name, Value="") Export
 	
 	If WriteToXMLAdvancedMonitoring Then
 		
-		Page1 =  ReplaceProhibitedXMLChars(Page1, "");
+		Page1 = ReplaceProhibitedXMLChars(Page1, "");
 		
 	EndIf;
 	
@@ -1389,16 +1395,16 @@ Procedure SupplementRulesWithHandlerInterfaces(ConversionStructure, OCRTable, DE
 	
 	mHandlerParameterTemplate = GetTemplate("HandlersParameters");
 	
-	// Adding the Conversion interfaces (global.
+	// Add the Conversion interfaces (global).
 	SupplementWithConversionRuleInterfaceHandler(ConversionStructure);
 	
-	// Adding the DER interfaces
+	// Add DER interfaces.
 	SupplementDataExportRulesWithHandlerInterfaces(DERTable, DERTable.Rows);
 	
-	// Add DPR interfaces.
+	// Add DCR interfaces.
 	SupplementWithDataClearingRuleHandlerInterfaces(DPRTable, DPRTable.Rows);
 	
-	// Adding OCR, PCR, PGCR interfaces.
+	// Add OCR, PCR, PGCR interfaces.
 	SupplementWithObjectConversionRuleHandlerInterfaces(OCRTable);
 	
 EndProcedure 
@@ -1553,7 +1559,7 @@ Procedure SelectionObjectDeletion(Object, Rule, Properties=Undefined, IncomingDa
 			
 		Except
 			
-			WriteDataClearingHandlerErrorInfo(29, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			WriteDataClearingHandlerErrorInfo(29, DetailErrorDescription(ErrorInfo()),
 				Rule.Name, Object, "BeforeDeleteSelectionObject");
 			
 		EndTry;
@@ -1573,7 +1579,7 @@ Procedure SelectionObjectDeletion(Object, Rule, Properties=Undefined, IncomingDa
 		
 	Except
 		
-		WriteDataClearingHandlerErrorInfo(24, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+		WriteDataClearingHandlerErrorInfo(24, DetailErrorDescription(ErrorInfo()),
 			Rule.Name, Object, "");
 		
 	EndTry;
@@ -1602,7 +1608,7 @@ EndProcedure
 //  SelectionForDataExport - QueryResultSelection - a selection containing data for export. 
 //
 // Returns:
-//   XMLWriter - a reference XML node or a destination value.
+//   XMLWriter - Reference XML node or a destination value.
 //
 Function ExportByRule(Source					= Undefined,
 						   Receiver					= Undefined,
@@ -1726,7 +1732,7 @@ Function ExportByRule(Source					= Undefined,
 		Except
 			
 			HandlerName = NStr("en = '%1 (global-level)';");
-			WriteInfoOnOCRHandlerExportError(64, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			WriteInfoOnOCRHandlerExportError(64, DetailErrorDescription(ErrorInfo()),
 				OCR, Source, SubstituteParametersToString(HandlerName, "BeforeConvertObject"));
 				
 		EndTry;
@@ -1754,7 +1760,7 @@ Function ExportByRule(Source					= Undefined,
 			EndIf;
 			
 		Except
-			WriteInfoOnOCRHandlerExportError(41, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			WriteInfoOnOCRHandlerExportError(41, DetailErrorDescription(ErrorInfo()),
 				OCR, Source, "BeforeExportObject");
 		EndTry;
 		
@@ -2031,7 +2037,7 @@ Function ExportByRule(Source					= Undefined,
 			EndIf;
 			
 		Except
-			WriteInfoOnOCRHandlerExportError(42, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			WriteInfoOnOCRHandlerExportError(42, DetailErrorDescription(ErrorInfo()),
 				OCR, Source, "OnExportObject");
 		EndTry;
 		
@@ -2069,7 +2075,7 @@ Function ExportByRule(Source					= Undefined,
 			EndIf;
 			
 		Except
-			WriteInfoOnOCRHandlerExportError(43, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			WriteInfoOnOCRHandlerExportError(43, DetailErrorDescription(ErrorInfo()),
 				OCR, Source, "AfterExportObject");
 		EndTry;
 		
@@ -2133,7 +2139,7 @@ Function ExportByRule(Source					= Undefined,
 			EndIf;
 			
 		Except
-			WriteInfoOnOCRHandlerExportError(76, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			WriteInfoOnOCRHandlerExportError(76, DetailErrorDescription(ErrorInfo()),
 				OCR, Source, "HasAfterExportToFileHandler");
 		EndTry;
 				
@@ -2718,7 +2724,7 @@ EndProcedure
 //
 Function ObjectVersion() Export
 	
-	Version = "1.0.3.534";
+	Version = "1.0.4.183";
 	Return Version;
 	
 EndFunction
@@ -2833,7 +2839,7 @@ Procedure InitEventHandlerExternalDataProcessor(ExecutionPossible, OwnerObject) 
 			
 			EventHandlerExternalDataProcessorDestructor();
 			
-			MessageToUser(ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+			MessageToUser(BriefErrorDescription(ErrorInfo()));
 			WriteToExecutionProtocol(78);
 			
 			ExecutionPossible               = False;
@@ -2867,7 +2873,7 @@ Procedure EventHandlerExternalDataProcessorDestructor(DebugModeEnabled = False) 
 				EventHandlersExternalDataProcessor.Destructor();
 				
 			Except
-				MessageToUser(ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+				MessageToUser(BriefErrorDescription(ErrorInfo()));
 			EndTry; 
 			
 		EndIf; 
@@ -2896,7 +2902,7 @@ Procedure DeleteTempFiles(TempFileName) Export
 			
 		Except
 			WriteLogEvent(NStr("en = 'Conversion Rule Data Exchange in XML format';", DefaultLanguageCode()),
-				EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				EventLogLevel.Error,,, DetailErrorDescription(ErrorInfo()));
 		EndTry;
 		
 	EndIf;
@@ -3001,7 +3007,7 @@ Function WriteTextToTemporaryFile(TempFileList)
 		RecordsTemporaryFile.Open(RecordFileName, TextEncoding.UTF8);
 	Except
 		WriteErrorInfoConversionHandlers(1000,
-			ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			DetailErrorDescription(ErrorInfo()),
 			NStr("en = 'An error occurred when creating a temporary file for data export';"));
 		Raise;
 	EndTry;
@@ -3026,7 +3032,7 @@ Function ReadTextFromTemporaryFile(TempFileName)
 		TempFile.Open(TempFileName, TextEncoding.UTF8);
 	Except
 		WriteErrorInfoConversionHandlers(1000,
-			ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			DetailErrorDescription(ErrorInfo()),
 			NStr("en = 'An error occurred when opening the temporary file to transfer data to the exchange file';"));
 		Raise;
 	EndTry;
@@ -3135,12 +3141,18 @@ Procedure FinishKeepExchangeProtocol() Export
 EndProcedure
 
 // Writes to a protocol or displays messages of the specified structure.
-//
-// Parameters:
-//  Code               - Number - message code.
-//  RecordStructure   - Structure - protocol record structure.
-//  SetErrorFlag1 - Boolean - if true, then it is an error message. Setting ErrorFlag.
 // 
+// Parameters:
+//  Code - Number - message code.
+//  RecordStructure - Structure - protocol record structure.
+//  SetErrorFlag1 - Boolean - if true, then it is an error message. Setting ErrorFlag.
+//  Level - Number
+//  Align - Number
+//  UnconditionalWriteToExchangeProtocol - Boolean
+// 
+// Returns:
+//  String
+//
 Function WriteToExecutionProtocol(Code="", RecordStructure=Undefined, SetErrorFlag1=True, 
 	Level=0, Align=22, UnconditionalWriteToExchangeProtocol = False) Export
 
@@ -3500,7 +3512,7 @@ EndFunction
 // Imports the property group conversion rule.
 //
 // Parameters:
-//   ExchangeRules  - XMLReader - an object of the XMLReader type.
+//   ExchangeRules  - XMLReader - An XMLReader object.
 //   PropertiesTable - See PropertiesConversionRulesCollection
 //
 Procedure ImportPGCR(ExchangeRules, PropertiesTable)
@@ -3726,7 +3738,7 @@ EndProcedure
 // Imports property conversion rules.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  PropertiesTable - ValueTable - a value table containing PCR.
 //  SearchTable  - ValueTable - a value table containing PCR (synchronizing).
 //
@@ -3754,7 +3766,7 @@ EndProcedure
 // Imports the value conversion rule.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  Values       - Map - a map of source object values to destination
 //                   object presentation strings.
 //  SourceType   - String - source object type.
@@ -3786,7 +3798,7 @@ EndProcedure
 // Imports value conversion rules.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  Values       - Map - a map of source object values to destination
 //                   object presentation strings.
 //  SourceType   - String - source object type.
@@ -3823,7 +3835,7 @@ EndProcedure
 // Imports the object conversion rule.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
 //                   used on data import.
 //
@@ -3934,7 +3946,7 @@ Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 						
 					Except
 						
-						WriteErrorInfoToProtocol(11, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+						WriteErrorInfoToProtocol(11, DetailErrorDescription(ErrorInfo()),
 							String(NewRow.Source));
 						
 					EndTry; 
@@ -4121,7 +4133,7 @@ EndProcedure
 // Imports object conversion rules.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
 //                   used on data import.
 //
@@ -4270,7 +4282,7 @@ EndProcedure
 // Imports data clearing rules.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
 //                   used on data import.
 //
@@ -4326,7 +4338,7 @@ EndProcedure
 // Imports the algorithm according to the exchange rule format.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
 //                   used on data import.
 //
@@ -4372,7 +4384,7 @@ EndProcedure
 // Imports algorithms according to the exchange rule format.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
 //                   used on data import.
 //
@@ -4399,7 +4411,7 @@ EndProcedure
 // Imports the query according to the exchange rule format.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
 //                   used on data import.
 //
@@ -4445,7 +4457,7 @@ EndProcedure
 // Imports queries according to the exchange rule format.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
 //                   used on data import.
 //
@@ -4474,7 +4486,7 @@ EndProcedure
 // Imports parameters according to the exchange rule format.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //
 Procedure DoImportParameters(ExchangeRules, XMLWriter)
 
@@ -4581,7 +4593,7 @@ EndProcedure
 // Imports the data processor according to the exchange rule format.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
 //                   used on data import.
 //
@@ -4630,7 +4642,7 @@ EndProcedure
 // Imports external data processors according to the exchange rule format.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
 //                   used on data import.
 //
@@ -4663,7 +4675,7 @@ EndProcedure
 // Imports the data exporting rule group according to the exchange rule format.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  NewRow    - ValueTreeRow - a structure which describes data import rule group:
 //    * Name - String - rule ID.
 //    * Description - String - a user presentation of the rule.
@@ -4708,7 +4720,7 @@ EndProcedure
 // Imports the data export rule according to the exchange rule format.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  NewRow    - ValueTreeRow - a structure which describes a data import rule:
 //    * Name - String - rule ID.
 //    * Description - String - a user presentation of the rule.
@@ -4783,7 +4795,7 @@ EndProcedure
 // Imports data export rules according to the exchange rule format.
 //
 // Parameters:
-//  ExchangeRules - XMLReader - an object of the XMLReader type.
+//  ExchangeRules - XMLReader - An XMLReader object.
 //
 Procedure ImportExportRules(ExchangeRules)
 
@@ -4873,7 +4885,7 @@ Procedure ExportEventHandlers(Cancel) Export
 	AddCommentToStream(Result, "DER", ExportRulesTable.Rows.Count() <> 0);
 	ExportDataExportRuleHandlers(Result, ExportRulesTable.Rows);
 	
-	// Export DPR.
+	// Export DCR.
 	AddCommentToStream(Result, "DPR", CleanupRulesTable.Rows.Count() <> 0);
 	ExportDataClearingRuleHandlers(Result, CleanupRulesTable.Rows);
 	
@@ -5003,8 +5015,8 @@ EndProcedure
 //
 // Parameters:
 //  Result    - TextWriter - object of the TextWriter type - to output handlers to a text file.
-//  TreeRows - ValueTreeRowCollection - object of the ValueTreeRowCollection type - contains DER of this
-//                                                value tree level.
+//  TreeRows - ValueTreeRowCollection - A ValueTreeRowCollection object that contains DERs
+//                                                of the given value tree level.
 //
 Procedure ExportDataExportRuleHandlers(Result, TreeRows)
 	
@@ -5032,8 +5044,8 @@ EndProcedure
 //
 // Parameters:
 //  Result    - TextWriter - object of the TextWriter type - to output handlers to a text file.
-//  TreeRows - ValueTreeRowCollection - object of the ValueTreeRowCollection type - contains DPR of this
-//                                                value tree level.
+//  TreeRows - ValueTreeRowCollection - A ValueTreeRowCollection object that contains DCRs
+//                                                of the given value tree level.
 //
 Procedure ExportDataClearingRuleHandlers(Result, TreeRows)
 	
@@ -5197,8 +5209,8 @@ EndProcedure
 //
 // Parameters:
 //  Result      - TextWriter - object of the TextWriter type - to output handler to a text file.
-//  Rule        - ValueTableRow - with i=object conversion rules.
-//  HandlerName - String - handler name.
+//  Rule        - ValueTableRow - Row with object conversion rules.
+//  HandlerName - String - Handler name.
 //
 Procedure AddOCRHandlerToStream(Result, Rule, HandlerName)
 	
@@ -5226,13 +5238,13 @@ Procedure AddAlgorithmToSteam(Result, Algorithm)
 	
 EndProcedure  
 
-// Adds to the Result object a DER or DPR handler.
+// Adds a DER or DCR handler to the Result object.
 //
 // Parameters:
-//  Result      - TextWriter - object of the TextWriter type - to output handler to a text file.
-//  Rule        - A value tree row containing rules.
-//  HandlerPrefix - String - a handler prefix: DER or DPR.
-//  HandlerName - String - handler name.
+//  Result      - TextWriter - TextWriter type object - to output the handler to a text file.
+//  Rule        - Value tree row with rules.
+//  HandlerPrefix - String - Handler prefix: DER or DCR.
+//  HandlerName - String - Handler name.
 //
 Procedure AddHandlerToStream(Result, Rule, HandlerPrefix, HandlerName)
 	
@@ -5249,8 +5261,8 @@ EndProcedure
 // Adds a global conversion handler to the Result object.
 //
 // Parameters:
-//  Result      - TextWriter - object of the TextWriter type - to output handler to a text file.
-//  HandlerName - String - handler name.
+//  Result      - TextWriter - TextWriter type object - to output the handler to a text file.
+//  HandlerName - String - Handler name.
 //
 Procedure AddConversionHandlerToStream(Result, HandlerName)
 	
@@ -5638,8 +5650,8 @@ EndFunction
 //
 Function GetPCRHandlerInterface(OCR, PGCR, Rule, HandlerName)
 	
-	Prefix_Name = ?(Rule.IsFolder, "PGCR", "PCR");
-	AreaName   = Prefix_Name + "_" + HandlerName;
+	NamePrefix = ?(Rule.IsFolder, "PGCR", "PCR");
+	AreaName   = NamePrefix + "_" + HandlerName;
 	
 	OwnerName = "_" + TrimAll(OCR.Name);
 	
@@ -5665,12 +5677,12 @@ Function GetPCRHandlerInterface(OCR, PGCR, Rule, HandlerName)
 	Return FullHandlerName + "(" + GetHandlerParameters(AreaName) + ")";
 EndFunction 
 
-// Generates an OCR, DER, or DPR handler interface, that is a unique name of the procedure with the parameters of the corresponding handler.
+// Generates an OCR, DER, or DCR handler interface, i.e. a unique name of the procedure with the parameters of the corresponding handler.
 //
 // Parameters:
-//  Rule            - ValueTableRow - OCR, DER, DPR:
+//  Rule            - ValueTableRow - OCR, DER, DCR:
 //    * Name - String - a rule name.
-//  HandlerPrefix - String - possible values are: OCR, DER, DPR.
+//  HandlerPrefix - String - Possible values are: OCR, DER, DCR.
 //  HandlerName     - String - the name handler events for this rules.
 //
 // Returns:
@@ -5813,8 +5825,8 @@ EndFunction
 //
 // Parameters:
 //  DPRTable   - ValueTree - contains data clearing rules.
-//  TreeRows - ValueTreeRowCollection - object of the ValueTreeRowCollection type - contains DPR of this
-//                                                value tree level.
+//  TreeRows - ValueTreeRowCollection - A ValueTreeRowCollection object that contains DCRs
+//                                                of the given value tree level.
 //
 Procedure SupplementWithDataClearingRuleHandlerInterfaces(DPRTable, TreeRows)
 	
@@ -5842,8 +5854,8 @@ EndProcedure
 //
 // Parameters:
 //  DERTable   - ValueTree - contains the data export rules.
-//  TreeRows - ValueTreeRowCollection - object of the ValueTreeRowCollection type - contains DER of this
-//                                                value tree level.
+//  TreeRows - ValueTreeRowCollection - A ValueTreeRowCollection object that contains DERs
+//                                                of the given value tree level.
 //
 Procedure SupplementDataExportRulesWithHandlerInterfaces(DERTable, TreeRows) 
 	
@@ -5897,7 +5909,7 @@ Procedure SupplementWithObjectConversionRuleHandlerInterfaces(OCRTable)
 			
 		EndDo; 
 		
-		// Adding interfaces for PCR.
+		// Add PCR interfaces.
 		SupplementWithPCRHandlersInterfaces(OCR, OCR.SearchProperties);
 		SupplementWithPCRHandlersInterfaces(OCR, OCR.Properties);
 		
@@ -6078,7 +6090,7 @@ Procedure RestoreRulesFromInternalFormat() Export
 						Managers[Source].OCR = TableRow;
 					EndIf;
 				Except
-					WriteErrorInfoToProtocol(11, ErrorProcessing.DetailErrorDescription(ErrorInfo()), String(Source));
+					WriteErrorInfoToProtocol(11, DetailErrorDescription(ErrorInfo()), String(Source));
 				EndTry;
 				
 			EndIf;
@@ -6182,7 +6194,7 @@ Procedure ClearDataByRule(Rule)
 			
 		Except
 			
-			WriteDataClearingHandlerErrorInfo(27, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			WriteDataClearingHandlerErrorInfo(27, DetailErrorDescription(ErrorInfo()),
 				Rule.Name, "", "BeforeProcessClearingRule");
 			
 		EndTry;
@@ -6289,7 +6301,7 @@ Procedure ClearDataByRule(Rule)
 			
 		Except
 			
-			WriteDataClearingHandlerErrorInfo(28, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			WriteDataClearingHandlerErrorInfo(28, DetailErrorDescription(ErrorInfo()),
 				Rule.Name, "", "AfterProcessClearingRule");
 			
 		EndTry;
@@ -6425,7 +6437,7 @@ Procedure WriteObjectToIB(Object, Type)
 		
 	Except
 		
-		ErrorMessageString = WriteErrorInfoToProtocol(26, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+		ErrorMessageString = WriteErrorInfoToProtocol(26, DetailErrorDescription(ErrorInfo()),
 			Object, Type);
 		
 		If Not FlagDebugMode Then
@@ -6453,7 +6465,7 @@ Function CreateNewObject(Type, SearchProperties, Object = Undefined,
 
 	MDProperties      = Managers[Type];
 	TypeName         = MDProperties.TypeName;
-	Manager        = MDProperties.Manager; // CatalogManager, DocumentManager, InformationRegisterManager, ChartOfAccountsManager, ChartOfCalculationTypesManager, ExchangePlanManager, TaskManager, BusinessProcessManager
+	Manager        = MDProperties.Manager; // CatalogManager, DocumentManager, InformationRegisterManager, ChartOfAccountsManager, ChartOfCalculationTypesManager, ExchangePlanManager
 
 	If TypeName = "Catalog"
 		Or TypeName = "ChartOfCharacteristicTypes" Then
@@ -6586,9 +6598,9 @@ EndFunction
 // Reads the object property node from the file and sets the property value.
 //
 // Parameters:
-//  Type - Type - property value type.
-//  ObjectFound - Boolean - False returned after function execution means
-//                 that the property object is not found in the infobase and the new object was created.
+//  Type - Type - Property type.
+//  ObjectFound - Boolean - If False, a new object created as the sought-for object wasn't found.
+//                 
 //
 // Returns:
 //   Arbitrary - property value.
@@ -7537,7 +7549,8 @@ EndProcedure
 //  ObjectFound   - If False, a new object created as the sought-for object wasn't found.
 //
 // Returns:
-//  New or found infobase object.
+//  - AnyRef - If failed to create an object
+//  - Undefined - If failed to create an object
 //  
 Function FindObjectByRef(ObjectType,
 							OCRName = "",
@@ -7742,7 +7755,7 @@ Function FindObjectByRef(ObjectType,
 			
 		Except
 			
-			WriteInfoOnOCRHandlerImportError(73, ErrorProcessing.DetailErrorDescription(ErrorInfo()), "", "",
+			WriteInfoOnOCRHandlerImportError(73, DetailErrorDescription(ErrorInfo()), "", "",
 				ObjectType, Undefined, NStr("en = 'Search field sequence';"));
 			
 		EndTry;
@@ -7912,7 +7925,7 @@ Procedure SetRecordProperties(Object, Record, TypesInformation,
 					
 				Except
 					
-					WP = GetProtocolRecordStructure(26, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+					WP = GetProtocolRecordStructure(26, DetailErrorDescription(ErrorInfo()));
 					WP.OCRName           = OCRName;
 					WP.Object           = Object;
 					WP.ObjectType       = TypeOf(Object);
@@ -8608,7 +8621,7 @@ Function ReadObject()
 		Except
 			
 			HandlerName = NStr("en = '%1 (global-level)';");
-			WriteInfoOnOCRHandlerImportError(53, ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
+			WriteInfoOnOCRHandlerImportError(53, DetailErrorDescription(ErrorInfo()), 
 				RuleName, Source, ObjectType, Undefined,
 				SubstituteParametersToString(HandlerName, "BeforeImportObject"));
 							
@@ -8643,7 +8656,7 @@ Function ReadObject()
 			
 		Except
 			
-			WriteInfoOnOCRHandlerImportError(19, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			WriteInfoOnOCRHandlerImportError(19, DetailErrorDescription(ErrorInfo()),
 				RuleName, Source, ObjectType, Undefined, "BeforeImportObject");
 			
 		EndTry;
@@ -8700,7 +8713,7 @@ Function ReadObject()
 						
 					Except
 						
-						WriteInfoOnOCRHandlerImportError(20, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+						WriteInfoOnOCRHandlerImportError(20, DetailErrorDescription(ErrorInfo()),
 							RuleName, Source, ObjectType, Object, "OnImportObject");
 						
 					EndTry;
@@ -8777,7 +8790,7 @@ Function ReadObject()
 						
 					Except
 						
-						WP = GetProtocolRecordStructure(26, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+						WP = GetProtocolRecordStructure(26, DetailErrorDescription(ErrorInfo()));
 						WP.OCRName           = RuleName;
 						WP.NBSp              = NBSp;
 						WP.Gsn             = Gsn;
@@ -8873,7 +8886,7 @@ Function ReadObject()
 					
 				Except
 					DeleteFromNotWrittenObjectStack(NBSp, Gsn);
-					WriteInfoOnOCRHandlerImportError(20, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+					WriteInfoOnOCRHandlerImportError(20, DetailErrorDescription(ErrorInfo()),
 						RuleName, Source, ObjectType, Object, "OnImportObject");
 					
 				EndTry;
@@ -8917,7 +8930,7 @@ Function ReadObject()
 						
 					Except
 						DeleteFromNotWrittenObjectStack(NBSp, Gsn);
-						WriteInfoOnOCRHandlerImportError(20, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+						WriteInfoOnOCRHandlerImportError(20, DetailErrorDescription(ErrorInfo()),
 							RuleName, Source, ObjectType, Object, "OnImportObject");
 						
 					EndTry;
@@ -8985,7 +8998,7 @@ Function ReadObject()
 					DeleteFromNotWrittenObjectStack(NBSp, Gsn);
 					
 					HandlerName = NStr("en = '%1 (global-level)';");
-					WriteInfoOnOCRHandlerImportError(54, ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
+					WriteInfoOnOCRHandlerImportError(54, DetailErrorDescription(ErrorInfo()), 
 							RuleName, Source, ObjectType, Object,
 							SubstituteParametersToString(HandlerName, "AfterImportObject"));
 					
@@ -9015,7 +9028,7 @@ Function ReadObject()
 					
 				Except
 					DeleteFromNotWrittenObjectStack(NBSp, Gsn);
-					WriteInfoOnOCRHandlerImportError(21, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+					WriteInfoOnOCRHandlerImportError(21, DetailErrorDescription(ErrorInfo()),
 						RuleName, Source, ObjectType, Object, "AfterImportObject");
 						
 				EndTry;
@@ -9092,7 +9105,7 @@ Function ReadObject()
 						
 						
 					WP                        = GetProtocolRecordStructure(25,
-													ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+													DetailErrorDescription(ErrorInfo()));
 					WP.OCRName                 = RuleName;
 						
 					If Not IsBlankString(Source) Then
@@ -9551,7 +9564,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 			
 		Except
 			
-			WriteErrorInfoPCRHandlers(48, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			WriteErrorInfoPCRHandlers(48, DetailErrorDescription(ErrorInfo()),
 				OCR, PGCR, Source, "BeforeProcessPropertyGroupExport",, False);
 		
 		EndTry;
@@ -9640,7 +9653,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 				
 			Except
 				
-				WriteErrorInfoPCRHandlers(49, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				WriteErrorInfoPCRHandlers(49, DetailErrorDescription(ErrorInfo()),
 					OCR, PGCR, Source, "AfterProcessPropertyGroupExport",, False);
 				
 			EndTry;
@@ -9671,7 +9684,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 			
 		Except
 			
-			WriteErrorInfoPCRHandlers(66, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			WriteErrorInfoPCRHandlers(66, DetailErrorDescription(ErrorInfo()),
 				OCR, PGCR, Source,,,False);
 			
 			Return;
@@ -9744,7 +9757,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 				
 			Except
 				
-				WriteErrorInfoPCRHandlers(50, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				WriteErrorInfoPCRHandlers(50, DetailErrorDescription(ErrorInfo()),
 					OCR, PGCR, Source, "BeforeExportPropertyGroup",, False);
 				
 				Break;
@@ -9786,7 +9799,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 				
 			Except
 				
-				WriteErrorInfoPCRHandlers(51, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				WriteErrorInfoPCRHandlers(51, DetailErrorDescription(ErrorInfo()),
 					OCR, PGCR, Source, "OnExportPropertyGroup",, False);
 				
 				Break;
@@ -9828,7 +9841,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 				
 			Except
 				
-				WriteErrorInfoPCRHandlers(52, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				WriteErrorInfoPCRHandlers(52, DetailErrorDescription(ErrorInfo()),
 					OCR, PGCR, Source, "AfterExportPropertyGroup",, False);
 				
 				Break;
@@ -9887,7 +9900,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 			
 		Except
 			
-			WriteErrorInfoPCRHandlers(49, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			WriteErrorInfoPCRHandlers(49, DetailErrorDescription(ErrorInfo()),
 				OCR, PGCR, Source, "AfterProcessPropertyGroupExport",, False);
 			
 		EndTry;
@@ -9972,7 +9985,7 @@ Procedure GetPropertyValue(Value, CollectionObject, OCR, PCR, IncomingData, Sour
 	Except
 		
 		If ErrorCode <> 14 Then
-			WriteErrorInfoPCRHandlers(ErrorCode, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			WriteErrorInfoPCRHandlers(ErrorCode, DetailErrorDescription(ErrorInfo()),
 				OCR, PCR, Source, "");
 		EndIf;
 		
@@ -10032,7 +10045,7 @@ Procedure ExportExtDimension1(Source,
 			
 		Except
 			
-			WriteErrorInfoPCRHandlers(55, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			WriteErrorInfoPCRHandlers(55, DetailErrorDescription(ErrorInfo()),
 				OCR, PCR, Source, "BeforeExportProperty", Value);
 				
 		EndTry;
@@ -10078,7 +10091,7 @@ Procedure ExportExtDimension1(Source,
 				
 			Except
 				
-				WriteErrorInfoPCRHandlers(56, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				WriteErrorInfoPCRHandlers(56, DetailErrorDescription(ErrorInfo()),
 					OCR, PCR, Source, "OnExportProperty", Value);
 				
 			EndTry;
@@ -10205,7 +10218,7 @@ Procedure ExportExtDimension1(Source,
 					
 			Except
 					
-				WriteErrorInfoPCRHandlers(57, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				WriteErrorInfoPCRHandlers(57, DetailErrorDescription(ErrorInfo()),
 					OCR, PCR, Source, "AfterExportProperty", Value);
 					
 			EndTry;
@@ -10623,7 +10636,7 @@ Procedure ExportProperties(Source, Receiver, IncomingData, OutgoingData, OCR, PC
 				
 			Except
 				
-				WriteErrorInfoPCRHandlers(55, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				WriteErrorInfoPCRHandlers(55, DetailErrorDescription(ErrorInfo()),
 					OCR, PCR, Source, "BeforeExportProperty", Value);
 				
 			EndTry;
@@ -10754,7 +10767,7 @@ Procedure ExportProperties(Source, Receiver, IncomingData, OutgoingData, OCR, PC
 				
 			Except
 				
-				WriteErrorInfoPCRHandlers(56, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				WriteErrorInfoPCRHandlers(56, DetailErrorDescription(ErrorInfo()),
 					OCR, PCR, Source, "OnExportProperty", Value);
 				
 			EndTry;
@@ -10873,7 +10886,7 @@ Procedure ExportProperties(Source, Receiver, IncomingData, OutgoingData, OCR, PC
 				
 			Except
 				
-				WriteErrorInfoPCRHandlers(57, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				WriteErrorInfoPCRHandlers(57, DetailErrorDescription(ErrorInfo()),
 					OCR, PCR, Source, "AfterExportProperty", Value);
 				
 			EndTry;
@@ -10947,7 +10960,7 @@ Procedure ExportSelectionObject(Object, Rule, Properties=Undefined, IncomingData
 		Except
 			
 			HandlerName = NStr("en = '%1 (global-level)';");
-			WriteErrorInfoDERHandlers(65, ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
+			WriteErrorInfoDERHandlers(65, DetailErrorDescription(ErrorInfo()), 
 				Rule.Name,
 				SubstituteParametersToString(HandlerName, "BeforeExportSelectionObject"),
 				Object);
@@ -10976,7 +10989,7 @@ Procedure ExportSelectionObject(Object, Rule, Properties=Undefined, IncomingData
 			EndIf;
 			
 		Except
-			WriteErrorInfoDERHandlers(33, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			WriteErrorInfoDERHandlers(33, DetailErrorDescription(ErrorInfo()),
 				Rule.Name, "BeforeExportSelectionObject", Object);
 		EndTry;
 		
@@ -11008,7 +11021,7 @@ Procedure ExportSelectionObject(Object, Rule, Properties=Undefined, IncomingData
 		Except
 			
 			HandlerName = NStr("en = '%1 (global-level)';");
-			WriteErrorInfoDERHandlers(69, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			WriteErrorInfoDERHandlers(69, DetailErrorDescription(ErrorInfo()),
 				Rule.Name, 
 				SubstituteParametersToString(HandlerName, "AfterExportSelectionObject"), 
 				Object);
@@ -11033,7 +11046,7 @@ Procedure ExportSelectionObject(Object, Rule, Properties=Undefined, IncomingData
 			EndIf;
 			
 		Except
-			WriteErrorInfoDERHandlers(34, ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
+			WriteErrorInfoDERHandlers(34, DetailErrorDescription(ErrorInfo()), 
 				Rule.Name, "AfterExportSelectionObject", Object);
 		EndTry;
 		
@@ -11284,7 +11297,7 @@ Procedure ExportDataByRule(Rule)
 			
 		Except
 			
-			WriteErrorInfoDERHandlers(31, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			WriteErrorInfoDERHandlers(31, DetailErrorDescription(ErrorInfo()),
 				Rule.Name, "BeforeProcessDataExport");
 			
 		EndTry;
@@ -11414,7 +11427,7 @@ Procedure ExportDataByRule(Rule)
 			
 		Except
 			
-			WriteErrorInfoDERHandlers(32, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+			WriteErrorInfoDERHandlers(32, DetailErrorDescription(ErrorInfo()),
 				Rule.Name, "AfterProcessDataExport");
 			
 		EndTry;
@@ -11526,12 +11539,18 @@ Procedure DeleteExportRulesTreeRowByExportTypeFromArray(RowsArray, ItemToDelete)
 EndProcedure
 
 // Parameters:
-//   Data - - DocumentObject
-//            - ChartOfCharacteristicTypesObject
-//            - ChartOfAccountsObject
-//            - BusinessProcessObject
-//            - TaskObject
-//            - InformationRegisterRecordManager - Catalog object, document object, information register key, and so on.
+//   Data - ConstantValueManager
+//          - CatalogObject
+//          - DocumentObject
+//          - ChartOfCharacteristicTypesObject
+//          - ChartOfAccountsObject
+//          - ChartOfCalculationTypesObject
+//          - BusinessProcessObject
+//          - TaskObject
+//          - InformationRegisterRecordSet
+//          - AccumulationRegisterRecordSet
+//          - AccountingRegisterRecordSet
+//          - CalculationRegisterRecordSet
 //
 Procedure GetExportRulesRowByExchangeObject(Data, LastObjectMetadata, ExportObjectMetadata, 
 	LastExportRulesRow, CurrentExportRuleRow, TempConversionRulesArray, ObjectForExportRules, 
@@ -11719,7 +11738,7 @@ Function ExecuteExchangeNodeChangedDataExport(ExchangeNode, ConversionRulesArray
 							
 						Except
 							
-							WriteErrorInfoDERHandlers(32, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+							WriteErrorInfoDERHandlers(32, DetailErrorDescription(ErrorInfo()),
 								LastExportRuleRow.Name, "AfterProcessDataExport");
 							
 						EndTry;
@@ -11760,7 +11779,7 @@ Function ExecuteExchangeNodeChangedDataExport(ExchangeNode, ConversionRulesArray
 							
 						Except
 							
-							WriteErrorInfoDERHandlers(31, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+							WriteErrorInfoDERHandlers(31, DetailErrorDescription(ErrorInfo()),
 								CurrentExportRuleRow.Name, "BeforeProcessDataExport");
 							
 						EndTry;
@@ -11844,7 +11863,7 @@ Function ExecuteExchangeNodeChangedDataExport(ExchangeNode, ConversionRulesArray
 			RollbackTransaction();
 		EndIf;
 		
-		WP = GetProtocolRecordStructure(72, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		WP = GetProtocolRecordStructure(72, DetailErrorDescription(ErrorInfo()));
 		WP.ExchangePlanNode  = ExchangeNode;
 		WP.Object = Data;
 		WP.ObjectType = ExportDataType;
@@ -11875,7 +11894,7 @@ Function ExecuteExchangeNodeChangedDataExport(ExchangeNode, ConversionRulesArray
 				EndIf;
 				
 			Except
-				WriteErrorInfoDERHandlers(32, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
+				WriteErrorInfoDERHandlers(32, DetailErrorDescription(ErrorInfo()),
 					LastExportRuleRow.Name, "AfterProcessDataExport");
 				
 			EndTry;
@@ -12703,7 +12722,7 @@ Procedure ImportExchangeRules(Source="", SourceType="XMLFile") Export
  			DeleteFiles(ExchangeRulesTempFileName);
 		Except 
 			WriteLogEvent(NStr("en = 'Conversion Rule Data Exchange in XML format';", DefaultLanguageCode()),
-				EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				EventLogLevel.Error,,, DetailErrorDescription(ErrorInfo()));
 		EndTry;
 	EndIf;
 	
@@ -12714,7 +12733,7 @@ Procedure ImportExchangeRules(Source="", SourceType="XMLFile") Export
 			DeleteFiles(Source);
 		Except 
 			WriteLogEvent(NStr("en = 'Conversion Rule Data Exchange in XML format';", DefaultLanguageCode()),
-				EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				EventLogLevel.Error,,, DetailErrorDescription(ErrorInfo()));
 		EndTry;
 		
 	EndIf;
@@ -12753,7 +12772,7 @@ Procedure ImportExchangeRules(Source="", SourceType="XMLFile") Export
 			
 			Text = NStr("en = 'Handler: ""%1"": %2';");
 			Text = SubstituteParametersToString(Text, "AfterImportExchangeRules",
-				ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+				BriefErrorDescription(ErrorInfo()));
 			
 			WriteLogEvent(NStr("en = 'Conversion Rule Data Exchange in XML format';", DefaultLanguageCode()),
 				EventLogLevel.Error,,, Text);
@@ -12870,7 +12889,7 @@ Procedure RunReadingData(ErrorInfoResultString = "") Export
 						
 					Except
 												
-						WP = GetProtocolRecordStructure(75, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+						WP = GetProtocolRecordStructure(75, DetailErrorDescription(ErrorInfo()));
 						WP.Handler     = "AfterImportParameters";
 						ErrorMessageString = WriteToExecutionProtocol(75, WP, True);
 						
@@ -12902,7 +12921,7 @@ Procedure RunReadingData(ErrorInfoResultString = "") Export
 						
 					Except
 						
-						WP = GetProtocolRecordStructure(39, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+						WP = GetProtocolRecordStructure(39, DetailErrorDescription(ErrorInfo()));
 						WP.Handler     = "ExchangeFileAlgorithm";
 						ErrorMessageString = WriteToExecutionProtocol(39, WP, True);
 						
@@ -12940,7 +12959,7 @@ Procedure RunReadingData(ErrorInfoResultString = "") Export
 	Except
 		
 		ErrorString = SubstituteParametersToString(NStr("en = 'Data import error: %1';"),
-			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+			DetailErrorDescription(ErrorInfo()));
 		
 		ErrorInfoResultString = WriteToExecutionProtocol(ErrorString, Undefined, True, , , True);
 		
@@ -13058,7 +13077,7 @@ Function ExecuteActionsBeforeReadData(DataString1 = "") Export
 		Except
 			
 			HandlerName = NStr("en = '%1 (conversion)';"); 
-			WriteErrorInfoConversionHandlers(22, ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
+			WriteErrorInfoConversionHandlers(22, DetailErrorDescription(ErrorInfo()), 
 				SubstituteParametersToString(HandlerName, "BeforeImportData"));
 			
 			Cancel = True;
@@ -13119,7 +13138,7 @@ Procedure ExecuteActionsAfterDataReadingCompleted() Export
 		Except
 			
 			HandlerName = NStr("en = '%1 (conversion)';");
-			WriteErrorInfoConversionHandlers(23, ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
+			WriteErrorInfoConversionHandlers(23, DetailErrorDescription(ErrorInfo()), 
 				SubstituteParametersToString(HandlerName, "AfterImportData"));
 			
 		EndTry;
@@ -13178,21 +13197,20 @@ EndProcedure
 Procedure CompressResultingExchangeFile()
 	
 	Try
+				
+		ArchiveName = GetTempFileName("zip");
 		
-		SourceExchangeFileName = ExchangeFileName;
-		If ArchiveFile Then
-			ExchangeFileName = StrReplace(ExchangeFileName, ".xml", ".zip");
-		EndIf;
-		
-		Archiver = New ZipFileWriter(ExchangeFileName, ExchangeFileCompressionPassword, NStr("en = 'Data exchange file';"));
-		Archiver.Add(SourceExchangeFileName);
+		Archiver = New ZipFileWriter(ArchiveName, ExchangeFileCompressionPassword, NStr("en = 'Data exchange file';"));
+		Archiver.Add(ExchangeFileName);
 		Archiver.Write();
 		
-		DeleteFiles(SourceExchangeFileName);
+		DeleteFiles(ExchangeFileName);
+		
+		ExchangeFileName = ArchiveName;
 		
 	Except
 		WriteLogEvent(NStr("en = 'Conversion Rule Data Exchange in XML format';", DefaultLanguageCode()),
-			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+			EventLogLevel.Error,,, DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	
 EndProcedure
@@ -13225,7 +13243,7 @@ Function UnpackZipFile(FileNameForUnpacking)
 	
 	Except
 		
-		WP = GetProtocolRecordStructure(2, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		WP = GetProtocolRecordStructure(2, DetailErrorDescription(ErrorInfo()));
 		WriteToExecutionProtocol(2, WP, True);
 		
 		Return "";
@@ -13427,7 +13445,7 @@ Procedure ExecuteExport() Export
 			Except
 				
 				HandlerName = NStr("en = '%1 (conversion)';");
-				WriteErrorInfoConversionHandlers(62, ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
+				WriteErrorInfoConversionHandlers(62, DetailErrorDescription(ErrorInfo()), 
 					SubstituteParametersToString(HandlerName, "BeforeExportData"));
 					
 				Cancel = True;
@@ -13487,7 +13505,7 @@ Procedure ExecuteExport() Export
 				Except
 					
 					HandlerName = NStr("en = '%1 (conversion)';");
-					WriteErrorInfoConversionHandlers(63, ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
+					WriteErrorInfoConversionHandlers(63, DetailErrorDescription(ErrorInfo()), 
 						SubstituteParametersToString(HandlerName, "AfterExportData"));
 					
 				EndTry;
@@ -13525,7 +13543,7 @@ Procedure ExecuteExport() Export
 		EndIf;
 		
 		Cancel = True;
-		ErrorString = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		ErrorString = DetailErrorDescription(ErrorInfo());
 		
 		WriteToExecutionProtocol(SubstituteParametersToString(
 			NStr("en = 'Data export error: %1';"), ErrorString), Undefined, True, , , True);
@@ -13768,7 +13786,7 @@ Procedure InitializeCommentsOnDataExportAndImport()
 	
 EndProcedure
 
-// Initializes the deMessages variable that contains mapping of message codes and their description.
+// Initializes the deMessages variable that contains mapping of message codes and their description.
 //
 // Parameters:
 //  No.
@@ -13967,7 +13985,7 @@ Procedure SupplementManagerArrayWithRegisterType(Managers, MetadataObjectsList, 
 		
 EndProcedure
 
-// Initializes the Managers variable that contains mapping of object types and their properties.
+// Initializes the Managers variable that contains mapping of object types and their properties.
 //
 // Parameters:
 //  No.
@@ -14374,7 +14392,7 @@ Function ConnectToInfobase(ConnectionStructure, ErrorMessageString = "")
 		ErrorMessageString = NStr("en = 'Error when connecting to COM server:
 			|%1';");
 		ErrorMessageString = SubstituteParametersToString(ErrorMessageString, 
-			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+			DetailErrorDescription(ErrorInfo()));
 		
 		MessageToUser(ErrorMessageString);
 		
@@ -14487,7 +14505,7 @@ Function EstablishConnectionWithDestinationIB() Export
 	Except
 		
 		Text = NStr("en = 'An error occurred while trying to create the %1 data processor: %2';");
-		Text = SubstituteParametersToString(Text, Metadata().Name, ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+		Text = SubstituteParametersToString(Text, Metadata().Name, BriefErrorDescription(ErrorInfo()));
 		MessageToUser(Text);
 		ConnectionResult = Undefined;
 		
@@ -14624,7 +14642,7 @@ Procedure InitHandlersNamesStructure()
 	DERHandlersNames.Insert("BeforeExport");
 	DERHandlersNames.Insert("AfterExport");
 	
-	// DPR handlers.
+	// DCR handlers.
 	DPRHandlersNames = New Structure;
 	DPRHandlersNames.Insert("BeforeProcess");
 	DPRHandlersNames.Insert("AfterProcess");
@@ -14672,8 +14690,7 @@ Function ExchangePlanParametersStructure(Name, RefType, IsReferenceType, IsRegis
 	Return Structure;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Base-functionality procedures and functions for standalone mode support.
+#Region ProceduresAndFunctionsFromBasicFunctionalityToSupportSelfSufficiency
 
 Function SubsystemExists(FullSubsystemName) Export
 	
@@ -14786,7 +14803,10 @@ Function DefaultLanguageCode()
 		Return ModuleCommon.DefaultLanguageCode();
 	EndIf;
 	Return Metadata.DefaultLanguage.LanguageCode;
+
 EndFunction
+
+#EndRegion
 
 #EndRegion
 

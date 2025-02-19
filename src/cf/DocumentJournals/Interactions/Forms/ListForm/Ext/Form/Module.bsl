@@ -22,13 +22,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	SetConditionalAppearance();
 	
-	If Parameters.Property("ChoiceMode") And Parameters.ChoiceMode = True Then
+	If Parameters.ChoiceMode Then
 		WindowOpeningMode = FormWindowOpeningMode.LockOwnerWindow;
 		Items.List.ChoiceMode = True;
 	EndIf;
 	
-	FileInfobase = Common.FileInfobase();
-	DataSeparationEnabled         = Common.DataSeparationEnabled();
+	FileInfobase          = Common.FileInfobase();
+	FullTextSearchIndexIsUpToDate = FullTextSearchServer.SearchIndexIsRelevant();
+	DataSeparationEnabled                  = Common.DataSeparationEnabled();
 	
 	HyperlinkColor = StyleColors.HyperlinkColor;
 	
@@ -36,7 +37,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	DetermineAvailabilityFullTextSearch();
 	FoldersDeletionMarkRight = AccessRight("Update", Metadata.Catalogs.EmailMessageFolders);
 	
-	CommonClientServer.SetDynamicListFilterItem(Tabs, "Owner", Users.CurrentUser(),,, True);
+	CommonClientServer.SetDynamicListFilterItem(Tabs, "Owner", 
+		Users.CurrentUser(),,, True);
 	
 	AddToNavigationPanel();
 	Interactions.FillStatusSubmenu(Items.ListStatus, ThisObject);
@@ -54,10 +56,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	InteractionType = ?(OnlyEmail, "AllEmails","All");
 	Status = "All";
 	
-	CurrentNavigationPanelName = CommonClientServer.StructureProperty(Parameters, "CurrentNavigationPanelName");
-	CurrentRef = CommonClientServer.StructureProperty(Parameters, "CurrentRow");
-	If ValueIsFilled(CurrentRef) Then
-		PrepareFormSettingsForCurrentRefOutput(CurrentRef);
+	CurrentNavigationPanelName = Parameters.CurrentNavigationPanelName;
+	If ValueIsFilled(Parameters.CurrentRow) Then
+		PrepareFormSettingsForCurrentRefOutput(Parameters.CurrentRow);
 	EndIf;
 	
 	// StandardSubsystems.AttachableCommands
@@ -91,7 +92,7 @@ EndProcedure
 
 &AtServer
 Procedure BeforeLoadDataFromSettingsAtServer(Settings)
-	If Parameters.Property("CurrentNavigationPanelName") Then
+	If Not IsBlankString(Parameters.CurrentNavigationPanelName) Then
 		Settings.Delete("CurrentNavigationPanelName");
 	EndIf;
 EndProcedure
@@ -102,8 +103,8 @@ Procedure OnLoadDataFromSettingsAtServer(Settings)
 	If IsBlankString(CurrentNavigationPanelName) Or Items.Find(CurrentNavigationPanelName) = Undefined Then
 		CurrentNavigationPanelName = "EmailSubjectPage";
 	ElsIf CurrentNavigationPanelName = "PropertiesPage" Then
-		If AddlAttributesPropertiesTable.FindRows(New 
-				Structure("AddlAttributeInfo",CurrentPropertyOfNavigationPanel)).Count() = 0 Then
+		If AddlAttributesPropertiesTable.FindRows(
+			New Structure("AddlAttributeInfo", CurrentPropertyOfNavigationPanel)).Count() = 0 Then
 			CurrentNavigationPanelName = "EmailSubjectPage";
 		EndIf;
 	EndIf;
@@ -170,30 +171,22 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	If IsBlankString(CurrentNavigationPanelName) 
-		Or IsBlankString(Status) 
-		Or IsBlankString(InteractionType)  Then
-		
+	If IsBlankString(CurrentNavigationPanelName) Or IsBlankString(Status) Or IsBlankString(InteractionType) Then
 		SetInitialValuesOnOpen();
-		
 	EndIf;
 	
 	RestoreExpandedTreeNodes();
 	
 	If DataSeparationEnabled Then
-		
 		SendReceiveUserMailClient();
-		
 	Else
-		
 		AttachIdleHandler("CheckEmailsSendingStatus", 60, True);
-		
 	EndIf;
 	
 #If MobileClient Then
 		
-		Items.ListStatus.Type            = FormGroupType.ButtonGroup;
-		Items.InteractionTypeList.Type = FormGroupType.ButtonGroup;
+	Items.ListStatus.Type            = FormGroupType.ButtonGroup;
+	Items.InteractionTypeList.Type = FormGroupType.ButtonGroup;
 		
 #EndIf
 	
@@ -392,9 +385,8 @@ Procedure ListOnActivateRow(Item)
 		If Items.PagesPreview.CurrentPage <> Items.PreviewPlainTextPage Then
 			Items.PagesPreview.CurrentPage = Items.PreviewPlainTextPage;
 		EndIf;
-		Preview = "";
-		HTMLPreview = "<HTML><BODY></BODY></HTML>";
-		InteractionPreviewGeneratedFor = Undefined;
+		
+		ClearPreview();
 		
 	Else
 		
@@ -415,6 +407,15 @@ Procedure ListOnActivateRow(Item)
 	AttachableCommandsClient.StartCommandUpdate(ThisObject);
 	// End StandardSubsystems.AttachableCommands
 	
+EndProcedure
+
+&AtClient
+Procedure ClearPreview()
+
+	Preview = "";
+	HTMLPreview = "<HTML><BODY></BODY></HTML>";
+	InteractionPreviewGeneratedFor = Undefined;
+
 EndProcedure
 
 &AtClient
@@ -537,7 +538,7 @@ Procedure FoldersBeforeDeleteRow(Item, Cancel)
 			String(CurrentData.Value));
 	
 	AdditionalParameters = New Structure("CurrentData", CurrentData);
-	OnCloseNotifyHandler = New NotifyDescription("QuestionOnFolderDeletionAfterCompletion", ThisObject, AdditionalParameters);
+	OnCloseNotifyHandler = New CallbackDescription("QuestionOnFolderDeletionAfterCompletion", ThisObject, AdditionalParameters);
 	ShowQueryBox(OnCloseNotifyHandler, QueryText, QuestionDialogMode.YesNo);
 	
 EndProcedure
@@ -577,16 +578,20 @@ Procedure SearchStringOnChange(Item)
 	
 	If SearchString <> "" Then
 		
-		ExecuteFullTextSearch();
+		CheckFullTextSearchIndex(); 
 		
-	Else
+	Else 
+		
 		AdvancedSearch = False;
 		CommonClientServer.SetDynamicListFilterItem(
 			List, 
 			"Search",
 			Undefined,
 			DataCompositionComparisonType.Equal,,False);
+			
 		Items.DetailsFoundByFullTextSearch.Visible = AdvancedSearch;
+		Items.OutdatedIndexWarning.Visible = False;
+		
 	EndIf;
 	
 EndProcedure
@@ -688,8 +693,7 @@ Procedure ImportantContactsOnlyDecorationURLProcessing(Item, FormattedStringURL,
 EndProcedure
 
 
-////////////////////////////////////////////////////////////////////////////////////
-// Drag-and-drop handler.
+#Region DragHandling
 
 &AtClient
 Procedure SubjectsDragCheck(Item, DragParameters, StandardProcessing, String, Field)
@@ -864,6 +868,8 @@ Procedure ListDragCheck(Item, DragParameters, StandardProcessing, String, Field)
 	StandardProcessing = False;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -1049,44 +1055,29 @@ EndProcedure
 Procedure InteractionsBySubject(Command)
 	
 	CurrentItemName = Items.List.Name;
-	If Not CorrectChoice(CurrentItemName,True) Then
+	If Not CorrectChoice(CurrentItemName, True) Then
 		Return;
 	EndIf;
 	
 	SubjectOf = Items[CurrentItemName].CurrentData.SubjectOf;
 	
+	FilterStructure1 = New Structure;
+	FilterStructure1.Insert("SubjectOf", SubjectOf);
+	
+	FormParameters = New Structure;
+	FormParameters.Insert("Filter", FilterStructure1);
+	FormParameters.Insert("InteractionType", "");
+	
 	If InteractionsClientServer.IsSubject(SubjectOf) Then
-		
-		FilterStructure1 = New Structure;
-		FilterStructure1.Insert("SubjectOf", SubjectOf);
-		
-		AdditionalParameters = New Structure;
-		AdditionalParameters.Insert("InteractionType", "SubjectOf");
-		
-		FormParameters = New Structure;
-		FormParameters.Insert("Filter", FilterStructure1);
-		FormParameters.Insert("AdditionalParameters", AdditionalParameters);
-		
+		FormParameters.InteractionType = "SubjectOf";
 	ElsIf InteractionsClientServer.IsInteraction(SubjectOf) Then
-		
-		FilterStructure1 = New Structure;
-		FilterStructure1.Insert("SubjectOf", SubjectOf);
-		
-		AdditionalParameters = New Structure;
-		AdditionalParameters.Insert("InteractionType", "Interaction");
-		
-		FormParameters = New Structure;
-		FormParameters.Insert("Filter", FilterStructure1);
-		FormParameters.Insert("AdditionalParameters", AdditionalParameters);
-		
+		FormParameters.InteractionType = "Interaction";
 	Else
 		Return;
 	EndIf;
 
-	OpenForm(
-		"DocumentJournal.Interactions.Form.ParametricListForm",
-		FormParameters,
-		ThisObject);
+	OpenForm("DocumentJournal.Interactions.Form.ParametricListForm",
+		FormParameters, ThisObject);
 	
 EndProcedure
 
@@ -1191,7 +1182,7 @@ Procedure DeferReviewExecute(Command)
 	ProcessingDate = CommonClient.SessionDate();
 	
 	AdditionalParameters = New Structure("CurrentItemName", Undefined);
-	OnCloseNotifyHandler = New NotifyDescription("ProcessingDateChoiceOnCompletion", ThisObject, AdditionalParameters);
+	OnCloseNotifyHandler = New CallbackDescription("ProcessingDateChoiceOnCompletion", ThisObject, AdditionalParameters);
 	ShowInputDate(OnCloseNotifyHandler, ProcessingDate, NStr("en = 'Snooze till';"), DateFractions.DateTime);
 	
 EndProcedure
@@ -1207,7 +1198,7 @@ Procedure DeferListReview(Command)
 	ProcessingDate = CommonClient.SessionDate();
 	
 	AdditionalParameters = New Structure("CurrentItemName", CurrentItemName);
-	OnCloseNotifyHandler = New NotifyDescription("ProcessingDateChoiceOnCompletion", ThisObject, AdditionalParameters);
+	OnCloseNotifyHandler = New CallbackDescription("ProcessingDateChoiceOnCompletion", ThisObject, AdditionalParameters);
 	ShowInputDate(OnCloseNotifyHandler, ProcessingDate, NStr("en = 'Snooze till';"), DateFractions.DateTime);
 
 EndProcedure
@@ -1236,7 +1227,7 @@ EndProcedure
 &AtClient
 Procedure CreateEmailMessage(Command)
 	
-	NotifyDescription = New NotifyDescription("CreateEmailFollowUp", ThisObject, );
+	NotifyDescription = New CallbackDescription("CreateEmailFollowUp", ThisObject, );
 	EmailOperationsClient.CheckAccountForSendingEmailExists(NotifyDescription);
 	
 EndProcedure
@@ -1570,8 +1561,7 @@ Procedure SetConditionalAppearance()
 	
 EndProcedure
 
-/////////////////////////////////////////////////////////////////////////////////
-// Processing quick filter change.
+#Region QuickFiltersChangesHandling
 
 &AtServer
 Procedure ChangeFilterInteractionTypeServer(Val CommandName)
@@ -1656,8 +1646,9 @@ Procedure OnChangeTypeServer(UpdateNavigationPanel = True)
 	
 EndProcedure
 
-/////////////////////////////////////////////////////////////////////////////////
-//    Processing activation of list rows and navigation panel.
+#EndRegion
+
+#Region ListsItemsAndNavigationPanelActivationHandling
 
 &AtClient
 Procedure ProcessListRowActivation()
@@ -1713,9 +1704,10 @@ Procedure ProcessNavigationPanelRowActivation();
 		CurrentData = Items.NavigationPanelContacts.CurrentData;
 		If CurrentData <> Undefined Then
 			
-			If CurrentData.Contact = ValueSetAfterFillNavigationPanel Then
-				ValueSetAfterFillNavigationPanel = Undefined;
+			If CurrentData.Contact = CurrentValueOfNavigationBar Then
 				Return;
+			Else
+				CurrentValueOfNavigationBar = CurrentData.Contact; 
 			EndIf;
 			
 			ChangeFilterList("Contacts",New Structure("Value,TypeDescription",
@@ -1724,21 +1716,37 @@ Procedure ProcessNavigationPanelRowActivation();
 			
 		EndIf;
 	ElsIf Items.NavigationPanelPages.CurrentPage = Items.EmailSubjectPage Then
+		
 		CurrentData = Items.NavigationPanelSubjects.CurrentData;
 		If CurrentData <> Undefined Then
 			
-			If CurrentData.SubjectOf = ValueSetAfterFillNavigationPanel Then
-				ValueSetAfterFillNavigationPanel = Undefined;
+			If CurrentData.SubjectOf = CurrentValueOfNavigationBar Then
 				Return;
+			Else 
+			
+				ClearPreview();
+
+				CurrentValueOfNavigationBar = CurrentData.SubjectOf;
+				
 			EndIf;
 			
 			ChangeFilterList("Subjects",New Structure("Value,TypeDescription",
 			                    CurrentData.SubjectOf, Undefined));
 			SaveCurrentActiveValueInSettings("Subjects", CurrentData.SubjectOf);
+			
+			CurrentData = Items.NavigationPanelSubjects.CurrentData;
+			If CurrentData = Undefined
+				Or CurrentData.SubjectOf <> CurrentValueOfNavigationBar Then
+				
+				Items.NavigationPanelSubjects.CurrentRow = CurrentValueOfNavigationBar;
+				
+			EndIf;
+			
 		Else
 			ChangeFilterList("Subjects",New Structure("Value,TypeDescription",
 			                    Undefined, Undefined));
 		EndIf;
+		
 	ElsIf Items.NavigationPanelPages.CurrentPage = Items.FoldersPage Then
 
 		CurrentData = Items.Folders.CurrentData;
@@ -1982,8 +1990,9 @@ Procedure DisplayInteractionPreview(InteractionsDocumentRef, CurrentPageName)
 	
 EndProcedure
 
-/////////////////////////////////////////////////////////////////////////////////
-//    Switching and filling navigation panels.
+#EndRegion
+
+#Region SwitchingAndFillingNavigationPanels
 
 &AtServer
 Procedure SwitchNavigationPanelServer(CommandName)
@@ -3049,7 +3058,7 @@ Procedure AfterFillNavigationPanel(SetDontTestNavigationPanelActivationFlag = Tr
 		Return;
 	EndIf;
 	
-	ValueSetAfterFillNavigationPanel = Undefined;
+	CurrentValueOfNavigationBar = Undefined;
 	
 	Settings = GetSavedSettingsOfNavigationPanelTree(Items.NavigationPanelPages.CurrentPage.Name,
 		CurrentPropertyOfNavigationPanel,NavigationPanelTreesSettings);
@@ -3074,7 +3083,7 @@ Procedure AfterFillNavigationPanel(SetDontTestNavigationPanelActivationFlag = Tr
 		ChangeFilterList("Contacts",New Structure("Value,TypeDescription",
 		                    SettingsValue.CurrentValue, Undefined));
 			
-		ValueSetAfterFillNavigationPanel = SettingsValue.CurrentValue;
+		CurrentValueOfNavigationBar = SettingsValue.CurrentValue;
 		
 	ElsIf Items.NavigationPanelPages.CurrentPage = Items.FoldersPage Then
 		
@@ -3099,7 +3108,7 @@ Procedure AfterFillNavigationPanel(SetDontTestNavigationPanelActivationFlag = Tr
 		ChangeFilterList("Subjects",New Structure("Value,TypeDescription",
 		                    SettingsValue.CurrentValue, Undefined));
 		
-		ValueSetAfterFillNavigationPanel = SettingsValue.CurrentValue;
+		CurrentValueOfNavigationBar = SettingsValue.CurrentValue;
 
 	ElsIf Items.NavigationPanelPages.CurrentPage = Items.PropertiesPage Then
 		
@@ -3135,8 +3144,6 @@ Procedure AfterFillNavigationPanel(SetDontTestNavigationPanelActivationFlag = Tr
 		ChangeFilterList("Tabs", New Structure("Value", SettingsValue.CurrentValue));
 		
 	EndIf;
-	
-	DoNotTestNavigationPanelActivation = True;
 
 EndProcedure
 
@@ -3245,7 +3252,7 @@ Procedure AddToNavigationPanel()
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////
-//    Saving node statuses and navigation panel tree values.
+//    Сохранение состояния узлов и значений деревьев панели навигации.
 
 &AtClientAtServerNoContext
 Function GetSavedSettingsOfNavigationPanelTree(
@@ -3419,7 +3426,7 @@ Procedure PositionOnRowAccordingToSavedValue(CurrentRowValue,
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////
-// Procedures and functions of command processing.
+// Процедуры и функции обработки команд.
 
 // Set a responsible person for selected interactions - the server part.
 // Parameters:
@@ -3499,11 +3506,7 @@ EndProcedure
 &AtClientAtServerNoContext
 Function IsPanelWithDynamicList(CurrentNavigationPanelName)
 
-	If CurrentNavigationPanelName = "EmailSubjectPage" Or CurrentNavigationPanelName = "ContactPage" Then
-		Return True;
-	Else
-		Return False;
-	EndIf;
+	Return CurrentNavigationPanelName = "EmailSubjectPage" Or CurrentNavigationPanelName = "ContactPage";
 
 EndFunction
 
@@ -3818,8 +3821,9 @@ Procedure ExecuteTransferToEmailsArrayFolder(Val EmailsArray, Val Folder)
 
 EndProcedure
 
-/////////////////////////////////////////////////////////////////////////////////////////
-// Full-text search.
+#EndRegion
+
+#Region FullTextSearch
 
 &AtServer
 Procedure DetermineAvailabilityFullTextSearch() 
@@ -4031,7 +4035,7 @@ Procedure FillInTheDescriptionFoundByFullTextSearch(Interaction)
 EndProcedure 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Miscellaneous.
+// Other
 
 &AtServer
 Function FindRowInCollectionFormData(WhereToFind, Value, Column)
@@ -4325,5 +4329,75 @@ Procedure CheckWhetherYouNeedToSendReceiveMail()
 	AttachIdleHandler("CheckWhetherYouNeedToSendReceiveMail", 30, True);
 	
 EndProcedure
+
+#EndRegion
+
+#Region Searching
+
+&AtClient
+Procedure CheckFullTextSearchIndex()
+	
+	If Not FullTextSearchIndexIsUpToDate Then 
+		
+		If FileInfobase Then
+		
+			NotificationAfterAnsweringQuestion = New CallbackDescription("CheckFullTextSearchIndexCompletion", ThisObject);
+			
+			ShowQueryBox(NotificationAfterAnsweringQuestion, 
+				NStr("en = 'Full-text search is outdated. Update the index?';"), QuestionDialogMode.YesNo);
+			
+		Else
+			
+			Items.OutdatedIndexWarning.Visible = True;
+			ExecuteFullTextSearch();
+			
+		EndIf;
+		
+	Else
+		
+		Items.OutdatedIndexWarning.Visible = False;
+		ExecuteFullTextSearch();
+		
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure CheckFullTextSearchIndexCompletion(QuestionResult, AdditionalParameters) Export
+	
+	If QuestionResult = DialogReturnCode.Yes Then
+		
+		AttachIdleHandler("UpdateFullTextSearchIndex",0.2,True);
+		
+	Else
+		
+		Items.OutdatedIndexWarning.Visible = True;
+		ExecuteFullTextSearch();
+		
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure UpdateFullTextSearchIndex()
+	
+	Status(NStr("en = 'Updating full-text search…';"));
+	UpdateFullTextSearchIndexServer();
+	FullTextSearchIndexIsUpToDate = True;
+	Items.OutdatedIndexWarning.Visible = False;
+	Status(NStr("en = 'Full-text search index is up to date!';"));
+	ExecuteFullTextSearch();
+	
+EndProcedure
+
+&AtServer
+Procedure UpdateFullTextSearchIndexServer()
+	
+	SetPrivilegedMode(True);
+	FullTextSearch.UpdateIndex();
+	
+EndProcedure
+
+#EndRegion
 
 #EndRegion

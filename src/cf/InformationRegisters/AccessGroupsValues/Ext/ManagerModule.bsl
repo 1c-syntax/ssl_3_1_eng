@@ -14,7 +14,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// SaaSTechnology.ExportImportData
+// CloudTechnology.ExportImportData
 
 // Attached in ExportImportDataOverridable.OnRegisterDataExportHandlers.
 //
@@ -46,7 +46,7 @@ Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object,
 	
 EndProcedure
 
-// End SaaSTechnology.ExportImportData
+// End CloudTechnology.ExportImportData
 
 #EndRegion
 
@@ -143,8 +143,7 @@ Procedure UpdateRegisterData(AccessGroups = Undefined, HasChanges = Undefined) E
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+#Region AuxiliaryProceduresAndFunctions
 
 Procedure UpdateAllowedValues(UsedAccessKinds,
 			AccessGroups, HasChanges, ProfileAdministrator)
@@ -306,7 +305,7 @@ Procedure UpdateAllowedValues(UsedAccessKinds,
 	|	ValuesSettings.AccessGroup AS AccessGroup,
 	|	CASE
 	|		WHEN ValuesSettings.IncludeSubordinateAccessValues
-	|			THEN SelectedAccessValues.ValueInHierarchy
+	|			THEN ISNULL(SelectedAccessValues.ValueInHierarchy, ValuesSettings.AccessValue)
 	|		ELSE ValuesSettings.AccessValue
 	|	END AS AccessValue,
 	|	MAX(ValuesSettings.ValueAllowed) AS ValueAllowed
@@ -331,7 +330,7 @@ Procedure UpdateAllowedValues(UsedAccessKinds,
 	|	ValuesSettings.AccessGroup,
 	|	CASE
 	|		WHEN ValuesSettings.IncludeSubordinateAccessValues
-	|			THEN SelectedAccessValues.ValueInHierarchy
+	|			THEN ISNULL(SelectedAccessValues.ValueInHierarchy, ValuesSettings.AccessValue)
 	|		ELSE ValuesSettings.AccessValue
 	|	END
 	|
@@ -779,6 +778,8 @@ Function SelectedAccessValues(AccessGroups, ProfileAdministrator)
 	
 EndFunction
 
+
+#EndRegion
 
 #EndRegion
 

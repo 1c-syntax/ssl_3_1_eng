@@ -107,15 +107,15 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 		If ValueIsFilled(CurrentLanguageSuffix) Then
 
-			ListProperties.QueryText = StrReplace(List.QueryText, "ReportsOptions.Description",
-				"ReportsOptions.Description" + CurrentLanguageSuffix);
-			ListProperties.QueryText = StrReplace(ListProperties.QueryText, "ReportsOptions.LongDesc",
-				"ReportsOptions.LongDesc" + CurrentLanguageSuffix);
+			ListProperties.QueryText = StrReplace(List.QueryText, "ReportsOptionsOverridable.Description",
+				"ReportsOptionsOverridable.Description" + CurrentLanguageSuffix);
+			ListProperties.QueryText = StrReplace(ListProperties.QueryText, "ReportsOptionsOverridable.LongDesc",
+				"ReportsOptionsOverridable.LongDesc" + CurrentLanguageSuffix);
 
-			ListProperties.QueryText = StrReplace(ListProperties.QueryText, "ConfigurationOptions.Description",
-				"ConfigurationOptions.Description" + CurrentLanguageSuffix);
-			ListProperties.QueryText = StrReplace(ListProperties.QueryText, "ConfigurationOptions.LongDesc",
-				"ConfigurationOptions.LongDesc" + CurrentLanguageSuffix);
+			ListProperties.QueryText = StrReplace(ListProperties.QueryText, "ConfigurationOptionsOverridable.Description",
+				"ConfigurationOptionsOverridable.Description" + CurrentLanguageSuffix);
+			ListProperties.QueryText = StrReplace(ListProperties.QueryText, "ConfigurationOptionsOverridable.LongDesc",
+				"ConfigurationOptionsOverridable.LongDesc" + CurrentLanguageSuffix);
 
 		EndIf;
 
@@ -279,7 +279,7 @@ Procedure SubsystemsTreeDrag(Item, DragParameters, StandardProcessing, String, F
 		PlacementParameters.Variants.Presentation, Format(PlacementParameters.Variants.Total, "NG=0"),
 		PlacementParameters.Source.FullPresentation, PlacementParameters.Receiver.FullPresentation);
 
-	Handler = New NotifyDescription("SubsystemsTreeDragCompletion", ThisObject, PlacementParameters);
+	Handler = New CallbackDescription("SubsystemsTreeDragCompletion", ThisObject, PlacementParameters);
 	ShowQueryBox(Handler, QueryText, QuestionDialogMode.YesNo, 60, DialogReturnCode.Yes);
 
 EndProcedure

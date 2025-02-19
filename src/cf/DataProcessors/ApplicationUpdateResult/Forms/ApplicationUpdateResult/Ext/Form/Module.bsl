@@ -303,7 +303,7 @@ Procedure ModifySchedule(Command)
 	
 	Dialog = New ScheduledJobDialog(Schedule);
 	
-	NotifyDescription = New NotifyDescription("ChangeScheduleAfterSetUpSchedule", ThisObject);
+	NotifyDescription = New CallbackDescription("ChangeScheduleAfterSetUpSchedule", ThisObject);
 	Dialog.Show(NotifyDescription);
 	
 EndProcedure
@@ -312,7 +312,7 @@ EndProcedure
 Procedure InformationForTechnicalSupport(Command)
 	
 	If Not IsBlankString(ScriptDirectory) Then
-		NotifyDescription = New NotifyDescription("BeginFindingFilesCompletion", ThisObject);
+		NotifyDescription = New CallbackDescription("BeginFindingFilesCompletion", ThisObject);
 		BeginFindingFiles(NotifyDescription, ScriptDirectory, "log*.txt");
 	EndIf;
 	
@@ -515,7 +515,7 @@ Procedure ResetHandlersStatus(Status)
 		Record.Status = Enums.UpdateHandlersStatuses.NotPerformed;
 		ExecutionStatistics = Record.ExecutionStatistics.Get();
 		ExecutionStatistics.Insert("StartsCount", 0);
-		Record.ExecutionStatistics = New ValueStorage(ExecutionStatistics);
+		Record.ExecutionStatistics = New ValueStorage(ExecutionStatistics, New Deflation(9));
 		
 		RecordSet.Write();
 	EndDo;
@@ -762,7 +762,7 @@ Procedure ChangeScheduleAfterSetUpSchedule(NewSchedule, AdditionalParameters) Ex
 	
 	If NewSchedule <> Undefined Then
 		If NewSchedule.RepeatPeriodInDay = 0 Then
-			Notification = New NotifyDescription("ChangeScheduleAfterQuery", ThisObject, NewSchedule);
+			Notification = New CallbackDescription("ChangeScheduleAfterQuery", ThisObject, NewSchedule);
 			
 			QuestionButtons = New ValueList;
 			QuestionButtons.Add("SetUpSchedule", NStr("en = 'Set schedule';"));
@@ -789,7 +789,7 @@ Procedure ChangeScheduleAfterQuery(Result, NewSchedule) Export
 		NewSchedule.RepeatPause = 60;
 		SetDeferredUpdateSchedule(NewSchedule);
 	Else
-		NotifyDescription = New NotifyDescription("ChangeScheduleAfterSetUpSchedule", ThisObject);
+		NotifyDescription = New CallbackDescription("ChangeScheduleAfterSetUpSchedule", ThisObject);
 		Dialog = New ScheduledJobDialog(NewSchedule);
 		Dialog.Show(NotifyDescription);
 	EndIf;

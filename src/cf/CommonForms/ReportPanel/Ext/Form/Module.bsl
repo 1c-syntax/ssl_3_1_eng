@@ -94,7 +94,7 @@ Procedure OnOpen(Cancel)
 	If TimeConsumingOperation <> Undefined Then
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 		IdleParameters.OutputIdleWindow = False;
-		End = New NotifyDescription("UpdateReportPanelCompletion", ThisObject);
+		End = New CallbackDescription("UpdateReportPanelCompletion", ThisObject);
 		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, End, IdleParameters);
 	EndIf;	
 EndProcedure
@@ -381,7 +381,7 @@ EndProcedure
 &AtClient
 Procedure ResetSettings(Command)
 	QueryText = NStr("en = 'Do you want to reset report assignment settings?';");
-	Handler = New NotifyDescription("ResetSettingsCompletion", ThisObject);
+	Handler = New CallbackDescription("ResetSettingsCompletion", ThisObject);
 	ShowQueryBox(Handler, QueryText, QuestionDialogMode.YesNo, 60, DialogReturnCode.No);
 EndProcedure
 
@@ -433,8 +433,7 @@ EndProcedure
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Client.
+#Region Client
 
 &AtClient
 Procedure ShowHideOption(Variant, Item, Show)
@@ -506,7 +505,7 @@ Function UpdateReportPanelAtClient(Event = "")
 	
 	TimeConsumingOperation = UpdateReportPanelAtServer(Event);
 	If TimeConsumingOperation <> Undefined Then
-		End = New NotifyDescription("UpdateReportPanelCompletion", ThisObject);
+		End = New CallbackDescription("UpdateReportPanelCompletion", ThisObject);
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 		IdleParameters.OutputIdleWindow = False;
 		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, End);
@@ -535,7 +534,7 @@ Function StartMeasurement(Event, Comment = Undefined)
 		If SetupMode Or Event = "DisableSetupMode" Then
 			Measurement.Name = "ReportPanel.SetupMode";
 		ElsIf ValueIsFilled(SearchString) Then
-			Measurement.Name = "ReportPanel.Search"; // 
+			Measurement.Name = "ReportPanel.Search"; // Сам по себе поиск интересен только в режиме просмотра.
 		EndIf;
 		Comment.Insert("SubsystemPath", ClientParameters.SubsystemPath);
 		Comment.Insert("ShowTooltips", ShowTooltips);
@@ -583,8 +582,9 @@ Function FindOptionByItemName(LabelName)
 	Return Undefined;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Server call.
+#EndRegion
+
+#Region ServerCall
 
 &AtClientAtServerNoContext
 Function FindSubsystemByRef(Form, Ref)
@@ -600,8 +600,9 @@ Function FindSubsystemByRef(Form, Ref)
 	Return Undefined;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Server call.
+#EndRegion
+
+#Region ServerCall
 
 &AtServer
 Procedure MoveQuickAccessOption(Val OptionID, Val QuickAccess)
@@ -744,8 +745,9 @@ Function UpdateReportPanelAtServer(Val Event = "")
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Server.
+#EndRegion
+
+#Region Server
 
 &AtServer
 Procedure DefineBehaviorInMobileClient()
@@ -942,8 +944,9 @@ Procedure SaveSettingsOfThisReportPanel()
 		LocalSettings);
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Server / filling in a report panel.
+#EndRegion
+
+#Region ServerReportPanelFilling
 
 &AtServer
 Function FillReportPanelInBackground()
@@ -1185,7 +1188,7 @@ Procedure OutputSectionOptions(FillParameters, SectionReference)
 	Else
 		SectionSubsystems = FillParameters.SubsystemsTable.Copy(FilterBySection);
 	EndIf;
-	SectionSubsystems.Sort("Priority ASC"); // 
+	SectionSubsystems.Sort("Priority ASC"); // Sort by hierarchy
 	
 	FillParameters.Insert("SectionReference",      SectionReference);
 	FillParameters.Insert("SectionSubsystems", SectionSubsystems);
@@ -1319,7 +1322,7 @@ Procedure DefineGroupsAndDecorationsForOptionsOutput(FillParameters)
 	
 	// Previously, an output limit was reached in other groups, so there is no need to generate subordinate items.
 	If FillParameters.RemainsToOutput = 0 Then
-		SectionTitle.Height = 1; // 
+		SectionTitle.Height = 1; // Currently, the section headers should not be separated from the report options.
 		Return;
 	EndIf;
 	
@@ -2333,5 +2336,7 @@ Procedure MobileApplicationDetailsClick(Item)
 	OpenForm(FormParameters.FormName, FormParameters.FormParameters, ThisObject); 
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

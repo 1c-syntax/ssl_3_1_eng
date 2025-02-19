@@ -202,7 +202,7 @@ EndProcedure
 &AtClient
 Procedure PresentationStartChoice(Item, ChoiceData, StandardProcessing)
 	
-	ClosingNotification1 = New NotifyDescription("WordingEditOnClose", ThisObject);
+	ClosingNotification1 = New CallbackDescription("WordingEditOnClose", ThisObject);
 	CommonClient.ShowMultilineTextEditingForm(ClosingNotification1, Item.EditText, NStr("en = 'Wording';"));
 	
 EndProcedure
@@ -561,10 +561,10 @@ Procedure AnswersOptionsTableAvailability(Form)
 	
 	If Form.Object.Ref.IsEmpty() Then
 		Form.Items.TableAnswersOptions.ReadOnly  = True;
-		Form.AnswersOptionsInfo                       = NStr("en = 'Before you start editing the responses, save the question';");
+		Form.AnswersOptionsInfo                       = NStr("en = 'Save the question before editing answer choices';");
 	Else
 		Form.Items.TableAnswersOptions.ReadOnly = False;
-		Form.AnswersOptionsInfo                      = NStr("en = 'Response options:';");
+		Form.AnswersOptionsInfo                      = NStr("en = 'Answer choices:';");
 	EndIf; 
 	
 	If Form.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.OneVariantOf") Then

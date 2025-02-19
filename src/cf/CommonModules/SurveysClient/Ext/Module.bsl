@@ -34,7 +34,7 @@ Procedure StartInterview(Respondent, QuestionnaireTemplate = Undefined) Export
 
 	If QuestionnaireTemplate = Undefined Then
 
-		NotifyDescription = New NotifyDescription("StartInterviewWithTemplateChoiceCompletion", ThisObject, Respondent);
+		NotifyDescription = New CallbackDescription("StartInterviewWithTemplateChoiceCompletion", ThisObject, Respondent);
 
 		ShowInputValue(NotifyDescription, Undefined, , Type("CatalogRef.QuestionnaireTemplates"));
 

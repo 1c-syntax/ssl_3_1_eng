@@ -420,7 +420,7 @@ Procedure EditAttributeHyperlink(Form, HyperlinkAction = False, Item = Undefined
 		OpeningParameters.Insert("Property", AttributeDetails.Property);
 		OpeningParameters.Insert("AdditionalValuesOwner", AttributeDetails.AdditionalValuesOwner);
 	EndIf;
-	NotifyDescription = New NotifyDescription("EditAttributeHyperlinkCompletion", PropertyManagerClient, Form);
+	NotifyDescription = New CallbackDescription("EditAttributeHyperlinkCompletion", PropertyManagerClient, Form);
 	OpenForm("CommonForm.EditHyperlink", OpeningParameters,,,,, NotifyDescription);
 EndProcedure
 

@@ -13,7 +13,7 @@
 // Opens the service user password input form.
 //
 // Parameters:
-//  ContinuationHandler      - NotifyDescription - to be processed after the password is entered.
+//  ContinuationHandler      - CallbackDescription - to be processed after the password is entered.
 //  OwnerForm             - ClientApplicationForm - that requests the password.
 //  ServiceUserPassword - String - a current SaaS user password.
 //
@@ -25,7 +25,7 @@ Procedure RequestPasswordForAuthenticationInService(ContinuationHandler, OwnerFo
 	Context.Insert("ServiceUserPassword", ServiceUserPassword);
 	
 	If ServiceUserPassword = Undefined Then
-		Notification = New NotifyDescription("AfterAuthenticationPasswordRequestInService", ThisObject, Context);
+		Notification = New CallbackDescription("AfterAuthenticationPasswordRequestInService", ThisObject, Context);
 		OpenForm("CommonForm.AuthenticationInService", , OwnerForm, , , , Notification);
 	Else
 		AfterAuthenticationPasswordRequestInService(ServiceUserPassword, Context)
@@ -41,7 +41,7 @@ Procedure AfterAuthenticationPasswordRequestInService(ServiceUserPassword, Conte
 	
 	Context.ServiceUserPassword = ServiceUserPassword;
 	
-	Notification = New NotifyDescription(
+	Notification = New CallbackDescription(
 		"AfterAuthenticationPasswordRequestInServiceFollowUp", ThisObject, Context);
 	
 	StandardSubsystemsClient.StartNotificationProcessing(Notification);
@@ -52,7 +52,7 @@ Procedure AfterAuthenticationPasswordRequestInServiceFollowUp(Result, Context) E
 
 	ErrorText = "";
 	Try
-		ExecuteNotifyProcessing(Context.ContinuationHandler, Context.ServiceUserPassword);
+		RunCallback(Context.ContinuationHandler, Context.ServiceUserPassword);
 	Except
 		ErrorInfo = ErrorInfo();
 		UsersInternalSaaSServerCall.WriteTheErrorToTheLog(
@@ -62,7 +62,7 @@ Procedure AfterAuthenticationPasswordRequestInServiceFollowUp(Result, Context) E
 	EndTry;
 	
 	If ValueIsFilled(ErrorText) Then
-		Notification = New NotifyDescription("AfterRequestAuthenticationPasswordInServiceAndErrorWarning", ThisObject, Context);
+		Notification = New CallbackDescription("AfterRequestAuthenticationPasswordInServiceAndErrorWarning", ThisObject, Context);
 		ShowMessageBox(Notification, ErrorText);
 	EndIf;
 	

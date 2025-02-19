@@ -47,13 +47,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Else
 		Items.ReportsBulkEmailsGroup.Visible = False;
 	EndIf;
-
-	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.TextTranslation") Then
-		TextTranslationService = ConstantsSet["TextTranslationService"];
-		Items.TextTranslationServiceSetting.Title = TitleOfTheTextTranslationServiceSettings(TextTranslationService);
-	Else
-		Items.AutomaticTranslationGroup.Visible = False;
-	EndIf;
+	
+	DisplayAutomaticTranslationGroup();
 	
 	// Update items states.
 	SetAvailability();
@@ -68,6 +63,21 @@ Procedure OnClose(Exit)
 		Return;
 	EndIf;
 	RefreshApplicationInterface();
+EndProcedure
+
+&AtClient
+Procedure NotificationProcessing(EventName, Parameter, Source)
+	
+	If EventName = "Write_ConstantsSet" Then
+		If Source = "AllowAccessToInternetServices" Then
+			DisplayAutomaticTranslationGroup();
+		ElsIf Source = "UseTextTranslationService" Then
+			If TypeOf(Parameter) = Type("Structure") And Parameter.Property("TextTranslationService") Then
+				WhenYouFinishSettingUpTheTranslationService(Parameter.TextTranslationService, Undefined);
+			EndIf;
+		EndIf;
+	EndIf;
+	
 EndProcedure
 
 #EndRegion
@@ -89,9 +99,11 @@ EndProcedure
 &AtClient
 Procedure UseTextTranslationServiceOnChange(Item)
 	
-	Attachable_OnChangeAttribute(Item);
 	If ConstantsSet["UseTextTranslationService"] And Not ValueIsFilled(ConstantsSet["TextTranslationService"]) Then
+		ConstantsSet["UseTextTranslationService"] = False;
 		GoToTheTranslatorSettings();
+	Else
+		Attachable_OnChangeAttribute(Item);
 	EndIf;
 	
 EndProcedure
@@ -153,12 +165,31 @@ EndProcedure
 
 #Region Private
 
+&AtServer
+Procedure DisplayAutomaticTranslationGroup()
+	
+	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.TextTranslation") Then
+		TextTranslationService = ConstantsSet["TextTranslationService"];
+		Items.TextTranslationServiceSetting.Title = TitleOfTheTextTranslationServiceSettings(
+			TextTranslationService);
+		AccessToInternetServicesAllowed = Common.AccessToInternetServicesAllowed();
+		Items.UseTextTranslationService.Visible = AccessToInternetServicesAllowed;
+		Items.UseTextTranslationService1.Visible = Not AccessToInternetServicesAllowed;
+		Items.GroupCommentAccessToInternetServicesAllowed.Visible = Not AccessToInternetServicesAllowed;
+	Else
+		Items.AutomaticTranslationGroup.Visible = False;
+		Items.UseTextTranslationService1.Visible = False;
+		Items.GroupCommentAccessToInternetServicesAllowed.Visible = False;
+	EndIf;
+	
+EndProcedure
+
 &AtClient
 Procedure GoToTheTranslatorSettings()
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport.TextTranslation") Then
 		ModuleTranslationOfTextIntoOtherLanguagesClient = CommonClient.CommonModule("TextTranslationToolClient");
-		NotifyDescription = New NotifyDescription("WhenYouFinishSettingUpTheTranslationService", ThisObject);
+		NotifyDescription = New CallbackDescription("WhenYouFinishSettingUpTheTranslationService", ThisObject);
 		ModuleTranslationOfTextIntoOtherLanguagesClient.GoToSettings(ThisObject, NotifyDescription);
 	EndIf;
 	
@@ -167,17 +198,11 @@ EndProcedure
 &AtClient
 Procedure WhenYouFinishSettingUpTheTranslationService(Val SelectedTranslator, AdditionalParameters) Export
 	
-	If SelectedTranslator = Undefined Then
-		SelectedTranslator = CurrentTranslator();
+	If SelectedTranslator <> Undefined Then
+		ConstantsSet["TextTranslationService"] = SelectedTranslator;
+		Items.TextTranslationServiceSetting.Title = TitleOfTheTextTranslationServiceSettings(SelectedTranslator);
+		ConstantsSet["UseTextTranslationService"] = ValueIsFilled(ConstantsSet["TextTranslationService"]);
 	EndIf;
-	
-	Items.TextTranslationServiceSetting.Title = TitleOfTheTextTranslationServiceSettings(SelectedTranslator);
-	If Not ValueIsFilled(SelectedTranslator) Then
-		ConstantsSet["UseTextTranslationService"] = False;
-		Attachable_OnChangeAttribute(Items.UseTextTranslationService);
-	EndIf;
-	
-	ConstantsSet["TextTranslationService"] = SelectedTranslator;
 	
 EndProcedure
 
@@ -198,18 +223,7 @@ Function TitleOfTheTextTranslationServiceSettings(TextTranslationService)
 	
 EndFunction
 
-&AtServerNoContext
-Function CurrentTranslator()
-	
-	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.TextTranslation") Then
-		ModuleTranslationOfTextIntoOtherLanguages = Common.CommonModule("TextTranslationTool");
-		Return ModuleTranslationOfTextIntoOtherLanguages.TextTranslationService();
-	EndIf;
-	
-EndFunction
-
-////////////////////////////////////////////////////////////////////////////////
-// Client.
+#Region Client
 
 &AtClient
 Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
@@ -238,8 +252,9 @@ Procedure RefreshApplicationInterface()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Server call.
+#EndRegion
+
+#Region ServerCall
 
 &AtServer
 Function OnChangeAttributeServer(TagName)
@@ -252,8 +267,9 @@ Function OnChangeAttributeServer(TagName)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Server.
+#EndRegion
+
+#Region Server
 
 &AtServer
 Function SaveAttributeValue(DataPathAttribute)
@@ -294,5 +310,7 @@ Procedure SetAvailability(DataPathAttribute = "")
 	EndIf;
 
 EndProcedure
+
+#EndRegion
 
 #EndRegion

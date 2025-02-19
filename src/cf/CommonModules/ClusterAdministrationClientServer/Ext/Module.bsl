@@ -288,7 +288,7 @@ EndProcedure
 //   * ClientComputerName - String - name or network address of the computer that established
 //     the session with the infobase,
 //   * ClientApplicationID - String - ID of the application that established the session.
-//     See the description of the ApplicationPresentation global function.
+//     See the description of the "ApplicationPresentation" global function.
 //   * LanguageID - String - Interface language ID,
 //   * SessionCreationTime - Date - Date and time the session was created,
 //   * LatestSessionActivityTime - Date - Date and time of the session last activity,

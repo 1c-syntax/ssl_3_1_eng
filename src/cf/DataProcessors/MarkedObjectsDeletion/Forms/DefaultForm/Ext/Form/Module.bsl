@@ -85,12 +85,14 @@ Procedure OnLoadDataFromSettingsAtServer(Settings)
 		SetConditionalAppearance();
 	EndIf;
 	
-	Filter_Settings = Settings["MetadataFilter"];
-	If ValueIsFilled(Filter_Settings) Then
-		MetadataFilter = SelectionOfMetadataOnlyExisting(Filter_Settings);
-		Items.ConfigureFilter.Title = MetadataFilterPresentation(Filter_Settings);
-	ElsIf ValueIsFilled(Parameters.MetadataFilter) Then 
+	If Parameters.MetadataFilter.Count() > 0 Then 
 		MetadataFilter = Parameters.MetadataFilter;
+	Else
+		Filter_Settings = Settings["MetadataFilter"];
+		If ValueIsFilled(Filter_Settings) Then
+			MetadataFilter = SelectionOfMetadataOnlyExisting(Filter_Settings);
+			Items.ConfigureFilter.Title = MetadataFilterPresentation(Filter_Settings);
+		EndIf;
 	EndIf;
 EndProcedure
 
@@ -113,6 +115,13 @@ Procedure OnOpen(Cancel)
 	AttachIdleHandler("RunJobWithPending", 0.1, True);
 EndProcedure
 
+&AtServer
+Procedure OnSaveDataInSettingsAtServer(Settings)
+	If Parameters.MetadataFilter.Count() > 0 Then
+		Settings["MetadataFilter"] = Undefined;
+	EndIf;
+EndProcedure
+
 &AtClient
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	If Exit Then
@@ -121,7 +130,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
 	If ShowDialogBeforeClose Then
 		Cancel = True;
-		Handler = New NotifyDescription("AfterConfirmCancelJob", ThisObject);
+		Handler = New CallbackDescription("AfterConfirmCancelJob", ThisObject);
 		QueryText = NStr("en = 'In progress %1.
 							|Do you want to stop it?';");
 		Buttons = New ValueList;
@@ -132,7 +141,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 			StringFunctionsClientServer.SubstituteParametersToString(QueryText, Lower(PresentationOperation)),
 		 	Buttons, 60, DialogReturnCode.Ignore);
 	ElsIf DeleteOnOpen Then 
-		OnCloseNotifyDescription.AdditionalParameters.Insert("ClosingResult", DeletionResultsInfo);
+		CallbackDescriptionOnClose.AdditionalParameters.Insert("ClosingResult", DeletionResultsInfo);
 	EndIf;
 EndProcedure
 
@@ -190,7 +199,7 @@ EndProcedure
 
 &AtClient
 Procedure TotalObjectsToSelect(Command)
-	Notification = New NotifyDescription("TotalObjectsToSelectCompletion", ThisObject);
+	Notification = New CallbackDescription("TotalObjectsToSelectCompletion", ThisObject);
 	If ActionsTable.Count() > 0 Then
 		ShowQueryBox(Notification, 
 			NStr("en = 'Object deletion is not completed.
@@ -472,7 +481,7 @@ EndProcedure
 
 &AtClient
 Procedure Customize(Command)
-	ClosingNotification1 = New NotifyDescription("ConfigureFollowUp", ThisObject);
+	ClosingNotification1 = New CallbackDescription("ConfigureFollowUp", ThisObject);
 	
 	FormParameters = New Structure("SettingsAddress", MarkedObjectsDeletionSettings());
 	OpenForm("DataProcessor.MarkedObjectsDeletion.Form.ObjectsDeletionSettings", FormParameters, ThisObject, , , ,
@@ -554,7 +563,7 @@ Procedure DeleteSelectedItems(Command)
 			SelectedCountTotal);
 	EndIf;
 	
-	NotificationConfirmationDeleteAll = New NotifyDescription("OnConfirmationDelete",
+	NotificationConfirmationDeleteAll = New CallbackDescription("OnConfirmationDelete",
 		ThisObject, InformationAboutTheSelectedObjects);
 	ShowQueryBox(NotificationConfirmationDeleteAll, QueryText, QuestionDialogMode.YesNo);
 	
@@ -578,7 +587,7 @@ Procedure ConfigureFilter(Command)
 	FormParameters.Insert("SearchAreas", MetadataFilter);
 	FormParameters.Insert("SubsystemsWithCIOnly", True);
 	
-	ClosingNotification1 = New NotifyDescription("ConfigureFilterCompletion", ThisObject);
+	ClosingNotification1 = New CallbackDescription("ConfigureFilterCompletion", ThisObject);
 	OpenForm("DataProcessor.MarkedObjectsDeletion.Form.SelectMetadataObjectsBySubsystems", FormParameters, ThisObject, , , , ClosingNotification1,
 		FormWindowOpeningMode.LockOwnerWindow);
 EndProcedure
@@ -617,7 +626,7 @@ Procedure SetClearDeletionMark(Command)
 	SetATag = ReferencesToProcess.Count() = TheNumberOfItemsWithTheUncheckedLabel
 							And TheNumberOfItemsWithTheUncheckedLabel <> 0;
 	
-	Handler = New NotifyDescription("SetClearDeletionMarkFollowUp", ThisObject, ReferencesToProcess);
+	Handler = New CallbackDescription("SetClearDeletionMarkFollowUp", ThisObject, ReferencesToProcess);
 	If ReferencesToProcess.Count() = 1 Then
 		If SetATag Then
 			QueryText = NStr("en = 'Mark ""%1"" for deletion?';");
@@ -1126,7 +1135,7 @@ EndProcedure
 Procedure ToOpenTheFormCompleteTheUserExperience()
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.UsersSessions") Then
-		Notification = New NotifyDescription("AfterSettingTheExclusiveMode", ThisObject);
+		Notification = New CallbackDescription("AfterSettingTheExclusiveMode", ThisObject);
 		ModuleIBConnectionsClient = CommonClient.CommonModule("IBConnectionsClient");
 		FormParameters = ModuleIBConnectionsClient.ExclusiveModeSetErrorFormOpenParameters();
 		FormParameters.Title = NStr("en = 'Cannot delete marked objects';");
@@ -1172,19 +1181,19 @@ EndFunction
 
 &AtServer
 Procedure SetPassedMetadataFilter()
-	Var Item;
-	Var ActiveFilter;
+
 	ActiveFilter = New ValueList;
 	For Each Item In Parameters.MetadataFilter Do
 		ActiveFilter.Add(Item.Value, Common.MetadataObjectByFullName(Item.Value).Presentation());
 	EndDo;
 	SetMetadataFilter(ThisObject, ActiveFilter);
 	Parameters.MetadataFilter = ActiveFilter;
+
 EndProcedure
 
-// Form settings, if the form is opened from the client API.
 &AtServer
 Procedure ConfigureFormToWorkAsService()
+
 	DeleteOnOpen = True;
 	Items.InformationPages.Visible = False;
 	Items.MarkedForDeletionItemsTreeConfigure.Visible = False;
@@ -1194,6 +1203,7 @@ Procedure ConfigureFormToWorkAsService()
 	Items.StatePresentationPages.Visible = True;
 	AutoTitle = False;
 	Title = "";
+
 EndProcedure
 
 &AtServer
@@ -1599,7 +1609,7 @@ Procedure StartMarkedObjectsSearch(SearchForTechnologicalObjects)
 	ToStartSearchingForTheMarkedSettingOfTheForm(ThisObject);
 
 	
-	Handler = New NotifyDescription("AfterMarkedObjectsSearchCompletion", ThisObject);
+	Handler = New CallbackDescription("AfterMarkedObjectsSearchCompletion", ThisObject);
 	
 	CurrentOperation1 = StartMarkedObjectsSearchServer(MetadataFilter, UUID, SearchForTechnologicalObjects);
 	OnStartBackgroundJob(Handler);
@@ -1623,7 +1633,7 @@ Procedure OnStartBackgroundJob(Val Handler, IsDeletionProcess = False)
 	WaitSettings.OutputProgressBar = True;
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("IsDeletionProcess", IsDeletionProcess);
-	WaitSettings.ExecutionProgressNotification = New NotifyDescription("OnUpdateBackgroundJobProgress",
+	WaitSettings.ExecutionProgressNotification = New CallbackDescription("OnUpdateBackgroundJobProgress",
 		ThisObject, AdditionalParameters);
 	TimeConsumingOperationsClient.WaitCompletion(CurrentOperation1, Handler, WaitSettings);
 	If CurrentOperation1 <> Undefined And CurrentOperation1.Status = "Running" Then
@@ -1724,7 +1734,7 @@ Procedure StartMarkedObjectsDeletion(Parameter = Undefined)
 	Items.CommandBarForm.Enabled = False;
 	Items.InformationPages.ReadOnly = True;
 
-	Handler = New NotifyDescription("AfterMarkedObjectsDeletionCompletion", ThisObject);
+	Handler = New CallbackDescription("AfterMarkedObjectsDeletionCompletion", ThisObject);
 	CurrentOperation1 = StartMarkedObjectsDeletionServer(UUID, PreviousStepResult,
 		Parameter = "CompleteRemoval");
 	OnStartBackgroundJob(Handler);
@@ -2095,7 +2105,7 @@ Procedure StartAdditionalDataProcessorExecution(Parameter)
 	Items.CommandBarForm.Enabled = False;
 	Items.InformationPages.ReadOnly = True;
 	
-	Handler = New NotifyDescription("AfterCompleteExecutingAdditionalDataProcessor", ThisObject);
+	Handler = New CallbackDescription("AfterCompleteExecutingAdditionalDataProcessor", ThisObject);
 	CurrentOperation1 = StartAdditionalDataProcessorExecutionServer();
 	OnStartBackgroundJob(Handler);
 

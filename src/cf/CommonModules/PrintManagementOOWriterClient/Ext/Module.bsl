@@ -207,8 +207,7 @@ Procedure ShowOOWriterDocument(Val Handler) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Template management.
+#Region TemplateManagement
 
 // Gets a template area.
 // Parameters:
@@ -249,8 +248,9 @@ Function GetFooterArea(TemplateRef) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Print form operations
+#EndRegion
+
+#Region PrintFormManagement
 
 // Inserts a line break to the next row.
 // Parameters:
@@ -446,8 +446,9 @@ Function SetMainCursorToFooter(Val DocumentRef) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Other procedures and functions
+#EndRegion
+
+#Region OtherProceduresAndFunctions_
 
 // Gets a structure used to set UNO object parameters.
 // 
@@ -554,5 +555,7 @@ Function FileNameInURL(Val FileName)
 	FileName = StrReplace(FileName, "\", "/"); 
 	Return "file:/" + "/localhost/" + FileName; 
 EndFunction
+
+#EndRegion
 
 #EndRegion

@@ -8,13 +8,6 @@
 //
 //
 
-#Region Variables
-
-&AtClient
-Var InternalData, PasswordProperties;
-
-#EndRegion
-
 #Region FormEventHandlers
 
 &AtServer
@@ -22,7 +15,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If ValueIsFilled(Parameters.Token) Then
 		
-		FillPropertyValues(ThisObject, Parameters.Token);
+		FillPropertyValues(ThisObject, Parameters.Token,,"Certificates");
 		
 		If IsServer Then
 			TitleTemplate1 = NStr("en = '%1 on server';");
@@ -39,60 +32,20 @@ EndProcedure
 
 &AtClient
 Procedure OnOpen(Cancel)
-	
-	If InternalData = Undefined Then
-		Cancel = True;
-	EndIf;
-	
-EndProcedure
-
-#EndRegion
-
-
-#Region FormHeaderItemsEventHandlers
-
-&AtClient
-Procedure RememberPasswordOnChange(Item)
-	
-	AdditionalParameters = AdditionalParameters();
-	AdditionalParameters.Insert("OnChangeAttributeRememberPassword", True);
-
-	DigitalSignatureInternalClient.ProcessPasswordInForm(ThisObject,
-		InternalData, PasswordProperties, AdditionalParameters);
-	
+	AttachIdleHandler("FillInListOfCertificates", 0.1, True);
 EndProcedure
 
 #EndRegion
 
 #Region Private
 
-// ACC:78-off - Intended for the secure transfer of data between forms on the client without sending it to the server.
-&AtClient
-Procedure ContinueOpening(Notification, CommonInternalData, ClientParameters) Export
-// ACC:78-on - Intended for the secure transfer of data between forms on the client without sending it to the server.
-	
-	AdditionalParameters = AdditionalParameters();
-	
-	InternalData = CommonInternalData;
-	DigitalSignatureInternalClient.ProcessPasswordInForm(ThisObject,
-		InternalData, PasswordProperties, AdditionalParameters);
-	Open();
-	FillInListOfCertificates();
-	
-EndProcedure
-
 &AtClient
 Async Procedure FillInListOfCertificates()
-	
-	If Not ValueIsFilled(PasswordProperties.Value) Then
-		Return;
-	EndIf;
 	
 	Token = New Structure;
 	Token.Insert("Slot");
 	Token.Insert("SerialNumber");
 	FillPropertyValues(Token, ThisObject);
-	Token.Insert("PasswordValue", PasswordProperties.Value);
 	
 	Items.GroupRefreshCertificates.Visible = True;
 	Result = Await DigitalSignatureClientLocalization.TokenCertificates(Token, Undefined, True);
@@ -104,17 +57,8 @@ Async Procedure FillInListOfCertificates()
 		If Errors.Count() > 0 Then
 			ErrorText = StrConcat(Errors, Chars.LF);
 		EndIf;
-		
-		AdditionalParameters = AdditionalParameters();
-		AdditionalParameters.Insert("OnOperationSuccess", True);
-		DigitalSignatureInternalClient.ProcessPasswordInForm(ThisObject,
-			InternalData, PasswordProperties, AdditionalParameters);
-		
 	Else
 		ErrorText = Result.Error;
-		If DigitalSignatureClientLocalization.IsIncorrectPinCodeError(Result.Error) Then
-			ErrorText = NStr("en = 'Invalid token holder''s PIN.';");
-		EndIf;
 	EndIf;
 	
 	If ValueIsFilled(ErrorText) Then
@@ -127,27 +71,6 @@ Async Procedure FillInListOfCertificates()
 	
 	Items.GroupRefreshCertificates.Visible = False;
 	
-EndProcedure
-
-&AtClient
-Procedure PasswordOnChange(Item)
-	
-	AdditionalParameters = AdditionalParameters();
-	AdditionalParameters.Insert("OnChangeAttributePassword", True);
-	
-	DigitalSignatureInternalClient.ProcessPasswordInForm(ThisObject,
-		InternalData, PasswordProperties, AdditionalParameters);
-	
-EndProcedure
-
-&AtClient
-Procedure PasswordStartChoice(Item, ChoiceData, StandardProcessing)
-
-	StandardProcessing = False;
-	AdditionalParameters = AdditionalParameters();
-	
-	DigitalSignatureInternalClient.PasswordFieldStartChoice(ThisObject,
-		InternalData, PasswordProperties, StandardProcessing, AdditionalParameters);
 EndProcedure
 
 &AtClient
@@ -202,7 +125,7 @@ EndProcedure
 Procedure CertificatesSelection(Item, RowSelected, Field, StandardProcessing)
 	
 	StandardProcessing = False;
-	CertificateRef = GetCertificateRef(Items.Certificates.CurrentData.Thumbprint);
+	CertificateRef = CertificateRef(Items.Certificates.CurrentData.Thumbprint);
 	If Not ValueIsFilled(CertificateRef) Then
 		DigitalSignatureClient.OpenCertificate(Items.Certificates.CurrentData.CertificateAddress);
 	Else
@@ -213,19 +136,8 @@ Procedure CertificatesSelection(Item, RowSelected, Field, StandardProcessing)
 EndProcedure 
 
 &AtServerNoContext
-Function GetCertificateRef(Thumbprint)
+Function CertificateRef(Thumbprint)
     Return DigitalSignature.CertificateRef(Thumbprint);
-EndFunction
-
-&AtClient
-Function AdditionalParameters()
-	
-	AdditionalParameters = New Structure;
-	AdditionalParameters.Insert("OnReadTokenCertificates", True);
-	AdditionalParameters.Insert("Certificate", SerialNumber);
-	AdditionalParameters.Insert("EnterPasswordInDigitalSignatureApplication", False);
-
-	Return AdditionalParameters;
 EndFunction
 
 #EndRegion

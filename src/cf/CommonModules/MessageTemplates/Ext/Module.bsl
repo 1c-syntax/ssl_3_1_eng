@@ -211,7 +211,7 @@ EndFunction
 //   * Description - String - a message template description.
 //   * Text        - String - a text of an email template or a text message template.
 //   * Subject         - String - an email subject text. For email templates only.
-//   * TemplateType   - String - a template type. Options: Email and SMSMessage.
+//   * TemplateType   - String - Type of template ("MailMessage" or "SMS").
 //   * Purpose   - String - a presentation of a message template subject. For example, Sales order.
 //   * FullAssignmentTypeName - String - a message template subject. If a full path to a metadata object is specified, the template will have
 //                                        all its attributes available as parameters. For example, Document.SalesOrder.
@@ -372,7 +372,7 @@ EndFunction
 // Parameters:
 //  ParametersTable - ValueTable - a table with the list of parameters.
 //  ParameterName - String - a name of the parameter to be added.
-//  TypeDetails - TypeDescription - a parameter type.
+//  TypeDetails - TypeDescription - Parameter type.
 //  IsPredefinedParameter - Boolean - if True, the parameter is predefined.
 //  ParameterPresentation - String - a parameter presentation.
 //

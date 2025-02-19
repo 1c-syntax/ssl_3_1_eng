@@ -139,10 +139,10 @@ Procedure OnWrite(Cancel)
 
 	UpdateRates = AdditionalProperties.Property("UpdateRates");
 	IsNew = AdditionalProperties.Property("IsNew");
-	RecordingOfCoursesIsRequired = UpdateRates Or IsNew;
+	ShouldWriteExchangeRates = UpdateRates Or IsNew;
 	IsBackgroundCurrencyExchangeRatesRecalculationRunning = IsBackgroundCurrencyExchangeRatesRecalculationRunning();
 	
-	If RecordingOfCoursesIsRequired And IsBackgroundCurrencyExchangeRatesRecalculationRunning Then
+	If ShouldWriteExchangeRates And IsBackgroundCurrencyExchangeRatesRecalculationRunning Then
 		Raise NStr("en = 'Couldn''t save the currency because the background calculation of exchange rates is running.
 							   |Try to save the currency later.';");
 	EndIf;
@@ -157,6 +157,14 @@ Procedure OnWrite(Cancel)
 		ScheduleCopyCurrencyRates();
 	EndIf;
 
+EndProcedure
+
+Procedure Filling(FillingData, FillingText, StandardProcessing)
+	
+	If FillingData = Undefined Then
+		RateSource = Enums.RateSources.ManualInput;
+	EndIf;
+	
 EndProcedure
 
 #EndRegion

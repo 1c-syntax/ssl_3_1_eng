@@ -19,15 +19,29 @@ Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 	EndIf;
 		
 	ClearMessages();
-	For Each Task In CommandParameter Do
-		BusinessProcessesAndTasksServerCall.ExecuteTask(Task, True);
-		ShowUserNotification(
-			NStr("en = 'The task is completed';"),
-			GetURL(Task),
-			String(Task));
-	EndDo;
+	Result = PeformTasks(CommandParameter);
+	ShowUserNotification(Result.MessageText, Result.URL, Result.Explanation);
 	Notify("Write_PerformerTask", New Structure("Executed", True), CommandParameter);
 	
 EndProcedure
+
+&AtServer
+Function PeformTasks(Val Var_Tasks)
+	
+	Result = New Structure;
+	Result.Insert("MessageText", NStr("en = 'Tasks are completed';"));
+	Result.Insert("URL", Undefined);
+	Result.Insert("Explanation", "");
+	For Each Task In Var_Tasks Do
+		BusinessProcessesAndTasksServer.ExecuteTask(Task, True);
+		If Result.URL = Undefined Then
+			Result.MessageText = NStr("en = 'Task is completed';");
+			Result.URL = GetURL(Task);
+			Result.Explanation = String(Task);
+		EndIf;
+	EndDo;
+	Return Result;
+	
+EndFunction
 
 #EndRegion

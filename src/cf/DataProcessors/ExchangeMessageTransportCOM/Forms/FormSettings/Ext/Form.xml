@@ -1,0 +1,236 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
+	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
+	<SaveWindowSettings>false</SaveWindowSettings>
+	<CommandBarLocation>Bottom</CommandBarLocation>
+	<AutoCommandBar name="FormCommandBar" id="-1">
+		<HorizontalAlign>Right</HorizontalAlign>
+		<Autofill>false</Autofill>
+		<ChildItems>
+			<Button name="FormTestConnection" id="22">
+				<Type>CommandBarButton</Type>
+				<CommandName>Form.Command.TestConnection</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Test connection</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="FormTestConnectionExtendedTooltip" id="23"/>
+			</Button>
+			<Button name="FormDone" id="20">
+				<Type>CommandBarButton</Type>
+				<DefaultButton>true</DefaultButton>
+				<CommandName>Form.Command.Done</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Finish</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="FormDoneExtendedTooltip" id="21"/>
+			</Button>
+		</ChildItems>
+	</AutoCommandBar>
+	<Events>
+		<Event name="OnOpen">OnOpen</Event>
+		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
+	</Events>
+	<ChildItems>
+		<RadioButtonField name="InfobaseOperatingMode" id="26">
+			<DataPath>Object.InfobaseOperatingMode</DataPath>
+			<TitleLocation>None</TitleLocation>
+			<RadioButtonType>Auto</RadioButtonType>
+			<ColumnsCount>1</ColumnsCount>
+			<ChoiceList>
+				<xr:Item>
+					<xr:Presentation/>
+					<xr:CheckState>0</xr:CheckState>
+					<xr:Value xsi:type="FormChoiceListDesTimeValue">
+						<Presentation>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Peer infobase in file mode</v8:content>
+							</v8:item>
+						</Presentation>
+						<Value xsi:type="xs:decimal">0</Value>
+					</xr:Value>
+				</xr:Item>
+				<xr:Item>
+					<xr:Presentation/>
+					<xr:CheckState>0</xr:CheckState>
+					<xr:Value xsi:type="FormChoiceListDesTimeValue">
+						<Presentation>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Peer infobase in client/server mode</v8:content>
+							</v8:item>
+						</Presentation>
+						<Value xsi:type="xs:decimal">1</Value>
+					</xr:Value>
+				</xr:Item>
+			</ChoiceList>
+			<ContextMenu name="InfobaseOperatingModeContextMenu" id="27"/>
+			<ExtendedTooltip name="InfobaseOperatingModeExtendedTooltip" id="28"/>
+			<Events>
+				<Event name="OnChange">InfobaseOperatingModeOnChange</Event>
+			</Events>
+		</RadioButtonField>
+		<Pages name="InfobaseModes" id="29">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Infobase run modes</v8:content>
+				</v8:item>
+			</Title>
+			<PagesRepresentation>None</PagesRepresentation>
+			<ExtendedTooltip name="InfobaseModesExtendedTooltip" id="30"/>
+			<ChildItems>
+				<Page name="InfobaseFileModePage" id="31">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>File mode page</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="InfobaseFileModePageExtendedTooltip" id="32"/>
+					<ChildItems>
+						<InputField name="InfobaseDirectory" id="55">
+							<DataPath>Object.InfobaseDirectory</DataPath>
+							<TitleLocation>Top</TitleLocation>
+							<ChoiceButton>true</ChoiceButton>
+							<OpenButton>true</OpenButton>
+							<ContextMenu name="InfobaseDirectoryContextMenu" id="56"/>
+							<ExtendedTooltip name="InfobaseDirectoryExtendedTooltip" id="57"/>
+							<Events>
+								<Event name="StartChoice">InfobaseDirectoryStartChoice</Event>
+								<Event name="Opening">InfobaseDirectoryOpening</Event>
+							</Events>
+						</InputField>
+					</ChildItems>
+				</Page>
+				<Page name="InfobaseClientServerModePage" id="36">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Client/server mode page</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="InfobaseClientServerModePageExtendedTooltip" id="37"/>
+					<ChildItems>
+						<InputField name="NameOf1CEnterpriseServer" id="38">
+							<DataPath>Object.NameOf1CEnterpriseServer</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Server name</v8:content>
+								</v8:item>
+							</Title>
+							<ContextMenu name="NameOf1CEnterpriseServerContextMenu" id="39"/>
+							<ExtendedTooltip name="NameOf1CEnterpriseServerExtendedTooltip" id="40"/>
+						</InputField>
+						<InputField name="NameOfInfobaseOn1CEnterpriseServer" id="41">
+							<DataPath>Object.NameOfInfobaseOn1CEnterpriseServer</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Infobase name on the server</v8:content>
+								</v8:item>
+							</Title>
+							<ContextMenu name="NameOfInfobaseOn1CEnterpriseServerContextMenu" id="42"/>
+							<ExtendedTooltip name="NameOfInfobaseOn1CEnterpriseServerExtendedTooltip" id="43"/>
+						</InputField>
+					</ChildItems>
+				</Page>
+			</ChildItems>
+		</Pages>
+		<CheckBoxField name="OperatingSystemAuthentication" id="44">
+			<DataPath>Object.OperatingSystemAuthentication</DataPath>
+			<TitleLocation>Right</TitleLocation>
+			<CheckBoxType>Auto</CheckBoxType>
+			<ContextMenu name="OperatingSystemAuthenticationContextMenu" id="45"/>
+			<ExtendedTooltip name="OperatingSystemAuthenticationExtendedTooltip" id="46"/>
+			<Events>
+				<Event name="OnChange">OperatingSystemAuthenticationOnChange</Event>
+			</Events>
+		</CheckBoxField>
+		<UsualGroup name="UserPasswordGroup" id="47">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>COM user password group</v8:content>
+				</v8:item>
+			</Title>
+			<Group>Vertical</Group>
+			<Behavior>Usual</Behavior>
+			<Representation>None</Representation>
+			<ShowTitle>false</ShowTitle>
+			<ExtendedTooltip name="UserPasswordGroupExtendedTooltip" id="48"/>
+			<ChildItems>
+				<InputField name="User" id="49">
+					<DataPath>Object.UserName</DataPath>
+					<ContextMenu name="UserContextMenu" id="50"/>
+					<ExtendedTooltip name="UserExtendedTooltip" id="51"/>
+				</InputField>
+				<InputField name="Password" id="52">
+					<DataPath>Object.UserPassword</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Password</v8:content>
+						</v8:item>
+					</Title>
+					<PasswordMode>true</PasswordMode>
+					<ContextMenu name="PasswordContextMenu" id="53"/>
+					<ExtendedTooltip name="PasswordExtendedTooltip" id="54"/>
+				</InputField>
+			</ChildItems>
+		</UsualGroup>
+	</ChildItems>
+	<Attributes>
+		<Attribute name="Object" id="1">
+			<Type>
+				<v8:Type>cfg:DataProcessorObject.ExchangeMessageTransportCOM</v8:Type>
+			</Type>
+			<MainAttribute>true</MainAttribute>
+		</Attribute>
+	</Attributes>
+	<Commands>
+		<Command name="Done" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Finish</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Finish</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>Done</Action>
+		</Command>
+		<Command name="TestConnection" id="4">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Test connection</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Test connection</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>TestConnection</Action>
+		</Command>
+	</Commands>
+	<Parameters>
+		<Parameter name="TransportSettings">
+			<Type/>
+			<KeyParameter>true</KeyParameter>
+		</Parameter>
+	</Parameters>
+</Form>

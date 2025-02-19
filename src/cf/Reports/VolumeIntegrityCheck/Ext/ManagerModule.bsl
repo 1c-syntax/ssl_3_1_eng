@@ -51,10 +51,10 @@ EndProcedure
 //  Volume - CatalogRef.FileStorageVolumes - Volume
 // 
 // Returns:
-//   See FilesOperationsInVolumesInternal.UnnecessaryFilesOnHardDrive
+//   See FilesOperationsInVolumesInternal.UnnecessaryFilesInVolume
 // 
 Function FilesOnHardDrive(Volume) Export
-	FilesTableOnHardDrive = FilesOperationsInVolumesInternal.UnnecessaryFilesOnHardDrive();
+	FilesTableOnHardDrive = FilesOperationsInVolumesInternal.UnnecessaryFilesInVolume();
 		
 	VolumePath = FilesOperationsInVolumesInternal.FullVolumePath(Volume);
 	

@@ -158,8 +158,7 @@ EndProcedure
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Client
+#Region Client
 
 &AtClient
 Procedure Attachable_OnChangeAttribute(Item, InterfaceUpdateIsRequired = True)
@@ -188,8 +187,9 @@ Procedure RefreshApplicationInterface()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Server call.
+#EndRegion
+
+#Region ServerCall
 
 &AtServer
 Function OnChangeAttributeServer(TagName)
@@ -202,8 +202,9 @@ Function OnChangeAttributeServer(TagName)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Server
+#EndRegion
+
+#Region Server
 
 &AtServer
 Function SaveAttributeValue(DataPathAttribute)
@@ -243,5 +244,7 @@ Procedure SetAvailability(DataPathAttribute = "")
 EndProcedure
 
 
+
+#EndRegion
 
 #EndRegion

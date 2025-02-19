@@ -50,13 +50,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.IBFilesExtensionsManagementGroup.Visible = IsSystemAdministrator;
 	
 	If IsSystemAdministrator Then
+		Items.GroupDeduplication.Visible = ConstantsSet.FilesStorageMethod <> "InVolumesOnHardDrive" And Not IsDeduplicationCompleted();
 		FilesStorageMethodValue = ConstantsSet.FilesStorageMethod;
 		ConfigureSettingsOfStorageInVolumesAvailability();
+	Else
+		Items.GroupDeduplication.Visible = False;
 	EndIf;
 	
-	// Update items states.
 	SetAvailability();
-	
 	ApplicationSettingsOverridable.FilesOperationSettingsOnCreateAtServer(ThisObject);
 	
 	If Common.IsMobileClient() Then
@@ -70,10 +71,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	EndIf;
 	
-	If Common.DataSeparationEnabled() Or IsDeduplicationCompleted() Then
-		Items.GroupDeduplication.Visible = False;
-	EndIf;
-	
 EndProcedure
 
 &AtClient
@@ -83,6 +80,13 @@ Procedure OnClose(Exit)
 		RefreshApplicationInterface();
 	EndIf;
 	
+EndProcedure
+
+&AtClient
+Procedure NotificationProcessing(EventName, Parameter, Source)
+	If EventName = "Write_ConstantsSet" And Source = "AllowAccessToInternetServices" Then
+		SetAvailability("AllowAccessToInternetServices");
+	EndIf;
 EndProcedure
 
 #EndRegion
@@ -98,13 +102,13 @@ Procedure FilesStorageMethodOnChange(Item)
 	
 	ConstantsSet.StoreFilesInVolumesOnHardDrive = ConstantsSet.FilesStorageMethod <> "InInfobase";
 	
-	NotificationProcessing = New NotifyDescription(
+	NotificationProcessing = New CallbackDescription(
 		"FilesStorageMethodOnChangeCompletion", ThisObject, Item);
 	
 	If FilesStorageMethodValue <> "InInfobase"
 		And ConstantsSet.StoreFilesInVolumesOnHardDrive Then
 		
-		ExecuteNotifyProcessing(NotificationProcessing, DialogReturnCode.OK);
+		RunCallback(NotificationProcessing, DialogReturnCode.OK);
 		Return;
 	EndIf;
 	
@@ -118,7 +122,7 @@ Procedure FilesStorageMethodOnChange(Item)
 			ModuleSafeModeManagerClient.ApplyExternalResourceRequests(
 				RequestsForPermissionToUseExternalResources, ThisObject, NotificationProcessing);
 		Else
-			ExecuteNotifyProcessing(NotificationProcessing, DialogReturnCode.OK);
+			RunCallback(NotificationProcessing, DialogReturnCode.OK);
 		EndIf;
 		
 	Except
@@ -166,7 +170,7 @@ Procedure DenyUploadFilesByExtensionOnChange(Item)
 	
 	If Not DenyUploadFilesByExtension Then
 		
-		Notification = New NotifyDescription(
+		Notification = New CallbackDescription(
 			"ProhibitFilesImportByExtensionAfterConfirm", ThisObject, New Structure("Item", Item));
 		UsersInternalClient.ShowSecurityWarning(Notification,
 			UsersInternalClientServer.SecurityWarningKinds().OnChangeDeniedExtensionsList);
@@ -221,8 +225,7 @@ Procedure TextFilesExtensionsListOnChange(Item)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Parameters common to all data areas.
+#Region CommonParametersForAllDataAreas
 
 &AtClient
 Procedure MaxFileSizeOnChange(Item)
@@ -252,6 +255,8 @@ Procedure FilesExtensionsListOpenDocumentOnChange(Item)
 	Attachable_OnChangeAttribute(Item);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -301,7 +306,7 @@ Async Procedure StartDeduplication(Command)
 	EndIf;
 	
 	TimeConsumingOperation = StartDeduplicationAtServer();
-	CallbackOnCompletion = New NotifyDescription("FinishDeduplication", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("FinishDeduplication", ThisObject);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.Title = NStr("en = 'Deduplicating files';");
 	IdleParameters.OutputProgressBar = True;
@@ -320,22 +325,21 @@ Procedure FilesStorageMethodOnChangeCompletion(Response, Item) Export
 	If Response <> DialogReturnCode.OK Then
 		ConstantsSet.FilesStorageMethod = FilesStorageMethodValue;
 		ConstantsSet.StoreFilesInVolumesOnHardDrive = FilesStorageMethodValue <> "InInfobase";
-	Else
-		
-		If FilesStorageMethodValue = "InInfobase"
-			And ConstantsSet.StoreFilesInVolumesOnHardDrive
-			And Not HasFileStorageVolumes() Then
-			
-			ShowMessageBox(, NStr("en = 'Storing files to the file server is enabled but the volumes are not configured.
-				|Files will be saved to the infobase until at least one file storage volume is configured.';"));
-		EndIf;
-		
-		OnChangeFilesStorageMethodAtServer();
-		RefreshReusableValues();
-		AfterChangeAttribute("FilesStorageMethod", False);
-		AfterChangeAttribute("StoreFilesInVolumesOnHardDrive");
-		
+		Return;
 	EndIf;
+		
+	If FilesStorageMethodValue = "InInfobase"
+		And ConstantsSet.StoreFilesInVolumesOnHardDrive
+		And Not HasFileStorageVolumes() Then
+		
+		ShowMessageBox(, NStr("en = 'Storing files to the file server is enabled but the volumes are not configured.
+			|Files will be saved to the infobase until at least one file storage volume is configured.';"));
+	EndIf;
+	
+	OnChangeFilesStorageMethodAtServer();
+	RefreshReusableValues();
+	AfterChangeAttribute("FilesStorageMethod", False);
+	AfterChangeAttribute("StoreFilesInVolumesOnHardDrive");
 	
 EndProcedure
 
@@ -408,7 +412,6 @@ EndProcedure
 Function OnChangeAttributeServer(TagName)
 	
 	DataPathAttribute = Items[TagName].DataPath;
-	
 	ConstantName = SaveAttributeValue(DataPathAttribute);
 	
 	SetAvailability(DataPathAttribute);
@@ -425,7 +428,6 @@ Procedure OnChangeFilesStorageMethodAtServer()
 	Constants.FilesStorageMethod.Set(ConstantsSet.FilesStorageMethod);
 	Constants.StoreFilesInVolumesOnHardDrive.Set(ConstantsSet.StoreFilesInVolumesOnHardDrive);
 	SetAvailability("ConstantsSet.FilesStorageMethod");
-	
 	RefreshReusableValues();
 	
 EndProcedure
@@ -444,9 +446,16 @@ Procedure SetAvailability(DataPathAttribute = "")
 	EndIf;
 	
 	If DataPathAttribute = "ConstantsSet.SynchronizeFiles"
-		Or DataPathAttribute = "" Then
+		Or DataPathAttribute = "AllowAccessToInternetServices" 
+		Or DataPathAttribute = ""  Then
 		
-		Items.FileSynchronizationSettings.Enabled = ConstantsSet.SynchronizeFiles;
+		AllowAccessToInternetServices = Common.AccessToInternetServicesAllowed();
+		Items.FileSynchronizationSettings.Enabled = ConstantsSet.SynchronizeFiles
+			And AllowAccessToInternetServices;
+		Items.SynchronizeFiles1.Visible = Not AllowAccessToInternetServices;
+		Items.SynchronizeFiles.Visible = AllowAccessToInternetServices;
+		Items.GroupCommentAllowInternetDownloadsInSync.Visible = Not AllowAccessToInternetServices;
+		 
 	EndIf;
 	
 EndProcedure
@@ -461,6 +470,7 @@ Procedure ConfigureSettingsOfStorageInVolumesAvailability()
 		ConstantsSet.FilesStorageMethod = "InInfobaseAndVolumesOnHardDrive";
 	Items.IBFilesExtensionsManagementGroup.Enabled =
 		ConstantsSet.FilesStorageMethod = "InInfobaseAndVolumesOnHardDrive";
+	Items.GroupDeduplication.Visible = ConstantsSet.FilesStorageMethod <> "InVolumesOnHardDrive" And Not IsDeduplicationCompleted();
 	
 EndProcedure
 

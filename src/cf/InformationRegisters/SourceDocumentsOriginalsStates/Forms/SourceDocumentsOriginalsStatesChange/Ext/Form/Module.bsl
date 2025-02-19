@@ -36,7 +36,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	RestoreSettings(RestoreFilter);
 	SetOriginalRef();
-	SetPrintFormsFilter();
+	SetPrintFormsFilter(); 
+	
+	SubsystemSettings = SourceDocumentsOriginalsRecording.SubsystemSettings();
+	If Not SubsystemSettings.ShouldDisplayHintInStatesChangeForm Then
+		Items.WarningDecorationGroup.Visible = False;
+	EndIf;
 	
 	AppearanceItem = ConditionalAppearance.Items.Add();
 
@@ -45,7 +50,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	FilterElement.ComparisonType = DataCompositionComparisonType.NotFilled;
 	FilterElement.Use = True;
 	
-	AppearanceItem.Appearance.SetParameterValue("TextColor",  WebColors.Gainsboro);
+	AppearanceItem.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	AppearanceItem.Use = True;
 
 	AppearanceField = AppearanceItem.Fields.Items.Add();
@@ -58,10 +63,12 @@ EndProcedure
 Procedure NotificationProcessing(EventName, Parameter, Source)
 
 	// StandardSubsystems.SourceDocumentsOriginalsRecording
-	If EventName = "AddDeleteSourceDocumentOriginalState" Then
+	If EventName = "Write_SourceDocumentsOriginalsStates" Then
 		Attachable_UpdateOriginalStateCommands();
 		RefreshDataRepresentation();
-	ElsIf EventName = "SourceDocumentOriginalStateChange" 
+	ElsIf (EventName = "Write_InformationRegisterSourceDocumentsOriginalsStates"
+		And ((Source <> Undefined And TypeOf(Source) = Type("Array") And Source.Find(Record.Owner) <> Undefined)
+		Or Source = Record.Owner))
 		Or EventName = "TabularDocumentsArePrinted" Then
 		
 		PrintFormsSet.Clear();
@@ -94,7 +101,7 @@ EndProcedure
 Procedure PrintFormsSetSelection(Item, RowSelected, Field, StandardProcessing)
 
 	If Field.Name = "OriginalReceivedPicture" Then
-		SetOriginalState("SetOriginalReceived");
+		SetOriginalState("SettingStateOriginalReceived");
 	EndIf;
 
 EndProcedure
@@ -167,9 +174,10 @@ Procedure OK(Command)
 	
 	If PrintFormsSet.Count()<> 0  Then
 		WriteSourceDocumentsOriginalsStates();
-		Notify("SourceDocumentOriginalStateChange");
+		Notify("Write_InformationRegisterSourceDocumentsOriginalsStates",, Record.Owner);
 		Close();
-		SourceDocumentsOriginalsRecordingClient.NotifyUserOfStatesSetting(1, Record.Owner);
+		SourceDocumentsOriginalsRecordingClient.NotifyUserOfStatesSetting(1, Record.Owner, 
+			Record.State);
 	ElsIf PrintFormsSet.Count() = 0 Then
 		Close();
 	EndIf;
@@ -198,21 +206,19 @@ Procedure Attachable_UpdateOriginalStateCommands()
 EndProcedure
 
 &AtClient
-Procedure SetOriginalState(Command)
-
+Procedure SetOriginalState(CommandName)
+	
 	OriginalReceived = PredefinedValue("Catalog.SourceDocumentsOriginalsStates.OriginalReceived");
-	FoundState = Items.Find(Command);
-	If FoundState <> Undefined Then
-		StateName = FoundState.Title;
-	ElsIf Command = "SetOriginalReceived" Then
-		StateName = OriginalReceived;
-	Else 
-		Return;
+	
+	If CommandName = "SettingStateOriginalReceived" Then
+		OriginalState = OriginalReceived;
+	Else
+		OriginalState = SourceDocumentsOriginalsRecordingServerCall.SourceDocumentOriginalStateByCommandName(CommandName);
 	EndIf;
 
 	For Each ListLine In Items.PrintFormsSet.SelectedRows Do
 		RowData = Items.PrintFormsSet.RowData(ListLine);
-		RowData.State = FindStateInCatalog(StateName);
+		RowData.State = OriginalState;
 		RowData.OriginalReceivedPicture = ?(RowData.State = OriginalReceived, 1, 0);
 		RowData.ChangeAuthor = UsersClient.CurrentUser();
 		RowData.LastChangeDate = NStr("en = '<just now>';");
@@ -298,12 +304,9 @@ Procedure FillInitialPrintFormsList()
 	If Not Common.SubsystemExists("StandardSubsystems.Print") Then
 		Return;
 	EndIf;
+
 	ModulePrintManager = Common.CommonModule("PrintManagement");
-	
-	// To disable configuration checks.
-	RecordProperties = New Structure("Ref", Record.Owner);
-	
-	MetadataObject = RecordProperties.Ref.Metadata();
+	MetadataObject = Record.Owner.Metadata();
 	
 	ListOfObjects = New Array;
 	ListOfObjects.Add(MetadataObject);
@@ -321,32 +324,22 @@ Procedure FillInitialPrintFormsList()
 	
 	If Common.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then
 		ModuleAdditionalReportsAndDataProcessors = Common.CommonModule("AdditionalReportsAndDataProcessors");
-		QueryCommandsTable = ModuleAdditionalReportsAndDataProcessors.NewQueryByAvailableCommands(
-			Enums["AdditionalReportsAndDataProcessorsKinds"].PrintForm, FullMetadataObjectName2, True);
-		CommandsTable = QueryCommandsTable.Execute().Unload();
+		CommandsTable = ModuleAdditionalReportsAndDataProcessors.AdditionalPrintCommands(FullMetadataObjectName2, True);
 	EndIf;
 	
-	ModuleIndividualsClientServer = Undefined;		
 	TabularSection = SourceDocumentsOriginalsRecording.TableOfEmployees(Record.Owner); 
 	If TabularSection <> "" Then
-		
-
 		ArrayOfEmployees = Record.Owner[TabularSection].UnloadColumn("Employee");
-						
 		EmployeesDescriptions = Common.ObjectsAttributeValue(ArrayOfEmployees, "Description");
 		
 		For Each Employee In ArrayOfEmployees Do
 			NameOfEmployee = EmployeesDescriptions.Get(Employee);
-			If ModuleIndividualsClientServer <> Undefined Then 
-				LastFirstName = ModuleIndividualsClientServer.InitialsAndLastName(NameOfEmployee);
-			Else
-				LastFirstName = NameOfEmployee;
-			EndIf;
+			LastFirstName = PersonsClientServer.InitialsAndLastName(NameOfEmployee);
 			For Each CurRow In PrintFormsList Do
-				Values = New Structure("Presentation, LASTFIRSTNAME", CurRow.Presentation, LastFirstName);
 				NewRow = PrintFormsSet.Add();
 				NewRow.TemplateName = CurRow.Value;
-				NewRow.Presentation = StringFunctionsClientServer.InsertParametersIntoString(NStr("en = '[Presentation] [LastFirstName]';"), Values);
+				NewRow.Presentation = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = '%1 %2';"), CurRow.Presentation, LastFirstName);
 				NewRow.Picture = 1; 
 				NewRow.OriginalReceivedPicture = 0;
 				NewRow.Employee = Employee;
@@ -355,17 +348,13 @@ Procedure FillInitialPrintFormsList()
 		If CommandsTable.Count() > 0 Then
 			For Each Employee In ArrayOfEmployees Do
 				NameOfEmployee = EmployeesDescriptions.Get(Employee);
-				If ModuleIndividualsClientServer <> Undefined Then
-					LastFirstName = ModuleIndividualsClientServer.InitialsAndLastName(NameOfEmployee);
-				Else
-					LastFirstName = NameOfEmployee;
-				EndIf;
+				LastFirstName = PersonsClientServer.InitialsAndLastName(NameOfEmployee);
 				For Each CurRow In CommandsTable Do
-					Values = New Structure("Presentation, LASTFIRSTNAME", CurRow.Presentation, LastFirstName);
 					If PrintFormsSet.FindRows(New Structure("TemplateName", CurRow.Id)) = 0 Then
 						NewRow = PrintFormsSet.Add();
-						NewRow.TemplateName = CurRow.Value;
-						NewRow.Presentation =  StringFunctionsClientServer.InsertParametersIntoString(NStr("en = '[Presentation] [LastFirstName]';"), Values);
+						NewRow.TemplateName = CurRow.Id;
+						NewRow.Presentation =  StringFunctionsClientServer.SubstituteParametersToString(
+							NStr("en = '%1 %2';"), CurRow.Presentation, LastFirstName);
 						NewRow.Picture = 1;
 						NewRow.OriginalReceivedPicture = 0;
 						NewRow.Employee = Employee;
@@ -388,8 +377,7 @@ Procedure FillInitialPrintFormsList()
 
 				If PrintFormsSet.FindRows(New Structure("TemplateName", CurRow.Id)) = 0 Then
 					NewRow = PrintFormsSet.Add();
-					Id = CurRow.Value;
-					NewRow.TemplateName = Id;
+					NewRow.TemplateName = CurRow.Id;
 					NewRow.Presentation = CurRow.Presentation;
 					NewRow.Picture = 1;
 					NewRow.OriginalReceivedPicture = 0;
@@ -399,12 +387,14 @@ Procedure FillInitialPrintFormsList()
 		EndIf;
 	EndIf;
 
-	UnusedRows = PrintFormsSet.FindRows(New Structure("Presentation", NStr("en = 'Document set for printing';")));
+	UnusedRows = PrintFormsSet.FindRows(
+		New Structure("Presentation", NStr("en = 'Document set for printing';")));
 	For Each UnusedRow In UnusedRows Do
 		PrintFormsSet.Delete(UnusedRow);
 	EndDo;
 
-	UnusedRows = PrintFormsSet.FindRows(New Structure("Presentation", NStr("en = 'Document set with setting...';")));
+	UnusedRows = PrintFormsSet.FindRows(
+		New Structure("Presentation", NStr("en = 'Document set with setting...';")));
 	For Each UnusedRow In UnusedRows Do
 		PrintFormsSet.Delete(UnusedRow);
 	EndDo;
@@ -571,6 +561,7 @@ Procedure ShowTrackedAtServer()
 	ClearNotTracked();
 	FillPrintFormsListByRef();
 	DeleteFormsDuplicates();
+
 EndProcedure
 
 &AtServer
@@ -603,23 +594,17 @@ Procedure SetOriginalRef()
 	EndIf;
 	 
 	If ValueIsFilled(NumberForPrinting) And ValueIsFilled(DocumentInformation_.Date) Then
-		DocumentReference = StrTemplate(NStr("en = '%1 #%2, %3';"), DocumentType, NumberForPrinting,
-			Format(DocumentInformation_.Date, NStr("en = 'DLF=DD';"))); 
+		DocumentReference = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 #%2, %3';"),
+			DocumentType, NumberForPrinting, Format(DocumentInformation_.Date, NStr("en = 'DLF=DD';")));
 	ElsIf ValueIsFilled(NumberForPrinting) And Not ValueIsFilled(DocumentInformation_.Date) Then 
-		DocumentReference = StrTemplate(NStr("en = '%1 #%2';"), DocumentType, NumberForPrinting);
+		DocumentReference = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 #%2';"), DocumentType,
+			NumberForPrinting);
 	Else 
-		DocumentReference = StrTemplate(NStr("en = '%1, %2';"), DocumentType, Format(DocumentInformation_.Date, NStr("en = 'DLF=DD';")));
+		DocumentReference = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1, %2';"),
+			DocumentType, Format(DocumentInformation_.Date, NStr("en = 'DLF=DD';")));
 	EndIf;
 
 EndProcedure
-
-&AtServer
-Function FindStateInCatalog(Val StateName)
-
-	Return ?(TypeOf(StateName) = Type("String"), 
-		Catalogs.SourceDocumentsOriginalsStates.FindByDescription(StateName), StateName);
-
-EndFunction
 
 &AtClient
 Procedure SetOverallState()
@@ -669,25 +654,25 @@ Procedure WriteSourceDocumentsOriginalsStates()
 		For Each PrintForm In PrintFormsSet Do
 			
 			If ValueIsFilled(PrintForm.State) Then 
-				If TabularSectionName = "" Then
+				If TabularSectionName <> "" Then
 					RecordSet.Filter.Employee.Set(PrintForm.Employee);
 				EndIf;
 				RecordSet.Filter.SourceDocument.Set(PrintForm.TemplateName);
 				RecordSet.Read();
 				If RecordSet.Count() > 0 Then
 					If RecordSet[0].State <> PrintForm.State Then
-						InformationRegisters.SourceDocumentsOriginalsStates.WriteDocumentOriginalStateByPrintForms(Record.Owner,
+						SourceDocumentsOriginalsRecording.WriteDocumentOriginalStateByPrintForms(Record.Owner,
 							PrintForm.TemplateName, PrintForm.Presentation, PrintForm.State, PrintForm.FromOutside, PrintForm.Employee);
 					EndIf;
 				Else
-					InformationRegisters.SourceDocumentsOriginalsStates.WriteDocumentOriginalStateByPrintForms(Record.Owner,
+					SourceDocumentsOriginalsRecording.WriteDocumentOriginalStateByPrintForms(Record.Owner,
 						PrintForm.TemplateName, PrintForm.Presentation, PrintForm.State, PrintForm.FromOutside, PrintForm.Employee);
 				EndIf;
 			EndIf;
 
 		EndDo;
 
-		InformationRegisters.SourceDocumentsOriginalsStates.WriteCommonDocumentOriginalState(Record.Owner, 
+		SourceDocumentsOriginalsRecording.WriteCommonDocumentOriginalState(Record.Owner, 
 			Record.State);
 		CommitTransaction();
 		

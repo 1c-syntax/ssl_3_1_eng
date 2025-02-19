@@ -116,9 +116,7 @@ Function ImportDataToInfobase(ExchangePlanName, ExchangePlanNodeCode, FileID, Ba
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Import data in the infobase using the ""Enterprise Data Exchange"" web service';");
 	ExecutionParameters.BackgroundJobKey = String(New UUID);
-	
 	ExecutionParameters.WaitCompletion = 0;
-	ExecutionParameters.RunInBackground    = True;
 
 	BackgroundJob = TimeConsumingOperations.ExecuteInBackground(
 		"DataExchangeInternal.ImportXDTODateToInfobase",
@@ -151,9 +149,7 @@ Function PrepareDataToImport(ExchangePlanName, ExchangePlanNodeCode, FilePartSiz
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Prepare for data export from infobase via ""Enterprise Data Exchange"" web service';");
 	ExecutionParameters.BackgroundJobKey = String(New UUID);
-	
 	ExecutionParameters.WaitCompletion = 0;
-	ExecutionParameters.RunInBackground    = True;
 
 	BackgroundJob = TimeConsumingOperations.ExecuteInBackground(
 		"DataExchangeInternal.PrepareDataForExportFromInfobase",

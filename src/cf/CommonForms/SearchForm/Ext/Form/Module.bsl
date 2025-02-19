@@ -76,8 +76,7 @@ Procedure SearchAreasPresentationClick(Item, StandardProcessing)
 	OpeningParameters.Insert("SearchAreas",   SearchAreas);
 	OpeningParameters.Insert("SearchInSections", SearchInSections);
 	
-	Notification = New NotifyDescription("AfterGetSearchAreaSettings", ThisObject);
-	
+	Notification = New CallbackDescription("AfterGetSearchAreaSettings", ThisObject);
 	OpenForm("DataProcessor.FullTextSearchInData.Form.SearchAreaChoice",
 		OpeningParameters,,,,, Notification);
 	
@@ -89,12 +88,11 @@ Procedure HTMLTextOnClick(Item, EventData, StandardProcessing)
 	StandardProcessing = False;
 	
 	HTMLRef = EventData.Anchor;
-	
 	If HTMLRef = Undefined Then
 		Return;
 	EndIf;
 	
-	Notification = New NotifyDescription("AfterOpenURL", ThisObject);
+	Notification = New CallbackDescription("AfterOpenURL", ThisObject);
 	FileSystemClient.OpenURL(HTMLRef.href, Notification);
 	
 EndProcedure

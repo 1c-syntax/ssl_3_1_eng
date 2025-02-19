@@ -33,27 +33,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	MainLanguageSuffix         = "";
-	AdditionalLanguage1Suffix = "Language1";
-	AdditionalLanguage2Suffix = "Language2";
-	
-	
 	If Not Common.IsMainLanguage() Then
 		MainLanguageSuffix = NationalLanguageSupportServer.CurrentLanguageSuffix();
-		If MainLanguageSuffix = "Language1" Then
-			AdditionalLanguage1Suffix  = "";
-			MainLanguageSuffix         = "Language1";
-		ElsIf MainLanguageSuffix = "Language2" Then
-			AdditionalLanguage2Suffix = "";
-			MainLanguageSuffix         = "Language2";
-		EndIf;
-		
 	EndIf;
 	
-	FirstAdditionalLanguageUsed = NationalLanguageSupportServer.FirstAdditionalLanguageUsed()
-			And ValueIsFilled(NationalLanguageSupportServer.FirstAdditionalInfobaseLanguageCode());
-			
-	SecondAdditionalLanguageUsed = NationalLanguageSupportServer.SecondAdditionalLanguageUsed()
-			And ValueIsFilled(NationalLanguageSupportServer.SecondAdditionalInfobaseLanguageCode());
+	LanguagesInformationRecords = NationalLanguageSupportServer.LanguagesInfo();
 	
 	LanguagesSet = New ValueTable;
 	LanguagesSet.Columns.Add("LanguageCode",      Common.StringTypeDetails(10));
@@ -67,12 +51,15 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	LanguagesUsed = New Map;
 	LanguagesUsed.Insert(NationalLanguageSupportServer.DefaultLanguageCode(), True);
-	If FirstAdditionalLanguageUsed Then
-		LanguagesUsed.Insert(NationalLanguageSupportServer.FirstAdditionalInfobaseLanguageCode(), True);
-	EndIf;
-	If SecondAdditionalLanguageUsed Then
-		LanguagesUsed.Insert(NationalLanguageSupportServer.SecondAdditionalInfobaseLanguageCode(), True);
-	EndIf;
+	
+	IsAdditionalLangUsed = False;
+	
+	For Each LangData In LanguagesInformationRecords.Used Do
+		If LangData.Value Then
+			LanguagesUsed.Insert(LanguagesInformationRecords[LangData.Key], True);
+			IsAdditionalLangUsed = True;
+		EndIf;
+	EndDo;
 	
 	For Each ConfigurationLanguage In Metadata.Languages Do
 		If LanguagesUsed[ConfigurationLanguage.LanguageCode] <> True Then
@@ -91,10 +78,22 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		If ConfigurationLanguage.LanguageCode =  NationalLanguageSupportServer.DefaultLanguageCode() Then
 			LanguageData.Suffix = MainLanguageSuffix;
-		ElsIf ConfigurationLanguage.LanguageCode =  NationalLanguageSupportServer.FirstAdditionalInfobaseLanguageCode() Then
-			LanguageData.Suffix = AdditionalLanguage1Suffix;
-		ElsIf ConfigurationLanguage.LanguageCode =  NationalLanguageSupportServer.SecondAdditionalInfobaseLanguageCode() Then
-			LanguageData.Suffix = AdditionalLanguage2Suffix;
+		Else
+			For LanguageSeqNumber = 1 To NationalLanguageSupportCached.AdditionalLanguagesCount() Do
+				If StrCompare(ConfigurationLanguage.LanguageCode, CurrentLanguage().LanguageCode) = 0 Then
+					LanguageData.Suffix = "";
+					Continue;
+				EndIf;
+
+				
+				LanguageSuffix_ = NationalLanguageSupportClientServer.LanguageSuffix_(LanguageSeqNumber);
+				
+				If StrCompare(ConfigurationLanguage.LanguageCode, LanguagesInformationRecords[LanguageSuffix_]) = 0 Then
+					LanguageData.Suffix = LanguageSuffix_;
+					Break;
+				EndIf;
+				
+			EndDo;
 		EndIf;
 		
 	EndDo;
@@ -161,39 +160,37 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If MultilanguageStringsInAttributes
 		And LocalizableHeaderAttributes[Parameters.AttributeName] <> Undefined
-		And (FirstAdditionalLanguageUsed
-		Or SecondAdditionalLanguageUsed) Then
+		And IsAdditionalLangUsed Then
 		
 		LanguageDetails = LanguageDetails(DefaultLanguage);
 		If IsBlankString(MainLanguageSuffix) Then
 			ThisObject[LanguageDetails.Name] = Parameters.ValueCurrent;
 		ElsIf Parameters.AttributesValues <> Undefined Then
-			ThisObject[LanguageDetails.Name] = Parameters.AttributesValues[Parameters.AttributeName + MainLanguageSuffix]; 
+			ThisObject[LanguageDetails.Name] = Parameters.AttributesValues[Parameters.AttributeName + MainLanguageSuffix];
 		ElsIf Parameters.Object <> Undefined Then
 			ThisObject[LanguageDetails.Name] = Parameters.Object[Parameters.AttributeName + MainLanguageSuffix];
 		EndIf;
 		
-		If FirstAdditionalLanguageUsed Then
-			LanguageDetails = LanguageDetails(Constants.AdditionalLanguage1.Get());
-			If IsBlankString(AdditionalLanguage1Suffix) Then
-				ThisObject[LanguageDetails.Name] = Parameters.ValueCurrent;
-			ElsIf Parameters.AttributesValues <> Undefined Then
-				ThisObject[LanguageDetails.Name] = Parameters.AttributesValues[Parameters.AttributeName + AdditionalLanguage1Suffix];
-			ElsIf Parameters.Object <> Undefined Then
-				ThisObject[LanguageDetails.Name] = Parameters.Object[Parameters.AttributeName + AdditionalLanguage1Suffix];
+		For Each AdditionalLanguage In LanguagesInformationRecords.Used Do
+			If AdditionalLanguage.Value  Then
+				LanguageCode = LanguagesInformationRecords[AdditionalLanguage.Key];
+				If IsBlankString(LanguageCode) Then
+					Continue;
+				EndIf;
+				LanguageDetails = LanguageDetails(LanguageCode);
+				
+				If StrCompare(LanguageDetails.LanguageCode, CurrentLanguage().LanguageCode) = 0 Then
+					ThisObject[LanguageDetails.Name] = Parameters.Object[Parameters.AttributeName];
+				ElsIf Parameters.AttributesValues <> Undefined Then
+					ThisObject[LanguageDetails.Name] = Parameters.AttributesValues[Parameters.AttributeName + AdditionalLanguage.Key]
+				ElsIf Parameters.Object <> Undefined Then
+					ThisObject[LanguageDetails.Name] = Parameters.Object[Parameters.AttributeName +  AdditionalLanguage.Key];
+				ElsIf IsBlankString(ThisObject[LanguageDetails.Name]) Then
+					ThisObject[LanguageDetails.Name] = Parameters.ValueCurrent;
+				EndIf;
+				
 			EndIf;
-		EndIf;
-		
-		If SecondAdditionalLanguageUsed Then
-			LanguageDetails = LanguageDetails(Constants.AdditionalLanguage2.Get());
-			If IsBlankString(AdditionalLanguage2Suffix) Then
-				ThisObject[LanguageDetails.Name] = Parameters.ValueCurrent;
-			ElsIf Parameters.AttributesValues <> Undefined Then
-				ThisObject[LanguageDetails.Name] = Parameters.AttributesValues[Parameters.AttributeName + AdditionalLanguage2Suffix];
-			ElsIf Parameters.Object <> Undefined Then
-				ThisObject[LanguageDetails.Name] = Parameters.Object[Parameters.AttributeName + AdditionalLanguage2Suffix];
-			EndIf;
-		EndIf;
+		EndDo;
 		
 	EndIf;
 	

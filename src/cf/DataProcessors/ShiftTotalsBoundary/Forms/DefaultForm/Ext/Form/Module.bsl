@@ -25,7 +25,7 @@ Procedure OnOpen(Cancel)
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	WaitSettings.OutputIdleWindow = False;
 	
-	Handler = New NotifyDescription("TimeConsumingOperationCompletionClient", ThisObject);
+	Handler = New CallbackDescription("TimeConsumingOperationCompletionClient", ThisObject);
 	
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, Handler, WaitSettings);
 EndProcedure
@@ -68,8 +68,8 @@ EndProcedure
 
 &AtClient
 Procedure TimeConsumingOperationAfterOutputResult(Result)
-	If OnCloseNotifyDescription <> Undefined Then
-		ExecuteNotifyProcessing(OnCloseNotifyDescription, Result); // Bypass specific call from OnOpen.
+	If CallbackDescriptionOnClose <> Undefined Then
+		RunCallback(CallbackDescriptionOnClose, Result); // Bypass specific call from OnOpen.
 	EndIf;
 	If IsOpen() Then
 		Close(Result);

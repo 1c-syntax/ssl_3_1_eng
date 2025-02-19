@@ -406,7 +406,7 @@ Procedure AttachmentsDrag(Item, DragParameters, StandardProcessing, String, Fiel
 		Return;
 	EndIf;
 	
-	NotifyDescription = New NotifyDescription("OnImportAttachments", ThisObject);
+	NotifyDescription = New CallbackDescription("OnImportAttachments", ThisObject);
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.FormIdentifier = UUID;
 	ImportParameters.Interactively = False;
@@ -549,14 +549,14 @@ Procedure ImportanceLow(Command)
 	Modified = True;
 EndProcedure
 
-// StandardSubsystems.MessagesTemplates
+// СтандартныеПодсистемы.ШаблоныСообщений
 
 &AtClient
 Procedure GenerateFromTemplate(Command)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.MessageTemplates") Then
 		ModuleMessageTemplatesClient = CommonClient.CommonModule("MessageTemplatesClient");
-		Notification = New NotifyDescription("FillByTemplateAfterTemplateChoice", ThisObject);
+		Notification = New CallbackDescription("FillByTemplateAfterTemplateChoice", ThisObject);
 		MessageSubject = ?(ValueIsFilled(SubjectOf), SubjectOf, "Shared");
 		ModuleMessageTemplatesClient.PrepareMessageFromTemplate(MessageSubject, "MailMessage", Notification);
 	EndIf
@@ -629,7 +629,7 @@ Procedure OpenAttachment()
 	
 #If Not WebClient Then
 	If StrEndsWith(SelectedAttachment.Presentation, ".mxl") Then
-		NotifyDescription = New NotifyDescription("ContinueOpeningMXLFileAfterCreateDirectory", ThisObject, SelectedAttachment);
+		NotifyDescription = New CallbackDescription("ContinueOpeningMXLFileAfterCreateDirectory", ThisObject, SelectedAttachment);
 		FileSystemClient.CreateTemporaryDirectory(NotifyDescription);
 		Return;
 	EndIf;
@@ -708,7 +708,7 @@ EndFunction
 &AtClient
 Procedure AddFileToAttachments()
 	
-	NotifyDescription = New NotifyDescription("AddFileToAttachmentsOnPutFiles", ThisObject);
+	NotifyDescription = New CallbackDescription("AddFileToAttachmentsOnPutFiles", ThisObject);
 	
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.FormIdentifier = UUID;
@@ -995,7 +995,7 @@ EndProcedure
 &AtClient
 Procedure ShowQueryBoxBeforeCloseForm()
 	QueryText = NStr("en = 'The message is not yet sent. Do you want to close the window?';");
-	NotifyDescription = New NotifyDescription("CloseFormConfirmed", ThisObject);
+	NotifyDescription = New CallbackDescription("CloseFormConfirmed", ThisObject);
 	Buttons = New ValueList;
 	Buttons.Add("Close", NStr("en = 'Close';"));
 	Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Do not close';"));

@@ -99,10 +99,10 @@ EndProcedure
 &AtClient
 Procedure ChangeIBPrefix(Command)
 	
-	FormParameters = New Structure("Prefix", ConstantsSet.DistributedInfobaseNodePrefix);
-	
-	OpenForm("DataProcessor.DataExchangeCreationWizard.Form.ChangeInfobaseNodePrefix",FormParameters,,,,,, 
-		FormWindowOpeningMode.LockOwnerWindow);
+	If CommonClient.SubsystemExists("StandardSubsystems.DataExchange") Then
+		ModuleDataExchangeClient = CommonClient.CommonModule("DataExchangeClient");
+		ModuleDataExchangeClient.OpenInfobasePrefixChangeForm(ConstantsSet.DistributedInfobaseNodePrefix);
+	EndIf;
 	
 EndProcedure
 
@@ -128,14 +128,18 @@ EndProcedure
 &AtClient
 Procedure RemovingDataSynchronizationAlerts(Command)
 	
-	OpeningParameters = New Structure;
-	OpeningParameters.Insert("ArrayOfExchangePlanNodes", New Array);
-	OpeningParameters.Insert("SelectionByDateOfOccurrence", New StandardPeriod);
-	OpeningParameters.Insert("SelectionOfExchangeNodes", New Array);
-	OpeningParameters.Insert("SelectingTypesOfWarnings", New Array); 
-	OpeningParameters.Insert("OnlyHiddenRecords", False);
-	
-	OpenForm("InformationRegister.DataExchangeResults.Form.ObsoleteWarningsDeletion", OpeningParameters, ThisObject);
+	If CommonClient.SubsystemExists("StandardSubsystems.DataExchange") Then
+		ModuleDataExchangeClient = CommonClient.CommonModule("DataExchangeClient");
+
+		OpeningParameters = New Structure;
+		OpeningParameters.Insert("ArrayOfExchangePlanNodes", New Array);
+		OpeningParameters.Insert("SelectionByDateOfOccurrence", New StandardPeriod);
+		OpeningParameters.Insert("SelectionOfExchangeNodes", New Array);
+		OpeningParameters.Insert("SelectingTypesOfWarnings", New Array);
+		OpeningParameters.Insert("OnlyHiddenRecords", False);
+
+		ModuleDataExchangeClient.OpenFormForDeletingSyncAlerts(OpeningParameters);
+	EndIf;
 	
 EndProcedure
 
@@ -143,8 +147,7 @@ EndProcedure
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Client.
+#Region Client
 
 &AtClient
 Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
@@ -176,7 +179,7 @@ EndProcedure
 &AtClient
 Procedure RefreshSecurityProfilesPermissions(Item)
 	
-	ClosingNotification1 = New NotifyDescription("RefreshSecurityProfilesPermissionsCompletion", ThisObject, Item);
+	ClosingNotification1 = New CallbackDescription("RefreshSecurityProfilesPermissionsCompletion", ThisObject, Item);
 	If CommonClient.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
 		
 		QueriesArray = CreateRequestToUseExternalResources(Item.Name);
@@ -189,7 +192,7 @@ Procedure RefreshSecurityProfilesPermissions(Item)
 		ModuleSafeModeManagerClient.ApplyExternalResourceRequests(
 			QueriesArray, ThisObject, ClosingNotification1);
 	Else
-		ExecuteNotifyProcessing(ClosingNotification1, DialogReturnCode.OK);
+		RunCallback(ClosingNotification1, DialogReturnCode.OK);
 	EndIf;
 	
 EndProcedure
@@ -253,8 +256,9 @@ Procedure RefreshSecurityProfilesPermissionsCompletion(Result, Item) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Server call.
+#EndRegion
+
+#Region ServerCall
 
 &AtServer
 Function OnChangeAttributeServer(TagName)
@@ -267,8 +271,9 @@ Function OnChangeAttributeServer(TagName)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Server.
+#EndRegion
+
+#Region Server
 
 &AtServer
 Function SaveAttributeValue(DataPathAttribute)
@@ -378,5 +383,7 @@ Procedure SetAvailability(DataPathAttribute = "")
 	
 EndProcedure
 
+
+#EndRegion
 
 #EndRegion

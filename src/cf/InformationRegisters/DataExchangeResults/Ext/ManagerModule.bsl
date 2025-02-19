@@ -130,7 +130,7 @@ Procedure RecordDocumentCheckError(ObjectWithIssue, InfobaseNode, Cause, IssueTy
 	ConflictRecordSet.Filter.IssueType.Set(IssueType);
 	ConflictRecordSet.Filter.InfobaseNode.Set(InfobaseNode);
 	ConflictRecordSet.Filter.MetadataObject.Set(MetadataObjectID);
-	ConflictRecordSet.Filter.ObjectWithIssue.Set(ObjectWithIssue);
+	ConflictRecordSet.Filter.ObjectWithIssue.Set(Ref);
 	
 	SerializedFiltersValues = Undefined;
 	If IndependentRegisterFiltersValues <> Undefined Then

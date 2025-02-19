@@ -304,6 +304,27 @@ EndProcedure
 
 #EndRegion
 
+Function CountriesCodes() Export
+	
+	QueryText =
+	"SELECT
+	|	WorldCountries.Ref,
+	|	WorldCountries.Code
+	|FROM
+	|	Catalog.WorldCountries AS WorldCountries";
+	
+	Query = New Query(QueryText);
+	Selection = Query.Execute().Select();
+	CountriesCodes = New Map;
+	
+	While Selection.Next() Do
+		CountriesCodes[Selection.Ref] = Selection.Code;
+	EndDo;
+	
+	Return CountriesCodes;
+	
+EndFunction
+
 #EndRegion
 
 #EndIf

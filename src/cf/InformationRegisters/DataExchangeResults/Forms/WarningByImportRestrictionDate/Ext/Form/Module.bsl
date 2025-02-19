@@ -112,7 +112,7 @@ Procedure AcceptVersionDeclined(Command)
 	
 	QueryText = NStr("en = 'Do you want to accept the version even though import is restricted?';", CommonClient.DefaultLanguageCode());
 	
-	NotifyDescription = New NotifyDescription("AcceptVersionCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("AcceptVersionCompletion", ThisObject);
 	
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No);
 	

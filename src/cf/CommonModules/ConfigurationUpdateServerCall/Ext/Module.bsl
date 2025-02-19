@@ -108,10 +108,12 @@ Function GenerateSplashText(Val TextTemplate1)
 	TextParameters["[Step8AllowConnections]"] = NStr("en = 'Granting permission for new connections';");
 	TextParameters["[Step9Completion]"] = NStr("en = 'Completing';");
 	TextParameters["[Step10Recovery]"] = NStr("en = 'Restoring infobase';");
+	TextParameters["[Step11DisablePatches]"] = NStr("en = 'Temporary disable patches';");
 	TextParameters["[Step11PatchesDeletion]"] = NStr("en = 'Deleting patches';");
 	
 	TextParameters["[Step41Load]"] = NStr("en = 'Loading update file to the main infobase';");
 	TextParameters["[Step42ConfigurationUpdate]"] = NStr("en = 'Updating infobase configuration';");
+	TextParameters["[Step42EnablePatches]"] = NStr("en = 'Enable patches';");
 	TextParameters["[Step43IBUpdate]"] = NStr("en = 'Running update handlers';");
 	
 	TextParameters["[ProcessIsAborted]"] = NStr("en = 'Warning! The update was terminated and the infobase remains locked.';");
@@ -183,6 +185,52 @@ EndProcedure
 // ACC:299-on
 // ACC:557-on
 
+// ACC:299–off for using from the update script.
+// ACC:557–off for using from the update script.
+//
+Procedure DisablePatchesFromScript() Export
+	
+	MessageText = NStr("en = 'Temporary disabling of patches has been started followed by an application update.';");
+	WriteLogEvent(ConfigurationUpdate.EventLogEvent(), EventLogLevel.Information,,, MessageText);
+	ConfigurationUpdate.WriteManifestsOfPatchesToDisable();
+
+	AllExtensions = ConfigurationExtensions.Get();
+	For Each Extension In AllExtensions Do
+		If Not ConfigurationUpdate.IsPatch(Extension) Then
+			Continue;
+		EndIf;
+		Try
+			Extension.Active = False;
+			Extension.UnsafeActionProtection = Common.ProtectionWithoutWarningsDetails();
+			Extension.UseDefaultRolesForAllUsers = False;
+			Extension.Write();
+		Except
+			ErrorInfo = ErrorInfo();
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Cannot diable patch ""%1"" due to:
+				           |
+				           |%2';"), Extension.Name, ErrorProcessing.BriefErrorDescription(ErrorInfo));
+			WriteLogEvent(NStr("en = 'Patches.Disable';", Common.DefaultLanguageCode())
+				, EventLogLevel.Error,,, ErrorText);
+		EndTry;
+	EndDo;
+	
+	MessageText = NStr("en = 'Patches temporary disabled.';");
+	WriteLogEvent(ConfigurationUpdate.EventLogEvent(), EventLogLevel.Information,,, MessageText);
+	
+EndProcedure
+// ACC:299-on
+// ACC:557-on
+
+// ACC:299–off for using from the update script.
+// ACC:557–off for using from the update script.
+//
+Procedure EnablePatchesFromScript() Export
+	ConfigurationUpdate.EnableApplicablePatches();
+EndProcedure
+// ACC:299-on
+// ACC:557-on
+
 Function ScriptMessages()
 	
 	Messages = New Map;
@@ -243,9 +291,13 @@ Function ScriptMessages()
 	Messages["[TheMessageIsACallToPerformADeferredUpdateNow]"] = "InfobaseUpdateInternal.ExecuteDeferredUpdateNow" + "()";
 	Messages["[MessageCallFailureToPerformADelayedUpdateNow]"] = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Exception when calling %1: {0}, {1}.';"), "InfobaseUpdateInternal.ExecuteDeferredUpdateNow");
+	Messages["[MessageFailedToCallDisablePatchesFromScript]"] = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Exception when calling %1: {0}, {1}.';"), "ConfigurationUpdateServerCall.DisablePatchesFromScript");
 	Messages["[CallFailureMessageRemoveFixesFromScript]"] = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Exception when calling %1: {0}, {1}.';"), "ConfigurationUpdateServerCall.DeletePatchesFromScript");
+	Messages["[MessageFailedToDisablePatches]"] = NStr("en = 'Cannot disable configuration patches. For more information, see the previous log record.';");
 	Messages["[TheMessageFailureToDeleteFixes]"] = NStr("en = 'Cannot delete the configuration patches. For more information, see the previous record.';");
+	Messages["[MessageFailedToEnablePatches]"] = NStr("en = 'Cannot enable configuration patches. For more information, see the previous log record.';");
 	Messages["[MessageCOMConnectorParameters]"] = NStr("en = 'COM connection is used: {0}';");
 	Messages["[TheMessageDatabaseUpdateFailureFromTheFile]"] = NStr("en = 'Cannot update by file. The configuration may not be supported. Attempting to load configuration.';");
 	Messages["[SplashScreenMessageStepError]"] = NStr("en = 'An error occurred. Error code: {0}. For more information, see the previous record.';");
@@ -267,7 +319,11 @@ Function ScriptMessages()
 	Messages["[MessageFailureToCreateACOMConnectorObject]"] = NStr("en = 'Cannot create a COM connector object:';");
 	Messages["[TheMessageEstablishingAConnectionToTheDatabase]"] = NStr("en = 'Connecting with';");
 	Messages["[TheMessageConnectionFailureWithTheDatabaseIsGeneral]"] = NStr("en = 'Cannot connect to';");
-	Messages["[MessageMainEvent]"] = NStr("en = 'Deleting patches';");
+	Messages["[MessageMainEvent]"] = NStr("en = 'Toggle patches';");
+	Messages["[MessageCallDisablePatchesFromScript]"] = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Calling %1…';"), "ConfigurationUpdateServerCall.DisablePatchesFromScript");
+	Messages["[MessageCallEnablePatchesFromScript]"] = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Calling %1…';"), "ConfigurationUpdateServerCall.EnablePatchesFromScript");
 	Messages["[TheMessageIsACallToRemoveFixesFromTheScript]"] = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Calling %1…';"), "ConfigurationUpdateServerCall.DeletePatchesFromScript");
 	Messages["[TheMessageIsACallToUpdateTheFixesFromTheScript]"] = StringFunctionsClientServer.SubstituteParametersToString(

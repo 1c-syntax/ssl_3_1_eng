@@ -29,7 +29,7 @@ EndProcedure
 
 // End StandardSubsystems.Interactions
 
-// StandardSubsystems.AccessManagement
+// СтандартныеПодсистемы.УправлениеДоступом
 
 // Parameters:
 //   Table - See AccessManagement.AccessValuesSetsTable

@@ -20,7 +20,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	CurrentUser = Users.CurrentUser();
 	
-	// StandardSubsystems.StoredFiles
+	// StandardSubsystems.FilesOperations
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperations = Common.CommonModule("FilesOperations");
 		HyperlinkParameters = ModuleFilesOperations.FilesHyperlink();
@@ -28,7 +28,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		HyperlinkParameters.Owner = "Object.BusinessProcess";
 		ModuleFilesOperations.OnCreateAtServer(ThisObject, HyperlinkParameters);
 	EndIf;
-	// End StandardSubsystems.StoredFiles
+	// End StandardSubsystems.FilesOperations
 
 EndProcedure
 
@@ -37,12 +37,12 @@ Procedure OnOpen(Cancel)
 
 	BusinessProcessesAndTasksClient.UpdateAcceptForExecutionCommandsAvailability(ThisObject);
 	
-	// StandardSubsystems.StoredFiles
+	// StandardSubsystems.FilesOperations
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsClient = CommonClient.CommonModule("FilesOperationsClient");
 		ModuleFilesOperationsClient.OnOpen(ThisObject, Cancel);
 	EndIf;
-	// End StandardSubsystems.StoredFiles
+	// End StandardSubsystems.FilesOperations
 
 EndProcedure
 
@@ -77,12 +77,12 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		EndIf;
 	EndIf;
 	
-	// StandardSubsystems.StoredFiles
+	// StandardSubsystems.FilesOperations
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsClient = CommonClient.CommonModule("FilesOperationsClient");
 		ModuleFilesOperationsClient.NotificationProcessing(ThisObject, EventName);
 	EndIf;
-	// End StandardSubsystems.StoredFiles
+	// End StandardSubsystems.FilesOperations
 
 EndProcedure
 
@@ -149,7 +149,7 @@ Procedure SubjectOfClick(Item, StandardProcessing)
 
 EndProcedure
 
-// StandardSubsystems.StoredFiles
+// StandardSubsystems.FilesOperations
 &AtClient
 Procedure Attachable_PreviewFieldClick(Item, StandardProcessing)
 
@@ -181,7 +181,7 @@ Procedure Attachable_PreviewFieldDrag(Item, DragParameters, StandardProcessing)
 	EndIf;
 
 EndProcedure
-// End StandardSubsystems.StoredFiles
+// End StandardSubsystems.FilesOperations
 
 #EndRegion
 
@@ -234,7 +234,7 @@ Procedure ChangeJob(Command)
 
 EndProcedure
 
-// StandardSubsystems.StoredFiles
+// StandardSubsystems.FilesOperations
 &AtClient
 Procedure Attachable_AttachedFilesPanelCommand(Command)
 
@@ -244,7 +244,7 @@ Procedure Attachable_AttachedFilesPanelCommand(Command)
 	EndIf;
 
 EndProcedure
-// End StandardSubsystems.StoredFiles
+// End StandardSubsystems.FilesOperations
 
 #EndRegion
 
@@ -305,7 +305,7 @@ Procedure WriteBusinessProcessAttributes(TaskObject)
 		LockDataForEdit(BusinessProcessObject.Ref);
 
 		BusinessProcessObject.Completed2 = JobCompleted;
-		BusinessProcessObject.Write(); // CAC:1327 The lock is set in the BusinessProcessesAndTasksServer.LockBusinessProcesses.
+		BusinessProcessObject.Write(); // ACC:1327 - A lock is set in BusinessProcessesAndTasksServer.LockBusinessProcesses
 
 		CommitTransaction();
 	Except

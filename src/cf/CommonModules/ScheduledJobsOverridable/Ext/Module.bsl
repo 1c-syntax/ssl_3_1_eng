@@ -20,7 +20,7 @@
 //    * ScheduledJob - MetadataObjectScheduledJob - a scheduled job.
 //    * FunctionalOption - MetadataObjectFunctionalOption - functional option
 //        the scheduled job depends on.
-//    * DependenceByT      - Boolean - if the scheduled job depends on more than
+//    * DependenceByT      - Boolean - if the scheduled job depends on more than
 //        one functional option and you want to enable it only
 //        when all functional options are enabled, specify True
 //        for each dependency.
@@ -44,11 +44,17 @@
 //        execution (including queue jobs) in the infobase with enabled separator must be locked.
 //        The Undefined value is read as True.
 //        Default value: Undefined.
-//    * UseExternalResources  - Boolean - True if the scheduled job modifies data
-//        in external sources (receiving emails, synchronizing data, etc.). Do not set the
-//        value to True for scheduled jobs that do not modify data in external sources.
-//        For example, CurrencyRateImport scheduled job. Scheduled jobs operating with external resources are
-//        automatically disabled in the copy of the infobase. The default value is False.
+//    * UseExternalResources  - Boolean - 
+//        
+//        
+//        
+//        
+//        
+//    * AccessesExternalResources - Boolean - 
+//        
+//        
+//        
+//        
 //    * IsParameterized             - Boolean - True if the scheduled job is parameterized.
 //        The default value is False.
 //

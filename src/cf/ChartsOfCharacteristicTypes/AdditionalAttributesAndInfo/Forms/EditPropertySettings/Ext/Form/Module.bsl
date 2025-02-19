@@ -51,7 +51,7 @@ EndProcedure
 &AtClient
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
-	Notification = New NotifyDescription("WriteAndCloseCompletion", ThisObject);
+	Notification = New CallbackDescription("WriteAndCloseCompletion", ThisObject);
 	CommonClient.ShowFormClosingConfirmation(Notification, Cancel, Exit);
 	
 EndProcedure
@@ -114,7 +114,7 @@ Procedure WriteBeginning()
 		WriteCompletion(OpenProperty);
 	Else
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-		CallbackOnCompletion = New NotifyDescription("WriteFollowUp", ThisObject);
+		CallbackOnCompletion = New CallbackDescription("WriteFollowUp", ThisObject);
 		
 		TimeConsumingOperationsClient.WaitCompletion(ExecutionResult, CallbackOnCompletion, IdleParameters);
 	EndIf;

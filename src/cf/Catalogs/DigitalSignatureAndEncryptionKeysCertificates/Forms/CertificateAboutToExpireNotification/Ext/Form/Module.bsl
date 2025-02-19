@@ -101,7 +101,7 @@ Procedure DecorationReissuedURLProcessing(Item, FormattedStringURL, StandardProc
 	If IssuedCertificates.Count() = 1 Then
 		OpenCertificateAfterSelectionFromList(IssuedCertificates[0], Undefined);
 	Else	
-		NotifyDescription = New NotifyDescription("OpenCertificateAfterSelectionFromList", ThisObject, Item);
+		NotifyDescription = New CallbackDescription("OpenCertificateAfterSelectionFromList", ThisObject, Item);
 		ShowChooseFromList(NotifyDescription, IssuedCertificates);
 	EndIf;
 	

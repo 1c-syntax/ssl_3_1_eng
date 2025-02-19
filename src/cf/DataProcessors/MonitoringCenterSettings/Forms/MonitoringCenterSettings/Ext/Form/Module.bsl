@@ -86,7 +86,7 @@ Procedure GetID(Command)
 	// Outputs the status of getting ID.
 	VisibilityParameters = New Structure("Status, ResultAddress", GetIDJobState, JobResultAddress);
 	SetItemsVisibility(VisibilityParameters);
-	Notification = New NotifyDescription("AfterUpdateID", MonitoringCenterClient);
+	Notification = New CallbackDescription("AfterUpdateID", MonitoringCenterClient);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	TimeConsumingOperationsClient.WaitCompletion(RunResult, Notification, IdleParameters);

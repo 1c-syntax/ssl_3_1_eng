@@ -39,8 +39,7 @@ EndProcedure
 
 #Region EventHandlers
 
-////////////////////////////////////////////////////////////////////////////////
-// Business process event handlers.
+#Region BusinessProcessEventHandlers
 
 Procedure BeforeWrite(Cancel)
 
@@ -123,8 +122,9 @@ Procedure OnCopy(CopiedObject)
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Flowchart items event handlers.
+#EndRegion
+
+#Region RouteMapItemsEventHandlers
 
 // Parameters:
 //   BusinessProcessRoutePoint - BusinessProcessRoutePointRef.Job
@@ -230,6 +230,8 @@ Procedure CompletionAtCompletion(BusinessProcessRoutePoint, Cancel)
 	Write();
 
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 

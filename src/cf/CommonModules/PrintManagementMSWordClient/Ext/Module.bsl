@@ -174,8 +174,7 @@ Procedure ShowMSWordDocument(Val Handler) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Functions for getting areas from a template.
+#Region FunctionsForGettingAreasFromTemplate
 
 // Gets an area from a template.
 //
@@ -240,8 +239,9 @@ Function GetFooterArea(Handler) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Functions for adding areas to the print form.
+#EndRegion
+
+#Region FunctionsForAddingAreasToPrintForm
 
 // Start: Operations with Microsoft Word document headers and footers.
 
@@ -513,8 +513,9 @@ Procedure InsertBreakAtNewLine(Val Handler) Export
 	ActiveDocument.Range(DocumentEndPosition-1, DocumentEndPosition-1).InsertParagraphAfter();
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Other procedures and functions
+#EndRegion
+
+#Region OtherProceduresAndFunctions_
 
 Function GetAreaStartPosition(Val COMJoin, Val AreaID)
 	
@@ -644,5 +645,7 @@ Procedure Replace(Object, Val SearchString, Val ReplacementString)
 	Selection.Collapse();
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

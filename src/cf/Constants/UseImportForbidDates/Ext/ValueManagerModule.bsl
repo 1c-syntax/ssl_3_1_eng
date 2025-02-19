@@ -13,7 +13,7 @@
 #Region Variables
 
 Var SettingEnabled; // Flag indicating the change of constant value to "True".
-                         // 
+                         // Intended for the "OnWrite" event handler.
 
 #EndRegion
 

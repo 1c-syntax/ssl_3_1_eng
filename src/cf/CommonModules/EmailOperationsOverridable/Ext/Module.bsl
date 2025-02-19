@@ -82,7 +82,7 @@ Procedure AfterEmailSending(EmailParameters) Export
 EndProcedure
 
 // Specifies a list of emails to receive the delivered/read status for.
-// For the email list determination example, see ReportsDistribution.BeforeGetEmailMessagesStatuses
+// For the email list determination example, see ReportMailing.BeforeGetEmailMessagesStatuses
 //
 //   Parameters:
 //  EmailMessagesIDs - ValueTable:
@@ -95,7 +95,7 @@ Procedure BeforeGetEmailMessagesStatuses(EmailMessagesIDs) Export
 EndProcedure
 
 // Returns information only about known delivery statuses (if corresponding emails were received).
-// For an example of processing received email statuses, see ReportsMailing.AfterGetEmailMessagesStatuses
+// For an example of processing received email statuses, see ReportMailing.AfterGetEmailMessagesStatuses
 //
 // Parameters:
 //  DeliveryStatuses - ValueTable:

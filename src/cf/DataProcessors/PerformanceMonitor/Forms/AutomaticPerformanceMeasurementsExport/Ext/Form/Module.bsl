@@ -73,10 +73,10 @@ EndProcedure
 Procedure ExportLocalFileDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	If SSLAvailable Then
-		NotifyDescription = New NotifyDescription("SelectExportDirectorySuggested", ThisObject);
+		NotifyDescription = New CallbackDescription("SelectExportDirectorySuggested", ThisObject);
 		ModuleFileSystemClient = Eval("FileSystemClient");
 		If TypeOf(ModuleFileSystemClient) = Type("CommonModule") Then
-			ModuleFileSystemClient.AttachFileOperationsExtension(NotifyDescription);
+			ModuleFileSystemClient.Attach1CEnterpriseExtension(NotifyDescription);
 		EndIf;
 	EndIf;
 	
@@ -148,14 +148,14 @@ Procedure FTPExportDirectoryOnChange(Item)
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////
-// COMMAND HANDLERS
+// ОБРАБОТЧИКИ КОМАНД
 
 &AtClient
 Procedure SetExportSchedule(Command)
 	
 	JobSchedule = PerformanceMonitorDataExportSchedule();
 	
-	Notification = New NotifyDescription("SetExportScheduleCompletion", ThisObject);
+	Notification = New CallbackDescription("SetExportScheduleCompletion", ThisObject);
 	Dialog = New ScheduledJobDialog(JobSchedule);
 	Dialog.Show(Notification);
 	
@@ -174,7 +174,7 @@ Procedure SelectExportDirectorySuggested(FileSystemExtensionAttached1, Additiona
 		SelectingFile.Multiselect = False;
 		SelectingFile.Title = NStr("en = 'Select an export directory';");
 		
-		NotifyDescription = New NotifyDescription("DirectorySelectionDialogBoxCompletion", ThisObject, Undefined);
+		NotifyDescription = New CallbackDescription("DirectorySelectionDialogBoxCompletion", ThisObject, Undefined);
 		If SSLAvailable Then 
 			ModuleFileSystemClient = Eval("FileSystemClient");
 			If TypeOf(ModuleFileSystemClient) = Type("CommonModule") Then
@@ -304,9 +304,9 @@ Procedure ValidatePermissionToAccessExternalResources(CloseForm)
 	
 	If ExternalResourcesAllowed <> True Then
 		If CloseForm Then
-			ClosingNotification1 = New NotifyDescription("AllowExternalResourceSaveAndClose", ThisObject);
+			ClosingNotification1 = New CallbackDescription("AllowExternalResourceSaveAndClose", ThisObject);
 		Else
-			ClosingNotification1 = New NotifyDescription("AllowExternalResourceSave", ThisObject);
+			ClosingNotification1 = New CallbackDescription("AllowExternalResourceSave", ThisObject);
 		EndIf;
 		
 		If SecurityProfilesAvailable Then
@@ -331,7 +331,7 @@ Procedure ValidatePermissionToAccessExternalResources(CloseForm)
 			ModuleSafeModeManagerClient = Eval("SafeModeManagerClient");
 			ModuleSafeModeManagerClient.ApplyExternalResourceRequests(QueryToArray, ThisObject, ClosingNotification1);
 		Else
-			ExecuteNotifyProcessing(ClosingNotification1, DialogReturnCode.OK);
+			RunCallback(ClosingNotification1, DialogReturnCode.OK);
 		EndIf;
 	ElsIf CloseForm Then
 		SaveAtServer();

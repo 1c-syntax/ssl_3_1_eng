@@ -40,7 +40,7 @@ EndFunction
 //
 // Parameters: 
 //   ImportParameters   - See ImportDataFromFileClient.DataImportParameters.
-//   ImportNotification - NotifyDescription  - the procedure called to add the imported data
+//   ImportNotification - CallbackDescription  - the procedure called to add the imported data
 //                                               to the tabular section.
 //
 Procedure ShowImportForm(ImportParameters, ImportNotification) Export
@@ -59,7 +59,7 @@ EndProcedure
 //
 // Parameters: 
 //   ImportParameters   - See ImportDataFromFileClient.DataImportParameters.
-//   ImportNotification - NotifyDescription  - the procedure called to add the imported data
+//   ImportNotification - CallbackDescription  - the procedure called to add the imported data
 //                                               to the tabular section.
 //
 Procedure ShowRefFillingForm(ImportParameters, ImportNotification) Export
@@ -76,7 +76,7 @@ EndProcedure
 // Opens a file import dialog.
 //
 // Parameters:
-//  CompletionNotification - NotifyDescription - the procedure to call when a file is successfully put in a storage.
+//  CompletionNotification - CallbackDescription - the procedure to call when a file is successfully put in a storage.
 //  FileName	         - String - a file name in the dialog.
 //
 Procedure FileImportDialog(CompletionNotification , FileName = "") Export

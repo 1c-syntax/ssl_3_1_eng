@@ -134,7 +134,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		CurrentObject.Description = "";
 	EndIf;
 	
-	CurrentObject.FilterRule = New ValueStorage(FilterRule);
+	CurrentObject.FilterRule = New ValueStorage(FilterRule, New Deflation(9));
 	
 EndProcedure
 

@@ -27,7 +27,7 @@ EndProcedure
 Procedure ListOnChange(Item)
 	
 	RefreshReusableValues();
-	Notify("AddDeleteSourceDocumentOriginalState");
+	Notify("Write_SourceDocumentsOriginalsStates");
 	
 EndProcedure
 
@@ -36,7 +36,7 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
 // Parameters:
 //  Command - FormCommand

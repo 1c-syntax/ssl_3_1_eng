@@ -24,7 +24,7 @@ Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 				|
 				|With them, users will be able to exchange text messages, make video calls,
 				|create themed conversations, and correspond on documents.';");
-		CallbackOnCompletion = New NotifyDescription("SuggestDiscussionsCompletion", ThisObject);
+		CallbackOnCompletion = New CallbackDescription("SuggestDiscussionsCompletion", ThisObject);
 		
 		ShowQueryBox(CallbackOnCompletion, SuggestConversationsText, QuestionDialogMode.YesNo);
 		Return;

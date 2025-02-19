@@ -76,19 +76,20 @@ EndProcedure
 
 Procedure DeleteBinaryData(File) Export
 	
+	Query = New Query;
+	Query.SetParameter("File", File);
+	Query.Text =
+	"SELECT TOP 1
+	|	FileRepository.BinaryDataStorage AS BinaryDataStorage,
+	|	FileRepository.BinaryDataStorage.Hash AS Hash
+	|FROM
+	|	InformationRegister.FileRepository AS FileRepository
+	|WHERE
+	|	FileRepository.File = &File";
+
 	BeginTransaction();
 	Try
 		
-		Query = New Query;
-		Query.SetParameter("File", File);
-		Query.Text =
-		"SELECT TOP 1
-		|	FileRepository.BinaryDataStorage AS BinaryDataStorage,
-		|	FileRepository.BinaryDataStorage.Hash AS Hash
-		|FROM
-		|	InformationRegister.FileRepository AS FileRepository
-		|WHERE
-		|	FileRepository.File = &File";
 		Selection = Query.Execute().Select();
 		If Selection.Next() Then
 			Block = New DataLock;
@@ -96,9 +97,9 @@ Procedure DeleteBinaryData(File) Export
 			LockItem.SetValue("Hash", Selection.Hash);
 			Block.Lock();
 			
-			Record = CreateRecordManager();
-			Record.File = File;
-			Record.Delete();
+			FileStorage1 = CreateRecordManager();
+			FileStorage1.File = File;
+			FileStorage1.Delete();
 			
 			Query = New Query;
 			Query.SetParameter("BinaryDataStorage", Selection.BinaryDataStorage);
@@ -110,16 +111,16 @@ Procedure DeleteBinaryData(File) Export
 			|WHERE
 			|	FileRepository.BinaryDataStorage = &BinaryDataStorage";
 			If Query.Execute().IsEmpty() Then
-				CatObject = Selection.BinaryDataStorage.GetObject();
-				CatObject.DataExchange.Load = True;
-				CatObject.Delete();
+				DataStorage = Selection.BinaryDataStorage.GetObject();
+				DataStorage.DataExchange.Load = True;
+				DataStorage.Delete();
 			EndIf;
 		EndIf;
 		
 		If Not FilesOperationsInternalCached.IsDeduplicationCompleted() Then
-			Record = InformationRegisters.DeleteFilesBinaryData.CreateRecordManager();
-			Record.File = File;
-			Record.Delete();
+			FileStorage1 = InformationRegisters.DeleteFilesBinaryData.CreateRecordManager();
+			FileStorage1.File = File;
+			FileStorage1.Delete();
 		EndIf;
 		
 		CommitTransaction();	
@@ -198,11 +199,8 @@ Procedure TransferData_(ShouldReportProgress = False, ResultAddress = Undefined)
 			
 			BinaryData = Selection.FileBinaryData.Get();
 			If TypeOf(BinaryData) = Type("Picture") Then
-				TempFileName = GetTempFileName();
-				BinaryData.Write(TempFileName);
-				BinaryData = New BinaryData(TempFileName);
-				
-				FileSystem.DeleteTempFile(TempFileName);
+				BinaryData = BinaryData.GetBinaryData();
+
 			ElsIf TypeOf(BinaryData) <> Type("BinaryData") Then
 				ErrorText = NStr("en = 'Detected data type: %3. Expected data type: %4. Information register: %1. File: %2';");
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText,
@@ -256,8 +254,7 @@ Procedure TransferData_(ShouldReportProgress = False, ResultAddress = Undefined)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Update handlers.
+#Region UpdateHandlers
 
 // Registers objects, 
 // for which it is necessary to update register records on the "InfobaseUpdate" exchange plan.
@@ -316,6 +313,8 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	Parameters.ProcessingCompleted = ProcessingCompleted;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 

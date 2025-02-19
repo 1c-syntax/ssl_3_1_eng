@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<AutoURL>false</AutoURL>
 	<CommandBarLocation>Top</CommandBarLocation>
 	<AutoCommandBar name="FormCommandBar" id="-1">
@@ -130,7 +130,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Enabled extensions</v8:content>
+									<v8:content>Enable extensions</v8:content>
 								</v8:item>
 							</Title>
 							<ExtendedTooltip name="EnableExtensionsExtendedTooltip" id="247"/>
@@ -391,7 +391,7 @@
 									<Title formatted="true">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>To apply changes, &lt;link 1&gt;restart&lt;/&gt; the app.</v8:content>
+											<v8:content>To apply the changes, &lt;link 1&gt;restart&lt;/&gt; the application.</v8:content>
 										</v8:item>
 									</Title>
 									<ContextMenu name="WarningDetailsContextMenu" id="84"/>
@@ -974,7 +974,7 @@ New extensions for data area users will be applied next time they log in to the 
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Extension will be attached after app restart</v8:content>
+															<v8:content>Extension will be attached after application restart</v8:content>
 														</v8:item>
 													</Title>
 													<ContextMenu name="WillBeAttachedLegendContextMenu" id="210"/>
@@ -1014,7 +1014,7 @@ New extensions for data area users will be applied next time they log in to the 
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Failed to attach on app start</v8:content>
+															<v8:content>Failed to attach on application start</v8:content>
 														</v8:item>
 													</Title>
 													<ContextMenu name="AttachmentErrorLegendContextMenu" id="218"/>
@@ -1069,7 +1069,7 @@ New extensions for data area users will be applied next time they log in to the 
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Activating extensions, please wait…</v8:content>
+									<v8:content>Preparing extensions. Please wait...</v8:content>
 								</v8:item>
 							</Title>
 							<VerticalAlign>Center</VerticalAlign>
@@ -1551,7 +1551,7 @@ New extensions for data area users will be applied next time they log in to the 
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Enabled extensions</v8:content>
+					<v8:content>Enable extensions</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>

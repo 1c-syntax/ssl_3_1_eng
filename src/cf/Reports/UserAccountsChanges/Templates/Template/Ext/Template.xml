@@ -732,7 +732,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>User cannot change password</v8:content>
+					<v8:content>Cannot change password</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -745,7 +745,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Password change restriction (changed)</v8:content>
+					<v8:content>Cannot change password (changed)</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -790,7 +790,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>User cannot recover password</v8:content>
+					<v8:content>Cannot recover password</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -803,7 +803,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Password recovery restriction (changed)</v8:content>
+					<v8:content>Cannot recover password (changed)</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -906,7 +906,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show in list</v8:content>
+					<v8:content>Show in choice list</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -919,7 +919,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show in list (changed)</v8:content>
+					<v8:content>Show in choice list (changed)</v8:content>
 				</v8:item>
 			</title>
 			<valueType>

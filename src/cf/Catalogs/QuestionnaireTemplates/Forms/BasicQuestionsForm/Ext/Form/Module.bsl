@@ -81,7 +81,7 @@ EndProcedure
 &AtClient
 Procedure NotesStartChoice(Item, ChoiceData, StandardProcessing)
 	
-	ClosingNotification1 = New NotifyDescription("NoteEditOnClose", ThisObject);
+	ClosingNotification1 = New CallbackDescription("NoteEditOnClose", ThisObject);
 	CommonClient.ShowMultilineTextEditingForm(ClosingNotification1, Item.EditText, NStr("en = 'Notes';"));
 
 EndProcedure

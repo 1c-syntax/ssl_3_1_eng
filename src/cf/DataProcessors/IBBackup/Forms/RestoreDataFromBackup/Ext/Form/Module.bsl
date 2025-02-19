@@ -140,7 +140,7 @@ Procedure Done(Command)
 		Return;
 	EndIf;
 	
-	Notification = New NotifyDescription("FinishAfterCheckInfobaseAccess", ThisObject);
+	Notification = New CallbackDescription("FinishAfterCheckInfobaseAccess", ThisObject);
 	
 	IBBackupClient.CheckAccessToInfobase(IBAdministratorPassword, Notification);
 	
@@ -233,7 +233,7 @@ Procedure SelectBackupFile()
 	OpenFileDialog = New FileDialog(FileDialogMode.Open);
 	OpenFileDialog.Filter = NStr("en = 'Infobase backup (*.zip, *.1CD)|*.zip;*.1cd';");
 	OpenFileDialog.Title= NStr("en = 'Select a backup file';");
-	OpenFileDialog.CheckFileExist = True;
+	OpenFileDialog.CheckFileExistence = True;
 	
 	If OpenFileDialog.Choose() Then
 		
@@ -330,8 +330,7 @@ Function CheckAttributesFilling()
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Idle handler procedures.
+#Region IdleHandlersProcedures
 
 &AtClient
 Procedure Timeout2()
@@ -390,7 +389,7 @@ Procedure StartDataRecovery()
 		IBBackupClient.StringUnicode(IBAdministratorPassword));
 	
 	ApplicationStartupParameters = FileSystemClient.ApplicationStartupParameters();
-	ApplicationStartupParameters.Notification = New NotifyDescription("AfterStartScript", ThisObject);
+	ApplicationStartupParameters.Notification = New CallbackDescription("AfterStartScript", ThisObject);
 	ApplicationStartupParameters.WaitForCompletion = False;
 	
 	FileSystemClient.StartApplication(CommandLine1, ApplicationStartupParameters);
@@ -410,8 +409,9 @@ Procedure AfterStartScript(Result, Context) Export
 	
 EndProcedure
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions of data recovery preparation.
+#EndRegion
+
+#Region ProceduresAndFunctionsToPrepareDataRestore
 
 #If Not WebClient And Not MobileClient Then
 
@@ -425,6 +425,7 @@ Function GenerateScriptFiles()
 	ScriptParameters.ApplicationFileName = CopyingParameters.ApplicationFileName;
 	ScriptParameters.EventLogEvent = CopyingParameters.EventLogEvent;
 	ScriptParameters.COMConnectorName = CommonClientServer.COMConnectorName();
+	ScriptParameters.COMConnectorPath = BinDir() + "comcntr.dll";
 	ScriptParameters.IsBaseConfigurationVersion = StandardSubsystemsClient.IsBaseConfigurationVersion();
 	ScriptParameters.ScriptParameters = IBBackupClient.UpdateAdministratorAuthenticationParameters(IBAdministratorPassword);
 	ScriptParameters.OneCEnterpriseStartupParameters = CommonInternalClient.EnterpriseStartupParametersFromScript();
@@ -506,7 +507,7 @@ Function InsertScriptParameters(Val Text, Val ScriptParameters)
 	
 	TextParameters = IBBackupServer.PrepareCommonScriptParameters(ScriptParameters);
 	TextParameters["[BackupFile]"] = IBBackupServer.PrepareText(Object.BackupImportFile);
-	// CAC:495-disable TempFilesDir is used as automatic deletion of a temporary directory is not allowed.
+	// ACC:495-off - TempFilesDir is used because temporary directories cannot be deleted automatically.
 	TextParameters["[TempFilesDir]"] = IBBackupServer.PrepareText(TempFilesDir()); 
 	// ACC:495-on
 	Return IBBackupServer.SubstituteParametersToText(Text, TextParameters);
@@ -558,5 +559,7 @@ Function InfobaseSessionsCount()
 	Return IBConnections.InfobaseSessionsCount(False, False);
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion

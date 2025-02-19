@@ -57,7 +57,7 @@ Procedure PathToFolderToCopyStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	Context = New Structure("OpenFileDialog", OpenFileDialog);
 	
-	ChoiceDialogNotificationDetails = New NotifyDescription(
+	ChoiceDialogNotificationDetails = New CallbackDescription(
 		"PathToFolderToCopyStartChoiceCompletion", ThisObject, Context);
 	FileSystemClient.ShowSelectionDialog(ChoiceDialogNotificationDetails, OpenFileDialog);
 	
@@ -102,8 +102,8 @@ Procedure DeleteUnnecessaryFiles(Command)
 	EndIf;
 	
 	If CopyFilesBeforeDelete Then
-		FileSystemClient.AttachFileOperationsExtension(
-			New NotifyDescription("AttachFileSystemExtensionCompletion", ThisObject),, 
+		FileSystemClient.Attach1CEnterpriseExtension(
+			New CallbackDescription("FileSystemExtensionAttachmentCompletion", ThisObject),, 
 			False);
 	Else
 		AfterCheckWriteToDirectory(True, New Structure);
@@ -133,7 +133,7 @@ EndProcedure
 &AtServer
 Procedure FillExcessFilesTable()
 	
-	FilesTableOnHardDrive = FilesOperationsInVolumesInternal.UnnecessaryFilesOnHardDrive();
+	FilesTableOnHardDrive = FilesOperationsInVolumesInternal.UnnecessaryFilesInVolume();
 	VolumePath = TrimAll(FilesOperationsInVolumesInternal.FullVolumePath(FileStorageVolume));
 	
 	FilesArray = FindFiles(VolumePath,"*", True);
@@ -174,14 +174,14 @@ EndProcedure
 Procedure RightToWriteToDirectory(SourceNotification)
 	
 	If IsBlankString(PathToFolderToCopy) Then
-		ExecuteNotifyProcessing(SourceNotification, True);
+		RunCallback(SourceNotification, True);
 		Return
 	EndIf;
 	
 	DirectoryName = PathToFolderToCopy + "CheckAccess\";
 	
 	DirectoryDeletionParameters  = New Structure("SourceNotification, DirectoryName", SourceNotification, DirectoryName);
-	DirectoryCreationNotification = New NotifyDescription("AfterCreateDirectory", ThisObject, DirectoryDeletionParameters, "AfterDirectoryCreationError", ThisObject);
+	DirectoryCreationNotification = New CallbackDescription("AfterCreateDirectory", ThisObject, DirectoryDeletionParameters, "AfterDirectoryCreationError", ThisObject);
 	BeginCreatingDirectory(DirectoryCreationNotification, DirectoryName);
 	
 EndProcedure
@@ -196,14 +196,14 @@ EndProcedure
 &AtClient
 Procedure AfterCreateDirectory(Result, AdditionalParameters) Export
 	
-	BeginDeletingFiles(New NotifyDescription("AfterDeleteDirectory", ThisObject, AdditionalParameters, "AfterDirectoryDeletionError", ThisObject), AdditionalParameters.DirectoryName);
+	BeginDeletingFiles(New CallbackDescription("AfterDeleteDirectory", ThisObject, AdditionalParameters, "AfterDirectoryDeletionError", ThisObject), AdditionalParameters.DirectoryName);
 	
 EndProcedure
 
 &AtClient
 Procedure AfterDeleteDirectory(AdditionalParameters) Export
 	
-	ExecuteNotifyProcessing(AdditionalParameters.SourceNotification, True);
+	RunCallback(AdditionalParameters.SourceNotification, True);
 	
 EndProcedure
 
@@ -226,7 +226,7 @@ Procedure ProcessAccessRightsError(ErrorInfo, SourceNotification)
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate, ErrorProcessing.BriefErrorDescription(ErrorInfo));
 	CommonClient.MessageToUser(ErrorText, , , "PathToFolderToCopy");
 	
-	ExecuteNotifyProcessing(SourceNotification, False);
+	RunCallback(SourceNotification, False);
 	
 EndProcedure
 
@@ -256,15 +256,15 @@ Procedure GenerateErrorsReport(ErrorsReport)
 EndProcedure
 
 &AtClient
-Procedure AttachFileSystemExtensionCompletion(ExtensionAttached, AdditionalParameters) Export
+Procedure FileSystemExtensionAttachmentCompletion(ExtensionAttached, AdditionalParameters) Export
 	
 	If Not ExtensionAttached Then
-		ShowMessageBox(, NStr("en = 'Cannot perform the action because 1C:Enterprise Extension is not installed.';"));
+		ShowMessageBox(, NStr("en = 'Cannot perform the operation because 1C:Enterprise Extension is not installed.';"));
 		Return;
 	EndIf;
 	
 	FolderForCopying = New File(PathToFolderToCopy);
-	FolderForCopying.BeginCheckingExistence(New NotifyDescription("FolderExistanceCheckCompletion", ThisObject));
+	FolderForCopying.BeginCheckingExistence(New CallbackDescription("FolderExistanceCheckCompletion", ThisObject));
 	
 EndProcedure
 
@@ -274,7 +274,7 @@ Procedure FolderExistanceCheckCompletion(Exists, AdditionalParameters) Export
 	If Not Exists Then
 		ShowMessageBox(, NStr("en = 'The specified folder does not exist.';"));
 	Else
-		RightToWriteToDirectory(New NotifyDescription("AfterCheckWriteToDirectory", ThisObject));
+		RightToWriteToDirectory(New CallbackDescription("AfterCheckWriteToDirectory", ThisObject));
 	EndIf;
 	
 EndProcedure
@@ -324,7 +324,7 @@ Async Procedure AfterCheckWriteToDirectory(Result, AdditionalParameters) Export
 		
 		FilesForDownloading = PrepareFilesAtServer(FilesForDeletion);
 		Context = New Structure("FilesForDownloading, FilesForDeletion", FilesForDownloading, FilesForDeletion);
-		AfterFilesReceivedFromServer = New NotifyDescription("AfterFilesReceivedFromServer", ThisObject, Context,
+		AfterFilesReceivedFromServer = New CallbackDescription("AfterFilesReceivedFromServer", ThisObject, Context,
 			"ErrorAfterGetFilesFromServer", ThisObject);
 		BeginGetFilesFromServer(AfterFilesReceivedFromServer, FilesForDownloading, PathToFolderToCopy + DateFolder + GetPathSeparator());
 		

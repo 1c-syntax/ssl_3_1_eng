@@ -76,7 +76,7 @@ Procedure MetadataObjectsTreeSynchronizeOnChange(Item)
 	
 	If Not CurrentData.Synchronize And CurrentData.PreviousSynchronization Then
 	
-		Notification = New NotifyDescription("AftertheQuestionAboutDisablingSynchronization", ThisObject);
+		Notification = New CallbackDescription("AftertheQuestionAboutDisablingSynchronization", ThisObject);
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Do you want to finish and disable file synchronization for ""%1""?';"), 
 			CurrentData.ObjectDescriptionSynonym);
@@ -130,7 +130,7 @@ Procedure MetadataObjectsTreeBeforeDeleteRow(Item, Cancel)
 	QueryText = NStr("en = 'If you delete the setting, you will not be able
 		|to synchronize files according to the rules defined in it. Continue?';");
 		
-	NotifyDescription = New NotifyDescription("DeleteSettingItemCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("DeleteSettingItemCompletion", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No, NStr("en = 'Warning';"));
 	
 EndProcedure
@@ -142,7 +142,7 @@ EndProcedure
 &AtClient
 Procedure SetUpSchedule(Command)
 	ScheduleDialog1 = New ScheduledJobDialog(CurrentSchedule());
-	NotifyDescription = New NotifyDescription("SetUpScheduleCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("SetUpScheduleCompletion", ThisObject);
 	ScheduleDialog1.Show(NotifyDescription);
 EndProcedure
 
@@ -555,7 +555,7 @@ Procedure OpenSettingsForm()
 		AdditionalParameters.Insert("Id", CurrentData.GetParent().GetID());
 	EndIf;
 	
-	Notification = New NotifyDescription("SetFilterSettings", ThisObject, AdditionalParameters);
+	Notification = New CallbackDescription("SetFilterSettings", ThisObject, AdditionalParameters);
 	OpenForm("InformationRegister.FileSynchronizationSettings.RecordForm", 
 		FormParameters, ThisObject,,,, Notification);
 	
@@ -621,7 +621,7 @@ Procedure DeleteSettingItemCompletion(Result, AdditionalParameters) Export
 		BackgroundJob = ClearSettingData();
 		WaitSettings                                = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 		WaitSettings.OutputIdleWindow           = True;
-		Handler = New NotifyDescription("ClearSettingDataCompletion", ThisObject, CallAdditionalParameters);
+		Handler = New CallbackDescription("ClearSettingDataCompletion", ThisObject, CallAdditionalParameters);
 		TimeConsumingOperationsClient.WaitCompletion(BackgroundJob, Handler, WaitSettings);
 		
 	EndIf;
@@ -651,7 +651,7 @@ Procedure CreateFilesSynchronization(Command)
 	FormParameters.Insert("NewSetting",    True);
 	FormParameters.Insert("Id",     Id);
 	
-	Notification = New NotifyDescription("SetFilterSettings", ThisObject, FormParameters);
+	Notification = New CallbackDescription("SetFilterSettings", ThisObject, FormParameters);
 	OpenForm("InformationRegister.FileSynchronizationSettings.RecordForm", FormParameters, ThisObject,,,, Notification);
 	
 EndProcedure
@@ -843,7 +843,6 @@ Procedure ClearSettingDataAtServer(Val CurrentRow)
 		RecordManager.FileOwnerType = SettingToDelete.FileOwnerType;
 		RecordManager.Account     = SettingToDelete.Account;
 		RecordManager.IsFile           = SettingToDelete.IsFile;
-		RecordManager.Read();
 		RecordManager.Delete();
 		
 		SettingsItemParent = SettingToDelete.GetParent();

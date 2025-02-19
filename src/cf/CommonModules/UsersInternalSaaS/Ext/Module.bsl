@@ -586,8 +586,7 @@ Procedure OnEndIBUserProcessing(UserObject, ProcessingParameters, UpdateRoles) E
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Event handlers of the "SaaS" SSL subsystem
+#Region SSLSaaSSubsystemEventHandlers
 
 // See SSLSubsystemsIntegration.OnDefineUserAlias
 Procedure OnDefineUserAlias(UserIdentificator, Alias) Export
@@ -666,6 +665,8 @@ Procedure AfterImportInfobaseUsers(Container) Export
 	Container.AdditionalProperties.Insert("UserMap", Undefined);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -1154,7 +1155,7 @@ Procedure HandleWebServiceErrorInfo(Val ErrorInfo, Val OperationName)
 		ModuleSaaSOperations.HandleWebServiceErrorInfo(
 			ErrorInfo,
 			Subsystem.Name,
-			"ManageApplication", // Not localizable.
+			"ManageApplication", // Do not localize.
 			OperationName);
 		
 	EndIf;

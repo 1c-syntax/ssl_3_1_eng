@@ -16,14 +16,14 @@
 //  Parameters       - Structure - Empty structure.
 //  ResultAddress - String    - an address of a temporary storage where a user's
 //                                to-do list is saved - ValueTable:
-//    * Id - String - an internal to-do ID used by the To-do list algorithm.
-//    * HasToDoItems      - Boolean - if True, the to-do item is displayed in the user's to-do list.
-//    * Important        - Boolean - if True, the to-do item is highlighted in red.
-//    * Presentation - String - a to-do item presentation displayed to a user.
-//    * Count    - Number  - a number related to a to-do item; it is displayed in a to-do item's title.
-//    * Form         - String - a full path to the form that is displayed by clicking on the
-//                               to-do item hyperlink in the "To-do list" panel.
-//    * FormParameters- Structure - parameters for opening the indicator form.
+//    * Id - String - Internal to-do item ID used by the To-do list algorithm.
+//    * HasToDoItems      - Boolean - If True, the to-do item is displayed in the user's to-do list.
+//    * Important        - Boolean - If True, the to-do item is highlighted in red.
+//    * Presentation - String - To-do item presentation displayed to a user.
+//    * Count    - Number  - To-do item counter displayed in a to-do item's title.
+//    * Form         - String - Full path to the form that is displayed when a user clicks
+//                               a to-do hyperlink in the To-do list panel.
+//    * FormParameters- Structure - Indicator form's opening parameters.
 //    * Owner      - String
 //                    - MetadataObject - String ID of the to-do item that is the owner of the current to-do item,
 //                      or a subsystem metadata object.
@@ -98,8 +98,7 @@ Function SavedViewSettings() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // See UsersOverridable.OnDefineRoleAssignment
 Procedure OnDefineRoleAssignment(RolesAssignment) Export
@@ -111,16 +110,15 @@ Procedure OnDefineRoleAssignment(RolesAssignment) Export
 EndProcedure
 
 // See CommonOverridable.OnAddMetadataObjectsRenaming.
-Procedure OnAddMetadataObjectsRenaming(Total) Export
+Procedure OnAddMetadataObjectsRenaming(Renamings) Export
 	
-	Library = "StandardSubsystems";
-	
-	OldName = "Role.UsingCurCases";
-	NewName  = "Role.UseCurrentToDosProcessor";
-	Common.AddRenaming(Total, "2.3.3.25", OldName, NewName, Library);
+	Common.AddRenaming(Renamings, "2.3.3.25", 
+		"Role.UsingCurCases", "Role.UseCurrentToDosProcessor", "StandardSubsystems");
 	
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 

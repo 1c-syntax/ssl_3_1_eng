@@ -128,7 +128,7 @@ Procedure SaveProcessing(ReportKey, VariantKey, Settings, SettingsDescription, U
 			EndIf;
 		EndIf;
 		
-		OptionObject.Settings = New ValueStorage(Settings);
+		OptionObject.Settings = New ValueStorage(Settings, New Deflation(9));
 		
 		If SettingsDescription <> Undefined Then
 			OptionObject.Description = SettingsDescription.Presentation;
@@ -277,7 +277,7 @@ EndProcedure
 
 // Returns a list of user report options.
 //
-Function GetList(ReportKey, Val User = Undefined) Export // CAC:307 - Same as the standard setting storage method.
+Function GetList(ReportKey, Val User = Undefined) Export // ACC:307 - Same as the method in the standard settings storage.
 	List = New ValueList;
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then

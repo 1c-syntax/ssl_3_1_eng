@@ -33,6 +33,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	EndIf;
 	
+	ConversationsLocalization.OnFillInstructionOnIntegrationConnect(Items.Instruction.Title, 
+	ConversationsInternalClientServer.ExternalSystemsTypes().VKontakte);
+	
 EndProcedure
 
 &AtServer
@@ -60,11 +63,13 @@ Procedure ActivateBot(Command)
 	
 	Try
 		ActivateServer();
-		Close(True);
 	Except
-		ShowMessageBox(, NStr("en = 'Cannot enable the chat bot due to:';")
-			+ Chars.LF + ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+		ErrorInfo = ErrorInfo();
+		Refinement = CommonClientServer.ExceptionClarification(ErrorInfo, 
+			NStr("en = 'Cannot enable the chat bot due to:';"), True);
+		Raise(Refinement.Text, Refinement.Category,,, ErrorInfo);
 	EndTry;
+	Close(True);
 EndProcedure
 
 &AtServer
@@ -107,11 +112,13 @@ EndProcedure
 Procedure Disconnect(Command)
 	Try
 		DisconnectServer();
-	    Close(True);
 	Except
-		ShowMessageBox(, NStr("en = 'Cannot disable the chat bot due to:';")
-			+ Chars.LF + ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+		ErrorInfo = ErrorInfo();
+		Refinement = CommonClientServer.ExceptionClarification(ErrorInfo, 
+			NStr("en = 'Cannot disable the chat bot due to:';"), True);
+		Raise(Refinement.Text, Refinement.Category,,, ErrorInfo);
 	EndTry;
+	Close(True);
 EndProcedure
 
 &AtServer

@@ -23,9 +23,11 @@
 //     * SecureConnection         - Boolean       - indicates the use of secure ftps or https connection.
 //                                    - OpenSSLSecureConnection
 //                                    - Undefined - In case secure connection is not used.
-//     * IsPackageDeliveryCheckOnErrorEnabled - Boolean - If failed to access the URL, include a PING command in the diagnostics.
+//     * IsPackageDeliveryCheckOnErrorEnabled - Boolean - 
+//     * ShouldCheckAccessToInternetServices - Boolean - 
+//                                             
 //
-//    The parameters for HTTP (HTTPS) connection only:
+//    :
 //     * Headers                    - Map - see details of the Headers parameter of the HTTPRequest object in Syntax Assistant.
 //     * UseOSAuthentication - Boolean       - see Syntax Assistant for details of
 //                                                     the UseOSAuthentication parameter of the HTTPConnection object.
@@ -49,6 +51,7 @@ Function FileGettingParameters() Export
 	ReceivingParameters.Insert("UseOSAuthentication", False);
 	ReceivingParameters.Insert("SecureConnectionUsageLevel", Undefined);
 	ReceivingParameters.Insert("IsPackageDeliveryCheckOnErrorEnabled", True);
+	ReceivingParameters.Insert("ShouldCheckAccessToInternetServices", True);
 	
 	Return ReceivingParameters;
 	
@@ -56,9 +59,9 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Use GetFilesFromInternet.GetProxy instead.
-// Returns InternetProxy object for Internet access.
-// The following protocols are acceptable for creating InternetProxy: http, https, ftp, and ftps.
+// Deprecated. Instead, use GetFilesFromInternet.GetProxy.
+// Returns an InternetProxy object for Internet access.
+// Valid protocols to create InternetProxy: HTTP, HTTPS, FTP, and FTPS.
 //
 // Parameters:
 //    URLOrProtocol - String - URL in the following format: [Protocol://]<Server>/<Path to the file on the server>,
@@ -99,8 +102,8 @@ Function GetProxy(Val URLOrProtocol) Export
 	
 EndFunction
 
-// Deprecated. Obsolete. Use CommonUseClientServer.URIStructure.
-// Splits URL: protocol, server, path to resource.
+// Deprecated. Instead, use CommonClientServer.URIStructure.
+// Splits the URL into protocol, server, and path to resource.
 //
 // Parameters:
 //    URL - String - link to a web resource.
@@ -124,8 +127,8 @@ Function SplitURL(Val URL) Export
 	
 EndFunction
 
-// Deprecated. Obsolete. Use CommonUseClientServer.URIStructure.
-// Splits URL: protocol, server, path to resource. Splits the URI string and returns it as a structure.
+// Deprecated. Instead, use CommonClientServer.URIStructure.
+// Splits the URL into protocol, server, and path to resource. Splits the URI string and returns it as a structure.
 // The following normalizations are described based on RFC 3986.
 //
 // Parameters:

@@ -60,7 +60,7 @@ EndProcedure
 &AtClient
 Procedure FileStoragePresentationStartChoice(Item, ChoiceData, StandardProcessing)
 	
-	NotifyDescription = New NotifyDescription("FileStoragePresentationStartChoiceSelectionMade", ThisObject);
+	NotifyDescription = New CallbackDescription("FileStoragePresentationStartChoiceSelectionMade", ThisObject);
 	ShowChooseFromList(NotifyDescription, FileStorageNames, Items.FileStoragePresentation,
 		FileStorageNames.FindByValue(FileStorageName));
 		

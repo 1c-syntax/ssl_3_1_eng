@@ -312,7 +312,7 @@ Procedure ProcessExternalComponents(Selection, SubsystemVersionAtStartUpdates)
 
 			ComponentObject_SSLs = Selection.Ref.GetObject(); // CatalogObject.AddIns
 			If ShouldUpdateAddInSupportedPlatforms Then
-				ComponentObject_SSLs.TargetPlatforms = New ValueStorage(Attributes.TargetPlatforms);
+				ComponentObject_SSLs.TargetPlatforms = New ValueStorage(Attributes.TargetPlatforms, New Deflation(9));
 			EndIf;
 			
 			If ShouldUpdateScanAddInParameters And AddInAttributes.Id = "AddInNativeExtension" Then

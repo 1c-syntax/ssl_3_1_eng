@@ -143,7 +143,7 @@ EndProcedure
 //    ** CommandsWithVisibilityConditions - Array
 //    ** HasCommandsWithoutVisibilityConditions - Boolean
 //   * CommandsMarked - Array
-//   * RootSubmenuAndCommands - 
+//   * RootSubmenuAndCommands - See AttachableCommands.CommandRootSubmenuProperties
 //   * CommandsAvailability - Boolean
 //   * CommandsTableAddress - String
 //   * InputOnBasisUsingAttachableCommands - Boolean
@@ -246,6 +246,8 @@ Procedure RefreshSourceCommands(Val Form, Val Source, Val SourceName = "")
 		EndIf;
 	EndDo;
 	
+	OnUpdateMarkedCommands(Form, Source, ClientParameters.CommandsMarked);
+	
 	For Each CommandDetails In ClientParameters.CommandsMarked Do
 		If ValueIsFilled(SourceName) And CommandDetails.CommandsPrefix <> SourceName Then
 			Continue;
@@ -254,7 +256,7 @@ Procedure RefreshSourceCommands(Val Form, Val Source, Val SourceName = "")
 			If TypeOf(Source) = Type("FormTable") Then
 				TheExpressionComputingTheValueOfTheNotes = StrReplace(CommandDetails.CheckMarkValue, "%SOURCE%", Source.Name);	
 			Else
-				TheExpressionComputingTheValueOfTheNotes = CommandDetails.CheckMarkValue;
+				TheExpressionComputingTheValueOfTheNotes = StrReplace(CommandDetails.CheckMarkValue, "[""%SOURCE%""]", "");
 			EndIf;
 			
 			Form.Items[CommandDetails.NameOnForm].Check = Eval(TheExpressionComputingTheValueOfTheNotes); // ACC:488 The code being executed is safe.
@@ -275,6 +277,11 @@ Procedure RefreshSourceCommands(Val Form, Val Source, Val SourceName = "")
 		HideObjectUnlockCommand = HideObjectUnlockCommand(Form);
 		
 		For Each Command In SubmenuShortInfo.CommandsWithVisibilityConditions Do
+			
+			If Command.DefaultCommand Then
+				Continue;
+			EndIf;
+			
 			If ValueIsFilled(SourceName) And Command.CommandsPrefix <> SourceName Then
 				Continue;
 			EndIf;
@@ -318,6 +325,26 @@ Procedure RefreshSourceCommands(Val Form, Val Source, Val SourceName = "")
 			EndIf;
 		EndIf;
 	EndDo;
+EndProcedure
+
+Procedure OnUpdateMarkedCommands(Form, Source, CommandsMarked)
+	
+	If CommandsMarked.Count() = 0 Then
+		Return
+	EndIf;
+	
+	SourceType = TypeOf(Source);
+	
+	FormObjectReference = Undefined;
+	If SourceType = Type("FormDataStructure") Then
+		FormObjectReference = Source.Ref;
+	EndIf;
+	
+	If ValueIsFilled(FormObjectReference) Then
+		Result = AttachableCommandsServerCall.MainCommandsMarks(FormObjectReference, CommandsMarked);
+		FillPropertyValues(Form, Result);
+	EndIf;
+	
 EndProcedure
 
 Function CommandOwnerByCommandName(CommandName, Form) Export

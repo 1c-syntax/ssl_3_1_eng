@@ -76,28 +76,27 @@ EndProcedure
 ////////////////////////////////////////////////////////////////////////////////
 // Common procedures and functions to manage infobase data.
 
-// Returns a reference to the predefined item by its full name.
-// Only the following objects can contain predefined objects:
-//   - catalogs;
-//   - charts of characteristic types;
-//   - charts of accounts;
-//   - charts of calculation types.
-// After changing the list of predefined items, it is recommended that you run
-// the UpdateCachedValues() method to clear the cache for Cached modules in the current session.
+// Returns a reference to a predefined item by its full name in the following objects:
+//   - Catalogs
+//   - Charts of characteristic types
+//   - Chart of calculation types
+//   - See also "CommonClient.PredefinedItem".
+// After the composition of the predefined item is modified, call the method
 //
-// See Common.PredefinedItem
+// "UpdateCachedValues". 
+// 
 //
 // Parameters:
-//   FullPredefinedItemName - String - full path to the predefined item including the name.
-//     The format is identical to the PredefinedValue() global context function.
-//     Example:
+//   FullPredefinedItemName - String - Full name of a predefined item.
+//     The format is identical to the "PredefinedValue" global context function.:
+//       Example
 //       "Catalog.ContactInformationKinds.UserEmail"
 //       "ChartOfAccounts.SelfFinancing.Materials"
-//       "ChartOfCalculationTypes.Accruals.SalaryPayments".
+//                                         "ChartOfCalculationTypes.Accruals.SalaryPayments".
 //
 // Returns: 	
-//   AnyRef - reference to the predefined item.
-//   Undefined - if the predefined item exists in metadata but not in the infobase.
+//   AnyRef - Reference to the predefined item.
+//   Undefined - The item is missing from the metadata or infobase.
 //
 Function PredefinedItem(FullPredefinedItemName) Export
 	
@@ -249,9 +248,8 @@ Function IsLinuxClient() Export
 	
 	Return ClientPlatformType = PlatformType.Linux_x86
 		Or ClientPlatformType = PlatformType.Linux_x86_64
-		Or CommonClientServer.CompareVersions(SystemInfo.AppVersion, "8.3.22.1923") >= 0
-			And (ClientPlatformType = PlatformType["Linux_ARM64"]
-			Or ClientPlatformType = PlatformType["Linux_E2K"]);
+		Or ClientPlatformType = PlatformType["Linux_ARM64"]
+			Or ClientPlatformType = PlatformType["Linux_E2K"];
 	
 EndFunction
 
@@ -427,7 +425,7 @@ Function UniversalDate() Export
 	
 EndFunction
 
-// Convert a local date to the "YYYY-MM-DDThh:mm:ssTZD" format (ISO 8601).
+// Casts a local date to "YYYY-MM-DDThh:mm:ssTZD" (ISO 8601).
 //
 // See Common.LocalDatePresentationWithOffset
 //
@@ -511,8 +509,8 @@ EndFunction
 // 
 // Parameters:
 //  Parameter     - Array
-//               - AnyRef - the command parameter.
-//  ExpectedType - Type                 - the expected type.
+//               - AnyRef - Command parameter.
+//  ExpectedType - Type                 - Expected parameter type.
 //
 // Returns:
 //  Boolean - True if the parameter type matches the expected type.
@@ -564,7 +562,7 @@ EndFunction
 // See also: CommonClient.ShowArbitraryFormClosingConfirmation.
 //
 // Parameters:
-//  SaveAndCloseNotification  - NotifyDescription - name of the procedure to be called once the OK button is clicked.
+//  SaveAndCloseNotification  - CallbackDescription - name of the procedure to be called once the OK button is clicked.
 //  Cancel                        - Boolean - a return parameter that indicates whether the action is canceled.
 //  Exit             - Boolean - Indicates whether the form closes when a user exits the application.
 //  WarningText          - String - the warning message text. The default text is:
@@ -643,7 +641,7 @@ EndProcedure
 //  WarningText          - String - the warning message text.
 //  CloseFormWithoutConfirmationAttributeName - String - the name of the flag attribute that indicates whether
 //                                 to show the warning.
-//  CloseNotifyDescription    - NotifyDescription - name of the procedure to be called once the OK button is clicked.
+//  CloseNotifyDescription    - CallbackDescription - name of the procedure to be called once the OK button is clicked.
 //
 // Example: 
 //  WarningText = NStr("en = 'Close the wizard?'");
@@ -758,15 +756,24 @@ EndProcedure
 // Opens an attachment format selection form.
 //
 // Parameters:
-//  NotifyDescription  - NotifyDescription - a choice result handler.
+//  NotifyDescription  - CallbackDescription - a choice result handler.
 //  FormatSettings - Structure - default settings in the form of:
 //   * PackToArchive   - Boolean - shows whether it is necessary to archive attachments.
-//   * SaveFormats - Array - a list of the selected save formats.
+//   * SaveFormats - Array of String - a list of the selected save formats.
 //   * TransliterateFilesNames - Boolean - convert Cyrillic characters into the Latin ones.
+//   * Sign - Boolean - Sign the file with a digital signature.
 //  Owner - ClientApplicationForm - the form from which the attachment selection form is called.
 //
-Procedure ShowAttachmentsFormatSelection(NotifyDescription, FormatSettings, Owner = Undefined) Export
-	FormParameters = New Structure("FormatSettings", FormatSettings);
+Procedure ShowAttachmentsFormatSelection(NotifyDescription, FormatSettings = Undefined, Owner = Undefined) Export
+	If FormatSettings <> Undefined Then
+		FormParameters = New Structure;
+		FormParameters.Insert("PackToArchive", FormatSettings.PackToArchive);
+		FormParameters.Insert("SaveFormats", FormatSettings.SaveFormats);
+		FormParameters.Insert("TransliterateFilesNames", FormatSettings.TransliterateFilesNames);
+		FormParameters.Insert("Sign", FormatSettings.Sign);
+	Else
+		FormParameters = Undefined;
+	EndIf;	
 	OpenForm("CommonForm.SelectAttachmentFormat", FormParameters, , , , ,
 		NotifyDescription, FormWindowOpeningMode.LockOwnerWindow);
 EndProcedure
@@ -782,7 +789,7 @@ EndProcedure
 // Opens the multiline text edit form.
 //
 // Parameters:
-//  ClosingNotification1     - NotifyDescription - the details of the procedure to be called 
+//  ClosingNotification1     - CallbackDescription - the details of the procedure to be called 
 //                            when the text entry form is closed. Contains the same parameters as method
 //                            ShowInputString.
 //  MultilineText      - String - a text to be edited;
@@ -838,7 +845,7 @@ Procedure ShowCommentEditingForm(
 	Context.Insert("OwnerForm", OwnerForm);
 	Context.Insert("AttributeName", AttributeName);
 	
-	Notification = New NotifyDescription(
+	Notification = New CallbackDescription(
 		"CommentInputCompletion", 
 		CommonInternalClient, 
 		Context);
@@ -885,7 +892,7 @@ EndProcedure
 #Region Styles
 
 ////////////////////////////////////////////////////////////////////////////////
-// Functions to manage style colors in the client code.
+// Functions to manage style colors in client-side code.
 
 // Gets the style color by a style item name.
 //
@@ -919,8 +926,7 @@ EndFunction
 
 #Region AddIns
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions to connect and install add-ins from configuration templates.
+#Region ProceduresAndFunctionsToAttachAndInstallAddInsFromConfigurationTemplates
 
 // Returns a structure of parameters for the AttachAddInFromTemplate procedure.
 //
@@ -938,10 +944,11 @@ EndFunction
 //                 If Undefined, the add-in is executed according to the default 1C:Enterprise settings
 //                 Isolatedly if the add-in supports only isolated execution; otherwise, non-isolatedly.:
 //                 By default, Undefined.
-//                 See https://its.1c.eu/db/v83doc
-//                                              #bookmark:dev:TI000001866
-//      * AutoUpdate - Boolean - Flag indicating whether UpdateFrom1CITSPortal will be set to True, 
-//                 if SuggestToImport is set to True. By default, True.
+//                 See https://its.1c.eu/db/v83doc#bookmark:dev:TI000001866
+//      * AutoUpdate - Boolean -  
+//                 
+//      * ShowInstallationIssue - Boolean - 
+//                 
 //
 //
 // Example:
@@ -960,6 +967,7 @@ Function AddInAttachmentParameters() Export
 	Parameters.Insert("ObjectsCreationIDs", New Array);
 	Parameters.Insert("Isolated", Undefined);
 	Parameters.Insert("AutoUpdate", True);
+	Parameters.Insert("ShowInstallationIssue", True);
 	
 	Return Parameters;
 	
@@ -970,7 +978,7 @@ EndFunction
 // Web client can display dialog with installation tips.
 //
 // Parameters:
-//  Notification - NotifyDescription - connection notification details with the following parameters:
+//  Notification - CallbackDescription - connection notification details with the following parameters:
 //      * Result - Structure - add-in attachment result:
 //          ** Attached         - Boolean - attachment flag.
 //          ** Attachable_Module - AddInObject  - an instance of the add-in;
@@ -1068,7 +1076,7 @@ EndFunction
 // The add-inn must be stored in the configuration template in as a ZIP file.
 //
 // Parameters:
-//  Notification - NotifyDescription - notification details of add-in installation:
+//  Notification - CallbackDescription - notification details of add-in installation:
 //      * Result - Structure - Install component result:
 //          ** IsSet    - Boolean - Installation flag.
 //          ** ErrorDescription - String - brief error message. Empty string on cancel by user.
@@ -1092,7 +1100,7 @@ EndFunction
 //  &AtClient
 //  Procedure InstallAddInEnd(Result, AdditionalParameters) Export
 //
-//      If Not Result.Installed and Not EmptyString(Result.ErrorDetails) Then 
+//      If Not Result.Installed and Not IsBlankString(Result.ErrorDetails) Then 
 //          ShowMessageBox (, Result.ErrorDetails);
 //      EndIf;
 //
@@ -1114,6 +1122,8 @@ Procedure InstallAddInFromTemplate(Notification, FullTemplateName, InstallationP
 	CommonInternalClient.InstallAddInSSL(Context);
 	
 EndProcedure
+
+#EndRegion
 
 #Region ForCallsFromOtherSubsystems
 
@@ -1210,7 +1220,7 @@ EndFunction
 // Parameters:
 //  RestartSession - Boolean - If True, after the COM connector is registered,
 //      the session restart dialog box is called.
-//  Notification - NotifyDescription - notification on registration result:
+//  Notification - CallbackDescription - notification on registration result:
 //      * IsRegistered - Boolean - True if the COM connector is registered without errors.
 //      * AdditionalParameters - Arbitrary - a value that was specified 
 //            when creating the NotifyDescription object.
@@ -1231,7 +1241,7 @@ Procedure RegisterCOMConnector(Val RestartSession = True,
 #If Not WebClient And Not MobileClient Then
 		ApplicationStartupParameters.CurrentDirectory = BinDir();
 #EndIf
-		ApplicationStartupParameters.Notification = New NotifyDescription(
+		ApplicationStartupParameters.Notification = New CallbackDescription(
 			"RegisterCOMConnectorOnCheckRegistration", CommonInternalClient, Context);
 		ApplicationStartupParameters.WaitForCompletion = True;
 		
@@ -1315,21 +1325,21 @@ EndProcedure
 Procedure GoToLink(Ref) Export
 	
 #If ThickClientOrdinaryApplication Then
-		// 1C:Enterprise design aspect: GotoURL is not supported by ordinary applications running in the thick client mode.
-		Notification = New NotifyDescription;
-		BeginRunningApplication(Notification, Ref);
+	// GotoURL is not supported by ordinary applications running in the thick client.
+	Notification = New CallbackDescription;
+	BeginRunningApplication(Notification, Ref);
 #Else
-		GotoURL(Ref);
+	GotoURL(Ref);
 #EndIf
 	
 EndProcedure
 
-// Deprecated. Instead, use FileSystemClient.AttachFileOperationsExtension
+// Deprecated. Instead, use "FileSystemClient.Attach1CEnterpriseExtension"
 // Prompts the user to install 1C:Enterprise Extension in the web client.
 // Incorporate the procedure at the beginning of code areas that process files.
 //
 // Parameters:
-//   OnCloseNotifyDescription    - NotifyDescription - the description of the procedure
+//   OnCloseNotifyDescription    - CallbackDescription - the description of the procedure
 //                                    to be called once a form is closed. Parameters:
 //                                      ExtensionAttached - Boolean - True if the extension is attached.
 //                                      AdditionalParameters - Arbitrary - the parameters specified in
@@ -1353,26 +1363,22 @@ EndProcedure
 //        // …
 //      EndIf;
 //
-Procedure ShowFileSystemExtensionInstallationQuestion(
-		OnCloseNotifyDescription, 
-		SuggestionText = "", 
-		CanContinueWithoutInstalling = True) Export
+Procedure ShowFileSystemExtensionInstallationQuestion(OnCloseNotifyDescription, 
+		SuggestionText = "", CanContinueWithoutInstalling = True) Export
 	
-	FileSystemClient.AttachFileOperationsExtension(
-		OnCloseNotifyDescription, 
-		SuggestionText, 
-		CanContinueWithoutInstalling);
+	FileSystemClient.Attach1CEnterpriseExtension(OnCloseNotifyDescription, 
+		SuggestionText, CanContinueWithoutInstalling);
 	
 EndProcedure
 
-// Deprecated. Instead, use FileSystemClient.AttachFileOperationsExtension
-// Prompts the user to attach 1C:Enterprise Extension in the web client and, if the user refuses, displays a warning that it is impossible to proceed.
-// Incorporate the procedure at the beginning of code areas that deal with files that require this extension.
-// 
-// 
+// Deprecated. Instead, use "FileSystemClient.Attach1CEnterpriseExtension"
+// Prompts the user to install 1C:Enterprise Extension in the web client.
+// If the user opts out, a dialog pops up notifying that the operation is aborted.
+// The procedure is intended for use at the beginning of code sections where file operations
+// are performed only when the extension is attached.
 //
 // Parameters:
-//  OnCloseNotifyDescription - NotifyDescription - the description of the procedure to be called if the extension
+//  OnCloseNotifyDescription - CallbackDescription - the description of the procedure to be called if the extension
 //                                                     is attached. Parameters:
 //                                                      Result - Boolean - always True.
 //                                                      AdditionalParameters - Undefined
@@ -1396,14 +1402,14 @@ Procedure CheckFileSystemExtensionAttached(OnCloseNotifyDescription, Val Suggest
 	
 	Parameters = New Structure("OnCloseNotifyDescription,WarningText", 
 		OnCloseNotifyDescription, WarningText, );
-	Notification = New NotifyDescription("CheckFileSystemExtensionAttachedCompletion",
+	Notification = New CallbackDescription("CheckFileSystemExtensionAttachedCompletion",
 		CommonInternalClient, Parameters);
-	FileSystemClient.AttachFileOperationsExtension(Notification, SuggestionText);
+	FileSystemClient.Attach1CEnterpriseExtension(Notification, SuggestionText);
 	
 EndProcedure
 
-// Deprecated. Instead, use FileSystemClient.AttachFileOperationsExtension
-// Returns the value of the "Prompt to install 1C:Enterprise Extension" user setting.
+// Deprecated. Instead, use "FileSystemClient.Attach1CEnterpriseExtension".
+// Returns the user setting "SuggestFileSystemExtensionInstallation".
 //
 // Returns:
 //  Boolean - True if the installation prompt is on.
@@ -1423,7 +1429,7 @@ EndFunction
 //
 // Parameters:
 //  PathToFile - String - Full path to the file to open.
-//  Notification - NotifyDescription - notification on file open attempt.
+//  Notification - CallbackDescription - notification on file open attempt.
 //      If the notification is not specified and an error occurs, the method shows a warning:
 //      * ApplicationStarted - Boolean - True if the external application opened successfully.
 //      * AdditionalParameters - Arbitrary - a value that was specified on creating the NotifyDescription object.
@@ -1476,7 +1482,7 @@ EndProcedure
 //
 // Parameters:
 //  URL - String - a link to open.
-//  Notification - NotifyDescription - notification on file open attempt.
+//  Notification - CallbackDescription - notification on file open attempt.
 //      If the notification is not specified and an error occurs, the method shows a warning:
 //      * ApplicationStarted - Boolean - True if the external application opened successfully.
 //      * AdditionalParameters - Arbitrary - a value that was specified on creating the NotifyDescription object.
@@ -1498,7 +1504,7 @@ EndProcedure
 // Gets temporary directory name.
 //
 // Parameters:
-//  Notification - NotifyDescription - notification on getting directory name attempt:
+//  Notification - CallbackDescription - notification on getting directory name attempt:
 //      * DirectoryName             - String - path to the directory.
 //      * AdditionalParameters - Structure - a value that was specified on creating the NotifyDescription object.
 //  Extension - String - the suffix in the directory name, which helps to identify the directory for analysis.

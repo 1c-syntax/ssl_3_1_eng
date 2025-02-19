@@ -65,7 +65,7 @@ Procedure CloseForm(Command)
 	
 EndProcedure
 
-// Idle handlers.
+// Обработчики ожидания
 
 &AtClient
 Procedure TimeConsumingOperationIdleHandler()
@@ -102,7 +102,7 @@ EndProcedure
 
 #Region Private
 
-// Built-in part.
+// Поставляемая часть
 
 &AtClient
 Procedure ChangeNavigationNumber(Iterator_SSLy)
@@ -402,8 +402,7 @@ Procedure GoBack()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Overridable part - internal procedures and functions
+#Region OverridablePartUtilityProceduresAndFunctions
 
 &AtServer
 Procedure DeleteStandaloneWorkstation1(Cancel, ErrorMessage = "")
@@ -413,7 +412,6 @@ Procedure DeleteStandaloneWorkstation1(Cancel, ErrorMessage = "")
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Delete standalone workstation';");
 	ExecutionParameters.RunNotInBackground1 = False;
-	ExecutionParameters.RunInBackground   = True;
 	
 	BackgroundJob = TimeConsumingOperations.ExecuteInBackground(
 		"StandaloneModeInternal.DeleteStandaloneWorkstation1",
@@ -442,8 +440,9 @@ Procedure WriteErrorToEventLog(ErrorMessageString, Event)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Overridable part - navigation event handlers
+#EndRegion
+
+#Region OverridablePartNavigationEventHandlers
 
 &AtClient
 Function Attachable_WaitTimeConsumingOperationProcessing(Cancel, GoToNext)
@@ -501,8 +500,9 @@ Function JobCompleted(JobID)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Overridable part - wizard navigation initialization
+#EndRegion
+
+#Region OverridablePartWizardNavigationInitialization
 
 &AtServer
 Procedure SetMainScenario()
@@ -526,5 +526,7 @@ Procedure SetMainScenario()
 	NewNavigation = NavigationTableNewRow("End", "NavigationEndPage");
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

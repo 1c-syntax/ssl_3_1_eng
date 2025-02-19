@@ -12,21 +12,21 @@
 
 // StandardSubsystems
 
-// 
+// Global variable storage.
 //
-// 
-//   
-//   
+// ApplicationParameters - Map of KeyValue:
+//   * Key - String - Variable name in the format "LibraryName.VarName".
+//   * Value - Arbitrary - Variable value.
 //
-// 
-//   
-//   
-//     
-//   
+// Initialization example:
+//   ParameterName = StardardSubsystems.MessagesForEventLog";
+//   If ApplicationParameters[ИмяПараметра] = Undefined Then
+//     ApplicationParameters.Insert(ParameterName, New ValueList);
+//   EndIf;
 //  
-// 
-//   
-//   
+// Usage example:
+//   ApplicationParameters["StardardSubsystems.MessagesForEventLog"].Add(...);
+//   ApplicationParameters["StardardSubsystems.MessagesForEventLog"] = ...;
 Var ApplicationParameters Export;
 
 // End StandardSubsystems

@@ -19,7 +19,7 @@ Procedure SetBackupSettings(Val Settings, Val User = Undefined) Export
 	Common.CommonSettingsStorageSave("BackupParameters", "", Settings);
 	If User <> Undefined Then
 		CopyingParameters = New Structure("User", User);
-		Constants.BackupParameters.Set(New ValueStorage(CopyingParameters));
+		Constants.BackupParameters.Set(New ValueStorage(CopyingParameters, New Deflation(9)));
 	EndIf;
 EndProcedure
 
@@ -78,8 +78,7 @@ Function BackupDataProcessorURL() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // Parameters:
 //   ToDoList - See ToDoListServer.ToDoList.
@@ -172,6 +171,8 @@ Procedure OnEnableSecurityProfiles() Export
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -500,6 +501,7 @@ Function PrepareCommonScriptParameters(Val ScriptParameters) Export
 	TextParameters["[UseCOMConnector]"] = ?(ScriptParameters.IsBaseConfigurationVersion, "false", "true");
 	TextParameters["[OneCEnterpriseStartupParameters]"] = PrepareText(ScriptParameters.OneCEnterpriseStartupParameters);
 	TextParameters["[UnlockCode1]"] = "Backup";
+	TextParameters["[COMConnectorPath]"] = PrepareText(ScriptParameters.COMConnectorPath);
 	
 	Return TextParameters;
 	
@@ -536,7 +538,7 @@ Function ScriptMessages()
 	Messages["[ExceptionDetailsMessage]"] = NStr("en = 'Exception at the application start: {0}, {1}';");
 	Messages["[MessageLaunchResult]"] = NStr("en = 'Return code: {0}';");
 	Messages["[StartupFailureMessage]"] = NStr("en = 'The executable file does not exist: {0}';");
-	Messages["[MessageLogging1S]"] = NStr("en = 'Exception when writing Event log: {0}, {1}';");
+	Messages["[MessageLogging1S]"] = NStr("en = 'Exception when writing event log: {0}, {1}';");
 	Messages["[TheMessageIsThePathToTheScriptFile]"] = NStr("en = 'Script file: {0}';");
 	Messages["[MessagePathToTheBackupFile]"] = NStr("en = 'Backup file: {0}';");
 	Messages["[TheMessageIsTheResultOfCreatingABackupCopyOfTheDatabase]"] = NStr("en = 'Backed up';");
@@ -546,14 +548,14 @@ Function ScriptMessages()
 	Messages["[MessageCOMConnectorVersion]"] = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Version %1: {0} {1}';"), "comcntr.dll");
 	Messages["[TheMessageConnectionFailureWithTheDatabase]"] = NStr("en = 'Exception during COM connection creation at the step: {0}, {1}, {2}';");
-	Messages["[TheMessageLoggingFailure1S]"] = NStr("en = 'Exception when writing data to Event log: {0}, {1}';");
+	Messages["[TheMessageLoggingFailure1S]"] = NStr("en = 'Exception when writing data to event log: {0}, {1}';");
 	Messages["[TheMessageFailureWhenCallingCompleteBackup]"] = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Exception when calling %1: {0}, {1}';"), "IBBackupServer.FinishBackup");
 	Messages["[TheMessageDatabaseBackupResult]"] = NStr("en = 'Infobase is backed up.';");
 	Messages["[TheMessageDatabaseBackupFailure]"] = NStr("en = 'An unexpected error occurred while backing up the infobase.';");
 	Messages["[TheMessageDatabaseParameters]"] = NStr("en = 'Infobase parameters: {0}.';");
 	Messages["[MessageBackupLogging1S]"] = NStr("en = 'The backup protocol is saved to the event log.';");
-	Messages["[LoggingFailureMessage]"] = NStr("en = 'Exception when writing data to Event log: {0}, {1}';");
+	Messages["[LoggingFailureMessage]"] = NStr("en = 'Exception when writing data to log: {0}, {1}';");
 	Messages["[MessageBackupFileSizeInMb]"] = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Infobase ""%1"" file size: {0} MB';"), "1Cv8.1CD");
 	Messages["[TheMessageFailedToCompressTheBackupFileINZIP]"] = StringFunctionsClientServer.SubstituteParametersToString(

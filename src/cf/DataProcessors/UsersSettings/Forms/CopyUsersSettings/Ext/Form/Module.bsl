@@ -89,7 +89,7 @@ Procedure UserStartChoice(Item, ChoiceData, StandardProcessing)
 			UsersTypeSelection.Add("ExternalUsers", NStr("en = 'External users';"));
 			UsersTypeSelection.Add("Users", NStr("en = 'Users';"));
 			
-			Notification = New NotifyDescription("UserStartChoiceCompletion", ThisObject, FilterParameters);
+			Notification = New CallbackDescription("UserStartChoiceCompletion", ThisObject, FilterParameters);
 			UsersTypeSelection.ShowChooseItem(Notification);
 			Return;
 		Else
@@ -172,7 +172,7 @@ Procedure SelectSettings(Item)
 	FormParameters = New Structure("User, SettingsOperation, ClearSettingsSelectionHistory",
 		UserRef, "Copy", ClearSettingsSelectionHistory);
 	OpenForm("DataProcessor.UsersSettings.Form.SettingsChoice", FormParameters, ThisObject,,,,
-		New NotifyDescription("SelectSettingsAfterChoice", ThisObject));
+		New CallbackDescription("SelectSettingsAfterChoice", ThisObject));
 	
 EndProcedure
 
@@ -255,7 +255,7 @@ Procedure Copy(Command)
 			Or (SettingsToCopyRadioButton = "CopySelectedSettings1"
 			And SelectedSettings.Interface.Count() <> 0) Then
 			
-			ClosingNotification1 = New NotifyDescription("CopyFollowUp", ThisObject);
+			ClosingNotification1 = New CallbackDescription("CopyFollowUp", ThisObject);
 			
 			FormParameters = New Structure;
 			FormParameters.Insert("Action", Command.Name);
@@ -389,7 +389,7 @@ Procedure CopySettings(CommandName)
 			QuestionButtons.Add("OK", NStr("en = 'OK';"));
 			QuestionButtons.Add("ShowReport", NStr("en = 'View report';"));
 			
-			Notification = New NotifyDescription("CopySettingsShowQueryBox", ThisObject, Report);
+			Notification = New CallbackDescription("CopySettingsShowQueryBox", ThisObject, Report);
 			ShowQueryBox(Notification, QueryText, QuestionButtons,, QuestionButtons[0].Value);
 			Return;
 		EndIf;

@@ -31,34 +31,29 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.Attendees.Title = TitleParticipantsMail;
 	EndIf;
 	
-	
-	
 	If TypeOf(Parameters.Filter) = Type("Structure") Then
 		
 		TitleTemplate1 = NStr("en = 'Interactions on: %1';");
-		
 		If Parameters.Filter.Property("SubjectOf") Then
 			
-			If TypeOf(Parameters.AdditionalParameters) = Type("Structure") 
-				And Parameters.AdditionalParameters.Property("InteractionType") Then
-				
-				If Parameters.AdditionalParameters.InteractionType = "Interaction" Then
-					SubjectForFilter = Interactions.GetSubjectValue(Parameters.Filter.SubjectOf);
-					Parameters.Filter.SubjectOf = SubjectForFilter ;
-				ElsIf Parameters.AdditionalParameters.InteractionType = "SubjectOf" Then
-					SubjectForFilter = Parameters.Filter.SubjectOf;
-				EndIf;
+			If Parameters.InteractionType = "Interaction" Then
+				SubjectForFilter = Interactions.GetSubjectValue(Parameters.Filter.SubjectOf);
+				Parameters.Filter.SubjectOf = SubjectForFilter ;
+			ElsIf Parameters.InteractionType = "SubjectOf" Then
+				SubjectForFilter = Parameters.Filter.SubjectOf;
 			EndIf;
 			
 			Parameters.Filter.Delete("SubjectOf");
 			SetFilterBySubject();
 			
-			Title = StringFunctionsClientServer.SubstituteParametersToString(TitleTemplate1, Common.SubjectString(SubjectForFilter));
+			Title = StringFunctionsClientServer.SubstituteParametersToString(TitleTemplate1, 
+				Common.SubjectString(SubjectForFilter));
 			
 		ElsIf Parameters.Filter.Property("Contact") Then
 			
 			Contact = Parameters.Filter.Contact;
-			Title = StringFunctionsClientServer.SubstituteParametersToString(TitleTemplate1, Common.SubjectString(Contact));
+			Title = StringFunctionsClientServer.SubstituteParametersToString(TitleTemplate1, 
+				Common.SubjectString(Contact));
 			Parameters.Filter.Delete("Contact");
 			SetFilterByContact();
 			
@@ -69,7 +64,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Interactions.FillSubmenuByInteractionType(Items.TreeInteractionType, ThisObject);
 	Interactions.FillSubmenuByInteractionType(Items.InteractionTypeList, ThisObject);
 	
-	InteractionType = ?(OnlyEmail,"AllEmails","All");
+	InteractionType = ?(OnlyEmail, "AllEmails", "All");
 	Status = "All";
 	
 EndProcedure
@@ -138,9 +133,7 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 			EndIf;
 			
 			For Each ChangedDocument In ArrayOfChangedDocuments Do
-				
 				Notify("WriteInteraction", ChangedDocument);
-				
 			EndDo;
 			
 		EndIf;
@@ -195,13 +188,9 @@ EndProcedure
 Procedure EmployeeResponsibleOnChange(Item)
 	
 	If Items.TreeListPages.CurrentPage = Items.ListPage Then
-		
 		InteractionsClientServer.QuickFilterListOnChange(ThisObject, Item.Name,, IsFilterBySubject);
-		
 	Else
-		
 		FillInteractionsTreeClient();
-		
 	EndIf;
 	
 EndProcedure
@@ -210,14 +199,10 @@ EndProcedure
 Procedure StatusOnChange(Item)
 	
 	If Items.TreeListPages.CurrentPage = Items.ListPage Then
-		
 		DateForFilter = CommonClient.SessionDate();
 		InteractionsClientServer.QuickFilterListOnChange(ThisObject,Item.Name, DateForFilter, IsFilterBySubject);
-		
 	Else
-		
 		FillInteractionsTreeClient();
-		
 	EndIf;
 	
 EndProcedure
@@ -225,7 +210,7 @@ EndProcedure
 &AtClient
 Procedure ListBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group)
 	
-	FillingValues = New Structure("SubjectOf,Contact",SubjectForFilter,Contact);
+	FillingValues = New Structure("SubjectOf,Contact", SubjectForFilter, Contact);
 	
 	InteractionsClient.ListBeforeAddRow(
 		Item,Cancel,Copy,OnlyEmail,DocumentsAvailableForCreation,
@@ -248,28 +233,28 @@ EndProcedure
 Procedure InteractionsTreeBeforeDeleteRow(Item, Cancel)
 	
 	Cancel = True;
-	If Items.InteractionsTree.SelectedRows.Count() > 0 Then
-		
-		HasItemsMarkedForDeletion = False;
-		For Each SelectedRow In Items.InteractionsTree.SelectedRows Do
-			If Items.InteractionsTree.RowData(SelectedRow).DeletionMark Then
-				HasItemsMarkedForDeletion = True;
-				Break;
-			EndIf;
-		EndDo;
-		
-		If HasItemsMarkedForDeletion Then
-			QueryText = NStr("en = 'Clear deletion mark from the selected items?';");
-		Else
-			QueryText = NStr("en = 'Mark the selected lines for deletion?';");
-		EndIf;
-		
-		AdditionalParameters = New Structure("HasItemsMarkedForDeletion", HasItemsMarkedForDeletion);
-		OnCloseNotifyHandler = New NotifyDescription("QuestionOnMarkForDeletionAfterCompletion", ThisObject, AdditionalParameters);
-		ShowQueryBox(OnCloseNotifyHandler,
-		               QueryText,QuestionDialogMode.YesNo);
-		
+	If Items.InteractionsTree.SelectedRows.Count() = 0 Then
+		Return;	
 	EndIf;
+
+	HasItemsMarkedForDeletion = False;
+	For Each SelectedRow In Items.InteractionsTree.SelectedRows Do
+		If Items.InteractionsTree.RowData(SelectedRow).DeletionMark Then
+			HasItemsMarkedForDeletion = True;
+			Break;
+		EndIf;
+	EndDo;
+	
+	If HasItemsMarkedForDeletion Then
+		QueryText = NStr("en = 'Clear deletion mark from the selected items?';");
+	Else
+		QueryText = NStr("en = 'Mark the selected lines for deletion?';");
+	EndIf;
+	
+	AdditionalParameters = New Structure("HasItemsMarkedForDeletion", HasItemsMarkedForDeletion);
+	OnCloseNotifyHandler = New CallbackDescription("QuestionOnMarkForDeletionAfterCompletion", 
+		ThisObject, AdditionalParameters);
+	ShowQueryBox(OnCloseNotifyHandler, QueryText, QuestionDialogMode.YesNo);
 	
 EndProcedure 
 
@@ -288,31 +273,35 @@ EndProcedure
 Procedure InteractionsTreeBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group)
 	
 	Cancel = True;
-	If Copy Then
-		CurrentData = Item.CurrentData;
-		If CurrentData <> Undefined Then
-			If TypeOf(CurrentData.Ref) = Type("DocumentRef.IncomingEmail") 
-				Or TypeOf(CurrentData.Ref) = Type("DocumentRef.OutgoingEmail") Then
-				
-				ShowMessageBox(, NStr("en = 'Copying messages is not allowed';"));
-				
-			ElsIf TypeOf(CurrentData.Ref) = Type("DocumentRef.Meeting") Then
-				
-				OpenForm("Document.Meeting.ObjectForm",
-					New Structure("CopyingValue", CurrentData.Ref), ThisObject);
-				
-			ElsIf TypeOf(CurrentData.Ref) = Type("DocumentRef.PlannedInteraction") Then
-				
-				OpenForm("Document.PlannedInteraction.ObjectForm",
-					New Structure("CopyingValue", CurrentData.Ref), ThisObject);
-				
-			ElsIf TypeOf(CurrentData.Ref) = Type("DocumentRef.PhoneCall") Then
-				
-				OpenForm("Document.PhoneCall.ObjectForm", 
-					New Structure("CopyingValue",CurrentData.Ref), ThisObject);
-				
-			EndIf;
-		EndIf;
+	If Not Copy Then
+		Return;
+	EndIf;
+
+	CurrentData = Item.CurrentData;
+	If CurrentData = Undefined Then
+		Return;
+	EndIf;
+
+	If TypeOf(CurrentData.Ref) = Type("DocumentRef.IncomingEmail") 
+		Or TypeOf(CurrentData.Ref) = Type("DocumentRef.OutgoingEmail") Then
+		
+		ShowMessageBox(, NStr("en = 'Copying messages is not allowed.';"));
+		
+	ElsIf TypeOf(CurrentData.Ref) = Type("DocumentRef.Meeting") Then
+		
+		OpenForm("Document.Meeting.ObjectForm",
+			New Structure("CopyingValue", CurrentData.Ref), ThisObject);
+		
+	ElsIf TypeOf(CurrentData.Ref) = Type("DocumentRef.PlannedInteraction") Then
+		
+		OpenForm("Document.PlannedInteraction.ObjectForm",
+			New Structure("CopyingValue", CurrentData.Ref), ThisObject);
+		
+	ElsIf TypeOf(CurrentData.Ref) = Type("DocumentRef.PhoneCall") Then
+		
+		OpenForm("Document.PhoneCall.ObjectForm", 
+			New Structure("CopyingValue", CurrentData.Ref), ThisObject);
+		
 	EndIf;
 	
 EndProcedure
@@ -339,10 +328,8 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-// Changes filter by the type of interaction in the list.
-// 
 // Parameters:
-//  Command - FormCommand - a running command.
+//  Command - FormCommand
 //
 &AtClient
 Procedure Attachable_ChangeFilterInteractionType(Command)
@@ -423,7 +410,7 @@ Procedure SetDateInterval(Command)
 	
 	Dialog = New StandardPeriodEditDialog();
 	Dialog.Period = Interval;
-	CloseNotificationHandler = New NotifyDescription("SelectClosingInterval", ThisObject);
+	CloseNotificationHandler = New CallbackDescription("SelectClosingInterval", ThisObject);
 	Dialog.Show(CloseNotificationHandler);
 	
 EndProcedure 
@@ -436,7 +423,7 @@ Procedure DeferReviewExecute(Command)
 	EndIf;
 	
 	ProcessingDate = CommonClient.SessionDate();
-	OnCloseNotifyHandler = New NotifyDescription("DateInputSubmitAfterFinished", ThisObject);
+	OnCloseNotifyHandler = New CallbackDescription("DateInputSubmitAfterFinished", ThisObject);
 	ShowInputDate(OnCloseNotifyHandler, ProcessingDate, NStr("en = 'Snooze till';"));
 	
 EndProcedure
@@ -473,11 +460,9 @@ EndProcedure
 Procedure CreateNewInteraction(ObjectType)
 
 	FillingValues = New Structure("SubjectOf,Contact",SubjectForFilter,Contact);
-	
-	InteractionsClient.CreateNewInteraction(
-	          ObjectType,
-	          New Structure("FillingValues", FillingValues),
-	          ThisObject);
+	InteractionsClient.CreateNewInteraction(ObjectType,
+		New Structure("FillingValues", FillingValues),
+		ThisObject);
 
 EndProcedure
 
@@ -1024,13 +1009,11 @@ Procedure ProcessDeletionMarkChangeInTree(Val SelectedRows,ClearMark);
 	
 EndProcedure 
 
-// Gets an array that is passed as a query parameter when getting contact interactions.
-//
 // Parameters:
-//  Contact  - AnyRef - a contact for which linked contacts are to be searched.
+//  Contact  - DefinedType.InteractionContact
 //
 // Returns:
-//  Array
+//  Array of DefinedType.InteractionContact
 //
 &AtServer
 Function ContactParameterDependingOnType(Contact)
@@ -1050,7 +1033,6 @@ Function ContactParameterDependingOnType(Contact)
 			|WHERE
 			|	CatalogContact.Ref = &Contact";
 			
-			
 			QueryText = StrReplace(QueryText, "&TableName", "Catalog." + DetailsArrayElement.Name);
 			Link = DetailsArrayElement.Link;
 			
@@ -1067,11 +1049,15 @@ Function ContactParameterDependingOnType(Contact)
 				|FROM
 				|	&TableName AS CatalogContact
 				|WHERE
-				|	CatalogContact." + Right(Link,StrLen(Link) - StrFind(Link,".")) + " = &Contact"; 
+				|	CatalogContact.NameOfTheComparisonProp = &Contact"; 
 				
-				
-				QueryText = StrReplace(QueryText, "&TableName", "Catalog." + Left(Link,StrFind(Link,".")-1));
-				QueryText = StrReplace(QueryText, "&NameOfTheComparisonProp", "CatalogContact." + Right(Link,StrLen(Link) - StrFind(Link,".")));
+				NameOfTheComparisonProp = Right(Link, StrLen(Link) - StrFind(Link, "."));
+				QueryText = StrReplace(QueryText, "NameOfTheComparisonProp", 
+					NameOfTheComparisonProp);
+				QueryText = StrReplace(QueryText, "&TableName", 
+					"Catalog." + Left(Link, StrFind(Link, ".") - 1));
+				QueryText = StrReplace(QueryText, "&NameOfTheComparisonProp", 
+					"CatalogContact." + NameOfTheComparisonProp);
 				HasAdditionalTables = True;
 				
 			EndIf;
@@ -1092,25 +1078,24 @@ Function ContactParameterDependingOnType(Contact)
 			|	CatalogContact.Owner = &Contact";
 			
 			QueryText = StrReplace(QueryText, "&TableName", "Catalog." + DetailsArrayElement.Name);
-			
 			HasAdditionalTables = True;
 			
 		EndIf;
 		
 	EndDo;
 	
-	If IsBlankString(QueryText) Or (Not HasAdditionalTables) Then
+	If IsBlankString(QueryText) Or Not HasAdditionalTables Then
 		Return New Array;
-	Else
-		Query = New Query(QueryText);
-		Query.SetParameter("Contact",Contact);
-		QueryResult = Query.Execute();
-		If QueryResult.IsEmpty() Then
-			Return New Array;
-		Else
-			Return QueryResult.Unload().UnloadColumn("Contact");
-		EndIf;
 	EndIf;
+
+	Query = New Query(QueryText);
+	Query.SetParameter("Contact",Contact);
+	QueryResult = Query.Execute();
+	If QueryResult.IsEmpty() Then
+		Return New Array;
+	EndIf;
+	
+	Return QueryResult.Unload().UnloadColumn("Contact");
 	
 EndFunction
 
@@ -1138,7 +1123,7 @@ Procedure SetFilterByContact()
 	FilterList.LoadValues(
 	Query.Execute().Unload().UnloadColumn("Ref"));
 	CommonClientServer.SetDynamicListFilterItem(List, 
-		"Ref",FilterList,DataCompositionComparisonType.InList,,True);
+		"Ref", FilterList,DataCompositionComparisonType.InList,, True);
 
 EndProcedure
 
@@ -1155,7 +1140,8 @@ EndProcedure
 Procedure QuestionOnMarkForDeletionAfterCompletion(QuestionResult, AdditionalParameters) Export
 	
 	If QuestionResult = DialogReturnCode.Yes Then
-		ProcessDeletionMarkChangeInTree(Items.InteractionsTree.SelectedRows, AdditionalParameters.HasItemsMarkedForDeletion);
+		ProcessDeletionMarkChangeInTree(Items.InteractionsTree.SelectedRows, 
+			AdditionalParameters.HasItemsMarkedForDeletion);
 	EndIf;
 	
 EndProcedure
@@ -1163,25 +1149,21 @@ EndProcedure
 &AtClient
 Procedure DateInputSubmitAfterFinished(EnteredDate, AdditionalParameters) Export
 
-	If EnteredDate <> Undefined Then
+	If EnteredDate = Undefined Then
+		Return;
+	EndIf;
 		
-		WasReplaced = False;
-		DeferReview(EnteredDate,WasReplaced);
-		
-		If Items.TreeListPages.CurrentPage = Items.ListPage Then
-			
-			If WasReplaced Then
-				Items.List.Refresh();
-			EndIf;
-			
-		Else
-			
-			If WasReplaced Then
-				ExpandAllTreeRows();
-			EndIf;
-			
+	WasReplaced = False;
+	DeferReview(EnteredDate,WasReplaced);
+	
+	If Items.TreeListPages.CurrentPage = Items.ListPage Then
+		If WasReplaced Then
+			Items.List.Refresh();
 		EndIf;
-		
+	Else
+		If WasReplaced Then
+			ExpandAllTreeRows();
+		EndIf;
 	EndIf;
 
 EndProcedure
@@ -1200,7 +1182,6 @@ EndProcedure
 Procedure OnChangeTypeServer()
 	
 	Interactions.ProcessFilterByInteractionsTypeSubmenu(ThisObject);
-	
 	InteractionsClientServer.OnChangeFilterInteractionType(ThisObject, InteractionType);
 	
 EndProcedure

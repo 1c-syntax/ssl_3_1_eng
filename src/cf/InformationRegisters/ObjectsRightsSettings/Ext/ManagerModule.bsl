@@ -719,8 +719,7 @@ Function RightsForObjectsRightsSettingsAvailable() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+#Region InfobaseUpdate
 
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
@@ -737,8 +736,9 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+#EndRegion
+
+#Region AuxiliaryProceduresAndFunctions
 
 Procedure AddHierarchyObjects(Ref, ObjectsArray)
 	
@@ -1314,6 +1314,8 @@ Function HierarchicalMetadataObject(MetadataObjectDetails)
 	Return MetadataObject.Hierarchical;
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion
 

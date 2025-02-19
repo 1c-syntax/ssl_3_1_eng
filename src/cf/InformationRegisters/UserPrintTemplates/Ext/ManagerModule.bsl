@@ -270,8 +270,13 @@ Function ObjectsTemplates(MetadataObjectIDs) Export
 	TemplatesList.Columns.Add("AvailableSettingVisibility");
 	TemplatesList.Columns.Add("Supplied");
 	TemplatesList.Columns.Add("IsPrintForm");
+	TemplatesList.Columns.Add("DefaultPrintForm");
+	TemplatesList.Columns.Add("PrintFormDescription");
 	TemplatesList.Columns.Add("AvailableCreate");
 	TemplatesList.Columns.Add("TemplateMetadataObjectName");
+	TemplatesList.Columns.Add("TemplateForObjectExport", New TypeDescription("Boolean"));
+	TemplatesList.Columns.Add("ExportSaveFormat");
+	TemplatesList.Columns.Add("PictureIndexForSaveFormat", New TypeDescription("Number"));
 	
 	TemplatesList.Indexes.Add("Owner");
 	
@@ -477,6 +482,15 @@ Procedure AddUserTemplates(TemplatesList, Val Id = Undefined, Val DataSources = 
 		Id = New UUID("00000000-0000-0000-0000-000000000000");
 	EndIf;
 	
+	ExportFormatExtensionMap = New Map;
+	If Common.SubsystemExists("StandardSubsystems.ExportObjectsToFiles") Then
+		
+		ModuleExportObjectsToFiles = Common.CommonModule("ExportObjectsToFiles");
+		ExportFormatExtensionMap = 
+			ModuleExportObjectsToFiles.ExportFormatSaveFormatMap();
+		
+	EndIf;
+	
 	QueryText =
 	"SELECT
 	|	PrintFormTemplates.Ref,
@@ -484,6 +498,10 @@ Procedure AddUserTemplates(TemplatesList, Val Id = Undefined, Val DataSources = 
 	|	PrintFormTemplates.Used,
 	|	PrintFormTemplates.TemplateType,
 	|	PrintFormTemplates.Id,
+	|	PrintFormTemplates.DefaultPrintForm AS DefaultPrintForm,
+	|	PrintFormTemplates.PrintFormDescription AS PrintFormDescription,
+	|	PrintFormTemplates.TemplateForObjectExport AS TemplateForObjectExport,
+	|	PrintFormTemplates.ObjectSaveFormat AS ExportSaveFormat,
 	|	PrintFormTemplatesDataSources.DataSource AS Owner
 	|FROM
 	|	Catalog.PrintFormTemplates.DataSources AS PrintFormTemplatesDataSources
@@ -508,6 +526,8 @@ Procedure AddUserTemplates(TemplatesList, Val Id = Undefined, Val DataSources = 
 	
 	TableOfTemplates = Query.Execute().Unload();
 	For Each TableRow In TableOfTemplates Do
+		
+		TemplateForObjectExport = TableRow.TemplateForObjectExport;
 		Template = TemplatesList.Add();
 		FillPropertyValues(Template, TableRow);
 		
@@ -538,7 +558,7 @@ Procedure AddUserTemplates(TemplatesList, Val Id = Undefined, Val DataSources = 
 		Template.AvailableLanguages = AvailableLayoutLanguages(Template.Id);
 
 		Template.Picture = PictureIndex(Template.TemplateType);
-		Template.PictureGroup = TemplateImage(Template.TemplateType);
+		Template.PictureGroup = TemplateImage(Template.TemplateType, TemplateForObjectExport);
 		Template.UsagePicture = -1;
 
 		If Template.Changed Then
@@ -549,6 +569,15 @@ Procedure AddUserTemplates(TemplatesList, Val Id = Undefined, Val DataSources = 
 			MetadataObjectTemplateOwner = Common.MetadataObjectByID(Template.Owner);
 			Template.AvailableCreate = Common.IsRefTypeObject(MetadataObjectTemplateOwner);
 		EndIf;
+		Template.TemplateForObjectExport = TemplateForObjectExport;
+		Template.ExportSaveFormat = TableRow.ExportSaveFormat;
+		If TemplateForObjectExport Then
+			
+			Extension = ExportFormatExtensionMap[Template.ExportSaveFormat];
+			Template.PictureIndexForSaveFormat = IndexOfFileIcon(Extension);
+			
+		EndIf;
+		
 	EndDo;
 	
 EndProcedure
@@ -608,18 +637,37 @@ Function PictureIndex(Val TemplateType) Export
 	
 EndFunction 
 
-Function TemplateImage(Val TemplateType)
+Function TemplateImage(Val TemplateType, TemplateForExport = False)
 	
-	TemplateTypes = New Map;
-	TemplateTypes.Insert("DOC", PictureLib.WordFormat);
-	TemplateTypes.Insert("DOCX", PictureLib.WordFormat2007);
-	TemplateTypes.Insert("ODT", PictureLib.OpenOfficeCalcFormat);
-	TemplateTypes.Insert("MXL", PictureLib.MXLFormat);
-	
-	Result = TemplateTypes[Upper(TemplateType)];
+	If TemplateForExport Then
+		
+		Result = PictureLib.SaveFileAs;
+		
+	Else
+		
+		TemplateTypes = New Map;
+		TemplateTypes.Insert("DOC", PictureLib.WordFormat);
+		TemplateTypes.Insert("DOCX", PictureLib.WordFormat2007);
+		TemplateTypes.Insert("ODT", PictureLib.OpenOfficeCalcFormat);
+		TemplateTypes.Insert("MXL", PictureLib.MXLFormat);
+		
+		Result = TemplateTypes[Upper(TemplateType)];
+		
+	EndIf;
 	Return ?(Result = Undefined, New Picture, Result);
 	
-EndFunction 
+EndFunction
+
+Function IndexOfFileIcon(Extension) Export
+	
+	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
+		ModuleFilesOperationsInternalClientServer = Common.CommonModule("FilesOperationsInternalClientServer");
+		Return ModuleFilesOperationsInternalClientServer.IndexOfFileIcon(Extension);
+	EndIf;
+	
+	Return 0;
+	
+EndFunction
 
 #EndRegion
 

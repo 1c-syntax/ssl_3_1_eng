@@ -35,7 +35,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// StandardSubsystems.AccessManagement
+// СтандартныеПодсистемы.УправлениеДоступом
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -53,15 +53,15 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// StandardSubsystems.ReportsOptions
+// СтандартныеПодсистемы.VariantsОтчетов
 
 // Defines the list of report commands.
 //
 // Parameters:
-//   ReportsCommands - ValueTable - a table with report commands. For changing.
-//       See details of parameter 1 of the ReportsOptionsOverridable.BeforeAddReportsCommands() procedure.
-//   Parameters - Structure - auxiliary parameters. For reading.
-//       See details of parameter 2 of the ReportsOptionsOverridable.BeforeAddReportsCommands() procedure.
+//   ReportsCommands - ValueTable - A table with report commands. For changing.
+//       See parameter 1 of the ReportsOptionsOverridable.BeforeAddReportCommands() procedure.
+//   Parameters - Structure - Auxiliary parameters. For reading.
+//       See parameter 2 of the ReportsOptionsOverridable.BeforeAddReportCommands() procedure.
 //
 Procedure AddReportCommands(ReportsCommands, Parameters) Export
 	
@@ -80,7 +80,7 @@ EndProcedure
 
 // End StandardSubsystems.ReportsOptions
 
-// StandardSubsystems.Print
+// СтандартныеПодсистемы.Печать
 
 // Generates print forms.
 //
@@ -108,7 +108,7 @@ EndProcedure
 
 // End StandardSubsystems.Print
 
-// StandardSubsystems.ObjectsVersioning
+// СтандартныеПодсистемы.ВерсионированиеОбъектов
 
 // Defines object settings for the ObjectsVersioning subsystem.
 //
@@ -448,8 +448,16 @@ Function RecipientsCountIncludingGroups(Val RecipientsParameters) Export
 		QueryText = StrReplace(QueryText, "Catalog.Users", RecipientsMetadata.FullName());
 
 	EndIf;
+	
+	TableOfRecipients = RecipientsParameters.Recipients.Unload();
+	EmptyRecipientValue = ?(TypeOf(RecipientsType) = Type("Type"), New (RecipientsType), Undefined);
+	SearchParameters = New Structure("Recipient", EmptyRecipientValue);
+	LinesWithoutRecipients = TableOfRecipients.FindRows(SearchParameters);
+	For Each RecipientRow In LinesWithoutRecipients Do
+		TableOfRecipients.Delete(RecipientRow);
+	EndDo;
 
-	Query.SetParameter("TableOfRecipients", RecipientsParameters.Recipients.Unload());
+	Query.SetParameter("TableOfRecipients", TableOfRecipients);
 	Query.Text = QueryText;
 
 	Try

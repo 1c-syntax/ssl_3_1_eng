@@ -143,8 +143,8 @@ EndProcedure
 Procedure OwnerWorkingDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	StandardProcessing = False;
-	Handler           = New NotifyDescription("FileSystemExtensionAttachedOwnerWorkingDirectorySelectionStartFollowUp", ThisObject);
-	FilesOperationsInternalClient.ShowFileSystemExtensionInstallationQuestion(Handler);
+	Handler = New CallbackDescription("FileSystemExtensionAttachedOwnerWorkingDirectorySelectionStartFollowUp", ThisObject);
+	FilesOperationsInternalClient.ShowQuestionOn1CEnterpriseExtensionInstallation(Handler);
 	
 EndProcedure
 
@@ -184,7 +184,7 @@ Procedure SyncSettings(Command)
 	
 EndProcedure
 
-// StandardSubsystems.Properties
+// СтандартныеПодсистемы.Свойства
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -205,8 +205,8 @@ EndProcedure
 &AtClient
 Procedure FileSystemExtensionAttachedOwnerWorkingDirectorySelectionStartFollowUp(Result, AdditionalParameters) Export
 	
-	If Not FilesOperationsInternalClient.FileSystemExtensionAttached1() Then
-		FilesOperationsInternalClient.ShowFileSystemExtensionRequiredMessageBox(Undefined);
+	If Not FilesOperationsInternalClient.Is1CEnterpriseExtensionAttached() Then
+		FilesOperationsInternalClient.Show1CEnterpriseExtensionRequiredMessageBox(Undefined);
 		Return;
 	EndIf;
 	
@@ -301,7 +301,7 @@ Procedure UpdateCommandsAvailabilityByRightsSetting()
 	
 EndProcedure
 
-// StandardSubsystems.Properties
+// СтандартныеПодсистемы.Свойства
 
 &AtServer
 Procedure UpdateAdditionalAttributesItems()
@@ -382,36 +382,13 @@ Procedure UpdateCloudServiceNote()
 	
 	If GetFunctionalOption("UseFileSync") Then
 	
-		Query = New Query;
-		Query.Text = 
-			"SELECT TOP 1
-			|	FilesSynchronizationWithCloudServiceStatuses.File,
-			|	FilesSynchronizationWithCloudServiceStatuses.Href,
-			|	FilesSynchronizationWithCloudServiceStatuses.Account.Description,
-			|	FilesSynchronizationWithCloudServiceStatuses.Account.Service AS Service
-			|FROM
-			|	InformationRegister.FilesSynchronizationWithCloudServiceStatuses AS FilesSynchronizationWithCloudServiceStatuses
-			|WHERE
-			|	FilesSynchronizationWithCloudServiceStatuses.File = &FileOwner";
-		
-		Query.SetParameter("FileOwner", Object.Ref);
-		
-		QueryResult = Query.Execute();
-		
-		SelectionDetailRecords = QueryResult.Select();
-		
-		While SelectionDetailRecords.Next() Do
-			
-			FolderAddressInCloudService = FilesOperationsInternalClientServer.AddressInCloudService(
-				SelectionDetailRecords.Service, SelectionDetailRecords.Href);
-			
+		SynchronizationInfo = FilesOperationsInternal.SynchronizationInfo(Object.Ref);
+		If SynchronizationInfo <> Undefined Then
 			NoteVisibility = True;
-			
 			Items.DecorationNote.Title = StringFunctions.FormattedString(
 				NStr("en = 'The files are stored in cloud service <a href=""%1"">%2</a>.';"),
-				String(FolderAddressInCloudService), String(SelectionDetailRecords.AccountDescription));
-			
-		EndDo;
+				SynchronizationInfo.FolderAddressInCloudService, SynchronizationInfo.AccountDescription1);
+		EndIf;
 		
 	EndIf;
 	

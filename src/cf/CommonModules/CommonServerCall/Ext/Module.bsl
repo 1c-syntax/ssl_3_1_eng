@@ -15,42 +15,24 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Common procedures and functions to manage infobase data.
 
-// Checks whether there are references to the object in the infobase.
-// When called in a shared session, does not find references in separated areas.
-//
-// See Common.RefsToObjectFound
+// Checks posting status of the passed documents and returns the unposted documents.
 //
 // Parameters:
-//  RefOrRefArray - AnyRef
-//                        - Array - an object or a list of objects.
-//  SearchInInternalObjects - Boolean - If True, exceptions defined during configuration development
-//      are ignored while searching for references.
-//      For more details on exceptions during reference search
-//      See CommonOverridable.OnAddReferenceSearchExceptions
+//  Var_Documents - Array of DocumentRef - documents to check.
 //
 // Returns:
-//  Boolean - True if any references to the object are found.
+//  Structure:
+//    * UnpostedDocuments - Array of DocumentRef
+//    * HasPostingRight - Boolean
 //
-Function RefsToObjectFound(Val RefOrRefArray, Val SearchInInternalObjects = False) Export
+Function UnpostedDocuments(Val Var_Documents) Export
 	
-	Return Common.RefsToObjectFound(RefOrRefArray, SearchInInternalObjects);
-	
-EndFunction
-
-// Checks posting status of the passed documents and returns
-// the unposted documents.
-//
-// See Common.CheckDocumentsPosting
-//
-// Parameters:
-//  Var_Documents - Array - documents to check.
-//
-// Returns:
-//  Array - unposted documents.
-//
-Function CheckDocumentsPosting(Val Var_Documents) Export
-	
-	Return Common.CheckDocumentsPosting(Var_Documents);
+	Result = New Structure;
+	Result.Insert("UnpostedDocuments", 
+		Common.CheckDocumentsPosting(Var_Documents));
+	Result.Insert("HasPostingRight", 
+		StandardSubsystemsServer.HasRightToPost(Result.UnpostedDocuments));
+	Return Result;
 	
 EndFunction
 
@@ -119,9 +101,9 @@ EndProcedure
 // Parameters:
 //   MultipleSettings - Array - with the following values:
 //     * Value - Structure:
-//         * Object    - String       - see the ObjectKey parameter in the Syntax Assistant.
-//         * Setting - String       - see the SettingsKey parameter in the Syntax Assistant.
-//         * Value  - Arbitrary - see the Settings parameter in the Syntax Assistant.
+//         * Object    - String       - See the "ObjectKey" parameter in Syntax Assistant.
+//         * Setting - String       - See the "SettingsKey" parameter in Syntax Assistant.
+//         * Value  - Arbitrary - See "Settings" parameter in Syntax Assistant.
 //
 //   RefreshReusableValues - Boolean - the flag that indicates whether to execute the method.
 //
@@ -375,6 +357,47 @@ EndProcedure
 
 #EndRegion
 
+#Region ObsoleteProceduresAndFunctions
+
+// Deprecated. Open the form from a long-running operation and call the "Common.RefsToObjectFound" function from it.
+// It checks for the existence of references to the object in the database.
+// When called in a shared session, it does not detect references in separated areas.
+//
+// Parameters:
+//  RefOrRefArray - AnyRef
+//                        - Array - an object or a list of objects.
+//  SearchInInternalObjects - Boolean - If True, exceptions defined during configuration development
+//      are ignored while searching for references.
+//      For more details on exceptions during reference search
+//      See CommonOverridable.OnAddReferenceSearchExceptions
+//
+// Returns:
+//  Boolean - True if any references to the object are found.
+//
+Function RefsToObjectFound(Val RefOrRefArray, Val SearchInInternalObjects = False) Export
+	
+	Return Common.RefsToObjectFound(RefOrRefArray, SearchInInternalObjects);
+	
+EndFunction
+
+// Deprecated. Instead, use the "UnpostedDocuments" function.
+// Checks posting status of the passed documents and returns
+// the unposted documents.
+//
+// Parameters:
+//  Var_Documents - Array of DocumentRef - documents to check.
+//
+// Returns:
+//  Array of DocumentRef - unposted documents.
+//
+Function CheckDocumentsPosting(Val Var_Documents) Export
+	
+	Return Common.CheckDocumentsPosting(Var_Documents);
+	
+EndFunction
+
+#EndRegion
+
 #EndRegion
 
 #Region Private
@@ -382,7 +405,7 @@ EndProcedure
 #Region Styles
 
 ////////////////////////////////////////////////////////////////////////////////
-// Functions to manage style colors in the client code.
+// Functions to manage style colors in client-side code.
 
 // See CommonClient.StyleColor
 Function StyleColor(Val StyleColorName) Export

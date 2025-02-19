@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<AutoTitle>false</AutoTitle>
 	<CommandBarLocation>None</CommandBarLocation>
 	<AutoCommandBar name="FormCommandBar" id="-1"/>
@@ -93,6 +93,117 @@
 			<Behavior>Usual</Behavior>
 			<ExtendedTooltip name="SetupGroupExtendedTooltip" id="122"/>
 			<ChildItems>
+				<UsualGroup name="TransportTypeSelectionGroup" id="167">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Select connection type</v8:content>
+						</v8:item>
+					</Title>
+					<Group>AlwaysHorizontal</Group>
+					<Behavior>Usual</Behavior>
+					<Representation>None</Representation>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="TransportTypeSelectionGroupExtendedTooltip" id="168"/>
+					<ChildItems>
+						<Pages name="TransportTypeSelectionPanel" id="169">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Panel Select transport type</v8:content>
+								</v8:item>
+							</Title>
+							<PagesRepresentation>None</PagesRepresentation>
+							<ExtendedTooltip name="TransportTypeSelectionPanelExtendedTooltip" id="170"/>
+							<ChildItems>
+								<Page name="TransportTypeSelectionPageIsSuccessful" id="171">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Panel Select transport type Successful</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="TransportTypeSelectionPageIsSuccessfulExtendedTooltip" id="172"/>
+									<ChildItems>
+										<PictureDecoration name="Decoration12" id="173">
+											<Width>2</Width>
+											<Height>1</Height>
+											<Picture>
+												<xr:Ref>CommonPicture.Success</xr:Ref>
+												<xr:LoadTransparent>false</xr:LoadTransparent>
+											</Picture>
+											<FileDragMode>AsFile</FileDragMode>
+											<ContextMenu name="Decoration12ContextMenu" id="174"/>
+											<ExtendedTooltip name="Decoration12ExtendedTooltip" id="175"/>
+										</PictureDecoration>
+									</ChildItems>
+								</Page>
+								<Page name="CurTransportTypeSelectionPage" id="176">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Panel Select transport type Current</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="CurTransportTypeSelectionPageExtendedTooltip" id="177"/>
+									<ChildItems>
+										<PictureDecoration name="Decoration13" id="178">
+											<Width>2</Width>
+											<Height>1</Height>
+											<Picture>
+												<xr:Ref>StdPicture.BusinessProcessStart</xr:Ref>
+												<xr:LoadTransparent>true</xr:LoadTransparent>
+											</Picture>
+											<FileDragMode>AsFile</FileDragMode>
+											<ContextMenu name="Decoration13ContextMenu" id="179"/>
+											<ExtendedTooltip name="Decoration13ExtendedTooltip" id="180"/>
+										</PictureDecoration>
+									</ChildItems>
+								</Page>
+								<Page name="TransportTypeSelectionPageIsEmpty" id="181">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Panel Select transport type Empty</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="TransportTypeSelectionPageIsEmptyExtendedTooltip" id="182"/>
+									<ChildItems>
+										<PictureDecoration name="Decoration22" id="183">
+											<Width>2</Width>
+											<Height>2</Height>
+											<FileDragMode>AsFile</FileDragMode>
+											<ContextMenu name="Decoration22ContextMenu" id="184"/>
+											<ExtendedTooltip name="Decoration22ExtendedTooltip" id="185"/>
+										</PictureDecoration>
+									</ChildItems>
+								</Page>
+							</ChildItems>
+						</Pages>
+						<Button name="SelectTransportType" id="186">
+							<Type>Hyperlink</Type>
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<CommandName>Form.Command.SelectTransportType</CommandName>
+							<Font ref="style:SynchronizationSetupWizardCommandStandardFont" kind="StyleItem"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Select connection type</v8:content>
+								</v8:item>
+							</Title>
+							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+							<ExtendedTooltip name="SelectTransportTypeExtendedTooltip" id="187">
+								<AutoMaxWidth>false</AutoMaxWidth>
+								<Title formatted="false">
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>To start data synchronization, specify how the applications connect to each other.</v8:content>
+									</v8:item>
+								</Title>
+							</ExtendedTooltip>
+						</Button>
+					</ChildItems>
+				</UsualGroup>
 				<UsualGroup name="ConnectionSetupGroup" id="16">
 					<Title>
 						<v8:item>
@@ -197,7 +308,7 @@
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>To start data synchronization, specify how the applications connect to each other.</v8:content>
+										<v8:content>Parameters for connecting to the peer application are required.</v8:content>
 									</v8:item>
 								</Title>
 							</ExtendedTooltip>
@@ -314,6 +425,117 @@
 						</Button>
 					</ChildItems>
 				</UsualGroup>
+				<UsualGroup name="GroupCommonParameters" id="188">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Common parameters</v8:content>
+						</v8:item>
+					</Title>
+					<Group>AlwaysHorizontal</Group>
+					<Behavior>Usual</Behavior>
+					<Representation>None</Representation>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="GroupCommonParametersExtendedTooltip" id="189"/>
+					<ChildItems>
+						<Pages name="GeneralParametersPanel" id="190">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Panel Common parameters</v8:content>
+								</v8:item>
+							</Title>
+							<PagesRepresentation>None</PagesRepresentation>
+							<ExtendedTooltip name="GeneralParametersPanelExtendedTooltip" id="191"/>
+							<ChildItems>
+								<Page name="GeneralParametersPageIsSuccessful" id="192">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Page Common parameters Successful</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="GeneralParametersPageIsSuccessfulExtendedTooltip" id="193"/>
+									<ChildItems>
+										<PictureDecoration name="Decoration14" id="194">
+											<Width>2</Width>
+											<Height>1</Height>
+											<Picture>
+												<xr:Ref>CommonPicture.Success</xr:Ref>
+												<xr:LoadTransparent>false</xr:LoadTransparent>
+											</Picture>
+											<FileDragMode>AsFile</FileDragMode>
+											<ContextMenu name="Decoration14ContextMenu" id="195"/>
+											<ExtendedTooltip name="Decoration14ExtendedTooltip" id="196"/>
+										</PictureDecoration>
+									</ChildItems>
+								</Page>
+								<Page name="GeneralParametersCurPage" id="197">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Page Common parameters Current</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="GeneralParametersCurPageExtendedTooltip" id="198"/>
+									<ChildItems>
+										<PictureDecoration name="Decoration23" id="199">
+											<Width>2</Width>
+											<Height>1</Height>
+											<Picture>
+												<xr:Ref>StdPicture.BusinessProcessStart</xr:Ref>
+												<xr:LoadTransparent>true</xr:LoadTransparent>
+											</Picture>
+											<FileDragMode>AsFile</FileDragMode>
+											<ContextMenu name="Decoration23ContextMenu" id="200"/>
+											<ExtendedTooltip name="Decoration23ExtendedTooltip" id="201"/>
+										</PictureDecoration>
+									</ChildItems>
+								</Page>
+								<Page name="GeneralParametersPageIsEmpty" id="202">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Page Common parameters Empty</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="GeneralParametersPageIsEmptyExtendedTooltip" id="203"/>
+									<ChildItems>
+										<PictureDecoration name="Decoration24" id="204">
+											<Width>2</Width>
+											<Height>2</Height>
+											<FileDragMode>AsFile</FileDragMode>
+											<ContextMenu name="Decoration24ContextMenu" id="205"/>
+											<ExtendedTooltip name="Decoration24ExtendedTooltip" id="206"/>
+										</PictureDecoration>
+									</ChildItems>
+								</Page>
+							</ChildItems>
+						</Pages>
+						<Button name="ConfigureGeneralParameters" id="207">
+							<Type>Hyperlink</Type>
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<CommandName>Form.Command.ConfigureGeneralParameters</CommandName>
+							<Font ref="style:SynchronizationSetupWizardCommandStandardFont" kind="StyleItem"/>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Set up common sync parameters</v8:content>
+								</v8:item>
+							</Title>
+							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+							<ExtendedTooltip name="ConfigureGeneralParametersExtendedTooltip" id="208">
+								<AutoMaxWidth>false</AutoMaxWidth>
+								<Title formatted="false">
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Common sync parameters are required. Checking the node and syncing the parameters with the peer.</v8:content>
+									</v8:item>
+								</Title>
+							</ExtendedTooltip>
+						</Button>
+					</ChildItems>
+				</UsualGroup>
 				<UsualGroup name="RulesSetupGroup" id="32">
 					<Title>
 						<v8:item>
@@ -418,7 +640,7 @@
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>Before you start using data synchronization, specify data sending restrictions and rules of receiving data from the other application (default values).</v8:content>
+										<v8:content>Before you start using data synchronization, specify data sending restrictions and rules for receiving data from the other application (default values).</v8:content>
 									</v8:item>
 								</Title>
 							</ExtendedTooltip>
@@ -530,7 +752,7 @@
 									<v8:item>
 										<v8:lang>en</v8:lang>
 										<v8:content>Creating an initial image might take a long time.
-After creation, deploy the infobase from the initial image and run the application to complete the synchronization setup. You can create an initial image later by opening configured configuration parameters and clicking "Create initial image of a subordinate DIB node."</v8:content>
+After creation, deploy the infobase from the initial image and run the application to complete the synchronization setup. You can create an initial image later by opening configured configuration parameters and clicking Create an initial image of a subordinate DIB node.</v8:content>
 									</v8:item>
 								</Title>
 							</ExtendedTooltip>
@@ -640,7 +862,7 @@ After creation, deploy the infobase from the initial image and run the applicati
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>If accounting is carried out in both applications, before you run the synchronization, map their data. This will help you to avoid duplication of catalog items recorded independently in both applications, for example, items with the same name. Once you specify the mapping, you can import data from the other application.</v8:content>
+										<v8:content>If accounting is carried out in both applications, map their data before you run the synchronization. This will help you avoid duplication of catalog items recorded independently in both applications, such as items with the same name. Once you are done mapping, you can import data from the other application.</v8:content>
 									</v8:item>
 								</Title>
 							</ExtendedTooltip>
@@ -751,8 +973,9 @@ After creation, deploy the infobase from the initial image and run the applicati
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>Data will be exported from this application. Once you complete the synchronization setup, you can import the data in another application and map the data being imported to the application's data.
-You can export the data later from the list of configured data synchronizations.</v8:content>
+										<v8:content>Data will be exported from this application. Once you complete the synchronization setup, you can import the data into another application and map the imported data to the application's data.
+You can then export the data later from the list of configured data synchronizations.
+</v8:content>
 									</v8:item>
 								</Title>
 							</ExtendedTooltip>
@@ -772,7 +995,7 @@ You can export the data later from the list of configured data synchronizations.
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="ExchangePlanName" id="2">
+		<Attribute name="DeleteNameOfExchangePlan" id="2">
 			<Type>
 				<v8:Type>xs:string</v8:Type>
 				<v8:StringQualifiers>
@@ -781,7 +1004,7 @@ You can export the data later from the list of configured data synchronizations.
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="SettingID" id="3">
+		<Attribute name="DeleteSettingId" id="3">
 			<Type>
 				<v8:Type>xs:string</v8:Type>
 				<v8:StringQualifiers>
@@ -894,7 +1117,7 @@ You can export the data later from the list of configured data synchronizations.
 				</Column>
 			</Columns>
 		</Attribute>
-		<Attribute name="ExchangeNode" id="13">
+		<Attribute name="DeleteExchangeNode" id="13">
 			<Type>
 				<v8:TypeSet>cfg:ExchangePlanRef</v8:TypeSet>
 			</Type>
@@ -986,11 +1209,6 @@ You can export the data later from the list of configured data synchronizations.
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="DataExchangeWithExternalSystem" id="30">
-			<Type>
-				<v8:Type>xs:boolean</v8:Type>
-			</Type>
-		</Attribute>
 		<Attribute name="ExternalSystemConnectionParameters" id="31">
 			<Type/>
 		</Attribute>
@@ -1002,10 +1220,11 @@ You can export the data later from the list of configured data synchronizations.
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="TransportKind" id="6">
+		<Attribute name="Object" id="19">
 			<Type>
-				<v8:Type>cfg:EnumRef.ExchangeMessagesTransportTypes</v8:Type>
+				<v8:Type>cfg:DataProcessorObject.DataExchangeCreationWizard</v8:Type>
 			</Type>
+			<MainAttribute>true</MainAttribute>
 		</Attribute>
 	</Attributes>
 	<Commands>
@@ -1117,6 +1336,36 @@ You can export the data later from the list of configured data synchronizations.
 				</v8:item>
 			</ToolTip>
 			<Action>GetConnectionConfirmation</Action>
+		</Command>
+		<Command name="SelectTransportType" id="6">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Select transport type</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Select transport type</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>SelectTransportType</Action>
+		</Command>
+		<Command name="ConfigureGeneralParameters" id="9">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Set up common parameters</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Set up common parameters</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>ConfigureGeneralParameters</Action>
 		</Command>
 	</Commands>
 </Form>

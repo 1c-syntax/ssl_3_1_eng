@@ -10,6 +10,26 @@
 
 #Region Public
 
+// 
+// 
+// Parameters:
+//  LanguageSeqNumber - Number - 
+// 
+// Returns:
+//  String - 
+//
+Function LanguageSuffix_(LanguageSeqNumber = Undefined) Export
+	
+	SuffixName = "Language";
+	
+	If LanguageSeqNumber = Undefined Then
+		Return SuffixName;
+	EndIf;
+	
+	Return SuffixName + Format(LanguageSeqNumber,"NG=0");
+	
+EndFunction
+
 // The function is called when receiving an object presentation or a reference presentation depending on the language
 // that is used when the user is working.
 //
@@ -27,12 +47,12 @@ Procedure PresentationGetProcessing(Data, Presentation, StandardProcessing, Attr
 			Return;
 		EndIf;
 		
-		LanguageSuffix = NationalLanguageSupportServer.CurrentLanguageSuffix();
-		If ValueIsFilled(LanguageSuffix) Then
+		LanguageSuffix_ = NationalLanguageSupportServer.CurrentLanguageSuffix();
+		If ValueIsFilled(LanguageSuffix_) Then
 	
-			If Data.Property(AttributeName + LanguageSuffix) Then
+			If Data.Property(AttributeName + LanguageSuffix_) Then
 				
-				Presentation = Data[AttributeName + LanguageSuffix];
+				Presentation = Data[AttributeName + LanguageSuffix_];
 				If IsBlankString(Presentation) And Data.Property(AttributeName) Then
 					Presentation = Data[AttributeName];
 					If IsBlankString(Presentation) Then
@@ -102,16 +122,16 @@ Procedure PresentationFieldsGetProcessing(Fields, StandardProcessing, AttributeN
 		Fields.Add(AttributeName);
 		Fields.Add("Ref");
 		
-		If NationalLanguageSupportServer.FirstAdditionalLanguageUsed() Then
-			Fields.Add(AttributeName + "Language1");
-		EndIf;
-		
-		If NationalLanguageSupportServer.SecondAdditionalLanguageUsed() Then
-			Fields.Add(AttributeName +"Language2");
-		EndIf;
+		LanguagesInformationRecords = NationalLanguageSupportCached.InfoAboutLanguagesUsed();
+		For Each IsAdditionalLanguageUsed In LanguagesInformationRecords Do
+			If IsAdditionalLanguageUsed.Value Then
+				Fields.Add(AttributeName + IsAdditionalLanguageUsed.Key);
+			EndIf;
+		EndDo;
 	
 #EndIf
 	
 EndProcedure
 
 #EndRegion
+

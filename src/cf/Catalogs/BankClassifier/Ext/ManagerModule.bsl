@@ -32,7 +32,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// SaaSTechnology.ExportImportData
+// ТехнологияСервиса.ВыгрузкаЗагрузкаДанных
 
 // Returns the catalog attributes
 // that naturally form a catalog item key.
@@ -51,10 +51,109 @@ Function NaturalKeyFields() Export
 	
 EndFunction
 
-// End SaaSTechnology.ExportImportData
+// End CloudTechnology.ExportImportData
 
 #EndRegion
+
+#EndRegion
+
+#Region Internal
+
+// Registers the objects to be updated in the InfobaseUpdate exchange plan.
+// 
+//
+// Parameters:
+//  Parameters - Structure - Internal parameter to pass to the InfobaseUpdate.MarkForProcessing procedure.
+//
+Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
+	
+	If Not Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
+		Return;
+	EndIf;
+	
+	If Not Common.SeparatedDataUsageAvailable() Then
+		Return
+	EndIf;
+	
+	QueryText =
+	"SELECT
+	|	BankClassifier.Ref
+	|FROM
+	|	Catalog.BankClassifier AS BankClassifier
+	|WHERE
+	|	NOT BankClassifier.IsFolder
+	|	AND BankClassifier.CountryCode = """"
+	|	AND BankClassifier.ObsoleteCountry <> &EmptyCountryRef";
+	
+	ModuleContactsManagerInternal = Common.CommonModule("ContactsManagerInternal");
+	WorldCountriesCatalogEmptyRef = ModuleContactsManagerInternal.WorldCountriesCatalogEmptyRef();
+	
+	Query = New Query(QueryText);
+	Query.SetParameter("EmptyCountryRef", WorldCountriesCatalogEmptyRef);
+	Banks = Query.Execute().Unload().UnloadColumn("Ref");
+	
+	InfobaseUpdate.MarkForProcessing(Parameters, Banks);
+	
+EndProcedure
+
+Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
+	
+	If Not Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
+		Return;
+	EndIf;
+	
+	If Not Common.SeparatedDataUsageAvailable() Then
+		Return
+	EndIf;
+	
+	ObjectsProcessed = 0;
+	ObjectsWithIssuesCount = 0;
+	
+	ModuleContactsManagerInternal = Common.CommonModule("ContactsManagerInternal");
+	CountriesCodes = ModuleContactsManagerInternal.CountriesCodes();
+	Selection = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue, "Catalog.BankClassifier");
+	
+	While Selection.Next() Do
+		Block = New DataLock;
+		LockItem = Block.Add("Catalog.BankClassifier");
+		LockItem.SetValue("Ref", Selection.Ref);
+		
+		BeginTransaction();
+		Try
+			Block.Lock();
+			
+			Bank = Selection.Ref.GetObject();
+			Bank.CountryCode = CountriesCodes[Bank.ObsoleteCountry];
+			InfobaseUpdate.WriteData(Bank);
+			
+			ObjectsProcessed = ObjectsProcessed + 1;
+			CommitTransaction();
+		Except
+			RollbackTransaction();
+			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
+			Raise;
+		EndTry;
+		
+	EndDo;
+	
+	Parameters.ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue, "Catalog.BankClassifier");
+	
+	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Couldn''t process (skipped) some settlement parties: %1';"),
+			ObjectsWithIssuesCount);
+		Raise MessageText;
+	Else
+		WriteLogEvent(InfobaseUpdate.EventLogEvent(),
+			EventLogLevel.Information, Metadata.Catalogs.BankClassifier,,
+				StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Another batch of settlement parties is processed: %1';"),
+			ObjectsProcessed));
+	EndIf;
+	
+EndProcedure
 
 #EndRegion
 
 #EndIf
+

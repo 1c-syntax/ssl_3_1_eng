@@ -703,6 +703,9 @@ Procedure SetObjectsToDeleteUsageLock(Package, SessionID) Export
 
 	BeginTransaction();
 	Try
+		If Common.FileInfobase() Then
+			ScheduledJobsServer.BlockARoutineTask(New UUID);
+		EndIf;
 		Block = New DataLock;
 		LockItem = Block.Add("InformationRegister.ObjectsToDelete");
 		LockItem.SetValue("SessionID", SessionID);
@@ -755,6 +758,9 @@ Procedure TryDisableMarkedObjectsDeletionControl()
 
 	BeginTransaction();
 	Try
+		If Common.FileInfobase() Then
+			ScheduledJobsServer.BlockARoutineTask(New UUID);
+		EndIf;
 		Block = New DataLock;
 		Block.Add("Constant.CheckIfObjectsToDeleteAreUsed");
 		Block.Lock();

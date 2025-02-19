@@ -30,8 +30,8 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	Handler = New NotifyDescription("AfterFileSystemExtensionInstallation", ThisObject);
-	FileSystemClient.AttachFileOperationsExtension(Handler, SuggestionText());
+	Handler = New CallbackDescription("AfterInstall1CEnterpriseExtension", ThisObject);
+	FileSystemClient.Attach1CEnterpriseExtension(Handler, SuggestionText());
 	
 EndProcedure
 
@@ -177,7 +177,7 @@ Procedure Save(Command)
 		SetFileNames();
 	EndIf;
 	
-	Handler = New NotifyDescription("CompressReportOptionSettingsCompletion", ThisObject);
+	Handler = New CallbackDescription("CompressReportOptionSettingsCompletion", ThisObject);
 	
 	SavingParameters = FileSystemClient.FileSavingParameters();
 	SavingParameters.SuggestionText = SuggestionText();
@@ -548,22 +548,18 @@ EndProcedure
 &AtClient
 Procedure SelectDirectory()
 	
-	FileSystemClient.SelectDirectory(New NotifyDescription("FileNameAfterDirectoryChoice", ThisObject));
+	FileSystemClient.SelectDirectory(New CallbackDescription("FileNameAfterDirectoryChoice", ThisObject));
 	
 EndProcedure
 
 &AtClient
-Procedure AfterFileSystemExtensionInstallation(ExtensionAttached, AdditionalParameters) Export
+Procedure AfterInstall1CEnterpriseExtension(ExtensionAttached, AdditionalParameters) Export
 	
 	If ExtensionAttached = True Then 
-		
-		Handler = New NotifyDescription("AfterGetDocumentsDir", ThisObject);
+		Handler = New CallbackDescription("AfterGetDocumentsDir", ThisObject);
 		BeginGettingDocumentsDir(Handler);
-		
 	ElsIf Not ValueIsFilled(FileName) Then 
-		
 		SetFileNames();
-		
 	EndIf;
 	
 EndProcedure

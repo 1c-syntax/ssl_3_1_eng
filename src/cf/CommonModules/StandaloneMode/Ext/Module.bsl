@@ -43,8 +43,8 @@ EndProcedure
 // and a standalone workstation when the password for connection is not specified.
 //
 // Parameters:
-//  Source - InformationRegisterRecordSet.DataExchangeTransportSettings - a transport settings register record
-//             that was changed.
+//  Source - Справочник.НастройкиТранспортаСообщенийОбмена - Transport settings register record
+//             that was modified.
 //
 Procedure DisableAutoDataSyncronizationWithWebApplication(Source) Export
 	

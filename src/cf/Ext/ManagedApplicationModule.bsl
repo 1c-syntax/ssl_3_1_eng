@@ -12,21 +12,21 @@
 
 // StandardSubsystems
 
-// 
+// Global variable storage.
 //
-// 
-//   
-//   
+// ApplicationParameters - Map of KeyValue:
+//   * Key - String - Variable name in the format "LibraryName.VarName".
+//   * Value - Arbitrary - Variable value.
 //
-// 
-//   
-//   
-//     
-//   
+// Initialization example:
+//   ParameterName = StardardSubsystems.MessagesForEventLog";
+//   If ApplicationParameters[ИмяПараметра] = Undefined Then
+//     ApplicationParameters.Insert(ParameterName, New ValueList);
+//   EndIf;
 //  
-// 
-//   
-//   
+// Usage example:
+//   ApplicationParameters["StardardSubsystems.MessagesForEventLog"].Add(...);
+//   ApplicationParameters["StardardSubsystems.MessagesForEventLog"] = ...;
 Var ApplicationParameters Export;
 
 // End StandardSubsystems
@@ -87,6 +87,59 @@ Procedure CollaborationSystemUsersChoiceFormGetProcessing(ChoicePurpose,
 #Else
 	StandardSubsystemsClient.CollaborationSystemUsersChoiceFormGetProcessing(ChoicePurpose,
 		Form, ConversationID, Parameters, SelectedForm, StandardProcessing);
+#EndIf
+	// End StandardSubsystems
+	
+EndProcedure
+
+Procedure OnGlobalSearch(SearchString, SearchPlan)
+	
+		// StandardSubsystems
+#If MobileClient Then
+	Execute("StandardSubsystemsClient.OnGlobalSearch(SearchString, SearchPlan)");
+#Else
+	StandardSubsystemsClient.OnGlobalSearch(SearchString, SearchPlan);
+#EndIf
+	// End StandardSubsystems
+	
+EndProcedure
+
+Procedure OnGlobalSearchResultChoice(ResultItem, StandardProcessing)
+	
+	// StandardSubsystems
+#If MobileClient Then
+	Execute("StandardSubsystemsClient.OnGlobalSearchResultChoice(ResultItem,
+		|StandardProcessing)");
+#Else
+	StandardSubsystemsClient.OnGlobalSearchResultChoice(ResultItem,
+		StandardProcessing);
+#EndIf
+	// End StandardSubsystems
+
+EndProcedure
+
+Procedure OnGlobalSearchResultActionChoice(ResultItem, Action)
+	
+	// StandardSubsystems
+#If MobileClient Then
+	Execute("StandardSubsystemsClient.OnGlobalSearchResultActionChoice(ResultItem,
+		|Action)");
+#Else
+	StandardSubsystemsClient.OnGlobalSearchResultActionChoice(ResultItem, Action);
+#EndIf
+	// End StandardSubsystems
+
+EndProcedure
+
+Procedure NavigationByURLProcessing(URLNavigationData, StandardProcessing)
+	
+	// StandardSubsystems
+#If MobileClient Then
+	Execute("StandardSubsystemsClient.NavigationByURLProcessing(URLNavigationData,
+		|StandardProcessing)");
+#Else
+	StandardSubsystemsClient.NavigationByURLProcessing(URLNavigationData,
+		StandardProcessing);
 #EndIf
 	// End StandardSubsystems
 	

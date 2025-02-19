@@ -205,7 +205,7 @@ Procedure ProposeRestart()
 		Return;
 	EndIf;
 	
-	Handler = New NotifyDescription("RestartApplication", ThisObject);
+	Handler = New CallbackDescription("RestartApplication", ThisObject);
 	Buttons = New ValueList;
 	Buttons.Add("Restart", NStr("en = 'Restart';"));
 	Buttons.Add("DoNotRestart", NStr("en = 'Do not restart';"));

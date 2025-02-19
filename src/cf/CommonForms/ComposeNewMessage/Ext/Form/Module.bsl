@@ -88,7 +88,7 @@ EndProcedure
 Procedure AttachmentFormatClick(Item, StandardProcessing)
 	StandardProcessing = False;
 	
-	NotifyDescription = New NotifyDescription("AfterAttachmentsFormatSelected", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterAttachmentsFormatSelected", ThisObject);
 	CommonClient.ShowAttachmentsFormatSelection(NotifyDescription, SelectedFormatSettings());
 EndProcedure
 

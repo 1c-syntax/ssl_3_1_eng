@@ -32,7 +32,7 @@ EndProcedure
 
 // Intended for adding the details of cross-object links of types for recipients.
 // To register type parameters,  See ReportMailing.AddItemToRecipientsTypesTable.
-// For other usage examples, see ReportsMailingCached.RecipientTypesTable.
+// For other usage examples, see ReportMailingCached.RecipientsTypesTable.
 // NOTE:
 //   Use this mechanism only if you need to:
 //   1. Describe and present several types as one (as in the Users and UserGroups catalog).
@@ -69,10 +69,10 @@ EndProcedure
 //       Passed without an extension if the format was added in the applied configuration.
 //
 // Example:
-//	If Format = Enumeration.ReportSaveFormats.HTML Then
-//		StandardProcessing = False.
-//		FullFileName = FullFileName +.html.
-//		SpreadsheetDocument.Write(FullFileName, SpreadsheetDocumentFileType.HTML5).
+//	If Format = Enums.ReportSaveFormats.HTML Then
+//		StandardProcessing = False;
+//		FullFileName = FullFileName +".html";
+//		SpreadsheetDocument.Write(FullFileName, SpreadsheetDocumentFileType.HTML5);
 //	EndIf;
 //
 Procedure BeforeSaveSpreadsheetDocumentToFormat(StandardProcessing, SpreadsheetDocument, Format, FullFileName) Export

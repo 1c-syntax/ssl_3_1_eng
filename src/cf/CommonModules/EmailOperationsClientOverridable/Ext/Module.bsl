@@ -15,7 +15,7 @@
 //
 // Parameters:
 //  SendOptions    - See EmailOperationsClient.EmailSendOptions
-//  CompletionHandler - NotifyDescription - description of the procedure that is called after
+//  CompletionHandler - CallbackDescription - description of the procedure that is called after
 //                                              sending email.
 //  StandardProcessing - Boolean - shows whether a new email form continues opening after the
 //                                  procedure ends. If False, the email form is not opened.

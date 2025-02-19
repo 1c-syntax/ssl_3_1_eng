@@ -192,7 +192,7 @@ Procedure ExecuteCheck(Command)
 		Checks = AllSelectedChecks(Checks);
 	EndIf;
 
-	If Checks.Count() > 0 Then
+	If Checks.Count() > 1 Then
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Run the selected checks (%1)?
 				|This might take a while.';"),
@@ -203,7 +203,7 @@ Procedure ExecuteCheck(Command)
 				|This might take a while.';"),
 			Checks[0]);
 	EndIf;
-	ShowQueryBox(New NotifyDescription("ExecuteCheckContinue", ThisObject, Checks),
+	ShowQueryBox(New CallbackDescription("ExecuteCheckContinue", ThisObject, Checks),
 		QueryText, QuestionDialogMode.YesNo);
 	
 EndProcedure
@@ -219,7 +219,7 @@ Procedure ExecuteAllChecks(Command)
 		NStr("en = 'Run all checks (%1)?
 			|This might take a while.';"),
 		Checks.Count());
-	ShowQueryBox(New NotifyDescription("ExecuteCheckContinue", ThisObject, Checks),
+	ShowQueryBox(New CallbackDescription("ExecuteCheckContinue", ThisObject, Checks),
 		QueryText, QuestionDialogMode.YesNo);
 		
 EndProcedure
@@ -291,7 +291,7 @@ Procedure ExecuteCheckContinue(QuestionResult, Checks) Export
 	
 	TimeConsumingOperation = ExecuteChecksAtServer(Checks);
 	
-	CallbackOnCompletion = New NotifyDescription("ExecuteCheckCompletion", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("ExecuteCheckCompletion", ThisObject);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.MessageText = NStr("en = 'Checking. This might take a while.';");
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
@@ -417,7 +417,7 @@ Procedure PresentationOfCommonScheduleURLProcessing(Item, FormattedStringURL, St
 	StandardProcessing = False;
 	
 	Dialog     = New ScheduledJobDialog(GetFromTempStorage(FormattedStringURL));
-	Notification = New NotifyDescription("PresentationOfCommonScheduleClickAtClientCompletion", ThisObject);
+	Notification = New CallbackDescription("PresentationOfCommonScheduleClickAtClientCompletion", ThisObject);
 	Dialog.Show(Notification);
 	
 EndProcedure

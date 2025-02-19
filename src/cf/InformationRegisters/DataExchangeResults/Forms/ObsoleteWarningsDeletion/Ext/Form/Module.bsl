@@ -13,7 +13,11 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	ValuesCache = New Structure("ArrayOfExchangePlanNodes, SelectionByDateOfOccurrence, SelectionOfExchangePlanNodes, SelectingTypesOfWarnings");
+	ValuesCache = New Structure;
+	ValuesCache.Insert("ArrayOfExchangePlanNodes");
+	ValuesCache.Insert("SelectionByDateOfOccurrence");
+	ValuesCache.Insert("SelectionOfExchangePlanNodes");
+	ValuesCache.Insert("SelectingTypesOfWarnings");
 	
 	SelectionsBasedOnTheTransmittedParameters();
 	
@@ -41,7 +45,7 @@ Procedure FilterByPeriodPresentationStartChoice(Item, ChoiceData, StandardProces
 	
 	Dialog = New StandardPeriodEditDialog();
 	Dialog.Period = ValuesCache.SelectionByDateOfOccurrence;
-	Dialog.Show(New NotifyDescription("AfterSelectionByDateOfOccurrence", ThisObject));
+	Dialog.Show(New CallbackDescription("AfterSelectionByDateOfOccurrence", ThisObject));
 	
 EndProcedure
 
@@ -75,7 +79,7 @@ Procedure SynchronizationsFilterPresentationStartChoice(Item, ChoiceData, Standa
 	OpeningParameters.Insert("ArrayOfExchangePlanNodes", ValuesCache.ArrayOfExchangePlanNodes);
 	OpeningParameters.Insert("SelectionOfExchangePlanNodes", ValuesCache.SelectionOfExchangePlanNodes);
 	
-	NotifyDescription = New NotifyDescription("AfterSelectingTheExchangeNodes", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterSelectingTheExchangeNodes", ThisObject);
 	
 	OpenForm("InformationRegister.DataExchangeResults.Form.SynchronizationsFilter", OpeningParameters, ThisObject, , , , NotifyDescription);
 	
@@ -110,7 +114,7 @@ Procedure WarningsTypesFilterPresentationStartChoice(Item, ChoiceData, StandardP
 	OpeningParameters = New Structure;
 	OpeningParameters.Insert("SelectingTypesOfWarnings", ValuesCache.SelectingTypesOfWarnings);
 	
-	NotifyDescription = New NotifyDescription("AfterSelectionByTypeOfWarnings", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterSelectionByTypeOfWarnings", ThisObject);
 	
 	OpenForm("InformationRegister.DataExchangeResults.Form.WarningsFilterByTypes", OpeningParameters, ThisObject, , , , NotifyDescription);
 	
@@ -245,9 +249,9 @@ Procedure AfterTheStartOfALongTermOperation()
 	IdleParameters.OutputIdleWindow = False;
 	IdleParameters.OutputMessages = True;
 	IdleParameters.OutputProgressBar = True;
-	IdleParameters.ExecutionProgressNotification = New NotifyDescription("ProgressOfDeletingSynchronizationWarnings", ThisObject); 
+	IdleParameters.ExecutionProgressNotification = New CallbackDescription("ProgressOfDeletingSynchronizationWarnings", ThisObject); 
 	
-	CallbackOnCompletion = New NotifyDescription("AfterFinishTimeConsumingOperation", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("AfterFinishTimeConsumingOperation", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure

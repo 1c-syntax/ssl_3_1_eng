@@ -39,7 +39,7 @@ Procedure ChangeEmailAddress(Command)
 	EndIf;
 	
 	ShowQueryBox(
-		New NotifyDescription("ChangeEmailFollowUp", ThisObject),
+		New CallbackDescription("ChangeEmailFollowUp", ThisObject),
 		QueryText,
 		QuestionDialogMode.YesNoCancel);
 	

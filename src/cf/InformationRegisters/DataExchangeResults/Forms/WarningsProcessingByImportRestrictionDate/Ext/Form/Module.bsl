@@ -47,7 +47,7 @@ Procedure AcceptVersion(Command)
 	
 	QueryText = NStr("en = 'Accept versions in the selected lines even though import is restricted?';", CommonClient.DefaultLanguageCode());
 	
-	NotifyDescription = New NotifyDescription("AcceptVersionCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("AcceptVersionCompletion", ThisObject);
 	
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No);
 	

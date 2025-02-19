@@ -20,7 +20,7 @@ Var OldRecords; // Filled "BeforeWrite" to use "OnWrite".
 
 Procedure BeforeWrite(Cancel, Replacing)
 	
-	// ACC:75-off - "DataExchange.Import" check must follow the change records in the Event log.
+	// ACC:75-off - The DataExchange.Load check must follow the logging of changes.
 	PrepareChangesForLogging(ThisObject, Replacing, OldRecords);
 	// ACC:75-on
 	
@@ -32,7 +32,7 @@ EndProcedure
 
 Procedure OnWrite(Cancel, Replacing)
 	
-	// ACC:75-off - "DataExchange.Import" check must follow the change records in the Event log.
+	// ACC:75-off - The DataExchange.Load check must follow the logging of changes.
 	DoLogChanges(ThisObject, Replacing, OldRecords);
 	// ACC:75-on
 	
@@ -46,20 +46,12 @@ EndProcedure
 
 #Region Private
 
-Procedure PrepareChangesForLogging(Var_ThisObject, Replacing, OldRecords)
+Procedure PrepareChangesForLogging(RecordSet, Replacing, OldRecords)
 	
-	RecordSet = InformationRegisters.UsersInfo.CreateRecordSet();
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
 	
-	If Replacing Then
-		For Each FilterElement In Filter Do
-			If FilterElement.Use Then
-				RecordSet.Filter[FilterElement.Name].Set(FilterElement.Value);
-			EndIf;
-		EndDo;
-		RecordSet.Read();
-	EndIf;
-	
-	OldRecords = RecordSet.Unload();
+	OldRecords = Common.SetRecordsFromDatabase(RecordSet, Replacing, FieldList());
 	
 EndProcedure
 
@@ -68,28 +60,18 @@ Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
-	FieldList = "User,
-		|UserMustChangePasswordOnAuthorization,
-		|UnlimitedValidityPeriod,
-		|ValidityPeriod,
-		|InactivityPeriodBeforeDenyingAuthorization";
-	
-	NewRecords = Unload();
-	Table = NewRecords.Copy(, FieldList);
-	Table.Columns.Add("LineChangeType", New TypeDescription("Number"));
-	Table.FillValues(1, "LineChangeType");
-	
-	For Each NewRecord In Table Do
+	If Common.IsRecordSetDeletion(Replacing) Then
+		NewRecords = RecordSet.Unload(New Array, FieldList());
+	Else
+		NewRecords = RecordSet.Unload(, FieldList());
+	EndIf;
+	For Each NewRecord In NewRecords Do
 		If OldRecords.Find(NewRecord.User, "User") = Undefined Then
 			OldRecords.Add().User = NewRecord.User;
 		EndIf;
 	EndDo;
 	
-	For Each OldRecord In OldRecords Do
-		NewRow = Table.Add();
-		FillPropertyValues(NewRow, OldRecord);
-		NewRow.LineChangeType = -1;
-	EndDo;
+	Table = Common.SetRecordsChange(OldRecords, RecordSet, Replacing);
 	
 	If RecordSet.AdditionalProperties.Property("UserProperties")
 	   And TypeOf(RecordSet.AdditionalProperties.UserProperties) = Type("Structure") Then
@@ -99,7 +81,6 @@ Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
 		UserProperties = New Structure;
 	EndIf;
 	
-	Table.GroupBy(FieldList, "LineChangeType");
 	UnchangedRows = Table.FindRows(New Structure("LineChangeType", 0));
 	If Table.Count() = UnchangedRows.Count()
 	   And Not UserProperties.Property("ShouldLogChanges") Then
@@ -253,6 +234,22 @@ Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
 	SetSafeModeDisabled(False);
 	
 EndProcedure
+
+// Intended for procedures "PrepareChangesForLogging" and "DoLogChanges".
+Function FieldList()
+	
+	RegisterMetadata = Metadata();
+	
+	Fields = New Array;
+	Fields.Add(RegisterMetadata.Dimensions.User.Name);
+	Fields.Add(RegisterMetadata.Resources.UserMustChangePasswordOnAuthorization.Name);
+	Fields.Add(RegisterMetadata.Resources.UnlimitedValidityPeriod.Name);
+	Fields.Add(RegisterMetadata.Resources.ValidityPeriod.Name);
+	Fields.Add(RegisterMetadata.Resources.InactivityPeriodBeforeDenyingAuthorization.Name);
+	
+	Return StrConcat(Fields, ",");
+	
+EndFunction
 
 // See UsersInternal.SerializedRef
 Function SerializedRef(Ref)

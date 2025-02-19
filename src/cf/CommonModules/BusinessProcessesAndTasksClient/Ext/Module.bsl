@@ -10,8 +10,7 @@
 
 #Region Public
 
-////////////////////////////////////////////////////////////////////////////////
-// Commands for business processes.
+#Region BusinessProcessCommands
 
 // Marks the specified business processes as suspended.
 //
@@ -73,7 +72,7 @@ Procedure Stop(Val CommandParameter) Export
 		
 	EndIf;
 	
-	Notification = New NotifyDescription("StopCompletion", ThisObject, CommandParameter);
+	Notification = New CallbackDescription("StopCompletion", ThisObject, CommandParameter);
 	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No, NStr("en = 'Suspend business process';"));
 	
 EndProcedure
@@ -148,7 +147,7 @@ Procedure Activate(Val CommandParameter) Export
 			
 	EndIf;
 	
-	Notification = New NotifyDescription("ActivateCompletion", ThisObject, CommandParameter);
+	Notification = New CallbackDescription("ActivateCompletion", ThisObject, CommandParameter);
 	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No, NStr("en = 'Suspend business process';"));
 	
 EndProcedure
@@ -331,8 +330,9 @@ Procedure SetUpDeferredStart(BusinessProcess, TaskDueDate) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Additional procedures and functions.
+#EndRegion
+
+#Region AdditionalProceduresAndFunctions
 
 // Standard notification handler for task execution forms.
 //  The procedure is intended for calling from the NotificationProcessing form event handler.
@@ -463,13 +463,13 @@ Procedure ForwardTasks(RedirectedTasks_SSLs, OwnerForm) Export
 		Return;
 	EndIf;
 		
-	Notification = New NotifyDescription("ForwardTasksCompletion", ThisObject, RedirectedTasks_SSLs);
+	Notification = New CallbackDescription("ForwardTasksCompletion", ThisObject, RedirectedTasks_SSLs);
 	OpenForm("Task.PerformerTask.Form.ForwardTasks",
 		New Structure("Task,TaskCount,FormCaption", 
 		RedirectedTasks_SSLs[0], RedirectedTasks_SSLs.Count(), 
 		?(RedirectedTasks_SSLs.Count() > 1, NStr("en = 'Forward tasks';"), 
 			NStr("en = 'Forward task';"))), 
-		OwnerForm,,,,Notification);
+		OwnerForm,,,, Notification);
 		
 EndProcedure
 
@@ -485,10 +485,8 @@ Procedure OpenAdditionalTaskInfo(Val TaskRef) Export
 	
 EndProcedure
 
-#EndRegion
-
-#Region Internal
-
+// Opens the list of task assignees and roles.
+//
 Procedure OpenRolesAndTaskPerformersList() Export
 	
 	OpenForm("InformationRegister.TaskPerformers.Form.RolesAndTaskPerformers");
@@ -537,6 +535,8 @@ EndFunction
 
 #EndRegion
 
+#EndRegion
+
 #Region Private
 
 Procedure OpenBusinessProcess(List) Export
@@ -576,7 +576,7 @@ Procedure BusinessProcessesListDeletionMark(List) Export
 		ShowMessageBox(,NStr("en = 'Cannot run the command for the object.';"));
 		Return;
 	EndIf;
-	Notification = New NotifyDescription("BusinessProcessesListDeletionMarkCompletion", ThisObject, List);
+	Notification = New CallbackDescription("BusinessProcessesListDeletionMarkCompletion", ThisObject, List);
 	ShowQueryBox(Notification, NStr("en = 'Change deletion mark?';"), QuestionDialogMode.YesNo);
 	
 EndProcedure
@@ -615,30 +615,20 @@ Procedure StopCompletion(Val Result, Val CommandParameter) Export
 	EndIf;
 	
 	If TypeOf(CommandParameter) = Type("Array") Then
-		
 		BusinessProcessesAndTasksServerCall.StopBusinessProcesses(CommandParameter);
-		
 	Else
-		
 		BusinessProcessesAndTasksServerCall.StopBusinessProcess(CommandParameter);
-		
 	EndIf;
 	
 	If TypeOf(CommandParameter) = Type("Array") Then
-		
 		If CommandParameter.Count() <> 0 Then
-			
 			For Each Parameter In CommandParameter Do
-				
 				If TypeOf(Parameter) <> Type("DynamicListGroupRow") Then
 					NotifyChanged(TypeOf(Parameter));
 					Break;
 				EndIf;
-				
 			EndDo;
-			
 		EndIf;
-		
 	Else
 		NotifyChanged(CommandParameter);
 	EndIf;
@@ -667,30 +657,20 @@ Procedure ActivateCompletion(Val Result, Val CommandParameter) Export
 	EndIf;
 		
 	If TypeOf(CommandParameter) = Type("Array") Then
-		
 		BusinessProcessesAndTasksServerCall.ActivateBusinessProcesses(CommandParameter);
-		
 	Else
-		
 		BusinessProcessesAndTasksServerCall.ActivateBusinessProcess(CommandParameter);
-		
 	EndIf;
 	
 	If TypeOf(CommandParameter) = Type("Array") Then
-		
 		If CommandParameter.Count() <> 0 Then
-			
 			For Each Parameter In CommandParameter Do
-				
 				If TypeOf(Parameter) <> Type("DynamicListGroupRow") Then
 					NotifyChanged(TypeOf(Parameter));
 					Break;
 				EndIf;
-				
 			EndDo;
-			
 		EndIf;
-		
 	Else
 		NotifyChanged(CommandParameter);
 	EndIf;

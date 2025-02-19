@@ -10,10 +10,9 @@
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Web service operation handlers.
+#Region HandlersOfOperations
 
-// Matches the Upload web service operation.
+// An analog of the "Upload" operation.
 Function ExecuteExport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorage)
 	
 	CheckInfobaseLockForUpdate();
@@ -32,7 +31,7 @@ Function ExecuteExport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorag
 	
 EndFunction
 
-// Matches the Download web service operation.
+// An analog of the "Download" operation.
 Function ExecuteImport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorage)
 	
 	CheckInfobaseLockForUpdate();
@@ -47,7 +46,7 @@ Function ExecuteImport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorag
 	
 EndFunction
 
-// Matches the UploadData web service operation.
+// An analog of the "UploadData" operation.
 Function RunDataExport(ExchangePlanName,
 								InfobaseNodeCode,
 								FileIDAsString,
@@ -67,7 +66,7 @@ Function RunDataExport(ExchangePlanName,
 	
 EndFunction
 
-// Matches the DownloadData web service operation.
+// An analog of the "DownloadData" operation.
 Function RunDataImport(ExchangePlanName,
 								InfobaseNodeCode,
 								FileIDAsString,
@@ -86,14 +85,14 @@ Function RunDataImport(ExchangePlanName,
 	
 EndFunction
 
-// Matches the GetIBParameters web service operation.
+// An analog of the "GetIBParameters" operation.
 Function GetInfobaseParameters(ExchangePlanName, NodeCode, ErrorMessage)
 	
 	Return DataExchangeServer.GetInfobaseParameters(ExchangePlanName, NodeCode, ErrorMessage);
 	
 EndFunction
 
-// Matches the GetIBData web service operation.
+// An analog of the "GetIBData" operation.
 Function GetInfobaseData(FullTableName)
 	
 	Result = New Structure("MetadataObjectProperties, CorrespondentInfobaseTable");
@@ -105,7 +104,7 @@ Function GetInfobaseData(FullTableName)
 	
 EndFunction
 
-// Matches the GetCommonNodsData web service operation.
+// An analog of the "GetCommonNodsData" operation.
 Function GetCommonNodesData(ExchangePlanName)
 	
 	SetPrivilegedMode(True);
@@ -114,7 +113,7 @@ Function GetCommonNodesData(ExchangePlanName)
 	
 EndFunction
 
-// Matches the CreateExchange web service operation.
+// An analog of the "CreateExchange" operation.
 Function CreateDataExchange(ExchangePlanName, ParametersString1, FilterSettingAsString, DefaultValuesAsString)
 	
 	DataExchangeServer.CheckDataExchangeUsage();
@@ -167,7 +166,7 @@ Function CreateDataExchange(ExchangePlanName, ParametersString1, FilterSettingAs
 	
 EndFunction
 
-// Matches the UpdateExchange web service operation.
+// An analog of the "UpdateExchange" operation.
 Function UpdateDataExchangeSettings(ExchangePlanName, NodeCode, DefaultValuesAsString)
 	
 	DataExchangeServer.ExternalConnectionUpdateDataExchangeSettings(ExchangePlanName, NodeCode, DefaultValuesAsString);
@@ -176,7 +175,7 @@ Function UpdateDataExchangeSettings(ExchangePlanName, NodeCode, DefaultValuesAsS
 	
 EndFunction
 
-// Matches the RegisterOnlyCatalogData web service operation.
+// An analog of the "RegisterOnlyCatalogData" operation.
 Function RecordOnlyCatalogChanges(ExchangePlanName, NodeCode, TimeConsumingOperation, OperationID)
 	
 	RegisterDataForInitialExport(ExchangePlanName, NodeCode, TimeConsumingOperation, OperationID, True);
@@ -185,7 +184,7 @@ Function RecordOnlyCatalogChanges(ExchangePlanName, NodeCode, TimeConsumingOpera
 	
 EndFunction
 
-// Matches the RegisterAllDataExceptCatalogs web service operation.
+// An analog of the "RegisterAllDataExceptCatalogs" operation.
 Function RecordAllDataChangesButCatalogChanges(ExchangePlanName, NodeCode, TimeConsumingOperation, OperationID)
 	
 	RegisterDataForInitialExport(ExchangePlanName, NodeCode, TimeConsumingOperation, OperationID, False);
@@ -194,7 +193,7 @@ Function RecordAllDataChangesButCatalogChanges(ExchangePlanName, NodeCode, TimeC
 	
 EndFunction
 
-// Matches the GetContinuousOperationStatus web service operation.
+// An analog of the "GetContinuousOperationStatus" operation.
 Function GetTimeConsumingOperationState(OperationID, ErrorMessageString)
 	
 	BackgroundJobStates = New Map;
@@ -224,14 +223,14 @@ Function GetTimeConsumingOperationState(OperationID, ErrorMessageString)
 	
 EndFunction
 
-// Matches the GetFunctionalOption web service operation.
+// An analog of the "GetFunctionalOption" operation.
 Function GetFunctionalOptionValue(Name)
 	
 	Return GetFunctionalOption(Name);
 	
 EndFunction
 
-// Matches the PrepareGetFile web service operation.
+// An analog of the "PrepareGetFile" operation.
 Function PrepareGetFile(FileId, BlockSize, TransferId, PartQuantity)
 	
 	SetPrivilegedMode(True);
@@ -268,7 +267,7 @@ Function PrepareGetFile(FileId, BlockSize, TransferId, PartQuantity)
 	
 EndFunction
 
-// Matches the GetFilePart web service operation.
+// An analog of the "GetFilePart" operation.
 Function GetFilePart(TransferId, PartNumber, PartData)
 	
 	FileName = "data.zip.[n]";
@@ -296,7 +295,7 @@ Function GetFilePart(TransferId, PartNumber, PartData)
 	
 EndFunction
 
-// Matches the ReleaseFile web service operation.
+// An analog of the "ReleaseFile" operation.
 Function ReleaseFile(TransferId)
 	
 	Try
@@ -310,7 +309,7 @@ Function ReleaseFile(TransferId)
 	
 EndFunction
 
-// Matches the PutFilePart web service operation.
+// An analog of the "PutFilePart" operation.
 //
 // Parameters:
 //   TransferId - UUID - data transfer session UUID.
@@ -335,7 +334,7 @@ Function PutFilePart(TransferId, PartNumber, PartData)
 	
 EndFunction
 
-// Matches the SaveFileFromParts web service operation.
+// An analog of the "SaveFileFromParts" operation.
 Function SaveFileFromParts(TransferId, PartQuantity, FileId)
 	
 	SetPrivilegedMode(True);
@@ -397,7 +396,7 @@ Function SaveFileFromParts(TransferId, PartQuantity, FileId)
 	
 EndFunction
 
-// Matches the PutFileIntoStorage web service operation.
+// An analog of the "PutFileIntoStorage" operation.
 Function PutFileIntoStorage(FileName, FileId)
 	
 	SetPrivilegedMode(True);
@@ -408,7 +407,7 @@ Function PutFileIntoStorage(FileName, FileId)
 	
 EndFunction
 
-// Matches the GetFileFromStorage web service operation.
+// An analog of the "GetFileFromStorage" operation
 Function GetFileFromStorage(FileId)
 	
 	SetPrivilegedMode(True);
@@ -421,7 +420,7 @@ Function GetFileFromStorage(FileId)
 	
 EndFunction
 
-// Matches the FileExists web service operation.
+// An analog of the "FileExists" operation
 Function FileExists(FileName)
 	
 	SetPrivilegedMode(True);
@@ -434,8 +433,9 @@ Function FileExists(FileName)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Local internal procedures and functions.
+#EndRegion
+
+#Region LocalUtilityProceduresAndFunctions
 
 Procedure CheckInfobaseLockForUpdate()
 	
@@ -457,7 +457,7 @@ Procedure RunExportDataInClientServerMode(ExchangePlanName,
 		InfobaseNodeCode,
 		NStr("en = 'Export';"));
 	
-	If HasActiveDataSynchronizationBackgroundJobs(BackgroundJobKey) Then
+	If DataExchangeServer.HasActiveBackgroundJobs(BackgroundJobKey) Then
 		Raise NStr("en = 'Data synchronization is already running.';");
 	EndIf;
 	
@@ -469,9 +469,7 @@ Procedure RunExportDataInClientServerMode(ExchangePlanName,
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Export data via web service.';");
 	ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
-	
 	ExecutionParameters.RunNotInBackground1 = Not TimeConsumingOperationAllowed;
-	ExecutionParameters.RunInBackground   = TimeConsumingOperationAllowed;
 	
 	BackgroundJob = TimeConsumingOperations.ExecuteInBackground(
 		"DataExchangeWebService.ExportToFileTransferServiceForInfobaseNode",
@@ -510,7 +508,7 @@ Procedure RunImportDataInClientServerMode(ExchangePlanName,
 		InfobaseNodeCode,
 		NStr("en = 'Import';"));
 	
-	If HasActiveDataSynchronizationBackgroundJobs(BackgroundJobKey) Then
+	If DataExchangeServer.HasActiveBackgroundJobs(BackgroundJobKey) Then
 		Raise NStr("en = 'Data synchronization is already running.';");
 	EndIf;
 	
@@ -522,9 +520,7 @@ Procedure RunImportDataInClientServerMode(ExchangePlanName,
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Import data via web service.';");
 	ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
-	
 	ExecutionParameters.RunNotInBackground1 = Not TimeConsumingOperationAllowed;
-	ExecutionParameters.RunInBackground   = TimeConsumingOperationAllowed;
 	
 	BackgroundJob = TimeConsumingOperations.ExecuteInBackground(
 		"DataExchangeWebService.ImportFromFileTransferServiceForInfobaseNode",
@@ -560,18 +556,6 @@ Function ExportImportDataBackgroundJobKey(ExchangePlan, NodeCode, Action)
 		ExchangePlan,
 		NodeCode,
 		Action);
-	
-EndFunction
-
-Function HasActiveDataSynchronizationBackgroundJobs(BackgroundJobKey)
-	
-	Filter = New Structure;
-	Filter.Insert("Key", BackgroundJobKey);
-	Filter.Insert("State", BackgroundJobState.Active);
-	
-	ActiveBackgroundJobs = BackgroundJobs.GetBackgroundJobs(Filter);
-	
-	Return (ActiveBackgroundJobs.Count() > 0);
 	
 EndFunction
 
@@ -615,8 +599,6 @@ Procedure RegisterDataForInitialExport(Val ExchangePlanName, Val NodeCode, TimeC
 		ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
 		ExecutionParameters.BackgroundJobDescription = JobDescription;
 		
-		ExecutionParameters.RunInBackground = True;
-		
 		BackgroundJob = TimeConsumingOperations.ExecuteInBackground(MethodName, ProcedureParameters, ExecutionParameters);
 			
 		If BackgroundJob.Status = "Running" Then
@@ -656,5 +638,7 @@ Function TemporaryExportDirectory(Val SessionID)
 	
 	Return Result;
 EndFunction
+
+#EndRegion
 
 #EndRegion

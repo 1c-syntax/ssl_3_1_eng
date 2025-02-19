@@ -55,7 +55,7 @@ Procedure StartUpdate()
 		Return;
 	EndIf;
 	
-	CallbackOnCompletion = New NotifyDescription("StartUpdateCompletion", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("StartUpdateCompletion", ThisObject);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	IdleParameters.OutputProgressBar = False;

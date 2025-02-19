@@ -26,7 +26,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// End StandardSubsystems.AttachableCommands
 	
 	Items.CheckIntegrity.Visible = Not Common.SubsystemExists("StandardSubsystems.AttachableCommands")
-		Or Not Common.SubsystemExists("StandardSubsystems.ReportsOptions");
+		Or Not Common.SubsystemExists("StandardSubsystems.ReportsOptions") Or Not Common.SeparatedDataUsageAvailable();
 	
 EndProcedure
 
@@ -129,7 +129,7 @@ Procedure StartDeletionMarkChange(CurrentData)
 		QueryText = NStr("en = 'Do you want to mark ""%1"" for deletion?';");
 	EndIf;
 	
-	ShowQueryBox(New NotifyDescription("ContinueDeletionMarkChange", ThisObject, CurrentData),
+	ShowQueryBox(New CallbackDescription("ContinueDeletionMarkChange", ThisObject, CurrentData),
 		StringFunctionsClientServer.SubstituteParametersToString(QueryText, CurrentData.Description),
 		QuestionDialogMode.YesNo);
 	
@@ -152,7 +152,7 @@ Procedure ContinueDeletionMarkChange(Response, CurrentData) Export
 	
 	PrepareSetClearDeletionMark(Volume, AdditionalParameters);
 	
-	ContinuationNotification = New NotifyDescription(
+	ContinuationNotification = New CallbackDescription(
 		"ContinueSetClearDeletionMark", ThisObject, AdditionalParameters);
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
@@ -160,7 +160,7 @@ Procedure ContinueDeletionMarkChange(Response, CurrentData) Export
 		ModuleSafeModeManagerClient.ApplyExternalResourceRequests(
 			AdditionalParameters.Queries, ThisObject, ContinuationNotification);
 	Else
-		ExecuteNotifyProcessing(ContinuationNotification, DialogReturnCode.OK);
+		RunCallback(ContinuationNotification, DialogReturnCode.OK);
 	EndIf;
 	
 EndProcedure

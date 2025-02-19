@@ -803,7 +803,7 @@ EndProcedure
 // Gets read object conversion rules from the infobase for an exchange plan.
 //
 // Parameters:
-//  ExchangePlanName - String - a name of the exchange plan as a metadata object.
+//  ExchangePlanName - String - Name of exchange plan as metadata object.
 // 
 // Returns:
 //  ПравилаЗачитанные - ValueStorage - read object conversion rules.
@@ -967,8 +967,7 @@ Function RulesInformationFromFile(RulesFileName)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Security profiles.
+#Region SecurityProfiles
 
 // See SafeModeManagerOverridable.OnFillPermissionsToAccessExternalResources.
 Procedure OnFillPermissionsToAccessExternalResources(PermissionsRequests) Export
@@ -1159,5 +1158,6 @@ EndProcedure
 
 #EndRegion
 
-#EndIf
+#EndRegion
 
+#EndIf

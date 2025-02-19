@@ -128,7 +128,7 @@ EndProcedure
 &AtServer
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
-	// Checking description for uniqueness.
+	// Check the description for uniqueness.
 	DigitalSignatureInternal.CheckPresentationUniqueness(
 		DescriptionCertificate, Certificate, "DescriptionCertificate", Cancel);
 	
@@ -275,17 +275,17 @@ Procedure Next(Command)
 		TheStructureOfTheSearch = New Structure;
 		TheStructureOfTheSearch.Insert("Thumbprint", CertificateThumbprint);
 		
-		TheDSSCryptographyServiceModuleClient.FindCertificate(New NotifyDescription(
+		TheDSSCryptographyServiceModuleClient.FindCertificate(New CallbackDescription(
 			"NextAfterSearchingForTheCertificateTheCloudSignature", ThisObject, Account), TheStructureOfTheSearch, OperationParametersList);
 	
 	ElsIf DigitalSignatureInternalClient.UseDigitalSignatureSaaS() And CurrentData.InCloudService Then
 		TheStructureOfTheSearch = New Structure;
 		TheStructureOfTheSearch.Insert("Thumbprint", Base64Value(CurrentData.Thumbprint));
 		ModuleCertificateStoreClient = CommonClient.CommonModule("CertificatesStorageClient");
-		ModuleCertificateStoreClient.FindCertificate(New NotifyDescription(
+		ModuleCertificateStoreClient.FindCertificate(New CallbackDescription(
 			"NextAfterCertificateSearchInCloudService", ThisObject), TheStructureOfTheSearch);
 	Else
-		DigitalSignatureInternalClient.GetCertificateByThumbprint(New NotifyDescription(
+		DigitalSignatureInternalClient.GetCertificateByThumbprint(New CallbackDescription(
 			"NextAfterCertificateSearch", ThisObject), CurrentData.Thumbprint, False, Undefined);
 	EndIf;
 	
@@ -296,7 +296,7 @@ EndProcedure
 Procedure NextAfterCertificateSearch(Result, Context) Export
 	
 	If TypeOf(Result) = Type("CryptoCertificate") Then
-		Result.BeginUnloading(New NotifyDescription(
+		Result.BeginUnloading(New CallbackDescription(
 			"NextAfterCertificateExport", ThisObject, Result));
 		Return;
 	EndIf;
@@ -309,7 +309,7 @@ Procedure NextAfterCertificateSearch(Result, Context) Export
 		Context.Insert("ErrorDescription", Result.ErrorDescription);
 	EndIf;
 	
-	UpdateCertificatesList(New NotifyDescription(
+	UpdateCertificatesList(New CallbackDescription(
 		"NextAfterCertificatesListUpdate", ThisObject, Context));
 	
 EndProcedure
@@ -321,7 +321,7 @@ Procedure NextAfterSearchingForTheCertificateTheCloudSignature(Result, Context) 
 	If Not Result.Completed2 Then
 		Context = New Structure;
 		Context.Insert("ErrorDescription", Result.Error);
-		UpdateCertificatesList(New NotifyDescription(
+		UpdateCertificatesList(New CallbackDescription(
 			"NextAfterCertificatesListUpdate", ThisObject, Context));
 		Return;
 	EndIf;
@@ -329,7 +329,7 @@ Procedure NextAfterSearchingForTheCertificateTheCloudSignature(Result, Context) 
 	If Not ValueIsFilled(Result.CertificateData) Then
 		Context = New Structure;
 		Context.Insert("ErrorDescription", NStr("en = 'The certificate does not exist in the service. It might have been deleted.';"));
-		UpdateCertificatesList(New NotifyDescription(
+		UpdateCertificatesList(New CallbackDescription(
 			"NextAfterCertificatesListUpdate", ThisObject, Context));
 		Return;
 	EndIf;
@@ -372,7 +372,7 @@ Procedure NextAfterCertificateSearchInCloudService(Result, Context) Export
 	If Not Result.Completed2 Then
 		Context = New Structure;
 		Context.Insert("ErrorDescription", Result.ErrorDescription.LongDesc);
-		UpdateCertificatesList(New NotifyDescription(
+		UpdateCertificatesList(New CallbackDescription(
 			"NextAfterCertificatesListUpdate", ThisObject, Context));
 		Return;
 	EndIf;
@@ -380,7 +380,7 @@ Procedure NextAfterCertificateSearchInCloudService(Result, Context) Export
 	If Not ValueIsFilled(Result.Certificate) Then
 		Context = New Structure;
 		Context.Insert("ErrorDescription", NStr("en = 'The certificate does not exist in the service. It might have been deleted.';"));
-		UpdateCertificatesList(New NotifyDescription(
+		UpdateCertificatesList(New CallbackDescription(
 			"NextAfterCertificatesListUpdate", ThisObject, Context));
 		Return;
 	EndIf;
@@ -413,7 +413,7 @@ Procedure Add(Command)
 	
 	WriteCertificateToCatalog();
 	
-	DigitalSignatureInternalClient.AfterAddingElectronicSignatureCertificatesToDirectory(Certificate, AdditionalParameters);
+	DigitalSignatureInternalClient.AfterAddingElectronicSignatureCertificatesToCatalog(Certificate, AdditionalParameters);
 	
 	NotifyChoice(Certificate);
 	
@@ -516,7 +516,7 @@ Procedure UpdateCertificatesList(Notification = Undefined)
 	Context = New Structure;
 	Context.Insert("Notification", Notification);
 	
-	DigitalSignatureInternalClient.GetCertificatesPropertiesAtClient(New NotifyDescription(
+	DigitalSignatureInternalClient.GetCertificatesPropertiesAtClient(New CallbackDescription(
 		"UpdateCertificatesListFollowUp", ThisObject, Context), False, ShowAll);
 	
 EndProcedure
@@ -530,7 +530,7 @@ Procedure UpdateCertificatesListFollowUp(Result, Context) Export
 	UpdateCertificatesListAtServer(Result.CertificatesPropertiesAtClient);
 	
 	If Context.Notification <> Undefined Then
-		ExecuteNotifyProcessing(Context.Notification);
+		RunCallback(Context.Notification);
 	EndIf;
 	
 EndProcedure

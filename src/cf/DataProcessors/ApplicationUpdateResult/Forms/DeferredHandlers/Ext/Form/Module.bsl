@@ -233,7 +233,7 @@ Procedure Pause(Command)
 	QuestionButtons.Add("Yes", "Stop");
 	QuestionButtons.Add("None", "Cancel");
 	
-	Notification = New NotifyDescription("PauseDeferredHandler", ThisObject, UpdateProcedure);
+	Notification = New CallbackDescription("PauseDeferredHandler", ThisObject, UpdateProcedure);
 	ShowQueryBox(Notification, QueryText, QuestionButtons);
 	
 EndProcedure
@@ -303,7 +303,7 @@ EndProcedure
 Procedure CheckPatches(Command)
 	Result = AvailableFixesOnServer();
 	
-	NotifyDescription = New NotifyDescription("CheckAvailableFixesContinued", ThisObject, Result);
+	NotifyDescription = New CallbackDescription("CheckAvailableFixesContinued", ThisObject, Result);
 	InfobaseUpdateClient.ProcessManualPatchCheckResult(Result, NotifyDescription);
 EndProcedure
 
@@ -835,7 +835,7 @@ Function HandlersToChange(Handler, ProcessedDataTable, Queue, SpeedPriority, Lis
 			CurrentHandler = String.Handler;
 			Continue;
 		EndIf;
-		NewArrayOfHandlersToChange = HandlersToChange(String.Handler, // 
+		NewArrayOfHandlersToChange = HandlersToChange(String.Handler, // @skip-check query-in-loop - рекурсивная выборка зависимых обработчиков.
 			ProcessedDataTable,
 			String.Queue,
 			SpeedPriority,
@@ -920,7 +920,7 @@ Procedure CheckAvailableFixesContinued(Result, AdditionalParameters) Export
 	
 	TimeConsumingOperation    = StartingPatchInstallation();
 	IdleParameters     = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-	CallbackOnCompletion = New NotifyDescription("ProcessManualPatchInstallationResult", InfobaseUpdateClient, AdditionalParameters);
+	CallbackOnCompletion = New CallbackDescription("ProcessManualPatchInstallationResult", InfobaseUpdateClient, AdditionalParameters);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure

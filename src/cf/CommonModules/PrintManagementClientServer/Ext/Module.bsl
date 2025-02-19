@@ -65,4 +65,9 @@ Function AreaID(Area) Export
 	
 EndFunction
 
+Function IDWithoutSpecialChars(String) Export
+	SpecialChars = "(</|\>) -+=_,.!№;%:?*@#$^&";
+	Return StrConcat(StrSplit(String, SpecialChars));
+EndFunction
+
 #EndRegion

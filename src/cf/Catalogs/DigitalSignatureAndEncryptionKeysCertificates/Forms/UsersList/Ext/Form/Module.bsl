@@ -15,7 +15,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	CertificateUsers = Parameters.Users;
 	CertificateRecipient = Parameters.User;
-	ViewMode = Parameters.ViewMode;
+	DisplayMode = Parameters.DisplayMode;
 	
 	If CertificateUsers = Undefined Then
 		CertificateUsers = New Array;
@@ -71,7 +71,7 @@ Procedure SelectedUsersBeforeAddRow(Item, Cancel, Copy, Parent, IsFolder, Parame
 		NStr("en = 'Select users who will see the certificate in the choice list';"));
 	PickingParameters.Insert("PickingCompletionButtonTitle", NStr("en = 'Select';"));
 	
-	Handler = New NotifyDescription("Add_Users", ThisObject);
+	Handler = New CallbackDescription("Add_Users", ThisObject);
 	
 	OpenForm("Catalog.Users.ChoiceForm", PickingParameters,,,,, Handler);
 	
@@ -84,7 +84,7 @@ EndProcedure
 &AtClient
 Procedure OK(Command)
 	
-	If ViewMode Then
+	If DisplayMode Then
 		Result = Undefined;
 	Else	
 		Result = New Structure;
@@ -272,7 +272,7 @@ Procedure FormControl(TheFormContext)
 	
 	FormItems = TheFormContext.Items;
 	
-	If TheFormContext.ViewMode Then
+	If TheFormContext.DisplayMode Then
 		FormItems.UsersTable.ReadOnly = True;
 		FormItems.SelectedUsers.ReadOnly = True;
 		FormItems.ChoiceMode.ReadOnly = True;

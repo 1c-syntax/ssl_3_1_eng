@@ -552,8 +552,7 @@ Procedure ClearPersonalAccountFlag(Account) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Message templates.
+#Region MessageTemplates
 
 // Creates and sends an email message.
 // 
@@ -732,15 +731,14 @@ Function CreateEmail(Message, Account, SendImmediately = True) Export
 		
 	Try
 		SendingResult = ExecuteEmailSending(MailMessage);
-		EmailID =  SendingResult.SMTPEmailID;
-		EmailSendingResult.WrongRecipients = SendingResult.WrongRecipients;
-		EmailSendingResult.EmailID = EmailID;
 	Except
-		
 		ErrorInfo = ErrorInfo();
+		If ErrorInfo.IsErrorOfCategory(ErrorCategory.ConfigurationError) Then
+			Raise;
+		EndIf;
+
 		MessageTextTemplate = NStr("en = 'Cannot send the mail. Reason:
 				|%1';");
-		
 		ErrorText = EmailOperations.ExtendedErrorPresentation(ErrorInfo, Common.DefaultLanguageCode());
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(),
 			EventLogLevel.Error,, MailMessage,
@@ -748,8 +746,10 @@ Function CreateEmail(Message, Account, SendImmediately = True) Export
 		
 		EmailSendingResult.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(MessageTextTemplate, ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		Return EmailSendingResult;
-		
 	EndTry;
+	EmailID =  SendingResult.SMTPEmailID;
+	EmailSendingResult.WrongRecipients = SendingResult.WrongRecipients;
+	EmailSendingResult.EmailID = EmailID;
 	
 	If Not MailMessage.DeleteAfterSend Then
 		
@@ -949,8 +949,9 @@ Procedure SetStateOutgoingDocumentSMSMessage(Object) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#EndRegion
+
+#Region ConfigurationSubsystemsEventHandlers
 
 // See ImportDataFromFileOverridable.OnDefineCatalogsForDataImport.
 Procedure OnDefineCatalogsForDataImport(CatalogsToImport) Export
@@ -1406,6 +1407,8 @@ EndFunction
 
 #EndRegion
 
+#EndRegion
+
 #Region Private
 
 // Returns fields for getting an owner description (if the owner exists).
@@ -1428,8 +1431,7 @@ Function FieldNameForOwnerDescription(TableName) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions of contact search.
+#Region AuxiliaryProceduresAndFunctionsForSearchingContacts
 
 // Returns a list of available kinds of contact search.
 //
@@ -1675,8 +1677,9 @@ Function ContactsMetadata()
 	
 EndFunction 
 
-////////////////////////////////////////////////////////////////////////////////
-//  Main procedures and functions of contact search.
+#EndRegion
+
+#Region MainProceduresAndFunctionsForContactsSearch
 
 // Returns a table of all contacts related to the interaction subject.
 //
@@ -2407,7 +2410,7 @@ Function GetSearchForContactsQueryTextByEmailString()
 	
 EndFunction
 
-// Gets contacts by an interaction subject, sets a contact search page by the subject
+// Gets contacts for a given interaction topic and sets a contact search page
 // as the current page of the search form.
 //
 // Parameters:
@@ -2447,8 +2450,9 @@ Procedure FillContactsBySubject(FormItems, SubjectOf, ContactsBySubject, Include
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////////
-//  Procedures and functions for getting contact data, interactions, and interaction subjects.
+#EndRegion
+
+#Region ProceduresAndFunctionsForRetrievingInteractionContactsAndSubjectsData
 
 // Parameters:
 //  Ref - Reference to the interaction.
@@ -2554,8 +2558,9 @@ Procedure SetInteractionFormAttributesByRegisterData(Form) Export
 	
 EndProcedure
 
-///////////////////////////////////////////////////////////////////////////////////
-//  Procedures and functions for handling interactions.
+#EndRegion
+
+#Region InteractionsProceduresAndFunctions
 
 // Returns:
 //  ValueList - Value list containing contacts that can be created manually.
@@ -3332,7 +3337,7 @@ Function EmailSendingParameters(Object) Export
 		If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
 			
 			ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
-			OwnerDigitalSignatures = ModuleDigitalSignature.SetSignatures(AttachmentsSelection.Ref);
+			OwnerDigitalSignatures = ModuleDigitalSignature.ObjectSignatures(AttachmentsSelection.Ref);
 			LineNumber = 1;
 			For Each DS In OwnerDigitalSignatures Do
 				FileName = AttachmentsSelection.FullDescr + "-DS("+ LineNumber + ")." + SignatureFilesExtension;
@@ -3780,7 +3785,7 @@ Procedure AddEmailAttachmentsToEmailMessage(Message, AttachmentsSelection)
 		
 		If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
 			ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
-			AttachmentSignatures = ModuleDigitalSignature.SetSignatures(AttachmentsSelection.Ref);
+			AttachmentSignatures = ModuleDigitalSignature.ObjectSignatures(AttachmentsSelection.Ref);
 			LineNumber = 1;
 			For Each DS In AttachmentSignatures Do
 				Name = AttachmentsSelection.FullDescr + "-DS("+ LineNumber + ")." + SignatureFilesExtension();
@@ -3872,6 +3877,8 @@ Function SendEmailsInHTMLFormat()
 	Return GetFunctionalOption("SendEmailsInHTMLFormat");
 EndFunction
 
+#EndRegion
+
 #Region UpdateHandlers
 
 Procedure DisableSubsystemSaaS() Export
@@ -3889,8 +3896,7 @@ EndProcedure
 
 #EndRegion 
 
-//////////////////////////////////////////////////////////////////////////////////
-//   Managing items and attributes of list forms and document forms.
+#Region DocFormAndDocListFormItemAndAttributeManagement
 
 // Dynamically generates the "Address book" and "Pick contacts" common forms according to the possible contact types.
 //
@@ -4073,13 +4079,14 @@ EndProcedure
 // Parameters:
 //  Form     - ClientApplicationForm - the form for which attributes are initialized contains:
 //   * Commands - FormCommands - also contain:
-//    ** SubjectList - FormCommand - changes the topic.
-//    ** SubjectOf       - FormCommand - changes the topic.
-//  Parameters - Structure  - parameters of initializing commands.
+//    ** SubjectList - FormCommand
+//    ** SubjectOf       - FormCommand
+//  Parameters - Structure:
+//    * OnlyEmail - Boolean
 //
 Procedure InitializeInteractionsListForm(Form, Parameters) Export
 
-	If Parameters.Property("OnlyEmail") And Parameters.OnlyEmail Then
+	If Parameters.OnlyEmail Then
 		Form.OnlyEmail = True;
 	Else
 		Form.OnlyEmail = Not GetFunctionalOption("UseOtherInteractions");
@@ -4129,8 +4136,9 @@ Procedure ProcessUserGroupsDisplayNecessity(Form) Export
 	
 EndProcedure
 
-//////////////////////////////////////////////////////////////////////////////////
-// Handling interaction subjects.
+#EndRegion
+
+#Region InteractionSubjectsManagement
 
 // Parameters:
 //  Ref  - DocumentRef.IncomingEmail
@@ -4149,8 +4157,9 @@ Procedure SetSubject(Ref, SubjectOf, CalculateReviewedItems = True) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////////
-// Generate an email.
+#EndRegion
+
+#Region EmailGeneration
 
 // Generates an HTML text for an incoming email.
 //
@@ -4821,7 +4830,7 @@ Function GenerateEmailHeaderDataItem(ParentElement, EmailHeader1, OnlyBySenderPr
 		AddRowToTable(ItemTable, "cc: ", GetIncomingEmailRecipientsPresentations(CCRecipientsTable));
 	EndIf;
 	
-	Subject = ?(IsBlankString(EmailHeader1.Subject), NStr("en = '<No Subject>';"), EmailHeader1.Subject);
+	Subject = ?(IsBlankString(EmailHeader1.Subject), NStr("en = '<No subject>';"), EmailHeader1.Subject);
 	AddRowToTable(ItemTable, "Subject: ", Subject);
 	
 	Return ItemTable;
@@ -5242,8 +5251,9 @@ Function FontItem(HTMLDocument, Size, FontName)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////////
-// Settings management.
+#EndRegion
+
+#Region SettingsManagement
 
 // Returns current user setting.
 // If setting is not specified,
@@ -5288,7 +5298,7 @@ Procedure SaveEmailManagementSettings(Value) Export
 EndProcedure 
 
 ////////////////////////////////////////////////////////////////////
-// Text messages.
+// Text messages
 
 // Parameters:
 //  SMSMessage  - DocumentObject.SMSMessage - a document, for which an SMS message delivery status is checked.
@@ -6741,8 +6751,9 @@ Procedure SetEmailFolder(Ref, Folder, CalculateReviewedItems = True) Export
 	
 EndProcedure
 
-///////////////////////////////////////////////////////////////////////////////////
-//  Compute states.
+#EndRegion
+
+#Region CalculationOfStates
 
 // Calculates interaction subject states.
 //
@@ -7400,8 +7411,9 @@ Function InteractionsArrayForReviewDateChange(InteractionsArray, ReviewDate) Exp
 
 EndFunction
 
-///////////////////////////////////////////////////////////////////////////////////
-//  Miscellaneous.
+#EndRegion
+
+#Region Other
 
 // Parameters:
 //  FormInputField  - FormField - the form item the choice list belongs to.
@@ -8161,8 +8173,9 @@ Function CatalogHasTabularSection(CatalogName, TabularSectionName)
 	
 EndFunction 
 
-///////////////////////////////////////////////////////////////////////////////////
-//  Message templates.
+#EndRegion
+
+#Region MessageTemplates
 
 // Parameters:
 //  Folder — CatalogRef.EmailMessageFolders — the folder makes sense for the "Incoming mail"
@@ -8216,8 +8229,9 @@ Function EmailSendingResult()
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Define the reference type.
+#EndRegion
+
+#Region DefiningRefType
 
 // Parameters:
 //  ObjectRef  - AnyRef - a reference, to which a check is being executed.
@@ -8381,7 +8395,7 @@ Function StatusesList() Export
 	
 EndFunction
 
-// Receives chain interactions by an interaction subject.
+// Gets interactions from a topic chain.
 //
 // Parameters:
 //  Chain	  - AnyRef - an interaction subject to get interactions for.
@@ -8681,8 +8695,9 @@ Function HasDelayInExecutionOfJobOfReceivingAndSendingEmails()
 	
 EndFunction
 
-//////////////////////////////////////////////////////////////////////////////////
-// Interaction form element and attribute management.
+#EndRegion
+
+#Region InteractionFormItemAndAttributeManagement
 
 // Parameters:
 //  Form - ClientApplicationForm - the form for which a conditional appearance is set.
@@ -8965,8 +8980,9 @@ Function MergeEmails(FirstEmailHTMLDocument, SecondEmailHTMLDocument, SecondEmai
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////////
-// Operations with the HTML Document object.
+#EndRegion
+
+#Region HTMLDocumentObjectManagement
 
 // Gets an array of HTML element child nodes that contain HTML.
 //
@@ -8993,5 +9009,7 @@ Function ChildNodesWithHTML(Item)
 	Return Result;
 
 EndFunction
+
+#EndRegion
 
 #EndRegion

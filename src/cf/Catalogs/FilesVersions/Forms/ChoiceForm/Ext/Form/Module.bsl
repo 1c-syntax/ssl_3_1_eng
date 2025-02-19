@@ -66,7 +66,7 @@ Procedure Delete(Command)
 	EndIf;
 	
 	FilesOperationsInternalClient.DeleteData(
-		New NotifyDescription("AfterDeleteData", ThisObject),
+		New CallbackDescription("AfterDeleteData", ThisObject),
 		Items.List.CurrentData.Ref, UUID);
 	
 EndProcedure

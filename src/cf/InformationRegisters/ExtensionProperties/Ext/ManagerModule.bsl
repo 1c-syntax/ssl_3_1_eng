@@ -6,13 +6,12 @@
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Private
 
-// For internal use.For internal use.
+// For internal use.
 // 
 Procedure SaveExtensionsProperties(ExtensionID, Properties) Export
 	

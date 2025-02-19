@@ -33,7 +33,7 @@ Procedure CheckTheLocationOfTheComponent(Id, Location) Export
 EndProcedure
 
 // Parameters:
-//  Notification - NotifyDescription
+//  Notification - CallbackDescription
 //  Context - See CommonInternalClient.AddInAttachmentContext
 //
 Procedure CheckAddInAvailability(Notification, Context) Export
@@ -46,7 +46,7 @@ Procedure CheckAddInAvailability(Notification, Context) Export
 	
 	Information = AddInsInternalServerCall.SavedAddInInformation(
 		Context.Id, Context.Version, ThePathToTheLayoutToSearchForTheLatestVersion);
-	
+	Context.Version = Information.Attributes.Version;
 	Context.Location = Information.Location;
 	
 	// Information.State:
@@ -62,7 +62,7 @@ Procedure CheckAddInAvailability(Notification, Context) Export
 	If Information.State = "DisabledByAdministrator" Then 
 		
 		Result.ErrorDescription = NStr("en = 'Disabled by administrator.';");
-		ExecuteNotifyProcessing(Notification, Result);
+		RunCallback(Notification, Result);
 		
 	ElsIf Information.State = "NotFound1" Then 
 		
@@ -73,17 +73,17 @@ Procedure CheckAddInAvailability(Notification, Context) Export
 			SearchContext.Insert("Notification", Notification);
 			SearchContext.Insert("Context", Context);
 			
-			NotificationForms = New NotifyDescription(
+			NotificationForms = New CallbackDescription(
 				"CheckAddInAvailabilityAfterSearchingAddInOnPortal",
 				ThisObject, 
 				SearchContext);
 				
-			Notification = New NotifyDescription("AddInSearchOnPortalOnGenerateResult", ThisObject, NotificationForms);
-			AddInsClientLocalization.ComponentSearchOnPortal(Notification, Context);
+			Notification = New CallbackDescription("AddInSearchOnPortalOnGenerateResult", ThisObject, NotificationForms);
+			AddInsClientLocalization.OnSearchAddInsOnPortal(Notification, Context);
 			
 		Else 
 			Result.ErrorDescription = NStr("en = 'The add-in is missing from the list of allowed add-ins.';");
-			ExecuteNotifyProcessing(Notification, Result);
+			RunCallback(Notification, Result);
 		EndIf;
 		
 	Else
@@ -99,7 +99,7 @@ Procedure CheckAddInAvailability(Notification, Context) Export
 			Or CurrentClientIsSupportedByAddIn(Information.Attributes.TargetPlatforms) Then
 			
 			Result.Available = True;
-			ExecuteNotifyProcessing(Notification, Result);
+			RunCallback(Notification, Result);
 			
 		Else 
 			
@@ -107,13 +107,13 @@ Procedure CheckAddInAvailability(Notification, Context) Export
 			NotificationParameters.Insert("Notification", Notification);
 			NotificationParameters.Insert("Result", Result);
 			
-			NotificationForms = New NotifyDescription(
+			NotificationForms = New CallbackDescription(
 				"CheckAddInAvailabilityAfterDisplayingAvailableClientTypes",
 				ThisObject,
 				NotificationParameters);
 				
 			If Not Context.SuggestInstall Then
-				ExecuteNotifyProcessing(NotificationForms, False);
+				RunCallback(NotificationForms, False);
 				Return;
 			EndIf;
 			
@@ -145,6 +145,7 @@ Async Function AddInAvailabilityCheckResult(Context) Export
 		Context.Id, Context.Version, ThePathToTheLayoutToSearchForTheLatestVersion);
 	
 	Context.Location = Information.Location;
+	Context.Version = Information.Attributes.Version;
 	
 	// Information.State:
 	// * IsNotFound
@@ -260,7 +261,7 @@ EndFunction
 // Check if the add-in from template is compatible.
 // 
 // Parameters:
-//  Notification - NotifyDescription - Notify on the compatibility check and show a warning.
+//  Notification - CallbackDescription - Notify on the compatibility check and show a warning.
 //  AddInAttachmentContext - See CommonInternalClient.AddInAttachmentContext
 //
 Procedure CheckTemplateAddInForCompatibility(Notification, AddInAttachmentContext) Export
@@ -278,7 +279,7 @@ Procedure CheckTemplateAddInForCompatibility(Notification, AddInAttachmentContex
 		Context.ErrorDescription = AddInCompatibilityErrorDetails();
 		
 		If AddInAttachmentContext.SuggestInstall Then
-			NotifyDescription = New NotifyDescription("AfterCompatibilityInfoDisplayed", ThisObject, Context);
+			NotifyDescription = New CallbackDescription("AfterCompatibilityInfoDisplayed", ThisObject, Context);
 			
 			FormParameters = New Structure;
 			FormParameters.Insert("ExplanationText", AddInAttachmentContext.ExplanationText);
@@ -303,7 +304,7 @@ EndProcedure
 
 Procedure AfterCompatibilityInfoDisplayed(Result, Context) Export
 	
-	ExecuteNotifyProcessing(Context.Notification, Context.ErrorDescription);
+	RunCallback(Context.Notification, Context.ErrorDescription);
 	
 EndProcedure
 
@@ -322,7 +323,7 @@ Procedure CheckAddInAvailabilityAfterSearchingAddInOnPortal(Imported1, SearchCon
 		Context.SuggestToImport = False;
 		CheckAddInAvailability(Notification, Context);
 	Else 
-		ExecuteNotifyProcessing(Notification, AddInAvailabilityResult());
+		RunCallback(Notification, AddInAvailabilityResult());
 	EndIf;
 	
 EndProcedure
@@ -331,7 +332,7 @@ Procedure CheckAddInAvailabilityAfterDisplayingAvailableClientTypes(Result, Cont
 	
 	AddInAvailabilityResult = Context.Result;
 	AddInAvailabilityResult.Available = Result = True;
-	ExecuteNotifyProcessing(Context.Notification, AddInAvailabilityResult);
+	RunCallback(Context.Notification, AddInAvailabilityResult);
 	
 EndProcedure
 
@@ -376,7 +377,7 @@ EndProcedure
 // The add-in supports the client.
 // 
 // Parameters:
-//  Attributes - 
+//  Attributes - See AddInsInternal.AddInAttributes
 // 
 // Returns:
 //  Boolean - Flag indicating whether the add-in supports the client.
@@ -639,7 +640,7 @@ Function PresentationOfCurrentClient()
 #ElsIf ThinClient Then
 	Package = NStr("en = 'thin client';");
 #ElsIf ThickClientOrdinaryApplication Then
-	Package = NStr("en = 'thick client (standard application)';");
+	Package = NStr("en = 'thick client (ordinary application)';");
 #ElsIf ThickClientManagedApplication Then
 	Package = NStr("en = 'thick client';");
 #EndIf
@@ -720,7 +721,7 @@ EndFunction
 
 Procedure AttachAddInSSL(Context) Export 
 	
-	Notification = New NotifyDescription(
+	Notification = New CallbackDescription(
 		"AttachAddInAfterAvailabilityCheck", 
 		ThisObject, 
 		Context);
@@ -762,7 +763,7 @@ EndProcedure
 
 // Returns:
 //  Structure:
-//   * Notification - NotifyDescription
+//   * Notification - CallbackDescription
 //   * Id - String
 //   * ObjectCreationID - String
 //
@@ -872,7 +873,7 @@ Procedure AttachAddInFromWindowsRegistry(Context) Export
 	
 	If AttachAddInFromWindowsRegistryAttachmentAvailable() Then
 		
-		Notification = New NotifyDescription(
+		Notification = New CallbackDescription(
 		"AttachAddInFromWindowsRegistryAfterAttachmentAttempt", ThisObject, Context,
 		"AttachAddInFromWIndowsRegisterOnProcessError", ThisObject);
 		
@@ -1013,7 +1014,7 @@ EndFunction
 
 Procedure InstallAddInSSL(Context) Export
 	
-	Notification = New NotifyDescription(
+	Notification = New CallbackDescription(
 		"InstallAddInAfterAvailabilityCheck", 
 		ThisObject, 
 		Context);
@@ -1053,7 +1054,7 @@ EndProcedure
 
 // Returns:
 //  Structure:
-//   * Notification - NotifyDescription
+//   * Notification - CallbackDescription
 //   * Id - String
 //   * Version - String
 //   * AdditionalInformationSearchParameters - Map
@@ -1094,12 +1095,12 @@ Procedure ImportAddInFromFile(Context) Export
 			FormParameters.Insert("Key", Information.Ref);
 		EndIf;
 		
-		Notification = New NotifyDescription("ImportAddInFromFileAfterImport", ThisObject, Context);
+		Notification = New CallbackDescription("ImportAddInFromFileAfterImport", ThisObject, Context);
 		OpenForm("Catalog.AddIns.ObjectForm", FormParameters,,,,, Notification);
 		
 	Else 
 		
-		Notification = New NotifyDescription("ImportAddInFromFileAfterAvailabilityWarnings", ThisObject, Context);
+		Notification = New CallbackDescription("ImportAddInFromFileAfterAvailabilityWarnings", ThisObject, Context);
 		ShowMessageBox(Notification, 
 			NStr("en = 'Add-in import is canceled
 			           |due to:
@@ -1114,7 +1115,7 @@ Procedure ImportAddInFromFileAfterAvailabilityWarnings(Context) Export
 	
 	Result = AddInImportResult();
 	Result.Imported1 = False;
-	ExecuteNotifyProcessing(Context.Notification, Result);
+	RunCallback(Context.Notification, Result);
 	
 EndProcedure
 
@@ -1134,7 +1135,7 @@ Procedure ImportAddInFromFileAfterImport(Result, Context) Export
 		Result.Imported1 = False;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Notification, Result);
+	RunCallback(Notification, Result);
 	
 EndProcedure
 
@@ -1159,7 +1160,7 @@ EndFunction
 Procedure AddInSearchOnPortalOnGenerateResult(Result, Notification) Export
 	
 	Imported1 = (Result = True); // When the form is closed, it is set to "Undefined".
-	ExecuteNotifyProcessing(Notification, Imported1);
+	RunCallback(Notification, Imported1);
 	
 EndProcedure
 
@@ -1168,19 +1169,19 @@ EndProcedure
 #Region UpdateAddInsFromPortal
 
 // Parameters:
-//  Notification - NotifyDescription
+//  Notification - CallbackDescription
 //  AddInsToUpdate - Array of CatalogRef.AddIns
 //
 Procedure UpdateAddInsFromPortal(Notification, AddInsToUpdate) Export
 	
-	NotificationForms = New NotifyDescription("UpdateAddInFromPortalOnGenerateResult", ThisObject, Notification);
-	AddInsClientLocalization.UpdateAddInsFromPortal(NotificationForms, AddInsToUpdate);
+	NotificationForms = New CallbackDescription("UpdateAddInFromPortalOnGenerateResult", ThisObject, Notification);
+	AddInsClientLocalization.OnUpdateAddInsFromPortal(NotificationForms, AddInsToUpdate);
 	
 EndProcedure
 
 Procedure UpdateAddInFromPortalOnGenerateResult(Result, Notification) Export
 	
-	ExecuteNotifyProcessing(Notification, Undefined);
+	RunCallback(Notification, Undefined);
 	
 EndProcedure
 
@@ -1205,16 +1206,17 @@ Procedure SaveAddInToFile(AddInRef) Export
 		
 		SavingParameters = FileSystemClient.FileSavingParameters();
 		SavingParameters.Dialog.Title = NStr("en = 'Select a file to save the add-in to';");
-		SavingParameters.Dialog.Filter    = NStr("en = 'Add-in files (*.zip)|*.zip';")+"|"
-			+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
+		SavingParameters.Dialog.Filter    = NStr("en = 'Add-in files (*.zip)|*.zip';") + "|"
+			+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), 
+				GetAllFilesMask());
 		
-		Notification = New NotifyDescription("SaveAddInToFileAfterReceivingFiles", ThisObject);
+		Notification = New CallbackDescription("SaveAddInToFileAfterReceivingFiles", ThisObject);
 		FileSystemClient.SaveFile(Notification, FilesDetails[0].Location, FilesDetails[0].Name, SavingParameters);
 		
 		Return;
 	EndIf;
 	
-	Notification = New NotifyDescription("SaveAddInsToFileAfterDirectorySelected", ThisObject, FilesDetails);
+	Notification = New CallbackDescription("SaveAddInsToFileAfterDirectorySelected", ThisObject, FilesDetails);
 	FileSystemClient.SelectDirectory(Notification, NStr("en = 'Select a directory to save the add-ins';"));
 	
 EndProcedure
@@ -1234,7 +1236,7 @@ Procedure SaveAddInsToFileAfterDirectorySelected(Directory, FilesDetails) Export
 	SavingParameters = FileSystemClient.FilesSavingParameters();
 	SavingParameters.Interactively = False;
 	SavingParameters.Dialog.Directory = Directory;
-	FileSystemClient.SaveFiles(New NotifyDescription(
+	FileSystemClient.SaveFiles(New CallbackDescription(
 		"SaveAddInToFileAfterReceivingFiles", ThisObject), 
 		FilesToSave, SavingParameters);
 

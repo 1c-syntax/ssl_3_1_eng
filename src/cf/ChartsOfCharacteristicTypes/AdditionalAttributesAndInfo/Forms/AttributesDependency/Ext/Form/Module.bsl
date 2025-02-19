@@ -255,7 +255,7 @@ Function FilterSettingsInValueStorage()
 	FilterParameter.Condition = "NotInList";
 	ConvertDependenciesInList(TableCopy, FilterParameter);
 	
-	Return New ValueStorage(TableCopy);
+	Return New ValueStorage(TableCopy, New Deflation(9));
 	
 EndFunction
 

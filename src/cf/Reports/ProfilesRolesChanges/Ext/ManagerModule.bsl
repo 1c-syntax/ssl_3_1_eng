@@ -59,7 +59,7 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "Main");
 	OptionSettings.Enabled = Common.SubsystemExists("StandardSubsystems.AccessManagement");
 	OptionSettings.LongDesc =
-		NStr("en = 'Reads the event log and displays the changes in profile roles considering the changes or role lists in metadata objects for the given time period.';");
+		NStr("en = 'Reads the event log and displays the changes in profile roles based on updates to metadata object role lists for the specified time period.';");
 	
 EndProcedure
 

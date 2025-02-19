@@ -35,7 +35,7 @@ EndProcedure
 &AtClient
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
-	Notification = New NotifyDescription("WriteAndCloseOnClient", ThisObject);
+	Notification = New CallbackDescription("WriteAndCloseOnClient", ThisObject);
 	CommonClient.ShowFormClosingConfirmation(Notification, Cancel, Exit);
 	
 EndProcedure
@@ -214,7 +214,7 @@ Procedure SelectObjects()
 	FormParameters.ShouldSelectExternalDataSourceTables = True;
 	FormParameters.ObjectsGroupMethod = "ByKinds";
 	
-	NotifyDescription = New NotifyDescription("SelectObjectsCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("SelectObjectsCompletion", ThisObject);
 	StandardSubsystemsClient.ChooseMetadataObjects(FormParameters, NotifyDescription);
 	
 EndProcedure
@@ -509,7 +509,7 @@ Function IsWrittenAtServer()
 	For Each RowColumn In TablesItems Do
 		If RowColumn.IsNameDeleted Then
 			Common.MessageToUser(StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot file table ""%1"".';"), RowColumn.Name), , "Settings");
+				NStr("en = 'Table ""%1"" is not found.';"), RowColumn.Name), , "Settings");
 			HasErrors = True;
 			Continue;
 		EndIf;

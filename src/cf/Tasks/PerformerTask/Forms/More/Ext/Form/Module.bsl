@@ -20,28 +20,4 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 EndProcedure
 
-&AtServer
-Procedure OnReadAtServer(CurrentObject)
-
-	// StandardSubsystems.AccessManagement
-	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
-		ModuleAccessManagement = Common.CommonModule("AccessManagement");
-		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
-	EndIf;
-	// End StandardSubsystems.AccessManagement
-
-EndProcedure
-
-&AtServer
-Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
-
-	// StandardSubsystems.AccessManagement
-	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
-		ModuleAccessManagement = Common.CommonModule("AccessManagement");
-		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);
-	EndIf;
-	// End StandardSubsystems.AccessManagement
-
-EndProcedure
-
 #EndRegion

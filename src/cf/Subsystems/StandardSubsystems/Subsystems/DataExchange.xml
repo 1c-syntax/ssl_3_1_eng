@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<Subsystem uuid="842c8662-8f39-405e-9665-cbdabc116159">
 		<Properties>
 			<Name>DataExchange</Name>
@@ -46,12 +46,9 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.DataExchangeXDTOServer</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">FunctionalOption.UseDataSynchronization</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Constant.DistributedInfobaseNodePrefix</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.ExchangeMessageTransportFILE</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.SuccessfulDataExchangesStates</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.DataExchangesStates</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.ConnectionSettings</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.DataExchangeGlobal</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">WebService.Exchange_3_0_1_1</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.ReceivingEvents</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Enum.DataExchangeRulesSources</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">XDTOPackage.ExchangeMessage</xr:Item>
@@ -73,8 +70,6 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.DataSynchronizationSettings</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.ImportRulesSet</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.InteractiveDataExchangeWizard</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.ExchangeMessageTransportFTP</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.ExchangeMessageTransportEMAIL</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">FunctionalOption.InfobasePrefix</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.DataExchangeState</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">WebService.EnterpriseDataUpload_1_0_1_1</xr:Item>
@@ -88,7 +83,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.DataSynchronizationInteractiveExecute</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.DataExchangeStateError</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonForm.DataSyncSettings</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.DataExchangeTransportSettings</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.DeleteDataExchangeTransportSettings</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Role.DataSynchronizationInProgress</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommandGroup.DataSynchronization</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.SynchronizeWithAdditionalParameters</xr:Item>
@@ -103,12 +98,10 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.GetSynchronizationSettingsForOtherApplication</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.CheckDataMigrationRestrictionFiltersChanged</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.CancelSendNodeDataInDistributedInfobase</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">WebService.Exchange</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.DataExchangeMessages</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">ScheduledJob.ObsoleteSynchronizationDataDeletion</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.CommonNodeDataChanges</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.RegisterCommonNodesDataChanges</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">WebService.Exchange_2_0_1_6</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Constant.DataExchangeMessageFromMasterNode</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.DataExchangeExecution</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonForm.AdditionalDetails</xr:Item>
@@ -168,8 +161,6 @@
 				<xr:Item xsi:type="xr:MDObjectRef">XDTOPackage.EnterpriseData_1_10_8</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.InfobaseUpdateDSL</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">XDTOPackage.EnterpriseData_1_8_6</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">WebService.Exchange_3_0_2_1</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.DataExchangeWebService</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.ObjectsUnregisteredDuringLoop</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.MigrationToExchangeOverInternetWizardInternalPublication</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.SynchronizationCircuit</xr:Item>
@@ -188,13 +179,15 @@
 				<xr:Item xsi:type="xr:MDObjectRef">XDTOPackage.EnterpriseData_1_11_7</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">XDTOPackage.EnterpriseData_1_15_3</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">XDTOPackage.EnterpriseData_1_12_1</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">WebService.Exchange_3_0_2_2</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">XDTOPackage.EnterpriseData_1_16_2</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.DataExchangeSettingActive</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">XDTOPackage.EnterpriseData_1_17_3</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.ExchangePlansDSL</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects>
 			<Subsystem>Registration</Subsystem>
+			<Subsystem>ExchangeMessagesTransport</Subsystem>
 		</ChildObjects>
 	</Subsystem>
 </MetaDataObject>

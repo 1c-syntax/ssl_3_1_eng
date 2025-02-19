@@ -351,7 +351,7 @@ Procedure QuestionnaireTreeFormBeforeAddRow(Item, Cancel, Copy, Parent, Var_Grou
 	ChoiceList.Add("Conditional", NStr("en = 'Conditional question';"));
 	ChoiceList.Add("Tabular", NStr("en = 'Question chart';"));
 	
-	OnCloseNotifyHandler = New NotifyDescription("SelectAddedItemTypeOnCompletion", ThisObject);
+	OnCloseNotifyHandler = New CallbackDescription("SelectAddedItemTypeOnCompletion", ThisObject);
 	ChoiceList.ShowChooseItem(OnCloseNotifyHandler, NStr("en = 'Select a type of the item being added.';"), ChoiceList[0]);
 	
 EndProcedure
@@ -412,7 +412,7 @@ EndProcedure
 &AtClient
 Procedure QuestionnaireTreeNotesStartChoice(Item, ChoiceData, StandardProcessing)
 	
-	ClosingNotification1 = New NotifyDescription("NoteEditOnClose", ThisObject);
+	ClosingNotification1 = New CallbackDescription("NoteEditOnClose", ThisObject);
 	CommonClient.ShowMultilineTextEditingForm(ClosingNotification1, Item.EditText, NStr("en = 'Notes';"));
 	
 EndProcedure
@@ -508,7 +508,7 @@ Procedure OpenQuestionnaireResponseForm(Command)
 	EndIf;
 	
 	If Modified Then
-		OnCloseNotifyHandler = New NotifyDescription("PromptForWriteRequiredAfterCompletion", ThisObject);
+		OnCloseNotifyHandler = New CallbackDescription("PromptForWriteRequiredAfterCompletion", ThisObject);
 		ShowQueryBox(OnCloseNotifyHandler,
 		               NStr("en = 'The questionnaire template was modified. 
 		                   |To display all the changes correctly, save the template.

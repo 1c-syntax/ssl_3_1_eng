@@ -144,10 +144,6 @@ Function InformationAboutCertificates()
 	
 	QueryOptions.Insert("FindMRLOA", False);
 	
-	If FindMRLOA <> Undefined And Common.SubsystemExists("StandardSubsystems.MachineReadableLettersOfAuthority") Then
-		ModuleMachineReadableLettersOfAuthorityFTS = Common.CommonModule("MachineReadableLettersOfAuthorityFTS");
-		QueryOptions.Insert("FindMRLOA", FindMRLOA);
-	EndIf;
 
 	Query = New Query;
 	
@@ -280,7 +276,8 @@ Function InformationAboutCertificates()
 			EndIf;
 			
 			String.Qualified = Not String.Test_ And Result.ThisIsQualifiedCertificate;
-			String.IsIndividualCertificateIssuanceRequired = Result.ThisIsQualifiedCertificate And Not Result.IsState And ValueIsFilled(String.Firm);
+			String.IsIndividualCertificateIssuanceRequired = Result.ThisIsQualifiedCertificate 
+				And Not Result.IsState And ValueIsFilled(String.Firm);
 			
 			String.IndividualCertificate = ValueIsFilled(String.TIN) And Not ValueIsFilled(String.TINEntity)
 				And Not ValueIsFilled(String.OGRN);
@@ -288,18 +285,6 @@ Function InformationAboutCertificates()
 			String.MRLOARequired = Result.ThisIsQualifiedCertificate And String.IndividualCertificate 
 				And (Not Result.IsState Or IsTreasuryCertificate(CryptoCertificate));
 			
-			If QueryOptions.FindMRLOA And Result.ThisIsQualifiedCertificate Then
-					
-				FilterForLettersOfAuthorityByCertificate = ModuleMachineReadableLettersOfAuthorityFTS.FilterForLettersOfAuthorityByCertificate(
-					CryptoCertificate, "Representative");
-					SelectedFields = New Array;
-					SelectedFields.Add("MachineReadableLetterOfAuthority");
-				LettersOfAuthority = ModuleMachineReadableLettersOfAuthorityFTS.LettersOfAuthorityWithFilter(FilterForLettersOfAuthorityByCertificate, SelectedFields);
-				
-				If LettersOfAuthority.Count() > 0 Then
-					String.MRLOA = LettersOfAuthority[0].MachineReadableLetterOfAuthority;
-				EndIf;
-			EndIf;
 			
 		EndIf;
 		

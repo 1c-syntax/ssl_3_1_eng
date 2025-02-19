@@ -179,9 +179,12 @@ Function ContactInformation(Settings)
 		Return Contacts;
 	EndIf;
 	
+	ContactInformationKindUserEmail   = ContactInformationKind("UserEmail");
+	ContactInformationKindUserPhone = ContactInformationKind("UserPhone");
+	
 	ContactInformationKinds = New Array;
-	ContactInformationKinds.Add(Catalogs["ContactInformationKinds"].UserEmail);
-	ContactInformationKinds.Add(Catalogs["ContactInformationKinds"].UserPhone);
+	ContactInformationKinds.Add(ContactInformationKindUserEmail);
+	ContactInformationKinds.Add(ContactInformationKindUserPhone);
 	Query = New Query;
 	Query.SetParameter("ContactInformationKinds", ContactInformationKinds);
 	Query.Text =
@@ -208,11 +211,11 @@ Function ContactInformation(Settings)
 		EmailAddresses = "";
 		Selection = SelectionByUsers.Select();
 		While Selection.Next() Do
-			If Selection.Kind = Catalogs["ContactInformationKinds"].UserPhone Then
+			If Selection.Kind = ContactInformationKindUserPhone Then
 				Phones = Phones + ?(ValueIsFilled(Phones), ", ", "");
 				Phones = Phones + Selection.Presentation;
 			EndIf;
-			If Selection.Kind = Catalogs["ContactInformationKinds"].UserEmail Then
+			If Selection.Kind = ContactInformationKindUserEmail Then
 				EmailAddresses = EmailAddresses + ?(ValueIsFilled(EmailAddresses), ", ", "");
 				EmailAddresses = EmailAddresses + Selection.Presentation;
 			EndIf;
@@ -226,6 +229,13 @@ Function ContactInformation(Settings)
 	EndDo;
 	
 	Return Contacts;
+	
+EndFunction
+
+Function ContactInformationKind(KindName)
+	
+	ModuleContactsManager = Common.CommonModule("ContactsManager");
+	Return ModuleContactsManager.ContactInformationKindByName(KindName);
 	
 EndFunction
 

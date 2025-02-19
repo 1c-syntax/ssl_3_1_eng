@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
 	<AutoTitle>false</AutoTitle>
 	<AutoURL>false</AutoURL>
@@ -40,7 +40,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Setting pages</v8:content>
+					<v8:content>Settings pages</v8:content>
 				</v8:item>
 			</Title>
 			<VerticalStretch>true</VerticalStretch>
@@ -3422,7 +3422,7 @@
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Fields and sortings are configured</v8:content>
+											<v8:content>Fields and sorts are configured</v8:content>
 										</v8:item>
 									</ToolTip>
 									<EditMode>EnterOnInput</EditMode>
@@ -3571,7 +3571,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Contains nonexistent fields</v8:content>
+					<v8:content>Contains non-existent fields</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTipRepresentation>Button</ToolTipRepresentation>
@@ -3582,9 +3582,9 @@
 				<Title formatted="false">
 					<v8:item>
 						<v8:lang>en</v8:lang>
-						<v8:content>Nonexistent field occur when the report author removes or disables fields.
-Nonexistent fields might cause report generation issues.
-Remove nonexistent fields from report settings or replace them with existent fields.</v8:content>
+						<v8:content>Non-existent fields occur when the report author removes or disables fields.
+Non-existent fields might cause report generation issues.
+Remove non-existent fields from report settings or replace them with existent fields.</v8:content>
 					</v8:item>
 				</Title>
 			</ExtendedTooltip>
@@ -3610,7 +3610,7 @@ Remove nonexistent fields from report settings or replace them with existent fie
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Settings contain nonexistent fields.</v8:content>
+							<v8:content>Settings contain non-existent fields.</v8:content>
 						</v8:item>
 					</Title>
 					<ContextMenu name="HasNonexistentFieldsTooltipContextMenu" id="1116"/>
@@ -4126,7 +4126,7 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Mark</v8:content>
+											<v8:content>Checkbox</v8:content>
 										</v8:item>
 									</Title>
 									<EditMode>Directly</EditMode>
@@ -4222,7 +4222,7 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Mark</v8:content>
+											<v8:content>Checkbox</v8:content>
 										</v8:item>
 									</Title>
 									<EditMode>Directly</EditMode>
@@ -4318,7 +4318,7 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Mark</v8:content>
+											<v8:content>Checkbox</v8:content>
 										</v8:item>
 									</Title>
 									<EditMode>Directly</EditMode>
@@ -4414,7 +4414,7 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Mark</v8:content>
+											<v8:content>Checkbox</v8:content>
 										</v8:item>
 									</Title>
 									<EditMode>Directly</EditMode>
@@ -5517,7 +5517,7 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Check box</v8:content>
+					<v8:content>Checkbox</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -5528,7 +5528,7 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Check box</v8:content>
+					<v8:content>Checkbox</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -5563,7 +5563,7 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Close the form and generate report.</v8:content>
+					<v8:content>Close the form and generate the report.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

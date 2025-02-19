@@ -12,12 +12,15 @@
 
 // Returns an error flag at start:
 // 1) Exchange message import error:
-//    - metadata object ID import error,
-//    - object ID verification error,
-//    - error of importing exchange message before infobase update,
-//    - error of importing exchange message before infobase update when infobase version is not changed;
+// - metadata object ID import error,
+// - object ID verification error,
+// - error of importing exchange message before infobase update,
+// - error of importing exchange message before infobase update when infobase version is not changed;
 // 2) Database update error after successful exchange message import.
-//
+// 
+// Returns:
+//  Boolean - Value of the constant "RetryDataExchangeMessageImportBeforeStart".
+// 
 Function RetryDataExchangeMessageImportBeforeStart() Export
 
 	SetPrivilegedMode(True);
@@ -49,8 +52,8 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 		// "DataExchangeServerCall.RefreshObjectsRegistrationMechanismCache".
 		SpecifiedParameters.Add("ObjectsRegistrationRules");
 		SpecifiedParameters.Add("ORMCachedValuesRefreshDate");
-
-		SessionParameters.DataSynchronizationPasswords = New FixedMap(New Map);
+		
+		SessionParameters.DataSynchronizationPasswords = New ValueStorage(New Map);
 		SpecifiedParameters.Add("DataSynchronizationPasswords");
 
 		SessionParameters.PriorityExchangeData = New FixedArray(New Array);
@@ -68,8 +71,8 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 		SpecifiedParameters.Add("VersionDifferenceErrorOnGetData");
 
 	Else
-
-		SessionParameters.DataSynchronizationPasswords = New FixedMap(New Map);
+		
+		SessionParameters.DataSynchronizationPasswords = New ValueStorage(New Map);
 		SpecifiedParameters.Add("DataSynchronizationPasswords");
 
 		SessionParameters.DataSynchronizationSessionParameters = New ValueStorage(New Map);
@@ -196,6 +199,12 @@ EndProcedure
 
 // Returns the flag that shows whether application parameters are imported into the infobase from the exchange message.
 // This function is used in DIB data exchange when data is imported to a subordinate node.
+// 
+// Parameters:
+//  Property - String - The property of the session parameter "DataExchangeMessageImportModeBeforeStart"
+// 
+// Returns:
+//  Boolean
 //
 Function DataExchangeMessageImportModeBeforeStart(Property) Export
 
@@ -274,12 +283,15 @@ Function ChangesRegistered(Val Recipient) Export
 EndFunction
 
 // For internal use only.
-//
+// 
 // Parameters:
-//   FileID - UUID - data transfer session UUID.
-//   FilePartToImportNumber - Number - the file part number.
-//   FilePartToImport - BinaryData - the file part details.
-//   ErrorMessage - String - operation error details.
+//  FileID - UUID - data transfer session UUID.
+//  FilePartToImportNumber - Number - the file part number.
+//  FilePartToImport - BinaryData - the file part details.
+//  ErrorMessage - String - operation error details.
+// 
+// Returns:
+//  String - Always an empty string
 //
 Function ImportFilePart(FileID, FilePartToImportNumber, FilePartToImport, ErrorMessage) Export
 
@@ -787,44 +799,6 @@ Procedure PutMessageForDataMapping(ExchangeNode, MessageID) Export
 
 EndProcedure
 
-// Gets the state of a long-running operation (background job) being executed in a correspondent
-// infobase for a specific node.
-//
-Function TimeConsumingOperationStateForInfobaseNode(Val OperationID, Val InfobaseNode,
-	Val AuthenticationParameters = Undefined, ErrorMessageString = "") Export
-
-	SetPrivilegedMode(True);
-
-	ConnectionParameters = InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(
-		InfobaseNode, AuthenticationParameters);
-
-	InterfaceVersions = DataExchangeCached.CorrespondentVersions(ConnectionParameters);
-
-	ErrorMessage = "";
-	AdditionalParameters = Undefined;
-	Proxy = DataExchangeWebService.WSProxyForInfobaseNode(InfobaseNode, ErrorMessage, AdditionalParameters);
-
-	If Proxy = Undefined Then
-		Raise ErrorMessageString;
-	EndIf;
-	
-	ProxyParameters = New Structure("CurrentVersion", AdditionalParameters.CurrentVersion);
-	ExchangeParameters = New Structure("OperationID", OperationID);
-	ExchangeSettingsStructure = DataExchangeServer.ExchangeSettingsForInfobaseNode(InfobaseNode,
-		"CheckLongRunningOperationStates", Enums.ExchangeMessagesTransportTypes.WS, False);
-	
-	Result = DataExchangeWebService.GetLongRunningOperationStatus(Proxy, ProxyParameters.CurrentVersion, ExchangeSettingsStructure, ExchangeParameters, ErrorMessageString);
-	
-	If Result = "Failed" Then
-		MessageString = NStr("en = 'Peer infobase error: %1';");
-		ErrorMessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString,
-			ErrorMessageString);
-	EndIf;
-
-	Return Result;
-
-EndFunction
-
 // Sets the flag indicating whether the extension import is required
 Procedure EnableLoadingExtensionsThatChangeTheDataStructure() Export
 
@@ -846,6 +820,10 @@ Procedure DisableLoadingExtensionsThatChangeTheDataStructure() Export
 EndProcedure
 
 // Returns the flag indicating whether the extension import is required
+// 
+// Returns:
+//  Boolean - Value of the constant "LoadExtensionsThatChangeDataStructure".
+//
 Function LoadExtensionsThatChangeDataStructure() Export
 
 	SetPrivilegedMode(True);
@@ -937,7 +915,7 @@ Function PredefinedDataTable1() Export
 EndFunction
 
 // Parameters:
-//   Data - CatalogObject,
+//   Data - CatalogObject
 //          - DocumentObject
 //          - ChartOfAccountsObject
 //          - ChartOfCalculationTypesObject
@@ -1364,8 +1342,8 @@ Function ExchangeSettingsStructure(ExchangeComponents, DataExchangeAction)
 	EndIf;
 
 	ExchangeSettingsStructure = DataExchangeServer.ExchangeSettingsForInfobaseNode(
-		ExchangeComponents.CorrespondentNode, DataExchangeAction, Undefined, False);
-
+		ExchangeComponents.CorrespondentNode, DataExchangeAction);
+	
 	If ExchangeSettingsStructure.Cancel Then
 		ErrorMessageString = NStr("en = 'Cannot initialize data exchange.';");
 		DataExchangeServer.WriteExchangeFinish(ExchangeSettingsStructure);
@@ -1419,7 +1397,7 @@ Procedure CheckMarkPredefinedDataRef(Value, PredefinedDataTable)
 
 	PredefinedDataRow = PredefinedDataTable.Find(Value, "Ref");
 	If PredefinedDataRow = Undefined Then
-		// Value is not a predeifined item.
+		// Value is not a predefined item.
 		Return;
 	EndIf;
 

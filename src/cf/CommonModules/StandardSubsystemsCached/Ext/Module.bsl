@@ -173,8 +173,7 @@ Function PrivilegedModeSetOnStart() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Application and extension metadata object ID usage.
+#Region MetadataObjectsIDsUsageInConfigurationAndExtensions
 
 // For internal use only.
 // 
@@ -229,8 +228,9 @@ Function MetadataObjectIDsUsageCheck(CheckForUpdates = False, ExtensionsObjects 
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Data exchange operation procedures and functions.
+#EndRegion
+
+#Region DataExchangeProceduresAndFunctions
 
 // Returns a flag that shows whether the full DIB is used in the infobase (without filters).
 // Checking with more accurately algorithm if the "Data exchange" subsystem is used.
@@ -294,9 +294,9 @@ Function DIBNodes(FilterByPurpose = "") Export
 		|	AND NOT ExchangePlan.DeletionMark";
 		Query.Text = StrReplace(Query.Text, "&ExchangePlanName", "ExchangePlan" + "." + ExchangePlanName);
 		// @skip-check query-in-loop - Set of reference from tables.
-		NodeSelection = Query.Execute().Select();
-		While NodeSelection.Next() Do
-			NodesList.Add(NodeSelection.Ref);
+		NodesSelection = Query.Execute().Select();
+		While NodesSelection.Next() Do
+			NodesList.Add(NodesSelection.Ref);
 		EndDo;
 	EndDo;
 	
@@ -405,8 +405,9 @@ Function ExchangePlanDataRegistrationMode(FullObjectName, ExchangePlanName) Expo
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Miscellaneous.
+#EndRegion
+
+#Region Other
 
 // Metadata object availability by functional options.
 // 
@@ -546,6 +547,8 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	Return Catalogs.MetadataObjectIDs.MetadataObjectCollectionProperties(ExtensionsObjects);
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion
 
@@ -768,8 +771,183 @@ Function QueueJobTemplates() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// For the MetadataObjectIDs catalog.
+// See StandardSubsystemsServer.RecordKeyDetails
+Function RecordKeyDetails(FullRegisterName) Export
+	
+	Manager = Common.ObjectManagerByFullName(FullRegisterName);
+	
+	AllFields = New Array;
+	RecordSet = Manager.CreateRecordSet();
+	Columns = RecordSet.Unload().Columns;
+	For Each Column In Columns Do
+		AllFields.Add(Column.Name);
+	EndDo;
+	
+	KeyFields = New Array;
+	FieldsOfUpdate = New Array;
+	FieldsDetails = New Array;
+	DetailsOfUpdateFields = New Array;
+	
+	AllFieldsList = StrConcat(AllFields, ",");
+	EmptyRecordKey = Manager.CreateRecordKey(New Structure(AllFieldsList));
+	RegisterMetadata = RecordSet.Metadata();
+	IsInformationRegisterWithRecorder = Common.IsInformationRegister(RegisterMetadata)
+		And RegisterMetadata.WriteMode
+			= Metadata.ObjectProperties.RegisterWriteMode.RecorderSubordinate;
+	
+	For Each Column In Columns Do
+		Field = Column.Name;
+		OneField = New Structure(Field, Null);
+		FillPropertyValues(OneField, EmptyRecordKey);
+		If OneField[Field] = Null And Field <> "LineNumber" Then
+			Continue;
+		EndIf;
+		IsSeparator = False;
+		FieldPresentation = RegisterFieldPresentation(RegisterMetadata, Field, IsSeparator);
+		FieldDetails = New FixedStructure(New Structure("Name, Type, Presentation",
+			Field, Column.ValueType, FieldPresentation));
+		If OneField[Field] <> Null Then
+			KeyFields.Add(Field);
+			FieldsDetails.Add(FieldDetails);
+		EndIf;
+		If Not IsInformationRegisterWithRecorder
+		 Or Not IsSeparator
+		   And Field <> "Recorder"
+		   And Field <> "LineNumber" Then
+			Continue;
+		EndIf;
+		FieldsOfUpdate.Add(Field);
+		DetailsOfUpdateFields.Add(FieldDetails);
+	EndDo;
+	
+	If Not IsInformationRegisterWithRecorder Then
+		FieldsOfUpdate = KeyFields;
+		DetailsOfUpdateFields = FieldsDetails;
+	EndIf;
+	
+	KeyDetails = New Structure;
+	KeyDetails.Insert("FieldsDetails", New FixedArray(FieldsDetails));
+	KeyDetails.Insert("FieldList",   StrConcat(KeyFields, ","));
+	KeyDetails.Insert("DetailsOfUpdateFields", New FixedArray(DetailsOfUpdateFields));
+	KeyDetails.Insert("ListOfUpdateFields",   StrConcat(FieldsOfUpdate, ","));
+	
+	Return New FixedStructure(KeyDetails);
+	
+EndFunction
+
+// Intended for function "RecordKeyDetails".
+Function RegisterFieldPresentation(RegisterMetadata, Field, IsSeparator)
+	
+	FieldMetadata = RegisterMetadata.Dimensions.Find(Field);
+	If FieldMetadata = Undefined Then
+		FieldMetadata = RegisterMetadata.Resources.Find(Field);
+		If FieldMetadata = Undefined Then
+			FieldMetadata = RegisterMetadata.Attributes.Find(Field);
+			If FieldMetadata = Undefined Then
+				For Each StandardAttribute In RegisterMetadata.StandardAttributes Do
+					If StandardAttribute.Name <> Field Then
+						Continue;
+					EndIf;
+					FieldMetadata = StandardAttribute;
+				EndDo;
+				If FieldMetadata = Undefined Then
+					SeparationDontUse = Metadata.ObjectProperties.CommonAttributeDataSeparation.DontUse;
+					For Each CommonAttribute In Metadata.CommonAttributes Do
+						If CommonAttribute.DataSeparation = SeparationDontUse
+						 Or CommonAttribute.Name <> Field Then
+						 	Continue;
+						EndIf;
+						FieldMetadata = CommonAttribute;
+						IsSeparator = True;
+					EndDo;
+				EndIf;
+			EndIf;
+		EndIf;
+	EndIf;
+	
+	Return FieldMetadata.Presentation();
+	
+EndFunction
+
+Function RecordSetAdditionMode() Export
+	
+	If Not AreReplacementModesAvailable() Then
+		Return Undefined;
+	EndIf;
+	
+	// ACC:488-off - Support of new 1C:Enterprise types (the executable code is safe)
+	Return Eval("ReplacementMode.Append");
+	// ACC:488-on
+	
+EndFunction
+
+Function RecordSetReplacementMode() Export
+	
+	If Not AreReplacementModesAvailable() Then
+		Return Undefined;
+	EndIf;
+	
+	// ACC:488-off - Support of new 1C:Enterprise types (the executable code is safe)
+	Return Eval("ReplacementMode.Replace");
+	// ACC:488-on
+	
+EndFunction
+
+Function RecordSetUpdateMode() Export
+	
+	If Not AreReplacementModesAvailable(True) Then
+		Return Undefined;
+	EndIf;
+	
+	// ACC:488-off - Support of new 1C:Enterprise types (the executable code is safe)
+	Return Eval("ReplacementMode.Update");
+	// ACC:488-on
+	
+EndFunction
+
+Function RecordSetMergeMode() Export
+	
+	If Not AreReplacementModesAvailable() Then
+		Return Undefined;
+	EndIf;
+	
+	// ACC:488-off - Support of new 1C:Enterprise types (the executable code is safe)
+	Return Eval("ReplacementMode.Merge");
+	// ACC:488-on
+	
+EndFunction
+
+Function RecordSetDeletionMode() Export
+	
+	If Not AreReplacementModesAvailable() Then
+		Return Undefined;
+	EndIf;
+	
+	// ACC:488-off - Support of new 1C:Enterprise types (the executable code is safe)
+	Return Eval("ReplacementMode.Delete");
+	// ACC:488-on
+	
+EndFunction
+
+Function AreReplacementModesAvailable(IsIncludingUpdate = False)
+	
+	SystemInfo = New SystemInfo;
+	Version = SystemInfo.AppVersion;
+	
+	If CommonClientServer.CompareVersions(Version, "8.3.25.1336") < 0 Then
+		Return False;
+	EndIf;
+	
+	If IsIncludingUpdate
+	   And CommonClientServer.CompareVersions(Version, "8.3.26.1398") < 0 Then
+		Return False;
+	EndIf;
+	
+	Return True;
+	
+EndFunction
+
+#Region ForMetadataObjectIDsCatalog
 
 // See Catalogs.MetadataObjectIDs.MetadataObjectIDCache
 Function MetadataObjectIDCache(CachedDataKey) Export
@@ -800,13 +978,14 @@ Function RolesByKeysMetadataObjects() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Predefined data processing.
+#EndRegion
+
+#Region PredefinedDataManagement
 
 // Returns the map of predefined value names and their references.
 //
 // Parameters:
-//  FullMetadataObjectName - String - for example, "Catalog.ProductAndServiceTypes",
+//  FullMetadataObjectName - String - For example, "Catalog.ProductAndServiceTypes".
 //                               Only tables
 //                               with the following predefined items are supported:
 //                               > Catalogs,
@@ -888,8 +1067,9 @@ Function RefsByPredefinedItemsNames(FullMetadataObjectName) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions
+#EndRegion
+
+#Region AuxiliaryProceduresAndFunctions
 
 // Returns:
 //   Structure:
@@ -954,5 +1134,7 @@ Procedure InsertSubordinateSubsystemNames(Names, ParentSubsystem, DisabledSubsys
 	EndDo;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

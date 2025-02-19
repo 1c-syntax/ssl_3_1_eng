@@ -166,7 +166,7 @@ EndProcedure
 &AtClient
 Procedure SetUpSchedule(Command)
 	ScheduleDialog1 = New ScheduledJobDialog(CurrentSchedule());
-	NotifyDescription = New NotifyDescription("SetUpScheduleCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("SetUpScheduleCompletion", ThisObject);
 	ScheduleDialog1.Show(NotifyDescription);
 EndProcedure
 
@@ -562,7 +562,7 @@ Procedure StartUpdateObsoleteVersionsInformation()
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	
-	NotifyDescription = New NotifyDescription("OnCompleteSearchForObsoleteVersions", ThisObject);
+	NotifyDescription = New CallbackDescription("OnCompleteSearchForObsoleteVersions", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, NotifyDescription, IdleParameters);
 	
 EndProcedure

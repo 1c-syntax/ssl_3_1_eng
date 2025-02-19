@@ -93,7 +93,10 @@ Function GenerateMessage(SendOptions) Export
 	
 	// Attachments.
 	If TemplateParameters.TemplateType = "MailMessage" And TemplateInfo <> Undefined Then
+		
 		AddSelectedPrintFormsToAttachments(SendOptions, TemplateInfo, Message.Attachments, TemplateParameters);
+		AddSelectedExportTemplatesToAttachments(SendOptions, TemplateInfo, Message.Attachments, TemplateParameters);
+		
 	EndIf;
 	AddAttachedFilesToAttachments(SendOptions, Message);
 	
@@ -184,39 +187,34 @@ Function GenerateMessageAndSend(SendOptions) Export
 		
 		If Common.SubsystemExists("StandardSubsystems.SendSMSMessage") Then
 			ModuleSMS = Common.CommonModule("SendSMSMessage");
-			If ModuleSMS.CanSendSMSMessage() Then
-				
-				If Common.SubsystemExists("StandardSubsystems.Interactions") Then
-					
-					ModuleInteractions = Common.CommonModule("Interactions");
-					If ModuleInteractions.AreOtherInteractionsUsed() Then
-						
-						ModuleInteractions.CreateAndSendSMSMessage(Message);
-						Result.Sent = True;
-						Return Result;
-						
-					EndIf;
-				EndIf;
-				
-				RecipientsNumbers = New Array;
-				For Each Recipient In Message.Recipient Do
-					If TypeOf(Recipient) = Type("Structure") Then
-						RecipientsNumbers.Add(Recipient.PhoneNumber);
-					Else
-						RecipientsNumbers.Add(Recipient.Value);
-					EndIf;
-				EndDo;
-				
-				SMSMessageSendingResult = ModuleSMS.SendSMS(RecipientsNumbers, Message.Text, Message.AdditionalParameters.Sender, Message.AdditionalParameters.Transliterate);
-				Result.Sent = IsBlankString(SMSMessageSendingResult.ErrorDescription);
-				Result.ErrorDescription = SMSMessageSendingResult.ErrorDescription;
-				
-			Else
-				
+			If Not ModuleSMS.CanSendSMSMessage() Then
 				Result.ErrorDescription = NStr("en = 'Cannot send the text message right away.';");
+				Return Result;
+			EndIf;
 				
+			If Common.SubsystemExists("StandardSubsystems.Interactions") Then
+				
+				ModuleInteractions = Common.CommonModule("Interactions");
+				If ModuleInteractions.AreOtherInteractionsUsed() Then
+					ModuleInteractions.CreateAndSendSMSMessage(Message);
+					Result.Sent = True;
+					Return Result;
+				EndIf;
 			EndIf;
 			
+			RecipientsNumbers = New Array;
+			For Each Recipient In Message.Recipient Do
+				If TypeOf(Recipient) = Type("Structure") Then
+					RecipientsNumbers.Add(Recipient.PhoneNumber);
+				Else
+					RecipientsNumbers.Add(Recipient.Value);
+				EndIf;
+			EndDo;
+			
+			SMSMessageSendingResult = ModuleSMS.SendSMS(RecipientsNumbers, Message.Text, 
+				Message.AdditionalParameters.Sender, Message.AdditionalParameters.Transliterate);
+			Result.Sent = IsBlankString(SMSMessageSendingResult.ErrorDescription);
+			Result.ErrorDescription = SMSMessageSendingResult.ErrorDescription;
 			Return Result;
 			
 		EndIf;
@@ -258,57 +256,51 @@ Function GenerateMessageAndSend(SendOptions) Export
 		
 		If Common.SubsystemExists("StandardSubsystems.EmailOperations") Then
 			ModuleEmailOperations = Common.CommonModule("EmailOperations");
-			If ModuleEmailOperations.CanSendEmails() Then
-				
-				If SendOptions.AdditionalParameters.Account = Undefined Then
-					Account = ModuleEmailOperations.SystemAccount();
-				Else
-					Account = SendOptions.AdditionalParameters.Account;
-				EndIf;
-				
-				If Common.SubsystemExists("StandardSubsystems.Interactions") Then
-					
-					ModuleInteractions = Common.CommonModule("Interactions");
-					If ModuleInteractions.EmailClientUsed() Then
-						
-						EmailParameters = ModuleInteractions.EmailParameters();
-						FillPropertyValues(EmailParameters, Message, , "AdditionalParameters");
-						
-						RecipientsListAsValueList =(TypeOf(Message.Recipient) = Type("ValueList"));
-						For Each EmailRecipient In Message.Recipient Do
-							NewRow = EmailParameters.Recipients.Add();
-							If RecipientsListAsValueList Then
-								NewRow.Address         = EmailRecipient.Value;
-								NewRow.Presentation = EmailRecipient.Presentation;
-							Else
-								NewRow.Address         = EmailRecipient.Address;
-								NewRow.Presentation = EmailRecipient.Presentation;
-								NewRow.ContactInformationSource = EmailRecipient.ContactInformationSource;
-							EndIf;
-						EndDo;
-						
-						FillPropertyValues(EmailParameters.AdditionalParameters, Message.AdditionalParameters);
-						EmailParameters.AdditionalParameters.Comment = CommentByTemplateDescription(Message.AdditionalParameters.Description);
-						
-						SendingResult = ModuleInteractions.CreateEmail(EmailParameters, Account, SendOptions.AdditionalParameters.SendImmediately);
-						FillPropertyValues(Result, SendingResult);
-						Return Result;
-						
-					EndIf;
-					
-				EndIf;
-				
-				MailMessage = ModuleEmailOperations.PrepareEmail(Account, EmailParameters);
-				ModuleEmailOperations.SendMail(Account, MailMessage);
-				
-				Result.Sent = True;
-				
-			Else
-				
+			If Not ModuleEmailOperations.CanSendEmails() Then
 				Result.ErrorDescription  = NStr("en = 'Cannot send the message right away.';");
 				Return Result;
+			EndIf;
+				
+			Account = ?( SendOptions.AdditionalParameters.Account <> Undefined,
+				SendOptions.AdditionalParameters.Account, ModuleEmailOperations.SystemAccount());
+
+			If Common.SubsystemExists("StandardSubsystems.Interactions") Then
+				
+				ModuleInteractions = Common.CommonModule("Interactions");
+				If ModuleInteractions.EmailClientUsed() Then
+					
+					EmailParameters = ModuleInteractions.EmailParameters();
+					FillPropertyValues(EmailParameters, Message, , "AdditionalParameters");
+					
+					RecipientsListAsValueList =(TypeOf(Message.Recipient) = Type("ValueList"));
+					For Each EmailRecipient In Message.Recipient Do
+						NewRow = EmailParameters.Recipients.Add();
+						If RecipientsListAsValueList Then
+							NewRow.Address         = EmailRecipient.Value;
+							NewRow.Presentation = EmailRecipient.Presentation;
+						Else
+							NewRow.Address         = EmailRecipient.Address;
+							NewRow.Presentation = EmailRecipient.Presentation;
+							NewRow.ContactInformationSource = EmailRecipient.ContactInformationSource;
+						EndIf;
+					EndDo;
+					
+					FillPropertyValues(EmailParameters.AdditionalParameters, Message.AdditionalParameters);
+					EmailParameters.AdditionalParameters.Comment = CommentByTemplateDescription(
+						Message.AdditionalParameters.Description);
+					
+					SendingResult = ModuleInteractions.CreateEmail(EmailParameters, Account, 
+						SendOptions.AdditionalParameters.SendImmediately);
+					FillPropertyValues(Result, SendingResult);
+					Return Result;
+					
+				EndIf;
 				
 			EndIf;
+			
+			MailMessage = ModuleEmailOperations.PrepareEmail(Account, EmailParameters);
+			ModuleEmailOperations.SendMail(Account, MailMessage);
+			Result.Sent = True;
 		EndIf
 		
 	EndIf;
@@ -350,8 +342,7 @@ Function MessageTemplatesUsed() Export
 	Return GetFunctionalOption("UseMessageTemplates");
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
 Procedure OnAddUpdateHandlers(Handlers) Export
@@ -487,6 +478,8 @@ Procedure OnDefineAttachableObjectsSettingsComposition(InterfaceSettings4) Expor
 	Setting.Key          = "AddSendingCommands";
 	Setting.TypeDescription = New TypeDescription("Boolean");
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -722,6 +715,8 @@ Procedure DefineAttributesAndAttachmentsList(TemplateInfo, TemplateParameters)
 			EndIf;
 			
 			DefinePrintFormsList(MetadataObject3, TemplateInfo);
+			DefineExportTemplatesList(MetadataObject3, TemplateInfo);
+			
 			Presentation = MetadataObject3.Presentation();
 			ObjectReference = RelatedObjectAttributes.Add();
 			ObjectReference.Presentation = NStr("en = 'Ref to';") + " """ + Presentation + """";
@@ -967,18 +962,51 @@ Function MessageWithoutTemplate(SendOptions)
 	FillMessageRecipients(SendOptions, TemplateParameters, GeneratedMessage, ObjectManager);
 	
 	If Common.SubsystemExists("StandardSubsystems.Print") Then
+		
 		ModulePrintManager = Common.CommonModule("PrintManagement");
-		If TemplateParameters.TemplateType = "MailMessage" And ValueIsFilled(SendOptions.AdditionalParameters.PrintForms) Then
-			PrintForms = SendOptions.AdditionalParameters.PrintForms;
+		
+		If TemplateParameters.TemplateType = "MailMessage" Then
+			
 			ListOfObjects = CommonClientServer.ValueInArray(SendOptions.SubjectOf);
 			SettingsForSaving = SendOptions.AdditionalParameters.SettingsForSaving;
-			Files = ModulePrintManager.PrintToFile(PrintForms, ListOfObjects, SettingsForSaving);
-			For Each File In Files Do
-				Attachment = GeneratedMessage.Attachments.Add();
-				Attachment.AddressInTempStorage = PutToTempStorage(File.BinaryData, SendOptions.UUID);
-				Attachment.Presentation = File.FileName;
-			EndDo;
+			
+			If ValueIsFilled(SendOptions.AdditionalParameters.PrintForms) Then
+				
+				PrintForms = SendOptions.AdditionalParameters.PrintForms;
+				
+				Files = ModulePrintManager.PrintToFile(PrintForms, ListOfObjects, SettingsForSaving);
+				For Each File In Files Do
+					Attachment = GeneratedMessage.Attachments.Add();
+					Attachment.AddressInTempStorage = PutToTempStorage(File.BinaryData, SendOptions.UUID);
+					Attachment.Presentation = File.FileName;
+				EndDo;
+				
+			EndIf;
+			
+			If Common.SubsystemExists("StandardSubsystems.ExportObjectsToFiles")
+			   And ValueIsFilled(SendOptions.AdditionalParameters.ExportTemplates) Then
+				
+				ModuleExportObjectsToFiles = Common.CommonModule("ExportObjectsToFiles");
+				ExportTemplates = SendOptions.AdditionalParameters.ExportTemplates;
+				Files = ModuleExportObjectsToFiles.SaveByFormatToFile(
+					ExportTemplates,
+					ListOfObjects,
+					SettingsForSaving);
+				For Each File In Files Do
+					
+					Attachment = GeneratedMessage.Attachments.Add();
+					AddressInTempStorage = PutToTempStorage(
+						File.BinaryData,
+						SendOptions.UUID);
+					Attachment.AddressInTempStorage = AddressInTempStorage;
+					Attachment.Presentation = File.FileName;
+					
+				EndDo;
+				
+			EndIf;
+			
 		EndIf;
+		
 	EndIf;
 	
 	GeneratedMessage.UserMessages = GetUserMessages(True);
@@ -1244,6 +1272,60 @@ Procedure DefinePrintFormsList(MetadataObject3, Val TemplateParameters, Paramete
 
 EndProcedure
 
+Procedure DefineExportTemplatesList(MetadataObject3, Val TemplateParameters, ParameterName = "")
+	
+	If Not Common.SubsystemExists("StandardSubsystems.ExportObjectsToFiles") Then
+		Return;
+	EndIf;
+	
+	ModulePrintManager = Common.CommonModule("PrintManagement");
+	ModuleExportObjectsToFiles = Common.CommonModule("ExportObjectsToFiles");
+	
+	PrintCommandsSources = ModulePrintManager.PrintCommandsSources();
+	If PrintCommandsSources.Find(MetadataObject3) <> Undefined Then
+		
+		ObjectExportCommands =
+			ModuleExportObjectsToFiles.ObjectExportCommandsAvailableForAttachments(MetadataObject3);
+		ExportFormatExtensionMap =
+			ModuleExportObjectsToFiles.ExportFormatSaveFormatMap();
+		CheckForDuplicates = New Map;
+		
+		For Each Attachment In ObjectExportCommands Do
+			
+			If ShouldAddExportCommandToAttachment(Attachment, CheckForDuplicates) Then
+				
+				ObjectSaveFormat = Attachment.AdditionalParameters.SaveFormat;
+				
+				NewRow = TemplateParameters.Attachments.Add();
+				NewRow.Name = Attachment.IdentifierOfTemplate;
+				NewRow.Id = Attachment.Id;
+				NewRow.Presentation = Attachment.Presentation;
+				NewRow.PrintManager = Attachment.PrintManager;
+				NewRow.FileType = ExportFormatExtensionMap[ObjectSaveFormat];
+				NewRow.Status = "ExportedTemplate";
+				NewRow.ParameterName = ParameterName;
+				NewRow.PrintParameters = Attachment.AdditionalParameters;
+				CheckForDuplicates.Insert(Attachment.UUID, True);
+				
+			EndIf;
+			
+		EndDo;
+		
+	EndIf;
+	
+EndProcedure
+
+Function ShouldAddExportCommandToAttachment(Attachment, CheckForDuplicates)
+	
+	Return Not Attachment.isDisabled
+		And StrFind(Attachment.Id, ",") = 0
+		And Not IsBlankString(Attachment.PrintManager)
+		And Not Attachment.HiddenByFunctionalOptions
+		And CheckForDuplicates[Attachment.UUID] = Undefined
+		And ValueIsFilled(Attachment.SaveFormat);
+	
+EndFunction
+
 // Writes an email attachment located in a temporary storage to a file.
 //
 // Parameters:
@@ -1284,13 +1366,13 @@ Function WriteEmailAttachmentFromTempStorage(Owner, InformationRecords, FileName
 	
 EndFunction
 
-// Procedure - add a print form attachment
-//
 // Parameters:
-//  SendOptions
-//  TemplateInfo
-//  Attachments
-//  TemplatesParameters
+//  SendOptions - See MessageTemplates.GenerateSendOptions
+//  TemplateInfo - See TemplateInfoConstructor
+//  Attachments - Map of KeyAndValue:
+//   * Key - String 
+//   * Value - String 
+//  TemplateParameters - See MessageTemplatesClientServer.TemplateParametersDetails
 //
 Procedure AddSelectedPrintFormsToAttachments(SendOptions, TemplateInfo, Attachments, TemplateParameters)
 	
@@ -1366,6 +1448,92 @@ Procedure AddSelectedPrintFormsToAttachments(SendOptions, TemplateInfo, Attachme
 			EndIf;
 		EndIf;
 	EndDo;
+	
+EndProcedure
+
+// Parameters:
+//  SendOptions - See MessageTemplates.GenerateSendOptions
+//  TemplateInfo - See TemplateInfoConstructor
+//  Attachments - Map of KeyAndValue:
+//   * Key - String 
+//   * Value - String 
+//  TemplateParameters - See MessageTemplatesClientServer.TemplateParametersDetails
+//
+Procedure AddSelectedExportTemplatesToAttachments(SendOptions, TemplateInfo, Attachments, TemplateParameters)
+	
+	If TemplateInfo.Attachments.Count() = 0 
+	 Or Not Common.SubsystemExists("StandardSubsystems.ExportObjectsToFiles") Then
+		Return;
+	EndIf;
+	
+	ObjectsArray = New Array;
+	ObjectsArray.Add(SendOptions.SubjectOf);
+	
+	ModulePrintManager = Common.CommonModule("PrintManagement");
+	ModuleExportObjectsToFiles = Common.CommonModule("ExportObjectsToFiles");
+	
+	SettingsForSaving = ModulePrintManager.SettingsForSaving();
+	SettingsForSaving.PackToArchive = TemplateParameters.PackToArchive;
+	SettingsForSaving.TransliterateFilesNames = TemplateParameters.TransliterateFileNames;
+	SettingsForSaving.SignatureAndSeal = TemplateParameters.SignatureAndSeal;
+	
+	ExportCommands = New Array;  // Array of Structure
+	
+	For Each AttachmentExportTemplate In TemplateInfo.Attachments Do
+		
+		NameOfParameterWithExportTemplateInTemplate = TemplateParameters.SelectedAttachments[AttachmentExportTemplate.Id];
+		
+		If AttachmentExportTemplate.Status = "ExportedTemplate" And NameOfParameterWithExportTemplateInTemplate <> Undefined Then
+			
+			PrintManagerName = AttachmentExportTemplate.PrintManager;
+			PrintParameters = AttachmentExportTemplate.PrintParameters;
+			TemplatesNames = AttachmentExportTemplate.Id;
+			
+			ExportCommand = New Structure;
+			ExportCommand.Insert("Id", TemplatesNames);
+			ExportCommand.Insert("PrintManager", PrintManagerName);
+			ExportCommand.Insert("AdditionalParameters", PrintParameters);
+			
+			ExportCommands.Add(ExportCommand);
+			
+		EndIf;
+		
+	EndDo;
+	
+	If ExportCommands.Count() > 0 Then
+		
+		Try
+			
+			Files = ModuleExportObjectsToFiles.SaveByFormatToFile(
+				ExportCommands,
+				ObjectsArray,
+				SettingsForSaving);
+			
+		Except
+			
+			// Ошибка при создании выгрузки. Создаем дальше письмо, без этой выгрузки.
+			ErrorInfo = ErrorInfo();
+			ErrorPresentation = ErrorProcessing.DetailErrorDescription(ErrorInfo);
+			MessageTemplate = NStr("en = 'Error creating export file:
+								   |%1';");
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageTemplate, ErrorPresentation);
+			WriteLogEvent(
+				EventLogEventName(),
+				EventLogLevel.Error,,, MessageText);
+			Common.MessageToUser(ErrorInfo.Description); // сообщения обрабатываются в СформироватьСообщение
+			
+		EndTry;
+		
+		For Each File In Files Do
+			
+			AddressInTempStorage = PutToTempStorage(
+				File.BinaryData,
+				SendOptions.UUID);
+			Attachments.Insert(File.FileName, AddressInTempStorage);
+			
+		EndDo;
+		
+	EndIf;
 	
 EndProcedure
 
@@ -3111,4 +3279,3 @@ Procedure ProcessDataForMigrationToAttachableCommands() Export
 EndProcedure
 
 #EndRegion
-

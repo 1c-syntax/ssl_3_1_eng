@@ -17,13 +17,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	IBUserID = Record.IBUserID;
 	
-	Store = FormAttributeToValue("Record").Notifications;
+	Storage = FormAttributeToValue("Record").Notifications;
 	
 	Items.PageNotifications.Title = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Notifications (size, bytes: %1)';"),
-		String(Base64Value(XMLString(Store)).Size()));
+		String(Base64Value(XMLString(Storage)).Size()));
 	
-	StorageContents = Store.Get();
+	StorageContents = Storage.Get();
 	Try
 		Notifications = Common.ValueToXMLString(StorageContents);
 	Except

@@ -21,31 +21,47 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Parameters.Property("IsExchangeWithApplicationInService", ExchangeBetweenSaaSApplications);
 	Parameters.Property("CorrespondentDataArea",  CorrespondentDataArea);
 	
+	AuthenticationData = ExchangeMessagesTransport.DataSynchronizationPassword(InfobaseNode);
+	
 	If Not ValueIsFilled(InfobaseNode) Then
 		
 		If DataExchangeServer.IsSubordinateDIBNode() Then
 			InfobaseNode = DataExchangeServer.MasterNode();
 		Else
-			DataExchangeServer.ReportError(NStr("en = 'Cannot open the form. The form parameters are not specified.';"), Cancel);
+			Text = NStr("en = 'Cannot open the form. The form parameters are not specified.';",
+				Common.DefaultLanguageCode());
+				
+			DataExchangeServer.ReportError(Text, Cancel);
 			Return;
 		EndIf;
 		
 	EndIf;
-	
+		
 	SetPrivilegedMode(True);
 	
 	PeerInfobaseName = String(InfobaseNode);
-
-	TransportSettings = InformationRegisters.DataExchangeTransportSettings.TransportSettings(InfobaseNode);
-	MessagesTransportKind = TransportSettings.DefaultExchangeMessagesTransportKind;
-	CorrespondentEndpoint = TransportSettings.WSCorrespondentEndpoint;
+	TransportSettings = ExchangeMessagesTransport.DefaultTransportSettings(InfobaseNode, TransportID);
+	
+	If Not ValueIsFilled(TransportID) Then
+		
+		Text = NStr("en = 'Default connection settings are not configured.
+                      |Synchronization is aborted.';",
+			Common.DefaultLanguageCode()); 
+		
+		Raise Text;
+		
+	EndIf;
 	
 	ExecuteDataSending = InformationRegisters.CommonInfobasesNodesSettings.ExecuteDataSending(InfobaseNode);
 	
 	SetPrivilegedMode(False);
-	
-	ExchangeViaInternalPublication = MessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WS
-		And ValueIsFilled(CorrespondentEndpoint);
+		
+	If TransportID = "SM" And TransportSettings.InternalPublication Then
+		ExchangeViaInternalPublication = True;
+		CorrespondentDataArea = TransportSettings.CorrespondentDataArea; 
+	Else
+		ExchangeViaInternalPublication = False;
+	EndIf;
 	
 	// Initialize user roles.
 	DataExchangeAdministrationRoleAssigned = DataExchangeServer.HasRightsToAdministerExchanges();
@@ -54,7 +70,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	NoLongSynchronizationPrompt = True;
 	CheckVersionDifference       = Not ExchangeBetweenSaaSApplications;
 	
-	ConnectOverExternalConnection = (MessagesTransportKind = Enums.ExchangeMessagesTransportTypes.COM);
+	ConnectOverExternalConnection = False;
 	
 	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS")
 		And DataExchangeServer.IsStandaloneWorkplace() Then
@@ -80,48 +96,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SyncPasswordSaved                       = False; // The password is saved in a safe storage (available in the background job)
 	WSPassword                                          = "";
 	
-	If MessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WS Then
-		
-		If DataExchangeCached.IsDistributedInfobaseNode(InfobaseNode) Then
-			
-			// It is DIB and WS exchange, using the current user and password from the session.
-			UseCurrentUserForAuthentication = True;
-			SynchronizationPasswordSpecified = DataExchangeServer.DataSynchronizationPasswordSpecified(InfobaseNode);
-			
-		Else
-			
-			// If the current infobase is not a DIB node, reading transport settings from the infobase.
-			TransportSettings = InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(InfobaseNode);
-			SynchronizationPasswordSpecified = TransportSettings.WSRememberPassword;
-			If SynchronizationPasswordSpecified Then
-				SyncPasswordSaved = True;
-				UseSavedAuthenticationParameters = True;
-			Else
-				// Using the session data only if it is not available in the register.
-				SynchronizationPasswordSpecified = DataExchangeServer.DataSynchronizationPasswordSpecified(InfobaseNode);
-				If SynchronizationPasswordSpecified Then
-					UseSavedAuthenticationParameters = True;
-				EndIf;
-			EndIf;
-			
-		EndIf;
-		
-	EndIf;
-	
 	HasErrors = ((DataExchangeServer.MasterNode() = InfobaseNode) And ConfigurationChanged());
 	
-	BackgroundJobUseProgress = Not ExchangeBetweenSaaSApplications
-		And Not ExchangeViaInternalPublication
-		And Not (MessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WS);
-		
-	ActivePasswordPromptPage = Not HasErrors
-		And (MessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WS)
-		And Not (SynchronizationPasswordSpecified And NoLongSynchronizationPrompt)
-		And Not ExchangeViaInternalPublication;
-		
-	Items.LongSyncWarningGroup.Visible = ActivePasswordPromptPage And Not NoLongSynchronizationPrompt;
-	Items.PromptForPasswordGroup.Visible                     = ActivePasswordPromptPage And Not SynchronizationPasswordSpecified;
-		
+	BackgroundJobUseProgress = ExchangeMessagesTransport.TransportParameter(TransportID, "UseProgress");
+	
 	WindowOptionsKey = ?(SynchronizationPasswordSpecified And NoLongSynchronizationPrompt,
 		"SynchronizationPasswordSpecified", "") + "/" + ?(NoLongSynchronizationPrompt, "NoLongSynchronizationPrompt", "");
 		
@@ -184,8 +162,6 @@ Procedure OnClose(Exit)
 		DataExchangeClient.OpenFormAfterCloseCurrentOne(ThisObject,
 			"DataProcessor.DataExchangeExecution.Form.Form", FormParameters, OpeningParameters);
 		
-	Else
-		SaveLongSynchronizationRequestFlag();
 	EndIf;
 	
 EndProcedure
@@ -217,13 +193,6 @@ Procedure RestartApplication(Command)
 EndProcedure
 
 &AtClient
-Procedure ForgotPassword(Command)
-	
-	DataExchangeClient.OpenInstructionHowToChangeDataSynchronizationPassword(AccountPasswordRecoveryAddress);
-	
-EndProcedure
-
-&AtClient
 Procedure ExecuteExchange(Command)
 	
 	ExecuteMoveNext();
@@ -243,9 +212,8 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 1C-SUPPLIED SECTION
+// ПОСТАВЛЯЕМАЯ ЧАСТЬ
 ////////////////////////////////////////////////////////////////////////////////
-//
 
 &AtClient
 Function GetFormButtonByCommandName(FormItem, CommandName)
@@ -533,8 +501,7 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 //
 
-////////////////////////////////////////////////////////////////////////////////
-// PROCEDURES AND FUNCTIONS SECTION
+#Region ProceduresAndFunctionsSection
 
 &AtClient
 Procedure RunMoveNext()
@@ -554,18 +521,6 @@ Procedure ProcessVersionDifferenceError()
 	Items.DecorationVersionsDifferenceError.Title = VersionDifferenceErrorOnGetData.ErrorText;
 	
 	CheckVersionDifference = False;
-	
-EndProcedure
-
-&AtClient
-Procedure SaveLongSynchronizationRequestFlag()
-	
-	Settings = Undefined;
-	If SaveLongSynchronizationRequestFlagServer(Not NoLongSynchronizationPrompt, Settings) Then
-		ChangedSettings = New Array;
-		ChangedSettings.Add(Settings);
-		Notify("UserSettingsChanged", ChangedSettings, ThisObject);
-	EndIf;
 	
 EndProcedure
 
@@ -623,75 +578,6 @@ Procedure CheckWhetherTransferToNewExchangeIsRequired()
 	
 EndProcedure
 
-&AtClient
-Procedure InitializeAuthenticationParameters(AuthenticationParameters)
-	
-	If UseSavedAuthenticationParameters Then
-		If Not SyncPasswordSaved Then
-			AuthenticationParameters = New Structure;
-			AuthenticationParameters.Insert("UseCurrentUser", UseCurrentUserForAuthentication);
-		EndIf;
-	Else
-		AuthenticationParameters = New Structure;
-		AuthenticationParameters.Insert("UseCurrentUser", UseCurrentUserForAuthentication);
-		If Not SynchronizationPasswordSpecified Then
-			AuthenticationParameters.Insert("Password", WSPassword);
-		EndIf;
-	EndIf;
-	
-EndProcedure
-
-&AtClient
-Procedure TestConnection(HasConnection)
-	
-	AuthenticationParameters = Undefined;
-	InitializeAuthenticationParameters(AuthenticationParameters);
-	
-	TestConnectionAtServer(HasConnection, AuthenticationParameters);
-	
-EndProcedure
-
-&AtServer
-Procedure TestConnectionAtServer(HasConnection, AuthenticationParameters)
-	
-	SetPrivilegedMode(True);
-	ConnectionParameters = InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(InfobaseNode, AuthenticationParameters);
-	
-	DataSyncDisabled = False;
-	ErrorMessageToUser = "";
-	SettingCompleted = True;
-	DataReceivedForMapping = False;
-	
-	HasConnection = DataExchangeWebService.CorrespondentConnectionEstablished(InfobaseNode,
-		ConnectionParameters, ErrorMessageToUser, SettingCompleted, DataReceivedForMapping);
-	
-	If Not HasConnection Then
-		ErrorMessage = NStr("en = 'Cannot connect to the web application. Reason: ""%1.""
-			|Ensure that:
-			| - The password is correct.
-			| - The connection address is correct.
-			| - The application is available.
-			| - Web app synchronization is configured.
-			|Then, restart synchronization.';");
-		ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessage, ErrorMessageToUser);
-		If ActivePasswordPromptPage Then
-			Common.MessageToUser(ErrorMessage);
-		EndIf;
-		DataSyncDisabled = True;
-	ElsIf Not SettingCompleted Then
-		ErrorMessageToUser = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'To continue, set up synchronization in ""%1"". The data exchange is canceled.';"),
-			PeerInfobaseName);
-		DataSyncDisabled = True;
-	ElsIf DataReceivedForMapping Then
-		ErrorMessageToUser = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'To continue, open %1 and import the data mapping message. The data exchange is canceled.';"),
-			PeerInfobaseName);
-		DataSyncDisabled = True;
-	EndIf;
-	
-EndProcedure
-
 &AtServerNoContext
 Function EventLogFilterData(InfobaseNode)
 	
@@ -709,26 +595,6 @@ Function EventLogFilterData(InfobaseNode)
 	
 	Return Result;
 	
-EndFunction
-
-&AtServerNoContext
-Function SaveLongSynchronizationRequestFlagServer(Val Flag, Settings = Undefined)
-	
-	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS")
-		And DataExchangeServer.IsStandaloneWorkplace() Then
-		
-		ModuleStandaloneMode = Common.CommonModule("StandaloneMode");
-		MustSave = Flag <> ModuleStandaloneMode.LongSynchronizationQuestionSetupFlag();
-		
-		If MustSave Then
-			ModuleStandaloneMode.LongSynchronizationQuestionSetupFlag(Flag, Settings);
-		EndIf;
-		
-	Else
-		MustSave = False;
-	EndIf;
-	
-	Return MustSave;
 EndFunction
 
 &AtServerNoContext
@@ -813,9 +679,11 @@ EndFunction
 Procedure CancelQueueAndResumeOnServer()
 	
 	ModuleDataExchangeInternalPublication = Common.CommonModule("DataExchangeInternalPublication");
-	ModuleDataExchangeInternalPublication.CancelTaskQueue(InfobaseNode, 
+	ModuleDataExchangeInternalPublication.CancelTaskQueue(
+		InfobaseNode, 
 	    ScenarioUsingInternalPublication,
-		IDOfExchangeViaInternalPublication);
+		IDOfExchangeViaInternalPublication,
+		CorrespondentDataArea);
 	
 EndProcedure
 
@@ -933,7 +801,7 @@ EndFunction
 
 &AtClient
 Procedure OnStartExportData(Cancel)
-	
+
 	If ExchangeBetweenSaaSApplications Then
 		ContinueWait = True;
 		OnStartExportDataAtServer(ContinueWait);
@@ -1190,58 +1058,26 @@ Function Attachable_ExchangeCompletionTimeConsumingOperationProcessing(Cancel, G
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Pages of exchange over a web service
+#Region ExchangeOverWebServicePages
 
 &AtClient
-Function Attachable_UserPasswordRequestOnOpen(Cancel, SkipPage, IsMoveNext)
+Procedure AuthorizationCompletion(Result, AdditionalParameters) Export
 	
-	Items.ForgotPassword.Visible = Not IsBlankString(AccountPasswordRecoveryAddress);
-	
-	Items.ExecuteExchange.DefaultButton = True;
-	
-	Return Undefined;
-	
-EndFunction
-
-&AtClient
-Function Attachable_UserPasswordRequestOnGoNext(Cancel)
-	
-	If Not SynchronizationPasswordSpecified
-		And IsBlankString(WSPassword) Then
-		CommonClient.MessageToUser(NStr("en = 'Please enter the password.';"), , "WSPassword", , Cancel);
-		Return Undefined;
+	If Result = Undefined Then
+		Close();
 	EndIf;
 	
-	SaveLongSynchronizationRequestFlag();
+	// Connection test?
 	
-EndFunction
+	ExecuteMoveNext();
+	
+EndProcedure
 
-&AtClient
-Function Attachable_ConnectionTestWaitingTimeConsumingOperationProcessing(Cancel, GoToNext)
-	
-	If ConnectOverExternalConnection Then
-		DataExchangeClient.CheckAndRegisterCOMConnector(InfobaseNode);
-		Return Undefined;
-	EndIf;
-	
-	HasConnection = False;
-	TestConnection(HasConnection);
-	If HasConnection Then
-		WSPassword = String(New UUID);
-		UseSavedAuthenticationParameters = True;
-		SynchronizationPasswordSpecified = True;
-	Else
-		If ActivePasswordPromptPage Then
-			Cancel = True;
-		EndIf;
-	EndIf;
-	GoToNext = Not Cancel;
-	
-EndFunction
+#EndRegion
 
-////////////////////////////////////////////////////////////////////////////////
-// SECTION OF PROCESSING BACKGROUND JOBS
+#EndRegion
+
+#Region BackgroundJobProcessingSection
 
 &AtClient
 Procedure BackgroundJobStartClient(Action, JobName, Cancel)
@@ -1252,7 +1088,9 @@ Procedure BackgroundJobStartClient(Action, JobName, Cancel)
 	JobParameters.Insert("InfobaseNode",              InfobaseNode);
 	JobParameters.Insert("ExecuteImport1",                   BackgroundJobCurrentAction = 1);
 	JobParameters.Insert("ExecuteExport2",                   BackgroundJobCurrentAction = 2);
-	JobParameters.Insert("ExchangeMessagesTransportKind",        MessagesTransportKind);
+	JobParameters.Insert("TransportID",             TransportID);
+	JobParameters.Insert("AuthenticationData",                AuthenticationData);
+	
 	JobParameters.Insert("TimeConsumingOperation",                  TimeConsumingOperation);
 	JobParameters.Insert("TimeConsumingOperationID",     TimeConsumingOperationID);
 	JobParameters.Insert("MessageFileIDInService", MessageFileIDInService);
@@ -1272,11 +1110,11 @@ Procedure BackgroundJobStartClient(Action, JobName, Cancel)
 		
 		If BackgroundJobUseProgress Then
 			IdleParameters.OutputProgressBar     = True;
-			IdleParameters.ExecutionProgressNotification = New NotifyDescription("BackgroundJobExecutionProgress", ThisObject);
+			IdleParameters.ExecutionProgressNotification = New CallbackDescription("BackgroundJobExecutionProgress", ThisObject);
 			IdleParameters.Interval                       = 1;
 		EndIf;
 		
-		CallbackOnCompletion = New NotifyDescription("BackgroundJobCompletion", ThisObject);
+		CallbackOnCompletion = New CallbackDescription("BackgroundJobCompletion", ThisObject);
 		TimeConsumingOperationsClient.WaitCompletion(Result, CallbackOnCompletion, IdleParameters);
 		
 	Else
@@ -1323,54 +1161,7 @@ EndProcedure
 Procedure BackgroundJobExecutionResult()
 	
 	BackgroundJobGetResultAtServer();
-	
-	// For a data exchange with a web app, wait till the sync is over on the peer infobase's side.
-	// 
-	If TimeConsumingOperation Then
-		RetryCountOnConnectionError = 0;
-		AttachIdleHandler("TimeConsumingOperationIdleHandler", 0.1, True);
-	Else
-		AttachIdleHandler("TimeConsumingOperationCompletion", 0.1, True);
-	EndIf;
-	
-EndProcedure
-
-&AtClient
-Procedure TimeConsumingOperationIdleHandler()
-	
-	TimeConsumingOperationCompletedWithError = False;
-	ErrorMessage                   = "";
-	
-	AuthenticationParameters = Undefined;
-	InitializeAuthenticationParameters(AuthenticationParameters);
-	
-	ActionState = TimeConsumingOperationStateForInfobaseNode(
-		TimeConsumingOperationID,
-		InfobaseNode,
-		AuthenticationParameters,
-		ErrorMessage);
-	
-	If ActionState = Undefined
-		And RetryCountOnConnectionError < 5 Then
-		RetryCountOnConnectionError = RetryCountOnConnectionError + 1;
-		AttachIdleHandler("TimeConsumingOperationIdleHandler", 30, True);
-		Return;
-	EndIf;
-	
-	If ActionState = "Active" Then
-		AttachIdleHandler("TimeConsumingOperationIdleHandler", 30, True);
-	Else
-		If ActionState <> "Completed" Then
-			TimeConsumingOperationCompletedWithError = True;
-			HasErrors                          = True;
-		EndIf;
-		
-		TimeConsumingOperation              = False;
-		TimeConsumingOperationCompleted     = True;
-		TimeConsumingOperationID = "";
-		
-		AttachIdleHandler("TimeConsumingOperationCompletion", 0.1, True);
-	EndIf;
+	TimeConsumingOperationCompletion();
 	
 EndProcedure
 
@@ -1449,19 +1240,6 @@ Function BackgroundJobStartAtServer(JobParameters, VersionDifferenceErrorOnGetDa
 	
 	OperationStartDate = CurrentSessionDate();
 	JobParameters.Insert("OperationStartDate", OperationStartDate);
-	
-	AuthenticationParameters = Undefined;
-	If Not SyncPasswordSaved Then
-		If UseCurrentUserForAuthentication Then
-			AuthenticationParameters = New Structure;
-			AuthenticationParameters.Insert("UseCurrentUser", True);
-			AuthenticationParameters.Insert("Password",
-				DataExchangeServer.DataSynchronizationPassword(InfobaseNode));
-		Else
-			AuthenticationParameters = DataExchangeServer.DataSynchronizationPassword(InfobaseNode);
-		EndIf;
-	EndIf;
-	JobParameters.Insert("AuthenticationParameters", AuthenticationParameters);
 	
 	Result = TimeConsumingOperations.ExecuteInBackground(
 		JobParameters.JobName,
@@ -1568,34 +1346,9 @@ Procedure BackgroundJobGetResultAtServer()
 	
 EndProcedure
 
-&AtServerNoContext
-Function TimeConsumingOperationStateForInfobaseNode(
-		TimeConsumingOperationID,
-		InfobaseNode,
-		AuthenticationParameters,
-		ErrorMessage)
-		
-	ActionState = Undefined;
-	Try
-		ActionState = DataExchangeInternal.TimeConsumingOperationStateForInfobaseNode(
-			TimeConsumingOperationID,
-			InfobaseNode,
-			AuthenticationParameters,
-			ErrorMessage);
-	Except
-		Information = ErrorInfo();
-		ErrorMessage = ErrorProcessing.BriefErrorDescription(Information);
-			
-		WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
-			EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(Information));
-	EndTry;
-		
-	Return ActionState;
-	
-EndFunction
+#EndRegion
 
-////////////////////////////////////////////////////////////////////////////////
-// NAVIGATION INITIALIZATION SECTION
+#Region NavigationInitialization
 
 &AtServer
 Procedure FillNavigationTable()
@@ -1630,17 +1383,7 @@ Procedure FillNavigationTable()
 			NavigationTableNewRow(PageNameSynchronizationExport, "Attachable_DataExportOnOpen", True, "Attachable_DataExportTimeConsumingOperationProcessing");
 			NavigationTableNewRow(PageNameSynchronizationExport, , True, "Attachable_DataExportTimeConsumingOperationProcessingCompletion");
 		Else
-			
-			If ActivePasswordPromptPage Then
-				NavigationRow = NavigationTableNewRow("UserPasswordRequest", "Attachable_UserPasswordRequestOnOpen");
-				NavigationRow.OnNavigationToNextPageHandlerName = "Attachable_UserPasswordRequestOnGoNext";
-			EndIf;
-			
-			If MessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WS
-				Or MessagesTransportKind = Enums.ExchangeMessagesTransportTypes.COM Then
-				NavigationTableNewRow("DataSynchronizationWait", , True, "Attachable_ConnectionTestWaitingTimeConsumingOperationProcessing");
-			EndIf;
-			
+						
 			If ExecuteDataSending Then
 				// Send.
 				NavigationTableNewRow(PageNameSynchronizationExport, "Attachable_DataExportOnOpen", True, "Attachable_DataExportTimeConsumingOperationProcessing");
@@ -1672,11 +1415,12 @@ Procedure DecorationErrorIDAssignmentForNodeURLProcessing(Item, FormattedStringU
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// SECTION OF STEP CHANGE HANDLERS
+#EndRegion
+
+#Region NavigationEventHandlersSection
 
 ////////////////////////////////////////////////////////////////////////////////
-// Common exchange pages.
+// Общие страницы обмена
 
 &AtClient
 Procedure StatusSynchronizationUnavailabilityURLProcessing(Item, FormattedStringURL, StandardProcessing)
@@ -1692,5 +1436,7 @@ Procedure StatusSynchronizationUnavailabilityURLProcessing(Item, FormattedString
 EndProcedure
 
 
+
+#EndRegion
 
 #EndRegion

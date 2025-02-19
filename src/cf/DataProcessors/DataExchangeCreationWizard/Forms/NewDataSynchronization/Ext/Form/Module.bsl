@@ -108,7 +108,7 @@ EndProcedure
 Procedure EnableOnlineSupport(Command)
 	
 	If CommonClient.SubsystemExists("OnlineUserSupport") Then
-		ClosingNotification1 = New NotifyDescription("EnableOnlineSupportCompletion", ThisObject);
+		ClosingNotification1 = New CallbackDescription("EnableOnlineSupportCompletion", ThisObject);
 		
 		ModuleOnlineUserSupportClient = CommonClient.CommonModule("OnlineUserSupportClient");
 		ModuleOnlineUserSupportClient.EnableInternetUserSupport(ClosingNotification1, ThisObject);
@@ -206,7 +206,24 @@ Procedure OnCompleteGettingDataExchangeSettingsOptionsAtServer()
 	ClearNewExchangeCreationCommands();
 	AddCreateNewExchangeCommands(Settings);
 	
-	Items.SettingsOptionsPanel.CurrentPage  = Items.SettingsOptionsPage;
+	If (Settings.Property("ExchangeDefaultSettings")
+			And TypeOf(Settings.ExchangeDefaultSettings) = Type("ValueTable")
+			And Settings.ExchangeDefaultSettings.Count() > 0)
+		Or (Settings.Property("SettingsExternalSystems")
+			And TypeOf(Settings.SettingsExternalSystems) = Type("Structure")
+			And Settings.SettingsExternalSystems.Property("SettingVariants")
+			And TypeOf(Settings.SettingsExternalSystems.SettingVariants) = Type("ValueTable")
+			And Settings.SettingsExternalSystems.SettingVariants.Count() > 0)
+		Then
+		
+		Items.SettingsOptionsPanel.CurrentPage  = Items.SettingsOptionsPage;
+		
+	Else
+		
+		Items.SettingsOptionsPanel.CurrentPage  = Items.PageNoSettings;
+		
+	EndIf;
+	
 	Items.FormUpdateSettingsList.Enabled = True;
 	
 EndProcedure

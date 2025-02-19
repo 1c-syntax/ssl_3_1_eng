@@ -10,7 +10,10 @@
 
 #Region Public
 
-// Information on add-in by ID and version.
+#Region ObsoleteProceduresAndFunctions
+
+// Deprecated. Instead, use "AddInsServer.AddInInformation". 
+// Returns the information about an add-in by its ID and version.
 //
 // Parameters:
 //  Id - String - Add-in identification code.
@@ -37,53 +40,12 @@
 //      CommonClientServer.MessageToUser(Result.ErrorDetails);
 //  EndIf;
 //
-Function AddInInformation(Id, Version = Undefined) Export
+Function AddInInformation(Val Id, Val Version = Undefined) Export
 	
-	Result = ResultInformationOnComponent();
-	Result.Id = Id;
-	
-	Information = AddInsInternal.SavedAddInInformation(Id, Version);
-	
-	If Information.State = "NotFound1" Then
-		Result.ErrorDescription = NStr("en = 'The add-in does not exist';");
-		Return Result;
-	EndIf;
-	
-	If Information.State = "DisabledByAdministrator" Then
-		Result.ErrorDescription = NStr("en = 'Add-in is disabled';");
-		Return Result;
-	EndIf;
-	
-	Result.Exists = True;
-	Result.EditingAvailable = True;
-	
-	If Information.State = "FoundInSharedStorage" Then
-		Result.EditingAvailable = False;
-	EndIf;
-	
-	Result.Version = Information.Attributes.Version;
-	Result.Description = Information.Attributes.Description;
-	
-	Return Result;
+	Return AddInsServer.AddInInformation(Id, Version);
 	
 EndFunction
 
 #EndRegion
-
-#Region Private
-
-Function ResultInformationOnComponent()
-	
-	Result = New Structure;
-	Result.Insert("Exists", False);
-	Result.Insert("EditingAvailable", False);
-	Result.Insert("Id", "");
-	Result.Insert("Version", "");
-	Result.Insert("Description", "");
-	Result.Insert("ErrorDescription", "");
-	
-	Return Result;
-	
-EndFunction
 
 #EndRegion

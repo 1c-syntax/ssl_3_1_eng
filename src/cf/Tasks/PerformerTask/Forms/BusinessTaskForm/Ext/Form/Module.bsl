@@ -20,7 +20,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	// End StandardSubsystems.AttachableCommands
 	
-	// 
+	// StandardSubsystems.UserReminders
 	If Common.SubsystemExists("StandardSubsystems.UserReminders") Then
 		ModuleUserReminder = Common.CommonModule("UserReminders");
 		PlacementParameters = ModuleUserReminder.PlacementParameters();
@@ -59,7 +59,7 @@ Procedure OnReadAtServer(CurrentObject)
 	EndIf;
 	// End StandardSubsystems.AttachableCommands
 	
-	// 
+	// StandardSubsystems.UserReminders
 	If Common.SubsystemExists("StandardSubsystems.UserReminders") Then
 		ModuleUserReminder = Common.CommonModule("UserReminders");
 		ModuleUserReminder.OnReadAtServer(ThisObject, CurrentObject);
@@ -72,7 +72,7 @@ EndProcedure
 Procedure NotificationProcessing(EventName, Parameter, Source)
 	BusinessProcessesAndTasksClient.TaskFormNotificationProcessing(ThisObject, EventName, Parameter, Source);
 	
-	// 
+	// StandardSubsystems.UserReminders
 	If CommonClient.SubsystemExists("StandardSubsystems.UserReminders") Then
 		ModuleUserReminderClient = CommonClient.CommonModule("UserRemindersClient");
 		ModuleUserReminderClient.NotificationProcessing(ThisObject, EventName, Parameter, Source);
@@ -108,11 +108,11 @@ EndProcedure
 &AtServer
 Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
-	// 
+	// StandardSubsystems.UserReminders
 	If Common.SubsystemExists("StandardSubsystems.UserReminders") Then
 		ModuleUserReminder = Common.CommonModule("UserReminders");
 		ReminderText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Проверить выполнение задачи %1';"), CurrentObject.Description);	
+			NStr("en = 'Check if task %1 is completed';"), CurrentObject.Description);	
 		ModuleUserReminder.OnWriteAtServer(ThisObject, Cancel, CurrentObject, WriteParameters, ReminderText);
 	EndIf;
 	// End StandardSubsystems.UserReminders
@@ -149,7 +149,7 @@ Procedure CompletionDateOnChange(Item)
 	
 EndProcedure
 
-// 
+// StandardSubsystems.UserReminders
 &AtClient
 Procedure Attachable_OnChangeReminderSettings(Item)
 	
@@ -186,7 +186,7 @@ Procedure More(Command)
 	
 EndProcedure
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
@@ -221,7 +221,7 @@ EndProcedure
 Procedure InitializeTheForm()
 	
 	If ValueIsFilled(Object.BusinessProcess) Then
-		FormParameters = BusinessProcessesAndTasksServerCall.TaskExecutionForm(Object.Ref);
+		FormParameters = BusinessProcessesAndTasksServer.TaskExecutionForm(Object.Ref);
 		HasBusinessProcessTaskForm = FormParameters.Property("FormName");
 		Items.ExecutionFormGroup.Visible = HasBusinessProcessTaskForm;
 		Items.Executed.Enabled = Not HasBusinessProcessTaskForm;

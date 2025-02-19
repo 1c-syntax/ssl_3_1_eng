@@ -28,7 +28,7 @@ Procedure BeforeWrite(Cancel)
 		ParentVersion = DetailsOfOwner.CurrentVersion;
 	EndIf;
 	
-	// Setting an icon index upon object write.
+	// Set an icon index during object write.
 	PictureIndex = FilesOperationsInternalClientServer.IndexOfFileIcon(Extension);
 	
 	If TextExtractionStatus.IsEmpty() Then

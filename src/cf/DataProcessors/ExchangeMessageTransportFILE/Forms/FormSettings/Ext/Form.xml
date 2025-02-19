@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
+	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
+	<SaveWindowSettings>false</SaveWindowSettings>
+	<CommandBarLocation>Bottom</CommandBarLocation>
+	<AutoCommandBar name="FormCommandBar" id="-1">
+		<HorizontalAlign>Right</HorizontalAlign>
+		<Autofill>false</Autofill>
+		<ChildItems>
+			<Button name="FormTestConnection" id="22">
+				<Type>CommandBarButton</Type>
+				<CommandName>Form.Command.TestConnection</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Test connection</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="FormTestConnectionExtendedTooltip" id="23"/>
+			</Button>
+			<Button name="FormDone" id="20">
+				<Type>CommandBarButton</Type>
+				<DefaultButton>true</DefaultButton>
+				<CommandName>Form.Command.Done</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Finish</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="FormDoneExtendedTooltip" id="21"/>
+			</Button>
+		</ChildItems>
+	</AutoCommandBar>
+	<Events>
+		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
+	</Events>
+	<ChildItems>
+		<InputField name="DataExchangeDirectory" id="12">
+			<DataPath>Object.DataExchangeDirectory</DataPath>
+			<TitleLocation>Top</TitleLocation>
+			<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+			<Width>40</Width>
+			<AutoMaxWidth>false</AutoMaxWidth>
+			<ChoiceButton>true</ChoiceButton>
+			<OpenButton>true</OpenButton>
+			<ContextMenu name="DataExchangeDirectoryContextMenu" id="13"/>
+			<ExtendedTooltip name="DataExchangeDirectoryExtendedTooltip" id="14">
+				<Title formatted="false">
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Specify a local or network directory to be used for exchange messages.</v8:content>
+					</v8:item>
+				</Title>
+			</ExtendedTooltip>
+			<Events>
+				<Event name="StartChoice">DataExchangeDirectoryStartChoice</Event>
+				<Event name="Opening">DataExchangeDirectoryOpening</Event>
+			</Events>
+		</InputField>
+		<UsualGroup name="Archive" id="4">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Archive</v8:content>
+				</v8:item>
+			</Title>
+			<HorizontalStretch>true</HorizontalStretch>
+			<Group>Vertical</Group>
+			<Behavior>Usual</Behavior>
+			<Representation>NormalSeparation</Representation>
+			<ShowTitle>false</ShowTitle>
+			<ExtendedTooltip name="ArchiveExtendedTooltip" id="5"/>
+			<ChildItems>
+				<CheckBoxField name="CompressOutgoingMessageFile" id="6">
+					<DataPath>Object.CompressOutgoingMessageFile</DataPath>
+					<TitleLocation>Right</TitleLocation>
+					<CheckBoxType>Auto</CheckBoxType>
+					<ContextMenu name="CompressOutgoingMessageFileContextMenu" id="7"/>
+					<ExtendedTooltip name="CompressOutgoingMessageFileExtendedTooltip" id="8"/>
+					<Events>
+						<Event name="OnChange">CompressOutgoingMessageFileOnChange</Event>
+					</Events>
+				</CheckBoxField>
+				<InputField name="ArchivePasswordExchangeMessages" id="9">
+					<DataPath>Object.ArchivePasswordExchangeMessages</DataPath>
+					<TitleLocation>Top</TitleLocation>
+					<Width>20</Width>
+					<HorizontalStretch>true</HorizontalStretch>
+					<PasswordMode>true</PasswordMode>
+					<ContextMenu name="ArchivePasswordExchangeMessagesContextMenu" id="10"/>
+					<ExtendedTooltip name="ArchivePasswordExchangeMessagesExtendedTooltip" id="11"/>
+				</InputField>
+			</ChildItems>
+		</UsualGroup>
+		<CheckBoxField name="Transliteration" id="24">
+			<DataPath>Object.Transliteration</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Convert exchange message filename</v8:content>
+				</v8:item>
+			</Title>
+			<TitleLocation>Right</TitleLocation>
+			<CheckBoxType>Auto</CheckBoxType>
+			<ContextMenu name="TransliterationContextMenu" id="25"/>
+			<ExtendedTooltip name="TransliterationExtendedTooltip" id="26"/>
+		</CheckBoxField>
+	</ChildItems>
+	<Attributes>
+		<Attribute name="Object" id="1">
+			<Type>
+				<v8:Type>cfg:DataProcessorObject.ExchangeMessageTransportFILE</v8:Type>
+			</Type>
+			<MainAttribute>true</MainAttribute>
+		</Attribute>
+	</Attributes>
+	<Commands>
+		<Command name="Done" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Finish</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Finish</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>Done</Action>
+		</Command>
+		<Command name="TestConnection" id="4">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Test connection</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Test connection</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>TestConnection</Action>
+		</Command>
+	</Commands>
+	<Parameters>
+		<Parameter name="TransportSettings">
+			<Type/>
+			<KeyParameter>true</KeyParameter>
+		</Parameter>
+	</Parameters>
+</Form>

@@ -16,7 +16,7 @@ Procedure UpdateAttachedFile(Val AttachedFile, Val FileInfo) Export
 
 EndProcedure
 
-// See the AddAttachedFile function in the StoredFiles module.
+// See the AddAttachedFile function in the FilesOperations module.
 Function AppendFile(FileParameters, Val FileAddressInTempStorage, Val TempTextStorageAddress = "",
 	Val LongDesc = "") Export
 
@@ -30,7 +30,7 @@ EndFunction
 // Parameters:
 //  FileOrVersionRef - CatalogRef.Files
 //                      - CatalogRef.FilesVersions - file or file version.
-//  SignatureAddress - String - an URL, containing the signature file address in a temporary storage.
+//  SignatureAddress - String - URL to the signature file in a temporary storage.
 //  FormIdentifier  - UUID - a form UUID.
 //
 // Returns:
@@ -522,8 +522,8 @@ Function FileDataToPrint(Val AttachedFile, Val FormIdentifier = Undefined) Expor
 		FileBinaryData.Write(TempFileName);
 		SpreadsheetDocument = New SpreadsheetDocument;
 		SpreadsheetDocument.Read(TempFileName);
+		
 		SafeModeSet = SafeMode() <> False;
-
 		If TypeOf(SafeModeSet) = Type("String") Then
 			SafeModeSet = True;
 		EndIf;
@@ -823,25 +823,7 @@ Function CreateFile(Val Owner, Val FileInfo1)
 	EndIf;
 	File.Encrypted = FileInfo1.Encrypted;
 
-	FullTextSearchUsing = Metadata.ObjectProperties.FullTextSearchUsing.Use;
-	If Metadata.Catalogs[FileInfo1.FilesStorageCatalogName].FullTextSearch
-		= FullTextSearchUsing Then
-
-		If TypeOf(FileInfo1.TempTextStorageAddress) = Type("ValueStorage") Then
-			// When creating a File from a template, the value storage is copied directly.
-			File.TextStorage = FileInfo1.TempTextStorageAddress;
-		ElsIf Not IsBlankString(FileInfo1.TempTextStorageAddress) Then
-			TextExtractionResult = FilesOperationsInternal.ExtractText1(
-				FileInfo1.TempTextStorageAddress);
-			File.TextStorage = TextExtractionResult.TextStorage;
-			File.TextExtractionStatus = TextExtractionResult.TextExtractionStatus;
-		EndIf;
-
-	Else
-		File.TextStorage = New ValueStorage("");
-		File.TextExtractionStatus = Enums.FileTextExtractionStatuses.NotExtracted;
-	EndIf;
-
+	FilesOperationsInternal.FillExtractedText(File, FileInfo1.TempTextStorageAddress);
 	File.Fill(Undefined);
 	File.Write();
 	Return File.Ref;
@@ -965,8 +947,7 @@ Function RefreshFileObject(FileRef, FileInfo1, VersionRef = Undefined,
 
 		If FileStorageType = Enums.FileStorageTypes.InInfobase Then
 
-			FileStorage1 = New ValueStorage(BinaryData);
-
+			FileStorage1 = New ValueStorage(BinaryData, New Deflation(9));
 			If Version.Size = 0 Then
 				FileBinaryData = FileStorage1.Get(); // BinaryData
 				Version.Size = FileBinaryData.Size();
@@ -988,35 +969,19 @@ Function RefreshFileObject(FileRef, FileInfo1, VersionRef = Undefined,
 			FilesOperationsInVolumesInternal.FillInTheFileDetails(Version, BinaryData);
 		EndIf;
 
-		FullTextSearchUsing = Metadata.ObjectProperties.FullTextSearchUsing.Use;
-		If CatalogMetadata.FullTextSearch = FullTextSearchUsing Then
-
-			If FileInfo1.TempTextStorageAddress <> Undefined Then
-				If FilesOperationsInternal.ExtractTextFilesOnServer() Then
-					Version.TextExtractionStatus = Enums.FileTextExtractionStatuses.NotExtracted;
-				Else
-					TextExtractionResult = FilesOperationsInternal.ExtractText1(
-						FileInfo1.TempTextStorageAddress);
-					Version.TextStorage = TextExtractionResult.TextStorage;
-					Version.TextExtractionStatus = TextExtractionResult.TextExtractionStatus;
-				EndIf;
-			Else
-				Version.TextExtractionStatus = Enums.FileTextExtractionStatuses.NotExtracted;
-			EndIf;
-
-			If FileInfo1.NewTextExtractionStatus <> Undefined Then
-				Version.TextExtractionStatus = FileInfo1.NewTextExtractionStatus;
-			EndIf;
-
-		Else
+		If FilesOperationsInternal.ExtractTextFilesOnServer() Then
 			Version.TextExtractionStatus = Enums.FileTextExtractionStatuses.NotExtracted;
+			Version.TextStorage = New ValueStorage("");
+		Else
+			FilesOperationsInternal.FillExtractedText(Version, FileInfo1.TempTextStorageAddress);
 		EndIf;
-
-		If Version.Size = 0 Then
-			If FileStorageType = Enums.FileStorageTypes.InInfobase Then
-				FileBinaryData = FileStorage1.Get(); // BinaryData
-				Version.Size = FileBinaryData.Size();
-			EndIf;
+		If FileInfo1.NewTextExtractionStatus <> Undefined Then
+			Version.TextExtractionStatus = FileInfo1.NewTextExtractionStatus;
+		EndIf;
+		
+		If Version.Size = 0 And FileStorageType = Enums.FileStorageTypes.InInfobase Then
+			FileBinaryData = FileStorage1.Get(); // BinaryData
+			Version.Size = FileBinaryData.Size();
 		EndIf;
 
 		Version.Fill(Undefined);
@@ -1221,29 +1186,25 @@ Function CopyAttachedFile(SourceFile, NewFileOwner)
 	NewFile.FileOwner = NewFileOwner;
 	NewFile.BeingEditedBy = Catalogs.Users.EmptyRef();
 
-	NewFile.TextStorage = New ValueStorage(SourceFile.TextStorage.Get());
-	NewFile.FileStorage  = New ValueStorage(SourceFile.FileStorage.Get());
+	NewFile.TextStorage = New ValueStorage(SourceFile.TextStorage.Get(), New Deflation(9));
+	NewFile.FileStorage  = New ValueStorage(SourceFile.FileStorage.Get(), New Deflation(9));
 
 	BinaryData = FilesOperations.FileBinaryData(SourceFile);
-	BinaryDataInValueStorage = New ValueStorage(BinaryData);
+	BinaryDataInValueStorage = New ValueStorage(BinaryData, New Deflation(9));
 
 	FileStorageType = FilesOperationsInternal.FileStorageType(NewFile.Size, NewFile.Extension);
 	If FileStorageType = Enums.FileStorageTypes.InInfobase Then
 		NewFile.FileStorageType = FilesOperationsInternal.FilesStorageTyoe();
 		SetPrivilegedMode(True);
 		InformationRegisters.FileRepository.WriteBinaryData(FileCopyRef, BinaryData);
-		SetPrivilegedMode(False);
-		SetPrivilegedMode(True);
 		InformationRegisters.FileRepository.WriteBinaryData(FileCopyRef, BinaryData);
 		SetPrivilegedMode(False);
 	Else
-
 		NewFile.Volume = Undefined;
 		NewFile.PathToFile = Undefined;
 		NewFile.FileStorageType = Undefined;
 
 		FilesOperationsInVolumesInternal.AppendFile(NewFile, BinaryData);
-
 	EndIf;
 
 	NewFile.Write();
@@ -1267,53 +1228,14 @@ Function CopyAttachedFile(SourceFile, NewFileOwner)
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
-
 		ModuleDigitalSignatureInternal = Common.CommonModule("DigitalSignatureInternal");
 		DigitalSignatureAvailable = ModuleDigitalSignatureInternal.DigitalSignatureAvailable(TypeOf(SourceFile));
 		If DigitalSignatureAvailable Then
-
-			ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
-
-			If SourceFile.SignedWithDS Then
-
-				NewFile.Read();
-				NewFile.SignedWithDS = True;
-				NewFile.Write();
-
-				DigitalSignaturesOfInitialFile = ModuleDigitalSignature.SetSignatures(SourceFile);
-				For Each DS In DigitalSignaturesOfInitialFile Do
-					RecordManager = InformationRegisters["DigitalSignatures"].CreateRecordManager(); // InformationRegisterRecordManager.DigitalSignatures
-					RecordManager.SignedObject = NewFile;
-					FillPropertyValues(RecordManager, DS);
-					RecordManager.Write(True);
-				EndDo;
-
-			EndIf;
-
-			If SourceFile.Encrypted Then
-
-				NewFile.Read();
-				NewFile.Encrypted = True;
-
-				DigitalSignaturesOfInitialFile = ModuleDigitalSignature.EncryptionCertificates(SourceFile);
-				For Each Certificate In DigitalSignaturesOfInitialFile Do
-					RecordManager = InformationRegisters["EncryptionCertificates"].CreateRecordManager(); // InformationRegisterRecordManager.EncryptionCertificates
-					RecordManager.EncryptedObject = NewFile;
-					FillPropertyValues(RecordManager, Certificate);
-					RecordManager.Write(True);
-				EndDo;
-				// To write a previously signed object.
-				NewFile.AdditionalProperties.Insert("WriteSignedObject", True);
-				NewFile.Write();
-
-			EndIf;
-
+			ModuleDigitalSignatureInternal.CopySignaturesAndEncryptionCertificates(SourceFile, NewFile);
 		EndIf;
-
 	EndIf;
 
 	FilesOperationsOverridable.FillFileAtributesFromSourceFile(NewFile, SourceFile);
-
 	Return NewFile;
 
 EndFunction
@@ -1436,7 +1358,7 @@ EndProcedure
 //    * FileData    - Structure
 //    * MessageText - String - Contains the error reason. For example, "The file is locked by another user".
 //    * FileIsAlreadyEditedByCurrentUser - Boolean - True if the file has already been locked for editing.
-///
+//
 Function BorrowFileToEdit(FileRef, UUID = Undefined,
 	OwnerWorkingDirectory = Undefined, VersionRef = Undefined) Export
 
@@ -1527,7 +1449,7 @@ Function FileDataAndWorkingDirectory(FileOrVersionRef, OwnerWorkingDirectory = U
 
 		FullFileNameInWorkingDirectory = "";
 		DirectoryName = ""; // Path to the local cache is not used here.
-		InWorkingDirectoryForRead = True; // Path to the local cache is not used here. 
+		InWorkingDirectoryForRead = True; // Obsolete. 
 		InOwnerWorkingDirectory = True;
 
 		If VersionRef <> Undefined Then
@@ -1583,20 +1505,20 @@ EndProcedure
 // To save file changes without unlocking it.
 //
 // Parameters:
-//   FileRef                   - Structure - a structure with file data.
+//   FileRef                   - CatalogRef.Files
 //   FileInfo1               - See FilesOperationsClientServer.FileInfo1
-//   RelativeFilePath      - String    - a relative path without a working directory path, for example,
-//                                              "A1/Order.doc"; it is required if DontChangeRecordInWorkingDirectory =
-//                                              False.
-//   FullFilePath             - String    - a path on the client in the working directory. It is specified if
-//                                              DontChangeRecordInWorkingDirectory = False.
-//   InOwnerWorkingDirectory    - Boolean    - the file is stored in the working directory of its owner.
-//   FormUniqueID - UUID - a form UUID.
+//   RelativeFilePath      - String - a relative path without a working directory path, for example,
+//                                           "A1/Order.doc"; it is required if DontChangeRecordInWorkingDirectory =
+//                                           False.
+//   FullFilePath             - String - a path on the client in the working directory. It is specified if
+//                                           DontChangeRecordInWorkingDirectory = False.
+//   InOwnerWorkingDirectory    - Boolean - the file is stored in the working directory of its owner.
+//   FormUniqueID - UUID
 //
 // Returns:
 //   Structure:
 //     * Success     - Boolean    - True if the version is created (and file is binary changed).
-//     * FileData - Structure - a structure with file data.
+//     * FileData - See FileData.
 //
 Function GetFileDataAndSaveFileChanges(FileRef, FileInfo1, RelativeFilePath,
 	FullFilePath, InOwnerWorkingDirectory, FormUniqueID = Undefined) Export
@@ -1606,7 +1528,7 @@ Function GetFileDataAndSaveFileChanges(FileRef, FileInfo1, RelativeFilePath,
 
 	FileData = FileData(FileRef,, FileDataParameters);
 	If Not FileData.CurrentUserEditsFile Then
-		Raise NStr("en = 'The file is not locked by the current user.';");
+		Raise NStr("en = 'The file is not locked for editing.';");
 	EndIf;
 
 	VersionCreated = SaveFileChanges(FileRef, FileInfo1, False, RelativeFilePath,
@@ -1621,7 +1543,7 @@ EndFunction
 //  FolderRef  - CatalogRef.FilesFolders - file owner.
 //
 // Returns:
-//   String  - working directory.
+//   String
 //
 Function FolderWorkingDirectory(FolderRef) Export
 
@@ -1633,23 +1555,16 @@ Function FolderWorkingDirectory(FolderRef) Export
 
 	WorkingDirectory = "";
 	
-	// Prepare a filter structure by dimensions.
-
-	FilterStructure1 = New Structure;
-	FilterStructure1.Insert("Folder", FolderRef);
-	FilterStructure1.Insert("User", Users.AuthorizedUser());
+	Filter = New Structure;
+	Filter.Insert("Folder", FolderRef);
+	Filter.Insert("User", Users.AuthorizedUser());
 	
-	// Receive structure with the data of record resources.
-	ResourcesStructure = InformationRegisters.FileWorkingDirectories.Get(FilterStructure1);
-	
-	// Getting a path from the register
-	WorkingDirectory = ResourcesStructure.Path;
+	ResourcesValues = InformationRegisters.FileWorkingDirectories.Get(Filter);
+	WorkingDirectory = ResourcesValues.Path;
 
 	If Not IsBlankString(WorkingDirectory) Then
-		// Add a slash at the end (unless it is already there).
 		WorkingDirectory = CommonClientServer.AddLastPathSeparator(WorkingDirectory);
 	EndIf;
-
 	Return WorkingDirectory;
 
 EndFunction
@@ -2324,11 +2239,13 @@ Function FilesDeletionResult(FilesOrVersions, UUID) Export
 
 	AuthorizedUser = Users.AuthorizedUser();
 	DeletionResult = New Map;
+	FilesAuthors = Common.ObjectsAttributeValue(FilesOrVersions, "Author");
+	
 	For Each FileOrVersion In FilesOrVersions Do
 
 		IsFileVersion = TypeOf(FileOrVersion) = Type("CatalogRef.FilesVersions");
 		Result = New Structure("WarningText, Files", "", New Array);
-		If Common.ObjectAttributeValue(FileOrVersion, "Author") = AuthorizedUser Then
+		If FilesAuthors[FileOrVersion] = AuthorizedUser Then
 			If IsFileVersion Then
 				// @skip-check query-in-loop - Batch-wise deletion of versions in transactions. 
 				DeleteVersionData(FileOrVersion, UUID, Result);
@@ -2694,8 +2611,7 @@ Function ImageAddingOptions(FilesOwner, PlacementAttribute = Undefined) Export
 
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+#Region InfobaseUpdate
 
 // Creates new files by analogy with the specified ones.
 // Parameters:
@@ -2928,7 +2844,6 @@ EndProcedure
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //Common file functions.
 // See this procedure in the FilesOperationsInternal module.
-//
 Procedure RecordTextExtractionResult(FileOrVersionRef, ExtractionResult, TempTextStorageAddress) Export
 
 	FilesOperationsInternal.RecordTextExtractionResult(
@@ -3061,12 +2976,13 @@ Function PutFilesInTempStorage(Parameters) Export
 
 EndFunction
 
-///////////////////////////////////////////////////////////////////////////////////
-// Insets a digital signature stamp to a spreadsheet or office document.
+#EndRegion
 
 Function DocumentWithStamp(Val FileData) Export
 
 	Extension = FileData.Extension;
+	
+	ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
 	
 	If Extension = "mxl" Then
 	
@@ -3079,28 +2995,7 @@ Function DocumentWithStamp(Val FileData) Export
 
 		DeleteFiles(TempFile);
 
-		ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
-
-		StampParameters = New Structure;
-		StampParameters.Insert("MarkText", "");
-		StampParameters.Insert("Logo");
-
-		DigitalSignatures = ModuleDigitalSignature.SetSignatures(FileData.Ref);
-		FileOwner = FileData.Owner;
-
-		FileInfo1 = New Structure;
-		FileInfo1.Insert("FileOwner", FileOwner);
-
-		Stamps = New Array;
-		For Each Signature In DigitalSignatures Do
-			Certificate = Signature.Certificate;
-			CryptoCertificate = New CryptoCertificate(Certificate.Get());
-			FilesOperationsOverridable.OnPrintFileWithStamp(StampParameters, CryptoCertificate);
-
-			Stamp = ModuleDigitalSignature.DigitalSignatureVisualizationStamp(CryptoCertificate,
-				Signature.SignatureDate, StampParameters.MarkText, StampParameters.Logo);
-			Stamps.Add(Stamp);
-		EndDo;
+		Stamps = ModuleDigitalSignature.DigitalSignatureVisualizationStamps(FileData.Ref);
 
 		ModuleDigitalSignature.AddStampsToSpreadsheetDocument(SpreadsheetDocument, Stamps);
 
@@ -3108,7 +3003,9 @@ Function DocumentWithStamp(Val FileData) Export
 	ElsIf Extension = "docx" Then
 				
 		ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
-		DigitalSignatures = ModuleDigitalSignature.SetSignatures(FileData.Ref);
+		SignaturesAcquisitionParameters = ModuleDigitalSignature.NewObjectSignaturesAcquisitionParameters();
+		SignaturesAcquisitionParameters.ShouldExtractCertificatesFromSignatures = True;
+		DigitalSignatures = ModuleDigitalSignature.ObjectSignatures(FileData.Ref, SignaturesAcquisitionParameters);
 		ModulePrintManager = Common.CommonModule("PrintManagement");
 		ModulePrintManager.AddStampsToOfficeDoc(FileData.RefToBinaryFileData,
 			DigitalSignatures);
@@ -3119,7 +3016,6 @@ Function DocumentWithStamp(Val FileData) Export
 	EndIf;
 
 EndFunction
-
 
 // Checks whether the file is on the computer.
 //
@@ -3159,7 +3055,7 @@ Function AttachedFileIsLocatedOnDisk(Val AttachedFile)
 		Return False;
 
 	Else
-		Return FilesOperationsInVolumesInternal.AttachedFileIsLocatedOnDisk(AttachedFile);
+		Return FilesOperationsInVolumesInternal.IsAttachedFileInVolume(AttachedFile);
 	EndIf;
 EndFunction
 
@@ -3201,7 +3097,7 @@ EndProcedure
 
 // Returns:
 //  Structure:
-//   * EventLog - BinaryData - Event Log export data.
+//   * EventLog - BinaryData - Event log export data.
 //   * TechnicalInfoOnExtensionsAndSubsystemsVersions - String
 //   * NameOfLogFile - String - Name of the log file used by the scan add-in.
 //
@@ -3256,7 +3152,7 @@ Procedure SetScanLogStartParameters(NameOfLogFile) Export
 		"ScanLogStartDate", CurrentSessionDate());
 EndProcedure
 
-Procedure CleanUpWorkingDirectory(FolderRef) Export
+Procedure CleanUpWorkingDirectory(Val FolderRef) Export
 	FilesOperationsInternal.CleanUpWorkingDirectory(FolderRef);
 EndProcedure
 

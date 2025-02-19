@@ -132,7 +132,13 @@ EndProcedure
 // Parameters:
 //   Form - ClientApplicationForm - The form containing the reminder settings elements.
 //   EventName  - String
-//   Parameter    - See UserRemindersClientServer.ReminderDetails
+//   Parameter    - Structure:
+//    * SourceAttributeName - String - Name of the subject attribute, for which the reminder period is set.
+//    * ReminderInterval - Number - 
+//                                           
+//    * SubjectOf - AnyRef - Reminder's subject.
+//    * ReminderTimeSettingMethod - EnumRef.ReminderTimeSettingMethods
+//    * ReminderTime - Date
 //   Source    - ClientApplicationForm
 //               - Arbitrary - Event source.
 //	

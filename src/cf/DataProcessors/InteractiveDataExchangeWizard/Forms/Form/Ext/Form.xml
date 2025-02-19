@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<Title>
 		<v8:item>
 			<v8:lang>en</v8:lang>
@@ -96,226 +96,6 @@
 								</LabelDecoration>
 							</ChildItems>
 						</UsualGroup>
-					</ChildItems>
-				</Page>
-				<Page name="StartingPage" id="250">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Start page</v8:content>
-						</v8:item>
-					</Title>
-					<ExtendedTooltip name="StartingPageExtendedTooltip" id="729"/>
-					<ChildItems>
-						<UsualGroup name="PageHeader" id="725">
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Select connection option</v8:content>
-								</v8:item>
-							</Title>
-							<Group>Vertical</Group>
-							<Behavior>Usual</Behavior>
-							<ExtendedTooltip name="PageHeaderExtendedTooltip" id="731"/>
-							<ChildItems>
-								<UsualGroup name="SelectAvailableTransportKindFromListGroup" id="515">
-									<EnableContentChange>true</EnableContentChange>
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Select from available transport types</v8:content>
-										</v8:item>
-									</Title>
-									<Behavior>Usual</Behavior>
-									<Representation>None</Representation>
-									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="SelectAvailableTransportKindFromListGroupExtendedTooltip" id="732"/>
-									<ChildItems>
-										<LabelDecoration name="Decoration24" id="606">
-											<Width>24</Width>
-											<AutoMaxWidth>false</AutoMaxWidth>
-											<Title formatted="false">
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Use connection option:</v8:content>
-												</v8:item>
-											</Title>
-											<HorizontalAlign>Right</HorizontalAlign>
-											<ContextMenu name="Decoration24ContextMenu" id="607"/>
-											<ExtendedTooltip name="Decoration24ExtendedTooltip" id="733"/>
-										</LabelDecoration>
-										<UsualGroup name="ConnectionOptionGroup" id="608">
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Connection option</v8:content>
-												</v8:item>
-											</Title>
-											<ToolTip>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>The connection option.</v8:content>
-												</v8:item>
-											</ToolTip>
-											<HorizontalStretch>false</HorizontalStretch>
-											<Behavior>Usual</Behavior>
-											<Representation>None</Representation>
-											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="ConnectionOptionGroupExtendedTooltip" id="734"/>
-											<ChildItems>
-												<LabelDecoration name="ExchangeMessageTransportKindAsString" id="609">
-													<Visible>false</Visible>
-													<AutoMaxWidth>false</AutoMaxWidth>
-													<Title formatted="false">
-														<v8:item>
-															<v8:lang>en</v8:lang>
-															<v8:content>Exchange message transport type as string</v8:content>
-														</v8:item>
-													</Title>
-													<ContextMenu name="ExchangeMessageTransportKindAsStringContextMenu" id="610"/>
-													<ExtendedTooltip name="ExchangeMessageTransportKindAsStringExtendedTooltip" id="735"/>
-												</LabelDecoration>
-												<InputField name="ExchangeMessagesTransportKind" id="516">
-													<DataPath>Object.ExchangeMessagesTransportKind</DataPath>
-													<TitleLocation>None</TitleLocation>
-													<ListChoiceMode>true</ListChoiceMode>
-													<TextEdit>false</TextEdit>
-													<ContextMenu name="ExchangeMessagesTransportKindContextMenu" id="517"/>
-													<ExtendedTooltip name="ExchangeMessagesTransportKindExtendedTooltip" id="736"/>
-													<Events>
-														<Event name="OnChange">ExchangeMessagesTransportKindOnChange</Event>
-														<Event name="Clearing">ExchangeMessagesTransportKindClearing</Event>
-													</Events>
-												</InputField>
-											</ChildItems>
-										</UsualGroup>
-										<Button name="ConfigureExchangeMessagesTransportParameters" id="518">
-											<Type>UsualButton</Type>
-											<Representation>PictureAndText</Representation>
-											<SkipOnInput>false</SkipOnInput>
-											<Width>12</Width>
-											<CommandName>Form.Command.ConfigureExchangeMessagesTransportParameters</CommandName>
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Configure…</v8:content>
-												</v8:item>
-											</Title>
-											<ExtendedTooltip name="ConfigureExchangeMessagesTransportParametersExtendedTooltip" id="737"/>
-										</Button>
-									</ChildItems>
-								</UsualGroup>
-								<UsualGroup name="TransportParametersGroup" id="537">
-									<EnableContentChange>true</EnableContentChange>
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Transport parameters</v8:content>
-										</v8:item>
-									</Title>
-									<ToolTip>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Transport parameters common group</v8:content>
-										</v8:item>
-									</ToolTip>
-									<Behavior>Usual</Behavior>
-									<Representation>None</Representation>
-									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="TransportParametersGroupExtendedTooltip" id="739"/>
-									<ChildItems>
-										<LabelDecoration name="WSPasswordLabel" id="538">
-											<Width>24</Width>
-											<Title formatted="false">
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Password:</v8:content>
-												</v8:item>
-											</Title>
-											<HorizontalAlign>Right</HorizontalAlign>
-											<ContextMenu name="WSPasswordLabelContextMenu" id="539"/>
-											<ExtendedTooltip name="WSPasswordLabelExtendedTooltip" id="740"/>
-										</LabelDecoration>
-										<UsualGroup name="TransportParametersVerticalGroup" id="519">
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Transport parameters vertical</v8:content>
-												</v8:item>
-											</Title>
-											<Group>Vertical</Group>
-											<Behavior>Usual</Behavior>
-											<Representation>None</Representation>
-											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="TransportParametersVerticalGroupExtendedTooltip" id="741"/>
-											<ChildItems>
-												<InputField name="WSPassword" id="520">
-													<DataPath>WSPassword</DataPath>
-													<Title>
-														<v8:item>
-															<v8:lang>en</v8:lang>
-															<v8:content>Password</v8:content>
-														</v8:item>
-													</Title>
-													<TitleLocation>None</TitleLocation>
-													<Width>20</Width>
-													<Height>1</Height>
-													<HorizontalStretch>false</HorizontalStretch>
-													<VerticalStretch>false</VerticalStretch>
-													<PasswordMode>true</PasswordMode>
-													<AutoMarkIncomplete>true</AutoMarkIncomplete>
-													<ContextMenu name="WSPasswordContextMenu" id="521"/>
-													<ExtendedTooltip name="WSPasswordExtendedTooltip" id="742"/>
-												</InputField>
-												<CheckBoxField name="WSRememberPassword" id="523">
-													<DataPath>WSRememberPassword</DataPath>
-													<Title>
-														<v8:item>
-															<v8:lang>en</v8:lang>
-															<v8:content>Remember password</v8:content>
-														</v8:item>
-													</Title>
-													<TitleLocation>Right</TitleLocation>
-													<TitleHeight>1</TitleHeight>
-													<CheckBoxType>Auto</CheckBoxType>
-													<ContextMenu name="WSRememberPasswordContextMenu" id="524"/>
-													<ExtendedTooltip name="WSRememberPasswordExtendedTooltip" id="746"/>
-												</CheckBoxField>
-												<LabelDecoration name="DataExchangeDirectory" id="906">
-													<AutoMaxWidth>false</AutoMaxWidth>
-													<Title formatted="false">
-														<v8:item>
-															<v8:lang>en</v8:lang>
-															<v8:content>Data exchange directory</v8:content>
-														</v8:item>
-													</Title>
-													<Hyperlink>true</Hyperlink>
-													<ContextMenu name="DataExchangeDirectoryContextMenu" id="907"/>
-													<ExtendedTooltip name="DataExchangeDirectoryExtendedTooltip" id="908"/>
-													<Events>
-														<Event name="Click">DataExchangeDirectoryClick</Event>
-													</Events>
-												</LabelDecoration>
-											</ChildItems>
-										</UsualGroup>
-									</ChildItems>
-								</UsualGroup>
-							</ChildItems>
-						</UsualGroup>
-						<LabelDecoration name="Decoration8" id="317">
-							<AutoMaxWidth>false</AutoMaxWidth>
-							<VerticalStretch>true</VerticalStretch>
-							<SkipOnInput>false</SkipOnInput>
-							<Title formatted="false">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Click Next to analyze the data.</v8:content>
-								</v8:item>
-							</Title>
-							<VerticalAlign>Bottom</VerticalAlign>
-							<ContextMenu name="Decoration8ContextMenu" id="318"/>
-							<ExtendedTooltip name="Decoration8ExtendedTooltip" id="748"/>
-						</LabelDecoration>
 					</ChildItems>
 				</Page>
 				<Page name="ReceiveExchangeMessagesPage" id="996">
@@ -3313,13 +3093,7 @@ data synchronization.</v8:content>
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="WSPassword" id="19">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Password</v8:content>
-				</v8:item>
-			</Title>
+		<Attribute name="Delete_WSPassword" id="19">
 			<Type>
 				<v8:Type>xs:string</v8:Type>
 				<v8:StringQualifiers>
@@ -3354,13 +3128,7 @@ data synchronization.</v8:content>
 				</v8:DateQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="WSRememberPassword" id="24">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Remember password</v8:content>
-				</v8:item>
-			</Title>
+		<Attribute name="Delete_WSRememberPassword" id="24">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
@@ -3658,6 +3426,9 @@ data synchronization.</v8:content>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
+		<Attribute name="AuthenticationData" id="28">
+			<Type/>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="RefreshAllMappingInformation" id="20">
@@ -3722,38 +3493,6 @@ data synchronization.</v8:content>
 			</Picture>
 			<Action>RunDataImportForRow</Action>
 			<Representation>TextPicture</Representation>
-			<CurrentRowUse>DontUse</CurrentRowUse>
-		</Command>
-		<Command name="OpenDataExchangeDirectory" id="4">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Open directory</v8:content>
-				</v8:item>
-			</Title>
-			<ToolTip>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Open data exchange directory.</v8:content>
-				</v8:item>
-			</ToolTip>
-			<Action>OpenDataExchangeDirectory</Action>
-			<CurrentRowUse>DontUse</CurrentRowUse>
-		</Command>
-		<Command name="ConfigureExchangeMessagesTransportParameters" id="6">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Change</v8:content>
-				</v8:item>
-			</Title>
-			<ToolTip>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Edit data exchange settings.</v8:content>
-				</v8:item>
-			</ToolTip>
-			<Action>ConfigureExchangeMessagesTransportParameters</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 		<Command name="GoToDataImportEventLog" id="7">

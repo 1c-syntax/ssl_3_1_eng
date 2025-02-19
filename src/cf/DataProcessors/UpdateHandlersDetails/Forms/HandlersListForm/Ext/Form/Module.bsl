@@ -118,7 +118,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
 	If Modified And Not Exit Then
 		Cancel = True;
-		ResponseHandler1 = New NotifyDescription("FormClosingCompletion", ThisObject);
+		ResponseHandler1 = New CallbackDescription("FormClosingCompletion", ThisObject);
 		ShowQueryBox(ResponseHandler1, NStr("en = 'The data has been changed. Do you want to save the changes to the repository?';"), QuestionDialogMode.YesNoCancel);
 	EndIf;
 	
@@ -166,7 +166,7 @@ Procedure SRCDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
 #If Not WebClient Then
 		StandardProcessing = False;
 		
-		FileSelectionHandler = New NotifyDescription("DirectorySelectionDialogBoxCompletion", ThisObject, "SRCDirectory");
+		FileSelectionHandler = New CallbackDescription("DirectorySelectionDialogBoxCompletion", ThisObject, "SRCDirectory");
 		FileSystemClient.SelectDirectory(FileSelectionHandler, NStr("en = 'Select a SRC directory';"), Object.SRCDirectory);
 		
 #EndIf
@@ -187,7 +187,7 @@ Procedure ErrorFileDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
 		
 		FileDialog = New FileDialog(FileDialogMode.ChooseDirectory);
 		FileDialog.FullFileName = ErrorFileDirectory;
-		FileSelectionHandler = New NotifyDescription("DirectorySelectionDialogBoxCompletion", ThisObject, "ErrorFileDirectory");
+		FileSelectionHandler = New CallbackDescription("DirectorySelectionDialogBoxCompletion", ThisObject, "ErrorFileDirectory");
 		FileSystemClient.SelectDirectory(FileSelectionHandler, NStr("en = 'Specify an error files directory';"), ErrorFileDirectory);
 #EndIf
 EndProcedure
@@ -253,7 +253,7 @@ Procedure QuickFiltersURLProcessing(Item, FormattedStringURL, StandardProcessing
 	
 	StandardProcessing = False;
 	If FormattedStringURL = "OtherItems" Then
-		SelectQuickFilter = New NotifyDescription("QuickFilterChoiceProcessing", ThisObject);
+		SelectQuickFilter = New CallbackDescription("QuickFilterChoiceProcessing", ThisObject);
 		OtherQuickFilters.ShowChooseItem(SelectQuickFilter);
 		Return;
 	Else
@@ -310,7 +310,7 @@ EndProcedure
 Procedure UpdateHandlersBeforeDeleteRow(Item, Cancel)
 	
 	Cancel = True;
-	ResponseHandler1 = New NotifyDescription("HandlerDetailsDeletionCompletion", ThisObject);
+	ResponseHandler1 = New CallbackDescription("HandlerDetailsDeletionCompletion", ThisObject);
 	QueryText = NStr("en = 'Do you want to delete handler details?';");
 	ShowQueryBox(ResponseHandler1, QueryText, QuestionDialogMode.YesNo);
 	
@@ -419,7 +419,7 @@ Procedure SaveAllHandlersToRepository(Command)
 	Modified = False;
 	
 	SavingParameters = New Structure("AllHandlers", True);
-	ResponseHandler1 = New NotifyDescription("RepositorySaveCompletion", ThisObject, SavingParameters);
+	ResponseHandler1 = New CallbackDescription("RepositorySaveCompletion", ThisObject, SavingParameters);
 	QueryText = NStr("en = 'Warning. All update handler details procedures will be overwritten.
 						|Continue?';");
 	ShowQueryBox(ResponseHandler1, QueryText, QuestionDialogMode.YesNo);
@@ -444,7 +444,7 @@ EndProcedure
 Procedure SetBuildNumberForHandlers(Command)
 	
 	AdditionalParameters = New Structure("BuildNumberForHandlers", True);
-	ResponseHandler1 = New NotifyDescription("BuildNumberInputCompletion", ThisObject, AdditionalParameters);
+	ResponseHandler1 = New CallbackDescription("BuildNumberInputCompletion", ThisObject, AdditionalParameters);
 	VersionNumbers = StrSplit(ConfigurationVersion,".");
 	ShowInputNumber(ResponseHandler1, Number(VersionNumbers[3])+1, NStr("en = 'New build number';"));
 	
@@ -473,7 +473,7 @@ Procedure SaveToFile(Command)
 	
 #If Not WebClient Then
 		
-		FileSelectionHandler = New NotifyDescription("FileDialogCompletion", ThisObject, "");
+		FileSelectionHandler = New CallbackDescription("FileDialogCompletion", ThisObject, "");
 		FileDialog = New FileDialog(FileDialogMode.Save);
 		FileDialog.Title = NStr("en = 'Specify a file name';");
 		FileDialog.Filter = FilterBackupFiles();
@@ -489,7 +489,7 @@ Procedure LoadFromFile(Command)
 	
 #If Not WebClient Then
 		
-		Notification = New NotifyDescription("SelectFileAfterPutFiles", ThisObject);
+		Notification = New CallbackDescription("SelectFileAfterPutFiles", ThisObject);
 		ImportParameters = FileSystemClient.FileImportParameters();
 		ImportParameters.Dialog.Title = NStr("en = 'Select file';");
 		ImportParameters.Dialog.Filter = FilterBackupFiles();
@@ -1352,7 +1352,7 @@ Procedure Attachable_OpenHandlerDetailsEditor()
 	FormParameters.Insert("StartFromConfiguration", StartFromConfiguration);
 	
 	AdditionalParameters = New Structure("Ref", HandlerRef);
-	FormClosingHandler = New NotifyDescription("HandlerEditingCompletion", ThisObject, AdditionalParameters);
+	FormClosingHandler = New CallbackDescription("HandlerEditingCompletion", ThisObject, AdditionalParameters);
 	
 	HandlerFormName = "DataProcessor.UpdateHandlersDetails.Form.HandlerForm";
 	If Not StartFromConfiguration Then

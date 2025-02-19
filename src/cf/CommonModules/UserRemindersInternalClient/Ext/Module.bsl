@@ -6,7 +6,6 @@
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #Region Internal
 
@@ -36,9 +35,9 @@ EndProcedure
 
 #Region Conversations
 
-Procedure AddConversationsCommands(CommandParameters_, Commands, DefaultCommand) Export
+Procedure AddConversationsCommands(CommandsParameters, Commands, DefaultCommand) Export
 	
-	If TypeOf(CommandParameters_.Message) <> Type("CollaborationSystemMessage") Then
+	If TypeOf(CommandsParameters.Message) <> Type("CollaborationSystemMessage") Then
 		Return;
 	EndIf;
 	
@@ -51,13 +50,13 @@ Procedure AddConversationsCommands(CommandParameters_, Commands, DefaultCommand)
 	RemindersCommands.Picture = ?(ClientRunParameters.ShouldShowRemindersInNotificationCenter, 
 		PictureLib.NotificationCenter, PictureLib.Reminder);
 	
-	AddCommand(RemindersCommands.Command, CommandParameters_, "RemindIn1Hour", NStr("en = 'In 1 hour';"));
-	AddCommand(RemindersCommands.Command, CommandParameters_, "RemindIn2Hours", NStr("en = 'In 2 hours';"));
-	AddCommand(RemindersCommands.Command, CommandParameters_, "RemindIn3Hours", NStr("en = 'In 4 hours';"));
-	AddCommand(RemindersCommands.Command, CommandParameters_, "RemindTomorrowMorning", NStr("en = 'Next morning';"));
-	AddCommand(RemindersCommands.Command, CommandParameters_, "RemindAtBeginningOfNextWeek", NStr("en = 'Start of next week';"));
+	AddCommand(RemindersCommands.Command, CommandsParameters, "RemindIn1Hour", NStr("en = 'In 1 hour';"));
+	AddCommand(RemindersCommands.Command, CommandsParameters, "RemindIn2Hours", NStr("en = 'In 2 hours';"));
+	AddCommand(RemindersCommands.Command, CommandsParameters, "RemindIn3Hours", NStr("en = 'In 4 hours';"));
+	AddCommand(RemindersCommands.Command, CommandsParameters, "RemindTomorrowMorning", NStr("en = 'Next morning';"));
+	AddCommand(RemindersCommands.Command, CommandsParameters, "RemindAtBeginningOfNextWeek", NStr("en = 'Start of next week';"));
 	AddSeparator(RemindersCommands.Command);
-	AddCommand(RemindersCommands.Command, CommandParameters_, "ReminderSettings", NStr("en = 'Settings…';"));
+	AddCommand(RemindersCommands.Command, CommandsParameters, "ReminderSettings", NStr("en = 'Settings…';"));
 	
 	Commands.Add(RemindersCommands);
 
@@ -101,7 +100,7 @@ Procedure AddCommand(SubmenuCommands, MessageParameters, CommandID, Presentation
 	CommandParameters.Insert("MessageID", MessageParameters.Message.Id);
 	CommandParameters.Insert("CommandID", CommandID);
 	ReminderCommand = New CollaborationSystemCommandDescription(
-		New NotifyDescription("CreateReminder", ThisObject, CommandParameters), Presentation);
+		New CallbackDescription("CreateReminder", ThisObject, CommandParameters), Presentation);
 	SubmenuCommands.Add(ReminderCommand);
 	
 EndProcedure

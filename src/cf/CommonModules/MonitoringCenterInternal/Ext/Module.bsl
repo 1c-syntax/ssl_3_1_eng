@@ -88,8 +88,7 @@ Function StartDiscoveryPackageSending() Export
 	Return RunResult;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // See ScheduledJobsOverridable.OnDefineScheduledJobSettings
 Procedure OnDefineScheduledJobSettings(Settings) Export
@@ -398,6 +397,8 @@ Procedure DisableEventLogging() Export
 	SetMonitoringCenterParameters(NewParameters);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -1349,6 +1350,9 @@ Function HTTPServiceSendDataInternal(Parameters)
 	EndIf;
 	
 	Try
+		
+		Common.AccessToInternetServicesAllowed(True);
+		
 		If Parameters.Method = "POST" Then
 			HTTPResponse = HTTPConnection.Post(HTTPRequest);
 		ElsIf Parameters.Method = "GET" Then
@@ -2101,7 +2105,7 @@ Function KeyForIncomingSettings(Var_Key)
 	
 	Map.Insert("ErrorMessageDisplayVariant","ErrorMessageDisplayVariant");
 	Map.Insert("ErrorProcessingServiceURL","ErrorProcessingServiceAddress");
-	Map.Insert("SendReportOnClient","SendReport");
+	Map.Insert("SendReportOnClient","SendReportOnClient");
 	Map.Insert("SendReportOnServer","SendReportOnServer");
 	Map.Insert("IncludeDetailErrorDescriptionInReportOnClient","IncludeDetailErrorDescriptionInReportOnClient");
 	Map.Insert("IncludeDetailErrorDescriptionInReportOnServer","IncludeDetailErrorDescriptionInReportOnServer");
@@ -2137,8 +2141,8 @@ Procedure SetMonitoringCenterParameters(NewParameters)
 			Parameters[CurParameter.Key] = CurParameter.Value;
 		EndDo;
 		
-		Store = New ValueStorage(Parameters);
-		Constants.MonitoringCenterParameters.Set(Store);
+		Storage = New ValueStorage(Parameters, New Deflation(9));
+		Constants.MonitoringCenterParameters.Set(Storage);
 		
 		CommitTransaction();
 	Except
@@ -2152,10 +2156,10 @@ Procedure SetMonitoringCenterParameters(NewParameters)
 EndProcedure
 
 Procedure DeleteMonitoringCenterParameters()
+	Parameters = New Structure;
+	Storage = New ValueStorage(Parameters, New Deflation(9));
 	Try
-		Parameters = New Structure;
-		Store = New ValueStorage(Parameters);
-		Constants.MonitoringCenterParameters.Set(Store);
+		Constants.MonitoringCenterParameters.Set(Storage);
 	Except
 		WriteLogEvent(NStr("en = 'Monitoring center.Delete Monitoring center parameters';", 
 			Common.DefaultLanguageCode()), EventLogLevel.Error, 
@@ -2179,8 +2183,8 @@ Procedure SetMonitoringCenterParameter(Parameter, Value)
 		EndIf;
 		
 		Parameters[Parameter] = Value;
-		Store = New ValueStorage(Parameters);
-		Constants.MonitoringCenterParameters.Set(Store);
+		Storage = New ValueStorage(Parameters, New Deflation(9));
+		Constants.MonitoringCenterParameters.Set(Storage);
 		
 		CommitTransaction();
 	Except
@@ -2349,7 +2353,7 @@ Procedure CreateDumpsCollectionSection(File, XMLReader, DumpsDirectory, DumpType
 	XMLReader.Close();
 		If DOMDocument.HasChildNodes() Then
 		FirstChild = DOMDocument.FirstChild;
-		If Upper(FirstChild.NodeName) = "CONFIG" Then
+		If Upper(FirstChild.NodeName) = "DESIGNER" Then
 			DefaultPath = StrFind(DumpsDirectory.Path, Id) > 0;
 			If IsBlankString(DumpsDirectory.Path) Or DefaultPath Then
 				DumpsDirectory.Path = GeneratePathWithSeparator(GeneratePathWithSeparator(TempFilesDir() + "Dumps") + Id);
@@ -3955,49 +3959,34 @@ Procedure InstallAdditionalErrorHandlingInformation() Export
 	Else
 		DataArea = 0;
 	EndIf;
-	Parameters = New Structure("TheCodeIsExecuted,ErrorProcessing", False, Undefined);
-	CodeToExecute = "Parameters.ErrorProcessing = ErrorProcessing;					   
-						|Parameters.TheCodeIsExecuted = True;";	
-	// Initialize the error handling manager.
-	// ACC:280-off - No need to handle errors.
-	Try
-		Common.ExecuteInSafeMode(CodeToExecute, Parameters);
-	Except
-		// Don't throw an exception.
-	EndTry;
-	If Parameters.TheCodeIsExecuted Then		
-		Try
-			If SafeMode() = True Then
-				SetSafeModeDisabled(True);
-			EndIf;
-			SetPrivilegedMode(True);
-			CommonSettings = Parameters.ErrorProcessing.GetCommonSettings();					   
-			SetPrivilegedMode(False);
 
-			AdditionalInformation = New Structure;
-			If ValueIsFilled(CommonSettings.AdditionalReportInformation) Then
-				// By default, it is assumed that it has the JSON structure. Otherwise, someone changed it manually. In this case, don't change it.
-				AdditionalInformation = Common.JSONValue(CommonSettings.AdditionalReportInformation, , False);
-			EndIf;
-			If AdditionalInformation.Property("guid") 
-				And AdditionalInformation.guid = InfoBaseID Then
-				Return;
-			EndIf;
-			AdditionalInformation.Insert("guid", InfoBaseID);
-			AdditionalInformation.Insert("region", DataArea);
-			JSONWriter = New JSONWriter;
-			JSONWriter.SetString(New JSONWriterSettings(JSONLineBreak.None));
-			WriteJSON(JSONWriter, AdditionalInformation);                                  	
-			CommonSettings.AdditionalReportInformation = JSONWriter.Close();
-			
-			SetPrivilegedMode(True);
-			Parameters.ErrorProcessing.SetCommonSettings(CommonSettings);
-			SetPrivilegedMode(False);			
-		Except
-			// Don't throw an exception.
-		EndTry;		
+	If SafeMode() = True Then
+		SetSafeModeDisabled(True);
 	EndIf;
-	// ACC:280-on
+	SetPrivilegedMode(True);
+	CommonSettings = ErrorProcessing.GetCommonSettings();
+	SetPrivilegedMode(False);
+
+	AdditionalInformation = New Structure;
+	If ValueIsFilled(CommonSettings.AdditionalReportInformation) Then
+		// By default, it is assumed that it has the JSON structure. Otherwise, someone changed it manually. In this case, don't change it.
+		AdditionalInformation = Common.JSONValue(CommonSettings.AdditionalReportInformation, , False);
+	EndIf;
+	If AdditionalInformation.Property("guid") 
+		And AdditionalInformation.guid = InfoBaseID Then
+		Return;
+	EndIf;
+	AdditionalInformation.Insert("guid", InfoBaseID);
+	AdditionalInformation.Insert("region", DataArea);
+	JSONWriter = New JSONWriter;
+	JSONWriter.SetString(New JSONWriterSettings(JSONLineBreak.None));
+	WriteJSON(JSONWriter, AdditionalInformation);
+	CommonSettings.AdditionalReportInformation = JSONWriter.Close();
+	
+	SetPrivilegedMode(True);
+	ErrorProcessing.SetCommonSettings(CommonSettings);
+	SetPrivilegedMode(False);
+	
 EndProcedure
 
 Function SettingErrorHandlingSettings(SavedParameters1, ReceivedParameters)
@@ -4020,9 +4009,9 @@ Function SettingErrorHandlingSettings(SavedParameters1, ReceivedParameters)
 		ProcessingResult.Insert("ErrorRegistrationServiceURL", ReceivedParameters.ErrorRegistrationServiceURL);
 	EndIf;
 	If ReceivedParameters.Property("SendReport") 
-		And (CommonSettings.SendReport = EnumErrorReportingMode[SavedParameters1.SendReport]
+		And (CommonSettings.SendReportOnClient = EnumErrorReportingMode[SavedParameters1.SendReport]
 		Or ReceivedParameters.SetErrorHandlingSettingsForcibly) Then
-		CommonSettings.SendReport = EnumErrorReportingMode[ReceivedParameters.SendReport];	
+		CommonSettings.SendReportOnClient = EnumErrorReportingMode[ReceivedParameters.SendReport];	
 		ProcessingResult.Insert("SendReport", ReceivedParameters.SendReport);
 	EndIf;
 	If ReceivedParameters.Property("ErrorMessageDisplayVariant") 
@@ -4071,12 +4060,8 @@ Procedure GetFullTextSearchUsageStatistics()
 		Return;
 	EndIf;
 	IndexRelevanceHourCount = Round((CurrentSessionDate() - FullTextSearch.UpdateDate())/3600);                              
-	MinPlatformVersion = "8.3.22.1000";
-	SystemInfo = New SystemInfo;
-	If CommonClientServer.CompareVersions(SystemInfo.AppVersion, MinPlatformVersion) > 0 Then
-		IdentifiedFullTextSearchVersion = Common.CalculateInSafeMode("?(FullTextSearch.GetFullTextSearchVersion() = FullTextSearchVersion.Version1,1,2)");
-		MonitoringCenter.WriteConfigurationObjectStatistics("FullTextSearch.Version", IdentifiedFullTextSearchVersion); 
-	EndIf;
+	IdentifiedFullTextSearchVersion = ?(FullTextSearch.GetFullTextSearchVersion() = FullTextSearchVersion.Version1,1,2);
+	MonitoringCenter.WriteConfigurationObjectStatistics("FullTextSearch.Version", IdentifiedFullTextSearchVersion); 
 	MonitoringCenter.WriteConfigurationObjectStatistics("FullTextSearch.IndexRelevanceHourCount", IndexRelevanceHourCount);   
 EndProcedure
 

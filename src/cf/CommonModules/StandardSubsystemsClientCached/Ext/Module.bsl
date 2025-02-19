@@ -10,9 +10,12 @@
 
 #Region Private
 
-// See StandardSubsystemsClient.ClientParametersOnStart
-// ().
+// See StandardSubsystemsClient.ClientParametersOnStart().
 Function ClientParametersOnStart() Export
+	
+	CommonStartTime = CurrentUniversalDateInMilliseconds();
+	Indicators = ?(StandardSubsystemsClientServer.RegisterPerformanceIndicators(),
+		New Array, Undefined);
 	
 	CheckIfAppStartupFinished(True);
 	
@@ -38,9 +41,20 @@ Function ClientParametersOnStart() Export
 		Parameters.RetrievedClientParameters.Insert("InterfaceOptions");
 	EndIf;
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	StandardSubsystemsClient.FillInTheClientParametersOnTheServer(Parameters);
+	AddMainIndicator(True, Indicators, StartMoment,
+		"StandardSubsystemsClient.FillInTheClientParametersOnTheServer");
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	ClientParameters = StandardSubsystemsServerCall.ClientParametersOnStart(Parameters);
+	AddMainIndicator(True, Indicators, StartMoment,
+		"StandardSubsystemsServerCall.ClientParametersOnStart");
+	
+	If Indicators <> Undefined And ValueIsFilled(ClientParameters.PerformanceIndicators_) Then
+		CommonClientServer.SupplementArray(Indicators,
+			ClientParameters.PerformanceIndicators_);
+	EndIf;
 	
 	If ApplicationStartParameters.Property("RetrievedClientParameters")
 		And ApplicationStartParameters.RetrievedClientParameters <> Undefined
@@ -49,27 +63,58 @@ Function ClientParametersOnStart() Export
 		ApplicationStartParameters.Insert("InterfaceOptions", ClientParameters.InterfaceOptions);
 	EndIf;
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	StandardSubsystemsClient.FillClientParameters(ClientParameters);
+	AddMainIndicator(True, Indicators, StartMoment,
+		"StandardSubsystemsClient.FillClientParameters");
 	
 	// Updating the desktop hiding status on client by the state on server.
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	StandardSubsystemsClient.HideDesktopOnStart(
 		Parameters.HideDesktopOnStart, True);
+	AddMainIndicator(True, Indicators, StartMoment,
+		"StandardSubsystemsClient.HideDesktopOnStart");
+	
+	AddMainIndicator(True, Indicators, CommonStartTime,
+		"StandardSubsystemsClientCached.ClientParametersOnStart", True);
 	
 	Return ClientParameters;
 	
 EndFunction
 
-// See StandardSubsystemsClient.ClientRunParameters
-// ().
+// See StandardSubsystemsClient.ClientRunParameters().
 Function ClientRunParameters() Export
+	
+	CommonStartTime = CurrentUniversalDateInMilliseconds();
+	Indicators = ?(StandardSubsystemsClientServer.RegisterPerformanceIndicators(),
+		New Array, Undefined);
 	
 	CheckIfAppStartupFinished();
 	
 	ClientProperties = New Structure;
-	StandardSubsystemsClient.FillInTheClientParametersOnTheServer(ClientProperties);
-	ClientParameters = StandardSubsystemsServerCall.ClientRunParameters(ClientProperties);
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	StandardSubsystemsClient.FillInTheClientParametersOnTheServer(ClientProperties);
+	AddMainIndicator(False, Indicators, StartMoment,
+		"StandardSubsystemsClient.FillInTheClientParametersOnTheServer");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	ClientParameters = StandardSubsystemsServerCall.ClientRunParameters(ClientProperties);
+	AddMainIndicator(False, Indicators, StartMoment,
+		"StandardSubsystemsServerCall.ClientRunParameters");
+	
+	If Indicators <> Undefined And ValueIsFilled(ClientParameters.PerformanceIndicators_) Then
+		CommonClientServer.SupplementArray(Indicators,
+			ClientParameters.PerformanceIndicators_);
+	EndIf;
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	StandardSubsystemsClient.FillClientParameters(ClientParameters);
+	AddMainIndicator(False, Indicators, StartMoment,
+		"StandardSubsystemsClient.FillClientParameters");
+	
+	AddMainIndicator(False, Indicators, CommonStartTime,
+		"StandardSubsystemsClientCached.ClientRunParameters", True);
 	
 	Return ClientParameters;
 	
@@ -90,7 +135,7 @@ Procedure CheckIfAppStartupFinished(OnlyBeforeSystemStartup = False)
 			NStr("en = 'Exception occurred during startup.
 			           |
 			           |Technical details:
-			           |Invalid call %1 during startup.
+			           |Invalid %1 call during startup.
 			           |The first procedure that is called from the %2 event handler must be %3.';"),
 			"StandardSubsystemsClient.ClientRunParameters",
 			"BeforeStart", 
@@ -109,23 +154,61 @@ Procedure CheckIfAppStartupFinished(OnlyBeforeSystemStartup = False)
 				"DisableSystemStartupLogic");
 		Else
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Exception occurred during startup.
+				NStr("en = 'An exception occurred during startup.
 			           |
-			           |Technical details:
-			           |Invalid call %1 during startup. Call %2 while the %3 procedure is not completed.
-				       |The last called procedure is %4.';"),
+			           |Details:
+			           |Invalid %1 call during startup. Call %2 while the procedure %3 is still running.
+			           |The invoked procedures (most recent first):
+			           |%4';"),
 				"StandardSubsystemsClient.ClientRunParameters", 
 				"StandardSubsystemsClient.ClientParametersOnStart",
 				"StandardSubsystemsClient.BeforeStart",
-				StandardSubsystemsClient.FullNameOfLastProcedureBeforeStartingSystem());
+				StandardSubsystemsClient.CalledProceduresBeforeStart());
 		EndIf;
 		Raise ErrorText;
 	EndIf;
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// For the MetadataObjectIDs catalog.
+Procedure AddMainIndicator(OnStart, Indicators, StartMoment, ProcedureName, Shared = False)
+	
+	If Indicators = Undefined Then
+		Return;
+	EndIf;
+	
+	Duration = CurrentUniversalDateInMilliseconds() - StartMoment;
+	If Not Shared And Not ValueIsFilled(Duration) Then
+		Return;
+	EndIf;
+	
+	Text = Format(Duration / 1000, "ND=6; NFD=3; NZ=000,000; NLZ=") + " " + ProcedureName;
+	
+	If Shared Then
+		Indicators.Insert(0, Text);
+		WriteIndicators(OnStart, Indicators, Duration);
+		Return;
+	Else
+		Indicators.Add("  " + Text);
+	EndIf;
+	
+EndProcedure
+
+Procedure WriteIndicators(OnStart, Indicators, TotalDuration)
+	
+	Comment = StrConcat(Indicators, Chars.LF);
+	
+	СтекВызова = "";
+	Try
+		Raise NStr("en = 'Стек вызова:';");
+	Except
+		СтекВызова = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+	EndTry;
+	
+	StandardSubsystemsServerCall.WritePerformanceIndicators(OnStart, Comment, СтекВызова);
+	
+EndProcedure
+
+#Region ForMetadataObjectIDsCatalog
 
 // See Catalogs.MetadataObjectIDs.IDPresentation
 Function MetadataObjectIDPresentation(Ref) Export
@@ -133,5 +216,7 @@ Function MetadataObjectIDPresentation(Ref) Export
 	Return StandardSubsystemsServerCall.MetadataObjectIDPresentation(Ref);
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion

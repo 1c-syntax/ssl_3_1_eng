@@ -81,21 +81,21 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 			CloudSignatureProperties = DigitalSignatureInternalClient.GetThePropertiesOfACloudSignature(DataDetails);
 			NotificationOnConfirmation = CloudSignatureProperties.NotificationOnConfirmation;
 			If NotificationOnConfirmation = Undefined Then
-				DecryptData(New NotifyDescription("DecryptCompletion", ThisObject));
+				DecryptData(New CallbackDescription("DecryptCompletion", ThisObject));
 			Else
-				ExecuteNotifyProcessing(NotificationOnConfirmation, ThisObject);
+				RunCallback(NotificationOnConfirmation, ThisObject);
 			EndIf;
 		Else
 			Items.FormDecrypt.Visible = True;
 			Items.FormDecrypt.Enabled = True;
 			Items.FormDecrypt.DefaultButton = True;
-			HandleError(New NotifyDescription("DecryptCompletion", ThisObject),
+			HandleError(New CallbackDescription("DecryptCompletion", ThisObject),
 				New Structure("ErrorDescription", Parameter.Error), New Structure);
 		EndIf;	
 	
 	ElsIf Upper(EventName) = Upper("ConfirmationAuthorization") And Source = UUID Then
 		DigitalSignatureInternalClient.GetCertificatesThumbprintsAtClient(
-			New NotifyDescription("CertificateOnChangeCompletion", ThisObject),
+			New CallbackDescription("CertificateOnChangeCompletion", ThisObject),
 			ValueIsFilled(ThumbprintsFilter));
 	
 	ElsIf Upper(EventName) = Upper("ConfirmationPrepareData") And Source = UUID Then
@@ -129,7 +129,7 @@ EndProcedure
 Procedure CertificateOnChange(Item)
 	
 	DigitalSignatureInternalClient.GetCertificatesThumbprintsAtClient(
-		New NotifyDescription("CertificateOnChangeCompletion", ThisObject),
+		New CallbackDescription("CertificateOnChangeCompletion", ThisObject),
 		ValueIsFilled(ThumbprintsFilter));
 	
 EndProcedure
@@ -166,6 +166,7 @@ Procedure CertificateStartChoice(Item, ChoiceData, StandardProcessing)
 	FormParameters.Insert("ToEncryptAndDecrypt", True);
 	FormParameters.Insert("ReturnPassword", True);
 	FormParameters.Insert("ExecuteAtServer", ExecuteAtServer);
+	FormParameters.Insert("ShouldDisplayAddCommands", True);
 	
 	DigitalSignatureInternalClient.SelectSigningOrDecryptionCertificate(FormParameters, Item);
 	
@@ -199,6 +200,7 @@ Procedure CertificateChoiceProcessing(Item, ValueSelected, StandardProcessing)
 		FormParameters.Insert("ToEncryptAndDecrypt", True);
 		FormParameters.Insert("ReturnPassword", True);
 		FormParameters.Insert("ExecuteAtServer", ExecuteAtServer);
+		FormParameters.Insert("ShouldDisplayAddCommands", True);
 		
 		DigitalSignatureInternalClient.SelectSigningOrDecryptionCertificate(FormParameters, Item);
 		Return;
@@ -207,7 +209,7 @@ Procedure CertificateChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	EndIf;
 	
 	DigitalSignatureInternalClient.GetCertificatesThumbprintsAtClient(
-		New NotifyDescription("CertificateChoiceProcessingCompletion", ThisObject, ValueSelected),
+		New CallbackDescription("CertificateChoiceProcessingCompletion", ThisObject, ValueSelected),
 		ValueIsFilled(ThumbprintsFilter));
 		
 	If DigitalSignatureInternalClient.UseCloudSignatureService() Then
@@ -327,7 +329,7 @@ Procedure Decrypt(Command)
 		
 		Items.FormDecrypt.Enabled = False;
 		
-		DecryptData(New NotifyDescription("DecryptCompletion", ThisObject));
+		DecryptData(New CallbackDescription("DecryptCompletion", ThisObject));
 	EndIf;
 	
 EndProcedure
@@ -373,9 +375,9 @@ Procedure ContinueOpening(Notification, CommonInternalData, ClientParameters) Ex
 	
 	InternalData = CommonInternalData;
 	Context = New Structure("Notification", Notification);
-	Notification = New NotifyDescription("ContinueOpening", ThisObject);
+	Notification = New CallbackDescription("ContinueOpening", ThisObject);
 	
-	DigitalSignatureInternalClient.ContinueOpeningStart(New NotifyDescription(
+	DigitalSignatureInternalClient.ContinueOpeningStart(New CallbackDescription(
 		"ContinueOpeningAfterStart", ThisObject, Context), ThisObject, ClientParameters,, True);
 	
 EndProcedure
@@ -417,12 +419,12 @@ Procedure ContinueOpeningAfterStart(Result, Context) Export
 		If ModuleCryptographyServiceDSSConfirmationClient <> Undefined Then 
 			If Not ModuleCryptographyServiceDSSConfirmationClient.CloudSignatureRequiresConfirmation(ThisObject, AdditionalParameters.PasswordSpecified1) Then
 				ProcessingAfterWarning = Undefined;
-				DecryptData(New NotifyDescription("ContinueOpeningAfterDataDecryption", ThisObject, Context));
+				DecryptData(New CallbackDescription("ContinueOpeningAfterDataDecryption", ThisObject, Context));
 				Return;
 			EndIf;	
 		Else
 			ProcessingAfterWarning = Undefined;
-			DecryptData(New NotifyDescription("ContinueOpeningAfterDataDecryption", ThisObject, Context));
+			DecryptData(New CallbackDescription("ContinueOpeningAfterDataDecryption", ThisObject, Context));
 			Return;
 		EndIf;
 	EndIf;
@@ -455,7 +457,7 @@ Procedure ContinueOpeningCompletion(Context, Result = Undefined)
 		ClearFormVariables();
 	EndIf;
 	
-	ExecuteNotifyProcessing(Context.Notification, Result);
+	RunCallback(Context.Notification, Result);
 	
 EndProcedure
 
@@ -477,10 +479,10 @@ Function VariablesCleared()
 	
 EndFunction
 
-// CAC:78-off: to securely pass data between forms on the client without sending them to the server.
+// ACC:78-off - Intended for the secure transfer of data between forms on the client without sending it to the server.
 &AtClient
 Procedure ExecuteDecryption(ClientParameters, CompletionProcessing) Export
-// CAC:78-on: to securely pass data between forms on the client without sending them to the server.
+// ACC:78-on - Intended for the secure transfer of data between forms on the client without sending it to the server.
 	
 	DigitalSignatureInternalClient.RefreshFormBeforeSecondUse(ThisObject, ClientParameters);
 	
@@ -491,7 +493,7 @@ Procedure ExecuteDecryption(ClientParameters, CompletionProcessing) Export
 	ProcessingAfterWarning = CompletionProcessing;
 	
 	Context = New Structure("CompletionProcessing", CompletionProcessing);
-	DecryptData(New NotifyDescription("ExecuteDecryptionCompletion", ThisObject, Context));
+	DecryptData(New CallbackDescription("ExecuteDecryptionCompletion", ThisObject, Context));
 	
 EndProcedure
 
@@ -499,7 +501,7 @@ EndProcedure
 &AtClient
 Procedure ExecuteDecryptionCompletion(Result, Context) Export
 	
-	ExecuteNotifyProcessing(Context.CompletionProcessing, Result);
+	RunCallback(Context.CompletionProcessing, Result);
 	
 EndProcedure
 
@@ -507,7 +509,7 @@ EndProcedure
 Procedure OnChangeCertificatesList()
 	
 	DigitalSignatureInternalClient.GetCertificatesThumbprintsAtClient(
-		New NotifyDescription("OnChangeCertificatesListCompletion", ThisObject),
+		New CallbackDescription("OnChangeCertificatesListCompletion", ThisObject),
 		ValueIsFilled(ThumbprintsFilter));
 	
 EndProcedure
@@ -568,14 +570,14 @@ Procedure DecryptData(Notification)
 	DataDetails.Insert("SelectedCertificate", SelectedCertificate);
 	
 	If DataDetails.Property("BeforeExecute")
-	   And TypeOf(DataDetails.BeforeExecute) = Type("NotifyDescription") Then
+	   And TypeOf(DataDetails.BeforeExecute) = Type("CallbackDescription") Then
 		
 		ExecutionParameters = New Structure;
 		ExecutionParameters.Insert("DataDetails", DataDetails);
-		ExecutionParameters.Insert("Notification", New NotifyDescription(
+		ExecutionParameters.Insert("Notification", New CallbackDescription(
 			"DecryptDataAfterProcessingBeforeExecute", ThisObject, Context));
 		
-		ExecuteNotifyProcessing(DataDetails.BeforeExecute, ExecutionParameters);
+		RunCallback(DataDetails.BeforeExecute, ExecutionParameters);
 	Else
 		DecryptDataAfterProcessingBeforeExecute(New Structure, Context);
 	EndIf;
@@ -620,7 +622,7 @@ Async Procedure DecryptDataAfterProcessingBeforeExecute(Result, Context) Export
 			DecryptDataAfterExecuteAtServerSide(Result, Context);
 		Else
 			// An attempt to encrypt on the server.
-			DigitalSignatureInternalClient.ExecuteAtSide(New NotifyDescription(
+			DigitalSignatureInternalClient.ExecuteAtSide(New CallbackDescription(
 					"DecryptDataAfterExecuteAtServerSide", ThisObject, Context),
 				"Details", "AtServerSide", Context.ExecutionParameters);
 		EndIf;
@@ -654,7 +656,7 @@ Async Procedure DecryptDataAfterExecuteAtServerSide(Result, Context) Export
 		EndIf;
 		
 		// An attempt to sign on the client.
-		DigitalSignatureInternalClient.ExecuteAtSide(New NotifyDescription(
+		DigitalSignatureInternalClient.ExecuteAtSide(New CallbackDescription(
 				"DecryptDataAfterExecuteAtClientSide", ThisObject, Context),
 			"Details", "OnClientSide", Context.ExecutionParameters);
 	EndIf;
@@ -705,7 +707,7 @@ Procedure DecryptDataAfterExecuteAtClientSide(Result, Context) Export
 		DataDetails.OperationContext = ThisObject;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Context.Notification, True);
+	RunCallback(Context.Notification, True);
 	
 EndProcedure
 
@@ -808,7 +810,7 @@ Procedure HandleError(Notification, ErrorAtClient, ErrorAtServer, AdditionalData
 		If IsOpen() Then
 			Close(False);
 		Else
-			ExecuteNotifyProcessing(Notification, False);
+			RunCallback(Notification, False);
 		EndIf;
 		
 	Else
@@ -829,7 +831,7 @@ Procedure HandleError(Notification, ErrorAtClient, ErrorAtServer, AdditionalData
 			NStr("en = 'Cannot decrypt data';"), "",
 			ErrorAtClient, ErrorAtServer, AdditionalParameters, ProcessingAfterWarning);
 		
-		ExecuteNotifyProcessing(Notification, False);
+		RunCallback(Notification, False);
 		
 	EndIf;
 	

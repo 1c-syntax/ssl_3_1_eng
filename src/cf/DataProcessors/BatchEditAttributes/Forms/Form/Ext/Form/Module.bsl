@@ -24,8 +24,6 @@ Var ErrorsInfo;
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	SetConditionalAppearance();
-	CheckPlatformVersionAndCompatibilityMode();
-	SSLVersionMatchesRequirements = SSLVersionMatchesRequirements();
 	AdditionalDataProcessorRef = Parameters.AdditionalDataProcessorRef;
 
 	ContextCall = TypeOf(Parameters.ObjectsArray) = Type("Array");
@@ -36,8 +34,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If ContextCall Then
 		ExecuteActionsOnContextOpen();
 	Else
-		If Not IsFullUser() Then
-			Raise(NStr("en = 'Insufficient rights.';"), ErrorCategory.AccessViolation);
+		If Not Users.IsFullUser() Then
+			Raise(NStr("en = 'Insufficient access rights.';"), ErrorCategory.AccessViolation);
 		EndIf;
 		Title = NStr("en = 'Bulk attribute edit';");
 		FillObjectsTypesList();
@@ -52,31 +50,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		WindowOpeningMode = FormWindowOpeningMode.Independent;
 	EndIf;
 	
-	// Check if data processor object contains the UsedFileName field.
-	DataProcessorObject  = FormAttributeToValue("Object");
-	ObjectStructure = New Structure("UsedFileName", Undefined);
-	FillPropertyValues(ObjectStructure, DataProcessorObject);
-	
-	// If the "UsedFileName" field is present, this is an external data processor.
-	If Not ValueIsFilled(AdditionalDataProcessorRef)
-	   And ValueIsFilled(ObjectStructure.UsedFileName)
-	   And Not StrStartsWith(ObjectStructure.UsedFileName, "e1cib/")
-	   And Not StrStartsWith(ObjectStructure.UsedFileName, "e1cib\") Then
-		ExternalProcessorFilePathAtClient = ObjectStructure.UsedFileName;
-	EndIf;
-
 	Items.GenerateErrorReport.Visible = False;
 	
-EndProcedure
-
-&AtClient
-Procedure OnOpen(Cancel)
-#If WebClient Then
-	If ValueIsFilled(ExternalProcessorFilePathAtClient) Then
-		ErrorText = NStr("en = 'To perform this action, start the client app.';");
-		Raise ErrorText;
-	EndIf;
-#EndIf
 EndProcedure
 
 &AtClient
@@ -89,7 +64,7 @@ EndProcedure
 &AtClient
 Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 	
-	If Upper(ChoiceSource.FormName) = Upper(FullFormName("AdditionalParameters")) Then
+	If ChoiceSource.FormName = "DataProcessor.BatchEditAttributes.Form.AdditionalParameters" Then
 		
 		RefillObjectAttributesStructure = False;
 		If TypeOf(ValueSelected) = Type("Structure") Then
@@ -132,11 +107,14 @@ EndProcedure
 &AtClient
 Procedure KindOfObjectsToChangeStartChoice(Item, ChoiceData, StandardProcessing)
 	StandardProcessing = False;
-	NotifyDescription = New NotifyDescription("KindOfObjectsToChangeWhenSelected", ThisObject);
+	NotifyDescription = New CallbackDescription("KindOfObjectsToChangeWhenSelected", ThisObject);
+	
 	FormParameters = New Structure;
 	FormParameters.Insert("SelectedTypes", KindsOfObjectsToChange);
 	FormParameters.Insert("ShowHiddenItems", Object.ShowInternalAttributes);
-	OpenForm(FullFormName("SelectObjectsKind"), FormParameters, , , , , NotifyDescription);
+	
+	OpenForm("DataProcessor.BatchEditAttributes.Form.SelectObjectsKind",
+		FormParameters, , , , , NotifyDescription);
 EndProcedure
 
 &AtClient
@@ -193,12 +171,6 @@ EndProcedure
 &AtClient
 Procedure GenerateErrorReportClick(Item)
 	
-	If Not SSLVersionMatchesRequirements Then
-		Return;
-	EndIf;
-	
-	ModuleStandardClientSubsystems = CommonModule("StandardSubsystemsClient");
-	
 	CurrentData = Items.ObjectsThatCouldNotBeChanged.CurrentData;
 	If CurrentData = Undefined Then
 		Return;
@@ -206,9 +178,20 @@ Procedure GenerateErrorReportClick(Item)
 	
 	ErrorReport = InfoOnError(CurrentData.Object).ErrorReport;
 	If ErrorReport <> Undefined Then
-		ModuleStandardClientSubsystems.ShowErrorReport(ErrorReport);
+		StandardSubsystemsClient.ShowErrorReport(ErrorReport);
 	EndIf;
 	
+EndProcedure
+
+&AtClient
+Procedure PresentationOfObjectsToChangeAutoComplete(Item, Text, ChoiceData, DataGetParameters, Waiting, StandardProcessing)
+	InputFieldAutoSelection(Item, Text, ChoiceData, DataGetParameters, Waiting, StandardProcessing)
+EndProcedure
+
+&AtClient
+Procedure InputFieldAutoSelection(Item, Text, ChoiceData, DataGetParameters, Waiting, StandardProcessing)
+	ChoiceData = ChoiceData(Text, Item.ChoiceList);
+	StandardProcessing = Not ValueIsFilled(Text);
 EndProcedure
 
 #EndRegion
@@ -255,12 +238,6 @@ EndProcedure
 &AtClient
 Procedure ConfigureVisibilityAndTitleForURLSendErrorReport()
 	
-	If Not SSLVersionMatchesRequirements Then
-		Return;
-	EndIf;
-	
-	ModuleStandardClientSubsystems = CommonModule("StandardSubsystemsClient");
-	
 	Items.GenerateErrorReport.Visible = False;
 	
 	If Items.Pages.CurrentPage <> Items.ObjectsChange 
@@ -275,7 +252,7 @@ Procedure ConfigureVisibilityAndTitleForURLSendErrorReport()
 	
 	ErrorInfo = InfoOnError(CurrentData.Object).ErrorInfo;
 	If ErrorInfo <> Undefined Then
-		ModuleStandardClientSubsystems.ConfigureVisibilityAndTitleForURLSendErrorReport(
+		StandardSubsystemsClient.ConfigureVisibilityAndTitleForURLSendErrorReport(
 			Items.GenerateErrorReport, ErrorInfo);
 	EndIf;
 	
@@ -299,7 +276,7 @@ Procedure ObjectAttributesDrag(Item, DragParameters, StandardProcessing, String,
 	AttributeDetails = ObjectAttributes.FindByID(DragParameters.Value[0]);
 	PasteTemplate = "[%1]";
 	
-	TextForInsert = SubstituteParametersToString(PasteTemplate, AttributeDetails.Presentation);
+	TextForInsert = StringFunctionsClientServer.SubstituteParametersToString(PasteTemplate, AttributeDetails.Presentation);
 	CurrentData = ObjectAttributes.FindByID(String);
 	If Not IsBlankString(CurrentData.Value) Then
 		TextForInsert = "+" + TextForInsert;
@@ -331,7 +308,7 @@ Function ExpressionsHaveErrors()
 			If ExpressionHasErrors(AttributeDetails.Value, ErrorText) Then
 				Result = True;
 				Message = New UserMessage;
-				Message.Field = SubstituteParametersToString("ObjectAttributes[%1].Value", Format(IndexOf, "NG=0"));
+				Message.Field = StringFunctionsClientServer.SubstituteParametersToString("ObjectAttributes[%1].Value", Format(IndexOf, "NG=0"));
 				Message.Text = ErrorText;
 				Message.Message();
 			EndIf;
@@ -339,6 +316,27 @@ Function ExpressionsHaveErrors()
 	EndDo;
 	Return Result;
 EndFunction
+
+&AtClient
+Procedure ObjectAttributesValueChoiceCompletion(Formula, CurrentData) Export
+	If Formula = Undefined Then
+		Return;
+	EndIf;
+	If Not StrStartsWith(Formula, "=") Then
+		Formula = "=" + Formula;
+	EndIf;
+	CurrentData.Value = Formula;
+	CurrentData.Change = True;
+EndProcedure
+
+#EndRegion
+
+#Region FormTableItemsEventHandlersObjectAttributesAlgorithm
+
+&AtClient
+Procedure ObjectAttributesAlgorithmDragStart(Item, DragParameters, Perform)
+	DragParameters.Value = "Object." + Item.CurrentData.Name;
+EndProcedure
 
 #EndRegion
 
@@ -391,7 +389,7 @@ Procedure Change(Command)
 	
 	If ButtonPurpose = "Change" Then
 		If Not SelectedObjectsAvailable() Then
-			ShowMessageBox(, NStr("en = 'Items to edit are not provided.';"));
+			ShowMessageBox(, NStr("en = 'Items to edit are not specified.';"));
 			Return;
 		EndIf;
 		
@@ -403,7 +401,7 @@ Procedure Change(Command)
 			ExecuteChangeFilterCheckCompleted();
 		Else
 			QueryText = NStr("en = 'Filter not set. Do you want to edit all items?';");
-			NotifyDescription = New NotifyDescription("ExecuteChangeFilterCheckCompleted", ThisObject);
+			NotifyDescription = New CallbackDescription("ExecuteChangeFilterCheckCompleted", ThisObject);
 			ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.OKCancel, , , NStr("en = 'Edit items';"));
 		EndIf;
 		
@@ -437,13 +435,12 @@ Procedure ConfigureChangeParameters(Command)
 	FormParameters.Insert("ContextCall",               ContextCall);
 	FormParameters.Insert("DeveloperMode",              Object.DeveloperMode);
 	FormParameters.Insert("DisableSelectionParameterConnections", DisableSelectionParameterConnections);
-		
-	OpenForm(FullFormName("AdditionalParameters"), FormParameters, ThisObject);
+	
+	OpenForm("DataProcessor.BatchEditAttributes.Form.AdditionalParameters", FormParameters, ThisObject);
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// ATTACHABLE HANDLERS
+#Region ConnectedHandlers
 
 &AtClient
 Procedure Attachable_ValueOnChange(FormField)
@@ -498,23 +495,13 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 #Region Private
 
 &AtClient
 Procedure UpdateNoteAboutConfiguredChanges()
 	GenerateNoteOnConfiguredChanges();
-EndProcedure
-
-&AtClient
-Procedure ObjectAttributesValueChoiceCompletion(Formula, CurrentData) Export
-	If Formula = Undefined Then
-		Return;
-	EndIf;
-	If Not StrStartsWith(Formula, "=") Then
-		Formula = "=" + Formula;
-	EndIf;
-	CurrentData.Value = Formula;
-	CurrentData.Change = True;
 EndProcedure
 
 &AtServer
@@ -647,7 +634,6 @@ Procedure SetConditionalTabularSectionAttributeFormatting(Attribute, TabularSect
 	Item.Appearance.SetParameterValue("TextColor", WebColors.Gray);
 EndProcedure
 
-
 &AtClient
 Procedure ExecuteChangeFilterCheckCompleted(QuestionResult = Undefined, AdditionalParameters = Undefined) Export
 	
@@ -657,7 +643,7 @@ Procedure ExecuteChangeFilterCheckCompleted(QuestionResult = Undefined, Addition
 	
 	If Not AvailableConfiguredChanges() And Object.OperationType = "EnterValues" Then
 		QueryText = NStr("en = 'No changes found. Overwrite the items without introducing changes?';");
-		NotifyDescription = New NotifyDescription("ExecuteChangeChecksCompleted", ThisObject);
+		NotifyDescription = New CallbackDescription("ExecuteChangeChecksCompleted", ThisObject);
 		ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.OKCancel, , , NStr("en = 'Edit items';"));
 	Else
 		ExecuteChangeChecksCompleted();
@@ -673,13 +659,6 @@ Function AvailableConfiguredFilters()
 		EndIf;
 	EndDo;
 	Return False;
-EndFunction
-
-&AtClient
-Function FullFormName(Name)
-	NameParts = StrSplit(FormName, ".");
-	NameParts[3] = Name;
-	Return StrConcat(NameParts, ".");
 EndFunction
 
 &AtServer
@@ -703,7 +682,7 @@ Procedure ExecuteActionsOnContextOpen()
 	EndIf;
 	
 	ObjectCount = Parameters.ObjectsArray.Count();
-	Title = SubstituteParametersToString(TitleTemplate1, TypePresentation, ObjectCount);
+	Title = StringFunctionsClientServer.SubstituteParametersToString(TitleTemplate1, TypePresentation, ObjectCount);
 	
 	// Hiding all settings-related actions if there are no write permissions for settings.
 	Items.PreviouslyChangedAttributes.Visible = AccessRight("SaveUserData", Metadata);
@@ -756,7 +735,7 @@ EndFunction
 Procedure AddChangeToHistory(ChangeStructure, ChangePresentation)
 	
 	If Object.OperationType = "ExecuteAlgorithm" Then
-		Settings = CommonSettingsStorageLoad("BatchEditObjects", 
+		Settings = Common.CommonSettingsStorageLoad("BatchEditObjects", 
 			"AlgorithmsHistory/" + KindsOfObjectsToChange);
 		
 		If Settings = Undefined Then
@@ -776,7 +755,8 @@ Procedure AddChangeToHistory(ChangeStructure, ChangePresentation)
 			Settings.Delete(19);
 		EndIf;
 		
-		CommonSettingsStorageSave("BatchEditObjects", "AlgorithmsHistory/" + KindsOfObjectsToChange, Settings);
+		Common.CommonSettingsStorageSave(
+			"BatchEditObjects", "AlgorithmsHistory/" + KindsOfObjectsToChange, Settings);
 		
 		LoadOperationsHistory();
 		FillPreviouslyChangedAttributesSubmenu();
@@ -784,7 +764,7 @@ Procedure AddChangeToHistory(ChangeStructure, ChangePresentation)
 		Return;
 	EndIf;
 	
-	Settings = CommonSettingsStorageLoad("BatchEditObjects", 
+	Settings = Common.CommonSettingsStorageLoad("BatchEditObjects", 
 		"ChangeHistory/" + KindsOfObjectsToChange);
 	
 	If Settings = Undefined Then
@@ -804,7 +784,8 @@ Procedure AddChangeToHistory(ChangeStructure, ChangePresentation)
 		Settings.Delete(19);
 	EndIf;
 	
-	CommonSettingsStorageSave("BatchEditObjects", "ChangeHistory/" + KindsOfObjectsToChange, Settings);
+	Common.CommonSettingsStorageSave(
+		"BatchEditObjects", "ChangeHistory/" + KindsOfObjectsToChange, Settings);
 	
 	LoadOperationsHistory();
 	FillPreviouslyChangedAttributesSubmenu();
@@ -814,8 +795,9 @@ EndProcedure
 Procedure LoadOperationsHistory()
 	
 	OperationsHistoryList.Clear();
-	
-	ChangeHistory = CommonSettingsStorageLoad("BatchEditObjects", "ChangeHistory/" + KindsOfObjectsToChange);
+	ChangeHistory = Common.CommonSettingsStorageLoad(
+		"BatchEditObjects", "ChangeHistory/" + KindsOfObjectsToChange);
+		
 	If ChangeHistory <> Undefined And TypeOf(ChangeHistory) = Type("Array") Then
 		For Each Setting In ChangeHistory Do
 			OperationsHistoryList.Add(Setting.Update, Setting.Presentation);
@@ -823,8 +805,9 @@ Procedure LoadOperationsHistory()
 	EndIf;
 	
 	AlgorithmsHistoryList.Clear();
-	
-	ChangeHistory = CommonSettingsStorageLoad("BatchEditObjects", "AlgorithmsHistory/" + KindsOfObjectsToChange);
+	ChangeHistory = Common.CommonSettingsStorageLoad(
+		"BatchEditObjects", "AlgorithmsHistory/" + KindsOfObjectsToChange);
+		
 	If ChangeHistory = Undefined Then
 		Return;
 	EndIf;
@@ -840,7 +823,7 @@ Procedure AskForAttributeUnlockConfirmation(SelectedAttribute)
 	
 	Buttons = New ValueList;
 	Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Allow editing';"));
-	QueryText = SubstituteParametersToString(
+	QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'To prevent data inconsistency, attribute %1 has been locked.
 			|
 			|Before you allow editing, view the occurrences of the selected items
@@ -852,7 +835,7 @@ Procedure AskForAttributeUnlockConfirmation(SelectedAttribute)
 	
 	Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
 	
-	NotifyDescription = New NotifyDescription("AskForAttributeUnlockConfirmationCompletion", ThisObject, SelectedAttribute);
+	NotifyDescription = New CallbackDescription("AskForAttributeUnlockConfirmationCompletion", ThisObject, SelectedAttribute);
 	ShowQueryBox(NotifyDescription, QueryText, Buttons, , DialogReturnCode.Yes, NStr("en = 'Attribute is locked';"));
 	
 EndProcedure
@@ -905,7 +888,7 @@ Procedure SaveDataProcessorSettings(ChangeInTransaction, InterruptOnError, Proce
 	SettingsStructure_.ChangeInTransaction    = ChangeInTransaction;
 	SettingsStructure_.InterruptOnError     = InterruptOnError;
 	SettingsStructure_.ProcessRecursively = ProcessRecursively;
-	CommonSettingsStorageSave("DataProcessor.BatchEditObjects", "", SettingsStructure_);
+	Common.CommonSettingsStorageSave("DataProcessor.BatchEditObjects", "", SettingsStructure_);
 	
 EndProcedure
 
@@ -917,7 +900,9 @@ Procedure SaveKindsOfObjectsToChange(KindsOfObjectsToChange, SelectedItemsListAd
 	If Not AccessRight("SaveUserData", Metadata) Then
 		Return;
 	EndIf;
-	CommonSettingsStorageSave("BatchEditObjects", "KindsOfObjectsToChange", KindsOfObjectsToChange);
+	
+	Common.CommonSettingsStorageSave(
+		"BatchEditObjects", "KindsOfObjectsToChange", KindsOfObjectsToChange);
 	
 EndProcedure
 
@@ -949,7 +934,9 @@ Procedure LoadProcessingSettings()
 		EndIf;
 	EndIf;
 	
-	SettingsStructure_ = CommonSettingsStorageLoad("DataProcessor.BatchEditObjects", KindsOfObjectsToChange, SettingsStructure_());
+	SettingsStructure_ = Common.CommonSettingsStorageLoad(
+		"DataProcessor.BatchEditObjects", KindsOfObjectsToChange, SettingsStructure_());
+	
 	Object.ChangeInTransaction = SettingsStructure_.ChangeInTransaction;
 	Object.InterruptOnError  = SettingsStructure_.InterruptOnError;
 	ProcessRecursively     = SettingsStructure_.ProcessRecursively;
@@ -971,7 +958,8 @@ EndProcedure
 &AtServer
 Function LoadTheConfigurationOfTheTypesOfObjectsToChange()
 	
-	KindsOfObjectsToChange = CommonSettingsStorageLoad("BatchEditObjects", "KindsOfObjectsToChange", "");
+	KindsOfObjectsToChange = Common.CommonSettingsStorageLoad(
+		"BatchEditObjects", "KindsOfObjectsToChange", "");
 	
 	ListOfSpecies = New Array;
 	For Each MetadataObjectName In StrSplit(KindsOfObjectsToChange, ",", False) Do
@@ -994,8 +982,8 @@ EndFunction
 //
 &AtServerNoContext
 Function UnsafeModeCodeExecutionAvailable()
-	If IsBaseConfigurationVersion()
-		Or DataSeparationEnabled() Then
+	If StandardSubsystemsServer.IsBaseConfigurationVersion()
+		Or Common.DataSeparationEnabled() Then
 		Return False;
 	EndIf;
 	
@@ -1009,7 +997,7 @@ EndFunction
 &AtServerNoContext
 Function CodeExecutionAvailable()
 	
-	If DataSeparationEnabled() Then
+	If Common.DataSeparationEnabled() Then
 		Return False;
 	EndIf;
 	
@@ -1031,9 +1019,7 @@ Procedure AllowEditAttributes()
 	
 	SelectedAttribute = CurrentSelectedAttribute;
 	
-	If Not SubsystemExists("StandardSubsystems.ObjectAttributesLock")
-	 Or CommonModule("ObjectAttributesLockClient") = Undefined Then
-		
+	If Not CommonClient.SubsystemExists("StandardSubsystems.ObjectAttributesLock") Then
 		AskForAttributeUnlockConfirmation(SelectedAttribute);
 		Return;
 	EndIf;
@@ -1046,10 +1032,11 @@ Procedure AllowEditAttributes()
 		LockedAttributes.Add(OperationDescriptionString.Name);
 	EndDo;
 	
-	ModuleObjectAttributesLockClient = CommonModule("ObjectAttributesLockClient");
+	ModuleObjectAttributesLockClient =
+		CommonClient.CommonModule("ObjectAttributesLockClient");
 	
 	ProcedureParameters = ModuleObjectAttributesLockClient.NewParametersAllowEditingObjectAttributes();
-	ProcedureParameters.ResultProcessing = New NotifyDescription("OnUnlockAttributes", ThisObject);
+	ProcedureParameters.ResultProcessing = New CallbackDescription("OnUnlockAttributes", ThisObject);
 	ProcedureParameters.FullObjectName = StrSplit(KindsOfObjectsToChange, ",", False)[0];
 	ProcedureParameters.LockedAttributes = LockedAttributes;
 	ProcedureParameters.MarkedAttribute = SelectedAttribute.Name;
@@ -1122,19 +1109,6 @@ EndProcedure
 &AtClient
 Async Procedure ChangeObjectsBatch()
 	
-	If ValueIsFilled(ExternalProcessorFilePathAtClient)
-	   And Not ValueIsFilled(Object.ExternalDataProcessorBinaryDataAddress) Then
-		
-		Result = Await PutFileToServerAsync(,,,
-			ExternalProcessorFilePathAtClient, UUID);
-		
-		If TypeOf(Result) = Type("StoredFileDescription")
-		   And Not Result.PutFileCanceled Then
-			Object.ExternalDataProcessorBinaryDataAddress = Result.Address;
-		EndIf;
-		
-	EndIf;
-	
 	ChangeAtServer(CurrentChangeStatus.StopChangeOnError);
 	
 	If TimeConsumingOperation.Status = "Completed2" Then
@@ -1145,12 +1119,11 @@ Async Procedure ChangeObjectsBatch()
 			OnCompleteChange(TimeConsumingOperation, Undefined);
 		EndIf;
 	Else
-		ModuleTimeConsumingOperationsClient = CommonModule("TimeConsumingOperationsClient");
-		IdleParameters = ModuleTimeConsumingOperationsClient.IdleParameters(ThisObject);
+		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 		IdleParameters.OutputIdleWindow = False;
 		
-		NotifyDescription = New NotifyDescription("OnCompleteChange", ThisObject);
-		ModuleTimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, NotifyDescription, IdleParameters);
+		NotifyDescription = New CallbackDescription("OnCompleteChange", ThisObject);
+		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, NotifyDescription, IdleParameters);
 	EndIf;
 	
 EndProcedure
@@ -1169,7 +1142,7 @@ Procedure OnCompleteChange(Result, AdditionalParameters) Export
 	
 	If Result.Status <> "Completed2" Then
 		BackServer();
-		OutputErrorInfo(Result.ErrorInfo);
+		StandardSubsystemsClient.OutputErrorInfo(Result.ErrorInfo);
 		Return;
 	EndIf;
 	
@@ -1186,7 +1159,7 @@ Procedure OnCompleteChange(Result, AdditionalParameters) Export
 		
 		ResultOfBatchExecution = ChangeResult.Value;
 		If ResultOfBatchExecution.Status = StatusError Then
-			OutputErrorInfo(ResultOfBatchExecution.ErrorInfo);
+			StandardSubsystemsClient.OutputErrorInfo(ResultOfBatchExecution.ErrorInfo);
 		Else
 			ResultOfBatchChange = GetFromTempStorage(ResultOfBatchExecution.ResultAddress);
 			If TypeOf(ResultOfBatchChange) <> Type("Structure") Then
@@ -1232,7 +1205,7 @@ Procedure ProcessChangeResult(ChangeResult = Undefined, ContinueProcessing = Und
 		Buttons.Add(DialogReturnCode.Ignore, NStr("en = 'Continue';"));
 		Buttons.Add(DialogReturnCode.No, NStr("en = 'Do not ask again';"));
 		
-		NotifyDescription = New NotifyDescription("ProcessChangeResultResponseReceived", 
+		NotifyDescription = New CallbackDescription("ProcessChangeResultResponseReceived", 
 			ThisObject, ChangeResult);
 		ShowQueryBox(NotifyDescription, QueryText, Buttons, , DialogReturnCode.Abort, 
 			NStr("en = 'Editing errors';"));
@@ -1286,7 +1259,8 @@ Procedure CompleteObjectChange()
 	ProcessingCompleted = CurrentChangeStatus.ChangedCount = CurrentChangeStatus.ObjectsCountForProcessing;
 	If ProcessingCompleted Then
 		ShowUserNotification(NStr("en = 'Edit attributes';"), , 
-			SubstituteParametersToString(NStr("en = '%1 items have been edited.';"), CurrentChangeStatus.ChangedCount));
+			StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = '%1 items have been edited.';"), CurrentChangeStatus.ChangedCount));
 		GoToCompletedPage();
 		Return;
 	EndIf;
@@ -1308,12 +1282,13 @@ Procedure CompleteObjectChange()
 		SkippedItemsCount = CurrentChangeStatus.ObjectsCountForProcessing - CurrentChangeStatus.ErrorsCount;
 		If SkippedItemsCount > 0 And Not CurrentChangeStatus.AbortUpdate Then
 			TableRow = ObjectsThatCouldNotBeChanged.Add();
-			TableRow.Object = SubstituteParametersToString(NStr("en = '… and other items (%1)';"), SkippedItemsCount);
+			TableRow.Object = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = '… and other items (%1)';"), SkippedItemsCount);
 			TableRow.Cause = NStr("en = 'Cannot modify some items. The items were skipped.';");
 		EndIf;
 	EndIf;
 	
-	Items.ProcessingResultsLabel.Title = SubstituteParametersToString(
+	Items.ProcessingResultsLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(
 		MessageTemplate,
 		CurrentChangeStatus.ChangedCount,
 		CurrentChangeStatus.ObjectsCountForProcessing,
@@ -1346,7 +1321,7 @@ EndProcedure
 Procedure GoToCompletedPage()
 	
 	Items.Pages.CurrentPage = Items.AllDone;
-	Items.DoneLabel.Title = SubstituteParametersToString(
+	Items.DoneLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Attributes of selected items edited.
 			|Total items edited: %1.';"), CurrentChangeStatus.ChangedCount);
 	Items.FormChange.Title = NStr("en = 'Finish';");
@@ -1368,14 +1343,7 @@ Procedure AddMessagePossibleToEditAttributesFaster()
 		Return;
 	EndIf;
 	
-	DataProcessorObject = FormAttributeToValue("Object");
-	If Not DataProcessorObject.IsLongRunningOperationsAvailable() Then
-		Return;
-	EndIf;
-	
-	ModuleTimeConsumingOperations = CommonModule("TimeConsumingOperations");
-	
-	LongRunningOperationsThreadCount = ModuleTimeConsumingOperations.AllowedNumberofThreads();
+	LongRunningOperationsThreadCount = TimeConsumingOperations.AllowedNumberofThreads();
 	If LongRunningOperationsThreadCount <= 1 Then
 		Return;
 	EndIf;
@@ -1391,7 +1359,7 @@ EndProcedure
 Function TypesOfObjectsToChange()
 	Result = New Array;
 	For Each ObjectsKind In StrSplit(KindsOfObjectsToChange, ",", False) Do
-		ObjectManager = ObjectManagerByFullName(ObjectsKind);
+		ObjectManager = Common.ObjectManagerByFullName(ObjectsKind);
 		Result.Add(TypeOf(ObjectManager.EmptyRef()));
 	EndDo;
 	Return Result;
@@ -1400,8 +1368,7 @@ EndFunction
 &AtServer
 Procedure FinalActionsOnChangeServer()
 	If TimeConsumingOperation.Property("JobID") Then
-		ModuleTimeConsumingOperations = CommonModule("TimeConsumingOperations");
-		ModuleTimeConsumingOperations.CancelJobExecution(TimeConsumingOperation.JobID);
+		TimeConsumingOperations.CancelJobExecution(TimeConsumingOperation.JobID);
 	EndIf;
 	
 	Items.Pages.CurrentPage = Items.ObjectsChange;
@@ -1556,7 +1523,8 @@ EndFunction
 &AtServer
 Function AttributesToChange(TabularSectionName = "ObjectAttributes")
 	AttributesTable = ThisObject[TabularSectionName];
-	Return ValueTableToArray(AttributesTable.Unload(New Structure("Change", True)));
+	Return Common.ValueTableToArray(
+		AttributesTable.Unload(New Structure("Change", True)));
 EndFunction
 
 &AtServer
@@ -1591,7 +1559,7 @@ Procedure ChangeAtServer(Val StopChangeOnError)
 	JobParameters.Insert("AdditionalAttributesUsed", DataProcessorObject.AdditionalAttributesUsed);
 	JobParameters.Insert("AdditionalInfoUsed", DataProcessorObject.AdditionalInfoUsed);
 	JobParameters.Insert("AttributesToChange", AttributesToChange());
-	JobParameters.Insert("AvailableAttributes", ValueTableToArray(ObjectAttributes.Unload(, "Name,Presentation,OperationKind,Property")));
+	JobParameters.Insert("AvailableAttributes", Common.ValueTableToArray(ObjectAttributes.Unload(, "Name,Presentation,OperationKind,Property")));
 	JobParameters.Insert("TabularSectionsToChange", TabularSectionsToChange());
 	JobParameters.Insert("ObjectsForChanging", New ValueStorage(SelectedObjects()));
 	JobParameters.Insert("DeveloperMode", DataProcessorObject.DeveloperMode);
@@ -1620,7 +1588,7 @@ EndFunction
 &AtServerNoContext
 Function HierarchicalMetadataObject1(FirstObjectReference)
 	
-	ObjectKindByRef = ObjectKindByRef(FirstObjectReference);
+	ObjectKindByRef = Common.ObjectKindByRef(FirstObjectReference);
 	Return ((ObjectKindByRef = "Catalog" Or ObjectKindByRef = "ChartOfCharacteristicTypes") And FirstObjectReference.Metadata().Hierarchical)
 	 	Or (ObjectKindByRef = "ChartOfAccounts");
 	
@@ -1629,7 +1597,7 @@ EndFunction
 &AtServerNoContext
 Function HierarchyFoldersAndItems(FirstObjectReference)
 	
-	ObjectKindByRef = ObjectKindByRef(FirstObjectReference);
+	ObjectKindByRef = Common.ObjectKindByRef(FirstObjectReference);
 	Return (ObjectKindByRef = "Catalog" And FirstObjectReference.Metadata().Hierarchical
 		And FirstObjectReference.Metadata().HierarchyType = Metadata.ObjectProperties.HierarchyType.HierarchyFoldersAndItems)
 		Or (ObjectKindByRef = "ChartOfCharacteristicTypes" And FirstObjectReference.Metadata().Hierarchical);
@@ -2001,8 +1969,8 @@ EndProcedure
 &AtServer
 Function ObjectAttributesToLock(ObjectName)
 	
-	If SubsystemExists("StandardSubsystems.ObjectAttributesLock") Then
-		ModuleObjectAttributesLock = CommonModule("ObjectAttributesLock");
+	If Common.SubsystemExists("StandardSubsystems.ObjectAttributesLock") Then
+		ModuleObjectAttributesLock = Common.CommonModule("ObjectAttributesLock");
 		Return ModuleObjectAttributesLock.ObjectAttributesToLock(ObjectName);
 	EndIf;
 	
@@ -2016,33 +1984,11 @@ Function LockedAttributes()
 	Result = New Array;
 	
 	For Each ObjectsKind In StrSplit(KindsOfObjectsToChange, ",", False) Do
-		If SSLVersionMatchesRequirements Then
-			For Each Attribute In ObjectAttributesToLock(ObjectsKind) Do
-				If Result.Find(Attribute) = Undefined Then
-					Result.Add(Attribute);
-				EndIf;
-			EndDo;
-			Continue;
-		EndIf;
-		
-		// For configurations without SSL or with an old SSL integrated, 
-		// identify if the object has locked attributes (subsystem "Object attribute lock")
-		ObjectManager = ObjectManagerByFullName(ObjectsKind);
-		Try
-			AttributesToLockDetails = ObjectManager.GetObjectAttributesToLock();
-		Except
-			// Method not found.
-			AttributesToLockDetails = Undefined;
-		EndTry;
-	
-		If AttributesToLockDetails <> Undefined Then
-			For Each AttributeToLockDetails In AttributesToLockDetails Do
-				AttributeName = TrimAll(StrSplit(AttributeToLockDetails, ";")[0]);
-				If Result.Find(AttributeName) = Undefined Then
-					Result.Add(AttributeName);
-				EndIf;
-			EndDo;
-		EndIf;
+		For Each Attribute In ObjectAttributesToLock(ObjectsKind) Do
+			If Result.Find(Attribute) = Undefined Then
+				Result.Add(Attribute);
+			EndIf;
+		EndDo;
 	EndDo;
 	
 	Return Result;
@@ -2182,19 +2128,21 @@ Function ExcludedAttributeTypes()
 	
 	Result = Undefined;
 	KindsOfObjectsToChangeList = StrSplit(KindsOfObjectsToChange, ",", False);
+	
 	If KindsOfObjectsToChangeList.Count() = 0 Then
 		Return Result;
 	EndIf;
 	
-	If SubsystemExists("StandardSubsystems.FilesOperations") Then
-		ModuleFilesOperationsInternal = CommonModule("FilesOperationsInternal");
+	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
+		ModuleFilesOperationsInternal = Common.CommonModule("FilesOperationsInternal");
 		ObjectName = KindsOfObjectsToChangeList[0];
 		Result = New Map;
 		For Each CatalogName In ModuleFilesOperationsInternal.FileStorageCatalogNames(
-			ObjectManagerByFullName(ObjectName).EmptyRef(), True) Do
+			Common.ObjectManagerByFullName(ObjectName).EmptyRef(), True) Do
 			Result[Type("CatalogRef." + CatalogName.Key)] = True;
 		EndDo;
 	EndIf;
+	
 	Return Result;
 	
 EndFunction
@@ -2267,7 +2215,7 @@ Procedure FillObjectsTabularSections(DetailsOfAttributes, AvailableTabularSectio
 		FormTable.SetAction("BeforeRowChange", "Attachable_BeforeRowChange");
 		FormTable.ChangeRowOrder = False;
 		FormTable.ChangeRowSet = False;
-		FormTable.RowsPicture = OperationsKindsPicture();
+		FormTable.RowsPicture = PictureLib.OperationKinds;
 		FormTable.RowPictureDataPath = AttributeName + ".OperationKind";
 		FormTable.Height = 5;
 		
@@ -2583,13 +2531,13 @@ Procedure FillObjectAttributes(DetailsOfAttributes, AvailableAttributes)
 	AddAttributesToSet(DetailsOfAttributes, MetadataObject, AvailableAttributes, MetadataObject.Attributes);
 	ObjectAttributes.Sort("Presentation Asc");
 	
-	If SubsystemExists("StandardSubsystems.Properties") Then
-		ModulePropertyManager = CommonModule("PropertyManager");
+	If Common.SubsystemExists("StandardSubsystems.Properties") Then
+		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		If ModulePropertyManager <> Undefined Then
 			AdditionalAttributesUsed = True;
 			AdditionalInfoUsed = True;
 			For Each ObjectKind In KindsOfObjectsToChangeList Do
-				ObjectManager = ObjectManagerByFullName(ObjectKind);
+				ObjectManager = Common.ObjectManagerByFullName(ObjectKind);
 				AdditionalAttributesUsed = AdditionalAttributesUsed And ModulePropertyManager.UseAddlAttributes(ObjectManager.EmptyRef());
 				AdditionalInfoUsed  = AdditionalInfoUsed And ModulePropertyManager.UseAddlInfo (ObjectManager.EmptyRef());
 			EndDo;
@@ -2623,12 +2571,13 @@ Procedure AddAdditionalAttributesAndInfoToSet()
 		For Each ObjectData In SelectedObjects Do
 			ObjectToChange1 = ObjectData.Ref;
 			
-			ObjectKindByRef = ObjectKindByRef(ObjectToChange1);
-			If (ObjectKindByRef = "Catalog" Or ObjectKindByRef = "ChartOfCharacteristicTypes") And ObjectIsFolder(ObjectToChange1) Then
+			ObjectKindByRef = Common.ObjectKindByRef(ObjectToChange1);
+			If (ObjectKindByRef = "Catalog" Or ObjectKindByRef = "ChartOfCharacteristicTypes")
+				And Common.ObjectIsFolder(ObjectToChange1) Then
 				Continue;
 			EndIf;
 			
-			ModulePropertyManager = CommonModule("PropertyManager");
+			ModulePropertyManager = Common.CommonModule("PropertyManager");
 			ListOfProperties = ModulePropertyManager.ObjectProperties(ObjectToChange1);
 			For Each Property In ListOfProperties Do
 				If CommonAttributesList.Find(Property) = Undefined Then
@@ -2654,8 +2603,8 @@ EndProcedure
 &AtServer
 Procedure AddPropertiesToAttributesList(Properties)
 	
-	ModuleCommon = CommonModule("Common");
-	DetailsOfProperties = ModuleCommon.ObjectsAttributesValues(Properties, "Ref,Description,ValueType,IsAdditionalInfo");
+	DetailsOfProperties = Common.ObjectsAttributesValues(Properties, "Ref,Description,ValueType,IsAdditionalInfo");
+	
 	For Each Property In Properties Do
 		PropertyDetails = DetailsOfProperties[Property];
 		AttributeDetails = ObjectAttributes.Add();
@@ -2675,7 +2624,7 @@ Function PropertiesListForObjectsKind(ObjectsKind)
 	PropertiesKinds.Add("AdditionalAttributes");
 	PropertiesKinds.Add("AdditionalInfo");
 	
-	ModulePropertyManagerInternal = CommonModule("PropertyManagerInternal");
+	ModulePropertyManagerInternal = Common.CommonModule("PropertyManagerInternal");
 	If ModulePropertyManagerInternal <> Undefined Then
 		For Each PropertyKind1 In PropertiesKinds Do
 			ListOfProperties = ModulePropertyManagerInternal.PropertiesListForObjectsKind(ObjectsKind, PropertyKind1);
@@ -2735,7 +2684,7 @@ Procedure AddAttributesToSet(DetailsOfAttributes, MetadataObject, AvailableAttri
 			IsReference = False;
 			
 			For Each Type In AttributeDetails.Type.Types() Do
-				If IsReference(Type) Then
+				If Common.IsReference(Type) Then
 					IsReference = True;
 					Break;
 				EndIf;
@@ -2787,14 +2736,8 @@ EndProcedure
 &AtServer
 Procedure AddExternalAttributesToSet(AttributesSets, KindsOfObjectsToChangeList)
 	
-	ModuleUsersInternal = CommonModule("UsersInternal");
-	If ModuleUsersInternal = Undefined
-	 Or Not SSLVersionMatchesRequirements Then
-		Return;
-	EndIf;
-	
-	ExternalAttributes = New Array; // Array of
-	ModuleUsersInternal.OnFillExternalAttributes(KindsOfObjectsToChangeList, ExternalAttributes);
+	ExternalAttributes = New Array; // Array of See UsersInternal.ExternalAttribute
+	UsersInternal.OnFillExternalAttributes(KindsOfObjectsToChangeList, ExternalAttributes);
 	
 	For Each ExternalAttribute In ExternalAttributes Do
 		If Not Object.ShowInternalAttributes
@@ -2991,7 +2934,7 @@ Function EditFilterByType(MetadataObject)
 	
 	// Attributes lockable for the specified metadata object type.
 	FilterByObjectType = FilterTable1.FindRows(New Structure("ObjectType", 
-		BaseTypeNameByMetadataObject(MetadataObject)));
+		Common.BaseTypeNameByMetadataObject(MetadataObject)));
 	
 	DisabledAttributes = New Map;
 	
@@ -3094,9 +3037,9 @@ Procedure GenerateNoteOnConfiguredChanges()
 		EndIf;
 		
 		If AttributesToChange.Count() > 3 Then
-			Explanation = SubstituteParametersToString(NoteTemplate, AttributesToChange.Count());
+			Explanation = StringFunctionsClientServer.SubstituteParametersToString(NoteTemplate, AttributesToChange.Count());
 		ElsIf AttributesToChange.Count() > 0 Then
-			Explanation = SubstituteParametersToString(NoteTemplate, AttributesNames(AttributesToChange));
+			Explanation = StringFunctionsClientServer.SubstituteParametersToString(NoteTemplate, AttributesNames(AttributesToChange));
 		Else
 			Explanation = "";
 		EndIf;
@@ -3126,10 +3069,10 @@ Procedure GenerateNoteOnConfiguredChanges()
 				Explanation = Explanation + ", ";
 			EndIf;
 			If AttributesToChange.Count() > 3 Then
-				Explanation = Explanation + SubstituteParametersToString(NoteTemplate, 
+				Explanation = Explanation + StringFunctionsClientServer.SubstituteParametersToString(NoteTemplate, 
 					AttributesToChange.Count(), TabularSection.Key);
 			Else
-				Explanation = Explanation + SubstituteParametersToString(NoteTemplate, 
+				Explanation = Explanation + StringFunctionsClientServer.SubstituteParametersToString(NoteTemplate, 
 					AttributesNames(AttributesToChange), TabularSection.Key);
 			EndIf;
 		EndDo;
@@ -3138,11 +3081,11 @@ Procedure GenerateNoteOnConfiguredChanges()
 			Explanation = Explanation + ".";
 			If TabularSectionsToChange.Count() > 0 Then
 				If FilterByRowsAvailable Then 
-					Explanation = Explanation + " " + SubstituteParametersToString(NStr(
+					Explanation = Explanation + " " + StringFunctionsClientServer.SubstituteParametersToString(NStr(
 						"en = 'Apply the changes only to the lines of the selected items that match the <a href = ""%1"">filter</a>.';"),
 						"GoToFilterSettings");
 				Else
-					Explanation = Explanation + " " + SubstituteParametersToString(NStr(
+					Explanation = Explanation + " " + StringFunctionsClientServer.SubstituteParametersToString(NStr(
 						"en = 'Apply the changes <a href = ""%1"">to all lines</a> of the selected items.';"),
 						"GoToFilterSettings");
 				EndIf;
@@ -3152,9 +3095,9 @@ Procedure GenerateNoteOnConfiguredChanges()
 		EndIf;
 	EndIf;
 	
-	Items.NoteOnConfiguredChanges.Title = FormattedString(Explanation);
+	Items.NoteOnConfiguredChanges.Title = StringFunctions.FormattedString(Explanation);
 	If IsBlankString(AlgorithmCode) Then
-		AlgorithmCode = SubstituteParametersToString(NStr("en = '// Available variables:
+		AlgorithmCode = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '// Available variables:
 		|// %1 - an object to be processed.';"), "Object") + Chars.LF;
 	EndIf;
 	
@@ -3187,7 +3130,7 @@ Procedure UpdateSelectedCountLabel()
 	If AvailableConfiguredFilters() Then
 		ErrorMessageText = "";
 		SelectedObjectsCount = SelectedObjectsCount(True, , ErrorMessageText);
-		LabelText = StringWithNumberForAnyLanguage(NStr("en = ';%1 item;;;;%1 items';"),
+		LabelText = StringFunctionsClientServer.StringWithNumberForAnyLanguage(NStr("en = ';%1 item;;;;%1 items';"),
 			SelectedObjectsCount);
 	Else
 		LabelText = NStr("en = 'All items';");
@@ -3337,12 +3280,12 @@ Function ChoiceParametersAsString(ChoiceParameters)
 			
 			For Each Item In ChoiceParameterDescription.Value Do
 				ValueStringPattern = "[Type]*[Value]";
-				ValueStringPattern = StrReplace(ValueStringPattern, "[Type]", TypePresentationString(TypeOf(Item)));
+				ValueStringPattern = StrReplace(ValueStringPattern, "[Type]", Common.TypePresentationString(TypeOf(Item)));
 				ValueStringPattern = StrReplace(ValueStringPattern, "[Value]", XMLString(Item));
 				StringValue1 = StringValue1 + ?(IsBlankString(StringValue1), "", "#") + ValueStringPattern;
 			EndDo;
 		Else
-			TypePresentationString = TypePresentationString(ValueType);
+			TypePresentationString = Common.TypePresentationString(ValueType);
 			StringValue1 = XMLString(ChoiceParameterDescription.Value);
 		EndIf;
 		
@@ -3419,7 +3362,8 @@ Function ChoiceParameterLinksPresentation(ChoiceParameterLinks, MetadataObject)
 		If LinkedAttributes.Count() = 1 Then
 			LinkPresentationPattern = NStr("en = 'Depends on the %1 attribute.';");
 		EndIf;
-		Result = SubstituteParametersToString(LinkPresentationPattern, StrConcat(LinkedAttributes, ", "));
+		Result = StringFunctionsClientServer.SubstituteParametersToString(
+			LinkPresentationPattern, StrConcat(LinkedAttributes, ", "));
 	EndIf;
 	
 	Return Result;
@@ -3444,8 +3388,8 @@ EndProcedure
 &AtClient
 Procedure GoToFilterSettings()
 	If Not IsBlankString(KindsOfObjectsToChange) Then
-		NotifyDescription = New NotifyDescription("OnCloseSelectedObjectsForm", ThisObject);
-		OpenForm(FullFormName("SelectedItems"), 
+		NotifyDescription = New CallbackDescription("OnCloseSelectedObjectsForm", ThisObject);
+		OpenForm("DataProcessor.BatchEditAttributes.Form.SelectedItems", 
 			New Structure("SelectedTypes, Settings", KindsOfObjectsToChange, SettingsComposer.Settings), , , , , NotifyDescription);
 	EndIf;
 EndProcedure
@@ -3517,1238 +3461,6 @@ Procedure OnUnlockAttributes(UnlockedAttributes, AdditionalParameters) Export
 		
 	EndIf;
 	
-EndProcedure
-
-////////////////////////////////////////////////////////////////////////////////
-// Base-functionality procedures and functions for standalone mode support.
-
-// Saves a setting to the common settings storage.
-// 
-// Parameters:
-//   As for the CommonSettingsStorageSave.Save method, 
-//   see StorageSave() parameters.
-// 
-&AtServerNoContext
-Procedure CommonSettingsStorageSave(ObjectKey, SettingsKey, Value,
-	SettingsDescription = Undefined, UserName = Undefined, 
-	NeedToRefreshCachedValues = False)
-	
-	StorageSave(
-		CommonSettingsStorage,
-		ObjectKey,
-		SettingsKey,
-		Value,
-		SettingsDescription,
-		UserName,
-		NeedToRefreshCachedValues);
-	
-EndProcedure
-
-// Loads settings from the common settings storage.
-//
-// Parameters:
-//   As for the CommonSettingsStorage.Load method,
-//   see StorageLoad() parameters.
-//
-&AtServerNoContext
-Function CommonSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefined, 
-	SettingsDescription = Undefined, UserName = Undefined)
-	
-	Return StorageLoad(
-		CommonSettingsStorage,
-		ObjectKey,
-		SettingsKey,
-		DefaultValue,
-		SettingsDescription,
-		UserName);
-	
-EndFunction
-
-&AtServerNoContext
-Procedure StorageSave(StorageManager, ObjectKey, SettingsKey, Value,
-	SettingsDescription, UserName, NeedToRefreshCachedValues)
-	
-	If Not AccessRight("SaveUserData", Metadata) Then
-		Return;
-	EndIf;
-	
-	StorageManager.Save(ObjectKey, SettingsKey(SettingsKey), Value, SettingsDescription, UserName);
-	
-	If NeedToRefreshCachedValues Then
-		RefreshReusableValues();
-	EndIf;
-	
-EndProcedure
-
-&AtServerNoContext
-Function StorageLoad(StorageManager, ObjectKey, SettingsKey, DefaultValue,
-	SettingsDescription, UserName)
-	
-	Result = Undefined;
-	
-	If AccessRight("SaveUserData", Metadata) Then
-		Result = StorageManager.Load(ObjectKey, SettingsKey(SettingsKey), SettingsDescription, UserName);
-	EndIf;
-	
-	If (Result = Undefined) And (DefaultValue <> Undefined) Then
-		Result = DefaultValue;
-	EndIf;
-
-	Return Result;
-	
-EndFunction
-
-// Returns a settings key string within a valid length.
-// Checks the length of the passed string. If it exceeds 128, converts its end according to the MD5 algorithm into a short
-// alternative. As the result, string becomes 128 character length.
-// If the original string is less then 128 characters, it is returned as is.
-//
-// Parameters:
-//  String - String - string of any number of characters.
-//
-&AtServerNoContext
-Function SettingsKey(Val String)
-	Result = String;
-	If StrLen(String) > 128 Then // A key longer than 128 characters raises an exception when accessing the settings storage.
-		Result = Left(String, 96);
-		DataHashing = New DataHashing(HashFunction.MD5);
-		DataHashing.Append(Mid(String, 97));
-		Result = Result + StrReplace(DataHashing.HashSum, " ", "");
-	EndIf;
-	Return Result;
-EndFunction
-
-// Returns an object manager by the passed full name of a metadata object.
-//
-// Does not regard business process route points.
-//
-// Parameters:
-//  FullName    - String - full name of the metadata object,
-//                 for example, "Catalog.Companies".
-//
-// Returns:
-//  CatalogManager, DocumentManager, DataProcessorManager, InformationRegisterManager - an object manager.
-//
-&AtServerNoContext
-Function ObjectManagerByFullName(FullName)
-	Var MOClass, MetadataObjectName1, Manager;
-	
-	NameParts = StrSplit(FullName, ".");
-	
-	If NameParts.Count() = 2 Then
-		MOClass = NameParts[0];
-		MetadataObjectName1  = NameParts[1];
-	EndIf;
-	
-	If      Upper(MOClass) = "EXCHANGEPLAN" Then
-		Manager = ExchangePlans;
-		
-	ElsIf Upper(MOClass) = "CATALOG" Then
-		Manager = Catalogs;
-		
-	ElsIf Upper(MOClass) = "DOCUMENT" Then
-		Manager = Documents;
-		
-	ElsIf Upper(MOClass) = "DOCUMENTJOURNAL" Then
-		Manager = DocumentJournals;
-		
-	ElsIf Upper(MOClass) = "ENUM" Then
-		Manager = Enums;
-		
-	ElsIf Upper(MOClass) = "REPORT" Then
-		Manager = Reports;
-		
-	ElsIf Upper(MOClass) = "DATAPROCESSOR" Then
-		Manager = DataProcessors;
-		
-	ElsIf Upper(MOClass) = "CHARTOFCHARACTERISTICTYPES" Then
-		Manager = ChartsOfCharacteristicTypes;
-		
-	ElsIf Upper(MOClass) = "CHARTOFACCOUNTS" Then
-		Manager = ChartsOfAccounts;
-		
-	ElsIf Upper(MOClass) = "CHARTOFCALCULATIONTYPES" Then
-		Manager = ChartsOfCalculationTypes;
-		
-	ElsIf Upper(MOClass) = "INFORMATIONREGISTER" Then
-		Manager = InformationRegisters;
-		
-	ElsIf Upper(MOClass) = "ACCUMULATIONREGISTER" Then
-		Manager = AccumulationRegisters;
-		
-	ElsIf Upper(MOClass) = "ACCOUNTINGREGISTER" Then
-		Manager = AccountingRegisters;
-		
-	ElsIf Upper(MOClass) = "CALCULATIONREGISTER" Then
-		If NameParts.Count() = 2 Then
-			// Calculation register.
-			Manager = CalculationRegisters;
-		Else
-			SubordinateMOClass = NameParts[2];
-			If Upper(SubordinateMOClass) = "RECALCULATION" Then
-				// Recalculate.
-				Manager = CalculationRegisters[MetadataObjectName1].Recalculations;
-			Else
-				Raise SubstituteParametersToString(NStr("en = 'Unknown metadata object type: %1.';"), FullName);
-			EndIf;
-		EndIf;
-		
-	ElsIf Upper(MOClass) = "BUSINESSPROCESS" Then
-		Manager = BusinessProcesses;
-		
-	ElsIf Upper(MOClass) = "TASK" Then
-		Manager = Tasks;
-		
-	ElsIf Upper(MOClass) = "CONSTANT" Then
-		Manager = Constants;
-		
-	ElsIf Upper(MOClass) = "SEQUENCE" Then
-		Manager = Sequences;
-	EndIf;
-	
-	If Manager <> Undefined Then
-		Try
-			Return Manager[MetadataObjectName1];
-		Except
-			Manager = Undefined;
-		EndTry;
-	EndIf;
-	
-	Raise SubstituteParametersToString(NStr("en = 'Unknown metadata object type: %1.';"), FullName);
-	
-EndFunction
-
-&AtClientAtServerNoContext
-Function SubstituteParametersToString(Val SubstitutionString,
-	Val Parameter1, Val Parameter2 = Undefined, Val Parameter3 = Undefined)
-	
-	SubstitutionString = StrReplace(SubstitutionString, "%1", Parameter1);
-	SubstitutionString = StrReplace(SubstitutionString, "%2", Parameter2);
-	SubstitutionString = StrReplace(SubstitutionString, "%3", Parameter3);
-	
-	Return SubstitutionString;
-EndFunction
-
-// Returns the name of a kind
-// for a referenced metadata object.
-//
-// Does not regard business process route points.
-//
-// Parameters:
-//  Ref       - AnyRef - catalog item, document, etc.
-//
-// Returns:
-//  String       - Metadata object kind name. For example, Catalog or Document.
-//
-&AtServerNoContext
-Function ObjectKindByRef(Ref)
-	
-	Return ObjectKindByType(TypeOf(Ref));
-	
-EndFunction 
-
-// Returns the name of a kind for a metadata object of a specific type.
-//
-// Does not regard business process route points.
-//
-// Parameters:
-//  ObjectType - Type - an applied object type defined in the configuration.
-//
-// Returns:
-//  String       - Metadata object kind name. For example, Catalog or Document.
-// 
-&AtServerNoContext
-Function ObjectKindByType(Type)
-	
-	If Catalogs.AllRefsType().ContainsType(Type) Then
-		Return "Catalog";
-	
-	ElsIf Documents.AllRefsType().ContainsType(Type) Then
-		Return "Document";
-	
-	ElsIf BusinessProcesses.AllRefsType().ContainsType(Type) Then
-		Return "BusinessProcess";
-	
-	ElsIf ChartsOfCharacteristicTypes.AllRefsType().ContainsType(Type) Then
-		Return "ChartOfCharacteristicTypes";
-	
-	ElsIf ChartsOfAccounts.AllRefsType().ContainsType(Type) Then
-		Return "ChartOfAccounts";
-	
-	ElsIf ChartsOfCalculationTypes.AllRefsType().ContainsType(Type) Then
-		Return "ChartOfCalculationTypes";
-	
-	ElsIf Tasks.AllRefsType().ContainsType(Type) Then
-		Return "Task";
-	
-	ElsIf ExchangePlans.AllRefsType().ContainsType(Type) Then
-		Return "ExchangePlan";
-	
-	ElsIf Enums.AllRefsType().ContainsType(Type) Then
-		Return "Enum";
-	
-	Else
-		Raise SubstituteParametersToString(NStr("en = 'Invalid parameter value type: %1.';"), String(Type));
-	
-	EndIf;
-	
-EndFunction 
-
-// Checks whether the object is an item group.
-//
-// Parameters:
-//  Object - CatalogObject
-//         - DocumentObject
-//         - AnyRef
-//         - FormDataStructure
-//
-// Returns:
-//  Boolean
-//
-&AtServerNoContext
-Function ObjectIsFolder(Object)
-	
-	If RefTypeValue(Object) Then
-		Ref = Object;
-	Else
-		Ref = Object.Ref;
-	EndIf;
-	
-	ObjectMetadata = Ref.Metadata();
-	
-	If IsCatalog(ObjectMetadata) Then
-		
-		If Not ObjectMetadata.Hierarchical
-		 Or ObjectMetadata.HierarchyType
-		     <> Metadata.ObjectProperties.HierarchyType.HierarchyFoldersAndItems Then
-			
-			Return False;
-		EndIf;
-		
-	ElsIf Not IsChartOfCharacteristicTypes(ObjectMetadata) Then
-		Return False;
-		
-	ElsIf Not ObjectMetadata.Hierarchical Then
-		Return False;
-	EndIf;
-	
-	If Ref <> Object Then
-		Return Object.IsFolder;
-	EndIf;
-	
-	Return ObjectAttributeValue(Ref, "IsFolder");
-	
-EndFunction
-
-// Checks whether the metadata object belongs to the Catalog common type.
-//
-// Parameters:
-//  MetadataObject - MetadataObject - to be checked for having a specific type.
-//
-//  Returns:
-//   Boolean
-//
-&AtServerNoContext
-Function IsCatalog(MetadataObject)
-	
-	Return BaseTypeNameByMetadataObject(MetadataObject) = CatalogsTypeName();
-	
-EndFunction
-
-// Checking whether it's a reference data type.
-//
-&AtServerNoContext
-Function IsReference(Type)
-	
-	Return Type <> Type("Undefined") 
-		And (Catalogs.AllRefsType().ContainsType(Type)
-		Or Documents.AllRefsType().ContainsType(Type)
-		Or Enums.AllRefsType().ContainsType(Type)
-		Or ChartsOfCharacteristicTypes.AllRefsType().ContainsType(Type)
-		Or ChartsOfAccounts.AllRefsType().ContainsType(Type)
-		Or ChartsOfCalculationTypes.AllRefsType().ContainsType(Type)
-		Or BusinessProcesses.AllRefsType().ContainsType(Type)
-		Or BusinessProcesses.RoutePointsAllRefsType().ContainsType(Type)
-		Or Tasks.AllRefsType().ContainsType(Type)
-		Or ExchangePlans.AllRefsType().ContainsType(Type));
-	
-EndFunction
-
-// Checks whether the value is a reference type value.
-//
-// Parameters:
-//  Value - Arbitrary - a value to check.
-//
-// Returns:
-//  Boolean       - True if the value has a reference type.
-//
-&AtServerNoContext
-Function RefTypeValue(Value)
-	
-	If Value = Undefined Then
-		Return False;
-	EndIf;
-	
-	If Catalogs.AllRefsType().ContainsType(TypeOf(Value)) Then
-		Return True;
-	EndIf;
-	
-	If Documents.AllRefsType().ContainsType(TypeOf(Value)) Then
-		Return True;
-	EndIf;
-	
-	If Enums.AllRefsType().ContainsType(TypeOf(Value)) Then
-		Return True;
-	EndIf;
-	
-	If ChartsOfCharacteristicTypes.AllRefsType().ContainsType(TypeOf(Value)) Then
-		Return True;
-	EndIf;
-	
-	If ChartsOfAccounts.AllRefsType().ContainsType(TypeOf(Value)) Then
-		Return True;
-	EndIf;
-	
-	If ChartsOfCalculationTypes.AllRefsType().ContainsType(TypeOf(Value)) Then
-		Return True;
-	EndIf;
-	
-	If BusinessProcesses.AllRefsType().ContainsType(TypeOf(Value)) Then
-		Return True;
-	EndIf;
-	
-	If BusinessProcesses.RoutePointsAllRefsType().ContainsType(TypeOf(Value)) Then
-		Return True;
-	EndIf;
-	
-	If Tasks.AllRefsType().ContainsType(TypeOf(Value)) Then
-		Return True;
-	EndIf;
-	
-	If ExchangePlans.AllRefsType().ContainsType(TypeOf(Value)) Then
-		Return True;
-	EndIf;
-	
-	Return False;
-	
-EndFunction
-
-// Checks whether the metadata object belongs to the Chart of Characteristic Types common type.
-//
-// Parameters:
-//  MetadataObject - MetadataObject - to be checked for having a specific type.
-//
-//  Returns:
-//   Boolean
-//
-&AtServerNoContext
-Function IsChartOfCharacteristicTypes(MetadataObject)
-	
-	Return BaseTypeNameByMetadataObject(MetadataObject) = ChartsOfCharacteristicTypesTypeName();
-	
-EndFunction
-
-// Returns a base type name by the passed metadata object value.
-//
-// Parameters:
-//  MetadataObject - MetadataObject - to use for identifying the base type.
-// 
-// Returns:
-//  String - name of the base type for the passed metadata object value.
-//
-&AtServerNoContext
-Function BaseTypeNameByMetadataObject(MetadataObject)
-	
-	If Metadata.Documents.Contains(MetadataObject) Then
-		Return DocumentsTypeName();
-		
-	ElsIf Metadata.Catalogs.Contains(MetadataObject) Then
-		Return CatalogsTypeName();
-		
-	ElsIf Metadata.Enums.Contains(MetadataObject) Then
-		Return EnumsTypeName();
-		
-	ElsIf Metadata.InformationRegisters.Contains(MetadataObject) Then
-		Return InformationRegistersTypeName();
-		
-	ElsIf Metadata.AccumulationRegisters.Contains(MetadataObject) Then
-		Return AccumulationRegistersTypeName();
-		
-	ElsIf Metadata.AccountingRegisters.Contains(MetadataObject) Then
-		Return AccountingRegistersTypeName();
-		
-	ElsIf Metadata.CalculationRegisters.Contains(MetadataObject) Then
-		Return CalculationRegistersTypeName();
-		
-	ElsIf Metadata.ExchangePlans.Contains(MetadataObject) Then
-		Return ExchangePlansTypeName();
-		
-	ElsIf Metadata.ChartsOfCharacteristicTypes.Contains(MetadataObject) Then
-		Return ChartsOfCharacteristicTypesTypeName();
-		
-	ElsIf Metadata.BusinessProcesses.Contains(MetadataObject) Then
-		Return BusinessProcessesTypeName();
-		
-	ElsIf Metadata.Tasks.Contains(MetadataObject) Then
-		Return TasksTypeName();
-		
-	ElsIf Metadata.ChartsOfAccounts.Contains(MetadataObject) Then
-		Return ChartsOfAccountsTypeName();
-		
-	ElsIf Metadata.ChartsOfCalculationTypes.Contains(MetadataObject) Then
-		Return ChartsOfCalculationTypesTypeName();
-		
-	ElsIf Metadata.Constants.Contains(MetadataObject) Then
-		Return ConstantsTypeName();
-		
-	ElsIf Metadata.DocumentJournals.Contains(MetadataObject) Then
-		Return DocumentJournalsTypeName();
-		
-	ElsIf Metadata.Sequences.Contains(MetadataObject) Then
-		Return SequencesTypeName();
-		
-	ElsIf Metadata.ScheduledJobs.Contains(MetadataObject) Then
-		Return ScheduledJobsTypeName();
-		
-	Else
-		
-		Return "";
-		
-	EndIf;
-	
-EndFunction
-
-// Returns a value for identification of the Information registers type.
-//
-// Returns:
-//  String
-//
-&AtServerNoContext
-Function InformationRegistersTypeName()
-	
-	Return "InformationRegisters";
-	
-EndFunction
-
-// Returns a value for identification of the Accumulation registers type.
-//
-// Returns:
-//  String
-//
-&AtServerNoContext
-Function AccumulationRegistersTypeName()
-	
-	Return "AccumulationRegisters";
-	
-EndFunction
-
-// Returns a value for identification of the Accounting registers type.
-//
-// Returns:
-//  String
-//
-&AtServerNoContext
-Function AccountingRegistersTypeName()
-	
-	Return "AccountingRegisters";
-	
-EndFunction
-
-// Returns a value for identification of the Calculation registers type.
-//
-// Returns:
-//  String
-//
-&AtServerNoContext
-Function CalculationRegistersTypeName()
-	
-	Return "CalculationRegisters";
-	
-EndFunction
-
-// Returns a value for identification of the Documents type.
-//
-// Returns:
-//  String
-//
-&AtServerNoContext
-Function DocumentsTypeName()
-	
-	Return "Documents";
-	
-EndFunction
-
-// Returns a value for identification of the Catalogs type.
-//
-// Returns:
-//  String
-//
-&AtServerNoContext
-Function CatalogsTypeName()
-	
-	Return "Catalogs";
-	
-EndFunction
-
-// Returns a value for identifying the Enumeration data type.
-//
-// Returns:
-//  String
-//
-&AtServerNoContext
-Function EnumsTypeName()
-	
-	Return "Enums";
-	
-EndFunction
-
-// Returns a value for identification of the Exchange plans type.
-//
-// Returns:
-//  String
-//
-&AtServerNoContext
-Function ExchangePlansTypeName()
-	
-	Return "ExchangePlans";
-	
-EndFunction
-
-// Returns a value for identification of the Charts of characteristic types type.
-//
-// Returns:
-//  String
-//
-&AtServerNoContext
-Function ChartsOfCharacteristicTypesTypeName()
-	
-	Return "ChartsOfCharacteristicTypes";
-	
-EndFunction
-
-// Returns a value for identification of the Business processes type.
-//
-// Returns:
-//  String
-//
-&AtServerNoContext
-Function BusinessProcessesTypeName()
-	
-	Return "BusinessProcesses";
-	
-EndFunction
-
-// Returns a value for identification of the Tasks type.
-//
-// Returns:
-//  String
-//
-&AtServerNoContext
-Function TasksTypeName()
-	
-	Return "Tasks";
-	
-EndFunction
-
-// Checks whether the metadata object belongs to the Charts of accounts type.
-//
-// Returns:
-//  String
-//
-&AtServerNoContext
-Function ChartsOfAccountsTypeName()
-	
-	Return "ChartsOfAccounts";
-	
-EndFunction
-
-// Returns a value for identification of the Charts of calculation types type.
-//
-// Returns:
-//  String
-//
-&AtServerNoContext
-Function ChartsOfCalculationTypesTypeName()
-	
-	Return "ChartsOfCalculationTypes";
-	
-EndFunction
-
-// Returns a value for identification of the Constants type.
-//
-// Returns:
-//  String
-//
-&AtServerNoContext
-Function ConstantsTypeName()
-	
-	Return "Constants";
-	
-EndFunction
-
-// Returns a value for identification of the Document journals type.
-//
-// Returns:
-//  String
-//
-&AtServerNoContext
-Function DocumentJournalsTypeName()
-	
-	Return "DocumentJournals";
-	
-EndFunction
-
-// Returns a value for identification of the Sequences type.
-//
-// Returns:
-//  String
-//
-&AtServerNoContext
-Function SequencesTypeName()
-	
-	Return "Sequences";
-	
-EndFunction
-
-// Returns a value for identification of the ScheduledJobs type.
-//
-// Returns:
-//  String
-//
-&AtServerNoContext
-Function ScheduledJobsTypeName()
-	
-	Return "ScheduledJobs";
-	
-EndFunction
-
-// Returns a structure containing attribute values retrieved from the infobase
-// using the object reference.
-// 
-//  If access to any of the attributes is denied, an exception is raised.
-//  To read attribute values regardless of current user rights,
-//  enable privileged mode.
-// 
-// Parameters:
-//  Ref    - AnyRef - catalog item, document, etc.
-//
-//  Attributes - String - attribute names separated with commas, formatted
-//              according to structure requirements.
-//              Example: "Code, Description, Parent".
-//            - Structure
-//            - FixedStructure - Keys are field aliases used for resulting structure keys.
-//              (Optional) Values are field names.
-//              If a value is undefined, it repeats the key.
-//              
-//            - Array
-//            - FixedArray - attribute names formatted according to
-//              structure property requirements.
-//
-// Returns:
-//  Structure - contains names (keys) and values of the requested attributes.
-//              If the string of the requested attributes is empty, an empty structure is returned.
-//
-&AtServerNoContext
-Function ObjectAttributesValues(Ref, Val Attributes)
-	
-	If TypeOf(Attributes) = Type("String") Then
-		If IsBlankString(Attributes) Then
-			Return New Structure;
-		EndIf;
-		Attributes = StrSplit(Attributes, ",", False);
-	EndIf;
-	
-	AttributesStructure1 = New Structure;
-	If TypeOf(Attributes) = Type("Structure") Or TypeOf(Attributes) = Type("FixedStructure") Then
-		AttributesStructure1 = Attributes;
-	ElsIf TypeOf(Attributes) = Type("Array") Or TypeOf(Attributes) = Type("FixedArray") Then
-		For Each Attribute In Attributes Do
-			AttributesStructure1.Insert(StrReplace(Attribute, ".", ""), Attribute);
-		EndDo;
-	Else
-		Raise SubstituteParametersToString(NStr("en = 'Invalid Attributes parameter type: %1.';"), String(TypeOf(Attributes)));
-	EndIf;
-	
-	FieldTexts = "";
-	For Each KeyAndValue In AttributesStructure1 Do
-		FieldName   = ?(ValueIsFilled(KeyAndValue.Value),
-		              TrimAll(KeyAndValue.Value),
-		              TrimAll(KeyAndValue.Key));
-		
-		Alias = TrimAll(KeyAndValue.Key);
-		
-		FieldTexts  = FieldTexts + ?(IsBlankString(FieldTexts), "", ",") + "
-		|	" + FieldName + " AS " + Alias;
-	EndDo;
-	
-	Query = New Query;
-	Query.SetParameter("Ref", Ref);
-	Query.Text =
-	"SELECT
-	|	&FieldTexts
-	|FROM
-	|	&TableName AS SpecifiedTableAlias
-	|WHERE
-	|	SpecifiedTableAlias.Ref = &Ref
-	|";
-	Query.Text = StrReplace(Query.Text, "&FieldTexts", FieldTexts);
-	Query.Text = StrReplace(Query.Text, "&TableName", Ref.Metadata().FullName());
-	Selection = Query.Execute().Select();
-	Selection.Next();
-	
-	Result = New Structure;
-	For Each KeyAndValue In AttributesStructure1 Do
-		Result.Insert(KeyAndValue.Key);
-	EndDo;
-	FillPropertyValues(Result, Selection);
-	
-	Return Result;
-	
-EndFunction
-
-// Returns an attribute value retrieved from the infobase using the object reference.
-//
-//  If access to the attribute is denied, an exception is raised.
-//  To read attribute values regardless of current user rights,
-//  enable privileged mode.
-//
-// Parameters:
-//  Ref       - AnyRef - catalog item, document, etc.
-//  AttributeName - String - for example, "Code".
-//
-// Returns:
-//  Arbitrary    - Depends on the type of the read attribute.
-//
-&AtServerNoContext
-Function ObjectAttributeValue(Ref, AttributeName)
-	
-	Result = ObjectAttributesValues(Ref, AttributeName);
-	Return Result[StrReplace(AttributeName, ".", "")];
-	
-EndFunction 
-
-// Returns a reference to the common module by the name.
-//
-// Parameters:
-//  Name          - String - a common module name, for example:
-//                 "Common",
-//                 "CommonClient".
-//
-// Returns:
-//  CommonModule
-//
-&AtClientAtServerNoContext
-Function CommonModule(Name)
-	
-// ACC:488-off "Calculate" instead of "Common.CalculateInSafeMode" because it's a standalone data processor.
-#If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
-	If Metadata.CommonModules.Find(Name) <> Undefined Then
-		SetSafeMode(True);
-		Module = Eval(Name);
-	Else
-		Module = Undefined;
-	EndIf;
-	
-	If TypeOf(Module) <> Type("CommonModule") Then
-		Raise SubstituteParametersToString(NStr("en = 'Common module ""%1"" does not exist.';"), Name);
-	EndIf;
-#Else
-	Module = Eval(Name);
-	If TypeOf(Module) <> Type("CommonModule") Then
-		Raise SubstituteParametersToString(NStr("en = 'Common module ""%1"" does not exist.';"), Name);
-	EndIf;
-#EndIf
-// ACC:488-on
-	
-	Return Module;
-	
-EndFunction
-
-// Returns True if a subsystem exists.
-//
-// Parameters:
-//  FullSubsystemName - String - the full name of the subsystem metadata object, excluding word "Subsystem.".
-//                        Example: "StandardSubsystems.Core".
-//
-// Example of calling an optional subsystem:
-//
-//  If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
-//  	ModuleAccessManagement = Common.CommonModule("AccessManagement");
-//  	ModuleAccessManagement.<Method name>();
-//  EndIf;
-//
-// Returns:
-//  Boolean
-//
-&AtServer
-Function SubsystemExists(FullSubsystemName)
-	
-	If Not SSLVersionMatchesRequirements Then
-		Return False;
-	EndIf;
-	
-	SubsystemsNames = SubsystemsNames();
-	Return SubsystemsNames.Get(FullSubsystemName) <> Undefined;
-	
-EndFunction
-
-// Returns a map between subsystem names and the True value;
-&AtServerNoContext
-Function SubsystemsNames()
-	
-	Return New FixedMap(SubordinateSubsystemsNames(Metadata));
-	
-EndFunction
-
-&AtServerNoContext
-Function SubordinateSubsystemsNames(ParentSubsystem)
-	
-	Names = New Map;
-	
-	For Each CurrentSubsystem In ParentSubsystem.Subsystems Do
-		
-		Names.Insert(CurrentSubsystem.Name, True);
-		SubordinatesNames = SubordinateSubsystemsNames(CurrentSubsystem);
-		
-		For Each SubordinateFormName In SubordinatesNames Do
-			Names.Insert(CurrentSubsystem.Name + "." + SubordinateFormName.Key, True);
-		EndDo;
-	EndDo;
-	
-	Return Names;
-	
-EndFunction
-
-// Returns a string presentation of the type. 
-// For reference types, returns a string in format "CatalogRef.ObjectName" or "DocumentRef.ObjectName".
-// For any other types, converts the type to string. Example: "Number".
-//
-&AtServerNoContext
-Function TypePresentationString(Type)
-	
-	Presentation = "";
-	
-	If IsReference(Type) Then
-	
-		FullName = Metadata.FindByType(Type).FullName();
-		ObjectName = StrSplit(FullName, ".")[1];
-		
-		If Catalogs.AllRefsType().ContainsType(Type) Then
-			Presentation = "CatalogRef";
-		
-		ElsIf Documents.AllRefsType().ContainsType(Type) Then
-			Presentation = "DocumentRef";
-		
-		ElsIf BusinessProcesses.AllRefsType().ContainsType(Type) Then
-			Presentation = "BusinessProcessRef";
-		
-		ElsIf ChartsOfCharacteristicTypes.AllRefsType().ContainsType(Type) Then
-			Presentation = "ChartOfCharacteristicTypesRef";
-		
-		ElsIf ChartsOfAccounts.AllRefsType().ContainsType(Type) Then
-			Presentation = "ChartOfAccountsRef";
-		
-		ElsIf ChartsOfCalculationTypes.AllRefsType().ContainsType(Type) Then
-			Presentation = "ChartOfCalculationTypesRef";
-		
-		ElsIf Tasks.AllRefsType().ContainsType(Type) Then
-			Presentation = "TaskRef";
-		
-		ElsIf ExchangePlans.AllRefsType().ContainsType(Type) Then
-			Presentation = "ExchangePlanRef";
-		
-		ElsIf Enums.AllRefsType().ContainsType(Type) Then
-			Presentation = "EnumRef";
-		
-		EndIf;
-		
-		Result = ?(Presentation = "", Presentation, Presentation + "." + ObjectName);
-		
-	ElsIf Type = Type("Undefined") Then
-		
-		Result = "Undefined";
-		
-	ElsIf Type = Type("String") Then
-		Result = "String";
-
-	ElsIf Type = Type("Number") Then
-		Result = "Number";
-
-	ElsIf Type = Type("Boolean") Then
-		Result = "Boolean";
-
-	ElsIf Type = Type("Date") Then
-		Result = "Date";
-	
-	Else
-		
-		Result = String(Type);
-		
-	EndIf;
-	
-	Return Result;
-	
-EndFunction
-
-//	Converts the value table into an array.
-//	Use this function to pass data received on the server
-//	as a value table to the client. This is only possible
-//	if all of values from the value
-//  table can be passed to the client.
-//
-//	The resulting array contains structures that duplicate
-//	value table row structures.
-//
-//	It is recommended that you do not use this procedure to convert value tables
-//	with a large number of rows.
-//
-//	Parameters:
-//    ValueTable - ValueTable 
-//
-//	Returns:
-//    Array
-//
-&AtServerNoContext
-Function ValueTableToArray(ValueTable)
-	
-	Array = New Array();
-	StructureString = "";
-	CommaRequired = False;
-	For Each Column In ValueTable.Columns Do
-		If CommaRequired Then
-			StructureString = StructureString + ",";
-		EndIf;
-		StructureString = StructureString + Column.Name;
-		CommaRequired = True;
-	EndDo;
-	For Each String In ValueTable Do
-		NewRow = New Structure(StructureString);
-		FillPropertyValues(NewRow, String);
-		Array.Add(NewRow);
-	EndDo;
-	Return Array;
-
-EndFunction
-
-// Generates a string according to the specified pattern.
-// The following tags are available:
-//	 String  - formats the string as bold.
-//	 String 
-//
-// Example:
-//	The lowest supported version is 1.1. Update the app.
-//
-// Returns:
-//  FormattedString
-//
-&AtServerNoContext
-Function FormattedString(Val String)
-	
-	BoldStrings = New ValueList;
-	While StrFind(String, "<b>") <> 0 Do
-		BoldBeginning = StrFind(String, "<b>");
-		StringBeforeOpeningTag = Left(String, BoldBeginning - 1);
-		BoldStrings.Add(StringBeforeOpeningTag);
-		StringAfterOpeningTag = Mid(String, BoldBeginning + 3);
-		BoldEnd = StrFind(StringAfterOpeningTag, "</b>");
-		SelectedFragment = Left(StringAfterOpeningTag, BoldEnd - 1);
-		BoldStrings.Add(SelectedFragment,, True);
-		StringAfterBold = Mid(StringAfterOpeningTag, BoldEnd + 4);
-		String = StringAfterBold;
-	EndDo;
-	BoldStrings.Add(String);
-	
-	StringsWithLinks = New ValueList;
-	For Each RowPart In BoldStrings Do
-		
-		String = RowPart.Value;
-		
-		If RowPart.Check Then
-			StringsWithLinks.Add(String,, True);
-			Continue;
-		EndIf;
-		
-		BoldBeginning = StrFind(String, "<a href = ");
-		While BoldBeginning <> 0 Do
-			StringBeforeOpeningTag = Left(String, BoldBeginning - 1);
-			StringsWithLinks.Add(StringBeforeOpeningTag, );
-			
-			StringAfterOpeningTag = Mid(String, BoldBeginning + 9);
-			EndTag1 = StrFind(StringAfterOpeningTag, ">");
-			
-			Ref = TrimAll(Left(StringAfterOpeningTag, EndTag1 - 2));
-			If StrStartsWith(Ref, """") Then
-				Ref = Mid(Ref, 2, StrLen(Ref) - 1);
-			EndIf;
-			If StrEndsWith(Ref, """") Then
-				Ref = Mid(Ref, 1, StrLen(Ref) - 1);
-			EndIf;
-			
-			StringAfterLink = Mid(StringAfterOpeningTag, EndTag1 + 1);
-			BoldEnd = StrFind(StringAfterLink, "</a>");
-			HyperlinkAnchorText = Left(StringAfterLink, BoldEnd - 1);
-			StringsWithLinks.Add(HyperlinkAnchorText, Ref);
-			
-			StringAfterBold = Mid(StringAfterLink, BoldEnd + 4);
-			String = StringAfterBold;
-			
-			BoldBeginning = StrFind(String, "<a href = ");
-		EndDo;
-		StringsWithLinks.Add(String);
-		
-	EndDo;
-	
-	RowArray = New Array;
-	For Each RowPart In StringsWithLinks Do
-		
-		If RowPart.Check Then
-			//@skip-check new-font
-			RowArray.Add(New FormattedString(RowPart.Value, New Font(,,True))); // ACC:1345 Standalone data processor cannot use styles.
-		ElsIf Not IsBlankString(RowPart.Presentation) Then
-			RowArray.Add(New FormattedString(RowPart.Value,,,, RowPart.Presentation));
-		Else
-			RowArray.Add(RowPart.Value);
-		EndIf;
-		
-	EndDo;
-	
-	Return New FormattedString(RowArray); // ACC:1356 Can use a compound format string as the string array consists of the passed text.
-	
-EndFunction
-
-// Generates the presentation of a number for a certain language and number parameters.
-//
-// Parameters:
-//  Template          - String - contains semicolon-separated 6 string forms
-//                             for each numeral category: 
-//                             %1 denotes the number position;
-//  Number           - Number - a number to be inserted instead of the "%1" parameter.
-//  Kind             - NumericValueType - defines a kind of the numeric value for which a presentation is formed. 
-//                             Cardinal (default) or Ordinal.
-//  FormatString - String - a string of formatting parameters. See similar example for StringWithNumber. 
-//
-// Returns:
-//  String - presentation of the number string in the requested format.
-//
-// Example:
-//  
-//  String = StringFunctionsClientServer.StringWithNumberForAnyLanguage(
-//		NStr("ru=';остался %1 день;;осталось %1 дня;осталось %1 дней;осталось %1 дня';
-//		     |en=';%1 day left;;;;%1 days left'"), 
-//		0.05,,"NFD=1);
-// 
-&AtServerNoContext
-Function StringWithNumberForAnyLanguage(Template, Number, Kind = Undefined, FormatString = "NZ=0;")
-
-	If IsBlankString(Template) Then
-		Return Format(Number, FormatString); 
-	EndIf;
-
-	If Kind = Undefined Then
-		Kind = NumericValueType.Cardinal;
-	EndIf;
-
-	Return StringWithNumber(Template, Number, Kind, FormatString);
-
-EndFunction
-
-// Returns a flag that shows whether this is the base configuration.
-//
-// Returns:
-//   Boolean   - True if this is the basic configuration.
-//
-&AtServerNoContext
-Function IsBaseConfigurationVersion()
-	
-	Return StrFind(Upper(Metadata.Name), "BASIC") > 0;
-	
-EndFunction
-
-// Checks if conditional separation is enabled.
-// If it is called in shared application it returns False.
-//
-&AtServerNoContext
-Function DataSeparationEnabled()
-	
-	SaaSAvailable = Metadata.FunctionalOptions.Find("SaaSOperations");
-	If SaaSAvailable <> Undefined Then
-		OptionName1 = "SaaSOperations";
-		Return IsSeparatedConfiguration() And GetFunctionalOption(OptionName1);
-	EndIf;
-	
-	Return False;
-	
-EndFunction
-
-// Returns a flag indicating if there are any common separators in the configuration.
-//
-// Returns:
-//   Boolean
-//
-&AtServerNoContext
-Function IsSeparatedConfiguration()
-	
-	HasSeparators = False;
-	For Each CommonAttribute In Metadata.CommonAttributes Do
-		If CommonAttribute.DataSeparation = Metadata.ObjectProperties.CommonAttributeDataSeparation.Separate Then
-			HasSeparators = True;
-			Break;
-		EndIf;
-	EndDo;
-	
-	Return HasSeparators;
-	
-EndFunction
-
-&AtServer
-Function SSLVersionMatchesRequirements()
-	DataProcessorObject = FormAttributeToValue("Object");
-	Return DataProcessorObject.SSLVersionMatchesRequirements();
-EndFunction
-
-&AtServer
-Procedure CheckPlatformVersionAndCompatibilityMode()
-	
-	Information = New SystemInfo;
-	If Not (Left(Information.AppVersion, 3) = "8.3"
-		And (Metadata.CompatibilityMode = Metadata.ObjectProperties.CompatibilityMode.DontUse
-		Or (Metadata.CompatibilityMode <> Metadata.ObjectProperties.CompatibilityMode.Version8_1
-		And Metadata.CompatibilityMode <> Metadata.ObjectProperties.CompatibilityMode.Version8_2_13
-		And Metadata.CompatibilityMode <> Metadata.ObjectProperties.CompatibilityMode["Version8_2_16"]
-		And Metadata.CompatibilityMode <> Metadata.ObjectProperties.CompatibilityMode["Version8_3_1"]
-		And Metadata.CompatibilityMode <> Metadata.ObjectProperties.CompatibilityMode["Version8_3_2"]))) Then
-		
-		Raise NStr("en = 'The data processor supports 1C:Enterprise 8.3 or later,
-			|with disabled compatibility mode.';");
-		
-	EndIf;
-	
-EndProcedure
-
-&AtServer
-Function OperationsKindsPicture()
-	If SSLVersionMatchesRequirements Then
-		Return PictureLib["OperationKinds"];
-	Else
-		Return New Picture;
-	EndIf;
-EndFunction
-
-&AtClient
-Procedure Object1AttributesStartDrag(Item, DragParameters, Perform)
-	DragParameters.Value = "Object." + Item.CurrentData.Name;
-	// Insert the handler content.
-EndProcedure
-
-&AtClient
-Procedure PresentationOfObjectsToChangeAutoComplete(Item, Text, ChoiceData, DataGetParameters, Waiting, StandardProcessing)
-	InputFieldAutoSelection(Item, Text, ChoiceData, DataGetParameters, Waiting, StandardProcessing)
-EndProcedure
-
-&AtClient
-Procedure InputFieldAutoSelection(Item, Text, ChoiceData, DataGetParameters, Waiting, StandardProcessing)
-	ChoiceData = ChoiceData(Text, Item.ChoiceList);
-	StandardProcessing = Not ValueIsFilled(Text);
 EndProcedure
 
 &AtClient
@@ -4825,24 +3537,12 @@ Function ObjectsEnabled()
 	
 EndFunction
 
-&AtServer
-Function IsFullUser()
-	
-	If SSLVersionMatchesRequirements Then
-		ModuleUsers = CommonModule("Users");
-		Return ModuleUsers.IsFullUser();
-	EndIf;
-	
-	Return True;
-	
-EndFunction
-
 &AtClient
 Procedure EditFormula()
 	CurrentData = Items.ObjectAttributes.CurrentData;
-	NotifyDescription = New NotifyDescription("ObjectAttributesValueChoiceCompletion", ThisObject, CurrentData);
-	OpenForm(FullFormName("FormulaEdit"), ComposerParameters(CurrentData.Value), , , , ,
-		NotifyDescription);
+	NotifyDescription = New CallbackDescription("ObjectAttributesValueChoiceCompletion", ThisObject, CurrentData);
+	OpenForm("DataProcessor.BatchEditAttributes.Form.FormulaEdit",
+		ComposerParameters(CurrentData.Value), , , , , NotifyDescription);
 EndProcedure
 
 &AtClient
@@ -4878,30 +3578,12 @@ EndFunction
 &AtClient
 Procedure SendErrorReport()
 	
-	If Not SSLVersionMatchesRequirements Then
-		Return;
-	EndIf;
-	
-	ModuleStandardClientSubsystems = CommonModule("StandardSubsystemsClient");
-	
 	For Each Item In ErrorsInfo() Do
 		InfoOnError = Item.Value;
-		ModuleStandardClientSubsystems.SendErrorReport(InfoOnError.ErrorReport, InfoOnError.ErrorInfo);
+		StandardSubsystemsClient.SendErrorReport(InfoOnError.ErrorReport, InfoOnError.ErrorInfo);
 	EndDo;
 	
 	ErrorsInfo = Undefined;
-	
-EndProcedure
-
-&AtClient
-Procedure OutputErrorInfo(ErrorInfo)
-	
-	If SSLVersionMatchesRequirements Then
-		ModuleStandardClientSubsystems = CommonModule("StandardSubsystemsClient");
-		ModuleStandardClientSubsystems.OutputErrorInfo(ErrorInfo);
-	Else
-		Raise ErrorProcessing.BriefErrorDescription(ErrorInfo);
-	EndIf;
 	
 EndProcedure
 

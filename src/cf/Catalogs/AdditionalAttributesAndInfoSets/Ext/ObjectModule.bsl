@@ -41,7 +41,7 @@ Procedure BeforeWrite(Cancel)
 		BankingDetails_ = 0;
 		LabelsCount = 0;
 		Properties = AdditionalAttributes.Unload().UnloadColumn("Property");
-		PropertiesKinds = Common.ObjectsAttributesValues(Properties, "PropertyKind");
+		PropertiesKinds = Common.ObjectsAttributesValues(Properties, "PropertyKind1");
 		For Each AdditionalAttribute In AdditionalAttributes Do
 			
 			If AdditionalAttribute.Property.IsEmpty()
@@ -61,7 +61,7 @@ Procedure BeforeWrite(Cancel)
 				Continue;
 			EndIf;
 			
-			If Property.PropertyKind = Enums.PropertiesKinds.Labels Then
+			If Property.PropertyKind1 = Enums.PropertiesKinds.Labels Then
 				LabelsCount = LabelsCount + 1;
 			Else
 				BankingDetails_ = BankingDetails_ + 1;

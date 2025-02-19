@@ -26,8 +26,7 @@
 //                If Undefined, the add-in is executed according to the default 1C:Enterprise settings
 //                Isolatedly if the add-in supports only isolated execution; otherwise, non-isolatedly.:
 //                By default, Undefined.
-//                See https://its.1c.eu/db/v83doc
-//                                              #bookmark:dev:TI000001866
+//                See https://its.1c.eu/db/v83doc#bookmark:dev:TI000001866
 //      * AutoUpdate - Boolean - Flag indicating whether to set the UpdateFrom1CITSPortal flag for the uploaded add-in.
 //                By default, True.
 //
@@ -58,7 +57,7 @@ EndFunction
 // Checking whether the add-in can be executed on the current user client.
 //
 // Parameters:
-//  Notification - NotifyDescription - connection notification details with the following parameters:
+//  Notification - CallbackDescription - connection notification details with the following parameters:
 //      * Result - Structure - add-in attachment result:
 //          ** Attached - Boolean - attachment flag;
 //          ** Attachable_Module - AddInObject - an instance of the add-in;
@@ -125,15 +124,15 @@ EndProcedure
 // (not recommended for backward compatibility with 1C:Enterprise 7.7 add-ins). 
 //
 // Parameters:
-//  Notification - NotifyDescription - connection notification details with the following parameters:
+//  Notification - CallbackDescription - connection notification details with the following parameters:
 //      * Result - Structure - add-in attachment result:
-//          ** Attached - Boolean - attachment flag.
+//          ** Attached - Boolean - Attachment flag.
 //          ** Attachable_Module - AddInObject  - an instance of the add-in.
 //          ** ErrorDescription - String - brief error message.
 //      * AdditionalParameters - Structure - a value that was specified on creating the NotifyDescription object.
 //  Id - String - the add-in identification code.
-//  ObjectCreationID - String - object creation ID of object module instance
-//          (only for add-ins with object creation ID different from ProgID).
+//  ObjectCreationID - String - Creation ID of object module instance
+//          (only for add-ins with object creation ID different from ProgID).
 //
 // Example:
 //
@@ -201,7 +200,7 @@ EndFunction
 // Checking whether the add-in can be executed on the current user client.
 //
 // Parameters:
-//  Notification - NotifyDescription - notification details of add-in installation:
+//  Notification - CallbackDescription - notification details of add-in installation:
 //      * Result - Structure - Add-in installation result:
 //          ** IsSet - Boolean - installation flag.
 //          ** ErrorDescription - String - brief error message. Empty string on cancel by user.
@@ -224,7 +223,7 @@ EndFunction
 //  &AtClient
 //  Procedure InstallAddInEnd(Result, AdditionalParameters) Export
 //
-//      If Not Result.Installed and Not EmptyString(Result.ErrorDetails) Then 
+//      If Not Result.Installed and Not IsBlankString(Result.ErrorDetails) Then 
 //          ShowMessageBox (, Result.ErrorDetails);
 //      EndIf;
 //
@@ -303,7 +302,7 @@ EndFunction
 // Imports add-in file to the add-ins catalog in asynchronous mode. 
 //
 // Parameters:
-//  Notification - NotifyDescription - notification details of add-in installation:
+//  Notification - CallbackDescription - notification details of add-in installation:
 //      * Result - Structure - import add-in result:
 //          ** Imported1 - Boolean - imported flag.
 //          ** Id  - String - the add-in identification code.
@@ -426,8 +425,8 @@ EndFunction
 //
 // Parameters:
 //  Id - String - the add-in identification code.
-//  ObjectCreationID - String - object creation ID of object module instance
-//          (only for add-ins with object creation ID different from ProgID).
+//  ObjectCreationID - String - Creation ID of object module instance
+//          (only for add-ins with object creation ID different from ProgID).
 //
 //  Returns:
 //  	Structure - Add-in attachment result:
@@ -435,8 +434,8 @@ EndFunction
 //          * Attachable_Module - AddInObject - an instance of the add-in;
 //                                - FixedMap of KeyAndValue - Add-in object instances stored in
 //                                      AttachmentParameters.ObjectsCreationIDs:
-//                                    *** Value - ??? - Instance of the add-in object.
-//                                    *** Value - ??? - Instance of the add-in object.
+//                                    *** Value - AddInObject - Instance of the add-in object.
+//                                    *** Value - AddInObject - Instance of the add-in object.
 //          * ErrorDescription - String - brief error message. Empty string on cancel by user.
 //
 Async Function AttachAddInFromWindowsRegistryAsync(Id,

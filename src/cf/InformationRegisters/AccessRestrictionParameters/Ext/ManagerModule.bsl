@@ -18,9 +18,13 @@
 //  HasChanges - Boolean - (return value) - if recorded,
 //                  True is set, otherwise, it does not change.
 //
-Procedure UpdateRegisterData(HasChanges = Undefined) Export
+//  ShouldUpdateIgnoringUsage - Boolean - 
+//                  
+//
+Procedure UpdateRegisterData(HasChanges = Undefined, ShouldUpdateIgnoringUsage = False) Export
 	
-	If Not AccessManagementInternal.LimitAccessAtRecordLevelUniversally() Then
+	If Not ShouldUpdateIgnoringUsage
+	   And Not AccessManagementInternal.LimitAccessAtRecordLevelUniversally() Then
 		Return;
 	EndIf;
 	
@@ -140,8 +144,7 @@ Procedure HandlerForLongTermUpdateOperationInBackground(Parameters, ResultAddres
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+#Region InfobaseUpdate
 
 // Updates the version of access restriction texts.
 //
@@ -539,6 +542,8 @@ Procedure EnableUniversalRecordLevelAccessRestriction() Export
 	Constants.LimitAccessAtRecordLevelUniversally.Set(True);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 

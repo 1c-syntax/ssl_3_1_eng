@@ -286,7 +286,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 		
 		Cancel = True;
 		ShowQueryBox(
-			New NotifyDescription("AfterAnswerToQuestionAboutCopyingRights", ThisObject, WriteParameters),
+			New CallbackDescription("AfterAnswerToQuestionAboutCopyingRights", ThisObject, WriteParameters),
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Do you want to copy the rights of the user ""%1""?';"), String(CopyingValue)),
 			QuestionDialogMode.YesNo,
@@ -303,7 +303,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 		If Not WriteParameters.Property("WithEmptyRoleList") Then
 			Cancel = True;
 			ShowQueryBox(
-				New NotifyDescription("AfterAnswerToQuestionAboutWritingWithEmptyRoleList", ThisObject, WriteParameters),
+				New CallbackDescription("AfterAnswerToQuestionAboutWritingWithEmptyRoleList", ThisObject, WriteParameters),
 				NStr("en = 'No roles are assigned to the infobase user. Do you want to continue?';"),
 				QuestionDialogMode.YesNo,
 				,
@@ -323,7 +323,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 				Cancel = True;
 				
 				AdditionalParameters = New Structure("WriteParameters", WriteParameters);
-				Notification = New NotifyDescription("AfterRequestingAPasswordToChangeTheMail", ThisObject, AdditionalParameters);
+				Notification = New CallbackDescription("AfterRequestingAPasswordToChangeTheMail", ThisObject, AdditionalParameters);
 				OpenForm("Catalog.Users.Form.PasswordInput",, ThisObject,,,, Notification, FormWindowOpeningMode.LockOwnerWindow);
 				
 				Return;
@@ -656,8 +656,8 @@ Procedure CanSignInOnChange(Item)
 	If Object.DeletionMark And CanSignIn Then
 		CanSignIn = False;
 		ShowMessageBox(,
-			NStr("en = 'To allow logging in to the application, clear
-			           |the deletion mark from the external user.';"));
+			NStr("en = 'To allow login to the application, remove the deletion mark from the external user.
+			           |';"));
 		Return;
 	EndIf;
 	
@@ -699,7 +699,7 @@ EndProcedure
 Procedure ChangeAuthorizationRestriction(Command)
 	
 	OpenForm("Catalog.Users.Form.AuthorizationRestriction",, ThisObject,,,,
-		New NotifyDescription("ChangeAuthorizationRestrictionCompletion", ThisObject));
+		New CallbackDescription("ChangeAuthorizationRestrictionCompletion", ThisObject));
 	
 EndProcedure
 
@@ -806,7 +806,7 @@ Procedure UserMustChangePasswordOnAuthorizationExtendedTooltipURLProcessing(Item
 	OpenForm("CommonForm.UserAuthorizationSettings", FormParameters, ThisObject);
 EndProcedure
 
-// StandardSubsystems.ContactInformation
+// СтандартныеПодсистемы.КонтактнаяИнформация
 
 &AtClient
 Procedure Attachable_ContactInformationOnChange(Item)
@@ -897,8 +897,7 @@ EndProcedure
 
 #Region FormTableItemsEventHandlersRoles
 
-////////////////////////////////////////////////////////////////////////////////
-// Required by a role interface.
+#Region ForRolesInterfaceOperation
 
 &AtClient
 Procedure RolesCheckOnChange(Item)
@@ -909,8 +908,9 @@ Procedure RolesCheckOnChange(Item)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Support of additional attributes.
+#EndRegion
+
+#Region AdditionalAttributesSupport
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -921,6 +921,8 @@ Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -941,13 +943,12 @@ Procedure ChangePassword(Command)
 	AdditionalParameters.Insert("PreviousPassword", IBUserPreviousPassword);
 	AdditionalParameters.Insert("LoginName",  IBUserName);
 	
-	UsersInternalClient.OpenChangePasswordForm(Object.Ref, New NotifyDescription(
+	UsersInternalClient.OpenChangePasswordForm(Object.Ref, New CallbackDescription(
 		"ChangePasswordAfterGetPassword", ThisObject), AdditionalParameters);
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Required by a role interface.
+#Region ForRolesInterfaceOperation
 
 &AtClient
 Procedure ShowSelectedRolesOnly(Command)
@@ -980,6 +981,8 @@ Procedure RemoveRoles(Command)
 	ProcessRolesInterface("UpdateRoleComposition", "ClearMarked");
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -1469,8 +1472,7 @@ Procedure CloseForm()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Support of additional attributes.
+#Region AdditionalAttributesSupport
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()
@@ -1523,8 +1525,9 @@ Procedure AfterRequestingAPasswordToChangeTheMail(Result, AdditionalParameters) 
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Processes an infobase user.
+#EndRegion
+
+#Region InfobaseUserHandling
 
 &AtServer
 Procedure ReadIBUserRoles()
@@ -1739,7 +1742,7 @@ Procedure FindUserAndIBUserDifferences(WriteParameters = Undefined)
 		
 		If IBUserShowInList Then
 			HasDifferencesResolvableWithoutAdministrator = True;
-			PropertiesToResolve.Add(NStr("en = 'Show in choice list (enabled)';"));
+			PropertiesToResolve.Add(NStr("en = 'Show in choice list (selected)';"));
 		EndIf;
 		
 		If IBUserRunMode <> "Auto" Then
@@ -1843,8 +1846,9 @@ Procedure FindUserAndIBUserDifferences(WriteParameters = Undefined)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Initial filling, fill checks, and availability of properties.
+#EndRegion
+
+#Region InitialPopulationFillCheckingPropertiesAvailability
 
 &AtClientAtServerNoContext
 Procedure SetPropertiesAvailability(Form)
@@ -1854,7 +1858,7 @@ Procedure SetPropertiesAvailability(Form)
 	ActionsOnForm = Form.ActionsOnForm;
 	AccessLevel = Form.AccessLevel;
 	
-	// Note to the "Sign-in blocked" state.
+	// Note to the "Login blocked" state.
 	If Form.CanSignIn Then
 		Items.GroupNoRights.Visible         = Form.WhetherRightsAreAssigned.HasNoRights;
 		Items.GroupNoStartupRights.Visible = Not Form.WhetherRightsAreAssigned.HasNoRights
@@ -1972,7 +1976,7 @@ Function IBUserWritingRequired(Form, UseStandardName = True)
 	
 EndFunction
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
@@ -1999,8 +2003,9 @@ EndProcedure
 
 // End StandardSubsystems.AttachableCommands
 
-////////////////////////////////////////////////////////////////////////////////
-// Required by a role interface.
+#EndRegion
+
+#Region ForRolesInterfaceOperation
 
 &AtServer
 Procedure ProcessRolesInterface(Action, MainParameter = Undefined)
@@ -2014,5 +2019,7 @@ Procedure ProcessRolesInterface(Action, MainParameter = Undefined)
 	UsersInternal.ProcessRolesInterface(Action, ActionParameters);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

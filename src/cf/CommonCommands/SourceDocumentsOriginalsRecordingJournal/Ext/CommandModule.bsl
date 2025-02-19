@@ -13,7 +13,8 @@
 // Opens the form of the log that records source document originals.
 &AtClient
 Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
-
+	
+	SSLSubsystemsIntegrationClient.OnOpenOriginalsAccountingJournalForm();
 	SourceDocumentsOriginalsRecordingClientOverridable.OnOpenOriginalsAccountingJournalForm();
 	
 EndProcedure

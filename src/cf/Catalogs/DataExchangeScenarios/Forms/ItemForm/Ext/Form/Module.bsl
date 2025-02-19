@@ -23,6 +23,8 @@ Var RowsCount;
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
+	SetConditionalAppearance();
+	
 	IsNew = (Object.Ref.IsEmpty());
 	
 	InfobaseNode = Undefined;
@@ -55,11 +57,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		Items.ConfigureJobSchedule.ExtendedTooltip.Title = ToolTipText;
 		Items.ConfigureJobSchedule.ToolTipRepresentation = ToolTipRepresentation.ShowBottom;
-		Items.ExchangeSettingsExchangeTransportKind.Visible = False;
+		
+		Items.ExchangeSettingsTransportID.Visible = False;
+		
 		Items.ExchangeSettingsInfobaseNode.ChoiceHistoryOnInput = ChoiceHistoryOnInput.DontUse;
 		Items.ExchangeSettingsInfobaseNode.DropListButton = False;
 		Items.GroupConfigurationInformationInSameDatabase.Visible = True;
 		Items.ScriptGroupIsDisabled.Visible = Object.IsAutoDisabled;
+		Items.ExecuteExchange.Visible = False;
 		
 	EndIf;
 		
@@ -71,7 +76,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	For Each ExchangePlanName In SSLExchangePlans Do
 		ExchangeNodesList.Add(Type("ExchangePlanRef." + ExchangePlanName));
 	EndDo;
-	
+		
 EndProcedure
 
 &AtClient
@@ -111,24 +116,12 @@ Procedure UseScheduledJobOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure ScheduleCompositionOnActivateRow(Item)
-	
-	If Item.CurrentData = Undefined Then
-		Return;
-	EndIf;
-	
-	FillExchangeTransportKindChoiceList(Item.ChildItems.ExchangeSettingsExchangeTransportKind.ChoiceList, Item.CurrentData.InfobaseNode);
-	
-EndProcedure
-
-&AtClient
 Procedure ExchangeSettingsInfobaseNodeOnChange(Item)
 	
 	If DataSeparationEnabled Then
-		Items.ScheduleComposition.CurrentData.ExchangeTransportKind = 
-			PredefinedValue("Enum.ExchangeMessagesTransportTypes.WS");
+		Items.ScheduleComposition.CurrentData.TransportID = "WS";
 	Else	
-		Items.ScheduleComposition.CurrentData.ExchangeTransportKind = Undefined;
+		Items.ScheduleComposition.CurrentData.TransportID = "";
 	EndIf;
 	
 EndProcedure
@@ -160,19 +153,6 @@ EndProcedure
 #Region FormTableItemsEventHandlersExchangeSettings
 
 &AtClient
-Procedure ExchangeSettingsExchangeTransportKindStartChoice(Item, ChoiceData, StandardProcessing)
-	
-	CurrentData = Items.ScheduleComposition.CurrentData;
-	
-	If CurrentData <> Undefined Then
-		
-		FillExchangeTransportKindChoiceList(Item.ChoiceList, CurrentData.InfobaseNode);
-		
-	EndIf;
-	
-EndProcedure
-
-&AtClient
 Procedure ExchangeSettingsInfobaseNodeChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	
 	If TypeOf(ValueSelected) = Type("Type") And ExchangeNodesList.FindByValue(ValueSelected) = Undefined Then
@@ -182,6 +162,19 @@ Procedure ExchangeSettingsInfobaseNodeChoiceProcessing(Item, ValueSelected, Stan
 		CommonClient.MessageToUser(MessageText, , Field, "Object");
 		StandardProcessing = False;
 	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure ExchangeSettingsTransportIDStartChoice(Item, ChoiceData, ChoiceByAdding, StandardProcessing)
+	
+	If Items.ScheduleComposition.CurrentData = Undefined Then
+		Return;
+	EndIf;
+	
+	FillExchangeTransportKindChoiceList(
+		Item.ChoiceList, 
+		Items.ScheduleComposition.CurrentData.InfobaseNode);
 	
 EndProcedure
 
@@ -233,11 +226,22 @@ Procedure TransportSettings(Command)
 		Return;
 	EndIf;
 	
-	Filter              = New Structure("Peer", CurrentData.InfobaseNode);
-	FillingValues = New Structure("Peer", CurrentData.InfobaseNode);
+	FormOpenParameters = TransportFormOpeningParameters(CurrentData.InfobaseNode);
 	
-	DataExchangeClient.OpenInformationRegisterWriteFormByFilter(Filter,
-		FillingValues, "DataExchangeTransportSettings", ThisObject);
+	If FormOpenParameters = Undefined Then
+		Return;
+	EndIf;
+	
+	FormParameters = New Structure("TransportSettings", FormOpenParameters.TransportSettings);
+	
+	AdditionalParameters = New Structure;
+	AdditionalParameters.Insert("Peer", CurrentData.InfobaseNode);
+	AdditionalParameters.Insert("TransportID", FormOpenParameters.TransportID);
+	
+	Notification = New CallbackDescription("SaveTransportSettings", ThisObject, AdditionalParameters);
+	
+	OpenForm(FormOpenParameters.FullNameOfConfigurationForm, FormParameters,,,,, 
+		Notification, FormWindowOpeningMode.LockOwnerWindow);
 	
 EndProcedure
 
@@ -274,7 +278,7 @@ Procedure EditScheduledJobSchedule()
 	Dialog = New ScheduledJobDialog(JobSchedule);
 	
 	// Opening a dialog box for editing the schedule.
-	NotifyDescription = New NotifyDescription("EditScheduledJobScheduleCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("EditScheduledJobScheduleCompletion", ThisObject);
 	Dialog.Show(NotifyDescription);
 	
 EndProcedure
@@ -370,32 +374,33 @@ Procedure RefreshDataExchangesStates()
 	
 	SetPrivilegedMode(True);
 	
-	QueryText = "
-	|SELECT
-	|	DataExchangeScenariosExchangeSettings.InfobaseNode,
-	|	DataExchangeScenariosExchangeSettings.ExchangeTransportKind,
-	|	DataExchangeScenariosExchangeSettings.CurrentAction,
-	|	CASE
-	|	WHEN DataExchangesStates.ExchangeExecutionResult IS NULL
-	|	THEN 0
-	|	WHEN DataExchangesStates.ExchangeExecutionResult = VALUE(Enum.ExchangeExecutionResults.Warning_ExchangeMessageAlreadyAccepted)
-	|	THEN 2
-	|	WHEN DataExchangesStates.ExchangeExecutionResult = VALUE(Enum.ExchangeExecutionResults.CompletedWithWarnings)
-	|	THEN 2
-	|	WHEN DataExchangesStates.ExchangeExecutionResult = VALUE(Enum.ExchangeExecutionResults.Completed2)
-	|	THEN 0
-	|	ELSE 1
-	|	END AS ExchangeExecutionResult
-	|FROM
-	|	Catalog.DataExchangeScenarios.ExchangeSettings AS DataExchangeScenariosExchangeSettings
-	|LEFT JOIN InformationRegister.DataExchangesStates AS DataExchangesStates
-	|	ON DataExchangesStates.InfobaseNode = DataExchangeScenariosExchangeSettings.InfobaseNode
-	|	 AND DataExchangesStates.ActionOnExchange      = DataExchangeScenariosExchangeSettings.CurrentAction
-	|WHERE
-	|	DataExchangeScenariosExchangeSettings.Ref = &Ref
-	|ORDER BY
-	|	DataExchangeScenariosExchangeSettings.LineNumber ASC
-	|";
+	QueryText = 
+		"SELECT
+		|	DataExchangeScenariosExchangeSettings.InfobaseNode AS InfobaseNode,
+		|	DataExchangeScenariosExchangeSettings.DeleteExchangeTransportKind AS DeleteExchangeTransportKind,
+		|	DataExchangeScenariosExchangeSettings.TransportID AS TransportID,
+		|	DataExchangeScenariosExchangeSettings.CurrentAction AS CurrentAction,
+		|	CASE
+		|		WHEN DataExchangesStates.ExchangeExecutionResult IS NULL
+		|			THEN 0
+		|		WHEN DataExchangesStates.ExchangeExecutionResult = VALUE(Enum.ExchangeExecutionResults.Warning_ExchangeMessageAlreadyAccepted)
+		|			THEN 2
+		|		WHEN DataExchangesStates.ExchangeExecutionResult = VALUE(Enum.ExchangeExecutionResults.CompletedWithWarnings)
+		|			THEN 2
+		|		WHEN DataExchangesStates.ExchangeExecutionResult = VALUE(Enum.ExchangeExecutionResults.Completed2)
+		|			THEN 0
+		|		ELSE 1
+		|	END AS ExchangeExecutionResult
+		|FROM
+		|	Catalog.DataExchangeScenarios.ExchangeSettings AS DataExchangeScenariosExchangeSettings
+		|		LEFT JOIN InformationRegister.DataExchangesStates AS DataExchangesStates
+		|		ON (DataExchangesStates.InfobaseNode = DataExchangeScenariosExchangeSettings.InfobaseNode)
+		|			AND (DataExchangesStates.ActionOnExchange = DataExchangeScenariosExchangeSettings.CurrentAction)
+		|WHERE
+		|	DataExchangeScenariosExchangeSettings.Ref = &Ref
+		|
+		|ORDER BY
+		|	DataExchangeScenariosExchangeSettings.LineNumber";
 	
 	Query = New Query;
 	Query.Text = QueryText;
@@ -425,20 +430,26 @@ Procedure FillExchangeTransportKindChoiceList(ChoiceList, InfobaseNode)
 	
 	If ValueIsFilled(InfobaseNode) Then
 		
-		For Each Item In UsedExchangeMessagesTransports(InfobaseNode) Do
-			
-			ChoiceList.Add(Item, String(Item));
-			
+		For Each Item In ConfiguredTransportTypes(InfobaseNode) Do
+			ChoiceList.Add(Item.Key, Item.Value);
 		EndDo;
 		
 	EndIf;
-	
+		
 EndProcedure
 
 &AtServerNoContext
-Function UsedExchangeMessagesTransports(Val InfobaseNode)
+Function ConfiguredTransportTypes(Val InfobaseNode)
 	
-	Return DataExchangeCached.UsedExchangeMessagesTransports(InfobaseNode);
+	Result = New Structure;
+	TransportTable = ExchangeMessagesTransport.ConfiguredTransportTypes(InfobaseNode);
+	
+	For Each String In TransportTable Do
+		Alias = ExchangeMessagesTransport.TransportParameter(String.TransportID, "Alias");
+		Result.Insert(String.TransportID, Alias);
+	EndDo;
+	
+	Return Result;
 	
 EndFunction
 
@@ -448,7 +459,7 @@ Procedure ValidateExchangeSettingInService(Cancel)
 	If DataSeparationEnabled Then
 		
 		ExchangeSettings = Object.ExchangeSettings.Unload();
-		ExchangeSettings.GroupBy("InfobaseNode,ExchangeTransportKind,CurrentAction");
+		ExchangeSettings.GroupBy("InfobaseNode,TransportID,CurrentAction");
 		Object.ExchangeSettings.Load(ExchangeSettings);
 		
 		Query = New Query;
@@ -525,6 +536,64 @@ Procedure ValidateExchangeSettingInService(Cancel)
 		EndIf;
 		
 	EndIf;
+	
+EndProcedure
+
+&AtServer
+Procedure SetConditionalAppearance()
+	
+	ConditionalAppearance.Items.Clear();
+		
+	For Each Transport In ExchangeMessagesTransport.TableOfTransportParameters() Do
+		
+		Item = ConditionalAppearance.Items.Add();
+		
+		ItemField = Item.Fields.Items.Add();
+		ItemField.Field = New DataCompositionField("ExchangeSettingsTransportID");
+			
+		ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
+		ItemFilter.LeftValue = New DataCompositionField("Object.ExchangeSettings.TransportID");
+		ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
+		ItemFilter.RightValue = Transport.TransportID;
+		
+		Item.Appearance.SetParameterValue("Text", Transport.Alias);
+		
+	EndDo;
+		
+EndProcedure
+
+&AtServer
+Function TransportFormOpeningParameters(Node)
+
+	TransportID = ExchangeMessagesTransport.DefaultTransport(Node);
+	
+	If Not ValueIsFilled(TransportID) Then
+		Return Undefined;
+	EndIf;
+	
+	FullNameOfConfigurationForm = ExchangeMessagesTransport.FullNameOfConfigurationForm(TransportID);
+	TransportSettings = ExchangeMessagesTransport.TransportSettings(Node, TransportID);
+	
+	Result = New Structure;
+	Result.Insert("TransportID", TransportID);
+	Result.Insert("FullNameOfConfigurationForm", FullNameOfConfigurationForm);
+	Result.Insert("TransportSettings", TransportSettings);
+	
+	Return Result;
+
+EndFunction
+
+&AtClient
+Procedure SaveTransportSettings(Result, AdditionalParameters) Export
+	
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	ExchangeMessageTransportServerCall.SaveTransportSettings(
+		AdditionalParameters.Peer,
+		AdditionalParameters.TransportID,
+		Result);
 	
 EndProcedure
 

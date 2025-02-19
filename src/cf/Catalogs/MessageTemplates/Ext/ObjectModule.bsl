@@ -69,7 +69,7 @@ Procedure FillBasedOnStructure(FillingData, FillingText, StandardProcessing)
 	CommonClientServer.SupplementStructure(TemplateParameters, FillingData, True);
 	
 	FillPropertyValues(ThisObject, TemplateParameters);
-	AttachmentFormat = New ValueStorage(TemplateParameters.AttachmentsFormats);
+	AttachmentFormat = New ValueStorage(TemplateParameters.AttachmentsFormats, New Deflation(9));
 	
 	If TypeOf(FillingData) = Type("Structure")
 		And FillingData.Property("ForSMSMessages")

@@ -109,7 +109,10 @@ Procedure FillSignatures(Object)
 	If TypeOf(Object) = Type("String") Then
 		SignaturesCollection = GetFromTempStorage(Object);
 	Else
-		SignaturesCollection = DigitalSignature.SetSignatures(Object, Undefined, True);
+		SignaturesAcquisitionParameters = DigitalSignature.NewObjectSignaturesAcquisitionParameters();
+		SignaturesAcquisitionParameters.ShouldReturnMachineReadableLOAData = True;
+		SignaturesAcquisitionParameters.ShouldExtractCertificatesFromSignatures = True;
+		SignaturesCollection = DigitalSignature.ObjectSignatures(Object, SignaturesAcquisitionParameters);
 	EndIf;
 	
 	For Each AllSignatureProperties In SignaturesCollection Do

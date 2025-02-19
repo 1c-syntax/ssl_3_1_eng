@@ -54,7 +54,7 @@ Procedure RunDataExchangeByScenario(ExchangeScenarioCode) Export
 		
 		MessageText = NStr("en = 'A scenario-based synchronization run couldn not start.
                                |The previous synchronization session has not neem completed.';",
-			Common.DefaultLanguageCode());
+                               Common.DefaultLanguageCode());
 		
 		WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
 			EventLogLevel.Information,,,MessageText);
@@ -62,6 +62,7 @@ Procedure RunDataExchangeByScenario(ExchangeScenarioCode) Export
 		Return;
 		
 	EndIf;
+
 			
 	FirstTask = Undefined;
 	RunTaskByScenario(Scenario, FirstTask);
@@ -91,7 +92,7 @@ Procedure RunDataExchangeManually(Node, ExchangeParameters, ExportAddition = Und
 	Var_Key = FirstTask.TaskID__;
 
 	JobParameters = New Structure;
-	JobParameters.Insert("Key", Left(Var_Key, 120));	
+	JobParameters.Insert("Key", Left(Var_Key, 120));
 	JobParameters.Insert("MethodName"    , "DataExchangeInternalPublication.RunTaskQueue");
 	JobParameters.Insert("DataArea", SessionParameters.DataAreaValue);
 	JobParameters.Insert("Use", True);
@@ -99,11 +100,15 @@ Procedure RunDataExchangeManually(Node, ExchangeParameters, ExportAddition = Und
 	JobParameters.Insert("Parameters", ProcedureParameters);
 	JobParameters.Insert("RestartCountOnFailure", 3);
 	JobParameters.Insert("RestartIntervalOnFailure", 900);
-
+	
+	SetPrivilegedMode(True); // In a separated infobase, internal publication, limited access rights
+	
 	ModuleJobsQueue = Common.CommonModule("JobsQueue");
 	ModuleJobsQueue.AddJob(JobParameters);
 	
-EndProcedure	
+	SetPrivilegedMode(False);
+	
+EndProcedure
 
 Procedure RunTaskQueue(Task, JobPrev = "") Export
 	
@@ -280,8 +285,8 @@ Function HasNodeScheduledExchange(Node, Scenario = "", ExchangeID = "") Export
 	
 EndFunction
 
-Procedure CancelTaskQueue(Node, Scenario, ExchangeID) Export
-
+Procedure CancelTaskQueue(Node, Scenario, ExchangeID, DataArea) Export
+	
 	Query = New Query;
 	Query.Text = 
 		"SELECT
@@ -349,7 +354,7 @@ Procedure CancelTaskQueue(Node, Scenario, ExchangeID) Export
 		
 		Filter = New Structure("Key", TaskID__); 
 		Jobs = ModuleJobsQueue.GetJobs(Filter);
-	
+
 		For Each Job In Jobs Do
 			
 			JobParameters = New Structure;
@@ -366,24 +371,22 @@ Procedure CancelTaskQueue(Node, Scenario, ExchangeID) Export
 		EndDo;
 		
 	EndDo;
-	
-	SetPrivilegedMode(False);
-	
+		
 	If DestinationTasks.Count() > 0 Then
 		
 		Proxy = Undefined;
-		ProxyParameters = New Structure;
 		ExchangeSettingsStructure = Undefined;
 		Cancel = False;
 		Error = "";
 
 		ExchangeSettingsStructure = ExchangeSettingsForInfobaseNode(Node, "UserCanceledOperation", Cancel);
-		ProxyInitialization(Proxy, ProxyParameters, ExchangeSettingsStructure, Cancel, Error);
+		ProxyInitialization(Proxy, ExchangeSettingsStructure, Cancel, Error);
 		
-		Proxy.StopTasks(XDTOSerializer.WriteXDTO(DestinationTasks),
-			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
+		Proxy.StopTasks(XDTOSerializer.WriteXDTO(DestinationTasks), DataArea);
 		
 	EndIf;
+	
+	SetPrivilegedMode(False);
 	
 EndProcedure
 
@@ -428,13 +431,8 @@ EndProcedure
 
 Procedure NodeFormOnCreateAtServer(Form, Cancel) Export
 	
-	ModuleDataExchangeTransportSettings = InformationRegisters["DataExchangeTransportSettings"];
-	TransportSettings = ModuleDataExchangeTransportSettings.TransportSettings(Form.Object.Ref);
-	
-	If TransportSettings <> Undefined Then
-		SetFuncOptionsForNode(Form, TransportSettings);
-		SetUpFormElementsForMigrationToWS(Form, TransportSettings);
-	EndIf;
+	SetFuncOptionsForNode(Form);
+	SetUpFormElementsForMigrationToWS(Form);
 	
 EndProcedure
 
@@ -489,7 +487,7 @@ Procedure ExportToFileTransferServiceForInfobaseNode(ExchangePlanName, InfobaseN
 EndProcedure
 
 Procedure ImportFromFileTransferServiceForInfobaseNode(ExchangePlanName, InfobaseNodeCode, TaskID__, FileID) Export
-		
+	
 	SetPrivilegedMode(True);
 	
 	MessageFileName = DataExchangeServer.GetFileFromStorage(FileID);
@@ -567,8 +565,7 @@ Function ExchangeSettingsForInfobaseNode(Node, Action, Cancel) Export
 		
 	EndIf;
 	
-	ExchangeSettingsStructure = DataExchangeServer.ExchangeSettingsForInfobaseNode(
-		Node, ActionOnExchange, Enums.ExchangeMessagesTransportTypes.WS, False);
+	ExchangeSettingsStructure = DataExchangeServer.ExchangeSettingsForInfobaseNode(Node, ActionOnExchange, "SM");
 	
 	If ExchangeSettingsStructure.Cancel Then
 		// If a setting contains errors, canceling the exchange, Canceled status.
@@ -582,6 +579,70 @@ Function ExchangeSettingsForInfobaseNode(Node, Action, Cancel) Export
 	Return ExchangeSettingsStructure;
 	
 EndFunction
+
+Procedure DeleteTasksAccordingToScriptWithError(Scenario) Export
+	
+	Query = New Query;
+	Query.Text = 
+		"SELECT
+		|	Tasks.ExchangeID AS ExchangeID
+		|INTO TT_Tasks
+		|FROM
+		|	InformationRegister.DataExchangeTasksInternalPublication AS Tasks
+		|WHERE
+		|	Tasks.Scenario = &Scenario
+		|	AND Tasks.OperationFailed
+		|;
+		|
+		|////////////////////////////////////////////////////////////////////////////////
+		|SELECT
+		|	DataExchangeTasksInternalPublication.CreationDate AS CreationDate,
+		|	DataExchangeTasksInternalPublication.InfobaseNode AS InfobaseNode,
+		|	DataExchangeTasksInternalPublication.TaskNumber AS TaskNumber,
+		|	DataExchangeTasksInternalPublication.ExchangeID AS ExchangeID,
+		|	DataExchangeTasksInternalPublication.TaskID__ AS TaskID__
+		|FROM
+		|	TT_Tasks AS TT_Tasks
+		|		LEFT JOIN InformationRegister.DataExchangeTasksInternalPublication AS DataExchangeTasksInternalPublication
+		|		ON TT_Tasks.ExchangeID = DataExchangeTasksInternalPublication.ExchangeID";
+	
+	Query.SetParameter("Scenario", Scenario);
+	
+	Selection = Query.Execute().Select();
+	
+	BeginTransaction();
+	
+	Try
+			
+		Block = New DataLock;
+		LockItem = Block.Add("Catalog.DataExchangeScenarios");
+		LockItem.SetValue("Ref", Scenario);
+		LockItem.Mode = DataLockMode.Exclusive;
+		Block.Lock();
+		
+		While Selection.Next() Do
+			
+			Record = InformationRegisters.DataExchangeTasksInternalPublication.CreateRecordManager();
+			FillPropertyValues(Record, Selection);
+			Record.Read();
+			Record.Delete();
+			
+		EndDo;
+		
+		CommitTransaction();
+		
+	Except
+		
+		RollbackTransaction();
+		
+		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		
+		WriteLogEvent(EventLogEventScenarioDisabled(),
+			EventLogLevel.Error, , , ErrorMessage);
+			
+	EndTry;
+	
+EndProcedure
 
 #EndRegion
 
@@ -716,8 +777,7 @@ Function DisableScenarioOnDemand(Scenario)
 		"SELECT DISTINCT TOP 3
 		|	Tasks.CreationDate AS CreationDate,
 		|	Tasks.Scenario AS Scenario,
-		|	Tasks.ExchangeID AS ExchangeID,
-		|	Tasks.InfobaseNode AS InfobaseNode
+		|	Tasks.ExchangeID AS ExchangeID
 		|INTO TTDates
 		|FROM
 		|	InformationRegister.DataExchangeTasksInternalPublication AS Tasks
@@ -730,9 +790,7 @@ Function DisableScenarioOnDemand(Scenario)
 		|
 		|////////////////////////////////////////////////////////////////////////////////
 		|SELECT
-		|	Tasks.CreationDate AS CreationDate,
-		|	Tasks.InfobaseNode AS InfobaseNode,
-		|	Tasks.Error AS Error
+		|	Tasks.CreationDate AS CreationDate
 		|FROM
 		|	TTDates AS TTDates
 		|		INNER JOIN InformationRegister.DataExchangeTasksInternalPublication AS Tasks
@@ -782,70 +840,6 @@ Function DisableScenarioOnDemand(Scenario)
 	Return False;
 	
 EndFunction
-
-Procedure DeleteTasksAccordingToScriptWithError(Scenario) Export
-	
-	Query = New Query;
-	Query.Text = 
-		"SELECT
-		|	Tasks.ExchangeID AS ExchangeID
-		|INTO TT_Tasks
-		|FROM
-		|	InformationRegister.DataExchangeTasksInternalPublication AS Tasks
-		|WHERE
-		|	Tasks.Scenario = &Scenario
-		|	AND Tasks.OperationFailed
-		|;
-		|
-		|////////////////////////////////////////////////////////////////////////////////
-		|SELECT
-		|	DataExchangeTasksInternalPublication.CreationDate AS CreationDate,
-		|	DataExchangeTasksInternalPublication.InfobaseNode AS InfobaseNode,
-		|	DataExchangeTasksInternalPublication.TaskNumber AS TaskNumber,
-		|	DataExchangeTasksInternalPublication.ExchangeID AS ExchangeID,
-		|	DataExchangeTasksInternalPublication.TaskID__ AS TaskID__
-		|FROM
-		|	TT_Tasks AS TT_Tasks
-		|		LEFT JOIN InformationRegister.DataExchangeTasksInternalPublication AS DataExchangeTasksInternalPublication
-		|		ON TT_Tasks.ExchangeID = DataExchangeTasksInternalPublication.ExchangeID";
-	
-	Query.SetParameter("Scenario", Scenario);
-	
-	Selection = Query.Execute().Select();
-	
-	BeginTransaction();	
-	
-	Try
-			
-		Block = New DataLock;
-		LockItem = Block.Add("Catalog.DataExchangeScenarios");
-		LockItem.SetValue("Ref", Scenario);
-		LockItem.Mode = DataLockMode.Exclusive;
-		Block.Lock();
-		
-		While Selection.Next() Do
-			
-			Record = InformationRegisters.DataExchangeTasksInternalPublication.CreateRecordManager();
-			FillPropertyValues(Record, Selection);
-			Record.Read();
-			Record.Delete();
-			
-		EndDo;
-		
-		CommitTransaction();
-		
-	Except
-		
-		RollbackTransaction();
-		
-		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
-		
-		WriteLogEvent(EventLogEventScenarioDisabled(),
-			EventLogLevel.Error, , , ErrorMessage);
-			
-	EndTry;
-	
-EndProcedure	
 
 Function IsTaskQueueCompleted(Scenario = Undefined, ExchangeID = "", Error = "")
 	
@@ -981,14 +975,13 @@ Function IsTaskQueueCompleted(Scenario = Undefined, ExchangeID = "", Error = "")
 		If Selection.LastCheck >= 1 Then
 			
 			Proxy = Undefined;
-			ProxyParameters = New Structure;
 			Cancel = False;
 			
 			ExchangeSettingsStructure = ExchangeSettingsForInfobaseNode(
 				Selection.InfobaseNode, "CheckingStateOfTask", Cancel);
 			
 			Try
-				ProxyInitialization(Proxy, ProxyParameters, ExchangeSettingsStructure, Cancel, Error);
+				ProxyInitialization(Proxy, ExchangeSettingsStructure, Cancel, Error);
 				State = Proxy.TaskStatus(Selection.TaskID__);
 			Except
 				// Perhaps, an issue with accessing the peer infobase
@@ -1093,10 +1086,9 @@ Procedure RunTaskByScenario(Scenario, FirstTask = Undefined)
 		
 		Record.Insert("InfobaseNode", Selection.InfobaseNode);
 		
-		TransportSettings = 
-			InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(Selection.InfobaseNode);
+		TransportSettings = ExchangeMessagesTransport.TransportSettings(Selection.InfobaseNode, "SM");	
 		
-		Record.CorrespondentDataArea = TransportSettings.WSCorrespondentDataArea;
+		Record.CorrespondentDataArea = TransportSettings.CorrespondentDataArea;
 		Record.Mode = NStr("en = 'Automatic';", Common.DefaultLanguageCode());
 		
 		If Selection.CurrentAction = Enums.ActionsOnExchange.DataImport Then
@@ -1168,9 +1160,9 @@ Procedure PopulatesTasksForManualExchange(InfobaseNode, ExchangeID, FirstTask, E
 	Record.OperationFailed = False;
 	Record.ExchangeID = ExchangeID;
 	
-	TransportSettings = InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(InfobaseNode);
+	TransportSettings = ExchangeMessagesTransport.TransportSettings(InfobaseNode, "SM");
 	
-	Record.CorrespondentDataArea = TransportSettings.WSCorrespondentDataArea;
+	Record.CorrespondentDataArea = TransportSettings.CorrespondentDataArea;
 	Record.Mode = NStr("en = 'Manual';", Common.DefaultLanguageCode());
 		
 	Set = InformationRegisters.DataExchangeTasksInternalPublication.CreateRecordSet();
@@ -1234,10 +1226,18 @@ EndProcedure
 Procedure CallingBack(ExchangePlanName, InfobaseNodeCode, TaskID__, Error = "")
 	
 	Node = ExchangePlans[ExchangePlanName].FindByCode(InfobaseNodeCode);
-	TransportSettings = InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(Node);
-	ErrorMessageString = "";
 	
-	Proxy = DataExchangeWebService.WSProxyForInfobaseNode(Node, ErrorMessageString);
+	TransportSettings = ExchangeMessagesTransport.TransportSettings(Node, "SM");
+	
+	ModuleMessagesExchangeTransportSettings = Common.CommonModule("InformationRegisters.MessageExchangeTransportSettings");
+	TransportSettingsWS = ModuleMessagesExchangeTransportSettings.TransportSettingsWS(TransportSettings.CorrespondentEndpoint);
+
+	ConnectionParameters = New Structure;
+	ConnectionParameters.Insert("WebServiceAddress", TransportSettingsWS.WSWebServiceURL);
+	ConnectionParameters.Insert("UserName", TransportSettingsWS.WSUserName);
+	ConnectionParameters.Insert("Password", TransportSettingsWS.WSPassword);
+	
+	Proxy = DataExchangeWebService.WSProxy(ConnectionParameters, Error);
 	
 	If Proxy = Undefined Then
 		ExceptionText = NStr("en = 'Couldn''t connect to the peer infobase';",
@@ -1246,7 +1246,7 @@ Procedure CallingBack(ExchangePlanName, InfobaseNodeCode, TaskID__, Error = "")
 	EndIf;
 	
 	Try
-		Proxy.Callback(TaskID__, Error, TransportSettings.WSCorrespondentDataArea);
+		Proxy.Callback(TaskID__, Error, TransportSettings.CorrespondentDataArea);
 	Except
 		ErrorPresentation = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		Raise ErrorPresentation;	
@@ -1265,12 +1265,15 @@ Procedure ExecuteTask(Task, ExchangeParameters, Cancel) Export
 	SetPrivilegedMode(True);
 	
 	Proxy = Undefined;
-	ProxyParameters = New Structure;
 	ExchangeSettingsStructure = Undefined;
 	
 	Error = "";
 	Node = Task.InfobaseNode;
 	Action = Task.Action;
+	CorrespondentDataArea = Task.CorrespondentDataArea;
+	
+	ExchangeSettingsStructure = ExchangeSettingsForInfobaseNode(Node, Action, Cancel);
+	ProxyInitialization(Proxy, ExchangeSettingsStructure, Cancel, Error);
 	
 	Template = NStr("en = 'Running a synchronization scenario step.
                    |SequenceNumber: %1; App: %2; Action: %3; Mode: %4.';");
@@ -1279,33 +1282,26 @@ Procedure ExecuteTask(Task, ExchangeParameters, Cancel) Export
 		
 	WriteLogEvent(DataExchangeSaaS.DataSyncronizationLogEvent(),
 		EventLogLevel.Information, , , Comment);
-
+	
 	If Action = Enums.ActionsAtCancelInternalPublication.DataExportPeer Then
 		
-		ExchangeSettingsStructure = ExchangeSettingsForInfobaseNode(Node, Action, Cancel);
-		ProxyInitialization(Proxy, ProxyParameters, ExchangeSettingsStructure, Cancel, Error);
-		RunTaskExportDataPeer(Task, Proxy, ExchangeSettingsStructure, Cancel, Error);
+		RunTaskExportDataPeer(Task, Proxy, ExchangeSettingsStructure, CorrespondentDataArea, Cancel, Error);
 		
 	ElsIf Action = Enums.ActionsAtCancelInternalPublication.DataImport Then
 		
-		ExchangeSettingsStructure = ExchangeSettingsForInfobaseNode(Node, Action, Cancel);
-		ImportDataImportTask(Task, ExchangeParameters, ExchangeSettingsStructure, Cancel, Error);
+		ImportDataImportTask(Task, Proxy, ExchangeParameters, ExchangeSettingsStructure, CorrespondentDataArea, Cancel, Error);
 		MarkTaskAsCompleted(Task, Error);
 		DataExchangeServer.WriteExchangeFinish(ExchangeSettingsStructure);
 						
 	ElsIf Action = Enums.ActionsAtCancelInternalPublication.DataExport Then
 		
-		ExchangeSettingsStructure = ExchangeSettingsForInfobaseNode(Node, Action, Cancel);
-		ProxyInitialization(Proxy, ProxyParameters, ExchangeSettingsStructure, Cancel, Error);
-		PerformTaskDataExport(Task, Proxy, ProxyParameters, ExchangeSettingsStructure, Cancel, Error);
+		PerformTaskDataExport(Task, Proxy, ExchangeSettingsStructure, CorrespondentDataArea, Cancel, Error);
 		MarkTaskAsCompleted(Task, Error);
 		DataExchangeServer.WriteExchangeFinish(ExchangeSettingsStructure);
 								
 	ElsIf Action = Enums.ActionsAtCancelInternalPublication.DataImportPeer Then
 		
-		ExchangeSettingsStructure = ExchangeSettingsForInfobaseNode(Node, Action, Cancel);
-		ProxyInitialization(Proxy, ProxyParameters, ExchangeSettingsStructure, Cancel, Error);
-		RunTaskImportDataPeer(Task, Proxy, ExchangeParameters, ExchangeSettingsStructure, Cancel, Error)
+		RunTaskImportDataPeer(Task, Proxy, ExchangeParameters, ExchangeSettingsStructure, CorrespondentDataArea, Cancel, Error)
 		
 	ElsIf Action = Enums.ActionsAtCancelInternalPublication.AdditionalRegistration Then
 		
@@ -1316,20 +1312,23 @@ Procedure ExecuteTask(Task, ExchangeParameters, Cancel) Export
 				
 EndProcedure
 
-Procedure RunTaskExportDataPeer(Task, Proxy, ExchangeSettingsStructure, Cancel, Error)
+Procedure RunTaskExportDataPeer(Task, Proxy, ExchangeSettingsStructure, DataArea, Cancel, Error)
 	
 	If Cancel Then
 		Return;
 	EndIf;
 	
 	Try
-			
-		Proxy.UploadDataInt(ExchangeSettingsStructure.ExchangePlanName, ExchangeSettingsStructure.CurrentExchangePlanNodeCode1,
-			Task.TaskID__, ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
+		
+		Proxy.UploadDataInt(
+			ExchangeSettingsStructure.ExchangePlanName,
+			ExchangeSettingsStructure.CurrentExchangePlanNodeCode1,
+			Task.TaskID__,
+			DataArea);
 								
 	Except
 		
-		Error = StrTemplate(NStr("en = 'Peer infobase error:%1 %2';"),
+		Error = StrTemplate(NStr("en = 'Peer infobase error: %1 %2';"),
 			Chars.LF,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		
@@ -1341,21 +1340,22 @@ Procedure RunTaskExportDataPeer(Task, Proxy, ExchangeSettingsStructure, Cancel, 
 
 EndProcedure
 
-Procedure ImportDataImportTask(Task, ExchangeParameters, ExchangeSettingsStructure, Cancel, Error)
+Procedure ImportDataImportTask(Task, Proxy, ExchangeParameters, ExchangeSettingsStructure, DataArea, Cancel, Error)
 	
 	If Cancel Then
 		Return;
 	EndIf;
-	
+
 	Try
-		
+			
 		UIDOfTheMessageFile = New UUID(ExchangeParameters.TaskIDPrev);
-		FileExchangeMessages = DataExchangeWebService.GetFileFromStorageInService(UIDOfTheMessageFile,
-			ExchangeSettingsStructure.InfobaseNode, 1024, ExchangeParameters.AuthenticationParameters);
+		FileExchangeMessages = DataExchangeWebService.GetFileFromStorageInService(
+			Proxy, UIDOfTheMessageFile, ExchangeSettingsStructure.InfobaseNode, 
+			1024, DataArea);
 		
 	Except
 		
-		Error = StrTemplate(NStr("en = 'Peer infobase error:%1 %2';"), 
+		Error = StrTemplate(NStr("en = 'Peer infobase error: %1 %2';"), 
 			Chars.LF, 
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		
@@ -1402,7 +1402,7 @@ Procedure ImportDataImportTask(Task, ExchangeParameters, ExchangeSettingsStructu
 
 EndProcedure
 
-Procedure PerformTaskDataExport(Task, Proxy, ProxyParameters, ExchangeSettingsStructure, Cancel, Error)
+Procedure PerformTaskDataExport(Task, Proxy, ExchangeSettingsStructure, DataArea, Cancel, Error)
 
 	If Cancel Then
 		Return;
@@ -1432,8 +1432,8 @@ Procedure PerformTaskDataExport(Task, Proxy, ProxyParameters, ExchangeSettingsSt
 			
 			FileID = Task.TaskID__;
 			
-			DataExchangeWebService.PutFileInStorageInService(Proxy, ProxyParameters.CurrentVersion, ExchangeSettingsStructure, 
-				FileExchangeMessages, ExchangeSettingsStructure.InfobaseNode, 1024, FileID);
+			DataExchangeWebService.PutFileInStorageInService(Proxy, FileExchangeMessages, 1024,
+				FileID, DataArea); 
 				
 			If ExchangeResultCompletedWithError(ExchangeSettingsStructure, Cancel, Error) Then
 				Return;
@@ -1442,7 +1442,7 @@ Procedure PerformTaskDataExport(Task, Proxy, ProxyParameters, ExchangeSettingsSt
 		Except
 			
 			Cancel = True;
-			Error = StrTemplate(NStr("en = 'Peer infobase error:%1 %2';"),
+			Error = StrTemplate(NStr("en = 'Peer infobase error: %1 %2';"),
 				Chars.LF,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			
@@ -1460,9 +1460,9 @@ Procedure PerformTaskDataExport(Task, Proxy, ProxyParameters, ExchangeSettingsSt
 			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	
-EndProcedure	
+EndProcedure
 
-Procedure RunTaskImportDataPeer(Task, Proxy, ExchangeParameters, ExchangeSettingsStructure, Cancel, Error)
+Procedure RunTaskImportDataPeer(Task, Proxy, ExchangeParameters, ExchangeSettingsStructure, DataArea, Cancel, Error)
 	
 	If Cancel Then
 		Return;
@@ -1470,15 +1470,18 @@ Procedure RunTaskImportDataPeer(Task, Proxy, ExchangeParameters, ExchangeSetting
 
 	Try
 		
-		Proxy.DownloadDataInt(ExchangeSettingsStructure.ExchangePlanName, ExchangeSettingsStructure.CurrentExchangePlanNodeCode1,
-			Task.TaskID__, ExchangeParameters.TaskIDPrev,
-			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
+		Proxy.DownloadDataInt(
+			ExchangeSettingsStructure.ExchangePlanName,
+			ExchangeSettingsStructure.CurrentExchangePlanNodeCode1,
+			Task.TaskID__,
+			ExchangeParameters.TaskIDPrev,
+			DataArea);
 		
 	Except
 		
 		Cancel = True;
 		
-		Error = StrTemplate(NStr("en = 'Peer infobase error:%1 %2';"),
+		Error = StrTemplate(NStr("en = 'Peer infobase error: %1 %2';"),
 			Chars.LF,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		
@@ -1537,20 +1540,20 @@ EndProcedure
 
 #Region NodeFormSetup
 
-Procedure SetFuncOptionsForNode(Form, TransportSettings)
-	
+Procedure SetFuncOptionsForNode(Form)
+
 	SetPrivilegedMode(True);
 	
 	Node = Form.Object.Ref;
-	TransportKind = TransportSettings.DefaultExchangeMessagesTransportKind;
 	
-	UseScenarios = 
-		TransportKind = Enums.ExchangeMessagesTransportTypes.WS
-		And ValueIsFilled(TransportSettings.WSCorrespondentEndpoint);
-		
+	TransportID = Undefined;
+	TransportSettings = ExchangeMessagesTransport.DefaultTransportSettings(Node, TransportID);
+	
+	UseScenarios = TransportID = "SM" And TransportSettings.InternalPublication;
 	UseConnectionSettings = 
-		TransportKind = Enums.ExchangeMessagesTransportTypes.WS	
-		Or TransportKind = Enums.ExchangeMessagesTransportTypes.WSPassiveMode;
+		TransportID = "SM" And TransportSettings.InternalPublication
+		Or TransportID = "WS" 
+		Or TransportID = "PassiveMode";
 		
 	RecordingSettings = InformationRegisters.CommonInfobasesNodesSettings.CreateRecordManager();
 	RecordingSettings.InfobaseNode = Node;
@@ -1570,24 +1573,25 @@ Procedure SetFuncOptionsForNode(Form, TransportSettings)
 	
 EndProcedure
 
-Procedure SetUpFormElementsForMigrationToWS(Form, TransportSettings)
+Procedure SetUpFormElementsForMigrationToWS(Form)
+
+	SetPrivilegedMode(True);
 	
 	Items = Form.Items;
-	NodeRef1 = Form.Object.Ref;
+	Node = Form.Object.Ref;
 	
-	IsExchangeOverWebService = 
-		TransportSettings <> Undefined
-		And (TransportSettings.DefaultExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WS
-		Or TransportSettings.DefaultExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WSPassiveMode);
-		
-	HasExchangeAdministrationManage_3_0_1_1 = HasInNodeExchangeAdministrationManage_3_0_1_1(NodeRef1) = True;
+	TransportID = Undefined;
+	TransportSettings = ExchangeMessagesTransport.DefaultTransportSettings(Node, TransportID);
+	
+	ThisIsExchangeThroughInternalPublication = TransportID = "SM" And TransportSettings.InternalPublication;
+	HasExchangeAdministrationManage_3_0_1_1 = HasInNodeExchangeAdministrationManage_3_0_1_1(Node) = True;
 		
 	If Not Users.IsFullUser()
-		Or NodeRef1.IsEmpty()
-		Or	IsExchangeOverWebService
+		Or Node.IsEmpty()
+		Or	ThisIsExchangeThroughInternalPublication
 		Or Not HasExchangeAdministrationManage_3_0_1_1
-		Or Not DataExchangeCached.IsXDTOExchangePlan(NodeRef1)
-		Or Not DataExchangeServer.SynchronizationSetupCompleted(NodeRef1) Then
+		Or Not DataExchangeCached.IsXDTOExchangePlan(Node)
+		Or Not DataExchangeServer.SynchronizationSetupCompleted(Node) Then
 		
 		CommonClientServer.SetFormItemProperty(
 			Form.Items,
@@ -1617,12 +1621,12 @@ Procedure SetUpFormElementsForMigrationToWS(Form, TransportSettings)
 		|WHERE
 		|	Settings.InfobaseNode = &Node";
 	
-	Query.SetParameter("Node", NodeRef1);
+	Query.SetParameter("Node", Node);
 		
 	Selection = Query.Execute().Select();
 								
 	IsMigrationToWebServiceStillInProgress = Selection.Next() And Selection.MigrationToWebService_Step > 0;
-	ShouldMutePromptToMigrateToWebService = DataExchangeInternalPublicationServerCall.SettingFlagShouldMutePromptToMigrateToWebService(NodeRef1);
+	ShouldMutePromptToMigrateToWebService = DataExchangeInternalPublicationServerCall.SettingFlagShouldMutePromptToMigrateToWebService(Node);
 	PanelText = "";
 	
 	If IsMigrationToWebServiceStillInProgress Then
@@ -1689,15 +1693,27 @@ Function HasInNodeExchangeAdministrationManage_3_0_1_1(Node)
 		
 EndFunction
 
-Procedure ProxyInitialization(Proxy, ProxyParameters, ExchangeSettingsStructure, Cancel, Error)
+Procedure ProxyInitialization(Proxy, ExchangeSettingsStructure, Cancel, Error)
 	
 	If Cancel Then
 		Return;
 	EndIf;
+		
+	TransportParameters = ExchangeMessagesTransport.TransportSettings(ExchangeSettingsStructure.InfobaseNode, "SM");
 	
-	SetupStatus = Undefined;
-	DataExchangeWebService.InitializeWSProxyToManageDataExchange(Proxy, ExchangeSettingsStructure,
-		ProxyParameters, Cancel, SetupStatus, Error);
+	ModuleMessagesExchangeTransportSettings = Common.CommonModule("InformationRegisters.MessageExchangeTransportSettings");
+	TransportSettingsWS = ModuleMessagesExchangeTransportSettings.TransportSettingsWS(TransportParameters.CorrespondentEndpoint);
+
+	ConnectionParameters = New Structure;
+	ConnectionParameters.Insert("WebServiceAddress", TransportSettingsWS.WSWebServiceURL);
+	ConnectionParameters.Insert("UserName", TransportSettingsWS.WSUserName);
+	ConnectionParameters.Insert("Password", TransportSettingsWS.WSPassword);
+	
+	Proxy = DataExchangeWebService.WSProxy(ConnectionParameters, Error);
+	
+	If Proxy = Undefined Then
+		Cancel = True;
+	EndIf;
 	
 	If Cancel Then
 		DataExchangeServer.WriteEventLogDataExchange(Error, ExchangeSettingsStructure, True);
@@ -1719,10 +1735,7 @@ Function ExchangeResultCompletedWithError(ExchangeSettingsStructure, Cancel, Err
 		Or ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.ErrorMessageTransport Then
 		
 		Cancel = True;
-		
-		If ValueIsFilled(ExchangeSettingsStructure.ErrorMessageString) Then
-			Error = ExchangeSettingsStructure.ErrorMessageString;
-		EndIf;
+		Error = ExchangeSettingsStructure.ErrorMessageString;
 		
 		Return True;
 		

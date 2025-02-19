@@ -8,6 +8,34 @@
 //
 //
 
+#Region Internal
+
+// See InfobaseUpdateSSL.OnAddUpdateHandlers.
+Procedure OnAddUpdateHandlers(Handlers) Export
+	
+	If Not Common.DataSeparationEnabled() Then
+		Handler = Handlers.Add();
+		Handler.Procedure = "Catalogs.BankClassifier.ProcessDataForMigrationToNewVersion";
+		Handler.Version = "3.1.11.1";
+		Handler.ExecutionMode = "Deferred";
+		Handler.Id = New UUID("ffab8bb3-4bb1-4dde-9283-8328c8ede4d9");
+		Handler.UpdateDataFillingProcedure = "Catalogs.BankClassifier.RegisterDataToProcessForMigrationToNewVersion";
+		Handler.CheckProcedure = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
+		Handler.Comment = NStr("en = 'Populates country code in the ""Bank codes"" catalog.';");
+		
+		Editable1 = New Array;
+		Editable1.Add(Metadata.Catalogs.BankClassifier.FullName());
+		Handler.ObjectsToChange = StrConcat(Editable1, ",");
+		
+		ToLock = New Array;
+		ToLock.Add(Metadata.Catalogs.BankClassifier.FullName());
+		Handler.ObjectsToLock = StrConcat(ToLock, ",");
+	EndIf;
+	
+EndProcedure
+
+#EndRegion
+
 #Region Private
 
 // Determines if classifier data update is necessary.

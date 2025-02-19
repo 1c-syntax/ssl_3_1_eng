@@ -66,8 +66,8 @@ EndFunction
 //			ModuleMonitoringCenterClientInternal = CommonClient.CommonModule("MonitoringCenterClientInternal");
 //			ModuleMonitoringCenterClientInternal.BeforeRecurringClientDataSendToServer(Parameters);
 //		EndIf;
-//	Exception
-//		ServerNotificationsClient.HandleError(ErrorInformation());
+//	Except
+//		ServerNotificationsClient.HandleError(ErrorInfo());
 //	EndTry;
 //	ServerNotificationsClient.AddIndicator(StartMoment,
 //		"MonitoringCenterClientInternal.BeforeRecurringClientDataSendToServer");
@@ -97,8 +97,8 @@ EndProcedure
 //			ModuleMonitoringCenterClientInternal = CommonClient.CommonModule("MonitoringCenterClientInternal");
 //			ModuleMonitoringCenterClientInternal.BeforeRecurringClientDataSendToServer(Parameters);
 //		EndIf;
-//	Exception
-//		ServerNotificationsClient.HandleError(ErrorInformation());
+//	Except
+//		ServerNotificationsClient.HandleError(ErrorInfo());
 //	EndTry;
 //	ServerNotificationsClient.AddIndicator(StartMoment,
 //		"MonitoringCenterClientInternal.BeforeRecurringClientDataSendToServer");
@@ -151,8 +151,7 @@ Procedure AttachServerNotificationReceiptCheckHandler(Interval = 1, ShouldReceiv
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // See CommonClientOverridable.BeforeStart.
 Procedure BeforeStart(Parameters) Export
@@ -188,6 +187,8 @@ Procedure AfterStart() Export
 	DataReceiptStatus.IsRecurringDataSendEnabled = True;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -240,11 +241,11 @@ Procedure CheckGetServerNotificationsWithIndicators(DataReceiptStatus, Indicator
 	
 	Interval = 60;
 	AreChatsActive =
-		(DataReceiptStatus.ClientNotificationsAreAvailable
-		  Or DataReceiptStatus.CollaborationSystemConnected
-			And DataReceiptStatus.IsNewPersonalMessageHandlerAttached)
-		And DataReceiptStatus.IsRecurringDataSendEnabled
-		And DataReceiptStatus.LastReceivedMessageDate + 60 > CurrentSessionDate;
+		DataReceiptStatus.IsRecurringDataSendEnabled
+		And (DataReceiptStatus.AreClientNotificationsAvailable
+		   Or DataReceiptStatus.CollaborationSystemConnected
+		     And DataReceiptStatus.IsNewPersonalMessageHandlerAttached
+		     And DataReceiptStatus.LastReceivedMessageDate + 60 > CurrentSessionDate);
 	
 	StartMoment = CurrentUniversalDateInMilliseconds();
 	Try
@@ -560,7 +561,7 @@ Function AreNotificationsReceived(DataReceiptStatus)
 EndFunction
 
 // See NewReceiptStatus
-Function DataReceiptStatus()
+Function DataReceiptStatus() Export
 	
 	AppParameterName = "StandardSubsystems.Core.ServerNotifications";
 	DataReceiptStatus = ApplicationParameters.Get(AppParameterName);
@@ -596,7 +597,7 @@ EndFunction
 //   * ShouldRegisterIndicators - Boolean
 //   * ServiceAdministratorSession - Boolean
 //   * IsRecurringDataSendEnabled - Boolean - Is set to True in the AfterStart procedure.
-//   * RepeatedDateExportMinInterval - 
+//   * RepeatedDateExportMinInterval - See ServerNotifications.RepeatedDateExportMinInterval
 //   * SessionKey - See ServerNotifications.SessionKey
 //   * IBUserID - UUID
 //   * StatusUpdateDate - Date
@@ -605,7 +606,7 @@ EndFunction
 //   * LastNotificationDate - Date
 //   * Notifications - See CommonOverridable.OnAddServerNotifications.Notifications
 //   * ReceivedNotifications - Array of String - UUID strings of the received messages.
-//   * ClientNotificationsAreAvailable - Boolean
+//   * AreClientNotificationsAvailable - Boolean
 //   * CollaborationSystemConnected - Boolean
 //   * PersonalChatID - Undefined - Chat is unavailable.
 //                                    - CollaborationSystemConversationID - ID of the chat
@@ -641,8 +642,8 @@ Function NewReceiptStatus()
 	State.Insert("LastNotificationDate", '00010101');
 	State.Insert("Notifications", New Map);
 	State.Insert("ReceivedNotifications", New Array);
-	State.Insert("ClientNotificationsAreAvailable",
-		ServerNotificationsInternalClientServer.ClientNotificationsAreAvailable());
+	State.Insert("AreClientNotificationsAvailable",
+		ServerNotificationsInternalClientServer.AreClientNotificationsAvailable());
 	State.Insert("CollaborationSystemConnected", False);
 	State.Insert("PersonalChatID", Undefined);
 	State.Insert("GlobalChatID", Undefined);
@@ -662,11 +663,11 @@ Procedure AttachNewMessageHandler(DataReceiptStatus)
 	
 	Context = New Structure("DataReceiptStatus", DataReceiptStatus);
 	
-	If DataReceiptStatus.ClientNotificationsAreAvailable Then
-		ClientNotificationManager().AttachHandler(
-			ServerNotificationsInternalClientServer.KeyForServerSideNotifications(),
-			New NotifyDescription("WhenNewClientNotificationIsReceived", ThisObject, Context,
-				"IfThereIsErrorInReceivingNewClientNotification", ThisObject));
+	If DataReceiptStatus.AreClientNotificationsAvailable Then
+		ClientNotificationManager().ПодключитьОбработчик(
+			ServerNotificationsInternalClientServer.ServerNotificationsNotificationsKey(),
+			New CallbackDescription("OnGetNewClientNotification", ThisObject, Context,
+				"OnErrorGettingNewClientNotification", ThisObject));
 		Return;
 	EndIf;
 	
@@ -675,10 +676,10 @@ Procedure AttachNewMessageHandler(DataReceiptStatus)
 		
 		Try
 			CollaborationSystem.BeginAttachNewMessagesHandler(
-				New NotifyDescription("AfterAttachingNewPersonalMessageHandler", ThisObject, Context,
+				New CallbackDescription("AfterAttachingNewPersonalMessageHandler", ThisObject, Context,
 					"AfterNewPersonalMessageHandlerAttachError", ThisObject),
 				DataReceiptStatus.PersonalChatID,
-				New NotifyDescription("OnReceiptNewInteractionSystemPersonalMessage", ThisObject, Context,
+				New CallbackDescription("OnReceiptNewInteractionSystemPersonalMessage", ThisObject, Context,
 					"OnInteractionSystemNewPersonalMessageReceiptError", ThisObject),
 				Undefined);
 		Except
@@ -691,10 +692,10 @@ Procedure AttachNewMessageHandler(DataReceiptStatus)
 		
 		Try
 			CollaborationSystem.BeginAttachNewMessagesHandler(
-				New NotifyDescription("AfterAttachingNewGroupMessageHandler", ThisObject, Context,
+				New CallbackDescription("AfterAttachingNewGroupMessageHandler", ThisObject, Context,
 					"AfterNewGlobalMessageHandlerAttachError", ThisObject),
 				DataReceiptStatus.GlobalChatID,
-				New NotifyDescription("OnReceiptNewInteractionSystemGlobalMessage", ThisObject, Context,
+				New CallbackDescription("OnReceiptNewInteractionSystemGlobalMessage", ThisObject, Context,
 					"OnInteractionSystemNewGlobalMessageReceiptError", ThisObject),
 				Undefined);
 		Except
@@ -870,7 +871,7 @@ EndFunction
 
 // Client notifications
 
-Procedure WhenNewClientNotificationIsReceived(Data, Context) Export
+Procedure OnGetNewClientNotification(Data, Context) Export
 	
 	DataReceiptStatus = Context.DataReceiptStatus;
 	
@@ -885,7 +886,7 @@ Procedure WhenNewClientNotificationIsReceived(Data, Context) Export
 	
 EndProcedure
 
-Procedure IfThereIsErrorInReceivingNewClientNotification(ErrorInfo, StandardProcessing, Context) Export
+Procedure OnErrorGettingNewClientNotification(ErrorInfo, StandardProcessing, Context) Export
 	
 	StandardProcessing = False;
 	

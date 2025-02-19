@@ -13,50 +13,16 @@
 // Sets the original state for selected documents. Called over the "Attachable commands" subsystem.
 //
 //	Parameters:
-//  Ref - DocumentRef - document reference.
+//  ReferencesArrray - DefinedType.ObjectWithSourceDocumentsOriginalsAccounting - Document reference.
 //  Parameters -See AttachableCommands.CommandExecuteParameters.
 //
-Procedure Attachable_SetOriginalState(Ref, Parameters) Export
+Procedure Attachable_SetOriginalState(ReferencesArrray, Parameters) Export
 	
-	List = Parameters.Source;
-	If List.SelectedRows.Count() = 0 Then
-		ShowMessageBox(, NStr("en = 'No document, for which the selected state can be set, is selected.';"));
-		Return;
-	EndIf;
-
-	If Parameters.CommandDetails.Kind = "SettingStateOriginalReceived" Then
-		StateName = PredefinedValue("Catalog.SourceDocumentsOriginalsStates.OriginalReceived");
+	If TypeOf(Parameters.Source) = Type("FormTable") Then 
+		SetOriginalStateListForm(Parameters, Parameters.Source);
 	Else
-		StateName = Parameters.CommandDetails.Presentation;
-	EndIf;
-
-	AdditionalParameters = New Structure;
-	AdditionalParameters.Insert("List",List);
-
-	If Parameters.CommandDetails.Id = "StatesSetup" Then
-		OpenStatesSetupForm();
-		Return;
-	ElsIf Parameters.CommandDetails.Kind = "SettingStateOriginalReceived" And List.SelectedRows.Count() = 1 Then
-		AdditionalParameters.Insert("StateName", StateName);
-		SetOriginalStateCompletion(DialogReturnCode.Yes, AdditionalParameters);
-		Return;
-	EndIf;
-
-	AdditionalParameters.Insert("StateName", StateName);
-	
-	If List.SelectedRows.Count() > 1 Then
-		QueryText = NStr("en = 'The ""%StateName%"" original state will be set for documents selected in the list. Continue?';");
-		QueryText = StrReplace(QueryText, "%StateName%", StateName);
-
-		Buttons = New ValueList;
-		Buttons.Add(DialogReturnCode.Yes,NStr("en = 'Set';"));
-		Buttons.Add(DialogReturnCode.No,NStr("en = 'Do not set';"));
-
-		ShowQueryBox(New NotifyDescription("SetOriginalStateCompletion", ThisObject, AdditionalParameters), QueryText, Buttons);
-	ElsIf SourceDocumentsOriginalsRecordingServerCall.IsAccountingObject(List.CurrentData.Ref) Then 
-		SetOriginalStateCompletion(DialogReturnCode.Yes, AdditionalParameters);
-	Else
-		ShowMessageBox(, NStr("en = 'Records of originals are not kept for this document.';"));
+		Ref = ReferencesArrray[0];
+		SetOriginalStateDocumentForm(Ref, Parameters);
 	EndIf;
 	
 EndProcedure
@@ -64,64 +30,42 @@ EndProcedure
 // Sets the original state for selected documents. Called without integrating the "Attachable commands" subsystem.
 //
 //	Parameters:
-//  Command - String- a name of the form command being executed.
+//  CommandName - String- Name of the form command being executed.
 //  Form - ClientApplicationForm - a form of a list or a document.
-//  List - FormTable - a form list where the state will be changed.
+//  List - FormTable - Form list where the state will be changed.
+//  						"Undefined" if the state is being set from the document form.
 //
-Procedure SetOriginalState(Command, Form, List) Export
+Procedure SetOriginalState(CommandName, Form, List = Undefined) Export
+	
+	Parameters = AttachableCommandsClient.CommandExecuteParameters();
+	
+	Parameters.CommandDetails = New Structure("Id", CommandName);
+	
+	If CommandName = "SettingStateOriginalReceived" Then
+		OriginalState = PredefinedValue("Catalog.SourceDocumentsOriginalsStates.OriginalReceived");
+		AdditionalParameters = New Structure("RefToState", OriginalState);
+		Parameters.CommandDetails.Insert("AdditionalParameters", AdditionalParameters);
+	ElsIf Not CommandName = "StatesSetup" And Not CommandName = "ClarifyByPrintForms" Then
+		OriginalState = SourceDocumentsOriginalsRecordingServerCall.SourceDocumentOriginalStateByCommandName(CommandName);
+		AdditionalParameters = New Structure("RefToState", OriginalState);
+		Parameters.CommandDetails.Insert("AdditionalParameters", AdditionalParameters);
+	EndIf;
 
-	If List.SelectedRows.Count() = 0 Then
-		ShowMessageBox(, NStr("en = 'No document, for which the selected state can be set, is selected';"));
+	If List = Undefined Then
+		SetOriginalStateDocumentForm(Form.Object.Ref, Parameters);
 		Return;
 	EndIf;
 	
-	AdditionalParameters = New Structure;
-	AdditionalParameters.Insert("List",List);
-	
-	If Command = "StatesSetup" Then
-		OpenStatesSetupForm();
-		Return;
-	ElsIf Command = "SetOriginalReceived" And List.SelectedRows.Count()= 1 Then
-		AdditionalParameters.Insert("StateName", PredefinedValue("Catalog.SourceDocumentsOriginalsStates.OriginalReceived"));
-		SetOriginalStateCompletion(DialogReturnCode.Yes, AdditionalParameters);
-		Return;
-	EndIf;
-
-	FoundState = Form.Items.Find(Command);
-
-	If Not FoundState = Undefined Then
-		StateName = FoundState.Title;
-	ElsIf Command = "SetOriginalReceived" Then
-		StateName = PredefinedValue("Catalog.SourceDocumentsOriginalsStates.OriginalReceived");
-	EndIf;
-
-	AdditionalParameters.Insert("StateName", StateName);
-	
-	If List.SelectedRows.Count() > 1 Then
-		QueryText = NStr("en = 'The ""%StateName%"" original state will be set for documents selected in the list. Continue?';");
-		QueryText = StrReplace(QueryText, "%StateName%", StateName);
-
-		Buttons = New ValueList;
-		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Set';"));
-		Buttons.Add(DialogReturnCode.No, NStr("en = 'Do not set';"));
-
-		ShowQueryBox(New NotifyDescription("SetOriginalStateCompletion", ThisObject, AdditionalParameters), 
-			QueryText, Buttons);
-	ElsIf SourceDocumentsOriginalsRecordingServerCall.IsAccountingObject(List.CurrentData.Ref) Then 
-		SetOriginalStateCompletion(DialogReturnCode.Yes, AdditionalParameters);
-	Else
-		ShowMessageBox(, NStr("en = 'Records of originals are not kept for this document.';"));
-	EndIf;
+	SetOriginalStateListForm(Parameters, List);
 	
 EndProcedure
 
 // Opens a drop-down menu to select an original state in a list form or a document form.
 //
 //	Parameters:
-//  Form - ClientApplicationForm:
-//   * Object - FormDataStructure, DocumentObject - Form's main attribute.
+//  Form - ClientApplicationForm - Form's main attribute.
 //  Source - FormTable - A form's list or decoration where a drop-down list should be opened.
-//                            If not specified, the "OriginalStateDecoration" element opens.  
+//                            If not specified, the "OriginalStateDecoration" element opens.
 //
 Procedure OpenStateSelectionMenu(Val Form, Val Source = Undefined) Export 
 	
@@ -130,58 +74,53 @@ Procedure OpenStateSelectionMenu(Val Form, Val Source = Undefined) Export
 	EndIf;
 	
 	If TypeOf(Source) = Type("FormTable") Then
-		
 		RecordData = Source.CurrentData;
-		UnpostedDocuments = CommonServerCall.CheckDocumentsPosting(
-			CommonClientServer.ValueInArray(RecordData.Ref));
-		If UnpostedDocuments.Count() = 1 Then
-			ShowMessageBox(, NStr("en = 'To run the command, post the document first.';"));
-			Return;
-		EndIf;
-		
-		RecordsArray = CommonClientServer.ValueInArray(RecordData);
-		NotifyDescription = New NotifyDescription("OpenStateSelectionMenuCompletion", ThisObject, RecordsArray);
-		ClarifyByPrintForms = Form.OriginalStatesChoiceList.FindByValue("ClarifyByPrintForms");
-
-		If RecordData.OverallState Or Not ValueIsFilled(RecordData.SourceDocumentOriginalState) Then
-			If ClarifyByPrintForms = Undefined Then
-				Form.OriginalStatesChoiceList.Add("ClarifyByPrintForms",
-					NStr("en = 'Specify for print forms…';"),,
-					PictureLib.SetSourceDocumentOriginalStateByPrintForms);
-			EndIf;
-		Else
-			If ClarifyByPrintForms <> Undefined Then
-				Form.OriginalStatesChoiceList.Delete(ClarifyByPrintForms);
-			EndIf;
-		EndIf;
-		Form.ShowChooseFromMenu(NotifyDescription, Form.OriginalStatesChoiceList,
-			Form.Items.SourceDocumentOriginalState);
+		Document = RecordData.Ref;
+		ShouldClarifyByPrintForms = RecordData.OverallState 
+			Or Not ValueIsFilled(RecordData.SourceDocumentOriginalState);
+		FormItemSource = Form.Items.SourceDocumentOriginalState;
 	Else
-		If Form.Object.Ref.IsEmpty() Then
-			ShowMessageBox(,NStr("en = 'To run the command, post the document first.';"));
-			Return;
-		EndIf;
-		UnpostedDocuments = CommonServerCall.CheckDocumentsPosting(
-			CommonClientServer.ValueInArray(Form.Object.Ref));
+		RecordData = New Structure("Ref", Form.Object.Ref);
+		Document = Form.Object.Ref;
+		ShouldClarifyByPrintForms = True;
+		FormItemSource = Source;
+	EndIf;
+	
+	If Document.IsEmpty() Then
+		ShowMessageBox(,NStr("en = 'To set the original state, post the document first.';"));
+		Return;
+	EndIf;
 
-		If UnpostedDocuments.Count() = 1 Then
-			ShowMessageBox(,NStr("en = 'To run the command, post the document first.';"));
-			Return;
-		EndIf;
+	Result = CommonServerCall.UnpostedDocuments(
+		CommonClientServer.ValueInArray(Document));
+	If Result.UnpostedDocuments.Count() = 1 Then
+		MessageText = ?(Result.HasPostingRight, 
+			NStr("en = 'To set the original state, post the document first.';"),
+			NStr("en = 'Cannot set the original state; insufficient rights to post the document.';"));
+		ShowMessageBox(, MessageText);
+		Return;
+	EndIf;
+	
+	ClientRunParameters = StandardSubsystemsClient.ClientRunParameters();
+	OpenForm = Not ClientRunParameters.SourceDocumentsOriginalsRecording.ShouldOpenDropDownMenuFromHyperlink; 
+	If OpenForm Then
+		OpenPrintFormsStatesChangeForm(Document);
+		Return;
+	EndIf;
 
-		AdditionalParameters = New Structure("Ref", Form.Object.Ref);
-		NotifyDescription = New NotifyDescription("OpenStateSelectionMenuCompletion", ThisObject,
-			AdditionalParameters);
-
-		ClarifyByPrintForms = Form.OriginalStatesChoiceList.FindByValue("ClarifyByPrintForms");
+	ClarifyByPrintForms = Form.OriginalStatesChoiceList.FindByValue("ClarifyByPrintForms");
+	If ShouldClarifyByPrintForms Then
 		If ClarifyByPrintForms = Undefined Then
 			Form.OriginalStatesChoiceList.Add("ClarifyByPrintForms",
 				NStr("en = 'Specify for print forms…';"),,
 				PictureLib.SetSourceDocumentOriginalStateByPrintForms);
 		EndIf;
-
-		Form.ShowChooseFromMenu(NotifyDescription, Form.OriginalStatesChoiceList, Source);
+	ElsIf ClarifyByPrintForms <> Undefined Then
+		Form.OriginalStatesChoiceList.Delete(ClarifyByPrintForms);
 	EndIf;
+
+	NotifyDescription = New CallbackDescription("OpenStateSelectionMenuCompletion", ThisObject, RecordData);
+	Form.ShowChooseFromMenu(NotifyDescription, Form.OriginalStatesChoiceList, FormItemSource);
 
 EndProcedure
 
@@ -189,13 +128,30 @@ EndProcedure
 //
 //	Parameters:
 //  EventName - String - a name of the event that occurred.
-//  Form - ClientApplicationForm - a document form.
+//  Form - ClientApplicationForm - a document form. 
+//   Source - DefinedType.ObjectWithSourceDocumentsOriginalsAccounting - Reference to the document (event trigger).
+//            - Array of DefinedType.ObjectWithSourceDocumentsOriginalsAccounting:
+//         * Ref - DefinedType.ObjectWithSourceDocumentsOriginalsAccounting - Reference to the document (event trigger).
 //
-Procedure NotificationHandlerDocumentForm(EventName, Form) Export           
+Procedure NotificationHandlerDocumentForm(EventName, Form, Source = Undefined) Export
 		
-	If EventName = "SourceDocumentOriginalStateChange" Then 
-		GenerateCurrentOriginalStateLabel(Form);
-	ElsIf EventName = "AddDeleteSourceDocumentOriginalState" Then			
+	If EventName = "Write_InformationRegisterSourceDocumentsOriginalsStates" 
+		And ((TypeOf(Source) = Type("Array") And Source.Find(Form.Object.Ref) <> Undefined)
+		Or Source = Undefined Or Source = Form.Object.Ref) Then 
+		UpdateOriginalCurrentStateOnDocumentForm(Form);
+	ElsIf EventName = "Write_SourceDocumentsOriginalsStates" Then	
+		SubmenuOriginalState = Form.Items.Find("SetConfigureOriginalStateSubmenu");
+		If SubmenuOriginalState <> Undefined Then
+			Form.DetachIdleHandler("Attachable_UpdateOriginalStateCommands");
+			Form.AttachIdleHandler("Attachable_UpdateOriginalStateCommands", 0.2, True);
+			ConfigureButtonsOnDocumentForm(Form);
+		EndIf;
+		TheStructureOfTheSearch = New Structure;
+ 		TheStructureOfTheSearch.Insert("OriginalStatesChoiceList", Undefined);
+ 		FillPropertyValues(TheStructureOfTheSearch, Form);
+ 		If TheStructureOfTheSearch.OriginalStatesChoiceList <> Undefined Then
+			SourceDocumentsOriginalsRecordingServerCall.FillOriginalStatesChoiceList(Form.OriginalStatesChoiceList); 
+		EndIf;
 		Form.RefreshDataRepresentation();	
 	EndIf;
 		
@@ -207,10 +163,13 @@ EndProcedure
 //  EventName - String - a name of the event that occurred.
 //  Form - ClientApplicationForm - a list form of documents.
 //  List - FormTable - the main form list.
+//  Source - DefinedType.ObjectWithSourceDocumentsOriginalsAccounting - Reference to the document (event trigger).
+//           - Array of DefinedType.ObjectWithSourceDocumentsOriginalsAccounting:
+//         * Ref - DefinedType.ObjectWithSourceDocumentsOriginalsAccounting - Reference to the document (event trigger).
 //
-Procedure NotificationHandlerListForm(EventName, Form, List) Export 
+Procedure NotificationHandlerListForm(EventName, Form, List, Source = Undefined) Export 
 	
-	If EventName = "AddDeleteSourceDocumentOriginalState" Then
+	If EventName = "Write_SourceDocumentsOriginalsStates" Then
 		TheStructureOfTheSearch = New Structure;
  		TheStructureOfTheSearch.Insert("OriginalStatesChoiceList", Undefined);
  		FillPropertyValues(TheStructureOfTheSearch, Form);
@@ -222,7 +181,7 @@ Procedure NotificationHandlerListForm(EventName, Form, List) Export
 		Else
 			Return;
 		EndIf;
-	ElsIf EventName = "SourceDocumentOriginalStateChange" Then
+	ElsIf EventName = "Write_InformationRegisterSourceDocumentsOriginalsStates" Then
 		List.Refresh();
 	EndIf;
 
@@ -244,7 +203,7 @@ Procedure ListSelection(FieldName, Form, List, StandardProcessing) Export
 			If FieldName = "SourceDocumentOriginalState" Then
 				OpenStateSelectionMenu(Form, List);
 			ElsIf FieldName = "StateOriginalReceived" Then
-				SetOriginalState("SetOriginalReceived", Form, List);
+				SetOriginalState("SettingStateOriginalReceived", Form, List);
 			EndIf;
 		Else
 			ShowMessageBox(, NStr("en = 'Records of originals are not kept for this document.';"));
@@ -272,23 +231,26 @@ EndProcedure
 //
 //	Parameters:
 //  ProcessedItemsCount - Number - a number of successfully processed documents.
-//  DocumentRef - DocumentRef - a reference to the document for processing the user notification click 
-//		in case of the single state setting. Optional parameter.
-//  StateName - String - a state to be set.
+//  Document - DefinedType.ObjectWithSourceDocumentsOriginalsAccounting - Reference to the document for processing the user notification click 
+//			   in case of the single state setting. Optional parameter.
+//  OriginalState - CatalogRef.SourceDocumentsOriginalsStates - Reference to the state to apply.
 //
-Procedure NotifyUserOfStatesSetting(ProcessedItemsCount, DocumentRef = Undefined, StateName = Undefined) Export
+Procedure NotifyUserOfStatesSetting(ProcessedItemsCount, Document = Undefined, OriginalState = Undefined) Export
 
 	If ProcessedItemsCount > 1 Then
-		MessageText = NStr("en = 'The ""%StateName%"" original state is set for all documents selected in the list';");
-		MessageText = StrReplace(MessageText, "%StateName%", StateName);
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'The original state ""%1"" is applied to all selected documents.';"), String(OriginalState));
 		
-		TitleText = NStr("en = 'The ""%StateName%"" original state is set';");
-		TitleText = StrReplace(TitleText, "%StateName%", StateName);
+		TitleText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = '""%1"" is applied';"), String(OriginalState));
 
-		ShowUserNotification(TitleText,, MessageText, PictureLib.DialogInformation,UserNotificationStatus.Important);
+		ShowUserNotification(TitleText,, MessageText, PictureLib.DialogInformation, UserNotificationStatus.Information);
 	Else
-		NotifyDescription = New NotifyDescription("ProcessNotificationClick",ThisObject,DocumentRef);
-		ShowUserNotification(NStr("en = 'Original state changed:';"),NotifyDescription,DocumentRef,PictureLib.DialogInformation,UserNotificationStatus.Important);
+		NotifyDescription = New CallbackDescription("ProcessNotificationClick", ThisObject, Document);
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = '""%1"" is applied:';"), String(OriginalState));
+		ShowUserNotification(MessageText, NotifyDescription, Document, PictureLib.DialogInformation,
+			UserNotificationStatus.Information);
 	EndIf;
 
 EndProcedure
@@ -309,12 +271,12 @@ EndProcedure
 //
 Procedure WriteOriginalsStatesAfterPrint(PrintObjects, PrintList, Written1 = False) Export
 
-	SourceDocumentsOriginalsRecordingServerCall.WriteOriginalsStatesAfterPrint(PrintObjects, PrintList, Written1);
+	SourceDocumentsOriginalsRecordingServerCall.WriteOriginalsStatesAfterPrintingForms(PrintObjects, PrintList, Written1);
 	If PrintList.Count() = 0 Or Written1 = False Then
 		Return;
 	EndIf;
-		
-	Notify("SourceDocumentOriginalStateChange");
+
+	Notify("Write_InformationRegisterSourceDocumentsOriginalsStates",, PrintObjects.UnloadValues());
 	
 	If PrintObjects.Count() > 1 Then
 		NotifyUserOfStatesSetting(PrintObjects.Count(),,PredefinedValue("Catalog.SourceDocumentsOriginalsStates.FormPrinted"));
@@ -327,7 +289,8 @@ EndProcedure
 // Opens a form to refine states of the document print forms.
 //
 //	Parameters:
-//  DocumentRef - DocumentRef - a reference to the document for which a record key of overall state must be received.
+//  DocumentRef - DefinedType.ObjectWithSourceDocumentsOriginalsAccounting - Reference to the document for which the record key 
+//  				 of the aggregated state must be received.
 //
 Procedure OpenPrintFormsStatesChangeForm(DocumentRef) Export
 
@@ -351,7 +314,8 @@ EndProcedure
 //  Form - ClientApplicationForm - a document list form.
 //
 Procedure OnConnectBarcodeScanner(Form) Export
-
+	
+	SSLSubsystemsIntegrationClient.OnAttachBarcodeScannerToOriginalsRecordingJournal(Form);
 	SourceDocumentsOriginalsRecordingClientOverridable.OnConnectBarcodeScanner(Form);
 
 EndProcedure
@@ -360,14 +324,70 @@ EndProcedure
 
 #Region Private
 
+Procedure SetOriginalStateListForm(Parameters, List)	
+	
+	RowsArray = New Array; // See SourceDocumentsOriginalsRecordingServerCall.SetNewOriginalState.WritingObjects
+	For Each ListLine In List.SelectedRows Do
+		RowData = List.RowData(ListLine);
+		RowsArray.Add(RowData);
+	EndDo;
+
+	AdditionalParameters = New Structure;
+	AdditionalParameters.Insert("RowsArray", RowsArray);
+	AdditionalParameters.Insert("MultipleChange", True);
+	
+	If Parameters.CommandDetails.Id = "StatesSetup" Then
+		OpenStatesSetupForm();
+		Return;
+	EndIf;
+	
+	OriginalState = Parameters.CommandDetails.AdditionalParameters.RefToState;
+
+	AdditionalParameters.Insert("OriginalState", OriginalState);
+	
+	If RowsArray.Count() > 1 Then
+		QueryText = NStr("en = 'The ""%StateName%"" original state will be set for documents selected in the list. Continue?';");
+		QueryText = StrReplace(QueryText, "%StateName%", String(OriginalState));
+
+		Buttons = New ValueList;
+		Buttons.Add(DialogReturnCode.Yes,NStr("en = 'Apply';"));
+		Buttons.Add(DialogReturnCode.No,NStr("en = 'Do not set';"));
+		ShowQueryBox(New CallbackDescription("SetOriginalStateCompletion", ThisObject, AdditionalParameters), QueryText, Buttons); 
+		
+	ElsIf SourceDocumentsOriginalsRecordingServerCall.IsAccountingObject(RowsArray[0].Ref) Then 
+		SetOriginalStateCompletion(DialogReturnCode.Yes, AdditionalParameters);
+	Else
+		ShowMessageBox(, NStr("en = 'Records of originals are not kept for this document.';"));
+	EndIf;
+	
+EndProcedure
+
+Procedure SetOriginalStateDocumentForm(Ref, Parameters)
+			
+	If Parameters.CommandDetails.Id = "StatesSetup" Then
+		OpenStatesSetupForm();
+	ElsIf Parameters.CommandDetails.Id = "ClarifyByPrintForms" Then
+		OpenPrintFormsStatesChangeForm(Ref);
+	Else
+		OriginalState = Parameters.CommandDetails.AdditionalParameters.RefToState;
+		AdditionalParameters = New Structure;
+		AdditionalParameters.Insert("OriginalState", OriginalState); 
+		AdditionalParameters.Insert("Ref", Ref);
+		AdditionalParameters.Insert("MultipleChange", False);
+		SetOriginalStateCompletion(DialogReturnCode.Yes, AdditionalParameters);
+	EndIf;
+	
+EndProcedure
+
 // Generates a label to display the current state information on a document form.
 //
 //	Parameters:
-//  Form - ClientApplicationForm:
-//   * Object - FormDataStructure, DocumentObject - Form's main attribute.
+//  Form - ClientApplicationForm - Document form.
 //
-Procedure GenerateCurrentOriginalStateLabel(Form)
+Procedure UpdateOriginalCurrentStateOnDocumentForm(Form)
 	
+	ConfigureButtonsOnDocumentForm(Form);
+
 	OriginalStateDecoration = Form.Items.Find("OriginalStateDecoration");
 	If OriginalStateDecoration = Undefined Then
 		Return;
@@ -390,6 +410,31 @@ Procedure GenerateCurrentOriginalStateLabel(Form)
 	
 EndProcedure
 
+Procedure ConfigureButtonsOnDocumentForm(Form)
+	
+	SubmenuOriginalState = Form.Items.Find("SetConfigureOriginalStateSubmenu");
+	If SubmenuOriginalState = Undefined Then
+		Return;
+	EndIf;
+	
+	SubmenuOriginalState.Representation = ButtonRepresentation.Picture;
+	SubmenuOriginalState.Picture = PictureLib.SourceDocumentOriginalStateOriginalNotReceived;
+		
+	If ValueIsFilled(Form.Object.Ref) Then
+		InformationRecords = SourceDocumentsOriginalsRecordingServerCall.OriginalStateInfoByRef(Form.Object.Ref);
+		If Not InformationRecords.Count() = 0 Then 
+			CurrentOriginalState = InformationRecords.SourceDocumentOriginalState;
+			Picture = ?(CurrentOriginalState = PredefinedValue("Catalog.SourceDocumentsOriginalsStates.OriginalReceived"),
+			PictureLib.SourceDocumentOriginalStateOriginalReceived,
+			PictureLib.SourceDocumentOriginalStateOriginalNotReceived);
+			SubmenuOriginalState.Representation = ButtonRepresentation.PictureAndText;
+			SubmenuOriginalState.Title = CurrentOriginalState;
+			SubmenuOriginalState.Picture = Picture;
+		EndIf;
+	EndIf;
+
+EndProcedure
+
 // Handler of the notification that was called after completing the SetOriginalState(…) procedure.
 Procedure SetOriginalStateCompletion(Response, AdditionalParameters) Export
 
@@ -397,24 +442,20 @@ Procedure SetOriginalStateCompletion(Response, AdditionalParameters) Export
 		Return;
 	EndIf;
 	
-	List = AdditionalParameters.List;
-	StateName = AdditionalParameters.StateName;
-
-	If List.SelectedRows.Count() = 0 Then
-		ShowMessageBox(, NStr("en = 'No document, for which the selected state can be set, is selected.';"));
-		Return;
-	EndIf;
-
-	WritingObjects = New Array; // 
-	For Each ListLine In List.SelectedRows Do
-		RowData = List.RowData(ListLine);
-		Ref = CommonClientServer.StructureProperty(RowData, "Ref");
-		If ValueIsFilled(Ref) Then
-			WritingObjects.Add(RowData);
-		EndIf;
-	EndDo;
+	OriginalState = AdditionalParameters.OriginalState;
 	
-	IsChanged = SourceDocumentsOriginalsRecordingServerCall.SetNewOriginalState(WritingObjects, StateName);
+	ReferencesArrray = New Array;
+	If AdditionalParameters.MultipleChange Then
+		WritingObjects = AdditionalParameters.RowsArray;
+		For Each Object In WritingObjects Do
+			ReferencesArrray.Add(Object.Ref);
+		EndDo;
+	Else
+ 		WritingObjects = AdditionalParameters.Ref;
+		ReferencesArrray.Add(AdditionalParameters.Ref);
+	EndIf;
+	
+	IsChanged = SourceDocumentsOriginalsRecordingServerCall.SetNewOriginalState(WritingObjects, OriginalState);
 	If IsChanged = "NotPosted" Then
 		ShowMessageBox(, NStr("en = 'To set the original state, post the selected documents first.';"));
 		Return;
@@ -422,12 +463,15 @@ Procedure SetOriginalStateCompletion(Response, AdditionalParameters) Export
 		Return;
 	EndIf;
 
-	If WritingObjects.Count() = 1 Then 
-		NotifyUserOfStatesSetting(1, WritingObjects[0].Ref);
+	If Not TypeOf(WritingObjects) = Type("Array") Then
+		NotifyUserOfStatesSetting(1, WritingObjects, OriginalState); 
+	ElsIf WritingObjects.Count() = 1 Then 
+		NotifyUserOfStatesSetting(1, WritingObjects[0].Ref, OriginalState);
 	Else
-		NotifyUserOfStatesSetting(WritingObjects.Count(),, StateName);
-	EndIf; 
-	Notify("SourceDocumentOriginalStateChange");
+		NotifyUserOfStatesSetting(WritingObjects.Count(), , OriginalState);
+	EndIf;
+	
+	Notify("Write_InformationRegisterSourceDocumentsOriginalsStates",, ReferencesArrray);
 
 EndProcedure
 
@@ -445,25 +489,25 @@ Procedure OpenStateSelectionMenuCompletion(SelectedStateFromList, AdditionalPara
 	If SelectedStateFromList = Undefined Then
 		Return;
 	EndIf;
-	
-	If TypeOf(AdditionalParameters) = Type("Array")Then
-		Ref = CommonClientServer.StructureProperty(AdditionalParameters[0], "Ref");
-		Value = AdditionalParameters;  
-	Else
-		Ref = AdditionalParameters.Ref;
-		Value = Ref;
-	EndIf;
 
+	Ref = AdditionalParameters.Ref;
+	If TypeOf(AdditionalParameters) = Type("FormDataStructure") Then 
+		RecordData = New Array;
+		RecordData.Add(AdditionalParameters);  
+	Else
+		RecordData = AdditionalParameters.Ref;
+	EndIf;
+			
 	If SelectedStateFromList.Value = "ClarifyByPrintForms" Then
 		OpenPrintFormsStatesChangeForm(Ref);
 		Return;
 	EndIf;
 	
-	IsChanged = SourceDocumentsOriginalsRecordingServerCall.SetNewOriginalState(Value, 
+	IsChanged = SourceDocumentsOriginalsRecordingServerCall.SetNewOriginalState(RecordData, 
 		SelectedStateFromList.Value);
 	If IsChanged = "IsChanged" Then
 		NotifyUserOfStatesSetting(1, Ref, SelectedStateFromList.Value);
-		Notify("SourceDocumentOriginalStateChange");
+		Notify("Write_InformationRegisterSourceDocumentsOriginalsStates",, Ref);
 	ElsIf IsChanged = "NotPosted" Then
 		ShowMessageBox(, NStr("en = 'To set the original state, post the selected documents first.';"));
 	EndIf;

@@ -106,7 +106,7 @@ Function DuplicatesGroups(Val SearchParameters, Val SampleObject = Undefined) Ex
 	EndIf;		
 		
 	AdditionalFieldsNames = ""; // Names of the attributes requested by the applied rules.
-	ItemsCountToCompare = 0;  // Names of the attributes requested by the applied rules.
+	ItemsCountToCompare = 0;  // How many items should be passed to the rules for calculation.
 	If HasSearchRules Then
 		AllAdditionalFields = New Map;
 		For Each Restriction In AppliedSearchParameters.ComparisonRestrictions Do
@@ -527,8 +527,7 @@ Function SearchForReferences(Val RefSet, Val ResultAddress = "")
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Miscellaneous.
+#Region OtherItems
 
 // Parameters:
 //  MetadataObject - MetadataObject
@@ -577,7 +576,7 @@ EndFunction
 Function QueryTextForDuplicatesSearch(SearchParameters, Characteristics, AdditionalFieldsNames)
 	
 	FieldsNamesToCompareForEquality = New Array; // Attribute names whose perfect matches should be found.
-	FieldsNamesToCompareForSimilarity   = New Array; // Attribute names whose perfect matches should be found.
+	FieldsNamesToCompareForSimilarity   = New Array; // Attribute names whose fuzzy matches should be found.
 	For Each String In SearchParameters.SearchRules Do
 		If String.Rule = "Equal" Then
 			FieldsNamesToCompareForEquality.Add(String.Attribute);
@@ -1043,7 +1042,10 @@ Function CandidatesTable()
 	CandidatesColumns.Add("IsDuplicates", New TypeDescription("Boolean"));
 	CandidatesTable.Indexes.Add("IsDuplicates");
 	Return CandidatesTable;
+
 EndFunction
+
+#EndRegion
 
 #EndRegion
 

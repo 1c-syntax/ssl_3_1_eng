@@ -329,8 +329,7 @@ Procedure SaveConfigurationUpdateSettings(Settings) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Managing patches.
+#Region PatchManagement
 
 // Returns details of patches installed in the configuration.
 //
@@ -621,6 +620,8 @@ EndFunction
 
 #EndRegion
 
+#EndRegion
+
 #Region Internal
 
 Function IsCurrentVersionRequiresSuccessfulHandlersCompletion() Export
@@ -724,11 +725,11 @@ Procedure CompleteUpdate(Val UpdateResult, Val Email, Val UpdateAdministratorNam
 	
 	If Common.SubsystemExists("StandardSubsystems.EmailOperations")
 		And Not IsBlankString(Email) Then
+		
+		IsNotificationSent = False;
 		Try
 			SendUpdateNotification(UpdateAdministratorName, Email, UpdateResult);
-			MessageText = NStr("en = 'An update notification is sent to:';")
-				+ " " + Email;
-			WriteLogEvent(EventLogEvent(), EventLogLevel.Information,,,MessageText);
+			IsNotificationSent = True;
 		Except
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot send an email to %1 due to:
@@ -736,6 +737,12 @@ Procedure CompleteUpdate(Val UpdateResult, Val Email, Val UpdateAdministratorNam
 				Email, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(EventLogEvent(), EventLogLevel.Error,,,MessageText);
 		EndTry;
+		
+		If IsNotificationSent Then 
+			MessageText = NStr("en = 'An update notification is sent to:';")
+				+ " " + Email;
+			WriteLogEvent(EventLogEvent(), EventLogLevel.Information,,,MessageText);
+		EndIf;
 	EndIf;
 	
 	If UpdateResult Then
@@ -868,8 +875,66 @@ Procedure UpdatePatchesFromScript(NewPatches, PatchesToDelete) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+Procedure EnableApplicablePatches() Export
+	
+	MessageText = NStr("en = 'Patch enabling has started following the start of the application update.';");
+	WriteLogEvent(EventLogEvent(), EventLogLevel.Information,,, MessageText);
+	
+	SubsystemsDetails = StandardSubsystemsCached.SubsystemsDetails();
+	
+	ConfigurationLibraries = New Map;
+	For Each Subsystem In SubsystemsDetails.ByNames Do
+		ConfigurationLibraries.Insert(Subsystem.Key, Subsystem.Value.Version);
+	EndDo;
+	ManifestStorage = Constants.PatchPropertiesBeforeInfobaseUpdate.Get();
+	PatchesManifests = ManifestStorage.Get();
+	
+	AllExtensions = ConfigurationExtensions.Get();
+	For Each Extension In AllExtensions Do
+		If Not IsPatch(Extension) Or Extension.Active Then
+			Continue;
+		EndIf;
+		
+		Try
+			ShouldEnablePatch = IsPatchApplicableToCurrentConfigurationVersion(
+				ConfigurationLibraries, PatchesManifests, Extension.Name);
+			
+			If ShouldEnablePatch Then
+				Extension.Active = True;
+				Extension.Write();
+			Else
+				Try
+					Extension.Delete();
+				Except
+					ErrorInfo = ErrorInfo();
+					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+						NStr("en = 'Cannot delete patch ""%1."" Reason:
+							 |
+							 |%2';"), Extension.Name, ErrorProcessing.BriefErrorDescription(ErrorInfo));
+					WriteLogEvent(NStr("en = 'Patch.Delete';", Common.DefaultLanguageCode()),
+						EventLogLevel.Error,,, ErrorText);
+					Raise ErrorText;
+				EndTry;
+			EndIf;
+		Except
+			ErrorInfo = ErrorInfo();
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Cannot enable patch ""%1"" due to:
+			|
+			|%2';"), Extension.Name, ErrorProcessing.BriefErrorDescription(ErrorInfo));
+			WriteLogEvent(NStr("en = 'Patches.Enable';", Common.DefaultLanguageCode())
+			, EventLogLevel.Error,,, ErrorText);
+		EndTry;
+	EndDo;
+	
+	MessageText = NStr("en = 'Patch enabling completed.';");
+	WriteLogEvent(EventLogEvent(), EventLogLevel.Information,,, MessageText);
+	
+	ClearPatchPropertiesBeforeInfobaseUpdate();
+	
+EndProcedure
+
+#Region ConfigurationSubsystemsEventHandlers
 
 // See InfobaseUpdateSSL.AfterUpdateInfobase.
 Procedure AfterUpdateInfobase() Export
@@ -917,6 +982,8 @@ Procedure CheckUpdateStatus(UpdateResult, ScriptDirectory, InstalledPatches) Exp
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -1254,7 +1321,7 @@ EndFunction
 
 Procedure SetConfigurationUpdateStatus(Val Status)
 	
-	Constants.ConfigurationUpdateStatus.Set(New ValueStorage(Status));
+	Constants.ConfigurationUpdateStatus.Set(New ValueStorage(Status, New Deflation(9)));
 	
 EndProcedure
 
@@ -1271,5 +1338,112 @@ Function VersionWeightFromStringArray(VersionDigitsAsStrings)
 		+ Number(VersionDigitsAsStrings[3]);
 	
 EndFunction
+
+Procedure WriteManifestsOfPatchesToDisable() Export
+	
+	PatchesManifests = New Map;
+	AllExtensions = ConfigurationExtensions.Get();
+	For Each Extension In AllExtensions Do
+		If Not Extension.Active Then
+			Continue;
+		EndIf;
+		PatchName = Extension.Name;
+		If Metadata.CommonTemplates.Find(PatchName) = Undefined Then
+			Continue;
+		EndIf;
+		PatchManifest = GetCommonTemplate(PatchName);
+		PatchesManifests.Insert(PatchName, PatchManifest);
+	EndDo;
+
+	Constants.PatchPropertiesBeforeInfobaseUpdate.Set(
+		New ValueStorage(PatchesManifests, New Deflation(9)));
+	
+EndProcedure
+
+Function IsPatchApplicableToCurrentConfigurationVersion(ConfigurationLibraries, PatchesManifests, PatchName)
+	
+	PatchApplicable = False;
+	
+	If TypeOf(PatchesManifests) <> Type("Map") Then
+		Return PatchApplicable;
+	EndIf;
+	
+	PatchManifest = PatchesManifests.Get(PatchName);
+	
+	If PatchManifest = Undefined Then
+		Return PatchApplicable;
+	EndIf;
+	
+	XMLLine = PatchManifest.GetText();
+	
+	XMLReader = New XMLReader;
+	XMLReader.SetString(XMLLine);
+	
+	PatchProperties = Undefined;
+	
+	Try
+		PatchProperties = XDTOFactory.ReadXML(XMLReader, XDTOFactory.Type("http://www.v8.1c.ru/ssl/patch", "Patch"));
+	Except
+		Return PatchApplicable;
+	EndTry;
+	
+	If PatchProperties = Undefined Then
+		Return PatchApplicable;
+	EndIf;
+	
+	MessageText = NStr("en = 'Checking patch ""%1""…';");
+	MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, PatchName);
+	WriteLogEvent(EventLogEvent(), EventLogLevel.Information,,, MessageText);
+	
+	For Each ApplicabilityInformation In PatchProperties.AppliedFor Do
+		ConfigurationLibraryVersion = ConfigurationLibraries.Get(
+		ApplicabilityInformation.ConfigurationName);
+		If ConfigurationLibraryVersion = Undefined Then
+			Continue;
+		EndIf;
+		
+		ArrayOfAssemblies = StrSplit(TrimAll(ApplicabilityInformation.Versions), ",", False);
+		ListOfAssemblies = New ValueList;
+		For Each Assembly In ArrayOfAssemblies Do
+			Assembly = TrimAll(Assembly);
+			Try
+				VersionWeight = VersionWeightFromStringArray(StrSplit(Assembly, ".", False));
+			Except
+				// The list contains a build with an invalid number. Skip it.
+				VersionWeight = Undefined;
+			EndTry;
+			If VersionWeight = Undefined Then
+				Continue;
+			EndIf;
+			ListOfAssemblies.Add(VersionWeight, Assembly);
+		EndDo;
+		ListOfAssemblies.SortByValue();
+		NumberOfBuilds = ListOfAssemblies.Count();
+		If NumberOfBuilds = 0 Then
+			Continue;
+		EndIf;
+		
+		FirstBuild = ListOfAssemblies[0].Presentation;
+		LatestBuild = ListOfAssemblies[NumberOfBuilds - 1].Presentation;
+		If CommonClientServer.CompareVersions(ConfigurationLibraryVersion, FirstBuild) >= 0
+			And CommonClientServer.CompareVersions(LatestBuild, ConfigurationLibraryVersion) >= 0 Then
+			PatchApplicable = True;
+		EndIf;
+	EndDo;
+	
+	If Not PatchApplicable Then
+		MessageText = NStr("en = 'Patch ""%1"" is obsolete and will be deleted.';");
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, PatchName);
+		WriteLogEvent(EventLogEvent(), EventLogLevel.Information, , , MessageText);
+	EndIf;
+	
+	Return PatchApplicable;
+EndFunction
+
+Procedure ClearPatchPropertiesBeforeInfobaseUpdate()
+	
+	Constants.PatchPropertiesBeforeInfobaseUpdate.Set(Undefined);
+	
+EndProcedure
 
 #EndRegion

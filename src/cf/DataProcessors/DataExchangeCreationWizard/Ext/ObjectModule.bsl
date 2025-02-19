@@ -18,8 +18,7 @@ Var ErrorMessageStringField; // String - Error message.
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Internal export procedures and functions.
+#Region ExportServiceProceduresAndFunctions
 
 // Performs the following actions on data exchange creation:
 // - creates or updates nodes of the current exchange plan
@@ -110,118 +109,9 @@ Procedure ExecuteActionsToSetNewDataExchange(Cancel,
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// This function is intended for operations through an external connection.
+#EndRegion
 
-// Sets up a new data exchange over an external connection.
-//
-Procedure ExternalConnectionSetUpNewDataExchange(Cancel, 
-									CorrespondentInfobaseNodeFilterSetup, 
-									DefaultValuesForCorrespondentInfobaseNode, 
-									InfobasePrefixSet, 
-									InfobasePrefix) Export
-	
-	DataExchangeServer.CheckDataExchangeUsage();
-	
-	NodeFiltersSetting    = GetFilterSettingsValues(ValueFromStringInternal(CorrespondentInfobaseNodeFilterSetup));
-	DefaultNodeValues = GetFilterSettingsValues(ValueFromStringInternal(DefaultValuesForCorrespondentInfobaseNode));
-	
-	ErrorMessageStringField = Undefined;
-	WizardRunOption = "ContinueDataExchangeSetup";
-	
-	ThisNodeCode = GetThisBaseNodeCode(SourceInfobasePrefix);
-	NewNodeCode = SecondInfobaseNewNodeCode;
-	
-	SetPrivilegedMode(True);
-	
-	BeginTransaction();
-	Try
-		
-		// Create a node.
-		CreateUpdateExchangePlanNodes(NodeFiltersSetting, DefaultNodeValues, ThisNodeCode, NewNodeCode);
-		
-		// Loading message transport settings.
-		UpdateCOMExchangeMessagesTransportSettings();
-		
-		// Updating the infobase prefix constant value.
-		If Not InfobasePrefixSet Then
-			
-			ValueBeforeUpdate = GetFunctionalOption("InfobasePrefix");
-			
-			If ValueBeforeUpdate <> InfobasePrefix Then
-				
-				DataExchangeServer.SetInfobasePrefix(TrimAll(InfobasePrefix));
-				
-			EndIf;
-			
-		EndIf;
-		
-		If Cancel Then
-			Raise(NStr("en = 'Error creating data synchronization settings.';"));
-		EndIf;
-		
-		CommitTransaction();
-	Except
-		RollbackTransaction();
-		InformAboutError(ErrorInfo(), Cancel);
-	EndTry;
-	
-EndProcedure
-
-// Sets up a new data exchange over an external connection.
-//
-Procedure ExternalConnectionSetUpNewDataExchange_2_0_1_6(Cancel, 
-									CorrespondentInfobaseNodeFilterSetup, 
-									DefaultValuesForCorrespondentInfobaseNode, 
-									InfobasePrefixSet, 
-									InfobasePrefix) Export
-	
-	NodeFiltersSetting    = GetFilterSettingsValues(Common.ValueFromXMLString(CorrespondentInfobaseNodeFilterSetup));
-	DefaultNodeValues = GetFilterSettingsValues(Common.ValueFromXMLString(DefaultValuesForCorrespondentInfobaseNode));
-	
-	ErrorMessageStringField = Undefined;
-	WizardRunOption = "ContinueDataExchangeSetup";
-	
-	ThisNodeCode = GetThisBaseNodeCode(SourceInfobasePrefix);
-	NewNodeCode = SecondInfobaseNewNodeCode;
-	
-	SetPrivilegedMode(True);
-	
-	BeginTransaction();
-	Try
-		
-		DataExchangeServer.CheckDataExchangeUsage();
-		
-		// Create a node.
-		CreateUpdateExchangePlanNodes(NodeFiltersSetting, DefaultNodeValues, ThisNodeCode, NewNodeCode);
-		
-		// Loading message transport settings.
-		UpdateCOMExchangeMessagesTransportSettings();
-		
-		// Updating the infobase prefix constant value.
-		If Not InfobasePrefixSet Then
-			
-			ValueBeforeUpdate = GetFunctionalOption("InfobasePrefix");
-			
-			If ValueBeforeUpdate <> InfobasePrefix Then
-				
-				DataExchangeServer.SetInfobasePrefix(TrimAll(InfobasePrefix));
-				
-			EndIf;
-			
-		EndIf;
-		
-		If Cancel Then
-			Raise(NStr("en = 'Error creating data synchronization settings.';"));
-		EndIf;
-		
-		CommitTransaction();
-	Except
-		RollbackTransaction();
-		InformAboutError(ErrorInfo(), Cancel);
-	EndTry;
-	
-EndProcedure
+#Region ToWorkThroughExternalConnections
 
 // Registers changes for an exchange plan node.
 //
@@ -266,6 +156,36 @@ Procedure ExternalConnectionUpdateDataExchangeSettings(DefaultNodeValues) Export
 		RollbackTransaction();
 		Raise;
 	EndTry;
+	
+EndProcedure
+
+// Exports wizard parameters to the temporary storage to continue exchange setup in the second base.
+//
+// Parameters:
+//  Cancel - Boolean - a cancellation flag. It is set to True if errors occur during the procedure execution.
+//  TempStorageAddress - String - on successful export xml file with settings
+//                                      a temporary storage address is written in this variable.
+//                                      The data file is available on server and client at the address.
+// 
+Procedure ExportWizardParametersToTempStorage(Cancel, TempStorageAddress) Export
+	
+	SetPrivilegedMode(True);
+	
+	// Getting the temporary file name in the local file system on the server.
+	TempFileName = GetTempFileName("xml");
+	
+	ModuleSetupWizard = DataExchangeServer.ModuleDataExchangeCreationWizard();
+	Try
+		ModuleSetupWizard.ConnectionSettingsInXML(ThisObject, TempFileName);
+	Except
+		InformAboutError(ErrorInfo(), Cancel);
+		FileSystem.DeleteTempFile(TempFileName);
+		Return;
+	EndTry;
+	
+	TempStorageAddress = PutToTempStorage(New BinaryData(TempFileName));
+	
+	FileSystem.DeleteTempFile(TempFileName);
 	
 EndProcedure
 
@@ -314,82 +234,26 @@ Procedure DeleteDataExchangeSettings()
 		DataExchangeServer.DeleteSynchronizationSetting(Node_ToDelete);
 	EndIf;
 	
-	
-EndProcedure
-
-// Exports wizard parameters to the temporary storage to continue exchange setup in the second base.
-//
-// Parameters:
-//  Cancel - Boolean - a cancellation flag. It is set to True if errors occur during the procedure execution.
-//  TempStorageAddress - String - on successful export xml file with settings
-//                                      a temporary storage address is written in this variable.
-//                                      The data file is available on server and client at the address.
-// 
-Procedure ExportWizardParametersToTempStorage(Cancel, TempStorageAddress) Export
-	
-	SetPrivilegedMode(True);
-	
-	// Getting the temporary file name in the local file system on the server.
-	TempFileName = GetTempFileName("xml");
-	
-	ModuleSetupWizard = DataExchangeServer.ModuleDataExchangeCreationWizard();
-	Try
-		ModuleSetupWizard.ConnectionSettingsInXML(ThisObject, TempFileName);
-	Except
-		InformAboutError(ErrorInfo(), Cancel);
-		FileSystem.DeleteTempFile(TempFileName);
-		Return;
-	EndTry;
-	
-	TempStorageAddress = PutToTempStorage(New BinaryData(TempFileName));
-	
-	FileSystem.DeleteTempFile(TempFileName);
-	
 EndProcedure
 
 // Initializes exchange node settings.
 //
 Procedure Initialize(Node) Export
 	
+	ExchangePlanName = DataExchangeCached.GetExchangePlanName(Node);
+	CorrespondentExchangePlanName = ExchangePlanName;
+	ThisNode = ExchangePlans[ExchangePlanName].ThisNode();
+	AttributesOfThisSubAsset = Common.ObjectAttributesValues(ThisNode, "Code, Description");
+	NodeCode = AttributesOfThisSubAsset.Code;
+	ThisInfobaseDescription = AttributesOfThisSubAsset.Description;
+	SourceInfobasePrefix = AttributesOfThisSubAsset.Code;
+	
 	InfobaseNode = Node;
-	InfobaseNodeParameters = Common.ObjectAttributesValues(Node, "Code, Description");
-	
-	ExchangePlanName = DataExchangeCached.GetExchangePlanName(InfobaseNode);
-	
-	ThisInfobaseDescription = String(ExchangePlans[ExchangePlanName].ThisNode());
-	SecondInfobaseDescription = InfobaseNodeParameters.Description;
-	
-	DestinationInfobasePrefix = InfobaseNodeParameters.Code;
-	
-	TransportSettings = InformationRegisters.DataExchangeTransportSettings.TransportSettings(Node);
-	
-	FillPropertyValues(ThisObject, TransportSettings);
-	
-	ExchangeMessagesTransportKind = TransportSettings.DefaultExchangeMessagesTransportKind;
-	
-	UseTransportParametersCOM = False;
-	UseTransportParametersEMAIL = False;
-	UseTransportParametersFILE = False;
-	UseTransportParametersFTP = False;
-	
-	If ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.FILE Then
-		
-		UseTransportParametersFILE = True;
-		
-	ElsIf ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.FTP Then
-		
-		UseTransportParametersFTP = True;
-		
-	ElsIf ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.EMAIL Then
-		
-		UseTransportParametersEMAIL = True;
-		
-	ElsIf ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.COM Then
-		
-		UseTransportParametersCOM = True;
-		
-	EndIf;
-	
+	NodeAttributes = Common.ObjectAttributesValues(Node, "Code, Description");
+	CorrespondentNodeCode = NodeAttributes.Code;
+	SecondInfobaseDescription = NodeAttributes.Description;
+	DestinationInfobasePrefix = NodeAttributes.Code;
+
 	UsePrefixesForExchangeSettings = Not (DataExchangeServer.IsXDTOExchangePlan(ExchangePlanName)
 		And DataExchangeXDTOServer.VersionWithDataExchangeIDSupported(ExchangePlans[ExchangePlanName].EmptyRef()));
 		
@@ -412,10 +276,13 @@ Procedure Initialize(Node) Export
 		DataExchangeOverridable.OnDetermineDefaultInfobasePrefix(SourceInfobasePrefix);
 	EndIf;
 	
+	TransportSettings = ExchangeMessagesTransport.DefaultTransportSettings(Node, TransportID);
+
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Functions for retrieving properties.
+#EndRegion
+
+#Region PropertyFunctions
 
 // Returns the data exchange error message string.
 //
@@ -434,8 +301,9 @@ Function ErrorMessageString() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Internal auxiliary procedures and functions.
+#EndRegion
+
+#Region AuxiliaryUtilityProceduresAndFunctions
 
 Procedure CreateUpdateExchangePlanNodes(NodeFiltersSetting, DefaultNodeValues, ThisNodeCode, NewNodeCode)
 	
@@ -589,60 +457,15 @@ EndProcedure
 
 Procedure UpdateExchangeMessagesTransportSettings()
 	
-	RecordStructure = New Structure;
-	RecordStructure.Insert("Peer",                           InfobaseNode);
-	RecordStructure.Insert("DefaultExchangeMessagesTransportKind", ExchangeMessagesTransportKind);
-	
-	RecordStructure.Insert("WSUseLargeVolumeDataTransfer", True);
-	
-	SupplementStructureWithAttributeValue(RecordStructure, "EMAILMaxMessageSize");
-	SupplementStructureWithAttributeValue(RecordStructure, "EMAILCompressOutgoingMessageFile");
-	SupplementStructureWithAttributeValue(RecordStructure, "EMAILAccount");
-	SupplementStructureWithAttributeValue(RecordStructure, "EMAILTransliterateExchangeMessageFileNames");
-	SupplementStructureWithAttributeValue(RecordStructure, "FILEDataExchangeDirectory");
-	SupplementStructureWithAttributeValue(RecordStructure, "FILECompressOutgoingMessageFile");
-	SupplementStructureWithAttributeValue(RecordStructure, "FILETransliterateExchangeMessageFileNames");
-	SupplementStructureWithAttributeValue(RecordStructure, "FTPCompressOutgoingMessageFile");
-	SupplementStructureWithAttributeValue(RecordStructure, "FTPConnectionMaxMessageSize");
-	SupplementStructureWithAttributeValue(RecordStructure, "FTPConnectionPassword");
-	SupplementStructureWithAttributeValue(RecordStructure, "FTPConnectionPassiveConnection");
-	SupplementStructureWithAttributeValue(RecordStructure, "FTPConnectionUser");
-	SupplementStructureWithAttributeValue(RecordStructure, "FTPConnectionPort");
-	SupplementStructureWithAttributeValue(RecordStructure, "FTPConnectionPath");
-	SupplementStructureWithAttributeValue(RecordStructure, "FTPTransliterateExchangeMessageFileNames");
-	SupplementStructureWithAttributeValue(RecordStructure, "WSWebServiceURL");
-	SupplementStructureWithAttributeValue(RecordStructure, "WSUserName");
-	SupplementStructureWithAttributeValue(RecordStructure, "WSPassword");
-	SupplementStructureWithAttributeValue(RecordStructure, "WSRememberPassword");
-	SupplementStructureWithAttributeValue(RecordStructure, "ArchivePasswordExchangeMessages");
-	
-	// Adding information register record
-	InformationRegisters.DataExchangeTransportSettings.AddRecord(RecordStructure);
-	
-EndProcedure
-
-Procedure UpdateCOMExchangeMessagesTransportSettings()
-	
-	RecordStructure = New Structure;
-	RecordStructure.Insert("Peer",                           InfobaseNode);
-	RecordStructure.Insert("DefaultExchangeMessagesTransportKind", Enums.ExchangeMessagesTransportTypes.COM);
-	
-	SupplementStructureWithAttributeValue(RecordStructure, "COMOperatingSystemAuthentication");
-	SupplementStructureWithAttributeValue(RecordStructure, "COMInfobaseOperatingMode");
-	SupplementStructureWithAttributeValue(RecordStructure, "COM1CEnterpriseServerSideInfobaseName");
-	SupplementStructureWithAttributeValue(RecordStructure, "COMUserName");
-	SupplementStructureWithAttributeValue(RecordStructure, "COM1CEnterpriseServerName");
-	SupplementStructureWithAttributeValue(RecordStructure, "COMInfobaseDirectory");
-	SupplementStructureWithAttributeValue(RecordStructure, "COMUserPassword");
-	
-	// Adding information register record
-	InformationRegisters.DataExchangeTransportSettings.AddRecord(RecordStructure);
-	
-EndProcedure
-
-Procedure SupplementStructureWithAttributeValue(RecordStructure, AttributeName)
-	
-	RecordStructure.Insert(AttributeName, ThisObject[AttributeName]);
+	If ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WSPassiveMode Then
+		
+		NewCatalog = Catalogs.ExchangeMessageTransportSettings.CreateItem();
+		NewCatalog.Peer = InfobaseNode;
+		NewCatalog.DefaultSetting = True;
+		NewCatalog.TransportID = "PassiveMode";
+		NewCatalog.Write();
+		
+	EndIf;
 	
 EndProcedure
 
@@ -706,7 +529,7 @@ EndFunction
 
 // Reads settings of data exchange wizard from an XML string.
 //
-Procedure ImportWizardParameters(Cancel, XMLLine) Export
+Procedure ImportWizardParameters(Cancel, XMLLine, TrasportID = "") Export
 	
 	// Checking whether it is possible to use the exchange plan in SaaS.
 	If Common.DataSeparationEnabled()
@@ -722,7 +545,7 @@ Procedure ImportWizardParameters(Cancel, XMLLine) Export
 	
 	ModuleSetupWizard = DataExchangeServer.ModuleDataExchangeCreationWizard();
 	Try
-		ModuleSetupWizard.FillConnectionSettingsFromXMLString(ThisObject, XMLLine);
+		ModuleSetupWizard.FillConnectionSettingsFromXMLString(ThisObject, XMLLine,,, TrasportID);
 	Except
 		InformAboutError(ErrorInfo(), Cancel);
 	EndTry;
@@ -744,6 +567,8 @@ Function GetFilterSettingsValues(ExternalConnectionSettingsStructure)
 	Return DataExchangeServer.GetFilterSettingsValues(ExternalConnectionSettingsStructure);
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion
 

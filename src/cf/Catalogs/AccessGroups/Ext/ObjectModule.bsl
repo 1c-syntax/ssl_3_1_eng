@@ -12,8 +12,8 @@
 
 #Region Variables
 
-Var PreviousValues1; // Values of some access group tables and attributes
-                      // 
+Var PreviousValues1; // Values of some attributes and tables of the access group
+                      // before it is changed for use in the "OnWrite" event handler.
 
 #EndRegion
 
@@ -21,7 +21,7 @@ Var PreviousValues1; // Values of some access group tables and attributes
 
 Procedure BeforeWrite(Cancel)
 	
-	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
+	// ACC:75-off - The DataExchange.Load check must follow the logging of changes.
 	If IsFolder Then
 		Return;
 	EndIf;
@@ -40,6 +40,19 @@ Procedure BeforeWrite(Cancel)
 		Return;
 	EndIf;
 	
+	If AccessManagementInternal.SimplifiedAccessRightsSetupInterface()
+		And IsCTLUserRightsSetupSupported() Then
+		
+		// Intended for "AccessManagementInternalSaaS.MembersByProfile"
+		Block = New DataLock();
+		LockItem = Block.Add("Catalog.AccessGroupProfiles");
+		LockItem.SetValue("Ref", Profile);
+		
+		// ACC:1320-off - Omit "Try…Except" as the "BeforeWrite" handler puts a lock.
+		Block.Lock(); 
+		// ACC:1320-on
+	EndIf;
+
 	InformationRegisters.RolesRights.CheckRegisterData();
 	
 	If Not Catalogs.ExtensionsVersions.AllExtensionsConnected() Then
@@ -67,9 +80,8 @@ Procedure BeforeWrite(Cancel)
 		EmployeeResponsible = Undefined;
 		
 		// Only full access users can make changes.
-		If Not PrivilegedMode()
-		   And Not AccessManagement.HasRole("FullAccess") Then
-			
+		ModuleUsers = Common.CommonModule("Users");
+		If Not ModuleUsers.IsFullUser() Then
 			Raise
 				NStr("en = 'The predefined access group ""Administrators""
 				           |can be changed only if you have the ""Full access"" role
@@ -146,8 +158,9 @@ EndProcedure
 //
 Procedure OnWrite(Cancel)
 	
-	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
+	// ACC:75-off - The DataExchange.Load check must follow the logging of changes.
 	If IsFolder Then
+		SendMessageAboutAccessGroupChanges();		
 		Return;
 	EndIf;
 	
@@ -211,6 +224,22 @@ Procedure OnWrite(Cancel)
 		EndIf;
 	EndIf;
 	
+	SendMessageAboutAccessGroupChanges();
+	
+EndProcedure
+
+Procedure SendMessageAboutAccessGroupChanges(ThisIsRemoval = False)
+	
+	If DataExchange.Load Then
+		Return;
+	EndIf;
+	
+	If IsAccessManagementSaaSSupported() Then
+		ModuleAccessManagementInternalSaaS = Common.CommonModule(
+			"AccessManagementInternalSaaS");
+		ModuleAccessManagementInternalSaaS.SendMessageAboutAccessGroupChanges(ThisObject, ThisIsRemoval);
+	EndIf;
+	
 EndProcedure
 
 Procedure FillCheckProcessing(Cancel, CheckedAttributes)
@@ -220,6 +249,16 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 			CheckedAttributes, AdditionalProperties.VerifiedObjectAttributes);
 	EndIf;
 	
+EndProcedure
+
+Procedure BeforeDelete(Cancel)
+	
+	If DataExchange.Load Then
+		Return;
+	EndIf;
+	
+	SendMessageAboutAccessGroupChanges(True);
+
 EndProcedure
 
 #EndRegion
@@ -344,6 +383,26 @@ Procedure UpdateUsersRolesOnChangeAccessGroup()
 	AccessManagement.UpdateUserRoles(UsersForUpdate, ServiceUserPassword);
 	
 EndProcedure
+
+Function IsAccessManagementSaaSSupported()
+	
+	Return Common.SubsystemExists(
+		"StandardSubsystems.SaaSOperations.AccessManagementSaaS");
+	
+EndFunction
+
+Function IsCTLUserRightsSetupSupported()
+	
+	If Not IsAccessManagementSaaSSupported() Then
+		Return False;
+	EndIf;
+	
+	ModuleAccessManagementInternalSaaS = Common.CommonModule(
+		"AccessManagementInternalSaaS");
+	
+	Return ModuleAccessManagementInternalSaaS.IsCTLUserRightsSetupSupported();
+	
+EndFunction
 
 #EndRegion
 

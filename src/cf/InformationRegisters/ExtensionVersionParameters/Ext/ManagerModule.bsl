@@ -128,7 +128,7 @@ EndFunction
 // See StandardSubsystemsServer.SetExtensionParameter.
 Procedure SetExtensionParameter(ParameterName, Value, IgnoreExtensionsVersion = False) Export
 	
-	UsersInternal.CheckSafeModeIsDisabled(
+	UsersInternal.CheckIfSafeModeOff(
 		"InformationRegisters.ExtensionVersionParameters.SetExtensionParameter");
 	
 	ExtensionsVersion = ?(IgnoreExtensionsVersion,
@@ -156,7 +156,7 @@ Procedure SetExtensionParameter(ParameterName, Value, IgnoreExtensionsVersion = 
 	NewRecord = RecordSet.Add();
 	NewRecord.ExtensionsVersion   = ExtensionsVersion;
 	NewRecord.ParameterName       = ParameterName;
-	NewRecord.ParameterStorage = New ValueStorage(Content);
+	NewRecord.ParameterStorage = New ValueStorage(Content, New Deflation(9));
 	
 	RecordSet.Write();
 	
@@ -1013,7 +1013,7 @@ Procedure EnableFillingExtensionsWorkParameters(Run = True, EnableDefinitely = F
 	
 	If Run Then
 		StartFillingWorkParametersExtensions(
-			NStr("en = 'Startup with app parameter setup enabled';"));
+			NStr("en = 'Startup with application parameter setup enabled';"));
 	EndIf;
 	
 EndProcedure

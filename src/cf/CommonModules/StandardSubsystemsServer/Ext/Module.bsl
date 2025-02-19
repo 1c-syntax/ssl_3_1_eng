@@ -263,12 +263,12 @@ EndFunction
 //
 Procedure SetAdministrationParameters(IBAdministrationParameters) Export
 	
-	UsersInternal.CheckSafeModeIsDisabled(
+	UsersInternal.CheckIfSafeModeOff(
 		"StandardSubsystemsServer.SetAdministrationParameters");
 	
 	IBAdministrationParameters.ClusterAdministratorPassword = "";
 	IBAdministrationParameters.InfobaseAdministratorPassword = "";
-	Constants.IBAdministrationParameters.Set(New ValueStorage(IBAdministrationParameters));
+	Constants.IBAdministrationParameters.Set(New ValueStorage(IBAdministrationParameters, New Deflation(9)));
 	
 EndProcedure
 
@@ -471,10 +471,10 @@ Function SpreadsheetDocumentSaveFormatsSettings() Export
 	
 EndFunction
 
-// Returns the compatibility mode version as the numbering of revisions and versions. For example: 8.3.15.0.
+// Returns the compatibility mode version in the <Major>.<Minor>.<Revision>.<Build> format. For example: 8.3.15.0.
 //
 // Returns:
-//   String - the compatibility mode version as the numbering of revisions and versions.
+//   String - The compatibility mode version in the <Major>.<Minor>.<Revision>.<Build> format.
 //
 Function CompatibilityModeVersion() Export 
 	
@@ -552,6 +552,39 @@ EndFunction
 
 #Region ForCallsFromOtherSubsystems
 
+// 
+// 
+//
+// Parameters:
+//  Parameters - See CommonOverridable.OnAddClientParametersOnStart.Parameters
+//            - See CommonOverridable.OnAddClientParameters.Parameters
+//  StartMoment - Number - 
+//  ProcedureName - String - 
+//
+// Example:
+//	
+//	
+//		
+//		
+//	
+//	
+//		
+//
+Procedure AddIndicator(Parameters, StartMoment, ProcedureName) Export
+	
+	If TypeOf(Parameters) <> Type("Structure") Then
+		Return;
+	EndIf;
+	
+	If Not Parameters.Property(NameOfPerformanceMetricsProperty()) Then
+		Parameters.Insert(NameOfPerformanceMetricsProperty(), New Array);
+	EndIf;
+	
+	Indicators = Parameters[NameOfPerformanceMetricsProperty()];
+	AddMainIndicator(Indicators, StartMoment, ProcedureName);
+	
+EndProcedure
+
 // Called from a scheduled job in order to send a server notification to client sessions.
 // See also: StandardSubsystemsClient.OnReceiptServerNotification.
 //
@@ -615,8 +648,31 @@ Procedure NotifyAllSessionsAboutOutdatedCache(SendImmediately = False) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Additional base functionality for analyzing client parameters on the server.
+// Returns the versions supported by the "InterfaceName" API as specified in
+// the procedures "OnDefineSupportedInterfaceVersions".
+//
+// Parameters:
+//   InterfaceName - String - API name.
+//
+// Returns:
+//  Array of String - List of versions.
+//
+Function SupportedVersionsOfSoftwareInterface(InterfaceName) Export
+	
+	InterfaceVersions = Undefined;
+	
+	SupportedVersions = Common.InterfacesVersions();
+	SupportedVersions.Property(InterfaceName, InterfaceVersions);
+	
+	If InterfaceVersions = Undefined Then
+		InterfaceVersions = New Array();
+	EndIf;
+	
+	Return InterfaceVersions;
+	
+EndFunction
+
+#Region AdditionalBasicFunctionalityForAnalysingClientParametersAtServer
 
 // Parameters:
 //  RaiseException1 - Boolean - Call an exception if the parameters are not initialized.
@@ -689,8 +745,9 @@ Function ClientParametersAtServer(RaiseException1 = True) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedure for setting, upgrading, or retrieving application parameters (caches).
+#EndRegion
+
+#Region ProceduresToSetUpdateGetCacheAppOperationParameters
 
 // Checks whether the latest version of the application is available
 // in the current session, otherwise raises an exception with the requirement to restart the session.
@@ -737,7 +794,7 @@ EndFunction
 // Raises an exception with a recommendation to restart a session due to an update of the application version.
 Procedure RequireRestartDueToApplicationVersionDynamicUpdate() Export
 	
-	ErrorText = NStr("en = 'The app is updated. Restart the app.';");
+	ErrorText = NStr("en = 'The application is updated. Restart the application.';");
 	InstallRequiresSessionRestart(ErrorText);
 	Raise ErrorText;
 	
@@ -754,7 +811,7 @@ Procedure RequireSessionRestartDueToDynamicUpdateOfProgramExtensions() Export
 			           |Data area extensions are not applied when you log in to a data area in a session
 			           |that is started without separators.';");
 	Else
-		ErrorText = NStr("en = 'Extensions are updated. Restart the app.';");
+		ErrorText = NStr("en = 'Extensions are updated. Restart the application.';");
 	EndIf;
 	
 	InstallRequiresSessionRestart(ErrorText);
@@ -930,7 +987,7 @@ Function ApplicationParameterChanges(ParameterName) Export
 	
 EndFunction
 
-// Add the changes of th application operation parameter during update to the current version of configuration metadata.
+// Add the changes of the application operation parameter during update to the current version of configuration metadata.
 // Later changes are used for conditional adding of mandatory update handlers.
 // In case of initial infobase or shared data filling, changes are not added.
 // 
@@ -1172,8 +1229,9 @@ Function ObjectAttributeValuesIfExist(References, Val Attributes) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedure to set or get extension parameters (caches).
+#EndRegion
+
+#Region ProceduresToSetGetCacheExtensionsParameters
 
 // Returns the parameter values for the current extension version.
 // Returns Undefined if no storage is set.
@@ -1253,31 +1311,32 @@ Procedure FillAllExtensionParametersBackgroundJob(Parameters) Export
 EndProcedure
 
 // Intended for internal usage only (a background job procedure).
-Procedure AddNewVersionOfExtensions(ExtensionsDetails) Export
+Procedure AddNewExtensionVersion(ExtensionsDetails) Export
 	
 	SetPrivilegedMode(True);
-	Catalogs.ExtensionsVersions.AddNewVersionOfExtensions(ExtensionsDetails);
+	Catalogs.ExtensionsVersions.AddNewExtensionVersion(ExtensionsDetails);
 	
 EndProcedure
 
 // Intended for internal usage only (a background job procedure).
-Procedure UpdateDateOfLastUseOfExtensionVersion(ExtensionsVersion) Export
+Procedure UpdateExtensionsVersionLastUsedDate(ExtensionsVersion) Export
 	
 	SetPrivilegedMode(True);
-	Catalogs.ExtensionsVersions.UpdateDateOfLastUseOfExtensionVersion(ExtensionsVersion);
+	Catalogs.ExtensionsVersions.UpdateExtensionsVersionLastUsedDate(ExtensionsVersion);
 	
 EndProcedure
 
 // Intended for internal usage only (a background job procedure).
-Procedure InstallLatestVersionOfExtensions(ExtensionsVersion) Export
+Procedure InstallLatestExtensionVersions(ExtensionsVersion) Export
 	
 	SetPrivilegedMode(True);
-	Catalogs.ExtensionsVersions.InstallLatestVersionOfExtensions(ExtensionsVersion);
+	Catalogs.ExtensionsVersions.InstallLatestExtensionVersions(ExtensionsVersion);
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Additional base functionality for data exchange .
+#EndRegion
+
+#Region AdditionalBasicFunctionalityForDataExchange
 
 // Records changes of the object for all exchange plan nodes.
 // The separated configurations must meet the following conditions:
@@ -1403,12 +1462,13 @@ Procedure SaveMasterNode() Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Handlers of exchange data sending and receiving in a DIB.
+#EndRegion
 
-// The procedure handles the same-name event that occurs during data exchange in a distributed infobase.
-// For parameters, see "OnSendDataToSubordinate" in Syntax Assistant.
-// 
+#Region DataSendAndReceiveHandlersForExchangeInDIB
+
+// The procedure handles the same-name event that occurs during data exchange
+// in a distributed infobase.
+// For parameters, see the OnSendDataToSlave event handler in Syntax Assistant.
 // 
 // Parameters:
 //  DataElement - Arbitrary
@@ -1441,12 +1501,18 @@ Procedure OnSendDataToSlave(DataElement, ItemSend, Val InitialImageCreating, Val
 		EndIf;
 	EndIf;
 	
+	If TypeOf(DataElement) = Type("ConstantValueManager.AllowAccessToInternetServices") Then
+		If Not InitialImageCreating Then
+			ItemSend = DataItemSend.Ignore;
+		EndIf;
+	EndIf;
+	
 	SSLSubsystemsIntegration.OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating, Recipient);
 	If ItemSend = DataItemSend.Ignore Then
 		Return;
 	EndIf;
 	
-	// Insertion of data exchange subsystem script in the SaaS model should be the last one to affect the sending logic.
+	// The insertion of the Data exchange SaaS subsystem code should be the last to affect the sending logic.
 	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then
 		ModuleDataExchangeSaaS = Common.CommonModule("DataExchangeSaaS");
 		ModuleDataExchangeSaaS.OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating, Recipient);
@@ -1463,9 +1529,9 @@ Procedure OnSendDataToSlave(DataElement, ItemSend, Val InitialImageCreating, Val
 	
 EndProcedure
 
-// The procedure handles the same-name event that occurs during data exchange in a distributed infobase.
-// For the parameters, see "OnSendDataToSubordinate" in Syntax Assistant.
-// 
+// The procedure handles the same-name event that occurs during data exchange
+// in a distributed infobase.
+// For parameters, see the OnReceiveDataFromSlave event handler in Syntax Assistant.
 // 
 // Parameters:
 //  DataElement - Arbitrary
@@ -1492,7 +1558,7 @@ Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Val Sender)
 	
 	DataExchangeSubsystemExists1 = Common.SubsystemExists("StandardSubsystems.DataExchange");
 	
-	// Insertion of data exchange subsystem script should be the last one to affect the receiving logic.
+	// The insertion of the Data exchange subsystem code should be the last to affect the receiving logic.
 	If DataExchangeSubsystemExists1 Then
 		ModuleDataExchangeEvents = Common.CommonModule("DataExchangeEvents");
 		ModuleDataExchangeEvents.OnReceiveDataFromSlaveInEnd(DataElement, ItemReceive, Sender);
@@ -1505,10 +1571,10 @@ Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Val Sender)
 	
 EndProcedure
 
-// Procedure handles the event of the same name that occurs during data exchange in a distributed infobase
-// See the OnReceiveDataFromMaster() event handler details in Syntax Assistant.
-// "Sender" can be empty. For example, when getting the initial image message in SWP.
-// 
+// The procedure handles the same-name event that occurs during data exchange
+// in a distributed infobase.
+// See the OnReceiveDataFromMaster event handler in Syntax Assistant.
+// "Sender" can be empty. For example, when getting the initial image message in a SWS.
 // 
 // Parameters:
 //  DataElement - Arbitrary
@@ -1543,7 +1609,7 @@ Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender = U
 	// Calling an overridden handler to execute the applied logic of DIB exchange.
 	CommonOverridable.OnReceiveDataFromMaster(Sender, DataElement, ItemReceive, SendBack);
 	
-	// Insertion of data exchange subsystem script should be the last one to affect the receiving logic.
+	// The insertion of the Data exchange subsystem code should be the last to affect the receiving logic.
 	If DataExchangeSubsystemExists1
 		And Not InitialImageCreating(DataElement) Then
 		
@@ -1559,8 +1625,9 @@ Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender = U
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Additional functions for handling types.
+#EndRegion
+
+#Region AdditionalFunctionsForTypeManagement
 
 // Returns the reference type or the record key type of the specified metadata object .
 //
@@ -1645,8 +1712,35 @@ Function IsMetadataObjectID(Object) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedure and function for handling forms.
+// Returns the details of key fields and record set row fields
+// used in the "RefreshEnabled", "Join", and "Delete" modes.
+//
+// Parameters:
+//  FullRegisterName - String - a full register name.
+//
+// Returns:
+//  FixedStructure:
+//   * FieldList - String - List of comma-delimited fields belonging to the record key.
+//   * ListOfUpdateFields - String - List of comma-delimited fields belonging to the record set row
+//       (RefreshEnabled, Join, Delete).
+//   * FieldsDetails - FixedArray of FixedStructure:
+//      ** Name - String - Name of the record key field.
+//      ** Type - TypeDescription
+//      ** Presentation - String
+//   * DetailsOfUpdateFields - FixedArray of FixedStructure:
+//      ** Name - String - Name of the key field belonging to the record set row.
+//      ** Type - TypeDescription
+//      ** Presentation - String
+//
+Function RecordKeyDetails(FullRegisterName) Export
+	
+	Return StandardSubsystemsCached.RecordKeyDetails(FullRegisterName);
+	
+EndFunction
+
+#EndRegion
+
+#Region ProceduresAndFunctionsForWorkingWithForms
 
 // Sets the form purpose key (the purpose use key and
 // the window options key). If necessary, it copies the current form settings
@@ -1768,8 +1862,9 @@ Procedure ResetWindowLocationAndSize(Form) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Other procedures and functions.
+#EndRegion
+
+#Region OtherProceduresAndFunctions_
 
 // Returns additional details when application parameter problem occurs.
 // 
@@ -1783,9 +1878,9 @@ Function ApplicationRunParameterErrorClarificationForDeveloper() Export
 			|Do one of the following:
 			| • Run external data processor
 			|""Development tools: Service data update.""
-			| • Run the app with command-line option:
+			| • Run the application with command-line option:
 			|/C %1.
-			| • Update the app to a later version.
+			| • Update the application to a later version.
 			|The data update procedures will start automatically at launch.';"),
 		"StartInfobaseUpdate");
 	
@@ -1947,7 +2042,7 @@ Procedure SetBlankFormOnBlankHomePage() Export
 	
 EndProcedure
 
-// Checks whether documents list posting is available for the current user.
+// Checks if the current user is allowed to post a list of documents.
 //
 // Parameters:
 //  DocumentsList - Array - document for checking.
@@ -2005,8 +2100,8 @@ EndFunction
 // Intended for the "WriteToBusinessProcessesList" event subscription.
 //
 Procedure CheckSafeModeBeforeWrite(Source, Cancel) Export
-	// ACC:75-off - The "DataExchange.Import" check is excessive
-	// as it should be performed anyway.
+	// ACC:75-off - The DataExchange.Load check is excessive,
+	// as this check should be performed anyway.
 	
 	// ACC:1371-off - This check is applicable to all metadata objects, including the ones being deleted.
 	
@@ -2020,21 +2115,26 @@ Procedure CheckSafeModeBeforeWrite(Source, Cancel) Export
 	
 	SetPrivilegedMode(True);
 	
-	If Not PrivilegedMode() Then
-		Raise NStr("en = 'Action not supported in safe mode.';");
+	If PrivilegedMode()
+	 Or TypeOf(Source) = Type("CatalogObject.Users")
+	   And Not Catalogs.Users.HasProhibitedChanges(Source)
+	 Or TypeOf(Source) = Type("CatalogObject.ExternalUsers")
+	   And Not Catalogs.ExternalUsers.HasProhibitedChanges(Source) Then
+		
+		Return;
 	EndIf;
+	
+	Raise NStr("en = 'Action not supported in safe mode.';");
 	
 EndProcedure
 
-// Intended for the "CheckIfSafeModeIsOnBeforeWriteRecordSet" event subscription.
-//
 Procedure CheckSafeModeBeforeWritingRecordSet(Source, Cancel, Replacing,
 				WriteOnly = Undefined,
 				WriteActualActionPeriod = Undefined,
 				WriteRecalculations = Undefined) Export
 	
-	// ACC:75-off - The "DataExchange.Import" check is excessive
-	// as it should be performed anyway.
+	// ACC:75-off - The DataExchange.Load check is excessive,
+	// as this check should be performed anyway.
 	
 	// ACC:1371-off - This check is applicable to all metadata objects, including the ones being deleted.
 	
@@ -2054,8 +2154,9 @@ Procedure CheckSafeModeBeforeWritingRecordSet(Source, Cancel, Replacing,
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#EndRegion
+
+#Region ConfigurationSubsystemsEventHandlers
 
 // See ImportDataFromFileOverridable.OnDefineCatalogsForDataImport.
 Procedure OnDefineCatalogsForDataImport(CatalogsToImport) Export
@@ -2155,7 +2256,7 @@ Procedure OnFillPermissionsToAccessExternalResources(PermissionsRequests) Export
 	Permissions = New Array();
 	
 	Permissions.Add(ModuleSafeModeManager.PermissionToUseTempDirectory(True, True,
-		NStr("en = 'Basic permissions required to run the app.';")));
+		NStr("en = 'Basic permissions required to run the application.';")));
 	Permissions.Add(ModuleSafeModeManager.PermissionToUsePrivilegedMode());
 	
 	PermissionsRequests.Add(
@@ -2295,6 +2396,20 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.SharedData = True;
 	Handler.InitialFilling = True;
 	Handler.ExecutionMode = "Seamless";
+	
+	Handler = Handlers.Add();
+	Handler.Version = "3.1.11.61";
+	Handler.Procedure = "StandardSubsystemsServer.EnableConstantAllowAccessToInternetServices";
+	Handler.InitialFilling = True;
+	Handler.ExecutionMode = "Seamless";
+	
+	If Common.DataSeparationEnabled() Then
+		Handler = Handlers.Add();
+		Handler.Version = "3.1.11.65";
+		Handler.Procedure = "StandardSubsystemsServer.MoveSafeDataAreaDataStorage";
+		Handler.SharedData = False;
+		Handler.ExecutionMode = "Seamless";
+	EndIf;
 	
 EndProcedure
 
@@ -2470,7 +2585,7 @@ Function ConfigurationLanguages() Export
 EndFunction
 
 // Parameters:
-//  Headers - Map - see details of the Headers parameter of the HTTPResponse object in Syntax Assistant.
+//  Headers - Map - See the "Headers" parameter of the "HTTPResponse" object in Syntax Assistant.
 // 
 // Returns:
 //  Map
@@ -2587,13 +2702,15 @@ EndFunction
 
 #EndRegion
 
+#EndRegion
+
 #Region Private
 
-// The procedure is a handler for the event of the same name that occurs during data exchange in a distributed
-// infobase.
+// The procedure handles the same-name event that occurs during data exchange
+// in a distributed infobase.
 //
 // Parameters:
-//   see the OnSendDataToMaster() event handler details in the syntax assistant.
+//   See the OnSendDataToMaster event handler in Syntax Assistant.
 // 
 Procedure OnSendDataToMaster(DataElement, ItemSend, Val Recipient)
 	
@@ -2605,6 +2722,10 @@ Procedure OnSendDataToMaster(DataElement, ItemSend, Val Recipient)
 	IgnoreSendingMetadataObjectIDs(DataElement, ItemSend);
 	If ItemSend = DataItemSend.Ignore Then
 		Return;
+	EndIf;
+	
+	If TypeOf(DataElement) = Type("ConstantValueManager.AllowAccessToInternetServices") Then
+		ItemSend = DataItemSend.Ignore;
 	EndIf;
 	
 	SSLSubsystemsIntegration.OnSendDataToMaster(DataElement, ItemSend, Recipient);
@@ -2639,72 +2760,164 @@ Function AddClientParametersOnStart(Parameters) Export
 	IsCallBeforeStart = Parameters.RetrievedClientParameters <> Undefined;
 	
 	If IsCallBeforeStart Then
+		StartMoment = CurrentUniversalDateInMilliseconds();
 		CheckIfCanStart();
+		AddIndicator(Parameters, StartMoment,
+			"StandardSubsystemsServer.CheckIfCanStart");
 	EndIf;
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	If Common.SubsystemExists("CloudTechnology.Core") Then
 		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		IsSeparatedConfiguration = ModuleSaaSOperations.IsSeparatedConfiguration();
 	Else
 		IsSeparatedConfiguration = False;
 	EndIf;
+	AddIndicator(Parameters, StartMoment,
+		"ModuleSaaSOperations.IsSeparatedConfiguration");
 	
 	// Mandatory parameters to continue application running.
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	Parameters.Insert("DataSeparationEnabled", Common.DataSeparationEnabled());
+	AddIndicator(Parameters, StartMoment,
+		"Common.DataSeparationEnabled");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	Parameters.Insert("SeparatedDataUsageAvailable", 
 		Common.SeparatedDataUsageAvailable());
+	AddIndicator(Parameters, StartMoment,
+		"Common.SeparatedDataUsageAvailable");
+	
 	Parameters.Insert("IsSeparatedConfiguration", IsSeparatedConfiguration);
+	
 	// Obsolete. Kept for backward compatibility. Use UsersClient.IsFullUser instead.
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	Parameters.Insert("HasAccessForUpdatingPlatformVersion", Users.IsFullUser(,True));
+	AddIndicator(Parameters, StartMoment,
+		"Users.IsFullUser");
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	Parameters.Insert("SubsystemsNames", StandardSubsystemsCached.SubsystemsNames());
-	Parameters.Insert("IsBaseConfigurationVersion", IsBaseConfigurationVersion());
-	Parameters.Insert("IsTrainingPlatform", IsTrainingPlatform());
-	Parameters.Insert("UserCurrentName", CurrentUser().Name);
-	// Obsolete. Kept for backward compatibility. Use CommonClientServer.COMConnectorName instead.
-	Parameters.Insert("COMConnectorName", CommonClientServer.COMConnectorName());
-	Parameters.Insert("DefaultLanguageCode", Common.DefaultLanguageCode());
+	AddIndicator(Parameters, StartMoment,
+		"StandardSubsystemsCached.SubsystemsNames");
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Parameters.Insert("IsBaseConfigurationVersion", IsBaseConfigurationVersion());
+	AddIndicator(Parameters, StartMoment,
+		"StandardSubsystemsServer.IsBaseConfigurationVersion");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Parameters.Insert("IsTrainingPlatform", IsTrainingPlatform());
+	AddIndicator(Parameters, StartMoment,
+		"StandardSubsystemsServer.IsTrainingPlatform");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Parameters.Insert("UserCurrentName", CurrentUser().Name);
+	AddIndicator(Parameters, StartMoment,
+		"StandardSubsystemsServer.CurrentUser");
+	
+	// Obsolete. Kept for backward compatibility. Use CommonClientServer.COMConnectorName instead.
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Parameters.Insert("COMConnectorName", CommonClientServer.COMConnectorName());
+	AddIndicator(Parameters, StartMoment,
+		"CommonClientServer.COMConnectorName");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Parameters.Insert("DefaultLanguageCode", Common.DefaultLanguageCode());
+	AddIndicator(Parameters, StartMoment,
+		"Common.DefaultLanguageCode");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
+		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+		AdditionalLanguagesCount = ModuleNationalLanguageSupportServer.AdditionalLanguagesCount();
+	Else
+		AdditionalLanguagesCount = 0;
+	EndIf;
+	Parameters.Insert("AdditionalLanguagesCount", AdditionalLanguagesCount);
+	AddIndicator(Parameters, StartMoment,
+		"NationalLanguageSupportServer.AdditionalLanguagesCount");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	UserSettings = ErrorProcessing.GetUserSettings();
 	Parameters.Insert("ErrorInfoSendingSettings",
 		New Structure("SendOutMode, SendOutAddress",
-			UserSettings.SendReport,
+			UserSettings.SendReportOnClient,
 			UserSettings.ErrorProcessingServiceAddress));
+	AddIndicator(Parameters, StartMoment,
+		"ErrorProcessing.GetUserSettings");
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	Parameters.Insert("AskConfirmationOnExit", AskConfirmationOnExit());
+	AddIndicator(Parameters, StartMoment,
+		"StandardSubsystemsServer.AskConfirmationOnExit");
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	CommonParameters = Common.CommonCoreParameters();
 	Parameters.Insert("MinPlatformVersion",   CommonParameters.MinPlatformVersion);
 	Parameters.Insert("RecommendedPlatformVersion", CommonParameters.RecommendedPlatformVersion);
 	// Obsolete. Kept for backward compatibility. Use the two previous parameters instead.
 	Parameters.Insert("MinPlatformVersion1", CommonParameters.MinPlatformVersion1);
 	Parameters.Insert("MustExit",            CommonParameters.MustExit);
-	
 	Parameters.Insert("RecommendedRAM", CommonParameters.RecommendedRAM);
-	Parameters.Insert("MustShowRAMSizeRecommendations", MustShowRAMSizeRecommendations()
+	AddIndicator(Parameters, StartMoment,
+		"Common.CommonCoreParameters");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Parameters.Insert("MustShowRAMSizeRecommendations",
+		MustShowRAMSizeRecommendations()
 		And Not Common.SubsystemExists("StandardSubsystems.ToDoList"));
+	AddIndicator(Parameters, StartMoment,
+		"StandardSubsystemsServer.MustShowRAMSizeRecommendations");
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	Parameters.Insert("IsExternalUserSession", Users.IsExternalUserSession());
-	Parameters.Insert("IsFullUser",  Users.IsFullUser());
-	Parameters.Insert("IsSystemAdministrator",      Users.IsFullUser(, True));
-	Parameters.Insert("FileInfobase",   Common.FileInfobase());
+	AddIndicator(Parameters, StartMoment,
+		"StandardSubsystemsServer.MustShowRAMSizeRecommendations");
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Parameters.Insert("IsFullUser", Users.IsFullUser());
+	AddIndicator(Parameters, StartMoment,
+		"Users.IsFullUser");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Parameters.Insert("IsSystemAdministrator", Users.IsFullUser(, True));
+	AddIndicator(Parameters, StartMoment,
+		"Users.IsSystemAdministrator");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Parameters.Insert("FileInfobase", Common.FileInfobase());
+	AddIndicator(Parameters, StartMoment,
+		"Common.FileInfobase");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	If InvalidPlatformVersionUsed() Then
 		Parameters.Insert("InvalidPlatformVersionUsed");
 	EndIf;
+	AddIndicator(Parameters, StartMoment,
+		"StandardSubsystemsServer.InvalidPlatformVersionUsed");
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	If IsCallBeforeStart Then
 		Parameters.Insert("StyleItems", StyleElementsSet());
 	EndIf;
+	AddIndicator(Parameters, StartMoment,
+		"StandardSubsystemsServer.StyleElementsSet");
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	If IsCallBeforeStart
 	   And Not Parameters.RetrievedClientParameters.Property("InterfaceOptions") Then
 		Parameters.Insert("InterfaceOptions", StandardSubsystemsCached.InterfaceOptions());
 	EndIf;
+	AddIndicator(Parameters, StartMoment,
+		"StandardSubsystemsServer.StyleElementsSet");
 	
 	If IsCallBeforeStart Then
+		StartMoment = CurrentUniversalDateInMilliseconds();
 		ErrorInsufficientRightsForAuthorization = UsersInternal.ErrorInsufficientRightsForAuthorization(
 			Not Parameters.RetrievedClientParameters.Property("ErrorInsufficientRightsForAuthorization"));
+		AddIndicator(Parameters, StartMoment,
+			"UsersInternal.ErrorInsufficientRightsForAuthorization");
 		
 		If ValueIsFilled(ErrorInsufficientRightsForAuthorization) Then
 			Parameters.Insert("ErrorInsufficientRightsForAuthorization", ErrorInsufficientRightsForAuthorization);
@@ -2713,43 +2926,69 @@ Function AddClientParametersOnStart(Parameters) Export
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.ScheduledJobs") Then
-		
+		StartMoment = CurrentUniversalDateInMilliseconds();
 		ModuleWorkLockWithExternalResources = Common.CommonModule("ExternalResourcesOperationsLock");
 		ModuleWorkLockWithExternalResources.OnAddClientParametersOnStart(
 			Parameters, IsCallBeforeStart);
+		AddIndicator(Parameters, StartMoment,
+			"ExternalResourcesOperationsLock.OnAddClientParametersOnStart");
 		
+		StartMoment = CurrentUniversalDateInMilliseconds();
 		If ScheduledJobsServer.OperationsWithExternalResourcesLocked() Then
 			Parameters.Insert("OperationsWithExternalResourcesLocked");
 		EndIf;
-		
+		AddIndicator(Parameters, StartMoment,
+			"ScheduledJobsServer.OperationsWithExternalResourcesLocked");
 	EndIf;
 	
-	If Not InfobaseUpdateInternal.AddClientParametersOnStart(Parameters)
-	   And IsCallBeforeStart Then
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	ParametersAdded = InfobaseUpdateInternal.AddClientParametersOnStart(Parameters);
+	AddIndicator(Parameters, StartMoment,
+		"InfobaseUpdateInternal.AddClientParametersOnStart");
+	
+	If Not ParametersAdded And IsCallBeforeStart Then
 		Return False;
 	EndIf;
 	
 	If IsCallBeforeStart
-	   And Not Parameters.RetrievedClientParameters.Property("ShowDeprecatedPlatformVersion")
-	   And ShowDeprecatedPlatformVersion(Parameters) Then
+	   And Not Parameters.RetrievedClientParameters.Property("ShowDeprecatedPlatformVersion") Then
 		
-		Parameters.Insert("ShowDeprecatedPlatformVersion");
-		StandardSubsystemsServerCall.HideDesktopOnStart();
-		Return False;
+		StartMoment = CurrentUniversalDateInMilliseconds();
+		Show = ShowDeprecatedPlatformVersion(Parameters);
+		AddIndicator(Parameters, StartMoment,
+			"StandardSubsystemsServer.ShowDeprecatedPlatformVersion");
+		If Show Then
+			Parameters.Insert("ShowDeprecatedPlatformVersion");
+			StartMoment = CurrentUniversalDateInMilliseconds();
+			StandardSubsystemsServerCall.HideDesktopOnStart();
+			AddIndicator(Parameters, StartMoment,
+				"StandardSubsystemsServerCall.HideDesktopOnStart");
+			Return False;
+		EndIf;
 	EndIf;
 	
 	If IsCallBeforeStart
 	   And Not Parameters.RetrievedClientParameters.Property("ReconnectMasterNode")
 	   And Not Common.DataSeparationEnabled() Then
-	   
+		
+		StartMoment = CurrentUniversalDateInMilliseconds();
 		SetPrivilegedMode(True);
 		ReconnectMasterNode = ExchangePlans.MasterNode() = Undefined
 			And ValueIsFilled(Constants.MasterNode.Get());
 		SetPrivilegedMode(False);
-	   
+		AddIndicator(Parameters, StartMoment,
+			"StandardSubsystemsServer.ReconnectMasterNode");
+		
 		If ReconnectMasterNode Then 
+			StartMoment = CurrentUniversalDateInMilliseconds();
 			Parameters.Insert("ReconnectMasterNode", Users.IsFullUser(, True));
+			AddIndicator(Parameters, StartMoment,
+				"Users.IsFullUser");
+			
+			StartMoment = CurrentUniversalDateInMilliseconds();
 			StandardSubsystemsServerCall.HideDesktopOnStart();
+			AddIndicator(Parameters, StartMoment,
+				"StandardSubsystemsServerCall.HideDesktopOnStart");
 			Return False;
 		EndIf;
 	EndIf;
@@ -2757,44 +2996,87 @@ Function AddClientParametersOnStart(Parameters) Export
 	If IsCallBeforeStart
 	   And Not Parameters.RetrievedClientParameters.Property("ServerNotifications") Then
 		
+		StartMoment = CurrentUniversalDateInMilliseconds();
 		ServerNotifications.OnAddClientParametersOnStart(Parameters);
+		AddIndicator(Parameters, StartMoment,
+			"ServerNotifications.OnAddClientParametersOnStart");
 	EndIf;
 	
 	If IsCallBeforeStart
-	   And Not Parameters.RetrievedClientParameters.Property("SelectInitialRegionalIBSettings")
-	   And RegionalInfobaseSettingsRequired() Then
+	   And Not Parameters.RetrievedClientParameters.Property("SelectInitialRegionalIBSettings") Then
 		
-		Parameters.Insert("SelectInitialRegionalIBSettings",
-			Users.IsFullUser(, True, False));
-		StandardSubsystemsServerCall.HideDesktopOnStart();
-		Return False;
+		StartMoment = CurrentUniversalDateInMilliseconds();
+		Required2 = RegionalInfobaseSettingsRequired();
+		AddIndicator(Parameters, StartMoment,
+			"StandardSubsystemsServer.RegionalInfobaseSettingsRequired");
+		
+		If Required2 Then
+			StartMoment = CurrentUniversalDateInMilliseconds();
+			Parameters.Insert("SelectInitialRegionalIBSettings",
+				Users.IsFullUser(, True, False));
+			AddIndicator(Parameters, StartMoment,
+				"Users.IsFullUser");
+			
+			StartMoment = CurrentUniversalDateInMilliseconds();
+			StandardSubsystemsServerCall.HideDesktopOnStart();
+			AddIndicator(Parameters, StartMoment,
+				"StandardSubsystemsServerCall.HideDesktopOnStart");
+			Return False;
+		EndIf;
 	EndIf;
 	
-	If IsCallBeforeStart And Common.SubsystemExists("CloudTechnology") Then
+	If IsCallBeforeStart
+	   And Common.SubsystemExists("CloudTechnology") Then
 		
+		StartMoment = CurrentUniversalDateInMilliseconds();
 		ErrorDescription = "";
 		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		ModuleSaaSOperations.OnCheckDataAreaLockOnStart(ErrorDescription);
+		AddIndicator(Parameters, StartMoment,
+			"SaaSOperations.OnCheckDataAreaLockOnStart");
+		
 		If Not IsBlankString(ErrorDescription) Then
 			Parameters.Insert("DataAreaLocked", ErrorDescription);
 			// Application will be closed.
 			Return False;
 		EndIf;
+	EndIf;
+	
+	// Mandatory initialization of the session parameters.
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	IBUpdateInProgress = SessionParameters.IBUpdateInProgress;
+	AddIndicator(Parameters, StartMoment,
+		"SessionParameters.IBUpdateInProgress");
+	
+	If IBUpdateInProgress <> Undefined
+	   And Not Parameters.DataSeparationEnabled Then
 		
+		StartMoment = CurrentUniversalDateInMilliseconds();
+		UpdateRequired1 = InfobaseUpdate.InfobaseUpdateRequired();
+		AddIndicator(Parameters, StartMoment,
+			"InfobaseUpdate.InfobaseUpdateRequired");
+		
+		If UpdateRequired1 Then
+			StartMoment = CurrentUniversalDateInMilliseconds();
+			UncompletedStatus = InfobaseUpdateInternal.UncompletedHandlersStatus(True) = "UncompletedStatus";
+			AddIndicator(Parameters, StartMoment,
+				"InfobaseUpdateInternal.UncompletedHandlersStatus");
+			
+			If UncompletedStatus Then
+				Parameters.Insert("MustRunDeferredUpdateHandlers");
+			EndIf;
+		EndIf;
 	EndIf;
 	
-	If SessionParameters.IBUpdateInProgress <> Undefined // Mandatory initialization of the session parameters.
-		And Not Parameters.DataSeparationEnabled
-		And InfobaseUpdate.InfobaseUpdateRequired()
-		And InfobaseUpdateInternal.UncompletedHandlersStatus(True) = "UncompletedStatus" Then
-		Parameters.Insert("MustRunDeferredUpdateHandlers");
-	EndIf;
-	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	If Common.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
 		ModuleSafeModeManagerInternal = Common.CommonModule("SafeModeManagerInternal");
 		ModuleSafeModeManagerInternal.OnAddClientParametersOnStart(Parameters, True);
 	EndIf;
+	AddIndicator(Parameters, StartMoment,
+		"SafeModeManagerInternal.OnAddClientParametersOnStart");
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	If IsCallBeforeStart
 	   And Not Parameters.RetrievedClientParameters.Property("RetryDataExchangeMessageImportBeforeStart")
 	   And Common.IsSubordinateDIBNode()
@@ -2806,6 +3088,8 @@ Function AddClientParametersOnStart(Parameters) Export
 			Return False;
 		EndIf;
 	EndIf;
+	AddIndicator(Parameters, StartMoment,
+		"DataExchangeInternal.RetryDataExchangeMessageImportBeforeStart");
 	
 	// Checking whether preliminary application parameter update is required.
 	If IsCallBeforeStart
@@ -2813,7 +3097,14 @@ Function AddClientParametersOnStart(Parameters) Export
 	   And Not Parameters.Property("SimplifiedInfobaseUpdateForm") Then
 		
 		SubordinateDIBNodeSetup = False;
-		If InformationRegisters.ApplicationRuntimeParameters.UpdateRequired1(SubordinateDIBNodeSetup) Then
+		
+		StartMoment = CurrentUniversalDateInMilliseconds();
+		UpdateRequired1 = InformationRegisters.ApplicationRuntimeParameters.UpdateRequired1(SubordinateDIBNodeSetup);
+		AddIndicator(Parameters, StartMoment,
+			"InformationRegisters.ApplicationRuntimeParameters.UpdateRequired1");
+		
+		If UpdateRequired1 Then
+			StartMoment = CurrentUniversalDateInMilliseconds();
 			// Preliminary update will be executed.
 			Parameters.Insert("ApplicationParametersUpdateRequired");
 			
@@ -2825,6 +3116,8 @@ Function AddClientParametersOnStart(Parameters) Export
 					           |%1';");
 				EnableExclusiveModeAtStartup(True, ErrorTemplate);
 			EndIf;
+			AddIndicator(Parameters, StartMoment,
+				"StandardSubsystemsServer.EnableExclusiveModeAtStartup");
 			Return False;
 		EndIf;
 	EndIf;
@@ -2832,14 +3125,20 @@ Function AddClientParametersOnStart(Parameters) Export
 	// Mandatory parameters for all modes.
 	Parameters.Insert("DetailedInformation", Metadata.DetailedInformation);
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	If InfobaseUpdateInternal.SharedInfobaseDataUpdateRequired() Then
 		Parameters.Insert("SharedInfobaseDataUpdateRequired");
 	EndIf;
+	AddIndicator(Parameters, StartMoment,
+		"InfobaseUpdateInternal.SharedInfobaseDataUpdateRequired");
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	If Common.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
 		ModuleSafeModeManagerInternal = Common.CommonModule("SafeModeManagerInternal");
 		ModuleSafeModeManagerInternal.OnAddClientParametersOnStart(Parameters);
 	EndIf;
+	AddIndicator(Parameters, StartMoment,
+		"SafeModeManagerInternal.OnAddClientParametersOnStart");
 	
 	If Not Parameters.SeparatedDataUsageAvailable Then
 		Return True;
@@ -2848,11 +3147,21 @@ Function AddClientParametersOnStart(Parameters) Export
 	// Parameters for the hosted mode and
 	// for sessions in the SaaS mode with separators.
 	
-	If InfobaseUpdate.InfobaseUpdateRequired() Then
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	UpdateRequired1 = InfobaseUpdate.InfobaseUpdateRequired();
+	AddIndicator(Parameters, StartMoment,
+		"InfobaseUpdate.InfobaseUpdateRequired");
+	
+	If UpdateRequired1 Then
 		Parameters.Insert("InfobaseUpdateRequired");
+		
+		StartMoment = CurrentUniversalDateInMilliseconds();
 		StandardSubsystemsServerCall.HideDesktopOnStart();
+		AddIndicator(Parameters, StartMoment,
+			"StandardSubsystemsServerCall.HideDesktopOnStart");
 	EndIf;
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	If Not Parameters.DataSeparationEnabled
 		And Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 		
@@ -2861,17 +3170,29 @@ Function AddClientParametersOnStart(Parameters) Export
 			Parameters.Insert("LoadDataExchangeMessage");
 		EndIf;
 	EndIf;
+	AddIndicator(Parameters, StartMoment,
+		"DataExchangeServer.LoadDataExchangeMessage");
 	
+	Cancel = False;
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then
 		ModuleStandaloneMode = Common.CommonModule("StandaloneMode");
 		If ModuleStandaloneMode.ContinueStandaloneWorkstationSetup(Parameters) Then
-			Return False;
+			Cancel = True;
 		EndIf;
+	EndIf;
+	AddIndicator(Parameters, StartMoment,
+		"StandaloneMode.ContinueStandaloneWorkstationSetup");
+	If Cancel Then
+		Return False;
 	EndIf;
 	
 	Cancel = False;
 	If IsCallBeforeStart Then
+		StartMoment = CurrentUniversalDateInMilliseconds();
 		UsersInternal.OnAddClientParametersOnStart(Parameters, Cancel, True);
+		AddIndicator(Parameters, StartMoment,
+			"UsersInternal.OnAddClientParametersOnStart(,,True)");
 	EndIf;
 	If Cancel Then
 		Return False;
@@ -2879,12 +3200,19 @@ Function AddClientParametersOnStart(Parameters) Export
 	
 	AddCommonClientParameters(Parameters);
 	
-	If IsCallBeforeStart
-	   And (Parameters.Property("InfobaseUpdateRequired")
-	      Or InfobaseUpdate.InfobaseUpdateInProgress()) Then
+	If IsCallBeforeStart Then
 		// Do not add the other parameters until the update is completed
 		// as those parameters may assume that the infobase is updated.
-		Return False;
+		If Parameters.Property("InfobaseUpdateRequired") Then
+			Return False;
+		EndIf;
+		StartMoment = CurrentUniversalDateInMilliseconds();
+		IsUpdateRunning = InfobaseUpdate.InfobaseUpdateInProgress();
+		AddIndicator(Parameters, StartMoment,
+			"InfobaseUpdate.InfobaseUpdateInProgress");
+		If IsUpdateRunning Then
+			Return False;
+		EndIf;
 	EndIf;
 	
 	EnableExclusiveModeAtStartup(False);
@@ -2901,18 +3229,44 @@ EndFunction
 //
 Procedure AddClientRunParameters(Parameters)
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	Parameters.Insert("SubsystemsNames", StandardSubsystemsCached.SubsystemsNames());
+	AddIndicator(Parameters, StartMoment,
+		"StandardSubsystemsCached.SubsystemsNames");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	Parameters.Insert("SeparatedDataUsageAvailable",
 		Common.SeparatedDataUsageAvailable());
+	AddIndicator(Parameters, StartMoment,
+		"Common.SeparatedDataUsageAvailable");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	Parameters.Insert("DataSeparationEnabled", Common.DataSeparationEnabled());
+	AddIndicator(Parameters, StartMoment,
+		"Common.DataSeparationEnabled");
 	
 	// Outdated. Use StandardSubsystemsClient.IsBaseConfigurationVersion instead.
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	Parameters.Insert("IsBaseConfigurationVersion", IsBaseConfigurationVersion());
+	AddIndicator(Parameters, StartMoment,
+		"StandardSubsystemsServer.IsBaseConfigurationVersion");
+	
 	// Outdated. Use StandardSubsystemsClient.IsTrainingPlatform instead.
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	Parameters.Insert("IsTrainingPlatform", IsTrainingPlatform());
+	AddIndicator(Parameters, StartMoment,
+		"StandardSubsystemsServer.IsTrainingPlatform");
+	
 	// Obsolete. Use UsersClientServer.COMConnectorName instead.
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	Parameters.Insert("COMConnectorName", CommonClientServer.COMConnectorName());
+	AddIndicator(Parameters, StartMoment,
+		"CommonClientServer.COMConnectorName");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	Parameters.Insert("StyleItems", StyleElementsSet());
+	AddIndicator(Parameters, StartMoment,
+		"StandardSubsystemsServer.StyleElementsSet");
 	
 	AddCommonClientParameters(Parameters);
 	
@@ -2920,18 +3274,34 @@ Procedure AddClientRunParameters(Parameters)
 	Parameters.Insert("ConfigurationSynonym", Metadata.Synonym);
 	Parameters.Insert("ConfigurationVersion",  Metadata.Version);
 	Parameters.Insert("DetailedInformation", Metadata.DetailedInformation);
-	Parameters.Insert("DefaultLanguageCode",   Common.DefaultLanguageCode());
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Parameters.Insert("DefaultLanguageCode",   Common.DefaultLanguageCode());
+	AddIndicator(Parameters, StartMoment,
+		"Common.DefaultLanguageCode");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	Parameters.Insert("AskConfirmationOnExit",
 		AskConfirmationOnExit());
+	AddIndicator(Parameters, StartMoment,
+		"StandardSubsystemsServer.AskConfirmationOnExit");
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	Parameters.Insert("FileInfobase", Common.FileInfobase());
+	AddIndicator(Parameters, StartMoment,
+		"Common.FileInfobase");
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	If ScheduledJobsServer.OperationsWithExternalResourcesLocked() Then
 		Parameters.Insert("OperationsWithExternalResourcesLocked");
 	EndIf;
+	AddIndicator(Parameters, StartMoment,
+		"ScheduledJobsServer.OperationsWithExternalResourcesLocked");
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	Parameters.Insert("CompatibilityModeVersion", CompatibilityModeVersion());
+	AddIndicator(Parameters, StartMoment,
+		"StandardSubsystemsServer.CompatibilityModeVersion");
 	
 EndProcedure
 
@@ -2946,42 +3316,99 @@ Procedure AddCommonClientParameters(Parameters)
 	If Not Parameters.DataSeparationEnabled Or Parameters.SeparatedDataUsageAvailable Then
 		
 		SetPrivilegedMode(True);
+		
+		StartMoment = CurrentUniversalDateInMilliseconds();
 		Parameters.Insert("AuthorizedUser", Users.AuthorizedUser());
+		AddIndicator(Parameters, StartMoment,
+			"Users.AuthorizedUser");
+		
+		StartMoment = CurrentUniversalDateInMilliseconds();
 		Parameters.Insert("ApplicationCaption", TrimAll(Constants.SystemTitle.Get()));
+		AddIndicator(Parameters, StartMoment,
+			"Constants.SystemTitle.Get");
+		
 		SetPrivilegedMode(False);
 		
 	EndIf;
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	Parameters.Insert("IsMasterNode1", Not Common.IsSubordinateDIBNode());
+	AddIndicator(Parameters, StartMoment,
+		"Common.IsSubordinateDIBNode");
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	Parameters.Insert("DIBNodeConfigurationUpdateRequired",
 		Common.SubordinateDIBNodeConfigurationUpdateRequired());
+	AddIndicator(Parameters, StartMoment,
+		"Common.SubordinateDIBNodeConfigurationUpdateRequired");
 	
 EndProcedure
 
-// Returns the version numbers supported by the InterfaceName application interface.
-// See Common.GetInterfaceVersionsViaExternalConnection.
+// Intended to be called from "Common.GetInterfaceVersionsViaExternalConnection".
 //
 // Parameters:
-//   InterfaceName - String - an application interface name.
+//   InterfaceName - See "SupportedAPIVersions.InterfaceName"
 //
 // Returns:
-//  Array - a list of versions of the String type.
+//  String - "ValueToXMLString" from the outcome of the function "APISupportedVersions".
 //
 Function SupportedVersions(InterfaceName) Export
 	
-	VersionsArray = Undefined;
-	SupportedVersionsStructure = New Structure;
+	VersionsArray = SupportedVersionsOfSoftwareInterface(InterfaceName);
+	Return Common.ValueToXMLString(VersionsArray);
 	
-	SSLSubsystemsIntegration.OnDefineSupportedInterfaceVersions(SupportedVersionsStructure);
-	SupportedVersionsStructure.Property(InterfaceName, VersionsArray);
+EndFunction
+
+// Parameters:
+//  Indicators - Undefined
+//             - Array of String
+//  StartMoment - Date
+//  ProcedureName - String
+//  Parameters - Undefined
+//            - Structure
+//  Shared - Boolean
+//
+Procedure AddMainIndicator(Indicators, StartMoment, ProcedureName,
+			Parameters = Undefined, Shared = False) Export
 	
-	If VersionsArray = Undefined Then
-		Return Common.ValueToXMLString(New Array);
-	Else
-		Return Common.ValueToXMLString(VersionsArray);
+	If Indicators = Undefined Then
+		Return;
 	EndIf;
 	
+	NestedIndicators = Undefined;
+	If TypeOf(Parameters) = Type("Structure")
+	   And Parameters.Property(NameOfPerformanceMetricsProperty()) Then
+	
+		NestedIndicators = Parameters[NameOfPerformanceMetricsProperty()];
+	EndIf;
+	
+	Duration = CurrentUniversalDateInMilliseconds() - StartMoment;
+	If Not Shared And Not ValueIsFilled(Duration) Then
+		Return;
+	EndIf;
+	
+	Text = Format(Duration / 1000, "ND=6; NFD=3; NZ=000,000; NLZ=") + " " + ProcedureName;
+	
+	If Shared Then
+		Indicators.Insert(0, "    " + Text);
+		NestedIndicators = Undefined;
+	Else
+		Indicators.Add("      " + Text);
+	EndIf;
+	
+	If TypeOf(NestedIndicators) <> Type("Array") Then
+		Return;
+	EndIf;
+	
+	For Each NestedIndicator In NestedIndicators Do
+		Indicators.Add("  " + NestedIndicator);
+	EndDo;
+	NestedIndicators.Clear();
+	
+EndProcedure
+
+Function NameOfPerformanceMetricsProperty()
+	Return "PerformanceIndicators_";
 EndFunction
 
 // Sets the BlankHomePage common form on the desktop.
@@ -3082,8 +3509,7 @@ Function ShowWarningAboutInstalledUpdatesForUser(UserName = Undefined)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+#Region InfobaseUpdate
 
 // Sets constants DoNotUseSeparationByDataAreas and StandardSubsystemsStandaloneMode.
 // The constant values depend on the value of UseSeparationByDataAreas. 
@@ -3169,27 +3595,89 @@ Procedure EnableConstantToDeliverServerAlertsWithoutInteractionSystem() Export
 	
 EndProcedure
 
+Procedure EnableConstantAllowAccessToInternetServices() Export
+	
+	Constants.AllowAccessToInternetServices.Set(True);
+	
+EndProcedure
+
 // See CommonOverridable.OnAddMetadataObjectsRenaming.
-Procedure OnAddMetadataObjectsRenaming(Total) Export
+Procedure OnAddMetadataObjectsRenaming(Renamings) Export
 	
 	Library = "StandardSubsystems";
 	
 	OldName = "Role.BasicAccess";
 	NewName  = "Role.BasicAccessSSL";
-	Common.AddRenaming(Total, "3.0.1.19", OldName, NewName, Library);
+	Common.AddRenaming(Renamings, "3.0.1.19", OldName, NewName, Library);
 	
 	OldName = "Role.BasicAccessExternalUser";
 	NewName  = "Role.BasicAccessExternalUserSSL";
-	Common.AddRenaming(Total, "3.0.1.19", OldName, NewName, Library);
+	Common.AddRenaming(Renamings, "3.0.1.19", OldName, NewName, Library);
 	
 	OldName = "Role.AllFunctionsMode";
 	NewName  = "Role.TechnicianMode";
-	Common.AddRenaming(Total, "3.1.5.153", OldName, NewName, Library);
+	Common.AddRenaming(Renamings, "3.1.5.153", OldName, NewName, Library);
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Event subscription handlers.
+// Migrate data from the register "DeleteSafeDataAreaDataStorage"
+// into the register "SafeDataAreaDataStorage".
+//
+Procedure MoveSafeDataAreaDataStorage() Export
+	
+	// SaaS mode is not supported.
+	If Not Common.SubsystemExists("CloudTechnology.Core") Then
+		Return;
+	EndIf;
+	
+	BeginTransaction();
+	
+	Try
+		
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		DataArea = ModuleSaaSOperations.SessionSeparatorValue();
+		
+		RecordSet = InformationRegisters.SafeDataAreaDataStorage.CreateRecordSet();
+		RecordSet.Filter.DataAreaAuxiliaryData.Set(DataArea);
+		RecordSetDelete = InformationRegisters.ObsoleteSafeDataAreaDataStorage.CreateRecordSet();
+		
+		Block = New DataLock;
+		Block.Add("InformationRegister.ObsoleteSafeDataAreaDataStorage");
+		Block.Lock();
+		
+		Query = New Query;
+		Query.Text =
+			"SELECT
+			|	ObsoleteSafeDataAreaDataStorage.Owner,
+			|	ObsoleteSafeDataAreaDataStorage.Data
+			|FROM
+			|	InformationRegister.ObsoleteSafeDataAreaDataStorage AS ObsoleteSafeDataAreaDataStorage";
+		
+		QueryResult = Query.Execute();
+		
+		SelectionDetailRecords = QueryResult.Select();
+		
+		While SelectionDetailRecords.Next() Do
+			Record = RecordSet.Add();
+			FillPropertyValues(
+				Record,
+				SelectionDetailRecords);
+			Record.DataAreaAuxiliaryData = DataArea;
+		EndDo;
+		
+		InfobaseUpdate.WriteData(RecordSet);
+		InfobaseUpdate.WriteData(RecordSetDelete);
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
+	
+EndProcedure
+
+#EndRegion
+
+#Region EventsSubscriptionsHandlers
 
 // "BeforeWrite" event handler for predefined items.
 //
@@ -3236,8 +3724,8 @@ Procedure DenySettingDeletionMarksToPredefinedItemsBeforeWrite(Source)
 	   And PreviousProperties.DeletionMark <> True And Not IsOwnerMarkedForDeletion(Source.Ref) Then
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot mark the predefined item for deletion:
-			           |""%1.""';"),
+			NStr("en = 'Cannot mark the predefined item for deletion:
+			           |""%1"".';"),
 			String(Source.Ref));
 	ElsIf (ValueIsFilled(AttributeValue) And Not ValueIsFilled(PreviousProperties[AttributeName])
 	      Or PreviousProperties.PredefinedDataName = "")
@@ -3280,12 +3768,13 @@ Procedure DenyPredefinedItemDeletionBeforeDelete(Source, Cancel) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// DIB exchange plan event subscription processing.
+#EndRegion
 
-// The procedure handles the same-name event that occurs during data exchange in a distributed infobase.
-// For parameters, see "OnSendDataToSubordinate" in Syntax Assistant.
-// 
+#Region DIBExchangePlanEventSubscriptionsHandling
+
+// The procedure handles the same-name event that occurs during data exchange
+// in a distributed infobase.
+// For parameters, see the OnSendDataToSlave in Syntax Assistant.
 // 
 // Parameters:
 //  Source - ExchangePlanObject
@@ -3304,9 +3793,9 @@ Procedure OnSendDataToSubordinateEvent(Source, DataElement, ItemSend, InitialIma
 	
 EndProcedure
 
-// Procedure handles the same-name event that occurs during data exchange in a distributed infobase.
-// For parameters, see the "OnSendDataToMaster" event handler in Syntax Assistant.
-// 
+// The procedure handles the same-name event that occurs during data exchange
+// in a distributed infobase.
+// For parameters, see the OnSendDataToMaster event handler in Syntax Assistant.
 // 
 // Parameters:
 //  Source - ExchangePlanObject
@@ -3324,9 +3813,9 @@ Procedure OnSendDataToMasterEvent(Source, DataElement, ItemSend) Export
 	
 EndProcedure
 
-// The procedure handles the same-name event that occurs during data exchange in a distributed infobase.
-// For the parameters, see "OnSendDataToSubordinate" in Syntax Assistant.
-// 
+// The procedure handles the same-name event that occurs during data exchange
+// in a distributed infobase.
+// For parameters, see the OnReceiveDataFromSlave event handler in Syntax Assistant.
 // 
 // Parameters:
 //  Source - ExchangePlanObject
@@ -3345,9 +3834,9 @@ Procedure OnReceiveDataFromSubordinateEvent(Source, DataElement, ItemReceive, Se
 	
 EndProcedure
 
-// Procedure handles the same-name event that occurs during data exchange in a distributed infobase.
-// See the "OnReceiveDataFromMaster" event handler in Syntax Assistant.
-// 
+// The procedure handles the same-name event that occurs during data exchange
+// in a distributed infobase.
+// See the OnReceiveDataFromMaster event handler in Syntax Assistant.
 // 
 // Parameters:
 //  Source - ExchangePlanObject
@@ -3393,8 +3882,9 @@ Procedure AfterGetData(Source, Cancel) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// AUXILIARY PROCEDURES AND FUNCTIONS
+#EndRegion
+
+#Region AuxiliaryProceduresAndFunctions
 
 // Returns:
 //  Array of MetadataObject
@@ -3554,21 +4044,18 @@ Procedure CreateMissingPredefinedData(MetadataObjects)
 	
 EndProcedure
 
+// Parameters:
+//  NameTable - ValueTable
+//  ParentName - String
+// 
 // Returns:
 //  ValueTableRow:
-//    * Ref - CatalogRef,
-//             - ChartOfCharacteristicTypesRef
-//             - ChartOfAccountsRef
-//             - ChartOfCalculationTypesRef
-//    * Name - String
-//    * DataVersion- String
-//    * ParentName - String
-//    * Object - CatalogObject
-//             - ChartOfCharacteristicTypesObject
-//             - ChartOfAccountsObject
-//             - ChartOfCalculationTypesObject
-//    * ObjectExist - Boolean
-//  Undefined
+//   * Ref - CatalogRef
+//   * Name - String
+//   * DataVersion - String 
+//   * ParentName - String
+//   * Object - CatalogObject 
+//   * ObjectExist - Boolean
 //
 Function DetailsOfSavedObject(NameTable, ParentName)
 	Return NameTable.Find(ParentName, "Name");
@@ -3820,7 +4307,7 @@ EndProcedure
 //
 Function Min1CEnterpriseVersionForStart() Export
 	
-	Return "8.3.21.1622; 8.3.22.1704"; // Must not be modified by patches.
+	Return "8.3.24.1342"; // Must not be modified by patches.
 	
 EndFunction
 
@@ -3839,43 +4326,19 @@ Function Min1CEnterpriseVersionForUse() Export
 	
 	// It is not recommended to be modified by patches.
 	Versions = New ValueList;
-	Versions.Add("8.3.21", "8.3.22.2501; 8.3.23.2137; 8.3.24.1467;");
-	Versions.Add("8.3.22", "8.3.22.2501; 8.3.23.2137; 8.3.24.1548; 8.3.25.1286");
-	Versions.Add("8.3.23", "8.3.23.2137; 8.3.24.1548; 8.3.25.1286");
-	Versions.Add("8.3.24", "8.3.24.1548; 8.3.25.1286");
+	Versions.Add("8.3.24", "8.3.24.1548; 8.3.25.1286; 8.3.26.1498; 8.3.27.1244");
+	Versions.Add("8.3.25", "8.3.25.1286; 8.3.26.1498; 8.3.27.1244");
+	Versions.Add("8.3.26", "8.3.26.1498; 8.3.27.1244");
+	Versions.Add("8.3.27", "8.3.27.1244");
 	
 	Return Versions;
 	
-EndFunction
-
-// Supported versions of the Secure Software System. See ReadMe.txt.
-// A configuration can run on these versions even if the version is earlier than Min1CEnterpriseVersionForUse, but it must be later than Min1CEnterpriseVersionForStart. 
-// 
-//
-Function SecureSoftwareSystemVersions() Export  // ACC:581 - An export function as it is used for testing.
-	
-	Versions = New Array;
-	Versions.Add("8.3.21.1676");
-	Versions.Add("8.3.21.1901");
-	Versions.Add("8.3.24.1440");
-	Versions.Add("8.3.24.1599");
-	
-	Return Versions;
-
 EndFunction
 
 // Intended for procedure "ClarifyPlatformVersion".
 // It contains revoked 1C:Enterprise versions and their replacements.
 //
 Function ReplacementVersionForRevoked1CEnterprise(CurrentBuild) Export
-	
-	If StrFind("8.3.22.1672,8.3.22.1603", CurrentBuild) Then
-		Return "8.3.22.1709";
-		
-	ElsIf StrFind("8.3.21.1607,8.3.21.1508,8.3.21.1484", CurrentBuild) Then
-		Return "8.3.21.1624";
-		
-	EndIf;
 	
 	Return "";
 	
@@ -3905,7 +4368,7 @@ Procedure CorrectSharedUserHomePage()
 	
 	PreviousFormCompositionInMetadata = CommonSettingsStorage.Load(ObjectKey, SettingsKey);
 	If PreviousFormCompositionInMetadata = Undefined Then
-		// Clearing the home page on the first sign-in.
+		// Clear the home page on the first login.
 		SetBlankFormOnHomePage();
 	Else
 		SetBlankFormOnBlankHomePage();
@@ -3991,7 +4454,7 @@ Procedure CompensateChangesOfFormCompositionInHomePageMetadata(PreviousFormCompo
 	CurrentSettings.SetForms(FormContent);
 	
 	If SettingsSaved Then
-		SavingSettings = New ValueStorage(CurrentSettings);
+		SavingSettings = New ValueStorage(CurrentSettings, New Deflation(9));
 		SystemSettingsStorage.Save(StorageObjectKey, "", SavingSettings);
 		SetBlankFormOnHomePage();
 	Else
@@ -4248,9 +4711,9 @@ Procedure CheckIfCanStart()
 				
 			If Not PrivilegedModeAvailable Then
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Couldn''t set session parameters. Reason: Security profile %1 is not found in 1C:Enterprise server cluster or it cannot be applied in safe mode.
+					NStr("en = 'Cannot set session parameters. Reason: Security profile %1 is not found in the 1C:Enterprise server cluster or it cannot be applied in safe mode.
 						|
-						|To restore the app functionality, disable the security profile using the cluster console and reconfigure the security profiles using the configuration interface (see the commands in the app settings section).';"),
+						|To restore the application functionality, disable the security profile using the cluster console and reconfigure the security profiles using the configuration interface (see the commands in the application settings section).';"),
 					InfobaseProfile);
 			EndIf;
 			
@@ -4267,9 +4730,9 @@ Procedure CheckIfCanStart()
 			// Infobase profile allows the handler execution but the privileged mode cannot be set.
 			
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot set the session parameters. Reason: Security profile %1 does not contain the permission to set the privileged mode. Probably it was edited using the cluster console.
+				NStr("en = 'Cannot set session parameters. Reason: Security profile %1 does not contain the permission to set the privileged mode. Probably it was edited using the cluster console.
 					|
-					|To restore the app functionality, disable the security profile using the cluster console and reconfigure the security profiles using the configuration interface (see the commands in the app settings section).';"),
+					|To restore the application functionality, disable the security profile using the cluster console and reconfigure the security profiles using the configuration interface (see the commands in the application settings section).';"),
 				InfobaseProfile);
 			
 		EndIf;
@@ -4284,9 +4747,9 @@ Procedure CheckIfCanStart()
 		Except
 			
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot set the session parameters. Reason: %1.
+				NStr("en = 'Cannot set session parameters. Reason: %1.
 					|
-					|Probably a security profile that does not allow execution of external modules in unsafe mode was set using the cluster console. If this is the case, to restore the application functionality, disable the security profile using the cluster console and reconfigure the security profiles using the configuration interface (see the commands in the application settings section). The app will be automatically configured to use the enabled security profiles.';"),
+					|Probably a security profile that does not allow execution of external modules in unsafe mode was set using the cluster console. If this is the case, to restore the application functionality, disable the security profile using the cluster console and reconfigure the security profiles using the configuration interface (see the commands in the application settings section). The application will be automatically configured to use the enabled security profiles.';"),
 				ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 			
 		EndTry;
@@ -4702,7 +5165,7 @@ Procedure AddFunctionalOptionObjects(Objects, FunctionalOption)
 	
 EndProcedure
 
-// Multilingual configurations.
+// Multilingual configurations
 
 Function RegionalInfobaseSettingsRequired() Export
 		
@@ -4719,8 +5182,9 @@ Function RegionalInfobaseSettingsRequired() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Other procedures and functions.
+#EndRegion
+
+#Region OtherProceduresAndFunctions
 
 Function StyleItems() Export
 	
@@ -4866,6 +5330,8 @@ Function IsOwnerMarkedForDeletion(RemovableObject)
 	Return False;
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion
 

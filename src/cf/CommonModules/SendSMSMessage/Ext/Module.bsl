@@ -31,6 +31,11 @@ Function SendSMS(RecipientsNumbers, Val Text, SenderName = Undefined, Transliter
 	
 	Result = New Structure("SentMessages,ErrorDescription", New Array, "");
 	
+	If Not Common.AccessToInternetServicesAllowed() Then
+		Result.ErrorDescription = Common.AccessToInternetServicesDeniedMessageText();
+		Return Result;
+	EndIf;
+	
 	If Not ValueIsFilled(StrConcat(RecipientsNumbers, "")) Then
 		Result.ErrorDescription = NStr("en = 'Text message recipient number is not specified.';");
 		Return Result;
@@ -77,14 +82,15 @@ Function SendSMS(RecipientsNumbers, Val Text, SenderName = Undefined, Transliter
 			Type("Structure"), New Structure("SentMessages,ErrorDescription", Type("Array"), Type("String")));
 			
 		If Not ValueIsFilled(Result.ErrorDescription) And Not ValueIsFilled(Result.SentMessages) Then
-			Raise StringFunctionsClientServer.SubstituteParametersToString(NStr(
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
 				"en = 'Error completing procedure %1:
 				|At least one of the parameters is required: %2, %3.
-				|Provider: %4.';", Common.DefaultLanguageCode()),
+				|Provider: %4.';"),
 				"SendSMSMessageOverridable.SendSMS",
 				"ErrorDescription",
 				"SentMessages",
 				SMSMessageSendingSettings.Provider);
+			Raise(MessageText, ErrorCategory.ConfigurationError);
 		EndIf;
 		
 		If Result.SentMessages.Count() > 0 Then
@@ -99,10 +105,11 @@ Function SendSMS(RecipientsNumbers, Val Text, SenderName = Undefined, Transliter
 			For IndexOf = 0 To Result.SentMessages.Count() - 1 Do
 				CommonClientServer.CheckParameter(
 					"SendSMSMessageOverridable.SendSMS",
-					StringFunctionsClientServer.SubstituteParametersToString("Result.SentMessages[%1]", Format(IndexOf, "NZ=; NG=0")),
-					Result.SentMessages[IndexOf],
-					Type("Structure"),
-					New Structure("RecipientNumber,MessageID", Type("String"), Type("String")));
+					StringFunctionsClientServer.SubstituteParametersToString("Result.SentMessages[%1]", 
+						Format(IndexOf, "NZ=; NG=0")),
+						Result.SentMessages[IndexOf],
+						Type("Structure"),
+						New Structure("RecipientNumber,MessageID", Type("String"), Type("String")));
 			EndDo;
 		EndIf;
 	EndIf;
@@ -134,6 +141,7 @@ Function DeliveryStatus(Val MessageID) Export
 	If IsBlankString(MessageID) Then
 		Return "Pending";
 	EndIf;
+	
 	
 	Return DeliveryStatuses(CommonClientServer.ValueInArray(MessageID))[MessageID];
 	
@@ -182,7 +190,7 @@ EndFunction
 //
 Function CanSendSMSMessage() Export
 	
-	Return SendSMSMessageCached.CanSendSMSMessage();
+	Return SendSMSMessageCached.CanSendSMSMessage() And Common.AccessToInternetServicesAllowed();
 	
 EndFunction
 
@@ -259,7 +267,7 @@ EndProcedure
 //  MessagesIDs - Array of String - IDs assigned to the outgoing text message.
 //
 // Returns:
-//  Map:
+//  Map of KeyAndValue:
 //   * Key - String - Text message ID.
 //   * Value - String - The delivery status returned by the service provider:
 //           Pending - Message is not yet processed.
@@ -274,6 +282,9 @@ EndProcedure
 Function DeliveryStatuses(Val MessagesIDs) Export
 	
 	CheckRights();
+	
+	Common.AccessToInternetServicesAllowed(True);
+	
 	DeliveryStatuses = SendSMSMessageCached.DeliveryStatuses(StrConcat(MessagesIDs, ","));
 	
 	Return New Map(DeliveryStatuses);

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<UseForFoldersAndItems>Items</UseForFoldersAndItems>
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<ChildItems>
@@ -168,7 +168,7 @@
 						<Title formatted="false">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Minimum interval must be over 15 minutes (900 seconds).
+								<v8:content>The minimum interval must be over 15 minutes (900 seconds).
 The exact scenario execution time depends on the application workload.</v8:content>
 							</v8:item>
 						</Title>
@@ -202,7 +202,7 @@ The exact scenario execution time depends on the application workload.</v8:conte
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Minimum interval must be over 15 minutes.
+							<v8:content>The minimum interval must be over 15 minutes.
 The exact scenario execution time depends on the application workload.</v8:content>
 						</v8:item>
 					</Title>
@@ -292,9 +292,6 @@ The exact scenario execution time depends on the application workload.</v8:conte
 						<ContextMenu name="ScheduleCompositionSearchControlContextMenu" id="154"/>
 						<ExtendedTooltip name="ScheduleCompositionSearchControlExtendedTooltip" id="155"/>
 					</SearchControlAddition>
-					<Events>
-						<Event name="OnActivateRow">ScheduleCompositionOnActivateRow</Event>
-					</Events>
 					<ChildItems>
 						<LabelField name="ExchangeSettingsRowNumber" id="108">
 							<DataPath>Object.ExchangeSettings.LineNumber</DataPath>
@@ -337,14 +334,20 @@ The exact scenario execution time depends on the application workload.</v8:conte
 								</InputField>
 							</ChildItems>
 						</ColumnGroup>
-						<InputField name="ExchangeSettingsExchangeTransportKind" id="114">
-							<DataPath>Object.ExchangeSettings.ExchangeTransportKind</DataPath>
+						<InputField name="ExchangeSettingsTransportID" id="180">
+							<DataPath>Object.ExchangeSettings.TransportID</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Transport</v8:content>
+								</v8:item>
+							</Title>
 							<EditMode>EnterOnInput</EditMode>
 							<ListChoiceMode>true</ListChoiceMode>
-							<ContextMenu name="ExchangeSettingsExchangeTransportKindContextMenu" id="115"/>
-							<ExtendedTooltip name="ExchangeSettingsExchangeTransportKindExtendedTooltip" id="142"/>
+							<ContextMenu name="ExchangeSettingsTransportIDContextMenu" id="181"/>
+							<ExtendedTooltip name="ExchangeSettingsTransportIDExtendedTooltip" id="182"/>
 							<Events>
-								<Event name="StartChoice">ExchangeSettingsExchangeTransportKindStartChoice</Event>
+								<Event name="StartChoice">ExchangeSettingsTransportIDStartChoice</Event>
 							</Events>
 						</InputField>
 						<InputField name="ExchangeSettingsCurrentAction" id="116">

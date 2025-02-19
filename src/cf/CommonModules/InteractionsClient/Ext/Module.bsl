@@ -180,7 +180,7 @@ EndProcedure
 // Parameters:
 //  MailMessage                  - DocumentRef.IncomingEmail
 //                          - DocumentRef.OutgoingEmail - Email message to save.
-//  UUID - UUID - an Uuid of a form, from which a saving command was called.
+//  UUID - UUID - UUID of the form where the save command was invoked.
 //
 Procedure SaveEmailToHardDrive(MailMessage, UUID) Export
 	
@@ -203,7 +203,7 @@ EndProcedure
 //
 // Parameters:
 //  EmailParameters - See EmailOperationsClient.EmailSendOptions.
-//  OnCloseNotifyDescription - NotifyDescription - details of notification on closing an email form.
+//  OnCloseNotifyDescription - CallbackDescription - details of notification on closing an email form.
 //
 Procedure OpenEmailSendingForm(Val EmailParameters = Undefined, Val OnCloseNotifyDescription = Undefined) Export
 	
@@ -272,7 +272,7 @@ Procedure CreateContact(LongDesc, Address, Basis, ContactsTypes) Export
 	AdditionalParameters.Insert("LongDesc", LongDesc);
 	AdditionalParameters.Insert("Address", Address);
 	AdditionalParameters.Insert("Basis", Basis);
-	HandlerNotifications = New NotifyDescription("SelectContactTypeOnCompletion", ThisObject, AdditionalParameters);
+	HandlerNotifications = New CallbackDescription("SelectContactTypeOnCompletion", ThisObject, AdditionalParameters);
 	ContactsTypes.ShowChooseItem(HandlerNotifications, NStr("en = 'Select contact type';"));
 
 EndProcedure
@@ -506,8 +506,7 @@ Procedure CreateNewInteraction(ObjectType, CreationParameters = Undefined, Form 
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Common event handlers of interaction documents
+#Region InteractionDocsCommonEventHandlers
 
 // Opens the contact selection form and handles the choice.
 //
@@ -555,7 +554,7 @@ Function ContactChoiceParameters(FormIdentifier) Export
 EndFunction	
 
 // Parameters:
-//  Simple         - Date - "Process after" field value. 
+//  Simple         - Date - "Snooze till" field value. 
 //  ValueSelected    - Date
 //                       - Number - Either the selected date or the numeric increment of the current date.
 //  StandardProcessing - Boolean - indicates a standard processing of a form event handler.
@@ -600,7 +599,7 @@ EndProcedure
 
 Procedure PromptOnChangeMessageFormatToPlainText(Form, AdditionalParameters = Undefined) Export
 	
-	OnCloseNotifyHandler = New NotifyDescription("PromptOnChangeFormatOnClose", Form, AdditionalParameters);
+	OnCloseNotifyHandler = New CallbackDescription("PromptOnChangeFormatOnClose", Form, AdditionalParameters);
 	MessageText = NStr("en = 'If you change the message format to plain text, all images and formatting will be lost. Continue?';");
 	ShowQueryBox(OnCloseNotifyHandler, MessageText, QuestionDialogMode.YesNo, , DialogReturnCode.No, NStr("en = 'Change mail format';"));
 	
@@ -789,8 +788,9 @@ Procedure URLProcessing(Item, FormattedStringURL, StandardProcessing) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Define the reference type.
+#EndRegion
+
+#Region DefiningRefType
 
 // Parameters:
 //  ObjectRef - AnyRef - a reference, to which a check is required.
@@ -804,5 +804,7 @@ Function IsEmail(ObjectRef) Export
 		Or TypeOf(ObjectRef) = Type("DocumentRef.OutgoingEmail");
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion

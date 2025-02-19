@@ -13,6 +13,16 @@
 &AtClient
 Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 	
+	If Not DataExchangeServerCall.SUBAssetIsIncludedInDSLExchangePlans(CommandParameter) Then
+		
+		Text = NStr("en = 'The command is not intended for this node type';",
+			CommonClient.DefaultLanguageCode());
+		ShowMessageBox(, Text);
+		
+		Return;
+	
+	EndIf;
+	
 	DataExchangeClient.OpenObjectsMappingWizardCommandProcessing(CommandParameter, CommandExecuteParameters.Source);
 	
 EndProcedure

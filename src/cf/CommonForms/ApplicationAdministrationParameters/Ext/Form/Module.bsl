@@ -91,7 +91,7 @@ Procedure OnOpen(Cancel)
 			Return; // Don't process. The form opens in the regular mode.
 		EndTry;
 		Cancel = True;
-		ExecuteNotifyProcessing(OnCloseNotifyDescription, AdministrationParameters);
+		RunCallback(CallbackDescriptionOnClose, AdministrationParameters);
 	EndIf;
 EndProcedure
 
@@ -211,7 +211,7 @@ Procedure CheckAdministrationParameters(AdministrationParameters)
 	If CommonClient.FileInfobase()
 		And AttachmentType = "COM" Then
 		
-		Notification = New NotifyDescription("CheckAdministrationParametersAfterCheckCOMConnector", ThisObject);
+		Notification = New CallbackDescription("CheckAdministrationParametersAfterCheckCOMConnector", ThisObject);
 		CommonClient.RegisterCOMConnector(False, Notification);
 	Else 
 		CheckAdministrationParametersAfterCheckCOMConnector(True, Undefined);

@@ -113,7 +113,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	EndIf;
 		
 	If Cancel Then
-		Notification = New NotifyDescription("FormClosingCompletion1", ThisObject);
+		Notification = New CallbackDescription("FormClosingCompletion1", ThisObject);
 		QueryText = NStr("en = 'Changes are not saved. Close the form?';");
 		ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo);
 	Else
@@ -183,7 +183,7 @@ Procedure MappingColumnsListStartChoice(Item, ChoiceData, StandardProcessing)
 	EndIf;
 	
 	FormParameters      = New Structure("ColumnsList", MapByColumn);
-	NotifyDescription  = New NotifyDescription("AfterColumnsChoiceForMapping", ThisObject);
+	NotifyDescription  = New CallbackDescription("AfterColumnsChoiceForMapping", ThisObject);
 	OpenForm("DataProcessor.ImportDataFromFile.Form.SelectColumns", FormParameters, ThisObject, , , , NotifyDescription, FormWindowOpeningMode.LockOwnerWindow);
 	
 EndProcedure
@@ -327,7 +327,7 @@ EndProcedure
 
 &AtClient
 Procedure CancelMapping(Command)
-	Notification = New NotifyDescription("AfterCancelMappingPrompt", ThisObject);
+	Notification = New CallbackDescription("AfterCancelMappingPrompt", ThisObject);
 	ShowQueryBox(Notification, NStr("en = 'Do you want to clear the mapping?';"), QuestionDialogMode.YesNo);
 EndProcedure
 
@@ -420,7 +420,7 @@ EndProcedure
 &AtClient
 Procedure ExportTemplateToFile(Command)
 	
-	Notification = New NotifyDescription("ExportTemplateToFileCompletion", ThisObject);
+	Notification = New CallbackDescription("ExportTemplateToFileCompletion", ThisObject);
 	BeginAttachingFileSystemExtension(Notification);
 	
 EndProcedure
@@ -430,7 +430,7 @@ Procedure ImportTemplateFromFile(Command)
 	
 	FileName = GenerateFileNameForMetadataObject(MappingObjectName);
 	
-	Notification = New NotifyDescription("ImportDataFromFileToTemplate", ThisObject);
+	Notification = New CallbackDescription("ImportDataFromFileToTemplate", ThisObject);
 	ImportDataFromFileClient.FileImportDialog(Notification, FileName);
 	
 EndProcedure
@@ -458,7 +458,7 @@ EndProcedure
 
 #Region Private
 
-//CLIENT ///////////////////////////////////////////
+/////////////////////////////////////// КЛИЕНТ ///////////////////////////////////////////
 
 // Ending the form closing dialog.
 &AtClient
@@ -490,7 +490,7 @@ Procedure ProceedToNextStepOfDataImport()
 		Items.AddToList.Visible = False;
 		Items.Next.Title = NStr("en = 'Add to list';");
 		Items.Next.DefaultButton = True;
-		Items.Back.Title = NStr("en = '< To Beginning';");
+		Items.Back.Title = NStr("en = '< To beginning';");
 	ElsIf Items.WizardPages.CurrentPage = Items.DataToImportMapping Then
 		Items.AddToList.Visible = False;
 		FormClosingConfirmation = True;
@@ -498,7 +498,7 @@ Procedure ProceedToNextStepOfDataImport()
 			Filter = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusUnmapped());
 			Rows = DataMappingTable.FindRows(Filter);
 			If Rows.Count() > 0 Then
-				Notification = New NotifyDescription("AfterAddToTabularSectionPrompt", ThisObject);
+				Notification = New CallbackDescription("AfterAddToTabularSectionPrompt", ThisObject);
 				ShowQueryBox(Notification, NStr("en = 'Rows that contain empty required cells will be skipped.';")
 					+ Chars.LF + NStr("en = 'Do you want to continue?';"), QuestionDialogMode.YesNo);
 				Return;
@@ -507,7 +507,7 @@ Procedure ProceedToNextStepOfDataImport()
 			ImportedDataAddress = MappingTableAddressInStorage();
 			Close(ImportedDataAddress);
 		ElsIf ImportType = "PastingFromClipboard" Then
-			Items.Back.Title = NStr("en = '< To Beginning';");
+			Items.Back.Title = NStr("en = '< To beginning';");
 			CloseFormAndReturnRefArray();
 		Else
 			Items.WizardPages.CurrentPage = Items.TimeConsumingOperations;
@@ -644,7 +644,7 @@ EndProcedure
 Procedure ExportTemplateToFileCompletion(Attached, AdditionalParameters) Export
 	
 	If Attached Then
-		Notification = New NotifyDescription("AfterFileChoiceForSaving", ThisObject);
+		Notification = New CallbackDescription("AfterFileChoiceForSaving", ThisObject);
 		FileName = GenerateFileNameForMetadataObject(MappingObjectName);
 		FileDialog = New FileDialog(FileDialogMode.Save);
 		FileDialog.Filter                      = NStr("en = 'Excel Workbook 97 (*.xls)|*.xls|Excel Workbook 2007 (*.xlsx)|*.xlsx|OpenDocument Spreadsheet (*.ods)|*.ods|Comma-separated values file (*.csv)|*.csv|Spreadsheet document (*.mxl)|*.mxl';");
@@ -654,7 +654,7 @@ Procedure ExportTemplateToFileCompletion(Attached, AdditionalParameters) Export
 		FileDialog.FullFileName = FileName;
 		FileSystemClient.ShowSelectionDialog(Notification, FileDialog);
 	Else
-		Notification = New NotifyDescription("AfterFileExtensionChoice", ThisObject);
+		Notification = New CallbackDescription("AfterFileExtensionChoice", ThisObject);
 		OpenForm("DataProcessor.ImportDataFromFile.Form.FileExtention",, ThisObject, True,,, Notification, FormWindowOpeningMode.LockOwnerWindow);
 	EndIf;
 	
@@ -665,7 +665,7 @@ Procedure NotifyFormsAboutChange(ReferencesArrray)
 	StandardSubsystemsClient.NotifyFormsAboutChange(ReferencesArrray);
 EndProcedure
 
-//SERVER ///////////////////////////////////////////
+/////////////////////////////////////// СЕРВЕР ///////////////////////////////////////////
 
 &AtServer
 Procedure InsertFromClipboardInitialization()
@@ -763,7 +763,7 @@ Procedure OpenChangeTemplateForm()
 	FormParameters.Insert("MappingObjectName", MappingObjectName);
 	FormParameters.Insert("ImportParameters", ImportParameters);
 	
-	Notification = New NotifyDescription("AfterCallFormChangeTemplate", ThisObject);
+	Notification = New CallbackDescription("AfterCallFormChangeTemplate", ThisObject);
 	OpenForm("DataProcessor.ImportDataFromFile.Form.EditTemplate1", FormParameters, ThisObject,,,, Notification, FormWindowOpeningMode.LockOwnerWindow);
 
 EndProcedure
@@ -994,7 +994,7 @@ Procedure MapDataToImport()
 		EndIf;
 		TextAboutColumns = TextAboutColumns + Chars.LF + NStr("en = 'Do you want to continue?';");
 		
-		Notification = New NotifyDescription("AfterQuestionAboutBlankStrings", ThisObject);
+		Notification = New CallbackDescription("AfterQuestionAboutBlankStrings", ThisObject);
 		ShowQueryBox(Notification, TextAboutColumns, QuestionDialogMode.YesNo,, DialogReturnCode.No);
 	Else
 		ExecuteDataToImportMappingStepAfterCheck();
@@ -1022,7 +1022,7 @@ Procedure ExecuteDataToImportMappingStepAfterCheck()
 			ExecuteDataToImportMappingStepClient();
 		EndIf;
 	Else
-		ExecutionProgressNotification = New NotifyDescription("ExecutionProgress", ThisObject);
+		ExecutionProgressNotification = New CallbackDescription("ExecutionProgress", ThisObject);
 		TimeConsumingOperation = MapDataToImportAtServerUniversalImport();
 		If TimeConsumingOperation.Status = "Running" Then
 			Items.WizardPages.CurrentPage = Items.TimeConsumingOperations;
@@ -1032,7 +1032,7 @@ Procedure ExecuteDataToImportMappingStepAfterCheck()
 		WaitSettings.OutputIdleWindow = False;
 		WaitSettings.ExecutionProgressNotification = ExecutionProgressNotification;
 		
-		Handler = New NotifyDescription("AfterMapImportedData", ThisObject);
+		Handler = New CallbackDescription("AfterMapImportedData", ThisObject);
 		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, Handler, WaitSettings);
 	EndIf;
 	
@@ -1081,12 +1081,12 @@ Procedure WriteDataToImportClient()
 			Items.WizardPages.CurrentPage = Items.TimeConsumingOperations;
 		EndIf;
 		
-		ExecutionProgressNotification = New NotifyDescription("ExecutionProgress", ThisObject);
+		ExecutionProgressNotification = New CallbackDescription("ExecutionProgress", ThisObject);
 		WaitSettings = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 		WaitSettings.OutputIdleWindow = False;
 		WaitSettings.ExecutionProgressNotification = ExecutionProgressNotification;
 		
-		Handler = New NotifyDescription("AfterSaveDataToImportReport", ThisObject);
+		Handler = New CallbackDescription("AfterSaveDataToImportReport", ThisObject);
 		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, Handler, WaitSettings);
 		
 	EndIf;
@@ -1101,7 +1101,7 @@ Procedure ReportAtClientBackgroundJob(NotOutputIdleWindow = True)
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	WaitSettings.OutputIdleWindow = Not NotOutputIdleWindow;
 	
-	Handler = New NotifyDescription("AfterCreateReport", ThisObject);
+	Handler = New CallbackDescription("AfterCreateReport", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, Handler, WaitSettings);
 	
 EndProcedure
@@ -1150,10 +1150,10 @@ Procedure ExecuteDataToImportMappingStepClient()
 				| • Multiple matches found: %2';");
 				TextNotFound = StringFunctionsClientServer.SubstituteParametersToString(TextNotFound, Statistics.NotFound4, Statistics.Ambiguous1, Statistics.Incomparable);
 			ElsIf Statistics.Ambiguous1 > 0 Then
-				TextNotFound = NStr("en = 'Rows that has multiple matches will be skipped: %1';");
+				TextNotFound = NStr("en = 'Rows that have multiple matches will be skipped: %1';");
 				TextNotFound = StringFunctionsClientServer.SubstituteParametersToString(TextNotFound, Statistics.Ambiguous1);
 			ElsIf Statistics.NotFound4 > 0 Then
-				TextNotFound = NStr("en = 'Rows that has no matches will be skipped: %1';");
+				TextNotFound = NStr("en = 'Rows that have no matches will be skipped: %1';");
 				TextNotFound = StringFunctionsClientServer.SubstituteParametersToString(TextNotFound, Statistics.NotFound4);
 			EndIf;
 			TextNotFound = TextNotFound + Chars.LF + NStr("en = 'To view skipped rows and map them manually, click ""Next"".';");
@@ -1266,7 +1266,7 @@ Procedure OpenResolveConflictForm(RowSelected, NameField1, StandardProcessing)
 					
 					Parameter = ConflictsMapParametersDetails(RowSelected, Name);
 					
-					Notification = New NotifyDescription("AfterMappingConflicts", ThisObject, Parameter);
+					Notification = New CallbackDescription("AfterMappingConflicts", ThisObject, Parameter);
 					OpenForm("DataProcessor.ImportDataFromFile.Form.ResolveConflicts", FormParameters, ThisObject, True , , , Notification, FormWindowOpeningMode.LockOwnerWindow);
 				EndIf;
 			EndIf;
@@ -1300,7 +1300,7 @@ Procedure OpenResolveConflictForm(RowSelected, NameField1, StandardProcessing)
 			
 			Parameter = New Structure("Id", RowSelected);
 			
-			Notification = New NotifyDescription("AfterMappingConflicts", ThisObject, Parameter);
+			Notification = New CallbackDescription("AfterMappingConflicts", ThisObject, Parameter);
 			OpenForm("DataProcessor.ImportDataFromFile.Form.ResolveConflicts", FormParameters, ThisObject, True , , , Notification, FormWindowOpeningMode.LockOwnerWindow);
 		EndIf;
 		
@@ -2114,7 +2114,7 @@ EndFunction
 Procedure ShowInfoBarAboutRequiredColumns()
 	
 	If Items.FillWithDataPages.CurrentPage = Items.ImportFromFileOptionPage Then
-		ToolTipText = NStr("en = 'Save the template to a file, open it in a spreadsheet editor, and enter the data.
+		ToolTipText = NStr("en = 'Save the template to a file, open it in a spreadsheet editor and enter the data.
 		|Then import the spreadsheet to the application. The application supports the following formats:
 		| • Microsoft Excel 97 Workbook (.xls) or Microsoft Excel 2007 Workbook (.xlsx)
 		| • LibreOffice Calc Spreadsheet (.ods)
@@ -2562,7 +2562,7 @@ Function BatchAttributesModificationAtServer(UpperPosition, LowerPosition)
 	Return ReferencesArrray;
 EndFunction
 
-//File management //////////////////////
+////////////////////// Работа с файлами //////////////////////
 
 &AtClient
 Procedure AfterFileChoiceForSaving(Result, AdditionalParameters) Export
@@ -2588,7 +2588,7 @@ Procedure AfterFileChoiceForSaving(Result, AdditionalParameters) Export
 					ShowMessageBox(, NStr("en = 'The file template is not saved.';"));
 					Return;
 				EndIf;
-				Notification = New NotifyDescription("AfterSaveSpreadsheetDocumentToFile", ThisObject);
+				Notification = New CallbackDescription("AfterSaveSpreadsheetDocumentToFile", ThisObject);
 				TemplateWithData.BeginWriting(Notification, PathToFile, FileType);
 			EndIf;
 		EndIf;
@@ -2615,8 +2615,8 @@ Procedure ImportDataFromFileToTemplate(Result, AdditionalParameters) Export
 		TimeConsumingOperation = ImportFileWithDataToSpreadsheetDocumentAtServer(TempStorageAddress, Extension);
 		WaitSettings = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 		WaitSettings.OutputIdleWindow = False;
-		WaitSettings.ExecutionProgressNotification = New NotifyDescription("ExecutionProgress", ThisObject);
-		Handler = New NotifyDescription("AfterImportDataFileToSpreadsheetDocument", ThisObject);
+		WaitSettings.ExecutionProgressNotification = New CallbackDescription("ExecutionProgress", ThisObject);
+		Handler = New CallbackDescription("AfterImportDataFileToSpreadsheetDocument", ThisObject);
 		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, Handler, WaitSettings);
 	EndIf;
 	
@@ -2762,7 +2762,7 @@ EndProcedure
 
 #Region BackgroundJobs
 
-// Background import of file with data
+// Фоновая загрузка файла с данными
 
 &AtServer
 Function ImportFileWithDataToSpreadsheetDocumentAtServer(TempStorageAddress, Extension)
@@ -2819,7 +2819,7 @@ Procedure AfterImportDataFileToSpreadsheetDocument(Result, AdditionalParameters)
 	
 EndProcedure
 
-// Background mapping of imported data
+// Фоновое сопоставление загруженных данных
 
 &AtServer
 Function MapDataToImportAtServerUniversalImport()
@@ -2867,7 +2867,7 @@ Procedure AfterMapImportedData(Result, AdditionalParameters) Export
 	
 EndProcedure
 
-// Background recording of imported data
+// Фоновая запись загружаемых данных
 
 &AtServer
 Function RecordDataToImportReportUniversalImport()
@@ -2924,7 +2924,7 @@ Procedure FillMappingTableFromTempStorage(AddressInTempStorage, RefsToNotificati
 	
 EndProcedure
 
-// Background report generation.
+// Фоновое формирование отчета
 
 &AtServer
 Function GenerateReportOnImport(ReportType = "AllItems",  CalculateProgressPercent = False)

@@ -692,7 +692,7 @@ Procedure PopulateAttributesOfSelectiveRegistrationByOCRCollection(SelectiveRegi
 	ResultTableGroup = ResultTable1.Copy();
 	ResultTableGroup.GroupBy("ObjectName, TabularSectionName");
 	
-	// Getting the resulting table taking into account grouped rows of the preliminary table.
+	// Get the resulting table with grouped rows from the preliminary table.
 	For Each TableRow In ResultTableGroup Do
 		
 		Filter = New Structure("ObjectName, TabularSectionName", TableRow.ObjectName, TableRow.TabularSectionName);

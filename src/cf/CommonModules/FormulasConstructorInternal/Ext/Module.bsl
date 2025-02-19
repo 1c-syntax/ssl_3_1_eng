@@ -203,7 +203,7 @@ Function FormulaElements(Val Formula) Export
 	AllItems = New Array;
 	OperandsAndFunctions = New Map;
 	
-	Separators = "()/*-+%=<>, " + Chars.Tab + Chars.LF;
+	Separators = "()/*-+%=<>, " + Chars.Tab + Chars.LF + Chars.CR;
 	OpeningParentheses = 0;
 	ThisIsStringInDoubleQuotes = False;
 	ThisIsStringInSingleQuotes = False;

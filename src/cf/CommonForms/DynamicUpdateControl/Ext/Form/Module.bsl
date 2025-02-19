@@ -109,7 +109,7 @@ EndProcedure
 &AtClient
 Procedure ScheduleClick(Item, StandardProcessing)
 	StandardProcessing = False;
-	CompletionHandler = New NotifyDescription("ScheduleClickCompletion", ThisObject);
+	CompletionHandler = New CallbackDescription("ScheduleClickCompletion", ThisObject);
 	List = New ValueList;
 	List.Add("Once", NStr("en = 'Once a day';"));
 	List.Add("Twice", NStr("en = 'Twice a day';"));
@@ -182,7 +182,7 @@ Procedure ScheduleClickCompletion(Result, AdditionalParameters) Export
 		Return;
 	EndIf;
 	
-	CompletionsHandler = New NotifyDescription("ScheduleClickAfterSelectingAnArbitrarySchedule", ThisObject);
+	CompletionsHandler = New CallbackDescription("ScheduleClickAfterSelectingAnArbitrarySchedule", ThisObject);
 	ScheduleDialog1 = New ScheduledJobDialog(New JobSchedule);
 	ScheduleDialog1.Show(CompletionsHandler);
 EndProcedure

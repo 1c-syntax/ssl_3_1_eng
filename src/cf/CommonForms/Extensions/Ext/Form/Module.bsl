@@ -156,7 +156,7 @@ Procedure ExtensionsListAttachOnChange(Item)
 	If Not CurrentExtension.Attach
 	   And IsExtensionWithData(CurrentExtension.ExtensionID) Then
 		
-		Notification = New NotifyDescription("DetachExtensionAfterConfirmation", ThisObject, Context);
+		Notification = New CallbackDescription("DetachExtensionAfterConfirmation", ThisObject, Context);
 		UsersInternalClient.ShowSecurityWarning(Notification,
 			UsersInternalClientServer.SecurityWarningKinds().BeforeDisableExtensionWithData);
 	Else
@@ -209,7 +209,7 @@ EndProcedure
 Procedure SaveAs(Command)
 	
 	SelectedRows = Items.ExtensionsList.SelectedRows;
-	NotifyDescription = New NotifyDescription("SaveAsCompletion", ThisObject, SelectedRows);
+	NotifyDescription = New CallbackDescription("SaveAsCompletion", ThisObject, SelectedRows);
 	
 	If SelectedRows.Count() = 0 Then
 		Return;
@@ -362,7 +362,7 @@ Procedure SetEmployeeResponsible(Command)
 	FormParameters.Insert("MultipleChoice", False);
 	FormParameters.Insert("AdvancedPick", False);
 	
-	Notification = New NotifyDescription("SetAssigneeAfterSelection", ThisObject);
+	Notification = New CallbackDescription("SetAssigneeAfterSelection", ThisObject);
 	
 	OpenForm("Catalog.Users.ChoiceForm", FormParameters, ThisObject,,,, Notification,
 		FormWindowOpeningMode.LockOwnerWindow);	
@@ -617,7 +617,7 @@ Procedure DeleteExtensions(SelectedRows)
 	Context = New Structure;
 	Context.Insert("ExtensionsIDs", ExtensionsIDs);
 	
-	Notification = New NotifyDescription("DeleteExtensionAfterConfirmation", ThisObject, Context);
+	Notification = New CallbackDescription("DeleteExtensionAfterConfirmation", ThisObject, Context);
 	WarningKind = ?(HasExtensionWithData(ExtensionsIDs),
 		UsersInternalClientServer.SecurityWarningKinds().BeforeDeleteExtensionWithData,
 		UsersInternalClientServer.SecurityWarningKinds().BeforeDeleteExtensionWithoutData);
@@ -634,14 +634,14 @@ Procedure DeleteExtensionAfterConfirmation(Result, Context) Export
 		Return;
 	EndIf;
 	
-	Notification = New NotifyDescription("DeleteExtensionFollowUp", ThisObject, Context);
+	Notification = New CallbackDescription("DeleteExtensionFollowUp", ThisObject, Context);
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
 		Queries = RequestsToRevokeExternalModuleUsagePermissions(Context.ExtensionsIDs);
 		ModuleSafeModeManagerClient = CommonClient.CommonModule("SafeModeManagerClient");
 		ModuleSafeModeManagerClient.ApplyExternalResourceRequests(Queries, ThisObject, Notification);
 	Else
-		ExecuteNotifyProcessing(Notification, DialogReturnCode.OK);
+		RunCallback(Notification, DialogReturnCode.OK);
 	EndIf;
 	
 EndProcedure
@@ -781,7 +781,7 @@ Procedure LoadExtension(Val ExtensionID, MultipleChoice = False)
 	Context.Insert("MultipleChoice", MultipleChoice);
 	Context.Insert("SelectedRows", ExtensionID);
 	
-	Notification = New NotifyDescription("LoadExtensionAfterConfirmation", ThisObject, Context);
+	Notification = New CallbackDescription("LoadExtensionAfterConfirmation", ThisObject, Context);
 	UsersInternalClient.ShowSecurityWarning(Notification,
 		UsersInternalClientServer.SecurityWarningKinds().BeforeAddExtensions);
 	
@@ -793,12 +793,12 @@ Procedure LoadExtensionAfterConfirmation(Response, Context) Export
 		Return;
 	EndIf;
 	
-	Notification = New NotifyDescription("LoadExtensionAfterPutFiles", ThisObject, Context);
+	Notification = New CallbackDescription("LoadExtensionAfterPutFiles", ThisObject, Context);
 	
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.Dialog.Filter = NStr("en = 'Configuration extensions';")+ " (*.cfe)|*.cfe";
 	ImportParameters.Dialog.Title = NStr("en = 'Select configuration extension file';");
-	ImportParameters.Dialog.CheckFileExist = True;
+	ImportParameters.Dialog.CheckFileExistence = True;
 	
 	ImportParameters.FormIdentifier = UUID;
 	FileSystemClient.ImportFiles(Notification, ImportParameters);
@@ -833,7 +833,7 @@ Procedure LoadExtensionAfterPutFiles(PlacedFiles, Context) Export
 	
 	Context.Insert("PlacedFiles", PlacedFiles);
 	
-	ClosingNotification1 = New NotifyDescription(
+	ClosingNotification1 = New CallbackDescription(
 		"LoadExtensionContinuation", ThisObject, Context);
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
@@ -851,7 +851,7 @@ Procedure LoadExtensionAfterPutFiles(PlacedFiles, Context) Export
 		ModuleSafeModeManagerClient.ApplyExternalResourceRequests(
 			PermissionsRequests, ThisObject, ClosingNotification1);
 	Else
-		ExecuteNotifyProcessing(ClosingNotification1, DialogReturnCode.OK);
+		RunCallback(ClosingNotification1, DialogReturnCode.OK);
 	EndIf;
 	
 EndProcedure
@@ -970,7 +970,7 @@ Procedure LoadExtensionCompletion()
 			NameReplacementConfirmation.OldName,
 			NameReplacementConfirmation.NewName);
 			
-		CompletionHandler = New NotifyDescription(
+		CompletionHandler = New CallbackDescription(
 			"LoadExtensionAfterQuestionNameReplacement", ThisObject, Context);
 		
 		Buttons = New ValueList;
@@ -1424,7 +1424,7 @@ Procedure AddPermissionRequest(PermissionsRequests, PlacedFiles, ExtensionID = U
 				TemporaryExtension = FindExtension(ExtensionID);
 				If TemporaryExtension = Undefined Then
 					Raise StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'The app does not have extensions with the id ""%1"". Probably, the extension was deleted by another user.';"),
+						NStr("en = 'The application does not have extensions with the id ""%1"". Probably, the extension was deleted by another user.';"),
 						ExtensionID);
 				EndIf;
 				UpdatedExtensionData = TemporaryExtension.GetData();
@@ -1548,7 +1548,7 @@ Procedure SetConditionalAppearance()
 	
 	ConditionalAppearance.Items.Clear();
 	
-	// Setting ViewOnly appearance parameter for common extensions and extensions passed from the master node to the subordinate DIB node.
+	// Setting ReadOnly appearance parameter for common extensions and extensions passed from the master node to the subordinate DIB node.
 	
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -1830,7 +1830,7 @@ Procedure DisableAttachExtensions()
 		Context = New Structure;
 		Context.Insert("RowID", CurrentExtension.GetID());
 	
-		Notification = New NotifyDescription("DetachExtensionAfterConfirmation", ThisObject, Context);
+		Notification = New CallbackDescription("DetachExtensionAfterConfirmation", ThisObject, Context);
 		UsersInternalClient.ShowSecurityWarning(Notification,
 			UsersInternalClientServer.SecurityWarningKinds().BeforeDisableExtensionWithData);
 
@@ -1838,24 +1838,24 @@ Procedure DisableAttachExtensions()
 		
 		If ExtensionsSynonyms.WithData.Count() = 1 Then
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'One of the selected extensions stores its data in the app. This data will become unavailable.
-				           |The related app data might become unchangeable.
+				NStr("en = 'One of the selected extensions stores its data in the application. This data will become unavailable.
+				           |The related application data might become unchangeable.
 				           |
-				           |The extension with data:
+				           |The extension with data stored in the application:
 				           | - %1';"),
 				ExtensionsSynonyms.WithData[0]);
 		Else
 			ExtensionsWithDataText = StrConcat(ExtensionsSynonyms.WithData, Chars.LF + " - ");
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Some selected extensions store their data in the app. This data will become unavailable.
-				           |The related app data might become unchangeable.
+				NStr("en = 'Some selected extensions store their data in the application. This data will become unavailable.
+				           |The related application data might become unchangeable.
 				           |
-				           |The extensions with data stored in the app:
+				           |The extensions with data stored in the application:
 				           | - %1';"),
 				ExtensionsWithDataText);
 		EndIf;
 			
-		CompletionHandler = New NotifyDescription(
+		CompletionHandler = New CallbackDescription(
 			"DisableExtensionsAfterQuestion", ThisObject);
 		
 		Buttons = New ValueList;
@@ -2075,7 +2075,7 @@ Procedure ToOpenTheFormCompleteTheUserExperience()
 	EndIf;
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.UsersSessions") Then
-		Notification = New NotifyDescription("AfterSettingTheExclusiveMode", ThisObject);
+		Notification = New CallbackDescription("AfterSettingTheExclusiveMode", ThisObject);
 		ModuleIBConnectionsClient = CommonClient.CommonModule("IBConnectionsClient");
 
 		FormParameters = ModuleIBConnectionsClient.ExclusiveModeSetErrorFormOpenParameters();
@@ -2090,7 +2090,7 @@ Procedure ToOpenTheFormCompleteTheUserExperience()
 			NStr("en = 'Couldn''t add extensions. Failed to terminate the user sessions:';"),
 			StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Couldn''t add extensions (%1). Failed to terminate the user sessions:';"), ItemsToImportCount));
-		FormParameters.LoginMessage = NStr("en = 'Cannot add extensions while the app is being used.';");
+		FormParameters.LoginMessage = NStr("en = 'The application is locked while extensions are being added.';");
 		FormParameters.ShouldCloseAllSessionsButCurrent = True;
 		FormParameters.ShouldCloseDesignerSession = True;
 		FormParameters.BlockingPeriod = 60;

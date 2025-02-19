@@ -169,8 +169,7 @@ Function SupplyThePathToTheProgramModules() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+#Region InfobaseUpdate
 
 Procedure FillInitialSettings(Programs = Undefined, WithoutEmbeddedCryptoprovider = False) Export
 	
@@ -368,6 +367,8 @@ Procedure FillInitialSettingsDeferred(ObjectsProcessed, ObjectsWithIssuesCount)
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 

@@ -546,6 +546,12 @@ EndProcedure
 //   ImportParameters - See ReportsClientServer.ReportFormUpdateParameters
 //   ReportSettings - Structure
 //
+// Returns:
+//   Structure:
+//     * Settings - DataCompositionSettings
+//     * UserSettings - DataCompositionUserSettings
+//     * FixedSettings - DataCompositionSettings
+//
 Function AvailableSettings(ImportParameters, ReportSettings) Export 
 	Settings = Undefined;
 	UserSettings = Undefined;
@@ -660,13 +666,13 @@ Procedure SetAvailableValues(Report, Form) Export
 			
 			SettingDetails = ReportsClientServer.FindAvailableSetting(
 				SettingsComposer.Settings, MainSettingItem);
-			// @skip-check query-in-loop - Query multiple tables.
+			// @skip-check query-in-loop - A multi-table query.
 			SetValidSettingsValues(Form, Report, SettingsComposer, UserSettingItem, MainSettingItem, SettingDetails);
 			
 			If TypeOf(MainSettingItem) = Type("DataCompositionFilterItem") Then
 				SettingDetails = SettingsComposer.Settings.StructureItemsFilterAvailableFields.FindField(MainSettingItem.LeftValue);
 				If SettingDetails <> Undefined Then
-					// @skip-check query-in-loop - Query multiple tables.
+					// @skip-check query-in-loop - A multi-table query.
 					SetValidSettingsValues(Form, Report, SettingsComposer, UserSettingItem, MainSettingItem, SettingDetails);
 				EndIf;
 			EndIf;
@@ -686,8 +692,7 @@ EndFunction
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Option settings.
+#Region OptionSettings
 
 // Defines output parameter properties that affect the display of title, data parameters, and filters.
 //  * Show title;
@@ -1061,8 +1066,9 @@ Procedure FillAdditionProperty(Settings, PropertyName, PropertyValue, DefaultVal
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// User settings.
+#EndRegion
+
+#Region UserSettings
 
 // Collects statistics on the number of user settings broken down by display modes.
 //
@@ -1070,7 +1076,7 @@ EndProcedure
 //  SettingsComposer - DataCompositionSettingsComposer - Relevant composer.
 //
 // Returns:
-//   Structure - Number of user settings broken down by display modes:
+//   Structure:
 //     * QuickAccessSettingsCount - Number - Number of settings with the "QuickAccess" or "Auto" display modes.
 //     * Typical - Number - Number of settings with the "Typical" display mode.
 //     * Total - Number - Total number of available settings.
@@ -1190,8 +1196,9 @@ Function UserSettingsItemPropertiesPalette()
 	Return Properties;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary
+#EndRegion
+
+#Region AuxiliaryDevices
 
 // Creates and returns an instance of the report by full metadata object name.
 //
@@ -1226,8 +1233,9 @@ Function ReportObject(Id) Export
 	EndIf;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Updating form items of user settings
+#EndRegion
+
+#Region UpdateUserSettingsFormItems
 
 Procedure BeforeUpdatingTheElementsOfTheSettingsForm(Form, ParametersOfUpdate)
 	
@@ -3313,8 +3321,9 @@ Procedure InitializeCheckBox(Form, IndexOf)
 	EndIf;
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Save form status.
+#EndRegion
+
+#Region SavingFormState
 
 // Stores the form state.
 // 
@@ -3402,8 +3411,9 @@ Procedure RestoreSelectedRows(Form, TableName, TableRows) Export
 	EndDo;
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Report is empty.
+#EndRegion
+
+#Region ReportIsBlank
 
 // Checks if there are external data sets.
 //
@@ -3437,8 +3447,9 @@ Function ThereIsExternalDataSet(DataSets)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Selection parameters.
+#EndRegion
+
+#Region ChoiceParameters
 
 Function ValuesForSelection(SetupParameters, TypeOrTypes = Undefined) Export
 	GettingChoiceDataParameters = New Structure("Filter, ChoiceFoldersAndItems");
@@ -3500,8 +3511,9 @@ Procedure AddItemsFromChoiceParametersToStructure(Structure, ChoiceParametersArr
 	EndDo;
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Data composition schema
+#EndRegion
+
+#Region DataCompositionSchema
 
 // Adds the selected data composition field.
 //
@@ -3543,8 +3555,9 @@ Function AddSelectedField(Where, DCNameOrField, Title = "") Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Context options.
+#EndRegion
+
+#Region ContextualOptions
 
 Procedure AddContextOptions(Report, Variants, ContextOptions) Export 
 	
@@ -3587,8 +3600,9 @@ Procedure AddContextOptions(Report, Variants, ContextOptions) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Miscellaneous.
+#EndRegion
+
+#Region Other
 
 Function ExtendedTypesDetails(SourceDescriptionOfTypes, CastToForm, PickingParameters = Undefined) Export
 	Result = New Structure;
@@ -3784,14 +3798,14 @@ Procedure SetValidSettingsValues(Form, Report, SettingsComposer, UserSettingItem
 	// Global settings of type output.
 	ReportsOverridable.OnDefineSelectionParameters(Undefined, SettingProperties);
 	
-	// Local override for a report.
+	// A local report overriding.
 	If Form.ReportSettings.Events.OnDefineSelectionParameters Then 
 		Report.OnDefineSelectionParameters(Form, SettingProperties);
 	EndIf;
 	
 	// Populate automatically.
 	If SettingProperties.SelectionValuesQuery.Text <> "" Then
-		// @skip-check query-in-loop - Query multiple tables.
+		// @skip-check query-in-loop - A multi-table query.
 		ValuesToAdd = SettingProperties.SelectionValuesQuery.Execute().Unload().UnloadColumn(0);
 		For Each Item In ValuesToAdd Do
 			ReportsClientServer.AddUniqueValueToList(
@@ -3806,5 +3820,7 @@ Procedure SetValidSettingsValues(Form, Report, SettingsComposer, UserSettingItem
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

@@ -82,12 +82,15 @@ Procedure UpdateRegisterData(AccessGroups = Undefined,
 	
 	BlankRecordsQuery = New Query;
 	BlankRecordsQuery.Text =
-	"SELECT TOP 1
-	|	TRUE AS TrueValue
+	"SELECT
+	|	AccessGroupsTables.Table AS Table
 	|FROM
 	|	InformationRegister.AccessGroupsTables AS AccessGroupsTables
 	|WHERE
-	|	AccessGroupsTables.Table = VALUE(Catalog.MetadataObjectIDs.EmptyRef)
+	|	AccessGroupsTables.Table IN (
+	|		VALUE(Catalog.MetadataObjectIDs.EmptyRef),
+	|		VALUE(Catalog.ExtensionObjectIDs.EmptyRef),
+	|		UNDEFINED)
 	|;
 	|
 	|////////////////////////////////////////////////////////////////////////////////
@@ -156,7 +159,6 @@ Procedure UpdateRegisterData(AccessGroups = Undefined,
 	|	Catalog.AccessGroups AS AccessGroups
 	|		INNER JOIN Catalog.AccessGroupProfiles AS AccessGroupProfiles
 	|		ON AccessGroups.Profile = AccessGroupProfiles.Ref
-	|			AND (AccessGroups.Profile <> &ProfileAdministrator)
 	|			AND (NOT AccessGroups.DeletionMark)
 	|			AND (NOT AccessGroupProfiles.DeletionMark)
 	|			AND (&AccessGroupFilterCriterion1)
@@ -261,7 +263,6 @@ Procedure UpdateRegisterData(AccessGroups = Undefined,
 	Fields.Add(New Structure("TableType"));
 	
 	Query = New Query;
-	Query.SetParameter("ProfileAdministrator", AccessManagement.ProfileAdministrator());
 	Query.SetParameter("ExtensionsRolesRights", AccessManagementInternal.ExtensionsRolesRights());
 	Query.Text = AccessManagementInternal.ChangesSelectionQueryText(
 		QueryText, Fields, "InformationRegister.AccessGroupsTables", TemporaryTablesQueriesText);
@@ -291,15 +292,18 @@ Procedure UpdateRegisterData(AccessGroups = Undefined,
 		Block.Lock();
 		Results = BlankRecordsQuery.ExecuteBatch();
 		If Not Results[0].IsEmpty() Then
-			RecordSet = CreateRecordSet();
-			RecordSet.Filter.Table.Set(Catalogs.MetadataObjectIDs.EmptyRef());
-			RecordSet.Write();
+			Selection = Results[0].Select();
+			While Selection.Next() Do
+				RecordSet = CreateRecordSet();
+				RecordSet.Filter.Table.Set(Selection.Table);
+				InfobaseUpdate.WriteRecordSet(RecordSet);
+			EndDo;
 			HasChanges = True;
 		EndIf;
 		If Not Results[1].IsEmpty() Then
 			RecordSet = CreateRecordSet();
 			RecordSet.Filter.AccessGroup.Set(Catalogs.AccessGroups.EmptyRef());
-			RecordSet.Write();
+			InfobaseUpdate.WriteRecordSet(RecordSet);
 			HasChanges = True;
 		EndIf;
 		

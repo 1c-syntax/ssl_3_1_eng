@@ -10,12 +10,18 @@
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
+#Region Variables
+
+Var OldRecords; // Filled "BeforeWrite" to use "OnWrite".
+
+#EndRegion
+
 #Region EventHandlers
 
 Procedure BeforeWrite(Cancel, Replacing)
 	
-	// ACC:75-on The DataExchange.Import check must follow the change records in the Event log.
-	WriteChangesToTheLog(ThisObject, Replacing);
+	// ACC:75-off - The DataExchange.Load check must follow the logging of changes.
+	PrepareChangesForLogging(ThisObject, Replacing, OldRecords);
 	// ACC:75-on
 	
 	If DataExchange.Load Then
@@ -32,12 +38,19 @@ EndProcedure
 
 Procedure OnWrite(Cancel, Replacing)
 	
+	// ACC:75-off - The DataExchange.Load check must follow the logging of changes.
+	DoLogChanges(ThisObject, Replacing, OldRecords);
+	
 	// For "DataExchange.Load", update the UUID in the constant "PeriodClosingDatesVersion",
 	// which notifies the sessions that the period-end closing dates cache needs to be updated.
+	If DataExchange.Load
+	   And Not AdditionalProperties.Property("SkipPeriodClosingDatesVersionUpdate") Then
+		
+		PeriodClosingDatesInternal.UpdatePeriodClosingDatesVersionOnDataImport(ThisObject);
+	EndIf;
+	// ACC:75-on
+	
 	If DataExchange.Load Then
-		If Not AdditionalProperties.Property("SkipPeriodClosingDatesVersionUpdate") Then
-			PeriodClosingDatesInternal.UpdatePeriodClosingDatesVersionOnDataImport(ThisObject);
-		EndIf;
 		Return;
 	EndIf;
 	
@@ -51,28 +64,40 @@ EndProcedure
 
 #Region Private
 
-Procedure WriteChangesToTheLog(Var_ThisObject, Replacing)
+Procedure PrepareChangesForLogging(RecordSet, Replacing, OldRecords)
 	
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
-	Table = Unload();
-	Table.Columns.Add("LineChangeType", New TypeDescription("Number"));
-	Table.FillValues(1, "LineChangeType");
+	RegisterMetadata = Metadata.InformationRegisters.PeriodClosingDates;
 	
-	If Replacing Then
-		OldRecords = InformationRegisters.PeriodClosingDates.CreateRecordSet();
-		For Each FilterElement In Filter Do
-			If FilterElement.Use Then
-				OldRecords.Filter[FilterElement.Name].Set(FilterElement.Value);
-			EndIf;
-		EndDo;
-		OldRecords.Read();
-		For Each OldRecord In OldRecords Do
-			NewRow = Table.Add();
-			FillPropertyValues(NewRow, OldRecord);
-			NewRow.LineChangeType = -1;
-		EndDo;
+	Fields = New Array;
+	Fields.Add(RegisterMetadata.Dimensions.Section.Name);
+	Fields.Add(RegisterMetadata.Dimensions.Object.Name);
+	Fields.Add(RegisterMetadata.Dimensions.User.Name);
+	Fields.Add(RegisterMetadata.Resources.PeriodEndClosingDate.Name);
+	Fields.Add(RegisterMetadata.Attributes.PeriodEndClosingDateDetails.Name);
+	Fields.Add(RegisterMetadata.Attributes.Comment.Name);
+	
+	FieldList = StrConcat(Fields, ",");
+	
+	OldRecords = Common.SetRecordsFromDatabase(RecordSet, Replacing, FieldList);
+	
+EndProcedure
+
+Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
+	
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+	
+	Table = Common.SetRecordsChange(OldRecords, RecordSet, Replacing);
+	
+	AddedRows = Table.FindRows(New Structure("LineChangeType", 1));
+	DeletedRows = Table.FindRows(New Structure("LineChangeType", -1));
+	
+	If Not ValueIsFilled(AddedRows)
+	   And Not ValueIsFilled(DeletedRows) Then
+		Return;
 	EndIf;
 	
 	RegisterMetadata = Metadata.InformationRegisters.PeriodClosingDates;
@@ -85,17 +110,6 @@ Procedure WriteChangesToTheLog(Var_ThisObject, Replacing)
 	AddAField(Fields, ColumnWidth_, RegisterMetadata.Resources.PeriodEndClosingDate, 20);
 	AddAField(Fields, ColumnWidth_, RegisterMetadata.Attributes.PeriodEndClosingDateDetails, 22);
 	AddAField(Fields, ColumnWidth_, RegisterMetadata.Attributes.Comment, 20);
-	
-	FieldList = StrConcat(Fields.UnloadValues(), ",");
-	Table.GroupBy(FieldList, "LineChangeType");
-	
-	AddedRows = Table.FindRows(New Structure("LineChangeType", 1));
-	DeletedRows = Table.FindRows(New Structure("LineChangeType", -1));
-	
-	If Not ValueIsFilled(AddedRows)
-	   And Not ValueIsFilled(DeletedRows) Then
-		Return;
-	EndIf;
 	
 	Title = New Array;
 	Title.Add("");

@@ -136,7 +136,7 @@ Procedure InitializeItemsInForm(Val Warnings)
 	EndDo;
 	
 	// Footer.
-	LabelText = NStr("en = 'Exit the app?';");
+	LabelText = NStr("en = 'Exit the application?';");
 	
 	LabelName    = FindLabelNameInForm("QuestionLabel1");
 	LabelGroup = GenerateFormItemGroup();
@@ -400,7 +400,7 @@ Procedure ExecuteTasksOnClose(Result = Undefined, InitialTaskNumber = Undefined)
 		If ArrayElement.Value.Property("Form", Form) Then 
 			FormParameters = Undefined;
 			If ArrayElement.Value.Property("FormParameters", FormParameters) Then 
-				Notification = New NotifyDescription("ExecuteTasksOnClose", ThisObject, TaskNumber + 1);
+				Notification = New CallbackDescription("ExecuteTasksOnClose", ThisObject, TaskNumber + 1);
 				OpenForm(Form, StructureFromFixedStructure(FormParameters),,,,,Notification, FormWindowOpeningMode.LockOwnerWindow);
 				Return;
 			EndIf;

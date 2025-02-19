@@ -50,7 +50,7 @@ Procedure FullPathStartChoice(Item, ChoiceData, StandardProcessing)
 	StandardProcessing = False;
 	
 	Title = NStr("en = 'Select a folder to store exchange files';");
-	CompletionHandler = New NotifyDescription("FullPathToSelectionCompletion", ThisObject);
+	CompletionHandler = New CallbackDescription("FullPathToSelectionCompletion", ThisObject);
 	
 	FileSystemClient.SelectDirectory(CompletionHandler, Title, Record.FullPath);
 	
@@ -85,13 +85,13 @@ Procedure Save(Command)
 		Return;
 	EndIf;
 	
-	TimeIntervals = New Array;
+	TimeIntervals_ = New Array;
 	For Each String In SelectedRows Do
 		ListLine = Items.ArchiveOfExchangeMessages.RowData(String);
-		TimeIntervals.Add(ListLine.Period);
+		TimeIntervals_.Add(ListLine.Period);
 	EndDo;
 		
-	FilesForDownloading = PrepareFilesAtServer(Record.InfobaseNode, TimeIntervals);
+	FilesForDownloading = PrepareFilesAtServer(Record.InfobaseNode, TimeIntervals_);
 	If FilesForDownloading.Count() <> 0 Then
 		Title = NStr("en = 'Select a directory to save the files';");
 		DialogParameters = New GetFilesDialogParameters(Title, True);
@@ -180,7 +180,7 @@ Procedure AppendFullPath()
 EndProcedure
 
 &AtServerNoContext
-Function PrepareFilesAtServer(InfobaseNode, TimeIntervals)
+Function PrepareFilesAtServer(InfobaseNode, TimeIntervals_)
 	
 	Query = New Query;
 	Query.Text = 
@@ -188,18 +188,18 @@ Function PrepareFilesAtServer(InfobaseNode, TimeIntervals)
 		|	Archive.FullFileName AS FullFileName,
 		|	Archive.Period AS Period,
 		|	Archive.ReceivedMessageNumber AS ReceivedMessageNumber,
-		|	Archive.Store AS Store,
+		|	Archive.Storage AS Storage,
 		|	Archive.FileName AS FileName,
 		|	Archive.FileExtention AS FileExtention
 		|FROM
 		|	InformationRegister.ArchiveOfExchangeMessages AS Archive
 		|WHERE
-		|	Archive.Period IN(&TimeIntervals)
+		|	Archive.Period IN(&TimeIntervals_)
 		|	AND Archive.InfobaseNode = &InfobaseNode
 		|	AND NOT Archive.IsFileExceeds100MB";
 	
 	Query.SetParameter("InfobaseNode", InfobaseNode);
-	Query.SetParameter("TimeIntervals", TimeIntervals);
+	Query.SetParameter("TimeIntervals_", TimeIntervals_);
 	
 	Selection = Query.Execute().Select();
 	
@@ -210,7 +210,7 @@ Function PrepareFilesAtServer(InfobaseNode, TimeIntervals)
 		If Selection.FullFileName <> "" Then
 			BinaryData = New BinaryData(Selection.FullFileName);	
 		Else
-			BinaryData = Selection.Store.Get();
+			BinaryData = Selection.Storage.Get();
 		EndIf; 
 		
 		If BinaryData = Undefined Then

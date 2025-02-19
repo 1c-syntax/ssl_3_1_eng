@@ -51,8 +51,27 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	CertificateProperties = DigitalSignature.CertificateProperties(Certificate);
-	CertificateAdditionalProperties = DigitalSignatureInternalClientServer.CertificateAdditionalProperties(
-		CertificateData);
+	
+	AreCertificateAdditionalPropertiesAvailable = DigitalSignatureInternalClientServer.AreCertificateAdditionalPropertiesAvailable();
+	
+	If AreCertificateAdditionalPropertiesAvailable Then
+		Items.GroupLicenseCryptoPro.Visible = CertificateProperties.ContainsEmbeddedLicenseCryptoPro;
+		SignAlgorithm = DigitalSignatureInternalClientServer.SignAlgorithmPresentation(
+			CertificateProperties.AlgorithmOfPublicKey, True, True);
+		Items.GroupErrorGettingReviewLists.Visible = False;
+		AssignmentCodes = StrReplace(CertificateProperties.Purpose, Chars.LF, ", ");
+		For Each Address In CertificateProperties.AddressesOfRevocationLists Do
+			NewRow = RevocationLists.Add();
+			NewRow.Address = Address;
+		EndDo;
+	Else
+		CertificateAdditionalProperties = DigitalSignatureInternalClientServer.CertificateAdditionalProperties(
+			CertificateData);
+		Items.GroupLicenseCryptoPro.Visible = CertificateAdditionalProperties.ContainsEmbeddedLicenseCryptoPro;
+		SignAlgorithm = DigitalSignatureInternalClientServer.CertificateSignAlgorithm(
+			CertificateData, True);
+		FillCertificatePurposeCodes(CertificateProperties.Purpose, AssignmentCodes);
+	EndIf;
 	
 	AssignmentSign = Certificate.UseToSign;
 	AssignmentEncryption = Certificate.UseToEncrypt;
@@ -64,15 +83,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	PrivateKeyExpirationDate = CertificateProperties.PrivateKeyExpirationDate;
 	Items.PrivateKeyExpirationDate.Visible = ValueIsFilled(PrivateKeyExpirationDate);
 	
-	SignAlgorithm = DigitalSignatureInternalClientServer.CertificateSignAlgorithm(
-		CertificateData, True);
-	
 	Items.SignAlgorithm.ToolTip =
 		Metadata.Catalogs.DigitalSignatureAndEncryptionApplications.Attributes.SignAlgorithm.Tooltip;
-	
-	Items.GroupLicenseCryptoPro.Visible = CertificateAdditionalProperties.ContainsEmbeddedLicenseCryptoPro;
-	
-	FillCertificatePurposeCodes(CertificateProperties.Purpose, AssignmentCodes);
 	
 	FillSubjectProperties(Certificate);
 	FillIssuerProperties(Certificate);
@@ -103,19 +115,20 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Items.GroupErrorGettingCertificatesChain.Visible = True;
 		EndIf;
 		
-		CertificatePropertiesExtended = DigitalSignatureInternal.CertificatePropertiesExtended(
-			CertificateData, UUID, ComponentObject);
-		ErrorWhenGettingReviewListAddressesOnServer = CertificatePropertiesExtended.Error;
-		HasError = ValueIsFilled(CertificatePropertiesExtended.Error);
-		Items.GroupErrorGettingReviewLists.Visible = HasError;
-		Items.RevocationLists.Visible = Not HasError;
-		If Not HasError Then
-			For Each CurrentAddress In CertificatePropertiesExtended.CertificateProperties.AddressesOfRevocationLists Do
-				NewRow = RevocationLists.Add();
-				NewRow.Address = CurrentAddress;
-			EndDo;
+		If Not DigitalSignatureInternalClientServer.AreCertificateAdditionalPropertiesAvailable() Then
+			CertificatePropertiesExtended = DigitalSignatureInternal.CertificatePropertiesExtended(
+				CertificateData, UUID, ComponentObject);
+			ErrorWhenGettingReviewListAddressesOnServer = CertificatePropertiesExtended.Error;
+			HasError = ValueIsFilled(CertificatePropertiesExtended.Error);
+			Items.GroupErrorGettingReviewLists.Visible = HasError;
+			Items.RevocationLists.Visible = Not HasError;
+			If Not HasError Then
+				For Each CurrentAddress In CertificatePropertiesExtended.CertificateProperties.AddressesOfRevocationLists Do
+					NewRow = RevocationLists.Add();
+					NewRow.Address = CurrentAddress;
+				EndDo;
+			EndIf;
 		EndIf;
-	
 	EndIf;
 	
 	If Parameters.Property("OpeningFromCertificateItemForm") Then
@@ -166,7 +179,8 @@ Procedure PagesOnCurrentPageChange(Item, CurrentPage)
 	EndIf;
 	
 	If CurrentPage = Items.PageRevocationLists 
-		And RevocationLists.Count() = 0 Then
+		And RevocationLists.Count() = 0
+		And Not DigitalSignatureInternalClientServer.AreCertificateAdditionalPropertiesAvailable() Then
 
 		FillInReviewLists();
 		
@@ -243,7 +257,7 @@ Procedure Validate(Command)
 	
 	AdditionalInspectionParameters = DigitalSignatureInternalClient.AdditionalCertificateVerificationParameters();
 	AdditionalInspectionParameters.MergeCertificateDataErrors = False;
-	DigitalSignatureInternalClient.CheckCertificate(New NotifyDescription(
+	DigitalSignatureInternalClient.CheckCertificate(New CallbackDescription(
 		"ValidateCompletion", ThisObject), CertificateAddress,,, AdditionalInspectionParameters);
 	Items.FormValidate.Enabled = False;
 	
@@ -340,7 +354,7 @@ Procedure FillSubjectProperties(Certificate)
 	PropertiesPresentations = New Map;
 	PropertiesPresentations["CommonName"] = NStr("en = 'Common name';");
 	PropertiesPresentations["Country"] = NStr("en = 'Country';");
-	PropertiesPresentations["State"] = NStr("en = 'State';");
+	PropertiesPresentations["State_SSLym"] = NStr("en = 'State';");
 	PropertiesPresentations["Locality"] = NStr("en = 'Locality';");
 	PropertiesPresentations["Street"] = NStr("en = 'Street';");
 	PropertiesPresentations["Organization"] = NStr("en = 'Company';");
@@ -372,7 +386,7 @@ Procedure FillIssuerProperties(Certificate)
 	PropertiesPresentations = New Map;
 	PropertiesPresentations["CommonName"] = NStr("en = 'Common name';");
 	PropertiesPresentations["Country"] = NStr("en = 'Country';");
-	PropertiesPresentations["State"] = NStr("en = 'State';");
+	PropertiesPresentations["State_SSLym"] = NStr("en = 'State';");
 	PropertiesPresentations["Locality"] = NStr("en = 'Locality';");
 	PropertiesPresentations["Street"] = NStr("en = 'Street';");
 	PropertiesPresentations["Organization"] = NStr("en = 'Company';");
@@ -402,7 +416,10 @@ Procedure FillInternalCertificateFields()
 	InternalContent.Clear();
 	CertificateBinaryData = GetFromTempStorage(CertificateAddress);
 	Certificate = New CryptoCertificate(CertificateBinaryData);
-	
+	AreCertificateAdditionalPropertiesAvailable = DigitalSignatureInternalClientServer.AreCertificateAdditionalPropertiesAvailable();
+	Items.InternalContentId.Visible = True;
+	Items.InternalContentProperty.Visible = True;
+
 	If InternalFieldsGroup = "Overall" Then
 		Items.InternalContentId.Visible = False;
 		
@@ -410,11 +427,20 @@ Procedure FillInternalCertificateFields()
 		AddProperty(Certificate, "ValidFrom",                NStr("en = 'Start date';"));
 		AddProperty(Certificate, "ValidTo",             NStr("en = 'End date';"));
 		
-		If ValueIsFilled(CertificateAdditionalProperties.PrivateKeyStartDate) Then
-			AddProperty(CertificateAdditionalProperties, "PrivateKeyStartDate",    NStr("en = 'Private key start date';"));
-		EndIf;
-		If ValueIsFilled(CertificateAdditionalProperties.PrivateKeyExpirationDate) Then
-			AddProperty(CertificateAdditionalProperties, "PrivateKeyExpirationDate", NStr("en = 'Private key end date';"));
+		If AreCertificateAdditionalPropertiesAvailable Then
+			If ValueIsFilled(Certificate.UniversalStartDateOfPrivateKey) Then
+				AddProperty(Certificate, "UniversalStartDateOfPrivateKey",    NStr("en = 'Private key start date';"));
+			EndIf;
+			If ValueIsFilled(Certificate.UniversalEndDateOfPrivateKey) Then
+				AddProperty(Certificate, "UniversalEndDateOfPrivateKey", NStr("en = 'Private key end date';"));
+			EndIf;
+		Else
+			If ValueIsFilled(CertificateAdditionalProperties.PrivateKeyStartDate) Then
+				AddProperty(CertificateAdditionalProperties, "PrivateKeyStartDate",    NStr("en = 'Private key start date';"));
+			EndIf;
+			If ValueIsFilled(CertificateAdditionalProperties.PrivateKeyExpirationDate) Then
+				AddProperty(CertificateAdditionalProperties, "PrivateKeyExpirationDate", NStr("en = 'Private key end date';"));
+			EndIf;
 		EndIf;
 		
 		AddProperty(Certificate, "UseToSign",    NStr("en = 'Use for signature';"));
@@ -423,15 +449,49 @@ Procedure FillInternalCertificateFields()
 		AddProperty(Certificate, "Thumbprint",                 NStr("en = 'Thumbprint';"), True);
 		AddProperty(Certificate, "SerialNumber",             NStr("en = 'Serial number';"), True);
 		
+	ElsIf InternalFieldsGroup = "Extensions" And AreCertificateAdditionalPropertiesAvailable Then
+		
+		IDsNames = New ValueList;
+		IDsNames.Add("2.5.29.31", NStr("en = 'Revocation list distribution points';"));
+		IDsNames.Add("2.5.29.16", NStr("en = 'Privet key validity period';"));
+		IDsNames.Add("2.5.29.15", NStr("en = 'Key usage';"));
+		IDsNames.Add("2.5.29.37", NStr("en = 'Enhanced key';"));
+		IDsNames.Add("1.2.643.100.114", NStr("en = 'Identification type during the certificate issuance';"));
+		IDsNames.Add("1.2.643.100.112", NStr("en = 'Issuer CA and digital signature tools';"));
+		IDsNames.Add("2.5.29.32", NStr("en = 'Certificate policies';"));
+		IDsNames.Add("1.3.6.1.5.5.7.1.1", NStr("en = 'Addresses for importing issuer certificates and OCSP services';"));
+		IDsNames.Add("1.2.643.100.111", NStr("en = 'Owner digital signature tool';"));
+		IDsNames.Add("2.5.29.19", NStr("en = 'Main limitations';"));
+		IDsNames.Add("1.2.643.2.2.49.2", NStr("en = 'Limited CryptoPro CSP license';"));
+				
+		Collection = Certificate.ДополненияСертификата;
+		
+		NamesAndIDs = New Map;
+		
+		For Each ListItem In IDsNames Do
+			If Collection[ListItem.Value] <> Undefined Then
+				AddProperty(Collection, ListItem.Value, ListItem.Presentation);
+			EndIf;
+			NamesAndIDs.Insert(ListItem.Value, True);
+			NamesAndIDs.Insert(ListItem.Presentation, True);
+		EndDo;
+		
+		For Each KeyAndValue In Collection Do
+			If NamesAndIDs.Get(KeyAndValue.Key) = Undefined Then
+				AddProperty(Collection, KeyAndValue.Key, KeyAndValue.Key);
+			EndIf;
+		EndDo;
+		
 	ElsIf InternalFieldsGroup = "Extensions" Then
 		Items.InternalContentId.Visible = False;
 		
 		Collection = Certificate.Extensions;
+		
 		For Each KeyAndValue In Collection Do
 			AddProperty(Collection, KeyAndValue.Key, KeyAndValue.Key);
 		EndDo;
+	
 	Else
-		Items.InternalContentId.Visible = True;
 		
 		IDsNames = New ValueList;
 		IDsNames.Add("OID2_5_4_3",              "CN");
@@ -478,7 +538,7 @@ Procedure AddProperty(PropertiesValues, Property, Presentation, Lowercase = Unde
 	Value = PropertiesValues[Property];
 	If TypeOf(Value) = Type("Date") Then
 		Value = ToLocalTime(Value, SessionTimeZone());
-	ElsIf TypeOf(Value) = Type("FixedArray") Then
+	ElsIf TypeOf(Value) = Type("FixedArray") Or TypeOf(Value) = Type("Array") Then
 		FixedArray = Value;
 		Value = "";
 		For Each ArrayElement In FixedArray Do
@@ -493,6 +553,7 @@ Procedure AddProperty(PropertiesValues, Property, Presentation, Lowercase = Unde
 			String.Property = Presentation;
 		EndIf;
 	Else
+		String.Id = Property;
 		String.Property = Presentation;
 	EndIf;
 	
@@ -544,7 +605,7 @@ EndProcedure
 &AtClient
 Procedure PopulateRootCertificates()
 	
-	DigitalSignatureInternalClient.GetCertificateChain(New NotifyDescription("AfterGotCertificatesChain", ThisObject),
+	DigitalSignatureInternalClient.GetCertificateChain(New CallbackDescription("AfterGotCertificatesChain", ThisObject),
 		CertificateAddress, UUID);
 	
 EndProcedure
@@ -616,9 +677,9 @@ Function CertificateAddress(RefThumbprint, FormIdentifier = Undefined)
 	CertificateData = Undefined;
 	
 	If TypeOf(RefThumbprint) = Type("CatalogRef.DigitalSignatureAndEncryptionKeysCertificates") Then
-		Store = Common.ObjectAttributeValue(RefThumbprint, "CertificateData");
-		If TypeOf(Store) = Type("ValueStorage") Then
-			CertificateData = Store.Get();
+		Storage = Common.ObjectAttributeValue(RefThumbprint, "CertificateData");
+		If TypeOf(Storage) = Type("ValueStorage") Then
+			CertificateData = Storage.Get();
 		EndIf;
 	Else
 		Query = New Query;

@@ -83,7 +83,7 @@ EndProcedure
 &AtClient
 Procedure ExecuteSettingsCheck()
 	TimeConsumingOperation = StartExecutionAtServer();
-	CallbackOnCompletion = New NotifyDescription("ProcessResult", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("ProcessResult", ThisObject);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);

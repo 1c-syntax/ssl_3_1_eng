@@ -130,8 +130,7 @@ Function FileExtensionInList(ExtensionsList, FileExtention) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// For user interface.
+#Region ForUI
 
 // Returns the message stating that locked files cannot be signed.
 //
@@ -298,8 +297,9 @@ Function IndexOfFileIcon(Val FileExtention) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Miscellaneous.
+#EndRegion
+
+#Region OtherItems
 
 // For internal use only.
 Procedure FillSignatureStatus(SignatureRow, CurrentDate) Export
@@ -323,26 +323,9 @@ Procedure FillSignatureStatus(SignatureRow, CurrentDate) Export
 		
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// File synchronization.
+#EndRegion
 
-Function AddressInCloudService(Service, Href) Export
-	
-	ObjectAddress = Href;
-	
-	If Not IsBlankString(Service) Then
-		If Service = "https://webdav.yandex.com" Then
-			ObjectAddress = StrReplace(Href, "https://webdav.yandex.com", "https://disk.yandex.com/client/disk");
-		ElsIf Service = "https://dav.box.com/dav" Then
-			ObjectAddress = "https://app.box.com/files/0/";
-		ElsIf Service = "https://dav.dropdav.com" Then
-			ObjectAddress = "https://www.dropbox.com/home/";
-		EndIf;
-	EndIf;
-	
-	Return ObjectAddress;
-	
-EndFunction
+#Region FilesSynchronization
 
 // Parameters to lock a file for editing.
 //
@@ -379,6 +362,8 @@ Function ComponentDetails() Export
 	Return Parameters;
 	
 EndFunction
+
+#EndRegion
 
 #Region TextExtraction
 
@@ -551,8 +536,7 @@ Function ScannedFileName(FileNumber, BasePrefix) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+#Region AuxiliaryProceduresAndFunctions
 
 Function IsReservedDirectoryName(SubDirectoryName)
 	
@@ -567,7 +551,7 @@ Function IsReservedDirectoryName(SubDirectoryName)
 EndFunction
 
 // Initializes parameter structure to add the file.
-// Use this function in StoredFiles.AddToFile and FilesOperationsInternalServerCall.AddFile.
+// Use this function in FilesOperations.AppendFile and FilesOperationsInternalServerCall.AppendFile.
 //
 Function FileAddingOptions(AdditionalAttributes = Undefined) Export
 	
@@ -947,5 +931,7 @@ Function ScanningParameters() Export
 	Return ScanningParameters;
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion

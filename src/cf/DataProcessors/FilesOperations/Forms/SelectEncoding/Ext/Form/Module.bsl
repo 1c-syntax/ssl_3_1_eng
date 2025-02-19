@@ -13,7 +13,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	Parameters.Property("CurrentEncoding", CurrentEncoding);
+	CurrentEncoding = Parameters.CurrentEncoding;
 	
 	ShowOnlyPrimaryEncodings = True;
 	FillEncodingsList(Not ShowOnlyPrimaryEncodings);

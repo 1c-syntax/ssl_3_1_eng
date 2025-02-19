@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
 	<CommandBarLocation>Bottom</CommandBarLocation>
 	<AutoCommandBar name="FormCommandBar" id="-1">
@@ -48,8 +48,8 @@
 				<Title formatted="false">
 					<v8:item>
 						<v8:lang>en</v8:lang>
-						<v8:content>The data was simultaneously changed in this application and in another one, which resulted in one object (catalog, document)
-having two versions. The conflict has been resolved automatically. If the conflict is resolved correctly or the warning is no longer relevant, click "Hide from list"</v8:content>
+						<v8:content>Data was simultaneously edited in this application and a peer application, resulting in two versions of the same object.
+The conflict was resolved automatically. If the conflict is resolved correctly or the warning is no longer relevant, click "Hide from list"</v8:content>
 					</v8:item>
 				</Title>
 			</ExtendedTooltip>
@@ -141,7 +141,7 @@ having two versions. The conflict has been resolved automatically. If the confli
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Show version from this app</v8:content>
+							<v8:content>Show local version</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="OpenVersionInThisApplicationExtendedTooltip" id="27"/>
@@ -152,7 +152,7 @@ having two versions. The conflict has been resolved automatically. If the confli
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Show version from another app</v8:content>
+							<v8:content>Show imported version</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="OpenVersionExtendedTooltip" id="25"/>
@@ -383,7 +383,7 @@ having two versions. The conflict has been resolved automatically. If the confli
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show version from another app</v8:content>
+					<v8:content>Show imported version</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -404,13 +404,13 @@ having two versions. The conflict has been resolved automatically. If the confli
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show version from this app</v8:content>
+					<v8:content>Show local version</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Open the version stored in this application.</v8:content>
+					<v8:content>Open local version</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>OpenVersionInThisApplication</Action>

@@ -41,12 +41,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.List.ChoiceMode = False;
 	EndIf;
 	
-	If Parameters.Property("ProfilesWithRolesMarkedForDeletion") Then
-		ShowProfiles = "Obsolete";
-	Else
-		ShowProfiles = "AllProfiles";
-	EndIf;
-	
+	ShowProfiles = ?(Parameters.ProfilesWithRolesMarkedForDeletion, "Obsolete", "AllProfiles");
 	If Not Parameters.ChoiceMode Then
 		SetFilter();
 	Else
@@ -82,7 +77,7 @@ EndProcedure
 &AtClient
 Procedure UsersKindStartChoice(Item, ChoiceData, StandardProcessing)
 	
-	NotifyDescription = New NotifyDescription("AfterAssignmentChoice", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterAssignmentChoice", ThisObject);
 	
 	UsersInternalClient.SelectPurpose(ThisObject,
 		NStr("en = 'Select profile assignment';"), True, True, NotifyDescription);
@@ -197,7 +192,7 @@ Procedure ListOnChangeAtServer()
 	
 EndProcedure
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

@@ -52,8 +52,7 @@ EndFunction
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Receiving and sending emails
+#Region SendAndReceiveEmails
 
 Procedure SendReceiveEmails() Export
 	
@@ -991,40 +990,30 @@ Function GetEmailMessagesByIDs(Mail, AccountData, MessagesToImportIDs,
 				
 				AddToEmailsArrayToGetFolder = False;
 				
-				Block = New DataLock;
-				If Common.FileInfobase() Then
-					LockItem = Block.Add("Catalog.EmailAccounts");
-					LockItem.Mode = DataLockMode.Shared;
-					LockItem = Block.Add("Catalog.EmailMessageFolders");
-					LockItem.Mode = DataLockMode.Shared;
-					Block.Add("InformationRegister.ReceivedEmailIDs");
-					Block.Add("InformationRegister.ReadReceipts");
-					Block.Add("Document.OutgoingEmail");
-					Block.Add("Document.IncomingEmail");
-				EndIf;
-				
-				BeginTransaction();
-				Try
-					Block.Lock();
+				IsOutgoingEmail1 = EmailAddressesEqual(AccountData.Email,
+					InternetEmailMessageSenderAddress(Message.From));
+				// @skip-check query-in-loop - Save data object-by-object.
+				RecordingResult = EmailMessageWriteResult(AccountData, Message, 
+					EmployeeResponsibleForProcessingEmails, AccountData.PutEmailInBaseEmailFolder,
+					AddToEmailsArrayToGetFolder, IsOutgoingEmail1);
 					
-					IsOutgoingEmail1 = EmailAddressesEqual(AccountData.Email,
-						InternetEmailMessageSenderAddress(Message.From));
-					// @skip-check query-in-loop - Save data object-by-object.
-					CreatedEmail = WriteEmail(AccountData, Message, 
-						EmployeeResponsibleForProcessingEmails, AccountData.PutEmailInBaseEmailFolder,
-						AddToEmailsArrayToGetFolder, IsOutgoingEmail1);
+				If RecordingResult.Success Then
 					
 					EmailsReceived1 = EmailsReceived1 + 1;
-					CommitTransaction();
 					
-				Except
+					EmailsReceived.AllRecievedEmails.Add(RecordingResult.CreatedEmail);
+					EmailsReceived.EmailsReceivedByAccount.Add(RecordingResult.CreatedEmail);
+					If AddToEmailsArrayToGetFolder Then
+						EmailsReceived.EmailsToDefineFolders.Add(RecordingResult.CreatedEmail);
+					EndIf; 
+			
+				Else
 					
-					RollbackTransaction();
 					ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Cannot receive the %1 email dated %2 from %3. Reason:
 						|%4';", Common.DefaultLanguageCode()),
 							Message.Subject, Message.PostingDate, Message.From.Address,
-							ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+							RecordingResult.ErrorText);
 					WriteLogEvent(EventLogEvent(), EventLogLevel.Error, , ,
 						ErrorMessageText);
 					
@@ -1040,12 +1029,6 @@ Function GetEmailMessagesByIDs(Mail, AccountData, MessagesToImportIDs,
 						EndDo;
 					EndIf;
 					
-				EndTry;
-				
-				EmailsReceived.AllRecievedEmails.Add(CreatedEmail);
-				EmailsReceived.EmailsReceivedByAccount.Add(CreatedEmail);
-				If AddToEmailsArrayToGetFolder Then
-					EmailsReceived.EmailsToDefineFolders.Add(CreatedEmail);
 				EndIf;
 				
 			EndDo;
@@ -1134,7 +1117,8 @@ Procedure GetEmailByIMAPProtocol(AccountData, Mail, EmailsReceived1, EmailsRecei
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t get the email headers. Folder: %1. Account: %2. Reason: %3';"),
 				ActiveFolderName, AccountData.Email, 
-				EmailOperations.ExtendedErrorPresentation(ErrorInfo(), Common.DefaultLanguageCode(), False)); 
+				EmailOperations.ExtendedErrorPresentation(ErrorInfo(), 
+					Common.DefaultLanguageCode(), False)); 
 			WriteLogEvent(EventLogEvent(), EventLogLevel.Error,
 				Metadata.Catalogs.EmailMessageFolders,, MessageText);
 			Continue;
@@ -1145,8 +1129,9 @@ Procedure GetEmailByIMAPProtocol(AccountData, Mail, EmailsReceived1, EmailsRecei
 			Continue;
 		EndIf;
 		
-		MessageText = StrTemplate(NStr("en = 'Receiving emails from folder ""%1"" for %2. Pending messages: %3';"),
-		                ActiveFolderName, AccountData.Email, ReceivableEmailsCount); 
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Receiving emails from folder ""%1"" for %2. Pending messages: %3';"),
+			ActiveFolderName, AccountData.Email, ReceivableEmailsCount); 
 		WriteLogEvent(EventLogEvent(), EventLogLevel.Information,
 			Metadata.Catalogs.EmailMessageFolders,, MessageText);
 		
@@ -1238,18 +1223,16 @@ Procedure GetEmailByIMAPProtocol(AccountData, Mail, EmailsReceived1, EmailsRecei
 			MessagesToImportIDs = Query.Execute().Unload().UnloadColumn("IDAtServer");
 			
 			EmailsImportedByIDCount = GetEmailMessagesByIDs(Mail, AccountData, 
-			                                                                MessagesToImportIDs, EmailsReceived);
+				MessagesToImportIDs, EmailsReceived);
 			
 			EmailsReceived1 = EmailsReceived1 + EmailsImportedByIDCount;
 			
-			MessageText = StrTemplate(NStr("en = 'Messages received from folder ""%1"" for %2: %3';"),
-			                ActiveFolderName, AccountData.Email, EmailsImportedByIDCount); 
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Messages received from folder ""%1"" for %2: %3';"),
+				ActiveFolderName, AccountData.Email, EmailsImportedByIDCount); 
 		
-			WriteLogEvent(EventLogEvent(),
-			                         EventLogLevel.Information,
-			                         Metadata.Catalogs.EmailMessageFolders,
-			                         ,
-			                         MessageText);
+			WriteLogEvent(EventLogEvent(), EventLogLevel.Information,
+				Metadata.Catalogs.EmailMessageFolders,, MessageText);
 		
 		EndIf;
 	EndDo;
@@ -1682,11 +1665,31 @@ Function GetEmailsIDsToDeleteAtServer(IDs, Account, DateToWhichToDelete)
 
 EndFunction
 
-Function WriteEmail(AccountData, Message, EmployeeResponsibleForProcessingEmails,
+Function EmailMessageWriteResult(AccountData, Message, EmployeeResponsibleForProcessingEmails,
 	PutEmailInBaseEmailFolder, AddToEmailsArrayToGetFolder, IsOutgoingEmail1);
+	
+	Result = New Structure;
+	Result.Insert("Success",         False);
+	Result.Insert("CreatedEmail", Undefined);
+	Result.Insert("TexErrors",      "");
+	
+	Block = New DataLock;
+	If Common.FileInfobase() Then
+		LockItem = Block.Add("Catalog.EmailAccounts");
+		LockItem.Mode = DataLockMode.Shared;
+		LockItem = Block.Add("Catalog.EmailMessageFolders");
+		LockItem.Mode = DataLockMode.Shared;
+		Block.Add("InformationRegister.ReceivedEmailIDs");
+		Block.Add("InformationRegister.ReadReceipts");
+		Block.Add("Document.OutgoingEmail");
+		Block.Add("Document.IncomingEmail");
+	EndIf;
 	
 	BeginTransaction();
 	Try
+		
+		Block.Lock();
+		
 		If IsOutgoingEmail1 Then
 			MailMessage = Documents.OutgoingEmail.CreateDocument();
 		Else
@@ -1723,10 +1726,14 @@ Function WriteEmail(AccountData, Message, EmployeeResponsibleForProcessingEmails
 			WriteReadReceiptProcessingRequest(MailMessage.Ref);
 		EndIf;
 	
-		CommitTransaction();
-	Except
+		CommitTransaction(); 
+		
+	Except 
+		
 		RollbackTransaction();
-		Raise;
+		Result.TexErrors = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		Return Result;
+		
 	EndTry;
 	
 	// Write the attachment outside of the email message writing transaction
@@ -1790,7 +1797,10 @@ Function WriteEmail(AccountData, Message, EmployeeResponsibleForProcessingEmails
 		AddToEmailsArrayToGetFolder = True;
 	EndIf;
 	
-	Return MailMessage.Ref;
+	Result.Success         = True;
+	Result.CreatedEmail = MailMessage.Ref;
+	
+	Return Result;
 	
 EndFunction
 
@@ -2265,21 +2275,42 @@ Function StringFieldFromEmailHeader(Message, TitleName)
 	
 	If IsBlankString(IDsString) Then 
 		
-		IDsString = EmailHeaderField(Message.Header, TitleName); 
+		IDsString = EmailHeaderField(Message.Header, TitleName);
+		
+	Else
+		
+		Return IDsString;
 		
 	EndIf;
-
-	Position = StrFind(IDsString, "<");
-	If Position <> 0 Then
-		IDsString = Mid(IDsString, Position+1);
-	EndIf;
 	
-	Position = StrFind(IDsString, ">");
-	If Position <> 0 Then
-		IDsString = Left(IDsString, Position-1);
-	EndIf;
+	RawIdentifiers = StrSplit(IDsString, ">");
+	IdsToReturn      = "";
 	
-	Return IDsString;
+	NeedNewline = False;
+	
+	For Each RawId In RawIdentifiers Do
+		
+		If IsBlankString(RawId) Then
+			
+			Continue;
+			
+		Else
+			
+			Id = StrReplace(RawId, "<", ""); 
+			
+			If NeedNewline Then
+				 IdsToReturn = IdsToReturn + Chars.LF;
+			EndIf;
+			
+			IdsToReturn = IdsToReturn + Id;
+			
+			NeedNewline = True;
+			
+		EndIf;
+		
+	EndDo;
+	
+	Return IdsToReturn;
 	
 EndFunction
 
@@ -2583,8 +2614,9 @@ Procedure DeterminePreviouslyImportedSubordinateEmails(Account, EmailsReceived);
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Operations with email attachments.
+#EndRegion
+
+#Region EmailAttachmentsOperation
 
 Function InternetEmailMessageFromBinaryData(BinaryData) 
 	
@@ -2987,8 +3019,9 @@ Function FileIsEmail(FileName, BinaryData) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Read receipts
+#EndRegion
+
+#Region ReadReceipts
 
 // Returns:
 //  CatalogRef.EmailAccounts - Default email account.
@@ -3048,8 +3081,9 @@ Procedure SetNotificationSendingFlag(MailMessage, Send) Export
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Miscellaneous.
+#EndRegion
+
+#Region Other
 
 Function GetEmailImportance(Importance)
 	
@@ -3428,5 +3462,7 @@ Function LockAccount(Account)
 	Return True;
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion

@@ -29,9 +29,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	CommandsTypes.Add(Enums.AdditionalDataProcessorsCallMethods.OpeningForm);
 	CommandsTypes.Add(Enums.AdditionalDataProcessorsCallMethods.SafeModeScenario);
 	
-	Query = AdditionalReportsAndDataProcessors.NewQueryByAvailableCommands(Parameters.DataProcessorsKind, Parameters.SectionRef, , CommandsTypes, False);
-	ResultTable1 = Query.Execute().Unload();
-	UsedCommands.Load(ResultTable1);
+	AdditionalCommands = AdditionalReportsAndDataProcessors.AdditionalCommands(Parameters.DataProcessorsKind, 
+		Parameters.SectionRef, , CommandsTypes, False);
+	UsedCommands.Load(AdditionalCommands);
 EndProcedure
 
 #EndRegion

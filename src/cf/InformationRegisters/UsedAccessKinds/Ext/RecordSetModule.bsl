@@ -20,7 +20,7 @@ Var OldRecords; // Filled "BeforeWrite" to use "OnWrite".
 
 Procedure BeforeWrite(Cancel, Replacing)
 	
-	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
+	// ACC:75-off - The DataExchange.Load check must follow the logging of changes.
 	If UsersInternalCached.ShouldRegisterChangesInAccessRights() Then
 		PrepareChangesForLogging(ThisObject, Replacing, OldRecords);
 	EndIf;
@@ -34,7 +34,7 @@ EndProcedure
 
 Procedure OnWrite(Cancel, Replacing)
 	
-	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
+	// ACC:75-off - The DataExchange.Load check must follow the logging of changes.
 	If UsersInternalCached.ShouldRegisterChangesInAccessRights() Then
 		DoLogChanges(ThisObject, Replacing, OldRecords);
 	EndIf;
@@ -50,26 +50,19 @@ EndProcedure
 
 #Region Private
 
-Procedure PrepareChangesForLogging(Var_ThisObject, Replacing, OldRecords)
+Procedure PrepareChangesForLogging(RecordSet, Replacing, OldRecords)
 	
-	RecordSet = InformationRegisters.UsedAccessKinds.CreateRecordSet();
-	
-	If Replacing Then
-		For Each FilterElement In Filter Do
-			If FilterElement.Use Then
-				RecordSet.Filter[FilterElement.Name].Set(FilterElement.Value);
-			EndIf;
-		EndDo;
-		RecordSet.Read();
-	EndIf;
-	
-	OldRecords = RecordSet.Unload();
+	OldRecords = Common.SetRecordsFromDatabase(RecordSet, Replacing, FieldList());
 	
 EndProcedure
 
 Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
 	
-	Table = Unload();
+	If Common.IsRecordSetDeletion(Replacing) Then
+		Table = RecordSet.Unload(New Array, FieldList());
+	Else
+		Table = RecordSet.Unload(, FieldList());
+	EndIf;
 	Table.Columns.Add("ChangeType", New TypeDescription("String"));
 	Table.FillValues("Added2", "ChangeType");
 	
@@ -112,6 +105,19 @@ Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
 	SetSafeModeDisabled(False);
 	
 EndProcedure
+
+// Intended for procedures "PrepareChangesForLogging" and "DoLogChanges".
+Function FieldList()
+	
+	RegisterMetadata = Metadata();
+	
+	Fields = New Array;
+	Fields.Add(RegisterMetadata.Dimensions.AccessValuesType.Name);
+	Fields.Add(RegisterMetadata.Resources.Used.Name);
+	
+	Return StrConcat(Fields, ",");
+	
+EndFunction
 
 #EndRegion
 

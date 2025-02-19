@@ -14,7 +14,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// SaaSTechnology.ExportImportData
+// CloudTechnology.ExportImportData
 
 // Attached in ExportImportDataOverridable.OnRegisterDataExportHandlers.
 //
@@ -46,7 +46,7 @@ Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object,
 	
 EndProcedure
 
-// End SaaSTechnology.ExportImportData
+// End CloudTechnology.ExportImportData
 
 #EndRegion
 

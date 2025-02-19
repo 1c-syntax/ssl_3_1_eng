@@ -16,15 +16,10 @@
 // Configuration subsystems event handlers.
 
 // See CommonOverridable.OnAddMetadataObjectsRenaming.
-Procedure OnAddMetadataObjectsRenaming(Total) Export
+Procedure OnAddMetadataObjectsRenaming(Renamings) Export
 	
-	Library = "StandardSubsystems";
-	
-	Common.AddRenaming(Total,
-		"2.2.1.12",
-		"Subsystem.SetupAndAdministration",
-		"Subsystem.Administration",
-		Library);
+	Common.AddRenaming(Renamings, "2.2.1.12",
+		"Subsystem.SetupAndAdministration", "Subsystem.Administration", "StandardSubsystems");
 	
 EndProcedure
 

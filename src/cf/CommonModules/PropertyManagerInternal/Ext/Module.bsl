@@ -13,8 +13,8 @@
 // Returns the list of all metadata object properties.
 //
 // Parameters:
-//  ObjectsKind - String - a full name of a metadata object;
-//  PropertyKind  - String - "AdditionalAttributes", "AdditionalInfo", or "Labels".
+//  ObjectsKind - String -  full name of the metadata object;
+//  
 //
 // Returns:
 //  ValueTable - Property, Description, ValueType, and FormatProperties.
@@ -64,7 +64,7 @@ Function PropertiesListForObjectsKind(ObjectsKind, Val PropertyKind) Export
 		|	&PropertiesTable AS PropertiesTable
 		|WHERE
 		|	PropertiesTable.Ref IN HIERARCHY (&Ref)
-		|	AND PropertiesTable.Property.PropertyKind IN (&PropertiesKinds)";
+		|	AND PropertiesTable.Property.PropertyKind1 IN (&PropertiesKinds)";
 	
 	PropertiesKinds = New Array;
 	If PropertyKind = "AdditionalAttributes" Then
@@ -250,8 +250,7 @@ Procedure ImportPropertiesValuesfromFile(ObjectReference, TableRow) Export
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
 Procedure OnAddUpdateHandlers(Handlers) Export
@@ -348,16 +347,24 @@ EndProcedure
 // See ObjectsVersioningOverridable.OnPrepareObjectData
 Procedure OnPrepareObjectData(Object, AdditionalAttributes) Export 
 	
-	GetAddlAttributes = PropertyManager.UseAddlAttributes(Object.Ref);
-	GetAddlInfo = PropertyManager.UseAddlInfo(Object.Ref);
+	PropertiesValues = New ValueTable;
 	
-	If GetAddlAttributes Or GetAddlInfo Then
-		For Each PropertyValue In PropertyManager.PropertiesValues(Object.Ref, GetAddlAttributes, GetAddlInfo) Do
-			Attribute = AdditionalAttributes.Add();
-			Attribute.Description = PropertyValue.Property;
-			Attribute.Value = PropertyValue.Value;
-		EndDo;
+	If Object.AdditionalProperties.Property("WrittenAdditionalInfo") Then
+		PropertiesValues = Object.AdditionalProperties.WrittenAdditionalInfo;
+	Else
+		GetAddlAttributes = PropertyManager.UseAddlAttributes(Object.Ref);
+		GetAddlInfo = PropertyManager.UseAddlInfo(Object.Ref);
+		
+		If GetAddlAttributes Or GetAddlInfo Then
+			PropertiesValues = PropertyManager.PropertiesValues(Object.Ref, GetAddlAttributes, GetAddlInfo);
+		EndIf;
 	EndIf;
+	
+	For Each PropertyValue In PropertiesValues Do
+		Attribute = AdditionalAttributes.Add();
+		Attribute.Description = PropertyValue.Property;
+		Attribute.Value = PropertyValue.Value;
+	EndDo;
 	
 EndProcedure
 
@@ -467,7 +474,7 @@ Procedure OnDefineSubordinateObjects(SubordinateObjects) Export
 
 EndProcedure
 
-// 
+// See NationalLanguageSupportServer.ObjectsSCHRepresentations
 Procedure OnDefineObjectsWithTablePresentation(Objects) Export
 	Objects.Add("Catalog.ObjectsPropertiesValues");
 	Objects.Add("Catalog.ObjectPropertyValueHierarchy");
@@ -539,6 +546,22 @@ Procedure OnGetFullTextSearchResults(ObjectMetadata, Value, Presentation) Export
 	EndIf;
 	
 EndProcedure
+
+// Checks if it is possible to use string of unlimited length for the property.
+Function UseUnlimitedString(PropertyValueType1, MultilineInputField) Export
+	
+	If PropertyValueType1.ContainsType(Type("String"))
+	   And PropertyValueType1.Types().Count() = 1
+	   And (PropertyValueType1.StringQualifiers.Length = 0
+		   Or MultilineInputField > 1) Then
+		Return True;
+	Else
+		Return False;
+	EndIf;
+	
+EndFunction
+
+#EndRegion
 
 #EndRegion
 
@@ -992,13 +1015,13 @@ EndFunction
 // Parameters:
 //   AdditionalObjectProperties - ValueTable
 //   Sets - ValueTable
-//   PropertyKind - EnumRef.PropertiesKinds
+//   PropertyKind1 - EnumRef.PropertiesKinds
 //
-Function PropertiesValues(AdditionalObjectProperties, Sets, PropertyKind) Export
+Function PropertiesValues(AdditionalObjectProperties, Sets, PropertyKind1) Export
 	
 	If AdditionalObjectProperties.Count() = 0 Then
 		// Preliminary quick check of additional properties usage.
-		PropertiesNotFound = AdditionalAttributesAndInfoNotFound(Sets, PropertyKind);
+		PropertiesNotFound = AdditionalAttributesAndInfoNotFound(Sets, PropertyKind1);
 		
 		If PropertiesNotFound Then
 			PropertiesDetails = New ValueTable;
@@ -1038,7 +1061,7 @@ Function PropertiesValues(AdditionalObjectProperties, Sets, PropertyKind) Export
 	Query.SetParameter("PropertiesSets", PropertiesSets);
 	Query.SetParameter("IsMainLanguage", Common.IsMainLanguage());
 	Query.SetParameter("LanguageCode", CurrentLanguage().LanguageCode);
-	Query.SetParameter("PropertyKind", PropertyKind);
+	Query.SetParameter("PropertyKind1", PropertyKind1);
 	
 	Query.Text =
 	"SELECT
@@ -1130,8 +1153,8 @@ Function PropertiesValues(AdditionalObjectProperties, Sets, PropertyKind) Export
 	|	CASE
 	|		WHEN AdditionalAttributesAndInfo.DeletionMark = TRUE
 	|			THEN 12
-	|		WHEN AdditionalAttributesAndInfo.PropertyKind = VALUE(Enum.PropertiesKinds.Labels)
-	|			THEN AdditionalAttributesAndInfo.PropertiesColor.Order + 1
+	|		WHEN AdditionalAttributesAndInfo.PropertyKind1 = VALUE(Enum.PropertiesKinds.Labels)
+	|			THEN AdditionalAttributesAndInfo.PropertyColor.Order + 1
 	|		ELSE 11
 	|	END AS PictureNumber
 	|FROM
@@ -1140,22 +1163,22 @@ Function PropertiesValues(AdditionalObjectProperties, Sets, PropertyKind) Export
 	|		ON AllProperties.Property = AdditionalAttributesAndInfo.Ref
 	|WHERE
 	|	AdditionalAttributesAndInfo.IsAdditionalInfo = &IsAdditionalInfoSets
-	|	AND AdditionalAttributesAndInfo.PropertyKind IN (VALUE(Enum.PropertiesKinds.EmptyRef), &PropertyKind)
+	|	AND AdditionalAttributesAndInfo.PropertyKind1 IN (VALUE(Enum.PropertiesKinds.EmptyRef), &PropertyKind1)
 	|ORDER BY
 	|	Deleted,
 	|	AllProperties.SetOrder,
 	|	AllProperties.PropertyOrder";
 	
-	If PropertyKind = Enums.PropertiesKinds.AdditionalInfo Then
+	If PropertyKind1 = Enums.PropertiesKinds.AdditionalInfo Then
 		Query.Text = StrReplace(
 			Query.Text,
 			"Catalog.AdditionalAttributesAndInfoSets.AdditionalAttributes",
 			"Catalog.AdditionalAttributesAndInfoSets.AdditionalInfo");
 		IsAdditionalInfoSets = True;
-	ElsIf PropertyKind = Enums.PropertiesKinds.Labels Then
+	ElsIf PropertyKind1 = Enums.PropertiesKinds.Labels Then
 		Query.Text = StrReplace(
 			Query.Text,
-			"IN (VALUE(Enum.PropertiesKinds.EmptyRef), &PropertyKind)",
+			"IN (VALUE(Enum.PropertiesKinds.EmptyRef), &PropertyKind1)",
 			"= VALUE(Enum.PropertiesKinds.Labels)");
 		IsAdditionalInfoSets = False;
 	Else
@@ -1219,7 +1242,7 @@ Function PropertiesValues(AdditionalObjectProperties, Sets, PropertyKind) Export
 		PropertyDetails = PropertiesDetails.Find(LongDesc.Property, "Property");
 		If PropertyDetails <> Undefined Then
 			// Support of strings with unlimited length.
-			If PropertyKind = Enums.PropertiesKinds.AdditionalAttributes Then
+			If PropertyKind1 = Enums.PropertiesKinds.AdditionalAttributes Then
 				UseStringAsLink = UseStringAsLink(
 					PropertyDetails.ValueType,
 					PropertyDetails.OutputAsHyperlink,
@@ -1437,20 +1460,6 @@ Function ValueTypeContainsPropertyValues(ValueType) Export
 	
 EndFunction
 
-// Checks if it is possible to use string of unlimited length for the property.
-Function UseUnlimitedString(PropertyValueType1, MultilineInputField) Export
-	
-	If PropertyValueType1.ContainsType(Type("String"))
-	   And PropertyValueType1.Types().Count() = 1
-	   And (PropertyValueType1.StringQualifiers.Length = 0
-		   Or MultilineInputField > 1) Then
-		Return True;
-	Else
-		Return False;
-	EndIf;
-	
-EndFunction
-
 Function UseStringAsLink(PropertyValueType1, OutputAsHyperlink, MultilineInputField)
 	TypesList = PropertyValueType1.Types();
 	
@@ -1592,7 +1601,7 @@ Function AdditionalPropertyUsed(Property) Export
 	
 	For Each Table In ObjectTables1 Do
 		Query.Text = StrReplace(QueryText, "TableName", Table + ".AdditionalAttributes");
-		If Not Query.Execute().IsEmpty() Then // @skip-check query-in-loop. Query to multiple tables.
+		If Not Query.Execute().IsEmpty() Then // @skip-check query-in-loop - A multi-table query.
 			Return True;
 		EndIf;
 	EndDo;
@@ -2023,12 +2032,12 @@ Procedure CreatePropertiesSet(Object, SetProperties, PropertiesSetsDescriptions 
 				
 				LocalizedDescriptions = PropertiesSetsDescriptions[Language.LanguageCode];
 				LocalizedDescription = LocalizedDescriptions[SetProperties.Name];
-				LanguageSuffix = ModuleNationalLanguageSupportServer.LanguageSuffix(Language.LanguageCode);
-				If ValueIsFilled(LanguageSuffix) 
+				LanguageSuffix_ = ModuleNationalLanguageSupportServer.LanguageSuffix_(Language.LanguageCode);
+				If ValueIsFilled(LanguageSuffix_) 
 					And ValueIsFilled(LocalizedDescription)
-					And IsBlankString(Object["Description" + LanguageSuffix])
-					And LocalizedDescription <> Object["Description" + LanguageSuffix] Then
-						Object["Description" + LanguageSuffix] = LocalizedDescription;
+					And IsBlankString(Object["Description" + LanguageSuffix_])
+					And LocalizedDescription <> Object["Description" + LanguageSuffix_] Then
+						Object["Description" + LanguageSuffix_] = LocalizedDescription;
 						Write = True;
 				EndIf;
 
@@ -2044,9 +2053,11 @@ Procedure CreatePropertiesSet(Object, SetProperties, PropertiesSetsDescriptions 
 	
 EndProcedure
 
-Function PropertiesSetsDescriptions() Export
+Function PropertiesSetsDescriptions(PredefinedData = Undefined) Export
 	
-	PredefinedData = PredefinedPropertiesSets();
+	If PredefinedData = Undefined Then
+		PredefinedData = PredefinedPropertiesSets();
+	EndIf;
 	
 	Result = New Map;
 	For Each Language In Metadata.Languages Do
@@ -2318,8 +2329,7 @@ Function IDForFormulasAlreadyUsed(Val IDForFormulas, Val CurrentProperty) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+#Region AuxiliaryProceduresAndFunctions
 
 // Returns the default owner property set.
 //
@@ -2406,7 +2416,7 @@ Procedure UpdateCurrentSetPropertiesList(Form, Set, PropertyKind, CurrentEnable 
 	Query.SetParameter("Set", Set);
 	Query.SetParameter("IsMainLanguage", Common.IsMainLanguage());
 	Query.SetParameter("LanguageCode", CurrentLanguage().LanguageCode);
-	Query.SetParameter("PropertyKind", PropertyKind);
+	Query.SetParameter("PropertyKind1", PropertyKind);
 	
 	If Not Form.ShowUnusedAttributes Then
 		Query.Text =
@@ -2422,8 +2432,8 @@ Procedure UpdateCurrentSetPropertiesList(Form, Set, PropertyKind, CurrentEnable 
 		|	CASE
 		|		WHEN Properties.DeletionMark = TRUE
 		|			THEN 12
-		|		WHEN Properties.PropertyKind = VALUE(Enum.PropertiesKinds.Labels)
-		|			THEN Properties.PropertiesColor.Order + 1
+		|		WHEN Properties.PropertyKind1 = VALUE(Enum.PropertiesKinds.Labels)
+		|			THEN Properties.PropertyColor.Order + 1
 		|		ELSE 11
 		|	END AS PictureNumber,
 		|	Properties.ToolTip AS ToolTip,
@@ -2435,7 +2445,7 @@ Procedure UpdateCurrentSetPropertiesList(Form, Set, PropertyKind, CurrentEnable 
 		|		ON SetsProperties.Property = Properties.Ref
 		|WHERE
 		|	SetsProperties.Property.IsAdditionalInfo = &IsAdditionalInfoSets
-		|	AND SetsProperties.Property.PropertyKind IN (VALUE(Enum.PropertiesKinds.EmptyRef), &PropertyKind)
+		|	AND SetsProperties.Property.PropertyKind1 IN (VALUE(Enum.PropertiesKinds.EmptyRef), &PropertyKind1)
 		|	AND SetsProperties.Ref = &Set
 		|
 		|ORDER BY
@@ -2461,8 +2471,8 @@ Procedure UpdateCurrentSetPropertiesList(Form, Set, PropertyKind, CurrentEnable 
 		|	CASE
 		|		WHEN Properties.DeletionMark = TRUE
 		|			THEN 12
-		|		WHEN Properties.PropertyKind = VALUE(Enum.PropertiesKinds.Labels)
-		|			THEN Properties.PropertiesColor.Order + 1
+		|		WHEN Properties.PropertyKind1 = VALUE(Enum.PropertiesKinds.Labels)
+		|			THEN Properties.PropertyColor.Order + 1
 		|		ELSE 11
 		|	END AS PictureNumber,
 		|	Properties.ToolTip AS ToolTip,
@@ -2477,7 +2487,7 @@ Procedure UpdateCurrentSetPropertiesList(Form, Set, PropertyKind, CurrentEnable 
 		|		ON Properties.Ref = SetComposition.Property
 		|WHERE
 		|	Properties.IsAdditionalInfo = &IsAdditionalInfoSets
-		|	AND Properties.PropertyKind IN (VALUE(Enum.PropertiesKinds.EmptyRef), &PropertyKind)
+		|	AND Properties.PropertyKind1 IN (VALUE(Enum.PropertiesKinds.EmptyRef), &PropertyKind1)
 		|	AND SetComposition.Property IS NULL
 		|;
 		|
@@ -2495,7 +2505,7 @@ Procedure UpdateCurrentSetPropertiesList(Form, Set, PropertyKind, CurrentEnable 
 	ElsIf PropertyKind = Enums.PropertiesKinds.Labels Then
 		Query.Text = StrReplace(
 			Query.Text,
-			"IN (VALUE(Enum.PropertiesKinds.EmptyRef), &PropertyKind)",
+			"IN (VALUE(Enum.PropertiesKinds.EmptyRef), &PropertyKind1)",
 			"= VALUE(Enum.PropertiesKinds.Labels)");
 		IsAdditionalInfoSets = False;
 	Else
@@ -2695,8 +2705,9 @@ Procedure UpdateCurrentSetPropertiesList(Form, Set, PropertyKind, CurrentEnable 
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+#EndRegion
+
+#Region InfobaseUpdate
 
 // Fills in separated data handler that depends on shared data change.
 //
@@ -2814,5 +2825,7 @@ Function ReadSettingsFromStorage(SettingsManager) Export
 	Return Settings;
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion

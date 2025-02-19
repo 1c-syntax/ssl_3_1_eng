@@ -18,9 +18,9 @@ Var PreviousSettings1; // Filled "BeforeWrite" to use "OnWrite".
 
 #Region EventHandlers
 
-Procedure BeforeWrite(Cancel, Replacing)
+Procedure BeforeWrite(Cancel)
 	
-	// ACC:75-off - "DataExchange.Import" check must follow the change records in the Event log.
+	// ACC:75-off - The DataExchange.Load check must follow the logging of changes.
 	PrepareChangesForLogging(PreviousSettings1);
 	// ACC:75-on
 	
@@ -30,9 +30,9 @@ Procedure BeforeWrite(Cancel, Replacing)
 	
 EndProcedure
 
-Procedure OnWrite(Cancel, Replacing)
+Procedure OnWrite(Cancel)
 	
-	// ACC:75-off - "DataExchange.Import" check must follow the change records in the Event log.
+	// ACC:75-off - The DataExchange.Load check must follow the logging of changes.
 	DoLogChanges(PreviousSettings1);
 	// ACC:75-on
 	

@@ -75,7 +75,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	KindAdditionalReport     = Enums.AdditionalReportsAndDataProcessorsKinds.AdditionalReport;
 	KindOfReport                   = Enums.AdditionalReportsAndDataProcessorsKinds.Report;
 	
-	Parameters.Property("ShowImportFromFileDialogOnOpen", ShowImportFromFileDialogOnOpen);
+	ShowImportFromFileDialogOnOpen = Parameters.ShowImportFromFileDialogOnOpen;
 	
 	If IsNew Then
 		Object.UseForObjectForm = True;
@@ -319,7 +319,7 @@ Procedure AdditionalReportOptionsBeforeDeleteRow(Item, Cancel)
 	
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("Variant", Variant);
-	Handler = New NotifyDescription("AdditionalReportOptionsBeforeDeleteRowCompletion", ThisObject, AdditionalParameters);
+	Handler = New CallbackDescription("AdditionalReportOptionsBeforeDeleteRowCompletion", ThisObject, AdditionalParameters);
 	ShowQueryBox(Handler, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
 EndProcedure
 
@@ -493,7 +493,7 @@ EndProcedure
 &AtClient
 Procedure SetPrintCommandVisibility(Command)
 	If Modified Then
-		NotifyDescription = New NotifyDescription("SetPrintCommandVisibilityCompletion", ThisObject);
+		NotifyDescription = New CallbackDescription("SetPrintCommandVisibilityCompletion", ThisObject);
 		QueryText = NStr("en = 'To configure the visibility of print commands, save the data processor. Continue?';");
 		Buttons = New ValueList;
 		Buttons.Add("Continue", NStr("en = 'Continue';"));
@@ -519,7 +519,7 @@ Procedure ExecuteCommand(Command)
 	
 	Context = New Structure;
 	Context.Insert("CommandToExecuteID", CommandsTableRow.Id);
-	Handler = New NotifyDescription("ExecuteCommandAfterWriteConfirmed", ThisObject, Context);
+	Handler = New CallbackDescription("ExecuteCommandAfterWriteConfirmed", ThisObject, Context);
 	
 	If Object.Ref.IsEmpty() Or Modified Then
 		QueryText = NStr("en = 'Save the data before running the command.';");
@@ -528,7 +528,7 @@ Procedure ExecuteCommand(Command)
 		Buttons.Add(DialogReturnCode.Cancel);
 		ShowQueryBox(Handler, QueryText, Buttons);
 	Else
-		ExecuteNotifyProcessing(Handler, "ContinueWithoutWriting");
+		RunCallback(Handler, "ContinueWithoutWriting");
 	EndIf;
 	
 EndProcedure
@@ -585,14 +585,13 @@ Procedure SetConditionalAppearance()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Client
+#Region Client
 
 &AtClient
 Procedure WriteAtClient(CloseAfterWrite)
 	
-	Handler = New NotifyDescription("ContinueWriteAtClient", ThisObject, CloseAfterWrite);
-	ExecuteNotifyProcessing(Handler, DialogReturnCode.OK);
+	Handler = New CallbackDescription("ContinueWriteAtClient", ThisObject, CloseAfterWrite);
+	RunCallback(Handler, DialogReturnCode.OK);
 	
 EndProcedure
 
@@ -626,7 +625,7 @@ EndProcedure
 
 &AtClient
 Procedure UpdateFromFile()
-	Notification = New NotifyDescription("UpdateFromFileAfterConfirm", ThisObject);
+	Notification = New CallbackDescription("UpdateFromFileAfterConfirm", ThisObject);
 	UsersInternalClient.ShowSecurityWarning(Notification,
 		UsersInternalClientServer.SecurityWarningKinds().BeforeAddExternalReportOrDataProcessor);
 EndProcedure
@@ -642,7 +641,7 @@ Procedure UpdateFromFileAfterConfirm(Response, RegistrationParameters) Export
 	RegistrationParameters.Insert("Success", False);
 	RegistrationParameters.Insert("DataProcessorDataAddress", DataProcessorDataAddress);
 	
-	Handler = New NotifyDescription("UpdateFromFileAfterFileChoice", ThisObject, RegistrationParameters);
+	Handler = New CallbackDescription("UpdateFromFileAfterFileChoice", ThisObject, RegistrationParameters);
 	
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.Dialog.Filter = AdditionalReportsAndDataProcessorsClientServer.SelectingAndSavingDialogFilter();
@@ -687,12 +686,12 @@ Procedure UpdateFromFileAfterFileChoice(FileDetails, RegistrationParameters) Exp
 		RegistrationParameters.IsReport = False;
 	Else
 		RegistrationParameters.Success = False;
-		ResultHandler = New NotifyDescription("UpdateFromFileCompletion", ThisObject, RegistrationParameters);
+		ResultHandler = New CallbackDescription("UpdateFromFileCompletion", ThisObject, RegistrationParameters);
 		WarningText = NStr("en = 'The file extension does not match external report extension (ERF) or external data processor extension (EPF).';");
 		ReturnParameters1 = New Structure;
 		ReturnParameters1.Insert("Handler", ResultHandler);
 		ReturnParameters1.Insert("Result",  Undefined);
-		SimpleDialogHandler = New NotifyDescription("ReturnResultAfterCloseSimpleDialog", ThisObject, ReturnParameters1);
+		SimpleDialogHandler = New CallbackDescription("ReturnResultAfterCloseSimpleDialog", ThisObject, ReturnParameters1);
 		ShowMessageBox(SimpleDialogHandler, WarningText);
 		Return;
 	EndIf;
@@ -704,8 +703,8 @@ EndProcedure
 
 &AtClient
 Procedure ReturnResultAfterCloseSimpleDialog(HandlerParameters) Export
-	If TypeOf(HandlerParameters.Handler) = Type("NotifyDescription") Then
-		ExecuteNotifyProcessing(HandlerParameters.Handler, HandlerParameters.Result);
+	If TypeOf(HandlerParameters.Handler) = Type("CallbackDescription") Then
+		RunCallback(HandlerParameters.Handler, HandlerParameters.Result);
 	EndIf;
 EndProcedure
 
@@ -728,7 +727,7 @@ Procedure UpdateFromFileAndMessage(RegistrationParameters)
 	ElsIf RegistrationParameters.ObjectNameUsed Then // Checking the reason of canceling data processor import and displaying the reason to the user.
 		ShowConflicts(RegistrationParameters);
 	Else
-		ResultHandler = New NotifyDescription("UpdateFromFileCompletion", ThisObject, RegistrationParameters);
+		ResultHandler = New CallbackDescription("UpdateFromFileCompletion", ThisObject, RegistrationParameters);
 		QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
 		QuestionParameters.PromptDontAskAgain = False;
 		StandardSubsystemsClient.ShowQuestionToUser(ResultHandler, RegistrationParameters.ErrorText, 
@@ -741,7 +740,7 @@ Procedure ShowConflicts(RegistrationParameters)
 	
 	If RegistrationParameters.ConflictsCount > 1 Then
 		If RegistrationParameters.IsReport Then
-			QuestionTitle = NStr("en = 'External report import conflict';");
+			QuestionTitle = NStr("en = 'External report import conflicts';");
 			QueryText = NStr("en = 'Internal report name ""[Name]"" 
 			|is already used by the following additional reports ([Count]):
 			|[List].
@@ -751,7 +750,7 @@ Procedure ShowConflicts(RegistrationParameters)
 			|2. ""[Disable]"". Disable all conflicting reports and import the new report.
 			|3. ""[Open]"". Cancel the import and show the list of conflicting reports.';");
 		Else
-			QuestionTitle = NStr("en = 'Conflicts occurred during import of external data processor';");
+			QuestionTitle = NStr("en = 'External data processor import conflicts';");
 			QueryText = NStr("en = 'Internal name of data processor ""[Name]"" 
 			|is already used by the following additional data processors ([Count]):
 			|[List].
@@ -801,7 +800,7 @@ Procedure ShowConflicts(RegistrationParameters)
 	QuestionButtons.Add("CancelAndOpen",        OpenButtonPresentation);
 	QuestionButtons.Add(DialogReturnCode.Cancel);
 	
-	Handler = New NotifyDescription("UpdateFromFileConflictDecision", ThisObject, RegistrationParameters);
+	Handler = New CallbackDescription("UpdateFromFileConflictDecision", ThisObject, RegistrationParameters);
 	ShowQueryBox(Handler, QueryText, QuestionButtons, , "ContinueWithoutPublishing", QuestionTitle);
 EndProcedure
 
@@ -916,11 +915,25 @@ Procedure ChangeScheduledJob(Var_ChoiceMode = False, CheckBoxChanged = False)
 	Context = New Structure;
 	Context.Insert("ItemCommand", ItemCommand);
 	Context.Insert("DisableFlagOnCancelEdit", CheckBoxChanged);
-	Handler = New NotifyDescription("AfterScheduleEditComplete", ThisObject, Context);
+	Context.Insert("CommandSchedule", CommandSchedule);
 	
-	EditSchedule1 = New ScheduledJobDialog(CommandSchedule);
+	Handler = New CallbackDescription("BeforeEnableScheduledLaunch", ThisObject, Context);
+	UsersInternalClient.ShowSecurityWarning(Handler,
+		UsersInternalClientServer.SecurityWarningKinds().BeforeEnableScheduledJobOfAdditionalDataProcessor);
+	
+EndProcedure
+
+&AtClient
+Procedure BeforeEnableScheduledLaunch(Result, Context) Export
+	If Result <> "Continue" Then
+		ItemCommand = Context.ItemCommand;
+		ItemCommand.ScheduledJobUsage = False;
+		Return;
+	EndIf;
+	Handler = New CallbackDescription("AfterScheduleEditComplete", ThisObject, Context);
+	
+	EditSchedule1 = New ScheduledJobDialog(Context.CommandSchedule);
 	EditSchedule1.Show(Handler);
-	
 EndProcedure
 
 &AtClient
@@ -1051,7 +1064,7 @@ Procedure ExecuteCommandAfterWriteConfirmed(Response, Context) Export
 		IdleParameters.UserNotification.Show = True;
 		IdleParameters.OutputIdleWindow = True;
 		
-		CallbackOnCompletion = New NotifyDescription("AfterCompleteExecutingServerCommandInBackground", ThisObject, CommandToExecute);
+		CallbackOnCompletion = New CallbackDescription("AfterCompleteExecutingServerCommandInBackground", ThisObject, CommandToExecute);
 		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 		
 	EndIf;
@@ -1083,8 +1096,9 @@ Procedure AfterCompleteExecutingServerCommandInBackground(Job, AdditionalParamet
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Client, Server
+#EndRegion
+
+#Region ClientServer
 
 &AtClientAtServerNoContext
 Function UsersQuickAccessPresentation(UsersCount)
@@ -1100,8 +1114,9 @@ Function UsersQuickAccessPresentation(UsersCount)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Server call, Server.
+#EndRegion
+
+#Region ServerCallServer
 
 &AtServerNoContext
 Function StartExecuteServerCommandInBackground(CommandToExecute, UUID)
@@ -1260,44 +1275,10 @@ Procedure SetVisibilityAvailability(Registration = False)
 		EndDo;
 	EndIf;
 	
-	PermissionsCount = SecurityProfilePermissions().Count();
-	PermissionsCompatibilityMode = Object.PermissionsCompatibilityMode;
-	
-	SafeMode = Object.SafeMode;
-	
-	If Common.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
-		ModuleSafeModeManager = Common.CommonModule("SafeModeManager");
-		UseSecurityProfiles = ModuleSafeModeManager.UseSecurityProfiles();
-	Else
-		UseSecurityProfiles = False;
-	EndIf;
-	
-	If GetFunctionalOption("SaaSOperations") Or UseSecurityProfiles Then
-		ModuleSafeModeManagerInternal = Common.CommonModule("SafeModeManagerInternal");
-		If PermissionsCompatibilityMode = Enums.AdditionalReportsAndDataProcessorsPermissionCompatibilityModes.Version_2_1_3 Then
-			If SafeMode And PermissionsCount > 0 And UseSecurityProfiles Then
-				If IsNew Then
-					SafeMode = "";
-				Else
-					SafeMode = ModuleSafeModeManagerInternal.ExternalModuleAttachmentMode(Object.Ref);
-				EndIf;
-			EndIf;
-		Else
-			If PermissionsCount = 0 Then
-				SafeMode = True;
-			Else
-				If UseSecurityProfiles Then
-					If IsNew Then
-						SafeMode = "";
-					Else
-						SafeMode = ModuleSafeModeManagerInternal.ExternalModuleAttachmentMode(Object.Ref);
-					EndIf;
-				Else
-					SafeMode = False;
-				EndIf;
-			EndIf;
-		EndIf;
-	EndIf;
+	SafeModeProperties = SafeModeProperties();
+	SafeMode = SafeModeProperties.SafeMode;
+	PermissionsCount = SafeModeProperties.PermissionsCount;
+	UseSecurityProfiles = SafeModeProperties.UseSecurityProfiles;
 	
 	If PermissionsCount = 0 Then
 		
@@ -1354,28 +1335,10 @@ Procedure SetVisibilityAvailability(Registration = False)
 		
 	EndIf;
 	
-	Items.OptionsCommandsPermissionsPages.PagesRepresentation = FormPagesRepresentation[?(VisibleTabsCount > 1, "TabsOnTop", "None")];
+	Items.OptionsCommandsPermissionsPages.PagesRepresentation = FormPagesRepresentation[
+		?(VisibleTabsCount > 1, "TabsOnTop", "None")];
 	
-	PurposePresentation = "";
-	If IsGlobalDataProcessor Then
-		For Each RowSection In Object.Sections Do
-			SectionPresentation = AdditionalReportsAndDataProcessors.SectionPresentation(RowSection.Section);
-			If SectionPresentation = Undefined Then
-				Continue;
-			EndIf;
-			PurposePresentation = ?(IsBlankString(PurposePresentation), SectionPresentation,
-				PurposePresentation + ", " + SectionPresentation);
-		EndDo;
-	Else
-		For Each AssignmentRow In Object.Purpose Do
-			ObjectPresentation = AdditionalReportsAndDataProcessors.MetadataObjectPresentation(AssignmentRow.RelatedObject);
-			PurposePresentation = ?(IsBlankString(PurposePresentation), ObjectPresentation,
-				PurposePresentation + ", " + ObjectPresentation);
-		EndDo;
-	EndIf;
-	If PurposePresentation = "" Then
-		PurposePresentation = NStr("en = 'Undefined';");
-	EndIf;
+	PurposePresentation = PurposePresentation(IsGlobalDataProcessor);
 	
 	Items.ObjectCommandsQuickAccessPresentation.Visible       = IsGlobalDataProcessor;
 	Items.ObjectCommandsSetQuickAccess.Visible           = IsGlobalDataProcessor;
@@ -1393,37 +1356,93 @@ Procedure SetVisibilityAvailability(Registration = False)
 	Items.ObjectCommandsComment.Visible = IsPrintForm;
 	
 	If IsNew Then
-		Title = ?(IsReport, NStr("en = 'Additional report (Create)';"), NStr("en = 'Additional data processor (Create)';"));
+		Title = ?(IsReport, NStr("en = 'Additional report (Create)';"), 
+			NStr("en = 'Additional data processor (Create)';"));
 	Else
-		Title = Object.Description + " " + ?(IsReport, NStr("en = '(Additional report)';"), NStr("en = '(Additional data processor)';"));
+		Title = Object.Description + " " + ?(IsReport, NStr("en = '(Additional report)';"), 
+			NStr("en = '(Additional data processor)';"));
 	EndIf;
 	
 	If OptionsCount > 0 Then
-		
-		OutputTableTitle = VisibleTabsCount <= 1 And Object.Kind = KindAdditionalReport And Object.UseOptionStorage;
-		
-		Items.AdditionalReportOptions.TitleLocation = FormItemTitleLocation[?(OutputTableTitle, "Top", "None")];
+		OutputTableTitle = VisibleTabsCount <= 1 And Object.Kind = KindAdditionalReport 
+			And Object.UseOptionStorage;
+		Items.AdditionalReportOptions.TitleLocation = 
+			FormItemTitleLocation[?(OutputTableTitle, "Top", "None")];
 		Items.AdditionalReportOptions.Header               = Not OutputTableTitle;
 		Items.AdditionalReportOptions.HorizontalLines = Not OutputTableTitle;
-		
 	EndIf;
 	
 	If CommandsCount > 0 Then
-		
 		OutputTableTitle = VisibleTabsCount <= 1 And Not IsGlobalDataProcessor;
-		
-		Items.ObjectCommands.TitleLocation = FormItemTitleLocation[?(OutputTableTitle, "Top", "None")];
+		Items.ObjectCommands.TitleLocation = FormItemTitleLocation[
+			?(OutputTableTitle, "Top", "None")];
 		Items.ObjectCommands.Header               = Not OutputTableTitle;
 		Items.ObjectCommands.HorizontalLines = Not OutputTableTitle;
-		
 	EndIf;
 	
 	WindowOptionsKey = AdditionalReportsAndDataProcessors.KindToString(Object.Kind);
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Server
+&AtServer
+Function SafeModeProperties()
+
+	Result = New Structure;
+	Result.Insert("SafeMode", Object.SafeMode);
+	Result.Insert("PermissionsCount", SecurityProfilePermissions().Count());
+	Result.Insert("UseSecurityProfiles", False);
+		
+	If Common.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
+		ModuleSafeModeManager = Common.CommonModule("SafeModeManager");
+		Result.UseSecurityProfiles = ModuleSafeModeManager.UseSecurityProfiles();
+	EndIf;
+	
+	If GetFunctionalOption("SaaSOperations") Or Result.UseSecurityProfiles Then
+		ModuleSafeModeManagerInternal = Common.CommonModule("SafeModeManagerInternal");
+		If Object.PermissionsCompatibilityMode = Enums.AdditionalReportsAndDataProcessorsPermissionCompatibilityModes.Version_2_1_3 Then
+			If Result.SafeMode And Result.PermissionsCount > 0 And Result.UseSecurityProfiles Then
+				Result.SafeMode = ?(IsNew, "", ModuleSafeModeManagerInternal.ExternalModuleAttachmentMode(Object.Ref));
+			EndIf;
+		ElsIf Result.PermissionsCount = 0 Then
+			Result.SafeMode = True;
+		ElsIf Result.UseSecurityProfiles Then
+			Result.SafeMode = ?(IsNew, "", ModuleSafeModeManagerInternal.ExternalModuleAttachmentMode(Object.Ref));
+		Else
+			Result.SafeMode = False;
+		EndIf;
+	EndIf;
+	Return Result;
+
+EndFunction
+
+&AtServer
+Function PurposePresentation(Val IsGlobalDataProcessor)
+	Result = "";
+	If IsGlobalDataProcessor Then
+		For Each RowSection In Object.Sections Do
+			SectionPresentation = AdditionalReportsAndDataProcessors.SectionPresentation(RowSection.Section);
+			If SectionPresentation = Undefined Then
+				Continue;
+			EndIf;
+			Result = ?(IsBlankString(Result), SectionPresentation,
+				Result + ", " + SectionPresentation);
+		EndDo;
+	Else
+		For Each AssignmentRow In Object.Purpose Do
+			ObjectPresentation = AdditionalReportsAndDataProcessors.MetadataObjectPresentation(AssignmentRow.RelatedObject);
+			Result = ?(IsBlankString(Result), ObjectPresentation,
+				Result + ", " + ObjectPresentation);
+		EndDo;
+	EndIf;
+	If Result = "" Then
+		Result = NStr("en = 'Undefined';");
+	EndIf;
+	Return Result;
+EndFunction
+
+#EndRegion
+
+#Region Server
 
 &AtServer
 Procedure GeneratePermissionsList()
@@ -1587,13 +1606,13 @@ Procedure AdditionalReportOptionsFill()
 	EndIf;
 	
 	If Object.UseOptionStorage Then
-		Store = SettingsStorages["ReportsVariantsStorage"];
+		Storage = SettingsStorages["ReportsVariantsStorage"];
 		ObjectKey = Object.Ref;
 		SettingsList = ModuleReportsOptions.ReportOptionsKeys(ObjectKey);
 	Else
-		Store = ReportsVariantsStorage;
+		Storage = ReportsVariantsStorage;
 		ObjectKey = "ExternalReport." + Object.ObjectName;
-		SettingsList = Store.GetList(ObjectKey);
+		SettingsList = Storage.GetList(ObjectKey);
 	EndIf;
 	
 	For Each ListItem In SettingsList Do
@@ -1653,8 +1672,9 @@ Function CommandsPageName()
 	EndIf;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Additional attributes
+#EndRegion
+
+#Region AdditionalAttributes
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()
@@ -1695,5 +1715,7 @@ Procedure UpdateAdditionalAttributesItems()
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

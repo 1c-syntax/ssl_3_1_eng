@@ -10,9 +10,69 @@
 
 #Region Internal
 
-Procedure GoToSettings(Owner, CompletionHandler) Export
+Procedure GoToSettings(Owner, CompletionHandler, IsContextCall = False) Export
 	
-	OpenForm("CommonForm.TextTranslationSetting", , Owner, , , , CompletionHandler);
+	Parameters = New Structure;
+	Parameters.Insert("IsContextCall", IsContextCall);
+	
+	OpenForm("CommonForm.TextTranslationSetting", Parameters, Owner, , , , CompletionHandler);
+	
+EndProcedure
+
+Procedure CheckSettings(Form, CompletionHandler) Export
+	
+	NotifyDescription = New CallbackDescription("OnCompleteSetup", ThisObject, CompletionHandler);
+
+	If TextTranslationToolServerCall.ConfigurationIsRequired() Then
+		GoToSettings(Form, NotifyDescription, True);
+		Return;
+	EndIf;
+	
+	OnCompleteSetup(True, CompletionHandler);
+	
+EndProcedure
+
+Procedure TranslateSpreadsheetTexts(SpreadsheetDocument, TranslationLanguage, SourceLanguage, Form, CompletionHandler) Export
+	
+	If Not CommonClient.SubsystemExists("StandardSubsystems.Print") Then
+		Return;
+	EndIf;
+	
+	AdditionalParameters = New Structure;
+	AdditionalParameters.Insert("SpreadsheetDocument", SpreadsheetDocument);
+	AdditionalParameters.Insert("TranslationLanguage", TranslationLanguage);
+	AdditionalParameters.Insert("SourceLanguage", SourceLanguage);
+	AdditionalParameters.Insert("CompletionHandler", CompletionHandler);
+	
+	NotifyDescription = New CallbackDescription("OnCompleteSettingsCheck", ThisObject, AdditionalParameters);
+	CheckSettings(Form, NotifyDescription);
+	
+EndProcedure
+
+#EndRegion
+
+#Region Private
+
+Procedure OnCompleteSetup(Result, CompletionHandler) Export
+	
+	SetupExecuted = ValueIsFilled(Result);
+	RunCallback(CompletionHandler, SetupExecuted);
+	
+EndProcedure
+
+Procedure OnCompleteSettingsCheck(SetupExecuted, AdditionalParameters) Export
+	
+	If Not SetupExecuted Then
+		Return;
+	EndIf;
+	
+	SpreadsheetDocument = AdditionalParameters.SpreadsheetDocument;
+	TranslationLanguage = AdditionalParameters.TranslationLanguage;
+	SourceLanguage = AdditionalParameters.SourceLanguage;
+	CompletionHandler = AdditionalParameters.CompletionHandler;
+	
+	TextTranslationToolServerCall.TranslateSpreadsheetTexts(SpreadsheetDocument, TranslationLanguage, SourceLanguage);
+	RunCallback(CompletionHandler, SpreadsheetDocument);
 	
 EndProcedure
 

@@ -28,8 +28,6 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 		Return;
 	EndIf;
 	
-	AvailableAdvancedSignature = DigitalSignatureInternalCached.AvailableAdvancedSignature();
-	
 	If Not Common.DataSeparationEnabled()
 		Or Common.SeparatedDataUsageAvailable() Then
 		RefineSignaturesAutomatically = Constants.RefineSignaturesAutomatically.Get();
@@ -45,20 +43,19 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "rawsignatures");
 	OptionSettings.LongDesc = NStr("en = 'Displays signatures that are subject to enhancement (after their types are determined).';");
-	OptionSettings.Enabled = AvailableAdvancedSignature And RefineSignaturesAutomatically <> 0;
+	OptionSettings.Enabled = RefineSignaturesAutomatically <> 0;
 
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "RequireImprovementSignatures");
 	OptionSettings.LongDesc = NStr("en = 'Displays signatures to be enhanced.';");
-	OptionSettings.Enabled = AvailableAdvancedSignature And RefineSignaturesAutomatically <> 0;
+	OptionSettings.Enabled = RefineSignaturesAutomatically <> 0;
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "RequiredAddArchiveTags");
 	OptionSettings.LongDesc = NStr("en = 'Displays signatures that require archive timestamps.';");
-	OptionSettings.Enabled = AvailableAdvancedSignature And AddTimestampsAutomatically;
+	OptionSettings.Enabled = AddTimestampsAutomatically;
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "ErrorsOnAutoRenewal");
 	OptionSettings.LongDesc = NStr("en = 'Displays signatures that cannot be renewed automatically.';");
-	OptionSettings.Enabled = AvailableAdvancedSignature
-	 And (AddTimestampsAutomatically Or RefineSignaturesAutomatically = 1);
+	OptionSettings.Enabled = AddTimestampsAutomatically Or RefineSignaturesAutomatically = 1;
 	
 EndProcedure
 

@@ -118,6 +118,10 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		UpdateBackupSettings();
 	ElsIf EventName = "OperationsWithExternalResourcesAllowed" Then
 		Items.ExternalResourcesOperationsLockGroup.Visible = False;
+		StandardSubsystemsClient.SetAdvancedApplicationCaption();
+	ElsIf EventName = "OperationsWithExternalResourcesProhibited" Then
+		Items.ExternalResourcesOperationsLockGroup.Visible = True;
+		StandardSubsystemsClient.SetAdvancedApplicationCaption();
 	EndIf;
 	
 	If CommonClient.SubsystemExists("OnlineUserSupport.CloudArchive20") Then
@@ -261,8 +265,7 @@ EndProcedure
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Client.
+#Region Client
 
 &AtClient
 Procedure Attachable_OnChangeAttribute(Item, InterfaceUpdateIsRequired = True)
@@ -291,8 +294,9 @@ Procedure RefreshApplicationInterface()
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Server call.
+#EndRegion
+
+#Region ServerCall
 
 &AtServer
 Function OnChangeAttributeServer(TagName)
@@ -305,8 +309,9 @@ Function OnChangeAttributeServer(TagName)
 
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Server.
+#EndRegion
+
+#Region Server
 
 &AtServer
 Procedure SetDeferredProcessingPriority(TagName)
@@ -391,5 +396,7 @@ Procedure UnlockExternalResourcesOperationsAtServer()
 	ModuleScheduledJobsServer = Common.CommonModule("ScheduledJobsServer");
 	ModuleScheduledJobsServer.UnlockOperationsWithExternalResources();
 EndProcedure
+
+#EndRegion
 
 #EndRegion

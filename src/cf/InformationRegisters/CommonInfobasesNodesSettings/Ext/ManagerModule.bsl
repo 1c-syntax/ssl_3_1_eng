@@ -659,7 +659,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 EndProcedure
 
-Procedure UpdateCorrespondentCommonSettings(InfobaseNode) Export
+Procedure UpdateCorrespondentCommonSettings(InfobaseNode)
 	
 	If Not ValueIsFilled(InfobaseNode) Then
 		RecordSet = CreateRecordSet();

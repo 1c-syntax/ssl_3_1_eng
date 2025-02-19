@@ -37,7 +37,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// StandardSubsystems.AccessManagement
+// СтандартныеПодсистемы.УправлениеДоступом
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -55,7 +55,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// SaaSTechnology.ExportImportData
+// ТехнологияСервиса.ВыгрузкаЗагрузкаДанных
 
 // Attached in ExportImportDataOverridable.OnRegisterDataExportHandlers.
 //
@@ -87,7 +87,7 @@ Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object,
 	
 EndProcedure
 
-// End SaaSTechnology.ExportImportData
+// End CloudTechnology.ExportImportData
 
 #EndRegion
 
@@ -184,7 +184,7 @@ EndProcedure
 Function AdministratorsAccessGroup(ProfileAdministrator = Undefined) Export
 	
 	If ValueIsFilled(ProfileAdministrator) Then
-		UsersInternal.CheckSafeModeIsDisabled(
+		UsersInternal.CheckIfSafeModeOff(
 			"Catalogs.AccessGroups.AdministratorsAccessGroup");
 	EndIf;
 	
@@ -2513,8 +2513,7 @@ Function ValueWithParents(Parent)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions to support data exchange in DIB.
+#Region ProceduresAndFunctionsToSupportDataExchangeInDIB
 
 // For internal use only.
 //
@@ -2523,7 +2522,7 @@ EndFunction
 //
 Procedure RestoreAdministratorsAccessGroupMembers(DataElement) Export
 	
-	UsersInternal.CheckSafeModeIsDisabled(
+	UsersInternal.CheckIfSafeModeOff(
 		"Catalogs.AccessGroups.RestoreAdministratorsAccessGroupMembers");
 	
 	AdministratorsAccessGroup = AccessManagement.AdministratorsAccessGroup();
@@ -2657,7 +2656,7 @@ EndProcedure
 Procedure ProcessChangeRegisteredUponDataImport() Export
 	
 	If Common.DataSeparationEnabled() Then
-		// Changes of the access groups in SWP are blocked and are not imported into the data area.
+		// In the SWS, access groups are locked for editing and are not imported into the data area.
 		Return;
 	EndIf;
 	
@@ -2748,8 +2747,9 @@ Procedure ProcessRegisteredChangeInMembers(RefsKindName, RegistrationCleanup)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Initial population
+#EndRegion
+
+#Region InitialFilling
 
 // See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
 // 
@@ -2778,8 +2778,9 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+#EndRegion
+
+#Region InfobaseUpdate
 
 Procedure FillAdministratorsAccessGroupProfile() Export
 	
@@ -2915,7 +2916,7 @@ Procedure UpdateAuxiliaryAccessGroupsData(Parameters) Export
 		NStr("en = 'Cannot update tables of the ""%1"" access group. Reason:
 		           |%2';");
 	AccessGroupsValuesUpdateErrorTemplate =
-		NStr("en = 'Cannot update Access Values of the ""%1"" access group. Reason:
+		NStr("en = 'Cannot update access values of the ""%1"" access group. Reason:
 		           |%2';");
 	
 	ObjectsWithIssuesCount = 0;
@@ -2986,6 +2987,8 @@ Procedure UpdateAuxiliaryAccessGroupsData(Parameters) Export
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 

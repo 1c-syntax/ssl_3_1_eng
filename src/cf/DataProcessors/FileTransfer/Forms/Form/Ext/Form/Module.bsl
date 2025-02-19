@@ -19,7 +19,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	FilesOperationsInternal.FillListWithFilesTypes(Items.FilesExtensions.ChoiceList);
 	
 	StorageVolumesCount = StorageVolumesCount();
-	StoreFilesInVolumesOnHardDrive = FilesOperationsInVolumesInternal.StoreFilesInVolumesOnHardDrive();
+	StoreFilesInVolumesOnHardDrive = FilesOperationsInVolumesInternal.ShouldStoreFilesInVolumes();
 	
 	If Not StoreFilesInVolumesOnHardDrive
 		And StorageVolumesCount > 0 Then
@@ -40,7 +40,7 @@ EndProcedure
 Procedure OnOpen(Cancel)
 	
 	If StorageVolumesCount = 0 Then
-		NotifyDescription = New NotifyDescription("WhenOpeningAfterClosingTheWarning", ThisObject);
+		NotifyDescription = New CallbackDescription("WhenOpeningAfterClosingTheWarning", ThisObject);
 		ShowMessageBox(NotifyDescription, NStr("en = 'Cannot move the files between volumes since there is no volume available for storing files.';"));	
 		Return;
 	EndIf;
@@ -118,7 +118,7 @@ Procedure ExecuteTransfer(Command)
 	EndIf;
 	
 	TimeConsumingOperation = ExecuteTransferAtServer();
-	CallbackOnCompletion = New NotifyDescription("ExecuteTransferCompletion", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("ExecuteTransferCompletion", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion);
 
 EndProcedure

@@ -12,7 +12,8 @@
 
 &AtClient
 Var ResultAddress, StoredDataAddress, ProgressUpdateJobID,
-		AccessUpdateErrorText, IsProgressUpdatedAfterStartImmediatelyCommand;
+		AccessUpdateErrorText, IsProgressUpdatedAfterStartImmediatelyCommand,
+		RefreshProgressBarOnActivateForm, DateOfAccessUpdatePlanChange;
 
 #EndRegion
 
@@ -82,6 +83,7 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
+	RefreshProgressBarOnActivateForm = False;
 	IsProgressUpdatedAfterStartImmediatelyCommand = True;
 	UpdateAccessUpdateThreadsCountGroupTitle();
 	
@@ -93,9 +95,8 @@ EndProcedure
 Procedure OnReopen()
 	
 	UpdateAccessUpdateJobState(, True);
-	UpdateAccessUpdateJobStateInThreeSeconds();
 	
-	StartProgressUpdate(True);
+	StartProgressUpdate(True, True);
 	
 EndProcedure
 
@@ -406,6 +407,12 @@ EndProcedure
 &AtClient
 Procedure UpdateAccessUpdateJobState(State = Undefined, OnOpen = False)
 	
+	If Not OnOpen And Not IsFormActive() Then
+		DetachIdleHandler("UpdateAccessUpdateJobStateIdleHandler");
+		AttachIdleHandler("UpdateAccessUpdateJobStateIdleHandler", 1);
+		Return;
+	EndIf;
+	
 	UpdateDisplaySettingsVisibility();
 	
 	If State = Undefined Then
@@ -488,9 +495,10 @@ Procedure UpdateAccessUpdateJobState(State = Undefined, OnOpen = False)
 	
 	JobExecutionCompleted = ValueIsFilled(State.LastAccessUpdateCompletion)
 		And LastAccessUpdateCompletion <> State.LastAccessUpdateCompletion;
-	
 	LastAccessUpdateCompletion = State.LastAccessUpdateCompletion;
 	
+	IsJobExecutionStateChanged = State.AccessUpdateInProgress
+		<> Items.AccessUpdateInProgress.Visible;
 	Items.AccessUpdateInProgress.Visible   =    State.AccessUpdateInProgress;
 	Items.AccessUpdateNotStarted.Visible = Not State.AccessUpdateInProgress;
 	
@@ -500,30 +508,42 @@ Procedure UpdateAccessUpdateJobState(State = Undefined, OnOpen = False)
 	Items.BackgroundJobInProgressPicture.Visible       =    State.BackgroundJobRunning;
 	Items.BackgroundJobPendingExecutionPicture.Visible = Not State.BackgroundJobRunning;
 	
+	AreUpdatePlansChanged = Not State.AccessUpdateInProgress
+		And DateOfAccessUpdatePlanChange <> State.DateOfUpdatePlanChange;
+	DateOfAccessUpdatePlanChange = State.DateOfUpdatePlanChange;
+	
 	If Not State.AccessUpdateInProgress Then
 		Items.BackgroundJobRunTime1.Title = "";
 		Items.BackgroundJobRunTime2.Title = "";
-		If Not OnOpen
-		   And Not ProgressAutoUpdate
-		   And (JobExecutionCompleted
-		      Or IsProgressUpdatedAfterStartImmediatelyCommand <> True) Then
-			StartProgressUpdate(True);
-			IsProgressUpdatedAfterStartImmediatelyCommand = True;
-		EndIf;
-		Return;
+	Else
+		TitleText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Running for %1';"),
+			ExecutionTimeAsString(State.RunningInSeconds));
+		
+		Items.BackgroundJobRunTime1.Title = TitleText;
+		Items.BackgroundJobRunTime2.Title = TitleText;
+		
+		FirstJobVisibility = Items.BackgroundJobRunTime1.Visible;
+		FirstJobVisibility = Not FirstJobVisibility;
+		
+		Items.BackgroundJobRunTime1.Visible =    FirstJobVisibility;
+		Items.BackgroundJobRunTime2.Visible = Not FirstJobVisibility;
 	EndIf;
 	
-	TitleText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Running for %1';"),
-		ExecutionTimeAsString(State.RunningInSeconds));
+	If RefreshProgressBarOnActivateForm = True Then
+		StartProgressUpdate(True, True);
+		RefreshProgressBarOnActivateForm = False;
+		
+	ElsIf Not OnOpen
+	        And Not ProgressAutoUpdate
+	        And (JobExecutionCompleted
+	           Or IsProgressUpdatedAfterStartImmediatelyCommand <> True
+	           Or IsJobExecutionStateChanged
+	           Or AreUpdatePlansChanged) Then
+		
+		StartProgressUpdate(True);
+	EndIf;
 	
-	Items.BackgroundJobRunTime1.Title = TitleText;
-	Items.BackgroundJobRunTime2.Title = TitleText;
-	
-	FirstJobVisibility = Items.BackgroundJobRunTime1.Visible;
-	FirstJobVisibility = Not FirstJobVisibility;
-	
-	Items.BackgroundJobRunTime1.Visible =    FirstJobVisibility;
-	Items.BackgroundJobRunTime2.Visible = Not FirstJobVisibility;
+	UpdateAccessUpdateJobStateInThreeSeconds();
 	
 EndProcedure
 
@@ -613,23 +633,42 @@ Function AccessUpdateJobState()
 	EndIf;
 	
 	State.Insert("ScheduledJobDisabled", False);
+	State.Insert("DateOfUpdatePlanChange", '00010101');
 	
 	Query = New Query;
 	Query.Text =
 	"SELECT TOP 1
-	|	TRUE AS TrueValue
+	|	DataAccessKeysUpdate.RegisterRecordChangeDate AS ChangeDate
 	|FROM
 	|	InformationRegister.DataAccessKeysUpdate AS DataAccessKeysUpdate
 	|
-	|UNION ALL
+	|ORDER BY
+	|	DataAccessKeysUpdate.RegisterRecordChangeDate DESC
+	|;
 	|
+	|////////////////////////////////////////////////////////////////////////////////
 	|SELECT TOP 1
-	|	TRUE
+	|	UsersAccessKeysUpdate.RegisterRecordChangeDate AS ChangeDate
 	|FROM
-	|	InformationRegister.UsersAccessKeysUpdate AS UsersAccessKeysUpdate";
+	|	InformationRegister.UsersAccessKeysUpdate AS UsersAccessKeysUpdate
+	|
+	|ORDER BY
+	|	UsersAccessKeysUpdate.RegisterRecordChangeDate DESC";
 	
-	If Query.Execute().IsEmpty() Then
+	QueryResults = Query.ExecuteBatch();
+	
+	If QueryResults[0].IsEmpty() And QueryResults[1].IsEmpty() Then
 		Return State;
+	EndIf;
+	
+	If Not QueryResults[0].IsEmpty() Then
+		State.DateOfUpdatePlanChange = QueryResults[0].Unload()[0].ChangeDate;
+	EndIf;
+	If Not QueryResults[1].IsEmpty() Then
+		ChangeDate = QueryResults[1].Unload()[0].ChangeDate;
+		If ChangeDate > State.DateOfUpdatePlanChange Then
+			State.DateOfUpdatePlanChange = ChangeDate;
+		EndIf;
 	EndIf;
 	
 	Filter = New Structure("Metadata", Metadata.ScheduledJobs.AccessUpdateOnRecordsLevel);
@@ -705,7 +744,14 @@ Function StartAccessUpdateNowAtServer(AccessUpdateJobState)
 EndFunction
 
 &AtClient
-Procedure StartProgressUpdate(ManualStart = False)
+Function IsFormActive()
+	
+	Return ActiveWindow() = Window;
+	
+EndFunction
+
+&AtClient
+Procedure StartProgressUpdate(ManualStart = False, OnActivateForm = False)
 	
 	If ManualStart And ValueIsFilled(ProgressUpdateJobID) Then
 		CancelProgressUpdateAtServer(ProgressUpdateJobID);
@@ -716,6 +762,11 @@ Procedure StartProgressUpdate(ManualStart = False)
 		Return;
 	EndIf;
 	
+	If Not OnActivateForm And Not IsFormActive() Then
+		RefreshProgressBarOnActivateForm = True;
+		Return;
+	EndIf;
+	
 	AttachIdleHandler("UpdateProgressIdleHandler", 0.1, True);
 	UpdateAccessUpdateJobStateInThreeSeconds();
 	
@@ -723,6 +774,8 @@ Procedure StartProgressUpdate(ManualStart = False)
 	Items.CancelRefreshingProgressBar.Enabled = False;
 	Items.RefreshingProgressBarPicture.Visible = True;
 	Items.RefreshingProgressBarPendingPicture.Visible = False;
+	
+	IsProgressUpdatedAfterStartImmediatelyCommand = True;
 	
 EndProcedure
 
@@ -874,7 +927,6 @@ Procedure CompleteProgressUpdateAtClient(Context)
 	EndIf;
 	
 	UpdateAccessUpdateJobState(Context.AccessUpdateJobState);
-	UpdateAccessUpdateJobStateInThreeSeconds();
 	
 EndProcedure
 

@@ -53,7 +53,7 @@ EndFunction
 // 
 // Returns:
 //  Structure - Add-in attachment context:
-//   * Notification - Undefined, NotifyDescription - notification.
+//   * Notification - Undefined, CallbackDescription - notification.
 //   * Id - String - an add-in object ID, add-in ID.
 //   * Version - Undefined, String - an add-in version.
 //   * Location - String - template location or an add-in reference.
@@ -74,10 +74,11 @@ EndFunction
 //                If Undefined, the add-in is executed according to the default 1C:Enterprise settings
 //                Isolatedly if the add-in supports only isolated execution; otherwise, non-isolatedly.:
 //                By default, Undefined.
-//                See https://its.1c.eu/db/v83doc
-//                                           #bookmark:dev:TI000001866
-//    * AutoUpdate - Boolean - Flag indicating whether UpdateFrom1CITSPortal will be set to True, 
-//                if SuggestToImport is set to True. By default, True.
+//                See https://its.1c.eu/db/v83doc#bookmark:dev:TI000001866
+//    * AutoUpdate - Boolean -  
+//                
+//    * ShowInstallationIssue - Boolean -  
+//                
 //
 Function AddInAttachmentContext() Export
 	
@@ -96,6 +97,7 @@ Function AddInAttachmentContext() Export
 	Context.Insert("ASearchForANewVersionHasBeenPerformed", False);
 	Context.Insert("Isolated", Undefined);
 	Context.Insert("WasInstallationAttempt", False);
+	Context.Insert("ShowInstallationIssue", True);
 	
 	Return Context;
 	
@@ -276,7 +278,7 @@ Procedure AttachAddInSSL(Context) Export
 		// Search templates and the catalog for a newer version of the add-in.
 		If IsTemplate(Context.Location) Then
 			Context.OriginalLocation = Context.Location;
-			Notification = New NotifyDescription("ConnectAfterSearchingForAnExternalComponent", ThisObject, Context);
+			Notification = New CallbackDescription("ConnectAfterSearchingForAnExternalComponent", ThisObject, Context);
 			If CommonClient.SubsystemExists("StandardSubsystems.AddIns") Then
 				ModuleAddInsInternalClient = CommonClient.CommonModule(
 					"AddInsInternalClient");
@@ -294,7 +296,7 @@ Procedure AttachAddInSSL(Context) Export
 				ModuleAddInsInternalClient.CheckAddInAvailability(Notification,
 					ComponentValidationContext);
 			Else
-				ExecuteNotifyProcessing(Notification, Undefined);
+				RunCallback(Notification, Undefined);
 			EndIf;
 			Return;
 		EndIf;
@@ -304,7 +306,7 @@ Procedure AttachAddInSSL(Context) Export
 	SymbolicName = "From1" + StrReplace(String(New UUID), "-", "");
 	Context.Insert("SymbolicName", SymbolicName);
 	
-	Notification = New NotifyDescription(
+	Notification = New CallbackDescription(
 		"AttachAddInSSLAfterAttachmentAttempt", ThisObject, Context,
 		"AttachAddInSSLOnProcessError", ThisObject);
 	
@@ -325,7 +327,7 @@ Procedure AttachAddInSSLNotifyOnAttachment(AttachableModuleProperties, Context) 
 	Result.Attachable_Module = AttachableModuleProperties.Attachable_Module;
 	Result.SymbolicName = AttachableModuleProperties.Name;
 	Result.Location = AttachableModuleProperties.Location;
-	ExecuteNotifyProcessing(Context.Notification, Result);
+	RunCallback(Context.Notification, Result);
 	
 EndProcedure
 
@@ -341,7 +343,7 @@ Procedure AttachAddInSSLNotifyOnError(ErrorDescription, Context, ShouldLogError 
 	Notification = Context.Notification;
 	Result = AddInAttachmentResult();
 	Result.ErrorDescription = ErrorDescription;
-	ExecuteNotifyProcessing(Notification, Result);
+	RunCallback(Notification, Result);
 	
 EndProcedure
 
@@ -375,10 +377,11 @@ EndFunction
 
 // Parameters:
 //  Context - Structure:
-//      * Notification     - NotifyDescription
+//      * Notification     - CallbackDescription
 //      * Location - String
 //      * ExplanationText - String
 //      * Id - String
+//      * ShowInstallationIssue - Boolean
 //
 Procedure InstallAddInSSL(Context) Export
 	
@@ -389,14 +392,18 @@ Procedure InstallAddInSSL(Context) Export
 	
 	If SymbolicName = Undefined Then
 		
-		Notification = New NotifyDescription(
-			"InstallAddInSSLAfterAnswerToInstallationQuestion", ThisObject, Context);
-		
-		FormParameters = New Structure;
-		FormParameters.Insert("ExplanationText", Context.ExplanationText);
-		
-		OpenForm("CommonForm.AddInInstallationQuestion", 
-			FormParameters,,,,, Notification);
+		If Context.ShowInstallationIssue Then
+			Notification = New CallbackDescription(
+				"InstallAddInSSLAfterAnswerToInstallationQuestion", ThisObject, Context);
+			
+			FormParameters = New Structure;
+			FormParameters.Insert("ExplanationText", Context.ExplanationText);
+			
+			OpenForm("CommonForm.AddInInstallationQuestion", 
+				FormParameters,,,,, Notification);
+		Else
+			InstallAddInSSLAfterAnswerToInstallationQuestion(DialogReturnCode.Yes, Context);
+		EndIf;
 		
 	Else 
 		
@@ -404,7 +411,7 @@ Procedure InstallAddInSSL(Context) Export
 		// has already been attached to this session and, therefore, to this configuration.
 		Result = AddInInstallationResult();
 		Result.Insert("IsSet", True);
-		ExecuteNotifyProcessing(Context.Notification, Result);
+		RunCallback(Context.Notification, Result);
 		
 	EndIf;
 	
@@ -417,7 +424,7 @@ Procedure InstallAddInSSLNotifyOnError(ErrorDescription, Context) Export
 	
 	Result = AddInInstallationResult();
 	Result.ErrorDescription = ErrorDescription;
-	ExecuteNotifyProcessing(Notification, Result);
+	RunCallback(Notification, Result);
 	
 EndProcedure
 
@@ -440,9 +447,13 @@ Async Function InstallAddInSSLAsync(Context) Export
 		ButtonsList.Add(DialogReturnCode.Yes,  NStr("en = 'Install and continue';"));
 		ButtonsList.Add(DialogReturnCode.No, NStr("en = 'Cancel';"));
 		
-		Response = Await DoQueryBoxAsync(ExplanationText, ButtonsList,,
-			DialogReturnCode.Yes, NStr("en = 'Install add-in';"));
-
+		If Context.ShowInstallationIssue Then
+			Response = Await DoQueryBoxAsync(ExplanationText, ButtonsList,,
+				DialogReturnCode.Yes, NStr("en = 'Install add-in';"));
+		Else
+			Response = DialogReturnCode.Yes;
+		EndIf;
+		
 		If Response = DialogReturnCode.Yes Then
 			Try
 				
@@ -550,7 +561,7 @@ Procedure CalculateIndicators(Form, SpreadsheetDocumentName, CurrentCommand = ""
 		AdditionalParameters.Insert("CurrentCommand", CurrentCommand);
 		AdditionalParameters.Insert("MinimumNumber", MinimumNumber);
 		
-		CallbackOnCompletion = New NotifyDescription("ContinueCalculatingIndicators", ThisObject, AdditionalParameters);
+		CallbackOnCompletion = New CallbackDescription("ContinueCalculatingIndicators", ThisObject, AdditionalParameters);
 		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 		
 	Else
@@ -570,7 +581,6 @@ EndProcedure
 //  FormItems - FormItems
 //  Visible - Boolean - The indicator panel visibility flag.
 //              See also: "FormGroup.Visibility" in Syntax Assistant.
-//
 Procedure SetIndicatorsPanelVisibiility(FormItems, Visible = False) Export 
 	
 	FormItems.IndicatorsArea.Visible = Visible;
@@ -778,7 +788,7 @@ Procedure ConfirmFormClosing() Export
 		Return;
 	EndIf;
 	
-	Notification = New NotifyDescription("ConfirmFormClosingCompletion", ThisObject, Parameters);
+	Notification = New CallbackDescription("ConfirmFormClosingCompletion", ThisObject, Parameters);
 	If IsBlankString(Parameters.WarningText) Then
 		QueryText = NStr("en = 'The data has been changed. Do you want to save the changes?';");
 	Else
@@ -795,7 +805,7 @@ Procedure ConfirmFormClosingCompletion(Response, Parameters) Export
 	ApplicationParameters["StandardSubsystems.FormClosingConfirmationParameters"] = Undefined;
 	
 	If Response = DialogReturnCode.Yes Then
-		ExecuteNotifyProcessing(Parameters.SaveAndCloseNotification);
+		RunCallback(Parameters.SaveAndCloseNotification);
 		
 	ElsIf Response = DialogReturnCode.No Then
 		Form = Parameters.SaveAndCloseNotification.Module;
@@ -822,7 +832,7 @@ Procedure ConfirmArbitraryFormClosing() Export
 	ApplicationParameters["StandardSubsystems.FormClosingConfirmationParameters"] = Undefined;
 	QuestionMode = QuestionDialogMode.YesNo;
 	
-	Notification = New NotifyDescription("ConfirmArbitraryFormClosingCompletion", ThisObject, Parameters);
+	Notification = New CallbackDescription("ConfirmArbitraryFormClosingCompletion", ThisObject, Parameters);
 	
 	ShowQueryBox(Notification, Parameters.WarningText, QuestionMode);
 	
@@ -835,7 +845,7 @@ Procedure ConfirmArbitraryFormClosingCompletion(Response, Parameters) Export
 		Or Response = DialogReturnCode.OK Then
 		Form[Parameters.CloseFormWithoutConfirmationAttributeName] = True;
 		If Parameters.CloseNotifyDescription <> Undefined Then
-			ExecuteNotifyProcessing(Parameters.CloseNotifyDescription);
+			RunCallback(Parameters.CloseNotifyDescription);
 		EndIf;
 		Form.Close();
 	Else
@@ -939,11 +949,11 @@ Procedure AttachAddInSSLAfterAttachmentAttempt(Attached, Context) Export
 			
 			Result.ErrorDescription = ErrorText;
 			
-			ExecuteNotifyProcessing(Notification, Result);
+			RunCallback(Notification, Result);
 		Else
 			
 			If CommonClient.SubsystemExists("StandardSubsystems.AddIns") Then
-				Notification = New NotifyDescription("AfterTemplateAddInCheckedForCompatibility", ThisObject, Context);
+				Notification = New CallbackDescription("AfterTemplateAddInCheckedForCompatibility", ThisObject, Context);
 				ModuleAddInsInternalClient = CommonClient.CommonModule("AddInsInternalClient");
 				ModuleAddInsInternalClient.CheckTemplateAddInForCompatibility(Notification, Context);
 				Return;
@@ -999,7 +1009,7 @@ EndFunction
 // Continue the AttachAddInSSL procedure.
 Procedure AttachAddInSSLStartInstallation(Context)
 	
-	Notification = New NotifyDescription(
+	Notification = New CallbackDescription(
 		"AttachAddInSSLAfterInstallation", ThisObject, Context);
 	
 	InstallationContext = New Structure;
@@ -1007,6 +1017,7 @@ Procedure AttachAddInSSLStartInstallation(Context)
 	InstallationContext.Insert("Location", Context.Location);
 	InstallationContext.Insert("ExplanationText", Context.ExplanationText);
 	InstallationContext.Insert("Id", Context.Id);
+	InstallationContext.Insert("ShowInstallationIssue", Context.ShowInstallationIssue);
 	
 	InstallAddInSSL(InstallationContext);
 	
@@ -1134,7 +1145,7 @@ Procedure InstallAddInSSLAfterAnswerToInstallationQuestion(Response, Context) Ex
 		InstallAddInSSLStartInstallation(Context);
 	Else
 		Result = AddInInstallationResult();
-		ExecuteNotifyProcessing(Context.Notification, Result);
+		RunCallback(Context.Notification, Result);
 	EndIf;
 	
 EndProcedure
@@ -1142,7 +1153,7 @@ EndProcedure
 // Continue the InstallAddInSSL procedure.
 Procedure InstallAddInSSLStartInstallation(Context)
 	
-	Notification = New NotifyDescription(
+	Notification = New CallbackDescription(
 		"InstallAddInSSLAfterInstallationAttempt", ThisObject, Context,
 		"InstallAddInSSLOnProcessError", ThisObject);
 	
@@ -1156,7 +1167,7 @@ Procedure InstallAddInSSLAfterInstallationAttempt(Context) Export
 	Result = AddInInstallationResult();
 	Result.Insert("IsSet", True);
 	
-	ExecuteNotifyProcessing(Context.Notification, Result);
+	RunCallback(Context.Notification, Result);
 	
 EndProcedure
 
@@ -1183,7 +1194,7 @@ Procedure InstallAddInSSLOnProcessError(ErrorInfo, StandardProcessing, Context) 
 	Result = AddInInstallationResult();
 	Result.ErrorDescription = ErrorText;
 	
-	ExecuteNotifyProcessing(Context.Notification, Result);
+	RunCallback(Context.Notification, Result);
 	
 EndProcedure
 
@@ -1241,9 +1252,7 @@ Async Function AttachAddInSSLAfterAttachmentAttemptAsync(Attached, Context)
 		
 #If WebClient Then
 		SystemInfo = New SystemInfo;
-		If CommonClientServer.CompareVersions(SystemInfo.AppVersion, "8.3.24.0") >= 0 Then
-			Await PauseAsync(2);
-		EndIf;
+		Await PauseAsync(2);
 #EndIf
 
 		If Context.Cached Then
@@ -1263,9 +1272,10 @@ Async Function AttachAddInSSLAfterAttachmentAttemptAsync(Attached, Context)
 		If Context.SuggestInstall And Not Context.WasInstallationAttempt Then 
 			
 			InstallationContext = New Structure;
-			InstallationContext.Insert("Location", Context.Location);
-			InstallationContext.Insert("ExplanationText", Context.ExplanationText);
-			InstallationContext.Insert("Id", Context.Id);   
+			InstallationContext.Insert("Location",			Context.Location);
+			InstallationContext.Insert("ExplanationText",			Context.ExplanationText);
+			InstallationContext.Insert("Id",				Context.Id);
+			InstallationContext.Insert("ShowInstallationIssue", Context.ShowInstallationIssue);
 			InstallResult = Await InstallAddInSSLAsync(InstallationContext);
 			
 			If InstallResult.IsSet Then 
@@ -1501,16 +1511,16 @@ Procedure RegisterCOMConnectorOnCheckRegistration(Result, Context) Export
 	If ApplicationStarted Then
 		
 		If RestartSession Then
-			Notification = New NotifyDescription("RegisterCOMConnectorOnCheckAnswerAboutRestart", 
+			Notification = New CallbackDescription("RegisterCOMConnectorOnCheckAnswerAboutRestart", 
 				CommonInternalClient, Context);
 			QueryText = 
-				NStr("en = 'To complete the reregistration of comcntr, restart the app.
+				NStr("en = 'To complete the reregistration of comcntr, restart the application.
 				           |Restart now?';");
 			ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo);
 		Else 
 			Notification = Context.Notification;
 			IsRegistered = True;
-			ExecuteNotifyProcessing(Notification, IsRegistered);
+			RunCallback(Notification, IsRegistered);
 		EndIf;
 		
 	Else 
@@ -1540,7 +1550,7 @@ Procedure RegisterCOMConnectorOnCheckRegistration(Result, Context) Export
 			MessageText,,
 			True);
 		
-		Notification = New NotifyDescription("RegisterCOMConnectorNotifyOnError", 
+		Notification = New CallbackDescription("RegisterCOMConnectorNotifyOnError", 
 			CommonInternalClient, Context);
 		
 		ShowMessageBox(Notification, MessageText);
@@ -1568,7 +1578,7 @@ Procedure RegisterCOMConnectorNotifyOnError(Context) Export
 	
 	If Notification <> Undefined Then
 		IsRegistered = False;
-		ExecuteNotifyProcessing(Notification, IsRegistered);
+		RunCallback(Notification, IsRegistered);
 	EndIf;
 	
 EndProcedure
@@ -1766,9 +1776,9 @@ EndProcedure
 Function CalculateStringHashByMD5Algorithm(Val String)
 	
 	a = 1732584193; // 01 23 45 67; (hexadecimal representation, low byte first)
-	b = 4023233417; // 01 23 45 67; (hexadecimal representation, low byte first)
-	c = 2562383102; // 89 AB CD EF;
-	d = 271733878;  // FE DC BA 98;
+	b = 4023233417; // 89 AB CD EF;
+	c = 2562383102; // FE DC BA 98;
+	d = 271733878;  // 76 54 32 10;
 	
 	X = New Array(16); // "X" is a 512-bit data block, an array of 32-bit words.
 	
@@ -1811,8 +1821,8 @@ Function CalculateStringHashByMD5Algorithm(Val String)
 		// Append the string length in bits to the last block.
 		If BlockNumber = BlocksArrayFromString.Count() - 1 Then
 			StringSizeInBits = GetBinaryDataFromString(String).Size()* 8;
-			X[14] = StringSizeInBits % Pow(2,32); // 
-			X[15] = Int(StringSizeInBits / Pow(2,32)) % Pow(2,64); // 
+			X[14] = StringSizeInBits % Pow(2,32); // Low-order bits come first
+			X[15] = Int(StringSizeInBits / Pow(2,32)) % Pow(2,64); // If the length exceeds (2^64 - 1) bits, then discard the high-order bits
 		EndIf;
 		CalculateBlock(a, b, c, d, X);
 	EndDo;
@@ -1977,7 +1987,7 @@ EndFunction
 Procedure CheckFileSystemExtensionAttachedCompletion(ExtensionAttached, AdditionalParameters) Export
 	
 	If ExtensionAttached Then
-		ExecuteNotifyProcessing(AdditionalParameters.OnCloseNotifyDescription);
+		RunCallback(AdditionalParameters.OnCloseNotifyDescription);
 		Return;
 	EndIf;
 	

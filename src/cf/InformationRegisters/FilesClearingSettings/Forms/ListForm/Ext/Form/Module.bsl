@@ -170,7 +170,7 @@ Procedure MetadataObjectsTreeBeforeDeleteRow(Item, Cancel)
 			
 			QueryText = NStr("en = 'If you delete the setting, you will not be able
 				|to clean up files according to the rules defined in it. Continue?';");
-			NotifyDescription = New NotifyDescription("DeleteSettingItemCompletion", ThisObject);
+			NotifyDescription = New CallbackDescription("DeleteSettingItemCompletion", ThisObject);
 			ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No, NStr("en = 'Warning';"));
 			Return;
 			
@@ -214,7 +214,7 @@ EndProcedure
 &AtClient
 Procedure SetUpSchedule(Command)
 	ScheduleDialog1 = New ScheduledJobDialog(CurrentSchedule());
-	NotifyDescription = New NotifyDescription("SetUpScheduleCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("SetUpScheduleCompletion", ThisObject);
 	ScheduleDialog1.Show(NotifyDescription);
 EndProcedure
 
@@ -292,7 +292,7 @@ EndProcedure
 
 &AtClient
 Procedure Clear(Command)
-	Notification = New NotifyDescription("ClearCompletion", ThisObject);
+	Notification = New CallbackDescription("ClearCompletion", ThisObject);
 	ShowQueryBox(Notification, NStr("en = 'Clean up unused files?
 		|
 		|Unused files will be permanently deleted based on the settings you''ve configured.
@@ -380,7 +380,7 @@ EndProcedure
 
 &AtClient
 Procedure WaitDeletableFilesInfoCalculationEnd()
-	Handler = New NotifyDescription("OnFinishCalculatingDetailsAboutFilesToDelete", ThisObject);
+	Handler = New CallbackDescription("OnFinishCalculatingDetailsAboutFilesToDelete", ThisObject);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	IdleParameters.OutputProgressBar = False;
@@ -914,7 +914,6 @@ Procedure ClearSettingData()
 	RecordManager = InformationRegisters.FilesClearingSettings.CreateRecordManager();
 	RecordManager.FileOwner = SettingToDelete.FileOwner;
 	RecordManager.FileOwnerType = SettingToDelete.FileOwnerType;
-	RecordManager.Read();
 	RecordManager.Delete();
 	
 	SettingsItemParent = SettingToDelete.GetParent();
@@ -1069,7 +1068,7 @@ EndFunction
 &AtServer
 Procedure ConfigureFilePurgeModes()
 	
-	UseVolumes = FilesOperationsInVolumesInternal.StoreFilesInVolumesOnHardDrive();
+	UseVolumes = FilesOperationsInVolumesInternal.ShouldStoreFilesInVolumes();
 	Items.DeletedFilesVolume.Visible = UseVolumes;
 	Items.FilesCleanupMode.Visible = UseVolumes;
 	Items.AutomaticallyCleanUpUnusedFiles.Title = ?(UseVolumes, 

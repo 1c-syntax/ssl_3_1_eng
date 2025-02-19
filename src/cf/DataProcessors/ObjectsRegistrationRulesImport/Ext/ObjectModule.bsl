@@ -14,7 +14,7 @@
 
 Var Registration Export; // Structure with registration parameters.
 Var ObjectsRegistrationRules Export; // A value table with object registration rules.
-Var FlagErrors Export; // A value table with object registration rules.
+Var FlagErrors Export; // Global error flag.
 
 Var StringType;
 Var BooleanType;
@@ -24,7 +24,7 @@ Var DateType;
 Var BlankDateValue1;
 Var FilterByExchangePlanPropertiesTreePattern;  // Value tree template for rules of registration by exchange plan properties.
                                                 // 
-Var FilterByObjectPropertiesTreePattern;      // Value tree template for rules of registration by exchange plan properties.
+Var FilterByObjectPropertiesTreePattern;      // Value tree template for rules of registration by "Object" properties.
 Var BooleanRootPropertiesGroupValue; // Boolean value for the root property group.
 Var ErrorsMessages; // Map: Key - A error code; Value - Error details.
 
@@ -32,8 +32,7 @@ Var ErrorsMessages; // Map: Key - A error code; Value - Error details.
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Internal export procedures and functions.
+#Region ExportServiceProceduresAndFunctions
 
 // Performs a syntactic analysis of the XML file that contains registration rules. Fills collection values with data from the file;
 // Prepares read rules for ORR mechanism (rule compilation).
@@ -112,8 +111,9 @@ Function RulesInformation() Export
 		Format(Registration.CreationDateTime, "DLF=DD"));
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Importing object registration rules (ORR).
+#EndRegion
+
+#Region ImportObjectRegistrationRulesORR
 
 Procedure LoadRecordFromFile(FileName, InformationOnly)
 	
@@ -234,7 +234,7 @@ EndProcedure
 // Imports registration rules according to the exchange rule format.
 //
 // Parameters:
-//  Rules - XMLReader - an object of the XMLReader type.
+//  Rules - XMLReader - An XMLReader object.
 //
 Procedure ImportRegistrationRules(Rules)
 	
@@ -276,7 +276,7 @@ EndFunction
 // Imports the object registration rule.
 //
 // Parameters:
-//  Rules  - XMLReader - an object of the XMLReader type.
+//  Rules  - XMLReader - An XMLReader object.
 //
 Procedure LoadRecordRule(Rules)
 	
@@ -365,7 +365,7 @@ Procedure LoadRecordRule(Rules)
 EndProcedure
 
 // Parameters:
-//  Rules - XMLReader - an object of the XMLReader type.
+//  Rules - XMLReader - An XMLReader object.
 //  ValueTree - ValueTree - a tree of the object registration rules.
 //
 Procedure LoadFilterByExchangePlanPropertiesTree(Rules, ValueTree) Export
@@ -400,7 +400,7 @@ Procedure LoadFilterByExchangePlanPropertiesTree(Rules, ValueTree) Export
 EndProcedure
 
 // Parameters:
-//  Rules - XMLReader - an object of the XMLReader type.
+//  Rules - XMLReader - An XMLReader object.
 //  ValueTree - ValueTree - a tree of the object registration rules.
 //
 Procedure LoadFilterByObjectPropertiesTree(Rules, ValueTree) Export
@@ -580,7 +580,7 @@ EndProcedure
 // Imports object registration rule groups by property.
 //
 // Parameters:
-//  Rules  - XMLReader - an object of the XMLReader type.
+//  Rules  - XMLReader - An XMLReader object.
 //  NewRow - ValueTreeRow - a row of the object registration rules tree.
 //
 Procedure LoadExchangePlanFilterItemGroup(Rules, NewRow)
@@ -621,7 +621,7 @@ EndProcedure
 // Imports object registration rule groups by property.
 //
 // Parameters:
-//  Rules  - XMLReader - an object of the XMLReader type.
+//  Rules  - XMLReader - An XMLReader object.
 //  NewRow - ValueTreeRow - a row of the object registration rules tree.
 //
 Procedure LoadObjectFilterItemGroup(Rules, NewRow)
@@ -689,8 +689,9 @@ Procedure LoadRecordRuleGroup(Rules)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Compiling object registration rules (ORR) by exchange plan properties.
+#EndRegion
+
+#Region ObjectRegistrationRulesORRCompilationByExchangePlanProperties
 
 Procedure PrepareRecordRuleByExchangePlanProperties(ORR) Export
 	
@@ -899,8 +900,9 @@ Function GetPropertyConditionText(Rule, ObjectProperties)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Compiling object registration rules (ORR) by object properties.
+#EndRegion
+
+#Region ObjectRegistrationRulesORRCompilationByObjectProperties
 
 Procedure PrepareRegistrationRuleByObjectProperties(ORR)
 	
@@ -937,8 +939,9 @@ Procedure FillObjectPropertyStructure(ValueTree, ObjectProperties)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Internal auxiliary procedures and functions.
+#EndRegion
+
+#Region AuxiliaryUtilityProceduresAndFunctions
 
 Procedure ReportProcessingError(Code = -1, ErrorDescription = "")
 	
@@ -1049,8 +1052,9 @@ Function GetObjectPropertiesAsString(ObjectProperties)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// For operations with the XMLReader object.
+#EndRegion
+
+#Region ForManagingXMLReaderObject
 
 // Reads the attribute value by the name from the specified object, converts the value
 // to the specified primitive type.
@@ -1133,7 +1137,7 @@ EndFunction
 // Skips xml nodes to the end of the specified item (which is currently the default one).
 //
 // Parameters:
-//  Object   - an object of the XMLReader type.
+//  Object   - An XMLReader object.
 //  Name      - a name of node, to the end of which items are skipped.
 //
 Procedure deSkip(Object, Name = "")
@@ -1173,8 +1177,9 @@ Procedure deSkip(Object, Name = "")
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Local internal functions for retrieving properties.
+#EndRegion
+
+#Region LocalUtilityFunctionsProperties
 
 Function EventLogMessageKey()
 	
@@ -1182,8 +1187,9 @@ Function EventLogMessageKey()
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Initializing attributes and modular variables.
+#EndRegion
+
+#Region InitAttributesAndModuleVariables
 
 // Initializes data processor attributes and module variables.
 //
@@ -1202,7 +1208,7 @@ Procedure InitAttributesAndModuleVariables()
 	
 	BlankDateValue1 = Date('00010101');
 	
-	BooleanRootPropertiesGroupValue = "And"; // 
+	BooleanRootPropertiesGroupValue = "And"; // Булево значение для корневой группы свойств.
 	
 EndProcedure
 
@@ -1232,7 +1238,7 @@ Function RecordInitialization()
 	
 EndFunction
 
-// Initializes a variable that contains mapping of message codes and their description.
+// Initializes a variable that contains mapping of message codes and their description.
 //
 // Parameters:
 //  No.
@@ -1252,6 +1258,8 @@ Function InitMessages()
 	Return Messages;
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion
 

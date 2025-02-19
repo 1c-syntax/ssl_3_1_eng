@@ -519,7 +519,7 @@ Function SettingsComposerByTableName(FullMetadataName, Presentation = Undefined,
 	Return Composer;
 EndFunction
 
-// Returns a name array of metadata tables according to the FullMetadataName composite parameter type.
+// Returns a metadata table name array based on the FullMetadataName flexible type.
 //
 // Parameters:
 //      FullMetadataName - String

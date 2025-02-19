@@ -13,7 +13,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// Set report form settings.
+// Configure report form.
 //
 // Parameters:
 //   Form - ClientApplicationForm
@@ -25,7 +25,6 @@
 Procedure DefineFormSettings(Form, VariantKey, Settings) Export
 	
 	Settings.Events.BeforeImportSettingsToComposer = True;
-	Settings.Events.AfterLoadSettingsInLinker = True;
 	
 EndProcedure
 
@@ -73,8 +72,9 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 		Return;
 	EndIf;
 	
+	// Set access value types.
 	ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
-	ByGroupsAndValuesTypes = ModuleAccessManagementInternal.AllAccessKindsProperties().ByGroupsAndValuesTypes;
+	AccessKindsProperties = ModuleAccessManagementInternal.AllAccessKindsProperties();
 	
 	Types = New Array;
 	Types.Add(Type("CatalogRef.Users"));
@@ -82,7 +82,7 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 	Types.Add(Type("CatalogRef.ExternalUsers"));
 	Types.Add(Type("CatalogRef.ExternalUsersGroups"));
 	
-	For Each KeyAndValue In ByGroupsAndValuesTypes Do
+	For Each KeyAndValue In AccessKindsProperties.ByGroupsAndValuesTypes Do
 		AccessKindProperties = KeyAndValue.Value; // See AccessManagementInternal.AccessKindProperties
 		If AccessKindProperties.Name = "Users"
 		 Or AccessKindProperties.Name = "ExternalUsers" Then
@@ -93,37 +93,22 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 	
 	DataCompositionSchema.Parameters.AccessValue.ValueType = New TypeDescription(Types);
 	
+	// Set access kinds.
+	AccessControlModuleServiceRepeatIsp = Common.CommonModule("AccessManagementInternalCached");
+	AccessKindsPresentation = AccessControlModuleServiceRepeatIsp.AccessKindsPresentation();
+	
+	AccessKinds = New ValueList;
+	For Each KeyAndValue In AccessKindsPresentation Do
+		AccessKindProperties = AccessKindsProperties.ByValuesTypes.Get(KeyAndValue.Key); // See AccessManagementInternal.AccessKindProperties
+		AccessKinds.Add(AccessKindProperties.Name, KeyAndValue.Value);
+	EndDo;
+	
+	DataCompositionSchema.Parameters.AccessKind.SetAvailableValues(AccessKinds);
+	
 	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
 		ModuleReportsServer = Common.CommonModule("ReportsServer");
 		ModuleReportsServer.AttachSchema(ThisObject, Context, DataCompositionSchema, SchemaKey);
 	EndIf;
-	
-EndProcedure
-
-//  Parameters:
-//    AdditionalParameters - Structure
-//
-Procedure AfterLoadSettingsInLinker(AdditionalParameters) Export
-	
-	Parameter = New DataCompositionParameter("AccessKind");
-	AvailableParameter = SettingsComposer.Settings.DataParameters.AvailableParameters.FindParameter(Parameter);
-	If AvailableParameter = Undefined Then
-		Return;
-	EndIf;
-	
-	AccessControlModuleServiceRepeatIsp = Common.CommonModule("AccessManagementInternalCached");
-	AccessKindsPresentation = AccessControlModuleServiceRepeatIsp.AccessKindsPresentation();
-	
-	ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
-	ByValuesTypes = ModuleAccessManagementInternal.AllAccessKindsProperties().ByValuesTypes;
-	
-	AccessKinds = New ValueList;
-	For Each KeyAndValue In AccessKindsPresentation Do
-		AccessKindProperties = ByValuesTypes.Get(KeyAndValue.Key); // See AccessManagementInternal.AccessKindProperties
-		AccessKinds.Add(AccessKindProperties.Name, KeyAndValue.Value);
-	EndDo;
-	
-	AvailableParameter.AvailableValues = AccessKinds;
 	
 EndProcedure
 
@@ -304,8 +289,8 @@ Function ValuesChanges(Settings)
 			EventProperties.Insert("Source", Data.URLToSource);
 			IsAccessKindsUsageChange = ValueIsFilled(Data.Source);
 			EventProperties.Insert("SourcePresentation", ?(IsAccessKindsUsageChange,
-				NStr("en = '<Toggle access kind usage>';"),
-				NStr("en = '<Change user group membership>';")));
+				NStr("en = '<Changes in access kind usage>';"),
+				NStr("en = '<Changes in user group membership>';")));
 		Else
 			IsAccessKindsUsageChange = False;
 			EventProperties.Insert("Source", DeserializedRef(Data.Source));

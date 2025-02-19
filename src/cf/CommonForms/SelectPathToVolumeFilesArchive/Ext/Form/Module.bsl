@@ -34,8 +34,8 @@ Procedure WindowsArchivePathStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	StandardProcessing = False;
 	
-	If Not FilesOperationsInternalClient.FileSystemExtensionAttached1() Then
-		FilesOperationsInternalClient.ShowFileSystemExtensionRequiredMessageBox(Undefined);
+	If Not FilesOperationsInternalClient.Is1CEnterpriseExtensionAttached() Then
+		FilesOperationsInternalClient.Show1CEnterpriseExtensionRequiredMessageBox(Undefined);
 		Return;
 	EndIf;
 	
@@ -45,7 +45,7 @@ Procedure WindowsArchivePathStartChoice(Item, ChoiceData, StandardProcessing)
 	Dialog.FullFileName               = ?(WindowsArchivePath = "", "files.zip", WindowsArchivePath);
 	Dialog.Multiselect           = False;
 	Dialog.Preview      = False;
-	Dialog.CheckFileExist  = True;
+	Dialog.CheckFileExistence  = True;
 	Dialog.Filter                       = NStr("en = 'ZIP archive (*.zip)|*.zip';");
 	
 	If Dialog.Choose() Then

@@ -109,6 +109,18 @@ Procedure UseMorpherDeclinationServiceOnChange(Item)
 	
 EndProcedure
 
+&AtClient
+Procedure AllowAccessToInternetServicesOnChange(Item)
+	
+	OnChangeConstantAtServer("AllowAccessToInternetServices");
+	ApplicationSettingsClient.OnlineSupportAndServicesOnConstantChange(
+		ThisObject,
+		Item);
+	
+	OnChangeModeOfDataExportToMonitoringCenter(Item);
+	
+EndProcedure
+
 #EndRegion
 
 #Region FormCommandsEventHandlers
@@ -198,8 +210,7 @@ EndProcedure
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Server call.
+#Region ServerCall
 
 &AtServer
 Procedure OnChangeConstantAtServer(ConstantName)
@@ -237,8 +248,9 @@ Procedure OnChangeWebServiceAddressesUsage(UseAddressesWebService)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Client.
+#EndRegion
+
+#Region Client
 
 &AtClient
 Procedure OnChangeModeOfDataExportToMonitoringCenter(Item)
@@ -261,5 +273,7 @@ Procedure RefreshApplicationInterface()
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

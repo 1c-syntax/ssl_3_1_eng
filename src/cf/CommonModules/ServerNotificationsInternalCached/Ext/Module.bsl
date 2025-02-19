@@ -50,9 +50,9 @@ EndFunction
 // Returns:
 //  Boolean
 //
-Function ClientNotificationsAreAvailable() Export
+Function AreClientNotificationsAvailable() Export
 	
-	Return ServerNotificationsInternalClientServer.ClientNotificationsAreAvailable();
+	Return ServerNotificationsInternalClientServer.AreClientNotificationsAvailable();
 	
 EndFunction
 

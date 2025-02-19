@@ -14,8 +14,7 @@
 
 // StandardSubsystems.IBVersionUpdate
 
-////////////////////////////////////////////////////////////////////////////////
-// Info about the library or configuration.
+#Region LibraryOrConfigurationInformation
 
 // Fills in main information about the library or base configuration.
 // The library that has the same name as the base configuration name in the metadata is considered as a base configuration.
@@ -32,8 +31,8 @@
 //                                    update handlers of the current library.
 //                                    If they have circular dependencies or, on the contrary, no dependencies,
 //                                    the update handlers are called by the order of adding modules in the
-//                                    SubsystemsOnAdd procedure of the
-//                                    ConfigurationSubsystemsOverridable common module.
+//                                    OnAddSubsystems procedure of the
+//                                    ConfigurationSubsystemsOverridable common module. 
 //   * DeferredHandlersExecutionMode - String - Sequentially - deferred update handlers run
 //                                    sequentially in the interval from the infobase version
 //                                    number to the configuration version number. Parallel - once the first data batch is processed,
@@ -47,7 +46,7 @@
 Procedure OnAddSubsystem(LongDesc) Export
 	
 	LongDesc.Name    = "StandardSubsystems";
-	LongDesc.Version = "3.1.10.386";
+	LongDesc.Version = "3.1.11.102";
 	LongDesc.OnlineSupportID = "SSL";
 	LongDesc.DeferredHandlersExecutionMode = "Parallel";
 	LongDesc.ParallelDeferredUpdateFromVersion = "2.3.3.0";
@@ -55,8 +54,9 @@ Procedure OnAddSubsystem(LongDesc) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Infobase update handlers.
+#EndRegion
+
+#Region InfobaseUpdateHandlers
 
 // Adds infobase data update handlers
 // for all supported versions of the library or configuration to the list.
@@ -261,6 +261,8 @@ Procedure OnCompleteApplicationMigration(PreviousConfigurationName, PreviousConf
 EndProcedure
 
 // End StandardSubsystems.IBVersionUpdate
+
+#EndRegion
 
 #EndRegion
 

@@ -31,7 +31,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// SaaSTechnology.ExportImportData
+// ТехнологияСервиса.ВыгрузкаЗагрузкаДанных
 
 // Names of catalog attributes used to ensure item uniqueness.
 //
@@ -49,7 +49,7 @@ Function NaturalKeyFields() Export
 	
 EndFunction
 
-// End SaaSTechnology.ExportImportData
+// End CloudTechnology.ExportImportData
 
 #EndRegion
 

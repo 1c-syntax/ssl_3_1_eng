@@ -65,8 +65,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		If Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
 			ModuleContactsManager = Common.CommonModule("ContactsManager");
+			TypeEmail = ModuleContactsManager.TypeEmail();
 			ObjectContactInformation = ModuleContactsManager.ObjectContactInformation(
-				Users.CurrentUser(), Enums["ContactInformationTypes"].Email, , False);
+				Users.CurrentUser(), TypeEmail, , False);
+				
 			For Each Contact In ObjectContactInformation Do
 				Address = Contact.Presentation;
 				If Catalogs.EmailAccounts.FindByAttribute("Email", Address).IsEmpty() Then
@@ -305,7 +307,7 @@ EndProcedure
 &AtClient
 Procedure ShowQueryBoxBeforeCloseForm()
 	QueryText = NStr("en = 'Changes are not saved. Close the form?';");
-	NotifyDescription = New NotifyDescription("CloseFormConfirmed", ThisObject);
+	NotifyDescription = New CallbackDescription("CloseFormConfirmed", ThisObject);
 	Buttons = New ValueList;
 	Buttons.Add("Close", NStr("en = 'Close';"));
 	Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Do not close';"));
@@ -400,8 +402,7 @@ Procedure GotoNextPage(Command = Undefined)
 			If ValidationCompletedWithErrors Then
 				Close(False);
 			Else
-				WriteAuthorizationSettings();
-				Close(True);
+				Close(WriteAuthorizationSettings());
 			EndIf;
 			Return;
 		EndIf;
@@ -519,7 +520,7 @@ EndProcedure
 &AtClient
 Procedure ExecuteSettingsCheck()
 	
-	ClosingNotification1 = New NotifyDescription("CheckSettingsPermissionRequestExecuted", ThisObject);
+	ClosingNotification1 = New CallbackDescription("CheckSettingsPermissionRequestExecuted", ThisObject);
 	If CommonClient.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
 		Query = CreateRequestToUseExternalResources();
 		
@@ -527,7 +528,7 @@ Procedure ExecuteSettingsCheck()
 		ModuleSafeModeManagerClient.ApplyExternalResourceRequests(
 			CommonClientServer.ValueInArray(Query), ThisObject, ClosingNotification1);
 	Else
-		ExecuteNotifyProcessing(ClosingNotification1, DialogReturnCode.OK);
+		RunCallback(ClosingNotification1, DialogReturnCode.OK);
 	EndIf;
 	
 EndProcedure
@@ -860,7 +861,7 @@ Procedure NewAccount1()
 EndProcedure
 
 &AtServer
-Procedure WriteAuthorizationSettings()
+Function WriteAuthorizationSettings()
 
 	SetPrivilegedMode(True);
 
@@ -876,7 +877,9 @@ Procedure WriteAuthorizationSettings()
 	
 	SetPrivilegedMode(False);
 	
-EndProcedure
+	Return Common.CheckSumString(AccessToken + UpdateToken);
+	
+EndFunction
 
 &AtServer
 Function InternetMailProfile(ForReceiving = False)
@@ -932,7 +935,7 @@ Procedure SetUpConnectionParametersAutomatically()
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	
-	NotifyDescription = New NotifyDescription("OnCompleteSettingsSearch", ThisObject);
+	NotifyDescription = New CallbackDescription("OnCompleteSettingsSearch", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, NotifyDescription, IdleParameters);
 	
 EndProcedure

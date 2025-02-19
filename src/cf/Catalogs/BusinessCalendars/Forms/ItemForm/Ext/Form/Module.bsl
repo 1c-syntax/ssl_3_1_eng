@@ -95,7 +95,7 @@ Procedure CurrentYearNumberOnChange(Item)
 	WriteScheduleData = False;
 	If Modified Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Do you want to save the changes for year %1?';"), Format(PreviousYearNumber, "NG=0"));
-		Notification = New NotifyDescription("CurrentYearNumberOnChangeCompletion", ThisObject);
+		Notification = New CallbackDescription("CurrentYearNumberOnChangeCompletion", ThisObject);
 		ShowQueryBox(Notification, MessageText, QuestionDialogMode.YesNo);
 		Return;
 	EndIf;
@@ -150,7 +150,7 @@ Procedure ChangeDay(Command)
 	SelectedDates = Items.Calendar.SelectedDates;
 	
 	If SelectedDates.Count() > 0 And Year(SelectedDates[0]) = CurrentYearNumber Then
-		Notification = New NotifyDescription("ChangeDayCompletion", ThisObject, SelectedDates);
+		Notification = New CallbackDescription("ChangeDayCompletion", ThisObject, SelectedDates);
 		ShowChooseFromList(Notification, DayKindsList, , DayKindsList.FindByValue(DaysKinds.Get(SelectedDates[0])));
 	EndIf;
 	
@@ -202,7 +202,7 @@ EndProcedure
 Procedure Print(Command)
 	
 	If Object.Ref.IsEmpty() Then
-		Handler = New NotifyDescription("PrintCompletion", ThisObject);
+		Handler = New CallbackDescription("PrintCompletion", ThisObject);
 		ShowQueryBox(
 			Handler,
 			NStr("en = 'You have unsaved business calendar data.
@@ -548,7 +548,7 @@ Procedure StartBasicCalendarVisibilitySetup()
 	
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	
-	CallbackOnCompletion = New NotifyDescription("CompleteBasicCalendarVisibilitySetting", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("CompleteBasicCalendarVisibilitySetting", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
@@ -661,10 +661,10 @@ Procedure ReadNonWorkDates(CurrentObject = Undefined)
 		CurrentObject.BasicCalendar, CurrentObject.Ref);
 
 	If ValueIsFilled(BusinessCalendar) Then
-		TimeIntervals = CalendarSchedules.NonWorkDaysPeriods(
+		TimeIntervals_ = CalendarSchedules.NonWorkDaysPeriods(
 			BusinessCalendar, New StandardPeriod(Date(CurrentYearNumber, 1, 1), Date(CurrentYearNumber, 12, 31)));
 		Explanation = "";
-		For Each PeriodDetails In TimeIntervals Do
+		For Each PeriodDetails In TimeIntervals_ Do
 			CommonClientServer.SupplementArray(Dates, PeriodDetails.Dates);
 				Explanation = Explanation + ?(Not IsBlankString(Explanation), Chars.LF, "") + PeriodDetails.Presentation;
 		EndDo;

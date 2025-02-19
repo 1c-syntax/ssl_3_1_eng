@@ -195,7 +195,7 @@ Procedure ChoiceProcessing(Result, SubordinateForm)
 
 		SubordinateFormName1 = SubordinateForm.FormName;
 		If SubordinateFormName1 = "SettingsStorage.ReportsVariantsStorage.Form.ReportSettings"
-			Or SubordinateForm.OnCloseNotifyDescription <> Undefined Then
+			Or SubordinateForm.CallbackDescriptionOnClose <> Undefined Then
 
 			ResultProcessed = True; // See ApplySettingsAndReshapeReport.
 
@@ -537,8 +537,7 @@ EndProcedure
 
 #Region FormHeaderItemsEventHandlers
 
-////////////////////////////////////////////////////////////////////////////////
-// Attachable objects.
+#Region PlugIns
 
 &AtClient
 Procedure Attachable_SettingItem_OnChange(Item)
@@ -603,6 +602,8 @@ Procedure Attachable_MoveThePeriodForward(Command)
 	ParametersChanged = True;
 	ReportsClient.ShiftThePeriod(ThisObject, Command.Name);
 EndProcedure
+
+#EndRegion
 
 #Region EventHandlersForUniversalSearchStringElements
 
@@ -831,7 +832,7 @@ Procedure SendByEmail(Command)
 	If StatePresentation.Visible = True 
 		And StatePresentation.AdditionalShowMode = AdditionalShowMode.Irrelevance Then
 		QueryText = NStr("en = 'Report not generated. Do you want to generate the report?';");
-		Handler = New NotifyDescription("GenerateBeforeEmailing", ThisObject);
+		Handler = New CallbackDescription("GenerateBeforeEmailing", ThisObject);
 		ShowQueryBox(Handler, QueryText, QuestionDialogMode.YesNo, 60, DialogReturnCode.Yes);
 	Else
 		ShowSendByEmailDialog();
@@ -890,7 +891,7 @@ Procedure ChangeQuickSettingsComposition(Command)
 	FormParameters.Insert("CurrentVariantKey", CurrentVariantKey);
 	FormParameters.Insert("OutputSettingsTitles", OutputSettingsTitles);
 
-	Handler = New NotifyDescription("AfterChangingTheCompositionOfTheQuickSettings", ThisObject);
+	Handler = New CallbackDescription("AfterChangingTheCompositionOfTheQuickSettings", ThisObject);
 	OpenForm("SettingsStorage.ReportsVariantsStorage.Form.QuickReportSettings", FormParameters,
 		ThisObject, UUID,,, Handler);
 
@@ -914,13 +915,12 @@ Procedure EditResourcePlacement(Command)
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Handlers of DCS modification commands.
+#Region DCSModificationCommandHandlers
 
 &AtClient
 Procedure ImportSchema(Command)
 
-	NotifyDescription = New NotifyDescription("ImportSchemaAfterLocateFile", ThisObject);
+	NotifyDescription = New CallbackDescription("ImportSchemaAfterLocateFile", ThisObject);
 
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.Dialog.Filter = NStr("en = 'XML files (*.xml) |*.xml';");
@@ -968,8 +968,9 @@ Procedure RestoreDefaultSchema(Command)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Handlers of (main and user) settings exchange commands.
+#EndRegion
+
+#Region CommandHandlersForBasicAndUserSettingsExchange
 
 &AtClient
 Procedure SaveReportOptionToFile(Command)
@@ -1001,8 +1002,9 @@ Procedure ShareSettings(Command)
 	ReportsOptionsClient.ShareUserSettings(SettingsDescription);
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Handlers of report result save commands.
+#EndRegion
+
+#Region ReportResultSaveCommandHandlers
 
 &AtClient
 Procedure SaveReport(Command)
@@ -1015,7 +1017,7 @@ Procedure SaveReport(Command)
 	Dialog.Multiselect = False;
 	Dialog.Title = NStr("en = 'Save report result';");
 
-	Handler = New NotifyDescription("SaveReportAfterFilenameSelected", ThisObject, Context);
+	Handler = New CallbackDescription("SaveReportAfterFilenameSelected", ThisObject, Context);
 	FileSystemClient.ShowSelectionDialog(Handler, Dialog);
 
 EndProcedure
@@ -1041,8 +1043,9 @@ Procedure ReportsSnapshots(Command)
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Handlers of context menu commands in the report resulting spreadsheet document.
+#EndRegion
+
+#Region HandlersCommandsOnTheContextMenuOfTheTableOfTheDocumentIsTheResultOfTheReport
 
 &AtClient
 Procedure GroupBySelectedField(Command)
@@ -1193,14 +1196,15 @@ Procedure ApplyAppearanceMore(Command)
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Handlers of indicator calculation commands.
+#EndRegion
+
+#Region IndicatorCalculationCommandHandlers
 
 &AtClient
 Procedure SelectIndicatorClick(Item)
 
 	Menu = MenuOfIndicatorTypes(Items.IndicatorsKindsCommands);
-	ShowChooseFromMenu(New NotifyDescription("AfterSelectingTheIndicator", ThisObject), Menu, Item);
+	ShowChooseFromMenu(New CallbackDescription("AfterSelectingTheIndicator", ThisObject), Menu, Item);
 
 EndProcedure
 
@@ -1240,8 +1244,9 @@ Procedure CollapseIndicators(Command)
 	CommonInternalClient.SetIndicatorsPanelVisibiility(Items);
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Attachable objects.
+#EndRegion
+
+#Region PlugIns
 
 // Parameters:
 //  Command - FormCommand
@@ -1249,8 +1254,8 @@ EndProcedure
 &AtClient
 Procedure Attachable_Command(Command)
 
-	Prefix_Name = ReportsClientServer.CommandNamePrefixWithReportOptionPreSave();
-	If StrStartsWith(Command.Name, Prefix_Name) And IsOptionMustBeSaved() Then
+	NamePrefix = ReportsClientServer.CommandNamePrefixWithReportOptionPreSave();
+	If StrStartsWith(Command.Name, NamePrefix) And IsOptionMustBeSaved() Then
 		SaveAsNewOrOverwriteExistingReportOptionAndContinue(Command);
 		Return;
 	EndIf;
@@ -1259,8 +1264,8 @@ Procedure Attachable_Command(Command)
 	If ConstantCommand <> Undefined And ValueIsFilled(ConstantCommand.Presentation) Then
 		SubstringsArray = StrSplit(ConstantCommand.Presentation, ".");
 		ModuleClient = CommonClient.CommonModule(SubstringsArray[0]);
-		Handler = New NotifyDescription(SubstringsArray[1], ModuleClient, Command);
-		ExecuteNotifyProcessing(Handler, ThisObject);
+		Handler = New CallbackDescription(SubstringsArray[1], ModuleClient, Command);
+		RunCallback(Handler, ThisObject);
 	Else
 		SSLSubsystemsIntegrationClient.OnProcessCommand(ThisObject, Command, False);
 		ReportsClientOverridable.HandlerCommands(ThisObject, Command, False);
@@ -1331,10 +1336,11 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Client.
+#Region Client
 
 &AtClient
 Procedure DefineTheBehaviorOnTheHomePage()
@@ -1398,12 +1404,14 @@ Procedure UpdateSettingsFormItemsDeferred()
 
 EndProcedure
 
+#EndRegion
+
 #Region GenerationWithSendingByEmail
 
 &AtClient
 Procedure GenerateBeforeEmailing(Response, AdditionalParameters) Export
 	If Response = DialogReturnCode.Yes Then
-		Handler = New NotifyDescription("SendByEmailAfterGenerate", ThisObject);
+		Handler = New CallbackDescription("SendByEmailAfterGenerate", ThisObject);
 		ReportsClient.GenerateReport(ThisObject, Handler);
 	EndIf;
 EndProcedure
@@ -1479,7 +1487,7 @@ Procedure GenerateReport()
 			QuestionParameters.Title = Title;
 			QuestionParameters.PromptDontAskAgain = SuggestMoreDontWarn;
 			StandardSubsystemsClient.ShowQuestionToUser(
-				New NotifyDescription("GenerateAfterWarning", ThisObject, Context),
+				New CallbackDescription("GenerateAfterWarning", ThisObject, Context),
 				Result.WarningText, Buttons, QuestionParameters);
 			Return;
 		EndIf;
@@ -1527,7 +1535,7 @@ Procedure GenerateAfterWarning(Response, Context) Export
 
 	GenerationParameters.ImportResult = True;
 
-	Handler = New NotifyDescription("AfterGenerate", ThisObject, GenerationParameters);
+	Handler = New CallbackDescription("AfterGenerate", ThisObject, GenerationParameters);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 
@@ -1561,7 +1569,7 @@ Procedure AfterGenerate(Result, GenerationParameters) Export
 	If Result = Undefined Then
 
 		ShowGenerationErrors(NStr("en = 'Report generation is canceled by the administrator';"));
-		ShowUserNotification(NStr("en = 'Report is not generated';"),
+		ShowUserNotification(NStr("en = 'Report not generated';"),
 			?(Window <> Undefined, Window.GetURL(), Undefined), Title);
 
 	ElsIf Result.Status = "Completed2" Then
@@ -1573,13 +1581,13 @@ Procedure AfterGenerate(Result, GenerationParameters) Export
 		ReportSettings.ResultProperties.FormationTime = (CurrentUniversalDateInMilliseconds()
 			- GenerationParameters.FormationStartTime) / 1000;
 			
-		ShowUserNotification(NStr("en = 'Report is generated';"),
+		ShowUserNotification(NStr("en = 'Report generated';"),
 			?(Window <> Undefined, Window.GetURL(), Undefined), Title);
 
 	ElsIf Result.Status = "Error" Then
 
 		ShowGenerationErrors(Result.BriefErrorDescription);
-		ShowUserNotification(NStr("en = 'Report is not generated';"),
+		ShowUserNotification(NStr("en = 'Report not generated';"),
 			?(Window <> Undefined, Window.GetURL(), Undefined), Title);
 	EndIf;
 
@@ -1600,8 +1608,8 @@ Procedure AfterGenerate(Result, GenerationParameters) Export
 	ShowTheSelectedGroupingLevel();
 
 	Handler = HandlerAfterGenerateAtClient;
-	If TypeOf(Handler) = Type("NotifyDescription") Then
-		ExecuteNotifyProcessing(Handler, ReportCreated);
+	If TypeOf(Handler) = Type("CallbackDescription") Then
+		RunCallback(Handler, ReportCreated);
 		HandlerAfterGenerateAtClient = Undefined;
 	EndIf;
 
@@ -1676,7 +1684,7 @@ Function ReportGenerationParameters(ReportName, Directly)
 	ReportGenerationParameters.TablesToUse = ReportSettings.TablesToUse;
 	ReportGenerationParameters.ExternalReportBinaryData = ?(ValueIsFilled(ExternalReportBinaryDataAddress),
 		GetFromTempStorage(ExternalReportBinaryDataAddress), Undefined);
-	ReportGenerationParameters.FullNameOfExternalReportFile = PathToExternalReportFileAtClient;
+	ReportGenerationParameters.ExternalReportFullFilename = PathToExternalReportFileAtClient;
 	ReportGenerationParameters.ParametersChanged = ParametersChanged;
 	ReportGenerationParameters.SchemaModified = ReportSettings.SchemaModified;
 	ReportGenerationParameters.DCSettings = Report.SettingsComposer.Settings;
@@ -1852,7 +1860,7 @@ Procedure ShowChoiceList(Item, StandardProcessing)
 	HandlerParameters.Insert("RestrictSelectionBySpecifiedValues", RestrictSelectionBySpecifiedValues);
 	HandlerParameters.Insert("TagName", Item.Name);
 
-	Handler = New NotifyDescription("CompleteChoiceFromList", ThisObject, HandlerParameters);
+	Handler = New CallbackDescription("CompleteChoiceFromList", ThisObject, HandlerParameters);
 
 	If ReportsClient.ChoiceOverride(ThisObject, Handler, InformationRecords.LongDesc, Item.AvailableTypes,
 		MarkedValues, ChoiceParameters) Then
@@ -1883,7 +1891,7 @@ Procedure ShowChoiceList(Item, StandardProcessing)
 	Else
 		ReportsClient.StartSelectUsers(ThisObject,
 			Item, Item.AvailableTypes, MarkedValues, ChoiceParameters, Handler,
-			New NotifyDescription("ShowChoiceListFollowUp", ThisObject, Context));
+			New CallbackDescription("ShowChoiceListFollowUp", ThisObject, Context));
 	EndIf;
 	
 EndProcedure
@@ -2133,7 +2141,7 @@ Procedure GoToSettings(ExtendedMode = Undefined)
 	FormParameters.Insert("ReportSettings", ReportSettings);
 	FormParameters.Insert("DescriptionOption", String(ReportCurrentOptionDescription));
 
-	Handler = New NotifyDescription("ApplySettingsAndReshapeReport", ThisObject);
+	Handler = New CallbackDescription("ApplySettingsAndReshapeReport", ThisObject);
 	Form = OpenForm(ReportSettings.FullName + ".SettingsForm", FormParameters, ThisObject,,,, Handler);
 
 	If RunMeasurements And Form <> Undefined Then
@@ -3772,10 +3780,10 @@ Procedure SaveReportAfterFilenameSelected(Result, Context) Export
 	If Not ValueIsFilled(FullNameOfTheReportFile) Then
 		Context.Insert("FullNameOfTheReportFile", CommonClientServer.ReplaceProhibitedCharsInFileName(
 			Title));
-		OnCloseNotifyDescription = New NotifyDescription("AfterSaveFormatSelected", ThisObject, Context);
+		CallbackDescriptionOnClose = New CallbackDescription("AfterSaveFormatSelected", ThisObject, Context);
 		FormatsList = ListOfAvailableReportSaveFormats(Context.IndexOfReportSavingFormats);
 		DefaultFormat = FormatsList.FindByValue("mxl");
-		FormatsList.ShowChooseItem(OnCloseNotifyDescription, NStr("en = 'Select a save format';"),
+		FormatsList.ShowChooseItem(CallbackDescriptionOnClose, NStr("en = 'Select a save format';"),
 			DefaultFormat);
 	Else
 		Context.Insert("FullNameOfTheReportFile", FullNameOfTheReportFile);
@@ -3797,7 +3805,7 @@ Procedure AfterSaveFormatSelected(SelectedElement, Context) Export
 		FullNameOfTheReportFile = FullNameOfTheReportFile + "." + SelectedElement.Value;
 	EndIf;
 
-	Handler = New NotifyDescription("SaveReportAfterSavedReportResults", ThisObject,
+	Handler = New CallbackDescription("SaveReportAfterSavedReportResults", ThisObject,
 		FullNameOfTheReportFile);
 
 	SaveFormats = ReportSavingFormats(FullNameOfTheReportFile, Context.IndexOfReportSavingFormats);
@@ -3813,7 +3821,7 @@ Procedure SaveReportAfterSavedReportResults(Result, FullNameOfTheReportFile) Exp
 		Return;
 	EndIf;
 
-	Handler = New NotifyDescription("SaveReportOnChooseReportFilename", ThisObject, FullNameOfTheReportFile);
+	Handler = New CallbackDescription("SaveReportOnChooseReportFilename", ThisObject, FullNameOfTheReportFile);
 	ShowUserNotification(NStr("en = 'The report is saved to the file';"), Handler, FullNameOfTheReportFile);
 
 EndProcedure
@@ -3924,8 +3932,7 @@ EndProcedure
 
 #EndRegion
 
-////////////////////////////////////////////////////////////////////////////////
-// Server call.
+#Region ServerCall
 
 &AtServer
 Procedure SetVisibilityAvailability()
@@ -4081,8 +4088,9 @@ Procedure LoadVariant(VariantKey, ClearStackSettings = True)
 		PictureLib.DialogInformation);
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Server.
+#EndRegion
+
+#Region Server
 
 &AtServer
 Procedure DefineBehaviorInMobileClient()
@@ -4231,7 +4239,7 @@ Procedure SetCurrentOptionKey(ReportFullName, ReportObject)
 	EndIf;
 	
 	// Save the key of the contextual report option, which is usually hidden from the UI.
-	//  (That is, "Enabled" is set to '"False".)
+	//  (That is, "Enabled" is set to '"False".) (See Catalog.PredefinedReportsOptions.Enabled=  False)
 	If ValueIsFilled(OptionContext) Then
 		ContextOption = ?(ValueIsFilled(Parameters.VariantKey), Parameters.VariantKey, CurrentVariantKey);
 		ContextOptions.Add(ContextOption);
@@ -4304,6 +4312,8 @@ Function ReportSchemaURL(ReportObject)
 
 	Return SchemaURL;
 EndFunction
+
+#EndRegion
 
 #Region EventsSettings
 
@@ -4608,7 +4618,7 @@ Procedure SaveAsNewOrOverwriteExistingReportOptionAndContinue(Command)
 		QuestionParameters.DefaultButton = "SaveAndResume";
 		QuestionParameters.Title = ReportCurrentOptionDescription;
 		StandardSubsystemsClient.ShowQuestionToUser(
-			New NotifyDescription("Attachable_CommandAfter", ThisObject, Command),
+			New CallbackDescription("Attachable_CommandAfter", ThisObject, Command),
 			NStr("en = 'Do you want to save the report option?';"), Buttons, QuestionParameters);
 		Return;
 	Else
@@ -4617,7 +4627,7 @@ Procedure SaveAsNewOrOverwriteExistingReportOptionAndContinue(Command)
 		FormParameters.Insert("CurrentSettingsKey", CurrentVariantKey);
 
 		OpenForm("SettingsStorage.ReportsVariantsStorage.SaveForm", FormParameters, ThisObject,,,,
-			New NotifyDescription("Attachable_CommandAfterOptionSaved", ThisObject, Command));
+			New CallbackDescription("Attachable_CommandAfterOptionSaved", ThisObject, Command));
 		Return;
 	EndIf;
 

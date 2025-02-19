@@ -109,7 +109,7 @@ Procedure PathToConverterApplicationStartChoice(Item, ChoiceData, StandardProces
 	
 	StandardProcessing = False;
 	
-	If Not FilesOperationsInternalClient.FileSystemExtensionAttached1() Then
+	If Not FilesOperationsInternalClient.Is1CEnterpriseExtensionAttached() Then
 		Return;
 	EndIf;
 		
@@ -164,7 +164,7 @@ EndProcedure
 &AtClient
 Procedure ScanErrorTextURLProcessing(Item, FormattedStringURL, StandardProcessing)
 	If FormattedStringURL = "TechnicalInformation" Then
-		AfterTechnicalInfoReceived = New NotifyDescription("AfterTechnicalInfoReceived", ThisObject);
+		AfterTechnicalInfoReceived = New CallbackDescription("AfterTechnicalInfoReceived", ThisObject);
 		FilesOperationsInternalClient.GetTechnicalInformation(NStr("en = 'The last scan attempt failed.';"), 
 			AfterTechnicalInfoReceived);
 		StandardProcessing = False;
@@ -174,7 +174,7 @@ EndProcedure
 &AtClient
 Procedure ScanLogCatalogStartChoice(Item, ChoiceData, StandardProcessing)
 
-	If Not FilesOperationsInternalClient.FileSystemExtensionAttached1() Then
+	If Not FilesOperationsInternalClient.Is1CEnterpriseExtensionAttached() Then
 		Return;
 	EndIf;
 	
@@ -199,7 +199,7 @@ EndProcedure
 
 &AtClient
 Procedure InformationForTechnicalSupportClick(Item)
-	AfterTechnicalInfoReceived = New NotifyDescription("AfterTechnicalInfoReceived", ThisObject);
+	AfterTechnicalInfoReceived = New CallbackDescription("AfterTechnicalInfoReceived", ThisObject);
 		FilesOperationsInternalClient.GetTechnicalInformation(NStr("en = 'Send technical information from the setting form.';"), 
 			AfterTechnicalInfoReceived);
 EndProcedure
@@ -235,7 +235,7 @@ Procedure OK(Command)
 			Result = New Structure("Success", True);
 			AfterScanDirAvailabilityChecked(Result, Context)
 		Else
-			Notification = New NotifyDescription("AfterScanDirAvailabilityChecked", ThisObject, Context);
+			Notification = New CallbackDescription("AfterScanDirAvailabilityChecked", ThisObject, Context);
 			FilesOperationsInternalClient.CheckDirAvailability(Notification, UserScanSettings.ScanLogCatalog);
 		EndIf;
 	Else
@@ -278,7 +278,7 @@ Procedure RefreshStatus()
 	Items.MethodOfConversionToPDF.Enabled = False;
 	Items.ShowScannerDialog.Enabled = False;
 	
-	NotifyDescription = New NotifyDescription("UpdateStateAfterInitialization", ThisObject);
+	NotifyDescription = New CallbackDescription("UpdateStateAfterInitialization", ThisObject);
 	FilesOperationsInternalClient.InitAddIn(NotifyDescription, True);
 EndProcedure
 
@@ -487,8 +487,9 @@ Procedure AfterScanDirAvailabilityChecked(Result, ExternalContext) Export
 	
 	If UserScanSettings.UseImageMagickToConvertToPDF Then
 		If Not ValueIsFilled(UserScanSettings.PathToConverterApplication) Then
-			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Path to ""%1"" is not specified.';"), 
-			"ImageMagick");
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Path to %1 is not specified.';"), 
+				"ImageMagick");
 			CommonClient.MessageToUser(ErrorText, , "PathToConverterApplication");
 			FillingCheckError = True;
 		Else
@@ -496,7 +497,7 @@ Procedure AfterScanDirAvailabilityChecked(Result, ExternalContext) Export
 			Context.Insert("Context", UserScanSettings);
 			Context.Insert("FillingCheckError", FillingCheckError);
 			Context.Insert("UserScanSettings", UserScanSettings);
-			CheckResultHandler = New NotifyDescription("AfterCheckInstalledConversionApp", ThisObject, 
+			CheckResultHandler = New CallbackDescription("AfterCheckInstalledConversionApp", ThisObject, 
 				Context);
 			FilesOperationsClient.StartCheckConversionAppPresence(UserScanSettings.PathToConverterApplication, 
 				CheckResultHandler);

@@ -106,7 +106,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			RecordsWithIssuesCount = RecordsWithIssuesCount + 1;
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Error processing register records with the filter ""%1"" applied due to:
+				NStr("en = 'Error processing register records with the filter ""%1"" applied. Reason:
 					|%2';"),
 				StringFunctionsClientServer.SubstituteParametersToString(
 					FilterPresentation,

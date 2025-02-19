@@ -105,7 +105,7 @@ Procedure StartGenerateVersionsReport()
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	
-	NotifyDescription = New NotifyDescription("OnCompleteGenerateReport", ThisObject);
+	NotifyDescription = New CallbackDescription("OnCompleteGenerateReport", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, NotifyDescription, IdleParameters);
 EndProcedure
 

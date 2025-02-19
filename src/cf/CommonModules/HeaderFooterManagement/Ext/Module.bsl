@@ -25,9 +25,9 @@
 Function HeaderOrFooterSettings() Export
 	Var Settings;
 	
-	Store = Constants.HeaderOrFooterSettings.Get();
-	If TypeOf(Store) = Type("ValueStorage") Then
-		Settings = Store.Get();
+	Storage = Constants.HeaderOrFooterSettings.Get();
+	If TypeOf(Storage) = Type("ValueStorage") Then
+		Settings = Storage.Get();
 		If TypeOf(Settings) = Type("Structure") Then
 			If Not Settings.Property("Header") 
 				Or Not Settings.Property("Footer") Then
@@ -56,7 +56,7 @@ EndFunction
 //  Settings - Structure - Values of headers and footers settings to be saved.
 //
 Procedure SaveHeadersAndFootersSettings(Settings) Export
-	Constants.HeaderOrFooterSettings.Set(New ValueStorage(Settings));
+	Constants.HeaderOrFooterSettings.Set(New ValueStorage(Settings, New Deflation(9)));
 EndProcedure
 
 // Sets the ReportDescription and User parameter values in template row.

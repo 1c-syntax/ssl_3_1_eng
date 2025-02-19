@@ -45,8 +45,8 @@ Procedure UpdateRegisterData(HasChanges = Undefined) Export
 	   And HasRolesModifiedByExtensions() Then
 		
 		ErrorText =
-			NStr("en = 'Couldn''t update role rights. Reason:
-			           |Extensions that modify configuration roles are found.';");
+			NStr("en = 'Couldn''t update access rights for the given roles. Reason:
+			           |Extensions that modify roles'' access rights are found.';");
 		Raise ErrorText;
 	EndIf;
 	

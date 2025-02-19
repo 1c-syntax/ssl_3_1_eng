@@ -58,6 +58,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Items.LimitAccessAtRecordLevel.Enabled = False;
 			Items.LimitAccessAtRecordLevelUniversally.Enabled = False;
 		EndIf;
+		UpdateVisibilityOfStandardOptionObsoleteWarning(ThisObject);
 		IsAccessRightsChangeLoggingSupported =
 			ModuleAccessManagementInternal.IsAccessRightsChangeLoggingSupported();
 	Else
@@ -167,12 +168,12 @@ Procedure UseExternalUsersOnChange(Item)
 		QueryText =
 			NStr("en = 'Do you want to allow external user access?
 			           |
-			           |The user list in the startup dialog will be cleared
-			           |(attribute ""Show in choice list"" will be cleared and hidden from all user profiles).
+			           |This will clear the user list in the startup dialog.
+			           |The ""Show in choice list"" checkbox will be cleared and hidden in all user cards).
 			           |';");
 		
 		ShowQueryBox(
-			New NotifyDescription(
+			New CallbackDescription(
 				"UseExternalUsersOnChangeCompletion",
 				ThisObject,
 				Item),
@@ -182,11 +183,11 @@ Procedure UseExternalUsersOnChange(Item)
 		QueryText =
 			NStr("en = 'Do you want to deny external user access?
 			           |
-			           |Attribute ""Login allowed"" will be cleared
-			           |in all external user cards.';");
+			           |The ""Login allowed"" checkbox will be cleared in all external user cards.
+			           |';");
 		
 		ShowQueryBox(
-			New NotifyDescription(
+			New CallbackDescription(
 				"UseExternalUsersOnChangeCompletion",
 				ThisObject,
 				Item),
@@ -207,7 +208,7 @@ Procedure LimitAccessAtRecordLevelUniversallyOnChange(Item)
 			           |To monitor the progress, click ""RLS access update progress"".';");
 	Else
 		QueryText =
-			NStr("en = 'Do you want to disable the high-performance access restriction mode?
+			NStr("en = 'Are you sure you want to enable the standard access restriction mode, which is obsolete?
 			           |
 			           |The update of the right settings will take some time.
 			           |To monitor the progress, click ""RLS access update progress"".';");
@@ -215,7 +216,7 @@ Procedure LimitAccessAtRecordLevelUniversallyOnChange(Item)
 	
 	If ValueIsFilled(QueryText) Then
 		ShowQueryBox(
-			New NotifyDescription(
+			New CallbackDescription(
 				"LimitAccessAtRecordLevelUniversallyOnChangeCompletion",
 				ThisObject, Item),
 			QueryText, QuestionDialogMode.YesNo);
@@ -256,7 +257,7 @@ Procedure LimitAccessAtRecordLevelOnChange(Item)
 	
 	If ValueIsFilled(QueryText) Then
 		ShowQueryBox(
-			New NotifyDescription(
+			New CallbackDescription(
 				"LimitAccessAtRecordLevelOnChangeCompletion",
 				ThisObject, Item),
 			QueryText, QuestionDialogMode.YesNo);
@@ -314,8 +315,16 @@ EndProcedure
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Client.
+&AtClientAtServerNoContext
+Procedure UpdateVisibilityOfStandardOptionObsoleteWarning(Form)
+	
+	Items = Form.Items;
+	Items.StandardOptionObsolete.Visible =
+		Items.LimitAccessAtRecordLevelUniversally.Visible
+		And Items.LimitAccessAtRecordLevelUniversally.Enabled
+		And Not Items.AccessUpdateOnRecordsLevel.Visible;
+	
+EndProcedure
 
 &AtClient
 Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
@@ -373,6 +382,8 @@ Procedure LimitAccessAtRecordLevelUniversallyOnChangeCompletion(Response, Item) 
 	Items.AccessUpdateOnRecordsLevel.Visible =
 		ConstantsSet.LimitAccessAtRecordLevelUniversally;
 	
+	UpdateVisibilityOfStandardOptionObsoleteWarning(ThisObject);
+	
 EndProcedure
 
 &AtClient
@@ -401,9 +412,6 @@ Procedure UseExternalUsersOnChangeCompletion(Response, Item) Export
 	EndIf;
 	
 EndProcedure
-
-////////////////////////////////////////////////////////////////////////////////
-// Server call.
 
 &AtServer
 Function OnChangeAttributeServer(TagName)
@@ -439,9 +447,6 @@ Procedure RegisterDataAccessOnChangeAtServer(Val ShouldRegisterDataAccess)
 	ModuleUserMonitoring.SetDataAccessRegistration(ShouldRegisterDataAccess);
 	
 EndProcedure
-
-////////////////////////////////////////////////////////////////////////////////
-// Server.
 
 &AtServer
 Function SaveAttributeValue(DataPathAttribute)

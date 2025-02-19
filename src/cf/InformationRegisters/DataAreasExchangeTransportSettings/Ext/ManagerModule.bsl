@@ -23,20 +23,20 @@ EndProcedure
 Function TransportSettings(Val CorrespondentEndpoint) Export
 	
 	QueryText =
-	"SELECT
-	|	TransportSettings.FILEDataExchangeDirectory AS FILEDataExchangeDirectory,
-	|	TransportSettings.FILECompressOutgoingMessageFile AS FILECompressOutgoingMessageFile,
-	|	TransportSettings.FTPCompressOutgoingMessageFile AS FTPCompressOutgoingMessageFile,
-	|	TransportSettings.FTPConnectionMaxMessageSize AS FTPConnectionMaxMessageSize,
-	|	TransportSettings.FTPConnectionPassiveConnection AS FTPConnectionPassiveConnection,
-	|	TransportSettings.FTPConnectionUser AS FTPConnectionUser,
-	|	TransportSettings.FTPConnectionPort AS FTPConnectionPort,
-	|	TransportSettings.FTPConnectionPath AS FTPConnectionPath,
-	|	TransportSettings.DefaultExchangeMessagesTransportKind AS DefaultExchangeMessagesTransportKind
-	|FROM
-	|	InformationRegister.DataAreasExchangeTransportSettings AS TransportSettings
-	|WHERE
-	|	TransportSettings.CorrespondentEndpoint = &CorrespondentEndpoint";
+		"SELECT
+		|	TransportSettings.FILEDataExchangeDirectory AS FILEDataExchangeDirectory,
+		|	TransportSettings.FILECompressOutgoingMessageFile AS FILECompressOutgoingMessageFile,
+		|	TransportSettings.FTPCompressOutgoingMessageFile AS FTPCompressOutgoingMessageFile,
+		|	TransportSettings.FTPConnectionMaximumAllowedMessageSize AS FTPConnectionMaximumAllowedMessageSize,
+		|	TransportSettings.FTPConnectionPassiveConnection AS FTPConnectionPassiveConnection,
+		|	TransportSettings.FTPUserConnection AS FTPUserConnection,
+		|	TransportSettings.FTPConnection_Port AS FTPConnection_Port,
+		|	TransportSettings.FTPConnectionPath AS FTPConnectionPath,
+		|	TransportSettings.DefaultExchangeMessagesTransportKind AS DefaultExchangeMessagesTransportKind
+		|FROM
+		|	InformationRegister.DataAreasExchangeTransportSettings AS TransportSettings
+		|WHERE
+		|	TransportSettings.CorrespondentEndpoint = &CorrespondentEndpoint";
 	
 	Query = New Query;
 	Query.SetParameter("CorrespondentEndpoint", CorrespondentEndpoint);
@@ -58,9 +58,7 @@ Function TransportSettings(Val CorrespondentEndpoint) Export
 	Result.Insert("FTPConnectionPassword", Passwords.FTPConnectionDataAreasPassword);
 	
 	If Result.DefaultExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.FTP Then
-		
-		FTPParameters = DataExchangeServer.FTPServerNameAndPath(Result.FTPConnectionPath);
-		
+		FTPParameters = ExchangeMessagesTransport.FTPServerNameAndPath(Result.FTPConnectionPath);
 		Result.Insert("FTPServer", FTPParameters.Server);
 		Result.Insert("FTPPath",   FTPParameters.Path);
 	Else
@@ -74,29 +72,6 @@ Function TransportSettings(Val CorrespondentEndpoint) Export
 	
 EndFunction
 
-Function DefaultExchangeMessagesTransportKind(Peer) Export
-	
-	MessagesTransportKind = Undefined;
-	
-	Query = New Query(
-	"SELECT
-	|	DataAreasTransportSettings.DefaultExchangeMessagesTransportKind AS DefaultExchangeMessagesTransportKind
-	|FROM
-	|	InformationRegister.DataAreaExchangeTransportSettings AS DataAreaTransportSettings
-	|		INNER JOIN InformationRegister.DataAreasExchangeTransportSettings AS DataAreasTransportSettings
-	|		ON (DataAreasTransportSettings.CorrespondentEndpoint = DataAreaTransportSettings.CorrespondentEndpoint)
-	|WHERE
-	|	DataAreaTransportSettings.Peer = &Peer");
-	Query.SetParameter("Peer", Peer);
-
-	Selection = Query.Execute().Select();
-	If Selection.Next() Then
-		MessagesTransportKind = Selection.DefaultExchangeMessagesTransportKind;
-	EndIf;
-	
-	Return MessagesTransportKind;
-	
-EndFunction
 #EndRegion
 
 #EndIf

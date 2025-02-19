@@ -28,7 +28,7 @@ Procedure BeforeStart(Parameters) Export
 	EndIf;
 	
 	Parameters.Cancel = True;
-	Parameters.InteractiveHandler = New NotifyDescription(
+	Parameters.InteractiveHandler = New CallbackDescription(
 		"OnCheckStandaloneWorkstationSetupInteractiveHandler", ThisObject);
 	
 EndProcedure

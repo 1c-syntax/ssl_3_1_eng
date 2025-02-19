@@ -60,4 +60,34 @@ Function ShortcutUseDestinationKey(Val PurposeUseKey) Export
 	
 EndFunction
 
+Function ListOfTypesForSelection(Val TypesComposition) Export
+	
+	List = New ValueList;
+	For Each Type In TypesComposition.Types() Do
+		MetadataObject = Metadata.FindByType(Type);
+		If MetadataObject = Undefined Then
+			Continue;
+		EndIf;
+		If AccessRight("View", MetadataObject) Then
+			List.Add(Type, String(Type));
+		EndIf;
+	EndDo;
+	List.SortByPresentation();
+	
+	Return List;
+	
+EndFunction
+
+Function FullNameOfReferenceTypeTable(Val RefType) Export
+	
+	If Not Common.IsReference(RefType) Then
+		Return "";
+	EndIf;
+	
+	MetadataObject = Metadata.FindByType(RefType);
+	
+	Return MetadataObject.FullName();
+	
+EndFunction
+
 #EndRegion

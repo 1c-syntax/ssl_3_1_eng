@@ -26,10 +26,11 @@ Function ConfigurationUsesOnlyOneLanguage(PresentationsInTabularSection) Export
 		Return False;
 	EndIf;
 	
-	If NationalLanguageSupportServer.FirstAdditionalLanguageUsed()
-		Or NationalLanguageSupportServer.SecondAdditionalLanguageUsed() Then
-		Return False;
-	EndIf;
+	For LanguageSeqNumber = 1 To AdditionalLanguagesCount() Do
+		If IsAdditionalLangUsed(LanguageSeqNumber) Then
+			Return False;
+		EndIf;
+	EndDo;
 	
 	Return True;
 	
@@ -68,42 +69,92 @@ Function ObjectContainsPMRepresentations(ReferenceOrFullMetadataName, AttributeN
 	
 EndFunction
 
-
-Function LanguagesInformationRecords() Export
+Function LanguagesInfo() Export
 	
 	Result = New Structure;
 	
+	AdditionalLanguagesCount = AdditionalLanguagesCount();
+	
 	Result.Insert("Language0", Common.DefaultLanguageCode());
-	Result.Insert("Language1", NationalLanguageSupportServer.FirstAdditionalInfobaseLanguageCode());
-	Result.Insert("Language2",  NationalLanguageSupportServer.SecondAdditionalInfobaseLanguageCode());
-	Result.Insert("AdditionalLanguagesCount", 2);
+	Result.Insert("AdditionalLanguagesCount", AdditionalLanguagesCount);
 	Result.Insert("DefaultLanguage", Common.DefaultLanguageCode());
+	
+	Used = New Structure;
+	For LanguageSeqNumber = 1 To AdditionalLanguagesCount Do
+		LanguageSuffixName = NationalLanguageSupportClientServer.LanguageSuffix_(LanguageSeqNumber);
+		LanguageCode = NationalLanguageSupportServer.InfobaseAdditionalLanguageCode(LanguageSeqNumber);
+		Result.Insert(LanguageSuffixName, LanguageCode);
+			
+		Used.Insert(LanguageSuffixName,
+			IsAdditionalLangUsed(LanguageSeqNumber) And ValueIsFilled(LanguageCode));
+	EndDo;
+	Result.Insert("Used", New FixedStructure(Used));
 	
 	Return New FixedStructure(Result);
 	
 EndFunction
 
-Function LanguageSuffix(Language) Export
+Function InfoAboutLanguagesUsed() Export
 	
-	If StrCompare(Language, Constants.AdditionalLanguage1.Get()) = 0 And IsAdditionalLangUsed("Language1") Then
-		Return "Language1";
-	EndIf;
+	Used = New Structure;
+	For LanguageSeqNumber = 1 To AdditionalLanguagesCount() Do
+		LanguageSuffixName = NationalLanguageSupportClientServer.LanguageSuffix_(LanguageSeqNumber);
+		LanguageCode = NationalLanguageSupportServer.InfobaseAdditionalLanguageCode(LanguageSeqNumber);
+			
+		Used.Insert(LanguageSuffixName,
+			IsAdditionalLangUsed(LanguageSeqNumber) And ValueIsFilled(LanguageCode));
+	EndDo;
 	
-	If StrCompare(Language, Constants.AdditionalLanguage2.Get()) = 0 And IsAdditionalLangUsed("Language2") Then
-		Return "Language2";
-	EndIf;
+	Return New FixedStructure(Used);
+	
+EndFunction
+
+Function LanguageSuffixByLanguageCode(Language) Export
+	
+	For LanguageSeqNumber = 1 To AdditionalLanguagesCount() Do
+		
+		ConstantName    =  NationalLanguageSupportServer.LanguageConstantName(LanguageSeqNumber);
+		If StrCompare(Language, Constants[ConstantName].Get()) = 0
+		   And IsAdditionalLangUsed(LanguageSeqNumber) Then
+				Return NationalLanguageSupportClientServer.LanguageSuffix_(LanguageSeqNumber);
+		EndIf;
+		
+	EndDo;
 	
 	Return "";
 	
 EndFunction
 
-Function IsAdditionalLangUsed(LanguageSuffix) Export
+Function AdditionalLanguagesCount() Export
 	
-	ConstantName = ?(LanguageSuffix <> "Language1",
-		StrReplace("UseAdditionalLanguage1", "Language1", LanguageSuffix),
-		"UseAdditionalLanguage1");
+	LanguageSeqNumber = 1;
+	LanguagesCount     = Undefined;
 	
-	Return Constants[ConstantName].Get() = True;
+	While LanguagesCount = Undefined Do
+		
+		If Metadata.Constants.Find(NationalLanguageSupportServer.LanguageConstantName(LanguageSeqNumber)) = Undefined
+		 Or LanguageSeqNumber = 1000 Then
+			LanguagesCount = LanguageSeqNumber - 1;
+			Break;
+		EndIf;
+		
+		LanguageSeqNumber = LanguageSeqNumber + 1;
+		
+	EndDo;
+		
+	Return LanguagesCount;
+	
+EndFunction
+
+Function IsAdditionalLangUsed(LanguageSeqNumber) Export
+	
+	LanguageConstantName = NationalLanguageSupportServer.FunctionalOptionName(LanguageSeqNumber);
+	If Metadata.Constants.Find(LanguageConstantName) <> Undefined 
+	   And Constants[LanguageConstantName].Get() = True Then
+		Return True;
+	EndIf;
+	
+	Return False;
 	
 EndFunction
 
@@ -136,10 +187,9 @@ Function ThereareMultilingualDetailsintheHeaderoftheObject(MetadataObjectFullNam
 	QueryResult = Query.Execute();
 	
 	For Each Column In QueryResult.Columns Do
-		If (StrEndsWith(Column.Name, NationalLanguageSupportServer.FirstLanguageSuffix())
-		 Or StrEndsWith(Column.Name, NationalLanguageSupportServer.SecondLanguageSuffix()))
-		   And Not StrStartsWith(Column.Name, "Delete")Then
-				Return True;
+		InfoAboutAttribute = NationalLanguageSupportServer.InfoAboutAttribute(Column.Name);
+		If InfoAboutAttribute.Multilingual And Not InfoAboutAttribute.Deleted Then
+			Return True;
 		EndIf;
 	EndDo;
 	
@@ -172,4 +222,3 @@ Function TabularSectionMultilingualAttributes(FullMetadataObjectName) Export
 EndFunction
 
 #EndRegion
-

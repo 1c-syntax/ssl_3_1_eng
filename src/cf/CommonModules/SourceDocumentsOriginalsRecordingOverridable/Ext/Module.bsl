@@ -10,6 +10,46 @@
 
 #Region Public
 
+// Overrides settings for tracking source document originals
+//
+// Parameters:
+//  Settings - Structure:
+//   * ShouldDisplayButtonsOnDocumentForm - Boolean - If "True", the external command interface for tracking 
+//								source document originals is displayed on the document forms as buttons. 
+//								If "False" the interface is displayed as a hyperlink. By Default, "False".
+//   * ShouldDisplayHintInStatesChangeForm - Boolean - If "False", the information label is hidden from
+//							    the form "Change document original state" when clarifying the print form state.
+//								By default, "True".
+//   * ShouldOpenDropDownMenuFromHyperlink - Boolean - If "False", clicking the hyperlink of the source document's original state
+//								opens the form "Change document original state"
+//								for clarifying the print form state.
+//								By default, "True".
+//
+Procedure OnDefineSettings(Settings) Export
+	
+EndProcedure
+
+// Allows you to define actions when writing the aggregated state of the original.
+// 
+// Parameters:
+//  Document - DefinedType.ObjectWithSourceDocumentsOriginalsAccounting - Reference to the document whose
+//																			new aggregated state is being written.
+//  OriginalState 	- CatalogRef.SourceDocumentsOriginalsStates - Reference to the state to apply.
+//
+Procedure OnChangeAggregatedOriginalState(Document, OriginalState) Export
+			
+EndProcedure
+
+// Overrides the list of print objects and print forms before writing states after printing.
+// 
+//	Parameters:
+//  PrintObjects - ValueList - List of references to print objects.
+//  PrintList - ValueList - List with template names and print form presentations.
+//
+Procedure BeforeWriteOriginalStatesAfterPrint(PrintObjects, PrintList) Export 
+	
+EndProcedure
+
 // Defines configuration objects whose list forms contain commands of source document tracking,
 //
 // Parameters:

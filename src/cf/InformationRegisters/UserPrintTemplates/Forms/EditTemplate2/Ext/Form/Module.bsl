@@ -73,7 +73,7 @@ EndProcedure
 Procedure OnClose(Exit)
 	
 	If Not IsBlankString(TempDirectoryName) Then
-		BeginDeletingFiles(New NotifyDescription, TempDirectoryName);
+		BeginDeletingFiles(New CallbackDescription, TempDirectoryName);
 	EndIf;
 	
 	If Exit Then
@@ -85,9 +85,9 @@ Procedure OnClose(Exit)
 		EventName = "Write_UserPrintTemplates";
 	EndIf;
 	
-	NotificationParameters = New Structure;
-	NotificationParameters.Insert("TemplateMetadataObjectName", TemplateMetadataObjectName);
-	NotificationParameters.Insert("DataSources", DataSources.UnloadValues());
+	NotificationParameters = StandardSubsystemsClient.NewNotificationParameterForSpreadsheetDocumentWrite();
+	NotificationParameters.TemplateMetadataObjectName = TemplateMetadataObjectName;
+	NotificationParameters.DataSources = DataSources.UnloadValues();
 	
 	Notify(EventName, NotificationParameters, ThisObject);
 	
@@ -118,7 +118,7 @@ EndProcedure
 Procedure ExitAppUpdate(Command)
 	
 #If WebClient Or MobileClient Then
-		NotifyDescription = New NotifyDescription("OnImportFile", ThisObject);
+		NotifyDescription = New CallbackDescription("OnImportFile", ThisObject);
 		ImportParameters = FileSystemClient.FileImportParameters();
 		ImportParameters.FormIdentifier = UUID;
 		FileSystemClient.ImportFile_(NotifyDescription, ImportParameters);
@@ -258,7 +258,7 @@ EndProcedure
 &AtClient
 Procedure OpenThinClientTemplate()
 	
-	NotifyDescription = New NotifyDescription("OpenTemplateThinClientAfterCreateTempDirectory", ThisObject);
+	NotifyDescription = New CallbackDescription("OpenTemplateThinClientAfterCreateTempDirectory", ThisObject);
 	FileSystemClient.CreateTemporaryDirectory(NotifyDescription);
 	
 EndProcedure

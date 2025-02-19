@@ -117,8 +117,8 @@ EndFunction
 //    * GetErrorStream - Boolean - False - errors are passed to stderr stream.
 //         Ignored if WaitForCompletion is not specified.
 //    * ThreadsEncoding - TextEncoding
-//                       - String - an encoding used to read stdout и stderr.
-//         "CP866" is default for Windows and "UTF-8" is default for others.
+//                       - String - The encoding used to read stdout and stderr.
+//         The default is "CP866" for Windows and "UTF-8" for other operating systems.
 //    * ExecutionEncoding - String
 //                          - Number - an encoding set in Windows using the chcp command,
 //             the possible values ​​are "OEM", "CP866", "UTF8" or the code page number.
@@ -195,7 +195,7 @@ EndFunction
 //
 Function StartApplication(Val StartupCommand, ApplicationStartupParameters = Undefined) Export 
 	
-	// CAC:534-off safe start methods are provided with this function
+	// ACC:534-off - This function provides safe startup methods.
 	
 	CommandString = CommonInternalClientServer.SafeCommandString(StartupCommand);
 	

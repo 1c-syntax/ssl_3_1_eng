@@ -14,8 +14,7 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	FileOwner = Parameters.FileOwner;
-	
-	CurrentRef = CommonClientServer.StructureProperty(Parameters, "CurrentRow");
+	CurrentRef = Parameters.CurrentRow;
 	ListOpenedFromFileCard = ValueIsFilled(CurrentRef);
 	Items.FileOwner.Visible = ListOpenedFromFileCard And Not Parameters.ShouldHideOwner;
 	If ListOpenedFromFileCard And FileOwner = Undefined Then
@@ -50,7 +49,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not IsBlankString(Parameters.FormCaption) Then
 		Title = Parameters.FormCaption;
-	ElsIf ListOpenedFromFileCard Then
+	ElsIf Not ListOpenedFromFileCard Then
 		Title = Title + ": " + Common.SubjectString(FileOwner);
 	EndIf;
 	
@@ -130,8 +129,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	UpdateCloudServiceNote();
 	
 	Items.SyncSettings.Visible = AccessRight("Edit", Metadata.Catalogs.FileSynchronizationAccounts);
-	HasDigitalSignature = Common.SubsystemExists("StandardSubsystems.DigitalSignature");
-	Items.PrintWithStamp.Visible = HasDigitalSignature;
+	PrintWithStampAvailable = False;
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
+		ModuleDigitalSignatureInternal = Common.CommonModule("DigitalSignatureInternal");
+		PrintWithStampAvailable = ModuleDigitalSignature.UseDigitalSignature() 
+			And ModuleDigitalSignatureInternal.DigitalSignatureAvailable(FileCatalogType);
+	EndIf;
+	Items.PrintWithStamp.Visible = PrintWithStampAvailable;
 	Items.CompareFiles.Visible = Not Common.IsLinuxClient() And Not Common.IsWebClient();
 	Items.Send.Visible = Common.SubsystemExists("StandardSubsystems.EmailOperations");
 	
@@ -280,7 +285,7 @@ Procedure ListSelection(Item, RowSelected, Field, StandardProcessing)
 	
 	HandlerParameters = New Structure;
 	HandlerParameters.Insert("FileData", FileData);
-	Handler = New NotifyDescription("ListSelectionAfterEditModeChoice", ThisObject, HandlerParameters);
+	Handler = New CallbackDescription("ListSelectionAfterEditModeChoice", ThisObject, HandlerParameters);
 	
 	FilesOperationsInternalClient.SelectModeAndEditFile(Handler, FileData, Items.FormEdit.Enabled);
 	
@@ -427,8 +432,7 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-///////////////////////////////////////////////////////////////////////////////////
-// File command handlers.
+#Region FileCommandHandlers
 
 &AtClient
 Procedure Add(Command)
@@ -572,7 +576,7 @@ Procedure SetDeletionMark(Command)
 			NStr("en = 'Do you want to mark the selected files for deletion?';"));
 	EndIf;
 	AdditionalParameters = New Structure("Files", SelectedRows);
-	Notification = New NotifyDescription("SetDeletionMarkCompletion", ThisObject, AdditionalParameters);
+	Notification = New CallbackDescription("SetDeletionMarkCompletion", ThisObject, AdditionalParameters);
 	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo);
 EndProcedure
 
@@ -708,7 +712,7 @@ Procedure ImportFiles(Command)
 		FilesGroup = FileGroup_(CurrentData.Ref);
 	EndIf;
 	FormParameters.Insert("FilesGroup",                  FilesGroup);
-	OpenForm("DataProcessor.FilesOperations.Form.FilesImportForm", FormParameters);
+	OpenForm("DataProcessor.FilesOperations.Form.FilesImport", FormParameters);
 EndProcedure
 
 &AtClient
@@ -743,7 +747,7 @@ Procedure ImportFolder(Command)
 	EndIf;
 	FormParameters.Insert("FilesGroup",      FilesGroup);
 	
-	OpenForm("DataProcessor.FilesOperations.Form.FolderImportForm", FormParameters);
+	OpenForm("DataProcessor.FilesOperations.Form.ImportingFolder", FormParameters);
 	
 EndProcedure
 
@@ -760,7 +764,7 @@ Procedure SaveFolder(Command)
 	FormParameters.Insert("ExportFolder",                  CurrentData.Ref);
 	FormParameters.Insert("FilesStorageCatalogName",  FilesStorageCatalogName);
 	FormParameters.Insert("FileVersionsStorageCatalogName", FileVersionsStorageCatalogName);
-	OpenForm("DataProcessor.FilesOperations.Form.ExportFolderForm", FormParameters);
+	OpenForm("DataProcessor.FilesOperations.Form.SavingFolder", FormParameters);
 	
 EndProcedure
 
@@ -801,8 +805,9 @@ Procedure ShowServiceFiles(Command)
 	
 EndProcedure
 
-//////////////////////////////////////////////////////////////////////////////////
-// Command handlers to support digital signature and encryption.
+#EndRegion
+
+#Region CommandHandlersForDigitalSignatureAndEncryptionSupport
 
 &AtClient
 Procedure Sign(Command)
@@ -815,7 +820,7 @@ Procedure Sign(Command)
 		Return;
 	EndIf;
 	
-	NotifyDescription      = New NotifyDescription("AddSignaturesCompeltion", ThisObject);
+	NotifyDescription      = New CallbackDescription("AddSignaturesCompeltion", ThisObject);
 	AdditionalParameters = New Structure("ResultProcessing", NotifyDescription);
 	
 	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
@@ -864,7 +869,7 @@ Procedure AddDSFromFile(Command)
 	FilesOperationsInternalClient.AddSignatureFromFile(
 		AttachedFile,
 		UUID,
-		New NotifyDescription("AddSignaturesCompeltion", ThisObject));
+		New CallbackDescription("AddSignaturesCompeltion", ThisObject));
 	
 EndProcedure
 
@@ -894,7 +899,7 @@ Procedure Encrypt(Command)
 	HandlerParameters = New Structure;
 	HandlerParameters.Insert("FileData",  FileData);
 	HandlerParameters.Insert("ObjectRef", CurrentData.Ref);
-	Handler = New NotifyDescription("EncryptAfterEncryptAtClient", ThisObject, HandlerParameters);
+	Handler = New CallbackDescription("EncryptAfterEncryptAtClient", ThisObject, HandlerParameters);
 	
 	FilesOperationsInternalClient.Encrypt(Handler, FileData, UUID);
 	
@@ -961,7 +966,7 @@ Procedure Decrypt(Command)
 	HandlerParameters = New Structure;
 	HandlerParameters.Insert("FileData", FileData);
 	HandlerParameters.Insert("ObjectRef", ObjectRef);
-	Handler = New NotifyDescription("DecryptAfterDecryptAtClient", ThisObject, HandlerParameters);
+	Handler = New CallbackDescription("DecryptAfterDecryptAtClient", ThisObject, HandlerParameters);
 	
 	FilesOperationsInternalClient.Decrypt(
 		Handler,
@@ -1007,8 +1012,9 @@ Procedure DecryptServer(DataArrayToStoreInDatabase,
 	
 EndProcedure
 
-///////////////////////////////////////////////////////////////////////////////////
-// Command handlers to support collaboration in operations with files.
+#EndRegion
+
+#Region CommandHandlersToSupportCollaborativeFileManagement
 
 &AtClient
 Procedure Edit(Command)
@@ -1052,9 +1058,9 @@ Procedure EndEdit(Command)
 		FormParameters.Insert("HaveFileVersions", HaveFileVersions);
 		FormParameters.Insert("BeingEditedBy",                      RowData.EditedByUser);
 		
-		OpenForm("DataProcessor.FilesOperations.Form.FormFinishEditing", FormParameters, ThisObject);
+		OpenForm("DataProcessor.FilesOperations.Form.FinishingEditing", FormParameters, ThisObject);
 	ElsIf FilesArray.Count() = 1 Then 
-		Handler = New NotifyDescription("SetFileCommandsAvailability", ThisObject);
+		Handler = New CallbackDescription("SetFileCommandsAvailability", ThisObject);
 		FileUpdateParameters = FilesOperationsInternalClient.FileUpdateParameters(Handler, RowData.Ref, UUID);
 		If Not HaveFileVersions Then
 			FileUpdateParameters.Insert("CreateNewVersion", False);
@@ -1085,7 +1091,7 @@ Procedure Lock(Command)
 	
 	FilesCount = Items.List.SelectedRows.Count();
 	If FilesCount = 1 Then
-		Handler = New NotifyDescription("SetFileCommandsAvailability", ThisObject);
+		Handler = New CallbackDescription("SetFileCommandsAvailability", ThisObject);
 		FilesOperationsInternalClient.LockWithNotification(Handler, Items.List.CurrentRow);
 	ElsIf FilesCount > 1 Then
 		
@@ -1101,7 +1107,7 @@ Procedure Lock(Command)
 			
 		EndDo;
 		
-		Handler = New NotifyDescription("SetFileCommandsAvailability", ThisObject, FilesArray);
+		Handler = New CallbackDescription("SetFileCommandsAvailability", ThisObject, FilesArray);
 		FilesOperationsInternalClient.LockWithNotification(Handler, FilesArray);
 		
 	EndIf;
@@ -1113,7 +1119,7 @@ Procedure Delete(Command)
 	
 	SelectedRows = SelectedRows();
 	
-	NotifyDescription = New NotifyDescription("AfterDeleteData", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterDeleteData", ThisObject);
 	FilesOperationsInternalClient.DeleteFilesData(NotifyDescription, SelectedRows, UUID);
 
 EndProcedure
@@ -1124,6 +1130,8 @@ Procedure ShowMarkedFiles(Command)
 	FilesOperationsInternalClient.ChangeFilterByDeletionMark(List.Filter, Items.ShowMarkedFiles);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -1244,7 +1252,7 @@ Procedure OpenFile()
 	If RestrictedExtensions.FindByValue(CurrentData.Extension) <> Undefined Then
 		AdditionalParameters = New Structure;
 		AdditionalParameters.Insert("CurrentData", CurrentData);
-		Notification = New NotifyDescription("OpenFileAfterConfirm", ThisObject, AdditionalParameters);
+		Notification = New CallbackDescription("OpenFileAfterConfirm", ThisObject, AdditionalParameters);
 		UsersInternalClient.ShowSecurityWarning(Notification,
 			UsersInternalClientServer.SecurityWarningKinds().BeforeOpenFile,
 			CommonClientServer.GetNameWithExtension(CurrentData.Description, CurrentData.Extension));
@@ -1315,7 +1323,7 @@ EndProcedure
 Procedure ListSelectionAfterEditModeChoice(Result, ExecutionParameters) Export
 	
 	If Result = "Edit" Then
-		Handler = New NotifyDescription("SelectionListAfterEditFile", ThisObject, ExecutionParameters);
+		Handler = New CallbackDescription("SelectionListAfterEditFile", ThisObject, ExecutionParameters);
 		FilesOperationsInternalClient.EditFile(Handler, ExecutionParameters.FileData);
 	ElsIf Result = "Open" Then
 		FilesOperationsClient.OpenFile(ExecutionParameters.FileData, False);
@@ -1434,7 +1442,7 @@ Procedure SetFileCommandsAvailability(Result = Undefined, ExecutionParameters = 
 	EndIf;
 	
 	If CurrentData <> Undefined Then
-		Items.PrintWithStamp.Visible = HasDigitalSignature
+		Items.PrintWithStamp.Visible = PrintWithStampAvailable
 			And (CurrentData.Extension = "mxl") Or (CurrentData.Extension = "docx")
 			And CurrentData.SignedWithDS;
 	EndIf;
@@ -1900,15 +1908,13 @@ Procedure UpdateCloudServiceNote()
 			Account = SynchronizationInfo.Account;
 			NoteVisibility = True;
 			
-			FolderAddressInCloudService = FilesOperationsInternalClientServer.AddressInCloudService(
-				SynchronizationInfo.Service, SynchronizationInfo.Href);
-				
 			Items.DecorationNote.Title = StringFunctions.FormattedString(
 				NStr("en = 'The files are stored in cloud service <a href=""%1"">%2</a>.';"),
-				String(FolderAddressInCloudService), String(SynchronizationInfo.AccountDescription1));
+				SynchronizationInfo.FolderAddressInCloudService, SynchronizationInfo.AccountDescription1);
 			
 			Items.DecorationPictureSyncStatus.Visible = Not SynchronizationInfo.IsSynchronized;
-			Items.DecorationSyncDate.ToolTipRepresentation =?(SynchronizationInfo.IsSynchronized, ToolTipRepresentation.None, ToolTipRepresentation.Button);
+			Items.DecorationSyncDate.ToolTipRepresentation =?(SynchronizationInfo.IsSynchronized, 
+				ToolTipRepresentation.None, ToolTipRepresentation.Button);
 			
 			Items.DecorationSyncDate.Title = StringFunctions.FormattedString(
 				NStr("en = 'Synchronized on: <a href=""%1"">%2</a>';"),
@@ -2038,35 +2044,28 @@ EndProcedure
 
 &AtClient
 Function CurrentData()
-	If Not StandardSubsystemsClient.IsDynamicListItem(Items.List) Then
-		Return Undefined;
-	ElsIf Items.List.CurrentData.FileOwner = FileOwner Then
-		Return Items.List.CurrentData;
-	Else
+	If Not StandardSubsystemsClient.IsDynamicListItem(Items.List) 
+		Or Items.List.CurrentData.FileOwner <> FileOwner Then
 		Return Undefined;
 	EndIf;
+	Return Items.List.CurrentData;
 EndFunction
 
 &AtServerNoContext
 Function FileGroup_(File)
-	If File.Metadata().Hierarchical Then
-		Return Common.ObjectAttributeValue(File, "Parent");
-	Else
-		Return Undefined;
-	EndIf;
+	Return ?(File.Metadata().Hierarchical, Common.ObjectAttributeValue(File, "Parent"),
+		Undefined);
 EndFunction
 
 &AtClient
 Function SelectedRows()
 	SelectedRows = New Array;
-	
 	For Each SelectedRow In Items.List.SelectedRows Do
 		If TypeOf(SelectedRow) <> Type("DynamicListGroupRow") Then
 			SelectedRows.Add(SelectedRow);
 		EndIf;
 	EndDo;
-	
-	Return SelectedRows
+	Return SelectedRows;
 	
 EndFunction
 

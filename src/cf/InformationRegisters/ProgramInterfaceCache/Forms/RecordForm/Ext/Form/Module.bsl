@@ -42,7 +42,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	If CurrentObject.DataType = Enums.APICacheDataTypes.InterfaceVersions Then
 		
 		Data = Common.ValueFromXMLString(Body);
-		CurrentObject.Data = New ValueStorage(Data);
+		CurrentObject.Data = New ValueStorage(Data, New Deflation(9));
 		
 	ElsIf CurrentObject.DataType = Enums.APICacheDataTypes.WebServiceDetails Then
 		
@@ -53,7 +53,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		TextDocument.Write(TempFile);
 		
 		BinaryData = New BinaryData(TempFile);
-		CurrentObject.Data = New ValueStorage(BinaryData);
+		CurrentObject.Data = New ValueStorage(BinaryData, New Deflation(9));
 		
 		DeleteFiles(TempFile);
 		

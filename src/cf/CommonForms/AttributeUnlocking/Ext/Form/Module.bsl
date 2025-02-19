@@ -89,7 +89,7 @@ Procedure Validate(Command)
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	
-	CallbackOnCompletion = New NotifyDescription("ValidateCompletion", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("ValidateCompletion", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
@@ -357,22 +357,22 @@ Procedure ValidateCompletion(Result, AdditionalParameters) Export
 	If AreObjectsUsed Then
 		If RefsCount = 1 Then
 			MessageText =
-				NStr("en = 'The object is used elsewhere in the app.
+				NStr("en = 'The object is used elsewhere in the application.
 				           |Editing this object might lead to data inconsistency.';");
 		Else
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 selected objects are used elsewhere in the app.
+				NStr("en = 'Selected objects (%1) are used elsewhere in the application.
 				           |Editing these objects might lead to data inconsistency.';"),
 				RefsCount);
 		EndIf;
 	Else
 		If RefsCount = 1 Then
 			MessageText =
-				NStr("en = 'The object is not used in other places in the app.
+				NStr("en = 'The object is not used in other places in the application.
 				           |You can allow editing it without the risk of data inconsistency.';");
 		Else
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The selected objects (%1) are used in other places in the app.
+				NStr("en = 'Selected objects (%1) are used in other places in the application.
 				           |You can allow editing them without the risk of data inconsistency.';"),
 				RefsCount);
 		EndIf;

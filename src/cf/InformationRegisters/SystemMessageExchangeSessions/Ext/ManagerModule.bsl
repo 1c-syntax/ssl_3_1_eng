@@ -13,6 +13,9 @@
 #Region Private
 
 // Creates a message exchange session and returns the session ID
+// 
+// Returns:
+//  UUID
 //
 Function NewSession() Export
 	
@@ -26,6 +29,12 @@ Function NewSession() Export
 EndFunction
 
 // Gets a session status: Running, Done, or Error.
+// 
+// Parameters:
+//  Session - UUID - Exchange session ID
+// 
+// Returns:
+//  String - Session status as a String
 //
 Function SessionStatus(Val Session) Export
 	
@@ -89,6 +98,12 @@ Procedure SaveSessionData(Val Session, Data) Export
 EndProcedure
 
 // Reads session data and deletes the session from the infobase.
+// 
+// Parameters:
+//  Session - UUID - Exchange session ID
+// 
+// Returns:
+//  ValueStorage - Exchange session data
 //
 Function GetSessionData(Val Session) Export
 	
@@ -124,6 +139,12 @@ Function GetSessionData(Val Session) Export
 EndFunction
 
 // Gets details of session errors.
+// 
+// Parameters:
+//  Session - UUID - Exchange session ID
+// 
+// Returns:
+//  String - Session error details
 //
 Function SessionErrorDetails(Val Session) Export
 	

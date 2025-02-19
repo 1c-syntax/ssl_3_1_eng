@@ -25,6 +25,10 @@
 Procedure OnCreateAtServer(Form, Val PlacementParameters = Undefined) Export
 	FormName = Form.FormName;
 	
+	If Not Common.SeparatedDataUsageAvailable() Then
+		Return;
+	EndIf;
+	
 	PassedPlacementParameters = PlacementParameters;
 	
 	PlacementParameters = PlacementParameters();
@@ -100,6 +104,11 @@ Procedure OnCreateAtServer(Form, Val PlacementParameters = Undefined) Export
 	PlacementParameters.Insert("HasVisibilityConditions", FormCache.HasVisibilityConditions);
 	PlacementParameters.Insert("IsObjectForm", FormCache.IsObjectForm);
 	PlacementParameters.Insert("InputOnBasisUsingAttachableCommands", FormCache.InputOnBasisUsingAttachableCommands);
+	
+	If Common.SubsystemExists("StandardSubsystems.Print") Then
+		ModulePrintManager = Common.CommonModule("PrintManagement");
+		ModulePrintManager.OnCreateAtServer(Form, FormCache.Commands, IsObjectForm);
+	EndIf;
 	
 	If FormCache.FunctionalOptions.Count() > 0 Then
 		Form.SetFormFunctionalOptionParameters(FormCache.FunctionalOptions);
@@ -250,8 +259,7 @@ EndFunction
 
 #Region Internal
 
-////////////////////////////////////////////////////////////////////////////////
-// Event handlers.
+#Region EventHandlers
 
 // Generates a table of common settings for all extensions attached to the metadata object.
 Function AttachedObjects(SourceDetails, AttachedObjects = Undefined, InterfaceSettings4 = Undefined) Export
@@ -342,8 +350,8 @@ Function AttachableObjectSettings(FullName, InterfaceSettings4 = Undefined) Expo
 		EndIf;
 	EndDo;
 	
-	Manager = Node[Name];
 	Try
+		Manager = Node[Name];
 		Manager.OnDefineSettings(Settings);
 	Except
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -440,8 +448,9 @@ Function RegisterSource(MetadataObject, Sources, AttachedObjects, InterfaceSetti
 	Return Source;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Templates.
+#EndRegion
+
+#Region Templates
 
 // The information template of metadata objects that are command sources.
 //
@@ -529,8 +538,9 @@ Function AttachableObjectsInterfaceSettings() Export
 	Return Table;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#EndRegion
+
+#Region ConfigurationSubsystemsEventHandlers
 
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
 Procedure OnAddUpdateHandlers(Handlers) Export
@@ -549,8 +559,9 @@ Function OnFillAllExtensionParameters() Export
 	Return CommonDataNonexclusiveUpdate(Type("CatalogRef.ExtensionObjectIDs"));
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+#EndRegion
+
+#Region InfobaseUpdate
 
 Function ConfigurationCommonDataNonexclusiveUpdate() Export
 	Return CommonDataNonexclusiveUpdate(Type("CatalogRef.MetadataObjectIDs"));
@@ -558,10 +569,11 @@ EndFunction
 
 #EndRegion
 
+#EndRegion
+
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// OnCreateAtServer form cache.
+#Region FormCacheOnCreateAtServer
 
 // Cache of the form, where attachable commands will be displayed.
 Function FormCache(FormName, SourcesCommaSeparated, IsObjectForm) Export
@@ -715,14 +727,15 @@ EndFunction
 Procedure CheckCommandsKindName(KindName) Export
 	
 	If Not CommonClientServer.NameMeetPropertyNamingRequirements(KindName) Then
-		ErrorText = NStr("en = 'Command kind name ""%1"" does not meet naming requirements for variables.';");
+		ErrorText = NStr("en = 'Command type name ""%1"" must conform to variable naming conventions.';");
 		Raise StringFunctionsClientServer.SubstituteParametersToString(ErrorText, KindName);
 	EndIf;
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Output.
+#EndRegion
+
+#Region Output
 
 // Places attached commands in the form.
 //
@@ -826,6 +839,7 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 			InfoOnGenerateSubmenu = SubmenuInfoByDefault;
 		EndIf;
 		
+		HasDefaultCommands = False;
 		For Each Command In KindCommands Do 
 			If IsBlankString(Command.Popup) Then
 				CommandSubmenuInfo = SubmenuInfoByDefault;
@@ -838,9 +852,54 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 					SubmenuInfoQuickSearch.Insert(Lower(SubmenuName), CommandSubmenuInfo);
 				EndIf;
 			EndIf;
-			CommandSubmenuInfo.CommandsCount = CommandSubmenuInfo.CommandsCount + 1;
+			
+			If Command.DefaultCommand Then
+				HasDefaultCommands = True;
+				CommandSubmenuInfo.DefaultCommands.Add(Commands.IndexOf(Command));
+			Else
+				CommandSubmenuInfo.CommandsCount = CommandSubmenuInfo.CommandsCount + 1;
+			EndIf;
+			
 			CommandSubmenuInfo.Commands.Add(Commands.IndexOf(Command));
 		EndDo;
+		
+		// для единственной команды нет смысла создавать группу и кнопку по умолчанию
+		If HasDefaultCommands And CommandSubmenuInfo.CommandsCount = 1 Then
+			For Each DefaultCommand In CommandSubmenuInfo.DefaultCommands Do
+				IndexOf = CommandSubmenuInfo.Commands.Find(DefaultCommand);
+				CommandSubmenuInfo.Commands.Delete(IndexOf);
+			EndDo;
+			CommandSubmenuInfo.DefaultCommands.Clear();
+			HasDefaultCommands = False;
+		EndIf;
+		
+		// Создание групп для команд по умолчанию
+		If HasDefaultCommands Then
+			CommandKindGroup = CommandSubmenuInfo.Popup;
+			If CommandKindGroup.Visible Then
+				
+				CommandKindGroup.Representation = ButtonRepresentation.Text;
+				GroupWithDefaultCommands = "GroupWithDefaultCommands" + GroupsPrefix + CommandsKind.SubmenuName;
+				
+				GroupWithDefaultCommands = Items.Insert(GroupWithDefaultCommands, Type("FormGroup"),
+					CommandKindGroup.Parent, CommandKindGroup);
+				GroupWithDefaultCommands.Type = FormGroupType.ButtonGroup;
+				
+				StringPattern = NStr("en = 'Group with default %1 commands';");
+				GroupTitle = StringFunctionsClientServer.SubstituteParametersToString(StringPattern, CommandsKind.Title);
+				GroupWithDefaultCommands.Title = GroupTitle;
+				GroupWithDefaultCommands.Representation = ButtonGroupRepresentation.Compact;
+				
+				For Each CommandIndex In CommandSubmenuInfo.DefaultCommands Do
+					Commands[CommandIndex].Popup = GroupWithDefaultCommands;
+				EndDo;
+				
+				Items.Move(CommandKindGroup, GroupWithDefaultCommands);
+				CommandSubmenuInfo.GroupWithDefaultCommands = GroupWithDefaultCommands;
+				CommandSubmenuInfo.HasGroupWithDefaultCommands = True;
+			
+			EndIf;
+		EndIf;
 	EndDo;
 	
 	For Each CommandSubmenuInfo In InfoOnAllSubmenus Do
@@ -881,7 +940,11 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 			FormCommand.ModifiesStoredData = Command.ChangesSelectedObjects 
 				And PlacementParameters.IsObjectForm And Form.ReadOnly;
 				
-			If CommandSubmenuInfo.CommandsCount = 1 And TypeOf(FormGroup.Parent) <> Type("ClientApplicationForm") 
+			GroupWithDefaultCommands = CommandSubmenuInfo.GroupWithDefaultCommands;
+			If Command.DefaultCommand And GroupWithDefaultCommands <> Undefined Then
+				FormButton = Items.Insert(Command.NameOnForm, Type("FormButton"), GroupWithDefaultCommands, GroupWithDefaultCommands.ChildItems[0]);
+				FormButton.Representation = FormCommand.Representation;
+			ElsIf CommandSubmenuInfo.CommandsCount = 1 And TypeOf(FormGroup.Parent) <> Type("ClientApplicationForm") 
 				And Not IsCommandOfCommandBarType Then
 				FormButton = Items.Insert(Command.NameOnForm, Type("FormButton"), CommandSubmenuInfo.Popup.Parent, FormGroup.Parent);
 			Else
@@ -923,6 +986,7 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 				CommandInfo.Insert("VisibilityConditions");
 				CommandInfo.Insert("VisibilityConditionsByObjectTypes");
 				CommandInfo.Insert("CommandsPrefix");
+				CommandInfo.Insert("DefaultCommand");
 				FillPropertyValues(CommandInfo, Command);
 				
 				CommandInfo.CommandsPrefix = CommandsPrefix;
@@ -1001,8 +1065,19 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 		DeleteFromTempStorage(AttachedCommands.CommandsTableAddress);
 	EndIf;
 	
+	OnOutputCommands(Form, AttachedCommands);
+	
 	Commands.Columns.Delete("Shortcut");
 	AttachedCommands.CommandsTableAddress = PutToTempStorage(Commands, Form.UUID);
+	
+EndProcedure
+
+Procedure OnOutputCommands(Form, AttachedCommands)
+	
+	If Common.SubsystemExists("StandardSubsystems.Print") Then
+		ModulePrintManager = Common.CommonModule("PrintManagement");
+		ModulePrintManager.OnOutputCommands(Form, AttachedCommands);
+	EndIf;
 	
 EndProcedure
 
@@ -1035,6 +1110,9 @@ Function InfoOnAllSubmenus()
 	InfoOnAllSubmenus.Columns.Add("CommandsWithVisibilityConditions", New TypeDescription("Array"));
 	InfoOnAllSubmenus.Columns.Add("SubmenuImage");
 	InfoOnAllSubmenus.Columns.Add("Commands", New TypeDescription("Array"));
+	InfoOnAllSubmenus.Columns.Add("DefaultCommands", New TypeDescription("Array"));
+	InfoOnAllSubmenus.Columns.Add("GroupWithDefaultCommands");
+	InfoOnAllSubmenus.Columns.Add("HasGroupWithDefaultCommands", New TypeDescription("Boolean"));
 	
 	Return InfoOnAllSubmenus;
 	
@@ -1045,9 +1123,11 @@ EndFunction
 //   * Name - String
 //   * CommandsWithVisibilityConditions - Array
 //   * HasCommandsWithoutVisibilityConditions - Boolean
+//   * HasGroupWithDefaultCommands - Boolean
 //
 Function SubmenuShortInfo(SubmenuInfo)
-	SubmenuShortInfo = New Structure("Name, CommandsWithVisibilityConditions, HasCommandsWithoutVisibilityConditions");
+	SubmenuShortInfo = New Structure("Name, CommandsWithVisibilityConditions, HasCommandsWithoutVisibilityConditions,
+		|HasGroupWithDefaultCommands");
 	FillPropertyValues(SubmenuShortInfo, SubmenuInfo);
 	Return SubmenuShortInfo;
 EndFunction
@@ -1169,7 +1249,7 @@ EndFunction
 Function IsAttributePath(Val AttributePath)
 	AttributePath = Upper(AttributePath);
 	AttributePath = StrReplace(AttributePath, "NOT ", "");
-	IDs = StrSplit(StrReplace(AttributePath, "%SOURCE%",""), ".");
+	IDs = StrSplit(StrReplace(AttributePath, ".%SOURCE%.","."), ".");
 	For Each Item In IDs Do
 		If Not CommonClientServer.NameMeetPropertyNamingRequirements(Item) Then
 			Return False;
@@ -1306,8 +1386,9 @@ Function DefineCommandName(Form, GroupName, CommandID, CommandsCounterWithAutona
 	Return CommandName;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+#EndRegion
+
+#Region InfobaseUpdate
 
 // Updates cache Objects metadata specified type.
 //
@@ -1387,8 +1468,9 @@ Function CommonDataNonexclusiveUpdate(Filter)
 	Return Result;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Calls from the ServerCall modules.
+#EndRegion
+
+#Region CallsFromModulesServerCall
 
 // Returns command details by form item name.
 // 
@@ -1485,8 +1567,9 @@ Function CommandDetails(CommandNameInForm, SettingsAddress) Export
 	Return New FixedStructure(CommandDetails);
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Operations with metadata objects.
+#EndRegion
+
+#Region MetadataObjectsManagement
 
 // Returns the type of the object in plural.
 Function MetadataObjectKindInPlural(Val Kind)
@@ -1534,8 +1617,9 @@ Function MetadataObjectKindInPlural(Val Kind)
 	EndIf;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Templates.
+#EndRegion
+
+#Region Templates
 
 // Attachable commands table template.
 //
@@ -1571,6 +1655,7 @@ EndFunction
 //   * NameOnForm - String
 //   * HasVisibilityConditions - Boolean
 //   * PlacementParametersKey - String
+//   * DefaultCommand - Boolean
 //
 Function CommandsTable()
 	Table = New ValueTable;
@@ -1610,12 +1695,14 @@ Function CommandsTable()
 	Table.Columns.Add("HasVisibilityConditions", New TypeDescription("Boolean"));
 	Table.Columns.Add("PlacementParametersKey", New TypeDescription("String"));
 	Table.Columns.Add("VisibilityConditionsByObjectTypes", New TypeDescription("Map"));
-		
+	Table.Columns.Add("DefaultCommand", New TypeDescription("Boolean"));
+	
 	Return Table;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Miscellaneous.
+#EndRegion
+
+#Region Other
 
 // Returns a full subsystem name.
 Function FullSubsystemName() Export
@@ -1700,5 +1787,7 @@ Procedure OnDefineAttachableCommandsKinds(AttachableCommandsKinds) Export
 	Kind.Representation = ButtonRepresentation.Picture;	
 
 EndProcedure
+
+#EndRegion
 
 #EndRegion

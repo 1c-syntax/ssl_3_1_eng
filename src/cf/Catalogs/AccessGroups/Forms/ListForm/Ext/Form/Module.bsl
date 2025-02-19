@@ -252,7 +252,7 @@ EndFunction
 
 #Region Private
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

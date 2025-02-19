@@ -47,11 +47,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		DCSettings = Report.SettingsComposer.Settings;
 	EndIf;
 	
-	Parameters.Property("SettingsStructureItemID", SettingsStructureItemID);
-	
-	PathToSettingsStructureItem = CommonClientServer.StructureProperty(
-		Parameters, "PathToSettingsStructureItem", "");
-	
+	SettingsStructureItemID = Parameters.SettingsStructureItemID;
+	PathToSettingsStructureItem = Parameters.PathToSettingsStructureItem;
 	StructureItem = ReportsServer.SettingsItemByFullPath(DCSettings, PathToSettingsStructureItem);
 	If StructureItem <> Undefined Then
 		SettingsStructureItemID = DCSettings.GetIDByObject(StructureItem);

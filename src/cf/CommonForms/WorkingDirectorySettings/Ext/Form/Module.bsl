@@ -31,9 +31,9 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	If Not FilesOperationsInternalClient.FileSystemExtensionAttached1() Then
+	If Not FilesOperationsInternalClient.Is1CEnterpriseExtensionAttached() Then
 		StandardSubsystemsClient.SetFormStorageOption(ThisObject, True);
-		AttachIdleHandler("ShowFileSystemExtensionRequiredMessageBox", 0.1, True);
+		AttachIdleHandler("Show1CEnterpriseExtensionRequiredMessageBox", 0.1, True);
 		Cancel = True;
 		Return;
 	EndIf;
@@ -53,7 +53,7 @@ Procedure UserWorkingDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	StandardProcessing = False;
 	
-	If Not FilesOperationsInternalClient.FileSystemExtensionAttached1() Then
+	If Not FilesOperationsInternalClient.Is1CEnterpriseExtensionAttached() Then
 		Return;
 	EndIf;
 	
@@ -87,10 +87,10 @@ EndProcedure
 #Region FormCommandsEventHandlers
 
 &AtClient
-Procedure ShowFileSystemExtensionRequiredMessageBox()
+Procedure Show1CEnterpriseExtensionRequiredMessageBox()
 	
 	StandardSubsystemsClient.SetFormStorageOption(ThisObject, False);
-	FilesOperationsInternalClient.ShowFileSystemExtensionRequiredMessageBox(Undefined);
+	FilesOperationsInternalClient.Show1CEnterpriseExtensionRequiredMessageBox(Undefined);
 	
 EndProcedure
 
@@ -102,7 +102,7 @@ Procedure CleanUpLocalFileCache(Command)
 		           |will be deleted from the working directory.
 		           |
 		           |Do you want to continue?';");
-	Handler = New NotifyDescription("ClearLocalFileCacheCompletionAfterAnswerQuestionContinue", ThisObject);
+	Handler = New CallbackDescription("ClearLocalFileCacheCompletionAfterAnswerQuestionContinue", ThisObject);
 	ShowQueryBox(Handler, QueryText, QuestionDialogMode.YesNo);
 	
 EndProcedure
@@ -152,7 +152,7 @@ Procedure ClearLocalFileCacheCompletionAfterAnswerQuestionContinue(Response, Exe
 		Return;
 	EndIf;
 	
-	Handler = New NotifyDescription("CleanUpLocalFileCacheCompletion", ThisObject);
+	Handler = New CallbackDescription("CleanUpLocalFileCacheCompletion", ThisObject);
 	// ClearAll = True.
 	FilesOperationsInternalClient.CleanUpWorkingDirectory(Handler, WorkingDirectoryFilesSize, 0, True);
 	
@@ -210,7 +210,7 @@ Procedure SetNewWorkDirectory(NewDirectory)
 	EndIf;
 	
 #If Not WebClient Then
-	Handler = New NotifyDescription(
+	Handler = New CallbackDescription(
 		"SetNewWorkDirectoryCompletion", ThisObject, NewDirectory);
 	
 	FilesOperationsInternalClient.MoveWorkingDirectoryContent(

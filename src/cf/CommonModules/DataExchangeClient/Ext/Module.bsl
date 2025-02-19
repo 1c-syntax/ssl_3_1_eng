@@ -81,28 +81,8 @@ Procedure SetupFormBeforeClose(Cancel, Form, Exit) Export
 	EndIf;
 	
 	QueryText = NStr("en = 'Close the form without saving the changes?';");
-	NotifyDescription = New NotifyDescription("SetupFormBeforeCloseCompletion", ThisObject, Form);
+	NotifyDescription = New CallbackDescription("SetupFormBeforeCloseCompletion", ThisObject, Form);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo,, DialogReturnCode.No);
-	
-EndProcedure
-
-// Opens the form of data exchange settings wizard for the specified exchange plan.
-//
-// Parameters:
-//  ExchangePlanName         - String - a name of the exchange plan (as a metadata object)
-//                                    for which the wizard is to be opened.
-//  SettingID - String - ID of data exchange settings option.
-// 
-Procedure OpenDataExchangeSetupWizard(Val ExchangePlanName, Val SettingID) Export
-	
-	FormParameters = New Structure;
-	FormParameters.Insert("ExchangePlanName", ExchangePlanName);
-	FormParameters.Insert("SettingID", SettingID);
-	
-	FormKey = ExchangePlanName + "_" + SettingID;
-	
-	OpenForm("DataProcessor.DataExchangeCreationWizard.Form.ConnectionSetup", FormParameters, ,
-		FormKey, , , , FormWindowOpeningMode.LockOwnerWindow);
 	
 EndProcedure
 
@@ -312,7 +292,7 @@ Procedure BeforeWrite(Form, Cancel, WriteParameters) Export
 		
 	ElsIf CheckResult.ALongTermOperationIsRequired Then
 		
-		Object = Form.Object; //ExchangePlanObject
+		Object = Form.Object; // FormDataStructure
 		
 		ProcessingParameters = New Structure;
 		ProcessingParameters.Insert("Node", 				Object.Ref);
@@ -396,6 +376,58 @@ Procedure OpenDataSynchronizationPanel(CommandParameter, CommandExecuteParameter
 	
 EndProcedure
 
+// Opens the form for changing the infobase prefix.
+//
+// Parameters:
+//  IBPrefix - String - The current infobase prefix.
+//
+Procedure OpenInfobasePrefixChangeForm(Val IBPrefix) Export
+	
+	FormParameters = New Structure("Prefix", IBPrefix);
+	
+	NameOfPrefixChangeForm = "DataProcessor.DataExchangeCreationWizard.Form.ChangeInfobaseNodePrefix";
+	OpenForm(NameOfPrefixChangeForm, FormParameters,,,,,, FormWindowOpeningMode.LockOwnerWindow);
+	
+EndProcedure
+
+// Opens the form for clearing up synchronization warnings.
+//
+// Parameters:
+//  OpeningParameters - Structure - Structure with warning filters, where:
+//     * ArrayOfExchangePlanNodes - Array of ExchangePlanRef - Array with exchange plan nodes that can be used.
+//     * SelectionByDateOfOccurrence - Date - End date for filtering warnings.
+//     * SelectionOfExchangePlanNodes - Array of ExchangePlanRef - Array of exchange plan nodes
+//                                                            where the warnings are being deleted.
+//     * SelectingTypesOfWarnings - Array of EnumRef.DataExchangeIssuesTypes
+//                                           EnumRef.ObjectVersionTypes - Types of the warnings being deleted.
+//     * OnlyHiddenRecords - Boolean - Filter for deletion only hidden warning records.
+//  NotifyDescription - CallbackDescription
+//
+Procedure OpenFormForDeletingSyncAlerts(OpeningParameters, NotifyDescription = Undefined) Export
+	
+	NameOfAlertDeletionForm = "InformationRegister.DataExchangeResults.Form.ObsoleteWarningsDeletion";
+	OpenForm(NameOfAlertDeletionForm, OpeningParameters, ThisObject, , , , NotifyDescription);
+	
+EndProcedure
+
+
+#Region ObsoleteProceduresAndFunctions
+
+// Deprecated. Opens the form of data exchange settings wizard for the specified exchange plan.
+//
+// Parameters:
+//  ExchangePlanName         - String - a name of the exchange plan (as a metadata object)
+//                                    for which the wizard is to be opened.
+//  SettingID - String - ID of data exchange settings option.
+// 
+Procedure OpenDataExchangeSetupWizard(Val ExchangePlanName, Val SettingID) Export
+	
+	// The procedure is not used as the "ConnectionSetup" form is not used to set up synchronization
+	
+EndProcedure
+
+#EndRegion
+
 #EndRegion
 
 #Region Internal
@@ -403,6 +435,11 @@ EndProcedure
 // Modally opens the event log with filter by data export or import events for the specified exchange plan
 // node.
 //
+// Parameters:
+//  InfobaseNode - ExchangePlanRef
+//  Owner - MetadataObject
+//  ActionOnExchange - EnumRef.ActionsOnExchange
+// 
 Procedure GoToDataEventLogModally(InfobaseNode, Owner, ActionOnExchange) Export
 	
 	// Server call.
@@ -425,6 +462,9 @@ EndFunction
 
 // Updates database configuration.
 //
+// Parameters:
+//  ShouldExitApp - Boolean
+//
 Procedure InstallConfigurationUpdate(ShouldExitApp = False) Export
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.ConfigurationUpdate") Then
@@ -438,6 +478,9 @@ Procedure InstallConfigurationUpdate(ShouldExitApp = False) Export
 EndProcedure
 
 // Opens the form of monitor for data registered for sending.
+//
+// Parameters:
+//  InfobaseNode - ExchangePlanRef
 //
 Procedure OpenCompositionOfDataToSend(Val InfobaseNode) Export
 	
@@ -457,8 +500,8 @@ Procedure OpenCompositionOfDataToSend(Val InfobaseNode) Export
 	OpenForm("DataProcessor.RegisterChangesForDataExchange.Form", FormParameters,, InfobaseNode);
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+
+#Region ConfigurationSubsystemsEventHandlers
 
 // See CommonClientOverridable.BeforeStart.
 Procedure BeforeStart(Parameters) Export
@@ -481,7 +524,7 @@ Procedure BeforeStart(Parameters) Export
 		Return;
 	EndIf;
 	
-	Parameters.InteractiveHandler = New NotifyDescription(
+	Parameters.InteractiveHandler = New CallbackDescription(
 		"RetryDataExchangeMessageImportBeforeStartInteractiveHandler", ThisObject);
 	
 EndProcedure
@@ -678,12 +721,83 @@ Procedure OpenDataSynchronizationSettings() Export
 	
 EndProcedure
 
+// Opens a file in the operating system's associated application.
+//
+// Parameters:
+//     Object               - Arbitrary - an object from which the name of the file to open is retrieved by property name.
+//     PropertyName          - String       - a name of the object property that contains the name of the file to open.
+//     StandardProcessing - Boolean       - the flag of standard processing, it is set to False.
+//
+Procedure FileOrDirectoryOpenHandler(Object, PropertyName, StandardProcessing = False) Export
+	StandardProcessing = False;
+	
+	FullFileName = Object[PropertyName];
+	If IsBlankString(FullFileName) Then
+		Return;
+	EndIf;
+	
+	FileSystemClient.OpenExplorer(FullFileName);
+	
+EndProcedure
+
+// Opens a dialog box to select a file directory and prompts to install 1C:Enterprise Extension.
+//
+// Parameters:
+//     Object                - Arbitrary       - an object to set the property being selected in.
+//     PropertyName           - String             - a name of the property that contains the name of the file being set in the object. Source of
+//                                                  the initial value.
+//     StandardProcessing  - Boolean             - the flag of standard processing, it is set to False.
+//     DialogParameters      - Structure          - optional additional parameters of the directory selection dialog.
+//     CompletionNotification  - CallbackDescription - an optional notification that is called with the following
+//                                                  parameters:
+//                                 Result               - String - the selected value (array of strings if
+//                                                                    multiple selection is used);
+//                                 AdditionalParameters - Undefined.
+//
+Procedure FileDirectoryChoiceHandler(Object, Val PropertyName, StandardProcessing = False, Val DialogParameters = Undefined, CompletionNotification = Undefined) Export
+	StandardProcessing = False;
+	
+	DefaultDialogOptions = New Structure;
+	DefaultDialogOptions.Insert("Title", NStr("en = 'Select directory';") );
+	
+	SetDefaultStructureValues(DialogParameters, DefaultDialogOptions);
+	
+	AdditionalParameters = New Structure;
+	AdditionalParameters.Insert("Object",               Object);
+	AdditionalParameters.Insert("PropertyName",          PropertyName);
+	AdditionalParameters.Insert("DialogParameters",     DialogParameters);
+	AdditionalParameters.Insert("CompletionNotification", CompletionNotification);
+	
+	Notification = New CallbackDescription("FileDirectoryChoiceHandlerCompletionAfterChoiceInDialog", ThisObject, AdditionalParameters);
+	
+	FileSystemClient.SelectDirectory(Notification, DialogParameters.Title);
+	
+EndProcedure
+
+// Continuation of the procedure (see above).
+// 
+Procedure FileDirectoryChoiceHandlerCompletionAfterChoiceInDialog(PathToDirectory, AdditionalParameters) Export
+	
+	If Not ValueIsFilled(PathToDirectory) Then
+		Return;
+	EndIf;
+	
+	Object = AdditionalParameters.Object;
+	Object[AdditionalParameters.PropertyName] = PathToDirectory;
+	
+	If AdditionalParameters.CompletionNotification <> Undefined Then
+		RunCallback(AdditionalParameters.CompletionNotification, PathToDirectory);
+	EndIf;
+	
+EndProcedure
+
+#EndRegion
+
 #EndRegion
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Internal export functions for retrieving properties.
+#Region ExportedUtilityFunctionsProperties
 
 // Returns the maximum number of fields
 // to be displayed in the infobase object mapping wizard.
@@ -698,6 +812,16 @@ Function MaxObjectsMappingFieldsCount() Export
 EndFunction
 
 // Returns the structure of data import execution statuses.
+// 
+// Returns:
+//  Structure:
+//    * Undefined - String
+//    * Error - String
+//    * Success - String
+//    * Perform - String
+//    * Warning_ExchangeMessageAlreadyAccepted - String
+//    * CompletedWithWarnings - String
+//    * ErrorMessageTransport - String
 //
 Function DataImportStatusPages() Export
 	
@@ -715,6 +839,16 @@ Function DataImportStatusPages() Export
 EndFunction
 
 // Returns the structure of data export execution statuses.
+// 
+// Returns:
+//  Structure:
+//    * Undefined - String
+//    * Error - String
+//    * Success - String
+//    * Perform - String
+//    * Warning_ExchangeMessageAlreadyAccepted - String
+//    * CompletedWithWarnings - String
+//    * ErrorMessageTransport - String
 //
 Function DataExportStatusPages() Export
 	
@@ -732,6 +866,16 @@ Function DataExportStatusPages() Export
 EndFunction
 
 // Returns a structure with name of data import field hyperlink.
+// 
+// Returns:
+//  Structure:
+//   *    Undefined - String
+//   *    Error - String
+//   *    CompletedWithWarnings - String
+//   *    Success - String
+//   *    Perform - String
+//   *    Warning_ExchangeMessageAlreadyAccepted - String
+//   *    ErrorMessageTransport - String
 //
 Function DataImportHyperlinksHeaders() Export
 	
@@ -749,6 +893,16 @@ Function DataImportHyperlinksHeaders() Export
 EndFunction
 
 // Returns a structure with name of data export field hyperlink.
+// 
+// Returns:
+//  Structure:
+//   *    Undefined - String
+//   *    Error - String
+//   *    CompletedWithWarnings - String
+//   *    Success - String
+//   *    Perform - String
+//   *    Warning_ExchangeMessageAlreadyAccepted - String
+//   *    ErrorMessageTransport - String
 //
 Function DataExportHyperlinksHeaders() Export
 	
@@ -781,33 +935,17 @@ Procedure OpenSynchronizationDetails(RefToDetails) Export
 	
 EndProcedure
 
-// Opens a proxy server parameters form.
-//
-Procedure OpenProxyServerParametersForm() Export
-	
-	If CommonClient.SubsystemExists("StandardSubsystems.GetFilesFromInternet") Then
-		ModuleNetworkDownloadClient = CommonClient.CommonModule("GetFilesFromInternetClient");
-		
-		FormParameters = Undefined;
-		If CommonClient.FileInfobase() Then
-			FormParameters = New Structure("ProxySettingAtClient", True);
-		EndIf;
-		
-		ModuleNetworkDownloadClient.OpenProxyServerParametersForm(FormParameters);
-	EndIf;
-	
-EndProcedure
+#EndRegion
 
-////////////////////////////////////////////////////////////////////////////////
-// Internal export procedures and functions.
+#Region ExportServiceProceduresAndFunctions
 
 // For internal use only.
 //
 Procedure RetryDataExchangeMessageImportBeforeStartInteractiveHandler(Parameters, Context) Export
 	
 	Form = OpenForm(
-		"InformationRegister.DataExchangeTransportSettings.Form.DataReSyncBeforeStart", , , , , ,
-		New NotifyDescription(
+		"DataProcessor.DataExchangeCreationWizard.Form.DataReSyncBeforeStart", , , , , , 
+		New CallbackDescription(
 			"AfterCloseFormDataResynchronizationBeforeStart", ThisObject, Parameters));
 	
 	If Form = Undefined Then
@@ -828,7 +966,7 @@ Procedure AfterCloseFormDataResynchronizationBeforeStart(Result, Parameters) Exp
 			"RetryDataExchangeMessageImportBeforeStart");
 	EndIf;
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 
@@ -848,76 +986,6 @@ Procedure SetupFormBeforeCloseCompletion(Response, Form) Export
 	RefreshReusableValues();
 EndProcedure
 
-// Opens a file in the operating system's associated application.
-//
-// Parameters:
-//     Object               - Arbitrary - an object from which the name of the file to open is retrieved by property name.
-//     PropertyName          - String       - a name of the object property that contains the name of the file to open.
-//     StandardProcessing - Boolean       - the flag of standard processing, it is set to False.
-//
-Procedure FileOrDirectoryOpenHandler(Object, PropertyName, StandardProcessing = False) Export
-	StandardProcessing = False;
-	
-	FullFileName = Object[PropertyName];
-	If IsBlankString(FullFileName) Then
-		Return;
-	EndIf;
-	
-	FileSystemClient.OpenExplorer(FullFileName);
-	
-EndProcedure
-
-// Opens a dialog box to select a file directory and prompts to install 1C:Enterprise Extension.
-//
-// Parameters:
-//     Object                - Arbitrary       - an object to set the property being selected in.
-//     PropertyName           - String             - a name of the property that contains the name of the file being set in the object. Source of
-//                                                  the initial value.
-//     StandardProcessing  - Boolean             - the flag of standard processing, it is set to False.
-//     DialogParameters      - Structure          - optional additional parameters of the directory selection dialog.
-//     CompletionNotification  - NotifyDescription - an optional notification that is called with the following
-//                                                  parameters:
-//                                 Result               - String - the selected value (array of strings if
-//                                                                    multiple selection is used);
-//                                 AdditionalParameters - Undefined.
-//
-Procedure FileDirectoryChoiceHandler(Object, Val PropertyName, StandardProcessing = False, Val DialogParameters = Undefined, CompletionNotification = Undefined) Export
-	StandardProcessing = False;
-	
-	DefaultDialogOptions = New Structure;
-	DefaultDialogOptions.Insert("Title", NStr("en = 'Select directory';") );
-	
-	SetDefaultStructureValues(DialogParameters, DefaultDialogOptions);
-	
-	AdditionalParameters = New Structure;
-	AdditionalParameters.Insert("Object",               Object);
-	AdditionalParameters.Insert("PropertyName",          PropertyName);
-	AdditionalParameters.Insert("DialogParameters",     DialogParameters);
-	AdditionalParameters.Insert("CompletionNotification", CompletionNotification);
-	
-	Notification = New NotifyDescription("FileDirectoryChoiceHandlerCompletionAfterChoiceInDialog", ThisObject, AdditionalParameters);
-	
-	FileSystemClient.SelectDirectory(Notification, DialogParameters.Title);
-	
-EndProcedure
-
-// Continuation of the procedure (see above).
-// 
-Procedure FileDirectoryChoiceHandlerCompletionAfterChoiceInDialog(PathToDirectory, AdditionalParameters) Export
-	
-	If Not ValueIsFilled(PathToDirectory) Then
-		Return;
-	EndIf;
-	
-	Object = AdditionalParameters.Object;
-	Object[AdditionalParameters.PropertyName] = PathToDirectory;
-	
-	If AdditionalParameters.CompletionNotification <> Undefined Then
-		ExecuteNotifyProcessing(AdditionalParameters.CompletionNotification, PathToDirectory);
-	EndIf;
-	
-EndProcedure
-
 // Opens a file selection dialog box and prompts to install 1C:Enterprise Extension.
 //
 // Parameters:
@@ -926,7 +994,7 @@ EndProcedure
 //                                                  the initial value.
 //     StandardProcessing  - Boolean             - the flag of standard processing, it is set to False.
 //     DialogParameters      - Structure          - optional additional parameters of the file selection dialog.
-//     CompletionNotification  - NotifyDescription - an optional notification that is called with the following
+//     CompletionNotification  - CallbackDescription - an optional notification that is called with the following
 //                                                  parameters:
 //                                 Result               - String
 //                                                         - Undefined - the selected value (array of strings
@@ -941,7 +1009,7 @@ Procedure FileSelectionHandler(Object, Val PropertyName, StandardProcessing = Fa
 	
 	DefaultDialogOptions = New Structure;
 	DefaultDialogOptions.Insert("Mode",                       FileDialogMode.Open);
-	DefaultDialogOptions.Insert("CheckFileExist", True);
+	DefaultDialogOptions.Insert("CheckFileExistence", True);
 	DefaultDialogOptions.Insert("Title",                   NStr("en = 'Select file';"));
 	DefaultDialogOptions.Insert("MultipleChoice",          False);
 	DefaultDialogOptions.Insert("Preview",     False);
@@ -957,7 +1025,7 @@ Procedure FileSelectionHandler(Object, Val PropertyName, StandardProcessing = Fa
 	AdditionalParameters.Insert("PropertyName",          PropertyName);
 	AdditionalParameters.Insert("CompletionNotification", CompletionNotification);
 	
-	Notification = New NotifyDescription("FileSelectionHandlerCompletion", ThisObject, AdditionalParameters);
+	Notification = New CallbackDescription("FileSelectionHandlerCompletion", ThisObject, AdditionalParameters);
 	
 	FileSystemClient.ShowSelectionDialog(Notification, Dialog);
 	
@@ -985,7 +1053,7 @@ Procedure FileSelectionHandlerCompletion(SelectedFiles, AdditionalParameters) Ex
 	EndIf;
 	
 	If Not AdditionalParameters.CompletionNotification = Undefined Then
-		ExecuteNotifyProcessing(AdditionalParameters.CompletionNotification, Result);
+		RunCallback(AdditionalParameters.CompletionNotification, Result);
 	EndIf;
 	
 EndProcedure
@@ -993,7 +1061,7 @@ EndProcedure
 // Sends a file to the server interactively without using 1C:Enterprise Extension.
 //
 // Parameters:
-//     CompletionNotification - NotifyDescription - an export procedure that is called with the following
+//     CompletionNotification - CallbackDescription - an export procedure that is called with the following
 //                                                 parameters:
 //                                Result               - Structure - with the following fields: Name, Storage, and ErrorDetails.
 //                                AdditionalParameters - Undefined.
@@ -1006,7 +1074,7 @@ EndProcedure
 Procedure SelectAndSendFileToServer(CompletionNotification, Val DialogParameters = Undefined, Val FormIdentifier = Undefined) Export
 	
 	DefaultDialogOptions = New Structure;
-	DefaultDialogOptions.Insert("CheckFileExist", True);
+	DefaultDialogOptions.Insert("CheckFileExistence", True);
 	DefaultDialogOptions.Insert("Title",                   NStr("en = 'Select file';"));
 	DefaultDialogOptions.Insert("MultipleChoice",          False);
 	DefaultDialogOptions.Insert("Preview",     False);
@@ -1016,7 +1084,7 @@ Procedure SelectAndSendFileToServer(CompletionNotification, Val DialogParameters
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("CompletionNotification", CompletionNotification);
 	
-	Notification = New NotifyDescription("SelectAndSendFileToServerAfterChoiceInDialogCompletion", ThisObject, AdditionalParameters);
+	Notification = New CallbackDescription("SelectAndSendFileToServerAfterChoiceInDialogCompletion", ThisObject, AdditionalParameters);
 	
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.FormIdentifier = FormIdentifier;
@@ -1039,7 +1107,7 @@ Procedure SelectAndSendFileToServerAfterChoiceInDialogCompletion(FileThatWasPut,
 	Result.Location = FileThatWasPut.Location;
 	
 	// Notify the caller.
-	ExecuteNotifyProcessing(AdditionalParameters.CompletionNotification, Result);
+	RunCallback(AdditionalParameters.CompletionNotification, Result);
 	
 EndProcedure
 
@@ -1101,7 +1169,7 @@ EndFunction
 //  Owner                - Form-an owner of the form being opened;
 //  AdditionalParameters - Structure - a structure of additional opening parameters of the wizard:
 //    * WizardParameters  - Structure - an arbitrary structure to be passed to the wizard form that is being opened;
-//    * ClosingNotification1 - NotifyDescription - description of a notification to be called upon closing the wizard form.
+//    * ClosingNotification1 - CallbackDescription - description of a notification to be called upon closing the wizard form.
 //
 Procedure OpenObjectsMappingWizardCommandProcessing(InfobaseNode,
 		Owner, AdditionalParameters = Undefined) Export
@@ -1181,7 +1249,7 @@ Procedure OpenFormAfterCloseCurrentOne(CurrentForm, Val FormName, Val Parameters
 	
 	AdditionalParameters.Insert("PreviousClosingNotification",  CurrentForm.OnCloseNotifyDescription);
 	
-	CurrentForm.OnCloseNotifyDescription = New NotifyDescription("FormOpeningHandlerAfterCloseCurrentOne", ThisObject, AdditionalParameters);
+	CurrentForm.OnCloseNotifyDescription = New CallbackDescription("FormOpeningHandlerAfterCloseCurrentOne", ThisObject, AdditionalParameters);
 EndProcedure
 
 // Deferred opening
@@ -1194,30 +1262,14 @@ Procedure FormOpeningHandlerAfterCloseCurrentOne(Val ClosingResult, Val Addition
 		OpeningParameters.URL, OpeningParameters.OnCloseNotifyDescription, OpeningParameters.WindowOpeningMode);
 	
 	If AdditionalParameters.PreviousClosingNotification <> Undefined Then
-		ExecuteNotifyProcessing(AdditionalParameters.PreviousClosingNotification, ClosingResult);
+		RunCallback(AdditionalParameters.PreviousClosingNotification, ClosingResult);
 	EndIf;
 	
 EndProcedure
 
-// Opens the instruction for restoring or changing the password for data synchronization
-// with a standalone workstation.
-//
-Procedure OpenInstructionHowToChangeDataSynchronizationPassword(Val AccountPasswordRecoveryAddress) Export
-	
-	If IsBlankString(AccountPasswordRecoveryAddress) Then
-		
-		ShowMessageBox(, NStr("en = 'The address of the password recovery instruction is not specified.';"));
-		
-	Else
-		
-		FileSystemClient.OpenURL(AccountPasswordRecoveryAddress);
-		
-	EndIf;
-	
-EndProcedure
+#EndRegion
 
-////////////////////////////////////////////////////////////////////////////////
-// Local internal procedures and functions.
+#Region LocalUtilityProceduresAndFunctions
 
 Procedure OnCloseExchangePlanNodeSettingsForm(Form, FormAttributeName)
 	
@@ -1256,9 +1308,9 @@ Procedure OnCloseExchangePlanNodeSettingsForm(Form, FormAttributeName)
 	
 EndProcedure
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
-// INTERNAL API FOR INTERACTIVE EXPORT ADDITION
-//
+#EndRegion
+
+#Region UtilityAPIForInteractiveExportAddition
 
 // Processing interactive addition dialog boxes.
 //
@@ -1268,7 +1320,7 @@ EndProcedure
 //     Owner, Uniqueness, Window - parameters for opening the form window.
 //
 // Returns:
-//     Opened form
+//     ClientApplicationForm - The opened form with the passed parameters
 //
 Function OpenExportAdditionFormNodeScenario(Val ExportAddition, Val Owner=Undefined, Val Uniqueness=Undefined, Val Window=Undefined) Export
 	
@@ -1289,7 +1341,7 @@ EndFunction
 //     Owner, Uniqueness, Window - parameters for opening the form window.
 //
 // Returns:
-//     Opened form
+//     ClientApplicationForm - The opened form with the passed parameters
 //
 Function OpenExportAdditionFormAllDocuments(Val ExportAddition, Val Owner=Undefined, Val Uniqueness=Undefined, Val Window=Undefined) Export
 	FormParameters = New Structure;
@@ -1316,7 +1368,7 @@ EndFunction
 //     Owner, Uniqueness, Window - parameters for opening the form window.
 //
 // Returns:
-//     Opened form
+//     ClientApplicationForm - The opened data processor "InteractiveExportChange" form with the passed parameters
 //
 Function OpenExportAdditionFormDetailedFilter(Val ExportAddition, Val Owner=Undefined, Val Uniqueness=Undefined, Val Window=Undefined) Export
 	FormParameters = New Structure;
@@ -1337,7 +1389,7 @@ EndFunction
 //     Owner, Uniqueness, Window - parameters for opening the form window.
 //
 // Returns:
-//     Opened form
+//     ClientApplicationForm - The opened data processor "InteractiveExportChange" form with the passed parameters
 //
 Function OpenExportAdditionFormDataComposition(Val ExportAddition, Val Owner=Undefined, Val Uniqueness=Undefined, Val Window=Undefined) Export
 	FormParameters = New Structure;
@@ -1359,7 +1411,7 @@ EndFunction
 //     Owner, Uniqueness, Window - parameters for opening the form window.
 //
 // Returns:
-//     Opened form
+//     ClientApplicationForm - The opened data processor "InteractiveExportChange" form with the passed parameters
 //
 Function OpenExportAdditionFormSaveSettings(Val ExportAddition, Val Owner=Undefined, Val Uniqueness=Undefined, Val Window=Undefined) Export
 	FormParameters = New Structure("CloseOnChoice, ChoiceAction", True, 3);
@@ -1507,9 +1559,9 @@ Procedure FillStructureData(Form)
 	
 EndProcedure
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
-// INTERNAL PROCEDURES AND FUNCTIONS FOR INTERACTIVE EXPORT ADDITION
-//
+#EndRegion
+
+#Region UtilityProceduresAndFunctionsForInteractiveExportAddition
 
 Function ExportAdditionStandardOptionChoiceProcessing(Val ValueSelected, ExportAddition)
 	
@@ -1560,16 +1612,6 @@ Function ExportAdditionNodeScenarioChoiceProcessing(Val ValueSelected, ExportAdd
 	Return True;
 EndFunction
 
-Function CheckAndRegisterCOMConnector(Val SettingsStructure_, Notification = Undefined) Export
-	
-	If Not CommonClient.FileInfobase() Then
-		Return True;
-	EndIf;
-	
-	If Not DataExchangeServerCall.CheckAndRegisterCOMConnector(SettingsStructure_) Then
-		CommonClient.RegisterCOMConnector(False, Notification);
-	EndIf;
-	
-EndFunction
+#EndRegion
 
 #EndRegion

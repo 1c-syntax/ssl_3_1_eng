@@ -118,7 +118,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		Return;
 	EndIf;
 	
-	Notification = New NotifyDescription("WriteAndCloseNotification", ThisObject);
+	Notification = New CallbackDescription("WriteAndCloseNotification", ThisObject);
 	CommonClient.ShowFormClosingConfirmation(Notification, Cancel, Exit);
 	
 EndProcedure
@@ -257,8 +257,7 @@ Procedure AccessKindsOnEditEnd(Item, NewRow, CancelEdit)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Event handlers of the AllAllowedPresentation item of the AccessKinds form table.
+#Region EventHandlersForAllAllowedPresentationItemOfFormAccessKindsTable
 
 &AtClient
 Procedure AccessKindsAllAllowedPresentationOnChange(Item)
@@ -275,6 +274,8 @@ Procedure AccessKindsAllAllowedPresentationChoiceProcessing(Item, ValueSelected,
 		ThisObject, Item, ValueSelected, StandardProcessing);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -448,7 +449,7 @@ EndProcedure
 &AtClient
 Procedure WriteAndCloseNotification(Result, Context) Export
 	
-	WriteChanges(New NotifyDescription("WriteAndCloseCompletion", ThisObject));
+	WriteChanges(New CallbackDescription("WriteAndCloseCompletion", ThisObject));
 	
 EndProcedure
 
@@ -471,7 +472,7 @@ Procedure WriteChanges(ContinuationHandler = Undefined)
 	   And SynchronizationWithServiceRequired Then
 		
 		UsersInternalClient.RequestPasswordForAuthenticationInService(
-			New NotifyDescription("WriteChangesCompletion", ThisObject, ContinuationHandler),
+			New CallbackDescription("WriteChangesCompletion", ThisObject, ContinuationHandler),
 			ThisObject,
 			ServiceUserPassword);
 	Else
@@ -513,7 +514,7 @@ Procedure WriteChangesCompletion(SaaSUserNewPassword, ContinuationHandler) Expor
 		Return;
 	EndIf;
 	
-	ExecuteNotifyProcessing(ContinuationHandler, Cancel);
+	RunCallback(ContinuationHandler, Cancel);
 	
 EndProcedure
 

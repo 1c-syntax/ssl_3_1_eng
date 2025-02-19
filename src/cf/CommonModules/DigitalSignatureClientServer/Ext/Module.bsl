@@ -31,8 +31,8 @@
 //     * SignatureCorrect        - Boolean - Last signature check result.
 //     * IsVerificationRequired   - Boolean - Verification failure flag.
 //     * IsSignatureMathematicallyValid - Boolean - Indicates if the signature is valid. Applies to signatures with no additional attributes.
-//     * SignatureMathValidationError - String - Error if "VerifySignature" has
-//                                                      "CheckAdditionalAttributes" set to "False".
+//     * SignatureMathValidationError - String - Error if VerifySignature has
+//                                                      VerifyAdditionalAttributes set to False.
 //     * AdditionalAttributesCheckError - String - Error verifying the certificate and its enhanced
 //                                                        signature attributes (such as the timestamp).
 //     * IsAdditionalAttributesCheckedManually - Boolean - Indicates if "SignatureCorrect" was set manually.
@@ -63,7 +63,7 @@
 //     * CertificateOwner - String - a subject presentation received from the certificate binary data.
 //     * CertificateDetails - Structure - Property required for certificates that cannot be passed to the CryptoCertificate's method.
 //                             Has the following properties:
-//        ** SerialNumber  - String - a certificate serial number as in the CryptoCertificate platform object.
+//        ** SerialNumber  - String - Serial number of the certificate as in the CryptoCertificate platform object.
 //        ** IssuedBy       - String - as the IssuerPresentation function returns.
 //        ** IssuedTo      - String - as the SubjectPresentation function returns.
 //        ** StartDate     - String - a certificate date as in the CryptoCertificate platform object in the DLF=D format.
@@ -127,7 +127,7 @@ EndFunction
 //                                                    "CheckAdditionalAttributes" set to "False".
 //   * AdditionalAttributesCheckError - String - Error verifying the certificate and its enhanced
 //                                                      signature attributes (such as the timestamp).
-//   * CertificateVerificationParameters - 
+//   * CertificateVerificationParameters - See DigitalSignatureClient.SignatureVerificationParameters.ПроверятьСертификат
 //
 //   * SignatureType          - EnumRef.CryptographySignatureTypes - Not filled when checking XML envelope signatures.
 //   * DateActionLastTimestamp - Date - Validity period of the certificate that the last timestamp was signed with.
@@ -165,23 +165,23 @@ EndFunction
 // 
 // Returns:
 //  Structure - Signature verification result.:
-//   * SequenceNumber - 
-//   * Object - 
-//   * SignatureDate - 
-//   * Comment - 
+//   * SequenceNumber - See NewSignatureProperties.SequenceNumber
+//   * Object - See NewSignatureProperties.SignedObject
+//   * SignatureDate - See NewSignatureProperties.SignatureDate
+//   * Comment - See NewSignatureProperties.Comment
 //   * SignatureAddress - String - Signature address in temporary storage.
-//   * Thumbprint - 
+//   * Thumbprint - See NewSignatureProperties.Thumbprint
 //   * CertificateAddress - String - Certificate address in a temporary storage.
-//   * SignatureCorrect - 
-//   * SignatureValidationDate - 
-//   * CertificateOwner - 
-//   * IsVerificationRequired - 
-//   * SignatureSetBy - 
-//   * SignatureType - 
-//   * DateActionLastTimestamp - 
+//   * SignatureCorrect - See NewSignatureProperties.SignatureCorrect
+//   * SignatureValidationDate - See NewSignatureProperties.CheckDateSignature
+//   * CertificateOwner - See NewSignatureProperties.CertificateOwner
+//   * IsVerificationRequired - See NewSignatureProperties.IsVerificationRequired
+//   * SignatureSetBy - See NewSignatureProperties.SignatureSetBy
+//   * SignatureType - See NewSignatureProperties.SignatureType
+//   * DateActionLastTimestamp - See NewSignatureProperties.DateActionLastTimestamp
 //   * MachineReadableLetterOfAuthority - CatalogRef.MachineReadablePowersAttorney
 //   * MachineReadableLOAValid - Boolean
-//   * ResultOfSignatureVerificationByMRLOA - 
+//   * ResultOfSignatureVerificationByMRLOA - See NewSignatureProperties.ResultOfSignatureVerificationByMRLOA
 //   * CheckResult - Structure - Verification result properties to be saved in the infobase.:
 //     ** IsSignatureMathematicallyValid - Boolean
 //     ** SignatureMathValidationError - String - Error text.
@@ -320,7 +320,10 @@ Procedure FillSignatureStatus(SignatureProperties, SessionDate) Export
 					NStr("en = '%1. The document was modified. %2';"), Status, CheckResult.SignatureMathValidationError);
 	ElsIf ValueIsFilled(CheckResult.AdditionalAttributesCheckError) Then
 			
-		If SignatureProperties.SignatureType = PredefinedValue("Enum.CryptographySignatureTypes.NormalCMS")
+		If CheckResult.IsSignatureMathematicallyValid = False Then
+			SignatureProperties.BriefCheckResult =  StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = '%1. %2';"), Status, CheckResult.AdditionalAttributesCheckError);
+		ElsIf SignatureProperties.SignatureType = PredefinedValue("Enum.CryptographySignatureTypes.NormalCMS")
 			Or SignatureProperties.SignatureType = PredefinedValue(
 			"Enum.CryptographySignatureTypes.BasicCAdESBES") Then
 
@@ -338,6 +341,24 @@ Procedure FillSignatureStatus(SignatureProperties, SessionDate) Export
 	EndIf;
 	
 EndProcedure
+
+// Generates the name of the signature file using a template.
+//
+// Parameters:
+//  BaseName			 - String - 
+//  CertificateOwner			 - String - 
+//  SignatureFilesExtension	 - See DigitalSignature.PersonalSettings.РасширениеДляФайловПодписи.
+//  SeparatorRequired		 - Boolean - 
+// 
+// Returns:
+//  String
+//
+Function SignatureFileName(BaseName, CertificateOwner, SignatureFilesExtension, SeparatorRequired = True) Export
+	
+	Return DigitalSignatureInternalClientServer.SignatureFileName(BaseName,
+		CertificateOwner, SignatureFilesExtension, SeparatorRequired);
+	
+EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 

@@ -45,7 +45,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	FieldArray.Add("ObjectWithIssue");
 	FieldArray.Add("LongDesc");
 	
-	List.SetRestrictionsForUseInOrder(FieldArray);
+	For Each FieldToModify In FieldArray Do
+		Field = List.Fields.Add(Type("DataCompositionSchemaDataSetField"));
+		Field.Field = FieldToModify;
+		Field.UseRestriction.Order = True;
+		Field.AttributeUseRestriction.Order = True;	
+	EndDo;	
 	
 	List.Parameters.SetParameterValue("UnpostedDocument", NStr("en = 'Unposted document';", Common.DefaultLanguageCode()));
 	List.Parameters.SetParameterValue("EmptyAttributes", NStr("en = 'Empty attributes';", Common.DefaultLanguageCode()));
@@ -98,7 +103,7 @@ Procedure FilterByPeriodPresentationStartChoice(Item, ChoiceData, StandardProces
 	
 	Dialog = New StandardPeriodEditDialog();
 	Dialog.Period = ValuesCache.SelectionByDateOfOccurrence;
-	Dialog.Show(New NotifyDescription("AfterSelectionByDateOfOccurrence", ThisObject));
+	Dialog.Show(New CallbackDescription("AfterSelectionByDateOfOccurrence", ThisObject));
 	
 EndProcedure
 
@@ -133,7 +138,7 @@ Procedure SynchronizationsFilterPresentationStartChoice(Item, ChoiceData, Standa
 	OpeningParameters.Insert("ArrayOfExchangePlanNodes", ValuesCache.ArrayOfExchangePlanNodes);
 	OpeningParameters.Insert("SelectionOfExchangePlanNodes", ValuesCache.SelectionOfExchangePlanNodes);
 	
-	NotifyDescription = New NotifyDescription("AfterSelectingTheExchangeNodes", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterSelectingTheExchangeNodes", ThisObject);
 	
 	OpenForm("InformationRegister.DataExchangeResults.Form.SynchronizationsFilter", OpeningParameters, ThisObject, , , , NotifyDescription);
 	
@@ -169,7 +174,7 @@ Procedure WarningsTypesFilterPresentationStartChoice(Item, ChoiceData, StandardP
 	OpeningParameters = New Structure;
 	OpeningParameters.Insert("SelectingTypesOfWarnings", ValuesCache.SelectingTypesOfWarnings);
 	
-	NotifyDescription = New NotifyDescription("AfterSelectionByTypeOfWarnings", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterSelectionByTypeOfWarnings", ThisObject);
 	
 	OpenForm("InformationRegister.DataExchangeResults.Form.WarningsFilterByTypes", OpeningParameters, ThisObject, , , , NotifyDescription);
 	
@@ -374,8 +379,9 @@ Procedure ObsoleteRecordsDeletion(Command)
 	OpeningParameters.Insert("SelectingTypesOfWarnings", ValuesCache.SelectingTypesOfWarnings); 
 	OpeningParameters.Insert("OnlyHiddenRecords", True);
 	
-	NotifyDescription = New NotifyDescription("AfterDeletingOutdatedRecords", ThisObject);
-	OpenForm("InformationRegister.DataExchangeResults.Form.ObsoleteWarningsDeletion", OpeningParameters, ThisObject, , , , NotifyDescription);
+	NotifyDescription = New CallbackDescription("AfterDeletingOutdatedRecords", ThisObject);
+	
+	DataExchangeClient.OpenFormForDeletingSyncAlerts(OpeningParameters, NotifyDescription);
 	
 EndProcedure
 
@@ -458,7 +464,7 @@ Procedure OpenTheObjectOfTheCurrentLine(CurrentRowData)
 		
 	EndIf;
 	
-	NotifyDescription = New NotifyDescription("AfterOpeningTheObject", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterOpeningTheObject", ThisObject);
 	ShowValue(NotifyDescription, CurrentRowData.ObjectWithIssue);
 	
 EndProcedure
@@ -544,7 +550,7 @@ Procedure OpenTheProblemCard(OpeningParameters)
 	OpeningParameters.Property("ObjectWithIssue", ObjectWithIssue);
 	OpeningParameters.Property("WarningType", WarningType);
 	
-	NotifyDescription = New NotifyDescription("AfterClosingTheWarningCard", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterClosingTheWarningCard", ThisObject);
 	
 	If WarningType = PredefinedValue("Enum.DataExchangeIssuesTypes.ApplicationAdministrativeError") Then
 		
@@ -970,7 +976,7 @@ Procedure NavigateDocumentsThroughTheSelectedLines(SelectedRows)
 	OpeningParameters = New Structure;
 	OpeningParameters.Insert("DataForSelectedRows", DataForSelectedRows);
 	
-	NotifyDescription = New NotifyDescription("AfterGroupProcessingOfWarnings", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterGroupProcessingOfWarnings", ThisObject);
 	
 	OpenForm("InformationRegister.DataExchangeResults.Form.PostingWarningsProcessing", OpeningParameters, ThisObject, , , , NotifyDescription);
 	
@@ -1016,7 +1022,7 @@ Procedure CollisionsOnSelectedLines(SelectedRows)
 	OpeningParameters = New Structure;
 	OpeningParameters.Insert("DataForSelectedRows", DataForSelectedRows);
 	
-	NotifyDescription = New NotifyDescription("AfterGroupProcessingOfWarnings", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterGroupProcessingOfWarnings", ThisObject);
 	
 	OpenForm("InformationRegister.DataExchangeResults.Form.ConflictWarningsProcessing", OpeningParameters, ThisObject, , , , NotifyDescription);
 	
@@ -1063,7 +1069,7 @@ Procedure ForbiddingLoadingBySelectedLines(SelectedRows)
 	OpeningParameters = New Structure;
 	OpeningParameters.Insert("DataForSelectedRows", DataForSelectedRows);
 	
-	NotifyDescription = New NotifyDescription("AfterGroupProcessingOfWarnings", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterGroupProcessingOfWarnings", ThisObject);
 	
 	OpenForm("InformationRegister.DataExchangeResults.Form.WarningsProcessingByImportRestrictionDate", OpeningParameters, ThisObject, , , , NotifyDescription);
 	
@@ -1113,7 +1119,7 @@ Procedure ChangeTheDetailsOfTheGroupProcessing(DataForSelectedRows)
 	BulkEditParameters = New Structure;
 	BulkEditParameters.Insert("ObjectsArray", DataForSelectedRows);
 	
-	NotifyDescription = New NotifyDescription("AfterGroupProcessingOfWarnings", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterGroupProcessingOfWarnings", ThisObject);
 	
 	ModuleBatchObjectsModificationClient = CommonClient.CommonModule("BatchEditObjectsClient");
 	ModuleBatchObjectsModificationClient.StartChangingTheSelectedOnesWithAnAlert(BulkEditParameters, NotifyDescription)

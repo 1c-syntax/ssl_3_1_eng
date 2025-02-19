@@ -21,7 +21,7 @@ EndProcedure
 &AtClient
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
-	Notification = New NotifyDescription("SelectAndClose", ThisObject);
+	Notification = New CallbackDescription("SelectAndClose", ThisObject);
 	CommonClient.ShowFormClosingConfirmation(Notification, Cancel, Exit);
 	
 EndProcedure

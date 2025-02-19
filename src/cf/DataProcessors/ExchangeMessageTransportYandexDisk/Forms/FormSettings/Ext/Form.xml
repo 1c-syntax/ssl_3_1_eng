@@ -1,0 +1,227 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
+	<SaveWindowSettings>false</SaveWindowSettings>
+	<CommandBarLocation>Bottom</CommandBarLocation>
+	<AutoCommandBar name="FormCommandBar" id="-1">
+		<HorizontalAlign>Right</HorizontalAlign>
+		<Autofill>false</Autofill>
+		<ChildItems>
+			<Button name="FormTestConnection" id="1">
+				<Type>CommandBarButton</Type>
+				<CommandName>Form.Command.TestConnection</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Test connection</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="FormTestConnectionExtendedTooltip" id="2"/>
+			</Button>
+			<Button name="FormDone" id="3">
+				<Type>CommandBarButton</Type>
+				<DefaultButton>true</DefaultButton>
+				<CommandName>Form.Command.Done</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Finish</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="FormDoneExtendedTooltip" id="4"/>
+			</Button>
+		</ChildItems>
+	</AutoCommandBar>
+	<Events>
+		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
+	</Events>
+	<ChildItems>
+		<InputField name="CloudDirectory" id="23">
+			<DataPath>Object.CloudDirectory</DataPath>
+			<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+			<ContextMenu name="CloudDirectoryContextMenu" id="24"/>
+			<ExtendedTooltip name="CloudDirectoryExtendedTooltip" id="25">
+				<Title formatted="false">
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>For example, "exchange/dsl". The directory must exist in the service. Only Latin letters are allowed.</v8:content>
+					</v8:item>
+				</Title>
+			</ExtendedTooltip>
+		</InputField>
+		<UsualGroup name="AccessSettings" id="56">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Access settings</v8:content>
+				</v8:item>
+			</Title>
+			<Group>Vertical</Group>
+			<Behavior>Collapsible</Behavior>
+			<ControlRepresentation>Picture</ControlRepresentation>
+			<Representation>None</Representation>
+			<ExtendedTooltip name="AccessSettingsExtendedTooltip" id="57"/>
+			<ChildItems>
+				<Button name="GetToken" id="72">
+					<Type>UsualButton</Type>
+					<CommandName>Form.Command.GetToken</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Get token</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="GetTokenExtendedTooltip" id="73"/>
+				</Button>
+				<InputField name="ClientID" id="63">
+					<DataPath>Object.ClientID</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Client ID</v8:content>
+						</v8:item>
+					</Title>
+					<ClearButton>true</ClearButton>
+					<ContextMenu name="ClientIDContextMenu" id="64"/>
+					<ExtendedTooltip name="ClientIDExtendedTooltip" id="65"/>
+				</InputField>
+				<InputField name="ClientSecret" id="66">
+					<DataPath>Object.ClientSecret</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Client secret</v8:content>
+						</v8:item>
+					</Title>
+					<ClearButton>true</ClearButton>
+					<ContextMenu name="ClientSecretContextMenu" id="67"/>
+					<ExtendedTooltip name="ClientSecretExtendedTooltip" id="68"/>
+				</InputField>
+				<InputField name="AccessToken" id="60">
+					<DataPath>Object.AccessToken</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Access token</v8:content>
+						</v8:item>
+					</Title>
+					<ClearButton>true</ClearButton>
+					<ContextMenu name="AccessTokenContextMenu" id="61"/>
+					<ExtendedTooltip name="AccessTokenExtendedTooltip" id="62"/>
+				</InputField>
+				<InputField name="RefreshToken" id="79">
+					<DataPath>Object.RefreshToken</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Refresh token</v8:content>
+						</v8:item>
+					</Title>
+					<ClearButton>true</ClearButton>
+					<ContextMenu name="RefreshTokenContextMenu" id="80"/>
+					<ExtendedTooltip name="RefreshTokenExtendedTooltip" id="81"/>
+				</InputField>
+				<InputField name="ExpiresIn" id="69">
+					<DataPath>Object.ExpiresIn</DataPath>
+					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Expires in</v8:content>
+						</v8:item>
+					</Title>
+					<ContextMenu name="ExpiresInContextMenu" id="70"/>
+					<ExtendedTooltip name="ExpiresInExtendedTooltip" id="71"/>
+				</InputField>
+			</ChildItems>
+		</UsualGroup>
+		<LabelDecoration name="Decoration1" id="20">
+			<ContextMenu name="Decoration1ContextMenu" id="21"/>
+			<ExtendedTooltip name="Decoration1ExtendedTooltip" id="22"/>
+		</LabelDecoration>
+		<CheckBoxField name="CompressOutgoingMessageFile" id="11">
+			<DataPath>Object.CompressOutgoingMessageFile</DataPath>
+			<TitleLocation>Right</TitleLocation>
+			<CheckBoxType>Auto</CheckBoxType>
+			<ContextMenu name="CompressOutgoingMessageFileContextMenu" id="12"/>
+			<ExtendedTooltip name="CompressOutgoingMessageFileExtendedTooltip" id="13"/>
+			<Events>
+				<Event name="OnChange">CompressOutgoingMessageFileOnChange</Event>
+			</Events>
+		</CheckBoxField>
+		<InputField name="ArchivePasswordExchangeMessages" id="14">
+			<DataPath>Object.ArchivePasswordExchangeMessages</DataPath>
+			<TitleLocation>Top</TitleLocation>
+			<PasswordMode>true</PasswordMode>
+			<ContextMenu name="ArchivePasswordExchangeMessagesContextMenu" id="15"/>
+			<ExtendedTooltip name="ArchivePasswordExchangeMessagesExtendedTooltip" id="16"/>
+		</InputField>
+		<CheckBoxField name="Transliteration" id="17">
+			<DataPath>Object.Transliteration</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Convert exchange message filename</v8:content>
+				</v8:item>
+			</Title>
+			<TitleLocation>Right</TitleLocation>
+			<CheckBoxType>Auto</CheckBoxType>
+			<ContextMenu name="TransliterationContextMenu" id="18"/>
+			<ExtendedTooltip name="TransliterationExtendedTooltip" id="19"/>
+		</CheckBoxField>
+	</ChildItems>
+	<Attributes>
+		<Attribute name="Object" id="1">
+			<Type>
+				<v8:Type>cfg:DataProcessorObject.ExchangeMessageTransportYandexDisk</v8:Type>
+			</Type>
+			<MainAttribute>true</MainAttribute>
+		</Attribute>
+	</Attributes>
+	<Commands>
+		<Command name="Done" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Finish</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Finish</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>Done</Action>
+		</Command>
+		<Command name="TestConnection" id="2">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Test connection</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Test connection</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>TestConnection</Action>
+		</Command>
+		<Command name="GetToken" id="3">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Get token</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Get token</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>GetToken</Action>
+		</Command>
+	</Commands>
+</Form>

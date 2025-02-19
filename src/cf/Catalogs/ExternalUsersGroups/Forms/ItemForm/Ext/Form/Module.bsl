@@ -267,7 +267,7 @@ EndProcedure
 #Region FormTableItemsEventHandlersRoles
 
 ////////////////////////////////////////////////////////////////////////////////
-// Required by a role interface.
+// Для работы интерфейса ролей.
 
 &AtClient
 Procedure RolesCheckOnChange(Item)
@@ -367,13 +367,12 @@ EndProcedure
 &AtClient
 Procedure SelectPurpose(Command)
 	
-	NotifyDescription = New NotifyDescription("AfterAssignmentChoice", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterAssignmentChoice", ThisObject);
 	UsersInternalClient.SelectPurpose(ThisObject, NStr("en = 'Select users type';"), False, False, NotifyDescription);
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Required by a role interface.
+#Region ForRolesInterfaceOperation
 
 &AtClient
 Procedure ShowSelectedRolesOnly(Command)
@@ -406,6 +405,8 @@ Procedure RemoveRoles(Command)
 	ProcessRolesInterface("UpdateRoleComposition", "ClearMarked");
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -756,8 +757,7 @@ Procedure AfterAssignmentChoice(TypesArray, AdditionalParameters) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Required by a role interface.
+#Region ForRolesInterfaceOperation
 
 &AtServer
 Procedure ProcessRolesInterface(Action, MainParameter = Undefined)
@@ -771,5 +771,7 @@ Procedure ProcessRolesInterface(Action, MainParameter = Undefined)
 	UsersInternal.ProcessRolesInterface(Action, ActionParameters);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

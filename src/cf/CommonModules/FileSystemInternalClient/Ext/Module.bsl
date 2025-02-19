@@ -12,20 +12,20 @@
 
 #Region FilesImportFromFileSystem
 
-// Continuation of procedure FileSystemClient.ShowPutFile.
-Procedure ShowPutFileOnAttachFileSystemExtension(ExtensionAttached, Context) Export
+// Continues the procedure "FileSystemClient.ShowPutFile".
+Procedure ShowPutFileOnAttach1CEnterpriseExtension(ExtensionAttached, Context) Export
 	
-	Interactively         = Context.Interactively;
+	Interactively = Context.Interactively;
 	
 	If Not ExtensionAttached
 		And Not Interactively Then
-		Raise NStr("en = 'Cannot upload the file because 1C:Enterprise Extension is not installed.';");
+		Raise NStr("en = 'Cannot import the file as 1C:Enterprise Extension is not installed.';");
 	EndIf;
 		
 	Try
 		StartProcessingPuttingFiles(Context);
 	Except
-		Dialog               = Context.Dialog; // FileDialog - 
+		Dialog               = Context.Dialog; // FileDialog
 		Interactively         = Context.Interactively;
 		CompletionHandler = Context.CompletionHandler;
 	
@@ -33,15 +33,17 @@ Procedure ShowPutFileOnAttachFileSystemExtension(ExtensionAttached, Context) Exp
 		ProcessingResultsParameters.Insert("MultipleChoice",   Dialog.Multiselect);
 		ProcessingResultsParameters.Insert("CompletionHandler", CompletionHandler);
 		
-		NotifyDescription = New NotifyDescription(
+		NotifyDescription = New CallbackDescription(
 			"AfterWarnedAboutFileUnavailability", ThisObject, ProcessingResultsParameters);
 		ErrorInfo = ErrorInfo();
 		ErrorDescription = ErrorInfo.Cause.Description;
 		If StrFind(ErrorDescription, "32(0x00000020)") Then 
-			ShowMessageBox(NotifyDescription, NStr("en = 'Complete the operation with the file in another application.';"), , NStr("en = 'The file is opened in another application';"));
-		Else
-			Raise ErrorDescription;
+			ShowMessageBox(NotifyDescription, NStr("en = 'Complete the operation with the file in another application.';"),, 
+				NStr("en = 'The file is opened in another application';"));
+				Return;
 		EndIf;
+
+		Raise;
 		
 	EndTry;
 
@@ -52,15 +54,15 @@ EndProcedure
 // Parameters:
 //  ProcessingResultsParameters - Structure:
 //   * MultipleChoice - Boolean
-//   * CompletionHandler - NotifyDescription
+//   * CompletionHandler - CallbackDescription
 //
 Procedure AfterWarnedAboutFileUnavailability(ProcessingResultsParameters) Export
 
-		If ProcessingResultsParameters.MultipleChoice Then
-			ProcessPutFilesResult(Undefined, ProcessingResultsParameters);
-		Else
-			ProcessPutFileResult(False, Undefined, Undefined,	ProcessingResultsParameters);
-		EndIf;
+	If ProcessingResultsParameters.MultipleChoice Then
+		ProcessPutFilesResult(Undefined, ProcessingResultsParameters);
+	Else
+		ProcessPutFileResult(False, Undefined, Undefined,	ProcessingResultsParameters);
+	EndIf;
 	
 EndProcedure
 	
@@ -79,7 +81,7 @@ Procedure StartProcessingPuttingFiles(Context)
 	If Dialog.Multiselect Then
 		
 		Files = ?(Interactively, Dialog, FilesToUpload);
-		NotifyDescription = New NotifyDescription(
+		NotifyDescription = New CallbackDescription(
 			"ProcessPutFilesResult", ThisObject, ProcessingResultsParameters);
 		
 		If ValueIsFilled(FormIdentifier) Then
@@ -93,7 +95,7 @@ Procedure StartProcessingPuttingFiles(Context)
 	Else
 		
 		File = ?(Interactively, Dialog, FilesToUpload.Name);
-		NotifyDescription = New NotifyDescription(
+		NotifyDescription = New CallbackDescription(
 			"ProcessPutFileResult", ThisObject, ProcessingResultsParameters);
 		
 		If ValueIsFilled(FormIdentifier) Then
@@ -150,7 +152,7 @@ Procedure ProcessPutFileResult(SelectionDone, AddressOrSelectionResult, Selected
 		PutFilesToServe = Undefined;
 	EndIf;
 	
-	ExecuteNotifyProcessing(ProcessingResultsParameters.CompletionHandler, PutFilesToServe);
+	RunCallback(ProcessingResultsParameters.CompletionHandler, PutFilesToServe);
 	
 EndProcedure
 
@@ -159,7 +161,7 @@ EndProcedure
 #Region ModifiesStoredDataToFileSystem
 
 // Continuation of procedure FileSystemClient.ShowDownloadFiles procedure.
-Procedure ShowDownloadFilesOnAttachFileSystemExtension(ExtensionAttached, Context) Export
+Procedure ShowDownloadFilesOnAttach1CEnterpriseExtension(ExtensionAttached, Context) Export
 	
 	If ExtensionAttached Then
 		
@@ -170,7 +172,7 @@ Procedure ShowDownloadFilesOnAttachFileSystemExtension(ExtensionAttached, Contex
 			ShowDownloadFilesToDirectory(Context);
 		Else
 			
-			DirectoryReceiptNotification = New NotifyDescription(
+			DirectoryReceiptNotification = New CallbackDescription(
 				"ShowDownloadFilesAfterGetTempFilesDirectory", ThisObject, Context);
 			BeginGettingTempFilesDir(DirectoryReceiptNotification);
 				
@@ -183,7 +185,7 @@ Procedure ShowDownloadFilesOnAttachFileSystemExtension(ExtensionAttached, Contex
 		EndDo;
 		
 		If Context.CompletionHandler <> Undefined Then
-			ExecuteNotifyProcessing(Context.CompletionHandler, Undefined);
+			RunCallback(Context.CompletionHandler, Undefined);
 		EndIf;
 		
 	EndIf;
@@ -201,7 +203,7 @@ EndProcedure
 // Continuation of procedure FileSystemClient.ShowDownloadFiles procedure.
 Procedure ShowDownloadFilesToDirectory(Context)
 	
-	CallbackOnCompletion = New NotifyDescription("NotifyGetFilesCompletion", ThisObject, Context);
+	CallbackOnCompletion = New CallbackDescription("NotifyGetFilesCompletion", ThisObject, Context);
 	BeginGettingFiles(CallbackOnCompletion, Context.FilesToObtain,
 		Context.Dialog, Context.Interactively);
 	
@@ -211,7 +213,7 @@ EndProcedure
 Procedure NotifyGetFilesCompletion(ObtainedFiles, AdditionalParameters) Export
 	
 	If AdditionalParameters.CompletionHandler <> Undefined Then
-		ExecuteNotifyProcessing(AdditionalParameters.CompletionHandler, ObtainedFiles);
+		RunCallback(AdditionalParameters.CompletionHandler, ObtainedFiles);
 	EndIf;
 	
 EndProcedure
@@ -224,7 +226,7 @@ EndProcedure
 Procedure OpenFileAfterSaving(SavedFiles, OpeningParameters) Export
 	
 	If SavedFiles = Undefined Then
-		ExecuteNotifyProcessing(OpeningParameters.CompletionHandler, False);
+		RunCallback(OpeningParameters.CompletionHandler, False);
 	Else
 		
 		FileDetails = 
@@ -233,7 +235,7 @@ Procedure OpenFileAfterSaving(SavedFiles, OpeningParameters) Export
 				SavedFiles);
 		
 		OpeningParameters.Insert("PathToFile", FileDetails.FullName);
-		CompletionHandler = New NotifyDescription(
+		CompletionHandler = New CallbackDescription(
 			"OpenFileAfterEditingCompletion", ThisObject, OpeningParameters);
 		
 		OpenFileInViewer(FileDetails.FullName, CompletionHandler, OpeningParameters.ForEditing);
@@ -248,7 +250,7 @@ EndProcedure
 //
 // Parameters:
 //  PathToFile        - String - The full path to the file to open.
-//  Notification        - NotifyDescription - Notifies about file opening attempt.
+//  Notification        - CallbackDescription - Notifies about file opening attempt.
 //                    If not specified and an error occurs, the method returns a warning.:
 //   * ApplicationStarted      - Boolean - True if the external application opened successfully.
 //   * AdditionalParameters - Arbitrary - a value that was specified on creating the NotifyDescription object.
@@ -264,21 +266,21 @@ Procedure OpenFileInViewer(PathToFile, Val Notification = Undefined,
 	Context.Insert("Notification",        Notification);
 	Context.Insert("ForEditing", ForEditing);
 	
-	Notification = New NotifyDescription(
-		"OpenFileInViewerAfterCheckFileSystemExtension", ThisObject, Context);
+	Notification = New CallbackDescription(
+		"OpenFileInViewerAfterCheck1CEnterpriseExtension", ThisObject, Context);
 	
 	SuggestionText = NStr("en = 'To open the file, install 1C:Enterprise Extension.';");
-	FileSystemClient.AttachFileOperationsExtension(Notification, SuggestionText, False);
+	FileSystemClient.Attach1CEnterpriseExtension(Notification, SuggestionText, False);
 	
 EndProcedure
 
 // Continuation of procedure FileSystemClient.OpenFile.
-Procedure OpenFileInViewerAfterCheckFileSystemExtension(ExtensionAttached, Context) Export
+Procedure OpenFileInViewerAfterCheck1CEnterpriseExtension(ExtensionAttached, Context) Export
 	
 	FileInfo3 = Context.FileInfo3;
 	If ExtensionAttached Then
 		
-		Notification = New NotifyDescription(
+		Notification = New CallbackDescription(
 			"OpenFileInViewerAfterCheckIfExists", ThisObject, Context,
 			"OpenFileInViewerOnProcessError", ThisObject);
 		FileInfo3.BeginCheckingExistence(Notification);
@@ -298,7 +300,7 @@ Procedure OpenFileInViewerAfterCheckIfExists(Exists, Context) Export
 	FileInfo3 = Context.FileInfo3;
 	If Exists Then
 		 
-		Notification = New NotifyDescription(
+		Notification = New CallbackDescription(
 			"OpenFileInViewerAfterCheckIsFIle", ThisObject, Context,
 			"OpenFileInViewerOnProcessError", ThisObject);
 		FileInfo3.BeginCheckingIsFile(Notification);
@@ -318,7 +320,7 @@ EndProcedure
 // Continuation of procedure FileSystemClient.OpenFile.
 Procedure OpenFileInViewerAfterCheckIsFIle(IsFile, Context) Export
 	
-	// CAC:534-off safe start methods are provided with this function
+	// ACC:534-off - This function provides safe startup methods.
 	
 	FileInfo3 = Context.FileInfo3;
 	If IsFile Then
@@ -350,7 +352,7 @@ Procedure OpenFileInViewerAfterCheckIsFIle(IsFile, Context) Export
 		Notification          = Context.Notification;
 		WaitForCompletion = Context.ForEditing;
 		
-		Notification = New NotifyDescription(
+		Notification = New CallbackDescription(
 			"OpenFileInViewerAfterStartApplication", ThisObject, Context,
 			"OpenFileInViewerOnProcessError", ThisObject);
 		BeginRunningApplication(Notification, FileInfo3.FullName,, WaitForCompletion);
@@ -377,7 +379,7 @@ Procedure OpenFileInViewerAfterStartApplication(ReturnCode, Context) Export
 	
 	If Notification <> Undefined Then 
 		ApplicationStarted = (ReturnCode = 0);
-		ExecuteNotifyProcessing(Notification, ApplicationStarted);
+		RunCallback(Notification, ApplicationStarted);
 	EndIf;
 	
 EndProcedure
@@ -396,14 +398,14 @@ Procedure OpenFileAfterEditingCompletion(ApplicationStarted, OpeningParameters) 
 	If ApplicationStarted
 		And OpeningParameters.Property("AddressOfBinaryDataToUpdate") Then
 		
-		Notification = New NotifyDescription(
+		Notification = New CallbackDescription(
 			"OpenFileAfterDataUpdateInStorage", ThisObject, OpeningParameters);
 			
 		BeginPutFile(Notification, OpeningParameters.AddressOfBinaryDataToUpdate,
 			OpeningParameters.PathToFile, False);
 		
 	Else
-		ExecuteNotifyProcessing(OpeningParameters.CompletionHandler, ApplicationStarted);
+		RunCallback(OpeningParameters.CompletionHandler, ApplicationStarted);
 	EndIf;
 	
 EndProcedure
@@ -418,13 +420,13 @@ Procedure OpenFileAfterDataUpdateInStorage(IsDataUpdated, DataAddress, FileName,
 		AdditionalParameters.Insert("IsDataUpdated", IsDataUpdated);
 		AdditionalParameters.Insert("OpeningParameters", OpeningParameters);
 		
-		NotifyDescription = New NotifyDescription(
+		NotifyDescription = New CallbackDescription(
 			"OpenFileAfterTempFileDeletion", ThisObject, AdditionalParameters);
 			
 		BeginDeletingFiles(NotifyDescription, FileName);
 		
 	Else
-		ExecuteNotifyProcessing(OpeningParameters.CompletionHandler, IsDataUpdated);
+		RunCallback(OpeningParameters.CompletionHandler, IsDataUpdated);
 	EndIf;
 	
 EndProcedure
@@ -432,7 +434,7 @@ EndProcedure
 // Continuation of procedure FileSystemClient.OpenFile.
 Procedure OpenFileAfterTempFileDeletion(AdditionalParameters) Export
 	
-	ExecuteNotifyProcessing(AdditionalParameters.OpeningParameters.CompletionHandler,
+	RunCallback(AdditionalParameters.OpeningParameters.CompletionHandler,
 		AdditionalParameters.IsDataUpdated);
 	
 EndProcedure
@@ -445,7 +447,7 @@ Procedure OpenFileInViewerNotifyOnError(ErrorDescription, Context)
 	EndIf;
 	
 	ApplicationStarted = False;
-	ExecuteNotifyProcessing(Context.Notification, ApplicationStarted);
+	RunCallback(Context.Notification, ApplicationStarted);
 	
 EndProcedure
 
@@ -520,12 +522,12 @@ EndFunction
 #Region OpenExplorer
 
 // Continuation of procedure FileSystemClient.OpenExplorer.
-Procedure OpenExplorerAfterCheckFileSystemExtension(ExtensionAttached, Context) Export
+Procedure OpenExplorerAfterCheck1CEnterpriseExtension(ExtensionAttached, Context) Export
 	
 	FileInfo3 = Context.FileInfo3;
 	
 	If ExtensionAttached Then
-		Notification = New NotifyDescription(
+		Notification = New CallbackDescription(
 			"OpenExplorerAfterCheckIfExists", ThisObject, Context, 
 			"OpenExplorerOnProcessError", ThisObject);
 		FileInfo3.BeginCheckingExistence(Notification);
@@ -542,7 +544,7 @@ Procedure OpenExplorerAfterCheckIfExists(Exists, Context) Export
 	FileInfo3 = Context.FileInfo3;
 	
 	If Exists Then 
-		Notification = New NotifyDescription(
+		Notification = New CallbackDescription(
 			"OpenExplorerAfterCheckIsFIle", ThisObject, Context, 
 			"OpenExplorerOnProcessError", ThisObject);
 		FileInfo3.BeginCheckingIsFile(Notification);
@@ -559,11 +561,11 @@ EndProcedure
 // Continuation of procedure FileSystemClient.OpenExplorer.
 Procedure OpenExplorerAfterCheckIsFIle(IsFile, Context) Export 
 	
-	// CAC:534-off safe start methods are provided with this function
+	// ACC:534-off - This function provides safe startup methods.
 	
 	FileInfo3 = Context.FileInfo3;
 	
-	Notification = New NotifyDescription(,,, "OpenExplorerOnProcessError", ThisObject);
+	Notification = New CallbackDescription(,,, "OpenExplorerOnProcessError", ThisObject);
 	If IsFile Then
 		If CommonClient.IsWindowsClient() Then
 			BeginRunningApplication(Notification, "explorer.exe /select, """ + FileInfo3.FullName + """");
@@ -600,9 +602,9 @@ EndProcedure
 #Region OpenURL
 
 // Continuation of procedure FileSystemClient.OpenURL.
-Procedure OpenURLAfterCheckFileSystemExtension(ExtensionAttached, Context) Export
+Procedure OpenURLAfterCheck1CEnterpriseExtension(ExtensionAttached, Context) Export
 	
-	// CAC:534-off safe start methods are provided with this function
+	// ACC:534-off - This function provides safe startup methods.
 	
 	URL = Context.URL;
 	
@@ -611,14 +613,14 @@ Procedure OpenURLAfterCheckFileSystemExtension(ExtensionAttached, Context) Expor
 		Notification          = Context.Notification;
 		WaitForCompletion = (Notification <> Undefined);
 		
-		Notification = New NotifyDescription(
+		Notification = New CallbackDescription(
 			"OpenURLAfterStartApplication", ThisObject, Context,
 			"OpenURLOnProcessError", ThisObject);
 		BeginRunningApplication(Notification, URL,, WaitForCompletion);
 		
 	Else
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot follow link ""%1"" because 1C:Enterprise Extension is not installed.';"),
+			NStr("en = 'Cannot follow the link ""%1"" as 1C:Enterprise Extension is not installed.';"),
 			URL);
 		OpenURLNotifyOnError(ErrorDescription, Context);
 	EndIf;
@@ -634,7 +636,7 @@ Procedure OpenURLAfterStartApplication(ReturnCode, Context) Export
 	
 	If Notification <> Undefined Then 
 		ApplicationStarted = (ReturnCode = 0 Or ReturnCode = Undefined);
-		ExecuteNotifyProcessing(Notification, ApplicationStarted);
+		RunCallback(Notification, ApplicationStarted);
 	EndIf;
 	
 EndProcedure
@@ -658,7 +660,7 @@ Procedure OpenURLNotifyOnError(ErrorDescription, Context) Export
 		EndIf;
 	Else 
 		ApplicationStarted = False;
-		ExecuteNotifyProcessing(Notification, ApplicationStarted);
+		RunCallback(Notification, ApplicationStarted);
 	EndIf;
 	
 EndProcedure
@@ -721,7 +723,7 @@ EndFunction
 #Region StartApplication
 
 // Continuation of procedure FileSystemClient.StartApplication.
-Procedure StartApplicationAfterCheckFileSystemExtension(ExtensionAttached, Context) Export
+Procedure StartApplicationAfterCheck1CEnterpriseExtension(ExtensionAttached, Context) Export
 	
 	If ExtensionAttached Then
 		
@@ -731,14 +733,14 @@ Procedure StartApplicationAfterCheckFileSystemExtension(ExtensionAttached, Conte
 			StartApplicationBeginRunning(Context);
 		Else 
 			FileInfo3 = New File(CurrentDirectory);
-			Notification = New NotifyDescription(
+			Notification = New CallbackDescription(
 				"StartApplicationAfterCheckIfExists", ThisObject, Context,
 				"StartApplicationOnProcessError", ThisObject);
 			FileInfo3.BeginCheckingExistence(Notification);
 		EndIf;
 		
 	Else
-		ErrorDescription = NStr("en = 'Cannot start the app because 1C:Enterprise Extension is not installed.';");
+		ErrorDescription = NStr("en = 'Cannot start the application because 1C:Enterprise Extension is not installed.';");
 		StartApplicationNotifyOnError(ErrorDescription, Context);
 	EndIf;
 	
@@ -751,7 +753,7 @@ Procedure StartApplicationAfterCheckIfExists(Exists, Context) Export
 	FileInfo3 = New File(CurrentDirectory);
 	
 	If Exists Then 
-		Notification = New NotifyDescription(
+		Notification = New CallbackDescription(
 			"StartApplicationAfterCheckIsDirectory", ThisObject, Context,
 			"StartApplicationOnProcessError", ThisObject);
 		FileInfo3.BeginCheckingIsDirectory(Notification);
@@ -791,7 +793,7 @@ EndProcedure
 // Continuation of procedure FileSystemClient.StartApplication.
 Procedure StartApplicationBeginRunning(Context)
 	
-	// CAC:534-off safe start methods are provided with this function
+	// ACC:534-off - This function provides safe startup methods.
 	
 	If Context.ThreadsEncoding = Undefined Then 
 		Context.ThreadsEncoding = StandardStreamEncoding();
@@ -849,7 +851,7 @@ Procedure StartApplicationBeginRunning(Context)
 			CommandString = "LANGUAGE=" + ExecutionEncoding + " " + CommandString;
 		EndIf;
 		
-		Notification = New NotifyDescription(
+		Notification = New CallbackDescription(
 			"StartApplicationAfterStartApplication", ThisObject, Context,
 			"StartApplicationOnProcessError", ThisObject);
 		BeginRunningApplication(Notification, CommandString, CurrentDirectory, WaitForCompletion);
@@ -880,11 +882,11 @@ Procedure StartApplicationAfterStartApplication(ReturnCode, Context) Export
 	Result = ApplicationStartResult();
 	If Context.WaitForCompletion And ReturnCode = Undefined Then
 		Result.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'An unexpected error occurred upon the startup of
+			NStr("en = 'Exception occurred during startup of
 				|%1';"),
 			Context.CommandString);
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'An unexpected error occurred upon the startup:
+			NStr("en = 'Exception occurred during startup:
 				|Command line: %1
 				|Directory: %2
 				|Return code: %3
@@ -904,7 +906,7 @@ Procedure StartApplicationAfterStartApplication(ReturnCode, Context) Export
 	If Context.WaitForCompletion Then
 		FillThreadResult(Result, Context);
 	EndIf;
-	ExecuteNotifyProcessing(Notification, Result);
+	RunCallback(Notification, Result);
 	
 EndProcedure
 
@@ -933,7 +935,7 @@ Procedure StartApplicationNotifyOnError(ErrorDescription, Context)
 	If Context.WaitForCompletion Then
 		FillThreadResult(Result, Context);
 	EndIf;
-	ExecuteNotifyProcessing(Notification, Result);
+	RunCallback(Notification, Result);
 	
 EndProcedure
 
@@ -958,14 +960,14 @@ Procedure StartApplicationWithFullRights(Context)
 	ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Cannot start %1.
 		           |Reason:
-		           |The web client does not support starting apps with elevated privileges.';"),
+		           |The web client does not support starting applications with elevated privileges.';"),
 		Context.CommandString);
 	StartApplicationNotifyOnError(ErrorDescription, Context);
 #ElsIf MobileClient Then
 	ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Couldn''t start %1.
+		NStr("en = 'Cannot start %1.
 		           |Reason:
-		           |The web client does not support starting apps with elevated privileges.';"),
+		           |The mobile client does not support starting applications with elevated privileges.';"),
 		Context.CommandString);
 	StartApplicationNotifyOnError(ErrorDescription, Context);
 #Else
@@ -976,9 +978,9 @@ Procedure StartApplicationWithFullRights(Context)
 		StartApplicationWithFullLinuxRights(Context);
 	Else
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t start %1.
+			NStr("en = 'Cannot start %1.
 			           |Reason:
-			           |Starting apps with elevated privileges is supported for Windows and Linux only.';"),
+			           |Starting applications with elevated privileges is supported for Windows and Linux only.';"),
 			Context.CommandString);
 		StartApplicationNotifyOnError(ErrorDescription, Context);
 	EndIf;
@@ -1011,7 +1013,7 @@ EndProcedure
 //
 Function ReadThreadFile(PathToFile, ThreadsEncoding)
 	
-	// CAC:566-off synchronous calls outside the thin client
+	// ACC:566-off - Synchronous calls outside the thin client.
 	
 #If WebClient Then
 	Return "";
@@ -1040,7 +1042,7 @@ EndFunction
 //
 Procedure StartApplicationWithFullWindowsRights(Context)
 	
-	// CAC:534-off safe start methods are provided with this function
+	// ACC:534-off - This function provides safe startup methods.
 	
 	CommandString = Context.CommandString;
 	CurrentDirectory = Context.CurrentDirectory;
@@ -1048,11 +1050,12 @@ Procedure StartApplicationWithFullWindowsRights(Context)
 	
 	WaitForCompletion = False;
 	
-	CommandString = CommonInternalClientServer.TheWindowsCommandStartLine(CommandString, CurrentDirectory, WaitForCompletion, ExecutionEncoding);
+	CommandString = CommonInternalClientServer.TheWindowsCommandStartLine(CommandString, 
+		CurrentDirectory, WaitForCompletion, ExecutionEncoding);
 	
 	Try
 		Shell = New COMObject("Shell.Application");
-		// Run with elevated permissions.
+		// Run with elevated privileges.
 		ReturnCode = Shell.ShellExecute("cmd", "/c """ + CommandString + """",, "runas", 0);
 		Shell = Undefined;
 	Except
@@ -1077,7 +1080,7 @@ EndProcedure
 //
 Procedure StartApplicationWithFullLinuxRights(Context)
 	
-	// CAC:534-off safe start methods are provided with this function
+	// ACC:534-off - This function provides safe startup methods.
 	
 	CurrentDirectory = Context.CurrentDirectory;
 	CommandString = Context.CommandString;
@@ -1085,7 +1088,7 @@ Procedure StartApplicationWithFullLinuxRights(Context)
 	CommandWithPrivilegeEscalation = "pkexec env DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY " + CommandString;
 	WaitForCompletion = True;
 	
-	Notification = New NotifyDescription(
+	Notification = New CallbackDescription(
 		"StartApplicationAfterStartApplication", ThisObject, Context,
 		"StartApplicationOnProcessError", ThisObject);
 	BeginRunningApplication(Notification, CommandWithPrivilegeEscalation, CurrentDirectory, WaitForCompletion);
@@ -1100,15 +1103,15 @@ EndProcedure
 
 #Region ChooseDirectory
 
-// Continuation of procedure FileSystemClient.SelectDirectory.
-Procedure SelectDirectoryOnAttachFileSystemExtension(ExtensionAttached, Context) Export
+// Continues the procedure "FileSystemClient.SelectDirectory".
+Procedure SelectDirectoryOnAttach1CEnterpriseExtension(ExtensionAttached, Context) Export
 	
 	If Not ExtensionAttached Then
-		ExecuteNotifyProcessing(Context.CompletionHandler, "");
+		RunCallback(Context.CompletionHandler, "");
 		Return;
 	EndIf;
 	
-	NotifyDescription = New NotifyDescription(
+	NotifyDescription = New CallbackDescription(
 		"SelectDirectoryAtSelectionEnd", ThisObject, Context.CompletionHandler);
 	
 	Dialog = New FileDialog(FileDialogMode.ChooseDirectory);
@@ -1132,7 +1135,7 @@ Procedure SelectDirectoryAtSelectionEnd(DirectoriesArray, CompletionHandler) Exp
 			"", 
 			DirectoriesArray[0]);
 	
-	ExecuteNotifyProcessing(CompletionHandler, PathToDirectory);
+	RunCallback(CompletionHandler, PathToDirectory);
 	
 EndProcedure
 
@@ -1140,12 +1143,12 @@ EndProcedure
 
 #Region ShowSelectionDialog
 
-// Continuation of procedure FileSystemClient.ShowSelectionDialog.
+// Continues the procedure "FileSystemClient.ShowSelectionDialog"
 //
-Procedure ShowSelectionDialogOnAttachFileSystemExtension(ExtensionAttached, Context) Export
+Procedure ShowSelectionDialogOnAttach1CEnterpriseExtension(ExtensionAttached, Context) Export
 	
 	If Not ExtensionAttached Then
-		ExecuteNotifyProcessing(Context.CompletionHandler, "");
+		RunCallback(Context.CompletionHandler, "");
 		Return;
 	EndIf;
 	
@@ -1155,49 +1158,43 @@ EndProcedure
 
 #EndRegion
 
-#Region FileSystemExtension
+#Region ExtensionFor1CEnterpriseApplication
 
-Procedure StartFileSystemExtensionAttachingOnSetExtension(Attached, Context) Export
+Procedure StartAttach1CEnterpriseExtension(Attached, Context) Export
 	
-	// If the extension is already installed, there is no need to ask about it
 	If Attached Then
-		ExecuteNotifyProcessing(Context.NotifyDescriptionCompletion, "AttachmentNotRequired");
+		RunCallback(Context.NotifyDescriptionCompletion, "AttachmentNotRequired");
 		Return;
 	EndIf;
 	
-	// In macOS, the extension's web client supports only Google Chrome.
+	// In the web client on macOS, the extension is available only in the Chrome browser.
 	If CommonClient.IsMacOSClient() 
-			And Not AnExtensionForWorkingWithFilesIsAvailable() Then
-		ExecuteNotifyProcessing(Context.NotifyDescriptionCompletion);
+			And Not Is1CEnterpriseExtensionAvailable() Then
+		RunCallback(Context.NotifyDescriptionCompletion);
 		Return;
 	EndIf;
 	
 	ParameterName = "StandardSubsystems.SuggestFileSystemExtensionInstallation";
 	FirstCallDuringSession = ApplicationParameters[ParameterName] = Undefined;
 	If ApplicationParameters[ParameterName] = Undefined Then
-		ApplicationParameters.Insert(ParameterName, SuggestFileSystemExtensionInstallation());
+		ApplicationParameters.Insert(ParameterName, ShouldPromptToInstall1CEnterpriseExtension());
 	EndIf;
 	
-	SuggestFileSystemExtensionInstallation = ApplicationParameters[ParameterName] Or FirstCallDuringSession;
-	If Context.CanContinueWithoutInstalling And Not SuggestFileSystemExtensionInstallation Then
-		
-		ExecuteNotifyProcessing(Context.NotifyDescriptionCompletion);
-		
-	Else 
-		
-		FormParameters = New Structure;
-		FormParameters.Insert("SuggestionText", Context.SuggestionText);
-		FormParameters.Insert("CanContinueWithoutInstalling", Context.CanContinueWithoutInstalling);
-		OpenForm(
-			"CommonForm.FileSystemExtensionInstallationQuestion", 
-			FormParameters,,,,, 
-			Context.NotifyDescriptionCompletion);
-		
+	ShouldPromptToInstallExtension = ApplicationParameters[ParameterName] Or FirstCallDuringSession;
+	If Context.CanContinueWithoutInstalling And Not ShouldPromptToInstallExtension Then
+		RunCallback(Context.NotifyDescriptionCompletion);
+		Return;
 	EndIf;
-	
+		
+	FormParameters = New Structure;
+	FormParameters.Insert("SuggestionText", Context.SuggestionText);
+	FormParameters.Insert("CanContinueWithoutInstalling", Context.CanContinueWithoutInstalling);
+	OpenForm("CommonForm.QuestionOn1CEnterpriseExtensionInstallation", FormParameters,,,,,  
+		Context.NotifyDescriptionCompletion);
+		
 EndProcedure
 
-Procedure StartFileSystemExtensionAttachingWhenAnsweringToInstallationQuestion(Action, ClosingNotification1) Export
+Procedure StartAttach1CEnterpriseExtensionWhenAnsweringToInstallationQuestion(Action, ClosingNotification1) Export
 	
 	ExtensionAttached = (Action = "ExtensionAttached" Or Action = "AttachmentNotRequired");
 	
@@ -1214,11 +1211,11 @@ Procedure StartFileSystemExtensionAttachingWhenAnsweringToInstallationQuestion(A
 	EndIf;
 #EndIf
 	
-	ExecuteNotifyProcessing(ClosingNotification1, ExtensionAttached);
+	RunCallback(ClosingNotification1, ExtensionAttached);
 	
 EndProcedure
 
-Function SuggestFileSystemExtensionInstallation()
+Function ShouldPromptToInstall1CEnterpriseExtension()
 	
 	SystemInfo = New SystemInfo();
 	ClientID = SystemInfo.ClientID;
@@ -1227,7 +1224,7 @@ Function SuggestFileSystemExtensionInstallation()
 	
 EndFunction
 
-Function AnExtensionForWorkingWithFilesIsAvailable()
+Function Is1CEnterpriseExtensionAvailable()
 
 	SystemInfo = New SystemInfo;
 	Return StrFind(SystemInfo.UserAgentInformation, "Chrome") > 0;
@@ -1245,18 +1242,19 @@ EndFunction
 // Parameters:
 //  ExtensionAttached - Boolean
 //  Context - Structure:
-//   * Notification - NotifyDescription
+//   * Notification - CallbackDescription
 //   * Extension - String
 //
-Procedure CreateTemporaryDirectoryAfterCheckFileSystemExtension(ExtensionAttached, Context) Export
+Procedure CreateTemporaryDirectoryAfterCheck1CEnterpriseExtension(ExtensionAttached, Context) Export
 	
 	If ExtensionAttached Then
-		Notification = New NotifyDescription(
+		Notification = New CallbackDescription(
 			"CreateTemporaryDirectoryAfterGetTemporaryDirectory", ThisObject, Context,
 			"CreateTemporaryDirectoryOnProcessError", ThisObject);
 		BeginGettingTempFilesDir(Notification);
 	Else
-		CreateTemporaryDirectoryNotifyOnError(NStr("en = 'Cannot install 1C:Enterprise Extension.';"), Context);
+		CreateTemporaryDirectoryNotifyOnError(NStr("en = 'Cannot install 1C:Enterprise Extension.';"), 
+			Context);
 	EndIf;
 	
 EndProcedure
@@ -1266,7 +1264,7 @@ EndProcedure
 // Parameters:
 //  TempFilesDirName - String
 //  Context - Structure:
-//   * Notification - NotifyDescription
+//   * Notification - CallbackDescription
 //   * Extension - String
 //
 Procedure CreateTemporaryDirectoryAfterGetTemporaryDirectory(TempFilesDirName, Context) Export 
@@ -1298,7 +1296,7 @@ Procedure CreateTemporaryDirectoryNotifyOnError(ErrorDescription, Context)
 	
 	ShowMessageBox(, ErrorDescription);
 	DirectoryName = "";
-	ExecuteNotifyProcessing(Context.Notification, DirectoryName);
+	RunCallback(Context.Notification, DirectoryName);
 	
 EndProcedure
 

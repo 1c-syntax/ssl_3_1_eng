@@ -172,21 +172,20 @@ EndProcedure
 &AtClient
 Procedure TasksMonitoringConfigureSchedule(Command)
 	Dialog = New ScheduledJobDialog(TaskMonitoringSchedule);
-	Dialog.Show(New NotifyDescription("TaskMonitoringAfterScheduleChanged", ThisObject));
+	Dialog.Show(New CallbackDescription("TaskMonitoringAfterScheduleChanged", ThisObject));
 EndProcedure
 
 &AtClient
 Procedure NotifyPerformersAboutNewTasksConfigureSchedule(Command)
 	Dialog = New ScheduledJobDialog(NewPerformerTaskNotificationsSchedule);
-	Dialog.Show(New NotifyDescription("NewPerformerTaskNotificationsAfterChangeSchedule", ThisObject));
+	Dialog.Show(New CallbackDescription("NewPerformerTaskNotificationsAfterChangeSchedule", ThisObject));
 EndProcedure
 
 #EndRegion
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Client.
+#Region Client
 
 &AtClient
 Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
@@ -231,7 +230,7 @@ EndProcedure
 Procedure TasksMonitoringUsageOnChange(Item)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.EmailOperations") And TasksMonitoringUsage Then
-		NotifyDescription = New NotifyDescription("TasksMonitoringUsageMailAvailabilityCheckCompleted", ThisObject);
+		NotifyDescription = New CallbackDescription("TasksMonitoringUsageMailAvailabilityCheckCompleted", ThisObject);
 		ModuleEmailOperationsClient = CommonClient.CommonModule("EmailOperationsClient");
 		ModuleEmailOperationsClient.CheckAccountForSendingEmailExists(NotifyDescription);
 	Else
@@ -268,7 +267,7 @@ EndProcedure
 Procedure NotifyPerformersAboutNewTasksUsageOnChange(Item)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.EmailOperations") And NotifyPerformersAboutNewTasksUsage Then
-		NotifyDescription = New NotifyDescription(
+		NotifyDescription = New CallbackDescription(
 			"NotifyPerformersAboutNewTasksUsageEmailAvailabilityCheckCompleted", ThisObject);
 		ModuleEmailOperationsClient = CommonClient.CommonModule("EmailOperationsClient");
 		ModuleEmailOperationsClient.CheckAccountForSendingEmailExists(NotifyDescription);
@@ -290,8 +289,9 @@ Procedure NotifyPerformersAboutNewTasksUsageEmailAvailabilityCheckCompleted(Chec
 		
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Server.
+#EndRegion
+
+#Region Server
 
 &AtServer
 Function OnChangeAttributeServer(TagName)
@@ -411,5 +411,7 @@ Function FindScheduledJob(PredefinedItemName)
 	SearchResult = ScheduledJobsServer.FindJobs(Filter);
 	Return ?(SearchResult.Count() = 0, Undefined, SearchResult[0]);
 EndFunction
+
+#EndRegion
 
 #EndRegion

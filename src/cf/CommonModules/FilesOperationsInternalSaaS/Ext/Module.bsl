@@ -93,7 +93,7 @@ Procedure OnPopulateDependantTablesForODataImportExport(Tables) Export
 	
 EndProcedure
 
-// SaaSTechnology.ExportImportData
+// CloudTechnology.ExportImportData
 
 // See ExportImportDataOverridable.OnFillTypesExcludedFromExportImport.
 Procedure OnFillTypesExcludedFromExportImport(Types) Export
@@ -305,7 +305,7 @@ Procedure BeforeImportObject(Container, Object, Artifacts, Cancel) Export
 	
 EndProcedure
 
-// End SaaSTechnology.ExportImportData
+// End CloudTechnology.ExportImportData
 
 // Creates and queues jobs that will transfer data to the file
 // storage with deduplication for the used data areas.

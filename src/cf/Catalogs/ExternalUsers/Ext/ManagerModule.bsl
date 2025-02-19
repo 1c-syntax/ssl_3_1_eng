@@ -37,7 +37,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// StandardSubsystems.AccessManagement
+// СтандартныеПодсистемы.УправлениеДоступом
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -109,6 +109,55 @@ EndProcedure
 #EndRegion
 
 #Region Private
+
+// Parameters:
+//  Source - CatalogObject.ExternalUsers
+//
+Function HasProhibitedChanges(Source) Export
+	
+	If Source.AdditionalProperties.Property("IBUserDetails") Then
+		Return True;
+	EndIf;
+	
+	PreviousValues1 = Common.ObjectAttributesValues(Source.Ref,
+		"Ref,
+		|DeletionMark,
+		|Invalid,
+		|Prepared,
+		|AuthorizationObject,
+		|SetRolesDirectly,
+		|IBUserID,
+		|ServiceUserID");
+	
+	If ValueIsFilled(PreviousValues1.Ref) Then
+		For Each DetailsAndValue In PreviousValues1 Do
+			If Source[DetailsAndValue.Key] <> PreviousValues1[DetailsAndValue.Key] Then
+				Return True;
+			EndIf;
+		EndDo;
+		Return False;
+	EndIf;
+	
+	If Source.Prepared
+	 Or Source.SetRolesDirectly
+	 Or ValueIsFilled(Source.ServiceUserID) Then
+		Return True;
+	EndIf;
+	
+	If Not ValueIsFilled(Source.IBUserID) Then
+		Return False;
+	EndIf;
+	
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+	IBUser = InfoBaseUsers.FindByUUID(
+		Source.IBUserID);
+	SetPrivilegedMode(False);
+	SetSafeModeDisabled(False);
+	
+	Return IBUser <> Undefined;
+	
+EndFunction
 
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	

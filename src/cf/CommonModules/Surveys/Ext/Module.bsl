@@ -116,8 +116,7 @@ EndProcedure
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Populate the questionnaire tree.
+#Region FillingQuestionnaireTree
 
 // Parameters:
 //  Questions - See Catalog.QuestionnaireTemplates.Form.TableQuestionsWizardForm.Questions
@@ -516,8 +515,9 @@ Function ExecuteQueryByQuestionnaireTemplateQuestions(QuestionnaireTemplate)
 
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Generating a questionnaire filling form.
+#EndRegion
+
+#Region QuestionnaireFillOutFormGeneration
 
 // Parameters:
 //  Form                       - See Document.Questionnaire.Form.DocumentForm
@@ -577,8 +577,9 @@ Procedure CreateFillingFormBySection(Form, CurrentDataSectionsTree) Export
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Creating attributes of the questionnaire filling form.
+#EndRegion
+
+#Region QuestionnaireFillOutFormAttributesCreation
 
 // Parameters:
 //  AttributesToBeAdded - Array - used to accumulate form attributes to be created.
@@ -832,8 +833,9 @@ Procedure AddAttributesComplexQuestion(TreeRow, AttributesToBeAdded, Form)
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Creating questionnaire filling form items.
+#EndRegion
+
+#Region QuestionnaireFillOutFormItemsCreation
 
 Procedure GenerateFormItemsForSection(Form)
 
@@ -1606,8 +1608,9 @@ Procedure AddComplexQuestionItems(TableRow, GroupItem1, Form)
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures of a questionnaire filling form.
+#EndRegion
+
+#Region AuxiliaryProceduresForQuestionnaireFillOutForm
 
 // Parameters:
 //  ElementaryQuestion - ChartOfCharacteristicTypesRef.QuestionsForSurvey - a question, for which answers are obtained.
@@ -2119,8 +2122,9 @@ Procedure GenerateQuestionsSubordinationTable(Form) Export
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Miscellaneous.
+#EndRegion
+
+#Region Other
 
 Procedure DeleteQuestionnaireTemplateQuestions(OwnerRef) Export
 
@@ -2394,5 +2398,7 @@ Function CanNumericFieldTakeZero(TableRow) Export
 	Return (Left <= 0 And Right >= 0);
 
 EndFunction
+
+#EndRegion
 
 #EndRegion

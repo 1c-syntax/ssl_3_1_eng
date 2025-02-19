@@ -20,7 +20,7 @@ Var OldRecords; // Filled by "BeforeWrite" to use "OnWrite".
 
 Procedure BeforeWrite(Cancel, Replacing)
 	
-	// ACC:75-off - "DataExchange.Import" check must follow the change records in the Event log.
+	// ACC:75-off - The DataExchange.Load check must follow the logging of changes.
 	If UsersInternalCached.ShouldRegisterChangesInAccessRights() Then
 		PrepareChangesForLogging(ThisObject, Replacing, OldRecords);
 	EndIf;
@@ -34,7 +34,7 @@ EndProcedure
 
 Procedure OnWrite(Cancel, Replacing)
 	
-	// ACC:75-off The DataExchange.Import check must follow the change records in the Event log.
+	// ACC:75-off - The DataExchange.Load check must follow the logging of changes.
 	If UsersInternalCached.ShouldRegisterChangesInAccessRights() Then
 		DoLogChanges(ThisObject, Replacing, OldRecords);
 	EndIf;
@@ -50,34 +50,27 @@ EndProcedure
 
 #Region Private
 
-Procedure PrepareChangesForLogging(Object, Replacing, OldRecords)
+Procedure PrepareChangesForLogging(RecordSet, Replacing, OldRecords)
 	
-	If Object.AdditionalProperties.Property("IsStandardRegisterUpdate") Then
+	If RecordSet.AdditionalProperties.Property("IsStandardRegisterUpdate") Then
 		Return;
 	EndIf;
 	
-	RecordSet = InformationRegisters.UserGroupCompositions.CreateRecordSet();
-	
-	If Replacing Then
-		For Each FilterElement In Filter Do
-			If FilterElement.Use Then
-				RecordSet.Filter[FilterElement.Name].Set(FilterElement.Value);
-			EndIf;
-		EndDo;
-		RecordSet.Read();
-	EndIf;
-	
-	OldRecords = RecordSet.Unload();
+	OldRecords = Common.SetRecordsFromDatabase(RecordSet, Replacing, FieldList());
 	
 EndProcedure
 
-Procedure DoLogChanges(Object, Replacing, OldRecords)
+Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
 	
-	If Object.AdditionalProperties.Property("IsStandardRegisterUpdate") Then
+	If RecordSet.AdditionalProperties.Property("IsStandardRegisterUpdate") Then
 		Return;
 	EndIf;
 	
-	Table = Unload();
+	If Common.IsRecordSetDeletion(Replacing) Then
+		Table = RecordSet.Unload(New Array, FieldList());
+	Else
+		Table = RecordSet.Unload(, FieldList());
+	EndIf;
 	Table.Columns.Add("ChangeType", New TypeDescription("String"));
 	Table.FillValues("Added2", "ChangeType");
 	RowFilter = New Structure("UsersGroup, User");
@@ -114,6 +107,20 @@ Procedure DoLogChanges(Object, Replacing, OldRecords)
 	UsersInternal.RegisterGroupsCompositionChanges(Table);
 	
 EndProcedure
+
+// Intended for procedures "PrepareChangesForLogging" and "DoLogChanges".
+Function FieldList()
+	
+	RegisterMetadata = Metadata();
+	
+	Fields = New Array;
+	Fields.Add(RegisterMetadata.Dimensions.UsersGroup.Name);
+	Fields.Add(RegisterMetadata.Dimensions.User.Name);
+	Fields.Add(RegisterMetadata.Resources.Used.Name);
+	
+	Return StrConcat(Fields, ",");
+	
+EndFunction
 
 #EndRegion
 

@@ -10,7 +10,10 @@
 
 #Region Public
 
-// Gets a structure with description of a task execution form.
+#Region ObsoleteProceduresAndFunctions
+
+// Deprecated. Instead, use "BusinessProcessesAndTasksServer.TaskExecutionForm".
+// Gets a structure with the description of a task execution form.
 //
 // Parameters:
 //  TaskRef - TaskRef.PerformerTask
@@ -20,26 +23,13 @@
 //
 Function TaskExecutionForm(Val TaskRef) Export
 	
-	CommonClientServer.CheckParameter("BusinessProcessesAndTasksServerCall.TaskExecutionForm", 
-		"TaskRef", TaskRef, Type("TaskRef.PerformerTask"));
-
-	Attributes = Common.ObjectAttributesValues(TaskRef, "BusinessProcess,RoutePoint");
-	If Attributes.BusinessProcess = Undefined Or Attributes.BusinessProcess.IsEmpty() Then
-		Return New Structure();
-	EndIf;
-	
-	BusinessProcessType = Attributes.BusinessProcess.Metadata(); // MetadataObjectBusinessProcess 
-	FormParameters = BusinessProcesses[BusinessProcessType.Name].TaskExecutionForm(TaskRef,
-		Attributes.RoutePoint);
-	BusinessProcessesAndTasksOverridable.OnReceiveTaskExecutionForm(
-		BusinessProcessType.Name, TaskRef, Attributes.RoutePoint, FormParameters);
-	
-	Return FormParameters;
+	Return BusinessProcessesAndTasksServer.TaskExecutionForm(TaskRef);
 	
 EndFunction
 
+// Deprecated. Instead, use "BusinessProcessesAndTasksServer.IsPerformerTask"
 // Checks whether the report cell contains a reference to the task and returns details value in
-// the DetailsValue parameter.
+// the "DetailsValue" parameter.
 //
 // Parameters:
 //  Details             - String - a cell name.
@@ -52,12 +42,11 @@ EndFunction
 //
 Function IsPerformerTask(Val Details, Val ReportDetailsData, DetailsValue) Export
 	
-	ObjectDetailsData = GetFromTempStorage(ReportDetailsData); // DataCompositionDetailsData
-	DetailsValue = ObjectDetailsData.Items[Details].GetFields()[0].Value;
-	Return TypeOf(DetailsValue) = Type("TaskRef.PerformerTask");
+	Return BusinessProcessesAndTasksServer.IsPerformerTask(Details, ReportDetailsData, DetailsValue);
 	
 EndFunction
 
+// Deprecated. Instead, use BusinessProcessesAndTasks.ExecuteTask".
 // Completes the TaskRef task. If necessary executes
 // DefaultCompletionHandler in the manager module
 // of the business process where the TaskRef task belongs.
@@ -69,35 +58,113 @@ EndFunction
 //
 Procedure ExecuteTask(TaskRef, DefaultAction = False) Export
 	
-	BeginTransaction();
-	Try
-		BusinessProcessesAndTasksServer.LockTasks(TaskRef);
-		
-		TaskInfoRecords = Common.ObjectAttributesValues(TaskRef, "Executed, BusinessProcess, RoutePoint");
-		If TaskInfoRecords.Executed Then
-			Raise NStr("en = 'The task was completed earlier.';");
-		EndIf;
-		
-		If DefaultAction 
-			 And TaskInfoRecords.BusinessProcess <> Undefined
-			 And Not TaskInfoRecords.BusinessProcess.IsEmpty() Then
-				BusinessProcessType = TaskInfoRecords.BusinessProcess.Metadata(); // MetadataObjectBusinessProcess
-				BusinessProcesses[BusinessProcessType.Name].DefaultCompletionHandler(TaskRef,
-					TaskInfoRecords.BusinessProcess, TaskInfoRecords.RoutePoint);
-		EndIf;
-		
-		TaskObject = TaskRef.GetObject();
-		TaskObject.Executed = False;
-		TaskObject.ExecuteTask();
-		CommitTransaction();
-	Except
-		RollbackTransaction();
-		Raise;
-	EndTry;
+	BusinessProcessesAndTasksServer.ExecuteTask(TaskRef, DefaultAction);
 	
 EndProcedure
 
-// Forwards the TaskArray tasks to a new assignee specified in the ForwardingInfo structure.
+// Deprecated. Instead, use "BusinessProcessesAndTasksServer.IsHeadTask".
+// Checks whether the specified task is the head one.
+//
+// Parameters:
+//  TaskRef  - TaskRef.PerformerTask
+//
+// Returns:
+//   Boolean
+//
+Function IsHeadTask(Val TaskRef) Export
+	
+	Return BusinessProcessesAndTasksServer.IsHeadTask(TaskRef);
+	
+EndFunction
+
+// Deprecated. Instead, use "BusinessProcessesAndTasksServer.GeneratePerformerChoiceData".
+// Generates a choice list for picking assignees in input fields of flexible type ("User" and "Role").
+//
+// Parameters:
+//  Text - String - a text fragment to search for possible assignees.
+// 
+// Returns:
+//  ValueList - a selection list containing possible assignees.
+//
+Function GeneratePerformerChoiceData(Val Text) Export
+	
+	Return BusinessProcessesAndTasksServer.GeneratePerformerChoiceData(Text);
+	
+EndFunction
+
+#EndRegion
+
+#EndRegion
+
+#Region Private
+
+// Marks the specified business processes as active.
+//
+// Parameters:
+//  Var_BusinessProcesses - Array of DefinedType.BusinessProcess
+//
+Procedure ActivateBusinessProcesses(Var_BusinessProcesses) Export
+	
+	BusinessProcessesAndTasksServer.ActivateBusinessProcesses(Var_BusinessProcesses);
+	
+EndProcedure
+
+// Marks the specified business processes as active.
+//
+// Parameters:
+//  BusinessProcess - DefinedType.BusinessProcess
+//
+Procedure ActivateBusinessProcess(BusinessProcess) Export
+	
+	BusinessProcessesAndTasksServer.ActivateBusinessProcess(BusinessProcess);
+	
+EndProcedure
+
+// Marks the specified business processes as suspended.
+//
+// Parameters:
+//  Var_BusinessProcesses - Array of DefinedType.BusinessProcess
+//
+Procedure StopBusinessProcesses(Var_BusinessProcesses) Export
+	
+	BusinessProcessesAndTasksServer.StopBusinessProcesses(Var_BusinessProcesses);
+	
+EndProcedure
+
+// Marks the specified business process as suspended.
+//
+// Parameters:
+//  BusinessProcess - DefinedType.BusinessProcess
+//
+Procedure StopBusinessProcess(BusinessProcess) Export
+	
+	BusinessProcessesAndTasksServer.StopBusinessProcess(BusinessProcess);
+	
+EndProcedure
+
+// Marks the specified task as accepted for execution.
+//
+// Parameters:
+//   Var_Tasks - Array of TaskRef.PerformerTask
+//
+Procedure AcceptTasksForExecution(Var_Tasks) Export
+	
+	BusinessProcessesAndTasksServer.AcceptTasksForExecution(Var_Tasks);
+	
+EndProcedure
+
+// Marks the specified tasks as not accepted for execution.
+//
+// Parameters:
+//   Var_Tasks - Array of TaskRef.PerformerTask
+//
+Procedure CancelAcceptTasksForExecution(Var_Tasks) Export
+	
+	BusinessProcessesAndTasksServer.CancelAcceptTasksForExecution(Var_Tasks);
+	
+EndProcedure
+
+// Forwards "TasksToRedirect" to a new assignee specified in the "ForwardingInfo" structure.
 //
 // Parameters:
 //  RedirectedTasks_SSLs - Array of TaskRef.PerformerTask
@@ -115,385 +182,15 @@ EndProcedure
 Function ForwardTasks(Val RedirectedTasks_SSLs, Val ForwardingInfo, Val IsCheckOnly = False,
 	RedirectedTasks = Undefined) Export
 	
-	Result = True;
-	
-	TasksInfo = Common.ObjectsAttributesValues(RedirectedTasks_SSLs, "BusinessProcess,Executed");
-	BeginTransaction();
-	Try
-		For Each Task In TasksInfo Do
-			
-			If Task.Value.Executed Then
-				Result = False;
-				If IsCheckOnly Then
-					RollbackTransaction();
-					Return Result;
-				EndIf;
-			EndIf;
-			
-			BusinessProcessesAndTasksServer.LockTasks(Task.Key);
-			If ValueIsFilled(Task.Value.BusinessProcess) And Not Task.Value.BusinessProcess.IsEmpty() Then
-				BusinessProcessesAndTasksServer.LockBusinessProcesses(Task.Value.BusinessProcess);
-			EndIf;
-		EndDo;
-		
-		If IsCheckOnly Then
-			For Each Task In TasksInfo Do
-				TaskObject = Task.Key.GetObject();
-				TaskObject.Executed = False;
-				TaskObject.AdditionalProperties.Insert("Redirection1", True);
-				TaskObject.AdditionalProperties.Insert("IsCheckOnly",  True);
-				TaskObject.ExecuteTask();
-			EndDo;
-			RollbackTransaction();
-			Return Result;
-		EndIf;
-		
-		For Each Task In TasksInfo Do
-			
-			If Not ValueIsFilled(RedirectedTasks) Then
-				RedirectedTasks = New Array();
-			EndIf;
-			
-			// Don't set a deadlock on "Task" to allow forwarding the task from its form. 
-			// 
-			TaskObject = Task.Key.GetObject();
-			
-			SetPrivilegedMode(True);
-			NewTask = Tasks.PerformerTask.CreateTask();
-			NewTask.Fill(TaskObject);
-			FillPropertyValues(NewTask, ForwardingInfo, 
-				"Performer,PerformerRole,MainAddressingObject,AdditionalAddressingObject");
-			NewTask.Write();
-			SetPrivilegedMode(False);
-		
-			RedirectedTasks.Add(NewTask.Ref);
-			
-			TaskObject.ExecutionResult = ForwardingInfo.Comment; 
-			TaskObject.Executed = False;
-			TaskObject.AdditionalProperties.Insert("Redirection1", True);
-			TaskObject.ExecuteTask();
-			
-			SetPrivilegedMode(True);
-			SubordinateBusinessProcesses = BusinessProcessesAndTasksServer.SelectHeadTaskBusinessProcesses(Task.Key, True).Select();
-			SetPrivilegedMode(False);
-			While SubordinateBusinessProcesses.Next() Do
-				BusinessProcessObject = SubordinateBusinessProcesses.Ref.GetObject();
-				BusinessProcessObject.HeadTask = NewTask.Ref;
-				BusinessProcessObject.Write();
-			EndDo;
-			
-			SetPrivilegedMode(True);
-			SubordinateBusinessProcesses = BusinessProcessesAndTasksServer.MainTaskBusinessProcesses(Task.Key, True);
-			SetPrivilegedMode(False);
-			
-			For Each SubordinateBusinessProcess In SubordinateBusinessProcesses Do
-				BusinessProcessObject = SubordinateBusinessProcess.GetObject();
-				BusinessProcessObject.MainTask = NewTask.Ref;
-				BusinessProcessObject.Write();
-			EndDo;
-			
-			OnForwardTask(TaskObject, NewTask);
-			
-		EndDo;
-		
-		CommitTransaction();
-	Except
-		RollbackTransaction();
-		Result = False;
-		If Not IsCheckOnly Then
-			Raise;
-		EndIf;
-	EndTry;
-	
-	Return Result;
+	Return BusinessProcessesAndTasksServer.ForwardTasks(RedirectedTasks_SSLs, ForwardingInfo, IsCheckOnly,
+		RedirectedTasks);
 	
 EndFunction
-
-// Marks the specified business processes as active.
-//
-// Parameters:
-//  Var_BusinessProcesses - Array of DefinedType.BusinessProcess
-//
-Procedure ActivateBusinessProcesses(Var_BusinessProcesses) Export
-	
-	BeginTransaction();
-	Try
-		BusinessProcessesAndTasksServer.LockBusinessProcesses(Var_BusinessProcesses);
-		
-		For Each BusinessProcess In Var_BusinessProcesses Do
-			ActivateBusinessProcess(BusinessProcess);
-		EndDo;
-		
-		CommitTransaction();
-	Except
-		RollbackTransaction();
-		Raise;
-	EndTry;
-	
-EndProcedure
-
-// Marks the specified business processes as active.
-//
-// Parameters:
-//  BusinessProcess - DefinedType.BusinessProcess
-//
-Procedure ActivateBusinessProcess(BusinessProcess) Export
-	
-	If TypeOf(BusinessProcess) = Type("DynamicListGroupRow") Then
-		Return;
-	EndIf;
-	
-	BeginTransaction();
-	Try
-		BusinessProcessesAndTasksServer.LockBusinessProcesses(BusinessProcess);
-		
-		Object = BusinessProcess.GetObject();
-		If Object.State = Enums.BusinessProcessStates.Running Then
-			
-			If Object.Completed Then
-				Raise NStr("en = 'Cannot activate the completed business processes.';");
-			EndIf;
-			
-			If Not Object.Started Then
-				Raise NStr("en = 'Cannot activate the business processes that are not started yet.';");
-			EndIf;
-			
-			Raise NStr("en = 'The business process is already active.';");
-		EndIf;
-			
-		Object.Lock();
-		Object.State = Enums.BusinessProcessStates.Running;
-		Object.Write(); // CAC:1327 The lock is set earlier in the BusinessProcessesAndTasksServer.LockBusinessProcesses.
-		CommitTransaction();
-	Except
-		RollbackTransaction();
-		Raise;
-	EndTry;
-	
-EndProcedure
-
-// Marks the specified business processes as suspended.
-//
-// Parameters:
-//  Var_BusinessProcesses - Array of DefinedType.BusinessProcess
-//
-Procedure StopBusinessProcesses(Var_BusinessProcesses) Export
-	
-	BeginTransaction();
-	Try 
-		BusinessProcessesAndTasksServer.LockBusinessProcesses(Var_BusinessProcesses);
-		
-		For Each BusinessProcess In Var_BusinessProcesses Do
-			StopBusinessProcess(BusinessProcess);
-		EndDo;
-		CommitTransaction();
-	Except
-		RollbackTransaction();
-		WriteLogEvent(BusinessProcessesAndTasksServer.EventLogEvent(), EventLogLevel.Error,,, 
-			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		Raise;
-	EndTry;
-	
-EndProcedure
-
-// Marks the specified business process as suspended.
-//
-// Parameters:
-//  BusinessProcess - DefinedType.BusinessProcess
-//
-Procedure StopBusinessProcess(BusinessProcess) Export
-	
-	If TypeOf(BusinessProcess) = Type("DynamicListGroupRow") Then
-		Return;
-	EndIf;
-	
-	BeginTransaction();
-	Try
-		BusinessProcessesAndTasksServer.LockBusinessProcesses(BusinessProcess);
-		
-		Object = BusinessProcess.GetObject();
-		If Object.State = Enums.BusinessProcessStates.Suspended Then
-			
-			If Object.Completed Then
-				Raise NStr("en = 'Cannot suspend the completed business processes.';");
-			EndIf;
-				
-			If Not Object.Started Then
-				Raise NStr("en = 'Cannot suspend the business processes that are not started yet.';");
-			EndIf;
-			
-			Raise NStr("en = 'The business process is already suspended.';");
-		EndIf;
-		
-		Object.Lock();
-		Object.State = Enums.BusinessProcessStates.Suspended;
-		Object.Write(); // CAC:1327 The lock is set earlier in the BusinessProcessesAndTasksServer.LockBusinessProcesses.
-		CommitTransaction();
-	Except
-		RollbackTransaction();
-		Raise;
-	EndTry;
-	
-EndProcedure
-
-// Marks the specified task as accepted for execution.
-//
-// Parameters:
-//   Var_Tasks - Array of TaskRef.PerformerTask
-//
-Procedure AcceptTasksForExecution(Var_Tasks) Export
-	
-	NewTaskArray = New Array();
-	
-	BeginTransaction();
-	Try
-		BusinessProcessesAndTasksServer.LockTasks(Var_Tasks);
-		
-		For Each Task In Var_Tasks Do
-			
-			If TypeOf(Task) = Type("DynamicListGroupRow") Then
-				Continue;
-			EndIf;
-			
-			TaskObject = Task.GetObject();
-			If TaskObject.Executed Then
-				Continue;
-			EndIf;
-			
-			TaskObject.Lock();
-			TaskObject.AcceptedForExecution = True;
-			TaskObject.AcceptForExecutionDate = CurrentSessionDate();
-			If Not ValueIsFilled(TaskObject.Performer) Then
-				TaskObject.Performer = Users.AuthorizedUser();
-			EndIf;
-			TaskObject.Write(); // CAC:1327 The lock is set earlier in the BusinessProcessesAndTasksServer.LockTasks.
-			
-			NewTaskArray.Add(Task);
-			
-		EndDo;
-		CommitTransaction();
-	Except
-		RollbackTransaction();
-		Raise;
-	EndTry;
-	
-	Var_Tasks = NewTaskArray;
-	
-EndProcedure
-
-// Marks the specified tasks as not accepted for execution.
-//
-// Parameters:
-//   Var_Tasks - Array of TaskRef.PerformerTask
-//
-Procedure CancelAcceptTasksForExecution(Var_Tasks) Export
-	
-	NewTaskArray = New Array();
-	
-	BeginTransaction();
-	Try
-		BusinessProcessesAndTasksServer.LockTasks(Var_Tasks);
-		
-		For Each Task In Var_Tasks Do
-			
-			If TypeOf(Task) = Type("DynamicListGroupRow") Then 
-				Continue;
-			EndIf;
-			
-			TaskObject = Task.GetObject();
-			If TaskObject.Executed Then
-				Continue;
-			EndIf;
-			
-			TaskObject.Lock();
-			TaskObject.AcceptedForExecution = False;
-			TaskObject.AcceptForExecutionDate = "00010101000000";
-			If Not TaskObject.PerformerRole.IsEmpty() Then
-				TaskObject.Performer = Undefined;
-			EndIf;
-			TaskObject.Write(); // CAC:1327 The lock is set earlier in the BusinessProcessesAndTasksServer.LockTasks.
-			
-			NewTaskArray.Add(Task);
-			
-		EndDo;
-		CommitTransaction();
-	Except
-		RollbackTransaction();
-		Raise;
-	EndTry;
-	
-	Var_Tasks = NewTaskArray;
-	
-EndProcedure
-
-// Checks whether the specified task is the head one.
-//
-// Parameters:
-//  TaskRef  - TaskRef.PerformerTask
-//
-// Returns:
-//   Boolean
-//
-Function IsHeadTask(TaskRef) Export
-	
-	SetPrivilegedMode(True);
-	Result = BusinessProcessesAndTasksServer.SelectHeadTaskBusinessProcesses(TaskRef);
-	Return Not Result.IsEmpty();
-	
-EndFunction
-
-// Generates a choice list for picking assignees in input fields of flexible type ("User" and "Role").
-//
-// Parameters:
-//  Text - String - a text fragment to search for possible assignees.
-// 
-// Returns:
-//  ValueList - a selection list containing possible assignees.
-//
-Function GeneratePerformerChoiceData(Text) Export
-	
-	ChoiceData = New ValueList;
-	
-	Query = New Query;
-	Query.Text = 
-	"SELECT ALLOWED
-	|	Users.Ref AS Ref
-	|FROM
-	|	Catalog.Users AS Users
-	|WHERE
-	|	Users.Description LIKE &Text ESCAPE ""~""
-	|	AND Users.Invalid = FALSE
-	|	AND Users.IsInternal = FALSE
-	|	AND Users.DeletionMark = FALSE
-	|
-	|UNION ALL
-	|
-	|SELECT
-	|	PerformerRoles.Ref
-	|FROM
-	|	Catalog.PerformerRoles AS PerformerRoles
-	|WHERE
-	|	PerformerRoles.Description LIKE &Text ESCAPE ""~""
-	|	AND NOT PerformerRoles.DeletionMark";
-	Query.SetParameter("Text", Common.GenerateSearchQueryString(Text) + "%");
-	
-	Selection = Query.Execute().Select();
-	While Selection.Next() Do
-		ChoiceData.Add(Selection.Ref);
-	EndDo;
-	
-	Return ChoiceData;
-	
-EndFunction
-
-#EndRegion
-
-#Region Private
 
 // Returns:
 //  Number
 //
-Function UncompletedBusinessProcessesTasksCount(Var_BusinessProcesses) Export
+Function UncompletedBusinessProcessesTasksCount(Val Var_BusinessProcesses) Export
 	
 	BusinessProcessesArray = New Array;
 	For Each BusinessProcess In Var_BusinessProcesses Do
@@ -524,7 +221,7 @@ EndFunction
 // Returns:
 //  Number
 //
-Function UncompletedBusinessProcessTasksCount(BusinessProcess) Export
+Function UncompletedBusinessProcessTasksCount(Val BusinessProcess) Export
 	
 	Return UncompletedBusinessProcessesTasksCount(CommonClientServer.ValueInArray(BusinessProcess));
 	
@@ -534,7 +231,7 @@ EndFunction
 //  - BusinessProcessRef
 //  - Undefined
 //
-Function MarkBusinessProcessesForDeletion(SelectedRows) Export
+Function MarkBusinessProcessesForDeletion(Val SelectedRows) Export
 	
 	Count = 0;
 	For Each TableRow In SelectedRows Do
@@ -557,23 +254,5 @@ Function MarkBusinessProcessesForDeletion(SelectedRows) Export
 	EndDo;
 	Return ?(Count = 1, SelectedRows[0].Owner, Undefined);
 EndFunction
-
-Procedure OnForwardTask(TaskObject, NewTaskObject) 
-	
-	If TaskObject.BusinessProcess = Undefined Or TaskObject.BusinessProcess.IsEmpty() Then
-		Return;
-	EndIf;
-	
-	AttachedBusinessProcesses = New Map;
-	AttachedBusinessProcesses.Insert(Metadata.BusinessProcesses.Job.FullName(), "");
-	BusinessProcessesAndTasksOverridable.OnDetermineBusinessProcesses(AttachedBusinessProcesses);
-	
-	BusinessProcessType = TaskObject.BusinessProcess.Metadata();
-	BusinessProcessInfo = AttachedBusinessProcesses[BusinessProcessType.FullName()];
-	If BusinessProcessInfo <> Undefined Then 
-		BusinessProcesses[BusinessProcessType.Name].OnForwardTask(TaskObject.Ref, NewTaskObject.Ref);
-	EndIf;
-	
-EndProcedure
 
 #EndRegion

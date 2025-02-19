@@ -16,21 +16,21 @@
 
 Procedure BeforeWrite(Cancel)
 	
-	// The DataExchange.Import check is performed in the nested procedure.
+	// DataExchange.Load is checked in the called procedure.
 	Catalogs.MetadataObjectIDs.BeforeWriteObject(ThisObject);
 	
 EndProcedure
 
 Procedure OnWrite(Cancel)
 	
-	// The "DataExchange.Import" check is performed in the nested procedure.
+	// DataExchange.Load is checked in the called procedure.
 	Catalogs.MetadataObjectIDs.AtObjectWriting(ThisObject);
 	
 EndProcedure
 
 Procedure BeforeDelete(Cancel)
 	
-	// The DataExchange.Import check is performed in the nested procedure.
+	// DataExchange.Load is checked in the called procedure.
 	Catalogs.MetadataObjectIDs.BeforeDeleteObject(ThisObject);
 	
 EndProcedure

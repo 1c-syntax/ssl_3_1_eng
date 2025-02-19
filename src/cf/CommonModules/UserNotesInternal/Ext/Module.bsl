@@ -19,13 +19,10 @@ Procedure OnDefineObjectsWithEditableAttributes(Objects) Export
 EndProcedure
 
 // See CommonOverridable.OnAddMetadataObjectsRenaming.
-Procedure OnAddMetadataObjectsRenaming(Total) Export
+Procedure OnAddMetadataObjectsRenaming(Renamings) Export
 	
-	Library = "StandardSubsystems";
-	
-	OldName = "Role.UsingNotes";
-	NewName  = "Role.AddEditNotes";
-	Common.AddRenaming(Total, "2.3.3.11", OldName, NewName, Library);
+	Common.AddRenaming(Renamings, "2.3.3.11", 
+		"Role.UsingNotes", "Role.AddEditNotes", "StandardSubsystems");
 	
 EndProcedure
 

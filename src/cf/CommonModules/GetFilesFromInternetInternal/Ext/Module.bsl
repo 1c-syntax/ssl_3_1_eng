@@ -74,7 +74,7 @@ Procedure SaveServerProxySettings(Val Settings) Export
 	EndIf;
 	
 	SetPrivilegedMode(True);
-	Constants.ProxyServerSetting.Set(New ValueStorage(Settings));
+	Constants.ProxyServerSetting.Set(New ValueStorage(Settings, New Deflation(9)));
 	
 EndProcedure
 
@@ -185,6 +185,19 @@ EndFunction
 //
 Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 	Val ProxySettings, Val WriteError1, Redirections = Undefined)
+	
+	If ConnectionSetting.ShouldCheckAccessToInternetServices And Not Common.AccessToInternetServicesAllowed() Then
+		
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Couldn''t get the file ""%1"" due to:
+					|%2';"), URL, Common.AccessToInternetServicesDeniedMessageText());
+					
+			If WriteError1 Then
+				WriteErrorToEventLog(ErrorText);
+			EndIf;
+		Return FileGetResult(False, ErrorText);
+		
+	EndIf;
 	
 	URIStructure = CommonClientServer.URIStructure(URL);
 	
@@ -354,8 +367,10 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 			
 		Except
 			
+			BriefErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+			
 			DiagnosticsResult = GetFilesFromInternet.ConnectionDiagnostics(URL, WriteError1,
-				IsPackageDeliveryCheckOnErrorEnabled);
+				IsPackageDeliveryCheckOnErrorEnabled, BriefErrorDescription);
 			
 			ErrorTemplate = NStr("en = 'Cannot establish HTTP connection to server %1:%2.
 				|Reason:
@@ -379,7 +394,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 				
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
 				Server, Format(Port, "NG="),
-				ErrorProcessing.BriefErrorDescription(ErrorInfo()),
+				BriefErrorDescription,
 				DiagnosticsResult.ErrorDescription);
 			Return FileGetResult(False, ErrorText);
 			
@@ -626,7 +641,7 @@ Function HTTPConnectionCodeDetails(StatusCode)
 	ElsIf StatusCode = 404 Then // Not Found
 		Details = NStr("en = 'The requested resource does not exist on the server.';");
 	ElsIf StatusCode = 405 Then // Method Not Allowed
-		Details = NStr("en = 'The server does not support the request method.';");
+		Details = NStr("en = 'The request method is not supported by the server.';");
 	ElsIf StatusCode = 406 Then // Not Acceptable
 		Details = NStr("en = 'The server does not support the requested data format.';");
 	ElsIf StatusCode = 407 Then // Proxy Authentication Required
@@ -1083,7 +1098,7 @@ Function ServerRouteTraceLog(ServerAddress) Export
 		CommandTemplate = "tracert -w 100 -h 15 %1";
 	Else 
 		// If traceroute is not installed, the output stream will have an error.
-		// You can ignore that since the output is not parseable.
+		// You can ignore that since the output is not parsable.
 		// For the administrator, it will be clear what utility should be installed.
 		CommandTemplate = "traceroute -w 100 -m 100 %1";
 	EndIf;

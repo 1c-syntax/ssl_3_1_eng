@@ -146,7 +146,7 @@ Procedure CancelMapping(Command)
 	Buttons.Add("KeepMapping", NStr("en = 'Keep mapping';"));
 	
 	ShowQueryBox(
-		New NotifyDescription("CancelMappingFollowUp", ThisObject),
+		New CallbackDescription("CancelMappingFollowUp", ThisObject),
 		NStr("en = 'Do you want to clear the mapping between the infobase user and the application user?
 		           |
 		           |It is required in rare cases when a mapping is incorrect
@@ -451,7 +451,7 @@ EndProcedure
 Procedure DeleteCurrentIBUser(DeleteRow = False)
 	
 	ShowQueryBox(
-		New NotifyDescription("DeleteCurrentIBUserCompletion", ThisObject, DeleteRow),
+		New CallbackDescription("DeleteCurrentIBUserCompletion", ThisObject, DeleteRow),
 		NStr("en = 'Do you want to delete the infobase user?';"),
 		QuestionDialogMode.YesNo);
 	
@@ -477,7 +477,7 @@ Procedure MapIBUser(WithNew = False)
 	
 	If UsersTypes.Count() > 1 Then
 		UsersTypes.ShowChooseItem(
-			New NotifyDescription("MapIBUserForItemType", ThisObject, WithNew),
+			New CallbackDescription("MapIBUserForItemType", ThisObject, WithNew),
 			NStr("en = 'Select data type';"),
 			UsersTypes[0]);
 	Else
@@ -501,7 +501,7 @@ Procedure MapIBUserForItemType(ListItem, WithNew) Export
 		FormParameters.Insert("NonExistingIBUsersIDs", NonExistingIBUsersIDs);
 		
 		OpenForm("Catalog." + CatalogName + ".ChoiceForm", FormParameters,,,,,
-			New NotifyDescription("MapIBUserToItem", ThisObject, CatalogName));
+			New CallbackDescription("MapIBUserToItem", ThisObject, CatalogName));
 	Else
 		MapIBUserToItem("New", CatalogName);
 	EndIf;

@@ -13,12 +13,10 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	ArrayOfSaveFormatsRestrictions = StrSplit(Parameters.RestrictionOfSaveFormats, ",", False);
-	
-	// Populate format list.
+	RestrictionOfSaveFormats = StrSplit(Parameters.RestrictionOfSaveFormats, ",", False);
 	For Each SaveFormat In PrintManagement.SpreadsheetDocumentSaveFormatsSettings() Do
-		If Not ArrayOfSaveFormatsRestrictions.Count()
-			Or ArrayOfSaveFormatsRestrictions.Find(SaveFormat.Extension) <> Undefined Then
+		If Not RestrictionOfSaveFormats.Count()
+			Or RestrictionOfSaveFormats.Find(SaveFormat.Extension) <> Undefined Then
 				
 			SelectedSaveFormats.Add(String(SaveFormat.SpreadsheetDocumentFileType), SaveFormat.Presentation, False, SaveFormat.Picture);
 		EndIf;
@@ -31,14 +29,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ElsIf SelectedSaveFormats.Count() > 1 Then
 		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, "");
 	EndIf;
+
+	AttachmentObjects = ObjectsToAttach(Parameters.PrintObjects);
 	
-	// Default save destination.
-	SavingOption = "SaveToFolder";
-	
-	// Visibility setup.
 	CanBeSaved = Parameters.PrintObjects.Count() > 0;
-	
-	AttachmentObjects = GetObjectsToAttach(Parameters.PrintObjects);
 	If Parameters.PrintObjects.Count() = 1 Then
 		HasOpportunityToAttach = AttachmentObjects[0].Check;
 	ElsIf CanBeSaved Then
@@ -51,7 +45,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	AttachableItem = Items.SavingOption.ChoiceList.FindByValue("Join");
-	
 	If Not HasOpportunityToAttach Then
 		Items.SavingOption.ChoiceList.Delete(AttachableItem);
 		AttachableItem = Undefined;
@@ -61,21 +54,38 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Items.SelectFileSaveLocation.Visible = Parameters.FileOperationsExtensionAttached 
 		Or CanBeSaved;
-	Items.SavingOption.Visible = CanBeSaved;
-	If Not CanBeSaved Then
-		Items.FolderToSaveFiles.TitleLocation = FormItemTitleLocation.Top;
-	EndIf;
-	Items.FolderToSaveFiles.Visible = Parameters.FileOperationsExtensionAttached;
-	
 	If Parameters.PrintObjects.Count() > 1 And AttachableItem <> Undefined Then
 		AttachableItem.Presentation = NStr("en = 'Attach to documents';")
 				+ " (" + Format(Parameters.PrintObjects.Count(), "NFD=0;") + ")";
+	EndIf;
+
+	If Parameters.Purpose = "AttachedFiles" Then
+		SavingOption = "Join";
+		Items.SavingOption.Visible = False;
+		Items.FilesSaveDirectory.Visible = False;
+		Title = AttachableItem.Presentation;
+		AutoTitle = False;
+		Items.SaveButton.Title =  NStr("en = 'Attach';");
+	ElsIf Parameters.Purpose = "Computer" Then
+		SavingOption = "SaveToFolder";
+		Items.SavingOption.Visible = False;
+		Items.FilesSaveDirectory.TitleLocation = FormItemTitleLocation.Top;
+		Items.FilesSaveDirectory.Visible = Parameters.FileOperationsExtensionAttached;
+	Else	
+		SavingOption = "SaveToFolder";
+		Items.SavingOption.Visible = CanBeSaved;
+		If Not CanBeSaved Then
+			Items.FilesSaveDirectory.TitleLocation = FormItemTitleLocation.Top;
+		EndIf;
+		Items.FilesSaveDirectory.Visible = Parameters.FileOperationsExtensionAttached;
 	EndIf;
 	
 	If Common.IsMobileClient() Then
 		CommandBarLocation = FormCommandBarLabelLocation.Auto;
 		Items.SaveButton.Representation = ButtonRepresentation.Picture;
 		Items.Sign.Visible = False;
+		Item = Items.SavingOption.ChoiceList.FindByValue("SaveToFolder");
+		Item.Presentation = NStr("en = 'Save to device';");
 	EndIf;
 	
 EndProcedure
@@ -118,6 +128,10 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	SetSaveLocationPage();
+	If Parameters.Purpose = "Computer" Then
+		FileSystemClient.SelectDirectory(
+			New CallbackDescription("FolderToSaveFilesSelectionCompletion", ThisObject));
+	EndIf;
 EndProcedure
 
 #EndRegion
@@ -134,7 +148,8 @@ EndProcedure
 Procedure FolderToSaveFilesStartChoice(Item, ChoiceData, StandardProcessing)
 
 	SelectedFolder = Item.EditText;
-	FileSystemClient.SelectDirectory(New NotifyDescription("FolderToSaveFilesSelectionCompletion", ThisObject), , SelectedFolder);
+	FileSystemClient.SelectDirectory(
+		New CallbackDescription("FolderToSaveFilesSelectionCompletion", ThisObject), , SelectedFolder);
 	
 EndProcedure
 
@@ -156,15 +171,14 @@ EndProcedure
 &AtClient
 Procedure Save(Command)
 	
-	If Items.FolderToSaveFiles.Visible Then
+	If Items.FilesSaveDirectory.Visible Then
 		If SavingOption = "SaveToFolder" And IsBlankString(SelectedFolder) Then
-			CommonClient.MessageToUser(NStr("en = 'Select a folder.';"),,"SelectedFolder");
+			CommonClient.MessageToUser(NStr("en = 'Choose a directory.';"),, "SelectedFolder");
 			Return;
 		EndIf;
 	EndIf;
 		
 	SaveFormats = New Array;
-	
 	For Each SelectedFormat In SelectedSaveFormats Do
 		If SelectedFormat.Check Then
 			SaveFormats.Add(SelectedFormat.Value);
@@ -172,7 +186,7 @@ Procedure Save(Command)
 	EndDo;
 	
 	If SaveFormats.Count() = 0 Then
-		ShowMessageBox(,NStr("en = 'Specify at least one of the suggested formats.';"));
+		ShowMessageBox(,NStr("en = 'Choose one of the suggested formats.';"));
 		Return;
 	EndIf;
 	
@@ -184,41 +198,42 @@ Procedure Save(Command)
 	SelectionResult.Insert("TransliterateFilesNames", TransliterateFilesNames);
 	SelectionResult.Insert("Sign", Sign);
 	
-	If SavingOption = "Join" Then
-		ErrorString = "";
-		ObjectsToAttach = New Map; 
-		For Each ObjectOfAttachment In AttachmentObjects Do
-			If Not ObjectOfAttachment.Check Then
-				ErrorString = ErrorString + ObjectOfAttachment.Value;
-			Else
-				ObjectsToAttach.Insert(ObjectOfAttachment.Value, True);
-			EndIf;
-		EndDo;
-		
-		SelectionResult.Insert("ObjectsToAttach", ObjectsToAttach);
-		
-		If ErrorString <> "" Then
-			SaveFollowUpNotificationDetails = New NotifyDescription("ResumeSaving", ThisObject, SelectionResult);
-			
-			QueryText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot attach the objects:
-			| %1';"), ErrorString);
-			
-			Buttons = New ValueList;
-			Buttons.Add("Cancel", NStr("en = 'Cancel';"));
-			Buttons.Add("Continue", NStr("en = 'Continue';"));
-			
-			QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
-			QuestionParameters.Title = NStr("en = 'Insufficient rights to attach';");
-			QuestionParameters.LockWholeInterface = True;
-			QuestionParameters.PromptDontAskAgain = False;
-			
-			StandardSubsystemsClient.ShowQuestionToUser(SaveFollowUpNotificationDetails, QueryText, Buttons, QuestionParameters);
-		Else
-			NotifyChoice(SelectionResult);
-		EndIf;
-	Else
+	If SavingOption = "SaveToFolder" Then
 		NotifyChoice(SelectionResult);
+		Return;
+	EndIf;	
+	
+	ErrorString = "";
+	ObjectsToAttach = New Map; 
+	For Each ObjectOfAttachment In AttachmentObjects Do
+		If Not ObjectOfAttachment.Check Then
+			ErrorString = ErrorString + ObjectOfAttachment.Value;
+		Else
+			ObjectsToAttach.Insert(ObjectOfAttachment.Value, True);
+		EndIf;
+	EndDo;
+	
+	SelectionResult.Insert("ObjectsToAttach", ObjectsToAttach);
+	
+	If IsBlankString(ErrorString) Then
+		NotifyChoice(SelectionResult);
+		Return;
 	EndIf;
+
+	QueryText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The file will not be attached to the documents:
+		|%1';"), ErrorString);
+	
+	Buttons = New ValueList;
+	Buttons.Add("Cancel", NStr("en = 'Cancel';"));
+	Buttons.Add("Continue", NStr("en = 'Continue';"));
+	
+	QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
+	QuestionParameters.Title = NStr("en = 'Insufficient rights to attach the file';");
+	QuestionParameters.LockWholeInterface = True;
+	QuestionParameters.PromptDontAskAgain = False;
+	
+	NotifyDescription = New CallbackDescription("SaveAfterConfirm", ThisObject, SelectionResult);
+	StandardSubsystemsClient.ShowQuestionToUser(NotifyDescription, QueryText, Buttons, QuestionParameters);
 	
 EndProcedure
 
@@ -229,32 +244,42 @@ EndProcedure
 &AtClient
 Procedure SetSaveLocationPage()
 	
-	If Items.FolderToSaveFiles.Visible Then
-		Items.FolderToSaveFiles.Enabled = Not SavingOption = "Join";
-	EndIf
+	If Items.FilesSaveDirectory.Visible Then
+		Items.FilesSaveDirectory.Enabled = SavingOption <> "Join";
+	EndIf;
 	
 EndProcedure
 
 &AtClient
-Procedure ResumeSaving(QuestionResult, SelectionResult) Export
+Procedure SaveAfterConfirm(QuestionResult, SelectionResult) Export
 	If QuestionResult.Value = "Cancel" Then
 		Close();
-	Else
-		NotifyChoice(SelectionResult);
+		Return;
 	EndIf;
+	NotifyChoice(SelectionResult);
 EndProcedure
 
 &AtServerNoContext
-Function GetObjectsToAttach(PrintObjects)
+Function ObjectsToAttach(PrintObjects)
 	Result = New ValueList;
 	ModuleAccessManagement = Undefined;
+	ModuleFilesOperations = Undefined;
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 	EndIf;
+	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
+		ModuleFilesOperations = Common.CommonModule("FilesOperations");
+	EndIf;
 	
 	For Each PrintObject In PrintObjects Do
-		Result.Add(PrintObject.Value,,?(ModuleAccessManagement <> Undefined, 
-			ModuleAccessManagement.EditionAllowed(PrintObject.Value), True)); 
+		Check = False;
+		If ModuleAccessManagement <> Undefined Then
+			Check = Check Or ModuleAccessManagement.EditionAllowed(PrintObject.Value);
+		EndIf;
+		If ModuleFilesOperations <> Undefined Then
+			Check = Check And ModuleFilesOperations.CanAttachFilesToObject(PrintObject.Value);
+		EndIf;
+		Result.Add(PrintObject.Value,,Check); 
 	EndDo;
 	
 	Return Result;

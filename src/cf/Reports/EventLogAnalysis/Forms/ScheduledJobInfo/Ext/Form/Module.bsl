@@ -12,7 +12,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	DetailsFromReport = CommonClientServer.StructureProperty(Parameters, "DetailsFromReport");
+	DetailsFromReport = Parameters.DetailsFromReport; // Array
 	If DetailsFromReport <> Undefined Then
 		Report = Reports.EventLogAnalysis.ScheduledJobDetails1(DetailsFromReport).Report;
 		
@@ -63,7 +63,8 @@ Procedure ReportDetailProcessing(Item, Details, StandardProcessing)
 	EndDate = Details.Get(1);
 	ScheduledJobSession.Clear();
 	ScheduledJobSession.Add(Details.Get(2)); 
-	EventLogFilter = New Structure("Session, StartDate, EndDate", ScheduledJobSession, StartDate, EndDate);
+	EventLogFilter = New Structure("Session, StartDate, EndDate", 
+		ScheduledJobSession, StartDate, EndDate);
 	OpenForm("DataProcessor.EventLog.Form.EventLog", EventLogFilter);
 	
 EndProcedure
@@ -76,12 +77,9 @@ EndProcedure
 Procedure ConfigureJobSchedule(Command)
 	
 	If ValueIsFilled(ScheduledJobID) Then
-		
+		NotifyDescription = New CallbackDescription("ConfigureJobScheduleCompletion", ThisObject);
 		Dialog = New ScheduledJobDialog(GetSchedule());
-		
-		NotifyDescription = New NotifyDescription("ConfigureJobScheduleCompletion", ThisObject);
 		Dialog.Show(NotifyDescription);
-		
 	Else
 		ShowMessageBox(,NStr("en = 'Cannot change the job''s schedule: The scheduled job does not exist in this app version.';"));
 	EndIf;

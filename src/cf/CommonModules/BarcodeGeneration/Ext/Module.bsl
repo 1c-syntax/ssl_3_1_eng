@@ -59,7 +59,7 @@
 //   * VerticalAlignment - Number - vertical alignment of a barcode.
 //      Possible values: 1 - Top, 2 - Center, 3 - Bottom
 //   * GS1DatabarRowsCount - Number - a number of rows in the GS1Databar barcode.
-//   * RemoveExtraBackgroud - Boolean
+//   * RemoveExtraBackground - Boolean
 //   * LogoImage - String - a string with base64 presentation of a PNG logo image.
 //   * LogoSizePercentFromBarcode - Number - a percentage of the generated QR code to add a logo.
 //
@@ -80,7 +80,7 @@ Function BarcodeGenerationParameters() Export
 	BarcodeParameters.Insert("VerticalAlignment" , 1); 
 	BarcodeParameters.Insert("GS1DatabarRowsCount", 2);
 	BarcodeParameters.Insert("InputDataType", 0);
-	BarcodeParameters.Insert("RemoveExtraBackgroud" , False); 
+	BarcodeParameters.Insert("RemoveExtraBackground" , False); 
 	BarcodeParameters.Insert("LogoImage");
 	BarcodeParameters.Insert("LogoSizePercentFromBarcode");       
 	BarcodeParameters.Insert("NewChallengeComponents", False);  
@@ -145,12 +145,12 @@ EndFunction
 // 
 // Example:
 //  
-//  // Printing a QR code containing information encrypted according to UFEBM.
+//  Print a QR code containing information encrypted according to UFEBM.
 //
 //  QRString = PrintManagement.UFEBMFormatString(PaymentDetails);
 //  ErrorText = "";
-//  QRCodeData = AccessManagement.QRCodeData(QRString, 0, 190, ErrorText);
-//  If Not BlankString (ErrorText)
+//  QRCodeData = PrintManagement.QRCodeData(QRString, 0, 190, ErrorText);
+//  If Not IsBlankString(ErrorText)
 //      Common.MessageToUser(ErrorText);
 //  EndIf;
 //
@@ -165,7 +165,7 @@ Function QRCodeData(QRString, CorrectionLevel, Size) Export
 	BarcodeParameters.Barcode = QRString;
 	BarcodeParameters.QRErrorCorrectionLevel = CorrectionLevel;
 	BarcodeParameters.CodeType = 16; // QR
-	BarcodeParameters.RemoveExtraBackgroud = True;
+	BarcodeParameters.RemoveExtraBackground = True;
 	
 	Try
 		TheResultOfTheFormationOfBarcode = TheImageOfTheBarcode(BarcodeParameters);
@@ -317,7 +317,7 @@ Function PrepareABarcodeImage(AddIn, BarcodeParameters)
 	XMLWriter.WriteEndElement();
 	// Indicates if the generator should crop the image border.
 	XMLWriter.WriteStartElement("RemoveExeedBackgroud");   
-	XMLWriter.WriteText(XMLString(BarcodeParameters.RemoveExtraBackgroud));
+	XMLWriter.WriteText(XMLString(BarcodeParameters.RemoveExtraBackground));
 	XMLWriter.WriteEndElement();
 	// Rotation angle.     
 	CanvasRotation = Number(?(BarcodeParameters.Property("CanvasRotation"), BarcodeParameters.CanvasRotation, 0));
@@ -329,7 +329,7 @@ Function PrepareABarcodeImage(AddIn, BarcodeParameters)
 	XMLWriter.WriteStartElement("QRErrorCorrectionLevel");   
 	XMLWriter.WriteText(XMLString(QRErrorCorrectionLevel));
 	XMLWriter.WriteEndElement();
-	// Indicate whether to display the barcode title.
+	// Barcode title display flag.
 	XMLWriter.WriteStartElement("TextVisible");   
 	XMLWriter.WriteText(XMLString(BarcodeParameters.ShowText));
 	XMLWriter.WriteEndElement();
@@ -476,8 +476,8 @@ Function PrepareBarcodeImageOfProperty(AddIn, BarcodeParameters)
 		AddIn.GS1DatabarRowCount = BarcodeParameters.GS1DatabarRowsCount;
 	EndIf;
 	
-	If BarcodeParameters.Property("RemoveExtraBackgroud") Then
-		AddIn.RemoveExtraBackgroud = BarcodeParameters.RemoveExtraBackgroud;
+	If BarcodeParameters.Property("RemoveExtraBackground") Then
+		AddIn.RemoveExtraBackground = BarcodeParameters.RemoveExtraBackground;
 	EndIf;
 	
 	AddIn.TextVisible = BarcodeParameters.ShowText;

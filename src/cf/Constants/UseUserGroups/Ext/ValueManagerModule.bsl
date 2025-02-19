@@ -26,7 +26,7 @@ Procedure BeforeWrite(Cancel)
 	
 	If Common.IsStandaloneWorkplace() Then
 		ErrorText =
-			NStr("en = 'To change the usage of user groups, go to the app in the service.';");
+			NStr("en = 'User groups can only be customized in the SaaS version.';");
 		Raise ErrorText;
 		
 	ElsIf Common.IsSubordinateDIBNode() Then

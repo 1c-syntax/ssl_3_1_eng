@@ -14,20 +14,20 @@
 //      FieldValues - String - Serialized value of the contact information. 
 //                                Or an empty string for a new input.
 //      Presentation - String  - Address presentation (used for managing old data).
-//      ContactInformationKind - CatalogRef.ContactInformationKinds, Structure - Details of the contact information to edit.
-//                                Comment - String - Optional text for the "Comment" field.
+//      ContactInformationKind - CatalogRef.ContactInformationKinds, Structure - Details of the contact information
+//                                to edit.
+//      Comment - String - Optional text for the "Comment" field.
+//
 //      ReturnValueList - Boolean - Optional flag indicating if the return value of the "ContactInformation" field
+//                                 has the "ValueList" data type (intended for compatibility).
 //
-//      has the "ValueList" data type (intended for compatibility).
-//                                 Selection result:
-//
-//  Structure - Has the following fields:
-//      * ContactInformation - String - XML data of the contact information.
+//  Selection result:
+//      Structure - Has the following fields:
+//          * ContactInformation - String - XML data of the contact information.
 //          * Presentation - String - Data presentation.
 //          * Comment - String - Comment to the contact information.
-//          * EnteredInFreeFormat - Boolean - Arbitrary input flag.
 //
-// -------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------- 
 
 #Region FormEventHandlers
 
@@ -50,11 +50,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Title = ?(IsBlankString(Parameters.Title), String(ContactInformationKind), Parameters.Title);
 	IsNew = False;
 	
-	FieldValues = DefineAddressValue(Parameters);
+	FieldValues = DetermineContactInformationValue(Parameters);
 	
 	If Not EnterNumberByMask And Metadata.DataProcessors.Find("AdvancedContactInformationInput") <> Undefined Then
-		
-		TipsWhenEnteringAPhoneNumber = DataProcessors["AdvancedContactInformationInput"].TipsWhenEnteringAPhoneNumber();
+		ModuleAdvancedContactInformationInput = Common.CommonModule("DataProcessors.AdvancedContactInformationInput");
+		TipsWhenEnteringAPhoneNumber = ModuleAdvancedContactInformationInput.TipsWhenEnteringAPhoneNumber();
 		Items.CountryCode.InputHint = TipsWhenEnteringAPhoneNumber.CountryCode;
 		Items.CityCode.InputHint = TipsWhenEnteringAPhoneNumber.CityCode;
 		Items.PhoneNumber.InputHint = TipsWhenEnteringAPhoneNumber.PhoneNumber;
@@ -70,31 +70,37 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Data = ContactsManagerInternal.JSONToContactInformationByFields(FieldValues, Enums.ContactInformationTypes.Phone);
 	Else
 		
-		If ContactsManagerInternalCached.IsLocalizationModuleAvailable() Then
-			ModuleContactsManagerLocalization = Common.CommonModule("ContactsManagerLocalization");
-		
-			If ContactsManagerClientServer.IsXMLContactInformation(FieldValues) Then
-				ReadResults = New Structure;
-				ContactInformation = ModuleContactsManagerLocalization.ContactsFromXML(FieldValues, ContactInformationType, ReadResults);
-				If ReadResults.Property("ErrorText") Then
-					// Recognition errors. A warning must be displayed when opening the form.
-					WarningTextOnOpen = ReadResults.ErrorText;
-					ContactInformation.Presentation = Parameters.Presentation;
-				EndIf;
-					
-				Else
-					If ContactInformationType = Enums.ContactInformationTypes.Phone Then
-						ContactInformation = ModuleContactsManagerLocalization.PhoneDeserialization(FieldValues, Parameters.Presentation, ContactInformationType);
-					Else
-						ContactInformation = ModuleContactsManagerLocalization.FaxDeserialization(FieldValues, Parameters.Presentation, ContactInformationType);
-					EndIf;
-			EndIf;
+		If ContactsManagerClientServer.IsXMLContactInformation(FieldValues) Then
 			
+			ReadResults     = New Structure;
+			ContactInformation = Undefined;
+			
+			ContactsManagerLocalization.OnConvertContactInformationFromXML(FieldValues, ContactInformation, ContactInformationType, ReadResults);
+			If ReadResults.Property("ErrorText") Then
+				// Recognition errors. A warning must be displayed when opening the form.
+				WarningTextOnOpen = ReadResults.ErrorText;
+				ContactInformation.Presentation = Parameters.Presentation;
+			EndIf;
+				
+		Else
+			ContactInformation = Undefined;
+			If ContactInformationType = Enums.ContactInformationTypes.Phone Then
+				ContactsManagerLocalization.OnConvertPhoneToXDTOObject(FieldValues, 
+					ContactInformation, Parameters.Presentation, ContactInformationType);
+					
+			Else
+				ContactsManagerLocalization.OnConvertFaxToXDTOObject(FieldValues, 
+					ContactInformation, Parameters.Presentation, ContactInformationType);
+				
+			EndIf;
+		EndIf;
+			
+		If ContactInformation <> Undefined Then
 			Data = ContactsManagerInternal.ContactInformationToJSONStructure(ContactInformation, ContactInformationType);
 		Else
 			Data = ContactsManager.NewContactInformationDetails(ContactInformationType);
 		EndIf;
-		
+			
 	EndIf;
 		
 	ContactInformationAttibutesValues(Data); 
@@ -169,7 +175,7 @@ EndProcedure
 &AtClient
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
-	Notification = New NotifyDescription("ConfirmAndClose", ThisObject);
+	Notification = New CallbackDescription("ConfirmAndClose", ThisObject);
 	CommonClient.ShowFormClosingConfirmation(Notification, Cancel, Exit);
 	
 EndProcedure
@@ -365,27 +371,24 @@ EndFunction
 &AtServer
 Function CommentChoiceOnlyResult()
 	
-	ContactInfo = DefineAddressValue(Parameters);
-	If IsBlankString(ContactInfo) Then
-		
-		If ContactsManagerInternalCached.IsLocalizationModuleAvailable() Then
-			ModuleContactsManagerLocalization = Common.CommonModule("ContactsManagerLocalization");
+	ContactInformationValue = DetermineContactInformationValue(Parameters);
+	If IsBlankString(ContactInformationValue) Then
 		
 			If ContactInformationType = Enums.ContactInformationTypes.Phone Then
-				ContactInfo = ModuleContactsManagerLocalization.PhoneDeserialization("", "", ContactInformationType);
+				ContactsManagerLocalization.OnConvertPhoneToXDTOObject("", ContactInformationValue, "", ContactInformationType);
 			Else
-				ContactInfo = ModuleContactsManagerLocalization.FaxDeserialization("", "", ContactInformationType);
+				ContactsManagerLocalization.OnConvertFaxToXDTOObject("", ContactInformationValue, "", ContactInformationType);
 			EndIf;
-			ContactsManager.SetContactInformationComment(ContactInfo, Comment);
-			ContactInfo = ContactsManager.ContactInformationToXML(ContactInfo);
-		EndIf;
-		
-	ElsIf ContactsManagerClientServer.IsXMLContactInformation(ContactInfo) Then
-		ContactsManager.SetContactInformationComment(ContactInfo, Comment);
+			
+			ContactsManager.SetContactInformationComment(ContactInformationValue, Comment);
+			ContactInformationValue = ContactsManager.ContactInformationToXML(ContactInformationValue);
+			
+	ElsIf ContactsManagerClientServer.IsXMLContactInformation(ContactInformationValue) Then
+		ContactsManager.SetContactInformationComment(ContactInformationValue, Comment);
 	EndIf;
 	
 	Return New Structure("ContactInformation, Presentation, Comment",
-		ContactInfo, Parameters.Presentation, Comment);
+		ContactInformationValue, Parameters.Presentation, Comment);
 EndFunction
 
 // Fills in form attributes based on XTDO object of the Contact information type.
@@ -402,7 +405,7 @@ Procedure ContactInformationAttibutesValues(InformationToEdit)
 	If EnterNumberByMask Then 
 		PhoneNumberByMask = InformationToEdit.value;	
 	Else	
-		CountryCode     = InformationToEdit.CountryCode;
+		CountryCode     = InformationToEdit.countryCode;
 		CityCode     = InformationToEdit.AreaCode;
 		PhoneNumber = InformationToEdit.Number;
 		PhoneExtension    = InformationToEdit.ExtNumber;
@@ -418,13 +421,13 @@ Function ContactInformationByAttributesValues()
 	
 	If EnterNumberByMask Then   
 		ContactInformation = ContactsManagerInternal.ContactsByPresentation(PhoneNumberByMask, ContactInformationKind);
-		Result.CountryCode = ContactInformation.CountryCode;
+		Result.countryCode = ContactInformation.countryCode;
 		Result.AreaCode    = ContactInformation.AreaCode;
 		Result.Number      = ContactInformation.Number;
 		Result.ExtNumber   = ContactInformation.ExtNumber;
 		Result.value       = PhoneNumberByMask;		
 	Else	
-		Result.CountryCode = CountryCode;
+		Result.countryCode = CountryCode;
 		Result.AreaCode    = CityCode;
 		Result.Number      = PhoneNumber;
 		Result.ExtNumber   = PhoneExtension;
@@ -490,7 +493,7 @@ Procedure ClearPhoneServer()
 EndProcedure
 
 &AtServer
-Function DefineAddressValue(Var_Parameters)
+Function DetermineContactInformationValue(Var_Parameters)
 	
 	If ValueIsFilled(Var_Parameters.Value) Then
 		FieldValues = Var_Parameters.Value;

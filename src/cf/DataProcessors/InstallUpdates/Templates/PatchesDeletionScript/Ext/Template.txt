@@ -94,12 +94,19 @@ try {
 
 try {
 
-  if (Action == 'RemoveAll') {
+  if (Action == 'TurnOffAll') {
 
     if (outf != null) {
-      outf.WriteLine(mainEvent + ": [TheMessageIsACallToRemoveFixesFromTheScript]")
+      outf.WriteLine(mainEvent + ": [MessageCallDisablePatchesFromScript]")
     }
-    connection.ConfigurationUpdateServerCall.DeletePatchesFromScript();
+    connection.ConfigurationUpdateServerCall.DisablePatchesFromScript();
+
+  }else if (Action == 'TurnOnAll') {
+  
+    if (outf != null) {
+      outf.WriteLine(mainEvent + ": [MessageCallEnablePatchesFromScript]")
+    }
+    connection.ConfigurationUpdateServerCall.EnablePatchesFromScript();
 
   } else {
 

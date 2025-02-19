@@ -13,36 +13,23 @@
 &AtClient
 Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 	
+	FilterStructure1 = New Structure;
+	FilterStructure1.Insert("SubjectOf", CommandParameter);
+	
+	FormParameters = New Structure;
+	FormParameters.Insert("Filter", FilterStructure1);
+	FormParameters.Insert("InteractionType", "");
+
 	If InteractionsClientServer.IsSubject(CommandParameter) Then
-		
-		FilterStructure1 = New Structure;
-		FilterStructure1.Insert("SubjectOf", CommandParameter);
-		
-		AdditionalParameters = New Structure;
-		AdditionalParameters.Insert("InteractionType", "SubjectOf");
-		
-		FormParameters = New Structure;
-		FormParameters.Insert("Filter", FilterStructure1);
-		FormParameters.Insert("AdditionalParameters", AdditionalParameters);
+		FormParameters.InteractionType = "SubjectOf";
 		
 	ElsIf InteractionsClientServer.IsInteraction(CommandParameter) Then
-		
-		FilterStructure1 = New Structure;
-		FilterStructure1.Insert("SubjectOf", CommandParameter);
-		
-		AdditionalParameters = New Structure;
-		AdditionalParameters.Insert("InteractionType", "Interaction");
-		
-		FormParameters = New Structure;
-		FormParameters.Insert("Filter", FilterStructure1);
-		FormParameters.Insert("AdditionalParameters", AdditionalParameters);
-		
+		FormParameters.InteractionType = "Interaction";
 	Else
 		Return;
 	EndIf;
 
-	OpenForm(
-		"DocumentJournal.Interactions.Form.ParametricListForm",
+	OpenForm("DocumentJournal.Interactions.Form.ParametricListForm",
 		FormParameters,
 		CommandExecuteParameters.Source,
 		CommandExecuteParameters.Source.UniqueKey,

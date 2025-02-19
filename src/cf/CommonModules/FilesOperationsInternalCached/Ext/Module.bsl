@@ -11,7 +11,7 @@
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Common and personal file operation settings.
+// Common and personal file management settings.
 
 // Returns a structure that contains CommonSettings and PersonalSettings.
 Function FilesOperationSettings() Export
@@ -127,17 +127,15 @@ Function DeniedExtensionsList()
 	SetPrivilegedMode(True);
 	
 	ExtensionsList = Constants.DeniedDataAreaExtensionsList.Get();
-	If ExtensionsList = Undefined Or ExtensionsList = "" Then
+	If Not ValueIsFilled(ExtensionsList) Then
 		ExtensionsList = Upper(StrConcat(FilesOperationsInternal.DeniedExtensionsList().UnloadValues(), " "));
 		Constants.DeniedDataAreaExtensionsList.Set(ExtensionsList);
 	EndIf;
 	
-	Result = "";
-	If Common.DataSeparationEnabled()
-	   And Common.SeparatedDataUsageAvailable() Then
-		
+	If Common.DataSeparationEnabled() And Common.SeparatedDataUsageAvailable() Then
 		DeniedExtensionsList = Constants.DeniedExtensionsList.Get();
-		Result = DeniedExtensionsList + " "  + ExtensionsList;
+		Result = ?(ValueIsFilled(DeniedExtensionsList), DeniedExtensionsList + " "  + ExtensionsList,
+			DeniedExtensionsList);
 	Else
 		Result = ExtensionsList;
 	EndIf;
@@ -153,30 +151,26 @@ Function FilesExtensionsListOpenDocument()
 	FilesExtensionsListDocumentDataAreas =
 		Constants.FilesExtensionsListDocumentDataAreas.Get();
 	
-	If FilesExtensionsListDocumentDataAreas = Undefined
-	 Or FilesExtensionsListDocumentDataAreas = "" Then
-		
+	If Not ValueIsFilled(FilesExtensionsListDocumentDataAreas) Then
 		FilesExtensionsListDocumentDataAreas =
 			"ODT OTT ODP OTP ODS OTS ODC OTC ODF OTF ODM OTH SDW STW SXW STC SXC SDC SDD STI";
-		
 		Constants.FilesExtensionsListDocumentDataAreas.Set(
 			FilesExtensionsListDocumentDataAreas);
 	EndIf;
 	
-	FinalExtensionList = "";
+	Result = "";
 	
-	If Common.DataSeparationEnabled()
-	   And Common.SeparatedDataUsageAvailable() Then
+	If Common.DataSeparationEnabled() And Common.SeparatedDataUsageAvailable() Then
 		
 		DeniedExtensionsList = Constants.FilesExtensionsListOpenDocument.Get();
-		
-		FinalExtensionList =
-			DeniedExtensionsList + " "  + FilesExtensionsListDocumentDataAreas;
+		Result = ?(ValueIsFilled(DeniedExtensionsList),
+			DeniedExtensionsList + " "  + FilesExtensionsListDocumentDataAreas,
+			FilesExtensionsListDocumentDataAreas);
 	Else
-		FinalExtensionList = FilesExtensionsListDocumentDataAreas;
+		Result = FilesExtensionsListDocumentDataAreas;
 	EndIf;
 	
-	Return FinalExtensionList;
+	Return Result;
 	
 EndFunction
 

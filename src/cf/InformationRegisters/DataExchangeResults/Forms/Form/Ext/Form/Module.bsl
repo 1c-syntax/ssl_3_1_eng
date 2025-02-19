@@ -127,7 +127,7 @@ Procedure InfobaseNodeStartChoice(Item, ChoiceData, StandardProcessing)
 		
 		StandardProcessing = False;
 		
-		Handler = New NotifyDescription("InfobaseNodeStartChoiceCompletion", ThisObject);
+		Handler = New CallbackDescription("InfobaseNodeStartChoiceCompletion", ThisObject);
 		Mode = FormWindowOpeningMode.LockOwnerWindow;
 		OpenForm("CommonForm.SelectExchangePlanNodes",,,,,, Handler, Mode);
 		
@@ -490,7 +490,7 @@ EndProcedure
 &AtClient
 Procedure AcceptVersionDeclined(Command)
 	
-	NotifyDescription = New NotifyDescription("AcceptVersionDeclinedCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("AcceptVersionDeclinedCompletion", ThisObject);
 	ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to accept the version even though import is restricted?';"), QuestionDialogMode.YesNo, , DialogReturnCode.No);
 	
 EndProcedure
@@ -581,7 +581,7 @@ Procedure ChangeConflictResult(Command)
 			
 		EndIf;
 		
-		NotifyDescription = New NotifyDescription("ChangeConflictResultCompletion", ThisObject);
+		NotifyDescription = New CallbackDescription("ChangeConflictResultCompletion", ThisObject);
 		ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo);
 		
 	EndIf;

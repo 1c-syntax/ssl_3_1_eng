@@ -10,8 +10,8 @@
 
 #Region Public
 
-// Handler of the StartChoice event of the contact information form field.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Handler of the StartChoice event of a contact information form field.
+// It is called from the attachable actions when deploying the "Contact information" subsystem.
 //
 // Parameters:
 //     Form                - ClientApplicationForm - a form of a contact information owner.
@@ -24,8 +24,8 @@ Procedure StartSelection(Form, Item, Modified = True, StandardProcessing = False
 	OnStartChoice(Form, Item, Modified, StandardProcessing, OpeningParameters, True);
 EndProcedure
 
-// Handler of the OnChange event of the contact information form field.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Handler of the OnChange event of a contact information form field.
+// It is called from the attachable actions when deploying the "Contact information" subsystem.
 //
 // Parameters:
 //     Form             - ClientApplicationForm - a form of a contact information owner.
@@ -38,8 +38,8 @@ Procedure StartChanging(Form, Item, IsTabularSection = False) Export
 	
 EndProcedure
 
-// Handler of the Clearing event for a contact information form field.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Handler of the Clearing event of a contact information form field.
+// It is called from the attachable actions when deploying the "Contact information" subsystem.
 //
 // Parameters:
 //     Form        - ClientApplicationForm - a form of a contact information owner.
@@ -49,8 +49,8 @@ Procedure StartClearing(Val Form, Val AttributeName) Export
 	OnClear(Form, AttributeName, True);
 EndProcedure
 
-// Handler of the command related to contact information (write an email, open an address, and so on).
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Handler of a command related to contact information (write an email, open an address, etc.).
+// It is called from the attachable actions when deploying the "Contact information" subsystem.
 //
 // Parameters:
 //     Form      - ClientApplicationForm - a form of a contact information owner.
@@ -61,7 +61,7 @@ Procedure StartCommandExecution(Val Form, Val CommandName) Export
 EndProcedure
 
 // URL handler for opening a web page.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// It is called from the attachable actions when deploying the "Contact information" subsystem.
 //
 // Parameters:
 //   Form                - ClientApplicationForm - a form of a contact information owner.
@@ -80,7 +80,7 @@ Procedure StartURLProcessing(Form, Item, FormattedStringURL, StandardProcessing)
 EndProcedure
 
 // URL handler for opening a web page.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// It is called from the attachable actions when deploying the "Contact information" subsystem.
 //
 // Parameters:
 //   Form                - ClientApplicationForm - a form of a contact information owner.
@@ -96,8 +96,8 @@ Procedure URLProcessing(Form, Item, FormattedStringURL, StandardProcessing) Expo
 	OnURLProcessing(Form, Item, FormattedStringURL, StandardProcessing, False);
 EndProcedure
 
-// Handler of the AutoComplete event of a contact information form field for selecting address options by the entered string.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Handler of the AutoComplete event of a contact information form field for picking addresses based on user input.
+// It is called from the attachable actions when deploying the "Contact information" subsystem.
 //
 // Parameters:
 //     Item                  - FormField      - a form item containing contact information presentation.
@@ -105,8 +105,8 @@ EndProcedure
 //     ChoiceData             - ValueList - contains a value list that will be used for standard
 //                                                 event processing.
 //     DataGetParameters - Structure
-//                              - Undefined - contains search parameters that will be passed
-//                                to the GetChoiceData method. For more information, see details of the form field extension for
+//                              - Undefined - Contains search parameters that will be passed
+//                                to the GetChoiceData method. For more information, see the form field extension for
 //                                the AutoComplete input field in Syntax Assistant.
 //     Waiting -   Number       - an interval in seconds between text input and an event.
 //                                If 0, the event was not triggered by text input
@@ -135,8 +135,8 @@ Procedure AutoCompleteAddress(Item, Text, ChoiceData, DataGetParameters, Waiting
 	
 EndProcedure
 
-// Handler of the ChoiceProcessing event of the contact information form field.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Handler of the ChoiceProcessing event of a contact information form field.
+// It is called from the attachable actions when deploying the "Contact information" subsystem.
 //
 // Parameters:
 //     Form   - ClientApplicationForm - a form of a contact information owner.
@@ -162,7 +162,7 @@ Procedure ChoiceProcessing(Val Form, Val ValueSelected, Val AttributeName, Stand
 EndProcedure
 
 // Opens the address input form for the contact information form.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// It is called from the attachable actions when deploying the "Contact information" subsystem.
 //
 // Parameters:
 //     Form     - ClientApplicationForm - a form of a contact information owner.
@@ -179,7 +179,7 @@ Procedure OpenAddressInputForm(Form, Result) Export
 EndProcedure
 
 // Handler of the refresh operation for the contact information form.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// It is called from the attachable actions when deploying the "Contact information" subsystem.
 //
 // Parameters:
 //     Form     - ClientApplicationForm - a form of a contact information owner.
@@ -229,12 +229,12 @@ Procedure WorldCountryChoiceProcessing(Item, ValueSelected, StandardProcessing) 
 	
 EndProcedure
 
-// Constructor used to create a structure with contact information form opening parameters.
-// The set of fields can be expanded with national-specific properties in the AddressManagerClient common module.
+// Constructor used to create contact information form opening parameters in "OpenContactInformationForm".
+// The set of fields can be expanded with national-specific properties in the "AddressManagerClient" common module.
 //
 // Parameters:
 //  ContactInformationKind  - CatalogRef.ContactInformationKinds - a contact information kind.
-//                           - Structure - See ContactsManager.ContactInformationKindParameters
+//                           - See ContactsManager.ContactInformationKindParameters
 //  Value                 - String - a serialized value of contact information fields in JSON or XML format.
 //  Presentation            - String - a contact information presentation.
 //  Comment              - String - contact information comment.
@@ -250,7 +250,7 @@ EndProcedure
 //   * ContactInformationType - EnumRef.ContactInformationTypes - a contact information type if it was specified
 //                                                                            in the parameters.
 //   * Country                  - String - a world country (only if Address is specified as a contact information type).
-//   * State                  - String - a value of the state field (only if Address is specified as a contact information type).
+//   * State_SSLym                  - String - a value of the state field (only if Address is specified as a contact information type).
 //                                       It is relevant for EAEU countries.
 //   * IndexOf                  - String - a postal code (only if Address is specified as a contact information type).
 //   * PremiseType            - String - a premise type in the address input form (only if Address is specified as a contact
@@ -279,7 +279,7 @@ Function ContactInformationFormParameters(ContactInformationKind, Value,
 		FormParameters.Insert("ContactInformationType", ContactInformationType);
 		If ContactInformationType = PredefinedValue("Enum.ContactInformationTypes.Address") Then
 			FormParameters.Insert("Country");
-			FormParameters.Insert("State");
+			FormParameters.Insert("State_SSLym");
 			FormParameters.Insert("IndexOf");
 			FormParameters.Insert("PremiseType", "Appartment");
 		ElsIf ContactInformationType = PredefinedValue("Enum.ContactInformationTypes.Phone") Then
@@ -300,15 +300,15 @@ Function ContactInformationFormParameters(ContactInformationKind, Value,
 	
 EndFunction
 
-// Opens an appropriate contact information form for editing or viewing.
+// Opens the form to preview and enter contact information.
 //
-//  Parameters:
-//      Parameters    - Arbitrary - the ContactInformationFormParameters function result.
-//      Owner     - Arbitrary - a form parameter.
-//      Notification   - NotifyDescription - used to process form closing.
+// Parameters:
+//    Parameters    - See ContactInformationFormParameters
+//    Owner     - Arbitrary - a form parameter.
+//    Notification   - CallbackDescription - used to process form closing.
 //
 //  Returns:
-//   ClientApplicationForm - a requested form.
+//   ClientApplicationForm
 //
 Function OpenContactInformationForm(Parameters, Owner = Undefined, Notification = Undefined) Export
 	Parameters.Insert("OpenByScenario", True);
@@ -550,7 +550,7 @@ Procedure Telephone(PhoneNumber) Export
 	
 	CommandLine1 = ProtocolName + ":" + PhoneNumber;
 	
-	Notification = New NotifyDescription("AfterStartApplication", ThisObject);
+	Notification = New CallbackDescription("AfterStartApplication", ThisObject);
 	FileSystemClient.OpenURL(CommandLine1, Notification);
 	
 EndProcedure
@@ -584,8 +584,8 @@ EndProcedure
 //                - Structure
 //                - Map
 //                - ValueList - contact information.
-//  Presentation - String - presentation. Used if it is impossible to determine a presentation based on a parameter.
-//                            FieldValues (the Presentation field is not available).
+//  Presentation - String - A presentation.
+//                            Used in cases when the "FieldValues" parameter is missing the "Presentation" field.
 //  ExpectedKind  - CatalogRef.ContactInformationKinds
 //                - EnumRef.ContactInformationTypes
 //                - Structure -
@@ -619,26 +619,34 @@ Procedure GoToWebLink(Val FieldValues, Val Presentation = "", ExpectedKind = Und
 	EndIf;
 EndProcedure
 
-// Shows an address in a browser on Yandex.Maps or Google Maps.
+// 
 //
 // Parameters:
 //  Address                       - String - a text presentation of an address.
-//  MapServiceName - String - a name of a map service where the address should be shown:
-//                                         Yandex.Maps or GoogleMaps.
+//  MapServiceName - String -  
+//                                         
 //
 Procedure ShowAddressOnMap(Address, MapServiceName) Export
+	
 	CodedAddress = StringDecoding(Address);
 	If MapServiceName = "GoogleMaps" Then
 		CommandLine1 = "https://maps.google.com/?q=" + CodedAddress;
 	Else
-		CommandLine1 = "https://maps.yandex.com/?text=" + CodedAddress;
+		Resource = "";
+		ContactsManagerClientLocalization.OnDefineMapServiceURL(MapServiceName, Resource);
+		If ValueIsFilled(Resource) Then
+			CommandLine1 = StringFunctionsClientServer.SubstituteParametersToString(Resource, CodedAddress)
+		EndIf;
+		
 	EndIf;
-	
-	FileSystemClient.OpenURL(CommandLine1);
+		
+	If ValueIsFilled(CommandLine1) Then
+		FileSystemClient.OpenURL(CommandLine1);
+	EndIf;
 	
 EndProcedure
 
-// Displays a form with history of contact information changes.
+// Displays a form with a history of changes to contact information.
 //
 // Parameters:
 //  Form                         - ClientApplicationForm - a form with contact information.
@@ -663,7 +671,7 @@ Procedure OpenHistoryChangeForm(Form, ContactInformationParameters, Asynchronous
 	FormParameters.Insert("ContactInformationKind", ContactInformationParameters.Kind);
 	FormParameters.Insert("ReadOnly", Form.ReadOnly);
 	
-	ClosingNotification = New NotifyDescription("AfterClosingHistoryForm", ContactsManagerClient, AdditionalParameters);
+	ClosingNotification = New CallbackDescription("AfterClosingHistoryForm", ContactsManagerClient, AdditionalParameters);
 	
 	OpenForm("DataProcessor.ContactInformationInput.Form.ContactInformationHistory", FormParameters, Form,,,, ClosingNotification);
 	
@@ -671,8 +679,8 @@ EndProcedure
 
 // Synchronous handlers.
 
-// Handler of the StartChoice event of the contact information form field.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Handler of the StartChoice event of a contact information form field.
+// It is called from the attachable actions when deploying the "Contact information" subsystem.
 //
 // Parameters:
 //     Form                - ClientApplicationForm - a form of a contact information owner.
@@ -685,8 +693,8 @@ Procedure StartChoice(Form, Item, Modified = True, StandardProcessing = False, O
 	OnStartChoice(Form, Item, Modified, StandardProcessing, OpeningParameters, False);
 EndProcedure
 
-// Handler of the Clearing event for a contact information form field.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Handler of the Clearing event of a contact information form field.
+// It is called from the attachable actions when deploying the "Contact information" subsystem.
 //
 // Parameters:
 //     Form        - ClientApplicationForm - a form of a contact information owner.
@@ -696,8 +704,8 @@ Procedure Clearing(Val Form, Val AttributeName) Export
 	OnClear(Form, AttributeName, False);
 EndProcedure
 
-// Handler of the command related to contact information (write an email, open an address, and so on).
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Handler of a command related to contact information (write an email, open an address, etc.).
+// It is called from the attachable actions when deploying the "Contact information" subsystem.
 //
 // Parameters:
 //     Form      - ClientApplicationForm - a form of a contact information owner.
@@ -707,8 +715,8 @@ Procedure ExecuteCommand(Val Form, Val CommandName) Export
 	OnExecuteCommand(Form, CommandName, False);
 EndProcedure
 
-// Handler of the OnChange event of the contact information form field.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Handler of the OnChange event of a contact information form field.
+// It is called from the attachable actions when deploying the "Contact information" subsystem.
 //
 // Parameters:
 //     Form             - ClientApplicationForm - a form of a contact information owner.
@@ -721,11 +729,12 @@ Procedure OnChange(Form, Item, IsTabularSection = False) Export
 	
 EndProcedure
 
+
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Use AddressAutoComplete instead.
-// Handler of the AutoComplete event of the contact information form field.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Deprecated. Instead, use AutoCompleteAddress.
+// Handler of the AutoComplete event of a contact information form field.
+// It is called from the attachable actions when deploying the "Contact information" subsystem.
 //
 // Parameters:
 //     Text                - String         - a text string entered by the user in the contact information field.
@@ -744,7 +753,7 @@ Procedure AutoComplete(Val Text, ChoiceData, StandardProcessing = False) Export
 	
 EndProcedure
 
-// Deprecated. Obsolete. Use OnChange instead.
+// Deprecated. Instead, use OnChange.
 //
 // Parameters:
 //     Form             - ClientApplicationForm - a form of a contact information owner.
@@ -755,7 +764,7 @@ Procedure PresentationOnChange(Form, Item, IsTabularSection = False) Export
 	OnChange(Form, Item, IsTabularSection);
 EndProcedure
 
-// Deprecated. Obsolete. Use StartChoice instead.
+// Deprecated. Instead, use StartChoice.
 //
 // Parameters:
 //     Form                - ClientApplicationForm - a form of a contact information owner.
@@ -771,7 +780,7 @@ Function PresentationStartChoice(Form, Item, Modified = True, StandardProcessing
 	Return Undefined;
 EndFunction
 
-// Deprecated. Obsolete. Use Clearing instead.
+// Deprecated. Instead, use Clearing.
 //
 // Parameters:
 //     Form        - ClientApplicationForm - a form of a contact information owner.
@@ -785,7 +794,7 @@ Function ClearingPresentation(Form, AttributeName) Export
 	Return Undefined;
 EndFunction
 
-// Deprecated. Obsolete. Use ExecuteCommand instead.
+// Deprecated. Instead, use ExecuteCommand.
 //
 // Parameters:
 //     Form      - ClientApplicationForm - a form of a contact information owner.
@@ -1028,7 +1037,7 @@ Procedure ContactInformationAddInputFieldCompletion(Val SelectedElement, Val Add
 		FormClosingParameters.Insert("Form",  AdditionalParameters.Form);
 		FormClosingParameters.Insert("ItemForPlacementName", ItemForPlacementName);
 		FormClosingParameters.Insert("AsynchronousCall", AdditionalParameters.AsynchronousCall);	
-		Notification = New NotifyDescription("AfterCloseListFormContactInfoKinds", 
+		Notification = New CallbackDescription("AfterCloseListFormContactInfoKinds", 
 			ContactsManagerClient, FormClosingParameters);
 		OpenForm("Catalog.ContactInformationKinds.Form.ListForm",FormOpenParameters,
 			AdditionalParameters.Form,,,,Notification,FormWindowOpeningMode.LockOwnerWindow);
@@ -1050,6 +1059,33 @@ Procedure ContactInformationAddInputFieldCompletion(Val SelectedElement, Val Add
 	UpdateFormContactInformation(AdditionalParameters.Form, Result, AdditionalParameters.AsynchronousCall);
 EndProcedure
 
+// "ContactInformation" parameter constructor required for running contact information commands
+// 
+// Parameters:
+//   Presentation - String - a contact information presentation.
+//   Value      - String - A contact information field value in JSON or XML format.
+//   Type           - EnumRef.ContactInformationTypes
+//   Kind           - CatalogRef.ContactInformationKinds
+//
+// Returns:
+//   Structure:
+//     * Presentation - String - a contact information presentation.
+//     * Value      - String - A contact information field value in JSON or XML format.
+//     * Type           - EnumRef.ContactInformationTypes
+//     * Kind           - CatalogRef.ContactInformationKinds
+//
+Function ParameterContactInfoForCommandExecution(Presentation, Value, Type, Kind) Export
+	
+	ContactInformation = New Structure;
+	ContactInformation.Insert("Presentation", Presentation);
+	ContactInformation.Insert("Value", Value);
+	ContactInformation.Insert("Type", Type);
+	ContactInformation.Insert("Kind", Kind);
+
+	Return ContactInformation;
+	
+EndFunction
+
 Procedure AfterStartApplication(ApplicationStarted, Parameters) Export
 	
 	If Not ApplicationStarted Then 
@@ -1064,6 +1100,20 @@ EndProcedure
 #EndRegion
 
 #Region Private
+
+Async Function PutTextInClipboard(Text) Export
+	
+    If ClipboardTools.CanUse() Then
+        DataFormat = ClipboardDataStandardFormat.Text;
+        If Await ClipboardTools.DataFormatSupported(DataFormat) Then
+            DataToPut = New ClipboardItem(DataFormat, Text);
+            Return Await ClipboardTools.PutDataAsync(DataToPut);
+        EndIf;
+    EndIf;
+	
+    Return False;
+	
+EndFunction
 
 // Event handlers.
 
@@ -1139,7 +1189,7 @@ Procedure OnStartChoice(Form, Item, Modified, StandardProcessing, OpeningParamet
 	AdditionalParameters.UpdateConextMenu = UpdateConextMenu;
 	AdditionalParameters.AsynchronousCall = AsynchronousCall;
 	
-	Notification = New NotifyDescription("PresentationStartChoiceCompletion", ThisObject, AdditionalParameters);
+	Notification = New CallbackDescription("PresentationStartChoiceCompletion", ThisObject, AdditionalParameters);
 	
 	OpenContactInformationForm(FormOpenParameters,, Notification);
 	
@@ -1188,7 +1238,7 @@ Procedure OnExecuteCommand(Val Form, Val CommandName, AsynchronousCall)
 		AdditionalParameters.Insert("Form", Form);
 		AdditionalParameters.Insert("ItemForPlacementName", ItemForPlacementName);
 		AdditionalParameters.Insert("CommandName", CommandName);
-		Notification = New NotifyDescription("ContactInformationAddInputFieldCompletion", ThisObject,
+		Notification = New CallbackDescription("ContactInformationAddInputFieldCompletion", ThisObject,
 			AdditionalParameters);
 		Form.ShowChooseFromMenu(Notification,
 			Form.ContactInformationParameters[ItemForPlacementName].ItemsToAddList,
@@ -1317,7 +1367,7 @@ Procedure OnExecuteCommand(Val Form, Val CommandName, AsynchronousCall)
 				List.Add(Command.Value.Action, Command.Value.Title, , Command.Value.Picture);
 			EndDo;
 
-			NotificationMenu = New NotifyDescription("AfterMenuItemSelected", ThisObject, Parameters);
+			NotificationMenu = New CallbackDescription("AfterMenuItemSelected", ThisObject, Parameters);
 			Form.ShowChooseFromMenu(NotificationMenu, List, Form.Items[CommandName]);
 		EndIf;
 	EndIf;
@@ -1368,7 +1418,7 @@ Procedure EnterAComment(Val Form, Val AttributeName, Val FoundRow, Val Result, A
 	AdditionalParameters.Insert("ItemForPlacementName", FoundRow.ItemForPlacementName);
 	AdditionalParameters.Insert("AsynchronousCall", AsynchronousCall);
 	
-	Notification = New NotifyDescription("EnterACommentCompletion", ThisObject, AdditionalParameters);
+	Notification = New CallbackDescription("EnterACommentCompletion", ThisObject, AdditionalParameters);
 	
 	CommonClient.ShowMultilineTextEditingForm(Notification, Comment,
 		NStr("en = 'Comment';"));
@@ -1491,8 +1541,8 @@ EndProcedure
 Procedure UpdateFormContactInformation(Form, Result, AsynchronousCall)
 	
 	If AsynchronousCall Then
-		Notification = New NotifyDescription("Attachable_ContinueContactInformationUpdate", Form);
-		ExecuteNotifyProcessing(Notification, Result);
+		Notification = New CallbackDescription("Attachable_ContinueContactInformationUpdate", Form);
+		RunCallback(Notification, Result);
 	Else
 		Form.Attachable_UpdateContactInformation(Result);
 	EndIf;
@@ -1636,7 +1686,7 @@ Procedure OpenSkype(CommandLine1)
 		EndIf;
 #EndIf
 	
-	Notification = New NotifyDescription("AfterStartApplication", ThisObject);
+	Notification = New CallbackDescription("AfterStartApplication", ThisObject);
 	FileSystemClient.OpenURL(CommandLine1, Notification);
 	
 EndProcedure
@@ -1918,33 +1968,6 @@ Procedure AddButtonCopyAddress(Form, CommandName, ItemTitle, ContactInformationP
 
 EndProcedure
 
-// "ContactInformation" parameter constructor required for running contact information commands
-// 
-// Parameters:
-//   Presentation - String - a contact information presentation.
-//   Value      - String - A contact information field value in JSON or XML format.
-//   Type           - EnumRef.ContactInformationTypes
-//   Kind           - CatalogRef.ContactInformationKinds
-//
-// Returns:
-//   Structure:
-//     * Presentation - String - a contact information presentation.
-//     * Value      - String - A contact information field value in JSON or XML format.
-//     * Type           - EnumRef.ContactInformationTypes
-//     * Kind           - CatalogRef.ContactInformationKinds
-//
-Function ParameterContactInfoForCommandExecution(Presentation, Value, Type, Kind)
-	
-	ContactInformation = New Structure;
-	ContactInformation.Insert("Presentation", Presentation);
-	ContactInformation.Insert("Value", Value);
-	ContactInformation.Insert("Type", Type);
-	ContactInformation.Insert("Kind", Kind);
-
-	Return ContactInformation;
-	
-EndFunction
-
 // Additional parameters constructor required for running contact information commands
 // 
 // Parameters:
@@ -1959,7 +1982,7 @@ EndFunction
 //   * AttributeName     - String - For internal use only.
 //   * AsynchronousCall - Boolean - For internal use only.
 //
-Function CommandRuntimeAdditionalParameters(ContactInformationOwner, Form, AttributeName = "", AsynchronousCall = False)
+Function CommandRuntimeAdditionalParameters(ContactInformationOwner, Form, AttributeName = "", AsynchronousCall = False) Export
 	
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("ContactInformationOwner", ContactInformationOwner);
@@ -1990,7 +2013,7 @@ Procedure RunContactInfoCommand(HandlerName, Parameters)
 	ProcedureName = TrimAll(Mid(HandlerName, ProcedureNameStart + 1));
 	ModuleName = TrimAll(Left(HandlerName, ProcedureNameStart - 1));
 	
-	ExecuteNotifyProcessing(New NotifyDescription(ProcedureName, CommonClient.CommonModule(ModuleName),
+	RunCallback(New CallbackDescription(ProcedureName, CommonClient.CommonModule(ModuleName),
 		Parameters.AdditionalParameters), Parameters.ContactInformation);	
 	
 EndProcedure
@@ -2050,19 +2073,9 @@ Procedure BeforeCreateEmailMessage(ContactInformation, AdditionalParameters) Exp
 
 EndProcedure
 
-Procedure BeforeShowAddressOnGoogleMaps(ContactInformation, AdditionalParameters) Export
+Procedure ShowAddressOnGoogleMaps(ContactInformation, AdditionalParameters) Export
 	
-	CodedAddress = StringDecoding(ContactInformation.Presentation);
-	CommandLine1 = "https://maps.google.com/?q=" + CodedAddress;
-	FileSystemClient.OpenURL(CommandLine1);
-	
-EndProcedure
-
-Procedure BeforeShowAddressOnYandexMaps(ContactInformation, AdditionalParameters) Export
-	
-	CodedAddress = StringDecoding(ContactInformation.Presentation);
-	CommandLine1 = "https://maps.yandex.com/?text=" + CodedAddress;
-	FileSystemClient.OpenURL(CommandLine1);
+	ShowAddressOnMap(ContactInformation.Presentation, "GoogleMaps");
 	
 EndProcedure
 
@@ -2122,15 +2135,31 @@ Procedure BeforeRunCommandFromAddressExtendedTooltip(Form, Item, AttributeName, 
 	Parameters = New Structure("ContactInformation, AdditionalParameters", ContactInformation,
 		AdditionalParameters);
 
-	If CommandName = "ShowOnMap" Then
+	If StrCompare(CommandName, "ShowOnMap") = 0 Then
 		List = New ValueList;
-		ShowOnYandexMaps = CommandsForOutput.ShowOnYandexMaps;
-		List.Add(ShowOnYandexMaps.Action, ShowOnYandexMaps.Title, ,
-			ShowOnYandexMaps.Picture);
-		ShowOnGoogleMap = CommandsForOutput.ShowOnGoogleMap;
-		List.Add(ShowOnGoogleMap.Action, ShowOnGoogleMap.Title, ,
-			ShowOnGoogleMap.Picture);
-		NotificationMenu = New NotifyDescription("AfterMenuItemSelected", ThisObject, Parameters);
+		
+		For Each CommandToOutput In CommandsForOutput Do
+				
+				TypeOfAction = ContactsManagerClientServer.ActionKindOfContactInformationTypeCommand(
+					CommandToOutput.Value.Action);
+				
+				If IsBlankString(TypeOfAction) Then
+					ContactsManagerClientServerLocalization.WhenDeterminingActionOfCommandOfTypeOfContactInformation(
+						CommandToOutput.Value.Action, TypeOfAction);
+				EndIf;
+					
+				If StrCompare(TypeOfAction, "ShowOnMap") = 0 Then
+					List.Add(CommandToOutput.Value.Action, CommandToOutput.Value.Title,,
+						CommandToOutput.Value.Picture);
+				EndIf;
+		EndDo;
+		
+		If List.Count() = 1 Then
+			RunContactInfoCommand(List.Get(0).Value, Parameters);
+			Return;
+		EndIf;
+		
+		NotificationMenu = New CallbackDescription("AfterMenuItemSelected", ThisObject, Parameters);
 		Form.ShowChooseFromMenu(NotificationMenu, List, Item);
 	Else
 		If CommandsForOutput.Property(CommandName) Then

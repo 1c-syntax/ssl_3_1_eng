@@ -51,7 +51,7 @@ EndProcedure
 //                  for which the wizard is called.
 //  OwnerForm - ClientApplicationForm
 //                - Undefined - a form, for which the wizard is opened.
-//  ClosingNotification1 - NotifyDescription, Undefined - details of a notification that must be
+//  ClosingNotification1 - CallbackDescription, Undefined - details of a notification that must be
 //                        processed after closing the wizard.
 //  EnablingMode - Boolean - indicates that the wizard is called upon enabling usage for the security profile
 //                            infobase.
@@ -84,7 +84,7 @@ Procedure StartInitializingRequestForPermissionsToUseExternalResources(
 		FormParameters.Insert("DisablingMode", State.DisablingMode);
 		FormParameters.Insert("RecoveryMode", State.RecoveryMode);
 		
-		NotifyDescription = New NotifyDescription(
+		NotifyDescription = New CallbackDescription(
 			"AfterInitializeRequestForPermissionsToUseExternalResources",
 			ExternalResourcesPermissionsSetupClient,
 			State);
@@ -101,7 +101,7 @@ Procedure StartInitializingRequestForPermissionsToUseExternalResources(
 		
 	Else
 		
-		ExecuteNotifyProcessing(ClosingNotification1, DialogReturnCode.OK);
+		RunCallback(ClosingNotification1, DialogReturnCode.OK);
 		
 	EndIf;
 	
@@ -134,7 +134,7 @@ Procedure AfterInitializeRequestForPermissionsToUseExternalResources(Result, Sta
 			FormParameters.Insert("RecoveryMode", State.RecoveryMode);
 			FormParameters.Insert("CheckMode", State.CheckMode);
 			
-			NotifyDescription = New NotifyDescription(
+			NotifyDescription = New CallbackDescription(
 				"AfterSetUpPermissionsToUseExternalResources",
 				ExternalResourcesPermissionsSetupClient,
 				State);
@@ -200,7 +200,7 @@ Procedure AfterSetUpPermissionsToUseExternalResources(Result, State) Export
 			FormParameters.Insert("Duration", 0);
 		EndIf;
 		
-		NotifyDescription = New NotifyDescription(
+		NotifyDescription = New CallbackDescription(
 			"AfterCompleteRequestForPermissionsToUseExternalResources",
 			ExternalResourcesPermissionsSetupClient,
 			State);
@@ -227,7 +227,7 @@ EndProcedure
 
 // Processes the data entered to the external resource permission application wizard.
 // The operation result is processing of the notification description, which was initially passed from the form for which
-// the the wizard was opened.
+// the wizard was opened.
 //
 // Parameters:
 //  Result - DialogReturnCode - a result of executing a previous operation of
@@ -257,7 +257,7 @@ EndProcedure
 // that were initially passed from the form, for which the wizard was opened returning the return code OK.
 //
 // Parameters:
-//  NotifyDescription - NotifyDescription - Description passed from the calling code.
+//  NotifyDescription - CallbackDescription - Description passed from the calling code.
 //
 Procedure CompleteSetUpPermissionsToUseExternalResourcesAsynchronously(Val NotifyDescription)
 	
@@ -275,7 +275,7 @@ EndProcedure
 // that were initially passed from the form, for which the wizard was opened returning the return code Cancel.
 //
 // Parameters:
-//  NotifyDescription - NotifyDescription - Description passed from the calling code.
+//  NotifyDescription - CallbackDescription - Description passed from the calling code.
 //
 Procedure CancelSetUpPermissionsToUseExternalResourcesAsynchronously(Val NotifyDescription)
 	
@@ -300,7 +300,7 @@ Procedure CompleteSetUpPermissionsToUseExternalResourcesSynchronously(Val Return
 	ClosingNotification1 = ApplicationParameters["StandardSubsystems.NotificationOnApplyExternalResourceRequest"];
 	ApplicationParameters["StandardSubsystems.NotificationOnApplyExternalResourceRequest"] = Undefined;
 	If ClosingNotification1 <> Undefined Then
-		ExecuteNotifyProcessing(ClosingNotification1, ReturnCode);
+		RunCallback(ClosingNotification1, ReturnCode);
 	EndIf;
 	
 EndProcedure
@@ -330,7 +330,7 @@ Procedure CheckPermissionsAppliedAfterOwnerFormClose(Result, State) Export
 	
 	OriginalOnCloseNotifyDescription = State.NotifyDescription;
 	If OriginalOnCloseNotifyDescription <> Undefined Then
-		ExecuteNotifyProcessing(OriginalOnCloseNotifyDescription, Result);
+		RunCallback(OriginalOnCloseNotifyDescription, Result);
 	EndIf;
 	
 	Validation = ExternalResourcesPermissionsSetupServerCall.CheckApplyPermissionsToUseExternalResources();
@@ -374,7 +374,7 @@ EndProcedure
 //
 // Parameters:
 //  OwnerForm - ClientApplicationForm - Form that must be locked before permissions are applied.
-//  ClosingNotification1 - NotifyDescription - it will be called once permissions are granted.
+//  ClosingNotification1 - CallbackDescription - it will be called once permissions are granted.
 //
 Procedure StartEnablingSecurityProfilesUsage(OwnerForm, ClosingNotification1 = Undefined) Export
 	
@@ -388,7 +388,7 @@ EndProcedure
 //
 // Parameters:
 //  OwnerForm - ClientApplicationForm - Form that must be locked before permissions are applied.
-//  ClosingNotification1 - NotifyDescription - it will be called once permissions are granted.
+//  ClosingNotification1 - CallbackDescription - it will be called once permissions are granted.
 //
 Procedure StartDisablingSecurityProfilesUsage(OwnerForm, ClosingNotification1 = Undefined) Export
 	
@@ -403,7 +403,7 @@ EndProcedure
 //
 // Parameters:
 //  OwnerForm - ClientApplicationForm - Form that must be locked before permissions are applied.
-//  ClosingNotification1 - NotifyDescription - it will be called once permissions are granted.
+//  ClosingNotification1 - CallbackDescription - it will be called once permissions are granted.
 //
 Procedure StartRestoringSecurityProfiles(OwnerForm, ClosingNotification1 = Undefined) Export
 	
@@ -507,7 +507,7 @@ Procedure PlanPermissionApplyingCheckAfterOwnerFormClose(FormOwner, RequestsIDs)
 	
 	If TypeOf(FormOwner) = Type("ClientApplicationForm") Then
 		
-		InitialNotifyDescription = FormOwner.OnCloseNotifyDescription;
+		InitialNotifyDescription = FormOwner.CallbackDescriptionOnClose;
 		If InitialNotifyDescription <> Undefined Then
 			
 			If InitialNotifyDescription.Module = ExternalResourcesPermissionsSetupClient
@@ -520,12 +520,12 @@ Procedure PlanPermissionApplyingCheckAfterOwnerFormClose(FormOwner, RequestsIDs)
 		State = PermissionsApplicabilityCheckStateAfterCloseOwnerForm();
 		State.NotifyDescription = InitialNotifyDescription;
 		
-		PermissionsApplicabilityCheckNotifyDescription = New NotifyDescription(
+		PermissionsApplicabilityCheckNotifyDescription = New CallbackDescription(
 			"CheckPermissionsAppliedAfterOwnerFormClose",
 			ExternalResourcesPermissionsSetupClient,
 			State);
 		
-		FormOwner.OnCloseNotifyDescription = PermissionsApplicabilityCheckNotifyDescription;
+		FormOwner.CallbackDescriptionOnClose = PermissionsApplicabilityCheckNotifyDescription;
 		
 	EndIf;
 	

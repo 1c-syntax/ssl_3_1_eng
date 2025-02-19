@@ -25,10 +25,10 @@ Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessin
 	Presentation = Undefined;
 	
 	If Parameters.FormName = "Catalog.AccessGroups.Form.ListForm" Then
-		Presentation = NStr("en = 'Access group members';");
+		Presentation = NStr("en = 'Access group membership';");
 		
 	ElsIf Parameters.FormName = "Catalog.AccessGroups.Form.ItemForm" Then
-		Presentation = NStr("en = 'Access group members';");
+		Presentation = NStr("en = 'Access group membership';");
 	EndIf;
 	
 	If Presentation = Undefined Then

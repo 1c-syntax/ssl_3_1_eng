@@ -16,8 +16,8 @@
 //  ExchangePlanName - String - a name of the exchange plan, for which the registration is carried out.
 //  Source       - DocumentObject - an event source.
 //  Cancel          - Boolean - a flag of canceling the handler.
-//  WriteMode - DocumentWriteMode - see the Syntax Assistant for DocumentWriteMode.
-//  PostingMode - DocumentPostingMode - see the Syntax Assistant for DocumentPostingMode.
+//  WriteMode - DocumentWriteMode - See "DocumentWriteMode" in Syntax Assistant.
+//  PostingMode - DocumentPostingMode - See "DocumentPostingMode" in Syntax Assistant.
 // 
 Procedure ObjectsRegistrationMechanismBeforeWriteDocument(ExchangePlanName, Source, Cancel, WriteMode, PostingMode) Export
 	
@@ -147,8 +147,7 @@ Procedure ObjectsRegistrationMechanismBeforeDelete(ExchangePlanName, Source, Can
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions used by registration event handlers
+#Region ProceduresAndFunctionsToUseInRegistrationRulesEventHandlers
 
 // The procedure complements the list of recipient nodes of the object with the values passed.
 //
@@ -245,9 +244,7 @@ EndFunction
 //
 Function AllExchangePlanNodes(ExchangePlanName) Export
 	
-	SetPrivilegedMode(True);
-	
-	Return DataExchangeServer.ExchangePlanNodes(ExchangePlanName);
+	Return DataExchangeCached.ExchangePlanNodes(ExchangePlanName);
 	
 EndFunction
 
@@ -334,8 +331,9 @@ Function ImportRestricted(Data, Val ExchangePlanNode) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for external library calls
+#EndRegion
+
+#Region ProceduresAndFunctionsToBeInvokedFromOtherModules
 
 // See ExportImportDataOverridable.OnRegisterDataImportHandlers.
 Procedure OnRegisterDataImportHandlers(HandlersTable) Export
@@ -354,11 +352,11 @@ EndProcedure
 // Executes handlers after object import.
 //
 // Parameters:
-//	Container - DataProcessorObject.ExportImportDataContainerManager - a container
+//  Container - DataProcessorObject.ExportImportDataContainerManager - a container
 //		manager used for data export. For more information, see the comment
 //		to ExportImportDataContainerManager handler interface.
-//	Object - Arbitrary - an object of data being imported.
-//	Artifacts - Array of XDTODataObject - an array of artifacts (XDTO data objects).
+//  Object - Arbitrary - an object of data being imported.
+//  Artifacts - Array of XDTODataObject - an array of artifacts (XDTO data objects).
 //
 Procedure AfterImportObject(Container, Object, Artifacts) Export
 	
@@ -378,10 +376,12 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 #Region Internal
 
-// The procedure is designed to determine the kind of sending the exported data item.
-// The procedure is called from the following exchange plan handlers: OnSendDataToMaster() and OnSendDataToSubordinate().
+// The procedure is used to determine the method of sending the exported data item.
+// It is called from the OnSendDataToMaster() and OnSendDataToSlave() exchange plan handlers.
 //
 // Parameters:
 //   DataElement - ConstantValueManager
@@ -390,8 +390,8 @@ EndProcedure
 //                 - InformationRegisterRecordSet
 //                 - и т.п. -
 //                   a data item.
-//   ItemSend - DataItemSend - see the "ItemSend" parameter description in Syntax Assistant
-//                      for methods OnSendDataToMaster() and OnSendDataToSubordinate().
+//   ItemSend - DataItemSend - See the "ItemSend" parameter description in Syntax Assistant
+//                      for methods OnSendDataToMaster() and OnSendDataToSlave().
 //   InitialImageCreating - Boolean - indicates that the procedure is called upon creating the initial DIB image.
 //   Recipient - ExchangePlanRef
 //              - Undefined - the recipient node.
@@ -447,11 +447,11 @@ Procedure OnSendDataToRecipient(DataElement,
 	
 EndProcedure
 
-// The procedure is a handler for the event of the same name that occurs during data exchange in a distributed
-// infobase.
+// The procedure handles the same-name event that occurs during data exchange
+// in a distributed infobase.
 //
 // Parameters:
-//   see the OnReceiveDataFromMaster() event handler details in the syntax assistant.
+//   See the OnReceiveDataFromMaster event handler in Syntax Assistant.
 // 
 Procedure OnReceiveDataFromMasterInBeginning(DataElement, ItemReceive, SendBack, Sender) Export
 	
@@ -476,7 +476,7 @@ EndProcedure
 // The procedure is called from the OnReceiveDataFromMaster exchange plan handler.
 //
 // Parameters:
-//   see the OnReceiveDataFromMaster() event handler details in the syntax assistant.
+//   See the OnReceiveDataFromMaster event handler in Syntax Assistant.
 // 
 Procedure OnReceiveDataFromMasterInEnd(DataElement, ItemReceive, Val Sender) Export
 	
@@ -496,7 +496,7 @@ EndProcedure
 // The procedure is called from the OnReceiveDataFromSlave exchange plan handler.
 //
 // Parameters:
-//   see the OnReceiveDataFromSlave() event handler details in the Syntax Assistant.
+//   See the OnReceiveDataFromSlave event handler in Syntax Assistant.
 // 
 Procedure OnReceiveDataFromSlaveInEnd(DataElement, ItemReceive, Val Sender) Export
 	
@@ -596,15 +596,16 @@ EndProcedure
 // Creates an object version and writes it to the infobase.
 //
 // Parameters:
-//  Object - an infobase object to be written.
-//  RefExists - Boolean - indicates whether the referenced object exists in the infobase.
+//  Object - CatalogObject, DocumentObject - an infobase object to be written.
 //  ObjectVersionInfo - Structure:
-//    * VersionAuthor - Пользователь, УзелПланаОбмена - a version source.
+//    * VersionAuthor - CatalogRef.Users, ExchangePlanRef - a version source.
 //        Optional, the default value is Undefined.
 //    * ObjectVersionType - String - a type of a version to be created.
 //        Optional, the default value is ChangedByUser.
 //    * SynchronizationWarning - String - a warning about synchronization to the version being created.
 //        Optional, the default value is "".
+//  RefExists - Boolean - flag specifying whether the referenced object exists in the infobase.
+//  Sender - ExchangePlanObject - DSL exchange plan.
 //
 Procedure OnCreateObjectVersion(Object, ObjectVersionInfo, RefExists, Sender) Export
 	
@@ -755,14 +756,16 @@ EndProcedure
 
 Procedure EnableExchangePlanUsage(Source, Cancel) Export
 	
-	// There's no validation of the "DataExchange.Load" property as the code below is executed only if
-	// it is set to "True" (the code block that attempts to write to the exchange plan).
+	// The DataExchange.Load property is not checked because the code below is executed only if
+	// it is set to True (in the piece of code that attempts to write to the exchange plan).
 	// 
 	
 	If Source.IsNew() And DataExchangeCached.IsSeparatedSSLDataExchangeNode(Source.Ref) Then
 		
 		// Open session cache has become obsolete for the object registration mechanism.
 		DataExchangeInternal.ResetObjectsRegistrationMechanismCache();
+		
+		RefreshReusableValues();
 		
 	EndIf;
 	
@@ -774,8 +777,8 @@ EndProcedure
 //
 Procedure DisableExchangePlanUsage(Source, Cancel) Export
 	
-	// There's no validation of the "DataExchange.Load" property as the code below is executed only if
-	// it is set to "True" (the code block that attempts to delete the exchange plan node).
+	// The DataExchange.Load property is not checked because the code below is executed only if
+	// it is set to True (in the piece of code that attempts to write to the exchange plan).
 	// 
 	
 	If DataExchangeCached.IsSeparatedSSLDataExchangeNode(Source.Ref) Then
@@ -783,8 +786,10 @@ Procedure DisableExchangePlanUsage(Source, Cancel) Export
 		// Open session cache has become obsolete for the object registration mechanism.
 		DataExchangeInternal.ResetObjectsRegistrationMechanismCache();
 		
+		RefreshReusableValues();
+			
 	EndIf;
-	
+
 EndProcedure
 
 Procedure CheckDataExchangeSettingsEditability(Source, Cancel) Export
@@ -1027,8 +1032,8 @@ Procedure CancelSendNodeDataInDistributedInfobase(Source, DataElement, Ignore) E
 	
 	If Not DataElement.ThisNode Then
 		If Common.DataSeparationEnabled() Then
-			// On importing node data in separated mode, reset the separation values to zero.
-			// Otherwise, import to a shared SWP will lead to an attempt to write the node to an uninitialized data area
+			// On importing node data in separated mode, reset the separator values to zero.
+			// Otherwise, import to a shared SWS will lead to an attempt to write the node to an uninitialized data area
 			// with the given separator, resulting in an error (no node with the "ThisNode" flag).
 			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 			If ModuleSaaSOperations.IsSeparatedMetadataObject(Source.Metadata().FullName(),
@@ -1084,8 +1089,8 @@ EndProcedure
 
 Procedure ClearRefsToInfobaseNode(Source, Cancel) Export
 	
-	// There's no validation of the "DataExchange.Load" property as the code below is executed only if
-	// it is set to "True" (the code block that attempts to delete the exchange plan node).
+	// The DataExchange.Load property is not checked because the code below is executed only if
+	// it is set to True (in the piece of code that attempts to write to the exchange plan).
 	// 
 	
 	If Not DataExchangeCached.IsSSLDataExchangeNode(Source.Ref) Then
@@ -1093,6 +1098,8 @@ Procedure ClearRefsToInfobaseNode(Source, Cancel) Export
 	EndIf;
 	
 	Catalogs.DataExchangeScenarios.ClearRefsToInfobaseNode(Source.Ref);
+	
+	ExchangeMessagesTransport.DeleteAllTransportSettings(Source.Ref);
 	
 	If Common.DataSeparationEnabled()
 		And Common.SeparatedDataUsageAvailable() Then
@@ -1121,15 +1128,16 @@ Procedure ClearRefsToInfobaseNode(Source, Cancel) Export
 			
 			ModuleDataExchangeInternalPublication = Common.CommonModule("DataExchangeInternalPublication");
 			
-			DataExchangeScenarios = "";
+			DataExchangeScenarios = "";	
 			ExchangeID = "";
+			DataArea = SessionParameters["DataAreaValue"];
 			
 			HasNodeScheduledExchange = ModuleDataExchangeInternalPublication.HasNodeScheduledExchange(
 				Source.Ref, DataExchangeScenarios,ExchangeID);
 			
 			If HasNodeScheduledExchange Then
 				ModuleDataExchangeInternalPublication.CancelTaskQueue(
-					Source.Ref, DataExchangeScenarios, ExchangeID);
+					Source.Ref, DataExchangeScenarios, ExchangeID, DataArea);
 			EndIf;	
 					
 		EndIf;
@@ -1188,8 +1196,8 @@ EndProcedure
 //
 Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParameters = Undefined)
 	
-	// There's no validation of the "DataExchange.Load" property as the code below registers data only if
-	// the property is set to "True" (the code block that attempts to modify or delete data).
+	// The DataExchange.Load property is not checked because the code below is executed only if
+	// it is set to True (in the piece of code that attempts to write to the exchange plan).
 	// 
 	
 	OptionalParameters = New Structure;
@@ -1201,6 +1209,12 @@ Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParam
 	
 	If AdditionalParameters <> Undefined Then
 		FillPropertyValues(OptionalParameters, AdditionalParameters);
+		
+		// В версиях платформы 8.3.25 - 8.3.27 режим замещения может быть указан 
+		// как системное перечисление "РежимЗамещения" со значениями:
+		// Добавление, Замещение, Обновление, Слияние, Удаление.
+		// Из них режим "Добавление" соответствует значению замещение ЛОЖЬ, остальные ИСТИНА.
+		AdaptValueSubstitutionOfOptionalRegistrationParameters(OptionalParameters);
 	EndIf;
 	
 	IsRegister = OptionalParameters.IsRegister;
@@ -1324,7 +1338,7 @@ Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParam
 				
 				// If the object is not modified and its auto-registration is enabled,
 				// delete all auto-registration nodes from the current exchange plan.
-				ReduceRecipients(Object, AllExchangePlanNodes(ExchangePlanName));
+				ReduceRecipients(Object, DataExchangeCached.ExchangePlanNodes(ExchangePlanName));
 				
 			EndIf;
 			
@@ -1402,13 +1416,52 @@ Procedure RegisterChangesForAllSeparatedExchangePlanNodes(ExchangePlanName, Obje
 	
 EndProcedure
 
+// 
+// 
+//
+Procedure AdaptValueSubstitutionOfOptionalRegistrationParameters(OptionalParameters)
+	
+	SSLVersion = StandardSubsystemsServer.LibraryVersion();
+	
+	IsThisVersionOlderThanSSL_3_1_11 = (CommonClientServer.CompareVersions(SSLVersion, "3.1.11.0") <= 0);
+	If IsThisVersionOlderThanSSL_3_1_11
+		Or OptionalParameters.Replacing = Undefined
+		Or TypeOf(OptionalParameters.Replacing) = Type("Boolean")
+		Then
+		
+		Return;
+		
+	EndIf;
+	
+	ModuleCommon = Common.CommonModule("Common");
+	If ModuleCommon = Undefined Then
+		
+		Return;
+		
+	EndIf;
+	
+	IsExtendedReplacementMode = ModuleCommon.IsRecordSetReplacement(OptionalParameters.Replacing)
+		Or ModuleCommon.IsRecordSetUpdate(OptionalParameters.Replacing)
+		Or ModuleCommon.IsRecordSetMerge(OptionalParameters.Replacing)
+		Or ModuleCommon.IsRecordSetDeletion(OptionalParameters.Replacing);
+	
+	If IsExtendedReplacementMode = True Then
+		
+		OptionalParameters.Replacing = True;
+		Return;
+		
+	EndIf;
+	
+	OptionalParameters.Replacing = False;
+	
+EndProcedure
+
 #EndRegion
 
 #Region ObjectsRegistrationRules
 
 // A wrapper procedure that executes the code for the main procedure in an attempt mode
-// (See ExecuteObjectsRegistrationRulesForExchangePlanAttemptException)
-// .
+// (See ExecuteObjectsRegistrationRulesForExchangePlanAttemptException).
 //
 // Parameters:
 //  NodesArrayResult - Array - an array of recipient nodes of the ExchangePlanName exchange plan
@@ -1508,7 +1561,7 @@ Procedure ExecuteObjectsRegistrationRulesForExchangePlanAttemptException(NodesAr
 		
 		// Register the object in all exchange plan nodes (except for the predefined node)
 		// if the object has no ORR and its auto-registration is disabled.
-		Recipients = AllExchangePlanNodes(ExchangePlanName);
+		Recipients = DataExchangeCached.ExchangePlanNodes(ExchangePlanName);
 		
 		CommonClientServer.SupplementArray(NodesArrayResult, Recipients, True);
 		
@@ -2025,7 +2078,9 @@ Function DefineNodesArrayByPropertiesValues(PropertiesValues, ORR, Val ExchangeP
 	
 	If UseCache Then
 		
-		Return DataExchangeCached.NodesArrayByPropertiesValues(PropertiesValues, QueryText, ExchangePlanName, ORR.FlagAttributeName, Upload0);
+		PropertyValuesString = Common.ValueToXMLString(PropertiesValues);
+		Return DataExchangeCached.NodesArrayByPropertiesValues(
+			PropertyValuesString, QueryText, ExchangePlanName, ORR.FlagAttributeName, Upload0);
 		
 	Else
 		
@@ -2053,7 +2108,9 @@ Function DefineNodesArrayByPropertiesValuesAdditional(PropertiesValues, ORR, Val
 	
 	If UseCache Then
 		
-		Return DataExchangeCached.NodesArrayByPropertiesValues(PropertiesValues, QueryText, ExchangePlanName, ORR.FlagAttributeName);
+		PropertyValuesString = Common.ValueToXMLString(PropertiesValues);
+		Return DataExchangeCached.NodesArrayByPropertiesValues(
+			PropertyValuesString, QueryText, ExchangePlanName, ORR.FlagAttributeName);
 		
 	Else
 		
@@ -2064,8 +2121,17 @@ Function DefineNodesArrayByPropertiesValuesAdditional(PropertiesValues, ORR, Val
 	
 EndFunction
 
-// Returns an array of exchange plan nodes under the specified request parameters and request text for the exchange plan table.
-//
+// Returns an array of exchange plan nodes based on the specified query parameters and the text of the query to the exchange plan table.
+// 
+// Parameters:
+//  PropertiesValues - Structure - Object property values
+//  QueryText - String
+//  ExchangePlanName - String - Exchange plan name as it is set in Designer.
+//  FlagAttributeName - String
+//  Upload0 - Boolean
+// 
+// Returns:
+//  Array of ExchangePlanRef - Array of nodes by property values
 //
 Function NodesArrayByPropertiesValues(PropertiesValues, Val QueryText, Val ExchangePlanName, Val FlagAttributeName, Val Upload0 = False) Export
 	
@@ -2227,13 +2293,13 @@ Function SeparatedExchangePlan(Val ExchangePlanName)
 EndFunction
 
 // Creates a record set for the register.
-//
-// Parameters:
-//  MetadataObject MetadataObject - to get a record set.
-//
+// 
+// Parameters: 
+//  MetadataObject - MetadataObject - Metadata object that supports record sets
+// 
 // Returns:
-//  НаборЗаписей - If a record set cannot be created for the metadata object,
-//    an exception is raised.
+//  InformationRegisterRecordSet, RecordSetCalculationRegister, РегистрБухгалтерииНаборЗаписей
+//  - AccountingRegisterRecordSet, SequenceRecordSet - A record set.
 //
 Function RecordSetByType(MetadataObject)
 	
@@ -3379,11 +3445,11 @@ EndFunction
 // Returns an array of object tabular sections.
 //
 // Parameters:
-//   MetadataObject - MetadataObject - a reference object of metadata:
+//   MetadataObject - MetadataObject - Reference metadata object:
 //     * TabularSections - MetadataObjectCollection of MetadataObjectTabularSection
 //
 // Returns:
-//   Array of String - an object table collection.
+//   Array of String - Collection of object's tabular sections.
 //
 Function ObjectTabularSections(MetadataObject) Export
 	
@@ -3497,8 +3563,8 @@ EndFunction
 
 Procedure CheckTroubleshootingOfDocumentProcessingOfEvent(Source, Cancel, PostingMode) Export
 	
-	// There's no validation of the "DataExchange.Load" property as the code below is executed only if
-	// it is set to "True" (the code block that attempts to write the document, and during import).
+	// The DataExchange.Load property is not checked because the code below is executed only if
+	// it is set to True (in the piece of code that attempts to write to the exchange plan).
 	// 
 	
 	InformationRegisters.DataExchangeResults.RecordIssueResolved(Source, Enums.DataExchangeIssuesTypes.UnpostedDocument);
@@ -3507,8 +3573,8 @@ EndProcedure
 
 Procedure CheckObjectIssueResolvedOnWrite(Source, Cancel) Export
 	
-	// There's no validation of the "DataExchange.Load" property as the code below is executed only if
-	// it is set to "True" (the code block that attempts to write the object, and during import).
+	// The DataExchange.Load property is not checked because the code below is executed only if
+	// it is set to True (in the piece of code that attempts to write to the exchange plan).
 	// 
 	
 	InformationRegisters.DataExchangeResults.RecordIssueResolved(Source, Enums.DataExchangeIssuesTypes.BlankAttributes);
@@ -3516,12 +3582,12 @@ Procedure CheckObjectIssueResolvedOnWrite(Source, Cancel) Export
 EndProcedure
 
 // Gets the current record set value in the infobase.
-//
+// 
 // Parameters:
-//  Data - a register record set.
-//
+//  Data - Arbitrary - Arbitrary data
+// 
 // Returns:
-//  НаборЗаписей - containing the current value in the infobase.
+//   See RecordSetByType
 //
 Function RecordSet(Val Data)
 	

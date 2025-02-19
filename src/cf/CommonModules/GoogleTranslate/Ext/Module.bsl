@@ -22,6 +22,13 @@ EndFunction
 
 Function TranslateTheTexts(Texts, TranslationLanguage = Undefined, SourceLanguage = Undefined) Export
 	
+	If Not Common.AccessToInternetServicesAllowed() Then
+		WriteErrorToEventLog(StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Translation failed:
+			|%1';"), Common.AccessToInternetServicesDeniedMessageText()));
+		Raise ErrorText(NStr("en = 'Translation failed.';"));
+	EndIf;
+	
 	CommonClientServer.CheckParameter("TranslateTheTexts", "Texts", Texts, Type("Array"));
 	
 	If Not ValueIsFilled(TranslationLanguage) Then
@@ -47,7 +54,7 @@ Function TranslateTheTexts(Texts, TranslationLanguage = Undefined, SourceLanguag
 	QueryResult = ExecuteQuery(HTTPRequest, HostName);
 	
 	If Not QueryResult.QueryCompleted Then
-		Raise ErrorText(NStr("en = 'Cannot translate text.';"));
+		Raise ErrorText(NStr("en = 'Translation failed.';"));
 	EndIf;
 	
 	ServerResponse1 = Common.JSONValue(QueryResult.ServerResponse1);
@@ -102,6 +109,7 @@ Function ExecuteQuery(Val HTTPRequest, Val HostName)
 	SecureConnection = CommonClientServer.NewSecureConnection();
 	
 	Try
+		AccessAllowed = Common.AccessToInternetServicesAllowed(True);
 		Join = New HTTPConnection(HostName, , , , Proxy, 60, SecureConnection);
 		HTTPResponse = Join.Post(HTTPRequest);
 	Except

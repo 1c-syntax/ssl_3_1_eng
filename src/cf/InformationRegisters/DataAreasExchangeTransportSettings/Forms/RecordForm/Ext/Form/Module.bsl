@@ -130,7 +130,7 @@ Procedure TestConnectionAtServer(Cancel, TransportKindAsString)
 		PasswordsToCheck = New Structure("FTPConnectionPassword", FTPConnectionPassword);
 	EndIf;
 	
-	DataExchangeServer.CheckExchangeMessageTransportDataProcessorAttachment(
+	ExchangeMessagesTransport.CheckExchangeMessageTransportDataProcessorAttachment(
 		Cancel, Record, Enums.ExchangeMessagesTransportTypes[TransportKindAsString], , PasswordsToCheck);
 	
 EndProcedure
@@ -149,6 +149,8 @@ Procedure SetFormItemsVisibility()
 		Items.DefaultExchangeMessagesTransportKind.ChoiceList.Add(Item, String(Item));
 		
 	EndDo;
+	
+	Items.TestFTPConnection.Visible = False;
 	
 EndProcedure
 

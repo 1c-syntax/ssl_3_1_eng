@@ -77,7 +77,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		CurrentObject.AdditionalProperties.Insert("ComponentBinaryData", ComponentBinaryData);
 	EndIf;
 	
-	CurrentObject.TargetPlatforms = New ValueStorage(TargetPlatforms);
+	CurrentObject.TargetPlatforms = New ValueStorage(TargetPlatforms, New Deflation(9));
 	
 EndProcedure
 
@@ -146,7 +146,7 @@ EndProcedure
 Procedure UpdateFromThePortal(Command)
 	
 	If Modified Then
-		Notification = New NotifyDescription("AfterCloseQuestionWriteObject", ThisObject);
+		Notification = New CallbackDescription("AfterCloseQuestionWriteObject", ThisObject);
 		ShowQueryBox(Notification, 
 			NStr("en = 'Before checking for updates, save the changes. Save the changes?';"),
 			QuestionDialogMode.YesNo);
@@ -201,7 +201,7 @@ Procedure ImportAddInFromFile()
 		Return;
 	EndIf;
 	
-	Notification = New NotifyDescription("ImportAddInAfterSecurityWarning", ThisObject);
+	Notification = New CallbackDescription("ImportAddInAfterSecurityWarning", ThisObject);
 	UsersInternalClient.ShowSecurityWarning(Notification,
 		UsersInternalClientServer.SecurityWarningKinds().BeforeAddAddIn);
 	
@@ -220,7 +220,7 @@ Procedure ImportAddInAfterSecurityWarning(Response, Context) Export
 		Return;
 	EndIf;
 	
-	Notification = New NotifyDescription("ImportAddInAfterPutFile", ThisObject, Context);
+	Notification = New CallbackDescription("ImportAddInAfterPutFile", ThisObject, Context);
 	ImportParameters = FileSystemClient.FileImportParameters();
 	
 	ImportParameters.Dialog.Filter    = NStr("en = 'Add-in (*.zip)|*.zip';")+"|"
@@ -261,7 +261,7 @@ Procedure ImportAddInOnErrorDisplay(ErrorDescription = "", ErrorInfo = Undefined
 	If IsBlankString(ErrorDescription) Then 
 		ImportAddInAfterErrorDisplay(Undefined);
 	Else 
-		Notification = New NotifyDescription("ImportAddInAfterErrorDisplay", ThisObject);
+		Notification = New CallbackDescription("ImportAddInAfterErrorDisplay", ThisObject);
 		
 		StringWithWarning = NStr("en = '%1
 			|Specify a ZIP archive with an add-in.
@@ -311,7 +311,7 @@ Procedure StartAddInUpdateFromPortal()
 	AddInsToUpdate = New Array;
 	AddInsToUpdate.Add(Object.Ref);
 	
-	Notification = New NotifyDescription("AfterUpdateAddInFromPortal", ThisObject);
+	Notification = New CallbackDescription("AfterUpdateAddInFromPortal", ThisObject);
 	AddInsInternalClient.UpdateAddInsFromPortal(Notification, AddInsToUpdate);
 	
 EndProcedure

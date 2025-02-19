@@ -15,32 +15,26 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	// Import passed parameters.
 	PassedFormatArray = New Array;
-	FormatSettingsParameters = Parameters.FormatSettings;
-	If FormatSettingsParameters <> Undefined Then
-		PassedFormatArray = FormatSettingsParameters.SaveFormats;
-		PackToArchive = FormatSettingsParameters.PackToArchive;
-		TransliterateFilesNames = FormatSettingsParameters.TransliterateFilesNames;
-		Items.Sign.Visible = FormatSettingsParameters.Sign <> Undefined;
-		Sign = FormatSettingsParameters.Sign;
+	If Parameters.SaveFormats <> Undefined Then
+		PassedFormatArray = Parameters.SaveFormats;
 	EndIf;
-	
-	ArrayOfSaveFormatsRestrictions = StrSplit(Parameters.RestrictionOfSaveFormats, ",", False);
+	PackToArchive = Parameters.PackToArchive;
+	TransliterateFilesNames = Parameters.TransliterateFilesNames;
+	Items.Sign.Visible = Parameters.Sign <> Undefined;
+	Sign = Parameters.Sign;
 	
 	// Populate format list.
 	For Each SaveFormat In StandardSubsystemsServer.SpreadsheetDocumentSaveFormatsSettings() Do
 		Check = False;
-		If FormatSettingsParameters <> Undefined Then 
+		If Parameters.SaveFormats <> Undefined Then 
 			PassedFormat = PassedFormatArray.Find(String(SaveFormat.SpreadsheetDocumentFileType));
 			If PassedFormat <> Undefined Then
 				Check = True;
 			EndIf;
 		EndIf;
 		
-		If ArrayOfSaveFormatsRestrictions.Count() = 0
-			Or ArrayOfSaveFormatsRestrictions.Find(SaveFormat.Extension) <> Undefined Then
-				
-			SelectedSaveFormats.Add(String(SaveFormat.SpreadsheetDocumentFileType), SaveFormat.Presentation, Check, SaveFormat.Picture);
-		EndIf;
+		SelectedSaveFormats.Add(String(SaveFormat.SpreadsheetDocumentFileType), 
+			SaveFormat.Presentation, Check, SaveFormat.Picture);
 	EndDo;
 	
 	If SelectedSaveFormats.Count() = 1 Then
@@ -61,19 +55,11 @@ EndProcedure
 
 &AtServer
 Procedure BeforeLoadDataFromSettingsAtServer(Settings)
-	If Parameters.FormatSettings <> Undefined Then
-		If Parameters.FormatSettings.SaveFormats.Count() > 0 Then
-			Settings.Delete("SelectedSaveFormats");
-		EndIf;
-		If Parameters.FormatSettings.Property("PackToArchive") Then
-			Settings.Delete("PackToArchive");
-		EndIf;
-		If Parameters.FormatSettings.Property("TransliterateFilesNames") Then
-			Settings.Delete("TransliterateFilesNames");
-		EndIf;
-		If Parameters.FormatSettings.Property("Sign") Then
-			Settings.Delete("Sign");
-		EndIf;
+	If Parameters.SaveFormats <> Undefined And Parameters.SaveFormats.Count() > 0 Then
+		Settings.Delete("SelectedSaveFormats");
+		Settings.Delete("PackToArchive");
+		Settings.Delete("TransliterateFilesNames");
+		Settings.Delete("Sign");
 		Return;
 	EndIf;
 	

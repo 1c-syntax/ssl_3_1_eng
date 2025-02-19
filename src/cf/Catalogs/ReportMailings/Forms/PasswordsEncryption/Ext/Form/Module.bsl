@@ -62,7 +62,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		|• Click <b>Yes</b> to save the changes.
 		|• Click<b>No</b> to close the dialog box without saving the changes.';"));
 
-		ShowQueryBox(New NotifyDescription("ResponseSaveChangeCertificatesPasswords", ThisObject), QueryText,
+		ShowQueryBox(New CallbackDescription("ResponseSaveChangeCertificatesPasswords", ThisObject), QueryText,
 			QuestionDialogMode.YesNoCancel, , DialogReturnCode.Yes);
 	EndIf;
 	
@@ -196,7 +196,7 @@ Procedure PopulateCertificates(Command)
 		|• Click <b>No</b> to fill only missing certificates.';"));
 
 	ShowQueryBox(
-			New NotifyDescription("BeforePopulateCertificates", ThisObject), QueryText,
+			New CallbackDescription("BeforePopulateCertificates", ThisObject), QueryText,
 		QuestionDialogMode.YesNoCancel, , DialogReturnCode.No);
 
 EndProcedure
@@ -211,7 +211,7 @@ Procedure SetPasswords(Command)
 		|• Click <b>No</b> to set passwords only if no passwords are set.';"));
 
 	ShowQueryBox(
-			New NotifyDescription("BeforeSetPasswords", ThisObject), QueryText,
+			New CallbackDescription("BeforeSetPasswords", ThisObject), QueryText,
 		QuestionDialogMode.YesNoCancel, , DialogReturnCode.No);
 
 EndProcedure

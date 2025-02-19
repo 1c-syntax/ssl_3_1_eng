@@ -53,7 +53,7 @@ Procedure Fill(Command)
 		EndIf;
 	EndIf;
 	
-	Handler = New NotifyDescription("FillCompletion", ThisObject);
+	Handler = New CallbackDescription("FillCompletion", ThisObject);
 	ShowInputString(Handler, FullAddress, NStr("en = 'Enter full ftp address';"))
 EndProcedure
 

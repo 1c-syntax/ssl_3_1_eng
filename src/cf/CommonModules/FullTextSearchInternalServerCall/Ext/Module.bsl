@@ -17,7 +17,7 @@
 //   - Changes value of the UseFullTextSearch functional option
 //   - Changes mode of the FullTextSearchIndexUpdate scheduled job
 //   - Changes mode of the FullTextSearchMergeIndex scheduled job
-//   - Changes mode of the TextExtraction scheduled job of the StoredFiles subsystem
+//   - Changes mode of the TextExtraction scheduled job of the FilesOperations subsystem
 //
 Function SetFullTextSearchMode(UseFullTextSearch) Export
 	

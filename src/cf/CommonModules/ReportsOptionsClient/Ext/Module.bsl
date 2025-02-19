@@ -107,7 +107,7 @@ EndProcedure
 //
 // Parameters:
 //  SubsystemPath - String - Section name or a path to the subsystem for which the report panel is opened.
-//                    Conforms to the following format: "[.ИмяВложеннойПодсистемы1][.ИмяВложеннойПодсистемы2][...]".
+//                    Conforms to the following format: "[.NestedSubsystemName1][.NestedSubsystemName2][...]".
 //                    Section must be described in ReportsOptionsOverridable.DefineSectionsWithReportsOptions.
 //  CommandExecuteParameters - CommandExecuteParameters - Parameters of the common command handler.
 //
@@ -160,7 +160,7 @@ Procedure OnStart(Parameters) Export
 		Return;
 	EndIf;
 	
-	Handler = New NotifyDescription("ProcessMessageActions", ReportsOptionsClient,,
+	Handler = New CallbackDescription("ProcessMessageActions", ReportsOptionsClient,,
 		"OnMessageActionHandlerError", ReportsOptionsClient);
 	
 	Try
@@ -644,7 +644,7 @@ Procedure UpdateReportOptionFromFiles(ReportOptionProperties, FormIdentifier) Ex
 	ImportParameters.Dialog.Filter = NStr("en = 'Report information (*.zip)|*.zip';");
 	ImportParameters.FormIdentifier = FormIdentifier;
 	
-	Handler = New NotifyDescription("UpdateReportOptionsFromFilesCompletion", ThisObject, 
+	Handler = New CallbackDescription("UpdateReportOptionsFromFilesCompletion", ThisObject, 
 		ReportOptionProperties);
 	FileSystemClient.ImportFiles(Handler, ImportParameters);
 
@@ -710,7 +710,7 @@ Procedure UpdateReportOptionFromFile(FileDetails, BaseReportOptionProperties)
 		
 	Else
 		
-		Handler = New NotifyDescription(
+		Handler = New CallbackDescription(
 			"OpenSelectedReportOptionForm", ThisObject, ReportOptionProperties.Ref);
 		
 		QuestionTextTemplate = NStr("en = 'The selected settings of the ""%1"" report option
@@ -788,7 +788,7 @@ Procedure ShareUserSettings(SettingsDescription) Export
 	PickingParameters.Insert("PickFormHeader", NStr("en = 'Share report settings with users';"));
 	PickingParameters.Insert("PickingCompletionButtonTitle", NStr("en = 'Share';"));
 	
-	Handler = New NotifyDescription(
+	Handler = New CallbackDescription(
 		"ShareUserSettingsAfterUsersChoice", ReportsOptionsClient, SettingsDescription);
 	
 	OpenForm("Catalog.Users.ChoiceForm", PickingParameters,,,,, Handler);

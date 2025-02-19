@@ -16,14 +16,13 @@
 // ABBREVIATION LIST
 //
 //  OCR - Object conversion rule
-//  OCR - Property conversion rules
+//  PCR - Property conversion rules
 //  PGCR - Property group conversion rule
 //  VCR - Value conversion rule
 //  DER - Data export rule
 //  DCR - Data cleansing rule
 
-////////////////////////////////////////////////////////////////////////////////
-// EXPORT VARIABLES
+#Region ExportedVariables
 
 Var EventLogMessageKey Export; // Message string for logging errors.
 
@@ -31,8 +30,9 @@ Var ExternalConnection Export; // Contains the global context of external connec
 
 Var Queries Export; // Contains used queries.
 
-////////////////////////////////////////////////////////////////////////////////
-// AUXILIARY MODULE VARIABLES FOR CREATING ALGORITHMS (FOR BOTH IMPORT AND EXPORT)
+#EndRegion
+
+#Region ModuleAuxiliaryVariablesForWritingAlgorithmsCommonForImportAndExport
 
 Var Conversion; // Conversion property structure (name, ID, and exchange event handlers).
 
@@ -54,14 +54,16 @@ Var DataProtocolFile; // A data exchange log file.
 
 Var CommentObjectProcessingFlag;
 
-////////////////////////////////////////////////////////////////////////////////
-// HANDLER DEBUGGING VARIABLES
+#EndRegion
+
+#Region HandlersDebugVariables
 
 Var ExportProcessing;
 Var LoadProcessing;
 
-////////////////////////////////////////////////////////////////////////////////
-// FLAGS THAT SHOW WHETHER GLOBAL EVENT HANDLERS EXIST
+#EndRegion
+
+#Region GlobalEventHandlersAvailabilityFlags
 
 Var HasBeforeExportObjectGlobalHandler;
 Var HasAfterExportObjectGlobalHandler;
@@ -71,8 +73,9 @@ Var HasBeforeConvertObjectGlobalHandler;
 Var HasBeforeImportObjectGlobalHandler;
 Var HasAfterObjectImportGlobalHandler;
 
-////////////////////////////////////////////////////////////////////////////////
-// VARIABLES THAT ARE USED IN EXCHANGE HANDLERS (BOTH FOR IMPORT AND EXPORT)
+#EndRegion
+
+#Region ExchangeDataProcessorsVariablesCommonForImportAndExport
 
 Var StringType;                  // Type("String")
 
@@ -113,14 +116,15 @@ Var BlankDateValue;
 
 Var ErrorsMessages; // Map: Key - Error code; Value - Error details.
 
-////////////////////////////////////////////////////////////////////////////////
-// EXPORT PROCESSING MODULE VARIABLES
+#EndRegion
+
+#Region VariablesOfExportProcessModule
  
 Var SnCounter;                            // Number
 
 Var WrittenToFileSn;
 
-// 
+// ValueTable - A template for restoring the table structure by copying.
 Var PropertyConversionRuleTable;       // ValueTable
 
 Var XMLRules;                            // XML string that contains exchange rule description.
@@ -130,17 +134,18 @@ Var TypesForDestinationString;
 Var DocumentsForDeferredPostingField; // Value table that should be used for posting documents after data import.
 
 
-// 
+// A map for storing additional document properties after data is imported.
 Var DocumentsForDeferredPostingMap; // Map
 
 Var ObjectsForDeferredPostingField; // Map that should be used for storing reference type object after data import.
 
 Var ExchangeFile; // A sequentially writable/readable exchange file.
 
-Var ObjectsToExportCount; //Total number of objects to be exported.
+Var ObjectsToExportCount; //Total number of objects to be exported.
 
-////////////////////////////////////////////////////////////////////////////////
-// IMPORT PROCESSING MODULE VARIABLES
+#EndRegion
+
+#Region VariablesOfImportProcessModule
  
 Var DeferredDocumentRegisterRecordCount;
 Var LastSearchByRefNumber;
@@ -174,15 +179,16 @@ Var DataImportDataProcessorField;
 Var ObjectsToImportCount;
 Var ExchangeMessageFileSize;
 
-////////////////////////////////////////////////////////////////////////////////
-// VARIABLES FOR PROPERTY VALUES
+#EndRegion
+
+#Region VariablesForPropertyValues
 
 Var ErrorFlagField;
 Var ExchangeResultField;
 Var DataExchangeStateField;
 
-//  
-// 
+// Correspondence with data values tables from the exchange message. 
+// Key - TypeName (String). Value - Table with object data (ValueTable).
 Var DataTableExchangeMessagesField; // Map
 
 Var PackageHeaderDataTableField; // A value table with data from the batch title file of exchange messages.
@@ -197,19 +203,19 @@ Var ExportedObjectsCounterField; // Export object counter.
 
 Var ExchangeResultsPrioritiesField; // Array - Data exchange result priorities in descending order.
 
-// 
-// 
+// Map: Value - MetadataObject; Value - ValueTable -
+// Describes metadata object's properties.
 Var ObjectsPropertiesDetailsTableField; // Map
 
 Var ExportedByRefObjectsField; // Array of exported objects. All array elements are unique.
 
 Var CreatedOnExportObjectsField; // Array of exported objects. All array elements are unique.
 
-// 
-// 
+// Map: Key - MetadataObject; Value - Flag indicating export by Ref.
+// If set to True, the object should be exported by Ref.
 Var ExportedByRefMetadataObjectsField; // Map
 
-// 
+// ValueTable - Object registration rules (current exchange plan's rules with the "Allowed object filter" type only).
 // 
 Var ObjectsRegistrationRulesField; // ValueTable
 
@@ -222,6 +228,8 @@ Var IncomingExchangeMessageFormatVersionField;
 Var PutMessageToArchiveWithExternalConnection;
 Var TempDirForArchiveAssembly;
 Var PackageNumber;
+
+#EndRegion
 
 #EndRegion
 
@@ -316,7 +324,7 @@ EndProcedure
 //  ObjectExportStack      - Array of AnyRef - contains information on parent export objects.
 //
 // Returns:
-//   XMLWriter - a reference XML node or a destination value.
+//   XMLWriter - Reference XML node or a destination value.
 //
 Function ExportByRule(
 		Source = Undefined,
@@ -2414,6 +2422,11 @@ Procedure RunDataImport() Export
 			SetSafeMode(SecurityProfileName);
 		EndIf;
 		
+#If ExternalConnection Then
+			InformationRegisters.ArchiveOfExchangeMessages.PackMessageToArchive(
+			ExchangeNodeDataImport, ExchangeFileName);
+#EndIf
+		
 		StartReadMessage(MessageReader);
 		
 		DataExchangeInternal.DisableAccessKeysUpdate(True);
@@ -2545,7 +2558,7 @@ Procedure ExecuteDataImportForInfobase(TablesToImport) Export
 	// Import end date.
 	DataExchangeState().EndDate = CurrentSessionDate();
 	
-	// Recording data import completion in the information register.
+	// Record data import completion in the information register.
 	WriteDataImportEnd();
 	
 	// Record in the event log.
@@ -2737,7 +2750,7 @@ Procedure ExecuteExchangeMessageAnalysis(AnalysisParameters = Undefined) Export
 	// Analysis end date.
 	DataExchangeState().EndDate = CurrentSessionDate();
 	
-	// Recording data analysis completion in the information register.
+	// Record data analysis completion in the information register.
 	WriteDataImportEnd();
 	
 	// Reset modal variables before storing the data processor in the cache.
@@ -4326,7 +4339,7 @@ EndFunction
 // Skips xml nodes to the end of the specified item (which is currently the default one).
 //
 // Parameters:
-//  Object   - an object of the XMLReader type.
+//  Object   - An XMLReader object.
 //  Name      - a name of node, to the end of which items are skipped.
 //
 Procedure deSkip(Object, Name="")
@@ -4678,12 +4691,15 @@ Function ExchangeExecutionResultWarning(ExchangeExecutionResult)
 EndFunction
 
 // Writes to a protocol or displays messages of the specified structure.
-//
+// 
 // Parameters:
 //  Code               - Number - message code.
 //  RecordStructure   - Structure - protocol record structure.
 //  SetErrorFlag1 - если истина, то - it is an error message. Setting ErrorFlag.
 // 
+// Returns:
+//  String - See ErrorMessageString
+//
 Function WriteToExecutionProtocol(Code = "",
 									RecordStructure=Undefined,
 									SetErrorFlag1=True,
@@ -5171,7 +5187,7 @@ EndFunction
 // Imports the property group conversion rule.
 //
 // Parameters:
-//   ExchangeRules  - XMLReader - an object of the XMLReader type.
+//   ExchangeRules  - XMLReader - An XMLReader object.
 //   PropertiesTable - See PropertiesConversionRulesCollection
 //   DisabledProperties - See PropertiesConversionRulesCollection
 //   SynchronizeByID - Boolean - True if synchronization is executed by ID.
@@ -5530,7 +5546,7 @@ EndProcedure
 // Imports property conversion rules.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  PropertiesTable - ValueTable - a value table containing PCR.
 //  SearchTable  - ValueTable - a value table containing PCR (synchronizing).
 //
@@ -5574,7 +5590,7 @@ EndProcedure
 // Imports the value conversion rule.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  Values       - соответствие значений объекта источника - destination
 //                   object presentation strings.
 //  SourceType   - значение Тип - the Type type - source object type.
@@ -5606,7 +5622,7 @@ EndProcedure
 // Imports value conversion rules.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  Values       - соответствие значений объекта источника - destination
 //                   object presentation strings.
 //  SourceType   - значение Тип - the Type type - source object type.
@@ -5630,7 +5646,7 @@ EndProcedure
 // Imports the object conversion rule.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
 //                   used on data import.
 //
@@ -6114,7 +6130,7 @@ EndProcedure
 // Imports object conversion rules.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
 //                   used on data import.
 //
@@ -6272,7 +6288,7 @@ EndProcedure
 // Imports data clearing rules.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
 //                   used on data import.
 //
@@ -6328,7 +6344,7 @@ EndProcedure
 // Imports the algorithm according to the exchange rule format.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
 //                   used on data import.
 //
@@ -6374,7 +6390,7 @@ EndProcedure
 // Imports algorithms according to the exchange rule format.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
 //                   used on data import.
 //
@@ -6401,7 +6417,7 @@ EndProcedure
 // Imports the query according to the exchange rule format.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
 //                   used on data import.
 //
@@ -6447,7 +6463,7 @@ EndProcedure
 // Imports queries according to the exchange rule format.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
 //                   used on data import.
 //
@@ -6476,7 +6492,7 @@ EndProcedure
 // Imports parameters according to the exchange rule format.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //
 Procedure DoImportParameters(ExchangeRules, XMLWriter)
 
@@ -6579,7 +6595,7 @@ EndProcedure
 // Imports the data processor according to the exchange rule format.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
 //                   used on data import.
 //
@@ -6626,7 +6642,7 @@ EndProcedure
 // Imports external data processors according to the exchange rule format.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
 //                   used on data import.
 //
@@ -6659,7 +6675,7 @@ EndProcedure
 // Imports the data export rule according to the exchange rule format.
 //
 // Parameters:
-//  ExchangeRules - XMLReader - an object of the XMLReader type.
+//  ExchangeRules - XMLReader - An XMLReader object.
 //
 Procedure ImportDER(ExchangeRules)
 	
@@ -6763,7 +6779,7 @@ EndProcedure
 // Imports data export rules according to the exchange rule format.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader - An XMLReader object.
 //
 Procedure ImportExportRules(ExchangeRules)
 	
@@ -10831,7 +10847,7 @@ Function ReadObject(UUIDAsString1 = "")
 							// 
 							Object.AdditionalProperties.Insert("DisableObjectChangeRecordMechanism");
 							
-							// Setting DataExchange.Load for document register records.
+							// Set DataExchange.Load for document register records.
 							For Each CurRecord In Object.RegisterRecords Do
 								SetDataExchangeLoad(CurRecord,, SendBack);
 							EndDo;
@@ -13377,7 +13393,23 @@ EndProcedure
 
 #Region ProceduresAndFunctionsOfCompilingExchangeRulesInStructure
 
-// returns the exchange rule structure.
+// Parameters:
+//  Source - String - The name of the temp file with rules
+// 
+// Returns:
+//  - Undefined
+//  - Structure:
+//    * RulesStorageFormatVersion - Number 
+//    * Conversion - See Conversion
+//    * ParametersSetupTable - See ParametersSetupTableInitialization
+//    * ExportRulesTable - See DataExportRulesCollection
+//    * ConversionRulesTable - See ConversionRulesCollection
+//    * Algorithms - Structure 
+//    * Parameters - Structure  
+//    * Queries - Structure 
+//    * XMLRules - String - XML string of exchange rules
+//    * TypesForDestinationString - String - XML string with types
+//
 Function ExchangeRules(Source) Export
 	
 	ImportExchangeRules(Source, "XMLFile");
@@ -13715,7 +13747,7 @@ Function InitExchangeMessageDataTable(ObjectType)
 	
 	MetadataObject = Metadata.FindByType(ObjectType);
 	
-	// Getting a description of all metadata object fields from the configuration.
+	// Get details of all metadata object fields from the configuration.
 	ObjectPropertiesDescriptionTable = Common.ObjectPropertiesDetails(MetadataObject, "Name, Type");
 	
 	For Each PropertyDetails In ObjectPropertiesDescriptionTable Do
@@ -13771,7 +13803,7 @@ Procedure DisableDataProcessorForDebug()
 	
 EndProcedure
 
-// Initializes the ErrorMessages variable that contains mapping of message codes and their description.
+// Initializes the ErrorsMessages variable that contains mapping of message codes and their description.
 //
 // Parameters:
 //  No.
@@ -13786,7 +13818,7 @@ Procedure InitMessages()
 	ErrorsMessages.Insert(5,  NStr("en = 'An error occurred when opening an exchange file';"));
 	ErrorsMessages.Insert(6,  NStr("en = 'Error importing exchange rules';"));
 	ErrorsMessages.Insert(7,  NStr("en = 'Exchange rule format error';"));
-	ErrorsMessages.Insert(8,  NStr("en = 'Invalid data export file name';")); // 
+	ErrorsMessages.Insert(8,  NStr("en = 'Invalid data export file name';")); // не используется
 	ErrorsMessages.Insert(9,  NStr("en = 'Exchange file format error';"));
 	ErrorsMessages.Insert(10, NStr("en = 'Data export file name is not specified';"));
 	ErrorsMessages.Insert(11, NStr("en = 'Exchange rules reference a metadata object that does not exist';"));
@@ -13944,7 +13976,7 @@ Procedure SupplementManagerArrayWithRegisterType(Managers, MetadataObjectsList, 
 		
 EndProcedure
 
-// Initializes the Managers variable that contains mapping of object types and their properties.
+// Initializes the Managers variable that contains mapping of object types and their properties.
 //
 // Parameters:
 //  No.
@@ -14355,8 +14387,7 @@ Function PCRPropertyName(LineOfATabularSection)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Global handlers
+#Region GlobalHandlers
 
 Procedure ExecuteHandlerConversionAfterExchangeRulesImport()
 	
@@ -14600,8 +14631,9 @@ Procedure ExecuteHandlerConversionAfterGetExchangeNodesInformation(Val ExchangeN
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// OCR handlers.
+#EndRegion
+
+#Region OCRHandlers
 
 Procedure ExecuteOCRHandlerBeforeObjectExport(ExchangeFile, Source, IncomingData, OutgoingData,
 														OCRName, OCR, ExportedObjects, Cancel, DataToExportKey,
@@ -14858,8 +14890,9 @@ Procedure ExecuteOCRHandlerSearchFieldsSequence(SearchVariantNumber, SearchPrope
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// PCR handlers.
+#EndRegion
+
+#Region PCRHandlers
 
 Procedure ExecutePCRHandlerBeforeExportProperty(ExchangeFile, Source, Receiver, IncomingData, OutgoingData,
 														 PCR, OCR, CollectionObject, Cancel, Value, DestinationType, OCRName,
@@ -15016,8 +15049,9 @@ Procedure ExecutePCRHandlerAfterExportProperty(ExchangeFile, Source, Receiver, I
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// PGCR handlers.
+#EndRegion
+
+#Region PGCRHandlers
 
 Procedure ExecutePGCRHandlerBeforeExportProcessing(ExchangeFile, Source, Receiver, IncomingData, OutgoingData, OCR,
 														   PGCR, Cancel, ObjectCollection1, NotReplace, PropertyCollectionNode, NotClear)
@@ -15190,8 +15224,9 @@ Procedure ExecutePGCRHandlerAfterExportProcessing(ExchangeFile, Source, Receiver
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// DER handlers.
+#EndRegion
+
+#Region DERHandlers
 
 Procedure ExecuteHandlerDERBeforeProcessRule(Cancel, OCRName, Rule, OutgoingData, DataSelection)
 	
@@ -15277,8 +15312,9 @@ Procedure ExecuteHandlerDERAfterExportObject(ExchangeFile, Object, OCRName, Inco
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// DPR handlers.
+#EndRegion
+
+#Region DPRHandlers
 
 Procedure ExecuteHandlerDPRBeforeProcessRule(Rule, Cancel, OutgoingData, DataSelection)
 	
@@ -15330,8 +15366,9 @@ Procedure ExecuteHandlerDPRAfterProcessRule(Rule)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Parameter handlers.
+#EndRegion
+
+#Region ParameterHandlers
 
 Procedure ExecuteHandlerParametersAfterParameterImport(Name, Value)
 	
@@ -15349,6 +15386,8 @@ Procedure ExecuteHandlerParametersAfterParameterImport(Name, Value)
 	Value = HandlerParameters[1];
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -16434,7 +16473,7 @@ Procedure ReadDataForTables(TablesToImport)
 					
 					UUIDAsString1 = deAttribute(ExchangeFile, StringType, "UUID");
 					
-					// Adding object deletion into the message data table.
+					// Add object deletion to the message data table.
 					ExchangeMessageDataTable = DataTablesExchangeMessages().Get(DataTableKey);
 					
 					TableRow = ExchangeMessageDataTable.Find(UUIDAsString1, UUIDColumnName());
@@ -18105,8 +18144,6 @@ Procedure CollectAndArchiveExchangeMessage()
 	TextDocument.AddLine("</ExchangeFile>");
 	TextDocument.Write(NameOfCommonFile, , Chars.LF);
 	TextDocument = Undefined;
-	
-	InformationRegisters.ArchiveOfExchangeMessages.PackMessageToArchive(ExchangeNodeDataImport, NameOfCommonFile);
 	
 	DeleteFiles(TempDirForArchiveAssembly);
 	

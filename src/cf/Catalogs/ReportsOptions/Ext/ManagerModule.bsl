@@ -37,7 +37,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// StandardSubsystems.AccessManagement
+// СтандартныеПодсистемы.УправлениеДоступом
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -237,7 +237,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 					CommitTransaction();
 					Continue;
 				EndIf;
-				OptionObject.Settings = New ValueStorage(OptionSettings);
+				OptionObject.Settings = New ValueStorage(OptionSettings, New Deflation(9));
 			EndIf;
 
 			If Not ValueIsFilled(OptionObject.Purpose) Then

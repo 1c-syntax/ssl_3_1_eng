@@ -59,20 +59,8 @@
 //
 Function GetVersions(InterfaceName)
 	
-	VersionsArray = Undefined;
-	
-	SupportedVersionsStructure = New Structure;
-	
-	SSLSubsystemsIntegration.OnDefineSupportedInterfaceVersions(SupportedVersionsStructure);
-	CommonOverridable.OnDefineSupportedInterfaceVersions(SupportedVersionsStructure);
-	
-	SupportedVersionsStructure.Property(InterfaceName, VersionsArray);
-	
-	If VersionsArray = Undefined Then
-		Return XDTOSerializer.WriteXDTO(New Array);
-	Else
-		Return XDTOSerializer.WriteXDTO(VersionsArray);
-	EndIf;
+	VersionsArray = StandardSubsystemsServer.SupportedVersionsOfSoftwareInterface(InterfaceName);
+	Return XDTOSerializer.WriteXDTO(VersionsArray);
 	
 EndFunction
 

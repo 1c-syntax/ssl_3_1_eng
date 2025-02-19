@@ -115,7 +115,7 @@ Procedure OnOpen(Cancel)
 		
 		Cancel = True;
 		ShowQueryBox(
-			New NotifyDescription("OnOpenAfterAdministratorProfileInstallationConfirmation", ThisObject),
+			New CallbackDescription("OnOpenAfterAdministratorProfileInstallationConfirmation", ThisObject),
 			NStr("en = 'The ""Administrators"" access group must have the ""Administrator"" profile.
 			           |
 			           |Do you want to assign the profile to the access group? If you select ""No"", the group will be read-only.';"),
@@ -132,7 +132,7 @@ Procedure OnOpen(Cancel)
 			
 			Cancel = True;
 			ShowQueryBox(
-				New NotifyDescription("OnOpenAfterAccessKindUpdateConfirmation", ThisObject),
+				New CallbackDescription("OnOpenAfterAccessKindUpdateConfirmation", ThisObject),
 				NStr("en = 'The access kinds of the access group''s profile were changed.
 				           |
 				           |Do you want to update the access kinds in the access group? If you select ""No"", the group will be read-only.';"),
@@ -215,7 +215,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 		WriteParameters.Insert("AfterAuthenticationPasswordRequestInService");
 		Cancel = True;
 		UsersInternalClient.RequestPasswordForAuthenticationInService(
-			New NotifyDescription("BeforeWriteFollowUp", ThisObject, WriteParameters),
+			New CallbackDescription("BeforeWriteFollowUp", ThisObject, WriteParameters),
 			ThisObject,
 			ServiceUserPassword);
 		Return;
@@ -294,7 +294,7 @@ Procedure AfterWrite(WriteParameters)
 	If WriteParameters.Property("WarnThatProfileIsMarkedForDeletion") Then
 		
 		ShowMessageBox(
-			New NotifyDescription("AfterWriteCompletion", ThisObject, WriteParameters),
+			New CallbackDescription("AfterWriteCompletion", ThisObject, WriteParameters),
 			NStr("en = 'The access group does not affect its members'' rights
 			           |as its profile is marked for deletion.';"));
 	Else
@@ -893,8 +893,7 @@ Procedure AccessKindsOnEditEnd(Item, NewRow, CancelEdit)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Event handlers of the "AllAllowedPresentation" item of the "AccessKinds" form table.
+#Region EventHandlersForAllAllowedPresentationItemOfFormAccessKindsTable
 
 &AtClient
 Procedure AccessKindsAllAllowedPresentationOnChange(Item)
@@ -911,6 +910,8 @@ Procedure AccessKindsAllAllowedPresentationChoiceProcessing(Item, ValueSelected,
 		ThisObject, Item, ValueSelected, StandardProcessing);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -1400,7 +1401,7 @@ Procedure ShowTypeSelectionUsersOrExternalUsers(ContinuationHandler)
 	ExternalUsersSelectionAndPickup = False;
 	
 	If Object.Ref = AdministratorsAccessGroup Then
-		ExecuteNotifyProcessing(ContinuationHandler, ExternalUsersSelectionAndPickup);
+		RunCallback(ContinuationHandler, ExternalUsersSelectionAndPickup);
 		Return;
 	EndIf;
 	
@@ -1413,14 +1414,14 @@ Procedure ShowTypeSelectionUsersOrExternalUsers(ContinuationHandler)
 				If UseExternalUsers Then
 					
 					UserTypesList.ShowChooseItem(
-						New NotifyDescription(
+						New CallbackDescription(
 						"ShowTypeSelectionUsersOrExternalUsersCompletion",
 						ThisObject,
 						ContinuationHandler),
 						NStr("en = 'Select data type';"),
 						UserTypesList[0]);
 				Else
-					ExecuteNotifyProcessing(ContinuationHandler, ExternalUsersSelectionAndPickup);
+					RunCallback(ContinuationHandler, ExternalUsersSelectionAndPickup);
 				EndIf;
 				
 				Return;
@@ -1435,7 +1436,7 @@ Procedure ShowTypeSelectionUsersOrExternalUsers(ContinuationHandler)
 		
 	EndIf;
 	
-	ExecuteNotifyProcessing(ContinuationHandler, ExternalUsersSelectionAndPickup);
+	RunCallback(ContinuationHandler, ExternalUsersSelectionAndPickup);
 	
 EndProcedure
 
@@ -1446,9 +1447,9 @@ Procedure ShowTypeSelectionUsersOrExternalUsersCompletion(SelectedElement, Conti
 		ExternalUsersSelectionAndPickup =
 			SelectedElement.Value = Type("CatalogRef.ExternalUsers");
 		
-		ExecuteNotifyProcessing(ContinuationHandler, ExternalUsersSelectionAndPickup);
+		RunCallback(ContinuationHandler, ExternalUsersSelectionAndPickup);
 	Else
-		ExecuteNotifyProcessing(ContinuationHandler, Undefined);
+		RunCallback(ContinuationHandler, Undefined);
 	EndIf;
 	
 EndProcedure
@@ -1475,7 +1476,7 @@ Procedure SelectPickUsers(Pick)
 		ExternalUsersSelectionAndPickup = True;
 	Else
 		ShowTypeSelectionUsersOrExternalUsers(
-			New NotifyDescription("SelectPickUsersCompletion", ThisObject, Pick));
+			New CallbackDescription("SelectPickUsersCompletion", ThisObject, Pick));
 		Return;
 	EndIf;
 	
@@ -1754,7 +1755,7 @@ Procedure JumpToAccessValue()
 	
 EndProcedure
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

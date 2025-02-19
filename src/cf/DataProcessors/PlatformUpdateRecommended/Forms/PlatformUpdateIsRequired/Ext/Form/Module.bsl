@@ -36,7 +36,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		If ValueIsFilled(PlatformDirectory) Then
 			Items.FormRestart.Visible = True;
 			Items.FormRestart.DefaultButton = True;
-			ClarificationRestart = Chars.LF + Chars.LF + NStr("en = 'Run the app on the supported 1C:Enterprise version (click <b>Restart</b>).';");
+			ClarificationRestart = Chars.LF + Chars.LF + NStr("en = 'Run the application on the supported 1C:Enterprise version (click <b>Restart</b>).';");
 		EndIf;
 	EndIf;
 	
@@ -84,7 +84,7 @@ Procedure Restart(Command)
 	StartupCommand.Add("AppAutoCheckVersion-");
 	
 	ApplicationStartupParameters = FileSystemClient.ApplicationStartupParameters();
-	ApplicationStartupParameters.Notification = New NotifyDescription("RestartCompletion", ThisObject);
+	ApplicationStartupParameters.Notification = New CallbackDescription("RestartCompletion", ThisObject);
 	ApplicationStartupParameters.WaitForCompletion = False;
 	
 	FileSystemClient.StartApplication(StartupCommand, ApplicationStartupParameters);
@@ -153,7 +153,8 @@ Function PlatformVersionsTable(Platforms, AllDeprecatedVersions)
 			Continue;
 		EndIf;
 		
-		If CommonClientServer.CompareVersionsWithoutBuildNumber(Platform.BaseName, "8.3.21") < 0 Then
+		// Check the versions of 1C:Enterprise installed on the user's PC. A minimum supported compatibility mode is required.
+		If CommonClientServer.CompareVersionsWithoutBuildNumber(Platform.BaseName, "8.3.24") < 0 Then
 			Continue;
 		EndIf;
 		
@@ -208,7 +209,7 @@ Function FoundPlatform(PlatformVersionsTable, CurrentVersion)
 			Return Undefined;
 		EndTry;
 		VersionNumber = VersionNumber - 1;
-		If VersionNumber < 21 Then // 8.3.21
+		If VersionNumber < 24 Then // 8.3.24
 			Return Undefined;
 		EndIf;
 		VersionByParts[2] = String(VersionNumber);

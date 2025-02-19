@@ -31,7 +31,7 @@ Procedure ResolveIssue(Command)
 	
 	TimeConsumingOperation = ResolveIssueInBackground(CheckID);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-	CallbackOnCompletion = New NotifyDescription("ResolveIssueInBackgroundCompletion", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("ResolveIssueInBackgroundCompletion", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure

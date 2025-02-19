@@ -10,11 +10,41 @@
 
 #Region Internal
 
-// Determines whether active file storage volumes are available.
-// If at least one file storage volume is available, returns True.
+// 
 //
 // Returns:
-//   Boolean - if True, at least one working volume exists.
+//   Structure::
+//    * FilesExtensions   - String - file extensions that are stored in the infobase.
+//                                    Separated by space.
+//    * MaximumSize - Number - Maximum size of the file being saved to the infobase, in bytes.
+//
+Function FilesStorageParametersInInfobase() Export
+	
+	SetPrivilegedMode(True);
+	Return Constants.ParametersOfFilesStorageInIB.Get().Get();
+	
+EndFunction
+
+// 
+//
+// Parameters:
+//  StorageParameters - Structure - settings of file storage in the infobase. Properties:
+//    * FilesExtensions   - String - file extensions that are stored in the infobase.
+//                           Separated by space.
+//    * MaximumSize - Number - a maximum size of the file being saved
+//                           to the infobase, in bytes.
+//
+Procedure SetFilesStorageParametersInInfobase(StorageParameters) Export
+	
+	StorageParametersSet = New ValueStorage(StorageParameters, New Deflation(9));
+	Constants.ParametersOfFilesStorageInIB.Set(StorageParametersSet);
+	
+EndProcedure
+
+// 
+//
+// Returns:
+//   Boolean
 //
 Function HasFileStorageVolumes() Export
 	
@@ -32,6 +62,10 @@ Function HasFileStorageVolumes() Export
 	Return Not Query.Execute().IsEmpty();
 	
 EndFunction
+
+#EndRegion
+
+#Region Private
 
 // Returns the file binary data.
 //
@@ -169,10 +203,10 @@ Procedure FillInTheFileDetails(AttachedFile, BinaryDataOrPath,
 	
 	If TypeOf(BinaryDataOrPath) = Type("String") Then
 		
-		FileOnHardDrive = New File(BinaryDataOrPath);
-		If FileOnHardDrive.Exists() Then
-			AttachedFile.Size = FileOnHardDrive.Size();
-			AttachedFile.Extension = StrReplace(FileOnHardDrive.Extension, ".", "");
+		FileInVolume = New File(BinaryDataOrPath);
+		If FileInVolume.Exists() Then
+			AttachedFile.Size = FileInVolume.Size();
+			AttachedFile.Extension = StrReplace(FileInVolume.Extension, ".", "");
 		Else
 			
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -210,7 +244,7 @@ Procedure FillInTheFileDetails(AttachedFile, BinaryDataOrPath,
 		AttachedFile.Volume = Undefined;
 		AttachedFile.PathToFile = "";
 		If FillInternalStorageAttribute Then
-			AttachedFile.FileStorage = New ValueStorage(FileData);
+			AttachedFile.FileStorage = New ValueStorage(FileData, New Deflation(9));
 		EndIf;
 
 	Else
@@ -283,36 +317,66 @@ EndProcedure
 //    * ErrorInfo - ErrorInfo
 //
 Function DeleteFile(PathToFile) Export
-	Result = New Structure("Name,Success,ErrorInfo", 
-		PathToFile, True, Undefined);
+	Result = New Structure("Name,Success,ErrorInfo", PathToFile, True, Undefined);
 	
-	FileOnHardDrive = New File(PathToFile);
-	If FileOnHardDrive.Exists() Then
+	FileInVolume = New File(PathToFile);
+	If Not FileInVolume.Exists() Then
+		Return Result;
+	EndIf;
 		
-		FileDirectory = FileOnHardDrive.Path;
-		Try
-			FileOnHardDrive.SetReadOnly(False);
-			DeleteFiles(PathToFile);
-			
-			// Deleting the file directory if the directory is empty after the file deletion.
-			FilesInDirectory = FindFiles(FileDirectory, GetAllFilesMask());
-			If FilesInDirectory.Count() = 0 Then
-				DeleteFiles(FileDirectory);
-			EndIf;
-			
-		Except
-			Error = ErrorInfo();
-			Result.ErrorInfo = ErrorProcessing.ErrorMessageForUser(Error);
-			Result.Success = False;
-			WriteLogEvent(
-				NStr("en = 'Files.Delete files from volume';", Common.DefaultLanguageCode()),
-				EventLogLevel.Error,,,
-				ErrorProcessing.DetailErrorDescription(Error));
-		EndTry;
+	MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Deleting file: %1';"), 
+		PathToFile);
+	WriteLogEvent(EventLogEvent(),
+		EventLogLevel.Information,,, EventLogMessage(MessageText));
+
+	FileDirectory = FileInVolume.Path;
+	Try
+		FileInVolume.SetReadOnly(False);
+		DeleteFiles(PathToFile);
 		
+		// Deleting the file directory if the directory is empty after the file deletion.
+		FilesInDirectory = FindFiles(FileDirectory, GetAllFilesMask());
+		If FilesInDirectory.Count() = 0 Then
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Deleting empty directory: %1';"), 
+				FileDirectory);
+			WriteLogEvent(EventLogEvent(),
+				EventLogLevel.Information,,, EventLogMessage(MessageText));
+			DeleteFiles(FileDirectory);
+		EndIf;
+		
+	Except
+		Error = ErrorInfo();
+		Result.ErrorInfo = ErrorProcessing.ErrorMessageForUser(Error);
+		Result.Success = False;
+		WriteLogEvent(EventLogEvent(),
+			EventLogLevel.Error,,,
+			ErrorProcessing.DetailErrorDescription(Error));
+	EndTry;
+		
+	Return Result;
+EndFunction
+
+Function EventLogEvent()
+	
+	Return NStr("en = 'Files.Delete files in volume';", Common.DefaultLanguageCode());
+	
+EndFunction
+
+Function EventLogMessage(MessageText)
+	
+	If Not Common.DebugMode() Then
+		Return MessageText;
 	EndIf;
 	
-	Return Result;
+	Try
+		Raise MessageText;
+	Except
+		ErrorInfo = ErrorInfo();
+	EndTry;
+	Return ErrorProcessing.DetailErrorDescription(ErrorInfo);
+		
 EndFunction
 
 // Renames a file in the volume.
@@ -346,12 +410,12 @@ Procedure RenameFile(AttachedFile,Val NewName,
 		VolumePath = FullVolumePath(AttachedFileObject.Volume);
 		CurrentFilePath = FullFileNameInVolume(FileProperties);
 		
-		FileOnHardDrive = New File(CurrentFilePath);
+		FileInVolume = New File(CurrentFilePath);
 		NameForReplacement = ?(IsBlankString(OldName), AttachedFileObject.Description, OldName);
-		NewNameOfFile = StrReplace(FileOnHardDrive.BaseName, NameForReplacement, NewName) + FileOnHardDrive.Extension;
+		NewNameOfFile = StrReplace(FileInVolume.BaseName, NameForReplacement, NewName) + FileInVolume.Extension;
 
-		NewFilePath = FileOnHardDrive.Path
-			+ FilesOperationsInternalClientServer.UniqueNameByWay(FileOnHardDrive.Path, NewNameOfFile);
+		NewFilePath = FileInVolume.Path
+			+ FilesOperationsInternalClientServer.UniqueNameByWay(FileInVolume.Path, NewNameOfFile);
 			
 		MoveFile(CurrentFilePath, NewFilePath);
 		
@@ -600,7 +664,7 @@ Function VolumeSize(Volume) Export
 	
 EndFunction
 
-// Checks whether the file is on the computer.
+// 
 //
 // Parameters:
 //   AttachedFile - DefinedType.AttachedFile - catalog item with a file.
@@ -608,7 +672,7 @@ EndFunction
 // Returns:
 //   Boolean
 //
-Function AttachedFileIsLocatedOnDisk(AttachedFile) Export
+Function IsAttachedFileInVolume(AttachedFile) Export
 	
 	FileProperties = FilePropertiesInVolume(AttachedFile);
 	PathToFile = FullFileNameInVolume(FileProperties);
@@ -646,7 +710,7 @@ EndProcedure
 Procedure ReferenceToNonexistingFilesInVolumeCheck(Validation, CheckParameters) Export
 	
 	If Common.DataSeparationEnabled()
-		Or Not StoreFilesInVolumesOnHardDrive() Then
+		Or Not ShouldStoreFilesInVolumes() Then
 		Return;
 	EndIf;
 	
@@ -685,14 +749,12 @@ EndProcedure
 
 #EndRegion
 
-#Region StorageParameters
-
 // Returns a flag that files can be stored in volumes.
 //
 // Returns:
 //  Boolean
 //
-Function StoreFilesInVolumesOnHardDrive() Export
+Function ShouldStoreFilesInVolumes() Export
 	
 	SetPrivilegedMode(True);
 	FilesStorageMethod = Constants.FilesStorageMethod.Get();
@@ -700,41 +762,6 @@ Function StoreFilesInVolumesOnHardDrive() Export
 		Or FilesStorageMethod = "InInfobaseAndVolumesOnHardDrive";
 	
 EndFunction
-
-// Returns information about file storage settings in the infobase.
-// It makes sense in case of storing files in volumes and in the infobase.
-//
-// Returns:
-//   Structure::
-//    * FilesExtensions   - String - file extensions that are stored in the infobase.
-//                                    Separated by space.
-//    * MaximumSize - Number - Maximum size of the file being saved to the infobase, in bytes.
-//
-Function FilesStorageParametersInInfobase() Export
-	
-	SetPrivilegedMode(True);
-	Return Constants.ParametersOfFilesStorageInIB.Get().Get();
-	
-EndFunction
-
-// Configures file storage settings in the infobase.
-// It makes sense in case of storing files in volumes and in the infobase.
-//
-// Parameters:
-//  StorageParameters - Structure - settings of file storage in the infobase. Properties:
-//    * FilesExtensions   - String - file extensions that are stored in the infobase.
-//                         Separated by space.
-//    * MaximumSize - Number - a maximum size of the file being saved
-//                         to the infobase, in bytes.
-//
-Procedure SetFilesStorageParametersInInfobase(StorageParameters) Export
-	
-	StorageParametersSet = New ValueStorage(StorageParameters);
-	Constants.ParametersOfFilesStorageInIB.Set(StorageParametersSet);
-	
-EndProcedure
-
-#EndRegion
 
 // Fills the "PathToFile" attribute for attachments.
 // 
@@ -810,16 +837,16 @@ Function SetFilesStoragePaths(FilesToRecover, VolumePath) Export
 			For Each FileToFix In Batch Do
 				FileStoragePath = FilesStoragePaths[FileToFix.File];
 				If VolumePath = "" Then
-					FilePathOnHardDrive = TrimR(FileToFix.FullName);
+					PathToFileInVolume = TrimR(FileToFix.FullName);
 				ElsIf StrStartsWith(FileToFix.FullName, VolumePath) Then
-					FilePathOnHardDrive = TrimR(Mid(FileToFix.FullName, StrLen(VolumePath) + 1));
+					PathToFileInVolume = TrimR(Mid(FileToFix.FullName, StrLen(VolumePath) + 1));
 				Else
-					FilePathOnHardDrive = Undefined;
+					PathToFileInVolume = Undefined;
 				EndIf;
 				
-				If FilePathOnHardDrive <> FileStoragePath Then
+				If PathToFileInVolume <> FileStoragePath Then
 					FileToWrite = FileToFix.File.GetObject();
-					FileToWrite.PathToFile = FilePathOnHardDrive;
+					FileToWrite.PathToFile = PathToFileInVolume;
 					FileToWrite.AdditionalProperties.Insert("FileConversion", True);
 					FileToWrite.Write();
 				EndIf;
@@ -836,10 +863,6 @@ Function SetFilesStoragePaths(FilesToRecover, VolumePath) Export
 	EndDo;
 	Return Result;
 EndFunction
-
-#EndRegion
-
-#Region Private
 
 // Returns sizes of all files in each specified volume in bytes.
 //
@@ -978,9 +1001,9 @@ Procedure WriteTheFileDataToTheVolume(AttachedFile, BinaryDataOrPath)
 			BinaryDataOrPath.Write(PathToFile);
 		EndIf;
 		
-		FileOnHardDrive = New File(PathToFile);
-		FileOnHardDrive.SetModificationUniversalTime(AttachedFile.UniversalModificationDate);
-		FileOnHardDrive.SetReadOnly(True);
+		FileInVolume = New File(PathToFile);
+		FileInVolume.SetModificationUniversalTime(AttachedFile.UniversalModificationDate);
+		FileInVolume.SetReadOnly(True);
 		
 	Except
 		
@@ -1030,7 +1053,7 @@ Procedure WriteTheFileDataToTheVolume(AttachedFile, BinaryDataOrPath)
 EndProcedure
 
 Procedure ClearDeletedFiles() Export
-	If Not StoreFilesInVolumesOnHardDrive() Then
+	If Not ShouldStoreFilesInVolumes() Then
 		Return;
 	EndIf;
 	
@@ -1517,30 +1540,29 @@ Procedure AfterUpdatingTheFileData(Context, Success) Export
 		If DeletedFile.Exists() Then
 			DeleteFile(NewFilePath);			
 		EndIf;
-	Else
-		AttachedFile = Context.AttachedFile;
-		ThisIsTheVersion = TypeOf(AttachedFile) = Type("CatalogRef.FilesVersions");
-		MainFile = ?(ThisIsTheVersion, Common.ObjectAttributeValue(AttachedFile, "Owner"), AttachedFile);
-		ThisIsAnEncryptedFile = Common.HasObjectAttribute("Encrypted", MainFile.Metadata())
-			And Common.ObjectAttributeValue(MainFile, "Encrypted");
-			
-		// Always try to delete the old file if it's encrypted (the external transactions is active).
-		//  
-		// See FilesOperationsInternal.WriteEncryptionInformation
-		If ThisIsAnEncryptedFile Or Not TransactionActive() Then
-			
-			FileProperties = FilePropertiesInVolume(AttachedFile);
-			NewFilePath = FullFileNameInVolume(FileProperties);
-			
-			If NewFilePath <> Context.OldFilePath Then
+		Return;
+	EndIf;
 
-				SetSafeModeDisabled(True);
-				DeleteFile(Context.OldFilePath);
-				SetSafeModeDisabled(False);
-
-			EndIf;
+	AttachedFile = Context.AttachedFile;
+	ThisIsTheVersion = TypeOf(AttachedFile) = Type("CatalogRef.FilesVersions");
+	MainFile = ?(ThisIsTheVersion, Common.ObjectAttributeValue(AttachedFile, "Owner"), AttachedFile);
+	ThisIsAnEncryptedFile = Common.HasObjectAttribute("Encrypted", MainFile.Metadata())
+		And Common.ObjectAttributeValue(MainFile, "Encrypted");
+		
+	// Always try to delete the old file if it's encrypted (the external transactions is active).
+	//  
+	// See FilesOperationsInternal.WriteEncryptionInformation
+	If ThisIsAnEncryptedFile Or Not TransactionActive() Then
+		
+		FileProperties = FilePropertiesInVolume(AttachedFile);
+		NewFilePath = FullFileNameInVolume(FileProperties);
+		
+		If NewFilePath <> Context.OldFilePath Then
+			SetSafeModeDisabled(True);
+			DeleteFile(Context.OldFilePath);
 		EndIf;
 	EndIf;
+
 EndProcedure
 
 // Parameters:
@@ -1582,7 +1604,7 @@ EndFunction
 // Returns:
 //   Boolean
 //
-Function StoreFIlesInVolumesOnHardDriveAndInInfobase()
+Function ShouldStoreFilesInVolumesAndInfobase()
 	
 	SetPrivilegedMode(True);
 	Return Constants.FilesStorageMethod.Get() = "InInfobaseAndVolumesOnHardDrive";
@@ -1617,7 +1639,7 @@ Procedure PutFileInCatalogAttribute(DataElement) Export
 	
 	DataElement.Volume = Catalogs.FileStorageVolumes.EmptyRef();
 	DataElement.PathToFile = "";
-	DataElement.FileStorage = New ValueStorage(FileData);
+	DataElement.FileStorage = New ValueStorage(FileData, New Deflation(9));
 	DataElement.FileStorageType = Enums.FileStorageTypes.InInfobase;
 	
 EndProcedure
@@ -1643,7 +1665,7 @@ Procedure AddFilesToVolumes(WindowsArchivePath, PathToArchiveLinux) Export
 	
 	For Each ZIPItem In ZipFile.Items Do
 		FullFilePath1 = DirectoryName + "\" + ZIPItem.Name;
-		// For filename generation,
+		// For filename generation, See FilesOperationsInternal.WhenSendingAFileCreateTheInitialImage
 		CatalogUUID = ZIPItem.Name;
 		
 		FilesPathsMap.Insert(CatalogUUID, FullFilePath1);
@@ -1683,7 +1705,7 @@ Procedure AddFilesToVolumesOnPlace(FilesPathsMap, FileStorageType)
 			Continue;
 		EndIf;
 		
-		FullFilePathOnHardDrive = FileInformationPath.Value;
+		FullFilePathInVolume = FileInformationPath.Value;
 		
 		BeginTransaction();
 		Try
@@ -1705,23 +1727,23 @@ Procedure AddFilesToVolumesOnPlace(FilesPathsMap, FileStorageType)
 				Object.PathToFile = "";
 				Object.FileStorageType = Enums.FileStorageTypes.InInfobase;
 				
-				BinaryData = New BinaryData(FullFilePathOnHardDrive);
+				BinaryData = New BinaryData(FullFilePathInVolume);
 				FilesOperationsInternal.WriteFileToInfobase(Object.Ref, BinaryData);
 				
 			Else
 				
 				// In the destination base, files must be stored in volumes. Move the unzipped file to the volume.
-				FileSource = New File(FullFilePathOnHardDrive);
+				FileSource = New File(FullFilePathInVolume);
 				FileName = CommonClientServer.GetNameWithExtension(Object.Description, Object.Extension);
 				Common.ShortenFileName(FileName);
 				FullPathNew = FileSource.Path + FileName;
-				MoveFile(FullFilePathOnHardDrive, FullPathNew);
+				MoveFile(FullFilePathInVolume, FullPathNew);
 				
 				AppendFile(Object, FullPathNew);
 				
 			EndIf;
 			
-			Object.AdditionalProperties.Insert("FilePlacementInVolumes", True); // 
+			Object.AdditionalProperties.Insert("FilePlacementInVolumes", True); // Intended to successfully write signed files.
 			InfobaseUpdate.WriteObject(Object);
 			
 			CommitTransaction();
@@ -1775,32 +1797,32 @@ EndFunction
 //      * WasEditedBy     - String
 //      * EditDate - String
 //
-Function UnnecessaryFilesOnHardDrive() Export
-	FilesTableOnHardDrive = New ValueTable;
+Function UnnecessaryFilesInVolume() Export
+	Result = New ValueTable;
 	
-	FilesTableOnHardDrive.Columns.Add("Name");
-	FilesTableOnHardDrive.Columns.Add("File");
-	FilesTableOnHardDrive.Columns.Add("BaseName");
-	FilesTableOnHardDrive.Columns.Add("FullName");
-	FilesTableOnHardDrive.Columns.Add("Path");
-	FilesTableOnHardDrive.Columns.Add("Volume");
-	FilesTableOnHardDrive.Columns.Add("Extension");
-	FilesTableOnHardDrive.Columns.Add("CheckStatus");
-	FilesTableOnHardDrive.Columns.Add("Count");
-	FilesTableOnHardDrive.Columns.Add("WasEditedBy");
-	FilesTableOnHardDrive.Columns.Add("EditDate");
+	Result.Columns.Add("Name");
+	Result.Columns.Add("File");
+	Result.Columns.Add("BaseName");
+	Result.Columns.Add("FullName");
+	Result.Columns.Add("Path");
+	Result.Columns.Add("Volume");
+	Result.Columns.Add("Extension");
+	Result.Columns.Add("CheckStatus");
+	Result.Columns.Add("Count");
+	Result.Columns.Add("WasEditedBy");
+	Result.Columns.Add("EditDate");
 
-	FilesTableOnHardDrive.Indexes.Add("FullName");
-	FilesTableOnHardDrive.Indexes.Add("CheckStatus");
+	Result.Indexes.Add("FullName");
+	Result.Indexes.Add("CheckStatus");
 	
-	Return FilesTableOnHardDrive;
+	Return Result;
 EndFunction
 
 // Parameters:
-//   FilesTableOnHardDrive - See FilesOperationsInVolumesInternal.UnnecessaryFilesOnHardDrive
+//   TableOfFilesInVolume - See FilesOperationsInVolumesInternal.UnnecessaryFilesInVolume
 //   Volume                  - CatalogRef.FileStorageVolumes - volume reference.
 //
-Procedure FillInExtraFiles(FilesTableOnHardDrive, Volume) Export
+Procedure FillInExtraFiles(TableOfFilesInVolume, Volume) Export
 	
 	FilesTypes = Metadata.DefinedTypes.AttachedFile.Type.Types();
 	
@@ -1877,7 +1899,7 @@ Procedure FillInExtraFiles(FilesTableOnHardDrive, Volume) Export
 			FileProperties.PathToFile = PathToFile;
 			
 			FullFilePath1 = FullFileNameInVolume(FileProperties);
-			ExistingFile = FilesTableOnHardDrive.FindRows(New Structure("FullName", FullFilePath1));
+			ExistingFile = TableOfFilesInVolume.FindRows(New Structure("FullName", FullFilePath1));
 			
 			ShouldSearchUsingAlternativePath = False;
 			
@@ -1888,7 +1910,8 @@ Procedure FillInExtraFiles(FilesTableOnHardDrive, Volume) Export
 					PathToFile = Left(PathToFile, StrLen(PathToFile)-1);
 				EndIf;
 				
-				If Not VolumeFileSystemProperties.HasFilenameLeadingWhitespace And StrFind(PathToFile, GetPathSeparator()+" ") > 0 Then
+				If Not VolumeFileSystemProperties.HasFilenameLeadingWhitespace 
+					And StrFind(PathToFile, GetPathSeparator()+" ") > 0 Then
 					FileParameters = New File(PathToFile);
 					PathToFile = FileParameters.Path+TrimAll(FileParameters.Name);
 				EndIf;
@@ -1897,13 +1920,13 @@ Procedure FillInExtraFiles(FilesTableOnHardDrive, Volume) Export
 					FileProperties.PathToFile = PathToFile;
 				
 					FullFilePath1 = FullFileNameInVolume(FileProperties);
-					ExistingFile = FilesTableOnHardDrive.FindRows(New Structure("FullName", FullFilePath1));
+					ExistingFile = TableOfFilesInVolume.FindRows(New Structure("FullName", FullFilePath1));
 					ShouldSearchUsingAlternativePath = True;
 				EndIf;
 			EndIf;
 			
 			If ExistingFile.Count() = 0 Then
-				NonExistingFile = FilesTableOnHardDrive.Add();
+				NonExistingFile = TableOfFilesInVolume.Add();
 				NonExistingFile.File = VersionRef;
 				NonExistingFile.FullName = FullFilePath1;
 				NonExistingFile.Extension = Selection.Extension;
@@ -2038,6 +2061,7 @@ Procedure SearchRefsToNonExistingFilesInVolumes(MetadataObject, CheckParameters,
 	|	REFPRESENTATION(MetadataObject.Volume) AS Volume,
 	|	MetadataObject.PathToFile AS PathToFile,
 	|	MetadataObject.Volume AS VolumeRef1,
+	|	MetadataObject.FileStorage AS FileStorage,
 	|	&Author AS Author
 	|FROM
 	|	&MetadataObject AS MetadataObject
@@ -2050,71 +2074,110 @@ Procedure SearchRefsToNonExistingFilesInVolumes(MetadataObject, CheckParameters,
 	|	MetadataObject.Ref";
 	
 	FullName = MetadataObject.FullName();
+	FullFileVersionName = Metadata.Catalogs.FilesVersions.FullName();
 	QueryText = StrReplace(QueryText, "&MetadataObject", FullName);
-	
-	If MetadataObject.Attributes.Find("Author") <> Undefined Then
-		QueryText = StrReplace(QueryText, "&Author", "MetadataObject.Author");
-	Else
-		QueryText = StrReplace(QueryText, "&Author", "NULL");
-	EndIf;
+	QueryText = StrReplace(QueryText, "&Author", 
+		?(MetadataObject.Attributes.Find("Author") <> Undefined, "MetadataObject.Author", "NULL"));
 		
-	// @query-part-2
-	OwnerField = ?(FullName = "Catalog.FilesVersions", "REFPRESENTATION(MetadataObject.Owner) ","Undefined ");
+	OwnerField = ?(FullName = FullFileVersionName, "REFPRESENTATION(MetadataObject.Owner) ","UNDEFINED "); // @query-part-2
 	QueryText = StrReplace(QueryText, "&OwnerField", OwnerField);
 	
 	Query = New Query(QueryText);
-	Query.SetParameter("Ref", Catalogs.FileStorageVolumes.EmptyRef());
+	Query.SetParameter("Ref", Common.ObjectManagerByFullName(FullName).EmptyRef());
 	Query.SetParameter("AvailableVolumes", AvailableVolumes);
 	Result = Query.Execute().Unload();
 	While Result.Count() > 0 Do
 		
 		For Each ResultString1 In Result Do
 			
-			FilePropertiesInVolume = New Structure("Volume, PathToFile",
-				ResultString1.VolumeRef1, ResultString1.PathToFile);
-			
-			PathToFile = FullFileNameInVolume(FilePropertiesInVolume);
-			If Not ValueIsFilled(PathToFile) Then
+			If Not ValueIsFilled(ResultString1.VolumeRef1) Then
 				Continue;
 			EndIf;
 			
+			If Not ValueIsFilled(ResultString1.PathToFile) Then
+				If ResultString1.Owner <> Undefined Then
+					IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
+						NStr("en = 'Full path to version %1 of file %2 is not specified in volume %3.';"),
+						ResultString1.File, ResultString1.Owner, ResultString1.Volume);
+				Else
+					IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
+						NStr("en = 'Full path to file %1 is not specified in volume %2.';"),
+						ResultString1.File, ResultString1.Volume);
+				EndIf;
+				
+				RegisterNonExistentFileInVolume(ModuleAccountingAudit, CheckParameters,
+					ResultString1, IssueSummary);
+			EndIf;
+			
+			If TypeOf(ResultString1.FileStorage) = Type("ValueStorage")
+				And ResultString1.FileStorage.Get() <> Undefined Then
+
+				If ResultString1.Owner <> Undefined Then
+					IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
+						NStr("en = 'The infobase retains redundant binary data of version %1 of file %2 stored in volume %3.';"),
+						ResultString1.File, ResultString1.Owner, ResultString1.Volume);
+				Else
+					IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
+						NStr("en = 'The infobase retains redundant binary data of file %1 stored in volume %2.';"),
+						ResultString1.File, ResultString1.Volume);
+				EndIf;
+				
+				RegisterNonExistentFileInVolume(ModuleAccountingAudit, CheckParameters,
+					ResultString1, IssueSummary);
+			EndIf;
+			
+			If Not ValueIsFilled(ResultString1.PathToFile) Then
+				Continue;
+			EndIf;
+			
+			FullVolumePath = FullVolumePath(ResultString1.VolumeRef1);
+			PathToFile = FullVolumePath + ResultString1.PathToFile;
 			FileToCheck = New File(PathToFile);
 			If FileToCheck.Exists() Then
 				Continue;
 			EndIf;
 				
-			ObjectReference = ResultString1.ObjectWithIssue;
 			If ResultString1.Owner <> Undefined Then
-				IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Version ""%1"" of file ""%2"" does not exist in volume ""%3.""';"),
-					ResultString1.File, ResultString1.Owner, ResultString1.Volume);
+				IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Version ""%1"" of file ""%2"" does not exist in volume ""%3"" (%4).';"),
+					ResultString1.File, ResultString1.Owner, ResultString1.Volume,
+					PathToFile);
 			Else
-				IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'File ""%1"" does not exist in volume ""%2.""';"),
-					ResultString1.File, ResultString1.Volume);
+				IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'File ""%1"" does not exist in volume ""%2"" (%3).';"),
+					ResultString1.File, ResultString1.Volume, PathToFile);
 			EndIf;
 			
-			Issue1 = ModuleAccountingAudit.IssueDetails(ObjectReference, CheckParameters);
-			
-			Issue1.IssueSummary = IssueSummary;
-			If ValueIsFilled(ResultString1.Author) Then
-				Issue1.Insert("EmployeeResponsible", ResultString1.Author);
-			EndIf;
-			
-			ModuleAccountingAudit.WriteIssue(Issue1, CheckParameters);
+			RegisterNonExistentFileInVolume(ModuleAccountingAudit, CheckParameters,
+				ResultString1, IssueSummary);
 			
 		EndDo;
 		
 		Query.SetParameter("Ref", ResultString1.ObjectWithIssue);
-		// @skip-check query-in-loop - Batch processing of data
-		Result = Query.Execute().Unload();
+		Result = Query.Execute().Unload(); // @skip-check query-in-loop - Batch-wise data processing
 		
 	EndDo;
+	
+EndProcedure
+
+Procedure RegisterNonExistentFileInVolume(ModuleAccountingAudit, CheckParameters,
+	ResultString1, IssueSummary)
+	
+	Issue1 = ModuleAccountingAudit.IssueDetails(ResultString1.ObjectWithIssue, CheckParameters);
+	Issue1.IssueSummary = IssueSummary;
+	If ValueIsFilled(ResultString1.Author) Then
+		Issue1.Insert("EmployeeResponsible", ResultString1.Author);
+	EndIf;
+	
+	ModuleAccountingAudit.WriteIssue(Issue1, CheckParameters);
 	
 EndProcedure
 
 Function CheckAttachedFilesObject(MetadataObject)
 	
 	If StrEndsWith(MetadataObject.Name, FilesOperationsInternal.CatalogSuffixAttachedFiles())
-		Or MetadataObject.FullName() = "Catalog.FilesVersions" Then
+		Or MetadataObject.FullName()= "Catalog.FilesVersions" 
+		Or MetadataObject.FullName()= "Catalog.Files" Then
 		
 		Return MetadataObject.Attributes.Find("PathToFile") <> Undefined
 			And MetadataObject.Attributes.Find("Volume") <> Undefined;
@@ -2152,16 +2215,17 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.InitialFilling = True;
 	
 	Handler = Handlers.Add();
-	Handler.Version = "3.1.8.331";
-	Handler.Procedure = "Catalogs.FilesVersions.ProcessVersionStoragePath";
+	Handler.Version = "3.1.11.80";
+	Handler.Procedure = "Catalogs.FilesVersions.ProcessDataForMigrationToNewVersion";
 	Handler.ExecutionMode = "Deferred";
-	Handler.Comment = NStr("en = 'Fixes incorrect file storage paths in a volume.';");
+	Handler.Comment = NStr("en = 'Fixes invalid file storage paths in volumes and removes redundant binary data in file versions.';");
 	Handler.Id = New UUID("06354049-b702-4f27-8e99-f49b86f7f152");
 	Handler.CheckProcedure = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
 	Handler.ObjectsToLock = "Catalog.FilesVersions";
 	Handler.UpdateDataFillingProcedure = "Catalogs.FilesVersions.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.ObjectsToRead = "Catalog.FilesVersions";
 	Handler.ObjectsToChange = "Catalog.FilesVersions";
+	Handler.Multithreaded = True;
 	
 EndProcedure
 
@@ -2283,7 +2347,7 @@ EndFunction
 Function FileStorageType(Val FileSize, Val FileExtention) Export
 	
 	StorageType = Enums.FileStorageTypes.InVolumesOnHardDrive;
-	If StoreFIlesInVolumesOnHardDriveAndInInfobase() Then
+	If ShouldStoreFilesInVolumesAndInfobase() Then
 		
 		StorageParameters = FilesStorageParametersInInfobase();
 		If FileSize <= StorageParameters.MaximumSize Then

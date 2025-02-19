@@ -223,7 +223,7 @@ Procedure SelectDay(Command)
 	FormParameters.Insert("EndOfPeriod",     EndOfPeriod);
 	FormParameters.Insert("LowLimit", LowLimit);
 	
-	NotifyDescription = New NotifyDescription("SelectDayCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("SelectDayCompletion", ThisObject);
 	OpenForm(
 		"SettingsStorage.ReportsVariantsStorage.Form.SelectFiscalPeriodDay", 
 		FormParameters, 

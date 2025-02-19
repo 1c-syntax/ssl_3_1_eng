@@ -36,7 +36,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// Populate predefined items.
+// Заполнение предопределенных элементов
 
 #EndRegion
 
@@ -67,15 +67,15 @@ Procedure ChoiceDataGetProcessing(ChoiceData, Parameters, StandardProcessing)
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 		
-		If ModuleNationalLanguageSupportServer.FirstAdditionalLanguageUsed() Then
-			TextFragmentsSearchForAdditionalLangs.Add(
-				"PerformerRoles.DescriptionLanguage1 LIKE &SearchString ESCAPE ""~""");
-		EndIf;
-		
-		If ModuleNationalLanguageSupportServer.SecondAdditionalLanguageUsed() Then
-			TextFragmentsSearchForAdditionalLangs.Add(
-				"PerformerRoles.DescriptionLanguage2 LIKE &SearchString ESCAPE ""~""");
-		EndIf;
+		LanguagesInformation = ModuleNationalLanguageSupportServer.LanguagesInfo();
+		RequestFragmentTemplate = "PerformerRoles.%1 LIKE &SearchString ESCAPE ""~""";
+		For Each AdditionalLanguage In LanguagesInformation.Used Do
+			If AdditionalLanguage.Value Then
+				
+				TextFragmentsSearchForAdditionalLangs.Add(
+					StrTemplate(RequestFragmentTemplate, "Description" + AdditionalLanguage.Key));
+			EndIf;
+		EndDo;
 		
 	EndIf;
 	

@@ -68,7 +68,7 @@ Procedure ExchangeNodesTreeSelection(Item, RowSelected, Field, StandardProcessin
 	EndIf;
 	
 	CurrentData = Items.ExchangeNodesTree.CurrentData;
-	Notification = New NotifyDescription("ExchangeNodesTreeSelectionCompletion", ThisObject, New Structure);
+	Notification = New CallbackDescription("ExchangeNodesTreeSelectionCompletion", ThisObject, New Structure);
 	Notification.AdditionalParameters.Insert("Node", CurrentData.Ref);
 	
 	ToolTip = NStr("en = 'Sent message number';"); 
@@ -132,7 +132,7 @@ Procedure EditRegistration(Command)
 	
 	Text = StrReplace(Text, "%1", RegistrationObject);
 	
-	Notification = New NotifyDescription("EditRegistrationCompletion", ThisObject);
+	Notification = New CallbackDescription("EditRegistrationCompletion", ThisObject);
 	
 	ShowQueryBox(Notification, Text, QuestionDialogMode.YesNo, , ,QuestionTitle);
 EndProcedure

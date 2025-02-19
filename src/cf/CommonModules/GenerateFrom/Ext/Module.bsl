@@ -75,7 +75,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	
 	GenerationCommands.FillValues(True, "Processed1");
 	
-	AllowedTypes = New Array; // 
+	AllowedTypes = New Array; // Типы источников, которые пользователь может изменять (см. ниже проверку права "Изменение").
 	If StandardProcessing Then
 		ObjectsWithCreationBasedOnCommands = ObjectsWithCreationBasedOnCommands();
 		For Each Source In Sources.Rows Do

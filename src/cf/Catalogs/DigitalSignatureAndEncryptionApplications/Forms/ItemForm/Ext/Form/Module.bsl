@@ -127,9 +127,8 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	If Not Query.Execute().IsEmpty() Then
 		Cancel = True;
 		Common.MessageToUser(
-			NStr("en = 'Application with the specified name and type has already been added to the list.';"),
-			,
-			"Object.ApplicationName");
+			NStr("en = 'An application with this name and type is already on the list.';"),
+			, "Object.ApplicationName");
 	EndIf;
 	
 EndProcedure
@@ -224,7 +223,7 @@ Procedure SetDeletionMark(Command)
 	EndIf;
 	
 	ShowQueryBox(
-		New NotifyDescription("SetDeletionMarksAfterAnswerQuestion", ThisObject),
+		New CallbackDescription("SetDeletionMarksAfterAnswerQuestion", ThisObject),
 		NStr("en = 'To set the deletion mark, write the changes you have made.
 		           |Write the data?';"), QuestionDialogMode.YesNo);
 	
@@ -297,7 +296,7 @@ Procedure FillSelectedApplicationAlgorithms(OnOpen = False)
 		Return;
 	EndIf;
 	
-	BeginAttachingCryptoExtension(New NotifyDescription(
+	BeginAttachingCryptoExtension(New CallbackDescription(
 		"FillAlgorithmsForSelectedApplicationAfterAttachCryptographyExtension", ThisObject));
 	
 EndProcedure
@@ -312,7 +311,7 @@ Procedure FillAlgorithmsForSelectedApplicationAfterAttachCryptographyExtension(A
 	EndIf;
 	
 	DigitalSignatureInternalClient.ToObtainThePathToTheProgram(
-		New NotifyDescription("FillInTheAlgorithmsOfTheSelectedProgramAfterGettingTheProgramPath",
+		New CallbackDescription("FillInTheAlgorithmsOfTheSelectedProgramAfterGettingTheProgramPath",
 			ThisObject, Context), Object.Ref);
 	
 EndProcedure
@@ -321,7 +320,7 @@ EndProcedure
 &AtClient
 Procedure FillInTheAlgorithmsOfTheSelectedProgramAfterGettingTheProgramPath(DescriptionOfWay, Context) Export
 	
-	CryptoTools.BeginGettingCryptoModuleInformation(New NotifyDescription(
+	CryptoTools.BeginGettingCryptoModuleInformation(New CallbackDescription(
 			"FillSelectedApplicationAlgorithmsAfterGetInformation", ThisObject, ,
 			"FillAlgorithmsForSelectedApplicationAfterGetDataError", ThisObject),
 		Object.ApplicationName, DescriptionOfWay.ApplicationPath, Object.ApplicationType);
@@ -411,7 +410,7 @@ EndProcedure
 &AtClient
 Procedure HandlerWaitingToStartTheProgramAfterOpening()
 	
-	ShowChooseFromMenu(New NotifyDescription("AfterApplicationChoice", ThisObject),
+	ShowChooseFromMenu(New CallbackDescription("AfterApplicationChoice", ThisObject),
 		Items.Description.ChoiceList, Items.Description);
 	
 EndProcedure

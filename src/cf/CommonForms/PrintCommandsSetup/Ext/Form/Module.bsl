@@ -28,7 +28,7 @@ EndProcedure
 &AtClient
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
-	NotifyDescription = New NotifyDescription("BeforeCloseConfirmationReceived", ThisObject);
+	NotifyDescription = New CallbackDescription("BeforeCloseConfirmationReceived", ThisObject);
 	CommonClient.ShowFormClosingConfirmation(NotifyDescription, Cancel, Exit,, WarningText);
 	
 EndProcedure
@@ -56,7 +56,7 @@ EndProcedure
 Procedure ShowInList(Command)
 	
 	If Modified Then
-		Notification = New NotifyDescription("ShowInListCompletion", ThisObject, Parameters);
+		Notification = New CallbackDescription("ShowInListCompletion", ThisObject, Parameters);
 		QueryText = NStr("en = 'The data has been changed. Do you want to save the changes?';");
 		ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNoCancel, ,
 			DialogReturnCode.Cancel);
@@ -274,7 +274,7 @@ Procedure GoToList()
 	For Each ClientApplicationWindow In GetWindows() Do
 		If ClientApplicationWindow.GetURL() = URL Then
 			Form = ClientApplicationWindow.Content[0];
-			NotifyDescription = New NotifyDescription("GoToListCompletion", ThisObject, 
+			NotifyDescription = New CallbackDescription("GoToListCompletion", ThisObject, 
 				New Structure("Form, URL", Form, URL));
 			Buttons = New ValueList;
 			Buttons.Add("Reopen", NStr("en = 'Reopen';"));

@@ -10,9 +10,7 @@
 
 #Region Public
 
-////////////////////////////////////////////////////////////////////////////////
-// Permission constructors.
-//
+#Region ConstructorFunctionsForPermissions
 
 // Returns the internal description of the permission to use the file system directory.
 // For passing as a parameter to functions:
@@ -255,9 +253,9 @@ Function PermissionToUsePrivilegedMode(Val LongDesc = "") Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Functions creating requests for permissions to use external resources.
-//
+#EndRegion
+
+#Region ConstructorFunctionsForRequestsToUseExternalResources
 
 // Creates a request to use external resources.
 //
@@ -392,9 +390,9 @@ Function SafeModeSet() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Miscellaneous.
-//
+#EndRegion
+
+#Region Other
 
 // Creates requests for application permission update.
 //
@@ -427,6 +425,8 @@ Function AddInBundleFilesChecksum(Val TemplateName) Export
 	Return SafeModeManagerInternal.AddInBundleFilesChecksum(TemplateName);
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion
 
@@ -530,4 +530,3 @@ Function StandardInternetProtocolPorts()
 EndFunction
 
 #EndRegion
-

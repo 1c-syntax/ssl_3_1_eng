@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<Customizable>false</Customizable>
 	<CommandSet>
 		<ExcludedCommand>Abort</ExcludedCommand>
@@ -18,6 +18,7 @@
 		<Autofill>false</Autofill>
 	</AutoCommandBar>
 	<Events>
+		<Event name="NotificationProcessing">NotificationProcessing</Event>
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 		<Event name="OnClose">OnClose</Event>
 	</Events>
@@ -834,7 +835,7 @@ The application will try to autodetect encoding for such files.</v8:content>
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>Sync your files with Yandex.Disk, Dropbox, and others.</v8:content>
+										<v8:content>Sync files with cloud storage for easier access and collaboration.</v8:content>
 									</v8:item>
 								</Title>
 							</ExtendedTooltip>
@@ -842,6 +843,70 @@ The application will try to autodetect encoding for such files.</v8:content>
 								<Event name="OnChange">SynchronizeFilesOnChange</Event>
 							</Events>
 						</CheckBoxField>
+						<CheckBoxField name="SynchronizeFiles1" id="2220">
+							<DataPath>SynchronizeFiles</DataPath>
+							<Visible>false</Visible>
+							<Enabled>false</Enabled>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Sync files</v8:content>
+								</v8:item>
+							</Title>
+							<TitleLocation>Right</TitleLocation>
+							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+							<CheckBoxType>Auto</CheckBoxType>
+							<ContextMenu name="SynchronizeFiles1ContextMenu" id="2221"/>
+							<ExtendedTooltip name="SynchronizeFiles1ExtendedTooltip" id="2222">
+								<Title formatted="false">
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Sync files with cloud storage for easier access and collaboration.</v8:content>
+									</v8:item>
+								</Title>
+							</ExtendedTooltip>
+						</CheckBoxField>
+						<UsualGroup name="GroupCommentAllowInternetDownloadsInSync" id="2223">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Comment allow import from internet in synchronization</v8:content>
+								</v8:item>
+							</Title>
+							<Width>43</Width>
+							<Group>AlwaysHorizontal</Group>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GroupCommentAllowInternetDownloadsInSyncExtendedTooltip" id="2224"/>
+							<ChildItems>
+								<PictureDecoration name="DecorationAllowInternetDownloadsInSync" id="2225">
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Decoration allow import from internet in synchronization</v8:content>
+										</v8:item>
+									</Title>
+									<Picture>
+										<xr:Ref>CommonPicture.UnavailableFieldsInformation</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<ContextMenu name="DecorationAllowInternetDownloadsInSyncContextMenu" id="2226"/>
+									<ExtendedTooltip name="DecorationAllowInternetDownloadsInSyncExtendedTooltip" id="2227"/>
+								</PictureDecoration>
+								<LabelDecoration name="CommentAllowInternetDownloadsInSync" id="2228">
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<MaxWidth>43</MaxWidth>
+									<HorizontalStretch>false</HorizontalStretch>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>To activate the setting, go to Online support and services and select "Allow access to web services".</v8:content>
+										</v8:item>
+									</Title>
+									<ContextMenu name="CommentAllowInternetDownloadsInSyncContextMenu" id="2229"/>
+									<ExtendedTooltip name="CommentAllowInternetDownloadsInSyncExtendedTooltip" id="2230"/>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
 					</ChildItems>
 				</UsualGroup>
 				<UsualGroup name="FilesSynchronizationSettingsGroup" id="2117">
@@ -1224,6 +1289,17 @@ You will be able to search for text within such files.</v8:content>
 					<v8:Length>0</v8:Length>
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="SynchronizeFiles" id="18">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Sync files</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
 	</Attributes>

@@ -33,7 +33,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// StandardSubsystems.AccessManagement
+// СтандартныеПодсистемы.УправлениеДоступом
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -77,7 +77,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
 // Defines the list of generation commands.
 //
@@ -126,7 +126,7 @@ EndFunction
 Procedure FormGetProcessing(FormType, Parameters, SelectedForm, AdditionalInformation, StandardProcessing)
 	
 	If FormType = "ObjectForm" And Parameters.Property("Key") Then
-		FormParameters = BusinessProcessesAndTasksServerCall.TaskExecutionForm(Parameters.Key);
+		FormParameters = BusinessProcessesAndTasksServer.TaskExecutionForm(Parameters.Key);
 		TaskFormName = "";
 		Result = FormParameters.Property("FormName", TaskFormName);
 		If Result Then

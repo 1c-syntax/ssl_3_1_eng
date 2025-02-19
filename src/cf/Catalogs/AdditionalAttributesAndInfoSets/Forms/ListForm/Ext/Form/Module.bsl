@@ -262,7 +262,7 @@ Procedure PropertiesChoiceProcessing(Item, ValueSelected, StandardProcessing)
 		If ValueSelected.Property("AdditionalValuesOwner") Then
 			
 			FormParameters = New Structure;
-			FormParameters.Insert("PropertyKind", PropertyKind);
+			FormParameters.Insert("PropertyKind1", PropertyKind);
 			FormParameters.Insert("CurrentPropertiesSet",            Current_Set);
 			FormParameters.Insert("AdditionalValuesOwner", ValueSelected.AdditionalValuesOwner);
 			
@@ -310,7 +310,7 @@ Procedure Create(Command = Undefined)
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("PropertiesSet", Current_Set);
-	FormParameters.Insert("PropertyKind", PropertyKind);
+	FormParameters.Insert("PropertyKind1", PropertyKind);
 	FormParameters.Insert("CurrentPropertiesSet", Current_Set);
 	
 	OpenForm("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo.ObjectForm",
@@ -336,7 +336,7 @@ Procedure AddFromSet(Command)
 	EndIf;
 	
 	FormParameters.Insert("SelectedValues", SelectedValues);
-	FormParameters.Insert("PropertyKind", PropertyKind);
+	FormParameters.Insert("PropertyKind1", PropertyKind);
 	FormParameters.Insert("CurrentPropertiesSet", Current_Set);
 	
 	OpenForm("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo.ObjectForm",
@@ -384,7 +384,7 @@ Procedure AddAttributeToSet(AdditionalValuesOwner, Set = Undefined)
 	
 	FormParameters.Insert("CopyWithQuestion", True);
 	FormParameters.Insert("AdditionalValuesOwner", AdditionalValuesOwner);
-	FormParameters.Insert("PropertyKind", PropertyKind);
+	FormParameters.Insert("PropertyKind1", PropertyKind);
 	FormParameters.Insert("CurrentPropertiesSet", CurrentPropertiesSet);
 	
 	OpenForm("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo.ObjectForm", FormParameters, Items.Properties);
@@ -837,7 +837,7 @@ Procedure ChangeDeletionMark()
 		EndIf;
 		
 		ShowQueryBox(
-			New NotifyDescription("ChangeDeletionMarkCompletion", ThisObject, Current_Set),
+			New CallbackDescription("ChangeDeletionMarkCompletion", ThisObject, Current_Set),
 			QueryText, QuestionDialogMode.YesNo);
 	EndIf;
 	

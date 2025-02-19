@@ -86,11 +86,11 @@ EndProcedure
 // Fills mapping of method names and their aliases for calling from a job queue.
 //
 // Parameters:
-//   NamesAndAliasesMap - Map of KeyAndValue - method names and their aliases:
-//     Key - Method alias, for example: ClearDataArea
-//     Value - a name of the method to be called, for example, SaaS.ClearDataArea
-//                You can specify Undefined as a value, in this case, the name is assumed 
-//                to be the same as an alias.
+//   NamesAndAliasesMap - Map of KeyAndValue - Method names and their aliases:
+//     Key is the method alias. For example, ClearDataArea.
+//     Value is the name of the method to be called. For example, SaaSOperations.ClearDataArea.
+//                If Undefined, it is assumed that the name matches the alias. 
+//                
 //
 Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 	
@@ -109,7 +109,7 @@ EndProcedure
 //
 // Parameters:
 //   ParametersTable - ValueTable - Table of parameter details. For column details, 
-//                                         .
+//                                         See SaaSOperations.GetTableParametersIB.
 //
 Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 	
@@ -158,7 +158,7 @@ EndProcedure
 // Gets a list of message handlers that are processed by the library subsystems.
 // 
 // Parameters:
-//  Handlers - ValueTable - See the field list in MessageExchange.NewMessagesHandlersTable.
+//  Handlers - ValueTable - See the field list in MessagesExchange.NewTableOfMessageHandlers.
 // 
 Procedure OnDefineMessagesChannelsHandlers(Handlers) Export
 	
@@ -216,13 +216,16 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 		Metadata.Catalogs.DataExchangeScenarios, ModuleExportImportData.ActionWithLinksDoNotUnloadObject());
 		
 	ModuleExportImportData.AddTypeExcludedFromUploadingUploads(Types,
-		Metadata.Catalogs.DataExchangesSessions, ModuleExportImportData.ActionWithLinksDoNotUnloadObject());	
+		Metadata.Catalogs.DataExchangesSessions, ModuleExportImportData.ActionWithLinksDoNotUnloadObject());
+		
+	ModuleExportImportData.AddTypeExcludedFromUploadingUploads(Types,
+		Metadata.Catalogs.ExchangeMessageTransportSettings, ModuleExportImportData.ActionWithLinksDoNotUnloadObject());
 		
 	ModuleSaaSTechnology = Common.CommonModule("CloudTechnology");
 	CTLVersion = ModuleSaaSTechnology.LibraryVersion();
 	
 	Types.Add(Metadata.InformationRegisters.CommonInfobasesNodesSettings);
-	Types.Add(Metadata.InformationRegisters.DataExchangeTransportSettings);
+	Types.Add(Metadata.InformationRegisters.DeleteDataExchangeTransportSettings);
 	Types.Add(Metadata.InformationRegisters.DataAreaExchangeTransportSettings);
 	Types.Add(Metadata.InformationRegisters.DataAreasDataExchangeMessages);
 	Types.Add(Metadata.InformationRegisters.DeleteDataExchangeResults);
@@ -456,8 +459,9 @@ EndProcedure
 //	4. The object is not included in an exception list.
 // 
 // Parameters:
-//  Object - Arbitrary - Data source object
+//  Object - Arbitrary - Data source.
 //  Cancel - Boolean - Cancel flag.
+//
 Procedure BeforeWriteCommonData(Object, Cancel) Export
 	
 	If Object.DataExchange.Load Then
@@ -496,7 +500,7 @@ Procedure ChangeTheIndicationOfTheNeedForDataExchangeInTheServiceModel(ItIsNeces
 	ItIsNecessaryToPerformAnExchange = (ItIsNecessaryToPerformAnExchange = True); // Protect from non-Boolean values.
 	
 	IdleInterval = 180; // A 200-second long attempt. (180-sec timeout + 20-sec attempt to lock 1C:Enterprise.)
-	AttemptsNumber = 65; // A 200-second long attempt. (180-sec timeout + 20-sec attempt to lock 1C:Enterprise.)
+	AttemptsNumber = 65; // 3 hour and 30 minutes by default (12,600 seconds).
 	If TypeOf(AdditionalParameters) = Type("Structure") Then
 		
 		If AdditionalParameters.Property("IdleInterval") Then
@@ -579,7 +583,7 @@ Procedure SetDataChangeFlag() Export
 		ModuleMessagesExchange.SendMessage("DataExchange\ManagingApplication\DataChangeFlag",
 						New Structure("NodeCode", DataExchangeServer.ExchangePlanNodeCodeString(DataArea)),
 						ModuleSaaSOperationsCTLCached.ServiceManagerEndpoint());
-				
+			
 		CommitTransaction();
 	Except
 		RollbackTransaction();
@@ -658,7 +662,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.SharedData = True;
 	Handler.ExclusiveMode = False;
 	Handler.Procedure = "DataExchangeSaaS.LockEndpoints";
-	
+
 EndProcedure
 
 // Fills in separated data handler that depends on shared data change.
@@ -674,11 +678,19 @@ EndProcedure
 Procedure FillSeparatedDataHandlers(Parameters = Undefined) Export
 	
 	If Parameters <> Undefined Then
+		
 		Handlers = Parameters.SeparatedHandlers;
 		Handler = Handlers.Add();
 		Handler.Version = "*";
 		Handler.ExecutionMode = "Seamless";
 		Handler.Procedure = "DataExchangeSaaS.SetPredefinedNodeCodes";
+		
+		Handlers = Parameters.SeparatedHandlers;
+		Handler = Handlers.Add();
+		Handler.Version = "*";
+		Handler.ExecutionMode = "Seamless";
+		Handler.Procedure = "Catalogs.ExchangeMessageTransportSettings.ProcessDataForMigrationToNewVersion";
+
 	EndIf;
 	
 EndProcedure
@@ -910,6 +922,9 @@ EndProcedure
 //
 
 // Generates an application name in SaaS mode.
+// 
+// Returns:
+//  String - Application name.
 //
 Function GeneratePredefinedNodeDescription() Export
 	
@@ -1064,12 +1079,160 @@ Procedure AdaptTheTextOfTheRequestAboutTheResultsOfTheExchangeInTheService(Query
 	
 EndProcedure
 
+// Sends a message.
+// 
+// Parameters:
+//  Message - XDTODataObject - a message.
+// 
+// Returns:
+//  UUID - New session ID
+//
+Function SendMessage(Val Message) Export
+	
+	If Not Common.SubsystemExists("CloudTechnology") Then
+		Raise NStr("en = 'There is no Service manager.';");
+	EndIf;
+	
+	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+	ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
+	ModuleSaaSOperationsCTLCached = Common.CommonModule("SaaSOperationsCTLCached");
+	
+	Message.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
+	Message.Body.SessionId = InformationRegisters.SystemMessageExchangeSessions.NewSession();
+	
+	ModuleMessagesSaaS.SendMessage(Message,
+		ModuleSaaSOperationsCTLCached.ServiceManagerEndpoint(),
+		True);
+	
+	Return Message.Body.SessionId;
+	
+EndFunction
+
+Procedure UpdateDataAreaTransportSettings(Parameters) Export
+	
+	Peer                = Parameters.Peer;
+	ThisNodeCode                 = Parameters.ThisNodeCode;
+	CorrespondentCode            = Parameters.CorrespondentCode;
+	CorrespondentEndpoint  = Parameters.CorrespondentEndpoint;
+	IsCorrespondent             = Parameters.IsCorrespondent;
+	SSL200CompatibilityMode = Parameters.SSL200CompatibilityMode;
+	ThisNodeAlias           = Parameters.ThisNodeAlias;
+	
+	If IsCorrespondent Then
+		If Not IsBlankString(ThisNodeAlias) Then
+			RelativeInformationExchangeDirectory = ExchangeMessagesDirectoryName(CorrespondentCode, ThisNodeAlias);
+		Else
+			RelativeInformationExchangeDirectory = ExchangeMessagesDirectoryName(CorrespondentCode, ThisNodeCode);
+		EndIf;
+	Else
+		If Not IsBlankString(ThisNodeAlias) Then
+			RelativeInformationExchangeDirectory = ExchangeMessagesDirectoryName(ThisNodeAlias, CorrespondentCode);
+		Else
+			RelativeInformationExchangeDirectory = ExchangeMessagesDirectoryName(ThisNodeCode, CorrespondentCode);
+		EndIf;
+	EndIf;
+	
+	TransportSettings = InformationRegisters.DataAreasExchangeTransportSettings.TransportSettings(CorrespondentEndpoint);
+	
+	If TransportSettings.DefaultExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.FILE Then
+		
+		// Exchange using network directory
+		
+		FILECommonInformationExchangeDirectory = TrimAll(TransportSettings.FILEDataExchangeDirectory);
+		
+		If IsBlankString(FILECommonInformationExchangeDirectory) Then
+			
+			MessageString = NStr("en = 'The data exchange directory for the endpoint %1 is not specified.';");
+			MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, String(CorrespondentEndpoint));
+			Raise MessageString;
+		EndIf;
+		
+		CommonDirectory = New File(FILECommonInformationExchangeDirectory);
+		
+		If Not CommonDirectory.Exists() Then
+			
+			MessageString = NStr("en = 'The exchange directory %1 does not exist.';");
+			MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, FILECommonInformationExchangeDirectory);
+			Raise MessageString;
+		EndIf;
+		
+		If Not SSL200CompatibilityMode Then
+			
+			FILEAbsoluteDataExchangeDirectory = CommonClientServer.GetFullFileName(
+				FILECommonInformationExchangeDirectory,
+				RelativeInformationExchangeDirectory);
+			
+			// Creating a message exchange directory
+			AbsoluteDirectory = New File(FILEAbsoluteDataExchangeDirectory);
+			If Not AbsoluteDirectory.Exists() Then
+				CreateDirectory(AbsoluteDirectory.FullName);
+			EndIf;
+			
+			// Saving exchange message transfer settings for the current data area
+			RecordStructure = New Structure;
+			RecordStructure.Insert("Peer", Peer);
+			RecordStructure.Insert("CorrespondentEndpoint", CorrespondentEndpoint);
+			RecordStructure.Insert("DataExchangeDirectory", RelativeInformationExchangeDirectory);
+			
+			InformationRegisters.DataAreaExchangeTransportSettings.UpdateRecord(RecordStructure);
+		EndIf;
+		
+	ElsIf TransportSettings.DefaultExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.FTP Then
+		
+		// Data exchange over a  FTP server.
+		
+		FTPSettings = ExchangeMessagesTransport.FTPConnectionSetup();
+		FTPSettings.Server               = TransportSettings.FTPServer;
+		FTPSettings.Port                 = TransportSettings.FTPConnection_Port;
+		FTPSettings.UserName      = TransportSettings.FTPUserConnection;
+		FTPSettings.UserPassword   = TransportSettings.FTPConnectionPassword;
+		FTPSettings.PassiveConnection  = TransportSettings.FTPConnectionPassiveConnection;
+		FTPSettings.SecureConnection = DataExchangeServer.SecureConnection(TransportSettings.FTPConnectionPath);
+		
+		FTPConnection = ExchangeMessagesTransport.FTPConnection(FTPSettings);
+		
+		AbsoluteDataExchangeDirectory = CommonClientServer.GetFullFileName(
+			TransportSettings.FTPPath,
+			RelativeInformationExchangeDirectory);
+
+		If Not ExchangeMessagesTransport.FTPDirectoryExist(AbsoluteDataExchangeDirectory, RelativeInformationExchangeDirectory, FTPConnection) Then
+			FTPConnection.CreateDirectory(AbsoluteDataExchangeDirectory);
+		EndIf;
+		
+		// Saving exchange message transfer settings for the current data area
+		RecordStructure = New Structure;
+		RecordStructure.Insert("Peer", Peer);
+		RecordStructure.Insert("CorrespondentEndpoint", CorrespondentEndpoint);
+		RecordStructure.Insert("DataExchangeDirectory", RelativeInformationExchangeDirectory);
+		
+		InformationRegisters.DataAreaExchangeTransportSettings.UpdateRecord(RecordStructure);
+		
+	Else
+		Raise StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'The endpoint %2 doesn''t support the exchange message transport type %1.';"),
+			String(TransportSettings.DefaultExchangeMessagesTransportKind),
+			String(CorrespondentEndpoint));
+	EndIf;
+		
+EndProcedure
+
+// Data synchronization setup event for the event log
+// 
+// Returns:
+//  String - Logged event as a String
+//
+Function EventLogEventDataSynchronizationSetup() Export
+	
+	Return NStr("en = 'Data exchange SaaS.Data synchronization setup';",
+		Common.DefaultLanguageCode());
+	
+EndFunction
+
 #EndRegion
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Internal export procedures and functions
+#Region ExportServiceProceduresAndFunctions
 
 // Exports data in exchange between data areas.
 //
@@ -1082,9 +1245,10 @@ Procedure RunDataExport(Cancel, Val Peer) Export
 	ExchangeParameters = DataExchangeServer.ExchangeParameters();
 	ExchangeParameters.ExecuteImport1 = False;
 	ExchangeParameters.ExecuteExport2 = True;
+	ExchangeParameters.TransportID = "SM";
 	
-	DataExchangeServer.ExecuteDataExchangeForInfobaseNode(Peer,
-		ExchangeParameters, Cancel);
+	DataExchangeServer.ExecuteDataExchangeForInfobaseNode(
+		Peer, ExchangeParameters, Cancel);
 		
 EndProcedure
 
@@ -1099,14 +1263,11 @@ Procedure RunDataImport(Cancel, Val Peer, MessageForDataMapping = False) Export
 	ExchangeParameters = DataExchangeServer.ExchangeParameters();
 	ExchangeParameters.ExecuteImport1 = True;
 	ExchangeParameters.ExecuteExport2 = False;
+	ExchangeParameters.TransportID = "SM";
+	ExchangeParameters.MessageForDataMapping = MessageForDataMapping;
 	
-	AdditionalParameters = New Structure;
-	If MessageForDataMapping Then
-		AdditionalParameters.Insert("MessageForDataMapping");
-	EndIf;
-	
-	DataExchangeServer.ExecuteDataExchangeForInfobaseNode(Peer,
-		ExchangeParameters, Cancel, AdditionalParameters);
+	DataExchangeServer.ExecuteDataExchangeForInfobaseNode(
+		Peer, ExchangeParameters, Cancel);
 		
 EndProcedure
 
@@ -1387,18 +1548,23 @@ Procedure DeleteSynchronizationSetting(ExchangePlanName, CorrespondentNodeCode) 
 			
 			Try
 				
-				FTPSettings = DataExchangeServer.FTPConnectionSetup();
+				FTPSettings = ExchangeMessagesTransport.FTPConnectionSetup();
 				FTPSettings.Server               = TransportSettings.FTPServer;
-				FTPSettings.Port                 = TransportSettings.FTPConnectionPort;
-				FTPSettings.UserName      = TransportSettings.FTPConnectionUser;
+				FTPSettings.Port                 = TransportSettings.FTPConnection_Port;
+				FTPSettings.UserName      = TransportSettings.FTPUserConnection;
 				FTPSettings.UserPassword   = TransportSettings.FTPConnectionPassword;
 				FTPSettings.PassiveConnection  = TransportSettings.FTPConnectionPassiveConnection;
 				FTPSettings.SecureConnection = DataExchangeServer.SecureConnection(TransportSettings.FTPConnectionPath);
 				
-				FTPConnection = DataExchangeServer.FTPConnection(FTPSettings);
+				FTPConnection = ExchangeMessagesTransport.FTPConnection(FTPSettings);
 				
-				If DataExchangeServer.FTPDirectoryExist(TransportSettings.FTPPath, TransportSettings.RelativeInformationExchangeDirectory, FTPConnection) Then
+				If ExchangeMessagesTransport.FTPDirectoryExist(
+					TransportSettings.FTPPath,
+					TransportSettings.RelativeInformationExchangeDirectory, 
+					FTPConnection) Then
+					
 					FTPConnection.Delete(TransportSettings.FTPPath);
+					
 				EndIf;
 				
 			Except
@@ -1538,7 +1704,7 @@ EndProcedure
 //
 Function SuppliedDataKindID()
 	
-	Return "ER"; // Not localizable.
+	Return "ER"; // Do not localize.
 	
 EndFunction
 
@@ -1549,7 +1715,7 @@ EndFunction
 //
 Function IdOfTypeOfDataSuppliedRegistrationRules()
 	
-	Return "RR"; // Not localizable.
+	Return "RR"; // Do not localize.
 	
 EndFunction
 
@@ -1663,31 +1829,6 @@ Function DataExchangeScenarioRowDetails(ScenarioRowIndex, DataExchangeScenario)
 	
 	Return LongDesc;
 	
-EndFunction
-
-// Sends a message.
-//
-// Parameters:
-//  Message - XDTODataObject - a message.
-//
-Function SendMessage(Val Message) Export
-	
-	If Not Common.SubsystemExists("CloudTechnology") Then
-		Raise NStr("en = 'There is no Service manager.';");
-	EndIf;
-	
-	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
-	ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
-	ModuleSaaSOperationsCTLCached = Common.CommonModule("SaaSOperationsCTLCached");
-	
-	Message.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
-	Message.Body.SessionId = InformationRegisters.SystemMessageExchangeSessions.NewSession();
-	
-	ModuleMessagesSaaS.SendMessage(Message,
-		ModuleSaaSOperationsCTLCached.ServiceManagerEndpoint(),
-		True);
-	
-	Return Message.Body.SessionId;
 EndFunction
 
 Function CorrespondentWSProxyDetails(Peer)
@@ -2013,6 +2154,14 @@ Procedure CreateExchangeSetting_3_0_1_1(ConnectionSettings,
 		Parameters.Insert("ThisNodeAlias", ThisNodeAlias);
 		
 		UpdateDataAreaTransportSettings(Parameters);
+				
+		TransportSettings = New Structure;
+		TransportSettings.Insert("CorrespondentEndpoint", ConnectionSettings.CorrespondentEndpoint);
+		TransportSettings.Insert("PeerInfobaseName", ConnectionSettings.PeerInfobaseName);
+		TransportSettings.Insert("CorrespondentDataArea", ConnectionSettings.CorrespondentDataArea);
+		TransportSettings.Insert("InternalPublication", False);
+				
+		ExchangeMessagesTransport.SaveTransportSettings(Peer, "SM", TransportSettings, True);
 		
 		ConnectionSettings.Peer = Peer;
 		
@@ -2022,113 +2171,6 @@ Procedure CreateExchangeSetting_3_0_1_1(ConnectionSettings,
 		Raise;
 	EndTry;
 	
-EndProcedure
-
-Procedure UpdateDataAreaTransportSettings(Parameters)
-	
-	Peer                = Parameters.Peer;
-	ThisNodeCode                 = Parameters.ThisNodeCode;
-	CorrespondentCode            = Parameters.CorrespondentCode;
-	CorrespondentEndpoint  = Parameters.CorrespondentEndpoint;
-	IsCorrespondent             = Parameters.IsCorrespondent;
-	SSL200CompatibilityMode = Parameters.SSL200CompatibilityMode;
-	ThisNodeAlias           = Parameters.ThisNodeAlias;
-	
-	If IsCorrespondent Then
-		If Not IsBlankString(ThisNodeAlias) Then
-			RelativeInformationExchangeDirectory = ExchangeMessagesDirectoryName(CorrespondentCode, ThisNodeAlias);
-		Else
-			RelativeInformationExchangeDirectory = ExchangeMessagesDirectoryName(CorrespondentCode, ThisNodeCode);
-		EndIf;
-	Else
-		If Not IsBlankString(ThisNodeAlias) Then
-			RelativeInformationExchangeDirectory = ExchangeMessagesDirectoryName(ThisNodeAlias, CorrespondentCode);
-		Else
-			RelativeInformationExchangeDirectory = ExchangeMessagesDirectoryName(ThisNodeCode, CorrespondentCode);
-		EndIf;
-	EndIf;
-	
-	TransportSettings = InformationRegisters.DataAreasExchangeTransportSettings.TransportSettings(CorrespondentEndpoint);
-	
-	If TransportSettings.DefaultExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.FILE Then
-		
-		// Exchange using network directory
-		
-		FILECommonInformationExchangeDirectory = TrimAll(TransportSettings.FILEDataExchangeDirectory);
-		
-		If IsBlankString(FILECommonInformationExchangeDirectory) Then
-			
-			MessageString = NStr("en = 'The data exchange directory for the endpoint %1 is not specified.';");
-			MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, String(CorrespondentEndpoint));
-			Raise MessageString;
-		EndIf;
-		
-		CommonDirectory = New File(FILECommonInformationExchangeDirectory);
-		
-		If Not CommonDirectory.Exists() Then
-			
-			MessageString = NStr("en = 'The exchange directory %1 does not exist.';");
-			MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, FILECommonInformationExchangeDirectory);
-			Raise MessageString;
-		EndIf;
-		
-		If Not SSL200CompatibilityMode Then
-			
-			FILEAbsoluteDataExchangeDirectory = CommonClientServer.GetFullFileName(
-				FILECommonInformationExchangeDirectory,
-				RelativeInformationExchangeDirectory);
-			
-			// Creating a message exchange directory
-			AbsoluteDirectory = New File(FILEAbsoluteDataExchangeDirectory);
-			If Not AbsoluteDirectory.Exists() Then
-				CreateDirectory(AbsoluteDirectory.FullName);
-			EndIf;
-			
-			// Saving exchange message transfer settings for the current data area
-			RecordStructure = New Structure;
-			RecordStructure.Insert("Peer", Peer);
-			RecordStructure.Insert("CorrespondentEndpoint", CorrespondentEndpoint);
-			RecordStructure.Insert("DataExchangeDirectory", RelativeInformationExchangeDirectory);
-			
-			InformationRegisters.DataAreaExchangeTransportSettings.UpdateRecord(RecordStructure);
-		EndIf;
-		
-	ElsIf TransportSettings.DefaultExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.FTP Then
-		
-		// Data exchange over a  FTP server.
-		
-		FTPSettings = DataExchangeServer.FTPConnectionSetup();
-		FTPSettings.Server               = TransportSettings.FTPServer;
-		FTPSettings.Port                 = TransportSettings.FTPConnectionPort;
-		FTPSettings.UserName      = TransportSettings.FTPConnectionUser;
-		FTPSettings.UserPassword   = TransportSettings.FTPConnectionPassword;
-		FTPSettings.PassiveConnection  = TransportSettings.FTPConnectionPassiveConnection;
-		FTPSettings.SecureConnection = DataExchangeServer.SecureConnection(TransportSettings.FTPConnectionPath);
-		
-		FTPConnection = DataExchangeServer.FTPConnection(FTPSettings);
-		
-		AbsoluteDataExchangeDirectory = CommonClientServer.GetFullFileName(
-			TransportSettings.FTPPath,
-			RelativeInformationExchangeDirectory);
-		If Not DataExchangeServer.FTPDirectoryExist(AbsoluteDataExchangeDirectory, RelativeInformationExchangeDirectory, FTPConnection) Then
-			FTPConnection.CreateDirectory(AbsoluteDataExchangeDirectory);
-		EndIf;
-		
-		// Saving exchange message transfer settings for the current data area
-		RecordStructure = New Structure;
-		RecordStructure.Insert("Peer", Peer);
-		RecordStructure.Insert("CorrespondentEndpoint", CorrespondentEndpoint);
-		RecordStructure.Insert("DataExchangeDirectory", RelativeInformationExchangeDirectory);
-		
-		InformationRegisters.DataAreaExchangeTransportSettings.UpdateRecord(RecordStructure);
-		
-	Else
-		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The endpoint %2 doesn''t support the exchange message transport type %1.';"),
-			String(TransportSettings.DefaultExchangeMessagesTransportKind),
-			String(CorrespondentEndpoint));
-	EndIf;
-		
 EndProcedure
 
 // Updates settings and sets default values for a node
@@ -2218,6 +2260,9 @@ Procedure CommitUnsuccessfulSession(Val Message, Val Presentation = "") Export
 EndProcedure
 
 // Returns a minimum required platform version
+// 
+// Returns:
+//  String 
 //
 Function RequiredPlatformVersion() Export
 	
@@ -2236,16 +2281,10 @@ Function RequiredPlatformVersion() Export
 	
 EndFunction
 
-// Data synchronization setup event for the event log
-//
-Function EventLogEventDataSynchronizationSetup() Export
-	
-	Return NStr("en = 'Data exchange SaaS.Data synchronization setup';",
-		Common.DefaultLanguageCode());
-	
-EndFunction
-
 // Data synchronization monitor event for the event log
+// 
+// Returns:
+//  String - Logged event as a String
 //
 Function EventLogEventDataSynchronizationMonitor() Export
 	
@@ -2255,6 +2294,9 @@ Function EventLogEventDataSynchronizationMonitor() Export
 EndFunction
 
 // Data synchronization event for the event log
+// 
+// Returns:
+//  String - Logged event as a String
 //
 Function DataSyncronizationLogEvent() Export
 	
@@ -2271,11 +2313,20 @@ Function EventLogEventSystemMessagesExchangeSessions()
 EndFunction
 
 
-////////////////////////////////////////////////////////////////////////////////
-// Data exchange monitor procedures and functions
+#EndRegion
+
+#Region DataExchangeMonitorProceduresAndFunctions
 
 // For internal use
 // 
+// Parameters:
+//  MethodExchangePlans - Array of String - Array of exchange plan names (as in the configuration)
+//  AdditionalExchangePlanProperties - String - Additional properties of the exchange plan
+//  OnlyFailedExchanges - Boolean
+// 
+// Returns:
+//  ValueTable - Table of the data exchange monitor
+//
 Function DataExchangeMonitorTable(Val MethodExchangePlans, Val AdditionalExchangePlanProperties = "", Val OnlyFailedExchanges = False) Export
 	
 	QueryText = "SELECT
@@ -2544,8 +2595,9 @@ Procedure PrepareExchangePlansNodesDataForMonitor(Val TempTablesManager, Val Met
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Local internal procedures and functions
+#EndRegion
+
+#Region LocalUtilityProceduresAndFunctions
 
 Function FindInfobaseNode(Val ExchangePlanName, Val NodeCode)
 	
@@ -2676,8 +2728,9 @@ Function NewPropertiesOfStandaloneWorkstationMetadata(ItemMetadata)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Getting references to shared SaaS data pages
+#EndRegion
+
+#Region GettingLinksToServiceInfoCommonPages
 
 // Returns a reference address by ID
 // For internal use.
@@ -2708,6 +2761,9 @@ EndFunction
 
 // Returns an address of reference to an article of thin client setup
 // For internal use.
+// 
+// Returns:
+//  String
 //
 Function ThinClientSetupGuideAddress() Export
 	
@@ -2726,5 +2782,7 @@ Procedure OnCreateStandaloneWorkstation() Export
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

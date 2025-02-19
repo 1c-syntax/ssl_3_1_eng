@@ -36,7 +36,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	Parameters.Property("AppliedRuleDetails", AppliedRuleDetails);
+	AppliedRuleDetails = Parameters.AppliedRuleDetails;
 	DuplicatesSearchArea = Parameters.DuplicatesSearchArea;
 
 	Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Duplicate search rule: %1';"), 
@@ -109,7 +109,7 @@ Procedure TakeAppliedRulesIntoAccountOnChange(Item)
 		Return;
 	EndIf;
 	
-	LongDesc = New NotifyDescription("ClearingAppliedRulesUsageCompletion", ThisObject);
+	LongDesc = New CallbackDescription("ClearingAppliedRulesUsageCompletion", ThisObject);
 	
 	TitleText = NStr("en = 'Warning';");
 	QueryText   = NStr("en = 'Warning. If you turn off the default restrictions,
@@ -183,9 +183,9 @@ Procedure SelectComparisonType()
 	EndIf;
 	
 	Context = New Structure("IDRow", TableRow.GetID());
-	Handler = New NotifyDescription("EndingComparisonTypeSelection", ThisObject, Context);
+	Handler = New CallbackDescription("EndingComparisonTypeSelection", ThisObject, Context);
 	If Count = 1 And Not TableRow.Use Then
-		ExecuteNotifyProcessing(Handler, ChoiceList[0]);
+		RunCallback(Handler, ChoiceList[0]);
 		Return;
 	EndIf;
 	
@@ -236,10 +236,7 @@ EndProcedure
 
 &AtServerNoContext
 Function CanCancelAppliedRules()
-	
-	Result = AccessRight("DataAdministration", Metadata);
-	Return Result;
-	
+	Return AccessRight("DataAdministration", Metadata);
 EndFunction
 
 &AtServer

@@ -69,8 +69,7 @@ EndProcedure
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Server call.
+#Region ServerCall
 
 &AtServerNoContext
 Procedure ResetUserSettingsServer(Val OptionsToAssign)
@@ -92,8 +91,9 @@ Procedure ResetUserSettingsServer(Val OptionsToAssign)
 	EndTry;
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Server.
+#EndRegion
+
+#Region Server
 
 &AtServer
 Procedure DefineBehaviorInMobileClient()
@@ -119,5 +119,7 @@ Function HasUserSettings(OptionsArray)
 	HasUserSettings = Not Query.Execute().IsEmpty();
 	Return HasUserSettings;
 EndFunction
+
+#EndRegion
 
 #EndRegion

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Rights xmlns="http://v8.1c.ru/8.2/roles" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Rights" version="2.16">
+<Rights xmlns="http://v8.1c.ru/8.2/roles" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Rights" version="2.18">
 	<setForNewObjects>false</setForNewObjects>
 	<setForAttributesByDefault>true</setForAttributesByDefault>
 	<independentRightsOfChildObjects>false</independentRightsOfChildObjects>
@@ -145,6 +145,13 @@ ReportsOptions WHERE (ReportsOptions.User = FALSE
 			<name>Read</name>
 			<value>true</value>
 		</right>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>CommonForm.SaveByExportFormat</name>
 		<right>
 			<name>View</name>
 			<value>true</value>
@@ -376,7 +383,7 @@ ReportsOptions WHERE (ReportsOptions.User = FALSE
 		</right>
 	</object>
 	<object>
-		<name>CommonForm.FileSystemExtensionInstallationQuestion</name>
+		<name>CommonForm.QuestionOn1CEnterpriseExtensionInstallation</name>
 		<right>
 			<name>View</name>
 			<value>true</value>
@@ -1869,6 +1876,13 @@ WHERE User = &amp;AuthorizedUser
 		</right>
 	</object>
 	<object>
+		<name>CommonForm.GettingStartedWithElectronicSignature</name>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>Catalog.DigitalSignatureAndEncryptionApplications</name>
 		<right>
 			<name>Read</name>
@@ -1906,6 +1920,33 @@ WHERE User = &amp;AuthorizedUser
 		</right>
 		<right>
 			<name>Set</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>Configuration.StandardSubsystemsLibrary</name>
+		<right>
+			<name>MainWindowModeNormal</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeEmbeddedWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeFullscreenWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeKiosk</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>AnalyticsSystemClient</name>
 			<value>true</value>
 		</right>
 	</object>
@@ -2080,33 +2121,6 @@ WHERE User = &amp;AuthorizedUser
 		<name>CommonForm.SupportedClientApplications</name>
 		<right>
 			<name>View</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>Configuration.StandardSubsystemsLibrary</name>
-		<right>
-			<name>MainWindowModeNormal</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeEmbeddedWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeFullscreenWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeKiosk</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>AnalyticsSystemClient</name>
 			<value>true</value>
 		</right>
 	</object>
@@ -2544,6 +2558,13 @@ WHERE User = &amp;AuthorizedUser
 		</right>
 	</object>
 	<object>
+		<name>CommonForm.SelectDefaultPrintFormCommand</name>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>Constant.LocalInfobasePublishingURL</name>
 		<right>
 			<name>Read</name>
@@ -2556,6 +2577,17 @@ WHERE User = &amp;AuthorizedUser
 	</object>
 	<object>
 		<name>InformationRegister.FilesEncoding</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>Constant.PatchPropertiesBeforeInfobaseUpdate</name>
 		<right>
 			<name>Read</name>
 			<value>true</value>

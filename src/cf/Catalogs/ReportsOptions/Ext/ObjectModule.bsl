@@ -131,9 +131,7 @@ Procedure InitializeObject(FillingData)
 	ReportOptionSettings = CommonClientServer.StructureProperty(FillingData, "Settings");
 
 	If TypeOf(ReportOptionSettings) = Type("DataCompositionSettings") Then
-
-		Settings = New ValueStorage(ReportOptionSettings);
-
+		Settings = New ValueStorage(ReportOptionSettings, New Deflation(9));
 	EndIf;
 
 #Region SetReportType

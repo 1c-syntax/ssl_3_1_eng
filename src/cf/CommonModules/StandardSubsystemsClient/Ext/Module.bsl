@@ -58,7 +58,7 @@ EndProcedure
 // Show the question form.
 //
 // Parameters:
-//   NotifyDescriptionOnCompletion - NotifyDescription - Description of the procedures to be called after the question window is closed.
+//   NotifyDescriptionOnCompletion - CallbackDescription - Description of the procedures to be called after the question window is closed.
 //                                                        Has the following parameters:
 //                                                          QuestionResult - Structure
 //                                                            Value - User selection: a system enumeration value or
@@ -190,8 +190,8 @@ EndFunction
 // to see who is logged on to the system now.
 //
 // Parameters:
-//    FormParameters - Structure        - see details of the Parameters parameter of OpenForm method in the syntax assistant.
-//    FormOwner  - ClientApplicationForm - see details of the Owner parameter of OpenForm method in the syntax assistant.
+//    FormParameters - Structure        - See the "Parameters" parameter of the "OpenForm" method in Syntax Assistant.
+//    FormOwner  - ClientApplicationForm - See the "Owner" parameter of the "OpenForm" method in Syntax Assistant.
 //
 Procedure OpenActiveUserList(FormParameters = Undefined, FormOwner = Undefined) Export
 	
@@ -211,6 +211,115 @@ Procedure OpenActiveUserList(FormParameters = Undefined, FormOwner = Undefined) 
 	EndIf;
 	
 EndProcedure
+
+// Select metadata objects.
+// 
+// Parameters:
+//  FormParameters - See StandardSubsystemsClientServer.MetadataObjectsSelectionParameters
+//  OnCloseNotifyDescription - CallbackDescription - The notification that is called when the form closes. Has the following parameters:: 
+//			# SelectedMetadataObjects - The full names of the selected metadata objects.
+//				Or references to object IDs if "ChooseRefs" is set to "True". 
+//			# AdditionalParameters - Arbitrary - The parameters that were passed when creating the notification. 
+//		If "OnCloseNotifyDescription" is not specified, a notification is called that can be received 
+//		with the "NotificationProcessing" handler:
+//			# EventName - String - "SelectMetadataObjects"
+//			# Parameter - ValueList - Selected metadata objects.
+//			# Source - See StandardSubsystemsClientServer.MetadataObjectsSelectionParameters.УникальныйИдентификаторИсточник
+//
+Procedure ChooseMetadataObjects(FormParameters, OnCloseNotifyDescription = Undefined) Export
+	OpenForm("CommonForm.SelectMetadataObjects", FormParameters,,,,, OnCloseNotifyDescription);
+EndProcedure
+
+// Opens a spreadsheet for viewing or editing.
+// When saving an edited spreadsheet, also calls a notification 
+// that can be received using the "NotificationProcessing" handler:
+//	# EventName - String - "Write_SpreadsheetDocument" or "CancelEditSpreadsheetDocument"
+//	# Parameter - Structure:
+//	  ## PathToFile - String - The full path to the spreadsheet file.
+//	  ## Presentation - String - The spreadsheet name as specified in "SpreadsheetEditorParameters.DocumentName
+//	# Source - ClientApplicationForm - The editor form.
+// 
+// Parameters:
+//  SpreadsheetDocument - SpreadsheetDocument - The opened spreadsheet.
+//  FormParameters - See StandardSubsystemsClient.SpreadsheetEditorParameters
+//  OnCloseNotifyDescription - CallbackDescription - Notifications to be displayed when the spreadsheet editor closes.
+//                                                     
+//  Owner - ClientApplicationForm - Owner form.
+//
+Procedure ShowSpreadsheetEditor(Val SpreadsheetDocument, Val FormParameters = Undefined, 
+	Val OnCloseNotifyDescription = Undefined, Owner = Undefined) Export
+	
+	If FormParameters = Undefined Then
+		FormParameters = SpreadsheetEditorParameters();
+	EndIf;
+	FormParameters.SpreadsheetDocument = SpreadsheetDocument;
+	
+	OpenForm("CommonForm.EditSpreadsheetDocument", FormParameters, Owner,,,
+		OnCloseNotifyDescription);
+	
+EndProcedure
+
+// Parameters of the spreadsheet editor for "StandardSubsystemsClient.ShowSpreadsheetEditor".
+// 
+// Returns:
+//  Structure:
+//   * DocumentName - String - The spreadsheet name (shown in the editor's header). 
+//   * SpreadsheetDocument - SpreadsheetDocument, String - The spreadsheet being displayed or edited.
+//                         Also, you can specify the address of the spreadsheet in the temporary storage.
+//   * PathToFile - String - The full path to the spreadsheet (optional).
+//   * Edit - Boolean - If set to "True", the spreadsheet is editable. By default, "False".
+//
+Function SpreadsheetEditorParameters() Export
+	
+	Result = New Structure;
+	Result.Insert("DocumentName", "");
+	Result.Insert("SpreadsheetDocument", Undefined);
+	Result.Insert("PathToFile", "");
+	Result.Insert("Edit", False);
+	Return Result;
+	
+EndFunction
+
+// Opens a form where you can compare spreadsheets and view the difference.
+// 
+// Parameters:
+//  SpreadsheetDocumentLeft - SpreadsheetDocument - The first spreadsheet to compare.
+//  SpreadsheetDocumentRight - SpreadsheetDocument - The second spreadsheet to compare.
+//  Parameters - See SpreadsheetComparisonParameters
+//
+Procedure ShowSpreadsheetComparison(SpreadsheetDocumentLeft, SpreadsheetDocumentRight, Parameters) Export
+	
+	If SpreadsheetDocumentLeft <> Undefined Then
+		FormParameters = SpreadsheetComparisonParameters();
+		CommonClientServer.SupplementStructure(FormParameters, Parameters, True);
+		ComparableDocuments = New Structure("Left_1, Right", SpreadsheetDocumentLeft, SpreadsheetDocumentRight);
+		FormParameters.SpreadsheetDocumentsAddress = PutToTempStorage(ComparableDocuments, Undefined);
+	Else
+		FormParameters = Parameters;
+	EndIf;
+	OpenForm("CommonForm.CompareSpreadsheetDocuments", FormParameters);
+	
+EndProcedure
+
+// Parameters for comparing spreadsheets using "ShowSpreadsheetsDiff".
+// 
+// Returns:
+//  Structure:
+//    * SpreadsheetDocumentsAddress - String - The addresses in the temporary storage of the spreadsheets being compared.
+//    * Title - String - The form's title. If not specified, then "Compare spreadsheet documents".
+//    * TitleLeft - String - The title of the first spreadsheet (on the left).
+//    * TitleRight - String - The title of the second spreadsheet (on the right).
+//
+Function SpreadsheetComparisonParameters() Export
+	
+	Result = New Structure;
+	Result.Insert("SpreadsheetDocumentsAddress", "");
+	Result.Insert("Title", "");
+	Result.Insert("TitleLeft", "");
+	Result.Insert("TitleRight", "");
+	Return Result;
+	
+EndFunction
 
 // See StandardSubsystemsServer.IsBaseConfigurationVersion
 Function IsBaseConfigurationVersion() Export
@@ -452,7 +561,7 @@ EndProcedure
 // Is intended for calling modules of the managed or ordinary application from the BeforeStart handler.
 //
 // Parameters:
-//  CompletionNotification - NotifyDescription - Is skipped if managed or ordinary application modules are called from the BeforeStart 
+//  CompletionNotification - CallbackDescription - Is skipped if managed or ordinary application modules are called from the BeforeStart 
 //                         handler. In other cases, after the application started up, the notification with a parameter of the Structure type
 //                         is called. The structure fields are:
 //                         > Cancel - Boolean - False if the application started successfully, True if authorization is not
@@ -472,7 +581,7 @@ Procedure BeforeStart(Val CompletionNotification = Undefined) Export
 	
 	If CompletionNotification <> Undefined Then
 		CommonClientServer.CheckParameter("StandardSubsystemsClient.BeforeStart", 
-			"CompletionNotification", CompletionNotification, Type("NotifyDescription"));
+			"CompletionNotification", CompletionNotification, Type("CallbackDescription"));
 	EndIf;
 	
 	SignInToDataArea();
@@ -509,7 +618,7 @@ EndProcedure
 // Is intended for calling modules of the managed or ordinary application from the OnStart handler.
 //
 // Parameters:
-//  CompletionNotification - NotifyDescription - Is skipped if managed or ordinary application modules are called from the OnStart 
+//  CompletionNotification - CallbackDescription - Is skipped if managed or ordinary application modules are called from the OnStart 
 //                         handler. In other cases, after the application started up, the notification with a parameter of the Structure type
 //                         is called. The structure fields are:
 //                         > Cancel - Boolean - False if the application started successfully, True if authorization is not
@@ -533,7 +642,7 @@ Procedure OnStart(Val CompletionNotification = Undefined, ContinuousExecution = 
 	
 	If CompletionNotification <> Undefined Then
 		CommonClientServer.CheckParameter("StandardSubsystemsClient.OnStart", 
-			"CompletionNotification", CompletionNotification, Type("NotifyDescription"));
+			"CompletionNotification", CompletionNotification, Type("CallbackDescription"));
 	EndIf;
 	CommonClientServer.CheckParameter("StandardSubsystemsClient.OnStart", 
 		"ContinuousExecution", ContinuousExecution, Type("Boolean"));
@@ -552,8 +661,7 @@ EndProcedure
 //                         for the BeforeExit event handler, both for program
 //                         or for interactive cases. If the user
 //                         interaction was successful, the application exit can be continued.
-//  WarningText  - String - See BeforeExit
-//                                  () in Syntax Assistant.
+//  WarningText  - String - See BeforeExit() in Syntax Assistant.
 //
 Procedure BeforeExit(Cancel = False, WarningText = "") Export
 	
@@ -566,7 +674,7 @@ Procedure BeforeExit(Cancel = False, WarningText = "") Export
 		If Not ClientParameter("AskConfirmationOnExit") Then
 			Return;
 		EndIf;
-		WarningText = NStr("en = 'Exit the app?';");
+		WarningText = NStr("en = 'Exit the application?';");
 		Cancel = True;
 	Else
 		Cancel = True;
@@ -697,7 +805,7 @@ Function ClientParametersOnStart() Export
 	
 EndFunction
 
-// Returns parameters values required for the operation of the client code configuration
+// Returns parameters values required for the operation of client-side code configuration
 // without additional server calls.
 // 
 // Returns:
@@ -709,6 +817,51 @@ Function ClientRunParameters() Export
 	Return StandardSubsystemsClientCached.ClientRunParameters();
 	
 EndFunction
+
+// See CommonClientOverridable.OnGlobalSearch
+Procedure OnGlobalSearch(SearchString, SearchPlan) Export
+	
+	SSLSubsystemsIntegrationClient.OnGlobalSearch(SearchString, SearchPlan);
+	CommonClientOverridable.OnGlobalSearch(SearchString, SearchPlan);
+	
+EndProcedure
+
+// See CommonClientOverridable.OnGlobalSearchResultChoice
+Procedure OnGlobalSearchResultChoice(ResultItem, StandardProcessing) Export
+	
+	SSLSubsystemsIntegrationClient.OnGlobalSearchResultChoice(
+		ResultItem,
+		StandardProcessing);
+	CommonClientOverridable.OnGlobalSearchResultChoice(
+		ResultItem,
+		StandardProcessing);
+	
+EndProcedure
+
+// See CommonClientOverridable.OnGlobalSearchResultActionChoice
+Procedure OnGlobalSearchResultActionChoice(ResultItem, Action) Export
+	
+	SSLSubsystemsIntegrationClient.OnGlobalSearchResultActionChoice(
+		ResultItem,
+		Action);
+	CommonClientOverridable.OnGlobalSearchResultActionChoice(
+		ResultItem,
+		Action);
+	
+EndProcedure
+
+// See CommonClientOverridable.NavigationByURLProcessing
+Procedure NavigationByURLProcessing(URLNavigationData,
+	StandardProcessing) Export
+	
+	SSLSubsystemsIntegrationClient.NavigationByURLProcessing(
+		URLNavigationData,
+		StandardProcessing);
+	CommonClientOverridable.NavigationByURLProcessing(
+		URLNavigationData,
+		StandardProcessing);
+	
+EndProcedure
 
 #EndRegion
 
@@ -810,6 +963,7 @@ Procedure FillClientParameters(ClientParameters) Export
 		ApplicationParameters[ParameterName].Insert("StandardTimeOffset");
 		ApplicationParameters[ParameterName].Insert("ClientDateOffset");
 		ApplicationParameters[ParameterName].Insert("DefaultLanguageCode");
+		ApplicationParameters[ParameterName].Insert("AdditionalLanguagesCount");
 		ApplicationParameters[ParameterName].Insert("ErrorInfoSendingSettings");
 	EndIf;
 	If Not ApplicationParameters[ParameterName].Property("PerformanceMonitor")
@@ -843,7 +997,7 @@ Procedure ShowMessageBoxAndContinue(Parameters, WarningDetails) Export
 	NotificationWithResult = Parameters.ContinuationHandler;
 	
 	If WarningDetails = Undefined Then
-		ExecuteNotifyProcessing(NotificationWithResult);
+		RunCallback(NotificationWithResult);
 		Return;
 	EndIf;
 	
@@ -870,7 +1024,7 @@ Procedure ShowMessageBoxAndContinue(Parameters, WarningDetails) Export
 		WarningText = WarningDetails;
 	EndIf;
 	
-	ClosingNotification1 = New NotifyDescription("ShowMessageBoxAndContinueCompletion", ThisObject, Parameters);
+	ClosingNotification1 = New CallbackDescription("ShowMessageBoxAndContinueCompletion", ThisObject, Parameters);
 	ShowQuestionToUser(ClosingNotification1, WarningText, Buttons, QuestionParameters);
 	
 EndProcedure
@@ -900,16 +1054,16 @@ EndFunction
 //
 Procedure SetFormStorageOption(Form, Location) Export
 	
-	Store = ApplicationParameters["StandardSubsystems.TemporaryManagedFormsRefStorage"];
-	If Store = Undefined Then
-		Store = New Map;
-		ApplicationParameters.Insert("StandardSubsystems.TemporaryManagedFormsRefStorage", Store);
+	Storage = ApplicationParameters["StandardSubsystems.TemporaryManagedFormsRefStorage"];
+	If Storage = Undefined Then
+		Storage = New Map;
+		ApplicationParameters.Insert("StandardSubsystems.TemporaryManagedFormsRefStorage", Storage);
 	EndIf;
 	
 	If Location Then
-		Store.Insert(Form, New Structure("Form", Form));
-	ElsIf Store.Get(Form) <> Undefined Then
-		Store.Delete(Form);
+		Storage.Insert(Form, New Structure("Form", Form));
+	ElsIf Storage.Get(Form) <> Undefined Then
+		Storage.Delete(Form);
 	EndIf;
 	
 EndProcedure
@@ -983,16 +1137,35 @@ EndFunction
 // Modifies the notification without result to the notification with result
 //
 // Returns:
-//  NotifyDescription
+//  CallbackDescription
 //
 Function NotificationWithoutResult(NotificationWithResult) Export
 	
-	Return New NotifyDescription("NotifyWithEmptyResult", ThisObject, NotificationWithResult);
+	Return New CallbackDescription("NotifyWithEmptyResult", ThisObject, NotificationWithResult);
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+Function NewNotificationParameterForSpreadsheetDocumentWrite() Export
+	
+	NotificationParameters = New Structure;
+	
+	NotificationParameters.Insert("PathToFile", "");
+	NotificationParameters.Insert("TemplateMetadataObjectName", "");
+	NotificationParameters.Insert("LanguageCode", "");
+	NotificationParameters.Insert("Presentation", "");
+	NotificationParameters.Insert("DataSources", New Array());
+	NotificationParameters.Insert("DefaultPrintForm", False);
+	NotificationParameters.Insert("PrintFormDescription", "");
+	NotificationParameters.Insert(
+		"ExportSaveFormat",
+		PredefinedValue("Enum.ObjectsExportFormats.EmptyRef"));
+	NotificationParameters.Insert("TemplateForObjectExport", False);
+	
+	Return NotificationParameters;
+	
+EndFunction
+
+#Region ConfigurationSubsystemsEventHandlers
 
 // See SSLSubsystemsIntegrationClient.BeforeRecurringClientDataSendToServer
 Procedure BeforeRecurringClientDataSendToServer(Parameters) Export
@@ -1027,8 +1200,9 @@ Procedure AfterRecurringReceiptOfClientDataOnServer(Results) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Display runtime result.
+#EndRegion
+
+#Region OutputOfExecutionResult
 
 // Expands nodes of the specified tree on the form.
 //
@@ -1110,7 +1284,7 @@ EndProcedure
 // Displays the text, which users can copy.
 //
 // Parameters:
-//   Handler - NotifyDescription - description of the procedure to be called after showing the message.
+//   Handler - CallbackDescription - description of the procedure to be called after showing the message.
 //       Returns a value like ShowQuestionToUser().
 //   Text     - String - an information text.
 //   Title - String - window title. "Details" by default.
@@ -1135,7 +1309,7 @@ Procedure ShowDetailedInfo(Handler, Text, Title = Undefined) Export
 	ShowQuestionToUser(Handler, Text, Buttons, DialogSettings);
 EndProcedure
 
-// The file header for technical support.
+// The file header for technical support.
 //
 // Returns:
 //  String
@@ -1213,7 +1387,7 @@ EndFunction
 // That is, when you need to minimize the delay.
 // 
 // Parameters:
-//  NotifyDescription - NotifyDescription - Notification to be handled.
+//  NotifyDescription - CallbackDescription - Notification to be handled.
 //  Result  - Arbitrary - Value to be passed to the "Result" parameter
 //               of the RunCallback platform method.
 //
@@ -1224,122 +1398,18 @@ Procedure StartNotificationProcessing(NotifyDescription, Result = Undefined) Exp
 	Context.Insert("Result", Result);
 	
 	Stream = New MemoryStream;
-	Stream.BeginGetSize(New NotifyDescription(
+	Stream.BeginGetSize(New CallbackDescription(
 		"StartNotificationProcessingCompletion", ThisObject, Context));
 	
 EndProcedure
 
-// Select metadata objects.
-// 
-// Parameters:
-//  FormParameters - See StandardSubsystemsClientServer.MetadataObjectsSelectionParameters
-//  OnCloseNotifyDescription - NotifyDescription - The notification that is called when the form closes. Has the following parameters:: 
-//			# SelectedMetadataObjects - The full names of the selected metadata objects.
-//				Or references to object IDs if "ChooseRefs" is set to "True". 
-//			# AdditionalParameters - Arbitrary - The parameters that were passed when creating the notification. 
-//		If "OnCloseNotifyDescription" is not specified, a notification is called that can be received 
-//		with the "NotificationProcessing" handler:
-//			# EventName - String - "SelectMetadataObjects"
-//			# Parameter - ValueList - Selected metadata objects.
-//			# Source -
-//
-Procedure ChooseMetadataObjects(FormParameters, OnCloseNotifyDescription = Undefined) Export
-	OpenForm("CommonForm.SelectMetadataObjects", FormParameters,,,,, OnCloseNotifyDescription);
-EndProcedure
-
-// Opens a spreadsheet for viewing or editing.
-// When saving an edited spreadsheet, calls a notification 
-// that can be received using the "NotificationProcessing" handler:
-//	# EventName - String - "Write_SpreadsheetDocument" or "CancelEditSpreadsheetDocument"
-//	# Parameter - Structure:
-//	  ## PathToFile - String - The full path to the spreadsheet file.
-//	  ## Presentation - String - The spreadsheet name as specified in "SpreadsheetEditorParameters.DocumentName
-//	# Source - ClientApplicationForm - The editor form.
-// 
-// Parameters:
-//  SpreadsheetDocument - SpreadsheetDocument - The opened spreadsheet.
-//  FormParameters - See StandardSubsystemsClient.SpreadsheetEditorParameters
-//
-Procedure ShowSpreadsheetEditor(Val SpreadsheetDocument, Val FormParameters = Undefined, 
-	Val OnCloseNotifyDescription = Undefined, Owner = Undefined) Export
-	
-	If FormParameters = Undefined Then
-		FormParameters = SpreadsheetEditorParameters();
-	EndIf;
-	FormParameters.SpreadsheetDocument = SpreadsheetDocument;
-	
-	OpenForm("CommonForm.EditSpreadsheetDocument", FormParameters, Owner);
-	
-EndProcedure
-
-// Parameters of the spreadsheet editor for "StandardSubsystemsClient.ShowSpreadsheetEditor".
-// 
-// Returns:
-//  Structure:
-//   * DocumentName - String - The spreadsheet name (shown in the editor's header). 
-//   * SpreadsheetDocument - SpreadsheetDocument, String - The spreadsheet being displayed or edited.
-//                         Also, you can specify the address of the spreadsheet in the temporary storage.
-//   * PathToFile - String - The full path to the spreadsheet (optional).
-//   * Edit - Boolean - If set to "True", the spreadsheet is editable. By default, "False".
-//
-Function SpreadsheetEditorParameters() Export
-	
-	Result = New Structure;
-	Result.Insert("DocumentName", "");
-	Result.Insert("SpreadsheetDocument", Undefined);
-	Result.Insert("PathToFile", "");
-	Result.Insert("Edit", False);
-	Return Result;
-	
-EndFunction
-
-// Opens a form where you can compare spreadsheets and view the difference.
-// 
-// Parameters:
-//  SpreadsheetDocumentLeft - SpreadsheetDocument - The first spreadsheet to compare.
-//  SpreadsheetDocumentRight - SpreadsheetDocument - The second spreadsheet to compare.
-//  Parameters - See SpreadsheetComparisonParameters
-//
-Procedure ShowSpreadsheetComparison(SpreadsheetDocumentLeft, SpreadsheetDocumentRight, Parameters) Export
-	
-	If SpreadsheetDocumentLeft <> Undefined Then
-		FormParameters = SpreadsheetComparisonParameters();
-		CommonClientServer.SupplementStructure(FormParameters, Parameters, True);
-		ComparableDocuments = New Structure("Left_1, Right", SpreadsheetDocumentLeft, SpreadsheetDocumentRight);
-		FormParameters.SpreadsheetDocumentsAddress = PutToTempStorage(ComparableDocuments, Undefined);
-	Else
-		FormParameters = Parameters;
-	EndIf;
-	OpenForm("CommonForm.CompareSpreadsheetDocuments", FormParameters);
-	
-EndProcedure
-
-// Parameters for comparing spreadsheets using "ShowSpreadsheetsDiff".
-// 
-// Returns:
-//  Structure:
-//    * SpreadsheetDocumentsAddress - String - The addresses in the temporary storage of the spreadsheets being compared.
-//    * Title - String - The form's title. If not specified, then "Compare spreadsheet documents".
-//    * TitleLeft - String - The title of the first spreadsheet (on the left).
-//    * TitleRight - String - The title of the second spreadsheet (on the right).
-//
-Function SpreadsheetComparisonParameters() Export
-	
-	Result = New Structure;
-	Result.Insert("SpreadsheetDocumentsAddress", "");
-	Result.Insert("Title", "");
-	Result.Insert("TitleLeft", "");
-	Result.Insert("TitleRight", "");
-	Return Result;
-	
-EndFunction
+#EndRegion
 
 #EndRegion
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// BeforeStart
+#Region BeforeStart
 
 // Continues the BeforeStart procedure.
 Procedure ActionsBeforeStart(CompletionNotification)
@@ -1352,23 +1422,22 @@ Procedure ActionsBeforeStart(CompletionNotification)
 	Parameters.Insert("AdditionalParametersOfCommandLine", "");
 	
 	// External parameters of the execution management.
-	Parameters.Insert("InteractiveHandler", Undefined); // NotifyDescription
-	Parameters.Insert("ContinuationHandler",   Undefined); // NotifyDescription
+	Parameters.Insert("InteractiveHandler", Undefined); // CallbackDescription
+	Parameters.Insert("ContinuationHandler",   Undefined); // CallbackDescription
 	Parameters.Insert("ContinuousExecution", True);
 	Parameters.Insert("RetrievedClientParameters", New Structure);
-	Parameters.Insert("ModuleOfLastProcedure", "");
-	Parameters.Insert("NameOfLastProcedure", "");
+	Parameters.Insert("CalledProcedures", New Array);
 	InstallLatestProcedure(Parameters, "StandardSubsystemsClient", "BeforeStart");
 	
 	// Internal parameters.
 	Parameters.Insert("CompletionNotification", CompletionNotification);
-	Parameters.Insert("CompletionProcessing", New NotifyDescription(
+	Parameters.Insert("CompletionProcessing", New CallbackDescription(
 		"ActionsBeforeStartCompletionHandler", ThisObject));
 	
 	UpdateClientParameters(Parameters, True, CompletionNotification <> Undefined);
 	
 	// Preparing to proceed to the next procedure
-	Parameters.Insert("ContinuationHandler", New NotifyDescription(
+	Parameters.Insert("ContinuationHandler", New CallbackDescription(
 		"ActionsBeforeStartInIntegrationProcedure", ThisObject));
 	
 	If ApplicationStartupLogicDisabled() Then
@@ -1380,6 +1449,8 @@ Procedure ActionsBeforeStart(CompletionNotification)
 			If ClientProperties.Property("ErrorThereIsNoRightToDisableTheSystemStartupLogic") Then
 				UsersInternalClient.InstallInteractiveDataProcessorOnInsufficientRightsToSignInError(
 					Parameters, ClientProperties.ErrorThereIsNoRightToDisableTheSystemStartupLogic);
+				InstallLatestProcedure(Parameters, "UsersInternalClient",
+					"InstallInteractiveDataProcessorOnInsufficientRightsToSignInError");
 			EndIf;
 		Except
 			ErrorText = ErrorProcessing.DetailErrorDescription(ErrorInfo());
@@ -1387,6 +1458,8 @@ Procedure ActionsBeforeStart(CompletionNotification)
 				False, "Run", ErrorText);
 			UsersInternalClient.InstallInteractiveDataProcessorOnInsufficientRightsToSignInError(
 				Parameters, ErrorText);
+			InstallLatestProcedure(Parameters, "UsersInternalClient",
+				"InstallInteractiveDataProcessorOnInsufficientRightsToSignInError");
 		EndTry;
 		If BeforeStartInteractiveHandler(Parameters) Then
 			Return;
@@ -1402,11 +1475,12 @@ Procedure ActionsBeforeStart(CompletionNotification)
 	Except
 		HandleErrorBeforeStart(Parameters, ErrorInfo(), True);
 	EndTry;
+	InstallLatestProcedure(Parameters, "CommonClient", "SubsystemExists");
 	If BeforeStartInteractiveHandler(Parameters) Then
 		Return;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 
@@ -1421,7 +1495,7 @@ Procedure ActionsBeforeStartInIntegrationProcedure(NotDefined, Context) Export
 		Return;
 	EndIf;
 	
-	Parameters.Insert("ContinuationHandler", New NotifyDescription(
+	Parameters.Insert("ContinuationHandler", New CallbackDescription(
 		"ActionsBeforeStartInIntegrationProcedureModules", ThisObject));
 	
 	Parameters.Insert("CurrentModuleIndex", 0);
@@ -1429,6 +1503,7 @@ Procedure ActionsBeforeStartInIntegrationProcedure(NotDefined, Context) Export
 	Try
 		Parameters.Insert("Modules", New Array);
 		SSLSubsystemsIntegrationClient.BeforeStart(Parameters);
+		InstallLatestProcedure(Parameters, "SSLSubsystemsIntegrationClient", "BeforeStart");
 		Parameters.Insert("AddedModules", Parameters.Modules);
 		Parameters.Delete("Modules");
 	Except
@@ -1438,7 +1513,7 @@ Procedure ActionsBeforeStartInIntegrationProcedure(NotDefined, Context) Export
 		Return;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 
@@ -1467,16 +1542,21 @@ Procedure ActionsBeforeStartInIntegrationProcedureModules(NotDefined, Context) E
 			If TypeOf(ModuleDetails) <> Type("Structure") Then
 				CurrentModule = ModuleDetails;
 				CurrentModule.BeforeStart(Parameters);
+				InstallLatestProcedure(Parameters, CurrentModule, "BeforeStart");
 			Else
 				CurrentModule = ModuleDetails.Module;
 				If ModuleDetails.Number = 2 Then
 					CurrentModule.BeforeStart2(Parameters);
+					InstallLatestProcedure(Parameters, CurrentModule, "BeforeStart2");
 				ElsIf ModuleDetails.Number = 3 Then
 					CurrentModule.BeforeStart3(Parameters);
+					InstallLatestProcedure(Parameters, CurrentModule, "BeforeStart3");
 				ElsIf ModuleDetails.Number = 4 Then
 					CurrentModule.BeforeStart4(Parameters);
+					InstallLatestProcedure(Parameters, CurrentModule, "BeforeStart4");
 				ElsIf ModuleDetails.Number = 5 Then
 					CurrentModule.BeforeStart5(Parameters);
+					InstallLatestProcedure(Parameters, CurrentModule, "BeforeStart5");
 				EndIf;
 			EndIf;
 		Except
@@ -1501,7 +1581,7 @@ Procedure ActionsBeforeStartInOverridableProcedure(NotDefined, Context)
 		Return;
 	EndIf;
 	
-	Parameters.Insert("ContinuationHandler", New NotifyDescription(
+	Parameters.Insert("ContinuationHandler", New CallbackDescription(
 		"ActionsBeforeStartInOverridableProcedureModules", ThisObject));
 	
 	Parameters.InteractiveHandler = Undefined;
@@ -1513,6 +1593,8 @@ Procedure ActionsBeforeStartInOverridableProcedure(NotDefined, Context)
 		Try
 			Parameters.Insert("Modules", New Array);
 			CommonClientOverridable.BeforeStart(Parameters);
+			InstallLatestProcedure(Parameters, "CommonClientOverridable",
+				"BeforeStart");
 			Parameters.Insert("AddedModules", Parameters.Modules);
 			Parameters.Delete("Modules");
 		Except
@@ -1523,7 +1605,7 @@ Procedure ActionsBeforeStartInOverridableProcedure(NotDefined, Context)
 		EndIf;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 
@@ -1550,6 +1632,7 @@ Procedure ActionsBeforeStartInOverridableProcedureModules(NotDefined, Context) E
 		
 		Try
 			CurrentModule.BeforeStart(Parameters);
+			InstallLatestProcedure(Parameters, CurrentModule, "BeforeStart");
 		Except
 			HandleErrorBeforeStart(Parameters, ErrorInfo());
 		EndTry;
@@ -1576,6 +1659,8 @@ Procedure ActionsBeforeStartAfterAllProcedures(NotDefined, Context)
 	
 	Try
 		SetInterfaceFunctionalOptionParametersOnStart();
+		InstallLatestProcedure(Parameters, "StandardSubsystemsClient",
+			"SetInterfaceFunctionalOptionParametersOnStart");
 	Except
 		HandleErrorBeforeStart(Parameters, ErrorInfo(), True);
 	EndTry;
@@ -1583,7 +1668,7 @@ Procedure ActionsBeforeStartAfterAllProcedures(NotDefined, Context)
 		Return;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 
@@ -1604,7 +1689,7 @@ Procedure ActionsBeforeStartCompletionHandler(NotDefined, Context) Export
 		Result.Insert("Cancel", Parameters.Cancel);
 		Result.Insert("Restart", Parameters.Restart);
 		Result.Insert("AdditionalParametersOfCommandLine", Parameters.AdditionalParametersOfCommandLine);
-		ExecuteNotifyProcessing(Parameters.CompletionNotification, Result);
+		RunCallback(Parameters.CompletionNotification, Result);
 		Return;
 	EndIf;
 	
@@ -1652,8 +1737,9 @@ Function ProcessingParametersBeforeStartSystem(Delete = False)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// OnAppStart
+#EndRegion
+
+#Region OnStart
 
 // Continues the OnStart procedure.
 Procedure ActionsOnStart(CompletionNotification, ContinuousExecution)
@@ -1666,30 +1752,31 @@ Procedure ActionsOnStart(CompletionNotification, ContinuousExecution)
 	Parameters.Insert("AdditionalParametersOfCommandLine", "");
 	
 	// External parameters of the execution management.
-	Parameters.Insert("InteractiveHandler", Undefined); // NotifyDescription
-	Parameters.Insert("ContinuationHandler",   Undefined); // NotifyDescription
+	Parameters.Insert("InteractiveHandler", Undefined); // CallbackDescription
+	Parameters.Insert("ContinuationHandler",   Undefined); // CallbackDescription
 	Parameters.Insert("ContinuousExecution", ContinuousExecution);
 	
 	// Internal parameters.
 	Parameters.Insert("CompletionNotification", CompletionNotification);
-	Parameters.Insert("CompletionProcessing", New NotifyDescription(
+	Parameters.Insert("CompletionProcessing", New CallbackDescription(
 		"ActionsOnStartCompletionHandler", ThisObject));
 	
 	// Preparing to proceed to the next procedure
-	Parameters.Insert("ContinuationHandler", New NotifyDescription(
+	Parameters.Insert("ContinuationHandler", New CallbackDescription(
 		"ActionsOnStartInIntegrationProcedure", ThisObject));
 	
 	If Not ApplicationStartCompleted() Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'An unexpected error occurred during the application startup.
+			NStr("en = 'An exception occurred during startup.
 			           |
-			           |Technical details:
-			           |Invalid call %1 during the application startup. First, you need to complete the %2 procedure.
-			           |One of the event handlers might have not called the notification to continue.
-			           |The last called procedure is %3.';"),
+			           |Details:
+			           |Invalid %1 call during startup. The procedure %2 must be completed first.
+			           |Presumably, one of the event handlers did not trigger the notification to continue.
+			           |The invoked procedures (most recent first):
+			           |%3';"),
 			"StandardSubsystemsClient.OnStart",
 			"StandardSubsystemsClient.BeforeStart",
-			FullNameOfLastProcedureBeforeStartingSystem());
+			CalledProceduresBeforeStart());
 		Try
 			Raise ErrorText;
 		Except
@@ -1705,7 +1792,7 @@ Procedure ActionsOnStart(CompletionNotification, ContinuousExecution)
 		
 		If Not ProcessStartParameters() Then
 			Parameters.Cancel = True;
-			ExecuteNotifyProcessing(Parameters.CompletionProcessing);
+			RunCallback(Parameters.CompletionProcessing);
 			Return;
 		EndIf;
 	Except
@@ -1715,7 +1802,7 @@ Procedure ActionsOnStart(CompletionNotification, ContinuousExecution)
 		Return;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 
@@ -1728,7 +1815,7 @@ Procedure ActionsOnStartInIntegrationProcedure(NotDefined, Context) Export
 		Return;
 	EndIf;
 	
-	Parameters.Insert("ContinuationHandler", New NotifyDescription(
+	Parameters.Insert("ContinuationHandler", New CallbackDescription(
 		"ActionsOnStartInIntegrationProcedureModules", ThisObject));
 	
 	Parameters.Insert("CurrentModuleIndex", 0);
@@ -1745,7 +1832,7 @@ Procedure ActionsOnStartInIntegrationProcedure(NotDefined, Context) Export
 		Return;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 
@@ -1801,7 +1888,7 @@ Procedure ActionsOnStartInOverridableProcedure(NotDefined, Context)
 		Return;
 	EndIf;
 	
-	Parameters.Insert("ContinuationHandler", New NotifyDescription(
+	Parameters.Insert("ContinuationHandler", New CallbackDescription(
 		"ActionsOnStartInOverridableProcedureModules", ThisObject));
 	
 	Parameters.Insert("CurrentModuleIndex", 0);
@@ -1818,7 +1905,7 @@ Procedure ActionsOnStartInOverridableProcedure(NotDefined, Context)
 		Return;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 
@@ -1875,7 +1962,7 @@ Procedure ActionsOnStartAfterAllProcedures(NotDefined, Context)
 		Return;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 
@@ -1901,7 +1988,7 @@ Procedure ActionsOnStartCompletionHandler(NotDefined, Context) Export
 		Result.Insert("Cancel", Parameters.Cancel);
 		Result.Insert("Restart", Parameters.Restart);
 		Result.Insert("AdditionalParametersOfCommandLine", Parameters.AdditionalParametersOfCommandLine);
-		ExecuteNotifyProcessing(Parameters.CompletionNotification, Result);
+		RunCallback(Parameters.CompletionNotification, Result);
 		Return;
 		
 	Else
@@ -1967,8 +2054,9 @@ Function ProcessStartParameters()
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// BeforeExit
+#EndRegion
+
+#Region BeforeExit
 
 // For internal use only. 
 // 
@@ -2001,12 +2089,12 @@ Function ParametersOfActionsBeforeShuttingDownTheSystem(ReCreate = False) Export
 	Parameters.Insert("Warnings", ClientParameter("ExitWarnings"));
 	
 	// External parameters of the execution management.
-	Parameters.Insert("InteractiveHandler", Undefined); // NotifyDescription
-	Parameters.Insert("ContinuationHandler",   Undefined); // NotifyDescription
+	Parameters.Insert("InteractiveHandler", Undefined); // CallbackDescription
+	Parameters.Insert("ContinuationHandler",   Undefined); // CallbackDescription
 	Parameters.Insert("ContinuousExecution", True);
 	
 	// Internal parameters.
-	Parameters.Insert("CompletionProcessing", New NotifyDescription(
+	Parameters.Insert("CompletionProcessing", New CallbackDescription(
 		"ActionsBeforeExitCompletionHandler", StandardSubsystemsClient));
 	Return Parameters;
 	
@@ -2032,7 +2120,7 @@ Procedure ActionsBeforeExit(Parameters) Export
 		EndIf;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 
@@ -2064,7 +2152,7 @@ EndProcedure
 // 
 // Parameters:
 //  NotDefined - Undefined
-//  ContinuationHandler - NotifyDescription
+//  ContinuationHandler - CallbackDescription
 //
 Procedure ActionsBeforeExitAfterErrorProcessing(NotDefined, ContinuationHandler) Export
 	
@@ -2073,15 +2161,16 @@ Procedure ActionsBeforeExitAfterErrorProcessing(NotDefined, ContinuationHandler)
 	
 	If Parameters.Cancel Then
 		Parameters.Cancel = False;
-		ExecuteNotifyProcessing(Parameters.CompletionProcessing);
+		RunCallback(Parameters.CompletionProcessing);
 	Else
-		ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+		RunCallback(Parameters.ContinuationHandler);
 	EndIf;
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Other procedures and functions for application start and exit.
+#EndRegion
+
+#Region OtherProceduresAndFunctionsForStartingAndClosingApp
 
 // See CommonClientOverridable.BeforeStart.
 Procedure BeforeStart2(Parameters) Export
@@ -2094,10 +2183,10 @@ Procedure BeforeStart2(Parameters) Export
 	ClientParameters = ClientParametersOnStart();
 	
 	If ClientParameters.Property("ShowDeprecatedPlatformVersion") Then
-		Parameters.InteractiveHandler = New NotifyDescription(
+		Parameters.InteractiveHandler = New CallbackDescription(
 			"Check1CEnterpriseVersionOnStartup", ThisObject);
 	ElsIf ClientParameters.Property("InvalidPlatformVersionUsed") Then
-		Parameters.InteractiveHandler = New NotifyDescription(
+		Parameters.InteractiveHandler = New CallbackDescription(
 			"WarnAboutInvalidPlatformVersion", ThisObject);
 	EndIf;
 	
@@ -2123,7 +2212,7 @@ Procedure Check1CEnterpriseVersionOnStartup(Parameters, Context) Export
 		ModuleConfigurationUpdateClient.WriteDownTheErrorOfTheNeedToUpdateThePlatform(MessageText);
 	EndIf;
 	
-	ClosingNotification1 = New NotifyDescription("AfterClosingDeprecatedPlatformVersionForm", ThisObject, Parameters);
+	ClosingNotification1 = New CallbackDescription("AfterClosingDeprecatedPlatformVersionForm", ThisObject, Parameters);
 	If CommonClient.SubsystemExists("OnlineUserSupport.GetApplicationUpdates") Then
 		StandardProcessing = True;
 		ModuleGetApplicationUpdatesClient = CommonClient.CommonModule("GetApplicationUpdatesClient");
@@ -2183,14 +2272,14 @@ Procedure AfterClosingDeprecatedPlatformVersionForm(Result, Parameters) Export
 		Parameters.RetrievedClientParameters.Insert("ShowDeprecatedPlatformVersion");
 	EndIf;
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 
 // For internal use only. Continuation of the BeforeStart2 procedure.
 Procedure WarnAboutInvalidPlatformVersion(Parameters, Context) Export
 
-	ClosingNotification1 = New NotifyDescription("AfterCloseInvalidPlatformVersionForm", ThisObject, Parameters);
+	ClosingNotification1 = New CallbackDescription("AfterCloseInvalidPlatformVersionForm", ThisObject, Parameters);
 	
 	Form = OpenForm("DataProcessor.PlatformUpdateRecommended.Form.PlatformUpdateIsRequired", ,
 		, , , , ClosingNotification1); 
@@ -2204,7 +2293,7 @@ EndProcedure
 // For internal use only. Continues the execution of CheckPlatformVersionOnStart procedure.
 Procedure AfterCloseInvalidPlatformVersionForm(Result, Parameters) Export
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 
@@ -2220,7 +2309,7 @@ Procedure BeforeStart3(Parameters) Export
 		Return;
 	EndIf;
 	
-	Parameters.InteractiveHandler = New NotifyDescription(
+	Parameters.InteractiveHandler = New CallbackDescription(
 		"MasterNodeReconnectionInteractiveHandler", ThisObject);
 	
 EndProcedure
@@ -2237,7 +2326,7 @@ Procedure BeforeStart4(Parameters) Export
 		Return;
 	EndIf;
 	
-	Parameters.InteractiveHandler = New NotifyDescription(
+	Parameters.InteractiveHandler = New CallbackDescription(
 		"InteractiveInitialRegionalInfobaseSettingsProcessing", ThisObject, Parameters);
 	
 EndProcedure
@@ -2258,7 +2347,7 @@ Procedure MasterNodeReconnectionInteractiveHandler(Parameters, Context) Export
 	EndIf;
 	
 	Form = OpenForm("CommonForm.ReconnectToMasterNode",,,,,,
-		New NotifyDescription("ReconnectToMasterNodeAfterCloseForm", ThisObject, Parameters));
+		New CallbackDescription("ReconnectToMasterNodeAfterCloseForm", ThisObject, Parameters));
 	
 	If Form = Undefined Then
 		ReconnectToMasterNodeAfterCloseForm(New Structure("Cancel", True), Parameters);
@@ -2284,7 +2373,7 @@ Procedure InteractiveInitialRegionalInfobaseSettingsProcessing(Parameters, Conte
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportClient = CommonClient.CommonModule("NationalLanguageSupportClient");
 		
-		NotifyDescription = New NotifyDescription("AfterCloseInitialRegionalInfobaseSettingsChoiceForm", ThisObject, Parameters);
+		NotifyDescription = New CallbackDescription("AfterCloseInitialRegionalInfobaseSettingsChoiceForm", ThisObject, Parameters);
 		OpeningParameters  = New Structure("Source", "InitialFilling");
 		ModuleNationalLanguageSupportClient.OpenTheRegionalSettingsForm(NotifyDescription, OpeningParameters);
 		
@@ -2303,7 +2392,7 @@ Procedure ReconnectToMasterNodeAfterCloseForm(Result, Parameters) Export
 		Parameters.RetrievedClientParameters.Insert("ReconnectMasterNode");
 	EndIf;
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 
@@ -2316,7 +2405,7 @@ Procedure AfterCloseInitialRegionalInfobaseSettingsChoiceForm(Result, Parameters
 		Parameters.RetrievedClientParameters.Insert("SelectInitialRegionalIBSettings");
 	EndIf;
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 
@@ -2361,7 +2450,7 @@ EndProcedure
 // For internal use only.
 Procedure NotifyWithEmptyResult(NotificationWithResult) Export
 	
-	ExecuteNotifyProcessing(NotificationWithResult);
+	RunCallback(NotificationWithResult);
 	
 EndProcedure
 
@@ -2378,7 +2467,7 @@ Procedure StartInteractiveHandlerBeforeExit() Export
 	
 	InteractiveHandler = Parameters.InteractiveHandler;
 	Parameters.InteractiveHandler = Undefined;
-	ExecuteNotifyProcessing(InteractiveHandler, Parameters);
+	RunCallback(InteractiveHandler, Parameters);
 	
 EndProcedure
 
@@ -2411,7 +2500,7 @@ Procedure AfterClosingWarningFormOnExit(Result, AdditionalParameters) Export
 		EndIf;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 
@@ -2453,7 +2542,7 @@ Function DisplayWarningsBeforeShuttingDownTheSystem(Cancel)
 		Return False;
 	EndIf;
 	
-	// In thick client (standard application) mode, warning list is not displayed.
+	// In thick client (ordinary application) mode, the warning list is not displayed.
 #If ThickClientOrdinaryApplication Then
 	Return False;
 #EndIf
@@ -2478,8 +2567,9 @@ Function WarningsBeforeSystemShutdown(Cancel)
 
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// For the MetadataObjectIDs catalog.
+#EndRegion
+
+#Region ForMetadataObjectIDsCatalog
 
 // For internal use only.
 Procedure MetadataObjectIDsListFormListValueChoice(Form, Item, Value, StandardProcessing) Export
@@ -2515,6 +2605,8 @@ Procedure MetadataObjectIDsListFormListValueChoice(Form, Item, Value, StandardPr
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #Region TheParametersOfTheClientToTheServer
 
@@ -2756,17 +2848,16 @@ EndFunction
 // Parameters:
 //  Size - Number
 //  Context - Structure:
-//   * Notification - NotifyDescription
+//   * Notification - CallbackDescription
 //   * Result  - Arbitrary
 //
 Procedure StartNotificationProcessingCompletion(Size, Context) Export
 	
-	ExecuteNotifyProcessing(Context.Notification, Context.Result);
+	RunCallback(Context.Notification, Context.Result);
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+#Region AuxiliaryProceduresAndFunctions
 
 Procedure SignInToDataArea()
 	
@@ -2844,7 +2935,7 @@ EndProcedure
 Function ContinueActionsBeforeStart(Parameters)
 	
 	If Parameters.Cancel Then
-		ExecuteNotifyProcessing(Parameters.CompletionProcessing);
+		RunCallback(Parameters.CompletionProcessing);
 		Return False;
 	EndIf;
 	
@@ -2883,7 +2974,7 @@ Function BeforeStartInteractiveHandler(Parameters)
 	
 	If Parameters.InteractiveHandler = Undefined Then
 		If Parameters.Cancel Then
-			ExecuteNotifyProcessing(Parameters.CompletionProcessing);
+			RunCallback(Parameters.CompletionProcessing);
 			Return True;
 		EndIf;
 		Return False;
@@ -2895,7 +2986,7 @@ Function BeforeStartInteractiveHandler(Parameters)
 		InteractiveHandler = Parameters.InteractiveHandler;
 		Parameters.InteractiveHandler = Undefined;
 		InstallLatestProcedure(Parameters,,, InteractiveHandler);
-		ExecuteNotifyProcessing(InteractiveHandler, Parameters);
+		RunCallback(InteractiveHandler, Parameters);
 		
 	Else
 		// The UI should be prepared before starting the interactive data processor requested
@@ -2925,17 +3016,22 @@ EndFunction
 
 Procedure InstallLatestProcedure(Parameters, ModuleName = "", ProcedureName = "", NotifyDescription = Undefined)
 	
+	ProcedureDetails = New Structure("Module, Name");
+	
 	If NotifyDescription = Undefined Then
-		Parameters.ModuleOfLastProcedure = ModuleName;
-		Parameters.NameOfLastProcedure = ProcedureName;
+		ProcedureDetails.Module = ModuleName;
+		ProcedureDetails.Name = ProcedureName;
 	Else
-		Parameters.ModuleOfLastProcedure = NotifyDescription.Module;
-		Parameters.NameOfLastProcedure = NotifyDescription.ProcedureName;
+		ProcedureDetails.Module = NotifyDescription.Module;
+		ProcedureDetails.Name = NotifyDescription.ProcedureName;
 	EndIf;
+	
+	Parameters.CalledProcedures.Insert(0, ProcedureDetails);
 	
 EndProcedure
 
-Function FullNameOfLastProcedureBeforeStartingSystem() Export
+// Intended for procedure "ActionsOnStart".
+Function CalledProceduresBeforeStart() Export
 	
 	Properties = ApplicationParameters["StandardSubsystems.ApplicationStartParameters"];
 	If Properties = Undefined
@@ -2943,27 +3039,34 @@ Function FullNameOfLastProcedureBeforeStartingSystem() Export
 		Return "";
 	EndIf;
 	Parameters = Properties.ProcessingParametersBeforeStartSystem;
+	NamesOfClientModules = Undefined;
 	
-	If TypeOf(Parameters.ModuleOfLastProcedure) = Type("CommonModule") Then
-		NamesOfClientModules = StandardSubsystemsServerCall.NamesOfClientModules();
-		For Each NameOfClientModule In NamesOfClientModules Do
-			Try
-				CurrentModule = CommonClient.CommonModule(NameOfClientModule);
-			Except
-				CurrentModule = Undefined;
-			EndTry;
-			If CurrentModule = Parameters.ModuleOfLastProcedure Then
-				ModuleName = NameOfClientModule;
-				Break;
+	Rows = New Array;
+	For Each ProcedureDetails In Parameters.CalledProcedures Do
+		If TypeOf(ProcedureDetails.Module) = Type("CommonModule") Then
+			If NamesOfClientModules = Undefined Then
+				NamesOfClientModules = StandardSubsystemsServerCall.NamesOfClientModules();
 			EndIf;
-		EndDo;
-	ElsIf TypeOf(Parameters.ModuleOfLastProcedure) = Type("ClientApplicationForm") Then
-		ModuleName = Parameters.ModuleOfLastProcedure.FormName;
-	Else
-		ModuleName = String(Parameters.ModuleOfLastProcedure);
-	EndIf;
+			For Each NameOfClientModule In NamesOfClientModules Do
+				Try
+					CurrentModule = CommonClient.CommonModule(NameOfClientModule);
+				Except
+					CurrentModule = Undefined;
+				EndTry;
+				If CurrentModule = ProcedureDetails.Module Then
+					ModuleName = NameOfClientModule;
+					Break;
+				EndIf;
+			EndDo;
+		ElsIf TypeOf(ProcedureDetails.Module) = Type("ClientApplicationForm") Then
+			ModuleName = ProcedureDetails.Module.FormName;
+		Else
+			ModuleName = String(ProcedureDetails.Module);
+		EndIf;
+		Rows.Add("- " + String(ModuleName) + "." + ProcedureDetails.Name);
+	EndDo;
 	
-	Return String(ModuleName) + "." + Parameters.NameOfLastProcedure;
+	Return StrConcat(Rows, Chars.LF);
 	
 EndFunction
 
@@ -2979,7 +3082,7 @@ EndFunction
 Function ContinueActionsOnStart(Parameters)
 	
 	If Parameters.Cancel Then
-		ExecuteNotifyProcessing(Parameters.CompletionProcessing);
+		RunCallback(Parameters.CompletionProcessing);
 		Return False;
 	EndIf;
 	
@@ -3013,7 +3116,7 @@ Function OnStartInteractiveHandler(Parameters)
 	
 	If Parameters.InteractiveHandler = Undefined Then
 		If Parameters.Cancel Then
-			ExecuteNotifyProcessing(Parameters.CompletionProcessing);
+			RunCallback(Parameters.CompletionProcessing);
 			Return True;
 		EndIf;
 		Return False;
@@ -3024,7 +3127,7 @@ Function OnStartInteractiveHandler(Parameters)
 	Parameters.ContinuousExecution = False;
 	Parameters.InteractiveHandler = Undefined;
 	
-	ExecuteNotifyProcessing(InteractiveHandler, Parameters);
+	RunCallback(InteractiveHandler, Parameters);
 	
 	Return True;
 	
@@ -3034,10 +3137,10 @@ Function InteractiveHandlerBeforeStartInProgress()
 	
 	If ApplicationParameters = Undefined Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'An unexpected error occurred during the application startup.
+			NStr("en = 'Exception occurred during startup.
 			           |
 			           |Technical details:
-			           |Invalid call %1 during the application startup. First, you need to complete the %2 procedure.';"),
+			           |Invalid %1 call during startup. The %2 procedure must be completed first.';"),
 			"StandardSubsystemsClient.OnStart",
 			"StandardSubsystemsClient.BeforeStart");
 		Raise ErrorText;
@@ -3071,7 +3174,7 @@ Procedure StartInteractiveProcessingBeforeStartingTheSystem() Export
 	Parameters.InteractiveHandler = Undefined;
 	InstallLatestProcedure(Parameters,,, InteractiveHandler);
 	
-	ExecuteNotifyProcessing(InteractiveHandler, Parameters);
+	RunCallback(InteractiveHandler, Parameters);
 	
 	ApplicationStartParameters.Delete("ProcessingParameters");
 	
@@ -3081,7 +3184,7 @@ Function InteractiveHandlerBeforeExit(Parameters)
 	
 	If Parameters.InteractiveHandler = Undefined Then
 		If Parameters.Cancel Then
-			ExecuteNotifyProcessing(Parameters.CompletionProcessing);
+			RunCallback(Parameters.CompletionProcessing);
 			Return True;
 		EndIf;
 		Return False;
@@ -3090,7 +3193,7 @@ Function InteractiveHandlerBeforeExit(Parameters)
 	If Not Parameters.ContinuousExecution Then
 		InteractiveHandler = Parameters.InteractiveHandler;
 		Parameters.InteractiveHandler = Undefined;
-		ExecuteNotifyProcessing(InteractiveHandler, Parameters);
+		RunCallback(InteractiveHandler, Parameters);
 		
 	Else
 		// The "BeforeExit" event handler made a call to prepare for running
@@ -3111,7 +3214,7 @@ Procedure OpenMessageFormOnExit(Parameters)
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("FormOption", "DoQueryBox");
 	
-	ResponseHandler = New NotifyDescription("AfterClosingWarningFormOnExit",
+	ResponseHandler = New CallbackDescription("AfterClosingWarningFormOnExit",
 		ThisObject, AdditionalParameters);
 		
 	Warnings = Parameters.Warnings;
@@ -3132,7 +3235,7 @@ Procedure OpenMessageFormOnExit(Parameters)
 		FormOpenParameters.Insert("FormParameters", FormParameters);
 		FormOpenParameters.Insert("ResponseHandler", ResponseHandler);
 		FormOpenParameters.Insert("WindowOpeningMode", Undefined);
-		Parameters.InteractiveHandler = New NotifyDescription(
+		Parameters.InteractiveHandler = New CallbackDescription(
 			"WarningInteractiveHandlerOnExit", ThisObject, FormOpenParameters);
 	EndIf;
 	
@@ -3160,7 +3263,7 @@ Procedure ShowMessageBoxAndContinueCompletion(Result, Parameters) Export
 			Parameters.Restart = True;
 		EndIf;
 	EndIf;
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 
@@ -3173,7 +3276,7 @@ EndProcedure
 //
 // Parameters:
 //  Parameters - See StandardSubsystemsClient.ParametersOfActionsBeforeShuttingDownTheSystem.
-//  ResponseHandler - NotifyDescription - to continue once the user answered the question.
+//  ResponseHandler - CallbackDescription - to continue once the user answered the question.
 //  UserWarning - See StandardSubsystemsClient.WarningOnExit.
 //  FormName - String - a name of the common form with questions.
 //  FormParameters - Structure - parameters for the form with questions.
@@ -3215,7 +3318,7 @@ Procedure OpenApplicationWarningForm(Parameters, ResponseHandler, UserWarning, F
 		FormOpenParameters.Insert("FormParameters", FormParameters);
 		FormOpenParameters.Insert("ResponseHandler", ResponseHandler);
 		FormOpenParameters.Insert("WindowOpeningMode", ActionHyperlink.WindowOpeningMode);
-		Parameters.InteractiveHandler = New NotifyDescription(
+		Parameters.InteractiveHandler = New CallbackDescription(
 			"WarningInteractiveHandlerOnExit", ThisObject, FormOpenParameters);
 		
 	ElsIf ActionHyperlink.Property("Form", Form) Then 
@@ -3233,14 +3336,14 @@ Procedure OpenApplicationWarningForm(Parameters, ResponseHandler, UserWarning, F
 		FormOpenParameters.Insert("FormParameters", FormParameters);
 		FormOpenParameters.Insert("ResponseHandler", ResponseHandler);
 		FormOpenParameters.Insert("WindowOpeningMode", ActionHyperlink.WindowOpeningMode);
-		Parameters.InteractiveHandler = New NotifyDescription(
+		Parameters.InteractiveHandler = New CallbackDescription(
 			"WarningInteractiveHandlerOnExit", ThisObject, FormOpenParameters);
 		
 	EndIf;
 	
 EndProcedure
 
-// If Shutdown = True is specified, abort the further execution of the client code and shut down the application.
+// If Shutdown = True is specified, abort the further execution of client-side code and shut down the application.
 //
 Procedure HandleErrorOnStartOrExit(Parameters, ErrorInfo, Event, Shutdown = False)
 	
@@ -3250,7 +3353,7 @@ Procedure HandleErrorOnStartOrExit(Parameters, ErrorInfo, Event, Shutdown = Fals
 			Parameters.ContinuationHandler = Parameters.CompletionProcessing;
 		EndIf;
 	Else
-		Parameters.ContinuationHandler = New NotifyDescription(
+		Parameters.ContinuationHandler = New CallbackDescription(
 			"ActionsBeforeExitAfterErrorProcessing", ThisObject, Parameters.ContinuationHandler);
 	EndIf;
 	
@@ -3265,7 +3368,7 @@ Procedure HandleErrorOnStartOrExit(Parameters, ErrorInfo, Event, Shutdown = Fals
 			+ Chars.LF + Chars.LF + WarningText;
 	EndIf;
 	
-	InteractiveHandler = New NotifyDescription("ShowMessageBoxAndContinue", ThisObject, WarningText);
+	InteractiveHandler = New CallbackDescription("ShowMessageBoxAndContinue", ThisObject, WarningText);
 	Parameters.InteractiveHandler = InteractiveHandler;
 	
 EndProcedure
@@ -3341,5 +3444,7 @@ Procedure DisableScheduledRestart() Export
 	DetachIdleHandler("NotificationOneMinuteBeforeRestart");
 	DetachIdleHandler("RestartingApplication");
 EndProcedure
+
+#EndRegion
 
 #EndRegion

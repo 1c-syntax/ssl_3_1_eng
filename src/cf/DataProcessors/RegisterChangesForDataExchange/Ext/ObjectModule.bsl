@@ -948,8 +948,6 @@ EndFunction
 //
 // Parameters:
 //    TableName   - String - table name, for example "InformationRegister.ExchangeRates".
-//    AllDimensions - Boolean - a flag showing whether all dimensions 
-//                            are got for the information register, not just basic and master dimensions.
 //
 // Returns:
 //    ValueTable:
@@ -957,7 +955,7 @@ EndFunction
 //         * ValueType - TypeDescription - types.
 //         * Title   - String - dimension presentation.
 //
-Function RecordSetDimensions(TableName, AllDimensions = False) Export
+Function RecordSetDimensions(TableName) Export
 	
 	If TypeOf(TableName) = Type("String") Then
 		Meta = MetadataByFullName(TableName);
@@ -972,85 +970,35 @@ Function RecordSetDimensions(TableName, AllDimensions = False) Export
 	Columns.Add("ValueType");
 	Columns.Add("Title");
 	
-	If Not AllDimensions Then
-		// Data be register.
-		NotConsider = "#MessageNo#Node#";
-		For Each MetaCommon In Metadata.CommonAttributes Do
-			NotConsider = NotConsider + "#" + MetaCommon.Name + "#" ;
-		EndDo;
-		
-		QueryTextTemplate2 = 
-		"SELECT
-		|	*
-		|FROM
-		|	&MetadataTableName AS MetadataTableName
-		|WHERE
-		|	FALSE";
-		
-		MetadataTableName = Meta.FullName() + ".Changes";
-		QueryText = StrReplace(QueryTextTemplate2, "&MetadataTableName", MetadataTableName);
-		
-		Query = New Query(QueryText);
-		EmptyResult = Query.Execute();
-		For Each ResultColumn In EmptyResult.Columns Do
-			ColumnName = ResultColumn.Name;
-			If StrFind(NotConsider, "#" + ColumnName + "#") = 0 Then
-				String = Dimensions.Add();
-				String.Name         = ColumnName;
-				String.ValueType = ResultColumn.ValueType;
-				
-				MetaDimension = Meta.Dimensions.Find(ColumnName);
-				String.Title = ?(MetaDimension = Undefined, ColumnName, MetaDimension.Presentation());
-			EndIf;
-		EndDo;
-		
-		Return Dimensions;
-		
-	EndIf;
+	NotConsider = "#MessageNo#Node#";
 	
-	// All dimensions.
+	QueryTextTemplate2 = 
+	"SELECT
+	|	*
+	|FROM
+	|	&MetadataTableName AS MetadataTableName
+	|WHERE
+	|	FALSE";
 	
-	IsInformationRegister = Metadata.InformationRegisters.Contains(Meta);
+	MetadataTableName = Meta.FullName() + ".Changes";
+	QueryText = StrReplace(QueryTextTemplate2, "&MetadataTableName", MetadataTableName);
 	
-	// Recorder
-	If Metadata.AccumulationRegisters.Contains(Meta)
-	 Or Metadata.AccountingRegisters.Contains(Meta)
-	 Or Metadata.CalculationRegisters.Contains(Meta)
-	 Or (IsInformationRegister And Meta.WriteMode = Metadata.ObjectProperties.RegisterWriteMode.RecorderSubordinate)
-	 Or Metadata.Sequences.Contains(Meta) Then
-		String = Dimensions.Add();
-		String.Name         = "Recorder";
-		String.ValueType = Documents.AllRefsType();
-		String.Title   = NStr("en = 'Recorder';");
-	EndIf;
-	
-	// Period
-	If IsInformationRegister And Meta.MainFilterOnPeriod Then
-		String = Dimensions.Add();
-		String.Name         = "Period";
-		String.ValueType = New TypeDescription("Date");
-		String.Title   = NStr("en = 'Period';");
-	EndIf;
-	
-	// Dimensions
-	If IsInformationRegister Then
-		For Each MetaDimension In Meta.Dimensions Do
+	Query = New Query(QueryText);
+	EmptyResult = Query.Execute();
+	For Each ResultColumn In EmptyResult.Columns Do
+		ColumnName = ResultColumn.Name;
+		If StrFind(NotConsider, "#" + ColumnName + "#") = 0 Then
 			String = Dimensions.Add();
-			String.Name         = MetaDimension.Name;
-			String.ValueType = MetaDimension.Type;
-			String.Title   = MetaDimension.Presentation();
-		EndDo;
-	EndIf;
-	
-	// Recalculate.
-	If Metadata.CalculationRegisters.Contains(Meta.Parent()) Then
-		String = Dimensions.Add();
-		String.Name         = "RecalculationObject";
-		String.ValueType = Documents.AllRefsType();
-		String.Title   = NStr("en = 'Recalculation object';");
-	EndIf;
-	
+			String.Name         = ColumnName;
+			String.ValueType = ResultColumn.ValueType;
+			
+			MetaDimension = Meta.Dimensions.Find(ColumnName);
+			String.Title = ?(MetaDimension = Undefined, ColumnName, MetaDimension.Presentation());
+		EndIf;
+	EndDo;
+
 	Return Dimensions;
+	
 EndFunction
 
 // Adds columns to the FormTable.
@@ -1151,7 +1099,7 @@ Function RepresentationOfTheReference(ObjectToGetPresentation) Export
 	
 	// Reference.
 	Result = "";
-	ModuleCommon = CommonModuleCommonUse();
+	ModuleCommon = CommonModule("Common");
 	If ModuleCommon <> Undefined Then
 		Result = ModuleCommon.SubjectString(ObjectToGetPresentation);
 	EndIf;
@@ -1396,7 +1344,7 @@ Function EditRegistrationAtServer(Command, NoAutoRegistration, Node, Data, Table
 			
 		If ThisIsRegistrationByFilter Then
 			
-			ModuleDataExchangeEvents = CommonModuleEventDataExchange();
+			ModuleDataExchangeEvents = CommonModule("DataExchangeEvents");
 			
 			PDParameters = ModuleDataExchangeEvents.BatchRegistrationParameters();
 			
@@ -1453,8 +1401,14 @@ Function EditRegistrationAtServer(Command, NoAutoRegistration, Node, Data, Table
 				Continue;
 			EndIf;
 			
-			// Deleting registration with platform method.
-			Values.Add(Undefined);
+			// Remove the registration.
+			If MetadataNames = Undefined Then
+				MetadataNames = GenerateMetadataStructure(Node).NamesStructure;
+			EndIf;
+			
+			For Each MD In MetadataNames Do
+				EditRegistrationAtServer(Command, NoAutoRegistration, Node, MD.Value, TableName, MetadataNames);
+			EndDo;
 			
 		ElsIf Type = Type("String") Then
 			// This is metadata, either a collection or a specific type. Check autoregistration settings.
@@ -1640,7 +1594,7 @@ Procedure RecordChanges(Val Node, Val RegistrationObject)
 	EndIf;
 		
 	// To register the changes using SSL tools, additional actions are required.
-	ModuleDataExchangeEvents = CommonModuleEventDataExchange();
+	ModuleDataExchangeEvents = CommonModule("DataExchangeEvents");
 	
 	// RegistrationObject contains a metadata object or an infobase object.
 	If TypeOf(RegistrationObject) = Type("MetadataObject") Then
@@ -2054,57 +2008,42 @@ Function StringToNumber(Val Text)
 	Return Result;
 EndFunction
 
-// Returns the DataExchangeEvents common module or Undefined if there is no such module in the configuration.
+// Returns a reference to the common module by the name.
 //
-Function CommonModuleEventDataExchange()
-	If Metadata.CommonModules.Find("DataExchangeEvents") = Undefined Then
-		Return Undefined;
+// Parameters:
+//  Name          - String - a common module name, for example:
+//                 "Common",
+//                 "CommonClient".
+//
+// Returns:
+//  CommonModule
+//
+Function CommonModule(Name) 
+	
+	If Metadata.CommonModules.Find(Name) <> Undefined Then 
+		SetSafeMode(True);
+		Module = Eval(Name); // ACC:488 - "Calculate" instead of "Common.CalculateInSafeMode" because it's a standalone data processor.
+	Else
+		Module = Undefined;
 	EndIf;
 	
-	// Don't call CalculateInSafeMode. Calculation takes a string literal instead.
-	Return Eval("DataExchangeEvents");
-EndFunction
-
-// Returns the StandardSubsystemsServer common module or Undefined if there is no such module in the configuration.
-//
-Function CommonModuleStandardSubsystemsServer()
-	If Metadata.CommonModules.Find("StandardSubsystemsServer") = Undefined Then
-		Return Undefined;
+	If TypeOf(Module) <> Type("CommonModule") Then
+		Raise SubstituteParametersToString(NStr("en = 'Common module ""%1"" does not exist.';"), Name);
 	EndIf;
 	
-	// Don't call CalculateInSafeMode. Calculation takes a string literal instead.
-	Return Eval("StandardSubsystemsServer");
-EndFunction
-
-// Returns the StandardSubsystemsServer common module or Undefined if there is no such module in the configuration.
-//
-Function GeneralModuleStandardSubsystemsOfRepeatIsp()
-	If Metadata.CommonModules.Find("StandardSubsystemsCached") = Undefined Then
-		Return Undefined;
-	EndIf;
+	Return Module;
 	
-	// Calling CalculateInSafeMode is not required as a string literal is being passed for calculation.
-	Return Eval("StandardSubsystemsCached");
-EndFunction
-
-// Returns the CommonUse common module or Undefined if there is no such module in the configuration.
-//
-Function CommonModuleCommonUse()
-	If Metadata.CommonModules.Find("Common") = Undefined Then
-		Return Undefined;
-	EndIf;
-	
-	// Don't call CalculateInSafeMode. Calculation takes a string literal instead.
-	Return Eval("Common");
 EndFunction
 
 Function IsSSLExchangePlanNode(Node)
 	
-	If Metadata.CommonModules.Find("DataExchangeCached") = Undefined Then
-		Return False;
-	EndIf;
+	ModuleDataExchangeCached = CommonModule("DataExchangeCached");
 	
-	ModuleDataExchangeCached = Eval("DataExchangeCached");
+	If ModuleDataExchangeCached = Undefined Then
+		
+		Return False;
+		
+	EndIf;
 	
 	Return ModuleDataExchangeCached.SSLExchangePlans().Find(ModuleDataExchangeCached.GetExchangePlanName(Node)) <> Undefined;
 	
@@ -2115,7 +2054,7 @@ EndFunction
 Function SSLRequiredVersionAvailable(Val Version = Undefined)
 	
 	CurrentVersion = Undefined;
-	ModuleStandardSubsystemsServer = CommonModuleStandardSubsystemsServer();
+	ModuleStandardSubsystemsServer = CommonModule("StandardSubsystemsServer");
 	If ModuleStandardSubsystemsServer <> Undefined Then
 		Try
 			CurrentVersion = ModuleStandardSubsystemsServer.LibraryVersion();
@@ -2157,7 +2096,7 @@ EndFunction
 Function DSL_RequiredVersionIsAvailable(Val Version = Undefined)
 	
 	CurrentVersion = Undefined;
-	ModuleStandardSubsystemsOfRepeatIsp = GeneralModuleStandardSubsystemsOfRepeatIsp();
+	ModuleStandardSubsystemsOfRepeatIsp = CommonModule("StandardSubsystemsCached");
 	If ModuleStandardSubsystemsOfRepeatIsp <> Undefined Then
 		Try
 			CurrentVersion = StandardSubsystemsCached.SubsystemsDetails().ByNames["DataSyncLibrary"].Version
@@ -2199,7 +2138,7 @@ EndFunction
 Function SSLObjectExportControl(Node, RegistrationObject)
 	
 	Send = DataItemSend.Auto;
-	ModuleDataExchangeEvents = CommonModuleEventDataExchange();
+	ModuleDataExchangeEvents = CommonModule("DataExchangeEvents");
 	If ModuleDataExchangeEvents <> Undefined Then
 		ModuleDataExchangeEvents.OnSendDataToRecipient(RegistrationObject, Send, , Node);
 		Return Send = DataItemSend.Auto;
@@ -2419,7 +2358,7 @@ Function SSLMetadataObjectChangesRegistration(Node, LongDesc, NoAutoRegistration
 		
 	If LongDesc.IsReference And BatchRegistrationIsAvailable Then
 		
-		ModuleDataExchangeEvents = CommonModuleEventDataExchange();
+		ModuleDataExchangeEvents = CommonModule("DataExchangeEvents");
 		
 		ReferencesArrray = Query.Execute().Unload().UnloadColumn("Ref");
 		PDParameters = ModuleDataExchangeEvents.BatchRegistrationParameters();
@@ -2459,6 +2398,15 @@ Function SSLMetadataObjectChangesRegistration(Node, LongDesc, NoAutoRegistration
 EndFunction
 
 // Updating and registering MOID data for the passed node.
+// 
+// Parameters:
+//  Node - ExchangePlanRef
+// 
+// Returns:
+//  Structure:
+//    * Total - Number 
+//    * Success - Number
+//    * Command - Boolean
 //
 Function SSLUpdateAndRegisterMasterNodeMetadataObjectID(Val Node) Export
 	
@@ -2579,8 +2527,7 @@ Function MetadataObjectsTree()
 	Return Tree;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Base-functionality procedures and functions for standalone mode support.
+#Region ProceduresAndFunctionsFromBasicFunctionalityToSupportSelfSufficiency
 
 Function SubstituteParametersToString(Val SubstitutionString, Val Parameter1, Val Parameter2 = Undefined, Val Parameter3 = Undefined)
 	
@@ -2591,6 +2538,8 @@ Function SubstituteParametersToString(Val SubstitutionString, Val Parameter1, Va
 	Return SubstitutionString;
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion
 

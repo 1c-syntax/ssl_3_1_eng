@@ -2183,8 +2183,7 @@ Procedure SetQueueNumber(UpdateIterations)
 		
 		Filter = New Structure("ExecutionMode", "Deferred");
 		Filter.Insert("DeferredProcessingQueue", 0);
-		DeferredHandlers = Library.Handlers.FindRows(Filter); // See InfobaseUpdate.NewUpdateHandlerTable
-// ()
+		DeferredHandlers = Library.Handlers.FindRows(Filter); // See InfobaseUpdate.NewUpdateHandlerTable()
 		For Each Handler In DeferredHandlers Do
 			Filter = New Structure;
 			Filter.Insert("Version", Handler.Version);

@@ -105,7 +105,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ReadOnly = True;
 	EndIf;
 	
-	// Deleting the "To folder" option if the StoredFiles subsystem is not available.
+	// Deleting the "To folder" option if the FilesOperations subsystem is not available.
 	If TypeOf(Object.Folder) = Type("Undefined") Or TypeOf(Object.Folder) = Type("String") Then
 		Items.OtherDeliveryMethod.ChoiceList.Delete(0);
 	EndIf;
@@ -530,7 +530,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		If ReportsRow.DCS Then
 			DCSettings = ReportSettings.Settings;
 			DCUserSettings = ReportSettings.UserSettings; // DataCompositionUserSettings
-			// 
+			// [3] Verify settings.
 			Filter = New Structure("Use, Value", True, MailingRecipientValueTemplate(FilesAndEmailTextParameters));
 			FoundItems = ReportsClientServer.SettingsItemsFiltered(DCUserSettings, Filter);
 			If FoundItems.Count() > 0 Then
@@ -718,8 +718,7 @@ Procedure IsPreparedOnChange(Item)
 	SetVisibilityAvailabilityAndCorrectness(ThisObject, "IsPrepared");
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Schedule page.
+#Region SchedulePage
 
 &AtClient
 Procedure ExecuteOnScheduleOnChange(Item)
@@ -815,8 +814,9 @@ Procedure MonthDayOnChange(Item)
 	SetVisibilityAvailabilityAndCorrectness(ThisObject, "DayInMonth");
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Delivery page.
+#EndRegion
+
+#Region DeliveryPage
 
 &AtClient
 Procedure MailingRecipientTypeChoiceProcessing(Item, ValueSelected, StandardProcessing)
@@ -843,7 +843,7 @@ Procedure MailingRecipientTypeChoiceProcessing(Item, ValueSelected, StandardProc
 		
 		AdditionalParameters = New Structure;
 		AdditionalParameters.Insert("ValueSelected", ValueSelected);
-		Handler = New NotifyDescription("MailingRecipientTypeChoiceProcessingCompletion", ThisObject, AdditionalParameters);
+		Handler = New CallbackDescription("MailingRecipientTypeChoiceProcessingCompletion", ThisObject, AdditionalParameters);
 		
 		ShowQueryBox(Handler, QuestionRow, Buttons, 60, DialogReturnCode.Yes);
 	EndIf;
@@ -1040,13 +1040,14 @@ Procedure NetworkDirectoryLinuxOnChange(Item)
 	EndIf; 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Additional page.
+#EndRegion
+
+#Region AdditionalPage
 
 &AtClient
 Procedure DefaultFormatsClick(Item, StandardProcessing)
 	StandardProcessing = False;
-	Handler = New NotifyDescription("DefaultFormatsSelectionCompletion", ThisObject);
+	Handler = New CallbackDescription("DefaultFormatsSelectionCompletion", ThisObject);
 	ChooseFormat(Cache.EmptyReportValue, Handler);
 EndProcedure
 
@@ -1088,7 +1089,7 @@ Procedure ArchiveNameChoiceProcessing(Item, ValueSelected, StandardProcessing)
 		Variables1.Postfix = ")]";
 		Variables1.ShouldChangeReportDescriptionTemplate = False;
 		
-		Handler = New NotifyDescription("AddChangeMailingDateTemplateCompletion", ThisObject, Variables1);
+		Handler = New CallbackDescription("AddChangeMailingDateTemplateCompletion", ThisObject, Variables1);
 
 		Dialog = New FormatStringWizard;
 		Dialog.AvailableTypes = New TypeDescription("Date");
@@ -1131,7 +1132,7 @@ Procedure Attachable_EncryptionCertificateOnChange(Item)
 		QuestionParameters.DefaultButton = "InstallEncryptionCertificate";
 
 		StandardSubsystemsClient.ShowQuestionToUser(
-			New NotifyDescription("AfterAnswerQuestionPasswordEncryptionReportsInEmailText", ThisObject), QueryText,
+			New CallbackDescription("AfterAnswerQuestionPasswordEncryptionReportsInEmailText", ThisObject), QueryText,
 			QuestionButtons, QuestionParameters);
 	EndIf;
 
@@ -1170,11 +1171,13 @@ Procedure ShouldSetPasswordsAndEncryptOnChange(Item)
 			QuestionParameters.DefaultButton = "SetPasswords";
 		EndIf;
 		StandardSubsystemsClient.ShowQuestionToUser(
-			New NotifyDescription("SetPasswordsReportsInEmailBodyAfterQuestionAnswered", ThisObject), QueryText,
+			New CallbackDescription("SetPasswordsReportsInEmailBodyAfterQuestionAnswered", ThisObject), QueryText,
 			QuestionButtons, QuestionParameters);
 	EndIf;
 
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -1401,7 +1404,7 @@ Procedure ReportFormatsFormatsStartChoice(Item, ChoiceData, StandardProcessing)
 	Variables1 = New Structure;
 	Variables1.Insert("ReportsRow", ReportsRow);
 	
-	Handler = New NotifyDescription("ReportFormatsEndChoiceFormat", ThisObject, Variables1);
+	Handler = New CallbackDescription("ReportFormatsEndChoiceFormat", ThisObject, Variables1);
 	
 	ChooseFormat(ReportsRow.Report, Handler);
 EndProcedure
@@ -1468,8 +1471,7 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-////////////////////////////////////////////////////////////////////////////////
-// Command bar
+#Region CommandBar
 
 &AtClient
 Procedure CommandSaveAndClose(Command)
@@ -1488,7 +1490,7 @@ Procedure BulkEmailRecipientsClick(Item, StandardProcessing)
 		Return;
 	EndIf;
 	
-	Handler = New NotifyDescription("BulkEmailRecipientsClickCompletion", ThisObject);
+	Handler = New CallbackDescription("BulkEmailRecipientsClickCompletion", ThisObject);
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("Recipients", Object.Recipients);
@@ -1529,14 +1531,15 @@ Procedure Redistribution(Command)
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("Ref", Object.Ref);
-	NotifyDescription = New NotifyDescription("AfterCloseRedistribution", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterCloseRedistribution", ThisObject);
 	OpenForm("Catalog.ReportMailings.Form.ResendReports", FormParameters, ThisObject, , , , NotifyDescription,
 		FormWindowOpeningMode.LockOwnerWindow);
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Reports page.
+#EndRegion
+
+#Region ReportsPage
 
 &AtClient
 Procedure AddReport(Command)
@@ -1611,7 +1614,7 @@ Procedure ReportPreview(Command)
 		If Not RecipientsSpecified(Object.Recipients) Then
 			Return;
 		EndIf;
-		Handler = New NotifyDescription("ReportsPreviewContinue", ThisObject, ReportParameters);
+		Handler = New CallbackDescription("ReportsPreviewContinue", ThisObject, ReportParameters);
 		ReportMailingClient.SelectRecipient(Handler, Object, False, False);
 	Else
 		ReportsPreviewContinue(Undefined, ReportParameters);
@@ -1884,8 +1887,9 @@ Function DetermineFieldFromComposer(SettingID, Collection)
 	Return Undefined;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Schedule page.
+#EndRegion
+
+#Region SchedulePage
 
 &AtClient
 Procedure SelectCheckBoxes(Command)
@@ -1910,14 +1914,15 @@ EndProcedure
 
 &AtClient
 Procedure FillScheduleByTemplate(Command)
-	Handler = New NotifyDescription("FillScheduleByTemplateCompletion", ThisObject);
+	Handler = New CallbackDescription("FillScheduleByTemplateCompletion", ThisObject);
 	
 	VariantList = ReportMailingClient.ScheduleFillingOptionsList();
 	VariantList.ShowChooseItem(Handler, NStr("en = 'Select schedule template.';"));
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Delivery page.
+#EndRegion
+
+#Region DeliveryPage
 
 &AtClient
 Procedure AddChangeMailingDateTemplate(Command)
@@ -1939,7 +1944,7 @@ Procedure AddChangeMailingDateTemplate(Command)
 		Variables1.FormatText = Mid(Variables1.PreviousText1, PrefixPosition + PrefixLength, PostfixPosition - PrefixPosition - PrefixLength);
 	EndIf;
 	
-	Handler = New NotifyDescription("AddChangeMailingDateTemplateCompletion", ThisObject, Variables1);
+	Handler = New CallbackDescription("AddChangeMailingDateTemplateCompletion", ThisObject, Variables1);
 	
 	Dialog = New FormatStringWizard;
 	Dialog.AvailableTypes = New TypeDescription("Date");
@@ -2042,7 +2047,7 @@ Procedure AddDefaultTemplate(Command)
 		Buttons.Add(2, NStr("en = 'Add';"));
 		Buttons.Add(DialogReturnCode.Cancel);
 		
-		Handler = New NotifyDescription("AddDefaultTemplateCompletion", ThisObject, AdditionalParameters);
+		Handler = New CallbackDescription("AddDefaultTemplateCompletion", ThisObject, AdditionalParameters);
 		
 		ShowQueryBox(Handler, QueryText, Buttons, 60, 1, QuestionTitle);
 	EndIf;
@@ -2166,8 +2171,9 @@ Procedure ShouldAttachReportsOnChange(Item)
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Additional page.
+#EndRegion
+
+#Region AdditionalPage
 
 &AtClient
 Procedure ResetDefaultFormat(Command)
@@ -2203,7 +2209,7 @@ Procedure CreateArchivePassword(Command)
 	
 	If ValueIsFilled(ArchivePassword) Then	
 		ShowQueryBox(
-			New NotifyDescription("OnCreateArchivePassword", ThisObject),
+			New CallbackDescription("OnCreateArchivePassword", ThisObject),
 			NStr("en = 'A password for the archive is already set. Do you want to set a new password?';"),
 			QuestionDialogMode.YesNo, , DialogReturnCode.No);	
 		Return;
@@ -2221,7 +2227,7 @@ Procedure CreateArchivePassword(Command)
 		QuestionParameters.DefaultButton = "SetPassword";
 
 		StandardSubsystemsClient.ShowQuestionToUser(
-			New NotifyDescription("AfterAnswerQuestionPasswordEncryptionReportsInEmailText", ThisObject), QueryText,
+			New CallbackDescription("AfterAnswerQuestionPasswordEncryptionReportsInEmailText", ThisObject), QueryText,
 			QuestionButtons, QuestionParameters);
 	Else
 		ArchivePassword = CreatePassword();
@@ -2269,10 +2275,11 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Client.
+#Region Client
 
 &AtClient
 Procedure UserSettingStartChoice(StandardProcessing)
@@ -2284,7 +2291,7 @@ Procedure UserSettingStartChoice(StandardProcessing)
 		Return;
 	EndIf;
 	DCID = Items.UserSettings.CurrentRow;
-	Handler = New NotifyDescription("SelectUserSettingsCompletion", ThisObject);
+	Handler = New CallbackDescription("SelectUserSettingsCompletion", ThisObject);
 	ReportMailingClientOverridable.OnSettingChoiceStart(Report, DCSettingsComposer, DCID, StandardProcessing, Handler);
 EndProcedure
 
@@ -2403,14 +2410,14 @@ Procedure CheckMailingAfterResponseToQuestion(Response, DeliveryParameters) Expo
 		DeliveryParameters.PassiveConnection = Object.FTPPassiveConnection;
 	EndIf;
 	
-	Handler = New NotifyDescription("CheckMailingAfterRecipientsChoice", ThisObject, DeliveryParameters);
+	Handler = New CallbackDescription("CheckMailingAfterRecipientsChoice", ThisObject, DeliveryParameters);
 	
 	If DeliveryParameters.UseEmail Then
 		ReportMailingClient.SelectRecipient(Handler, Object, False, True);
 		Return;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Handler, Undefined);
+	RunCallback(Handler, Undefined);
 	
 EndProcedure
 
@@ -2554,7 +2561,7 @@ Procedure ChooseFormatCompletion(FormatsList, Variables1) Export
 		FormatPresentation = DefaultFormatsListPresentation;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Variables1.ResultHandler, FormatPresentation);
+	RunCallback(Variables1.ResultHandler, FormatPresentation);
 EndProcedure
 
 &AtClient
@@ -2660,7 +2667,7 @@ Procedure ChooseFormat(ReportRef1, ResultHandler)
 	Variables1.Insert("FormatsListCopy",  FormatsList.Copy());
 	Variables1.Insert("IsDefaultFormat", IsDefaultFormat);
 	Variables1.Insert("ResultHandler", ResultHandler);
-	Handler = New NotifyDescription("ChooseFormatCompletion", ThisObject, Variables1);
+	Handler = New CallbackDescription("ChooseFormatCompletion", ThisObject, Variables1);
 	
 	FormatsList.ShowCheckItems(Handler, DialogTitle);
 	
@@ -2729,7 +2736,7 @@ EndFunction
 
 &AtClient
 Procedure ChangeScheduleInDialog()
-	Handler = New NotifyDescription("AfterChangeSchedule", ThisObject);
+	Handler = New CallbackDescription("AfterChangeSchedule", ThisObject);
 	ScheduleDialog1 = New ScheduledJobDialog(Schedule);
 	ScheduleDialog1.Show(Handler);
 EndProcedure
@@ -2761,7 +2768,7 @@ Procedure CheckMailing(DeliveryParameters)
 		Buttons.Add(1, NStr("en = 'Continue';"));
 		Buttons.Add(DialogReturnCode.Cancel);
 		
-		Handler = New NotifyDescription("CheckMailingAfterResponseToQuestion", ThisObject, DeliveryParameters);
+		Handler = New CallbackDescription("CheckMailingAfterResponseToQuestion", ThisObject, DeliveryParameters);
 		ShowQueryBox(Handler, QueryText, Buttons, 60, 1, QuestionTitle);
 	Else
 		CheckMailingAfterResponseToQuestion(-1, DeliveryParameters);
@@ -2796,7 +2803,7 @@ Procedure SetDescriptionTemplates(TemplateName, MultipleChange = False)
 	EndIf;
 
 	Variables1 = ReportDescriptionTemplateChoiceVariables(TemplateName, MultipleChange);
-	Handler = New NotifyDescription("AddChangeMailingDateTemplateCompletion", ThisObject, Variables1);
+	Handler = New CallbackDescription("AddChangeMailingDateTemplateCompletion", ThisObject, Variables1);
 
 	Dialog = New FormatStringWizard;
 	Dialog.AvailableTypes = New TypeDescription("Date");
@@ -2883,7 +2890,7 @@ Procedure CheckEncryptionBeforeIncludeReportsToEmailBody()
 		EndIf;
 		If CanEncryptAttachments Or Object.Archive Then
 			StandardSubsystemsClient.ShowQuestionToUser(
-				New NotifyDescription("AfterQuestionAnsweredReportsInEmailTextEncryption", ThisObject), QueryText,
+				New CallbackDescription("AfterQuestionAnsweredReportsInEmailTextEncryption", ThisObject), QueryText,
 				QuestionButtons, QuestionParameters);
 		EndIf;
 
@@ -2899,7 +2906,7 @@ Procedure CheckEncryptionBeforeIncludeReportsToEmailBody()
 				QuestionParameters.DefaultButton = "DisablePasswordEncryption";
 
 				StandardSubsystemsClient.ShowQuestionToUser(
-					New NotifyDescription("AfterQuestionAnsweredReportsInEmailTextEncryption", ThisObject),
+					New CallbackDescription("AfterQuestionAnsweredReportsInEmailTextEncryption", ThisObject),
 					QueryText, QuestionButtons, QuestionParameters);
 
 			ElsIf Object.Archive And ValueIsFilled(ArchivePassword) Then
@@ -2911,7 +2918,7 @@ Procedure CheckEncryptionBeforeIncludeReportsToEmailBody()
 				QuestionParameters.DefaultButton = "ClearUpPassword";
 
 				StandardSubsystemsClient.ShowQuestionToUser(
-					New NotifyDescription("AfterQuestionAnsweredReportsInEmailTextEncryption", ThisObject),
+					New CallbackDescription("AfterQuestionAnsweredReportsInEmailTextEncryption", ThisObject),
 					QueryText, QuestionButtons, QuestionParameters);
 
 			ElsIf ValueIsFilled(ThisObject["CertificateToEncrypt"]) Then
@@ -2922,7 +2929,7 @@ Procedure CheckEncryptionBeforeIncludeReportsToEmailBody()
 				QuestionParameters.DefaultButton = "ClearCertificate";
 
 				StandardSubsystemsClient.ShowQuestionToUser(
-					New NotifyDescription("AfterQuestionAnsweredReportsInEmailTextEncryption", ThisObject),
+					New CallbackDescription("AfterQuestionAnsweredReportsInEmailTextEncryption", ThisObject),
 					QueryText, QuestionButtons, QuestionParameters);
 			EndIf;
 		ElsIf Object.Archive And ValueIsFilled(ArchivePassword) Then
@@ -2934,7 +2941,7 @@ Procedure CheckEncryptionBeforeIncludeReportsToEmailBody()
 			QuestionParameters.DefaultButton = "ClearUpPassword";
 
 			StandardSubsystemsClient.ShowQuestionToUser(
-				New NotifyDescription("AfterQuestionAnsweredReportsInEmailTextEncryption", ThisObject), QueryText,
+				New CallbackDescription("AfterQuestionAnsweredReportsInEmailTextEncryption", ThisObject), QueryText,
 				QuestionButtons, QuestionParameters);
 		EndIf;
 
@@ -2947,7 +2954,7 @@ Procedure CheckEncryptionBeforeIncludeReportsToEmailBody()
 		QuestionParameters.DefaultButton = "ClearUpPassword";
 
 		StandardSubsystemsClient.ShowQuestionToUser(
-			New NotifyDescription("AfterQuestionAnsweredReportsInEmailTextEncryption", ThisObject), QueryText,
+			New CallbackDescription("AfterQuestionAnsweredReportsInEmailTextEncryption", ThisObject), QueryText,
 			QuestionButtons, QuestionParameters);
 	EndIf;
 
@@ -2996,7 +3003,7 @@ Procedure CheckOnSetArchivePasswordInsertReportsToEmailText()
 		QuestionParameters.DefaultButton = "SetPassword";
 
 		StandardSubsystemsClient.ShowQuestionToUser(
-			New NotifyDescription("AfterAnswerQuestionPasswordEncryptionReportsInEmailText", ThisObject), QueryText,
+			New CallbackDescription("AfterAnswerQuestionPasswordEncryptionReportsInEmailText", ThisObject), QueryText,
 			QuestionButtons, QuestionParameters);
 	EndIf;
 
@@ -3120,8 +3127,9 @@ Procedure OnOpenTemplatePreview()
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Client, Server.
+#EndRegion
+
+#Region ClientServer
 
 &AtClientAtServerNoContext
 Function PasswordHidden()
@@ -3645,8 +3653,9 @@ Function SecondsToHours(Seconds)
 	Return Seconds / 60 / 60;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Server call, Server.
+#EndRegion
+
+#Region ServerCallServer
 
 &AtServerNoContext
 Function RecipientMailAddresses(Recipient, ValueList)
@@ -4259,8 +4268,9 @@ Function IsMemberOfPersonalReportGroup(Group)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Server.
+#EndRegion
+
+#Region Server
 
 &AtServer
 Procedure SetConditionalAppearance()
@@ -5036,8 +5046,9 @@ Function TemplatePreviewFormParameters()
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Write object.
+#EndRegion
+
+#Region ObjectRecord
 
 &AtClient
 Procedure WriteAtClient(Result, WriteParameters) Export
@@ -5051,13 +5062,13 @@ Procedure WriteAtClient(Result, WriteParameters) Export
 	If WriteParameters.Step = 1 And PermissionsToUseServerResourcesRequired() Then
 		WriteParameters.Step = 2;
 		// Question.
-		Handler = New NotifyDescription("WriteAtClient", ThisObject, WriteParameters);
+		Handler = New CallbackDescription("WriteAtClient", ThisObject, WriteParameters);
 		If CommonClient.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
 			Permissions = PermissionsToUseServerResources();
 			ModuleSafeModeManagerClient = CommonClient.CommonModule("SafeModeManagerClient");
 			ModuleSafeModeManagerClient.ApplyExternalResourceRequests(Permissions, ThisObject, Handler);
 		Else
-			ExecuteNotifyProcessing(Handler, DialogReturnCode.OK);
+			RunCallback(Handler, DialogReturnCode.OK);
 		EndIf;
 	ElsIf WriteParameters.Step = 1 Then
 		// Question is not required.
@@ -5083,7 +5094,7 @@ Procedure WriteAtClient(Result, WriteParameters) Export
 		Buttons.Add(DialogReturnCode.Ignore, NStr("en = 'Continue';"));
 		Buttons.Add(DialogReturnCode.Cancel);
 		
-		Handler = New NotifyDescription("WriteAtClient", ThisObject, WriteParameters);
+		Handler = New CallbackDescription("WriteAtClient", ThisObject, WriteParameters);
 		ShowQueryBox(Handler, QueryText, Buttons, 60, DialogReturnCode.Yes, QuestionTitle);
 	ElsIf WriteParameters.Step = 3 Then
 		// Question is not required.
@@ -5221,8 +5232,9 @@ Procedure Attachable_UpdateCommands()
 EndProcedure
 // End StandardSubsystems.AttachableCommands
 
-////////////////////////////////////////////////////////////////////////////////
-// Copy the ExecuteNow command to support asynchrony.
+#EndRegion
+
+#Region CopyOfCommandRunNowForAsyncSupport
 
 &AtClient
 Procedure ExecuteNow()
@@ -5237,8 +5249,9 @@ Procedure ExecuteNow()
 	ReportMailingClient.ExecuteNow(StartupParameters);
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Copy the Mailing events command to support asynchrony.
+#EndRegion
+
+#Region CopyOfCommandDistributionEventsForAsyncSupport
 
 &AtClient
 Procedure MailingEvents()
@@ -5254,5 +5267,7 @@ EndProcedure
 Function EventLogParameters(BulkEmail)
 	Return ReportMailing.EventLogParameters(BulkEmail);
 EndFunction
+
+#EndRegion
 
 #EndRegion

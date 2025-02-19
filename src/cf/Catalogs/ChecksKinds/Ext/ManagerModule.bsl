@@ -32,7 +32,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// StandardSubsystems.ObjectAttributesLock
+// Standard subsystems.Forbidding editingrequisitobjects
 
 // Returns:
 //   See ObjectAttributesLockOverridable.OnDefineLockedAttributes.LockedAttributes.

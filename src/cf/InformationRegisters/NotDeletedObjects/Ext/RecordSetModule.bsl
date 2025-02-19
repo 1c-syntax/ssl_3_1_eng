@@ -17,7 +17,7 @@ Procedure BeforeWrite(Cancel, Replacing)
 		Return;
 	EndIf;
 	
-	If Count() = 0 Then
+	If Count() = 0 Or Common.IsRecordSetDeletion(Replacing) Then
 		Return;
 	EndIf;
 	

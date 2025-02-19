@@ -130,7 +130,7 @@ Procedure OnStartImportXDTOSettingsAtServer(ContinueWait)
 	
 	ImportSettings = New Structure;
 	ImportSettings.Insert("ExchangeNode", ExchangeNode);
-	
+		
 	ModuleSetupWizard.OnStartImportXDTOSettings(ImportSettings, HandlerParameters, ContinueWait);
 	
 EndProcedure

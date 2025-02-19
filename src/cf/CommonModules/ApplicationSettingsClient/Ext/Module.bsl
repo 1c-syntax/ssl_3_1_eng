@@ -61,7 +61,7 @@ Procedure OnlineSupportAndServicesAllowSendDataOnChange(Form, Item, OperationPar
 		Form.MonitoringCenterJobID = OperationParametersList.RunResult.JobID;
 		Form.MonitoringCenterJobResultAddress = OperationParametersList.RunResult.ResultAddress;
 		ModuleMonitoringCenterClient = CommonClient.CommonModule("MonitoringCenterClient");
-		Notification = New NotifyDescription("AfterUpdateID", ModuleMonitoringCenterClient);
+		Notification = New CallbackDescription("AfterUpdateID", ModuleMonitoringCenterClient);
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(Form);
 		IdleParameters.OutputIdleWindow = False;
 		TimeConsumingOperationsClient.WaitCompletion(OperationParametersList.RunResult, Notification, IdleParameters);

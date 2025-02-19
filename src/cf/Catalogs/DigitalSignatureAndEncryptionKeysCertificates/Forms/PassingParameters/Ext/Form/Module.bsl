@@ -35,15 +35,15 @@ EndProcedure
 
 #Region Private
 
-// CAC:78-off: to securely pass data between forms on the client without sending them to the server.
+// ACC:78-off - Intended for the secure transfer of data between forms on the client without sending it to the server.
 &AtClient
 Procedure OpenNewForm(FormType, ServerParameters1, ClientParameters = Undefined,
 			CompletionProcessing = Undefined, Val NewFormOwner = Undefined) Export
-// CAC:78-on: to securely pass data between forms on the client without sending them to the server.
+// ACC:78-on - Intended for the secure transfer of data between forms on the client without sending it to the server.
 	
 	FormsKinds =
 		",DataSigning,DataEncryption,DataDecryption,
-		|,SelectSigningOrDecryptionCertificate,CertificateCheck,Token,";
+		|,SelectSigningOrDecryptionCertificate,CertificateCheck,";
 	
 	If StrFind(FormsKinds, "," + FormType + ",") = 0 Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
@@ -55,19 +55,15 @@ Procedure OpenNewForm(FormType, ServerParameters1, ClientParameters = Undefined,
 		NewFormOwner = New UUID;
 	EndIf;
 	
-	If FormType = "Token" Then
-		NewFormName = "Catalog.DigitalSignatureAndEncryptionApplications.Form." + FormType;
-	Else
-		NewFormName = "Catalog.DigitalSignatureAndEncryptionKeysCertificates.Form." + FormType;
-	EndIf;
+	NewFormName = "Catalog.DigitalSignatureAndEncryptionKeysCertificates.Form." + FormType;
 	
 	Context = New Structure;
 	Form = OpenForm(NewFormName, ServerParameters1, NewFormOwner,,,,
-		New NotifyDescription("OpenNewFormClosingNotification", ThisObject, Context));
+		New CallbackDescription("OpenNewFormClosingNotification", ThisObject, Context));
 	
 	If Form = Undefined Then
-		If TypeOf(CompletionProcessing) = Type("NotifyDescription") Then
-			ExecuteNotifyProcessing(CompletionProcessing, Undefined);
+		If TypeOf(CompletionProcessing) = Type("CallbackDescription") Then
+			RunCallback(CompletionProcessing, Undefined);
 		EndIf;
 		Return;
 	EndIf;
@@ -77,9 +73,9 @@ Procedure OpenNewForm(FormType, ServerParameters1, ClientParameters = Undefined,
 	Context.Insert("Form", Form);
 	Context.Insert("CompletionProcessing", CompletionProcessing);
 	Context.Insert("ClientParameters", ClientParameters);
-	Context.Insert("Notification", New NotifyDescription("ExtendStoringOperationContext", ThisObject));
+	Context.Insert("Notification", New CallbackDescription("ExtendStoringOperationContext", ThisObject));
 	
-	Notification = New NotifyDescription("OpenNewFormFollowUp", ThisObject, Context);
+	Notification = New CallbackDescription("OpenNewFormFollowUp", ThisObject, Context);
 	
 	If ClientParameters = Undefined Then
 		Form.ContinueOpening(Notification, CommonInternalData);
@@ -99,8 +95,8 @@ Procedure OpenNewFormFollowUp(Result, Context) Export
 	
 	UpdateFormStorage(Context);
 	
-	If TypeOf(Context.CompletionProcessing) = Type("NotifyDescription") Then
-		ExecuteNotifyProcessing(Context.CompletionProcessing, Result);
+	If TypeOf(Context.CompletionProcessing) = Type("CallbackDescription") Then
+		RunCallback(Context.CompletionProcessing, Result);
 	EndIf;
 	
 EndProcedure
@@ -111,8 +107,8 @@ Procedure OpenNewFormClosingNotification(Result, Context) Export
 	
 	UpdateFormStorage(Context);
 	
-	If TypeOf(Context.CompletionProcessing) = Type("NotifyDescription") Then
-		ExecuteNotifyProcessing(Context.CompletionProcessing, Result);
+	If TypeOf(Context.CompletionProcessing) = Type("CallbackDescription") Then
+		RunCallback(Context.CompletionProcessing, Result);
 	EndIf;
 	
 EndProcedure
@@ -167,7 +163,7 @@ Procedure DeleteObsoleteOperationsContexts()
 EndProcedure
 
 &AtClient
-Procedure SetCertificatePassword(CertificateReference, Password, PasswordNote) Export // CAC:78 - an exception for secure password storage.
+Procedure SetCertificatePassword(CertificateReference, Password, PasswordNote) Export // ACC:78 - An exception for secure password storage.
 	
 	SpecifiedPasswords = CommonInternalData.Get("SpecifiedPasswords");
 	SpecifiedPasswordsNotes = CommonInternalData.Get("SpecifiedPasswordsNotes");
@@ -196,7 +192,7 @@ Procedure SetCertificatePassword(CertificateReference, Password, PasswordNote) E
 EndProcedure
 
 &AtClient
-Function CertificatePasswordIsSet(CertificateReference) Export // CAC:78 - an exception for secure password storage.
+Function CertificatePasswordIsSet(CertificateReference) Export // ACC:78 - An exception for secure password storage.
 	
 	SpecifiedPasswords = CommonInternalData.Get("SpecifiedPasswords");
 	
@@ -215,7 +211,7 @@ Function CertificatePasswordIsSet(CertificateReference) Export // CAC:78 - an ex
 EndFunction
 
 &AtClient
-Procedure ResetTheCertificatePassword(CertificateReference) Export // CAC:78 - an exception for secure password storage.
+Procedure ResetTheCertificatePassword(CertificateReference) Export // ACC:78 - An exception for secure password storage.
 	
 	PasswordStorage = CommonInternalData.Get("PasswordStorage");
 	If PasswordStorage <> Undefined Then

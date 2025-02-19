@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<AutoTitle>false</AutoTitle>
 	<AutoURL>false</AutoURL>
 	<CommandBarLocation>None</CommandBarLocation>
@@ -1351,8 +1351,8 @@
 													<v8:content>Status</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="ElectronicSignaturesVerificationResultIsShortContextMenu" id="307"/>
-											<ExtendedTooltip name="ElectronicSignaturesVerificationResultIsShortExtendedTooltip" id="308"/>
+											<ContextMenu name="DigitalSignaturesBriefVerificationResultContextMenu" id="307"/>
+											<ExtendedTooltip name="DigitalSignaturesBriefVerificationResultExtendedTooltip" id="308"/>
 										</InputField>
 										<InputField name="DigitalSignaturesSignatureValidationDate" id="151">
 											<DataPath>DigitalSignatures.SignatureValidationDate</DataPath>
@@ -1409,21 +1409,6 @@
 								</CheckBoxField>
 							</ChildItems>
 						</Table>
-						<LabelDecoration name="Instruction" id="186">
-							<AutoMaxWidth>false</AutoMaxWidth>
-							<Title formatted="false">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Troubleshooting issues with digital signing apps</v8:content>
-								</v8:item>
-							</Title>
-							<Hyperlink>true</Hyperlink>
-							<ContextMenu name="InstructionContextMenu" id="187"/>
-							<ExtendedTooltip name="InstructionExtendedTooltip" id="188"/>
-							<Events>
-								<Event name="Click">InstructionClick</Event>
-							</Events>
-						</LabelDecoration>
 					</ChildItems>
 				</Page>
 				<Page name="EncryptionCertificatesGroup" id="28">
@@ -1569,7 +1554,7 @@
 		</Attribute>
 		<Attribute name="CopyingValue" id="2">
 			<Type>
-				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+				<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
 			</Type>
 		</Attribute>
 		<Attribute name="CatalogName" id="3">
@@ -1644,7 +1629,7 @@
 				</Column>
 				<Column name="Object" id="5">
 					<Type>
-						<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+						<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
 					</Type>
 				</Column>
 				<Column name="SignatureAddress" id="6">
@@ -1963,7 +1948,7 @@
 						</v8:item>
 					</Title>
 					<Type>
-						<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+						<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
 					</Type>
 				</Column>
 				<Column name="StoreVersions" id="10">
@@ -2673,13 +2658,13 @@
 	<Parameters>
 		<Parameter name="Key">
 			<Type>
-				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+				<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
 			</Type>
 			<KeyParameter>true</KeyParameter>
 		</Parameter>
 		<Parameter name="CopyingValue">
 			<Type>
-				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+				<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
 			</Type>
 			<KeyParameter>true</KeyParameter>
 		</Parameter>
@@ -2690,7 +2675,7 @@
 		</Parameter>
 		<Parameter name="AttachedFile">
 			<Type>
-				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+				<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
 			</Type>
 			<KeyParameter>true</KeyParameter>
 		</Parameter>
@@ -2705,7 +2690,7 @@
 		</Parameter>
 		<Parameter name="FileOwner">
 			<Type>
-				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+				<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
 			</Type>
 		</Parameter>
 		<Parameter name="CreateMode">

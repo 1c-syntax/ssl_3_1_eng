@@ -99,6 +99,9 @@ Function ContactsFilledIn(Value) Export
 	Return TrimAll(Value) <> BlankAddressTextAsHyperlink();
 EndFunction
 
+
+
+
 #Region ObsoleteProceduresAndFunctions
 
 // Deprecated. Obsolete. Use ContactsManager.ContactInformationPresentation instead
@@ -129,7 +132,7 @@ Function GenerateAddressPresentation(AddressStructure1, Presentation, KindDescri
 	EndIf;
 	
 	AddressPresentationByStructure(AddressStructure1, "IndexOf", Presentation);
-	AddressPresentationByStructure(AddressStructure1, "State", Presentation, "AreaAbbr", AddShortForms);
+	AddressPresentationByStructure(AddressStructure1, "State_SSLym", Presentation, "AreaAbbr", AddShortForms);
 	AddressPresentationByStructure(AddressStructure1, "County", Presentation, "CountyAbbr", AddShortForms);
 	AddressPresentationByStructure(AddressStructure1, "District", Presentation, "DistrictAbbr", AddShortForms);
 	AddressPresentationByStructure(AddressStructure1, "City", Presentation, "CityAbbr", AddShortForms);
@@ -206,21 +209,26 @@ EndFunction
 //
 // Returns:
 //   Structure - Contact information fields:
-//     * value - String - a contact information presentation.
-//     * comment - String - comment.
-//     * type - String - a contact information type. See the value in Enum.ContactInformationTypes.Address.
-//     Extended composition of fields for contact information type "Address":
-//     * Country - String - a country name, for example, Russia.
-//     * CountryCode - String -country code.
+//     * value - String - Contact information presentation.
+//     * comment - String -  comment.
+//     * type - String - Contact information type. See the value in Enum.ContactInformationTypes.Address.
+//     Extended composition of fields for the "Address" contact information type:
+//     * country - String - 
+//     * countryCode - String - country code.
 //     * ZIPcode- String - postal code.
-//     * Area - String - a state description.
-//     * AreaType - String - a short form (type) of "state".
-//     * City - String - a city description.
-//     * CityType - String - a short form (type) of "city", for example, c.
-//     * Street - String - a street name.
-//     * StreetType - String - a short form (type) of "street", for example, st.
-//     Extended composition of fields for contact information type "Phone":
-//     * CountryCode - String - country code.
+//     * area - String -  name of the region.
+//     * areaType - String - a short form (type) of "state".
+//     * city - String - a city description.
+//     * cityType - String - a short form (type) of "city", for example, c.
+//     * street - String - 
+//                         
+//     * streetType - String - 
+//     * houseNumber - String -  
+//                              
+//     * admLevels - String - 
+//     * addressType - String - 
+//     :
+//     * CountryCode - String -  country code.
 //     * AreaCode - String - a state code.
 //     * Number - String - a phone number.
 //     * ExtNumber - String - an extension.
@@ -250,6 +258,8 @@ Function NewContactInformationDetails(Val ContactInformationType) Export
 		Result.Insert("cityType",    "");
 		Result.Insert("street",      "");
 		Result.Insert("streetType",  "");
+		Result.Insert("houseNumber", "");
+		Result.Insert("admLevels",   "");
 		
 	ElsIf ContactInformationType = PredefinedValue("Enum.ContactInformationTypes.Phone")
 		Or ContactInformationType = PredefinedValue("Enum.ContactInformationTypes.Fax") Then
@@ -299,8 +309,8 @@ EndFunction
 // Returns:
 //  Structure - Contact information details:
 //    * FieldValues - String - contact information in JSON format
-//    * Presentation - String - a contact information presentation. Used if it is impossible to determine 
-//                              a presentation based on a parameter. In FieldValues, the Presentation field is not available.
+//    * Presentation - String - The contact information presentation. 
+//                              Used in cases when the "FieldValues" parameter is missing the "Presentation" field.
 //    * ContactInformationKind - EnumRef.ContactInformationTypes 
 //                              - CatalogRef.ContactInformationKinds - contact information type
 //
@@ -310,6 +320,49 @@ Function ContactInformationDetails(FieldValues, Presentation, ContactInformation
 	Result.Insert("FieldValues", FieldValues);
 	Result.Insert("Presentation", Presentation);
 	Result.Insert("ContactInformationKind", ContactInformationKind);
+	
+	Return Result;
+	
+EndFunction
+
+// 
+//  
+//
+// Returns:
+//  Structure:
+//    * Presentation    - String - 
+//                                  
+//    * AddressType        - String - 
+//                                  
+//    * Country           - String - 
+//    * CountryCode        - String - 
+//    * IndexOf           - String - 
+//    * State_SSLym           - String - 
+//    * City            - String -  
+//    * Street            - String - 
+//    * AdditionalInformation - String - Text presentation of additional information  
+//                                 (such as office, floor, intercom, and other instructions).
+//    * Comment - String - 
+//
+Function AddressFields() Export
+	
+	Result = New Structure;
+	
+	Result.Insert("AddressType"                 , "");
+	Result.Insert("Comment"               , "");
+	
+	Result.Insert("Presentation"             , "");
+	
+	Result.Insert("Country"   , "");
+	Result.Insert("CountryCode", "");
+	Result.Insert("IndexOf"   , "");
+	
+	Result.Insert("State_SSLym" , "");
+	Result.Insert("District"  , "");
+	Result.Insert("City"  , "");
+	Result.Insert("Street"  , "");
+	
+	Result.Insert("AdditionalInformation", "");
 	
 	Return Result;
 	
@@ -465,7 +518,6 @@ EndFunction
 // Parameters:
 //  CommandsForOutput    - Structure:
 //    * AddCommentToAddress - See ContactsManager.CommandProperties
-//    * ShowOnYandexMaps    - See ContactsManager.CommandProperties
 //    * ShowOnGoogleMap    - See ContactsManager.CommandProperties
 //    * PlanMeeting     - See ContactsManager.CommandProperties
 //    * ShowChangeHistory - See ContactsManager.CommandProperties
@@ -483,17 +535,20 @@ Function ExtendedTooltipForAddress(CommandsForOutput, AddressPresentation, Comme
 	Else
 		ModifyComment = "";
 	EndIf;
-
-	If CommandsForOutput.Property("ShowOnYandexMaps") And CommandsForOutput.Property("ShowOnGoogleMap") Then
-		ShowOnMap = New FormattedString(NStr("en = 'On map';"),,WebColors.Gray, , "ShowOnMap");
-	ElsIf CommandsForOutput.Property("ShowOnYandexMaps") Then
-		ShowOnMap = New FormattedString(CommandsForOutput.ShowOnYandexMaps.Title, ,WebColors.Gray, , "ShowOnYandexMaps");
-	ElsIf CommandsForOutput.Property("ShowOnGoogleMap") Then
-		ShowOnMap = New FormattedString(CommandsForOutput.ShowOnGoogleMap.Title, ,WebColors.Gray, , "ShowOnGoogleMap");
-	Else
-		ShowOnMap = "";
-	EndIf;
-
+	
+	ShowOnMap = "";
+	For Each CommandToOutput In CommandsForOutput Do
+		TypeOfAction = ActionKindOfContactInformationTypeCommand(CommandToOutput.Value.Action);
+		If StrCompare(TypeOfAction, "ShowOnMap") = 0 Then
+			If IsBlankString(ShowOnMap) Then
+				ShowOnMap = New FormattedString(CommandToOutput.Value.Title,, WebColors.Gray,, TypeOfAction);
+			Else
+				ShowOnMap = New FormattedString(NStr("en = 'On map';"),, WebColors.Gray,, TypeOfAction);
+				Break;
+			EndIf;
+		EndIf;
+	EndDo;
+	
 	If CommandsForOutput.Property("ShowChangeHistory") Then
 		ShowHistory = New FormattedString("History", ,WebColors.Gray, , "ShowChangeHistory");
 	Else
@@ -524,6 +579,18 @@ Function ExtendedTooltipForAddress(CommandsForOutput, AddressPresentation, Comme
 		
 	Return ExtendedTooltipForAddress;
 
+EndFunction
+
+Function ActionKindOfContactInformationTypeCommand(Action) Export
+	
+	If Action = "ContactsManagerClient.ShowAddressOnGoogleMaps" Then
+		TypeOfAction = "ShowOnMap";
+	Else
+		TypeOfAction = "";
+		ContactsManagerClientServerLocalization.WhenDeterminingActionOfCommandOfTypeOfContactInformation(Action, TypeOfAction);
+	EndIf;
+	Return TypeOfAction;
+	
 EndFunction
 
 #Region PrivateForWorkingWithXMLAddresses
@@ -832,3 +899,4 @@ EndFunction
 #EndRegion
 
 #EndRegion
+

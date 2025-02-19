@@ -192,9 +192,9 @@ EndFunction
 //   * InternalAddress - String - ID for searching within the infobase
 //   * ExternalAddress - String - Resource address (for downloading)
 //
-Function RevocationListInternalAddress(CertificateAuthorityName, Certificate, CataloguesOfReviewListsOfUTS) Export
+Function RevocationListInternalAddress(CertificateAuthorityName, Certificate, CARevocationListDirectories) Export
 	
-	Return DigitalSignatureClientServerLocalization.RevocationListInternalAddress(CertificateAuthorityName, Certificate, CataloguesOfReviewListsOfUTS);
+	Return DigitalSignatureClientServerLocalization.RevocationListInternalAddress(CertificateAuthorityName, Certificate, CARevocationListDirectories);
 	
 EndFunction
 
@@ -308,9 +308,31 @@ Function ComponentDetails() Export
 	
 EndFunction
 
+// 
+// 
+// Returns:
+//  String
+//
+Function AccessToInternetServicesDeniedMessageText() Export
+	Return NStr("en = 'Access to digital signing web services is forbidden by the administrator (General settings > Digital signature > Allow access to web services).';");
+EndFunction
+
 #EndRegion
 
 #Region Private
+
+
+Function TokenLibraryLoadingError(ErrorText) Export
+	
+	Result = False;
+	DigitalSignatureClientServerLocalization.OnDefineImportErrorInTokenLibraries(ErrorText, Result);
+	Return Result;
+	
+EndFunction
+
+Function ActionInstallLibrariesForTokens() Export
+	Return "InstallLibrariesForTokens";
+EndFunction
 
 Function ThisIsCertificateReplacement(PropertiesOfNew, PropertiesOfOld) Export
 	
@@ -748,6 +770,7 @@ Function NewErrorProperties() Export
 	ErrorProperties.Insert("Application",         BlankApplication);
 	ErrorProperties.Insert("NoAlgorithm",      False);
 	ErrorProperties.Insert("PathNotSpecified",      False);
+	ErrorProperties.Insert("Token");
 	
 	Return ErrorProperties;
 	
@@ -793,7 +816,6 @@ Function ErrorTextForRevokedSignatureCertificate(SignatureVerificationResult) Ex
 	Return ErrorText;
 	
 EndFunction
-
 
 // For internal use only.
 // 
@@ -1038,7 +1060,7 @@ Function CryptoManagerAlgorithmsSet(ApplicationDetails, Manager, Errors, Encrypt
 	
 	AlgorithmsSet = False;
 	
-	DigitalSignatureClientServerLocalization.WhenSettingCryptographyManagerParameters(
+	DigitalSignatureClientServerLocalization.OnSetCryptoManagerParameters(
 		ApplicationDetails, Manager, EncryptAlgorithm, AlgorithmsSet);
 	
 	If AlgorithmsSet Then
@@ -1067,9 +1089,9 @@ Function CryptoManagerAlgorithmsSet(ApplicationDetails, Manager, Errors, Encrypt
 		Return False;
 	EndTry;
 	If IsBlankString(EncryptAlgorithm) Then
-		EncryptAlgorithm = DigitalSignatureClientServerLocalization.ConvertedEncryptionAlgorithm(String(ApplicationDetails.EncryptAlgorithm));
+		EncryptAlgorithm = DigitalSignatureClientServerLocalization.ConvertedEncryptAlgorithm(String(ApplicationDetails.EncryptAlgorithm));
 	Else
-		EncryptAlgorithm = DigitalSignatureClientServerLocalization.ConvertedEncryptionAlgorithm(EncryptAlgorithm);
+		EncryptAlgorithm = DigitalSignatureClientServerLocalization.ConvertedEncryptAlgorithm(EncryptAlgorithm);
 	EndIf;
 	Try
 		Manager.EncryptAlgorithm = EncryptAlgorithm;
@@ -1095,7 +1117,7 @@ EndFunction
 Procedure CryptoManagerApplicationNotFound(ApplicationDetails, Errors, IsServer) Export
 	
 	CryptoManagerAddError(Errors, ApplicationDetails.Ref,
-		NStr("en = 'The application is not installed on the computer.';"), IsServer, True);
+		NStr("en = 'Application is not installed on the computer.';"), IsServer, True);
 	
 EndProcedure
 
@@ -1316,6 +1338,9 @@ EndFunction
 //  ErrorsDescription - See NewErrorsDescription
 //  ApplicationDetails - Structure:
 //   * Ref - CatalogRef.DigitalSignatureAndEncryptionApplications
+//            - String - 
+//   See DigitalSignatureInternalClient.TokenNewProperties
+//        - Undefined
 //  Operation - String
 //  ErrorText - String
 //  IsFullUser - Boolean
@@ -1329,7 +1354,12 @@ Procedure FillErrorAddingCertificate(ErrorsDescription, ApplicationDetails, Oper
 	
 	ErrorProperties = NewErrorProperties();
 	ErrorProperties.LongDesc = ErrorText;
-	ErrorProperties.Application = ApplicationDetails.Ref;
+	If TypeOf(ApplicationDetails.Ref) = Type("String") Then
+		ErrorProperties.Application = ApplicationDetails.Ref;
+		ErrorProperties.Token = ApplicationDetails.Token;
+	Else
+		ErrorProperties.Application = ApplicationDetails.Ref;
+	EndIf;
 	
 	If Not BlankData Then
 		ErrorProperties.FromException = True;
@@ -1476,6 +1506,7 @@ Procedure AddCertificatesProperties(Table, CertificatesArray, NoFilter,
 	ThumbprintsOnly = False;
 	InCloudService = False;
 	CloudSignature = False;
+	IsOnToken = False;
 	
 	If Parameters <> Undefined Then
 		If Parameters.Property("ThumbprintsOnly") Then
@@ -1486,6 +1517,9 @@ Procedure AddCertificatesProperties(Table, CertificatesArray, NoFilter,
 		EndIf;
 		If Parameters.Property("CloudSignature") Then
 			CloudSignature = Parameters.CloudSignature;
+		EndIf;
+		If Parameters.Property("IsOnToken") Then
+			IsOnToken = Parameters.IsOnToken;
 		EndIf;
 	EndIf;
 	
@@ -1501,7 +1535,7 @@ Procedure AddCertificatesProperties(Table, CertificatesArray, NoFilter,
 		Thumbprint = Base64String(CurrentCertificate.Thumbprint);
 		CertificateDates = CertificateDates(CurrentCertificate, UTCOffset);
 		
-		If CertificateDates.EndDate <= CurrentSessionDate Then
+		If CertificateDates.ValidBefore <= CurrentSessionDate Then
 			If Not NoFilter Then
 				Continue; // Skip overdue certificates.
 			EndIf;
@@ -1522,6 +1556,8 @@ Procedure AddCertificatesProperties(Table, CertificatesArray, NoFilter,
 				LocationType = 3;
 			ElsIf InCloudService Then
 				LocationType = 4;
+			ElsIf IsOnToken Then
+				LocationType = 5;
 			Else
 				LocationType = 2;
 			EndIf;
@@ -1530,25 +1566,27 @@ Procedure AddCertificatesProperties(Table, CertificatesArray, NoFilter,
 				If InCloudService Then
 					String.InCloudService = True;
 				EndIf;
+				If IsOnToken Then
+					String.IsOnToken = True;
+				EndIf;
 				Continue; // Skipping certificates already added on the client.
 			EndIf;
 		EndIf;
 		
 		CertificateStatus = 2;
-		If CertificateDates.EndDate <= CurrentSessionDate Then
+		If CertificateDates.ValidBefore <= CurrentSessionDate Then
 			CertificateStatus = 4;
-		ElsIf CertificateDates.EndDate <= CurrentSessionDate + 30*24*60*60 Then
+		ElsIf CertificateDates.ValidBefore <= CurrentSessionDate + 30*24*60*60 Then
 			CertificateStatus = 3;
 		EndIf;
 		
 		CertificateProperties = New Structure;
 		CertificateProperties.Insert("Thumbprint", Thumbprint);
-		CertificateProperties.Insert("Presentation",
-			CertificatePresentation(CurrentCertificate, UTCOffset));
+		CertificateProperties.Insert("Presentation", CertificatePresentation(
+			New Structure("Certificate, ValidBefore", CurrentCertificate, CertificateDates.ValidBefore)));
 		CertificateProperties.Insert("IssuedBy", IssuerPresentation(CurrentCertificate));
 		CertificateProperties.Insert("LocationType", LocationType);
 		CertificateProperties.Insert("CertificateStatus", CertificateStatus);
-		
 		
 		If TypeOf(Table) = Type("Array") Then
 			Table.Add(CertificateProperties);
@@ -1559,6 +1597,8 @@ Procedure AddCertificatesProperties(Table, CertificatesArray, NoFilter,
 				CertificateProperties.Insert("InCloudService", True);
 			ElsIf AtServer Then
 				CertificateProperties.Insert("AtServer", True);
+			ElsIf IsOnToken Then
+				CertificateProperties.Insert("IsOnToken", True);	
 			EndIf;
 			FillPropertyValues(Table.Add(), CertificateProperties);
 		EndIf;
@@ -1578,7 +1618,7 @@ Procedure AddCertificatesThumbprints(Array, CertificatesArray, UTCOffset, Curren
 		If TypeOf(CurrentSessionDate) = Type("Date") Then
 			CertificateDates = CertificateDates(CurrentCertificate, UTCOffset);
 			
-			If CertificateDates.EndDate <= CurrentSessionDate Then
+			If CertificateDates.ValidBefore <= CurrentSessionDate Then
 				Continue; // Skipping overdue certificates.
 			EndIf;
 		EndIf;
@@ -1704,8 +1744,8 @@ Function ParametersCryptoSignatures(SignatureParameters, Signature, IsCertificat
 	
 	DateSignedFromLabels = Date(3999, 12, 31);
 	
-	If ValueIsFilled(Signature.UnverifiedSignatureTime) Then
-		SignatureParameters.UnverifiedSignatureDate = Signature.UnverifiedSignatureTime + UTCOffset;
+	If ValueIsFilled(Signature.UnverifiedSignatureDate) Then
+		SignatureParameters.UnverifiedSignatureDate = Signature.UnverifiedSignatureDate + UTCOffset;
 	EndIf;
 	
 	SignatureParameters.SignatureType = CryptoSignatureType(Signature.SignatureType);
@@ -2151,7 +2191,7 @@ Function SignaturePropertiesFromBinaryData(Data, UTCOffset = Undefined, ShouldRe
 	
 	ThereIsMessageDigest = False; // 1.2.840.113549.1.9.4
 	ThereIsContentType = False; // 1.2.840.113549.1.9.3
-	ThereIsCertificateBranch = False; // 
+	ThereIsCertificateBranch = False; // 1.2.840.113549.1.9.16.2.47 or 1.2.840.113549.1.9.16.2.12
 
 	OffsetOfTheFollowing = DataAnalysis.Parents[0].OffsetOfTheFollowing;
 	While DataAnalysis.Offset < OffsetOfTheFollowing And Not DataAnalysis.HasError Do
@@ -2459,7 +2499,7 @@ Function CertificatePresentation(Certificate, UTCOffset = Undefined) Export
 			CertificateDates = CertificateDates(Certificate, UTCOffset);
 			Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1, to %2';"),
 				SubjectPresentation(Certificate),
-				Format(CertificateDates.EndDate, "DF=MM.yyyy"));
+				Format(CertificateDates.ValidBefore, "DF=MM.yyyy"));
 		EndIf;
 	EndIf;
 	
@@ -2530,42 +2570,72 @@ EndFunction
 
 Function CertificateProperties(Certificate, UTCOffset, CertificateBinaryData = Undefined) Export
 	
-	CertificateDates = CertificateDates(Certificate, UTCOffset);
-	
 	Properties = New Structure;
 	Properties.Insert("Thumbprint",      Base64String(Certificate.Thumbprint));
 	Properties.Insert("SerialNumber",  Certificate.SerialNumber);
 	Properties.Insert("IssuedTo",      SubjectPresentation(Certificate));
 	Properties.Insert("IssuedBy",       IssuerPresentation(Certificate));
-	Properties.Insert("StartDate",     CertificateDates.StartDate);
-	Properties.Insert("EndDate",  CertificateDates.EndDate);
-	Properties.Insert("Purpose",     GetPurpose(Certificate));
 	Properties.Insert("Signing",     Certificate.UseToSign);
 	Properties.Insert("Encryption",     Certificate.UseToEncrypt);
+	
+	CertificateDates = CertificateDates(Certificate, UTCOffset);
+	Properties.Insert("StartDate",     CertificateDates.StartDate);
+	Properties.Insert("EndDate",  CertificateDates.EndDate);
+	Properties.Insert("PrivateKeyStartDate", CertificateDates.PrivateKeyStartDate);
+	Properties.Insert("PrivateKeyExpirationDate", CertificateDates.PrivateKeyExpirationDate);
+	Properties.Insert("ValidBefore", CertificateDates.ValidBefore);
+	
+	Properties.Insert("CertificateAuthorityKeyID", "");
+	Properties.Insert("ContainsEmbeddedLicenseCryptoPro", False);
+	Properties.Insert("SignAlgorithm", "");
+	Properties.Insert("AlgorithmOfPublicKey", "");
+	Properties.Insert("AddressesOfRevocationLists", New Array);
+	
+	If TypeOf(Certificate) = Type("CryptoCertificate") And AreCertificateAdditionalPropertiesAvailable() Then
 		
-	If CertificateBinaryData <> Undefined Then
+		Properties.Insert("Purpose", GetCryptoCertificatePurpose(Certificate));
+		Properties.AlgorithmOfPublicKey = Certificate.AlgorithmOfPublicKey;
+		Properties.SignAlgorithm = Certificate.SignAlgorithm;
+		
+		CertificationAuthorityKeyData = Certificate.ДополненияСертификатаКакИсходныеДанные.Get("2.5.29.35");
+		If CertificationAuthorityKeyData <> Undefined Then
+			Properties.CertificateAuthorityKeyID = CertificateAuthorityKeyID(CertificationAuthorityKeyData);
+		EndIf;
+		
+		Properties.ContainsEmbeddedLicenseCryptoPro = Certificate.ДополненияСертификата.Get("1.2.643.2.2.49.2") <> Undefined;
+		
+		AddressesOfRevocationLists = Certificate.ДополненияСертификата.Get("2.5.29.31");
+		If AddressesOfRevocationLists <> Undefined Then
+			Properties.AddressesOfRevocationLists = AddressesOfRevocationLists;
+		EndIf;
+			
+	ElsIf CertificateBinaryData <> Undefined Then
 		
 		CertificateAdditionalProperties = CertificateAdditionalProperties(CertificateBinaryData, UTCOffset);
 		
 		If ValueIsFilled(CertificateAdditionalProperties.PrivateKeyExpirationDate) Then
-			Properties.Insert("ValidBefore",
-				Min(CertificateDates.EndDate, CertificateAdditionalProperties.PrivateKeyExpirationDate));
-		Else
-			Properties.Insert("ValidBefore", CertificateDates.EndDate);
+			Properties.ValidBefore = Min(CertificateDates.EndDate, CertificateAdditionalProperties.PrivateKeyExpirationDate);
 		EndIf;
 		
 		Properties.Insert("PrivateKeyStartDate",    CertificateAdditionalProperties.PrivateKeyStartDate);
 		Properties.Insert("PrivateKeyExpirationDate", CertificateAdditionalProperties.PrivateKeyExpirationDate);
-		
-		Properties.Insert("Presentation",  CertificatePresentation(
-			New Structure("Certificate, ValidBefore", Certificate, Properties.ValidBefore),
-			UTCOffset));
+		Properties.Insert("Purpose", GetPurpose(Certificate));
 	Else
-		Properties.Insert("ValidBefore", CertificateDates.EndDate);
-		Properties.Insert("Presentation",  CertificatePresentation(Certificate, UTCOffset));
+		Properties.Insert("Purpose", GetPurpose(Certificate));
 	EndIf;
 	
+	Properties.Insert("Presentation",  CertificatePresentation(
+			New Structure("Certificate, ValidBefore", Certificate, Properties.ValidBefore)));
+	
 	Return Properties;
+	
+EndFunction
+
+Function AreCertificateAdditionalPropertiesAvailable() Export
+	
+	SystemInfo = New SystemInfo();
+	Version = CommonClientServer.ConfigurationVersionWithoutBuildNumber(SystemInfo.AppVersion);
+	Return CommonClientServer.CompareVersionsWithoutBuildNumber(Version, "8.3.27") >= 0;
 	
 EndFunction
 
@@ -2612,7 +2682,7 @@ Function CertificateSubjectProperties(Certificate) Export
 	Properties = New Structure;
 	Properties.Insert("CommonName");
 	Properties.Insert("Country");
-	Properties.Insert("State");
+	Properties.Insert("State_SSLym");
 	Properties.Insert("Locality");
 	Properties.Insert("Street");
 	Properties.Insert("Organization");
@@ -2630,7 +2700,7 @@ Function CertificateSubjectProperties(Certificate) Export
 	EndIf;
 	
 	If Subject.Property("ST") Then
-		Properties.State = PrepareRow(Subject.ST);
+		Properties.State_SSLym = PrepareRow(Subject.ST);
 	EndIf;
 	
 	If Subject.Property("L") Then
@@ -2679,7 +2749,7 @@ Function CertificateIssuerProperties(Certificate) Export
 	Properties = New Structure;
 	Properties.Insert("CommonName");
 	Properties.Insert("Country");
-	Properties.Insert("State");
+	Properties.Insert("State_SSLym");
 	Properties.Insert("Locality");
 	Properties.Insert("Street");
 	Properties.Insert("Organization");
@@ -2695,7 +2765,7 @@ Function CertificateIssuerProperties(Certificate) Export
 	EndIf;
 	
 	If Issuer.Property("ST") Then
-		Properties.State = PrepareRow(Issuer.ST);
+		Properties.State_SSLym = PrepareRow(Issuer.ST);
 	EndIf;
 	
 	If Issuer.Property("L") Then
@@ -3106,8 +3176,7 @@ Function PrepareStringForFileName(String, SpaceReplacement = Undefined) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+#Region AuxiliaryProceduresAndFunctions
 
 // For the CertificateOverdue, CertificatePresentation, and CertificateProperties functions.
 //
@@ -3119,13 +3188,29 @@ Function CertificateDates(Certificate, UTCOffset) Export
 	CertificateDates = New Structure;
 	CertificateDates.Insert("StartDate",    Certificate.ValidFrom    + UTCOffset);
 	CertificateDates.Insert("EndDate", Certificate.ValidTo + UTCOffset);
+	CertificateDates.Insert("ValidBefore", CertificateDates.EndDate);
+	CertificateDates.Insert("PrivateKeyStartDate", Date(1,1,1));
+	CertificateDates.Insert("PrivateKeyExpirationDate", Date(1,1,1));
+	
+	If AreCertificateAdditionalPropertiesAvailable() And TypeOf(Certificate) = Type("CryptoCertificate") Then
+		If Certificate.UniversalStartDateOfPrivateKey <> Undefined Then
+			CertificateDates.Insert("PrivateKeyStartDate", Certificate.UniversalStartDateOfPrivateKey
+				+ UTCOffset);
+		EndIf;
+		If Certificate.UniversalEndDateOfPrivateKey <> Undefined Then
+			CertificateDates.Insert("PrivateKeyExpirationDate", Certificate.UniversalEndDateOfPrivateKey
+				+ UTCOffset);
+			CertificateDates.Insert("ValidBefore", Min(CertificateDates.EndDate,
+				CertificateDates.PrivateKeyExpirationDate));
+		EndIf;
+	EndIf;
 	
 	Return CertificateDates;
 	
 EndFunction
 
 // For the CertificateProperties function.
-Function GetPurpose(Certificate)
+Function GetPurpose(Certificate) // "2.5.29.37"
 	
 	If Not Certificate.Extensions.Property("EKU") Then
 		Return "";
@@ -3141,6 +3226,18 @@ Function GetPurpose(Certificate)
 	EndDo;
 	
 	Return PrepareRow(Purpose);
+	
+EndFunction
+
+// For the CertificateProperties function.
+Function GetCryptoCertificatePurpose(Certificate)
+	
+	Assignments = Certificate.ДополненияСертификата.Get("2.5.29.37");
+	If Assignments = Undefined Then
+		Return "";
+	EndIf;
+	
+	Return StrConcat(Assignments, Chars.LF);
 	
 EndFunction
 
@@ -3506,26 +3603,11 @@ Function DataToSupplementErrorFromClassifier(AdditionalData) Export
 	
 EndFunction
 
-Function LocalStoreCertificateSolutionText() Export
-
-	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '<a href = ""%1"">Delete certificate</a> from the local computer store.';"),
-		"RemoveCertificateFromLocalStore");
-
-EndFunction
-
-Function LocalStoreCertificateReasonText() Export
-	
-	Return NStr(
-		"en = 'On the computer, the certificate is installed to the local store instead of the current user store.';");
-	
-EndFunction
-
 Function ClassifierErrorSolutionTextSupplementOptions() Export
 	
 	Structure = New Structure;
-	Structure.Insert("CheckCertificateInClientLocalStore", False);
 	Structure.Insert("TimestampServersDiagnosticsClient", False);
-		
+	
 	Return Structure;
 	
 EndFunction
@@ -3715,10 +3797,10 @@ Function TimestampServerDiagnostics(Val URL, Redirections = Undefined)
 #EndIf
 EndFunction
 
-Function TechnicalInformationAboutTokens(InformationAboutTokens, ForTheClient = True) Export
+Function TokensTechnicalInfo(TokensInfo, ForTheClient = True) Export
 	
 	Tokens = New Array;
-	For Each Token In InformationAboutTokens Do
+	For Each Token In TokensInfo Do
 		If ValueIsFilled(Token.Error) Then
 			If ValueIsFilled(Token.Slot) Then
 				Tokens.Add(StrTemplate("%1: %2", Token.Slot, Token.Error));
@@ -3750,6 +3832,8 @@ Function TechnicalInformationAboutTokens(InformationAboutTokens, ForTheClient = 
 	EndIf;
 
 EndFunction
+
+#EndRegion
 
 #Region XMLScope
 
@@ -3885,13 +3969,13 @@ Function ExtendedStart(XMLScope)
 	EndIf;
 	
 	Additional = New Array;
-	For Each TheNameOfTheSpace In XMLScope.NamespacesUpToANode Do
-		Position = StrFind(TheNameOfTheSpace, "=""");
-		DeclaringASpace = Left(TheNameOfTheSpace, Position + 1);
+	For Each TablespaceName In XMLScope.NamespacesUpToANode Do
+		Position = StrFind(TablespaceName, "=""");
+		DeclaringASpace = Left(TablespaceName, Position + 1);
 		If StrFind(XMLScope.Begin, DeclaringASpace) > 0 Then
 			Continue;
 		EndIf;
-		Additional.Add(TheNameOfTheSpace);
+		Additional.Add(TablespaceName);
 	EndDo;
 	
 	Result = Left(XMLScope.Begin, StrLen(XMLScope.TagName) + 1)
@@ -4082,7 +4166,8 @@ Function CertificateAdditionalProperties(Data, UTCOffset = Undefined) Export
 							If BufferString = "551D23" Then // 2.5.29.35 authorityKeyIdentifier
 								FillCertificateAuthorityKeyID(BlockRead(DataAnalysis, 0, 4, True), Structure);
 							ElsIf BufferString = "551D10" Then // 2.5.29.16 privateKeyUsagePeriod
-								FillPrivateKeyValidityPeriod(BlockRead(DataAnalysis, 0, 4, True), Structure, UTCOffset);
+								FillPrivateKeyValidityPeriod(BlockRead(DataAnalysis, 0, 4, True), Structure,
+									?(UTCOffset = Undefined, 0, UTCOffset));
 							EndIf;
 						
 						ElsIf DataSize = 7 Then
@@ -4148,7 +4233,19 @@ Procedure FillCertificateAuthorityKeyID(BinaryData, Structure)
 	DataAnalysis = NewDataAnalysis(BinaryData);
 	// OCTET STRING
 	SkipBlockStart(DataAnalysis, 0, 4);
+	
+	CertificateAuthorityKeyID = CertificateAuthorityKeyID(DataAnalysis);
+	If CertificateAuthorityKeyID <> Undefined Then
+		Structure.CertificateAuthorityKeyID = CertificateAuthorityKeyID;
+	EndIf; 
 
+EndProcedure
+
+Function CertificateAuthorityKeyID(DataAnalysis)
+	
+	If TypeOf(DataAnalysis) = Type("BinaryData") Then
+		DataAnalysis = NewDataAnalysis(DataAnalysis);
+	EndIf;
 	// AuthorityKeyIdentifier ::= SEQUENCE {
 	//      keyIdentifier             [0] KeyIdentifier           OPTIONAL,
 	//
@@ -4162,10 +4259,12 @@ Procedure FillCertificateAuthorityKeyID(BinaryData, Structure)
 	If Not DataAnalysis.HasError Then
 		DataSize = DataAnalysis.Parents[0].DataSize;
 		Buffer = DataAnalysis.Buffer.Read(DataAnalysis.Offset, DataSize); // BinaryDataBuffer
-		Structure.CertificateAuthorityKeyID = GetHexStringFromBinaryDataBuffer(Buffer);
-	EndIf; 
+		Return GetHexStringFromBinaryDataBuffer(Buffer);
+	EndIf;
+	
+	Return Undefined;
 
-EndProcedure
+EndFunction
 
 Function GeneratedSignAlgorithm(SignatureData, IncludingOID = False, OIDOnly = False, SignAlgorithmDoesNotComplyWithGOST = Undefined) Export
 	
@@ -4281,10 +4380,14 @@ Function SignAlgorithm(Data, IsCertificateData, IncludingOID = False, OIDOnly = 
 		Return SignatureAlgorithmOID;
 	EndIf;
 	
-	AlgorithmsIDs = IDsOfSignatureAlgorithms(IsCertificateData);
-	Algorithm = AlgorithmByOID(SignatureAlgorithmOID, AlgorithmsIDs, IncludingOID);
+	Return SignAlgorithmPresentation(SignatureAlgorithmOID, IsCertificateData, IncludingOID);
 	
-	Return Algorithm;
+EndFunction
+
+Function SignAlgorithmPresentation(SignatureAlgorithmOID, IsCertificateData, IncludingOID) Export
+	
+	AlgorithmsIDs = IDsOfSignatureAlgorithms(IsCertificateData);
+	Return AlgorithmByOID(SignatureAlgorithmOID, AlgorithmsIDs, IncludingOID);
 	
 EndFunction
 
@@ -4341,12 +4444,12 @@ Function HashAlgorithm(Data, IncludingOID = False) Export
 	
 EndFunction
 
-Function EncryptionAlgorithmOfEncryptedFile(Data) Export
+Function EncryptedFileEncryptAlgorithm(Data) Export
 	
-	AlgorithmInformation = New Structure("Presentation, Id", "", "");
+	AlgorithmInfo = New Structure("Presentation, Id", "", "");
 	
 	BinaryData = BinaryDataFromTheData(Data,
-		"DigitalSignatureInternalClientServer.EncryptionAlgorithmOfEncryptedFile");
+		"DigitalSignatureInternalClientServer.EncryptedFileEncryptAlgorithm");
 	
 	DataAnalysis = NewDataAnalysis(BinaryData);
 	
@@ -4374,21 +4477,21 @@ Function EncryptionAlgorithmOfEncryptedFile(Data) Export
 						// OBJECT IDENTIFIER (algorithm).
 						SkipBlockStart(DataAnalysis, 0, 6);
 	
-	OIDOfEncryptionAlgorithm = ReadOID(DataAnalysis);
+	EncryptAlgorithmOID = ReadOID(DataAnalysis);
 	If DataAnalysis.HasError Then
-		Return AlgorithmInformation;
+		Return AlgorithmInfo;
 	EndIf;
 	
-	AlgorithmInformation.Id = OIDOfEncryptionAlgorithm;
+	AlgorithmInfo.Id = EncryptAlgorithmOID;
 	
-	AlgorithmsIDs = IdentifiersOfEncryptionAlgorithms();
+	AlgorithmsIDs = EncryptAlgorithmsIDs();
 	
-	AlgorithmName = AlgorithmsIDs.Get(OIDOfEncryptionAlgorithm);
+	AlgorithmName = AlgorithmsIDs.Get(EncryptAlgorithmOID);
 	If ValueIsFilled(AlgorithmName) Then
-		AlgorithmInformation.Presentation = StrSplit(AlgorithmName, ",", False)[0];
+		AlgorithmInfo.Presentation = StrSplit(AlgorithmName, ",", False)[0];
 	EndIf;
 	
-	Return AlgorithmInformation;
+	Return AlgorithmInfo;
 	
 EndFunction
 
@@ -4400,7 +4503,7 @@ Function RevocationListProperties(Data) Export
 	
 	DataAnalysis = NewDataAnalysis(BinaryData);
 	
-	Result = New Structure("StartDate, EndDate, DateOfNextPublication, CertificateAuthorityKeyID");
+	Result = New Structure("StartDate, EndDate, NextPublicationDate, CertificateAuthorityKeyID");
 	
 	// SEQUENCE (CertificateList).
 		SkipBlockStart(DataAnalysis, 0, 16);
@@ -4427,7 +4530,7 @@ Function RevocationListProperties(Data) Export
 				// SEQUENCE (nextUpdate              Time).
 				SkipBlock(DataAnalysis, 0, 23, False);
 				// SEQUENCE (revokedCertificates).
-				SkipBlock(DataAnalysis, 0, 16);
+				SkipBlock(DataAnalysis, 0, 16, False);
 				// [0]crlExtensions                  contentType OPTIONAL).
 				SkipBlockStart(DataAnalysis, 2, 0);
 				
@@ -4465,7 +4568,7 @@ Function RevocationListProperties(Data) Export
 							BufferString = GetHexStringFromBinaryDataBuffer(Buffer);
 							SkipTheParentBlock(DataAnalysis); // OBJECT IDENTIFIER
 							If BufferString = "2B0601040182371504" Then // 1.3.6.1.4.1.311.21.4 crlNextPublish
-								Result.DateOfNextPublication = ReadDateFromClipboard(DataAnalysis.Buffer, DataAnalysis.Offset + 2);
+								Result.NextPublicationDate = ReadDateFromClipboard(DataAnalysis.Buffer, DataAnalysis.Offset + 2);
 							EndIf;
 						Else
 							SkipTheParentBlock(DataAnalysis); // OBJECT IDENTIFIER
@@ -4959,17 +5062,17 @@ Procedure WhenADataStructureErrorOccurs(DataAnalysis)
 	
 EndProcedure
 
-Function IdentifiersOfEncryptionAlgorithms()
+Function EncryptAlgorithmsIDs()
 	
 	AlgorithmsIDs = New Map;
 	
 	Sets = New Array;
 	
-	DigitalSignatureClientServerLocalization.WhenInstallingSetsOfEncryptionAlgorithms(Sets);
+	DigitalSignatureClientServerLocalization.OnSetEncryptAlgorithmsSets(Sets);
 	
 	For Each Set In Sets Do
-		AlgorithmsIDs.Insert(Set.IdentifierOfEncryptionAlgorithm,
-			StrConcat(Set.NamesOfEncryptionAlgorithm, ", "));
+		AlgorithmsIDs.Insert(Set.EncryptAlgorithmID,
+			StrConcat(Set.EncryptAlgorithmNames, ", "));
 	EndDo;
 	
 	Return AlgorithmsIDs;
@@ -5100,7 +5203,7 @@ Function SetsOfAlgorithmsForCreatingASignature() Export
 	Properties.NameOfTheXMLHashingAlgorithm = "";
 	Sets.Add(Properties);
 	
-	DigitalSignatureClientServerLocalization.WhenInstallingSetsOfAlgorithmsForSignatureCreation(Sets);
+	DigitalSignatureClientServerLocalization.OnSetAlgorithmSetsToCreateSignature(Sets);
 	
 	Return Sets;
 	
@@ -5134,14 +5237,14 @@ EndFunction
 
 // Returns:
 //  Structure:
-//   * IdentifierOfEncryptionAlgorithm - String
-//   * NamesOfEncryptionAlgorithm - Array of String
+//   * EncryptAlgorithmID - String
+//   * EncryptAlgorithmNames - Array of String
 //
-Function NewSetOfEncryptionAlgorithms() Export
+Function NewEncryptAlgorithmsSet() Export
 	
 	Properties = New Structure;
-	Properties.Insert("IdentifierOfEncryptionAlgorithm", "");
-	Properties.Insert("NamesOfEncryptionAlgorithm", New Array);
+	Properties.Insert("EncryptAlgorithmID", "");
+	Properties.Insert("EncryptAlgorithmNames", New Array);
 	
 	Return Properties;
 	

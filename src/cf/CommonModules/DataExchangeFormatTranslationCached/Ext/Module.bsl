@@ -16,6 +16,7 @@
 // 
 // Returns:
 //  String
+//
 Function BroadcastName(Name, DirectionOfTranslation) Export
 	
 	If Metadata.ScriptVariant = Metadata.ObjectProperties.ScriptVariant.Russian Then

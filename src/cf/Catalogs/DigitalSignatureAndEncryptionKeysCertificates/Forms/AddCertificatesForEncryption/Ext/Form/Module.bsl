@@ -54,6 +54,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	EndIf;
 	
+	If Certificates.Count() = 0 Then
+		Cancel = True;
+		Return;
+	EndIf;
+	
 	If Not DigitalSignature.CommonSettings().IndividualUsed Then
 		Items.CertificatesIndividual.Visible = False;
 	Else
@@ -142,7 +147,7 @@ Procedure CertificatesOnActivateRow(Item)
 	ElsIf ExtensionAttached = True Then
 		FillCertificateDataDetails(True, CurrentData.CertificateAddress);
 	Else
-		DigitalSignatureClient.InstallExtension(False, New NotifyDescription(
+		DigitalSignatureClient.InstallExtension(False, New CallbackDescription(
 			"FillCertificateDataDetails", ThisObject, CurrentData.CertificateAddress),
 			NStr("en = 'To continue, install 1C:Enterprise Extension.';"));
 	EndIf;
@@ -301,7 +306,7 @@ Procedure IndividualStartChoice(StandardProcessing)
 	StandardProcessing = False;
 	
 	If Persons = Undefined Then
-		ChoiceProcessing = New NotifyDescription("OnCloseIndividualChoiceForm", ThisObject);
+		ChoiceProcessing = New CallbackDescription("OnCloseIndividualChoiceForm", ThisObject);
 		FormParameters = New Structure;
 		FormParameters.Insert("ChoiceMode", True);
 		OpenForm(Result.IndividualChoiceFormPath, FormParameters, ThisObject, , , , ChoiceProcessing,
@@ -313,7 +318,7 @@ Procedure IndividualStartChoice(StandardProcessing)
 		If CurrentData.Individual <> Persons[0] Then
 			CurrentData.Individual = Persons[0];
 		Else
-			ChoiceProcessing = New NotifyDescription("OnCloseIndividualChoiceForm", ThisObject);
+			ChoiceProcessing = New CallbackDescription("OnCloseIndividualChoiceForm", ThisObject);
 			FormParameters = New Structure;
 			FormParameters.Insert("ChoiceMode", True);
 			OpenForm(Result.IndividualChoiceFormPath, FormParameters, ThisObject, , , , ChoiceProcessing,
@@ -335,7 +340,7 @@ Procedure IndividualStartChoice(StandardProcessing)
 	FormParameters.Insert("FilterByReference_", True);
 	FormParameters.Insert("ChoiceMode", True);
 
-	ChoiceProcessing = New NotifyDescription("OnCloseIndividualChoiceForm", ThisObject);
+	ChoiceProcessing = New CallbackDescription("OnCloseIndividualChoiceForm", ThisObject);
 	OpenForm(Result.IndividualChoiceFormPath, FormParameters, ThisObject, , , , ChoiceProcessing,
 		FormWindowOpeningMode.LockOwnerWindow);
 		

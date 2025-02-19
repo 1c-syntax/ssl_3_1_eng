@@ -67,7 +67,7 @@ Procedure AccessUpdateObjectStartChoice(Item, ChoiceData, StandardProcessing)
 	EndIf;
 	
 	AccessUpdateObjectsTypes.ShowChooseItem(
-		New NotifyDescription("BeginSelectUpdateObjectFollowUp", ThisObject),
+		New CallbackDescription("BeginSelectUpdateObjectFollowUp", ThisObject),
 		NStr("en = 'Select data type';"),
 		CurrentTypeItem);
 	

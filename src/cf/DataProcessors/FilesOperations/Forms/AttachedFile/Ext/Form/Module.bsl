@@ -156,16 +156,6 @@ Procedure DigitalSignaturesSelection(Item, RowSelected, Field, StandardProcessin
 	
 EndProcedure
 
-&AtClient
-Procedure InstructionClick(Item)
-	
-	If CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
-		ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
-		ModuleDigitalSignatureClient.OpenInstructionOnTypicalProblemsOnWorkWithApplications();
-	EndIf;
-	
-EndProcedure
-
 #EndRegion
 
 #Region FormTableItemsEventHandlersEncryptionCertificates
@@ -182,8 +172,7 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-///////////////////////////////////////////////////////////////////////////////////
-// File command handlers.
+#Region FileCommandHandlers
 
 &AtClient
 Procedure ShowInList(Command)
@@ -204,7 +193,7 @@ Procedure UpdateFromFileOnHardDrive(Command)
 	EndIf;
 	
 	FileData = FileData(CurrentRefToFile(), UUID, "ServerCall");
-	Handler = New NotifyDescription("UpdateFromFileOnHardDriveCompletion", ThisObject);
+	Handler = New CallbackDescription("UpdateFromFileOnHardDriveCompletion", ThisObject);
 	FilesOperationsInternalClient.UpdateFromFileOnHardDriveWithNotification(Handler, FileData, UUID);
 	
 EndProcedure
@@ -264,7 +253,7 @@ Procedure StandardSetDeletionMark(Command)
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 		QueryText, ThisObject.Object.Ref);
 		
-	NotifyDescription = New NotifyDescription("StandardSetDeletionMarkAnswerReceived", ThisObject);
+	NotifyDescription = New CallbackDescription("StandardSetDeletionMarkAnswerReceived", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
 EndProcedure
 
@@ -292,7 +281,7 @@ Procedure StandardReread(Command)
 	
 	QueryText = NStr("en = 'The data has been changed. Do you want to refresh the data?';");
 	
-	NotifyDescription = New NotifyDescription("StandardRereadAnswerReceived", ThisObject);
+	NotifyDescription = New CallbackDescription("StandardRereadAnswerReceived", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
 	
 EndProcedure
@@ -352,7 +341,7 @@ Procedure Send(Command)
 	
 EndProcedure
 
-// StandardSubsystems.Properties
+// СтандартныеПодсистемы.Свойства
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -366,8 +355,9 @@ EndProcedure
 
 // End StandardSubsystems.Properties
 
-///////////////////////////////////////////////////////////////////////////////////
-// Digital signature and encryption command handlers.
+#EndRegion
+
+#Region DigitalSignatureAndEncryptionCommandHandlers
 
 &AtClient
 Procedure Sign(Command)
@@ -388,7 +378,7 @@ Procedure Sign(Command)
 		EndIf;
 	EndIf;
 	
-	NotifyDescription      = New NotifyDescription("OnGetSignature", ThisObject);
+	NotifyDescription      = New CallbackDescription("OnGetSignature", ThisObject);
 	AdditionalParameters = New Structure("ResultProcessing", NotifyDescription);
 	
 	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
@@ -413,7 +403,7 @@ Procedure AddDSFromFile(Command)
 	FilesOperationsInternalClient.AddSignatureFromFile(
 		AttachedFile,
 		UUID,
-		New NotifyDescription("OnGetSignatures", ThisObject));
+		New CallbackDescription("OnGetSignatures", ThisObject));
 	
 EndProcedure
 
@@ -449,7 +439,7 @@ Procedure Encrypt(Command)
 	
 	HandlerParameters = New Structure;
 	HandlerParameters.Insert("FileData", FileData);
-	Handler = New NotifyDescription("EncryptAfterEncryptAtClient", ThisObject, HandlerParameters);
+	Handler = New CallbackDescription("EncryptAfterEncryptAtClient", ThisObject, HandlerParameters);
 	
 	FilesOperationsInternalClient.Encrypt(
 		Handler,
@@ -498,7 +488,7 @@ Procedure Decrypt(Command)
 	
 	HandlerParameters = New Structure;
 	HandlerParameters.Insert("FileData", FileData);
-	Handler = New NotifyDescription("DecryptAfterDecryptAtClient", ThisObject, HandlerParameters);
+	Handler = New CallbackDescription("DecryptAfterDecryptAtClient", ThisObject, HandlerParameters);
 	
 	FilesOperationsInternalClient.Decrypt(
 		Handler,
@@ -589,7 +579,7 @@ EndProcedure
 &AtClient
 Procedure ExtendActionSignatures(Command)
 	
-	FollowUpHandler = New NotifyDescription("OnGetSignatures", ThisObject);
+	FollowUpHandler = New CallbackDescription("OnGetSignatures", ThisObject);
 	
 	RenewalOptions = New Structure;
 	
@@ -642,7 +632,7 @@ Procedure DeleteDS(Command)
 		Return;
 	EndIf;
 	
-	NotifyDescription = New NotifyDescription("DeleteDigitalSignatureAnswerReceived", ThisObject);
+	NotifyDescription = New CallbackDescription("DeleteDigitalSignatureAnswerReceived", ThisObject);
 	ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to delete the selected signatures?';"), QuestionDialogMode.YesNo);
 	
 EndProcedure
@@ -699,8 +689,9 @@ Procedure SetAvaliabilityOfEncryptionList()
 	
 EndProcedure
 
-///////////////////////////////////////////////////////////////////////////////////
-// Command handlers to support collaboration in operations with files.
+#EndRegion
+
+#Region CommandHandlersToSupportCollaborativeFileManagement
 
 &AtClient
 Procedure Lock(Command)
@@ -709,7 +700,7 @@ Procedure Lock(Command)
 		Return;
 	EndIf;
 	
-	Handler = New NotifyDescription("ReadAndSetFormItemsAvailability", ThisObject);
+	Handler = New CallbackDescription("ReadAndSetFormItemsAvailability", ThisObject);
 	FilesOperationsInternalClient.LockWithNotification(Handler, CurrentRefToFile(), UUID);
 	
 EndProcedure
@@ -758,7 +749,7 @@ Procedure EndEdit(Command)
 	
 	FileData = FileData(CurrentRefToFile(), UUID, "ServerCall");
 	
-	NotifyDescription = New NotifyDescription("EndEditingPuttingCompleted", ThisObject);
+	NotifyDescription = New CallbackDescription("EndEditingPuttingCompleted", ThisObject);
 	FileUpdateParameters = FilesOperationsInternalClient.FileUpdateParameters(NotifyDescription, FileData.Ref, UUID);
 	FileUpdateParameters.StoreVersions = FileData.StoreVersions;
 	If Not CanCreateFileVersions Then
@@ -809,7 +800,7 @@ Procedure SaveChanges(Command)
 		WriteFile();
 	EndIf;
 	
-	Handler = New NotifyDescription("ReadAndSetFormItemsAvailability", ThisObject);
+	Handler = New CallbackDescription("ReadAndSetFormItemsAvailability", ThisObject);
 	FilesOperationsInternalClient.SaveFileChangesWithNotification(Handler,
 		CurrentRefToFile(), UUID);
 	
@@ -851,10 +842,12 @@ EndProcedure
 Procedure Delete(Command)
 	
 	FilesOperationsInternalClient.DeleteData(
-		New NotifyDescription("AfterDeleteData", ThisObject),
+		New CallbackDescription("AfterDeleteData", ThisObject),
 		CurrentRefToFile(), UUID);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -940,7 +933,7 @@ Procedure OpenFileForViewing()
 	EndIf;
 	
 	If RestrictedExtensions.FindByValue(ThisObject.Object.Extension) <> Undefined Then
-		Notification = New NotifyDescription("OpenFileAfterConfirm", ThisObject);
+		Notification = New CallbackDescription("OpenFileAfterConfirm", ThisObject);
 		UsersInternalClient.ShowSecurityWarning(Notification,
 			UsersInternalClientServer.SecurityWarningKinds().BeforeOpenFile);
 		Return;
@@ -1075,7 +1068,7 @@ Procedure SetButtonsAvailability(Form, Items)
 	If CommandsNames.Find("Edit") <> Undefined Then
 		Items["LongDesc"].InputHint = NStr("en = 'A brief description. To edit the file, click Edit.';");
 	Else
-		Items["LongDesc"].InputHint = NStr("en = 'A brief description. To edit the file, click Edit.';");
+		Items["LongDesc"].InputHint = NStr("en = 'A brief description. To view the file, click View.';");
 	EndIf;
 	
 EndProcedure
@@ -1459,8 +1452,8 @@ Function WriteFile(Val ParameterObject = Undefined)
 				SourceCertificates = ModuleDigitalSignature.EncryptionCertificates(CopyingValue);
 				ModuleDigitalSignature.WriteEncryptionCertificates(ObjectToWrite, SourceCertificates);
 				
-				SetSignatures = ModuleDigitalSignature.SetSignatures(CopyingValue);
-				ModuleDigitalSignature.AddSignature(ObjectToWrite, SetSignatures);
+				ObjectSignatures = ModuleDigitalSignature.ObjectSignatures(CopyingValue);
+				ModuleDigitalSignature.AddSignature(ObjectToWrite, ObjectSignatures);
 			EndIf;
 			
 			CommitTransaction();
@@ -1622,15 +1615,13 @@ Procedure UpdateCloudServiceNote(AttachedFile)
 			Account = SynchronizationInfo.Account;
 			NoteVisibility = True;
 			
-			FolderAddressInCloudService = FilesOperationsInternalClientServer.AddressInCloudService(
-				SynchronizationInfo.Service, SynchronizationInfo.Href);
-				
 			Items.DecorationNote.Title = StringFunctions.FormattedString(
 				NStr("en = 'This is a read-only file. It is stored in cloud service <a href=""%1"">%2</a>.';"),
-				FolderAddressInCloudService, SynchronizationInfo.AccountDescription1);
+				SynchronizationInfo.FolderAddressInCloudService, SynchronizationInfo.AccountDescription1);
 			
 			Items.DecorationPictureSyncStatus.Visible = Not SynchronizationInfo.IsSynchronized;
-			Items.DecorationSyncDate.ToolTipRepresentation =?(SynchronizationInfo.IsSynchronized, ToolTipRepresentation.None, ToolTipRepresentation.Button);
+			Items.DecorationSyncDate.ToolTipRepresentation = ?(SynchronizationInfo.IsSynchronized, 
+				ToolTipRepresentation.None, ToolTipRepresentation.Button);
 			
 			Items.DecorationSyncDate.Title = StringFunctions.FormattedString(
 				NStr("en = 'Synchronized on: <a href=""%1"">%2</a>';"),
@@ -1675,7 +1666,7 @@ Function CurrentRefToFileServer()
 
 EndFunction
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

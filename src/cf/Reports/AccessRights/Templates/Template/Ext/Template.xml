@@ -387,7 +387,7 @@
 					<tl>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Show in list</v8:content>
+							<v8:content>Show in choice list</v8:content>
 						</v8:item>
 					</tl>
 				</c>
@@ -839,7 +839,7 @@
 					<tl>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>* Direct member.</v8:content>
+							<v8:content>* Direct member</v8:content>
 						</v8:item>
 					</tl>
 				</c>

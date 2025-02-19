@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<Title>
 		<v8:item>
 			<v8:lang>en</v8:lang>
@@ -913,7 +913,7 @@ It is recommended that you open each document and eliminate the issues preventin
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Some of the data received during the synchronization could not be saved correctly because one or several attributes were blank.
+									<v8:content>Couldn't save some data items received during the synchronization because some attributes were blank.
 It is recommended that you open the catalog item and fill in the attributes.</v8:content>
 								</v8:item>
 							</Title>
@@ -1346,7 +1346,7 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Show version created in this infobase</v8:content>
+												<v8:content>Show local version</v8:content>
 											</v8:item>
 										</Title>
 										<ExtendedTooltip name="ConflictsContextMenuOpenPreConflictVersionExtendedTooltip" id="436"/>
@@ -1357,7 +1357,7 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Show version received from another infobase</v8:content>
+												<v8:content>Show imported version</v8:content>
 											</v8:item>
 										</Title>
 										<ExtendedTooltip name="ConflictsContextMenuOpenConflictVersionExtendedTooltip" id="437"/>
@@ -1422,7 +1422,7 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Show version created in this infobase</v8:content>
+												<v8:content>Show local version</v8:content>
 											</v8:item>
 										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -1434,7 +1434,7 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Show version received from another infobase</v8:content>
+												<v8:content>Show imported version</v8:content>
 											</v8:item>
 										</Title>
 										<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -1657,7 +1657,7 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Data received from</v8:content>
+											<v8:content>Imported data</v8:content>
 										</v8:item>
 									</Title>
 									<ToolTip>
@@ -1791,7 +1791,7 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Show version from this app</v8:content>
+												<v8:content>Show local version</v8:content>
 											</v8:item>
 										</Title>
 										<ExtendedTooltip name="RejectedDueToDateContextMenuOpenVersionDeclinedInThisApplicationExtendedTooltip" id="471"/>
@@ -2078,7 +2078,7 @@ This caused synchronization conflicts, which were resolved automatically.</v8:co
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Data received from</v8:content>
+											<v8:content>Imported data</v8:content>
 										</v8:item>
 									</Title>
 									<ToolTip>
@@ -3241,7 +3241,7 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show version created in this infobase</v8:content>
+					<v8:content>Show local version</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -3385,7 +3385,7 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show version received from another infobase</v8:content>
+					<v8:content>Show imported version</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -3401,13 +3401,13 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show version from this app</v8:content>
+					<v8:content>Show local version</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Open the version stored in this application.</v8:content>
+					<v8:content>Open local version</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>OpenVersionDeclinedInThisApplication</Action>

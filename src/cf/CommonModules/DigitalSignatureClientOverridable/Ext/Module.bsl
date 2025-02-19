@@ -38,7 +38,7 @@ EndProcedure
 //   * WaitForContinue   - Boolean - a return value. If True, an additional check
 //                            will be performed asynchronously and it will continue after the notification is executed.
 //                            The initial value is False.
-//   * Notification           - NotifyDescription - a data processor that needs to be called for continuation
+//   * Notification           - CallbackDescription - a data processor that needs to be called for continuation
 //                              after the additional check was performed asynchronously.
 //   * Certificate           - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - a certificate being checked.
 //   * Validation             - String - a check name, added in the OnCreateFormCertificateCheck procedure
@@ -89,7 +89,7 @@ EndProcedure
 //     ** OldCertificate - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates, Undefined - The found certificate with 
 //             similar subject properties that is subject to replacement.
 //
-Procedure AfterAddingElectronicSignatureCertificatesToDirectory(Parameters) Export
+Procedure AfterAddingElectronicSignatureCertificatesToCatalog(Parameters) Export
 	
 	
 	

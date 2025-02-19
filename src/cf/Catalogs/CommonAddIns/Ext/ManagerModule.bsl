@@ -147,7 +147,7 @@ Procedure HandleCommonAddIns() Export
 			Block.Lock();
 
 			ComponentObject_SSLs = Selection.Ref.GetObject(); // CatalogObject.CommonAddIns
-			ComponentObject_SSLs.TargetPlatforms = New ValueStorage(Attributes.TargetPlatforms);
+			ComponentObject_SSLs.TargetPlatforms = New ValueStorage(Attributes.TargetPlatforms, New Deflation(9));
 			InfobaseUpdate.WriteObject(ComponentObject_SSLs);
 
 			ObjectsProcessed = ObjectsProcessed + 1;

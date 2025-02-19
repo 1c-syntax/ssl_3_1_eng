@@ -356,9 +356,7 @@ Procedure ApplyPermissionsAtServer(StorageAddress)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Applying the requests for permissions to use external resources.
-//
+#Region ApplyingPermissionRequestsToUseExternalResources
 
 // Applies the security profile permission changes in server cluster by the scenario.
 //
@@ -434,5 +432,7 @@ Procedure ApplyPermissionsChangesInSecurityProfilesInServerCluster(Val Operation
 	EndDo;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

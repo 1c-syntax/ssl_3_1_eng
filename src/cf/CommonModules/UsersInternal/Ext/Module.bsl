@@ -128,8 +128,12 @@ Function AuthenticateCurrentUser(OnStart = False, RegisterInLog = False) Export
 	
 	If ValueIsFilled(FoundUser) Then
 		// IBUser is found in the catalog.
-		If OnStart And AdministratorRolesAvailable() Then
-			SSLSubsystemsIntegration.OnCreateAdministrator(FoundUser,
+		If OnStart
+		   And AdministratorRolesAvailable()
+		   And Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+			
+			ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
+			ModuleAccessManagementInternal.OnCreateOrAuthorizeAdministrator(FoundUser,
 				NStr("en = 'Administrator roles were detected during the user authorization.';"));
 		EndIf;
 		Return SessionParametersSettingResult(RegisterInLog);
@@ -265,7 +269,7 @@ EndFunction
 //
 Procedure SetInitialSettings(Val UserName, IsExternalUser = False) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.SetInitialSettings");
 	
 	ClientSettings = New ClientSettings;
@@ -410,8 +414,7 @@ Function NewParametersOfExtendedPickForm() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// For role interface in client application forms.
+#Region ForRolesInterfaceOperationInManagedForm
 
 // For internal use only.
 //
@@ -494,8 +497,9 @@ Procedure ProcessRolesInterface(Action, Parameters) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Common procedures and functions.
+#EndRegion
+
+#Region GeneralPurposeProceduresAndFunctions
 
 // Returns names and roles synonyms.
 //
@@ -504,9 +508,12 @@ EndProcedure
 //   * Array - FixedArray of String - Arrays of role names.
 //   * Map - FixedMap of KeyAndValue:
 //      ** Key     - String - Role name.
-//      ** Value - String - Role synonym.
+//      ** Value - String - 
 //   * Table - ValueStorage of ValueTable:
 //      ** Name - String - Role name.
+//   * List - ValueStorage of ValueList:
+//      ** Value      - String - Role name.
+//      ** Presentation - String - 
 //
 Function AllRoles() Export
 	
@@ -576,7 +583,7 @@ Function UnspecifiedUserProperties() Export
 	
 	Properties.Insert("FullNameForSearch", "<" + NStr("en = 'Not specified';") + ">");
 	
-	// Searching for infobase user by UUID.
+	// Search for infobase user by UUID.
 	Query = New Query;
 	Query.SetParameter("Ref", Properties.StandardRef);
 	Query.Text =
@@ -648,7 +655,7 @@ Function UserByIDExists(UUID,
                                                FoundUser = Undefined,
                                                ServiceUserID = False) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.UserByIDExists");
 	
 	SetPrivilegedMode(True);
@@ -697,7 +704,7 @@ EndFunction
 //
 Function InfobaseUserByID(IBUserID) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.InfobaseUserByID");
 	
 	If TypeOf(IBUserID) <> Type("UUID") Then
@@ -736,11 +743,12 @@ Procedure UpdateAssignmentOnCreateAtServer(Form, AddUsers = True, ExternalUsersO
 	
 	Purpose = Form.Object.Purpose;
 	
-	If Not ExternalUsers.UseExternalUsers() Then
-		Purpose.Clear();
-		NewRow = Purpose.Add();
+	If Not ExternalUsers.UseExternalUsers()
+	   And (    Purpose.Count() = 1
+	        And Purpose[0].UsersType = Catalogs.Users.EmptyRef()
+	      Or Purpose.Count() = 0) Then
+		
 		Form.Items.SelectPurpose.Parent.Visible = False;
-		NewRow.UsersType = Catalogs.Users.EmptyRef();
 	EndIf;
 	
 	If AddUsers And Purpose.Count() = 0 Then
@@ -789,7 +797,7 @@ EndProcedure
 Procedure WriteInfobaseUser(IBUser, IsExternalUser = False,
 			User = Undefined, Val ShouldNotifyServiceManager = True) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.WriteInfobaseUser");
 	
 	SSLSubsystemsIntegration.BeforeWriteIBUser(IBUser);
@@ -801,7 +809,13 @@ Procedure WriteInfobaseUser(IBUser, IsExternalUser = False,
 	IsUsersCatalogsUpdate = IBUser.UUID
 		= SessionParameters.UsersCatalogsUpdate.Get("IBUserID");
 	
-	If ShouldNotifyServiceManager And Not IsUsersCatalogsUpdate Then
+	IsInternalUserRecord = IBUser.UUID
+		= SessionParameters.UsersCatalogsUpdate.Get("InternalIBUserID");
+	
+	If ShouldNotifyServiceManager
+	   And Not IsUsersCatalogsUpdate
+	   And Not IsInternalUserRecord Then
+		
 		InfobaseOldUser = InfoBaseUsers.FindByUUID(
 			IBUser.UUID);
 	EndIf;
@@ -824,7 +838,7 @@ Procedure WriteInfobaseUser(IBUser, IsExternalUser = False,
 		If User <> Undefined Then
 			InformationRegisters.UsersInfo.UpdateUserInfoRecords(User,
 				Undefined, IBUser);
-			If ShouldNotifyServiceManager Then
+			If ShouldNotifyServiceManager And Not IsInternalUserRecord Then
 				ModuleUsersInternalSaaS = Common.CommonModule("UsersInternalSaaS");
 				ModuleUsersInternalSaaS.NotifyAppStartupModified(User,
 					IBUser, InfobaseOldUser);
@@ -965,7 +979,7 @@ EndProcedure
 //
 Procedure CopyUserGroups(Source, Receiver) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.CopyUserGroups");
 	
 	ExternalUser = (TypeOf(Source) = Type("CatalogRef.ExternalUsers"));
@@ -1459,8 +1473,9 @@ Function RepresentationOfTheReference(Ref) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Universal procedures and functions.
+#EndRegion
+
+#Region UniversalProceduresAndFunctions
 
 // Returns a reference to an old (or new) object
 //
@@ -1509,7 +1524,7 @@ EndFunction
 // Parameters:
 //  NameOfAProcedureOrAFunction - String
 //
-Procedure CheckSafeModeIsDisabled(NameOfAProcedureOrAFunction) Export
+Procedure CheckIfSafeModeOff(NameOfAProcedureOrAFunction) Export
 	
 	If SafeMode() = False Then
 		Return;
@@ -1528,8 +1543,9 @@ Procedure CheckSafeModeIsDisabled(NameOfAProcedureOrAFunction) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Settings Composer
+#EndRegion
+
+#Region SettingsComposerOperation
 
 // Set the user setting to the data composition parameter.
 // If user settings are not supported, set it to the parameter value.
@@ -1631,8 +1647,9 @@ Procedure SetFilterOnField(FieldName, Value, DCSettings, UserSettings, InHierarc
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Additional functionality for data exchange.
+#EndRegion
+
+#Region AdditionalFunctionalityForDataExchange
 
 // Registers the given array with data of the types
 // valid considering the given reference type parameter.
@@ -1657,7 +1674,7 @@ Procedure RegisterRefs(RefsKind, Val RefsToAdd) Export
 		Return;
 	EndIf;
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.RegisterRefs");
 	
 	RefsKindProperties = UsersInternalCached.RefKindsProperties().Get(RefsKind);
@@ -1733,7 +1750,7 @@ Function RegisteredRefs(RefsKind) Export
 		Return New Array;
 	EndIf;
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.RegisteredRefs");
 	
 	RefsKindProperties = UsersInternalCached.RefKindsProperties().Get(RefsKind);
@@ -1768,8 +1785,9 @@ Function RegisteredRefs(RefsKind) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#EndRegion
+
+#Region ConfigurationSubsystemsEventHandlers
 
 // See CommonOverridable.OnAddClientParametersOnStart.
 Procedure OnAddClientParametersOnStart(Parameters, Cancel, IsCallBeforeStart) Export
@@ -1923,7 +1941,7 @@ EndProcedure
 //
 Procedure OnSendServerNotification(NameOfAlert, ProcedureParameters) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.OnSendServerNotification");
 	
 	ParametersVariants     = ProcedureParameters.ParametersVariants;
@@ -2058,7 +2076,7 @@ Procedure OnCollectConfigurationStatisticsParameters() Export
 	
 	ModuleMonitoringCenter = Common.CommonModule("MonitoringCenter");
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.OnCollectConfigurationStatisticsParameters");
 	
 	StandardAuthentication = 0;
@@ -2167,7 +2185,7 @@ EndProcedure
 // See ExportImportDataOverridable.AfterImportData.
 Procedure AfterImportData(Container) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.AfterImportData");
 	
 	// Reset the decision made by the administrator in the Security warning form.
@@ -2282,8 +2300,8 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Comment = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = '- Move obsolete ""(not used) Infobase user properties"" attribute values from the ""Users"" and ""External users"" catalogs to the ""User details"" information register.
 		           |- Update the ""State picture number"" attribute value in the ""User details"" information register.
-		           |- Delete records with non-existing users and external users from the ""User details"" information register.
-		           |- Reset unnecessary %1authentication and inactive user authentication.';"),
+		           |- Delete records with non-existing users and external users from the ""User information"" information register.
+		           |- Reset unnecessary %1authentication and inactive user authentication. ';"),
 		"OpenID-Connect");
 	
 	Handler = Handlers.Add();
@@ -2343,7 +2361,7 @@ Procedure OnAddReferenceSearchExceptions(RefSearchExclusions) Export
 	
 EndProcedure
 
-// 
+// See StandardSubsystems.OnSendDataToMaster.
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 	OnSendData(DataElement, ItemSend, False, False);
@@ -2421,7 +2439,7 @@ Procedure OnFillToDoList(ToDoList) Export
 			ToDoItem.Id  = IDUsers;
 			ToDoItem.HasToDoItems       = OfInvalidUsers > 0;
 			ToDoItem.Count     = OfInvalidUsers;
-			ToDoItem.Presentation  = NStr("en = 'Invalid users data';");
+			ToDoItem.Presentation  = NStr("en = 'Invalid user data';");
 			ToDoItem.Form          = "Catalog.Users.Form.InfoBaseUsers";
 			ToDoItem.Owner       = Section;
 		EndIf;
@@ -2614,7 +2632,7 @@ EndProcedure
 // See DataExchangeOverridable.OnSetUpSubordinateDIBNode.
 Procedure OnSetUpSubordinateDIBNode() Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.OnSetUpSubordinateDIBNode");
 	
 	ClearNonExistingIBUsersIDs();
@@ -2661,6 +2679,8 @@ Procedure OnDefineActionsInForm(Ref, ActionsOnForm) Export
 	UsersOverridable.ChangeActionsOnForm(Ref, ActionsOnForm);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -2720,8 +2740,7 @@ Procedure SessionParametersSetting(Val ParameterName, SpecifiedParameters) Expor
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Event subscription handlers.
+#Region EventsSubscriptionsHandlers
 
 // Runs the external user presentation update when its authorization object
 // presentation is changed and marks it as invalid
@@ -2737,12 +2756,31 @@ Procedure UpdateExternalUserWhenWriting(Val Object, Cancel) Export
 		Return;
 	EndIf;
 	
-	UpdateExternalUser(Object.Ref, Object.DeletionMark);
+	IsSafeModeDisabled = GetSafeModeDisabled();
+	If IsSafeModeDisabled Then
+		SetSafeModeDisabled(False);
+	EndIf;
+	
+	ShouldWriteInSafeMode = False;
+	If SafeMode() <> False Then
+		SetPrivilegedMode(True);
+		If Not PrivilegedMode() Then
+			ShouldWriteInSafeMode = True;
+		EndIf;
+		SetPrivilegedMode(False);
+	EndIf;
+	
+	If IsSafeModeDisabled Then
+		SetSafeModeDisabled(True);
+	EndIf;
+	
+	UpdateExternalUser(Object.Ref, Object.DeletionMark, ShouldWriteInSafeMode);
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for operations with user authorization settings.
+#EndRegion
+
+#Region ProceduresAndFunctionsForUserLoginSettings
 
 // Returns:
 //  Structure:
@@ -2752,7 +2790,7 @@ EndProcedure
 //
 Function LogonSettings() Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.LogonSettings");
 	
 	Settings = New Structure;
@@ -2792,6 +2830,9 @@ Function LogonSettings() Export
 		
 	EndIf;
 	
+	// Populate common settings.
+	FillCommonSettingsFromCommonPasswordPolicy(Settings.Overall);
+	
 	If DataSeparationEnabled
 	 Or ExternalUsers.UseExternalUsers() Then
 		
@@ -2830,8 +2871,6 @@ Function LogonSettings() Export
 		Settings.Overall.ShouldUseBannedPasswordService = False;
 	EndIf;
 	
-	// Populate common settings.
-	FillCommonSettingsFromCommonPasswordPolicy(Settings.Overall);
 	If RoundPasswordPolicy Then
 		UpdateCommonPasswordPolicy(Settings.Overall);
 	EndIf;
@@ -2867,7 +2906,7 @@ EndFunction
 //
 Procedure FillCommonSettingsFromCommonPasswordPolicy(Settings)
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.FillCommonSettingsFromCommonPasswordPolicy");
 	
 	LockSettings = AuthenticationLock.GetSettings();
@@ -2904,7 +2943,7 @@ Procedure FillCommonSettingsFromCommonPasswordPolicy(Settings)
 		ValidationSettings.UseStandardPasswordCompromiseCheckList;
 	
 	Settings.ShouldUseAdditionalBannedPasswordList =
-		ValidationSettings.UseSetPasswordCompromiseCheckList;
+		ValidationSettings.UseSpecifiedPasswordCompromiseCheckList;
 	
 	Settings.ShouldUseBannedPasswordService =
 		ValidationSettings.UsePasswordCompromiseCheckService;
@@ -2925,7 +2964,7 @@ EndProcedure
 //
 Procedure UpdateCommonPasswordPolicy(Settings) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.UpdateCommonPasswordPolicy");
 	
 	LockSettings = AuthenticationLock.GetSettings();
@@ -3019,11 +3058,11 @@ Procedure UpdateCommonPasswordPolicy(Settings) Export
 			Settings.ShouldUseStandardBannedPasswordList;
 	EndIf;
 	
-	If ValidationSettings.UseSetPasswordCompromiseCheckList
+	If ValidationSettings.UseSpecifiedPasswordCompromiseCheckList
 	  <> Settings.ShouldUseAdditionalBannedPasswordList Then
 		
 		Write = True;
-		ValidationSettings.UseSetPasswordCompromiseCheckList =
+		ValidationSettings.UseSpecifiedPasswordCompromiseCheckList =
 			Settings.ShouldUseAdditionalBannedPasswordList;
 	EndIf;
 	
@@ -3073,7 +3112,7 @@ EndProcedure
 //
 Procedure FillSettingsFromUsersPasswordPolicy(Settings)
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.FillSettingsFromUsersPasswordPolicy");
 	
 	SecondsPerDay = 24*60*60;
@@ -3118,7 +3157,7 @@ EndProcedure
 //
 Procedure UpdateUsersPasswordPolicy(Settings) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.UpdateUsersPasswordPolicy");
 	
 	SecondsPerDay = 24*60*60;
@@ -3201,7 +3240,7 @@ EndProcedure
 //
 Procedure FillSettingsFromExternalUsersPasswordPolicy(Settings)
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.FillSettingsFromExternalUsersPasswordPolicy");
 	
 	PasswordPolicy = UserPasswordPolicies.FindByName(
@@ -3251,7 +3290,7 @@ EndProcedure
 //
 Procedure UpdateExternalUsersPasswordPolicy(Settings) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.UpdateExternalUsersPasswordPolicy");
 	
 	PolicyName = ExternalUsersPasswordPolicyName();
@@ -3287,7 +3326,7 @@ Procedure UpdateExternalUsersPasswordPolicy(Settings) Export
 		NewAction = ValueOfActionUponLoginIfRequirementNotMet(
 			Settings.ActionUponLoginIfRequirementNotMet);
 		
-		UpdatePolicyProperty(PasswordPolicy.ActionUponAuthenticationIfPasswordsNonCompliant,
+		UpdatePolicyProperty(PasswordPolicy.ActionOnPasswordRequirementsViolationOnAuthentication,
 			NewAction, Write);
 	EndIf;
 	
@@ -3326,7 +3365,7 @@ EndProcedure
 //
 Procedure SetPasswordPolicy(IBUser, IsExternalUser) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.SetPasswordPolicy");
 	
 	PasswordPolicyName = PasswordPolicyName(IsExternalUser);
@@ -3374,7 +3413,7 @@ Function CurrentActionUponLoginIfRequirementNotMet(PasswordPolicy = Undefined)
 	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
 	CurrentAction1 = ?(PasswordPolicy = Undefined,
 		Eval("GetActionOnUserPasswordRequirementsViolationOnAuthentication()"),
-		PasswordPolicy.ActionUponAuthenticationIfPasswordsNonCompliant);
+		PasswordPolicy.ActionOnPasswordRequirementsViolationOnAuthentication);
 	
 	If CurrentAction1 = Eval("ActionOnPasswordRequirementsViolationOnAuthentication.RequirePasswordChange") Then
 		Return "RequirePasswordChange";
@@ -3410,7 +3449,7 @@ EndFunction
 //
 Procedure SetShowInListAttributeForAllInfobaseUsers(Show) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.SetShowInListAttributeForAllInfobaseUsers");
 	
 	Hidden1 = New Map;
@@ -3450,8 +3489,9 @@ Procedure SetShowInListAttributeForAllInfobaseUsers(Show) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedure and function for operations with password.
+#EndRegion
+
+#Region PasswordManagementProceduresAndFunctions
 
 // Generates a new password matching the set rules of complexity checking.
 // For easier memorization, a password is formed from syllables (consonant-vowel).
@@ -3468,7 +3508,7 @@ Function CreatePassword(PasswordParameters, RNG = Undefined) Export
 	
 	SystemInfo = New SystemInfo;
 	If CommonClientServer.CompareVersions(SystemInfo.AppVersion, "8.3.22.2501") >= 0 Then
-		RandomPasswordGenerator = New("ГенераторСлучайныхПаролей");
+		RandomPasswordGenerator = New("RandomPasswordGenerator");
 		Return RandomPasswordGenerator.RandomPassword(PasswordParameters.MinimumLength);
 	EndIf;
 	
@@ -3656,7 +3696,7 @@ EndFunction
 //
 Function CanChangePassword(User, AdditionalParameters = Undefined) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.CanChangePassword");
 	
 	If TypeOf(AdditionalParameters) <> Type("Structure") Then
@@ -3825,7 +3865,7 @@ EndFunction
 //
 Function ProcessNewPassword(Parameters) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.ProcessNewPassword");
 	
 	NewPassword  = Parameters.NewPassword;
@@ -3995,7 +4035,7 @@ Function NewPasswordHint() Export
 	
 EndFunction
 
-// For the "Users" and "ExternalUsers" document item forms.
+// For the Users and ExternalUsers document item forms.
 
 // Returns the tooltip for changing the password for full-access users and ordinary users.
 //
@@ -4058,8 +4098,8 @@ EndFunction
 // and prefixed full names of the infobase user's properties on the form.
 //
 // Returns:
-//  Map
-//   * Value - The property's full name with the prefix.
+//  Map of KeyAndValue:
+//   * Key - The property's name without the prefix.
 //   * Value - The property's full name with the prefix.
 //
 Function PrefixedNamesForInfobaseUserProperties() Export
@@ -4089,8 +4129,9 @@ Function PrefixedNamesForInfobaseUserProperties() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for user operations.
+#EndRegion
+
+#Region UserManagementProceduresAndFunctions
 
 // For internal use only.
 //
@@ -4126,7 +4167,7 @@ EndFunction
 //
 Function PasswordHashString(Password, ToWrite = False) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.PasswordHashString");
 	
 	If Password = "" And Not ToWrite Then
@@ -4162,7 +4203,7 @@ EndFunction
 //
 Function PreviousPasswordMatchSaved(Password, IBUserID) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.PreviousPasswordMatchSaved");
 	
 	If TypeOf(IBUserID) <> Type("UUID") Then
@@ -4395,7 +4436,7 @@ EndProcedure
 //
 Procedure UserObjectBeforeWrite(Object, ProcessingParameters) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.UserObjectBeforeWrite");
 	
 	IsExternalUser = TypeOf(Object.Ref) = Type("CatalogRef.ExternalUsers");
@@ -4440,7 +4481,7 @@ EndProcedure
 //
 Procedure UserObjectBeforeDelete(Object, IsDeletionDuringExchange = False) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.UserObjectBeforeDelete");
 	
 	If Not Object.DataExchange.Load
@@ -4475,7 +4516,7 @@ Procedure StartIBUserProcessing(UserObject,
                                         ProcessingParameters,
                                         DeleteUserFromCatalog = False) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.StartIBUserProcessing");
 	
 	ProcessingParameters = New Structure;
@@ -4776,7 +4817,7 @@ EndProcedure
 //
 Procedure EndIBUserProcessing(UserObject, ProcessingParameters) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.EndIBUserProcessing");
 	
 	CheckUserAttributeChanges(UserObject, ProcessingParameters);
@@ -4842,7 +4883,7 @@ EndProcedure
 //
 Function StoredIBUserProperties(UserDetails, CanSignIn = False) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.StoredIBUserProperties");
 	
 	Properties = New Structure;
@@ -6217,8 +6258,9 @@ Procedure RegisterGroupsCompositionChanges(DataForRegistration) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for external user operations.
+#EndRegion
+
+#Region ExternalUserManagementProceduresAndFunctions
 
 // Updates the membership of an external user group with the "AllAuthorizationObjects" flag set.
 //
@@ -6412,7 +6454,7 @@ EndProcedure
 //
 Procedure UpdateExternalUsersRoles(Val ExternalUsersArray = Undefined) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.UpdateExternalUsersRoles");
 	
 	If CannotEditRoles() Then
@@ -6773,8 +6815,9 @@ Function AuthorizationObjectProperties(AuthorizationObjectRef, CurrentExternalUs
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Operations with infobase user settings.
+#EndRegion
+
+#Region InfobaseUserSettingsManagement
 
 // Copies settings from a source user to a target user. If the value
 // of the Transfer parameter = True, the settings of the source user are deleted.
@@ -6789,7 +6832,7 @@ EndFunction
 //
 Procedure CopyUserSettings(UserNameSource, UserNameDestination, Wrap = False) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.CopyUserSettings");
 	
 	// Moving user report settings.
@@ -6807,8 +6850,9 @@ Procedure CopyUserSettings(UserNameSource, UserNameDestination, Wrap = False) Ex
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Additional functionality for data exchange.
+#EndRegion
+
+#Region AdditionalFunctionalityForDataExchange
 
 // Called when filling the Ref types intended for the procedure
 // "RegisterRefs" and function "RegisteredRefs".
@@ -6890,8 +6934,9 @@ Procedure OnFillRegisteredRefKinds(RefsKinds) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for moving users between groups.
+#EndRegion
+
+#Region ProceduresAndFunctionsToMoveUsersBetweenGroups
 
 // Moves a user from one group to another.
 //
@@ -6909,7 +6954,7 @@ EndProcedure
 Function MoveUserToNewGroup(UsersArray, SourceGroup,
 												DestinationGroup1, Move) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.MoveUserToNewGroup");
 	
 	If DestinationGroup1 = Undefined
@@ -7031,7 +7076,7 @@ EndFunction
 
 Procedure AddUserToGroup(OwnerGroup, UserRef, CompositionColumnName, Added) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.AddUserToGroup");
 	
 	If OwnerGroup = Users.AllUsersGroup()
@@ -7078,7 +7123,7 @@ EndProcedure
 
 Procedure DeleteUserFromGroup(OwnerGroup, UserRef, CompositionColumnName, Removed = False) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.DeleteUserFromGroup");
 	
 	If OwnerGroup = Users.AllUsersGroup()
@@ -7250,12 +7295,13 @@ Function CreateUserMessage(UsersArray, DestinationGroup1,
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// User password recovery.
+#EndRegion
+
+#Region UserPasswordsRecovery
 
 Procedure FillInTheEmailForPasswordRecoveryFromUsersInTheBackground(AdditionalParameters, AddressInTempStorage) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.FillInTheEmailForPasswordRecoveryFromUsersInTheBackground");
 	
 	UsersList = UsersToEnablePasswordRecovery();
@@ -7342,7 +7388,7 @@ EndFunction
 
 Function UsersToEnablePasswordRecovery() Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.UsersToEnablePasswordRecovery");
 	
 	If Not Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
@@ -7386,7 +7432,7 @@ EndFunction
 
 Function UsersToEnablePasswordRecoveryBasedOnExternalUsers(IBSUsersByMail)
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.UsersToEnablePasswordRecoveryBasedOnExternalUsers");
 	
 	TypesOfExternalUsers = Metadata.DefinedTypes.ExternalUser.Type.Types();
@@ -7507,7 +7553,7 @@ EndFunction
 
 Function ExternalUsersToEnablePasswordRecovery() Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.ExternalUsersToEnablePasswordRecovery");
 	
 	If Not Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
@@ -7600,7 +7646,7 @@ EndFunction
 
 Function UpdateEmailForPasswordRecovery(UserRef, AuthorizationObject = Undefined) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.UpdateEmailForPasswordRecovery");
 	
 	Result =  New Structure;
@@ -7860,8 +7906,9 @@ Function InfobaseUserRoleKeys(IBUser)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Universal procedures and functions.
+#EndRegion
+
+#Region UniversalProceduresAndFunctions
 
 // Returns nonmatching values in a value table column.
 //
@@ -8151,7 +8198,7 @@ EndProcedure
 //   * Name - String - Collection name.
 //   * FieldsCollectionName - String - An empty string if "Name" is a field collection.
 //   * Fields - Undefined - Get fields from the metadata.
-//          - Array of
+//          - Array of см. ОписаниеПоляТаблицы
 //
 //  Undefined - The object type has no tables.
 //
@@ -8267,10 +8314,11 @@ Function TableNewDetails()
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+#EndRegion
 
-// The procedure is called upon migration to SSL version 2.1.3.16.
+#Region InfobaseUpdate
+
+// Runs during update to SSL v.2.1.3.16.
 Procedure UpdatePredefinedUserContactInformationKinds() Export
 	
 	If Not Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
@@ -8279,14 +8327,14 @@ Procedure UpdatePredefinedUserContactInformationKinds() Export
 	
 	ModuleContactsManager = Common.CommonModule("ContactsManager");
 	
-	KindParameters = ModuleContactsManager.ContactInformationKindParameters("Email");
+	KindParameters = ModuleContactsManager.EmailAddressParameters();
 	KindParameters.Kind = "UserEmail";
 	KindParameters.CanChangeEditMethod = True;
 	KindParameters.AllowMultipleValueInput = True;
 	KindParameters.Order = 1;
 	ModuleContactsManager.SetContactInformationKindProperties(KindParameters);
 	
-	KindParameters = ModuleContactsManager.ContactInformationKindParameters("Phone");
+	KindParameters = ModuleContactsManager.PhoneParameters();
 	KindParameters.Kind = "UserPhone";
 	KindParameters.CanChangeEditMethod = True;
 	KindParameters.AllowMultipleValueInput = True;
@@ -8367,7 +8415,7 @@ Procedure MoveDesignerPasswordLengthAndComplexitySettings() Export
 	
 EndProcedure
 
-// The procedure is called on update to SSL version 2.4.1.1.
+// Runs during update to SSL v.2.4.1.1.
 Procedure AddOpenExternalReportsAndDataProcessorsRightForAdministrators() Export
 	
 	RoleToAdd = Metadata.Roles.InteractiveOpenExtReportsAndDataProcessors;
@@ -8387,7 +8435,7 @@ Procedure AddOpenExternalReportsAndDataProcessorsRightForAdministrators() Export
 	
 EndProcedure
 
-// The procedure is called on update to SSL version 2.4.1.1.
+// Runs during update to SSL v.2.4.1.1.
 Procedure RenameExternalReportAndDataProcessorOpeningDecisionStorageKey() Export
 	
 	Block = New DataLock;
@@ -8409,7 +8457,7 @@ Procedure RenameExternalReportAndDataProcessorOpeningDecisionStorageKey() Export
 				IBAdministrationParameters.Insert("OpenExternalReportsAndDataProcessorsDecisionMade", True);
 			EndIf;
 			IBAdministrationParameters.Delete("OpenExternalReportsAndDataProcessorsAllowed");
-			Constants.IBAdministrationParameters.Set(New ValueStorage(IBAdministrationParameters));
+			Constants.IBAdministrationParameters.Set(New ValueStorage(IBAdministrationParameters, New Deflation(9)));
 		EndIf;
 		
 		CommitTransaction();
@@ -8426,15 +8474,16 @@ Procedure FillUserGroupsHierarchy() Export
 	InformationRegisters.UsersInfo.UpdateRegisterData();
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Managing user settings.
+#EndRegion
+
+#Region UserSettingsManagement
 
 // Called form the UsersSettings processing, and it generates
 // a list of users settings.
 //
 Procedure FillSettingsLists(Parameters, StorageAddress) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.FillSettingsLists");
 	
 	If Parameters.InfoBaseUser <> UserName()
@@ -8457,13 +8506,14 @@ Procedure FillSettingsLists(Parameters, StorageAddress) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Other user settings.
+#EndRegion
+
+#Region OtherUserSettings
 
 // See UsersOverridable.OnGetOtherSettings
 Procedure OnGetOtherUserSettings(UserInfo, Settings) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.OnGetOtherUserSettings");
 	
 	SSLSubsystemsIntegration.OnGetOtherSettings(UserInfo, Settings);
@@ -8473,7 +8523,7 @@ EndProcedure
 
 Procedure OnSaveOtherUserSettings(UserInfo, Settings) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.OnSaveOtherUserSettings");
 	
 	SSLSubsystemsIntegration.OnSaveOtherSetings(UserInfo, Settings);
@@ -8483,7 +8533,7 @@ EndProcedure
 
 Procedure OnDeleteOtherUserSettings(UserInfo, Settings) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.OnDeleteOtherUserSettings");
 	
 	SSLSubsystemsIntegration.OnDeleteOtherSettings(UserInfo, Settings);
@@ -8502,8 +8552,9 @@ Function ANewDescriptionOfSettings() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// AUXILIARY PROCEDURES AND FUNCTIONS
+#EndRegion
+
+#Region AuxiliaryProceduresAndFunctions
 
 // At the first start of a subordinate node clears the infobase user
 // IDs copied during the creation of an initial image.
@@ -8571,7 +8622,8 @@ EndProcedure
 // Updates the external user presentation when its authorization object presentation is changed
 // and marks it as invalid if the authorization object is marked for deletion.
 //
-Procedure UpdateExternalUser(AuthorizationObjectRef, AuthorizationObjectDeletionMark)
+Procedure UpdateExternalUser(AuthorizationObjectRef, AuthorizationObjectDeletionMark,
+			ShouldWriteInSafeMode)
 	
 	SetPrivilegedMode(True);
 	
@@ -8599,29 +8651,35 @@ Procedure UpdateExternalUser(AuthorizationObjectRef, AuthorizationObjectDeletion
 			Selection = QueryResult.Select();
 			Selection.Next();
 			
-			If Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
+			If Common.SubsystemExists("StandardSubsystems.ContactInformation")
+			   And ValueIsFilled(Selection.IBUserID) Then
 				
-				If ValueIsFilled(Selection.IBUserID) Then
+				IBUser = InfoBaseUsers.FindByUUID(
+					Selection.IBUserID);
+				
+				If IBUser <> Undefined Then
 					
-					InformationSecurityUser = Users.IBUserProperies(Selection.IBUserID);
-					If InformationSecurityUser <> Undefined Then
+					ModuleContactsManager = Common.CommonModule("ContactsManager");
+					Email = ModuleContactsManager.NewEmailAddressForPasswordRecovery(
+						AuthorizationObjectRef, IBUser.Email);
+					
+					If Email <> Undefined
+					   And IBUser.Email <> Email Then
 						
-						ModuleContactsManager = Common.CommonModule("ContactsManager");
-						
-						Email = ModuleContactsManager.NewEmailAddressForPasswordRecovery(
-							AuthorizationObjectRef, InformationSecurityUser.Email);
-						If Email <> Undefined Then
-							InformationSecurityUser.Email = Email;
-							Users.SetIBUserProperies(Selection.IBUserID, InformationSecurityUser);
+						If ShouldWriteInSafeMode Then
+							ErrorText = NStr("en = 'Cannot change the main email address in save mode.';");
+							Raise(ErrorText, ErrorCategory.ConfigurationError);
 						EndIf;
+						Properties = Users.NewIBUserDetails();
+						Properties.Email = Email;
+						Users.SetIBUserProperies(Selection.IBUserID, Properties);
 					EndIf;
-					
 				EndIf;
-				
 			EndIf;
 			
-			If String(AuthorizationObjectRef) <> Selection.Description Then
-			
+			If String(AuthorizationObjectRef) <> Selection.Description
+			 Or AuthorizationObjectDeletionMark And Selection.Invalid = False Then
+				
 				Block = New DataLock;
 				LockItem = Block.Add("Catalog.ExternalUsers");
 				LockItem.SetValue("Ref", Selection.Ref);
@@ -8630,6 +8688,10 @@ Procedure UpdateExternalUser(AuthorizationObjectRef, AuthorizationObjectDeletion
 				ExternalUserObject = Selection.Ref.GetObject();
 				ExternalUserObject.Description = String(AuthorizationObjectRef);
 				If AuthorizationObjectDeletionMark And ExternalUserObject.Invalid = False Then
+					If ShouldWriteInSafeMode Then
+						ErrorText = NStr("en = 'Cannot change the user''s validity in save mode.';");
+						Raise(ErrorText, ErrorCategory.ConfigurationError);
+					EndIf;
 					ExternalUserObject.Invalid = True;
 					If Users.CanSignIn(ExternalUserObject.IBUserID) Then
 						ExternalUserObject.AdditionalProperties.Insert("IBUserDetails",
@@ -9470,7 +9532,7 @@ Procedure CheckRoleRightsList(UnavailableRights, RolesDetails, GeneralErrorText,
 				EndIf;
 			EndIf;
 			If DataProperties.Presentation = "" Then
-				Continue; // Not a reference object of metadata.
+				Continue; // Non-reference metadata object.
 			EndIf;
 			If AccessRight("Insert", MetadataObject, Role) Then
 				ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
@@ -9540,8 +9602,8 @@ Function Shared_Data()
 	DataSeparationEnabled = Common.DataSeparationEnabled();
 	SeparatedDataUsageAvailable = Common.SeparatedDataUsageAvailable();
 	
-	For Each KindDetails In MetadataKinds Do // 
-		For Each MetadataObject In KindDetails.Kind Do // 
+	For Each KindDetails In MetadataKinds Do // По видам метаданных.
+		For Each MetadataObject In KindDetails.Kind Do // By type object.
 			If SeparatedMetadataObjects.Get(MetadataObject) <> Undefined Then
 				Continue;
 			EndIf;
@@ -9669,11 +9731,10 @@ Function EventNameChangeLoginSettingsAdditionalForLogging() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures used for data exchange in DIB.
+#Region ProceduresUsedForDIBDataExchange
 
-// Intended for procedures "OnSendDataToMaster", "OnSendDataToSubordinate",
-// "OnReceiveDataFromMaster", and "OnReceiveDataFromSlave".
+// For the procedures OnSendDataToMaster, OnSendDataToSlave,
+// OnReceiveDataFromMaster, and OnReceiveDataFromSlave.
 //
 Function UsersSubsystemObjectForCreatingInitialImageOnly(DataElement)
 	
@@ -9743,8 +9804,8 @@ Procedure OnDataGet(DataElement, ItemReceive, SendBack, FromSubordinate)
 		 Or ElementType = Type("CatalogObject.UserGroups")
 		 Or ElementType = Type("CatalogObject.ExternalUsers")
 		 Or ElementType = Type("CatalogObject.ExternalUsersGroups") Then
-			// Data import from the SWP is skipped. To keep data integrity in the nodes,
-			// the current data is sent back to the SWP.
+			// Data import from the SWS is skipped. To keep data integrity in the nodes,
+			// the current data is sent back to the SWS.
 			SendBack = True;
 			ItemReceive = DataItemReceive.Ignore;
 			Return;
@@ -9906,7 +9967,7 @@ EndProcedure
 Procedure UpdateAuxiliaryDataOfItemsModifiedUponDataImport()
 	
 	If Common.DataSeparationEnabled() Then
-		// In SWP, users and user groups are locked for editing and are not imported into the data area.
+		// In the SWS, users and user groups are locked for editing and are not imported into the data area.
 		Return;
 	EndIf;
 	
@@ -10111,8 +10172,9 @@ Procedure ProcessRegisteredChangeInAuthorizationObjects(RefsKindName, Registrati
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures that handle logon settings.
+#EndRegion
+
+#Region LoginSettingsProcessingProcedures
 
 // Intended for function "AuthenticateCurrentUserOnAuthorization".
 // Updates the last activity date and checks if the password should be changed.
@@ -10124,7 +10186,7 @@ Function PasswordChangeRequired(ErrorDescription = "", OnStart = False, Register
 		Return False;
 	EndIf;
 	
-	// Updating the date of the last sign-in of a user.
+	// Update the user's last login date.
 	SetPrivilegedMode(True);
 	CurrentUser = Users.AuthorizedUser();
 	
@@ -10496,7 +10558,7 @@ EndFunction
 //
 Function PasswordComplianceError(Password, IBUser) Export
 	
-	CheckSafeModeIsDisabled(
+	CheckIfSafeModeOff(
 		"UsersInternal.PasswordComplianceError");
 	
 	PasswordPolicy = UserPasswordPolicies.FindByName(IBUser.PasswordPolicyName);
@@ -10529,8 +10591,9 @@ Function PasswordComplianceError(Password, IBUser) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// This method is required by StartIBUserProcessing procedure.
+#EndRegion
+
+#Region ForProcedureStartIBUserProcessing
 
 Procedure RememberUserProperties(UserObject, ProcessingParameters)
 	
@@ -10890,8 +10953,9 @@ Procedure WritePropertyUserMustChangePasswordOnAuthorization(User, Value)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// This method is required by EndIBUserProcessing procedure.
+#EndRegion
+
+#Region ForProcedureEndIBUserProcessing
 
 Procedure CheckUserAttributeChanges(UserObject, ProcessingParameters)
 	
@@ -11246,8 +11310,9 @@ Procedure CheckCanSignIn(AuthorizationError)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// This method is required by ProcessRolesInterface procedure.
+#EndRegion
+
+#Region ForProcedureProcessRolesInterface
 
 // Fills in a role collection.
 //
@@ -11809,7 +11874,7 @@ EndProcedure
 //
 // Parameters:
 //  Parameters - See ProcessRolesInterface.Parameters
-//  Collection - 
+//  Collection - See ProcessRolesInterface.Parameters.Form.Items.Roles
 //  Add  - Boolean
 //
 Procedure AddDeleteSubsystemRoles(Parameters, Val Collection, Val Add)
@@ -11826,7 +11891,7 @@ EndProcedure
 
 // Parameters:
 //  Parameters - See ProcessRolesInterface.Parameters
-//  Collection - 
+//  Collection - See ProcessRolesInterface.Parameters.Form.Items.Roles
 //
 Procedure UpdateSelectedRoleMarks(Parameters, Val Collection)
 	
@@ -11912,5 +11977,9 @@ Function UsersAddedInDesigner()
 	Return UsersAddedInDesignerCount;
 	
 EndFunction
+
+#EndRegion
+
+#EndRegion
 
 #EndRegion

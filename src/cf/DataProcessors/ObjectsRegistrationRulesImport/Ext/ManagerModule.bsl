@@ -13,10 +13,28 @@
 #Region Internal
 
 // Initializes columns of object registration rule table.
-//
-// Parameters:
-//  No.
 // 
+// Returns:
+//  ValueTable:
+//    * SettingObject1 - String
+//    * MetadataObjectName3 - String
+//    * ExchangePlanName - String
+//    * FlagAttributeName - String
+//    * QueryText - String
+//    * ObjectProperties - Structure
+//    * ObjectPropertiesAsString - String
+//    * RuleByObjectPropertiesEmpty - Boolean
+//    * FilterByExchangePlanProperties - ValueTree of SeeFilterByExchangePlanPropertiesTableInitialization 
+//    * FilterByObjectProperties - ValueTree of SeeFilterByObjectPropertiesTableInitialization 
+//    * BeforeProcess - String
+//    * OnProcess - String
+//    * OnProcessAdditional - String
+//    * AfterProcess - String
+//    * HasBeforeProcessHandler - Boolean
+//    * HasOnProcessHandler - Boolean
+//    * HasOnProcessHandlerAdditional - Boolean
+//    * HasAfterProcessHandler - Boolean
+//
 Function ORRTableInitialization() Export
 	
 	ObjectsRegistrationRules = New ValueTable;
@@ -56,11 +74,20 @@ Function ORRTableInitialization() Export
 	
 EndFunction
 
-// Initializes columns of object registration rule table by properties.
-//
-// Parameters:
-//  No.
+// Initializes columns of object registration rule table by exchange plan properties.
 // 
+// Returns:
+//  ValueTree:
+//    * IsFolder - Boolean
+//    * BooleanGroupValue - String
+//    * ObjectProperty1 - String
+//    * ComparisonType - String
+//    * IsConstantString - Boolean
+//    * ObjectPropertyType - String
+//    * NodeParameter - String
+//    * NodeParameterTabularSection - String
+//    * ConstantValue - Arbitrary
+//
 Function FilterByExchangePlanPropertiesTableInitialization() Export
 	
 	TreePattern = New ValueTree;
@@ -84,11 +111,20 @@ Function FilterByExchangePlanPropertiesTableInitialization() Export
 	
 EndFunction
 
-// Initializes columns of object registration rule table by properties.
-//
-// Parameters:
-//  No.
+// Initializes columns of object registration rule table by object properties.
 // 
+// Returns:
+//  ValueTree:
+//    * IsFolder - Boolean
+//    * IsANDOperator - Boolean
+//    * ObjectProperty1 - String
+//    * ObjectPropertyKey - String
+//    * ComparisonType - String
+//    * ObjectPropertyType - String
+//    * FilterItemKind - String
+//    * ConstantValue - Arbitrary
+//    * PropertyValue - Arbitrary
+//
 Function FilterByObjectPropertiesTableInitialization() Export
 	
 	TreePattern = New ValueTree;

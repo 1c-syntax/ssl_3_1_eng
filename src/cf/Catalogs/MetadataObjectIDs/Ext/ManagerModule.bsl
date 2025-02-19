@@ -34,7 +34,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// SaaSTechnology.ExportImportData
+// ТехнологияСервиса.ВыгрузкаЗагрузкаДанных
 
 // Returns the catalog attributes that naturally form a catalog item key.
 //
@@ -50,7 +50,7 @@ Function NaturalKeyFields() Export
 	
 EndFunction
 
-// End SaaSTechnology.ExportImportData
+// End CloudTechnology.ExportImportData
 
 #EndRegion
 
@@ -125,6 +125,7 @@ Procedure CheckForUsage(ExtensionsObjects = False) Export
 		Raise ErrorText;
 	EndIf;
 	
+	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
 	If ExchangePlans.MasterNode() = Undefined
@@ -692,8 +693,7 @@ Procedure RunDataUpdate(HasChanges, HasDeletedItems, IsCheckOnly,
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Implementation of procedures declared in other modules.
+#Region ImplementationOfProceduresDeclaredInOtherModules
 
 // See Common.MetadataObjectID.
 Function MetadataObjectID(MetadataObjectDetails, RaiseException1) Export
@@ -897,7 +897,7 @@ Function MetadataObjectsByIDs(IDs, RaiseException1) Export
 EndFunction
 
 // See Common.AddRenaming.
-Procedure AddRenaming(Total, IBVersion, PreviousFullName, NewFullName, LibraryID = "") Export
+Procedure AddRenaming(Renamings, IBVersion, PreviousFullName, NewFullName, LibraryID = "") Export
 	
 	StandardSubsystemsCached.MetadataObjectIDsUsageCheck();
 	
@@ -916,13 +916,13 @@ Procedure AddRenaming(Total, IBVersion, PreviousFullName, NewFullName, LibraryID
 			           |new type: ""%2"".';"),
 			PreviousFullName,
 			NewFullName);
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
-	If Total.CollectionsWithoutKey[PreviousCollectionName] = Undefined Then
+	If Renamings.CollectionsWithoutKey[PreviousCollectionName] = Undefined Then
 		
 		AllowedTypesList = "";
-		For Each KeyAndValue In Total.CollectionsWithoutKey Do
+		For Each KeyAndValue In Renamings.CollectionsWithoutKey Do
 			AllowedTypesList = AllowedTypesList + KeyAndValue.Value + "," + Chars.LF;
 		EndDo;
 		AllowedTypesList = TrimR(AllowedTypesList);
@@ -937,23 +937,23 @@ Procedure AddRenaming(Total, IBVersion, PreviousFullName, NewFullName, LibraryID
 			           |%2.';"),
 			PreviousFullName,
 			AllowedTypesList);
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	If Not ValueIsFilled(LibraryID) Then
 		LibraryID = Metadata.Name;
 	EndIf;
 	
-	LibraryOrder = Total.LibrariesOrder[LibraryID];
+	LibraryOrder = Renamings.LibrariesOrder[LibraryID];
 	If LibraryOrder = Undefined Then
-		LibraryOrder = Total.LibrariesOrder.Count();
-		Total.LibrariesOrder.Insert(LibraryID, LibraryOrder);
+		LibraryOrder = Renamings.LibrariesOrder.Count();
+		Renamings.LibrariesOrder.Insert(LibraryID, LibraryOrder);
 	EndIf;
 	
-	LibraryVersion = Total.LibrariesVersions[LibraryID];
+	LibraryVersion = Renamings.LibrariesVersions[LibraryID];
 	If LibraryVersion = Undefined Then
 		LibraryVersion = InfobaseUpdateInternal.IBVersion(LibraryID);
-		Total.LibrariesVersions.Insert(LibraryID, LibraryVersion);
+		Renamings.LibrariesVersions.Insert(LibraryID, LibraryVersion);
 	EndIf;
 	
 	If LibraryVersion = "0.0.0.0" Then
@@ -965,7 +965,7 @@ Procedure AddRenaming(Total, IBVersion, PreviousFullName, NewFullName, LibraryID
 	If Result > 0 Then
 		VersionParts = StrSplit(IBVersion, ".");
 		
-		RenamingTable = Total.Table; // See RenamingTableForCurrentVersion
+		RenamingTable = Renamings.Table; // See RenamingTableForCurrentVersion
 		RenamingDetails = RenamingTable.Add();
 		RenamingDetails.LibraryOrder = LibraryOrder;
 		RenamingDetails.VersionPart1      = Number(VersionParts[0]);
@@ -979,8 +979,9 @@ Procedure AddRenaming(Total, IBVersion, PreviousFullName, NewFullName, LibraryID
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Additional procedures and functions intended to be called from other modules.
+#EndRegion
+
+#Region AdditionalProceduresAndFunctionsToBeInvokedFromOtherModules
 
 // For internal use only.
 // FullName for the object must be specified and valid.
@@ -1108,14 +1109,14 @@ Function RenamingTableForCurrentVersion() Export
 	EndDo;
 	CollectionsWithoutKey.Insert(Upper("Role"), "Role");
 	
-	Total = New Structure;
-	Total.Insert("Table", RenamingTable);
-	Total.Insert("CollectionsWithoutKey", CollectionsWithoutKey);
-	Total.Insert("LibrariesVersions",  New Map);
-	Total.Insert("LibrariesOrder", New Map);
+	Renamings = New Structure;
+	Renamings.Insert("Table", RenamingTable);
+	Renamings.Insert("CollectionsWithoutKey", CollectionsWithoutKey);
+	Renamings.Insert("LibrariesVersions",  New Map);
+	Renamings.Insert("LibrariesOrder", New Map);
 	
-	CommonOverridable.OnAddMetadataObjectsRenaming(Total);
-	SSLSubsystemsIntegration.OnAddMetadataObjectsRenaming(Total);
+	CommonOverridable.OnAddMetadataObjectsRenaming(Renamings);
+	SSLSubsystemsIntegration.OnAddMetadataObjectsRenaming(Renamings);
 	
 	RenamingTable.Sort(
 		"LibraryOrder ASC,
@@ -1249,7 +1250,7 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.Name             = "ChartsOfAccounts";
 	String.Synonym         = NStr("en = 'Charts of accounts';");
 	String.SingularName     = "ChartOfAccounts";
-	String.SingularSynonym = NStr("en = 'Chart of accounts.';");
+	String.SingularSynonym = NStr("en = 'Chart of accounts';");
 	String.ExtensionsObjects = True;
 	
 	String = Result.Add();
@@ -1257,7 +1258,7 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	String.Name             = "ChartsOfCalculationTypes";
 	String.Synonym         = NStr("en = 'Charts of calculation types';");
 	String.SingularName     = "ChartOfCalculationTypes";
-	String.SingularSynonym = NStr("en = 'Chart of calculation types.';");
+	String.SingularSynonym = NStr("en = 'Chart of calculation types';");
 	String.ExtensionsObjects = True;
 	
 	String = Result.Add();
@@ -1357,7 +1358,7 @@ Procedure BeforeWriteObject(Object) Export
 	SetPrivilegedMode(False);
 	SetSafeModeDisabled(False);
 	
-	// ACC:75-off - "DataExchange.Import" check must follow the change records in the Event log.
+	// ACC:75-off - The DataExchange.Load check must follow the logging of changes.
 	If Common.SeparatedDataUsageAvailable()
 	   And UsersInternalCached.ShouldRegisterChangesInAccessRights()
 	   And Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
@@ -1382,7 +1383,7 @@ EndProcedure
 //
 Procedure AtObjectWriting(Object) Export
 	
-	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
+	// ACC:75-off - The DataExchange.Load check must follow the logging of changes.
 	If Common.SeparatedDataUsageAvailable()
 	   And UsersInternalCached.ShouldRegisterChangesInAccessRights()
 	   And Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
@@ -1481,8 +1482,9 @@ Procedure ItemFormOnCreateAtServer(Form) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+#EndRegion
+
+#Region AuxiliaryProceduresAndFunctions
 
 // For the ImportDataToSubordinateNode procedure.
 // 
@@ -2036,7 +2038,9 @@ Procedure UpdateMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extensions
 				Else
 					// This is not a collection of metadata objects. Example: subsystem.
 					ParentDetails = Upload0.Find(ObjectProperties.FullParentName, "FullName");
-					If ParentDetails <> Undefined Then
+					If ParentDetails = Undefined Then
+						NewParent = ObjectProperties.Parent;
+					Else
 						NewParent = ParentDetails.Ref;
 					EndIf;
 				EndIf;
@@ -2563,46 +2567,51 @@ Procedure AddMetadataObjectProperties(Val MetadataObjectCollection,
 				ExtensionID = NewExtensionId;
 			EndIf;
 		EndIf;
-		If ValueIsFilled(ExtensionName) <> ExtensionsObjects Then
-			Continue;
-		EndIf;
 		
-		If StrFind(CollectionProperties.SingularName, "Subsystem") <> 0 Then
-			MetadataFindByFullName(FullName);
-		EndIf;
+		Synonym = ?(ValueIsFilled(MetadataObject.Synonym),
+			MetadataObject.Synonym, MetadataObject.Name);
 		
-		If Not CollectionProperties.NoData
-		   And Not StandardSubsystemsServer.IsRegisterTable(CollectionProperties.SingularName)
-		   And StrFind(CollectionProperties.SingularName, "Constant") = 0 Then
+		FullSynonym = ParentFullSynonym
+			+ CollectionProperties.SingularSynonym + ". " + Synonym;
+		
+		If ValueIsFilled(ExtensionName) = ExtensionsObjects Then
 			
-			RefTypeName1 = CollectionProperties.SingularName + "Ref." + MetadataObject.Name;
-			TypeDetails = New TypeDescription(RefTypeName1);
-			EmptyRefValue = TypeDetails.AdjustValue(Undefined);
-		Else
-			EmptyRefValue = Undefined;
+			If Not CollectionProperties.NoData
+			   And Not StandardSubsystemsServer.IsRegisterTable(CollectionProperties.SingularName)
+			   And StrFind(CollectionProperties.SingularName, "Constant") = 0 Then
+				
+				RefTypeName1 = CollectionProperties.SingularName + "Ref." + MetadataObject.Name;
+				TypeDetails = New TypeDescription(RefTypeName1);
+				EmptyRefValue = TypeDetails.AdjustValue(Undefined);
+			Else
+				EmptyRefValue = Undefined;
+			EndIf;
+			
+			NewRow = MetadataObjectProperties1.Add();
+			FillPropertyValues(NewRow, CollectionProperties);
+			NewRow.Parent          = CollectionID(CollectionProperties.Id, ExtensionsObjects);
+			NewRow.Description      = MetadataObjectPresentation(MetadataObject, CollectionProperties);
+			NewRow.FullName         = FullName;
+			NewRow.FullParentName = FullParentName;
+			NewRow.Name               = MetadataObject.Name;
+			NewRow.Synonym           = Synonym;
+			NewRow.FullSynonym     = FullSynonym;
+			NewRow.EmptyRefValue    = EmptyRefValue;
+			NewRow.MetadataObject        = MetadataObject;
+			NewRow.ExtensionName           = ExtensionName;
+			NewRow.ExtensionID = ExtensionID;
+			NewRow.ExtensionHashsum      = ExtensionHashsum;
+			
+			PredefinedItemName = StrReplace(FullName, ".", "");
+			If PredefinedItemsNames.Get(PredefinedItemName) <> Undefined Then
+				NewRow.PredefinedDataName = PredefinedItemName;
+				PredefinedItemsNames.Insert(PredefinedItemName, True);
+			EndIf;
 		EndIf;
 		
-		NewRow = MetadataObjectProperties1.Add();
-		FillPropertyValues(NewRow, CollectionProperties);
-		NewRow.Parent          = CollectionID(CollectionProperties.Id, ExtensionsObjects);
-		NewRow.Description      = MetadataObjectPresentation(MetadataObject, CollectionProperties);
-		NewRow.FullName         = FullName;
-		NewRow.FullParentName = FullParentName;
-		NewRow.Name               = MetadataObject.Name;
-		
-		NewRow.Synonym = ?(
-			ValueIsFilled(MetadataObject.Synonym), MetadataObject.Synonym, MetadataObject.Name);
-		
-		NewRow.FullSynonym =
-			ParentFullSynonym + CollectionProperties.SingularSynonym + ". " + NewRow.Synonym;
-		
-		NewRow.EmptyRefValue    = EmptyRefValue;
-		NewRow.MetadataObject        = MetadataObject;
-		NewRow.ExtensionName           = ExtensionName;
-		NewRow.ExtensionID = ExtensionID;
-		NewRow.ExtensionHashsum      = ExtensionHashsum;
-		
-		If CollectionProperties.Name = "Subsystems" Then
+		If CollectionProperties.Name = "Subsystems"
+		   And (ExtensionsObjects Or Not ValueIsFilled(ExtensionName)) Then
+			
 			AddMetadataObjectProperties(
 				MetadataObject.Subsystems,
 				CollectionProperties,
@@ -2610,12 +2619,7 @@ Procedure AddMetadataObjectProperties(Val MetadataObjectCollection,
 				ExtensionKeyIds,
 				PredefinedItemsNames,
 				FullName,
-				NewRow.FullSynonym + ". ");
-		EndIf;
-		PredefinedItemName = StrReplace(FullName, ".", "");
-		If PredefinedItemsNames.Get(PredefinedItemName) <> Undefined Then
-			NewRow.PredefinedDataName = PredefinedItemName;
-			PredefinedItemsNames.Insert(PredefinedItemName, True);
+				FullSynonym + ". ");
 		EndIf;
 	EndDo;
 	
@@ -2925,7 +2929,7 @@ Function CollectionName(FullName)
 	
 EndFunction
 
-// This method is required by UpdateData and BeforeWriteObject procedures.
+// For the RunDataUpdate and BeforeWriteObject procedures.
 Procedure CheckObjectBeforeWrite(Object, AutoUpdate = False)
 	
 	ExtensionsObjects = IsExtensionsObject(Object);
@@ -3084,7 +3088,7 @@ Function ExtensionNames(ExtensionSource, ExtensionKeyIds)
 	
 EndFunction
 
-// This method is required by UpdateData procedure.
+// Required by procedure "UpdateData".
 Procedure AddNamesOfUnconnectedExtensionsInSessionWithoutDelimiters(ExtensionProperties, DatabaseExtensions)
 	
 	If Not StandardSubsystemsServer.ThisIsSplitSessionModeWithNoDelimiters() Then
@@ -3115,12 +3119,8 @@ Function MetadataObjectIDsWithRetryAttempt(FullMetadataObjectsNames, RaiseExcept
 	StandardSubsystemsCached.MetadataObjectIDsUsageCheck(True,
 		Common.SeparatedDataUsageAvailable());
 	
-	Try
-		IDs = MetadataObjectIDsWithoutRetryAttempt(
-			FullMetadataObjectsNames, True, OneItem, Not RaiseException1);
-	Except
-		IDs = Undefined;
-	EndTry;
+	IDs = MetadataObjectIDsWithoutRetryAttempt(
+		FullMetadataObjectsNames, RaiseException1, OneItem, True);
 	
 	If IDs = Undefined Then
 		UpdateIsCompleted = UpdateIDCatalogs();
@@ -3140,7 +3140,7 @@ Function MetadataObjectIDsWithRetryAttempt(FullMetadataObjectsNames, RaiseExcept
 		EndIf;
 		
 		IDs = MetadataObjectIDsWithoutRetryAttempt(
-			FullMetadataObjectsNames, RaiseException1, OneItem, Not RaiseException1);
+			FullMetadataObjectsNames, RaiseException1, OneItem);
 	EndIf;
 	
 	Return IDs;
@@ -3149,8 +3149,9 @@ EndFunction
 
 // This method is required by MetadataObjectIDs function.
 Function MetadataObjectIDsWithoutRetryAttempt(FullMetadataObjectsNames,
-			RaiseException1, OneItem, SkipUnsupportedObjects)
+			RaiseException1, OneItem, FirstAttempt = False)
 	
+	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
 	ExtensionObjectIDsAvailable =
@@ -3251,7 +3252,7 @@ Function MetadataObjectIDsWithoutRetryAttempt(FullMetadataObjectsNames,
 			   And Not Metadata.Tasks.Contains(MetadataObject)
 			   And Not IsSubsystem(MetadataObject) Then
 				
-				If SkipUnsupportedObjects Then
+				If Not RaiseException1 Then
 					Continue;
 				EndIf;
 				ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
@@ -3342,6 +3343,10 @@ Function MetadataObjectIDsWithoutRetryAttempt(FullMetadataObjectsNames,
 		
 		Result.Insert(FullMetadataObjectName, TableRow.Ref);
 	EndDo;
+	
+	If FirstAttempt And AddApplicationDeveloperParametersErrorClarification Then
+		Return Undefined;
+	EndIf;
 	
 	ErrorsCount = Errors.Count();
 	If ErrorsCount > 0 Then
@@ -3513,19 +3518,11 @@ Function MetadataObjectsByIDsWithRetryAttempt(IDs, RaiseException1)
 	EndIf;
 	
 	If ConfigurationIDs.Count() > 0 Or ExtensionsIDs.Count() > 0 Then
-		Try
-			MetadataObjects = MetadataObjectsByIDsWithoutRetryAttempt(IDs,
-				ConfigurationIDs, ExtensionsIDs, RaiseException1);
-		Except
-			If Not Common.DataSeparationEnabled()
-			 Or Not Common.SeparatedDataUsageAvailable() Then
-				// If an error occurs, update the catalog (if possible),
-				// and retry to receive the ID.
-				MetadataObjects = Undefined;
-			Else
-				Raise;
-			EndIf;
-		EndTry;
+		FirstAttempt = Not Common.DataSeparationEnabled()
+			Or Not Common.SeparatedDataUsageAvailable();
+		
+		MetadataObjects = MetadataObjectsByIDsWithoutRetryAttempt(IDs,
+			ConfigurationIDs, ExtensionsIDs, RaiseException1, FirstAttempt);
 	Else
 		MetadataObjects = New Map;
 	EndIf;
@@ -3549,8 +3546,9 @@ EndFunction
 
 // This method is required by MetadataObjectsByIDsWithRetryAttempt function.
 Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
-			ConfigurationIDs, ExtensionsIDs, RaiseException1)
+			ConfigurationIDs, ExtensionsIDs, RaiseException1, FirstAttempt = False)
 	
+	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
 	Query = New Query;
@@ -3630,7 +3628,7 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 		If RaiseException1 Then
 			If ExtensionsIDs.Find(Id) = Undefined Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'The object ""%1"" was deleted from this app version.
+					NStr("en = 'The object ""%1"" was removed in this version of the application.
 					           |The related data and settings are no longer available.';"),
 					String(Id));
 			Else
@@ -3693,14 +3691,14 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 					ElsIf Not InstalledExtensions[0].Active Then
 						ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 							NStr("en = 'The extension ""%1"" is installed but disabled.
-							           |Enable the extensions and restart the app.';"),
+							           |Enable the extension and restart the application.';"),
 							ExtensionName);
 						
 					ElsIf DetachedExtensions.Count() > 0 And Not DetachedExtensions[0].Active
 					      Or DetachedExtensions.Count() = 0 And ActiveExtensions.Count() = 0 Then
 						
 						ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'The extension ""%1"" is installed but the app requires a restart.%1Restart the app.';"),
+							NStr("en = 'The extension ""%1"" is installed, but the application requires a restart.%1Restart the application.';"),
 							ExtensionName);
 						
 					ElsIf DetachedExtensions.Count() > 0 And DetachedExtensions[0].Active Then
@@ -3767,7 +3765,7 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 					Raise ErrorText;
 				Else
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'The object ""%1"" does not exist as it was removed from the current app version.
+						NStr("en = 'The object ""%1"" does not exist as it was removed in this version of the application.
 						           |The related data and settings are no longer available.';"),
 						IDPresentation);
 					Raise ErrorText;
@@ -3777,12 +3775,15 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 				// The metadata object might have been renamed.
 				ErrorDescription = "";
 			Else
+				If FirstAttempt Then
+					Return Undefined;
+				EndIf;
 				ErrorDescription =  StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'The id ""%1"" from the catalog ""%2""
 					           |corresponds with the metadata object ""%3"", whose full name
 					           |does not match the full name in the id.';"),
 					Properties.Presentation,
-					CatalogDescription(Properties.ExtensionObject),
+					CatalogDescription(False),
 					CheckResult.MetadataObject.FullName())
 					+ StandardSubsystemsServer.ApplicationRunParameterErrorClarificationForDeveloper();
 			EndIf;
@@ -3794,10 +3795,13 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 		EndIf;
 		
 		If Not Properties.ExtensionObject And Properties.DeletionMark And Not DataBaseConfigurationChangedDynamically Then
+			If FirstAttempt Then
+				Return Undefined;
+			EndIf;
 			ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The id ""%1"" from the catalog ""%2"" is marked for deletion.';"),
 				Properties.Presentation,
-				CatalogDescription(Properties.ExtensionObject));
+				CatalogDescription(False));
 			
 			ErrorText = ErrorTitle + Chars.LF + Chars.LF + ErrorDescription
 				+ StandardSubsystemsServer.ApplicationRunParameterErrorClarificationForDeveloper();
@@ -3839,11 +3843,11 @@ EndFunction
 //
 Function MetadataObjectIDCache(CachedDataKey) Export
 	
-	Store = New Structure;
-	Store.Insert("IDsByFullNames", New Map);
-	Store.Insert("DetailsOfMetadataObjectsByIDs", New Map);
+	Storage = New Structure;
+	Storage.Insert("IDsByFullNames", New Map);
+	Storage.Insert("DetailsOfMetadataObjectsByIDs", New Map);
 	
-	Return New FixedStructure(Store);
+	Return New FixedStructure(Storage);
 	
 EndFunction
 
@@ -3926,8 +3930,9 @@ Function IDPresentation(Ref) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for replacing IDs in databases.
+#EndRegion
+
+#Region ProceduresAndFunctionsToReplaceIDInDatabase
 
 Procedure ReplaceSubordinateNodeDuplicatesFoundOnImport(IsCheckOnly, HasChanges)
 	
@@ -4027,7 +4032,7 @@ EndProcedure
 // Changes:
 // - operations with the progress bar form are no longer supported;
 // - the UserInterruptProcessing procedure is deleted;
-// - the InformationRegisters[СтрокаТаблицы.Метаданные.Имя] is replaced with
+// - the InformationRegisters[TableRow.Metadata.Name] is replaced with
 //   Common.ObjectManagerByFullName(TableRow.Metadata.FullName()).
 //
 Function ExecuteItemReplacement(Val Replaceable, Val RefsTable, Val DisableWriteControl = False, Val ExtensionsObjects = False)
@@ -4515,6 +4520,8 @@ Procedure ReportError(Val LongDesc, ExtensionsObjects)
 		EventLogEntryTransactionMode.Independent);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 

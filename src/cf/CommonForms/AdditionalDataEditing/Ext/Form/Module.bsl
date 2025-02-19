@@ -38,7 +38,7 @@ EndProcedure
 &AtClient
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
-	Notification = New NotifyDescription("WriteAndCloseCompletion", ThisObject);
+	Notification = New CallbackDescription("WriteAndCloseCompletion", ThisObject);
 	CommonClient.ShowFormClosingConfirmation(Notification, Cancel, Exit);
 	
 EndProcedure
@@ -107,6 +107,13 @@ Procedure PropertyValueTableBeforeRowChange(Item, Cancel)
 			?(ValueIsFilled(String.AdditionalValuesOwner),
 				String.AdditionalValuesOwner, String.Property)));
 	EndIf;
+	
+	If String.ValueType.ContainsType(Type("CatalogRef.ObjectsPropertiesValues")) Then
+		Items.PropertyValueTableValue.ChoiceFoldersAndItems = FoldersAndItems.Items;
+	Else
+		Items.PropertyValueTableValue.ChoiceFoldersAndItems = FoldersAndItems.FoldersAndItems;
+	EndIf;
+	
 	Items.PropertyValueTableValue.ChoiceParameters = New FixedArray(ChoiceParametersArray1);
 EndProcedure
 

@@ -119,7 +119,7 @@ Procedure RequestPasswordForAuthenticationInService()
 	StandardSubsystemsClient.SetFormStorageOption(ThisObject, False);
 	
 	UsersInternalClient.RequestPasswordForAuthenticationInService(
-		New NotifyDescription("OnOpenFollowUp", ThisObject));
+		New CallbackDescription("OnOpenFollowUp", ThisObject));
 	
 EndProcedure
 

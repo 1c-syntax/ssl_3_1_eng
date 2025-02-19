@@ -84,8 +84,7 @@ EndProcedure
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Update of application parameters and shared data in SaaS mode.
+#Region UpdateAppSettingsAndSharedDataInService
 
 &AtClient
 Procedure ImportUpdateApplicationParameters(Var_Parameters) Export
@@ -120,15 +119,18 @@ Procedure StartApplicationParametersImport()
 		Result = New Structure("Status", ExecutionResult);
 		StartUpdateExtensionVersionParameters(Result, AdditionalParameters);
 		Return;
+		
+	ElsIf ExecutionResult = "SessionTerminationRequired" Then
+		Terminate(False);
 	EndIf;
 	
-	CallbackOnCompletion = New NotifyDescription("StartUpdateApplicationParameters",
+	CallbackOnCompletion = New CallbackDescription("StartUpdateApplicationParameters",
 		ThisObject, AdditionalParameters);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	IdleParameters.Interval = 1;
 	IdleParameters.OutputProgressBar = True;
-	IdleParameters.ExecutionProgressNotification = New NotifyDescription("ApplicationParametersUpdateProgress", ThisObject); 
+	IdleParameters.ExecutionProgressNotification = New CallbackDescription("ApplicationParametersUpdateProgress", ThisObject); 
 	TimeConsumingOperationsClient.WaitCompletion(ExecutionResult, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
@@ -145,22 +147,30 @@ Function ImportApplicationParametersInBackground()
 	EndIf;
 	
 	StartupParameters = StandardSubsystemsServer.ClientParametersAtServer().Get("LaunchParameter");
-	If Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate")
-		And StrFind(StartupParameters, "UpdateAndExit") = 0 Then
+	
+	If Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate") Then
+		If StrFind(StartupParameters, "EnablePatchesAndExit") <> 0 Then
+			ModuleConfigurationUpdate = Common.CommonModule("ConfigurationUpdate");
+			ModuleConfigurationUpdate.EnableApplicablePatches();
+			Return "SessionTerminationRequired";
+		EndIf;
+		
+		If StrFind(StartupParameters, "UpdateAndExit") = 0 Then
 		// When running an update from a script, the script deletes outdated patches.
 		// 
-		ModuleConfigurationUpdate = Common.CommonModule("ConfigurationUpdate");
-		Try
-			Result = ModuleConfigurationUpdate.PatchesChanged();
-		Except
-			ErrorInfo = ErrorInfo();
-			AdditionalParameters = New Structure;
-			AdditionalParameters.Insert("ErrorDeletingFixes");
-			AdditionalParameters.Insert("ErrorInfo", ErrorInfo);
-			Return AdditionalParameters;
-		EndTry;
-		If Result.HasChanges Then
-			Return "SessionRestartRequired";
+			ModuleConfigurationUpdate = Common.CommonModule("ConfigurationUpdate");
+			Try
+				Result = ModuleConfigurationUpdate.PatchesChanged();
+			Except
+				ErrorInfo = ErrorInfo();
+				AdditionalParameters = New Structure;
+				AdditionalParameters.Insert("ErrorDeletingFixes");
+				AdditionalParameters.Insert("ErrorInfo", ErrorInfo);
+				Return AdditionalParameters;
+			EndTry;
+			If Result.HasChanges Then
+				Return "SessionRestartRequired";
+			EndIf;
 		EndIf;
 	EndIf;
 	
@@ -224,13 +234,13 @@ Procedure StartUpdateApplicationParameters(Result, AdditionalParameters) Export
 	
 	AdditionalParameters = New Structure("BriefErrorDescription, DetailErrorDescription");
 	
-	CallbackOnCompletion = New NotifyDescription("StartUpdateExtensionVersionParameters",
+	CallbackOnCompletion = New CallbackDescription("StartUpdateExtensionVersionParameters",
 		ThisObject, AdditionalParameters);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	IdleParameters.Interval = 1;
 	IdleParameters.OutputProgressBar = True;
-	IdleParameters.ExecutionProgressNotification = New NotifyDescription("ApplicationParametersUpdateProgress", ThisObject); 
+	IdleParameters.ExecutionProgressNotification = New CallbackDescription("ApplicationParametersUpdateProgress", ThisObject); 
 	TimeConsumingOperationsClient.WaitCompletion(ExecutionResult, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
@@ -274,19 +284,21 @@ Procedure StartUpdateExtensionVersionParameters(Result, AdditionalParameters) Ex
 	
 	AdditionalParameters = New Structure("BriefErrorDescription, DetailErrorDescription");
 	
-	CallbackOnCompletion = New NotifyDescription("CompleteUpdatingApplicationParameters",
+	CallbackOnCompletion = New CallbackDescription("CompleteUpdatingApplicationParameters",
 		ThisObject, AdditionalParameters);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	IdleParameters.Interval = 1;
 	IdleParameters.OutputProgressBar = True;
-	IdleParameters.ExecutionProgressNotification = New NotifyDescription("ApplicationParametersUpdateProgress", ThisObject); 
+	IdleParameters.ExecutionProgressNotification = New CallbackDescription("ApplicationParametersUpdateProgress", ThisObject); 
 	TimeConsumingOperationsClient.WaitCompletion(ExecutionResult, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
 
 &AtServer
 Function UpdateExtensionVersionParametersInBackground()
+	
+	InfobaseUpdateInternal.SetAreApplicationParametersBeforeInfobaseUpdateUpdated();
 	
 	If Not Common.SeparatedDataUsageAvailable() Then
 		Return "ExtensionVersionParametersUpdateNotRequired";
@@ -336,7 +348,7 @@ Procedure CompleteUpdatingApplicationParameters(Result, AdditionalParameters) Ex
 	If Not UpdateApplicationParametersOnly
 	   And CommonClient.SeparatedDataUsageAvailable() Then
 		
-		ExecuteNotifyProcessing(ContinuationParameters.ContinuationHandler);
+		RunCallback(ContinuationParameters.ContinuationHandler);
 		Return;
 	EndIf;
 		
@@ -362,8 +374,9 @@ Procedure CompleteUpdatingApplicationParameters(Result, AdditionalParameters) Ex
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Infobase update (entire infobase update in local mode, or data area update in SaaS mode).
+#EndRegion
+
+#Region UpdateInfobaseAllInLocalModeAndDataAreaInService
 
 &AtClient
 Procedure UpdateInfobase1() Export
@@ -391,12 +404,12 @@ Procedure StartInfobaseUpdate1()
 		ContinuationProcedure = "CompleteInfobaseUpdate";
 	EndIf;
 	
-	CallbackOnCompletion = New NotifyDescription(ContinuationProcedure, ThisObject);
+	CallbackOnCompletion = New CallbackDescription(ContinuationProcedure, ThisObject);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	IdleParameters.OutputProgressBar = True;
 	IdleParameters.OutputMessages = True;
-	IdleParameters.ExecutionProgressNotification = New NotifyDescription("InfobaseUpdateProgress", ThisObject); 
+	IdleParameters.ExecutionProgressNotification = New CallbackDescription("InfobaseUpdateProgress", ThisObject); 
 	TimeConsumingOperationsClient.WaitCompletion(IBUpdateResult, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
@@ -522,7 +535,7 @@ Procedure UpdateInfobaseWhenCannotSetExclusiveMode(AdditionalParameters)
 	EndIf;
 	
 	// Opening a form for disabling active sessions.
-	Notification = New NotifyDescription("UpdateInfobaseWhenCannotSetExclusiveModeCompletion",
+	Notification = New CallbackDescription("UpdateInfobaseWhenCannotSetExclusiveModeCompletion",
 		ThisObject, AdditionalParameters);
 	
 	ModuleIBConnectionsClient = CommonClient.CommonModule("IBConnectionsClient");
@@ -598,8 +611,9 @@ Procedure CloseForm(Cancel, Restart)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Registering data for the parallel deferred update.
+#EndRegion
+
+#Region RegisteringDataForParallelDeferredUpdate
 
 // Parameters:
 //  Result - See TimeConsumingOperationsClient.NewResultLongOperation
@@ -610,20 +624,20 @@ Procedure RegisterDataForDeferredUpdate(Result, AdditionalParameters) Export
 	
 	UpdateResult = GetFromTempStorage(Result.ResultAddress);
 	
-	CompletionProcessing = New NotifyDescription("CompleteInfobaseUpdate", ThisObject, Result);
+	CompletionProcessing = New CallbackDescription("CompleteInfobaseUpdate", ThisObject, Result);
 	UpdateExecutionResult = Result;
 	If Result.Status <> "Completed2"
 		Or (TypeOf(UpdateResult) = Type("Structure")
 			And UpdateResult.Property("BriefErrorDescription")
 			And UpdateResult.Property("DetailErrorDescription")) Then
-		ExecuteNotifyProcessing(CompletionProcessing, UpdateExecutionResult);
+		RunCallback(CompletionProcessing, UpdateExecutionResult);
 		Return;
 	EndIf;
 	
 	RegistrationState = FillDataForParallelDeferredUpdate();
 	If RegistrationState.Status <> "Running" Then
 		FillPropertyValues(UpdateExecutionResult, RegistrationState, "Status,BriefErrorDescription,DetailErrorDescription");
-		ExecuteNotifyProcessing(CompletionProcessing, UpdateExecutionResult);
+		RunCallback(CompletionProcessing, UpdateExecutionResult);
 	Else
 		JobID = RegistrationState.JobID;
 		AttachIdleHandler("Attachable_CheckDeferredHandlerFillingProcedures", 5);
@@ -727,7 +741,7 @@ Procedure Attachable_CheckDeferredHandlerFillingProcedures()
 	
 	If Result.Status <> "Running" Then
 		FillPropertyValues(UpdateExecutionResult, Result);
-		ExecuteNotifyProcessing(CompletionProcessing, UpdateExecutionResult);
+		RunCallback(CompletionProcessing, UpdateExecutionResult);
 		DetachIdleHandler("Attachable_CheckDeferredHandlerFillingProcedures");
 	EndIf;
 	
@@ -785,8 +799,9 @@ Function CheckDeferredHandlerFillingProcedures(ControllingBackgroundJobExecution
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Common procedures for all stages.
+#EndRegion
+
+#Region CommonProceduresForAllStages
 
 &AtClient
 Procedure BeginClose() Export
@@ -807,7 +822,7 @@ EndProcedure
 &AtClient
 Procedure FailedUpdateMessage(AdditionalParameters, UpdateEndTime)
 	
-	NotifyDescription = New NotifyDescription("UpdateInfobaseActionsOnError", ThisObject);
+	NotifyDescription = New CallbackDescription("UpdateInfobaseActionsOnError", ThisObject);
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("ErrorInfo",         AdditionalParameters.ErrorInfo);
@@ -881,5 +896,7 @@ Function ProcessedTimeConsumingOperationResult(Result, Operation)
 	Return InformationRegisters.ApplicationRuntimeParameters.ProcessedTimeConsumingOperationResult(Result, Operation);
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion

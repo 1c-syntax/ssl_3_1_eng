@@ -21,6 +21,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.FilesAuthor.Enabled = False;
 	EndIf;
 	
+	CloudServices = New ValueList();
+	FilesOperationsLocalization.OnDefineCloudServices(CloudServices);
+	For Each CloudService In CloudServices Do
+		Items.Service.ChoiceList.Insert(0, CloudService.Value, CloudService.Presentation);
+	EndDo;
+	
 	AutoDescription = IsBlankString(Object.Description); 
 	If Not IsBlankString(Object.Description) Then
 		Items.AsFilesAuthor.ChoiceList[0].Presentation =
@@ -115,7 +121,7 @@ Procedure CheckSettings(Command)
 	ClearMessages();
 	
 	If Object.Ref.IsEmpty() Or Modified Then
-		NotifyDescription = New NotifyDescription("CheckSettingsCompletion", ThisObject);
+		NotifyDescription = New CallbackDescription("CheckSettingsCompletion", ThisObject);
 		QueryText = NStr("en = 'To proceed with the settings validation, save the account data. Do you want to continue?';");
 		Buttons = New ValueList;
 		Buttons.Add("Continue", NStr("en = 'Continue';"));

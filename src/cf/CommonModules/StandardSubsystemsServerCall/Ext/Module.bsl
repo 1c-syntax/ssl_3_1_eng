@@ -50,7 +50,7 @@ Procedure HideDesktopOnStart(Hide = True) Export
 	If Hide Then
 		If TypeOf(SavedSettings) <> Type("ValueStorage") Then
 			CurrentSettings = SystemSettingsStorage.Load(ObjectKey);
-			SavingSettings = New ValueStorage(CurrentSettings);
+			SavingSettings = New ValueStorage(CurrentSettings, New Deflation(9));
 			SystemSettingsStorage.Save(StorageObjectKey, "", SavingSettings);
 		EndIf;
 		StandardSubsystemsServer.SetBlankFormOnHomePage();
@@ -118,16 +118,24 @@ EndFunction
 
 #Region Private
 
-// Returns the structure of parameters required for the operation of the client code configuration,
+// Returns the structure of parameters required for the operation of client-side code configuration,
 // that is in the BeforeStart, OnStart event handlers.
 //
 // To be called only from StandardSubsystemsClientCached.ClientParametersOnStart.
 //
 Function ClientParametersOnStart(Parameters) Export
 	
+	CommonStartTime = CurrentUniversalDateInMilliseconds();
+	Indicators = ?(StandardSubsystemsClientServer.RegisterPerformanceIndicators(),
+		New Array, Undefined);
+	
 	NewParameters = New Structure;
 	AddTimeAdjustments(NewParameters, Parameters);
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	HandleClientParametersAtServer(Parameters);
+	StandardSubsystemsServer.AddMainIndicator(Indicators, StartMoment,
+		"StandardSubsystemsServerCall.HandleClientParametersAtServer");
 	
 	StoreTempParameters(Parameters);
 	CommonClientServer.SupplementStructure(Parameters, NewParameters);
@@ -136,52 +144,127 @@ Function ClientParametersOnStart(Parameters) Export
 		If Not Parameters.Property("SkipClearingDesktopHiding") Then
 			// Update the desktop's hide state if the previous startup crashed
 			// before running a restoration with the built-in mechanisms.
+			StartMoment = CurrentUniversalDateInMilliseconds();
 			HideDesktopOnStart(Undefined);
+			StandardSubsystemsServer.AddMainIndicator(Indicators, StartMoment,
+				"StandardSubsystemsServerCall.HideDesktopOnStart");
 		EndIf;
 	EndIf;
 	
-	If Not StandardSubsystemsServer.AddClientParametersOnStart(Parameters) Then
-		Return FixedClientParametersWithoutTemporaryParameters(Parameters);
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	AllAdded = StandardSubsystemsServer.AddClientParametersOnStart(Parameters);
+	StandardSubsystemsServer.AddMainIndicator(Indicators, StartMoment,
+		"StandardSubsystemsServer.AddClientParametersOnStart", Parameters);
+	
+	If Not AllAdded Then
+		Result = FixedClientParametersWithoutTemporaryParameters(Parameters, Indicators);
+		StandardSubsystemsServer.AddMainIndicator(Indicators, CommonStartTime,
+			"StandardSubsystemsServerCall.ClientParametersOnStart",, True);
+		Return Result;
 	EndIf;
 	
 	If Parameters.SeparatedDataUsageAvailable Then
+		StartMoment = CurrentUniversalDateInMilliseconds();
 		UsersInternal.OnAddClientParametersOnStart(Parameters, Undefined, False);
+		StandardSubsystemsServer.AddMainIndicator(Indicators, StartMoment,
+			"UsersInternal.OnAddClientParametersOnStart(,,False)");
 	EndIf;
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	SSLSubsystemsIntegration.OnAddClientParametersOnStart(Parameters);
+	StandardSubsystemsServer.AddMainIndicator(Indicators, StartMoment,
+		"SSLSubsystemsIntegration.OnAddClientParametersOnStart", Parameters);
 	
 	If Parameters.SeparatedDataUsageAvailable Then
 		AppliedParameters = New Structure;
+		StartMoment = CurrentUniversalDateInMilliseconds();
 		CommonOverridable.OnAddClientParametersOnStart(AppliedParameters);
+		StandardSubsystemsServer.AddMainIndicator(Indicators, StartMoment,
+			"CommonOverridable.OnAddClientParametersOnStart", AppliedParameters);
 		For Each Parameter In AppliedParameters Do
 			Parameters.Insert(Parameter.Key, Parameter.Value);
 		EndDo;
 	EndIf;
 	
-	Return FixedClientParametersWithoutTemporaryParameters(Parameters);
+	Result = FixedClientParametersWithoutTemporaryParameters(Parameters, Indicators);
+	StandardSubsystemsServer.AddMainIndicator(Indicators, CommonStartTime,
+		"StandardSubsystemsServerCall.ClientParametersOnStart",, True);
+	
+	Return Result;
 	
 EndFunction
 
-// Returns the structure of parameters required for the operation of the client code configuration. 
+// Returns the structure of parameters required for the operation of client-side code configuration. 
 // To be called only from StandardSubsystemsClientCached.ClientRunParameters.
 //
 Function ClientRunParameters(ClientProperties) Export
 	
+	CommonStartTime = CurrentUniversalDateInMilliseconds();
+	Indicators = ?(StandardSubsystemsClientServer.RegisterPerformanceIndicators(),
+		New Array, Undefined);
+	
 	Parameters = New Structure;
 	AddTimeAdjustments(Parameters, ClientProperties);
-	HandleClientParametersAtServer(ClientProperties);
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	HandleClientParametersAtServer(ClientProperties);
+	StandardSubsystemsServer.AddMainIndicator(Indicators, StartMoment,
+		"StandardSubsystemsServerCall.HandleClientParametersAtServer");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	SSLSubsystemsIntegration.OnAddClientParameters(Parameters);
+	StandardSubsystemsServer.AddMainIndicator(Indicators, StartMoment,
+		"SSLSubsystemsIntegration.OnAddClientParameters", Parameters);
 	
 	AppliedParameters = New Structure;
+	StartMoment = CurrentUniversalDateInMilliseconds();
 	CommonOverridable.OnAddClientParameters(AppliedParameters);
+	StandardSubsystemsServer.AddMainIndicator(Indicators, StartMoment,
+		"CommonOverridable.OnAddClientParameters", Parameters);
 	For Each Parameter In AppliedParameters Do
 		Parameters.Insert(Parameter.Key, Parameter.Value);
 	EndDo;
 	
-	Return Common.FixedData(Parameters);
+	Result = New Structure(Common.FixedData(Parameters));
+	Result.Insert("PerformanceIndicators_", Indicators);
+	StandardSubsystemsServer.AddMainIndicator(Indicators, CommonStartTime,
+		"StandardSubsystemsServerCall.ClientRunParameters",, True);
+	
+	Return New FixedStructure(Result);
 	
 EndFunction
+
+// Parameters:
+//  OnStart - Boolean
+//  Indicators - String
+//  СтекВызова - String
+//
+Procedure WritePerformanceIndicators(Val OnStart, Val Indicators, Val СтекВызова) Export
+	
+	EventName = ?(OnStart,
+		NStr("en = 'Параметры работы клиента при запуске.Показатели производительности';",
+			Common.DefaultLanguageCode()),
+		NStr("en = 'Параметры работы клиента.Показатели производительности';",
+			Common.DefaultLanguageCode()));
+	
+	Comment = Indicators + Chars.LF + Chars.LF + СтекВызова;
+	
+	WriteLogEvent(EventName,
+		EventLogLevel.Information,,, Comment);
+	
+	If Common.SubsystemExists("CloudTechnology") Then
+		ИмяСобытияСтек = ?(OnStart,
+			NStr("en = 'Параметры работы клиента при запуске.Стек вызова';",
+				Common.DefaultLanguageCode()),
+			NStr("en = 'Параметры работы клиента.Стек вызова';",
+				Common.DefaultLanguageCode()));
+		
+		ModuleCommonCTL = Common.CommonModule("CommonCTL");
+		ModuleCommonCTL.TechnologyLogEntry(EventName, Indicators);
+		ModuleCommonCTL.TechnologyLogEntry(ИмяСобытияСтек, СтекВызова);
+	EndIf;
+	
+EndProcedure
 
 // See SaaSOperations.SignInToDataArea.
 Procedure SignInToDataArea(Val DataArea) Export
@@ -231,7 +314,7 @@ Procedure WriteErrorToEventLogOnStartOrExit(Shutdown, Val Event, Val ErrorText) 
 		EndIf;
 	Else
 		EventName = NStr("en = 'Exit';", Common.DefaultLanguageCode());
-		ErrorDescriptionBeginning = NStr("en = 'Exception occurred while exiting the app:';");
+		ErrorDescriptionBeginning = NStr("en = 'Exception occurred while exiting the application:';");
 	EndIf;
 	
 	ErrorDescription = ErrorDescriptionBeginning + Chars.LF + Chars.LF + ErrorText;
@@ -288,8 +371,7 @@ Function NamesOfClientModules() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Predefined data processing.
+#Region PredefinedDataManagement
 
 // See StandardSubsystemsCached.RefsByPredefinedItemsNames
 Function RefsByPredefinedItemsNames(FullMetadataObjectName) Export
@@ -298,8 +380,9 @@ Function RefsByPredefinedItemsNames(FullMetadataObjectName) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// For the MetadataObjectIDs catalog.
+#EndRegion
+
+#Region ForMetadataObjectIDsCatalog
 
 // See Catalogs.MetadataObjectIDs.IDPresentation
 Function MetadataObjectIDPresentation(Ref) Export
@@ -308,8 +391,9 @@ Function MetadataObjectIDPresentation(Ref) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// AUXILIARY PROCEDURES AND FUNCTIONS
+#EndRegion
+
+#Region AuxiliaryProceduresAndFunctions
 
 Procedure AddTimeAdjustments(Parameters, ClientProperties)
 	
@@ -391,7 +475,7 @@ Procedure HandleClientParametersAtServer(Val Parameters)
 
 EndProcedure
 
-Function FixedClientParametersWithoutTemporaryParameters(Parameters)
+Function FixedClientParametersWithoutTemporaryParameters(Parameters, Indicators)
 	
 	ClientParameters = Parameters;
 	Parameters = New Structure;
@@ -406,7 +490,9 @@ Function FixedClientParametersWithoutTemporaryParameters(Parameters)
 		StandardSubsystemsServer.ClientParametersAtServer(False).Get(
 			"HideDesktopOnStart") <> Undefined;
 	
-	Return Common.FixedData(ClientParameters);
+	Result = New Structure(Common.FixedData(ClientParameters));
+	Result.Insert("PerformanceIndicators_", Indicators);
+	Return New FixedStructure(Result);
 	
 EndFunction
 
@@ -424,5 +510,7 @@ Function AppRestartTimeForApplyPatches() Export
 		UserName());
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion

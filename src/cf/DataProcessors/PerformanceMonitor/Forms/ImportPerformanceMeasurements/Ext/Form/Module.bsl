@@ -34,7 +34,7 @@ Procedure SelectFileToImportSuggested(FileSystemExtensionAttached1, AdditionalPa
 		SelectingFile.Title = NStr("en = 'Choose a sample file';");
 		SelectingFile.Filter = "Files import2 measurings (*.zip)|*.zip";
 		
-		NotifyDescription = New NotifyDescription("FileDialogCompletion", ThisObject, Undefined);
+		NotifyDescription = New CallbackDescription("FileDialogCompletion", ThisObject, Undefined);
 		If SSLAvailable Then
 			ModuleFileSystemClient = Eval("FileSystemClient");
 			If TypeOf(ModuleFileSystemClient) = Type("CommonModule") Then
@@ -52,10 +52,10 @@ EndProcedure
 Procedure ImportFile3StartChoice(Item, ChoiceData, StandardProcessing)
 	
 	If SSLAvailable Then
-		NotifyDescription = New NotifyDescription("SelectFileToImportSuggested", ThisObject, Undefined);
+		NotifyDescription = New CallbackDescription("SelectFileToImportSuggested", ThisObject, Undefined);
 		ModuleFileSystemClient = Eval("FileSystemClient");
 		If TypeOf(ModuleFileSystemClient) = Type("CommonModule") Then
-			ModuleFileSystemClient.AttachFileOperationsExtension(NotifyDescription);
+			ModuleFileSystemClient.Attach1CEnterpriseExtension(NotifyDescription);
 		EndIf;
 	EndIf;
 	
@@ -68,7 +68,7 @@ EndProcedure
 &AtClient
 Procedure Import(Command)
 	File = New File(ImportFile3);
-	File.BeginCheckingExistence(New NotifyDescription("ImportAfterExistenceCheck", ThisObject));
+	File.BeginCheckingExistence(New CallbackDescription("ImportAfterExistenceCheck", ThisObject));
 EndProcedure
 
 &AtClient

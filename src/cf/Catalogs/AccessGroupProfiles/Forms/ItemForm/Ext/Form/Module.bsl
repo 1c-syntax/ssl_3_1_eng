@@ -320,8 +320,7 @@ Procedure AccessKindsOnEditEnd(Item, NewRow, CancelEdit)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Event handlers of the AccessKindPresentation item of the AccessKinds form table.
+#Region EventHandlersForAccessKindPresentationItemOfFormAccessKindsTable
 
 &AtClient
 Procedure AccessKindsAccessKindPresentationOnChange(Item)
@@ -339,8 +338,9 @@ Procedure AccessKindsAccessKindPresentationChoiceProcessing(Item, ValueSelected,
 		
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Event handlers of the AllAllowedPresentation item of the AccessKinds form table.
+#EndRegion
+
+#Region EventHandlersForAllAllowedPresentationItemOfFormAccessKindsTable
 
 &AtClient
 Procedure AccessKindsAllAllowedPresentationOnChange(Item)
@@ -357,6 +357,8 @@ Procedure AccessKindsAllAllowedPresentationChoiceProcessing(Item, ValueSelected,
 		ThisObject, Item, ValueSelected, StandardProcessing);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -431,7 +433,7 @@ EndProcedure
 #Region FormTableItemsEventHandlersRoles
 
 ////////////////////////////////////////////////////////////////////////////////
-// Required by a role interface.
+// Для работы интерфейса ролей.
 
 &AtClient
 Procedure RolesCheckOnChange(Item)
@@ -442,7 +444,7 @@ Procedure RolesCheckOnChange(Item)
 	EndIf;
 	
 	If TableRow.Check And TableRow.Name = "InteractiveOpenExtReportsAndDataProcessors" Then
-		Notification = New NotifyDescription("RolesMarkOnChangeAfterConfirm", ThisObject);
+		Notification = New CallbackDescription("RolesMarkOnChangeAfterConfirm", ThisObject);
 		UsersInternalClient.ShowSecurityWarning(Notification,
 			UsersInternalClientServer.SecurityWarningKinds().BeforeSelectRole);
 		
@@ -483,7 +485,7 @@ EndProcedure
 Procedure RestoreByInitialFilling(Command)
 	
 	ShowQueryBox(
-		New NotifyDescription("RestoreByInitialFillingFollowUp", ThisObject),
+		New CallbackDescription("RestoreByInitialFillingFollowUp", ThisObject),
 		NStr("en = 'Do you want to restore the profile to the initial settings?';"),
 		QuestionDialogMode.YesNo);
 	
@@ -496,8 +498,7 @@ Procedure SnowUnusedAccessKinds(Command)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Required by a role interface.
+#Region ForRolesInterfaceOperation
 
 &AtClient
 Procedure ShowSelectedRolesOnly(Command)
@@ -533,7 +534,7 @@ EndProcedure
 
 &AtClient
 Procedure SelectPurpose(Command)
-	NotifyDescription = New NotifyDescription("AfterAssignmentChoice", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterAssignmentChoice", ThisObject);
 	UsersInternalClient.SelectPurpose(ThisObject, NStr("en = 'Select access group profile assignment';"),,, NotifyDescription);
 EndProcedure
 
@@ -543,6 +544,8 @@ Procedure PickAccessValues(Command)
 	AccessManagementInternalClient.AccessValuesPick(ThisObject);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -557,7 +560,7 @@ Procedure BeforeWriteFollowUpIdleHandler()
 	
 	If CheckFilling() Then
 		ShowQueryBox(
-			New NotifyDescription("BeforeWriteFollowUp", ThisObject, WriteParameters),
+			New CallbackDescription("BeforeWriteFollowUp", ThisObject, WriteParameters),
 			QuestionTextUpdateProfileAccessGroups(),
 			QuestionDialogMode.YesNoCancel,
 			,
@@ -593,7 +596,7 @@ Procedure RestoreByInitialFillingFollowUp(Response, Context) Export
 	EndIf;
 	
 	ShowQueryBox(
-		New NotifyDescription("RestoreByInitialFillingCompletion", ThisObject),
+		New CallbackDescription("RestoreByInitialFillingCompletion", ThisObject),
 		QuestionTextUpdateProfileAccessGroups(),
 		QuestionDialogMode.YesNoCancel,
 		,
@@ -731,8 +734,7 @@ EndProcedure
 
 // End StandardSubsystems.AttachableCommands
 
-////////////////////////////////////////////////////////////////////////////////
-// Required by a role interface.
+#Region ForRolesInterfaceOperation
 
 &AtServer
 Procedure ProcessRolesInterface(Action, MainParameter = Undefined)
@@ -789,5 +791,7 @@ Procedure AfterAssignmentChoice(Result, AdditionalParameters) Export
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

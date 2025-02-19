@@ -25,6 +25,7 @@
 //
 Procedure DefineFormSettings(Form, VariantKey, Settings) Export
 	
+	Settings.DisableStandardContextMenu = True;
 	If VariantKey = "UserRightsToTable" Then
 		Settings.EditStructureAllowed = False;
 	EndIf;
@@ -43,6 +44,7 @@ Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
 	EndIf;
 	
 	If Form.OptionContext = Metadata.Catalogs.Users.FullName()
+	   And Form.Parameters.VariantKey <> "UsersRightsByAllowedValue"
 	   And Form.Parameters.Property("CommandParameter") Then
 		If Form.Parameters.CommandParameter.Count() > 1 Then
 			Form.CurrentVariantKey = "UsersRightsToTables";
@@ -84,49 +86,45 @@ EndProcedure
 //
 Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSettings, NewDCUserSettings) Export
 	
+	Variant = ?(NewDCSettings = Undefined, "",
+		NewDCSettings.AdditionalProperties.PredefinedOptionKey);
+	
+	If Variant = "AccessRightsAnalysis" Then
+		ConfigureAccessRightsAnalysisOption(NewDCSettings, NewDCUserSettings);
+		
+	ElsIf Variant = "UsersRightsToObject" Then
+		ConfigureUsersRightsToObjectOption(NewDCSettings, NewDCUserSettings);
+		
+	ElsIf Variant = "UsersRightsByAllowedValue" Then
+		ConfigureUsersRightsByAllowedValueOption(NewDCSettings, NewDCUserSettings);
+	EndIf;
+	If NewDCSettings <> Undefined Then
+		HideExcessDataFields(Variant, NewDCSettings, NewDCUserSettings);
+		SetAvailableValuesForAccessKindField(Variant, NewDCSettings, NewDCUserSettings);
+	EndIf;
+	
 	If SchemaKey <> "1" Then
 		SchemaKey = "1";
 		If TypeOf(Context) = Type("ClientApplicationForm") And NewDCSettings <> Undefined Then
 			FormAttributes = New Structure("OptionContext");
 			FillPropertyValues(FormAttributes, Context);
-			Variant = NewDCSettings.AdditionalProperties.PredefinedOptionKey;
-			
 			If ValueIsFilled(FormAttributes.OptionContext) Then
-				If Variant = "UsersRightsToTable"
-				 Or Variant = "UserRightsToTable" Then
-					MetadataObject = Common.MetadataObjectID(Context.OptionContext, False);
-					If ValueIsFilled(MetadataObject) Then
-						CommonClientServer.SetFilterItem(NewDCSettings.Filter, "MetadataObject", MetadataObject,
-							DataCompositionComparisonType.Equal, , True);
-					EndIf;
-				ElsIf Variant = "UsersRightsToTables" Or Variant = "UserRightsToTables" Then
-					If Context.Parameters.Property("CommandParameter") Then
-						UsersList = New ValueList;
-						UsersList.LoadValues(Context.Parameters.CommandParameter);
-						UsersInternal.SetFilterOnParameter("User", UsersList,
-							NewDCSettings, NewDCUserSettings);
-					EndIf;
-				EndIf;
+				ConfigureContextOpeningParameters(Context,
+					Variant, NewDCSettings, NewDCUserSettings);
 			EndIf;
 		EndIf;
 	EndIf;
 	
-	SchemeHasBeenChanged = False;
-	
 	If Not Users.IsFullUser() Then
 		DataCompositionSchema.Parameters.User.UseRestriction = True;
 		DataCompositionSchema.Parameters.UsersKind.UseRestriction = True;
-		SchemeHasBeenChanged = True;
 	EndIf;
 	
 	If Not Constants.UseExternalUsers.Get() Then
 		DataCompositionSchema.Parameters.UsersKind.UseRestriction = True;
-		SchemeHasBeenChanged = True;
 	EndIf;
 	
-	If SchemeHasBeenChanged
-	   And Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
-		
+	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
 		ModuleReportsServer = Common.CommonModule("ReportsServer");
 		ModuleReportsServer.AttachSchema(ThisObject, Context, DataCompositionSchema, SchemaKey);
 	EndIf;
@@ -167,6 +165,11 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 		Raise ErrorText;
 	EndIf;
 	
+	If ObjectRightsOption() And Not AccessManagement.ProductiveOption() Then
+		ErrorText = NStr("en = 'The report option ""User rights to object"" is only supported for high-performance RLS mode.';");
+		Raise ErrorText;
+	EndIf;
+	
 	ComposerSettings = SettingsComposer.GetSettings();
 	
 	ParameterUserType = ComposerSettings.DataParameters.Items.Find("UsersKind");
@@ -185,11 +188,6 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	SetPrivilegedMode(True);
 	
 	RightsSettings = RightsSettingsOnObjects();
-	
-	If Not ValueIsFilled(RightsSettings.SettingsRightsLegend) Then
-		DisableGroups(ComposerSettings,
-			"RightsSettings,LegendSettingsRights,OptionalTableTitle");
-	EndIf;
 	
 	TemplateComposer = New DataCompositionTemplateComposer;
 	CompositionTemplate = TemplateComposer.Execute(DataCompositionSchema, ComposerSettings, DetailsData);
@@ -212,6 +210,10 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	
 EndProcedure
 
+#EndRegion
+
+#Region Private
+
 Procedure FinishOutput(ResultDocument, DetailsData, RightsSettings)
 	
 	AccessGroupTitle = NStr("en = 'Access group';");
@@ -220,7 +222,7 @@ Procedure FinishOutput(ResultDocument, DetailsData, RightsSettings)
 	EndIf;
 	
 	// ACC:163-off - #598.1. The use is permissible, as it affects the meaning.
-	TextIsRestriction  = NStr("en = 'Not everything is available';");
+	TextIsRestriction  = ?(ObjectRightsOption(), "", NStr("en = 'Has restriction';"));
 	// ACC:163-on
 	TextRightNotAssigned = NStr("en = '●';");
 	TextRightAllowed   = NStr("en = '✔';");
@@ -317,9 +319,10 @@ Procedure FinishOutput(ResultDocument, DetailsData, RightsSettings)
 				StringExplanations.Insert(LineNumber, FieldValues);
 				If FontRightNotAssigned = Undefined Then
 					FontRightNotAssigned = Area.Font;
-					//@skip-check new-font - Standard fond enlarged to 120% with an italic style.
+					// ACC:1345-off - The current font is used, enlarged to 120% and italicized to highlight the symbols "✔" and "✘", but not the symbol "●".
 					FontRightAllowed   = New Font(FontRightNotAssigned,,, True,,,, 120);
 					FontRightForbidden   = FontRightAllowed;
+					// ACC:1345-on
 				EndIf;
 				Indent = (FieldValues.Find("Level").Value - 1) * 2;
 				RowArea = ResultDocument.Area(LineNumber, , LineNumber);
@@ -339,9 +342,270 @@ Procedure FinishOutput(ResultDocument, DetailsData, RightsSettings)
 	
 EndProcedure
 
-#EndRegion
+// 
+Procedure HideExcessDataFields(Variant, DCSettings, DCUserSettings)
+	
+	UsersRights = New Array;
+	
+	If Variant = "UsersRightsToObject" Then
+		UsersRights.Add("DataElement");
+	Else
+		UsersRights.Add("MetadataObject");
+	EndIf;
+	UsersRights.Add("User");
+	UsersRights.Add("CanSignIn");
+	UsersRights.Add("Right");
+	UsersRights.Add("RightUnlimited");
+	UsersRights.Add("InteractiveRight");
+	
+	If Variant = "AccessRightsAnalysis"
+	   And ParameterValueFromSetting(DCUserSettings, "OutputGroup") = 1
+	 Or Variant = "UsersRightsToReportTables"
+	 Or Variant = "UserRightsToReportTables"
+	 Or Variant = "UserRightsToReportsTables" Then
+		
+		UsersRights.Add("Report");
+		UsersRights.Add("ReportRight");
+	EndIf;
+	
+	If Variant = "UsersRightsToTable"
+	 Or Variant = "UserRightsToTable"
+	 Or Variant = "UsersRightsToObject" Then
+		
+		UsersRights.Add("ReadRight");
+		UsersRights.Add("RightUpdate");
+		If Variant <> "UsersRightsToObject" Then
+			UsersRights.Add("AddRight");
+		EndIf;
+		UsersRights.Add("UnrestrictedReadRight");
+		UsersRights.Add("UnrestrictedUpdateRight");
+		If Variant <> "UsersRightsToObject" Then
+			UsersRights.Add("UnrestrictedAddRight");
+		EndIf;
+		UsersRights.Add("ViewRight");
+		UsersRights.Add("EditRight");
+		If Variant <> "UsersRightsToObject" Then
+			UsersRights.Add("InteractiveAddRight");
+		EndIf;
+	EndIf;
+	
+	If Variant = "UserRightsToTable" Then
+		UsersRights.Add("AccessKindRight");
+		UsersRights.Add("AccessKindUnrestrictedRight");
+		UsersRights.Add("AccessKindInteractiveRight");
+		UsersRights.Add("AccessKindReadRight");
+		UsersRights.Add("AccessKindRightUpdate");
+		UsersRights.Add("AccessKindInsertRight");
+		UsersRights.Add("AccessTypeRightReadUnlimited");
+		UsersRights.Add("AccessTypeRightChangeWithoutRestriction");
+		UsersRights.Add("AccessTypeRightAdditionWithoutRestriction");
+		UsersRights.Add("AccessTypeRightView");
+		UsersRights.Add("AccessTypeRightEditing");
+		UsersRights.Add("AccessTypeRightInteractiveAdd");
+	EndIf;
+	
+	If Variant = "UserRightsToTables"
+	 Or Variant = "UserRightsToTable"
+	 Or Variant = "UserRightsToReportTables"
+	 Or Variant = "UserRightsToReportsTables"
+	 Or Variant = "UsersRightsByAllowedValue" Then
+		
+		UsersRights.Add("AccessGroup");
+	EndIf;
+	
+	If Variant = "UserRightsToTable"
+	 Or Variant = "UsersRightsByAllowedValue" Then
+		
+		UsersRights.Add("AccessKind");
+		If Variant = "UserRightsToTable" Then
+			UsersRights.Add("AllAllowed");
+		EndIf;
+		UsersRights.Add("AccessValue");
+	EndIf;
+	
+	OriginalScheme = GetTemplate("Template");
+	CurrentSchema = DataCompositionSchema;
+	
+	HideDataFieldsExceptSpecified("UsersRights", UsersRights, OriginalScheme, CurrentSchema);
+	
+	RightsSettings = New Array;
+	
+	If Variant = "UserRightsToTable" Then
+		If SettingsRightsByTableInselection(DCSettings, DCUserSettings) <> Undefined Then
+			RightsSettings = "*";
+		EndIf;
+		Groups = New Map;
+		Groups.Insert("RightsSettings",                  RightsSettings = "*");
+		Groups.Insert("LegendSettingsRights",            RightsSettings = "*");
+		Groups.Insert("OptionalTableTitle", RightsSettings = "*");
+		SetGroupingsUsage(Groups, DCSettings, DCUserSettings);
+	EndIf;
+	
+	HideDataFieldsExceptSpecified("RightsSettingsOnObjects", RightsSettings, OriginalScheme, CurrentSchema);
+	HideDataFieldsExceptSpecified("SettingsRightsLegend",    RightsSettings, OriginalScheme, CurrentSchema);
+	HideDataFieldsExceptSpecified("SettingsRightsHierarchy",   RightsSettings, OriginalScheme, CurrentSchema);
+	
+EndProcedure
 
-#Region Private
+// 
+Procedure HideDataFieldsExceptSpecified(DataSetName, DataPaths, OriginalScheme, CurrentSchema)
+	
+	Reports.AccessRightsAnalysis.HideDataFieldsExceptSpecified(DataSetName,
+		DataPaths, OriginalScheme, CurrentSchema);
+	
+EndProcedure
+
+// 
+Procedure SetAvailableValuesForAccessKindField(Variant, DCSettings, DCUserSettings)
+	
+	DataField = DataCompositionSchema.DataSets.UsersRights.Fields.Find("AccessKind");
+	ValueOfField = New ValueList;
+	
+	If Variant = "UserRightsToTable" Then
+		AccessKindsPresentation = AccessManagementInternal.AccessKindsPresentation();
+		For Each KeyAndValue In AccessKindsPresentation Do
+			ValueOfField.Add(KeyAndValue.Key, KeyAndValue.Value);
+		EndDo;
+	Else
+		ValueOfField.Add(Undefined);
+	EndIf;
+	
+	DataField.SetAvailableValues(ValueOfField);
+	
+EndProcedure
+
+// 
+Procedure ConfigureAccessRightsAnalysisOption(DCSettings, DCUserSettings)
+	
+	ParameterOutput = DataCompositionSchema.Parameters.OutputGroup;
+	ParameterOutput.UseRestriction = False;
+	
+	Values = New ValueList;
+	Values.Add(0, NStr("en = 'Tables';"));
+	Values.Add(1, NStr("en = 'Reports with tables';"));
+	ParameterOutput.SetAvailableValues(Values);
+	ParameterOutput.Value = 0;
+	
+	Value = ParameterValueFromSetting(DCUserSettings, ParameterOutput.Name);
+	If Value <> Undefined Then
+		Groups = New Map;
+		Groups.Insert("GroupingByTables",        Value = 0);
+		Groups.Insert("GroupingByReportTables", Value = 1);
+		SetGroupingsUsage(Groups, DCSettings, DCUserSettings);
+	EndIf;
+	
+EndProcedure
+
+// 
+Procedure ConfigureUsersRightsToObjectOption(DCSettings, DCUserSettings)
+	
+	DataField = DataCompositionSchema.DataSets.UsersRights.Fields.Find("Right");
+	ValueOfField = New ValueList;
+	ValueOfField.Add(1, NStr("en = 'Read';"));
+	ValueOfField.Add(2, NStr("en = 'Update';"));
+	DataField.SetAvailableValues(ValueOfField);
+	
+	DataField = DataCompositionSchema.DataSets.UsersRights.Fields.Find("InteractiveRight");
+	ValueOfField = New ValueList;
+	ValueOfField.Add(1, NStr("en = 'View';"));
+	ValueOfField.Add(2, NStr("en = 'Edit';"));
+	DataField.SetAvailableValues(ValueOfField);
+	
+	Parameter = DataCompositionSchema.Parameters.DataElement;
+	Parameter.UseRestriction = False;
+	Parameter.Use = DataCompositionParameterUse.Always;
+	Parameter.ValueType = AccessManagementInternalCached.DataElementsTypes();
+	
+	DataCompositionSchema.Parameters.Delete(Parameter);
+	DataCompositionSchema.Parameters.Insert(0);
+	FillPropertyValues(DataCompositionSchema.Parameters[0], Parameter);
+	
+EndProcedure
+
+// 
+Procedure ConfigureUsersRightsByAllowedValueOption(DCSettings, DCUserSettings)
+	
+	Parameter = DataCompositionSchema.Parameters.AccessValue;
+	Parameter.UseRestriction = False;
+	Parameter.Use = DataCompositionParameterUse.Always;
+	Parameter.ValueType = Reports.AccessRightsAnalysis.DetailsOfAccessKindGroupAndValueTypes();
+	
+	DataCompositionSchema.Parameters.Delete(Parameter);
+	DataCompositionSchema.Parameters.Insert(1);
+	FillPropertyValues(DataCompositionSchema.Parameters[1], Parameter);
+	
+	ParameterOutput = DataCompositionSchema.Parameters.OutputGroup;
+	ParameterOutput.UseRestriction = False;
+	
+	SimplifiedInterface = AccessManagementInternal.SimplifiedAccessRightsSetupInterface();
+	
+	Values = New ValueList;
+	Values.Add(0, NStr("en = 'Tables with user rights';"));
+	Values.Add(1, NStr("en = 'Users';"));
+	Values.Add(2, ?(SimplifiedInterface,
+		NStr("en = 'User with profile count';"), NStr("en = 'User with access group count';")));
+	Values.Add(3, ?(SimplifiedInterface,
+		NStr("en = 'Profiles with users';"), NStr("en = 'Access groups with users';")));
+	Values.Add(4, ?(SimplifiedInterface,
+		NStr("en = 'Access group profiles';"), NStr("en = 'Access groups';")));
+	Values.Add(5, ?(SimplifiedInterface,
+		NStr("en = 'Tables with profile rights';"), NStr("en = 'Tables with access group rights';")));
+	ParameterOutput.SetAvailableValues(Values);
+	ParameterOutput.Value = 0;
+	
+	Value = ParameterValueFromSetting(DCUserSettings, ParameterOutput.Name);
+	If Value <> Undefined Then
+		Groups = New Map;
+		Groups.Insert("TablesWithUsersRights", Value = 0);
+		Groups.Insert("Users",                 Value = 1);
+		Groups.Insert("UsersWithAccessGroups", Value = 2);
+		Groups.Insert("AccessGroupsWithUsers", Value = 3);
+		Groups.Insert("AccessGroups",                Value = 4);
+		Groups.Insert("TablesWithAccessGroupsRights",  Value = 5);
+		Groups.Insert("Legend",                      Value = 0 Or Value = 5);
+		SetGroupingsUsage(Groups, DCSettings, DCUserSettings);
+	EndIf;
+	
+EndProcedure
+
+// 
+Procedure ConfigureContextOpeningParameters(Context, Variant, DCSettings, DCUserSettings)
+	
+	If Variant = "UsersRightsToTable"
+	 Or Variant = "UserRightsToTable" Then
+		
+		MetadataObject = Common.MetadataObjectID(Context.OptionContext, False);
+		If ValueIsFilled(MetadataObject) Then
+			CommonClientServer.SetFilterItem(DCSettings.Filter, "MetadataObject", MetadataObject,
+				DataCompositionComparisonType.Equal, , True);
+		EndIf;
+		
+	ElsIf Variant = "UsersRightsToTables" Or Variant = "UserRightsToTables" Then
+		If Context.Parameters.Property("CommandParameter") Then
+			UsersList = New ValueList;
+			UsersList.LoadValues(Context.Parameters.CommandParameter);
+			UsersInternal.SetFilterOnParameter("User", UsersList,
+				DCSettings, DCUserSettings);
+		EndIf;
+		
+	ElsIf Variant = "UsersRightsToObject" Then
+		If Context.Parameters.Property("CommandParameter") Then
+			UsersInternal.SetFilterOnParameter("DataElement",
+				Context.Parameters.CommandParameter,
+				DCSettings,
+				DCUserSettings);
+		EndIf;
+		
+	ElsIf Variant = "UsersRightsByAllowedValue" Then
+		If Context.Parameters.Property("CommandParameter") Then
+			UsersInternal.SetFilterOnParameter("AccessValue",
+				Context.Parameters.CommandParameter,
+				DCSettings,
+				DCUserSettings);
+		EndIf;
+	EndIf;
+	
+EndProcedure
 
 Function ReportsTables()
 	
@@ -539,28 +803,35 @@ Function EmptyCollectionOfRoleRightsToReports()
 	
 EndFunction
 
-Function UsersRights()
+Function QueryTextShared()
 	
-	QueryTextShared =
+	Return
 	"SELECT
-	|	ExtensionsRolesRights.MetadataObject AS MetadataObject,
-	|	ExtensionsRolesRights.Role AS Role,
-	|	ExtensionsRolesRights.UnrestrictedReadRight AS UnrestrictedReadRight,
-	|	ExtensionsRolesRights.UnrestrictedUpdateRight AS UnrestrictedUpdateRight,
-	|	ExtensionsRolesRights.UnrestrictedAddRight AS UnrestrictedAddRight,
-	|	ExtensionsRolesRights.ViewRight AS ViewRight,
-	|	ExtensionsRolesRights.EditRight AS EditRight,
-	|	ExtensionsRolesRights.InteractiveAddRight AS InteractiveAddRight,
-	|	ExtensionsRolesRights.LineChangeType AS LineChangeType
+	|	RolesRights.MetadataObject AS MetadataObject,
+	|	RolesRights.Role AS Role,
+	|	RolesRights.RightUpdate AS RightUpdate,
+	|	RolesRights.AddRight AS AddRight,
+	|	RolesRights.UnrestrictedReadRight AS UnrestrictedReadRight,
+	|	RolesRights.UnrestrictedUpdateRight AS UnrestrictedUpdateRight,
+	|	RolesRights.UnrestrictedAddRight AS UnrestrictedAddRight,
+	|	RolesRights.ViewRight AS ViewRight,
+	|	RolesRights.EditRight AS EditRight,
+	|	RolesRights.InteractiveAddRight AS InteractiveAddRight,
+	|	RolesRights.LineChangeType AS LineChangeType
 	|INTO ExtensionsRolesRights
 	|FROM
-	|	&ExtensionsRolesRights AS ExtensionsRolesRights
+	|	&ExtensionsRolesRights AS RolesRights
+	|WHERE
+	|	&SelectingRightsByTables
 	|;
 	|
 	|////////////////////////////////////////////////////////////////////////////////
 	|SELECT
 	|	ExtensionsRolesRights.MetadataObject AS MetadataObject,
 	|	ExtensionsRolesRights.Role AS Role,
+	|	TRUE AS ReadRight,
+	|	ExtensionsRolesRights.RightUpdate AS RightUpdate,
+	|	ExtensionsRolesRights.AddRight AS AddRight,
 	|	ExtensionsRolesRights.UnrestrictedReadRight AS UnrestrictedReadRight,
 	|	ExtensionsRolesRights.UnrestrictedUpdateRight AS UnrestrictedUpdateRight,
 	|	ExtensionsRolesRights.UnrestrictedAddRight AS UnrestrictedAddRight,
@@ -578,6 +849,9 @@ Function UsersRights()
 	|SELECT
 	|	RolesRights.MetadataObject,
 	|	RolesRights.Role,
+	|	TRUE,
+	|	RolesRights.RightUpdate,
+	|	RolesRights.AddRight,
 	|	RolesRights.UnrestrictedReadRight,
 	|	RolesRights.UnrestrictedUpdateRight,
 	|	RolesRights.UnrestrictedAddRight,
@@ -591,6 +865,7 @@ Function UsersRights()
 	|			AND RolesRights.Role = ExtensionsRolesRights.Role
 	|WHERE
 	|	ExtensionsRolesRights.MetadataObject IS NULL
+	|	AND &SelectingRightsByTables
 	|
 	|INDEX BY
 	|	Role
@@ -600,6 +875,9 @@ Function UsersRights()
 	|SELECT
 	|	AccessGroupProfilesRoles.Ref AS Profile,
 	|	RolesRights.MetadataObject AS Table,
+	|	MAX(RolesRights.ReadRight) AS ReadRight,
+	|	MAX(RolesRights.RightUpdate) AS RightUpdate,
+	|	MAX(RolesRights.AddRight) AS AddRight,
 	|	MAX(RolesRights.UnrestrictedReadRight) AS UnrestrictedReadRight,
 	|	MAX(RolesRights.UnrestrictedUpdateRight) AS UnrestrictedUpdateRight,
 	|	MAX(RolesRights.UnrestrictedAddRight) AS UnrestrictedAddRight,
@@ -612,20 +890,19 @@ Function UsersRights()
 	|		INNER JOIN Catalog.AccessGroupProfiles.Roles AS AccessGroupProfilesRoles
 	|		ON RolesRights.Role = AccessGroupProfilesRoles.Role
 	|			AND (NOT AccessGroupProfilesRoles.Ref.DeletionMark)
-	|WHERE
-	|	&SelectingRightsByTables
 	|
 	|GROUP BY
 	|	AccessGroupProfilesRoles.Ref,
 	|	RolesRights.MetadataObject
 	|
-	|HAVING
-	|	MAX(RolesRights.ViewRight) = TRUE
-	|
 	|INDEX BY
 	|	Table";
 	
-	RequestTextWithoutGroupingByReports =
+EndFunction
+
+Function RequestTextWithoutGroupingByReports()
+	
+	Return
 	"SELECT DISTINCT
 	|	ProfilesRights.Table AS MetadataObject,
 	|	CASE
@@ -633,28 +910,28 @@ Function UsersRights()
 	|			THEN AccessGroups.Profile
 	|		ELSE AccessGroups.Ref
 	|	END AS AccessGroup,
+	|	ProfilesRights.ReadRight AS ReadRight,
+	|	ProfilesRights.RightUpdate AS RightUpdate,
+	|	ProfilesRights.AddRight AS AddRight,
+	|	CASE
+	|		WHEN ProfilesRights.AddRight
+	|			THEN 3
+	|		WHEN ProfilesRights.RightUpdate
+	|			THEN 2
+	|		WHEN ProfilesRights.ReadRight
+	|			THEN 1
+	|		ELSE 0
+	|	END AS Right,
 	|	ProfilesRights.UnrestrictedReadRight AS UnrestrictedReadRight,
 	|	ProfilesRights.UnrestrictedUpdateRight AS UnrestrictedUpdateRight,
 	|	ProfilesRights.UnrestrictedAddRight AS UnrestrictedAddRight,
 	|	CASE
-	|		WHEN ProfilesRights.InteractiveAddRight
-	|			THEN CASE
-	|					WHEN ProfilesRights.UnrestrictedAddRight
-	|						THEN 3
-	|					ELSE 0
-	|				END
-	|		WHEN ProfilesRights.EditRight
-	|			THEN CASE
-	|					WHEN ProfilesRights.UnrestrictedUpdateRight
-	|						THEN 2
-	|					ELSE 0
-	|				END
-	|		WHEN ProfilesRights.ViewRight
-	|			THEN CASE
-	|					WHEN ProfilesRights.UnrestrictedReadRight
-	|						THEN 1
-	|					ELSE 0
-	|				END
+	|		WHEN ProfilesRights.UnrestrictedAddRight
+	|			THEN 3
+	|		WHEN ProfilesRights.UnrestrictedUpdateRight
+	|			THEN 2
+	|		WHEN ProfilesRights.UnrestrictedReadRight
+	|			THEN 1
 	|		ELSE 0
 	|	END AS RightUnlimited,
 	|	ProfilesRights.ViewRight AS ViewRight,
@@ -668,7 +945,7 @@ Function UsersRights()
 	|		WHEN ProfilesRights.ViewRight
 	|			THEN 1
 	|		ELSE 0
-	|	END AS Right,
+	|	END AS InteractiveRight,
 	|	UserGroupCompositions.User AS User,
 	|	ISNULL(UsersInfo.CanSignIn, FALSE) AS CanSignIn
 	|FROM
@@ -685,7 +962,79 @@ Function UsersRights()
 	|		LEFT JOIN InformationRegister.UsersInfo AS UsersInfo
 	|		ON (UsersInfo.User = UserGroupCompositions.User)";
 	
-	QueryTextWithoutGroupingByReportsWithAccessRestrictionsStart =
+EndFunction
+
+Function QueryTextForObjectRights()
+	
+	Return
+	"SELECT
+	|	RightsToDataElement.UserWithRight AS User,
+	|	RightsToDataElement.RightUpdate AS RightUpdate
+	|INTO RightsToDataElement
+	|FROM
+	|	&RightsToDataElement AS RightsToDataElement
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT DISTINCT
+	|	ProfilesRights.Table AS MetadataObject,
+	|	VALUE(Catalog.AccessGroups.EmptyRef) AS AccessGroup,
+	|	ProfilesRights.ReadRight AS ReadRight,
+	|	ProfilesRights.RightUpdate
+	|		AND RightsToDataElement.RightUpdate AS RightUpdate,
+	|	FALSE AS AddRight,
+	|	CASE
+	|		WHEN ProfilesRights.RightUpdate AND RightsToDataElement.RightUpdate
+	|			THEN 2
+	|		WHEN ProfilesRights.ReadRight
+	|			THEN 1
+	|		ELSE 0
+	|	END AS Right,
+	|	ProfilesRights.UnrestrictedReadRight AS UnrestrictedReadRight,
+	|	ProfilesRights.UnrestrictedUpdateRight AS UnrestrictedUpdateRight,
+	|	FALSE AS UnrestrictedAddRight,
+	|	CASE
+	|		WHEN ProfilesRights.UnrestrictedUpdateRight
+	|			THEN 2
+	|		WHEN ProfilesRights.UnrestrictedReadRight
+	|			THEN 1
+	|		ELSE 0
+	|	END AS RightUnlimited,
+	|	ProfilesRights.ViewRight AS ViewRight,
+	|	ProfilesRights.EditRight
+	|		AND RightsToDataElement.RightUpdate AS EditRight,
+	|	FALSE AS InteractiveAddRight,
+	|	CASE
+	|		WHEN ProfilesRights.EditRight
+	|				AND RightsToDataElement.RightUpdate
+	|			THEN 2
+	|		WHEN ProfilesRights.ViewRight
+	|			THEN 1
+	|		ELSE 0
+	|	END AS InteractiveRight,
+	|	UserGroupCompositions.User AS User,
+	|	ISNULL(UsersInfo.CanSignIn, FALSE) AS CanSignIn
+	|FROM
+	|	RightsOfProfilesToTables AS ProfilesRights
+	|		INNER JOIN Catalog.AccessGroups AS AccessGroups
+	|		ON (AccessGroups.Profile = ProfilesRights.Profile)
+	|			AND (NOT AccessGroups.DeletionMark)
+	|		INNER JOIN Catalog.AccessGroups.Users AS AccessGroupsMembers
+	|		ON (AccessGroupsMembers.Ref = AccessGroups.Ref)
+	|		INNER JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
+	|		ON (UserGroupCompositions.UsersGroup = AccessGroupsMembers.User)
+	|			AND (ISNULL(UserGroupCompositions.User.IsInternal, FALSE) <> TRUE)
+	|			AND (&SelectionCriteriaForUsers)
+	|		INNER JOIN RightsToDataElement AS RightsToDataElement
+	|		ON (RightsToDataElement.User = UserGroupCompositions.User)
+	|		LEFT JOIN InformationRegister.UsersInfo AS UsersInfo
+	|		ON (UsersInfo.User = UserGroupCompositions.User)";
+	
+EndFunction
+
+Function QueryTextWithoutGroupingByReportsWithAccessRestrictionsStart()
+	
+	Return
 	"SELECT
 	|	AccessGroups.Profile AS Profile,
 	|	AccessGroups.Ref AS AccessGroup
@@ -705,12 +1054,17 @@ Function UsersRights()
 	|			AND (ISNULL(UserGroupCompositions.User.IsInternal, FALSE) <> TRUE)
 	|			AND (&SelectionCriteriaForUsers)";
 	
-	QueryTextWithoutGroupingByReportsWithAccessRestrictions =
+EndFunction
+
+Function QueryTextWithoutGroupingByReportsWithAccessRestrictions()
+	
+	Return
 	"SELECT
 	|	AccessRestrictionKinds.Table AS Table,
+	|	AccessRestrictionKinds.Right AS Right,
 	|	AccessRestrictionKinds.AccessKind AS AccessKind,
 	|	AccessRestrictionKinds.Presentation AS AccessKindPresentation,
-	|	AccessRestrictionKinds.Right AS Right
+	|	AccessRestrictionKinds.IsAuthorizedUser AS IsAuthorizedUser
 	|INTO TypesRestrictionsRightsInitial
 	|FROM
 	|	&AccessRestrictionKinds AS AccessRestrictionKinds
@@ -721,6 +1075,7 @@ Function UsersRights()
 	|	AccessRestrictionKinds.Table AS Table,
 	|	AccessRestrictionKinds.AccessKind AS AccessKind,
 	|	AccessRestrictionKinds.AccessKindPresentation AS AccessKindPresentation,
+	|	AccessRestrictionKinds.IsAuthorizedUser AS IsAuthorizedUser,
 	|	MAX(AccessRestrictionKinds.Right = ""Read"") AS ReadRight,
 	|	MAX(AccessRestrictionKinds.Right = ""Update"") AS RightUpdate
 	|INTO RightsRestrictionTypesTransformed
@@ -730,7 +1085,8 @@ Function UsersRights()
 	|GROUP BY
 	|	AccessRestrictionKinds.Table,
 	|	AccessRestrictionKinds.AccessKind,
-	|	AccessRestrictionKinds.AccessKindPresentation
+	|	AccessRestrictionKinds.AccessKindPresentation,
+	|	AccessRestrictionKinds.IsAuthorizedUser
 	|;
 	|
 	|////////////////////////////////////////////////////////////////////////////////
@@ -739,6 +1095,7 @@ Function UsersRights()
 	|	AccessRestrictionKinds.Table AS Table,
 	|	AccessRestrictionKinds.AccessKind AS AccessKind,
 	|	AccessRestrictionKinds.AccessKindPresentation AS AccessKindPresentation,
+	|	AccessRestrictionKinds.IsAuthorizedUser AS IsAuthorizedUser,
 	|	AccessRestrictionKinds.ReadRight AS ReadRight,
 	|	AccessRestrictionKinds.RightUpdate AS RightUpdate
 	|INTO AccessRestrictionKinds
@@ -754,6 +1111,7 @@ Function UsersRights()
 	|	AccessRestrictionKinds.Table,
 	|	AccessRestrictionKinds.AccessKind,
 	|	AccessRestrictionKinds.AccessKindPresentation,
+	|	AccessRestrictionKinds.IsAuthorizedUser,
 	|	AccessRestrictionKinds.ReadRight,
 	|	AccessRestrictionKinds.RightUpdate
 	|FROM
@@ -761,13 +1119,18 @@ Function UsersRights()
 	|WHERE
 	|	VALUETYPE(AccessRestrictionKinds.AccessKind) <> TYPE(Catalog.Users)";
 	
-	QueryTextWithoutGroupingByReportsWithAccessRestrictionsRestrictionTypesNew =
+EndFunction
+
+Function QueryTextWithoutGroupingByReportsWithAccessRestrictionsRestrictionTypesNew()
+	
+	Return
 	"SELECT
 	|	AccessRestrictionKinds.ForExternalUsers AS ForExternalUsers,
 	|	AccessRestrictionKinds.Table AS Table,
+	|	AccessRestrictionKinds.Right AS Right,
 	|	AccessRestrictionKinds.AccessKind AS AccessKind,
 	|	AccessRestrictionKinds.Presentation AS AccessKindPresentation,
-	|	AccessRestrictionKinds.Right AS Right
+	|	AccessRestrictionKinds.IsAuthorizedUser AS IsAuthorizedUser
 	|INTO TypesRestrictionsRightsInitial
 	|FROM
 	|	&AccessRestrictionKinds AS AccessRestrictionKinds
@@ -779,20 +1142,9 @@ Function UsersRights()
 	|	AccessRestrictionKinds.Table AS Table,
 	|	AccessRestrictionKinds.AccessKind AS AccessKind,
 	|	AccessRestrictionKinds.AccessKindPresentation AS AccessKindPresentation,
-	|	CASE
-	|		WHEN AccessRestrictionKinds.AccessKind = VALUE(Enum.AdditionalAccessValues.AccessAllowed)
-	|			THEN FALSE
-	|		WHEN AccessRestrictionKinds.AccessKind = VALUE(Enum.AdditionalAccessValues.AccessDenied)
-	|			THEN TRUE
-	|		ELSE MAX(AccessRestrictionKinds.Right = ""Read"")
-	|	END AS ReadRight,
-	|	CASE
-	|		WHEN AccessRestrictionKinds.AccessKind = VALUE(Enum.AdditionalAccessValues.AccessAllowed)
-	|			THEN FALSE
-	|		WHEN AccessRestrictionKinds.AccessKind = VALUE(Enum.AdditionalAccessValues.AccessDenied)
-	|			THEN TRUE
-	|		ELSE MAX(AccessRestrictionKinds.Right = ""Update"")
-	|	END AS RightUpdate
+	|	AccessRestrictionKinds.IsAuthorizedUser AS IsAuthorizedUser,
+	|	MAX(AccessRestrictionKinds.Right = ""Read"") AS ReadRight,
+	|	MAX(AccessRestrictionKinds.Right = ""Update"") AS RightUpdate
 	|INTO AccessRestrictionKinds
 	|FROM
 	|	TypesRestrictionsRightsInitial AS AccessRestrictionKinds
@@ -801,9 +1153,14 @@ Function UsersRights()
 	|	AccessRestrictionKinds.ForExternalUsers,
 	|	AccessRestrictionKinds.Table,
 	|	AccessRestrictionKinds.AccessKind,
+	|	AccessRestrictionKinds.IsAuthorizedUser,
 	|	AccessRestrictionKinds.AccessKindPresentation";
 	
-	QueryTextWithoutGroupingByReportsWithAccessRestrictionsEnd =
+EndFunction
+
+Function QueryTextWithoutGroupingByReportsWithAccessRestrictionsEnd()
+	
+	Return
 	"SELECT DISTINCT
 	|	AccessKindsAndValues.AccessGroup AS AccessGroup,
 	|	AccessKindsAndValues.AccessKind AS AccessKind,
@@ -839,7 +1196,17 @@ Function UsersRights()
 	|			ON (AccessGroupProfilesAccessValues.Ref = AccessGroupProfilesAccessTypes.Ref)
 	|				AND (AccessGroupProfilesAccessValues.AccessKind = AccessGroupProfilesAccessTypes.AccessKind)
 	|	WHERE
-	|		AccessGroupProfilesAccessTypes.Predefined) AS AccessKindsAndValues
+	|		AccessGroupProfilesAccessTypes.Predefined
+	|	
+	|	UNION ALL
+	|	
+	|	SELECT
+	|		UserAccessGroups.AccessGroup,
+	|		VALUE(Enum.AdditionalAccessValues.UNDEFINED),
+	|		NULL,
+	|		NULL
+	|	FROM
+	|		UserAccessGroups AS UserAccessGroups) AS AccessKindsAndValues
 	|;
 	|
 	|////////////////////////////////////////////////////////////////////////////////
@@ -859,63 +1226,130 @@ Function UsersRights()
 	|			THEN AccessGroups.Profile
 	|		ELSE AccessGroups.Ref
 	|	END AS AccessGroup,
+	|	ProfilesRights.ReadRight AS ReadRight,
+	|	ProfilesRights.RightUpdate AS RightUpdate,
+	|	ProfilesRights.AddRight AS AddRight,
+	|	CASE
+	|		WHEN ProfilesRights.AddRight
+	|			THEN 3
+	|		WHEN ProfilesRights.RightUpdate
+	|			THEN 2
+	|		WHEN ProfilesRights.ReadRight
+	|			THEN 1
+	|		ELSE 0
+	|	END AS Right,
 	|	ProfilesRights.UnrestrictedReadRight AS UnrestrictedReadRight,
 	|	ProfilesRights.UnrestrictedUpdateRight AS UnrestrictedUpdateRight,
 	|	ProfilesRights.UnrestrictedAddRight AS UnrestrictedAddRight,
+	|	CASE
+	|		WHEN ProfilesRights.UnrestrictedAddRight
+	|			THEN 3
+	|		WHEN ProfilesRights.UnrestrictedUpdateRight
+	|			THEN 2
+	|		WHEN ProfilesRights.UnrestrictedReadRight
+	|			THEN 1
+	|		ELSE 0
+	|	END AS RightUnlimited,
 	|	ProfilesRights.ViewRight AS ViewRight,
 	|	ProfilesRights.EditRight AS EditRight,
 	|	ProfilesRights.InteractiveAddRight AS InteractiveAddRight,
 	|	CASE
-	|		WHEN ProfilesRights.UnrestrictedReadRight
-	|			THEN TRUE
-	|		WHEN NOT ProfilesRights.ViewRight
-	|			THEN FALSE
-	|		WHEN NOT AccessRestrictionKinds.AccessKind IS NULL
-	|			THEN NOT AccessRestrictionKinds.ReadRight
-	|		WHEN NOT TypesRestrictionsPermissionsUnconditional.AccessKind IS NULL
-	|			THEN NOT TypesRestrictionsPermissionsUnconditional.ReadRight
-	|		ELSE FALSE
-	|	END AS AccessTypeRightReadUnlimited,
+	|		WHEN ProfilesRights.InteractiveAddRight
+	|			THEN 3
+	|		WHEN ProfilesRights.EditRight
+	|			THEN 2
+	|		WHEN ProfilesRights.ViewRight
+	|			THEN 1
+	|		ELSE 0
+	|	END AS InteractiveRight,
+	|	ProfilesRights.ReadRight
+	|		AND NOT ProfilesRights.UnrestrictedReadRight
+	|		AND (ISNULL(AccessRestrictionKinds.ReadRight, FALSE)
+	|			OR ISNULL(TypesRestrictionsPermissionsUnconditional.ReadRight, FALSE)
+	|			OR AccessRestrictionKinds.AccessKind IS NULL
+	|				AND TypesRestrictionsPermissionsUnconditional.AccessKind IS NULL) AS AccessKindReadRight,
+	|	ProfilesRights.RightUpdate
+	|		AND NOT ProfilesRights.UnrestrictedUpdateRight
+	|		AND (ISNULL(AccessRestrictionKinds.RightUpdate, FALSE)
+	|			OR ISNULL(TypesRestrictionsPermissionsUnconditional.RightUpdate, FALSE)
+	|			OR AccessRestrictionKinds.AccessKind IS NULL
+	|				AND TypesRestrictionsPermissionsUnconditional.AccessKind IS NULL) AS AccessKindRightUpdate,
+	|	ProfilesRights.AddRight
+	|		AND NOT ProfilesRights.UnrestrictedAddRight
+	|		AND (ISNULL(AccessRestrictionKinds.RightUpdate, FALSE)
+	|			OR ISNULL(TypesRestrictionsPermissionsUnconditional.RightUpdate, FALSE)
+	|			OR AccessRestrictionKinds.AccessKind IS NULL
+	|				AND TypesRestrictionsPermissionsUnconditional.AccessKind IS NULL) AS AccessKindInsertRight,
 	|	CASE
-	|		WHEN ProfilesRights.UnrestrictedUpdateRight
-	|			THEN TRUE
-	|		WHEN NOT ProfilesRights.EditRight
-	|			THEN FALSE
-	|		WHEN NOT AccessRestrictionKinds.AccessKind IS NULL
-	|			THEN NOT AccessRestrictionKinds.RightUpdate
-	|		WHEN NOT TypesRestrictionsPermissionsUnconditional.AccessKind IS NULL
-	|			THEN NOT TypesRestrictionsPermissionsUnconditional.RightUpdate
-	|		ELSE FALSE
-	|	END AS AccessTypeRightChangeWithoutRestriction,
+	|		WHEN ProfilesRights.AddRight
+	|				AND NOT ProfilesRights.UnrestrictedAddRight
+	|				AND (ISNULL(AccessRestrictionKinds.RightUpdate, FALSE)
+	|					OR ISNULL(TypesRestrictionsPermissionsUnconditional.RightUpdate, FALSE)
+	|					OR AccessRestrictionKinds.AccessKind IS NULL
+	|						AND TypesRestrictionsPermissionsUnconditional.AccessKind IS NULL)
+	|			THEN 3
+	|		WHEN ProfilesRights.RightUpdate
+	|				AND NOT ProfilesRights.UnrestrictedUpdateRight
+	|				AND (ISNULL(AccessRestrictionKinds.RightUpdate, FALSE)
+	|					OR ISNULL(TypesRestrictionsPermissionsUnconditional.RightUpdate, FALSE)
+	|					OR AccessRestrictionKinds.AccessKind IS NULL
+	|						AND TypesRestrictionsPermissionsUnconditional.AccessKind IS NULL)
+	|			THEN 2
+	|		WHEN ProfilesRights.ReadRight
+	|				AND NOT ProfilesRights.UnrestrictedReadRight
+	|				AND (ISNULL(AccessRestrictionKinds.ReadRight, FALSE)
+	|					OR ISNULL(TypesRestrictionsPermissionsUnconditional.ReadRight, FALSE)
+	|					OR AccessRestrictionKinds.AccessKind IS NULL
+	|						AND TypesRestrictionsPermissionsUnconditional.AccessKind IS NULL)
+	|			THEN 1
+	|		ELSE 0
+	|	END AS AccessKindRight,
+	|	FALSE AS AccessTypeRightReadUnlimited,
+	|	FALSE AS AccessTypeRightChangeWithoutRestriction,
+	|	FALSE AS AccessTypeRightAdditionWithoutRestriction,
+	|	0 AS AccessKindUnrestrictedRight,
+	|	ProfilesRights.ViewRight
+	|		AND NOT ProfilesRights.UnrestrictedReadRight
+	|		AND (ISNULL(AccessRestrictionKinds.ReadRight, FALSE)
+	|			OR ISNULL(TypesRestrictionsPermissionsUnconditional.ReadRight, FALSE)
+	|			OR AccessRestrictionKinds.AccessKind IS NULL
+	|				AND TypesRestrictionsPermissionsUnconditional.AccessKind IS NULL) AS AccessTypeRightView,
+	|	ProfilesRights.EditRight
+	|		AND NOT ProfilesRights.UnrestrictedUpdateRight
+	|		AND (ISNULL(AccessRestrictionKinds.RightUpdate, FALSE)
+	|			OR ISNULL(TypesRestrictionsPermissionsUnconditional.RightUpdate, FALSE)
+	|			OR AccessRestrictionKinds.AccessKind IS NULL
+	|				AND TypesRestrictionsPermissionsUnconditional.AccessKind IS NULL) AS AccessTypeRightEditing,
+	|	ProfilesRights.InteractiveAddRight
+	|		AND NOT ProfilesRights.UnrestrictedAddRight
+	|		AND (ISNULL(AccessRestrictionKinds.RightUpdate, FALSE)
+	|			OR ISNULL(TypesRestrictionsPermissionsUnconditional.RightUpdate, FALSE)
+	|			OR AccessRestrictionKinds.AccessKind IS NULL
+	|				AND TypesRestrictionsPermissionsUnconditional.AccessKind IS NULL) AS AccessTypeRightInteractiveAdd,
 	|	CASE
-	|		WHEN ProfilesRights.UnrestrictedAddRight
-	|			THEN TRUE
-	|		WHEN NOT ProfilesRights.InteractiveAddRight
-	|			THEN FALSE
-	|		WHEN NOT AccessRestrictionKinds.AccessKind IS NULL
-	|			THEN NOT AccessRestrictionKinds.RightUpdate
-	|		WHEN NOT TypesRestrictionsPermissionsUnconditional.AccessKind IS NULL
-	|			THEN NOT TypesRestrictionsPermissionsUnconditional.RightUpdate
-	|		ELSE FALSE
-	|	END AS AccessTypeRightAdditionWithoutRestriction,
-	|	CASE
-	|		WHEN AccessRestrictionKinds.AccessKind IS NULL
-	|				AND TypesRestrictionsPermissionsUnconditional.AccessKind IS NULL
-	|			THEN FALSE
-	|		ELSE ProfilesRights.ViewRight
-	|	END AS AccessTypeRightView,
-	|	CASE
-	|		WHEN AccessRestrictionKinds.AccessKind IS NULL
-	|				AND TypesRestrictionsPermissionsUnconditional.AccessKind IS NULL
-	|			THEN FALSE
-	|		ELSE ProfilesRights.EditRight
-	|	END AS AccessTypeRightEditing,
-	|	CASE
-	|		WHEN AccessRestrictionKinds.AccessKind IS NULL
-	|				AND TypesRestrictionsPermissionsUnconditional.AccessKind IS NULL
-	|			THEN FALSE
-	|		ELSE ProfilesRights.InteractiveAddRight
-	|	END AS AccessTypeRightInteractiveAdd,
+	|		WHEN ProfilesRights.InteractiveAddRight
+	|				AND NOT ProfilesRights.UnrestrictedAddRight
+	|				AND (ISNULL(AccessRestrictionKinds.RightUpdate, FALSE)
+	|					OR ISNULL(TypesRestrictionsPermissionsUnconditional.RightUpdate, FALSE)
+	|					OR AccessRestrictionKinds.AccessKind IS NULL
+	|						AND TypesRestrictionsPermissionsUnconditional.AccessKind IS NULL)
+	|			THEN 3
+	|		WHEN ProfilesRights.EditRight
+	|				AND NOT ProfilesRights.UnrestrictedUpdateRight
+	|				AND (ISNULL(AccessRestrictionKinds.RightUpdate, FALSE)
+	|					OR ISNULL(TypesRestrictionsPermissionsUnconditional.RightUpdate, FALSE)
+	|					OR AccessRestrictionKinds.AccessKind IS NULL
+	|						AND TypesRestrictionsPermissionsUnconditional.AccessKind IS NULL)
+	|			THEN 2
+	|		WHEN ProfilesRights.ViewRight
+	|				AND NOT ProfilesRights.UnrestrictedReadRight
+	|				AND (ISNULL(AccessRestrictionKinds.ReadRight, FALSE)
+	|					OR ISNULL(TypesRestrictionsPermissionsUnconditional.ReadRight, FALSE)
+	|					OR AccessRestrictionKinds.AccessKind IS NULL
+	|						AND TypesRestrictionsPermissionsUnconditional.AccessKind IS NULL)
+	|			THEN 1
+	|		ELSE 0
+	|	END AS AccessKindInteractiveRight,
 	|	CASE
 	|		WHEN NOT AccessRestrictionKinds.AccessKind IS NULL
 	|			THEN AccessRestrictionKinds.AccessKind
@@ -924,6 +1358,13 @@ Function UsersRights()
 	|		ELSE UNDEFINED
 	|	END AS AccessKind,
 	|	CASE
+	|		WHEN NOT(ProfilesRights.ReadRight
+	|						AND NOT ProfilesRights.UnrestrictedReadRight
+	|					OR ProfilesRights.RightUpdate
+	|						AND NOT ProfilesRights.UnrestrictedUpdateRight
+	|					OR ProfilesRights.AddRight
+	|						AND NOT ProfilesRights.UnrestrictedAddRight)
+	|			THEN &TextUnlimited
 	|		WHEN NOT AccessRestrictionKinds.AccessKind IS NULL
 	|			THEN AccessRestrictionKinds.AccessKindPresentation + CASE
 	|					WHEN AccessKindsAndValues.AllAllowed IS NULL
@@ -942,24 +1383,18 @@ Function UsersRights()
 	|							ELSE &TextForbidden
 	|						END
 	|				END
+	|		WHEN NOT TypesRestrictionsPermissionsUnconditional.AccessKind IS NULL
+	|			THEN TypesRestrictionsPermissionsUnconditional.AccessKindPresentation
 	|		ELSE CASE
-	|				WHEN ProfilesRights.ViewRight
-	|							AND NOT ProfilesRights.UnrestrictedReadRight
-	|						OR ProfilesRights.EditRight
-	|							AND NOT ProfilesRights.UnrestrictedUpdateRight
-	|						OR ProfilesRights.InteractiveAddRight
-	|							AND NOT ProfilesRights.UnrestrictedAddRight
-	|					THEN CASE
-	|							WHEN NOT TypesRestrictionsPermissionsUnconditional.AccessKind IS NULL
-	|								THEN TypesRestrictionsPermissionsUnconditional.AccessKindPresentation
-	|							ELSE &TextRestrictionWithoutAccessTypes
-	|						END
-	|				ELSE &TextUnlimited
+	|				WHEN ProfilesRights.Table IN (&AllTablesWithRestriction)
+	|					THEN &RestrictionDisabled
+	|				ELSE &NonStandardRestriction
 	|			END
 	|	END AS AccessKindPresentation,
 	|	ISNULL(AccessKindsAndValues.AllAllowed, FALSE) AS AllAllowed,
 	|	CASE
 	|		WHEN AccessRestrictionKinds.AccessKind IS NULL
+	|				OR VALUETYPE(AccessRestrictionKinds.AccessKind) = TYPE(Enum.AdditionalAccessValues)
 	|			THEN """"
 	|		WHEN NOT EmptyAccessValueReferences.Presentation IS NULL
 	|			THEN EmptyAccessValueReferences.Presentation
@@ -994,13 +1429,13 @@ Function UsersRights()
 	|				OR AccessRestrictionKinds.ForExternalUsers
 	|					AND (VALUETYPE(AccessGroupsMembers.User) = TYPE(Catalog.ExternalUsers)
 	|						OR VALUETYPE(AccessGroupsMembers.User) = TYPE(Catalog.ExternalUsersGroups)))
-	|			AND (ProfilesRights.ViewRight
+	|			AND (ProfilesRights.ReadRight
 	|					AND NOT ProfilesRights.UnrestrictedReadRight
 	|					AND AccessRestrictionKinds.ReadRight
-	|				OR ProfilesRights.EditRight
+	|				OR ProfilesRights.RightUpdate
 	|					AND NOT ProfilesRights.UnrestrictedUpdateRight
 	|					AND AccessRestrictionKinds.RightUpdate
-	|				OR ProfilesRights.InteractiveAddRight
+	|				OR ProfilesRights.AddRight
 	|					AND NOT ProfilesRights.UnrestrictedAddRight
 	|					AND AccessRestrictionKinds.RightUpdate)
 	|		LEFT JOIN AccessRestrictionKinds AS TypesRestrictionsPermissionsUnconditional
@@ -1022,9 +1457,13 @@ Function UsersRights()
 	|		LEFT JOIN InformationRegister.UsersInfo AS UsersInfo
 	|		ON (UsersInfo.User = UserGroupCompositions.User)";
 	
-	RequestTextWithGroupingByReportsSupplement =
+EndFunction
+
+Function RequestTextWithGroupingByReportsSupplement()
+	
+	Return
 	"SELECT
-	|	RolesRightsToReports.Report AS Report,
+	|	RolesRightsToReports.Report AS ReportRef,
 	|	RolesRightsToReports.Role AS Role
 	|INTO RolesRightsToReports
 	|FROM
@@ -1034,7 +1473,7 @@ Function UsersRights()
 	|////////////////////////////////////////////////////////////////////////////////
 	|SELECT DISTINCT
 	|	AccessGroupProfilesRoles.Ref AS Profile,
-	|	RolesRightsToReports.Report AS Report
+	|	RolesRightsToReports.ReportRef AS ReportRef
 	|INTO RightsOfProfilesToReports
 	|FROM
 	|	RolesRightsToReports AS RolesRightsToReports
@@ -1043,12 +1482,12 @@ Function UsersRights()
 	|			AND (NOT AccessGroupProfilesRoles.Ref.DeletionMark)
 	|
 	|INDEX BY
-	|	Report
+	|	ReportRef
 	|;
 	|
 	|////////////////////////////////////////////////////////////////////////////////
 	|SELECT
-	|	ReportsTables.Report AS Report,
+	|	ReportsTables.Report AS ReportRef,
 	|	ReportsTables.MetadataObject AS Table
 	|INTO ReportsTables
 	|FROM
@@ -1062,10 +1501,13 @@ Function UsersRights()
 	|
 	|////////////////////////////////////////////////////////////////////////////////
 	|SELECT
-	|	ReportTablesWithPermissions.Report AS Report,
+	|	ReportTablesWithPermissions.ReportRef AS ReportRef,
 	|	ReportTablesWithPermissions.Table AS Table,
 	|	ReportTablesWithPermissions.Profile AS Profile,
 	|	MAX(ReportTablesWithPermissions.ReportRight) AS ReportRight,
+	|	MAX(ReportTablesWithPermissions.ReadRight) AS ReadRight,
+	|	MAX(ReportTablesWithPermissions.RightUpdate) AS RightUpdate,
+	|	MAX(ReportTablesWithPermissions.AddRight) AS AddRight,
 	|	MAX(ReportTablesWithPermissions.UnrestrictedReadRight) AS UnrestrictedReadRight,
 	|	MAX(ReportTablesWithPermissions.UnrestrictedUpdateRight) AS UnrestrictedUpdateRight,
 	|	MAX(ReportTablesWithPermissions.UnrestrictedAddRight) AS UnrestrictedAddRight,
@@ -1075,10 +1517,13 @@ Function UsersRights()
 	|INTO ProfilesRights
 	|FROM
 	|	(SELECT
-	|		ReportsTables.Report AS Report,
+	|		ReportsTables.ReportRef AS ReportRef,
 	|		ReportsTables.Table AS Table,
 	|		RightsOfProfilesToReports.Profile AS Profile,
 	|		TRUE AS ReportRight,
+	|		FALSE AS ReadRight,
+	|		FALSE AS RightUpdate,
+	|		FALSE AS AddRight,
 	|		FALSE AS UnrestrictedReadRight,
 	|		FALSE AS UnrestrictedUpdateRight,
 	|		FALSE AS UnrestrictedAddRight,
@@ -1088,15 +1533,18 @@ Function UsersRights()
 	|	FROM
 	|		ReportsTables AS ReportsTables
 	|			INNER JOIN RightsOfProfilesToReports AS RightsOfProfilesToReports
-	|			ON (RightsOfProfilesToReports.Report = ReportsTables.Report)
+	|			ON (RightsOfProfilesToReports.ReportRef = ReportsTables.ReportRef)
 	|	
 	|	UNION ALL
 	|	
 	|	SELECT
-	|		ReportsTables.Report,
+	|		ReportsTables.ReportRef,
 	|		ReportsTables.Table,
 	|		RightsOfProfilesToTables.Profile,
 	|		FALSE,
+	|		RightsOfProfilesToTables.ReadRight,
+	|		RightsOfProfilesToTables.RightUpdate,
+	|		RightsOfProfilesToTables.AddRight,
 	|		RightsOfProfilesToTables.UnrestrictedReadRight,
 	|		RightsOfProfilesToTables.UnrestrictedUpdateRight,
 	|		RightsOfProfilesToTables.UnrestrictedAddRight,
@@ -1111,9 +1559,12 @@ Function UsersRights()
 	|	UNION ALL
 	|	
 	|	SELECT
-	|		ReportsTables.Report,
+	|		ReportsTables.ReportRef,
 	|		ReportsTables.Table,
 	|		VALUE(Catalog.AccessGroupProfiles.EmptyRef),
+	|		FALSE,
+	|		FALSE,
+	|		FALSE,
 	|		FALSE,
 	|		FALSE,
 	|		FALSE,
@@ -1130,7 +1581,7 @@ Function UsersRights()
 	|					FROM
 	|						RightsOfProfilesToReports AS RightsOfProfilesToReports
 	|					WHERE
-	|						RightsOfProfilesToReports.Report = ReportsTables.Report)
+	|						RightsOfProfilesToReports.ReportRef = ReportsTables.ReportRef)
 	|		AND NOT TRUE IN
 	|					(SELECT TOP 1
 	|						TRUE
@@ -1140,13 +1591,17 @@ Function UsersRights()
 	|						RightsOfProfilesToTables.Table = ReportsTables.Table)) AS ReportTablesWithPermissions
 	|
 	|GROUP BY
-	|	ReportTablesWithPermissions.Report,
+	|	ReportTablesWithPermissions.ReportRef,
 	|	ReportTablesWithPermissions.Table,
 	|	ReportTablesWithPermissions.Profile";
 	
-	RequestTextWithGroupingByReports =
+EndFunction
+
+Function RequestTextWithGroupingByReports()
+	
+	Return
 	"SELECT DISTINCT
-	|	ProfilesRights.Report AS Report,
+	|	ProfilesRights.ReportRef AS ReportRef,
 	|	CASE
 	|		WHEN ProfilesRights.ReportRight
 	|			THEN 1
@@ -1158,28 +1613,28 @@ Function UsersRights()
 	|			THEN AccessGroups.Profile
 	|		ELSE AccessGroups.Ref
 	|	END AS AccessGroup,
+	|	ProfilesRights.ReadRight AS ReadRight,
+	|	ProfilesRights.RightUpdate AS RightUpdate,
+	|	ProfilesRights.AddRight AS AddRight,
+	|	CASE
+	|		WHEN ProfilesRights.AddRight
+	|			THEN 3
+	|		WHEN ProfilesRights.RightUpdate
+	|			THEN 2
+	|		WHEN ProfilesRights.ReadRight
+	|			THEN 1
+	|		ELSE 0
+	|	END AS Right,
 	|	ProfilesRights.UnrestrictedReadRight AS UnrestrictedReadRight,
 	|	ProfilesRights.UnrestrictedUpdateRight AS UnrestrictedUpdateRight,
 	|	ProfilesRights.UnrestrictedAddRight AS UnrestrictedAddRight,
 	|	CASE
-	|		WHEN ProfilesRights.InteractiveAddRight
-	|			THEN CASE
-	|					WHEN ProfilesRights.UnrestrictedAddRight
-	|						THEN 3
-	|					ELSE 0
-	|				END
-	|		WHEN ProfilesRights.EditRight
-	|			THEN CASE
-	|					WHEN ProfilesRights.UnrestrictedUpdateRight
-	|						THEN 2
-	|					ELSE 0
-	|				END
-	|		WHEN ProfilesRights.ViewRight
-	|			THEN CASE
-	|					WHEN ProfilesRights.UnrestrictedReadRight
-	|						THEN 1
-	|					ELSE 0
-	|				END
+	|		WHEN ProfilesRights.UnrestrictedAddRight
+	|			THEN 3
+	|		WHEN ProfilesRights.UnrestrictedUpdateRight
+	|			THEN 2
+	|		WHEN ProfilesRights.UnrestrictedReadRight
+	|			THEN 1
 	|		ELSE 0
 	|	END AS RightUnlimited,
 	|	ProfilesRights.ViewRight AS ViewRight,
@@ -1193,7 +1648,7 @@ Function UsersRights()
 	|		WHEN ProfilesRights.ViewRight
 	|			THEN 1
 	|		ELSE 0
-	|	END AS Right,
+	|	END AS InteractiveRight,
 	|	UserGroupCompositions.User AS User,
 	|	ISNULL(UsersInfo.CanSignIn, FALSE) AS CanSignIn
 	|INTO UsersRights
@@ -1211,7 +1666,11 @@ Function UsersRights()
 	|		LEFT JOIN InformationRegister.UsersInfo AS UsersInfo
 	|		ON (UsersInfo.User = UserGroupCompositions.User)";
 	
-	TheTextOfTheRequestWithGroupingByReportsIsFinal =
+EndFunction
+
+Function TheTextOfTheRequestWithGroupingByReportsIsFinal()
+	
+	Return
 	"SELECT DISTINCT
 	|	UsersRights.User AS User,
 	|	UsersRights.CanSignIn AS CanSignIn
@@ -1222,10 +1681,14 @@ Function UsersRights()
 	|
 	|////////////////////////////////////////////////////////////////////////////////
 	|SELECT
-	|	UsersRights.Report AS Report,
+	|	UsersRights.ReportRef AS ReportRef,
 	|	UsersRights.ReportRight AS ReportRight,
 	|	UsersRights.MetadataObject AS MetadataObject,
 	|	UsersRights.AccessGroup AS AccessGroup,
+	|	UsersRights.ReadRight AS ReadRight,
+	|	UsersRights.RightUpdate AS RightUpdate,
+	|	UsersRights.AddRight AS AddRight,
+	|	UsersRights.Right AS Right,
 	|	UsersRights.UnrestrictedReadRight AS UnrestrictedReadRight,
 	|	UsersRights.UnrestrictedUpdateRight AS UnrestrictedUpdateRight,
 	|	UsersRights.UnrestrictedAddRight AS UnrestrictedAddRight,
@@ -1233,7 +1696,7 @@ Function UsersRights()
 	|	UsersRights.ViewRight AS ViewRight,
 	|	UsersRights.EditRight AS EditRight,
 	|	UsersRights.InteractiveAddRight AS InteractiveAddRight,
-	|	UsersRights.Right AS Right,
+	|	UsersRights.InteractiveRight AS InteractiveRight,
 	|	UsersRights.User AS User,
 	|	UsersRights.CanSignIn AS CanSignIn
 	|FROM
@@ -1242,7 +1705,7 @@ Function UsersRights()
 	|UNION ALL
 	|
 	|SELECT
-	|	ReportsTables.Report,
+	|	ReportsTables.ReportRef,
 	|	0,
 	|	ReportsTables.Table,
 	|	CASE
@@ -1250,6 +1713,10 @@ Function UsersRights()
 	|			THEN VALUE(Catalog.AccessGroupProfiles.EmptyRef)
 	|		ELSE VALUE(Catalog.AccessGroups.EmptyRef)
 	|	END,
+	|	FALSE,
+	|	FALSE,
+	|	FALSE,
+	|	FALSE,
 	|	FALSE,
 	|	FALSE,
 	|	FALSE,
@@ -1269,23 +1736,395 @@ Function UsersRights()
 	|					FROM
 	|						UsersRights AS UsersRights
 	|					WHERE
-	|						UsersRights.Report = ReportsTables.Report
+	|						UsersRights.ReportRef = ReportsTables.ReportRef
 	|						AND UsersRights.MetadataObject = ReportsTables.Table
 	|						AND UsersRights.User = UsersWithRights.User))";
 	
-	Query = New Query;
+EndFunction
+
+Function QueryTextForAccessValueStart()
+	
+	Return
+	"SELECT DISTINCT
+	|	ProfilesRights.Profile AS Profile
+	|INTO AllProfiles
+	|FROM
+	|	RightsOfProfilesToTables AS ProfilesRights
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT
+	|	AccessGroups.Profile AS Profile,
+	|	AccessGroups.Ref AS Ref
+	|INTO AccessGroupsOfSelectedAccessValue
+	|FROM
+	|	AllProfiles AS AllProfiles
+	|		INNER JOIN Catalog.AccessGroups AS AccessGroups
+	|		ON (AccessGroups.Profile = AllProfiles.Profile)
+	|WHERE
+	|	NOT AccessGroups.DeletionMark
+	|	AND CASE
+	|			WHEN &IsAccessValuesGroup
+	|					AND TRUE IN
+	|						(SELECT TOP 1
+	|							TRUE
+	|						FROM
+	|							InformationRegister.AccessGroupsValues AS Values
+	|						WHERE
+	|							Values.AccessGroup = AccessGroups.Ref
+	|							AND Values.AccessValue = &AccessValue)
+	|				THEN TRUE
+	|			WHEN NOT &IsAccessValuesGroup
+	|					AND TRUE IN
+	|						(SELECT TOP 1
+	|							TRUE
+	|						FROM
+	|							InformationRegister.AccessGroupsValues AS Values
+	|								INNER JOIN InformationRegister.AccessValuesGroups AS ValueGroups
+	|								ON
+	|									Values.AccessGroup = AccessGroups.Ref
+	|										AND Values.AccessValue = ValueGroups.AccessValuesGroup
+	|										AND ValueGroups.AccessValue = &AccessValue)
+	|				THEN TRUE
+	|			ELSE FALSE
+	|		END = CASE
+	|			WHEN TRUE IN
+	|					(SELECT TOP 1
+	|						TRUE
+	|					FROM
+	|						InformationRegister.DefaultAccessGroupsValues AS DefaultValues
+	|					WHERE
+	|						DefaultValues.AccessGroup = AccessGroups.Ref
+	|						AND VALUETYPE(DefaultValues.AccessValuesType) = VALUETYPE(&AccessKind)
+	|						AND DefaultValues.AllAllowed = FALSE)
+	|				THEN TRUE
+	|			ELSE FALSE
+	|		END";
+	
+EndFunction
+
+Function QueryTextForAccessValueEnd()
+	
+	Return
+	"SELECT DISTINCT
+	|	ProfilesRights.Table AS MetadataObject,
+	|	CASE
+	|		WHEN &SimplifiedAccessRightsSetupInterface
+	|			THEN AccessGroups.Profile
+	|		ELSE AccessGroups.Ref
+	|	END AS AccessGroup,
+	|	ProfilesRights.ReadRight AS ReadRight,
+	|	ProfilesRights.RightUpdate AS RightUpdate,
+	|	ProfilesRights.AddRight AS AddRight,
+	|	CASE
+	|		WHEN ProfilesRights.AddRight
+	|			THEN 3
+	|		WHEN ProfilesRights.RightUpdate
+	|			THEN 2
+	|		WHEN ProfilesRights.ReadRight
+	|			THEN 1
+	|		ELSE 0
+	|	END AS Right,
+	|	CASE
+	|		WHEN NOT ProfilesRights.ReadRight
+	|			THEN FALSE
+	|		WHEN ProfilesRights.UnrestrictedReadRight
+	|			THEN TRUE
+	|		ELSE NOT AccessRestrictionKinds.ReadRight
+	|	END AS UnrestrictedReadRight,
+	|	CASE
+	|		WHEN NOT ProfilesRights.RightUpdate
+	|			THEN FALSE
+	|		WHEN ProfilesRights.UnrestrictedUpdateRight
+	|			THEN TRUE
+	|		ELSE NOT AccessRestrictionKinds.RightUpdate
+	|	END AS UnrestrictedUpdateRight,
+	|	CASE
+	|		WHEN NOT ProfilesRights.AddRight
+	|			THEN FALSE
+	|		WHEN ProfilesRights.UnrestrictedAddRight
+	|			THEN TRUE
+	|		ELSE NOT AccessRestrictionKinds.RightUpdate
+	|	END AS UnrestrictedAddRight,
+	|	CASE
+	|		WHEN CASE
+	|				WHEN NOT ProfilesRights.AddRight
+	|					THEN FALSE
+	|				WHEN ProfilesRights.UnrestrictedAddRight
+	|					THEN TRUE
+	|				ELSE NOT AccessRestrictionKinds.RightUpdate
+	|			END
+	|			THEN 3
+	|		WHEN CASE
+	|				WHEN NOT ProfilesRights.RightUpdate
+	|					THEN FALSE
+	|				WHEN ProfilesRights.UnrestrictedUpdateRight
+	|					THEN TRUE
+	|				ELSE NOT AccessRestrictionKinds.RightUpdate
+	|			END
+	|			THEN 2
+	|		WHEN CASE
+	|				WHEN NOT ProfilesRights.ReadRight
+	|					THEN FALSE
+	|				WHEN ProfilesRights.UnrestrictedReadRight
+	|					THEN TRUE
+	|				ELSE NOT AccessRestrictionKinds.ReadRight
+	|			END
+	|			THEN 1
+	|		ELSE 0
+	|	END AS RightUnlimited,
+	|	ProfilesRights.ViewRight AS ViewRight,
+	|	ProfilesRights.EditRight AS EditRight,
+	|	ProfilesRights.InteractiveAddRight AS InteractiveAddRight,
+	|	CASE
+	|		WHEN ProfilesRights.InteractiveAddRight
+	|			THEN 3
+	|		WHEN ProfilesRights.EditRight
+	|			THEN 2
+	|		WHEN ProfilesRights.ViewRight
+	|			THEN 1
+	|		ELSE 0
+	|	END AS InteractiveRight,
+	|	&AccessKind AS AccessKind,
+	|	&AccessKindPresentation AS AccessKindPresentation,
+	|	&AccessValuePresentation AS AccessValue,
+	|	UserGroupCompositions.User AS User,
+	|	ISNULL(UsersInfo.CanSignIn, FALSE) AS CanSignIn
+	|FROM
+	|	RightsOfProfilesToTables AS ProfilesRights
+	|		INNER JOIN AccessGroupsOfSelectedAccessValue AS AccessGroups
+	|		ON (AccessGroups.Profile = ProfilesRights.Profile)
+	|		INNER JOIN Catalog.AccessGroups.Users AS AccessGroupsMembers
+	|		ON (AccessGroupsMembers.Ref = AccessGroups.Ref)
+	|		INNER JOIN AccessRestrictionKinds AS AccessRestrictionKinds
+	|		ON (AccessRestrictionKinds.Table = ProfilesRights.Table)
+	|			AND (NOT AccessRestrictionKinds.ForExternalUsers
+	|					AND (VALUETYPE(AccessGroupsMembers.User) = TYPE(Catalog.Users)
+	|						OR VALUETYPE(AccessGroupsMembers.User) = TYPE(Catalog.UserGroups))
+	|				OR AccessRestrictionKinds.ForExternalUsers
+	|					AND (VALUETYPE(AccessGroupsMembers.User) = TYPE(Catalog.ExternalUsers)
+	|						OR VALUETYPE(AccessGroupsMembers.User) = TYPE(Catalog.ExternalUsersGroups)))
+	|		INNER JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
+	|		ON (UserGroupCompositions.UsersGroup = AccessGroupsMembers.User)
+	|			AND (ISNULL(UserGroupCompositions.User.IsInternal, FALSE) <> TRUE)
+	|			AND (&SelectionCriteriaForUsers)
+	|		LEFT JOIN InformationRegister.UsersInfo AS UsersInfo
+	|		ON (UsersInfo.User = UserGroupCompositions.User)";
+	
+EndFunction
+
+Function QueryTextForTypeUserAccessValueEnd()
+	
+	Return
+	"SELECT
+	|	AccessGroups.Profile AS Profile,
+	|	AccessGroups.Ref AS Ref,
+	|	AccessGroups.User AS User,
+	|	AccessGroups.IsAuthorizedUser AS IsAuthorizedUser
+	|INTO AccessGroupsOfSelectedAccessValueWithMembers
+	|FROM
+	|	(SELECT DISTINCT
+	|		AccessGroups.Profile AS Profile,
+	|		AccessGroups.Ref AS Ref,
+	|		UserGroupCompositions.User AS User,
+	|		TRUE AS IsAuthorizedUser
+	|	FROM
+	|		AllProfiles AS AllProfiles
+	|			INNER JOIN Catalog.AccessGroups AS AccessGroups
+	|			ON (AccessGroups.Profile = AllProfiles.Profile)
+	|			INNER JOIN Catalog.AccessGroups.Users AS AccessGroupsMembers
+	|			ON (AccessGroupsMembers.Ref = AccessGroups.Ref)
+	|			INNER JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
+	|			ON (UserGroupCompositions.UsersGroup = AccessGroupsMembers.User)
+	|				AND (ISNULL(UserGroupCompositions.User.IsInternal, FALSE) <> TRUE)
+	|				AND (&SelectionCriteriaForUsers)
+	|	WHERE
+	|		NOT AccessGroups.DeletionMark
+	|		AND TRUE IN
+	|				(SELECT TOP 1
+	|					TRUE
+	|				FROM
+	|					InformationRegister.AccessValuesGroups AS AccessValuesGroups
+	|				WHERE
+	|					AccessValuesGroups.AccessValue = &AccessValue
+	|					AND AccessValuesGroups.AccessValuesGroup = UserGroupCompositions.User)
+	|	
+	|	UNION ALL
+	|	
+	|	SELECT DISTINCT
+	|		AccessGroups.Profile,
+	|		AccessGroups.Ref,
+	|		AccessGroupsMembers.User,
+	|		FALSE
+	|	FROM
+	|		AccessGroupsOfSelectedAccessValue AS AccessGroups
+	|			INNER JOIN Catalog.AccessGroups.Users AS AccessGroupsMembers
+	|			ON (AccessGroupsMembers.Ref = AccessGroups.Ref)) AS AccessGroups
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT DISTINCT
+	|	ProfilesRights.Table AS MetadataObject,
+	|	CASE
+	|		WHEN &SimplifiedAccessRightsSetupInterface
+	|			THEN AccessGroupsWithMembers.Profile
+	|		ELSE AccessGroupsWithMembers.Ref
+	|	END AS AccessGroup,
+	|	ProfilesRights.ReadRight
+	|		AND (AccessRestrictionKinds.IsAuthorizedUser <= AccessGroupsWithMembers.IsAuthorizedUser
+	|			OR ProfilesRights.UnrestrictedReadRight) AS ReadRight,
+	|	ProfilesRights.RightUpdate
+	|		AND (AccessRestrictionKinds.IsAuthorizedUser <= AccessGroupsWithMembers.IsAuthorizedUser
+	|			OR ProfilesRights.UnrestrictedUpdateRight) AS RightUpdate,
+	|	ProfilesRights.AddRight
+	|		AND (AccessRestrictionKinds.IsAuthorizedUser <= AccessGroupsWithMembers.IsAuthorizedUser
+	|			OR ProfilesRights.UnrestrictedAddRight) AS AddRight,
+	|	CASE
+	|		WHEN ProfilesRights.AddRight
+	|				AND (AccessRestrictionKinds.IsAuthorizedUser <= AccessGroupsWithMembers.IsAuthorizedUser
+	|					OR ProfilesRights.UnrestrictedAddRight)
+	|			THEN 3
+	|		WHEN ProfilesRights.RightUpdate
+	|				AND (AccessRestrictionKinds.IsAuthorizedUser <= AccessGroupsWithMembers.IsAuthorizedUser
+	|					OR ProfilesRights.UnrestrictedUpdateRight)
+	|			THEN 2
+	|		WHEN ProfilesRights.ReadRight
+	|				AND (AccessRestrictionKinds.IsAuthorizedUser <= AccessGroupsWithMembers.IsAuthorizedUser
+	|					OR ProfilesRights.UnrestrictedReadRight)
+	|			THEN 1
+	|		ELSE 0
+	|	END AS Right,
+	|	CASE
+	|		WHEN NOT(ProfilesRights.ReadRight
+	|					AND (AccessRestrictionKinds.IsAuthorizedUser <= AccessGroupsWithMembers.IsAuthorizedUser
+	|						OR ProfilesRights.UnrestrictedReadRight))
+	|			THEN FALSE
+	|		WHEN ProfilesRights.UnrestrictedReadRight
+	|			THEN TRUE
+	|		ELSE NOT AccessRestrictionKinds.ReadRight
+	|	END AS UnrestrictedReadRight,
+	|	CASE
+	|		WHEN NOT(ProfilesRights.RightUpdate
+	|					AND (AccessRestrictionKinds.IsAuthorizedUser <= AccessGroupsWithMembers.IsAuthorizedUser
+	|						OR ProfilesRights.UnrestrictedUpdateRight))
+	|			THEN FALSE
+	|		WHEN ProfilesRights.UnrestrictedUpdateRight
+	|			THEN TRUE
+	|		ELSE NOT AccessRestrictionKinds.RightUpdate
+	|	END AS UnrestrictedUpdateRight,
+	|	CASE
+	|		WHEN NOT(ProfilesRights.AddRight
+	|					AND (AccessRestrictionKinds.IsAuthorizedUser <= AccessGroupsWithMembers.IsAuthorizedUser
+	|						OR ProfilesRights.UnrestrictedAddRight))
+	|			THEN FALSE
+	|		WHEN ProfilesRights.UnrestrictedAddRight
+	|			THEN TRUE
+	|		ELSE NOT AccessRestrictionKinds.RightUpdate
+	|	END AS UnrestrictedAddRight,
+	|	CASE
+	|		WHEN CASE
+	|				WHEN NOT(ProfilesRights.AddRight
+	|							AND (AccessRestrictionKinds.IsAuthorizedUser <= AccessGroupsWithMembers.IsAuthorizedUser
+	|								OR ProfilesRights.UnrestrictedAddRight))
+	|					THEN FALSE
+	|				WHEN ProfilesRights.UnrestrictedAddRight
+	|					THEN TRUE
+	|				ELSE NOT AccessRestrictionKinds.RightUpdate
+	|			END
+	|			THEN 3
+	|		WHEN CASE
+	|				WHEN NOT(ProfilesRights.RightUpdate
+	|							AND (AccessRestrictionKinds.IsAuthorizedUser <= AccessGroupsWithMembers.IsAuthorizedUser
+	|								OR ProfilesRights.UnrestrictedUpdateRight))
+	|					THEN FALSE
+	|				WHEN ProfilesRights.UnrestrictedUpdateRight
+	|					THEN TRUE
+	|				ELSE NOT AccessRestrictionKinds.RightUpdate
+	|			END
+	|			THEN 2
+	|		WHEN CASE
+	|				WHEN NOT(ProfilesRights.ReadRight
+	|							AND (AccessRestrictionKinds.IsAuthorizedUser <= AccessGroupsWithMembers.IsAuthorizedUser
+	|								OR ProfilesRights.UnrestrictedReadRight))
+	|					THEN FALSE
+	|				WHEN ProfilesRights.UnrestrictedReadRight
+	|					THEN TRUE
+	|				ELSE NOT AccessRestrictionKinds.ReadRight
+	|			END
+	|			THEN 1
+	|		ELSE 0
+	|	END AS RightUnlimited,
+	|	ProfilesRights.ViewRight
+	|		AND (AccessRestrictionKinds.IsAuthorizedUser <= AccessGroupsWithMembers.IsAuthorizedUser
+	|			OR ProfilesRights.UnrestrictedReadRight) AS ViewRight,
+	|	ProfilesRights.EditRight
+	|		AND (AccessRestrictionKinds.IsAuthorizedUser <= AccessGroupsWithMembers.IsAuthorizedUser
+	|			OR ProfilesRights.UnrestrictedUpdateRight) AS EditRight,
+	|	ProfilesRights.InteractiveAddRight
+	|		AND (AccessRestrictionKinds.IsAuthorizedUser <= AccessGroupsWithMembers.IsAuthorizedUser
+	|			OR ProfilesRights.UnrestrictedAddRight) AS InteractiveAddRight,
+	|	CASE
+	|		WHEN ProfilesRights.InteractiveAddRight
+	|				AND (AccessRestrictionKinds.IsAuthorizedUser <= AccessGroupsWithMembers.IsAuthorizedUser
+	|					OR ProfilesRights.UnrestrictedAddRight)
+	|			THEN 3
+	|		WHEN ProfilesRights.EditRight
+	|				AND (AccessRestrictionKinds.IsAuthorizedUser <= AccessGroupsWithMembers.IsAuthorizedUser
+	|					OR ProfilesRights.UnrestrictedUpdateRight)
+	|			THEN 2
+	|		WHEN ProfilesRights.ViewRight
+	|				AND (AccessRestrictionKinds.IsAuthorizedUser <= AccessGroupsWithMembers.IsAuthorizedUser
+	|					OR ProfilesRights.UnrestrictedReadRight)
+	|			THEN 1
+	|		ELSE 0
+	|	END AS InteractiveRight,
+	|	&AccessKind AS AccessKind,
+	|	&AccessKindPresentation AS AccessKindPresentation,
+	|	&AccessValuePresentation AS AccessValue,
+	|	UserGroupCompositions.User AS User,
+	|	ISNULL(UsersInfo.CanSignIn, FALSE) AS CanSignIn
+	|FROM
+	|	RightsOfProfilesToTables AS ProfilesRights
+	|		INNER JOIN AccessGroupsOfSelectedAccessValueWithMembers AS AccessGroupsWithMembers
+	|		ON (AccessGroupsWithMembers.Profile = ProfilesRights.Profile)
+	|		INNER JOIN AccessRestrictionKinds AS AccessRestrictionKinds
+	|		ON (AccessRestrictionKinds.Table = ProfilesRights.Table)
+	|			AND (AccessRestrictionKinds.IsAuthorizedUser <= AccessGroupsWithMembers.IsAuthorizedUser
+	|				OR ProfilesRights.UnrestrictedReadRight
+	|				OR ProfilesRights.UnrestrictedUpdateRight)
+	|			AND (NOT AccessRestrictionKinds.ForExternalUsers
+	|					AND (VALUETYPE(AccessGroupsWithMembers.User) = TYPE(Catalog.Users)
+	|						OR VALUETYPE(AccessGroupsWithMembers.User) = TYPE(Catalog.UserGroups))
+	|				OR AccessRestrictionKinds.ForExternalUsers
+	|					AND (VALUETYPE(AccessGroupsWithMembers.User) = TYPE(Catalog.ExternalUsers)
+	|						OR VALUETYPE(AccessGroupsWithMembers.User) = TYPE(Catalog.ExternalUsersGroups)))
+	|		INNER JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
+	|		ON (UserGroupCompositions.UsersGroup = AccessGroupsWithMembers.User)
+	|			AND (ISNULL(UserGroupCompositions.User.IsInternal, FALSE) <> TRUE)
+	|			AND (&SelectionCriteriaForUsers)
+	|		LEFT JOIN InformationRegister.UsersInfo AS UsersInfo
+	|		ON (UsersInfo.User = UserGroupCompositions.User)";
+	
+EndFunction
+
+Function UsersRights()
 	
 	SelectionCriteriaForUsers = "";
 	FilterConditionByCanSignIn = "";
 	If SelectionByEnteringTheProgramIsAllowed() Then
 		QueryTextWithoutGroupingByReportsWithAccessRestrictionsStart =
-			QueryTextWithoutGroupingByReportsWithAccessRestrictionsStart + "
+			QueryTextWithoutGroupingByReportsWithAccessRestrictionsStart() + "
 			|		INNER JOIN InformationRegister.UsersInfo AS UsersInfo
 			|		ON (UsersInfo.User = UserGroupCompositions.User)
 			|			AND (UsersInfo.CanSignIn)";
 		FilterConditionByCanSignIn = "
 		|			AND (UsersInfo.CanSignIn)";
+	Else
+		QueryTextWithoutGroupingByReportsWithAccessRestrictionsStart =
+			QueryTextWithoutGroupingByReportsWithAccessRestrictionsStart();
 	EndIf;
+	
+	Query = New Query;
 	
 	SelectionByUserType = SelectionByUserType();
 	FilterForSpecifiedUsers     = FilterForSpecifiedUsers();
@@ -1313,63 +2152,134 @@ Function UsersRights()
 	
 	GroupByReportsEnabled = GroupByReportsEnabled();
 	VariantWithRestrictedAccess = VariantWithRestrictedAccess();
+	ObjectRightsOption          = ObjectRightsOption();
+	OptionForAccessValue    = OptionForAccessValue();
+	UniversalRestriction =
+		AccessManagementInternal.LimitAccessAtRecordLevelUniversally(True, True);
+	
+	If VariantWithRestrictedAccess Or OptionForAccessValue Then
+		If UniversalRestriction Then
+			QueryTextWithoutGroupingByReportsWithAccessRestrictionsRestrictionTypes
+				= QueryTextWithoutGroupingByReportsWithAccessRestrictionsRestrictionTypesNew();
+		Else
+			QueryTextWithoutGroupingByReportsWithAccessRestrictionsRestrictionTypes
+				= QueryTextWithoutGroupingByReportsWithAccessRestrictions();
+		EndIf;
+		EmptyAccessValueReferences = AccessManagementInternal.EmptyAccessValueReferences();
+	EndIf;
 	
 	If GroupByReportsEnabled Then
-		QueryTextMain = RequestTextWithGroupingByReports;
-		Query.Text = QueryTextShared + Common.QueryBatchSeparator()
-			+ RequestTextWithGroupingByReportsSupplement;
+		QueryTextMain = RequestTextWithGroupingByReports();
+		Query.Text = QueryTextShared() + Common.QueryBatchSeparator()
+			+ RequestTextWithGroupingByReportsSupplement();
 		Query.SetParameter("RolesRightsToReports", RolesRightsToReports());
 		Query.SetParameter("ReportsTables",     ReportsTables());
 		
 	ElsIf VariantWithRestrictedAccess Then
-		UniversalRestriction =
-			AccessManagementInternal.LimitAccessAtRecordLevelUniversally(True, True);
-		If UniversalRestriction Then
-			QueryTextWithoutGroupingByReportsWithAccessRestrictionsRestrictionTypes
-				= QueryTextWithoutGroupingByReportsWithAccessRestrictionsRestrictionTypesNew;
-			Query.SetParameter("AccessRestrictionKinds",
-				Reports.AccessRightsAnalysis.AccessRestrictionKinds(, True));
-		Else
-			QueryTextWithoutGroupingByReportsWithAccessRestrictionsRestrictionTypes
-				= QueryTextWithoutGroupingByReportsWithAccessRestrictions;
-			Query.SetParameter("AccessRestrictionKinds",
-				Reports.AccessRightsAnalysis.AccessRestrictionKinds());
-		EndIf;
 		QueryTextMain = QueryTextWithoutGroupingByReportsWithAccessRestrictionsStart
 			+ Common.QueryBatchSeparator()
 			+ QueryTextWithoutGroupingByReportsWithAccessRestrictionsRestrictionTypes
 			+ Common.QueryBatchSeparator()
-			+ QueryTextWithoutGroupingByReportsWithAccessRestrictionsEnd;
-		Query.Text = QueryTextShared;
+			+ QueryTextWithoutGroupingByReportsWithAccessRestrictionsEnd();
+		Query.Text = QueryTextShared();
 		Query.SetParameter("TextAllowed", " (" + NStr("en = 'Allowed';")+ ")");
 		Query.SetParameter("TextForbidden", " (" + NStr("en = 'Denied';") + ")");
 		Query.SetParameter("TextAllowedUsers", " (" + NStr("en = 'Allowed';") + ") - "
 			+ NStr("en = 'Authorized user and their groups are always allowed';"));
 		Query.SetParameter("TextForbiddenUsers", " (" + NStr("en = 'Denied';") + ") - "
 			+ NStr("en = 'Authorized user and their groups are always allowed';"));
-		Query.SetParameter("TextRestrictionWithoutAccessTypes", "<" + NStr("en = 'Restriction without access kinds';")+ ">");
+		Query.SetParameter("RestrictionDisabled", "<" + NStr("en = 'Restriction disabled';")+ ">");
+		Query.SetParameter("NonStandardRestriction",
+			?(UniversalRestriction, "<" + NStr("en = 'Custom restriction';") + ">",
+				Reports.AccessRightsAnalysis.RestrictionPresentationWithoutAccessKinds()));
 		Query.SetParameter("TextUnlimited", "<" + NStr("en = 'No restriction';") + ">");
 		Query.SetParameter("TextAllAllowed", "<" + NStr("en = 'All allowed';") + ">");
 		Query.SetParameter("TextAllForbidden", "<" + NStr("en = 'All denied';") + ">");
-		Query.SetParameter("EmptyAccessValueReferences",
-			AccessManagementInternal.EmptyAccessValueReferences());
+		Query.SetParameter("EmptyAccessValueReferences", EmptyAccessValueReferences);
+		AllTablesWithRestriction = New Array;
+		Query.SetParameter("AccessRestrictionKinds",
+			Reports.AccessRightsAnalysis.AccessRestrictionKinds(,, AllTablesWithRestriction));
+		Query.SetParameter("AllTablesWithRestriction", AllTablesWithRestriction);
+		// Отображение специальных ограничений:
+		// 1. Права по ограничению не показываются (информация в правах без ограничения на группе доступа):
+		//    <Без ограничения> - ограничения нет в одной из ролей профиля групп доступа.
+		// 2. Права по ограничению показываются с ограничением (как для случая <Все разрешены>):
+		//    <Ограничение без видов доступа> - есть ограничение без видов доступа (специальные функции).
+		//    <Доступ запрещен> - безусловное ограничение на уровне логики ограничения "ГДЕ ЛОЖЬ".
+		//    <Ограничение отключено в профиле> - значит
+		//        нет настройки по видам доступа в профиле и
+		//        нет ограничения без видов доступа.
+		//    <Ограничение отключено>, <Ограничение чтения отключено> - значит
+		//        ограничение отключено во всех группах доступа или
+		//        отключено по видам доступа на уровне функциональных опций или
+		//        отключено на уровне логики ограничения "ГДЕ ИСТИНА".
+		
+	ElsIf ObjectRightsOption Then
+		DataElement = FilterByDataElements();
+		RightsToDataElement = AccessManagement.AccessRightsToData(DataElement, Undefined);
+		If Not ValueIsFilled(DataElement) Then
+			RightsToDataElement.Clear();
+		EndIf;
+		Query.SetParameter("RightsToDataElement", RightsToDataElement);
+		QueryTextMain = QueryTextForObjectRights();
+		Query.Text = QueryTextShared();
+		
+	ElsIf OptionForAccessValue Then
+		AccessValue = FilterByAccessValue();
+		AccessKindsProperties = AccessManagementInternal.AccessKindsProperties();
+		ByGroupsAndValuesTypes = AccessKindsProperties.ByGroupsAndValuesTypes;
+		AccessKindProperties = ByGroupsAndValuesTypes.Get(TypeOf(AccessValue));
+		AccessKind = ?(AccessKindProperties = Undefined, Null, AccessKindProperties.Ref);
+		Filter = New Structure("AccessKind", AccessKind);
+		AccessRestrictionKinds = Reports.AccessRightsAnalysis.AccessRestrictionKinds(, True);
+		Query.SetParameter("AccessRestrictionKinds",
+			AccessRestrictionKinds.Copy(AccessRestrictionKinds.FindRows(Filter)));
+		GroupingOption = ParameterValueFromSetting(SettingsComposer.UserSettings,
+			"GroupingOption", 0);
+		TypeUser = New TypeDescription(
+			"CatalogRef.Users, CatalogRef.UserGroups,
+			|CatalogRef.ExternalUsers,CatalogRef.ExternalUsersGroups");
+		QueryTextMain = QueryTextWithoutGroupingByReportsWithAccessRestrictionsRestrictionTypes
+			+ Common.QueryBatchSeparator()
+			+ QueryTextForAccessValueStart()
+			+ Common.QueryBatchSeparator()
+			+ ?(TypeUser.ContainsType(TypeOf(AccessKind)),
+				QueryTextForTypeUserAccessValueEnd(),
+				QueryTextForAccessValueEnd());
+		Query.Text = QueryTextShared();
+		Query.SetParameter("AccessKind", AccessKind);
+		Query.SetParameter("AccessKindPresentation", ?(AccessKindProperties = Undefined, "",
+			AccessManagementInternal.AccessKindPresentation(AccessKindProperties)));
+		Query.SetParameter("AccessValue", AccessValue);
+		FoundRow = EmptyAccessValueReferences.Find(AccessValue, "EmptyRef");
+		Query.SetParameter("AccessValuePresentation", ?(FoundRow = Undefined,
+			AccessValue, FoundRow.Presentation));
+		Query.SetParameter("IsAccessValuesGroup", AccessKindProperties <> Undefined
+			And AccessKindsProperties.ByValuesTypes.Get(TypeOf(AccessValue)) = Undefined);
 	Else
-		QueryTextMain = RequestTextWithoutGroupingByReports;
-		Query.Text = QueryTextShared;
+		QueryTextMain = RequestTextWithoutGroupingByReports();
+		Query.Text = QueryTextShared();
 	EndIf;
 	
 	SimplifiedInterface = AccessManagementInternal.SimplifiedAccessRightsSetupInterface();
-	If Not SimplifiedInterface Then
-		QueryTextMain = StrReplace(QueryTextMain,
-			"SELECT DISTINCT", "SELECT"); // @query-part-1 @query-part-2
-	EndIf;
 	Query.Text = Query.Text + Common.QueryBatchSeparator()
 		+ QueryTextMain;
 	
 	Query.SetParameter("SimplifiedAccessRightsSetupInterface", SimplifiedInterface);
 	Query.SetParameter("ExtensionsRolesRights", AccessManagementInternal.ExtensionsRolesRights());
 	
-	FilterByTables = FilterByTables();
+	If ObjectRightsOption Then
+		MetadataObject = Metadata.FindByType(TypeOf(DataElement));
+		FilterByTables = Common.MetadataObjectID(MetadataObject);
+	ElsIf OptionForAccessValue Then
+		TablesWithRestriction = Query.Parameters.AccessRestrictionKinds.Copy(, "Table");
+		TablesWithRestriction.GroupBy("Table");
+		FilterByTables = ?(ValueIsFilled(TablesWithRestriction),
+			FilterByTables(TablesWithRestriction.UnloadColumn("Table")),
+			CommonClientServer.ValueInArray(Undefined));
+	Else
+		FilterByTables = FilterByTables();
+	EndIf;
 	If ValueIsFilled(FilterByTables) Then
 		Query.SetParameter("SelectedTables", FilterByTables);
 		Query.Text = StrReplace(Query.Text, "&SelectingRightsByTables",
@@ -1395,23 +2305,44 @@ Function UsersRights()
 		Query.Text = Query.Text + "
 		|
 		|INDEX BY
-		|	Report,
+		|	ReportRef,
 		|	MetadataObject,
 		|	User";
 		Query.Text = Query.Text + Common.QueryBatchSeparator()
-			+ TheTextOfTheRequestWithGroupingByReportsIsFinal;
+			+ TheTextOfTheRequestWithGroupingByReportsIsFinal();
 	EndIf;
 	
 	Result = Query.Execute().Unload();
 	
+	If ObjectRightsOption Then
+		Result.Columns.Add("DataElement");
+		Result.Columns.Add("DataElementPresentation");
+		Result.FillValues(Common.ValueToXMLString(DataElement), "DataElement");
+		Result.FillValues(DataItemPresentation(DataElement), "DataElementPresentation");
+	EndIf;
+	
 	Return Result;
+	
+EndFunction
+
+Function StringType(StringLength)
+	
+	Return New TypeDescription("String",,,, New StringQualifiers(StringLength))
+	
+EndFunction
+
+Function NumberType(NumberOfDigits)
+	
+	Return New TypeDescription("Number",,,
+		New NumberQualifiers(NumberOfDigits, 0, AllowedSign.Nonnegative));
 	
 EndFunction
 
 Function GroupByReportsEnabled()
 	
 	FieldList = New Array;
-	FillGroupsFieldsList(SettingsComposer.GetSettings().Structure, FieldList);
+	FillGroupsFieldsList(SettingsComposer.Settings.Structure,
+		SettingsComposer.UserSettings, FieldList);
 	
 	Return FieldList.Find(New DataCompositionField("Report")) <> Undefined;
 	
@@ -1425,6 +2356,22 @@ Function VariantWithRestrictedAccess()
 	
 EndFunction
 
+Function ObjectRightsOption()
+	
+	Variant = SettingsComposer.Settings.AdditionalProperties.PredefinedOptionKey;
+	
+	Return Variant = "UsersRightsToObject";
+	
+EndFunction
+
+Function OptionForAccessValue()
+	
+	Variant = SettingsComposer.Settings.AdditionalProperties.PredefinedOptionKey;
+	
+	Return Variant = "UsersRightsByAllowedValue";
+	
+EndFunction
+
 // Returns:
 //  Structure:
 //    * HasHierarchy - Boolean
@@ -1432,15 +2379,17 @@ EndFunction
 //    * RefType    - Type
 //    * EmptyRef - AnyRef
 //
-Function SettingsRightsByTableInselection()
+Function SettingsRightsByTableInselection(DCSettings = Undefined, DCUserSettings = Undefined)
 	
-	Table = FilterByTables();
-	If Not ValueIsFilled(Table)
-	 Or Not DescriptionOfIDTypes().ContainsType(TypeOf(Table)) Then
+	Tables = FilterByTables(, DCSettings, DCUserSettings);
+	If Not ValueIsFilled(Tables)
+	 Or Tables.Count() <> 1
+	 Or Not ValueIsFilled(Tables[0])
+	 Or Not DescriptionOfIDTypes().ContainsType(TypeOf(Tables[0])) Then
 		Return Undefined;
 	EndIf;
 	
-	MetadataTables = Common.MetadataObjectByID(Table, False);
+	MetadataTables = Common.MetadataObjectByID(Tables[0], False);
 	If MetadataTables = Undefined
 	 Or Not Common.IsRefTypeObject(MetadataTables) Then
 		Return Undefined;
@@ -1473,12 +2422,26 @@ EndFunction
 //  ItemsCollection - DataCompositionSettingStructureItemCollection
 //  FieldList - Array
 //
-Procedure FillGroupsFieldsList(ItemsCollection, FieldList)
+Procedure FillGroupsFieldsList(ItemsCollection, UserSettings, FieldList)
 	
 	For Each Item In ItemsCollection Do
-		If (TypeOf(Item) = Type("DataCompositionGroup")
-			Or TypeOf(Item) = Type("DataCompositionTableGroup"))
-			And Item.Use Then
+		If TypeOf(Item) <> Type("DataCompositionGroup")
+		   And TypeOf(Item) <> Type("DataCompositionTableGroup")
+		   And TypeOf(Item) <> Type("DataCompositionTable") Then
+			Continue;
+		EndIf;
+		CustomItem = UserSettings.Items.Find(
+			Item.UserSettingID);
+		If CustomItem <> Undefined
+		   And Not CustomItem.Use
+		 Or CustomItem = Undefined
+		   And Not Item.Use Then
+			Continue;
+		EndIf;
+		If TypeOf(Item) = Type("DataCompositionTable") Then
+			FillGroupsFieldsList(Item.Rows, UserSettings, FieldList);
+			FillGroupsFieldsList(Item.Columns, UserSettings, FieldList);
+		Else
 			For Each Field In Item.GroupFields.Items Do
 				If TypeOf(Field) = Type("DataCompositionGroupField") Then
 					If Field.Use Then
@@ -1486,10 +2449,7 @@ Procedure FillGroupsFieldsList(ItemsCollection, FieldList)
 					EndIf;
 				EndIf;
 			EndDo;
-			FillGroupsFieldsList(Item.Structure, FieldList);
-		ElsIf TypeOf(Item) = Type("DataCompositionTable") And Item.Use Then
-			FillGroupsFieldsList(Item.Rows, FieldList);
-			FillGroupsFieldsList(Item.Columns, FieldList);
+			FillGroupsFieldsList(Item.Structure, UserSettings, FieldList);
 		EndIf;
 	EndDo;
 	
@@ -1575,21 +2535,57 @@ Function FilterForSpecifiedUsers()
 	
 EndFunction
 
-Function FilterByTables()
+Function FilterByTables(List = Undefined, DCSettings = Undefined, DCUserSettings = Undefined)
 	
-	Filter = SettingsComposer.GetSettings().Filter;
-	For Each Item In Filter.Items Do 
-		If Item.Use And Item.LeftValue = New DataCompositionField("MetadataObject") Then
-			If Item.ComparisonType = DataCompositionComparisonType.Equal
-			 Or Item.ComparisonType = DataCompositionComparisonType.InList Then
-				Return Item.RightValue;
-			Else
-				Return Undefined;
-			EndIf;
+	If DCSettings = Undefined Then
+		DCSettings = SettingsComposer.Settings;
+	EndIf;
+	If DCUserSettings = Undefined Then
+		DCUserSettings = SettingsComposer.UserSettings;
+	EndIf;
+	
+	FoundItem = Undefined;
+	For Each Item In DCSettings.Filter.Items Do
+		If Item.LeftValue = New DataCompositionField("MetadataObject") Then
+			FoundItem = Item;
+			Break;
 		EndIf;
 	EndDo;
 	
-	Return Undefined;
+	If FoundItem = Undefined Then
+		Return Undefined;
+	EndIf;
+	
+	Setting = DCUserSettings.Items.Find(
+		FoundItem.UserSettingID);
+	If Setting = Undefined Then
+		Setting = FoundItem;
+	EndIf;
+	
+	If Not Setting.Use Then
+		Values = Undefined;
+	ElsIf Setting.ComparisonType = DataCompositionComparisonType.Equal Then
+		Values = CommonClientServer.ValueInArray(Setting.RightValue);
+	ElsIf Setting.ComparisonType = DataCompositionComparisonType.InList Then
+		Values = Setting.RightValue.UnloadValues();
+	EndIf;
+	
+	If Values = Undefined Then
+		Return List;
+	EndIf;
+	
+	If List = Undefined Then
+		Return Values;
+	EndIf;
+	
+	Result = New Array;
+	For Each Value In Values Do
+		If List.Find(Value) <> Undefined Then
+			Result.Add(Value);
+		EndIf;
+	EndDo;
+	
+	Return Result;
 	
 EndFunction
 
@@ -1915,14 +2911,10 @@ EndFunction
 Function TitlesRight(RightsSettings, SubfolderName)
 	
 	Result = New ValueTable;
-	Result.Columns.Add("NameOfRight",       New TypeDescription("String",
-		,,, New StringQualifiers(60, AllowedLength.Variable)));
-	Result.Columns.Add("RightIndex",    New TypeDescription("Number",
-		,, New NumberQualifiers(2, 0, AllowedSign.Nonnegative)));
-	Result.Columns.Add("TitlePermissions", New TypeDescription("String",
-		,,, New StringQualifiers(60, AllowedLength.Variable)));
-	Result.Columns.Add("HintPermissions", New TypeDescription("String",
-		,,, New StringQualifiers(150, AllowedLength.Variable)));
+	Result.Columns.Add("NameOfRight",       StringType(60));
+	Result.Columns.Add("RightIndex",    NumberType(2));
+	Result.Columns.Add("TitlePermissions", StringType(60));
+	Result.Columns.Add("HintPermissions", StringType(150));
 	
 	For Each RightDetails In RightsSettings.RightsDetails Do
 		RightPresentations = InformationRegisters.ObjectsRightsSettings.AvailableRightPresentation(RightDetails);
@@ -1976,14 +2968,85 @@ Function SettingsRightsLegend(TitlesRight, HasHierarchy)
 	
 EndFunction
 
-Procedure DisableGroups(ComposerSettings, GroupingNames)
+Function FilterByDataElements()
 	
-	Names = StrSplit(GroupingNames, ",", False);
-	For Each Group In ComposerSettings.Structure Do
-		If Names.Find(Group.Name) = Undefined Then
-			Continue;
+	FilterField = SettingsComposer.GetSettings().DataParameters.Items.Find("DataElement");
+	FilterValue = FilterField.Value;
+	If Not FilterField.Use Or Not ValueIsFilled(FilterValue) Then
+		Return Catalogs.Users.EmptyRef();
+	EndIf;
+	
+	Return FilterValue;
+	
+EndFunction
+
+Function DataItemPresentation(DataElement)
+	
+	MetadataObject = Metadata.FindByType(TypeOf(DataElement));
+	
+	If Not Common.IsRegister(MetadataObject) Then
+		Return String(DataElement);
+	EndIf;
+	
+	DataPresentation = MetadataObject.Presentation();
+	FieldsDetails = StandardSubsystemsServer.RecordKeyDetails(
+		MetadataObject.FullName()).FieldsDetails;
+	
+	FieldList = New Array;
+	For Each FieldDetails In FieldsDetails Do
+		FieldList.Add(StrTemplate("  %1 = ""%2""",
+			FieldDetails.Presentation, String(DataElement[FieldDetails.Name])));
+	EndDo;
+	
+	TemplateOfPresentation = ?(FieldsDetails.Count() = 1,
+		NStr("en = 'Register record ""%1"" with a key field:
+		           |%2';"),
+		NStr("en = 'Register record ""%1"" with key fields:
+		           |%2';"));
+	
+	Return StringFunctionsClientServer.SubstituteParametersToString(TemplateOfPresentation,
+		DataPresentation, StrConcat(FieldList, "," + Chars.LF));
+	
+EndFunction
+
+Function FilterByAccessValue()
+	
+	FilterField = SettingsComposer.GetSettings().DataParameters.Items.Find("AccessValue");
+	
+	Return FilterField.Value;
+	
+EndFunction
+
+
+Function ParameterValueFromSetting(DCUserSettings, ParameterName, DefaultValue = Undefined)
+	
+	Parameter = New DataCompositionParameter(ParameterName);
+	Value = DefaultValue;
+	If DCUserSettings = Undefined Then
+		Return Value;
+	EndIf;
+	
+	For Each UserSettingItem In DCUserSettings.Items Do
+		
+		If TypeOf(UserSettingItem) = Type("DataCompositionSettingsParameterValue")
+		   And UserSettingItem.Parameter = Parameter Then
+			
+			If UserSettingItem.Use Then
+				Value = UserSettingItem.Value;
+			EndIf;
+			Break;
 		EndIf;
-		Group.Use = False;
+	EndDo;
+	
+	Return Value;
+	
+EndFunction
+
+Procedure SetGroupingsUsage(Groups, DCSettings, DCUserSettings)
+	
+	For Each Group In Groups Do
+		Reports.AccessRightsAnalysis.SetGroupingUsage(
+			Group.Key, Group.Value, DCSettings, DCUserSettings);
 	EndDo;
 	
 EndProcedure

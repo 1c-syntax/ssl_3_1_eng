@@ -22,17 +22,9 @@ Procedure BeforeWrite(Cancel, Replacing)
 		Return;
 	EndIf;
 	
-	Query = New Query;
-	Query.Text = "
-	|SELECT
-	|	InteractionsContacts.Contact
-	|FROM
-	|	InformationRegister.InteractionsContacts AS InteractionsContacts
-	|WHERE
-	|	InteractionsContacts.Interaction = &Interaction";
+	OldRecords = Common.SetRecordsFromDatabase(ThisObject, Replacing, "Contact");
 	
-	Query.SetParameter("Interaction", Filter.Interaction.Value);
-	AdditionalProperties.Insert("RecordTable",  Query.Execute().Unload());
+	AdditionalProperties.Insert("RecordTable", OldRecords);
 	
 EndProcedure
 
@@ -46,6 +38,12 @@ Procedure OnWrite(Cancel, Replacing)
 		Return;
 	EndIf;
 	
+	If Common.IsRecordSetDeletion(Replacing) Then
+		NewRecords = Unload(New Array, "Contact");
+	Else
+		NewRecords = Unload(, "Contact");
+	EndIf;
+	
 	Query = New Query;
 	Query.Text = "
 	|SELECT
@@ -57,12 +55,10 @@ Procedure OnWrite(Cancel, Replacing)
 	|
 	|////////////////////////////////////////////////////////////////////////////////
 	|SELECT
-	|	InteractionsContacts.Contact AS Contact
+	|	NewSet.Contact AS Contact
 	|INTO NewSet
 	|FROM
-	|	InformationRegister.InteractionsContacts AS InteractionsContacts
-	|WHERE
-	|	InteractionsContacts.Interaction = &Interaction
+	|	&NewSet AS NewSet
 	|
 	|INDEX BY
 	|	Contact
@@ -82,8 +78,8 @@ Procedure OnWrite(Cancel, Replacing)
 	|	OldSet AS OldSet";
 	
 	Query.SetParameter("OldSet", AdditionalProperties.RecordTable);
-	Query.SetParameter("Interaction", Filter.Interaction.Value);
-	Interactions.CalculateReviewedByContacts(Query.Execute().Unload());
+	Query.SetParameter("NewSet",  NewRecords);
+	Interactions.CalculateReviewedByContacts(Query.Execute().Unload())
 	
 EndProcedure
 

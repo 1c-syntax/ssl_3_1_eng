@@ -34,12 +34,6 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "ExpiringSoon");
 	OptionSettings.LongDesc = NStr("en = 'Expiring certificates.';");
 	
-	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "IndividualCertificateIssuanceRequired");
-	OptionSettings.LongDesc = NStr("en = 'Employees'' certificates issued by non-governmental CA and who require a certificate for individuals.';");
-	
-	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "EmployeesCertificates");
-	OptionSettings.LongDesc = NStr("en = 'Employees'' certificates.';");
-	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "MRLOARequired");
 	OptionSettings.LongDesc = NStr("en = 'Certificates that require MR LOA.';");
 		
@@ -72,7 +66,7 @@ EndProcedure
 
 // End StandardSubsystems.ReportsOptions
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
 // Defines settings for integrating the report with configuration functionality. 
 //

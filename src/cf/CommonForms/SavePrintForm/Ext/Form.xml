@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
 	<AutoSaveDataInSettings>Use</AutoSaveDataInSettings>
 	<CommandBarLocation>Bottom</CommandBarLocation>
@@ -82,7 +82,7 @@
 								<Presentation>
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>Save to local folder</v8:content>
+										<v8:content>Save as</v8:content>
 									</v8:item>
 								</Presentation>
 								<Value xsi:type="xs:string">SaveToFolder</Value>
@@ -108,7 +108,7 @@
 						<Event name="OnChange">SavingOptionOnChange</Event>
 					</Events>
 				</RadioButtonField>
-				<InputField name="FolderToSaveFiles" id="42">
+				<InputField name="FilesSaveDirectory" id="42">
 					<DataPath>SelectedFolder</DataPath>
 					<Title>
 						<v8:item>
@@ -121,8 +121,8 @@
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<ChoiceButton>true</ChoiceButton>
 					<AutoMarkIncomplete>true</AutoMarkIncomplete>
-					<ContextMenu name="FolderToSaveFilesContextMenu" id="43"/>
-					<ExtendedTooltip name="FolderToSaveFilesExtendedTooltip" id="86"/>
+					<ContextMenu name="FilesSaveDirectoryContextMenu" id="43"/>
+					<ExtendedTooltip name="FilesSaveDirectoryExtendedTooltip" id="86"/>
 					<Events>
 						<Event name="StartChoice">FolderToSaveFilesStartChoice</Event>
 					</Events>
@@ -158,18 +158,23 @@
 					</Title>
 					<CommandSet>
 						<ExcludedCommand>Add</ExcludedCommand>
+						<ExcludedCommand>CancelSearch</ExcludedCommand>
 						<ExcludedCommand>Change</ExcludedCommand>
 						<ExcludedCommand>Copy</ExcludedCommand>
 						<ExcludedCommand>Delete</ExcludedCommand>
 						<ExcludedCommand>EndEdit</ExcludedCommand>
+						<ExcludedCommand>Find</ExcludedCommand>
+						<ExcludedCommand>FindByCurrentValue</ExcludedCommand>
 						<ExcludedCommand>MoveDown</ExcludedCommand>
 						<ExcludedCommand>MoveUp</ExcludedCommand>
 						<ExcludedCommand>Pickup</ExcludedCommand>
+						<ExcludedCommand>SearchEverywhere</ExcludedCommand>
+						<ExcludedCommand>SearchHistory</ExcludedCommand>
 						<ExcludedCommand>SelectAll</ExcludedCommand>
+						<ExcludedCommand>ShowMultipleSelection</ExcludedCommand>
 						<ExcludedCommand>SortListAsc</ExcludedCommand>
 						<ExcludedCommand>SortListDesc</ExcludedCommand>
 					</CommandSet>
-					<SearchStringLocation>Top</SearchStringLocation>
 					<ContextMenu name="SelectedSaveFormatsContextMenu" id="73"/>
 					<AutoCommandBar name="SelectedSaveFormatsCommandBar" id="74">
 						<Autofill>false</Autofill>
@@ -205,7 +210,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Mark</v8:content>
+									<v8:content>Checkbox</v8:content>
 								</v8:item>
 							</Title>
 							<EditMode>EnterOnInput</EditMode>
@@ -339,9 +344,6 @@
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
-			<Save>
-				<Field>SavingOption</Field>
-			</Save>
 		</Attribute>
 		<Attribute name="SelectedSaveFormats" id="12">
 			<Title>
@@ -433,6 +435,16 @@
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
+		</Parameter>
+		<Parameter name="Purpose">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+			<KeyParameter>true</KeyParameter>
 		</Parameter>
 	</Parameters>
 </Form>

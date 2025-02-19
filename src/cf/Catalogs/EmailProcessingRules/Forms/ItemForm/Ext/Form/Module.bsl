@@ -56,7 +56,7 @@ EndProcedure
 Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
 	CurrentObject.FilterPresentation  = String(SettingsComposer.Settings.Filter);
-	CurrentObject.SettingsComposer = New ValueStorage(SettingsComposer.GetSettings());
+	CurrentObject.SettingsComposer = New ValueStorage(SettingsComposer.GetSettings(), New Deflation(9));
 	
 EndProcedure
 

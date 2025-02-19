@@ -26,7 +26,7 @@
 //                                                           table header (an optional parameter, its default
 //                                                           value is formed as follows: "Catalog: <catalog
 //                                                           synonym>").
-//     * ObjectName                               - String - the Object name.
+//     * ObjectName                               - String - Object name.
 //
 Procedure ParametersOfImportFromFileExternalDataProcessor(CommandName, DataProcessorRef, ImportParameters) Export
 	
@@ -115,10 +115,7 @@ Procedure CreateCatalogsListForImport(CatalogsListForImport) Export
 	
 	If Common.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then
 		ModuleAdditionalReportsAndDataProcessors = Common.CommonModule("AdditionalReportsAndDataProcessors");
-		Query = ModuleAdditionalReportsAndDataProcessors.NewQueryByAvailableCommands(Enums["AdditionalReportsAndDataProcessorsKinds"].AdditionalDataProcessor,
-			Undefined, False, Enums["AdditionalDataProcessorsCallMethods"].ImportDataFromFile);
-		CommandsTable = Query.Execute().Unload(); // See AdditionalReportsAndDataProcessors.NewQueryByAvailableCommands
-		
+		CommandsTable = ModuleAdditionalReportsAndDataProcessors.AdditionalCommandsOfDataImportFromFile();
 		For Each TableRow In CommandsTable Do
 			
 			ImportTypeInformation = NewInfoOnImportType();
@@ -1703,22 +1700,17 @@ Procedure ImportFileToTable(ServerCallParameters, StorageAddress) Export
 			Try
 				ImportedTemplateWithData.Read(TempFileName);
 			Except
-				
 				ErrorInfo = ErrorInfo();
-				
-				If Not ErrorInfo.IsErrorOfCategory(ErrorCategory.LocalFileAccessError, True) Then
+				If Not ErrorInfo.IsErrorOfCategory(ErrorCategory.LocalFileAccessError) Then
 					Raise;
 				EndIf;
 				
-				// Replace unexpected error text with text for user message.
 				Refinement = CommonClientServer.ExceptionClarification(ErrorInfo);
 				ClarifiedText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = '%1
 					           |
 					           |Make sure the file data is valid.';"), Refinement.Text);
-				
 				Raise(ClarifiedText,,,, ErrorInfo);
-				
 			EndTry;
 			
 			RowNumberWithTableHeader = ?(ImportDataFromFileClientServer.ColumnsHaveGroup(ColumnsInformation), 2, 1);
@@ -1727,7 +1719,8 @@ Procedure ImportFileToTable(ServerCallParameters, StorageAddress) Export
 			SpreadsheetDocumentIntoValuesTable(ImportedTemplateWithData, ColumnsInformation, Address);
 			ImportedData = GetFromTempStorage(Address);
 			
-			OutputArea2 = TemplateWithData.GetArea(RowNumberWithTableHeader + 1, 1, RowNumberWithTableHeader + 1, ImportedData.Columns.Count());
+			OutputArea2 = TemplateWithData.GetArea(RowNumberWithTableHeader + 1, 1, RowNumberWithTableHeader + 1, 
+				ImportedData.Columns.Count());
 			
 			For Counter = 1 To ImportedData.Columns.Count() Do
 				FillingArea = OutputArea2.Area(1, Counter, 1, Counter);

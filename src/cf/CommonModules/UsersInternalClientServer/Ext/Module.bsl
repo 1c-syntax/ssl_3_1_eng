@@ -57,6 +57,7 @@ Function SecurityWarningKinds() Export
 	Result.Insert("AfterUpdate");
 	Result.Insert("AfterObtainRight");
 	Result.Insert("BeforeAddExternalReportOrDataProcessor");
+	Result.Insert("BeforeEnableScheduledJobOfAdditionalDataProcessor");
 	Result.Insert("BeforeAddExtensions");
 	Result.Insert("BeforeSelectUpdateFile");
 	Result.Insert("BeforeSelectRole");

@@ -59,7 +59,7 @@ Function PrepareFilesAtServer()
 		|	Archive.Period AS Period,
 		|	Archive.FullFileName AS FullFileName,
 		|	Archive.ReceivedMessageNumber AS ReceivedMessageNumber,
-		|	Archive.Store AS Store,
+		|	Archive.Storage AS Storage,
 		|	Archive.FileName AS FileName,
 		|	Archive.FileExtention AS FileExtention
 		|FROM
@@ -80,7 +80,7 @@ Function PrepareFilesAtServer()
 		If Selection.FullFileName <> "" Then
 			BinaryData = New BinaryData(Selection.FullFileName);	
 		Else
-			BinaryData = Selection.Store.Get();
+			BinaryData = Selection.Storage.Get();
 		EndIf;
 		
 		If BinaryData = Undefined Then

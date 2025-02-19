@@ -54,9 +54,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetMainLanguage();
 	
 	Settings = New Structure;
-	Settings.Insert("AdditionalLanguageCode1", "");
-	Settings.Insert("AdditionalLanguageCode2", "");
 	Settings.Insert("MultilanguageData",      True);
+	
+	AdditionalLanguagesCount = NationalLanguageSupportServer.AdditionalLanguagesCount();
+	
+	For LanguageSeqNumber = 1 To AdditionalLanguagesCount Do
+		Settings.Insert("AdditionalLanguageCode" + Format(LanguageSeqNumber, "NG=0"), "");
+	EndDo;
 	
 	NationalLanguageSupportOverridable.OnDefineSettings(Settings);
 	
@@ -65,10 +69,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.AdditionalLanguagesGroup.Visible = False;
 		Items.MainLanguageGroup.Visible        = False;
 	Else
-		If LanguagesCount = 2 Then
-			Items.AdditionalLanguage2Group.Visible = False;
-		EndIf;
-		DisplayAdditionalLanguagesSettings(Settings, LanguagesCount);
+		DisplayAdditionalLanguagesSettings(Settings, AdditionalLanguagesCount);
 	EndIf;
 	
 	DataToChangeMultilanguageAttributes = NationalLanguageSupportServer.DataToChangeMultilanguageAttributes();
@@ -125,6 +126,52 @@ EndProcedure
 &AtServer
 Procedure DisplayAdditionalLanguagesSettings(Settings, LanguagesCount)
 	
+	AttributesToAddArray = New Array;
+	StringAttributeTypeDetails = New TypeDescription("String");
+	BooleanAttributeTypeDetails = New TypeDescription("Boolean");
+	
+	For LanguageSeqNumber = 1 To LanguagesCount Do
+		AttributesToAddArray.Add(New FormAttribute(LanguageSelectionFieldItemName(LanguageSeqNumber), StringAttributeTypeDetails));
+		AttributesToAddArray.Add(New FormAttribute(LanguageEnableItemName(LanguageSeqNumber), BooleanAttributeTypeDetails));
+	EndDo;
+	
+	ChangeAttributes(AttributesToAddArray);
+	
+	For LanguageSeqNumber = 1 To LanguagesCount Do
+		
+		AttributeName = LanguageSelectionFieldItemName(LanguageSeqNumber);
+		LanguageEnableItemName = LanguageEnableItemName(LanguageSeqNumber);
+		
+		Var_Group = Items.Add(GroupItemName(LanguageSeqNumber), Type("FormGroup"), Items.RegionalSettings);
+		Var_Group.Type = FormGroupType.UsualGroup;
+		Var_Group.Title = GroupItemName(LanguageSeqNumber);
+		Var_Group.ShowTitle = False;
+		Var_Group.EnableContentChange = False;
+		Var_Group.Representation = UsualGroupRepresentation.None;
+		Var_Group.Group = ChildFormItemsGroup.AlwaysHorizontal;
+		
+		FieldUseAdditionalLanguage = Items.Add(LanguageEnableItemName,
+			Type("FormField"), Var_Group);
+		FieldUseAdditionalLanguage.Title = LanguageEnableItemName;
+		FieldUseAdditionalLanguage.Type       = FormFieldType.CheckBoxField;
+		FieldUseAdditionalLanguage.TitleLocation = FormItemTitleLocation.None;
+		FieldUseAdditionalLanguage.DataPath = LanguageEnableItemName;
+		FieldUseAdditionalLanguage.SetAction("OnChange", "Attachable_UseAdditionalLanguage_OnChange");
+		
+		FieldAdditionalLanguage = Items.Add(AttributeName,
+			Type("FormField"), Var_Group);
+		FieldAdditionalLanguage.Title = AttributeName;
+		FieldAdditionalLanguage.Type = FormFieldType.InputField;
+		FieldAdditionalLanguage.ListChoiceMode = True;
+		FieldAdditionalLanguage.DataPath = AttributeName;
+		FieldAdditionalLanguage.TitleLocation=FormItemTitleLocation.None;
+		FieldAdditionalLanguage.AutoMarkIncomplete = True;
+		FieldAdditionalLanguage.InputHint= NStr("en = 'Additional accounting language';");
+		FieldAdditionalLanguage.SetAction("OnChange", "Attachable_AdditionalLanguage_OnChange");
+		FieldAdditionalLanguage.SetAction("StartChoice", "Attachable_AdditionalLanguage_StartChoice");
+		
+	EndDo;
+	
 	AvailableLanguages = New Map;
 	For Each ConfigurationLanguage In Metadata.Languages Do
 		If StrCompare(DefaultLanguage, ConfigurationLanguage.LanguageCode) = 0  Then
@@ -133,125 +180,126 @@ Procedure DisplayAdditionalLanguagesSettings(Settings, LanguagesCount)
 		AvailableLanguages.Insert(ConfigurationLanguage.LanguageCode, True);
 	EndDo;
 	
-	DefaultLanguage1 = "";
-	If ValueIsFilled(Settings.AdditionalLanguageCode1) Then
-		If AvailableLanguages.Get(Settings.AdditionalLanguageCode1) = True Then
-			DefaultLanguage1 = Settings.AdditionalLanguageCode1;
-		EndIf;
-	EndIf;
-	
-	DefaultLanguage2 = "";
-	If LanguagesCount > 2 And ValueIsFilled(Settings.AdditionalLanguageCode2) Then
-		If AvailableLanguages.Get(Settings.AdditionalLanguageCode2) = True Then
-			DefaultLanguage2 = Settings.AdditionalLanguageCode2;
-		EndIf;
-	EndIf;
-	
 	For Each Language In Metadata.Languages Do
-		If StrCompare(Language.LanguageCode, DefaultLanguage) <> 0 Then
-			If IsBlankString(DefaultLanguage1) Then
-				DefaultLanguage1 = Language.LanguageCode;
-			ElsIf IsBlankString(DefaultLanguage2) And Language.LanguageCode <> DefaultLanguage1 Then
-				DefaultLanguage2 = Language.LanguageCode;
-			EndIf;
-		EndIf;
-		Items.AdditionalLanguage1.ChoiceList.Add(Language.LanguageCode, Language.Presentation());
-		Items.AdditionalLanguage2.ChoiceList.Add(Language.LanguageCode, Language.Presentation());
+
+		For LanguageSeqNumber = 1 To LanguagesCount Do
+				AttributeName = LanguageSelectionFieldItemName(LanguageSeqNumber);
+				Items[AttributeName].ChoiceList.Add(Language.LanguageCode, Language.Presentation());
+		EndDo;
+		
 	EndDo;
 	
-	UseAdditionalLanguage1 = NationalLanguageSupportServer.FirstAdditionalLanguageUsed();
-	UseAdditionalLanguage2 = NationalLanguageSupportServer.SecondAdditionalLanguageUsed();
-	
-	AdditionalLanguage1 = NationalLanguageSupportServer.FirstAdditionalInfobaseLanguageCode();
-	AdditionalLanguage2 = NationalLanguageSupportServer.SecondAdditionalInfobaseLanguageCode();
-	
-	Items.AdditionalLanguage1.Enabled = UseAdditionalLanguage1;
-	Items.AdditionalLanguage2.Enabled = UseAdditionalLanguage2;
-	
-	If IsBlankString(AdditionalLanguage1) Then
-		AdditionalLanguage1 = DefaultLanguage1;
-	EndIf;
-	
-	If LanguagesCount > 2 And IsBlankString(AdditionalLanguage2) Then
-		AdditionalLanguage2 = DefaultLanguage2;
-	EndIf;
+	For LanguageSeqNumber = 1 To LanguagesCount Do
+		
+		LanguageEnableItemName = LanguageEnableItemName(LanguageSeqNumber);
+		AttributeName = LanguageSelectionFieldItemName(LanguageSeqNumber);
+
+		ThisObject[LanguageEnableItemName] = NationalLanguageSupportServer.IsAdditionalLangUsed(LanguageSeqNumber);
+		ThisObject[AttributeName] = NationalLanguageSupportServer.InfobaseAdditionalLanguageCode(LanguageSeqNumber);
+		
+		Items[AttributeName].Enabled = ThisObject[LanguageEnableItemName];
+		
+	EndDo;
 	
 EndProcedure
+
+&AtClientAtServerNoContext
+Function Separator()
+	Return "_";
+EndFunction
+
+&AtClientAtServerNoContext
+Function LanguageSelectionFieldItemName(LanguageSeqNumber)
+	Return "AdditionalLanguage" + Separator() + Format(LanguageSeqNumber,"NG=0");
+EndFunction
+
+&AtClientAtServerNoContext
+Function LanguageEnableItemName(LanguageSeqNumber)
+	Return "UseAdditionalLanguage" + Separator() + Format(LanguageSeqNumber,"NG=0");
+EndFunction
+
+&AtClientAtServerNoContext
+Function GroupItemName(LanguageSeqNumber)
+	Return "Group" + Separator() + Format(LanguageSeqNumber,"NG=0");
+EndFunction
 
 #EndRegion
 
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure UseAdditionalLanguage1OnChange(Item)
-	Items.AdditionalLanguage1.Enabled = UseAdditionalLanguage1;
+Procedure Attachable_UseAdditionalLanguage_OnChange(Item)
+	
+	Position = StrFind(Item.Name, Separator(), SearchDirection.FromEnd);
+	
+	If Position > 0 Then
+		SequenceNumber = Mid(Item.Name, Position + 1);
+		Items[LanguageSelectionFieldItemName(SequenceNumber)].Enabled = ThisObject[Item.Name];
+	EndIf;
+	
 	DataChanged = True;
+	
 EndProcedure
 
 &AtClient
-Procedure UseAdditionalLanguage2OnChange(Item)
-	Items.AdditionalLanguage2.Enabled = UseAdditionalLanguage2;
+Procedure Attachable_AdditionalLanguage_OnChange(Item)
+	
+	Position = StrFind(Item.Name, Separator(), SearchDirection.FromEnd);
+	
+	If Position > 0 Then
+		CurrentItemSeqNumber = Mid(Item.Name, Position + 1);
+	EndIf;
+	
+	NewValue = ThisObject[Item.Name];
+	
+	If StrCompare(PreviousLanguage, NewValue) <> 0 Then
+		If StrCompare(NewValue, DefaultLanguage) = 0 Then
+			DefaultLanguage = PreviousLanguage;
+		Else
+			For LanguageSeqNumber = 1 To AdditionalLanguagesCount Do
+				If StrCompare(CurrentItemSeqNumber, LanguageSeqNumber) = 0 Then
+					Continue;
+				EndIf;
+				If StrCompare(NewValue, ThisObject[LanguageSelectionFieldItemName(LanguageSeqNumber)]) = 0 Then
+					ThisObject[LanguageSelectionFieldItemName(LanguageSeqNumber)] = PreviousLanguage;
+				EndIf;
+				
+			EndDo;
+		EndIf;
+	EndIf;
+	
 	DataChanged = True;
+	
+EndProcedure
+
+&AtClient
+Procedure Attachable_AdditionalLanguage_StartChoice(Item, ChoiceData, StandardProcessing)
+	PreviousLanguage = ThisObject[Item.Name];
 EndProcedure
 
 &AtClient
 Procedure DefaultLanguageOnChange(Item)
 	
 	If StrCompare(PreviousLanguage, DefaultLanguage) <> 0 Then
-		If StrCompare(AdditionalLanguage1, DefaultLanguage) = 0 Then
-			AdditionalLanguage1 = PreviousLanguage;
-		ElsIf StrCompare(AdditionalLanguage2, DefaultLanguage) = 0 Then
-			AdditionalLanguage2 = PreviousLanguage;
-		EndIf;
+		
+		For LanguageSeqNumber = 1 To AdditionalLanguagesCount Do
+			LanguageSelectionFieldItemName = LanguageSelectionFieldItemName(LanguageSeqNumber);
+			
+			If StrCompare(ThisObject[LanguageSelectionFieldItemName], DefaultLanguage) = 0 Then
+				ThisObject[LanguageSelectionFieldItemName] = PreviousLanguage;
+				Break;
+			EndIf;
+			
+		EndDo;
+		DataChanged = True;
+		
 	EndIf;
-	
-	DataChanged = True;
 	
 EndProcedure
 
 &AtClient
 Procedure DefaultLanguageStartChoice(Item, ChoiceData, StandardProcessing)
 	PreviousLanguage = DefaultLanguage;
-EndProcedure
-
-&AtClient
-Procedure AdditionalLanguage1OnChange(Item)
-	
-	If StrCompare(PreviousLanguage, AdditionalLanguage1) <> 0 Then
-		If StrCompare(AdditionalLanguage1, DefaultLanguage) = 0 Then
-			DefaultLanguage = PreviousLanguage;
-		ElsIf StrCompare(AdditionalLanguage1, AdditionalLanguage2) = 0 Then
-			AdditionalLanguage2 = PreviousLanguage;
-		EndIf;
-	EndIf;
-	
-	DataChanged = True;
-	
-EndProcedure
-
-&AtClient
-Procedure AdditionalLanguage2OnChange(Item)
-	
-	If StrCompare(PreviousLanguage, AdditionalLanguage2) <> 0 Then
-		If StrCompare(AdditionalLanguage2, AdditionalLanguage1) = 0 Then
-			AdditionalLanguage1 = PreviousLanguage;
-		ElsIf StrCompare(AdditionalLanguage2, DefaultLanguage) = 0 Then
-			DefaultLanguage = PreviousLanguage;
-		EndIf;
-	EndIf;
-	
-	DataChanged = True;
-	
-EndProcedure
-
-&AtClient
-Procedure AdditionalLanguage2StartChoice(Item, ChoiceData, StandardProcessing)
-	PreviousLanguage = AdditionalLanguage2;
-EndProcedure
-
-&AtClient
-Procedure AdditionalLanguage1StartChoice(Item, ChoiceData, StandardProcessing)
-	PreviousLanguage = AdditionalLanguage1;
 EndProcedure
 
 &AtClient
@@ -275,8 +323,6 @@ Procedure OK(Command)
 			WriteConstantsValuesAndClose();
 		EndIf;
 		
-	Else
-		ShowMessageBox(Undefined, NStr("en = 'Invalid regional settings.';"));
 	EndIf;
 	
 EndProcedure
@@ -329,7 +375,7 @@ Procedure RefillData()
 	Items.Pages.CurrentPage = Items.Waiting;
 	Items.OK.Enabled = False;
 	
-	ExecutionProgressNotification = New NotifyDescription("ExecutionProgress", ThisObject);
+	ExecutionProgressNotification = New CallbackDescription("ExecutionProgress", ThisObject);
 	
 	TimeConsumingOperation = StartBackgroundRefillingAtServer(UUID);
 	
@@ -337,7 +383,7 @@ Procedure RefillData()
 	WaitSettings.OutputIdleWindow           = False;
 	WaitSettings.ExecutionProgressNotification = ExecutionProgressNotification;
 	
-	Handler = New NotifyDescription("AfterRefillInBackground", ThisObject);
+	Handler = New CallbackDescription("AfterRefillInBackground", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, Handler, WaitSettings);
 	
 EndProcedure
@@ -398,7 +444,7 @@ Function PrepareListMetadataForProcessing(OldAndNewValuesOfConstants)
 	ProcessingSettings.Insert("SettingsChangesLanguages", OldAndNewValuesOfConstants);
 	ProcessingSettings.Insert("Objects", CurrentReferencesToObjects);
 	
-	Value = New ValueStorage(ProcessingSettings);
+	Value = New ValueStorage(ProcessingSettings, New Deflation(9));
 	
 	Return Value;
 	
@@ -437,27 +483,45 @@ EndProcedure
 Function DataCorrect()
 	
 	If IsBlankString(DefaultLanguage) Then
+		CommonClient.MessageToUser(NStr("en = 'Main application language not set';"),, Items.DefaultLanguage);
 		Return False;
 	EndIf;
 	
 	If IsBlankString(AppTimeZone) Then
+		CommonClient.MessageToUser(NStr("en = 'Application time zone not set';"),, Items.AppTimeZone);
 		Return False;
 	EndIf;
 	
 	LanguagesThatWereSet = New Map;
 	LanguagesThatWereSet.Insert(DefaultLanguage, True);
 	
-	If UseAdditionalLanguage1 Then
-		If DefaultLanguage = AdditionalLanguage1 Or AdditionalLanguage1 = AdditionalLanguage2 Then
-			Return False;
+	For CurrentLanguageSeqNumber = 1 To AdditionalLanguagesCount Do
+		
+		If ThisObject[LanguageEnableItemName(CurrentLanguageSeqNumber)] Then
+			CurrentItemName = LanguageSelectionFieldItemName(CurrentLanguageSeqNumber);
+			
+			If IsBlankString(ThisObject[CurrentItemName]) Then
+				CommonClient.MessageToUser(NStr("en = 'Additional accounting language not set';"),, CurrentItemName);
+				Return False;
+			EndIf;
+			
+			For LanguageSeqNumber= 1 To AdditionalLanguagesCount Do
+				TagName = LanguageSelectionFieldItemName(LanguageSeqNumber);
+				
+				If CurrentLanguageSeqNumber = LanguageSeqNumber Then
+					If StrCompare(DefaultLanguage, ThisObject[TagName]) = 0 Then
+						ShowMessageBox(Undefined, NStr("en = 'Invalid regional settings.';"));
+						Return False;
+					EndIf;
+				ElsIf StrCompare(ThisObject[TagName], ThisObject[CurrentItemName]) = 0 Then
+					ShowMessageBox(Undefined, NStr("en = 'Invalid regional settings.';"));
+					Return False;
+				EndIf;
+			EndDo;
+			
 		EndIf;
-	EndIf;
-	
-	If UseAdditionalLanguage2 Then
-		If DefaultLanguage = AdditionalLanguage2 Or AdditionalLanguage1 = AdditionalLanguage2 Then
-			Return False;
-		EndIf;
-	EndIf;
+		
+	EndDo;
 	
 	Return True;
 	
@@ -490,17 +554,21 @@ Procedure WriteConstantsValues(MetadataListToProcess = Undefined)
 	
 	If Not Common.SeparatedDataUsageAvailable() Or Not Common.DataSeparationEnabled() Then
 		
-		LanguageCode1 = ?(UseAdditionalLanguage1, AdditionalLanguage1, "");
-		LanguageCode2 = ?(UseAdditionalLanguage2, AdditionalLanguage2, "");
+		LanguagesFillingData = New Map;
 		
 		LanguagesCodes = New Array;
 		LanguagesCodes.Add(DefaultLanguage);
-		If UseAdditionalLanguage1 Then
-			LanguagesCodes.Add(AdditionalLanguage1);
-		EndIf;
-		If UseAdditionalLanguage2 Then
-			LanguagesCodes.Add(AdditionalLanguage2);
-		EndIf;
+		
+		For LanguageSeqNumber = 1 To AdditionalLanguagesCount Do
+			LanguageEnableItemName  = LanguageEnableItemName(LanguageSeqNumber);
+			LanguageSelectionFieldItemName = LanguageSelectionFieldItemName(LanguageSeqNumber);
+			CodeCurrentLanguage           = "";
+			If ThisObject[LanguageEnableItemName] Then
+				CodeCurrentLanguage = ThisObject[LanguageSelectionFieldItemName];
+				LanguagesCodes.Add(CodeCurrentLanguage);
+			EndIf;
+			LanguagesFillingData.Insert(LanguageSeqNumber, CodeCurrentLanguage);
+		EndDo;
 		
 		BeginTransaction();
 		Try
@@ -509,11 +577,15 @@ Procedure WriteConstantsValues(MetadataListToProcess = Undefined)
 			
 			Constants.DefaultLanguage.Set(DefaultLanguage);
 			
-			Constants.AdditionalLanguage1.Set(LanguageCode1);
-			Constants.UseAdditionalLanguage1.Set(UseAdditionalLanguage1);
-			
-			Constants.AdditionalLanguage2.Set(LanguageCode2);
-			Constants.UseAdditionalLanguage2.Set(UseAdditionalLanguage2);
+			For LanguageSeqNumber = 1 To AdditionalLanguagesCount Do
+				LanguageEnableItemName = LanguageEnableItemName(LanguageSeqNumber);
+				LanguageSelectionFieldItemName = LanguageSelectionFieldItemName(LanguageSeqNumber);
+				LanguageConstantName = NationalLanguageSupportServer.LanguageConstantName(LanguageSeqNumber);
+				FunctionalOptionName= NationalLanguageSupportServer.FunctionalOptionName(LanguageSeqNumber);
+				
+				Constants[LanguageConstantName].Set(ThisObject[LanguageSelectionFieldItemName]);
+				Constants[FunctionalOptionName].Set(ThisObject[LanguageEnableItemName]);
+			EndDo;
 			
 			Constants.DataToChangeMultilanguageAttributes.Set(MetadataListToProcess);
 			
@@ -548,20 +620,25 @@ Function ConstantsValuesChanged()
 		Return True;
 	EndIf;
 	
-	If (Constants.UseAdditionalLanguage1.Get() = False And UseAdditionalLanguage1 = True)
-		Or (Constants.UseAdditionalLanguage2.Get() = False And UseAdditionalLanguage2 = True) Then
+	For LanguageSeqNumber = 1 To AdditionalLanguagesCount Do
+		
+		FunctionalOptionName = NationalLanguageSupportServer.FunctionalOptionName(LanguageSeqNumber);
+		LanguageEnableItemName = LanguageEnableItemName(LanguageSeqNumber);
+
+		If (Constants[FunctionalOptionName].Get() = False
+		   And ThisObject[LanguageEnableItemName] = True) Then
 			Return True;
-	EndIf;
-	
-	If UseAdditionalLanguage1
-		And StrCompare(Constants.AdditionalLanguage1.Get(), AdditionalLanguage1) <> 0 Then
+		EndIf;
+		
+		LanguageConstantName = NationalLanguageSupportServer.LanguageConstantName(LanguageSeqNumber);
+		LanguageSelectionFieldItemName = LanguageSelectionFieldItemName(LanguageSeqNumber);
+		
+		If ThisObject[LanguageEnableItemName] 
+		   And StrCompare(Constants[LanguageConstantName].Get(), ThisObject[LanguageSelectionFieldItemName]) <> 0 Then
 			Return True;
-	EndIf;
-	
-	If UseAdditionalLanguage2
-		And StrCompare(Constants.AdditionalLanguage2.Get(), AdditionalLanguage2) <> 0 Then
-			Return True;
-	EndIf;
+		EndIf;
+		
+	EndDo;
 	
 	Return False;
 	
@@ -574,22 +651,23 @@ EndFunction
 &AtServer
 Function OldAndNewValuesOfConstants()
 	
-	Result = NationalLanguageSupportServer.DescriptionOfOldAndNewLanguageSettings();
+	Result = NationalLanguageSupportServer.DescriptionOfOldAndNewLanguageSettings(AdditionalLanguagesCount);
 	
-	Result.MainLanguageOldValue= Constants.DefaultLanguage.Get();
-	Result.MainLanguageNewMeaning = DefaultLanguage;
+	Result.DefaultLanguage.PreviousValue2= Constants.DefaultLanguage.Get();
+	Result.DefaultLanguage.NewValue = DefaultLanguage;
 	
-	Result.AdditionalLanguage1OldValue = Constants.AdditionalLanguage1.Get();
-	Result.AdditionalLanguage1NewValue = AdditionalLanguage1;
-	
-	Result.AdditionalLanguage2OldValue = Constants.AdditionalLanguage2.Get();
-	Result.AdditionalLanguage2NewValue = AdditionalLanguage2;
+	For LanguageSeqNumber = 1 To AdditionalLanguagesCount Do
+		LanguageConstantName = NationalLanguageSupportServer.LanguageConstantName(LanguageSeqNumber);
+		TagName       = LanguageSelectionFieldItemName(LanguageSeqNumber);
+		Result[LanguageConstantName].PreviousValue2 = Constants[LanguageConstantName].Get();
+		Result[LanguageConstantName].NewValue = ThisObject[TagName];
+	EndDo;
 	
 	Return Result;
 	
 EndFunction
 
-// Time zone.
+// Часовые пояса
 
 &AtServer
 Procedure FillInTimeZones()

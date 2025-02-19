@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<Title>
 		<v8:item>
 			<v8:lang>en</v8:lang>
@@ -47,10 +47,9 @@ to prevent conflicts with the main infobase.
 
 The &lt;b&gt;Text messaging&lt;/&gt; scheduled job was locked on server &lt;b&gt;Server-1C2&lt;/&gt; on &lt;b&gt;01/10/2019 at 3:00 PM&lt;/&gt;.
 
-The infobase location has been changed. Old location:
-&lt;b&gt;C:\1c\db\&lt;/&gt;&lt;b&gt;
-&lt;/&gt;New location:
-&lt;b&gt;Srvr="server-1c.local";Ref="db";&lt;/&gt;
+The infobase location has been changed.
+Old location: &lt;b&gt;C:\1c\db\&lt;/&gt;&lt;b&gt;
+&lt;/&gt;New location: &lt;b&gt;Srvr="server-1c.local";Ref="db";&lt;/&gt;
 
 &lt;link EventLog&gt;Technical information&lt;/&gt;
 
@@ -59,7 +58,8 @@ The infobase location has been changed. Old location:
  • For scalable clusters, to prevent false starts due to change of computers acting as production servers
 , disable the machine name check by clicking &lt;b&gt;More &gt; Check server name&lt;/&gt;.
 
-You can release the lock later in &lt;b&gt;Administration&lt;/&gt;&lt;b&gt; &gt; &lt;/&gt;&lt;b&gt;Support and service&lt;/&gt;.</v8:content>
+You can release the lock later in &lt;b&gt;Administration&lt;/&gt;&lt;b&gt; &gt; &lt;/&gt;&lt;b&gt;Support and service&lt;/&gt;.
+</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="WarningLabelContextMenu" id="2"/>

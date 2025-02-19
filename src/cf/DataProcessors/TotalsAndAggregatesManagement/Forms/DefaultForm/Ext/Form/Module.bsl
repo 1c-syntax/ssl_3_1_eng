@@ -467,7 +467,7 @@ Procedure ClearAggregatesByRegisters(Command)
 	Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Clear aggregates';"));
 	Buttons.Add(DialogReturnCode.Cancel);
 	
-	Handler = New NotifyDescription("ClearAggregatesByRegistersCompletion", ThisObject);
+	Handler = New CallbackDescription("ClearAggregatesByRegistersCompletion", ThisObject);
 	ShowQueryBox(Handler, QueryText, Buttons, , DialogReturnCode.Cancel);
 	
 EndProcedure
@@ -635,7 +635,7 @@ EndProcedure
 
 &AtClient
 Procedure RecalcTotalsForPeriod(Command)
-	Handler = New NotifyDescription("RecalcTotalsForPeriodCompletion", ThisObject);
+	Handler = New CallbackDescription("RecalcTotalsForPeriodCompletion", ThisObject);
 	Dialog = New StandardPeriodEditDialog;
 	Dialog.Period = RegistersRecalculationPeriod;
 	Dialog.Show(Handler);
@@ -742,8 +742,7 @@ Procedure SetConditionalAppearance()
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Asynchronous dialog box handlers.
+#Region AsyncDialogHandlers
 
 &AtClient
 Procedure ClearAggregatesByRegistersCompletion(Response, AdditionalParameters) Export
@@ -789,8 +788,9 @@ Procedure RecalcTotalsForPeriodCompletion(ValueSelected, AdditionalParameters) E
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Client
+#EndRegion
+
+#Region Client
 
 &AtClient
 Procedure SetAggregatesListFilter()
@@ -1013,7 +1013,7 @@ Procedure GetOptimalAggregatesClient()
 	EndIf;
 	
 	Result = GetOptimalAggregatesServer();
-	Handler = New NotifyDescription("GetOptimalAggregatesClientCompletion", ThisObject, Result);
+	Handler = New CallbackDescription("GetOptimalAggregatesClientCompletion", ThisObject, Result);
 	If Not Result.CanGet Then
 		Return;
 	EndIf;
@@ -1049,8 +1049,9 @@ Procedure GetOptimalAggregatesClientCompletion(ObtainedFiles, ExecutionResult) E
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Client, Server.
+#EndRegion
+
+#Region ClientServer
 
 &AtClientAtServerNoContext
 Function EndOfPeriod(Val Date)
@@ -1066,8 +1067,9 @@ Function Prefix()
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Server call, Server.
+#EndRegion
+
+#Region ServerCallServer
 
 &AtServer
 Function GetOptimalAggregatesServer()
@@ -1423,8 +1425,9 @@ Procedure SetAdvancedMode()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Server
+#EndRegion
+
+#Region Server
 
 &AtServer
 Function SelectedRows(TableName)
@@ -1522,5 +1525,7 @@ Procedure ReadInformationOnRegisters()
 	AggregatesByRegisters.Sort("Description Asc");
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

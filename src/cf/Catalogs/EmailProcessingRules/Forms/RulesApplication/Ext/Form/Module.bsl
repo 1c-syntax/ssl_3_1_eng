@@ -108,7 +108,7 @@ Procedure Apply(Command)
 	TimeConsumingOperation = ApplyRulesAtServer();
 	
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-	CallbackOnCompletion = New NotifyDescription("ApplyRulesCompletion", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("ApplyRulesCompletion", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure

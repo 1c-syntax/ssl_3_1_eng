@@ -23,8 +23,8 @@
 //      * Path   - String   - path to the file on the server. This key is used only if Status is True.
 //      * ErrorMessage - String - error message if Status is False.
 //      * Headers         - Map - see details of the Headers parameter of the HTTPResponse object in Syntax Assistant.
-//      * StatusCode      - Number - added in case of an error.
-//                                    For more information on the StateCode parameter of the HTTPResponse object, see the Syntax Assistant.
+//      * StatusCode      - Number - Added in case of an error.
+//                                    See the "StatusCode" parameter of the "HTTPResponse" object in Syntax Assistant.
 //
 Function DownloadFileAtServer(Val URL, ReceivingParameters = Undefined, Val WriteError1 = True) Export
 	
@@ -53,8 +53,8 @@ EndFunction
 //                            The key is used only if the status is True.
 //      * ErrorMessage - String - error message if Status is False.
 //      * Headers         - Map - see details of the Headers parameter of the HTTPResponse object in Syntax Assistant.
-//      * StatusCode      - Number - added in case of an error.
-//                                    For more information on the StateCode parameter of the HTTPResponse object, see the Syntax Assistant.
+//      * StatusCode      - Number - Added in case of an error.
+//                                    See the "StatusCode" parameter of the "HTTPResponse" object in Syntax Assistant.
 //
 Function DownloadFileToTempStorage(Val URL, ReceivingParameters = Undefined, Val WriteError1 = True) Export
 	
@@ -91,6 +91,7 @@ Function ProxySettingsAtClient() Export
 		// In the file mode, scheduled jobs run on the user's computer.
 		// 
 		
+		SetPrivilegedMode(True);
 		CurrentInfobaseSession1 = GetCurrentInfoBaseSession();
 		BackgroundJob = CurrentInfobaseSession1.GetBackgroundJob();
 		IsScheduledJobSession = BackgroundJob <> Undefined And BackgroundJob.ScheduledJob <> Undefined;
@@ -114,6 +115,7 @@ Function ProxySettingsAtClient() Export
 			
 		EndIf;
 		
+		SetPrivilegedMode(False);
 	EndIf;
 	
 	Return Common.CommonSettingsStorageLoad("ProxyServerSetting", "",,, UserName);
@@ -174,6 +176,7 @@ EndFunction
 //  URL - String - URL resource address to be diagnosed.
 //  WriteError1 - Boolean - indicates whether it is necessary to write errors to the event log.
 //  IsPackageDeliveryCheckEnabled - Boolean - Include a PING command to the required URL resource in the diagnostics.
+//  ErrorText - String - 
 //
 // Returns:
 //  Structure:
@@ -187,7 +190,7 @@ EndFunction
 //	ErrorDescription = Result.ErrorDescription;
 //	DiagnosticsLog = Result.DiagnosticsLog;
 //
-Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEnabled = True) Export
+Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEnabled = True, ErrorText = "") Export
 	
 	LongDesc = New Array;
 	LongDesc.Add(StringFunctionsClientServer.SubstituteParametersToString(
@@ -195,9 +198,18 @@ Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEn
 		URL));
 	LongDesc.Add(GetFilesFromInternetInternal.DiagnosticsLocationPresentation());
 	
-	If Common.DataSeparationEnabled() Then
-		LongDesc.Add(
-			NStr("en = 'Please contact the administrator.';"));
+	RefStructure = CommonClientServer.URIStructure(URL);
+	
+	If Not IsBlankString(ErrorText)
+		And StrFind(Upper(ErrorText), Upper("Deleted node not passed checking")) > 0 Then // ACC:1297 Нелокализуемый фрагмент информации об ошибке в исключении.
+		
+		
+		LongDesc.Add(StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Необходимо установить корневой и промежуточные сертификаты к %1 на компьютере <%2>.';"),
+			RefStructure.ServerName,
+			ComputerName()));
+		
+		GetFilesFromInternetLocalization.WhenGeneratingMessageAboutKnownProblem(LongDesc, ErrorText);
 		
 		ErrorDescription = StrConcat(LongDesc, Chars.LF);
 		
@@ -206,6 +218,22 @@ Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEn
 		Result.Insert("DiagnosticsLog", "");
 		
 		Return Result;
+		
+	EndIf;
+	
+	If Common.DataSeparationEnabled() Then
+		LongDesc.Add(NStr("en = 'Please contact the administrator.';"));
+			
+		GetFilesFromInternetLocalization.WhenGeneratingMessageAboutKnownProblem(LongDesc, ErrorText);
+		
+		ErrorDescription = StrConcat(LongDesc, Chars.LF);
+		
+		Result = New Structure;
+		Result.Insert("ErrorDescription", ErrorDescription);
+		Result.Insert("DiagnosticsLog", "");
+		
+		Return Result;
+		
 	EndIf;
 	
 	Log = New Array;
@@ -222,8 +250,6 @@ Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEn
 	EndIf;
 	Log.Add();
 	
-	RefStructure = CommonClientServer.URIStructure(URL);
-	
 	ProxySettingsState = GetFilesFromInternetInternal.ProxySettingsState(RefStructure.Schema);
 	ProxyConnection = ProxySettingsState.ProxyConnection;
 	Log.Add(ProxySettingsState.Presentation);
@@ -234,15 +260,11 @@ Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEn
 			NStr("en = 'Connection diagnostics are not performed because a proxy server is configured.
 			           |Please contact the administrator.';"));
 		
-	Else 
+	Else
 		
 		ResourceServerAddress = RefStructure.Host;
 		VerificationServerAddress = "google.com";
-		
-		If Metadata.CommonModules.Find("GetFilesFromInternetInternalLocalization") <> Undefined Then
-			ModuleNetworkDownloadInternalLocalization = Common.CommonModule("GetFilesFromInternetInternalLocalization");
-			VerificationServerAddress = ModuleNetworkDownloadInternalLocalization.VerificationServerAddress();
-		EndIf;
+		GetFilesFromInternetLocalization.OnGetChecksumServerAddress(VerificationServerAddress);
 		
 		If IsPackageDeliveryCheckEnabled Then
 			ResourceAvailabilityResult = GetFilesFromInternetInternal.CheckServerAvailability(ResourceServerAddress);
@@ -313,6 +335,8 @@ Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEn
 		EndIf;
 		
 	EndIf;
+	
+	GetFilesFromInternetLocalization.WhenGeneratingMessageAboutKnownProblem(LongDesc, ErrorText);
 	
 	ErrorDescription = StrConcat(LongDesc, Chars.LF);
 	

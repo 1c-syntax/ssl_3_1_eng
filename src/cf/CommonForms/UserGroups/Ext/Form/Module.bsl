@@ -88,7 +88,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		Return;
 	EndIf;
 	
-	Notification = New NotifyDescription("WriteAndCloseBeginning", ThisObject);
+	Notification = New CallbackDescription("WriteAndCloseBeginning", ThisObject);
 	CommonClient.ShowFormClosingConfirmation(Notification, Cancel, Exit);
 	
 EndProcedure
@@ -174,11 +174,11 @@ Procedure WriteAndCloseBeginning(Result = Undefined, AdditionalParameters = Unde
 			QuestionButtons = New ValueList;
 			QuestionButtons.Add("OK", NStr("en = 'OK';"));
 			QuestionButtons.Add("ShowReport", NStr("en = 'View report';"));
-			Notification = New NotifyDescription("WriteAndCloseQuestionProcessing",
+			Notification = New CallbackDescription("WriteAndCloseQuestionProcessing",
 				ThisObject, NotifyUser1.FullMessageText);
 			ShowQueryBox(Notification, QueryText, QuestionButtons,, QuestionButtons[0].Value);
 		Else
-			Notification = New NotifyDescription("WriteAndCloseWarningProcessing", ThisObject);
+			Notification = New CallbackDescription("WriteAndCloseWarningProcessing", ThisObject);
 			ShowMessageBox(Notification, NotifyUser1.Message);
 		EndIf;
 		

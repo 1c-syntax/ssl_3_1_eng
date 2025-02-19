@@ -52,7 +52,7 @@ Function SplitStringIntoSubstringsArray(Val Value, Val Separator = ",", Val Skip
 		
 		Result = StrSplit(Value, Separator, False);
 		For IndexOf = 0 To Result.UBound() Do
-			Result[IndexOf] = TrimAll(Result[IndexOf])
+			Result[IndexOf] = TrimAll(Result[IndexOf]);
 		EndDo;
 		Return Result;
 		
@@ -70,17 +70,26 @@ Function SplitStringIntoSubstringsArray(Val Value, Val Separator = ",", Val Skip
 			Return Result;
 		EndIf;
 	EndIf;
-	//
+	
+	If StrLen(Separator) = 0 Then
+		If SkipEmptyStrings And IsBlankString(Value) Then
+			Return Result;
+		EndIf;	
+		If TrimNonprintableChars Then
+			Value = TrimAll(Value);
+		EndIf;
+		Result.Add(Value);
+		Return Result;
+	EndIf; 
 	
 	Position = StrFind(Value, Separator);
 	While Position > 0 Do
 		Substring = Left(Value, Position - 1);
 		If Not SkipEmptyStrings Or Not IsBlankString(Substring) Then
 			If TrimNonprintableChars Then
-				Result.Add(TrimAll(Substring));
-			Else
-				Result.Add(Substring);
+				Substring = TrimAll(Substring);
 			EndIf;
+			Result.Add(Substring);
 		EndIf;
 		Value = Mid(Value, Position + StrLen(Separator));
 		Position = StrFind(Value, Separator);
@@ -88,10 +97,9 @@ Function SplitStringIntoSubstringsArray(Val Value, Val Separator = ",", Val Skip
 	
 	If Not SkipEmptyStrings Or Not IsBlankString(Value) Then
 		If TrimNonprintableChars Then
-			Result.Add(TrimAll(Value));
-		Else
-			Result.Add(Value);
+			Value = TrimAll(Value);
 		EndIf;
+		Result.Add(Value);
 	EndIf;
 	
 	Return Result;
@@ -277,8 +285,8 @@ EndFunction
 //
 // Example:
 //  Values = New Structure("LastName,Name", "Smith", "John");
-//  Result = StringFunctionsClientServer.InsertParametersIntoString("Hello, [Имя] [Фамилия].", Values);
-//  - Returns: "Hello, John Doe".
+//  Result = StringFunctionsClientServer.InsertParametersIntoString("Hello, [Name] [LastName].", Values);
+//  - Returns: "Hello, John Smith".
 //
 Function InsertParametersIntoString(Val StringPattern, Val Parameters) Export
 	Result = StringPattern;
@@ -1102,7 +1110,7 @@ EndFunction
 // The possible tag values in the template:
 // - String - Applies the bold formatting.
 // - String - Adds a hyperlink.
-// For example, "Lowest supported version is 1.1. Update the app."
+// For example, "Lowest supported version is <b>1.1</b>. <a href = "Update">Update</a> the app."
 //
 // Parameters:
 //  StringWithTags - String - a string containing formatting tags.

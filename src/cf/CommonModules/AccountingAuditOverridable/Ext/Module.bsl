@@ -73,7 +73,7 @@ EndProcedure
 //                                                  The handler procedure accepts two parameters for input: 
 //                                                    CorrectionParameters - Structure - A structure with the following properties
 //                                                      CheckID - String - The check id.
-//                                                      CheckKind - CatalogRef.ChecksKinds - The check kind, which narrows down the check scope.
+//                                                      CheckKind - CatalogRef.ChecksKinds - The check type that narrows down the check scope.
 //                                                               AdditionalParameters - Undefined - The parameter is not used.
 //                                                    When a user opens the form, it takes the same properties
 //                                                 as in the "CorrectionParameters" parameter. 
@@ -161,8 +161,8 @@ EndProcedure
 //     * ObjectWithIssue         - AnyRef - the object, because of which the issue is being saved.
 //                                                Or a reference to the MetadataObjectIDs catalog item
 //     * CheckRule          - CatalogRef.AccountingCheckRules - a reference to the executed check.
-//     * CheckKind              - CatalogRef.ChecksKinds - a reference to 
-//                                  a check kind.
+//     * CheckKind              - CatalogRef.ChecksKinds - Reference to the check type. 
+//                                  
 //     * UniqueKey         - UUID - Issue uniqueness key.
 //     * IssueSummary        - String - a string summary of the found issue.
 //     * IssueSeverity         - EnumRef.AccountingIssueSeverity - Severity level of a data integrity issue
@@ -219,8 +219,8 @@ EndProcedure
 //                                         correct an issue. The issue or form correction handler parameters:
 //                                          * CheckID - String - an ID of the check 
 //                                                                    that has detected an issue.
-//                                          * CheckKind - CatalogRef.ChecksKinds - a check kind 
-//                                                          that narrows the area of issue correction.
+//                                          * CheckKind - CatalogRef.ChecksKinds - Check type 
+//                                                          that narrows down the scope of the check.
 //      * AdditionalParameters        - ValueStorage - an additional information on the check.
 //
 // Example:

@@ -16,7 +16,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetUpDynamicList();
 	
 	User = Users.AuthorizedUser();
-	
 	List.Parameters.SetParameterValue("BeingEditedBy", User);
 	
 	ShowSizeColumn = FilesOperationsInternal.ShowSizeColumn();
@@ -24,18 +23,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ListCurrentVersionSize.Visible = False;
 	EndIf;
 	
-	ApplicationShutdown = Undefined;
-	If Parameters.Property("ApplicationShutdown", ApplicationShutdown) Then 
-		Response = ApplicationShutdown;
-		If Response = True Then
-			Items.ShowLockedFilesOnExit.Visible = Response;
-			Items.CommandBarGroup1.Visible                     = Response;
-		EndIf;
-	EndIf;
+	ApplicationShutdown = Parameters.ApplicationShutdown;
+	Items.ShowLockedFilesOnExit.Visible = ApplicationShutdown;
+	Items.CommandBarGroup1.Visible                     = ApplicationShutdown;
 	
 	ShowLockedFilesOnExit = Common.CommonSettingsStorageLoad(
-		"ApplicationSettings", 
-		"ShowLockedFilesOnExit", True);
+		"ApplicationSettings", "ShowLockedFilesOnExit", True);
 	
 EndProcedure
 
@@ -166,7 +159,7 @@ Procedure UpdateFromFileOnHardDrive(Command)
 	EndIf;
 	
 	FileData = FilesOperationsInternalServerCall.FileDataAndWorkingDirectory(CurrentData.Ref);
-	FilesOperationsInternalClient.UpdateFromFileOnHardDriveWithNotification(New NotifyDescription("UpdateEditedFilesList", ThisObject), FileData, UUID);
+	FilesOperationsInternalClient.UpdateFromFileOnHardDriveWithNotification(New CallbackDescription("UpdateEditedFilesList", ThisObject), FileData, UUID);
 	
 EndProcedure
 
@@ -179,7 +172,7 @@ Procedure Release(Command)
 	EndIf;
 	
 	FileUnlockParameters = FilesOperationsInternalClient.FileUnlockParameters(
-		New NotifyDescription("UpdateEditedFilesList", ThisObject), CurrentData.Ref);
+		New CallbackDescription("UpdateEditedFilesList", ThisObject), CurrentData.Ref);
 	FileUnlockParameters.StoreVersions = CurrentData.StoreVersions;
 	FileUnlockParameters.CurrentUserEditsFile = True;
 	FileUnlockParameters.BeingEditedBy = CurrentData.BeingEditedBy;
@@ -225,7 +218,7 @@ Procedure EndEdit(Command)
 	EndIf;
 	
 	FileUpdateParameters = FilesOperationsInternalClient.FileUpdateParameters(
-		New NotifyDescription("UpdateEditedFilesList", ThisObject), CurrentData.Ref, UUID);
+		New CallbackDescription("UpdateEditedFilesList", ThisObject), CurrentData.Ref, UUID);
 	FileUpdateParameters.StoreVersions = CurrentData.StoreVersions;
 	FileUpdateParameters.CurrentUserEditsFile = True;
 	FileUpdateParameters.BeingEditedBy = CurrentData.BeingEditedBy;

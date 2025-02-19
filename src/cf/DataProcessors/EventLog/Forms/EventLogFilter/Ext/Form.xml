@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
+	<SaveDataInSettings>UseList</SaveDataInSettings>
 	<AutoURL>false</AutoURL>
 	<AutoCommandBar name="FormCommandBar" id="-1">
-		<Autofill>false</Autofill>
 		<ChildItems>
 			<Button name="OK" id="27">
 				<Type>CommandBarButton</Type>
@@ -34,10 +34,56 @@
 				</Title>
 				<ExtendedTooltip name="CancelExtendedTooltip" id="237"/>
 			</Button>
+			<Button name="FormSaveValues" id="364">
+				<Type>CommandBarButton</Type>
+				<CommandName>Form.StandardCommand.SaveValues</CommandName>
+				<ExtendedTooltip name="FormSaveValuesExtendedTooltip" id="365"/>
+			</Button>
+			<Button name="FormRestoreValues" id="368">
+				<Type>CommandBarButton</Type>
+				<CommandName>Form.StandardCommand.RestoreValues</CommandName>
+				<ExtendedTooltip name="FormRestoreValuesExtendedTooltip" id="369"/>
+			</Button>
+			<ButtonGroup name="FormSettings" id="360">
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Form Group1</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="FormSettingsExtendedTooltip" id="361"/>
+				<ChildItems>
+					<Button name="SaveSettingsToFile" id="356">
+						<Type>CommandBarButton</Type>
+						<CommandName>Form.Command.SaveSettingsToFile</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Export settings to file…</v8:content>
+							</v8:item>
+						</Title>
+						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+						<ExtendedTooltip name="SaveSettingsToFileExtendedTooltip" id="357"/>
+					</Button>
+					<Button name="ImportSettingsFromFile" id="358">
+						<Type>CommandBarButton</Type>
+						<CommandName>Form.Command.ImportSettingsFromFile</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Import settings from file…</v8:content>
+							</v8:item>
+						</Title>
+						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+						<ExtendedTooltip name="ImportSettingsFromFileExtendedTooltip" id="359"/>
+					</Button>
+				</ChildItems>
+			</ButtonGroup>
 		</ChildItems>
 	</AutoCommandBar>
 	<Events>
 		<Event name="NotificationProcessing">NotificationProcessing</Event>
+		<Event name="OnLoadDataFromSettingsAtServer">OnLoadDataFromSettingsAtServer</Event>
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 	</Events>
 	<ChildItems>
@@ -227,28 +273,40 @@
 									<HorizontalLocation>Right</HorizontalLocation>
 									<ExtendedTooltip name="CommandBarSeverityExtendedTooltip" id="314"/>
 									<ChildItems>
-										<Button name="CheckAll" id="243">
-											<Type>CommandBarButton</Type>
-											<CommandName>Form.Command.SelectSeverityCheckBoxes</CommandName>
+										<ButtonGroup name="GroupSeverityCheckBoxes" id="362">
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Select all</v8:content>
+													<v8:content>Severity</v8:content>
 												</v8:item>
 											</Title>
-											<ExtendedTooltip name="CheckAllExtendedTooltip" id="244"/>
-										</Button>
-										<Button name="UncheckAll" id="245">
-											<Type>CommandBarButton</Type>
-											<CommandName>Form.Command.ClearSeverityCheckBoxes</CommandName>
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Clear all</v8:content>
-												</v8:item>
-											</Title>
-											<ExtendedTooltip name="UncheckAllExtendedTooltip" id="246"/>
-										</Button>
+											<Representation>Compact</Representation>
+											<ExtendedTooltip name="GroupSeverityCheckBoxesExtendedTooltip" id="363"/>
+											<ChildItems>
+												<Button name="CheckAll" id="243">
+													<Type>CommandBarButton</Type>
+													<CommandName>Form.Command.SelectSeverityCheckBoxes</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Select all</v8:content>
+														</v8:item>
+													</Title>
+													<ExtendedTooltip name="CheckAllExtendedTooltip" id="244"/>
+												</Button>
+												<Button name="UncheckAll" id="245">
+													<Type>CommandBarButton</Type>
+													<CommandName>Form.Command.ClearSeverityCheckBoxes</CommandName>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Clear all</v8:content>
+														</v8:item>
+													</Title>
+													<ExtendedTooltip name="UncheckAllExtendedTooltip" id="246"/>
+												</Button>
+											</ChildItems>
+										</ButtonGroup>
 									</ChildItems>
 								</CommandBar>
 							</ChildItems>
@@ -321,7 +379,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Mark</v8:content>
+													<v8:content>Checkbox</v8:content>
 												</v8:item>
 											</Title>
 											<FooterHorizontalAlign>Left</FooterHorizontalAlign>
@@ -404,7 +462,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Apps</v8:content>
+									<v8:content>Applications</v8:content>
 								</v8:item>
 							</Title>
 							<Wrap>false</Wrap>
@@ -772,7 +830,7 @@ presentation</v8:content>
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Check mark and value</v8:content>
+											<v8:content>Checkbox and value</v8:content>
 										</v8:item>
 									</Title>
 									<Group>InCell</Group>
@@ -783,7 +841,7 @@ presentation</v8:content>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Mark</v8:content>
+													<v8:content>Checkbox</v8:content>
 												</v8:item>
 											</Title>
 											<FooterHorizontalAlign>Left</FooterHorizontalAlign>
@@ -920,6 +978,9 @@ presentation</v8:content>
 				<Field>UsersList.Presentation</Field>
 				<Field>UsersList.ValueType</Field>
 			</UseAlways>
+			<Save>
+				<Field>UsersList</Field>
+			</Save>
 			<Settings xsi:type="v8:TypeDescription">
 				<v8:Type>xs:string</v8:Type>
 				<v8:StringQualifiers>
@@ -932,6 +993,9 @@ presentation</v8:content>
 			<Type>
 				<v8:Type>v8:ValueListType</v8:Type>
 			</Type>
+			<Save>
+				<Field>Events</Field>
+			</Save>
 			<Settings xsi:type="v8:TypeDescription"/>
 		</Attribute>
 		<Attribute name="Computers" id="6">
@@ -949,6 +1013,9 @@ presentation</v8:content>
 				<Field>Computers.Presentation</Field>
 				<Field>Computers.ValueType</Field>
 			</UseAlways>
+			<Save>
+				<Field>Computers</Field>
+			</Save>
 			<Settings xsi:type="v8:TypeDescription">
 				<v8:Type>xs:string</v8:Type>
 				<v8:StringQualifiers>
@@ -971,6 +1038,9 @@ presentation</v8:content>
 				<Field>Applications.Picture</Field>
 				<Field>Applications.ValueType</Field>
 			</UseAlways>
+			<Save>
+				<Field>Applications</Field>
+			</Save>
 			<Settings xsi:type="v8:TypeDescription">
 				<v8:Type>xs:string</v8:Type>
 				<v8:StringQualifiers>
@@ -993,6 +1063,9 @@ presentation</v8:content>
 				<Field>Importance.Picture</Field>
 				<Field>Importance.ValueType</Field>
 			</UseAlways>
+			<Save>
+				<Field>Importance</Field>
+			</Save>
 			<Settings xsi:type="v8:TypeDescription">
 				<v8:Type>xs:string</v8:Type>
 				<v8:StringQualifiers>
@@ -1015,6 +1088,9 @@ presentation</v8:content>
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
+			<Save>
+				<Field>Comment</Field>
+			</Save>
 		</Attribute>
 		<Attribute name="Metadata" id="10">
 			<Title>
@@ -1031,6 +1107,9 @@ presentation</v8:content>
 				<Field>Metadata.Presentation</Field>
 				<Field>Metadata.ValueType</Field>
 			</UseAlways>
+			<Save>
+				<Field>Metadata</Field>
+			</Save>
 			<Settings xsi:type="v8:TypeDescription">
 				<v8:Type>xs:string</v8:Type>
 				<v8:StringQualifiers>
@@ -1051,7 +1130,7 @@ presentation</v8:content>
 				<v8:Type>xs:string</v8:Type>
 				<v8:Type>xs:dateTime</v8:Type>
 				<v8:Type>xs:decimal</v8:Type>
-				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+				<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
 				<v8:NumberQualifiers>
 					<v8:Digits>10</v8:Digits>
 					<v8:FractionDigits>0</v8:FractionDigits>
@@ -1065,6 +1144,9 @@ presentation</v8:content>
 					<v8:DateFractions>DateTime</v8:DateFractions>
 				</v8:DateQualifiers>
 			</Type>
+			<Save>
+				<Field>Data</Field>
+			</Save>
 		</Attribute>
 		<Attribute name="DataPresentation" id="12">
 			<Title>
@@ -1081,6 +1163,9 @@ presentation</v8:content>
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
+			<Save>
+				<Field>DataPresentation</Field>
+			</Save>
 		</Attribute>
 		<Attribute name="TransactionStatus" id="13">
 			<Title>
@@ -1097,6 +1182,9 @@ presentation</v8:content>
 				<Field>TransactionStatus.Presentation</Field>
 				<Field>TransactionStatus.ValueType</Field>
 			</UseAlways>
+			<Save>
+				<Field>TransactionStatus</Field>
+			</Save>
 			<Settings xsi:type="v8:TypeDescription">
 				<v8:Type>xs:string</v8:Type>
 				<v8:StringQualifiers>
@@ -1119,6 +1207,9 @@ presentation</v8:content>
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
+			<Save>
+				<Field>Transaction</Field>
+			</Save>
 		</Attribute>
 		<Attribute name="SessionsString" id="15">
 			<Title>
@@ -1134,6 +1225,9 @@ presentation</v8:content>
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
+			<Save>
+				<Field>SessionsString</Field>
+			</Save>
 		</Attribute>
 		<Attribute name="Sessions" id="16">
 			<Type>
@@ -1163,6 +1257,9 @@ presentation</v8:content>
 				<Field>WorkingServers.Presentation</Field>
 				<Field>WorkingServers.ValueType</Field>
 			</UseAlways>
+			<Save>
+				<Field>WorkingServers</Field>
+			</Save>
 			<Settings xsi:type="v8:TypeDescription">
 				<v8:Type>xs:string</v8:Type>
 				<v8:StringQualifiers>
@@ -1186,6 +1283,9 @@ presentation</v8:content>
 				<Field>PrimaryIPPorts.Presentation</Field>
 				<Field>PrimaryIPPorts.ValueType</Field>
 			</UseAlways>
+			<Save>
+				<Field>PrimaryIPPorts</Field>
+			</Save>
 			<Settings xsi:type="v8:TypeDescription">
 				<v8:Type>xs:decimal</v8:Type>
 				<v8:NumberQualifiers>
@@ -1210,6 +1310,9 @@ presentation</v8:content>
 				<Field>SecondaryIPPorts.Presentation</Field>
 				<Field>SecondaryIPPorts.ValueType</Field>
 			</UseAlways>
+			<Save>
+				<Field>SecondaryIPPorts</Field>
+			</Save>
 			<Settings xsi:type="v8:TypeDescription">
 				<v8:Type>xs:decimal</v8:Type>
 				<v8:NumberQualifiers>
@@ -1255,6 +1358,9 @@ presentation</v8:content>
 					<v8:DateFractions>DateTime</v8:DateFractions>
 				</v8:DateQualifiers>
 			</Type>
+			<Save>
+				<Field>FilterPeriodStartDate</Field>
+			</Save>
 		</Attribute>
 		<Attribute name="FilterPeriodEndDate" id="3">
 			<Title>
@@ -1269,6 +1375,9 @@ presentation</v8:content>
 					<v8:DateFractions>DateTime</v8:DateFractions>
 				</v8:DateQualifiers>
 			</Type>
+			<Save>
+				<Field>FilterPeriodEndDate</Field>
+			</Save>
 		</Attribute>
 		<Attribute name="EventsToDisplay" id="21">
 			<Title>
@@ -1307,6 +1416,9 @@ presentation</v8:content>
 			<Type>
 				<v8:Type>v8:ValueListType</v8:Type>
 			</Type>
+			<Save>
+				<Field>SessionDataSeparation</Field>
+			</Save>
 			<Settings xsi:type="v8:TypeDescription"/>
 		</Attribute>
 		<Attribute name="DataMultipleValues" id="26">
@@ -1319,6 +1431,9 @@ presentation</v8:content>
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
+			<Save>
+				<Field>DataMultipleValues</Field>
+			</Save>
 		</Attribute>
 		<Attribute name="Data_List" id="28">
 			<Title>
@@ -1330,12 +1445,15 @@ presentation</v8:content>
 			<Type>
 				<v8:Type>v8:ValueListType</v8:Type>
 			</Type>
+			<Save>
+				<Field>Data_List</Field>
+			</Save>
 			<Settings xsi:type="v8:TypeDescription">
 				<v8:Type>xs:boolean</v8:Type>
 				<v8:Type>xs:string</v8:Type>
 				<v8:Type>xs:dateTime</v8:Type>
 				<v8:Type>xs:decimal</v8:Type>
-				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+				<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
 				<v8:NumberQualifiers>
 					<v8:Digits>10</v8:Digits>
 					<v8:FractionDigits>0</v8:FractionDigits>
@@ -1360,6 +1478,9 @@ presentation</v8:content>
 			<Type>
 				<v8:Type>v8:ValueListType</v8:Type>
 			</Type>
+			<Save>
+				<Field>DataAreas</Field>
+			</Save>
 			<Settings xsi:type="v8:TypeDescription"/>
 		</Attribute>
 	</Attributes>
@@ -1477,6 +1598,24 @@ presentation</v8:content>
 			</ToolTip>
 			<Action>FilterPeriodOnChange</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="SaveSettingsToFile" id="7">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Export settings to file…</v8:content>
+				</v8:item>
+			</Title>
+			<Action>SaveSettingsToFile</Action>
+		</Command>
+		<Command name="ImportSettingsFromFile" id="8">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Import settings from file…</v8:content>
+				</v8:item>
+			</Title>
+			<Action>ImportSettingsFromFile</Action>
 		</Command>
 	</Commands>
 	<Parameters>

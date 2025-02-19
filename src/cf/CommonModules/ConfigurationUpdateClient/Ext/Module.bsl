@@ -125,7 +125,7 @@ EndProcedure
 //                                          2, Create an infobase backup.
 //      * IBBackupDirectoryName - String - a backup directory.
 //      * RestoreInfobase - Boolean - roll back in case of update errors.
-//    NotifyDescription - NotifyDescription - a description of form closing notification.
+//    NotifyDescription - CallbackDescription - a description of form closing notification.
 //
 Procedure ShowBackup(BackupParameters, NotifyDescription) Export
 	
@@ -332,8 +332,7 @@ Function IsPatch(PatchName) Export
 	Return StrStartsWith(PatchName, "EF_");
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // See CommonClientOverridable.OnStart.
 Procedure OnStart(Parameters) Export
@@ -366,6 +365,8 @@ Procedure BeforeExit(Cancel, Warnings) Export
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -1031,7 +1032,7 @@ Procedure RunUpdateScript(Parameters, AdministrationParameters)
 	FormParameters = New Structure("NameOfFirstUpdateFile",
 		UpdateFilesNames(Parameters, True));
 	
-	Notification = New NotifyDescription("RunUpdateScriptAfterUpdateFileChecked",
+	Notification = New CallbackDescription("RunUpdateScriptAfterUpdateFileChecked",
 		ThisObject, Context);
 	
 	Form = OpenForm("CommonForm.CheckUpdateFile", FormParameters,,,,,
@@ -1077,7 +1078,7 @@ Procedure RunUpdateScriptOnDataCleanUp(Context)
 		EndDo;
 	EndDo;
 	
-	Notification = New NotifyDescription("RunUpdateScriptAfterObsoleteDataPurge",
+	Notification = New CallbackDescription("RunUpdateScriptAfterObsoleteDataPurge",
 		ThisObject, Context);
 	
 	FormParameters = New Structure;
@@ -1141,7 +1142,7 @@ Procedure RunUpdateScriptCompletion(Parameters, AdministrationParameters)
 		StringUnicode(AdministrationParameters.ClusterAdministratorPassword));
 	
 	If StandardSubsystemsClient.IsBaseConfigurationVersion() Then
-		ConfigurationUpdateServerCall.DeletePatchesFromScript();
+		ConfigurationUpdateServerCall.DisablePatchesFromScript();
 	EndIf;
 	ReturnCode = Undefined;
 	RunApp(CommandLine1,,, ReturnCode); // ACC:534 Start update script.

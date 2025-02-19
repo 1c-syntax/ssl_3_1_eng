@@ -49,8 +49,7 @@ Procedure OnDefineSettings(Settings) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Report layout settings.
+#Region ReportsLocationSettings
 
 // Determines command interface sections where report panels are provided.
 // In Sections, it is necessary to add metadata of those subsystems of the first level
@@ -59,8 +58,8 @@ EndProcedure
 // Parameters:
 //  Sections - ValueList - Sections containing the report panel opening commands::
 //      * Value - MetadataObjectSubsystem
-//                 - String - Either subsystem of the global command interface
-//                   or ReportOptionsClientServer.HomePageID for the home page.
+//                 - String - Either a subsystem of the global command interface
+//                   or ReportsOptionsClientServer.HomePageID for the home page.
 //      * Presentation - String - Report panel header in this section.
 //
 // Example:
@@ -138,7 +137,7 @@ EndProcedure
 //           If True and the report is attached to the general ReportForm form,
 //           then the procedure must be defined in the report object module according to the following template::
 //               
-//               Set the report form settings.
+//               Set report form settings.
 //               //
 //               
 //               Parameters:
@@ -221,8 +220,9 @@ Procedure RegisterChangesOfReportOptionsKeys(Changes) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Report command settings.
+#EndRegion
+
+#Region ReportsCommandsSettings
 
 // Determines configuration objects whose manager modules support the AddReportsCommands procedure
 // describing context report opening commands.
@@ -302,5 +302,7 @@ EndProcedure
 Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessing) Export
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

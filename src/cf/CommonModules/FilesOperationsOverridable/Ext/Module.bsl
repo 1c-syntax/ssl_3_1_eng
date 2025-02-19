@@ -117,18 +117,6 @@ Procedure OnSendFilesViaEmail(SendOptions, FilesToSend, FilesOwner, UUID) Export
 	
 EndProcedure
 
-// Allows you to define the parameters of digital signature stamps in a signed spreadsheet document.
-//
-// Parameters:
-//  StampParameters - Structure - the returned parameter with the following properties:
-//      * MarkText         - String - description of the original signed document location.
-//      * Logo              - Picture - a logo that will be displayed in the stamp.
-//  Certificate      - CryptoCertificate - a certificate, according to which the digital signature stamp is generated.
-//
-Procedure OnPrintFileWithStamp(StampParameters, Certificate) Export
-	
-EndProcedure
-
 // Allows you to change the standard form of the file list.
 //
 // Parameters:
@@ -161,6 +149,22 @@ EndProcedure
 Procedure OnDefineFilesHyperlink(HyperlinkParameters) Export
 	
 EndProcedure
+
+#Region ObsoleteProceduresAndFunctions
+
+// Deprecated. 
+// 
+// Parameters:
+//  StampParameters - Structure - the returned parameter with the following properties:
+//      * MarkText         - String - description of the original signed document location.
+//      * Logo              - Picture - a logo that will be displayed in the stamp.
+//  Certificate      - CryptoCertificate - a certificate, according to which the digital signature stamp is generated.
+//
+Procedure OnPrintFileWithStamp(StampParameters, Certificate) Export
+
+EndProcedure
+
+#EndRegion
 
 #EndRegion
 

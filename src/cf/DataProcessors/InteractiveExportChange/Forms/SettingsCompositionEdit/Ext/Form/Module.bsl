@@ -74,7 +74,7 @@ Procedure SettingVariantsBeforeDeleteRow(Item, Cancel)
 	QueryText = StrReplace(QueryText, "%1", SettingPresentation);
 	
 	AdditionalParameters = New Structure("SettingPresentation", SettingPresentation);
-	NotifyDescription = New NotifyDescription("DeleteSettingsVariantRequestNotification", ThisObject, 
+	NotifyDescription = New CallbackDescription("DeleteSettingsVariantRequestNotification", ThisObject, 
 		AdditionalParameters);
 	
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);
@@ -100,7 +100,7 @@ Procedure SaveSetting(Command)
 		QueryText = StrReplace(QueryText, "%1", CurrentSettingsItemPresentation);
 		
 		AdditionalParameters = New Structure("SettingPresentation", CurrentSettingsItemPresentation);
-		NotifyDescription = New NotifyDescription("SaveSettingsVariantRequestNotification", ThisObject, 
+		NotifyDescription = New CallbackDescription("SaveSettingsVariantRequestNotification", ThisObject, 
 			AdditionalParameters);
 			
 		ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);

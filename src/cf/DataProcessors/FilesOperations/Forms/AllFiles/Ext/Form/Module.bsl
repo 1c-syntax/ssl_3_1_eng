@@ -114,7 +114,7 @@ Procedure Release(Command)
 		Return;
 	EndIf;
 	
-	Handler = New NotifyDescription("ReleaseCompletion", ThisObject);
+	Handler = New CallbackDescription("ReleaseCompletion", ThisObject);
 	FilesOperationsInternalClient.UnlockFiles(Items.List);
 	Items.List.Refresh();
 	
@@ -169,7 +169,7 @@ Procedure Delete(Command)
 	EndIf;
 	
 	FilesOperationsInternalClient.DeleteData(
-		New NotifyDescription("AfterDeleteData", ThisObject),
+		New CallbackDescription("AfterDeleteData", ThisObject),
 		Items.List.CurrentData.Ref, UUID);
 	
 EndProcedure

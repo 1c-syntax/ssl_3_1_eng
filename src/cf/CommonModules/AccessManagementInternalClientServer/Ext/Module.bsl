@@ -81,8 +81,7 @@ Function AccessKindMatchesProfileAssignment(Val AccessKind, ProfileAssignment) E
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Management of AccessKinds and AccessValues tables in edit forms.
+#Region ManagingAccessKindsTableAndAccessValuesTableInEditors
 
 // For internal use only.
 Procedure FillAllAllowedPresentation(Form, AccessKindDetails, AddValuesCount = True) Export
@@ -563,6 +562,8 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 #Region Private
 
 // Parameters:
@@ -680,5 +681,37 @@ Function AllTypesOfValuesToSelectFromForm(Form)
 	Return OptionalAttributes.AllTypesOfValuesToSelect;
 	
 EndFunction
+
+// For internal use only.
+Procedure AddMetadataObjectCollectionWithRights(Collections) Export
+	
+	Collections.Add("Subsystems",              NStr("en = 'Subsystems';"));
+	Collections.Add("SessionParameters",         NStr("en = 'Session parameters';"));
+	Collections.Add("CommonAttributes",          NStr("en = 'Common attributes';"));
+	Collections.Add("ExchangePlans",             NStr("en = 'Exchange plans';"));
+	Collections.Add("FilterCriteria",          NStr("en = 'Filter criteria';"));
+	Collections.Add("CommonForms",              NStr("en = 'Common forms';"));
+	Collections.Add("CommonCommands",            NStr("en = 'Common commands';"));
+	Collections.Add("WebServices",              NStr("en = 'Web services';"));
+	Collections.Add("HTTPServices",             NStr("en = 'HTTP services';"));
+	Collections.Add("Constants",               NStr("en = 'Constants';"));
+	Collections.Add("Catalogs",             NStr("en = 'Catalogs';"));
+	Collections.Add("Documents",               NStr("en = 'Documents';"));
+	Collections.Add("DocumentJournals",       NStr("en = 'Document journals';"));
+	Collections.Add("Enums",            NStr("en = 'Enumerations';"));
+	Collections.Add("Reports",                  NStr("en = 'Reports';"));
+	Collections.Add("DataProcessors",               NStr("en = 'Data processors';"));
+	Collections.Add("ChartsOfCharacteristicTypes", NStr("en = 'Charts of characteristic types';"));
+	Collections.Add("ChartsOfAccounts",             NStr("en = 'Charts of accounts';"));
+	Collections.Add("ChartsOfCalculationTypes",       NStr("en = 'Charts of calculation types';"));
+	Collections.Add("InformationRegisters",        NStr("en = 'Information registers';"));
+	Collections.Add("AccumulationRegisters",      NStr("en = 'Accumulation registers';"));
+	Collections.Add("AccountingRegisters",     NStr("en = 'Accounting registers';"));
+	Collections.Add("CalculationRegisters",         NStr("en = 'Calculation registers';"));
+	Collections.Add("BusinessProcesses",          NStr("en = 'Business processes';"));
+	Collections.Add("Tasks",                  NStr("en = 'Tasks';"));
+	Collections.Add("ExternalDataSources",  NStr("en = 'External data sources';"));
+	
+EndProcedure
 
 #EndRegion

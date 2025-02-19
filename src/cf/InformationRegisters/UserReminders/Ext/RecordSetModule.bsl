@@ -64,7 +64,7 @@ Function ShouldDisableClientNotifications(CurrentObject)
 
 EndFunction
 
-Procedure SendClientNotification(OldRecords, NewRecords, Cancel, Replacing)
+Procedure SendClientNotification(OldRecords, RecordSet, Cancel, Replacing)
 	
 	If Cancel
 	 Or Not GetFunctionalOption("UseUserReminders") Then
@@ -72,17 +72,10 @@ Procedure SendClientNotification(OldRecords, NewRecords, Cancel, Replacing)
 	EndIf;
 	
 	FieldList = "User, EventTime, Source, ReminderTime, LongDesc, Id";
-	If Replacing Then
-		ModifiedRecords = ModifiedRecords(OldRecords, NewRecords, FieldList);
-	Else
-		ModifiedRecords = ThisObject;
-	EndIf;
+	ModifiedRecords = ModifiedRecords(OldRecords, RecordSet, Replacing, FieldList);
 	
 	UsersReminders = New Map;
 	For Each Record In ModifiedRecords Do
-		If Record.ReminderTime > ReminderPeriodBoundary Then
-			Continue;
-		EndIf;
 		Reminders = UsersReminders.Get(Record.User);
 		If Reminders = Undefined Then
 			Reminders = UserRemindersInternal.NewModifiedReminders();
@@ -92,7 +85,7 @@ Procedure SendClientNotification(OldRecords, NewRecords, Cancel, Replacing)
 		FillPropertyValues(Properties, Record);
 		Properties.Insert("PictureIndex", 2);
 		Properties.Insert("URL", UserRemindersInternal.ReminderURL(Properties));
-		If Not Replacing Or Record.LineChangeType = 1 Then
+		If Record.LineChangeType = 1 Then
 			Reminders.Added1.Add(Properties);
 		Else
 			Reminders.Trash.Add(Properties);
@@ -124,7 +117,6 @@ EndProcedure
 Function OldRecords(RecordSet, Cancel, Replacing)
 	
 	If Cancel
-	 Or Not Replacing
 	 Or Not GetFunctionalOption("UseUserReminders") Then
 		Return Undefined;
 	EndIf;
@@ -147,22 +139,21 @@ Function OldRecords(RecordSet, Cancel, Replacing)
 	
 	Query.SetParameter("ReminderPeriodBoundary", ReminderPeriodBoundary);
 	
-	FilterCriterion = "TRUE";
-	For Each FilterElement In RecordSet.Filter Do
-		If Not FilterElement.Use Then
-			Continue;
-		EndIf;
-		FilterCriterion = FilterCriterion + "
-		|	AND " + FilterElement.Name + " = &" + FilterElement.Name;
-		Query.SetParameter(FilterElement.Name, FilterElement.Value);
-	EndDo;
-	Query.Text = StrReplace(Query.Text, "&FilterCriterion", FilterCriterion);
+	Parameters = Common.NewParametersToFilterSetRecordsFromDatabase();
+	Parameters.TableAlias = "Reminders.";
+	Common.FilterSetRecordsFromDatabase(RecordSet, Replacing, Query, Parameters);
 	
 	Return Query.Execute().Unload();
 	
 EndFunction
 
-Function ModifiedRecords(OldRecords, NewRecords, FieldList)
+Function ModifiedRecords(OldRecords, RecordSet, Replacing, FieldList)
+	
+	If Common.IsRecordSetDeletion(Replacing) Then
+		NewRecords = RecordSet.Unload(New Array);
+	Else
+		NewRecords = RecordSet.Unload();
+	EndIf;
 	
 	For Each Record In NewRecords Do
 		If Record.ReminderTime > ReminderPeriodBoundary Then

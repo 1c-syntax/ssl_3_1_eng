@@ -54,7 +54,7 @@
 //    * CodeText - String
 //    * InputDataType - Number
 //    * CodeType - Number
-//    * RemoveExtraBackgroud - Boolean
+//    * RemoveExtraBackground - Boolean
 //    * CanvasRotation - Number
 //    * QRErrorCorrectionLevel - Number
 //    * BarColor - Number

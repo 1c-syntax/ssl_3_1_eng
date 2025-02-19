@@ -211,7 +211,7 @@ Procedure PerformABackup()
 	Buttons.Add("None", NStr("en = 'No';"));
 	Buttons.Add("Snooze", NStr("en = 'Snooze for 15 minutes';"));
 	
-	DescriptionOfTheAlert = New NotifyDescription("PerformABackupCompletion", ThisObject);
+	DescriptionOfTheAlert = New CallbackDescription("PerformABackupCompletion", ThisObject);
 	ShowQueryBox(DescriptionOfTheAlert, NStr("en = 'Scheduled backup is all set to start.
 		|Do you want to start it now?';"),
 		Buttons, 30, "Yes", NStr("en = 'Scheduled backup';"), "Yes");
@@ -351,7 +351,7 @@ Procedure CheckAccessToInfobase(AdministratorPassword, Val Notification) Export
 	Context.Insert("Notification", Notification);
 	Context.Insert("AdministratorPassword", AdministratorPassword);
 	
-	Notification = New NotifyDescription("CheckAccessToInfobaseAfterCOMRegistration", ThisObject, Context);
+	Notification = New CallbackDescription("CheckAccessToInfobaseAfterCOMRegistration", ThisObject, Context);
 	CommonClient.RegisterCOMConnector(False, Notification);
 	
 EndProcedure
@@ -385,7 +385,7 @@ Procedure CheckAccessToInfobaseAfterCOMRegistration(IsRegistered, Context) Expor
 		
 	EndIf;
 	
-	ExecuteNotifyProcessing(Notification, ConnectionResult);
+	RunCallback(Notification, ConnectionResult);
 	
 EndProcedure
 
@@ -442,7 +442,7 @@ Procedure DeleteConfigurationBackups() Export
 		Return;
 	EndIf;
 		
-	// CAC:566-off code will never be executed in browser.
+	// ACC:566-off - The code is never executed in a browser.
 	Try
 		File = New File(StorageDirectory);
 		If Not File.IsDirectory() Then
@@ -565,6 +565,7 @@ Function GeneralScriptParameters() Export
 	ScriptParameters.Insert("IsBaseConfigurationVersion", "");
 	ScriptParameters.Insert("ScriptParameters"            , "");
 	ScriptParameters.Insert("OneCEnterpriseStartupParameters" , "");
+	ScriptParameters.Insert("COMConnectorPath"         , "");
 	Return ScriptParameters;
 	
 EndFunction	

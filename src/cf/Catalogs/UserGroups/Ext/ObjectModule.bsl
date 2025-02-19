@@ -12,7 +12,7 @@
 
 #Region Variables
 
-// 
+// Object value before it is written (intended for the "OnWrite" event handler).
 Var IsNew, PreviousParent, PreviousComposition, IsFullUser;
 
 #EndRegion
@@ -70,7 +70,7 @@ EndProcedure
 // Cancels actions that cannot be performed on the "All users" group.
 Procedure BeforeWrite(Cancel)
 	
-	// ACC:75-off - The check "DataExchange.Import" should run after the registers are locked.
+	// ACC:75-off - The DataExchange.Load check must follow the locking of registers.
 	If Common.FileInfobase() Then
 		UsersInternal.LockRegistersBeforeWritingToFileInformationSystem(True);
 	EndIf;
@@ -146,6 +146,13 @@ Procedure OnWrite(Cancel)
 	
 	SSLSubsystemsIntegration.AfterAddChangeUserOrGroup(Ref, IsNew);
 	
+	If Common.SubsystemExists(
+		"StandardSubsystems.SaaSOperations.AccessManagementSaaS") Then
+		ModuleAccessManagementInternalSaaS = Common.CommonModule(
+			"AccessManagementInternalSaaS");
+		ModuleAccessManagementInternalSaaS.SendUserGroupChangeMessage(ThisObject);
+	EndIf;
+	
 EndProcedure
 
 Procedure BeforeDelete(Cancel)
@@ -155,6 +162,14 @@ Procedure BeforeDelete(Cancel)
 	EndIf;
 	
 	UsersInternal.UpdateGroupsCompositionBeforeDeleteUserOrGroup(Ref);
+	
+	If Common.SubsystemExists(
+		"StandardSubsystems.SaaSOperations.AccessManagementSaaS") Then
+		ModuleAccessManagementInternalSaaS = Common.CommonModule(
+			"AccessManagementInternalSaaS");
+		ModuleAccessManagementInternalSaaS.SendUserGroupChangeMessage(
+			ThisObject, True);
+	EndIf;
 	
 EndProcedure
 

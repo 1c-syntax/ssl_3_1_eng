@@ -170,7 +170,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	EndIf;
 	
 	If ShowWarningOnFormClose = True Then
-		Notification = New NotifyDescription("BeforeCloseCompletion", ThisObject);
+		Notification = New CallbackDescription("BeforeCloseCompletion", ThisObject);
 		
 		CommonClient.ShowFormClosingConfirmation(Notification, Cancel, Exit);
 		
@@ -386,7 +386,7 @@ EndProcedure
 &AtClient
 Procedure RunDataImport(Command)
 	NString = NStr("en = 'Do you want to import data into the infobase?';");
-	Notification = New NotifyDescription("RunDataImportAfterPromptToConfirmDataImport", ThisObject);
+	Notification = New CallbackDescription("RunDataImportAfterPromptToConfirmDataImport", ThisObject);
 	
 	ShowQueryBox(Notification, NString, QuestionDialogMode.YesNo, ,DialogReturnCode.Yes);
 EndProcedure
@@ -453,7 +453,7 @@ Procedure CancelMapping(Command)
 			
 		Title = NStr("en = 'Clear mapping';", CommonClient.DefaultLanguageCode());
 		
-		Notification = New NotifyDescription("CancelMappingCompletion", ThisObject);
+		Notification = New CallbackDescription("CancelMappingCompletion", ThisObject);
 		ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo,,, Title); 
 		
 	Else
@@ -505,8 +505,7 @@ Procedure WriteAndClose(Command)
 	UpdateMappingTable();
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// INTERNAL PROCEDURES AND FUNCTIONS (1C-supplied part)
+#Region UtilityProceduresAndFunctionsSuppliedPart
 
 &AtClient
 Procedure ChangeNavigationNumber(Iterator_SSLy)
@@ -698,6 +697,8 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 #Region Private
 
 &AtServer
@@ -759,7 +760,7 @@ Procedure RunDataImportAfterPromptToConfirmDataImport(Val QuestionResult, Val Ad
 	
 	If Object.DataImportedSuccessfully Then
 		NString = NStr("en = 'Data is already received. Do you want to receive data again?';");
-		Notification = New NotifyDescription("RunDataImportAfterPromptToReimportData", ThisObject);
+		Notification = New CallbackDescription("RunDataImportAfterPromptToReimportData", ThisObject);
 		
 		ShowQueryBox(Notification, NString, QuestionDialogMode.YesNo, ,DialogReturnCode.No);
 		Return;
@@ -788,7 +789,7 @@ Procedure ExecuteDataImportAfterConfirmGettingData()
 		NString = NStr("en = 'Errors occurred while receiving data.
 		                     |Do you want to view the event log?';");
 		
-		Notification = New NotifyDescription("RunDataImportAfterPromptToOpenEventLog", ThisObject);
+		Notification = New CallbackDescription("RunDataImportAfterPromptToOpenEventLog", ThisObject);
 		ShowQueryBox(Notification, NString, QuestionDialogMode.YesNo, ,DialogReturnCode.No);
 		
 		Return;
@@ -983,8 +984,7 @@ Procedure UpdateMappingTable()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Applied procedures
+#Region Applied
 
 &AtClient
 Procedure FillSortTable(SourceValueList)
@@ -1204,7 +1204,7 @@ Procedure SetMappingInteractively()
 	Buttons.Add(DialogReturnCode.Yes,     NStr("en = 'Apply';"));
 	Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
 	
-	Notification = New NotifyDescription("SetMappingInteractivelyCompletion", ThisObject, New Structure);
+	Notification = New CallbackDescription("SetMappingInteractivelyCompletion", ThisObject, New Structure);
 	Notification.AdditionalParameters.Insert("Id1", Id1);
 	Notification.AdditionalParameters.Insert("Id2", Id2);
 	
@@ -1361,8 +1361,9 @@ Function GetSortingFields()
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Properties
+#EndRegion
+
+#Region Properties
 
 &AtClient
 Function MaxUserFields()
@@ -1371,8 +1372,9 @@ Function MaxUserFields()
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Navigation event handlers.
+#EndRegion
+
+#Region NavigationEventHandlers
 
 // Page 1: Object mapping error.
 //
@@ -1427,7 +1429,7 @@ Function Attachable_ObjectMappingWaitingTimeConsumingOperationProcessing(Cancel,
 		IdleParameters.OutputIdleWindow = False;
 		IdleParameters.OutputMessages    = True;
 		
-		CallbackOnCompletion = New NotifyDescription("BackgroundJobCompletion", ThisObject);
+		CallbackOnCompletion = New CallbackDescription("BackgroundJobCompletion", ThisObject);
 		TimeConsumingOperationsClient.WaitCompletion(Result, CallbackOnCompletion, IdleParameters);
 		
 	EndIf;
@@ -1598,8 +1600,9 @@ Function AreObjectsMappedByRef(String)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Populate wizard navigation table.
+#EndRegion
+
+#Region WizardNavigationInitialization
 
 &AtServer
 Procedure ObjectMappingScenario()
@@ -1615,5 +1618,7 @@ Procedure ObjectMappingScenario()
 	NavigationTableNewRow(4, "ObjectsMapping");
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

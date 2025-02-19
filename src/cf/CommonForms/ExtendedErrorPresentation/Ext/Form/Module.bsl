@@ -19,12 +19,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		SignatureVerificationError = CommonClientServer.StructureProperty(AdditionalData, "SignatureData", False) = True;
 	EndIf;
 	
-	If ValueIsFilled(Parameters.SupportInformation) Then
-		Items.SupportInformation.Title = Parameters.SupportInformation;
-	Else
-		Items.SupportInformation.Title = DigitalSignatureInternal.InfoHeadingForSupport();
-	EndIf;
-	
 	DigitalSignatureInternal.ToSetTheTitleOfTheBug(ThisObject,
 		Parameters.WarningTitle);
 	
@@ -57,28 +51,23 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ErrorDescription = Parameters.ErrorDescription;
 	EndIf;
 	
+	If Items.Help.Visible Then
+		QuestionIsAvailableInSupport = Common.SubsystemExists("OnlineUserSupport.MessagesToTechSupportService");
+		Items.QuestionInSupport.Visible				 = QuestionIsAvailableInSupport;
+		Items.DecorationContactSupport.Visible = Not QuestionIsAvailableInSupport;
+	EndIf;
+	
 	Items.InstructionClient.Visible = GuideRefVisibility And Not IsBlankString(ErrorTextClient);
 	Items.InstructionServer.Visible = GuideRefVisibility And Not IsBlankString(ErrorTextServer);
 	
 	StandardSubsystemsServer.ResetWindowLocationAndSize(ThisObject);
 	
-	If ValueIsFilled(Parameters.TextOfAdditionalLink) Then
+	If ValueIsFilled(Parameters.AdditionalLinkText) Then
 		Items.AdditionalLink.Visible = True;
-		Items.AdditionalLink.Title = StringFunctions.FormattedString(Parameters.TextOfAdditionalLink);
+		Items.AdditionalLink.Title = StringFunctions.FormattedString(Parameters.AdditionalLinkText);
 	Else
 		Items.AdditionalLink.Visible = False;
 	EndIf;
-	
-EndProcedure
-
-&AtClient
-Procedure OnOpen(Cancel)
-	
-#If Not MobileAppClient And Not MobileClient Then
-	If ClassifierErrorSolutionTextSupplementOptions <> Undefined Then
-		AttachIdleHandler("SupplementErrorClassifierSolutionWithDetails", 0.1, True);
-	EndIf;
-#EndIf
 	
 EndProcedure
 
@@ -99,21 +88,6 @@ Procedure InstructionClick(Item)
 	EndIf;
 	
 	DigitalSignatureClient.OpenSearchByErrorsWhenManagingDigitalSignature(SearchText);
-	
-EndProcedure
-
-&AtClient
-Procedure SupportInformationURLProcessing(Item, Var_URL, StandardProcessing)
-	
-	StandardProcessing = False;
-	
-	If Var_URL = "TypicalIssues" Then
-		DigitalSignatureClient.OpenInstructionOnTypicalProblemsOnWorkWithApplications();
-	Else
-		
-		UploadTechnicalInformation(False);
-		
-	EndIf;
 	
 EndProcedure
 
@@ -165,12 +139,12 @@ Procedure AdditionalLinkURLProcessing(Item, FormattedStringURL, StandardProcessi
 		PartsOfProcedureName = StrSplit(FullProcedureName, ".");
 		ModuleName = PartsOfProcedureName[0];
 		ProcedureName = PartsOfProcedureName[1];
-		Notification = New NotifyDescription(ProcedureName, CommonClient.CommonModule(ModuleName));
+		Notification = New CallbackDescription(ProcedureName, CommonClient.CommonModule(ModuleName));
 		
-		NotificationParameter1 = New Structure("ParameterOfAdditionalLinkHandler, URL",
-			Parameters.ParameterOfAdditionalLinkHandler, FormattedStringURL);
+		NotificationParameter1 = New Structure("AdditionalLinkHandlerParameter, URL",
+			Parameters.AdditionalLinkHandlerParameter, FormattedStringURL);
 		
-		ExecuteNotifyProcessing(Notification, NotificationParameter1);
+		RunCallback(Notification, NotificationParameter1);
 		
 	EndIf;
 
@@ -197,9 +171,16 @@ Procedure InstallExtension(Command)
 EndProcedure
 
 &AtClient
-Procedure DownloadTechnicalInformation(Command)
+Procedure QuestionInSupport(Command)
 	
-	UploadTechnicalInformation(True);
+	ExportTechnicalInfo(False);
+	
+EndProcedure
+
+&AtClient
+Procedure DownloadTechnicalInfo(Command)
+	
+	ExportTechnicalInfo(True);
 	
 EndProcedure
 
@@ -208,11 +189,11 @@ EndProcedure
 #Region Private
 
 &AtClient
-Procedure UploadTechnicalInformation(ExportArchive)
+Procedure ExportTechnicalInfo(ExportArchive)
 
 	If ExportArchive Then
-		Items.DownloadTechnicalInformation.Enabled = False;
-		Items.GroupGeneratesTechnicalInformation.Visible = True;
+		Items.DownloadTechnicalInfo.Enabled = False;
+		Items.DecorationPictureGeneratingTechnicalInfo.Visible = True;
 	EndIf;
 	
 	FilesDetails = New Array;
@@ -257,7 +238,7 @@ Procedure UploadTechnicalInformation(ExportArchive)
 	
 	If ExportArchive Then
 		DigitalSignatureInternalClient.GenerateTechnicalInformation(
-			ErrorsText, Undefined, New NotifyDescription("AfterUploadingTechnicalInformation", ThisObject), FilesDetails);
+			ErrorsText, Undefined, New CallbackDescription("AfterTechnicalInfoExported", ThisObject), FilesDetails);
 	Else
 		DigitalSignatureInternalClient.GenerateTechnicalInformation(
 			ErrorsText, New Structure("Subject, Message", MessageSubject1), , FilesDetails);
@@ -266,38 +247,11 @@ Procedure UploadTechnicalInformation(ExportArchive)
 EndProcedure
 
 &AtClient
-Procedure AfterUploadingTechnicalInformation(Result, Context) Export
+Procedure AfterTechnicalInfoExported(Result, Context) Export
 	
-	Items.DownloadTechnicalInformation.Enabled = True;
-	Items.GroupGeneratesTechnicalInformation.Visible = False;
+	Items.DownloadTechnicalInfo.Enabled = True;
+	Items.DecorationPictureGeneratingTechnicalInfo.Visible = False;
 
-EndProcedure
-
-&AtClient
-Procedure SupplementErrorClassifierSolutionWithDetails()
-	
-	ClassifierError = New Structure;
-	ClassifierError.Insert("ErrorText", Items.ErrorTextClient.Title);
-	ClassifierError.Insert("Cause", Items.ReasonsClientText.Title);
-	ClassifierError.Insert("Decision", Items.DecisionsClientText.Title);
-	
-	DataToSupplement = DigitalSignatureInternalClientServer.DataToSupplementErrorFromClassifier(AdditionalData);
-	DigitalSignatureInternalClient.SupplementErrorClassifierSolutionWithDetails(
-		New NotifyDescription("AfterErrorClassifierSolutionSupplemented", ThisObject),
-		ClassifierError, ClassifierErrorSolutionTextSupplementOptions, DataToSupplement);
-		
-EndProcedure
-
-&AtClient
-Procedure AfterErrorClassifierSolutionSupplemented(ClassifierError, Context) Export
-	
-	If Items.DecisionsClientText.Title <> ClassifierError.Decision Then
-		Items.DecisionsClientText.Title = ClassifierError.Decision;
-	EndIf;
-	If Items.ReasonsClientText.Title <> ClassifierError.Cause Then
-		Items.ReasonsClientText.Title = ClassifierError.Cause;
-	EndIf;
-	
 EndProcedure
 
 &AtServer
@@ -344,13 +298,15 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 				"Additional_DataChecks" + ChecksSuffix, Undefined); // See DigitalSignatureInternalClientServer.WarningWhileVerifyingCertificateAuthorityCertificate
 		EndIf;
 		
+		DataToSupplement = DigitalSignatureInternalClientServer.DataToSupplementErrorFromClassifier(AdditionalData);
 		If ValueIsFilled(HaveReasonAndSolution) Then
 			ClassifierError = DigitalSignatureInternal.ErrorPresentation();
 			Cause = HaveReasonAndSolution.Cause; // String
 			ClassifierError.Cause = FormattedString(Cause);
 			ClassifierError.Decision = FormattedString(HaveReasonAndSolution.Decision);
 		Else
-			ClassifierError = DigitalSignatureInternal.ClassifierError(ErrorText, ErrorLocation = "Server", SignatureVerificationError);
+			IsCertificateSpecified = ValueIsFilled(DataToSupplement.CertificateData);
+			ClassifierError = DigitalSignatureInternal.ClassifierError(ErrorText, ErrorLocation = "Server", SignatureVerificationError, IsCertificateSpecified);
 		EndIf;
 		
 		IsKnownError = ClassifierError <> Undefined;
@@ -362,15 +318,8 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 			ErrorTextElement.TitleLocation = FormItemTitleLocation.Top;
 			
 			If ValueIsFilled(ClassifierError.RemedyActions) Then
-				If ClassifierErrorSolutionTextSupplementOptions = Undefined Then
-					ClassifierErrorSolutionTextSupplementOptions = DigitalSignatureInternalClientServer.ClassifierErrorSolutionTextSupplementOptions();
-				EndIf;
-				DataToSupplement = DigitalSignatureInternalClientServer.DataToSupplementErrorFromClassifier(AdditionalData);
-				AddOn = DigitalSignatureInternal.SupplementErrorClassifierSolutionWithDetails(
-					ClassifierError, DataToSupplement, 
-					ClassifierErrorSolutionTextSupplementOptions, ErrorLocation);
-				ClassifierError = AddOn.ClassifierError;
-				ClassifierErrorSolutionTextSupplementOptions = AddOn.ClassifierErrorSolutionTextSupplementOptionsAtClient;
+				ClassifierError = DigitalSignatureInternal.SupplementErrorClassifierSolutionWithDetails(
+					ClassifierError, DataToSupplement, ErrorLocation);
 			EndIf;
 			
 			If ValueIsFilled(ClassifierError.Cause) Then
@@ -461,7 +410,15 @@ Function AdditionalData()
 	EndIf;
 	
 	CertificateData = CommonClientServer.StructureProperty(AdditionalData, "CertificateData", Undefined);
-	If ValueIsFilled(CertificateData) Then
+	CertificateDataIsFilledIn = False;
+	
+	If IsTempStorageURL(CertificateData) Then
+		CertificateDataIsFilledIn = ValueIsFilled(GetFromTempStorage(CertificateData));
+	Else
+		CertificateDataIsFilledIn = ValueIsFilled(CertificateData);
+	EndIf;
+	
+	If CertificateDataIsFilledIn Then
 		AdditionalDataForErrorClassifier.CertificateData = CertificateData;
 	EndIf;
 	

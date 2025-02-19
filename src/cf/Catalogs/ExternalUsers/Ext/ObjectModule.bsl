@@ -12,7 +12,7 @@
 
 #Region Variables
 
-// 
+// Object value before it is written (intended for the "OnWrite" event handler).
 Var IsNew, PreviousAuthorizationObject;
 Var IBUserProcessingParameters; // Parameters to be populated when processing a user.
 
@@ -30,11 +30,11 @@ Var IBUserProcessingParameters; // Parameters to be populated when processing a 
 
 Procedure BeforeWrite(Cancel)
 	
-	// ACC:75-off - A "DataExchange" check. Import should start on demand after the infobase user is handled.
+	// ACC:75-off - DataExchange.Load should be checked as needed after the infobase user is handled.
 	UsersInternal.UserObjectBeforeWrite(ThisObject, IBUserProcessingParameters);
 	// ACC:75-on
 	
-	// ACC:75-off - The check "DataExchange.Import" should run after the registers are locked.
+	// ACC:75-off - The DataExchange.Load check must follow the locking of registers.
 	If Common.FileInfobase() Then
 		UsersInternal.LockRegistersBeforeWritingToFileInformationSystem(False);
 	EndIf;
@@ -76,7 +76,7 @@ EndProcedure
 
 Procedure OnWrite(Cancel)
 	
-	// ACC:75-off - A "DataExchange" check. Import should start on demand after the infobase user is handled.
+	// ACC:75-off - DataExchange.Load should be checked as needed after the infobase user is handled.
 	If DataExchange.Load And IBUserProcessingParameters <> Undefined Then
 		UsersInternal.EndIBUserProcessing(
 			ThisObject, IBUserProcessingParameters);
@@ -132,7 +132,7 @@ EndProcedure
 
 Procedure BeforeDelete(Cancel)
 	
-	// ACC:75-off - A "DataExchange" check. Import should start on demand after the infobase user is handled.
+	// ACC:75-off - DataExchange.Load should be checked as needed after the infobase user is handled.
 	UsersInternal.UserObjectBeforeDelete(ThisObject);
 	// ACC:75-on
 	

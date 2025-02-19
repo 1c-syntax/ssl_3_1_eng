@@ -13,7 +13,7 @@
 // Start connection of the Collaboration system.
 //
 // Parameters:
-//   CompletionDetails - NotifyDescription - Notification to show after the connection form closes. 
+//   CompletionDetails - CallbackDescription - Notification to show after the connection form closes. 
 //                                             Notification parameters:
 //                          * Result - Undefined
 //                          * AdditionalParameters - Undefined

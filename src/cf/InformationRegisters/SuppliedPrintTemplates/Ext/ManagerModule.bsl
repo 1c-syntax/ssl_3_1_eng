@@ -89,7 +89,7 @@ Procedure UpdateTemplatesCheckSum(Parameters) Export
 				+ Template.FullName() + Chars.LF
 				+ ErrorProcessing.DetailErrorDescription(ErrorInfo);
 			
-			WriteLogEvent(NStr("en = 'Build-in template edit monitor';", Common.DefaultLanguageCode()),
+			WriteLogEvent(NStr("en = 'Built-in template edit monitor';", Common.DefaultLanguageCode()),
 				EventLogLevel.Error, Template, , ErrorText);
 			
 			ErrorList.Add(OwnerName + "." + TemplateName + ": " + ErrorProcessing.BriefErrorDescription(ErrorInfo()));

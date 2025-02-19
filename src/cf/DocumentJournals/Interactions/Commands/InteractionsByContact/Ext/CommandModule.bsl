@@ -12,21 +12,15 @@
 
 &AtClient
 Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
-	
-	
+
 	FilterStructure1 = New Structure;
 	FilterStructure1.Insert("Contact", CommandParameter);
 	
-	AdditionalParameters = New Structure;
-	AdditionalParameters.Insert("InteractionType", "Contact");
-	
 	FormParameters = New Structure;
 	FormParameters.Insert("Filter", FilterStructure1);
-	FormParameters.Insert("AdditionalParameters", AdditionalParameters);
+	FormParameters.Insert("InteractionType", "Contact");
 	
-	
-	OpenForm(
-		"DocumentJournal.Interactions.Form.ParametricListForm",
+	OpenForm("DocumentJournal.Interactions.Form.ParametricListForm",
 		FormParameters,
 		CommandExecuteParameters.Source,
 		CommandExecuteParameters.Source.UniqueKey,

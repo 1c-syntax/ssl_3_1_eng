@@ -25,8 +25,8 @@
 //      * Path              - String - path to the file on the client. This key is used only if Status is True.
 //      * ErrorMessage - String - error message if Status is False.
 //      * Headers         - Map - see details of the Headers parameter of the HTTPResponse object in Syntax Assistant.
-//      * StatusCode      - Number - added in case of an error.
-//                                    For more information on the StateCode parameter of the HTTPResponse object, see the Syntax Assistant.
+//      * StatusCode      - Number - Added in case of an error.
+//                                    See the "StatusCode" parameter of the "HTTPResponse" object in Syntax Assistant.
 //
 Function DownloadFileAtClient(Val URL, Val ReceivingParameters = Undefined, Val WriteError1 = True) Export
 	

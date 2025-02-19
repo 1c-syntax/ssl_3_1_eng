@@ -18,7 +18,16 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Return;
 	EndIf;
 	
-	InstallDefaultCollaborationServer(ThisObject);
+	If Common.AccessToInternetServicesAllowed() Then
+		InstallDefaultCollaborationServer(ThisObject);
+		Items.GroupCommentAccessToInternetServicesAllowed.Visible = False;
+	Else
+		CollaborationServerChoice = 1;
+		Items.CollaborationServerChoiceDialog.Enabled = False;
+		Items.GroupCommentAccessToInternetServicesAllowed.Visible = True;
+		UpdateServerChoiceItems(ThisObject);
+		Items.CollaborationServerChoiceGroup.Show();
+	EndIf;
 
 	InfobaseName = Constants.SystemTitle.Get();
 	If Not ValueIsFilled(InfobaseName) Then
@@ -27,6 +36,15 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	RegistrationState = CurrentRegistrationState();
 	
 	OnChangeFormState(ThisObject);
+	
+EndProcedure
+
+&AtClient
+Procedure NotificationProcessing(EventName, Parameter, Source)
+	
+	If EventName = "Write_ConstantsSet" And Source = "AllowAccessToInternetServices" Then
+		OnChangeInternetServicesAccessPermissions();
+	EndIf;
 	
 EndProcedure
 
@@ -106,6 +124,14 @@ EndProcedure
 &AtClient
 Procedure OnReceiveRegistrationCode()
 	
+	If CollaborationServerChoice = 0 Then
+		ErrorText = AccessToInternetServicesAllowed();
+		If Not IsBlankString(ErrorText) Then
+			ShowMessageBox(, ErrorText);
+			Return;
+		EndIf;
+	EndIf;
+	
 	If IsBlankString(Email) Then 
 		ShowMessageBox(, NStr("en = 'Email address is not filled in';"));
 		Return;
@@ -120,12 +146,12 @@ Procedure OnReceiveRegistrationCode()
 		ShowMessageBox(, NStr("en = 'URL of local collaboration server is not specified';"));
 		Return;
 	EndIf;
-	
+		
 	RegistrationParameters = New CollaborationSystemInfoBaseRegistrationParameters;
 	RegistrationParameters.ServerAddress = CollaborationServer;
 	RegistrationParameters.Email = Email;
 	
-	Notification = New NotifyDescription("AfterReceiveRegistrationCodeSuccessfully", ThisObject,,
+	Notification = New CallbackDescription("AfterReceiveRegistrationCodeSuccessfully", ThisObject,,
 		"OnProcessGetRegistrationCodeError", ThisObject);
 	CollaborationSystem.BeginInfoBaseRegistration(Notification, RegistrationParameters);
 	
@@ -169,7 +195,7 @@ Procedure OnRegister()
 	RegistrationParameters.InfoBaseName = InfobaseName;
 	RegistrationParameters.ActivationCode = TrimAll(RegistrationCode);
 	
-	Notification = New NotifyDescription("AfterRegisterSuccessfully", ThisObject,,
+	Notification = New CallbackDescription("AfterRegisterSuccessfully", ThisObject,,
 		"OnProcessRegistrationError", ThisObject);
 	
 	CollaborationSystem.BeginInfoBaseRegistration(Notification, RegistrationParameters);
@@ -208,7 +234,7 @@ EndProcedure
 &AtClient
 Procedure OnRejectConfirmationCodeInput()
 	
-	Notification = New NotifyDescription("AfterConfirmRefuseToEnterConfirmationCode", ThisObject);
+	Notification = New CallbackDescription("AfterConfirmRefuseToEnterConfirmationCode", ThisObject);
 	ShowQueryBox(Notification, 
 		NStr("en = 'If not entered, the code sent to your email will be invalid.
 		           |You can continue only after a new code is requested.';"), 
@@ -350,6 +376,21 @@ Procedure UpdateServerChoiceItems(Form)
 		"LocalCollaborationServerGroup",
 		"Enabled",
 		Form.CollaborationServerChoice <> 0);
+EndProcedure
+
+&AtServerNoContext
+Function AccessToInternetServicesAllowed()
+	If Not Common.AccessToInternetServicesAllowed() Then
+		Return Common.AccessToInternetServicesDeniedMessageText();
+	EndIf;
+	Return "";
+EndFunction
+
+&AtServer
+Procedure OnChangeInternetServicesAccessPermissions()
+	AccessToInternetServicesAllowed = Common.AccessToInternetServicesAllowed();
+	Items.CollaborationServerChoiceDialog.Enabled = AccessToInternetServicesAllowed;
+	Items.GroupCommentAccessToInternetServicesAllowed.Visible = Not AccessToInternetServicesAllowed;
 EndProcedure
 
 #EndRegion

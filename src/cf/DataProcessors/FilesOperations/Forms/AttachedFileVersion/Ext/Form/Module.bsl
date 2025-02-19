@@ -139,7 +139,7 @@ Procedure StandardReread(Command)
 	
 	QueryText = NStr("en = 'The data has been changed. Do you want to refresh the data?';");
 	
-	NotifyDescription = New NotifyDescription("StandardRereadAnswerReceived", ThisObject);
+	NotifyDescription = New CallbackDescription("StandardRereadAnswerReceived", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
 	
 EndProcedure
@@ -148,7 +148,7 @@ EndProcedure
 Procedure Delete(Command)
 	
 	FilesOperationsInternalClient.DeleteData(
-		New NotifyDescription("AfterDeleteData", ThisObject),
+		New CallbackDescription("AfterDeleteData", ThisObject),
 		CurrentFormObject().Ref, UUID);
 	
 EndProcedure

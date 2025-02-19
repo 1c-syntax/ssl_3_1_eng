@@ -45,6 +45,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		HasUpdateRight = True;
 	EndIf;
 	
+	AttachmentsKinds.Add("PrintForms", NStr("en = 'Print forms';"));
+	AttachmentsKinds.Add("ExportFiles", NStr("en = 'Export files';"));
+	
+	SetConditionalAppearance();
+	
 	If ChoiceMode Or MessageKind = "Arbitrary" Then
 		Items.FormGenerateAndSend.Visible = False;
 		Items.FormGenerate.Title = NStr("en = 'Select';");
@@ -53,7 +58,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	FillAvailableTemplatesList();
-	FillPrintFormsList();
+	FillPrintFormsAndExportTemplatesList();
 	
 	If Common.SubsystemExists("StandardSubsystems.Print") Then
 		ModulePrintManager = Common.CommonModule("PrintManagement");
@@ -61,6 +66,15 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			SelectedSaveFormats.Add(String(SaveFormat.SpreadsheetDocumentFileType), SaveFormat.Presentation, False, SaveFormat.Picture);
 		EndDo;
 		Items.SignatureAndSeal.Visible = ModulePrintManager.PrintSettings().UseSignaturesAndSeals;
+		
+		If Common.SubsystemExists("StandardSubsystems.ExportObjectsToFiles") Then
+			
+			TitleSelectPrintForms = NStr("en = 'Choose print forms or export files';");
+			Items.SelectPrintFormsExportFiles.Title = TitleSelectPrintForms;
+			
+		EndIf;
+		
+		
 	EndIf;
 	
 EndProcedure
@@ -105,7 +119,7 @@ Procedure AttachmentFormatClick(Item, StandardProcessing)
 	
 	StandardProcessing = False;
 	
-	NotifyDescription = New NotifyDescription("OnSelectAttachmentFormat", ThisObject);
+	NotifyDescription = New CallbackDescription("OnSelectAttachmentFormat", ThisObject);
 	CommonClient.ShowAttachmentsFormatSelection(NotifyDescription, SelectedFormatSettings(), ThisObject);
 	
 EndProcedure
@@ -143,7 +157,7 @@ Procedure TemplatesOnActivateRow(Item)
 				PreviewPlainText.SetText(Item.CurrentData.TemplateText);
 			EndIf;
 		Else
-			Items.PreviewPages.CurrentPage = Items.PrintFormsPage;
+			Items.PreviewPages.CurrentPage = Items.PagePrintFormsExportFiles;
 		EndIf;
 	EndIf;
 EndProcedure
@@ -162,6 +176,27 @@ Procedure TemplatesSelection(Item, RowSelected, Field, StandardProcessing)
 	
 	StandardProcessing = False;
 	GenerateMessageFromSelectedTemplate();
+	
+EndProcedure
+
+#EndRegion
+
+#Region FormTableItemsEventHandlersAttachments
+
+&AtClient
+Procedure AttachmentsSelectedItemsCountOnChange(Item)
+	
+	CurrentData = Items.Attachments.CurrentData;
+	If CurrentData = Undefined Then
+		Return;
+	EndIf;
+	
+	If CurrentData.SelectedItemsCount = 2 Then
+		CurrentData.SelectedItemsCount = 0;
+	EndIf;
+	
+	SetSubordinateMarks(CurrentData, "SelectedItemsCount");
+	SetParentMarks(CurrentData, "SelectedItemsCount");
 	
 EndProcedure
 
@@ -208,7 +243,7 @@ Procedure ParametersInput(Template, SendOptions)
 	
 	ParametersToFill = New Structure("Template, SubjectOf", Template, SubjectOf);
 	
-	Notification = New NotifyDescription("AfterParametersInput", ThisObject, SendOptions);
+	Notification = New CallbackDescription("AfterParametersInput", ThisObject, SendOptions);
 	OpenForm("Catalog.MessageTemplates.Form.FillArbitraryParameters", ParametersToFill,,,,, Notification);
 	
 EndProcedure
@@ -248,9 +283,38 @@ EndProcedure
 &AtClient
 Procedure GenerateMessageToSend(SendOptions)
 	
+	If CommonClient.SubsystemExists("StandardSubsystems.Print") Then
+		CompletionHandler = New CallbackDescription(
+			"BeforeContinueGenerateMessageToSend", ThisObject, SendOptions);
+		
+		ModulePrintManagerClient = CommonClient.CommonModule("PrintManagementClient");
+		ModulePrintManagerClient.BeforeStartExecutePrintCommand(
+			SubjectOf, SendOptions.AdditionalParameters.PrintForms, CompletionHandler);
+		
+		Return;
+	EndIf;
+	
+	ContinueGenerateMessageToSend(SendOptions);
+	
+EndProcedure
+
+&AtClient
+Procedure BeforeContinueGenerateMessageToSend(PrintForms, SendOptions) Export
+	
+	SendOptions.AdditionalParameters.PrintForms = PrintForms;
+	
+	ContinueGenerateMessageToSend(SendOptions);
+	
+EndProcedure
+
+&AtClient
+Procedure ContinueGenerateMessageToSend(SendOptions)
+	
 	ShouldGenerateWithoutTempl = Not ValueIsFilled(SendOptions.Template);
-	If ShouldGenerateWithoutTempl And PrintForms.Count() > 0 Then
-		SavePrintFormsChoice();
+	If ShouldGenerateWithoutTempl Then
+		
+		SaveSelectedPrintFormsAndExportFiles();
+		
 	EndIf;
 	
 	TempStorageAddress = Undefined;
@@ -337,7 +401,7 @@ Procedure SendMessage1(Val MessageSendOptions)
 	
 	If MessageKind = "MailMessage" Then
 		If CommonClient.SubsystemExists("StandardSubsystems.EmailOperations") Then
-			NotifyDescription = New NotifyDescription("SendMessageAccountCheckCompleted", ThisObject, MessageSendOptions);
+			NotifyDescription = New CallbackDescription("SendMessageAccountCheckCompleted", ThisObject, MessageSendOptions);
 			ModuleEmailOperationsClient = CommonClient.CommonModule("EmailOperationsClient");
 			ModuleEmailOperationsClient.CheckAccountForSendingEmailExists(NotifyDescription);
 		EndIf;
@@ -367,7 +431,7 @@ Procedure AfterGenerateAndSendMessage(Result, SendOptions)
 	If IsBlankString(Result.ErrorDescription)Then;
 		Close();
 	Else
-		Notification = New NotifyDescription("AfterQuestionOnOpenMessageForm", ThisObject, SendOptions);
+		Notification = New CallbackDescription("AfterQuestionOnOpenMessageForm", ThisObject, SendOptions);
 		ErrorDescription = Result.ErrorDescription + Chars.LF + NStr("en = 'Do you want to open the message?';");
 		ShowQueryBox(Notification, ErrorDescription, QuestionDialogMode.YesNo);
 	EndIf;
@@ -439,18 +503,52 @@ Function SendOptionsConstructor(Template = Undefined)
 	SendOptions.AdditionalParameters.MessageParameters = MessageParameters;
 	
 	If Not ValueIsFilled(Template) Then
-		For Each PrintForm In PrintForms Do
-			If PrintForm.Check Then
-				SendOptions.AdditionalParameters.PrintForms.Add(PrintForm.Value);
-			EndIf;
-		EndDo;
 		
+		SupplementSendOptionsWithPrintForms(SendOptions);
+		SupplementSendOptionsWithExportTemplates(SendOptions);
 		SendOptions.AdditionalParameters.SettingsForSaving = SelectedFormatSettings();
+		
 	EndIf;
 	
 	Return SendOptions;
 	
 EndFunction
+
+&AtClient
+Procedure SupplementSendOptionsWithPrintForms(SendOptions)
+	
+	TreeRow = BranchByAttachmentKind(Attachments, AttachmentsKinds[0]);
+	If TreeRow = Undefined Then
+		Return;
+	EndIf;
+	
+	For Each PrintForm In TreeRow.GetItems() Do
+		
+		If PrintForm.SelectedItemsCount = 1 Then
+			SendOptions.AdditionalParameters.PrintForms.Add(PrintForm.AttachmentCommand);
+		EndIf;
+		
+	EndDo;
+	
+EndProcedure
+
+&AtClient
+Procedure SupplementSendOptionsWithExportTemplates(SendOptions)
+	
+	TreeRow = BranchByAttachmentKind(Attachments, AttachmentsKinds[1]);
+	If TreeRow = Undefined Then
+		Return;
+	EndIf;
+	 
+	For Each ExportedTemplate In TreeRow.GetItems() Do
+			
+		If ExportedTemplate.SelectedItemsCount = 1 Then
+			SendOptions.AdditionalParameters.ExportTemplates.Add(ExportedTemplate.AttachmentCommand);
+		EndIf;
+		
+	EndDo;
+	
+EndProcedure
 
 // Parameters:
 //  Result - DialogReturnCode
@@ -652,66 +750,231 @@ Procedure OnSelectAttachmentFormat(ValueSelected, AdditionalParameters) Export
 EndProcedure
 
 &AtServer
-Procedure FillPrintFormsList()
+Procedure FillPrintFormsAndExportTemplatesList()
 	
 	If MessageKind = "Arbitrary" Or MessageKind = "SMSMessage" Or ChoiceMode Or PrepareTemplate
 		Or TypeOf(SubjectOf) = Type("String") Or Not ValueIsFilled(SubjectOf) Then
-		Items.SelectPrintForms.Visible = False;
+		
+		Items.SelectPrintFormsExportFiles.Visible = False;
 		Return;
+		
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.Print") Then
+		
 		ModulePrintManager = Common.CommonModule("PrintManagement");
 		
 		PrintCommands = Undefined;
+		ExportCommands = Undefined;
+		
 		If ValueIsFilled(MessageSourceFormName) Then
+			
 			PrintCommands = Common.ValueTableToArray(ModulePrintManager.FormPrintCommands(
 				MessageSourceFormName, CommonClientServer.ValueInArray(SubjectOf.Metadata())));
+			
+			ListOfObjects = CommonClientServer.ValueInArray(SubjectOf.Metadata());
+			
+			If Common.SubsystemExists("StandardSubsystems.ExportObjectsToFiles") Then
+				
+				ModuleExportObjectsToFiles = Common.CommonModule("ExportObjectsToFiles");
+				FormExportCommands = ModuleExportObjectsToFiles.FormExportCommands(
+					MessageSourceFormName, 
+					ListOfObjects);
+				ExportCommands = Common.ValueTableToArray(FormExportCommands);
+				
+			EndIf;
+			
 		EndIf;
 		
-		If Not ValueIsFilled(PrintCommands) Then
-			Items.SelectPrintForms.Visible = False;
-			Return;
+		AttachmentTree = FormAttributeToValue("Attachments");
+		
+		FillPrintFormsList(AttachmentTree, PrintCommands);
+		
+		If ExportCommands <> Undefined Then
+			FillExportTemplateList(AttachmentTree, ExportCommands);
 		EndIf;
 		
-		PrintFormsSelectedEarlier = PrintFormsSelectedEarlier();
+		ValueToFormAttribute(AttachmentTree, "Attachments");
 		
-		For Each PrintCommand In PrintCommands Do
-			Check = PrintFormsSelectedEarlier.Find(PrintCommand.UUID) <> Undefined;
-			PrintForms.Add(PrintCommand, PrintCommand.Presentation, Check);
-		EndDo;
+		Items.SelectPrintFormsExportFiles.Visible = (ValueIsFilled(PrintCommands) Or ValueIsFilled(ExportCommands));
 		
 	EndIf;
 	
 EndProcedure
 
-&AtServer
-Procedure SavePrintFormsChoice()
+&AtServer 
+Procedure FillPrintFormsList(AttachmentTree, PrintCommands)
+	
+	If PrintCommands.Count() = 0 Then
+		
+		Return;
+		
+	EndIf;
+	
+	AttachmentKindIndexes = IndexAttachmentKindMap(AttachmentsKinds);
+	AttachmentKindIndex = AttachmentKindIndexes[AttachmentsKinds[0]];
+	
+	TreeRow = AttachmentTree.Rows.Add();
+	TreeRow.Presentation = AttachmentsKinds[0].Presentation;
+	TreeRow.AttachmentKindPicture = PictureLib.Print;
+	
+	ObjectKey = "SendPrintFormsAndExportFilesWithoutTemplate";
+	SelectedPrintedForms = PreviouslySelectedObjects(ObjectKey);
+	AreAllSelected = False;
+	
+	For Each PrintCommand In PrintCommands Do
+		
+		SelectedItemsCount = 0;
+		Check = (SelectedPrintedForms.Find(PrintCommand.UUID) <> Undefined);
+		
+		If Check Then
+			SelectedItemsCount = 1;
+		EndIf;
+		
+		NewRow = TreeRow.Rows.Add();
+		NewRow.Presentation = PrintCommand.Presentation;
+		NewRow.AttachmentCommand = PrintCommand;
+		NewRow.PictureIndex = IndexOfFileIcon("mxl");
+		TreeRow.AttachmentKindIndex = AttachmentKindIndex;
+		NewRow.SelectedItemsCount = SelectedItemsCount;
+		
+		AreAllSelected = Min(AreAllSelected, SelectedItemsCount);
+		If SelectedItemsCount <> 0 Then
+			TreeRow.SelectedItemsCount = 2;
+		EndIf;
+		
+	EndDo;
+	
+	If AreAllSelected Then
+		TreeRow.SelectedItemsCount = 1;
+	EndIf;
+	
+EndProcedure
+
+&AtServer 
+Procedure FillExportTemplateList(AttachmentTree, ExportCommands)
+	
+	If ExportCommands.Count() = 0 Then
+		
+		Return;
+		
+	EndIf;
+	
+	AttachmentKindIndexes = IndexAttachmentKindMap(AttachmentsKinds);
+	AttachmentKindIndex = AttachmentKindIndexes[AttachmentsKinds[1]];
+	
+	TreeRow = AttachmentTree.Rows.Add();
+	TreeRow.Presentation = AttachmentsKinds[1].Presentation;
+	TreeRow.AttachmentKindPicture = PictureLib.SaveFileAs;
+	
+	ObjectKey = "SendPrintFormsAndExportFilesWithoutTemplate";
+	SelectedExportTemplates = PreviouslySelectedObjects(ObjectKey);
+	AreAllSelected = False;
+	ExportFormatExtensionMap = Undefined;
+	
+	If Common.SubsystemExists("StandardSubsystems.ExportObjectsToFiles") Then
+		
+		ModuleExportObjectsToFiles = Common.CommonModule("ExportObjectsToFiles");
+		ExportFormatExtensionMap = ModuleExportObjectsToFiles.ExportFormatSaveFormatMap();
+		
+	EndIf;
+	
+	For Each ExportCommand In ExportCommands Do
+		
+		SelectedItemsCount = 0;
+		
+		Check = (SelectedExportTemplates.Find(ExportCommand.UUID) <> Undefined);
+		
+		If Check Then
+			SelectedItemsCount = 1;
+		EndIf;
+		
+		NewRow = TreeRow.Rows.Add();
+		NewRow.Presentation = ExportCommand.Presentation;
+		NewRow.AttachmentCommand = ExportCommand;
+		Extension = ?(IsBlankString(ExportCommand.SaveFormat), "mxl", ExportCommand.SaveFormat);
+		If ExportFormatExtensionMap <> Undefined Then
+			Extension = ExportFormatExtensionMap[Extension];
+		EndIf;
+		
+		NewRow.PictureIndex = IndexOfFileIcon(Extension);
+		TreeRow.AttachmentKindIndex = AttachmentKindIndex;
+		NewRow.SelectedItemsCount = SelectedItemsCount;
+		
+		AreAllSelected = Min(AreAllSelected, SelectedItemsCount);
+		If SelectedItemsCount <> 0 Then
+			TreeRow.SelectedItemsCount = 2;
+		EndIf;
+		
+	EndDo;
+	
+	If AreAllSelected Then
+		TreeRow.SelectedItemsCount = 1;
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure SaveSelectedPrintFormsAndExportFiles()
 	
 	If Not ValueIsFilled(MessageSourceFormName) Then
 		Return;
 	EndIf;
 	
 	IDs = New Array;
-	For Each PrintForm In PrintForms Do
-		If PrintForm.Check Then
-			IDs.Add(PrintForm.Value.UUID);
-		EndIf;
-	EndDo;
 	
-	Common.CommonSettingsStorageSave(
-		"SendPrintFormsWithoutTemplate", MessageSourceFormName, IDs);
+	TreeRow = BranchByAttachmentKind(Attachments, AttachmentsKinds[0]);
+	If TreeRow <> Undefined Then
+		
+		For Each PrintForm In TreeRow.GetItems() Do
+			
+			If PrintForm.SelectedItemsCount = 1 Then
+				IDs.Add(PrintForm.AttachmentCommand.UUID);
+			EndIf;
+			
+		EndDo;
+		
+	EndIf;
+		
+	TreeRow = BranchByAttachmentKind(Attachments, AttachmentsKinds[1]);
+	If TreeRow <> Undefined Then
+		
+		For Each ExportedTemplate In TreeRow.GetItems() Do
+			
+			If ExportedTemplate.SelectedItemsCount = 1 Then
+				IDs.Add(ExportedTemplate.AttachmentCommand.UUID);
+			EndIf;
+			
+		EndDo;
+		
+	EndIf;
+	
+	SaveSelectedPrintFormsAndExportFilesAtServer(IDs);
 	
 EndProcedure
 
 &AtServer
-Function PrintFormsSelectedEarlier()
+Procedure SaveSelectedPrintFormsAndExportFilesAtServer(Val IDs)
+	
+	If IDs.Count() = 0 Then
+		Return;
+	EndIf;
+	
+	Common.CommonSettingsStorageSave(
+		"SendPrintFormsAndExportFilesWithoutTemplate", MessageSourceFormName, IDs);
+	
+EndProcedure
+
+&AtServer
+Function PreviouslySelectedObjects(ObjectKey)
 	
 	Result = New Array;
 	
 	If ValueIsFilled("MessageSourceFormName") Then
+		
 		Result = Common.CommonSettingsStorageLoad(
-			"SendPrintFormsWithoutTemplate", MessageSourceFormName, New Array);
+			ObjectKey, MessageSourceFormName, New Array);
+		
 	EndIf;
 	
 	Return Result;
@@ -726,7 +989,7 @@ Procedure SIgnFiles(Result, SendOptions)
 	Context.Insert("Result", Result);
 	Context.Insert("SendOptions", SendOptions);
 	
-	NotifyDescription = New NotifyDescription("GenerateMessageToSendFollowUp", ThisObject, Context);
+	NotifyDescription = New CallbackDescription("GenerateMessageToSendFollowUp", ThisObject, Context);
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
 		DataDetails = New Structure;
@@ -770,12 +1033,15 @@ Procedure GenerateMessageToSendFollowUp(SigningResult, Context) Export
 		Return;
 	EndIf;
 	
-	Attachments = GetSignatureFilesAndPutToArchive(SigningResult, TransliterateFilesNames, Context.SendOptions.AdditionalParameters.SettingsForSaving);
+	AttachmentsForSending = GetSignatureFilesAndPutToArchive(
+		SigningResult,
+		TransliterateFilesNames,
+		Context.SendOptions.AdditionalParameters.SettingsForSaving);
 
 	Result = Context.Result;
 	Result.Attachments.Clear();
 	
-	CommonClientServer.SupplementArray(Result.Attachments, Attachments);
+	CommonClientServer.SupplementArray(Result.Attachments, AttachmentsForSending);
 	
 	GenerateMessageToSendEnding(Result, Context.SendOptions);
 	
@@ -856,5 +1122,163 @@ Function PutFilesToArchive(DocsPrintForms, PassedSettings)
 	Return Result;
 	
 EndFunction
+
+&AtServer
+Function IndexOfFileIcon(Extension)
+	
+	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
+		ModuleFilesOperationsInternalClientServer = Common.CommonModule("FilesOperationsInternalClientServer");
+		Return ModuleFilesOperationsInternalClientServer.IndexOfFileIcon(Extension);
+	EndIf;
+	
+	Return 0;
+	
+EndFunction
+
+&AtClientAtServerNoContext
+Function IndexAttachmentKindMap(AttachmentsKinds)
+	
+	AttachmentKindIndexes = New Map;
+	
+	For Cnt = 0 To AttachmentsKinds.Count() - 1 Do
+		
+		AttachmentKindIndexes.Insert(AttachmentsKinds[Cnt], Cnt);
+	
+	EndDo;
+	
+	Return AttachmentKindIndexes;
+	
+EndFunction
+
+&AtClient
+Function BranchByAttachmentKind(AttachmentTree, AttachmentsKind)
+	
+	AttachmentKindIndexes = IndexAttachmentKindMap(AttachmentsKinds);
+	AttachmentKindIndex = AttachmentKindIndexes[AttachmentsKind];
+	TreeRow = Undefined;
+	
+	TreeRows = AttachmentTree.GetItems();
+	For Each CurrentTreeRow In TreeRows Do
+		
+		If CurrentTreeRow.AttachmentKindIndex = AttachmentKindIndex Then
+			
+			TreeRow = CurrentTreeRow;
+			Break;
+			
+		EndIf;
+		
+	EndDo;
+	
+	Return TreeRow;
+	
+EndFunction
+
+&AtServer
+Procedure SetConditionalAppearance()
+	
+	ConditionalAppearance.Items.Clear();
+	
+	Item = ConditionalAppearance.Items.Add();
+	
+	ItemField = Item.Fields.Items.Add();
+	ItemField.Field = New DataCompositionField(Items.AttachmentsPictureIndex.Name);
+	
+	FilterGroupsOR = Item.Filter.Items.Add(Type("DataCompositionFilterItemGroup"));
+	FilterGroupsOR.GroupType = DataCompositionFilterItemsGroupType.OrGroup;
+	
+	For Each AttachmentsKind In AttachmentsKinds Do
+		
+		ItemFilter = FilterGroupsOR.Items.Add(Type("DataCompositionFilterItem"));
+		ItemFilter.LeftValue = New DataCompositionField("Attachments.Presentation");
+		ItemFilter.ComparisonType = DataCompositionComparisonType.Contains;
+		ItemFilter.RightValue = AttachmentsKind.Presentation;
+		
+	EndDo;
+	
+	Item.Appearance.SetParameterValue("Show", False);
+	
+	//
+	
+	Item = ConditionalAppearance.Items.Add();
+	
+	ItemField = Item.Fields.Items.Add();
+	ItemField.Field = New DataCompositionField(Items.AttachmentsAttachmentKindPicture.Name);
+	
+	FilterElement = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	FilterElement.LeftValue  = New DataCompositionField("Attachments.AttachmentKindPicture");
+	FilterElement.ComparisonType = DataCompositionComparisonType.NotFilled;
+	
+	Item.Appearance.SetParameterValue("Visible", False);
+	
+EndProcedure
+
+&AtClient
+Procedure SetSubordinateMarks(CurRow, CheckBoxName)
+	
+	SubordinateItems = CurRow.GetItems();
+	
+	If SubordinateItems.Count() = 0 Then
+		Return;
+	EndIf;
+	
+	For Each String In SubordinateItems Do
+		
+		String[CheckBoxName] = CurRow[CheckBoxName];
+		
+		SetSubordinateMarks(String, CheckBoxName);
+		
+	EndDo;
+	
+EndProcedure
+
+&AtClient
+Procedure SetParentMarks(CurRow, CheckBoxName)
+	
+	Parent = CurRow.GetParent();
+	If Parent = Undefined Then
+		Return;
+	EndIf;
+	
+	CurState = Parent[CheckBoxName];
+	
+	EnabledItemsFound  = False;
+	DisabledItemsFound = False;
+	
+	AllDisabled = 0;
+	AllEnabled = 1;
+	NotAllEnabled = 2;
+	
+	For Each String In Parent.GetItems() Do
+		
+		If String[CheckBoxName] = AllDisabled Then
+			DisabledItemsFound = True;
+		ElsIf String[CheckBoxName] = AllEnabled
+			Or String[CheckBoxName] = NotAllEnabled Then
+			EnabledItemsFound = True;
+		EndIf; 
+		
+		If EnabledItemsFound And DisabledItemsFound Then
+			Break;
+		EndIf;
+		
+	EndDo;
+	
+	If (EnabledItemsFound And DisabledItemsFound)
+	 Or (Not EnabledItemsFound And Not DisabledItemsFound) Then
+		Enable = NotAllEnabled;
+	ElsIf EnabledItemsFound And Not DisabledItemsFound Then
+		Enable = AllEnabled;
+	Else
+		Enable = AllDisabled;
+	EndIf;
+	
+	If Enable = CurState Then
+		Return;
+	Else
+		Parent[CheckBoxName] = Enable;
+		SetParentMarks(Parent, CheckBoxName);
+	EndIf;
+	
+EndProcedure
 
 #EndRegion

@@ -8,7 +8,7 @@
 //
 //
 
-#Region Public
+#Region Private
 
 // Attaches an external report or data processor.
 // For details, See AdditionalReportsAndDataProcessors.AttachExternalDataProcessor.
@@ -20,7 +20,7 @@
 //   String       - a name of the attached report or data processor.
 //   Undefined - if an invalid reference is passed.
 //
-Function AttachExternalDataProcessor(Ref) Export
+Function AttachExternalDataProcessor(Ref) Export // ACC:469 
 	
 	Return AdditionalReportsAndDataProcessors.AttachExternalDataProcessor(Ref);
 	
@@ -43,20 +43,14 @@ Function ExternalDataProcessorObject(Ref) Export
 	
 EndFunction
 
-#EndRegion
 
-#Region Private
-
-// Runs a data processor command and puts the result in a temporary storage.
-//   For details, See AdditionalReportsAndDataProcessors.ExecuteCommand.
-//
+// See AdditionalReportsAndDataProcessors.ExecuteCommand.
 Function ExecuteCommand(CommandParameters, ResultAddress = Undefined) Export
 	
 	Return AdditionalReportsAndDataProcessors.ExecuteCommand(CommandParameters, ResultAddress);
 	
 EndFunction
 
-// Puts binary data of an additional report or data processor in a temporary storage.
 Function PutInStorage(Ref, FormIdentifier) Export
 	If TypeOf(Ref) <> Type("CatalogRef.AdditionalReportsAndDataProcessors") 
 		Or Ref = Catalogs.AdditionalReportsAndDataProcessors.EmptyRef() Then
@@ -68,11 +62,9 @@ Function PutInStorage(Ref, FormIdentifier) Export
 	EndIf;
 	
 	DataProcessorStorage = Common.ObjectAttributeValue(Ref, "DataProcessorStorage");
-	
 	Return PutToTempStorage(DataProcessorStorage.Get(), FormIdentifier);
 EndFunction
 
-// Starts a long-running operation.
 Function StartTimeConsumingOperation(Val UUID, Val CommandParameters) Export
 	MethodName = "AdditionalReportsAndDataProcessors.ExecuteCommand";
 	

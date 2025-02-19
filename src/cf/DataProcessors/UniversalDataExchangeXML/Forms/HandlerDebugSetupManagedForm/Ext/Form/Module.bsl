@@ -66,12 +66,12 @@ Procedure EventHandlerExternalDataProcessorFileNameStartChoice(Item, ChoiceData,
 	FileDialog.Preview = False;
 	FileDialog.FilterIndex = 0;
 	FileDialog.FullFileName = Item.EditText;
-	FileDialog.CheckFileExist = True;
+	FileDialog.CheckFileExistence = True;
 	
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("Item", Item);
 	
-	Notification = New NotifyDescription("NameOfExternalDataProcessorFileOfEventHandlersChoiceProcessing", ThisObject, AdditionalParameters);
+	Notification = New CallbackDescription("NameOfExternalDataProcessorFileOfEventHandlersChoiceProcessing", ThisObject, AdditionalParameters);
 	FileDialog.Show(Notification);
 	
 EndProcedure
@@ -144,7 +144,7 @@ Procedure Done(Command)
 	
 	EventHandlerExternalDataProcessorFile = New File(Object.EventHandlerExternalDataProcessorFileName);
 	
-	Notification = New NotifyDescription("EventHandlerExternalDataProcessorFileExistanceCheckCompletion", ThisObject);
+	Notification = New CallbackDescription("EventHandlerExternalDataProcessorFileExistanceCheckCompletion", ThisObject);
 	EventHandlerExternalDataProcessorFile.BeginCheckingExistence(Notification);
 	
 EndProcedure
@@ -199,7 +199,7 @@ Procedure ExportHandlersCode(Command)
 		ButtonsList.Add(DialogReturnCode.No, NStr("en = 'Open module';"));
 		ButtonsList.Add(DialogReturnCode.Cancel);
 		
-		NotifyDescription = New NotifyDescription("ExportHandlersCodeCompletion", ThisObject);
+		NotifyDescription = New CallbackDescription("ExportHandlersCodeCompletion", ThisObject);
 		ShowQueryBox(NotifyDescription, NStr("en = 'The debugging module with the handler code is already exported.';"), ButtonsList,,DialogReturnCode.No);
 		
 	Else

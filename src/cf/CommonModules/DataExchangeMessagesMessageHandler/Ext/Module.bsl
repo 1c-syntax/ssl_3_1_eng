@@ -13,7 +13,7 @@
 // Generates a list of handlers of messages that are processed by the current subsystem.
 // 
 // Parameters:
-//  Handlers - ValueTable - See the field list in MessageExchange.NewMessagesHandlersTable.
+//  Handlers - ValueTable - See the field list in MessagesExchange.NewTableOfMessageHandlers.
 // 
 Procedure GetMessagesChannelsHandlers(Handlers) Export
 	

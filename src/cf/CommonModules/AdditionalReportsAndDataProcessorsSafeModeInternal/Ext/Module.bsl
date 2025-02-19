@@ -25,11 +25,11 @@ Function SecurityProfileNameTemplate(Val ExternalModule) Export
 	Kind = Common.ObjectAttributeValue(ExternalModule, "Kind");
 	If Kind = Enums.AdditionalReportsAndDataProcessorsKinds.Report Or Kind = Enums.AdditionalReportsAndDataProcessorsKinds.AdditionalReport Then
 		
-		Return "AdditionalReport_%1"; // Not localizable.
+		Return "AdditionalReport_%1"; // Do not localize.
 		
 	Else
 		
-		Return "AdditionalDataProcessor_%1"; // Not localizable.
+		Return "AdditionalDataProcessor_%1"; // Do not localize.
 		
 	EndIf;
 	
@@ -90,8 +90,7 @@ Function ExternalModulesContainers() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // See SSLSubsystemsIntegration.OnRegisterExternalModulesManagers
 Procedure OnRegisterExternalModulesManagers(Managers) Export
@@ -111,6 +110,8 @@ Procedure OnFillPermissionsToAccessExternalResources(PermissionsRequests) Export
 	CommonClientServer.SupplementArray(PermissionsRequests, NewRequests);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 

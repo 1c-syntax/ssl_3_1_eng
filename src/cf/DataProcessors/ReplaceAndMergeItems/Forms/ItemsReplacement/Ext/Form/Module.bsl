@@ -95,7 +95,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// 3. Reference replacement issues.
 	Step = AddWizardStep(Items.RetryReplacementStep);
 	Step.BackButton.Title = NStr("en = '< Back';");
-	Step.BackButton.ToolTip = NStr("en = 'Return to selecting replacement item.';");
+	Step.BackButton.ToolTip = NStr("en = 'Return to selecting replacement item';");
 	Step.NextButton.Title = NStr("en = 'Replace again >';");
 	Step.NextButton.ToolTip = NStr("en = 'Replace again.';");
 	Step.CancelButton.Title = NStr("en = 'Close';");
@@ -109,7 +109,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	// Update form items.
 	WizardSettings.CurrentStep = StepSelect;
-	VisibleEnabled(ThisObject);
+	SetVisibilityAvailability(ThisObject);
 	
 EndProcedure
 
@@ -138,7 +138,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	Buttons.Add(DialogReturnCode.Abort, NStr("en = 'Abort';"));
 	Buttons.Add(DialogReturnCode.No,      NStr("en = 'Continue';"));
 	
-	Handler = New NotifyDescription("AfterConfirmCancelJob", ThisObject);
+	Handler = New CallbackDescription("AfterConfirmCancelJob", ThisObject);
 	ShowQueryBox(Handler, QueryText, Buttons, , DialogReturnCode.No);
 	
 EndProcedure
@@ -308,8 +308,7 @@ EndProcedure
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Wizard API
+#Region WizardPageNavigation
 
 // Initializes wizard structures.
 // 
@@ -404,9 +403,8 @@ Function AddWizardStep(Val Page)
 	Return StepDescription;
 EndFunction
 
-// Updates visibility and availability of form items according to the current wizard step.
 &AtClientAtServerNoContext
-Procedure VisibleEnabled(Form)
+Procedure SetVisibilityAvailability(Form)
 	
 	Items = Form.Items;
 	WizardSettings = Form.WizardSettings;
@@ -464,13 +462,14 @@ Procedure GoToWizardStep1(Val StepOrIndexOrFormGroup)
 	WizardSettings.CurrentStep = StepDescription;
 	
 	// Update visibility.
-	VisibleEnabled(ThisObject);
+	SetVisibilityAvailability(ThisObject);
 	OnActivateWizardStep();
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Wizard events
+#EndRegion
+
+#Region WizardEvents
 
 &AtClient
 Procedure OnActivateWizardStep()
@@ -569,8 +568,9 @@ Procedure WizardStepCancel()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Internal procedures for item replacement and merging
+#EndRegion
+
+#Region UtilityProceduresForReplaceAndMerge
 
 &AtClient
 Procedure StepReplacementItemSelectionOnClickNextButton()
@@ -599,7 +599,7 @@ Procedure StepReplacementItemSelectionOnClickNextButton()
 		Text = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Item %1 is marked for deletion. Continue?';"),
 			CurrentData.Ref);
-		LongDesc = New NotifyDescription("ConfirmItemSelection", ThisObject);
+		LongDesc = New CallbackDescription("ConfirmItemSelection", ThisObject);
 		ShowQueryBox(LongDesc, Text, QuestionDialogMode.YesNo);
 	Else
 		// Additional check for applied data is required.
@@ -630,7 +630,7 @@ EndProcedure
 
 &AtClient
 Procedure AppliedAreaReplacementAvailabilityCheck()
-	// Checking items replacement for validity in terms of applied data.
+	// Validate item replacement against application logic.
 	ErrorText = CheckCanReplaceReferences();
 	If Not IsBlankString(ErrorText) Then
 		DialogSettings = New Structure;
@@ -903,8 +903,9 @@ Procedure InitializeReferencesToReplace(Val ReferencesArrray)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Long-running operation management
+#EndRegion
+
+#Region TimeConsumingOperations1
 
 &AtClient
 Procedure StartReplacingLinks()
@@ -923,7 +924,7 @@ Procedure StartReplacingLinks()
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	WaitSettings.OutputIdleWindow = False;
 	
-	Handler = New NotifyDescription("AfterCompletionReplacingLinks", ThisObject);
+	Handler = New CallbackDescription("AfterCompletionReplacingLinks", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(Job, Handler, WaitSettings);
 	
 EndProcedure
@@ -1062,8 +1063,9 @@ Procedure AfterConfirmCancelJob(Response, ExecutionParameters) Export
 	EndIf;
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Wizard's internal procedures and functions
+#EndRegion
+
+#Region WizardUtilityProceduresAndFunctions
 
 // Description of wizard button settings.
 //
@@ -1101,5 +1103,7 @@ Procedure UpdateWizardButtonProperties(WizardButton, LongDesc)
 	WizardButton.ExtendedTooltip.Title = LongDesc.ToolTip;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

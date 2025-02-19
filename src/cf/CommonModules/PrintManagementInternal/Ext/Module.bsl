@@ -74,52 +74,51 @@ Function GeneratePrintForms(TableOfPrintedForms, GenerationParameters, OfficeDoc
 	Return CombinedDocStructure;		
 EndFunction
 
-//////////////////////////////////////////////////////////////////////////////////
-// 
+#Region PrintUsingOfficeOpenXMLTemplates
+
+// Описание структур данных:
 //
-// 
+// Макет - структура, используемая для хранения областей, разделов и колонтитулов из исходного шаблона.
+//  - ИмяКаталога - Строка - путь, куда распаковывается контейнер DOCX шаблона для дальнейшего анализа.
+//  - СтруктураДокумента - Структура - коллекция, куда собирается информация по областям, разделам и колонтитулам,
+//                                     входящих в шаблон.
 //
-// 
-//  
-//  
-//                                     
+// ПечатнаяФорма - структура, используемая для вывода и заполнения областей из структуры "Макет".
+//  - ИмяКаталога - Строка - путь, куда помещается структура каталогов конечного документа для последующей сборки
+//                           контейнера DOCX.
+//  - СтруктураДокумента - Структура - коллекция, куда собирается информация по областям, разделам и колонтитулам,
+//                                     выведенных в конечный документ.
 //
-// 
-//  
-//                           
-//  
-//                                     
+// Структура документа
+//  - ОбластиДокумента - Соответствие - коллекция шаблонов областей, в которой ключ - имя области в исходном шаблоне.
+//  - Разделы - Соответствие - коллекция разделов шаблона, в которой ключ - номер раздела в исходном шаблоне.
+//  - Колонтитулы - Соответствие - коллекция колонтитулов шаблона, в которой ключ - имя верхнего или нижнего колонтитула,
+//                                 сформированное из исходного шаблона.
+//  - ПрисоединенныеОбласти - Массив - коллекция заполненных и выведенных областей в конечном документе.
+//  - ТипыКонтента - Строка - текст файла [Content_Types].xml из контейнера DOCX.
+//  - СвязиКонтента - Строка - текст файла document.xml.rels из контейнера DOCX.
+//  - ТаблицаСвязейКонтента - таблица значений - разобранный файл document.xml.rels по именам и
+//                                               идентификаторам ресурсов.
+//  - КаталогКартинок - Строка - путь для сохранения картинок в конечном документе.
+//  - РасширенияКартинок - Массив - расширения добавленных изображений в конечный документ.
+//  - ИдентификаторДокумента - Строка - идентификатор ревизии документа.
 //
-// 
-//  
-//  
-//  
-//                                 
-//  
-//  
-//  
-//  
-//                                               
-//  
-//  
-//  
+// Структура раздела
+//  - Колонтитулы - Соответствие - коллекция верхних и нижних колонтитулов шаблона для конкретного раздела, в которой
+//                                 ключ - имя колонтитула в исходном шаблоне.
+//  - Текст - Строка - текст раздела в исходном шаблоне.
+//  - Номер - Число - номер раздела в исходном шаблоне.
 //
-// 
-//  
-//                                 
-//  
-//  
+// Структура области
+//  - Имя - Строка - имя области, заданное в исходном шаблоне.
+//  - Текст - Строка - текст области, заданный в исходном шаблоне.
+//  - НомерРаздела - Число - номер раздела в исходном шаблоне, в который входит область.
 //
-// 
-//  
-//  
-//  
-//
-// 
-//  
-//  
-//  
-//  
+// Структура верхнего/нижнего колонтитула
+//  - Имя - Строка - имя колонтитула, сформированное из исходного шаблона.
+//  - ИмяВнутр - Строка - имя файла колонтитула из структуры контейнера DOCX исходного шаблона.
+//  - Текст - Строка - текст колонтитула, заданный в исходном шаблоне.
+//  - НомерРаздела - Число - номер раздела в исходном шаблоне, к которому относится колонтитул.
 //
 
 // Returns the structure of the printed form for generating the final document.
@@ -199,6 +198,8 @@ Function TemplateFromBinaryData(BinaryTemplateData) Export
 	
 EndFunction
 
+#EndRegion
+
 #Region DCS
 
 // Parameters:
@@ -260,7 +261,7 @@ Function InitializeDCSDoc()
 	Result.Insert("HeaderFooter",            New Map);
 	Result.Insert("ContentTypes1",           New ValueTree);
 	Result.Insert("ContentRelations", 		 New ValueTree);
-	Result.Insert("LinkMaxID", 		 0);
+	Result.Insert("LinkMaxID");
 	Result.Insert("Hyperlinks",            New Map);
 	Result.Insert("PicturesDirectory",        "");
 	Result.Insert("PicturesExtensions",     New Array);
@@ -416,8 +417,7 @@ Function GenerateDocument(PrintForm) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// 
+#Region FunctionsForGettingAreasFromTemplate
 
 // Gets the area from the layout.
 //
@@ -486,8 +486,9 @@ Function GetFooterArea(Template, Val AreaName = "Footer", Val SectionNumber = 1)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// 
+#EndRegion
+
+#Region FunctionsForAddingAreasToPrintForm
 
 // Adds a footer to the printed form from the layout.
 //
@@ -666,6 +667,8 @@ Procedure InsertBreakAtNewLine(PrintForm) Export
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #Region OperationsWithDocumentStructure
 
@@ -1131,7 +1134,7 @@ EndProcedure
 //  IndexOf - Number 
 //  Node - See DocumentTree
 //
-Procedure AddSectionDetailsNode(NodeOfParent, IndexOf, Node)
+Procedure AddSectionDetailsNode(NodeOfParent, IndexOf, Node) Export
 	If NodeOfParent.Rows.Count() <= IndexOf Then
 		NewPara = NodeOfParent.Rows.Add();
 	Else
@@ -1272,17 +1275,51 @@ Procedure InitializeStructureOfDCSTemplate(Template)
 			LinkID = HyperlinkNode.Attributes["Id"];
 			HyperlinksMapping.Insert(LinkID, HyperlinkAnchorText);
 		EndDo;         
-		MaxID = 0;
+		
 		NodesArray = New Array;
 		FindNodesByContent(XMLTree, "Relationship", NodesArray);
+		
+		MaxID = New Map;
+		FirstID = Undefined;
+		
 		For Each Node In NodesArray Do
 			Id = Node.Attributes["Id"];
 			ArrayOfIDParts = StrSplit(Id, "0123456789", False);
-			Id = Number(StrReplace(Id, ArrayOfIDParts[0], ""));
-			MaxID = Max(Id, MaxID);
+			
+			If ArrayOfIDParts.Count() = 0 Then
+				IDName = "";
+				Id = Number(Id);
+			Else
+				IDName = ArrayOfIDParts[0];
+				StringOfExtraCharacters = StrConcat(ArrayOfIDParts);
+				Id = StrConcat(StrSplit(Id, StringOfExtraCharacters));
+				If Not IsBlankString(Id) Then
+					Id = Number(Id);
+				Else
+					Id = 0;
+				EndIf;
+			EndIf;
+			
+			If FirstID = Undefined Then
+				FirstID = IDName;
+			EndIf;
+			
+			Maximum = MaxID.Get(IDName);
+			If Maximum <> Undefined Then
+				MaxID.Insert(IDName, Max(Id, Maximum));
+			Else
+				MaxID.Insert(IDName, Id);
+			EndIf;
 		EndDo;
-		DocumentStructure.LinkMaxID = MaxID; 
+		
+		If FirstID <> Undefined Then
+			LinkMaxID = New Structure("Id, Number", FirstID, 
+				MaxID.Get(FirstID));
+			DocumentStructure.LinkMaxID = LinkMaxID;
+		EndIf;
+		
 		DocumentStructure.ContentRelations = XMLTree;
+		
 	EndIf;
 
 	
@@ -1835,7 +1872,7 @@ Procedure GetAreasFromTree(TreePointer, Areas, TabularSectionNames, EndRegion = 
 				GetAreasFromTree(TreeRow, Areas, TabularSectionNames, IsAreaEnd);
 			EndIf;
 			
-			// 
+			// Поиск условий области
 			EdgeArea = Areas[Areas.Count()-1];
 			If EdgeArea <> Undefined And StrFind(TreeRow.WholeText, "{" + TagNameCondition()) 
 				And StrFind(TreeRow.WholeText, "}") And EdgeArea.AreaCondition = Undefined Then
@@ -2161,7 +2198,7 @@ EndFunction
 // 
 // 
 // Parameters:
-//  TreeOfTemplate - 
+//  TreeOfTemplate - See PrintManagementInternal.InitializeDCSDoc.
 //  Encoding - String - Encoding
 // 
 // Returns:
@@ -2199,13 +2236,13 @@ Function CollectOfficeDocumentFile(TreeOfTemplate, Encoding = "UTF-8") Export
 		HeadersOrFootersFilesArray.Add(HeaderOrFooter.Key);
 	EndDo;
 	
-	// 
+	// Обрабатываем связи контента
 	
 	XMLWriter = InitializeXMLRecord("", FilesToChange.Get("ContentRelations"));
 	PutTreeToXMLEntry(XMLWriter, DocumentStructure.ContentRelations);
 	XMLWriter.Close();
 	
-	// 
+	// Обрабатываем типы контента
 	
 	XMLWriter = InitializeXMLRecord("", FilesToChange.Get("ContentTypes1"));
 	PutTreeToXMLEntry(XMLWriter, DocumentStructure.ContentTypes1);
@@ -2270,9 +2307,10 @@ Procedure AssignValToDoc(Node, ReplacementCompliance, TreeOfTemplate, ShouldAddL
 		EndIf;
 		HyperlinkText = StrReplace(HyperlinkText, ReplacementCompliance.Key, ReplacementCompliance.Value);
 		If ShouldAddLinks Then
-			ResourceID = TreeOfTemplate.DocumentStructure.LinkMaxID + 1;
-			TreeOfTemplate.DocumentStructure.LinkMaxID = ResourceID;
-			FullID = "rId" + Format(ResourceID, "NG=0");
+			
+			NewLinkID = NewLinkID(TreeOfTemplate.DocumentStructure);
+			
+			FullID = NewLinkID.Id + Format(NewLinkID.Number, "NG=0");
 			Node.Attributes["r:id"] = FullID;
 			
 	        Hyperlinks.Insert(FullID, HyperlinkText);
@@ -2297,7 +2335,7 @@ Procedure AssignValToDoc(Node, ReplacementCompliance, TreeOfTemplate, ShouldAddL
 		EndIf;
 
 	ElsIf TreeOfTemplate = Undefined Or TypeOf(ReplacementCompliance.Value) <> Type("Structure") Then
-		If StrFind(ReplacementCompliance.Key, ".DSStamp") Then
+		If StrFind(ReplacementCompliance.Key, ".DSStamp") And ReplacementCompliance.Value  = "" Then
 			Node.NameTag = "w:bookmarkStart";
 			Node.Text = "";
 			Node.WholeText = "";
@@ -2411,8 +2449,8 @@ Procedure AssignValToDoc(Node, ReplacementCompliance, TreeOfTemplate, ShouldAddL
 				TableCellWidth = 0;
 			ElsIf PCTType And Not TableWidth = 0 Then
 				
-				// 
-				// 
+				// 5000 - значение равное 100% для типа "pct".
+				// ПолеРодитель - в значениях dxa.
 				
 				TableCellWidth = TableWidth * TableCellWidth / 50 / 100;
 				
@@ -2498,6 +2536,24 @@ Procedure AssignValToDoc(Node, ReplacementCompliance, TreeOfTemplate, ShouldAddL
 
 EndProcedure
 
+Function NewLinkID(DocumentStructure)
+	
+	LinkMaxID = DocumentStructure.LinkMaxID;
+	If LinkMaxID = Undefined Then
+		Id = "rId";
+		Number = 1;
+	Else
+		Id = LinkMaxID.Id;
+		Number = LinkMaxID.Number + 1;
+	EndIf;
+	
+	NewLinkID = New Structure("Id, Number", Id, Number);
+	DocumentStructure.LinkMaxID = NewLinkID;
+	
+	Return NewLinkID;
+		
+EndFunction
+
 Procedure PrepareTemplateToXMLReading(PictureXMLTemplate)
 	PictureXMLTemplate = "<?xml version=""1.0"" encoding=""UTF-8"" standalone=""yes""?>
 		|<w:document xmlns:wpc=""http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"" xmlns:cx=""http://schemas.microsoft.com/office/drawing/2014/chartex"" xmlns:cx1=""http://schemas.microsoft.com/office/drawing/2015/9/8/chartex"" xmlns:cx2=""http://schemas.microsoft.com/office/drawing/2015/10/21/chartex"" xmlns:cx3=""http://schemas.microsoft.com/office/drawing/2016/5/9/chartex"" xmlns:cx4=""http://schemas.microsoft.com/office/drawing/2016/5/10/chartex"" xmlns:cx5=""http://schemas.microsoft.com/office/drawing/2016/5/11/chartex"" xmlns:cx6=""http://schemas.microsoft.com/office/drawing/2016/5/12/chartex"" xmlns:cx7=""http://schemas.microsoft.com/office/drawing/2016/5/13/chartex"" xmlns:cx8=""http://schemas.microsoft.com/office/drawing/2016/5/14/chartex"" xmlns:mc=""http://schemas.openxmlformats.org/markup-compatibility/2006"" xmlns:aink=""http://schemas.microsoft.com/office/drawing/2016/ink"" xmlns:am3d=""http://schemas.microsoft.com/office/drawing/2017/model3d"" xmlns:o=""urn:schemas-microsoft-com:office:office"" xmlns:r=""http://schemas.openxmlformats.org/officeDocument/2006/relationships"" xmlns:m=""http://schemas.openxmlformats.org/officeDocument/2006/math"" xmlns:v=""urn:schemas-microsoft-com:vml"" xmlns:wp14=""http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing"" xmlns:wp=""http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"" xmlns:w10=""urn:schemas-microsoft-com:office:word"" xmlns:w=""http://schemas.openxmlformats.org/wordprocessingml/2006/main"" xmlns:w14=""http://schemas.microsoft.com/office/word/2010/wordml"" xmlns:w15=""http://schemas.microsoft.com/office/word/2012/wordml"" xmlns:w16cid=""http://schemas.microsoft.com/office/word/2016/wordml/cid"" xmlns:w16se=""http://schemas.microsoft.com/office/word/2015/wordml/symex"" xmlns:wpg=""http://schemas.microsoft.com/office/word/2010/wordprocessingGroup"" xmlns:wpi=""http://schemas.microsoft.com/office/word/2010/wordprocessingInk"" xmlns:wne=""http://schemas.microsoft.com/office/word/2006/wordml"" xmlns:wps=""http://schemas.microsoft.com/office/word/2010/wordprocessingShape"" mc:Ignorable=""w14 w15 w16se w16cid wp14"">"
@@ -2519,18 +2575,21 @@ Procedure PutPictureInDCSDocLibrary(TreeOfTemplate, StructurePicture)
 	NodeOfLinks = TreeOfTemplate.DocumentStructure.ContentRelations.Rows[0];
 	PictureExtension = StructurePicture.PictureExtension;
 	
-	ResourceID = TreeOfTemplate.DocumentStructure.LinkMaxID + 1;
 	PictureLinksNode = NodeOfLinks.Rows.Add();
 	PictureLinksNode.NameTag = "Relationship";
-	PictureLinksNode.Attributes.Insert("Id", "rId" + Format(ResourceID, "NG=0"));
-	TreeOfTemplate.DocumentStructure.LinkMaxID = ResourceID;
+	
+	NewLinkID = NewLinkID(TreeOfTemplate.DocumentStructure);
+	
+	PictureID = NewLinkID.Id + Format(NewLinkID.Number, "NG=0");
+	
+	PictureLinksNode.Attributes.Insert("Id", PictureID);
 	PictureLinksNode.Attributes.Insert("Type", TypePicture);
 
-	IconName  = StructurePicture.IconName + Format(ResourceID, "NG=0");
+	IconName  = StructurePicture.IconName + Format(NewLinkID.Number, "NG=0");
 	ResourceName   = "media/" + IconName + "." + PictureExtension;
 	PictureLinksNode.Attributes.Insert("Target", ResourceName);
 	
-	StructurePicture.Insert("rId", "rId" + Format(ResourceID, "NG=0"));
+	StructurePicture.Insert(NewLinkID.Id, PictureID);
 	StructurePicture.IconName = IconName;
 	
 	ContentTypes1 = TreeOfTemplate.DocumentStructure.ContentTypes1;
@@ -2717,7 +2776,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 	FilesToChange.Insert("ContentTypes1",  PrintForm.DirectoryName + SetPathSeparator("\[Content_Types].xml"));
 	FilesToChange.Insert("Document",      PrintForm.DirectoryName + SetPathSeparator("\word\document.xml"));
 	
-	// 
+	// Удаляем файлы пустых колонтитулов
 	HeaderOrFooterOutput = New Map;
 	
 	For Each Section In PrintForm.DocumentStructure.Sections Do
@@ -2758,7 +2817,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 		
 	EndDo;
 	
-	// 
+	// Обрабатываем связи контента
 	
 	XMLReader = InitializeXMLReader(PrintForm.DocumentStructure.ContentRelations);
 	XMLWriter = InitializeXMLRecord("", FilesToChange.Get("ContentRelations"));
@@ -2803,7 +2862,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 	
 	PrintForm.DocumentStructure.ContentRelations = XMLWriter.Close(); 
 	
-	// 
+	// Обрабатываем типы контента
 	
 	XMLReader = InitializeXMLReader(PrintForm.DocumentStructure.ContentTypes1);
 	XMLWriter = InitializeXMLRecord("", FilesToChange.Get("ContentTypes1"));
@@ -2848,7 +2907,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 	
 	PrintForm.DocumentStructure.ContentTypes1 = XMLWriter.Close(); 
 	
-	// 
+	// Формирование документа печатной формы
 	
 	SequenceNumber = 1;
 	
@@ -2868,7 +2927,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 		
 		IsLastArea = ?(SequenceNumber = AreasCount, True, False);
 		
-		// 
+		// Запись промежуточного раздела
 		
 		If OutputIntermediateSection = True And IsLastArea = False Then
 			
@@ -2887,7 +2946,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 			
 		EndIf;
 		
-		// 
+		// Запись тела
 		
 		XMLReader = InitializeXMLReader(Area.Text);
 		
@@ -2909,7 +2968,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 			
 		EndDo;
 		
-		// 
+		// Запись заключительного раздела
 		
 		If IsLastArea Then
 			
@@ -2926,8 +2985,8 @@ Function AssembleDOCXDocumentFile(PrintForm)
 		
 	EndDo;
 	
-	XMLWriter.WriteEndElement(); // 
-	XMLWriter.WriteEndElement(); // 
+	XMLWriter.WriteEndElement(); // Закрытие тэга </w:body>
+	XMLWriter.WriteEndElement(); // Закрытие тэга </w:document>
 	
 	XMLWriter.Close();
 	
@@ -3036,7 +3095,7 @@ Procedure InitializeTemplateStructure(Template)
 		EndDo;
 	EndIf;
 	
-	// 
+	// Получить таблицу номеров ресурсов
 	
 	DirectoryWithFileStructure = DirectoryName + "word" + GetPathSeparator();
 	
@@ -3119,7 +3178,7 @@ Procedure InitializePrintFormStructure(PrintForm, Template)
 		EndIf;
 	EndDo;
 	
-	// 
+	// Текст копирования колонтитулов и разделов из макета
 	For Each Section In Template.DocumentStructure.Sections Do
 		AddSectionToDocumentStructure(DocumentStructure, Section.Value);
 	EndDo;
@@ -3444,8 +3503,8 @@ Procedure SetFieldWidth(XMLReader, Width, Val TableWidth = 0)
 		Width = 0;
 	ElsIf PCTType And Not TableWidth = 0 Then
 		
-		// 
-		// 
+		// 5000 - значение равное 100% для типа "pct".
+		// ПолеРодитель - в значениях dxa.
 		
 		Width = TableWidth * Width / 50 / 100;
 		
@@ -3511,14 +3570,14 @@ EndFunction
 
 Procedure PreparePictureTemplate(TemplatePicture, StructurePicture)
 	
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
+	// Параметры подстановки
+	// 1 - id
+	// 2 - name
+	// 3 - descr
+	// 4 - rId
+	// 5 - uri
+	// 6 - cx
+	// 7 - cy
 	ProcessedPictureTemplate = StringFunctionsClientServer.SubstituteParametersToString(TemplatePicture, 
 		"0",
 		StructurePicture.IconName,
@@ -3541,7 +3600,7 @@ Procedure IncludePictureToDocumentLibrary(DocumentStructure, StructurePicture)
 		CreateDirectory(StructurePicture.PicturesDirectory);
 	EndIf;
 	
-	// 
+	// Добавить строку в rels файл
 	XMLReader = InitializeXMLReader(DocumentStructure.ContentRelations);
 	XMLWriter = InitializeXMLRecord("");
 	
@@ -3581,7 +3640,7 @@ Procedure IncludePictureToDocumentLibrary(DocumentStructure, StructurePicture)
 	XMLReader.Close();
 	DocumentStructure.ContentRelations = XMLWriter.Close();
 	
-	// 
+	// Записать картинку в каталог media
 	BinaryData = StructurePicture.BinaryData;
 	BinaryData.Write(StructurePicture.PicturesDirectory + StructurePicture.IconName + "." + StructurePicture.PictureExtension);
 	
@@ -3589,7 +3648,7 @@ EndProcedure
 
 Procedure IncludePictureTextToDocument(XMLWriter, StructurePicture)
 	
-	XMLWriter.WriteEndElement(); // 
+	XMLWriter.WriteEndElement(); // Закрывается текстовый тэг параметра w:t.
 	XMLWriter.WriteRaw(StructurePicture.PictureText);
 	XMLWriter.WriteStartElement("w:t");
 	
@@ -4606,7 +4665,7 @@ Procedure SplitTemplateTextToAreas(XMLReader, DocumentStructure, AnalysisParamet
 	
 	While XMLReader.Read() Do
 		
-		// 
+		// тег описания пространства имен во временном xml
 		If XMLReader.Name = "w:next" Then
 			Continue;
 		EndIf;
@@ -4861,13 +4920,13 @@ EndProcedure
 
 Procedure AnalyzeParametersInString(Val String, XMLParseStructure)
 	
-	// 
-	// 
-	// 
+	// 1 - начало тэга {v8
+	// 2 - начало параметра тэга {v8
+	// 3 - конец параметра тэга {v8
 	
-	// 
-	// 
-	// 
+	// 5 - начало тэга {/v8
+	// 6 - начало параметра тэга {/v8
+	// 7 - конец параметра тэга {/v8
 	
 	FlagOf1CTagStart = "{v8 ";
 	FlagOf1CTagEnd  = "{/v8 ";
@@ -5062,7 +5121,7 @@ EndFunction
 #Region ImagesOperations
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Функции обработки файлов изображений
 
 // Returns the width, height, and image type for GIF, JPG, PNG, BMP, and TIFF files
 Function GetImageAttributes(ReadingData)
@@ -5333,8 +5392,7 @@ EndFunction
 
 #EndRegion
 
-////////////////////////////////////////////////////////////////////////////////
-// 
+#Region OtherProceduresAndFunctions_
 
 Function EventLogEvent()
 	
@@ -5466,6 +5524,8 @@ EndFunction
 Function SetPathSeparator(Val Path)
 	Return StrConcat(StrSplit(Path, "\/", True), GetPathSeparator());
 EndFunction
+
+#EndRegion
 
 #EndRegion
 

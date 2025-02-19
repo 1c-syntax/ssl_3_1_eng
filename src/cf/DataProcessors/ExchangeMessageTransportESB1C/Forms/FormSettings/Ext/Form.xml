@@ -1,0 +1,195 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
+	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
+	<SaveWindowSettings>false</SaveWindowSettings>
+	<CommandBarLocation>Bottom</CommandBarLocation>
+	<AutoCommandBar name="FormCommandBar" id="-1">
+		<HorizontalAlign>Right</HorizontalAlign>
+		<Autofill>false</Autofill>
+		<ChildItems>
+			<Button name="FormTestConnection" id="22">
+				<Type>CommandBarButton</Type>
+				<CommandName>Form.Command.TestConnection</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Test connection</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="FormTestConnectionExtendedTooltip" id="23"/>
+			</Button>
+			<Button name="FormDone" id="20">
+				<Type>CommandBarButton</Type>
+				<DefaultButton>true</DefaultButton>
+				<CommandName>Form.Command.Done</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Finish</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="FormDoneExtendedTooltip" id="21"/>
+			</Button>
+		</ChildItems>
+	</AutoCommandBar>
+	<Events>
+		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
+	</Events>
+	<ChildItems>
+		<UsualGroup name="GroupPreSettings" id="71">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Preliminary settings</v8:content>
+				</v8:item>
+			</Title>
+			<HorizontalStretch>true</HorizontalStretch>
+			<Representation>None</Representation>
+			<ShowTitle>false</ShowTitle>
+			<BackColor>style:ToolTipBackColor</BackColor>
+			<ExtendedTooltip name="GroupPreSettingsExtendedTooltip" id="72"/>
+			<ChildItems>
+				<PictureDecoration name="Decoration2" id="73">
+					<Width>3</Width>
+					<Height>2</Height>
+					<Title formatted="false">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Decoration1</v8:content>
+						</v8:item>
+					</Title>
+					<PictureSize>Proportionally</PictureSize>
+					<Picture>
+						<xr:Ref>StdPicture.Information</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
+					</Picture>
+					<ContextMenu name="Decoration2ContextMenu" id="74"/>
+					<ExtendedTooltip name="Decoration2ExtendedTooltip" id="75"/>
+				</PictureDecoration>
+				<LabelDecoration name="DecorationPreSettings" id="76">
+					<AutoMaxWidth>false</AutoMaxWidth>
+					<Title formatted="true">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Before continuing the setup:
+ • Set up the integration process in &lt;b&gt;1C:Bus&lt;/&gt; and add &lt;b&gt;infosystems&lt;/&gt;
+ • Configure the &lt;link IntegrationServices&gt;integration service&lt;/&gt;
+ • Enable the scheduled job &lt;link ScheduledJob&gt;Integration service processing&lt;/&gt;
+
+For details, see &lt;link Help&gt;Help&lt;/&gt;.</v8:content>
+						</v8:item>
+					</Title>
+					<ContextMenu name="DecorationPreSettingsContextMenu" id="77"/>
+					<ExtendedTooltip name="DecorationPreSettingsExtendedTooltip" id="78"/>
+					<Events>
+						<Event name="URLProcessing">DecorationPreSettingsURLProcessing</Event>
+					</Events>
+				</LabelDecoration>
+			</ChildItems>
+		</UsualGroup>
+		<InputField name="IntegrationService" id="26">
+			<DataPath>Object.IntegrationService</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Integration service</v8:content>
+				</v8:item>
+			</Title>
+			<DropListButton>true</DropListButton>
+			<ClearButton>true</ClearButton>
+			<ListChoiceMode>true</ListChoiceMode>
+			<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+			<ContextMenu name="IntegrationServiceContextMenu" id="27"/>
+			<ExtendedTooltip name="IntegrationServiceExtendedTooltip" id="28"/>
+			<Events>
+				<Event name="OnChange">IntegrationServiceOnChange</Event>
+			</Events>
+		</InputField>
+		<InputField name="ReceiptChannel" id="60">
+			<DataPath>Object.ReceiptChannel</DataPath>
+			<DropListButton>true</DropListButton>
+			<ClearButton>true</ClearButton>
+			<ListChoiceMode>true</ListChoiceMode>
+			<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+			<ContextMenu name="ReceiptChannelContextMenu" id="61"/>
+			<ExtendedTooltip name="ReceiptChannelExtendedTooltip" id="62"/>
+		</InputField>
+		<InputField name="SendingChannel" id="63">
+			<DataPath>Object.SendingChannel</DataPath>
+			<DropListButton>true</DropListButton>
+			<ClearButton>true</ClearButton>
+			<ListChoiceMode>true</ListChoiceMode>
+			<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+			<ContextMenu name="SendingChannelContextMenu" id="64"/>
+			<ExtendedTooltip name="SendingChannelExtendedTooltip" id="65"/>
+		</InputField>
+		<InputField name="RecipientCode" id="66">
+			<DataPath>Object.RecipientCode</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Sender code in the bus</v8:content>
+				</v8:item>
+			</Title>
+			<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+			<ContextMenu name="RecipientCodeContextMenu" id="67"/>
+			<ExtendedTooltip name="RecipientCodeExtendedTooltip" id="68"/>
+		</InputField>
+	</ChildItems>
+	<Attributes>
+		<Attribute name="Object" id="1">
+			<Type>
+				<v8:Type>cfg:DataProcessorObject.ExchangeMessageTransportESB1C</v8:Type>
+			</Type>
+			<MainAttribute>true</MainAttribute>
+		</Attribute>
+		<Attribute name="ThereIsSubsystemRoutineTasks" id="2">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="ScheduledJobID" id="3">
+			<Type>
+				<v8:Type>v8:UUID</v8:Type>
+			</Type>
+		</Attribute>
+	</Attributes>
+	<Commands>
+		<Command name="Done" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Finish</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Finish</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>Done</Action>
+		</Command>
+		<Command name="TestConnection" id="4">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Test connection</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Test connection</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>TestConnection</Action>
+		</Command>
+	</Commands>
+	<Parameters>
+		<Parameter name="TransportSettings">
+			<Type/>
+			<KeyParameter>true</KeyParameter>
+		</Parameter>
+	</Parameters>
+</Form>

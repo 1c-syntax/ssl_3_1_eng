@@ -142,7 +142,7 @@ Procedure LongDescStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	StandardProcessing = False;
 	
-	Notification = New NotifyDescription("LongDescStartChoiceCompletion", ThisObject);
+	Notification = New CallbackDescription("LongDescStartChoiceCompletion", ThisObject);
 	CommonClient.ShowMultilineTextEditingForm(
 		Notification, Items.LongDesc.EditText, NStr("en = 'Details';"));
 	
@@ -279,8 +279,7 @@ EndProcedure
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Client.
+#Region Client
 
 &AtClient
 Procedure ExecuteBatch(Result, Package) Export
@@ -413,7 +412,7 @@ Function AskAboutOverwritingAReportVariant(Package, Variant)
 	
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(QuestionTextTemplate, Object.Description);
 	
-	Handler = New NotifyDescription("ExecuteBatch", ThisObject, Package);
+	Handler = New CallbackDescription("ExecuteBatch", ThisObject, Package);
 	ShowQueryBox(Handler, QueryText, QuestionDialogMode.YesNo, 60, DefaultButton);
 	
 	Return True;
@@ -437,7 +436,7 @@ Function AskAboutUserNotification(Package)
 
 	Package.CurrentStep = "QuestionAboutNotifyingUsers";
 	
-	Handler = New NotifyDescription("ExecuteBatch", ThisObject, Package);
+	Handler = New CallbackDescription("ExecuteBatch", ThisObject, Package);
 	ReportsOptionsInternalClient.AskAboutUserNotification(Handler, UsersCount);
 	
 	Return True;
@@ -482,8 +481,9 @@ Procedure LongDescStartChoiceCompletion(Val EnteredText, Val AdditionalParameter
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Client and server.
+#EndRegion
+
+#Region ClientAndServer
 
 // Returns the flag of the available report option change rights.
 //
@@ -554,8 +554,9 @@ Procedure FillOptionsListDeferred()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Server call.
+#EndRegion
+
+#Region ServerCall
 
 &AtServerNoContext
 Function NumberOfUsersReportOption(OptionUsers)
@@ -711,8 +712,9 @@ Procedure CheckAndWriteReportOption(Package)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Server.
+#EndRegion
+
+#Region Server
 
 &AtServer
 Procedure DefineBehaviorInMobileClient()
@@ -936,38 +938,40 @@ Procedure FillPresentations(Variant)
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		
-		QueryTextMultilingualAttributes = "CASE
-		|		WHEN NOT FromConfiguration.DescriptionLanguage1 IS NULL
-		|			THEN FromConfiguration.DescriptionLanguage1
-		|		WHEN NOT FromExtensions.DescriptionLanguage1 IS NULL
-		|			THEN FromExtensions.DescriptionLanguage1
-		|		ELSE UserSettings2.DescriptionLanguage1
-		|	END AS DescriptionLanguage1,
-		|	CASE
-		|		WHEN NOT FromConfiguration.DescriptionLanguage2 IS NULL
-		|			THEN FromConfiguration.DescriptionLanguage2
-		|		WHEN NOT FromExtensions.DescriptionLanguage2 IS NULL
-		|			THEN FromExtensions.DescriptionLanguage2
-		|		ELSE UserSettings2.DescriptionLanguage2
-		|	END AS DescriptionLanguage2,
-		|	CASE
-		|		WHEN SUBSTRING(UserSettings2.LongDescLanguage1, 1, 1) <> """"
-		|			THEN UserSettings2.LongDescLanguage1
-		|		WHEN NOT FromConfiguration.LongDescLanguage1 IS NULL
-		|			THEN FromConfiguration.LongDescLanguage1
-		|		WHEN NOT FromExtensions.LongDescLanguage1 IS NULL
-		|			THEN FromExtensions.LongDescLanguage1
-		|		ELSE CAST("""" AS STRING(1000))
-		|	END AS LongDescLanguage1,
-		|	CASE
-		|		WHEN SUBSTRING(UserSettings2.LongDescLanguage2, 1, 1) <> """"
-		|			THEN UserSettings2.LongDescLanguage2
-		|		WHEN NOT FromConfiguration.LongDescLanguage2 IS NULL
-		|			THEN FromConfiguration.LongDescLanguage2
-		|		WHEN NOT FromExtensions.LongDescLanguage2 IS NULL
-		|			THEN FromExtensions.LongDescLanguage2
-		|		ELSE CAST("""" AS STRING(1000))
-		|	END AS LongDescLanguage2";
+			ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+			ModuleNationalLanguageSupportClientServer = Common.CommonModule("NationalLanguageSupportClientServer");
+			
+			Set = New Array;
+			
+			Template_Description  = "CASE
+			|		WHEN NOT FromConfiguration.%1 IS NULL
+			|			THEN FromConfiguration.%1
+			|		WHEN NOT FromExtensions.%1 IS NULL
+			|			THEN FromExtensions.%1
+			|		ELSE UserSettings2.%1
+			|	END AS %1";
+			
+			DetailsTemplate  = "CASE
+			|		WHEN SUBSTRING(UserSettings2.%1, 1, 1) <> """"
+			|			THEN UserSettings2.%1
+			|		WHEN NOT FromConfiguration.%1 IS NULL
+			|			THEN FromConfiguration.%1
+			|		WHEN NOT FromExtensions.%1 IS NULL
+			|			THEN FromExtensions.%1
+			|		ELSE CAST("""" AS STRING(1000))
+			|	END AS %1";
+			
+			For LanguageSeqNumber = 1 To ModuleNationalLanguageSupportServer.AdditionalLanguagesCount() Do
+				
+				LanguageSuffix_ = ModuleNationalLanguageSupportClientServer.LanguageSuffix_(LanguageSeqNumber);
+				NameOfTheItemName = "Description" + LanguageSuffix_;
+				LongDescAttributeName     = "LongDesc" + LanguageSuffix_;
+				Set.Add(StrTemplate(Template_Description, NameOfTheItemName));
+				Set.Add(StrTemplate(DetailsTemplate, LongDescAttributeName));
+			EndDo;
+			
+			QueryTextMultilingualAttributes = StrConcat(Set, "," + Chars.LF);
+		
 	Else
 		QueryTextMultilingualAttributes  = "TRUE";
 	EndIf;
@@ -987,5 +991,7 @@ Procedure FillPresentations(Variant)
 	
 EndProcedure
 
+
+#EndRegion
 
 #EndRegion

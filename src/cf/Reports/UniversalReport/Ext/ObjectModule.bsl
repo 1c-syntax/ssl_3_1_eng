@@ -287,8 +287,7 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 EndProcedure
 
 // Called after defining form element properties associated with the user settings.
-// See ReportsServer.SettingsFormItemsProperties
-// ()
+// See ReportsServer.SettingsFormItemsProperties()
 // Allows to override properties to customize reports.
 //
 // Parameters:

@@ -6,7 +6,6 @@
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #Region FormEventHandlers
 
@@ -14,6 +13,18 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	SetConditionalAppearance();
+	
+	If Parameters.IsExportTemplate Then
+		
+		AutoTitle = False;
+		TitleTemplate1 = NStr("en = 'Visibility condition in the ""Export to file…"" menu: %1 (Export file template)';");
+		TitleText = StringFunctionsClientServer.SubstituteParametersToString(
+			TitleTemplate1, 
+			Parameters.ExportTemplatePresentation);
+			
+		Title = TitleText;
+		
+	EndIf;
 	
 EndProcedure
 

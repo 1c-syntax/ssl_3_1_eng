@@ -13,14 +13,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
-	If Object.Ref.IsEmpty() Then
-		If Not (Parameters.Property("CopyingValue") And ValueIsFilled(Parameters.CopyingValue)) Then
-			Object.RateSource = Enums.RateSources.ManualInput;
-		EndIf;
-	EndIf;
-
-	ProcessingExchangeRatesImport = Metadata.DataProcessors.Find("CurrenciesRatesImport");
-	Items.CurrencyRateImportedFromInternet.Visible = ProcessingExchangeRatesImport <> Undefined;
+	Items.CurrencyRateImportedFromInternet.Visible = CurrencyRateOperations.IsCurrencyRatesImportAvailable();
 	SetItemsAvailability(ThisObject);
 
 	FillInTheCurrencyRegistrationParametersSubmenu();
@@ -33,10 +26,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.HeaderGroup.ItemsAndTitlesAlign = ItemsAndTitlesAlignVariant.ItemsRightTitlesLeft;
 	EndIf;
 
-	If Metadata.DataProcessors.Find("CurrenciesRatesImport") <> Undefined Then
-		CurrenciesImportedFromInternetCodes.LoadValues(
-			DataProcessors["CurrenciesRatesImport"].CurrenciesImportedFromInternetCodes());
-	EndIf;
+	CurrencyCodes = New Array;
+	CurrencyRateOperationsLocalization.OnDefineCurrencyCodesImportedFromInternet(CurrencyCodes);
+	CurrenciesImportedFromInternetCodes.LoadValues(CurrencyCodes);
 
 	DownloadFromTheInternetIsAvailable = ValueIsFilled(Object.Code) And ValueIsFilled(CurrenciesImportedFromInternetCodes)
 		And CurrenciesImportedFromInternetCodes.FindByValue(Object.Code) <> Undefined;
@@ -74,7 +66,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
-// Basic Additional Data page.
+// Страница "Основные сведения".
 
 &AtClient
 Procedure MainCurrencyStartChoice(Item, ChoiceData, StandardProcessing)
@@ -291,7 +283,7 @@ Procedure RateCalculationFormulaStartChoice(Item, ChoiceData, StandardProcessing
 	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
 		StandardProcessing = False;
-		NotifyDescription = New NotifyDescription("WhenFinishedEditingFormulas", ThisObject);
+		NotifyDescription = New CallbackDescription("WhenFinishedEditingFormulas", ThisObject);
 		ModuleConstructorFormulaClient.StartEditingTheFormula(FormulaParameters(Object.RateCalculationFormula, UUID), 
 			NotifyDescription);
 	EndIf;

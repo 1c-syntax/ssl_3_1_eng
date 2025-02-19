@@ -362,6 +362,7 @@ Function WSDefinitions(Val WSDLAddress, Val UserName, Val Password, Val Timeout 
 					NStr("en = '%1
 					           |Diagnostics result:
 					           |%2';"),
+					ErrorText,
 					DiagnosticsResult.ErrorDescription);
 			EndIf;
 			

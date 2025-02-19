@@ -96,7 +96,6 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 		RotationEnum      = ValueSelected.Rotation;
 		PaperSizeEnum = ValueSelected.PaperSize;
 		DuplexScanning = ValueSelected.DuplexScanning;
-		DocumentAutoFeeder = ValueSelected.DocumentAutoFeeder;
 		
 		UseImageMagickToConvertToPDF = ValueSelected.UseImageMagickToConvertToPDF;
 		
@@ -226,7 +225,7 @@ Procedure Save(Command)
 		ElsIf ValueIsFilled(ResultType) Then
 			GraphicDocumentConversionParameters.ResultType = ResultType;
 		EndIf;
-		Notification = New NotifyDescription("SaveAfterMerging", ThisObject, Context); 
+		Notification = New CallbackDescription("SaveAfterMerging", ThisObject, Context); 
 		FilesOperationsClient.CombineToMultipageFile(Notification, CommonClientServer.ValueInArray(PathToFileLocal), 
 			GraphicDocumentConversionParameters);
 	Else
@@ -310,7 +309,7 @@ Procedure SaveAllAsSingleFile(Command)
 	Context.Insert("ExecutionParameters", ExecutionParameters);
 	Context.Insert("ResultBinaryData", "");
 	
-	Notification = New NotifyDescription("SaveAllAsSingleFileCompletion", ThisObject, Context); 
+	Notification = New CallbackDescription("SaveAllAsSingleFileCompletion", ThisObject, Context); 
 	
 	FilesOperationsClient.CombineToMultipageFile(Notification, PathsToFiles, GraphicDocumentConversionParameters);
 EndProcedure
@@ -368,7 +367,7 @@ EndProcedure
 &AtClient
 Procedure ScanErrorTextURLProcessing(Item, FormattedStringURL, StandardProcessing)
 	If FormattedStringURL = "TechnicalInformation" Then
-		AfterTechnicalInfoReceived = New NotifyDescription("AfterTechnicalInfoReceived", ThisObject);
+		AfterTechnicalInfoReceived = New CallbackDescription("AfterTechnicalInfoReceived", ThisObject);
 		FilesOperationsInternalClient.GetTechnicalInformation(NStr("en = 'The last scan attempt failed.';"),
 			AfterTechnicalInfoReceived);
 		StandardProcessing = False;
@@ -413,7 +412,7 @@ Procedure PrepareForScanning(Result, OpeningParameters) Export
 	EndIf;
 	
 	If OpeningParameters.CurrentStep = 1 Then
-		NotifyDescription = New NotifyDescription("PrepareForScanningAfterInitialization", ThisObject, OpeningParameters);
+		NotifyDescription = New CallbackDescription("PrepareForScanningAfterInitialization", ThisObject, OpeningParameters);
 		FilesOperationsInternalClient.InitAddIn(NotifyDescription, True);
 		Return;
 	EndIf;
@@ -429,7 +428,7 @@ Procedure PrepareForScanningAfterInitialization(InitializationCheckResult, Openi
 		Return;
 	EndIf;
 	Attachable_Module = InitializationCheckResult.Attachable_Module;
-	ContinueNotification = New NotifyDescription("PrepareToScanAfterLogEnabled", 
+	ContinueNotification = New CallbackDescription("PrepareToScanAfterLogEnabled", 
 		ThisObject, OpeningParameters);
 	FilesOperationsInternalClient.EnableScanLog(Attachable_Module, ContinueNotification, True);
 EndProcedure
@@ -450,7 +449,7 @@ Procedure BeforeOpenAutomatFollowUp(OpeningParameters)
 		OpeningParameters.SelectedDevice = ScannerName;
 		
 		If OpeningParameters.SelectedDevice = "" Then
-			Handler = New NotifyDescription("PrepareForScanning", ThisObject, OpeningParameters);
+			Handler = New CallbackDescription("PrepareForScanning", ThisObject, OpeningParameters);
 			FormOpenParameters = New Structure("Rescanning", True);
 			OpenForm("DataProcessor.Scanning.Form.ScanningSettings", FormOpenParameters , ThisObject, , , , 
 				Handler, FormWindowOpeningMode.LockWholeInterface);
@@ -697,7 +696,7 @@ Procedure ExternalEvent(Source, Event, Data)
 		EndIf;
 		Context = New Structure;
 		Context.Insert("CloseForm", False);
-		CompletionNotification = New NotifyDescription("AfterErrorDeleted", ThisObject, Context);
+		CompletionNotification = New CallbackDescription("AfterErrorDeleted", ThisObject, Context);
 		FilesOperationsInternalClient.DeleteScanError(Attachable_Module, CompletionNotification, False);
 	ElsIf Source = "TWAIN" And Event = "UserPressedCancel" Then
 		If IsOpen() Then
@@ -720,7 +719,7 @@ Procedure ExternalEvent(Source, Event, Data)
 					PictureAddress = PutToTempStorage(BinaryData, UUID);
 					TableRow.PictureAddress = PictureAddress;
 				EndIf;
-				CompletionNotification = New NotifyDescription("AfterErrorDeleted", ThisObject, Context);
+				CompletionNotification = New CallbackDescription("AfterErrorDeleted", ThisObject, Context);
 				FilesOperationsInternalClient.DeleteScanError(Attachable_Module, CompletionNotification, False);
 			EndIf;
 		EndIf;
@@ -773,7 +772,8 @@ Procedure ReadSettings()
 	RotationEnum  = UserScanSettings.Rotation;
 	TIFFCompressionEnum = UserScanSettings.TIFFDeflation;
 	ScannerName = UserScanSettings.DeviceName;	
-	PaperSizeEnum = UserScanSettings.PaperSize; 
+	PaperSizeEnum = UserScanSettings.PaperSize;
+	TransformCalculationsToParametersAndGetPresentation();
 EndProcedure
 
 &AtClient
@@ -801,7 +801,7 @@ Procedure SaveAfterMergingCompletion(Context)
 		Return;
 	Else
 		If Not IsBlankString(PathToFileLocal) Then
-			Handler = New NotifyDescription("AcceptCompletion", ThisObject, ExecutionParameters);
+			Handler = New CallbackDescription("AcceptCompletion", ThisObject, ExecutionParameters);
 			
 			AddingOptions = New Structure;
 			AddingOptions.Insert("ResultHandler", Handler);
@@ -904,7 +904,7 @@ Procedure SaveAllAsSingleFileCompletion(MergeResult, Context) Export
 		
 		If Not IsBlankString(ExecutionParameters.ResultFile) Then
 			
-			Handler = New NotifyDescription("AcceptAllAsOneFileCompletion", ThisObject, ExecutionParameters);
+			Handler = New CallbackDescription("AcceptAllAsOneFileCompletion", ThisObject, ExecutionParameters);
 			
 			AddingOptions = New Structure;
 			AddingOptions.Insert("ResultHandler", Handler);
@@ -958,7 +958,7 @@ Procedure SaveAsSeparateFilesRecursively(Context)
 				GraphicDocumentConversionParameters.ResultType = ResultType;
 			EndIf;
 			
-			Notification = New NotifyDescription("SaveAsSeparateFilesRecursivelyAfterMerging", ThisObject, Context); 
+			Notification = New CallbackDescription("SaveAsSeparateFilesRecursivelyAfterMerging", ThisObject, Context); 
 			FilesOperationsClient.CombineToMultipageFile(Notification, CommonClientServer.ValueInArray(PathToFileLocal), 
 			GraphicDocumentConversionParameters);
 		Else
@@ -966,8 +966,8 @@ Procedure SaveAsSeparateFilesRecursively(Context)
 				Context.ResultBinaryData = New BinaryData(Context.PathToFileLocal);
 			EndIf;
 
-			Notification = New NotifyDescription("SaveAsSeparateFilesRecursivelyCompletion", ThisObject, Context);
-			ExecuteNotifyProcessing(Notification);
+			Notification = New CallbackDescription("SaveAsSeparateFilesRecursivelyCompletion", ThisObject, Context);
+			RunCallback(Notification);
 		EndIf;
 						
 	Else
@@ -1064,8 +1064,8 @@ Procedure SaveAsSeparateFilesRecursivelyAfterMerging(MergeResult, Context) Expor
 		Context.PathToFileLocal = Context.ResultFile;
 	EndIf;
 	
-	Notification = New NotifyDescription("SaveAsSeparateFilesRecursivelyCompletion", ThisObject, Context);
-	ExecuteNotifyProcessing(Notification);
+	Notification = New CallbackDescription("SaveAsSeparateFilesRecursivelyCompletion", ThisObject, Context);
+	RunCallback(Notification);
 EndProcedure
 
 &AtClient
@@ -1080,7 +1080,7 @@ EndProcedure
 Procedure BeginScan()
 	
 	If Attachable_Module = Undefined Then
-		NotifyDescription = New NotifyDescription("StartScanAfterAddInObtained", ThisObject);
+		NotifyDescription = New CallbackDescription("StartScanAfterAddInObtained", ThisObject);
 		FilesOperationsInternalClient.InitAddIn(NotifyDescription, True);
 		Return;
 	EndIf;
@@ -1110,7 +1110,8 @@ Procedure DoStartScan()
 	ScanJobParameters.Insert("ScanningParameters", ScanningParameters);
 		
 #If Not WebClient Then
-	PictureAddress = PutToTempStorage(PictureLib.TimeConsumingOperation48.GetBinaryData(), UUID);
+	PictureAddress = PutToTempStorage(PictureLib.TimeConsumingOperation48.GetBinaryData(), 
+		UUID);
 #EndIf
 	CommonServerCall.CommonSettingsStorageSave("ScanAddIn", "ScanJobParameters", 
 		ScanJobParameters,,,True);

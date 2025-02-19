@@ -115,8 +115,7 @@ Function PrefixTable() Export
 	Return "Table_";
 EndFunction
 	
-////////////////////////////////////////////////////////////////////////////////
-// Define the reference type.
+#Region DefiningRefType
 
 // Parameters:
 //  ObjectRef  - AnyRef - a reference, to which a check is required.
@@ -177,8 +176,9 @@ Function IsSubject(ObjectRef) Export
 	
 EndFunction 
 
-////////////////////////////////////////////////////////////////////////////////
-// Miscellaneous.
+#EndRegion
+
+#Region Other
 
 // Parameters:
 //  FileName  - String - a checked file name.
@@ -641,8 +641,10 @@ EndFunction
 
 Function InteractionSubject1(Subject) Export
 
-	Return ?(IsBlankString(Subject), NStr("en = '<No Subject>';"), Subject);
+	Return ?(IsBlankString(Subject), NStr("en = '<No subject>';"), Subject);
 
 EndFunction 
+
+#EndRegion
 
 #EndRegion

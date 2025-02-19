@@ -16,6 +16,10 @@ Procedure OnWrite(Cancel, Replacing)
 	If DataExchange.Load Then
 		Return;
 	EndIf;
+	
+	If Common.IsRecordSetDeletion(Replacing) Then
+		Return;
+	EndIf;
 
 	If Not AdditionalProperties.Property("ReminderID") Then
 		Return;

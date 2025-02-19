@@ -19,10 +19,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	SkipRestart = Parameters.SkipRestart;
 	
-	DocumentTemplate = DataProcessors.LegitimateSoftware.GetTemplate(
-		"UpdateDistributionTerms");
+	WarningText = TextFromUpdateDistributionTermsTemplate();
 	
-	WarningText = DocumentTemplate.GetText();
 	FileInfobase = Common.FileInfobase();
 	
 	// StandardSubsystems.MonitoringCenter
@@ -52,13 +50,53 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 EndProcedure
 
+&AtServerNoContext
+Function TextFromUpdateDistributionTermsTemplate()
+
+	CodeCurrentLanguage = ?(TypeOf(CurrentLanguage()) = Type("String"), CurrentLanguage(), CurrentLanguage().LanguageCode);
+	TemplateName = "UpdateDistributionTerms";
+	
+	InformationTemplate = Undefined;
+	If Metadata.Languages.Count() > 0 Then
+		InformationTemplate = Metadata.DataProcessors.LegitimateSoftware.Templates.Find(
+			StrTemplate("%1_%2", TemplateName, CodeCurrentLanguage));
+	EndIf;
+	
+	If InformationTemplate = Undefined Then
+		InformationTemplate = Metadata.DataProcessors.LegitimateSoftware.Templates.Find(TemplateName);
+	EndIf;
+	
+	If InformationTemplate = Undefined Then
+		InformationTemplate = Metadata.DataProcessors.LegitimateSoftware.Templates.Find(
+			StrTemplate("%1_%2", TemplateName, Common.DefaultLanguageCode()));
+	EndIf;
+	
+	If InformationTemplate = Undefined Then
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'The required template %2 is missing from the data processor %1.';"),
+				Metadata.DataProcessors.LegitimateSoftware.Name, TemplateName);
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
+ 	EndIf;
+	
+	DocumentTemplate = DataProcessors.LegitimateSoftware.GetTemplate(
+		InformationTemplate.Name);
+	
+	Return DocumentTemplate.GetText();
+	
+EndFunction
+
 &AtClient
 Procedure OnOpen(Cancel)
 	
+	EnablingPatches = StrFind(LaunchParameter, "EnablePatchesAndExit") > 0;
+	UpdateWithExit = StrFind(LaunchParameter, "UpdateAndExit") > 0;
+	
 	If FileInfobase
-	   And StrFind(LaunchParameter, "UpdateAndExit") > 0 Then
+	   And (EnablingPatches Or UpdateWithExit) Then
 		
-		WriteLegitimateSoftwareConfirmation();
+		If UpdateWithExit Then
+			WriteLegitimateSoftwareConfirmation();
+		EndIf;
 		Cancel = True;
 		StandardSubsystemsClient.SetFormStorageOption(ThisObject, True);
 		AttachIdleHandler("ConfirmSoftwareLicense", 0.1, True);
@@ -111,7 +149,7 @@ Procedure ConfirmSoftwareLicense()
 	
 	StandardSubsystemsClient.SetFormStorageOption(ThisObject, False);
 	
-	ExecuteNotifyProcessing(OnCloseNotifyDescription, True);
+	RunCallback(CallbackDescriptionOnClose, True);
 	
 EndProcedure
 

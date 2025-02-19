@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<AutoTitle>false</AutoTitle>
 	<CommandBarLocation>None</CommandBarLocation>
 	<MobileDeviceCommandBarContent>
@@ -1271,22 +1271,8 @@
 													<v8:content>Status</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="ElectronicSignaturesVerificationResultIsShortContextMenu" id="324"/>
-											<ExtendedTooltip name="ElectronicSignaturesVerificationResultIsShortExtendedTooltip" id="325"/>
-										</InputField>
-										<InputField name="DigitalSignaturesSignatureValidationDate" id="151">
-											<DataPath>DigitalSignatures.SignatureValidationDate</DataPath>
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Date verified</v8:content>
-												</v8:item>
-											</Title>
-											<EditMode>EnterOnInput</EditMode>
-											<AutoCellHeight>true</AutoCellHeight>
-											<Width>10</Width>
-											<ContextMenu name="DigitalSignaturesSignatureValidationDateContextMenu" id="152"/>
-											<ExtendedTooltip name="DigitalSignaturesSignatureValidationDateExtendedTooltip" id="153"/>
+											<ContextMenu name="DigitalSignaturesBriefVerificationResultContextMenu" id="324"/>
+											<ExtendedTooltip name="DigitalSignaturesBriefVerificationResultExtendedTooltip" id="325"/>
 										</InputField>
 										<InputField name="DigitalSignaturesMachineReadableLetterOfAuthority" id="315">
 											<DataPath>DigitalSignatures.MachineReadableLetterOfAuthority</DataPath>
@@ -1301,6 +1287,20 @@
 											<AutoMaxHeight>false</AutoMaxHeight>
 											<ContextMenu name="DigitalSignaturesMachineReadableLetterOfAuthorityContextMenu" id="316"/>
 											<ExtendedTooltip name="DigitalSignaturesMachineReadableLetterOfAuthorityExtendedTooltip" id="317"/>
+										</InputField>
+										<InputField name="DigitalSignaturesSignatureValidationDate" id="151">
+											<DataPath>DigitalSignatures.SignatureValidationDate</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Date verified</v8:content>
+												</v8:item>
+											</Title>
+											<EditMode>EnterOnInput</EditMode>
+											<AutoCellHeight>true</AutoCellHeight>
+											<Width>10</Width>
+											<ContextMenu name="DigitalSignaturesSignatureValidationDateContextMenu" id="152"/>
+											<ExtendedTooltip name="DigitalSignaturesSignatureValidationDateExtendedTooltip" id="153"/>
 										</InputField>
 									</ChildItems>
 								</ColumnGroup>
@@ -1332,21 +1332,6 @@
 								</CheckBoxField>
 							</ChildItems>
 						</Table>
-						<LabelDecoration name="Instruction" id="190">
-							<AutoMaxWidth>false</AutoMaxWidth>
-							<Title formatted="false">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Troubleshooting issues with digital signing apps</v8:content>
-								</v8:item>
-							</Title>
-							<Hyperlink>true</Hyperlink>
-							<ContextMenu name="InstructionContextMenu" id="191"/>
-							<ExtendedTooltip name="InstructionExtendedTooltip" id="192"/>
-							<Events>
-								<Event name="Click">InstructionClick</Event>
-							</Events>
-						</LabelDecoration>
 					</ChildItems>
 				</Page>
 				<Page name="EncryptionCertificatesGroup" id="28">
@@ -1498,7 +1483,7 @@
 		</Attribute>
 		<Attribute name="CopyingValue" id="2">
 			<Type>
-				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+				<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
 			</Type>
 		</Attribute>
 		<Attribute name="CatalogName" id="3">
@@ -1573,7 +1558,7 @@
 				</Column>
 				<Column name="Object" id="5">
 					<Type>
-						<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+						<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
 					</Type>
 				</Column>
 				<Column name="SignatureAddress" id="6">
@@ -2393,13 +2378,13 @@
 	<Parameters>
 		<Parameter name="Key">
 			<Type>
-				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+				<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
 			</Type>
 			<KeyParameter>true</KeyParameter>
 		</Parameter>
 		<Parameter name="CopyingValue">
 			<Type>
-				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+				<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
 			</Type>
 			<KeyParameter>true</KeyParameter>
 		</Parameter>
@@ -2410,7 +2395,7 @@
 		</Parameter>
 		<Parameter name="AttachedFile">
 			<Type>
-				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+				<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
 			</Type>
 			<KeyParameter>true</KeyParameter>
 		</Parameter>
@@ -2425,7 +2410,7 @@
 		</Parameter>
 		<Parameter name="FileOwner">
 			<Type>
-				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+				<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
 			</Type>
 		</Parameter>
 		<Parameter name="CreateMode">

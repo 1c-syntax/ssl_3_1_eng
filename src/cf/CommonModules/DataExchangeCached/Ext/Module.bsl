@@ -12,8 +12,11 @@
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Instead, use the new function (See DataExchangeServer.IsStandaloneWorkplace).
-// .
+// Deprecated. Instead, use the new function
+//  See DataExchangeServer.IsStandaloneWorkplace.
+// 
+// Returns:
+//  Boolean
 //
 Function IsStandaloneWorkplace() Export
 	
@@ -21,8 +24,15 @@ Function IsStandaloneWorkplace() Export
 	
 EndFunction
 
-// Deprecated. Instead, use the new function (See DataExchangeServer.ExchangePlanNodeByCode).
-// .
+// Deprecated. Instead, use the new function
+//  See DataExchangeServer.ExchangePlanNodeByCode.
+// 
+// Parameters:
+//  ExchangePlanName - String -  Exchange plan name
+//  NodeCode - String - Node code
+// 
+// Returns:
+//   See DataExchangeServer.ExchangePlanNodeByCode
 //
 Function FindExchangePlanNodeByCode(ExchangePlanName, NodeCode) Export
 	
@@ -130,6 +140,20 @@ Function IsStandaloneWorkstationNode(Val InfobaseNode) Export
 	
 EndFunction
 
+// Returns the flag showing whether the node belongs to DIB exchange plan.
+//
+// Parameters:
+//  InfobaseNode - ExchangePlanRef - an exchange plan node that requires receiving the function value.
+//
+//  Returns:
+//    Boolean - If True, the node belongs to the exchange plan of the distributed infobase. Otherwise, False.
+//
+Function IsDistributedInfobaseNode(Val InfobaseNode) Export
+
+	Return InfobaseNode.Metadata().DistributedInfoBase;
+	
+EndFunction
+
 // See DataExchangeServer.ExchangePlanSettings
 Function ExchangePlanSettings(ExchangePlanName, CorrespondentVersion = "", CorrespondentName = "", CorrespondentInSaaS = Undefined) Export
 	Return DataExchangeServer.ExchangePlanSettings(ExchangePlanName, CorrespondentVersion, CorrespondentName, CorrespondentInSaaS);
@@ -141,11 +165,14 @@ Function SettingOptionDetails(ExchangePlanName, SettingID,
 	Return DataExchangeServer.SettingOptionDetails(ExchangePlanName, SettingID, 
 								CorrespondentVersion, CorrespondentName);
 EndFunction
-////////////////////////////////////////////////////////////////////////////////
-// The mechanism of object registration on exchange plan nodes (ORM).
+
+#Region ObjectRegistrationMechanismOnORMExchangePlansNodes
 
 // Gets the name of this infobase from a constant or a configuration synonym.
 // (For internal use only).
+// 
+// Returns:
+//  String
 //
 Function ThisInfobaseName() Export
 	
@@ -163,7 +190,7 @@ Function ThisInfobaseName() Export
 EndFunction
 
 // Gets a code of a predefined exchange plan node.
-//
+// 
 // Parameters:
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 // 
@@ -432,7 +459,7 @@ EndFunction
 //  ExchangePlanNode - ExchangePlanRef - an exchange plan node.
 // 
 // Returns:
-//  Имя - String - a name of the exchange plan as a metadata object.
+//  String - Name of the exchange plan as a metadata object.
 //
 Function GetExchangePlanName(ExchangePlanNode) Export
 	
@@ -501,10 +528,14 @@ Function SeparatedSSLExchangePlans() Export
 EndFunction
 
 // It determines whether versioning is used.
-//
+// 
 // Parameters:
 //  Sender - ExchangePlanRef - determines
-//		whether object version creating is needed for the passed node if the parameter is passed.
+//   whether object version creating is needed for the passed node if the parameter is passed.
+//  CheckAccessRights - Boolean
+// 
+// Returns:
+//  Boolean
 //
 Function VersioningUsed(Sender = Undefined, CheckAccessRights = False) Export
 	
@@ -565,7 +596,7 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 //
 //  Returns:
-//    Boolean - If True, cache was used. If False, requests to ""SynchronizedObjectPublicIDs" were used.
+//    Boolean - If True, the cache was used. If False, requests to "SynchronizedObjectPublicIDs" were used.
 // 
 Function UseCacheOfPublicIdentifiers(Val ExchangePlanName) Export
 	
@@ -591,14 +622,102 @@ Function ThisIsGlobalExchangeThroughUniversalFormat(Val ExchangePlanName) Export
 	
 EndFunction
 
+// Returns an array of version numbers supported by correspondent API for the DataExchange subsystem.
+// 
+// Parameters:
+//   Peer - Structure
+//                 - ExchangePlanRef - Exchange plan node that corresponds
+//                 the correspondent infobase.
+//
+// Returns:
+//   Array of String - Array of version numbers that are supported by correspondent API.
+//
+Function CorrespondentVersions(Val Peer) Export
+	
+	If TypeOf(Peer) = Type("Structure") Then
+		SettingsStructure_ = Peer;
+	Else
+		If DataExchangeCached.IsMessagesExchangeNode(Peer) Then
+			ModuleMessagesExchangeTransportSettings = Common.CommonModule("InformationRegisters.MessageExchangeTransportSettings");
+			SettingsStructure_ = ModuleMessagesExchangeTransportSettings.TransportSettingsWS(Peer);
+		EndIf;
+	EndIf;
+	
+	ConnectionParameters = New Structure;
+	ConnectionParameters.Insert("URL",      SettingsStructure_.WSWebServiceURL);
+	ConnectionParameters.Insert("UserName", SettingsStructure_.WSUserName);
+	ConnectionParameters.Insert("Password", SettingsStructure_.WSPassword);
+	
+	Return Common.GetInterfaceVersions(ConnectionParameters, "DataExchange");
+	
+EndFunction
 
+// Gets a predefined exchange plan node.
+// 
+// Parameters:
+//  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
+// 
+// Returns:
+//  ExchangePlanRef - Predefined exchange plan node.
+//
+Function GetThisExchangePlanNode(ExchangePlanName) Export
+	
+	Return ExchangePlans[ExchangePlanName].ThisNode();
+	
+EndFunction
+
+// Returns the flag showing that the node belongs to a standard exchange plan (without conversion rules).
+//
+// Parameters:
+//  ExchangePlanName - String - a name of the exchange plan which requires the function value.
+//
+//  Returns:
+//    Boolean - True if the node belongs to the standard exchange plan. Otherwise, False.
+//
+Function IsStandardDataExchangeNode(ExchangePlanName) Export
+	
+	If DataExchangeServer.IsXDTOExchangePlan(ExchangePlanName) Then
+		Return False;
+	EndIf;
+	
+	Return Not DataExchangeCached.IsDistributedInfobaseExchangePlan(ExchangePlanName)
+		And Not DataExchangeCached.HasExchangePlanTemplate(ExchangePlanName, "ExchangeRules");
+	
+EndFunction
+
+// Returns an array of all nodes of the specified exchange plan but the predefined node.
+//
+// Parameters:
+//  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
+// 
+// Returns:
+//  Array of ExchangePlanRef - Array of all nodes of the specified exchange plan but the predefined node.
+//
+Function ExchangePlanNodes(ExchangePlanName) Export
+	
+	SetPrivilegedMode(True);
+	
+	Query = New Query(
+		"SELECT
+		|	ExchangePlan.Ref AS Ref
+		|FROM
+		|	#ExchangePlanTableName AS ExchangePlan
+		|WHERE
+		|	NOT ExchangePlan.ThisNode");
+	
+	Query.Text = StrReplace(Query.Text, "#ExchangePlanTableName", "ExchangePlan." + ExchangePlanName);
+	
+	Return Query.Execute().Unload().UnloadColumn("Ref");
+	
+EndFunction
+
+#EndRegion
 
 #EndRegion
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// The mechanism of object registration on exchange plan nodes (ORM).
+#Region ObjectRegistrationMechanismOnORMExchangePlansNodes
 
 // Retrieves the table of object registration rules for the exchange plan.
 //
@@ -690,6 +809,9 @@ Function ExchangePlanContainsObject(Val ExchangePlanName, Val FullObjectName) Ex
 EndFunction
 
 // Returns a list of exchange plans that contain at least one exchange node (ignoring ThisNode).
+// 
+// Returns:
+//   See DataExchangeServer.GetExchangePlansInUse
 //
 Function ExchangePlansInUse() Export
 	
@@ -763,7 +885,7 @@ EndFunction
 // Returns the object export mode based on the custom exchange plan content (user settings).
 //
 // Parameters:
-//  ObjectName - a metadata object full name. Export mode is retrieved for this metadata object;
+//  ObjectName - String -  a metadata object full name. Export mode is retrieved for this metadata object;
 //  Recipient - ExchangePlanRef - an exchange plan node reference. The function gets custom content from this node.
 //
 // Returns:
@@ -804,53 +926,6 @@ Function ObjectsExportModesPriorities()
 	Return Result;
 EndFunction
 
-// Gets a predefined exchange plan node.
-//
-// Parameters:
-//  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
-// 
-// Returns:
-//  ЭтотУзел - ExchangePlanRef - a predefined exchange plan node.
-//
-Function GetThisExchangePlanNode(ExchangePlanName) Export
-	
-	Return ExchangePlans[ExchangePlanName].ThisNode();
-	
-EndFunction
-
-// Returns the flag showing whether the node belongs to DIB exchange plan.
-//
-// Parameters:
-//  InfobaseNode - ExchangePlanRef - an exchange plan node that requires receiving the function value.
-//
-//  Returns:
-//    Boolean - If True, the node belongs to the exchange plan of the distributed infobase. Otherwise, False.
-//
-Function IsDistributedInfobaseNode(Val InfobaseNode) Export
-
-	Return InfobaseNode.Metadata().DistributedInfoBase;
-	
-EndFunction
-
-// Returns the flag showing that the node belongs to a standard exchange plan (without conversion rules).
-//
-// Parameters:
-//  ExchangePlanName - String - a name of the exchange plan which requires the function value.
-//
-//  Returns:
-//    Boolean - True if the node belongs to the standard exchange plan. Otherwise, False.
-//
-Function IsStandardDataExchangeNode(ExchangePlanName) Export
-	
-	If DataExchangeServer.IsXDTOExchangePlan(ExchangePlanName) Then
-		Return False;
-	EndIf;
-	
-	Return Not DataExchangeCached.IsDistributedInfobaseExchangePlan(ExchangePlanName)
-		And Not DataExchangeCached.HasExchangePlanTemplate(ExchangePlanName, "ExchangeRules");
-	
-EndFunction
-
 // Returns the flag showing whether the node belongs to a universal exchange plan (using conversion rules).
 //
 // Parameters:
@@ -870,7 +945,7 @@ Function IsUniversalDataExchangeNode(InfobaseNode) Export
 	
 EndFunction
 
-// Returns the flag showing whether the node belongs to an exchange plan that uses SSL exchange functionality.
+// Returns the flag showing whether the node belongs to an exchange plan that uses SSL exchange functionality.
 //
 // Parameters:
 //  InfobaseNode - ExchangePlanRef
@@ -900,7 +975,7 @@ Function IsSeparatedSSLDataExchangeNode(InfobaseNode) Export
 	
 EndFunction
 
-// Returns the flag showing whether the node belongs to the exchange plan used for message exchange.
+// Returns the flag showing whether the node belongs to the exchange plan used for message exchange.
 //
 // Parameters:
 //  InfobaseNode - ExchangePlanRef - an exchange plan node that requires receiving the function value.
@@ -925,7 +1000,7 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 // 
 // Returns:
-//  СписокПравил - ValueList - a list of templates of standard exchange rules.
+//   See RulesForExchangePlanFromConfiguration.
 //
 Function ConversionRulesForExchangePlanFromConfiguration(ExchangePlanName) Export
 	
@@ -940,7 +1015,7 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 // 
 // Returns:
-//  СписокПравил - ValueList - a list of templates of standard registration rules.
+//   See RulesForExchangePlanFromConfiguration
 //
 Function RegistrationRulesForExchangePlanFromConfiguration(ExchangePlanName) Export
 	
@@ -950,12 +1025,9 @@ EndFunction
 
 // Gets a list of configuration exchange plans that use the SSL functionality.
 // The list is filled with names and synonyms of exchange plans.
-//
-// Parameters:
-//  No.
 // 
 // Returns:
-//  СписокПлановОбмена - ValueList - a list of configuration exchange plans.
+//  ValueList of String - List of configuration exchange plans.
 //
 Function SSLExchangePlansList() Export
 	
@@ -977,6 +1049,13 @@ Function SSLExchangePlansList() Export
 EndFunction
 
 // For internal use.
+// 
+// Parameters:
+//  InfobaseNode - ExchangePlanRef - Exchange plan node that requires 
+//                           receiving the function value.
+// 
+// Returns:
+//  String 
 //
 Function CommonNodeData(Val InfobaseNode) Export
 	
@@ -986,6 +1065,17 @@ Function CommonNodeData(Val InfobaseNode) Export
 EndFunction
 
 // For internal use.
+// 
+// Parameters:
+//  ExchangePlanName - String - Exchange plan name as it is set in Designer.
+//  CorrespondentVersion - String
+//  SettingID - String
+// 
+// Returns:
+//  Structure - Exchange plan tables:
+//    * CommonTables - Array of String
+//    * ThisInfobaseTables - Array of String
+//    * AllTablesOfThisInfobase - Array of String
 //
 Function ExchangePlanTabularSections(Val ExchangePlanName, Val CorrespondentVersion = "", Val SettingID = "") Export
 	
@@ -1073,6 +1163,15 @@ Function GetExchangePlanManagerByName(ExchangePlanName) Export
 EndFunction
 
 // Wrapper of the function with the same name.
+// 
+// Parameters:
+//   Filter - Structure - Contains filter item values.
+//						If specified, a metadata tree is obtained considering the passed filter:
+//            Key - String - Name of the metadata item property.
+//            Value - Array - An array of values for the filter.
+// 
+// Returns:
+//   See DataExchangeServer.ConfigurationMetadataTree
 //
 Function ConfigurationMetadata(Filter) Export
 	
@@ -1087,14 +1186,21 @@ Function ConfigurationMetadata(Filter) Export
 EndFunction
 
 // For internal use.
+// 
+// Parameters:
+//  InfobaseNode - ExchangePlanRef - Exchange plan node that requires 
+//                           receiving the function value.
+//  ExchangeMessageFileName - String
+// 
+// Returns:
+//   See DataExchangeServer.ExchangeSettingsForInfobaseNode
 //
 Function ExchangeSettingsStructureForInteractiveImportSession(InfobaseNode, ExchangeMessageFileName) Export
 	
 	ExchangeSettingsStructure = DataExchangeServer.ExchangeSettingsForInfobaseNode(
 		InfobaseNode,
 		Enums.ActionsOnExchange.DataImport,
-		Undefined,
-		False);
+		Undefined);
 		
 	ExchangeSettingsStructure.DataExchangeDataProcessor.ExchangeFileName = ExchangeMessageFileName;
 	
@@ -1103,134 +1209,29 @@ Function ExchangeSettingsStructureForInteractiveImportSession(InfobaseNode, Exch
 EndFunction
 
 // Wrapper of the function with the same name from the DataExchangeEvents module.
+// 
+// Parameters:
+//  PropertiesValues - Structure - Structure containing object property values from the rules
+//  QueryText - String - Query text from the rules
+//  ExchangePlanName - String - Exchange plan name as it is set in Designer.
+//  FlagAttributeName - String
+//  Upload0 - Boolean
+// 
+// Returns:
+//   See DataExchangeEvents.NodesArrayByPropertiesValues
 //
 Function NodesArrayByPropertiesValues(PropertiesValues, QueryText, ExchangePlanName, FlagAttributeName, Val Upload0 = False) Export
 	
 	SetPrivilegedMode(True);
 	
-	Return DataExchangeEvents.NodesArrayByPropertiesValues(PropertiesValues, QueryText, ExchangePlanName, FlagAttributeName, Upload0);
-	
-EndFunction
-
-// Returns a collection of exchange message transports that can be used for the specified exchange plan node.
-//
-// Parameters:
-//  InfobaseNode - ExchangePlanRef - an exchange plan node that requires receiving the function value.
-//  SettingsMode       - String           - ID of data synchronization setup option.
-// 
-//  Returns:
-//   Array - message transports that are used for the specified exchange plan node.
-//
-Function UsedExchangeMessagesTransports(InfobaseNode, Val SettingsMode = "") Export
-	
-	ExchangePlanName = DataExchangeCached.GetExchangePlanName(InfobaseNode);
-	
-	If Not InfobaseNode.IsEmpty() Then
-		SettingsMode = DataExchangeServer.SavedExchangePlanNodeSettingOption(InfobaseNode);
-	EndIf;
-	
-	SettingOptionDetails = DataExchangeCached.SettingOptionDetails(ExchangePlanName,  
-		SettingsMode, "", "");
-	
-	Result = SettingOptionDetails.UsedExchangeMessagesTransports;
-	
-	If Result.Count() = 0 Then
-		Result = DataExchangeServer.AllConfigurationExchangeMessagesTransports();
-	EndIf;
-	
-	// Data exchange over COM connections is not supported by:
-	//  - Configurations with the basic license
-	//  - Distributed infobases
-	//  - Exchange without conversion rules
-	//  - 1C:Enterprise servers that run on Linux
-	//
-	If StandardSubsystemsServer.IsBaseConfigurationVersion()
-		Or DataExchangeCached.IsDistributedInfobaseExchangePlan(ExchangePlanName)
-		Or DataExchangeCached.IsStandardDataExchangeNode(ExchangePlanName)
-		Or Common.IsLinuxServer() Then
-		
-		CommonClientServer.DeleteValueFromArray(Result,
-			Enums.ExchangeMessagesTransportTypes.COM);
-			
-	EndIf;
-	
-	// Data exchange over WS connections is not supported by:
-	//  - Distributed infobases that are not a standalone workstation
-	//
-	If DataExchangeCached.IsDistributedInfobaseExchangePlan(ExchangePlanName)
-		And Not DataExchangeCached.IsStandaloneWorkstationNode(InfobaseNode) Then
-		
-		CommonClientServer.DeleteValueFromArray(Result,
-			Enums.ExchangeMessagesTransportTypes.WS);
-		
-	EndIf;
-	
-	// Data exchange over passive WS connections is not supported by:
-	//  - Non-XDTO data exchange
-	//  - File infobases
-	//
-	If Not DataExchangeCached.IsXDTOExchangePlan(ExchangePlanName)
-		Or Common.FileInfobase() Then
-		
-		CommonClientServer.DeleteValueFromArray(Result,
-			Enums.ExchangeMessagesTransportTypes.WSPassiveMode);
-		
-	EndIf;
-	
-	// Data exchange over email is not supported when:
-	//  - "Email management" subsystem is unavailable
-	//  - The configuration cannot receive email messages
-	If Common.SubsystemExists("StandardSubsystems.EmailOperations") Then
-		ModuleEmailOperationsInternal = Common.CommonModule("EmailOperationsInternal");
-		If Not ModuleEmailOperationsInternal.CanReceiveEmails() Then
-			CommonClientServer.DeleteValueFromArray(Result,
-				Enums.ExchangeMessagesTransportTypes.EMAIL);
-		EndIf;
+	If TypeOf(PropertiesValues) = Type("String") Then
+		PropertyValuesStructure = Common.ValueFromXMLString(PropertiesValues);
 	Else
-		CommonClientServer.DeleteValueFromArray(Result,
-			Enums.ExchangeMessagesTransportTypes.EMAIL);
+		PropertyValuesStructure = PropertiesValues;
 	EndIf;
 	
-	Return Result;
-	
-EndFunction
-
-// Establishes an external connection to the infobase and returns a reference to this connection.
-// 
-// Parameters:
-//  InfobaseNode - ExchangePlanRef - Exchange plan node for which
-//  the external connection is required.
-//  ErrorMessageString - String - if establishing connection fails,
-//   this parameter will store the error details.
-//
-// Returns:
-//  COM-object - If the connection is established. Undefined - If an error occurred.
-//
-Function GetExternalConnectionForInfobaseNode(InfobaseNode, ErrorMessageString = "") Export
-
-	Result = ExternalConnectionForInfobaseNode(InfobaseNode);
-
-	ErrorMessageString = Result.DetailedErrorDetails;
-	Return Result.Join;
-	
-EndFunction
-
-// Establishes an external connection to the infobase and returns a reference to this connection.
-// 
-// Parameters:
-//  InfobaseNode - ExchangePlanRef - exchange plan node for which
-//  the external connection is required.
-//  ErrorMessageString (optional) - String - if establishing connection fails,
-//   this parameter will store the error details.
-//
-// Returns:
-//  COM-object - If the connection is established. Undefined - If an error occurred.
-//
-Function ExternalConnectionForInfobaseNode(InfobaseNode) Export
-	
-	Return DataExchangeServer.EstablishExternalConnectionWithInfobase(
-        InformationRegisters.DataExchangeTransportSettings.TransportSettings(
-            InfobaseNode, Enums.ExchangeMessagesTransportTypes.COM));
+	Return DataExchangeEvents.NodesArrayByPropertiesValues(
+		PropertyValuesStructure, QueryText, ExchangePlanName, FlagAttributeName, Upload0);
 	
 EndFunction
 
@@ -1277,39 +1278,10 @@ Function ExchangePlanUsageAvailable(Val ExchangePlanName) Export
 	Return False;
 EndFunction
 
-// Returns an array of version numbers supported by correspondent API for the DataExchange subsystem.
-// 
-// Parameters:
-//   Peer - Structure
-//                 - ExchangePlanRef - Exchange plan node that corresponds
-//                 the correspondent infobase.
-//
-// Returns:
-//   Array of version numbers that are supported by correspondent API.
-//
-Function CorrespondentVersions(Val Peer) Export
-	
-	If TypeOf(Peer) = Type("Structure") Then
-		SettingsStructure_ = Peer;
-	Else
-		If DataExchangeCached.IsMessagesExchangeNode(Peer) Then
-			ModuleMessagesExchangeTransportSettings = Common.CommonModule("InformationRegisters.MessageExchangeTransportSettings");
-			SettingsStructure_ = ModuleMessagesExchangeTransportSettings.TransportSettingsWS(Peer);
-		Else
-			SettingsStructure_ = InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(Peer);
-		EndIf;
-	EndIf;
-	
-	ConnectionParameters = New Structure;
-	ConnectionParameters.Insert("URL",      SettingsStructure_.WSWebServiceURL);
-	ConnectionParameters.Insert("UserName", SettingsStructure_.WSUserName);
-	ConnectionParameters.Insert("Password", SettingsStructure_.WSPassword);
-	
-	Return Common.GetInterfaceVersions(ConnectionParameters, "DataExchange");
-	
-EndFunction
-
 // Returns an array of all reference types available in the configuration.
+// 
+// Returns:
+//  Array of Type - All reference types in the configuration.
 //
 Function AllConfigurationReferenceTypes() Export
 	
@@ -1384,16 +1356,15 @@ Function RegistrationWhileLooping(InfobaseNode) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Initialization of the data exchange settings structure.
-
-// Gets the transport settings structure for data exchange.
-//
-Function TransportSettingsOfExchangePlanNode(InfobaseNode, ExchangeMessagesTransportKind) Export
+Function WSProxy(ConnectionParameters, ErrorMessage = "", UserMessage = "") Export
 	
-	Return DataExchangeServer.ExchangeTransportSettings(InfobaseNode, ExchangeMessagesTransportKind);
+	Return DataExchangeWebService.WSProxy(ConnectionParameters, ErrorMessage, UserMessage);
 	
 EndFunction
+
+#EndRegion
+
+#Region InitializeDataExchangeSettingsStructure
 
 // Gets a list of templates of standard rules for data exchange from configuration for the specified exchange plan;
 // The list contains names and synonyms of the rule templates.
@@ -1402,7 +1373,7 @@ EndFunction
 //  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 // 
 // Returns:
-//  СписокПравил - ValueList - a list of templates of standard rules for data exchange.
+//  ValueList of String - List of templates of standard rules for data exchange.
 //
 Function RulesForExchangePlanFromConfiguration(ExchangePlanName, TemplateNameLiteral)
 	
@@ -1687,5 +1658,7 @@ Function IsConstant(FullObjectName) Export
 	Return Common.IsConstant(MetadataObject);
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion

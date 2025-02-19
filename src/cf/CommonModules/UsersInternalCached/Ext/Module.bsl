@@ -15,22 +15,26 @@ Function AllRoles() Export
 	
 	Array = New Array;
 	Map = New Map;
+	List = New ValueList;
 	
 	Table = New ValueTable;
 	Table.Columns.Add("Name", New TypeDescription("String", , New StringQualifiers(256)));
 	
 	For Each Role In Metadata.Roles Do
 		NameOfRole = Role.Name;
+		RolePresentation = Role.Presentation();
 		
 		Array.Add(NameOfRole);
-		Map.Insert(NameOfRole, Role.Synonym);
+		Map.Insert(NameOfRole, RolePresentation);
 		Table.Add().Name = NameOfRole;
+		List.Add(NameOfRole, RolePresentation);
 	EndDo;
 	
 	AllRoles = New Structure;
 	AllRoles.Insert("Array",       New FixedArray(Array));
 	AllRoles.Insert("Map", New FixedMap(Map));
-	AllRoles.Insert("Table",      New ValueStorage(Table));
+	AllRoles.Insert("Table",      New ValueStorage(Table, New Deflation(9)));
+	AllRoles.Insert("List",       New ValueStorage(List, New Deflation(9)));
 	
 	Return Common.FixedData(AllRoles, False);
 	
@@ -359,8 +363,7 @@ Function RolesTree(BySubsystems = True, Purpose = "ForUsers") Export
 	EndDo;
 	
 	Tree.Rows.Sort("IsRole Desc, Synonym Asc", True);
-	
-	Return New ValueStorage(Tree);
+	Return New ValueStorage(Tree, New Deflation(9));
 	
 EndFunction
 
@@ -455,12 +458,12 @@ Function RefKindsProperties() Export
 	For Each RefsKind In RefsKinds Do
 		If Result.Get(RefsKind.Name) <> Undefined Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The reference kind name ""%1"" is already defined.';"), RefsKind.Name);
+				NStr("en = 'The reference type name ""%1"" is already defined.';"), RefsKind.Name);
 			Raise ErrorText;
 		EndIf;
 		If AllParametersNames.Get(RefsKind.ParameterNameExtensionsOperation) <> Undefined Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Extension parameter name in reference kind ""%1"" is already taken:
+				NStr("en = 'Extension parameter name in reference type ""%1"" is already taken:
 				           |""%2"".';"), RefsKind.Name, RefsKind.ParameterNameExtensionsOperation);
 			Raise ErrorText;
 		EndIf;
@@ -494,8 +497,7 @@ Function ExtensionsRoles() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+#Region AuxiliaryProceduresAndFunctions
 
 Procedure FillSubsystemsAndRoles(TreeRowsCollection, Subsystems, UnavailableRoles, AllRoles = Undefined)
 	
@@ -551,7 +553,7 @@ Procedure CheckAssignment(Purpose, ErrorTitle)
 	   And Purpose <> "BothForUsersAndExternalUsers" Then
 		
 		ErrorText = ErrorTitle + Chars.LF + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Parameter %1 ""%2"" has invalid value.
+			NStr("en = 'Parameter %1 ""%2"" has an invalid value.
 			           |
 			           |Valid values are:
 			           | - %3
@@ -568,5 +570,7 @@ Procedure CheckAssignment(Purpose, ErrorTitle)
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

@@ -151,7 +151,7 @@ Procedure SetSubordinateBusinessProcessesState(NewState)
 			BusinessProcessObject = SubordinateBusinessProcess.GetObject();
 			BusinessProcessObject.Lock();
 			BusinessProcessObject.State = NewState;
-			BusinessProcessObject.Write(); // CAC:1327 The lock is set in the BusinessProcessesAndTasksServer.MainTaskBusinessProcesses.
+			BusinessProcessObject.Write(); // ACC:1327 - A lock is set in BusinessProcessesAndTasksServer.MainTaskBusinessProcesses.
 		EndDo;	
 		CommitTransaction();
 	Except

@@ -13,7 +13,7 @@
 // Opens the form for entering infobase and/or cluster administration parameters.
 //
 // Parameters:
-//  OnCloseNotifyDescription - NotifyDescription - a handler that will be called once the administration
+//  OnCloseNotifyDescription - CallbackDescription - a handler that will be called once the administration
 //	                                                   parameters are entered.
 //  PromptForIBAdministrationParameters - Boolean - indicates whether the infobase administration parameters
 //	                                                   must be entered.
@@ -86,8 +86,7 @@ Procedure SetUserTerminationInProgressFlag(Value) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // The procedure is called when a user works interactively with a data area.
 //
@@ -116,7 +115,7 @@ Procedure BeforeStart(Parameters) Export
 		Return;
 	EndIf;
 	
-	Parameters.InteractiveHandler = New NotifyDescription(
+	Parameters.InteractiveHandler = New CallbackDescription(
 		"BeforeStartInteractiveHandler", ThisObject);
 	
 EndProcedure
@@ -179,7 +178,7 @@ EndProcedure
 // The procedure is called during an unsuccessful attempt to set exclusive mode in a file infobase.
 //
 // Parameters:
-//  Notification - NotifyDescription - describes the object which must be passed control after closing this form.
+//  Notification - CallbackDescription - describes the object which must be passed control after closing this form.
 //
 Procedure OnOpenExclusiveModeSetErrorForm(Notification = Undefined, FormParameters = Undefined) Export
 	
@@ -267,7 +266,7 @@ Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
 EndProcedure
 
 // Parameters:
-//  Parameters - 
+//  Parameters - See CommonOverridable.BeforeRecurringClientDataSendToServer.Parameters
 //  AreNotificationsReceived - Boolean - Indicates that all notifications are received for the given period of time
 //                                (via either the Collaboration System or the common server call).
 //
@@ -324,6 +323,8 @@ Procedure AfterRecurringReceiptOfClientDataOnServer(Results) Export
 	OnReceiptServerNotification(ParameterName, Result);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -414,7 +415,7 @@ Procedure SessionTerminationModeManagement(CurrentMode)
 	WaitTimeout    = CurrentMode.SessionTerminationTimeout;
 	ExitWithConfirmationTimeout = WaitTimeout / 3;
 	StopTimeoutSaaS = 60; // One minute before the lock is set.
-	StopTimeout        = 0; // One minute before the lock is set.
+	StopTimeout        = 0; // At the time when the lock is set.
 	CurrentMoment             = CurrentMode.CurrentSessionDate;
 	
 	If LockEndTime <> '00010101' And CurrentMoment > LockEndTime Then
@@ -425,7 +426,7 @@ Procedure SessionTerminationModeManagement(CurrentMode)
 	LockBeginTimeTime = Format(LockBeginTime, "DLF=T");
 	
 	MessageText = IBConnectionsClientServer.ExtractLockMessage(CurrentMode.Message);
-	Template = NStr("en = 'Please save your data. The app will be temporarily unavailable starting %1, %2.
+	Template = NStr("en = 'Please save your data. The application will be temporarily unavailable starting %1, %2.
 		|%3';");
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(Template, LockBeginTimeDate, LockBeginTimeTime, MessageText);
 	
@@ -463,7 +464,7 @@ Procedure EndUserSessions(CurrentMode)
 	CurrentMoment = CurrentMode.CurrentSessionDate;
 	SessionCount = CurrentMode.SessionCount;
 	
-	ClickNotification = New NotifyDescription("OpeningHandlerOfAppWorkBlockForm", ThisObject);
+	ClickNotification = New CallbackDescription("OpeningHandlerOfAppWorkBlockForm", ThisObject);
 	
 	If CurrentMoment < LockBeginTime Then
 		Notify("UsersSessions",
@@ -550,8 +551,8 @@ Procedure TerminateThisSession(OutputQuestion1 = True)
 	
 	SetIsProcedureEndUserSessionsRunning(True);
 	
-	Notification = New NotifyDescription("TerminateThisSessionCompletion", ThisObject);
-	MessageText = NStr("en = 'User access is restricted. Exit the app?';");
+	Notification = New CallbackDescription("TerminateThisSessionCompletion", ThisObject);
+	MessageText = NStr("en = 'User access is restricted. Exit the application?';");
 	Title = NStr("en = 'Close current session';");
 	ShowQueryBox(Notification, MessageText, QuestionDialogMode.YesNo, 60, DialogReturnCode.Yes, Title, DialogReturnCode.Yes);
 	
@@ -622,7 +623,7 @@ EndProcedure
 ///////////////////////////////////////////////////////////////////////////////
 // Notification handlers.
 
-// Suggests to remove the application lock and sign in, or to shut down the application.
+// Prompts users to unlock and log in, or close the application.
 Procedure BeforeStartInteractiveHandler(Parameters, Context) Export
 	
 	ClientParameters = StandardSubsystemsClient.ClientParametersOnStart();
@@ -638,7 +639,7 @@ Procedure BeforeStartInteractiveHandler(Parameters, Context) Export
 		EndIf;
 		Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
 		
-		ResponseHandler = New NotifyDescription(
+		ResponseHandler = New CallbackDescription(
 			"AfterAnswerToPromptToAuthorizeOrUnlock", ThisObject, Parameters);
 		
 		ShowQueryBox(ResponseHandler, QueryText, Buttons, 15,
@@ -665,7 +666,7 @@ Procedure AfterAnswerToPromptToAuthorizeOrUnlock(Response, Parameters) Export
 		Parameters.Cancel = True;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 
@@ -673,7 +674,7 @@ Procedure ShowWarningOnExit(MessageText, LockBeginTime)
 	
 	InformParameters = InformParameters(LockBeginTime);
 	If Not InformParameters.IsNotificationDisplayed Then
-		ShowUserNotification(NStr("en = 'App will be closed';"),, MessageText,, 
+		ShowUserNotification(NStr("en = 'Application will be closed';"),, MessageText,, 
 			UserNotificationStatus.Important, "UserSessionsEndControl");
 		InformParameters.IsNotificationDisplayed = True;
 	EndIf;
@@ -735,7 +736,7 @@ Procedure AskOnTermination(MessageText, LockBeginTime)
 	
 	InformParameters = InformParameters(LockBeginTime);
 	If Not InformParameters.IsNotificationDisplayed Then
-		ShowUserNotification(NStr("en = 'App will be closed';"),, MessageText,,
+		ShowUserNotification(NStr("en = 'Application will be closed';"),, MessageText,,
 			UserNotificationStatus.Important, "UserSessionsEndControl");
 		InformParameters.IsNotificationDisplayed = True;
 	EndIf;
@@ -747,7 +748,7 @@ Procedure AskOnTermination(MessageText, LockBeginTime)
 	QueryText = NStr("en = '%1
 		|Do you want to exit?';");
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(QueryText, MessageText);
-	NotifyDescription = New NotifyDescription("AskOnTerminationCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("AskOnTerminationCompletion", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, 30, DialogReturnCode.Yes);
 	
 EndProcedure
@@ -783,27 +784,34 @@ EndProcedure
 //
 Function ProcessStartParameters(Val StartupParameters)
 
-	If Not CommonClient.SeparatedDataUsageAvailable() Then
-		Return False;
-	EndIf;
-	
 	// Process startup parameters for DisableUserAuthorisation and AllowUserAuthorization.
 	ParameterNameAllowUsers = "AllowUserAuthorization";
 	ParameterNameShutdownUsers = "EndUserSessions";
 	If TheKeyIsContainedInTheStartupParameters(StartupParameters, ParameterNameAllowUsers) Then
 		
+		If Not CommonClient.SeparatedDataUsageAvailable() Then
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'The startup parameter %1 was not processed. First, you need to log in to the data area.';"),
+				ParameterNameAllowUsers);
+			EventLogClient.AddMessageForEventLog(EventLogEvent(),
+				"Warning", MessageText,, True);
+			Return True;
+		EndIf;
+		
 		If Not IBConnectionsServerCall.AllowUserAuthorization() Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The %1 parameter is ignored because you do not have administrative rights.';"),
 				ParameterNameAllowUsers);
-			ShowMessageBox(,MessageText);
-			Return False;
+			EventLogClient.AddMessageForEventLog(EventLogEvent(),
+				"Warning", MessageText,, True);
+			Return True;
 		EndIf;
 		
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'The application is started with parameter %1. The application will be closed.';"),
+				ParameterNameAllowUsers);
 		EventLogClient.AddMessageForEventLog(EventLogEvent(),,
-			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'App was started with parameter %1. App will be closed.';"),
-					ParameterNameAllowUsers), ,True);
+			MessageText,, True);
 		Exit(False);
 		Return True;
 		
@@ -812,8 +820,16 @@ Function ProcessStartParameters(Val StartupParameters)
 	// See the comments to the "EndUserSessions" procedure.
 	ElsIf TheKeyIsContainedInTheStartupParameters(StartupParameters, ParameterNameShutdownUsers) Then
 		
+		If Not CommonClient.SeparatedDataUsageAvailable() Then
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'The startup parameter %1 was not processed. First, you need to log in to the data area.';"),
+				ParameterNameShutdownUsers);
+			EventLogClient.AddMessageForEventLog(EventLogEvent(),
+				"Warning", MessageText,, True);
+			Return True;
+		EndIf;
+
 		AdditionalParameters = AdditionalParametersForUserShutdown();
-		
 		LockSet = IBConnectionsServerCall.SetConnectionLock(
 			AdditionalParameters.MessageText,
 			AdditionalParameters.KeyCode,
@@ -824,18 +840,18 @@ Function ProcessStartParameters(Val StartupParameters)
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The %1 parameter is ignored because you do not have administrative rights.';"),
 				ParameterNameShutdownUsers);
-			ShowMessageBox(,MessageText);
-			Return False;
+			EventLogClient.AddMessageForEventLog(EventLogEvent(),
+				"Warning", MessageText,, True);
+			Return True;
 		EndIf;
 		
-		// Offset cluster administration parameters in case of startup with a key.
 		LaunchParametersRefined = LaunchParametersRefined(StartupParameters, AdditionalParameters);
 		FillInClusterAdministrationParameters(LaunchParametersRefined);
 		
 		SetUserTerminationInProgressFlag(True);
 		CurrentMode = IBConnectionsServerCall.SessionLockParameters(True);
 		EndUserSessions(CurrentMode);
-		Return False; 
+		Return True; 
 		
 	EndIf;
 	Return False;

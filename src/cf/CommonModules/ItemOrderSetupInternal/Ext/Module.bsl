@@ -235,8 +235,8 @@ Function MoveItem(ItemList, CurrentItemRef, Direction) Export
 	DataCompositionSchema = ItemList.GetPerformingDataCompositionScheme();
 	ValueTree = ExecuteQuery(DataCompositionSchema, DataCompositionSettings);
 	If ValueTree = Undefined Then
-		Return NStr("en = 'To change the item sequence, reset the list settings
-			| (Menu More - Use standard settings).';");
+		Return NStr("en = 'To re-order items, reset the list settings.
+			|(In the More actions menu, select Restore default settings.)';");
 	EndIf;
 	
 	ValueTreeRow = ValueTree.Rows.Find(CurrentItemRef, "Ref", True);

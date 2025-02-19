@@ -21,6 +21,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ApplicationInSaaS = StandaloneModeInternal.ApplicationInSaaS();
 	
+	TransportID = ExchangeMessagesTransport.DefaultTransport(ApplicationInSaaS);
+	
 	ScheduledJob = ScheduledJobsServer.GetScheduledJob(
 		Metadata.ScheduledJobs.DataSynchronizationWithWebApplication);
 	
@@ -84,6 +86,30 @@ EndProcedure
 &AtClient
 Procedure PerformDataSynchronization(Command)
 	
+	AuthenticationParameters = ExchangeMessagesTransportClient.AuthenticationParameters();
+	AuthenticationParameters.Peer = ApplicationInSaaS;
+	AuthenticationParameters.TransportID = TransportID;
+		
+	AuthenticationRequired = False;
+	ClosingNotification1 = New CallbackDescription("EndOfAuthentication", ThisObject);
+	ExchangeMessagesTransportClient.StartOfAuthentication(AuthenticationParameters, AuthenticationRequired, ClosingNotification1);
+			
+	If Not AuthenticationRequired Then
+		DataExchangeClient.ExecuteDataExchangeCommandProcessing(ApplicationInSaaS, ThisObject, AccountPasswordRecoveryAddress);
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure EndOfAuthentication(AuthenticationData, AdditionalParameters) Export 
+	
+	If Not ValueIsFilled(AuthenticationData) Then
+		Return;
+	EndIf;
+	
+	ExchangeMessageTransportServerCall.SetDataSynchronizationPassword(
+		ApplicationInSaaS, AuthenticationData);
+	
 	DataExchangeClient.ExecuteDataExchangeCommandProcessing(ApplicationInSaaS, ThisObject, AccountPasswordRecoveryAddress);
 	
 EndProcedure
@@ -92,7 +118,7 @@ EndProcedure
 Procedure ChangeDataSynchronizationSchedule(Command)
 	
 	Dialog = New ScheduledJobDialog(DataSynchronizationSchedule);
-	NotifyDescription = New NotifyDescription("ChangeDataSynchronizationScheduleCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("ChangeDataSynchronizationScheduleCompletion", ThisObject);
 	Dialog.Show(NotifyDescription);
 	
 EndProcedure
@@ -252,9 +278,7 @@ Procedure RefreshVisibilityAtServer()
 		
 	EndIf;
 	
-	TransportSettingsWS = InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(ApplicationInSaaS);
-	
-	SaveUserPassword = TransportSettingsWS.WSRememberPassword;
+	SaveUserPassword = True;
 	
 	SynchronizeDataBySchedule = ScheduledJobsServer.ScheduledJobUsed(Metadata.ScheduledJobs.DataSynchronizationWithWebApplication);
 	
@@ -401,14 +425,14 @@ EndProcedure
 &AtClient
 Procedure SetServiceConnection(AutomaticSynchronizationSetup = False)
 	
-	Filter              = New Structure("Peer", ApplicationInSaaS);
-	FillingValues = New Structure("Peer", ApplicationInSaaS);
-	FormParameters     = New Structure;
+	FormParameters = New Structure;
+	FormParameters.Insert("Peer", ApplicationInSaaS);
+	FormParameters.Insert("TransportID", TransportID);
 	FormParameters.Insert("AccountPasswordRecoveryAddress", AccountPasswordRecoveryAddress);
-	FormParameters.Insert("AutomaticSynchronizationSetup",      AutomaticSynchronizationSetup);
+	FormParameters.Insert("AutomaticSynchronizationSetup", AutomaticSynchronizationSetup);
 	
-	DataExchangeClient.OpenInformationRegisterWriteFormByFilter(Filter,
-		FillingValues, "DataExchangeTransportSettings", ThisObject, "SaaSConnectionSetup", FormParameters);
+	OpenForm("Catalog.ExchangeMessageTransportSettings.Form.SaaSConnectionSetup", 
+		FormParameters, ThisForm,,,,, FormWindowOpeningMode.LockOwnerWindow);
 	
 	RefreshVisibilityAtServer();
 	
@@ -434,7 +458,7 @@ Procedure SetScheduledJobUsage(Val SynchronizeDataBySchedule)
 	
 EndProcedure
 
-// Predefined data synchronization schedules
+// Предопределенные расписания синхронизации данных
 
 &AtServerNoContext
 Function PredefinedScheduleOption1() // Every 15 minutes

@@ -12,6 +12,9 @@
 
 #Region Public
 
+#Region ObsoleteProceduresAndFunctions
+
+// Deprecated. Instead, use "SourceDocumentsOriginalsRecording.WriteDocumentOriginalsStatesAfterPrintForm".
 // Records states of print form originals to the register after printing the form.
 //
 //	Parameters:
@@ -20,6 +23,9 @@
 //  Written1 - Boolean - indicates that the document state is written to the register.
 //
 Procedure WriteDocumentOriginalsStatesAfterPrintForm(PrintObjects, PrintForms, Written1 = False) Export
+	
+	SSLSubsystemsIntegration.BeforeWriteOriginalStatesAfterPrint(PrintObjects, PrintForms);
+	SourceDocumentsOriginalsRecordingOverridable.BeforeWriteOriginalStatesAfterPrint(PrintObjects, PrintForms);
 	
 	State = PredefinedValue("Catalog.SourceDocumentsOriginalsStates.FormPrinted");
 	If Not ValueIsFilled(PrintObjects) Then 
@@ -45,17 +51,17 @@ Procedure WriteDocumentOriginalsStatesAfterPrintForm(PrintObjects, PrintForms, W
 				If TS <> "" Then
 					For Each Employee In Document.Value[TS] Do
 						For Each Form In PrintForms Do 
-							WriteDocumentOriginalStateByPrintForms(Document.Value, 
+							SourceDocumentsOriginalsRecording.WriteDocumentOriginalStateByPrintForms(Document.Value, 
 								Form.Value, Form.Presentation, State, False, Employee.Employee);
 						EndDo;
 					EndDo;
 				Else
 					For Each Form In PrintForms Do
-						WriteDocumentOriginalStateByPrintForms(Document.Value, Form.Value,
-							Form.Presentation, State, False);
+						SourceDocumentsOriginalsRecording.WriteDocumentOriginalStateByPrintForms(Document.Value, 
+							Form.Value, Form.Presentation, State, False);
 					EndDo;
 				EndIf;
-				WriteCommonDocumentOriginalState(Document.Value, State);
+				SourceDocumentsOriginalsRecording.WriteCommonDocumentOriginalState(Document.Value, State);
 				Written1 = True;
 			EndIf;
 		EndDo;
@@ -70,14 +76,14 @@ Procedure WriteDocumentOriginalsStatesAfterPrintForm(PrintObjects, PrintForms, W
 	
 EndProcedure
 
-// Records the print form original state to the register after printing the form.
+// Deprecated. Instead, use "SourceDocumentsOriginalsRecording.WriteDocumentOriginalStateByPrintForms".
+// Records states of print form originals in the register after printing the form.
 //
 //	Parameters:
 //  Document - DocumentRef - document reference.
 //  PrintForm - String - a print form template name.
 //  Presentation - String - a print form description.
-//  State - String - a description of the print form original state
-//            - CatalogRef - a reference to the print form original state.
+//  State - CatalogRef.SourceDocumentsOriginalsStates - Reference to the print form original state.
 //  FromOutside - Boolean - indicates whether the form belongs to 1C:Enterprise.
 //  Employee - CatalogRef - A reference to an employee if the source document contains employees information.
 //
@@ -90,7 +96,7 @@ Procedure WriteDocumentOriginalStateByPrintForms(Document, PrintForm, Presentati
 	OriginalStateRecord.Owner = Document;
 	OriginalStateRecord.SourceDocument = PrintForm;
 	If ValueIsFilled(Employee) Then
-		LastFirstName = Employee.Description;
+		LastFirstName = PersonsClientServer.InitialsAndLastName(Employee.Description);
 		Values = New Structure("Presentation, LASTFIRSTNAME", Presentation, LastFirstName);
 		EmployeeView = StrFind(Presentation, LastFirstName);
 		If EmployeeView = 0 Then
@@ -101,8 +107,12 @@ Procedure WriteDocumentOriginalStateByPrintForms(Document, PrintForm, Presentati
 		EndIf;
 	Else
 		OriginalStateRecord.SourceDocumentPresentation = Presentation;
+	EndIf; 
+	If TypeOf(State) = Type("String") Then
+		OriginalStateRecord.State = Catalogs.SourceDocumentsOriginalsStates.FindByDescription(State);
+	Else
+		OriginalStateRecord.State = State;
 	EndIf;
-	OriginalStateRecord.State = Catalogs.SourceDocumentsOriginalsStates.FindByDescription(State);
 	OriginalStateRecord.ChangeAuthor = Users.CurrentUser();
 	OriginalStateRecord.OverallState = False;
 	OriginalStateRecord.ExternalForm = FromOutside;
@@ -112,13 +122,20 @@ Procedure WriteDocumentOriginalStateByPrintForms(Document, PrintForm, Presentati
 
 EndProcedure
 
-// Records the overall state of the document original to the register.
+// Deprecated. Instead, use SourceDocumentsOriginalsRecording.WriteCommonDocumentOriginalState.
+// Records the aggregated state of the document original in the register.
 //
 //	Parameters:
 //  Document - DocumentRef - document reference.
-//  State - String - a description of the original state.
+//  State - CatalogRef.SourceDocumentsOriginalsStates - Reference to the original state.
 //
 Procedure WriteCommonDocumentOriginalState(Document, State) Export
+	
+	If TypeOf(State) = Type("String") Then
+		OriginalState = Catalogs.SourceDocumentsOriginalsStates.FindByDescription(State);
+	Else
+		OriginalState = State;
+	EndIf;
 
 	SetPrivilegedMode(True);
 		
@@ -127,7 +144,7 @@ Procedure WriteCommonDocumentOriginalState(Document, State) Export
 	OriginalStateRecord.SourceDocument = "";
 		
 	CheckOriginalStateRecord = InformationRegisters.SourceDocumentsOriginalsStates.CreateRecordSet();
-	CheckOriginalStateRecord.Filter.Owner.Set(Document.Ref);
+	CheckOriginalStateRecord.Filter.Owner.Set(Document);
 	CheckOriginalStateRecord.Filter.OverallState.Set(False);
 	CheckOriginalStateRecord.Read();
 	If CheckOriginalStateRecord.Count() Then
@@ -138,21 +155,25 @@ Procedure WriteCommonDocumentOriginalState(Document, State) Export
 				OriginalStateRecord.ChangeAuthor = Users.CurrentUser();
 			EndIf;
 		EndDo;
-		If SourceDocumentsOriginalsRecording.PrintFormsStateSame(Document, State) Then
-			OriginalStateRecord.State = Catalogs.SourceDocumentsOriginalsStates.FindByDescription(State);
+		If SourceDocumentsOriginalsRecording.PrintFormsStateSame(Document, OriginalState) Then
+			OriginalStateRecord.State = OriginalState;
 		Else
-				OriginalStateRecord.State = Catalogs.SourceDocumentsOriginalsStates.OriginalsNotAll;
+			OriginalStateRecord.State = Catalogs.SourceDocumentsOriginalsStates.OriginalsNotAll;
 		EndIf;
 	Else
-		OriginalStateRecord.State = Catalogs.SourceDocumentsOriginalsStates.FindByDescription(State);
-		OriginalStateRecord.ChangeAuthor = Users.CurrentUser();
+		OriginalStateRecord.State = OriginalState;
 	EndIf;
 		
 	OriginalStateRecord.OverallState = True;
 	OriginalStateRecord.LastChangeDate = CurrentSessionDate();
 	OriginalStateRecord.Write();
-
+	
+	SSLSubsystemsIntegration.OnChangeAggregatedOriginalState(Document, State);
+	SourceDocumentsOriginalsRecordingOverridable.OnChangeAggregatedOriginalState(Document, State);
+	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 

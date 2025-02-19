@@ -11,6 +11,9 @@
 #Region Internal
 
 // Returns True if synchronization is supported in SaaS mode
+// 
+// Returns:
+//  Boolean
 //
 Function DataSynchronizationSupported() Export
 	
@@ -19,12 +22,14 @@ Function DataSynchronizationSupported() Export
 EndFunction
 
 // Returns a collection of exchange plans used for synchronization.
-//
 // SaaS synchronization exchange plan must fulfill the following conditions:
 // - It must be included in the SSL data exchange subsystem.
 // - It must be separated.
 // - It cannot be included in a DIB.
 // - It must be used for exchange in SaaS (ExchangePlanUsedInSaaS = True).
+// 
+// Returns:
+//  Array of String - Array of the names of the exchange plans used for syncing
 //
 Function DataSynchronizationExchangePlans() Export
 	
@@ -122,6 +127,14 @@ Function GetWSProxyOfCorrespondent_2_0_1_6(InfobaseNode, ErrorMessageString = ""
 EndFunction
 
 // Returns a reference to WSProxy object 2.1.6.1 of the correspondent identified by the exchange plan node.
+// 
+// Parameters:
+//  InfobaseNode - ExchangePlanRef
+//  ErrorMessageString - String - The default value is "".
+// 
+// Returns:
+//  - Undefined - If failed to create "WSProxy"
+//  - WSProxy 
 //
 Function GetWSProxyOfCorrespondent_2_1_6_1(InfobaseNode, ErrorMessageString = "") Export
 	
@@ -134,6 +147,14 @@ Function GetWSProxyOfCorrespondent_2_1_6_1(InfobaseNode, ErrorMessageString = ""
 EndFunction
 
 // Returns a reference to WSProxy object 2.4.5.1 of the correspondent identified by the exchange plan node.
+// 
+// Parameters:
+//  InfobaseNode - ExchangePlanRef
+//  ErrorMessageString - String - The default value is "".
+// 
+// Returns:
+//  - Undefined - If failed to create "WSProxy"
+//  - WSProxy 
 //
 Function GetWSProxyOfCorrespondent_2_4_5_1(InfobaseNode, ErrorMessageString = "") Export
 	
@@ -146,6 +167,12 @@ Function GetWSProxyOfCorrespondent_2_4_5_1(InfobaseNode, ErrorMessageString = ""
 EndFunction
 
 // Returns True if this exchange plan is used to synchronize data in SaaS mode.
+// 
+// Parameters:
+//  ExchangePlanName - String -  Exchange plan name (as it is set in Designer)
+// 
+// Returns:
+//  Boolean 
 //
 Function IsDataSynchronizationExchangePlan(Val ExchangePlanName) Export
 	

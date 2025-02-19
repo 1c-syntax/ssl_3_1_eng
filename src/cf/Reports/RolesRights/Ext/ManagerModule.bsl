@@ -35,7 +35,7 @@ Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessin
 		CommandProfiles = ReportsCommands.Add();
 		CommandProfiles.MultipleChoice = True;
 		CommandProfiles.Manager = "Report.RolesRights";
-		CommandProfiles.VariantKey = "RightsRolesOnMetadataObjects";
+		CommandProfiles.VariantKey = "RightsOfRoleAndProfilesToMetadataObjects";
 		
 		If Parameters.FormName = "Catalog.AccessGroupProfiles.Form.ItemForm" Then
 			CommandRoles.Presentation    = NStr("en = 'Rights of profile roles';");
@@ -48,7 +48,7 @@ Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessin
 		CommandRoles.Presentation = NStr("en = 'Rights of profiles and roles';");
 		CommandRoles.OnlyInAllActions = True;
 		CommandRoles.Importance = "SeeAlso";
-		CommandRoles.VariantKey = "RightsRolesOnMetadataObject";
+		CommandRoles.VariantKey = "RightsOfRolesAndProfilesToMetadataObject";
 	EndIf;
 	
 EndProcedure
@@ -72,16 +72,16 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	OptionSettings.LongDesc = NStr("en = 'Shows role rights that apply to metadata objects.';");
 	OptionSettings.DefaultVisibility = False;
 	
-	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "RightsRolesOnMetadataObjects");
-	OptionSettings.LongDesc = NStr("en = 'Shows rights of one role to different metadata objects.';");
+	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "RightsOfRoleAndProfilesToMetadataObjects");
+	OptionSettings.LongDesc = NStr("en = 'Shows rights of one role and profiels to different metadata objects.';");
 	OptionSettings.Enabled = False;
 	
-	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "RightsRolesOnMetadataObject");
-	OptionSettings.LongDesc = NStr("en = 'Shows rights of different roles to the same metadata object.';");
+	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "RightsOfRolesAndProfilesToMetadataObject");
+	OptionSettings.LongDesc = NStr("en = 'Shows rights of different roles and profiles to the same metadata object.';");
 	OptionSettings.Enabled = False;
 	
-	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "DetailedPermissionsRolesOnMetadataObject");
-	OptionSettings.LongDesc = NStr("en = 'Shows detailed rights of one role to one metadata object.';");
+	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "DetailedRolesRightsToMetadataObject");
+	OptionSettings.LongDesc = NStr("en = 'Shows detailed rights of different roles to the same metadata object.';");
 	OptionSettings.Enabled = False;
 	
 EndProcedure

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<AutoTitle>false</AutoTitle>
 	<VerticalScroll>useIfNecessary</VerticalScroll>
 	<CommandSet>
@@ -636,8 +636,8 @@ to display in value edit forms. </v8:content>
 										<Event name="OnChange">TitleOnChange</Event>
 									</Events>
 								</InputField>
-								<RadioButtonField name="PropertyKind" id="20">
-									<DataPath>PropertyKind</DataPath>
+								<RadioButtonField name="PropertyKind1" id="20">
+									<DataPath>PropertyKind1</DataPath>
 									<Visible>false</Visible>
 									<Title>
 										<v8:item>
@@ -648,8 +648,8 @@ to display in value edit forms. </v8:content>
 									<TitleLocation>None</TitleLocation>
 									<RadioButtonType>Auto</RadioButtonType>
 									<ColumnsCount>1</ColumnsCount>
-									<ContextMenu name="PropertyKindContextMenu" id="21"/>
-									<ExtendedTooltip name="PropertyKindExtendedTooltip" id="119"/>
+									<ContextMenu name="PropertyKind1ContextMenu" id="21"/>
+									<ExtendedTooltip name="PropertyKind1ExtendedTooltip" id="119"/>
 									<Events>
 										<Event name="OnChange">PropertyKindOnChange</Event>
 									</Events>
@@ -927,7 +927,7 @@ to display in value edit forms. </v8:content>
 											<ShowTitle>false</ShowTitle>
 											<ExtendedTooltip name="GroupPropertiesColorsExtendedTooltip" id="499"/>
 											<ChildItems>
-												<LabelDecoration name="DecorationPropertiesColors" id="500">
+												<LabelDecoration name="DecorationPropertyColor" id="500">
 													<TextColor>style:ButtonTextColor</TextColor>
 													<Title formatted="false">
 														<v8:item>
@@ -936,8 +936,8 @@ to display in value edit forms. </v8:content>
 														</v8:item>
 													</Title>
 													<ToolTipRepresentation>ShowLeft</ToolTipRepresentation>
-													<ContextMenu name="DecorationPropertiesColorsContextMenu" id="501"/>
-													<ExtendedTooltip name="DecorationPropertiesColorsExtendedTooltip" id="502"/>
+													<ContextMenu name="DecorationPropertyColorContextMenu" id="501"/>
+													<ExtendedTooltip name="DecorationPropertyColorExtendedTooltip" id="502"/>
 												</LabelDecoration>
 												<CommandBar name="CommandBarPropertiesColors" id="503">
 													<Title>
@@ -1530,7 +1530,7 @@ to display in value edit forms. </v8:content>
 																		<CommandName>Form.Item.Values.StandardCommand.CancelSearch</CommandName>
 																		<ExtendedTooltip name="ValuesCancelSearchExtendedTooltip" id="146"/>
 																	</Button>
-																	<Popup name="ViewMode" id="488">
+																	<Popup name="DisplayMode" id="488">
 																		<Title>
 																			<v8:item>
 																				<v8:lang>en</v8:lang>
@@ -1541,7 +1541,7 @@ to display in value edit forms. </v8:content>
 																			<xr:Ref>StdPicture.ListViewMode</xr:Ref>
 																			<xr:LoadTransparent>true</xr:LoadTransparent>
 																		</Picture>
-																		<ExtendedTooltip name="ViewModeExtendedTooltip" id="489"/>
+																		<ExtendedTooltip name="DisplayModeExtendedTooltip" id="489"/>
 																		<ChildItems>
 																			<Button name="ValuesHierarchicalList" id="492">
 																				<Type>CommandBarButton</Type>
@@ -1960,7 +1960,7 @@ Unless specified, the name is generated automatically. </v8:content>
 			<MainAttribute>true</MainAttribute>
 			<SavedData>true</SavedData>
 		</Attribute>
-		<Attribute name="PropertyKind" id="3">
+		<Attribute name="PropertyKind1" id="3">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -2257,19 +2257,19 @@ FROM
 	CASE
 		WHEN Sets.IsFolder
 			THEN Sets.Description
-		WHEN &amp;PropertyKind = VALUE(Enum.PropertiesKinds.AdditionalInfo)
+		WHEN &amp;PropertyKind1 = VALUE(Enum.PropertiesKinds.AdditionalInfo)
 			THEN CASE
 				WHEN Sets.InfoCount = ""
 					THEN Sets.Description
 				ELSE Sets.Description + " (" + Sets.InfoCount + ")"
 			END
-		WHEN &amp;PropertyKind = VALUE(Enum.PropertiesKinds.AdditionalAttributes)
+		WHEN &amp;PropertyKind1 = VALUE(Enum.PropertiesKinds.AdditionalAttributes)
 		THEN CASE
 			WHEN Sets.AttributesCount = ""
 				THEN Sets.Description
 			ELSE Sets.Description + " (" + Sets.AttributesCount + ")"
 		END
-		WHEN &amp;PropertyKind = VALUE(Enum.PropertiesKinds.Labels)
+		WHEN &amp;PropertyKind1 = VALUE(Enum.PropertiesKinds.Labels)
 		THEN CASE
 			WHEN Sets.LabelCount = ""
 				THEN Sets.Description
@@ -2389,6 +2389,10 @@ WHERE
 						</v8:item>
 					</dcssch:title>
 				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>EditedPredefinedAttributes</dcssch:dataPath>
+					<dcssch:field>EditedPredefinedAttributes</dcssch:field>
+				</Field>
 				<Parameter>
 					<dcssch:name>SetsToExclude</dcssch:name>
 					<dcssch:title xsi:type="v8:LocalStringType">
@@ -2412,7 +2416,7 @@ WHERE
 					<dcssch:valueListAllowed>true</dcssch:valueListAllowed>
 				</Parameter>
 				<Parameter>
-					<dcssch:name>PropertyKind</dcssch:name>
+					<dcssch:name>PropertyKind1</dcssch:name>
 					<dcssch:title xsi:type="v8:LocalStringType">
 						<v8:item>
 							<v8:lang>en</v8:lang>

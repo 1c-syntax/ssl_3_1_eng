@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Rights xmlns="http://v8.1c.ru/8.2/roles" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Rights" version="2.16">
+<Rights xmlns="http://v8.1c.ru/8.2/roles" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Rights" version="2.18">
 	<setForNewObjects>false</setForNewObjects>
 	<setForAttributesByDefault>true</setForAttributesByDefault>
 	<independentRightsOfChildObjects>false</independentRightsOfChildObjects>
@@ -14,6 +14,17 @@
 		<name>WebService.Exchange_3_0_2_2.Operation.UploadDataInt</name>
 		<right>
 			<name>Use</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>DataProcessor.ExchangeMessageTransportSM</name>
+		<right>
+			<name>Use</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
 			<value>true</value>
 		</right>
 	</object>
@@ -95,9 +106,31 @@
 		</right>
 	</object>
 	<object>
+		<name>DataProcessor.ExchangeMessageTransportEMAIL</name>
+		<right>
+			<name>Use</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>WebService.Exchange_3_0_2_2.Operation.ReleaseFile</name>
 		<right>
 			<name>Use</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>InformationRegister.DataExchangeTasksInternalPublication</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
 			<value>true</value>
 		</right>
 	</object>
@@ -138,6 +171,17 @@
 	</object>
 	<object>
 		<name>DataProcessor.ExportImportEnterpriseData.Command.EnterpriseDataLoading</name>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>DataProcessor.ExchangeMessageTransportFTP</name>
+		<right>
+			<name>Use</name>
+			<value>true</value>
+		</right>
 		<right>
 			<name>View</name>
 			<value>true</value>
@@ -462,9 +506,27 @@
 		</right>
 	</object>
 	<object>
+		<name>DataProcessor.ExchangeMessageTransportWS</name>
+		<right>
+			<name>Use</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>WebService.Exchange_3_0_2_1.Operation.DownloadDataInt</name>
 		<right>
 			<name>Use</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>Subsystem.StandardSubsystems.Subsystem.DataExchange.Subsystem.ExchangeMessagesTransport</name>
+		<right>
+			<name>View</name>
 			<value>true</value>
 		</right>
 	</object>
@@ -522,6 +584,17 @@
 		</right>
 	</object>
 	<object>
+		<name>DataProcessor.ExchangeMessageTransportPassiveMode</name>
+		<right>
+			<name>Use</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>WebService.Exchange_2_0_1_6.Operation.Download</name>
 		<right>
 			<name>Use</name>
@@ -539,6 +612,17 @@
 		<name>WebService.Exchange_3_0_1_1.Operation.Ping</name>
 		<right>
 			<name>Use</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>DataProcessor.ExchangeMessageTransportHTTP</name>
+		<right>
+			<name>Use</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
 			<value>true</value>
 		</right>
 	</object>
@@ -578,6 +662,13 @@
 		</right>
 	</object>
 	<object>
+		<name>Subsystem.StandardSubsystems.Subsystem.DataExchange.Subsystem.Registration</name>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>WebService.Exchange_3_0_2_2.Operation.GetIBParameters</name>
 		<right>
 			<name>Use</name>
@@ -603,6 +694,13 @@
 		</right>
 	</object>
 	<object>
+		<name>InformationRegister.CommonInfobasesNodesSettings</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>WebService.EnterpriseDataUpload_1_0_1_1.Operation.Ping</name>
 		<right>
 			<name>Use</name>
@@ -618,31 +716,6 @@
 	</object>
 	<object>
 		<name>WebService.Exchange_2_0_1_6.Operation.UploadData</name>
-		<right>
-			<name>Use</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>InformationRegister.DataExchangeRules</name>
-		<right>
-			<name>Read</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>View</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>WebService.EnterpriseDataUpload_1_0_1_1.Operation.PutFilePart</name>
-		<right>
-			<name>Use</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>WebService.Exchange_3_0_2_1.Operation.PutFilePart</name>
 		<right>
 			<name>Use</name>
 			<value>true</value>
@@ -676,6 +749,53 @@
 		</right>
 	</object>
 	<object>
+		<name>InformationRegister.PredefinedNodesAliases</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>InformationRegister.DataExchangeRules</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>Catalog.ExchangeMessageTransportSettings</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>InputByString</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>WebService.EnterpriseDataUpload_1_0_1_1.Operation.PutFilePart</name>
+		<right>
+			<name>Use</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>WebService.Exchange_3_0_2_1.Operation.PutFilePart</name>
+		<right>
+			<name>Use</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>WebService.EnterpriseDataExchange_1_0_1_1.Operation.TestConnection</name>
 		<right>
 			<name>Use</name>
@@ -684,6 +804,17 @@
 	</object>
 	<object>
 		<name>CommonForm.DataSyncSettings</name>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>DataProcessor.ExchangeMessageTransportESB1C</name>
+		<right>
+			<name>Use</name>
+			<value>true</value>
+		</right>
 		<right>
 			<name>View</name>
 			<value>true</value>
@@ -707,6 +838,28 @@
 		<name>WebService.Exchange_2_0_1_6.Operation.ReleaseFile</name>
 		<right>
 			<name>Use</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>DataProcessor.ExchangeMessageTransportYandexDisk</name>
+		<right>
+			<name>Use</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>DataProcessor.ExchangeMessageTransportFILE</name>
+		<right>
+			<name>Use</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
 			<value>true</value>
 		</right>
 	</object>
@@ -740,6 +893,17 @@
 		<name>DataProcessor.UniversalDataExchangeXML</name>
 		<right>
 			<name>Use</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>DataProcessor.ExchangeMessageTransportCOM</name>
+		<right>
+			<name>Use</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
 			<value>true</value>
 		</right>
 	</object>
@@ -807,6 +971,17 @@
 		<name>WebService.EnterpriseDataExchange_1_0_1_1.Operation.PrepareDataActionResult</name>
 		<right>
 			<name>Use</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>DataProcessor.ExchangeMessageTransportGoogleDrive</name>
+		<right>
+			<name>Use</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
 			<value>true</value>
 		</right>
 	</object>

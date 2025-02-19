@@ -12,7 +12,7 @@
 
 #Region Variables
 
-// 
+// Object value before it is written (intended for the "OnWrite" event handler).
 Var IsNew, PreviousParent, PreviousAllAuthorizationObjects, PreviousRolesSet;
 
 #EndRegion
@@ -81,7 +81,7 @@ EndProcedure
 
 Procedure BeforeWrite(Cancel)
 	
-	// ACC:75-off - The check "DataExchange.Import" should run after the registers are locked.
+	// ACC:75-off - The DataExchange.Load check must follow the locking of registers.
 	If Common.FileInfobase() Then
 		UsersInternal.LockRegistersBeforeWritingToFileInformationSystem(True);
 	EndIf;

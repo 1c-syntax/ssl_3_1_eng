@@ -20,7 +20,7 @@ Var PreviousValues1; // See PreviousValues1
 
 Procedure BeforeWrite(Cancel)
 	
-	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
+	// ACC:75-off - The DataExchange.Load check must follow the logging of changes.
 	If IsFolder Then
 		Return;
 	EndIf;
@@ -134,7 +134,7 @@ EndProcedure
 
 Procedure OnWrite(Cancel)
 	
-	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
+	// ACC:75-off - The DataExchange.Load check must follow the logging of changes.
 	If IsFolder Then
 		Return;
 	EndIf;
@@ -432,7 +432,7 @@ Procedure CheckSuppliedDataUniqueness(Var_FillChecking = False, Cancel = False)
 	If Selection.Count() > 1 Then
 		
 		BriefErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '1C-supplied profile ""%1"" already exists:';"),
+			NStr("en = 'Built-in profile ""%1"" already exists:';"),
 			Description);
 		
 		DetailErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(

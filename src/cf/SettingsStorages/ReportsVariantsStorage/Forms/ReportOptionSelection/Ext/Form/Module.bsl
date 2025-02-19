@@ -134,7 +134,7 @@ Procedure ReportOptionsTreeBeforeDeleteRow(Item, Cancel)
 	
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("Variant", Variant);
-	Handler = New NotifyDescription("ReportOptionsTreeBeforeDeleteRowCompletion", ThisObject, AdditionalParameters);
+	Handler = New CallbackDescription("ReportOptionsTreeBeforeDeleteRowCompletion", ThisObject, AdditionalParameters);
 	ShowQueryBox(Handler, QueryText, QuestionDialogMode.YesNo, 60, DialogReturnCode.Yes);
 EndProcedure
 
@@ -248,7 +248,7 @@ Procedure SelectAndClose()
 	If Variant.PictureIndex = 4 Then
 		QueryText = NStr("en = 'Selected report option is marked for deletion.
 		|Do you want to select this report option?';");
-		Handler = New NotifyDescription("SelectAndCloseCompletion", ThisObject, AdditionalParameters);
+		Handler = New CallbackDescription("SelectAndCloseCompletion", ThisObject, AdditionalParameters);
 		ShowQueryBox(Handler, QueryText, QuestionDialogMode.YesNo, 60);
 	Else
 		SelectAndCloseCompletion(DialogReturnCode.Yes, AdditionalParameters);

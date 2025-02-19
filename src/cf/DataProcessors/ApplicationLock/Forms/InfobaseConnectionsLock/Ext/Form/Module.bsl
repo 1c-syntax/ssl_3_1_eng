@@ -144,7 +144,7 @@ Procedure Apply(Command)
 			Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Lock in 10 minutes';"));
 			Buttons.Add(DialogReturnCode.No, NStr("en = 'Lock now';"));
 			Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
-			Notification = New NotifyDescription("ApplyCompletion", ThisObject, "LockTimeTooSoon");
+			Notification = New CallbackDescription("ApplyCompletion", ThisObject, "LockTimeTooSoon");
 			ShowQueryBox(Notification, QueryText, Buttons,,, QuestionTitle);
 		ElsIf Object.LockEffectiveFrom > CurrentSessionDate + 60 * 60 Then
 			QueryText = NStr("en = 'The user lock is deferred for more than one hour.
@@ -153,7 +153,7 @@ Procedure Apply(Command)
 			Buttons.Add(DialogReturnCode.No, NStr("en = 'Schedule';"));
 			Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Lock now';"));
 			Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
-			Notification = New NotifyDescription("ApplyCompletion", ThisObject, "LockTimeTooLate");
+			Notification = New CallbackDescription("ApplyCompletion", ThisObject, "LockTimeTooLate");
 			ShowQueryBox(Notification, QueryText, Buttons,,, QuestionTitle);
 		Else
 			If Object.LockEffectiveFrom - CurrentSessionDate > 15*60 Then
@@ -163,15 +163,15 @@ Procedure Apply(Command)
 				QueryText = NStr("en = 'All active user sessions will be closed by %2.
 					|Do you want to continue?';");
 			EndIf;
-			Notification = New NotifyDescription("ApplyCompletion", ThisObject, "Confirmation");
+			Notification = New CallbackDescription("ApplyCompletion", ThisObject, "Confirmation");
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(QueryText, Object.LockEffectiveFrom - 900, Object.LockEffectiveFrom);
 			ShowQueryBox(Notification, QueryText, QuestionDialogMode.OKCancel,,, QuestionTitle);
 		EndIf;
 		
 	Else
 		
-		Notification = New NotifyDescription("ApplyCompletion", ThisObject, "Confirmation");
-		ExecuteNotifyProcessing(Notification, DialogReturnCode.OK);
+		Notification = New CallbackDescription("ApplyCompletion", ThisObject, "Confirmation");
+		RunCallback(Notification, DialogReturnCode.OK);
 		
 	EndIf;
 	
@@ -211,7 +211,7 @@ Procedure ApplyCompletion(Response, Variant) Export
 	
 	If Not IsFileInfobase And Not CorrectAdministrationParametersEntered And SessionWithoutSeparators Then
 		
-		NotifyDescription = New NotifyDescription("AfterGetAdministrationParametersOnLock", ThisObject);
+		NotifyDescription = New CallbackDescription("AfterGetAdministrationParametersOnLock", ThisObject);
 		FormCaption = NStr("en = 'User sessions';");
 		NoteLabel = NStr("en = 'To manage user sessions, enter
 			|the infobase and server cluster administration parameters';");
@@ -231,7 +231,7 @@ Procedure Stop(Command)
 	
 	If Not IsFileInfobase And Not CorrectAdministrationParametersEntered And SessionWithoutSeparators Then
 		
-		NotifyDescription = New NotifyDescription("AfterGetAdministrationParametersOnUnlock", ThisObject);
+		NotifyDescription = New CallbackDescription("AfterGetAdministrationParametersOnUnlock", ThisObject);
 		FormCaption = NStr("en = 'User sessions';");
 		NoteLabel = NStr("en = 'To manage user sessions, enter
 			|the infobase and server cluster administration parameters';");
@@ -249,7 +249,7 @@ EndProcedure
 &AtClient
 Procedure AdministrationParameters(Command)
 	
-	NotifyDescription = New NotifyDescription("AfterGetAdministrationParameters", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterGetAdministrationParameters", ThisObject);
 	FormCaption = NStr("en = 'Scheduled job locks';");
 	NoteLabel = NStr("en = 'To manage scheduled job locks, enter
 		|the infobase and server cluster administration parameters';");
@@ -409,7 +409,7 @@ Procedure UpdateLockState(Form)
 	If Form.SessionCount = 0 Then
 		
 		StateText = NStr("en = 'Lock pending…
-			|Users will be unable to use the app while the lock is set.';");
+			|Users will be unable to use the application while the lock is set.';");
 		
 	Else
 		
@@ -518,7 +518,7 @@ Procedure AfterGetAdministrationParametersOnLock(Result, AdditionalParameters) E
 	EndIf;
 	
 	ShowUserNotification(NStr("en = 'User access';"),
-		New NotifyDescription("OpeningHandlerOfAppWorkBlockForm", IBConnectionsClient),
+		New CallbackDescription("OpeningHandlerOfAppWorkBlockForm", IBConnectionsClient),
 		?(Object.DisableUserAuthorisation, NStr("en = 'User access is denied.';"), NStr("en = 'User access is allowed.';")),
 		PictureLib.DialogInformation);
 	

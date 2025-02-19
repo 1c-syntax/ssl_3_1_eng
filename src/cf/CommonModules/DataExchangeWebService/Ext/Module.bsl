@@ -10,566 +10,28 @@
 
 #Region Internal
 
-// Gets an exchange message from the correspondent infobase via web service to the temporary directory of
-// OS user.
-//
-// Parameters:
-//  Cancel                   - Boolean - indicates whether an error occurred on data exchange.
-//  InfobaseNode  - ExchangePlanRef - an exchange plan node for which the exchange message is being received.
-//  FileID      - UUID - file ID.
-//  TimeConsumingOperation      - Boolean - indicates that long-running operation is used.
-//  OperationID   - UUID - an UUID of the long-running operation.
-//  AuthenticationParameters - Structure - contains web service authentication parameters (User, Password).
-//
-//  Returns:
-//   Structure with the following keys:
-//     * TempExchangeMessagesDirectoryName - a full name of the exchange directory that stores the exchange message.
-//     * ExchangeMessageFileName              - a full name of the exchange message file.
-//     * DataPackageFileID       - date of changing the exchange message file.
-//
-Function GetExchangeMessageToTempDirectoryFromCorrespondentInfobaseViaWebService(
-											Cancel,
-											InfobaseNode,
-											FileID,
-											TimeConsumingOperation,
-											OperationID,
-											AuthenticationParameters = Undefined) Export
-	
-	DataExchangeServer.CheckCanSynchronizeData();
-	
-	DataExchangeServer.CheckDataExchangeUsage();
-	
-	SetPrivilegedMode(True);
-	
-	// Function return value.
-	Result = New Structure;
-	Result.Insert("TempExchangeMessagesDirectoryName", "");
-	Result.Insert("ExchangeMessageFileName",              "");
-	Result.Insert("DataPackageFileID",       Undefined);
-	
-	// Parameters to be defined in the function.
-	ExchangeMessageDirectoryName = "";
-	ExchangeMessageFileName = "";
-	ExchangeMessageFileDate = Date('00010101');
-	
-	ExchangeSettingsStructure = DataExchangeServer.ExchangeSettingsForInfobaseNode(
-		InfobaseNode, "GettingExchangeMessage", Enums.ExchangeMessagesTransportTypes.WS, False);
-		
-	ExchangeSettingsStructure.EventLogMessageKey =
-		DataExchangeServer.EventLogMessageKey(InfobaseNode, Enums.ActionsOnExchange.DataImport);
-	ExchangeSettingsStructure.ActionOnExchange = Undefined;
-		
-	ProxyParameters = New Structure;
-	ProxyParameters.Insert("AuthenticationParameters", AuthenticationParameters);
-	
-	Proxy = Undefined;
-	SetupStatus = Undefined;
-	ErrorMessage = "";
-	InitializeWSProxyToManageDataExchange(Proxy, 
-		ExchangeSettingsStructure, ProxyParameters, Cancel, SetupStatus, ErrorMessage);
-	
-	If Cancel Then
-		DataExchangeServer.WriteEventLogDataExchange(ErrorMessage, ExchangeSettingsStructure, True);
-		Return Result;
-	EndIf;
-	
-	ExchangeParameters = New Structure;
-	ExchangeParameters.Insert("FileID",          FileID);
-	ExchangeParameters.Insert("TimeConsumingOperation",          TimeConsumingOperation);
-	ExchangeParameters.Insert("OperationID",       OperationID);
-	ExchangeParameters.Insert("TimeConsumingOperationAllowed", True);
-	
-	Try
-		
-		RunDataExport(Proxy, ProxyParameters.CurrentVersion, ExchangeSettingsStructure, ExchangeParameters);
-		
-		FileID = ExchangeParameters.FileID;
-		TimeConsumingOperation = ExchangeParameters.TimeConsumingOperation;
-		OperationID = ExchangeParameters.OperationID;
-		
-	Except
-		
-		Cancel = True;
-		Message = NStr("en = 'Errors occurred in the peer infobase during data export: %1';", Common.DefaultLanguageCode());
-		Message = StringFunctionsClientServer.SubstituteParametersToString(Message,
-			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		
-		DataExchangeServer.WriteEventLogDataExchange(Message, ExchangeSettingsStructure, True);
-		
-		Return Result;
-	EndTry;
-	
-	If ExchangeParameters.TimeConsumingOperation Then
-		DataExchangeServer.WriteEventLogDataExchange(NStr("en = 'Waiting for data from the peer infobase…';",
-			Common.DefaultLanguageCode()), ExchangeSettingsStructure);
-		Return Result;
-	EndIf;
-	
-	Try
-		FilesTransferServiceFileName = GetFileFromStorageInService(
-			New UUID(ExchangeParameters.FileID),
-			ExchangeSettingsStructure.InfobaseNode,, AuthenticationParameters);
-	Except
-		
-		Cancel = True;
-		Message = NStr("en = 'Errors occurred while receiving an exchange message from the file transfer service: %1';", Common.DefaultLanguageCode());
-		Message = StringFunctionsClientServer.SubstituteParametersToString(Message,
-			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		
-		DataExchangeServer.WriteEventLogDataExchange(Message, ExchangeSettingsStructure, True);
-		
-		Return Result;
-	EndTry;
-	
-	Try
-		ExchangeMessageDirectoryName = DataExchangeServer.CreateTempExchangeMessagesDirectory();
-	Except
-		Cancel = True;
-		Message = NStr("en = 'Errors occurred while receiving an exchange message: %1';", Common.DefaultLanguageCode());
-		Message = StringFunctionsClientServer.SubstituteParametersToString(Message,
-			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		
-		DataExchangeServer.WriteEventLogDataExchange(Message, ExchangeSettingsStructure, True);
-		
-		Return Result;
-	EndTry;
-	
-	MessageFileNameTemplate = DataExchangeServer.MessageFileNameTemplate(ExchangeSettingsStructure.CurrentExchangePlanNode,
-		ExchangeSettingsStructure.InfobaseNode, False);
-	
-	ExchangeMessageFileName = CommonClientServer.GetFullFileName(ExchangeMessageDirectoryName, MessageFileNameTemplate + ".xml");
-	
-	MoveFile(FilesTransferServiceFileName, ExchangeMessageFileName);
-	
-	FileExchangeMessages = New File(ExchangeMessageFileName);
-	If FileExchangeMessages.Exists() Then
-		ExchangeMessageFileDate = FileExchangeMessages.GetModificationTime();
-	EndIf;
-	
-	Result.TempExchangeMessagesDirectoryName = ExchangeMessageDirectoryName;
-	Result.ExchangeMessageFileName              = ExchangeMessageFileName;
-	Result.DataPackageFileID       = ExchangeMessageFileDate;
-	
-	Return Result;
-EndFunction
-
-// The function receives an exchange message from the correspondent infobase using web service
-// and saves it to the temporary directory.
-// It is used if the exchange message receipt is a part of a background job in the
-// correspondent infobase.
-//
-// Parameters:
-//  Cancel                   - Boolean - indicates whether an error occurred on data exchange.
-//  InfobaseNode  - ExchangePlanRef - an exchange plan node for which the exchange message is being received.
-//  FileID      - UUID - file ID.
-//  AuthenticationParameters - Structure - contains web service authentication parameters (User, Password).
-//
-//  Returns:
-//   Structure with the following keys:
-//     * TempExchangeMessagesDirectoryName - a full name of the exchange directory that stores the exchange message.
-//     * ExchangeMessageFileName              - a full name of the exchange message file.
-//     * DataPackageFileID       - date of changing the exchange message file.
-//
-Function GetExchangeMessageToTempDirectoryFromCorrespondentInfobaseViaWebServiceTimeConsumingOperationCompletion(
-							Cancel,
-							InfobaseNode,
-							FileID,
-							Val AuthenticationParameters = Undefined) Export
-	
-	// Function return value.
-	Result = New Structure;
-	Result.Insert("TempExchangeMessagesDirectoryName", "");
-	Result.Insert("ExchangeMessageFileName",              "");
-	Result.Insert("DataPackageFileID",       Undefined);
-	
-	// Parameters to be defined in the function.
-	ExchangeMessageDirectoryName = "";
-	ExchangeMessageFileName = "";
-	ExchangeMessageFileDate = Date('00010101');
-	
-	Try
-		
-		FilesTransferServiceFileName = GetFileFromStorageInService(New UUID(FileID), InfobaseNode,, AuthenticationParameters);
-		
-	Except
-		
-		Cancel = True;
-		Message = NStr("en = 'Errors occurred while receiving an exchange message from the file transfer service: %1';", Common.DefaultLanguageCode());
-		Message = StringFunctionsClientServer.SubstituteParametersToString(Message,
-			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		ExchangeSettingsStructure = New Structure("EventLogMessageKey");
-		ExchangeSettingsStructure.EventLogMessageKey = 
-			DataExchangeServer.EventLogMessageKey(InfobaseNode, Enums.ActionsOnExchange.DataImport);
-		DataExchangeServer.WriteEventLogDataExchange(Message, ExchangeSettingsStructure, True);
-		
-		Return Result;
-		
-	EndTry;
-	
-	Try
-		ExchangeMessageDirectoryName = DataExchangeServer.CreateTempExchangeMessagesDirectory();
-	Except
-		Cancel = True;
-		Message = NStr("en = 'Errors occurred while receiving an exchange message: %1';", Common.DefaultLanguageCode());
-		Message = StringFunctionsClientServer.SubstituteParametersToString(Message,
-			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		ExchangeSettingsStructure = New Structure("EventLogMessageKey");
-		ExchangeSettingsStructure.EventLogMessageKey = 
-			DataExchangeServer.EventLogMessageKey(InfobaseNode, Enums.ActionsOnExchange.DataImport);
-		DataExchangeServer.WriteEventLogDataExchange(Message, ExchangeSettingsStructure, True);
-		
-		Return Result;
-	EndTry;
-	
-	ExchangePlanName = DataExchangeCached.GetExchangePlanName(InfobaseNode);
-	CurrentExchangePlanNode = DataExchangeCached.GetThisExchangePlanNode(ExchangePlanName);
-	
-	MessageFileNameTemplate = DataExchangeServer.MessageFileNameTemplate(CurrentExchangePlanNode, InfobaseNode, False);
-	
-	ExchangeMessageFileName = CommonClientServer.GetFullFileName(ExchangeMessageDirectoryName, MessageFileNameTemplate + ".xml");
-	FileExchangeMessages = New File(ExchangeMessageFileName);
-	If Not FileExchangeMessages.Exists() Then
-		// Probably the file can be received if you apply the virtual code of the node.
-		MessageFileNameTemplatePrevious = MessageFileNameTemplate;
-		MessageFileNameTemplate = DataExchangeServer.MessageFileNameTemplate(CurrentExchangePlanNode, InfobaseNode, False,, True);
-		If MessageFileNameTemplate <> MessageFileNameTemplatePrevious Then
-			ExchangeMessageFileName = CommonClientServer.GetFullFileName(ExchangeMessageDirectoryName, MessageFileNameTemplate + ".xml");
-			FileExchangeMessages = New File(ExchangeMessageFileName);
-		EndIf;
-	EndIf;
-	
-	MoveFile(FilesTransferServiceFileName, ExchangeMessageFileName);
-	
-	If FileExchangeMessages.Exists() Then
-		ExchangeMessageFileDate = FileExchangeMessages.GetModificationTime();
-	EndIf;
-	
-	Result.TempExchangeMessagesDirectoryName = ExchangeMessageDirectoryName;
-	Result.ExchangeMessageFileName              = ExchangeMessageFileName;
-	Result.DataPackageFileID       = ExchangeMessageFileDate;
-	
-	Return Result;
-EndFunction
-
-Procedure ExecuteExchangeActionForInfobaseNodeUsingWebService(Cancel,
-		InfobaseNode, ActionOnExchange, ExchangeParameters) Export
-	
-	ParametersOnly = ExchangeParameters.ParametersOnly;
-	
-	SetPrivilegedMode(True);
-	
-	// DATA EXCHANGE INITIALIZATION
-	ExchangeSettingsStructure = DataExchangeServer.ExchangeSettingsForInfobaseNode(
-		InfobaseNode, ActionOnExchange, Enums.ExchangeMessagesTransportTypes.WS, False);
-	DataExchangeServer.RecordExchangeStartInInformationRegister(ExchangeSettingsStructure);
-	
-	If ExchangeSettingsStructure.Cancel Then
-		// If a setting contains errors, canceling the exchange, Canceled status.
-		DataExchangeServer.WriteExchangeFinish(ExchangeSettingsStructure);
-		Cancel = True;
-		Return;
-	EndIf;
-	
-	ExchangeSettingsStructure.ExchangeExecutionResult = Undefined;
-	
-	MessageString = NStr("en = 'Data exchange started. Node: %1.';", Common.DefaultLanguageCode());
-	MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, ExchangeSettingsStructure.InfobaseNodeDescription);
-	DataExchangeServer.WriteEventLogDataExchange(MessageString, ExchangeSettingsStructure);
-	
-	If ExchangeSettingsStructure.DoDataImport Then
-				
-		// {Handler: BeforeReadExchangeMessage} Start
-		FileExchangeMessages = "";
-		StandardProcessing = True;
-		
-		DataExchangeServer.BeforeReadExchangeMessage(ExchangeSettingsStructure.InfobaseNode, FileExchangeMessages, StandardProcessing);
-		// {Handler: BeforeReadExchangeMessage} End
-		
-		If StandardProcessing Then
-			
-			Proxy = Undefined;
-			
-			ProxyParameters = New Structure;
-			ProxyParameters.Insert("AuthenticationParameters", ExchangeParameters.AuthenticationParameters);
-			
-			SetupStatus = Undefined;
-			ErrorMessage  = "";
-			InitializeWSProxyToManageDataExchange(Proxy,
-				ExchangeSettingsStructure, ProxyParameters, Cancel, SetupStatus, ErrorMessage);
-
-			If Cancel Then
-				DataExchangeServer.WriteEventLogDataExchange(ErrorMessage, ExchangeSettingsStructure, True);
-				ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Canceled;
-				DataExchangeServer.WriteExchangeFinish(ExchangeSettingsStructure);
-				Return;
-			EndIf;
-			
-			FileExchangeMessages = "";
-			
-			Try
-				
-				RunDataExport(Proxy, ProxyParameters.CurrentVersion, ExchangeSettingsStructure, ExchangeParameters);
-				
-				If ExchangeParameters.TimeConsumingOperation Then
-					
-					WaitingForTheOperationToComplete(ExchangeSettingsStructure, ExchangeParameters, Proxy, ProxyParameters, Enums.ActionsOnExchange.DataImport);
-					
-				EndIf;
-				
-				UIDOfTheMessageFile = New UUID(ExchangeParameters.FileID);
-				FileExchangeMessages = GetFileFromStorageInService(UIDOfTheMessageFile, InfobaseNode, 1024, ExchangeParameters.AuthenticationParameters);
-				
-			Except
-				
-				DataExchangeServer.WriteEventLogDataExchange(
-					ErrorProcessing.DetailErrorDescription(ErrorInfo()),ExchangeSettingsStructure, True);
-				ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error;
-				Cancel = True;
-				
-			EndTry;
-			
-		EndIf;
-		
-		If Not Cancel Then
-			
-			DataExchangeServer.ReadMessageWithNodeChanges(ExchangeSettingsStructure, FileExchangeMessages,, ParametersOnly);
-			
-		EndIf;
-		
-		// {Handler: AfterReadExchangeMessage} Start
-		StandardProcessing = True;
-		
-		DataExchangeServer.AfterReadExchangeMessage(
-					ExchangeSettingsStructure.InfobaseNode,
-					FileExchangeMessages,
-					DataExchangeServer.ExchangeExecutionResultCompleted(ExchangeSettingsStructure.ExchangeExecutionResult),
-					StandardProcessing,
-					Not ParametersOnly);
-		// {Handler: AfterReadExchangeMessage} End
-		
-		If StandardProcessing Then
-			
-			Try
-				If Not IsBlankString(FileExchangeMessages) 
-					And TypeOf(DataExchangeServer.DataExchangeMessageFromMasterNode()) <> Type("Structure") Then
-					DeleteFiles(FileExchangeMessages);
-				EndIf;
-			Except
-				WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
-					EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-			EndTry;
-			
-		EndIf;
-					
-	ElsIf ExchangeSettingsStructure.DoDataExport Then
-		
-		Proxy = Undefined;
-		
-		ProxyParameters = New Structure;
-		ProxyParameters.Insert("AuthenticationParameters", ExchangeParameters.AuthenticationParameters);
-		If ExchangeParameters.MessageForDataMapping Then
-			ProxyParameters.Insert("MinVersion", "3.0.1.1");
-		EndIf;
-		
-		SetupStatus = Undefined;
-		ErrorMessage  = "";
-		InitializeWSProxyToManageDataExchange(Proxy,
-			ExchangeSettingsStructure, ProxyParameters, Cancel, SetupStatus, ErrorMessage);
-		
-		If Cancel Then
-			DataExchangeServer.WriteEventLogDataExchange(ErrorMessage, ExchangeSettingsStructure, True);
-			ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Canceled;
-			DataExchangeServer.WriteExchangeFinish(ExchangeSettingsStructure);
-			Return;
-		EndIf;
-		
-		TempDirectory = GetTempFileName();
-		CreateDirectory(TempDirectory);
-		
-		FileExchangeMessages = CommonClientServer.GetFullFileName(
-			TempDirectory, DataExchangeServer.UniqueExchangeMessageFileName());
-		
-		Try
-			DataExchangeServer.WriteMessageWithNodeChanges(ExchangeSettingsStructure, FileExchangeMessages);
-		Except
-			DataExchangeServer.WriteEventLogDataExchange(
-				ErrorProcessing.DetailErrorDescription(ErrorInfo()), ExchangeSettingsStructure, True);
-			ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error;
-			Cancel = True;
-		EndTry;
-		
-		// Sending an exchange message only if data is exported successfully.
-		If DataExchangeServer.ExchangeExecutionResultCompleted(ExchangeSettingsStructure.ExchangeExecutionResult) And Not Cancel Then
-			
-			Try
-				
-				UIDFileID = PutFileInStorageInService(Proxy, ProxyParameters.CurrentVersion,
-					ExchangeSettingsStructure, FileExchangeMessages, InfobaseNode, 1024);
-				
-				FileIDAsString = String(UIDFileID);
-				
-				Try
-					DeleteFiles(TempDirectory);
-				Except
-					WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
-						EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-				EndTry;
-					
-				If ExchangeParameters.MessageForDataMapping
-					And (SetupStatus.DataMappingSupported
-						Or Not SetupStatus.DataSynchronizationSetupCompleted) Then
-					
-					PutMessageForDataMapping(Proxy, ProxyParameters.CurrentVersion,
-						ExchangeSettingsStructure, FileIDAsString);
-				
-				Else
-					
-					RunDataImport(Proxy, ProxyParameters.CurrentVersion,
-						ExchangeSettingsStructure, ExchangeParameters, FileIDAsString);
-						
-					If ExchangeParameters.TimeConsumingOperation Then
-						
-						WaitingForTheOperationToComplete(ExchangeSettingsStructure, ExchangeParameters, Proxy, ProxyParameters, Enums.ActionsOnExchange.DataExport);
-						
-					EndIf;
-					
-				EndIf;
-				
-			Except
-				
-				DataExchangeServer.WriteEventLogDataExchange(
-					ErrorProcessing.DetailErrorDescription(ErrorInfo()), ExchangeSettingsStructure, True);
-				ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error;
-				Cancel = True;
-				
-			EndTry;
-			
-		EndIf;
-		
-		Try
-			DeleteFiles(TempDirectory);
-		Except
-			WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
-				EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		EndTry;
-			
-	EndIf;
-	
-	DataExchangeServer.WriteExchangeFinish(ExchangeSettingsStructure);
-	
-	If Not DataExchangeServer.ExchangeExecutionResultCompleted(ExchangeSettingsStructure.ExchangeExecutionResult) Then
-		Cancel = True;
-	EndIf;
-	
-EndProcedure
-
-// Gets exchange message file from a correspondent infobase using web service.
-// Imports exchange message file to the current infobase.
-//
-// Parameters:
-//  Cancel                   - Boolean - indicates whether an error occurred on data exchange.
-//  InfobaseNode  - ExchangePlanRef - an exchange plan node for which the exchange message is being received.
-//  FileID      - UUID - file ID.
-//  OperationStartDate      - Date - import start date.
-//  AuthenticationParameters - Structure - contains web service authentication parameters (User, Password).
-//
-Procedure ExecuteDataExchangeForInfobaseNodeTimeConsumingOperationCompletion(
-															Cancel,
-															Val InfobaseNode,
-															Val FileID,
-															Val OperationStartDate,
-															Val AuthenticationParameters = Undefined,
-															ShowError = False) Export
-	
-	DataExchangeServer.CheckCanSynchronizeData();
-	
-	DataExchangeServer.CheckDataExchangeUsage();
-	
-	SetPrivilegedMode(True);
-	
-	Try
-		FileExchangeMessages = GetFileFromStorageInService(New UUID(FileID),
-			InfobaseNode,, AuthenticationParameters);
-	Except
-		DataExchangeServer.WriteExchangeFinishWithError(InfobaseNode,
-			Enums.ActionsOnExchange.DataImport,
-			OperationStartDate,
-			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		If ShowError Then
-			Raise;
-		Else
-			Cancel = True;
-		EndIf;
-		Return;
-	EndTry;
-	
-	// Importing the exchange message file into the current infobase.
-	DataExchangeParameters = DataExchangeServer.DataExchangeParametersThroughFileOrString();
-	
-	DataExchangeParameters.InfobaseNode        = InfobaseNode;
-	DataExchangeParameters.FullNameOfExchangeMessageFile = FileExchangeMessages;
-	DataExchangeParameters.ActionOnExchange             = Enums.ActionsOnExchange.DataImport;
-	DataExchangeParameters.OperationStartDate            = OperationStartDate;
-	
-	Try
-		DataExchangeServer.ExecuteDataExchangeForInfobaseNodeOverFileOrString(DataExchangeParameters);
-	Except
-		DataExchangeServer.WriteExchangeFinishWithError(InfobaseNode,
-			Enums.ActionsOnExchange.DataImport,
-			OperationStartDate,
-			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		If ShowError Then
-			Raise;
-		Else
-			Cancel = True;
-		EndIf;
-	EndTry;
-	
-	Try
-		DeleteFiles(FileExchangeMessages);
-	Except
-		WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
-			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-	EndTry;
-	
-EndProcedure
-
 // The function downloads the file from the file transfer service by the passed ID.
 //
 // Parameters:
 //  FileID       - UUID - an ID of the file being received.
 //  InfobaseNode   - ExchangePlanRef - The exchange plan node that should receive the file.
-//  PartSize              - Number - part size in kilobytes. If the passed value is 0,
-//                             the file is not split into parts.
-//  AuthenticationParameters  - A structure: "ServiceAddress", "UserName", "UserPassword".
+//  PartSize              - Number - Chunk size in kilobytes. If the passed value is 0,
+//                             the file is not split into chunks.
+//  AuthenticationParameters - Structure: ServiceAddress, UserName, UserPassword.
 //
 // Returns:
 //  String - The path to the received file.
 //
-Function GetFileFromStorageInService(Val FileID, Val InfobaseNode,
-	Val PartSize = 1024, Val AuthenticationParameters = Undefined) Export
+Function GetFileFromStorageInService(Proxy, Val FileID, Val InfobaseNode = Undefined,
+	Val PartSize = 1024, Val DataArea = 0) Export
 	
 	// Function return value.
 	ResultFileName = "";
 	
-	AdditionalParameters = New Structure("AuthenticationParameters", AuthenticationParameters);
-	
-	ErrorMessage = "";
-	Proxy = WSProxyForInfobaseNode(InfobaseNode, ErrorMessage, AdditionalParameters);
-	
-	If Proxy = Undefined Then
-		Raise ErrorMessage;
-	EndIf;
-	
 	SessionID = Undefined;
 	PartCount    = Undefined;
 	
-	ProxyParameters = New Structure("CurrentVersion", AdditionalParameters.CurrentVersion);
-	ExchangeSettingsStructure = DataExchangeServer.ExchangeSettingsForInfobaseNode(InfobaseNode, 
-		Enums.ActionsOnExchange.DataExport, Enums.ExchangeMessagesTransportTypes.WS, False);
-
-	PrepareFileForReceipt(Proxy, ProxyParameters.CurrentVersion, ExchangeSettingsStructure,
-		FileID, PartSize, SessionID, PartCount);
+	PrepareFileForReceipt(Proxy, FileID, PartSize, SessionID, PartCount, DataArea);
 	
 	FilesNames = New Array;
 	
@@ -579,18 +41,28 @@ Function GetFileFromStorageInService(Val FileID, Val InfobaseNode,
 	FileNameTemplate = "data.zip.[n]";
 	
 	// Log exchange events.
-	ExchangeSettingsStructure.EventLogMessageKey = 
-		DataExchangeServer.EventLogMessageKey(InfobaseNode, Enums.ActionsOnExchange.DataImport);
-	
-	Comment = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Start receiving an exchange message from the Internet. The message is split into %1 parts.';"),
-		Format(PartCount, "NZ=0; NG=0"));
-	DataExchangeServer.WriteEventLogDataExchange(Comment, ExchangeSettingsStructure);
+	If ValueIsFilled(InfobaseNode) Then
+		
+		ExchangeSettingsStructure = DataExchangeServer.ExchangeSettingsForInfobaseNode(
+			InfobaseNode, Enums.ActionsOnExchange.DataExport);
+
+		ExchangeSettingsStructure.EventLogMessageKey = DataExchangeServer.EventLogMessageKey(
+			InfobaseNode, Enums.ActionsOnExchange.DataImport);
+		
+		Comment = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Start receiving an exchange message from the Internet. The message is split into %1 parts.';"),
+			Format(PartCount, "NZ=0; NG=0"));
+			
+		DataExchangeServer.WriteEventLogDataExchange(Comment, ExchangeSettingsStructure);
+		
+	EndIf;
 	
 	For PartNumber = 1 To PartCount Do
+		
 		PartData = Undefined; // BinaryData
+		
 		Try
-			GetFileChunk(Proxy, ProxyParameters.CurrentVersion, ExchangeSettingsStructure, SessionID, PartNumber, PartData);
+			GetFileChunk(Proxy, SessionID, PartNumber, PartData, DataArea);
 		Except
 			Proxy.ReleaseFile(SessionID);
 			Raise;
@@ -601,7 +73,9 @@ Function GetFileFromStorageInService(Val FileID, Val InfobaseNode,
 		
 		PartData.Write(PartFileName);
 		FilesNames.Add(PartFileName);
+		
 	EndDo;
+	
 	PartData = Undefined;
 	
 	Proxy.ReleaseFile(SessionID);
@@ -609,9 +83,7 @@ Function GetFileFromStorageInService(Val FileID, Val InfobaseNode,
 	ArchiveName = CommonClientServer.GetFullFileName(BuildDirectory, "data.zip");
 	
 	MergeFiles(FilesNames, ArchiveName);
-	
-	InformationRegisters.ArchiveOfExchangeMessages.PackMessageToArchive(InfobaseNode, ArchiveName);
-	
+		
 	Dearchiver = New ZipFileReader(ArchiveName);
 	If Dearchiver.Items.Count() = 0 Then
 		Try
@@ -626,10 +98,15 @@ Function GetFileFromStorageInService(Val FileID, Val InfobaseNode,
 	// Log exchange events.
 	ArchiveFile1 = New File(ArchiveName);
 	
-	Comment = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Complete receiving an exchange message from the Internet. Compressed message size: %1 MB.';"),
-		Format(Round(ArchiveFile1.Size() / 1024 / 1024, 3), "NZ=0; NG=0"));
-	DataExchangeServer.WriteEventLogDataExchange(Comment, ExchangeSettingsStructure);
+	If ValueIsFilled(InfobaseNode) Then
+	
+		Comment = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Complete receiving an exchange message from the Internet. Compressed message size: %1 MB.';"),
+			Format(Round(ArchiveFile1.Size() / 1024 / 1024, 3), "NZ=0; NG=0"));
+			
+		DataExchangeServer.WriteEventLogDataExchange(Comment, ExchangeSettingsStructure);
+	
+	EndIf;
 	
 	ArchiveItem = Dearchiver.Items.Get(0);
 	FileName = CommonClientServer.GetFullFileName(BuildDirectory, ArchiveItem.Name);
@@ -654,16 +131,16 @@ Function GetFileFromStorageInService(Val FileID, Val InfobaseNode,
 	EndTry;
 		
 	Return ResultFileName;
+	
 EndFunction
 
 // Passes the specified file to the file transfer service.
 //
 // Parameters:
-//  Proxy                   - 
-//  ProxyVersion             - String - The web service version
-//  ExchangeSettingsStructure  - Structure - a structure with all necessary data and objects to execute exchange.
-//  FileName                 - String - The path to the file.
-//  InfobaseNode   - ExchangePlanRef - The exchange plan node that should receive the file. 
+//  Proxy
+//  ExchangeSettingsStructure - Structure - a structure with all necessary data and objects to execute the exchange.
+//  FileName                 - String - Path to the transferred file.
+//  InfobaseNode - ExchangePlanRef - The recipient exchange node. 
 //  PartSizeKB            - Number - part size in kilobytes. If the passed value is 0,
 //                             the file is not split into parts.
 //  FileID       - UUID - The id of the file being uploaded to the service.
@@ -671,8 +148,8 @@ EndFunction
 // Returns:
 //  UUID  - The id of the file in the file transfer service.
 //
-Function PutFileInStorageInService(Proxy, ProxyVersion, ExchangeSettingsStructure, Val FileName, 
-	Val InfobaseNode, Val PartSizeKB = 1024, FileID = Undefined) Export
+Function PutFileInStorageInService(Proxy, Val FileName, 
+	Val PartSizeKB = 1024, FileID = Undefined, DataArea = 0) Export
 	
 	If Proxy = Undefined Then
 		
@@ -701,7 +178,7 @@ Function PutFileInStorageInService(Proxy, ProxyVersion, ExchangeSettingsStructur
 		
 		PartFileName = FilesNames[PartNumber - 1];
 		FileData = New BinaryData(PartFileName);
-		PutFileChunk(Proxy, ProxyVersion, ExchangeSettingsStructure, SessionID, PartNumber, FileData);
+		PutFileChunk(Proxy, SessionID, PartNumber, FileData, DataArea);
 		
 	EndDo;
 	
@@ -712,200 +189,9 @@ Function PutFileInStorageInService(Proxy, ProxyVersion, ExchangeSettingsStructur
 			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	
-	AssembleFileFromParts(Proxy, ProxyVersion, ExchangeSettingsStructure, SessionID, PartCount, FileID);
+	AssembleFileFromParts(Proxy, SessionID, PartCount, FileID, DataArea);
 	
 	Return FileID;
-	
-EndFunction
-
-// Initializes WS proxy to execute managing data exchange commands,
-// but before that is checks if there is an exchange node.
-//
-// Parameters:
-//   Proxy - WSProxy - a WS proxy to pass managing commands.
-//   SettingsStructure_ - Structure - A structure of parameters used to connect the peer infobase and identify exchange settings:
-//     * ExchangePlanName - String - name of the exchange plan used during synchronization.
-//     * InfobaseNode - ExchangePlanRef - an exchange plan node matching the correspondent.
-//     * EventLogMessageKey - String - name of an event to write errors to the event log.
-//     * CurrentExchangePlanNode - ExchangePlanRef - a reference to ThisNode of the exchange plan.
-//     * CurrentExchangePlanNodeCode1 - String - an ID of the current exchange plan node.
-//     * ActionOnExchange - EnumRef.ActionsOnExchange - indicates the exchange direction.
-//   ProxyParameters - Structure:
-//     * AuthenticationParameters - String
-//                               - Structure - The password for authentication on the web-server.
-//     * AuthenticationSettingsStructure - Structure - contains a setting structure for authentication on the web-server.
-//     * MinVersion - String - number of the earliest version of the DataExchange interface required to perform actions.
-//     * CurrentVersion - String - an outgoing one, the actual interface version of the initialized WS proxy.
-//   Cancel - Boolean - indicates a failed WS proxy initialization.
-//   SetupStatus - Structure - An output parameter. Returns the status of the sync setting described in "SettingsStructure".:
-//     * SettingExists - Boolean - True if a setting with the specified exchange plan and node ID exists.
-//     * DataSynchronizationSetupCompleted - Boolean - True, if synchronization setup is successfully completed.
-//     * DataMappingSupported - Boolean - True if a correspondent supports data mapping.
-//     * MessageReceivedForDataMapping - Boolean - True, an email for mapping is imported to correspondent.
-//   ErrorMessageString - String - a WS-proxy initialization error.
-//
-Procedure InitializeWSProxyToManageDataExchange(Proxy,
-		SettingsStructure_, ProxyParameters, Cancel, SetupStatus, ErrorMessageString = "") Export
-	
-	MinVersion = "0.0.0.0";
-	If ProxyParameters.Property("MinVersion") Then
-		MinVersion = ProxyParameters.MinVersion;
-	EndIf;
-	
-	AuthenticationParameters = Undefined;
-	ProxyParameters.Property("AuthenticationParameters", AuthenticationParameters);
-	
-	AuthenticationSettingsStructure = Undefined;
-	ProxyParameters.Property("AuthenticationSettingsStructure", AuthenticationSettingsStructure);
-	
-	ProxyParameters.Insert("CurrentVersion", Undefined);
-	
-	AdditionalParameters = New Structure;
-	AdditionalParameters.Insert("AuthenticationParameters",         AuthenticationParameters);
-	AdditionalParameters.Insert("MinVersion",               MinVersion);
-	AdditionalParameters.Insert("AuthenticationSettingsStructure", AuthenticationSettingsStructure);
-	
-	Proxy = WSProxyForInfobaseNode(
-		SettingsStructure_.InfobaseNode,
-		ErrorMessageString,
-		AdditionalParameters);
-		
-	If Proxy = Undefined Then
-		Cancel = True;
-		Return;
-	EndIf;
-	
-	ProxyParameters.CurrentVersion = AdditionalParameters.CurrentVersion;
-	
-	If DataExchangeServer.IsXDTOExchangePlan(SettingsStructure_.ExchangePlanName) Then
-		
-		NodeAlias = DataExchangeServer.PredefinedNodeAlias(SettingsStructure_.InfobaseNode);
-		If ValueIsFilled(NodeAlias) Then
-			// Checking a setting with an old ID (prefix).
-			SettingsStructureOfPredefined = Common.CopyRecursive(SettingsStructure_, False); // Structure
-			SettingsStructureOfPredefined.Insert("CurrentExchangePlanNodeCode1", NodeAlias);
-			SetupStatus = SynchronizationSetupStatusInCorrespondent(Proxy, ProxyParameters, SettingsStructureOfPredefined);
-				
-			If Not SetupStatus.SettingExists Then
-				If ObsoleteExchangeSettingsOptionInCorrespondent(
-						Proxy, ProxyParameters, SetupStatus, SettingsStructure_, NodeAlias, Cancel, ErrorMessageString)
-					Or Cancel Then
-					Return;
-				EndIf;
-			Else
-				SettingsStructure_.CurrentExchangePlanNodeCode1 = NodeAlias;
-				Return;
-			EndIf;
-		EndIf;
-		
-		SetupStatus = SynchronizationSetupStatusInCorrespondent(Proxy, ProxyParameters, SettingsStructure_);
-			
-		If Not SetupStatus.SettingExists Then
-			If ObsoleteExchangeSettingsOptionInCorrespondent(
-					Proxy, ProxyParameters, SetupStatus, SettingsStructure_, SettingsStructure_.CurrentExchangePlanNodeCode1, Cancel, ErrorMessageString)
-				Or Cancel Then
-				Return;
-			EndIf;
-		EndIf;
-		
-	Else
-		
-		SetupStatus = SynchronizationSetupStatusInCorrespondent(Proxy, ProxyParameters, SettingsStructure_);
-			
-	EndIf;
-	
-	If Not SetupStatus.SettingExists Then
-		ErrorMessageString = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Data synchronization setting with ID ""%2"" is not found. Exchange plan: %1.';"),
-			SettingsStructure_.ExchangePlanName,
-			SettingsStructure_.CurrentExchangePlanNodeCode1);
-		Cancel = True;
-	EndIf;
-	
-EndProcedure
-
-Function WSProxyForInfobaseNode(InfobaseNode, ErrorMessageString = "", AdditionalParameters = Undefined) Export
-		
-	If AdditionalParameters = Undefined Then
-		AdditionalParameters = New Structure;
-	EndIf;
-	
-	AuthenticationParameters = Undefined;
-	AdditionalParameters.Property("AuthenticationParameters", AuthenticationParameters);
-	
-	AuthenticationSettingsStructure = Undefined;
-	AdditionalParameters.Property("AuthenticationSettingsStructure", AuthenticationSettingsStructure);
-	
-	MinVersion = Undefined;
-	If Not AdditionalParameters.Property("MinVersion", MinVersion) Then
-		MinVersion = "0.0.0.0";
-	EndIf;
-	
-	AdditionalParameters.Insert("CurrentVersion");
-		
-	If AuthenticationSettingsStructure = Undefined Then
-		If DataExchangeCached.IsMessagesExchangeNode(InfobaseNode) Then
-			ModuleMessagesExchangeTransportSettings = Common.CommonModule("InformationRegisters.MessageExchangeTransportSettings");
-			AuthenticationSettingsStructure = ModuleMessagesExchangeTransportSettings.TransportSettingsWS(
-				InfobaseNode, AuthenticationParameters);
-		Else
-			AuthenticationSettingsStructure = InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(
-				InfobaseNode, AuthenticationParameters);
-		EndIf;
-	EndIf;
-	
-	Try
-		CorrespondentVersions = DataExchangeCached.CorrespondentVersions(AuthenticationSettingsStructure);
-	Except
-		ErrorMessageString = ErrorProcessing.DetailErrorDescription(ErrorInfo());
-		WriteLogEvent(EstablishWebServiceConnectionEventLogEvent(),
-			EventLogLevel.Error,,, ErrorMessageString);
-		Return Undefined;
-	EndTry;
-	
-	AvailableVersions = New Map;
-	For Each Version In StrSplit("3.0.2.2;3.0.2.1;3.0.1.1;2.1.1.7;2.0.1.6", ";", False) Do
-		AvailableVersions.Insert(Version, CorrespondentVersions.Find(Version) <> Undefined
-			And (CommonClientServer.CompareVersions(Version, MinVersion) >= 0));
-	EndDo;
-	
-	AvailableVersions.Insert("0.0.0.0", CommonClientServer.CompareVersions("0.0.0.0", MinVersion) >= 0);
-	
-	If AvailableVersions.Get("3.0.2.2") = True Then
-		CurrentVersion = "3.0.2.2";
-	ElsIf AvailableVersions.Get("3.0.2.1") = True Then
-		CurrentVersion = "3.0.2.1";
-	ElsIf AvailableVersions.Get("3.0.1.1") = True Then
-		CurrentVersion = "3.0.1.1";
-	ElsIf AvailableVersions.Get("2.1.1.7") = True Then
-		CurrentVersion = "2.0.1.6";
-	ElsIf AvailableVersions.Get("2.0.1.6") = True Then
-		CurrentVersion = "2.0.1.6";
-	ElsIf AvailableVersions.Get("0.0.0.0") = True Then
-		CurrentVersion = "0.0.0.0";
-	Else
-		ErrorMessageString = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The peer application does not support DataExchange v%1.';"),
-			MinVersion);
-		Return Undefined;
-	EndIf;
-
-	AdditionalParameters.CurrentVersion = CurrentVersion;
-	
-	If CurrentVersion = "0.0.0.0" Then
-		VersionForAddress = "";
-	Else
-		VersionForAddress = "_" + StrReplace(CurrentVersion, ".", "_");		
-	EndIf;
-	
-	//
-	DataExchangeServer.DeleteInsignificantCharactersInConnectionSettings(AuthenticationSettingsStructure);
-	
-	AuthenticationSettingsStructure.Insert("WSServiceNamespaceURL", "http://www.1c.ru/SSL/Exchange" + VersionForAddress);
-	AuthenticationSettingsStructure.Insert("WSServiceName",                 "Exchange" + VersionForAddress);
-	AuthenticationSettingsStructure.Insert("WSTimeout",                    600);
-	
-	Return GetWSProxyByConnectionParameters(AuthenticationSettingsStructure, ErrorMessageString, ErrorMessageString, True);
 	
 EndFunction
 
@@ -958,40 +244,130 @@ Function GetWSProxyByConnectionParameters(
 	Return WSProxy;
 EndFunction
 
-Function CorrespondentConnectionEstablished(Val Peer,
-		Val SettingsStructure_,
-		UserMessage = "",
-		DataSynchronizationSetupCompleted = True,
-		MessageReceivedForDataMapping = False) Export
-		
-	ExchangeSettingsStructure = DataExchangeServer.ExchangeSettingsForInfobaseNode(
-		Peer, Enums.ActionsOnExchange.DataExport, Enums.ExchangeMessagesTransportTypes.WS, False);
-		
-	ExchangeSettingsStructure.Insert("EventLogMessageKey", 
-		NStr("en = 'Data exchange.Connection test';", Common.DefaultLanguageCode()));
+Function WSProxy(ConnectionParameters, ErrorMessage = "", UserMessage = "") Export
+	
+	Try
+		CheckWSProxyAddressFormatCorrectness(ConnectionParameters.WebServiceAddress);
+	Except
+		UserMessage = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		WriteLogEvent(EstablishWebServiceConnectionEventLogEvent(), EventLogLevel.Error,,, ErrorMessage);
+		Return Undefined;
+	EndTry;
 
-	ProxyParameters = New Structure;
-	ProxyParameters.Insert("AuthenticationParameters",         Undefined);
-	ProxyParameters.Insert("AuthenticationSettingsStructure", SettingsStructure_);
+	Try
+		CheckProhibitedCharsInWSProxyUsername(ConnectionParameters.UserName);
+	Except
+		UserMessage = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		WriteLogEvent(EstablishWebServiceConnectionEventLogEvent(), EventLogLevel.Error,,, ErrorMessage);
+		Return Undefined;
+	EndTry;
+
+	Try
+		SettingsStructure_ = New Structure;
+		SettingsStructure_.Insert("WSWebServiceURL", ConnectionParameters.WebServiceAddress);
+		SettingsStructure_.Insert("WSUserName", ConnectionParameters.UserName);
+		SettingsStructure_.Insert("WSPassword", ConnectionParameters.Password);
+		CorrespondentVersions = DataExchangeCached.CorrespondentVersions(SettingsStructure_);
+	Except
+		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		Return Undefined;
+	EndTry;
+		
+	InterfaceVersion = MaximumGeneralVersionOfExchangeInterface(CorrespondentVersions);
 	
-	Proxy = Undefined;
-	SetupStatus = Undefined;
-	Cancel = False;
-	InitializeWSProxyToManageDataExchange(Proxy, 
-		ExchangeSettingsStructure, ProxyParameters, Cancel, SetupStatus, UserMessage);
-	
-	If Cancel Then
-		ResetDataSynchronizationPassword(Peer);
-		DataSynchronizationSetupCompleted = False;
-		Return False;
+	If InterfaceVersion = "0.0.0.0" Then
+		VersionForAddress = "";
+	Else
+		VersionForAddress = "_" + StrReplace(InterfaceVersion, ".", "_");
 	EndIf;
 	
-	SetDataSynchronizationPassword(Peer, SettingsStructure_.WSPassword);
+	DataExchangeServer.DeleteInsignificantCharactersInConnectionSettings(ConnectionParameters);
 	
-	DataSynchronizationSetupCompleted   = SetupStatus.DataSynchronizationSetupCompleted;
-	MessageReceivedForDataMapping = SetupStatus.MessageReceivedForDataMapping;
+	ConnectionParameters.Insert("NamespaceURI", "http://www.1c.ru/SSL/Exchange" + VersionForAddress);
+	ConnectionParameters.Insert("ServiceName", "Exchange" + VersionForAddress);
 	
-	Return SetupStatus.SettingExists;
+	If Not ConnectionParameters.Property("Timeout") Then
+		ConnectionParameters.Insert("Timeout", 600);
+	EndIf;
+	
+	If Not ConnectionParameters.Property("ProbingCallRequired") Then
+		ConnectionParameters.Insert("ProbingCallRequired", True);
+	EndIf;
+		
+	WSDLLocation = "[WebServiceURL]/ws/[ServiceName]?wsdl";
+	WSDLLocation = StrReplace(WSDLLocation, "[WebServiceURL]", ConnectionParameters.WebServiceAddress);
+	WSDLLocation = StrReplace(WSDLLocation, "[ServiceName]",    ConnectionParameters.ServiceName);
+	
+	ConnectionParameters.Insert("WSDLAddress", WSDLLocation);
+	
+	ConnectionParameters.Insert("EndpointName");
+	ConnectionParameters.Insert("UseOSAuthentication", False);
+	ConnectionParameters.Insert("Location");
+	ConnectionParameters.Insert("SecureConnection");
+	
+	Try
+		WSProxy = Common.CreateWSProxy(ConnectionParameters);
+	Except
+		UserMessage = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		WriteLogEvent(EstablishWebServiceConnectionEventLogEvent(), EventLogLevel.Error,,, ErrorMessage);
+		Return Undefined;
+	EndTry;
+	
+	Return WSProxy;
+	
+EndFunction
+
+Function SetupStatus(Proxy, SettingsStructure_, DataArea = 0, Cancel = False, ErrorMessageString = "") Export
+	
+	If DataExchangeServer.IsXDTOExchangePlan(SettingsStructure_.ExchangePlanName) Then
+		
+		NodeAlias = DataExchangeServer.PredefinedNodeAlias(SettingsStructure_.InfobaseNode);
+		If ValueIsFilled(NodeAlias) Then
+			// Checking a setting with an old ID (prefix).
+			SettingsStructureOfPredefined = Common.CopyRecursive(SettingsStructure_, False); // Structure
+			SettingsStructureOfPredefined.Insert("CurrentExchangePlanNodeCode1", NodeAlias);
+			SetupStatus = SynchronizationSetupStatusInCorrespondent(Proxy, SettingsStructureOfPredefined);
+				
+			If Not SetupStatus.SettingExists Then
+				If ObsoleteExchangeSettingsOptionInCorrespondent(
+						Proxy, SetupStatus, SettingsStructure_, NodeAlias, Cancel, ErrorMessageString)
+					Or Cancel Then
+					Return SetupStatus;
+				EndIf;
+			Else
+				SettingsStructure_.CurrentExchangePlanNodeCode1 = NodeAlias;
+				Return SetupStatus;
+			EndIf;
+		EndIf;
+		
+		SetupStatus = SynchronizationSetupStatusInCorrespondent(Proxy, SettingsStructure_, DataArea);
+			
+		If Not SetupStatus.SettingExists Then
+			If ObsoleteExchangeSettingsOptionInCorrespondent(
+					Proxy, SetupStatus, SettingsStructure_, SettingsStructure_.CurrentExchangePlanNodeCode1, Cancel, ErrorMessageString)
+				Or Cancel Then
+				Return SetupStatus;
+			EndIf;
+		EndIf;
+		
+	Else
+		
+		SetupStatus = SynchronizationSetupStatusInCorrespondent(Proxy, SettingsStructure_, DataArea);
+			
+	EndIf;
+	
+	If Not SetupStatus.SettingExists Then
+		ErrorMessageString = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Data synchronization setting with ID ""%2"" is not found. Exchange plan: %1.';"),
+			SettingsStructure_.ExchangePlanName,
+			SettingsStructure_.CurrentExchangePlanNodeCode1);
+		Cancel = True;
+	EndIf;
+	
+	Return SetupStatus;
 	
 EndFunction
 
@@ -1064,7 +440,9 @@ Procedure ImportFromFileTransferServiceForInfobaseNode(ProcedureParameters, Stor
 EndProcedure
 
 // An analog of the "UploadData" operation
-Procedure RunDataExport(Proxy, ProxyVersion, ExchangeSettingsStructure, ExchangeParameters) Export
+Procedure RunDataExport(Proxy, ExchangeSettingsStructure, ExchangeParameters, DataArea = 0) Export
+	
+	ProxyVersion = ProxyVersion(Proxy);
 	
 	If Version3_0_2_1(ProxyVersion) Then
 		
@@ -1075,7 +453,7 @@ Procedure RunDataExport(Proxy, ProxyVersion, ExchangeSettingsStructure, Exchange
 			ExchangeParameters.TimeConsumingOperation,
 			ExchangeParameters.OperationID,
 			ExchangeParameters.TimeConsumingOperationAllowed,
-			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
+			DataArea);
 
 	Else
 					
@@ -1091,8 +469,10 @@ Procedure RunDataExport(Proxy, ProxyVersion, ExchangeSettingsStructure, Exchange
 
 EndProcedure
 
-// Matches the DownloadData web service operation.
-Procedure RunDataImport(Proxy, ProxyVersion, ExchangeSettingsStructure, ExchangeParameters, FileIDAsString) Export
+// An analog of the "DownloadData" operation
+Procedure RunDataImport(Proxy, ExchangeSettingsStructure, ExchangeParameters, FileIDAsString, DataArea = 0) Export
+	
+	ProxyVersion = ProxyVersion(Proxy);
 	
 	If Version3_0_2_1(ProxyVersion) Then
 		
@@ -1103,7 +483,7 @@ Procedure RunDataImport(Proxy, ProxyVersion, ExchangeSettingsStructure, Exchange
 			ExchangeParameters.TimeConsumingOperation,
 			ExchangeParameters.OperationID,
 			ExchangeParameters.TimeConsumingOperationAllowed,
-			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
+			DataArea);
 		
 	Else
 		
@@ -1120,8 +500,10 @@ Procedure RunDataImport(Proxy, ProxyVersion, ExchangeSettingsStructure, Exchange
 EndProcedure
 
 // Matches the GetIBParameters web service operation.
-Function GetParametersOfInfobase(Proxy, ProxyVersion, ExchangePlanName, NodeCode, ErrorMessage,
-	DataArea, AdditionalParameters = Undefined) Export
+
+Function GetParametersOfInfobase(Proxy, ExchangePlanName, NodeCode, ErrorMessage, DataArea = 0, AdditionalParameters = Undefined) Export
+	
+	ProxyVersion = ProxyVersion(Proxy);
 	
 	If Version3_0_2_2(ProxyVersion) Then
 		
@@ -1145,33 +527,17 @@ Function GetParametersOfInfobase(Proxy, ProxyVersion, ExchangePlanName, NodeCode
 	
 EndFunction 
 
-// An analog of the "GetContinuousOperationStatus" operation
-Function GetLongRunningOperationStatus(Proxy, ProxyVersion, ExchangeSettingsStructure, ExchangeParameters, ErrorMessageString) Export
-	
-	If Version3_0_2_1(ProxyVersion) Then
-		
-		Return Proxy.GetContinuousOperationStatus(ExchangeParameters.OperationID,
-			ErrorMessageString, 
-			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
-		
-	Else
-	
-		Return Proxy.GetContinuousOperationStatus(ExchangeParameters.OperationID, ErrorMessageString);
-		
-	EndIf;
-	
-EndFunction
-
 // An analog of the "PutMessageForDataMatching" operation
-Procedure PutMessageForDataMapping(Proxy, ProxyVersion, ExchangeSettingsStructure, FileIDAsString) Export
+Procedure PutMessageForDataMapping(Proxy, ExchangeSettingsStructure, FileIDAsString, DataArea = 0) Export
+	
+	ProxyVersion = ProxyVersion(Proxy);
 	
 	If Version3_0_2_1(ProxyVersion) Then
 		
 		Proxy.PutMessageForDataMatching(ExchangeSettingsStructure.CorrespondentExchangePlanName,
 			ExchangeSettingsStructure.CurrentExchangePlanNodeCode1,
 			FileIDAsString,
-			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
-
+			DataArea);
 		
 	Else
 		
@@ -1184,14 +550,16 @@ Procedure PutMessageForDataMapping(Proxy, ProxyVersion, ExchangeSettingsStructur
 EndProcedure
 
 // An analog of the "RemoveExchangeNode" operation
-Procedure DeleteExchangeNode(Proxy, ProxyVersion, ExchangeSettingsStructure) Export
+Procedure DeleteExchangeNode(Proxy, ExchangeSettingsStructure, DataArea = 0) Export
+	
+	ProxyVersion = ProxyVersion(Proxy);
 	
 	If Version3_0_2_1(ProxyVersion) Then
 		
 		Proxy.RemoveExchangeNode(ExchangeSettingsStructure.CorrespondentExchangePlanName,
 			ExchangeSettingsStructure.CurrentExchangePlanNodeCode1,
-			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
-			   
+			DataArea);
+			
 	Else
 	
 		Proxy.RemoveExchangeNode(ExchangeSettingsStructure.ExchangePlanName, ExchangeSettingsStructure.CurrentExchangePlanNodeCode1);
@@ -1201,7 +569,9 @@ Procedure DeleteExchangeNode(Proxy, ProxyVersion, ExchangeSettingsStructure) Exp
 EndProcedure
 
 // An analog of the "CreateExchangeNode" operation
-Procedure CreateExchangeNode(Proxy, ProxyVersion, ConnectionParameters, DataArea) Export
+Procedure CreateExchangeNode(Proxy, ConnectionParameters, DataArea = 0) Export
+	
+	ProxyVersion = ProxyVersion(Proxy);
 	
 	Serializer = New XDTOSerializer(Proxy.XDTOFactory);
 	
@@ -1216,15 +586,6 @@ Procedure CreateExchangeNode(Proxy, ProxyVersion, ConnectionParameters, DataArea
 	EndIf;
 	
 EndProcedure
-
-// Returns:
-//   String
-//
-Function EstablishWebServiceConnectionEventLogEvent() Export
-	
-	Return NStr("en = 'Data exchange.Establish web service connection';", Common.DefaultLanguageCode());
-	
-EndFunction
 
 // Returns:
 //   String
@@ -1248,7 +609,16 @@ EndFunction
 
 #Region Private
 
-Procedure WaitingForTheOperationToComplete(ExchangeSettingsStructure, ExchangeParameters, Proxy, ProxyParameters, ActionWhenExchangingInThisInformationSystem = Undefined)
+// Returns:
+//   String
+//
+Function EstablishWebServiceConnectionEventLogEvent()
+	
+	Return NStr("en = 'Data exchange.Establish web service connection';", Common.DefaultLanguageCode());
+	
+EndFunction
+
+Procedure WaitingForTheOperationToComplete(ExchangeSettingsStructure, ExchangeParameters, Proxy, ActionWhenExchangingInThisInformationSystem = Undefined) Export
 	
 	If ExchangeParameters.TheTimeoutOnTheServer = 0 Then
 		
@@ -1280,10 +650,9 @@ Procedure WaitingForTheOperationToComplete(ExchangeSettingsStructure, ExchangePa
 		
 		ErrorMessageString = "";
 	
-		ActionState = GetLongRunningOperationStatus(Proxy, ProxyParameters.CurrentVersion,
-			ExchangeSettingsStructure, ExchangeParameters, ErrorMessageString);
+		ActionState = GetLongRunningOperationStatus(Proxy, ExchangeParameters, ErrorMessageString);
 			
-			If ActionState = "Active" Then
+		If ActionState = "Active" Then
 			
 			ExchangeParameters.TheTimeoutOnTheServer = Min(ExchangeParameters.TheTimeoutOnTheServer + 30, 180);
 			
@@ -1295,7 +664,7 @@ Procedure WaitingForTheOperationToComplete(ExchangeSettingsStructure, ExchangePa
 			
 		Else
 			
-			Raise StrTemplate(NStr("en = 'Peer infobase error:%1 %2';"), Chars.LF, ErrorMessageString);
+			Raise StrTemplate(NStr("en = 'Peer infobase error: %1 %2';"), Chars.LF, ErrorMessageString);
 			
 		EndIf;
 		
@@ -1315,10 +684,40 @@ Function Version3_0_2_2(ProxyVersion)
 		
 EndFunction
 
+Function ProxyVersion(Proxy)
+
+	Name = Proxy.Endpoint.Name;
+	Version = StrReplace(Name, "Exchange_", "");
+	Version = StrReplace(Version, "Soap", "");
+	Version = StrReplace(Version, "_", ".");
+	
+	Return Version;
+	
+EndFunction
+
+// An analog of the "GetContinuousOperationStatus" operation
+Function GetLongRunningOperationStatus(Proxy, ExchangeParameters, ErrorMessageString, DataArea = 0)
+
+	ProxyVersion = ProxyVersion(Proxy);
+	
+	If Version3_0_2_1(ProxyVersion) Then
+		
+		Return Proxy.GetContinuousOperationStatus(ExchangeParameters.OperationID,
+			ErrorMessageString, 
+			DataArea);
+		
+	Else
+	
+		Return Proxy.GetContinuousOperationStatus(ExchangeParameters.OperationID, ErrorMessageString);
+		
+	EndIf;
+	
+EndFunction
 
 // An analog of the "PrepareGetFile" operation
-Function PrepareFileForReceipt(Proxy, ProxyVersion, ExchangeSettingsStructure,
-	FileID, PartSize, SessionID, PartCount)
+Function PrepareFileForReceipt(Proxy, FileID, PartSize, SessionID, PartCount, DataArea = 0)
+	
+	ProxyVersion = ProxyVersion(Proxy);
 	
 	If Version3_0_2_1(ProxyVersion) Then
 		
@@ -1326,7 +725,7 @@ Function PrepareFileForReceipt(Proxy, ProxyVersion, ExchangeSettingsStructure,
 			PartSize,
 			SessionID,
 			PartCount, 
-			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
+			DataArea);
 		
 	Else
 	
@@ -1337,13 +736,15 @@ Function PrepareFileForReceipt(Proxy, ProxyVersion, ExchangeSettingsStructure,
 EndFunction
 
 // An analog of the "GetFilePart" operation
-Procedure GetFileChunk(Proxy, ProxyVersion, ExchangeSettingsStructure, SessionID, PartNumber, PartData)
+Procedure GetFileChunk(Proxy, SessionID, PartNumber, PartData, DataArea = 0)
+	
+	ProxyVersion = ProxyVersion(Proxy);
 	
 	If Version3_0_2_1(ProxyVersion) Then
 		
 		Proxy.GetFilePart(SessionID,
 			PartNumber, PartData,
-			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
+			DataArea);
 			
 	Else
 	
@@ -1354,12 +755,14 @@ Procedure GetFileChunk(Proxy, ProxyVersion, ExchangeSettingsStructure, SessionID
 EndProcedure
 
 // An analog of the "PutFilePart" operation
-Procedure PutFileChunk(Proxy, ProxyVersion, ExchangeSettingsStructure, SessionID, PartNumber, FileData)
+Procedure PutFileChunk(Proxy, SessionID, PartNumber, FileData, DataArea = 0)
+	
+	ProxyVersion = ProxyVersion(Proxy);
 	
 	If Version3_0_2_1(ProxyVersion) Then
 		
 		Proxy.PutFilePart(SessionID, PartNumber, FileData,
-			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
+			DataArea);
 		
 	Else
 	
@@ -1370,12 +773,14 @@ Procedure PutFileChunk(Proxy, ProxyVersion, ExchangeSettingsStructure, SessionID
 EndProcedure
 
 // An analog of the "SaveFileFromParts" operation
-Procedure AssembleFileFromParts(Proxy, ProxyVersion, ExchangeSettingsStructure, SessionID, PartCount, FileID)
+Procedure AssembleFileFromParts(Proxy, SessionID, PartCount, FileID, DataArea = 0)
+	
+	ProxyVersion = ProxyVersion(Proxy);
 	
 	If Version3_0_2_1(ProxyVersion) Then
 		
-		Proxy.SaveFileFromParts(SessionID, PartCount, FileID,
-			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
+		Proxy.SaveFileFromParts(SessionID, PartCount, FileID, DataArea);
+		
 	Else
 		
 		Proxy.SaveFileFromParts(SessionID, PartCount, FileID);
@@ -1384,8 +789,10 @@ Procedure AssembleFileFromParts(Proxy, ProxyVersion, ExchangeSettingsStructure, 
 	
 EndProcedure
 
-// Matches the TestConnection web service operation
-Function ConnectionTesting(Proxy, ProxyVersion, ExchangeSettingsStructure, ErrorMessage)
+// An analog of the "TestConnection" operation
+Function ConnectionTesting(Proxy, ExchangeSettingsStructure, ErrorMessage, DataArea = 0)
+
+	ProxyVersion = ProxyVersion(Proxy);
 	
 	If Version3_0_2_1(ProxyVersion) Then
 		
@@ -1393,7 +800,7 @@ Function ConnectionTesting(Proxy, ProxyVersion, ExchangeSettingsStructure, Error
 			ExchangeSettingsStructure.CorrespondentExchangePlanName, 
 			ExchangeSettingsStructure.CurrentExchangePlanNodeCode1, 
 			ErrorMessage, 
-			ExchangeSettingsStructure.TransportSettings.WSCorrespondentDataArea);
+			DataArea); 
 			
 	Else
 		
@@ -1480,7 +887,7 @@ Function AllowedWSProxyPrefixes()
 	
 EndFunction
 
-Function SynchronizationSetupStatusInCorrespondent(Proxy, ProxyParameters, SettingsStructure_)
+Function SynchronizationSetupStatusInCorrespondent(Proxy, SettingsStructure_, DataArea = 0)
 	
 	Result = New Structure;
 	Result.Insert("SettingExists",                     False);
@@ -1490,18 +897,20 @@ Function SynchronizationSetupStatusInCorrespondent(Proxy, ProxyParameters, Setti
 	Result.Insert("DataMappingSupported",       True);
 		
 	ErrorMessageString = "";
-	If CommonClientServer.CompareVersions(ProxyParameters.CurrentVersion, "2.0.1.6") >= 0 Then
+	ProxyVersion = ProxyVersion(Proxy);
+	
+	If CommonClientServer.CompareVersions(ProxyVersion, "2.0.1.6") >= 0 Then
 		
-		SettingExists = ConnectionTesting(Proxy, ProxyParameters.CurrentVersion, SettingsStructure_, ErrorMessageString);
+		SettingExists = ConnectionTesting(Proxy, SettingsStructure_, ErrorMessageString, DataArea);
 		
 		If SettingExists
-			And CommonClientServer.CompareVersions(ProxyParameters.CurrentVersion, "3.0.1.1") >= 0 Then
+			And CommonClientServer.CompareVersions(ProxyVersion, "3.0.1.1") >= 0 Then
 			
-			ProxyDestinationParameters = GetParametersOfInfobase(Proxy, ProxyParameters.CurrentVersion,
+			ProxyDestinationParameters = GetParametersOfInfobase(Proxy,
 				SettingsStructure_.CorrespondentExchangePlanName,
 				SettingsStructure_.CurrentExchangePlanNodeCode1,
 				ErrorMessageString,
-				SettingsStructure_.TransportSettings.WSCorrespondentDataArea);
+				DataArea);
 			
 			DestinationParameters = XDTOSerializer.ReadXDTO(ProxyDestinationParameters);
 			
@@ -1511,11 +920,11 @@ Function SynchronizationSetupStatusInCorrespondent(Proxy, ProxyParameters, Setti
 		Result.SettingExists = SettingExists;
 	Else
 		
-		ProxyDestinationParameters = GetParametersOfInfobase(Proxy, ProxyParameters.CurrentVersion,
+		ProxyDestinationParameters = GetParametersOfInfobase(Proxy,
 				SettingsStructure_.ExchangePlanName,
 				SettingsStructure_.CurrentExchangePlanNodeCode1,
 				ErrorMessageString,
-				SettingsStructure_.TransportSettings.WSCorrespondentDataArea);
+				DataArea);
 			
 		DestinationParameters = ValueFromStringInternal(ProxyDestinationParameters);
 		
@@ -1530,7 +939,7 @@ Function SynchronizationSetupStatusInCorrespondent(Proxy, ProxyParameters, Setti
 	
 EndFunction
 
-Function ObsoleteExchangeSettingsOptionInCorrespondent(Proxy, ProxyParameters, SetupStatus, SettingsStructure_, NodeCode, Cancel, ErrorMessageString = "")
+Function ObsoleteExchangeSettingsOptionInCorrespondent(Proxy, SetupStatus, SettingsStructure_, NodeCode, Cancel, ErrorMessageString = "")
 	
 	StateOfOptionSetup = New Structure();
 	StateOfOptionSetup.Insert("TransportSettings", SettingsStructure_.TransportSettings);
@@ -1542,7 +951,7 @@ Function ObsoleteExchangeSettingsOptionInCorrespondent(Proxy, ProxyParameters, S
 		StateOfOptionSetup.Insert("CurrentExchangePlanNodeCode1", NodeCode);
 				
 		SetupStatus = SynchronizationSetupStatusInCorrespondent(
-			Proxy, ProxyParameters, StateOfOptionSetup);
+			Proxy, StateOfOptionSetup);
 		
 		If SetupStatus.SettingExists Then
 			If SettingsStructure_.ActionOnExchange = Enums.ActionsOnExchange.DataExport Then
@@ -1604,34 +1013,34 @@ Function ObsoleteExchangeSettingsOptions(ExchangeNode)
 	
 EndFunction
 
-// Sets the data synchronization password for the specified node.
-// Saves the password to a session parameter.
-//
-Procedure SetDataSynchronizationPassword(Val InfobaseNode, Val Password)
+Function MaximumGeneralVersionOfExchangeInterface(WeightOfCorrespondentExchangeInterface) Export
 	
-	SetPrivilegedMode(True);
+	SupportedVersionsStructure = New Structure;
+	DataExchangeServer.OnDefineSupportedInterfaceVersions(SupportedVersionsStructure);
+	VersionsOfExchangeInterface = SupportedVersionsStructure.DataExchange;
 	
-	DataSynchronizationPasswords = New Map;
+	MaxVersion = "0.0.0.0";
 	
-	For Each Item In SessionParameters.DataSynchronizationPasswords Do
+	For Each Version In WeightOfCorrespondentExchangeInterface Do
 		
-		DataSynchronizationPasswords.Insert(Item.Key, Item.Value);
+		If VersionsOfExchangeInterface.Find(Version) = Undefined Then
+			Continue;
+		EndIf;
+		
+		If CommonClientServer.CompareVersions(Version, MaxVersion) > 0 Then
+			MaxVersion = Version;
+		EndIf;
 		
 	EndDo;
 	
-	DataSynchronizationPasswords.Insert(InfobaseNode, Password);
+	// Exception
+	If MaxVersion = "2.1.1.7" Then
+		MaxVersion = "2.0.1.6";
+	EndIf;
 	
-	SessionParameters.DataSynchronizationPasswords = New FixedMap(DataSynchronizationPasswords);
+	Return MaxVersion;
 	
-EndProcedure
-
-// Resets the data synchronization password for the specified node.
-//
-Procedure ResetDataSynchronizationPassword(Val InfobaseNode)
-	
-	SetDataSynchronizationPassword(InfobaseNode, Undefined);
-	
-EndProcedure
+EndFunction
 
 #EndRegion
 

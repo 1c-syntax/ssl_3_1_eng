@@ -8,7 +8,7 @@
 //
 //
 
-#Region Private
+#Region Public
 
 // Describes transliteration rules for a national alphabet into Latin characters.
 //

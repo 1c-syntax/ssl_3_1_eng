@@ -23,6 +23,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetFormStateByScheduledJobSettings(ThisObject);
 	
 	If Common.DataSeparationEnabled() Then
+		Items.UseScheduledDeletion.Title = NStr("en = 'Autodelete objects marked for deletion';");
 		Items.DeleteMarkedObjectsConfigureSchedule.Visible = False;
 	EndIf;
 EndProcedure
@@ -39,13 +40,13 @@ EndProcedure
 
 &AtClient
 Procedure UseScheduledDeletionOnChange(Item)
-	ChangeNotification1 = New NotifyDescription("ScheduledJobsAfterChangeSchedule", ThisObject);
+	ChangeNotification1 = New CallbackDescription("ScheduledJobsAfterChangeSchedule", ThisObject);
 	MarkedObjectsDeletionClient.OnChangeCheckBoxDeleteOnSchedule(AutomaticallyDeleteMarkedObjects, ChangeNotification1);
 EndProcedure
 
 &AtClient
 Procedure ScheduledJobSettings(Command)
-	ChangeNotification1 = New NotifyDescription("ScheduledJobsAfterChangeSchedule", ThisObject);
+	ChangeNotification1 = New CallbackDescription("ScheduledJobsAfterChangeSchedule", ThisObject);
 	MarkedObjectsDeletionClient.StartChangeJobSchedule(ChangeNotification1);
 EndProcedure
 
@@ -103,7 +104,7 @@ Procedure AddSetting(Command)
 	FormParameters.SubsystemsWithCIOnly = True;
 	FormParameters.SelectedMetadataObjects = SelectedObjects;
 
-	ClosingNotification1 = New NotifyDescription("AddSettingCompletion", ThisObject);
+	ClosingNotification1 = New CallbackDescription("AddSettingCompletion", ThisObject);
 	StandardSubsystemsClient.ChooseMetadataObjects(FormParameters, ClosingNotification1);
 EndProcedure
 
@@ -126,7 +127,7 @@ Procedure AddSettingsField(Command)
 
 	AttributesForSelection = AttributesForSelection(AttributesMetadata(SearchLocation), CurrentData);
 	
-	ChoiceNotification1 = New NotifyDescription("AddSettingsFieldCompletion",
+	ChoiceNotification1 = New CallbackDescription("AddSettingsFieldCompletion",
 												 ThisObject,
 												 New Structure("SearchLocation", SearchLocation));
 	AttributesForSelection.ShowCheckItems(ChoiceNotification1);
@@ -359,7 +360,7 @@ EndProcedure
 &AtClient
 Procedure StartCheckOfDeletableObjectsLock()
 
-	Notification = New NotifyDescription("FinalizeCheckOfDeletableObjectsLock", ThisObject);
+	Notification = New CallbackDescription("FinalizeCheckOfDeletableObjectsLock", ThisObject);
 	TimeConsumingOperation = StartCheckOfDeletableObjectsLockServer();
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, Notification, TimeConsumingOperationsClient.IdleParameters(ThisObject));
 

@@ -18,6 +18,11 @@ Procedure PackMessageToArchive(InfobaseNode, PathToSourceFile) Export
 		Return;
 	EndIf;
 	
+	SSLExchangePlans = DataExchangeCached.SSLExchangePlans();
+	If SSLExchangePlans.Find(InfobaseNode.Metadata().Name) = Undefined Then
+		Return;
+	EndIf;
+	
 	Settings = InformationRegisters.ExchangeMessageArchiveSettings.GetSettings(InfobaseNode);
 	
 	If Settings = Undefined Or Settings.FilesCount = 0 Then
@@ -39,6 +44,14 @@ Procedure PackMessageToArchive(InfobaseNode, PathToSourceFile) Export
 		
 		WriteLogEvent(EventLogEventMessagePutToArchive(),
 			EventLogLevel.Error, , , ErrorMessage);
+		
+		ReasonText = NStr("en = 'The file was not archived.';") + Chars.LF + ErrorMessage;
+		
+		WriteParameters = New Structure;
+		WriteParameters.Insert("InfobaseNode", InfobaseNode);
+		WriteParameters.Insert("Cause", ReasonText);
+		WriteParameters.Insert("IssueType", Enums.DataExchangeIssuesTypes.IsExchangeMessageOutsideOfArchive);
+		InformationRegisters.DataExchangeResults.AddAnEntryAboutTheResultsOfTheExchange(WriteParameters);
 		
 	EndTry;
 	
@@ -141,18 +154,14 @@ Procedure PutToArchive(InfobaseNode, PathToSourceFile, Settings)
 			NewArchive.IsFileExceeds100MB = True;
 			
 			Cause = NStr("en = 'Exchange message larger than 100 MB. The file is not placed to the archive.';");
-		
 			WriteParameters = New Structure;
 			WriteParameters.Insert("InfobaseNode", InfobaseNode);
 			WriteParameters.Insert("Cause", Cause);
 			WriteParameters.Insert("IssueType", Enums.DataExchangeIssuesTypes.IsExchangeMessageOutsideOfArchive);
-			
 			InformationRegisters.DataExchangeResults.AddAnEntryAboutTheResultsOfTheExchange(WriteParameters);
 	
 		Else
-			
-			NewArchive.Store = New ValueStorage(New BinaryData(FileName));
-			
+			NewArchive.Storage = New ValueStorage(New BinaryData(FileName), New Deflation(9));
 		EndIf;
 		
 	EndIf;
@@ -160,9 +169,9 @@ Procedure PutToArchive(InfobaseNode, PathToSourceFile, Settings)
 	If DeleteFileAfterPut Then
 		DeleteFiles(FileName);
 	EndIf;
-
+    
 	Set.Write();
-
+	
 EndProcedure
 
 Function EventLogEventMessagePutToArchive()

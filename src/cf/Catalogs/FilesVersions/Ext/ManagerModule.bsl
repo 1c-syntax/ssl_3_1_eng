@@ -33,7 +33,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// StandardSubsystems.AccessManagement
+// СтандартныеПодсистемы.УправлениеДоступом
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -80,6 +80,10 @@ EndProcedure
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 
+	SelectionParameters = Parameters.SelectionParameters;
+	SelectionParameters.FullNamesOfObjects = "Catalog.FilesVersions";
+	SelectionParameters.SelectionMethod = InfobaseUpdate.RefsSelectionMethod();
+
 	QueryText =
 	"SELECT TOP 1000
 	|	FilesVersions.Ref AS Ref
@@ -88,108 +92,132 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	|WHERE
 	|	FilesVersions.Ref > &Ref
 	|	AND FilesVersions.FileStorageType = VALUE(Enum.FileStorageTypes.InVolumesOnHardDrive)
-	|	AND (SUBSTRING(FilesVersions.PathToFile, 1, 1) = ""/""
-	|	OR SUBSTRING(FilesVersions.PathToFile, 1, 1) = ""\"")
 	|
 	|ORDER BY
 	|	Ref";
 
+	AllFilesProcessed = False;
+
 	Query = New Query(QueryText);
-	Query.SetParameter("Ref", EmptyRef());
-	Result = Query.Execute().Unload();
-	While Result.Count() > 0 Do
-		VersionsForProcessing = Result.UnloadColumn("Ref");
-		InfobaseUpdate.MarkForProcessing(Parameters, VersionsForProcessing);
-		Query.SetParameter("Ref", VersionsForProcessing[VersionsForProcessing.UBound()]);
+	Ref = EmptyRef(); 
+	While Not AllFilesProcessed Do
+
+		Query.SetParameter("Ref", Ref);
 		//@skip-check query-in-loop - Batch data registration for processing
-		Result = Query.Execute().Unload();
+		VersionsForProcessing = Query.Execute().Unload().UnloadColumn("Ref");
+		InfobaseUpdate.MarkForProcessing(Parameters, VersionsForProcessing);
+		
+		RefsCount = VersionsForProcessing.Count();
+		If RefsCount < 1000 Then
+			AllFilesProcessed = True;
+		ElsIf RefsCount > 0 Then
+			Ref = VersionsForProcessing[RefsCount - 1];
+		EndIf;
+
 	EndDo;
 
 EndProcedure
 
-Procedure ProcessVersionStoragePath(Parameters) Export
+Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 
-	VersionRef = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue, "Catalog.FilesVersions");
+	SelectedData = InfobaseUpdate.DataToUpdateInMultithreadHandler(Parameters);
 
 	ObjectsWithIssuesCount = 0;
 	ObjectsProcessed = 0;
-	ErrorList = New Array;
 
-	While VersionRef.Next() Do
-		Result = RemoveExtraSeparator(VersionRef.Ref);
-
-		If Result.Status = "Error" Then
-			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
-			ErrorList.Add(Result.ErrorText);
-		Else
+	For Each String In SelectedData Do
+		
+		If ProcessFileVersion(String.Ref) Then
 			ObjectsProcessed = ObjectsProcessed + 1;
-			InfobaseUpdate.MarkProcessingCompletion(VersionRef.Ref);
-		EndIf;
-
-		If ObjectsProcessed + ObjectsWithIssuesCount = 1000 Then
-			Break;
+		Else
+			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 		EndIf;
 
 	EndDo;
 
-	Parameters.ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue,
-		"Catalog.FilesVersions");
-
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) some file versions: %1
-				 |%2';"), ObjectsWithIssuesCount, StrConcat(ErrorList, Chars.LF));
+			NStr("en = 'Couldn''t process (skipped) the files: %1';"), 
+			ObjectsWithIssuesCount);
 		Raise MessageText;
-	Else
-		WriteLogEvent(InfobaseUpdate.EventLogEvent(),
-			EventLogLevel.Information, Metadata.Catalogs.FilesVersions,, 
-			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Another batch of file versions is processed: %1';"), 
-				ObjectsProcessed));
 	EndIf;
+
+	WriteLogEvent(InfobaseUpdate.EventLogEvent(), 
+		EventLogLevel.Information, , ,
+		StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Yet another batch of files is processed: %1';"),
+			ObjectsProcessed));
+	Parameters.ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue, "Catalog.FilesVersions");
+
 EndProcedure
 
 #EndRegion
 
 #Region Private
 
-Function RemoveExtraSeparator(VersionRef)
+Function ProcessFileVersion(VersionRef)
 
-	Result =  New Structure;
-	Result.Insert("Status", "NoUpdateRequired");
-	Result.Insert("ErrorText", "");
-	NewFilePath = Mid(Common.ObjectAttributeValue(VersionRef, "PathToFile"), 2);
-
+	Result = True;
+	RepresentationOfTheReference = String(VersionRef);
+	
 	Block = New DataLock;
 	LockItem = Block.Add("Catalog.FilesVersions");
 	LockItem.SetValue("Ref", VersionRef);
-	LockItem.Mode = DataLockMode.Shared;
 
 	BeginTransaction();
 	Try
-
 		Block.Lock();
-		VersionObject = VersionRef.GetObject();
-		VersionObject.DataExchange.Load = True;
-		VersionObject.PathToFile = NewFilePath;
-		VersionObject.Write();
+		
+		VersionObject = Undefined;
+		ItIsRequiredToRecord = False;
+		
+		// @skip-check query-in-loop - Порционная обработка большого объема данных.
+		PathToFile = Common.ObjectAttributeValue(VersionRef, "PathToFile");
+		If StrStartsWith(PathToFile, "/") Or StrStartsWith(PathToFile, "\") Then
+			NewFilePath = Mid(PathToFile, 2);
 
-		Result.Status = "Updated";
+			VersionObject = VersionRef.GetObject();
+			If VersionObject = Undefined Then
+				InfobaseUpdate.MarkProcessingCompletion(VersionRef);
+				CommitTransaction();
+				Return Result;
+			EndIf;
+			VersionObject.PathToFile = NewFilePath;
+			ItIsRequiredToRecord = True;
+		EndIf;
+		
+		If VersionObject = Undefined Then
+			VersionObject = VersionRef.GetObject();
+			If VersionObject = Undefined Then
+				InfobaseUpdate.MarkProcessingCompletion(VersionRef);
+				CommitTransaction();
+				Return Result;
+			EndIf;
+		EndIf;
+		
+		FileBinaryData = Undefined;
+		FileBinaryDataStorage = VersionObject.FileStorage;
+		FileBinaryData = ?(TypeOf(FileBinaryDataStorage) = Type("ValueStorage"),
+			FileBinaryDataStorage.Get(), Undefined);
+		
+		If FileBinaryData <> Undefined Then
+			VersionObject.FileStorage = New ValueStorage(Undefined);
+			ItIsRequiredToRecord = True;
+		EndIf;
+
+		If ItIsRequiredToRecord Then
+			VersionObject.Write();
+		Else
+			InfobaseUpdate.MarkProcessingCompletion(VersionRef);
+		EndIf;
+
 		CommitTransaction();
 	Except
 		RollbackTransaction();
 
-		ErrorInfo = ErrorInfo();
-
-		Result.Status = "Error";
-		Result.ErrorText = ErrorProcessing.BriefErrorDescription(ErrorInfo);
-
-		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot process file version %1. Reason: %2';"), VersionRef,
-			ErrorProcessing.DetailErrorDescription(ErrorInfo));
-
-		WriteLogEvent(InfobaseUpdate.EventLogEvent(),
-			EventLogLevel.Warning, Metadata.Catalogs.FilesVersions, VersionRef, MessageText);
+		Result = False;
+		InfobaseUpdate.WriteErrorToEventLog(VersionRef,
+			RepresentationOfTheReference, ErrorInfo());
 
 	EndTry;
 

@@ -26,7 +26,7 @@ EndProcedure
 
 &AtClient
 Procedure HyperlinkSelectionHandlersClick(Item)
-	CompletionProcessing = New NotifyDescription("AfterSelectHandlers", ThisObject);
+	CompletionProcessing = New CallbackDescription("AfterSelectHandlers", ThisObject);
 	
 	ChoiceParameters = New Structure;
 	ChoiceParameters.Insert("SelectedHandlers", SelectedHandlers);
@@ -43,7 +43,7 @@ Procedure Restart(Command)
 	
 	TimeConsumingOperation = TimeConsumingOperation();
 	
-	CallbackOnCompletion = New NotifyDescription("ProcessResult", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("ProcessResult", ThisObject);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 EndProcedure

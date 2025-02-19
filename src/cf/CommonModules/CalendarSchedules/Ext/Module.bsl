@@ -457,23 +457,23 @@ EndFunction
 //
 Function NonWorkDaysPeriods(BusinessCalendar, PeriodFilter) Export
 
-	TimeIntervals = New Array;
+	TimeIntervals_ = New Array;
 	If Metadata.DataProcessors.Find("FillCalendarSchedules") = Undefined Then
-		Return TimeIntervals;
+		Return TimeIntervals_;
 	EndIf;
 	
 	ModuleFillingInCalendarSchedules = Common.CommonModule("DataProcessors.FillCalendarSchedules");
-	TimeIntervals = ModuleFillingInCalendarSchedules.NonWorkDaysPeriods(BusinessCalendar, PeriodFilter);
+	TimeIntervals_ = ModuleFillingInCalendarSchedules.NonWorkDaysPeriods(BusinessCalendar, PeriodFilter);
 	
-	DeletePeriodsThatDoNotMatchFilter(TimeIntervals, PeriodFilter);
+	DeletePeriodsThatDoNotMatchFilter(TimeIntervals_, PeriodFilter);
 	
-	Return TimeIntervals;
+	Return TimeIntervals_;
 
 EndFunction
 
 #Region ForCallsFromOtherSubsystems
 
-// OnlineUserSupport.ClassifiersOperations 
+// OnlineUserSupport.ClassifiersOperations
 
 // The event occurs upon collecting information on classifiers. Registering business calendars.
 // 
@@ -734,8 +734,7 @@ Function ClassifierData() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
 Procedure OnAddUpdateHandlers(Handlers) Export
@@ -816,8 +815,9 @@ Procedure OnEnableSeparationByDataAreas() Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Infobase update handlers used in other subsystems.
+#EndRegion
+
+#Region InfobaseUpdateHandlersUsedInOtherSubsystems
 
 // Updates data dependent on business calendars.
 //
@@ -844,6 +844,8 @@ Function ThereAreChangeableObjectsDependentOnProductionCalendars() Export
 	Return ObjectsToChange.Count() > 0;
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion
 
@@ -998,8 +1000,7 @@ Function BusinessCalendarsDataUpdateVersion()
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+#Region InfobaseUpdate
 
 // Updates the Business calendars catalog from the template with the same name.
 //
@@ -1245,14 +1246,14 @@ Procedure AddHandlerOfDataDependentOnBusinessCalendars(Handlers)
 	
 EndProcedure
 
-Procedure DeletePeriodsThatDoNotMatchFilter(TimeIntervals, PeriodFilter)
+Procedure DeletePeriodsThatDoNotMatchFilter(TimeIntervals_, PeriodFilter)
 	
 	IndexOf = 0;
-	While IndexOf < TimeIntervals.Count() Do
-		PeriodDetails = TimeIntervals[IndexOf];
+	While IndexOf < TimeIntervals_.Count() Do
+		PeriodDetails = TimeIntervals_[IndexOf];
 		If PeriodFilter.StartDate > PeriodDetails.Period.EndDate 
 			Or (ValueIsFilled(PeriodFilter.EndDate) And PeriodFilter.EndDate < PeriodDetails.Period.StartDate) Then
-			TimeIntervals.Delete(IndexOf);
+			TimeIntervals_.Delete(IndexOf);
 		Else
 			IndexOf = IndexOf + 1;
 		EndIf; 
@@ -1512,5 +1513,7 @@ Procedure SupplementDefaultCalendarData(DefaultCalendarData, Year, SortInDescend
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

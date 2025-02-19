@@ -31,7 +31,7 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	OptionSettings.LongDesc = NStr("en = 'Unassigned tasks (tasks assigned to blank roles).';");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "UnassignedTasksByAddressingObjects");
-	OptionSettings.LongDesc = NStr("en = 'Unassigned tasks by business objects.';");
+	OptionSettings.LongDesc = NStr("en = 'Unassigned tasks by business object.';");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "OverdueTasks");
 	OptionSettings.LongDesc = NStr("en = 'Unassigned and overdue tasks (tasks not assigned to any users).';");

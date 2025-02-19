@@ -140,7 +140,7 @@ Procedure ReviseConflictResolutionResult(Command)
 		
 	EndIf;
 	
-	NotifyDescription = New NotifyDescription("CompleteTheRevisionOfTheResultOfTheCollision", ThisObject);
+	NotifyDescription = New CallbackDescription("CompleteTheRevisionOfTheResultOfTheCollision", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo);
 	
 EndProcedure

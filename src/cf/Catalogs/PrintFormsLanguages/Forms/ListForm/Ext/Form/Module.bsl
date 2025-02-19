@@ -202,7 +202,7 @@ EndFunction
 &AtClient
 Procedure AddLanguage()
 	
-	NotifyDescription = New NotifyDescription("WhenSelectingALanguage", ThisObject);
+	NotifyDescription = New CallbackDescription("WhenSelectingALanguage", ThisObject);
 	OpenForm("Catalog.PrintFormsLanguages.Form.PickLanguageFromAvailableLanguagesList", , ThisObject, , , , NotifyDescription);
 	
 EndProcedure

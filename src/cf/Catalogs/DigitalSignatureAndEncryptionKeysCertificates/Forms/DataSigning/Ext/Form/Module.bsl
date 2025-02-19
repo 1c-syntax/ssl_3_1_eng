@@ -23,8 +23,25 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	DigitalSignatureInternal.SetPasswordEntryNote(ThisObject, ,
 		Items.AdvancedPasswordNote.Name);
 	
-	SetSignatureType(Parameters.SignatureType);
+	NewParameterSignatureType = New Structure;
+	NewParameterSignatureType.Insert("SignatureTypes", New Array);
+	NewParameterSignatureType.Insert("Visible", False);
+	NewParameterSignatureType.Insert("Enabled", False);
+	NewParameterSignatureType.Insert("CanSelectLetterOfAuthority", False);
+	NewParameterSignatureType.Insert("VerifyCertificate", DigitalSignatureInternalClientServer.VerifyQualified());
+	
+	If Not TypeOf(Parameters.SignatureType) = Type("Structure") Then
+		
+		If ValueIsFilled(Parameters.SignatureType) Then
+			NewParameterSignatureType.SignatureTypes.Add(Parameters.SignatureType);
+		EndIf;
+	Else
+		FillPropertyValues(NewParameterSignatureType, Parameters.SignatureType);
+	EndIf;
+	
+	SetSignatureType(NewParameterSignatureType);
 	DigitalSignatureInternal.SetSigningEncryptionDecryptionForm(ThisObject);
+
 	
 	If DigitalSignatureInternal.UseCloudSignatureService() Then
 		ModuleCryptographyServiceDSSConfirmationServer = Common.CommonModule("DSSCryptographyServiceConfirmationServer");
@@ -35,11 +52,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				"GroupContainer1",
 				"ConfirmationCommandsGroup");
 		ModuleCryptographyServiceDSSConfirmationServer.ConfirmationWhenChangingCertificate(ThisObject, Certificate);
-	EndIf;
-	
-	If Not DigitalSignature.AvailableAdvancedSignature() Then
-		SignatureType = Undefined;
-		Items.SignatureType.Visible = False;
 	EndIf;
 	
 	RefreshVisibilityWarnings();
@@ -85,21 +97,21 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 			NotificationOnConfirmation = CloudSignatureProperties.NotificationOnConfirmation;
 			
 			If NotificationOnConfirmation = Undefined Then
-				SignData(New NotifyDescription("SignCompletion", ThisObject));
+				SignData(New CallbackDescription("SignCompletion", ThisObject));
 			Else
-				ExecuteNotifyProcessing(NotificationOnConfirmation, ThisObject);
+				RunCallback(NotificationOnConfirmation, ThisObject);
 			EndIf;
 		Else
 			Items.Sign.Visible = True;
 			Items.Sign.Enabled = True;
 			Items.Sign.DefaultButton = True;
-			HandleError(New NotifyDescription("SignCompletion", ThisObject),
+			HandleError(New CallbackDescription("SignCompletion", ThisObject),
 				New Structure("ErrorDescription", Parameter.Error), New Structure);
 		EndIf;
 		
 	ElsIf Upper(EventName) = Upper("ConfirmationAuthorization") And Source = UUID Then
 		DigitalSignatureInternalClient.GetCertificatesThumbprintsAtClient(
-			New NotifyDescription("CertificateChoiceProcessingCompletion", ThisObject));
+			New CallbackDescription("CertificateChoiceProcessingCompletion", ThisObject));
 	
 	ElsIf Upper(EventName) = Upper("ConfirmationPrepareData") And Source = UUID Then
 		SelectedCertificate = New Structure;
@@ -155,7 +167,7 @@ EndProcedure
 Procedure CertificateOnChange(Item)
 	
 	DigitalSignatureInternalClient.GetCertificatesThumbprintsAtClient(
-		New NotifyDescription("CertificateOnChangeCompletion", ThisObject));
+		New CallbackDescription("CertificateOnChangeCompletion", ThisObject));
 	
 EndProcedure
 
@@ -194,6 +206,7 @@ Procedure CertificateStartChoice(Item, ChoiceData, StandardProcessing)
 		FormParameters.Insert("FilterByCompany", CertificatesFilter);
 	EndIf;
 	FormParameters.Insert("ExecuteAtServer", ExecuteAtServer);
+	FormParameters.Insert("ShouldDisplayAddCommands", True);
 	
 	DigitalSignatureInternalClient.SelectSigningOrDecryptionCertificate(FormParameters, Item);
 	
@@ -222,7 +235,7 @@ Procedure CertificateChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	EndIf;
 	
 	DigitalSignatureInternalClient.GetCertificatesThumbprintsAtClient(
-		New NotifyDescription("CertificateChoiceProcessingCompletion", ThisObject, ValueSelected));
+		New CallbackDescription("CertificateChoiceProcessingCompletion", ThisObject, ValueSelected));
 	
 EndProcedure
 
@@ -347,7 +360,7 @@ Procedure Sign(Command)
 
 		Items.Sign.Enabled = False;
 
-		SignData(New NotifyDescription("SignCompletion", ThisObject));
+		SignData(New CallbackDescription("SignCompletion", ThisObject));
 
 	EndIf;
 	
@@ -375,24 +388,6 @@ EndProcedure
 &AtServer
 Procedure SetSignatureType(Val ParameterSignatureType)
 	
-	NewParameterSignatureType = New Structure;
-	NewParameterSignatureType.Insert("SignatureTypes", New Array);
-	NewParameterSignatureType.Insert("Visible", False);
-	NewParameterSignatureType.Insert("Enabled", False);
-	NewParameterSignatureType.Insert("CanSelectLetterOfAuthority", False);
-	NewParameterSignatureType.Insert("VerifyCertificate", DigitalSignatureInternalClientServer.VerifyQualified());
-	
-	If Not TypeOf(ParameterSignatureType) = Type("Structure") Then
-		
-		If ValueIsFilled(ParameterSignatureType) Then
-			NewParameterSignatureType.SignatureTypes.Add(ParameterSignatureType);
-		EndIf;
-		ParameterSignatureType = NewParameterSignatureType;
-	Else
-		FillPropertyValues(NewParameterSignatureType, ParameterSignatureType);
-	EndIf;
-	
-	ParameterSignatureType  = NewParameterSignatureType;
 	VerifyCertificate = ParameterSignatureType.VerifyCertificate;
 	
 	If ParameterSignatureType.SignatureTypes.Count() = 0 Then
@@ -419,7 +414,6 @@ Procedure SetSignatureType(Val ParameterSignatureType)
 	
 	Items.PowerOfAttorneyGroup.Visible = False;
 	
-	
 	If Items.SignatureType.Visible Then
 		TypesList = New ValueList;
 		DigitalSignatureInternal.FillListSignatureTypesCryptography(TypesList);
@@ -438,20 +432,20 @@ Procedure SetSignatureType(Val ParameterSignatureType)
 EndProcedure
 
 &AtServer
-Procedure ToSelectPowerOfAttorneyBasedOnCertificate()
+Procedure PickLOAByCertificate()
 	
 	If Not ValueIsFilled(Certificate) Then
-		SettingUpByProxy = Undefined;
+		SettingByLOA = Undefined;
 	Else
-		SettingUpByProxy = CommonServerCall.CommonSettingsStorageLoad(
+		SettingByLOA = CommonServerCall.CommonSettingsStorageLoad(
 				Certificate, "ByLetterOfAuthority", Undefined);
 	EndIf;
 
-	If SettingUpByProxy = Undefined Or SettingUpByProxy = True Then
+	If SettingByLOA = Undefined Or SettingByLOA = True Then
 		PickLetterOfAuthority();
 	EndIf;
 
-	ByLetterOfAuthority = ValueIsFilled(MachineReadableLetterOfAuthority) Or SettingUpByProxy = True;
+	ByLetterOfAuthority = ValueIsFilled(MachineReadableLetterOfAuthority) Or SettingByLOA = True;
 
 	Items.GroupPages.CurrentPage = ?(ByLetterOfAuthority, Items.PageSelectLetterOfAuthority,
 		Items.PageWithoutLetterOfAuthority);
@@ -487,9 +481,9 @@ Procedure ContinueOpening(Notification, CommonInternalData, ClientParameters) Ex
 	
 	InternalData = CommonInternalData;
 	Context = New Structure("Notification", Notification);
-	Notification = New NotifyDescription("ContinueOpening", ThisObject);
+	Notification = New CallbackDescription("ContinueOpening", ThisObject);
 	
-	DigitalSignatureInternalClient.ContinueOpeningStart(New NotifyDescription(
+	DigitalSignatureInternalClient.ContinueOpeningStart(New CallbackDescription(
 		"ContinueOpeningAfterStart", ThisObject, Context), ThisObject, ClientParameters);
 	
 EndProcedure
@@ -516,7 +510,12 @@ Procedure ContinueOpeningAfterStart(Result, Context) Export
 		ModuleCryptographyServiceDSSConfirmationClient = CommonClient.CommonModule("DSSCryptographyServiceClient");
 	EndIf;
 	
-	If NoConfirmation
+	ShouldOpenToSelectLetterOfAuthority = False;
+	If ByLetterOfAuthority And Not ValueIsFilled(MachineReadableLetterOfAuthority) Then
+		ShouldOpenToSelectLetterOfAuthority = True;
+	EndIf;
+	
+	If NoConfirmation And Not ShouldOpenToSelectLetterOfAuthority
 	   And (    AdditionalParameters.PasswordSpecified1
 	      Or AdditionalParameters.EnterPasswordInDigitalSignatureApplication
 	      Or CloudPasswordConfirmed) Then
@@ -524,12 +523,12 @@ Procedure ContinueOpeningAfterStart(Result, Context) Export
 		If ModuleCryptographyServiceDSSConfirmationClient <> Undefined Then
 			If Not ModuleCryptographyServiceDSSConfirmationClient.CloudSignatureRequiresConfirmation(ThisObject, AdditionalParameters.PasswordSpecified1) Then
 				ProcessingAfterWarning = Undefined;
-				SignData(New NotifyDescription("ContinueOpeningAfterSignData", ThisObject, Context));
+				SignData(New CallbackDescription("ContinueOpeningAfterSignData", ThisObject, Context));
 				Return;
 			EndIf;
 		Else	
 			ProcessingAfterWarning = Undefined;
-			SignData(New NotifyDescription("ContinueOpeningAfterSignData", ThisObject, Context));
+			SignData(New CallbackDescription("ContinueOpeningAfterSignData", ThisObject, Context));
 			Return;
 		EndIf;	
 	EndIf;
@@ -562,7 +561,7 @@ Procedure ContinueOpeningCompletion(Context, Result = Undefined)
 		ClearFormVariables();
 	EndIf;
 	
-	ExecuteNotifyProcessing(Context.Notification, Result);
+	RunCallback(Context.Notification, Result);
 	
 EndProcedure
 
@@ -600,10 +599,10 @@ Function VariablesCleared()
 	
 EndFunction
 
-// CAC:78-off: to securely pass data between forms on the client without sending them to the server.
+// ACC:78-off - Intended for the secure transfer of data between forms on the client without sending it to the server.
 &AtClient
 Procedure PerformSigning(ClientParameters, CompletionProcessing) Export
-// CAC:78-on: to securely pass data between forms on the client without sending them to the server.
+// ACC:78-on - Intended for the secure transfer of data between forms on the client without sending it to the server.
 	
 	DigitalSignatureInternalClient.RefreshFormBeforeSecondUse(ThisObject, ClientParameters);
 	
@@ -614,7 +613,7 @@ Procedure PerformSigning(ClientParameters, CompletionProcessing) Export
 	ProcessingAfterWarning = CompletionProcessing;
 	
 	Context = New Structure("CompletionProcessing", CompletionProcessing);
-	SignData(New NotifyDescription("PerformSigningCompletion", ThisObject, Context));
+	SignData(New CallbackDescription("PerformSigningCompletion", ThisObject, Context));
 	
 EndProcedure
 
@@ -622,7 +621,7 @@ EndProcedure
 &AtClient
 Procedure PerformSigningCompletion(Result, Context) Export
 	
-	ExecuteNotifyProcessing(Context.CompletionProcessing, Result);
+	RunCallback(Context.CompletionProcessing, Result);
 	
 EndProcedure
 
@@ -630,7 +629,7 @@ EndProcedure
 Procedure OnChangeCertificatesList()
 	
 	DigitalSignatureInternalClient.GetCertificatesThumbprintsAtClient(
-		New NotifyDescription("OnChangeCertificatesListCompletion", ThisObject));
+		New CallbackDescription("OnChangeCertificatesListCompletion", ThisObject));
 	
 EndProcedure
 
@@ -663,7 +662,7 @@ Procedure CertificateOnChangeAtServer(CertificatesThumbprintsAtClient, CheckRef 
 	EndIf;
 	
 	If Items.PowerOfAttorneyGroup.Visible Then
-		ToSelectPowerOfAttorneyBasedOnCertificate();
+		PickLOAByCertificate();
 	EndIf;
 	
 	RefreshVisibilityWarnings();
@@ -707,17 +706,16 @@ Procedure SignData(Notification)
 	
 	If CertificateExpiresOn < CommonClient.SessionDate() Then
 		
-		CertificateAdditionalProperties = DigitalSignatureInternalClientServer.CertificateAdditionalProperties(AddressOfCertificate);
-		If ValueIsFilled(CertificateAdditionalProperties.PrivateKeyExpirationDate)
-			And CertificateAdditionalProperties.PrivateKeyExpirationDate < CommonClient.SessionDate() Then
-				Context.ErrorAtClient.Insert("ErrorDescription",
-				NStr("en = 'The selected certificate''s private key has expired.
-				           |Select another certificate.';"));
+		PrivateKeyExpirationDate = PrivateKeyExpirationDate(AddressOfCertificate);
+		If ValueIsFilled(PrivateKeyExpirationDate) And PrivateKeyExpirationDate
+			< CommonClient.SessionDate() Then
+			Context.ErrorAtClient.Insert("ErrorDescription", NStr("en = 'The selected certificate''s private key has expired.
+																	 |Select another certificate.';"));
 		Else
-			Context.ErrorAtClient.Insert("ErrorDescription",
-				NStr("en = 'The selected certificate has expired.
-				           |Select another certificate.';"));
+			Context.ErrorAtClient.Insert("ErrorDescription", NStr("en = 'The selected certificate has expired.
+																	 |Select another certificate.';"));
 		EndIf;
+		
 		HandleError(Context.Notification, Context.ErrorAtClient, Context.ErrorAtServer);
 		Return;
 	EndIf;
@@ -740,7 +738,7 @@ Procedure SignData(Notification)
 				Certificate, "AllowSigning", Undefined);
 			
 			If SigningAllowed = Undefined Then
-				Notification = New NotifyDescription("SignDataAfterCAQuestionAnswered", ThisObject, Context);
+				Notification = New CallbackDescription("SignDataAfterCAQuestionAnswered", ThisObject, Context);
 				
 				QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
 				QuestionParameters.Picture = PictureLib.DialogExclamation;
@@ -802,7 +800,7 @@ Procedure SignDataAfterCAQuestionAnswered(Result, Context) Export
 		AdditionalInspectionParameters.MergeCertificateDataErrors = False;
 		AdditionalInspectionParameters.PerformCAVerification = DigitalSignatureInternalClientServer.NotVerifyCertificate();
 	
-		DigitalSignatureInternalClient.CheckCertificate(New NotifyDescription(
+		DigitalSignatureInternalClient.CheckCertificate(New CallbackDescription(
 				"SignDataAfterSelectedCertificateVerified", ThisObject, Context),
 			AddressOfCertificate,,, AdditionalInspectionParameters);
 	EndIf;
@@ -828,7 +826,7 @@ Procedure SignDataAfterSelectedCertificateVerified(Result, Context) Export
 		Context.Insert("CertificateValid", False);
 		Context.Insert("IsVerificationRequired", Result.IsVerificationRequired);
 		
-		Notification = New NotifyDescription("SignDataAfterInvalidSignatureWarning", ThisObject,
+		Notification = New CallbackDescription("SignDataAfterInvalidSignatureWarning", ThisObject,
 			New Structure("Context, CertificateVerificationResult", Context, Result));
 		
 		QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
@@ -888,14 +886,14 @@ Procedure SignDataAfterInvalidSignatureWarning(Result, AdditionalParameters) Exp
 	DataDetails.Insert("MachineReadableSigningLOACheckResult", MachineReadableSigningLOACheckResult);
 	
 	If DataDetails.Property("BeforeExecute")
-	   And TypeOf(DataDetails.BeforeExecute) = Type("NotifyDescription") Then
+	   And TypeOf(DataDetails.BeforeExecute) = Type("CallbackDescription") Then
 		
 		ExecutionParameters = New Structure;
 		ExecutionParameters.Insert("DataDetails", DataDetails);
-		ExecutionParameters.Insert("Notification", New NotifyDescription(
+		ExecutionParameters.Insert("Notification", New CallbackDescription(
 			"SignDataAfterProcesssingBeforeExecute", ThisObject, Context));
 		
-		ExecuteNotifyProcessing(DataDetails.BeforeExecute, ExecutionParameters);
+		RunCallback(DataDetails.BeforeExecute, ExecutionParameters);
 	Else
 		SignDataAfterProcesssingBeforeExecute(New Structure, Context);
 	EndIf;
@@ -946,7 +944,7 @@ Procedure SignDataAfterProcesssingBeforeExecute(Result, Context) Export
 			SignDataAfterExecutionAtServerSide(Result, Context);
 		Else
 			// An attempt to sign on the server.
-			DigitalSignatureInternalClient.ExecuteAtSide(New NotifyDescription(
+			DigitalSignatureInternalClient.ExecuteAtSide(New CallbackDescription(
 					"SignDataAfterExecutionAtServerSide", ThisObject, Context),
 				"Signing", "AtServerSide", Context.ExecutionParameters);
 		EndIf;
@@ -980,7 +978,7 @@ Async Procedure SignDataAfterExecutionAtServerSide(Result, Context) Export
 		EndIf;
 		
 		// An attempt to sign on the client.
-		DigitalSignatureInternalClient.ExecuteAtSide(New NotifyDescription(
+		DigitalSignatureInternalClient.ExecuteAtSide(New CallbackDescription(
 				"SignDataAfterExecutionAtClientSide", ThisObject, Context),
 			"Signing", "OnClientSide", Context.ExecutionParameters);
 	EndIf;
@@ -1035,7 +1033,7 @@ Procedure SignDataAfterExecutionAtClientSide(Result, Context) Export
 			FormOpenParameters.Insert("AdditionalDataChecks", CertificationAuthorityAuditResult.Warning);
 		EndIf;
 		
-		ActionOnClick = New NotifyDescription("OpenNotificationFormNeedReplaceCertificate",
+		ActionOnClick = New CallbackDescription("OpenNotificationFormNeedReplaceCertificate",
 			DigitalSignatureInternalClient, FormOpenParameters);
 		
 		ShowUserNotification(
@@ -1045,7 +1043,7 @@ Procedure SignDataAfterExecutionAtClientSide(Result, Context) Export
 	EndIf;
 
 	
-	ExecuteNotifyProcessing(Context.Notification, True);
+	RunCallback(Context.Notification, True);
 	
 EndProcedure
 
@@ -1072,6 +1070,12 @@ Procedure SignDataAfterExecute(Result)
 	
 EndProcedure
 
+&AtServerNoContext
+Function PrivateKeyExpirationDate(CertificateAddress)
+	CertificateProperties = DigitalSignature.CertificateProperties(GetFromTempStorage(CertificateAddress));
+	Return CertificateProperties.PrivateKeyExpirationDate;
+EndFunction
+
 &AtClient
 Procedure HandleError(Notification, ErrorAtClient, ErrorAtServer, UnsignedData = Undefined, AdditionalData = Undefined, ShowError_ = True)
 	
@@ -1091,7 +1095,7 @@ Procedure HandleError(Notification, ErrorAtClient, ErrorAtServer, UnsignedData =
 		If IsOpen() Then
 			Close(False);
 		Else
-			ExecuteNotifyProcessing(Notification, False);
+			RunCallback(Notification, False);
 		EndIf;
 		
 	Else
@@ -1117,7 +1121,7 @@ Procedure HandleError(Notification, ErrorAtClient, ErrorAtServer, UnsignedData =
 				ErrorAtClient, ErrorAtServer, AdditionalParameters, ProcessingAfterWarning);
 		EndIf;
 			
-		ExecuteNotifyProcessing(Notification, False);
+		RunCallback(Notification, False);
 		
 	EndIf;
 	

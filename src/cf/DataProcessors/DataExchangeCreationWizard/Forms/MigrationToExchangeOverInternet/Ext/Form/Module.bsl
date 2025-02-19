@@ -661,7 +661,7 @@ Procedure OnStartSettingUpPeerNode()
 	
 	TimeConsumingOperation = OnStartSettingUpPeerNodeAtServer();
 	
-	CallbackOnCompletion = New NotifyDescription("NodePeerInfobaseSetupCompletion", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("NodePeerInfobaseSetupCompletion", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters());
 		
 EndProcedure
@@ -706,7 +706,7 @@ Procedure OnStartNodeSetup()
 	
 	TimeConsumingOperation = OnStartSettingUpNodeAtServer();
 	
-	CallbackOnCompletion = New NotifyDescription("NodeSetupCompletion", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("NodeSetupCompletion", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters());
 		
 EndProcedure

@@ -1985,7 +1985,7 @@
 					<tl>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>DPR_BeforeProcess</v8:content>
+							<v8:content>DCR_BeforeProcess</v8:content>
 						</v8:item>
 					</tl>
 				</c>
@@ -2076,7 +2076,7 @@
 					<tl>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>DPR_BeforeDelete</v8:content>
+							<v8:content>DCR_BeforeDelete</v8:content>
 						</v8:item>
 					</tl>
 				</c>
@@ -2184,7 +2184,7 @@
 					<tl>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>DPR_AfterProcess</v8:content>
+							<v8:content>DCR_AfterProcess</v8:content>
 						</v8:item>
 					</tl>
 				</c>

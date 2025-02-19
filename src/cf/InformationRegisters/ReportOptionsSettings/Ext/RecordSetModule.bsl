@@ -18,7 +18,11 @@ Procedure OnWrite(Cancel, Replacing)
 		Return;
 	EndIf;
 	
-	InformationRegisters.ReportOptionsSettings.NotifyReportOptionUsers(ThisObject);
+	If Common.IsRecordSetDeletion(Replacing) Then
+		Return;
+	EndIf;
+		
+	InformationRegisters.ReportOptionsSettings.NotifyReportOptionUsers(ThisObject, Replacing);
 	
 EndProcedure
 

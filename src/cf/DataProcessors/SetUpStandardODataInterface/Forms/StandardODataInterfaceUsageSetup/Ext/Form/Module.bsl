@@ -77,7 +77,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		
 		Cancel = True;
 		
-		NotifyDescription = New NotifyDescription("ContinueClosingAfterQuestion", ThisObject);
+		NotifyDescription = New CallbackDescription("ContinueClosingAfterQuestion", ThisObject);
 		ShowQueryBox(NotifyDescription, NStr("en = 'The data has been changed. Do you want to save the changes?';"), QuestionDialogMode.YesNoCancel);
 		
 	EndIf;
@@ -110,7 +110,7 @@ Procedure MetadataObjectsUseOnChange(Item)
 		Context.Insert("Dependencies", Dependencies);
 		Context.Insert("Create", Create);
 		
-		NotifyDescription = New NotifyDescription("MetadataObjectsUsageOnChangeFollowUp", ThisObject, Context);
+		NotifyDescription = New CallbackDescription("MetadataObjectsUsageOnChangeFollowUp", ThisObject, Context);
 		
 		OpenForm("DataProcessor.SetUpStandardODataInterface.Form.MetadataObjectDependencies",
 			FormParameters,,,,,	NotifyDescription, FormWindowOpeningMode.LockOwnerWindow);
@@ -163,7 +163,7 @@ Procedure ImportMetadata(Command)
 	If Modified
 		And MetadataObjects.GetItems().Count() > 0 Then
 		
-		Notification = New NotifyDescription("ImportMetadataFollowUp", ThisObject);
+		Notification = New CallbackDescription("ImportMetadataFollowUp", ThisObject);
 		ShowQueryBox(Notification, NStr("en = 'Import metadata again? The changes made will be lost.';"), QuestionDialogMode.YesNo);
 		
 	Else
@@ -188,7 +188,7 @@ Procedure ImportMetadataFollowUp(QuestionResult, AdditionalParameters) Export
 	If TypeOf(Result) = Type("Structure") 
 		And Result.Status <> "Completed2" Then
 		
-		Notification = New NotifyDescription("SetupParametersReceivingCompletion", ThisObject);
+		Notification = New CallbackDescription("SetupParametersReceivingCompletion", ThisObject);
 		TimeConsumingOperationsClient.WaitCompletion(Result, Notification, TimeConsumingOperationsClient.IdleParameters(ThisObject));
 		
 	EndIf;

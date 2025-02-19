@@ -361,8 +361,7 @@ Procedure GoBack()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Idle handlers.
+#Region IdleHandlers
 
 &AtClient
 Procedure BackgroundJobIdleHandler()
@@ -392,8 +391,9 @@ Procedure BackgroundJobIdleHandler()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Navigation event handlers.
+#EndRegion
+
+#Region NavigationEventHandlers
 
 // Page 1: Automatic object mapping error.
 //
@@ -432,7 +432,7 @@ Function Attachable_ObjectMappingWaitingTimeConsumingOperationProcessing(Cancel,
 		IdleParameters.OutputIdleWindow = False;
 		IdleParameters.OutputMessages    = True;
 		
-		CallbackOnCompletion = New NotifyDescription("BackgroundJobCompletion", ThisObject);
+		CallbackOnCompletion = New CallbackDescription("BackgroundJobCompletion", ThisObject);
 		TimeConsumingOperationsClient.WaitCompletion(Result, CallbackOnCompletion, IdleParameters);
 		
 	EndIf;
@@ -584,8 +584,9 @@ Procedure RecordError(DetailErrorDescription)
 		,DetailErrorDescription);
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Filling wizard navigation table.
+#EndRegion
+
+#Region WizardNavigationInitialization
 
 &AtServer
 Procedure AutomaticObjectMappingScenario()
@@ -603,5 +604,7 @@ Procedure AutomaticObjectMappingScenario()
 	NavigationTableNewRow(5, "EmptyObjectMappingResult", "Attachable_EmptyObjectMappingResultEmptyObjectMappingResultOnOpen");
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

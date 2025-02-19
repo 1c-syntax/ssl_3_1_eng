@@ -164,7 +164,7 @@ Procedure SetPassword(Command)
 	   And ServiceUserPassword = Undefined Then
 		
 		UsersInternalClient.RequestPasswordForAuthenticationInService(
-			New NotifyDescription("SetPasswordCompletion", ThisObject),
+			New CallbackDescription("SetPasswordCompletion", ThisObject),
 			ThisObject,
 			ServiceUserPassword);
 	Else
@@ -210,7 +210,7 @@ Procedure ShowErrorTextAndNotifyAboutClosing()
 	
 	StandardSubsystemsClient.SetFormStorageOption(ThisObject, False);
 	
-	ShowMessageBox(New NotifyDescription(
+	ShowMessageBox(New CallbackDescription(
 		"ShowErrorTextAndNotifyAboutClosingCompletion", ThisObject), ErrorText);
 	
 EndProcedure
@@ -218,9 +218,9 @@ EndProcedure
 &AtClient
 Procedure ShowErrorTextAndNotifyAboutClosingCompletion(Context) Export
 	
-	If OnCloseNotifyDescription <> Undefined Then
-		ExecuteNotifyProcessing(OnCloseNotifyDescription);
-		OnCloseNotifyDescription = Undefined;
+	If CallbackDescriptionOnClose <> Undefined Then
+		RunCallback(CallbackDescriptionOnClose);
+		CallbackDescriptionOnClose = Undefined;
 	EndIf;
 	
 EndProcedure

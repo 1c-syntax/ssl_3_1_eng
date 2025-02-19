@@ -70,7 +70,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show in list</v8:content>
+					<v8:content>Show in choice list</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -767,7 +767,7 @@ WHERE
 		<dcsset:presentation xsi:type="v8:LocalStringType">
 			<v8:item>
 				<v8:lang>en</v8:lang>
-				<v8:content>User and external user details</v8:content>
+				<v8:content>User and external user information</v8:content>
 			</v8:item>
 		</dcsset:presentation>
 		<dcsset:settings xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows">
@@ -997,7 +997,7 @@ WHERE
 					<dcscor:value xsi:type="v8:LocalStringType">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>User and external user details</v8:content>
+							<v8:content>User and external user information</v8:content>
 						</v8:item>
 					</dcscor:value>
 				</dcscor:item>
@@ -1022,7 +1022,7 @@ WHERE
 		<dcsset:presentation xsi:type="v8:LocalStringType">
 			<v8:item>
 				<v8:lang>en</v8:lang>
-				<v8:content>User details</v8:content>
+				<v8:content>User information</v8:content>
 			</v8:item>
 		</dcsset:presentation>
 		<dcsset:settings xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows">
@@ -1249,7 +1249,7 @@ WHERE
 					<dcscor:value xsi:type="v8:LocalStringType">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>User details</v8:content>
+							<v8:content>User information</v8:content>
 						</v8:item>
 					</dcscor:value>
 				</dcscor:item>

@@ -20,7 +20,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	ElsIf Not StandaloneModeInternal.StandaloneModeSupported() Then
 		
-		Raise NStr("en = 'Standalone mode is unavailable in the application.';");
+		Raise NStr("en = 'The application doesn''t support standalone mode.';");
 		
 	EndIf;
 	
@@ -61,12 +61,12 @@ EndProcedure
 &AtClient
 Procedure CreateStandaloneWorkstation(Command)
 	
-	Notification = New NotifyDescription("CreateStandaloneWorkstationCompletion", ThisObject);
+	Notification = New CallbackDescription("CreateStandaloneWorkstationCompletion", ThisObject);
 	
 	If BigFilesTransferSupported Then
-		FileSystemClient.AttachFileOperationsExtension(Notification, "", False);
+		FileSystemClient.Attach1CEnterpriseExtension(Notification, "", False);
 	Else
-		ExecuteNotifyProcessing(Notification, True);
+		RunCallback(Notification, True);
 	EndIf;
 	
 EndProcedure

@@ -36,9 +36,7 @@ Function CanSetUpSecurityProfiles() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// External modules.
-//
+#Region ExternalModules
 
 // Returns external module attachment mode.
 //
@@ -56,9 +54,9 @@ Function ExternalModuleAttachmentMode(Val ExternalModule) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Security profile usage.
-//
+#EndRegion
+
+#Region SecurityProfilesUsage
 
 // Returns a namespace URI of an XDTO package used to describe permissions
 // in security profiles.
@@ -72,9 +70,9 @@ Function Package() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Create permission requests.
-//
+#EndRegion
+
+#Region PermissionRequestCreation
 
 // Creates requests to use external resources for the external module.
 //
@@ -120,11 +118,11 @@ Function PermissionsRequestForExternalModule(Val ProgramModule, Val NewPermissio
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Security profile usage.
-//
+#EndRegion
 
-////////////////////////////////////////////////////////////////////////////////
+#Region SecurityProfilesUsage
+
+
 // Cast the referenced to the format "Type + ID" for storing in permission registers.
 // A custom Ref storage method is used because permission registers don't require reference integrity
 //
@@ -164,9 +162,9 @@ Function PropertiesForPermissionRegister(Val Ref) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Applying the requests for permissions to use external resources.
-//
+#EndRegion
+
+#Region ApplyingPermissionRequestsToUseExternalResources
 
 Function PermissionsToUseExternalResourcesPresentation(Val ProgramModuleType, 
 	Val ModuleID, Val OwnerType, Val OwnerID, Val Permissions) Export
@@ -202,8 +200,9 @@ Function PermissionsToUseExternalResourcesPresentation(Val ProgramModuleType,
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#EndRegion
+
+#Region ConfigurationSubsystemsEventHandlers
 
 // See CommonOverridable.OnAddClientParametersOnStart.
 Procedure OnAddClientParametersOnStart(Parameters, BeforeUpdateApplicationRunParameters = False) Export
@@ -251,6 +250,8 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 #Region Private
 
 // Creates a request to create a security profile for the external module.
@@ -288,9 +289,7 @@ Function RequestForSecurityProfileCreation(Val ProgramModule)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Security profile usage.
-//
+#Region SecurityProfilesUsage
 
 // Checks whether the security profiles can be used for the current infobase.
 //
@@ -435,18 +434,13 @@ Function ReferenceFormPermissionRegister(Val Type, Val Id) Export
 		
 	MetadataObject = Common.MetadataObjectByID(Type);
 	Manager = Common.ObjectManagerByFullName(MetadataObject.FullName());
-	
-	If IsBlankString(Id) Then
-		Return Manager.EmptyRef();
-	Else
-		Return Manager.GetRef(Id);
-	EndIf;
+	Return ?(IsBlankString(Id), Manager.EmptyRef(), Manager.GetRef(Id));
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Create permission requests.
-//
+#EndRegion
+
+#Region PermissionRequestCreation
 
 // Creates a request for changing permissions to use external resources.
 // For internal use only.
@@ -573,9 +567,9 @@ Procedure FillPermissionsToUpdatesProtectionCenter(PermissionsRequests)
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Miscellaneous.
-//
+#EndRegion
+
+#Region Other
 
 // Returns the module that is the external module manager.
 //
@@ -655,5 +649,7 @@ Function ExternalModulesManagers()
 	Return Managers;
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion

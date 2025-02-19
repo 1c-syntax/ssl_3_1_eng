@@ -227,7 +227,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 EndProcedure
 
-Procedure RefreshDataExchangeSettingsOfCorrespondentXDTO(InfobaseNode) Export
+Procedure RefreshDataExchangeSettingsOfCorrespondentXDTO(InfobaseNode)
 	
 	BeginTransaction();
 	Try

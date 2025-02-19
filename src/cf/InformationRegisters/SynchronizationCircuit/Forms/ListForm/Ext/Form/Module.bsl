@@ -37,6 +37,21 @@ Procedure CloseForm(Command)
 
 EndProcedure
 
+&AtServer
+Procedure ClearOutlineOnServer()
+	
+	Set = InformationRegisters.SynchronizationCircuit.CreateRecordSet();
+	Set.Write();
+	
+	UpdateCircuit();
+	
+EndProcedure
+
+&AtClient
+Procedure ClearPolygon(Command)
+	ClearOutlineOnServer();
+EndProcedure
+
 #EndRegion
 
 #Region Private

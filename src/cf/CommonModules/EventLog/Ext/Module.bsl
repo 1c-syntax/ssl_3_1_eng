@@ -531,6 +531,9 @@ EndFunction
 // Parameters:
 //  DataAsStr - String
 //
+// Returns:
+//  Arbitrary
+//
 Function EventData(DataAsStr) Export
 	
 	If Not ValueIsFilled(DataAsStr) Then
@@ -998,7 +1001,7 @@ Function StructuresKeysPresentation()
 	Result.Insert(Lower("DelayConfigurationExportByWorkProcessWithoutActiveUsers"),
 		NStr("en = 'Delay for importing configuration by an idle process';"));
 	
-	Result.Insert(Lower("RestrictLocalSpeechRecognition"),
+	Result.Insert(Lower("DisableLocalSpeechToText"),
 		NStr("en = 'Restrict local speech recognition';"));
 	
 	Result.Insert(Lower("InfoBaseID"),
@@ -1136,22 +1139,22 @@ Function StructuresKeysPresentation()
 		NStr("en = 'Data lock wait time';"));
 	
 	Result.Insert(Lower("UserPasswordsMaxLifetime"),
-		NStr("en = 'Maximum password lifetime';"));
+		NStr("en = 'Maximum user password lifetime';"));
 	
 	Result.Insert(Lower("UserPasswordsMinLifetime"),
-		NStr("en = 'Minimum password lifetime';"));
+		NStr("en = 'Minimum user password lifetime';"));
 	
 	Result.Insert(Lower("UserPasswordsMinLength"),
-		NStr("en = 'Minimum password length';"));
+		NStr("en = 'Minimum user password length';"));
 	
 	Result.Insert(Lower("UserPasswordReuseLimit"),
-		NStr("en = 'Prevent re-use of recent passwords';"));
+		NStr("en = 'User password reuse limit';"));
 	
 	Result.Insert(Lower("UserPasswordComplexityCheck"),
-		NStr("en = 'Password complexity check';"));
+		NStr("en = 'User password complexity check';"));
 	
 	Result.Insert(Lower("UserPasswordExpirationNotificationPeriod"),
-		NStr("en = 'Password expiration notification lead';"));
+		NStr("en = 'Password expiration notification lead time';"));
 	
 	Result.Insert(Lower("PassiveSessionHibernateTime"),
 		NStr("en = 'Idle session sleep timeout';"));
@@ -1265,7 +1268,7 @@ Function StructuresKeysPresentation()
 		NStr("en = 'Full access to external modules';"));
 	
 	Result.Insert(Lower("ExternalApplicationsFullAccess"),
-		NStr("en = 'Unlimited access to external apps';"));
+		NStr("en = 'Unlimited access to external applications';"));
 	
 	Result.Insert(Lower("InternetResourcesFullAccess"),
 		NStr("en = 'Full access to online resources';"));
@@ -1313,7 +1316,7 @@ Function StructuresKeysPresentation()
 		NStr("en = 'Allowed external modules';"));
 	
 	Result.Insert(Lower("AllowedExternalApps"),
-		NStr("en = 'Allowed external apps';"));
+		NStr("en = 'Allowed external applications';"));
 	
 	Result.Insert(Lower("AllowedInternetResources"),
 		NStr("en = 'Allowed internet resources';"));
@@ -1357,15 +1360,15 @@ Function StructuresKeysPresentation()
 		NStr("en = 'Minimum password length';"));
 	
 	Result.Insert(Lower("PasswordReuseLimit"),
-		NStr("en = 'Prevent re-use of recent passwords';"));
+		NStr("en = 'Password reuse limit';"));
 	
 	Result.Insert(Lower("PasswordStrengthCheck"),
 		NStr("en = 'Password complexity check';"));
 	
 	Result.Insert(Lower("PasswordExpirationNotificationPeriod"),
-		NStr("en = 'Password expiration notification lead';"));
+		NStr("en = 'Password expiration notification lead time';"));
 	
-	Result.Insert(Lower("ActionUponAuthenticationIfPasswordsNonCompliant"),
+	Result.Insert(Lower("ActionOnPasswordRequirementsViolationOnAuthentication"),
 		NStr("en = 'Action if password doesn''t meet requirements';"));
 	
 	Result.Insert(Lower("PasswordCompromiseCheck"),
@@ -1444,10 +1447,10 @@ Function StructuresKeysPresentation()
 		NStr("en = 'Password set date';"));
 	
 	Result.Insert(Lower("CannotRecoveryPassword"),
-		NStr("en = 'User cannot recover password';"));
+		NStr("en = 'Cannot recover password';"));
 	
 	Result.Insert(Lower("CannotChangePassword"),
-		NStr("en = 'User cannot change password';"));
+		NStr("en = 'Cannot change password';"));
 	
 	Result.Insert(Lower("UnsafeActionProtection"),
 		NStr("en = 'Unsafe action protection';"));
@@ -1458,7 +1461,7 @@ Function StructuresKeysPresentation()
 	Result.Insert(Lower("PasswordPolicyName"),
 		NStr("en = 'Password policy name';"));
 	
-	Result.Insert(Lower("UserMapKeys"),
+	Result.Insert(Lower("UserMatchingKeys"),
 		NStr("en = 'User map keys';"));
 	
 	Result.Insert(Lower("SecondAuthenticationFactorSettings"),
@@ -1477,7 +1480,7 @@ Function StructuresKeysPresentation()
 		NStr("en = 'Password is set';"));
 	
 	Result.Insert(Lower("ShowInList"),
-		NStr("en = 'Show in list';"));
+		NStr("en = 'Show in choice list';"));
 	
 	Result.Insert(Lower("FullName"),
 		NStr("en = 'Full name';"));
@@ -1723,8 +1726,7 @@ Procedure AddRestrictionToFilterPresentation(EventLogFilter, FilterPresentation,
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+#Region AuxiliaryProceduresAndFunctions
 
 // For internal use only.
 //
@@ -1757,5 +1759,7 @@ Function EventLevelByPresentation(LevelPresentation)
 		Return EventLogLevel.Note;
 	EndIf;	
 EndFunction
+
+#EndRegion
 
 #EndRegion

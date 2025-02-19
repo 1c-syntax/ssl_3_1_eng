@@ -50,12 +50,12 @@ EndProcedure
 Procedure OnDefineFullNameComponents(Val FullName, Val NameFormat, Result) Export
 EndProcedure
 
-// Verifies a person's full name.
+// Validates a person's name.
 //
 // Parameters:
-//  LastFirstName - String - A person's full name.
-//  IsOnlyNationalScriptLetters - Boolean - Indicates that the name verificator should accept only the national letters.
-//  CheckResult - Boolean - The return value. If True, the name is valid.
+//  LastFirstName - String - Full name.
+//  IsOnlyNationalScriptLetters - Boolean - Flag indicating that valid names should contain only national alphabet letters.
+//  CheckResult - Boolean - Return value. If "True", the name is valid.
 //
 Procedure FullNameWrittenCorrectly(Val LastFirstName, Val IsOnlyNationalScriptLetters, CheckResult) Export
 	

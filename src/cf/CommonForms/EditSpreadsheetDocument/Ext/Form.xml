@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<Title>
 		<v8:item>
 			<v8:lang>en</v8:lang>
@@ -205,7 +205,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Show template</v8:content>
+											<v8:content>Show built-in template</v8:content>
 										</v8:item>
 									</Title>
 									<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
@@ -263,17 +263,17 @@
 					</Title>
 					<ExtendedTooltip name="EditingCommandsExtendedTooltip" id="99"/>
 					<ChildItems>
-						<Button name="Rename" id="633">
+						<Button name="ChangeTemplateSettings" id="633">
 							<Type>CommandBarButton</Type>
-							<CommandName>Form.Command.Rename</CommandName>
+							<CommandName>Form.Command.ChangeTemplateSettings</CommandName>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Rename template...</v8:content>
+									<v8:content>Template settings…</v8:content>
 								</v8:item>
 							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-							<ExtendedTooltip name="RenameExtendedTooltip" id="634"/>
+							<ExtendedTooltip name="ChangeTemplateSettingsExtendedTooltip" id="634"/>
 						</Button>
 						<Button name="DeleteStampEP" id="607">
 							<Type>CommandBarButton</Type>
@@ -757,6 +757,67 @@
 										</Button>
 									</ChildItems>
 								</ButtonGroup>
+								<Popup name="TextAlignmentMore" id="771">
+									<EnableContentChange>true</EnableContentChange>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Text wrapping</v8:content>
+										</v8:item>
+									</Title>
+									<Representation>PictureAndText</Representation>
+									<ExtendedTooltip name="TextAlignmentMoreExtendedTooltip" id="772"/>
+									<ChildItems>
+										<Button name="AlignmentAutoMore" id="761">
+											<Type>CommandBarButton</Type>
+											<CommandName>Form.Command.AlignmentAuto</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Auto</v8:content>
+												</v8:item>
+											</Title>
+											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+											<ExtendedTooltip name="AlignmentAutoMoreExtendedTooltip" id="762"/>
+										</Button>
+										<Button name="AlignmentWrapMore" id="763">
+											<Type>CommandBarButton</Type>
+											<CommandName>Form.Command.AlignmentWrap</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Wrap</v8:content>
+												</v8:item>
+											</Title>
+											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+											<ExtendedTooltip name="AlignmentWrapMoreExtendedTooltip" id="764"/>
+										</Button>
+										<Button name="AlignmentFillMore" id="777">
+											<Type>CommandBarButton</Type>
+											<CommandName>Form.Command.AlignmentFill</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Fill</v8:content>
+												</v8:item>
+											</Title>
+											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+											<ExtendedTooltip name="AlignmentFillMoreExtendedTooltip" id="778"/>
+										</Button>
+										<Button name="AlignmentClipMore" id="779">
+											<Type>CommandBarButton</Type>
+											<CommandName>Form.Command.AlignmentClip</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Clip</v8:content>
+												</v8:item>
+											</Title>
+											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+											<ExtendedTooltip name="AlignmentClipMoreExtendedTooltip" id="780"/>
+										</Button>
+									</ChildItems>
+								</Popup>
 								<ButtonGroup name="ColorAllActions" id="673">
 									<Title>
 										<v8:item>
@@ -1194,6 +1255,98 @@
 						</Popup>
 					</ChildItems>
 				</ButtonGroup>
+				<ButtonGroup name="TextPlacement" id="759">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Text wrapping (command bar)</v8:content>
+						</v8:item>
+					</Title>
+					<Representation>Compact</Representation>
+					<ExtendedTooltip name="TextPlacementExtendedTooltip" id="760"/>
+					<ChildItems>
+						<Button name="AlignmentAuto" id="786">
+							<Type>CommandBarButton</Type>
+							<CommandName>Form.Command.AlignmentAuto</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Auto</v8:content>
+								</v8:item>
+							</Title>
+							<LocationInCommandBar>InCommandBar</LocationInCommandBar>
+							<ExtendedTooltip name="AlignmentAutoExtendedTooltip" id="787"/>
+						</Button>
+						<Button name="AlignmentWrap" id="788">
+							<Type>CommandBarButton</Type>
+							<CommandName>Form.Command.AlignmentWrap</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Wrap</v8:content>
+								</v8:item>
+							</Title>
+							<LocationInCommandBar>InCommandBar</LocationInCommandBar>
+							<ExtendedTooltip name="AlignmentWrapExtendedTooltip" id="789"/>
+						</Button>
+						<Button name="AlignmentFill" id="790">
+							<Type>CommandBarButton</Type>
+							<UserVisible>
+								<xr:Common>false</xr:Common>
+							</UserVisible>
+							<CommandName>Form.Command.AlignmentFill</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Fill</v8:content>
+								</v8:item>
+							</Title>
+							<LocationInCommandBar>InCommandBar</LocationInCommandBar>
+							<ExtendedTooltip name="AlignmentFillExtendedTooltip" id="791"/>
+						</Button>
+						<Button name="AlignmentClip" id="792">
+							<Type>CommandBarButton</Type>
+							<UserVisible>
+								<xr:Common>false</xr:Common>
+							</UserVisible>
+							<CommandName>Form.Command.AlignmentClip</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Clip</v8:content>
+								</v8:item>
+							</Title>
+							<LocationInCommandBar>InCommandBar</LocationInCommandBar>
+							<ExtendedTooltip name="AlignmentClipExtendedTooltip" id="793"/>
+						</Button>
+					</ChildItems>
+				</ButtonGroup>
+				<ButtonGroup name="Areas" id="765">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Areas</v8:content>
+						</v8:item>
+					</Title>
+					<Representation>Compact</Representation>
+					<ExtendedTooltip name="AreasExtendedTooltip" id="766"/>
+					<ChildItems>
+						<Button name="SetName" id="767">
+							<Type>CommandBarButton</Type>
+							<Representation>PictureAndText</Representation>
+							<CommandName>Form.Item.SpreadsheetDocument.StandardCommand.SetName</CommandName>
+							<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
+							<ExtendedTooltip name="SetNameExtendedTooltip" id="768"/>
+						</Button>
+						<Button name="RemoveName" id="769">
+							<Type>CommandBarButton</Type>
+							<Representation>PictureAndText</Representation>
+							<CommandName>Form.Item.SpreadsheetDocument.StandardCommand.RemoveName</CommandName>
+							<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
+							<ExtendedTooltip name="RemoveNameExtendedTooltip" id="770"/>
+						</Button>
+					</ChildItems>
+				</ButtonGroup>
 				<ButtonGroup name="CommandPanelFooterPanel" id="478">
 					<Visible>false</Visible>
 					<Title>
@@ -1401,7 +1554,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Show template</v8:content>
+											<v8:content>Show built-in template</v8:content>
 										</v8:item>
 									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -1475,6 +1628,24 @@
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="GroupTemplateAssignmentExtendedTooltip" id="736"/>
 			<ChildItems>
+				<InputField name="ExportSaveFormat" id="756">
+					<DataPath>ExportSaveFormat</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Export format</v8:content>
+						</v8:item>
+					</Title>
+					<Width>21</Width>
+					<HorizontalStretch>false</HorizontalStretch>
+					<TextEdit>false</TextEdit>
+					<ContextMenu name="ExportSaveFormatContextMenu" id="757"/>
+					<ExtendedTooltip name="ExportSaveFormatExtendedTooltip" id="758"/>
+					<Events>
+						<Event name="OnChange">ExportSaveFormatOnChange</Event>
+						<Event name="Clearing">ExportSaveFormatClearing</Event>
+					</Events>
+				</InputField>
 				<LabelDecoration name="AssignmentTitle" id="737">
 					<Title formatted="false">
 						<v8:item>
@@ -1676,7 +1847,7 @@
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Build-in template</v8:content>
+															<v8:content>Built-in template</v8:content>
 														</v8:item>
 													</Title>
 													<ShowGrid>true</ShowGrid>
@@ -1694,7 +1865,7 @@
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Edited template</v8:content>
+															<v8:content>Custom template</v8:content>
 														</v8:item>
 													</Title>
 													<TitleLocation>None</TitleLocation>
@@ -1738,6 +1909,29 @@
 													<ContextMenu name="PrintFormContextMenu" id="599"/>
 													<ExtendedTooltip name="PrintFormExtendedTooltip" id="600"/>
 												</SpreadSheetDocumentField>
+											</ChildItems>
+										</Page>
+										<Page name="PageExportPreview" id="781">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Page Export preview</v8:content>
+												</v8:item>
+											</Title>
+											<ExtendedTooltip name="PageExportPreviewExtendedTooltip" id="782"/>
+											<ChildItems>
+												<TextDocumentField name="Upload0" id="783">
+													<DataPath>Upload0</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Export</v8:content>
+														</v8:item>
+													</Title>
+													<TitleLocation>None</TitleLocation>
+													<ContextMenu name="Upload0ContextMenu" id="784"/>
+													<ExtendedTooltip name="Upload0ExtendedTooltip" id="785"/>
+												</TextDocumentField>
 											</ChildItems>
 										</Page>
 									</ChildItems>
@@ -2156,7 +2350,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Build-in template</v8:content>
+					<v8:content>Built-in template</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2420,6 +2614,51 @@
 		<Attribute name="IsTemplate" id="51">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="TemplateForObjectExport" id="55">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="ExportSaveFormat" id="56">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Export format</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>cfg:EnumRef.ObjectsExportFormats</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="Upload0" id="54">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Export</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="DefaultPrintForm" id="52">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="PrintFormDescription" id="53">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>100</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
 	</Attributes>
@@ -2812,14 +3051,14 @@
 			</Title>
 			<Action>LoadFromFile</Action>
 		</Command>
-		<Command name="Rename" id="42">
+		<Command name="ChangeTemplateSettings" id="42">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Rename template...</v8:content>
+					<v8:content>Template settings…</v8:content>
 				</v8:item>
 			</Title>
-			<Action>Rename</Action>
+			<Action>ChangeTemplateSettings</Action>
 		</Command>
 		<Command name="ChangeFont" id="7">
 			<Title>
@@ -2899,6 +3138,83 @@
 				<xr:LoadTransparent>false</xr:LoadTransparent>
 			</Picture>
 			<Action>ChangeBorderColor</Action>
+		</Command>
+		<Command name="AlignmentAuto" id="43">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Auto</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Auto</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Picture>
+				<xr:Ref>CommonPicture.TextAlignmentAuto</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>AlignmentAuto</Action>
+		</Command>
+		<Command name="AlignmentFill" id="44">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Fill</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Fill</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Picture>
+				<xr:Ref>CommonPicture.TextAlignmentFill</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>AlignmentFill</Action>
+		</Command>
+		<Command name="AlignmentClip" id="45">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Clip</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Clip</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Picture>
+				<xr:Ref>CommonPicture.TextAlignmentClip</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>AlignmentClip</Action>
+		</Command>
+		<Command name="AlignmentWrap" id="46">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Wrap</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Wrap</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Picture>
+				<xr:Ref>CommonPicture.TextAlignmentWrap</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>AlignmentWrap</Action>
+			<CurrentRowUse>Use</CurrentRowUse>
 		</Command>
 	</Commands>
 	<Parameters>
@@ -2997,6 +3313,31 @@
 		<Parameter name="IsValAvailable">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="TemplateForObjectExport">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="ExportSaveFormat">
+			<Type>
+				<v8:Type>cfg:EnumRef.ObjectsExportFormats</v8:Type>
+			</Type>
+		</Parameter>
+		<Parameter name="DefaultPrintForm">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+			<KeyParameter>true</KeyParameter>
+		</Parameter>
+		<Parameter name="PrintFormDescription">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>100</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
 			</Type>
 		</Parameter>
 	</Parameters>

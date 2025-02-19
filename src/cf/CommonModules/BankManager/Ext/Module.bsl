@@ -61,7 +61,8 @@ Function BICInformation(Val BIC, Val CorrAccount = Undefined, CurrentOnly = True
 	|	CatalogBIC.InternationalDescription AS InternationalDescription,
 	|	CatalogBIC.CityInternationalFormat AS CityInternationalFormat,
 	|	CatalogBIC.InternationalAddress AS InternationalAddress,
-	|	CatalogBIC.Country AS Country
+	|	"""" AS Country,
+	|	CatalogBIC.CountryCode AS CountryCode
 	|FROM
 	|	Catalog.BankClassifier AS CatalogBIC
 	|WHERE
@@ -82,7 +83,16 @@ Function BICInformation(Val BIC, Val CorrAccount = Undefined, CurrentOnly = True
 	Query.SetParameter("CorrAccount", CorrAccount);
 	Query.SetParameter("CurrentOnly", CurrentOnly);
 	
-	Return Query.Execute().Unload();
+	BICInformation = Query.Execute().Unload();
+	If Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
+		ModuleContactsManagerInternal = Common.CommonModule("ContactsManagerInternal");
+		CountriesCodes = ModuleContactsManagerInternal.CountriesCodes();
+		For Each TableRow In BICInformation Do
+			TableRow.Country = CountriesCodes[TableRow.CountryCode];
+		EndDo;
+	EndIf;
+	
+	Return BICInformation;
 	
 EndFunction
 

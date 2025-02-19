@@ -398,8 +398,79 @@ Function UUID(Val Id) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions that don't support queue jobs in SaaS mode.
+// Intended to restrict the permissions available in a scheduled job session or
+// when working with the Collaboration System.
+// If the list of infobase users is not empty, it creates and assigns a utility user
+// to the scheduled job (a user with no permissions and
+// no authentication required).
+// If the procedure is called within a scheduled job session
+// that does not yet have a utility user assigned, an exception is raised
+// to restart the job after the user has been set.
+// 
+// Parameters:
+//  ScheduledJob - MetadataObjectScheduledJob - Scheduled job metadata.
+//  InfobaseDummyUser - See Users.InfobaseDummyUser
+//                          - Undefined - A common utility user. Otherwise, pass a similar user
+//                            (for example, with a different name).
+//
+Procedure SetInternalUserOfScheduledJob(ScheduledJob, InfobaseDummyUser = Undefined) Export
+	
+	SetPrivilegedMode(True);
+	
+	// Create a utility user if none exists.
+	If InfobaseDummyUser = Undefined Then
+		InfobaseDummyUser = InfobaseDummyUser(ScheduledJob);
+	EndIf;
+	If InfobaseDummyUser = Undefined Then
+		Return;
+	EndIf;
+	
+	CurrentSession = GetCurrentInfoBaseSession();
+	
+	// Check the current scheduled job for a user.
+	BackgroundJob = CurrentSession.GetBackgroundJob();
+	If UserName() = InfobaseDummyUser.Name
+	   And BackgroundJob <> Undefined
+	   And BackgroundJob.MethodName = ScheduledJob.MethodName Then
+		Return;
+	EndIf;
+	
+	// Assign the utility user if no user is assigned.
+	If Common.DataSeparationEnabled() Then
+		Filter = New Structure("MethodName", ScheduledJob.MethodName);
+	Else
+		Filter = New Structure("Metadata", ScheduledJob);
+	EndIf;
+	FoundJobs = FindJobs(Filter);
+	
+	JobParameters = New Structure("UserName", InfobaseDummyUser.Name);
+	IsInternalUserSet = False;
+	
+	For Each FoundJob In FoundJobs Do
+		If FoundJob.UserName <> InfobaseDummyUser.Name Then
+			ChangeJob(FoundJob.UUID, JobParameters);
+			IsInternalUserSet = True;
+		EndIf;
+	EndDo;
+	
+	// Call an exception to restart the scheduled job.
+	If Not IsInternalUserSet
+	 Or UserName() = InfobaseDummyUser.Name
+	 Or BackgroundJob = Undefined
+	 Or BackgroundJob.MethodName <> ScheduledJob.MethodName
+	   And Not Common.DataSeparationEnabled() Then
+		Return;
+	EndIf;
+	
+	Text = NStr("en = 'Это регламентное задание должно выполняться от имени служебного пользователя.
+	                   |Выполнение прервано. Установлен служебный пользователь для запуска.
+	                   |Дополнительных действий не требуется. Следующий запуск будет выполнен от имени служебного пользователя.
+	                   |';");
+	Raise Text;
+	
+EndProcedure
+
+#Region ProceduresAndFunctionsWithoutQueueJobSupportInSaaS
 
 // Returns the use of a scheduled job.
 // To call, you must have the administrator rights or SetPrivilegedMode.
@@ -516,8 +587,8 @@ EndProcedure
 //                - ScheduledJob - a scheduled job.
 //
 //  Schedule    - JobSchedule - a schedule.
-//                - Structure - the value returned by the ScheduleToStructure function
-//                  of the CommonUseClientServer common module.
+//                - Structure - The value returned by the ScheduleToStructure function
+//                  of the CommonClientServer common module.
 // 
 Procedure SetJobSchedule(Val Id, Val Schedule) Export
 	
@@ -658,8 +729,9 @@ Function PropertiesOfLastJob(Val Job) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Other procedures and functions.
+#EndRegion
+
+#Region OtherProceduresAndFunctions_
 
 // Returns a flag showing that operations with external resources are locked.
 //
@@ -698,6 +770,8 @@ Procedure LockOperationsWithExternalResources() Export
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -1230,6 +1304,42 @@ Function NewBackgroundJobsProperties()
 	BackgroundJobsProperties.Insert("SessionStarted");
 	
 	Return BackgroundJobsProperties;
+	
+EndFunction
+
+// Parameters:
+//  ScheduledJob - MetadataObjectScheduledJob
+//
+// Returns:
+//  See Users.InfobaseDummyUser
+//
+Function InfobaseDummyUser(ScheduledJob)
+	
+	Properties = Users.NewIBUserDetails(, True);
+	Properties.Name = InternalUsername();
+	RefToNew = Catalogs.Users.GetRef(
+		New UUID("91f28855-c379-11ef-8882-b06ebfbf08c7"));
+	
+	Try
+		InfobaseDummyUser = Users.InfobaseDummyUser(Properties, RefToNew);
+	Except
+		ErrorInfo = ErrorInfo();
+		ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Couldn''t create utility user ""%1"" to assign it
+			           |to scheduled job ""%2"" due to:';"),
+			ScheduledJob.Presentation(),
+			InternalUsername());
+		Refinement = CommonClientServer.ExceptionClarification(ErrorInfo, ErrorTitle);
+		Raise(Refinement.Text, Refinement.Category,,, ErrorInfo);
+	EndTry;
+	
+	Return InfobaseDummyUser;
+	
+EndFunction
+
+Function InternalUsername()
+	
+	Return "InternalUserForScheduledJobStart";
 	
 EndFunction
 

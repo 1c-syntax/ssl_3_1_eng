@@ -195,9 +195,9 @@ Procedure EndRequestsProcessing()
 		
 	Else
 		
-		NotifyDescription = OnCloseNotifyDescription;
+		NotifyDescription = CallbackDescriptionOnClose;
 		If NotifyDescription <> Undefined Then
-			ExecuteNotifyProcessing(NotifyDescription, DialogReturnCode.OK);
+			RunCallback(NotifyDescription, DialogReturnCode.OK);
 		EndIf;
 		
 	EndIf;

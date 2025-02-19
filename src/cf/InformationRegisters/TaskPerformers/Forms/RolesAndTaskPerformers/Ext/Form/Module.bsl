@@ -117,7 +117,7 @@ Procedure RefreshItemsData()
 	ListObject.Sort("Role");
 	For Each ListLine In ListObject Do
 		If ListLine.Assignees = 0 Then
-			ListLine.PerformersString = ?(ListLine.ExternalRole, NStr("en = 'specified in another app';"), NStr("en = 'not specified';"));
+			ListLine.PerformersString = ?(ListLine.ExternalRole, NStr("en = 'specified in another application';"), NStr("en = 'not specified';"));
 			ListLine.Picture = ?(ListLine.ExternalRole, -1, 1);
 		ElsIf ListLine.Assignees = 1 Then
 			ListLine.PerformersString = String(BusinessProcessesAndTasksServer.SelectPerformer(MainAddressingObject, ListLine.RoleRef));

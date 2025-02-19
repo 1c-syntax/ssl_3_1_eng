@@ -10,6 +10,137 @@
 
 #Region Public
 
+#Region WorkWithExceptions
+
+// Returned the clarified text of the user message and the exception category.
+// 
+//
+// Parameters:
+//  ErrorInfo - ErrorInfo - The original error details.
+//  ErrorTitle    - String - A title that provides additional information for users and administrators.
+//                                If not specified, the text of the exception is returned without additional information.
+//
+//  ErrorAtClient - Boolean - Set to "True" if the error occurred on the client.
+//      The reason is that 1C:Enterprise handles some server-side and client-side errors differently.
+//      For example, the error "LocalFileAccessError" is clarified on the client (unlike the server).
+//      
+//      
+//      
+//
+// Returns:
+//  Structure:
+//   * Text - String - Error text with a title (or without if "ErrorTitle" is empty).
+//   * Category - ErrorCategory - The category of the clarified exception.
+//               - Undefined - Keeps the category unspecified.
+//                   
+//
+// Example:
+//	Try
+//		ExecuteCommand(...);
+//	Except
+//		ErrorInfo = ErrorInfo();
+//		ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
+//			NStr("en = 'Failed to execute command %1 due to:'"), CommandID);
+//		Clarification = CommonClientServer.ExceptionClarification(ErrorInfo, ErrorTitle);
+//		Raise(Clarification.Text, Clarification.Category,,, ErrorInfo);
+//	EndTry;
+//
+//	Try
+//		InternetConnection.Get(PathAtServer, PathForSaving);
+//	Except
+//		ErrorInfo = ErrorInfo();
+//		Clarification = CommonClientServer.ExceptionClarification(ErrorInfo);
+//		ForAdministrator = InternetConnectionDiagnostics(...);
+//		Raise(Clarification.Text, Clarification.Category,, ForAdministrator, ErrorInfo);
+//	EndTry;
+//
+Function ExceptionClarification(ErrorInfo, ErrorTitle = "", ErrorAtClient = False) Export
+	
+	Category = ErrorProcessing.ErrorCategoryForUser(ErrorInfo);
+	If Category = ErrorCategory.OtherError Then
+		Category = ErrorCategory.ConfigurationError;
+	ElsIf Category = ErrorCategory.ExceptionRaisedFromScript Then
+		Category = Undefined;
+	EndIf;
+	
+	If Not ErrorAtClient Then
+		If Category = ErrorCategory.LocalFileAccessError
+		 Or Category = ErrorCategory.PrinterError Then
+			Category = ErrorCategory.ConfigurationError;
+		EndIf;
+	EndIf;
+	
+	ErrorText = "";
+	CurrentReason = ErrorInfo;
+	LongDesc = "";
+	While CurrentReason <> Undefined Do
+		If CurrentReason.IsErrorOfCategory(
+				ErrorCategory.ExceptionRaisedFromScript, False) Then
+			LongDesc = CurrentReason.Description;
+			Break;
+		EndIf;
+		CurrentReason = CurrentReason.Cause;
+	EndDo;
+	If Not ValueIsFilled(LongDesc) Then
+		LongDesc = ErrorProcessing.BriefErrorDescription(ErrorInfo);
+	EndIf;
+	If ValueIsFilled(ErrorTitle) Then
+		ErrorText = ErrorTitle + Chars.LF + LongDesc;
+	Else
+		ErrorText = LongDesc;
+	EndIf;
+	
+	Result = New Structure;
+	Result.Insert("Text", ReplaceProhibitedXMLChars(ErrorText));
+	Result.Insert("Category", Category);
+	
+	Return Result;
+	
+EndFunction
+
+// Check if the error contains at least one of the listed codes.
+// The check considers nested exceptions.
+//
+// Parameters:
+//  ErrorInfo - ErrorInfo - Error being checked.
+//  ErrorCodes - String - A multi-line string of error codes to be sought for in error.:
+//       For example, "StandardSubsystems.Core.ConfiguraitonModifiedDynamically
+//       |StandardSubsystems.Core.ExtensionsModifiedDynamically".
+//
+// Returns:
+//  Boolean
+//
+// Example:
+//	Try
+//		RunUpdate();
+//	Except
+//		If CommonClientServer.IsExceptionWithErrorCode(ErrorInfo(),
+//				"StandardSubsystems.Core.ConfigurationModifiedDynamically
+//				|StandardSubsystems.Core.ExtensionsModifiedDynamically") Then
+//			RestartBackgroundJob();
+//			Return;
+//		EndIf;
+//		Raise;
+//	EndTry;
+//
+Function IsExceptionWithErrorCode(ErrorInfo, ErrorCodes) Export
+	
+	Codes = StrSplit(ErrorCodes, Chars.LF, False);
+	CurrentReason = ErrorInfo;
+	
+	While CurrentReason <> Undefined Do
+		If Codes.Find(CurrentReason.Code) <> Undefined Then
+			Return True;
+		EndIf;
+		CurrentReason = CurrentReason.Cause;
+	EndDo;
+	
+	Return False;
+	
+EndFunction
+
+#EndRegion
+
 #Region UserNotification
 
 // ACC:142-off 4 optional parameters for compatibility with the previous library versions.
@@ -260,25 +391,21 @@ Function NameOfThePlatformType(Val ValueOf1CEnterpriseType = Undefined) Export
 	NamesOf1CEnterpriseTypes.Add("Windows_x86_64");
 	
 #If Not MobileClient Then
-	If CompareVersions(SystemInfo.AppVersion, "8.3.22.1923") >= 0 Then
-		NamesOf1CEnterpriseTypes.Add("Linux_ARM64");
-		NamesOf1CEnterpriseTypes.Add("Linux_E2K");
-	EndIf;
+	NamesOf1CEnterpriseTypes.Add("Linux_ARM64");
+	NamesOf1CEnterpriseTypes.Add("Linux_E2K");
 #EndIf
 	
-	If CompareVersions(SystemInfo.AppVersion, "8.3.23.0") >= 0 Then
-		NamesOf1CEnterpriseTypes.Add("Android_ARM");
-		NamesOf1CEnterpriseTypes.Add("Android_ARM_64");
-		NamesOf1CEnterpriseTypes.Add("Android_x86");
-		NamesOf1CEnterpriseTypes.Add("Android_x86_64");
-		
-		NamesOf1CEnterpriseTypes.Add("iOS_ARM");
-		NamesOf1CEnterpriseTypes.Add("iOS_ARM_64");
-		
-		NamesOf1CEnterpriseTypes.Add("WinRT_ARM");
-		NamesOf1CEnterpriseTypes.Add("WinRT_x86");
-		NamesOf1CEnterpriseTypes.Add("WinRT_x86_64");
-	EndIf;
+	NamesOf1CEnterpriseTypes.Add("Android_ARM");
+	NamesOf1CEnterpriseTypes.Add("Android_ARM_64");
+	NamesOf1CEnterpriseTypes.Add("Android_x86");
+	NamesOf1CEnterpriseTypes.Add("Android_x86_64");
+	
+	NamesOf1CEnterpriseTypes.Add("iOS_ARM");
+	NamesOf1CEnterpriseTypes.Add("iOS_ARM_64");
+	
+	NamesOf1CEnterpriseTypes.Add("WinRT_ARM");
+	NamesOf1CEnterpriseTypes.Add("WinRT_x86");
+	NamesOf1CEnterpriseTypes.Add("WinRT_x86_64");
 	
 	For Each NameOfThePlatformType In NamesOf1CEnterpriseTypes Do
 		If ValueOf1CEnterpriseType = PlatformType[NameOfThePlatformType] Then
@@ -317,7 +444,7 @@ Procedure Validate(Val Condition, Val Message = "", Val CheckContext = "") Expor
 				NStr("en = '%1 in %2';"), ExceptionText, CheckContext);
 		EndIf;
 		
-		Raise ExceptionText;
+		Raise(ExceptionText, ErrorCategory.ConfigurationError);
 		
 	EndIf;
 	
@@ -651,23 +778,17 @@ EndFunction
 // Deletes all occurrences of the passed value from the array.
 //
 // Parameters:
-//  Array - Array - the array that contains a value to delete;
+//  Array - Array of Arbitrary - the array that contains a value to delete.
 //  Value - Arbitrary - the array value to delete.
 // 
 Procedure DeleteAllValueOccurrencesFromArray(Array, Value) Export
 	
 	CollectionItemsCount = Array.Count();
-	
 	For ReverseIndex = 1 To CollectionItemsCount Do
-		
 		IndexOf = CollectionItemsCount - ReverseIndex;
-		
 		If Array[IndexOf] = Value Then
-			
 			Array.Delete(IndexOf);
-			
 		EndIf;
-		
 	EndDo;
 	
 EndProcedure
@@ -675,23 +796,17 @@ EndProcedure
 // Deletes all occurrences of specified type values.
 //
 // Parameters:
-//  Array - Array - the array that contains values to delete;
+//  Array - Array of Arbitrary - the array that contains values to delete.
 //  Type - Type - the type of values to be deleted.
 // 
 Procedure DeleteAllTypeOccurrencesFromArray(Array, Type) Export
 	
 	CollectionItemsCount = Array.Count();
-	
 	For ReverseIndex = 1 To CollectionItemsCount Do
-		
 		IndexOf = CollectionItemsCount - ReverseIndex;
-		
 		If TypeOf(Array[IndexOf]) = Type Then
-			
 			Array.Delete(IndexOf);
-			
 		EndIf;
-		
 	EndDo;
 	
 EndProcedure
@@ -699,8 +814,8 @@ EndProcedure
 // Deletes one value from the array.
 //
 // Parameters:
-//  Array - Array - the array that contains a value to delete;
-//  Value - Array - the array value to delete.
+//  Array - Array of Arbitrary - the array that contains a value to delete.
+//  Value - Arbitrary - the array value to delete.
 // 
 Procedure DeleteValueFromArray(Array, Value) Export
 	
@@ -714,10 +829,10 @@ EndProcedure
 // Returns the source array copy with the unique values.
 //
 // Parameters:
-//  Array - Array - an array of values.
+//  Array - Array of Arbitrary - an array of values.
 //
 // Returns:
-//  Array - an array of unique elements.
+//  Array of Arbitrary
 //
 Function CollapseArray(Val Array) Export
 	Result = New Array;
@@ -729,8 +844,8 @@ EndFunction
 // all items of the first array that do not exist in the second array.
 //
 // Parameters:
-//  Array - Array - an array to subtract from;
-//  SubtractionArray - Array - an array being subtracted.
+//  Array - Array of Arbitrary - an array to subtract from;
+//  SubtractionArray - Array of Arbitrary - an array being subtracted.
 // 
 // Returns:
 //  Array - a difference between two arrays.
@@ -756,9 +871,9 @@ EndFunction
 // Compares item values in two value list or element values in two arrays.
 //
 // Parameters:
-//  List1 - Array
+//  List1 - Array of Arbitrary
 //          - ValueList - the first item collection to compare.
-//  List2 - Array
+//  List2 - Array of Arbitrary
 //          - ValueList - the first item collection to compare.
 //  ShouldCompareValuesCount - Boolean - Clarifies the comparison mode.:
 //                                          If "False", it will check if the collection elements are present in the other collection.
@@ -828,7 +943,7 @@ EndFunction
 //  Value - Arbitrary - a value.
 //
 // Returns:
-//  Array - a single-element array.
+//  Array of Arbitrary - a single-element array.
 //
 Function ValueInArray(Val Value) Export
 	
@@ -1231,8 +1346,8 @@ EndFunction
 //  Presentation           - String - presentation of the data composition item.
 //  Use           - Boolean - Item usage.
 //  ViewMode        - DataCompositionSettingsItemViewMode - the item display mode.
-//  UserSettingID - String - see DataCompositionFilter.UserSettingID
-//                                                    in Syntax Assistant.
+//  UserSettingID - String - See "DataCompositionFilter.UserSettingID" in Syntax Assistant.
+//                                                    
 // Returns:
 //  DataCompositionFilterItem - a composition item.
 //
@@ -1292,8 +1407,8 @@ EndFunction
 //  Var_ComparisonType            - DataCompositionComparisonType - comparison type.
 //  Use           - Boolean - Item usage.
 //  ViewMode        - DataCompositionSettingsItemViewMode - the item display mode.
-//  UserSettingID - String - see DataCompositionFilter.UserSettingID
-//                                                    in Syntax Assistant.
+//  UserSettingID - String - See "DataCompositionFilter.UserSettingID" in Syntax Assistant.
+//                                                    
 //
 // Returns:
 //  Number - the changed item count.
@@ -1391,8 +1506,8 @@ EndProcedure
 //  Presentation           - String - presentation of the data composition item.
 //  Use           - Boolean - Item usage.
 //  ViewMode        - DataCompositionSettingsItemViewMode - the item display mode.
-//  UserSettingID - String - see DataCompositionFilter.UserSettingID
-//                                                    in Syntax Assistant.
+//  UserSettingID - String - See "DataCompositionFilter.UserSettingID" in Syntax Assistant.
+//                                                    
 //
 Procedure SetFilterItem(WhereToAdd,
 								Val FieldName,
@@ -1429,7 +1544,7 @@ EndProcedure
 //
 // Parameters:
 //   DynamicList - DynamicList - the list to be filtered.
-//   FieldName            - String - the field the filter to apply to.
+//   FieldName            - String - The field you want to filter by.
 //   RightValue     - Arbitrary - the filter value.
 //       Optional. The default value is Undefined.
 //       Warning! If Undefined is passed, the value will not be changed.
@@ -1445,8 +1560,8 @@ EndProcedure
 //        DataCompositionSettingItemDisplayMode.QuickAccess - in the Quick Settings bar on top of the list.
 //        DataCompositionSettingItemDisplayMode.Normal       - in the list settings (submenu More).
 //        DataCompositionSettingItemDisplayMode.Inaccessible   - prevent users from changing the filter.
-//   UserSettingID - String - the filter UUID.
-//       Used to link user settings.
+//   UserSettingID - String - Filter UUID.
+//       Used to associate user settings.
 //
 Procedure SetDynamicListFilterItem(DynamicList, FieldName,
 	RightValue = Undefined,
@@ -1560,7 +1675,7 @@ EndFunction
 // Generates the full path to a file from the directory path and the file name.
 //
 // Parameters:
-//  DirectoryName  - String - the path to the directory that contains the file.
+//  DirectoryName  - String - The path to the directory that contains the file.
 //  FileName     - String - the file name.
 //
 // Returns:
@@ -1568,20 +1683,16 @@ EndFunction
 //
 Function GetFullFileName(Val DirectoryName, Val FileName) Export
 
-	If Not IsBlankString(FileName) Then
-		
-		Slash = "";
-		If (Right(DirectoryName, 1) <> "\") And (Right(DirectoryName, 1) <> "/") Then
-			Slash = ?(StrFind(DirectoryName, "\") = 0, "/", "\");
-		EndIf;
-		
-		Return DirectoryName + Slash + FileName;
-		
-	Else
-		
+	If IsBlankString(FileName) Then
 		Return DirectoryName;
-		
 	EndIf;
+	
+	PathSeparator = "";
+	If (Right(DirectoryName, 1) <> "\") And (Right(DirectoryName, 1) <> "/") Then
+		PathSeparator = ?(StrFind(DirectoryName, "\") = 0, "/", "\");
+	EndIf;
+	
+	Return DirectoryName + PathSeparator + FileName;
 
 EndFunction
 
@@ -1717,7 +1828,7 @@ Function GetNameWithExtension(BaseName, Extension) Export
 EndFunction
 
 // Returns a string of illegal file name characters.
-// See the list of symbols on https://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words.
+// Refer to https://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words.
 // 
 // Returns:
 //   String
@@ -1743,16 +1854,16 @@ Function FindProhibitedCharsInFileName(FileName) Export
 
 	InvalidChars = GetProhibitedCharsInFileName();
 	
-	FoundProhibitedCharsArray = New Array;
+	Result = New Array;
 	
 	For CharPosition = 1 To StrLen(InvalidChars) Do
 		CharToCheck = Mid(InvalidChars,CharPosition,1);
 		If StrFind(FileName,CharToCheck) <> 0 Then
-			FoundProhibitedCharsArray.Add(CharToCheck);
+			Result.Add(CharToCheck);
 		EndIf;
 	EndDo;
 	
-	Return FoundProhibitedCharsArray;
+	Return Result;
 
 EndFunction
 
@@ -2009,8 +2120,8 @@ EndFunction
 //    * NameOfInfobaseOn1CEnterpriseServer - String - Infobase name on the server-side (for client/server infobases) 
 //    * OperatingSystemAuthentication - Boolean - If True, then the operating system authentication is used.
 //                                          If False, pass the properties UserName and UserPassword.
-//    * UserName - String - Username for signing in to the infobase.
-//    * UserPassword - String - User password for signing in to the infobase.
+//    * UserName - String - Username for logging in to the infobase.
+//    * UserPassword - String - User password for logging in to the infobase.
 //
 Function ParametersStructureForExternalConnection() Export
 	
@@ -2115,7 +2226,7 @@ Function DistributeAmountInProportionToCoefficients(Val AmountToDistribute, Val 
 		If ZoomRatio < 0 Then 
 			// If the coefficient is less than zero, its absolute value is a negative number.
 			ZoomRatio = -ZoomRatio; // Abs(Coefficient).
-			AbsoluteCoefficients[IndexOf] = ZoomRatio; // 
+			AbsoluteCoefficients[IndexOf] = ZoomRatio; // Replace the coefficient in the array.
 		EndIf;
 		
 		If MaxCoefficient < ZoomRatio Then
@@ -2617,45 +2728,37 @@ Function NewSecureConnection(Val ClientCertificate = Undefined, Val Certificatio
 	Return New OpenSSLSecureConnection; // For backward compatibility purposes.
 #Else
 	If CertificationAuthorityCertificates = Undefined Then
-		VersionsOf1CEnterpriseForCertificateUsage = "8.3.22.2470; 8.3.23.2122; 8.3.24.1446";
+		VersionsOf1CEnterpriseForCertificateUsage = "8.3.24.1446";
 	
 		SystemInfo = New SystemInfo;
 		VersionCurrentNumber = ConfigurationVersionWithoutBuildNumber(SystemInfo.AppVersion);
-		ShouldUseCertificatesFromCAs = CompareVersionsWithoutBuildNumber(VersionCurrentNumber, "8.3.21") > 0;
+		ShouldUseCertificatesFromCAs = True;
+		
+		If CompareVersionsWithoutBuildNumber(VersionCurrentNumber, "8.3.25") < 0 Then
+			For Each BuildNumber In StrSplit(VersionsOf1CEnterpriseForCertificateUsage, "; ", False) Do
+				If StrStartsWith(BuildNumber, VersionCurrentNumber + ".") Then
+					ShouldUseCertificatesFromCAs = 
+						CompareVersions(SystemInfo.AppVersion, BuildNumber) >= 0;
+					Break;
+				EndIf;
+			EndDo;
+		EndIf;
 		
 		If ShouldUseCertificatesFromCAs Then
-			If CompareVersionsWithoutBuildNumber(VersionCurrentNumber, "8.3.25") < 0 Then
-				For Each BuildNumber In StrSplit(VersionsOf1CEnterpriseForCertificateUsage, "; ", False) Do
-					If StrStartsWith(BuildNumber, VersionCurrentNumber + ".") Then
-						ShouldUseCertificatesFromCAs = 
-							CompareVersions(SystemInfo.AppVersion, BuildNumber) >= 0;
-						Break;
-					EndIf;
-				EndDo;
-			EndIf;
-			
-			If ShouldUseCertificatesFromCAs Then
-				CertificationAuthorityCertificates = New OSCertificationAuthorityCertificates();
-			EndIf;
+			CertificationAuthorityCertificates = New OSCertificationAuthorityCertificates();
 		EndIf;
 	EndIf;
 	
 	If ConnectType = "CryptoPro" Then
 		SystemInfo = New SystemInfo;
-		If CompareVersions(SystemInfo.AppVersion, "8.3.24.0") >= 0 Then
-			CryptoProSecureConnection = Undefined;
-			// ACC:487-off - Support of new 1C:Enterprise methods (the executable code is safe)
-			Execute("CryptoProSecureConnection = New CryptoProSecureConnection(ClientCertificate, CertificationAuthorityCertificates)");
-			// ACC:487-on
-			Return CryptoProSecureConnection;
-		Else
-			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'To establish a secure %1 connection, 1C:Enterprise version must be 8.3.24 or later. The current version is %2.';"),
-				NStr("en = 'CryptoPro';"), SystemInfo.AppVersion);
-		EndIf;
+		CryptoProSecureConnection = Undefined;
+		// ACC:487-off - Support of new 1C:Enterprise methods (the executable code is safe)
+		Execute("CryptoProSecureConnection = New CryptoProSecureConnection(ClientCertificate, CertificationAuthorityCertificates, ServerTLSCertificateRevocationCheckMode.Strict)");
+		// ACC:487-on
+		Return CryptoProSecureConnection;
 	EndIf;
 	
-	Return New OpenSSLSecureConnection(ClientCertificate, CertificationAuthorityCertificates);
+	Return New OpenSSLSecureConnection(ClientCertificate, CertificationAuthorityCertificates, ServerTLSCertificateRevocationCheckMode.Strict);
 #EndIf
 	
 EndFunction
@@ -2857,8 +2960,7 @@ EndFunction
 #Region ConvertDateForHTTP
 
 // Converts a universal date into a rfc1123-date format.
-// See https://www.w3.org/Protocols/rfc2616/rfc2616
-// -sec3.html, item 3.3.1.
+// See https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html, item 3.3.1.
 // 
 // Parameters:
 //  Date - Date
@@ -2892,8 +2994,7 @@ Function HTTPDate(Val Date) Export
 EndFunction
 
 // Returns a date converted from rfc1123-date to Date data type.
-// See https://www.w3.org/Protocols/rfc2616/rfc2616
-// -sec3.html, item 3.3.1.
+// See https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html, item 3.3.1.
 // 
 // Parameters:
 //  HTTPDateAsString - String
@@ -3378,7 +3479,7 @@ Function EstablishExternalConnectionWithInfobase(Parameters) Export
 			COMConnector = New COMObject(COMConnectorName()); // "V83.COMConnector"
 		Except
 			Information = ErrorInfo();
-			ErrorMessageString = NStr("en = 'Failed to connect to another app: %1';");
+			ErrorMessageString = NStr("en = 'Failed to connect to another application: %1';");
 			
 			Result.AddInAttachmentError = True;
 			Result.DetailedErrorDetails = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageString, ErrorProcessing.DetailErrorDescription(Information));
@@ -3451,7 +3552,7 @@ Function EstablishExternalConnectionWithInfobase(Parameters) Export
 			Result.Join = COMConnector.Connect(ConnectionString);
 		Except
 			Information = ErrorInfo();
-			ErrorMessageString = NStr("en = 'Failed to connect to another app: %1';");
+			ErrorMessageString = NStr("en = 'Failed to connect to the application: %1';");
 			
 			Result.AddInAttachmentError = True;
 			Result.DetailedErrorDetails     = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageString, ErrorProcessing.DetailErrorDescription(Information));
@@ -3569,9 +3670,8 @@ Function IsLinuxClient() Export
 #If Not MobileClient Then
 	SystemInfo = New SystemInfo;
 	IsLinuxClient = IsLinuxClient
-		Or CompareVersions(SystemInfo.AppVersion, "8.3.22.1923") >= 0
-		And (SystemInfo.PlatformType = PlatformType["Linux_ARM64"]
-		Or SystemInfo.PlatformType = PlatformType["Linux_E2K"]);
+		Or SystemInfo.PlatformType = PlatformType["Linux_ARM64"]
+		Or SystemInfo.PlatformType = PlatformType["Linux_E2K"];
 #EndIf
 	
 	Return IsLinuxClient;
@@ -3579,7 +3679,7 @@ Function IsLinuxClient() Export
 EndFunction
 
 // Deprecated. Instead, use Common.IsWebClient or WebClient preprocessor instruction 
-// in the client code.
+// in client-side code.
 // Returns True if the client application is a web client.
 //
 // Returns:
@@ -3625,7 +3725,7 @@ Function IsMacOSWebClient() Export
 EndFunction
 
 // Deprecated. Instead, use Common.IsMobileClient or MobileClient preprocessor instruction 
-// in the client code.
+// in client-side code.
 // Returns True if the client application is a mobile client.
 //
 // Returns:
@@ -3707,7 +3807,7 @@ EndFunction
 
 // Deprecated. Instead, use CommonClient.LocalDatePresentationWithOffset 
 //  or Common.LocalDatePresentationWithOffset
-// Convert a local date to the "YYYY-MM-DDThh:mm:ssTZD" format (ISO 8601).
+// Converts dates to the ISO format (YYYY-MM-DDThh:mm:ssZ).
 //
 // Parameters:
 //  LocalDate - Date - a date in the session time zone.
@@ -3880,7 +3980,7 @@ EndFunction
 Function StartApplication(Val StartupCommand, ApplicationStartupParameters = Undefined) Export 
 	
 #If WebClient Or MobileClient Then
-	Raise NStr("en = 'Cannot run app in the web client.';");
+	Raise NStr("en = 'Cannot run the application in the web client.';");
 #Else
 	
 	CommandString = CommonInternalClientServer.SafeCommandString(StartupCommand);
@@ -3990,9 +4090,8 @@ Function StartApplication(Val StartupCommand, ApplicationStartupParameters = Und
 		
 	ElsIf (SystemInfo.PlatformType = PlatformType.Linux_x86) 
 		Or (SystemInfo.PlatformType = PlatformType.Linux_x86_64)
-		Or CompareVersions(SystemInfo.AppVersion, "8.3.22.1923") >= 0
-			And (SystemInfo.PlatformType = PlatformType["Linux_ARM64"]
-			Or SystemInfo.PlatformType = PlatformType["Linux_E2K"]) Then
+		Or SystemInfo.PlatformType = PlatformType["Linux_ARM64"]
+			Or SystemInfo.PlatformType = PlatformType["Linux_E2K"] Then
 		
 		If ExecuteWithFullRights Then
 			
@@ -4249,71 +4348,6 @@ EndFunction
 
 #Region Internal
 
-// Returned the clarified text of the user message and the exception category.
-// 
-//
-// Parameters:
-//  ErrorInfo - ErrorInfo - The original error details.
-//  Title          - String - If empty, returns the exception text without clarifications.
-//
-//  ErrorAtClient - Boolean - Set to "True" if the error occurred on the client.
-//      The reason is that 1C:Enterprise handles some server-side and client-side errors differently.
-//      For example, the error "LocalFileAccessError" is clarified on the client (unlike the server).
-//      
-//      
-//      
-//
-// Returns:
-//  Structure:
-//   * Text - String - Clarified error text. (Or unclarified if "Title" is empty.)
-//   * Category - ErrorCategory - The category of the clarified exception.
-//               - Undefined - Keeps the category unspecified.
-//                   
-//
-Function ExceptionClarification(ErrorInfo, Title = "", ErrorAtClient = False) Export
-	
-	Category = ErrorProcessing.ErrorCategoryForUser(ErrorInfo);
-	If Category = ErrorCategory.OtherError Then
-		Category = ErrorCategory.ConfigurationError;
-	ElsIf Category = ErrorCategory.ExceptionRaisedFromScript Then
-		Category = Undefined;
-	EndIf;
-	
-	If Not ErrorAtClient Then
-		If Category = ErrorCategory.LocalFileAccessError
-		 Or Category = ErrorCategory.PrinterError Then
-			Category = ErrorCategory.ConfigurationError;
-		EndIf;
-	EndIf;
-	
-	ErrorText = "";
-	CurrentReason = ErrorInfo;
-	LongDesc = "";
-	While CurrentReason <> Undefined Do
-		If CurrentReason.IsErrorOfCategory(
-				ErrorCategory.ExceptionRaisedFromScript, False) Then
-			LongDesc = CurrentReason.Description;
-			Break;
-		EndIf;
-		CurrentReason = CurrentReason.Cause;
-	EndDo;
-	If Not ValueIsFilled(LongDesc) Then
-		LongDesc = ErrorProcessing.BriefErrorDescription(ErrorInfo);
-	EndIf;
-	If ValueIsFilled(Title) Then
-		ErrorText = Title + Chars.LF + LongDesc;
-	Else
-		ErrorText = LongDesc;
-	EndIf;
-	
-	Result = New Structure;
-	Result.Insert("Text", ReplaceProhibitedXMLChars(ErrorText));
-	Result.Insert("Category", Category);
-	
-	Return Result;
-	
-EndFunction
-
 // Creates an array and adds the passed values to it.
 //
 // Parameters:
@@ -4348,7 +4382,7 @@ EndFunction
 
 Function NameMeetPropertyNamingRequirements(Name) Export
 	Letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // @Non-NLS, ACC:163 - Data can contain letters
-	Digits = "1234567890"; // @Non-NLS, ACC:163 - Data can contain letters
+	Digits = "1234567890"; // @Non-NLS
 	
 	If Name = "" Or StrFind(Letters + "_", Upper(Left(Name, 1))) = 0 Then
 		Return False;
@@ -4609,10 +4643,10 @@ EndFunction
 
 #If Not WebClient Then
 
-// Returns encoding of standard output and error threads for the current operating system.
+// Returns encoding of standard output and error streams for the current operating system.
 //
 // Returns:
-//  TextEncoding - encoding of standard output and error threads.
+//  TextEncoding - Encoding of the standard output and error streams.
 //
 Function StandardStreamEncoding()
 	
@@ -4771,7 +4805,7 @@ Function ServerRouteTraceLog(ServerAddress)
 		CommandTemplate = "tracert -w 100 -h 15 %1";
 	Else 
 		// If traceroute is not installed, the output stream will have an error.
-		// You can ignore that since the output is not parseable.
+		// You can ignore that since the output is not parsable.
 		// For the administrator, it will be clear what utility should be installed.
 		CommandTemplate = "traceroute -w 100 -m 100 %1";
 	EndIf;

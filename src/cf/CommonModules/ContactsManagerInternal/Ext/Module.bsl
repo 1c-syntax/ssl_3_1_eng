@@ -21,7 +21,8 @@ Function ValidateAddress(Address, AddressCheckParameters = Undefined) Export
 	EndIf;
 	
 	If Metadata.DataProcessors.Find("AdvancedContactInformationInput") <> Undefined Then
-		DataProcessors["AdvancedContactInformationInput"].ValidateAddress(Address, CheckResult, AddressCheckParameters);
+		ModuleAdvancedContactInformationInput = Common.CommonModule("DataProcessors.AdvancedContactInformationInput");
+		ModuleAdvancedContactInformationInput.ValidateAddress(Address, CheckResult, AddressCheckParameters);
 	EndIf;
 	
 	Return CheckResult;
@@ -55,7 +56,7 @@ EndFunction
 //   * Contact               - DefinedType.InteractionContact - a found contact.
 //   * Description          - String - contact name.
 //   * OwnerDescription1 - String - a contact owner name.
-//   * Presentation         - String - an email address.
+//   * Presentation         - String - Email address.
 //   
 //
 Function FindContactsWithEmailAddresses(SearchString, ContactsDetails) Export
@@ -171,8 +172,20 @@ Function NewContactDescription() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+Function CountriesCodes() Export
+	
+	Return Catalogs.WorldCountries.CountriesCodes();
+	
+EndFunction
+
+Function WorldCountriesCatalogEmptyRef() Export
+	
+	Return Catalogs.WorldCountries.EmptyRef();
+
+EndFunction
+
+
+#Region ConfigurationSubsystemsEventHandlers
 
 // See ObjectsVersioningOverridable.OnPrepareObjectData.
 Procedure OnPrepareObjectData(Object, AdditionalAttributes) Export 
@@ -344,7 +357,7 @@ Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 	NamesAndAliasesMap.Insert("ContactsManagerInternal.ObsoleteAddressesCorrection");
 EndProcedure
 
-// 
+// See NationalLanguageSupportServer.ObjectsSCHRepresentations
 Procedure OnDefineObjectsWithTablePresentation(Objects) Export
 	Objects.Add("Catalog.ContactInformationKinds");
 EndProcedure
@@ -352,6 +365,8 @@ EndProcedure
 Function TheTypesOfContactInformationAreUpdated(Queue) Export
 	Return InfobaseUpdate.HasDataLockedByPreviousQueues(Queue, "Catalog.ContactInformationKinds");
 EndFunction
+
+#EndRegion
 
 #EndRegion
 
@@ -470,7 +485,8 @@ Procedure AutoCompleteAddress(Val Text, ChoiceData) Export
 	AdditionalParameters.OnlyWebService = True;
 	AdditionalParameters.IsDirectOrder = True;
 	
-	Result = DataProcessors["AdvancedContactInformationInput"].ListOfAutoSelectionLocalities(Text, AdditionalParameters);
+	ModuleAdvancedContactInformationInput = Common.CommonModule("DataProcessors.AdvancedContactInformationInput");
+	Result = ModuleAdvancedContactInformationInput.ListOfAutoSelectionLocalities(Text, AdditionalParameters);
 	If Result.Cancel Then
 		Return;
 	EndIf;
@@ -643,7 +659,8 @@ Function CorrectContactInformationKindsBatch(Val ObjectsWithIssues, Validation)
 				CommitTransaction();
 			Except
 				RollbackTransaction();
-				WriteLogEvent(EventLogEvent(), EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				WriteLogEvent(EventLogEvent(), EventLogLevel.Error,,, 
+					ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				Continue;
 			EndTry;
 			
@@ -708,17 +725,21 @@ Procedure CorrectContactInformationKindsInBackground(Val CheckParameters, Storag
 		Return;
 	EndIf;
 	
+	SelectionParameters = ModuleAccountingAudit.ParametersOfObjectsWithIssuesSelection();
 	ObjectsWithIssues = ModuleAccountingAudit.ObjectsWithIssues(Validation);
 	TotalObjectCount      = 0;
 	TotalObjectsCorrected = 0;
 
 	While ObjectsWithIssues.Count() > 0 Do
 		
-		LastObjectWithIssue = ObjectsWithIssues.Get(ObjectsWithIssues.Count() - 1).ObjectWithIssue;
+		InitialObjectWithIssue = ObjectsWithIssues.Get(ObjectsWithIssues.Count() - 1).ObjectWithIssue;
 		TotalObjectCount = TotalObjectCount + ObjectsWithIssues.Count();
 		// @skip-check query-in-loop - Batch processing of a large amount of data.
 		TotalObjectsCorrected = TotalObjectsCorrected + CorrectContactInformationKindsBatch(ObjectsWithIssues, Validation);
-		ObjectsWithIssues = ModuleAccountingAudit.ObjectsWithIssues(Validation, LastObjectWithIssue);
+		
+		SelectionParameters.InitialObjectWithIssue = InitialObjectWithIssue;
+		// @skip-check query-in-loop - Batch processing of a large amount of data.
+		ObjectsWithIssues = ModuleAccountingAudit.ObjectsWithIssues(Validation, SelectionParameters);
 	
 	EndDo;
 	Result = New Structure;
@@ -771,7 +792,8 @@ Procedure CheckContactInformationKinds(Validation, CheckParameters) Export
 	
 	StringFromQuery = QueryResult.Select();
 	
-	CheckExecutionParameters = ModuleAccountingAudit.CheckExecutionParameters("ContactInformation", NStr("en = 'Contact information kinds';", Common.DefaultLanguageCode()));
+	CheckExecutionParameters = ModuleAccountingAudit.CheckExecutionParameters("ContactInformation", 
+		NStr("en = 'Contact information kinds';", Common.DefaultLanguageCode()));
 	ModuleAccountingAudit.ClearPreviousCheckResults(Validation, CheckExecutionParameters);
 	
 	CheckKind = ModuleAccountingAudit.CheckKind(CheckExecutionParameters);
@@ -1113,7 +1135,7 @@ Function ContactsByPresentation(Presentation, ExpectedKind, SplitByFields = Fals
 	
 	If ExpectedType = Enums.ContactInformationTypes.Address Then
 		
-		Return GenerateAddressByPresentation(Presentation, SplitByFields, RecognizeAddress);
+		Return GenerateAddressByPresentation(Presentation, ExpectedKind, SplitByFields, RecognizeAddress);
 		
 	ElsIf ExpectedType = Enums.ContactInformationTypes.Phone
 		Or ExpectedType = Enums.ContactInformationTypes.Fax Then
@@ -1129,7 +1151,7 @@ Function ContactsByPresentation(Presentation, ExpectedKind, SplitByFields = Fals
 	
 EndFunction
 
-Function GenerateAddressByPresentation(Presentation, SplitByFields = False, RecognizeAddress = True)
+Function GenerateAddressByPresentation(Presentation, ExpectedKind, SplitByFields = False, RecognizeAddress = True)
 	
 	HasAddressManagerClientServer = ContactsManagerInternalCached.AreAddressManagementModulesAvailable();
 	
@@ -1142,11 +1164,6 @@ Function GenerateAddressByPresentation(Presentation, SplitByFields = False, Reco
 		DescriptionMainCountry = "";
 	EndIf;
 	
-	If Not Common.SubsystemExists("StandardSubsystems.AddressClassifier") Then
-		Address.value = Presentation;
-		Return Address;
-	EndIf;
-	
 	AnalysisData = AddressPartsAsTable(Presentation);
 	If AnalysisData.Count() = 0 Then
 		Address.value = Presentation;
@@ -1157,14 +1174,14 @@ Function GenerateAddressByPresentation(Presentation, SplitByFields = False, Reco
 	CountryString = AnalysisData.Find(-2, "Level");
 	
 	If CountryString = Undefined Then
-		Address.Country = DescriptionMainCountry;
+		Address.country = DescriptionMainCountry;
 	Else
-		Address.Country = TrimAll(Upper(CountryString.Value));
+		Address.country = TrimAll(Upper(CountryString.Value));
 	EndIf;
 	
-	CountryData = ContactsManager.WorldCountryData(, Address.Country);
+	CountryData = ContactsManager.WorldCountryData(, Address.country);
 	If CountryData <> Undefined Then
-		Address.CountryCode = CountryData.Code;
+		Address.countryCode = CountryData.Code;
 	EndIf;
 	
 	If ContactsManagerInternalCached.AreAddressManagementModulesAvailable() Then
@@ -1172,76 +1189,86 @@ Function GenerateAddressByPresentation(Presentation, SplitByFields = False, Reco
 		ModuleAddressManager.HandlingFrequentAbbreviationsInAddresses(AnalysisData);
 	EndIf;
 	
-	If Address.Country = DescriptionMainCountry Then
+	If Address.country = DescriptionMainCountry 
+	   And Common.SubsystemExists("StandardSubsystems.AddressClassifier") Then
 		
-		If Common.SubsystemExists("StandardSubsystems.AddressClassifier") Then
+		If RecognizeAddress Then
+			ModuleAddressClassifierInternal = Common.CommonModule("AddressClassifierInternal");
+			AddressOptions = ModuleAddressClassifierInternal.RecognizeAddress(AnalysisData, Presentation, SplitByFields);
+		Else
+			AddressOptions = Undefined;
+		EndIf;
+		
+		If AddressOptions = Undefined Then
 			
-			If RecognizeAddress Then
-				ModuleAddressClassifierInternal = Common.CommonModule("AddressClassifierInternal");
-				AddressOptions = ModuleAddressClassifierInternal.RecognizeAddress(AnalysisData, Presentation, SplitByFields);
+			If SplitByFields Then
+				
+				ModuleAddressManagerClientServer = Common.CommonModule("AddressManagerClientServer");
+				If  ModuleAddressManagerClientServer <> Undefined Then
+					Address.addressType = ModuleAddressManagerClientServer.MunicipalAddress();
+				EndIf;
+				
+				Address.value = Presentation;
+				DistributeAddressToFieldsWithoutClassifier(Address, AnalysisData);
+				
 			Else
-				AddressOptions = Undefined;
+				
+				Address.value = Presentation;
+				Address.addressType = ContactsManagerClientServer.CustomFormatAddress();
+				
 			EndIf;
+		Else
 			
-			If AddressOptions = Undefined Then
-				
-				If SplitByFields Then
-					
-					ModuleAddressManagerClientServer = Common.CommonModule("AddressManagerClientServer");
-					If  ModuleAddressManagerClientServer <> Undefined Then
-						Address.AddressType = ModuleAddressManagerClientServer.MunicipalAddress();
-					EndIf;
-					
-					Address.value = Presentation;
-					DistributeAddressToFieldsWithoutClassifier(Address, AnalysisData);
-					
-				Else
-					
-					Address.value = Presentation;
-					Address.AddressType = ContactsManagerClientServer.CustomFormatAddress();
-					
+			FillPropertyValues(Address, AddressOptions);
+			If HasAddressManagerClientServer Then
+				ModuleAddressManager = Common.CommonModule("AddressManager");
+				If ModuleAddressManager <> Undefined Then
+					ModuleAddressManager.UpdateAddressPresentation(Address, False);
 				EndIf;
 			Else
-				
-				FillPropertyValues(Address, AddressOptions);
-				If HasAddressManagerClientServer Then
-					ModuleAddressManager = Common.CommonModule("AddressManager");
-					If ModuleAddressManager <> Undefined Then
-						ModuleAddressManager.UpdateAddressPresentation(Address, False);
-					EndIf;
-				Else
-					UpdateAddressPresentation(Address, False);
-				EndIf;
-				
+				UpdateAddressPresentation(Address, False);
 			EndIf;
 			
 		EndIf;
-		
+			
 	Else
 		
 		If HasAddressManagerClientServer Then
-			AddressType = ?(ContactsManager.IsEEUMemberCountry(Address.Country),
+			AddressType = ?(ContactsManager.IsEEUMemberCountry(Address.country),
 				ContactsManagerClientServer.EEUAddress(),
 				ContactsManagerClientServer.ForeignAddress());
-			Address.AddressType = AddressType;
+			Address.addressType = AddressType;
 		Else
-			Address.AddressType = ContactsManagerClientServer.CustomFormatAddress();
+			Address.addressType = ContactsManagerClientServer.CustomFormatAddress();
+		EndIf;
+		
+		IncludeCountryInPresentation = False;
+		If TypeOf(ExpectedKind) = Type("CatalogRef.ContactInformationKinds") Then
+			IncludeCountryInPresentation = Common.ObjectAttributeValue(ExpectedKind, "IncludeCountryInPresentation");
 		EndIf;
 		
 		NewPresentation = New Array;
+		NewStreetPresentation = New Array;
 		AnalysisData.Sort("Position");
 		For Each AddressPart In AnalysisData Do
 			If AddressPart.Level >=0 Then
-				NewPresentation.Add(AddressPart.Value);
+				NewStreetPresentation.Add(AddressPart.Value);
 			EndIf;
+				
+			If Not IncludeCountryInPresentation And AddressPart.Level = -2 Then
+				Continue
+			EndIf;
+			
+			NewPresentation.Add(AddressPart.Value);
+		
 		EndDo;
 		
-		Address.value = StrConcat(NewPresentation, ", ");
-		Address.Street = Address.value;
+		Address.value  = StrConcat(NewPresentation, ", ");
+		Address.street = StrConcat(NewStreetPresentation, ", ");
 		
 	EndIf;
 	
-	If IsBlankString(Address.ZIPcode) And Address.AddressType <> ContactsManagerClientServer.CustomFormatAddress() Then
+	If IsBlankString(Address.ZIPcode) And Address.addressType <> ContactsManagerClientServer.CustomFormatAddress() Then
 		RowIndex2 = AnalysisData.Find(-1, "Level");
 		If RowIndex2 <> Undefined Then
 			Address.ZIPcode = TrimAll(RowIndex2.Value);
@@ -1260,8 +1287,8 @@ Procedure UpdateAddressPresentation(Address, IncludeCountryInPresentation)
 	
 	FilledLevelsList = New Array;
 	
-	If IncludeCountryInPresentation And Address.Property("country") And Not IsBlankString(Address.Country) Then
-		FilledLevelsList.Add(Address.Country);
+	If IncludeCountryInPresentation And Address.Property("country") And Not IsBlankString(Address.country) Then
+		FilledLevelsList.Add(Address.country);
 	EndIf;
 	
 	If Address.Property("zipCode") And Not IsBlankString(Address.ZIPcode) Then
@@ -1283,8 +1310,8 @@ Procedure DistributeAddressToFieldsWithoutClassifier(Address, AnalysisData)
 			
 			If AddressPart.Level = 1 Then
 				Address.areaValue = AddressPart.Value;
-				Address.Area      = AddressPart.Description;
-				Address.AreaType  = AddressPart.ObjectType;
+				Address.area      = AddressPart.Description;
+				Address.areaType  = AddressPart.ObjectType;
 				Address.munLevels.Add("area");
 				Address.admLevels.Add("area");
 			Else
@@ -1295,7 +1322,7 @@ Procedure DistributeAddressToFieldsWithoutClassifier(Address, AnalysisData)
 		EndIf;
 	EndDo;
 	
-	Address.Street = StrConcat(PresentationByAnalysisData, ", ");
+	Address.street = StrConcat(PresentationByAnalysisData, ", ");
 	Address.munLevels.Add("street");
 	Address.admLevels.Add("street");
 	
@@ -1484,9 +1511,18 @@ Function FragmentsTables()
 	
 EndFunction
 
-Procedure DefineCountryAndPostalCode(AddressData) Export
+Procedure DefineCountryAndPostalCode(AddressByFields) Export
 	
 	If Not ContactsManagerInternalCached.AreAddressManagementModulesAvailable() Then
+		FieldsSet = AddressByFields.UnloadColumn("Value");
+		CountryData = DetermineWorldCountry(FieldsSet);
+		If ValueIsFilled(CountryData.Description) Then
+			For Each AddressItem In AddressByFields Do
+				If StrCompare(CountryData.Description, AddressItem.Value) = 0 Then
+					AddressItem.Level = -2;
+				EndIf;
+			EndDo;
+		EndIf;
 		Return;
 	EndIf;
 	
@@ -1494,18 +1530,55 @@ Procedure DefineCountryAndPostalCode(AddressData) Export
 	ModuleAddressManager = Common.CommonModule("AddressManager");
 	Classifier = ModuleAddressManager.TableOfClassifier();
 	
-	For Each AddressItem In AddressData Do
+	For Each AddressItem In AddressByFields Do
 		IndexOf = TypeDescriptionNumber.AdjustValue(AddressItem.Description);
 		If IndexOf >= 100000 And IndexOf < 1000000 Then
 			AddressItem.Level = -1;
 		Else
-			If Classifier.Find(Upper(AddressItem.Value), "Description") <> Undefined Then
+			CountryByClassifier = Classifier.Find(Upper(AddressItem.Value), "Description");
+			ContactsManagerLocalization.ПриПроверкеСтраныПослеПоискаСтраныПоКлассификатору(CountryByClassifier);
+			If CountryByClassifier <> Undefined Then
 				AddressItem.Level = -2;
 			EndIf;
 		EndIf;
 	EndDo;
 	
 EndProcedure
+
+Function DetermineWorldCountry(AddressByFields) Export
+	
+	Result = New Structure();
+	Result.Insert("Ref",       Undefined);
+	Result.Insert("Description", "");
+	Result.Insert("CountryCode",    "");
+	
+	Query = New Query;
+	Query.Text = 
+		"SELECT
+		|	WorldCountries.Ref AS Ref,
+		|	WorldCountries.Description AS Description,
+		|	WorldCountries.Code AS CountryCode
+		|FROM
+		|	Catalog.WorldCountries AS WorldCountries
+		|WHERE
+		|	WorldCountries.Description IN(&FieldsSet)";
+		
+	Query.SetParameter("FieldsSet", AddressByFields);
+	
+	QueryResult = Query.Execute();
+	If QueryResult.IsEmpty() Then
+		Return Result;
+	EndIf;
+	CountryInformation_ = QueryResult.Select();
+	
+	If CountryInformation_.Next() Then
+		FillPropertyValues(Result, CountryInformation_);
+		Return Result;
+	EndIf;
+	
+	Return Result;
+	
+EndFunction
 
 Function ContactInformationPresentation(Val ContactInformation, Transliterate = False) Export
 	
@@ -1556,7 +1629,7 @@ Function AddressEnteredInFreeFormat(Val ContactInformation) Export
 	
 	If TypeOf(ContactInformation) = Type("Structure")
 		And ContactInformation.Property("AddressType") Then
-			Return ContactsManagerClientServer.IsAddressInFreeForm(ContactInformation.AddressType);
+			Return ContactsManagerClientServer.IsAddressInFreeForm(ContactInformation.addressType);
 	EndIf;
 	
 	Return False;
@@ -1604,7 +1677,7 @@ Function IsNationalAddress(Val Address) Export
 			
 			ModuleAddressManagerClientServer = Common.CommonModule("AddressManagerClientServer");
 			CountryDescription = Common.ObjectAttributeValue(ModuleAddressManagerClientServer.MainCountry(), "Description");
-			Return StrCompare(CountryDescription, Address.Country) = 0;
+			Return StrCompare(CountryDescription, Address.country) = 0;
 			
 		EndIf;
 		
@@ -1656,7 +1729,7 @@ Function PhonePresentation(PhoneData) Export
 	If TypeOf(PhoneData) = Type("Structure") Then
 		
 		PhonePresentation = ContactsManagerClientServer.GeneratePhonePresentation(
-			RemoveNonDigitCharacters(PhoneData.CountryCode),
+			RemoveNonDigitCharacters(PhoneData.countryCode),
 			PhoneData.AreaCode,
 			PhoneData.Number,
 			PhoneData.ExtNumber,
@@ -1734,7 +1807,6 @@ EndFunction
 
 // Parameters:
 //   Object - CatalogObject
-///
 ///
 Procedure UpdateCotactsForListsForObject(Object) Export
 	
@@ -2024,7 +2096,8 @@ Function CheckContactsKindParameters(ContactInformationKind) Export
 	
 	If Not ValueIsFilled(ContactInformationKind.Description) Then
 		Result.HasErrors = True;
-		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Field ""Description"" of the ""%1"" contact information kind is empty. The field is required.';"),
+		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Field ""Description"" of the ""%1"" contact information kind is empty. The field is required.';"),
 			String(ContactInformationKind.PredefinedKindName));
 		Return Result;
 	EndIf;
@@ -2035,7 +2108,8 @@ Function CheckContactsKindParameters(ContactInformationKind) Export
 	
 	If Not ValueIsFilled(ContactInformationKind.Type) Then
 		Result.HasErrors = True;
-		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Field ""Type"" of the ""%1"" contact information kind is empty. The field is required.';"),
+		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Field ""Type"" of the ""%1"" contact information kind is empty. The field is required.';"),
 			String(ContactInformationKind.Description));
 		Return Result;
 	EndIf;
@@ -2046,15 +2120,19 @@ Function CheckContactsKindParameters(ContactInformationKind) Export
 		If Not ContactInformationKind.OnlyNationalAddress
 			And (ContactInformationKind.CheckValidity
 			Or ContactInformationKind.HideObsoleteAddresses) Then
-				Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Invalid address validation settings for the %1 contact information kind.
-					|Validation for this kind is not available.';"), String(ContactInformationKind.Description));
+				Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Invalid address validation settings for the %1 contact information kind.
+					|Validation for this kind is not available.';"), 
+					String(ContactInformationKind.Description));
 					Separator = Chars.LF;
 			EndIf;
 			
 		If ContactInformationKind.AllowMultipleValueInput
 			And ContactInformationKind.StoreChangeHistory Then
-				Result.ErrorText = Result.ErrorText + Separator + StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Invalid address settings for the %1 contact information kind.
-					|Contact information does not support multiple entry if the Change history feature is selected.';"),
+				Result.ErrorText = Result.ErrorText + Separator 
+					+ StringFunctionsClientServer.SubstituteParametersToString(
+						NStr("en = 'Invalid address settings for the %1 contact information kind.
+						|Contact information does not support multiple entry if the Change history feature is selected.';"),
 						String(ContactInformationKind.Description));
 		EndIf;
 	EndIf;
@@ -2068,7 +2146,8 @@ Function HasRightToAdd() Export
 	Return AccessRight("Insert", Metadata.Catalogs.WorldCountries);
 EndFunction
 
-Procedure AddContactInformationForRef(Ref, ValueOrPresentation, ContactInformationKind, Date = Undefined, Replace = True, RecognizeAddress = True) Export
+Procedure AddContactInformationForRef(Ref, ValueOrPresentation, ContactInformationKind, 
+	Date = Undefined, Replace = True, RecognizeAddress = True) Export
 	
 	MetadataObject = Metadata.FindByType(TypeOf(Ref));
 	
@@ -2082,7 +2161,8 @@ Procedure AddContactInformationForRef(Ref, ValueOrPresentation, ContactInformati
 		Block.Lock();
 		Object = Ref.GetObject();
 		Object.Lock();
-		AddContactInformation(Object, ValueOrPresentation, ContactInformationKind, Date, Replace, RecognizeAddress);
+		AddContactInformation(Object, ValueOrPresentation, ContactInformationKind, Date, Replace, 
+			RecognizeAddress);
 		
 		Object.Write();
 		CommitTransaction();
@@ -2106,7 +2186,8 @@ Procedure AddContactInformation(Object, ValueOrPresentation, ContactInformationK
 	IsXMLContactInformation           = ContactsManagerClientServer.IsXMLContactInformation(ValueOrPresentation);
 	IsJSONContactInformation          = ContactsManagerClientServer.IsJSONContactInformation(ValueOrPresentation);
 	IsContactInformationInJSONStructure = TypeOf(ValueOrPresentation) = Type("Structure");
-	ContactInformationKindProperties      = Common.ObjectAttributesValues(ContactInformationKind, "Type, StoreChangeHistory");
+	ContactInformationKindProperties      = Common.ObjectAttributesValues(ContactInformationKind, 
+		"Type, StoreChangeHistory");
 	
 	ObjectMetadata = Metadata.FindByType(TypeOf(Object));
 	If ObjectMetadata = Undefined
@@ -2126,19 +2207,24 @@ Procedure AddContactInformation(Object, ValueOrPresentation, ContactInformationK
 		If IsXMLContactInformation Then
 			
 			FieldValues = ValueOrPresentation;
-			Value = ContactsManager.ContactInformationInJSON(ValueOrPresentation, ContactInformationKindProperties.Type);
-			ObjectOfContactInformation = JSONToContactInformationByFields(Value, ContactInformationKindProperties.Type);
+			Value = ContactsManager.ContactInformationInJSON(ValueOrPresentation, 
+				ContactInformationKindProperties.Type);
+			ObjectOfContactInformation = JSONToContactInformationByFields(Value, 
+				ContactInformationKindProperties.Type);
 			Presentation = ObjectOfContactInformation.value;
 			
 		ElsIf IsJSONContactInformation Then
 			
 			Value = ValueOrPresentation;
-			FieldValues = ContactsManager.ContactInformationToXML(Value,, ContactInformationKindProperties.Type);
-			ObjectOfContactInformation = JSONToContactInformationByFields(Value, ContactInformationKindProperties.Type);
+			FieldValues = ContactsManager.ContactInformationToXML(Value,, 
+				ContactInformationKindProperties.Type);
+			ObjectOfContactInformation = JSONToContactInformationByFields(Value, 
+				ContactInformationKindProperties.Type);
 			Presentation = ContactInformationPresentation(ValueOrPresentation);
 			
 		Else
-			ObjectOfContactInformation = ContactsByPresentation(ValueOrPresentation, ContactInformationKindProperties.Type, ,RecognizeAddress);
+			ObjectOfContactInformation = ContactsByPresentation(ValueOrPresentation, 
+				ContactInformationKindProperties.Type, ,RecognizeAddress);
 			Value = ToJSONStringStructure(ObjectOfContactInformation);
 			FieldValues = ContactsManager.ContactInformationToXML(Value);
 			Presentation = ValueOrPresentation;
@@ -2179,7 +2265,8 @@ Procedure AddContactInformation(Object, ValueOrPresentation, ContactInformationK
 		ContactInformationRow.ValidFrom = Date;
 	EndIf;
 	
-	FillContactInformationTechnicalFields(ContactInformationRow, ObjectOfContactInformation, ContactInformationKindProperties.Type);
+	FillContactInformationTechnicalFields(ContactInformationRow, ObjectOfContactInformation, 
+		ContactInformationKindProperties.Type);
 	
 EndProcedure
 
@@ -2218,8 +2305,10 @@ Procedure SetObjectContactInformation(Object, ContactInformation, MetadataObject
 		
 		If Replace Then
 			
-			TabularSectionRowID = ?(WithoutTabularSectionID, Undefined, ObjectContactInformationRow.TabularSectionRowID);
-			If MultipleValuesInputProhibited(ObjectContactInformationRow.Kind, Object.ContactInformation, ObjectContactInformationRow.Date, StoreChangeHistory, TabularSectionRowID) Then
+			TabularSectionRowID = ?(WithoutTabularSectionID, Undefined, 
+				ObjectContactInformationRow.TabularSectionRowID);
+			If MultipleValuesInputProhibited(ObjectContactInformationRow.Kind, Object.ContactInformation, 
+				ObjectContactInformationRow.Date, StoreChangeHistory, TabularSectionRowID) Then
 				Continue;
 			EndIf;
 			ContactInformationRow = Object.ContactInformation.Add();
@@ -2241,7 +2330,8 @@ Procedure SetObjectContactInformation(Object, ContactInformation, MetadataObject
 			EndIf;
 			
 			If Not StoreChangeHistory
-				And MultipleValuesInputProhibited(ObjectContactInformationRow.Kind, Object.ContactInformation, ObjectContactInformationRow.Date, StoreChangeHistory)
+				And MultipleValuesInputProhibited(ObjectContactInformationRow.Kind, Object.ContactInformation, 
+					ObjectContactInformationRow.Date, StoreChangeHistory)
 				Or ContactInformationRows.Count() > 0 Then
 				Continue;
 			EndIf;
@@ -2250,13 +2340,15 @@ Procedure SetObjectContactInformation(Object, ContactInformation, MetadataObject
 			
 		EndIf;
 		
-		FillObjectContactInformationFromString(ObjectContactInformationRow, StoreChangeHistory, ContactInformationRow);
+		FillObjectContactInformationFromString(ObjectContactInformationRow, StoreChangeHistory, 
+			ContactInformationRow);
 		
 	EndDo;
 
 EndProcedure
 
-Procedure SetObjectContactInformationForRef(Ref, Val ContactInformation, MetadataObject, Replace = True) Export
+Procedure SetObjectContactInformationForRef(Ref, Val ContactInformation, MetadataObject, 
+	Replace = True) Export
 	
 	If ContactInformation.Count() = 0 And Not Replace Then
 		Return;
@@ -2289,7 +2381,8 @@ Procedure SetObjectContactInformationForRef(Ref, Val ContactInformation, Metadat
 	
 EndProcedure
 
-Procedure SetObjectsContactInformationForRef(ContactInformationOwner, ObjectContactInformationRows, Val Replace) Export
+Procedure SetObjectsContactInformationForRef(ContactInformationOwner, 
+	ObjectContactInformationRows, Val Replace) Export
 	
 	Ref = ContactInformationOwner.Key;
 	MetadataObject = Metadata.FindByType(TypeOf(Ref));
@@ -2305,7 +2398,8 @@ Procedure SetObjectsContactInformationForRef(ContactInformationOwner, ObjectCont
 		Object = Ref.GetObject();
 		Object.Lock();
 		
-		SetObjectsContactInformation(ContactInformationOwner, Object, ObjectContactInformationRows, Replace);
+		SetObjectsContactInformation(ContactInformationOwner, Object, 
+			ObjectContactInformationRows, Replace);
 		
 		Object.Write();
 		CommitTransaction();
@@ -2324,11 +2418,13 @@ Procedure SetObjectsContactInformation(ContactInformationOwner, Object, Val Obje
 	
 	For Each ObjectContactInformationRow In ObjectContactInformationRows Do // ValueTableRow of See ContactsManager.NewContactInformation
 		
-		StoreChangeHistory = ContactInformationOwner.Value["Periodic"] And ObjectContactInformationRow.Kind.StoreChangeHistory;
+		StoreChangeHistory = ContactInformationOwner.Value["Periodic"] 
+			And ObjectContactInformationRow.Kind.StoreChangeHistory;
 		
 		If Replace Then
 			
-			If MultipleValuesInputProhibited(ObjectContactInformationRow.Kind, Object.ContactInformation, ObjectContactInformationRow.Date, StoreChangeHistory) Then
+			If MultipleValuesInputProhibited(ObjectContactInformationRow.Kind, Object.ContactInformation, 
+				ObjectContactInformationRow.Date, StoreChangeHistory) Then
 				Continue;
 			EndIf;
 			ContactInformationRow = Object.ContactInformation.Add();
@@ -2350,7 +2446,8 @@ Procedure SetObjectsContactInformation(ContactInformationOwner, Object, Val Obje
 			EndIf;
 			
 			If Not StoreChangeHistory
-				And MultipleValuesInputProhibited(ObjectContactInformationRow.Kind, Object.ContactInformation, ObjectContactInformationRow.Date, StoreChangeHistory)
+				And MultipleValuesInputProhibited(ObjectContactInformationRow.Kind, Object.ContactInformation, 
+					ObjectContactInformationRow.Date, StoreChangeHistory)
 				Or FoundRows.Count() > 0 Then
 				Continue;
 			EndIf;
@@ -2438,14 +2535,15 @@ Procedure FillTabularSectionAttributesForAddress(LineOfATabularSection, Address)
 	
 	// Default values.
 	LineOfATabularSection.Country = "";
-	LineOfATabularSection.State = "";
+	LineOfATabularSection.State_SSLym = "";
 	LineOfATabularSection.City  = "";
 	
 	If Address.Property("Country") Then
-		LineOfATabularSection.Country =  Address.Country;
+		LineOfATabularSection.Country =  Address.country;
 		
 		If Metadata.DataProcessors.Find("AdvancedContactInformationInput") <> Undefined Then
-			DataProcessors["AdvancedContactInformationInput"].FillInExtendedDetailsOfTablePartForAddress(Address, LineOfATabularSection);
+			ModuleAdvancedContactInformationInput = Common.CommonModule("DataProcessors.AdvancedContactInformationInput");
+			ModuleAdvancedContactInformationInput.FillInExtendedDetailsOfTablePartForAddress(Address, LineOfATabularSection);
 		EndIf;
 		
 	EndIf;
@@ -2489,7 +2587,7 @@ Procedure FillTabularSectionAttributesForPhone(LineOfATabularSection, Phone)
 	LineOfATabularSection.PhoneNumberWithoutCodes = "";
 	LineOfATabularSection.PhoneNumber         = "";
 	
-	CountryCode     = Phone.CountryCode;
+	CountryCode     = Phone.countryCode;
 	CityCode     = Phone.AreaCode;
 	PhoneNumber = Phone.Number;
 	
@@ -2532,10 +2630,9 @@ Procedure FillTabularSectionAttributesForWebPage(LineOfATabularSection, Source)
 		
 	Else
 		
-		If ContactsManagerInternalCached.IsLocalizationModuleAvailable() Then
-			ModuleContactsManagerLocalization = Common.CommonModule("ContactsManagerLocalization");
-			AddressAsString = ModuleContactsManagerLocalization.FillTabularSectionAttributesForWebPage(Source);
-		Else
+		AddressAsString = "";
+		ContactsManagerLocalization.OnFillTabularSectionAttributesForWebPage(Source, AddressAsString);
+		If IsBlankString(AddressAsString) Then
 			Return;
 		EndIf;
 		
@@ -2602,7 +2699,8 @@ Function HasFilledContactInformationProperties(Val Owner)
 		FieldsListToCheck.Add("Country");
 	
 		ModuleAddressManagerClientServer = Common.CommonModule("AddressManagerClientServer");
-		CommonClientServer.SupplementArray(FieldsListToCheck, ModuleAddressManagerClientServer.AddressLevelNames(Owner, True));
+		CommonClientServer.SupplementArray(FieldsListToCheck, 
+			ModuleAddressManagerClientServer.AddressLevelNames(Owner, True));
 		
 		For Each FieldName In FieldsListToCheck Do
 			If Owner.Property(FieldName) And ValueIsFilled(Owner[FieldName]) Then
@@ -2670,7 +2768,7 @@ Function FieldsValuesStructure(FieldsString, ContactInformationKind = Undefined)
 			If CharPosition <> 0 Then
 				NameOfField = Left(ReceivedString, CharPosition - 1);
 				Simple = Mid(ReceivedString, CharPosition + 1);
-				If NameOfField = "State" Or NameOfField = "District" Or NameOfField = "City" 
+				If NameOfField = "State_SSLym" Or NameOfField = "District" Or NameOfField = "City" 
 					Or NameOfField = "Locality" Or NameOfField = "Street" Then
 					If StrFind(FieldsString, NameOfField + "Abbr") = 0 Then
 						Result.Insert(NameOfField + "Abbr", AddressShortForm(Simple));
@@ -2699,12 +2797,13 @@ EndFunction
 
 Function PhoneFaxDeserializationInJSON(FieldValues, Presentation = "", ExpectedType = Undefined)
 	
-	If ContactsManagerInternalCached.IsLocalizationModuleAvailable() 
-		And ContactsManagerClientServer.IsXMLContactInformation(FieldValues) Then
+	If ContactsManagerClientServer.IsXMLContactInformation(FieldValues) Then
 		
-			// Common format of contact information.
-			ModuleContactsManagerLocalization = Common.CommonModule("ContactsManagerLocalization");
-			Return ModuleContactsManagerLocalization.ContactsFromXML(FieldValues, ExpectedType);
+		Result = Undefined;
+		ContactsManagerLocalization.OnConvertContactInformationFromXML(FieldValues, Result, ExpectedType);
+		If Result <> Undefined Then
+			Return Result;
+		EndIf;
 		
 	EndIf;
 	
@@ -2712,7 +2811,7 @@ Function PhoneFaxDeserializationInJSON(FieldValues, Presentation = "", ExpectedT
 	
 	// Get from key—pair values.
 	FieldsValueList = Undefined;
-	If TypeOf(FieldValues)=Type("ValueList") Then
+	If TypeOf(FieldValues) = Type("ValueList") Then
 		FieldsValueList = FieldValues;
 	ElsIf Not IsBlankString(FieldValues) Then
 		FieldsValueList = ConvertStringToFieldsList(FieldValues);
@@ -2724,7 +2823,7 @@ Function PhoneFaxDeserializationInJSON(FieldValues, Presentation = "", ExpectedT
 			Field = Upper(Simple.Presentation);
 			
 			If Field = "COUNTRYCODE" Then
-				Data.CountryCode = Simple.Value;
+				Data.countryCode = Simple.Value;
 				
 			ElsIf Field = "CITYCODE" Then
 				Data.AreaCode = Simple.Value;
@@ -2759,7 +2858,7 @@ Function PhoneFaxDeserializationInJSON(FieldValues, Presentation = "", ExpectedT
 	// Digit groups separated by non-digits: country code, area code, phone number, and extension. 
 	// The extension includes leading and trailing non-whitespace characters.
 	Position = 1;
-	Data.CountryCode  = FindDigitSubstring(Presentation, Position);
+	Data.countryCode  = FindDigitSubstring(Presentation, Position);
 	CityBeginning = Position;
 	
 	Data.AreaCode  = FindDigitSubstring(Presentation, Position);
@@ -2785,7 +2884,7 @@ Function PhoneFaxDeserializationInJSON(FieldValues, Presentation = "", ExpectedT
 			Data.Number      = RemoveNonDigitCharacters(Mid(Presentation, CityBeginning));
 			Data.ExtNumber = "";
 		Else
-			Data.CountryCode  = "";
+			Data.countryCode  = "";
 			Data.AreaCode  = "";
 			Data.Number      = Presentation;
 			Data.ExtNumber = "";
@@ -2878,26 +2977,20 @@ Function ContactInformationToJSONStructure(ContactInformation, Val Type = Undefi
 	EndIf;
 	
 	If Type = Undefined Then
-		If TypeOf(ContactInformation) = Type("String") Then
-			
-			If ContactsManagerInternalCached.IsLocalizationModuleAvailable()
-				 And ContactsManagerClientServer.IsXMLContactInformation(ContactInformation) Then
+		If TypeOf(ContactInformation) <> Type("String") 
+			Or (TypeOf(ContactInformation) = Type("String") 
+				And ContactsManagerClientServer.IsXMLContactInformation(ContactInformation)) Then
 				
-				ModuleContactsManagerLocalization = Common.CommonModule("ContactsManagerLocalization");
-				Type = ModuleContactsManagerLocalization.ContactInformationType(ContactInformation);
-				
-			EndIf;
-			
-		Else
-			
+				Type = Undefined;
+				ContactsManagerLocalization.OnDefineContactInformationType(ContactInformation, Type);
 		EndIf;
 	EndIf;
 	
-	If ContactsManagerInternalCached.AreAddressManagementModulesAvailable() And Type = Enums.ContactInformationTypes.Address Then
+	If ContactsManagerInternalCached.AreAddressManagementModulesAvailable() 
+		And Type = Enums.ContactInformationTypes.Address Then
 		
 		ModuleAddressManager = Common.CommonModule("AddressManager");
 		Return ModuleAddressManager.ContactInformationToJSONStructure(ContactInformation, Type, SettingsOfConversion);
-		
 	EndIf;
 	
 	Result = ContactsManagerClientServer.NewContactInformationDetails(Type);
@@ -2933,9 +3026,12 @@ Function ContactInformationToJSONStructure(ContactInformation, Val Type = Undefi
 			Return JSONToContactInformationByFields(ContactInformation, Type);
 	EndIf;
 	
-	If ContactsManagerInternalCached.IsLocalizationModuleAvailable() Then
-		ModuleContactsManagerLocalization = Common.CommonModule("ContactsManagerLocalization");
-		Result = ModuleContactsManagerLocalization.ContactInformationToJSONStructure(ContactInformation, Type, SettingsOfConversion);
+	ContactInformationInJSON = Undefined;
+	ContactsManagerLocalization.OnConvertContactInformationToJSONStructure(ContactInformation, 
+		ContactInformationInJSON, Type, SettingsOfConversion);
+	
+	If ContactInformationInJSON <> Undefined Then
+		Return ContactInformationInJSON;
 	EndIf;
 	
 	Return Result;
@@ -2995,7 +3091,8 @@ Function ToJSONStringStructure(Value) Export
 		
 	EndIf;
 	
-	WriteJSON(JSONWriter, ContactInformationByFields,, "ContactInformationFieldsAdjustment", ContactsManagerInternal);
+	WriteJSON(JSONWriter, ContactInformationByFields,, "ContactInformationFieldsAdjustment", 
+		ContactsManagerInternal);
 	
 	Return JSONWriter.Close();
 	
@@ -3073,7 +3170,8 @@ Function JSONStringToStructure1(Value) Export
 	JSONReader.SetString(Value);
 	
 	Try
-		Result = ReadJSON(JSONReader,,,, "RestoreContactInformationFields", ContactsManagerInternal);
+		Result = ReadJSON(JSONReader,,,, "RestoreContactInformationFields", 
+			ContactsManagerInternal);
 	Except
 		ErrorText = NStr("en = 'An error occurred while converting contact information from JSON.';");
 		WriteLogEvent(EventLogEvent(),

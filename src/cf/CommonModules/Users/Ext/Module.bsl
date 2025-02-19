@@ -10,12 +10,11 @@
 
 #Region Public
 
-////////////////////////////////////////////////////////////////////////////////
-// Main procedures and functions.
+#Region MainProceduresAndFunctions
 
 // Returns the current user or the current external user,
-// depending on which one has signed in.
-//  It is recommended that you use the function in a script fragment that supports both sign in options.
+// depending on which one has logged in.
+//  It is recommended that you use this function in code that supports both login options.
 //
 // Returns:
 //  CatalogRef.Users, CatalogRef.ExternalUsers - a user
@@ -28,9 +27,9 @@ Function AuthorizedUser() Export
 EndFunction
 
 // Returns the current user.
-//  It is recommended that you use the function in a script fragment that does not support external users.
+//  It is recommended that you use this function in code that does not support external users.
 //
-//  If the current user is external, throws an exception.
+//  If the current user is an external user, it throws an exception.
 //
 // Returns:
 //  CatalogRef.Users - a user.
@@ -41,10 +40,10 @@ Function CurrentUser() Export
 	
 EndFunction
 
-// Returns True if the current user is external.
+// Returns True if the current user is an external user.
 //
 // Returns:
-//  Boolean - True if the current user is external.
+//  Boolean - True if the current user is an external user.
 //
 Function IsExternalUserSession() Export
 	
@@ -384,8 +383,9 @@ Function IsDepartmentUsed() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions used in client application forms.
+#EndRegion
+
+#Region ProceduresAndFunctionsUsedInManagedFormItems
 
 // Returns a list of users, user groups, external users,
 // and external user groups.
@@ -658,8 +658,9 @@ Procedure FillUserPictureNumbers(Val TableOrTree,
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions used for infobase update.
+#EndRegion
+
+#Region ProceduresAndFunctionsForUpdatingInfobase
 
 // The procedure is used for infobase update and initial filling. It does one of the following:
 // 1) Creates the first administrator and maps it to a new user
@@ -680,7 +681,7 @@ EndProcedure
 //
 Function CreateAdministrator(IBUser = Undefined) Export
 	
-	UsersInternal.CheckSafeModeIsDisabled("Users.CreateAdministrator");
+	UsersInternal.CheckIfSafeModeOff("Users.CreateAdministrator");
 	
 	If Not Common.SeparatedDataUsageAvailable() Then
 		ErrorText = NStr("en = 'The ""Users"" catalog is unavailable in shared mode.';");
@@ -852,8 +853,9 @@ Function AllUsersGroup() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for infobase user operations.
+#EndRegion
+
+#Region ProceduresAndFunctionsToManageInfobaseUsers
 
 // Returns the "<Not specified>" text presentation when a user is not specified or not selected.
 // See also "Users.UnspecifiedUserRef".
@@ -933,6 +935,12 @@ EndFunction
 //    If set to "True", the structure properties take "Undefined" to avoid changing properties of
 //    the object "InfobaseUser" when calling the "SetIBUserProperies" procedure.
 //    The default value is "True".
+//  ForInternalUser - Boolean - 
+//    
+//    
+//    
+//    
+//    
 //
 // Returns:
 //  Structure:
@@ -989,7 +997,7 @@ EndFunction
 //                                   with the type "UnsafeOperationProtection".
 //                               - Undefined - Indicates that the property mustn't be changed when a property set is specified.
 //
-Function NewIBUserDetails(IsIntendedForSetting = True) Export
+Function NewIBUserDetails(IsIntendedForSetting = True, ForInternalUser = False) Export
 	
 	// Preparing the data structure for storing the return value.
 	Properties = New Structure;
@@ -1027,6 +1035,19 @@ Function NewIBUserDetails(IsIntendedForSetting = True) Export
 		For Each KeyAndValue In Properties Do
 			Properties[KeyAndValue.Key] = Undefined;
 		EndDo;
+		If ForInternalUser Then
+			Properties.StandardAuthentication = False;
+			Properties.CannotChangePassword = True;
+			Properties.CannotRecoveryPassword = True;
+			Properties.ShowInList = False;
+			Properties.OpenIDAuthentication = False;
+			Properties.OpenIDConnectAuthentication = False;
+			Properties.AccessTokenAuthentication = False;
+			Properties.OSAuthentication = False;
+			Properties.OSUser = "";
+			Properties.Roles = New Array;
+			Properties.PasswordIsSet = False;
+		EndIf;
 	EndIf;
 	
 	Properties.Insert("UUID", CommonClientServer.BlankUUID());
@@ -1048,7 +1069,7 @@ EndFunction
 //
 Function IBUserProperies(Val NameOrID) Export
 	
-	UsersInternal.CheckSafeModeIsDisabled("Users.IBUserProperies");
+	UsersInternal.CheckIfSafeModeOff("Users.IBUserProperies");
 	
 	CommonClientServer.CheckParameter("Users.IBUserProperies", "NameOrID",
 		NameOrID, New TypeDescription("String, UUID"));
@@ -1093,7 +1114,7 @@ Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
 	
 	ProcedureName = "Users.SetIBUserProperies";
 	
-	UsersInternal.CheckSafeModeIsDisabled(ProcedureName);
+	UsersInternal.CheckIfSafeModeOff(ProcedureName);
 	
 	CommonClientServer.CheckParameter(ProcedureName, "NameOrID",
 		NameOrID, New TypeDescription("String, UUID"));
@@ -1205,32 +1226,40 @@ Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
 	EndIf;
 	
 	If OldInfobaseUserString <> ValueToStringInternal(IBUser)
-	 Or PropertiesToUpdate.Property("PasswordSetDateToWrite")
-	   And PropertiesToUpdate.PasswordSetDateToWrite <> Undefined  Then
+	 Or PropertiesToUpdate.Property("WritablePasswordSettingDate")
+	   And PropertiesToUpdate.WritablePasswordSettingDate <> Undefined  Then
 		
 		// Attempt to write a new infobase user or edit an existing one.
+		BeginTransaction();
 		Try
-			UsersInternal.WriteInfobaseUser(IBUser, IsExternalUser);
+			Try
+				UsersInternal.WriteInfobaseUser(IBUser, IsExternalUser);
+			Except
+				ErrorText = ErrorDescriptionOnWriteIBUser(
+					NStr("en = 'Couldn''t save properties of infobase user ""%1"". Reason:
+					           |%2.';"),
+					IBUser.Name,
+					?(UserExists, PreviousProperties.UUID, Undefined),
+					ErrorInfo());
+				Raise ErrorText;
+			EndTry;
+			
+			If ValueIsFilled(PreviousProperties.Name) And PreviousProperties.Name <> NewProperties.Name Then
+				// Move user settings.
+				UsersInternal.CopyUserSettings(PreviousProperties.Name, NewProperties.Name, True);
+			EndIf;
+			
+			If CreateNewOne Then
+				UsersInternal.SetInitialSettings(IBUser.Name, IsExternalUser);
+			EndIf;
+			
+			UsersOverridable.OnWriteInfobaseUser(PreviousProperties, NewProperties);
+			
+			CommitTransaction();
 		Except
-			ErrorText = ErrorDescriptionOnWriteIBUser(
-				NStr("en = 'Couldn''t save properties of infobase user ""%1"". Reason:
-				           |%2.';"),
-				IBUser.Name,
-				?(UserExists, PreviousProperties.UUID, Undefined),
-				ErrorInfo());
-			Raise ErrorText;
+			RollbackTransaction();
+			Raise;
 		EndTry;
-		
-		If ValueIsFilled(PreviousProperties.Name) And PreviousProperties.Name <> NewProperties.Name Then
-			// Move user settings.
-			UsersInternal.CopyUserSettings(PreviousProperties.Name, NewProperties.Name, True);
-		EndIf;
-		
-		If CreateNewOne Then
-			UsersInternal.SetInitialSettings(IBUser.Name, IsExternalUser);
-		EndIf;
-		
-		UsersOverridable.OnWriteInfobaseUser(PreviousProperties, NewProperties);
 	EndIf;
 	
 	PropertiesToUpdate.Insert("UUID", IBUser.UUID);
@@ -1247,7 +1276,7 @@ EndProcedure
 Procedure DeleteIBUser(Val NameOrID) Export
 	
 	ProcedureName = "Users.DeleteIBUser";
-	UsersInternal.CheckSafeModeIsDisabled(ProcedureName);
+	UsersInternal.CheckIfSafeModeOff(ProcedureName);
 	
 	CommonClientServer.CheckParameter(ProcedureName, "NameOrID",
 		NameOrID, New TypeDescription("String, UUID"));
@@ -1311,7 +1340,7 @@ EndProcedure
 //  PropertiesToCopy  - String - the list of comma-separated properties to copy (without the prefix).
 //  PropertiesToExclude - String - the list of comma-separated properties to exclude from copying (without the prefix).
 //  PropertyPrefix      - String - The initial name for Source or Target if its type is NOT Structure.
-//                      - Map:
+//                      - Map of KeyAndValue:
 //                         * Key - The property's name without the prefix.
 //                         * Value - The property's full name with the prefix.
 //
@@ -1598,7 +1627,7 @@ EndProcedure
 //
 Function FindByName(Val LoginName) Export
 	
-	UsersInternal.CheckSafeModeIsDisabled("Users.FindByName");
+	UsersInternal.CheckIfSafeModeOff("Users.FindByName");
 	
 	SetPrivilegedMode(True);
 	
@@ -1632,7 +1661,7 @@ EndFunction
 //
 Function FindByID(Val IBUserID) Export
 	
-	UsersInternal.CheckSafeModeIsDisabled("Users.FindByID");
+	UsersInternal.CheckIfSafeModeOff("Users.FindByID");
 	
 	If TypeOf(IBUserID) <> Type("UUID") Then
 		Return Undefined;
@@ -1663,7 +1692,7 @@ EndFunction
 //
 Function FindByReference(User) Export
 	
-	UsersInternal.CheckSafeModeIsDisabled("Users.FindByReference");
+	UsersInternal.CheckIfSafeModeOff("Users.FindByReference");
 	
 	SetPrivilegedMode(True);
 	IBUserID = Common.ObjectAttributeValue(User,
@@ -1675,6 +1704,195 @@ Function FindByReference(User) Export
 	EndIf;
 	
 	Return InfoBaseUsers.FindByUUID(IBUserID);
+	
+EndFunction
+
+// 
+// 
+// 
+// 
+// 
+// 
+// 
+//
+// Parameters:
+//  Properties     - See Users.NewIBUserDetails
+//  RefToNew - CatalogRef.Users - 
+//                 
+//                 
+//               - Undefined - 
+//                 
+//
+// Returns:
+//  InfoBaseUser
+//  
+//
+// Example:
+//	
+//	
+//	
+//		
+//		
+//	
+//	
+//	
+//
+Function InfobaseDummyUser(Properties, RefToNew = Undefined) Export
+	
+	Properties.FullName = Properties.Name;
+	IBUser = InfoBaseUsers.FindByName(Properties.Name);
+	
+	If IBUser = Undefined
+	   And InfoBaseUsers.GetUsers().Count() = 0 Then
+		Return Undefined;
+	EndIf;
+	
+	If Properties.Password = Undefined
+	   And Properties.StoredPasswordValue = Undefined
+	   And Properties.PasswordIsSet = False Then
+	
+		If IBUser = Undefined Or Not IBUser.PasswordIsSet Then
+			NewPassword = String(New UUID) + " " + String(New UUID);
+			If UsersInternal.IsSettings8_3_26Available() Then
+				// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
+				Properties.StoredPasswordValue =
+					Eval("EvaluateStoredUserPasswordValue(NewPassword)");
+				// ACC:488-вкл
+			Else
+				Properties.StoredPasswordValue =
+					PasswordHashString(NewPassword);
+			EndIf;
+		EndIf;
+	EndIf;
+	
+	ParametersOfUpdate = New Map(SessionParameters.UsersCatalogsUpdate);
+	ParametersOfUpdate.Insert("InternalIBUserID", ?(IBUser = Undefined,
+		CommonClientServer.BlankUUID(),
+		IBUser.UUID));
+	SessionParameters.UsersCatalogsUpdate = New FixedMap(ParametersOfUpdate);
+	ParametersOfUpdate.Delete("InternalIBUserID");
+	Try
+		SetIBUserProperies(Properties.Name, Properties, IBUser = Undefined);
+		IBUser = Properties.IBUser;
+	Except
+		SessionParameters.UsersCatalogsUpdate = New FixedMap(ParametersOfUpdate);
+		Raise;
+	EndTry;
+	SessionParameters.UsersCatalogsUpdate = New FixedMap(ParametersOfUpdate);
+	
+	If InformationRegisters.ApplicationRuntimeParameters.UpdateRequired1()
+	   And Not InfobaseUpdateInternal.AreApplicationParametersBeforeInfobaseUpdateUpdated() Then
+		Return IBUser;
+	EndIf;
+	
+	IBUserID = IBUser.UUID;
+	
+	Query = New Query;
+	Query.SetParameter("IBUserID", IBUserID);
+	Query.Text =
+	"SELECT
+	|	Users.Ref AS Ref,
+	|	Users.Description AS Description,
+	|	Users.IsInternal AS IsInternal
+	|FROM
+	|	Catalog.Users AS Users
+	|WHERE
+	|	Users.IBUserID = &IBUserID";
+	
+	Selection = Query.Execute().Select();
+	
+	If Selection.Next() Then
+		If Selection.Description <> IBUser.FullName Or Not Selection.IsInternal Then
+			Block = New DataLock;
+			LockItem = Block.Add("Catalog.Users");
+			LockItem.SetValue("Ref", Selection.Ref);
+			BeginTransaction();
+			Try
+				Block.Lock();
+				User = Selection.Ref.GetObject();
+				If User <> Undefined Then
+					User.Description = IBUser.FullName;
+					User.IsInternal = True;
+					User.Write();
+				EndIf;
+				CommitTransaction();
+			Except
+				RollbackTransaction();
+				Raise;
+			EndTry;
+		EndIf;
+		Return IBUser;
+	EndIf;
+	
+	Query = New Query;
+	Query.SetParameter("Description", IBUser.FullName);
+	Query.Text =
+	"SELECT
+	|	Users.Ref AS Ref
+	|FROM
+	|	Catalog.Users AS Users
+	|WHERE
+	|	Users.Description = &Description
+	|	AND Users.IsInternal";
+	
+	Block = New DataLock;
+	LockItem = Block.Add("Catalog.Users");
+	If ValueIsFilled(RefToNew) Then
+		LockItem.SetValue("Ref", RefToNew);
+	Else
+		LockItem.SetValue("IBUserID", IBUserID);
+	EndIf;
+	
+	Selection = Query.Execute().Select();
+	If Selection.Next() Then
+		RefToExisting = Selection.Ref; // CatalogRef.Users
+		LockItem = Block.Add("Catalog.Users");
+		LockItem.SetValue("Ref", RefToExisting);
+	Else
+		RefToExisting = Undefined;
+	EndIf;
+	
+	BeginTransaction();
+	Try
+		Block.Lock();
+		User = ?(ValueIsFilled(RefToNew), RefToNew.GetObject(), Undefined);
+		
+		If User = Undefined
+		   And ValueIsFilled(RefToExisting) Then
+			
+			User = RefToExisting.GetObject();
+			If User <> Undefined Then
+				ExistingInfobaseUser = InfoBaseUsers.FindByUUID(
+					User.IBUserID);
+				If ExistingInfobaseUser <> Undefined Then
+					User = Undefined;
+				EndIf;
+			EndIf;
+		EndIf;
+		
+		If User = Undefined Then
+			User = Catalogs.Users.CreateItem();
+			If ValueIsFilled(RefToNew) Then
+				User.SetNewObjectRef(RefToNew);
+			EndIf;
+		EndIf;
+		
+		IBUserDetails = New Structure;
+		IBUserDetails.Insert("Action", "Write");
+		IBUserDetails.Insert("UUID", IBUserID);
+		
+		User.Description = IBUser.FullName;
+		User.IsInternal = True;
+		User.AdditionalProperties.Insert("IBUserDetails", IBUserDetails);
+		User.Write();
+		
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
+	
+	Return IBUser;
 	
 EndFunction
 
@@ -2043,15 +2261,16 @@ Function PasswordProperties() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Other procedures and functions.
+#EndRegion
+
+#Region OtherProceduresAndFunctions_
 
 // Defines if a configuration supports common authentication settings, such as
 // password complexity, password change, application usage time limits, and others.
 // See the "CommonAuthorizationSettings" property in "UsersOverridable.OnDefineSettings".
 //
 // Returns:
-//  Boolean - True if the configuration supports common authentication users.
+//  Boolean - True if common login settings are used.
 //
 Function CommonAuthorizationSettingsUsed() Export
 	
@@ -2140,7 +2359,7 @@ Procedure SetExternalReportsAndDataProcessorsOpenRight(OpenAllowed) Export
 		Return;
 	EndIf;
 	
-	UsersInternal.CheckSafeModeIsDisabled(
+	UsersInternal.CheckIfSafeModeOff(
 		"Users.SetExternalReportsAndDataProcessorsOpenRight");
 	
 	AdministrationParameters = StandardSubsystemsServer.AdministrationParameters();
@@ -2193,7 +2412,7 @@ Procedure SetExternalReportsAndDataProcessorsOpenRight(OpenAllowed) Export
 	
 EndProcedure
 
-// Saves general logon settings. Can take individual properties.
+// Saves common login settings. Can take individual properties.
 // 
 // 
 // Parameters:
@@ -2201,7 +2420,7 @@ EndProcedure
 //
 Procedure SetCommonAuthorizationSettings(CommonSettingsToSave) Export
 	
-	UsersInternal.CheckSafeModeIsDisabled("Users.SetCommonAuthorizationSettings");
+	UsersInternal.CheckIfSafeModeOff("Users.SetCommonAuthorizationSettings");
 	
 	Block = New DataLock();
 	Block.Add("Constant.UserAuthorizationSettings");
@@ -2221,7 +2440,7 @@ Procedure SetCommonAuthorizationSettings(CommonSettingsToSave) Export
 			Settings[SettingToSave.Key] = SettingToSave.Value;
 		EndDo;
 		
-		Constants.UserAuthorizationSettings.Set(New ValueStorage(LogonSettings));
+		Constants.UserAuthorizationSettings.Set(New ValueStorage(LogonSettings, New Deflation(9)));
 		
 		If Not CommonSettingsToSave.Property("UpdateOnlyConstant") Then
 			UsersInternal.UpdateCommonPasswordPolicy(Settings);
@@ -2293,7 +2512,7 @@ Function CommonAuthorizationSettingsNewDetails() Export
 	
 EndFunction
 
-// Saves custom logon settings. Can take individual properties.
+// Saves custom login settings. Can take individual properties.
 // 
 // 
 // Parameters:
@@ -2302,7 +2521,7 @@ EndFunction
 //
 Procedure SetLoginSettings(SavingSettings, ForExternalUsers = False) Export
 	
-	UsersInternal.CheckSafeModeIsDisabled("Users.SetLoginSettings");
+	UsersInternal.CheckIfSafeModeOff("Users.SetLoginSettings");
 	
 	Block = New DataLock();
 	Block.Add("Constant.UserAuthorizationSettings");
@@ -2335,7 +2554,7 @@ Procedure SetLoginSettings(SavingSettings, ForExternalUsers = False) Export
 			Settings.InactivityPeriodActivationDate = BegOfDay(CurrentSessionDate());
 		EndIf;
 		
-		Constants.UserAuthorizationSettings.Set(New ValueStorage(LogonSettings));
+		Constants.UserAuthorizationSettings.Set(New ValueStorage(LogonSettings, New Deflation(9)));
 		
 		If Not SavingSettings.Property("UpdateOnlyConstant") Then
 			If ForExternalUsers Then
@@ -2385,7 +2604,7 @@ EndProcedure
 //   * WarnAboutPasswordExpiration - Number - Number of days
 //        before the password expiration when the user should be notified.
 //   * InactivityPeriodBeforeDenyingAuthorization - Number - Inactivity period
-//        after which the user is banned.
+//        after which the user is locked out.
 //   * InactivityPeriodActivationDate - Date - A service field.
 //        It is filled automatically when the new overdue value is greater than zero.
 //
@@ -2415,7 +2634,7 @@ EndFunction
 //
 Procedure UpdateRegistrationSettingsForDataAccessEvents() Export
 	
-	UsersInternal.CheckSafeModeIsDisabled(
+	UsersInternal.CheckIfSafeModeOff(
 		"Users.UpdateRegistrationSettingsForDataAccessEvents");
 	
 	Settings = RegistrationSettingsForDataAccessEvents();
@@ -2483,7 +2702,7 @@ EndProcedure
 //
 Function RegistrationSettingsForDataAccessEvents() Export
 	
-	UsersInternal.CheckSafeModeIsDisabled(
+	UsersInternal.CheckIfSafeModeOff(
 		"Users.RegistrationSettingsForDataAccessEvents");
 	
 	Settings = New Array;
@@ -2493,6 +2712,8 @@ Function RegistrationSettingsForDataAccessEvents() Export
 	Return Settings;
 	
 EndFunction
+
+#EndRegion
 
 #Region ObsoleteProceduresAndFunctions
 
@@ -2580,7 +2801,7 @@ EndFunction
 //
 Function CheckedIBUserProperties(User) Export
 	
-	UsersInternal.CheckSafeModeIsDisabled(
+	UsersInternal.CheckIfSafeModeOff(
 		"Users.CheckedIBUserProperties");
 	
 	CurrentIBUserProperties = UsersInternalCached.CurrentIBUserProperties1();

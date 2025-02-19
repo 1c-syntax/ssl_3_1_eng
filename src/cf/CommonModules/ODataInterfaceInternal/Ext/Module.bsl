@@ -314,7 +314,7 @@ EndFunction
 
 Function DataTypeForStandardODataInterfaceComposition()
 	
-	Return "StandardODataInterfaceContent"; // Not localizable.
+	Return "StandardODataInterfaceContent"; // Do not localize.
 	
 EndFunction
 

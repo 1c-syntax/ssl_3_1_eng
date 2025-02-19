@@ -16,7 +16,7 @@
 // Parameters:
 //  BIC - String - Bank ID.
 //  Form - ClientApplicationForm - a form that opens the choice form.
-//  HandlerNotifications - NotifyDescription - the procedure to which the management is passed after the selection.
+//  HandlerNotifications - CallbackDescription - the procedure to which the management is passed after the selection.
 //                                              If the parameter is not specified, the standard choice handler will be called.
 //    Procedure parameters:
 //     * BIC - CatalogRef.BankClassifier - a selected item.
@@ -88,7 +88,7 @@ EndProcedure
 
 Procedure SuggestToImportClassifier() Export
 	
-	NotifyDescription = New NotifyDescription("OnGetAnswerToQuestionAboutClassifierImport", ThisObject);
+	NotifyDescription = New CallbackDescription("OnGetAnswerToQuestionAboutClassifierImport", ThisObject);
 	QuestionTitle = NStr("en = 'Import bank classifier';");
 	QueryText = NStr("en = 'Bank classifier has not been imported yet. Import now?';");
 	Buttons = New ValueList;

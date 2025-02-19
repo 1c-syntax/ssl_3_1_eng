@@ -15,25 +15,25 @@
 //
 // Returns:
 //  ValueTable - Defines the parameters of a to-do item:
-//    * Id  - String - an internal to-do ID used by the subsystem.
-//    * HasToDoItems       - Boolean - if True, the to-do item is displayed in the user's to-do list.
-//    * Important         - Boolean - if True, the to-do item is highlighted in red.
-//    * OutputInNotifications - Boolean - if True, the notification of the item will be duplicated in a pop-up
-//                             notification and displayed in the notification center.
-//    * HideInSettings - Boolean - if True, the to-do item is hidden from the to-do list settings form.
-//                            It can be applied to
-//                            nonrecurring to-do items. Once completed, these to-do items are
-//                            no longer displayed in the infobase.
-//    * Presentation  - String - a to-do item presentation displayed to a user.
-//    * Count     - Number  - a number related to a to-do item; it is displayed in a to-do item's title.
-//    * Form          - String - a full path to the form that is displayed by clicking on the
-//                                to-do item hyperlink in the "To-do list" panel.
-//    * FormParameters - Structure - parameters for opening the indicator form.
+//    * Id  - String - Internal to-do item ID used by the subsystem.
+//    * HasToDoItems       - Boolean - If True, the to-do item is displayed in the user's to-do list.
+//    * Important         - Boolean - If True, the to-do item is highlighted in red.
+//    * OutputInNotifications - Boolean - If True, the to-do item notification is duplicated as a pop-up notification
+//                             and displayed in the notification center.
+//    * HideInSettings - Boolean - If True, the to-do item is hidden from the to-do list settings form.
+//                            It can be applied to nonrecurring to-do items.
+//                            Once completed, these to-do items are no longer
+//                            displayed in the infobase.
+//    * Presentation  - String - To-do item presentation displayed to a user.
+//    * Count     - Number  - To-do item counter displayed in a to-do item's title.
+//    * Form          - String - Full path to the form that is displayed when a user clicks
+//                                a to-do hyperlink in the To-do list panel.
+//    * FormParameters - Structure - Indicator form's opening parameters.
 //    * Owner       - String
 //                     - MetadataObject - String ID of the to-do item that is the owner of the current to-do item,
 //                       or a subsystem metadata object.
 //    * ToolTip      - String - a tooltip text.
-//    * ToDoOwnerObject - String - the full name of the metadata object where the handler of the to-do list filling is placed.
+//    * ToDoOwnerObject - String - Full name of the metadata object that hosts the to-do list population handler.
 //
 Function ToDoList() Export
 	

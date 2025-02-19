@@ -131,8 +131,7 @@ Procedure ResetUsesrSettingsInSection(SectionReference, User = Undefined) Export
 	EndDo;
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Handlers of reading or writing settings of report option availability.
+#Region ReadWriteHandlersForReportOptionAvailabilitySettings
 
 Procedure ReadReportOptionAvailabilitySettings(ReportVariant, OptionUsers,
 	UseUserGroups = Undefined, UseExternalUsers = Undefined) Export 
@@ -387,19 +386,19 @@ Function DefaultReportOptionUsers(ReportVariant)
 	"SELECT ALLOWED TOP 1
 	|	UNDEFINED AS User
 	|FROM
-	|	Catalog.ReportsOptions AS Reports
+	|	Catalog.ReportsOptions AS ReportsOptions
 	|	LEFT JOIN Catalog.ReportsOptions.Location AS ReportsPlacementrt
-	|		ON ReportsPlacementrt.Ref = Reports.Ref
+	|		ON ReportsPlacementrt.Ref = ReportsOptions.Ref
 	|	LEFT JOIN Catalog.PredefinedReportsOptions AS ConfigurationReports
-	|		ON ConfigurationReports.Ref = Reports.PredefinedOption
+	|		ON ConfigurationReports.Ref = ReportsOptions.PredefinedOption
 	|	LEFT JOIN Catalog.PredefinedReportsOptions.Location AS ConfigurationReportsPlacement
-	|		ON ConfigurationReportsPlacement.Ref = Reports.PredefinedOption
+	|		ON ConfigurationReportsPlacement.Ref = ReportsOptions.PredefinedOption
 	|	LEFT JOIN Catalog.PredefinedExtensionsReportsOptions AS ExtensionReports
-	|		ON ExtensionReports.Ref = Reports.PredefinedOption
+	|		ON ExtensionReports.Ref = ReportsOptions.PredefinedOption
 	|	LEFT JOIN Catalog.PredefinedExtensionsReportsOptions.Location AS ExtensionsReportsPlacement
-	|		ON ExtensionsReportsPlacement.Ref = Reports.PredefinedOption
+	|		ON ExtensionsReportsPlacement.Ref = ReportsOptions.PredefinedOption
 	|WHERE
-	|	Reports.Ref = &ReportVariant
+	|	ReportsOptions.Ref = &ReportVariant
 	|	AND ISNULL(ReportsPlacementrt.Use, TRUE) 
 	|	AND NOT ISNULL(ReportsPlacementrt.Subsystem,
 	|		ISNULL(ConfigurationReportsPlacement.Subsystem, ExtensionsReportsPlacement.Subsystem)) IS NULL
@@ -510,16 +509,18 @@ Function SelectedReportOptionUsers(OptionUsers)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Handlers of a report option user notification.
+#EndRegion
+
+#Region ReportOptionUsersNotificationHandlers
 
 // Creates a message in the report option context that notifies users
 //  having rights to the current report option.
 //
 // Parameters:
-//  Records - InformationRegisterRecordSet.ReportOptionsSettings
+//  Records    - InformationRegisterRecordSet.ReportOptionsSettings
+//  Replacing - ReplacementMode, Boolean
 //
-Procedure NotifyReportOptionUsers(Records) Export 
+Procedure NotifyReportOptionUsers(Records, Replacing) Export 
 	
 	If Not Common.SubsystemExists("StandardSubsystems.Conversations") Then
 		Return;
@@ -537,38 +538,39 @@ Procedure NotifyReportOptionUsers(Records) Export
 	SetPrivilegedMode(True);
 	Recipients = New Array;
 	
-	FilterElement = Records.Filter.Find("Variant");
-	OptionUsers = ReportOptionUsers(FilterElement.Value);
-	
-	While OptionUsers.Next() Do 
-		Recipients.Add(OptionUsers.Ref);
-	EndDo;
-	
-	If Recipients.Count() = 0 Then 
-		Return;
+	OldRecords = Common.SetRecordsFromDatabase(Records, Replacing, "Variant");
+	If OldRecords.Count() = 0 Then
+		FilterElement = Records.Filter.Find("Variant");
+		Variants = FilterElement.Value;
+	Else
+		Variants = OldRecords.UnloadColumn("Variant");
 	EndIf;
 	
+	OptionUsers = ReportOptionUsers(Variants);
 	
-	ReportVariant = Records[0].Variant;
-	Text = StringFunctionsClientServer.SubstituteParametersToString(
+	While OptionUsers.Next() Do 
+		
+		ReportVariant = OptionUsers.Variant;
+		Text = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Report %1 is configured';"),
 		GetURL(ReportVariant));
-	
-	Message = ModuleConversations.MessageDetails(Text);
-	Try
-		ModuleConversations.SendMessage(Users.CurrentUser(), Recipients,
-			Message, ReportVariant);
-	Except
 		
-		DefaultLanguageCode = Common.DefaultLanguageCode();
-		ReportOptionPresentation = String(ReportVariant);
-		WriteLogEvent(
+		Message = ModuleConversations.MessageDetails(Text);
+		Try
+			ModuleConversations.SendMessage(Users.CurrentUser(), OptionUsers.Ref,
+			Message, ReportVariant);
+		Except
+			
+			DefaultLanguageCode = Common.DefaultLanguageCode();
+			ReportOptionPresentation = String(ReportVariant);
+			WriteLogEvent(
 			NStr("en = 'Report options';", DefaultLanguageCode),
 			EventLogLevel.Error,,
 			ReportOptionPresentation,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		
-	EndTry;
+			
+		EndTry;
+	EndDo;
 	
 EndProcedure
 
@@ -577,7 +579,8 @@ Function ReportOptionUsers(ReportVariant, SelectedUsers = Undefined) Export
 	Query = New Query(
 	"SELECT ALLOWED DISTINCT
 	|	Compositions.User AS Ref,
-	|	Users.IBUserID AS Id
+	|	Users.IBUserID AS Id,
+	|	Settings.Variant AS Variant
 	|FROM
 	|	InformationRegister.ReportOptionsSettings AS Settings
 	|	LEFT JOIN InformationRegister.UserGroupCompositions AS Compositions
@@ -587,7 +590,7 @@ Function ReportOptionUsers(ReportVariant, SelectedUsers = Undefined) Export
 	|	LEFT JOIN Catalog.Users AS Users
 	|		ON Users.Ref = Compositions.User
 	|WHERE
-	|	Settings.Variant = &ReportVariant
+	|	Settings.Variant IN (&ReportVariant)
 	|	AND Settings.Subsystem = VALUE(Catalog.MetadataObjectIDs.EmptyRef)
 	|	AND NOT VALUETYPE(Settings.User) IN (
 	|		TYPE(Catalog.ExternalUsers),
@@ -608,8 +611,9 @@ Function ReportOptionUsers(ReportVariant, SelectedUsers = Undefined) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Update handlers.
+#EndRegion
+
+#Region UpdateHandlers
 
 // This procedure registers data to be updated in the InfobaseUpdate exchange plan.
 //  See "Parallel mode of deferred update" in the application development standards.
@@ -621,29 +625,29 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
 	Query = New Query(
 	"SELECT ALLOWED DISTINCT
-	|	Reports.Ref AS Variant,
+	|	ReportsOptions.Ref AS Variant,
 	|	VALUE(Catalog.MetadataObjectIDs.EmptyRef) AS Subsystem,
 	|	UNDEFINED AS User,
 	|	CASE
-	|		WHEN Reports.DefaultVisibilityOverridden
+	|		WHEN ReportsOptions.DefaultVisibilityOverridden
 	|			OR ISNULL(ConfigurationReports.DefaultVisibility, ExtensionReports.DefaultVisibility) IS NULL
-	|		THEN Reports.DefaultVisibility
+	|		THEN ReportsOptions.DefaultVisibility
 	|		ELSE ISNULL(ConfigurationReports.DefaultVisibility, ExtensionReports.DefaultVisibility)
 	|	END AS Visible,
 	|	FALSE AS QuickAccess
 	|INTO Settings
 	|FROM
-	|	Catalog.ReportsOptions AS Reports
+	|	Catalog.ReportsOptions AS ReportsOptions
 	|	LEFT JOIN Catalog.ReportsOptions.Location AS ReportsPlacementrt
-	|		ON ReportsPlacementrt.Ref = Reports.Ref
+	|		ON ReportsPlacementrt.Ref = ReportsOptions.Ref
 	|	LEFT JOIN Catalog.PredefinedReportsOptions AS ConfigurationReports
-	|		ON ConfigurationReports.Ref = Reports.PredefinedOption
+	|		ON ConfigurationReports.Ref = ReportsOptions.PredefinedOption
 	|	LEFT JOIN Catalog.PredefinedReportsOptions.Location AS ConfigurationReportsPlacement
-	|		ON ConfigurationReportsPlacement.Ref = Reports.PredefinedOption
+	|		ON ConfigurationReportsPlacement.Ref = ReportsOptions.PredefinedOption
 	|	LEFT JOIN Catalog.PredefinedExtensionsReportsOptions AS ExtensionReports
-	|		ON ExtensionReports.Ref = Reports.PredefinedOption
+	|		ON ExtensionReports.Ref = ReportsOptions.PredefinedOption
 	|	LEFT JOIN Catalog.PredefinedExtensionsReportsOptions.Location AS ExtensionsReportsPlacement
-	|		ON ExtensionsReportsPlacement.Ref = Reports.PredefinedOption
+	|		ON ExtensionsReportsPlacement.Ref = ReportsOptions.PredefinedOption
 	|WHERE
 	|	ISNULL(ReportsPlacementrt.Use, TRUE) 
 	|	AND NOT ISNULL(ReportsPlacementrt.Subsystem,
@@ -779,6 +783,8 @@ Procedure MoveReportOptionAvailabilitySettings(Data)
 	EndTry;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 

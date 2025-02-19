@@ -260,7 +260,7 @@ Function ReplaceUnitOfMeasureByMultiplier(Val Unit)
 	Result = 0;
 	Unit = Lower(Unit);
 	
-	AllowedChars = NStr("en = 'abcdefghijklmnopqrstuvwxyz';"); // 
+	AllowedChars = NStr("en = 'abcdefghijklmnopqrstuvwxyz';"); // ACC:163; ACC:1036 (см. 456:1.1) символы, которые может вводить пользователь.
 	ProhibitedChars = StrConcat(StrSplit(Unit, AllowedChars, False), "");
 	If ProhibitedChars <> "" Then
 		Unit = StrConcat(StrSplit(Unit, ProhibitedChars, False), "");

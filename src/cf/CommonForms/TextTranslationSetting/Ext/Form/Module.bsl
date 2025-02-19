@@ -17,6 +17,19 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.WriteAndClose.Representation = ButtonRepresentation.Picture;
 	EndIf;
 	
+	Items.ContextModeTitle.Visible = Parameters.IsContextCall;
+	
+	If Parameters.IsContextCall Then
+		Items.WriteAndClose.Title = NStr("en = 'Save and continue';");
+	EndIf;
+	
+EndProcedure
+
+&AtServer
+Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
+	
+	CurrentObject.UseTextTranslationService = ValueIsFilled(CurrentObject.TextTranslationService);
+	
 EndProcedure
 
 &AtServer
@@ -38,10 +51,25 @@ EndProcedure
 Procedure OnReadAtServer(CurrentObject)
 	
 	If Not ValueIsFilled(ConstantsSet.TextTranslationService) Then
-		ConstantsSet.TextTranslationService = Enums.TextTranslationServices.YandexTranslate;
+	
+		TextTranslationService = Undefined;
+		TextTranslationToolLocalization.WhenDeterminingTextTranslationService(TextTranslationService);
+		
+		ConstantsSet.TextTranslationService = ?(ValueIsFilled(TextTranslationService),
+			TextTranslationService, Enums.TextTranslationServices.GoogleTranslate);
 	EndIf;
 	
 	FillSettings();
+	
+EndProcedure
+
+&AtClient
+Procedure AfterWrite(WriteParameters)
+	
+	WrittenValues = New Structure;
+	WrittenValues.Insert("TextTranslationService", ConstantsSet.TextTranslationService);
+	
+	Notify("Write_ConstantsSet", WrittenValues, "UseTextTranslationService");
 	
 EndProcedure
 

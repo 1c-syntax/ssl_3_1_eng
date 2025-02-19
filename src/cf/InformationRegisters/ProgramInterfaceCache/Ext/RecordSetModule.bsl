@@ -22,9 +22,9 @@ Var PreparedData1;
 
 Procedure BeforeWrite(Cancel, Replacing)
 	
-	// The value validator of the "DataExchange.Import" property is not implemented since the restrictions
+	// The DataExchange.Load property is not checked since the restrictions
 	// imposed by this code block are not supposed to be overridden by setting the property to "True"
-	// (by the piece of code that is trying to record an entry into the register).
+	// (in the piece of code that is trying to record an entry into the register).
 	//
 	// The register must be excluded from the scope of any data exchange if data area separation is enabled.
 	// 
@@ -37,9 +37,9 @@ EndProcedure
 
 Procedure OnWrite(Cancel, Replacing)
 	
-	// The value validator of the "DataExchange.Import" property is not implemented since the restrictions
+	// The DataExchange.Load property is not checked since the restrictions
 	// imposed by this code block are not supposed to be overridden by setting the property to "True"
-	// (by the piece of code that is trying to record an entry into the register).
+	// (in the piece of code that is trying to record an entry into the register).
 	//
 	// The register must be excluded from the scope of any data exchange if data area separation is enabled.
 	// 
@@ -86,7 +86,7 @@ Procedure PrepareDataToRecord() Export
 	For Each String In DataToWrite Do
 		
 		Data = InformationRegisters.ProgramInterfaceCache.PrepareVersionCacheData(String.DataType, ReceivingParameters);
-		String.Data = New ValueStorage(Data);
+		String.Data = New ValueStorage(Data, New Deflation(9));
 		
 	EndDo;
 	

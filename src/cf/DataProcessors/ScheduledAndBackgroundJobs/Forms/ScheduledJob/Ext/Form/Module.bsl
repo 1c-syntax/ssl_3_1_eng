@@ -116,7 +116,7 @@ EndProcedure
 &AtClient
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
-	Notification = New NotifyDescription("WriteAndCloseCompletion", ThisObject);
+	Notification = New CallbackDescription("WriteAndCloseCompletion", ThisObject);
 	CommonClient.ShowFormClosingConfirmation(Notification, Cancel, Exit);
 	
 EndProcedure
@@ -154,7 +154,7 @@ EndProcedure
 Procedure SetUpScheduleExecute()
 
 	Dialog = New ScheduledJobDialog(Schedule);
-	Dialog.Show(New NotifyDescription("OpenScheduleEnd", ThisObject));
+	Dialog.Show(New CallbackDescription("OpenScheduleEnd", ThisObject));
 	
 EndProcedure
 
@@ -176,7 +176,7 @@ Procedure SelectNewScheduledJobTemplate()
 	
 	// Scheduled job template selection (metadata).
 	ScheduledJobMetadataDetailsCollection.ShowChooseItem(
-		New NotifyDescription("SelectNewScheduledJobTemplateCompletion", ThisObject),
+		New CallbackDescription("SelectNewScheduledJobTemplateCompletion", ThisObject),
 		NStr("en = 'Select a scheduled job template';"));
 	
 EndProcedure

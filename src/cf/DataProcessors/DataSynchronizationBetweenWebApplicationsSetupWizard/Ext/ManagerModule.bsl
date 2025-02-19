@@ -70,98 +70,6 @@ Function ConnectionSettingsDetails(XDTOSetup) Export
 	
 EndFunction
 
-// For internal use
-//
-Procedure SetUpExchangeStep13011(Parameters, TempStorageAddress) Export
-	
-	If Not Common.SubsystemExists("CloudTechnology") Then
-		Return;
-	EndIf;
-	
-	MessageExchangePlanName = "MessagesExchange";
-	ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
-	MessageExchangePlanManager = Common.ObjectManagerByFullName("ExchangePlan."
-		+ MessageExchangePlanName);
-	
-	ConnectionSettings = Undefined; // See ConnectionSettingsDetails
-	Parameters.Property("ConnectionSettings", ConnectionSettings);
-	
-	SessionHandlerParameters = TimeConsumingOperationHandlerParameters();
-	
-	SetPrivilegedMode(True);
-	
-	BeginTransaction();
-	Try
-		// Creating an exchange setting in the current infobase.
-		DataExchangeSaaS.CreateExchangeSetting_3_0_1_1(ConnectionSettings);
-		
-		// Send a message to a peer infobase.
-		Message = ModuleMessagesSaaS.NewMessage(
-			DataExchangeMessagesManagementInterface.SetUpExchangeStep1Message());
-			
-		Message.Body.CorrespondentZone = ConnectionSettings.CorrespondentDataArea;
-		
-		Message.Body.ExchangePlan      = ConnectionSettings.ExchangePlanName;
-		Message.Body.CorrespondentCode = ConnectionSettings.SourceInfobaseID;
-		Message.Body.CorrespondentName = ConnectionSettings.Description;
-		
-		Message.Body.Code     = ConnectionSettings.DestinationInfobaseID;
-		Message.Body.EndPoint = Common.ObjectAttributeValue(MessageExchangePlanManager.ThisNode(), "Code");
-		
-		If DataExchangeCached.IsXDTOExchangePlan(ConnectionSettings.ExchangePlanName) Then
-			FormatVersions = Common.UnloadColumn(
-				DataExchangeServer.ExchangePlanSettingValue(ConnectionSettings.ExchangePlanName, "ExchangeFormatVersions"), "Key", True);
-				
-			FormatObjects = DataExchangeXDTOServer.SupportedObjectsInFormat(
-				ConnectionSettings.ExchangePlanName, "SendReceive", ConnectionSettings.Peer);
-			
-			XDTOCorrespondentSettings = New Structure;
-			XDTOCorrespondentSettings.Insert("SupportedVersions", FormatVersions);
-			XDTOCorrespondentSettings.Insert("SupportedObjects",
-				New ValueStorage(FormatObjects, New Deflation(9)));
-				
-			Message.Body.XDTOSettings = XDTOSerializer.WriteXDTO(XDTOCorrespondentSettings);
-		EndIf;
-		
-		AdditionalProperties = New Structure;
-		AdditionalProperties.Insert("Interface",              "3.0.1.1");
-		AdditionalProperties.Insert("Prefix",                ConnectionSettings.CorrespondentPrefix);
-		AdditionalProperties.Insert("CorrespondentPrefix",  ConnectionSettings.Prefix);
-		AdditionalProperties.Insert("SettingID", ConnectionSettings.SettingID);
-		
-		Message.AdditionalInfo = XDTOSerializer.WriteXDTO(AdditionalProperties);
-		
-		SessionHandlerParameters.OperationID = DataExchangeSaaS.SendMessage(Message);
-		
-		CommitTransaction();
-	Except
-		RollbackTransaction();
-		
-		Information = ErrorInfo();
-		
-		SessionHandlerParameters.Cancel = True;
-		SessionHandlerParameters.ErrorMessage = ErrorProcessing.BriefErrorDescription(Information);
-		
-		WriteLogEvent(DataExchangeSaaS.EventLogEventDataSynchronizationSetup(),
-			EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(Information));
-	EndTry;
-		
-	If Not SessionHandlerParameters.Cancel Then
-		ModuleMessagesSaaS.DeliverQuickMessages();
-		
-		SessionHandlerParameters.TimeConsumingOperation = True;
-		SessionHandlerParameters.AdditionalParameters.Insert(
-			"Peer", ConnectionSettings.Peer);
-	EndIf;
-	
-	Result = New Structure;
-	Result.Insert("Peer", ConnectionSettings.Peer);
-	Result.Insert("SessionHandlerParameters", SessionHandlerParameters);
-	
-	PutToTempStorage(Result, TempStorageAddress);
-	
-EndProcedure
-
 #Region ApplicationsList
 
 // Parameters:
@@ -424,6 +332,152 @@ EndProcedure
 
 #EndRegion
 
+#Region SaveConnectionSettings
+
+// Parameters:
+//   ConnectionSettings - Structure - operation execution setting details.
+//   HandlerParameters - Structure - secondary parameters:
+//     * AdditionalParameters - Structure - arbitrary additional parameters.
+//   ContinueWait - Boolean - True if a long-running operation is running.
+//
+Procedure OnStartSaveConnectionSettings(ConnectionSettings, HandlerParameters, ContinueWait = True) Export
+	
+	BackgroundJobKey = DataExchangeServer.BackgroundJobKey(ConnectionSettings.ExchangePlanName,
+		NStr("en = 'Peer infobase connection setup';"));
+
+	If DataExchangeServer.HasActiveBackgroundJobs(BackgroundJobKey) Then
+		Raise StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Connection to ""%1"" is being set up.';"), ConnectionSettings.ExchangePlanName);
+	EndIf;
+		
+	ProcedureParameters = New Structure;
+	ProcedureParameters.Insert("ConnectionSettings", ConnectionSettings);
+	
+	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
+	ExecutionParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Peer infobase ""%1"" connection setup';"), ConnectionSettings.ExchangePlanName);
+	ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
+	ExecutionParameters.RunNotInBackground1    = False;
+	
+	BackgroundJob = TimeConsumingOperations.ExecuteInBackground(
+		"DataProcessors.DataSynchronizationBetweenWebApplicationsSetupWizard.SetUpExchangeStep13011",
+		ProcedureParameters,
+		ExecutionParameters);
+		
+	OnStartTimeConsumingOperation(BackgroundJob, HandlerParameters, ContinueWait);
+	
+	If Not ContinueWait
+		And Not HandlerParameters.Cancel Then
+		HandlerParameters.AdditionalParameters.Insert("BackgroundJobCompleted");
+		ContinueWait = True;
+	EndIf;
+	
+	HandlerParameters.AdditionalParameters.Insert("ConnectionSettings", ConnectionSettings);
+	
+EndProcedure
+
+// Parameters:
+//   HandlerParameters - Structure - secondary parameters:
+//     * AdditionalParameters - Structure - arbitrary additional parameters.
+//   ContinueWait - Boolean - True if a long-running operation is not completed yet.
+//
+Procedure OnWaitForSaveConnectionSettings(HandlerParameters, ContinueWait = True) Export
+	
+	If HandlerParameters.AdditionalParameters.Property("WaitForMessageExchangeSessionInSystem1") Then
+		
+		OnWaitSystemMessagesExchangeSession(
+			HandlerParameters.AdditionalParameters.SessionHandlerParameters, ContinueWait);
+			
+		If Not ContinueWait
+			And Not HandlerParameters.AdditionalParameters.SessionHandlerParameters.Cancel Then
+			HandlerParameters.AdditionalParameters.Insert("WaitForMessageExchangeSessionInSystem2");
+			HandlerParameters.AdditionalParameters.Delete("WaitForMessageExchangeSessionInSystem1");
+			
+			OnStartSaveExchangeSettingInServiceManager(HandlerParameters.AdditionalParameters.ConnectionSettings,
+				HandlerParameters.AdditionalParameters.SessionHandlerParameters, ContinueWait);
+		EndIf;
+			
+	ElsIf HandlerParameters.AdditionalParameters.Property("WaitForMessageExchangeSessionInSystem2") Then
+			
+		OnWaitSystemMessagesExchangeSession(
+			HandlerParameters.AdditionalParameters.SessionHandlerParameters, ContinueWait);
+			
+	Else
+		
+		JobCompleted = False;
+		
+		If HandlerParameters.AdditionalParameters.Property("BackgroundJobCompleted") Then
+			JobCompleted = True;
+		Else
+			OnWaitTimeConsumingOperation(HandlerParameters, ContinueWait);
+			
+			JobCompleted = Not ContinueWait And Not HandlerParameters.Cancel;
+		EndIf;
+		
+		If JobCompleted Then
+			
+			Result = GetFromTempStorage(HandlerParameters.ResultAddress);
+			
+			SessionHandlerParameters = Result.SessionHandlerParameters;
+			HandlerParameters.AdditionalParameters.Insert("Peer", Result.Peer);
+			
+			If SessionHandlerParameters.Cancel Then
+				ContinueWait = False;
+				HandlerParameters.Cancel = True;
+				HandlerParameters.ErrorMessage = SessionHandlerParameters.ErrorMessage;
+			Else
+				ContinueWait = True;
+				HandlerParameters.AdditionalParameters.Insert("WaitForMessageExchangeSessionInSystem1");
+				HandlerParameters.AdditionalParameters.Insert("SessionHandlerParameters", SessionHandlerParameters);
+			EndIf;
+			
+		EndIf;
+		
+	EndIf;
+	
+EndProcedure
+
+// Parameters:
+//   HandlerParameters - Structure - secondary parameters:
+//     * AdditionalParameters - Structure - arbitrary additional parameters.
+//   CompletionStatus - Structure - operation execution result details.
+//
+Procedure OnCompleteConnectionSettingsSaving(HandlerParameters, CompletionStatus) Export
+	
+	InitializeCompletionStatusOfTimeConsumingOperation(CompletionStatus);
+	
+	If HandlerParameters.Cancel Then
+		FillPropertyValues(CompletionStatus, HandlerParameters, "Cancel, ErrorMessage");
+	Else
+		SessionHandlerParameters = HandlerParameters.AdditionalParameters.SessionHandlerParameters;
+		
+		Result = New Structure;
+		Result.Insert("ConnectionSettingsSaved", True);
+		Result.Insert("ExchangeNode",                    Undefined);
+		Result.Insert("ErrorMessage",             "");
+		
+		If SessionHandlerParameters.Cancel Then
+			// Deleting an exchange node in the current infobase.
+			If ValueIsFilled(HandlerParameters.AdditionalParameters.Peer) Then
+				DataExchangeServer.DeleteSynchronizationSetting(HandlerParameters.AdditionalParameters.Peer);
+			EndIf;
+			
+			Result.ConnectionSettingsSaved = False;
+			Result.ErrorMessage             = SessionHandlerParameters.ErrorMessage;
+		Else
+			Result.Insert("ExchangeNode", HandlerParameters.AdditionalParameters.Peer);
+		EndIf;
+		
+		CompletionStatus.Result = Result;
+		
+	EndIf;
+	
+	HandlerParameters = Undefined;
+	
+EndProcedure
+
+#EndRegion
+
 #Region GetCommonDataOfCorrespondentNodes
 
 // Parameters:
@@ -538,153 +592,6 @@ Procedure OnCompleteGetCommonDataFromCorrespondentNodes(HandlerParameters, Compl
 			
 			Return;
 		EndTry;
-	EndIf;
-	
-	HandlerParameters = Undefined;
-	
-EndProcedure
-
-#EndRegion
-
-#Region SaveConnectionSettings
-
-// Parameters:
-//   ConnectionSettings - Structure - operation execution setting details.
-//   HandlerParameters - Structure - secondary parameters:
-//     * AdditionalParameters - Structure - arbitrary additional parameters.
-//   ContinueWait - Boolean - True if a long-running operation is running.
-//
-Procedure OnStartSaveConnectionSettings(ConnectionSettings, HandlerParameters, ContinueWait = True) Export
-	
-	BackgroundJobKey = BackgroundJobKey(ConnectionSettings.ExchangePlanName,
-		NStr("en = 'Peer infobase connection setup';"));
-
-	If HasActiveBackgroundJobs(BackgroundJobKey) Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Connection to ""%1"" is being set up.';"), ConnectionSettings.ExchangePlanName);
-	EndIf;
-		
-	ProcedureParameters = New Structure;
-	ProcedureParameters.Insert("ConnectionSettings", ConnectionSettings);
-	
-	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
-	ExecutionParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Peer infobase ""%1"" connection setup';"), ConnectionSettings.ExchangePlanName);
-	ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
-	ExecutionParameters.RunNotInBackground1    = False;
-	ExecutionParameters.RunInBackground      = True;
-	
-	BackgroundJob = TimeConsumingOperations.ExecuteInBackground(
-		"DataProcessors.DataSynchronizationBetweenWebApplicationsSetupWizard.SetUpExchangeStep13011",
-		ProcedureParameters,
-		ExecutionParameters);
-		
-	OnStartTimeConsumingOperation(BackgroundJob, HandlerParameters, ContinueWait);
-	
-	If Not ContinueWait
-		And Not HandlerParameters.Cancel Then
-		HandlerParameters.AdditionalParameters.Insert("BackgroundJobCompleted");
-		ContinueWait = True;
-	EndIf;
-	
-	HandlerParameters.AdditionalParameters.Insert("ConnectionSettings", ConnectionSettings);
-	
-EndProcedure
-
-// Parameters:
-//   HandlerParameters - Structure - secondary parameters:
-//     * AdditionalParameters - Structure - arbitrary additional parameters.
-//   ContinueWait - Boolean - True if a long-running operation is not completed yet.
-//
-Procedure OnWaitForSaveConnectionSettings(HandlerParameters, ContinueWait = True) Export
-	
-	If HandlerParameters.AdditionalParameters.Property("WaitForMessageExchangeSessionInSystem1") Then
-		
-		OnWaitSystemMessagesExchangeSession(
-			HandlerParameters.AdditionalParameters.SessionHandlerParameters, ContinueWait);
-			
-		If Not ContinueWait
-			And Not HandlerParameters.AdditionalParameters.SessionHandlerParameters.Cancel Then
-			HandlerParameters.AdditionalParameters.Insert("WaitForMessageExchangeSessionInSystem2");
-			HandlerParameters.AdditionalParameters.Delete("WaitForMessageExchangeSessionInSystem1");
-			
-			OnStartSaveExchangeSettingInServiceManager(HandlerParameters.AdditionalParameters.ConnectionSettings,
-				HandlerParameters.AdditionalParameters.SessionHandlerParameters, ContinueWait);
-		EndIf;
-			
-	ElsIf HandlerParameters.AdditionalParameters.Property("WaitForMessageExchangeSessionInSystem2") Then
-			
-		OnWaitSystemMessagesExchangeSession(
-			HandlerParameters.AdditionalParameters.SessionHandlerParameters, ContinueWait);
-			
-	Else
-		
-		JobCompleted = False;
-		
-		If HandlerParameters.AdditionalParameters.Property("BackgroundJobCompleted") Then
-			JobCompleted = True;
-		Else
-			OnWaitTimeConsumingOperation(HandlerParameters, ContinueWait);
-			
-			JobCompleted = Not ContinueWait And Not HandlerParameters.Cancel;
-		EndIf;
-		
-		If JobCompleted Then
-			
-			Result = GetFromTempStorage(HandlerParameters.ResultAddress);
-			
-			SessionHandlerParameters = Result.SessionHandlerParameters;
-			HandlerParameters.AdditionalParameters.Insert("Peer", Result.Peer);
-			
-			If SessionHandlerParameters.Cancel Then
-				ContinueWait = False;
-				HandlerParameters.Cancel = True;
-				HandlerParameters.ErrorMessage = SessionHandlerParameters.ErrorMessage;
-			Else
-				ContinueWait = True;
-				HandlerParameters.AdditionalParameters.Insert("WaitForMessageExchangeSessionInSystem1");
-				HandlerParameters.AdditionalParameters.Insert("SessionHandlerParameters", SessionHandlerParameters);
-			EndIf;
-			
-		EndIf;
-		
-	EndIf;
-	
-EndProcedure
-
-// Parameters:
-//   HandlerParameters - Structure - secondary parameters:
-//     * AdditionalParameters - Structure - arbitrary additional parameters.
-//   CompletionStatus - Structure - operation execution result details.
-//
-Procedure OnCompleteConnectionSettingsSaving(HandlerParameters, CompletionStatus) Export
-	
-	InitializeCompletionStatusOfTimeConsumingOperation(CompletionStatus);
-	
-	If HandlerParameters.Cancel Then
-		FillPropertyValues(CompletionStatus, HandlerParameters, "Cancel, ErrorMessage");
-	Else
-		SessionHandlerParameters = HandlerParameters.AdditionalParameters.SessionHandlerParameters;
-		
-		Result = New Structure;
-		Result.Insert("ConnectionSettingsSaved", True);
-		Result.Insert("ExchangeNode",                    Undefined);
-		Result.Insert("ErrorMessage",             "");
-		
-		If SessionHandlerParameters.Cancel Then
-			// Deleting an exchange node in the current infobase.
-			If ValueIsFilled(HandlerParameters.AdditionalParameters.Peer) Then
-				DataExchangeServer.DeleteSynchronizationSetting(HandlerParameters.AdditionalParameters.Peer);
-			EndIf;
-			
-			Result.ConnectionSettingsSaved = False;
-			Result.ErrorMessage             = SessionHandlerParameters.ErrorMessage;
-		Else
-			Result.Insert("ExchangeNode", HandlerParameters.AdditionalParameters.Peer);
-		EndIf;
-		
-		CompletionStatus.Result = Result;
-		
 	EndIf;
 	
 	HandlerParameters = Undefined;
@@ -875,7 +782,6 @@ EndProcedure
 
 #EndRegion
 
-
 #EndRegion
 
 #Region Private
@@ -1016,25 +922,6 @@ Function TimeConsumingOperationHandlerParameters(BackgroundJob = Undefined)
 	HandlerParameters.Insert("AdditionalParameters", New Structure);
 	
 	Return HandlerParameters;
-	
-EndFunction
-
-Function BackgroundJobKey(ExchangePlanName, Action)
-	
-	Return StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'ExchangePlan:%1 Action:%2';"), ExchangePlanName, Action);
-	
-EndFunction
-
-Function HasActiveBackgroundJobs(BackgroundJobKey)
-	
-	Filter = New Structure;
-	Filter.Insert("Key",      BackgroundJobKey);
-	Filter.Insert("State", BackgroundJobState.Active);
-	
-	ActiveBackgroundJobs = BackgroundJobs.GetBackgroundJobs(Filter);
-	
-	Return (ActiveBackgroundJobs.Count() > 0);
 	
 EndFunction
 
@@ -1361,14 +1248,15 @@ Procedure DeleteUnnecessarySynchronizationSettingsRows(SynchronizationSettingsFr
 		
 		// Areas with configured synchronization over internal publications
 		Query = New Query;
-		Query.Text = "SELECT
-		               |	Settings.WSCorrespondentDataArea AS WSCorrespondentDataArea
-		               |FROM
-		               |	InformationRegister.DataExchangeTransportSettings AS Settings
-		               |WHERE
-		               |	Settings.WSCorrespondentDataArea > 0";
+		Query.Text = 
+			"SELECT
+			|	SettingsTable.Value AS Value
+			|FROM
+			|	Catalog.ExchangeMessageTransportSettings.Settings AS SettingsTable
+			|WHERE
+			|	SettingsTable.Setting = ""CorrespondentDataArea""";
 		
-		DataAreaInternalPublication = Query.Execute().Unload().UnloadColumn("WSCorrespondentDataArea");
+		DataAreaInternalPublication = Query.Execute().Unload().UnloadColumn("Value");
 		
 		For Each SettingFromServiceManager In SynchronizationSettingsFromServiceManager Do
 			

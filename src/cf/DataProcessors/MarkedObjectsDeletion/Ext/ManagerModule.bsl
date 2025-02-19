@@ -1753,8 +1753,7 @@ Function LinkOnlyToLeadingRegistersDimensions(DataLinkDetails)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Transfer information to the client.
+#Region TransferringInfoToClient
 
 // Parameters:
 //   ExecutionParameters - See DeletionResult 
@@ -1816,6 +1815,8 @@ Procedure MarkCollectionTraversalProgress(ExecutionParameters, CollectionName)
 	
 	TimeConsumingOperations.ReportProgress(Percent, Text, AdditionalParameters);
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 

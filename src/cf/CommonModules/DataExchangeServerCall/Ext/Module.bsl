@@ -126,7 +126,14 @@ Procedure WriteExchangeFinishWithError(Val InfobaseNode,
 											ErrorMessageString);
 EndProcedure
 
-// Returns the flag of whether a register record set is empty.
+// Returns the flag indicating whether the register record set is empty.
+// 
+// Parameters:
+//  RecordStructure - Structure - Structure containing values of the passed register's dimensions.
+//  RegisterName - String - The name of the information register as a metadata object.
+// 
+// Returns:
+//  Boolean
 //
 Function RegisterRecordSetIsEmpty(RecordStructure, RegisterName) Export
 	
@@ -147,6 +154,13 @@ Function RegisterRecordSetIsEmpty(RecordStructure, RegisterName) Export
 EndFunction
 
 // Returns the event log message key by the specified action string.
+// 
+// Parameters:
+//  InfobaseNode - ExchangePlanRef
+//  ActionOnStringExchange - String - The string presentation of the "ActionsOnExchange" enumeration. 
+// 
+// Returns:
+//  String
 //
 Function EventLogMessageKeyByActionString(InfobaseNode, ActionOnStringExchange) Export
 	
@@ -157,6 +171,17 @@ Function EventLogMessageKeyByActionString(InfobaseNode, ActionOnStringExchange) 
 EndFunction
 
 // Returns the structure that contains event log filter data.
+// 
+// Parameters:
+//  InfobaseNode - ExchangePlanRef
+//  ActionOnExchange - EnumRef.ActionsOnExchange
+//                    - String - The string presentation of the "ActionsOnExchange" enumeration. 
+// 
+// Returns:
+//  Structure:
+//    * EventLogEvent - String
+//    * StartDate - Date
+//    * EndDate - Date
 //
 Function EventLogFilterData(InfobaseNode, Val ActionOnExchange) Export
 	
@@ -180,6 +205,9 @@ Function EventLogFilterData(InfobaseNode, Val ActionOnExchange) Export
 EndFunction
 
 // Returns an array of all reference types available in the configuration.
+// 
+// Returns:
+//   See DataExchangeCached.AllConfigurationReferenceTypes
 //
 Function AllConfigurationReferenceTypes() Export
 	
@@ -194,8 +222,7 @@ Function DataExchangeOption(Val Peer) Export
 	Return DataExchangeServer.DataExchangeOption(Peer);
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Data exchange in a privileged mode.
+#Region DataExchangeWithFullAccess
 
 // Returns a list of metadata objects prohibited to export.
 // Export is prohibited if a table is marked as DoNotExport in the rules of exchange plan objects registration.
@@ -236,6 +263,12 @@ Function IsMasterNode(Val InfobaseNode) Export
 EndFunction
 
 // Creates a query for clearing node permissions (on deleting).
+// 
+// Parameters:
+//  InfobaseNode - ExchangePlanRef - A reference to the exchange plan node
+// 
+// Returns:
+//  - Array of UUID
 //
 Function RequestToClearPermissionsToUseExternalResources(Val InfobaseNode) Export
 	
@@ -265,17 +298,17 @@ Procedure DownloadExtensions() Export
 		// Updating object registration rules before importing data.
 		DataExchangeServer.UpdateDataExchangeRules();
 		
-		TransportKind = InformationRegisters.DataExchangeTransportSettings.DefaultExchangeMessagesTransportKind(InfobaseNode);
+		TransportID = ExchangeMessagesTransport.DefaultTransport(InfobaseNode);
 					
 		ExchangeParameters = DataExchangeServer.ExchangeParameters();
-		ExchangeParameters.ExchangeMessagesTransportKind = TransportKind;
+		ExchangeParameters.TransportID = TransportID;
 		ExchangeParameters.ExecuteImport1 = True;
-		ExchangeParameters.ExecuteExport2 = False;		
+		ExchangeParameters.ExecuteExport2 = False;
 		ExchangeParameters.TimeConsumingOperationAllowed = False;
 		ExchangeParameters.ParametersOnly = True;
-						
+		
 		Cancel = False;
-		Try			
+		Try
 			
 			DataExchangeServer.ExecuteDataExchangeForInfobaseNode(InfobaseNode, ExchangeParameters, Cancel);
 			
@@ -293,8 +326,17 @@ Procedure DownloadExtensions() Export
 	
 EndProcedure
 
+// Check if deferred writing of the node is required.
+// 
 // Parameters:
-//   ObjectNode - ExchangePlanObject
+//  ObjectNode - ExchangePlanObject
+// 
+// Returns:
+//  Structure:
+//    * ALongTermOperationIsRequired - Boolean
+//    * ThereIsAnActiveBackgroundTask - Boolean
+//    * NodeStructureAddress - Undefined
+//                         - String - Address in the temp storage. 
 //
 Function CheckTheNeedForADeferredNodeEntry(Val ObjectNode) Export
 	
@@ -368,23 +410,21 @@ Function CheckTheNeedForADeferredNodeEntry(Val ObjectNode) Export
 	
 EndFunction
 
-Function CheckAndRegisterCOMConnector(Val SettingsStructure_) Export
+// Determines if the exchange node is included in the determined type "DSLExchangePlans".
+// 
+// Parameters:
+//  Node - ExchangePlanRef
+// 
+// Returns:
+//  Boolean - The node is included in the BSD exchange plans.
+//
+Function SUBAssetIsIncludedInDSLExchangePlans(Node) Export
 	
-	If TypeOf(SettingsStructure_) <> Type("Structure") Then
-		SettingsStructure_ = InformationRegisters.DataExchangeTransportSettings.TransportSettings(
-			SettingsStructure_, Enums.ExchangeMessagesTransportTypes.COM)
-	EndIf;
-		
-	Result = DataExchangeServer.EstablishExternalConnectionWithInfobase(SettingsStructure_);
-	
-	If Result.Join = Undefined Then
-		Return False;
-	EndIf;
-	
-	Result = Undefined;
-	
-	Return True;
-	
+	NodeType = TypeOf(Node);
+	Return Metadata.DefinedTypes.ExchangePlansDSL.Type.ContainsType(NodeType);
+
 EndFunction
+
+#EndRegion
 
 #EndRegion

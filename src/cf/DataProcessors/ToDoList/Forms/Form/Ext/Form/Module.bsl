@@ -41,7 +41,7 @@ Procedure OnOpen(Cancel)
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 		IdleParameters.OutputIdleWindow = False;
 		IdleParameters.Interval = 2; // Faster than a standard interval as it is shown on the home page.
-		CallbackOnCompletion = New NotifyDescription("GenerateToDoListInBackgroundCompletion", ThisObject);
+		CallbackOnCompletion = New CallbackDescription("GenerateToDoListInBackgroundCompletion", ThisObject);
 		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	EndIf;
 	
@@ -83,7 +83,7 @@ Procedure Attachable_ProcessHyperlinkClick(Item, StandardProcessing)
 	
 	StandardProcessing = False;
 	
-	ClosingNotification1 = New NotifyDescription("ProcessHyperlinkClickCompletion", ThisObject);
+	ClosingNotification1 = New CallbackDescription("ProcessHyperlinkClickCompletion", ThisObject);
 	
 	FilterParameters = New Structure();
 	FilterParameters.Insert("Id", Item.Name);
@@ -98,7 +98,7 @@ Procedure Attachable_URLClickProcessing(Item, Ref, StandardProcessing)
 	
 	StandardProcessing = False;
 	
-	ClosingNotification1 = New NotifyDescription("ProcessHyperlinkClickCompletion", ThisObject);
+	ClosingNotification1 = New CallbackDescription("ProcessHyperlinkClickCompletion", ThisObject);
 	
 	FilterParameters = New Structure();
 	FilterParameters.Insert("Id", Ref);
@@ -123,7 +123,7 @@ EndProcedure
 &AtClient
 Procedure Customize(Command)
 	
-	ResultHandler = New NotifyDescription("ApplyToDoListPanel", ThisObject);
+	ResultHandler = New CallbackDescription("ApplyToDoListPanel", ThisObject);
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("ToDoList", UserTasksToStorage);
@@ -140,8 +140,7 @@ EndProcedure
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for generating a user's to-do list.
+#Region UserToDoListProceduresAndFunctions
 
 &AtClient
 Procedure UpdateCurrentToDosAutomatically()
@@ -281,8 +280,9 @@ Procedure OrderToDoList()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Background update.
+#EndRegion
+
+#Region BackgroundUpdate
 
 &AtServer
 Function GenerateToDoListInBackground()
@@ -399,7 +399,7 @@ Procedure GenerateToDoListInBackgroundCompletion(Result, AdditionalParameters) E
 		If OutputNotifications Then
 			Picture = PictureLib.DialogInformation;
 			For Each ToDoWithNotification In ToDoItemsWithNotification Do
-				NotificationProcessing = New NotifyDescription("GoToImportantUserTaskFromNotificationCenter", ThisObject, 
+				NotificationProcessing = New CallbackDescription("GoToImportantUserTaskFromNotificationCenter", ThisObject, 
 					ToDoWithNotification.Id);
 				ShowUserNotification(NStr("en = 'To-do list';"),
 					NotificationProcessing, ToDoWithNotification.LongDesc, Picture, UserNotificationStatus.Important,
@@ -417,12 +417,13 @@ Procedure GenerateToDoListInBackgroundCompletion(Result, AdditionalParameters) E
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+#EndRegion
+
+#Region AuxiliaryProceduresAndFunctions
 
 &AtClient
 Procedure GoToImportantUserTaskFromNotificationCenter(Id) Export
-	ClosingNotification1 = New NotifyDescription("ProcessHyperlinkClickCompletion", ThisObject);
+	ClosingNotification1 = New CallbackDescription("ProcessHyperlinkClickCompletion", ThisObject);
 	
 	FilterParameters = New Structure();
 	FilterParameters.Insert("Id", Id);
@@ -457,7 +458,7 @@ Procedure StartToDoListUpdate(AutoUpdate = False, UpdateSilently = False)
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	IdleParameters.Interval = 2; // Faster than a standard interval as it is shown on the home page.
-	CallbackOnCompletion = New NotifyDescription("GenerateToDoListInBackgroundCompletion", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("GenerateToDoListInBackgroundCompletion", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
@@ -844,5 +845,7 @@ EndProcedure
 Procedure GenerateErrorReportClick(Item)
 	StandardSubsystemsClient.ShowErrorReport(ErrorReport);
 EndProcedure
+
+#EndRegion
 
 #EndRegion

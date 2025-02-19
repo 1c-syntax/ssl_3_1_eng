@@ -32,7 +32,7 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 		NStr("en = 'Respondent
 		|Survey
 		|Question
-		|Response';");
+		|Answer';");
 	OptionSettings.SearchSettings.FilterParameterDescriptions = 
 		NStr("en = 'Survey
 		|Report type';");

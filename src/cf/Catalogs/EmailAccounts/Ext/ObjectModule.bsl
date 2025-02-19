@@ -142,6 +142,16 @@ Procedure FillObjectWithDefaultValues()
 EndProcedure
 
 Function PasswordCorrect(PasswordCheck)
+	
+	If EmailServiceAuthorization Then
+		SetPrivilegedMode(True);
+		Tokens = Common.ReadDataFromSecureStorage(Ref, "AccessToken,UpdateToken");
+		SetPrivilegedMode(False);
+		Checksum = Common.CheckSumString(Tokens.AccessToken + Tokens.UpdateToken);
+		
+		Return Checksum = PasswordCheck;
+	EndIf;
+
 	SetPrivilegedMode(True);
 	Passwords = Common.ReadDataFromSecureStorage(Ref, "Password,SMTPPassword");
 	SetPrivilegedMode(False);
@@ -161,6 +171,7 @@ Function PasswordCorrect(PasswordCheck)
 	EndDo;
 	
 	Return True;
+	
 EndFunction
 
 #EndRegion

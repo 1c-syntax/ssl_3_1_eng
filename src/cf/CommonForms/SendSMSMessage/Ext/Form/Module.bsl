@@ -37,7 +37,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	TitleTemplate1 = NStr("en = 'Text message to: %1';");
 	If PhoneNumbers.Count() > 1 Then
-		TitleTemplate1 = NStr("en = 'Text message to: %1';");
+		TitleTemplate1 = NStr("en = 'Text message to: %1 phones';");
 	EndIf;
 	
 	Title = StringFunctionsClientServer.SubstituteParametersToString(TitleTemplate1, RecipientsNumbers);
@@ -103,16 +103,10 @@ EndProcedure
 &AtServer
 Procedure SendSMS()
 	
-	// Reset a displayed delivery status.
 	MessageID = "";
-	
-	// Prepare recipient numbers.
 	NumbersArray = StringFunctionsClientServer.SplitStringIntoSubstringsArray(RecipientsNumbers, ", ", True);
-	
-	// Send.
 	SendingResult = SendSMSMessage.SendSMS(NumbersArray, MessageText, ?(MentionSenderName, SenderName, Undefined), SendInTransliteration);
 	
-	// Display information on errors occurred upon sending.
 	If IsBlankString(SendingResult.ErrorDescription) Then
 		// Check delivery for the first recipient.
 		If SendingResult.SentMessages.Count() > 0 Then
@@ -124,7 +118,6 @@ Procedure SendSMS()
 		
 		MessageTemplate = NStr("en = 'Couldn''t send the text message.
 		|%1.';");
-		
 		Items.MessageNotSentText.Title = FormattedString(StringFunctionsClientServer.SubstituteParametersToString(
 			MessageTemplate, SendingResult.ErrorDescription));
 	EndIf;

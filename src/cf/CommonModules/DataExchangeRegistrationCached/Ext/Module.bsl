@@ -23,8 +23,8 @@
 //                                    In case the given plan does not use selective registration,
 //                                    "Undefined" is returned.
 //                                  - Undefined - Selective object registration parameters.
-//   In case the given plan does not use selective registration,
-//                                                   "Undefined" is returned.
+//                                      In case the given plan does not use selective registration,
+//                                      "Undefined" is returned.
 //
 Function SelectiveRegistrationParametersByExchangeNodeName(ExchangePlanName) Export
 	
@@ -69,11 +69,11 @@ EndFunction
 // Valid values are:
 //
 //   Disabled - Register all objects
-//                         ).
+//                         (See DataExchangeRegistrationServer.РежимВыборочнойРегистрацииОтключен()).
 //   AccordingToXMLRules - Register the objects whose PCR fields were modified
-//                         ).
+//                         (See DataExchangeRegistrationServer.РежимВыборочнойРегистрацииСогласноПравиламXML()).
 //   Modified - Register the objects whose "Modified" property is set to True
-//                         ).
+//                         (See DataExchangeRegistrationServer.РежимВыборочнойРегистрацииМодифицированность()).
 //
 Function ExchangePlanDataSelectiveRegistrationMode(ExchangePlanName) Export
 	

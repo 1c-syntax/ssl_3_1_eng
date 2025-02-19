@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<Title>
 		<v8:item>
 			<v8:lang>en</v8:lang>
@@ -223,17 +223,39 @@
 						</Title>
 						<ExtendedTooltip name="FormEndEditExtendedTooltip" id="153"/>
 					</Button>
-					<Button name="Print" id="383">
-						<Type>CommandBarButton</Type>
-						<CommandName>Form.Command.Print</CommandName>
+					<Popup name="PrintSubmenu" id="452">
 						<Title>
 							<v8:item>
 								<v8:lang>en</v8:lang>
 								<v8:content>Print</v8:content>
 							</v8:item>
 						</Title>
-						<ExtendedTooltip name="PrintExtendedTooltip" id="384"/>
-					</Button>
+						<ExtendedTooltip name="PrintSubmenuExtendedTooltip" id="453"/>
+						<ChildItems>
+							<Button name="Print" id="383">
+								<Type>CommandBarButton</Type>
+								<CommandName>Form.Command.Print</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Print</v8:content>
+									</v8:item>
+								</Title>
+								<ExtendedTooltip name="PrintExtendedTooltip" id="384"/>
+							</Button>
+							<Button name="PrintWithStamp" id="454">
+								<Type>CommandBarButton</Type>
+								<CommandName>Form.Command.PrintWithStamp</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>With digital signature stamp…</v8:content>
+									</v8:item>
+								</Title>
+								<ExtendedTooltip name="PrintWithStampExtendedTooltip" id="455"/>
+							</Button>
+						</ChildItems>
+					</Popup>
 					<Button name="Send" id="379">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.Send</CommandName>
@@ -2276,6 +2298,11 @@ FROM
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
+		<Attribute name="HasDigitalSignature" id="23">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="FilesImport" id="1">
@@ -2886,6 +2913,15 @@ FROM
 			<Action>Delete</Action>
 			<CurrentRowUse>Use</CurrentRowUse>
 			<AssociatedTableElementId xsi:type="xs:string">List</AssociatedTableElementId>
+		</Command>
+		<Command name="PrintWithStamp" id="33">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>With digital signature stamp…</v8:content>
+				</v8:item>
+			</Title>
+			<Action>PrintWithStamp</Action>
 		</Command>
 	</Commands>
 	<Parameters>

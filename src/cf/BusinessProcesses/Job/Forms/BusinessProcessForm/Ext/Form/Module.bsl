@@ -32,14 +32,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		InitializeTheForm();
 	EndIf;
 	
-	// StandardSubsystems.StoredFiles
+	// StandardSubsystems.FilesOperations
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperations = Common.CommonModule("FilesOperations");
 		FilesHyperlink = ModuleFilesOperations.FilesHyperlink();
 		FilesHyperlink.Location = "CommandBar";
 		ModuleFilesOperations.OnCreateAtServer(ThisObject, FilesHyperlink);
 	EndIf;
-	// End StandardSubsystems.StoredFiles
+	// End StandardSubsystems.FilesOperations
 
 EndProcedure
 
@@ -48,12 +48,12 @@ Procedure OnOpen(Cancel)
 
 	RefreshStopCommandsAvailability();
 	
-	// StandardSubsystems.StoredFiles
+	// StandardSubsystems.FilesOperations
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsClient = CommonClient.CommonModule("FilesOperationsClient");
 		ModuleFilesOperationsClient.OnOpen(ThisObject, Cancel);
 	EndIf;
-	// End StandardSubsystems.StoredFiles
+	// End StandardSubsystems.FilesOperations
 
 EndProcedure
 
@@ -110,12 +110,12 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		EndIf;
 	EndIf;
 	
-	// StandardSubsystems.StoredFiles
+	// StandardSubsystems.FilesOperations
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsClient = CommonClient.CommonModule("FilesOperationsClient");
 		ModuleFilesOperationsClient.NotificationProcessing(ThisObject, EventName);
 	EndIf;
-	// End StandardSubsystems.StoredFiles
+	// End StandardSubsystems.FilesOperations
 
 EndProcedure
 
@@ -257,7 +257,7 @@ Procedure PerformerAutoComplete(Item, Text, ChoiceData, Waiting, StandardProcess
 
 	If ValueIsFilled(Text) Then
 		StandardProcessing = False;
-		ChoiceData = BusinessProcessesAndTasksServerCall.GeneratePerformerChoiceData(Text);
+		ChoiceData = GeneratePerformerChoiceData(Text);
 	EndIf;
 
 EndProcedure
@@ -267,7 +267,7 @@ Procedure PerformerTextEditEnd(Item, Text, ChoiceData, StandardProcessing)
 
 	If ValueIsFilled(Text) Then
 		StandardProcessing = False;
-		ChoiceData = BusinessProcessesAndTasksServerCall.GeneratePerformerChoiceData(Text);
+		ChoiceData = GeneratePerformerChoiceData(Text);
 	EndIf;
 
 EndProcedure
@@ -326,7 +326,7 @@ Procedure SupervisorAutoComplete(Item, Text, ChoiceData, Waiting, StandardProces
 
 	If ValueIsFilled(Text) Then
 		StandardProcessing = False;
-		ChoiceData = BusinessProcessesAndTasksServerCall.GeneratePerformerChoiceData(Text);
+		ChoiceData = GeneratePerformerChoiceData(Text);
 	EndIf;
 
 EndProcedure
@@ -336,7 +336,7 @@ Procedure SupervisorTextEditEnd(Item, Text, ChoiceData, StandardProcessing)
 
 	If ValueIsFilled(Text) Then
 		StandardProcessing = False;
-		ChoiceData = BusinessProcessesAndTasksServerCall.GeneratePerformerChoiceData(Text);
+		ChoiceData = GeneratePerformerChoiceData(Text);
 	EndIf;
 
 EndProcedure
@@ -355,7 +355,7 @@ Procedure VerificationDueDateOnChange(Item)
 	EndIf;
 EndProcedure
 
-// StandardSubsystems.StoredFiles
+// StandardSubsystems.FilesOperations
 &AtClient
 Procedure Attachable_PreviewFieldClick(Item, StandardProcessing)
 
@@ -387,7 +387,7 @@ Procedure Attachable_PreviewFieldDrag(Item, DragParameters, StandardProcessing)
 	EndIf;
 
 EndProcedure
-// End StandardSubsystems.StoredFiles
+// End StandardSubsystems.FilesOperations
 
 #EndRegion
 
@@ -427,7 +427,7 @@ Procedure SetUpDeferredStart(Command)
 	OpenDeferredStartSetup();
 EndProcedure
 
-// StandardSubsystems.StoredFiles
+// StandardSubsystems.FilesOperations
 &AtClient
 Procedure Attachable_AttachedFilesPanelCommand(Command)
 
@@ -437,7 +437,7 @@ Procedure Attachable_AttachedFilesPanelCommand(Command)
 	EndIf;
 
 EndProcedure
-// End StandardSubsystems.StoredFiles
+// End StandardSubsystems.FilesOperations
 
 #EndRegion
 
@@ -694,5 +694,12 @@ Procedure SetDeferredStartAttributes()
 	Defer = (DeferredStartDate <> '00010101');
 
 EndProcedure
+
+&AtServerNoContext
+Function GeneratePerformerChoiceData(Val Text)
+
+	Return BusinessProcessesAndTasksServer.GeneratePerformerChoiceData(Text);
+
+EndFunction
 
 #EndRegion

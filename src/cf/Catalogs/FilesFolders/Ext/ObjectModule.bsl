@@ -87,58 +87,13 @@ Procedure BeforeWrite(Cancel)
 	AdditionalProperties.Insert("PreviousIsNew", IsNew());
 	
 	If Not IsNew() Then
-		
-		If Description <> CurrentFolder.Description Then // Folder is renamed.
-			FolderWorkingDirectory         = FilesOperationsInternalServerCall.FolderWorkingDirectory(Ref);
-			FolerParentWorkingDirectory = FilesOperationsInternalServerCall.FolderWorkingDirectory(CurrentFolder.Parent);
-			If FolerParentWorkingDirectory <> "" Then
-				
-				// Add a slash at the end (unless it is already there).
-				FolerParentWorkingDirectory = CommonClientServer.AddLastPathSeparator(
-					FolerParentWorkingDirectory);
-				
-				InheritedFolerWorkingDirectoryPrevious = FolerParentWorkingDirectory
-					+ CurrentFolder.Description + GetPathSeparator();
-					
-				If InheritedFolerWorkingDirectoryPrevious = FolderWorkingDirectory Then
-					
-					NewFolderWorkingDirectory = FolerParentWorkingDirectory
-						+ Description + GetPathSeparator();
-					
-					FilesOperationsInternal.SaveFolderWorkingDirectory(Ref, NewFolderWorkingDirectory);
-				EndIf;
-			EndIf;
+		If Description <> CurrentFolder.Description Then // The renamed directory.
+			UpdateWorkingDirWhenFolderRenamed(Ref, CurrentFolder);
 		EndIf;
 		
-		If Parent <> CurrentFolder.Parent Then // Folder is moved to another folder.
-			FolderWorkingDirectory               = FilesOperationsInternalServerCall.FolderWorkingDirectory(Ref);
-			FolerParentWorkingDirectory       = FilesOperationsInternalServerCall.FolderWorkingDirectory(CurrentFolder.Parent);
-			NewFolderParentWorkingDirectory = FilesOperationsInternalServerCall.FolderWorkingDirectory(Parent);
-			
-			If FolerParentWorkingDirectory <> "" Or NewFolderParentWorkingDirectory <> "" Then
-				
-				InheritedFolerWorkingDirectoryPrevious = FolerParentWorkingDirectory;
-				
-				If FolerParentWorkingDirectory <> "" Then
-					InheritedFolerWorkingDirectoryPrevious = FolerParentWorkingDirectory
-						+ CurrentFolder.Description + GetPathSeparator();
-				EndIf;
-				
-				// Working directory is created automatically from a parent.
-				If InheritedFolerWorkingDirectoryPrevious = FolderWorkingDirectory Then
-					If NewFolderParentWorkingDirectory <> "" Then
-						
-						NewFolderWorkingDirectory = NewFolderParentWorkingDirectory
-							+ Description + GetPathSeparator();
-						
-						FilesOperationsInternal.SaveFolderWorkingDirectory(Ref, NewFolderWorkingDirectory);
-					Else
-						FilesOperationsInternal.CleanUpWorkingDirectory(Ref);
-					EndIf;
-				EndIf;
-			EndIf;
+		If Parent <> CurrentFolder.Parent Then // Moved to a different directory.
+			UpdateWorkingDirWhenFolderMoved(Ref, Parent, CurrentFolder);
 		EndIf;
-		
 	EndIf;
 	
 EndProcedure
@@ -150,8 +105,8 @@ Procedure OnWrite(Cancel)
 	EndIf;
 	
 	WorkingDirectory = Undefined;
-	
-	If AdditionalProperties.Property("WorkingDirectory", WorkingDirectory) Or AdditionalProperties.PreviousIsNew Then
+	If AdditionalProperties.Property("WorkingDirectory", WorkingDirectory) 
+		Or AdditionalProperties.PreviousIsNew Then
 		
 		If WorkingDirectory = "" Then
 			FilesOperationsInternal.CleanUpWorkingDirectory(Ref);
@@ -160,14 +115,8 @@ Procedure OnWrite(Cancel)
 		Else
 			FolderWorkingDirectory = FilesOperationsInternalServerCall.FolderWorkingDirectory(Parent);
 			If FolderWorkingDirectory <> "" Then
-				
-				// Add a slash at the end (unless it is already there).
-				FolderWorkingDirectory = CommonClientServer.AddLastPathSeparator(
-					FolderWorkingDirectory);
-				
-				FolderWorkingDirectory = FolderWorkingDirectory
+				FolderWorkingDirectory = CommonClientServer.AddLastPathSeparator(FolderWorkingDirectory) 
 					+ Description + GetPathSeparator();
-				
 				FilesOperationsInternal.SaveFolderWorkingDirectory(Ref, FolderWorkingDirectory);
 			EndIf;
 		EndIf;
@@ -182,14 +131,62 @@ EndProcedure
 
 Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	
-	FoundProhibitedCharsArray = CommonClientServer.FindProhibitedCharsInFileName(Description);
-	If FoundProhibitedCharsArray.Count() <> 0 Then
+	InvalidChars = CommonClientServer.FindProhibitedCharsInFileName(Description);
+	If InvalidChars.Count() <> 0 Then
 		Cancel = True;
 		
 		Text = NStr("en = 'The folder name contains characters that are not allowed ( \ / : * ? "" < > | .. )';");
 		Common.MessageToUser(Text, ThisObject, "Description");
 	EndIf;
 	
+EndProcedure
+
+#EndRegion
+
+#Region Private
+
+Procedure UpdateWorkingDirWhenFolderRenamed(Var_Ref, CurrentFolder)
+	FolderWorkingDirectory         = FilesOperationsInternalServerCall.FolderWorkingDirectory(Var_Ref);
+	FolerParentWorkingDirectory = FilesOperationsInternalServerCall.FolderWorkingDirectory(CurrentFolder.Parent);
+	If FolerParentWorkingDirectory <> "" Then
+		
+		FolerParentWorkingDirectory = CommonClientServer.AddLastPathSeparator(
+			FolerParentWorkingDirectory);
+		InheritedFolerWorkingDirectoryPrevious = FolerParentWorkingDirectory + CurrentFolder.Description
+			+ GetPathSeparator();
+			
+		If InheritedFolerWorkingDirectoryPrevious = FolderWorkingDirectory Then
+			NewFolderWorkingDirectory = FolerParentWorkingDirectory + Description + GetPathSeparator();
+			FilesOperationsInternal.SaveFolderWorkingDirectory(Var_Ref, NewFolderWorkingDirectory);
+		EndIf;
+	EndIf;
+EndProcedure
+
+Procedure UpdateWorkingDirWhenFolderMoved(Var_Ref, Var_Parent, CurrentFolder)
+
+	FolderWorkingDirectory               = FilesOperationsInternalServerCall.FolderWorkingDirectory(Var_Ref);
+	FolerParentWorkingDirectory       = FilesOperationsInternalServerCall.FolderWorkingDirectory(CurrentFolder.Parent);
+	NewFolderParentWorkingDirectory = FilesOperationsInternalServerCall.FolderWorkingDirectory(Var_Parent);
+	
+	If FolerParentWorkingDirectory <> "" Or NewFolderParentWorkingDirectory <> "" Then
+		
+		InheritedFolerWorkingDirectoryPrevious = FolerParentWorkingDirectory;
+		If FolerParentWorkingDirectory <> "" Then
+			InheritedFolerWorkingDirectoryPrevious = FolerParentWorkingDirectory + CurrentFolder.Description
+				+ GetPathSeparator();
+		EndIf;
+		
+		// Working directory is created automatically from a parent.
+		If InheritedFolerWorkingDirectoryPrevious = FolderWorkingDirectory Then
+			If NewFolderParentWorkingDirectory <> "" Then
+				NewFolderWorkingDirectory = NewFolderParentWorkingDirectory + Description 
+					+ GetPathSeparator();
+				FilesOperationsInternal.SaveFolderWorkingDirectory(Var_Ref, NewFolderWorkingDirectory);
+			Else
+				FilesOperationsInternal.CleanUpWorkingDirectory(Var_Ref);
+			EndIf;
+		EndIf;
+	EndIf;
 EndProcedure
 
 #EndRegion

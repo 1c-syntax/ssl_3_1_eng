@@ -99,26 +99,25 @@ EndProcedure
 
 &AtServer
 Procedure ReadExchangeNodeTree()
-		
+	
 	Tree = FormAttributeToValue("ExchangeNodesTree", Type("ValueTree"));
 	
 	Query = New Query;
+	
 	Query.Text = 
-		"SELECT ALLOWED
+		"SELECT
 		|	TransportSettings.Peer AS Ref,
 		|	TransportSettings.Peer.Code AS Code,
 		|	TransportSettings.Peer.Description AS Description,
 		|	VALUETYPE(TransportSettings.Peer) AS NodeType
 		|FROM
-		|	InformationRegister.DataExchangeTransportSettings AS TransportSettings
+		|	Catalog.ExchangeMessageTransportSettings AS TransportSettings
 		|WHERE
-		|	TransportSettings.DefaultExchangeMessagesTransportKind = &TransportKind
-		|	AND TransportSettings.WSCorrespondentEndpoint <> &MessageExchangeEmptyRef
+		|	TransportSettings.TransportID = &TransportID
 		|TOTALS BY
 		|	NodeType";
 	
-	Query.SetParameter("TransportKind", Enums.ExchangeMessagesTransportTypes.WS);
-	Query.SetParameter("MessageExchangeEmptyRef", ExchangePlans["MessagesExchange"].EmptyRef());
+	Query.SetParameter("TransportID", "SM");
 	
 	SelectionByNodesTypes = Query.Execute().Select(QueryResultIteration.ByGroups);
 	
@@ -134,15 +133,21 @@ Procedure ReadExchangeNodeTree()
 		
 		While SelectionByNodes.Next() Do
 			
-			RowNode = RowExchangePlan.Rows.Add();
-			FillPropertyValues(RowNode, SelectionByNodes);
-			RowNode.PictureIndex = 2;
+			TransportSettings = ExchangeMessagesTransport.TransportSettings(SelectionByNodes.Ref, "SM");
+			
+			If TransportSettings.InternalPublication Then 
+			
+				RowNode = RowExchangePlan.Rows.Add();
+				FillPropertyValues(RowNode, SelectionByNodes);
+				RowNode.PictureIndex = 2;
+				
+			EndIf;
 
 		EndDo;
 		
 	EndDo;
 	
-	ValueToFormAttribute(Tree,  "ExchangeNodesTree");
+	ValueToFormAttribute(Tree, "ExchangeNodesTree");
 	
 EndProcedure
 

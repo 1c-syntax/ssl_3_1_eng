@@ -32,7 +32,7 @@ Procedure OnOpen(Cancel)
 	
 	TimeConsumingOperation = StartProcedureExecution();
 	
-	CallbackOnCompletion = New NotifyDescription("ProcessResult", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("ProcessResult", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters());
 
 EndProcedure

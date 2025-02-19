@@ -63,7 +63,7 @@ Procedure ProfileSecurityUsageModeOnChange(Item)
 			
 			If (PreviousMode = 2 Or NewMode = 2) Then
 				
-				ClosingNotification1 = New NotifyDescription("AfterCloseSecurityProfileCustomizationWizard", ThisObject, True);
+				ClosingNotification1 = New CallbackDescription("AfterCloseSecurityProfileCustomizationWizard", ThisObject, True);
 				
 				If NewMode = 2 Then
 					
@@ -120,7 +120,7 @@ Procedure RestoreSecurityProfiles(Command)
 	Try
 		
 		StartApplyingSecurityProfilesSettings(UUID);
-		ClosingNotification1 = New NotifyDescription("AfterCloseSecurityProfileCustomizationWizard", ThisObject, True);
+		ClosingNotification1 = New CallbackDescription("AfterCloseSecurityProfileCustomizationWizard", ThisObject, True);
 		ExternalResourcesPermissionsSetupClient.StartRestoringSecurityProfiles(ThisObject, ClosingNotification1);
 		
 	Except

@@ -129,7 +129,7 @@ Procedure ClearIndex(Command)
 		|
 		|Continue?';");
 	
-	Handler = New NotifyDescription("ClearTheIndexAfterAnsweringTheQuestion", ThisObject);
+	Handler = New CallbackDescription("ClearTheIndexAfterAnsweringTheQuestion", ThisObject);
 	ShowQueryBox(Handler, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
 EndProcedure
 
@@ -149,8 +149,7 @@ EndProcedure
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Client
+#Region Client
 
 &AtClient
 Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
@@ -167,7 +166,7 @@ Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
 		Buttons.Add("ActiveUsers", NStr("en = 'Active users';"));
 		Buttons.Add(DialogReturnCode.Cancel);
 		
-		Handler = New NotifyDescription("OnChangeAttributeAfterAnswerToQuestion", ThisObject);
+		Handler = New CallbackDescription("OnChangeAttributeAfterAnswerToQuestion", ThisObject);
 		ShowQueryBox(Handler, QueryText, Buttons, , "ActiveUsers");
 		Return;
 	EndIf;
@@ -192,7 +191,7 @@ Procedure ScheduledJobsHyperlinkClick(PredefinedItemName)
 	Context = New Structure;
 	Context.Insert("PredefinedItemName", PredefinedItemName);
 	Context.Insert("FlagChanged", False);
-	Handler = New NotifyDescription("ScheduledJobsAfterChangeSchedule", ThisObject, Context);
+	Handler = New CallbackDescription("ScheduledJobsAfterChangeSchedule", ThisObject, Context);
 	Dialog = New ScheduledJobDialog(InformationRecords.Schedule);
 	Dialog.Show(Handler);
 EndProcedure
@@ -241,8 +240,9 @@ Procedure ClearTheIndexAfterAnsweringTheQuestion(Result, AdditionalParameters) E
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Server call.
+#EndRegion
+
+#Region ServerCall
 
 &AtServer
 Procedure UpdateIndexServer()
@@ -298,8 +298,9 @@ Procedure ScheduledJobsSave(PredefinedItemName, Changes, SetVisibilityAvailabili
 	EndIf;
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Server
+#EndRegion
+
+#Region Server
 
 &AtServer
 Function SaveAttributeValue(DataPathAttribute)
@@ -466,5 +467,7 @@ Function ScheduledJobsFindPredefinedItem(PredefinedItemName)
 	FoundItems = ScheduledJobsServer.FindJobs(Filter);
 	Return ?(FoundItems.Count() = 0, Undefined, FoundItems[0]);
 EndFunction
+
+#EndRegion
 
 #EndRegion

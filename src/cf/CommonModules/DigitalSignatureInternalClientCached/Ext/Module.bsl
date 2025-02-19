@@ -28,11 +28,11 @@ Function CertificationAuthorityData(SearchValues) Export
 	
 EndFunction
 
-Function CataloguesOfReviewListsOfUTS() Export
+Function CARevocationListDirectories() Export
 	
 	AccreditedCertificationCenters = DigitalSignatureInternalClientCached.AccreditedCertificationCenters();
 	ModuleDigitalSignatureClientServerLocalization = CommonClient.CommonModule("DigitalSignatureClientServerLocalization");
-	Return ModuleDigitalSignatureClientServerLocalization.CataloguesOfReviewListsOfUTS(AccreditedCertificationCenters);
+	Return ModuleDigitalSignatureClientServerLocalization.CARevocationListDirectories(AccreditedCertificationCenters);
 	
 EndFunction
 

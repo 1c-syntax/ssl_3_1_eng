@@ -55,7 +55,7 @@ EndProcedure
 
 &AtClient
 Procedure ResetSettings(Command)
-	Notification = New NotifyDescription("ResetSettingsCompletion", ThisObject, MappingObjectName);
+	Notification = New CallbackDescription("ResetSettingsCompletion", ThisObject, MappingObjectName);
 	ShowQueryBox(Notification, NStr("en = 'Do you want to revert to the default column settings?';"), QuestionDialogMode.YesNo);
 EndProcedure
 

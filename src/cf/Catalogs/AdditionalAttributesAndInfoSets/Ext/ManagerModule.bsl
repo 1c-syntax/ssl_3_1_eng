@@ -368,7 +368,8 @@ Function PredefinedPropertiesSets() Export
 	SSLSubsystemsIntegration.OnGetPredefinedPropertiesSets(SetsTree);
 	PropertyManagerOverridable.OnGetPredefinedPropertiesSets(SetsTree);
 	
-	PropertiesSetsDescriptions = PropertyManagerInternal.PropertiesSetsDescriptions();
+	PredefinedData = PropertyManagerInternal.PredefinedPropertiesSets();
+	PropertiesSetsDescriptions = PropertyManagerInternal.PropertiesSetsDescriptions(PredefinedData);
 	Descriptions = PropertiesSetsDescriptions[CurrentLanguage().LanguageCode];
 	
 	PropertiesSets = New Map;
@@ -382,8 +383,6 @@ Function PredefinedPropertiesSets() Export
 		PropertiesSets[SetProperties.Name] = New FixedStructure(PropertiesSets[SetProperties.Name]);
 		PropertiesSets[SetProperties.Ref] = New FixedStructure(PropertiesSets[SetProperties.Ref]);
 	EndDo;
-	
-	PredefinedData = PropertyManagerInternal.PredefinedPropertiesSets();
 	
 	NameInUserLanguage = "Description" + "_" + CurrentLanguage().LanguageCode;
 	HaveLanguageColumn = PredefinedData.Columns.Find(NameInUserLanguage) <> Undefined;

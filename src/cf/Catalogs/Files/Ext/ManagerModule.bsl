@@ -30,7 +30,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// StandardSubsystems.AccessManagement
+// СтандартныеПодсистемы.УправлениеДоступом
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -68,7 +68,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
 // Defines the list of generation commands.
 //
@@ -135,10 +135,26 @@ EndProcedure
 
 #Region Private
 
-// Registers the objects to be updated in the InfobaseUpdate exchange plan.
-// 
-//
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
+	
+	Query = New Query;
+	Query.Text = 
+		"SELECT TOP 1000
+		|	Files.Ref AS Ref
+		|FROM
+		|	Catalog.Files AS Files
+		|		LEFT JOIN InformationRegister.FilesInfo AS FilesInfo
+		|		ON Files.Ref = FilesInfo.File
+		|WHERE
+		|	Files.FileStorageType = VALUE(Enum.FileStorageTypes.InVolumesOnHardDrive)
+		|	OR ((Files.UniversalModificationDate = DATETIME(1, 1, 1, 0, 0, 0)
+		|					AND Files.CurrentVersion <> VALUE(Catalog.FilesVersions.EmptyRef)
+		|				OR Files.FileStorageType = VALUE(Enum.FileStorageTypes.EmptyRef))
+		|				AND Files.Ref > &Ref
+		|			OR FilesInfo.File IS NULL)
+		|
+		|ORDER BY
+		|	Ref";
 	
 	AllFilesProcessed = False;
 	Ref = "";
@@ -149,24 +165,6 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
 	While Not AllFilesProcessed Do
 		
-		Query = New Query;
-		Query.Text = 
-			"SELECT TOP 1000
-			|	Files.Ref AS Ref
-			|FROM
-			|	Catalog.Files AS Files
-			|		LEFT JOIN InformationRegister.FilesInfo AS FilesInfo
-			|		ON Files.Ref = FilesInfo.File
-			|WHERE
-			|	((Files.UniversalModificationDate = DATETIME(1, 1, 1, 0, 0, 0)
-			|					AND Files.CurrentVersion <> VALUE(Catalog.FilesVersions.EmptyRef)
-			|				OR Files.FileStorageType = VALUE(Enum.FileStorageTypes.EmptyRef))
-			|				AND Files.Ref > &Ref
-			|			OR FilesInfo.File IS NULL)
-			|
-			|ORDER BY
-			|	Ref";
-		
 		Query.SetParameter("Ref", Ref);
 		// @skip-check query-in-loop - Batch processing of a large amount of data.
 		ReferencesArrray = Query.Execute().Unload().UnloadColumn("Ref");
@@ -176,9 +174,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 		RefsCount = ReferencesArrray.Count();
 		If RefsCount < 1000 Then
 			AllFilesProcessed = True;
-		EndIf;
-		
-		If RefsCount > 0 Then
+		ElsIf RefsCount > 0 Then
 			Ref = ReferencesArrray[RefsCount - 1];
 		EndIf;
 		
@@ -188,49 +184,80 @@ EndProcedure
 
 Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
-	ProcessingCompleted = True;
-	
 	SelectedData = InfobaseUpdate.DataToUpdateInMultithreadHandler(Parameters);
 	
 	ObjectsProcessed = 0;
 	ObjectsWithIssuesCount = 0;
 	
 	For Each String In SelectedData Do
-		RepresentationOfTheReference = String(String.Ref);
-		BeginTransaction();
-		Try
+		If ProcessFile(String.Ref) Then
+			ObjectsProcessed = ObjectsProcessed + 1;
+		Else
+			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
+		EndIf;
+	EndDo;
+	
+	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Couldn''t process (skipped) the files: %1';"), 
+			ObjectsWithIssuesCount);
+		Raise MessageText;
+	EndIf;
+
+	WriteLogEvent(InfobaseUpdate.EventLogEvent(), 
+		EventLogLevel.Information, , ,
+		StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Yet another batch of files is processed: %1';"),
+			ObjectsProcessed));
+	Parameters.ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue, "Catalog.Files");
+	
+EndProcedure
+
+Function ProcessFile(Ref)
+	
+	Result = True;
+	RepresentationOfTheReference = String(Ref);
+	
+	DataLockFile = New DataLock;
+	DataLockItem = DataLockFile.Add("Catalog.Files");
+	DataLockItem.SetValue("Ref", Ref);
+	
+	BeginTransaction();
+	Try
+		DataLockFile.Lock();
+		
+		FileToUpdate = Undefined;
+		ItIsRequiredToRecord = False;
+		// @skip-check query-in-loop - Порционная обработка большого объема данных.
+		FileAttributes = Common.ObjectAttributesValues(Ref, 
+			"UniversalModificationDate,CurrentVersion,FileStorageType");
 			
-			DataLockFile = New DataLock;
-			DataLockItem = DataLockFile.Add("Catalog.Files");
-			DataLockItem.SetValue("Ref", String.Ref);
-			DataLockItem.Mode = DataLockMode.Shared;
-			DataLockFile.Lock();
+		If ValueIsFilled(FileAttributes.CurrentVersion) 
+			And (Not ValueIsFilled(FileAttributes.UniversalModificationDate)
+				Or Not ValueIsFilled(FileAttributes.FileStorageType)) Then
 			
-			CurrentVersion = Common.ObjectAttributeValue(String.Ref, "CurrentVersion");
-			
-			DataLock = New DataLock;
-			DataLockItem = DataLock.Add("Catalog.FilesVersions");
-			DataLockItem.SetValue("Ref", CurrentVersion);
-			DataLockItem.Mode = DataLockMode.Shared;
-			DataLock.Lock();
-			
-			CurrentVersionAttributes = Common.ObjectAttributesValues(CurrentVersion, 
+			FileToUpdate = Ref.GetObject(); // CatalogObject.Files
+			If FileToUpdate = Undefined Then
+				InfobaseUpdate.MarkProcessingCompletion(Ref);
+				CommitTransaction();
+				Return Result;
+			EndIf;
+
+			// @skip-check query-in-loop - Порционная обработка большого объема данных.
+			CurrentVersionAttributes = Common.ObjectAttributesValues(FileAttributes.CurrentVersion, 
 				"UniversalModificationDate,FileStorageType");
-			
-			FileToUpdate = String.Ref.GetObject(); // CatalogObject.Files
 			FileToUpdate.UniversalModificationDate = CurrentVersionAttributes.UniversalModificationDate;
 			FileToUpdate.FileStorageType             = CurrentVersionAttributes.FileStorageType;
 			
 			RecordSet = InformationRegisters.FilesInfo.CreateRecordSet();
-			RecordSet.Filter.File.Set(String.Ref);
+			RecordSet.Filter.File.Set(Ref);
 			RecordSet.Read();
 			If RecordSet.Count() = 0 Then
 				FileInfo1 = RecordSet.Add();
 				FillPropertyValues(FileInfo1, FileToUpdate);
 				FileInfo1.File          = FileToUpdate.Ref;
-				AuthorAndOwner               = Common.ObjectAttributesValues(FileToUpdate.Ref, "Author, FileOwner");
-				FileInfo1.Author         = AuthorAndOwner.Author;
-				FileInfo1.FileOwner = AuthorAndOwner.FileOwner;
+				FileInfo1.Author         = FileToUpdate.Author;
+				FileInfo1.FileOwner = FileToUpdate.FileOwner;
 				
 				If FileToUpdate.SignedWithDS And FileToUpdate.Encrypted Then
 					FileInfo1.SignedEncryptedPictureNumber = 2;
@@ -243,45 +270,48 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 				EndIf;
 				InfobaseUpdate.WriteRecordSet(RecordSet);
 			EndIf;
-			
-			InfobaseUpdate.WriteObject(FileToUpdate);
-			
-			InfobaseUpdate.MarkProcessingCompletion(String.Ref);
-			ObjectsProcessed = ObjectsProcessed + 1;
-			CommitTransaction();
-		Except
-			RollbackTransaction();
-			// If you fail to process a document, try again.
-			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
-			
-			InfobaseUpdate.WriteErrorToEventLog(
-				String.Ref,
-				RepresentationOfTheReference,
-				ErrorInfo());
-		EndTry;
+			ItIsRequiredToRecord = True;
+		EndIf;
 		
-	EndDo;
-	
-	If Not InfobaseUpdate.DataProcessingCompleted(Parameters.Queue, "Catalog.Files") Then
-		ProcessingCompleted = False;
-	EndIf;
-	
-	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
-		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) the files: %1';"), 
-			ObjectsWithIssuesCount);
-		Raise MessageText;
-	Else
-		WriteLogEvent(InfobaseUpdate.EventLogEvent(), 
-			EventLogLevel.Information, , ,
-			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Yet another batch of files is processed: %1';"),
-				ObjectsProcessed));
-	EndIf;
-	
-	Parameters.ProcessingCompleted = ProcessingCompleted;
-	
-EndProcedure
+		If FileAttributes.FileStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive Then
+
+			If FileToUpdate = Undefined Then
+				FileToUpdate = Ref.GetObject(); // CatalogObject.Files
+				If FileToUpdate = Undefined Then
+					InfobaseUpdate.MarkProcessingCompletion(Ref);
+					CommitTransaction();
+					Return Result;
+				EndIf;
+			EndIf;
+			FileBinaryData = Undefined;
+			FileBinaryDataStorage = FileToUpdate.FileStorage;
+			FileBinaryData = ?(TypeOf(FileBinaryDataStorage) = Type("ValueStorage"),
+				FileBinaryDataStorage.Get(), Undefined);
+			
+			If FileBinaryData <> Undefined Then
+				FileToUpdate.FileStorage = New ValueStorage(Undefined);
+				ItIsRequiredToRecord = True;
+			EndIf;
+			
+		EndIf;
+		
+		If ItIsRequiredToRecord Then
+			InfobaseUpdate.WriteObject(FileToUpdate);
+		Else
+			InfobaseUpdate.MarkProcessingCompletion(Ref);
+		EndIf;
+		
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Result = False;
+		InfobaseUpdate.WriteErrorToEventLog(Ref,
+			RepresentationOfTheReference, ErrorInfo());
+	EndTry;
+		
+	Return Result;
+
+EndFunction	
 
 #EndRegion
 

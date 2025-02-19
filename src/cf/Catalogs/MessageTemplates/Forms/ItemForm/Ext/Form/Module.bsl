@@ -13,8 +13,6 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	SetConditionalAppearance();
-	
 	MessageParameters = Parameters.MessageParameters;
 	
 	Items.InputOnBasisParameterTypeFullName.ChoiceList.Add(MessageTemplatesClientServer.CommonID(),
@@ -29,6 +27,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	RestrictionByCondition = AccessParameters("Update", Metadata.Catalogs.MessageTemplates, "Ref").RestrictionByCondition;
 
 	If IsNewTemplate Then
+		
+		OnCreatReadAtServer();
 		
 		If Parameters.CopyingValue = Catalogs.MessageTemplates.EmptyRef() Then
 			InitializeNewMessagesTemplate(MessageTemplatesSettings);
@@ -46,6 +46,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 	EndIf;
 	
+	SetConditionalAppearance();
 	ShowFormItems(MessageTemplatesSettings.EmailFormat1);
 	
 	InitializeSaveFormats();
@@ -73,6 +74,19 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Common.SubsystemExists("StandardSubsystems.Print") Then
 		ModulePrintManager = Common.CommonModule("PrintManagement");
 		Items.SignatureAndSeal.Visible = ModulePrintManager.PrintSettings().UseSignaturesAndSeals;
+		
+		If Common.SubsystemExists("StandardSubsystems.ExportObjectsToFiles") Then
+			
+			TitlePrintFormsAndAttachments = NStr("en = 'Print forms, export files, and attachments';");
+			Items.PrintFormsAndAttachmentsDecoration.Title = TitlePrintFormsAndAttachments;
+			
+			TitlePackToArchive = NStr("en = 'Archive print forms and export files';");
+			ToolTipPackToArchive = NStr("en = 'Flag indicating that the attachments (print forms and export files) should be sent as an archive.';");
+			Items.PackToArchive.Title = TitlePackToArchive;
+			Items.PackToArchive.ToolTip = ToolTipPackToArchive;
+			
+		EndIf;
+		
 	EndIf;
 	
 	SetTemplateText(Object, AttachmentsList);
@@ -113,6 +127,7 @@ Procedure OnReadAtServer(CurrentObject)
 		EndDo;
 	EndIf;
 	
+	OnCreatReadAtServer();
 	FillArbitraryParametersFromObject(CurrentObject);
 	
 	If IsBlankString(Object.InputOnBasisParameterTypeFullName) Then
@@ -180,7 +195,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 				FillPropertyValues(FormatsList.Add(), ListItem);
 			EndIf;
 		EndDo;
-		CurrentObject.AttachmentFormat = New ValueStorage(FormatsList);
+		CurrentObject.AttachmentFormat = New ValueStorage(FormatsList, New Deflation(9));
 		
 		AttachmentsNamesToIDsMapsTable = New ValueList;
 		AttachmentsStructure = New Structure;
@@ -202,13 +217,24 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		EndIf;
 		
 		CurrentObject.PrintFormsAndAttachments.Clear();
-		For Each Attachment In Attachments Do
-			If Attachment.SelectedItemsCount = 1 Then
-				NewRow = CurrentObject.PrintFormsAndAttachments.Add();
-				NewRow.Id = Attachment.Id;
-				NewRow.Name = Attachment.ParameterName;
-			EndIf;
+		For Each AttachmentKind In Attachments.GetItems() Do
+			
+			AttachmentsOfCurrentKind = AttachmentKind.GetItems();
+			
+			For Each Attachment In AttachmentsOfCurrentKind Do
+				
+				If Attachment.SelectedItemsCount = 1 Then
+					
+					NewRow = CurrentObject.PrintFormsAndAttachments.Add();
+					NewRow.Id = Attachment.Id;
+					NewRow.Name = Attachment.ParameterName;
+					
+				EndIf;
+				
+			EndDo;
+			
 		EndDo;
+		
 	Else
 		CurrentObject.TemplateTextArbitrary = CheckInformation.NormalText;
 		CurrentObject.AttachmentFormat = Undefined;
@@ -218,7 +244,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	For Each TemplateParameter In Object.Parameters Do
 		NewRow = CurrentObject.Parameters.Add();
 		FillPropertyValues(NewRow, TemplateParameter);
-		NewRow.ParameterType = New ValueStorage(TemplateParameter.TypeDetails);
+		NewRow.ParameterType = New ValueStorage(TemplateParameter.TypeDetails, New Deflation(9));
 	EndDo;
 	
 EndProcedure
@@ -326,27 +352,14 @@ Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	SaveFormattedDocumentPicturesAsAttachedFiles(CurrentObject.Ref,
 		CurrentObject.EmailTextType, WriteParameters.HTMLAttachments, UUID);
 	
-	IndexOf = Attachments.Count() - 1;
-	While IndexOf >= 0 Do
-		AttachmentsTableRow = MessageTemplates.AttachmentsRow(Attachments.Get(IndexOf));
-		If AttachmentsTableRow.Status = "ExternalToDelete" Then
-			If Not AttachmentsTableRow.Ref.IsEmpty() Then
-				DeleteAttachedFile(AttachmentsTableRow.Ref);
-			EndIf;
-			If IsBlankString(AttachmentsTableRow.Attribute) Then
-				Attachments.Delete(IndexOf)
-			Else
-				AttachmentsTableRow.Status  = "";
-				AttachmentsTableRow.SelectedItemsCount = 2;
-			EndIf;
-		ElsIf AttachmentsTableRow.Status = "ExternalNew" Then
-			FileName = ?(IsBlankString(AttachmentsTableRow.Attribute), AttachmentsTableRow.Presentation, AttachmentsTableRow.Attribute);
-			FileRef = MessageTemplatesInternal.WriteEmailAttachmentFromTempStorage(CurrentObject.Ref, AttachmentsTableRow, FileName, 0);
-			AttachmentsTableRow.Ref = FileRef;
-			AttachmentsTableRow.Status ="ExternalAttached";
-		EndIf;
-		IndexOf = IndexOf - 1;
+	AttachmentTree = FormAttributeToValue("Attachments");
+	For Each TreeRow In AttachmentTree.Rows Do
+		
+		ProcessAttachmentsFiles(TreeRow, CurrentObject);
+		
 	EndDo;
+	ValueToFormAttribute(AttachmentTree, "Attachments");
+	
 EndProcedure
 
 &AtServer
@@ -364,6 +377,16 @@ Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	
 	SetTemplateText(CurrentObject);
 	
+	AttachmentTree = FormAttributeToValue("Attachments");
+	
+	TreeRow = BranchByAttachmentKindAtServer(AttachmentTree, AttachmentsKinds, AttachmentsKinds[2], False);
+	If TreeRow <> Undefined
+	   And TreeRow.Rows.Count() = 0 Then
+		AttachmentTree.Rows.Delete(TreeRow);
+	EndIf;
+	
+	ValueToFormAttribute(AttachmentTree, "Attachments");
+	
 EndProcedure
 
 &AtClient
@@ -375,6 +398,10 @@ Procedure AfterWrite(WriteParameters)
 		Object.ForInputOnBasis = False;
 		Object.InputOnBasisParameterTypeFullName = MessageTemplatesClientServer.CommonID();
 	EndIf;
+	
+	For Each TreeRow In Attachments.GetItems() Do
+		Items.Attachments.Expand(TreeRow.GetID(), True);
+	EndDo;
 	
 EndProcedure
 
@@ -425,7 +452,7 @@ Procedure AttachmentFormatClick(Item, StandardProcessing)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.Print") Then
 		ModulePrintManagerInternalClient = CommonClient.CommonModule("PrintManagementInternalClient");
-		Notification = New NotifyDescription("AttachmentFormatClickCompletion", ThisObject);
+		Notification = New CallbackDescription("AttachmentFormatClickCompletion", ThisObject);
 		ModulePrintManagerInternalClient.OpenAttachmentsFormatSelectionForm(SelectedFormatSettings(), Notification);
 	EndIf
 	
@@ -484,23 +511,37 @@ Procedure AttachmentsOnActivateRow(Item)
 		Return;
 	EndIf;
 	
-	If CurrentData.Status = "PrintForm" Or ValueIsFilled(CurrentData.Attribute) Then
+	If IsContextMenuUnavailable(CurrentData) Then
+		
 		Items.AttachmentsContextMenuDelete.Enabled             = False;
 		Items.AttachmentsContextMenuChangeAttachment.Enabled    = False;
 		Items.AttachmentsChange.Enabled                           = False;
 		Items.AttachmentsDelete.Enabled                            = False;
 		Items.AttachmentsCopyAttachment.Enabled                = False;
 		Items.AttachmentsContextMenuCopyAttachment.Enabled = False;
+		
 	Else
+		
 		Items.AttachmentsContextMenuDelete.Enabled             = True;
 		Items.AttachmentsContextMenuChangeAttachment.Enabled    = True;
 		Items.AttachmentsChange.Enabled                           = False;
 		Items.AttachmentsDelete.Enabled                            = True;
 		Items.AttachmentsCopyAttachment.Enabled                = True;
 		Items.AttachmentsContextMenuCopyAttachment.Enabled = True;
+		
 	EndIf;
 
 EndProcedure
+
+&AtClient
+Function IsContextMenuUnavailable(CurrentData)
+	
+	Return (CurrentData.Status = "PrintForm"
+			 Or CurrentData.Status = "ExportedTemplate"
+			 Or ValueIsFilled(CurrentData.AttachmentKindPicture)
+			 Or ValueIsFilled(CurrentData.Attribute));
+	
+EndFunction
 
 &AtClient
 Procedure AttachmentsSelectedOnChange(Item)
@@ -522,6 +563,9 @@ Procedure AttachmentsSelectedOnChange(Item)
 		EndIf;
 	EndIf;
 	
+	SetSubordinateMarks(CurrentData, "SelectedItemsCount");
+	SetParentMarks(CurrentData, "SelectedItemsCount");
+	
 EndProcedure
 
 #EndRegion
@@ -533,7 +577,7 @@ Procedure AttributesBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Paramete
 	Cancel = True;
 	If UseArbitraryParameters Then
 		AdditionalParameters = AdditionalAttributesAddingOptions();
-		ClosingNotification = New NotifyDescription("AfterCloseParameterForm", ThisObject, AdditionalParameters);
+		ClosingNotification = New CallbackDescription("AfterCloseParameterForm", ThisObject, AdditionalParameters);
 		FormParameters = New Structure("ParametersList, InputOnBasisParameterTypeFullName", Object.Parameters, Object.InputOnBasisParameterTypeFullName);
 		OpenForm("Catalog.MessageTemplates.Form.ArbitraryParameter", FormParameters,,,,, ClosingNotification);
 	EndIf;
@@ -671,7 +715,7 @@ EndProcedure
 Procedure ByExternalDataProcessor(Command)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then
-		Notification = New NotifyDescription("AfterAdditionalReportsAndDataProcessorsChoice", ThisObject);
+		Notification = New CallbackDescription("AfterAdditionalReportsAndDataProcessorsChoice", ThisObject);
 		KindName = "AdditionalReportsAndDataProcessorsKinds.MessageTemplate";
 		FilterValue = New Structure("Kind", PredefinedValue("Enum." + KindName));
 		FormParameters = New Structure("Filter", FilterValue);
@@ -703,7 +747,7 @@ Procedure SetOutputFormat(Command)
 	CurrentData = Items.Attributes.CurrentData;
 	If CurrentData <> Undefined Then
 		AdditionalParameters = New Structure("RowID", CurrentData.GetID());
-		Handler = New NotifyDescription("AfterAttributeFormatChoice", ThisObject, AdditionalParameters);
+		Handler = New CallbackDescription("AfterAttributeFormatChoice", ThisObject, AdditionalParameters);
 		
 		Dialog = New FormatStringWizard;
 		Dialog.AvailableTypes = CurrentData.Type;
@@ -745,7 +789,7 @@ Procedure ChangeAttribute(Command)
 		FormParameters.Insert("ParametersList", Object.Parameters);
 		FormParameters.Insert("InputOnBasisParameterTypeFullName", Object.InputOnBasisParameterTypeFullName);
 		
-		ClosingNotification = New NotifyDescription("AfterCloseParameterForm", ThisObject, AdditionalParameters);
+		ClosingNotification = New CallbackDescription("AfterCloseParameterForm", ThisObject, AdditionalParameters);
 		OpenForm("Catalog.MessageTemplates.Form.ArbitraryParameter", FormParameters,,,,, ClosingNotification);
 	EndIf;
 	
@@ -775,7 +819,7 @@ Procedure ChangeAttachment(Command)
 	
 	If CurrentData.Ref = PredefinedValue("Catalog.MessageTemplatesAttachedFiles.EmptyRef") Then
 		AdditionalParameters = New Structure("CurrentIndexInCollection", CurrentIDInCollection);
-		OnCloseNotifyHandler = New NotifyDescription("ChangeAttachmentCompletion", ThisObject, AdditionalParameters);
+		OnCloseNotifyHandler = New CallbackDescription("ChangeAttachmentCompletion", ThisObject, AdditionalParameters);
 		QueryText = NStr("en = 'You can access the file''s properties after you save the file. Save it now?';");
 		ShowQueryBox(OnCloseNotifyHandler, QueryText, QuestionDialogMode.YesNo);
 	Else
@@ -795,7 +839,7 @@ Procedure CopyAttachment(Command)
 	
 	If CurrentData.Ref = PredefinedValue("Catalog.MessageTemplatesAttachedFiles.EmptyRef") Then
 		AdditionalParameters = New Structure("CurrentIndexInCollection", Id);
-		OnCloseNotifyHandler = New NotifyDescription("CopyAttachmentCompletion", ThisObject, AdditionalParameters);
+		OnCloseNotifyHandler = New CallbackDescription("CopyAttachmentCompletion", ThisObject, AdditionalParameters);
 		QueryText = NStr("en = 'To copy the file, you need to save the template. Do you want to save it?';");
 		ShowQueryBox(OnCloseNotifyHandler, QueryText, QuestionDialogMode.YesNo);
 	Else
@@ -1063,20 +1107,38 @@ Procedure TemplateBasedOnInteractionDocument()
 	AdditionalFileParameters.FormIdentifier = UUID;
 	AdditionalFileParameters.RaiseException1 = False;
 	
-	For Each Attachment In EmailAttachments1 Do
-		If IsBlankString(Attachment.EmailFileID) Then
+	If EmailAttachments1.Count() > 0 Then
+		
+		AttachmentTree = FormAttributeToValue("Attachments");
+		TreeRow = BranchByAttachmentKindAtServer(AttachmentTree, AttachmentsKinds, AttachmentsKinds[2]);
+		TreeRows = TreeRow.Rows;
+		ThereWereAttachments = False;
+		
+		For Each Attachment In EmailAttachments1 Do
 			
-			Extension                 = GetFileExtension(Attachment.Description);
-			NewRow                = Attachments.Add();
-			NewRow.Status         = "ExternalNew";
-			NewRow.SelectedItemsCount        = 1;
-			NewRow.Presentation  = Attachment.Description;
-			NewRow.Id  = Attachment.Description;
-			NewRow.PictureIndex = GetFileIconIndex(Extension);
-			NewRow.Name           =  ModuleFilesOperations.FileData(Attachment.Ref,
-				AdditionalFileParameters).RefToBinaryFileData;
+			If IsBlankString(Attachment.EmailFileID) Then
+				
+				ThereWereAttachments = True;
+				
+				Extension                 = GetFileExtension(Attachment.Description);
+				NewRow                = TreeRows.Add();
+				NewRow.Status         = "ExternalNew";
+				NewRow.SelectedItemsCount        = 1;
+				NewRow.Presentation  = Attachment.Description;
+				NewRow.Id  = Attachment.Description;
+				NewRow.PictureIndex = GetFileIconIndex(Extension);
+				NewRow.Name           =  ModuleFilesOperations.FileData(Attachment.Ref,
+					AdditionalFileParameters).RefToBinaryFileData;
+				
+			EndIf;
+			
+		EndDo;
+		
+		If ThereWereAttachments Then
+			ValueToFormAttribute(AttachmentTree, "Attachments");
 		EndIf;
-	EndDo;
+		
+	EndIf;
 	
 	If Object.EmailTextType = Enums.EmailEditingMethods.HTML Then
 		
@@ -1230,6 +1292,7 @@ Procedure ShowFormItems(EmailFormat = "")
 	
 	If Not Common.SubsystemExists("StandardSubsystems.Print") Then
 		Items.AttachmentsSettingsGroup.Visible = False;
+		Items.GroupAttachmentFormats.Visible = False;
 	EndIf;
 	
 EndProcedure
@@ -1291,7 +1354,7 @@ Procedure SetHTMLForFormattedDocument(HTMLEmailTemplateText, CurrentObjectRef, L
 	
 EndProcedure
 
-// Business logic.
+// бизнес-логика
 
 &AtServer
 Procedure GenerateAttributesAndPrintFormsList()
@@ -1308,7 +1371,7 @@ Procedure GenerateAttributesAndPrintFormsList()
 	FIllAttributeTree(AttributesList, TemplateInfo.CommonAttributes, True);
 	ValueToFormAttribute(AttributesList, "Attributes");
 	
-	GeneratePrintFormsList(TemplateInfo);
+	GenerateAttachmentTree(TemplateInfo);
 	
 EndProcedure
 
@@ -1349,38 +1412,50 @@ Procedure DetermineIfCanAttachFiles ()
 EndProcedure
 
 &AtServer
-Procedure GeneratePrintFormsList(TemplateInfo)
+Procedure GenerateAttachmentTree(TemplateInfo)
 	
-	SelectedPrintFormsAndAttachments = Object.PrintFormsAndAttachments.Unload(, "Id").UnloadColumn("Id");
+	AttachmentTree = FormAttributeToValue("Attachments");
+	AttachmentTreeCopy = AttachmentTree.Copy();
 	
-	Filter = New Structure("Status", "ExternalNew");
-	UnsavedFiles = Attachments.FindRows(Filter);
-	Attachments.Clear();
+	SelectedObjects = Object.PrintFormsAndAttachments.Unload(, "Id").UnloadColumn("Id");
 	
-	For Each Attachment In TemplateInfo.Attachments Do
+	UnsavedFiles  = New Array; // Array of ValueTreeRow
+	TreeRow = BranchByAttachmentKindAtServer(AttachmentTreeCopy, AttachmentsKinds, AttachmentsKinds[2], False);
+	
+	If TreeRow <> Undefined Then
 		
-		SelectedItemsCount = 0;
-		If SelectedPrintFormsAndAttachments.Find(Attachment.Id) <> Undefined Then
-			SelectedItemsCount = 1;
-		ElsIf ValueIsFilled(Attachment.Attribute) Then
-			SelectedItemsCount = 2;
-		EndIf;
+		Filter = New Structure("Status", "ExternalNew");
+		UnsavedFiles = TreeRow.Rows.FindRows(Filter);
 		
-		NewRow = Attachments.Add();
-		FillPropertyValues(NewRow, Attachment);
-		Extension = ?(IsBlankString(Attachment.FileType), "mxl", Attachment.FileType);
-		NewRow.PictureIndex = GetFileIconIndex(Extension);
-		NewRow.SelectedItemsCount        = SelectedItemsCount;
+	EndIf;
+	
+	AttachmentTree.Rows.Clear();
+	
+	FillAttachmentTree(AttachmentTree, TemplateInfo.Attachments, SelectedObjects);
+	
+	If UnsavedFiles.Count() > 0 Then
 		
-	EndDo;
+		TreeRowAttachedFiles = BranchByAttachmentKindAtServer(
+			AttachmentTree,
+			AttachmentsKinds,
+			AttachmentsKinds[2]);
+		
+		For Each UnsavedFile In UnsavedFiles Do
+			
+			If SelectedObjects.Find(UnsavedFile.Id) = Undefined Then
+				
+				NewRow = TreeRowAttachedFiles.Rows.Add();
+				FillPropertyValues(NewRow, UnsavedFile);
+				
+			EndIf;
+			
+		EndDo;
+		
+	EndIf;
+	
+	ValueToFormAttribute(AttachmentTree, "Attachments");
 	
 	FillAttachments();
-	For Each UnsavedFile In UnsavedFiles Do
-		If SelectedPrintFormsAndAttachments.Find(UnsavedFile.Id) = Undefined Then
-			NewRow = Attachments.Add();
-			FillPropertyValues(NewRow, UnsavedFile);
-		EndIf;
-	EndDo;
 	
 EndProcedure
 
@@ -1390,7 +1465,7 @@ Procedure RefreshPrintFormsList()
 	TemplateParameters = MessageTemplatesInternal.TemplateParameters(Object);
 	TemplateInfo = MessageTemplatesInternal.TemplateInfo(TemplateParameters);
 	
-	GeneratePrintFormsList(TemplateInfo);
+	GenerateAttachmentTree(TemplateInfo);
 	
 EndProcedure
 
@@ -1452,7 +1527,7 @@ Procedure FIllAttributeTree(Receiver, Source, AreCommonOrArbitraryAttributes = U
 	
 EndProcedure
 
-// Forced setting of properties on the server
+// Вынужденная установка свойств на сервере
 
 &AtServer
 Procedure SetHTMLEmail(TextWrappingRequired = False)
@@ -1496,13 +1571,13 @@ Procedure SetEmailPlainText(TextWrappingRequired = False)
 	Items.TitleParametersPages.CurrentPage = Items.TitleParametersPage;
 EndProcedure
 
-// Attachments.
+// Attachments
 
 &AtClient
 Procedure AddAttachmentExecute(Id = Undefined)
 	
 	AdditionalParameters = New Structure("Id", Id);
-	DescriptionOfTheAlert = New NotifyDescription("FileSelectionDialogAfterChoice1", ThisObject, AdditionalParameters);
+	DescriptionOfTheAlert = New CallbackDescription("FileSelectionDialogAfterChoice1", ThisObject, AdditionalParameters);
 	
 	FileImportParameters = FileSystemClient.FileImportParameters();
 	FileImportParameters.FormIdentifier = UUID;
@@ -1521,11 +1596,14 @@ Procedure FileSelectionDialogAfterChoice1(SelectedFiles, AdditionalParameters) E
 		Return;
 	EndIf;
 	
+	TreeRow = BranchByAttachmentKindAtClient(Attachments, AttachmentsKinds[2]);
+	TreeRows = TreeRow.GetItems();
+	
 	For Each SelectedFile In SelectedFiles Do
 		
 		Extension                 = GetFileExtension(SelectedFile.Name);
 		
-		NewRow                = Attachments.Add();
+		NewRow                = TreeRows.Add();
 		NewRow.Status         = "ExternalNew";
 		NewRow.SelectedItemsCount        = 1;
 		NewRow.Name            = SelectedFile.Location;
@@ -1535,6 +1613,7 @@ Procedure FileSelectionDialogAfterChoice1(SelectedFiles, AdditionalParameters) E
 		
 	EndDo;
 	
+	Items.Attachments.Expand(TreeRow.GetID(), True);
 	Modified = True;
 	
 EndProcedure
@@ -1565,20 +1644,32 @@ Procedure PlaceFilesFromLocalFSInTempStorage(Attachments, Var_UUID, Cancel)
 	
 #If Not WebClient Then
 	
-	For Each AttachmentsTableRow In Attachments Do
-		If AttachmentsTableRow.Status = "ExternalNew" Then
-			Try
+	TreeRow = BranchByAttachmentKindAtClient(Attachments, AttachmentsKinds[2]);
+	
+	If TreeRow <> Undefined Then
+		
+		TreeRows = TreeRow.GetItems();
+		
+		For Each AttachmentsTableRow In TreeRows Do
+			
+			If AttachmentsTableRow.Status = "ExternalNew" Then
 				
-				If Not StrStartsWith(AttachmentsTableRow.Name, "e1cib") Then
-					Data = New BinaryData(AttachmentsTableRow.Name);
-					AttachmentsTableRow.Name = PutToTempStorage(Data, Var_UUID);
-				EndIf;
+				Try
+					
+					If Not StrStartsWith(AttachmentsTableRow.Name, "e1cib") Then
+						Data = New BinaryData(AttachmentsTableRow.Name);
+						AttachmentsTableRow.Name = PutToTempStorage(Data, Var_UUID);
+					EndIf;
+					
+				Except
+					CommonClient.MessageToUser(ErrorProcessing.BriefErrorDescription(ErrorInfo()),, "Attachments",, Cancel);
+				EndTry;
 				
-			Except
-				CommonClient.MessageToUser(ErrorProcessing.BriefErrorDescription(ErrorInfo()),, "Attachments",, Cancel);
-			EndTry;
-		EndIf;
-	EndDo;
+			EndIf;
+			
+		EndDo;
+		
+	EndIf;
 	
 #EndIf
 	
@@ -1647,24 +1738,47 @@ Procedure FillAttachments(PassedParameters = Undefined)
 		
 		ListOfFiles = New Array;
 		ModuleFilesOperations.FillFilesAttachedToObject(Object.Ref, ListOfFiles);
-		For Each FileRef In ListOfFiles Do
-			FileInfo1 = Common.ObjectAttributesValues(FileRef, "EmailFileID, PictureIndex, Description, Extension");
-			If IsBlankString(FileInfo1.EmailFileID) Then
-				Filter = New Structure("Attribute", FileInfo1.Description);
-				FoundRows = Attachments.FindRows(Filter);
-				If FoundRows.Count() = 0 Then
-					NewRow = Attachments.Add();
-					NewRow.Presentation = FileInfo1.Description + "." + FileInfo1.Extension;
-					NewRow.PictureIndex = FileInfo1.PictureIndex;
-					NewRow.Ref = FileRef;
-					NewRow.Status = "ExternalAttached";
-				Else
-					FoundRows[0].Ref = FileRef;
-				EndIf;
-			EndIf;
-		EndDo;
 		
-	EndIf
+		If ListOfFiles.Count() > 0 Then
+			
+			AttachmentTree = FormAttributeToValue("Attachments");
+			TreeRow = BranchByAttachmentKindAtServer(
+				AttachmentTree,
+				AttachmentsKinds,
+				AttachmentsKinds[2]);
+			
+			For Each FileRef In ListOfFiles Do
+				
+				FileInfo1 = Common.ObjectAttributesValues(
+					FileRef, 
+					"EmailFileID, PictureIndex, Description, Extension");
+				
+				If IsBlankString(FileInfo1.EmailFileID) Then
+					
+					Filter = New Structure("Attribute", FileInfo1.Description);
+					FoundRows = TreeRow.Rows.FindRows(Filter);
+					If FoundRows.Count() = 0 Then	
+						
+						NewRow = TreeRow.Rows.Add();
+						NewRow.Presentation = FileInfo1.Description + "." + FileInfo1.Extension;
+						NewRow.PictureIndex = FileInfo1.PictureIndex;
+						NewRow.Ref = FileRef;
+						NewRow.Status = "ExternalAttached";
+						
+					Else
+						FoundRows[0].Ref = FileRef;
+					EndIf;
+					
+				EndIf;
+				
+			EndDo;
+			
+			ValueToFormAttribute(AttachmentTree, "Attachments");
+			
+		EndIf;
+		
+	EndIf;
+	
 EndProcedure
 
 &AtServer
@@ -1677,8 +1791,14 @@ Function CopyAttachmentsFromSource()
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperations = Common.CommonModule("FilesOperations");
 		ModuleFilesOperations.FillFilesAttachedToObject(Parameters.CopyingValue, ListOfFiles);
+		
+		AttachmentTree = FormAttributeToValue("Attachments");
+		TreeRow = Undefined;
+		
 		For Each Attachment In ListOfFiles Do
+			
 			If IsBlankString(Attachment.EmailFileID) Then
+				
 				Try
 					FileData = ModuleFilesOperations.FileData(Attachment, UUID, True);
 				Except
@@ -1689,14 +1809,24 @@ Function CopyAttachmentsFromSource()
 					CommonClientServer.AddUserError(ErrorList, "Attachments", ErrorText, "Attachments",, ErrorText);
 					Continue;
 				EndTry;
-				NewRow                = Attachments.Add();
+				
+				If TreeRow = Undefined Then
+					TreeRow = BranchByAttachmentKindAtServer(AttachmentTree, AttachmentsKinds, AttachmentsKinds[2]);
+				EndIf;
+				
+				NewRow                = TreeRow.Rows.Add();
 				NewRow.Name            = FileData.RefToBinaryFileData;
 				NewRow.Presentation  = Attachment.Description + "." + Attachment.Extension;
 				NewRow.PictureIndex = GetFileIconIndex(Attachment.Extension);
 				NewRow.Status         = "ExternalNew";
 				NewRow.Id  = Attachment.LongDesc;
+				
 			EndIf;
+			
 		EndDo;
+		
+		ValueToFormAttribute(AttachmentTree, "Attachments");
+		
 	EndIf;
 	
 	CommonClientServer.ReportErrorsToUser(ErrorList);
@@ -1838,36 +1968,82 @@ Procedure SetConditionalAppearance()
 	
 	//
 	Item = ConditionalAppearance.Items.Add();
-
+	
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.AttachmentsSelected.Name);
-
-	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	
+	FilterGroupsOR = Item.Filter.Items.Add(Type("DataCompositionFilterItemGroup"));
+	FilterGroupsOR.GroupType = DataCompositionFilterItemsGroupType.OrGroup;
+	
+	FilterGroupsAND = FilterGroupsOR.Items.Add(Type("DataCompositionFilterItemGroup"));
+	FilterGroupsAND.GroupType = DataCompositionFilterItemsGroupType.AndGroup;
+	
+	ItemFilter = FilterGroupsAND.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("Attachments.Status");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Contains;
 	ItemFilter.RightValue = "External";
-	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	
+	ItemFilter = FilterGroupsAND.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("Attachments.Attribute");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.NotFilled;
-
+	
+	ItemFilter = FilterGroupsOR.Items.Add(Type("DataCompositionFilterItem"));
+	ItemFilter.LeftValue = New DataCompositionField("Attachments.Presentation");
+	ItemFilter.ComparisonType = DataCompositionComparisonType.Contains;
+	ItemFilter.RightValue = AttachmentsKinds[2].Presentation;
+	
 	Item.Appearance.SetParameterValue("Enabled", False);
 	Item.Appearance.SetParameterValue("Show", False);
-
+	
 	//
-
+	
 	Item = ConditionalAppearance.Items.Add();
-
+	
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.AttachmentsPresentation.Name);
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.AttachmentsSelected.Name);
-
+	
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("Attachments.Status");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Contains;
 	ItemFilter.RightValue = "ExternalToDelete";
-
+	
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
+	
+	//
+	
+	Item = ConditionalAppearance.Items.Add();
+	
+	ItemField = Item.Fields.Items.Add();
+	ItemField.Field = New DataCompositionField(Items.AttachmentsPictureIndex.Name); 
+	
+	FilterGroupsOR = Item.Filter.Items.Add(Type("DataCompositionFilterItemGroup"));
+	FilterGroupsOR.GroupType = DataCompositionFilterItemsGroupType.OrGroup;
+	
+	For Each AttachmentsKind In AttachmentsKinds Do
+		
+		ItemFilter = FilterGroupsOR.Items.Add(Type("DataCompositionFilterItem"));
+		ItemFilter.LeftValue = New DataCompositionField("Attachments.Presentation");
+		ItemFilter.ComparisonType = DataCompositionComparisonType.Contains;
+		ItemFilter.RightValue = AttachmentsKind.Presentation;
+		
+	EndDo;
+	
+	Item.Appearance.SetParameterValue("Show", False);
+	
+	//
+	
+	Item = ConditionalAppearance.Items.Add();
+	
+	ItemField = Item.Fields.Items.Add();
+	ItemField.Field = New DataCompositionField(Items.AttachmentsAttachmentKindPicture.Name);
+	
+	FilterElement = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	FilterElement.LeftValue  = New DataCompositionField("Attachments.AttachmentKindPicture");
+	FilterElement.ComparisonType = DataCompositionComparisonType.NotFilled;
+	
+	Item.Appearance.SetParameterValue("Visible", False);
 	
 EndProcedure
 
@@ -1913,7 +2089,7 @@ Procedure FillArbitraryParametersFromObject(Val CurrentObject)
 
 EndProcedure
 
-// External data processor.
+// Внешняя обработка
 
 &AtServer
 Procedure FillTemplateByExternalDataProcessor()
@@ -2042,6 +2218,320 @@ Procedure AddParameterToMessageText1()
 		EndIf;
 	EndIf;
 
+EndProcedure
+
+&AtServer
+Procedure OnCreatReadAtServer()
+	
+	AttachmentsKinds.Clear();
+	AttachmentsKinds.Add("PrintForms", NStr("en = 'Print forms';"));
+	AttachmentsKinds.Add("ExportFiles", NStr("en = 'Export files';"));
+	AttachmentsKinds.Add("FilesAttached", NStr("en = 'Attachments';"));
+	
+EndProcedure
+
+// 
+// 
+// Parameters:
+//  AttachmentTree - ValueTree
+//  AttachmentTemplateInfo - ValueTable:
+// * Name - String
+// * Id - String
+// * Presentation - String
+// * PrintManager - String
+// * PrintParameters - Structure
+// * FileType - String
+// * Status - String
+// * Attribute - String
+// * ParameterName - String
+//  SelectedObjects - Array of String
+//
+&AtServer
+Procedure FillAttachmentTree(AttachmentTree, AttachmentTemplateInfo, SelectedObjects)
+	
+	If AttachmentTemplateInfo.Count() = 0 Then
+		Return;
+	EndIf;
+	
+	ArrayOfPrintFormsRows = New Array; // ValueTableRow
+	ArrayOfExportFilesRows = New Array; // ValueTableRow
+	ArrayOfAttachedFilesRows = New Array; // ValueTableRow
+	
+	For Each Attachment In AttachmentTemplateInfo Do
+		
+		If Attachment.Status = "PrintForm" Then
+			ArrayOfPrintFormsRows.Add(Attachment);
+		ElsIf Attachment.Status = "ExportedTemplate" Then
+			ArrayOfExportFilesRows.Add(Attachment);
+		Else
+			ArrayOfAttachedFilesRows.Add(Attachment);
+		EndIf;
+		
+	EndDo;
+	
+	AddAttachmentBranch(AttachmentTree, ArrayOfPrintFormsRows, SelectedObjects, AttachmentsKinds[0]);
+	AddAttachmentBranch(AttachmentTree, ArrayOfExportFilesRows, SelectedObjects, AttachmentsKinds[1]);
+	AddAttachmentBranch(
+		AttachmentTree,
+		ArrayOfAttachedFilesRows,
+		SelectedObjects,
+		AttachmentsKinds[2]);
+	
+EndProcedure
+
+// 
+// 
+// Parameters:
+//  AttachmentTree - ValueTree
+//  RowsArray - Array of ValueTableRow
+//  SelectedObjects - Array of String
+//  AttachmentsKind - ValueListItem - 
+//
+&AtServer
+Procedure AddAttachmentBranch(AttachmentTree, RowsArray, SelectedObjects, AttachmentsKind)
+	
+	If RowsArray.Count() = 0 Then
+		Return;
+	EndIf;
+	
+	TreeRow = BranchByAttachmentKindAtServer(
+		AttachmentTree,
+		AttachmentsKinds,
+		AttachmentsKind);
+	
+	AreAllSelected = False;
+	
+	For Each Attachment In RowsArray Do
+		
+		SelectedItemsCount = 0;
+		If SelectedObjects.Find(Attachment.Id) <> Undefined Then
+			SelectedItemsCount = 1;
+		ElsIf ValueIsFilled(Attachment.Attribute) Then
+			SelectedItemsCount = 2;
+		EndIf;
+		
+		If SelectedItemsCount <> 0 Then
+			TreeRow.SelectedItemsCount = 2;
+		EndIf;
+		AreAllSelected = Min(AreAllSelected, SelectedItemsCount);
+		NewRow = TreeRow.Rows.Add();
+		
+		FillPropertyValues(NewRow, Attachment);
+		Extension = ?(IsBlankString(Attachment.FileType), "mxl", Attachment.FileType);
+		NewRow.PictureIndex = GetFileIconIndex(Extension);
+		NewRow.SelectedItemsCount = SelectedItemsCount;
+		
+	EndDo;
+	
+	If AreAllSelected Then
+		TreeRow.SelectedItemsCount = 1;
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Function BranchByAttachmentKindAtClient(AttachmentTree, AttachmentsKind, ShouldCreateBranch = True)
+	
+	AttachmentKindIndexes = IndexAttachmentKindMap(AttachmentsKinds);
+	AttachmentKindIndex = AttachmentKindIndexes[AttachmentsKind];
+	Presentation = AttachmentsKind.Presentation;
+	TreeRow = Undefined;
+	
+	TreeRows = AttachmentTree.GetItems();
+	For Each CurrentTreeRow In TreeRows Do
+		
+		If CurrentTreeRow.AttachmentKindIndex = AttachmentKindIndex Then
+			
+			TreeRow = CurrentTreeRow;
+			Break;
+			
+		EndIf;
+		
+	EndDo;
+	
+	If TreeRow = Undefined
+	   And ShouldCreateBranch Then
+		
+		AttachmentKindPictures = PictureAttachmentKindMap(AttachmentsKinds);
+		TreeRow = TreeRows.Add();
+		TreeRow.Presentation = Presentation;
+		TreeRow.AttachmentKindPicture = AttachmentKindPictures[AttachmentsKind];
+		TreeRow.AttachmentKindIndex = AttachmentKindIndex;
+		
+	EndIf;
+	
+	Return TreeRow;
+	
+EndFunction
+
+&AtServerNoContext
+Function BranchByAttachmentKindAtServer(AttachmentTree, AttachmentsKinds, AttachmentsKind, ShouldCreateBranch = True)
+	
+	AttachmentKindIndexes = IndexAttachmentKindMap(AttachmentsKinds);
+	AttachmentKindIndex = AttachmentKindIndexes[AttachmentsKind];
+	Presentation = AttachmentsKind.Presentation;
+	
+	TreeRow = AttachmentTree.Rows.Find(AttachmentKindIndex, "AttachmentKindIndex");
+	If TreeRow = Undefined
+	   And ShouldCreateBranch Then
+		
+		AttachmentKindPictures = PictureAttachmentKindMap(AttachmentsKinds);
+		TreeRow = AttachmentTree.Rows.Add();
+		TreeRow.Presentation = Presentation;
+		TreeRow.AttachmentKindPicture = AttachmentKindPictures[AttachmentsKind];
+		TreeRow.AttachmentKindIndex = AttachmentKindIndex;
+		
+	EndIf;
+	
+	Return TreeRow;
+	
+EndFunction
+
+&AtClientAtServerNoContext
+Function PictureAttachmentKindMap(AttachmentsKinds)
+	
+	AttachmentKindPictures = New Map;
+	AttachmentKindPictures.Insert(AttachmentsKinds[0], PictureLib.Print);
+	AttachmentKindPictures.Insert(AttachmentsKinds[1], PictureLib.SaveFileAs);
+	AttachmentKindPictures.Insert(AttachmentsKinds[2], PictureLib.Clip);
+	
+	Return AttachmentKindPictures;
+	
+EndFunction
+
+&AtClientAtServerNoContext
+Function IndexAttachmentKindMap(AttachmentsKinds)
+	
+	AttachmentKindIndexes = New Map;
+	
+	For Cnt = 0 To AttachmentsKinds.Count() - 1 Do
+		
+		AttachmentKindIndexes.Insert(AttachmentsKinds[Cnt], Cnt);
+	
+	EndDo;
+	
+	Return AttachmentKindIndexes;
+	
+EndFunction
+
+&AtServer
+Procedure ProcessAttachmentsFiles(AttachmentsRow, CurrentObject)
+	
+	ArrayOfRowsToDelete_ = New Array;
+	For Each AttachmentsTableRow In AttachmentsRow.Rows Do
+		
+		If AttachmentsTableRow.Status = "ExternalToDelete" Then
+			If Not AttachmentsTableRow.Ref.IsEmpty() Then
+				DeleteAttachedFile(AttachmentsTableRow.Ref);
+			EndIf;
+			If IsBlankString(AttachmentsTableRow.Attribute) Then
+				
+				ArrayOfRowsToDelete_.Add(AttachmentsTableRow);
+				
+			Else
+				
+				AttachmentsTableRow.Status = "";
+				AttachmentsTableRow.SelectedItemsCount = 2;
+				
+			EndIf;
+			
+		ElsIf AttachmentsTableRow.Status = "ExternalNew" Then
+			
+			If IsBlankString(AttachmentsTableRow.Attribute) Then
+				FileName = AttachmentsTableRow.Presentation;
+			Else
+				FileName = AttachmentsTableRow.Attribute;
+			EndIf;
+			
+			FileRef = MessageTemplatesInternal.WriteEmailAttachmentFromTempStorage(
+				CurrentObject.Ref,
+				AttachmentsTableRow,
+				FileName,
+				0);
+			AttachmentsTableRow.Ref = FileRef;
+			AttachmentsTableRow.Status = "ExternalAttached";
+			
+		EndIf;
+		
+		ProcessAttachmentsFiles(AttachmentsTableRow, CurrentObject);
+		
+	EndDo;
+	
+	For Each ArrayRow In ArrayOfRowsToDelete_ Do
+		
+		AttachmentsRow.Rows.Delete(ArrayRow);
+		
+	EndDo;
+	
+EndProcedure
+
+&AtClient
+Procedure SetSubordinateMarks(CurRow, CheckBoxName)
+	
+	SubordinateItems = CurRow.GetItems();
+	
+	If SubordinateItems.Count() = 0 Then
+		Return;
+	EndIf;
+	
+	For Each String In SubordinateItems Do
+		
+		String[CheckBoxName] = CurRow[CheckBoxName];
+		
+		SetSubordinateMarks(String, CheckBoxName);
+		
+	EndDo;
+	
+EndProcedure
+
+&AtClient
+Procedure SetParentMarks(CurRow, CheckBoxName)
+	
+	Parent = CurRow.GetParent();
+	If Parent = Undefined Then
+		Return;
+	EndIf;
+	
+	CurState = Parent[CheckBoxName];
+	
+	EnabledItemsFound  = False;
+	DisabledItemsFound = False;
+	
+	AllDisabled = 0;
+	AllEnabled = 1;
+	NotAllEnabled = 2;
+	
+	For Each String In Parent.GetItems() Do
+		
+		If String[CheckBoxName] = AllDisabled Then
+			DisabledItemsFound = True;
+		ElsIf String[CheckBoxName] = AllEnabled
+			Or String[CheckBoxName] = NotAllEnabled Then
+			EnabledItemsFound = True;
+		EndIf; 
+		
+		If EnabledItemsFound And DisabledItemsFound Then
+			Break;
+		EndIf;
+		
+	EndDo;
+	
+	If (EnabledItemsFound And DisabledItemsFound)
+	 Or (Not EnabledItemsFound And Not DisabledItemsFound) Then
+		Enable = NotAllEnabled;
+	ElsIf EnabledItemsFound And Not DisabledItemsFound Then
+		Enable = AllEnabled;
+	Else
+		Enable = AllDisabled;
+	EndIf;
+	
+	If Enable = CurState Then
+		Return;
+	Else
+		Parent[CheckBoxName] = Enable;
+		SetParentMarks(Parent, CheckBoxName);
+	EndIf;
+	
 EndProcedure
 
 #EndRegion

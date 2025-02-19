@@ -10,26 +10,36 @@
 
 #Region Private
 
-Function ClientNotificationsAreAvailable() Export
+Function AreClientNotificationsAvailable() Export
 	
-	If ForTestingPurposesOnly() Then
+	If IsForTestingOnly() Then
 		Return False;
 	EndIf;
 	
 	SystemInfo = New SystemInfo;
 	Version = SystemInfo.AppVersion;
 	
-	Return CommonClientServer.CompareVersions(Version, "8.3.26.1398") >= 0
+	Return CommonClientServer.CompareVersions(Version, "8.3.26.1498") >= 0
 	      And CommonClientServer.CompareVersions(Version, "8.3.27.0") < 0
-	    Or CommonClientServer.CompareVersions(Version, "8.3.27.1025") >= 0;
+	    Or CommonClientServer.CompareVersions(Version, "8.3.27.1288") >= 0;
 	
 EndFunction
 
-Function ForTestingPurposesOnly()
-	Return True;
+Function IsForTestingOnly()
+	
+// ACC:547-off - A temporary workaround for the testing purpose.
+#If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
+	DataSeparationEnabled = Common.DataSeparationEnabled();
+#Else
+	DataSeparationEnabled = CommonClient.DataSeparationEnabled();
+#EndIf
+// ACC:547-on
+	
+	Return DataSeparationEnabled;
+	
 EndFunction
 
-Function KeyForServerSideNotifications() Export
+Function ServerNotificationsNotificationsKey() Export
 	
 	Return "StandardSubsystems.Core.ServerNotifications";
 	

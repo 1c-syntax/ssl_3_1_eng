@@ -96,7 +96,8 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	If NoViewRight Then
+	If NoViewRight
+	 Or Items.ReportOrWarning.CurrentPage = Items.DisplayWarning Then
 		Return;
 	EndIf;
 	
@@ -126,7 +127,7 @@ Procedure UserRefStartChoice(Item, ChoiceData, StandardProcessing)
 		UsersTypeSelection.Add("ExternalUsers", NStr("en = 'External users';"));
 		UsersTypeSelection.Add("Users",        NStr("en = 'Users';"));
 		
-		UsersTypeSelection.ShowChooseItem(New NotifyDescription(
+		UsersTypeSelection.ShowChooseItem(New CallbackDescription(
 			"UserRefStartChoiceCompletion", ThisObject, FilterParameters));
 	Else
 		OpenForm("Catalog.Users.ListForm",
@@ -173,7 +174,7 @@ Procedure SettingsBeforeDelete(Item, Cancel)
 	Cancel = True;
 	
 	QueryText = NStr("en = 'Do you want to clear the selected settings?';");
-	Notification = New NotifyDescription("SettingsBeforeDeleteCompletion", ThisObject, Item);
+	Notification = New CallbackDescription("SettingsBeforeDeleteCompletion", ThisObject, Item);
 	
 	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo,, DialogReturnCode.Yes);
 	
@@ -303,7 +304,7 @@ Procedure Clear(Command)
 		
 	EndIf;
 	
-	Notification = New NotifyDescription("ClearCompletion", ThisObject, SettingsTree);
+	Notification = New CallbackDescription("ClearCompletion", ThisObject, SettingsTree);
 	QueryText = NStr("en = 'Do you want to clear the selected settings?';");
 	
 	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo,, DialogReturnCode.Yes);
@@ -326,7 +327,7 @@ Procedure ClearSettingsForSelectedUsers(Command)
 		NStr("en = 'Do you want to clear the selected settings?
 		           |This will open the list where you can select the users whose settings will be cleared.';");
 	
-	Notification = New NotifyDescription("ClearSettingsForSelectedUsersCompletion", ThisObject);
+	Notification = New CallbackDescription("ClearSettingsForSelectedUsersCompletion", ThisObject);
 	
 	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo,, DialogReturnCode.Yes);
 	
@@ -342,7 +343,7 @@ Procedure ClearAllSettings(Command)
 	QuestionButtons.Add("Clear", NStr("en = 'Clear';"));
 	QuestionButtons.Add("Cancel",   NStr("en = 'Cancel';"));
 	
-	Notification = New NotifyDescription("ClearAllSettingsCompletion", ThisObject);
+	Notification = New CallbackDescription("ClearAllSettingsCompletion", ThisObject);
 	
 	ShowQueryBox(Notification, QueryText, QuestionButtons,, QuestionButtons[1].Value);
 	
@@ -358,7 +359,7 @@ Procedure ClearObsoleteSettings(Command)
 	QuestionButtons.Add("Clear", NStr("en = 'Clear the settings.';"));
 	QuestionButtons.Add("Cancel",   NStr("en = 'Cancel';"));
 	
-	Notification = New NotifyDescription("ClearObsoleteSettingsCompletion", ThisObject);
+	Notification = New CallbackDescription("ClearObsoleteSettingsCompletion", ThisObject);
 	
 	ShowQueryBox(Notification, QueryText, QuestionButtons,, QuestionButtons[1].Value);
 	
@@ -375,7 +376,7 @@ Procedure ClearReportAndInterfaceSettings(Command)
 	QuestionButtons.Add("Clear", NStr("en = 'Clear';"));
 	QuestionButtons.Add("Cancel",   NStr("en = 'Cancel';"));
 	
-	Notification = New NotifyDescription("ClearReportAndInterfaceSettingsCompletion", ThisObject);
+	Notification = New CallbackDescription("ClearReportAndInterfaceSettingsCompletion", ThisObject);
 	
 	ShowQueryBox(Notification, QueryText, QuestionButtons,, QuestionButtons[1].Value);
 	
@@ -400,7 +401,7 @@ Procedure ClearSettingsForAllUsers(Command)
 	QuestionButtons.Add("ClearAll", NStr("en = 'Clear all';"));
 	QuestionButtons.Add("Cancel",      NStr("en = 'Cancel';"));
 	
-	Notification = New NotifyDescription("ClearSettingsForAllUsersCompletion", ThisObject);
+	Notification = New CallbackDescription("ClearSettingsForAllUsersCompletion", ThisObject);
 	ShowQueryBox(Notification, QueryText, QuestionButtons,, QuestionButtons[1].Value);
 	
 EndProcedure
@@ -416,7 +417,7 @@ Procedure ClearObsoleteSettingsOfAllUsers(Command)
 	QuestionButtons.Add("ClearAll", NStr("en = 'Clear all';"));
 	QuestionButtons.Add("Cancel",      NStr("en = 'Cancel';"));
 	
-	Notification = New NotifyDescription("ClearObsoleteSettingsOfAllUsersCompletion", ThisObject);
+	Notification = New CallbackDescription("ClearObsoleteSettingsOfAllUsersCompletion", ThisObject);
 	ShowQueryBox(Notification, QueryText, QuestionButtons,, QuestionButtons[1].Value);
 	
 EndProcedure
@@ -436,8 +437,7 @@ EndProcedure
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for displaying lists of settings.
+#Region ProceduresAndFunctionsToOutputSettingsLists
 
 &AtClient
 Procedure UpdateSettingsList()
@@ -451,7 +451,7 @@ Procedure UpdateSettingsList()
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	
-	CallbackOnCompletion = New NotifyDescription("UpdateSettingsListCompletion", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("UpdateSettingsListCompletion", ThisObject);
 	
 	TimeConsumingOperationsClient.WaitCompletion(Result, CallbackOnCompletion, IdleParameters);
 	
@@ -521,8 +521,9 @@ Procedure FillSettings(Val ResultAddress)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for calculating the number of settings items.
+#EndRegion
+
+#Region ProceduresAndFunctionsToEvaluateSettingsCount
 
 &AtServer
 Procedure CalculateSettingsCount()
@@ -580,8 +581,9 @@ Function SettingsInTreeCount(SettingsList)
 	Return SettingsCount;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for copying, deleting, and clearing settings.
+#EndRegion
+
+#Region ProceduresAndFunctionsToCopyDeleteAndClearSettings
 
 &AtServer
 Procedure CopyAtServer(UsersDestination, ReportPersonalizationCount, Report)
@@ -844,8 +846,9 @@ Procedure ClearCompletion(Response, SettingsTree) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+#EndRegion
+
+#Region AuxiliaryProceduresAndFunctions
 
 &AtClient
 Procedure Attachable_ExecuteNotifyProcessing()
@@ -904,7 +907,7 @@ Procedure Attachable_ExecuteNotifyProcessing()
 			QuestionButtons.Add("OK", NStr("en = 'OK';"));
 			QuestionButtons.Add("ShowReport", NStr("en = 'View report';"));
 			
-			Notification = New NotifyDescription("NotificationProcessingShowQueryBox", ThisObject, Report);
+			Notification = New CallbackDescription("NotificationProcessingShowQueryBox", ThisObject, Report);
 			ShowQueryBox(Notification, QueryText, QuestionButtons,, QuestionButtons[0].Value);
 			
 			Return;
@@ -948,7 +951,7 @@ Procedure Attachable_ExecuteNotifyProcessing()
 		QuestionButtons.Add("OK", NStr("en = 'OK';"));
 		QuestionButtons.Add("ShowReport", NStr("en = 'View report';"));
 		
-		Notification = New NotifyDescription("NotificationProcessingShowQueryBox", ThisObject, Report);
+		Notification = New CallbackDescription("NotificationProcessingShowQueryBox", ThisObject, Report);
 		ShowQueryBox(Notification, QueryText, QuestionButtons,, QuestionButtons[0].Value);
 		Return;
 	Else
@@ -1448,5 +1451,7 @@ Function TimeConsumingOperationParameters()
 	Return TimeConsumingOperationParameters;
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion

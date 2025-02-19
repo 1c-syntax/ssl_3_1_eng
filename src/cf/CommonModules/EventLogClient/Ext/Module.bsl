@@ -169,7 +169,7 @@ EndProcedure
 // Parameters:
 //  DateInterval - StandardPeriod - the filter date interval.
 //  EventLogFilter - Structure
-//  HandlerNotifications - NotifyDescription
+//  HandlerNotifications - CallbackDescription
 //
 Procedure SetPeriodForViewing(DateInterval, EventLogFilter, HandlerNotifications = Undefined) Export
 	
@@ -198,7 +198,7 @@ Procedure SetPeriodForViewing(DateInterval, EventLogFilter, HandlerNotifications
 	AdditionalParameters.Insert("DateInterval", DateInterval);
 	AdditionalParameters.Insert("HandlerNotifications", HandlerNotifications);
 	
-	Notification = New NotifyDescription("SetPeriodForViewingCompletion", ThisObject, AdditionalParameters);
+	Notification = New CallbackDescription("SetPeriodForViewingCompletion", ThisObject, AdditionalParameters);
 	Dialog.Show(Notification);
 	
 EndProcedure
@@ -211,7 +211,7 @@ EndProcedure
 //     * Field - FormField - value table field.
 //     * DateInterval - StandardPeriod
 //     * EventLogFilter - Filter - the event log filter.
-//     * NotificationHandlerForSettingDateInterval - NotifyDescription
+//     * NotificationHandlerForSettingDateInterval - CallbackDescription
 //
 Procedure EventsChoice(Parameters) Export
 	
@@ -421,7 +421,7 @@ Procedure SetPeriodForViewingCompletion(Result, AdditionalParameters) Export
 	EndIf;
 	
 	If AdditionalParameters.HandlerNotifications <> Undefined Then
-		ExecuteNotifyProcessing(AdditionalParameters.HandlerNotifications, IntervalSet);
+		RunCallback(AdditionalParameters.HandlerNotifications, IntervalSet);
 	EndIf;
 	
 EndProcedure

@@ -56,9 +56,9 @@ Procedure SetConditionalAppearance()
 	
 	List.SettingsComposer.Settings.ConditionalAppearance.Items.Clear();
 	
-	ApplyDataGroupAppearance(0, NStr("en = 'Standard Access Values';"));
-	ApplyDataGroupAppearance(1, NStr("en = 'Regular or external users';"));
-	ApplyDataGroupAppearance(2, NStr("en = 'Regular or external user groups';"));
+	ApplyDataGroupAppearance(0, NStr("en = 'Standard access values';"));
+	ApplyDataGroupAppearance(1, NStr("en = 'Internal or external users';"));
+	ApplyDataGroupAppearance(2, NStr("en = 'Internal or external user groups';"));
 	ApplyDataGroupAppearance(3, NStr("en = 'Assignee groups';"));
 	ApplyDataGroupAppearance(4, NStr("en = 'Authorization objects';"));
 	

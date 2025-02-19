@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<ExchangePlanContent xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<ExchangePlanContent xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<Item>
 		<Metadata>InformationRegister.ReportsDistributionHistory</Metadata>
 		<AutoRecord>Deny</AutoRecord>
@@ -225,6 +225,10 @@
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>
+		<Metadata>Constant.AllowAccessToInternetServices</Metadata>
+		<AutoRecord>Deny</AutoRecord>
+	</Item>
+	<Item>
 		<Metadata>InformationRegister.SourceDocumentsOriginalsStates</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
@@ -401,6 +405,10 @@
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>
+		<Metadata>Constant.AllowAccessToDigitalSignatureInternetServices</Metadata>
+		<AutoRecord>Deny</AutoRecord>
+	</Item>
+	<Item>
 		<Metadata>Constant.DeniedDataAreaExtensionsList</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
@@ -458,6 +466,10 @@
 	</Item>
 	<Item>
 		<Metadata>Constant.TextFilesExtensionsList</Metadata>
+		<AutoRecord>Deny</AutoRecord>
+	</Item>
+	<Item>
+		<Metadata>InformationRegister.SafeDataAreaDataStorage</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>
@@ -534,6 +546,10 @@
 	</Item>
 	<Item>
 		<Metadata>InformationRegister.DefaultAccessGroupsValues</Metadata>
+		<AutoRecord>Deny</AutoRecord>
+	</Item>
+	<Item>
+		<Metadata>InformationRegister.DefaultCounterpartyPrintForms</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>
@@ -677,7 +693,7 @@
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>
-		<Metadata>InformationRegister.DataExchangeTransportSettings</Metadata>
+		<Metadata>InformationRegister.DeleteDataExchangeTransportSettings</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>
@@ -721,7 +737,7 @@
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>
-		<Metadata>InformationRegister.SafeDataAreaDataStorage</Metadata>
+		<Metadata>InformationRegister.ObsoleteSafeDataAreaDataStorage</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>
@@ -1017,6 +1033,10 @@
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>
+		<Metadata>Catalog.ExchangeMessageTransportSettings</Metadata>
+		<AutoRecord>Deny</AutoRecord>
+	</Item>
+	<Item>
 		<Metadata>Catalog.ObjectsPropertiesValues</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
@@ -1078,6 +1098,10 @@
 	</Item>
 	<Item>
 		<Metadata>Catalog.BinaryDataStorage</Metadata>
+		<AutoRecord>Deny</AutoRecord>
+	</Item>
+	<Item>
+		<Metadata>InformationRegister.DefaultObjectPrintForms</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>

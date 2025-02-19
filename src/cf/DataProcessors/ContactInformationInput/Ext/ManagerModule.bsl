@@ -49,24 +49,21 @@ Function ContactInformationInputFormName(Val InformationKind)
 	
 	InformationType = ContactsManagerInternalCached.ContactInformationKindType(InformationKind);
 	
-	AllTypes = "Enum.ContactInformationTypes.";
-	If InformationType = PredefinedValue(AllTypes + "Address") Then
-		
-		If Metadata.DataProcessors.Find("AdvancedContactInformationInput") = Undefined Then
-			Return "DataProcessor.ContactInformationInput.Form.FreeFormAddressInput";
+	If InformationType = PredefinedValue("Enum.ContactInformationTypes.Address") Then
+			
+		AdvancedContactInformationInput = Metadata.DataProcessors.Find("AdvancedContactInformationInput");
+		If AdvancedContactInformationInput = Undefined Then
+			Return Metadata.DataProcessors.ContactInformationInput.Forms.AddressInput.FullName();
 		Else
-			Return "DataProcessor.AdvancedContactInformationInput.Form.AddressInput";
+			Return AdvancedContactInformationInput.Forms.Find("AddressInput").FullName();
 		EndIf;
 		
-	ElsIf InformationType = PredefinedValue(AllTypes + "Phone") Then
-		Return "DataProcessor.ContactInformationInput.Form.PhoneInput";
-		
-	ElsIf InformationType = PredefinedValue(AllTypes + "WebPage") Then
-		Return "DataProcessor.ContactInformationInput.Form.Website";
-		
-	ElsIf InformationType = PredefinedValue(AllTypes + "Fax") Then
-		Return "DataProcessor.ContactInformationInput.Form.PhoneInput";
-		
+	ElsIf InformationType = PredefinedValue("Enum.ContactInformationTypes.Phone")
+		  Or InformationType = PredefinedValue("Enum.ContactInformationTypes.Fax") Then
+		Return Metadata.DataProcessors.ContactInformationInput.Forms.PhoneInput.FullName();
+	ElsIf InformationType = PredefinedValue("Enum.ContactInformationTypes.WebPage") Then
+		Return Metadata.DataProcessors.ContactInformationInput.Forms.Website;
+	
 	EndIf;
 	
 	Return Undefined;

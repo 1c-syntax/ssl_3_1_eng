@@ -8,23 +8,30 @@
 //
 //
 
-#Region Internal
+#Region Public
 
+// I called to open the form to search for add-ins over the Internet.
+//
 // Parameters:
-//  Notification - NotifyDescription
+//  Notification - CallbackDescription
 //  Context - Structure:
 //      * ExplanationText - String
 //      * Id - String
 //      * Version        - String
-//                      - Undefined
 //      * AutoUpdate - Boolean
 //
-Procedure ComponentSearchOnPortal(Notification, Context) Export
+Procedure OnSearchAddInsOnPortal(Notification, Context) Export
 	
 	
 EndProcedure
 
-Procedure UpdateAddInsFromPortal(Notification, AddInsToUpdate) Export
+// Called to open the form for updating add-ins over the Internet.
+//
+// Parameters:
+//  Notification - CallbackDescription
+//  AddInsToUpdate - Array of CatalogRef.AddIns
+//
+Procedure OnUpdateAddInsFromPortal(Notification, AddInsToUpdate) Export
 	
 	
 EndProcedure

@@ -10,8 +10,7 @@
 
 #Region Public
 
-////////////////////////////////////////////////////////////////////////////////
-// Object kind names.
+#Region ObjectsKindsNames
 
 // Print form.
 //
@@ -90,8 +89,9 @@ Function DataProcessorKindAdditionalReport() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Command type names.
+#EndRegion
+
+#Region CommandsTypesNames
 
 // Returns the name of the command type with a server method call. To execute commands of this type,
 //   in the object module, determine the export procedure using the following template:
@@ -392,8 +392,9 @@ Function CommandTypeDataImportFromFile() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Form type names. Used during assignable object setup.
+#EndRegion
+
+#Region FormTypeNamesUsedToSetUpAssignmentObjects
 
 // List form ID.
 //
@@ -417,8 +418,9 @@ Function ObjectFormType() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Other procedures and functions.
+#EndRegion
+
+#Region OtherProceduresAndFunctions
 
 // Filter for dialog boxes used to select or save additional reports or data processors.
 //
@@ -443,6 +445,8 @@ Function StartPageName() Export
 	Return "Desktop"; 
 	
 EndFunction
+
+#EndRegion
 
 #Region ObsoleteProceduresAndFunctions
 

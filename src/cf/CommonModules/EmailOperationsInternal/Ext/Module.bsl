@@ -315,7 +315,7 @@ Procedure SaveYourAccountSettingsForPasswordRecovery(Settings) Export
 	AccountInformation = DescriptionOfAccountSettingsForPasswordRecovery();
 	FillPropertyValues(AccountInformation, Settings);
 	
-	Constants.PasswordRecoveryAccount.Set(New ValueStorage(AccountInformation));
+	Constants.PasswordRecoveryAccount.Set(New ValueStorage(AccountInformation, New Deflation(9)));
 	
 EndProcedure
 
@@ -348,8 +348,7 @@ Function DescriptionOfAccountSettingsForPasswordRecovery() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // See BatchEditObjectsOverridable.OnDefineObjectsWithEditableAttributes.
 Procedure OnDefineObjectsWithEditableAttributes(Objects) Export
@@ -482,17 +481,17 @@ Procedure OnFillMetadataObjectsAccessRestrictionKinds(LongDesc) Export
 EndProcedure
 
 // See CommonOverridable.OnAddMetadataObjectsRenaming.
-Procedure OnAddMetadataObjectsRenaming(Total) Export
+Procedure OnAddMetadataObjectsRenaming(Renamings) Export
 	
 	Library = "StandardSubsystems";
 	
 	OldName = "Role.UsingEmailAccounts";
 	NewName  = "Role.ReadEmailAccounts";
-	Common.AddRenaming(Total, "2.3.3.11", OldName, NewName, Library);
+	Common.AddRenaming(Renamings, "2.3.3.11", OldName, NewName, Library);
 	
 	OldName = "Role.ReadEmailAccounts";
 	NewName  = "Role.AddEditEmailAccounts";
-	Common.AddRenaming(Total, "2.4.1.1", OldName, NewName, Library);
+	Common.AddRenaming(Renamings, "2.4.1.1", OldName, NewName, Library);
 	
 EndProcedure
 
@@ -548,6 +547,8 @@ Procedure DecodeAddressesInEmail(MailMessage) Export
 	DecodeAddressesCollection(MailMessage.Bcc);
 	MailMessage.From.Address = PunycodeIntoString(MailMessage.From.Address);
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -663,7 +664,7 @@ Function UseIMAPOnSendingEmails(Profile)
 EndFunction
 
 // Parameters:
-//  UserAccountOrConnection - 
+//  UserAccountOrConnection - See EmailOperations.DownloadEmailMessages.Account
 //  ImportParameters - See EmailOperations.DownloadEmailMessages.ImportParameters
 //
 // Returns:
@@ -1019,22 +1020,22 @@ Procedure DisableAccounts()
 	|	EmailAccounts.UseForSending";
 	
 	Query = New Query(QueryText);
-	Selection = Query.Execute().Select(); // ACC:1328 data lock is not required upon initial setup of a DIB node.
+	Selection = Query.Execute().Select(); // ACC:1328 - The initial setup of a DIB node does not require a data lock.
 	While Selection.Next() Do
 		Account = Selection.Ref.GetObject();
 		Account.UseForSending = False;
 		Account.UseForReceiving = False;
 		Account.DataExchange.Load = True;
-		Account.Write(); // CAC:1327 data lock is not required upon initial setup of a DIB node.
+		Account.Write(); // ACC:1327 - The initial setup of a DIB node does not require a data lock.
 	EndDo;
 	
 EndProcedure
 
-// Handler for OnReceiveDataFromMaster and OnReceiveDataFromSlave events that occur
+// The procedure handles the OnReceiveDataFromMaster and OnReceiveDataFromSlave events that occur
 // during data exchange in a distributed infobase.
 //
 // Parameters:
-//   see descriptions of the relevant event handlers in the Syntax Assistant.
+//   See the same-name event handlers in Syntax Assistant.
 //
 Procedure OnDataGet(DataElement, ItemReceive, SendBack, Sender)
 	
@@ -1474,7 +1475,8 @@ Function SendEmails(UserAccountOrConnection, Emails, ExceptionText = Undefined) 
 	EndIf;
 	
 	If Account <> Undefined Then
-		SenderAttributes = Common.ObjectAttributesValues(Account, "UserName,Email,SendBCCToThisAddress,UseForReceiving");
+		SenderAttributes = Common.ObjectAttributesValues(Account, 
+			"UserName,Email,SendBCCToThisAddress,UseForReceiving");
 		
 		SetSafeModeDisabled(True);
 		Profile = InternetMailProfile(Account);
@@ -1491,25 +1493,26 @@ Function SendEmails(UserAccountOrConnection, Emails, ExceptionText = Undefined) 
 				DetermineSentEmailsFolder(Join);
 			EndIf;
 		Except
-			ErrorText = ExtendedErrorPresentation(ErrorInfo(), Common.DefaultLanguageCode());
+			ErrorInfo = ErrorInfo();
+			If ErrorInfo.IsErrorOfCategory(ErrorCategory.ConfigurationError)
+				Or ReceivingProtocol <> InternetMailProtocol.IMAP Or SenderAttributes.UseForReceiving Then
+				Raise;
+			EndIf;
+			
+			ErrorText = ExtendedErrorPresentation(ErrorInfo, Common.DefaultLanguageCode());
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot connect to IMAP server:
 				|%1';", Common.DefaultLanguageCode()), ErrorText);
 			
-			If ReceivingProtocol = InternetMailProtocol.IMAP And Not SenderAttributes.UseForReceiving Then
-				WriteLogEvent(EventNameSendEmail(), EventLogLevel.Error, 
-					Metadata.Catalogs.EmailAccounts, Account, ErrorText);
-				ReceivingProtocol = InternetMailProtocol.POP3;
-				Join = New InternetMail;
-				Join.Logon(Profile, ReceivingProtocol);
-			Else
-				Raise;
-			EndIf;
+			WriteLogEvent(EventNameSendEmail(), EventLogLevel.Error, 
+				Metadata.Catalogs.EmailAccounts, Account, ErrorText);
+			ReceivingProtocol = InternetMailProtocol.POP3;
+			Join = New InternetMail;
+			Join.Logon(Profile, ReceivingProtocol);
 		EndTry;
 	EndIf;
 	
 	EmailsSendingResults = New Map;
-	
 	ProcessTexts = InternetMailTextProcessing.DontProcess;
 	
 	Try
@@ -1567,14 +1570,18 @@ Function SendEmails(UserAccountOrConnection, Emails, ExceptionText = Undefined) 
 					ErrorsTexts.Add(StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = '%1: %2';"), Recipient, ErrorText));
 				EndDo;
-				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The message was not sent to the following recipients:
-					|%1';", Common.DefaultLanguageCode()), StrConcat(ErrorsTexts, Chars.LF));
-				WriteLogEvent(EventNameSendEmail(), EventLogLevel.Error, , Account, ErrorText);
+				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'The message was not sent to the following recipients:
+					|%1';", 
+					Common.DefaultLanguageCode()), StrConcat(ErrorsTexts, Chars.LF));
+				WriteLogEvent(EventNameSendEmail(), EventLogLevel.Error, , 
+					Account, ErrorText);
 			EndIf;
 			
 			EmailsSendingResults.Insert(MailMessage, EmailSendingResult);
 		EndDo;
 	Except
+		ErrorInfo = ErrorInfo();
 		If Account <> Undefined Then
 			Try
 				Join.Logoff();
@@ -1584,16 +1591,15 @@ Function SendEmails(UserAccountOrConnection, Emails, ExceptionText = Undefined) 
 			EndTry;
 		EndIf;
 
-		ErrorText = ExtendedErrorPresentation(ErrorInfo(), Common.DefaultLanguageCode());
-
-		WriteLogEvent(EventNameSendEmail(), EventLogLevel.Error, , Account, ErrorText);
-		ExceptionText = ErrorProcessing.BriefErrorDescription(ErrorInfo());
-
-		If EmailsSendingResults.Count() = 0 Then
+		ExceptionText = ErrorProcessing.BriefErrorDescription(ErrorInfo);
+		If ErrorInfo.IsErrorOfCategory(ErrorCategory.ConfigurationError)
+			Or EmailsSendingResults.Count() = 0 Then
 			Raise;
-		Else
-			Return EmailsSendingResults;
 		EndIf;
+		
+		ErrorText = ExtendedErrorPresentation(ErrorInfo, Common.DefaultLanguageCode());
+		WriteLogEvent(EventNameSendEmail(), EventLogLevel.Error, , Account, ErrorText);
+		Return EmailsSendingResults;
 	EndTry;
 	
 	If Account <> Undefined Then
@@ -2089,6 +2095,12 @@ Function ExecuteQuery(ServerAddress, ResourceAddress, QueryOptions, PutParameter
 	Result.Insert("QueryCompleted", False);
 	Result.Insert("ServerResponse1", "");
 	
+	If Not Common.AccessToInternetServicesAllowed() Then
+		WriteLogEvent(EventNameAuthorizationByProtocolOAuth(),
+			EventLogLevel.Error, , , Common.AccessToInternetServicesDeniedMessageText());
+		Return Result;
+	EndIf;
+	
 	HTTPRequest = PrepareHTTPRequest(ResourceAddress, QueryOptions, True);
 	HTTPResponse = Undefined;
 	
@@ -2183,6 +2195,12 @@ Function RefreshAccessToken(Val Account, Val UpdateToken)
 	
 	AttributesValues = Common.ObjectAttributesValues(Account, 
 		"Email, EmailServiceName");
+	
+	If Not Common.AccessToInternetServicesAllowed() Then
+		WriteLogEvent(EventNameAuthorizationByProtocolOAuth(),
+			EventLogLevel.Error, , , Common.AccessToInternetServicesDeniedMessageText());
+		Return "";
+	EndIf;	
 
 	If Not ValueIsFilled(AttributesValues.EmailServiceName) Then
 		ErrorText = NStr("en = 'Email service for authorization is not specified. Reconfigure your account.';");
@@ -2821,9 +2839,9 @@ Function DNSServerAddresses() Export
 	
 	Result = New Array;
 	
-	If Metadata.CommonModules.Find("EmailOperationsInternalLocalization") <> Undefined Then
-		ModuleEmailOperationsInternalLocalization = Common.CommonModule("EmailOperationsInternalLocalization");
-		ModuleEmailOperationsInternalLocalization.GettingDNSServersAddresses(Result);
+	StandardProcessing = True;
+	EmailOperationsLocalization.GettingDNSServersAddresses(Result, StandardProcessing);
+	If Not StandardProcessing Then
 		Return Result;
 	EndIf;
 	
@@ -2837,12 +2855,7 @@ EndFunction
 Function AddressOfFileWithSettings() Export
 	
 	FileAddress = "https://downloads.1c.eu/content/common/settings/mailservers.json";
-	
-	If Metadata.CommonModules.Find("EmailOperationsInternalLocalization") <> Undefined Then
-		ModuleEmailOperationsInternalLocalization = Common.CommonModule("EmailOperationsInternalLocalization");
-		ModuleEmailOperationsInternalLocalization.OnGettingFileAddressWithSettings(FileAddress);
-	EndIf;
-
+	EmailOperationsLocalization.OnReceivingAddressOfSettingsFile(FileAddress);
 	Return FileAddress;
 		
 EndFunction
@@ -2850,12 +2863,7 @@ EndFunction
 Function AddressOfFIleWithErrorsDetails()
 	
 	FileAddress = "https://downloads.1c.eu/content/common/settings/mailerrors.json";
-	
-	If Metadata.CommonModules.Find("EmailOperationsInternalLocalization") <> Undefined Then
-		ModuleEmailOperationsInternalLocalization = Common.CommonModule("EmailOperationsInternalLocalization");
-		ModuleEmailOperationsInternalLocalization.OnReceivingFileAddressWithErrorDescriptions(FileAddress);
-	EndIf;
-
+	EmailOperationsLocalization.OnReceivingAddressOfFileWithDescriptionOfErrors(FileAddress);
 	Return FileAddress;
 	
 EndFunction
@@ -2863,12 +2871,7 @@ EndFunction
 Function AddressOfExternalResource()
 	
 	AddressOfExternalResource = "downloads.1c.eu";
-	
-	If Metadata.CommonModules.Find("EmailOperationsInternalLocalization") <> Undefined Then
-		ModuleEmailOperationsInternalLocalization = Common.CommonModule("EmailOperationsInternalLocalization");
-		ModuleEmailOperationsInternalLocalization.OnGettingAddressExternalResource(AddressOfExternalResource);
-	EndIf;
-	
+	EmailOperationsLocalization.OnGettingAddressOfExternalResource(AddressOfExternalResource);
 	Return AddressOfExternalResource;
 	
 EndFunction

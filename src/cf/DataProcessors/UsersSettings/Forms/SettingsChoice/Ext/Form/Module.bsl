@@ -209,8 +209,7 @@ EndProcedure
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions related to displaying settings to users.
+#Region ProceduresAndFunctionsToDisplaySettingsToUser
 
 &AtClient
 Procedure UpdateSettingsList()
@@ -221,7 +220,7 @@ Procedure UpdateSettingsList()
 	
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
-	CallbackOnCompletion = New NotifyDescription("UpdateSettingsListCompletion", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("UpdateSettingsListCompletion", ThisObject);
 	
 	TimeConsumingOperationsClient.WaitCompletion(Result, CallbackOnCompletion, IdleParameters);
 	
@@ -297,8 +296,9 @@ Procedure FillSettings(Val ResultAddress)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+#EndRegion
+
+#Region AuxiliaryProceduresAndFunctions
 
 &AtClient
 Procedure ChangeMark1(Item)
@@ -641,5 +641,7 @@ Procedure ImportMarkValues(ValueTree, MarkedSettings, SettingsType)
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

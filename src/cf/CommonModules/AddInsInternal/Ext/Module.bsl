@@ -27,9 +27,11 @@ EndFunction
 Function AddInPresentation(Id, Version) Export
 
 	If ValueIsFilled(Version) Then
-		AddInPresentation = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1(version %2)';"), Id, Version);
+		AddInPresentation = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = '%1(version %2)';"), Id, Version);
 	Else
-		AddInPresentation = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (latest version)';"), Id);
+		AddInPresentation = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = '%1 (latest version)';"), Id);
 	EndIf;
 
 	Return AddInPresentation;
@@ -39,7 +41,7 @@ EndFunction
 // Checks whether the add-ins import from the portal is allowed.
 //
 // Returns:
-//  Boolean - flag of availability.
+//  Boolean
 //
 Function CanImportFromPortal() Export
 
@@ -209,11 +211,15 @@ Procedure CheckTheLocationOfTheComponent(Id, Location) Export
 			And Common.SeparatedDataUsageAvailable()) Then
 		If Not StrStartsWith(Location, "e1cib/data/Catalog.AddIns.AddInStorage") Then
 			If Common.SubsystemExists("StandardSubsystems.SaaSOperations.AddInsSaaS") Then
-				ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot attach the %1 add-in due to:
-					|Access forbidden. Contact the service administrator to place the add-in in the ""Common add-ins"" catalog.';"), Id);
+				ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Cannot attach the %1 add-in due to:
+					|Access forbidden. Contact the service administrator to place the add-in in the ""Common add-ins"" catalog.';"), 
+					Id);
 			Else
-				ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot attach the %1 add-in due to:
-					|Access forbidden.';"), Id);
+				ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Cannot attach the %1 add-in due to:
+					|Access forbidden.';"), 
+					Id);
 				EndIf;
 			Raise ExceptionText;
 		EndIf;
@@ -223,8 +229,10 @@ Procedure CheckTheLocationOfTheComponent(Id, Location) Export
 		Return;
 	EndIf;
 
-	Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot attach the %1 add-in due to:
-		|Invalid %2 add-in location.';"), Id, Location);
+	Raise StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Cannot attach the %1 add-in due to:
+		|Invalid %2 add-in location.';"), 
+		Id, Location);
 
 EndProcedure
 
@@ -249,10 +257,10 @@ EndFunction
 //   * Description - String
 //   * Version - String
 //   * FileName - String
-//   * ErrorDescription - String - information about add-in import
+//   * ErrorDescription - String - Information about add-in import.
 //   * UpdateFrom1CITSPortal - Boolean
-//   * Data - String - binary data address to temporary storage 
-//          - BinaryData
+//   * Data - String - Binary data address in the temporary storage.
+//            - BinaryData
 //
 Function ImportParameters() Export
 	
@@ -273,34 +281,33 @@ EndFunction
 // 
 // Parameters:
 //  Parameters - See ImportParameters
-//  ParseInfoFile - Boolean - whether INFO.XML file data is required
-//          to analyze additionally
+//  ParseInfoFile - Boolean - Indicates whether INFO.XML file data is required
+//                                      to analyze additionally.
 //  UsedAddIns - See UsedAddIns
 //
-Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True, UsedAddIns = Undefined) Export
+Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True, 
+	UsedAddIns = Undefined) Export
 	
 	If TypeOf(Parameters.Data) = Type("String") Then
-		If IsBlankString(Parameters.Data) Then
-			ExceptionText = NStr("en = 'Data is not filled in.';");
-			Raise ExceptionText;
-		Else
-			If IsTempStorageURL(Parameters.Data) Then
-				BinaryData = GetFromTempStorage(Parameters.Data);
-			Else
-				Raise NStr("en = 'The data address is not a temporary storage address.';");
-			EndIf;
+		If IsBlankString(Parameters.Data) Or Not IsTempStorageURL(Parameters.Data) Then
+			ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Temporary storage address is not specified in the %1 parameter in %2.';"),
+				"Parameters.Data", "LoadAComponentFromBinaryData");
+			Raise(ExceptionText, ErrorCategory.ConfigurationError);
 		EndIf;
+		BinaryData = GetFromTempStorage(Parameters.Data);
 	Else
 		BinaryData = Parameters.Data;
 	EndIf;
 	
 	If TypeOf(BinaryData) <> Type("BinaryData") Then
-		ExceptionText =  NStr("en = 'The file data is not binary data.';");
-		Raise ExceptionText;
+		ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Data in the temporary storage in the parameter %1 is not binary data in %2.';"),
+			"Parameters.Data", "LoadAComponentFromBinaryData");
+		Raise(ExceptionText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	Information = InformationOnAddInFromFile(BinaryData, ParseInfoFile);
-
 	If Not Information.Disassembled Then
 		
 		ExceptionText = Information.ErrorDescription + ?(Information.ErrorInfo = Undefined, "",
@@ -312,9 +319,8 @@ Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True, UsedAdd
 	EndIf;
 	
 	Id = ?(ValueIsFilled(Parameters.Id), Parameters.Id, Information.Attributes.Id);
-	
 	If Not ValueIsFilled(Id) Then
-		ExceptionText = NStr("en = 'Enter the ID.';");
+		ExceptionText = NStr("en = 'Enter the add-in ID.';");
 		Raise ExceptionText;
 	EndIf;
 	
@@ -326,7 +332,6 @@ Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True, UsedAdd
 		Block.Lock();
 
 		Component = Catalogs.AddIns.FindByID(Id);
-
 		If ValueIsFilled(Component) Then
 			Object = Component.GetObject();
 			Try
@@ -341,21 +346,21 @@ Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True, UsedAdd
 			EndIf;
 		Else
 			Object = Catalogs.AddIns.CreateItem();
-			// Create an add-in instance.
-			Object.Fill(Undefined); // Default constructor.
+			Object.Fill(Undefined);
 		EndIf;
 		
-		 // According to manifest data.
+		// According to manifest data.
 		FillPropertyValues(Object, Information.Attributes, , "Description, Version, FileName");
 		
 		Object.Id = Id;
 		// If parameters Description, Version, and FileName are not assigned values, get the values from the information records.
-		Object.Description = ?(ValueIsFilled(Parameters.Description), Parameters.Description, Information.Attributes.Description);
+		Object.Description = ?(ValueIsFilled(Parameters.Description), Parameters.Description, 
+			Information.Attributes.Description);
 		Object.Version = ?(ValueIsFilled(Parameters.Version), Parameters.Version, Information.Attributes.Version);
 		Object.FileName = ?(ValueIsFilled(Parameters.FileName), Parameters.FileName, Information.Attributes.FileName);
 		Object.ErrorDescription = Parameters.ErrorDescription;
 		Object.UpdateFrom1CITSPortal = Parameters.UpdateFrom1CITSPortal;
-		Object.TargetPlatforms = New ValueStorage(Information.Attributes.TargetPlatforms);
+		Object.TargetPlatforms = New ValueStorage(Information.Attributes.TargetPlatforms, New Deflation(9));
 		
 		If UsedAddIns <> Undefined Then
 			RowOfAddIn = UsedAddIns.Find(Id, "Id");
@@ -365,7 +370,6 @@ Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True, UsedAdd
 		EndIf;
 		
 		Object.AdditionalProperties.Insert("ComponentBinaryData", Information.BinaryData);
-		
 		Object.Write();
 		
 		CommitTransaction();
@@ -398,9 +402,8 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 
 EndProcedure
 
-// 
-Procedure OnSendDataToMaster(DataElement, ItemSend,
-		Recipient) Export
+// See StandardSubsystems.OnSendDataToMaster.
+Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 
 	If TypeOf(DataElement) = Type("CatalogObject.AddIns") Then
 		ItemSend = DataItemSend.Ignore;
@@ -409,8 +412,7 @@ Procedure OnSendDataToMaster(DataElement, ItemSend,
 EndProcedure
 
 // See StandardSubsystemsServer.OnSendDataToSlave.
-Procedure OnSendDataToSlave(DataElement, ItemSend,
-		InitialImageCreating, Recipient) Export
+Procedure OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating, Recipient) Export
 
 	If TypeOf(DataElement) = Type("CatalogObject.AddIns") Then
 		ItemSend = DataItemSend.Ignore;
@@ -419,8 +421,7 @@ Procedure OnSendDataToSlave(DataElement, ItemSend,
 EndProcedure
 
 // See StandardSubsystemsServer.OnReceiveDataFromMaster.
-Procedure OnReceiveDataFromMaster(DataElement, ItemReceive,
-		SendBack, Sender) Export
+Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender) Export
 
 	If TypeOf(DataElement) = Type("CatalogObject.AddIns") Then
 		ItemReceive = DataItemReceive.Ignore;
@@ -429,8 +430,7 @@ Procedure OnReceiveDataFromMaster(DataElement, ItemReceive,
 EndProcedure
 
 // See StandardSubsystemsServer.OnReceiveDataFromSlave.
-Procedure OnReceiveDataFromSlave(DataElement, ItemReceive,
-		SendBack, Sender) Export
+Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Sender) Export
 
 	If TypeOf(DataElement) = Type("CatalogObject.AddIns") Then
 		ItemReceive = DataItemReceive.Ignore;
@@ -443,16 +443,13 @@ Procedure OnAddServerNotifications(Notifications) Export
 	
 	Notification = ServerNotifications.NewServerNotification(
 		"StandardSubsystems.AddIns");
-	
 	Notification.NotificationSendModuleName  = "AddInsInternal";
 	Notification.NotificationReceiptModuleName = "AddInsInternalClient";
-	
 	Notifications.Insert(Notification.Name, Notification);
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// ToDoList subsystem event handlers.
+#Region ToDoListSubsystemEventHandlers
 
 // Parameters:
 //   ToDoList - See ToDoListServer.ToDoList.
@@ -483,6 +480,8 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
 Procedure OnAddUpdateHandlers(Handlers) Export
 	
@@ -503,7 +502,7 @@ EndProcedure
 
 #Region Private
 
-// Add-ins used in the configuration.
+// Returns add-ins used in the configuration.
 // 
 // Returns:
 //  ValueTable:
@@ -517,7 +516,6 @@ Function UsedAddIns() Export
 	UsedAddIns.Columns.Add("AutoUpdate", New TypeDescription("Boolean"));
 	
 	SSLSubsystemsIntegration.OnDefineUsedAddIns(UsedAddIns);
-	
 	Return UsedAddIns;
 	
 EndFunction
@@ -525,19 +523,11 @@ EndFunction
 // Checks whether add-ins can be imported from the portal interactively.
 //
 // Returns:
-//  Boolean - flag of availability.
+//  Boolean
 //
 Function CanImportFromPortalInteractively() Export
 
-	If Common.SubsystemExists("OnlineUserSupport") 
-		And Common.SubsystemExists("OnlineUserSupport.GetAddIns") Then
-		ModuleOnlineUserSupportClientServer = Common.CommonModule("OnlineUserSupportClientServer");
-		If CommonClientServer.CompareVersions(
-			ModuleOnlineUserSupportClientServer.LibraryVersion(), "2.7.2.0") >= 0 Then
-			ModuleGetAddIns = Common.CommonModule("GetAddIns");
-			Return ModuleGetAddIns.LoadingExternalComponentsIsAvailable();
-		EndIf;
-	EndIf;
+	.GetAddIns
 
 	Return False;
 
@@ -546,8 +536,8 @@ EndFunction
 // Returns a table of add-in details.
 //
 // Parameters:
-//  Variant - String - Valid values::
-//    ForUpdate - Add-ins from a catalog with the UpdateFrom1CITSPortal flag set.
+//  Variant - String - Valid values:
+//    ForUpdate - Add-ins from a catalog with the internet update flag set.
 //    ForImport - Add-ins used in the configuration.
 //
 // Returns:
@@ -602,14 +592,11 @@ Function AddInsData(Variant = "ForUpdate") Export
 			Query.SetParameter("UsedAddIns", UsedAddIns());
 	Else
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Unknown parameter %1 in %2.';"), Variant,
-			"AddInsInternal.AddInsData");
+			NStr("en = 'Invalid value of parameter %1 (%2) when calling %3.';"), 
+			"Variant", Variant, "AddInsInternal.AddInsData");
 	EndIf;
 	
-	QueryResult = Query.Execute();
-	AddInsDetails = QueryResult.Unload();
-	
-	Return AddInsDetails;
+	Return Query.Execute().Unload();
 
 EndFunction
 
@@ -657,8 +644,6 @@ EndProcedure
 
 Function UnusedAddInsCount()
 	
-	UnusedAddInsCount = 0;
-	
 	Query = New Query;
 	Query.Text = 
 			"SELECT
@@ -672,11 +657,11 @@ Function UnusedAddInsCount()
 	Query.SetParameter("IDs", SuppliedAddIns());
 		
 	Selection = Query.Execute().Select();
-	While Selection.Next() Do
+	If Selection.Next() Then
 		Return Selection.UnusedAddInsCount;
-	EndDo;
+	EndIf;
 	
-	Return UnusedAddInsCount;
+	Return 0;
 	
 EndFunction
 
@@ -697,7 +682,6 @@ Procedure OnSendServerNotification(NameOfAlert, ParametersVariants) Export
 	ParameterName = "StandardSubsystems.AddIns.Versions";
 	PreviousValue2 = StandardSubsystemsServer.ExtensionParameter(ParameterName, True);
 	NewValue = AddInsVersionsChecksum();
-	
 	If PreviousValue2 = NewValue Then
 		Return;
 	EndIf;
@@ -749,9 +733,8 @@ Function AddInsVersionsChecksum()
 	Versions = StrConcat(VersionsList.UnloadValues(), Chars.LF);
 	Hashing = New DataHashing(HashFunction.SHA256);
 	Hashing.Append(Versions);
-	StringHashSum = Base64String(Hashing.HashSum);
 	
-	Return StringHashSum;
+	Return Base64String(Hashing.HashSum);
 	
 EndFunction
 
@@ -764,8 +747,7 @@ EndFunction
 Procedure AddAddInVersions(VersionsList, Selection)
 	
 	While Selection.Next() Do
-		VersionsList.Add(Lower(Selection.Ref.UUID())
-			+ " " + Selection.DataVersion);
+		VersionsList.Add(Lower(Selection.Ref.UUID()) + " " + Selection.DataVersion);
 	EndDo;
 	
 EndProcedure
@@ -781,9 +763,8 @@ EndProcedure
 // Returns:
 //   String - brief error message. 
 //
-Function CheckAddInAttachmentAbility(Val Id,
-		Val Version = Undefined,
-		Val ConnectionParameters = Undefined) Export
+Function CheckAddInAttachmentAbility(Val Id, Val Version = Undefined,
+	Val ConnectionParameters = Undefined) Export
 
 	If ConnectionParameters = Undefined Then
 		ConnectionParameters = AddInsServer.ConnectionParameters();
@@ -792,9 +773,10 @@ Function CheckAddInAttachmentAbility(Val Id,
 	If IsBlankString(Id) Then
 		AddInContainsOneObjectClass = (ConnectionParameters.ObjectsCreationIDs.Count() = 0);
 		If AddInContainsOneObjectClass Then
-			Raise StringFunctionsClientServer.SubstituteParametersToString(
+			ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'When attaching an external add-in, ""%1"" and ""%2"" cannot be empty at the same time.';"),
 				"Id", "ObjectsCreationIDs");
+			Raise(ExceptionText, ErrorCategory.ConfigurationError);
 		EndIf;
 		Id = StrConcat(ConnectionParameters.ObjectsCreationIDs, ", ");
 	EndIf;
@@ -805,15 +787,17 @@ Function CheckAddInAttachmentAbility(Val Id,
 	Result.Insert("ErrorDescription", "");
 	Result.Insert("Version", "");
 
-	Information = AddInsInternalServerCall.SavedAddInInformation(Id, Version, ConnectionParameters.FullTemplateName);
-	Result.Insert("Version", Version);
+	Information = AddInsInternalServerCall.SavedAddInInformation(Id, Version, 
+		ConnectionParameters.FullTemplateName);
+	Result.Insert("Version", Information.Attributes.Version);
 	If Information.State = "DisabledByAdministrator" Then
 		Result.ErrorDescription = NStr("en = 'The add-in is disabled by the administrator.';");
 		Return Result;
 	ElsIf Information.State = "NotFound1" Then
 		Result.ErrorDescription = NStr("en = 'The add-in is missing from the list of allowed add-ins.';");
 		Return Result;
-	ElsIf Information.IsTargetPlatformsFilled And Not OperatingSystemSupportedByAddInn(Information.Attributes.TargetPlatforms) Then
+	ElsIf Information.IsTargetPlatformsFilled 
+		And Not OperatingSystemSupportedByAddInn(Information.Attributes.TargetPlatforms) Then
 		Result.ErrorDescription = CompatibilityErrorDetails();
 		Return Result;
 	EndIf;
@@ -847,12 +831,12 @@ Function TemplateAddInInfo(Location) Export
 	Else
 		LayoutLocationSplit.Delete(LayoutLocationSplit.UBound());
 		LayoutLocationSplit.Delete(LayoutLocationSplit.UBound());
-		ObjectManagerByFullName =  Common.ObjectManagerByFullName(StrConcat(LayoutLocationSplit, "."));
+		ObjectManagerByFullName =  Common.ObjectManagerByFullName(
+			StrConcat(LayoutLocationSplit, "."));
 		ComponentBinaryData = ObjectManagerByFullName.GetTemplate(TemplateName);
 	EndIf;
 	
 	InformationOnAddInFromFile = InformationOnAddInFromFile(ComponentBinaryData);
-	
 	If Not InformationOnAddInFromFile.Disassembled Then
 		Return Undefined;
 	EndIf;
@@ -866,9 +850,7 @@ EndFunction
 Function OperatingSystemSupportedByAddInn(AddInAttributes)
 
 	SystemInfo = New SystemInfo;
-	
 	NameOfThePlatformType = CommonClientServer.NameOfThePlatformType(SystemInfo.PlatformType);
-
 	If NameOfThePlatformType = "Linux_x86" Then
 		Return AddInAttributes.Linux_x86;
 	ElsIf NameOfThePlatformType = "Linux_x86_64" Then
@@ -916,12 +898,9 @@ Function ImportFromFileIsAvailable()
 EndFunction
 
 // Parameters:
-//   Id - String               - the add-in identification code.
-//   Version        - String
-//                 - Undefined - an add-in version.
-//   ThePathToTheLayoutToSearchForTheLatestVersion 
-//                 - Undefined
-//                  -String
+//   Id - String - the add-in identification code.
+//   Version        - String - Add-in version.
+//   ThePathToTheLayoutToSearchForTheLatestVersion - String
 //
 // Returns:
 //  Structure:
@@ -932,11 +911,10 @@ EndFunction
 //    * Ref - AnyRef
 //    * Attributes - See AddInAttributes
 //    * IsTargetPlatformsFilled - Boolean
-//    * TheLatestVersionOfComponentsFromTheLayout 
-//    		- See StandardSubsystemsCached.TheLatestVersionOfComponentsFromTheLayout
-//    		- Undefined
+//    * TheLatestVersionOfComponentsFromTheLayout - See StandardSubsystemsCached.TheLatestVersionOfComponentsFromTheLayout
 //
-Function SavedAddInInformation(Id, Version = Undefined, ThePathToTheLayoutToSearchForTheLatestVersion = Undefined) Export
+Function SavedAddInInformation(Id, Version = Undefined, 
+	ThePathToTheLayoutToSearchForTheLatestVersion = Undefined) Export
 
 	Result = New Structure;
 	Result.Insert("Ref");
@@ -989,7 +967,8 @@ Function SavedAddInInformation(Id, Version = Undefined, ThePathToTheLayoutToSear
 		WarningText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Compatibility information for the %1 add-in is not filled in.';"), Id);
 		WriteLogEvent(NStr("en = 'Add-in compatibility check';",
-			Common.DefaultLanguageCode()), EventLogLevel.Warning, , Result.Ref, WarningText);
+			Common.DefaultLanguageCode()), EventLogLevel.Warning, , Result.Ref, 
+			WarningText);
 		
 		ObjectAttributes.TargetPlatforms = TargetPlatforms();
 	Else
@@ -1125,223 +1104,241 @@ Procedure FillAttributesByManifestXML(ManifestXMLFileName, Attributes)
 	XMLReader.OpenFile(ManifestXMLFileName);
 
 	XMLReader.MoveToContent();
-	If XMLReader.Name = "bundle" And XMLReader.NodeType = XMLNodeType.StartElement Then
-		While XMLReader.Read() Do
-			If XMLReader.Name = "component" And XMLReader.NodeType = XMLNodeType.StartElement Then
-
-				OperatingSystem = Lower(XMLReader.AttributeValue("os"));
-				ComponentType = Lower(XMLReader.AttributeValue("type"));
-				PlatformArchitecture = Lower(XMLReader.AttributeValue("arch"));
-				Viewer = Lower(XMLReader.AttributeValue("client"));
-
-				If OperatingSystem = "windows" And (ComponentType = "native" Or ComponentType = "com") Then
-
-					If PlatformArchitecture = "i386" Then
-						Attributes.Windows_x86 = True;
-						Continue;
-					EndIf;
-
-					If PlatformArchitecture = "x86_64" Then
-						Attributes.Windows_x86_64 = True;
-						Continue;
-					EndIf;
-					
-					Continue;
-				EndIf;
-				
-				If OperatingSystem = "linux" And ComponentType = "native" Then
-				
-					If PlatformArchitecture = "i386" Then
-						Attributes.Linux_x86 = True;
-						Continue;
-					EndIf;
-	
-					If PlatformArchitecture = "x86_64" Then
-						Attributes.Linux_x86_64 = True;
-						Continue;
-					EndIf;
-					
-					If PlatformArchitecture = "arm64" Then
-						Attributes.Linux_ARM64 = True;
-						Continue;
-					EndIf;
-					
-					If PlatformArchitecture = "e2k" Then
-						Attributes.Linux_E2K = True;
-						Continue;
-					EndIf;
-					
-					Continue;
-				EndIf;
-				
-				If OperatingSystem = "macos" And ComponentType = "native" And (PlatformArchitecture = "x86_64"
-						Or PlatformArchitecture = "universal") Then
-					Attributes.MacOS_x86_64 = True;
-					Continue;
-				EndIf;
-				
-				If OperatingSystem = "windowsruntime" Then
-
-					If PlatformArchitecture = "arm" Then
-						Attributes.WindowsRT_ARM = True;
-					ElsIf PlatformArchitecture = "x86_64" Then
-						Attributes.WindowsRT_x86_64 = True;
-					ElsIf PlatformArchitecture = "x86" Then
-						Attributes.WindowsRT_x86 = True;
-					EndIf;
-					
-					Continue;
-					
-				EndIf;
-				
-				If OperatingSystem = "android" Then
-
-					If PlatformArchitecture = "arm" Then
-						Attributes.Android_ARM = True;
-					ElsIf PlatformArchitecture = "arm64" Then
-						Attributes.Android_ARM64 = True;
-					ElsIf PlatformArchitecture = "x86_64" Then
-						Attributes.Android_x86_64 = True;
-					ElsIf PlatformArchitecture = "i386" Then
-						Attributes.Android_x86 = True;
-					EndIf;
-					
-					Continue;
-					
-				EndIf;
-				
-				If OperatingSystem = "ios" Then
-
-					If PlatformArchitecture = "arm" Or PlatformArchitecture = "universal" Then
-						Attributes.iOS_ARM = True;
-					EndIf;
-					
-					If PlatformArchitecture = "arm64" Or PlatformArchitecture = "universal" Then
-						Attributes.iOS_ARM64 = True;
-					EndIf;
-					
-					Continue;
-					
-				EndIf;
-				
-				If OperatingSystem = "linux" And ComponentType = "plugin" Then
-
-					If PlatformArchitecture = "i386" And Viewer = "firefox" Then
-						Attributes.Linux_x86_Firefox = True;
-						Continue;
-					EndIf;
-
-					If PlatformArchitecture = "x86_64" And Viewer = "firefox" Then
-						Attributes.Linux_x86_64_Firefox = True;
-						Continue;
-					EndIf;
-					
-					If PlatformArchitecture = "arm64" And Viewer = "firefox" Then
-						Attributes.Linux_ARM64_Firefox = True;
-						Continue;
-					EndIf;
-					
-					If PlatformArchitecture = "e2k" And Viewer = "firefox" Then
-						Attributes.Linux_E2K_Firefox = True;
-						Continue;
-					EndIf;
-					
-					If PlatformArchitecture = "i386" And (Viewer = "yandexbrowser" Or Viewer = "anychromiumbased") Then
-						Attributes.Linux_x86_YandexBrowser = True;
-					EndIf;
-					
-					If PlatformArchitecture = "i386" And (Viewer = "chrome" Or Viewer = "anychromiumbased") Then
-						Attributes.Linux_x86_Chrome = True;
-					EndIf;
-
-					If PlatformArchitecture = "x86_64" And (Viewer = "yandexbrowser" Or Viewer = "anychromiumbased") Then
-						Attributes.Linux_x86_64_YandexBrowser = True;
-					EndIf;
-
-					If PlatformArchitecture = "x86_64" And (Viewer = "chrome" Or Viewer = "anychromiumbased") Then
-						Attributes.Linux_x86_64_Chrome = True;
-					EndIf;
-					
-					If PlatformArchitecture = "arm64" And (Viewer = "yandexbrowser" Or Viewer = "anychromiumbased") Then
-						Attributes.Linux_ARM64_YandexBrowser = True;
-					EndIf;
-
-					If PlatformArchitecture = "arm64" And (Viewer = "chrome" Or Viewer = "anychromiumbased") Then
-						Attributes.Linux_ARM64_Chrome = True;
-					EndIf;
-					
-					If PlatformArchitecture = "e2k" And (Viewer = "yandexbrowser" Or Viewer = "anychromiumbased") Then
-						Attributes.Linux_E2K_YandexBrowser = True;
-					EndIf;
-
-					If PlatformArchitecture = "e2k" And (Viewer = "chrome" Or Viewer = "anychromiumbased") Then
-						Attributes.Linux_E2K_Chrome = True;
-					EndIf;
-					
-					Continue;
-				EndIf;
-				
-				If OperatingSystem = "windows" And ComponentType = "plugin" Then
-					
-					If PlatformArchitecture = "i386" And Viewer = "msie" Then
-						Attributes.Windows_x86_MSIE = True;
-						Continue;
-					EndIf;
-	
-					If PlatformArchitecture = "x86_64" And Viewer = "msie" Then
-						Attributes.Windows_x86_64_MSIE = True;
-						Continue;
-					EndIf;
-					
-					If PlatformArchitecture = "i386" And Viewer = "firefox" Then
-						Attributes.Windows_x86_Firefox = True;
-						Continue;
-					EndIf;
-					
-					If PlatformArchitecture = "i386" And (Viewer = "chrome" Or Viewer = "anychromiumbased") Then
-						Attributes.Windows_x86_Chrome = True;
-					EndIf;
-					
-					If PlatformArchitecture = "i386" And (Viewer = "yandexbrowser" Or Viewer = "anychromiumbased") Then
-						Attributes.Windows_x86_YandexBrowser = True;
-					EndIf;
-					
-					If PlatformArchitecture = "x86_64" And (Viewer = "yandexbrowser" Or Viewer = "anychromiumbased") Then
-						Attributes.Windows_x86_64_YandexBrowser = True;
-					EndIf;
-		
-					Continue;
-					
-				EndIf;
-				
-				If OperatingSystem = "macos" And ComponentType = "plugin" Then
-
-					If  (PlatformArchitecture = "x86_64" Or PlatformArchitecture = "universal") And Viewer = "safari" Then
-						Attributes.MacOS_x86_64_Safari = True;
-						Continue;
-					EndIf;
-								
-					If (PlatformArchitecture = "x86_64" Or PlatformArchitecture = "universal") And Viewer = "firefox" Then
-						Attributes.MacOS_x86_64_Firefox = True;
-						Continue;
-					EndIf;
-					
-					If (PlatformArchitecture = "x86_64" Or PlatformArchitecture = "universal") And (Viewer = "chrome" Or Viewer = "anychromiumbased") Then
-						Attributes.MacOS_x86_64_Chrome = True;
-					EndIf;
-					
-					If (PlatformArchitecture = "x86_64" Or PlatformArchitecture = "universal") And (Viewer = "yandexbrowser" 
-							Or Viewer = "anychromiumbased") Then
-						Attributes.MacOS_x86_64_YandexBrowser = True;
-					EndIf;
-				
-					Continue;
-					
-				EndIf;
-				
-			EndIf;
-		EndDo;
+	If XMLReader.Name <> "bundle" Or XMLReader.NodeType <> XMLNodeType.StartElement Then
+		XMLReader.Close();
+		Return;
 	EndIf;
+	
+	While XMLReader.Read() Do
+		If XMLReader.Name <> "component" Or XMLReader.NodeType <> XMLNodeType.StartElement Then
+			Continue;
+		EndIf;
+
+		OperatingSystem = Lower(XMLReader.AttributeValue("os"));
+		ComponentType = Lower(XMLReader.AttributeValue("type"));
+		PlatformArchitecture = Lower(XMLReader.AttributeValue("arch"));
+		Viewer = Lower(XMLReader.AttributeValue("client"));
+
+		If OperatingSystem = "windows" And (ComponentType = "native" Or ComponentType = "com") Then
+
+			If PlatformArchitecture = "i386" Then
+				Attributes.Windows_x86 = True;
+				Continue;
+			EndIf;
+
+			If PlatformArchitecture = "x86_64" Then
+				Attributes.Windows_x86_64 = True;
+				Continue;
+			EndIf;
+			
+			Continue;
+		EndIf;
+		
+		If OperatingSystem = "linux" And ComponentType = "native" Then
+		
+			If PlatformArchitecture = "i386" Then
+				Attributes.Linux_x86 = True;
+				Continue;
+			EndIf;
+
+			If PlatformArchitecture = "x86_64" Then
+				Attributes.Linux_x86_64 = True;
+				Continue;
+			EndIf;
+			
+			If PlatformArchitecture = "arm64" Then
+				Attributes.Linux_ARM64 = True;
+				Continue;
+			EndIf;
+			
+			If PlatformArchitecture = "e2k" Then
+				Attributes.Linux_E2K = True;
+				Continue;
+			EndIf;
+			
+			Continue;
+		EndIf;
+		
+		If OperatingSystem = "macos" And ComponentType = "native" And (PlatformArchitecture = "x86_64"
+				Or PlatformArchitecture = "universal") Then
+			Attributes.MacOS_x86_64 = True;
+			Continue;
+		EndIf;
+		
+		If OperatingSystem = "windowsruntime" Then
+
+			If PlatformArchitecture = "arm" Then
+				Attributes.WindowsRT_ARM = True;
+			ElsIf PlatformArchitecture = "x86_64" Then
+				Attributes.WindowsRT_x86_64 = True;
+			ElsIf PlatformArchitecture = "x86" Then
+				Attributes.WindowsRT_x86 = True;
+			EndIf;
+			
+			Continue;
+			
+		EndIf;
+		
+		If OperatingSystem = "android" Then
+
+			If PlatformArchitecture = "arm" Then
+				Attributes.Android_ARM = True;
+			ElsIf PlatformArchitecture = "arm64" Then
+				Attributes.Android_ARM64 = True;
+			ElsIf PlatformArchitecture = "x86_64" Then
+				Attributes.Android_x86_64 = True;
+			ElsIf PlatformArchitecture = "i386" Then
+				Attributes.Android_x86 = True;
+			EndIf;
+			
+			Continue;
+			
+		EndIf;
+		
+		If OperatingSystem = "ios" Then
+
+			If PlatformArchitecture = "arm" Or PlatformArchitecture = "universal" Then
+				Attributes.iOS_ARM = True;
+			EndIf;
+			
+			If PlatformArchitecture = "arm64" Or PlatformArchitecture = "universal" Then
+				Attributes.iOS_ARM64 = True;
+			EndIf;
+			
+			Continue;
+			
+		EndIf;
+		
+		If OperatingSystem = "linux" And ComponentType = "plugin" Then
+
+			If PlatformArchitecture = "i386" And Viewer = "firefox" Then
+				Attributes.Linux_x86_Firefox = True;
+				Continue;
+			EndIf;
+
+			If PlatformArchitecture = "x86_64" And Viewer = "firefox" Then
+				Attributes.Linux_x86_64_Firefox = True;
+				Continue;
+			EndIf;
+			
+			If PlatformArchitecture = "arm64" And Viewer = "firefox" Then
+				Attributes.Linux_ARM64_Firefox = True;
+				Continue;
+			EndIf;
+			
+			If PlatformArchitecture = "e2k" And Viewer = "firefox" Then
+				Attributes.Linux_E2K_Firefox = True;
+				Continue;
+			EndIf;
+			
+			If PlatformArchitecture = "i386" And (Viewer = "yandexbrowser" 
+				Or Viewer = "anychromiumbased") Then
+				Attributes.Linux_x86_YandexBrowser = True;
+			EndIf;
+			
+			If PlatformArchitecture = "i386" And (Viewer = "chrome" 
+				Or Viewer = "anychromiumbased") Then
+				Attributes.Linux_x86_Chrome = True;
+			EndIf;
+
+			If PlatformArchitecture = "x86_64" And (Viewer = "yandexbrowser" 
+				Or Viewer = "anychromiumbased") Then
+				Attributes.Linux_x86_64_YandexBrowser = True;
+			EndIf;
+
+			If PlatformArchitecture = "x86_64" And (Viewer = "chrome" 
+				Or Viewer = "anychromiumbased") Then
+				Attributes.Linux_x86_64_Chrome = True;
+			EndIf;
+			
+			If PlatformArchitecture = "arm64" And (Viewer = "yandexbrowser" 
+				Or Viewer = "anychromiumbased") Then
+				Attributes.Linux_ARM64_YandexBrowser = True;
+			EndIf;
+
+			If PlatformArchitecture = "arm64" And (Viewer = "chrome" 
+				Or Viewer = "anychromiumbased") Then
+				Attributes.Linux_ARM64_Chrome = True;
+			EndIf;
+			
+			If PlatformArchitecture = "e2k" And (Viewer = "yandexbrowser" 
+				Or Viewer = "anychromiumbased") Then
+				Attributes.Linux_E2K_YandexBrowser = True;
+			EndIf;
+
+			If PlatformArchitecture = "e2k" And (Viewer = "chrome" 
+				Or Viewer = "anychromiumbased") Then
+				Attributes.Linux_E2K_Chrome = True;
+			EndIf;
+			
+			Continue;
+		EndIf;
+		
+		If OperatingSystem = "windows" And ComponentType = "plugin" Then
+			
+			If PlatformArchitecture = "i386" And Viewer = "msie" Then
+				Attributes.Windows_x86_MSIE = True;
+				Continue;
+			EndIf;
+
+			If PlatformArchitecture = "x86_64" And Viewer = "msie" Then
+				Attributes.Windows_x86_64_MSIE = True;
+				Continue;
+			EndIf;
+			
+			If PlatformArchitecture = "i386" And Viewer = "firefox" Then
+				Attributes.Windows_x86_Firefox = True;
+				Continue;
+			EndIf;
+			
+			If PlatformArchitecture = "i386" And (Viewer = "chrome" 
+				Or Viewer = "anychromiumbased") Then
+				Attributes.Windows_x86_Chrome = True;
+			EndIf;
+			
+			If PlatformArchitecture = "i386" And (Viewer = "yandexbrowser" 
+				Or Viewer = "anychromiumbased") Then
+				Attributes.Windows_x86_YandexBrowser = True;
+			EndIf;
+			
+			If PlatformArchitecture = "x86_64" And (Viewer = "yandexbrowser" 
+				Or Viewer = "anychromiumbased") Then
+				Attributes.Windows_x86_64_YandexBrowser = True;
+			EndIf;
+
+			Continue;
+			
+		EndIf;
+		
+		If OperatingSystem = "macos" And ComponentType = "plugin" Then
+
+			If  (PlatformArchitecture = "x86_64" Or PlatformArchitecture = "universal") 
+				And Viewer = "safari" Then
+				Attributes.MacOS_x86_64_Safari = True;
+				Continue;
+			EndIf;
+						
+			If (PlatformArchitecture = "x86_64" Or PlatformArchitecture = "universal") 
+				And Viewer = "firefox" Then
+				Attributes.MacOS_x86_64_Firefox = True;
+				Continue;
+			EndIf;
+			
+			If (PlatformArchitecture = "x86_64" Or PlatformArchitecture = "universal") 
+				And (Viewer = "chrome" Or Viewer = "anychromiumbased") Then
+				Attributes.MacOS_x86_64_Chrome = True;
+			EndIf;
+			
+			If (PlatformArchitecture = "x86_64" Or PlatformArchitecture = "universal") 
+				And (Viewer = "yandexbrowser" Or Viewer = "anychromiumbased") Then
+				Attributes.MacOS_x86_64_YandexBrowser = True;
+			EndIf;
+		
+			Continue;
+			
+		EndIf;
+	EndDo;
+
 	XMLReader.Close();
 
 EndProcedure
@@ -1357,17 +1354,17 @@ Procedure FillAttributesByInfoXML(InfoXMLFileName, Attributes)
 	XMLReader.MoveToContent();
 	If XMLReader.Name = "drivers" And XMLReader.NodeType = XMLNodeType.StartElement Then
 		While XMLReader.Read() Do
-			If XMLReader.Name = "component" And XMLReader.NodeType = XMLNodeType.StartElement Then
-
-				Id = XMLReader.AttributeValue("progid");
-				
-				Attributes.Id = Mid(Id, StrFind(Id, ".") + 1);
-				Attributes.Description = XMLReader.AttributeValue("name");
-				Attributes.Version = XMLReader.AttributeValue("version");
-
-				FileRead = True;
-
+			If XMLReader.Name <> "component" Or XMLReader.NodeType <> XMLNodeType.StartElement Then
+				Continue;
 			EndIf;
+
+			Id = XMLReader.AttributeValue("progid");
+			
+			Attributes.Id = Mid(Id, StrFind(Id, ".") + 1);
+			Attributes.Description = XMLReader.AttributeValue("name");
+			Attributes.Version = XMLReader.AttributeValue("version");
+
+			FileRead = True;
 		EndDo;
 	EndIf;
 	XMLReader.Close();
@@ -1418,187 +1415,6 @@ EndFunction
 
 #EndRegion
 
-#Region ImportFromPortal
-
-Procedure CheckImportFromPortalAvailability()
-
-	If Not CanImportFromPortal() Then
-		Raise NStr("en = 'Cannot update add-ins from the 1C:ITS portal.';");
-	EndIf;
-
-EndProcedure
-
-// Returns:
-//  Structure:
-//   * Id - String
-//   * Version - String
-//   * AutoUpdate - Boolean
-//
-Function ComponentParametersFromThePortal() Export
-	
-	Result = New Structure;
-	Result.Insert("Id", "");
-	Result.Insert("Version", "");
-	Result.Insert("AutoUpdate", True);
-	Return Result;
-	
-EndFunction
-	
-// Parameters:
-//  ProcedureParameters - See ComponentParametersFromThePortal.
-//  ResultAddress - String
-//
-Procedure NewAddInsFromPortal(ProcedureParameters, ResultAddress) Export
-
-	If Common.SubsystemExists("OnlineUserSupport.GetAddIns") Then
-
-		Id = ProcedureParameters.Id;
-		Version = ProcedureParameters.Version;
-
-		CheckImportFromPortalAvailability();
-
-		ModuleGetAddIns = Common.CommonModule("GetAddIns");
-
-		AddInsDetails = ModuleGetAddIns.AddInsDetails();
-		AddInDetails = AddInsDetails.Add();
-		AddInDetails.Id = Id;
-		AddInDetails.Version = Version;
-
-		If Not ValueIsFilled(Version) Then
-			OperationResult = ModuleGetAddIns.CurrentVersionsOfExternalComponents(AddInsDetails);
-		Else
-			OperationResult = ModuleGetAddIns.VersionsOfExternalComponents(AddInsDetails);
-		EndIf;
-
-		If ValueIsFilled(OperationResult.ErrorCode) Then
-			ExceptionText = ?(Users.IsFullUser(), OperationResult.ErrorInfo, OperationResult.ErrorMessage);
-			Raise ExceptionText;
-		EndIf;
-
-		If OperationResult.AddInsData.Count() = 0 Then
-			ExceptionText = NStr("en = 'Add-in is not found on 1C:ITS portal.';");
-			WriteLogEvent(NStr("en = 'Updating add-ins';", Common.DefaultLanguageCode()), EventLogLevel.Error, , , ExceptionText);
-			Raise ExceptionText;
-		EndIf;
-
-		ResultString1 = OperationResult.AddInsData[0];
-		ErrorCode = ResultString1.ErrorCode;
-
-		If ValueIsFilled(ErrorCode) Then
-
-			ErrorInfo = "";
-			If ErrorCode = "ComponentNotFound" Then
-				ErrorInfo = NStr("en = 'The required add-in %1 is missing from the 1C:ITS portal';");
-			ElsIf ErrorCode = "VersionNotFound" Then
-				ErrorInfo = NStr("en = 'The required version of the %1 add-in is missing from the 1C:ITS portal.';");
-			ElsIf ErrorCode = "FileNotImported" Or ErrorCode = "LatestVersion" Then
-				ErrorInfo = NStr("en = 'Cannot import the %1 add-in due to an unexpected reason (code %2).';");
-			EndIf;
-
-			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorInfo, 
-				AddInPresentation(Id, Version), ErrorCode);
-			WriteLogEvent(NStr("en = 'Updating add-ins';", Common.DefaultLanguageCode()), 
-				EventLogLevel.Error, , , ErrorText);
-			Raise ErrorText;
-		EndIf;
-
-		BinaryData = GetFromTempStorage(ResultString1.FileAddress);
-		Information = InformationOnAddInFromFile(BinaryData, False);
-
-		If Not Information.Disassembled Then
-			
-			ExceptionText = Information.ErrorDescription + ?(Information.ErrorInfo = Undefined, "",
-			 ": " + ErrorProcessing.BriefErrorDescription(Information.ErrorInfo));
-				
-			WriteLogEvent(NStr("en = 'Updating add-ins';", Common.DefaultLanguageCode()), 
-				EventLogLevel.Error, , , ExceptionText);
-			Raise ExceptionText;
-		EndIf;
-
-		SetPrivilegedMode(True);
-
-		BeginTransaction();
-		Try
-			// Create an add-in instance.
-			Object = Catalogs.AddIns.CreateItem();
-			Object.Fill(Undefined); // Default constructor
-			FillPropertyValues(Object, Information.Attributes); // According to manifest data.
-			FillPropertyValues(Object, ResultString1); // By data from the website.
-			Object.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Imported from 1C:ITS Portal. %1.';"), CurrentSessionDate());
-			Object.TargetPlatforms = New ValueStorage(Information.Attributes.TargetPlatforms);
-			Object.AdditionalProperties.Insert("ComponentBinaryData", Information.BinaryData);
-
-			If Not ValueIsFilled(Version) Then // If the specific version is requested, then skip.
-				Object.UpdateFrom1CITSPortal = Object.ThisIsTheLatestVersionComponent()
-					And ProcedureParameters.AutoUpdate;
-			EndIf;
-
-			Object.Write();
-			CommitTransaction();
-		Except
-			RollbackTransaction();
-			WriteLogEvent(NStr("en = 'Updating add-ins';", Common.DefaultLanguageCode()), EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-			Raise;
-		EndTry;
-		NotifyAllSessionsAboutAddInChange();
-	Else
-		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Operation is unavailable. Subsystem ""%1"" is required.';"),
-			"OnlineUserSupport.GetAddIns");
-	EndIf;
-
-EndProcedure
-
-// Returns:
-//   Structure:
-//     * AddInsToUpdate - Array of CatalogRef.AddIns 
-//  
-Function ParametersForUpdatingAComponentFromThePortal() Export
-	
-	Result = New Structure;
-	Result.Insert("AddInsToUpdate", New Array);
-	Return Result;
-	
-EndFunction
-
-// Parameters:
-//  ProcedureParameters - See ParametersForUpdatingAComponentFromThePortal
-//  ResultAddress - String
-//
-Procedure UpdateAddInsFromPortal(ProcedureParameters, ResultAddress) Export
-
-	If Common.SubsystemExists("OnlineUserSupport.GetAddIns") Then
-
-		CheckImportFromPortalAvailability();
-
-		ModuleGetAddIns = Common.CommonModule("GetAddIns");
-		AddInsDetails = ModuleGetAddIns.AddInsDetails();
-
-		AddInsToUpdate = ProcedureParameters.AddInsToUpdate;
-		Attributes = Common.ObjectsAttributesValues(AddInsToUpdate, "Id, Version");
-		For Each AddInToUpdate In AddInsToUpdate Do
-			ComponentDetails = AddInsDetails.Add();
-			ComponentDetails.Id = Attributes[AddInToUpdate].Id;
-			ComponentDetails.Version = Attributes[AddInToUpdate].Version;
-		EndDo;
-
-		OperationResult = ModuleGetAddIns.CurrentVersionsOfExternalComponents(AddInsDetails);
-		If ValueIsFilled(OperationResult.ErrorCode) Then
-			ExceptionText = ?(Users.IsFullUser(), OperationResult.ErrorInfo, OperationResult.ErrorMessage);
-			Raise ExceptionText;
-		EndIf;
-
-		AddInsServer.UpdateAddIns(OperationResult.AddInsData, ResultAddress);
-		NotifyAllSessionsAboutAddInChange();
-	Else
-		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Operation is unavailable. Subsystem ""%1"" is required.';"),
-			"OnlineUserSupport.GetAddIns");
-	EndIf;
-
-EndProcedure
-
-#EndRegion
+.GetAddIns
 
 #EndRegion

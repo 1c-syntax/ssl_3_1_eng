@@ -615,7 +615,7 @@ Procedure SelectComparisonType(Item, StandardProcessing)
 	ChoiceParameters = New Structure("RecordID", Items.QuickSettings.CurrentRow);
 	
 	ShowChooseFromMenu(
-		New NotifyDescription("AfterSelectingTheTypeOfComparison", ThisObject, ChoiceParameters),
+		New CallbackDescription("AfterSelectingTheTypeOfComparison", ThisObject, ChoiceParameters),
 		Record.AvailableCompareTypes,
 		Item);
 	

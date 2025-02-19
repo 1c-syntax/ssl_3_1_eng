@@ -55,7 +55,7 @@ EndProcedure
 //       	DCUserSetting = DCSettingsComposer.FindByID(DCID).
 //   StandardProcessing - Boolean - if True, the standard selection dialog box will be used.
 //       If you use own event handling, you have to set False.
-//   Handler - NotifyDescription - Handler that handles the selection result in an applied form.
+//   Handler - CallbackDescription - Handler that handles the selection result in an applied form.
 //       The first parameter, Result, takes the following value types:
 //       Undefined - User canceled the selection.
 //       DataCompositionUserSettings - New report settings.

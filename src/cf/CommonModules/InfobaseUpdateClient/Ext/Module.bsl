@@ -33,8 +33,7 @@ Procedure ShowUpdateResults() Export
 	OpenForm("DataProcessor.ApplicationUpdateResult.Form.ApplicationUpdateResult");
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // See CommonClientOverridable.BeforeStart.
 Procedure BeforeStart(Parameters) Export
@@ -63,7 +62,7 @@ Procedure BeforeStart(Parameters) Export
 			ClientParameters.InfobaseLockedForUpdate);
 		
 		Parameters.Cancel = True;
-		Parameters.InteractiveHandler = New NotifyDescription(
+		Parameters.InteractiveHandler = New CallbackDescription(
 			"ShowMessageBoxAndContinue",
 			StandardSubsystemsClient,
 			WarningDetails);
@@ -76,7 +75,7 @@ Procedure BeforeStart2(Parameters) Export
 	
 	ClientParameters = StandardSubsystemsClient.ClientParametersOnStart();
 	If ClientParameters.Property("MustRunDeferredUpdateHandlers") Then
-		Parameters.InteractiveHandler = New NotifyDescription(
+		Parameters.InteractiveHandler = New CallbackDescription(
 			"DeferredUpdateStatusCheckInteractiveHandler",
 			ThisObject);
 	EndIf;
@@ -88,7 +87,7 @@ Procedure BeforeStart3(Parameters) Export
 	
 	ClientParameters = StandardSubsystemsClient.ClientParametersOnStart();
 	If ClientParameters.Property("ApplicationParametersUpdateRequired") Then
-		Parameters.InteractiveHandler = New NotifyDescription(
+		Parameters.InteractiveHandler = New CallbackDescription(
 			"ImportUpdateApplicationParameters", InfobaseUpdateClient);
 	EndIf;
 	
@@ -106,10 +105,10 @@ Procedure BeforeStart4(Parameters) Export
 	
 	If ClientRunParameters.Property("InfobaseUpdateRequired") Then
 		If ClientRunParameters.Property("SimplifiedInfobaseUpdateForm") Then
-			Parameters.InteractiveHandler = New NotifyDescription(
+			Parameters.InteractiveHandler = New CallbackDescription(
 				"InitiateAreaUpdate", ThisObject);
 		Else
-			Parameters.InteractiveHandler = New NotifyDescription(
+			Parameters.InteractiveHandler = New CallbackDescription(
 				"StartInfobaseUpdate1", ThisObject);
 		EndIf;
 	Else
@@ -257,6 +256,8 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 #Region Private
 
 Procedure UnlockObjectToEdit(ObjectsArray, AdditionalParameters) Export
@@ -271,7 +272,7 @@ Procedure UnlockObjectToEdit(ObjectsArray, AdditionalParameters) Export
 	If AdditionalParameters.Property("Form") Then
 		Parameters.Form = AdditionalParameters.Form;
 	EndIf;
-	NotifyDescription = New NotifyDescription("UnlockObjectToEditAfterQuestion", ThisObject, Parameters);
+	NotifyDescription = New CallbackDescription("UnlockObjectToEditAfterQuestion", ThisObject, Parameters);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo);
 	
 EndProcedure
@@ -317,7 +318,7 @@ Procedure StartInfobaseUpdate1(Parameters, ContinuationHandler) Export
 	
 	If Form = Undefined Then
 		FormName = "DataProcessor.ApplicationUpdateResult.Form.ApplicationVersionUpdate";
-		Form = OpenForm(FormName,,,,,, New NotifyDescription(
+		Form = OpenForm(FormName,,,,,, New CallbackDescription(
 			"AfterCloseIBUpdateProgressIndicatorForm", ThisObject, Parameters));
 		ApplicationParameters.Insert(ParameterName, Form);
 	EndIf;
@@ -330,7 +331,7 @@ EndProcedure
 Procedure ImportUpdateApplicationParameters(Parameters, Context) Export
 	
 	FormName = "DataProcessor.ApplicationUpdateResult.Form.ApplicationVersionUpdate";
-	Form = OpenForm(FormName,,,,,, New NotifyDescription(
+	Form = OpenForm(FormName,,,,,, New CallbackDescription(
 		"AfterCloseIBUpdateProgressIndicatorForm", ThisObject, Parameters));
 	ApplicationParameters.Insert("StandardSubsystems.IBVersionUpdate.IBUpdateProgressIndicatorForm", Form);
 	Form.ImportUpdateApplicationParameters(Parameters);
@@ -351,7 +352,7 @@ Procedure AfterCloseIBUpdateProgressIndicatorForm(Result, Parameters) Export
 		EndIf;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 
@@ -359,7 +360,7 @@ EndProcedure
 Procedure DeferredUpdateStatusCheckInteractiveHandler(Parameters, Context) Export
 	
 	OpenForm("DataProcessor.ApplicationUpdateResult.Form.DeferredUpdateNotCompleted", , , , , ,
-		New NotifyDescription("AfterDeferredUpdateStatusCheckFormClose",
+		New CallbackDescription("AfterDeferredUpdateStatusCheckFormClose",
 			ThisObject, Parameters));
 	
 EndProcedure
@@ -371,7 +372,7 @@ Procedure AfterDeferredUpdateStatusCheckFormClose(Result, Parameters) Export
 		Parameters.Cancel = True;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 
@@ -478,7 +479,7 @@ Procedure ProcessManualPatchInstallationResult(Result, AdditionalParameters) Exp
 		Buttons.Add("Close", NStr("en = 'Close';"));
 		QuestionParameters.Picture = PictureLib.DialogExclamation;
 		QuestionParameters.DefaultButton = "Close";
-		NotifyDescription = New NotifyDescription("HandlePatchInstallationError", ThisObject);
+		NotifyDescription = New CallbackDescription("HandlePatchInstallationError", ThisObject);
 		StandardSubsystemsClient.ShowQuestionToUser(NotifyDescription, ErrorText, Buttons, QuestionParameters);
 		
 		Return;

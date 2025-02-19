@@ -15,12 +15,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ReadOnly = True;
 	
-	Store = FormAttributeToValue("Record").NotificationContent;
+	Storage = FormAttributeToValue("Record").NotificationContent;
 	Items.PageContent.Title = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Content (size, bytes: %1)';"),
-		String(Base64Value(XMLString(Store)).Size()));
+		String(Base64Value(XMLString(Storage)).Size()));
 	
-	StorageContents = Store.Get();
+	StorageContents = Storage.Get();
 	Try
 		NotificationContent = Common.ValueToXMLString(StorageContents);
 	Except

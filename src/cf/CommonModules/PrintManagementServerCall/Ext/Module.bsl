@@ -10,9 +10,10 @@
 
 #Region Public
 
-////////////////////////////////////////////////////////////////////////////////
-// Operations with office document templates.
+#Region ObsoleteProceduresAndFunctions
 
+// Deprecated. Instead, use "PrintManagement.TemplatesAndObjectsDataToPrint" and 
+// the generation of print forms from office document templates. 
 // Gets all data required for printing within a single call: object template data, binary
 // template data, and template area description.
 // Used for calling print forms based on office document templates from client modules.
@@ -34,6 +35,8 @@ Function TemplatesAndObjectsDataToPrint(Val PrintManagerName, Val TemplatesNames
 	Return PrintManagement.TemplatesAndObjectsDataToPrint(PrintManagerName, TemplatesNames, DocumentsComposition);
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion
 
@@ -61,17 +64,24 @@ Function GeneratePrintFormsForQuickPrintOrdinaryApplication(PrintManagerName, Te
 	
 EndFunction
 
-// Returns True if the user is authorized to post at least one document.
-Function HasRightToPost(DocumentsList) Export
-	Return StandardSubsystemsServer.HasRightToPost(DocumentsList);
-EndFunction
-
 // See PrintManagement.DocumentsPackage.
 Function DocumentsPackage(SpreadsheetDocuments, PrintObjects, PrintInSets, Copies = 1) Export
 	
 	Return PrintManagement.DocumentsPackage(SpreadsheetDocuments, PrintObjects,
 		PrintInSets, Copies);
 	
+EndFunction
+
+Function DefaultPrintExecutionParameters(Val References) Export
+	Return PrintManagement.DefaultPrintExecutionParameters(References);
+EndFunction
+
+Function SavedDescriptions(Val Objects) Export
+	Return InformationRegisters.DefaultObjectPrintForms.SavedDescriptions(Objects);
+EndFunction
+
+Function DefaultPrintFormInSet(Val ObjectsArray, Val PrintCommand) Export
+	Return PrintManagement.DefaultPrintFormInSet(ObjectsArray, PrintCommand);
 EndFunction
 
 #Region PrintingInBackgroundJob

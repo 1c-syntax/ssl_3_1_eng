@@ -66,8 +66,8 @@ EndProcedure
 Procedure OnOpen(Cancel)
 	
 	ModuleTimeConsumingOperationsClient = CommonClient.CommonModule("TimeConsumingOperationsClient");
-	StandardCloseAlert = OnCloseNotifyDescription <> Undefined
-	   And OnCloseNotifyDescription.Module = ModuleTimeConsumingOperationsClient;
+	StandardCloseAlert = CallbackDescriptionOnClose <> Undefined
+	   And CallbackDescriptionOnClose.Module = ModuleTimeConsumingOperationsClient;
 	
 	If Parameters.OutputIdleWindow Then
 		FormClosing = False;
@@ -82,8 +82,8 @@ Procedure OnOpen(Cancel)
 		TimeConsumingOperation.Insert("ResultAddress", Parameters.ResultAddress);
 		TimeConsumingOperation.Insert("AdditionalResultAddress", Parameters.AdditionalResultAddress);
 		
-		CallbackOnCompletion = New NotifyDescription("OnCompleteTimeConsumingOperation", ThisObject);
-		NotificationAboutProgress  = New NotifyDescription("OnGetLongRunningOperationProgress", ThisObject);
+		CallbackOnCompletion = New CallbackDescription("OnCompleteTimeConsumingOperation", ThisObject);
+		NotificationAboutProgress  = New CallbackDescription("OnGetLongRunningOperationProgress", ThisObject);
 		
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(FormOwner);
 		IdleParameters.OutputIdleWindow = False;
@@ -263,7 +263,7 @@ Procedure FinishLongRunningOperationAndCloseForm(TimeConsumingOperation)
 	        And StandardCloseAlert Then
 		
 		Result = ExecutionResult(TimeConsumingOperation);
-		OnCloseNotifyDescription.AdditionalParameters.Result = Result;
+		CallbackDescriptionOnClose.AdditionalParameters.Result = Result;
 		If ShouldCompleteAfterClose <> Undefined Then
 			ShouldCompleteAfterClose = True;
 		EndIf;
@@ -275,14 +275,14 @@ EndProcedure
 &AtClient
 Procedure RunStandardCloseAlert(Result)
 	
-	OnCloseNotifyDescription.AdditionalParameters.Result = Result;
+	CallbackDescriptionOnClose.AdditionalParameters.Result = Result;
 	
 	If Not FormClosing Then
 		Close();
 		
 	ElsIf ShouldCompleteAfterClose Then
 		ShouldCompleteAfterClose = Undefined;
-		ExecuteNotifyProcessing(OnCloseNotifyDescription, Undefined);
+		RunCallback(CallbackDescriptionOnClose, Undefined);
 	EndIf;
 	
 EndProcedure
@@ -354,8 +354,8 @@ EndFunction
 Function ReturnResultToChoiceProcessing()
 	
 	CallbackOnCompletion = ?(StandardCloseAlert,
-		OnCloseNotifyDescription.AdditionalParameters.CallbackOnCompletion,
-		OnCloseNotifyDescription);
+		CallbackDescriptionOnClose.AdditionalParameters.CallbackOnCompletion,
+		CallbackDescriptionOnClose);
 	
 	Return CallbackOnCompletion = Undefined
 		And Parameters.MustReceiveResult

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<Title>
 		<v8:item>
 			<v8:lang>en</v8:lang>
@@ -18,19 +18,15 @@
 		<Event name="BeforeLoadDataFromSettingsAtServer">OnLoadDataFromSettingsAtServer</Event>
 	</Events>
 	<ChildItems>
-		<UsualGroup name="CustomSettingsFolder" id="130">
+		<CommandBar name="CustomSettingsFolder" id="130">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
 					<v8:content>User settings group</v8:content>
 				</v8:item>
 			</Title>
-			<Group>Vertical</Group>
-			<Behavior>Usual</Behavior>
-			<Representation>None</Representation>
-			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="CustomSettingsFolderExtendedTooltip" id="131"/>
-		</UsualGroup>
+		</CommandBar>
 		<CommandBar name="CommandBarOfList" id="50">
 			<Title>
 				<v8:item>
@@ -121,7 +117,6 @@
 			<ShowRoot>false</ShowRoot>
 			<AllowRootChoice>false</AllowRootChoice>
 			<UpdateOnDataChange>Auto</UpdateOnDataChange>
-			<UserSettingsGroup>CustomSettingsFolder</UserSettingsGroup>
 			<AllowGettingCurrentRowURL>true</AllowGettingCurrentRowURL>
 			<ContextMenu name="ListContextMenu" id="2"/>
 			<AutoCommandBar name="ListCommandBar" id="3"/>
@@ -524,8 +519,14 @@
 						<CommandName>Form.Item.TasksTree.StandardCommand.OutputList</CommandName>
 						<ExtendedTooltip name="TasksTreeOutputListExtendedTooltip" id="86"/>
 					</Button>
-					<ButtonGroup name="FormCommands" id="150">
-						<ExtendedTooltip name="FormCommandsExtendedTooltip" id="151"/>
+					<ButtonGroup name="FormCommands" id="152">
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Form commands</v8:content>
+							</v8:item>
+						</Title>
+						<ExtendedTooltip name="FormCommandsExtendedTooltip" id="153"/>
 					</ButtonGroup>
 				</ChildItems>
 			</AutoCommandBar>
@@ -984,7 +985,7 @@ WHERE Tasks.SubjectOf = &amp;FilterParameter
 	<Parameters>
 		<Parameter name="FilterValue">
 			<Type>
-				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+				<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
 			</Type>
 			<KeyParameter>true</KeyParameter>
 		</Parameter>

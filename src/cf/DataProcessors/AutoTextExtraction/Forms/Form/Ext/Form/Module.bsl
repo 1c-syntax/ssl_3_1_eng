@@ -176,7 +176,7 @@ Procedure StartUpdateInformationOnFileCountWithUnextractedText()
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	
-	NotifyDescription = New NotifyDescription("OnCompleteUpdateUnextractedTextFilesCountInformation", ThisObject);
+	NotifyDescription = New CallbackDescription("OnCompleteUpdateUnextractedTextFilesCountInformation", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, NotifyDescription, IdleParameters);
 	
 EndProcedure

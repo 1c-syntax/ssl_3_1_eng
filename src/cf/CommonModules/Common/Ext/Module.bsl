@@ -201,12 +201,12 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 	EndIf;
 	
 	MultilingualAttributes = New Map;
-	LanguageSuffix = "";
+	LanguageSuffix_ = "";
 	If ValueIsFilled(LanguageCode) Then
 		If SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 			ModuleNationalLanguageSupportServer = CommonModule("NationalLanguageSupportServer");
-			LanguageSuffix = ModuleNationalLanguageSupportServer.LanguageSuffix(LanguageCode);
-			If ValueIsFilled(LanguageSuffix) Then
+			LanguageSuffix_ = ModuleNationalLanguageSupportServer.LanguageSuffix_(LanguageCode);
+			If ValueIsFilled(LanguageSuffix_) Then
 				MultilingualAttributes = ModuleNationalLanguageSupportServer.MultilingualObjectAttributes(Ref);
 			EndIf;
 		EndIf;
@@ -266,7 +266,7 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 		FieldAlias = KeyAndValue.Key;
 		
 		If MultilingualAttributes[FieldName] <> Undefined Then
-			FieldName = FieldName + LanguageSuffix;
+			FieldName = FieldName + LanguageSuffix_;
 		EndIf;
 		
 		FieldQueryText = 
@@ -494,14 +494,14 @@ Function ObjectsAttributesValues(References, Val Attributes, SelectAllowedItems 
 	If SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportServer = CommonModule("NationalLanguageSupportServer");
 		If ValueIsFilled(LanguageCode) Then
-			LanguageSuffix = ModuleNationalLanguageSupportServer.LanguageSuffix(LanguageCode);
-			If ValueIsFilled(LanguageSuffix) Then
+			LanguageSuffix_ = ModuleNationalLanguageSupportServer.LanguageSuffix_(LanguageCode);
+			If ValueIsFilled(LanguageSuffix_) Then
 				MultilingualAttributes = ModuleNationalLanguageSupportServer.MultilingualObjectAttributes(References[0]);
 				AttributesSet = StrSplit(Attributes, ",");
 				For Position = 0 To AttributesSet.UBound() Do
 					AttributeName = TrimAll(AttributesSet[Position]);
 					If MultilingualAttributes[AttributeName] <> Undefined Then
-						NameWithSuffix = AttributeName + LanguageSuffix;
+						NameWithSuffix = AttributeName + LanguageSuffix_;
 						AttributesSet[Position] = NameWithSuffix + " AS " + AttributeName;
 					EndIf;
 				EndDo;
@@ -571,8 +571,8 @@ Function ObjectsAttributesValues(References, Val Attributes, SelectAllowedItems 
 						If MultilingualAttributes[Attribute] = True Then
 							AttributeField = "ISNULL(PresentationTable." + Attribute + ", """")";
 						Else
-							LanguageSuffix = ModuleNationalLanguageSupportServer.LanguageSuffix(LanguageCode);
-							AttributeField = ?(ValueIsFilled(LanguageSuffix), Attribute + LanguageSuffix, Attribute);
+							LanguageSuffix_ = ModuleNationalLanguageSupportServer.LanguageSuffix_(LanguageCode);
+							AttributeField = ?(ValueIsFilled(LanguageSuffix_), Attribute + LanguageSuffix_, Attribute);
 						EndIf;
 						
 						TablesFields.Add(StringFunctionsClientServer.SubstituteParametersToString("%1 AS %2",
@@ -778,26 +778,27 @@ Function IsMainLanguage() Export
 	
 EndFunction
 
-// Returns a reference to the predefined item by its full name.
-// Only the following objects can contain predefined objects:
-//   - catalogs;
-//   - charts of characteristic types;
-//   - charts of accounts;
-//   - charts of calculation types.
-// After changing the list of predefined items, it is recommended that you run
-// the UpdateCachedValues() method to clear the cache for Cached modules in the current session.
+// Returns a reference to a predefined item by its full name in the following objects:
+//   - Catalogs
+//   - Charts of characteristic types
+//   - Chart of calculation types
+//   - See also "CommonClient.PredefinedItem".
+// After the composition of the predefined item is modified, call the method
 //
+// "UpdateCachedValues". 
+// 
+// 
 // Parameters:
-//   FullPredefinedItemName - String - full path to the predefined item including the name.
-//     The format is identical to the PredefinedValue() global context function.
-//     Example:
+//   FullPredefinedItemName - String - Full name of a predefined item.
+//     The format is identical to the "PredefinedValue" global context function.:
+//       Example
 //       "Catalog.ContactInformationKinds.UserEmail"
 //       "ChartOfAccounts.SelfFinancing.Materials"
-//       "ChartOfCalculationTypes.Accruals.SalaryPayments".
+//                                         "ChartOfCalculationTypes.Accruals.SalaryPayments".
 //
 // Returns: 
-//   AnyRef - reference to the predefined item.
-//   Undefined - if the predefined item exists in metadata but not in the infobase.
+//   AnyRef - Reference to the predefined item.
+//   Undefined - The item is missing from the metadata or infobase.
 //
 Function PredefinedItem(FullPredefinedItemName) Export
 	
@@ -907,7 +908,7 @@ Function CheckDocumentsPosting(Val Var_Documents) Export
 	
 EndFunction
 
-// Attempts to post the documents.
+// Attempts to post documents and returns information about those that failed to post.
 //
 // Parameters:
 //  Var_Documents - Array of DocumentRef - documents to post.
@@ -924,25 +925,38 @@ Function PostDocuments(Var_Documents) Export
 	For Each DocumentRef In Var_Documents Do
 		
 		ExecutedSuccessfully = False;
-		DocumentObject = DocumentRef.GetObject();
-		If DocumentObject.CheckFilling() Then
-			PostingMode = DocumentPostingMode.Regular;
-			If DocumentObject.Date >= BegOfDay(CurrentSessionDate())
-				And DocumentRef.Metadata().RealTimePosting = Metadata.ObjectProperties.RealTimePosting.Allow Then
+		ErrorPresentation = "";
+		
+		Block = New DataLock();
+		LockItem = Block.Add(DocumentRef.Metadata().FullName());
+		LockItem.SetValue("Ref", DocumentRef);
+		
+		BeginTransaction();
+		Try
+			Block.Lock();
+			DocumentObject = DocumentRef.GetObject();
+			If DocumentObject.CheckFilling() Then
+				PostingMode = DocumentPostingMode.Regular;
+				If DocumentObject.Date >= BegOfDay(CurrentSessionDate())
+					And DocumentRef.Metadata().RealTimePosting = Metadata.ObjectProperties.RealTimePosting.Allow Then
+					
 					PostingMode = DocumentPostingMode.RealTime;
-			EndIf;
-			Try
+				EndIf;
+				
 				DocumentObject.Write(DocumentWriteMode.Posting, PostingMode);
 				ExecutedSuccessfully = True;
-			Except
-				ErrorPresentation = ErrorProcessing.BriefErrorDescription(ErrorInfo());
-			EndTry;
-		Else
-			ErrorPresentation = NStr("en = 'Document fields cannot be empty.';");
-		EndIf;
+			Else
+				ErrorPresentation = NStr("en = 'Document fields cannot be empty.';");
+			EndIf;
+			CommitTransaction();
+		Except
+			RollbackTransaction();
+			ErrorPresentation = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+		EndTry;
 		
 		If Not ExecutedSuccessfully Then
-			UnpostedDocuments.Add(New Structure("Ref,ErrorDescription", DocumentRef, ErrorPresentation));
+			UnpostedDocuments.Add(New Structure("Ref,ErrorDescription", 
+				DocumentRef, ErrorPresentation));
 		EndIf;
 		
 	EndDo;
@@ -1315,7 +1329,7 @@ Function ReplaceReferences(Val ReplacementPairs, Val ReplacementParameters = Und
 			AdditionalParameters.Insert("SessionNumber", InfoBaseSessionNumber());
 			AdditionalParameters.Insert("ProcessedItemsCount", Number);
 			TimeConsumingOperations.ReportProgress(Number,
-				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Replacing duplicates… processed (%1 of %2)';"), 
+				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Replacing duplicates… Processed (%1 out of %2)';"), 
 					Number, DuplicateCount), AdditionalParameters);
 			Number = Number + 1;
 			AddToReferenceReplacementStatistics(Statistics, Duplicate1, Result.HasErrors);
@@ -1359,9 +1373,9 @@ EndFunction
 //     * TakeAppliedRulesIntoAccount - Boolean - If True, for the each duplicate-original pair 
 //         the CanReplaceItems function of the manager module is called 
 //         (the "Duplicate object detection" subsystem is required). The default value is False.
-//     * IncludeBusinessLogic - Boolean - recording mode of objects when replacing duplicate references to originals.
-//         If True (by default), the places of duplicate usage are recorded in the normal mode,
-//         otherwise they are recorded in mode DataExchange.Import = True.
+//     * IncludeBusinessLogic - Boolean - Object write mode when replacing duplicate references.
+//         If True (by default), the locations of duplicates are written in normal mode,
+//         otherwise in DataExchange.Load = True.
 //     * ReplacePairsInTransaction - Boolean - obsolete. determines transaction size when replacing duplicates.
 //         If True (default), all usage locations of one duplicate are replaced in one transaction. 
 //         It can be very resource-demanding in case of a large number of usage locations.
@@ -1718,8 +1732,8 @@ EndFunction
 //
 // Example:
 //  If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
-//  	ModuleReportOptions = Common.CommonModule("ReportsOptions");
-//  	ModuleReportOptions.<Procedure name>();
+//  	ModuleReportsOptions = Common.CommonModule("ReportsOptions");
+//  	ModuleReportsOptions.<Procedure name>();
 //  EndIf;
 //
 // Returns:
@@ -1847,9 +1861,8 @@ Function IsLinuxServer() Export
 	SystemInfo = New SystemInfo;
 	Return SystemInfo.PlatformType = PlatformType.Linux_x86
 		Or SystemInfo.PlatformType = PlatformType.Linux_x86_64
-		Or CommonClientServer.CompareVersions(SystemInfo.AppVersion, "8.3.22.1923") >= 0
-			And (SystemInfo.PlatformType = PlatformType["Linux_ARM64"]
-			Or SystemInfo.PlatformType = PlatformType["Linux_E2K"]);
+		Or SystemInfo.PlatformType = PlatformType["Linux_ARM64"]
+			Or SystemInfo.PlatformType = PlatformType["Linux_E2K"];
 	
 EndFunction
 
@@ -2198,8 +2211,8 @@ EndFunction
 // Generates the application access address for the specified user.
 //
 // Parameters:
-//  User - String - user's sign-in name;
-//  Password - String - user's sign-in password;
+//  User - String - Username to log in with.
+//  Password - String - Password to use when logging in.
 //  IBPublicationType - String - publication used by the user to access the application:
 //                           "OnInternet" or "OnLocalNetwork".
 //
@@ -2233,12 +2246,12 @@ Function ProgrammAuthorizationAddress(User, Password, IBPublicationType) Export
 	
 EndFunction
 
-// Returns the configuration revision number.
-// The revision number is two first digits of a full configuration version.
-// Example: revision number for version 1.2.3.4 is 1.2.
+// Returns the configuration version number.
+// The version number includes the major and minor versions.
+// For example, 1.2 for 1.2.3.4.
 //
 // Returns:
-//  String - configuration revision number.
+//  String - Configuration version number.
 //
 Function ConfigurationRevision() Export
 	
@@ -2397,10 +2410,9 @@ EndFunction
 
 #Region Dates
 
-////////////////////////////////////////////////////////////////////////////////
-// Functions to work with dates considering the session time zone
+#Region DateFunctionsBasedOnSessionTimeZone
 
-// Convert a local date to the "YYYY-MM-DDThh:mm:ssTZD" format (ISO 8601).
+// Casts a local date to "YYYY-MM-DDThh:mm:ssTZD" (ISO 8601).
 //
 // Parameters:
 //  LocalDate - Date - a date in the session time zone.
@@ -2420,17 +2432,18 @@ EndFunction
 //
 // Parameters:
 //  BeginTime    - Date - starting point of the time period.
-//  EndTime - Date - ending point of the time period; if not specified, the current session date is used instead.
+//  EndTime - Date - ending point of the time period. If not specified, the current session date is used instead.
 //
 // Returns:
-//  String - a time period presentation.
+//  String - Time interval presentation. An empty string if "BeginTime" if later than "EndTime".
 //
-Function TimeIntervalString(BeginTime, EndTime = Undefined) Export
+Function TimeIntervalString(Val BeginTime, Val EndTime = Undefined) Export
 	
 	If EndTime = Undefined Then
 		EndTime = CurrentSessionDate();
-	ElsIf BeginTime > EndTime Then
-		Raise NStr("en = 'The end date cannot be earlier than the start date.';");
+	EndIf;
+	If BeginTime > EndTime Then
+		Return "";
 	EndIf;
 	
 	IntervalValue = EndTime - BeginTime;
@@ -2442,8 +2455,8 @@ Function TimeIntervalString(BeginTime, EndTime = Undefined) Export
 		IntervalDetails = NStr("en = 'more than a month';");
 	ElsIf IntervalValueInDays >= 1 Then
 		IntervalDetails = Format(IntervalValueInDays, "NFD=0") + " "
-			+ UsersInternalClientServer.IntegerSubject(IntervalValueInDays,
-				"", NStr("en = 'day,days,,,0';"));
+			+ UsersInternalClientServer.IntegerSubject(IntervalValueInDays, "",
+				NStr("en = 'day,days,,,0';"));
 	Else
 		IntervalDetails = NStr("en = 'less than a day';");
 	EndIf;
@@ -2452,8 +2465,9 @@ Function TimeIntervalString(BeginTime, EndTime = Undefined) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Work date management functions.
+#EndRegion
+
+#Region WorkingDateSetupFunctions
 
 // Save user work date settings.
 //
@@ -2517,6 +2531,8 @@ EndFunction
 
 #EndRegion
 
+#EndRegion
+
 #Region Data
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2533,8 +2549,8 @@ EndFunction
 //  String
 //
 // Example:
-//   String value "Individual" will be placed in the result:
-//   Result = Common.EnumerationValueName(Enumerations.CompanyIndividual.Individual);
+//   "Individual" string value will be placed in the result:
+//   Result = Common.EnumerationValueName(Enums.CompanyIndividual.Individual);
 //
 Function EnumerationValueName(Value) Export
 	
@@ -3063,7 +3079,7 @@ EndFunction
 // Calculates the checksum for arbitrary data using the specified algorithm.
 //
 // Parameters:
-//  Data   - Arbitrary - the data to serialize.
+//  Data   - Arbitrary - Data to serialize.
 //  Algorithm - HashFunction   - an algorithm to calculate the checksum. The default algorithm is MD5.
 // 
 // Returns:
@@ -3442,8 +3458,7 @@ EndFunction
 
 #Region Metadata
 
-////////////////////////////////////////////////////////////////////////////////
-// Metadata object type definition functions.
+#Region MetadataObjectTypeDefinitionFunctions
 
 // Reference data types
 
@@ -3742,8 +3757,9 @@ Function IsRefTypeObject(MetadataObject) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for operations with types, metadata objects, and their string presentations.
+#EndRegion
+
+#Region ProceduresAndFunctionsToManageMetadataObjectTypesAndTheirStringPresentations
 
 // Returns names of attributes for an object of the specified type.
 //
@@ -3898,6 +3914,9 @@ Function BaseTypeNameByMetadataObject(MetadataObject) Export
 		
 	ElsIf Metadata.WSReferences.Contains(MetadataObject) Then
 		Return "WSReferences";
+		
+	ElsIf Metadata.IntegrationServices.Contains(MetadataObject) Then
+		Return "IntegrationServices";
 		
 	ElsIf Metadata.Styles.Contains(MetadataObject) Then
 		Return "Styles";
@@ -4498,12 +4517,11 @@ Function MetadataObjectAvailableByFunctionalOptions(Val MetadataObject) Export
 	Return StandardSubsystemsCached.ObjectsEnabledByOption().Get(FullName) <> False;
 EndFunction
 
-// During migration to the specified configuration version, stores the metadata object renaming details
-// to the Totals structure, which is passed to
-// the CommonOverridable.OnAddMetadataObjectsRenaming procedure.
+// Intended for displaying if a metadata object was renamed during a configuration update.
+// Intended for procedure "CommonOverridable.OnAddMetadataObjectsRenaming".
 // 
 // Parameters:
-//   Total                    - See CommonOverridable.OnAddMetadataObjectsRenaming.Total
+//   Renamings          - See CommonOverridable.OnAddMetadataObjectsRenaming.Renamings
 //   IBVersion                - String    - the destination configuration version.
 //                                         For example, "2.1.2.14".
 //   PreviousFullName         - String    - The original full name of the metadata object to rename.
@@ -4515,13 +4533,14 @@ EndFunction
 //                                         For example, "StandardSubsystems", as specified
 //                                         in InfobaseUpdateSSL.OnAddSubsystem.
 // Example:
-//	Common.AddRenaming(Total, "2.1.2.14",
+//	Common.AddRenaming(Renaming_, "2.1.2.14",
 //		"Subsystem.ServiceSubsystems",
 //		"Subsystem.UtilitySubsystems");
 //
-Procedure AddRenaming(Total, IBVersion, PreviousFullName, NewFullName, LibraryID = "") Export
+Procedure AddRenaming(Renamings, IBVersion, PreviousFullName, NewFullName, 
+	LibraryID = "") Export
 	
-	Catalogs.MetadataObjectIDs.AddRenaming(Total,
+	Catalogs.MetadataObjectIDs.AddRenaming(Renamings,
 		IBVersion, PreviousFullName, NewFullName, LibraryID);
 	
 EndProcedure
@@ -4819,6 +4838,298 @@ Function ObjectPresentation(MetadataObject) Export
 	
 EndFunction
 
+// Returns the filter condition and query parameters for querying database records
+// in the given record set according to the substitute mode.
+//
+// If "Replacing" is set to "True" or "ReplacementMode.Replacing", then
+// the records are retrieved using the "Filter" property setting.
+// Otherwise, they are retrieved using record row keys.
+//
+// Parameters:
+//  RecordSet - InformationRegisterRecordSet
+//               - AccumulationRegisterRecordSet
+//               - AccountingRegisterRecordSet
+//               - CalculationRegisterRecordSet - The record set used to prepare
+//                   query parameters and filters.
+//               - Filter - Record set filter. In this case, "Replacement" is set to "True".
+//
+//  Replacing - РежимЗамещения, Boolean - Indicates how the parameter is passed to the "BeforeWrite" event subscription.
+//            - Undefined - Sets the parameter to the value of the "Replacing" property
+//                of the "AdditionalProperties" structure for the given record set.
+//                If the property is missing, it is set to "True".
+//
+//  Query - Query - Set the parameters in the given query and substitute "&FilterCriterion"
+//             with the returnable "QueryCondition".
+//         - Undefined
+//
+//  AdditionalParameters - See NewParametersToFilterSetRecordsFromDatabase
+//
+// Returns:
+//  Structure:
+//   * QueryCondition - String - Substitution condition.
+//   * QueryOptions - Structure of KeyAndValue:
+//      ** Key     - String - Name of the filter field or "RowsFilterFieldsValues" with the given prefix.
+//      ** Value - Arbitrary - Filter field value or a value table.
+//
+// Example:
+//	Query = New Query;
+//	Query.Text =
+//	"SELECT DISTINCT
+//	|	ActiveTable.User AS User,
+//	|	ActiveTable.UserMustChangePasswordOnAuthorization AS UserMustChangePasswordOnAuthorization,
+//	|	ActiveTable.UnlimitedValidityPeriod AS UnlimitedValidityPeriod,
+//	|	ActiveTable.ValidityPeriod AS ValidityPeriod,
+//	|	ActiveTable.InactivityPeriodBeforeDenyingAuthorization AS InactivityPeriodBeforeDenyingAuthorization
+//	|FROM
+//	|	InformationRegister.UserInfo AS ActiveTable
+//	|WHERE
+//	|	&FilterCriterion";
+//	Common.FilterSetRecordsFromDatabase(RecordSet, Replacing, Query);
+//	ExistingRecords = Query.Execute().Unload();
+//
+Function FilterSetRecordsFromDatabase(RecordSet, Replacing = Undefined, Query = Undefined,
+			AdditionalParameters = Undefined) Export
+	
+	Parameters = ?(AdditionalParameters <> Undefined, AdditionalParameters,
+		NewParametersToFilterSetRecordsFromDatabase());
+	
+	Mode = New Structure("Replacing", True);
+	If TypeOf(RecordSet) = Type("Filter") Or TypeOf(RecordSet) = Type("Array") Then
+		Filter = RecordSet;
+	Else
+		Filter = RecordSet.Filter;
+		If Replacing = Undefined Then
+			FillPropertyValues(Mode, RecordSet.AdditionalProperties);
+			ParameterName = "RecordSet.AdditionalProperties.Replacing";
+		Else
+			Mode.Replacing = Replacing;
+			ParameterName = "Replacing";
+		EndIf;
+		If TypeOf(Mode.Replacing) <> Type("Boolean")
+		   And Not IsRecordSetAddition(Mode.Replacing)
+		   And Not IsRecordSetReplacement(Mode.Replacing)
+		   And Not IsRecordSetUpdate(Mode.Replacing)
+		   And Not IsRecordSetMerge(Mode.Replacing)
+		   And Not IsRecordSetDeletion(Mode.Replacing) Then
+			
+			ExpectedTypes = CommonClientServer.ValueInArray(Type("Boolean"));
+			If StandardSubsystemsCached.RecordSetAdditionMode() <> Undefined Then
+				// ACC:488-off - Support of new 1C:Enterprise types (the executable code is safe)
+				ExpectedTypes.Add(Eval("Type(""ReplacementMode"")"));
+				// ACC:488-on
+			EndIf;
+			CommonClientServer.CheckParameter("Common.FilterSetRecordsFromDatabase",
+				ParameterName, Mode.Replacing, ExpectedTypes);
+		EndIf;
+	EndIf;
+	If Replacing = Undefined Then
+		Replacing = Mode.Replacing;
+	EndIf;
+	
+	QueryOptions = New Structure;
+	Condition = "FALSE";
+	Alias = Parameters.TableAlias;
+	
+	If IsRecordSetUpdate(Mode.Replacing)
+	 Or IsRecordSetMerge(Mode.Replacing)
+	 Or IsRecordSetDeletion(Mode.Replacing) Then
+		
+		RecordKeyDetails = StandardSubsystemsServer.RecordKeyDetails(
+			RecordSet.Metadata().FullName());
+		
+		FieldList = RecordKeyDetails.ListOfUpdateFields;
+		If ValueIsFilled(FieldList) Then
+			TableParameterName = Parameters.KeyFieldsTableParameterName;
+			Upload0 = RecordSet.Unload(, FieldList);
+			QueryOptions.Insert(TableParameterName, Upload0);
+			If Query <> Undefined Then
+				Query.SetParameter(TableParameterName, Upload0);
+			EndIf;
+			Condition = StrTemplate("(%1) IN (&" + TableParameterName + ")", // @query-part-1
+				Alias + StrReplace(FieldList, ",", ", " + Alias));
+		Else
+			Condition = "TRUE";
+		EndIf;
+		
+	ElsIf Mode.Replacing = True
+	      Or IsRecordSetReplacement(Mode.Replacing) Then
+		
+		ConditionParts = New Array;
+		Prefix = Parameters.FieldNamesPrefixInParameters;
+		Template = Alias + "%1 = &" + Prefix + "%1"; // @query-part-1
+		For Each FilterElement In Filter Do
+			If Not FilterElement.Use Then
+				Continue;
+			EndIf;
+			ConditionParts.Add(StrTemplate(Template, FilterElement.Name));
+			QueryOptions.Insert(Prefix + FilterElement.Name, FilterElement.Value);
+			If Query <> Undefined Then
+				Query.SetParameter(Prefix + FilterElement.Name, FilterElement.Value);
+			EndIf;
+		EndDo;
+		Condition = ?(Not ValueIsFilled(ConditionParts), "TRUE",
+			StrConcat(ConditionParts, Chars.LF + "	And "));
+	EndIf;
+	
+	Result = New Structure;
+	Result.Insert("QueryCondition", Condition);
+	Result.Insert("QueryOptions", QueryOptions);
+	
+	If Query <> Undefined Then
+		Query.Text = StrReplace(Query.Text, "&FilterCriterion", Condition);
+	EndIf;
+	
+	Return Result;
+	
+EndFunction
+
+// Additional parameters for the function "FilterSetRecordsFromDatabase".
+//
+// Returns:
+//  Structure:
+//   * TableAlias - String - Prefix for field names.
+//       Its initial value is "ActiveTable".
+//
+//   * FieldNamesPrefixInParameters - String - Prefix for query field names
+//       in query parameters and conditions. The initial value has no prefix.
+//
+//   * KeyFieldsTableParameterName - String - The initial value is "RowsFilterFieldsValues".
+//
+Function NewParametersToFilterSetRecordsFromDatabase() Export
+	
+	Result = New Structure;
+	Result.Insert("TableAlias", "CurrentTable.");
+	Result.Insert("FieldNamesPrefixInParameters", "");
+	Result.Insert("KeyFieldsTableParameterName", "RowsFilterFieldsValues");
+	
+	Return Result;
+	
+EndFunction
+
+// Returns the specified register row fields from the database.
+// The fields will be written along with the given record set according to the substitution mode.
+//
+// Parameters:
+//  RecordSet - InformationRegisterRecordSet
+//               - AccumulationRegisterRecordSet
+//               - AccountingRegisterRecordSet
+//               - CalculationRegisterRecordSet - The record set used
+//                   to detect changes.
+//
+//  Replacing - РежимЗамещения, Boolean - Indicates how the parameter is passed to the "BeforeWrite" event subscription.
+//            - Undefined - Sets the parameter to the value of the "Replacing" property
+//                of the "AdditionalProperties" structure for the given record set.
+//                If the property is missing, it is set to "True".
+//
+//  FieldList - String - A comma-delimited list of set fields.
+//                  If not specified, pass all fields of the record set.
+//
+// Returns:
+//  ValueTable - Fields from the "FieldList" parameter.
+//    Unique rows for the given field list.
+//
+Function SetRecordsFromDatabase(RecordSet, Replacing = Undefined, FieldList = "") Export
+	
+	Query = New Query;
+	Query.Text =
+	"SELECT DISTINCT
+	|	&SelectedFields
+	|FROM
+	|	&Table AS CurrentTable
+	|WHERE
+	|	&FilterCriterion";
+	FilterSetRecordsFromDatabase(RecordSet, Replacing, Query);
+	
+	If Replacing = False Or IsRecordSetAddition(Replacing) Then
+		Return RecordSet.Unload(New Array,
+			?(ValueIsFilled(FieldList), FieldList, Undefined));
+	EndIf;
+	
+	If Not ValueIsFilled(FieldList) Then
+		Table = RecordSet.Unload(New Array);
+		Fields = New Array;
+		For Each Column In Table.Columns Do
+			Fields.Add(Column.Name);
+		EndDo;
+		FieldList = StrConcat(Fields, ",");
+	EndIf;
+	
+	Query.Text = StrReplace(Query.Text, "&Table", RecordSet.Metadata().FullName());
+	Query.Text = StrReplace(Query.Text, "&SelectedFields", FieldList);
+	
+	Return Query.Execute().Unload();
+	
+EndFunction
+
+// Returns removed and added register rows
+// for the given record set according to the substitute mode.
+//
+// Parameters:
+//  RecordsFromDatabase - See SetRecordsFromDatabase
+//
+//  RecordSet - InformationRegisterRecordSet
+//               - AccumulationRegisterRecordSet
+//               - AccountingRegisterRecordSet
+//               - CalculationRegisterRecordSet - The record set used
+//                   to detect changes.
+//
+//  Replacing - РежимЗамещения, Boolean - Indicates how the parameter is passed to the "BeforeWrite" event subscription.
+//
+//  OnlyChanges - Boolean - If it is set to "True", the result will contain
+//                      only modified rows (that is, "RowChangeKind" is 0).
+//
+// Returns:
+//  ValueTable:
+//   * LineChangeType - Number - "1" if the row was added,
+//       "-1" if it was removed, and "0" if it wasn't modified.
+//   The further fields are from the "RecordsFromDatabase" table.
+//
+Function SetRecordsChange(RecordsFromDatabase, RecordSet, Replacing, OnlyChanges = False) Export
+	
+	RecordKeyDetails = StandardSubsystemsServer.RecordKeyDetails(
+		RecordSet.Metadata().FullName());
+	
+	ListOfRecordKeyFields = Upper("," + RecordKeyDetails.FieldList + ",");
+	
+	RecordKeyFields = New Array;
+	Fields = New Array;
+	For Each Column In RecordsFromDatabase.Columns Do
+		Fields.Add(Column.Name);
+		If StrFind(ListOfRecordKeyFields, "," + Upper(Column.Name) + ",") > 0 Then
+			RecordKeyFields.Add(Column.Name);
+		EndIf;
+	EndDo;
+	FieldList = StrConcat(Fields, ",");
+	
+	NewLines = ?(IsRecordSetDeletion(Replacing), New Array, Undefined);
+	Table = RecordSet.Unload(NewLines, FieldList);
+	If RecordKeyDetails.FieldsDetails.Count() <> RecordKeyFields.Count() Then
+		Table.GroupBy(FieldList);
+	EndIf;
+	Table.Columns.Add("LineChangeType", New TypeDescription("Number"));
+	Table.FillValues(1, "LineChangeType");
+	
+	For Each OldRecord In RecordsFromDatabase Do
+		NewRow = Table.Add();
+		FillPropertyValues(NewRow, OldRecord);
+		NewRow.LineChangeType = -1;
+	EndDo;
+	
+	Table.GroupBy(FieldList, "LineChangeType");
+	
+	If OnlyChanges Then
+		UnchangedRows = Table.FindRows(New Structure("LineChangeType", 0));
+		For Each TableRow In UnchangedRows Do
+			Table.Delete(TableRow);
+		EndDo;
+	EndIf;
+	
+	Return Table;
+	
+EndFunction
+
+#EndRegion
+
 #EndRegion
 
 #Region SettingsStorage
@@ -4864,9 +5175,9 @@ EndProcedure
 // Parameters:
 //   MultipleSettings - Array - with the following values:
 //     * Value - Structure:
-//         * Object    - String       - see the ObjectKey parameter in the Syntax Assistant.
-//         * Setting - String       - see the SettingsKey parameter in the Syntax Assistant.
-//         * Value  - Arbitrary - see the Settings parameter in the Syntax Assistant.
+//         * Object    - String       - See the "ObjectKey" parameter in Syntax Assistant.
+//         * Setting - String       - See the "SettingsKey" parameter in Syntax Assistant.
+//         * Value  - Arbitrary - See the "Settings" parameter in Syntax Assistant.
 //
 //   RefreshReusableValues - Boolean - the flag that indicates whether to execute the method.
 //
@@ -5263,7 +5574,67 @@ EndFunction
 
 #EndRegion
 
-#Region WebServices
+#Region OnlineOperations
+
+// Verifies that web services are enabled for the application.
+// Parameters:
+//  ShowError - Boolean - Raise an exception.
+// 
+// Returns:
+//  Boolean
+//
+Function AccessToInternetServicesAllowed(ShowError = False) Export
+	
+	If DataSeparationEnabled() Then
+		Return True;
+	EndIf;
+	
+	If InfobaseUpdate.InfobaseUpdateRequired() Then
+		Return True;
+	EndIf;
+	
+	AccessAllowed = GetFunctionalOption("AllowAccessToInternetServices");
+	If Not AccessAllowed And ShowError Then
+		Raise AccessToInternetServicesDeniedMessageText();
+	EndIf;
+	
+	Return AccessAllowed;
+	
+EndFunction
+
+// Error text in case access to web services is disabled.
+// 
+// Returns:
+//  String
+//
+Function AccessToInternetServicesDeniedMessageText() Export
+	
+	Return NStr("en = 'Access to web services in the application is prohibited by the administrator (Online support and services > Allow access to web services).';");
+	
+EndFunction
+
+// Sets a flag that permits the use of web services. After invoking this on the client, it is recommended
+// to trigger a notification notifying that the constant was written.
+// 
+// Parameters:
+//  Enable - Boolean
+//
+Procedure SetUpInternetServicesOperations(Enable) Export
+	
+	If Not Enable And DataSeparationEnabled() Then
+		Return;
+	EndIf;
+	
+	Constants.AllowAccessToInternetServices.Set(Enable);
+	
+	If Enable And SubsystemExists("StandardSubsystems.ScheduledJobs") Then
+
+		ModuleWorkLockWithExternalResources = CommonModule("ExternalResourcesOperationsLock");
+		ModuleWorkLockWithExternalResources.WhenEnablingAccessToInternetServices();
+		
+	EndIf;
+	
+EndProcedure
 
 // Returns a parameter structure for the CreateWSProxy function.
 //
@@ -5284,6 +5655,7 @@ Function WSProxyConnectionParameters() Export
 	Result.Insert("ProbingCallRequired", False);
 	Result.Insert("SecureConnection", Undefined);
 	Result.Insert("IsPackageDeliveryCheckOnErrorEnabled", True);
+	Result.Insert("ShouldCheckAccessToInternetServices", True);
 	Return Result;
 EndFunction
 
@@ -5313,6 +5685,8 @@ EndFunction
 //   * SecureConnection         - OpenSSLSecureConnection
 //                                  - Undefined - Optional secured connection parameters.
 //   * IsPackageDeliveryCheckOnErrorEnabled - See GetFilesFromInternet.ConnectionDiagnostics.IsPackageDeliveryCheckEnabled.
+//   * ShouldCheckAccessToInternetServices - Boolean - Optional. If set to "True", access to web services is tested.
+//                                             By default, it is set to "True".
 //
 // Returns:
 //  WSProxy
@@ -5332,6 +5706,10 @@ Function CreateWSProxy(Val WSProxyConnectionParameters) Export
 		
 	ConnectionParameters = WSProxyConnectionParameters();
 	FillPropertyValues(ConnectionParameters, WSProxyConnectionParameters);
+	
+	If ConnectionParameters.ShouldCheckAccessToInternetServices Then
+		AccessToInternetServicesAllowed(True);
+	EndIf;
 	
 	ProbingCallRequired = ConnectionParameters.ProbingCallRequired;
 	Timeout = ConnectionParameters.Timeout;
@@ -5372,8 +5750,7 @@ Function CreateWSProxy(Val WSProxyConnectionParameters) Export
 	
 EndFunction
 
-/////////////////////////////////////////////////////////////////////////////////
-// API versioning.
+#Region APIVersioning
 
 // Returns version numbers of interfaces in a remote system accessed over web service.
 // Ensures full backwards compatibility against any API modifications,
@@ -5518,6 +5895,26 @@ Procedure DeleteVersionCacheRecords(Val IDSearchSubstring) Export
 	
 EndProcedure
 
+// A list of API versions available via the InterfaceVersion web service.
+//
+// Returns:
+//  Structure: 
+//     * Key - String - API name.
+//     * Value - Array of String - Supported versions.
+//
+Function InterfacesVersions() Export
+	
+	Result = New Structure;
+	
+	SSLSubsystemsIntegration.OnDefineSupportedInterfaceVersions(Result);
+	CommonOverridable.OnDefineSupportedInterfaceVersions(Result);
+	
+	Return Result;
+	
+EndFunction
+
+#EndRegion
+
 #EndRegion
 
 #Region SecureStorage
@@ -5587,69 +5984,67 @@ Procedure WriteDataToSecureStorage(Owner, Data, Var_Key = "Password") Export
 			"Owner", "Common.WriteDataToSecureStorage", Owner, TypeOf(Owner)));
 			
 	If ValueIsFilled(Var_Key) Then
-		
 		CommonClientServer.Validate(TypeOf(Var_Key) = Type("String"),
 			StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid value of the %1 parameter in %2.
 			|The parameter must contain a string. The passed value is %3 (type: %4).';"),
 			"Key", "Common.WriteDataToSecureStorage", Var_Key, TypeOf(Var_Key))); 
-			
 	Else
-		
 		CommonClientServer.Validate(TypeOf(Data) = Type("Structure"),
 			StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid value of the %1 parameter in %2.
 			|If Key = Undefined, the parameter must contain a structure. The passed value is %3 (type: %4).';"),
 			"Data", "Common.WriteDataToSecureStorage", Data, TypeOf(Data)));
-		
 	EndIf;
 	
+	Block = New DataLock();
 	IsDataArea = DataSeparationEnabled() And SeparatedDataUsageAvailable();
 	If IsDataArea Then
 		SafeDataStorage = InformationRegisters.SafeDataAreaDataStorage.CreateRecordManager();
+		LockItem = Block.Add("InformationRegister.SafeDataAreaDataStorage");
 	Else
 		SafeDataStorage = InformationRegisters.SafeDataStorage.CreateRecordManager();
+		LockItem = Block.Add("InformationRegister.SafeDataStorage");
 	EndIf;
 	
 	SafeDataStorage.Owner = Owner;
-	SafeDataStorage.Read();
-	
-	If Data <> Undefined Then
-		
-		If SafeDataStorage.Selected() Then
+	LockItem.SetValue("Owner", Owner);
+
+	BeginTransaction();
+	Try
+		Block.Lock();
 			
-			DataToSave = SafeDataStorage.Data.Get();
-			
-			If TypeOf(DataToSave) <> Type("Structure") Then
-				DataToSave = New Structure();
-			EndIf;
-			
-			If ValueIsFilled(Var_Key) Then
-				DataToSave.Insert(Var_Key, Data);
+		If Data <> Undefined Then
+			SafeDataStorage.Read();
+			If SafeDataStorage.Selected() Then
+				
+				DataToSave = SafeDataStorage.Data.Get();
+				If TypeOf(DataToSave) <> Type("Structure") Then
+					DataToSave = New Structure();
+				EndIf;
+				
+				If ValueIsFilled(Var_Key) Then
+					DataToSave.Insert(Var_Key, Data);
+				Else
+					CommonClientServer.SupplementStructure(DataToSave, Data, True);
+				EndIf;
 			Else
-				CommonClientServer.SupplementStructure(DataToSave, Data, True);
+				DataToSave = ?(ValueIsFilled(Var_Key), New Structure(Var_Key, Data), Data);
+				SafeDataStorage.Owner = Owner;
 			EndIf;
-			
-			DataForValueStorage = New ValueStorage(DataToSave, New Deflation(6));
+			DataForValueStorage = New ValueStorage(DataToSave, New Deflation(9));
 			SafeDataStorage.Data = DataForValueStorage;
 			SafeDataStorage.Write();
-			
 		Else
-			
-			DataToSave = ?(ValueIsFilled(Var_Key), New Structure(Var_Key, Data), Data);
-			DataForValueStorage = New ValueStorage(DataToSave, New Deflation(6));
-			
-			SafeDataStorage.Data = DataForValueStorage;
-			SafeDataStorage.Owner = Owner;
-			SafeDataStorage.Write();
-			
+			SafeDataStorage.Delete();
 		EndIf;
-	Else
 		
-		SafeDataStorage.Delete();
-		
-	EndIf;
-	
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;	
+	EndTry;
+			
 EndProcedure
 
 // Retrieves data from a secure storage.
@@ -5667,6 +6062,12 @@ EndProcedure
 //  Keys       - String - Contains data key name or a list of comma-delimited names.
 //              - Undefined - Return all saved data for the passed owners. 
 //  SharedData - Boolean - True if getting data from shared data in separated mode in SaaS.
+//  DataArea - Number - Contains the data area number for which data must be retrieved from the secure storage of the data area.
+//                    The parameter should be provided only when retrieving data from a non-shared session for the data area.
+//                    In all other cases, the parameter is ignored.
+//                    Undefined - The mode for retrieving data from secure storage is determined automatically based on
+//                   the availability of shared data usage.
+//                     
 // 
 // Returns:
 //  Map of KeyAndValue:
@@ -5695,7 +6096,11 @@ EndProcedure
 //		
 //	EndProcedure
 //
-Function ReadOwnersDataFromSecureStorage(Owners, Keys = "Password", SharedData = Undefined) Export
+Function ReadOwnersDataFromSecureStorage(
+		Owners,
+		Keys = "Password",
+		SharedData = Undefined,
+		DataArea = Undefined) Export
 	
 	CommonClientServer.Validate(TypeOf(Owners) = Type("Array"),
 		StringFunctionsClientServer.SubstituteParametersToString(
@@ -5703,9 +6108,17 @@ Function ReadOwnersDataFromSecureStorage(Owners, Keys = "Password", SharedData =
 			           |The parameter must contain an array. The passed value is %3 (type: %4).';"),
 			"Owners", "Common.ReadDataFromSecureStorage", Owners, TypeOf(Owners)));
 	
-	Result = DataFromSecureStorage(Owners, Keys, SharedData);
+	If ValueIsFilled(DataArea) Then
+		CommonClientServer.Validate(TypeOf(DataArea) = Type("Number"),
+			StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Invalid value of the %1 parameter in %2.
+			|The parameter must contain a string. The passed value is %3 (type: %4).';"),
+			"DataArea", "Common.WriteDataToSecureStorage",
+				DataArea,
+				TypeOf(DataArea)));
+	EndIf;
 	
-	Return Result;
+	Return DataFromSecureStorage(Owners, Keys, SharedData, DataArea);
 	
 EndFunction
 
@@ -5724,6 +6137,12 @@ EndFunction
 //  Keys       - String - contains a comma-separated list of saved data item names.
 //              - Undefined - Return all saved data for the passed owner.
 //  SharedData - Boolean - True if getting data from shared data in separated mode in SaaS.
+//  DataArea - Number - Contains the data area number for which data must be retrieved from the secure storage of the data area.
+//                    The parameter should be provided only when retrieving data from a non-shared session for the data area.
+//                    In all other cases, the parameter is ignored.
+//                    Undefined - The mode for retrieving data from secure storage is determined automatically based on
+//                   the availability of shared data usage.
+//                     
 // 
 // Returns:
 //  Arbitrary, Structure, Undefined - data from the secure storage. If single key is specified,
@@ -5743,14 +6162,15 @@ EndFunction
 //	SetPrivilegedMode(True);
 //	LoginAndPassword = Common.ReadDataFromSecureStorage(CurrentObject.Ref, Undefined);
 //
-Function ReadDataFromSecureStorage(Owner, Keys = "Password", SharedData = Undefined) Export
+Function ReadDataFromSecureStorage(
+		Owner,
+		Keys = "Password",
+		SharedData = Undefined,
+		DataArea = Undefined) Export
 	
 	Owners = CommonClientServer.ValueInArray(Owner);
-	OwnerData = ReadOwnersDataFromSecureStorage(Owners, Keys, SharedData);
-	
-	Result = OwnerData[Owner];
-	
-	Return Result;
+	OwnerData = ReadOwnersDataFromSecureStorage(Owners, Keys, SharedData, DataArea);
+	Return OwnerData[Owner];
 	
 EndFunction
 
@@ -5771,10 +6191,10 @@ EndFunction
 //               Undefined - deletes all data.
 //
 // Example:
-//	Procedure beforeDelete(Cancel)
+//	Procedure BeforeDelete(Cancel)
 //		
-//		// Skipping the DataExchange.Import property check because it is necessary to delete data
-//		// from the secure storage even if the object is deleted during data exchange.
+//		Skip checking the DataExchange.Load property because data needs to be deleted
+//		from the secure storage even if an object is deleted during data exchange.
 //		
 //		SetPrivilegedMode(True);
 //		Common.DeleteDataFromSecureStorage(Ref);
@@ -5782,7 +6202,7 @@ EndFunction
 //		
 //	EndProcedure
 //
-Procedure DeleteDataFromSecureStorage(Owner, Keys = Undefined) Export
+Procedure DeleteDataFromSecureStorage(Val Owner, Val Keys = Undefined) Export
 	
 	CommonClientServer.Validate(ValueIsFilled(Owner),
 		StringFunctionsClientServer.SubstituteParametersToString(
@@ -5790,39 +6210,53 @@ Procedure DeleteDataFromSecureStorage(Owner, Keys = Undefined) Export
 			           |The parameter must contain a reference. The passed value is %3 (type: %4).';"),
 			"Owner", "Common.DeleteDataFromSecureStorage", Owner, TypeOf(Owner)));
 	
+	Block = New DataLock();
+	Owners = ?(TypeOf(Owner) = Type("Array"), Owner, CommonClientServer.ValueInArray(Owner));
 	If DataSeparationEnabled() And SeparatedDataUsageAvailable() Then
 		SafeDataStorage = InformationRegisters.SafeDataAreaDataStorage.CreateRecordManager();
+		LockItem = Block.Add("InformationRegister.SafeDataAreaDataStorage");
 	Else
 		SafeDataStorage = InformationRegisters.SafeDataStorage.CreateRecordManager();
+		LockItem = Block.Add("InformationRegister.SafeDataStorage");
 	EndIf;  
 	
-	Owners = ?(TypeOf(Owner) = Type("Array"), Owner, CommonClientServer.ValueInArray(Owner));
-	
 	For Each DataOwner In Owners Do
+		LockItem.SetValue("Owner", DataOwner);
+	EndDo;
+	
+	BeginTransaction();
+	Try
+		Block.Lock();
 		
-		SafeDataStorage.Owner = DataOwner;
-		SafeDataStorage.Read();
-		If TypeOf(SafeDataStorage.Data) = Type("ValueStorage") Then
-			DataToSave = SafeDataStorage.Data.Get();
-			If Keys <> Undefined And TypeOf(DataToSave) = Type("Structure") Then
-				KeysList = StrSplit(Keys, ",", False);
-				If SafeDataStorage.Selected() And KeysList.Count() > 0 Then
-					For Each KeyToDelete In KeysList Do
-						If DataToSave.Property(KeyToDelete) Then
-							DataToSave.Delete(KeyToDelete);
-						EndIf;
-					EndDo;
-					DataForValueStorage = New ValueStorage(DataToSave, New Deflation(6));
-					SafeDataStorage.Data = DataForValueStorage;
-					SafeDataStorage.Write();
-					Return;
+		For Each DataOwner In Owners Do
+			
+			SafeDataStorage.Owner = DataOwner;
+			SafeDataStorage.Read();
+			If TypeOf(SafeDataStorage.Data) = Type("ValueStorage") Then
+				DataToSave = SafeDataStorage.Data.Get();
+				If Keys <> Undefined And TypeOf(DataToSave) = Type("Structure") Then
+					KeysList = StrSplit(Keys, ",", False);
+					If SafeDataStorage.Selected() And KeysList.Count() > 0 Then
+						For Each KeyToDelete In KeysList Do
+							If DataToSave.Property(KeyToDelete) Then
+								DataToSave.Delete(KeyToDelete);
+							EndIf;
+						EndDo;
+						SafeDataStorage.Data = New ValueStorage(DataToSave, New Deflation(9));
+						SafeDataStorage.Write();
+						Continue;
+					EndIf;
 				EndIf;
 			EndIf;
-		EndIf;
-		
-		SafeDataStorage.Delete();
-		
-	EndDo;
+			
+			SafeDataStorage.Delete();
+			
+		EndDo;
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
 	
 EndProcedure
 
@@ -6065,23 +6499,28 @@ Procedure ExecuteObjectMethod(Val Object, Val MethodName, Val Parameters = Undef
 	
 EndProcedure
 
-// Executes any algorithm written in 1C:Enterprise language after setting
-// the script execution safe mode and date separation safe mode for
-// all separators within the configuration.
 // 
-// Also, the following restrictions are applied to the executable code:
 // 
-// 1. The code cannot call the following methods:
-//   - Execute
-//   - Eval
-//   - CommitTransaction
-//   - TruncateEventLog
-//   - SetEventLogEventUse
-//   - RunApp
+// 
 //
-// 2. The code cannot call the global context common modules and context:
-//   - TimeConsumingOperations
-//   - InfoBaseUsers
+// 
+// 
+// 
+//   
+//   
+//   
+//   
+//   
+//   
+//   
+//
+// 
+//   
+//   
+//
+// 
+// 
+// 
 //
 // Parameters:
 //  Algorithm  - String - the algorithm in the 1C:Enterprise language.
@@ -6111,16 +6550,14 @@ Procedure ExecuteInSafeMode(Val Algorithm, Val Parameters = Undefined) Export
 	EndIf;
 	
 	For Each SeparatorName In SeparatorArray Do
-		
 		SetDataSeparationSafeMode(SeparatorName, True);
-		
 	EndDo;
 	
 	Try
 		If TransactionActive() Then
 			Execute Algorithm;
 		Else
-			BeginTransaction();
+			BeginTransaction(); // ACC:326 - Force-termination of a transaction.
 			Try
 				Execute Algorithm;
 				RollbackTransaction();
@@ -6134,25 +6571,30 @@ Procedure ExecuteInSafeMode(Val Algorithm, Val Parameters = Undefined) Export
 		Refinement = CommonClientServer.ExceptionClarification(ErrorInfo);
 		Raise(Refinement.Text, ErrorCategory.ExternalDataSourceError ,,, ErrorInfo);
 	EndTry;
-	
+
 EndProcedure
 
-// Calculates the passed expression after setting the script execution
-// safe mode and date separation safe mode for all separators within the configuration.
-//
-// Also, the following restrictions are applied to the executable code:
 // 
-// 1. The code cannot call the following methods:
-//   - Execute
-//   - Eval
-//   - CommitTransaction
-//   - TruncateEventLog
-//   - SetEventLogEventUse
-//   - RunApp
+// 
 //
-// 2. The code cannot call the global context common modules and context:
-//   - TimeConsumingOperations
-//   - InfoBaseUsers
+// 
+// 
+// 
+//   
+//   
+//   
+//   
+//   
+//   
+//   
+//
+// 
+//   
+//   
+//
+// 
+// 
+// 
 //
 // Parameters:
 //  Expression - String - an expression in the 1C:Enterprise language.
@@ -6189,16 +6631,14 @@ Function CalculateInSafeMode(Val Expression, Val Parameters = Undefined) Export
 	EndIf;
 	
 	For Each SeparatorName In SeparatorArray Do
-		
 		SetDataSeparationSafeMode(SeparatorName, True);
-		
 	EndDo;
 	
 	Try
 		If TransactionActive() Then
 			Result = Eval(Expression);
 		Else
-			BeginTransaction();
+			BeginTransaction(); // ACC:326 - Force-termination of a transaction.
 			Try
 				Result = Eval(Expression);
 				RollbackTransaction();
@@ -6321,7 +6761,7 @@ Procedure OnStartExecuteScheduledJob(ScheduledJob = Undefined) Export
 	SetPrivilegedMode(True);
 	
 	If InformationRegisters.ApplicationRuntimeParameters.UpdateRequired1() Then
-		Text = NStr("en = 'The app is temporarily unavailable due to a version update.
+		Text = NStr("en = 'The application is temporarily unavailable due to a version update.
 			               |It is recommended that you disable scheduled jobs for the duration of the update.';");
 		ScheduledJobsServer.CancelJobExecution(ScheduledJob, Text);
 		Raise Text;
@@ -6331,7 +6771,7 @@ Procedure OnStartExecuteScheduledJob(ScheduledJob = Undefined) Export
 	   And ExchangePlans.MasterNode() = Undefined
 	   And ValueIsFilled(Constants.MasterNode.Get()) Then
 	
-		Text = NStr("en = 'The app is temporarily unavailable until the connection to the master node is restored.
+		Text = NStr("en = 'The application is temporarily unavailable until the connection to the master node is restored.
 			               |It is recommended that you disable scheduled jobs until the connection is restored.';");
 		ScheduledJobsServer.CancelJobExecution(ScheduledJob, Text);
 		Raise Text;
@@ -6353,11 +6793,12 @@ Procedure OnStartExecuteScheduledJob(ScheduledJob = Undefined) Export
 					New Structure("Use", False));
 			EndDo;
 			Text = NStr("en = 'The scheduled job is unavailable due to functional option values
-				               |or is not supported in the current app run mode.
-				               |The scheduled job execution is canceled and the job is disabled.';");
+				               |or is not supported in the current application run mode.
+				               |The scheduled job execution is canceled, and the job is disabled.';");
 			ScheduledJobsServer.CancelJobExecution(ScheduledJob, Text);
 			Raise Text;
 		EndIf;
+		
 	EndIf;
 	
 	If StandardSubsystemsServer.RegionalInfobaseSettingsRequired() Then
@@ -6432,19 +6873,19 @@ Function SpreadsheetDocumentFitsPage(TabDocument, AreasToOutput, ResultOnError =
 
 EndFunction 
 
-// Saves personal user settings related to the Core subsystem.
-// To receive settings, use the following functions:
-//  - CommonClient.SuggestFileSystemExtensionInstallation(),
-//  - StandardSubsystemsServer.AskConfirmationOnExit(),
-//  - StandardSubsystemsServer.ShowInstalledApplicationUpdatesWarning().
+// Saves the user's personal settings related to the "Core" subsystem.
+// The following functions are available to retrieve settings:
+//  - StandardSubsystemsServer.AskConfirmationOnExit
+//  - StandardSubsystemsServer.ShowInstalledApplicationUpdatesWarning
+//  - FileSystemClient.Attach1CEnterpriseExtension
 // 
 // Parameters:
 //  Settings - Structure:
-//    * RemindAboutFileSystemExtensionInstallation  - Boolean - the flag indicating whether
-//                                                               to notify users on extension installation.
+//    * RemindAboutFileSystemExtensionInstallation  - Boolean - If set to "True", users will be reminded 
+//                                                       to install 1C:Enterprise Extension in the web client.
 //    * AskConfirmationOnExit - Boolean - the flag indicating whether to ask confirmation before the user exits the application.
 //    * ShowInstalledApplicationUpdatesWarning - Boolean - show a notification when
-//                                                               the application is dynamically updated.
+//                                                                    the application is dynamically updated.
 //
 Procedure SavePersonalSettings(Settings) Export
 	
@@ -6541,8 +6982,7 @@ EndProcedure
 //                   - Undefined - Defines the 1C:Enterprise behavior.:
 //                              Non-isolatedly if the add-in supports only this mode. 
 //                              Isolatedly, in other cases. By default, "Undefined".
-//                              See https://its.1c.eu/db/v83doc
-//                                    #bookmark:dev:TI000001866
+//                              See https://its.1c.eu/db/v83doc#bookmark:dev:TI000001866
 //
 // Returns:
 //   - AddInObject - Add-in instance.
@@ -6560,13 +7000,9 @@ EndProcedure
 //
 //  AttachableModule = Undefined;
 //
-Function AttachAddInFromTemplate(Val Id, Val FullTemplateName, Val Isolated = Null) Export
+Function AttachAddInFromTemplate(Val Id, Val FullTemplateName, Val Isolated = Undefined) Export
 	
 	ResultOfCheckingTheExternalComponent = Undefined;
-	
-	If Isolated = Null Then
-		Isolated = IsDefaultAddInAttachmentMethod();
-	EndIf;
 	
 	If SubsystemExists("StandardSubsystems.AddIns") Then
 		ModuleAddInsInternal = CommonModule("AddInsInternal");
@@ -6582,6 +7018,121 @@ Function AttachAddInFromTemplate(Val Id, Val FullTemplateName, Val Isolated = Nu
 			TheComponentOfTheLatestVersion.Location, Isolated);
 	
 	Return Result.Attachable_Module;
+	
+EndFunction
+
+#EndRegion
+
+#Region TransitionalProceduresAndFunctions
+
+// Indicates whether the current mode adds record sets.
+//
+// Parameters:
+//  Mode - Boolean, ReplacementMode
+//
+// Returns:
+//  Boolean
+//
+Function IsRecordSetAddition(Mode) Export
+	
+	Value = StandardSubsystemsCached.RecordSetAdditionMode();
+	Return Value <> Undefined And Mode = Value;
+	
+EndFunction
+
+// Indicates whether the current mode replaces record sets.
+//
+// Parameters:
+//  Mode - Boolean, ReplacementMode
+//
+// Returns:
+//  Boolean
+//
+Function IsRecordSetReplacement(Mode) Export
+	
+	Value = StandardSubsystemsCached.RecordSetReplacementMode();
+	Return Value <> Undefined And Mode = Value;
+	
+EndFunction
+
+// Indicates whether the current mode updates record sets.
+//
+// Parameters:
+//  Mode - Boolean, ReplacementMode
+//
+// Returns:
+//  Boolean
+//
+Function IsRecordSetUpdate(Mode) Export
+	
+	Value = StandardSubsystemsCached.RecordSetUpdateMode();
+	Return Value <> Undefined And Mode = Value;
+	
+EndFunction
+
+// Indicates whether the current mode merges record sets.
+//
+// Parameters:
+//  Mode - Boolean, ReplacementMode
+//
+// Returns:
+//  Boolean
+//
+Function IsRecordSetMerge(Mode) Export
+	
+	Value = StandardSubsystemsCached.RecordSetMergeMode();
+	Return Value <> Undefined And Mode = Value;
+	
+EndFunction
+
+// Indicates whether the current mode removes record sets.
+//
+// Parameters:
+//  Mode - Boolean, ReplacementMode
+//
+// Returns:
+//  Boolean
+//
+Function IsRecordSetDeletion(Mode) Export
+	
+	Value = StandardSubsystemsCached.RecordSetDeletionMode();
+	Return Value <> Undefined And Mode = Value;
+	
+EndFunction
+
+// Returns "ReplacementMode.RefreshEnabled". Or "Undefined"
+// if the used 1C:Enterprise version does not support it.
+//
+// Returns:
+//  Undefined, ReplacementMode
+//
+Function RecordSetUpdateMode() Export
+	
+	Return StandardSubsystemsCached.RecordSetUpdateMode();
+	
+EndFunction
+
+// Returns "ReplacementMode.Join". Or "Undefined"
+// if the used 1C:Enterprise version does not support it.
+//
+// Returns:
+//  Undefined, ReplacementMode
+//
+Function RecordSetMergeMode() Export
+	
+	Return StandardSubsystemsCached.RecordSetMergeMode();
+	
+EndFunction
+
+// Returns "ReplacementMode.Delete". Or "Undefined"
+// if the used 1C:Enterprise version does not support it.
+//
+// Returns:
+//  Undefined, ReplacementMode
+//
+Function RecordSetDeletionMode() Export
+	
+	Return StandardSubsystemsCached.RecordSetDeletionMode();
 	
 EndFunction
 
@@ -6635,7 +7186,7 @@ EndFunction
 // after a temporary directory is not required anymore.
 //
 // Parameters:
-//   PathToDirectory - String - the full path to a temporary directory.
+//   PathToDirectory - String - Full path to a temporary directory.
 //
 Procedure DeleteTemporaryDirectory(Val PathToDirectory) Export
 	
@@ -6739,7 +7290,7 @@ Function QueryToXMLString(Query) Export // ACC:299 - Intended for debugging quer
 	Return ValueToXMLString(Structure);
 EndFunction
 
-Function AttachAddInSSLByID(Val Id, Val Location, Val Isolated = Null) Export
+Function AttachAddInSSLByID(Val Id, Val Location, Val Isolated = Undefined) Export
 	
 	CheckTheLocationOfTheComponent(Id, Location);
 	
@@ -6753,9 +7304,6 @@ Function AttachAddInSSLByID(Val Id, Val Location, Val Isolated = Null) Export
 #If MobileAppServer Then
 		ConnectionResult = AttachAddIn(Location, Id + "SymbolicName");
 #Else
-		If Isolated = Null Then
-			Isolated = IsDefaultAddInAttachmentMethod();
-		EndIf;
 		ConnectionResult = AttachAddIn(Location, Id + "SymbolicName",,
 			CommonInternalClientServer.AddInAttachType(Isolated));
 #EndIf
@@ -6842,28 +7390,6 @@ Function AttachAddInSSLByID(Val Id, Val Location, Val Isolated = Null) Export
 	Result.Attached = True;
 	Result.Attachable_Module = Attachable_Module;
 	Return Result;
-	
-EndFunction
-
-Function IsDefaultAddInAttachmentMethod() Export
-	
-#If Not WebClient And Not MobileClient And Not MobileAppServer Then
-	
-	SystemInfo = New SystemInfo;
-	AppVersion = SystemInfo.AppVersion;
-	If StrStartsWith(AppVersion, "8.3.24") And CommonClientServer.CompareVersions(AppVersion, "8.3.24.1267") >= 0
-	 Or StrStartsWith(AppVersion, "8.3.23") And CommonClientServer.CompareVersions(AppVersion, "8.3.23.1947") >= 0
-	 Or StrStartsWith(AppVersion, "8.3.22") And CommonClientServer.CompareVersions(AppVersion, "8.3.22.2322") >= 0
-	 Or StrStartsWith(AppVersion, "8.3.21") And CommonClientServer.CompareVersions(AppVersion, "8.3.21.1930") >= 0 Then
-		Return Undefined;
-	Else
-		Return False;
-	EndIf;
-#Else
-	
-	Return Undefined;
-	
-#EndIf
 	
 EndFunction
 
@@ -7063,10 +7589,10 @@ Function TemplateExists(FullTemplateName) Export
 	Template = Metadata.FindByFullName(FullTemplateName);
 	If TypeOf(Template) = Type("MetadataObject") Then 
 		
-		Var_482_Template = New Structure("TemplateType");
-		FillPropertyValues(Var_482_Template, Template);
+		Var_525_Template = New Structure("TemplateType");
+		FillPropertyValues(Var_525_Template, Template);
 		TemplateType = Undefined;
-		If Var_482_Template.Property("TemplateType", TemplateType) Then 
+		If Var_525_Template.Property("TemplateType", TemplateType) Then 
 			Return TemplateType <> Undefined;
 		EndIf;
 		
@@ -7104,7 +7630,7 @@ EndFunction
 // Result = Common.CheckIfObjectAttributesExist("Document.SalesOrder", Attributes);
 //
 // If Result.Error Then
-//     CallException Result.ErrorDescription;
+//     Raise Result.ErrorDescription;
 // EndIf;
 //
 Function CheckIfObjectAttributesExist(FullMetadataObjectName, ExpressionsToCheck)
@@ -7305,7 +7831,7 @@ Procedure ReplaceInConstant(Result, Val UsageInstance1, Val WriteParameters)
 		Except
 			ActionState = "LockError";
 			RefinementErrors = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Failed to make replacement in ""%1"". Another user is editing the data.
+				NStr("en = 'Failed to make replacement in constant ""%1"". Another user is editing the data.
 				|Please try again later.';"), 
 				DataPresentation);
 			ErrorInfo = ErrorInfo();
@@ -7467,7 +7993,7 @@ Procedure ReplaceInSet(Result, Val UsageInstance1, Val ExecutionParameters)
 	FillPropertyValues(Filter, UsageInstance1);
 	RowsToProcess = UsageInstance1.Owner().FindRows(Filter); // See UsageInstances
 	
-	SetDetails = RecordKeyDetails(RegisterMetadata);
+	SetDetails = RecordsSetDetails(RegisterMetadata);
 	RecordSet = SetDetails.RecordSet; // InformationRegisterRecordSet
 	
 	ReplacementPairs = New Map;
@@ -7507,7 +8033,7 @@ Procedure ReplaceInSet(Result, Val UsageInstance1, Val ExecutionParameters)
 		Except
 			ActionState = "LockError";
 			RefinementErrors = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Failed to make replacement in ""%1"". Another user is editing the data.
+				NStr("en = 'Failed to make replacement in register ""%1"". Another user is editing the data.
 				|Please try again later.';"), 
 				DataPresentation);
 			ErrorInfo = ErrorInfo();
@@ -8322,7 +8848,7 @@ Function TaskDetails(Val Meta)
 
 EndFunction
 
-Function RecordKeyDetails(Val MetadataTables)
+Function RecordsSetDetails(Val MetadataTables)
 	
 	TableName = MetadataTables.FullName();
 	
@@ -9720,10 +10246,14 @@ EndFunction
 
 #Region SecureStorage
 
-Function DataFromSecureStorage(Owners, Keys, SharedData)
+Function DataFromSecureStorage(Owners, Keys, SharedData, DataArea)
 	
 	NameOfTheSecureDataStore = "InformationRegister.SafeDataStorage";
-	If DataSeparationEnabled() And SeparatedDataUsageAvailable() And SharedData <> True Then
+	AreaQuery = (DataSeparationEnabled()
+		And SharedData <> True
+		And (SeparatedDataUsageAvailable()
+			 Or ValueIsFilled(DataArea)));
+	If AreaQuery Then
 		NameOfTheSecureDataStore = "InformationRegister.SafeDataAreaDataStorage";
 	EndIf;
 	
@@ -9734,11 +10264,26 @@ Function DataFromSecureStorage(Owners, Keys, SharedData)
 		|FROM
 		|	#NameOfTheSecureDataStore AS SafeDataStorage
 		|WHERE
-		|	SafeDataStorage.Owner IN (&Owners)";
+		|	&Condition";
 	
-	QueryText = StrReplace(QueryText, "#NameOfTheSecureDataStore", NameOfTheSecureDataStore);
+	QueryText = StrReplace(
+		QueryText,
+		"#NameOfTheSecureDataStore",
+		NameOfTheSecureDataStore);
+	QueryText = ?((ValueIsFilled(DataArea) And AreaQuery),
+		StrReplace(
+			QueryText,
+			"&Condition",
+			"SafeDataStorage.Owner IN (&Owners)
+			|AND SafeDataStorage.DataAreaAuxiliaryData = &DataArea"),
+		StrReplace(
+			QueryText,
+			"&Condition",
+			"SafeDataStorage.Owner IN (&Owners)"));
 	Query = New Query(QueryText);
 	Query.SetParameter("Owners", Owners);
+	Query.SetParameter("DataArea", DataArea);
+	
 	QueryResult = Query.Execute().Select();
 	
 	Result = New Map(); 
@@ -10115,7 +10660,7 @@ Procedure CheckTheLocationOfTheComponent(Id, Location)
 		Return;
 	EndIf;
 	Raise(StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'When attaching an add-in ""%2"", non-existent template ""%1"" is specified.';"),
+		NStr("en = 'Attempting to attach add-in ""%2"" from non-existent template ""%1"".';"),
 			Location, Id),
 		ErrorCategory.ConfigurationError);
 	
@@ -10253,8 +10798,8 @@ EndFunction
 
 Function IsVersionOfProtectedComplexITSystem(Version)
 	
-	Versions = StandardSubsystemsServer.SecureSoftwareSystemVersions();
-	Return Versions.Find(Version) <> Undefined;
+	SystemInfo = New SystemInfo();
+	Return ValueIsFilled(SystemInfo.AppVariant);
 	
 EndFunction
 
@@ -10285,7 +10830,7 @@ EndProcedure
 
 #EndRegion
 
-#Region CheckingAlgorithms
+#Region AlgorithmCheck
 
 Procedure CheckAlgorithm(Val Algorithm)
 	
@@ -10305,9 +10850,9 @@ Procedure CheckAlgorithm(Val Algorithm)
 	EndIf;
 	
 	// Check for calls to the global context common modules and properties.
-	FoundCalls = FoundCalls(Algorithm, ForbiddenPropertiesOfGlobalContext(), ".");
-	AlternativeCallsFound = FoundCalls(Algorithm, ForbiddenPropertiesOfGlobalContext(), "[");
-	CommonClientServer.SupplementArray(FoundCalls, AlternativeCallsFound, True);
+	FoundCalls = FoundCalls(Algorithm, GlobalContextBlacklistedProperties(), ".");
+	FoundCallsAlternative = FoundCalls(Algorithm, GlobalContextBlacklistedProperties(), "[");
+	CommonClientServer.SupplementArray(FoundCalls, FoundCallsAlternative, True);
 	If FoundCalls.Count() > 0 Then
 		ErrorText = NStr("en = 'Invalid global context property calls:
 			|%1';");
@@ -10316,7 +10861,7 @@ Procedure CheckAlgorithm(Val Algorithm)
 		ErrorsTexts.Add(ErrorText);
 	EndIf;
 	
-	FoundCalls = FoundCalls(Algorithm, ProhibitedModules(), ".");
+	FoundCalls = FoundCalls(Algorithm, BlacklistedModules(), ".");
 	If FoundCalls.Count() > 0 Then
 		ErrorText = NStr("en = 'Invalid modules calls:
 			|%1';");
@@ -10326,19 +10871,19 @@ Procedure CheckAlgorithm(Val Algorithm)
 	EndIf;
 	
 	If ErrorsTexts.Count() > 0 Then
-		Raise StrConcat(ErrorsTexts, Chars.LF + Chars.LF);
+		Raise (StrConcat(ErrorsTexts, Chars.LF + Chars.LF), ErrorCategory.ExternalDataSourceError);
 	EndIf;
 EndProcedure
 
 Function FoundCalls(Algorithm, SearchBars, Ending = Undefined)
 	
 	FoundCalls  = New Array;
-	SearchForAddressThroughPoint = False;
-	TableSearch = False;
+	SearchForDotNotationAdressing = False;
+	Table_Search = False;
 	For Each Item In SearchBars Do
 		
 		If TypeOf(Item) = Type("Structure") Then
-			SearchForAddressThroughPoint = True;
+			SearchForDotNotationAdressing = True;
 			SearchString = Item.Collection;
 		Else
 			SearchString = Item;
@@ -10347,9 +10892,9 @@ Function FoundCalls(Algorithm, SearchBars, Ending = Undefined)
 		CallPosition  = StrFind(Algorithm, Upper(SearchString));
 		EntryNumber = 1;
 		While CallPosition > 0 Do
-			If SearchForAddressThroughPoint Then
+			If SearchForDotNotationAdressing Then
 				Ending = ".";
-				TableSearch = False;
+				Table_Search = False;
 			EndIf;
 			
 			CountOfCharacters  = StrLen(Ending);
@@ -10368,15 +10913,15 @@ Function FoundCalls(Algorithm, SearchBars, Ending = Undefined)
 				
 				If StrLen(SymbolValue) < StrLen(Ending) Then
 					CountOfCharacters = CountOfCharacters + 1;
-				ElsIf SearchForAddressThroughPoint
+				ElsIf SearchForDotNotationAdressing
 					And SymbolValue = Ending
-					And Not TableSearch Then
+					And Not Table_Search Then
 					CharPosition = CharPosition + CountOfCharacters;
 					Ending      = Upper(Item.Table);
 					CountOfCharacters  = StrLen(Ending);
-					TableSearch = True;
+					Table_Search = True;
 				ElsIf SymbolValue = Ending Then
-					If SearchForAddressThroughPoint Then
+					If SearchForDotNotationAdressing Then
 						FoundCalls.Add(Item.Collection + "." + Item.Table);
 					Else
 						FoundCalls.Add(SearchString);
@@ -10400,6 +10945,7 @@ Function InvalidMethods()
 	Array = New Array;
 	Array.Add("Выполнить"); // @Non-NLS
 	Array.Add("Вычислить"); // @Non-NLS
+	Array.Add("Подключить"); // @Non-NLS
 	Array.Add("ЗафиксироватьТранзакцию"); // @Non-NLS
 	Array.Add("СократитьЖурналРегистрации"); // @Non-NLS
 	Array.Add("УстановитьИспользованиеСобытияЖурналаРегистрации"); // @Non-NLS
@@ -10413,6 +10959,7 @@ Function InvalidMethods()
 	
 	Array.Add("Execute");
 	Array.Add("Eval");
+	Array.Add("Connect");
 	Array.Add("CommitTransaction");
 	Array.Add("TruncateEventLog");
 	Array.Add("SetEventLogEventUse");
@@ -10427,7 +10974,7 @@ Function InvalidMethods()
 	Return Array;
 EndFunction
 
-Function ForbiddenPropertiesOfGlobalContext()
+Function GlobalContextBlacklistedProperties()
 	
 	Array = New Array;
 	Array.Add("ПользователиИнформационнойБазы"); // @Non-NLS
@@ -10441,7 +10988,7 @@ Function ForbiddenPropertiesOfGlobalContext()
 	
 EndFunction
 
-Function ProhibitedModules()
+Function BlacklistedModules()
 	
 	Array = New Array;
 	Array.Add("TimeConsumingOperations");

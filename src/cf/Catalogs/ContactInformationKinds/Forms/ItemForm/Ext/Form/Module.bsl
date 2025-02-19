@@ -162,7 +162,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 			Cancel = True;
 			
 			ShowQueryBox(
-				New NotifyDescription("AfterResponseOnQuestionWhenIDForFormulasIsAlreadyUsed", ThisObject, WriteParameters),
+				New CallbackDescription("AfterResponseOnQuestionWhenIDForFormulasIsAlreadyUsed", ThisObject, WriteParameters),
 				QueryText, Buttons, , "ContinueWrite");
 			
 		Else
@@ -357,7 +357,7 @@ Procedure Attachable_AllowObjectAttributeEdit(Command)
 	If Not Object.Predefined Then
 		If CommonClient.SubsystemExists("StandardSubsystems.ObjectAttributesLock") Then
 			ModuleObjectAttributesLockClient = CommonClient.CommonModule("ObjectAttributesLockClient");
-			Notification = New NotifyDescription("AllowObjectAttributeEditCompletion", ThisObject);
+			Notification = New CallbackDescription("AllowObjectAttributeEditCompletion", ThisObject);
 			ModuleObjectAttributesLockClient.AllowObjectAttributeEdit(ThisObject, Notification);
 		EndIf;
 	EndIf;
@@ -375,7 +375,7 @@ EndProcedure
 
 &AtClient
 Procedure AdditionalAddressSettings(Command)
-	ClosingNotification = New NotifyDescription("AfterCloseAddressSettingsForm", ThisObject);
+	ClosingNotification = New CallbackDescription("AfterCloseAddressSettingsForm", ThisObject);
 	FormParameters = New Structure();
 	FormParameters.Insert("Object", Object);
 	FormParameters.Insert("ReadOnly", ReadOnly);
@@ -557,8 +557,8 @@ Procedure AfterResponseOnQuestionWhenIDForFormulasIsAlreadyUsed(Response, WriteP
 	
 	If Response <> "ContinueWrite" Then
 		If WriteParameters.Property("ContinuationHandler") Then
-			ExecuteNotifyProcessing(
-				New NotifyDescription(WriteParameters.ContinuationHandler.ProcedureName,
+			RunCallback(
+				New CallbackDescription(WriteParameters.ContinuationHandler.ProcedureName,
 					ThisObject, WriteParameters.ContinuationHandler.Parameters),
 				True);
 		EndIf;
@@ -643,7 +643,7 @@ Function IDForFormulasAlreadyUsed(Val IDForFormulas, Val CurrentContactInformati
 	                          |""%1"" already exists.
 	                          |
 	                          |It is recommended that you use another ID for formulas.
-	                          |Otherwise, the app might malfunction.
+	                          |Otherwise, the application might malfunction.
 	                          |
 	                          |Create a new ID for the formulas and continue saving?';");
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(

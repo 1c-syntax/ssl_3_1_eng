@@ -23,7 +23,7 @@
 Procedure OnCreateAtServerDocumentForm(Form, Placement = Undefined) Export
 
 	If GetFunctionalOption("UseSourceDocumentsOriginalsRecording") = False
-	Or Not AccessRight("Read",Metadata.InformationRegisters.SourceDocumentsOriginalsStates) Then
+	Or Not AccessRight("Read", Metadata.InformationRegisters.SourceDocumentsOriginalsStates) Then
 		DecorationToDisable = Form.Items.Find("OriginalStateDecoration");
 		If Not DecorationToDisable = Undefined Then
 			DecorationToDisable.Visible = False;
@@ -31,43 +31,16 @@ Procedure OnCreateAtServerDocumentForm(Form, Placement = Undefined) Export
 		Return;
 	EndIf;
 	
-	Attributes = New Array;
-	Attributes.Add(New FormAttribute("OriginalStatesChoiceList", New TypeDescription("ValueList")));
+	Settings = SubsystemSettings(); 
 	
-	Form.ChangeAttributes(Attributes);
-
-	OriginalsStates = UsedStates();
-	
-	FillOriginalStatesChoiceList(Form, OriginalsStates);
-	
-	If Placement = Undefined Then
-		Parent = Form;
-	Else
-		Parent = Placement;
-	EndIf;
-	
-	OriginalStateDecoration = Form.Items.Add("OriginalStateDecoration", Type("FormDecoration"), Parent);
-	OriginalStateDecoration.Type = FormDecorationType.Label;
-	OriginalStateDecoration.Hyperlink = True;
-	If Placement = Undefined Then
-		OriginalStateDecoration.HorizontalAlignInGroup = ItemHorizontalLocation.Right;
-	EndIf;
-	OriginalStateDecoration.SetAction("Click", "Attachable_OriginalStateDecorationClick");
-
-	If ValueIsFilled(Form.Object.Ref) Then
-		CurrentOriginalState = OriginalStateInfoByRef(Form.Object.Ref);
-		If CurrentOriginalState.Count() = 0 Then
-			CurrentOriginalState=NStr("en = '<Original state is unknown>';");
-			OriginalStateDecoration.TextColor = StyleColors.InaccessibleCellTextColor;
-		Else
-			CurrentOriginalState = CurrentOriginalState.SourceDocumentOriginalState;
+	If Settings.ShouldDisplayButtonsOnDocumentForm Then 
+		If Not Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+			OutputOriginalStateCommandsToForm(Form, Undefined, UsedStates());
 		EndIf;
+		ConfigureButtonsOnDocumentForm(Form);
 	Else
-		CurrentOriginalState=NStr("en = '<Original state is unknown>';");
-		OriginalStateDecoration.TextColor = StyleColors.InaccessibleCellTextColor;
+		ConfigureHyperlinkOnDocumentForm(Form, Placement);
 	EndIf;
-
-	OriginalStateDecoration.Title = CurrentOriginalState;
 
 EndProcedure
 
@@ -81,7 +54,7 @@ EndProcedure
 //
 Procedure OnCreateAtServerListForm(Form, List, Placement = Undefined) Export
 
-	If GetFunctionalOption("UseSourceDocumentsOriginalsRecording") = False 
+	If GetFunctionalOption("UseSourceDocumentsOriginalsRecording") = False
 	Or Not AccessRight("Read",Metadata.InformationRegisters.SourceDocumentsOriginalsStates) Then
 		ColumnToDisable = Form.Items.Find("StateOriginalReceived");
 		If Not ColumnToDisable = Undefined Then
@@ -91,29 +64,29 @@ Procedure OnCreateAtServerListForm(Form, List, Placement = Undefined) Export
 	EndIf;
 	
 	// Create columns in the dynamic list.
-	PropsListStatusReceived = Form.Items.Insert("StateOriginalReceived",Type("FormField"),List,Placement);
-	PropsListStatusReceived.Type = FormFieldType.PictureField;
-	PropsListStatusReceived.TitleLocation = FormItemTitleLocation.None; 
-	PropsListStatusReceived.ValuesPicture = PictureLib.IconsCollectionSourceDocumentOriginalAvailable;
-	PropsListStatusReceived.HeaderPicture = PictureLib.SourceDocumentOriginalStateOriginalReceived;
-	PropsListStatusReceived.Title = NStr("en = 'Status ""Hard copy received""';");
-	PropsListStatusReceived.DataPath = List.Name + ".StateOriginalReceived";
+	AttributeListStateReceived = Form.Items.Insert("StateOriginalReceived",Type("FormField"),List,Placement);
+	AttributeListStateReceived.Type = FormFieldType.PictureField;
+	AttributeListStateReceived.TitleLocation = FormItemTitleLocation.None; 
+	AttributeListStateReceived.ValuesPicture = PictureLib.IconsCollectionSourceDocumentOriginalAvailable;
+	AttributeListStateReceived.HeaderPicture = PictureLib.SourceDocumentOriginalStateOriginalReceived;
+	AttributeListStateReceived.Title = NStr("en = 'Status ""Hard copy received""';");
+	AttributeListStateReceived.DataPath = List.Name + ".StateOriginalReceived";
 	
 	AttributeListState = Form.Items.Insert("SourceDocumentOriginalState",Type("FormField"),List,Placement);
 	AttributeListState.Type = FormFieldType.LabelField;
-	AttributeListState.CellHyperlink = True; 
+	AttributeListState.CellHyperlink = True;
 	AttributeListState.Title = NStr("en = 'Original state';");
 	AttributeListState.DataPath = List.Name + ".SourceDocumentOriginalState";
 	
 	If Not RightsToChangeState() Then
-		PropsListStatusReceived.Enabled = False;
+		AttributeListStateReceived.Enabled = False;
 		AttributeListState.Enabled = False;
 		Return;
 	EndIf;
 	
 	// Create a list.
 	Attributes = New Array;
-	Attributes.Add(New FormAttribute("OriginalStatesChoiceList", New TypeDescription("ValueList")));	
+	Attributes.Add(New FormAttribute("OriginalStatesChoiceList", New TypeDescription("ValueList")));
 	Form.ChangeAttributes(Attributes);
 	
 	OriginalsStates = UsedStates();
@@ -202,31 +175,140 @@ EndProcedure
 
 #EndRegion
 
-// Updates commands that set the original state on the list form.
+// Called in order to write new or modified states of source document originals.
+//
+// Parameters:
+//  WritingObjects - Array of Structure - Array of data on the original's state being modified 
+//										  (in case of batch change of document state):
+//                 * OverallState    - Boolean - "True" if the current state is aggregated.
+//                 * Ref 		   - DefinedType.ObjectWithSourceDocumentsOriginalsAccounting - The document whose 
+//												  source document's state should be changed.
+//                 * SourceDocumentOriginalState - CatalogRef.SourceDocumentsOriginalsStates -
+//                                                           The current state of a source document.
+//                 * SourceDocument - String - A source document ID. 
+//                                                Required if the state is not aggregated.
+//                 * FromOutside 			   - Boolean - "True" if the source document was added manually. 
+//                                                It's required if the current state is not aggregated.
+//                - DefinedType.ObjectWithSourceDocumentsOriginalsAccounting - Reference to the document whose source document's state
+//												  should be changed (in case of a singular change).
+//  OriginalState - CatalogRef.SourceDocumentsOriginalsStates - Reference to the state to apply.
+//
+// Returns:
+//  String - "IsChanged" if the source document state is not repeated and was saved.
+//           "NotIsChanged"
+//           "NotCarriedOut"
+//
+Function SetNewOriginalState(Val WritingObjects, Val OriginalState) Export
+
+	If Not GetFunctionalOption("UseSourceDocumentsOriginalsRecording") Then
+		Return "NotIsChanged";
+	EndIf;
+	
+	VerifyAccessRights("Edit", Metadata.InformationRegisters.SourceDocumentsOriginalsStates);
+	
+	RecordArray = New Array;
+	ReferencesArrray = New Array;
+	If TypeOf(WritingObjects) = Type("Array") Then 
+		For Each Object In WritingObjects Do
+			Ref = Object.Ref;
+			If IsAccountingObject(Ref) Then
+				ReferencesArrray.Add(Ref);
+				RecordArray.Add(Object);
+			EndIf;
+		EndDo;
+	Else
+		ReferencesArrray.Add(WritingObjects);
+		RecordArray = WritingObjects;
+	EndIf;
+
+	UnpostedDocuments = Common.CheckDocumentsPosting(ReferencesArrray);
+	If UnpostedDocuments.Count() > 0 Then
+		Return "NotPosted";
+	EndIf;
+	
+	SetPrivilegedMode(True);
+	If TypeOf(WritingObjects) = Type("Array") Then
+		 Result = SetTheNewStateOfTheOriginalArray(RecordArray, OriginalState);
+	Else
+		 Result = SetNewStatusForOriginalDoc(RecordArray, OriginalState);
+	EndIf;
+	Return ?(Result, "IsChanged", "NotIsChanged");
+	
+EndFunction
+
+// Returns data on the current aggregated state of the source document by Ref.
+//
+//	Parameters:
+//  Document - DefinedType.ObjectWithSourceDocumentsOriginalsAccounting - Reference to the document whose
+//																			aggregated state information is to be received. 
+//
+//  Returns:
+//    Structure:
+//    * Ref - DefinedType.ObjectWithSourceDocumentsOriginalsAccounting - Document reference.
+//    * SourceDocumentOriginalState - CatalogRef.SourceDocumentsOriginalsStates - Current aggregated state
+//        of the original document.
+//
+Function OriginalStateInfoByRef(Document) Export
+
+	Query = New Query;
+	Query.Text = "SELECT ALLOWED
+		|	SourceDocumentsOriginalsStates.State AS State
+		|FROM
+		|	InformationRegister.SourceDocumentsOriginalsStates AS SourceDocumentsOriginalsStates
+		|WHERE
+		|	SourceDocumentsOriginalsStates.Owner = &Ref
+		|	AND SourceDocumentsOriginalsStates.OverallState = TRUE";
+	
+	Query.SetParameter("Ref", Document);
+	
+	StateInfo3 = New Structure;
+
+	If Not Query.Execute().IsEmpty() Then
+		Selection = Query.Execute().Select();
+		Selection.Next();
+		
+		StateInfo3.Insert("Ref", Document);
+		StateInfo3.Insert("SourceDocumentOriginalState", Selection.State);	
+	EndIf;
+
+	Return StateInfo3;
+
+EndFunction
+
+// Called to record the original states of print forms to the register after printing the form.
+//
+//	Parameters:
+//  PrintObjects - ValueList - List of references to print objects.
+//  PrintList - ValueList - List with template names and print form presentations.
+//  Written1 - Boolean - Indicates that the document state is written to the register.
+//
+Procedure WriteOriginalsStatesAfterPrint(PrintObjects, PrintList, Written1 = False) Export
+
+	If GetFunctionalOption("UseSourceDocumentsOriginalsRecording") And Not Users.IsExternalUserSession() Then
+		WhenDeterminingTheListOfPrintedForms(PrintObjects, PrintList);
+		If PrintList.Count() = 0 Then
+			Return;
+		EndIf;
+		WriteDocumentOriginalsStatesAfterPrintForm(PrintObjects, PrintList, Written1);
+	EndIf;
+
+EndProcedure
+
+// Updates commands that set the original state on the form.
 //
 // Parameters:
 //  Form - ClientApplicationForm - a document list form.
-//  List - FormTable - the main form list.
+//  List - FormTable - Main form list. It is set to "Undefined" if the procedure is invoked for the document form.
 //
-Procedure UpdateOriginalStateCommands(Form, List) Export
+Procedure UpdateOriginalStateCommands(Form, List = Undefined) Export
 
 	OriginalsStates = UsedStates();
-
-	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
-		SetConfigureOriginalStateSubmenu = Form.Items.Find("SetConfigureOriginalStateSubmenuNormal");		
-		If Not SetConfigureOriginalStateSubmenu = Undefined Then
-			Form.Items.Delete(SetConfigureOriginalStateSubmenu);
-		EndIf;
-		
-		SetConfigureOriginalStateSubmenu = Form.Items.Find("SetConfigureOriginalStateSubmenuSeeAlso");		
-		If Not SetConfigureOriginalStateSubmenu = Undefined Then
-			Form.Items.Delete(SetConfigureOriginalStateSubmenu);
-		EndIf;
-	EndIf;
 	
 	OutputOriginalStateCommandsToForm(Form, List, OriginalsStates);
-
-	FillOriginalStatesChoiceList(Form, OriginalsStates);
+	
+	If Not List = Undefined Then
+		FillOriginalStatesChoiceList(Form, OriginalsStates); 
+	EndIf;
 
 EndProcedure
 
@@ -241,7 +323,7 @@ Procedure SetConditionalAppearanceInListForm(Form, List) Export
 	AppearanceItem = Form.ConditionalAppearance.Items.Add();
 
 	FilterElement = AppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
-	FilterElement.LeftValue = New DataCompositionField(List.Name+".SourceDocumentOriginalState"); 
+	FilterElement.LeftValue = New DataCompositionField(List.Name+".SourceDocumentOriginalState");
 	FilterElement.ComparisonType = DataCompositionComparisonType.NotFilled;
 	FilterElement.Use = True;
 
@@ -256,7 +338,7 @@ Procedure SetConditionalAppearanceInListForm(Form, List) Export
 	AppearanceItem = Form.ConditionalAppearance.Items.Add();
 
 	FilterElement = AppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
-	FilterElement.LeftValue = New DataCompositionField(List.Name+".SourceDocumentOriginalState"); 
+	FilterElement.LeftValue = New DataCompositionField(List.Name+".SourceDocumentOriginalState");
 	FilterElement.ComparisonType = DataCompositionComparisonType.Filled;
 	FilterElement.Use = True;
 	
@@ -284,7 +366,7 @@ EndProcedure
 //
 // Parameters:
 //  ProfileDetails - See AccessManagement.NewAccessGroupProfileDescription.
-//  
+//
 Procedure SupplementProfileWithRoleForDocumentsOriginalsStatesSetup(ProfileDetails) Export
 
 	ProfileDetails.Roles.Add("AddEditSourceDocumentsOriginalsStates");
@@ -331,23 +413,25 @@ EndFunction
 //
 // Parameters:
 //  Form - ClientApplicationForm - a document list form.
-//  List - FormTable - the main form list.
+//  List - FormTable - Main form list. It is set to "Undefined" if the procedure is invoked for the document form.
 //  OriginalsStates - ValueTable - original states available to users and used when changing
 //                                          the original state:
-//              * Description 	- String - The name of the source document state.
-//              * Ref		- CatalogRef.SourceDocumentsOriginalsStates
+//              * Description	- String - Description of the original state.
+//              * Ref		- CatalogRef.SourceDocumentsOriginalsStates - a reference to an item of the SourceDocumentsOriginalsStates catalog.
 //
 Procedure OutputOriginalStateCommandsToForm(Form, List, OriginalsStates) Export
-
+	
 	// Check and create a submenu and button list on the list command panel.
 	Items = Form.Items;
+	Parent = ?(TypeOf(List) = Type("FormTable"), List.CommandBar, Form.CommandBar);
+	Picture = ?(TypeOf(List) = Type("FormTable"), PictureLib.SetSourceDocumentOriginalState,
+		PictureLib.SourceDocumentOriginalStateOriginalNotReceived);
 
 	If Items.Find("SetConfigureOriginalStateSubmenu") = Undefined Then
-		SetConfigureOriginalStateSubmenu = Items.Add("SetConfigureOriginalStateSubmenu", 
-			Type("FormGroup"), List.CommandBar);
+		SetConfigureOriginalStateSubmenu = Items.Add("SetConfigureOriginalStateSubmenu", Type("FormGroup"), Parent);
 		SetConfigureOriginalStateSubmenu.Type = FormGroupType.Popup;
 		SetConfigureOriginalStateSubmenu.Representation = ButtonRepresentation.Picture; 
-		SetConfigureOriginalStateSubmenu.Picture = PictureLib.SetSourceDocumentOriginalState;
+		SetConfigureOriginalStateSubmenu.Picture  = Picture;
 		SetConfigureOriginalStateSubmenu.Title = NStr("en = 'Set original state';");
 		SetConfigureOriginalStateSubmenu.ToolTip = NStr("en = 'Use these commands to set and change states of source document originals.';");
 	EndIf;
@@ -365,9 +449,9 @@ Procedure OutputOriginalStateCommandsToForm(Form, List, OriginalsStates) Export
 			SetConfigureOriginalStateSubmenu);
 		ConfigureOriginalStatesGroup.Type = FormGroupType.ButtonGroup;
 	EndIf;
-	ConfigureOriginalStatesGroup = Items.Find("ConfigureOriginalStatesGroup");
-
-	If Items.Find("SetOriginalReceivedGroup") = Undefined Then
+	ConfigureOriginalStatesGroup = Items.Find("ConfigureOriginalStatesGroup");	
+	
+	If Items.Find("SetOriginalReceivedGroup") = Undefined And Not TypeOf(List) = Type("Boolean") Then
 		SetOriginalReceivedGroup =  Items.Add("SetOriginalReceivedGroup", Type("FormGroup"), 
 			List.CommandBar); 
 		SetOriginalReceivedGroup.Type = FormGroupType.ButtonGroup;
@@ -375,27 +459,20 @@ Procedure OutputOriginalStateCommandsToForm(Form, List, OriginalsStates) Export
 	EndIf;
 	SetOriginalReceivedGroup = Items.Find("SetOriginalReceivedGroup");
 	
-	For Each State In SetOriginalStateGroup.ChildItems Do
-		FoundCommand = Form.Commands.Find(State.CommandName);
-		FoundButton = Form.Items.Find(State.CommandName);
+	CommandsNamesArray = New Array;
+	For Each Command In SetOriginalStateGroup.ChildItems Do
+		CommandsNamesArray.Add(Command.CommandName);
+	EndDo;
+	
+	For Each Command In CommandsNamesArray Do
+		FoundCommand = Form.Commands.Find(Command);
+		FoundButton = Form.Items.Find(Command);
 
 		If Not FoundCommand = Undefined Then
 			Form.Commands.Delete(FoundCommand);
 			Form.Items.Delete(FoundButton);
-		EndIf;			
+		EndIf;
 	EndDo;
-	
-	// Remove the latest button.
-	If SetOriginalStateGroup.ChildItems.Count() > 0 Then 
-		State = SetOriginalStateGroup.ChildItems[0];
-		FoundCommand = Form.Commands.Find(State.CommandName);
-		FoundButton = Form.Items.Find(State.CommandName);
-	EndIf;
-	
-	If Not FoundCommand = Undefined Then
-		Form.Commands.Delete(FoundCommand);
-		Form.Items.Delete(FoundButton);
-	EndIf;
 	
 	For Each State In OriginalsStates Do
 		CommandName = "Command" + StrReplace(State.Ref.UUID(),"-","_");
@@ -418,12 +495,28 @@ Procedure OutputOriginalStateCommandsToForm(Form, List, OriginalsStates) Export
 			EndIf;
 			
 		EndIf;
-
 	EndDo;
+	
+	// Adds a button for identifying the original state by print forms.
+	If TypeOf(List) = Type("Boolean") Then
+		CommandName = "ClarifyByPrintForms";
+		ButtonName = NStr("en = 'Specify for print forms…';");
 
+		If Form.Commands.Find(CommandName) = Undefined Then
+			FormCommand  = Form.Commands.Add(CommandName);
+			FormCommand.Action = "Attachable_SetOriginalState";
+			FormCommand.Title = ButtonName;
+			
+			ConfigureStatesButton = Form.Items.Add(CommandName, Type("FormButton"),SetOriginalStateGroup);
+			ConfigureStatesButton.Title = ButtonName;
+			ConfigureStatesButton.CommandName = CommandName;
+			ConfigureStatesButton.Picture = PictureLib.SetSourceDocumentOriginalStateByPrintForms;
+		EndIf; 
+		
+	EndIf;
+	
 	// Adds a state settings navigation button to the command bar submenu of the "Set state" list.
-	If AccessRight("Insert",Metadata.Catalogs.SourceDocumentsOriginalsStates) 
-		And AccessRight("Update",Metadata.Catalogs.SourceDocumentsOriginalsStates) Then
+	If AccessRight("InteractiveInsert", Metadata.Catalogs.SourceDocumentsOriginalsStates) Then
 		CommandName = "StatesSetup";
 		ButtonName = NStr("en = 'Configure…';");
 
@@ -441,8 +534,8 @@ Procedure OutputOriginalStateCommandsToForm(Form, List, OriginalsStates) Export
 	EndIf;
 
 	// Adds button "Set original received" on the list command panel. 
-	CommandName = "SetOriginalReceived";
-	If Form.Commands.Find(CommandName) = Undefined Then
+	CommandName = "SettingStateOriginalReceived";
+	If Form.Commands.Find(CommandName) = Undefined And Not TypeOf(List) = Type("Boolean") Then
 		FormCommand  = Form.Commands.Add(CommandName);
 		FormCommand.Action = "Attachable_SetOriginalState";
 		FormCommand.Title = NStr("en = 'Set ""Original received""';");
@@ -453,6 +546,194 @@ Procedure OutputOriginalStateCommandsToForm(Form, List, OriginalsStates) Export
 		NewButton.CommandName = CommandName;
 	EndIf;
 
+EndProcedure
+
+// Returns the presentation of the hyperlink of a source document state by Ref.
+//
+//	Parameters:
+//   Document - DefinedType.ObjectWithSourceDocumentsOriginalsAccounting - Reference to the document for which the presentation of
+//																			 the state hyperlink is to be received.
+//  Returns:
+//   String - Presentation of the original state hyperlink.
+//
+Function StateHyperlinkPresentation(Document) Export
+	
+	ReferencesArrray = CommonClientServer.ValueInArray(Document);
+	UnpostedDocuments = Common.CheckDocumentsPosting(ReferencesArrray);
+	If UnpostedDocuments.Count() > 0 Then
+		CurrentOriginalState = NStr("en = '<Original state is unknown>';");
+		Return CurrentOriginalState;
+	EndIf;
+	
+	CurrentOriginalState = OriginalStateInfoByRef(Document);
+	If CurrentOriginalState.Count() = 0 Then
+		CurrentOriginalState=NStr("en = '<Original state is unknown>';");
+	Else
+		CurrentOriginalState = CurrentOriginalState.SourceDocumentOriginalState;
+	EndIf;
+	
+	Return CurrentOriginalState;
+	
+EndFunction
+
+// Sets states to print forms' source documents. Invoked after printing a form.
+//
+// Parameters:
+//   PrintObjects - ValueList - Document list.
+//   PrintForms - ValueList - The description of descriptions and the presentation of print forms.
+//   Written1 - Boolean - Output parameter. Indicates that the document status is written.
+//
+Procedure WriteDocumentOriginalsStatesAfterPrintForm(PrintObjects, PrintForms, Written1 = False) Export
+	
+	SSLSubsystemsIntegration.BeforeWriteOriginalStatesAfterPrint(PrintObjects, PrintForms);
+	SourceDocumentsOriginalsRecordingOverridable.BeforeWriteOriginalStatesAfterPrint(PrintObjects, PrintForms);
+	
+	State = PredefinedValue("Catalog.SourceDocumentsOriginalsStates.FormPrinted");
+	If Not ValueIsFilled(PrintObjects) Then 
+		Return;
+	EndIf;
+	
+	Block = New DataLock();
+
+	BeginTransaction();
+	Try
+		
+		For Each Document In PrintObjects Do
+			If IsAccountingObject(Document.Value) Then 
+				LockItem = Block.Add("InformationRegister.SourceDocumentsOriginalsStates");
+				LockItem.SetValue("Owner", Document.Value); 
+			EndIf;
+		EndDo;
+		Block.Lock();
+		
+		For Each Document In PrintObjects Do
+			If IsAccountingObject(Document.Value) Then 
+				TS = TableOfEmployees(Document.Value);
+				If TS <> "" Then
+					For Each Employee In Document.Value[TS] Do
+						For Each Form In PrintForms Do 
+							WriteDocumentOriginalStateByPrintForms(Document.Value, 
+								Form.Value, Form.Presentation, State, False, Employee.Employee);
+						EndDo;
+					EndDo;
+				Else
+					For Each Form In PrintForms Do
+						WriteDocumentOriginalStateByPrintForms(Document.Value, Form.Value,
+							Form.Presentation, State, False);
+					EndDo;
+				EndIf;
+				WriteCommonDocumentOriginalState(Document.Value, State);
+				Written1 = True;
+			EndIf;
+		EndDo;
+		
+		CommitTransaction();
+		
+	Except	
+		
+		RollbackTransaction();
+		Raise;
+	EndTry;
+	
+EndProcedure
+
+// Sets a state to a print form's source document. Invoked after printing a form.
+//
+// Parameters:
+//   Document - DefinedType.ObjectWithSourceDocumentsOriginalsAccounting - Document.
+//   PrintForm - String - Name of a print form template.
+//   Presentation - String - Print form description.
+//   State - CatalogRef.SourceDocumentsOriginalsStates - State of the print form's source document.
+//   FromOutside - Boolean - Indicates whether the form belongs to 1C:Enterprise.
+//   Employee - CatalogRef - Employee (if the source document contains information about employees).
+//
+Procedure WriteDocumentOriginalStateByPrintForms(Document, PrintForm, Presentation, State, 
+	FromOutside, Employee = Undefined) Export
+	
+	SetPrivilegedMode(True);
+	
+	OriginalStateRecord = InformationRegisters.SourceDocumentsOriginalsStates.CreateRecordManager();
+	OriginalStateRecord.Owner = Document;
+	OriginalStateRecord.SourceDocument = PrintForm;
+	If ValueIsFilled(Employee) Then
+		LastFirstName = PersonsClientServer.InitialsAndLastName(Employee.Description);
+		EmployeeView = StrFind(Presentation, LastFirstName);
+		If EmployeeView = 0 Then
+			OriginalStateRecord.SourceDocumentPresentation = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = '%1 %2';"), Presentation, LastFirstName);
+		Else
+			OriginalStateRecord.SourceDocumentPresentation = Presentation;
+		EndIf;
+	Else
+		OriginalStateRecord.SourceDocumentPresentation = Presentation;
+	EndIf; 
+	If TypeOf(State) = Type("String") Then
+		OriginalStateRecord.State = Catalogs.SourceDocumentsOriginalsStates.FindByDescription(State);
+	Else
+		OriginalStateRecord.State = State;
+	EndIf;
+	OriginalStateRecord.ChangeAuthor = Users.CurrentUser();
+	OriginalStateRecord.OverallState = False;
+	OriginalStateRecord.ExternalForm = FromOutside;
+	OriginalStateRecord.LastChangeDate = CurrentSessionDate();
+	OriginalStateRecord.Employee = Employee;
+	OriginalStateRecord.Write();
+
+EndProcedure
+
+// Saves the aggregated state of a source document.
+//
+// Parameters:
+//   Document - DefinedType.ObjectWithSourceDocumentsOriginalsAccounting - Document.
+//   State - CatalogRef.SourceDocumentsOriginalsStates - Original state.
+//
+Procedure WriteCommonDocumentOriginalState(Document, State) Export
+	
+	If TypeOf(State) = Type("String") Then
+		OriginalState = Catalogs.SourceDocumentsOriginalsStates.FindByDescription(State);
+	Else
+		OriginalState = State;
+	EndIf;
+
+	SetPrivilegedMode(True);
+		
+	OriginalStateRecord = InformationRegisters.SourceDocumentsOriginalsStates.CreateRecordManager();
+	OriginalStateRecord.Owner = Document;
+	OriginalStateRecord.SourceDocument = "";
+		
+	CheckOriginalStateRecord = InformationRegisters.SourceDocumentsOriginalsStates.CreateRecordSet();
+	CheckOriginalStateRecord.Filter.Owner.Set(Document);
+	CheckOriginalStateRecord.Filter.OverallState.Set(False);
+	CheckOriginalStateRecord.Read();
+	If CheckOriginalStateRecord.Count() Then
+		FormsStateSame = True;
+		For Each Record In CheckOriginalStateRecord Do
+			If Record.ChangeAuthor <> Users.CurrentUser() Then
+				OriginalStateRecord.ChangeAuthor = Undefined;
+			Else
+				OriginalStateRecord.ChangeAuthor = Users.CurrentUser();
+			EndIf;
+			If Record.State = OriginalState Then
+				Continue;
+			EndIf;
+			FormsStateSame = False;
+		EndDo;
+		If FormsStateSame Then
+			OriginalStateRecord.State = OriginalState;
+		Else
+			OriginalStateRecord.State = Catalogs.SourceDocumentsOriginalsStates.OriginalsNotAll;
+		EndIf;
+	Else
+		OriginalStateRecord.State = OriginalState;
+	EndIf;
+		
+	OriginalStateRecord.OverallState = True;
+	OriginalStateRecord.LastChangeDate = CurrentSessionDate();
+	OriginalStateRecord.Write();
+	
+	SSLSubsystemsIntegration.OnChangeAggregatedOriginalState(Document, State);
+	SourceDocumentsOriginalsRecordingOverridable.OnChangeAggregatedOriginalState(Document, State);
+	
 EndProcedure
 
 #EndRegion
@@ -543,16 +824,22 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	EndIf;
 
 	ObjectsWithSourceDocumentsOriginalsAccounting = New Array;
+	
+	Settings = SubsystemSettings();
+	
+	SSLSubsystemsIntegration.OnDefineObjectsWithOriginalsAccountingCommands(ObjectsWithSourceDocumentsOriginalsAccounting);
 	SourceDocumentsOriginalsRecordingOverridable.OnDefineObjectsWithOriginalsAccountingCommands(ObjectsWithSourceDocumentsOriginalsAccounting);
+	
 	NeedOutputCommands = False;
 	
-	For Each Object In ObjectsWithSourceDocumentsOriginalsAccounting Do		
+	For Each Object In ObjectsWithSourceDocumentsOriginalsAccounting Do
 		If StrFind(FormSettings.FormName, Object) Then
 			NeedOutputCommands = True;
 			Break;
 		EndIf;
 	EndDo;
-	If Not NeedOutputCommands Then
+
+	If Not NeedOutputCommands And Not (FormSettings.IsObjectForm And Settings.ShouldDisplayButtonsOnDocumentForm) Then
 		Return;
 	EndIf;
 	
@@ -581,7 +868,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	Order = 0;
 	
 	// Original state commands.
-	For Each State In OriginalsStates Do		
+	For Each State In OriginalsStates Do
 		Command = Commands.Add();
 		Command.Kind = "SettingOriginalState";
 		Command.Presentation = State.Description;
@@ -593,18 +880,30 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 			Command.Picture = PictureLib.SourceDocumentOriginalStateOriginalNotReceived;
 		EndIf;		
 		Command.ParameterType = Metadata.DefinedTypes.ObjectWithSourceDocumentsOriginalsAccounting.Type;
-		Command.Purpose = "ForList";
 		Command.WriteMode = "Post";
 		Command.FunctionalOptions = "UseSourceDocumentsOriginalsRecording";
 		Command.Handler = "SourceDocumentsOriginalsRecordingClient.Attachable_SetOriginalState";
+		Command.AdditionalParameters.Insert("RefToState", State.Ref); 
 		
 		Order = Order + 1;
 	EndDo;
 	
+	// Command for clarifying the original state by print forms	
+	Command = Commands.Add();
+	Command.Kind = "SettingOriginalState";
+	Command.Order = Order; 
+	Command.Id = "ClarifyByPrintForms";
+	Command.Presentation = NStr("en = 'Specify for print forms…';");
+	Command.Picture = PictureLib.SetSourceDocumentOriginalStateByPrintForms;
+	Command.Purpose = "ForObject";
+	Command.ParameterType = Metadata.DefinedTypes.ObjectWithSourceDocumentsOriginalsAccounting.Type;
+	Command.WriteMode = "Post";
+	Command.FunctionalOptions = "UseSourceDocumentsOriginalsRecording";
+	Command.Handler = "SourceDocumentsOriginalsRecordingClient.Attachable_SetOriginalState";
+		
 	// A command for navigating to the state settings in the command bar submenu of the "Set state" list.
 	// Applicable if the user is assigned the required role.
-	If AccessRight("Insert",Metadata.Catalogs.SourceDocumentsOriginalsStates) 
-		And AccessRight("Update",Metadata.Catalogs.SourceDocumentsOriginalsStates) Then
+	If AccessRight("InteractiveInsert", Metadata.Catalogs.SourceDocumentsOriginalsStates) Then
 		Command = Commands.Add();
 		Command.Kind = "SettingOriginalState";
 		Command.Id = "StatesSetup";
@@ -612,7 +911,6 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 		Command.Importance = "SeeAlso";
 		Command.Picture = PictureLib.ConfigureSourceDocumentOriginalStates;
 		Command.ParameterType = Metadata.DefinedTypes.ObjectWithSourceDocumentsOriginalsAccounting.Type;
-		Command.Purpose = "ForList";
 		Command.WriteMode = "NotWrite";
 		Command.FunctionalOptions = "UseSourceDocumentsOriginalsRecording";
 		Command.Handler = "SourceDocumentsOriginalsRecordingClient.Attachable_SetOriginalState";	
@@ -623,9 +921,9 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	// Command "Set original received" on the list command panel. 
 	Command = Commands.Add();
 	Command.Kind = "SettingStateOriginalReceived";
-	Command.Presentation = StringFunctionsClientServer.InsertParametersIntoString(
-		NStr("en = 'Set the ""[Description]"" state';"),
-		New Structure("Description", Description));
+	Command.Id = "SettingStateOriginalReceived";
+	Command.Presentation = StringFunctionsClientServer.InsertParametersIntoString(NStr("en = 'Set the ""[Description]"" state';"),
+																							New Structure("Description",Description));
 	Command.ButtonRepresentation = ButtonRepresentation.Picture;
 	Command.Picture = PictureLib.SourceDocumentOriginalStateOriginalReceived;
 	Command.ParameterType = Metadata.DefinedTypes.ObjectWithSourceDocumentsOriginalsAccounting.Type;
@@ -633,7 +931,23 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	Command.WriteMode = "Post";
 	Command.FunctionalOptions = "UseSourceDocumentsOriginalsRecording";
 	Command.Handler = "SourceDocumentsOriginalsRecordingClient.Attachable_SetOriginalState";	
+	Command.AdditionalParameters.Insert("RefToState", Catalogs.SourceDocumentsOriginalsStates.OriginalReceived);
 
+EndProcedure
+
+// See CommonOverridable.OnAddClientParameters.
+Procedure OnAddClientParameters(Parameters) Export
+	
+	If Not GetFunctionalOption("UseSourceDocumentsOriginalsRecording") 
+		Or Not AccessRight("Read", Metadata.InformationRegisters.SourceDocumentsOriginalsStates) Then
+		Return;
+	EndIf;	
+	
+	SubsystemSettings = SubsystemSettings();
+	
+	Parameters.Insert("SourceDocumentsOriginalsRecording", New FixedStructure(
+		SubsystemSettings));
+	
 EndProcedure
 
 Procedure BeforeItemMoved(ItemToMove, AdjacentElement, Direction, ErrorText, 
@@ -667,6 +981,20 @@ Procedure BeforeItemMoved(ItemToMove, AdjacentElement, Direction, ErrorText,
 	
 EndProcedure
 
+Function SubsystemSettings() Export
+	
+	Settings = New Structure;
+	Settings.Insert("ShouldDisplayButtonsOnDocumentForm", False);
+	Settings.Insert("ShouldDisplayHintInStatesChangeForm", True);
+	Settings.Insert("ShouldOpenDropDownMenuFromHyperlink", True);
+	
+	SSLSubsystemsIntegration.OnDefineSettingsOfOriginalsRecording(Settings);
+	SourceDocumentsOriginalsRecordingOverridable.OnDefineSettings(Settings);
+	
+	Return Settings;
+	
+EndFunction
+
 #EndRegion
 
 #Region Private
@@ -677,70 +1005,90 @@ Function RightsToChangeState()
 
 EndFunction
 
-//	Parameters:
-//  RecordData - Array of See SetTheNewStateOfTheOriginalArray.RecordData
-//               - DocumentRef - The document whose source document's state should be changed.  
-//  StateName - String - a state to be set.
-//
-// Returns:
-//  String - "IsChanged" is the source document state is not repeated and was saved.
-//           "NotIsChanged" 
-//           "NotCarriedOut" 
-//
-Function SetNewOriginalState(Val RecordData, Val StateName) Export
-
-	If Not GetFunctionalOption("UseSourceDocumentsOriginalsRecording") Then
-		Return "NotIsChanged";
-	EndIf;
+Procedure ConfigureHyperlinkOnDocumentForm(Form, Placement)
 		
-	VerifyAccessRights("Edit", Metadata.InformationRegisters.SourceDocumentsOriginalsStates);
+	Attributes = New Array;
+	Attributes.Add(New FormAttribute("OriginalStatesChoiceList", New TypeDescription("ValueList")));
+	
+	Form.ChangeAttributes(Attributes);
 
-	WritingObjects = New Array;
-	DocsToCheck = New Array;
-	If TypeOf(RecordData) = Type("Array") Then
-		For Each ListLine In RecordData Do
-			Ref = CommonClientServer.StructureProperty(ListLine, "Ref"); 
-			If IsAccountingObject(Ref) Then
-				DocsToCheck.Add(Ref);
-				WritingObjects.Add(ListLine);
-			EndIf;
-		EndDo;
+	OriginalsStates = UsedStates();
+	
+	FillOriginalStatesChoiceList(Form, OriginalsStates);
+	
+	If Placement = Undefined Then
+		Parent = Form;
 	Else
-		DocsToCheck.Add(RecordData);
-		WritingObjects.Add(RecordData);
-	EndIf;
-
-	UnpostedDocuments = CommonServerCall.CheckDocumentsPosting(DocsToCheck);
-	If UnpostedDocuments.Count() > 0 Then
-		Return "NotPosted";
+		Parent = Placement;
 	EndIf;
 	
-	SetPrivilegedMode(True);
-	If TypeOf(RecordData) = Type("Array") Then
-		 Result = SetTheNewStateOfTheOriginalArray(RecordData, StateName);
-	Else
-		 Result = SetNewStatusForOriginalDoc(RecordData, StateName);
+	OriginalStateDecoration = Form.Items.Add("OriginalStateDecoration", Type("FormDecoration"), Parent);
+	OriginalStateDecoration.Type = FormDecorationType.Label;
+	OriginalStateDecoration.Hyperlink = True;
+	If Placement = Undefined Then
+		OriginalStateDecoration.HorizontalAlignInGroup = ItemHorizontalLocation.Right;
 	EndIf;
-	Return ?(Result, "IsChanged", "NotIsChanged");
+	OriginalStateDecoration.SetAction("Click", "Attachable_OriginalStateDecorationClick");
+
+	If ValueIsFilled(Form.Object.Ref) Then
+		CurrentOriginalState = OriginalStateInfoByRef(Form.Object.Ref);
+		If CurrentOriginalState.Count() = 0 Then
+			CurrentOriginalState=NStr("en = '<Original state is unknown>';");
+			OriginalStateDecoration.TextColor = StyleColors.InaccessibleCellTextColor;
+		Else
+			CurrentOriginalState = CurrentOriginalState.SourceDocumentOriginalState;
+		EndIf;
+	Else
+		CurrentOriginalState=NStr("en = '<Original state is unknown>';");
+		OriginalStateDecoration.TextColor = StyleColors.InaccessibleCellTextColor;
+	EndIf;
+
+	OriginalStateDecoration.Title = CurrentOriginalState;
+
+EndProcedure
+
+Procedure ConfigureButtonsOnDocumentForm(Form)
 	
-EndFunction
+	SubmenuOriginalState = Form.Items.Find("SetConfigureOriginalStateSubmenu");
+	If SubmenuOriginalState = Undefined Then
+		Return;
+	EndIf;
+	
+	SubmenuOriginalState.Representation = ButtonRepresentation.Picture;
+	SubmenuOriginalState.Picture = PictureLib.SourceDocumentOriginalStateOriginalNotReceived;	 
+		
+	If ValueIsFilled(Form.Object.Ref) Then
+		InformationRecords = OriginalStateInfoByRef(Form.Object.Ref);
+		If Not InformationRecords.Count() = 0 Then 
+			CurrentOriginalState = InformationRecords.SourceDocumentOriginalState;
+			Picture = ?(CurrentOriginalState = Catalogs.SourceDocumentsOriginalsStates.OriginalReceived,
+			PictureLib.SourceDocumentOriginalStateOriginalReceived,
+			PictureLib.SourceDocumentOriginalStateOriginalNotReceived);
+			SubmenuOriginalState.Representation = ButtonRepresentation.PictureAndText;
+			SubmenuOriginalState.Title = CurrentOriginalState;  
+			SubmenuOriginalState.Picture = Picture;
+		EndIf;
+	EndIf;
+
+EndProcedure
 
 //	Parameters:
-//  RecordData - Array of Structure - Information on the current document state:
+//  WritingObjects - Array of Structure - Information on the original state being changed:
 //                 * OverallState    - Boolean - "True" if the current state is aggregated.
-//                 * Ref 		   - DocumentRef - The document whose source document's state should be changed.
+//                 * Ref 		   - DefinedType.ObjectWithSourceDocumentsOriginalsAccounting - Document whose original state should 
+//																		be changed.
 //                 * SourceDocumentOriginalState - CatalogRef.SourceDocumentsOriginalsStates -
 //                                                           The current state of a source document.
-//                 * SourceDocument - String - A source document ID. Required if the state is not aggregated. 
-//                                                
-//                 * FromOutside 			   - Boolean - "True" if the source document was added manually. 
-//                                                It's required if the current state is not overall. 
-//  StateName - String - a state to be set.
+//                 * SourceDocument - String - A source document ID. 
+//                                                Required if the state is not aggregated.
+//                 * FromOutside			   - Boolean - "True" if the source document was added manually.
+//                                                It's required if the current state is not aggregated. 
+//  OriginalState 	- CatalogRef.SourceDocumentsOriginalsStates - Reference to the state to apply.
 //
 // Returns:  
 //  Boolean - If True, the source document's state is not repeated and was saved.
 //
-Function SetTheNewStateOfTheOriginalArray(Val RecordData, Val StateName)
+Function SetTheNewStateOfTheOriginalArray(Val WritingObjects, Val OriginalState)
 
 	IsChanged = False;
 	
@@ -749,15 +1097,15 @@ Function SetTheNewStateOfTheOriginalArray(Val RecordData, Val StateName)
 	BeginTransaction();
 	Try
 		
-		For Each Record In RecordData Do
+		For Each Record In WritingObjects Do
 			LockItem = Block.Add("InformationRegister.SourceDocumentsOriginalsStates");
 			LockItem.SetValue("Owner", Record.Ref); 
 		EndDo;
 		Block.Lock();
 
-		For Each Record In RecordData Do
+		For Each Record In WritingObjects Do
 	
-			If TrimAll(Record.SourceDocumentOriginalState) = TrimAll(StateName) Then
+			If Record.SourceDocumentOriginalState = OriginalState Then
 				Continue;
 			EndIf;
 			
@@ -769,26 +1117,24 @@ Function SetTheNewStateOfTheOriginalArray(Val RecordData, Val StateName)
 	
 				If RecordSet.Count() = 0 Then
 					IsChanged = True;
-					InformationRegisters.SourceDocumentsOriginalsStates.WriteCommonDocumentOriginalState(Record.Ref, 
-						StateName);
+					WriteCommonDocumentOriginalState(Record.Ref, OriginalState);
 					Continue;
 				EndIf;
 					
 				For Each PreviousRecord1 In RecordSet Do
-					If TrimAll(PreviousRecord1.State) = StateName Then
+					If PreviousRecord1.State = OriginalState Then
 						Continue;
 					EndIf; 
 					IsChanged = True;
 					TabularSection = TableOfEmployees(Record.Ref);
 					PreviousRecordEmployee = ?(TabularSection <> "", PreviousRecord1.Employee, Undefined);
-					InformationRegisters.SourceDocumentsOriginalsStates.WriteDocumentOriginalStateByPrintForms(Record.Ref,
-						PreviousRecord1.SourceDocument, PreviousRecord1.SourceDocumentPresentation, StateName,
+					WriteDocumentOriginalStateByPrintForms(Record.Ref,
+						PreviousRecord1.SourceDocument, PreviousRecord1.SourceDocumentPresentation, OriginalState,
 						PreviousRecord1.ExternalForm, PreviousRecordEmployee);
 				EndDo;
 	
 				IsChanged = True;
-				InformationRegisters.SourceDocumentsOriginalsStates.WriteCommonDocumentOriginalState(Record.Ref, 
-					StateName);
+				WriteCommonDocumentOriginalState(Record.Ref, OriginalState);
 				Continue;
 			EndIf;
 			
@@ -797,8 +1143,7 @@ Function SetTheNewStateOfTheOriginalArray(Val RecordData, Val StateName)
 			RecordSet.Read();
 			If RecordSet.Count() = 0 Then
 				IsChanged = True;
-				InformationRegisters.SourceDocumentsOriginalsStates.WriteCommonDocumentOriginalState(Record.Ref,
-					StateName);
+				WriteCommonDocumentOriginalState(Record.Ref, OriginalState);
 				Continue;
 			EndIf;
 			
@@ -806,16 +1151,15 @@ Function SetTheNewStateOfTheOriginalArray(Val RecordData, Val StateName)
 			RecordSet.Read();
 			TabularSection = TableOfEmployees(Record.Ref); 
 			If TabularSection <> "" Then
-				IsStatesChanged = WriteOriginalDocumentStateByEmployees(RecordSet, Record.Ref, 
-					TabularSection, StateName);
+				IsStatesChanged = WriteOriginalStateByEmployees(RecordSet, Record.Ref, 
+					TabularSection, OriginalState);
 			Else
-				IsStatesChanged = WriteDocumentOriginalStateByPrintForms(RecordSet, Record.Ref, 
-					StateName);
+				IsStatesChanged = WriteOriginalStateByPrintForms(RecordSet, Record.Ref, 
+					OriginalState);
 			EndIf;
 			IsChanged = IsChanged Or IsStatesChanged; 
 			If IsChanged Then
-				InformationRegisters.SourceDocumentsOriginalsStates.WriteCommonDocumentOriginalState(Record.Ref, 
-					StateName);
+				WriteCommonDocumentOriginalState(Record.Ref, OriginalState);
 			EndIf;
 	
 		EndDo;
@@ -832,13 +1176,14 @@ Function SetTheNewStateOfTheOriginalArray(Val RecordData, Val StateName)
 EndFunction
 
 // Parameters:
-//   Document - DocumentRef - The document whose source document's state should be changed.
-//   StateName - String - The state to be applied.
+//   Document - DefinedType.ObjectWithSourceDocumentsOriginalsAccounting - Document whose original state should 
+//																			 be changed.
+//   OriginalState 	- CatalogRef.SourceDocumentsOriginalsStates - Reference to the state to apply.
 //
 // Returns:
 //   Boolean - If True, the source document's state is not repeated and was saved.
 //
-Function SetNewStatusForOriginalDoc(Val Document, Val StateName)
+Function SetNewStatusForOriginalDoc(Val Document, Val OriginalState)
 	
 	Block = New DataLock();
 	LockItem = Block.Add("InformationRegister.SourceDocumentsOriginalsStates");
@@ -846,14 +1191,14 @@ Function SetNewStatusForOriginalDoc(Val Document, Val StateName)
 
 	BeginTransaction();
 	Try
-		 
+		
 		Block.Lock();
 		RecordSet = InformationRegisters.SourceDocumentsOriginalsStates.CreateRecordSet();
 		RecordSet.Filter.Owner.Set(Document);
 		RecordSet.Filter.OverallState.Set(True);  
 		RecordSet.Read();
 	
-		If RecordSet.Count() And TrimAll(RecordSet[0].State) = StateName Then
+		If RecordSet.Count() And RecordSet[0].State = OriginalState Then
 			CommitTransaction();
 			Return False;
 		EndIf;
@@ -862,21 +1207,21 @@ Function SetNewStatusForOriginalDoc(Val Document, Val StateName)
 		RecordSet.Read();
 	
 		If RecordSet.Count() > 0 Then
-			TabularSection = TableOfEmployees(Document); 
+			TabularSection = TableOfEmployees(Document);
 			If TabularSection <> "" Then
-				WriteOriginalDocumentStateByEmployees(RecordSet, Document, TabularSection, StateName);
+				WriteOriginalStateByEmployees(RecordSet, Document, TabularSection, OriginalState);
 			Else
-				WriteDocumentOriginalStateByPrintForms(RecordSet, Document, StateName);
+				WriteOriginalStateByPrintForms(RecordSet, Document, OriginalState);
 			EndIf;
-		EndIf; 
+		EndIf;
 		
-		InformationRegisters.SourceDocumentsOriginalsStates.WriteCommonDocumentOriginalState(Document, 
-			StateName);
+		WriteCommonDocumentOriginalState(Document, 
+			OriginalState);
 		
 		CommitTransaction();
 		
 	Except
-		RollbackTransaction(); 
+		RollbackTransaction();
 		Raise;
 	EndTry;
 	
@@ -884,41 +1229,39 @@ Function SetNewStatusForOriginalDoc(Val Document, Val StateName)
 
 EndFunction
 
-Function WriteDocumentOriginalStateByPrintForms(RecordSet, Document, StateName)
+Function WriteOriginalStateByPrintForms(RecordSet, Document, OriginalState)
 	
 	IsChanged = False;
 	For Each PreviousRecord1 In RecordSet Do
-		If TrimAll(PreviousRecord1.State) = StateName Then
+		If PreviousRecord1.State = OriginalState Then
 			Continue;
 		EndIf;
 		IsChanged = True;
-		InformationRegisters.SourceDocumentsOriginalsStates.WriteDocumentOriginalStateByPrintForms(Document,
-			PreviousRecord1.SourceDocument, PreviousRecord1.SourceDocumentPresentation, 
-			StateName, PreviousRecord1.ExternalForm);
+		WriteDocumentOriginalStateByPrintForms(Document, PreviousRecord1.SourceDocument, 
+			PreviousRecord1.SourceDocumentPresentation, OriginalState, PreviousRecord1.ExternalForm);
 	EndDo;
 	Return IsChanged;
 	
 EndFunction
 
-Function WriteOriginalDocumentStateByEmployees(RecordSet, Document, TabularSection, StateName)
+Function WriteOriginalStateByEmployees(RecordSet, Document, TabularSection, OriginalState)
 	
 	IsChanged = False;
 	For Each Employee In Document[TabularSection] Do
 		RecordSet.Filter.Employee.Set(Employee.Employee);
-		RecordSet.Read(); 
+		RecordSet.Read();
 		If RecordSet.Count() = 0 Then
 			Continue;
 		EndIf;
 
 		For Each PreviousRecord1 In RecordSet Do
-			If TrimAll(PreviousRecord1.State) = StateName Then
+			If PreviousRecord1.State = OriginalState Then
 				Continue;
 			EndIf;
 			IsChanged = True;
-			InformationRegisters.SourceDocumentsOriginalsStates.WriteDocumentOriginalStateByPrintForms(Document,
-				PreviousRecord1.SourceDocument, PreviousRecord1.SourceDocumentPresentation, 
-				StateName, PreviousRecord1.ExternalForm, Employee.Employee);
-		EndDo; 
+			WriteDocumentOriginalStateByPrintForms(Document, PreviousRecord1.SourceDocument, 
+				PreviousRecord1.SourceDocumentPresentation, OriginalState, PreviousRecord1.ExternalForm, Employee.Employee);
+		EndDo;
 	EndDo;
 	Return IsChanged;
 	
@@ -932,7 +1275,7 @@ EndFunction
 Procedure FillOriginalStatesChoiceList(Form, OriginalsStates)
 
 	OriginalStatesChoiceList = Form.OriginalStatesChoiceList;
-	OriginalStatesChoiceList.Clear(); 
+	OriginalStatesChoiceList.Clear();
 	
 	For Each State In OriginalsStates Do
 
@@ -982,10 +1325,11 @@ Function UsedStates()Export
 
 EndFunction
 
-// Returns a record key of the register of overall document original state by reference.
+// Returns the record key of the source document's aggregated state by reference.
 //
 //	Parameters:
-//  DocumentRef - DocumentRef - A reference to the document whose general state record key is to be received.
+//  DocumentRef - DefinedType.ObjectWithSourceDocumentsOriginalsAccounting - Reference to the document for which the record key 
+//																		of the aggregated state must be received. 
 //
 //	Returns:
 //  InformationRegisterRecordKey.SourceDocumentsOriginalsStates
@@ -1003,7 +1347,7 @@ Function OverallStateRecordKey(DocumentRef) Export
 	|	InformationRegister.SourceDocumentsOriginalsStates AS SourceDocumentsOriginalsStates
 	|WHERE
 	|	SourceDocumentsOriginalsStates.Owner = &Ref
-	|	AND SourceDocumentsOriginalsStates.OverallState" ;
+	|	AND SourceDocumentsOriginalsStates.OverallState";
 	
 	Query.SetParameter("Ref",DocumentRef);
 
@@ -1026,7 +1370,8 @@ EndFunction
 // Checks and returns a flag indicating whether the document by reference is a document with originals recording.
 //
 // Parameters:
-//  DocumentRef - DocumentRef - a reference to the document to be checked.
+//  DocumentRef - DefinedType.ObjectWithSourceDocumentsOriginalsAccounting - Reference to the document to be checked.
+//                                                                                
 //
 // Returns:
 //   Boolean
@@ -1044,7 +1389,8 @@ EndFunction
 // Looks up for employees information in a document and returns the name of the table that contains it.
 //
 //	Parameters:
-//  DocumentRef - DocumentRef - a reference to the document to be checked.
+//  DocumentRef - DefinedType.ObjectWithSourceDocumentsOriginalsAccounting - Reference to the document to be checked.
+//                                                                                
 //
 //	Returns:
 //  String - The name of the table containing employees.
@@ -1054,6 +1400,7 @@ Function TableOfEmployees(DocumentRef) Export
 	
 	ListOfObjects = New Map();
 	Result = "";
+	SSLSubsystemsIntegration.WhenDeterminingMultiEmployeeDocuments(ListOfObjects);
 	SourceDocumentsOriginalsRecordingOverridable.WhenDeterminingMultiEmployeeDocuments(ListOfObjects);
 	DocumentType = Common.TableNameByRef(DocumentRef);
 	If ListOfObjects[DocumentType] <> Undefined Then
@@ -1208,76 +1555,34 @@ EndProcedure
 // After recording states of document print forms to the register, checks whether the print forms have the same states.
 //
 // Parameters:
-//  DocumentRef - DocumentRef - a reference to the document whose print form states must be checked.
-//  StateName - String - a state name that was set.
+//  DocumentRef - DefinedType.ObjectWithSourceDocumentsOriginalsAccounting - Reference to the document 
+//																			whose print form states must be checked.
+//  OriginalState 	- CatalogRef.SourceDocumentsOriginalsStates - Reference to the state being checked.
 //
 // Returns:
 //   Boolean - True if all the document print forms have the same state.
 //
-Function PrintFormsStateSame(DocumentRef,StateName) Export
+Function PrintFormsStateSame(DocumentRef, OriginalState) Export
 
 	FormsStateSame = False;
 
 	Query = New Query;
-	Query.Text = "SELECT ALLOWED
-	               |	SourceDocumentsOriginalsStates.State.Description AS OriginalState
+	Query.Text = "SELECT TOP 1
+	               |	TRUE AS TrueValue
 	               |FROM
 	               |	InformationRegister.SourceDocumentsOriginalsStates AS SourceDocumentsOriginalsStates
 	               |WHERE
 	               |	SourceDocumentsOriginalsStates.Owner = &Ref
+	               |	AND SourceDocumentsOriginalsStates.State <> &OriginalState
 	               |	AND NOT SourceDocumentsOriginalsStates.OverallState";
 	Query.SetParameter("Ref", DocumentRef);
-
-	Selection = Query.Execute().Select();
-	While Selection.Next() Do
-
-		FormsStateSame = (Selection.OriginalState = TrimAll(StateName));
-		If Not FormsStateSame Then
-			Break;
-		EndIf;
-
-	EndDo;
-
-	Return FormsStateSame;
-
-EndFunction
-
-// Returns data on the current state of the source document by Ref.
-//
-//	Parameters:
-//  DocumentRef - DocumentRef - a reference to the document whose overall state details must be received. 
-//
-//  Returns:
-//    Structure:
-//    * Ref - DocumentRef - Document reference.
-//    * SourceDocumentOriginalState - CatalogRef.SourceDocumentsOriginalsStates - Current source document state.
-//        
-//
-Function OriginalStateInfoByRef(DocumentRef) Export
-
-	Query = New Query;
-	Query.Text = "SELECT ALLOWED
-		|	SourceDocumentsOriginalsStates.State AS State,
-		|	SourceDocumentsOriginalsStates.OverallState AS OverallState
-		|FROM
-		|	InformationRegister.SourceDocumentsOriginalsStates AS SourceDocumentsOriginalsStates
-		|WHERE
-		|	SourceDocumentsOriginalsStates.Owner = &Ref
-		|	AND SourceDocumentsOriginalsStates.OverallState = TRUE";
-	
-	Query.SetParameter("Ref",DocumentRef);
-	
-	StateInfo3 = New Structure;
-
-	If Not Query.Execute().IsEmpty() Then
-		Selection = Query.Execute().Select();
-		Selection.Next();
+	Query.SetParameter("OriginalState", OriginalState);
 		
-		StateInfo3.Insert("Ref",DocumentRef);
-		StateInfo3.Insert("SourceDocumentOriginalState",Selection.State);	
+	If Query.Execute().IsEmpty() Then
+		Return True;
 	EndIf;
 
-	Return StateInfo3;
+	Return FormsStateSame;
 
 EndFunction
 
@@ -1377,6 +1682,7 @@ Function AccountingTableForOriginals()
 	Table.Columns.Add("MetadataObject", New TypeDescription("MetadataObject"));
 	Table.Columns.Add("Id", New TypeDescription("String"));
 	
+	SSLSubsystemsIntegration.OnFillTableOfOriginalsRecording(Table);
 	SourceDocumentsOriginalsRecordingOverridable.FillInTheOriginalAccountingTable(Table);
 	Return Table;
 	

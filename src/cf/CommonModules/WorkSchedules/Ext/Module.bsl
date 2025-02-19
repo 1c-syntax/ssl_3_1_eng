@@ -541,7 +541,7 @@ Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate
 	
 	ScheduleDates = New Array;
 	ScheduleDates.Add(StartDate);
-	If Year(StartDate) <> Year(EndDate) And EndOfDay(StartDate) <> EndOfYear(StartDate) Then
+	If Year(StartDate) <> Year(EndDate) Then
 		// If the dates are from different years, add the year borders.
 		For YearNumber = Year(StartDate) To Year(EndDate) - 1 Do
 			ScheduleDates.Add(Date(YearNumber, 12, 31));
@@ -688,8 +688,7 @@ Function ConsiderNonWorkDaysFlagSettingProcedureName() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
 Procedure OnAddUpdateHandlers(Handlers) Export
@@ -757,6 +756,8 @@ Procedure OnAddTypesToExcludeFromPossibleDuplicates(TypesToExclude) Export
 		TypesToExclude, Metadata.DefinedTypes.WorkScheduleOwner.Type.Types()); 
 
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 

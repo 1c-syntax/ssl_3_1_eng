@@ -13,7 +13,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// Set report form settings.
+// Configure report form.
 //
 // Parameters:
 //   Form - ClientApplicationForm

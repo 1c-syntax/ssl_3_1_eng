@@ -345,15 +345,10 @@ Procedure FillModelByMetadataObjectDependenciesTypes(Val Result, Val TypeDescrip
 	For Each Type In TypeDescription.Types() Do
 		
 		If ODataInterfaceInternal.IsReferenceType(Type) Then
-			
 			Dependence = ODataInterfaceInternal.MetadataObjectByRefType(Type);
-			
 			If Result.Get(Dependence.FullName()) = Undefined Then
-				
 				Result.Insert(Dependence.FullName(), True);
-				
 			EndIf;
-			
 		EndIf;
 		
 	EndDo;
@@ -371,11 +366,11 @@ Procedure FillModelByFunctionalOptions(Val Model)
 			EndIf;
 			
 			ObjectDetails = ODataInterfaceInternal.ConfigurationModelObjectProperties(Model, CompositionItem.Object);
-			
-			If ObjectDetails <> Undefined Then
-				FunctionalObjectOptions = ObjectDetails.FunctionalOptions; // Array
-				FunctionalObjectOptions.Add(FunctionalOption.Name);
+			If ObjectDetails = Undefined Then
+				Continue;
 			EndIf;
+			FunctionalObjectOptions = ObjectDetails.FunctionalOptions; // Array
+			FunctionalObjectOptions.Add(FunctionalOption.Name);
 			
 		EndDo;
 		
@@ -389,33 +384,32 @@ Procedure FillModelBySeparators(Val Model)
 	
 	For Each CommonAttribute In Metadata.CommonAttributes Do
 		
-		If CommonAttribute.DataSeparation = Metadata.ObjectProperties.CommonAttributeDataSeparation.Separate Then
-			
-			UseCommonAttribute = Metadata.ObjectProperties.CommonAttributeUse.Use;
-				AutoUseCommonAttribute = Metadata.ObjectProperties.CommonAttributeUse.Auto;
-				CommonAttributeAutoUse = 
-					(CommonAttribute.AutoUse = Metadata.ObjectProperties.CommonAttributeAutoUse.Use);
-			
-			For Each CompositionItem In CommonAttribute.Content Do
-				
-				If (CommonAttributeAutoUse And CompositionItem.Use = AutoUseCommonAttribute)
-						Or CompositionItem.Use = UseCommonAttribute Then
-					
-					ObjectDetails = ODataInterfaceInternal.ConfigurationModelObjectProperties(Model, CompositionItem.Metadata);
-					
-					If CompositionItem.ConditionalSeparation <> Undefined Then
-						ConditionalSeparationItem = CompositionItem.ConditionalSeparation.FullName();
-					Else
-						ConditionalSeparationItem = "";
-					EndIf;
-					
-					ObjectDetails.DataSeparation.Insert(CommonAttribute.Name, ConditionalSeparationItem);
-					
-				EndIf;
-				
-			EndDo;
-			
+		If CommonAttribute.DataSeparation <> Metadata.ObjectProperties.CommonAttributeDataSeparation.Separate Then
+			Continue;
 		EndIf;
+
+		UseCommonAttribute = Metadata.ObjectProperties.CommonAttributeUse.Use;
+		AutoUseCommonAttribute = Metadata.ObjectProperties.CommonAttributeUse.Auto;
+		CommonAttributeAutoUse = 
+			(CommonAttribute.AutoUse = Metadata.ObjectProperties.CommonAttributeAutoUse.Use);
+			
+		For Each CompositionItem In CommonAttribute.Content Do
+			
+			If (CommonAttributeAutoUse And CompositionItem.Use = AutoUseCommonAttribute)
+					Or CompositionItem.Use = UseCommonAttribute Then
+				
+				ObjectDetails = ODataInterfaceInternal.ConfigurationModelObjectProperties(Model, CompositionItem.Metadata);
+				If ObjectDetails = Undefined Then
+					Continue;
+				EndIf;
+
+				ConditionalSeparationItem = ?(CompositionItem.ConditionalSeparation <> Undefined,
+					CompositionItem.ConditionalSeparation.FullName(), "");
+				ObjectDetails.DataSeparation.Insert(CommonAttribute.Name, ConditionalSeparationItem);
+				
+			EndIf;
+			
+		EndDo;
 		
 	EndDo;
 	
@@ -423,25 +417,20 @@ Procedure FillModelBySeparators(Val Model)
 	
 	For Each Sequence In Metadata.Sequences Do
 		
-		If Sequence.Documents.Count() > 0 Then
-			
-			SequenceDetails = ODataInterfaceInternal.ConfigurationModelObjectProperties(Model, Sequence);
-			
-			For Each Document In Sequence.Documents Do
-				
-				DocumentDetails = ODataInterfaceInternal.ConfigurationModelObjectProperties(Model, Document);
-				
-				For Each KeyAndValue In DocumentDetails.DataSeparation Do
-					
-					SequenceDetails.DataSeparation.Insert(KeyAndValue.Key, KeyAndValue.Value);
-					
-				EndDo;
-				
-				Break;
-				
-			EndDo;
-			
+		If Sequence.Documents.Count() = 0 Then
+			Continue;
 		EndIf;
+
+		SequenceDetails = ODataInterfaceInternal.ConfigurationModelObjectProperties(Model, Sequence);
+		For Each Document In Sequence.Documents Do
+			
+			DocumentDetails = ODataInterfaceInternal.ConfigurationModelObjectProperties(Model, Document);
+			For Each KeyAndValue In DocumentDetails.DataSeparation Do
+				SequenceDetails.DataSeparation.Insert(KeyAndValue.Key, KeyAndValue.Value);
+			EndDo;
+			Break;
+			
+		EndDo;
 		
 	EndDo;
 	
@@ -449,49 +438,40 @@ Procedure FillModelBySeparators(Val Model)
 	
 	For Each DocumentJournal In Metadata.DocumentJournals Do
 		
-		If DocumentJournal.RegisteredDocuments.Count() > 0 Then
-			
-			JournalDetails = ODataInterfaceInternal.ConfigurationModelObjectProperties(Model, DocumentJournal);
-			
-			For Each Document In DocumentJournal.RegisteredDocuments Do
-				
-				DocumentDetails = ODataInterfaceInternal.ConfigurationModelObjectProperties(Model, Document);
-				
-				For Each KeyAndValue In DocumentDetails.DataSeparation Do
-					
-					JournalDetails.DataSeparation.Insert(KeyAndValue.Key, KeyAndValue.Value);
-					
-				EndDo;
-				
-				Break;
-				
-			EndDo;
-			
+		If DocumentJournal.RegisteredDocuments.Count() = 0 Then
+			Continue;
 		EndIf;
-		
+			
+		JournalDetails = ODataInterfaceInternal.ConfigurationModelObjectProperties(Model, DocumentJournal);
+		For Each Document In DocumentJournal.RegisteredDocuments Do
+			
+			DocumentDetails = ODataInterfaceInternal.ConfigurationModelObjectProperties(Model, Document);
+			For Each KeyAndValue In DocumentDetails.DataSeparation Do
+				JournalDetails.DataSeparation.Insert(KeyAndValue.Key, KeyAndValue.Value);
+			EndDo;
+			Break;
+			
+		EndDo;
+			
 	EndDo;
 	
 	// Make an assumption that recalculations that are subordinate to separated calculation registers are separated recalculations.
 	
 	For Each CalculationRegister In Metadata.CalculationRegisters Do
 		
-		If CalculationRegister.Recalculations.Count() > 0 Then
+		If CalculationRegister.Recalculations.Count() = 0 Then
+			Continue;
+		EndIf;
 			
-			CalculationRegisterDetails = ODataInterfaceInternal.ConfigurationModelObjectProperties(Model, CalculationRegister);
+		CalculationRegisterDetails = ODataInterfaceInternal.ConfigurationModelObjectProperties(Model, CalculationRegister);
+		For Each Recalculation In CalculationRegister.Recalculations Do
 			
-			For Each Recalculation In CalculationRegister.Recalculations Do
-				
-				RecalculationDetails = ODataInterfaceInternal.ConfigurationModelObjectProperties(Model, Recalculation);
-				
-				For Each KeyAndValue In CalculationRegisterDetails.DataSeparation Do
-					
-					RecalculationDetails.DataSeparation.Insert(KeyAndValue.Key, KeyAndValue.Value);
-					
-				EndDo;
-				
+			RecalculationDetails = ODataInterfaceInternal.ConfigurationModelObjectProperties(Model, Recalculation);
+			For Each KeyAndValue In CalculationRegisterDetails.DataSeparation Do
+				RecalculationDetails.DataSeparation.Insert(KeyAndValue.Key, KeyAndValue.Value);
 			EndDo;
 			
-		EndIf;
+		EndDo;
 		
 	EndDo;
 	

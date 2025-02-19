@@ -129,13 +129,13 @@ Procedure InitializeReportHeaders(Form) Export
 	
 EndProcedure
 
-// 
+// See NationalLanguageSupportServer.ObjectsSCHRepresentations
 Procedure OnDefineObjectsWithTablePresentation(Objects) Export
 	Objects.Add("Catalog.ReportsOptions");
 	Objects.Add("Catalog.PredefinedExtensionsReportsOptions");
 EndProcedure
 
-// 
+// See NationalLanguageSupportServer.ObjectsSCHRepresentations
 Procedure OnDefineObjectsWithTablePresentationCommonData(Objects) Export
 	Objects.Add("Catalog.PredefinedReportsOptions");
 EndProcedure
@@ -1070,7 +1070,7 @@ Procedure DefineFieldRoles(IndexOfTheReportStructure, FieldRoles)
 	
 	For Each Record In IndexOfTheReportStructure Do 
 		
-		Record.Period = (FieldRoles.TimeIntervals[Record.Field] <> Undefined);
+		Record.Period = (FieldRoles.TimeIntervals_[Record.Field] <> Undefined);
 		Record.Dimension = (FieldRoles.Dimensions[Record.Field] <> Undefined);
 		
 	EndDo;
@@ -1080,7 +1080,7 @@ EndProcedure
 Function ReportFieldRoles(SchemaURL)
 	
 	FieldRoles = New Structure;
-	FieldRoles.Insert("TimeIntervals", New Map);
+	FieldRoles.Insert("TimeIntervals_", New Map);
 	FieldRoles.Insert("Dimensions", New Map);
 	FieldRoles.Insert("Balance", New Map);
 	
@@ -1098,7 +1098,7 @@ Function ReportFieldRoles(SchemaURL)
 			
 			If Field.Role.PeriodNumber > 0 Then 
 				
-				FieldRoles.TimeIntervals.Insert(New DataCompositionField(Field.Field), DescriptionOfTheReportFieldRole(Field.Role));
+				FieldRoles.TimeIntervals_.Insert(New DataCompositionField(Field.Field), DescriptionOfTheReportFieldRole(Field.Role));
 				
 			ElsIf Field.Role.Dimension Then 
 				
@@ -1334,7 +1334,7 @@ Function MainReportFields(Form)
 	
 	ReportsOverridable.WhenDefiningTheMainFields(Form, MainField);
 	
-	// Local override for a report.
+	// A local report overriding.
 	If Form.ReportSettings.Events.WhenDefiningTheMainFields Then 
 		
 		Report = ReportsServer.ReportObject(Form.ReportSettings.FullName);

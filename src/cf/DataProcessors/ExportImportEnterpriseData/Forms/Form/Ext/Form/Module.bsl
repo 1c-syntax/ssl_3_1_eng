@@ -262,7 +262,7 @@ EndProcedure
 Procedure OpenXML(Command)
 	
 	AdditionalParameters = New Structure("FileKind", "DataFile");
-	Notification = New NotifyDescription("PutFileInStorageComplete", ThisObject, AdditionalParameters);
+	Notification = New CallbackDescription("PutFileInStorageComplete", ThisObject, AdditionalParameters);
 	
 	ImportParameters = FileSystemClient.FileImportParameters();
 	
@@ -298,7 +298,7 @@ EndProcedure
 Procedure RestoreSettings(Command)
 	
 	AdditionalParameters = New Structure("FileKind", "SettingsFile");
-	Notification = New NotifyDescription("PutFileInStorageComplete", ThisObject, AdditionalParameters);
+	Notification = New CallbackDescription("PutFileInStorageComplete", ThisObject, AdditionalParameters);
 	
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.FormIdentifier = UUID;
@@ -368,7 +368,7 @@ Procedure StartDataImport()
 		IdleParameters = ModuleTimeConsumingOperationsClient.IdleParameters(ThisObject);
 		IdleParameters.OutputIdleWindow = False;
 		
-		NotifyDescription = New NotifyDescription("OnCompleteImport", ThisObject);
+		NotifyDescription = New CallbackDescription("OnCompleteImport", ThisObject);
 		ModuleTimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, NotifyDescription, IdleParameters);
 	EndIf;
 
@@ -401,7 +401,7 @@ Procedure ExportData()
 		IdleParameters = ModuleTimeConsumingOperationsClient.IdleParameters(ThisObject);
 		IdleParameters.OutputIdleWindow = False;
 		
-		NotifyDescription = New NotifyDescription("OnCompleteExport", ThisObject);
+		NotifyDescription = New CallbackDescription("OnCompleteExport", ThisObject);
 		ModuleTimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, NotifyDescription, IdleParameters);
 	EndIf;
 EndProcedure
@@ -439,7 +439,7 @@ Procedure WriteExportResultToFile(ResultStorageAddress)
 	SavingParameters.Interactively = False;
 
 	FileSystemClient.SaveFile(
-		New NotifyDescription("WriteExportResultToFileCompletion", ThisObject),
+		New CallbackDescription("WriteExportResultToFileCompletion", ThisObject),
 		ResultStorageAddress,
 		ExportFilePath,
 		SavingParameters);
@@ -475,7 +475,7 @@ Procedure SelectFileForImportAtClient(ImportAfterChoice = False)
 	AdditionalParameters.Insert("ForImport",          True);
 	AdditionalParameters.Insert("ImportAfterChoice", ImportAfterChoice);
 	
-	ChoiceNotification = New NotifyDescription("FileSelected", ThisObject, AdditionalParameters);
+	ChoiceNotification = New CallbackDescription("FileSelected", ThisObject, AdditionalParameters);
 	
 	FileSystemClient.ShowSelectionDialog(ChoiceNotification, OpenFileDialog);
 	
@@ -492,7 +492,7 @@ Procedure SelectFileForExportAtClient(ExportAfterChoice = False, ResultStorageAd
 	AdditionalParameters.Insert("ExportAfterChoice",    ExportAfterChoice);
 	AdditionalParameters.Insert("ResultStorageAddress", ResultStorageAddress);
 	
-	ChoiceNotification = New NotifyDescription("FileSelected", ThisObject, AdditionalParameters);
+	ChoiceNotification = New CallbackDescription("FileSelected", ThisObject, AdditionalParameters);
 	
 	FileSystemClient.ShowSelectionDialog(ChoiceNotification, OpenFileDialog);
 	
@@ -655,7 +655,7 @@ Procedure ManagerModuleStartChoice(ManagerModuleAttribute, StandardProcessing, U
 	OpenFileDialog = New FileDialog(FileDialogMode.Open);
 	OpenFileDialog.Filter = NStr("en = 'External data processor (*.epf)|*.epf';");
 	
-	ChoiceNotification = New NotifyDescription("FileSelected", ThisObject, AdditionalParameters);
+	ChoiceNotification = New CallbackDescription("FileSelected", ThisObject, AdditionalParameters);
 		
 	FileSystemClient.ShowSelectionDialog(ChoiceNotification, OpenFileDialog);
 	
@@ -709,35 +709,10 @@ Function SaveExportSettingsAtServer()
 			EndIf;
 		EndIf;
 		XMLWriter.WriteAttribute("F_String", XMLString(Page1.FilterAsString));
-		If Page1.Filter.Items.Count() > 0 Then
-			
-			For Each FilterElement In Page1.Filter.Items Do
-				XMLWriter.WriteStartElement("Filter");
-				XMLWriter.WriteAttribute("Comp", XMLString(TrimAll(FilterElement.ComparisonType)));
-				XMLWriter.WriteAttribute("Present", XMLString(TrimAll(FilterElement.Presentation)));
-				
-				If ValueIsFilled(FilterElement.LeftValue) Then
-					WriteFilterValue(FilterElement.LeftValue, "_L", XMLWriter)
-				EndIf;
-				
-				If ValueIsFilled(FilterElement.RightValue) Then
-					
-					If TypeOf(FilterElement.RightValue) = Type("ValueList") Then
-						
-						RecordMultipleSelectionValue(FilterElement.RightValue, "_R", XMLWriter)
-						
-					Else
-						
-						WriteFilterValue(FilterElement.RightValue, "_R", XMLWriter)
-						
-					EndIf;
-					
-				EndIf;
-				
-				XMLWriter.WriteEndElement();//Filter
-			EndDo;
-			
-		EndIf;
+		
+		Text = Common.ValueToXMLString(Page1.Filter);
+		XMLWriter.WriteRaw(Text);
+		
 		XMLWriter.WriteEndElement(); //Object
 	EndDo;
 	XMLWriter.WriteEndElement(); //Objects
@@ -746,39 +721,6 @@ Function SaveExportSettingsAtServer()
 	DeleteFiles(TempFileName1);
 	Return AddressInStorage;
 EndFunction
-
-&AtServer
-Procedure RecordMultipleSelectionValue(Val FilterItemValue, Postfix, XMLWriter)
-	
-	XMLWriter.WriteAttribute("Type" + Postfix,  String(TypeOf(FilterItemValue)));
-	
-	For Each ValueListItem In FilterItemValue Do
-		
-		XMLWriter.WriteStartElement("Array");
-		WriteFilterValue(ValueListItem.Value, Postfix, XMLWriter);
-		XMLWriter.WriteEndElement();
-		
-	EndDo;
-	
-EndProcedure
-
-&AtServer
-Procedure WriteFilterValue(Val FilterItemValue, Postfix, XMLWriter)
-	DataType = TypeOf(FilterItemValue);
-	MetadataObject =  Metadata.FindByType(DataType);
-	
-	If MetadataObject <> Undefined Then
-		XMLWriter.WriteAttribute("Type" + Postfix,  MetadataObject.FullName());
-	Else 
-		XMLWriter.WriteAttribute("Type" + Postfix,  String(DataType));
-	EndIf;
-	If XMLType(DataType) <> Undefined Then
-		XMLWriter.WriteAttribute("Val" + Postfix, XMLString(FilterItemValue));
-	Else
-		XMLWriter.WriteAttribute("Val" + Postfix, XMLString(String(FilterItemValue)));
-	EndIf;
-	
-EndProcedure
 
 &AtClient
 Procedure SetVisibility1()
@@ -921,7 +863,7 @@ EndProcedure
 Procedure ImportFromFileAtClient()
 	
 	AdditionalParameters = New Structure("FileKind", "DataFileToImport");
-	Notification = New NotifyDescription("PutFileInStorageComplete", ThisObject, AdditionalParameters);
+	Notification = New CallbackDescription("PutFileInStorageComplete", ThisObject, AdditionalParameters);
 	
 	ImportParameters = FileSystemClient.FileImportParameters();
 	
@@ -988,35 +930,6 @@ Function ReadBackgroundJobMessages(Id)
 	Return Job.GetUserMessages(True);
 EndFunction
 
-&AtServerNoContext
-Function ComplianceOfSKDSelections()
-	
-	MatchingSelections = New Map;
-	MatchingSelections.Insert("Greater", DataCompositionComparisonType.Greater);
-	MatchingSelections.Insert("Greater or equal", DataCompositionComparisonType.GreaterOrEqual);
-	MatchingSelections.Insert("In group", DataCompositionComparisonType.InHierarchy);
-	MatchingSelections.Insert("In list", DataCompositionComparisonType.InList);
-	MatchingSelections.Insert("In group from list0", DataCompositionComparisonType.InListByHierarchy);
-	MatchingSelections.Insert("Filled", DataCompositionComparisonType.Filled);
-	MatchingSelections.Insert("Less", DataCompositionComparisonType.Less);
-	MatchingSelections.Insert("Less or equal", DataCompositionComparisonType.LessOrEqual);
-	MatchingSelections.Insert("Begins From1", DataCompositionComparisonType.BeginsWith);
-	MatchingSelections.Insert("Not In group", DataCompositionComparisonType.NotInHierarchy);
-	MatchingSelections.Insert("Not In list", DataCompositionComparisonType.NotInList);
-	MatchingSelections.Insert("Not In group from list0", DataCompositionComparisonType.NotInListByHierarchy);
-	MatchingSelections.Insert("Not filled", DataCompositionComparisonType.NotFilled);
-	MatchingSelections.Insert("Not begins From1", DataCompositionComparisonType.NotBeginsWith);
-	MatchingSelections.Insert("Not respond template", DataCompositionComparisonType.NotLike);
-	MatchingSelections.Insert("Not equal", DataCompositionComparisonType.NotEqual);
-	MatchingSelections.Insert("Not contains", DataCompositionComparisonType.NotContains);
-	MatchingSelections.Insert("Respond template", DataCompositionComparisonType.Like);
-	MatchingSelections.Insert("Equal", DataCompositionComparisonType.Equal);
-	MatchingSelections.Insert("Contains", DataCompositionComparisonType.Contains);
-	
-	Return MatchingSelections;
-	
-EndFunction
-
 &AtServer
 Procedure AbortExportImportServer()
 	ModuleTimeConsumingOperations = Common.CommonModule("TimeConsumingOperations");
@@ -1057,94 +970,6 @@ Procedure FillInTheDefaultFormatVersion(AvailableVersionsArray)
 EndProcedure
 
 #Region LoadingTheUploadSettings
-
-&AtServer
-Function MultipleSelectionValue(XMLReader, ValueTypeFilter, FilterValue)
-	
-	While XMLReader.Read() Do
-		
-		If XMLReader.Name = "Filter"
-			And XMLReader.NodeType = XMLNodeType.EndElement Then
-			
-			Return FilterValue;
-			
-		EndIf;
-		
-		If XMLReader.NodeType <> XMLNodeType.StartElement
-			Or XMLReader.Name <> "Array" Then
-			
-			Continue;
-			
-		EndIf;
-		
-		ElementSelectionValue = Undefined;
-		TypeOfElementSelectionValue = Undefined;
-		While XMLReader.ReadAttribute() Do
-		
-			If XMLReader.Name = "Val_R" Then
-				
-				ElementSelectionValue = XMLReader.Value;
-				
-			ElsIf XMLReader.Name = "Type_R" Then
-				
-				TypeOfElementSelectionValue = XMLReader.Value;
-				
-			EndIf;
-			
-		EndDo;
-		
-		FilterValue.Add(SingleValueOfSelection(TypeOfElementSelectionValue, ElementSelectionValue));
-		
-	EndDo;
-	
-	Return FilterValue;
-	
-EndFunction
-
-&AtServer
-Function SingleValueOfSelection(ValueTypeFilter, FilterValue)
-	
-	FullFilterItemName = Metadata.FindByFullName(ValueTypeFilter);
-	If FullFilterItemName <> Undefined Then
-		
-		FilterObjectManager = Common.ObjectManagerByFullName(ValueTypeFilter);
-		If StrFind(Upper(ValueTypeFilter), "ENUM") > 0 Then
-			
-			Return FilterObjectManager[FilterValue];
-			
-		Else
-			
-			Return FilterObjectManager.GetRef(New UUID(FilterValue));
-			
-		EndIf;
-		
-	Else
-		
-		Return XMLValue(Type(ValueTypeFilter), FilterValue);
-		
-	EndIf;
-	
-EndFunction
-
-&AtServer
-Function BringTheSelectionValueToTheValueOfTheSKD(XMLReader, ValueTypeFilter, FilterValue)
-	
-	If ValueTypeFilter = Type("ValueList") Then
-		
-		FilterValue = New ValueList;
-		Return MultipleSelectionValue(XMLReader, ValueTypeFilter, FilterValue);
-		
-	ElsIf FilterValue <> Undefined Then
-		
-		Return SingleValueOfSelection(ValueTypeFilter, FilterValue);
-		
-	Else
-		
-		Return Undefined;
-		
-	EndIf;
-	
-EndFunction
 
 &AtServer
 Procedure ReadThePeriodValue(XMLReader)
@@ -1199,53 +1024,6 @@ Procedure ReadAnObjectTypeValue(XMLReader, ANewLineOfSelectionOfSKD)
 EndProcedure
 
 &AtServer
-Procedure ReadTheValueOfSKDSelections(XMLReader, FIlterRow)
-	
-	ComplianceOfSKDSelections = ComplianceOfSKDSelections();
-	
-	ValueTypeFilter = Undefined;
-	FilterValue = Undefined;
-	While XMLReader.ReadAttribute() Do
-		
-		If XMLReader.Name = "Present" Then
-		
-			FIlterRow.Presentation = XMLValue(Type("String"), XMLReader.Value);
-			
-		ElsIf XMLReader.Name = "Comp" Then
-			
-			PageComparisonType = TrimAll(XMLValue(Type("String"), XMLReader.Value));
-			If ValueIsFilled(PageComparisonType) Then
-				
-				FIlterRow.ComparisonType = ComplianceOfSKDSelections[PageComparisonType];
-				
-			EndIf;
-			
-		ElsIf XMLReader.Name = "Val_L" Then
-			
-			FIlterRow.LeftValue = New DataCompositionField(TrimAll(XMLValue(Type("String"), XMLReader.Value)));
-			
-		ElsIf XMLReader.Name = "Val_R" Then
-			
-			FilterValue = XMLReader.Value;
-			
-		ElsIf XMLReader.Name = "Type_R" Then
-			
-			ValueTypeFilter = XMLReader.Value;
-			If TrimAll(Type("ValueList")) = ValueTypeFilter Then
-				
-				ValueTypeFilter = Type("ValueList");
-				
-			EndIf;
-			
-		EndIf;
-		
-	EndDo;
-	
-	FIlterRow.RightValue = BringTheSelectionValueToTheValueOfTheSKD(XMLReader, ValueTypeFilter, FilterValue);
-	
-EndProcedure
-
-&AtServer
 Procedure ImportExportSettingsAtServer()
 	
 	BinaryData = GetFromTempStorage(ImportFileAddress); // BinaryData
@@ -1277,10 +1055,12 @@ Procedure ImportExportSettingsAtServer()
 		
 		ElsIf XMLReader.Name = "Filter" Then
 			
-			FilterDCS = ANewLineOfSelectionOfSKD.Filter; // DataCompositionFilter
-			FIlterRow = FilterDCS.Items.Add(Type("DataCompositionFilterItem"));
+			XMLWriter = New XMLWriter;
+			XMLWriter.SetString("UTF-8");
+			RdNode(XMLReader, XMLWriter);
+			Text = XMLWriter.Close();
 			
-			ReadTheValueOfSKDSelections(XMLReader, FIlterRow);
+			ANewLineOfSelectionOfSKD.Filter = Common.ValueFromXMLString(Text);
 			
 		EndIf;
 		
@@ -1291,6 +1071,31 @@ Procedure ImportExportSettingsAtServer()
 	
 	RefreshExportRulesAtServer();
 
+EndProcedure
+
+&AtServer
+Procedure RdNode(XMLReader, XMLWriter)
+	
+	XMLWriter.WriteStartElement(XMLReader.Name);
+	For Cnt = 0 To XMLReader.AttributeCount() - 1 Do
+		Var_AttributeName = XMLReader.AttributeName(Cnt);
+		AttributeValue = XMLReader.AttributeValue(Cnt);
+		XMLWriter.WriteAttribute(Var_AttributeName, AttributeValue);
+	EndDo;
+	
+	While XMLReader.Read() Do
+		
+		If XMLReader.NodeType = XMLNodeType.StartElement Then
+			RdNode(XMLReader, XMLWriter)
+		ElsIf XMLReader.NodeType = XMLNodeType.Text Then
+			XMLWriter.WriteText(XMLReader.Value);
+		ElsIf XMLReader.NodeType = XMLNodeType.EndElement Then
+			XMLWriter.WriteEndElement();
+			Return;
+		EndIf;
+		
+	EndDo;
+	
 EndProcedure
 
 #EndRegion

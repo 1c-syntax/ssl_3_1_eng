@@ -32,8 +32,7 @@ Function GetTopTechnologicalAPDEX(StartDate, EndDate, AggregationPeriod, TopApde
 	Return InformationRegisters.TimeMeasurementsTechnological.GetAPDEXTop(StartDate, EndDate, AggregationPeriod, TopApdexCount);
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
 Procedure OnAddUpdateHandlers(Handlers) Export
@@ -154,6 +153,8 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 #Region Private
 
 // Parameters:
@@ -231,8 +232,7 @@ Function RequestToUseExternalResources(Directories) Export
 	EndIf;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Internal export procedures and functions.
+#Region ExportServiceProceduresAndFunctions
 
 // Finds and returns the scheduled job for exporting time measurements.
 //
@@ -380,8 +380,9 @@ Procedure SetConstantValues31338() Export
 				
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Local internal procedures and functions.
+#EndRegion
+
+#Region LocalUtilityProceduresAndFunctions
 
 // Creates an array of permissions to export measurement data.
 //
@@ -425,6 +426,8 @@ Function PermissionsToUseServerResources(Directories)
 	Return Permissions;
 EndFunction
 
+#EndRegion
+
 #Region CommonCopy
 
 // Returns True if the "functional" subsystem exists in the configuration.
@@ -440,8 +443,8 @@ EndFunction
 // Example:
 //
 //  If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
-//  	ModuleReportOptions = Common.CommonModule("ReportsOptions");
-//  	ModuleReportOptions.<Method name>();
+//  	ModuleReportsOptions = Common.CommonModule("ReportsOptions");
+//  	ModuleReportsOptions.<Method name>();
 //  EndIf;
 //
 // Returns:

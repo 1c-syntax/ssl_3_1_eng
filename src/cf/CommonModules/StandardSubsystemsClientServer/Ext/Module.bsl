@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region Internal
+#Region Public
 
 // Returns the metadata object selection parameters for the procedure  
 // "StandardSubsystemsClient.SelectMetadataObjects".
@@ -70,6 +70,14 @@ Function MetadataObjectsSelectionParameters() Export
 	FormParameters.Insert("UUIDSource", Undefined);
 	Return FormParameters;	
 	
+EndFunction
+
+#EndRegion
+
+#Region Private
+
+Function RegisterPerformanceIndicators() Export
+	Return False;
 EndFunction
 
 #EndRegion

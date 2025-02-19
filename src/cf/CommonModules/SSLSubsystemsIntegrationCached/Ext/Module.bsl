@@ -72,5 +72,16 @@ Function EDLSubscriptions() Export
 	
 EndFunction
 
+Function PlusSubscriptions() Export
+	
+	Subscriptions = SSLSubsystemsIntegration.SSLEvents();
+	If Common.SubsystemExists("PlusService") Then
+		ModulePlusSubsystemsIntegration = Common.CommonModule("IntegrationOfSubsystemsPlus");
+		ModulePlusSubsystemsIntegration.OnDefineEventSubscriptionsSSL(Subscriptions);
+	EndIf;
+	
+	Return Subscriptions;
+	
+EndFunction
 
 #EndRegion

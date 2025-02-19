@@ -8,7 +8,7 @@
 //
 //
 
-#Region Private
+#Region Public
 
 Procedure OnGetCertificatePresentation(Val Certificate, Val UTCOffset, Presentation) Export
 	
@@ -49,15 +49,18 @@ EndProcedure
 // 
 // Parameters:
 //  CertificateAuthorityName - String - Issuer's name (lower case, Latin letters)
-//  Certificate  - BinaryData
-//              - String
+//  CertificateProperties  - BinaryData - Certificate data.
+//                       - String - Certificate data address.
+//                       - Structure - See DigitalSignatureInternalClientServer.CertificateProperties
+//  CARevocationListDirectories - String - The names of the directories used for caching revocation lists on a local resource,
+//                        taken from the accredited CA classifier settings, match the certificate issuer names.
 // 
 // Returns:
 //  Structure:
 //   * InternalAddress - String - ID for searching within the infobase
 //   * ExternalAddress - String - Resource address (for downloading)
 //
-Function RevocationListInternalAddress(CertificateAuthorityName, Certificate, CataloguesOfReviewListsOfUTS) Export
+Function RevocationListInternalAddress(CertificateAuthorityName, CertificateProperties, CARevocationListDirectories) Export
 	
 	Result = New Structure("ExternalAddress, InternalAddress");
 	
@@ -70,21 +73,23 @@ Function RevocationListInternalAddress(CertificateAuthorityName, Certificate, Ca
 		Return Result;
 	EndIf;
 	
-	CertificateAdditionalProperties = 
-		DigitalSignatureInternalClientServer.CertificateAdditionalProperties(Certificate, 0);
+	If TypeOf(CertificateProperties) <> Type("Structure") Then
+		CertificateProperties = 
+			DigitalSignatureInternalClientServer.CertificateAdditionalProperties(CertificateProperties, 0);
+	EndIf;
 	
-	If Not ValueIsFilled(CertificateAdditionalProperties.CertificateAuthorityKeyID) Then
+	If Not ValueIsFilled(CertificateProperties.CertificateAuthorityKeyID) Then
 		Return Result;
 	EndIf;
 	
-	Result.InternalAddress = StrTemplate("%1/%2", CertificateAuthorityName, Lower(CertificateAdditionalProperties.CertificateAuthorityKeyID));
+	Result.InternalAddress = StrTemplate("%1/%2", CertificateAuthorityName, Lower(CertificateProperties.CertificateAuthorityKeyID));
 	
 	
 	Return Result;
 	
 EndFunction
 
-Function CataloguesOfReviewListsOfUTS(AccreditedCertificationCenters) Export
+Function CARevocationListDirectories(AccreditedCertificationCenters) Export
 	
 	Return "";
 	
@@ -115,11 +120,6 @@ Procedure OnDefineRefToAppsGuide(Section, URL) Export
 	
 EndProcedure
 
-Procedure OnDefiningRefToAppsTroubleshootingGuide(URL, SectionName = "") Export
-	
-	
-EndProcedure
-
 Procedure OnDefineRefToSearchByErrorsWhenManagingDigitalSignature(URL, SearchString = "") Export
 	
 	
@@ -133,7 +133,7 @@ EndProcedure
 // Returns:
 //  String
 //
-Function ConvertedEncryptionAlgorithm(EncryptAlgorithm) Export
+Function ConvertedEncryptAlgorithm(EncryptAlgorithm) Export
 	
 	Result = "";
 	
@@ -146,21 +146,45 @@ Function ConvertedEncryptionAlgorithm(EncryptAlgorithm) Export
 	
 EndFunction
 
-Procedure WhenSettingCryptographyManagerParameters(ApplicationDetails, Manager, EncryptAlgorithm, Result) Export
+// Implements alternative cryptography manager parameters.
+// For example, in order to comply with the regional aspects of a digital signature and encryption application.
+//
+// Parameters:
+//  ApplicationDetails - See DigitalSignatureInternalCached.ApplicationDetails
+//  Manager - CryptoManager
+//  EncryptAlgorithm - String
+//  Result - Boolean
+//
+Procedure OnSetCryptoManagerParameters(ApplicationDetails, Manager, EncryptAlgorithm, Result) Export
 	
 	
 EndProcedure
 
-Procedure WhenInstallingSetsOfAlgorithmsForSignatureCreation(Sets) Export
+// Adds algorithms required for creating signatures considering regional aspects.
+//
+// Parameters:
+//  Sets	 - Array
+//
+Procedure OnSetAlgorithmSetsToCreateSignature(Sets) Export
 	
 	
 EndProcedure
 
-Procedure WhenInstallingSetsOfEncryptionAlgorithms(Sets) Export
+// Adds encryption algorithms considering regional aspects.
+//
+// Parameters:
+//  Sets	 - Array
+//
+Procedure OnSetEncryptAlgorithmsSets(Sets) Export
 	
 	
 EndProcedure
 
+// Adds regional signature algorithms to the list of valid algorithms.
+// 
+// Returns:
+//  Array
+//
 Function AppsRelevantAlgorithms() Export
 	
 	Result = New Array;
@@ -170,6 +194,102 @@ Function AppsRelevantAlgorithms() Export
 	
 EndFunction
 
+Function CertificateCAVerificationContext() Export
+	
+	Structure = New Structure;
+	Structure.Insert("CertificationAuthorityData");
+	Structure.Insert("SearchValues");
+	Structure.Insert("CertificateAuthorityDescription", "");
+	Structure.Insert("UTCOffset");
+	Structure.Insert("OnDate");
+	Structure.Insert("ThisVerificationSignature", False);
+	Structure.Insert("CertificateProperties");
+	Structure.Insert("VerifyCertificate", DigitalSignatureInternalClientServer.VerifyQualified());
+	
+	Return Structure;
+	
+EndFunction
 
+Function DataForVerificationOfCertificationCenter(Certificate) Export
+	
+	Result = New Structure("SearchValues, CertificateAuthorityDescription");
+	
+	CertificateAuthorityProperties = DigitalSignatureInternalClientServer.CertificateIssuerProperties(Certificate);
+	
+	Result.CertificateAuthorityDescription = CertificateAuthorityProperties.CommonName;
+	
+	SearchValues = New Array;
+	
+	If CertificateAuthorityProperties.Property("OGRN") And ValueIsFilled(CertificateAuthorityProperties.OGRN) Then
+		SearchValues.Add(CertificateAuthorityProperties.OGRN);
+	EndIf;
+	
+	If ValueIsFilled(CertificateAuthorityProperties.CommonName) Then
+		SearchValues.Add(CertificateAuthorityProperties.CommonName);
+	EndIf;
+	
+	If SearchValues.Count() > 0 Then
+		Result.SearchValues = StrConcat(SearchValues, ",");
+	EndIf;
+	
+	Return Result;
+
+EndFunction
+
+Function PrepareSearchValue(Val SearchValue) Export
+	
+	SearchValue = Upper(SearchValue);
+	SearchValue = StrReplace(SearchValue, """", "");
+	SearchValue = StrReplace(SearchValue, "«", "");
+	SearchValue = StrReplace(SearchValue, "»", "");
+	SearchValue = StrReplace(SearchValue, "“", "");
+	SearchValue = StrReplace(SearchValue, "”", "");
+	
+	Return SearchValue;
+	
+EndFunction
+
+// For internal use only.
+// 
+// Parameters:
+//  Certificate - CryptoCertificate
+//  CheckContext - See CertificateCAVerificationContext
+// 
+// Returns:
+//   See DigitalSignatureInternalClientServer.DefaultCAVerificationResult
+//
+Function ResultofCertificateAuthorityVerification(Certificate, CheckContext) Export
+	
+	CertificationAuthorityAuditResult = DigitalSignatureInternalClientServer.DefaultCAVerificationResult();
+	
+	
+	Return CertificationAuthorityAuditResult;
+	
+EndFunction
+
+Function LinktothearticleonCAs() Export
+	
+	Return "https://its.1c.ru/bmk/esig_uc";
+	
+EndFunction
+
+Function VipNetApplicationName() Export
+	Return "ViPNet CSP";
+EndFunction
+
+Function CryptoProApplicationName() Export
+	Return "CryptoPro CSP";
+EndFunction
+
+// 
+// 
+// Parameters:
+//  ErrorText - String
+//  Result - Boolean
+//
+Procedure OnDefineImportErrorInTokenLibraries(ErrorText, Result) Export
+	
+	
+EndProcedure
 
 #EndRegion

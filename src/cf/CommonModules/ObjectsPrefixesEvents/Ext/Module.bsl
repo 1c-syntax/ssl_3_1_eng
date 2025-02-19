@@ -57,8 +57,7 @@ Procedure SetInfobaseAndCompanyPrefix(Source, StandardProcessing, Prefix) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// For catalogs.
+#Region ForCatalogs
 
 // Checks whether the Company attribute of a catalog item was changed.
 // If the Company attribute was changed, resets the item's Code.
@@ -74,8 +73,9 @@ Procedure CheckCatalogCodeByCompany(Source, Cancel) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Business process tasks.
+#EndRegion
+
+#Region ForBusinessProcesses
 
 // Checks whether the business process Date is modified.
 // If the date is not included in the previous period, the business process number is reset to zero.
@@ -105,8 +105,9 @@ Procedure CheckBusinessProcessNumberByDateAndCompany(Source, Cancel) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// For documents.
+#EndRegion
+
+#Region ForDocuments
 
 // Checks whether the document Date is modified.
 // If the date is not included in the previous period, the document number is reset to zero.
@@ -140,8 +141,9 @@ Procedure CheckDocumentNumberByDateAndCompany(Source, Cancel, WriteMode, Posting
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Get a prefix.
+#EndRegion
+
+#Region GettingPrefix
 
 // Returns a prefix of the current infobase.
 //
@@ -181,6 +183,8 @@ Procedure OnDetermineCompanyPrefix(Val Organization, CompanyPrefix) Export
 		New Structure(FunctionalOptionParameterName, Organization));
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 

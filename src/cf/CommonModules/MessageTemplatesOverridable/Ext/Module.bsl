@@ -46,8 +46,8 @@ EndProcedure
 //    * Type            - Type    - an attribute type.
 //    * ToolTip      - String - extended attribute information.
 //    * ArbitraryParameter - Boolean - Flag indicating that the attribute was added interactively.
-//    * Format         - String - a value output format for numbers, dates, strings, and boolean values. 
-//                                For example, DLF=D for a date.
+//    * Format         - String - Output format for numbers, dates, strings, and boolean values. 
+//                                For example, "DLF=D" for dates.
 //    * Parent - ValueTreeRow, Undefined - Row that contains the given row collection.
 //  Attachments - ValueTable - print forms and attachments, where:
 //    * Name            - String - a unique attachment name.
@@ -107,7 +107,7 @@ Procedure OnCreateMessage(Message, TemplateAssignment, MessageSubject, TemplateP
 
 EndProcedure
 
-// Fills in a list of text message recipients when sending a message generated from template.
+// Populates a list of recipients (in case the message is generated from a template).
 //
 // Parameters:
 //   SMSMessageRecipients - ValueTable:
@@ -118,7 +118,7 @@ EndProcedure
 //  MessageSubject - AnyRef - a reference to an object that is a data source.
 //                   - Structure  - Structure that describes template parameters:
 //    * SubjectOf               - AnyRef - a reference to an object that is a data source.
-//    * MessageKind - String - a kind of a message being generated: Email or SMSMessage.
+//    * MessageKind - String - Message type: "Email", "SMSMessage".
 //    * ArbitraryParameters - Map - a filled list of arbitrary parameters.
 //    * SendImmediately - Boolean - indicates whether to send a text message immediately.
 //    * MessageParameters - Structure - additional message parameters.
@@ -127,19 +127,19 @@ Procedure OnFillRecipientsPhonesInMessage(SMSMessageRecipients, TemplateAssignme
 	
 EndProcedure
 
-// Fills in a list of email recipients upon sending a message generated from a template.
+// Populates a list of recipients (in case the message is generated from a template).
 //
 // Parameters:
-//   EmailRecipients - ValueTable - a list of mail recipients.:
+//   EmailRecipients - ValueTable - List of message recipients:
 //     * SendingOption - String - Messaging options: "Whom" (To), "Copy" (CC), "HiddenCopy" (BCC), and "ReplyTo".
-//     * Address           - String - a recipient email address.
+//     * Address           - String - Recipient's email address.
 //     * Presentation   - String - an email recipient presentation.
 //     * Contact         - Arbitrary - a contact that owns the email address.
 //  TemplateAssignment - String - a template assignment ID.
 //  MessageSubject - AnyRef - a reference to an object that is a data source.
 //                   - Structure  - Structure that describes template parameters:
 //    * SubjectOf               - AnyRef - a reference to an object that is a data source.
-//    * MessageKind - String - a kind of a message being generated: Email or SMSMessage.
+//    * MessageKind - String - Message type: "Email", "SMSMessage".
 //    * ArbitraryParameters - Map - a filled list of arbitrary parameters.
 //    * SendImmediately - Boolean - a kind of a message being generated: Email or SMSMessage.
 //    * MessageParameters - Structure - additional message parameters.

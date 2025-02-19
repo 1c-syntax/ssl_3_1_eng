@@ -44,7 +44,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Raise PeriodClosingDatesInternal.ErrorTextImportRestrictionDatesNotImplemented();
 		EndIf;
 		If Not HasRightToViewDataImportRestrictionDates Then
-			Raise(NStr("en = 'Insufficient rights to view data import restriction dates of previous periods from other applications.';"),
+			Raise(NStr("en = 'Insufficient rights to view data import restriction dates of previous periods.';"),
 				ErrorCategory.AccessViolation);
 		EndIf;
 	ElsIf Not HasRightToViewPeriodEndClosingDates Then
@@ -107,19 +107,19 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Form field setup.
 	If Parameters.DataImportRestrictionDates Then
 		Items.ClosingDatesUsageDisabledLabel.Title =
-			NStr("en = 'Data import restriction dates of previous periods from other apps are disabled in the settings.';");
+			NStr("en = 'Data import restriction dates of previous periods are disabled in the settings.';");
 		
 		Title = NStr("en = 'Data import restriction dates';");
 		Items.SetPeriodEndClosingDates.ChoiceList.FindByValue("ForAllUsers").Presentation =
 			NStr("en = 'For all infobases';");
 		Items.SetPeriodEndClosingDates.ChoiceList.FindByValue("ForSpecifiedUsers").Presentation =
-			NStr("en = 'By infobases';");
+			NStr("en = 'By infobase';");
 		
 		Items.UsersFullPresentation.Title =
-			NStr("en = 'App: infobase';");
+			NStr("en = 'Application: infobase';");
 		
 		Items.UsersComment.ToolTip =
-			NStr("en = 'Describes a reason for a particular restriction for an infobase or an app';");
+			NStr("en = 'Describes a reason for a particular restriction for an infobase or application';");
 		
 		ValueForAllUsers = Enums.PeriodClosingDatesPurposeTypes.ForAllInfobases;
 		
@@ -172,12 +172,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		If GetFunctionalOption("UseImportForbidDates") Then
 			If HasRightToEditDataImportRestrictionDates Then
 				GoToOtherClosingDates = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'You can also set up <a href=""%1"">restriction dates</a> for importing data from apps.';"),
+					NStr("en = 'You can also set up <a href=""%1"">restriction dates</a> for importing data from other applications.';"),
 					"e1cib/command/InformationRegister.PeriodClosingDates.Command.DataImportRestrictionDates");
 					
 			ElsIf HasRightToViewDataImportRestrictionDates Then
 				GoToOtherClosingDates = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'You can also set up <a href=""%1"">restriction dates</a> for importing data from apps.';"),
+					NStr("en = 'You can also view <a href=""%1"">restriction dates</a> for importing data from other applications.';"),
 					"e1cib/command/InformationRegister.PeriodClosingDates.Command.DataImportRestrictionDates");
 			EndIf;
 		EndIf;
@@ -322,7 +322,7 @@ Procedure SetPeriodEndClosingDatesOnChange(Item)
 		|
 		|Warning: disabled settings will be permanently deleted.';");
 		ShowQueryBox(
-			New NotifyDescription(
+			New CallbackDescription(
 				"SetPeriodEndClosingDateChoiceProcessingContinue", ThisObject, ValueSelected),
 			QueryText,
 			QuestionDialogMode.YesNo);
@@ -356,8 +356,7 @@ Procedure PeriodEndClosingDateSettingMethodChoiceProcessing(Item, ValueSelected,
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Identical event handlers of PeriodClosingDates and PeriodEndClosingDateEdit forms.
+#Region SameEventHandlersForFormsPeriodClosingDatesAndPeriodEndClosingDateEdit
 
 &AtClient
 Procedure PeriodEndClosingDateDetailsOnChange(Item)
@@ -438,6 +437,8 @@ Procedure LessOptionsClick(Item)
 	Items.OperationModesGroup.CurrentPage = Items.SimpleMode;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -558,7 +559,7 @@ Procedure UsersBeforeDeleteRow(Item, Cancel)
 			+ NStr("en = 'Warning: disabled settings will be permanently deleted.';");
 		
 		ShowQueryBox(
-			New NotifyDescription(
+			New CallbackDescription(
 				"UsersBeforeDeleteConfirmation", ThisObject, AdditionalParameters),
 			QueryText, QuestionDialogMode.YesNo);
 		
@@ -625,8 +626,7 @@ Procedure UsersChoiceProcessingAtServer(ValueSelected)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Event handlers of the FullPresentation item of the Users form table.
+#Region EventHandlersForFullPresentationItemOfFormUsersTable
 
 &AtClient
 Procedure UsersFullPresentationOnChange(Item)
@@ -708,8 +708,9 @@ Procedure UsersFullPresentationTextEditEnd(Item, Text, ChoiceData, StandardProce
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Event handlers of the Comment item of the Users form table.
+#EndRegion
+
+#Region EventHandlersForCommentItemOfFormUsersTable
 
 &AtClient
 Procedure UsersCommentOnChange(Item)
@@ -727,6 +728,8 @@ Procedure UsersCommentOnChange(Item)
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -877,7 +880,7 @@ Procedure ClosingDatesBeforeDeleteRow(Item, Cancel)
 		+ NStr("en = 'Warning: disabled settings will be permanently deleted.';");
 	
 	If SeveralSectionsSelected Then
-		ShowQueryBox(New NotifyDescription("ClosingDatesBeforeDeleteRowCompletion", 
+		ShowQueryBox(New CallbackDescription("ClosingDatesBeforeDeleteRowCompletion", 
 			ThisObject, Items.ClosingDates.SelectedRows),
 			QueryText, QuestionDialogMode.YesNo);
 		Return;
@@ -888,7 +891,7 @@ Procedure ClosingDatesBeforeDeleteRow(Item, Cancel)
 		
 		If PeriodEndClosingDateSet(CurrentData, CurrentUser) Or SectionItems.Count() > 0 Then
 			// Deleting a period-end closing date for the section (i.e. all section objects).
-			ShowQueryBox(New NotifyDescription("ClosingDatesBeforeDeleteSection", ThisObject, CurrentData),
+			ShowQueryBox(New CallbackDescription("ClosingDatesBeforeDeleteSection", ThisObject, CurrentData),
 				QueryText, QuestionDialogMode.YesNo);
 		Else
 			MessageText = NStr("en = 'To disable a period-end closing date for an object, select the object in one of the sections.';");
@@ -899,7 +902,7 @@ Procedure ClosingDatesBeforeDeleteRow(Item, Cancel)
 		
 	If PeriodEndClosingDateSet(CurrentData, CurrentUser) Then
 		// Deleting a period-end closing date for the object by section.
-		ShowQueryBox(New NotifyDescription("ClosingDatesBeforeDeleteRowCompletion", ThisObject, 
+		ShowQueryBox(New CallbackDescription("ClosingDatesBeforeDeleteRowCompletion", ThisObject, 
 			Items.ClosingDates.SelectedRows),	QueryText, QuestionDialogMode.YesNo);
 		Return;
 	EndIf;
@@ -1036,8 +1039,7 @@ Procedure ClosingDatesChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Event handlers of the FullPresentation item of the ClosingDates form table.
+#Region EventHandlersForFullPresentationItemOfFormClosingDatesTable
 
 &AtClient
 Procedure ClosingDatesFullPresentationStartChoice(Item, ChoiceData, StandardProcessing)
@@ -1124,8 +1126,9 @@ Procedure ClosingDatesFullPresentationChoiceProcessing(Item, ValueSelected, Stan
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Event handlers of the PeriodEndClosingDate item of the ClosingDates form table.
+#EndRegion
+
+#Region EventHandlersForPeriodEndClosingDateItemOfFormClosingDatesTable
 
 &AtClient
 Procedure ClosingDatesPeriodEndClosingDateOnChange(Item)
@@ -1135,6 +1138,8 @@ Procedure ClosingDatesPeriodEndClosingDateOnChange(Item)
 	UpdateClosingDatesAvailabilityOfCurrentUser();
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -1380,7 +1385,7 @@ Procedure IndicationMethodOfClosingDateChoiceProcessingIdleHandler()
 		AdditionalParameters.Insert("ValueSelected", ValueSelected);
 		
 		ShowQueryBox(
-			New NotifyDescription(
+			New CallbackDescription(
 				"IndicationMethodOfPeriodEndClosingDateChoiceProcessingContinue",
 				ThisObject,
 				AdditionalParameters),
@@ -1726,7 +1731,7 @@ Procedure UpdateUserData()
 				CurrentIndicationMethod);
 			
 			ShowQueryBox(
-				New NotifyDescription(
+				New CallbackDescription(
 					"UpdateUserDataCompletion",
 					ThisObject,
 					NewUser),
@@ -2096,8 +2101,8 @@ Function ReadUserDataWithSections(Val User,
                                               Val BegOfDay,
                                               Val DataImportRestrictionDates)
 	
-	// Prepare a value tree with period-end closing dates with the first level by sections.
-	// 
+	// Prepare a value tree with period-end closing dates
+	// with the first level by section.
 	Query = New Query;
 	Query.SetParameter("User",              User);
 	Query.SetParameter("AllSectionsWithoutObjects",     AllSectionsWithoutObjects);
@@ -2233,7 +2238,7 @@ EndFunction
 &AtServerNoContext
 Function ReadUserDataWithoutSections(Val User, Val SingleSection)
 	
-	// Value tree with the first level by objects.
+	// Value tree with the first level by object.
 	BeginTransaction();
 	Try
 		Query = New Query;
@@ -2927,7 +2932,7 @@ Procedure SelectPickUsers(Pick = False)
 	
 	If UseExternalUsers Then
 		ShowTypeSelectionUsersOrExternalUsers(
-			New NotifyDescription("SelectPickUsersCompletion", ThisObject, Pick));
+			New CallbackDescription("SelectPickUsersCompletion", ThisObject, Pick));
 	Else
 		SelectPickUsersCompletion(False, Pick);
 	EndIf;
@@ -3018,14 +3023,14 @@ Procedure ShowTypeSelectionUsersOrExternalUsers(ContinuationHandler)
 	If UseExternalUsers Then
 		
 		UserTypesList.ShowChooseItem(
-			New NotifyDescription(
+			New CallbackDescription(
 				"ShowTypeSelectionUsersOrExternalUsersCompletion",
 				ThisObject,
 				ContinuationHandler),
 			HeaderTextDataTypeSelection(),
 			UserTypesList[0]);
 	Else
-		ExecuteNotifyProcessing(ContinuationHandler, ExternalUsersSelectionAndPickup);
+		RunCallback(ContinuationHandler, ExternalUsersSelectionAndPickup);
 	EndIf;
 	
 EndProcedure
@@ -3037,9 +3042,9 @@ Procedure ShowTypeSelectionUsersOrExternalUsersCompletion(SelectedElement, Conti
 		ExternalUsersSelectionAndPickup =
 			SelectedElement.Value = Type("CatalogRef.ExternalUsers");
 		
-		ExecuteNotifyProcessing(ContinuationHandler, ExternalUsersSelectionAndPickup);
+		RunCallback(ContinuationHandler, ExternalUsersSelectionAndPickup);
 	Else
-		ExecuteNotifyProcessing(ContinuationHandler, Undefined);
+		RunCallback(ContinuationHandler, Undefined);
 	EndIf;
 	
 EndProcedure
@@ -3158,7 +3163,7 @@ Procedure SelectPickObjects(Pick = False)
 		SelectPickObjectsCompletion(TypesList[0], Pick);
 	Else
 		TypesList.ShowChooseItem(
-			New NotifyDescription("SelectPickObjectsCompletion", ThisObject, Pick),
+			New CallbackDescription("SelectPickObjectsCompletion", ThisObject, Pick),
 			HeaderTextDataTypeSelection(),
 			TypesList[0]);
 	EndIf;
@@ -3634,7 +3639,7 @@ Procedure EditPeriodEndClosingDateInForm()
 	If UpdateSelection Then
 		Items.ClosingDates.Refresh();
 		ShowMessageBox(
-			New NotifyDescription("EditPeriodEndClosingDateInFormCompletion", ThisObject, SelectedRows),
+			New CallbackDescription("EditPeriodEndClosingDateInFormCompletion", ThisObject, SelectedRows),
 			NStr("en = 'Unfilled lines are unchecked.';"));
 	Else
 		EditPeriodEndClosingDateInFormCompletion(SelectedRows)
@@ -3905,8 +3910,7 @@ Function CurrentUserComment(Form)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary functions of user interface lines.
+#Region AuxiliaryFunctionsForUIStrings
 
 &AtClientAtServerNoContext
 Function PresentationTextForAllUsers(Form)
@@ -3992,5 +3996,7 @@ Function HeaderTextDataTypeSelection()
 	Return NStr("en = 'Select data type';");
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion

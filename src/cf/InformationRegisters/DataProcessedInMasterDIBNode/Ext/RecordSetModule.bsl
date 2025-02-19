@@ -26,7 +26,7 @@ Procedure BeforeWrite(Cancel, Replacing)
 		Return;
 	EndIf;
 		
-	If Count() > 0
+	If Count() > 0 And Not Common.IsRecordSetDeletion(Replacing)
 		And (Not ValueIsFilled(SessionParameters.UpdateHandlerParameters.DeferredProcessingQueue)
 			Or Common.IsSubordinateDIBNode()
 			Or (SessionParameters.UpdateHandlerParameters.ExecuteInMasterNodeOnly

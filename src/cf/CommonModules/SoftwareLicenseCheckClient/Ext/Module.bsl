@@ -14,7 +14,7 @@
 // (see the "TerminateApplication" parameter).
 //
 // Parameters:
-//  Notification             - NotifyDescription - Contains the handler that is called following
+//  Notification             - CallbackDescription - Contains the handler that is called following
 //                                    the software license confirmation.
 //  TerminateApplication - Boolean - Exit the app if the user selected that their software is unlicensed.
 //                                    
@@ -22,7 +22,7 @@
 Procedure ShowLegitimateSoftwareCheck(Notification, TerminateApplication = False) Export
 	
 	If StandardSubsystemsClient.IsBaseConfigurationVersion() Then
-		ExecuteNotifyProcessing(Notification, True);
+		RunCallback(Notification, True);
 		Return;
 	EndIf;
 	
@@ -50,7 +50,7 @@ Procedure BeforeStart(Parameters) Export
 		Return;
 	EndIf;
 	
-	Parameters.InteractiveHandler = New NotifyDescription(
+	Parameters.InteractiveHandler = New CallbackDescription(
 		"LegitimateSoftwareCheckInteractiveHandler", ThisObject);
 	
 EndProcedure
@@ -64,7 +64,7 @@ Procedure LegitimateSoftwareCheckInteractiveHandler(Parameters, Context) Export
 	FormParameters.Insert("SkipRestart", True);
 	
 	OpenForm("DataProcessor.LegitimateSoftware.Form", FormParameters, , , , ,
-		New NotifyDescription("AfterCloseLegitimateSoftwareCheckFormOnStart",
+		New CallbackDescription("AfterCloseLegitimateSoftwareCheckFormOnStart",
 			ThisObject, Parameters));
 	
 EndProcedure
@@ -80,7 +80,7 @@ Procedure AfterCloseLegitimateSoftwareCheckFormOnStart(Result, Parameters) Expor
 		Parameters.Cancel = True;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 

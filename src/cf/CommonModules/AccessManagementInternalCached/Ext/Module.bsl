@@ -183,38 +183,20 @@ EndFunction
 
 // For internal use only.
 //
-//  Returns:
-//    String
+// Parameters:
+//  FullName - String - Full name of a metadata object.
 //
-Function RecordKeyDetails(TypeORFullName) Export
+// Returns:
+//  String - 
+//
+Function ListOfAllAccessRestrictionFields(FullName) Export
 	
-	KeyDetails = New Structure("FieldArray, FieldsString", New Array, "");
+	MetadataObject = Common.MetadataObjectByFullName(FullName);
 	
-	If TypeOf(TypeORFullName) = Type("Type") Then
-		MetadataObject = Metadata.FindByType(TypeORFullName);
-	Else
-		MetadataObject = Common.MetadataObjectByFullName(TypeORFullName);
-	EndIf;
-	Manager = Common.ObjectManagerByFullName(MetadataObject.FullName());
+	Fields = InformationRegisters.RolesRights.AllFieldsOfMetadataObjectAccessRestriction(MetadataObject,
+		FullName,, True);
 	
-	AllFields = New Array;
-	For Each Column In Manager.CreateRecordSet().Unload().Columns Do
-		AllFields.Add(Column.Name);
-	EndDo;
-	
-	EmptyRecordKey = Manager.CreateRecordKey(New Structure(StrConcat(AllFields, ",")));
-	For Each Field In AllFields Do
-		OneField = New Structure(Field, Null);
-		FillPropertyValues(OneField, EmptyRecordKey);
-		If OneField[Field] = Null Then
-			Continue;
-		EndIf;
-		KeyDetails.FieldArray.Add(Field);
-	EndDo;
-	
-	KeyDetails.FieldsString = StrConcat(KeyDetails.FieldArray, ",");
-	
-	Return Common.FixedData(KeyDetails);
+	Return StrConcat(Fields, ",");
 	
 EndFunction
 
@@ -492,6 +474,69 @@ Function ConstantLimitAccessAtRecordLevel() Export
 	
 EndFunction
 
+// For internal use only.
+Function ListOfMetadataObjectsWithRights() Export
+	
+	List = New ValueList;
+	Collections = New ValueList;
+	AccessManagementInternalClientServer.AddMetadataObjectCollectionWithRights(Collections);
+	
+	For Each Collection In Collections Do
+		MetadataObjectCollection = Metadata[Collection.Value];
+		If MetadataObjectCollection.Count() = 0 Then
+			Continue;
+		EndIf;
+		List.Add(Collection.Value, Collection.Presentation);
+		AddCollectionObjects(List, MetadataObjectCollection, Collection.Value);
+	EndDo;
+	
+	Return New ValueStorage(List);
+	
+EndFunction
+
+// For internal use only.
+Procedure AddCollectionObjects(List, MetadataObjectCollection, CollectionName)
+	
+	For Each MetadataObject In MetadataObjectCollection Do
+		List.Add(MetadataObject.FullName(), MetadataObject.Presentation());
+		If CollectionName = "Subsystems" Then
+			AddCollectionObjects(List, MetadataObject.Subsystems, CollectionName);
+		EndIf;
+	EndDo;
+	
+EndProcedure
+
+// For internal use only.
+Function DataElementsTypes() Export
+	
+	Type = ExchangePlans.AllRefsType();
+	Type = New TypeDescription(Type, Catalogs.AllRefsType().Types());
+	Type = New TypeDescription(Type, Documents.AllRefsType().Types());
+	Type = New TypeDescription(Type, ChartsOfCharacteristicTypes.AllRefsType().Types());
+	Type = New TypeDescription(Type, ChartsOfAccounts.AllRefsType().Types());
+	Type = New TypeDescription(Type, ChartsOfCalculationTypes.AllRefsType().Types());
+	Type = New TypeDescription(Type, AllTypesOfRecordKey(Metadata.InformationRegisters,    "InformationRegisterRecordKey."));
+	Type = New TypeDescription(Type, AllTypesOfRecordKey(Metadata.AccumulationRegisters,  "AccumulationRegisterRecordKey."));
+	Type = New TypeDescription(Type, AllTypesOfRecordKey(Metadata.AccountingRegisters, "AccountingRegisterRecordKey."));
+	Type = New TypeDescription(Type, AllTypesOfRecordKey(Metadata.CalculationRegisters,     "CalculationRegisterRecordKey."));
+	Type = New TypeDescription(Type, BusinessProcesses.AllRefsType().Types());
+	Type = New TypeDescription(Type, Tasks.AllRefsType().Types());
+	
+	Return Type;
+	
+EndFunction
+
+Function AllTypesOfRecordKey(RegisterMetadata_, TypeNameBeginning)
+	
+	Types = New Array;
+	For Each RegisterMetadata In RegisterMetadata_ Do
+		Types.Add(Type(TypeNameBeginning + RegisterMetadata.Name));
+	EndDo;
+	
+	Return Types;
+	
+EndFunction
+
 #Region UniversalRestriction
 
 // Returns:
@@ -645,12 +690,12 @@ Function RightsCalculationCache(CachedDataKey) Export
 	DataVersion = AccessManagementInternal.NewVersionOfTheDataForTheRightsCalculationCache(
 		String(New UUID));
 	
-	Store = New Structure;
-	Store.Insert("ForUsers",        New Structure(Properties, New Map));
-	Store.Insert("ForExternalUsers", New Structure(Properties, New Map));
-	Store.Insert("DataVersion",            DataVersion);
+	Storage = New Structure;
+	Storage.Insert("ForUsers",        New Structure(Properties, New Map));
+	Storage.Insert("ForExternalUsers", New Structure(Properties, New Map));
+	Storage.Insert("DataVersion",            DataVersion);
 	
-	Return Store;
+	Return Storage;
 	
 EndFunction
 
@@ -1161,8 +1206,7 @@ EndFunction
 
 #EndRegion
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+#Region AuxiliaryProceduresAndFunctions
 
 Procedure AddBlankValueTypeRef(BlankRefsByTypes, GroupAndValueType, ValuesType)
 	
@@ -1185,6 +1229,8 @@ Procedure AddBlankValueTypeRef(BlankRefsByTypes, GroupAndValueType, ValuesType)
 	BlankRefs.Add(EmptyRef);
 	
 EndProcedure
+
+#EndRegion
 
 #Region UniversalRestriction
 

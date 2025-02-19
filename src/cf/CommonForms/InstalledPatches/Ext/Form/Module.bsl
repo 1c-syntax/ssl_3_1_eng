@@ -92,7 +92,7 @@ EndProcedure
 Procedure InstalledPatchesBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parameter)
 	Cancel = True;
 	If Not DataSeparationEnabled Then
-		Notification = New NotifyDescription("AfterInstallUpdates", ThisObject);
+		Notification = New CallbackDescription("AfterInstallUpdates", ThisObject);
 		OpenForm("DataProcessor.InstallUpdates.Form",,,,,, Notification);
 	EndIf;
 EndProcedure
@@ -290,7 +290,7 @@ Procedure DeleteExtensions(SelectedRows)
 	Context = New Structure;
 	Context.Insert("ExtensionsIDs", ExtensionsIDs);
 	
-	Notification = New NotifyDescription("DeleteExtensionAfterConfirmation", ThisObject, Context);
+	Notification = New CallbackDescription("DeleteExtensionAfterConfirmation", ThisObject, Context);
 	If ExtensionsIDs.Count() > 1 Then
 		QueryText = NStr("en = 'Do you want to delete the selected patches?';");
 	Else
@@ -306,14 +306,14 @@ Procedure DeleteExtensionAfterConfirmation(Result, Context) Export
 	
 	If Result = DialogReturnCode.Yes Then
 		
-		Handler = New NotifyDescription("DeleteExtensionFollowUp", ThisObject, Context);
+		Handler = New CallbackDescription("DeleteExtensionFollowUp", ThisObject, Context);
 		
 		If CommonClient.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
 			Queries = RequestsToRevokeExternalModuleUsagePermissions(Context.ExtensionsIDs);
 			ModuleSafeModeManagerClient = CommonClient.CommonModule("SafeModeManagerClient");
 			ModuleSafeModeManagerClient.ApplyExternalResourceRequests(Queries, ThisObject, Handler);
 		Else
-			ExecuteNotifyProcessing(Handler, DialogReturnCode.OK);
+			RunCallback(Handler, DialogReturnCode.OK);
 		EndIf;
 		
 	EndIf;
@@ -395,7 +395,7 @@ Procedure SavePatches(OnlyAttachedOnes = False)
 		SelectedRows = Items.InstalledPatches.SelectedRows;
 	EndIf;
 	
-	NotifyDescription = New NotifyDescription("SaveAsCompletion", ThisObject, SelectedRows);
+	NotifyDescription = New CallbackDescription("SaveAsCompletion", ThisObject, SelectedRows);
 	
 	If SelectedRows.Count() = 0 Then
 		If OnlyAttachedOnes Then

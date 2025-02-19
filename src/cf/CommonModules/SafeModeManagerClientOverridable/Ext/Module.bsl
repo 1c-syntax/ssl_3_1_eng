@@ -15,7 +15,7 @@
 // Parameters:
 //  RequestsIDs - Array - Request IDs.
 //  OwnerForm - ClientApplicationForm - Form that must be locked before permissions are applied.
-//  ClosingNotification1 - NotifyDescription - Notification triggered when permissions are granted.
+//  ClosingNotification1 - CallbackDescription - Notification triggered when permissions are granted.
 //  StandardProcessing - Boolean - indicates that the standard processing of usage of permissions to use
 //    external resources is executed (connection to a service agent via COM connection or to an administration server
 //    requesting cluster connection parameters from the user). Can be set to False

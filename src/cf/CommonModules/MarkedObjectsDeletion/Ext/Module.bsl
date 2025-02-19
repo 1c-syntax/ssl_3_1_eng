@@ -56,7 +56,7 @@ EndFunction
 //   MetadataFilter - ValueList of String - A list of full names of metadata objects where
 // 												 the marked for deletion objects will be searched for.
 // 												 For example, "Catalog.Products".
-//                   - Undefined - — filter by metadata objects will not be applied.
+//                   - Undefined - No filter by metadata object.
 //
 //  SearchForTechnologicalObjects - Boolean - if True, the search will be carried out in the metadata objects
 //											added to the reference search exceptions. 
@@ -108,7 +108,7 @@ Function MarkedForDeletion(Val MetadataFilter = Undefined, SearchForTechnologica
 		EndIf;
 
 		Information = TypesInformation[TypeOf(Item)];
-		IsPredefined = ArePredefinedItems[Item];
+		IsPredefined = (ArePredefinedItems[Item] = True);
 		IsSharedObjectInDataArea = InDataArea And Not Information.Separated1;
 
 		ObjectSubjectToDeletion = Not IsPredefined And Not IsSharedObjectInDataArea

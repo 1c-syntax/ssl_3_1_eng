@@ -30,13 +30,13 @@ Procedure OnWrite(Cancel, Replacing)
 	If AdditionalProperties.Property("DisableDependentCurrenciesControl") Then
 		Return;
 	EndIf;
-		
+	
 	AdditionalProperties.Insert("DependentCurrencies", New Map);
 	
-	If Count() > 0 Then
+	If Count() > 0 And Not Common.IsRecordSetDeletion(Replacing) Then
 		UpdateSubordinateCurrenciesRates();
 	Else
-		DeleteDependentCurrencyRates();
+		DeleteRatesOfDependentCurrencies(Replacing);
 	EndIf;
 	
 EndProcedure
@@ -117,7 +117,12 @@ Procedure UpdateSubordinateCurrencyRate(DependentCurrency, BaseCurrencyRecord)
 		WriteCurrencyRate.Repetition = BaseCurrencyRecord.Repetition;
 	Else // Calculate by formula.
 		Rate = CurrencyRateByFormula(DependentCurrency.Ref, DependentCurrency.RateCalculationFormula, BaseCurrencyRecord.Period);
-		If Rate <> Undefined Then
+		If Rate = Undefined Then
+			If Not AdditionalProperties.Property("CurrenciesWithIncorrectFormula") Then
+				AdditionalProperties.Insert("CurrenciesWithIncorrectFormula", New Map);
+				AdditionalProperties.CurrenciesWithIncorrectFormula.Insert(DependentCurrency.Ref, True)
+			EndIf;
+		Else
 			WriteCurrencyRate.Rate = Rate;
 			WriteCurrencyRate.Repetition = 1;
 		EndIf;
@@ -149,23 +154,63 @@ EndProcedure
 
 // Clears rates for dependent currencies.
 //
-Procedure DeleteDependentCurrencyRates()
+Procedure DeleteRatesOfDependentCurrencies(Val ReplacementModeDeletion)
+	
+	If Common.IsRecordSetDeletion(ReplacementModeDeletion) Then
+		DeleteRatesByRecordsSet(ReplacementModeDeletion);
+	Else
+		DeleteRatesByFilter();
+	EndIf;
+	
+EndProcedure
+
+Procedure DeleteRatesByFilter()
 	
 	CurrencyOwner = Filter.Currency.Value;
 	Period = Filter.Period.Value;
 	
-	DependentCurrency = Undefined;
-	If AdditionalProperties.Property("UpdateSubordinateCurrencyRate", DependentCurrency) Then
-		BlockDependentCurrencyRate(DependentCurrency, Period);
-		DeleteCurrencyRates(DependentCurrency, Period);
+	If AdditionalProperties.Property("UpdateSubordinateCurrencyRate") Then
+		DependentCurrencies = CommonClientServer.ValueInArray(AdditionalProperties.UpdateSubordinateCurrencyRate);
 	Else
-		DependentCurrencies = CurrencyRateOperations.DependentCurrenciesList(CurrencyOwner, AdditionalProperties);
+		DependentCurrencies = CurrencyRateOperations.DependentCurrenciesList(CurrencyOwner, AdditionalProperties).UnloadColumn("Ref");
+	EndIf;
+	
+	For Each DependentCurrency In DependentCurrencies Do
+		BlockDependentCurrencyRate(DependentCurrency, Period); 
+		DeleteCurrencyRates(DependentCurrency, Period);
+	EndDo;
+	
+EndProcedure
+
+Procedure DeleteRatesByRecordsSet(Val ReplacementModeDeletion)
+	
+	RecordSet = InformationRegisters.ExchangeRates.CreateRecordSet();
+	Block = New DataLock;
+	
+	For Each Record In ThisObject Do
+		If AdditionalProperties.Property("UpdateSubordinateCurrencyRate") Then
+			DependentCurrencies = CommonClientServer.ValueInArray(AdditionalProperties.UpdateSubordinateCurrencyRate);
+		Else
+			DependentCurrencies = CurrencyRateOperations.DependentCurrenciesList(Record.Currency, AdditionalProperties).UnloadColumn("Ref");
+		EndIf;
+		
 		For Each DependentCurrency In DependentCurrencies Do
-			BlockDependentCurrencyRate(DependentCurrency.Ref, Period); 
+			For Each DependentCurrency In DependentCurrencies Do
+				LockItem = Block.Add("InformationRegister.ExchangeRates");
+				LockItem.SetValue("Currency", DependentCurrency);
+				LockItem.SetValue("Period", Record.Period);
+			EndDo;
+			
+			RecordToDelete = RecordSet.Add();
+			RecordToDelete.Currency = DependentCurrency;
+			RecordToDelete.Period = Record.Period;
 		EndDo;
-		For Each DependentCurrency In DependentCurrencies Do
-			DeleteCurrencyRates(DependentCurrency.Ref, Period);
-		EndDo;
+	EndDo;
+	
+	If RecordSet.Count() > 0 Then
+		Block.Lock();
+		RecordSet.AdditionalProperties.Insert("DisableDependentCurrenciesControl");
+		RecordSet.Write(ReplacementModeDeletion);
 	EndIf;
 	
 EndProcedure
@@ -177,8 +222,11 @@ Procedure DeleteCurrencyRates(CurrencyRef, Period)
 	RecordSet.AdditionalProperties.Insert("DisableDependentCurrenciesControl");
 	RecordSet.Write();
 EndProcedure
-	
+
 Function CurrencyRateByFormula(Currency, Formula, Period)
+	
+	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot calculate the ""%1"" currency exchange rate using the ""%2"" formula for period ""%3"":';",
+		Common.DefaultLanguageCode()), Currency, Formula, Period);
 	
 	Try
 		Result = Catalogs.Currencies.CurrencyRateByFormula(Formula, Period, CurrencyCodes());
@@ -190,9 +238,6 @@ Function CurrencyRateByFormula(Currency, Formula, Period)
 			ErrorInRateCalculationByFormula.Insert(Currency, True);
 			ErrorInfo = ErrorInfo();
 			
-			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot calculate the ""%1"" currency exchange rate using the ""%2"" formula for period ""%3"":';",
-				Common.DefaultLanguageCode()), Currency, Formula, Period);
-				
 			Common.MessageToUser(ErrorText + Chars.LF + ErrorProcessing.BriefErrorDescription(ErrorInfo), 
 				Currency, "Object.RateCalculationFormula");
 				

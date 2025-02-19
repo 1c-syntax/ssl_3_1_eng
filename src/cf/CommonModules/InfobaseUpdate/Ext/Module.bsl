@@ -10,9 +10,7 @@
 
 #Region Public
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for use in update handlers.
-//
+#Region ProceduresAndFunctionsToUseInUpdateHandlers
 
 // Records changes into the passed object.
 // To be used in update handlers.
@@ -35,6 +33,8 @@ Procedure WriteData(Val Data, Val RegisterOnExchangePlanNodes = Undefined,
 	EndIf;
 	
 	Data.Write();
+	
+	InfobaseUpdateOverridable.AfterWriteData(Data);
 	
 	If TheObjectIsRegisteredOnTheExchangePlan(Data) Then
 		MarkProcessingCompletion(Data);
@@ -114,6 +114,8 @@ Procedure WriteRecordSet(Val RecordSet, Replace = True, Val RegisterOnExchangePl
 	
 	RecordSet.Write(Replace);
 	
+	InfobaseUpdateOverridable.AfterWriteData(RecordSet);
+	
 	If TheObjectIsRegisteredOnTheExchangePlan(RecordSet) Then
 		MarkProcessingCompletion(RecordSet);
 	EndIf;
@@ -154,9 +156,9 @@ Function EventLogEvent() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions to check object availability when running deferred update.
-//
+#EndRegion
+
+#Region ProceduresAndFunctionsToCheckObjectAvailabilityOnDeferredUpdate
 
 // If
 // there are unfinished deferred update handlers
@@ -711,6 +713,8 @@ EndFunction
 //                        d) during the update, the filter applied to the process request is applied
 //                          to sets to be recorded;
 //                        e) the respective flag value and full register name are passed to AdditionalParameters.
+//                    - QueryResult - 
+//                                         
 //  AdditionalParameters - See InfobaseUpdate.AdditionalProcessingMarkParameters.
 // 
 Procedure MarkForProcessing(MainParameters, Data, AdditionalParameters = Undefined) Export
@@ -719,9 +723,9 @@ Procedure MarkForProcessing(MainParameters, Data, AdditionalParameters = Undefin
 		AdditionalParameters = AdditionalProcessingMarkParameters();
 	EndIf;
 	
-	If (TypeOf(Data) = Type("Array")
-		Or TypeOf(Data) = Type("ValueTable"))
-		And Data.Count() = 0 Then
+	If TypeOf(Data) = Type("Array") And Data.Count() = 0
+		Or TypeOf(Data) = Type("ValueTable") And Data.Count() = 0
+		Or TypeOf(Data) = Type("QueryResult") And Data.IsEmpty() Then
 		Return;
 	EndIf;
 	
@@ -823,7 +827,8 @@ Procedure MarkForProcessing(MainParameters, Data, AdditionalParameters = Undefin
 			AdditionalParameters.FullRegisterName);
 		
 	Else
-		If TypeOf(Data) = Type("Array") Or Common.IsReference(TypeOf(Data)) Then
+		If TypeOf(Data) = Type("Array") Or Common.IsReference(TypeOf(Data))
+			Or (TypeOf(Data) = Type("QueryResult") And Data.Columns.Find("Ref") <> Undefined) Then
 			RegisterObjectChanges(MainParameters, Node, Data, "Ref");
 		Else
 			If TypeOf(Data) = Type("MetadataObject") Then
@@ -888,8 +893,7 @@ EndProcedure
 //                                     in the queue. Source name format: <AttributeName> or
 //                                     <TabularSectionName>.<TabularSectionAttributeName>. 
 //                                     For a seamless population,
-//                                     See SetDataSource
-//                                                                     .
+//                                     See SetDataSource.
 //   * OrderFields  - Array - the name of independent information register fields used to organize
 //                                    a query result.
 //   * MaxSelection - Number - the maximum number of selecting records.
@@ -964,6 +968,7 @@ Function AdditionalMultithreadProcessingDataSelectionParameters() Export
 	AdditionalParameters.Insert("FirstRecord");
 	AdditionalParameters.Insert("LatestRecord");
 	AdditionalParameters.Insert("OptimizeSelectionByPages", True);
+	AdditionalParameters.Insert("AutoBatchSelection", False);
 	
 	Return AdditionalParameters;
 	
@@ -1266,6 +1271,8 @@ EndFunction
 //
 Function SelectRegisterRecordersToProcess(Queue, FullDocumentName, FullRegisterName, AdditionalParameters = Undefined) Export
 	
+	CheckMultithreadingParameters(AdditionalParameters, FullRegisterName); // ACC:1036 Орфография не нарушена
+	
 	If AdditionalParameters = Undefined Then
 		AdditionalParameters = AdditionalProcessingDataSelectionParameters();
 	EndIf;
@@ -1428,6 +1435,9 @@ EndFunction
 //   ValueTable - data that must be processed, column names map the register dimension names.
 //
 Function SelectRefsToProcess(Queue, FullObjectName, AdditionalParameters = Undefined) Export
+	
+	CheckMultithreadingParameters(AdditionalParameters, FullObjectName); // ACC:1036 Орфография не нарушена
+	
 	If AdditionalParameters = Undefined Then
 		AdditionalParameters = AdditionalProcessingDataSelectionParameters();
 	EndIf;
@@ -1683,6 +1693,9 @@ EndFunction
 //   ValueTable - data that must be processed, column names map the register dimension names.
 //
 Function SelectStandaloneInformationRegisterDimensionsToProcess(Queue, FullObjectName, AdditionalParameters = Undefined) Export
+	
+	CheckMultithreadingParameters(AdditionalParameters, FullObjectName); // ACC:1036 Орфография не нарушена
+	
 	If AdditionalParameters = Undefined Then
 		AdditionalParameters = AdditionalProcessingDataSelectionParameters();
 	EndIf;
@@ -1717,7 +1730,8 @@ Function SelectStandaloneInformationRegisterDimensionsToProcess(Queue, FullObjec
 			|";
 	EndIf;
 	
-	FilterOfUpToDateData = InfobaseUpdateInternal.FilterOfUpToDateData(UpdateHandlerParameters, "ChangesTable");
+	FilterOfUpToDateData = InfobaseUpdateInternal.FilterOfUpToDateData(UpdateHandlerParameters, 
+		"ChangesTable");
 	QueryText = StrReplace(QueryText, "&ConditionUpToDateData", FilterOfUpToDateData.Condition);
 	If FilterOfUpToDateData.HasSelectionFilter Then
 		QueryTextChecks =
@@ -1772,10 +1786,7 @@ Function SelectStandaloneInformationRegisterDimensionsToProcess(Queue, FullObjec
 	CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, FullObjectName, TempTablesManager);
 	
 	AddAdditionalSourceLockCheckForStandaloneRegister(Queue,
-																				QueryText,
-																				FullObjectName,
-																				TempTablesManager,
-																				AdditionalParameters);	
+		QueryText, FullObjectName, TempTablesManager, AdditionalParameters);	
 	
 	Query.Text = QueryText;
 	Query.TempTablesManager = TempTablesManager;
@@ -1800,7 +1811,8 @@ EndFunction
 //
 // Parameters:
 //  Queue					 - Number					 - the position in the queue for the current handler.
-//  FullObjectName		 - String					 - full name of an object, for which the check is run (for instance, Catalog.Products).
+//  FullObjectName		 - String					 - full name of an object, for which the check is run 
+//                                                         (for instance, Catalog.Products).
 //  TempTablesManager	 - TempTablesManager	 - manager, in which the temporary table is created.
 //  AdditionalParameters	 - See InfobaseUpdate.AdditionalProcessingDataSelectionParameters.
 // 
@@ -1813,7 +1825,8 @@ EndFunction
 //   * HasDataToProcess - Boolean - there is data for processing in the queue (subsequently, not everything is processed).
 //   * TempTableName - String - a name of a created temporary table.
 //
-Function CreateTemporaryTableOfStandaloneInformationRegisterDimensionsToProcess(Queue, FullObjectName, TempTablesManager, AdditionalParameters = Undefined) Export
+Function CreateTemporaryTableOfStandaloneInformationRegisterDimensionsToProcess(Queue, FullObjectName, 
+	TempTablesManager, AdditionalParameters = Undefined) Export
 	
 	If AdditionalParameters = Undefined Then
 		AdditionalParameters = AdditionalProcessingDataSelectionParameters();
@@ -1886,10 +1899,7 @@ Function CreateTemporaryTableOfStandaloneInformationRegisterDimensionsToProcess(
 	
 	CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, FullObjectName, TempTablesManager);
 	AddAdditionalSourceLockCheckForStandaloneRegister(Queue,
-																				QueryText,
-																				FullObjectName,
-																				TempTablesManager,
-																				AdditionalParameters);	
+		QueryText, FullObjectName, TempTablesManager, AdditionalParameters);	
 	
 	CurrentQueue = QueueRef(Queue);
 	
@@ -1915,15 +1925,16 @@ EndFunction
 // Checks if there is unprocessed data.
 //
 // Parameters:
-//  Queue    - Number        - the position in the queue the handler and the data
-//                              it will process are assigned to.
-//             - Undefined - checked if general processing is complete;
-//             - Array       - checked if there is data to be processed in the queues list.
+//  Queue    - Number           - the position in the queue the handler and the data
+//                                 it will process are assigned to.
+//             - Undefined    - 
+//             - Array of Number - 
 //  FullObjectNameMetadata - String
-//                             - MetadataObject - a full name of an object being processed or 
-//                              its metadata. For example, "Document.GoodsReceipt"
-//                             - Array - an array of full names of metadata objects;
-//                              an array cannot have independent information registers.
+//                             - MetadataObject - 
+//                                                  
+//                             - Array of String 
+//                             - Array of MetadataObject - 
+//                                                            
 //  Filter - AnyRef
 //        - Structure
 //        - Undefined
@@ -1952,8 +1963,9 @@ Function HasDataToProcess(Queue, FullObjectNameMetadata, Filter = Undefined) Exp
 		FullNamesOfObjectsToProcess = New Array;
 		FullNamesOfObjectsToProcess.Add(FullObjectNameMetadata.FullName());
 	Else
-		ExceptionText = NStr("en = 'Invalid type of parameter ""%1"" is passed to function %2';");
-		ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(ExceptionText, "FullObjectNameMetadata", "InfobaseUpdate.HasDataToProcess");
+		ExceptionText = NStr("en = 'Invalid type of parameter ""%1"" when calling function %2.';");
+		ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(ExceptionText, 
+			"FullObjectNameMetadata", "InfobaseUpdate.HasDataToProcess");
 		Raise ExceptionText;
 	EndIf;	
 	
@@ -1961,9 +1973,9 @@ Function HasDataToProcess(Queue, FullObjectNameMetadata, Filter = Undefined) Exp
 	
 	QueryTexts = New Array;
 	RegisterRequestTexts = New Array;
-	QueryTextsIntermediate = New Array;
 	FilterIs_Specified = False;
 	For Each TypeToProcess In FullNamesOfObjectsToProcess Do
+		QueryTextsIntermediate = New Array;
 		
 		If TypeOf(TypeToProcess) = Type("MetadataObject") Then
 			ObjectMetadata = TypeToProcess;
@@ -1978,7 +1990,6 @@ Function HasDataToProcess(Queue, FullObjectNameMetadata, Filter = Undefined) Exp
 		
 		DataFilterCriterion = "TRUE";
 		ConditionForCheckingTheRegistrar = "TRUE";
-		
 		
 		If Common.IsRefTypeObject(ObjectMetadata) Then
 			QueryText =
@@ -2067,8 +2078,8 @@ Function HasDataToProcess(Queue, FullObjectNameMetadata, Filter = Undefined) Exp
 				|WHERE
 				|	ChangesTable.Recorder = TableToCheck.Ref)";
 			
-			ExistenceRequests = New Array;
-			ExistenceQueriesSummary = New Array;
+			QueriesForExistence = New Array;
+			QueriesForExistenceFinal = New Array;
 			LoggerTypes = ObjectMetadata.StandardAttributes.Recorder.Type;
 			LoggerTypes = LoggerTypes.Types();
 			For Each TypeOfRegistrar In LoggerTypes Do
@@ -2078,16 +2089,16 @@ Function HasDataToProcess(Queue, FullObjectNameMetadata, Filter = Undefined) Exp
 				EndIf;
 				FullRecorderName = RegistrarMetadata.FullName();
 				QueryTextChecks = StrReplace(VerificationRequestTemplate, "#TableName", FullRecorderName);
-				ExistenceRequests.Add(QueryTextChecks);
+				QueriesForExistence.Add(QueryTextChecks);
 				
-				If ExistenceRequests.Count() >= 200 Then
-					ExistenceQueriesSummary.Add(StrConcat(ExistenceRequests, Chars.LF + "OR "));
-					ExistenceRequests.Clear();
+				If QueriesForExistence.Count() >= 200 Then
+					QueriesForExistenceFinal.Add(StrConcat(QueriesForExistence, Chars.LF + "OR "));
+					QueriesForExistence.Clear();
 				EndIf;
 			EndDo;
 			
-			If ExistenceRequests.Count() > 0 Then
-				ExistenceQueriesSummary.Add(StrConcat(ExistenceRequests, Chars.LF + "OR "));
+			If QueriesForExistence.Count() > 0 Then
+				QueriesForExistenceFinal.Add(StrConcat(QueriesForExistence, Chars.LF + "OR "));
 			EndIf;
 			
 			QueryText =
@@ -2104,8 +2115,8 @@ Function HasDataToProcess(Queue, FullObjectNameMetadata, Filter = Undefined) Exp
 				DataFilterCriterion = "ChangesTable.Recorder IN (&Filter)";
 			EndIf;
 			
-			For Each RequestForExistence In ExistenceQueriesSummary Do
-				IntermediateQueryText = StrReplace(QueryText, "&ConditionForRegistrars", RequestForExistence);
+			For Each QueryForExistence In QueriesForExistenceFinal Do
+				IntermediateQueryText = StrReplace(QueryText, "&ConditionForRegistrars", QueryForExistence);
 				QueryTextsIntermediate.Add(IntermediateQueryText);
 			EndDo;
 		Else
@@ -2185,15 +2196,19 @@ EndFunction
 // Checks if all data is processed.
 //
 // Parameters:
-//  Queue    - Number        - the position in the queue the handler and the data
-//                              it will process are assigned to.
-//             - Undefined - checked if general processing is complete;
-//             - Array       - checked if there is data to be processed in the queues list.
+//  Queue    - Number           - the position in the queue the handler and the data
+//                                 it will process are assigned to.
+//             - Undefined    - 
+//             - Array of Number - checked if there is data to be processed in the queues list.
 //  FullObjectNameMetadata - String
-//                             - MetadataObject - a full name of an object being processed or 
-//                              its metadata. For example, "Document.GoodsReceipt"
-//                             - Array - an array of full names of metadata objects;
-//                              an array cannot have independent information registers.
+//                             - MetadataObject - 
+//                                                   
+//                                                  
+//                                                   
+//                                                  
+//                             - Array of String 
+//                             - Array of MetadataObject - 
+//                                                            
 //  Filter - AnyRef
 //        - Structure
 //        - Undefined
@@ -2208,7 +2223,24 @@ EndFunction
 // Returns:
 //  Boolean - True if all data is processed.
 //
-Function DataProcessingCompleted(Queue, FullObjectNameMetadata, Filter = Undefined) Export
+Function DataProcessingCompleted(Queue, FullObjectNameMetadata = "", Filter = Undefined) Export
+	
+	If FullObjectNameMetadata = "" Then
+		MetadataNamesArray = StringFunctionsClientServer.SplitStringIntoSubstringsArray(
+			SessionParameters.UpdateHandlerParameters.ObjectsToChange, ",", , True);
+		If MetadataNamesArray.Count() = 1 Then
+			FullObjectNameMetadata = SessionParameters.UpdateHandlerParameters.ObjectsToChange;
+		ElsIf MetadataNamesArray.Count() > 1 Then
+			MessageText = NStr("en = 'Parameter %1 is required to call function %2.';");
+			StringFunctionsClientServer.SubstituteParametersToString(MessageText, 
+				"FullObjectNameMetadata", "InfobaseUpdate.DataProcessingCompleted");
+			Raise(MessageText, ErrorCategory.ConfigurationError);
+		Else
+			MessageText = NStr("en = 'Event handler property %1 is required.';");
+			StringFunctionsClientServer.SubstituteParametersToString(MessageText, "ObjectsToChange");
+			Raise(MessageText, ErrorCategory.ConfigurationError);
+		EndIf;
+	EndIf;
 	
 	Return Not HasDataToProcess(Queue, FullObjectNameMetadata, Filter);
 	
@@ -2221,10 +2253,11 @@ EndFunction
 //          - Undefined - the position in the queue the handler and
 //                           the data it will process are assigned to.
 //  FullObjectNameMetadata - String
-//                             - MetadataObject - a full name of an object being processed or
-//                                        its metadata. For example, "Document.GoodsReceipt"
-//                             - Array - an array of full names of metadata objects;
-//                                        an array cannot have independent information registers.
+//                             - MetadataObject - 
+//                                                  
+//                             - Array of String 
+//                             - Array of MetadataObject - 
+//                                                  
 // 
 // Returns:
 //  Boolean - True if processing of the object is locked by smaller queues.
@@ -2279,7 +2312,7 @@ Function CanReadAndEdit(Queue, Data, AdditionalParameters = Undefined, MetadataA
 EndFunction
 
 // Creates a temporary table containing locked data.
-// Table name: TemporaryTables Locked<ObjectName>, for example TemporaryTableLockedProductsAndServices
+// Table name: TTLocked<ObjectName>, for example TTLockedProductsAndServices
 //  Table columns:
 //      for the reference type objects
 //          * Ref;
@@ -2658,7 +2691,7 @@ EndFunction
 //  - join with the main recorder table by these recorders;
 //  - get the values of changes from the main table;
 //  - perform the grouping.
-//  Table name: TemporaryTables Locked<ObjectName>, for example, TTLockedStock.
+//  Table name: TTLocked<ObjectName>, for example, TTLockedStock.
 //  The table columns match the passed dimensions.
 //
 // Parameters:
@@ -2817,8 +2850,9 @@ Function RefsSelectionMethod() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Other procedures and functions.
+#EndRegion
+
+#Region OtherProceduresAndFunctions_
 
 // Checks if the infobase update is required when the configuration version is changed.
 //
@@ -3066,7 +3100,7 @@ Function NewUpdateHandlerTable() Export
 	// For initial population handlers.
 	Handlers.Columns.Add("DoNotExecuteWhenSwitchingFromAnotherProgram", New TypeDescription("Boolean"));
 	
-	// Obsolete. Reverse compatibility with edition 2.2.
+	// Obsolete. Backward compatibility with version 2.2.
 	Handlers.Columns.Add("Optional");
 	Handlers.Columns.Add("ExclusiveMode");
 	
@@ -3902,6 +3936,8 @@ Procedure AddObjectPlannedForDeletion(Objects, Object, Refinement = False) Expor
 	
 EndProcedure
 
+#EndRegion
+
 #Region ForCallsFromOtherSubsystems
 
 // OnlineUserSupport.GetApplicationUpdates
@@ -3920,40 +3956,54 @@ Function DeferredUpdateStatus() Export
 	
 EndFunction
 
+// Returns "True" if the new app version supports change viewer.
+//
+// Returns:
+//  Boolean
+//
+Function ApplicationReleaseNotesViewAvailable() Export
+	
+	Return AccessRight("View", Metadata.CommonForms.ApplicationReleaseNotes);
+	
+EndFunction
+
 // End OnlineUserSupport.GetApplicationUpdates
 
 #EndRegion
-
-////////////////////////////////////////////////////////////////////////////////
-// Initial data population.
 
 #Region FillPredefinedItems
 
 ////////////////////////////////////////////////////////////////////////////////
 // Other procedures and functions.
 
-// Register predefined items to update in the update handler.
+// Registers predefined items for a deferred update handler that populates 
+// or updates predefined items in a catalog or chart of characteristics type.
+// Intended to be used with the procedures "FillItemsWithInitialData" and "DoUpdatePredefinedItems".
 //
 // Parameters:
 //  Parameters        - Structure - update handler service parameters.
 //  MetadataObject - MetadataObject
-//                   - Undefined - objects to be updated
+//                   - Undefined - Objects to be updated.
 //  AdditionalParameters - Structure:
-//   *  UpdateMode  - String - defines registration options of predefined items to update. Options:
-//                              All - registers all predefined items;
-//                              NewAndChanged - updates only new and changed items;
-//                              MultilingualStrings - if changes were made in multilanguage attributes.
+//   *  UpdateMode  - String - Defines registration options of predefined items to update. Options:
+//                              All: Register all predefined items.
+//                              NewAndChanged: Update only new and changed items.
+//                              MultilingualStrings: Update if multilanguage attributes were modified.
 //   * SkipEmpty  - Boolean -  if True, empty strings in default master data are excluded from the check for changes.
 //                            For example, an object will not be registered when an attribute in the infobase is filled in, and the code contains an empty string.
 //   * CompareTabularSections - Boolean - if False, tabular sections are ignored and not compared for differences.
 //
-Procedure RegisterPredefinedItemsToUpdate(Parameters, MetadataObject = Undefined, AdditionalParameters = Undefined) Export
+Procedure RegisterPredefinedItemsToUpdate(Parameters, MetadataObject = Undefined, 
+	AdditionalParameters = Undefined) Export
 	
-	InfobaseUpdateInternal.RegisterPredefinedItemsToUpdate(Parameters, MetadataObject, AdditionalParameters);
+	InfobaseUpdateInternal.RegisterPredefinedItemsToUpdate(Parameters, MetadataObject, 
+		AdditionalParameters);
 	
 EndProcedure
 
-// Fills in predefined object items in the update handler with default master data.
+// Populates an object's predefined items using the initial population in the 
+// object manager module's "OnInitialItemFilling" handler.
+// Intended to be invoked from deferred update handlers.
 //
 // Parameters:
 //  Parameters           - Structure- update handler service parameters.
@@ -3975,7 +4025,8 @@ Procedure FillItemsWithInitialData(Parameters, MetadataObject, PopulationSetting
 	
 EndProcedure
 
-// Populate the object with the predefined data from the initial population code block.
+// Populates an object using the initial population in the 
+// object manager's "OnInitialItemFilling" handler.
 // 
 // Parameters:
 //  ObjectToFillIn - CatalogObject
@@ -3988,10 +4039,11 @@ Procedure FillObjectInitialData(ObjectToFillIn, PopulationSettings) Export
 	
 EndProcedure
 
-// Updates the predefined data with the data from the initial population code.
+// Populates predefined items using the initial population in the 
+// "OnInitialItemFilling" handler of the "MetadataObject" object manager module.
 // 
 // Parameters:
-//  MetadataObject - MetadataObject - The objects containing the predefined items.
+//  MetadataObject - MetadataObject - Catalog or CCT to be updated.
 //  ParametersOfUpdate - See PredefinedItemsUpdateParameters
 //                      - Undefined - Update all the predefined items.
 //
@@ -4691,7 +4743,8 @@ Procedure SetMissingFiltersInSet(Set, SetMetadata, FiltersToSet)
 		
 		HasFilterByDimension = False;
 		
-		If TypeOf(FiltersToSet) = Type("ValueTable") Then
+		If TypeOf(FiltersToSet) = Type("ValueTable")
+			Or TypeOf(FiltersToSet) = Type("QueryResult") Then
 			HasFilterByDimension = FiltersToSet.Columns.Find(Dimension.Name) <> Undefined;
 		Else //Filter
 			HasFilterByDimension = FiltersToSet[Dimension.Name].Use;	
@@ -4705,7 +4758,8 @@ Procedure SetMissingFiltersInSet(Set, SetMetadata, FiltersToSet)
 	
 	If SetMetadata.MainFilterOnPeriod Then
 		
-		If TypeOf(FiltersToSet) = Type("ValueTable") Then
+		If TypeOf(FiltersToSet) = Type("ValueTable") 
+			Or TypeOf(FiltersToSet) = Type("QueryResultSelection") Then
 			HasFilterByDimension = FiltersToSet.Columns.Find("Period") <> Undefined;
 		Else //Filter
 			HasFilterByDimension = FiltersToSet.Period.Use;
@@ -4754,13 +4808,28 @@ Procedure RegisterObjectChanges(Parameters, Node, References, DataKind, FullObje
 	
 	RegistrationParameters = NewRegistrationParameters(Parameters, Node, DataKind, FullObjectName);
 	
-	For Each Ref In ItemArray(References) Do
-		If Ref.IsEmpty() Then
-			Continue;
-		EndIf;
+	If TypeOf(References) = Type("QueryResult") Then
 		
-		RegisterChangesToADataItem(Ref, RegistrationParameters);
-	EndDo;
+		Selection = References.Select();
+		While Selection.Next() Do
+			If Selection.Ref.IsEmpty() Then
+				Continue;
+			EndIf;
+			
+			RegisterChangesToADataItem(Selection.Ref, RegistrationParameters);
+		EndDo;
+		
+	Else
+		
+		For Each Ref In ItemArray(References) Do
+			If Ref.IsEmpty() Then
+				Continue;
+			EndIf;
+			
+			RegisterChangesToADataItem(Ref, RegistrationParameters);
+		EndDo;
+		
+	EndIf;
 	
 	CompleteDataPortionRegistration(RegistrationParameters);
 	
@@ -4791,13 +4860,13 @@ Procedure RegisterChangesToTheSubordinateRegister(Parameters, Node, Recorders, D
 	
 EndProcedure
 
-// Record changes of the independent register by the value table,
-// where columns are dimensions, and rows are records to register.
+// 
+// 
 //
 // Parameters:
 //  Parameters - See InfobaseUpdate.MainProcessingMarkParameters.
 //  Node - ExchangePlanRef.InfobaseUpdate
-//  Records - ValueTable
+//  Records - 
 //  DataKind - String
 //  FullObjectName - String
 //
@@ -4806,19 +4875,54 @@ Procedure RegisterChangesToTheIndependentRegister(Parameters, Node, Records, Dat
 	RegistrationParameters = NewRegistrationParameters(Parameters, Node, DataKind, FullObjectName);
 	RegisterMetadata = Common.MetadataObjectByFullName(FullObjectName);
 	
-	For Each Record In Records Do
-		Set = GetAReusedSet(RegistrationParameters.ReusedSets);
-		SetMissingFiltersInSet(Set, RegisterMetadata, Records);
+	If TypeOf(Records) = Type("ValueTable") Then
 		
-		For Each Column In Records.Columns Do
-			Set.Filter[Column.Name].Value = Record[Column.Name];
-			Set.Filter[Column.Name].Use = True;
+		For Each Record In Records Do
+			RegisterChangesToIndependentInformationRegister(RegistrationParameters, 
+				Node, 
+				RegisterMetadata, 
+				Record, 
+				Records);
 		EndDo;
 		
-		RegisterChangesToADataItem(Set, RegistrationParameters);
-	EndDo;
+	ElsIf TypeOf(Records) = Type("QueryResult") Then
+		
+		RecordSelection = Records.Select();
+		While RecordSelection.Next() Do
+			RegisterChangesToIndependentInformationRegister(RegistrationParameters, 
+				Node, 
+				RegisterMetadata, 
+				RecordSelection, 
+				Records);
+		EndDo;
+		
+	EndIf;
 	
 	CompleteDataPortionRegistration(RegistrationParameters);
+	
+EndProcedure
+
+// 
+// 
+//
+// Parameters:
+//  Parameters - See NewRegistrationParameters.
+//  Node - ExchangePlanRef.InfobaseUpdate
+//  RegisterMetadata - 
+//  Record - 
+//  Records - 
+//
+Procedure RegisterChangesToIndependentInformationRegister(Parameters, Node, RegisterMetadata, Record, Records)
+	
+	Set = GetAReusedSet(Parameters.ReusedSets);
+	SetMissingFiltersInSet(Set, RegisterMetadata, Records);
+	
+	For Each Column In Records.Columns Do
+		Set.Filter[Column.Name].Value = Record[Column.Name];
+		Set.Filter[Column.Name].Use = True;
+	EndDo;
+	
+	RegisterChangesToADataItem(Set, Parameters);
 	
 EndProcedure
 
@@ -5843,7 +5947,7 @@ EndFunction
 // Get conditions to filter records larger than the specified one (similar to the dynamic list).
 //
 // Parameters:
-//  SelectionFields1 - Array - fields selected by query.
+//  SelectionFields1 - Array - Fields to be retrieved by the query.
 //  Parameters - See InfobaseUpdate.AdditionalProcessingMarkParameters.
 //  Directions - Array - ordering directions (ASC, and DESC) in the quantity equal to the SelectionFields quantity.
 //              - Undefined - order is not specified (always ASC).
@@ -5881,7 +5985,7 @@ EndFunction
 // Get the conditions to select the records between two specified records, inclusively.
 //
 // Parameters:
-//  SelectionFields1 - Array - fields selected by query.
+//  SelectionFields1 - Array - Fields to be retrieved by the query.
 //  Parameters - See InfobaseUpdate.AdditionalProcessingMarkParameters.
 //  Directions - Array - ordering directions (ASC, and DESC) in the quantity equal to the SelectionFields quantity.
 //              - Undefined - order is not specified (always ASC).
@@ -5987,7 +6091,7 @@ EndFunction
 // Returns the value table with the conditions of selection by page.
 //
 // Parameters:
-//  SelectionFields1 - Array - fields selected by query.
+//  SelectionFields1 - Array - Fields to be retrieved by the query.
 //  ForRange - Boolean - True if the table will be used to restrict the range.
 //                 In this case, additional columns are added for the lower range condition.
 //
@@ -6952,6 +7056,24 @@ Procedure SetHandlerParametersOnSelectData(AdditionalParameters, IsAllUpToDateDa
 		SessionParameters.UpdateHandlerParameters = New FixedStructure(HandlerParameters);
 	Else
 		AdditionalParameters.UpdateHandlerParameters = New FixedStructure(HandlerParameters);
+	EndIf;
+	
+EndProcedure
+
+Procedure CheckMultithreadingParameters(AdditionalParameters, ObjectName) // ACC:1036 Орфография не нарушена
+	
+	If SessionParameters.UpdateHandlerParameters.Multithreaded
+		And (AdditionalParameters = Undefined
+		Or Not (AdditionalParameters.Property("AutoBatchSelection")
+		And AdditionalParameters.AutoBatchSelection)) Then
+		
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Method %2 of module %3 must be called for multithreaded handler %1.';"),
+			ObjectName,
+			"DataToUpdateInMultithreadHandler",
+			"InfobaseUpdate");
+		Raise(MessageText, ErrorCategory.ConfigurationError);
+		
 	EndIf;
 	
 EndProcedure

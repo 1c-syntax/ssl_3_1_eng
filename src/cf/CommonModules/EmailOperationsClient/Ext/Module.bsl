@@ -14,7 +14,7 @@
 //
 // Parameters:
 //  EmailSendOptions  - See EmailOperationsClient.EmailSendOptions.
-//  FormClosingNotification - NotifyDescription - procedure to be executed after closing
+//  FormClosingNotification - CallbackDescription - procedure to be executed after closing
 //                                                  the message sending form.
 //
 Procedure CreateNewEmailMessage(EmailSendOptions = Undefined, FormClosingNotification = Undefined) Export
@@ -35,14 +35,14 @@ Procedure CreateNewEmailMessage(EmailSendOptions = Undefined, FormClosingNotific
 	If InfoForSending.HasAvailableAccountsForSending Then
 		CreateNewEmailMessageAccountChecked(True, SendOptions);
 	Else
-		ResultHandler = New NotifyDescription("CreateNewEmailMessageAccountChecked", ThisObject, SendOptions);
+		ResultHandler = New CallbackDescription("CreateNewEmailMessageAccountChecked", ThisObject, SendOptions);
 		If InfoForSending.CanAddNewAccounts Then
 			OpenForm("Catalog.EmailAccounts.Form.AccountSetupWizard", 
 				New Structure("ContextMode", True), , , , , ResultHandler);
 		Else
 			MessageText = NStr("en = 'To send messages, set up the email account.
 				|Contact the administrator.';");
-			NotifyDescription = New NotifyDescription("CheckAccountForSendingEmailExistsCompletion", ThisObject, ResultHandler);
+			NotifyDescription = New CallbackDescription("CheckAccountForSendingEmailExistsCompletion", ThisObject, ResultHandler);
 			ShowMessageBox(NotifyDescription, MessageText);
 		EndIf;
 	EndIf;
@@ -63,9 +63,9 @@ EndProcedure
 //                           [RecipientPresentation1] <Address1>; [[RecipientPresentation2] <Address2>;…]
 //                - ValueList:
 //                   ** Presentation - String - an addressee presentation.
-//                   ** Value      - String - an email address.
+//                   ** Value      - String - Email address.
 //                - Array - Array of structures describing recipients:
-//                   ** Address                        - String - an email recipient address.
+//                   ** Address                        - String - Recipient's address.
 //                   ** Presentation                - String - an addressee presentation.
 //                   ** ContactInformationSource - CatalogRef - contact information owner.
 //   
@@ -111,13 +111,13 @@ EndFunction
 // sending parameters.
 //
 // Parameters:
-//  ResultHandler - NotifyDescription - procedure to be executed after the check is completed.
+//  ResultHandler - CallbackDescription - procedure to be executed after the check is completed.
 //                                              True returns if there is an available
 //                                              account for sending emails.
 //
 Procedure CheckAccountForSendingEmailExists(ResultHandler) Export
 	If EmailServerCall.HasAvailableAccountsForSending() Then
-		ExecuteNotifyProcessing(ResultHandler, True);
+		RunCallback(ResultHandler, True);
 	Else
 		If EmailServerCall.CanAddNewAccounts() Then
 			OpenForm("Catalog.EmailAccounts.Form.AccountSetupWizard", 
@@ -125,7 +125,7 @@ Procedure CheckAccountForSendingEmailExists(ResultHandler) Export
 		Else	
 			MessageText = NStr("en = 'To send messages, set up the email account.
 				|Contact the administrator.';");
-			NotifyDescription = New NotifyDescription("CheckAccountForSendingEmailExistsCompletion", ThisObject, ResultHandler);
+			NotifyDescription = New CallbackDescription("CheckAccountForSendingEmailExistsCompletion", ThisObject, ResultHandler);
 			ShowMessageBox(NotifyDescription, MessageText);
 		EndIf;
 	EndIf;
@@ -137,7 +137,7 @@ EndProcedure
 // Parameters:
 //  Account - CatalogRef.EmailAccounts
 //  Title - String - Title of the opening form.
-//  ErrorText - String - Original exception text. We recommend to pass BriefErrorPresentation.
+//  ErrorText - String - Original exception text. We recommend passing BriefErrorDescription.
 //
 Procedure ReportConnectionError(Account, Title, ErrorText) Export
 	
@@ -181,7 +181,7 @@ Procedure CreateNewEmailMessageAccountChecked(AccountSetUp, SendOptions) Export
 	EndIf;
 	
 	If SendOptions.ShowAttachmentSaveFormatSelectionDialog Then
-		NotifyDescription = New NotifyDescription("CreateNewEmailMessagePrepareAttachments", ThisObject, SendOptions);
+		NotifyDescription = New CallbackDescription("CreateNewEmailMessagePrepareAttachments", ThisObject, SendOptions);
 		CommonClient.ShowAttachmentsFormatSelection(NotifyDescription, Undefined);
 		Return;
 	EndIf;
@@ -229,7 +229,7 @@ Procedure CreateNewEmailMessageAttachmentsPrepared(AttachmentsPrepared, SendOpti
 		
 		FormParameters.Insert("ShouldSkipAttachmentFormatSelection", True);
 		
-		NotifyDescription = New NotifyDescription("AfterRecipientsSelected", ThisObject, SendOptions);
+		NotifyDescription = New CallbackDescription("AfterRecipientsSelected", ThisObject, SendOptions);
 		ModulePrintManagerInternalClient = CommonClient.CommonModule("PrintManagementInternalClient");
 		
 		ModulePrintManagerInternalClient.OpenNewMailPreparationForm(ThisObject, 
@@ -273,7 +273,7 @@ Procedure OpenSimpleSendEmailMessageForm(EmailParameters, OnCloseNotifyDescripti
 EndProcedure
 
 Procedure CheckAccountForSendingEmailExistsCompletion(ResultHandler) Export
-	ExecuteNotifyProcessing(ResultHandler, False);
+	RunCallback(ResultHandler, False);
 EndProcedure
 
 Function ListOfRecipientsFromString(Val Recipients)

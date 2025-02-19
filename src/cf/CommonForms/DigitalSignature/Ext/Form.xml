@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
+	<SaveWindowSettings>false</SaveWindowSettings>
 	<Customizable>false</Customizable>
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<ChildItems>
@@ -184,7 +185,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Signed by</v8:content>
+					<v8:content>Signature added by</v8:content>
 				</v8:item>
 			</Title>
 			<Width>35</Width>
@@ -394,21 +395,6 @@
 				</UsualGroup>
 			</ChildItems>
 		</UsualGroup>
-		<LabelDecoration name="Instruction" id="38">
-			<AutoMaxWidth>false</AutoMaxWidth>
-			<Title formatted="false">
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Troubleshoot digital signing apps</v8:content>
-				</v8:item>
-			</Title>
-			<Hyperlink>true</Hyperlink>
-			<ContextMenu name="InstructionContextMenu" id="39"/>
-			<ExtendedTooltip name="InstructionExtendedTooltip" id="40"/>
-			<Events>
-				<Event name="Click">InstructionClick</Event>
-			</Events>
-		</LabelDecoration>
 	</ChildItems>
 	<Attributes>
 		<Attribute name="CertificateOwner" id="1">
@@ -448,7 +434,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Signed by</v8:content>
+					<v8:content>Signature added by</v8:content>
 				</v8:item>
 			</Title>
 			<Type/>
@@ -585,7 +571,7 @@
 		</Attribute>
 		<Attribute name="SignedObject" id="16">
 			<Type>
-				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+				<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
 			</Type>
 		</Attribute>
 		<Attribute name="SequenceNumber" id="17">

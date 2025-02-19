@@ -44,7 +44,7 @@
 		<title xsi:type="v8:LocalStringType">
 			<v8:item>
 				<v8:lang>en</v8:lang>
-				<v8:content>Highlight accumulation record kinds</v8:content>
+				<v8:content>Highlight accumulation record types</v8:content>
 			</v8:item>
 		</title>
 		<valueType>

@@ -13,10 +13,14 @@
 // Handlers of conditional calls from SSL
 
 // Reads and sets a notification about long standalone workstation synchronization
+// 
 // Parameters:
-//     FlagValue1     - Boolean - a flag value to be set
-//     SettingDetails - Structure - takes a value for the setting description.
+//  FlagValue1 - Boolean - a flag value to be set
+//  SettingDetails - Structure - takes a value for the setting description.
 // For internal use.
+// 
+// Returns:
+//  Boolean - Flag indicating whether the application should display a long-lasting synchronization dialog
 //
 Function LongSynchronizationQuestionSetupFlag(FlagValue1 = Undefined, SettingDetails = Undefined) Export
 	SettingDetails = New Structure;
@@ -39,15 +43,18 @@ EndFunction
 
 // For internal use
 // 
+// Returns:
+//  String - Value of the constant "AccountPasswordRecoveryAddress".
+//
 Function AccountPasswordRecoveryAddress() Export
 	
 	SetPrivilegedMode(True);
 	
 	Return TrimAll(Constants.AccountPasswordRecoveryAddress.Get());
+	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// INTERNAL PROCEDURES AND FUNCTIONS USED IN SAAS
+#Region UtilityProceduresAndFunctionsOnSaaSSide
 
 // For internal use
 // 
@@ -102,6 +109,9 @@ EndProcedure
 
 // For internal use
 // 
+// Returns:
+//  Boolean - "True" if the application has exactly one exchange plan for the standalone mode
+//
 Function StandaloneModeSupported() Export
 	
 	Return DataExchangeCached.StandaloneModeSupported();
@@ -110,6 +120,9 @@ EndFunction
 
 // For internal use
 // 
+// Returns:
+//  Number
+//
 Function StandaloneWorkstationsCount() Export
 	
 	TextTemplate1 = "ExchangePlan.%1";
@@ -138,6 +151,10 @@ EndFunction
 
 // For internal use
 // 
+// Returns:
+//  - Undefined - See DataExchangeServer.MasterNode
+//  - ExchangePlanRef
+//
 Function ApplicationInSaaS() Export
 	
 	SetPrivilegedMode(True);
@@ -156,6 +173,10 @@ EndFunction
 
 // For internal use
 // 
+// Returns:
+//  - Undefined
+//  - ExchangePlanRef
+//
 Function StandaloneWorkstation() Export
 	
 	TextTemplate1 = "ExchangePlan.%1";
@@ -190,14 +211,16 @@ EndFunction
 
 // For internal use
 // 
+// Returns:
+//  String - Name of the "ExchangePlan" metadata object that is a standalone workstation
+//  
 Function StandaloneModeExchangePlan() Export
 	
 	Return DataExchangeCached.StandaloneModeExchangePlan();
 	
 EndFunction
 
-// For internal use
-// 
+//  See DataExchangeServer.IsStandaloneWorkstationNode.
 Function IsStandaloneWorkstationNode(Val InfobaseNode) Export
 	
 	SetPrivilegedMode(True);
@@ -208,6 +231,13 @@ EndFunction
 
 // For internal use
 // 
+// Parameters:
+//  StandaloneWorkstation - ExchangePlanRef - Reference to the exchange plan node,
+// 
+// Returns:
+//  - Undefined - In case the last sync date for the given node is unspecified
+//  - Date
+//
 Function LastSuccessfulSynchronizationDate(StandaloneWorkstation) Export
 	
 	QueryText =
@@ -237,6 +267,9 @@ EndFunction
 
 // For internal use
 // 
+// Returns:
+//  String
+//
 Function GenerateDefaultStandaloneWorkstationDescription() Export
 	
 	TextTemplate1 = "ExchangePlan.%1";
@@ -277,6 +310,12 @@ EndFunction
 
 // For internal use
 // 
+// Parameters:
+//  LastPrefix - String
+// 
+// Returns:
+//  String - Prefix of the standalone workstation
+//
 Function GenerateStandaloneWorkstationPrefix(Val LastPrefix = "") Export
 	
 	AllowedChars = StandaloneWorkstationPrefixAllowedChars();
@@ -310,6 +349,9 @@ EndFunction
 
 // For internal use
 // 
+// Returns:
+//  String
+//
 Function InstallPackageFileName() Export
 	
 	Return NStr("en = 'Standalone mode.zip';");
@@ -318,6 +360,12 @@ EndFunction
 
 // For internal use
 // 
+// Parameters:
+//  StandaloneWorkstation - ExchangePlanRef - A reference to the exchange plan node
+// 
+// Returns:
+//  String 
+//
 Function DataTransferRestrictionsDetails(StandaloneWorkstation) Export
 	
 	StandaloneModeExchangePlan = StandaloneModeExchangePlan();
@@ -368,6 +416,9 @@ EndFunction
 
 // For internal use
 // 
+// Returns:
+//  ValueTable - Standalone workstation monitor
+//
 Function StandaloneWorkstationsMonitor() Export
 	
 	TextTemplate1 = "ExchangePlan.%1";
@@ -423,6 +474,9 @@ EndFunction
 
 // For internal use
 // 
+// Returns:
+//  String - Log event: Standalone workstation created
+//
 Function StandaloneWorkstationCreationEventLogMessageText() Export
 	
 	Return NStr("en = 'Standalone mode.Create standalone workstation';", Common.DefaultLanguageCode());
@@ -431,6 +485,9 @@ EndFunction
 
 // For internal use
 // 
+// Returns:
+//  String - Event details
+//
 Function StandaloneWorkstationDeletionEventLogMessageText() Export
 	
 	Return NStr("en = 'Standalone mode.Delete standalone workstation';", Common.DefaultLanguageCode());
@@ -439,6 +496,12 @@ EndFunction
 
 // For internal use
 // 
+// Parameters:
+//  TemplateName - String - Name of the "StandaloneWorkstationCreationWizard" data processor
+// 
+// Returns:
+//  String 
+//
 Function InstructionTextFromTemplate(Val TemplateName) Export
 	
 	Result = DataProcessors.StandaloneWorkstationCreationWizard.GetTemplate(TemplateName).GetText();
@@ -447,8 +510,9 @@ Function InstructionTextFromTemplate(Val TemplateName) Export
 	Return Result;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// INTERNAL PROCEDURES AND FUNCTIONS USED IN THE STANDALONE MODE
+#EndRegion
+
+#Region UtilityProceduresAndFunctionsOnStandaloneWorkstationSide
 
 // For internal use
 // 
@@ -482,7 +546,7 @@ Procedure SynchronizeDataWithWebApplication() Export
 	EndIf;
 	
 	ExchangeParameters = DataExchangeServer.ExchangeParameters();
-	ExchangeParameters.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WS;
+	ExchangeParameters.TransportID = "WS";
 	ExchangeParameters.ExecuteImport1 = True;
 	ExchangeParameters.ExecuteExport2 = True;
 	
@@ -501,6 +565,9 @@ EndProcedure
 
 // For internal use.
 // 
+// Parameters:
+//  DataImport - Boolean - By default, it is set to "False".
+//
 Procedure PerformStandaloneWorkstationSetupOnFirstStart(DataImport = False) Export
 	
 	If Not Common.FileInfobase() Then
@@ -534,21 +601,13 @@ Procedure DisableAutoDataSyncronizationWithWebApplication(Source) Export
 	
 	If Not Common.DataSeparationEnabled() Then
 		
-		DisableAutomaticSynchronization = False;
+		Parameters = ExchangeMessagesTransport.InitializationParameters();
+		Parameters.Peer = Source.Peer;
+		Parameters.TransportID = Source.TransportID;
 		
-		For Each SetRow In Source Do
-			
-			If SetRow.DefaultExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WS
-				And Not SetRow.WSRememberPassword Then
-				
-				DisableAutomaticSynchronization = True;
-				Break;
-				
-			EndIf;
-			
-		EndDo;
+		Transport = ExchangeMessagesTransport.Initialize(Parameters);
 		
-		If DisableAutomaticSynchronization Then
+		If Transport.AuthenticationRequired() Then
 			
 			SetPrivilegedMode(True);
 			
@@ -563,6 +622,9 @@ EndProcedure
 
 // For internal use
 // 
+// Returns:
+//  Boolean 
+//
 Function MustPerformStandaloneWorkstationSetupOnFirstStart() Export
 	
 	SetPrivilegedMode(True);
@@ -572,6 +634,9 @@ EndFunction
 
 // For internal use
 // 
+// Returns:
+//  Boolean 
+//
 Function SynchronizeDataWithWebApplicationOnStart() Export
 	
 	Return IsStandaloneWorkplace()
@@ -584,6 +649,9 @@ EndFunction
 
 // For internal use
 // 
+// Returns:
+//  Boolean
+//
 Function SynchronizeDataWithWebApplicationOnExit() Export
 	
 	Return IsStandaloneWorkplace()
@@ -595,6 +663,13 @@ EndFunction
 
 // For internal use
 // 
+// Returns:
+//  JobSchedule:
+//    *Months - Array of Number 
+//    *WeekDays - Array of Number
+//    *RepeatPeriodInDay - Number - 60 minutes.
+//    *DaysRepeatPeriod - Number
+//
 Function DefaultDataSynchronizationSchedule() Export // Every hour.
 	
 	Months = New Array;
@@ -618,6 +693,9 @@ EndFunction
 
 // For internal use
 // 
+// Returns:
+//   See DataExchangeServer.IsStandaloneWorkplace
+//
 Function IsStandaloneWorkplace() Export
 	
 	Return DataExchangeServer.IsStandaloneWorkplace();
@@ -626,6 +704,12 @@ EndFunction
 
 // For internal use
 // 
+// Returns:
+//  Structure:
+//   * InfobaseNode - See ApplicationInSaaS 
+//   * AccountPasswordRecoveryAddress - See AccountPasswordRecoveryAddress
+//   * CloseOnSynchronizationDone - Boolean - The default value is "True".
+//
 Function DataExchangeExecutionFormParameters() Export
 	
 	Return New Structure("InfobaseNode, AccountPasswordRecoveryAddress, CloseOnSynchronizationDone",
@@ -633,6 +717,12 @@ Function DataExchangeExecutionFormParameters() Export
 EndFunction
 
 // For internal use
+// 
+// Parameters:
+//  Interval - Number - By default, 1 hour.
+// 
+// Returns:
+//  Boolean 
 // 
 Function SynchronizationWithServiceNotExecutedLongTime(Val Interval = 3600) Export // Default interval value is 1 hour
 	
@@ -912,13 +1002,15 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 #Region Private
 
 Procedure SetRegistersTotalsUsage(Flagusage)
 	
 	SessionDate = CurrentSessionDate();
 	AccumulationRegisterPeriod  = EndOfMonth(AddMonth(SessionDate, -1)); // End of the last month.
-	AccountingRegisterPeriod = EndOfMonth(SessionDate); // End of the last month.
+	AccountingRegisterPeriod = EndOfMonth(SessionDate); // End of the current month.
 	
 	KindBalance = Metadata.ObjectProperties.AccumulationRegisterType.Balance;
 	
@@ -1065,13 +1157,10 @@ Procedure DoImportParametersFromInitialImage()
 		Constants.SubordinateDIBNodeSetupCompleted.Set(True);
 		
 		// Add a record to the exchange transport information register.
-		RecordStructure = New Structure;
-		RecordStructure.Insert("DefaultExchangeMessagesTransportKind", Enums.ExchangeMessagesTransportTypes.WS);
-		RecordStructure.Insert("WSUseLargeVolumeDataTransfer", True);
-		RecordStructure.Insert("WSWebServiceURL", Parameters.URL);
-		RecordStructure.Insert("Peer", ApplicationInSaaS());
-		
-		InformationRegisters.DataExchangeTransportSettings.AddRecord(RecordStructure);
+		Peer = ApplicationInSaaS();
+		TransportSettings = New Structure();
+		TransportSettings.Insert("WebServiceAddress", Parameters.URL);
+		ExchangeMessagesTransport.SaveTransportSettings(Peer, "WS", TransportSettings, True);
 		
 		// Add a record to the information register of common infobase node settings.
 		RecordStructure = New Structure;
@@ -1395,8 +1484,7 @@ Function DataSynchronizationEventLogEvent()
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Handlers of conditional calls of other subsystems
+#Region HandlersOfConditionalCallsToOtherSubsystems
 
 // The function checks whether a passed object is included in the exception list.
 Function MetadataObjectIsException(Val MetadataObject)
@@ -1417,5 +1505,7 @@ Function MetadataObjectIsException(Val MetadataObject)
 	Return IsDIBNodeInitialImageObject(MetadataObject);
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion

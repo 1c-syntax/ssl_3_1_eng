@@ -31,14 +31,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If ValueIsFilled(ErrorDescription) Then
 		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, "ErrorDescription");
-		Items.Instruction.Visible     = 
-			DigitalSignatureInternal.VisibilityOfRefToAppsTroubleshootingGuide();
 	ElsIf ValueIsFilled(AdditionalAttributesManualCheckJustification) Then
 		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, "ManualVerification");
-		Items.Instruction.Visible     = False;
 	Else
 		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, "");
-		Items.Instruction.Visible     = False;
 	EndIf;
 	
 	If Not IsTempStorageURL(SignatureAddress) Then
@@ -83,13 +79,6 @@ EndProcedure
 
 #Region FormHeaderItemsEventHandlers
 
-&AtClient
-Procedure InstructionClick(Item)
-	
-	DigitalSignatureClient.OpenInstructionOnTypicalProblemsOnWorkWithApplications();
-	
-EndProcedure
-
 
 #EndRegion
 
@@ -119,7 +108,7 @@ Procedure OpenCertificateToVerifySignature(Command)
 	
 	If Not ArePropertiesRead Or ValueIsFilled(SignatureReadError) Then
 		DigitalSignatureClient.ReadSignatureProperties(
-			New NotifyDescription("AfterSignaturePropertiesRead", ThisObject), SignatureAddress);
+			New CallbackDescription("AfterSignaturePropertiesRead", ThisObject), SignatureAddress);
 		Return;
 	Else
 		OpenCertificateRead();
@@ -130,7 +119,7 @@ EndProcedure
 &AtClient
 Procedure ExtendActionSignature(Command)
 	
-	FollowUpHandler = New NotifyDescription("AfterImprovementSignature", ThisObject);
+	FollowUpHandler = New CallbackDescription("AfterImprovementSignature", ThisObject);
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("SignatureType", SignatureType);
@@ -199,7 +188,7 @@ EndProcedure
 &AtServer
 Procedure UpdateFormData()
 	
-	If DigitalSignature.AvailableAdvancedSignature() And DigitalSignature.AddEditDigitalSignatures() Then
+	If DigitalSignature.AddEditDigitalSignatures() Then
 		If (ValueIsFilled(DateActionLastTimestamp) And DateActionLastTimestamp <= CurrentSessionDate())
 			Or SignatureType = Enums.CryptographySignatureTypes.NormalCMS Or Not SignatureCorrect Then
 			Items.FormExtendActionSignature.Visible = False;

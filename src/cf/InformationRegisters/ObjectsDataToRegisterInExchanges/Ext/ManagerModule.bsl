@@ -90,7 +90,7 @@ Procedure DeleteRecord(RecordStructure, Load = False)
 		LockItem.SetValue("InfobaseNode", RecordStructure.InfobaseNode);
 		Block.Lock();
 		
-		// Use the set to support DataExchange.Import.
+		// Use the set to support DataExchange.Load.
 		RecordSet = InformationRegisters.ObjectsDataToRegisterInExchanges.CreateRecordSet();
 		RecordSet.Filter.Ref.Set(RecordStructure.Ref, True);
 		RecordSet.Filter.InfobaseNode.Set(RecordStructure.InfobaseNode, True);

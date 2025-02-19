@@ -105,7 +105,7 @@ Procedure Set(Command)
 	
 	CertificateInstallationParameters = DigitalSignatureInternalClient.CertificateInstallationParameters(Parameters.Certificate);
 	CertificateInstallationParameters.Form = ThisObject;
-	CertificateInstallationParameters.CallbackOnCompletion = New NotifyDescription("AfterInstallingTheCertificate", ThisObject, CertificateInstallationParameters);
+	CertificateInstallationParameters.CallbackOnCompletion = New CallbackDescription("AfterInstallingTheCertificate", ThisObject, CertificateInstallationParameters);
 	
 	If InstallationOption = "Container" Then
 		
@@ -118,12 +118,12 @@ Procedure Set(Command)
 		ContainerProperties = DigitalSignatureInternalClient.ContainerNewProperties();
 		FillPropertyValues(ContainerProperties, CurrentData);
 		CertificateInstallationParameters.ContainerProperties = ContainerProperties;
-		CertificateInstallationParameters.Store = NStr("en = 'container';");
+		CertificateInstallationParameters.Storage = NStr("en = 'container';");
 		
 	Else
 		
 		ListItem = Items.InstallationOption.ChoiceList.FindByValue(InstallationOption);
-		CertificateInstallationParameters.Store = New Structure("Value, Presentation", InstallationOption, ListItem.Presentation);
+		CertificateInstallationParameters.Storage = New Structure("Value, Presentation", InstallationOption, ListItem.Presentation);
 		
 	EndIf;
 	

@@ -79,6 +79,27 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	
 EndProcedure
 
+&AtServer
+Procedure OnLoadDataFromSettingsAtServer(Settings)
+	
+	EventsToDisplay.Clear();
+
+	If Events.Count() = 0 Then
+		Events = DefaultEvents;
+		Return;
+	EndIf;
+
+	If Not CommonClientServer.ValueListsAreEqual(DefaultEvents, Events) Then
+		EventsToDisplay = Events.Copy();
+	EndIf;
+	
+	Items.Data.Visible = Not DataMultipleValues;
+	Items.Data_List.Visible = DataMultipleValues;
+	
+	RefreshFormGroupTitles();
+	
+EndProcedure
+
 #EndRegion
 
 #Region FormHeaderItemsEventHandlers
@@ -162,7 +183,7 @@ EndProcedure
 &AtClient
 Procedure FilterPeriodOnChange(Item)
 	
-	HandlerNotifications = New NotifyDescription("FilterPeriodOnChangeCompletion", ThisObject);
+	HandlerNotifications = New CallbackDescription("FilterPeriodOnChangeCompletion", ThisObject);
 	
 	Dialog = New StandardPeriodEditDialog;
 	Dialog.Period = FilterDateRange;
@@ -273,6 +294,29 @@ Procedure ClearTransactionStatuses(Command)
 	For Each ListItem In TransactionStatus Do
 		ListItem.Check = False;
 	EndDo;
+EndProcedure
+
+&AtClient
+Procedure SaveSettingsToFile(Command)
+
+	TempStorageAddress =  SaveSettingsToTempStorage();
+	
+	FileSavingParameters = FileSystemClient.FileSavingParameters();                            
+	FileSavingParameters.Dialog.Filter = NStr("en = 'Event log settings';") + "(*.xml)|*.xml";
+	FileSystemClient.SaveFile(Undefined, TempStorageAddress, "Settings.xml", FileSavingParameters);
+	
+EndProcedure
+
+&AtClient
+Procedure ImportSettingsFromFile(Command)
+	
+	FileImportParameters = FileSystemClient.FileImportParameters();   
+	FileImportParameters.Dialog.Title = NStr("en = 'Choose a file with event log filter settings';");
+	FileImportParameters.Dialog.Filter = NStr("en = 'XML file';") + "(*.xml)|*.xml";
+	
+	NotifyDescription = New CallbackDescription("ImportSettingsFromFileCompletion", ThisObject);
+	FileSystemClient.ImportFile_(NotifyDescription, FileImportParameters);
+	
 EndProcedure
 
 #EndRegion
@@ -629,6 +673,421 @@ Function CompleteListOfSeparators(Parameter)
 	EndDo;
 	
 	Return List;
+	
+EndFunction
+
+&AtServer
+Procedure RefreshFormGroupTitles()
+	
+	SelectedStatusesCount = CommonClientServer.MarkedItems(TransactionStatus).Count();
+	If SelectedStatusesCount <> TransactionStatus.Count() 
+		Or ValueIsFilled(Transaction) Then
+		Items.TransactionsGroup.Title = Items.TransactionsGroup.Title + " *";
+	EndIf;
+	
+	If ValueIsFilled(WorkingServers)
+		Or ValueIsFilled(PrimaryIPPorts)
+		Or ValueIsFilled(SecondaryIPPorts) Then
+		Items.OthersGroup.Title = Items.OthersGroup.Title + " *";
+	EndIf;
+	
+EndProcedure
+
+&AtServer
+Function SaveSettingsToTempStorage() 
+			
+	SavingSettings = SavingSettings();
+	
+	XMLWriter = New XMLWriter;
+	XMLWriter.SetString();
+	XMLWriter.WriteXMLDeclaration();
+	XMLWriter.WriteStartElement("Filters");
+
+	XMLWriter.WriteStartElement("MainFilters");
+	XDTOSerializer.WriteXML(XMLWriter, SavingSettings, XMLTypeAssignment.Explicit);
+
+	XMLWriter.WriteEndElement();
+	
+	If DataMultipleValues Then		
+		For Each FilteredData In Data_List Do
+			XMLWriter.WriteStartElement("DataFilters");
+			XDTOSerializer.WriteXML(XMLWriter, FilteredData.Value, XMLTypeAssignment.Explicit);
+			XMLWriter.WriteEndElement();
+		EndDo;		
+	ElsIf ValueIsFilled(Data) Then
+   		XMLWriter.WriteStartElement("DataFilters");	
+		XDTOSerializer.WriteXML(XMLWriter, Data, XMLTypeAssignment.Explicit);		
+		XMLWriter.WriteEndElement();
+	EndIf;
+     	
+	XMLWriter.WriteEndElement();
+
+	XMLLine = XMLWriter.Close();
+	
+	BinaryData = GetBinaryDataFromString(XMLLine);
+    TempFileStorageAddress = PutToTempStorage(BinaryData, UUID);
+	
+	Return TempFileStorageAddress;
+	
+EndFunction
+
+&AtServer
+Function SavingSettings()
+	
+	SavingSettings = New ValueList();
+	SavingSettings.Add(Importance, "Level");
+	If CommonClientServer.ValueListsAreEqual(DefaultEvents, Events) Then
+		SavingSettings.Add(New ValueList(), "Event");
+	Else
+		SavingSettings.Add(Events, "Event");
+	EndIf;
+	SavingSettings.Add(Metadata, "Metadata");
+	SavingSettings.Add(FilterPeriodStartDate, "StartDate");
+	SavingSettings.Add(FilterPeriodEndDate, "EndDate");
+	SavingSettings.Add(UsersList, "User");
+	SavingSettings.Add(Applications, "ApplicationName");
+	SavingSettings.Add(Computers, "Computer");
+	SavingSettings.Add(SessionsString, "Sessions");
+	SavingSettings.Add(DataPresentation, "DataPresentation");
+	SavingSettings.Add(TransactionStatus, "TransactionStatus");
+	SavingSettings.Add(WorkingServers, "ServerName");
+	SavingSettings.Add(SessionDataSeparation, "SessionDataSeparation");
+	SavingSettings.Add(Transaction, "TransactionID");
+	SavingSettings.Add(Comment, "Comment");   
+	SavingSettings.Add(PrimaryIPPorts, "Port");
+	SavingSettings.Add(SecondaryIPPorts, "SyncPort");
+	SavingSettings.Add(DataAreas, "DataArea");
+		
+	Return SavingSettings;
+	
+EndFunction
+
+&AtClient
+Procedure ImportSettingsFromFileCompletion(Result, AdditionalParameters) Export
+	
+	If Result = Undefined Then
+		Return;
+	EndIf;	
+	
+	ImportSettingsFromFileAtServer(Result.Location);
+	ShowUserNotification(NStr("en = 'Filter settings';"),, NStr("en = 'Filter settings are imported';"));
+	
+EndProcedure
+
+&AtServer
+Procedure ImportSettingsFromFileAtServer(AddressInTempStorage)
+	
+	ListOfFilterParametersFromFile = SettingsFromFile(AddressInTempStorage);
+	
+	ApplySettingsFromFile(ListOfFilterParametersFromFile);
+	
+	EventsToDisplay.Clear();
+	If Events.Count() = 0 Then
+		Events = DefaultEvents;
+		Return;
+	EndIf;
+	
+	If Not CommonClientServer.ValueListsAreEqual(DefaultEvents, Events) Then
+		EventsToDisplay = Events.Copy();
+	EndIf;
+	
+EndProcedure
+
+&AtServer
+Function SettingsFromFile(AddressInTempStorage)
+	
+	BinaryData = GetFromTempStorage(AddressInTempStorage);
+
+	XMLLine = GetStringFromBinaryData(BinaryData);	
+	XMLReader = New XMLReader;
+	XMLReader.SetString(XMLLine);
+	
+	DataArray = New Array;
+	Filter_Settings = New ValueList;
+	
+	While XMLReader.Read() Do	
+		 
+		If XMLReader.NodeType = XMLNodeType.StartElement Then
+			
+			If XMLReader.Name = "MainFilters" Then
+				XMLReader.Read();
+				Filter_Settings = XDTOSerializer.ReadXML(XMLReader);
+			ElsIf XMLReader.Name = "DataFilters" Then
+				XMLReader.Read(); 			
+				XMLType = XDTOSerializer.GetXMLType(XMLReader);
+				If XMLType = XMLType(Type("String"))
+					Or XMLType = XMLType(Type("Date"))
+					Or XMLType = XMLType(Type("Number"))
+					Or XMLType = XMLType(Type("Boolean")) Then
+					DataArray.Add(XDTOSerializer.ReadXML(XMLReader));
+				Else
+					Value = XDTOSerializer.ReadXML(XMLReader);
+					If ValueIsFilled(Value) 
+						And TypeOf(Value) <> Type("String")
+						And Common.RefExists(Value) Then
+						DataArray.Add(Value);	
+					EndIf;
+				EndIf;
+			EndIf;
+		EndIf;
+		
+	EndDo;
+	
+	Filter_Settings.Add(DataArray, "Data");
+	
+	XMLReader.Close();
+	
+	Return Filter_Settings;	
+	
+EndFunction
+
+&AtServer
+Procedure ApplySettingsFromFile(FilterParameterList)
+		
+	AvailableSelections = AvailableEventLogFilters();
+	
+	For Each FilterParameter In FilterParameterList Do
+		
+		ParameterName = FilterParameter.Presentation;
+		Value     = FilterParameter.Value;
+		
+		If Upper(ParameterName) = Upper("StartDate") Then
+			// StartDate
+			FilterDateRange.StartDate = Value;
+			FilterPeriodStartDate  = Value;
+			
+		ElsIf Upper(ParameterName) = Upper("EndDate") Then
+			// EndDate
+			FilterDateRange.EndDate = Value;
+			FilterPeriodEndDate  = Value;
+			
+		ElsIf Upper(ParameterName) = Upper("User") Then
+			// User
+			UsersList = AvailableFilterValues(Value, AvailableSelections, "User");
+			
+		ElsIf Upper(ParameterName) = Upper("Event") Then
+			// Event
+			Events = AvailableFilterValues(Value, AvailableSelections, "Event");
+			
+		ElsIf Upper(ParameterName) = Upper("Computer") Then
+			// Computer
+			Computers = AvailableFilterValues(Value, AvailableSelections, "Computer");
+			
+		ElsIf Upper(ParameterName) = Upper("ApplicationName") Then
+			// ApplicationName
+			Applications = AvailableFilterValues(Value, AvailableSelections, "ApplicationName");
+			
+		ElsIf Upper(ParameterName) = Upper("Comment") Then
+			// Comment
+			Comment = Value;
+		 	
+		ElsIf Upper(ParameterName) = Upper("Metadata") Then
+			// Metadata
+			Metadata = AvailableFilterValues(Value, AvailableSelections, "Metadata");
+			
+		ElsIf Upper(ParameterName) = Upper("Data") Then
+			// Data
+			If ValueIsFilled(Value) And Value.Count() > 1 Then 
+				DataMultipleValues = True;
+				Data_List.LoadValues(Value);
+			ElsIf ValueIsFilled(Value) And Value.Count() = 1 Then
+				DataMultipleValues = False;
+				Data = Value[0];
+			Else
+				Data = Undefined;
+				Data_List.Clear();
+			EndIf;
+			
+			Items.Data.Visible = Not DataMultipleValues;
+			Items.Data_List.Visible = DataMultipleValues;
+						
+		ElsIf Upper(ParameterName) = Upper("DataPresentation") Then
+			// DataPresentation
+			DataPresentation = Value;
+			
+		ElsIf Upper(ParameterName) = Upper("TransactionID") Then
+			// TransactionID
+			Transaction = Value;
+			
+		ElsIf Upper(ParameterName) = Upper("ServerName") Then
+			// ServerName
+			WorkingServers = AvailableFilterValues(Value, AvailableSelections, "ServerName");
+			
+		ElsIf Upper(ParameterName) = Upper("Sessions") Then
+			// Sessions
+			SessionsString = Value;
+			
+		ElsIf Upper(ParameterName) = Upper("Port") Then
+			// Port
+			PrimaryIPPorts = AvailableFilterValues(Value, AvailableSelections, "PrimaryIPPort");
+			
+		ElsIf Upper(ParameterName) = Upper("SyncPort") Then
+			// SyncPort
+			SecondaryIPPorts = AvailableFilterValues(Value, AvailableSelections, "SyncPort");
+			
+		ElsIf Upper(ParameterName) = Upper("Level") Then
+			// Level
+			For Each ValueListItem In Importance Do
+				SettingValue = Value.FindByValue(ValueListItem.Value);
+				If SettingValue <> Undefined Then
+					ValueListItem.Check = SettingValue.Check;
+				Else
+					ValueListItem.Check = False;
+				EndIf;
+			EndDo;
+			
+		ElsIf Upper(ParameterName) = Upper("TransactionStatus") Then
+			// TransactionStatus
+			For Each ValueListItem In TransactionStatus Do
+				SettingValue = Value.FindByValue(ValueListItem.Value);
+				If SettingValue <> Undefined Then
+					ValueListItem.Check = SettingValue.Check;
+				Else
+					ValueListItem.Check = False;
+				EndIf;
+			EndDo;
+			
+		ElsIf Items.SessionDataSeparation.Visible And Upper(ParameterName) = Upper("SessionDataSeparation") Then
+			// SessionDataSeparation
+			If TypeOf(Value) = Type("ValueList") Then
+				SessionDataSeparation = AvailableSessionDataSeparators(Value);
+			EndIf;			
+			
+		ElsIf Items.DataAreas.Visible And Upper(ParameterName) = Upper("DataArea") Then
+			// DataArea
+			DataAreas = AvailableFilterValues(Value, AvailableSelections.SessionDataSeparationValues, 
+				"DataAreaMainData");
+			SessionDataSeparation = CompleteListOfSeparators(DataAreas);
+			
+		EndIf;
+		
+	EndDo;
+	
+	RefreshFormGroupTitles();
+	
+EndProcedure  
+
+&AtServer
+Function AvailableFilterValues(FilterValue, AvailableSelections, FilterParameterName)
+
+	Result = New ValueList();
+	
+	AvailableFilterValues = AvailableSelections[FilterParameterName];
+	
+	If TypeOf(AvailableFilterValues) = Type("Array") Then
+		For Each FilterElement In FilterValue Do
+			If AvailableFilterValues.Find(FilterElement.Value) <> Undefined Then
+				Result.Add(FilterElement.Value, FilterElement.Presentation);
+			EndIf;			
+		EndDo;
+			
+	ElsIf TypeOf(AvailableFilterValues) = Type("Map") Then
+		For Each FilterElement In FilterValue Do
+			If AvailableFilterValues[FilterElement.Value] <> Undefined Then
+				Result.Add(FilterElement.Value, FilterElement.Presentation);
+			EndIf;
+		EndDo;
+			
+	ElsIf TypeOf(AvailableFilterValues) = Type("ValueList") Then
+		For Each FilterElement In FilterValue Do
+			ValueFound = AvailableFilterValues.FindByValue(FilterElement.Presentation);
+			If ValueFound <> Undefined Then
+				Result.Add(ValueFound.Presentation, ValueFound.Value);
+			EndIf;
+		EndDo;
+		
+	EndIf;
+	
+	Return Result;	
+	
+EndFunction
+
+&AtServerNoContext
+Function AvailableEventLogFilters()
+	
+	ParametersToSelect = "User, Event, Computer, ApplicationName, Metadata, ServerName, 
+	|	PrimaryIPPort, SyncPort, SessionDataSeparation.DataAreaMainData"; 
+	
+	AvailableFilterParameters = GetEventLogFilterValues(ParametersToSelect);
+	
+	ListOfUsersToFilter = New ValueList;
+	
+	UsersFilterValues = AvailableFilterParameters["User"];
+	
+	For Each MapItem In UsersFilterValues Do
+		
+		ListOfUsersToFilter.Add(MapItem.Value, String(MapItem.Key));
+		
+	EndDo;
+	
+	SetPrivilegedMode(True);
+	EmptyInfobaseUser = InfoBaseUsers.FindByName("");
+	SetPrivilegedMode(False);
+	ListOfUsersToFilter.Add(Users.UnspecifiedUserFullName(), 
+		String(EmptyInfobaseUser.UUID));
+	
+	AvailableFilterParameters["User"] = ListOfUsersToFilter;	
+	
+	If Not Common.SeparatedDataUsageAvailable() Then
+		AvailableFilterParameters.SessionDataSeparationValues["DataAreaMainData"].Insert("", NStr("en = '<Not set>';"));
+	EndIf;
+	
+	ProcessAvailableSelectionParameters(AvailableFilterParameters);
+	
+	Return AvailableFilterParameters;
+	
+EndFunction
+
+&AtServerNoContext
+Procedure ProcessAvailableSelectionParameters(AvailableFilterParameters)
+	
+	For Each FilterParameter In AvailableFilterParameters Do
+		If FilterParameter.Key = "SessionDataSeparationValues" Then
+			ConvertedSet = New Map;
+			For Each MapItem In FilterParameter.Value["DataAreaMainData"] Do
+				ConvertedSet.Insert(Format(MapItem.Key, "NG="), MapItem.Value);
+			EndDo;
+			
+			FilterParameter.Value["DataAreaMainData"] = ConvertedSet;
+
+		EndIf
+	EndDo;
+	
+EndProcedure
+
+&AtServerNoContext
+Function AvailableSessionDataSeparators(Value)
+	
+	Result = New ValueList;
+	
+	DataSeparationMap = New Map;
+	If Value.Count() > 0 Then
+		For Each SessionSeparator In Value Do
+			DataSeparationArray = StrSplit(SessionSeparator.Value, "=");
+			DataSeparationMap.Insert(DataSeparationArray[0], DataSeparationArray[1]);
+		EndDo;                     	
+	EndIf;
+	
+	If DataSeparationMap.Count()  = 0 Then
+		Return Result;
+	EndIf;
+	
+	For Each CommonAttribute In Metadata.CommonAttributes Do
+		
+		If CommonAttribute.DataSeparation = Metadata.ObjectProperties.CommonAttributeDataSeparation.DontUse Then
+			Continue;
+		EndIf;
+		
+		FoundSeparatorValue = DataSeparationMap[CommonAttribute.Name];
+		If FoundSeparatorValue <> Undefined Then
+			SeparatorValue = CommonAttribute.Name + "=" + FoundSeparatorValue;
+			SeparatorPresentation = CommonAttribute.Synonym + " = " + FoundSeparatorValue;
+			Result.Add(SeparatorValue, SeparatorPresentation);
+		EndIf;
+		
+	EndDo;
+	
+	Return Result;
 	
 EndFunction
 

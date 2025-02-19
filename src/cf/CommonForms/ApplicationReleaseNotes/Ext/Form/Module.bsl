@@ -193,8 +193,8 @@ EndProcedure
 Procedure ScheduledJobsDisabledURLProcessing(Item, FormattedStringURL, StandardProcessing)
 	StandardProcessing = False;
 	
-	Notification = New NotifyDescription("ScheduledJobsDisabledURLProcessingCompletion", ThisObject);
-	QueryText = NStr("en = 'Restart the app?';");
+	Notification = New CallbackDescription("ScheduledJobsDisabledURLProcessingCompletion", ThisObject);
+	QueryText = NStr("en = 'Restart the application?';");
 	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo,, DialogReturnCode.No);
 EndProcedure
 

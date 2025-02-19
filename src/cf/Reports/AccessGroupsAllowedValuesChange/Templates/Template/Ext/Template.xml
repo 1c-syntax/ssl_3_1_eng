@@ -178,7 +178,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>App</v8:content>
+					<v8:content>Application</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -254,7 +254,7 @@
 			<presentationExpression>SourcePresentation</presentationExpression>
 			<valueType>
 				<v8:Type>xs:string</v8:Type>
-				<v8:TypeSet xmlns:d5p1="http://v8.1c.ru/8.1/data/enterprise/current-config">d5p1:AnyRef</v8:TypeSet>
+				<v8:TypeSet xmlns:d5p1="http://v8.1c.ru/8.1/data/enterprise/current-config">d5p1:AnyIBRef</v8:TypeSet>
 				<v8:StringQualifiers>
 					<v8:Length>100</v8:Length>
 					<v8:AllowedLength>Variable</v8:AllowedLength>
@@ -290,7 +290,7 @@
 			<presentationExpression>AccessKindChangeKind + " " + AccessKindPresentation</presentationExpression>
 			<valueType>
 				<v8:Type>xs:string</v8:Type>
-				<v8:TypeSet xmlns:d5p1="http://v8.1c.ru/8.1/data/enterprise/current-config">d5p1:AnyRef</v8:TypeSet>
+				<v8:TypeSet xmlns:d5p1="http://v8.1c.ru/8.1/data/enterprise/current-config">d5p1:AnyIBRef</v8:TypeSet>
 				<v8:StringQualifiers>
 					<v8:Length>100</v8:Length>
 					<v8:AllowedLength>Variable</v8:AllowedLength>
@@ -399,7 +399,7 @@
 			<presentationExpression>AccessValueChangeKind + " " + ValueOrGroupPresentation</presentationExpression>
 			<valueType>
 				<v8:Type>xs:string</v8:Type>
-				<v8:TypeSet xmlns:d5p1="http://v8.1c.ru/8.1/data/enterprise/current-config">d5p1:AnyRef</v8:TypeSet>
+				<v8:TypeSet xmlns:d5p1="http://v8.1c.ru/8.1/data/enterprise/current-config">d5p1:AnyIBRef</v8:TypeSet>
 				<v8:StringQualifiers>
 					<v8:Length>100</v8:Length>
 					<v8:AllowedLength>Variable</v8:AllowedLength>
@@ -461,7 +461,7 @@
 			<presentationExpression>AccessValueChangeKind + " " + AccessValuePresentation</presentationExpression>
 			<valueType>
 				<v8:Type>xs:string</v8:Type>
-				<v8:TypeSet xmlns:d5p1="http://v8.1c.ru/8.1/data/enterprise/current-config">d5p1:AnyRef</v8:TypeSet>
+				<v8:TypeSet xmlns:d5p1="http://v8.1c.ru/8.1/data/enterprise/current-config">d5p1:AnyIBRef</v8:TypeSet>
 				<v8:StringQualifiers>
 					<v8:Length>100</v8:Length>
 					<v8:AllowedLength>Variable</v8:AllowedLength>
@@ -896,7 +896,7 @@
 						<dcsat:value xsi:type="v8:LocalStringType">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>R</v8:content>
+								<v8:content>M</v8:content>
 							</v8:item>
 						</dcsat:value>
 					</dcsat:item>

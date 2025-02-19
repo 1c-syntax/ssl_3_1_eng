@@ -44,7 +44,7 @@ EndFunction
 //  FullTableName - String - a name of the table that corresponds to the metadata object.
 // 
 // Returns:
-//  СтруктураНастроек - Structure - Metadata object properties:
+//  Structure - Metadata object properties.:
 //    * Synonym - String - synonym.
 //    * Hierarchical - String - the Hierarchical flag.
 //
@@ -58,14 +58,21 @@ EndFunction
 
 #Region Internal
 
+// ACC:299-off - The method is intended for backward compatibility when syncing via a COM connection.
+
+// 
 // Exports data for the infobase node to a temporary file.
-// (For internal use only).
+// The procedure is used during synchronization via COM connection with additional parameters.
+// Only peer infobases can call it (through an external connection), therefore, it is not implemented in this infobase.
 //
-Procedure ExportForInfobaseNode(Cancel,
-												ExchangePlanName,
-												InfobaseNodeCode,
-												FullNameOfExchangeMessageFile,
-												ErrorMessageString = "") Export
+// Parameters:
+//  Cancel - Boolean - Flag indicating whether an error occurred when preparing a message.
+//  ExchangePlanName - String - IFDE plan name.
+//  InfobaseNodeCode - String - String used to identify the exchange plan node with settings.
+//  FullNameOfExchangeMessageFile - String - Path to the file that will take the conversion result.
+//  ErrorMessageString - String - Error details.
+//
+Procedure ExportForInfobaseNode(Cancel, ExchangePlanName, InfobaseNodeCode, FullNameOfExchangeMessageFile, ErrorMessageString = "") Export
 	
 	DataExchangeServer.CheckDataExchangeUsage();
 	
@@ -100,6 +107,8 @@ Procedure ExportForInfobaseNode(Cancel,
 	
 EndProcedure
 
+// ACC:299-on
+
 // Records data exchange start in the event log.
 // (For internal use only).
 //
@@ -122,9 +131,14 @@ EndProcedure
 
 // Gets read object conversion rules by the exchange plan name.
 // (For internal use only).
-//
-//  Returns:
-//    Read object conversion rules.
+// 
+// Parameters:
+//  ExchangePlanName - String - Name of exchange plan as metadata object.
+//  GetCorrespondentRules - Boolean - By default, it is set to "False".
+// 
+// Returns:
+//  - Undefined
+//  - ValueStorage - Value storage with conversion rules
 //
 Function GetObjectConversionRules(ExchangePlanName, GetCorrespondentRules = False) Export
 	
@@ -134,7 +148,20 @@ EndFunction
 
 // Receives the structure of exchange settings.
 // (For internal use only).
-//
+// 
+// Parameters:
+//  Structure - Structure:
+//   *ExchangePlanName - String
+//   *CorrespondentExchangePlanName - String
+//   *CurrentExchangePlanNodeCode1 - String
+//   *TransactionItemsCount - Number
+//   *ActionOnStringExchange - String - Value of the ActionsOnExchange enumeration.
+//   *DebugMode - Boolean
+//   *ExchangeProtocolFileName - String
+// 
+// Returns:
+//   See DataExchangeServer.ExchangeOverExternalConnectionSettingsStructure
+// 
 Function ExchangeSettingsStructure(Structure) Export
 	
 	Return DataExchangeServer.ExchangeOverExternalConnectionSettingsStructure(DataExchangeEvents.CopyStructure(Structure));
@@ -143,6 +170,12 @@ EndFunction
 
 // Checks if the exchange plan with the specified name exists.
 // (For internal use only).
+// 
+// Parameters:
+//  ExchangePlanName - String - Name of exchange plan as metadata object.
+// 
+// Returns:
+//  Boolean - Exchange plan exists
 //
 Function ExchangePlanExists(ExchangePlanName) Export
 	
@@ -153,6 +186,10 @@ EndFunction
 // Gets the prefix of default infobase via external connection.
 // Wrapper of a function with the same name in the overridable module.
 // (For internal use only).
+// 
+// Returns:
+//  - Undefined
+//  - String
 //
 Function DefaultInfobasePrefix() Export
 	
@@ -164,6 +201,12 @@ Function DefaultInfobasePrefix() Export
 EndFunction
 
 // Checks whether it is necessary to check conversion rules for version differences.
+// 
+// Parameters:
+//  ExchangePlanName - String - Name of exchange plan as metadata object.
+// 
+// Returns:
+//   See DataExchangeServer.ExchangePlanSettingValue
 //
 Function WarnAboutExchangeRuleVersionMismatch(ExchangePlanName) Export
 	
@@ -174,6 +217,9 @@ EndFunction
 
 // Receives the flag of the FullAccess role availability.
 // (For internal use only).
+// 
+// Returns:
+//   See Users.IsFullUser
 //
 Function RoleAvailableFullAccess() Export
 	
@@ -183,6 +229,12 @@ EndFunction
 
 // Returns a name of a predefined exchange plan node.
 // (For internal use only).
+// 
+// Parameters:
+//  ExchangePlanName - String - Name of exchange plan as metadata object.
+// 
+// Returns:
+//   See DataExchangeServer.PredefinedExchangePlanNodeDescription
 //
 Function PredefinedExchangePlanNodeDescription(ExchangePlanName) Export
 	
@@ -192,6 +244,12 @@ EndFunction
 
 // Returns a code of a predefined exchange plan node.
 // (For internal use only).
+// 
+// Parameters:
+//  ExchangePlanName - String - Name of exchange plan as metadata object.
+// 
+// Returns:
+//   See DataExchangeServer.PredefinedExchangePlanNodeCode
 //
 Function PredefinedExchangePlanNodeCode(ExchangePlanName) Export
 	
@@ -200,6 +258,12 @@ Function PredefinedExchangePlanNodeCode(ExchangePlanName) Export
 EndFunction
 
 // For internal use.
+// 
+// Parameters:
+//  ExchangePlanName - String - Name of exchange plan as metadata object.
+// 
+// Returns:
+//  String - System presentation of the structure with the tables from the given exchange plan.
 //
 Function GetCommonNodesData(Val ExchangePlanName) Export
 	
@@ -210,6 +274,12 @@ Function GetCommonNodesData(Val ExchangePlanName) Export
 EndFunction
 
 // For internal use.
+// 
+// Parameters:
+//  ExchangePlanName - String - Name of exchange plan as metadata object
+// 
+// Returns:
+//  String - System presentation of the structure with the tables from the given exchange plan.
 //
 Function GetCommonNodesData_2_0_1_6(Val ExchangePlanName) Export
 	
@@ -220,6 +290,14 @@ Function GetCommonNodesData_2_0_1_6(Val ExchangePlanName) Export
 EndFunction
 
 // For internal use.
+// 
+// Parameters:
+//  ExchangePlanName - String - Name of exchange plan as metadata object.
+//  NodeCode - String 
+//  ErrorMessage - String
+// 
+// Returns:
+//  String - System presentation of the structure containing infobase parameters
 //
 Function GetInfobaseParameters(Val ExchangePlanName, Val NodeCode, ErrorMessage) Export
 	
@@ -228,6 +306,14 @@ Function GetInfobaseParameters(Val ExchangePlanName, Val NodeCode, ErrorMessage)
 EndFunction
 
 // For internal use.
+// 
+// Parameters:
+//  ExchangePlanName - String - Name of exchange plan as metadata object.
+//  NodeCode - String 
+//  ErrorMessage - String
+// 
+// Returns:
+//  String - Serialized presentation of the structure containing infobase parameters.
 //
 Function GetInfobaseParameters_2_0_1_6(Val ExchangePlanName, Val NodeCode, ErrorMessage) Export
 	
@@ -236,6 +322,15 @@ Function GetInfobaseParameters_2_0_1_6(Val ExchangePlanName, Val NodeCode, Error
 EndFunction
 
 // For internal use.
+// 
+// Parameters:
+//  ExchangePlanName - String - Name of exchange plan as metadata object.
+//  NodeCode - String 
+//  ErrorMessage - String
+//  AdditionalParameters - Structure - Structure of additional parameters
+// 
+// Returns:
+//  String - Serialized presentation of the structure containing infobase parameters.
 //
 Function GetInfobaseParameters_3_0_2_2(Val ExchangePlanName, Val NodeCode, ErrorMessage,
 	AdditionalParameters = Undefined) Export 

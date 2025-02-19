@@ -87,7 +87,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	RegisterPresentation = RegisterMetadata.Presentation();
 	FilterPresentation   = NStr("en = 'Object with issues = ""%1""
 		|Check rule = ""%2""
-		|Check kind = ""%3""
+		|Check type = ""%3""
 		|Unique key = ""%4""';");
 	
 	AdditionalProcessingDataSelectionParameters = InfobaseUpdate.AdditionalProcessingDataSelectionParameters();

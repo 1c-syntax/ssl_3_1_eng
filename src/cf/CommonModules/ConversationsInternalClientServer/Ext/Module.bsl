@@ -15,6 +15,10 @@ Function ExternalSystemsTypes() Export
 	IntegrationsTypes = New Structure;
 	IntegrationsTypes.Insert("Telegram", "Telegram");
 	IntegrationsTypes.Insert("VKontakte", "VK");
+	IntegrationsTypes.Insert("WhatsApp", "WhatsApp Devino");
+	IntegrationsTypes.Insert("WebChat", "WebChat");
+	IntegrationsTypes.Insert("Webhook", "Webhook");
+	
 	Return IntegrationsTypes;
 
 EndFunction

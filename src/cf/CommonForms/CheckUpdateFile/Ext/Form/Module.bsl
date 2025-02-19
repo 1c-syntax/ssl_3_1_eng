@@ -138,7 +138,7 @@ Procedure ImportFile_()
 	ImportParameters.FormIdentifier = UUID;
 	ImportParameters.Interactively = False;
 	
-	Notification = New NotifyDescription("AfterFileImported", ThisObject);
+	Notification = New CallbackDescription("AfterFileImported", ThisObject);
 	FileSystemClient.ImportFile_(Notification, ImportParameters, NameOfFirstUpdateFile);
 	
 EndProcedure

@@ -92,7 +92,7 @@ Procedure UpdateBusinessProcessState(Source, Cancel) Export
 	
 EndProcedure
 
-// The StartDeferredProcesses scheduled job handler
+// "StartDeferredProcesses" scheduled job handler.
 //
 Procedure StartDeferredProcesses() Export
 	
@@ -103,22 +103,21 @@ Procedure StartDeferredProcesses() Export
 	Query = New Query;
 	Query.Text = 
 		"SELECT
-		|	ProcessesToStart.Owner AS BusinessProcess
+		|	BusinessProcessesToStart.Owner AS BusinessProcessToStart
 		|FROM
-		|	InformationRegister.ProcessesToStart AS ProcessesToStart
+		|	InformationRegister.ProcessesToStart AS BusinessProcessesToStart
 		|		INNER JOIN InformationRegister.BusinessProcessesData AS BusinessProcessesData
-		|		ON ProcessesToStart.Owner = BusinessProcessesData.Owner
+		|		ON BusinessProcessesToStart.Owner = BusinessProcessesData.Owner
 		|WHERE
-		|	ProcessesToStart.State = VALUE(Enum.ProcessesStatesForStart.ReadyToStart)
-		|	AND ProcessesToStart.DeferredStartDate <= &CurrentDate
-		|	AND ProcessesToStart.DeferredStartDate <> DATETIME(1, 1, 1)
+		|	BusinessProcessesToStart.State = VALUE(Enum.ProcessesStatesForStart.ReadyToStart)
+		|	AND BusinessProcessesToStart.DeferredStartDate <= &CurrentDate
+		|	AND BusinessProcessesToStart.DeferredStartDate <> DATETIME(1, 1, 1)
 		|	AND BusinessProcessesData.DeletionMark = FALSE";
 	Query.SetParameter("CurrentDate", CurrentSessionDate());
 	
 	Selection  = Query.Execute().Select();
-	
 	While Selection.Next() Do
-		BusinessProcessesAndTasksServer.StartDeferredProcess(Selection.BusinessProcess);
+		BusinessProcessesAndTasksServer.StartDeferredProcess(Selection.BusinessProcessToStart);
 	EndDo;
 	
 EndProcedure

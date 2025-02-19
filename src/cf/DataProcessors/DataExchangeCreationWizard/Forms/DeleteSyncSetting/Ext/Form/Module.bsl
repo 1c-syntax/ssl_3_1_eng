@@ -89,10 +89,6 @@ Procedure OnStartDeleteSynchronizationSettings()
 	
 	ContinueWait = True;
 	
-	If ConnectOverExternalConnection Then
-		DataExchangeClient.CheckAndRegisterCOMConnector(ExchangeNode);
-	EndIf;
-	
 	OnStartDeleteOfSynchronizationSettingsAtServer(ContinueWait);
 	
 	If ContinueWait Then
@@ -177,6 +173,7 @@ Procedure OnStartDeleteOfSynchronizationSettingsAtServer(ContinueWait)
 		
 		DeletionSettings.Insert("ExchangeNode", ExchangeNode);
 		DeletionSettings.Insert("DeleteSettingItemInCorrespondent", DeleteSettingItemInCorrespondent);
+		DeletionSettings.Insert("AuthenticationData", AuthenticationData);
 		
 		ModuleSetupDeletionWizard = DataExchangeServer.ModuleDataExchangeCreationWizard();
 		
@@ -271,21 +268,24 @@ Procedure InitializeFormAttributes()
 		PeerInfobaseName = String(ExchangeNode);
 	EndIf;
 	
-	TransportKind = InformationRegisters.DataExchangeTransportSettings.DefaultExchangeMessagesTransportKind(ExchangeNode);
-	OnlineConnection = (TransportKind = Enums.ExchangeMessagesTransportTypes.COM
-		Or TransportKind = Enums.ExchangeMessagesTransportTypes.WS);
-	IsExchangeWithExternalSystem = (TransportKind = Enums.ExchangeMessagesTransportTypes.ExternalSystem);
+	TransportID = ExchangeMessagesTransport.DefaultTransport(ExchangeNode);
+
+	DirectConnection = False;
+	PassiveMode = False;
 	
-	ConnectOverExternalConnection = (TransportKind = Enums.ExchangeMessagesTransportTypes.COM);
-		
-	DeleteSettingItemInCorrespondent = OnlineConnection Or IsExchangeWithExternalSystem;
+	If ValueIsFilled(TransportID) Then
+		TransportParameters = ExchangeMessagesTransport.TransportParameters(TransportID);   
+		DirectConnection = TransportParameters.DirectConnection;
+		PassiveMode = TransportParameters.PassiveMode;
+	EndIf;
 	
 	GetCorrespondentParameters = SaaSModel
-		And Not Parameters.Property("IsExchangeWithApplicationInService")
-		And Not TransportKind = Enums.ExchangeMessagesTransportTypes.WS
-		And Not TransportKind = Enums.ExchangeMessagesTransportTypes.WSPassiveMode
-		And Not IsExchangeWithExternalSystem;
-	
+		And Not IsExchangeWithApplicationInService
+		And Not DirectConnection
+		And Not PassiveMode;
+		
+	AuthenticationData = ExchangeMessagesTransport.DataSynchronizationPassword(ExchangeNode);
+		
 	FillNavigationTable();
 	
 EndProcedure
@@ -346,17 +346,10 @@ EndFunction
 &AtClient
 Function Attachable_BeginningPageOnOpen1(Cancel, SkipPage, IsMoveNext)
 	
-	Items.StartSubGroup.Visible = OnlineConnection Or IsExchangeWithExternalSystem;
-	
-	If IsExchangeWithExternalSystem Then
-		Items.DeleteSettingItemInCorrespondent.Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Delete exchange with %1 at 1C:ITS Portal';"),
-			PeerInfobaseName);
-	Else
-		Items.DeleteSettingItemInCorrespondent.Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Also delete the setting in %1';"),
-			PeerInfobaseName);
-	EndIf;
+	Items.StartSubGroup.Visible = DirectConnection;
+		
+	TitleTemplate1 = NStr("en = 'Also delete the setting in %1';");
+	Items.DeleteSettingItemInCorrespondent.Title = StrTemplate(TitleTemplate1, PeerInfobaseName);
 	
 	Return Undefined;
 	
@@ -365,13 +358,13 @@ EndFunction
 &AtClient
 Function Attachable_WaitingPageOnOpen(Cancel, SkipPage, IsMoveNext)
 	
-	ClosingNotification1 = New NotifyDescription("AfterPermissionDeletion", ThisObject, ExchangeNode);
+	ClosingNotification1 = New CallbackDescription("AfterPermissionDeletion", ThisObject, ExchangeNode);
 	If CommonClient.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
 		Queries = DataExchangeServerCall.RequestToClearPermissionsToUseExternalResources(ExchangeNode);
 		ModuleSafeModeManagerClient = CommonClient.CommonModule("SafeModeManagerClient");
 		ModuleSafeModeManagerClient.ApplyExternalResourceRequests(Queries, Undefined, ClosingNotification1);
 	Else
-		ExecuteNotifyProcessing(ClosingNotification1, DialogReturnCode.OK);
+		RunCallback(ClosingNotification1, DialogReturnCode.OK);
 	EndIf;
 	
 	Return Undefined;

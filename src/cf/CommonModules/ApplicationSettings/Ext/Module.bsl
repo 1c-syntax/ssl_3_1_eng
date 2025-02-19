@@ -23,30 +23,28 @@
 Procedure OnlineSupportAndServicesOnCreateAtServer(Form, Cancel, StandardProcessing) Export
 	
 	Items = Form.Items;
+	AccessToInternetServicesAllowed = Common.AccessToInternetServicesAllowed();
 	
 	If Not Form.DataSeparationEnabled
 		And Common.SubsystemExists("StandardSubsystems.AddressClassifier") Then
 		
-		ModuleAddressClassifierInternal = Common.CommonModule("AddressClassifierInternal");
-		If Not ModuleAddressClassifierInternal.HasRightToChangeAddressInformation() Then
-			Items.AddressClassifierSettings.Visible = False;
-		EndIf;
-		
-		FormAttributeValue = New Structure("UseAddressesWebService", Undefined);
-		FillPropertyValues(FormAttributeValue, Form);
-
-		If FormAttributeValue["UseAddressesWebService"] <> Undefined Then
-			Form["UseAddressesWebService"] = ModuleAddressClassifierInternal.UseWebService();
-		EndIf;
-		
-		CommonClientServer.SetFormItemProperty(
-			Items,
-			"UseAddressesWebService",
-			"Visible",
-			True);
+		VisibilityOfUseAddressesWebServiceSetting(Form, AccessToInternetServicesAllowed);
 		
 	Else
 		Items.AddressClassifierSettings.Visible = False;
+	EndIf;
+	
+	If Users.IsFullUser() Then
+		
+		FormAttributeValue = New Structure("AllowAccessToInternetServices", Undefined);
+		FillPropertyValues(FormAttributeValue, Form);
+		If FormAttributeValue["AllowAccessToInternetServices"] <> Undefined Then
+			Items.AllowAccessToInternetServices.Visible = Not Form.DataSeparationEnabled;
+			Form["AllowAccessToInternetServices"] = AccessToInternetServicesAllowed;
+		EndIf;
+		
+	Else
+		Items.AllowAccessToInternetServices.Visible = False;
 	EndIf;
 	
 	If Not Form.DataSeparationEnabled
@@ -65,66 +63,15 @@ Procedure OnlineSupportAndServicesOnCreateAtServer(Form, Cancel, StandardProcess
 		And Users.IsFullUser();
 	
 	If Common.SubsystemExists("StandardSubsystems.ObjectPresentationDeclension") Then
-		Items.DeclensionsGroup.Visible =
-			  Not Form.DataSeparationEnabled
-			And Not Form.IsStandaloneWorkplace
-			And Form.IsSystemAdministrator;
-		If Items.DeclensionsGroup.Visible Then
-			ModuleObjectsPresentationsDeclension     = Common.CommonModule("ObjectPresentationDeclension");
-			Form.UseMorpherDeclinationService =
-				ModuleObjectsPresentationsDeclension.UseMorpherDeclinationService();
-		EndIf;
+		
+		ObjectPresentationDeclensionVisibility(Form, AccessToInternetServicesAllowed);
+		
 	Else
 		Items.DeclensionsGroup.Visible = False;
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.MonitoringCenter") Then
-		Items.MonitoringCenterGroup.Visible = Form.IsSystemAdministrator;
-		If Form.IsSystemAdministrator Then
-			MonitoringCenterParameters = GetMonitoringCenterParameters();
-			Form.MonitoringCenterAllowSendingData = GetDataSendingRadioButtons(
-				MonitoringCenterParameters.EnableMonitoringCenter,
-				MonitoringCenterParameters.ApplicationInformationProcessingCenter);
-			
-			ServiceParameters = New Structure("Server, ResourceAddress, Port");
-			If Form.MonitoringCenterAllowSendingData = 0 Then
-				ServiceParameters.Server = MonitoringCenterParameters.DefaultServer;
-				ServiceParameters.ResourceAddress = MonitoringCenterParameters.DefaultResourceAddress;
-				ServiceParameters.Port = MonitoringCenterParameters.DefaultPort;
-			ElsIf Form.MonitoringCenterAllowSendingData = 1 Then
-				ServiceParameters.Server = MonitoringCenterParameters.Server;
-				ServiceParameters.ResourceAddress = MonitoringCenterParameters.ResourceAddress;
-				ServiceParameters.Port = MonitoringCenterParameters.Port;
-			ElsIf Form.MonitoringCenterAllowSendingData = 2 Then
-				ServiceParameters = Undefined;
-			EndIf;
-			
-			If ServiceParameters <> Undefined Then
-				If ServiceParameters.Port = 80 Then
-					Schema = "http://";
-					Port = "";
-				ElsIf ServiceParameters.Port = 443 Then
-					Schema = "https://";
-					Port = "";
-				Else
-					Schema = "http://";
-					Port = ":" + Format(ServiceParameters.Port, "NZ=0; NG=");
-				EndIf;
-				
-				Form.MonitoringCenterServiceAddress = Schema
-					+ ServiceParameters.Server
-					+ Port
-					+ "/"
-					+ ServiceParameters.ResourceAddress;
-			Else
-				Form.MonitoringCenterServiceAddress = "";
-			EndIf;
-			
-			Items.MonitoringCenterServiceAddress.Enabled = (Form.MonitoringCenterAllowSendingData = 1);
-			Items.MonitoringCenter_Settings.Enabled = (Form.MonitoringCenterAllowSendingData <> 2);
-			Items.SendContactInformationGroup.Visible =
-				(MonitoringCenterParameters.ContactInformationRequest <> 2);
-		EndIf;
+		VisibilityOfMonitoringCenterSetting(Form, AccessToInternetServicesAllowed);
 	Else
 		Items.MonitoringCenterGroup.Visible = False;
 	EndIf;
@@ -151,13 +98,29 @@ EndProcedure
 //
 Procedure OnlineSupportAndServicesOnConstantChange(Form, ConstantName, NewValue) Export
 	
-	SaveConstantValue(ConstantName, NewValue);
+	If ConstantName = "AllowAccessToInternetServices" Then
+		Common.SetUpInternetServicesOperations(NewValue);
+	Else
+		SaveConstantValue(ConstantName, NewValue);
+	EndIf;
 	
 	If ConstantName = "UseMorpherDeclinationService"
 		And Common.SubsystemExists("StandardSubsystems.ObjectPresentationDeclension") Then
 		
 		ModuleObjectsPresentationsDeclension = Common.CommonModule("ObjectPresentationDeclension");
 		ModuleObjectsPresentationsDeclension.SetAvailabilityOfDeclensionService(True);
+	ElsIf ConstantName = "AllowAccessToInternetServices" Then
+		AccessToInternetServicesAllowed = Common.AccessToInternetServicesAllowed();
+		
+		If Common.SubsystemExists("StandardSubsystems.AddressClassifier") Then
+			VisibilityOfUseAddressesWebServiceSetting(Form, AccessToInternetServicesAllowed);
+		EndIf;
+		If Common.SubsystemExists("StandardSubsystems.MonitoringCenter") Then
+			VisibilityOfMonitoringCenterSetting(Form, AccessToInternetServicesAllowed);
+		EndIf;
+		If Common.SubsystemExists("StandardSubsystems.ObjectPresentationDeclension") Then
+			ObjectPresentationDeclensionVisibility(Form, AccessToInternetServicesAllowed);
+		EndIf;
 		
 	EndIf;
 	
@@ -198,8 +161,10 @@ Procedure OnlineSupportAndServicesAllowSendDataOnChange(Form, Item, OperationPar
 	
 	Items = Form.Items;
 	
-	Items.MonitoringCenterServiceAddress.Enabled = (Form.MonitoringCenterAllowSendingData = 1);
-	Items.MonitoringCenter_Settings.Enabled = (Form.MonitoringCenterAllowSendingData <> 2);
+	AccessToInternetServicesAllowed = Common.AccessToInternetServicesAllowed();
+	
+	Items.MonitoringCenterServiceAddress.Enabled = (Form.MonitoringCenterAllowSendingData = 1) And AccessToInternetServicesAllowed;
+	Items.MonitoringCenter_Settings.Enabled = (Form.MonitoringCenterAllowSendingData <> 2) And AccessToInternetServicesAllowed;
 	If Form.MonitoringCenterAllowSendingData = 2 Then
 		MonitoringCenterParameters =
 			New Structure("EnableMonitoringCenter, ApplicationInformationProcessingCenter", False, False);
@@ -220,11 +185,12 @@ Procedure OnlineSupportAndServicesAllowSendDataOnChange(Form, Item, OperationPar
 	ApplicationInformationProcessingCenter = MonitoringCenterParameters.ApplicationInformationProcessingCenter;
 	
 	Result = GetDataSendingRadioButtons(EnableMonitoringCenter, ApplicationInformationProcessingCenter);
-	If Result = 0 Or Result = 1 Then
+	
+	If AccessToInternetServicesAllowed And (Result = 0 Or Result = 1) Then
 		RunResult = ModuleMonitoringCenterInternal.StartDiscoveryPackageSending();
 		SchedJob = ModuleMonitoringCenterInternal.GetScheduledJobExternalCall("StatisticsDataCollectionAndSending", True);
 		ModuleMonitoringCenterInternal.SetDefaultScheduleExternalCall(SchedJob);
-	ElsIf Result = 2 Then
+	ElsIf Result = 2 Or Not AccessToInternetServicesAllowed Then
 		ModuleMonitoringCenterInternal.DeleteScheduledJobExternalCall("StatisticsDataCollectionAndSending");
 		ModuleMonitoringCenterInternal.DisableEventLogging();
 	EndIf;
@@ -283,7 +249,124 @@ EndFunction
 
 #Region Private
 
+#Region AddressClassifier
+
+Procedure VisibilityOfUseAddressesWebServiceSetting(Form, AccessToInternetServicesAllowed)
+	
+	Items = Form.Items;
+	
+	ModuleAddressClassifierInternal = Common.CommonModule("AddressClassifierInternal");
+	If Not ModuleAddressClassifierInternal.HasRightToChangeAddressInformation() Then
+		Items.AddressClassifierSettings.Visible = False;
+	EndIf;
+
+	FormAttributeValue = New Structure("UseAddressesWebService", Undefined);
+	FillPropertyValues(FormAttributeValue, Form);
+
+	If FormAttributeValue["UseAddressesWebService"] <> Undefined Then
+		Form["UseAddressesWebService"] = ModuleAddressClassifierInternal.UseWebService();
+	EndIf;
+
+	CommonClientServer.SetFormItemProperty(
+			Items, "UseAddressesWebService", "Visible", True);
+	CommonClientServer.SetFormItemProperty(
+			Items, "UseAddressesWebService", "Enabled", AccessToInternetServicesAllowed);
+	CommonClientServer.SetFormItemProperty(
+			Items, "GroupCommentAccessToAddressClassifierInternetServicesAllowed", "Visible",
+		Not AccessToInternetServicesAllowed);
+		
+EndProcedure
+
+#EndRegion
+
+#Region ObjectPresentationDeclension
+
+Procedure ObjectPresentationDeclensionVisibility(Form, AccessToInternetServicesAllowed)
+	
+	Items = Form.Items;
+	Items.DeclensionsGroup.Visible = Not Form.DataSeparationEnabled And Not Form.IsStandaloneWorkplace
+		And Form.IsSystemAdministrator;
+	
+	If Items.DeclensionsGroup.Visible Then
+		
+		ModuleObjectsPresentationsDeclension     = Common.CommonModule("ObjectPresentationDeclension");
+		Form.UseMorpherDeclinationService = ModuleObjectsPresentationsDeclension.UseMorpherDeclinationService()
+			And AccessToInternetServicesAllowed;
+		Items.UseMorpherDeclinationService.Enabled = AccessToInternetServicesAllowed;
+		CommonClientServer.SetFormItemProperty(
+			Items, "GroupCommentAccessToDeclensionInternetServicesAllowed", "Visible",
+			Not AccessToInternetServicesAllowed);
+		
+	EndIf;
+	
+EndProcedure
+
+#EndRegion
+
 #Region MonitoringCenter
+
+Procedure VisibilityOfMonitoringCenterSetting(Form, AccessToInternetServicesAllowed)
+	
+	Items = Form.Items;
+
+	Items.MonitoringCenterGroup.Visible = Form.IsSystemAdministrator;
+	
+	If Form.IsSystemAdministrator Then
+		MonitoringCenterParameters = GetMonitoringCenterParameters();
+		
+		Form.MonitoringCenterAllowSendingData = GetDataSendingRadioButtons(
+					MonitoringCenterParameters.EnableMonitoringCenter,
+				MonitoringCenterParameters.ApplicationInformationProcessingCenter);
+
+		ServiceParameters = New Structure("Server, ResourceAddress, Port");
+		If Not AccessToInternetServicesAllowed Or Form.MonitoringCenterAllowSendingData = 2 Then
+			ServiceParameters = Undefined;
+		ElsIf Form.MonitoringCenterAllowSendingData = 0 Then
+			ServiceParameters.Server = MonitoringCenterParameters.DefaultServer;
+			ServiceParameters.ResourceAddress = MonitoringCenterParameters.DefaultResourceAddress;
+			ServiceParameters.Port = MonitoringCenterParameters.DefaultPort;
+		ElsIf Form.MonitoringCenterAllowSendingData = 1 Then
+			ServiceParameters.Server = MonitoringCenterParameters.Server;
+			ServiceParameters.ResourceAddress = MonitoringCenterParameters.ResourceAddress;
+			ServiceParameters.Port = MonitoringCenterParameters.Port;
+		EndIf;
+
+		If ServiceParameters <> Undefined Then
+			If ServiceParameters.Port = 80 Then
+				Schema = "http://";
+				Port = "";
+			ElsIf ServiceParameters.Port = 443 Then
+				Schema = "https://";
+				Port = "";
+			Else
+				Schema = "http://";
+				Port = ":" + Format(ServiceParameters.Port, "NZ=0; NG=");
+			EndIf;
+
+			Form.MonitoringCenterServiceAddress = Schema + ServiceParameters.Server + Port + "/"
+				+ ServiceParameters.ResourceAddress;
+		Else
+			Form.MonitoringCenterServiceAddress = "";
+		EndIf;
+		
+		Items.AllowSendingDataGroup.Enabled = AccessToInternetServicesAllowed;
+		Items.ToThirdPartyGroup.Enabled = AccessToInternetServicesAllowed;
+		Items.DataSendingGroupResourceSettingCommon.Enabled = AccessToInternetServicesAllowed;
+		Items.ProhibitSendingDataGroup.Enabled = True;
+
+		CommonClientServer.SetFormItemProperty(
+			Items, "GroupCommentAccessToMonitoringCenterInternetServicesAllowed", "Visible",
+			Not AccessToInternetServicesAllowed);
+
+		Items.MonitoringCenterServiceAddress.Enabled = (Form.MonitoringCenterAllowSendingData = 1)
+			And AccessToInternetServicesAllowed;
+		Items.MonitoringCenter_Settings.Enabled = (Form.MonitoringCenterAllowSendingData <> 2);
+		Items.SendContactInformationGroup.Visible = (MonitoringCenterParameters.ContactInformationRequest
+			<> 2) And AccessToInternetServicesAllowed;
+		
+	EndIf;
+		
+EndProcedure
 
 Function GetDataSendingRadioButtons(EnableMonitoringCenter, ApplicationInformationProcessingCenter)
 	State = ?(EnableMonitoringCenter, "1", "0") + ?(ApplicationInformationProcessingCenter, "1", "0");
@@ -307,7 +390,9 @@ Function GetServiceAddress(MonitoringCenterAllowSendingData)
 	
 	ServiceParameters = New Structure("Server, ResourceAddress, Port");
 	
-	If MonitoringCenterAllowSendingData = 0 Then
+	If Not Common.AccessToInternetServicesAllowed() Then
+		ServiceParameters = Undefined;
+	ElsIf MonitoringCenterAllowSendingData = 0 Then
 		ServiceParameters.Server = MonitoringCenterParameters.DefaultServer;
 		ServiceParameters.ResourceAddress = MonitoringCenterParameters.DefaultResourceAddress;
 		ServiceParameters.Port = MonitoringCenterParameters.DefaultPort;

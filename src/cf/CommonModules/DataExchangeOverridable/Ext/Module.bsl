@@ -10,10 +10,10 @@
 
 #Region Public
 
-// Determines a prefix of object codes and numbers of default infobase.
+// Defines a default prefix for infobase object codes and numbers.
 //
 // Parameters:
-//  Prefix - String, 2 - a prefix of object codes and numbers of default infobase.
+//  Prefix - String, 2 - Default prefix for infobase object codes and numbers.
 //
 Procedure OnDetermineDefaultInfobasePrefix(Prefix) Export
 	
@@ -215,8 +215,8 @@ Procedure OnDataChangeConflict(Val DataElement, ItemReceive, Val Sender, Val Get
 	
 EndProcedure
 
-// The handler of infobase initial setup after creating a DIB node.
-// It is called on the first start of the subordinate DIB node (including SWP).
+// Handles initial infobase setup after a DIB node is created.
+// The handler is called on the first start of a child DIB node (including SWS).
 //
 Procedure OnSetUpSubordinateDIBNode() Export
 	
@@ -266,8 +266,7 @@ Procedure WhenChangingOfflineModeOption(PreviousValue, NewCurrent, StandardProce
 EndProcedure
 
 // Populates an array of types that must be excluded from the scope of the troubleshooting check 
-// (See InformationRegisters.DataExchangeResults.RecordIssueResolved)
-// .
+// (See InformationRegisters.DataExchangeResults.RecordIssueResolved).
 //
 // Parameters:
 //  Types - Array of MetadataObject 
@@ -305,7 +304,7 @@ EndProcedure
 //   ExchangePlanNodeObject - ExchangePlanObject - Reference to the exchange plan.
 //   Result - ValueTable - Data populated in the "DataExchangeEvents.AttributesOfExchangePlanNodeRefType" procedure.:
 //      * Order - Number
-//      * ObjectName - String - Full name of the metadata object.
+//      * ObjectName - String - Full name of a metadata object.
 //      * ObjectTypeString - String
 //      * ExchangePlanName - String
 //      * TabularSectionName - String - Name of the exchange plan table.

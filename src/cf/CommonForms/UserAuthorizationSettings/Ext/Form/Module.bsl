@@ -268,18 +268,18 @@ Procedure ShowInListChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	
 	StandardProcessing = False;
 	
-	Notification = New NotifyDescription("ShowInListChoiceProcessingCompletion",
+	Notification = New CallbackDescription("ShowInListChoiceProcessingCompletion",
 		ThisObject, ValueSelected);
 	
 	If ValueSelected = "HiddenAndEnabledForAllUsers" Then
 		QueryText =
-			NStr("en = 'When you start the application, the user choice list will become full.
-			           |The Show in list attribute in cards
-			           | of all users will be enabled and hidden.';");
+			NStr("en = 'The startup dialog will display the list of all users.
+			           |The ""Show in choice list"" checkbox will be selected and hidden in all user cards.
+			           |';");
 	Else
 		QueryText =
-			NStr("en = 'The user list in the startup dialog will be cleared
-			           |(attribute ""Show in choice list"" will be cleared and hidden from all user profiles).
+			NStr("en = 'The user list in the startup dialog will be cleared.
+			           |The ""Show in choice list"" checkbox will be cleared and hidden in all user cards.
 			           |';");
 	EndIf;
 	
@@ -347,7 +347,7 @@ Procedure ImportBannedPasswordList(Command)
 	ImportParameters.Dialog.Filter = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Text file: %1 with specification (with %2)';"), "UTF-8", "BOM") + "|*.txt";
 	
-	Notification = New NotifyDescription("AfterFileImported", ThisObject);
+	Notification = New CallbackDescription("AfterFileImported", ThisObject);
 	FileSystemClient.ImportFile_(Notification, ImportParameters);
 	
 EndProcedure
@@ -561,8 +561,10 @@ Procedure RecountPasswordsInAdditionalBannedList(Val Clear = False, Val Count = 
 			NewPasswordListAddressInTempStorage =
 				PutToTempStorage(New Array, UUID);
 		ElsIf Count = -1 Then
+			SetPrivilegedMode(True);
 			ManagerOfList = AdditionalAuthenticationSettings.PasswordCompromiseCheckList;
 			Count = ManagerOfList.GetPasswordsStoredValuesCount();
+			SetPrivilegedMode(False);
 		EndIf;
 	Else
 		Count = 0;
@@ -765,7 +767,7 @@ Procedure AfterFileImported(FileThatWasPut, Context) Export
 		           |(Hash format must be %3 hashed with %2.)';"),
 		StrConcat(Result, Chars.LF), "sha1", "base64");
 	
-	Notification = New NotifyDescription("AfterFileFormatSelected", ThisObject, FileThatWasPut.Location);
+	Notification = New CallbackDescription("AfterFileFormatSelected", ThisObject, FileThatWasPut.Location);
 	
 	ShowQueryBox(Notification, QueryText, Buttons);
 	

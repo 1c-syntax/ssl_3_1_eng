@@ -38,7 +38,7 @@ Function Refresh(Settings = Undefined) Export
 				Default.SeparatedData = False;
 			EndIf;
 		Else
-			If Common.IsStandaloneWorkplace() Then // SWP.
+			If Common.IsStandaloneWorkplace() Then // Standalone workstation.
 				Default.SharedData       = False;
 				Default.SeparatedData = True;
 			Else // On-prem.
@@ -73,8 +73,7 @@ Function Refresh(Settings = Undefined) Export
 	Return Result;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
 Procedure OnAddUpdateHandlers(Handlers) Export
@@ -110,10 +109,11 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+#Region InfobaseUpdate
 
 // Updates data of the first show.
 Procedure CommonDataNonexclusiveUpdate() Export
@@ -122,8 +122,7 @@ Procedure CommonDataNonexclusiveUpdate() Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Internal procedures and functions.
+#EndRegion
 
 // Updates data of the first show.
 Procedure UpdateFirstShowCache(TemplatesMedia)
@@ -139,13 +138,13 @@ Procedure UpdateFirstShowCache(TemplatesMedia)
 		
 		Record = RecordSet.Add();
 		Record.Number  = Package.NumberInRegister;
-		Record.Content = New ValueStorage(PackageKit);
+		Record.Content = New ValueStorage(PackageKit, New Deflation(9));
 	EndDo;
 	
 	// Metadata is recorded to the register under number 0.
 	Record = RecordSet.Add();
 	Record.Number  = 0;
-	Record.Content = New ValueStorage(PagesPackages);
+	Record.Content = New ValueStorage(PagesPackages, New Deflation(9));
 	
 	InfobaseUpdate.WriteData(RecordSet, False, False);
 	SetPrivilegedMode(False);
@@ -417,7 +416,7 @@ Function ExtractPackageFiles(TemplatesMedia, TemplateName) Export
 		Left = Left - 1;
 		Directory = FilesDirectories[0];
 		DirectoryFullPath        = Directory.Value; // A full path in the file system format.
-		DirectoryRelativePath = Directory.Presentation; // A full path in the file system format.
+		DirectoryRelativePath = Directory.Presentation; // A relative path in the URL format.
 		FilesDirectories.Delete(0);
 		
 		FoundItems = FindFiles(DirectoryFullPath, "*", False);

@@ -13,7 +13,6 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// Title layout.
 	If Not IsBlankString(Parameters.Title) Then
 		Title = Parameters.Title;
 		TitleWidth = 1.3 * StrLen(Title);
@@ -28,21 +27,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		WindowOpeningMode = FormWindowOpeningMode.LockWholeInterface;
 	EndIf;
 	
-	// Picture.
 	If Parameters.Picture.Type <> PictureType.Empty Then
 		Items.Warning.Picture = Parameters.Picture;
-	Else
-		// In this case, you can hide the picture.
-		// For backward compatibility, the "ShowPicture" parameter is implemented.
-		// It is intended for cases where a customer bypasses the API and opens a form with custom parameters.
-		// For example, "StandardSubsystemsClient.ShowQuestionToUser".
-		ShowPicture = CommonClientServer.StructureProperty(Parameters, "ShowPicture", True);
-		If Not ShowPicture Then
-			Items.Warning.Visible = False;
-		EndIf;
 	EndIf;
 	
-	// Add text.
 	If TypeOf(Parameters.MessageText) = Type("String") Then 
 		MessageText = Parameters.MessageText;
 		Items.MultilineMessageText.Visible = True;
@@ -51,14 +39,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.MessageTextFormattedString.Title = Parameters.MessageText;
 		Items.MultilineMessageText.Visible = False;
 		Items.MessageTextFormattedString.Visible = True;
-	ElsIf TypeOf(Parameters.MessageText) = Type("Undefined") Then
-		// Support the Undefined type for backward compatibility.
+	ElsIf TypeOf(Parameters.MessageText) = Type("Undefined") Then // For backward compatibility purposes
 		MessageText = "";
 	Else
-		CommonClientServer.CheckParameter(
-			Metadata.CommonForms.DoQueryBox.FullName(), 
-			"MessageText", 
-			Parameters.MessageText, 
+		CommonClientServer.CheckParameter(Metadata.CommonForms.DoQueryBox.FullName(), 
+			"MessageText", Parameters.MessageText, 
 			New TypeDescription("String, FormattedString"));
 	EndIf;
 
@@ -70,24 +55,17 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Add a flag.
 	If ValueIsFilled(Parameters.CheckBoxText) Then
 		Items.NeverAskAgain.Title = Parameters.CheckBoxText;
-	ElsIf Not AccessRight("SaveUserData", Metadata) Or Not Parameters.PromptDontAskAgain Then
+	ElsIf Not AccessRight("SaveUserData", Metadata) 
+		Or Not Parameters.PromptDontAskAgain Then
 		Items.NeverAskAgain.Visible = False;
 	EndIf;
 	
 	// Add buttons.
 	AddCommandsAndButtonsToForm(Parameters.Buttons);
-	
-	// Setting the default button.
-	HighlightDefaultButton = CommonClientServer.StructureProperty(Parameters, "HighlightDefaultButton", True);
-	SetDefaultButton(Parameters.DefaultButton, HighlightDefaultButton);
-	
-	// Setting the countdown button.
+	SetDefaultButton(Parameters.DefaultButton, True);
 	SetTimeoutButton(Parameters.TimeoutButton);
-	
-	// Setting the countdown timer.
 	TimeoutCounter = Parameters.Timeout;
 	
-	// Resetting the form window size and position.
 	StandardSubsystemsServer.ResetWindowLocationAndSize(ThisObject);
 	
 	If Common.IsMobileClient() Then
@@ -130,8 +108,7 @@ EndProcedure
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Client.
+#Region Client
 
 &AtClient
 Procedure ContinueCountdown()
@@ -179,8 +156,9 @@ Function DialogReturnCodeByValue(Value)
 	Return Result;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Server.
+#EndRegion
+
+#Region Server
 
 &AtServer
 Procedure AddCommandsAndButtonsToForm(Buttons)
@@ -309,5 +287,7 @@ Function CountOfRows(Text, CutoffByWidth, BringToFormItemSize = True)
 	EndIf;
 	Return EstimatedLineCount;
 EndFunction
+
+#EndRegion
 
 #EndRegion

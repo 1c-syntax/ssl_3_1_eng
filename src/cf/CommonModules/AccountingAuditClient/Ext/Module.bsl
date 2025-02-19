@@ -13,11 +13,11 @@
 // Opens a report on all issues of the passed issue type.
 //
 // Parameters:
-//   ChecksKind - CatalogRef.ChecksKinds - a reference to a check kind.
-//               - String - The string id of the check kind.
-//               - Array of String - The string ids of the check kind.
-//   ExactMap - Boolean - If True, filter only by the given check kind.
-//                 If False, select all check kinds related to the passed kind.
+//   ChecksKind - CatalogRef.ChecksKinds - Reference to the check type.
+//               - String - String ID of the check type.
+//               - Array of String - String IDs of the check type.
+//   ExactMap - Boolean - If True, filter by the specified check type.
+//                 If False, select all check types related to the one passed.
 //
 // Example:
 //   OpenIssuesReport("SystemChecks");
@@ -100,7 +100,7 @@ Procedure OpenListedIssuesReport(Form, ListName, Field, StandardProcessing, Addi
 		Else
 			CurrentData = Form.Items[ListName].CurrentData;
 			If CurrentData[Field.Name] = 0 Then
-				Return; // No errors by object.
+				Return; // The object has no errors.
 			EndIf;
 			
 			StandardProcessing = False;

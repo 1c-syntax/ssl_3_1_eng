@@ -32,7 +32,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// SaaSTechnology.ExportImportData
+// ТехнологияСервиса.ВыгрузкаЗагрузкаДанных
 
 // Attached in ExportImportDataOverridable.OnRegisterDataExportHandlers.
 //
@@ -81,7 +81,7 @@ Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object,
 	
 EndProcedure
 
-// End SaaSTechnology.ExportImportData
+// End CloudTechnology.ExportImportData
 
 #EndRegion
 

@@ -130,28 +130,44 @@ Procedure ReadReportSnapshot()
 	ReportSpreadsheetDocument.Clear();
 	UpdateDate = Undefined;
 	
-	RecordManager = InformationRegisters.ReportsSnapshots.CreateRecordManager();
-	FillPropertyValues(RecordManager, RowReport);
-	RecordManager.Read();
-	If RecordManager.Selected() Then
-		If RecordManager.ReportUpdateError Then
-			Common.MessageToUser(NStr(
-				"en = 'An error occurred when saving the report snapshot: save the snapshot again.';"));
-		Else
-			ReportResult = RecordManager.ReportResult.Get();
-			If TypeOf(ReportResult) = Type("SpreadsheetDocument") Then
-				ReportSpreadsheetDocument.Put(ReportResult);
-				RecordManager.LastViewedDate = CurrentSessionDate();
-				RecordManager.Write();
-			Else
+	Block = New DataLock;
+	LockItem = Block.Add("InformationRegister.ReportsSnapshots");
+	LockItem.SetValue("User", RowReport.User);
+	LockItem.SetValue("Report", RowReport.Report);
+	LockItem.SetValue("Variant", RowReport.Variant);
+	LockItem.SetValue("UserSettingsHash", RowReport.UserSettingsHash);
+
+	BeginTransaction();
+	Try
+		Block.Lock();
+
+		RecordManager = InformationRegisters.ReportsSnapshots.CreateRecordManager();
+		FillPropertyValues(RecordManager, RowReport);
+		RecordManager.Read();
+		If RecordManager.Selected() Then
+			If RecordManager.ReportUpdateError Then
 				Common.MessageToUser(NStr(
+				"en = 'An error occurred when saving the report snapshot: save the snapshot again.';"));
+			Else
+				ReportResult = RecordManager.ReportResult.Get();
+				If TypeOf(ReportResult) = Type("SpreadsheetDocument") Then
+					ReportSpreadsheetDocument.Put(ReportResult);
+					RecordManager.LastViewedDate = CurrentSessionDate();
+					RecordManager.Write();
+				Else
+					Common.MessageToUser(NStr(
 					"en = 'An error occurred when reading the report snapshot: the data is incorrect.';"));
+				EndIf;
 			EndIf;
+			UpdateDate = RecordManager.UpdateDate;
+		Else
+			Common.MessageToUser(NStr("en = 'An error occurred when reading the report snapshot: the report is deleted.';"));
 		EndIf;
-		UpdateDate = RecordManager.UpdateDate;
-	Else
-		Common.MessageToUser(NStr("en = 'An error occurred when reading the report snapshot: the report is deleted.';"));
-	EndIf;
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
 	
 	Title = NStr("en = 'Last updated';") + ": " + UpdateDate;
 	
@@ -164,12 +180,27 @@ Procedure DeleteReportSnapshotAtServer()
 	
 	ReportSpreadsheetDocument.Clear();
 	
-	RecordManager = InformationRegisters.ReportsSnapshots.CreateRecordManager();
-	FillPropertyValues(RecordManager, RowReport);
-	RecordManager.Read();
-	If RecordManager.Selected() Then
-		RecordManager.Delete();
-	EndIf;
+	Block = New DataLock;
+	LockItem = Block.Add("InformationRegister.ReportsSnapshots");
+	LockItem.SetValue("User", RowReport.User);
+	LockItem.SetValue("Report", RowReport.Report);
+	LockItem.SetValue("Variant", RowReport.Variant);
+	LockItem.SetValue("UserSettingsHash", RowReport.UserSettingsHash);
+
+	BeginTransaction();
+	Try
+		Block.Lock();
+		RecordManager = InformationRegisters.ReportsSnapshots.CreateRecordManager();
+		FillPropertyValues(RecordManager, RowReport);
+		RecordManager.Read();
+		If RecordManager.Selected() Then
+			RecordManager.Delete();
+		EndIf;
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
 	
 	ReportsSnapshots.Delete(RowReport);
 	

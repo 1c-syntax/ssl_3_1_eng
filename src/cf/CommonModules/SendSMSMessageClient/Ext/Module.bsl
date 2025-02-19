@@ -38,7 +38,7 @@ Procedure SendSMS(RecipientsNumbers, Text, AdditionalParameters) Export
 			FillPropertyValues(SendOptions, AdditionalParameters);
 		EndIf;
 		
-		NotifyDescription = New NotifyDescription("CreateNewSMSMessageSettingsCheckCompleted", ThisObject, SendOptions);
+		NotifyDescription = New CallbackDescription("CreateNewSMSMessageSettingsCheckCompleted", ThisObject, SendOptions);
 		CheckForSMSMessageSendingSettings(NotifyDescription);
 		
 	EndIf;
@@ -48,7 +48,7 @@ EndProcedure
 // Opens the form for setting up text message sending.
 // 
 // Parameters:
-//  OnCloseNotifyDescription - NotifyDescription - The procedure to be executed after the form is closed.
+//  OnCloseNotifyDescription - CallbackDescription - The procedure to be executed after the form is closed.
 //
 Procedure OpenSettingsForm(OnCloseNotifyDescription = Undefined) Export
 	
@@ -64,16 +64,16 @@ EndProcedure
 // Open the SMS gateway settings form; Or display a user message saying that the message cannot be sent.
 //
 // Parameters:
-//  ResultHandler - NotifyDescription - a procedure to be executed after the check is completed.
+//  ResultHandler - CallbackDescription - a procedure to be executed after the check is completed.
 //
 Procedure CheckForSMSMessageSendingSettings(ResultHandler)
 	
 	ClientRunParameters = StandardSubsystemsClient.ClientRunParameters();
 	If ClientRunParameters.CanSendSMSMessage Then
-		ExecuteNotifyProcessing(ResultHandler, True);
+		RunCallback(ResultHandler, True);
 	Else
 		If UsersClient.IsFullUser() Then
-			NotifyDescription = New NotifyDescription("AfterSetUpSMSMessage", ThisObject, ResultHandler);
+			NotifyDescription = New CallbackDescription("AfterSetUpSMSMessage", ThisObject, ResultHandler);
 			OpenSettingsForm(NotifyDescription);
 		Else
 			MessageText = NStr("en = 'SMS settings are not configured.
@@ -87,7 +87,7 @@ EndProcedure
 Procedure AfterSetUpSMSMessage(Result, ResultHandler) Export
 	ClientRunParameters = StandardSubsystemsClient.ClientRunParameters();
 	If ClientRunParameters.CanSendSMSMessage Then
-		ExecuteNotifyProcessing(ResultHandler, True);
+		RunCallback(ResultHandler, True);
 	EndIf;
 EndProcedure
 

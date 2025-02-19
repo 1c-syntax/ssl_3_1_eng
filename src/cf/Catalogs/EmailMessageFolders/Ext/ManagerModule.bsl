@@ -34,7 +34,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// StandardSubsystems.AccessManagement
+// СтандартныеПодсистемы.УправлениеДоступом
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -119,7 +119,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		
 		Try
 			
-			// Setting a managed lock to post object responsible reading.
+			// Set a managed lock to perform a locking read of the object.
 			Block = New DataLock;
 			
 			LockItem = Block.Add(FullObjectName);

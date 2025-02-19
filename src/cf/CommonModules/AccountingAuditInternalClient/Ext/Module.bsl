@@ -76,8 +76,7 @@ Procedure OpenAccountingChecksList() Export
 	OpenForm("Catalog.AccountingCheckRules.ListForm");
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // See CommonClientOverridable.AfterStart.
 Procedure AfterStart() Export
@@ -176,6 +175,8 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 #Region Private
 
 // Opens a form for interactive user actions to resolve an issue.
@@ -183,12 +184,12 @@ EndProcedure
 // Parameters:
 //   Form       - ClientApplicationForm - the AccountingCheckResults report form.
 //   Details - Structure - additional information to correct an issue:
-//      * Purpose                     - String - a purpose string ID of the decryption.
-//      * CheckID          - String - a string check ID.
+//      * Purpose                     - String - String ID of the drill-down purpose.
+//      * CheckID          - String - String ID of the check.
 //      * GoToCorrectionHandler - String - a name of the export client procedure handler for correcting 
 //                                                   an issue or a full name of the form being opened.
-//      * CheckKind                    - CatalogRef.ChecksKinds - a check kind
-//                                         that narrows the area of issue correction.
+//      * CheckKind                    - CatalogRef.ChecksKinds - Check type
+//                                         that narrows down the scope of the check.
 //
 Procedure ResolveIssue(Form, Details)
 	
@@ -205,7 +206,7 @@ Procedure ResolveIssue(Form, Details)
 		ModuleCorrectionHandler  = CommonClient.CommonModule(HandlerCorrections[0]);
 		ProcedureName = HandlerCorrections[1];
 		
-		ExecuteNotifyProcessing(New NotifyDescription(ProcedureName, ModuleCorrectionHandler), PatchParameters);
+		RunCallback(New CallbackDescription(ProcedureName, ModuleCorrectionHandler), PatchParameters);
 	EndIf;
 	
 EndProcedure
@@ -216,7 +217,7 @@ EndProcedure
 //   Form                          - ClientApplicationForm - a report form.
 //   Details - Structure - a structure containing the data for correcting the issue
 //                 of the cell of the data integrity check report:
-//      * Purpose         - String - a purpose string ID of the decryption.
+//      * Purpose         - String - String ID of the drill-down purpose.
 //      * FullObjectName   - String - Full name of a metadata object.
 //      * Filter              - Structure - a filter as a list.
 //

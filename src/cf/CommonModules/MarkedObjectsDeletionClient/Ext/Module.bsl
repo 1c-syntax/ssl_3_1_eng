@@ -20,7 +20,7 @@
 //            - Undefined - — the form from which deletion was started.
 // 							   If not specified, the detailed information on the deletion results
 // 							   will not be passed to the processing notification about closing.
-//   OnCloseNotifyDescription - NotifyDescription - If specified, then when the deletion is over, or the form is closed,
+//   OnCloseNotifyDescription - CallbackDescription - If specified, then when the deletion is over, or the form is closed,
 //								the result is passed to the notification handler as Structure with the properties
 //								# Success - Boolean - "True" if all objects are deleted.:
 //                              # DeletedItemsCount1 - Number - Number of deleted objects.
@@ -38,7 +38,7 @@ Procedure StartMarkedObjectsDeletion(ObjectsToDelete, DeletionParameters = Undef
 		FillPropertyValues(FormParameters, DeletionParameters);
 	EndIf;
 	
-	ClosingNotification1 = New NotifyDescription("StartMarkedObjectsDeletionCompletion"
+	ClosingNotification1 = New CallbackDescription("StartMarkedObjectsDeletionCompletion"
 		, ThisObject, New Structure("ClosingNotification1", OnCloseNotifyDescription));
 		
 	OpenForm("DataProcessor.MarkedObjectsDeletion.Form", FormParameters, Owner, , , , ClosingNotification1,
@@ -105,17 +105,17 @@ EndProcedure
 // Cannot run on mobile devices.
 // 
 // Parameters:
-//   ChangeNotification1 - NotifyDescription - a handler of the scheduled job schedule change.
+//   ChangeNotification1 - CallbackDescription - a handler of the scheduled job schedule change.
 //
 Procedure StartChangeJobSchedule(ChangeNotification1 = Undefined) Export
 	ScheduledJobInfoDeletionOfMarkedObjects = MarkedObjectsDeletionInternalServerCall.ModeDeleteOnSchedule();
-	Handler = New NotifyDescription("ScheduledJobsAfterChangeSchedule", ThisObject,
+	Handler = New CallbackDescription("ScheduledJobsAfterChangeSchedule", ThisObject,
 			New Structure("ChangeNotification1, OldSchedule", ChangeNotification1, ScheduledJobInfoDeletionOfMarkedObjects.Schedule));
 	
 	If ScheduledJobInfoDeletionOfMarkedObjects.DataSeparationEnabled Then
 		Result = New Structure("Use,Schedule");
 		FillPropertyValues(Result, ScheduledJobInfoDeletionOfMarkedObjects);
-		ExecuteNotifyProcessing(Handler, ScheduledJobInfoDeletionOfMarkedObjects.Schedule);
+		RunCallback(Handler, ScheduledJobInfoDeletionOfMarkedObjects.Schedule);
 	Else		
 		ScheduledJobDetails = ScheduledJobInfoDeletionOfMarkedObjects.Schedule;
 		Schedule = New JobSchedule;
@@ -129,7 +129,7 @@ EndProcedure
 // 
 // Parameters:
 //   AutomaticallyDeleteMarkedObjects  - Boolean - a new flag value to be processed.
-//   ChangeNotification1 - NotifyDescription - if AutomaticallyDeleteMarkedObjectsCheckBoxValue = True, the procedure
+//   ChangeNotification1 - CallbackDescription - if AutomaticallyDeleteMarkedObjectsCheckBoxValue = True, the procedure
 //   											  will be called after setting the scheduled job schedule.
 //   											  If AutomaticallyDeleteMarkedObjectsCheckBoxValue = False, the procedure will be 
 //   											  called immediately. 
@@ -147,7 +147,7 @@ Procedure OnChangeCheckBoxDeleteOnSchedule(AutomaticallyDeleteMarkedObjects, Cha
 	MarkedObjectsDeletionInternalServerCall.SetDeleteOnScheduleMode(Changes);
 
 	If ChangeNotification1 <> Undefined Then
-		ExecuteNotifyProcessing(ChangeNotification1, Changes);
+		RunCallback(ChangeNotification1, Changes);
 	EndIf;
 	
 	// Keep backward compatibility with version 3.1.2.
@@ -223,7 +223,7 @@ Procedure StartMarkedObjectsDeletionCompletion(Val DeletionResult, AdditionalPar
 	EndIf;	
 		
 	If AdditionalParameters.ClosingNotification1 <> Undefined Then
-		ExecuteNotifyProcessing(AdditionalParameters.ClosingNotification1, DeletionResult);
+		RunCallback(AdditionalParameters.ClosingNotification1, DeletionResult);
 	EndIf;
 EndProcedure
 
@@ -241,7 +241,7 @@ Procedure ScheduledJobsAfterChangeSchedule(Schedule, ExecutionParameters) Export
 	Notify("ModeChangedAutomaticallyDeleteMarkedObjects");
 	
 	If ExecutionParameters.Property("ChangeNotification1") And ExecutionParameters.ChangeNotification1 <> Undefined Then
-		ExecuteNotifyProcessing(ExecutionParameters.ChangeNotification1,
+		RunCallback(ExecutionParameters.ChangeNotification1,
 			New Structure("Use, Schedule", DeleteMarkedObjectsUsage, Schedule));
 	EndIf;
 EndProcedure

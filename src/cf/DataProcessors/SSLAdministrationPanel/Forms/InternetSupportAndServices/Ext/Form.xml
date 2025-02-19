@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<Customizable>false</Customizable>
 	<CommandSet>
 		<ExcludedCommand>Abort</ExcludedCommand>
@@ -163,6 +163,44 @@
 								<Event name="OnChange">UseAddressesWebServiceOnChange</Event>
 							</Events>
 						</CheckBoxField>
+						<UsualGroup name="GroupCommentAccessToAddressClassifierInternetServicesAllowed" id="1959">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group comment access to web services allowed</v8:content>
+								</v8:item>
+							</Title>
+							<Group>AlwaysHorizontal</Group>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GroupCommentAccessToAddressClassifierInternetServicesAllowedExtendedTooltip" id="1960"/>
+							<ChildItems>
+								<PictureDecoration name="DecorationAccessToAddressClassifierInternetServicesAllowed" id="1961">
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Decoration access to web services allowed</v8:content>
+										</v8:item>
+									</Title>
+									<Picture>
+										<xr:Ref>CommonPicture.UnavailableFieldsInformation</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<ContextMenu name="DecorationAccessToAddressClassifierInternetServicesAllowedContextMenu" id="1962"/>
+									<ExtendedTooltip name="DecorationAccessToAddressClassifierInternetServicesAllowedExtendedTooltip" id="1963"/>
+								</PictureDecoration>
+								<LabelDecoration name="CommentAccessToAddressClassifierInternetServicesAllowed" id="1964">
+									<HorizontalStretch>false</HorizontalStretch>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>To activate the setting, select "Allow access to web services".</v8:content>
+										</v8:item>
+									</Title>
+									<ContextMenu name="CommentAccessToAddressClassifierInternetServicesAllowedContextMenu" id="1965"/>
+									<ExtendedTooltip name="CommentAccessToAddressClassifierInternetServicesAllowedExtendedTooltip" id="1966"/>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
 					</ChildItems>
 				</UsualGroup>
 				<UsualGroup name="ImportCurrenciesRatesDataProcessorGroup" id="1643">
@@ -283,7 +321,7 @@
 						<Title formatted="false">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Receive and send messages to texting apps, for example, Telegram or VK.</v8:content>
+								<v8:content>Exchange messages via messengers and website chats.</v8:content>
 							</v8:item>
 						</Title>
 					</ExtendedTooltip>
@@ -345,6 +383,45 @@ If the external service is not used, presentation declension is carried out usin
 								<Event name="OnChange">UseMorpherDeclinationServiceOnChange</Event>
 							</Events>
 						</CheckBoxField>
+						<UsualGroup name="GroupCommentAccessToDeclensionInternetServicesAllowed" id="1951">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Comment access to declension web services allowed</v8:content>
+								</v8:item>
+							</Title>
+							<HorizontalStretch>true</HorizontalStretch>
+							<Group>AlwaysHorizontal</Group>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GroupCommentAccessToDeclensionInternetServicesAllowedExtendedTooltip" id="1952"/>
+							<ChildItems>
+								<PictureDecoration name="DecorationAccessToDeclensionInternetServicesAllowed" id="1953">
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Decoration access to declension web services allowed</v8:content>
+										</v8:item>
+									</Title>
+									<Picture>
+										<xr:Ref>CommonPicture.UnavailableFieldsInformation</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<ContextMenu name="DecorationAccessToDeclensionInternetServicesAllowedContextMenu" id="1954"/>
+									<ExtendedTooltip name="DecorationAccessToDeclensionInternetServicesAllowedExtendedTooltip" id="1955"/>
+								</PictureDecoration>
+								<LabelDecoration name="CommentAccessToDeclensionInternetServicesAllowed" id="1956">
+									<HorizontalStretch>false</HorizontalStretch>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>To activate the setting, select "Allow access to web services".</v8:content>
+										</v8:item>
+									</Title>
+									<ContextMenu name="CommentAccessToDeclensionInternetServicesAllowedContextMenu" id="1957"/>
+									<ExtendedTooltip name="CommentAccessToDeclensionInternetServicesAllowedExtendedTooltip" id="1958"/>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
 					</ChildItems>
 				</UsualGroup>
 				<UsualGroup name="InflectionSettingsGroup" id="1712">
@@ -683,6 +760,44 @@ The collected data does not contain any personal information; it only contains s
 						</RadioButtonField>
 					</ChildItems>
 				</UsualGroup>
+				<UsualGroup name="GroupCommentAccessToMonitoringCenterInternetServicesAllowed" id="1967">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Group comment access to declension web services allowed</v8:content>
+						</v8:item>
+					</Title>
+					<Group>AlwaysHorizontal</Group>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="GroupCommentAccessToMonitoringCenterInternetServicesAllowedExtendedTooltip" id="1968"/>
+					<ChildItems>
+						<PictureDecoration name="DecorationAccessToMonitoringCenterInternetServicesAllowed" id="1969">
+							<Title formatted="false">
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Decoration access to declension web services allowed</v8:content>
+								</v8:item>
+							</Title>
+							<Picture>
+								<xr:Ref>CommonPicture.UnavailableFieldsInformation</xr:Ref>
+								<xr:LoadTransparent>false</xr:LoadTransparent>
+							</Picture>
+							<ContextMenu name="DecorationAccessToMonitoringCenterInternetServicesAllowedContextMenu" id="1970"/>
+							<ExtendedTooltip name="DecorationAccessToMonitoringCenterInternetServicesAllowedExtendedTooltip" id="1971"/>
+						</PictureDecoration>
+						<LabelDecoration name="CommentAccessToMonitoringCenterInternetServicesAllowed" id="1972">
+							<HorizontalStretch>false</HorizontalStretch>
+							<Title formatted="false">
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>To activate the setting, select "Allow access to web services".</v8:content>
+								</v8:item>
+							</Title>
+							<ContextMenu name="CommentAccessToMonitoringCenterInternetServicesAllowedContextMenu" id="1973"/>
+							<ExtendedTooltip name="CommentAccessToMonitoringCenterInternetServicesAllowedExtendedTooltip" id="1974"/>
+						</LabelDecoration>
+					</ChildItems>
+				</UsualGroup>
 			</ChildItems>
 		</UsualGroup>
 		<UsualGroup name="AddInsGroup" id="1716">
@@ -734,6 +849,44 @@ The collected data does not contain any personal information; it only contains s
 						</Button>
 					</ChildItems>
 				</UsualGroup>
+			</ChildItems>
+		</UsualGroup>
+		<UsualGroup name="GroupAccessToInternetServices" id="1949">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Access to web services</v8:content>
+				</v8:item>
+			</Title>
+			<Behavior>Collapsible</Behavior>
+			<ControlRepresentation>Picture</ControlRepresentation>
+			<Representation>NormalSeparation</Representation>
+			<ExtendedTooltip name="GroupAccessToInternetServicesExtendedTooltip" id="1950"/>
+			<ChildItems>
+				<CheckBoxField name="AllowAccessToInternetServices" id="1946">
+					<DataPath>AllowAccessToInternetServices</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Allow access to web services</v8:content>
+						</v8:item>
+					</Title>
+					<TitleLocation>Right</TitleLocation>
+					<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+					<CheckBoxType>Auto</CheckBoxType>
+					<ContextMenu name="AllowAccessToInternetServicesContextMenu" id="1947"/>
+					<ExtendedTooltip name="AllowAccessToInternetServicesExtendedTooltip" id="1948">
+						<Title formatted="false">
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Disable this setting to reduce bandwidth usage or when no internet connection is available.</v8:content>
+							</v8:item>
+						</Title>
+					</ExtendedTooltip>
+					<Events>
+						<Event name="OnChange">AllowAccessToInternetServicesOnChange</Event>
+					</Events>
+				</CheckBoxField>
 			</ChildItems>
 		</UsualGroup>
 	</ChildItems>
@@ -819,6 +972,17 @@ The collected data does not contain any personal information; it only contains s
 				<v8:item>
 					<v8:lang>en</v8:lang>
 					<v8:content>Autocomplete and verify non-imported addresses over the Internet</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="AllowAccessToInternetServices" id="36">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Allow access to web services</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

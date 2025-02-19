@@ -72,9 +72,7 @@ Function ImportDataToInfobase(FileID, BackgroundJobIdentifier, ErrorMessage)
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Import data to the infobase using the ""Enterprise Data Upload"" web service';");
 	ExecutionParameters.BackgroundJobKey = String(New UUID);
-	
 	ExecutionParameters.WaitCompletion = 0;
-	ExecutionParameters.RunInBackground    = True;
 
 	BackgroundJob = TimeConsumingOperations.ExecuteInBackground(
 		"DataExchangeInternal.ImportXDTODateToInfobase",

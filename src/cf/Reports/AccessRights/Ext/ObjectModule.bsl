@@ -552,7 +552,34 @@ Function SelectInfoOnAccessRights(Val AvailableRights, Val OutputGroupRights, Va
 	|			LEFT JOIN AccessRestrictionKinds AS AccessRestrictionKinds
 	|			ON (AccessRestrictionKinds.Table = RolesRights.MetadataObject)
 	|				AND (AccessRestrictionKinds.Right = ""Read"")
-	|				AND (AccessRestrictionKinds.AccessKind = AccessKindsAndValues.AccessKind)) AS ProfileRolesRights
+	|				AND (AccessRestrictionKinds.AccessKind = AccessKindsAndValues.AccessKind)
+	|	
+	|	UNION
+	|	
+	|	SELECT
+	|		RolesRights.MetadataObject,
+	|		UserProfiles.Profile,
+	|		1000,
+	|		"""",
+	|		FALSE,
+	|		FALSE,
+	|		UserAccessGroups.AccessGroup,
+	|		ISNULL(AccessRestrictionKinds.AccessKind, UNDEFINED),
+	|		ISNULL(AccessRestrictionKinds.AccessKindPresentation, """"),
+	|		UNDEFINED,
+	|		UNDEFINED
+	|	FROM
+	|		RolesRights AS RolesRights
+	|			INNER JOIN Catalog.AccessGroupProfiles.Roles AS ProfilesRoles
+	|				INNER JOIN UserProfiles AS UserProfiles
+	|				ON ProfilesRoles.Ref = UserProfiles.Profile
+	|			ON RolesRights.Role = ProfilesRoles.Role
+	|			INNER JOIN UserAccessGroups AS UserAccessGroups
+	|			ON (UserAccessGroups.Profile = UserProfiles.Profile)
+	|			INNER JOIN AccessRestrictionKinds AS AccessRestrictionKinds
+	|			ON (AccessRestrictionKinds.Table = RolesRights.MetadataObject)
+	|				AND (VALUETYPE(AccessRestrictionKinds.AccessKind) = TYPE(Enum.AdditionalAccessValues))
+	|				AND (AccessRestrictionKinds.Right = ""Read"")) AS ProfileRolesRights
 	|TOTALS
 	|	MAX(ObjectKindOrder),
 	|	MAX(Table),
@@ -687,7 +714,7 @@ Function SelectInfoOnAccessRights(Val AvailableRights, Val OutputGroupRights, Va
 	|			ON (UserProfiles.Profile = AccessKindsAndValues.Profile)
 	|			LEFT JOIN AccessRestrictionKinds AS AccessRestrictionKinds
 	|			ON (AccessRestrictionKinds.Table = RolesRights.MetadataObject)
-	|				AND (AccessRestrictionKinds.Right = ""Create"")
+	|				AND (AccessRestrictionKinds.Right = ""Update"")
 	|				AND (AccessRestrictionKinds.AccessKind = AccessKindsAndValues.AccessKind)
 	|	
 	|	UNION
@@ -720,9 +747,42 @@ Function SelectInfoOnAccessRights(Val AvailableRights, Val OutputGroupRights, Va
 	|			LEFT JOIN AccessRestrictionKinds AS AccessRestrictionKinds
 	|			ON (AccessRestrictionKinds.Table = RolesRights.MetadataObject)
 	|				AND (AccessRestrictionKinds.Right = ""Update"")
-	|				AND (AccessRestrictionKinds.AccessKind = AccessKindsAndValues.AccessKind)) AS ProfileRolesRights
+	|				AND (AccessRestrictionKinds.AccessKind = AccessKindsAndValues.AccessKind)
+	|	
+	|	UNION
+	|	
+	|	SELECT
+	|		RolesRights.MetadataObject,
+	|		UserProfiles.Profile,
+	|		1000,
+	|		"""",
+	|		FALSE,
+	|		FALSE,
+	|		FALSE,
+	|		FALSE,
+	|		FALSE,
+	|		FALSE,
+	|		UserAccessGroups.AccessGroup,
+	|		ISNULL(AccessRestrictionKinds.AccessKind, UNDEFINED),
+	|		ISNULL(AccessRestrictionKinds.AccessKindPresentation, """"),
+	|		UNDEFINED,
+	|		UNDEFINED
+	|	FROM
+	|		RolesRights AS RolesRights
+	|			INNER JOIN Catalog.AccessGroupProfiles.Roles AS ProfilesRoles
+	|				INNER JOIN UserProfiles AS UserProfiles
+	|				ON ProfilesRoles.Ref = UserProfiles.Profile
+	|			ON RolesRights.Role = ProfilesRoles.Role
+	|				AND (RolesRights.RightUpdate
+	|					OR RolesRights.AddRight)
+	|			INNER JOIN UserAccessGroups AS UserAccessGroups
+	|			ON (UserAccessGroups.Profile = UserProfiles.Profile)
+	|			INNER JOIN AccessRestrictionKinds AS AccessRestrictionKinds
+	|			ON (AccessRestrictionKinds.Table = RolesRights.MetadataObject)
+	|				AND (VALUETYPE(AccessRestrictionKinds.AccessKind) = TYPE(Enum.AdditionalAccessValues))
+	|				AND (AccessRestrictionKinds.Right = ""Update"")) AS ProfileRolesRights
 	|TOTALS
-	|	MAX(ObjectsKind),
+	|	MAX(ObjectKindOrder),
 	|	MAX(Table),
 	|	MAX(MetadataObjectID),
 	|	MAX(ProfilePresentation),
@@ -1017,7 +1077,7 @@ Procedure OutputAvailableForEdit(Val AvailableRights, Val Template, Val QueryRes
 		Area.Parameters.Fill(ObjectsKindDetails);
 		Document.Put(Area, 3);
 
-		InsertUsed = StandardSubsystemsServer.IsRegisterTable(ObjectsKindDetails.Table);
+		InsertUsed = Not StandardSubsystemsServer.IsRegisterTable(ObjectsKindDetails.Table);
 
 		For Each ObjectDetails In ObjectsKindDetails.Rows Do
 			ObjectAreaInitialString = Undefined;
@@ -1668,7 +1728,10 @@ EndProcedure
 
 Function AccessKindPresentationTemplate(AccessKindDetails, RightsSettingsOwners)
 
-	If AccessKindDetails.Rows.Count() = 0 Then
+	If AccessKindDetails.AllAllowed = Undefined Then
+		AccessKindPresentationTemplate = "%1";
+	
+	ElsIf AccessKindDetails.Rows.Count() = 0 Then
 		If RightsSettingsOwners.Get(TypeOf(AccessKindDetails.AccessKind)) <> Undefined Then
 			AccessKindPresentationTemplate = "%1";
 

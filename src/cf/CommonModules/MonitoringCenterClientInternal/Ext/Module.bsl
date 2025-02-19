@@ -245,7 +245,7 @@ EndProcedure
 
 Procedure NotifyContactInformationRequest() Export
 	ShowUserNotification(NStr("en = 'Performance issues';"),
-				New NotifyDescription(
+				New CallbackDescription(
 						"OnClickNotifyContactInformationRequest",
 						ThisObject, True),
 				NStr("en = 'Inform of performance issues';"),

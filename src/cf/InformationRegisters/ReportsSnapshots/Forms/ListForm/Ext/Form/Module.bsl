@@ -67,7 +67,7 @@ EndProcedure
 &AtClient
 Procedure SelectAllCommand(Command)
 	
-	For Each RowReport In ReportsSnapshots Do
+	For Each RowReport In ListOfReportSnapshots Do
 		RowReport.Check = True;
 	EndDo;
 	
@@ -76,7 +76,7 @@ EndProcedure
 &AtClient
 Procedure ClearAllIetmsCommand(Command)
 	
-	For Each RowReport In ReportsSnapshots Do
+	For Each RowReport In ListOfReportSnapshots Do
 		RowReport.Check = False;
 	EndDo;
 	
@@ -86,7 +86,7 @@ EndProcedure
 Procedure UpdateReportsSnapshots(Command)
 	
 	RowsIDs = New Array;
-	For Each RowReport In ReportsSnapshots Do
+	For Each RowReport In ListOfReportSnapshots Do
 		If RowReport.Check Then
 			RowsIDs.Add(RowReport.GetID());
 		EndIf;
@@ -96,7 +96,7 @@ Procedure UpdateReportsSnapshots(Command)
 		Return;
 	EndIf;
 	
-	NotifyDescription = New NotifyDescription("AfterReportsSnapshotsUpdated", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterReportsSnapshotsUpdated", ThisObject);
 	TimeConsumingOperation = Undefined;
 	IdleParameters = Undefined;
 	
@@ -122,10 +122,10 @@ Function UpdateReportsSnapshotsAtServer(RowsIDs)
 	FillParameters.Insert("User", User);
 	FillParameters.Insert("CatalogNameReportOptions", CatalogNameReportOptions);
 	
-	UserReportsSnapshots = ReportsSnapshots.Unload(, "User, Report, Variant, UserSettingsHash");
+	UserReportsSnapshots = ListOfReportSnapshots.Unload(, "User, Report, Variant, UserSettingsHash");
 	UserReportsSnapshots.Clear();
 	For Each RowID In RowsIDs Do
-		RowReport = ReportsSnapshots.FindByID(RowID);
+		RowReport = ListOfReportSnapshots.FindByID(RowID);
 		NewRow = UserReportsSnapshots.Add();
 		FillPropertyValues(NewRow, RowReport);
 	EndDo;
@@ -176,7 +176,7 @@ EndProcedure
 Procedure DeleteReportsSnapshots(Command)
 	
 	RowsIDs = New Array;
-	For Each RowReport In ReportsSnapshots Do
+	For Each RowReport In ListOfReportSnapshots Do
 		If RowReport.Check Then
 			RowsIDs.Add(RowReport.GetID());
 		EndIf;
@@ -191,16 +191,42 @@ EndProcedure
 &AtServer
 Procedure DeleteReportsSnapshotsAtServer(RowsIDs)
 	
-	For Each RowID In RowsIDs Do
-		RowReport = ReportsSnapshots.FindByID(RowID);
-		RecordManager = InformationRegisters.ReportsSnapshots.CreateRecordManager();
-		FillPropertyValues(RecordManager, RowReport);
-		RecordManager.Read();
-		If RecordManager.Selected() Then
-			RecordManager.Delete();
+	DeletionMode = Common.RecordSetDeletionMode();
+	BatchMode = DeletionMode <> Undefined;
+
+	Block = New DataLock();
+	LockItem = Block.Add("InformationRegister.ReportsSnapshots");
+	LockItem.SetValue("User", User);
+	
+	BeginTransaction();
+	Try
+		Block.Lock();
+
+		If BatchMode Then
+			RecordsToDelete = InformationRegisters.ReportsSnapshots.CreateRecordSet();
+			For Each RowID In RowsIDs Do
+				RowReport = ListOfReportSnapshots.FindByID(RowID);
+				RecordToDelete = RecordsToDelete.Add();
+				FillPropertyValues(RecordToDelete, RowReport);
+			EndDo;
+			RecordsToDelete.Write(DeletionMode);
+		Else
+			For Each RowID In RowsIDs Do
+				RowReport = ListOfReportSnapshots.FindByID(RowID);
+
+				RecordsToDelete = InformationRegisters.ReportsSnapshots.CreateRecordSet();
+				RecordsToDelete.Filter.User.Set(RowReport.User);
+				RecordsToDelete.Filter.Report.Set(RowReport.Report);
+				RecordsToDelete.Filter.Variant.Set(RowReport.Variant);
+				RecordsToDelete.Filter.UserSettingsHash.Set(RowReport.UserSettingsHash);
+				RecordsToDelete.Write();
+			EndDo;
 		EndIf;
-		ReportsSnapshots.Delete(RowReport);
-	EndDo;
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
 	
 EndProcedure
 
@@ -223,7 +249,7 @@ Procedure UpdateReportSnapshot(Command)
 	RowsIDs = New Array;
 	RowsIDs.Add(Items.ReportsSnapshots.CurrentRow);
 	
-	NotifyDescription = New NotifyDescription("AfterReportsSnapshotsUpdated", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterReportsSnapshotsUpdated", ThisObject);
 	TimeConsumingOperation = Undefined;
 	IdleParameters = Undefined;
 	
@@ -248,7 +274,7 @@ Procedure ReportsSnapshotsListChoice(Item, RowSelected, Field, StandardProcessin
 	
 	StandardProcessing = False;
 	
-	RowReport = ReportsSnapshots.FindByID(RowSelected);
+	RowReport = ListOfReportSnapshots.FindByID(RowSelected);
 	RowReport.Check = Not RowReport.Check;
 	
 EndProcedure
@@ -291,7 +317,7 @@ EndProcedure
 &AtServer
 Procedure FillReportsSnapshots()
 
-	ReportsSnapshots.Load(InformationRegisters.ReportsSnapshots.UserReportsSnapshots(
+	ListOfReportSnapshots.Load(InformationRegisters.ReportsSnapshots.UserReportsSnapshots(
 		?(ShowAllReportsSnapshots, Undefined, User), CatalogNameReportOptions));
 
 EndProcedure

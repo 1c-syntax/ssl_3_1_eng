@@ -40,11 +40,8 @@ EndProcedure
 &AtServerNoContext
 Function CoursesAreBeingUploaded(Currency)
 	
-	CurrenciesImportedFromInternet = New Array;
-	If Metadata.DataProcessors.Find("CurrenciesRatesImport") <> Undefined Then
-		CurrenciesImportedFromInternet = DataProcessors["CurrenciesRatesImport"].CurrenciesImportedFromInternet();
-	EndIf;
-	
+	CurrenciesImportedFromInternet = New Array();
+	CurrencyRateOperationsLocalization.OnDefineCurrenciesImportedFromInternet(CurrenciesImportedFromInternet);
 	If CurrenciesImportedFromInternet.Find(Currency) = Undefined Then
 		Return False;
 	EndIf;

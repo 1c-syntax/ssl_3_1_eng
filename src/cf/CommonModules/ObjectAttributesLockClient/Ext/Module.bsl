@@ -21,12 +21,10 @@
 //  Form - ClientApplicationForm
 //        - ManagedFormExtensionForObjects - The form containing items to unlock, where
 //          :
-//    * Object - FormDataStructure
-//             - CatalogObject
-//             - DocumentObject
+//    * Object - FormDataStructure:
+//        ** Ref - CatalogRef, DocumentRef
 //
-//  ContinuationHandler - Undefined - no actions after the procedure execution.
-//                       - NotifyDescription - Notification that is called after the procedure execution.
+//  ContinuationHandler - CallbackDescription - Notification that is called after the procedure execution.
 //                         A Boolean parameter is passed to the notification handler::
 //                           True - No references are found or the user decided to allow editing.
 //                           False - No visible attributes are locked,
@@ -34,13 +32,14 @@
 //
 //  OnlyVisible - Boolean - set this parameter to False to get and unlock all object attributes.
 //
-Procedure AllowObjectAttributeEdit(Val Form, ContinuationHandler = Undefined, OnlyVisible = True) Export
+Procedure AllowObjectAttributeEdit(Val Form, ContinuationHandler = Undefined, 
+	OnlyVisible = True) Export
 	
 	LockedAttributes = Attributes(Form, , OnlyVisible);
 	
 	If LockedAttributes.Count() = 0 Then
 		ShowAllVisibleAttributesUnlockedWarning(
-			New NotifyDescription("AllowObjectAttributeEditAfterWarning",
+			New CallbackDescription("AllowObjectAttributeEditAfterWarning",
 				ObjectAttributesLockInternalClient, ContinuationHandler));
 		Return;
 	EndIf;
@@ -73,7 +72,7 @@ Procedure AllowObjectAttributeEdit(Val Form, ContinuationHandler = Undefined, On
 	Parameters.Insert("LockedAttributes", LockedAttributes);
 	Parameters.Insert("ContinuationHandler", ContinuationHandler);
 	
-	NotifyDescription = New NotifyDescription("AllowEditingObjectAttributesAfterFormClosed",
+	NotifyDescription = New CallbackDescription("AllowEditingObjectAttributesAfterFormClosed",
 		ObjectAttributesLockInternalClient, Parameters);
 	
 	OpenForm(NameOfUnlockForm, FormParameters, , , , , NotifyDescription);
@@ -83,16 +82,15 @@ EndProcedure
 // Sets the availability of form items associated with the specified attributes
 // whose editing is allowed. If an attribute array is passed,
 // attributes allowed for editing will be supplemented first.
-//   If unlocking of form items linked to the specified attributes
+// If unlocking of form items linked to the specified attributes
 // is released for all the attributes, the button that allows editing becomes unavailable.
 //
 // Parameters:
 //  Form        - ClientApplicationForm - a form, in which it is required to allow
 //                 editing form items of the specified attributes.
 //  
-//  Attributes    - Array - values:
-//                  * String - names of attributes whose editing shall be allowed.
-//                    It is used when the AllowObjectAttributeEdit function is not used.
+//  Attributes    - Array of String - names of attributes whose editing shall be allowed.
+//                    It is specified when the AllowObjectAttributeEdit function is not used.
 //               - Undefined - a set of attributes available for editing is not changed.
 //                 The form items linked to the attributes whose editing is allowed,
 //                 become available.
@@ -121,7 +119,7 @@ Procedure SetFormItemEnabled(Val Form, Val Attributes = Undefined) Export
 EndProcedure
 
 // Allows editing the attributes whose descriptions are given in the form.
-//  Used when form item availability is changed explicitly
+// Used when form item availability is changed explicitly
 // without using the SetFormItemEnabled function.
 //
 // Parameters:
@@ -175,7 +173,7 @@ EndProcedure
 //
 // Parameters:
 //  Form         - ClientApplicationForm - an object form with a required standard Object attribute.
-//  OnlyBlocked - Boolean - you can set this parameter to Falsefor debug purposes,
+//  OnlyBlocked - Boolean - you can set this parameter to False for debug purposes,
 //                  to get a list of all visible attributes that can be unlocked.
 //  OnlyVisible - Boolean - set this parameter to False to get and unlock all object attributes.
 //
@@ -216,7 +214,7 @@ EndFunction
 //
 // Parameters:
 //  ContinuationHandler - Undefined - no actions after the procedure execution.
-//                       - NotifyDescription - notification that is called after the procedure execution.
+//                       - CallbackDescription - notification that is called after the procedure execution.
 //
 Procedure ShowAllVisibleAttributesUnlockedWarning(ContinuationHandler = Undefined) Export
 	
@@ -266,7 +264,7 @@ EndProcedure
 //
 // Returns:
 //  Structure:
-//   * ResultProcessing - NotifyDescription - Upon an unlock, returns to "Result" either
+//   * ResultProcessing - CallbackDescription - Upon an unlock, returns to "Result" either
 //             True (in case all the attributes are unlocked)
 //             or an array of names (in case some of the attributes are unlocked).
 //
@@ -306,7 +304,7 @@ EndFunction
 // Verifies that the infobase contains references to the object.
 //
 // Parameters:
-//  ContinuationHandler - NotifyDescription - notification called after the check.
+//  ContinuationHandler - CallbackDescription - notification called after the check.
 //                         A Boolean parameter is passed to the notification handler:
 //                           True - no references are found or the user decided to allow editing.
 //                           False   - no visible attributes are locked,
@@ -367,7 +365,7 @@ Procedure CheckObjectRefs(Val ContinuationHandler, Val ReferencesArrray, Val Att
 	Buttons.Add(DialogReturnCode.No, NStr("en = 'Cancel';"));
 	
 	ShowQueryBox(
-		New NotifyDescription("CheckObjectReferenceAfterValidationConfirm",
+		New CallbackDescription("CheckObjectReferenceAfterValidationConfirm",
 			ObjectAttributesLockInternalClient, Parameters),
 		QueryText, Buttons, , DialogReturnCode.Yes, DialogTitle);
 	

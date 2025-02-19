@@ -7,9 +7,14 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region Private
+#Region Public
 
-// See StandardSubsystemsServer.SpreadsheetDocumentSaveFormatsSettings
+// Allows adding new or changing the existing table document formats
+// in order to comply with local requirements.
+// For example, you can specify formats required by the local regulatory authorities.  
+// 
+// Parameters: 
+//  FormatsTable - See StandardSubsystemsServer.SpreadsheetDocumentSaveFormatsSettings
 //
 Procedure OnSetupSpreadsheetSaveFormats(FormatsTable) Export
 	

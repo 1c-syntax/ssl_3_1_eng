@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
 	<VerticalScroll>useIfNecessary</VerticalScroll>
 	<CommandSet>
@@ -142,16 +142,16 @@
 									<ContextMenu name="FTPConnectionPathContextMenu" id="15"/>
 									<ExtendedTooltip name="FTPConnectionPathExtendedTooltip" id="114"/>
 								</InputField>
-								<InputField name="FTPConnectionPort" id="16">
-									<DataPath>Record.FTPConnectionPort</DataPath>
+								<InputField name="FTPConnection_Port" id="16">
+									<DataPath>Record.FTPConnection_Port</DataPath>
 									<EditFormat>
 										<v8:item>
 											<v8:lang>en</v8:lang>
 											<v8:content>NG=0</v8:content>
 										</v8:item>
 									</EditFormat>
-									<ContextMenu name="FTPConnectionPortContextMenu" id="17"/>
-									<ExtendedTooltip name="FTPConnectionPortExtendedTooltip" id="115"/>
+									<ContextMenu name="FTPConnection_PortContextMenu" id="17"/>
+									<ExtendedTooltip name="FTPConnection_PortExtendedTooltip" id="115"/>
 								</InputField>
 							</ChildItems>
 						</UsualGroup>
@@ -168,10 +168,10 @@
 							<ShowTitle>false</ShowTitle>
 							<ExtendedTooltip name="UserPasswordGroupExtendedTooltip" id="116"/>
 							<ChildItems>
-								<InputField name="FTPConnectionUser" id="18">
-									<DataPath>Record.FTPConnectionUser</DataPath>
-									<ContextMenu name="FTPConnectionUserContextMenu" id="19"/>
-									<ExtendedTooltip name="FTPConnectionUserExtendedTooltip" id="117"/>
+								<InputField name="FTPUserConnection" id="18">
+									<DataPath>Record.FTPUserConnection</DataPath>
+									<ContextMenu name="FTPUserConnectionContextMenu" id="19"/>
+									<ExtendedTooltip name="FTPUserConnectionExtendedTooltip" id="117"/>
 								</InputField>
 								<InputField name="FTPConnectionPassword" id="22">
 									<DataPath>FTPConnectionPassword</DataPath>
@@ -203,11 +203,11 @@
 							<ShowTitle>false</ShowTitle>
 							<ExtendedTooltip name="Group2ExtendedTooltip" id="126"/>
 							<ChildItems>
-								<InputField name="FTPConnectionMaxMessageSize" id="39">
-									<DataPath>Record.FTPConnectionMaxMessageSize</DataPath>
+								<InputField name="FTPConnectionMaximumAllowedMessageSize" id="39">
+									<DataPath>Record.FTPConnectionMaximumAllowedMessageSize</DataPath>
 									<ChoiceButton>true</ChoiceButton>
-									<ContextMenu name="FTPConnectionMaxMessageSizeContextMenu" id="40"/>
-									<ExtendedTooltip name="FTPConnectionMaxMessageSizeExtendedTooltip" id="119"/>
+									<ContextMenu name="FTPConnectionMaximumAllowedMessageSizeContextMenu" id="40"/>
+									<ExtendedTooltip name="FTPConnectionMaximumAllowedMessageSizeExtendedTooltip" id="119"/>
 								</InputField>
 								<LabelDecoration name="Decoration1" id="127">
 									<Title formatted="false">

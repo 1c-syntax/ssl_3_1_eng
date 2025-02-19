@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<AutoSaveDataInSettings>Use</AutoSaveDataInSettings>
 	<CommandBarLocation>None</CommandBarLocation>
 	<CommandSet>
@@ -71,9 +71,12 @@
 									<Title formatted="true">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Scheduled online activities such as data synchronization and emailing are disabled to prevent conflicts with the main infobase. &lt;link Unlock&gt;Enable&lt;/&gt;.</v8:content>
+											<v8:content>Scheduled background activities such as data synchronization and emailing are disabled to prevent conflicts with the main infobase.
+&lt;link Unlock&gt;Enable&lt;/&gt;.</v8:content>
 										</v8:item>
 									</Title>
+									<GroupVerticalAlign>Center</GroupVerticalAlign>
+									<VerticalAlign>Center</VerticalAlign>
 									<TitleHeight>2</TitleHeight>
 									<ContextMenu name="ExternalResourcesOperationsLockNoteContextMenu" id="286"/>
 									<ExtendedTooltip name="ExternalResourcesOperationsLockNoteExtendedTooltip" id="287"/>
@@ -361,6 +364,18 @@
 														</Title>
 														<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 														<ExtendedTooltip name="ScheduledJobsTableShowAllJobsExtendedTooltip" id="276"/>
+													</Button>
+													<Button name="ScheduledJobsTableLockOperationsWithExternalResources" id="321">
+														<Type>CommandBarButton</Type>
+														<CommandName>Form.Command.LockOperationsWithExternalResources</CommandName>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Disable external resources</v8:content>
+															</v8:item>
+														</Title>
+														<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+														<ExtendedTooltip name="ScheduledJobsTableLockOperationsWithExternalResourcesExtendedTooltip" id="322"/>
 													</Button>
 													<Button name="ScheduledJobsTableCustomizeForm" id="244">
 														<Type>CommandBarButton</Type>
@@ -682,214 +697,219 @@
 										</CheckBoxField>
 									</ChildItems>
 								</UsualGroup>
-								<UsualGroup name="ByPeriod" id="150">
+								<UsualGroup name="GroupPeriodScheduledJob" id="319">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>By period</v8:content>
+											<v8:content>Scheduled job period</v8:content>
 										</v8:item>
 									</Title>
-									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="ByPeriodExtendedTooltip" id="211"/>
+									<ExtendedTooltip name="GroupPeriodScheduledJobExtendedTooltip" id="320"/>
 									<ChildItems>
-										<LabelDecoration name="DecorationForPeriod" id="241">
-											<AutoMaxWidth>false</AutoMaxWidth>
-											<Title formatted="false">
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Period:</v8:content>
-												</v8:item>
-											</Title>
-											<ContextMenu name="DecorationForPeriodContextMenu" id="242"/>
-											<ExtendedTooltip name="DecorationForPeriodExtendedTooltip" id="243"/>
-										</LabelDecoration>
-										<InputField name="FilterKindByPeriod" id="110">
-											<DataPath>FilterKindByPeriod</DataPath>
+										<UsualGroup name="ByPeriod" id="150">
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Filter by period</v8:content>
-												</v8:item>
-											</Title>
-											<TitleLocation>None</TitleLocation>
-											<ListChoiceMode>true</ListChoiceMode>
-											<ChoiceList>
-												<xr:Item>
-													<xr:Presentation/>
-													<xr:CheckState>0</xr:CheckState>
-													<xr:Value xsi:type="FormChoiceListDesTimeValue">
-														<Presentation>
-															<v8:item>
-																<v8:lang>en</v8:lang>
-																<v8:content>All time</v8:content>
-															</v8:item>
-														</Presentation>
-														<Value xsi:type="xs:decimal">0</Value>
-													</xr:Value>
-												</xr:Item>
-												<xr:Item>
-													<xr:Presentation/>
-													<xr:CheckState>0</xr:CheckState>
-													<xr:Value xsi:type="FormChoiceListDesTimeValue">
-														<Presentation>
-															<v8:item>
-																<v8:lang>en</v8:lang>
-																<v8:content>Last night</v8:content>
-															</v8:item>
-														</Presentation>
-														<Value xsi:type="xs:decimal">1</Value>
-													</xr:Value>
-												</xr:Item>
-												<xr:Item>
-													<xr:Presentation/>
-													<xr:CheckState>0</xr:CheckState>
-													<xr:Value xsi:type="FormChoiceListDesTimeValue">
-														<Presentation>
-															<v8:item>
-																<v8:lang>en</v8:lang>
-																<v8:content>Yesterday</v8:content>
-															</v8:item>
-														</Presentation>
-														<Value xsi:type="xs:decimal">2</Value>
-													</xr:Value>
-												</xr:Item>
-												<xr:Item>
-													<xr:Presentation/>
-													<xr:CheckState>0</xr:CheckState>
-													<xr:Value xsi:type="FormChoiceListDesTimeValue">
-														<Presentation>
-															<v8:item>
-																<v8:lang>en</v8:lang>
-																<v8:content>Today</v8:content>
-															</v8:item>
-														</Presentation>
-														<Value xsi:type="xs:decimal">3</Value>
-													</xr:Value>
-												</xr:Item>
-												<xr:Item>
-													<xr:Presentation/>
-													<xr:CheckState>0</xr:CheckState>
-													<xr:Value xsi:type="FormChoiceListDesTimeValue">
-														<Presentation>
-															<v8:item>
-																<v8:lang>en</v8:lang>
-																<v8:content>Custom period</v8:content>
-															</v8:item>
-														</Presentation>
-														<Value xsi:type="xs:decimal">4</Value>
-													</xr:Value>
-												</xr:Item>
-											</ChoiceList>
-											<ContextMenu name="FilterKindByPeriodContextMenu" id="111"/>
-											<ExtendedTooltip name="FilterKindByPeriodExtendedTooltip" id="213"/>
-											<Events>
-												<Event name="OnChange">FilterKindByPeriodOnChange</Event>
-											</Events>
-										</InputField>
-										<UsualGroup name="SettingArbitraryPeriod" id="112">
-											<Visible>false</Visible>
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Custom period</v8:content>
+													<v8:content>By period</v8:content>
 												</v8:item>
 											</Title>
 											<Behavior>Usual</Behavior>
 											<Representation>None</Representation>
 											<ShowTitle>false</ShowTitle>
-											<ExtendedTooltip name="SettingArbitraryPeriodExtendedTooltip" id="216"/>
+											<ExtendedTooltip name="ByPeriodExtendedTooltip" id="211"/>
 											<ChildItems>
-												<InputField name="FilterPeriodFrom" id="113">
-													<DataPath>FilterPeriodFrom</DataPath>
+												<InputField name="FilterKindByPeriod" id="110">
+													<DataPath>FilterKindByPeriod</DataPath>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>from</v8:content>
+															<v8:content>By period</v8:content>
 														</v8:item>
 													</Title>
-													<Wrap>false</Wrap>
-													<ContextMenu name="FilterPeriodFromContextMenu" id="114"/>
-													<ExtendedTooltip name="FilterPeriodFromExtendedTooltip" id="217"/>
+													<TitleLocation>Left</TitleLocation>
+													<Width>15</Width>
+													<AutoMaxWidth>false</AutoMaxWidth>
+													<MaxWidth>15</MaxWidth>
+													<ListChoiceMode>true</ListChoiceMode>
+													<ChoiceList>
+														<xr:Item>
+															<xr:Presentation/>
+															<xr:CheckState>0</xr:CheckState>
+															<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																<Presentation>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>All time</v8:content>
+																	</v8:item>
+																</Presentation>
+																<Value xsi:type="xs:decimal">0</Value>
+															</xr:Value>
+														</xr:Item>
+														<xr:Item>
+															<xr:Presentation/>
+															<xr:CheckState>0</xr:CheckState>
+															<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																<Presentation>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Last night</v8:content>
+																	</v8:item>
+																</Presentation>
+																<Value xsi:type="xs:decimal">1</Value>
+															</xr:Value>
+														</xr:Item>
+														<xr:Item>
+															<xr:Presentation/>
+															<xr:CheckState>0</xr:CheckState>
+															<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																<Presentation>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Yesterday</v8:content>
+																	</v8:item>
+																</Presentation>
+																<Value xsi:type="xs:decimal">2</Value>
+															</xr:Value>
+														</xr:Item>
+														<xr:Item>
+															<xr:Presentation/>
+															<xr:CheckState>0</xr:CheckState>
+															<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																<Presentation>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Today</v8:content>
+																	</v8:item>
+																</Presentation>
+																<Value xsi:type="xs:decimal">3</Value>
+															</xr:Value>
+														</xr:Item>
+														<xr:Item>
+															<xr:Presentation/>
+															<xr:CheckState>0</xr:CheckState>
+															<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																<Presentation>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Custom period</v8:content>
+																	</v8:item>
+																</Presentation>
+																<Value xsi:type="xs:decimal">4</Value>
+															</xr:Value>
+														</xr:Item>
+													</ChoiceList>
+													<ContextMenu name="FilterKindByPeriodContextMenu" id="111"/>
+													<ExtendedTooltip name="FilterKindByPeriodExtendedTooltip" id="213"/>
+													<Events>
+														<Event name="OnChange">FilterKindByPeriodOnChange</Event>
+													</Events>
 												</InputField>
-												<InputField name="FilterPeriodFor" id="115">
-													<DataPath>FilterPeriodFor</DataPath>
+												<UsualGroup name="SettingArbitraryPeriod" id="112">
+													<Visible>false</Visible>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>to</v8:content>
+															<v8:content>Custom period</v8:content>
 														</v8:item>
 													</Title>
+													<Behavior>Usual</Behavior>
+													<Representation>None</Representation>
+													<ShowTitle>false</ShowTitle>
+													<ExtendedTooltip name="SettingArbitraryPeriodExtendedTooltip" id="216"/>
+													<ChildItems>
+														<InputField name="FilterPeriodFrom" id="113">
+															<DataPath>FilterPeriodFrom</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>from</v8:content>
+																</v8:item>
+															</Title>
+															<Wrap>false</Wrap>
+															<ContextMenu name="FilterPeriodFromContextMenu" id="114"/>
+															<ExtendedTooltip name="FilterPeriodFromExtendedTooltip" id="217"/>
+														</InputField>
+														<InputField name="FilterPeriodFor" id="115">
+															<DataPath>FilterPeriodFor</DataPath>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>to</v8:content>
+																</v8:item>
+															</Title>
+															<Wrap>false</Wrap>
+															<ContextMenu name="FilterPeriodForContextMenu" id="116"/>
+															<ExtendedTooltip name="FilterPeriodForExtendedTooltip" id="218"/>
+														</InputField>
+													</ChildItems>
+												</UsualGroup>
+											</ChildItems>
+										</UsualGroup>
+										<UsualGroup name="ByScheduledJob" id="96">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>By scheduled job</v8:content>
+												</v8:item>
+											</Title>
+											<Behavior>Usual</Behavior>
+											<Representation>None</Representation>
+											<ShowTitle>false</ShowTitle>
+											<ExtendedTooltip name="ByScheduledJobExtendedTooltip" id="219"/>
+											<ChildItems>
+												<CheckBoxField name="FilterByScheduledJob" id="94">
+													<DataPath>FilterByScheduledJob</DataPath>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>By scheduled job:</v8:content>
+														</v8:item>
+													</Title>
+													<TitleLocation>Right</TitleLocation>
+													<ToolTip>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Filter by a scheduled job.</v8:content>
+														</v8:item>
+													</ToolTip>
+													<CheckBoxType>Auto</CheckBoxType>
+													<ContextMenu name="FilterByScheduledJobContextMenu" id="95"/>
+													<ExtendedTooltip name="FilterByScheduledJobExtendedTooltip" id="220"/>
+													<Events>
+														<Event name="OnChange">FilterByScheduledJobOnChange</Event>
+													</Events>
+												</CheckBoxField>
+												<InputField name="ScheduledJobForFilter" id="56">
+													<DataPath>ScheduledJobForFilterID</DataPath>
+													<Enabled>false</Enabled>
+													<Title>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Scheduled job ID</v8:content>
+														</v8:item>
+													</Title>
+													<TitleLocation>None</TitleLocation>
+													<ToolTip>
+														<v8:item>
+															<v8:lang>en</v8:lang>
+															<v8:content>Scheduled job to be filtered by.</v8:content>
+														</v8:item>
+													</ToolTip>
 													<Wrap>false</Wrap>
-													<ContextMenu name="FilterPeriodForContextMenu" id="116"/>
-													<ExtendedTooltip name="FilterPeriodForExtendedTooltip" id="218"/>
+													<ClearButton>true</ClearButton>
+													<OpenButton>false</OpenButton>
+													<ListChoiceMode>true</ListChoiceMode>
+													<TextEdit>false</TextEdit>
+													<ContextMenu name="ScheduledJobForFilterContextMenu" id="57"/>
+													<ExtendedTooltip name="ScheduledJobForFilterExtendedTooltip" id="221"/>
+													<Events>
+														<Event name="Clearing">ScheduledJobForFilterClearing</Event>
+													</Events>
 												</InputField>
 											</ChildItems>
 										</UsualGroup>
-									</ChildItems>
-								</UsualGroup>
-								<UsualGroup name="ByScheduledJob" id="96">
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>By scheduled job</v8:content>
-										</v8:item>
-									</Title>
-									<Behavior>Usual</Behavior>
-									<Representation>None</Representation>
-									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="ByScheduledJobExtendedTooltip" id="219"/>
-									<ChildItems>
-										<CheckBoxField name="FilterByScheduledJob" id="94">
-											<DataPath>FilterByScheduledJob</DataPath>
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Filter by scheduled job:</v8:content>
-												</v8:item>
-											</Title>
-											<TitleLocation>Right</TitleLocation>
-											<ToolTip>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Filter by a scheduled job.</v8:content>
-												</v8:item>
-											</ToolTip>
-											<CheckBoxType>Auto</CheckBoxType>
-											<ContextMenu name="FilterByScheduledJobContextMenu" id="95"/>
-											<ExtendedTooltip name="FilterByScheduledJobExtendedTooltip" id="220"/>
-											<Events>
-												<Event name="OnChange">FilterByScheduledJobOnChange</Event>
-											</Events>
-										</CheckBoxField>
-										<InputField name="ScheduledJobForFilter" id="56">
-											<DataPath>ScheduledJobForFilterID</DataPath>
-											<Enabled>false</Enabled>
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Scheduled job ID</v8:content>
-												</v8:item>
-											</Title>
-											<TitleLocation>None</TitleLocation>
-											<ToolTip>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Scheduled job to be filtered by.</v8:content>
-												</v8:item>
-											</ToolTip>
-											<Wrap>false</Wrap>
-											<ClearButton>true</ClearButton>
-											<OpenButton>false</OpenButton>
-											<ListChoiceMode>true</ListChoiceMode>
-											<TextEdit>false</TextEdit>
-											<ContextMenu name="ScheduledJobForFilterContextMenu" id="57"/>
-											<ExtendedTooltip name="ScheduledJobForFilterExtendedTooltip" id="221"/>
-											<Events>
-												<Event name="Clearing">ScheduledJobForFilterClearing</Event>
-											</Events>
-										</InputField>
 									</ChildItems>
 								</UsualGroup>
 							</ChildItems>
@@ -1618,11 +1638,6 @@ Please wait…</v8:content>
 			</Type>
 			<MainAttribute>true</MainAttribute>
 		</Attribute>
-		<Attribute name="SettingsImported" id="19">
-			<Type>
-				<v8:Type>xs:boolean</v8:Type>
-			</Type>
-		</Attribute>
 		<Attribute name="TextUndefined" id="20">
 			<Type>
 				<v8:Type>xs:string</v8:Type>
@@ -1897,6 +1912,15 @@ Please wait…</v8:content>
 			</Picture>
 			<Action>EventLogEvents</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="LockOperationsWithExternalResources" id="11">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Disable external resources</v8:content>
+				</v8:item>
+			</Title>
+			<Action>LockOperationsWithExternalResources</Action>
 		</Command>
 	</Commands>
 </Form>

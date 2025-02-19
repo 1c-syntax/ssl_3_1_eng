@@ -140,7 +140,7 @@ Function TestConnection(SettingsStructureString, TransportKindAsString, ErrorMes
 	Cancel = False;
 	
 	// Testing exchange message transport data processor connection
-	DataExchangeServer.CheckExchangeMessageTransportDataProcessorAttachment(Cancel,
+	ExchangeMessagesTransport.CheckExchangeMessageTransportDataProcessorAttachment(Cancel,
 			ValueFromStringInternal(SettingsStructureString),
 			Enums.ExchangeMessagesTransportTypes[TransportKindAsString],
 			ErrorMessage);

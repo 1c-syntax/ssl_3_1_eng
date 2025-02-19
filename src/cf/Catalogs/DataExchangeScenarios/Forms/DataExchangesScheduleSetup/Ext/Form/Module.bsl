@@ -15,11 +15,18 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	SetConditionalAppearance();
 	
+	DataExchangeServer.UpdateRoutineTasks();
+	
 	List.Parameters.Items[0].Value = Parameters.InfobaseNode;
 	List.Parameters.Items[0].Use = True;
 	
 	Title = NStr("en = 'Synchronization scenario setup for: [InfobaseNode]';");
 	Title = StrReplace(Title, "[InfobaseNode]", String(Parameters.InfobaseNode));
+	
+	If Common.DataSeparationEnabled() Then
+		Items.EnableDisableExportImport.Visible = False;
+		Items.FormExecuteScenario.Visible = False;
+	EndIf;
 	
 EndProcedure
 
@@ -196,6 +203,11 @@ Procedure EnableDisableScheduledJobAtServer(Ref)
 		ScenarioObject = Ref.GetObject();
 		
 		ScenarioObject.UseScheduledJob = Not ScenarioObject.UseScheduledJob;
+		
+		Cancel = False;
+		Schedule = Catalogs.DataExchangeScenarios.GetDataExchangeExecutionSchedule(Ref);
+		Catalogs.DataExchangeScenarios.UpdateScheduledJobData(Cancel, Schedule, ScenarioObject);
+		
 		ScenarioObject.Write();
 		
 		CommitTransaction();

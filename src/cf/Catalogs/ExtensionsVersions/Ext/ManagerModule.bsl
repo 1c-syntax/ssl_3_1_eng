@@ -6,7 +6,6 @@
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -305,21 +304,21 @@ Procedure RegisterExtensionsVersionUsage() Export
 		Return;
 	EndIf;
 
-	Query = RequestToVerifyDateOfLastUse(ExtensionsVersion);
+	Query = RequestLastUsedDateCheck(ExtensionsVersion);
 	If Query.Execute().IsEmpty() Then
 		UpdateLatestExtensionsVersion(ExtensionsVersion);
 		Return;
 	EndIf;
 	
 	If Common.FileInfobase() Or ExclusiveMode() Then
-		UpdateDateOfLastUseOfExtensionVersion(ExtensionsVersion);
+		UpdateExtensionsVersionLastUsedDate(ExtensionsVersion);
 		UpdateLatestExtensionsVersion(ExtensionsVersion);
 		Return;
 	EndIf;
 	
 	UpdateLatestExtensionsVersion(ExtensionsVersion);
 	
-	ProcedureName = "StandardSubsystemsServer.UpdateDateOfLastUseOfExtensionVersion";
+	ProcedureName = "StandardSubsystemsServer.UpdateExtensionsVersionLastUsedDate";
 	Filter = New Structure("MethodName, State", ProcedureName, BackgroundJobState.Active);
 	VersionAsString = Lower(ExtensionsVersion.UUID());
 	
@@ -767,7 +766,7 @@ EndFunction
 // Returns the current extension version.
 // The search for a version is based on details of the attached extensions.
 //
-Function ExtensionsVersion(WhenRegisteringUseOfExtensionVersion = False)
+Function ExtensionsVersion(OnRegisterExtensionsVersionsUsage = False)
 
 	If Not Common.SeparatedDataUsageAvailable() Then
 		Return EmptyRef();
@@ -779,7 +778,7 @@ Function ExtensionsVersion(WhenRegisteringUseOfExtensionVersion = False)
 	EndIf;
 
 	If Not TransactionActive() Or Not Common.FileInfobase() Then
-		Query = RequestingActiveVersionsOfExtensions();
+		Query = RequestExtensionsActiveVersions();
 		Selection = Query.Execute().Select();
 		If VersionFound(Selection, ExtensionsDetails) Then
 			Return Selection.Ref;
@@ -788,21 +787,21 @@ Function ExtensionsVersion(WhenRegisteringUseOfExtensionVersion = False)
 	
 	If Common.FileInfobase() Or ExclusiveMode() Then
 		ExtensionsVersion = Undefined;
-		AddNewVersionOfExtensions(ExtensionsDetails, ExtensionsVersion);
+		AddNewExtensionVersion(ExtensionsDetails, ExtensionsVersion);
 		Return ExtensionsVersion;
 	EndIf;
 	
-	ProcedureName = "StandardSubsystemsServer.AddNewVersionOfExtensions";
+	ProcedureName = "StandardSubsystemsServer.AddNewExtensionVersion";
 	Filter = New Structure("MethodName, State", ProcedureName, BackgroundJobState.Active);
 	
 	Hashing = New DataHashing(HashFunction.SHA512);
 	Hashing.Append(ExtensionsDetails);
-	HashAmountByString = Base64String(Hashing.HashSum);
+	HashSumAsStr = Base64String(Hashing.HashSum);
 	
 	JobDescription = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Extension versions: Add a new version of %1';",
 			Common.DefaultLanguageCode()),
-		HashAmountByString);
+		HashSumAsStr);
 	
 	JobParameters = CommonClientServer.ValueInArray(ExtensionsDetails);
 	TaskIds = New Map;
@@ -813,7 +812,7 @@ Function ExtensionsVersion(WhenRegisteringUseOfExtensionVersion = False)
 		IndexOf = FoundJobs.UBound();
 		While IndexOf >= 0 Do
 			FoundJob = FoundJobs[IndexOf];
-			If StrFind(FoundJob.Description, HashAmountByString) = 0 Then
+			If StrFind(FoundJob.Description, HashSumAsStr) = 0 Then
 				FoundJobs.Delete(IndexOf);
 			EndIf;
 			IndexOf = IndexOf - 1;
@@ -822,7 +821,7 @@ Function ExtensionsVersion(WhenRegisteringUseOfExtensionVersion = False)
 		// @skip-check query-in-loop - Import up-to-date data from the infobase at each iteration.
 		Selection = Query.Execute().Select();
 		If VersionFound(Selection, ExtensionsDetails) Then
-			If Not WhenRegisteringUseOfExtensionVersion Then
+			If Not OnRegisterExtensionsVersionsUsage Then
 				UpdateLatestExtensionsVersion(Selection.Ref);
 			EndIf;
 			Return Selection.Ref;
@@ -841,7 +840,7 @@ Function ExtensionsVersion(WhenRegisteringUseOfExtensionVersion = False)
 		// @skip-check query-in-loop - Import up-to-date data from the infobase at each iteration.
 		Selection = Query.Execute().Select();
 		If VersionFound(Selection, ExtensionsDetails) Then
-			If Not WhenRegisteringUseOfExtensionVersion Then
+			If Not OnRegisterExtensionsVersionsUsage Then
 				UpdateLatestExtensionsVersion(Selection.Ref);
 			EndIf;
 			Return Selection.Ref;
@@ -859,17 +858,17 @@ Function ExtensionsVersion(WhenRegisteringUseOfExtensionVersion = False)
 		           |%2
 		           |• Job details:';"),
 		ExtensionsDetails,
-		HashAmountByString);
+		HashSumAsStr);
 	
 	ClarificationForAdmin = ClarificationForAdmin
-		+ Chars.LF + DescriptionOfStatusOfTasks(TaskIds);
+		+ Chars.LF + JobStatesDetails(TaskIds);
 	
 	Raise(ErrorText,,, ClarificationForAdmin);
 	
 EndFunction
 
 // Intended for function "ExtensionsVersion".
-Function DescriptionOfStatusOfTasks(TaskIds)
+Function JobStatesDetails(TaskIds)
 	
 	TaskDescription_ = New ValueList;
 	
@@ -921,9 +920,9 @@ Function DescriptionOfStatusOfTasks(TaskIds)
 EndFunction
 
 // This method is required by ExtensionsVersion function.
-Procedure AddNewVersionOfExtensions(ExtensionsDetails, ExtensionsVersion = Undefined) Export
+Procedure AddNewExtensionVersion(ExtensionsDetails, ExtensionsVersion = Undefined) Export
 	
-	Query = RequestingActiveVersionsOfExtensions();
+	Query = RequestExtensionsActiveVersions();
 	
 	// If another user is creating an extension version,
 	// wait till they finish to avoid exclusive locks.
@@ -979,7 +978,7 @@ Procedure AddNewVersionOfExtensions(ExtensionsDetails, ExtensionsVersion = Undef
 EndProcedure
 
 // Intended for "ExtensionsVersion" function and "AddNewExtensionVersion" procedure.
-Function RequestingActiveVersionsOfExtensions()
+Function RequestExtensionsActiveVersions()
 	
 	Query = New Query;
 	Query.Text =
@@ -995,7 +994,7 @@ Function RequestingActiveVersionsOfExtensions()
 	
 EndFunction
 
-// For function ExtensionsVersion.
+// Intended for function "ExtensionsVersion".
 Function VersionFound(Selection, ExtensionsDetails)
 
 	While Selection.Next() Do
@@ -1155,10 +1154,10 @@ Function NewStoredPropertiesOfExtensionsVersion()
 EndFunction
 
 // Intended for "RegisterExtensionsVersionUsage" procedure.
-Procedure UpdateDateOfLastUseOfExtensionVersion(ExtensionsVersion) Export
+Procedure UpdateExtensionsVersionLastUsedDate(ExtensionsVersion) Export
 
 	RoundedSessionStartDate = RoundedSessionStartDate();
-	Query = RequestToVerifyDateOfLastUse(ExtensionsVersion, RoundedSessionStartDate);
+	Query = RequestLastUsedDateCheck(ExtensionsVersion, RoundedSessionStartDate);
 	
 	// If another user is updating the last use date,
 	// wait till the it's finished to avoid exclusive locks.
@@ -1201,7 +1200,7 @@ Procedure UpdateDateOfLastUseOfExtensionVersion(ExtensionsVersion) Export
 EndProcedure
 
 // Intended for "RegisterExtensionsVersionUsage" procedure.
-Function RequestToVerifyDateOfLastUse(ExtensionsVersion, RoundedSessionStartDate = Undefined)
+Function RequestLastUsedDateCheck(ExtensionsVersion, RoundedSessionStartDate = Undefined)
 	
 	If RoundedSessionStartDate = Undefined Then
 		RoundedSessionStartDate = RoundedSessionStartDate();
@@ -1239,11 +1238,11 @@ Procedure UpdateLatestExtensionsVersion(ExtensionsVersion)
 	EndIf;
 
 	If Common.FileInfobase() Or ExclusiveMode() Then
-		InstallLatestVersionOfExtensions(ExtensionsVersion);
+		InstallLatestExtensionVersions(ExtensionsVersion);
 		Return;
 	EndIf;
 	
-	ProcedureName = "StandardSubsystemsServer.InstallLatestVersionOfExtensions";
+	ProcedureName = "StandardSubsystemsServer.InstallLatestExtensionVersions";
 	Filter = New Structure("MethodName, State", ProcedureName, BackgroundJobState.Active);
 	VersionAsString = Lower(ExtensionsVersion.UUID());
 	
@@ -1266,7 +1265,7 @@ Procedure UpdateLatestExtensionsVersion(ExtensionsVersion)
 EndProcedure
 
 // Intended for "UpdateLatestExtensionsVersion" procedure.
-Procedure InstallLatestVersionOfExtensions(ExtensionsVersion) Export
+Procedure InstallLatestExtensionVersions(ExtensionsVersion) Export
 	
 	If Not Common.FileInfobase() Then
 		

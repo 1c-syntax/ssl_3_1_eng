@@ -14,21 +14,17 @@
 // Configuration subsystem event handlers.
 
 // See CommonOverridable.OnAddMetadataObjectsRenaming.
-Procedure OnAddMetadataObjectsRenaming(Total) Export
+Procedure OnAddMetadataObjectsRenaming(Renamings) Export
 	
-	Library = "StandardSubsystems";
-	
-	Common.AddRenaming(Total,
-		"2.1.0.1",
+	Common.AddRenaming(Renamings, "2.1.0.1",
 		"Subsystem.StandardSubsystems.Subsystem.EventLogMonitor",
 		"Subsystem.StandardSubsystems.Subsystem.EventLogAnalysis",
-		Library);
+		"StandardSubsystems");
 	
-	Common.AddRenaming(Total,
-		"3.1.10.32",
+	Common.AddRenaming(Renamings, "3.1.10.32",
 		"Subsystem.StandardSubsystems.Subsystem.EventLogAnalysis",
 		"Subsystem.StandardSubsystems.Subsystem.UserMonitoring",
-		Library);
+		"StandardSubsystems");
 	
 EndProcedure
 
@@ -162,8 +158,8 @@ Procedure SetDataAccessRegistration(ShouldRegisterDataAccess) Export
 		Block.Lock();
 		CurrentSettings = StoredRegistrationSettings();
 		CurrentSettings.Use = ShouldRegisterDataAccess;
-		Store = New ValueStorage(CurrentSettings);
-		Constants.RegistrationSettingsForDataAccessEvents.Set(Store);
+		Storage = New ValueStorage(CurrentSettings, New Deflation(9));
+		Constants.RegistrationSettingsForDataAccessEvents.Set(Storage);
 		Users.UpdateRegistrationSettingsForDataAccessEvents();
 		CommitTransaction();
 	Except
@@ -221,8 +217,8 @@ Procedure SetRegistrationSettingsForDataAccessEvents(Settings) Export
 		CurrentSettings.Content           = Settings.Content;
 		CurrentSettings.Comments      = Settings.Comments;
 		CurrentSettings.GeneralComment = Settings.GeneralComment;
-		Store = New ValueStorage(CurrentSettings);
-		Constants.RegistrationSettingsForDataAccessEvents.Set(Store);
+		Storage = New ValueStorage(CurrentSettings, New Deflation(9));
+		Constants.RegistrationSettingsForDataAccessEvents.Set(Storage);
 		Users.UpdateRegistrationSettingsForDataAccessEvents();
 		CommitTransaction();
 	Except
@@ -240,7 +236,7 @@ Function EventNameDataAccessAuditingEventRegistrationSettingsChange() Export
 EndFunction
 
 // Parameters:
-//  Store - Undefined - Read from the constant.
+//  Storage - Undefined - Read from the constant.
 //            - ValueStorage - Use the specified one.
 //
 // Returns:
@@ -252,7 +248,7 @@ EndFunction
 //        * Value - String - Arbitrary text
 //    * GeneralComment - String - Arbitrary text
 //
-Function StoredRegistrationSettings(Store = Undefined) Export
+Function StoredRegistrationSettings(Storage = Undefined) Export
 	
 	Result = New Structure;
 	Result.Insert("Use", False);
@@ -260,14 +256,14 @@ Function StoredRegistrationSettings(Store = Undefined) Export
 	Result.Insert("Comments", New Map);
 	Result.Insert("GeneralComment", "");
 	
-	If Store = Undefined Then
-		Store = Constants.RegistrationSettingsForDataAccessEvents.Get();
+	If Storage = Undefined Then
+		Storage = Constants.RegistrationSettingsForDataAccessEvents.Get();
 	EndIf;
-	If TypeOf(Store) <> Type("ValueStorage") Then
+	If TypeOf(Storage) <> Type("ValueStorage") Then
 		Return Result;
 	EndIf;
 	
-	Value = Store.Get();
+	Value = Storage.Get();
 	If TypeOf(Value) <> Type("Structure") Then
 		Return Result;
 	EndIf;

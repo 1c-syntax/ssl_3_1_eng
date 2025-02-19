@@ -342,7 +342,9 @@ Function AutomaticTranslationAvailable(LanguageCode) Export
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.TextTranslation") Then
 		ModuleTranslationOfTextIntoOtherLanguages = Common.CommonModule("TextTranslationTool");
-		Return ItIsAnAdditionalLanguageOfPrintedForms(LanguageCode) And ModuleTranslationOfTextIntoOtherLanguages.TextTranslationAvailable();
+		Return ItIsAnAdditionalLanguageOfPrintedForms(LanguageCode)
+			And (ModuleTranslationOfTextIntoOtherLanguages.TextTranslationAvailable()
+			Or ModuleTranslationOfTextIntoOtherLanguages.IsTextTranslationServiceSettingAvailable());
 	EndIf;
 	
 	Return False;

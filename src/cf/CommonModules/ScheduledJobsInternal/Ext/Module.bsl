@@ -78,7 +78,7 @@ EndFunction
 //    * ScheduledJob - MetadataObjectScheduledJob - a scheduled job.
 //    * FunctionalOption - MetadataObjectFunctionalOption - functional option
 //        the scheduled job depends on.
-//    * DependenceByT      - Boolean - if the scheduled job depends on more than
+//    * DependenceByT      - Boolean - if the scheduled job depends on more than
 //        one functional option and you want to enable it only
 //        when all functional options are enabled, specify True
 //        for each dependency.
@@ -100,6 +100,9 @@ EndFunction
 //    * UseExternalResources   - Boolean - True if the scheduled job is operating
 //        with external resources (receiving emails, synchronizing data, etc.).
 //        The default value is False.
+//    * AccessesExternalResources - Boolean - 
+//        
+//        
 //
 Function ScheduledJobsDependentOnFunctionalOptions() Export
 	
@@ -111,8 +114,9 @@ Function ScheduledJobsDependentOnFunctionalOptions() Export
 	Dependencies.Columns.Add("AvailableInSubordinateDIBNode");
 	Dependencies.Columns.Add("EnableOnEnableFunctionalOption");
 	Dependencies.Columns.Add("AvailableAtStandaloneWorkstation");
-	Dependencies.Columns.Add("UseExternalResources",  New TypeDescription("Boolean"));
-	Dependencies.Columns.Add("IsParameterized",  New TypeDescription("Boolean"));
+	Dependencies.Columns.Add("UseExternalResources", New TypeDescription("Boolean"));
+	Dependencies.Columns.Add("AccessesExternalResources", New TypeDescription("Boolean"));
+	Dependencies.Columns.Add("IsParameterized", New TypeDescription("Boolean"));
 	
 	SSLSubsystemsIntegration.OnDefineScheduledJobSettings(Dependencies);
 	ScheduledJobsOverridable.OnDefineScheduledJobSettings(Dependencies);
@@ -194,13 +198,18 @@ Procedure SetScheduledJobsUsageByFunctionalOptions(EnableJobs = False) Export
 	
 EndProcedure
 
-// Returns a new background job property table.
-//  See the table structure in the EmptyBackgroundJobPropertyTable() function.
+// Returns a table containing background job properties.
 // 
 // Parameters:
-//  Filter        - Structure - valid fields:
-//                 ID, Key, State, Beginning, End,
-//                 Description, MethodName, and ScheduledJob. 
+//  Filter - Structure:
+//    * Id
+//    * Key
+//    * State
+//    * Begin
+//    * End
+//    * Description
+//    * MethodName
+//    * ScheduledJob 
 //
 // Returns:
 //   See NewBackgroundJobsProperties
@@ -212,11 +221,9 @@ Function BackgroundJobsProperties(Filter = Undefined) Export
 	
 	Table = NewBackgroundJobsProperties();
 	
-	If ValueIsFilled(Filter) And Filter.Property("GetLastScheduledJobBackgroundJob") Then
+	GetLast = ValueIsFilled(Filter) And Filter.Property("GetLastScheduledJobBackgroundJob");
+	If GetLast Then
 		Filter.Delete("GetLastScheduledJobBackgroundJob");
-		GetLast = True;
-	Else
-		GetLast = False;
 	EndIf;
 	
 	ScheduledJob = Undefined;
@@ -233,7 +240,6 @@ Function BackgroundJobsProperties(Filter = Undefined) Export
 			StartedManually = BackgroundJobs.GetBackgroundJobs(CurrentFilter);
 			
 			If ScheduledJob <> Undefined Then
-				LastBackgroundJob = ScheduledJob.LastJob;
 				CurrentFilter            = New Structure("ScheduledJob", ScheduledJob);
 				StartedAutomatically = BackgroundJobs.GetBackgroundJobs(CurrentFilter);
 			EndIf;
@@ -354,8 +360,7 @@ Function BackgroundJobsProperties(Filter = Undefined) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Event subscription handlers.
+#Region EventsSubscriptionsHandlers
 
 // The procedure enables or disables the scheduled jobs created in the infobase
 // on functional option change.
@@ -375,8 +380,9 @@ Procedure EnableScheduledJobOnChangeFunctionalOption(Source, Cancel) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#EndRegion
+
+#Region ConfigurationSubsystemsEventHandlers
 
 // See ExportImportDataOverridable.AfterImportData.
 Procedure AfterImportData(Container) Export
@@ -421,9 +427,9 @@ Procedure OnDefineScheduledJobsUsage(UsageTable) Export
 	
 	FilterParameters = New Structure;
 	FilterParameters.Insert("AvailableSaaS", False);
-	TasksOfDisabledServiceModel = DependentScheduledJobs.Copy(FilterParameters ,"ScheduledJob");
-	For Each TaskThatIsBeingDisabled In TasksOfDisabledServiceModel Do
-		ScheduledJob = TaskThatIsBeingDisabled.ScheduledJob; // MetadataObjectScheduledJob
+	JobsToDisableSaaS = DependentScheduledJobs.Copy(FilterParameters ,"ScheduledJob");
+	For Each JobToDisable In JobsToDisableSaaS Do
+		ScheduledJob = JobToDisable.ScheduledJob; // MetadataObjectScheduledJob
 		If UsageTable.Find(ScheduledJob.Name, "ScheduledJob") <> Undefined Then
 			Continue;
 		EndIf;
@@ -434,6 +440,8 @@ Procedure OnDefineScheduledJobsUsage(UsageTable) Export
 	EndDo;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -514,8 +522,9 @@ Procedure GenerateScheduledJobsTable(Parameters, StorageAddress) Export
 	
 	ScheduledJobsParameters = ScheduledJobsDependentOnFunctionalOptions();
 	FilterParameters        = New Structure;
-	ParameterizedJobs = New Array;
 	FilterParameters.Insert("IsParameterized", True);
+	ParameterizedJobs = New Array;
+
 	SearchResult = ScheduledJobsParameters.FindRows(FilterParameters);
 	For Each ResultString1 In SearchResult Do
 		ParameterizedJobs.Add(ResultString1.ScheduledJob);
@@ -561,11 +570,7 @@ Procedure GenerateScheduledJobsTable(Parameters, StorageAddress) Export
 			Id = String(Job.UUID);
 			
 			If IndexOf >= Table.Count() Or Table[IndexOf].Id <> Id Then
-				
-				// Insert a new job.
 				ToUpdate = Table.Insert(IndexOf);
-				
-				// Assign a UUID.
 				ToUpdate.Id = Id;
 			Else
 				ToUpdate = Table[IndexOf];
@@ -591,8 +596,7 @@ Procedure GenerateScheduledJobsTable(Parameters, StorageAddress) Export
 		Rows = Table.FindRows(
 			New Structure("Id", ScheduledJobID));
 		
-		If Job <> Undefined
-		   And Rows.Count() > 0 Then
+		If Job <> Undefined And Rows.Count() > 0 Then
 			
 			RowJob = Rows[0];
 			If ParameterizedJobs.Find(Job.Metadata) <> Undefined Then
@@ -614,31 +618,25 @@ Procedure SetScheduledJobProperties(Receiver, JobSource)
 	
 	FillPropertyValues(Receiver, JobSource);
 	
-	// Refine the description.
 	Receiver.Description = ScheduledJobPresentation(JobSource);
-	
-	// Setting the Completion date and the Completion state by the last background procedure .
-	LastBackgroundJobProperties = LastBackgroundJobScheduledJobExecutionProperties(JobSource);
-	
 	Receiver.JobName = JobSource.Metadata.Name;
+
+	LastBackgroundJobProperties = JobSource.LastJob;
 	If LastBackgroundJobProperties = Undefined Then
 		Receiver.StartDate          = TextUndefined();
 		Receiver.EndDate       = TextUndefined();
 		Receiver.ExecutionState = TextUndefined();
 	Else
 		Receiver.StartDate          = ?(ValueIsFilled(LastBackgroundJobProperties.Begin),
-		                               LastBackgroundJobProperties.Begin,
-		                               "<>");
+			LastBackgroundJobProperties.Begin, "<>");
 		Receiver.EndDate       = ?(ValueIsFilled(LastBackgroundJobProperties.End),
-		                               LastBackgroundJobProperties.End,
-		                               "<>");
+			LastBackgroundJobProperties.End, "<>");
 		Receiver.ExecutionState = LastBackgroundJobProperties.State;
 	EndIf;
 		
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for working with scheduled jobs.
+#Region ProceduresAndFunctionsToManageScheduledJobs
 
 // It is intended for "manual" immediate execution of the scheduled job procedure either in the client session (in the file infobase)
 // or in the background job on the server (in the server infobase).
@@ -757,14 +755,12 @@ Function TextUndefined() Export
 	
 EndFunction
 
-// Returns a multiline String containing Messages and ErrorDetailsDescription,
-// the last background job is found by the scheduled job ID
-// and there are messages/errors.
+// Returns messages and error details from the last background job 
+// of the given scheduled job.
 //
 // Parameters:
 //  Job      - ScheduledJob
-//               - String - ScheduledJob
-//                 UUID as a string.
+//               - String - Scheduled job UUID as String.
 //
 // Returns:
 //  String
@@ -782,8 +778,9 @@ Function ScheduledJobMessagesAndErrorDescriptions(Val Job) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for working with background jobs.
+#EndRegion
+
+#Region ProceduresAndFunctionsToManageBackgroundJobs
 
 // Cancels the background job if possible, i.e. if it is running on the server and is active.
 //
@@ -945,8 +942,9 @@ Function BackgroundJobMessagesAndErrorDescriptions(Id, BackgroundJobProperties =
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+#EndRegion
+
+#Region AuxiliaryProceduresAndFunctions
 
 Procedure ChangeScheduledJobsUsageByFunctionalOptions(Source, Val Use)
 	
@@ -1106,19 +1104,17 @@ Procedure AddBackgroundJobProperties(Val BackgroundJobArray, Val BackgroundJobPr
 			
 			ScheduledJob = ScheduledJobs.FindByUUID(New UUID(BackgroundJob.Key));
 		EndIf;
-		String.ScheduledJobID = ?(
-			ScheduledJob = Undefined,
-			"",
-			ScheduledJob.UUID);
+		String.ScheduledJobID = ?(ScheduledJob = Undefined,
+			"", ScheduledJob.UUID);
 		
-		String.ErrorDetailsDescription = ?(
-			BackgroundJob.ErrorInfo = Undefined,
-			"",
-			ErrorProcessing.DetailErrorDescription(BackgroundJob.ErrorInfo));
+		String.ErrorDetailsDescription = ?(BackgroundJob.ErrorInfo = Undefined,
+			"", ErrorProcessing.DetailErrorDescription(BackgroundJob.ErrorInfo));
 		
 		IndexOf = IndexOf - 1;
 	EndDo;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

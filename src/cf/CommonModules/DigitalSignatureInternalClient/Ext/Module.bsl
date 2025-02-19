@@ -33,7 +33,7 @@ EndProcedure
 // Obtains installed cryptographic service providers.
 //  
 // Parameters:
-//  Notification - NotifyDescription - Runtime result notification. One of the types::
+//  Notification - CallbackDescription - Runtime result notification. One of the types::
 //    = Undefined - Failed to obtain data (no cryptography extension or add-in is installed)
 //    = Structure:
 //      # CheckCompleted = Boolean - If True, the check is successful, the installed CSP are detected.
@@ -76,7 +76,7 @@ Procedure GetInstalledCryptoProviders(Notification, CheckParameters = Undefined)
 	Context.Insert("Notification", Notification);
 	Context.Insert("ShouldContinueWithoutInstallingExtention", True);
 	
-	ContinuationNotification = New NotifyDescription("GetInstalledCryptoProvidersAfterAddInAttached",
+	ContinuationNotification = New CallbackDescription("GetInstalledCryptoProvidersAfterAddInAttached",
 		ThisObject, Context);
 	RunAfterExtensionAndAddInChecked(ContinuationNotification, Context);
 	
@@ -89,7 +89,14 @@ EndProcedure
 //
 Procedure SetListOfCertificateRevocation(RevocationListInstallationParameters) Export
 	
-	Notification = New NotifyDescription("InstallCertificateRevocationListAfterAddInAttached",
+	If Not DigitalSignatureClient.CommonSettings().AccessToInternetServicesAllowed Then
+		HandlerErrorOfSettingRevocationList(
+			DigitalSignatureInternalClientServer.AccessToInternetServicesDeniedMessageText(),
+			RevocationListInstallationParameters);
+		Return;
+	EndIf;
+	
+	Notification = New CallbackDescription("InstallCertificateRevocationListAfterAddInAttached",
 			ThisObject, RevocationListInstallationParameters);
 	
 	Parameters = New Structure;
@@ -120,7 +127,7 @@ EndProcedure
 //             - Array of String
 //   * InternalAddress - String - If specified, the revocation list will be saved to cache.
 //   * CallbackOnCompletion - Undefined
-//                           - NotifyDescription - Notification to display after the installation with the result:
+//                           - CallbackDescription - Notification to display after the installation with the result:
 //                              # Structure:
 //                                ## IsInstalledSuccessfully - Boolean
 //                                ## Message - Installation result message
@@ -148,7 +155,7 @@ EndFunction
 //
 Procedure InstallCertificate(CertificateInstallationParameters) Export
 	
-	Notification = New NotifyDescription("InstallCertificateAfterAddInAttached",
+	Notification = New CallbackDescription("InstallCertificateAfterAddInAttached",
 		ThisObject, CertificateInstallationParameters);
 	RunAfterExtensionAndAddInChecked(Notification);
 	
@@ -171,7 +178,7 @@ Procedure InstallRootCertificate(CertificateInstallationParameters) Export
 	
 	InstallationParameters = CertificateInstallationParameters(CertificateInstallationParameters.Certificate);
 	FillPropertyValues(InstallationParameters, CertificateInstallationParameters);
-	Notification = New NotifyDescription("InstallRootCertificateAfterAddInAttached",
+	Notification = New CallbackDescription("InstallRootCertificateAfterAddInAttached",
 		ThisObject, InstallationParameters);
 	RunAfterExtensionAndAddInChecked(Notification);
 	
@@ -191,12 +198,12 @@ EndProcedure
 //             - String - Address in the temp storage.
 //             - String - Certificate's string presentation in the Base64 format
 //             - CryptoCertificate
-//   * CallbackOnCompletion - NotifyDescription - Notification to display after the installation.
+//   * CallbackOnCompletion - CallbackDescription - Notification to display after the installation.
 //                             Notification result - Structure:
 //                                       # IsInstalledSuccessfully - Installation success flag.
 //                                       # Message - Error or installation result message.
 //   * InstallationOptions - ValueList - Intended for the selection in the installation form
-//   * Store - String - Storage name
+//   * Storage - String - Storage name
 //               - Structure:
 //                  ** Value - Storage name
 //                  ** Presentation - Presentation in the installation form
@@ -214,7 +221,7 @@ Function CertificateInstallationParameters(Certificate) Export
 	CertificateInstallationParameters.Insert("Certificate", Certificate);
 	CertificateInstallationParameters.Insert("CallbackOnCompletion", Undefined);
 	CertificateInstallationParameters.Insert("InstallationOptions", Undefined);
-	CertificateInstallationParameters.Insert("Store", Undefined);
+	CertificateInstallationParameters.Insert("Storage", Undefined);
 	CertificateInstallationParameters.Insert("ContainerProperties", Undefined);
 	CertificateInstallationParameters.Insert("WarningText", "");
 	CertificateInstallationParameters.Insert("Form", Undefined);
@@ -233,7 +240,7 @@ EndFunction
 //  ErrorAtServer - Structure
 //  AdditionalParameters - Undefined, Structure:
 //   * Certificate 
-//  ContinuationHandler - NotifyDescription - Continuation handler
+//  ContinuationHandler - CallbackDescription - Continuation handler
 //
 Procedure ShowApplicationCallError(FormCaption, ErrorTitle, ErrorAtClient, ErrorAtServer,
 				AdditionalParameters = Undefined, ContinuationHandler = Undefined) Export
@@ -281,7 +288,7 @@ Procedure ShowApplicationCallError(FormCaption, ErrorTitle, ErrorAtClient, Error
 	Context.Insert("FormParameters", FormParameters);
 	Context.Insert("ContinuationHandler", ContinuationHandler);
 	
-	BeginAttachingCryptoExtension(New NotifyDescription(
+	BeginAttachingCryptoExtension(New CallbackDescription(
 		"ShowApplicationCallErrorAfterAttachExtension", ThisObject, Context));
 	
 EndProcedure
@@ -312,8 +319,8 @@ Procedure SelectSigningOrDecryptionCertificate(ServerParameters1, NewFormOwner =
 	Context.Insert("CompletionHandler", CompletionHandler);
 	
 	If DigitalSignatureClient.GenerateDigitalSignaturesAtServer()
-	   And ServerParameters1.Property("ExecuteAtServer")
-	   And ServerParameters1.ExecuteAtServer = True Then
+		And ServerParameters1.Property("ExecuteAtServer")
+		And ServerParameters1.ExecuteAtServer = True Then
 		
 		Result = New Structure;
 		Result.Insert("CertificatesPropertiesAtClient", New Array);
@@ -321,7 +328,7 @@ Procedure SelectSigningOrDecryptionCertificate(ServerParameters1, NewFormOwner =
 		
 		ChooseCertificateToSignOrDecryptFollowUp(Result, Context);
 	Else
-		GetCertificatesPropertiesAtClient(New NotifyDescription(
+		GetCertificatesPropertiesAtClient(New CallbackDescription(
 			"ChooseCertificateToSignOrDecryptFollowUp", ThisObject, Context), True, False);
 	EndIf;
 	
@@ -378,7 +385,7 @@ EndProcedure
 // Parameters:
 //  FormParameters - Structure
 //  OwnerForm - ClientApplicationForm
-//  CallbackOnCompletion - NotifyDescription
+//  CallbackOnCompletion - CallbackDescription
 //
 Procedure OpenCertificateForm(FormParameters, OwnerForm = Undefined, CallbackOnCompletion = Undefined) Export
 
@@ -392,7 +399,7 @@ EndProcedure
 // Parameters:
 //  FormParameters - Structure
 //  OwnerForm - ClientApplicationForm
-//  CallbackOnCompletion - NotifyDescription
+//  CallbackOnCompletion - CallbackDescription
 //
 Procedure OpenExtendedErrorPresentationForm(FormParameters, OwnerForm = Undefined, CallbackOnCompletion = Undefined) Export
 	
@@ -407,7 +414,7 @@ EndProcedure
 //  ApplicationDetails - Undefined, Structure, String - If set to "Undefined" or "String" (where "String" is the ID of the initial population setting),
 //                        opens the app creation form.
 //  OwnerForm - ClientApplicationForm
-//  CallbackOnCompletion - NotifyDescription
+//  CallbackOnCompletion - CallbackDescription
 //
 Procedure OpenAppForm(ApplicationDetails = Undefined, OwnerForm = Undefined, CallbackOnCompletion = Undefined) Export
 
@@ -441,6 +448,25 @@ Procedure OpenAppForm(ApplicationDetails = Undefined, OwnerForm = Undefined, Cal
 
 EndProcedure
 
+// 
+// 
+// Parameters:
+//  Parameters - Structure
+//  Owner - ClientApplicationForm
+//  Notification - CallbackDescription
+//
+Procedure OpenFormForInstallingCryptoproviderPrograms(Parameters = Undefined, Owner = Undefined, Notification = Undefined) Export
+	
+	StandardProcessing = True;
+	DigitalSignatureClientLocalization.ПриОткрытииФормыУстановкиПрограммКриптопровайдеров(
+		Parameters, Owner, Notification, StandardProcessing);
+	
+	If StandardProcessing Then
+		ShowMessageBox(, NStr("en = 'Действие недоступно в приложении';"));
+	EndIf;
+	
+EndProcedure
+
 #EndRegion
 
 #Region Private
@@ -449,8 +475,8 @@ Procedure OpenToken(Token, FormOwner, CompletionProcessing = Undefined) Export
 	
 	ServerParameters1 = New Structure;
 	ServerParameters1.Insert("Token", Token);
-	PassParametersForm().OpenNewForm("Token",
-		ServerParameters1, New Structure, CompletionProcessing, FormOwner);
+	OpenForm("Catalog.DigitalSignatureAndEncryptionApplications.Form.Token",
+		ServerParameters1, FormOwner, CompletionProcessing);
 	
 EndProcedure
 
@@ -464,6 +490,46 @@ EndFunction
 Function TokenNotFoundError() Export
 	
 	Return NStr("en = 'Token is not connected';");
+	
+EndFunction
+
+Async Function GetTokenByCertificate(Certificate) Export
+	
+	Thumbprint = Base64String(Certificate.Thumbprint);
+	
+	Tokens = Await DigitalSignatureClientLocalization.CertificatesOnTokens(True);
+	For Each Token In Tokens Do
+		If Token.Certificates = Undefined Then
+			Continue;
+		EndIf;
+		CertificateData = Token.Certificates.Get(Thumbprint);
+		If CertificateData <> Undefined Then
+			Return Token;
+		EndIf;
+	EndDo;
+	
+	Return Undefined;
+	
+EndFunction
+
+Function ParametersOfSignatureOnToken(Token, Password, Certificate, SignatureType) Export
+	
+	Structure = New Structure;
+	Structure.Insert("Token", Token);
+	Structure.Insert("Password", Password);
+	Structure.Insert("Certificate", Certificate);
+	Structure.Insert("SignatureType", SignatureType);
+	Structure.Insert("DetachedAddIn", True);
+	Structure.Insert("ComponentObject", Undefined);
+	Structure.Insert("ShouldIncludeCertificateInSignature", True);
+	
+	Return Structure;
+	
+EndFunction
+
+Async Function SignatureOnToken(SignatureParameters, Data) Export
+	
+	Return Await DigitalSignatureClientLocalization.SignatureOnToken(SignatureParameters, Data);
 	
 EndFunction
 
@@ -517,7 +583,7 @@ Procedure ToObtainThePathToTheProgram(CompletionProcessing, ProgramLink) Export
 	Result = New Structure("ApplicationPath, Exists", "", False);
 	
 	If Not RequiresThePathToTheProgram() Then
-		ExecuteNotifyProcessing(CompletionProcessing, Result);
+		RunCallback(CompletionProcessing, Result);
 		Return;
 	EndIf;
 	
@@ -540,10 +606,10 @@ Procedure ToObtainThePathToTheProgram(CompletionProcessing, ProgramLink) Export
 	If ValueIsFilled(ApplicationPath) Then
 		Context.Insert("Result", Result);
 		Result.ApplicationPath = ApplicationPath;
-		CheckThePathToTheProgram(New NotifyDescription(
+		CheckThePathToTheProgram(New CallbackDescription(
 			"GetTheProgramPathAfterCheckingThePath", ThisObject, Context), ApplicationPath);
 	Else
-		GetTheDefaultProgramPath(New NotifyDescription(
+		GetTheDefaultProgramPath(New CallbackDescription(
 			"ToObtainThePathToTheProgramCompletion", ThisObject, Context), ProgramLink);
 	EndIf;
 	
@@ -567,7 +633,7 @@ Procedure ToObtainThePathToTheProgramCompletion(DescriptionOfWay, Context) Expor
 	Result = New Structure("ApplicationPath, Exists",
 		DescriptionOfWay.ApplicationPath, DescriptionOfWay.Exists <> False);
 	
-	ExecuteNotifyProcessing(Context.CompletionProcessing, Result);
+	RunCallback(Context.CompletionProcessing, Result);
 	
 EndProcedure
 
@@ -591,22 +657,29 @@ Function VerifiedPathsToProgramModules()
 	
 EndFunction
 
-Procedure CheckThePathToTheProgram(CompletionProcessing, ApplicationPath)
+Async Procedure CheckThePathToTheProgram(CompletionProcessing, ApplicationPath)
 	
 	Context = New Structure;
 	Context.Insert("CompletionProcessing", CompletionProcessing);
 	Context.Insert("ApplicationPath", ApplicationPath);
 	
-	FileSystemClient.AttachFileOperationsExtension(New NotifyDescription(
-		"CheckThePathToTheProgramAfterEnablingTheFileManagementExtension", ThisObject, Context));
+	Notification = New CallbackDescription(
+		"CheckThePathToTheProgramAfterAttach1CEnterpriseExtension", ThisObject, Context);
+	
+	AdditionalComponentsAreBeingInstalled = Await PerformInstallationOfAdditionalComponentsAfterCheckingExtensionOfWorkWith1CEnterprise(Notification);
+	If AdditionalComponentsAreBeingInstalled Then
+		Return;
+	EndIf;
+	
+	FileSystemClient.Attach1CEnterpriseExtension(Notification);
 	
 EndProcedure
 
 // Continue the CheckApplicationPath procedure.
-Procedure CheckThePathToTheProgramAfterEnablingTheFileManagementExtension(ExtensionAttached, Context) Export
+Procedure CheckThePathToTheProgramAfterAttach1CEnterpriseExtension(ExtensionAttached, Context) Export
 	
 	If Not ExtensionAttached Then
-		ExecuteNotifyProcessing(Context.CompletionProcessing, Undefined);
+		RunCallback(Context.CompletionProcessing, Undefined);
 		Return;
 	EndIf;
 	
@@ -626,14 +699,14 @@ Procedure CheckThePathToTheProgramCycleStart(Context)
 	
 	If Context.ThePathToTheModules.Count() <= Context.IndexOf + 1 Then
 		// After loop.
-		ExecuteNotifyProcessing(Context.CompletionProcessing, False);
+		RunCallback(Context.CompletionProcessing, False);
 		Return;
 	EndIf;
 	
 	Context.IndexOf = Context.IndexOf + 1;
 	
 	File = New File;
-	File.BeginInitialization(New NotifyDescription(
+	File.BeginInitialization(New CallbackDescription(
 		"CheckThePathToTheProgramLoopAfterInitializingTheFile", ThisObject, Context),
 		Context.ThePathToTheModules[Context.IndexOf]);
 	
@@ -642,7 +715,7 @@ EndProcedure
 // Continue the CheckApplicationPath procedure.
 Procedure CheckThePathToTheProgramLoopAfterInitializingTheFile(File, Context) Export
 	
-	File.BeginCheckingExistence(New NotifyDescription(
+	File.BeginCheckingExistence(New CallbackDescription(
 		"CheckThePathToTheProgramLoopAfterCheckingTheExistenceOfTheFile", ThisObject, Context));
 	
 EndProcedure
@@ -651,7 +724,7 @@ EndProcedure
 Procedure CheckThePathToTheProgramLoopAfterCheckingTheExistenceOfTheFile(Exists, Context) Export
 	
 	If Exists Then
-		ExecuteNotifyProcessing(Context.CompletionProcessing, True);
+		RunCallback(Context.CompletionProcessing, True);
 		Return;
 	EndIf;
 	
@@ -664,7 +737,7 @@ Procedure GetTheDefaultProgramPath(CompletionProcessing, ProgramLink) Export
 	Result = New Structure("ApplicationPath, Exists", "", False);
 	
 	If Not RequiresThePathToTheProgram() Then
-		ExecuteNotifyProcessing(CompletionProcessing, Result);
+		RunCallback(CompletionProcessing, Result);
 		Return;
 	EndIf;
 	
@@ -674,7 +747,7 @@ Procedure GetTheDefaultProgramPath(CompletionProcessing, ProgramLink) Export
 	Else
 		ApplicationDetails = CommonSettings.DescriptionsOfTheProgramsOnTheLink.Get(ProgramLink); // See DigitalSignatureInternalCached.ApplicationDetails
 		If ApplicationDetails = Undefined Then
-			ExecuteNotifyProcessing(CompletionProcessing, Result);
+			RunCallback(CompletionProcessing, Result);
 			Return;
 		EndIf;
 		TheProgramID = ApplicationDetails.Id;
@@ -689,7 +762,7 @@ Procedure GetTheDefaultProgramPath(CompletionProcessing, ProgramLink) Export
 	EndDo;
 	
 	If Not ThePathWasFound Then
-		ExecuteNotifyProcessing(CompletionProcessing, Result);
+		RunCallback(CompletionProcessing, Result);
 		Return;
 	EndIf;
 	
@@ -697,7 +770,7 @@ Procedure GetTheDefaultProgramPath(CompletionProcessing, ProgramLink) Export
 		CommonClientServer.NameOfThePlatformType());
 	
 	If PathsToProgramModules = Undefined Then
-		ExecuteNotifyProcessing(CompletionProcessing, Result);
+		RunCallback(CompletionProcessing, Result);
 		Return;
 	EndIf;
 	
@@ -721,7 +794,7 @@ Procedure ToObtainThePathToTheProgramDefaultCycleStart(Context)
 	
 	Context.IndexOf = Context.IndexOf + 1;
 	
-	CheckThePathToTheProgram(New NotifyDescription(
+	CheckThePathToTheProgram(New CallbackDescription(
 		"GetTheDefaultProgramPathLoopAfterCheckingThePath", ThisObject, Context),
 		Context.PathsToProgramModules.Get(Context.IndexOf))
 	
@@ -747,7 +820,7 @@ Procedure ToObtainThePathToTheProgramDefaultCycleCompletion(Context, Exists)
 	
 	Result = New Structure("ApplicationPath, Exists", CurrentPath, Exists);
 	
-	ExecuteNotifyProcessing(Context.CompletionProcessing, Result);
+	RunCallback(Context.CompletionProcessing, Result);
 	
 EndProcedure
 
@@ -779,7 +852,7 @@ Procedure FindValidPersonalCertificates(Notification, Filter = Undefined) Export
 
 	NotificationParameters.Insert("Filter",                 Filter);
 	
-	Notification = New NotifyDescription("FindValidPersonalCertificatesAfterGetSignaturesAtClient", ThisObject, NotificationParameters);
+	Notification = New CallbackDescription("FindValidPersonalCertificatesAfterGetSignaturesAtClient", ThisObject, NotificationParameters);
 	GetCertificatesPropertiesAtClient(Notification, Not Filter.CheckExpirationDate, True);
 	
 EndProcedure
@@ -788,7 +861,7 @@ EndProcedure
 Procedure FindValidPersonalCertificatesAfterGetSignaturesAtClient(Result, AdditionalParameters) Export
 
 	PersonalCertificates = DigitalSignatureInternalServerCall.PersonalCertificates(Result.CertificatesPropertiesAtClient, AdditionalParameters.Filter);
-	ExecuteNotifyProcessing(AdditionalParameters.CallbackOnCompletion, PersonalCertificates);
+	RunCallback(AdditionalParameters.CallbackOnCompletion, PersonalCertificates);
 	
 EndProcedure
 
@@ -847,7 +920,7 @@ Procedure CheckCryptographyAppsInstallation(Form, CheckParameters = Undefined, C
 	EndIf;
 	
 	GetInstalledCryptoProviders(
-		New NotifyDescription("CheckCryptographyAppsInstallationAfterInstalledObtained", ThisObject, Context),
+		New CallbackDescription("CheckCryptographyAppsInstallationAfterInstalledObtained", ThisObject, Context),
 		ReceivingParameters);
 
 EndProcedure
@@ -863,7 +936,7 @@ Procedure FindInstalledPrograms(Notification, ApplicationsDetails, CheckAtServer
 	Context.Programs = Programs;
 	Context.CallbackOnCompletion = Notification;
 	
-	Notification = New NotifyDescription("FindInstalledApplicationsAfterAttachExtension", ThisObject, Context);
+	Notification = New CallbackDescription("FindInstalledApplicationsAfterAttachExtension", ThisObject, Context);
 	DigitalSignatureClient.InstallExtension(True, Notification);
 	
 EndProcedure
@@ -889,7 +962,7 @@ Procedure FindInstalledApplicationsLoopStart(Context)
 	CreationParameters.Application = Context.Programs.Get(Context.IndexOf);
 	CreationParameters.ShowError = Undefined;
 	
-	Notification = New NotifyDescription("FindInstalledApplicationsLoopFollowUp", ThisObject, Context);
+	Notification = New CallbackDescription("FindInstalledApplicationsLoopFollowUp", ThisObject, Context);
 	CreateCryptoManager(Notification, "", CreationParameters);
 	
 EndProcedure
@@ -920,7 +993,7 @@ Procedure FindInstalledProgramsAfterTheLoop(Context)
 		Application.Delete("Id");
 	EndDo;
 	
-	ExecuteNotifyProcessing(Context.CallbackOnCompletion, Context.Programs);
+	RunCallback(Context.CallbackOnCompletion, Context.Programs);
 	
 EndProcedure
 
@@ -945,7 +1018,7 @@ Procedure OpenCertificate(CertificateData, OpenData = False) Export
 	Context.CertificateAddress = Undefined;
 	
 	If TypeOf(CertificateData) = Type("CryptoCertificate") Then
-		CertificateData.BeginUnloading(New NotifyDescription(
+		CertificateData.BeginUnloading(New CallbackDescription(
 			"OpenCertificateAfterCertificateExport", ThisObject, Context));
 	Else
 		OpenCertificateFollowUp(Context);
@@ -1024,7 +1097,7 @@ Procedure OpenCertificateFollowUp(Context)
 	If Context.CertificateAddress = Undefined
 	   And Ref = Undefined Then
 		
-		GetCertificateByThumbprint(New NotifyDescription(
+		GetCertificateByThumbprint(New CallbackDescription(
 			"OpenCertificateAfterCertificateSearch", ThisObject, Context), Thumbprint, False, Undefined);
 	Else
 		OpenCertificateCompletion(Context);
@@ -1036,7 +1109,7 @@ EndProcedure
 Procedure OpenCertificateAfterCertificateSearch(Result, Context) Export
 	
 	If TypeOf(Result) = Type("CryptoCertificate") Then
-		Result.BeginUnloading(New NotifyDescription(
+		Result.BeginUnloading(New CallbackDescription(
 			"OpenCertificateAfterExportFoundCertificate", ThisObject, Context));
 	Else
 		Context.ErrorAtClient = Result;
@@ -1072,14 +1145,26 @@ EndProcedure
 // Saves the certificate to a file.
 // 
 // Parameters:
-//   Notification - NotifyDescription - called after saving.
+//   Notification - CallbackDescription - called after saving.
 //              - Undefined - follow up is not required.
 //
 //   Certificate - CryptoCertificate - a certificate.
 //              - BinaryData - certificate binary data.
 //              - String - an address of a temporary storage that contains certificate binary data.
 //
-Procedure SaveCertificate(Notification, Certificate, FileNameWithoutExtension = "") Export
+Async Procedure SaveCertificate(Notification, Certificate, FileNameWithoutExtension = "", RepeatedCall = False) Export
+	
+	If Not RepeatedCall Then
+		CallbackParameters = New Structure("Notification, Certificate, FileNameWithoutExtension",
+			Notification, Certificate, FileNameWithoutExtension);
+		NotificationInAbsenceOfBOTComponent = New CallbackDescription(
+			"SaveCertificateAgainAfterInstallingComponent", ThisObject, CallbackParameters);
+		AdditionalComponentsAreBeingInstalled = Await PerformInstallationOfAdditionalComponentsAfterCheckingExtensionOfWorkWith1CEnterprise(
+			NotificationInAbsenceOfBOTComponent);
+		If AdditionalComponentsAreBeingInstalled Then
+			Return;
+		EndIf;
+	EndIf;
 	
 	Context =  CertificateSaveContext();
 	Context.Notification =            Notification;
@@ -1088,10 +1173,20 @@ Procedure SaveCertificate(Notification, Certificate, FileNameWithoutExtension = 
 	Context.CertificateAddress =      Undefined;
 	
 	If TypeOf(Certificate) = Type("CryptoCertificate") Then
-		Certificate.BeginUnloading(New NotifyDescription(
+		Certificate.BeginUnloading(New CallbackDescription(
 			"SaveCertificateAfterCertificateExport", ThisObject, Context));
 	Else
 		SaveCertificateFollowUp(Context);
+	EndIf;
+	
+EndProcedure
+
+// 
+Procedure SaveCertificateAgainAfterInstallingComponent(Result, CallbackParameters) Export
+	
+	If Result = True Then
+		SaveCertificate(CallbackParameters.Notification, CallbackParameters.Certificate,
+			CallbackParameters.FileNameWithoutExtension , True)
 	EndIf;
 	
 EndProcedure
@@ -1137,7 +1232,7 @@ Procedure SaveCertificateFollowUp(Context)
 		Context.CertificateAddress = Context.Certificate;
 	Else
 		If Context.Notification <> Undefined Then
-			ExecuteNotifyProcessing(Context.Notification, False);
+			RunCallback(Context.Notification, False);
 		EndIf;
 		Return;
 	EndIf;
@@ -1149,7 +1244,7 @@ Procedure SaveCertificateFollowUp(Context)
 	FileName = DigitalSignatureInternalClientServer.PrepareStringForFileName(
 		Context.FileNameWithoutExtension) + ".cer";
 	
-	Notification = New NotifyDescription("SaveCertificatesAfterFilesReceipt", ThisObject, Context);
+	Notification = New CallbackDescription("SaveCertificatesAfterFilesReceipt", ThisObject, Context);
 	
 	SavingParameters = FileSystemClient.FileSavingParameters();
 	SavingParameters.Dialog.Title = NStr("en = 'Select a file to save the certificate to';");
@@ -1183,15 +1278,26 @@ Procedure SaveCertificatesAfterFilesReceipt(ObtainedFiles, Context) Export
 	EndIf;
 	
 	If Context.Notification <> Undefined Then
-		ExecuteNotifyProcessing(Context.Notification, HasObtainedFiles);
+		RunCallback(Context.Notification, HasObtainedFiles);
 	EndIf;
 	
 EndProcedure
 
 // Saves a signature to the computer.
-Procedure SaveSignature(SignatureAddress, SignatureFileName = "") Export
+Async Procedure SaveSignature(SignatureAddress, SignatureFileName = "", RepeatedCall = False) Export
 	
-	Notification = New NotifyDescription("SaveSignatureAfterFileReceipt", ThisObject, Undefined);
+	If Not RepeatedCall Then
+		CallbackParameters = New Structure("SignatureAddress, SignatureFileName", SignatureAddress, SignatureFileName);
+		NotificationInAbsenceOfBOTComponent = New CallbackDescription(
+			"SaveSignatureAgainAfterInstallingComponent", ThisObject, CallbackParameters);
+		AdditionalComponentsAreBeingInstalled = Await PerformInstallationOfAdditionalComponentsAfterCheckingExtensionOfWorkWith1CEnterprise(
+			NotificationInAbsenceOfBOTComponent);
+		If AdditionalComponentsAreBeingInstalled Then
+			Return;
+		EndIf;
+	EndIf;
+	
+	Notification = New CallbackDescription("SaveSignatureAfterFileReceipt", ThisObject, Undefined);
 	Filter = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Digital signature files (*.%1)|*.%1';"),
 		DigitalSignatureClient.PersonalSettings().SignatureFilesExtension);
@@ -1202,6 +1308,15 @@ Procedure SaveSignature(SignatureAddress, SignatureFileName = "") Export
 	SavingParameters.Dialog.Title = NStr("en = 'Select a file to save the signature to';");
 	
 	FileSystemClient.SaveFile(Notification, SignatureAddress, SignatureFileName, SavingParameters);
+	
+EndProcedure
+
+// 
+Procedure SaveSignatureAgainAfterInstallingComponent(Result, CallbackParameters) Export
+	
+	If Result = True Then
+		SaveSignature(CallbackParameters.SignatureAddress, CallbackParameters.SignatureFileName, True);
+	EndIf;
 	
 EndProcedure
 
@@ -1245,14 +1360,14 @@ EndFunction
 // Finds a certificate on the computer by a thumbprint string.
 //
 // Parameters:
-//   Notification - NotifyDescription - a notification about the execution result of the following types:
+//   Notification - CallbackDescription - a notification about the execution result of the following types:
 //     = CryptoCertificate - a found certificate.
 //     = Undefined           - the certificate does not exist in the storage.
 //     = String                 - a text of the crypto manager creation error (or other error).
 //     = Structure              - an error details as a structure.
 //
 //   Thumbprint              - String - a Base64 coded certificate thumbprint.
-//   InPersonalStorageOnly - Boolean - if True, search in the Personal store, otherwise, search everywhere.
+//   InPersonalStorageOnly - Boolean - 
 //                          - CryptoCertificateStoreType - the specified storage type.
 //
 //   ShowError - Boolean - show the crypto manager creation error.
@@ -1273,6 +1388,8 @@ Procedure GetCertificateByThumbprint(Notification, Thumbprint, InPersonalStorage
 	Context.Insert("Thumbprint",              Thumbprint);
 	Context.Insert("InPersonalStorageOnly", InPersonalStorageOnly);
 	Context.Insert("ShowError",         ShowError);
+	Context.Insert("Errors", New Array);
+	Context.Insert("Application", Application);
 	
 	If TypeOf(Application) = Type("CryptoManager") Then
 		GetCertificateByThumbprintAfterCreateCryptoManager(Application, Context);
@@ -1282,7 +1399,7 @@ Procedure GetCertificateByThumbprint(Notification, Thumbprint, InPersonalStorage
 		CreationParameters.ShowError = ShowError;
 		CreationParameters.Application = Application;
 		
-		CreateCryptoManager(New NotifyDescription(
+		CreateCryptoManager(New CallbackDescription(
 			"GetCertificateByThumbprintAfterCreateCryptoManager", ThisObject, Context),
 			"GetCertificates", CreationParameters);
 		
@@ -1294,7 +1411,8 @@ EndProcedure
 Procedure GetCertificateByThumbprintAfterCreateCryptoManager(Result, Context) Export
 	
 	If TypeOf(Result) <> Type("CryptoManager") Then
-		ExecuteNotifyProcessing(Context.Notification, Result);
+		Context.Errors.Add(Result);
+		GetCertificateByThumbprintOnTokens(Context);
 		Return;
 	EndIf;
 	Context.Insert("CryptoManager", Result);
@@ -1310,12 +1428,12 @@ Procedure GetCertificateByThumbprintAfterCreateCryptoManager(Result, Context) Ex
 		EndIf;
 		ErrorInfo = ErrorInfo();
 		ErrorPresentation = ErrorProcessing.BriefErrorDescription(ErrorInfo);
-		GetCertificateByThumbprintCompletion(Undefined, ErrorPresentation, Context);
+		GetCertificateByThumbprintAfterSearchByCryptoManager(Undefined, ErrorPresentation, Context);
 		Return;
 	EndTry;
 	
 	Context.CryptoManager.BeginGettingCertificateStore(
-		New NotifyDescription(
+		New CallbackDescription(
 			"GetCertificateByThumbprintAfterGetStorage", ThisObject, Context,
 			"GetCertificateByThumbprintAfterGetStorageError", ThisObject),
 		StoreType);
@@ -1332,14 +1450,14 @@ Procedure GetCertificateByThumbprintAfterGetStorageError(ErrorInfo, StandardProc
 	StandardProcessing = False;
 	
 	ErrorPresentation = ErrorProcessing.BriefErrorDescription(ErrorInfo);
-	GetCertificateByThumbprintCompletion(Undefined, ErrorPresentation, Context);
+	GetCertificateByThumbprintAfterSearchByCryptoManager(Undefined, ErrorPresentation, Context);
 	
 EndProcedure
 
 // Continue the GetCertificateByThumbprint procedure.
 Procedure GetCertificateByThumbprintAfterGetStorage(CryptoCertificateStore, Context) Export
 	
-	CryptoCertificateStore.BeginFindingByThumbprint(New NotifyDescription(
+	CryptoCertificateStore.BeginFindingByThumbprint(New CallbackDescription(
 			"GetCertificateByThumbprintAfterSearch", ThisObject, Context,
 			"GetCertificateByThumbprintAfterSearchError", ThisObject),
 		Context.ThumbprintBinaryData);
@@ -1357,14 +1475,56 @@ Procedure GetCertificateByThumbprintAfterSearchError(ErrorInfo, StandardProcessi
 	
 	ErrorPresentation = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 	
-	GetCertificateByThumbprintCompletion(Undefined, ErrorPresentation, Context);
+	GetCertificateByThumbprintAfterSearchByCryptoManager(Undefined, ErrorPresentation, Context);
 	
 EndProcedure
 
 // Continue the GetCertificateByThumbprint procedure.
 Procedure GetCertificateByThumbprintAfterSearch(Certificate, Context) Export
 	
-	GetCertificateByThumbprintCompletion(Certificate, "", Context);
+	GetCertificateByThumbprintAfterSearchByCryptoManager(Certificate, "", Context);
+	
+EndProcedure
+
+// Continue the GetCertificateByThumbprint procedure.
+Procedure GetCertificateByThumbprintAfterSearchByCryptoManager(Certificate, ErrorPresentation, Context)
+	
+	If TypeOf(Certificate) = Type("CryptoCertificate") Then
+		RunCallback(Context.Notification, Certificate);
+		Return;
+	EndIf;
+	
+	If ValueIsFilled(ErrorPresentation) Then
+		Context.Errors.Add(ErrorPresentation);
+	EndIf;
+	
+	If Context.Property("Application") And Context.Application <> Undefined Then
+		GetCertificateByThumbprintCompletion(Undefined, StrConcat(Context.Errors, Chars.LF), Context);
+		Return;
+	EndIf;
+	
+	GetCertificateByThumbprintOnTokens(Context);
+	
+EndProcedure
+
+// Continue the GetCertificateByThumbprint procedure.
+Async Procedure GetCertificateByThumbprintOnTokens(Context)
+	
+	Tokens = Await DigitalSignatureClientLocalization.CertificatesOnTokens(True);
+	For Each Token In Tokens Do
+		If Token.Certificates = Undefined Then
+			Continue;
+		EndIf;
+		CertificateData = Token.Certificates.Get(Context.Thumbprint);
+		If CertificateData <> Undefined Then
+			CryptoCertificate = New CryptoCertificate;
+			Await CryptoCertificate.InitializeAsync(CertificateData);
+			GetCertificateByThumbprintCompletion(CryptoCertificate, "", Context);
+			Return;
+		EndIf;
+	EndDo;
+	
+	GetCertificateByThumbprintCompletion(Undefined, StrConcat(Context.Errors, Chars.LF), Context);
 	
 EndProcedure
 
@@ -1372,7 +1532,7 @@ EndProcedure
 Procedure GetCertificateByThumbprintCompletion(Certificate, ErrorPresentation, Context)
 	
 	If TypeOf(Certificate) = Type("CryptoCertificate") Then
-		ExecuteNotifyProcessing(Context.Notification, Certificate);
+		RunCallback(Context.Notification, Certificate);
 		Return;
 	EndIf;
 	
@@ -1397,14 +1557,14 @@ Procedure GetCertificateByThumbprintCompletion(Certificate, ErrorPresentation, C
 		Result = ErrorPresentation;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Context.Notification, Result);
+	RunCallback(Context.Notification, Result);
 	
 EndProcedure
 
 // Gets certificate thumbprints of the OS user on the computer.
 //
 // Parameters:
-//  Notification     - NotifyDescription - it is called to pass the return value of one of the types:
+//  Notification     - CallbackDescription - it is called to pass the return value of one of the types:
 //                     = Map - Key - a thumbprint in the Base64 string format, and Value is True,
 //                     = String - a text of the crypto manager creation error (or other error).
 //
@@ -1426,7 +1586,7 @@ Procedure GetCertificatesThumbprints(Notification, OnlyPersonal, ReceivingParame
 	Context.Insert("OnlyPersonal",       OnlyPersonal);
 	Context.Insert("ReceivingParameters", ReceivingParameters);
 	
-	GetCertificatesPropertiesAtClient(New NotifyDescription(
+	GetCertificatesPropertiesAtClient(New CallbackDescription(
 			"GetCertificatesThumbprintsAfterExecute", ThisObject, Context),
 		OnlyPersonal, False, True, ReceivingParameters.ClientSide = True);
 	
@@ -1484,15 +1644,15 @@ Procedure GetCertificatesThumbprintsAfterExecute(Result, Context) Export
 	EndIf;
 		
 	If ValueIsFilled(Result.ErrorOnGetCertificatesAtClient) And Not Context.ReceivingParameters.ShouldReturnSource Then
-		ExecuteNotifyProcessing(Context.Notification, Result.ErrorOnGetCertificatesAtClient);
+		RunCallback(Context.Notification, Result.ErrorOnGetCertificatesAtClient);
 		Return;
 	EndIf;
 	
 	If Context.ReceivingParameters.ShouldReturnSource Then
 		ResultOfObtainingPrints.Insert("Thumbprints", Thumbprints);
-		ExecuteNotifyProcessing(Context.Notification, ResultOfObtainingPrints);
+		RunCallback(Context.Notification, ResultOfObtainingPrints);
 	Else
-		ExecuteNotifyProcessing(Context.Notification, Thumbprints);
+		RunCallback(Context.Notification, Thumbprints);
 	EndIf;
 
 EndProcedure
@@ -1580,7 +1740,7 @@ Procedure VerifySignature(Notification, RawData, Signature, CryptoManager = Unde
 			CertificateData = DigitalSignatureInternalClientServer.CertificateFromSOAPEnvelope(
 				Context.RawData.XMLEnvelope, False);
 		ElsIf ValueIsFilled(XMLEnvelopeProperties.ErrorText) Then
-			ExecuteNotifyProcessing(Context.Notification,
+			RunCallback(Context.Notification,
 				SignatureVerificationResult(XMLEnvelopeProperties.ErrorText, Context.CheckResult));
 			Return;
 		Else
@@ -1606,7 +1766,7 @@ Procedure VerifySignature(Notification, RawData, Signature, CryptoManager = Unde
 			And Not VerifyCertificatesWithACloudSignature();
 		CreationParameters.SignAlgorithm = Context.SignAlgorithm;
 		
-		CreateCryptoManager(New NotifyDescription(
+		CreateCryptoManager(New CallbackDescription(
 			"CheckSignatureAfterCreateCryptoManager", ThisObject, Context),
 			"CheckSignature", CreationParameters);
 	Else
@@ -1641,7 +1801,7 @@ Procedure CheckSignatureAfterCreateCryptoManager(Result, Context) Export
 			ElsIf VerifyCertificatesWithACloudSignature() Then
 				VerifySignatureCloudSignature(Context);
 			Else
-				VerifySignatureAddSignaturePropertiesToResult(Context.Signature, Undefined, Context);
+				VerifySignatureUsingToken(Context);
 			EndIf;
 			
 			Return;
@@ -1696,8 +1856,48 @@ Procedure CheckSignatureAfterCreateCryptoManager(Result, Context) Export
 			Result = ErrorDescription;
 		EndIf;
 
-		ExecuteNotifyProcessing(Context.Notification,
+		RunCallback(Context.Notification,
 			SignatureVerificationResult(Result, Context.CheckResult));
+		
+	EndIf;
+	
+EndProcedure
+
+Async Procedure VerifySignatureUsingToken(Context)
+	
+	CheckResult = Undefined;
+	
+	MathValidationResult = Await DigitalSignatureClientLocalization.VerifySignature(Context.RawData, Context.Signature, Context.SignAlgorithm);
+	
+	If MathValidationResult = Undefined Then
+		VerifySignatureAddSignaturePropertiesToResult(Context.Signature, Undefined, Context);
+	Else
+		
+		If MathValidationResult = False Then
+			InvalidHash = True;
+			IsVerificationRequired = False;
+			Result = NStr("en = 'Invalid hash sum.';");
+		ElsIf MathValidationResult = True Then
+			If Context.VerifyCertificate = DigitalSignatureInternalClientServer.NotVerifyCertificate() Then
+				IsVerificationRequired = False;
+				Result = True;
+			Else
+				IsVerificationRequired = True;
+				InvalidHash = False;
+				Result = NStr("en = 'Certificate validation using the token''s built-in mechanisms will be released later.';");
+			EndIf;
+		Else
+			IsVerificationRequired = True;
+			Result = MathValidationResult;
+		EndIf;
+		
+		If TypeOf(Context.CheckResult) = Type("Structure") Then
+			SignatureProperties = Await SignaturePropertiesFromBinaryData(Context.Signature, True);
+			FillPropertyValues(Context.CheckResult, SignatureProperties);
+		EndIf;
+			
+		RunCallback(Context.Notification,
+			SignatureVerificationResult(Result, Context.CheckResult, IsVerificationRequired, InvalidHash));
 		
 	EndIf;
 	
@@ -1720,8 +1920,7 @@ Async Procedure VerifySignatureAddSignaturePropertiesToResult(Signature, Result,
 			EndIf;
 		EndIf;
 		
-		If DigitalSignatureClient.CommonSettings().AvailableAdvancedSignature And TypeOf(
-			Context.CryptoManager) = Type("CryptoManager") Then
+		If TypeOf(Context.CryptoManager) = Type("CryptoManager") Then
 			SignatureProperties = Await SignaturePropertiesReadByCryptoManager(Signature, Context.CryptoManager, True);
 		Else
 			SignatureProperties = Await SignaturePropertiesFromBinaryData(Signature, True);
@@ -1734,7 +1933,7 @@ Async Procedure VerifySignatureAddSignaturePropertiesToResult(Signature, Result,
 		InvalidHash = MathValidationError = True;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Context.Notification,
+	RunCallback(Context.Notification,
 		SignatureVerificationResult(Result, Context.CheckResult, IsVerificationRequired, InvalidHash));
 			
 EndProcedure
@@ -1754,10 +1953,10 @@ Procedure CheckSignatureAtClient(Context)
 	
 	If IsXMLDSig Then
 		
-		NotificationSuccess = New NotifyDescription(
+		NotificationSuccess = New CallbackDescription(
 			"CheckSignatureAtClientAfterXMLDSigCheckSignature", ThisObject, Context);
 		
-		NotificationError = New NotifyDescription(
+		NotificationError = New CallbackDescription(
 			"CheckSignatureAtClientAfterXMLDSigCheckSignatureError", ThisObject, Context);
 		
 		Notifications = New Structure;
@@ -1772,10 +1971,10 @@ Procedure CheckSignatureAtClient(Context)
 		
 	ElsIf IsCMS Then
 		
-		NotificationSuccess = New NotifyDescription(
+		NotificationSuccess = New CallbackDescription(
 			"CheckSignatureAtClientAfterXMLDSigCheckSignature", ThisObject, Context);
 		
-		NotificationError = New NotifyDescription(
+		NotificationError = New CallbackDescription(
 			"CheckSignatureAtClientAfterXMLDSigCheckSignatureError", ThisObject, Context);
 		
 		Notifications = New Structure;
@@ -1791,7 +1990,7 @@ Procedure CheckSignatureAtClient(Context)
 		
 	Else
 		CryptoManager = Context.CryptoManager; // CryptoManager
-		CryptoManager.BeginVerifyingSignature(New NotifyDescription(
+		CryptoManager.BeginVerifyingSignature(New CallbackDescription(
 			"CheckSignatureAtClientAfterCheckSignature", ThisObject, Context,
 			"CheckSignatureAtClientAfterCheckSignatureError", ThisObject),
 			Context.RawData, Context.SignatureData, False);
@@ -1802,7 +2001,7 @@ EndProcedure
 // Continue the CheckSignature procedure.
 Procedure CheckSignatureAtClientAfterXMLDSigCheckSignatureError(ErrorText, Context) Export
 	
-	ExecuteNotifyProcessing(Context.Notification, ErrorText);
+	RunCallback(Context.Notification, ErrorText);
 	
 EndProcedure
 
@@ -1824,7 +2023,7 @@ Procedure CheckSignatureAtClientAfterXMLDSigCheckSignature(Data, Context) Export
 		AdditionalParameters.ToVerifySignature = True;
 		AdditionalParameters.PerformCAVerification = Context.VerifyCertificate;
 
-		Notification = New NotifyDescription("VerifySignatureAfterSignatureCertificateVerified", ThisObject, Context);
+		Notification = New CallbackDescription("VerifySignatureAfterSignatureCertificateVerified", ThisObject, Context);
 
 		CheckCertificate(Notification, Data.Certificate, CryptoManager, Data.SigningDate,
 			AdditionalParameters);
@@ -1862,25 +2061,18 @@ Async Procedure CheckSignatureAtClientAfterCheckSignature(Certificate, Context) 
 	If TypeOf(Context.CryptoManager) = Type("CryptoManager") Then
 		
 		CertificateProperties = Undefined;
-		If DigitalSignatureClient.CommonSettings().AvailableAdvancedSignature Then
-			SignatureProperties = Await SignaturePropertiesReadByCryptoManager(Context.SignatureData, Context.CryptoManager, False);
-			
-			If SignatureProperties.SignatureType <> PredefinedValue("Enum.CryptographySignatureTypes.NormalCMS")
-				And SignatureProperties.SignatureType <> PredefinedValue("Enum.CryptographySignatureTypes.BasicCAdESBES") Then
-				// Verify the additional attributes.
-				Try
-					Await Context.CryptoManager.VerifySignatureAsync(
-						Context.RawData, Context.SignatureData, True);
-				Except
-					SignatureVerificationError = ErrorProcessing.BriefErrorDescription(ErrorInfo());
-				EndTry;
-			EndIf;
-			
-		Else
-			SignatureProperties = Await SignaturePropertiesFromBinaryData(Context.SignatureData, False);
-			CertificateProperties = Await CertificateProperties(Certificate);
-			SignatureProperties.Thumbprint = CertificateProperties.Thumbprint;
-			SignatureProperties.CertificateOwner = CertificateProperties.IssuedTo;
+		
+		SignatureProperties = Await SignaturePropertiesReadByCryptoManager(Context.SignatureData, Context.CryptoManager, False);
+		
+		If SignatureProperties.SignatureType <> PredefinedValue("Enum.CryptographySignatureTypes.NormalCMS")
+			And SignatureProperties.SignatureType <> PredefinedValue("Enum.CryptographySignatureTypes.BasicCAdESBES") Then
+			// Verify the additional attributes.
+			Try
+				Await Context.CryptoManager.VerifySignatureAsync(
+					Context.RawData, Context.SignatureData, True);
+			Except
+				SignatureVerificationError = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+			EndTry;
 		EndIf;
 		
 		If TypeOf(Context.CheckResult) = Type("Structure") Then
@@ -1889,8 +2081,8 @@ Async Procedure CheckSignatureAtClientAfterCheckSignature(Certificate, Context) 
 		EndIf;
 		
 		If Not IsBlankString(SignatureVerificationError) Then
-			ExecuteNotifyProcessing(Context.Notification, SignatureVerificationResult(
-					SignatureVerificationError, Context.CheckResult));
+			RunCallback(Context.Notification, SignatureVerificationResult(
+					SignatureVerificationError, Context.CheckResult,, False));
 			Return;
 		EndIf;
 		
@@ -1899,8 +2091,8 @@ Async Procedure CheckSignatureAtClientAfterCheckSignature(Certificate, Context) 
 		SignatureProperties = Await SignaturePropertiesFromBinaryData(Context.SignatureData, True);
 		
 		If SignatureProperties.Certificate = Undefined Then
-			ExecuteNotifyProcessing(Context.Notification, SignatureVerificationResult(
-				NStr("en = 'The certificate does not exist in signature data.';"), Context.CheckResult));
+			RunCallback(Context.Notification, SignatureVerificationResult(
+				NStr("en = 'The certificate does not exist in signature data.';"), Context.CheckResult,, False));
 			Return;
 		EndIf;
 		
@@ -1934,8 +2126,11 @@ Async Procedure CheckSignatureAtClientAfterCheckSignature(Certificate, Context) 
 		If SignatureProperties.SignatureType = PredefinedValue("Enum.CryptographySignatureTypes.ArchivalCAdESAv3") Then
 			AdditionalParameters.IgnoreCertificateRevocationStatus = True;
 		EndIf;
+		If ValueIsFilled(SignatureProperties.DateSignedFromLabels) Then 
+			AdditionalParameters.IsTimestampDateSpecified = True;
+		EndIf;
 		
-		Notification = New NotifyDescription("VerifySignatureAfterSignatureCertificateVerified", ThisObject, Context);
+		Notification = New CallbackDescription("VerifySignatureAfterSignatureCertificateVerified", ThisObject, Context);
 		CheckCertificate(Notification, Context.Certificate, Context.CryptoManager, SigningDate,
 			AdditionalParameters);
 	EndIf;
@@ -1969,15 +2164,15 @@ Procedure VerifySignatureAfterSignatureCertificateVerified(CheckResult, Context)
 		
 	EndIf;
 	
-	ExecuteNotifyProcessing(Context.Notification,
-		SignatureVerificationResult(Result, Context.CheckResult));
+	RunCallback(Context.Notification,
+		SignatureVerificationResult(Result, Context.CheckResult,,False));
 	
 EndProcedure
 
 // Checks the crypto certificate validity.
 //
 // Parameters:
-//   Notification           - NotifyDescription - Runtime result notification of one of the following types:
+//   Notification           - CallbackDescription - Runtime result notification of one of the following types:
 //             = Boolean - True if the check is passed.
 //             = String - Error details (if the check is failed).
 //             = Undefined - Crypto manager is not received (because it is not specified).
@@ -2002,8 +2197,8 @@ EndProcedure
 //                        - CryptoManager - use the specified crypto manager
 //                          (a check on the server will not be executed).
 //
-//   OnDate               - Date - check the certificate on the specified date.
-//                          If parameter is not specified or a blank date is specified, then check on the current date.
+//   OnDate               - Date - Check the certificate validity on the specified date.
+//                          If the parameter is not specified or an empty value is passed, check on the session date.
 //
 //   AdditionalParameters - See AdditionalCertificateVerificationParameters.
 //
@@ -2038,9 +2233,10 @@ Procedure CheckCertificate(Notification, Certificate, CryptoManager = Undefined,
 		Context.ShowError                    = AdditionalCertificateVerificationParameters.ShowError;
 		Context.MergeCertificateDataErrors = AdditionalCertificateVerificationParameters.MergeCertificateDataErrors;
 		Context.CheckInServiceAfterError      = AdditionalCertificateVerificationParameters.CheckInServiceAfterError;
-		Context.PerformCAVerification   = AdditionalCertificateVerificationParameters.PerformCAVerification;
+		Context.PerformCAVerification = AdditionalCertificateVerificationParameters.PerformCAVerification;
 		Context.ToVerifySignature                = AdditionalCertificateVerificationParameters.ToVerifySignature;
 		Context.IgnoreCertificateRevocationStatus = AdditionalCertificateVerificationParameters.IgnoreCertificateRevocationStatus;
+		Context.IsTimestampDateSpecified = AdditionalCertificateVerificationParameters.IsTimestampDateSpecified;
 		
 	EndIf;
 	
@@ -2054,7 +2250,7 @@ Procedure CheckCertificate(Notification, Certificate, CryptoManager = Undefined,
 		// Check on the server before checking on the client.
 		If TypeOf(Certificate) = Type("CryptoCertificate") Then
 
-			Certificate.BeginUnloading(New NotifyDescription("CheckCertificateAfterExportCertificate",
+			Certificate.BeginUnloading(New CallbackDescription("CheckCertificateAfterExportCertificate",
 				ThisObject, Context));
 		Else
 			CheckCertificateAfterExportCertificate(Certificate, Context);
@@ -2073,8 +2269,9 @@ EndProcedure
 //   * IsCheckRequiredAtClient - Undefined, Boolean
 //   * IsCheckRequiredAtServer - Undefined, Boolean
 //   * CertificateRevoked - Boolean
-//   * ShowError  - 
-//   * OnDate - See CheckCertificate.OnDate 
+//   * ShowError  - See CheckCertificate.ShowError
+//   * OnDate - See CheckCertificate.OnDate
+//   * IsTimestampDateSpecified - Boolean 
 //   * CryptoManager - See CheckCertificate.CryptoManager
 //   * Certificate - See CheckCertificate.Certificate
 //   * Notification - See CheckCertificate.Notification
@@ -2091,6 +2288,7 @@ Function CertificateCheckContext()
 	Context.Insert("CertificateRevoked", False);
 	Context.Insert("CryptoManager");
 	Context.Insert("OnDate");
+	Context.Insert("IsTimestampDateSpecified", False);
 	Context.Insert("ErrorDetailsAtClient");
 	Context.Insert("IsCheckRequiredAtClient");
 	Context.Insert("AdditionalDataChecksAtClient");
@@ -2118,10 +2316,11 @@ EndFunction
 //   * MergeCertificateDataErrors - Boolean - Merge certificate data errors on the server and on the client in a string.
 //                                                  
 //   * CheckInServiceAfterError - Boolean - In case a data certificate check error, perform the check on the service.
-//   * PerformCAVerification - 
+//   * PerformCAVerification - See DigitalSignatureClient.CertificateVerificationParameters.ВыполнятьПроверкуУдостоверяющегоЦентра.
 //                                             
 //   * ToVerifySignature - Boolean - Flag indicating whether to hide notifications for certificates,
 //                                               and return the result as specified in the signature check calling procedure.
+//   * IsTimestampDateSpecified - See DigitalSignatureClient.CertificateVerificationParameters.УказанаДатаМеткиВремени
 //
 Function AdditionalCertificateVerificationParameters() Export
 	
@@ -2130,6 +2329,7 @@ Function AdditionalCertificateVerificationParameters() Export
 	Structure.Insert("MergeCertificateDataErrors", True);
 	Structure.Insert("CheckInServiceAfterError", True);
 	Structure.Insert("ToVerifySignature", False);
+	Structure.Insert("IsTimestampDateSpecified", False);
 	Structure.Insert("PerformCAVerification", DigitalSignatureInternalClientServer.VerifyQualified());
 	Structure.Insert("IgnoreCertificateRevocationStatus", False);
 	
@@ -2151,6 +2351,7 @@ Procedure CheckCertificateAfterExportCertificate(Certificate, Context) Export
 	AdditionalParameters.Insert("IgnoreCertificateRevocationStatus", Context.IgnoreCertificateRevocationStatus);
 	AdditionalParameters.Insert("PerformCAVerification", Context.PerformCAVerification);
 	AdditionalParameters.Insert("ToVerifySignature", Context.ToVerifySignature);
+	AdditionalParameters.Insert("IsTimestampDateSpecified", Context.IsTimestampDateSpecified);
 	AdditionalParameters.Insert("Warning");
 	AdditionalParameters.Insert("Certificate", CertificateAddress);
 	
@@ -2162,7 +2363,7 @@ Procedure CheckCertificateAfterExportCertificate(Certificate, Context) Export
 
 			FormOpenParameters = New Structure("Certificate, AdditionalDataChecks", AdditionalParameters.Certificate,
 				AdditionalParameters.Warning);
-			ActionOnClick = New NotifyDescription("OpenNotificationFormNeedReplaceCertificate",
+			ActionOnClick = New CallbackDescription("OpenNotificationFormNeedReplaceCertificate",
 				DigitalSignatureInternalClient, FormOpenParameters);
 
 			ShowUserNotification(
@@ -2171,7 +2372,7 @@ Procedure CheckCertificateAfterExportCertificate(Certificate, Context) Export
 
 		EndIf;
 
-		ExecuteNotifyProcessing(Context.Notification, True);
+		RunCallback(Context.Notification, True);
 	Else
 		CheckCertificateAtClient(Context);
 	EndIf;
@@ -2192,7 +2393,7 @@ Procedure CheckCertificateAtClient(Context)
 	
 	If TypeOf(CertificateToCheck) = Type("BinaryData") Then
 		
-		DigitalSignatureClient.InstallExtension(False, New NotifyDescription(
+		DigitalSignatureClient.InstallExtension(False, New CallbackDescription(
 			"VerifyCertificateOnClientAfterEnablingCryptographyExtension", ThisObject, Context),
 			NStr("en = 'To continue, install 1C:Enterprise Extension.';"));
 	
@@ -2207,7 +2408,7 @@ Procedure VerifyCertificateOnClientAfterEnablingCryptographyExtension(Attached, 
 	
 	If Attached = True Then
 		CryptoCertificate = New CryptoCertificate;
-		CryptoCertificate.BeginInitialization(New NotifyDescription(
+		CryptoCertificate.BeginInitialization(New CallbackDescription(
 				"CheckCertificateAfterInitializeCertificate", ThisObject, Context),
 			Context.CertificateToCheck);
 	Else
@@ -2225,7 +2426,7 @@ Procedure CheckCertificateAfterInitializeCertificate(CryptoCertificate, Context)
 			ValueIsFilled(Context.OnDate), Context.IgnoreCertificateRevocationStatus));
 	
 	If TypeOf(Context.CertificateToCheck) = Type("CryptoCertificate") Then
-		Context.CertificateToCheck.BeginUnloading(New NotifyDescription(
+		Context.CertificateToCheck.BeginUnloading(New CallbackDescription(
 			"CheckCertificateAfterDefineSignAlgorithm", ThisObject, Context));
 	Else
 		CheckCertificateAfterDefineSignAlgorithm(Context.CertificateToCheck, Context);
@@ -2260,7 +2461,7 @@ Procedure ContinueCheckingCertificateAtClient(Context)
 		EndIf;
 		CreationParameters.SignAlgorithm = Context.SignAlgorithm;
 		
-		CreateCryptoManager(New NotifyDescription(
+		CreateCryptoManager(New CallbackDescription(
 				"CheckCertificateAfterCreateCryptoManager", ThisObject, Context),
 			"CertificateCheck", CreationParameters);
 		
@@ -2296,10 +2497,18 @@ Procedure CheckCertificateAfterCreateCryptoManager(Result, Context) Export
 	
 	Context.CryptoManager = Result;
 	
-	Context.CryptoManager.BeginCheckingCertificate(New NotifyDescription(
-		"CheckCertificateAtClientAfterCheck", ThisObject, Context,
-		"CheckCertificateAtClientAfterCheckError", ThisObject),
-		Context.CryptoCertificate, Context.CertificateCheckModes);
+	NotifyDescription = New CallbackDescription("CheckCertificateAtClientAfterCheck", ThisObject, Context,
+		"CheckCertificateAtClientAfterCheckError", ThisObject);
+
+	If DigitalSignatureInternalClientServer.AreCertificateAdditionalPropertiesAvailable()
+		And Context.IsTimestampDateSpecified Then
+		//@skip-check bsl-legacy-check-dynamic-feature-access
+		Context.CryptoManager.BeginCheckingCertificate(NotifyDescription, Context.CryptoCertificate,
+			Context.CertificateCheckModes, Context.OnDate - UTCOffset());
+	Else
+		Context.CryptoManager.BeginCheckingCertificate(NotifyDescription, Context.CryptoCertificate,
+			Context.CertificateCheckModes);
+	EndIf;
 	
 EndProcedure
 
@@ -2327,19 +2536,28 @@ Procedure CheckCertificateAtClientAfterCheckError(ErrorInfo, StandardProcessing,
 				Context.ActionsToFixErrors.Insert(Action, ErrorDescription);
 				Context.ActionsToFixErrors.Insert("ActionOnRecheck", Action);
 				
-				If Action = "SetListOfCertificateRevocation" Then
+				If Action = "SetListOfCertificateRevocation"
+					And DigitalSignatureClient.CommonSettings().AccessToInternetServicesAllowed Then
+					
 					CertificateAuthorityName = Lower(DigitalSignatureClient.CertificateIssuerProperties(Context.CryptoCertificate).CommonName);
 					If ValueIsFilled(CertificateAuthorityName) Then
 						
 						CertificateAuthorityName = StringFunctionsClient.LatinString(CertificateAuthorityName);
 						
-						RevocationListInternalAddress = DigitalSignatureInternalClientServer.RevocationListInternalAddress(
-							CertificateAuthorityName, Context.CertificateData,
-							DigitalSignatureInternalClientCached.CataloguesOfReviewListsOfUTS());
-							
+						If DigitalSignatureInternalClientServer.AreCertificateAdditionalPropertiesAvailable() Then
+							CertificateProperties = DigitalSignatureClient.CertificateProperties(Context.CryptoCertificate);
+							RevocationListInternalAddress = DigitalSignatureInternalClientServer.RevocationListInternalAddress(
+								CertificateAuthorityName, CertificateProperties,
+								DigitalSignatureInternalClientCached.CARevocationListDirectories());
+						Else
+							RevocationListInternalAddress = DigitalSignatureInternalClientServer.RevocationListInternalAddress(
+								CertificateAuthorityName, Context.CertificateData,
+								DigitalSignatureInternalClientCached.CARevocationListDirectories());
+						EndIf;
+						
 						RevocationListInstallationParameters = RevocationListInstallationParameters(
 								Context.CryptoCertificate);
-						RevocationListInstallationParameters.CallbackOnCompletion = New NotifyDescription("RecheckCertificate",
+						RevocationListInstallationParameters.CallbackOnCompletion = New CallbackDescription("RecheckCertificate",
 							ThisObject, Context);
 						RevocationListInstallationParameters.ExplanationText = StringFunctionsClientServer.SubstituteParametersToString(
 							NStr("en = 'To check the certificate, install a revocation list using the %1 add-in.';"),
@@ -2390,7 +2608,7 @@ Procedure RecheckCertificate(Result, Context) Export
 				NStr("en = 'Couldn''t install the revocation list when checking the certificate: %1
 				|%2.';"), Result.Message, PropertiesCertificateString(Context.CryptoCertificate));
 			EventLogClient.AddMessageForEventLog(
-				NStr("en = 'Digital signature.Update revocation list';", CommonClient.DefaultLanguageCode()),
+				NStr("en = 'Digital signature.Update CRL';", CommonClient.DefaultLanguageCode()),
 				"Error", RevocationListInstallationErrorText,, True);
 				
 			CheckCertificateAtClientAfterCheckError(PreviousErrorText, False, Context);
@@ -2398,21 +2616,27 @@ Procedure RecheckCertificate(Result, Context) Export
 			Return;
 		Else
 			
-			TextOfMessageAboutInstallingReviewList = StringFunctionsClientServer.SubstituteParametersToString(
+			MessageTextOnInstallRevocationList = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Certificate revocation list was installed during the certificate validation: %1';"), 
 				PropertiesCertificateString(Context.CryptoCertificate));
 			EventLogClient.AddMessageForEventLog(
-				NStr("en = 'Digital signature.Update revocation list';", CommonClient.DefaultLanguageCode()),
-				"Information", TextOfMessageAboutInstallingReviewList,, True);
+				NStr("en = 'Digital signature.Update CRL';", CommonClient.DefaultLanguageCode()),
+				"Information", MessageTextOnInstallRevocationList,, True);
 				
 		EndIf;
 		
 	EndIf;
 	
-	Context.CryptoManager.BeginCheckingCertificate(New NotifyDescription(
-		"CheckCertificateAtClientAfterCheck", ThisObject, Context,
-		"CheckCertificateAtClientAfterCheckError", ThisObject),
-		Context.CryptoCertificate, Context.CertificateCheckModes);
+	NotifyDescription = New CallbackDescription("CheckCertificateAtClientAfterCheck", ThisObject, Context,
+		"CheckCertificateAtClientAfterCheckError", ThisObject);
+	If DigitalSignatureInternalClientServer.AreCertificateAdditionalPropertiesAvailable()
+		And Context.IsTimestampDateSpecified Then
+		Context.CryptoManager.BeginCheckingCertificate(NotifyDescription, Context.CryptoCertificate,
+			Context.CertificateCheckModes, Context.OnDate - UTCOffset());
+	Else
+		Context.CryptoManager.BeginCheckingCertificate(NotifyDescription, Context.CryptoCertificate,
+			Context.CertificateCheckModes);
+	EndIf;
 	
 EndProcedure
 
@@ -2486,7 +2710,7 @@ Async Procedure AdditionalVerificationCertificate(CryptoCertificate, CheckAtServ
 
 					FormOpenParameters = New Structure("Certificate, AdditionalDataChecks",
 						CertificateRef, ResultofCertificateAuthorityVerification.Warning);
-					ActionOnClick = New NotifyDescription("OpenNotificationFormNeedReplaceCertificate",
+					ActionOnClick = New CallbackDescription("OpenNotificationFormNeedReplaceCertificate",
 						DigitalSignatureInternalClient, FormOpenParameters);
 
 					ShowUserNotification(
@@ -2498,15 +2722,16 @@ Async Procedure AdditionalVerificationCertificate(CryptoCertificate, CheckAtServ
 		
 	EndIf;
 	
-	ExecuteNotifyProcessing(Context.Notification, True);
+	RunCallback(Context.Notification, True);
 	
 EndProcedure
 
 Async Function ResultofCertificateAuthorityVerification(CryptoCertificate,  OnDate = Undefined, CheckParameters = Undefined, CertificateProperties = Undefined) Export
 	
 	Result = DigitalSignatureInternalClientServer.DefaultCAVerificationResult();
+	Result = Await DigitalSignatureClientLocalization.OnFillCertificationAuthorityAuditResult(
+		Result, CryptoCertificate, OnDate, CheckParameters, CertificateProperties);
 	
-
 	Return Result;
 		
 EndFunction
@@ -2520,7 +2745,7 @@ EndFunction
 Procedure CheckCertificateSaaS(Context)
 	
 	If TypeOf(Context.Certificate) = Type("CryptoCertificate") Then
-		Context.Certificate.BeginUnloading(New NotifyDescription(
+		Context.Certificate.BeginUnloading(New CallbackDescription(
 			"CheckCertificateSaaSAfterExportCertificate", ThisObject, Context));
 	Else
 		CheckCertificateSaaSAfterExportCertificate(Context.Certificate, Context);
@@ -2544,11 +2769,11 @@ Procedure CheckCertificateSaaSAfterExportCertificate(Certificate, Context) Expor
 	If CheckParameters <> Undefined Then
 		// ACC:287-off - No.640. It's acceptable to call a non-existent CTL procedure.
 		// It's checked against CTL v.2.0.3, where the procedure exists.
-		ModuleCryptographyServiceClient.VerifyCertificateWithParameters(New NotifyDescription(
+		ModuleCryptographyServiceClient.VerifyCertificateWithParameters(New CallbackDescription(
 			"CheckCertificateAfterSaaSCheck", ThisObject, Context), CertificateData, CheckParameters);
 		// ACC:287-on
 	Else
-		ModuleCryptographyServiceClient.CheckCertificate(New NotifyDescription(
+		ModuleCryptographyServiceClient.CheckCertificate(New CallbackDescription(
 			"CheckCertificateAfterSaaSCheck", ThisObject, Context), CertificateData);
 	EndIf;
 	
@@ -2606,10 +2831,10 @@ Procedure CheckCertificateAfterFailedCheck(Context)
 				Or (Context.IsCheckRequiredAtServer = Undefined Or Context.IsCheckRequiredAtServer)
 				And (Context.IsCheckRequiredAtClient = Undefined Or Context.IsCheckRequiredAtClient));
 			
-			ExecuteNotifyProcessing(Context.Notification, Structure);
+			RunCallback(Context.Notification, Structure);
 			
 		Else
-			ExecuteNotifyProcessing(Context.Notification, GeneralDescriptionOfTheError);
+			RunCallback(Context.Notification, GeneralDescriptionOfTheError);
 		EndIf;
 		
 	Else
@@ -2627,9 +2852,9 @@ Procedure CheckCertificateAfterFailedCheck(Context)
 				Or (Context.IsCheckRequiredAtServer = Undefined Or Context.IsCheckRequiredAtServer)
 				And (Context.IsCheckRequiredAtClient = Undefined Or Context.IsCheckRequiredAtClient));
 			
-			ExecuteNotifyProcessing(Context.Notification, Structure);
+			RunCallback(Context.Notification, Structure);
 		Else
-			ExecuteNotifyProcessing(Context.Notification, Structure);
+			RunCallback(Context.Notification, Structure);
 		EndIf;
 		
 	EndIf;
@@ -2682,7 +2907,7 @@ EndFunction
 // Creates and returns the crypto manager (on the client) for the specified application.
 //
 // Parameters:
-//  Notification     - NotifyDescription - Runtime result notification of the following types:
+//  Notification     - CallbackDescription - Runtime result notification of the following types:
 //    = String - Details of the cryptographic manager creation error.
 //    = Structure -  See DigitalSignatureInternalClientServer.NewErrorsDescription
 //    = CryptoManager - Initialized crypto manager.
@@ -2703,7 +2928,7 @@ Procedure CreateCryptoManager(Notification, Operation, CryptoManagerCreationPara
 	Context.Operation	= Operation;
 	Context.Notification = Notification;
 	
-	BeginAttachingCryptoExtension(New NotifyDescription(
+	BeginAttachingCryptoExtension(New CallbackDescription(
 		"CreateCryptoManagerAfterAttachCryptoExtension", ThisObject, Context));
 	
 EndProcedure
@@ -2719,7 +2944,7 @@ EndProcedure
 //               - String - Data address in the temp storage.
 //               - Structure - See DigitalSignature.NewApplicationDetails
 //               - FixedStructure - See DigitalSignature.NewApplicationDetails
-//   * Notification - NotifyDescription
+//   * Notification - CallbackDescription
 //   * Operation - See CreateCryptoManager.Operation
 //   * AutoDetect - Boolean
 //   * ApplicationsDetails - Array of See DigitalSignatureInternalCached.ApplicationDetails
@@ -2754,8 +2979,8 @@ Async Procedure CreateCryptoManagerAfterAttachCryptoExtension(Attached, Context)
 	CommonErrorText = "";
 	
 	If Not CommonClient.IsWindowsClient()
-	   And Not CommonClient.IsLinuxClient()
-	   And Not CommonClient.IsMacOSClient() Then
+		And Not CommonClient.IsLinuxClient()
+		And Not CommonClient.IsMacOSClient() Then
 		
 		CommonErrorText = ErrorTextDeviceNotSupported();
 			
@@ -2764,8 +2989,7 @@ Async Procedure CreateCryptoManagerAfterAttachCryptoExtension(Attached, Context)
 	EndIf;
 	
 	If Not Attached Then
-		CommonErrorText =
-			NStr("en = 'Install 1C:Enterprise Extension in your browser.';");
+		CommonErrorText = NStr("en = 'Install 1C:Enterprise Extension.';");
 		ErrorProperties = DigitalSignatureInternalClientServer.NewErrorProperties();
 		ErrorProperties.NoExtension = True;
 	EndIf;
@@ -2813,7 +3037,7 @@ Async Procedure CreateCryptoManagerAfterAttachCryptoExtension(Attached, Context)
 		If Context.ShowError = True Then
 			ShowApplicationCallError(FormCaption, "", ErrorsDescription, New Structure);
 		EndIf;
-		ExecuteNotifyProcessing(Context.Notification, ErrorDescription);
+		RunCallback(Context.Notification, ErrorDescription);
 		Return;
 	EndIf;
 	
@@ -2967,7 +3191,7 @@ Procedure CreateCryptoManagerLoopStart(Context) Export
 		Return;
 	EndIf;
 	
-	Notification = New NotifyDescription(
+	Notification = New CallbackDescription(
 		"CreateACryptographyManagerCycleStartContinue", ThisObject, Context);
 	
 	StandardSubsystemsClient.StartNotificationProcessing(Notification);
@@ -3008,7 +3232,7 @@ Procedure CreateACryptographyManagerCycleStartContinue(Result, Context) Export
 	IDOfTheProgramPath = ?(ValueIsFilled(ApplicationDetails.Ref),
 		ApplicationDetails.Ref, ApplicationDetails.Id);
 	
-	ToObtainThePathToTheProgram(New NotifyDescription("CreateACryptographyManagerLoopAfterGettingTheProgramPath",
+	ToObtainThePathToTheProgram(New CallbackDescription("CreateACryptographyManagerLoopAfterGettingTheProgramPath",
 		ThisObject, Context), IDOfTheProgramPath);
 	
 EndProcedure
@@ -3029,7 +3253,7 @@ Procedure CreateACryptographyManagerLoopAfterGettingTheProgramPath(DescriptionOf
 	
 	Context.Insert("ApplicationProperties1", ApplicationProperties1);
 	
-	CryptoTools.BeginGettingCryptoModuleInformation(New NotifyDescription(
+	CryptoTools.BeginGettingCryptoModuleInformation(New CallbackDescription(
 			"CreateCryptoManagerLoopAfterGetInformation", ThisObject, Context,
 			"CreateCryptographyManagerLoopAfterInformationReceiptError", ThisObject),
 		Context.ApplicationProperties1.ApplicationName,
@@ -3078,14 +3302,14 @@ Procedure CreateCryptoManagerLoopAfterGetInformation(ModuleInfo, Context) Export
 	Context.Manager = New CryptoManager;
 	
 	If Not Context.InteractiveMode Then
-		Context.Manager.BeginInitialization(New NotifyDescription(
+		Context.Manager.BeginInitialization(New CallbackDescription(
 				"CreateCryptoManagerLoopAfterInitialize", ThisObject, Context,
 				"CreateCryptographyManagerLoopOnInitializationError", ThisObject),
 			Context.ApplicationProperties1.ApplicationName,
 			Context.ApplicationProperties1.ApplicationPath,
 			Context.ApplicationProperties1.ApplicationType);
 	Else
-		Context.Manager.BeginInitialization(New NotifyDescription(
+		Context.Manager.BeginInitialization(New CallbackDescription(
 				"CreateCryptoManagerLoopAfterInitialize", ThisObject, Context,
 				"CreateCryptographyManagerLoopOnInitializationError", ThisObject),
 			Context.ApplicationProperties1.ApplicationName,
@@ -3138,7 +3362,7 @@ EndProcedure
 Procedure CreateCryptoManagerAfterLoop(Context)
 	
 	If Context.Manager <> Undefined Or Not Context.Property("FormCaption") Then
-		ExecuteNotifyProcessing(Context.Notification, Context.Manager);
+		RunCallback(Context.Notification, Context.Manager);
 		Return;
 	EndIf;
 	
@@ -3160,7 +3384,7 @@ Procedure CreateCryptoManagerAfterLoop(Context)
 		ShowApplicationCallError(Context.FormCaption, "", ErrorsDescription, New Structure);
 	EndIf;
 	
-	ExecuteNotifyProcessing(Context.Notification, ErrorDescription);
+	RunCallback(Context.Notification, ErrorDescription);
 	
 EndProcedure
 
@@ -3194,6 +3418,8 @@ Async Function AnObjectOfAnExternalComponentOfTheExtraCryptoAPI(SuggestInstall =
 	If Result.Attached Then
 		ComponentObject = Result.Attachable_Module;
 		ComponentObject = Await ConfigureTheComponent(ComponentObject);
+		FillPathToAddInLog(ComponentObject, ComponentDetails.ObjectName);
+
 	ElsIf ValueIsFilled(Result.ErrorDescription) Then
 		Raise Result.ErrorDescription;
 	Else
@@ -3221,6 +3447,16 @@ Async Function ConfigureTheComponent(ComponentObject)
 	Return ComponentObject;
 	
 EndFunction
+
+Async Procedure FillPathToAddInLog(ComponentObject, FileName)
+	PathToDiagnosticsDirectory = DigitalSignatureClient.PersonalSettings().PathToDiagnosticsDirectory;
+	SystemInfo = New SystemInfo();
+	PathToAddInLogOnClient = PathToDiagnosticsDirectory.Get(SystemInfo.ClientID);
+	If ValueIsFilled(PathToAddInLogOnClient) Then
+		Await ComponentObject.УстановитьЛогAsync(CommonClientServer.AddLastPathSeparator(
+				PathToAddInLogOnClient) + FileName + ".log");
+	EndIf;
+EndProcedure
 
 Async Function AppForCertificate(Certificate,
 	IsPrivateKeyRequied = Undefined, ComponentObject = Undefined, SuggestInstall = False) Export
@@ -3260,7 +3496,7 @@ Async Function AppForCertificate(Certificate,
 		If ExtendedApplicationDetails <> Undefined Then
 			Result.Application = ExtendedApplicationDetails;
 			Return Result;
-		ElsIf IsPrivateKeyRequied = True And CurCryptoProvider.Get("type") <> 0 Then
+		ElsIf IsPrivateKeyRequied = True And ValueIsFilled(CurCryptoProvider) And CurCryptoProvider.Get("type") <> 0 Then
 			Result.Error = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The certificate is connected to the %1 app (of the %2 type). To use it, configure it in the catalog.';"),
 				CurCryptoProvider.Get("name"),
@@ -3569,7 +3805,7 @@ Procedure ToAddCertificate(CreationParameters = Undefined, CompletionHandler = U
 	
 	Form = OpenForm("Catalog.DigitalSignatureAndEncryptionKeysCertificates.Form.AddingCertificate",
 		New Structure("HideApplication", CertificateAddingOptions.HideApplication),,,,,
-		New NotifyDescription("AddCertificateAfterPurposeChoice", ThisObject, CertificateAddingOptions));
+		New CallbackDescription("AddCertificateAfterPurposeChoice", ThisObject, CertificateAddingOptions));
 	
 	If Form = Undefined Then
 		AddCertificateAfterPurposeChoice("ToSignEncryptAndDecrypt", CertificateAddingOptions);
@@ -3587,7 +3823,7 @@ EndProcedure
 //                       for certificate issue (when it is filled in, has priority over the company).
 //                       The default value is Undefined.
 //   * CertificateBasis - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - Certificate to be reissued.
-//   * CompletionHandler - NotifyDescription
+//   * CompletionHandler - CallbackDescription
 //   * CreateRequest - Boolean - Immediately open the certificate application form.
 //   * HideApplication - Boolean - Do not prompt to create a certificate application.
 //   * IsOnToken - Boolean - By default, select token in certificate issuance applications.
@@ -3638,6 +3874,16 @@ Procedure AddCertificateAfterPurposeChoice(Purpose, CreationParameters) Export
 		Return;
 	EndIf;
 	
+	If Purpose = "ForSigningEncryptionAndDecryptionFromFiles" Then
+		FormParameters.Insert("CompletionHandler", CreationParameters.CompletionHandler);
+		FormParameters.Insert("CanAddToList", True);
+		FormParameters.Insert("PersonalListOnAdd", CreationParameters.ToPersonalList);
+		FormParameters.Insert("Organization", CreationParameters.Organization);
+		FormParameters.Insert("ShouldDisplayAddCommands", False);
+		AddCertificateForSigningOrDecryptionFromFile(CreationParameters);
+		Return;
+	EndIf;
+	
 	If Purpose <> "ToEncryptOnly" Then
 		FormParameters.Insert("ToEncryptAndDecrypt", Undefined);
 		
@@ -3651,6 +3897,7 @@ Procedure AddCertificateAfterPurposeChoice(Purpose, CreationParameters) Export
 		FormParameters.Insert("CanAddToList", True);
 		FormParameters.Insert("PersonalListOnAdd", CreationParameters.ToPersonalList);
 		FormParameters.Insert("Organization", CreationParameters.Organization);
+		FormParameters.Insert("ShouldDisplayAddCommands", False);
 		SelectSigningOrDecryptionCertificate(FormParameters, , CreationParameters.CompletionHandler);
 		Return;
 	EndIf;
@@ -3658,7 +3905,7 @@ Procedure AddCertificateAfterPurposeChoice(Purpose, CreationParameters) Export
 	Context = New Structure;
 	Context.Insert("CreationParameters", CreationParameters);
 	
-	GetCertificatesPropertiesAtClient(New NotifyDescription(
+	GetCertificatesPropertiesAtClient(New CallbackDescription(
 			"AddCertificateAfterGetCertificatesPropertiesAtClient", ThisObject, Context),
 		False, False);
 	
@@ -3699,11 +3946,12 @@ Procedure GetCertificatesPropertiesAtClient(Notification, Personal, NoFilter, Th
 	Context.Insert("NoFilter",       NoFilter);
 	Context.Insert("ThumbprintsOnly", ThumbprintsOnly);
 	Context.Insert("Result",       Result);
+	Context.Insert("CertificatesArray", New Array);
 	
 	CreationParameters = CryptoManagerCreationParameters();
 	CreationParameters.ShowError = ShowError;
 	
-	CreateCryptoManager(New NotifyDescription(
+	CreateCryptoManager(New CallbackDescription(
 			"GetCertificatesPropertiesAtClientAfterCreateCryptoManager", ThisObject, Context),
 		"GetCertificates", CreationParameters);
 	
@@ -3714,23 +3962,23 @@ Procedure GetCertificatesPropertiesAtClientAfterCreateCryptoManager(CryptoManage
 	
 	If TypeOf(CryptoManager) <> Type("CryptoManager") Then
 		Context.Result.ErrorOnGetCertificatesAtClient = CryptoManager;
-		ExecuteNotifyProcessing(Context.Notification, Context.Result);
+		GetCertificatesPropertiesAtClientAfterGetAll(Context);
 		Return;
 	EndIf;
 	
 	Context.Insert("CryptoManager", CryptoManager);
 	
 	Context.CryptoManager.BeginGettingCertificateStore(
-		New NotifyDescription(
+		New CallbackDescription(
 			"GetCertificatesPropertiesAtClientAfterGetPersonalStorage", ThisObject, Context),
 		CryptoCertificateStoreType.PersonalCertificates);
 	
 EndProcedure
 
 // Continues the GetCertificatesPropertiesAtClient procedure.
-Procedure GetCertificatesPropertiesAtClientAfterGetPersonalStorage(Store, Context) Export
+Procedure GetCertificatesPropertiesAtClientAfterGetPersonalStorage(Storage, Context) Export
 	
-	Store.BeginGettingAll(New NotifyDescription(
+	Storage.BeginGettingAll(New CallbackDescription(
 		"GetCertificatesPropertiesAtClientAfterGetAllPersonalCertificates", ThisObject, Context));
 	
 EndProcedure
@@ -3746,16 +3994,16 @@ Procedure GetCertificatesPropertiesAtClientAfterGetAllPersonalCertificates(Array
 	EndIf;
 	
 	Context.CryptoManager.BeginGettingCertificateStore(
-		New NotifyDescription(
+		New CallbackDescription(
 			"GetCertificatesPropertiesAtClientAfterGetRecipientsStorage", ThisObject, Context),
 		CryptoCertificateStoreType.RecipientCertificates);
 	
 EndProcedure
 
 // Continues the GetCertificatesPropertiesAtClient procedure.
-Procedure GetCertificatesPropertiesAtClientAfterGetRecipientsStorage(Store, Context) Export
+Procedure GetCertificatesPropertiesAtClientAfterGetRecipientsStorage(Storage, Context) Export
 	
-	Store.BeginGettingAll(New NotifyDescription(
+	Storage.BeginGettingAll(New CallbackDescription(
 		"GetCertificatesPropertiesAtClientAfterGetAllRecipientsCertificates", ThisObject, Context));
 	
 EndProcedure
@@ -3777,9 +4025,16 @@ Procedure GetCertificatesPropertiesAtClientAfterGetAllRecipientsCertificates(Arr
 EndProcedure
 
 // Continues the GetCertificatesPropertiesAtClient procedure.
-Procedure GetCertificatesPropertiesAtClientAfterGetAll(Context)
+Async Procedure GetCertificatesPropertiesAtClientAfterGetAll(Context)
 	
-	PropertiesAddingOptions = New Structure("ThumbprintsOnly", Context.ThumbprintsOnly);
+	Context = Await DigitalSignatureClientLocalization.GetCertificatesPropertiesOnTokens(Context, False);
+	
+	If Context.CertificatesArray.Count() = 0 Then
+		RunCallback(Context.Notification, Context.Result);
+		Return;
+	EndIf;	
+	
+	PropertiesAddingOptions = New Structure("ThumbprintsOnly", Context.ThumbprintsOnly);	
 	DigitalSignatureInternalClientServer.AddCertificatesProperties(
 		Context.Result.CertificatesPropertiesAtClient,
 		Context.CertificatesArray,
@@ -3787,14 +4042,125 @@ Procedure GetCertificatesPropertiesAtClientAfterGetAll(Context)
 		UTCOffset(),
 		CommonClient.SessionDate(),
 		PropertiesAddingOptions);
-	ExecuteNotifyProcessing(Context.Notification, Context.Result);
+	RunCallback(Context.Notification, Context.Result);
 	
 EndProcedure
 
 // For internal purpose only.
-Procedure AddCertificateOnlyToEncryptFromFile(CreationParameters, MultipleChoice = False) Export
+Async Procedure AddCertificateForSigningOrDecryptionFromFile(CreationParameters, RepeatedCall = False)
 	
-	Notification = New NotifyDescription("AddCertificateOnlyToEncryptFromFileAfterPutFiles",
+	If Not RepeatedCall Then
+		NotificationInAbsenceOfBOTComponent = New CallbackDescription(
+			"AddCertificateToSignOrDecryptFromFileAgainAfterInstallingComponent", ThisObject, CreationParameters);
+		AdditionalComponentsAreBeingInstalled = Await PerformInstallationOfAdditionalComponentsAfterCheckingExtensionOfWorkWith1CEnterprise(
+			NotificationInAbsenceOfBOTComponent);
+		If AdditionalComponentsAreBeingInstalled Then
+			Return;
+		EndIf;
+	EndIf;
+	
+	Notification = New CallbackDescription("AddCertificateForSigningOrDecryptionFromFileAfterPutFiles",
+		ThisObject, CreationParameters);
+	
+	ImportParameters = FileSystemClient.FileImportParameters();
+	ImportParameters.Dialog.Title = NStr("en = 'Select a certificate file (only for encryption)';");
+	ImportParameters.Dialog.Filter = NStr("en = 'Certificate X.509 (*.cer;*.crt)|*.cer;*.crt';")+ "|"
+		+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
+	
+	FileSystemClient.ImportFile_(Notification, ImportParameters);
+	
+EndProcedure
+
+// 
+Procedure AddCertificateToSignOrDecryptFromFileAgainAfterInstallingComponent(Result, CreationParameters) Export
+	
+	If Result = True Then
+		AddCertificateForSigningOrDecryptionFromFile(CreationParameters, True);
+	EndIf;
+	
+EndProcedure
+
+// 
+Procedure AddCertificateForSigningOrDecryptionFromFileAfterPutFiles(PlacedFiles, Context) Export
+	
+	If Not ValueIsFilled(PlacedFiles) Then
+		Return;
+	EndIf;
+	
+	CertificateAddress = PlacedFiles.Location;
+	
+	CertificateData = GetFromTempStorage(CertificateAddress);
+	ThisIsCertificate = DigitalSignatureInternalServerCall.FileIsCertificate(CertificateData);
+	If Not ThisIsCertificate Then
+		ShowMessageBox(, NStr("en = 'Certificate file must have DER X.509 format.';"));
+		Return;
+	EndIf;
+	
+	AddCertificateForSigningOrDecryptionFromFileAfterPutFile(CertificateAddress, Context);
+	
+EndProcedure
+
+// Continues the AddCertificateOnlyToEncryptFromFile procedure.
+Async Procedure AddCertificateForSigningOrDecryptionFromFileAfterPutFile(Address, Context)
+	
+	FormParameters = New Structure;
+	FormParameters.Insert("CertificateDataAddress", Address);
+	FormParameters.Insert("PersonalListOnAdd", Context.ToPersonalList);
+	FormParameters.Insert("Organization",               Context.Organization);
+	
+	NotificationParameters = New Structure;
+	NotificationParameters.Insert("CertificateAddress", Address);
+	
+	CompletionHandler = ?(Context.Property("CompletionHandler"), Context.CompletionHandler, Undefined);
+	
+	CertificateInstallationParameters = CertificateInstallationParameters(Address);
+	CertificateInstallationParameters.CallbackOnCompletion = ?(CompletionHandler = Undefined,
+		New CallbackDescription("AfterAddCertificateFromFiles", ThisObject, NotificationParameters),
+		Context.CompletionHandler);
+	
+	Containers = Await ContainersByCertificate(Address);
+	If Containers.Count() = 0 Then
+		FormParameters = New Structure;
+		FormParameters.Insert("WarningTitle", NStr("en = 'Cannot install the certificate.';"));
+		FormParameters.Insert("ErrorTextClient", NStr("en = 'Container with digital signature key not found.';"));
+		OpenExtendedErrorPresentationForm(FormParameters, , CertificateInstallationParameters.CallbackOnCompletion);
+	Else
+		CertificateInstallationParameters.Storage = New Structure("Value, Presentation", "MY", NStr("en = 'Personal certificate store';"));
+		CertificateInstallationParameters.ContainerProperties = Containers[0];
+		InstallCertificateAfterInstallationOptionSelected(CertificateInstallationParameters);
+	EndIf;
+	
+EndProcedure
+
+// For internal use only.
+Procedure AfterAddCertificateFromFiles(Result, Parameters) Export
+	
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	FormParameters = New Structure;
+	FormParameters.Insert("CertificateAddress", Result.Certificate);
+	SelectSigningOrDecryptionCertificate(FormParameters, ThisObject);
+	
+EndProcedure
+
+// For internal purpose only.
+Async Procedure AddCertificateOnlyToEncryptFromFile(CreationParameters, MultipleChoice = False, RepeatedCall = False) Export
+	
+	If Not RepeatedCall Then
+		CallbackParameters = New Structure("CreationParameters, MultipleChoice",
+			CreationParameters, MultipleChoice);
+		NotificationInAbsenceOfBOTComponent = New CallbackDescription(
+			"AddCertificateOnlyForEncryptionFromFileAgainAfterInstallingComponent", ThisObject, CallbackParameters);
+		AdditionalComponentsAreBeingInstalled = Await PerformInstallationOfAdditionalComponentsAfterCheckingExtensionOfWorkWith1CEnterprise(
+			NotificationInAbsenceOfBOTComponent);
+		If AdditionalComponentsAreBeingInstalled Then
+			Return;
+		EndIf;
+	EndIf;
+	
+	Notification = New CallbackDescription("AddCertificateOnlyToEncryptFromFileAfterPutFiles",
 		ThisObject, CreationParameters);
 	
 	ImportParameters = FileSystemClient.FileImportParameters();
@@ -3811,6 +4177,16 @@ Procedure AddCertificateOnlyToEncryptFromFile(CreationParameters, MultipleChoice
 	
 EndProcedure
 
+// 
+Procedure AddCertificateOnlyForEncryptionFromFileAgainAfterInstallingComponent(Result, CallbackParameters) Export
+	
+	If Result = True Then
+		AddCertificateOnlyToEncryptFromFile(
+			CallbackParameters.CreationParameters, CallbackParameters.MultipleChoice, True);
+	EndIf;
+	
+EndProcedure
+
 // Continues the AddCertificateOnlyToEncryptFromFile procedure.
 Procedure AddCertificateOnlyToEncryptFromFileAfterPutFiles(PlacedFiles, Context) Export
 	
@@ -3819,12 +4195,12 @@ Procedure AddCertificateOnlyToEncryptFromFileAfterPutFiles(PlacedFiles, Context)
 	EndIf;
 	
 	If TypeOf(PlacedFiles) = Type("Array") Then
-
+		
 		If PlacedFiles.Count() = 1 Then
 			AddCertificateOnlyToEncryptFromFileAfterPutFile(PlacedFiles[0].Location, Context);
 			Return;
 		EndIf;
-
+		
 		AddCertificatesOnlyToEncryptFromFileAfterPutFiles(PlacedFiles, Context);
 		Return;
 		
@@ -3848,7 +4224,7 @@ Procedure AddCertificateOnlyToEncryptFromFileAfterPutFile(Address, Context)
 	
 	If Form = Undefined Then
 		ShowMessageBox(,
-			NStr("en = 'Certificate file must have DER X.509 format, operation aborted. ';"));
+			NStr("en = 'Certificate file must have DER X.509 format.';"));
 		Return;
 	EndIf;
 	
@@ -3857,7 +4233,7 @@ Procedure AddCertificateOnlyToEncryptFromFileAfterPutFile(Address, Context)
 		Buttons.Add("Open", NStr("en = 'Open';"));
 		Buttons.Add("Cancel",  NStr("en = 'Cancel';"));
 		ShowQueryBox(
-			New NotifyDescription("AddCertificateOnlyToEncryptFromFileAfterNotifyOfExisting",
+			New CallbackDescription("AddCertificateOnlyToEncryptFromFileAfterNotifyOfExisting",
 				ThisObject, Form.Certificate),
 			NStr("en = 'Certificate is already added.';"), Buttons);
 	EndIf;
@@ -3872,8 +4248,13 @@ Procedure AddCertificatesOnlyToEncryptFromFileAfterPutFiles(PlacedFiles, Context
 	FormParameters.Insert("Organization",     Context.Organization);
 	
 	CompletionHandler = ?(Context.Property("CompletionHandler"), Context.CompletionHandler, Undefined);
-	OpenForm("Catalog.DigitalSignatureAndEncryptionKeysCertificates.Form.AddCertificatesForEncryption",
+	Form = OpenForm("Catalog.DigitalSignatureAndEncryptionKeysCertificates.Form.AddCertificatesForEncryption",
 		FormParameters, , , , , CompletionHandler);
+	
+	If Form = Undefined Then
+		ShowMessageBox(, NStr("en = 'The directory contains no certificates that can be exported.';"));
+		Return;
+	EndIf;
 	
 EndProcedure
 
@@ -3889,14 +4270,19 @@ Procedure AddCertificateOnlyToEncryptFromFileAfterNotifyOfExisting(Response, Cer
 EndProcedure
 
 // For internal purpose only.
-Procedure AddCertificateOnlyToEncryptFromDirectory(CreationParameters)
+Async Procedure AddCertificateOnlyToEncryptFromDirectory(CreationParameters)
 	
-	Notification = New NotifyDescription("AddCertificateOnlyToEncryptFromDirectoryAfterAttachExtension",
+	Notification = New CallbackDescription("AddCertificateOnlyToEncryptFromDirectoryAfterAttachExtension",
 		ThisObject, CreationParameters);
 		
+	AdditionalComponentsAreBeingInstalled = Await PerformInstallationOfAdditionalComponentsAfterCheckingExtensionOfWorkWith1CEnterprise(Notification);
+	If AdditionalComponentsAreBeingInstalled Then
+		Return;
+	EndIf;
+	
 	SuggestionText =  NStr("en = 'To import certificates from the directory, install 1C:Enterprise Extension.';");
-	FileSystemClient.AttachFileOperationsExtension(Notification, SuggestionText, False);
-		
+	FileSystemClient.Attach1CEnterpriseExtension(Notification, SuggestionText, False);
+	
 EndProcedure
 
 // Continues the AddCertificateOnlyToEncryptFromDirectory procedure.
@@ -3906,7 +4292,7 @@ Procedure AddCertificateOnlyToEncryptFromDirectoryAfterAttachExtension(Result, C
 		Return;
 	EndIf;
 		
-	Notification = New NotifyDescription("AddCertificateOnlyToEncryptFromFileAfterSelectDirectory",
+	Notification = New CallbackDescription("AddCertificateOnlyToEncryptFromFileAfterSelectDirectory",
 		ThisObject, CreationParameters);
 	
 	Title = NStr("en = 'Select a certificate file directory (for encryption only)';");
@@ -3922,7 +4308,7 @@ Async Procedure AddCertificateOnlyToEncryptFromFileAfterSelectDirectory(Selected
 		Return;
 	EndIf;
 	
-	Notification = New NotifyDescription("AddCertificateOnlyToEncryptFromFileAfterPutFiles",
+	Notification = New CallbackDescription("AddCertificateOnlyToEncryptFromFileAfterPutFiles",
 		ThisObject, Context);
 	
 	DetailsOfFilesToTransfer = New Array;
@@ -3948,9 +4334,26 @@ Async Procedure AddCertificateOnlyToEncryptFromFileAfterSelectDirectory(Selected
 EndProcedure
 
 // Continues the ShowApplicationCallError procedure.
-Procedure ShowApplicationCallErrorAfterAttachExtension(Attached, Context) Export
+Async Procedure ShowApplicationCallErrorAfterAttachExtension(Attached, Context) Export
 	
 	Context.FormParameters.Insert("ExtensionAttached", Attached);
+	
+#If WebClient Then
+	If Not Attached Then
+		Components = NewComponentsOfWorkingWithCryptography();
+		Components.ExtensionOfWorkWithCryptographyIsEstablished = False;
+		
+		InstallationOfAdditionalComponentsIsRequired = Await InstallationOfAdditionalComponentsIsRequired(Components);
+		
+		If InstallationOfAdditionalComponentsIsRequired Then
+			FormParameters = New Structure;
+			FormParameters.Insert("Components", Components);
+			OpenForm("CommonForm.GettingStartedWithElectronicSignature", FormParameters,
+				, , , , Context.ContinuationHandler, FormWindowOpeningMode.LockOwnerWindow);
+			Return;
+		EndIf;
+	EndIf;
+#EndIf
 	
 	OpenForm("Catalog.DigitalSignatureAndEncryptionApplications.Form.ApplicationCallError",
 		Context.FormParameters,,,, , Context.ContinuationHandler);
@@ -4008,7 +4411,7 @@ Procedure OpenNewForm(FormType, ClientParameters, ServerParameters1, CompletionP
 		
 		OpenNewFormCompletion(New Array, Context);
 	Else
-		GetCertificatesThumbprintsAtClient(New NotifyDescription(
+		GetCertificatesThumbprintsAtClient(New CallbackDescription(
 			"OpenNewFormCompletion", ThisObject, Context), FormType = "DataDecryption");
 	EndIf;
 	
@@ -4094,7 +4497,7 @@ Procedure SetDataPresentation(ClientParameters, ServerParameters1) Export
 			DataDetails.SetPresentation, "%1", DataDetails.DataSet.Count()));
 	Else
 		ServerParameters1.Insert("DataPresentationCanOpen",
-			TypeOf(CurrentPresentationsList[0].Value) = Type("NotifyDescription")
+			TypeOf(CurrentPresentationsList[0].Value) = Type("CallbackDescription")
 			Or ValueIsFilled(CurrentPresentationsList[0].Value));
 		
 		ServerParameters1.Insert("DataPresentation",
@@ -4230,7 +4633,7 @@ Procedure RegularlyCompletion(Success, ClientParameters) Export
 		
 		ResultProcessing = ClientParameters.ResultProcessing;
 		ClientParameters.ResultProcessing = Undefined;
-		ExecuteNotifyProcessing(ResultProcessing, ClientParameters.DataDetails);
+		RunCallback(ResultProcessing, ClientParameters.DataDetails);
 		
 	EndIf;
 	
@@ -4253,7 +4656,7 @@ Procedure AddSignatureFromFileAfterCreateCryptoManager(Result, Context) Export
 	EndIf;
 	
 	If Context.ResultProcessing <> Undefined Then
-		ExecuteNotifyProcessing(Context.ResultProcessing, Context.DataDetails);
+		RunCallback(Context.ResultProcessing, Context.DataDetails);
 	EndIf;
 	
 EndProcedure
@@ -4279,7 +4682,7 @@ EndProcedure
 //                              from which you need to get the signatures list.
 //                         - String - a temporary storage address of a signature array with properties,
 //                              as the AddSignatureFromFile procedure returns.
-//    * Data             - NotifyDescription - Handler for saving data and receiving the full filename with the path
+//    * Data             - CallbackDescription - Handler for saving data and receiving the full filename with the path
 //                              returned in the FullFileName property of the String type for saving digital signatures
 //                              (see the common approach above).
 //                              If 1C:Enterprise Extension is not attached, return
@@ -4296,7 +4699,7 @@ EndProcedure
 //                                                         the notification for the BeginRequestingUserPermission method has.
 //                                                         If the permission is not received, everything is canceled.
 //
-//  ResultProcessing - NotifyDescription - the parameter to be passed to the result:
+//  ResultProcessing - CallbackDescription - the parameter to be passed to the result:
 //    Boolean - True if everything was successful.
 //
 Procedure SaveDataWithSignature(DataDetails, ResultProcessing = Undefined) Export
@@ -4324,7 +4727,7 @@ Procedure SaveDataWithSignature(DataDetails, ResultProcessing = Undefined) Expor
 	SetDataPresentation(ClientParameters, ServerParameters1);
 	
 	SaveForm = OpenForm("CommonForm.SaveWithDigitalSignature", ServerParameters1,,,,,
-		New NotifyDescription("SaveDataWithSignatureAfterSignaturesChoice", ThisObject, Context));
+		New CallbackDescription("SaveDataWithSignatureAfterSignaturesChoice", ThisObject, Context));
 	
 	ExitApp = False;
 	Context.Insert("Form", SaveForm);
@@ -4344,7 +4747,7 @@ Procedure SaveDataWithSignature(DataDetails, ResultProcessing = Undefined) Expor
 	EndIf;
 	
 	If ExitApp And Context.ResultProcessing <> Undefined Then
-		ExecuteNotifyProcessing(Context.ResultProcessing, False);
+		RunCallback(Context.ResultProcessing, False);
 	EndIf;
 	
 EndProcedure
@@ -4354,7 +4757,7 @@ Procedure SaveDataWithSignatureAfterSignaturesChoice(SignaturesCollection, Conte
 	
 	If TypeOf(SignaturesCollection) <> Type("FormDataCollection") Then
 		If Context.ResultProcessing <> Undefined Then
-			ExecuteNotifyProcessing(Context.ResultProcessing, False);
+			RunCallback(Context.ResultProcessing, False);
 		EndIf;
 		Return;
 	EndIf;
@@ -4373,11 +4776,11 @@ Procedure SaveDataWithSignatureAfterSignaturesChoice(SignaturesCollection, Conte
 
 	ExecutionParameters = New Structure;
 	ExecutionParameters.Insert("DataDetails", Context.DataDetails);
-	ExecutionParameters.Insert("Notification", New NotifyDescription(
+	ExecutionParameters.Insert("Notification", New CallbackDescription(
 		"SaveDataWithSignatureAfterSaveFileData", ThisObject, Context));
 	
 	Try
-		ExecuteNotifyProcessing(Context.DataDetails.Data, ExecutionParameters);
+		RunCallback(Context.DataDetails.Data, ExecutionParameters);
 	Except
 		ErrorInfo = ErrorInfo();
 		SaveDataWithSignatureAfterSaveFileData(
@@ -4387,7 +4790,7 @@ Procedure SaveDataWithSignatureAfterSignaturesChoice(SignaturesCollection, Conte
 EndProcedure
 
 // Continue the DigitalSignatureClient.SaveDataWithSignature procedure.
-Procedure SaveDataWithSignatureAfterSaveFileData(Result, Context) Export
+Async Procedure SaveDataWithSignatureAfterSaveFileData(Result, Context) Export
 	
 	If Result.Property("ErrorDescription") Then
 		Error = New Structure("ErrorDescription",
@@ -4402,7 +4805,7 @@ Procedure SaveDataWithSignatureAfterSaveFileData(Result, Context) Export
 		Or IsBlankString(Result.FullFileName) Then
 		
 		If Context.ResultProcessing <> Undefined Then
-			ExecuteNotifyProcessing(Context.ResultProcessing, False);
+			RunCallback(Context.ResultProcessing, False);
 		EndIf;
 		Return;
 	EndIf;
@@ -4415,8 +4818,15 @@ Procedure SaveDataWithSignatureAfterSaveFileData(Result, Context) Export
 	Context.Insert("DataFileNameContent",
 		CommonClientServer.ParseFullFileName(Context.FullFileName));
 	
-	FileSystemClient.AttachFileOperationsExtension(New NotifyDescription(
-		"SaveDataWithSignatureAfterAttachFileSystemExtention", ThisObject, Context));
+	Notification = New CallbackDescription(
+		"SaveDataWithSignatureAfterAttachFileSystemExtention", ThisObject, Context);
+	
+	AdditionalComponentsAreBeingInstalled = Await PerformInstallationOfAdditionalComponentsAfterCheckingExtensionOfWorkWith1CEnterprise(Notification);
+	If AdditionalComponentsAreBeingInstalled Then
+		Return;
+	EndIf;
+	
+	FileSystemClient.Attach1CEnterpriseExtension(Notification);
 	
 EndProcedure
 
@@ -4508,7 +4918,7 @@ Procedure SaveDataWithSignatureLoopInternalLoopStart(Context)
 		
 	ElsIf Context.Attached Then
 		File = New File(Context.SignatureFileFullName);
-		File.BeginCheckingExistence(New NotifyDescription(
+		File.BeginCheckingExistence(New CallbackDescription(
 			"SaveDataWithSignatureLoopInternalLoopAfterCheckFileExistence", ThisObject, Context));
 	Else
 		SaveDataWithSignatureLoopInternalLoopAfterCheckFileExistence(False, Context);
@@ -4549,7 +4959,7 @@ Procedure SaveDataWithSignatureLoopAfterInternalLoop(Context)
 	Else
 		// Save the file from the app to the computer.
 		FileSystemClient.SaveFile(
-			New NotifyDescription("SaveDataWithSignatureLoopAfterSaveSignature", ThisObject, Context),
+			New CallbackDescription("SaveDataWithSignatureLoopAfterSaveSignature", ThisObject, Context),
 			Context.SignatureDescription.SignatureAddress, SignatureFileNameContent.Name);
 	EndIf;
 	
@@ -4582,7 +4992,7 @@ Procedure SaveCertificateDataWithSignatureLoopInternalLoopStart(Context)
 		
 	ElsIf Context.Attached Then
 		File = New File(Context.CertificateFileFullName);
-		File.BeginCheckingExistence(New NotifyDescription(
+		File.BeginCheckingExistence(New CallbackDescription(
 			"SaveCertificateDataWithSignatureLoopInternalLoopAfterCheckFileExistence", ThisObject, Context));
 	Else
 		SaveCertificateDataWithSignatureLoopInternalLoopAfterCheckFileExistence(False, Context);
@@ -4640,7 +5050,7 @@ Procedure SaveCertificateDataWithSignatureLoopAfterInternalLoop(Context)
 	Else
 		// Save the file from the app to the computer.
 		FileSystemClient.SaveFile(
-			New NotifyDescription("SaveCertificateDataWithSignatureLoopAfterSaveCertificate", ThisObject, Context),
+			New CallbackDescription("SaveCertificateDataWithSignatureLoopAfterSaveCertificate", ThisObject, Context),
 			Context.SignatureDescription.CertificateAddress, CertificateFileNameComposition.Name);
 	EndIf;
 	
@@ -4679,7 +5089,7 @@ Procedure SaveMRLOAsLoopStart(Context)
 	Else
 		// Save the file from the app to the computer.
 		FileSystemClient.SaveFile(
-			New NotifyDescription("SaveDataWithSignatureAfterMRLOASaveLoop", ThisObject, Context),
+			New CallbackDescription("SaveDataWithSignatureAfterMRLOASaveLoop", ThisObject, Context),
 			 LOAToExport.Location, LOAToExport.Name);
 	EndIf;
 	
@@ -4697,7 +5107,7 @@ Procedure SaveDataWithSignatureAfterMRLOAsSaveLoop(Context)
 	
 	If Not Context.Attached Then
 		If Context.ResultProcessing <> Undefined Then
-			ExecuteNotifyProcessing(Context.ResultProcessing, True);
+			RunCallback(Context.ResultProcessing, True);
 		EndIf;
 		Return;
 	EndIf;
@@ -4714,14 +5124,14 @@ Procedure SaveDataWithSignatureAfterMRLOAsSaveLoop(Context)
 		Call.Add(False);
 		Calls.Add(Call);
 		
-		ContinuationHandler = New NotifyDescription(
+		ContinuationHandler = New CallbackDescription(
 			"SaveDataWithSignatureAfterGetExtensions", ThisObject, Context);
 		
 		If Context.Property("PremissionRequestProcessing") Then
 			ExecutionParameters = New Structure;
 			ExecutionParameters.Insert("Calls", Calls);
 			ExecutionParameters.Insert("ContinuationHandler", ContinuationHandler);
-			ExecuteNotifyProcessing(Context.PremissionRequestProcessing, ExecutionParameters);
+			RunCallback(Context.PremissionRequestProcessing, ExecutionParameters);
 		Else
 			BeginRequestingUserPermission(ContinuationHandler, Calls);
 		EndIf;
@@ -4740,7 +5150,7 @@ Procedure SaveDataWithSignatureAfterGetExtensions(PermissionsGranted, Context) E
 		
 		// The data file was not got - the report is not required.
 		If Context.ResultProcessing <> Undefined Then
-			ExecuteNotifyProcessing(Context.ResultProcessing, False);
+			RunCallback(Context.ResultProcessing, False);
 		EndIf;
 		
 	ElsIf PermissionsGranted Then
@@ -4748,7 +5158,7 @@ Procedure SaveDataWithSignatureAfterGetExtensions(PermissionsGranted, Context) E
 		SavingParameters = FileSystemClient.FilesSavingParameters();
 		SavingParameters.Interactively = Not ValueIsFilled(Context.FilesPath);
 		SavingParameters.Dialog.Directory = Context.FilesPath;
-		FileSystemClient.SaveFiles(New NotifyDescription(
+		FileSystemClient.SaveFiles(New CallbackDescription(
 				"SaveDataWithSignatureAfterGetFiles", ThisObject, Context), 
 			Context.FilesToObtain, SavingParameters);
 	Else
@@ -4794,7 +5204,7 @@ Procedure SaveDataWithSignatureAfterGetFiles(ObtainedFiles, Context) Export
 	EndIf;
 		
 	OpenForm("CommonForm.ReportOnSavingFilesOfDigitalSignatures", FormParameters,,,,,
-		New NotifyDescription("SaveDataWithSignatureAfterCloseReport", ThisObject, Context));
+		New CallbackDescription("SaveDataWithSignatureAfterCloseReport", ThisObject, Context));
 	
 EndProcedure
 
@@ -4802,7 +5212,7 @@ EndProcedure
 Procedure SaveDataWithSignatureAfterCloseReport(Result, Context) Export
 	
 	If Context.ResultProcessing <> Undefined Then
-		ExecuteNotifyProcessing(Context.ResultProcessing, True);
+		RunCallback(Context.ResultProcessing, True);
 	EndIf;
 	
 EndProcedure
@@ -4832,7 +5242,7 @@ Procedure InstallExtension(WithoutQuestion, ResultHandler = Undefined, QueryText
 	Context.Insert("QuestionTitle", QuestionTitle);
 	Context.Insert("WithoutQuestion",       WithoutQuestion);
 	
-	BeginAttachingCryptoExtension(New NotifyDescription(
+	BeginAttachingCryptoExtension(New CallbackDescription(
 		"InstallExtensionAfterCheckCryptoExtensionAttachment", ThisObject, Context));
 	
 EndProcedure
@@ -4841,31 +5251,46 @@ EndProcedure
 Procedure InstallExtensionAfterCheckCryptoExtensionAttachment(Attached, Context) Export
 	
 	If Attached Then
-		ExecuteNotifyProcessing(Context.Notification, True);
+		RunCallback(Context.Notification, True);
 		Return;
 	EndIf;
 	
-	BeginAttachingCryptoExtension(New NotifyDescription(
+	BeginAttachingCryptoExtension(New CallbackDescription(
 		"InstallExtensionAfterAttachCryptoExtension", ThisObject, Context));
 	
 EndProcedure
 
 // Continue the InstallExtension procedure.
-Procedure InstallExtensionAfterAttachCryptoExtension(Attached, Context) Export
+Async Procedure InstallExtensionAfterAttachCryptoExtension(Attached, Context) Export
 	
 	If Attached Then
 		If Context.Notification <> Undefined Then
-			ExecuteNotifyProcessing(Context.Notification, True);
+			RunCallback(Context.Notification, True);
 		EndIf;
 		Return;
 	EndIf;
 	
-	Handler = New NotifyDescription("InstallExtensionAfterResponse", ThisObject, Context);
+	Handler = New CallbackDescription("InstallExtensionAfterResponse", ThisObject, Context);
 	
 	If Context.WithoutQuestion Then
-		ExecuteNotifyProcessing(Handler, DialogReturnCode.Yes);
+		RunCallback(Handler, DialogReturnCode.Yes);
 		Return;
 	EndIf;
+	
+#If WebClient Then
+	Components = NewComponentsOfWorkingWithCryptography();
+	Components.ExtensionOfWorkWithCryptographyIsEstablished = False;
+	
+	InstallationOfAdditionalComponentsIsRequired = Await InstallationOfAdditionalComponentsIsRequired(Components);
+	
+	If InstallationOfAdditionalComponentsIsRequired Then
+		FormParameters = New Structure;
+		FormParameters.Insert("Components", Components);
+		OpenForm("CommonForm.GettingStartedWithElectronicSignature", FormParameters,
+			, , , , Handler, FormWindowOpeningMode.LockOwnerWindow);
+		Return;
+	EndIf;
+#EndIf
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("QuestionTitle", Context.QuestionTitle);
@@ -4880,11 +5305,11 @@ EndProcedure
 Procedure InstallExtensionAfterResponse(Response, Context) Export
 	
 	If Response = DialogReturnCode.Yes Then
-		BeginInstallCryptoExtension(New NotifyDescription(
+		BeginInstallCryptoExtension(New CallbackDescription(
 			"InstallExtensionAfterInstallCryptoExtension", ThisObject, Context));
 	Else
 		If Context.Notification <> Undefined Then
-			ExecuteNotifyProcessing(Context.Notification, Undefined);
+			RunCallback(Context.Notification, Undefined);
 		EndIf;
 	EndIf;
 	
@@ -4893,7 +5318,7 @@ EndProcedure
 // Continue the InstallExtension procedure.
 Procedure InstallExtensionAfterInstallCryptoExtension(Context) Export
 	
-	BeginAttachingCryptoExtension(New NotifyDescription(
+	BeginAttachingCryptoExtension(New CallbackDescription(
 		"InstallExtensionAfterAttachInstalledCryptoExtension", ThisObject, Context));
 	
 EndProcedure
@@ -4906,13 +5331,12 @@ Procedure InstallExtensionAfterAttachInstalledCryptoExtension(Attached, Context)
 	EndIf;
 	
 	If Context.Notification <> Undefined Then
-		ExecuteNotifyProcessing(Context.Notification, Attached);
+		RunCallback(Context.Notification, Attached);
 	EndIf;
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Common procedures and functions for client application forms.
+#Region CommonProceduresAndFunctionsForManagedForms
 
 // For internal use only.
 Procedure ContinueOpeningStart(Notification, Form, ClientParameters, Encryption = False, Details = False) Export
@@ -4929,10 +5353,11 @@ Procedure ContinueOpeningStart(Notification, Form, ClientParameters, Encryption 
 	Context = New Structure;
 	Context.Insert("Notification", Notification);
 	Context.Insert("ErrorAtServer", New Structure);
+	Context.Insert("Operation", ?(Details, "Details", "Signing"));
 	
 	If DigitalSignatureClient.GenerateDigitalSignaturesAtServer() Then
 		If Not ValueIsFilled(Form.CryptographyManagerOnServerErrorDescription) Then
-			ExecuteNotifyProcessing(Notification, True);
+			RunCallback(Notification, True);
 			Return;
 		EndIf;
 		Context.ErrorAtServer = Form.CryptographyManagerOnServerErrorDescription;
@@ -4941,28 +5366,36 @@ Procedure ContinueOpeningStart(Notification, Form, ClientParameters, Encryption 
 	CreationParameters = CryptoManagerCreationParameters();
 	CreationParameters.ShowError = Undefined;
 	
-	CreateCryptoManager(New NotifyDescription(
+	CreateCryptoManager(New CallbackDescription(
 			"ContinueOpeningStartAfterCreateCryptoManager", ThisObject, Context),
 		"GetCertificates", CreationParameters);
 	
 EndProcedure
 
 // Continues the ContinueOpeningStart procedure.
-Procedure ContinueOpeningStartAfterCreateCryptoManager(Result, Context) Export
+Async Procedure ContinueOpeningStartAfterCreateCryptoManager(Result, Context) Export
 	
-	If TypeOf(Result) <> Type("CryptoManager")
-	   And Not UseDigitalSignatureSaaS()
-	   And Not UseCloudSignatureService() Then
-		
+	If TypeOf(Result) <> Type("CryptoManager") And Not UseDigitalSignatureSaaS()
+		And Not UseCloudSignatureService() Then
+
+		If Context.Operation = "Signing" Then
+			CertificatesThumbprintsOnTokens = Await DigitalSignatureClientLocalization.GetCertificatesThumbprintsOnTokens(True, False);
+
+			If CertificatesThumbprintsOnTokens.Count() > 0 Then
+				RunCallback(Context.Notification, True);
+				Return;
+			EndIf;
+		EndIf;
+
 		ShowApplicationCallError(
-			NStr("en = 'A digital signing and encryption app is required';"),
-			"", Result, Context.ErrorAtServer);
-		
-		ExecuteNotifyProcessing(Context.Notification, False);
+			NStr("en = 'A digital signing and encryption app is required';"), "", Result,
+			 Context.ErrorAtServer);
+
+		RunCallback(Context.Notification, False);
 		Return;
 	EndIf;
-	
-	ExecuteNotifyProcessing(Context.Notification, True);
+
+	RunCallback(Context.Notification, True);
 	
 EndProcedure
 
@@ -4977,22 +5410,26 @@ Procedure GetCertificatesThumbprintsAtClient(Notification, IncludingOverduePayme
 	CreationParameters = CryptoManagerCreationParameters();
 	CreationParameters.ShowError = False;
 	
-	CreateCryptoManager(New NotifyDescription(
+	CreateCryptoManager(New CallbackDescription(
 			"GetCertificatesThumbprintsAtClientAfterCreateCryptoManager", ThisObject, Context),
 		"GetCertificates", CreationParameters);
 	
 EndProcedure
 
 // Continues the GetCertificatesThumbprintsAtClient procedure.
-Procedure GetCertificatesThumbprintsAtClientAfterCreateCryptoManager(CryptoManager, Context) Export
+Async Procedure GetCertificatesThumbprintsAtClientAfterCreateCryptoManager(CryptoManager, Context) Export
+	
+	Array = Await DigitalSignatureClientLocalization.GetCertificatesThumbprintsOnTokens(False, Context.IncludingOverduePayments);
 	
 	If TypeOf(CryptoManager) <> Type("CryptoManager") Then
-		ExecuteNotifyProcessing(Context.Notification, New Array);
+		RunCallback(Context.Notification, Array);
 		Return;
 	EndIf;
 	
+	Context.Insert("ThumbprintsArray", Array);
+	
 	CryptoManager.BeginGettingCertificateStore(
-		New NotifyDescription(
+		New CallbackDescription(
 			"GetCertificatesThumbprintsAtClientAfterGetStorage", ThisObject, Context),
 		CryptoCertificateStoreType.PersonalCertificates);
 	
@@ -5001,7 +5438,7 @@ EndProcedure
 // Continues the GetCertificatesThumbprintsAtClient procedure.
 Procedure GetCertificatesThumbprintsAtClientAfterGetStorage(CryptoCertificateStore, Context) Export
 	
-	CryptoCertificateStore.BeginGettingAll(New NotifyDescription(
+	CryptoCertificateStore.BeginGettingAll(New CallbackDescription(
 		"GetCertificatesThumbprintsAtClientAfterGetAll", ThisObject, Context));
 	
 EndProcedure
@@ -5009,14 +5446,14 @@ EndProcedure
 // Continues the GetCertificatesThumbprintsAtClient procedure.
 Procedure GetCertificatesThumbprintsAtClientAfterGetAll(CertificatesArray, Context) Export
 	
-	CertificatesThumbprintsAtClient = New Array;
+	CertificatesThumbprintsAtClient = Context.ThumbprintsArray;
 	
 	DigitalSignatureInternalClientServer.AddCertificatesThumbprints(CertificatesThumbprintsAtClient,
 		CertificatesArray,
 		UTCOffset(),
 		?(Context.IncludingOverduePayments, Undefined, CommonClient.SessionDate()));
 	
-	ExecuteNotifyProcessing(Context.Notification, CertificatesThumbprintsAtClient);
+	RunCallback(Context.Notification, CertificatesThumbprintsAtClient);
 	
 EndProcedure
 
@@ -5165,11 +5602,11 @@ EndProcedure
 // For internal use only.
 Procedure SpecifiedPasswordNoteClick(Form, Item, PasswordProperties) Export
 	
-	If TypeOf(PasswordProperties.PasswordNoteHandler) = Type("NotifyDescription") Then
+	If TypeOf(PasswordProperties.PasswordNoteHandler) = Type("CallbackDescription") Then
 		Result = New Structure;
 		Result.Insert("Certificate", Form.Certificate);
 		Result.Insert("Action", "NoteClick");
-		ExecuteNotifyProcessing(PasswordProperties.PasswordNoteHandler, Result);
+		RunCallback(PasswordProperties.PasswordNoteHandler, Result);
 	EndIf;
 	
 EndProcedure
@@ -5180,11 +5617,11 @@ Procedure SpecifiedPasswordNoteURLProcessing(Form, Item, URL,
 	
 	StandardProcessing = False;
 	
-	If TypeOf(PasswordProperties.PasswordNoteHandler) = Type("NotifyDescription") Then
+	If TypeOf(PasswordProperties.PasswordNoteHandler) = Type("CallbackDescription") Then
 		Result = New Structure;
 		Result.Insert("Certificate", Form.Certificate);
 		Result.Insert("Action", URL);
-		ExecuteNotifyProcessing(PasswordProperties.PasswordNoteHandler, Result);
+		RunCallback(PasswordProperties.PasswordNoteHandler, Result);
 	EndIf;
 	
 EndProcedure
@@ -5210,8 +5647,8 @@ Procedure DataPresentationClick(Form, Item, StandardProcessing, CurrentPresentat
 		NewForm.SetPresentationList(CurrentPresentationsList, Undefined);
 	Else
 		Value = CurrentPresentationsList[0].Value;
-		If TypeOf(Value) = Type("NotifyDescription") Then
-			ExecuteNotifyProcessing(Value);
+		If TypeOf(Value) = Type("CallbackDescription") Then
+			RunCallback(Value);
 		Else
 			ShowValue(, Value);
 		EndIf;
@@ -5272,6 +5709,7 @@ Async Procedure ExecuteAtSide(Notification, Operation, ExecutionSide, ExecutionP
 	Context.Insert("OnClientSide", ExecutionSide = "OnClientSide");
 	Context.Insert("OperationStarted", False);
 	Context.Insert("UseACloudSignature", UseACloudSignature);
+	Context.Insert("Token");
 	
 	If Context.OnClientSide Then
 		If ValueIsFilled(CloudSignatureProperties.Account) Then
@@ -5300,6 +5738,24 @@ Async Procedure ExecuteAtSide(Notification, Operation, ExecutionSide, ExecutionP
 				If ValueIsFilled(CertificateApplicationResult.Application) Then
 					Application = CertificateApplicationResult.Application;
 				Else
+					
+					If Operation = "Signing" Then
+						CertificateData = GetFromTempStorage(ExecutionParameters.AddressOfCertificate);
+						
+						CryptoCertificate = New CryptoCertificate;
+						Await CryptoCertificate.InitializeAsync(CertificateData);
+						Context.Insert("CryptoCertificate", CryptoCertificate);
+						Context.Insert("CertificateProperties", Await CertificateProperties(CryptoCertificate));
+						Context.CertificateProperties.Insert("BinaryData", CertificateData);
+						
+						Token = Await GetTokenByCertificate(Context.CryptoCertificate);
+						If Token <> Undefined Then
+							Context.Token = Token;
+							ExecuteAtSideLoopRun(Context);
+							Return;
+						EndIf;
+					EndIf;
+					
 					ErrorAtClient = New Structure("ErrorDescription", CertificateApplicationResult.Error);
 					ErrorAtClient.Insert("Instruction", True);
 					ExecuteAtSideAfterLoop(ErrorAtClient, Context);
@@ -5315,7 +5771,7 @@ Async Procedure ExecuteAtSide(Notification, Operation, ExecutionSide, ExecutionP
 			
 			Context.Insert("Application", Application);
 			
-			CreateCryptoManager(New NotifyDescription(
+			CreateCryptoManager(New CallbackDescription(
 					"ExecuteAtSideAfterCreateCryptoManager", ThisObject, Context),
 				Operation, CreationParameters);
 				
@@ -5336,7 +5792,7 @@ Procedure ExecuteAtSideAfterCreateCryptoManager(Result, Context) Export
 			Context.Insert("CryptoManager", "CloudSignature");
 			ExecuteOnTheCloudSignatureSide(Context);
 		Else	
-			ExecuteNotifyProcessing(Context.Notification, New Structure("Error", Result));
+			RunCallback(Context.Notification, New Structure("Error", Result));
 			Return;
 		EndIf;
 	EndIf;
@@ -5346,7 +5802,7 @@ Procedure ExecuteAtSideAfterCreateCryptoManager(Result, Context) Export
 	If Context.Operation <> "Encryption"
 	 Or ValueIsFilled(Context.Form.ThumbprintOfCertificate) Then
 		
-		GetCertificateByThumbprint(New NotifyDescription(
+		GetCertificateByThumbprint(New CallbackDescription(
 				"ExecuteAtSideAfterCertificateSearch", ThisObject, Context),
 			Context.Form.ThumbprintOfCertificate, True, Undefined,
 			?(TypeOf(Result) <> Type("CryptoManager"), Context.Form.CertificateApp, Result));
@@ -5366,7 +5822,7 @@ EndProcedure
 Procedure ExecuteAtSideAfterCertificateSearch(Result, Context) Export
 	
 	If TypeOf(Result) <> Type("CryptoCertificate") And Result <> Null Then
-		ExecuteNotifyProcessing(Context.Notification, New Structure("Error", Result));
+		RunCallback(Context.Notification, New Structure("Error", Result));
 		Return;
 	EndIf;
 	Context.Insert("CryptoCertificate", Result);
@@ -5376,7 +5832,7 @@ Procedure ExecuteAtSideAfterCertificateSearch(Result, Context) Export
 			Context.CryptoManager.PrivateKeyAccessPassword = Context.PasswordValue;
 		EndIf;
 		Context.Delete("PasswordValue");
-		Context.CryptoCertificate.BeginUnloading(New NotifyDescription(
+		Context.CryptoCertificate.BeginUnloading(New CallbackDescription(
 			"ExecuteAtSideAfterCertificateExport", ThisObject, Context));
 		
 	ElsIf Context.Operation = "Encryption" Then
@@ -5413,7 +5869,7 @@ Procedure ExecuteAtSidePrepareCertificatesLoopStart(Context)
 	Context.IndexOf = Context.IndexOf + 1;
 	
 	CryptoCertificate = New CryptoCertificate;
-	CryptoCertificate.BeginInitialization(New NotifyDescription(
+	CryptoCertificate.BeginInitialization(New CallbackDescription(
 			"ExecuteAtSidePrepareCertificatesAfterInitializeCertificate", ThisObject, Context),
 		Context.CertificatesProperties[Context.IndexOf].Certificate);
 	
@@ -5443,23 +5899,25 @@ Async Procedure ExecuteAtSideAfterCertificateExport(ExportedData, Context) Expor
 	If Context.Operation = "Signing" And TypeOf(Context.CryptoManager) = Type("CryptoManager")
 		And ValueIsFilled(Context.CryptoManager.SignAlgorithm) Then
 
-		CertificateAlgorithm = DigitalSignatureInternalClientServer.CertificateSignAlgorithm(
-			ExportedData, False, True);
-		
+		If DigitalSignatureInternalClientServer.AreCertificateAdditionalPropertiesAvailable() Then
+			CertificateAlgorithm = Context.CertificateProperties.AlgorithmOfPublicKey;
+		Else
+			CertificateAlgorithm = DigitalSignatureInternalClientServer.CertificateSignAlgorithm(
+				ExportedData, False, True);
+		EndIf;
 
-			Result = DigitalSignatureInternalClientServer.SignAlgorithmCorrespondsToCertificate(
-				Context.CertificateProperties.Presentation, CertificateAlgorithm,
-				Context.CryptoManager.SignAlgorithm);
+		Result = DigitalSignatureInternalClientServer.SignAlgorithmCorrespondsToCertificate(
+			Context.CertificateProperties.Presentation, CertificateAlgorithm,
+			Context.CryptoManager.SignAlgorithm);
 
-			If Result <> True Then
+		If Result <> True Then
 
-				ErrorAtClient = New Structure("ErrorDescription", Result);
-				ExecuteNotifyProcessing(Context.Notification, New Structure("Error", ErrorAtClient));
-				Return;
+			ErrorAtClient = New Structure("ErrorDescription", Result);
+			RunCallback(Context.Notification, New Structure("Error", ErrorAtClient));
+			Return;
 
-			EndIf;
-
-		
+		EndIf;
+	
 	EndIf;
 	
 	ExecuteAtSideLoopRun(Context);
@@ -5491,7 +5949,7 @@ Procedure ExecuteAtSideLoopStart(Context)
 		Return;
 	EndIf;
 	
-	Notification = New NotifyDescription(
+	Notification = New CallbackDescription(
 		"RunAStartContinueLoopOnTheSide", ThisObject, Context);
 	
 	StandardSubsystemsClient.StartNotificationProcessing(Notification);
@@ -5524,7 +5982,7 @@ Procedure RunAStartContinueLoopOnTheSide(Result, Context) Export
 		Return;
 	EndIf;
 	
-	GetDataFromDataDetails(New NotifyDescription(
+	GetDataFromDataDetails(New CallbackDescription(
 			"ExecuteAtSideCycleAfterGetData", ThisObject, Context),
 		Context.Form, Context.DataDetails, Context.DataElement.Data, Context.OnClientSide);
 	
@@ -5608,7 +6066,20 @@ Procedure ExecuteAtSideCycleAfterGetData(Result, Context) Export
 	Data = Result;
 	
 	If Context.OnClientSide Then
-		CryptoManager = Context.CryptoManager;
+		
+		If Context.Token = Undefined Then
+			CryptoManager = Context.CryptoManager;
+		Else
+			If IsXMLDSig Then
+				Error = New Structure("ErrorDescription",
+						NStr("en = 'Generating XMLDSig signatures using the token''s built-in mechanisms will be released later.';"));
+				ExecuteAtSideAfterLoop(Error, Context);
+				Return;
+			EndIf;
+			
+			CryptoManager = Context.Token;
+			
+		EndIf;
 		
 		OperationParametersList = New Structure;
 		OperationParametersList.Insert("Operation", Context.DataDetails.Operation);
@@ -5624,10 +6095,10 @@ Procedure ExecuteAtSideCycleAfterGetData(Result, Context) Export
 				Return;
 			EndIf;
 			
-			NotificationSuccess = New NotifyDescription(
+			NotificationSuccess = New CallbackDescription(
 				"ExecuteAtSideLoopAfterOperationAtClientXMLDSig", ThisObject, Context);
 			
-			NotificationError = New NotifyDescription(
+			NotificationError = New CallbackDescription(
 				"ExecuteAtSideCycleAfterErrorAtClientXMLDSig", ThisObject, Context);
 			
 			Notifications = New Structure;
@@ -5663,7 +6134,7 @@ Procedure ExecuteAtSideCycleAfterGetData(Result, Context) Export
 					DataToSign = GetBinaryDataFromString(Data.Data);
 				EndIf;
 				OperationParametersList.Insert("DisconnectedSignature", Result.CMSParameters.DetachedAddIn);
-				Notification = New NotifyDescription(
+				Notification = New CallbackDescription(
 					"ExecuteAtSideCycleAfterOPerationAtClient", ThisObject, Context,
 					"ExecuteOnSideLoopAfterOperationErrorAtClient", ThisObject);
 				CertificateForSignature = GetFromTempStorage(Context.DataDetails.SelectedCertificate.Data);
@@ -5671,16 +6142,18 @@ Procedure ExecuteAtSideCycleAfterGetData(Result, Context) Export
 				ModuleCryptographyServiceClient.Sign(Notification, DataToSign, CertificateForSignature, , OperationParametersList);
 			ElsIf CryptoManager = "CloudSignature" Then
 				
-				Notification = New NotifyDescription(
+				Notification = New CallbackDescription(
 					"ExecuteAtSideCycleAfterOPerationAtClient", ThisObject, Context,
 					"ExecuteOnSideLoopAfterOperationErrorAtClient", ThisObject);
 				PerformACloudSignatureOperation(Notification, Context, Data, OperationParametersList);
 				
+			ElsIf TypeOf(CryptoManager) = Type("Structure") Then // Token
+				CreateSignatureOnToken(Context, Result.CMSParameters.DetachedAddIn);
 			Else
-				NotificationSuccess = New NotifyDescription(
+				NotificationSuccess = New CallbackDescription(
 					"ExecuteAtSideLoopAfterOperationAtClientXMLDSig", ThisObject, Context);
 				
-				NotificationError = New NotifyDescription(
+				NotificationError = New CallbackDescription(
 					"ExecuteAtSideCycleAfterErrorAtClientXMLDSig", ThisObject, Context);
 				
 				Notifications = New Structure;
@@ -5694,7 +6167,7 @@ Procedure ExecuteAtSideCycleAfterGetData(Result, Context) Export
 					Context.CryptoManager);
 			EndIf;
 		Else
-			Notification = New NotifyDescription(
+			Notification = New CallbackDescription(
 				"ExecuteAtSideCycleAfterOPerationAtClient", ThisObject, Context,
 				"ExecuteOnSideLoopAfterOperationErrorAtClient", ThisObject);
 			
@@ -5708,23 +6181,26 @@ Procedure ExecuteAtSideCycleAfterGetData(Result, Context) Export
 					ModuleCryptographyServiceClient = CommonClient.CommonModule("CryptographyServiceClient");
 					ModuleCryptographyServiceClient.Sign(Notification, Data, CertificateForSignature, , OperationParametersList);
 				Else
-					If DigitalSignatureClient.CommonSettings().AvailableAdvancedSignature Then
-						Try
-							SettingsSignatures = DigitalSignatureInternalClientServer.SignatureCreationSettings(
-								Context.DataDetails.SignatureType,
-								DigitalSignatureClient.CommonSettings().TimestampServersAddresses);
-						Except
-							ExecuteOnSideLoopAfterOperationErrorAtClient(ErrorInfo(), False, Context);
-							Return;
-						EndTry;
+					
+					Try
+						SettingsSignatures = DigitalSignatureInternalClientServer.SignatureCreationSettings(
+							Context.DataDetails.SignatureType,
+							DigitalSignatureClient.CommonSettings().TimestampServersAddresses);
+					Except
+						ExecuteOnSideLoopAfterOperationErrorAtClient(ErrorInfo(), False, Context);
+						Return;
+					EndTry;
+					
+					If TypeOf(CryptoManager) = Type("Structure") Then // Token
+						SignOnToken(CryptoManager, Notification, Data, Context);
+					Else
 						If ValueIsFilled(SettingsSignatures.TimestampServersAddresses) Then
 							CryptoManager.TimestampServersAddresses = SettingsSignatures.TimestampServersAddresses;
 						EndIf;
 						CryptoManager.BeginSigning(Notification, Data, Context.CryptoCertificate, 
 							SettingsSignatures.SignatureType);
-					Else
-						CryptoManager.BeginSigning(Notification, Data, Context.CryptoCertificate);
 					EndIf;
+					
 				EndIf;
 				
 			ElsIf Context.Operation = "Encryption" Then
@@ -5781,7 +6257,7 @@ Procedure ExecuteAtSideCycleAfterGetData(Result, Context) Export
 		ParametersForServer.Insert("MachineReadableSigningLOACheckResult", Context.DataDetails.MachineReadableSigningLOACheckResult);
 		
 		If Context.DataElement.Property("Object")
-		   And Not TypeOf(Context.DataElement.Object) = Type("NotifyDescription") Then
+		   And Not TypeOf(Context.DataElement.Object) = Type("CallbackDescription") Then
 			
 			DataItemForSErver.Insert("Object", Context.DataElement.Object);
 			
@@ -5814,6 +6290,22 @@ Procedure ExecuteAtSideCycleAfterGetData(Result, Context) Export
 	Else // Decryption.
 		ExecuteAtSideAfterDecrypt(ResultAddress, Context);
 	EndIf;
+	
+EndProcedure
+
+Async Procedure SignOnToken(Token, Notification, Data, Context)
+	
+	SignatureParameters = ParametersOfSignatureOnToken(Token, Context.PasswordValue,
+		Context.CryptoCertificate, Context.DataDetails.SignatureType);
+	Signature = Await DigitalSignatureClientLocalization.SignatureOnToken(SignatureParameters, Data);
+	
+	If TypeOf(Signature) = Type("String") Then
+		ErrorAtClient = New Structure("ErrorDescription", Signature);
+		ExecuteAtSideAfterLoop(ErrorAtClient, Context);
+		Return;
+	EndIf;
+	
+	ExecuteAtSideCycleAfterOPerationAtClient(Signature, Context);
 	
 EndProcedure
 
@@ -5892,7 +6384,7 @@ Async Procedure ExecuteAtSideCycleAfterOPerationAtClient(BinaryData, Context) Ex
 			RunALoopOnTheSideAfterSigningThePackage(BinaryData, Context);
 		Else
 			If Context.Property("CryptoManager") And TypeOf(Context.CryptoManager) = Type(
-				"CryptoManager") And DigitalSignatureClient.CommonSettings().AvailableAdvancedSignature Then
+				"CryptoManager") Then
 
 				SignatureProperties = Await SignaturePropertiesReadByCryptoManager(BinaryData, Context.CryptoManager, False);
 			Else
@@ -5955,7 +6447,7 @@ Procedure ExecuteAtSideAfterSigning(SignatureProperties, Context)
 		Return;
 	EndIf;
 	
-	If TypeOf(DataElement.Object) <> Type("NotifyDescription") Then
+	If TypeOf(DataElement.Object) <> Type("CallbackDescription") Then
 		If Context.OnClientSide Then
 			ObjectVersion = Undefined;
 			DataElement.Property("ObjectVersion", ObjectVersion);
@@ -5981,11 +6473,11 @@ Procedure ExecuteAtSideAfterSigning(SignatureProperties, Context)
 	
 	ExecutionParameters = New Structure;
 	ExecutionParameters.Insert("DataDetails", Context.DataDetails);
-	ExecutionParameters.Insert("Notification", New NotifyDescription(
+	ExecutionParameters.Insert("Notification", New CallbackDescription(
 		"ExecuteAtSideAfterRecordSignature", ThisObject, Context));
 	
 	Try
-		ExecuteNotifyProcessing(DataElement.Object, ExecutionParameters);
+		RunCallback(DataElement.Object, ExecutionParameters);
 	Except
 		ErrorInfo = ErrorInfo();
 		ExecuteAtSideAfterRecordSignature(New Structure("ErrorDescription",
@@ -6016,7 +6508,7 @@ Procedure ExecuteAtSideLoopAfterEncryption(EncryptedData, Context)
 	DataElement.Insert("EncryptedData", EncryptedData);
 	
 	If Not DataElement.Property("ResultPlacement")
-	 Or TypeOf(DataElement.ResultPlacement) <> Type("NotifyDescription") Then
+	 Or TypeOf(DataElement.ResultPlacement) <> Type("CallbackDescription") Then
 		
 		ExecuteAtSideLoopStart(Context);
 		Return;
@@ -6024,11 +6516,11 @@ Procedure ExecuteAtSideLoopAfterEncryption(EncryptedData, Context)
 	
 	ExecutionParameters = New Structure;
 	ExecutionParameters.Insert("DataDetails", Context.DataDetails);
-	ExecutionParameters.Insert("Notification", New NotifyDescription(
+	ExecutionParameters.Insert("Notification", New CallbackDescription(
 		"ExecuteAtSideLoopAfterWriteEncryptedData", ThisObject, Context));
 	
 	Try
-		ExecuteNotifyProcessing(DataElement.ResultPlacement, ExecutionParameters);
+		RunCallback(DataElement.ResultPlacement, ExecutionParameters);
 	Except
 		ErrorInfo = ErrorInfo();
 		ExecuteAtSideLoopAfterWriteEncryptedData(New Structure("ErrorDescription",
@@ -6060,7 +6552,7 @@ Procedure ExecuteAtSideAfterDecrypt(DecryptedData, Context)
 	DataElement.Insert("DecryptedData", DecryptedData);
 	
 	If Not DataElement.Property("ResultPlacement")
-	 Or TypeOf(DataElement.ResultPlacement) <> Type("NotifyDescription") Then
+	 Or TypeOf(DataElement.ResultPlacement) <> Type("CallbackDescription") Then
 	
 		ExecuteAtSideLoopStart(Context);
 		Return;
@@ -6068,11 +6560,11 @@ Procedure ExecuteAtSideAfterDecrypt(DecryptedData, Context)
 	
 	ExecutionParameters = New Structure;
 	ExecutionParameters.Insert("DataDetails", Context.DataDetails);
-	ExecutionParameters.Insert("Notification", New NotifyDescription(
+	ExecutionParameters.Insert("Notification", New CallbackDescription(
 		"ExecuteAtSideLoopAfterWriteDecryptedData", ThisObject, Context));
 	
 	Try
-		ExecuteNotifyProcessing(DataElement.ResultPlacement, ExecutionParameters);
+		RunCallback(DataElement.ResultPlacement, ExecutionParameters);
 	Except
 		ErrorInfo = ErrorInfo();
 		ExecuteAtSideLoopAfterWriteEncryptedData(New Structure("ErrorDescription",
@@ -6116,13 +6608,13 @@ Procedure ExecuteAtSideAfterLoop(Error, Context)
 		EndIf;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Context.Notification, Result);
+	RunCallback(Context.Notification, Result);
 	
 EndProcedure
 
 // Returns:
 //  Structure:
-//   * Notification - NotifyDescription
+//   * Notification - CallbackDescription
 //   * Operation - String
 //   * OnClientSide - Boolean
 //   * OperationStarted - Boolean
@@ -6165,7 +6657,7 @@ Function CurrentDataItemProperties(ExecutionParameters, SignatureProperties = Un
 				ExecutionParameters.DataDetails.CurrentDataSetItem)].Value;
 	EndIf;
 	
-	If TypeOf(DataItemPresentation) = Type("NotifyDescription") Then
+	If TypeOf(DataItemPresentation) = Type("CallbackDescription") Then
 		DataItemPresentation = ExecutionParameters.FullDataPresentation;
 	EndIf;
 	
@@ -6192,14 +6684,14 @@ Procedure GetDataFromDataDetails(Notification, Form, DataDetails, DataSource, Fo
 	Context.Insert("Notification", Notification);
 	Context.Insert("ForClientSide", ForClientSide);
 	
-	If TypeOf(DataSource) = Type("NotifyDescription") Then
+	If TypeOf(DataSource) = Type("CallbackDescription") Then
 		ExecutionParameters = New Structure;
 		ExecutionParameters.Insert("DataDetails", DataDetails);
-		ExecutionParameters.Insert("Notification",  New NotifyDescription(
+		ExecutionParameters.Insert("Notification",  New CallbackDescription(
 			"GetDataFromDataDetailsFollowUp", ThisObject, Context));
 		
 		Try
-			ExecuteNotifyProcessing(DataSource, ExecutionParameters);
+			RunCallback(DataSource, ExecutionParameters);
 		Except
 			ErrorInfo = ErrorInfo();
 			Result = New Structure("ErrorDescription", ErrorProcessing.BriefErrorDescription(ErrorInfo));
@@ -6215,9 +6707,9 @@ EndProcedure
 Procedure GetDataFromDataDetailsFollowUp(Result, Context) Export
 	
 	IsXMLDSig = (TypeOf(Result) = Type("Structure")
-	            And Result.Property("Data")
-	            And TypeOf(Result.Data) = Type("Structure")
-	            And Result.Data.Property("XMLDSigParameters"));
+		And Result.Property("Data")
+		And TypeOf(Result.Data) = Type("Structure")
+		And Result.Data.Property("XMLDSigParameters"));
 	
 	If IsXMLDSig And Not Result.Data.Property("XMLEnvelope") Then
 		Result.Data = New Structure(New FixedStructure(Result.Data));
@@ -6225,23 +6717,23 @@ Procedure GetDataFromDataDetailsFollowUp(Result, Context) Export
 	EndIf;
 	
 	IsCMS = (TypeOf(Result) = Type("Structure")
-	       And Result.Property("Data")
-	       And TypeOf(Result.Data) = Type("Structure")
-	       And Result.Data.Property("CMSParameters"));
+		And Result.Property("Data")
+		And TypeOf(Result.Data) = Type("Structure")
+		And Result.Data.Property("CMSParameters"));
 	
 	If TypeOf(Result) <> Type("Structure")
-	 Or Not Result.Property("Data")
-	 Or TypeOf(Result.Data) <> Type("BinaryData")
-	   And TypeOf(Result.Data) <> Type("String")
-	   And Not IsXMLDSig
-	   And Not IsCMS Then
+		Or Not Result.Property("Data")
+		Or TypeOf(Result.Data) <> Type("BinaryData")
+		And TypeOf(Result.Data) <> Type("String")
+		And Not IsXMLDSig
+		And Not IsCMS Then
 		
 		If TypeOf(Result) <> Type("Structure") Or Not Result.Property("ErrorDescription") Then
 			Error = New Structure("ErrorDescription", NStr("en = 'Invalid data type.';"));
 		Else
 			Error = New Structure("ErrorDescription", Result.ErrorDescription);
 		EndIf;
-		ExecuteNotifyProcessing(Context.Notification, Error);
+		RunCallback(Context.Notification, Error);
 		Return;
 	EndIf;
 	
@@ -6254,7 +6746,7 @@ Procedure GetDataFromDataDetailsFollowUp(Result, Context) Export
 			Or IsXMLDSig
 			Or IsCMS Then
 			
-			ExecuteNotifyProcessing(Context.Notification, Data);
+			RunCallback(Context.Notification, Data);
 			
 		ElsIf IsTempStorageURL(Data) Then
 			Try
@@ -6264,10 +6756,10 @@ Procedure GetDataFromDataDetailsFollowUp(Result, Context) Export
 				CurrentResult = New Structure("ErrorDescription",
 					ErrorProcessing.BriefErrorDescription(ErrorInfo));
 			EndTry;
-			ExecuteNotifyProcessing(Context.Notification, CurrentResult);
+			RunCallback(Context.Notification, CurrentResult);
 			
 		Else // File path
-			ExecuteNotifyProcessing(Context.Notification, Data);
+			RunCallback(Context.Notification, Data);
 		EndIf;
 	Else
 		// The server side requires a binary data address in the temporary storage.
@@ -6275,7 +6767,7 @@ Procedure GetDataFromDataDetailsFollowUp(Result, Context) Export
 		If TypeOf(Data) = Type("BinaryData")
 			Or IsXMLDSig Then
 			
-			ExecuteNotifyProcessing(Context.Notification,
+			RunCallback(Context.Notification,
 				PutToTempStorage(Data, Context.Form.UUID));
 			
 		ElsIf IsCMS Then
@@ -6284,28 +6776,57 @@ Procedure GetDataFromDataDetailsFollowUp(Result, Context) Export
 				IncludingCertificatesInSignatureAsString(
 					Data.CMSParameters.IncludeCertificatesInSignature);
 			
-			ExecuteNotifyProcessing(Context.Notification,
+			RunCallback(Context.Notification,
 				PutToTempStorage(Data, Context.Form.UUID));
 			
 		ElsIf IsTempStorageURL(Data) Then
-			ExecuteNotifyProcessing(Context.Notification, Data);
+			RunCallback(Context.Notification, Data);
 			
 		Else // File path
-			Try
-				ImportParameters = FileSystemClient.FileImportParameters();
-				ImportParameters.FormIdentifier = Context.Form.UUID;
-				ImportParameters.Interactively = False;
-				FileSystemClient.ImportFile_(New NotifyDescription(
-					"GetDataFromDataDetailsCompletion", ThisObject, Context,
-					"GetDataFromDataDescriptionCompletionOnError", ThisObject),
-					ImportParameters, Data); 
-			Except
-				ErrorInfo = ErrorInfo();
-				CurrentResult = New Structure("ErrorDescription",
-					ErrorProcessing.BriefErrorDescription(ErrorInfo));
-				ExecuteNotifyProcessing(Context.Notification, CurrentResult);
-			EndTry;
+			
+			GetDataFromDataDescriptionContinuedLoadingFromFile(Data, Context);
+			
 		EndIf;
+		
+	EndIf;
+	
+EndProcedure
+
+Async Procedure GetDataFromDataDescriptionContinuedLoadingFromFile(Data, Context, RepeatedCall = False)
+	
+	If Not RepeatedCall Then
+		CallbackParameters = New Structure("Data, Context", Data, Context);
+		NotificationInAbsenceOfBOTComponent = New CallbackDescription(
+			"GetDataFromDataDescriptionContinueLoadingFromFileAgainAfterInstallingComponent", ThisObject, CallbackParameters);
+		AdditionalComponentsAreBeingInstalled = Await PerformInstallationOfAdditionalComponentsAfterCheckingExtensionOfWorkWith1CEnterprise(
+			NotificationInAbsenceOfBOTComponent);
+		If AdditionalComponentsAreBeingInstalled Then
+			Return;
+		EndIf;
+	EndIf;
+	
+	Try
+		ImportParameters = FileSystemClient.FileImportParameters();
+		ImportParameters.FormIdentifier = Context.Form.UUID;
+		ImportParameters.Interactively = False;
+		FileSystemClient.ImportFile_(New CallbackDescription(
+			"GetDataFromDataDetailsCompletion", ThisObject, Context,
+			"GetDataFromDataDescriptionCompletionOnError", ThisObject),
+			ImportParameters, Data); 
+	Except
+		ErrorInfo = ErrorInfo();
+		CurrentResult = New Structure("ErrorDescription",
+			ErrorProcessing.BriefErrorDescription(ErrorInfo));
+		RunCallback(Context.Notification, CurrentResult);
+	EndTry;
+	
+EndProcedure
+
+Procedure GetDataFromDataDescriptionContinueLoadingFromFileAgainAfterInstallingComponent(Result, CallbackParameters) Export
+	
+	If Result = True Then
+		GetDataFromDataDescriptionContinuedLoadingFromFile(CallbackParameters.Data,
+			CallbackParameters.Context, True);
 	EndIf;
 	
 EndProcedure
@@ -6316,7 +6837,7 @@ Procedure GetDataFromDataDescriptionCompletionOnError(ErrorInfo, StandardProcess
 	StandardProcessing = False;
 	
 	Result = New Structure("ErrorDescription", ErrorProcessing.BriefErrorDescription(ErrorInfo));
-	ExecuteNotifyProcessing(Context.Notification, Result);
+	RunCallback(Context.Notification, Result);
 	
 EndProcedure
 
@@ -6330,7 +6851,7 @@ Procedure GetDataFromDataDetailsCompletion(PlacedFiles, Context) Export
 		Result = PlacedFiles[0].Location;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Context.Notification, Result);
+	RunCallback(Context.Notification, Result);
 	
 EndProcedure
 
@@ -6341,13 +6862,11 @@ Procedure ExtendStoringOperationContext(DataDetails) Export
 	
 EndProcedure
 
+#EndRegion
+
 #Region EnhanceSignature
 
 Procedure EnhanceSignature(Context) Export
-	
-	If Not DigitalSignatureClient.CommonSettings().AvailableAdvancedSignature Then
-		Raise NStr("en = 'Signature enhancement is unavailable in the current platform version.';");
-	EndIf;
 	
 	If Not ValueIsFilled(Context.ExecutionParameters.DataDetails.Signature) Then
 		Raise NStr("en = 'Passed parameters do not contain signature data.';");
@@ -6361,7 +6880,7 @@ Procedure EnhanceSignature(Context) Export
 			DigitalSignatureInternalServerCall.ServiceAccountSettingsToImproveSignatures(
 				Context.ExecutionParameters.FormIdentifier);
 		If ValueIsFilled(SettingsConnectionService.Error) Then
-			NotifyDescription = New NotifyDescription("ContinueImproveAfterAnsweringQuestion", ThisObject, Context);
+			NotifyDescription = New CallbackDescription("ContinueImproveAfterAnsweringQuestion", ThisObject, Context);
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'An error occurred when attempting to enhance the signature via the web app:
 				|%1
@@ -6375,12 +6894,12 @@ Procedure EnhanceSignature(Context) Export
 		Context.ExecutionParameters.Insert("ServiceAccountDSS", SettingsConnectionService.ServiceAccountDSS);
 		Context.ExecutionParameters.Insert("ParametersSignatureCAdEST", SettingsConnectionService.ParametersSignatureCAdEST);
 		
-		RefineSide(New NotifyDescription(
+		RefineSide(New CallbackDescription(
 			"RefineAfterRunningServerSide", DigitalSignatureInternalClient, Context),
 			"AtServerSide", Context.ExecutionParameters);
 
 	ElsIf DigitalSignatureClient.GenerateDigitalSignaturesAtServer() Then
-		RefineSide(New NotifyDescription(
+		RefineSide(New CallbackDescription(
 			"RefineAfterRunningServerSide", DigitalSignatureInternalClient, Context),
 			"AtServerSide", Context.ExecutionParameters);
 	Else
@@ -6465,7 +6984,7 @@ Procedure RefineSideLoopStart(Context)
 		Return;
 	EndIf;
 	
-	Notification = New NotifyDescription(
+	Notification = New CallbackDescription(
 		"RefineSideLoopStartContinuation", ThisObject, Context);
 	
 	StandardSubsystemsClient.StartNotificationProcessing(Notification);
@@ -6516,7 +7035,7 @@ Procedure RefineSideLoopStartContinuation(Result, Context) Export
 			Context.DataItems[Context.IndexOf].Insert("SignAlgorithm", CreationParameters.SignAlgorithm);
 		EndIf;
 		
-		CreateCryptoManager(New NotifyDescription(
+		CreateCryptoManager(New CallbackDescription(
 			"RefineOnTheSideAfterCreationCryptographyManager", ThisObject, Context),
 			"ExtensionValiditySignature", CreationParameters);
 
@@ -6561,7 +7080,7 @@ Procedure RefineOnServer(DataElement, Context)
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(Undefined);
 		IdleParameters.OutputIdleWindow = True;
 		
-		CallbackOnCompletion = New NotifyDescription("ResumeAfterImprovementOperationAtServer", ThisObject, Context);
+		CallbackOnCompletion = New CallbackDescription("ResumeAfterImprovementOperationAtServer", ThisObject, Context);
 		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	Else
 		// The server side requires a binary data address in the temporary storage.
@@ -6663,7 +7182,7 @@ Procedure RefineOnTheSideAfterCreationCryptographyManager(CryptoManager, Context
 	Context.Insert("CryptoManager", CryptoManager);
 	Signature = Context.DataElement.Signature;
 	
-	Notification = New NotifyDescription("Refineonthesideafterreceivingthecontainersignature", ThisObject, Context,
+	Notification = New CallbackDescription("Refineonthesideafterreceivingthecontainersignature", ThisObject, Context,
 		"ImproveOnSideLoopAfterErrorOperationsOnClient", ThisObject);
 	CryptoManager.BeginGettingCryptoSignaturesContainer(Notification, Signature);
 
@@ -6700,7 +7219,7 @@ Async Procedure Refineonthesideafterreceivingthecontainersignature(ContainerSign
 	EndIf;
 	
 	If SignatureParameters.CertificateLastTimestamp <> Undefined Then
-		Notification = New NotifyDescription("RefineSideAfterVerifyingCertificateSignature", ThisObject, Context); 
+		Notification = New CallbackDescription("RefineSideAfterVerifyingCertificateSignature", ThisObject, Context); 
 		CheckCertificate(Notification, SignatureParameters.CertificateLastTimestamp, Context.CryptoManager);
 	Else
 		RefineSideAfterVerifyingCertificateSignature(True, Context);
@@ -6722,7 +7241,7 @@ Procedure RefineSideAfterVerifyingCertificateSignature(Result, Context) Export
 		Return;
 	EndIf;
 	
-	Notification = New NotifyDescription(
+	Notification = New CallbackDescription(
 		"RefineSideLoopAfterOperationClient", ThisObject, Context,
 		"ImproveOnSideLoopAfterErrorOperationsOnClient", ThisObject); 
 	
@@ -6778,7 +7297,7 @@ Procedure RefineSideLoopAfterOperationClient(BinaryData, Context) Export
 	Context.OperationStarted = True;
 	Context.DataElement.Insert("SignatureProperties", New Structure("Signature", BinaryData));
 
-	Notification = New NotifyDescription("ExecuteAfterGettingEnhancedSignatureContainer", ThisObject, Context, 
+	Notification = New CallbackDescription("ExecuteAfterGettingEnhancedSignatureContainer", ThisObject, Context, 
 		"ImproveOnSideLoopAfterErrorOperationsOnClient", ThisObject);
 	Context.CryptoManager.BeginGettingCryptoSignaturesContainer(Notification, BinaryData);
 
@@ -6795,7 +7314,7 @@ Async Procedure ExecuteAfterGettingEnhancedSignatureContainer(ContainerSignature
 	Context.DataElement.Insert("SignatureParameters", SignatureParameters);
 
 	If SignatureParameters.CertificateLastTimestamp <> Undefined Then
-		Notification = New NotifyDescription("ExecuteOnSideAfterImprovementAndCertificateVerification", ThisObject, Context); 
+		Notification = New CallbackDescription("ExecuteOnSideAfterImprovementAndCertificateVerification", ThisObject, Context); 
 		CheckCertificate(Notification, SignatureParameters.CertificateLastTimestamp, Context.CryptoManager);
 	Else
 		SignatureProperties = New Structure;
@@ -6987,7 +7506,7 @@ Procedure RefineOnSideAfterCycle(Context, ErrorText = Undefined)
 	
 	Result.Insert("DataItems", Context.DataItems);
 	
-	ExecuteNotifyProcessing(Context.Notification, Result);
+	RunCallback(Context.Notification, Result);
 	
 EndProcedure
 
@@ -7002,7 +7521,7 @@ Procedure RefineAfterRunningServerSide(Result, Context) Export
 			Context.ExecutionParameters.Insert("ErrorText", Result.ErrorText);
 		EndIf;
 		
-		RefineSide(New NotifyDescription(
+		RefineSide(New CallbackDescription(
 				"RefineAfterExecutionOnClientSide", ThisObject, Context),
 			"OnClientSide", Context.ExecutionParameters);
 	EndIf;
@@ -7030,7 +7549,7 @@ Procedure RefineAfterExecutionOnClientSide(Result, Context) Export
 		ProcessingResult.PropertiesSignatures = Result.DataItems;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Context.ResultProcessing, ProcessingResult);
+	RunCallback(Context.ResultProcessing, ProcessingResult);
 	
 EndProcedure
 
@@ -7050,15 +7569,15 @@ Function PropertiesCertificateString(Certificate)
 EndFunction
 
 #EndRegion
-////////////////////////////////////////////////////////////////////////////////
-// XMLDSig operations.
+
+#Region ManagingXMLDSig
 
 // Starts signing an XML message.
 //
 // Parameters:
 //  NotificationsOnComplete - Structure:
-//   * Success  - NotifyDescription - the procedure that will be called after signing.
-//   * Error - NotifyDescription - the procedure that will be called when a signing error occurs.
+//   * Success  - CallbackDescription - the procedure that will be called after signing.
+//   * Error - CallbackDescription - the procedure that will be called when a signing error occurs.
 //  XMLEnvelope             - See DigitalSignatureClient.XMLEnvelope
 //  XMLDSigParameters       - See DigitalSignatureClient.XMLDSigParameters
 //  CryptoCertificate - CryptoCertificate
@@ -7098,7 +7617,7 @@ Procedure StartCryptoCertificateExportToSignXMLDSig(NotificationsOnComplete, XML
 	EndIf;
 	
 	CryptoCertificate.BeginUnloading(
-		New NotifyDescription("StartSigningAfterExportCryptoCertificate", ThisObject, Context));
+		New CallbackDescription("StartSigningAfterExportCryptoCertificate", ThisObject, Context));
 	
 EndProcedure
 
@@ -7106,8 +7625,8 @@ EndProcedure
 //
 // Parameters:
 //  NotificationsOnComplete - Structure:
-//   * Success  - NotifyDescription - the procedure that will be called after signature check.
-//   * Error - NotifyDescription - the procedure that will be called when a signature check error occurs.
+//   * Success  - CallbackDescription - the procedure that will be called after signature check.
+//   * Error - CallbackDescription - the procedure that will be called when a signature check error occurs.
 //  XMLEnvelope           - See DigitalSignatureClient.XMLEnvelope
 //  XMLDSigParameters     - See DigitalSignatureClient.XMLDSigParameters
 //  XMLEnvelopeProperties  - See DigitalSignatureInternal.XMLEnvelopeProperties
@@ -7142,7 +7661,7 @@ Procedure StartCryptoCertificateInitializationToCheckSignatureXMLDSig(Notificati
 	Context.Insert("CryptoProviderName",  Undefined);
 	Context.Insert("PathToCryptoProvider", Undefined);
 	
-	Context.CryptoCertificate.BeginInitialization(New NotifyDescription(
+	Context.CryptoCertificate.BeginInitialization(New CallbackDescription(
 			"StartCheckSignatureAfterInitializeCertificate", ThisObject, Context),
 		BinaryData);
 	
@@ -7169,7 +7688,7 @@ Procedure StartCryptoCertificateExportToSignCMS(NotificationsOnComplete, Data, C
 	Context.Insert("PathToCryptoProvider", Undefined);
 	
 	CryptoCertificate.BeginUnloading(
-		New NotifyDescription("StartCMSSigningAfterExportCryptoCertificate", ThisObject, Context));
+		New CallbackDescription("StartCMSSigningAfterExportCryptoCertificate", ThisObject, Context));
 	
 EndProcedure
 
@@ -7216,9 +7735,10 @@ Procedure AttachAddInSSL(Context, ExplanationText)
 	ConnectionParameters.SuggestToImport = True;
 	
 	ComponentDetails = DigitalSignatureInternalClientServer.ComponentDetails();
+	Context.Insert("AddInObjectName", ComponentDetails.ObjectName);
 	
 	CommonClient.AttachAddInFromTemplate(
-		New NotifyDescription("AfterAttachComponent", ThisObject, Context),
+		New CallbackDescription("AfterAttachComponent", ThisObject, Context),
 		ComponentDetails.ObjectName,
 		ComponentDetails.FullTemplateName,
 		ConnectionParameters);
@@ -7258,9 +7778,11 @@ EndProcedure
 
 Procedure AfterConnectingTheComponentsConfigureTheComponent(Context)
 	
-	Notification = New NotifyDescription(
+	Notification = New CallbackDescription(
 		"AfterConnectingTheComponentsAfterInstallingTheOIDCompliance", ThisObject, Context,
 		"AfterConnectingTheComponentsAfterAnInstallationErrorOIDCompliance", ThisObject);
+		
+	FillPathToAddInLog(Context.ComponentObject, Context.AddInObjectName);
 	
 	Context.ComponentObject.BeginSettingOIDMap(Notification,
 		DigitalSignatureInternalClientServer.IdentifiersOfHashingAlgorithmsAndThePublicKey());
@@ -7269,8 +7791,13 @@ EndProcedure
 
 Procedure AfterConnectingTheComponentsAfterInstallingTheOIDCompliance(Context) Export
 	
+	If TypeOf(Context.CryptoManager) = Type("Structure") Then
+		AfterSetPropertyDisableUserInterface(Context);
+		Return;
+	EndIf;
+	
 	Context.CryptoManager.BeginGettingCryptoModuleInformation(
-		New NotifyDescription("AfterGetCryptoModuleInformation", ThisObject, Context));
+		New CallbackDescription("AfterGetCryptoModuleInformation", ThisObject, Context));
 	
 EndProcedure
 
@@ -7326,7 +7853,7 @@ Async Procedure AfterGetCryptoModuleInformation(CryptoModuleInformation, Context
 		Return;
 	EndIf;
 	
-	ToObtainThePathToTheProgram(New NotifyDescription("AfterGettingTheProgramPath",
+	ToObtainThePathToTheProgram(New CallbackDescription("AfterGettingTheProgramPath",
 		ThisObject, Context), ApplicationDetails.Ref);
 	
 EndProcedure
@@ -7335,7 +7862,7 @@ Procedure AfterGettingTheProgramPath(DescriptionOfWay, Context) Export
 	
 	Context.PathToCryptoProvider = DescriptionOfWay.ApplicationPath;
 	
-	Notification = New NotifyDescription(
+	Notification = New CallbackDescription(
 		"AfterSetComponentCryptoproviderPath", ThisObject, Context);
 	
 	Context.ComponentObject.BeginSettingCryptoProviderPath(Notification,
@@ -7346,7 +7873,7 @@ EndProcedure
 Procedure AfterSetComponentCryptoproviderPath(Context) Export
 	
 	If Not RequiresThePathToTheProgram() Then
-		Notification = New NotifyDescription(
+		Notification = New CallbackDescription(
 			"AfterSetPropertyDisableUserInterface", ThisObject, Context);
 		
 		Context.ComponentObject.BeginSettingSilentMode(Notification,
@@ -7419,7 +7946,7 @@ Procedure StartCMSSigning(Context)
 	CMSSignParameters = DigitalSignatureInternalClientServer.AddInParametersCMSSign(
 		Context.CMSParameters, Context.Data);
 	
-	Notification = New NotifyDescription(
+	Notification = New CallbackDescription(
 		"SigningAfterCMSSignExecution", ThisObject, Context,
 		"SigningAfterExecuteCMSSignError", ThisObject);
 	
@@ -7438,6 +7965,23 @@ Procedure StartCMSSigning(Context)
 	
 EndProcedure
 
+Async Procedure CreateSignatureOnToken(Context, DetachedAddIn)
+
+	SignatureParameters = ParametersOfSignatureOnToken(Context.Token, Context.PasswordValue,
+		Context.CryptoCertificate, Context.DataDetails.SignatureType);
+		
+	SignatureParameters.DetachedAddIn = DetachedAddIn;
+	Signature = Await SignatureOnToken(SignatureParameters, Context.DataElement.Data.Data);
+	
+	If TypeOf(Signature) = Type("String") Then
+		ExecuteAtSideCycleAfterErrorAtClientXMLDSig(Signature, Context);
+		Return;
+	EndIf;
+		
+	ExecuteAtSideLoopAfterOperationAtClientXMLDSig(Signature, Context);
+		
+EndProcedure
+
 Procedure SigningAfterExecuteCMSSignError(ErrorInfo, StandardProcessing, Context) Export
 	
 	StandardProcessing = False;
@@ -7454,7 +7998,7 @@ Procedure SigningAfterCMSSignExecution(SignatureValueAttribute, Parameters, Cont
 		Return;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Context.NotificationsOnComplete.Success, SignatureValueAttribute);
+	RunCallback(Context.NotificationsOnComplete.Success, SignatureValueAttribute);
 	
 EndProcedure
 
@@ -7463,7 +8007,7 @@ Procedure StartCheckingTheCMSSignature(Context)
 	CMSSignParameters = DigitalSignatureInternalClientServer.AddInParametersCMSSign(
 		Context.CMSParameters, Context.Data);
 	
-	Notification = New NotifyDescription(
+	Notification = New CallbackDescription(
 		"VerificationAfterCMSVerifySignExecution", ThisObject, Context,
 		"CheckingAfterCMSVerifySignExecutionError", ThisObject);
 	
@@ -7509,7 +8053,7 @@ Procedure VerificationAfterCMSVerifySignExecution(SignatureCorrect, Parameters, 
 	EndIf;
 	
 	DigitalSignatureClient.SigningDate(
-		New NotifyDescription("CheckAfterExecuteHashTagToSignAfterGetSigningDate", ThisObject, Context), Context.Signature);
+		New CallbackDescription("CheckAfterExecuteHashTagToSignAfterGetSigningDate", ThisObject, Context), Context.Signature);
 	
 EndProcedure
 
@@ -7517,7 +8061,7 @@ Async Procedure StartXMLDSigSigning(Context)
 	
 	Try
 		XMLEnvelope = Await SignXMLDSig(Context);
-		ExecuteNotifyProcessing(Context.NotificationsOnComplete.Success, XMLEnvelope);
+		RunCallback(Context.NotificationsOnComplete.Success, XMLEnvelope);
 	Except
 		ErrorText = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		CompleteOperationWithError(Context, ErrorText);
@@ -7668,7 +8212,7 @@ Async Procedure StartCheckSignatureXMLDSig(Context)
 	
 	Try
 		Result = Await VerifySignatureXMLDSig(Context);
-		ExecuteNotifyProcessing(Context.NotificationsOnComplete.Success, Result);
+		RunCallback(Context.NotificationsOnComplete.Success, Result);
 	Except
 		ErrorText = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		CompleteOperationWithError(Context, ErrorText);
@@ -7800,7 +8344,7 @@ Procedure CheckAfterExecuteHashTagToSignAfterGetSigningDate(SigningDate, Context
 	ReturnValue.Insert("Certificate", Context.CryptoCertificate);
 	ReturnValue.Insert("SigningDate", SigningDate);
 	
-	ExecuteNotifyProcessing(Context.NotificationsOnComplete.Success, ReturnValue);
+	RunCallback(Context.NotificationsOnComplete.Success, ReturnValue);
 	
 EndProcedure
 
@@ -7920,7 +8464,7 @@ Procedure StartGetErrorText(StartErrorTextDetails, Context)
 	
 	Context.Insert("StartErrorTextDetails", StartErrorTextDetails);
 	
-	Notification = New NotifyDescription(
+	Notification = New CallbackDescription(
 		"GetErrorAfterCompletion", ThisObject, Context,
 		"GetErrorAfterCompletion_Error", ThisObject);
 	
@@ -7953,12 +8497,13 @@ EndProcedure
 
 Procedure CompleteOperationWithError(Context, ErrorText)
 	
-	ExecuteNotifyProcessing(Context.NotificationsOnComplete.Error, ErrorText);
+	RunCallback(Context.NotificationsOnComplete.Error, ErrorText);
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+#EndRegion
+
+#Region AuxiliaryProceduresAndFunctions
 
 // For the SetCertificatePassword, OpenNewForm, SelectSigningOrDecryptionCertificate, and
 // CheckCatalogCertificate procedures.
@@ -8148,7 +8693,7 @@ Procedure FillPresentationsList(PresentationsList, DataElement)
 		ListItem.Value = DataElement.Presentation;
 		
 	ElsIf DataElement.Property("Object")
-	        And TypeOf(DataElement.Object) <> Type("NotifyDescription") Then
+	        And TypeOf(DataElement.Object) <> Type("CallbackDescription") Then
 		
 		ListItem.Value = DataElement.Object;
 	EndIf;
@@ -8204,7 +8749,7 @@ Procedure CheckSignatureAtClientSaaS(Context)
 	Context.Insert("CryptoManager", "CryptographyService");
 	
 	ModuleCryptographyServiceClient = CommonClient.CommonModule("CryptographyServiceClient");
-	ModuleCryptographyServiceClient.VerifySignature(New NotifyDescription(
+	ModuleCryptographyServiceClient.VerifySignature(New CallbackDescription(
 		"CheckSignatureAtClientAfterCheckSignatureSaaS", ThisObject, Context,
 		"CheckSignatureAtClientAfterCheckSignatureError", ThisObject),
 		Context.SignatureData,
@@ -8241,7 +8786,7 @@ Procedure ExecuteAtSIdeSaaS(Result, Context)
 	
 	If Context.Operation = "Signing" Then
 		
-		If DigitalSignatureClient.CommonSettings().AvailableAdvancedSignature And ValueIsFilled(Context.DataDetails.SignatureType) Then
+		If ValueIsFilled(Context.DataDetails.SignatureType) Then
 			If Context.DataDetails.SignatureType <> PredefinedValue("Enum.CryptographySignatureTypes.BasicCAdESBES")
 				And Context.DataDetails.SignatureType <> PredefinedValue("Enum.CryptographySignatureTypes.NormalCMS") Then
 				Error = New Structure("ErrorDescription", StringFunctionsClientServer.SubstituteParametersToString(
@@ -8254,7 +8799,7 @@ Procedure ExecuteAtSIdeSaaS(Result, Context)
 		SignatureCertificate = New Structure("Thumbprint",
 			Base64Value(Context.DataDetails.SelectedCertificate.Thumbprint));
 		ModuleCertificateStoreClient = CommonClient.CommonModule("CertificatesStorageClient");
-		ModuleCertificateStoreClient.FindCertificate(New NotifyDescription(
+		ModuleCertificateStoreClient.FindCertificate(New CallbackDescription(
 				"ExecuteAtSideAfterExportCertificateInSaaSMode", ThisObject, Context), SignatureCertificate);
 		
 	ElsIf Context.Operation = "Encryption" Then
@@ -8351,6 +8896,8 @@ Function StartErrorTextDetails(MethodName)
 	
 EndFunction
 
+#EndRegion
+
 #Region AddingCertificate
 
 // Continues the DigitalSignatureClient.AddCertificate procedure.
@@ -8361,15 +8908,18 @@ Procedure AddCertificateAfterCreateCryptoManager(Result, Context) Export
 		
 		Result.ErrorTitle = Context.ApplicationErrorTitle;
 		Context.Insert("ErrorAtClient", Result);
-		ExecuteNotifyProcessing(Context.CompletionHandler, Undefined);
-		ReportCertificateAddingError(Context);
-		
+		Context.Insert("CryptoCertificate");
+		If Not Context.Property("SignAlgorithm") Then
+			Context.Insert("SignAlgorithm", "");
+		EndIf;
+		Context.Insert("IsFullUser", UsersClient.IsFullUser());
+		AddCertificateFromToken(Context);
 		Return;
 		
 	EndIf;
 	
 	CryptoCertificate = New CryptoCertificate;
-	CryptoCertificate.BeginInitialization(New NotifyDescription(
+	CryptoCertificate.BeginInitialization(New CallbackDescription(
 		"AddCertificateAfterInitializeCertificate", ThisObject, Context),
 		Context.CertificateData);
 	
@@ -8421,9 +8971,7 @@ Procedure AddCertificateLoopStart(Context)
 	
 	If Context.ApplicationsDetailsCollection.Count() <= Context.IndexOf + 1 Then
 		
-		ExecuteNotifyProcessing(Context.CompletionHandler, Undefined);
-		ReportCertificateAddingError(Context);
-		
+		AddCertificateFromToken(Context);
 		Return;
 		
 	EndIf;
@@ -8440,8 +8988,62 @@ Procedure AddCertificateLoopStart(Context)
 	CreationParameters.SignAlgorithm = Context.SignAlgorithm;
 	
 	CreateCryptoManager(
-		New NotifyDescription("AddCertificateLoopAfterCreateCryptoManager",ThisObject, Context),
+		New CallbackDescription("AddCertificateLoopAfterCreateCryptoManager",ThisObject, Context),
 		"", CreationParameters);
+	
+EndProcedure
+
+Async Procedure AddCertificateFromToken(Context)
+	
+	If Context.CryptoCertificate = Undefined Then
+		CryptoCertificate = New CryptoCertificate;
+		Await CryptoCertificate.InitializeAsync(Context.CertificateData);
+		Context.Insert("CryptoCertificate", CryptoCertificate);
+	EndIf;
+		
+	Token = Await GetTokenByCertificate(Context.CryptoCertificate);
+	
+	If Token = Undefined Then
+		RunCallback(Context.CompletionHandler, Undefined);
+		ReportCertificateAddingError(Context);
+		Return;
+	EndIf;
+	
+	Context.Insert("Token", Token);
+	
+	If Context.ToEncrypt = True Then
+		
+		DigitalSignatureInternalClientServer.FillErrorAddingCertificate(
+			Context.ErrorAtClient,
+			New Structure("Ref, Token", Token.Presentation, Token),
+			"Encryption",
+			NStr("en = 'Certificate encryption using the token''s built-in mechanisms will be released later.';"),
+			Context.IsFullUser);
+		
+		RunCallback(Context.CompletionHandler, Undefined);
+		ReportCertificateAddingError(Context);
+		Return;
+	EndIf;
+	
+	SignatureParameters = ParametersOfSignatureOnToken(Token, Context.CertificatePassword, 
+		Context.CryptoCertificate, PredefinedValue("Enum.CryptographySignatureTypes.BasicCAdESBES"));
+	
+	Result = Await SignatureOnToken(SignatureParameters, Context.CertificateData);
+	
+	If TypeOf(Result) = Type("String") Then
+		DigitalSignatureInternalClientServer.FillErrorAddingCertificate(
+			Context.ErrorAtClient,
+			New Structure("Ref, Token", Token.Presentation, Token),
+			"Signing",
+			Result,
+			Context.IsFullUser);
+		RunCallback(Context.CompletionHandler, Undefined);
+		ReportCertificateAddingError(Context);
+		Return;
+	EndIf;
+	
+	Context.Insert("ApplicationDetails", New Structure("Ref", Undefined));
+	AddCertificateLoopAfterSigning(Result, Context);
 	
 EndProcedure
 
@@ -8488,12 +9090,12 @@ Procedure AddCertificateLoopAfterCreateCryptoManager(Result, Context) Export
 	EndIf;
 	
 	If Context.ToEncrypt = True Then
-		Context.CryptoManager.BeginEncrypting(New NotifyDescription(
+		Context.CryptoManager.BeginEncrypting(New CallbackDescription(
 			"AddCertificateLoopAfterEncryption", ThisObject, Context,
 			"AddCertificateLoopAfterEncryptionError", ThisObject),
 			Context.CertificateData, Context.CryptoCertificate);
 	Else
-		Context.CryptoManager.BeginSigning(New NotifyDescription(
+		Context.CryptoManager.BeginSigning(New CallbackDescription(
 			"AddCertificateLoopAfterSigning", ThisObject, Context,
 			"AddCertificateLoopAfterSigningError", ThisObject),
 			Context.CertificateData, Context.CryptoCertificate);
@@ -8504,7 +9106,7 @@ EndProcedure
 // Continues the DigitalSignatureClient.AddCertificate procedure.
 Procedure AddCertificateLoopAfterEncryption(EncryptedData, Context) Export
 	
-	Context.CryptoManager.BeginDecrypting(New NotifyDescription(
+	Context.CryptoManager.BeginDecrypting(New CallbackDescription(
 		"AddCertificateLoopAfterDecryption", ThisObject, Context,
 		"AddCertificateLoopAfterDecryptionError", ThisObject),
 		EncryptedData);
@@ -8570,7 +9172,7 @@ Procedure AddCertificateLoopAfterSigning(SignatureData, Context) Export
 	If Certificate = Undefined Then
 		ReportCertificateAddingError(Context);
 	Else
-		ExecuteNotifyProcessing(Context.CompletionHandler, Certificate);
+		RunCallback(Context.CompletionHandler, Certificate);
 	EndIf;
 	
 EndProcedure
@@ -8626,7 +9228,7 @@ Procedure AddCertificateLoopAfterDecryption(DecryptedData, Context) Export
 	If Certificate = Undefined Then
 		ReportCertificateAddingError(Context);
 	Else
-		ExecuteNotifyProcessing(Context.CompletionHandler, Certificate);
+		RunCallback(Context.CompletionHandler, Certificate);
 	EndIf;
 	
 EndProcedure
@@ -8660,6 +9262,20 @@ Procedure ReportCertificateAddingError(AddingContext)
 	If ValueIsFilled(ErrorAtClient) And ErrorAtClient.Errors.Count() > 0
 		And ErrorAtClient.Errors[0].LongDesc = ErrorTextCannotDetermineAppByPrivateCertificateKey() Then
 		
+		HasTokenErrors = False;
+		For Each Error In ErrorAtClient.Errors Do
+			If ValueIsFilled(Error.Token) Then
+				HasTokenErrors = True;
+				Break;
+			EndIf;
+		EndDo;
+
+		If HasTokenErrors Then
+			ShowApplicationCallError(AddingContext.FormCaption, "", ErrorAtClient, ErrorAtServer,
+				AdditionalParameters);
+			Return;
+		EndIf;
+		
 		ErrorParameters = New Structure;
 		ErrorParameters.Insert("WarningTitle", AddingContext.FormCaption);
 		ErrorParameters.Insert("ErrorTextClient", ErrorAtClient.Errors[0].LongDesc);
@@ -8670,7 +9286,7 @@ Procedure ReportCertificateAddingError(AddingContext)
 		
 		ErrorParameters.Insert("AdditionalData", AdditionalParameters);
 		
-		OpenExtendedErrorPresentationForm(ErrorParameters, ThisObject);
+		OpenExtendedErrorPresentationForm(ErrorParameters);
 		
 	Else
 		ShowApplicationCallError(AddingContext.FormCaption,
@@ -8678,13 +9294,19 @@ Procedure ReportCertificateAddingError(AddingContext)
 	EndIf;
 EndProcedure
 
-Procedure AfterAddingElectronicSignatureCertificatesToDirectory(Certificate, ParametersNotificationWhenWritingCertificate) Export
+// 
+//
+// Parameters:
+//  Certificate								 - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - 
+//  ParametersNotificationWhenWritingCertificate	 - See ParametersNotificationWhenWritingCertificate
+//
+Procedure AfterAddingElectronicSignatureCertificatesToCatalog(Certificate, ParametersNotificationWhenWritingCertificate) Export
 	
 	NotifyChanged(Certificate);
 	Notify("Write_DigitalSignatureAndEncryptionKeysCertificates", ParametersNotificationWhenWritingCertificate, Certificate);
 	If ParametersNotificationWhenWritingCertificate.IsNew Then
 		AddedCertificates = DigitalSignatureInternalServerCall.AddedCertificates(Certificate);
-		DigitalSignatureClientOverridable.AfterAddingElectronicSignatureCertificatesToDirectory(
+		DigitalSignatureClientOverridable.AfterAddingElectronicSignatureCertificatesToCatalog(
 			New Structure("Certificates", AddedCertificates));
 	EndIf;
 	
@@ -8820,7 +9442,7 @@ Procedure PerformACloudSignatureOperation(Notification, Context, Data, Operation
 		ConfirmationParameters.Insert("OperationParametersList", OperationParametersList);
 		ConfirmationParameters.Insert("ResultType", ResultType);
 		
-		NotificationWhenExecuting = New NotifyDescription("PerformACloudSignatureOperationAfterConfirmation", ThisObject, ConfirmationParameters); 
+		NotificationWhenExecuting = New CallbackDescription("PerformACloudSignatureOperationAfterConfirmation", ThisObject, ConfirmationParameters); 
 		SetThePropertiesOfTheCloudSignature(Context.DataDetails,
 			New Structure("NotificationOnConfirmation", NotificationWhenExecuting));
 			
@@ -8869,7 +9491,7 @@ Procedure SignCloudSignature(Notification, Context, Data, OperationParametersLis
 			Data = GetBinaryDataFromString(Data);
 		EndIf;
 		
-	ElsIf DigitalSignatureClient.CommonSettings().AvailableAdvancedSignature And ValueIsFilled(Context.DataDetails.SignatureType) Then
+	ElsIf ValueIsFilled(Context.DataDetails.SignatureType) Then
 		If Context.DataDetails.SignatureType = PredefinedValue("Enum.CryptographySignatureTypes.BasicCAdESBES") Then
 			SignatureProperty = TheDSSCryptographyServiceModuleClientServer.GetCAdESSignatureProperty("BES", True, False, "Signature");
 		ElsIf Context.DataDetails.SignatureType = PredefinedValue("Enum.CryptographySignatureTypes.WithTimeCAdEST") Then
@@ -8963,7 +9585,7 @@ Async Procedure RunALoopOnTheSideAfterSigningThePackage(SignaturesArray, Context
 			Continue;
 		EndIf;
 		
-		If TypeOf(DataElement.Object) <> Type("NotifyDescription") Then
+		If TypeOf(DataElement.Object) <> Type("CallbackDescription") Then
 			ObjectVersion = Undefined;
 			DataElement.Property("ObjectVersion", ObjectVersion);
 			SignatureProperties.Insert("SignatureID", New UUID);
@@ -8984,11 +9606,11 @@ Async Procedure RunALoopOnTheSideAfterSigningThePackage(SignaturesArray, Context
 
 			ExecutionParameters = New Structure;
 			ExecutionParameters.Insert("DataDetails", Context.DataDetails);
-			ExecutionParameters.Insert("Notification", New NotifyDescription(
+			ExecutionParameters.Insert("Notification", New CallbackDescription(
 				"RunLoopOnSideAfterBatchSigningWritten", ThisObject, Context));
 			
 			Try
-				ExecuteNotifyProcessing(DataElement.Object, ExecutionParameters);
+				RunCallback(DataElement.Object, ExecutionParameters);
 			Except
 				ErrorInfo = ErrorInfo();
 				ErrorAtClient = New Structure("ErrorDescription", ErrorProcessing.BriefErrorDescription(ErrorInfo));
@@ -9039,7 +9661,7 @@ Procedure VerifyTheCloudSignatureCertificate(Context, ShouldRegisterErrors = Tru
 	Context.Insert("RegisterCloudServiceErrors", ShouldRegisterErrors);
 	
 	If TypeOf(Context.Certificate) = Type("CryptoCertificate") Then
-		Context.Certificate.BeginUnloading(New NotifyDescription(
+		Context.Certificate.BeginUnloading(New CallbackDescription(
 			"VerifyTheCloudSignatureCertificateAfterUploadingTheCertificate", ThisObject, Context));
 	ElsIf TypeOf(Context.Certificate) = Type("Structure") Then
 		VerifyTheCloudSignatureCertificateAfterUploadingTheCertificate(Context.Certificate.Certificate, Context);
@@ -9066,7 +9688,7 @@ Procedure VerifyTheCloudSignatureCertificateAfterUploadingTheCertificate(Certifi
 	
 	TheDSSCryptographyServiceModuleClient = CommonClient.CommonModule("DSSCryptographyServiceClient");
 	TheDSSCryptographyServiceModuleClient.CheckCertificate(
-		New NotifyDescription("VerifyTheCertificateAfterVerifyingTheCloudSignature", ThisObject, Context),
+		New CallbackDescription("VerifyTheCertificateAfterVerifyingTheCloudSignature", ThisObject, Context),
 		Undefined,
 		CertificateData,
 		OperationParametersList);
@@ -9157,7 +9779,7 @@ Procedure VerifyTheSignatureOnTheCloudSignatureClient(Context)
 	Context.Insert("SignatureData", Signature);
 	Context.Insert("CryptoManager", "CloudSignature");
 	
-	HandlerNext = New NotifyDescription(
+	HandlerNext = New CallbackDescription(
 		"VerifyTheSignatureOnTheClientAfterVerifyingTheSignatureCloudSignature", ThisObject, Context,
 		"CheckSignatureAtClientAfterCheckSignatureError", ThisObject);
 	
@@ -9341,7 +9963,7 @@ Function ErrorTextCloudSignature(Operation, CallResult = Undefined, ThisIsAnExec
 		ErrorText = NStr("en = 'Couldn''t find the certificate. It might have been deleted.';");
 		
 	ElsIf Operation = "Signing" Then
-		ErrorText = NStr("en = 'Cannot create the signature.';");
+		ErrorText = NStr("en = 'Failed to generate a signature.';");
 		
 	ElsIf Operation = "Encryption" Then
 		ErrorText = NStr("en = 'Cannot encrypt data.';");
@@ -9374,21 +9996,26 @@ EndFunction
 
 #Region DigitalSignatureDiagnostics
 
-// Generates an archive containing technical information and offers to save it to the computer.
+// 
+// 
 //
 // Parameters:
-//   Cause              - String - the reason for collecting technical information.
-//   CompletionHandler - Undefined
-//                        - NotifyDescription - Contains details of the procedure that will be called
-//                            after saving an archive to the computer with the following parameters:
-//        ArchiveSaved - Boolean - Result of saving the archive to the hard drive.
-//        AdditionalParameters - Arbitrary - Value specified when creating the NotifyDescription object.
-//                                
-//   AdditionalFiles - Structure - additional data to be placed in the archive:
-//                           * Name    - String - File name with the extension.
-//                           * Data - BinaryData
-//                                    - String - file data or data address in a temporary storage.
-//                       - Array - an array of the structures specified above.
+//  Cause				 - String - the reason for collecting technical information.
+//  MessageParameters	 - Undefined - 
+//                    	 - Structure - :
+//                * Subject    - String - 
+//                * Message - String - 
+//  CompletionHandler - Undefined,
+//                       - CallbackDescription - Contains details of the procedure that will be called
+//  							after saving an archive to the computer with the following parameters:
+//                ArchiveSaved - Boolean - Result of saving the archive to the hard drive.
+//                AdditionalParameters - Arbitrary - Value specified when creating the NotifyDescription object.
+//  							
+//  AdditionalFiles	 - Undefined,
+//                     	 - Structure - :
+//                * Name    - String -  name of the file with the extension.
+//                * Data - BinaryData
+//  					 - Array - 
 //
 Procedure GenerateTechnicalInformation(Cause,
 	MessageParameters = Undefined, 
@@ -9425,7 +10052,7 @@ Procedure GenerateTechnicalInformation(Cause,
 	Context.Insert("AccompanyingText", AccompanyingText);
 	
 	GetTheComponentVersion(
-		New NotifyDescription("AfterCollectingTechnicalInformationAboutTheComponent", ThisObject, Context));
+		New CallbackDescription("AfterCollectingTechnicalInformationAboutTheComponent", ThisObject, Context));
 	
 EndProcedure
 
@@ -9441,16 +10068,16 @@ Async Procedure DiagnosticInfoAboutAutoDefinedApps(Notification)
 	UsedAppsResult = Await InstalledCryptoProviders(, False);
 	
 	If Not UsedAppsResult.CheckCompleted Then
-		ExecuteNotifyProcessing(Notification, StringFunctionsClientServer.SubstituteParametersToString(
+		RunCallback(Notification, StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Couldn''t determine the local digital signing and encryption app: %1';"),
 			UsedAppsResult.Error));
 		Return;
 	EndIf;
 	
-	Tokens = DigitalSignatureInternalClientServer.TechnicalInformationAboutTokens(UsedAppsResult.Tokens, True);
+	Tokens = DigitalSignatureInternalClientServer.TokensTechnicalInfo(UsedAppsResult.Tokens, True);
 	
 	If UsedAppsResult.Cryptoproviders.Count() = 0 Then
-		ExecuteNotifyProcessing(Notification, Tokens + Chars.LF + Chars.LF + NStr("en = 'No installed digital signing and encryption apps are found.';"));
+		RunCallback(Notification, Tokens + Chars.LF + Chars.LF + NStr("en = 'No installed digital signing and encryption apps are found.';"));
 		Return;
 	EndIf;
 	
@@ -9470,10 +10097,10 @@ Procedure DiagnosticsInformationOnApplications(Notification)
 	
 	UsedApplications = DigitalSignatureInternalServerCall.UsedApplications();
 	If UsedApplications.Count() = 0 Then
-		ExecuteNotifyProcessing(Notification, "");
+		RunCallback(Notification, "");
 		Return;
 	EndIf;
-	Title = Chars.LF + NStr("en = 'Applications on the client from the catalog:';") + Chars.LF;
+	Title = Chars.LF + NStr("en = 'Client application from the catalog:';") + Chars.LF;
 	
 	Context = New Structure;
 	Context.Insert("IndexOf", 0);
@@ -9492,7 +10119,7 @@ Procedure ApplicationsInfoCycleStart(Context)
 	CreationParameters.AutoDetect = False;
 	CreationParameters.Application = Context.UsedApplications[Context.IndexOf];
 	
-	Notification = New NotifyDescription(
+	Notification = New CallbackDescription(
 		"ApplicationsInfoAfterCreateCryptoManager",
 		ThisObject, Context);
 		
@@ -9516,7 +10143,7 @@ Procedure ApplicationsInfoAfterCreateCryptoManager(CryptoManager, Context) Expor
 			CryptoManager);
 	
 	If Context.IndexOf = Context.UsedApplications.Count() - 1 Then
-		ExecuteNotifyProcessing(Context.Notification, Context.DiagnosticsInformation);
+		RunCallback(Context.Notification, Context.DiagnosticsInformation);
 		Return;
 	EndIf;
 	
@@ -9532,44 +10159,64 @@ Procedure AfterCollectingTechnicalInformationAboutTheComponent(AddInInformation,
 		"ExtraCryptoAPI", AddInInformation) + Chars.LF;
 	
 	DiagnosticInfoAboutAutoDefinedApps(
-		New NotifyDescription("AfterCollectTechInfoAboutAutoDefiledApps",
+		New CallbackDescription("AfterCollectTechInfoAboutAutoDefiledApps",
 		ThisObject, Context));
 	
 EndProcedure
 
-Procedure AfterCollectTechInfoAboutAutoDefiledApps(ApplicationsInfo, Context) Export
+Async Procedure AfterCollectTechInfoAboutAutoDefiledApps(ApplicationsInfo, Context) Export
 
-	Context.AccompanyingText = Context.AccompanyingText + Chars.LF 
-	 + ApplicationsInfo + Chars.LF;
-		
-	DiagnosticsInformationOnApplications(
-			New NotifyDescription("AfterCollectingTechnicalInformationAboutThePrograms", ThisObject, Context));
-		
+	Context.AccompanyingText = Context.AccompanyingText + Chars.LF + ApplicationsInfo + Chars.LF;
+	Notification = New CallbackDescription("AfterCollectingTechnicalInformationAboutThePrograms", ThisObject, Context);
+	
+	AdditionalComponentsAreBeingInstalled = Await PerformInstallationOfAdditionalComponentsAfterCheckingExtensionOfWorkWith1CEnterprise(Notification);
+	If AdditionalComponentsAreBeingInstalled Then
+		Return;
+	EndIf;
+	
+	DiagnosticsInformationOnApplications(Notification);
+	
 EndProcedure
 
-Procedure AfterCollectingTechnicalInformationAboutThePrograms(ApplicationsInfo, Context) Export
+Async Procedure AfterCollectingTechnicalInformationAboutThePrograms(ApplicationsInfo, Context) Export
 	
 	Context.AccompanyingText = Context.AccompanyingText + ApplicationsInfo + Chars.LF
 		+ TimestampServersDiagnosticsResult() + Chars.LF;
 	
+	SystemInfo = New SystemInfo;
+	AddInLogDirectory = DigitalSignatureClient.PersonalSettings().PathToDiagnosticsDirectory.Get(
+		SystemInfo.ClientID);
+		
+	If ValueIsFilled(AddInLogDirectory) Then
+		AddInLog = CommonClientServer.AddLastPathSeparator(AddInLogDirectory)
+			+ DigitalSignatureInternalClientServer.ComponentDetails().ObjectName + ".log";
+		File = New File(AddInLog);
+		If Await File.ExistsAsync() Then
+			FileBinaryData = Await CreateBinaryDataFromFileAsync(AddInLog);
+			If ValueIsFilled(FileBinaryData) Then
+				Context.AdditionalFiles.Add(
+				New Structure("Name, Data", File.BaseName + ".txt", FileBinaryData));
+			EndIf;
+		EndIf;
+	EndIf;
 	
 	If Context.ExportArchive Then
 		Context.Insert("ArchiveAddress", DigitalSignatureInternalServerCall.TechnicalInformationArchiveAddress(
 			Context.AdditionalFiles, Context.AccompanyingText, VerifiedPathsToProgramModules()));
 		FileSystemClient.SaveFile(
-			New NotifyDescription("GenerateTechnicalInformationAfterSaveFile", ThisObject, Context),
+			New CallbackDescription("GenerateTechnicalInformationAfterSaveFile", ThisObject, Context),
 			Context.ArchiveAddress, "service_info.zip");
 		Return;
 	EndIf;
 	
-	AddressesOfTechnicalInformationFiles = DigitalSignatureInternalServerCall.AddressesOfTechnicalInformationFiles(
+	TechnicalInfoFilesAddresses = DigitalSignatureInternalServerCall.TechnicalInfoFilesAddresses(
 		Context.AccompanyingText, VerifiedPathsToProgramModules());
 	
 	Context.AdditionalFiles.Add(
-		New Structure("Name, Data", TechnicalInfoFileName() + ".txt", AddressesOfTechnicalInformationFiles.TechnicalInformation));
+		New Structure("Name, Data", TechnicalInfoFileName() + ".txt", TechnicalInfoFilesAddresses.TechnicalInformation));
 	Context.AdditionalFiles.Add(
-		New Structure("Name, Data", LogFileNameRegistration() + ".xml", AddressesOfTechnicalInformationFiles.EventLog));
-		
+		New Structure("Name, Data", LogFileNameRegistration() + ".xml", TechnicalInfoFilesAddresses.EventLog));
+	
 	TechnicalSupportRequestParameters = TechnicalSupportRequestParameters();
 	TechnicalSupportRequestParameters.Attachments = Context.AdditionalFiles;
 	TechnicalSupportRequestParameters.Subject = Context.Subject;
@@ -9599,7 +10246,7 @@ Procedure GetTheComponentVersion(Notification)
 	ComponentDetails = DigitalSignatureInternalClientServer.ComponentDetails();
 	
 	CommonClient.AttachAddInFromTemplate(
-		New NotifyDescription("GetTheVersionAfterConnectingTheComponents", ThisObject, Notification),
+		New CallbackDescription("GetTheVersionAfterConnectingTheComponents", ThisObject, Notification),
 		ComponentDetails.ObjectName,
 		ComponentDetails.FullTemplateName,
 		ConnectionParameters);
@@ -9607,13 +10254,13 @@ Procedure GetTheComponentVersion(Notification)
 EndProcedure
 
 // Continues the GetAddInVersion procedure.
-Procedure GetTheVersionAfterConnectingTheComponents(Result, Notification) Export
+Async Procedure GetTheVersionAfterConnectingTheComponents(Result, Notification) Export
 	
 	VersionComponents = "";
 	
 	If Result.Attached Then
-		Try 
-			NotificationAfterReceivingTheVersion = New NotifyDescription("AfterReceivingTheComponentVersion", ThisObject, Notification);
+		Try
+			NotificationAfterReceivingTheVersion = New CallbackDescription("AfterReceivingTheComponentVersion", ThisObject, Notification);
 			Result.Attachable_Module.BeginCallingGetVersion(NotificationAfterReceivingTheVersion);
 			Return;
 		Except
@@ -9630,15 +10277,31 @@ Procedure GetTheVersionAfterConnectingTheComponents(Result, Notification) Export
 			VersionComponents = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Add-in ""%1"" is not installed (%2).';"), "ExtraCryptoAPI", Result.ErrorDescription);
 		EndIf;
+		
+#If WebClient Then
+		Components = NewComponentsOfWorkingWithCryptography();
+		Components.ExtraCryptoAPIComponentIsInstalled = False;
+		
+		InstallationOfAdditionalComponentsIsRequired = Await InstallationOfAdditionalComponentsIsRequired(Components);
+		If InstallationOfAdditionalComponentsIsRequired Then
+			FormParameters = New Structure;
+			FormParameters.Insert("Components", Components);
+			FormParameters.Insert("NameOfRequiredComponent", "ComponentExtraCryptoAPI");
+			OpenForm("CommonForm.GettingStartedWithElectronicSignature", FormParameters,
+				, , , , Notification, FormWindowOpeningMode.LockOwnerWindow);
+			Return;
+		EndIf;
+#EndIf
+		
 	EndIf;
 	
-	ExecuteNotifyProcessing(Notification, VersionComponents);
+	RunCallback(Notification, VersionComponents);
 	
 EndProcedure
 
 Procedure AfterReceivingTheComponentVersion(VersionComponents, Parameters, Notification) Export
 
-	ExecuteNotifyProcessing(Notification, VersionComponents);
+	RunCallback(Notification, VersionComponents);
 	
 EndProcedure
 
@@ -9660,7 +10323,7 @@ Procedure RunAfterExtensionAndAddInChecked(Notification, Parameters = Undefined)
 		
 	Context.Insert("Notification", Notification);
 		
-	BeginAttachingCryptoExtension(New NotifyDescription(
+	BeginAttachingCryptoExtension(New CallbackDescription(
 		"RunAfterAttachCryptoAddIn", ThisObject, Context));
 
 EndProcedure
@@ -9670,7 +10333,7 @@ Procedure RunAfterAttachCryptoAddIn(Attached, Context) Export
 	If Not Attached Then
 		If Context.ShouldInstallExtension Then
 			DigitalSignatureClient.InstallExtension(True,
-				New NotifyDescription("RunAfterExtensionInstalled", ThisObject, Context));
+				New CallbackDescription("RunAfterExtensionInstalled", ThisObject, Context));
 			Return;
 		Else
 			ShouldContinueWithoutInstallingExtention = CommonClientServer.StructureProperty(
@@ -9687,7 +10350,7 @@ EndProcedure
 Procedure RunAfterExtensionInstalled(IsSet, Context) Export
 	
 	If Not IsSet Then
-		ExecuteNotifyProcessing(Context.Notification, ErrorTextExtensionNotInstalled());
+		RunCallback(Context.Notification, ErrorTextExtensionNotInstalled());
 		Return;
 	EndIf;
 	
@@ -9695,7 +10358,7 @@ Procedure RunAfterExtensionInstalled(IsSet, Context) Export
 	   And Not CommonClient.IsLinuxClient()
 	   And Not CommonClient.IsMacOSClient() Then
 		
-		ExecuteNotifyProcessing(Context.Notification, ErrorTextDeviceNotSupported());
+		RunCallback(Context.Notification, ErrorTextDeviceNotSupported());
 		Return;
 	EndIf;
 	
@@ -9705,7 +10368,7 @@ Procedure RunAfterExtensionInstalled(IsSet, Context) Export
 	ConnectionParameters.SuggestToImport = Context.SetComponent;
 	ComponentDetails = DigitalSignatureInternalClientServer.ComponentDetails();
 	CommonClient.AttachAddInFromTemplate(
-		New NotifyDescription("RunAfterAddInAttached",
+		New CallbackDescription("RunAfterAddInAttached",
 			ThisObject, Context),
 		ComponentDetails.ObjectName, ComponentDetails.FullTemplateName, ConnectionParameters);
 	
@@ -9728,20 +10391,20 @@ Procedure RunAfterAddInAttached(Result, Context) Export
 	
 	If Result.Attached Then
 		
-		ExecuteNotifyProcessing(Context.Notification, Result.Attachable_Module);
+		RunCallback(Context.Notification, Result.Attachable_Module);
 		
 	Else
 
 		If IsBlankString(Result.ErrorDescription) Then 
 				
 			// A user canceled the installation.
-			ExecuteNotifyProcessing(Context.Notification, StringFunctionsClientServer.SubstituteParametersToString(
+			RunCallback(Context.Notification, StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Operation failed. Add-in is required: %1.';"), "ExtraCryptoAPI"));
 
 		Else
 				
 			// Installation failed. The error description is in Result.ErrorDetails.
-			ExecuteNotifyProcessing(Context.Notification, StringFunctionsClientServer.SubstituteParametersToString(
+			RunCallback(Context.Notification, StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Operation is not allowed. %1';"), Result.ErrorDescription));
 
 		EndIf;
@@ -9829,116 +10492,35 @@ Async Function CertificateBase64String(Certificate)
 
 	Return Certificate;
 	
-EndFunction
+EndFunction 
 
-Procedure SupplementErrorClassifierSolutionWithDetails(
-	Notification, ErrorFromClassifier, ClassifierErrorSolutionTextSupplementOptions, DataToSupplement) Export
+Async Function CertificateFromString(TheCertificateIsAString) Export
 	
-	If ClassifierErrorSolutionTextSupplementOptions.CheckCertificateInClientLocalStore
-		And ValueIsFilled(DataToSupplement.CertificateData) Then
-		
-		Context = New Structure;
-		Context.Insert("CallbackOnCompletion", Notification);
-		Context.Insert("ErrorFromClassifier", ErrorFromClassifier);
-		Context.Insert("CertificateData", DataToSupplement.CertificateData);
-		Context.Insert("ClassifierErrorSolutionTextSupplementOptions", ClassifierErrorSolutionTextSupplementOptions);
-		DigitalSignatureClient.CreateCryptoManager(
-			New NotifyDescription("AfterCryptoManagerToSupplementErrorClassifierCreated", ThisObject, Context),
-			"GetCertificates");
+	Certificate = StrReplace(TheCertificateIsAString, "-----BEGIN CERTIFICATE-----", "");
+	Certificate = StrReplace(Certificate, "-----END CERTIFICATE-----", "");
+	Certificate = StrReplace(Certificate, Chars.LF, "");
+	
+	Try
+		CertificateData = Base64Value(Certificate);
+	Except
+		Return ErrorProcessing.BriefErrorDescription(ErrorInfo());
+	EndTry;
+	
+	If TypeOf(CertificateData) <> Type("BinaryData") Then
+		Return NStr("en = 'Cannot get the certificate';");
 	EndIf;
-	
-EndProcedure
-
-Async Procedure AfterCryptoManagerToSupplementErrorClassifierCreated(CryptoManager, Context) Export
-	
-	If TypeOf(CryptoManager) <> Type("CryptoManager") Then
-		ExecuteNotifyProcessing(Context.CallbackOnCompletion, Context.ErrorFromClassifier);
-		Return;
-	EndIf;
-	
-#If Not MobileAppClient And Not MobileClient Then
-		
-	CertificateData = Context.CertificateData;
 	
 	Try
 		CryptoCertificate = New CryptoCertificate;
 		Await CryptoCertificate.InitializeAsync(CertificateData);
-
-		LocalComputerStore = Await CryptoManager.GetCertificateStoreAsync(
-			CryptoCertificateStoreType.PersonalCertificates,
-			CryptoCertificateStorePlacement.ComputerData);
 	Except
-		EventLogClient.AddMessageForEventLog(
-			NStr("en = 'Digital signature.Error troubleshooting';", CommonClient.DefaultLanguageCode()),
-			"Error", ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		ExecuteNotifyProcessing(Context.CallbackOnCompletion, Context.ErrorFromClassifier);
-		Return;
+		Return ErrorProcessing.BriefErrorDescription(ErrorInfo());
 	EndTry;
-	
-	If Await LocalComputerStore.FindByThumbprintAsync(CryptoCertificate.Thumbprint) = Undefined Then
-		ExecuteNotifyProcessing(Context.CallbackOnCompletion, Context.ErrorFromClassifier);
-		Return;
-	EndIf;
-	
-	Context.ErrorFromClassifier.Decision = StringFunctionsClient.FormattedString(
-		DigitalSignatureInternalClientServer.LocalStoreCertificateSolutionText());
-	Context.ErrorFromClassifier.Cause = StringFunctionsClient.FormattedString(
-		DigitalSignatureInternalClientServer.LocalStoreCertificateReasonText());
 
-	ExecuteNotifyProcessing(Context.CallbackOnCompletion, Context.ErrorFromClassifier);
+	Return CryptoCertificate;
 	
-#EndIf
-	
-EndProcedure
+EndFunction
 
-Procedure RemoveCertificateFromLocalStore(CertificateData)
-	
-	DigitalSignatureClient.CreateCryptoManager(
-			New NotifyDescription("RemoveCertificateFromLocalStoreFollowUp", ThisObject, CertificateData),
-			"GetCertificates");
-	
-EndProcedure
-
-Async Procedure RemoveCertificateFromLocalStoreFollowUp(CryptoManager, CertificateData) Export
-	
-	If TypeOf(CryptoManager) <> Type("CryptoManager") Then
-		Return;
-	EndIf;
-	
-	CryptoCertificate = New CryptoCertificate;
-	Await CryptoCertificate.InitializeAsync(GetFromTempStorage(CertificateData));
-	
-	LocalComputerStore = Await CryptoManager.GetCertificateStoreAsync(
-		CryptoCertificateStoreType.PersonalCertificates,
-		CryptoCertificateStorePlacement.ComputerData);
-		
-	If Await LocalComputerStore.FindByThumbprintAsync(CryptoCertificate.Thumbprint) = Undefined Then
-		ShowMessageBox(, NStr("en = 'Certificate not found in Personal computer store. Try again.';"));
-		Return;
-	EndIf;
-	
-	ErrorText = "";
-	Try 
-		Await LocalComputerStore.DeleteAsync(CryptoCertificate);
-	Except
-		ErrorText = ErrorProcessing.BriefErrorDescription(ErrorInfo());
-	EndTry;
-	
-	If ValueIsFilled(ErrorText) Then
-		ErrorParameters = New Structure;
-		ErrorParameters.Insert("WarningTitle", NStr("en = 'Delete certificate from local store';"));
-		ErrorParameters.Insert("ErrorTextClient", ErrorText);
-		
-		OpenExtendedErrorPresentationForm(ErrorParameters, ThisObject);
-		
-		Return;
-	EndIf;
-	
-	ShowMessageBox(
-		NotificationAfterProcessingClassifierNavigationLink("RemoveCertificateFromLocalStore", CertificateData),
-		NStr("en = 'Certificate deleted from personal computer storage.';"));
-	
-EndProcedure
 
 #Region SettingRevocationList
 
@@ -9956,16 +10538,6 @@ Async Procedure InstallCertificateRevocationListAfterAddInAttached(ComponentObje
 		Return;
 	EndIf;
 	
-	If TypeOf(Context.Certificate) = Type("BinaryData") Then
-		CertificateBinaryData = Context.Certificate;
-	ElsIf TypeOf(Context.Certificate) = Type("CryptoCertificate") Then
-		CertificateBinaryData = Await Context.Certificate.UnloadAsync();
-	ElsIf IsTempStorageURL(Context.Certificate) Then
-		CertificateBinaryData = GetFromTempStorage(Context.Certificate);
-	Else
-		CertificateBinaryData = Base64Value(Context.Certificate);
-	EndIf;
-	
 	If ValueIsFilled(Context.Addresses) Then
 		If TypeOf(Context.Addresses) = Type("String") Then
 			Addresses = StrSplit(Context.Addresses, ";");
@@ -9974,30 +10546,70 @@ Async Procedure InstallCertificateRevocationListAfterAddInAttached(ComponentObje
 		Addresses = New Array;
 	EndIf;
 	
-	AddressesOfRevocationLists = Await AddressesOfRevocationLists(CertificateBinaryData, ComponentObject);
-	If TypeOf(AddressesOfRevocationLists) = Type("String") Then
-		If Not ValueIsFilled(Addresses) Then
+	If DigitalSignatureInternalClientServer.AreCertificateAdditionalPropertiesAvailable() Then
+		
+		If TypeOf(Context.Certificate) = Type("CryptoCertificate") Then
+			Certificate = Context.Certificate;
+		ElsIf TypeOf(Context.Certificate) = Type("BinaryData") Then
+			Certificate = New CryptoCertificate;
+			Await Certificate.InitializeAsync(Context.Certificate);
+		ElsIf IsTempStorageURL(Context.Certificate) Then
+			CertificateBinaryData = GetFromTempStorage(Context.Certificate);
+			Certificate = New CryptoCertificate;
+			Await Certificate.InitializeAsync(CertificateBinaryData);
+		Else
+			CertificateBinaryData = Base64Value(Context.Certificate);
+			Certificate = New CryptoCertificate;
+			Await Certificate.InitializeAsync(CertificateBinaryData);
+		EndIf;
+		
+		CertificateProperties = DigitalSignatureInternalClientServer.CertificateProperties(
+			Certificate, UTCOffset());
+		AddressesOfRevocationLists = CertificateProperties.AddressesOfRevocationLists;
+		If AddressesOfRevocationLists.Count() = 0 And Not ValueIsFilled(Addresses) Then
+			HandlerErrorOfSettingRevocationList(NStr("en = 'Revocation list addresses are not specified in the certificate.';"),
+				Context);
+			Return;
+		EndIf;
+		
+	Else
+
+		If TypeOf(Context.Certificate) = Type("BinaryData") Then
+			CertificateBinaryData = Context.Certificate;
+		ElsIf TypeOf(Context.Certificate) = Type("CryptoCertificate") Then
+			CertificateBinaryData = Await Context.Certificate.UnloadAsync();
+		ElsIf IsTempStorageURL(Context.Certificate) Then
+			CertificateBinaryData = GetFromTempStorage(Context.Certificate);
+		Else
+			CertificateBinaryData = Base64Value(Context.Certificate);
+		EndIf;
+
+		CertificateProperties = DigitalSignatureInternalClientServer.CertificateAdditionalProperties(
+			CertificateBinaryData);
+
+		AddressesOfRevocationLists = Await AddressesOfRevocationLists(CertificateBinaryData, ComponentObject);
+		If TypeOf(AddressesOfRevocationLists) = Type("String") And Not ValueIsFilled(Addresses) Then
 			HandlerErrorOfSettingRevocationList(AddressesOfRevocationLists, Context);
 			Return;
 		EndIf;
+
 	EndIf;
-	
+		
 	For Each Address In AddressesOfRevocationLists Do
 		If Addresses.Find(Address) = Undefined Then
 			Addresses.Add(Address);
 		EndIf;
 	EndDo;
-	
+
 	Parameters = New Structure("ResourceAddress, NameOfTheOperation, InternalAddress");
 	Parameters.ResourceAddress = Addresses;
 	Parameters.InternalAddress = Context.InternalAddress;
 	Parameters.NameOfTheOperation = NStr("en = 'Import a certificate revocation list';");
-		
+
 	Context.Insert("ComponentObject", ComponentObject);
 	Context.Insert("ResourceAddress", Parameters.ResourceAddress);
-	
-	CertificateProperties = DigitalSignatureInternalClientServer.CertificateAdditionalProperties(CertificateBinaryData);
-	Context.Insert("CertificateAuthorityKeyID", CertificateProperties.CertificateAuthorityKeyID);
+	Context.Insert("CertificateAuthorityKeyID",
+		CertificateProperties.CertificateAuthorityKeyID);
 	
 	TimeConsumingOperation = DigitalSignatureInternalServerCall.StartDownloadFileAtServer(Parameters);
 	
@@ -10010,7 +10622,7 @@ Async Procedure InstallCertificateRevocationListAfterAddInAttached(ComponentObje
 	IdleParameters.Title = Parameters.NameOfTheOperation;
 	IdleParameters.OutputIdleWindow = True;
 	
-	CallbackOnCompletion = New NotifyDescription("ResumeSettingRevocationListAfterDownloaded",
+	CallbackOnCompletion = New CallbackDescription("ResumeSettingRevocationListAfterDownloaded",
 		ThisObject, Context);
 		
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
@@ -10100,7 +10712,7 @@ Procedure ResumeSettingRevocationListAfterDownloaded(ExecutionResult, Context) E
 	EndIf;
 	
 	FileSystemClient.CreateTemporaryDirectory(
-		New NotifyDescription("InstallRevocationListAfterTempDirCreated", ThisObject, Result));
+		New CallbackDescription("InstallRevocationListAfterTempDirCreated", ThisObject, Result));
 		
 EndProcedure
 
@@ -10122,7 +10734,27 @@ Async Procedure InstallRevocationListAfterTempDirCreated(TempDirectoryName, Cont
 		
 	RevocationListFilename = CommonClientServer.AddLastPathSeparator(TempDirectoryName)
 	 + Context.FileName;
-	Await Context.FileData.WriteAsync(RevocationListFilename);
+	
+	Try
+		Await Context.FileData.WriteAsync(RevocationListFilename);
+	Except
+		Error = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Failed to write the revocation list to file %1: %2. Please check available disk space, access permissions, and antivirus settings.';"),
+			RevocationListFilename, ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+		HandlerErrorOfSettingRevocationList(Error, Context);
+		Return;
+	EndTry;
+	
+	File = New File(RevocationListFilename);
+	If Await File.ExistsAsync() Then
+		FileSize = Await File.SizeAsync();
+	Else
+		Error = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Failed to write the revocation list to file %1. Please check available disk space, access permissions, and antivirus settings.';"),
+			RevocationListFilename);
+		HandlerErrorOfSettingRevocationList(Error, Context);
+		Return;
+	EndIf;
 	
 	Context.Insert("RevocationListFilename", RevocationListFilename);
 	Context.Insert("TempDirectoryName", TempDirectoryName);
@@ -10135,10 +10767,10 @@ Async Procedure InstallRevocationListAfterTempDirCreated(TempDirectoryName, Cont
 		
 		Error = Await Context.ComponentObject.GetErrorListAsync();
 		Error = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot install the revocation list to the ""%1"" store due to:
-				 | %2';"), StorageName, Error);
+			NStr("en = 'Cannot install the revocation list to the ""%1"" store from file %2 (%3 byte) due to:
+				 |%4';"), StorageName, RevocationListFilename, FileSize, Error);
 		HandlerErrorOfSettingRevocationList(Error, Context);
-		
+		Return;
 	Else
 		
 		Message = NStr("en = 'The revocation list is installed.';");
@@ -10147,7 +10779,7 @@ Async Procedure InstallRevocationListAfterTempDirCreated(TempDirectoryName, Cont
 			Result = CertificateInstallationResult();
 			Result.IsInstalledSuccessfully = True;
 			Result.Message = Message;
-			ExecuteNotifyProcessing(Context.CallbackOnCompletion, Result);
+			RunCallback(Context.CallbackOnCompletion, Result);
 		Else
 			ShowMessageBox(, Message);
 		EndIf;
@@ -10189,7 +10821,7 @@ Procedure HandlerErrorOfSettingRevocationList(Error, Context, IsIssuerError = Fa
 		
 		Result = CertificateInstallationResult();
 		Result.Message = Error;
-		ExecuteNotifyProcessing(Context.CallbackOnCompletion, Result);
+		RunCallback(Context.CallbackOnCompletion, Result);
 		
 	Else
 		
@@ -10233,11 +10865,11 @@ Async Procedure InstallRootCertificateAfterAddInAttached(ComponentObject, Instal
 	EndIf;
 	
 	ValueList = New ValueList;
-	If Not ValueIsFilled(InstallationParameters.Store) Then
+	If Not ValueIsFilled(InstallationParameters.Storage) Then
 		ValueList.Add("ROOT", NStr("en = 'Trusted root certificates';"));
 	Else
-		ValueList.Add(InstallationParameters.Store.Value,
-			InstallationParameters.Store.Presentation);
+		ValueList.Add(InstallationParameters.Storage.Value,
+			InstallationParameters.Storage.Presentation);
 	EndIf;
 	
 	Certificate = Result.Certificates[Result.Certificates.UBound()];
@@ -10263,7 +10895,7 @@ Procedure InstallCertificateAfterAddInAttached(ComponentObject, CertificateInsta
 		FormParameters.Insert("Certificate", CertificateInstallationParameters.Certificate);
 		FormParameters.Insert("InstallationOptions", CertificateInstallationParameters.InstallationOptions);
 		
-		FormClosingNotification = New NotifyDescription("RunAfterCertificateInstalled",
+		FormClosingNotification = New CallbackDescription("RunAfterCertificateInstalled",
 			ThisObject, CertificateInstallationParameters);
 		
 		OpenForm("Catalog.DigitalSignatureAndEncryptionKeysCertificates.Form.InstallingTheCertificate",
@@ -10277,16 +10909,16 @@ Procedure InstallCertificateAfterAddInAttached(ComponentObject, CertificateInsta
 EndProcedure
 
 Async Procedure InstallCertificateAfterInstallationOptionSelected(CertificateInstallationParameters, ComponentObject = Undefined) Export
-		
-	Store = CertificateInstallationParameters.Store;
+	
+	Storage = CertificateInstallationParameters.Storage;
 	StoragePresentation = "";
-	If TypeOf(Store) = Type("Structure") Then
-		Store = CertificateInstallationParameters.Store.Value;
-		StoragePresentation = CertificateInstallationParameters.Store.Presentation;
+	If TypeOf(Storage) = Type("Structure") Then
+		Storage = CertificateInstallationParameters.Storage.Value;
+		StoragePresentation = CertificateInstallationParameters.Storage.Presentation;
 	EndIf;
 	
 	If Not ValueIsFilled(StoragePresentation) Then
-		StoragePresentation = Store;
+		StoragePresentation = Storage;
 	EndIf;
 	
 	TheCertificateIsAString = Await CertificateBase64String(CertificateInstallationParameters.Certificate);
@@ -10320,7 +10952,7 @@ Async Procedure InstallCertificateAfterInstallationOptionSelected(CertificateIns
 		
 	Else
 		
-		Result = Await ComponentObject.BindCertToStoreAsync(TheCertificateIsAString, Store);
+		Result = Await ComponentObject.BindCertToStoreAsync(TheCertificateIsAString, Storage);
 	
 		If Result.Value <> True Then
 			Error = Await ComponentObject.GetErrorListAsync();
@@ -10334,12 +10966,13 @@ Async Procedure InstallCertificateAfterInstallationOptionSelected(CertificateIns
 	
 	Result = CertificateInstallationResult();
 	Result.IsInstalledSuccessfully = True;
+	Result.Certificate = CertificateInstallationParameters.Certificate;
 	Result.Message = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The certificate is installed in %1.';"), StoragePresentation);
 	
 	RunAfterCertificateInstalled(Result,
 		New Structure("CallbackOnCompletion", CertificateInstallationParameters.CallbackOnCompletion));
-		
+	
 EndProcedure
 
 Procedure HandleCertificateInstallationError(Error, Context)
@@ -10348,7 +10981,7 @@ Procedure HandleCertificateInstallationError(Error, Context)
 		
 		Result = CertificateInstallationResult();
 		Result.Message = Error;
-		ExecuteNotifyProcessing(Context.CallbackOnCompletion, Result);
+		RunCallback(Context.CallbackOnCompletion, Result);
 		
 	Else
 		
@@ -10371,7 +11004,7 @@ Procedure RunAfterCertificateInstalled(Result, Context) Export
 	EndIf;
 	
 	If Context.CallbackOnCompletion <> Undefined Then
-		ExecuteNotifyProcessing(Context.CallbackOnCompletion, Result);
+		RunCallback(Context.CallbackOnCompletion, Result);
 	Else
 		ShowMessageBox(, Result.Message);
 	EndIf;
@@ -10380,7 +11013,7 @@ EndProcedure
 
 Function CertificateInstallationResult()
 	
-	Return New Structure("IsInstalledSuccessfully, Message", False, "");
+	Return New Structure("IsInstalledSuccessfully, Message, Certificate", False, "", "");
 	
 EndFunction
 
@@ -10397,7 +11030,7 @@ Procedure GetCertificateChain(Notification, Certificate, FormIdentifier = Undefi
 	Context.Insert("Certificate", Certificate);
 	Context.Insert("FormIdentifier", FormIdentifier);
 		
-	Notification = New NotifyDescription("GetCertificatesChainAfterAddInAttached",
+	Notification = New CallbackDescription("GetCertificatesChainAfterAddInAttached",
 		ThisObject, Context);
 	RunAfterExtensionAndAddInChecked(Notification);
 	
@@ -10409,12 +11042,12 @@ Async Procedure GetCertificatesChainAfterAddInAttached(ComponentObject, Context)
 	
 	If TypeOf(ComponentObject) = Type("String") Then
 		Result.Error = ComponentObject;
-		ExecuteNotifyProcessing(Context.Notification, Result);
+		RunCallback(Context.Notification, Result);
 		Return;
 	EndIf;
 	
 	Result = Await CertificatesChainAsync(Context.Certificate, ComponentObject, Context.FormIdentifier);
-	ExecuteNotifyProcessing(Context.Notification, Result);
+	RunCallback(Context.Notification, Result);
 	
 EndProcedure
 
@@ -10494,7 +11127,7 @@ Async Procedure GetInstalledCryptoProvidersAfterAddInAttached(ComponentObject, C
 	
 	If TypeOf(ComponentObject) = Type("String") Then
 		Result.Error = ComponentObject;
-		ExecuteNotifyProcessing(Context.Notification, Result);
+		RunCallback(Context.Notification, Result);
 		Return;
 	EndIf;
 	
@@ -10508,7 +11141,7 @@ Async Procedure GetInstalledCryptoProvidersAfterAddInAttached(ComponentObject, C
 		Result.Error = CryptoProvidersResult.Error;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Context.Notification, Result);
+	RunCallback(Context.Notification, Result);
 
 EndProcedure
 
@@ -10530,10 +11163,12 @@ Async Function InstalledCryptoProviders(ComponentObject = Undefined, SuggestInst
 			ComponentObject = Await AnObjectOfAnExternalComponentOfTheExtraCryptoAPI(SuggestInstall, ExplanationText);
 		Except
 			Result.Error = ErrorTextAddInNotInstalled();
+			WriteInstalledCryptoProvidersToCache(Result);
 			Return Result;
 		EndTry;
 	EndIf;
 		
+	ErrorText = "";
 	Try
 		Await ComponentObject.GetErrorListAsync();
 		ResultList = Await ComponentObject.GetListCryptoProvidersAsync();
@@ -10548,13 +11183,16 @@ Async Function InstalledCryptoProviders(ComponentObject = Undefined, SuggestInst
 			ResultList.Value, ApplicationsByNamesWithType);
 		Result.CheckCompleted = True;
 	Except
-		Result.Error = ErrorProcessing.BriefErrorDescription(ErrorInfo());
-		Return Result;
+		ErrorText = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 	EndTry;
 	
-	Result.Cryptoproviders = Cryptoproviders;
+	If ValueIsFilled(ErrorText) Then
+		Result.Error = ErrorText;
+	Else
+		Result.Cryptoproviders = Cryptoproviders;
+	EndIf;
 	
-	TokensResult =  Await DigitalSignatureClientLocalization.InstalledTokens(ComponentObject, SuggestInstall);
+	TokensResult = Await DigitalSignatureClientLocalization.InstalledTokens(ComponentObject, SuggestInstall);
 	Result.Tokens = TokensResult.Tokens;
 	
 	WriteInstalledCryptoProvidersToCache(Result);
@@ -10573,26 +11211,23 @@ Function TokenNewProperties() Export
 	TokenProperties.Insert("Token");
 	TokenProperties.Insert("Mechanisms");
 	TokenProperties.Insert("Error");
-		
+	TokenProperties.Insert("Certificates");
+	TokenProperties.Insert("Libraries", New Map);
+	
 	Return TokenProperties;
 	
 EndFunction
 
 // Returns the result of checking CSP from the cache. Repeats every 20 minutes.
-Async Function InstalledCryptoProvidersFromCache(SuggestInstall = False)
+Async Function InstalledCryptoProvidersFromCache(SuggestInstall = False) Export
 	
 	ParameterName = "DigitalSignature.InstalledCryptoProviders";
 	
 	If ApplicationParameters[ParameterName] = Undefined 
 		Or ApplicationParameters[ParameterName].CheckTime + 1200 < CurrentDate() // ACC:143 - CurrentDate() must be used.
 		Or ApplicationParameters[ParameterName].Error = ErrorTextAddInNotInstalled() And SuggestInstall Then
-			
+		
 		CheckResult = Await InstalledCryptoProviders(Undefined, SuggestInstall);
-		
-		If Not CheckResult.CheckCompleted Then
-			WriteInstalledCryptoProvidersToCache(CheckResult);
-		EndIf;
-		
 		Return CheckResult;
 		
 	Else
@@ -10621,7 +11256,7 @@ Procedure ClearInstalledCryptoProvidersCache() Export
 	
 EndProcedure
 
-Procedure WriteInstalledCryptoProvidersToCache(Result)
+Procedure WriteInstalledCryptoProvidersToCache(Result) Export
 	
 	ResultForCache = New Structure;
 	ResultForCache.Insert("CheckCompleted", Result.CheckCompleted);
@@ -10643,7 +11278,7 @@ Function ErrorTextAddInNotInstalled()
 EndFunction
 
 // Continues the CheckCryptographyAppsInstallation procedure.
-Procedure CheckCryptographyAppsInstallationAfterInstalledObtained(Result, Context) Export
+Async Procedure CheckCryptographyAppsInstallationAfterInstalledObtained(Result, Context) Export
 	
 	CheckResult = New Structure("AddInInstalled, Error, CheckCompleted");
 	FillPropertyValues(CheckResult, Result);
@@ -10654,7 +11289,7 @@ Procedure CheckCryptographyAppsInstallationAfterInstalledObtained(Result, Contex
 	CheckResult.Insert("IsConflictPossibleAtServer", False);
 	
 	If Not CheckResult.CheckCompleted Then
-		ExecuteNotifyProcessing(Context.Notification, CheckResult);
+		RunCallback(Context.Notification, CheckResult);
 		Return;
 	EndIf;
 	
@@ -10672,14 +11307,14 @@ Procedure CheckCryptographyAppsInstallationAfterInstalledObtained(Result, Contex
 		CheckResult.ServerApplications, CheckResult.IsConflictPossibleAtServer, ProcessingParameters, HasAppsToCheck);
 		
 	
-	ExecuteNotifyProcessing(Context.Notification, CheckResult);
+	RunCallback(Context.Notification, CheckResult);
 
 EndProcedure
 
 // Returns:
 //  Structure:
-//   * CallbackOnCompletion - NotifyDescription
-//   * Programs  - 
+//   * CallbackOnCompletion - CallbackDescription
+//   * Programs  - See DigitalSignatureInternalServerCall.FillApplicationsListForSearch
 //   * IndexOf - Number
 //
 Function InstalledApplicationsSearchContext()
@@ -10723,7 +11358,7 @@ Procedure SendMessageToTechSupport(TechnicalSupportRequestParameters)
 			MessageData.Subject = TechnicalSupportRequestParameters.Subject;
 			MessageData.Recipient = TechnicalSupportRequestParameters.Recipient;
 			MessageData.Message = TechnicalSupportRequestParameters.Message;
-						
+			
 			Attachments = New Array;
 			For Each Attachment In TechnicalSupportRequestParameters.Attachments Do
 				If TypeOf(Attachment.Data) = Type("BinaryData") Then
@@ -10732,7 +11367,7 @@ Procedure SendMessageToTechSupport(TechnicalSupportRequestParameters)
 				Attachments.Add(New Structure("Presentation, Data, DataKind", Attachment.Name, Attachment.Data, "Address"));
 			EndDo;
 			
-			CallbackOnCompletion = New NotifyDescription("AfterSupportRequestChecked", ThisObject, TechnicalSupportRequestParameters);
+			CallbackOnCompletion = New CallbackDescription("AfterSupportRequestChecked", ThisObject, TechnicalSupportRequestParameters);
 			TheModuleOfTheMessageToTheTechnicalSupportServiceClient.SendMessage(MessageData, Attachments, Undefined, CallbackOnCompletion);
 		Return;
 	EndIf;
@@ -10753,7 +11388,7 @@ Procedure AfterSupportRequestChecked(Result, Context) Export
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.EmailOperations") Then
 		ModuleEmailOperationsClient = CommonClient.CommonModule("EmailOperationsClient");
-		CallbackOnCompletion = New NotifyDescription("AfterEmailAccountVerified", ThisObject, Context);
+		CallbackOnCompletion = New CallbackDescription("AfterEmailAccountVerified", ThisObject, Context);
 		ModuleEmailOperationsClient.CheckAccountForSendingEmailExists(CallbackOnCompletion); 
 		Return;
 	EndIf;
@@ -10808,7 +11443,7 @@ Procedure AfterEmailAccountVerified(Result, Context) Export
 		EmailSendOptions.Text = MessageTextTemplate(Context.Message);
 		EmailSendOptions.Recipient = TechnicalSupportRequestRecipientAddress();
 		
-		CompletionHandler = New NotifyDescription("AfterEmailMessageSentToSupport", ThisObject,
+		CompletionHandler = New CallbackDescription("AfterEmailMessageSentToSupport", ThisObject,
 			Context);
 		
 		Attachments = New Array;
@@ -10827,7 +11462,7 @@ Procedure AfterEmailAccountVerified(Result, Context) Export
 	Context.Insert("ArchiveAddress", DigitalSignatureInternalServerCall.TechnicalInformationArchiveAddress(
 		Context.Attachments));
 	FileSystemClient.SaveFile(
-		New NotifyDescription("GenerateTechnicalInformationAfterSaveFile", ThisObject, Context),
+		New CallbackDescription("GenerateTechnicalInformationAfterSaveFile", ThisObject, Context),
 		Context.ArchiveAddress, "service_info.zip");
 EndProcedure
 
@@ -10847,7 +11482,7 @@ Procedure GenerateTechnicalInformationAfterSaveFile(SavedFiles, Context) Export
 	
 	DeleteFromTempStorage(Context.ArchiveAddress);
 	If Context.CompletionHandler <> Undefined Then
-		ExecuteNotifyProcessing(Context.CompletionHandler, SavedFiles <> Undefined);
+		RunCallback(Context.CompletionHandler, SavedFiles <> Undefined);
 	EndIf;
 	
 EndProcedure
@@ -10895,19 +11530,19 @@ Procedure HandleNaviLinkClassifier(Item, FormattedStringURL, StandardProcessing,
 		
 	ElsIf FormattedStringURL = "ApplyforCertificate" Then
 		
+		CreationParameters = New Structure;
+		CreationParameters.Insert("CreateRequest", True);
 		If ValueIsFilled(Parameters.Certificate) And TypeOf(Parameters.Certificate) = Type("CatalogRef.DigitalSignatureAndEncryptionKeysCertificates") Then
-			CreationParameters = New Structure;
-			CreationParameters.Insert("CreateRequest", True);
 			CreationParameters.Insert("CertificateBasis", Parameters.Certificate);
-			ToAddCertificate(CreationParameters);
 		EndIf;
+		ToAddCertificate(CreationParameters);
 	
 		
 	ElsIf FormattedStringURL = "SetListOfCertificateRevocation" Then
 		
 		If ValueIsFilled(Parameters.CertificateData) Then
 			RevocationListInstallationParameters = RevocationListInstallationParameters(Parameters.CertificateData);
-			RevocationListInstallationParameters.CallbackOnCompletion = NotificationAfterProcessingClassifierNavigationLink(
+			RevocationListInstallationParameters.CallbackOnCompletion = NotificationAfterClassifierURLHandled(
 				FormattedStringURL, Parameters.CertificateData);
 			SetListOfCertificateRevocation(RevocationListInstallationParameters);
 		EndIf;
@@ -10916,7 +11551,7 @@ Procedure HandleNaviLinkClassifier(Item, FormattedStringURL, StandardProcessing,
 		
 		If ValueIsFilled(Parameters.CertificateData) Then
 			CertificateInstallationParameters = CertificateInstallationParameters(Parameters.CertificateData);
-			CertificateInstallationParameters.CallbackOnCompletion = NotificationAfterProcessingClassifierNavigationLink(
+			CertificateInstallationParameters.CallbackOnCompletion = NotificationAfterClassifierURLHandled(
 				FormattedStringURL, Parameters.CertificateData);
 			InstallRootCertificate(CertificateInstallationParameters);
 		EndIf;
@@ -10925,7 +11560,7 @@ Procedure HandleNaviLinkClassifier(Item, FormattedStringURL, StandardProcessing,
 		
 		If ValueIsFilled(Parameters.CertificateData) Then
 			CertificateInstallationParameters = CertificateInstallationParameters(Parameters.CertificateData);
-			CertificateInstallationParameters.CallbackOnCompletion = NotificationAfterProcessingClassifierNavigationLink(
+			CertificateInstallationParameters.CallbackOnCompletion = NotificationAfterClassifierURLHandled(
 				FormattedStringURL, Parameters.CertificateData);
 			InstallCertificate(CertificateInstallationParameters);
 		EndIf;
@@ -10934,18 +11569,12 @@ Procedure HandleNaviLinkClassifier(Item, FormattedStringURL, StandardProcessing,
 		
 		If ValueIsFilled(Parameters.CertificateData) Then
 			CertificateInstallationParameters = CertificateInstallationParameters(Parameters.CertificateData);
-			CertificateInstallationParameters.CallbackOnCompletion = NotificationAfterProcessingClassifierNavigationLink(
+			CertificateInstallationParameters.CallbackOnCompletion = NotificationAfterClassifierURLHandled(
 				FormattedStringURL, Parameters.CertificateData);
 			CertificateInstallationParameters.InstallationOptions = "Container";
 			InstallCertificate(CertificateInstallationParameters);
 		EndIf;
 		
-	ElsIf FormattedStringURL = "RemoveCertificateFromLocalStore" Then
-		
-		If ValueIsFilled(Parameters.CertificateData) Then
-			RemoveCertificateFromLocalStore(Parameters.CertificateData);
-		EndIf;	
-	
 	ElsIf FormattedStringURL = "TimestampServersDiagnosticsServer" Then
 		
 		TimestampServersDiagnostics("Server");
@@ -10963,9 +11592,17 @@ Procedure HandleNaviLinkClassifier(Item, FormattedStringURL, StandardProcessing,
 		
 	ElsIf FormattedStringURL = "InstallAddInSSL" Then
 		
-		Notification = New NotifyDescription("NotifyOfSuccessfulAddInAttachement", ThisObject);
+		Notification = New CallbackDescription("NotifyOfSuccessfulAddInAttachement", ThisObject);
 			RunAfterExtensionAndAddInChecked(Notification);
+			
+	ElsIf StrStartsWith(FormattedStringURL, DigitalSignatureInternalClientServer.ActionInstallLibrariesForTokens()) Then
 		
+		OpeningParameters = New Structure;
+		OpeningParameters.Insert("TokenKind", Right(FormattedStringURL,
+			StrLen(FormattedStringURL) - StrLen(DigitalSignatureInternalClientServer.ActionInstallLibrariesForTokens())));
+			OpeningParameters.Insert("OnlyInstallationOfTokens", True);
+		OpenFormForInstallingCryptoproviderPrograms(OpeningParameters);
+			
 	ElsIf StrFind(FormattedStringURL, "http") Then
 		FileSystemClient.OpenURL(FormattedStringURL, );
 	ElsIf StrStartsWith(FormattedStringURL, "e1cib") Then 
@@ -10976,21 +11613,22 @@ Procedure HandleNaviLinkClassifier(Item, FormattedStringURL, StandardProcessing,
 	
 EndProcedure
 
-Function NotificationAfterProcessingClassifierNavigationLink(URL, SubjectOfNotification)
+Function NotificationAfterClassifierURLHandled(URL, NotificationSubject)
 	
-	Return New NotifyDescription("AfterProcessingClassifierNavigationLink", ThisObject,
-		New Structure("URL, SubjectOfNotification", URL, SubjectOfNotification));
+	Return New CallbackDescription("AfterClassifierURLHandled", ThisObject,
+		New Structure("URL, NotificationSubject", URL, NotificationSubject));
 
 EndFunction
 
-Procedure AfterProcessingClassifierNavigationLink(Result, Context) Export
+Procedure AfterClassifierURLHandled(Result, Context) Export
 	
 	URL = Context.URL;
 	If URL = "InstallCertificate"
 		Or URL = "InstallCertificateIntoContainer"
 		Or URL = "InstallRootCertificate"
 		Or URL = "SetListOfCertificateRevocation" Then
-			If Result.IsInstalledSuccessfully <> True Then
+		
+		If Result.IsInstalledSuccessfully <> True Then
 				
 			FormParameters = New Structure;
 			If URL = "SetListOfCertificateRevocation" Then
@@ -11003,13 +11641,13 @@ Procedure AfterProcessingClassifierNavigationLink(Result, Context) Export
 			FormParameters.Insert("ShowNeedHelp", True);
 			FormParameters.Insert("ShowInstruction", True);
 
-			OpenExtendedErrorPresentationForm(FormParameters, FormParameters);
+			OpenExtendedErrorPresentationForm(FormParameters);
 
 			Return;
 		EndIf;
 	EndIf;
 	
-	Notify("BSP_PerformCertificateVerification", Context.SubjectOfNotification);
+	Notify("SSL_VerifyCertificate", Context.NotificationSubject);
 	
 EndProcedure
 
@@ -11066,7 +11704,7 @@ Procedure PickIndividualForCertificate(Form, IssuedTo, Individual) Export
 
 		QueryText = NStr("en = 'The ""Individual"" field is filled. Do you want to refill it?';");
 		Parameters = New Structure("Form, IssuedTo, Individual", Form, IssuedTo, Individual);
-		NotificationAnswer = New NotifyDescription("AnswerSelectIndividual", ThisObject, Parameters);
+		NotificationAnswer = New CallbackDescription("AnswerSelectIndividual", ThisObject, Parameters);
 
 		ShowQueryBox(NotificationAnswer, QueryText,
 			QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
@@ -11109,7 +11747,7 @@ Procedure IdentifyIndividual(Form, IssuedTo, Individual)
 	EndIf;
 	
 	If Persons = Undefined Then
-		ChoiceProcessing = New NotifyDescription("OnCloseIndividualChoiceForm", Form);
+		ChoiceProcessing = New CallbackDescription("OnCloseIndividualChoiceForm", Form);
 		FormParameters = New Structure;
 		FormParameters.Insert("ChoiceMode", True);
 		OpenForm(Result.IndividualChoiceFormPath, FormParameters, Form, , , , ChoiceProcessing,
@@ -11139,7 +11777,7 @@ Procedure IdentifyIndividual(Form, IssuedTo, Individual)
 	FormParameters.Insert("FilterByReference_", True);
 	FormParameters.Insert("ChoiceMode", True);
 
-	ChoiceProcessing = New NotifyDescription("OnCloseIndividualChoiceForm", Form);
+	ChoiceProcessing = New CallbackDescription("OnCloseIndividualChoiceForm", Form);
 	OpenForm(Result.IndividualChoiceFormPath, FormParameters, Form, , , , ChoiceProcessing,
 		FormWindowOpeningMode.LockOwnerWindow);	
 
@@ -11148,7 +11786,7 @@ EndProcedure
 // Read signature properties.
 // 
 // Parameters:
-//  CallbackOnCompletion - NotifyDescription - Returns Structure or Array of Structure
+//  CallbackOnCompletion - CallbackDescription - Returns Structure or Array of Structure
 //  Signature - BinaryData
 //          - String - binary data address to temporary storage
 //          - Array of String
@@ -11195,7 +11833,7 @@ Async Procedure ReadSignaturesPropertiesLoop(Result, Context) Export
 				EndIf;
 			EndIf;
 			
-			Notification = New NotifyDescription("ReadSignaturePropertyAfterCryptoManagerCreated", ThisObject, Context);
+			Notification = New CallbackDescription("ReadSignaturePropertyAfterCryptoManagerCreated", ThisObject, Context);
 			CryptoManagerCreationParameters = CryptoManagerCreationParameters();
 			CryptoManagerCreationParameters.Application = Context.Signature;
 			CryptoManagerCreationParameters.ShowError = False;
@@ -11227,7 +11865,7 @@ Procedure ResultOfReadingSignatures(Context)
 		Result = Context.ProcessedSignatures;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Context.Notification, Result);
+	RunCallback(Context.Notification, Result);
 	
 EndProcedure
 
@@ -11235,8 +11873,8 @@ Procedure AddResultOfSignatureRead(Result, Context)
 	
 	Context.ProcessedSignatures.Insert(Context.Signature, Result);
 	Context.SignaturesArray.Delete(0);
-	Notification = New NotifyDescription("ReadSignaturesPropertiesLoop", ThisObject, Context);
-	ExecuteNotifyProcessing(Notification, Undefined);
+	Notification = New CallbackDescription("ReadSignaturesPropertiesLoop", ThisObject, Context);
+	RunCallback(Notification, Undefined);
 
 EndProcedure
 
@@ -11376,7 +12014,7 @@ Async Function SignaturePropertiesFromBinaryData(Signature, ShouldReadCertificat
 				Result.Certificate = Result.Certificates[0];
 			Except
 				Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot read the certificate properties: %1';"),
+					NStr("en = 'Cannot read the properties of the certificates: %1';"),
 					ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 			EndTry;
 		Else
@@ -11407,7 +12045,7 @@ EndFunction
 // Intended for: CheckSignature procedure.
 // 
 // Parameters:
-//  Result  -  
+//  Result  - See DigitalSignatureClientServer.SignatureVerificationResult.Result. 
 //  ResultStructure - Undefined
 //                     - See DigitalSignatureClientServer.SignatureVerificationResult
 //  IsVerificationRequired  - Undefined, Boolean - True if determined that it failed to 
@@ -11415,7 +12053,7 @@ EndFunction
 //
 // Returns:
 //   See DigitalSignatureClientServer.SignatureVerificationResult
-//   - If Context.CheckResult = Undefined
+//   See DigitalSignatureClientServer.SignatureVerificationResult.Result - If Context.CheckResult = Undefined
 //
 Function SignatureVerificationResult(Result, ResultStructure = Undefined, IsVerificationRequired = Undefined, InvalidHash = Undefined)
 	
@@ -11455,7 +12093,7 @@ Function SignatureVerificationResult(Result, ResultStructure = Undefined, IsVeri
 			ResultStructure.SignatureCorrect = False;
 		EndIf;
 		
-		ResultStructure.IsSignatureMathematicallyValid = Not ResultStructure.IsVerificationRequired;
+		ResultStructure.IsSignatureMathematicallyValid = Not ResultStructure.IsVerificationRequired Or InvalidHash = False;
 		
 		Return ResultStructure;
 	EndIf;
@@ -11465,7 +12103,7 @@ EndFunction
 Procedure AfterSignatureAuthenticityJustificationEntered(Result, Notification) Export
 	
 	If Not ValueIsFilled(Result) Then
-		ExecuteNotifyProcessing(Notification, Undefined);
+		RunCallback(Notification, Undefined);
 	EndIf;
 	
 	CheckResult = New Structure;
@@ -11476,7 +12114,7 @@ Procedure AfterSignatureAuthenticityJustificationEntered(Result, Notification) E
 	CheckResult.Insert("SignatureCorrect", True);
 	CheckResult.Insert("IsVerificationRequired", False);
 	
-	ExecuteNotifyProcessing(Notification, CheckResult);
+	RunCallback(Notification, CheckResult);
 
 EndProcedure
 
@@ -11578,35 +12216,35 @@ Procedure HandleDecryptionError(Error, Context)
 	
 	ErrorText = Error.ErrorDescription;
 	ClassifierError = DigitalSignatureInternalServerCall.ClassifierError(ErrorText);
-	If ClassifierError = Undefined Or Not ClassifierError.UnknownCryptographyAlgorithm Then
+	If ClassifierError = Undefined Or Not ClassifierError.UnknownCryptoAlgorithm Then
 		// Processing is not required.
 		Return;
 	EndIf;
 	
-	UnencryptedData = Context.DataElement.Data;
+	UndecryptedData = Context.DataElement.Data;
 	Application = CommonClientServer.StructureProperty(Context, "Application", Undefined);
 	ApplicationPresentation = ?(ValueIsFilled(Application), Application.Presentation, "");
 	
-	EncryptionAlgorithmInformation = DigitalSignatureInternalClientServer.EncryptionAlgorithmOfEncryptedFile(UnencryptedData);
-	Additional_DataChecks = AdditionalParametersOfDecryptionError(EncryptionAlgorithmInformation, ApplicationPresentation);
+	EncryptAlgorithmInfo = DigitalSignatureInternalClientServer.EncryptedFileEncryptAlgorithm(UndecryptedData);
+	Additional_DataChecks = DrillDownErrorAdditionalParameters(EncryptAlgorithmInfo, ApplicationPresentation);
 	
 	Error.Insert("AdditionalDataChecksOnClient", Additional_DataChecks);
 	Error.Insert("ApplicationsSetUp", True);
-	If Not IsBlankString(EncryptionAlgorithmInformation.Id) Then
+	If Not IsBlankString(EncryptAlgorithmInfo.Id) Then
 		Error.ErrorDescription = TrimL(ErrorText + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Algorithm OID: %1';"), EncryptionAlgorithmInformation.Id));
+			NStr("en = 'Algorithm OID: %1';"), EncryptAlgorithmInfo.Id));
 	EndIf;
 		
 EndProcedure
 
-Function AdditionalParametersOfDecryptionError(EncryptionAlgorithmInformation, ApplicationPresentation)
+Function DrillDownErrorAdditionalParameters(EncryptAlgorithmInfo, ApplicationPresentation)
 	
 	Result = New Structure("AdditionalDataChecksOnClient");
 	ErrorPresentation = New Structure("Cause, Decision");
-	AlgorithmID = EncryptionAlgorithmInformation.Id;
-	AlgorithmPresentation = ?(ValueIsFilled(EncryptionAlgorithmInformation.Presentation),
-								EncryptionAlgorithmInformation.Presentation,
-								EncryptionAlgorithmInformation.Id);
+	AlgorithmID = EncryptAlgorithmInfo.Id;
+	AlgorithmPresentation = ?(ValueIsFilled(EncryptAlgorithmInfo.Presentation),
+								EncryptAlgorithmInfo.Presentation,
+								EncryptAlgorithmInfo.Id);
 	
 	DecisionText = "";
 	If StrFind(AlgorithmID, "1.2.643.7.1.1.5.2") <> 0
@@ -11632,5 +12270,128 @@ Function AdditionalParametersOfDecryptionError(EncryptionAlgorithmInformation, A
 	
 EndFunction
 
-#EndRegion
+// For internal use only.
+// 
+// Returns:
+//  Structure
+//
+Function NewComponentsOfWorkingWithCryptography() Export
+	
+	Result = New Structure;
+	Result.Insert("CryptoproviderIsInstalled", True);
+	Result.Insert("ExpansionOfWorkOfS1CByEnterpriseIsEstablished", True);
+	Result.Insert("ExtensionOfWorkWithCryptographyIsEstablished", True);
+	Result.Insert("ExtraCryptoAPIComponentIsInstalled", True);
+	
+	Return Result;
+	
+EndFunction
 
+// For internal use only.
+//
+// Parameters:
+//  Components - See NewComponentsOfWorkingWithCryptography
+// 
+// Returns:
+//  Boolean
+//
+Async Function InstallationOfAdditionalComponentsIsRequired(Components)
+	
+	Result = False;
+	
+	// Проверка установки расширения для работы с 1С:Предприятием
+	If Components.ExpansionOfWorkOfS1CByEnterpriseIsEstablished Then
+		Components.ExpansionOfWorkOfS1CByEnterpriseIsEstablished = Await AttachFileSystemExtensionAsync();
+		Result = Result Or Not Components.ExpansionOfWorkOfS1CByEnterpriseIsEstablished;
+	EndIf;
+	
+	// Проверка установки расширения для работы с криптографией
+	If Components.ExtensionOfWorkWithCryptographyIsEstablished Then
+		Components.ExtensionOfWorkWithCryptographyIsEstablished = Await AttachCryptoExtensionAsync();
+		Result = Result Or Not Components.ExtensionOfWorkWithCryptographyIsEstablished;
+	EndIf;
+	
+	// Проверка установки расширения для работы с компонентой ExtraCryptoAPI
+	If Components.ExtraCryptoAPIComponentIsInstalled Then
+		
+		ConnectionParameters = CommonClient.AddInAttachmentParameters();
+		ConnectionParameters.SuggestInstall = False;
+		ConnectionParameters.SuggestToImport = False;
+		ComponentDetails = DigitalSignatureInternalClientServer.ComponentDetails();
+		
+		AddInAttachmentResult = Await CommonClient.AttachAddInFromTemplateAsync(
+			ComponentDetails.ObjectName,
+			ComponentDetails.FullTemplateName,
+			ConnectionParameters);
+		Components.ExtraCryptoAPIComponentIsInstalled = AddInAttachmentResult.Attached;
+		Result = Result Or Not Components.ExtraCryptoAPIComponentIsInstalled;
+		
+	EndIf;
+	
+	DigitalSignatureClientLocalization.WhenCheckingInstallationOfCryptographyPrograms(Result, Components);
+	
+	Return Result;
+	
+EndFunction
+
+// 
+//  
+//  
+//  
+//  
+//  
+//
+// Parameters:
+//  Notification - CallbackDescription, Undefined - 
+// 
+// Returns:
+//  Boolean - 
+//
+Async Function PerformInstallationOfAdditionalComponentsAfterCheckingExtensionOfWorkWith1CEnterprise(Notification = Undefined) Export
+	
+#If WebClient Then
+	ExpansionOfWorkOfS1CByEnterpriseIsEstablished = Await AttachFileSystemExtensionAsync();
+	If Not ExpansionOfWorkOfS1CByEnterpriseIsEstablished Then
+		InstallationIsRequired = True;
+		InstallationOfAdditionalComponentsIsRequired = False;
+		Components = NewComponentsOfWorkingWithCryptography();
+		Components.ExpansionOfWorkOfS1CByEnterpriseIsEstablished = False;
+		
+		InstallationOfAdditionalComponentsIsRequired = Await InstallationOfAdditionalComponentsIsRequired(Components);
+		
+		If InstallationOfAdditionalComponentsIsRequired Then
+			FormParameters = New Structure;
+			FormParameters.Insert("Components", Components);
+			FormParameters.Insert("NameOfRequiredComponent", "ExpansionOfWorkWith1CEnterprise");
+			OpenForm("CommonForm.GettingStartedWithElectronicSignature", FormParameters, ThisObject, 
+				, , , Notification, FormWindowOpeningMode.LockOwnerWindow);
+			Return True;
+		EndIf;
+	EndIf;
+#Else
+	Return False;
+#EndIf
+	
+	Return False;
+	
+EndFunction
+
+Procedure AfterCheckingInstallationOfCryptographyPrograms(Result, Components) Export
+	
+	If Result.CheckCompleted Then
+		
+		Components.CryptoproviderIsInstalled = Result.Tokens.Count() > 0;
+		
+		If Not Components.CryptoproviderIsInstalled Then
+			For Each Cryptoprovider In Result.Programs Do
+				If ValueIsFilled(Cryptoprovider.Application) And Not Components.CryptoproviderIsInstalled Then
+					Components.CryptoproviderIsInstalled = True;
+				EndIf;
+			EndDo;
+		EndIf;
+		
+	EndIf;
+	
+EndProcedure
+
+#EndRegion

@@ -385,7 +385,7 @@ Function ExecuteBulkEmail(Var_Reports, DeliveryParameters, MailingDescription = 
 						FoundRows[0].CertificateToEncrypt, Undefined);
 				EndIf;
 
-			// Encrypt each file (unless archiving is selected).
+				// Encrypt each file (unless archiving is selected).
 				If ValueIsFilled(DeliveryParameters.CertificateToEncrypt) And Not DeliveryParameters.Archive Then
 					EncryptedAttachments = New Map;
 					For Each Attachment In RecipientsAttachments Do
@@ -424,27 +424,16 @@ Function ExecuteBulkEmail(Var_Reports, DeliveryParameters, MailingDescription = 
 		Try  
 			SendReportsToRecipient(RecipientsAttachments, DeliveryParameters, LogParameters, RecipientRow);
 			MailingExecuted = True;
-			DeliveryParameters.ExecutedByEmail = True;  
-			SentCount = SentCount + 1;
-			ProgressText = ReportDistributionProgressText(DeliveryParameters, SentCount, QuantityToSend);
-			ProgressPercent = Round(SentCount * 100 / QuantityToSend);
-			TimeConsumingOperations.ReportProgress(ProgressPercent, ProgressText);
-
-			AdditionalInfo = "";
-			If SendHiddenCopiesToSender Then
-				AdditionalInfo = NStr("en = 'A copy was sent to the sender.';");
-			EndIf;
-			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Reports are sent from %2 to ''%1''. %3';"), RecipientPresentation1, SenderSRepresentation,
-				AdditionalInfo);
-
-			LogRecord(LogParameters, , MessageText);
-				
 		Except
+			ErrorInfo = ErrorInfo();
+			If ErrorInfo.IsErrorOfCategory(ErrorCategory.ConfigurationError) Then
+				Raise;
+			EndIf;
+
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot send reports to %1:';"), RecipientPresentation1);
 			ExtendedErrorPresentation = EmailOperations.ExtendedErrorPresentation(
-				ErrorInfo(), Common.DefaultLanguageCode(), False);
+				ErrorInfo, Common.DefaultLanguageCode(), False);
 			LogRecord(LogParameters,, MessageText, ExtendedErrorPresentation);
 			
 			If Not EmailClientUsed() And GetFunctionalOption("RetainReportDistributionHistory")
@@ -463,6 +452,22 @@ Function ExecuteBulkEmail(Var_Reports, DeliveryParameters, MailingDescription = 
 		EndTry;
 		
 		If MailingExecuted Then
+			DeliveryParameters.ExecutedByEmail = True;  
+			SentCount = SentCount + 1;
+			ProgressText = ReportDistributionProgressText(DeliveryParameters, SentCount, QuantityToSend);
+			ProgressPercent = Round(SentCount * 100 / QuantityToSend);
+			TimeConsumingOperations.ReportProgress(ProgressPercent, ProgressText);
+
+			AdditionalInfo = "";
+			If SendHiddenCopiesToSender Then
+				AdditionalInfo = NStr("en = 'A copy was sent to the sender.';");
+			EndIf;
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Reports are sent from %2 to ''%1''. %3';"), RecipientPresentation1, SenderSRepresentation,
+				AdditionalInfo);
+
+			LogRecord(LogParameters, , MessageText);
+				
 			DeliveryParameters.Recipients.Delete(RecipientRow.Key);
 		EndIf;
 	EndDo;
@@ -580,8 +585,8 @@ EndFunction
 // Returns:
 //   Structure - Logging parameters.:
 //       * EventName - String - an event name (or events group).
-//       * Metadata - Array of MetadataObject, Undefined - Metadata for linking the Event Log record.
-//       * Data     - Arbitrary - Data for linking the Event Log record.
+//       * Metadata - Array of MetadataObject, Undefined - Metadata for linking the Event log record.
+//       * Data     - Arbitrary - Data for linking the Event log record.
 //
 Function LogParameters(BulkEmail = Undefined) Export
 	
@@ -792,7 +797,7 @@ Procedure AddItemToRecipientsTypesTable(TypesTable, AvailableTypes, Settings) Ex
 		AvailableTypes.Delete(TypeIndex);
 	EndIf;
 	
-	// Metadata objects IDs.
+	// Metadata object IDs.
 	MetadataObjectID = Common.MetadataObjectID(Settings.MainType);
 	TableRow = TypesTable.Find(MetadataObjectID, "MetadataObjectID");
 	If TableRow = Undefined Then
@@ -986,8 +991,8 @@ EndProcedure
 //   BulkEmail - CatalogRef.ReportMailings - a report mailing to be executed.
 //   LogParameters - Structure - Logging parameters:
 //       * EventName - String - an event name (or events group).
-//       * Metadata - MetadataObject - Metadata for linking the Event Log record.
-//       * Data     - Arbitrary - Data for linking the Event Log record.
+//       * Metadata - MetadataObject - Metadata for linking the Event log record.
+//       * Data     - Arbitrary - Data for linking the Event log record.
 //   AdditionalSettings - Structure - settings that override standard mailing parameters:
 //       * Recipients - Map of KeyAndValue - a set of recipients and their email addresses:
 //           ** Key - CatalogRef - a recipient.
@@ -1026,22 +1031,22 @@ Procedure ReportFormAddCommands(Form, Cancel, StandardProcessing) Export
 		Return;
 	EndIf;
 	
-	Prefix_Name = ReportsClientServer.CommandNamePrefixWithReportOptionPreSave();
+	NamePrefix = ReportsClientServer.CommandNamePrefixWithReportOptionPreSave();
 	
 	// Add commands and buttons
 	Commands = New Array;
 	
-	CreateCommand = Form.Commands.Add(Prefix_Name + "ReportMailingCreateNew");
+	CreateCommand = Form.Commands.Add(NamePrefix + "ReportMailingCreateNew");
 	CreateCommand.Action  = "ReportMailingClient.CreateNewBulkEmailFromReport";
 	CreateCommand.Picture  = PictureLib.ReportMailing;
 	CreateCommand.Title = NStr("en = 'Create report distribution';");
-	CreateCommand.ToolTip = NStr("en = 'Include the report with the current settings in a newly created report distribution.';");
+	CreateCommand.ToolTip = NStr("en = 'Send report on schedule: distribute over email, publish to directory, and so on.';");
 	Commands.Add(CreateCommand);
 	
 	AttachCommand = Form.Commands.Add("ReportMailingAddToExisting");
 	AttachCommand.Action  = "ReportMailingClient.AttachReportToExistingBulkEmail";
-	AttachCommand.Title = NStr("en = 'Choose existing report distribution';");
-	AttachCommand.ToolTip = NStr("en = 'Include the report with the current settings in an existing report distribution.';");
+	AttachCommand.Title = NStr("en = 'Include in distribution…';");
+	AttachCommand.ToolTip = NStr("en = 'Include this report option to an existing report distribution.';");
 	Commands.Add(AttachCommand);
 	
 	MailingsWithReportsNumber = MailingsWithReportsNumber(Form.ReportSettings.OptionRef);
@@ -1058,16 +1063,16 @@ Procedure ReportFormAddCommands(Form, Cancel, StandardProcessing) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Administration panels.
+#Region AdministrationPanels
 
 // Returns True if the user has the right to save report mailings.
 Function InsertRight1() Export
 	Return CheckAddRightErrorText() = "";
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#EndRegion
+
+#Region ConfigurationSubsystemsEventHandlers
 
 // See CommonOverridable.OnAddReferenceSearchExceptions.
 Procedure OnAddReferenceSearchExceptions(RefSearchExclusions) Export
@@ -1349,10 +1354,11 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Scheduled job execution.
+#Region ScheduledJobsExecution
 
 // Starts mailing and controls result.
 //
@@ -1366,7 +1372,7 @@ Procedure ExecuteScheduledMailing(BulkEmail) Export
 	InformationRegisters.ReportMailingStates.FixMailingStart(BulkEmail);
 	
 	If Not AccessRight("Read", Metadata.Catalogs.ReportMailings) Then
-		Raise(NStr("en = 'Insufficient rights to view the report distribution.';"), ErrorCategory.AccessViolation);
+		Raise(NStr("en = 'Insufficient rights to view the report distributions.';"), ErrorCategory.AccessViolation);
 	EndIf;
 		
 	Query = New Query("SELECT ALLOWED ExecuteOnSchedule FROM Catalog.ReportMailings WHERE Ref = &Ref");
@@ -1385,8 +1391,9 @@ Procedure ExecuteScheduledMailing(BulkEmail) Export
 	ExecuteReportsMailing(BulkEmail, LogParameters(BulkEmail), New Structure("StartCommitted", True));
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Internal export procedures and functions.
+#EndRegion
+
+#Region ExportServiceProceduresAndFunctions
 
 // Generate a recipients list from the Recipients tabular section of mailing.
 //
@@ -1433,6 +1440,13 @@ Function GenerateMailingRecipientsList(BulkEmail, LogParameters = Undefined, Del
 			TableOfRecipients = BulkEmail.Recipients.Unload();
 		EndIf;
 	EndIf;
+	
+	EmptyRecipientValue = ?(TypeOf(RecipientsType) = Type("Type"), New (RecipientsType), Undefined);
+	SearchParameters = New Structure("Recipient", EmptyRecipientValue);
+	LinesWithoutRecipients = TableOfRecipients.FindRows(SearchParameters);
+	For Each RecipientRow In LinesWithoutRecipients Do
+		TableOfRecipients.Delete(RecipientRow);
+	EndDo;
 	
 	Query = New Query;
 	If RecipientsType = Type("CatalogRef.Users") Then
@@ -1568,14 +1582,14 @@ Function GenerateMailingRecipientsList(BulkEmail, LogParameters = Undefined, Del
 	EndTry;
 	
 	RecipientsWithoutAnAddress = New Array;
-	RecipientsWithoutNameAddress = New Array;
+	RecipientsWithoutAddressDescriptions = New Array;
 	HasDescription = ?(BulkEmailRecipients.Columns.Find("Description") <> Undefined, True, False);
 	
 	For Each BulkEmailRecipient In BulkEmailRecipients Do
 		If Not ValueIsFilled(BulkEmailRecipient.EMail) Then
 			RecipientsWithoutAnAddress.Add(BulkEmailRecipient.Recipient);
 			Description = ?(HasDescription, BulkEmailRecipient.Description, String(BulkEmailRecipient.Recipient));
-			RecipientsWithoutNameAddress.Add(Description);
+			RecipientsWithoutAddressDescriptions.Add(Description);
 			Continue;
 		EndIf;
 		
@@ -1590,15 +1604,15 @@ Function GenerateMailingRecipientsList(BulkEmail, LogParameters = Undefined, Del
 			|-%1.';");
 		
 		WarningText = StringFunctionsClientServer.SubstituteParametersToString(
-			PatternOfTheWarningText, StrConcat(RecipientsWithoutNameAddress, ";" + Chars.LF + "- "));
+			PatternOfTheWarningText, StrConcat(RecipientsWithoutAddressDescriptions, ";" + Chars.LF + "- "));
 		
 		LogRecord(LogParameters, EventLogLevel.Warning, WarningText);
 		
 		If GetFunctionalOption("RetainReportDistributionHistory") 
 		   And TypeOf(LogParameters.Data) = Type("CatalogRef.ReportMailings") 
 		   And DeliveryParameters <> Undefined Then
-			For Each RecipientWithoutAddress In RecipientsWithoutAnAddress Do
-				HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, RecipientWithoutAddress, DeliveryParameters.ExecutionDate);
+			For Each RecipientsWithoutAddress In RecipientsWithoutAnAddress Do
+				HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, RecipientsWithoutAddress, DeliveryParameters.ExecutionDate);
 				HistoryFields.Account = DeliveryParameters.Account;
 				If DeliveryParameters.NotifyOnly Then
 					HistoryFields.Comment = NStr("en = 'Couldn''t send notifications: Email address not specified.';");
@@ -1606,7 +1620,7 @@ Function GenerateMailingRecipientsList(BulkEmail, LogParameters = Undefined, Del
 					HistoryFields.Comment = NStr("en = 'Couldn''t send notifications: Email address not specified.';");
 				EndIf;
 				HistoryFields.Executed = False;
-				HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, RecipientWithoutAddress);
+				HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, RecipientsWithoutAddress);
 				
 				InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(HistoryFields);
 			EndDo;
@@ -1615,7 +1629,7 @@ Function GenerateMailingRecipientsList(BulkEmail, LogParameters = Undefined, Del
 	EndIf;
 	
 	If RecipientsList.Count() = 0 Then
-		ErrorsText = NStr("en = 'Cannot generate recipient list ""%1"". Possible reasons:
+	ErrorsText = NStr("en = 'Cannot generate recipient list ""%1"". Possible reasons:
 		| - ""%2"" email is not specified for some of the recipients.
 		| - The list of recipients is empty or recipients are marked for deletion.
 		| - The groups of recipients are empty.
@@ -1659,6 +1673,13 @@ Function GenerateArrayOfDistributionRecipients(BulkEmail, LogParameters)
 		RecipientsType = ?(MetadataObjectKey <> Undefined, MetadataObjectKey.Get(), Undefined);
 		TableOfRecipients = BulkEmail.Recipients.Unload();
 	EndIf;
+	
+	EmptyRecipientValue = ?(TypeOf(RecipientsType) = Type("Type"), New (RecipientsType), Undefined);
+	SearchParameters = New Structure("Recipient", EmptyRecipientValue);
+	LinesWithoutRecipients = TableOfRecipients.FindRows(SearchParameters);
+	For Each RecipientRow In LinesWithoutRecipients Do
+		TableOfRecipients.Delete(RecipientRow);
+	EndDo;
 	
 	ArrayOfRecipients_ = New Array;
 	
@@ -1848,7 +1869,7 @@ EndFunction
 //       * Errors          - String - an error text.
 //     Properties of all reports:
 //       * Name        - String - a report name.
-//       * IsOption - Boolean - True if vendor is the ReportOptions catalog.
+//       * IsOption - Boolean - True if a report is from the ReportsOptions catalog.
 //       * DCS        - Boolean - True if a report is based on DCS.
 //       * Metadata - MetadataObjectReport - report metadata.
 //       * Object     - ReportObject, ExternalReport - a report object.
@@ -2085,294 +2106,30 @@ EndFunction
 //     * Key     - String - file name
 //     * Value - String - Full filename
 //
-// Returns: 
-//   Structure:
-//       * Delivery  - String - a delivery method presentation.
-//       * Executed - Boolean - True if the delivery is executed at least by one of the methods.
+// Returns:
+//   Boolean - "True" if the delivery is executed at least by one of the methods.
 //
 Function ExecuteDelivery(LogParameters, DeliveryParameters, Attachments) Export
 	Result = False;
-	ErrorMessageTemplate = NStr("en = 'Reports are not delivered';");
-	TestMode = CommonClientServer.StructureProperty(DeliveryParameters, "TestMode", False);
 	
-	////////////////////////////////////////////////////////////////////////////
 	// To network directory.
-	
 	If DeliveryParameters.UseNetworkDirectory Then
-		ServerNetworkDdirectory = DeliveryParameters.NetworkDirectoryWindows;
-		
-		If Common.IsLinuxServer() Then
-			ServerNetworkDdirectory = DeliveryParameters.NetworkDirectoryLinux;
-		EndIf;
-		
-		AllRecipients = GenerateArrayOfDistributionRecipients(LogParameters.Data, LogParameters);
-		Try
-			SentCount = 0;
-			QuantityToSend = Attachments.Count();
-			For Each Attachment In Attachments Do
-				FileCopy(Attachment.Value, ServerNetworkDdirectory + Attachment.Key);
-				If DeliveryParameters.AddReferences <> "" Then
-					DeliveryParameters.RecipientReportsPresentation = StrReplace(
-						DeliveryParameters.RecipientReportsPresentation,
-						Attachment.Value,
-						DeliveryParameters.NetworkDirectoryWindows + Attachment.Key);
-				EndIf;
-				SentCount = SentCount + 1;
-				ProgressText = ReportDistributionProgressText(DeliveryParameters, SentCount, QuantityToSend);
-				ProgressPercent = Round(SentCount * 100 / QuantityToSend);
-				TimeConsumingOperations.ReportProgress(ProgressPercent, ProgressText);
-			EndDo;
-			Result = True;
-			DeliveryParameters.ExecutedToNetworkDirectory = True;
-			
-			If TestMode Then // Remove all created.
-				For Each Attachment In Attachments Do
-					DeleteFiles(ServerNetworkDdirectory + Attachment.Key);
-				EndDo;
-			EndIf;
-			
-			If GetFunctionalOption("RetainReportDistributionHistory") 
-			   And TypeOf(LogParameters.Data) = Type("CatalogRef.ReportMailings") Then
-				MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-				"en = 'Report distributions are placed in the ''%1'' network directory.';"), ServerNetworkDdirectory);
-				For Each Recipient In AllRecipients Do     					
-					HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, Recipient, DeliveryParameters.ExecutionDate);  
-					HistoryFields.Account = DeliveryParameters.Account;    
-					HistoryFields.Comment = MessageText; 
-					HistoryFields.Executed = True;   
-					HistoryFields.DeliveryDate = CurrentSessionDate();
-					HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, Recipient);
-					HistoryFields.EmailID = "";
-					
-					InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(HistoryFields);
-				EndDo;
-			EndIf;
-		Except
-			LogRecord(LogParameters, , ErrorMessageTemplate, ErrorInfo());
-			If GetFunctionalOption("RetainReportDistributionHistory")
-			   And TypeOf(LogParameters.Data) = Type("CatalogRef.ReportMailings") Then
-				For Each Recipient In AllRecipients Do
-					HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, Recipient, DeliveryParameters.ExecutionDate);   
-					HistoryFields.Account = DeliveryParameters.Account;
-					HistoryFields.Comment = ErrorMessageTemplate;
-					HistoryFields.Executed = False;
-					HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, Recipient);
-					HistoryFields.EmailID = "";
-					
-					InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(HistoryFields);
-				EndDo;
-			EndIf;
-		EndTry;
-		
+		DeliverToNetworkDirectory(LogParameters, DeliveryParameters, Attachments, Result);
 	EndIf;
 	
-	////////////////////////////////////////////////////////////////////////////
 	// To FTP resource.
-	
 	If DeliveryParameters.UseFTPResource Then
-		
-		Target = "ftp://"+ DeliveryParameters.Server +":"+ Format(DeliveryParameters.Port, "NZ=0; NG=0") + DeliveryParameters.Directory;
-		AllRecipients = GenerateArrayOfDistributionRecipients(LogParameters.Data, LogParameters);
-		Try
-			If Common.SubsystemExists("StandardSubsystems.GetFilesFromInternet") Then
-				ModuleNetworkDownload = Common.CommonModule("GetFilesFromInternet");
-				Proxy = ModuleNetworkDownload.GetProxy("ftp");
-			Else
-				Proxy = Undefined;
-			EndIf;
-			If DeliveryParameters.Property("Password") Then
-				Password = DeliveryParameters.Password;
-			Else
-				SetPrivilegedMode(True);
-				DataFromStorage = Common.ReadDataFromSecureStorage(DeliveryParameters.Owner, "FTPPassword");
-				SetPrivilegedMode(False);
-				Password = ?(ValueIsFilled(DataFromStorage), DataFromStorage, "");
-			EndIf;
-			Join = New FTPConnection(
-				DeliveryParameters.Server,
-				DeliveryParameters.Port,
-				DeliveryParameters.Login,
-				Password,
-				Proxy,
-				DeliveryParameters.PassiveConnection,
-				15);
-			Join.SetCurrentDirectory(DeliveryParameters.Directory);
-			SentCount = 0;
-			QuantityToSend = Attachments.Count();
-			For Each Attachment In Attachments Do
-				Join.Put(Attachment.Value, DeliveryParameters.Directory + Attachment.Key);
-				If DeliveryParameters.AddReferences <> "" Then
-					DeliveryParameters.RecipientReportsPresentation = StrReplace(
-						DeliveryParameters.RecipientReportsPresentation,
-						Attachment.Value,
-						Target + Attachment.Key);
-					SentCount = SentCount + 1;
-					ProgressText = ReportDistributionProgressText(DeliveryParameters, SentCount, QuantityToSend);
-					ProgressPercent = Round(SentCount * 100 / QuantityToSend);
-					TimeConsumingOperations.ReportProgress(ProgressPercent, ProgressText);
-				EndIf;
-			EndDo;
-			
-			Result = True;
-			DeliveryParameters.ExecutedAtFTP = True;
-			
-			If TestMode Then // Remove all created.
-				For Each Attachment In Attachments Do
-					Join.Delete(DeliveryParameters.Directory + Attachment.Key);
-				EndDo;
-			EndIf;
-			
-			If GetFunctionalOption("RetainReportDistributionHistory")
-			   And TypeOf(LogParameters.Data) = Type("CatalogRef.ReportMailings") Then
-				MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-				"en = 'Report distributions published on ''%1''.';"), Target);
-				For Each Recipient In AllRecipients Do
-					HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, Recipient, DeliveryParameters.ExecutionDate); 
-					HistoryFields.Account = DeliveryParameters.Account;
-					HistoryFields.Comment = MessageText;
-					HistoryFields.Executed = True; 
-					HistoryFields.DeliveryDate = CurrentSessionDate();
-					HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, Recipient);
-					HistoryFields.EmailID = "";
-			
-					InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(HistoryFields);
-				EndDo;
-			EndIf;
-		Except
-			If Common.SubsystemExists("StandardSubsystems.GetFilesFromInternet") Then
-				ModuleNetworkDownload = Common.CommonModule("GetFilesFromInternet");
-				DiagnosticsResult = ModuleNetworkDownload.ConnectionDiagnostics(DeliveryParameters.Server);
-				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '%1
-					           |
-					           |Результат диагностики:
-					           |%2';"),
-					ErrorMessageTemplate,
-					DiagnosticsResult.ErrorDescription);
-			Else
-				ErrorText = ErrorMessageTemplate;
-			EndIf;
-			
-			LogRecord(LogParameters, , ErrorText, ErrorInfo());
-			If GetFunctionalOption("RetainReportDistributionHistory")
-			   And TypeOf(LogParameters.Data) = Type("CatalogRef.ReportMailings") Then
-				For Each Recipient In AllRecipients Do
-					HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, Recipient, DeliveryParameters.ExecutionDate); 
-					HistoryFields.Account = DeliveryParameters.Account;
-					HistoryFields.Comment = ErrorText;
-					HistoryFields.Executed = False;
-					HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, Recipient);
-					HistoryFields.EmailID = "";
-					
-					InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(HistoryFields);
-				EndDo;
-			EndIf;
-		EndTry;
-		
+		DeliverToFTPResource(LogParameters, DeliveryParameters, Attachments, Result);
 	EndIf;
 	
-	////////////////////////////////////////////////////////////////////////////
 	// To folder.
-	
 	If DeliveryParameters.UseFolder Then
-		AllRecipients = GenerateArrayOfDistributionRecipients(LogParameters.Data, LogParameters);
-		If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
-			ModuleFilesOperationsInternal = Common.CommonModule("FilesOperationsInternal");
-			Try
-				ModuleFilesOperationsInternal.OnExecuteDeliveryToFolder(DeliveryParameters, Attachments);
-				Result = True;
-				DeliveryParameters.ExecutedToFolder = True; 
-				If GetFunctionalOption("RetainReportDistributionHistory")
-				   And TypeOf(LogParameters.Data) = Type("CatalogRef.ReportMailings") Then
-					MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-					"en = 'Report distributions are placed in the ''%1'' folder.';"), String(DeliveryParameters.Folder));
-					For Each Recipient In AllRecipients Do
-						HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, Recipient, DeliveryParameters.ExecutionDate);
-						HistoryFields.Account = DeliveryParameters.Account;
-						HistoryFields.Comment = MessageText;
-						HistoryFields.Executed = True;
-						HistoryFields.DeliveryDate = CurrentSessionDate();
-						HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, Recipient);
-						HistoryFields.EmailID = "";
-						
-						InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(
-						HistoryFields);
-					EndDo; 
-				EndIf;
-			Except
-				LogRecord(LogParameters, , ErrorMessageTemplate, ErrorInfo()); 
-				If GetFunctionalOption("RetainReportDistributionHistory")
-				   And TypeOf(LogParameters.Data) = Type("CatalogRef.ReportMailings") Then
-					For Each Recipient In AllRecipients Do
-						HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, Recipient, DeliveryParameters.ExecutionDate); 
-						HistoryFields.Account = DeliveryParameters.Account;
-						HistoryFields.Comment = ErrorMessageTemplate;
-						HistoryFields.Executed = False;
-						HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, Recipient);
-						HistoryFields.EmailID = "";
-						
-						InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(
-						HistoryFields);
-					EndDo;
-				EndIf;
-			EndTry;
-		EndIf;
-		
+		DeliverToFolder(LogParameters, DeliveryParameters, Attachments, Result);
 	EndIf;
 	
-	////////////////////////////////////////////////////////////////////////////
 	// By email.
-	
 	If DeliveryParameters.UseEmail Then
-		
-		If DeliveryParameters.NotifyOnly Then
-			ErrorMessageTemplate = NStr("en = 'Cannot send report distribution notification by email:';");
-			EmailAttachments1 = New Map;
-		ElsIf Not DeliveryParameters.ShouldAttachReports Then
-			EmailAttachments1 = New Map;
-		Else
-			ErrorMessageTemplate = NStr("en = 'Cannot send report by email:';");
-			EmailAttachments1 = Attachments;
-		EndIf;
-		
-		Try
-			SendReportsToRecipient(EmailAttachments1, DeliveryParameters, LogParameters);
-			If Not DeliveryParameters.NotifyOnly Then
-				Result = True;
-			EndIf;
-			If Result = True Then
-				DeliveryParameters.ExecutedByEmail = True;
-			EndIf;
-			
-		Except
-			ExtendedErrorPresentation = EmailOperations.ExtendedErrorPresentation(
-				ErrorInfo(), Common.DefaultLanguageCode(), False);
-				
-			LogRecord(LogParameters, EventLogLevel.Error,
-				ErrorMessageTemplate, ExtendedErrorPresentation);
-				
-				If GetFunctionalOption("RetainReportDistributionHistory") And Not EmailClientUsed()
-				   And TypeOf(LogParameters.Data) = Type("CatalogRef.ReportMailings") Then
-					For Each RecipientRow In DeliveryParameters.Recipients Do
-						RecipientAddresses = CommonClientServer.ParseStringWithEmailAddresses(RecipientRow.Value);
-						For Each EMAddress In RecipientAddresses Do
-							HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, RecipientRow.Key, DeliveryParameters.ExecutionDate); 
-							HistoryFields.Account = DeliveryParameters.Account;
-							HistoryFields.EMAddress = EMAddress.Address;
-							HistoryFields.Comment = StringFunctionsClientServer.SubstituteParametersToString(
-							"%1 %2", ErrorMessageTemplate, ExtendedErrorPresentation);
-							HistoryFields.Executed = False;
-							HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, RecipientRow.Key,
-							EMAddress.Address);
-							HistoryFields.EmailID = "";
-							
-							InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(HistoryFields); 
-						EndDo;
-						
-					EndDo;
-				EndIf;		
-		EndTry;
-		
+		DeliverByEmail(LogParameters, DeliveryParameters, Attachments, Result);
 	EndIf;
 	
 	Return Result;
@@ -2402,7 +2159,7 @@ Function IBUserName(User) Export
 	Return IBUser.Name;
 EndFunction
 
-// Creates a record in the Event Log and outputs user messages.
+// Creates a record in the Event log and outputs user messages.
 // A brief error presentation is output to the user, and a detailed error presentation is written to the log.
 //
 // Parameters:
@@ -2421,7 +2178,7 @@ Procedure LogRecord(LogParameters, Val LogLevel = Undefined, Val Text = "", Val 
 		Return;
 	EndIf;
 	
-	// Determine the Event Log level based on the type of the passed error message.
+	// Determine the Event log level based on the type of the passed error message.
 	If TypeOf(LogLevel) <> Type("EventLogLevel") Then
 		If TypeOf(IssueDetails) = Type("ErrorInfo") Then
 			LogLevel = EventLogLevel.Error;
@@ -2454,7 +2211,7 @@ Procedure LogRecord(LogParameters, Val LogLevel = Undefined, Val Text = "", Val 
 		TextForUser = TextForUser + Chars.LF + Chars.LF + IssueDetails;
 	EndIf;
 	
-	// The Event Log.
+	// The Event log.
 	If WriteToLog Then
 		WriteLogEvent(LogParameters.EventName, LogLevel, LogParameters.Metadata, 
 			LogParameters.Data, TrimAll(TextForLog));
@@ -2798,17 +2555,18 @@ Function FillTemplate(Template, Parameters) Export
 	Return Result;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Local internal procedures and functions.
+#EndRegion
+
+#Region LocalUtilityProceduresAndFunctions
 
 // In addition to generating reports, executes personalization on the list of recipients
 //   and generates reports broken down by recipients (if necessary).
 //
 // Parameters:
 //   LogParameters - Structure - Logging parameters:
-//       * Prefix    - String           - Event Log record prefix.
-//       * Metadata - MetadataObject - Metadata to write to the Event Log.
-//       * Data     - Arbitrary     - Data to write to the Event Log.
+//       * Prefix    - String           - Event log record prefix.
+//       * Metadata - MetadataObject - Metadata to write to the Event log.
+//       * Data     - Arbitrary     - Data to write to the Event log.
 //   ReportParameters   - See ExecuteBulkEmail.Var_Reports
 //   ReportsTree     - ValueTree   - reports and result of formation.
 //   DeliveryParameters - See DeliveryParameters
@@ -3124,7 +2882,7 @@ EndFunction
 //   See ExecuteBulkEmail.
 //
 Function CheckAndFillExecutionParameters(ReportsTable, DeliveryParameters, MailingDescription, LogParameters)
-	// Parameters of the writing to the Event Log.
+	// Parameters of the writing to the Event log.
 	If TypeOf(LogParameters) <> Type("Structure") Then
 		LogParameters = New Structure;
 	EndIf;
@@ -3351,9 +3109,9 @@ Function CheckAndFillExecutionParameters(ReportsTable, DeliveryParameters, Maili
 	Return True;
 EndFunction
 
-// Generates the mailing list from the recipients list, prepares all email parameters 
+// Generates the mailing list from the recipients list, prepares all email parameters, 
 //   and passes control to the EmailOperations subsystem.
-//   To monitor the fulfillment, it is recommended to call in construction the Attempt… Exception.
+//   To monitor the fulfillment, use the Try… Except construct.
 //
 // Parameters:
 //   Attachments - Map of KeyAndValue:
@@ -3485,74 +3243,39 @@ Procedure SendEmailMessage(DeliveryParameters, EmailParameters, RecipientRow, Lo
 	
 	If EmailClientUsed() And GetFunctionalOption("RetainReportDistributionHistory") Then
 		SendEmailMessageInteraction(DeliveryParameters, EmailParameters, RecipientRow, LogParameters);
-	Else
-		MailMessage = PrepareEmail(DeliveryParameters, EmailParameters);
-		SendingResult = EmailOperations.SendMail(DeliveryParameters.Account, MailMessage);   
-		
-		If GetFunctionalOption("RetainReportDistributionHistory")
-		   And TypeOf(LogParameters.Data) = Type("CatalogRef.ReportMailings") Then
-			SenderSRepresentation = String(DeliveryParameters.Account);
-			
-			If DeliveryParameters.Recipient <> Undefined Then
-				If DeliveryParameters.BCCs Then
-					RecipientAddresses = ?(TypeOf(EmailParameters.BCCs) = Type("String"),
-					CommonClientServer.ParseStringWithEmailAddresses(EmailParameters.BCCs), EmailParameters.BCCs);
-				Else
-					RecipientAddresses = ?(TypeOf(EmailParameters.Whom) = Type("String"),
-					CommonClientServer.ParseStringWithEmailAddresses(EmailParameters.Whom), EmailParameters.Whom);
-				EndIf;
-				
-				For Each Whom In RecipientAddresses Do
-					RecipientPresentation1 = String(DeliveryParameters.Recipient) + " (" + Whom.Address + ")";
-					
-					HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, DeliveryParameters.Recipient, DeliveryParameters.ExecutionDate);  
-					HistoryFields.Account = DeliveryParameters.Account;
-					HistoryFields.EMAddress = Whom.Address;
-					RecipientErrorText = SendingResult.WrongRecipients.Get(Whom.Address); 
-					If RecipientErrorText <> Undefined Then
-						HistoryFields.Comment = RecipientErrorText;
-						HistoryFields.Executed = False;
-					Else
-						HistoryFields.Comment = TestOfSuccessfulReportDistribution(DeliveryParameters, RecipientRow, RecipientPresentation1, SenderSRepresentation);
-						HistoryFields.Executed = True;
-					EndIf;
-					HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, DeliveryParameters.Recipient,
-					Whom.Address);
-					HistoryFields.EmailID = SendingResult.SMTPEmailID;	
+		Return;
+	EndIf;	
 
-					InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(HistoryFields);
-				EndDo;
-			ElsIf DeliveryParameters.Recipients <> Undefined Then
-				For Each Recipient In DeliveryParameters.Recipients Do
-					If DeliveryParameters.NotifyOnly Then
-						MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Notifications are sent from %2 to %1. %3';"), RecipientPresentation1,
-						SenderSRepresentation);
-					Else
-						MessageText = TestOfSuccessfulReportDistribution(DeliveryParameters, RecipientRow, RecipientPresentation1, SenderSRepresentation);
-					EndIf;
-					RecipientAddresses = CommonClientServer.ParseStringWithEmailAddresses(Recipient.Value);
-					For Each Whom In RecipientAddresses Do
-						RecipientPresentation1 = String(Recipient.Key) + " (" + Whom.Address + ")";
-						HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, Recipient.Key, DeliveryParameters.ExecutionDate);
-						HistoryFields.Account = DeliveryParameters.Account;    
-						HistoryFields.EMAddress = Whom.Address;
-						RecipientErrorText = SendingResult.WrongRecipients.Get(Whom.Address); 
-						If RecipientErrorText <> Undefined Then
-							HistoryFields.Comment = RecipientErrorText;
-							HistoryFields.Executed = False;
-						Else
-							HistoryFields.Comment = MessageText;
-							HistoryFields.Executed = True;
-						EndIf;
-						HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, Recipient.Key, Whom.Address);
-						HistoryFields.EmailID = SendingResult.SMTPEmailID;
-						InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(HistoryFields);
-					EndDo;
-				EndDo;
-			EndIf;
+	MailMessage = PrepareEmail(DeliveryParameters, EmailParameters);
+	SendingResult = EmailOperations.SendMail(DeliveryParameters.Account, MailMessage);   
+	
+	If Not GetFunctionalOption("RetainReportDistributionHistory")
+		Or TypeOf(LogParameters.Data) <> Type("CatalogRef.ReportMailings") Then
+		Return;
+	EndIf;
+
+	AdditionalParameters = AdditionalDistributionResultParameters(DeliveryParameters, RecipientRow, False);
+	
+	If DeliveryParameters.Recipient <> Undefined Then
+		If DeliveryParameters.BCCs Then
+			RecipientAddresses = ?(TypeOf(EmailParameters.BCCs) = Type("String"),
+			CommonClientServer.ParseStringWithEmailAddresses(EmailParameters.BCCs), 
+				EmailParameters.BCCs);
+		Else
+			RecipientAddresses = ?(TypeOf(EmailParameters.Whom) = Type("String"),
+			CommonClientServer.ParseStringWithEmailAddresses(EmailParameters.Whom), EmailParameters.Whom);
 		EndIf;
 		
+		RecordEmailDistributionResult(DeliveryParameters, LogParameters,
+			DeliveryParameters.Recipient, RecipientAddresses, SendingResult, AdditionalParameters);
+		
+	ElsIf DeliveryParameters.Recipients <> Undefined Then
+		For Each Recipient In DeliveryParameters.Recipients Do
+			RecipientAddresses = CommonClientServer.ParseStringWithEmailAddresses(Recipient.Value);
+
+			RecordEmailDistributionResult(DeliveryParameters, LogParameters,
+				Recipient.Key, RecipientAddresses, SendingResult, AdditionalParameters);
+		EndDo;
 	EndIf;
 
 EndProcedure
@@ -3560,131 +3283,141 @@ EndProcedure
 Procedure SendEmailMessageInteraction(DeliveryParameters, EmailParameters, RecipientRow, LogParameters)
 
 	ModuleInteractions = Common.CommonModule("Interactions");
-
 	Message = MessageParametersForInteractionSystem(DeliveryParameters, EmailParameters);
 
 	SendingResult = ModuleInteractions.CreateEmail(Message, DeliveryParameters.Account, True);
-	
 	If TypeOf(LogParameters.Data) <> Type("CatalogRef.ReportMailings")Then
 		Return;
 	EndIf;
 	
 	If SendingResult.Sent Then
+		
+		AdditionalParameters = AdditionalDistributionResultParameters(DeliveryParameters, RecipientRow, True);
 
-		If ValueIsFilled(DeliveryParameters.Account) Then
+		If DeliveryParameters.Recipient <> Undefined Then
+			If DeliveryParameters.BCCs Then
+				RecipientAddresses = ?(TypeOf(EmailParameters.BCCs) = Type("String"),
+					CommonClientServer.ParseStringWithEmailAddresses(EmailParameters.BCCs), 
+						EmailParameters.BCCs);
+			Else
+				RecipientAddresses = ?(TypeOf(EmailParameters.Whom) = Type("String"),
+					CommonClientServer.ParseStringWithEmailAddresses(EmailParameters.Whom), EmailParameters.Whom);
+			EndIf;
+			RecordEmailDistributionResult(DeliveryParameters, LogParameters,
+				DeliveryParameters.Recipient, RecipientAddresses, SendingResult, AdditionalParameters);
+			
+		ElsIf DeliveryParameters.Recipients <> Undefined Then
+			For Each Recipient In DeliveryParameters.Recipients Do
+				RecipientAddresses = CommonClientServer.ParseStringWithEmailAddresses(Recipient.Value);
+
+				RecordEmailDistributionResult(DeliveryParameters, LogParameters,
+					Recipient.Key, RecipientAddresses, SendingResult, AdditionalParameters);
+			EndDo;
+		EndIf;
+		Return;
+	EndIf;
+
+	If DeliveryParameters.Recipient <> Undefined Then
+		RecipientAddresses = CommonClientServer.ParseStringWithEmailAddresses(EmailParameters.Whom);
+		RecordUnsuccessfulDistributionResult(DeliveryParameters, LogParameters, DeliveryParameters.Recipient,
+			RecipientAddresses, SendingResult);
+	Else
+		For Each Recipient In DeliveryParameters.Recipients Do
+			RecipientAddresses = CommonClientServer.ParseStringWithEmailAddresses(Recipient.Value);
+			RecordUnsuccessfulDistributionResult(DeliveryParameters, LogParameters, Recipient.Key,
+				RecipientAddresses, SendingResult);
+		EndDo;
+	EndIf;
+
+	Raise SendingResult.ErrorDescription;
+
+EndProcedure
+
+Function AdditionalDistributionResultParameters(DeliveryParameters, RecipientRow, EmailClientUsed)
+	
+	If ValueIsFilled(DeliveryParameters.Account) Then
 			SenderSRepresentation = String(DeliveryParameters.Account);
 			SendHiddenCopiesToSender = Common.ObjectAttributeValue(
-			DeliveryParameters.Account, "SendBCCToThisAddress");
+				DeliveryParameters.Account, "SendBCCToThisAddress");
 		Else
 			SenderSRepresentation = "";
 			SendHiddenCopiesToSender = False;
 		EndIf;
 
-		AdditionalInfo = "";
+		AdditionalInformation = "";
 		If SendHiddenCopiesToSender Then
-			AdditionalInfo = NStr("en = 'A copy was sent to the sender.';");
+			AdditionalInformation = NStr("en = 'A copy was sent to the sender.';");
 		EndIf;
+		
+		AdditionalParameters = New Structure;
+		AdditionalParameters.Insert("SenderSRepresentation", SenderSRepresentation);
+		AdditionalParameters.Insert("AdditionalInformation", AdditionalInformation);
+		AdditionalParameters.Insert("RecipientRow", RecipientRow);
+		AdditionalParameters.Insert("EmailClientUsed", EmailClientUsed);
+		
+		Return AdditionalParameters;
+	
+EndFunction
 
-		If DeliveryParameters.Recipient <> Undefined Then
-			If DeliveryParameters.BCCs Then
-				RecipientAddresses = ?(TypeOf(EmailParameters.BCCs) = Type("String"),
-					CommonClientServer.ParseStringWithEmailAddresses(EmailParameters.BCCs), EmailParameters.BCCs);
-			Else
-				RecipientAddresses = ?(TypeOf(EmailParameters.Whom) = Type("String"),
-					CommonClientServer.ParseStringWithEmailAddresses(EmailParameters.Whom), EmailParameters.Whom);
-			EndIf;
-			For Each Whom In RecipientAddresses Do
-				RecipientPresentation1 = String(DeliveryParameters.Recipient) + " (" + Whom.Address + ")";
-				
-				HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, DeliveryParameters.Recipient, DeliveryParameters.ExecutionDate); 
-				HistoryFields.Account = DeliveryParameters.Account;    
-				HistoryFields.EMAddress = Whom.Address;
-				RecipientErrorText = SendingResult.WrongRecipients.Get(Whom.Address); 
-				If RecipientErrorText <> Undefined Then
-					HistoryFields.Comment = RecipientErrorText;
-					HistoryFields.Executed = False;
-				Else
-					HistoryFields.Comment = TestOfSuccessfulReportDistribution(DeliveryParameters, RecipientRow, RecipientPresentation1, SenderSRepresentation, AdditionalInfo);
-					HistoryFields.Executed = True;
-				EndIf;
-				HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, DeliveryParameters.Recipient, Whom.Address);   
-				HistoryFields.OutgoingEmail = SendingResult.LinkToTheEmail;
-				HistoryFields.EmailID = SendingResult.EmailID;	
-				
-				InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(HistoryFields);
-			EndDo;
-		ElsIf DeliveryParameters.Recipients <> Undefined Then
-			For Each Recipient In DeliveryParameters.Recipients Do
-				RecipientAddresses = CommonClientServer.ParseStringWithEmailAddresses(Recipient.Value);
-				For Each Whom In RecipientAddresses Do
-					
-					RecipientPresentation1 = String(Recipient.Key) + " (" + Whom.Address + ")";
-					If DeliveryParameters.NotifyOnly Then
-						MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Notifications are sent from %2 to %1. %3';"), RecipientPresentation1,
-						SenderSRepresentation, AdditionalInfo);
-					Else
-						MessageText = TestOfSuccessfulReportDistribution(DeliveryParameters, RecipientRow, RecipientPresentation1, SenderSRepresentation, AdditionalInfo);
-					EndIf;
-					HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, Recipient.Key, DeliveryParameters.ExecutionDate); 
-					HistoryFields.Account = DeliveryParameters.Account;
-					HistoryFields.EMAddress = Whom.Address;
-					RecipientErrorText = SendingResult.WrongRecipients.Get(Whom.Address);
-					If RecipientErrorText <> Undefined Then
-						HistoryFields.Comment = RecipientErrorText;
-						HistoryFields.Executed = False;
-					Else
-						HistoryFields.Comment = MessageText;
-						HistoryFields.Executed = True;
-					EndIf;
-					HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, Recipient.Key, Whom.Address);
-					HistoryFields.OutgoingEmail = SendingResult.LinkToTheEmail;
-					HistoryFields.EmailID = SendingResult.EmailID;
-					
-					InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(HistoryFields);
-				EndDo;
-			EndDo;
-		EndIf;
-
-	Else
-		If DeliveryParameters.Recipient <> Undefined Then		
-			RecipientAddresses = CommonClientServer.ParseStringWithEmailAddresses(EmailParameters.Whom);
-			For Each Whom In RecipientAddresses Do
-				
-				HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, DeliveryParameters.Recipient, DeliveryParameters.ExecutionDate);
-				HistoryFields.Account = DeliveryParameters.Account;
-				HistoryFields.EMAddress = Whom.Address;
-				HistoryFields.Comment = SendingResult.ErrorDescription;
-				HistoryFields.Executed = False;
-				HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, DeliveryParameters.Recipient, Whom.Address);
-				HistoryFields.OutgoingEmail = SendingResult.LinkToTheEmail;
-				HistoryFields.EmailID = SendingResult.EmailID;		
-				
-				InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(HistoryFields);
-			EndDo;	
+Procedure RecordEmailDistributionResult(DeliveryParameters, LogParameters, Recipient, 
+	RecipientAddresses, SendingResult, AdditionalParameters)
+	
+	For Each Whom In RecipientAddresses Do
+		
+		RecipientPresentation1 = String(Recipient) + " (" + Whom.Address + ")";
+		
+		If DeliveryParameters.NotifyOnly Then
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Notifications are sent from %2 to %1. %3';"), RecipientPresentation1,
+			AdditionalParameters.SenderSRepresentation, AdditionalParameters.AdditionalInformation);
 		Else
-			For Each Recipient In DeliveryParameters.Recipients Do	
-				RecipientAddresses = CommonClientServer.ParseStringWithEmailAddresses(Recipient.Value);
-				For Each Whom In RecipientAddresses Do
-					
-					HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, Recipient.Key, DeliveryParameters.ExecutionDate); 
-					HistoryFields.Account = DeliveryParameters.Account;
-					HistoryFields.EMAddress = Whom.Address;
-					HistoryFields.Comment = SendingResult.ErrorDescription;
-					HistoryFields.Executed = False;
-					HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, Recipient.Key, Whom.Address);
-					HistoryFields.OutgoingEmail = SendingResult.LinkToTheEmail;
-					HistoryFields.EmailID = SendingResult.EmailID;	
-					
-					InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(HistoryFields);
-				EndDo;		
-			EndDo;
+			MessageText = TestOfSuccessfulReportDistribution(DeliveryParameters, 
+				AdditionalParameters.RecipientRow, RecipientPresentation1,
+				AdditionalParameters.SenderSRepresentation, AdditionalParameters.AdditionalInformation);
 		EndIf;
+		
+		HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, Recipient, 
+		DeliveryParameters.ExecutionDate); 
+		HistoryFields.Account = DeliveryParameters.Account;
+		HistoryFields.EMAddress = Whom.Address;
+		RecipientErrorText = SendingResult.WrongRecipients.Get(Whom.Address);
+		If RecipientErrorText <> Undefined Then
+			HistoryFields.Comment = RecipientErrorText;
+			HistoryFields.Executed = False;
+		Else
+			HistoryFields.Comment = MessageText;
+			HistoryFields.Executed = True;
+		EndIf;
+		HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, Recipient, Whom.Address); 
+		If AdditionalParameters.EmailClientUsed Then
+			HistoryFields.OutgoingEmail = SendingResult.LinkToTheEmail;
+			HistoryFields.EmailID = SendingResult.EmailID;
+		Else
+			HistoryFields.EmailID = SendingResult.SMTPEmailID;
+		EndIf;
+		
+		InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(HistoryFields);
+	EndDo;
+	
+EndProcedure
 
-		Raise (SendingResult.ErrorDescription);
-
-	EndIf;
-
+Procedure RecordUnsuccessfulDistributionResult(DeliveryParameters, LogParameters, Recipient, 
+	RecipientAddresses, SendingResult)
+	
+	For Each Whom In RecipientAddresses Do
+			
+		HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, Recipient, DeliveryParameters.ExecutionDate);
+		HistoryFields.Account = DeliveryParameters.Account;
+		HistoryFields.EMAddress = Whom.Address;
+		HistoryFields.Comment = SendingResult.ErrorDescription;
+		HistoryFields.Executed = False;
+		HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, Recipient, Whom.Address);
+		HistoryFields.OutgoingEmail = SendingResult.LinkToTheEmail;
+		HistoryFields.EmailID = SendingResult.EmailID;		
+		
+		InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(HistoryFields);
+	EndDo;
+	
 EndProcedure
 
 Function MessageParametersForInteractionSystem(DeliveryParameters, EmailParameters)
@@ -3817,8 +3550,7 @@ EndFunction
 //
 // Parameters:
 //   Attachments - Map
-//            - ValueTreeRow - See CreateReportsTree
-//                                     , the return value, level 3.
+//            - ValueTreeRow - See CreateReportsTree, the return value, level 3.
 //   DeliveryParameters - See ExecuteBulkEmail.DeliveryParameters
 //   TempFilesDir - String - a directory for archiving.
 //
@@ -4061,7 +3793,7 @@ Function CreateReportsTree()
 	Return ReportsTree;
 EndFunction
 
-// Checks the current users right to output information. If there are no rights - an Event Log record is created.
+// Checks the current user's right to output information. If there are no rights, an event log record is created.
 //
 // Parameters:
 //   LogParameters - Structure
@@ -4304,11 +4036,11 @@ Function MailingsWithReportsNumber(ReportVariant)
 	
 	Query = New Query(
 		"SELECT ALLOWED
-		|	COUNT(DISTINCT Reports.Ref) AS Count
+		|	COUNT(DISTINCT ReportsToDistribute.Ref) AS Count
 		|FROM
-		|	Catalog.ReportMailings.Reports AS Reports
+		|	Catalog.ReportMailings.Reports AS ReportsToDistribute
 		|WHERE
-		|	Reports.Report = &ReportVariant");
+		|	ReportsToDistribute.Report = &ReportVariant");
 		
 	Query.SetParameter("ReportVariant", ReportVariant);
 	Return Query.Execute().Unload()[0].Count;
@@ -4532,7 +4264,7 @@ Procedure HandleEncryptionError(ResultAddress, CertificateToEncrypt, ErrorInfo, 
 	
 	If ResultAddress <> Undefined And IsTempStorageURL(ResultAddress) Then
 		Result = New Structure;
-		Result.Insert("ThereAreErrorsInEncryption", True);
+		Result.Insert("HasEncryptionErrors", True);
 		Result.Insert("CertificateToEncrypt", CertificateToEncrypt);
 		PutToTempStorage(Result, ResultAddress);
 	EndIf;
@@ -5146,6 +4878,274 @@ Procedure DeleteTempFiles(Val Path, LogParameters)
 	
 EndProcedure
 
+Procedure DeliverToNetworkDirectory(LogParameters, DeliveryParameters, Attachments, Result)
+	
+	TestMode = CommonClientServer.StructureProperty(DeliveryParameters, "TestMode", False);
+
+	ServerNetworkDdirectory = DeliveryParameters.NetworkDirectoryWindows;
+
+	If Common.IsLinuxServer() Then
+		ServerNetworkDdirectory = DeliveryParameters.NetworkDirectoryLinux;
+	EndIf;
+
+	AllRecipients = GenerateArrayOfDistributionRecipients(LogParameters.Data, LogParameters);
+	
+	Try
+		SentCount = 0;
+		QuantityToSend = Attachments.Count();
+		For Each Attachment In Attachments Do
+			FileCopy(Attachment.Value, ServerNetworkDdirectory + Attachment.Key);
+			If DeliveryParameters.AddReferences <> "" Then
+				DeliveryParameters.RecipientReportsPresentation = StrReplace(
+						DeliveryParameters.RecipientReportsPresentation, Attachment.Value,
+					DeliveryParameters.NetworkDirectoryWindows + Attachment.Key);
+			EndIf;
+			SentCount = SentCount + 1;
+			ProgressText = ReportDistributionProgressText(DeliveryParameters, SentCount,
+				QuantityToSend);
+			ProgressPercent = Round(SentCount * 100 / QuantityToSend);
+			TimeConsumingOperations.ReportProgress(ProgressPercent, ProgressText);
+		EndDo;
+		Result = True;
+		DeliveryParameters.ExecutedToNetworkDirectory = True;
+
+		If TestMode Then // Remove all created items.
+			For Each Attachment In Attachments Do
+				DeleteFiles(ServerNetworkDdirectory + Attachment.Key);
+			EndDo;
+		EndIf;
+		
+		IsDeliveryCompleted = True;
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
+			"en = 'Report distributions are placed in the ''%1'' network directory.';"), ServerNetworkDdirectory);
+
+	Except
+		IsDeliveryCompleted = False;
+		MessageText = ErrorMessageTemplate();
+		LogRecord(LogParameters,, MessageText, ErrorInfo());
+	EndTry;
+	
+	If GetFunctionalOption("RetainReportDistributionHistory") And TypeOf(LogParameters.Data) = Type(
+		"CatalogRef.ReportMailings") Then
+		
+		For Each Recipient In AllRecipients Do
+			HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, Recipient,
+				DeliveryParameters.ExecutionDate);
+			HistoryFields.Account = DeliveryParameters.Account;
+			HistoryFields.Comment = MessageText;
+			HistoryFields.Executed = IsDeliveryCompleted;
+			HistoryFields.DeliveryDate = ?(IsDeliveryCompleted, CurrentSessionDate(), Date(1,1,1));
+			HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, Recipient);
+
+			InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(HistoryFields);
+		EndDo;
+	EndIf;
+
+EndProcedure
+
+Procedure DeliverToFTPResource(LogParameters, DeliveryParameters, Attachments, Result)
+
+	TestMode = CommonClientServer.StructureProperty(DeliveryParameters, "TestMode", False);
+
+	Target = "ftp://" + DeliveryParameters.Server + ":" + Format(DeliveryParameters.Port, "NZ=0; NG=0")
+		+ DeliveryParameters.Directory;
+	AllRecipients = GenerateArrayOfDistributionRecipients(LogParameters.Data, LogParameters);
+	
+	Try
+		If Common.SubsystemExists("StandardSubsystems.GetFilesFromInternet") Then
+			ModuleNetworkDownload = Common.CommonModule("GetFilesFromInternet");
+			Proxy = ModuleNetworkDownload.GetProxy("ftp");
+		Else
+			Proxy = Undefined;
+		EndIf;
+		If DeliveryParameters.Property("Password") Then
+			Password = DeliveryParameters.Password;
+		Else
+			SetPrivilegedMode(True);
+			DataFromStorage = Common.ReadDataFromSecureStorage(DeliveryParameters.Owner,
+				"FTPPassword");
+			SetPrivilegedMode(False);
+			Password = ?(ValueIsFilled(DataFromStorage), DataFromStorage, "");
+		EndIf;
+		Join = New FTPConnection(DeliveryParameters.Server, DeliveryParameters.Port, DeliveryParameters.Login,
+			Password, Proxy, DeliveryParameters.PassiveConnection, 15);
+		Join.SetCurrentDirectory(DeliveryParameters.Directory);
+		SentCount = 0;
+		QuantityToSend = Attachments.Count();
+		For Each Attachment In Attachments Do
+			Join.Put(Attachment.Value, DeliveryParameters.Directory + Attachment.Key);
+			If DeliveryParameters.AddReferences <> "" Then
+				DeliveryParameters.RecipientReportsPresentation = StrReplace(
+						DeliveryParameters.RecipientReportsPresentation, Attachment.Value, Target + Attachment.Key);
+				SentCount = SentCount + 1;
+				ProgressText = ReportDistributionProgressText(DeliveryParameters, SentCount,
+					QuantityToSend);
+				ProgressPercent = Round(SentCount * 100 / QuantityToSend);
+				TimeConsumingOperations.ReportProgress(ProgressPercent, ProgressText);
+			EndIf;
+		EndDo;
+
+		Result = True;
+		DeliveryParameters.ExecutedAtFTP = True;
+
+		If TestMode Then // Remove all created items.
+			For Each Attachment In Attachments Do
+				Join.Delete(DeliveryParameters.Directory + Attachment.Key);
+			EndDo;
+		EndIf;
+		
+		IsDeliveryCompleted = True;
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
+				"en = 'Report distributions published on ''%1''.';"), Target);
+				
+	Except
+		IsDeliveryCompleted = False;
+		MessageText = ErrorMessageTemplate();
+		If Common.SubsystemExists("StandardSubsystems.GetFilesFromInternet") Then
+			ModuleNetworkDownload = Common.CommonModule("GetFilesFromInternet");
+			DiagnosticsResult = ModuleNetworkDownload.ConnectionDiagnostics(DeliveryParameters.Server);
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = '%1
+						 |
+						 |Diagnostics result:
+						 |%2';"), MessageText, DiagnosticsResult.ErrorDescription);
+		EndIf;
+		
+		LogRecord(LogParameters,, MessageText, ErrorInfo());
+	EndTry;
+	
+	If GetFunctionalOption("RetainReportDistributionHistory") And TypeOf(LogParameters.Data) = Type(
+			"CatalogRef.ReportMailings") Then
+		
+		For Each Recipient In AllRecipients Do
+			HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, Recipient,
+				DeliveryParameters.ExecutionDate);
+			HistoryFields.Account = DeliveryParameters.Account;
+			HistoryFields.Comment = MessageText;
+			HistoryFields.Executed = IsDeliveryCompleted;
+			HistoryFields.DeliveryDate = ?(IsDeliveryCompleted, CurrentSessionDate(), Date(1,1,1));
+			HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, Recipient);
+
+			InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(HistoryFields);
+		EndDo;
+	EndIf;
+
+EndProcedure
+
+Procedure DeliverToFolder(LogParameters, DeliveryParameters, Attachments, Result)
+
+	If Not Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
+		Return;
+	EndIf;
+	
+	TestMode = CommonClientServer.StructureProperty(DeliveryParameters, "TestMode", False);
+
+	AllRecipients = GenerateArrayOfDistributionRecipients(LogParameters.Data, LogParameters);
+
+	ModuleFilesOperationsInternal = Common.CommonModule("FilesOperationsInternal");
+	Try
+		ModuleFilesOperationsInternal.OnExecuteDeliveryToFolder(DeliveryParameters, Attachments);
+		Result = True;
+		DeliveryParameters.ExecutedToFolder = True;
+		
+		IsDeliveryCompleted = True;
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
+			"en = 'Report distributions are placed in the ''%1'' folder.';"), String(DeliveryParameters.Folder));
+
+	Except
+		IsDeliveryCompleted = False;
+		MessageText = ErrorMessageTemplate();
+		LogRecord(LogParameters,, MessageText, ErrorInfo());
+	EndTry;
+
+	If GetFunctionalOption("RetainReportDistributionHistory") And TypeOf(LogParameters.Data) = Type(
+		"CatalogRef.ReportMailings") Then
+
+		For Each Recipient In AllRecipients Do
+			HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, Recipient,
+				DeliveryParameters.ExecutionDate);
+			HistoryFields.Account = DeliveryParameters.Account;
+			HistoryFields.Comment = MessageText;
+			HistoryFields.Executed = IsDeliveryCompleted;
+			HistoryFields.DeliveryDate = ?(IsDeliveryCompleted, CurrentSessionDate(), Date(1,1,1));
+			HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, Recipient);
+
+			InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(
+				HistoryFields);
+		EndDo;
+	EndIf;
+
+EndProcedure
+
+Procedure DeliverByEmail(LogParameters, DeliveryParameters, Attachments, Result)
+	
+	ErrorMessageTemplate = ErrorMessageTemplate();
+	TestMode = CommonClientServer.StructureProperty(DeliveryParameters, "TestMode", False);
+	
+	If DeliveryParameters.NotifyOnly Then
+		ErrorMessageTemplate = NStr("en = 'Cannot send report distribution notification by email:';");
+		EmailAttachments1 = New Map;
+	ElsIf Not DeliveryParameters.ShouldAttachReports Then
+		EmailAttachments1 = New Map;
+	Else
+		ErrorMessageTemplate = NStr("en = 'Cannot send report by email:';");
+		EmailAttachments1 = Attachments;
+	EndIf;
+
+	AreReportsSent = False;
+	Try
+		SendReportsToRecipient(EmailAttachments1, DeliveryParameters, LogParameters);
+		AreReportsSent = True;
+	Except
+		ErrorInfo = ErrorInfo();
+		If ErrorInfo.IsErrorOfCategory(ErrorCategory.ConfigurationError) Then
+			Raise;
+		EndIf;
+
+		ExtendedErrorPresentation = EmailOperations.ExtendedErrorPresentation(
+				ErrorInfo, Common.DefaultLanguageCode(), False);
+		LogRecord(LogParameters, EventLogLevel.Error, ErrorMessageTemplate,
+			ExtendedErrorPresentation);
+
+		If GetFunctionalOption("RetainReportDistributionHistory") And Not EmailClientUsed() And TypeOf(
+			LogParameters.Data) = Type("CatalogRef.ReportMailings") Then
+			For Each RecipientRow In DeliveryParameters.Recipients Do
+				RecipientAddresses = CommonClientServer.ParseStringWithEmailAddresses(
+					RecipientRow.Value);
+				For Each EMAddress In RecipientAddresses Do
+					HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, RecipientRow.Key,
+						DeliveryParameters.ExecutionDate);
+					HistoryFields.Account = DeliveryParameters.Account;
+					HistoryFields.EMAddress = EMAddress.Address;
+					HistoryFields.Comment = StringFunctionsClientServer.SubstituteParametersToString(
+							"%1 %2", ErrorMessageTemplate, ExtendedErrorPresentation);
+					HistoryFields.Executed = False;
+					HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, RecipientRow.Key,
+						EMAddress.Address);
+
+					InformationRegisters.ReportsDistributionHistory.CommitResultOfDistributionToRecipient(
+						HistoryFields);
+				EndDo;
+
+			EndDo;
+		EndIf;
+	EndTry;
+	
+	If AreReportsSent Then
+		If Not DeliveryParameters.NotifyOnly Then
+			Result = True;
+		EndIf;
+		DeliveryParameters.ExecutedByEmail = Result;
+    EndIf;
+	
+EndProcedure
+
+Function ErrorMessageTemplate()
+	Return NStr("en = 'Reports are not delivered';");
+EndFunction
+
+#EndRegion
+
 #Region MultiThreadedReportGeneration
 
 Function GenerateReportsInMultipleThreads(Var_Reports, DeliveryParameters, MailingDescription, LogParameters)
@@ -5294,7 +5294,7 @@ EndFunction
 //     * ReportsTree - See CreateReportsTree
 //     * ReportsForEmailText - Array of Map
 //
-// ACC:299-off, ACC:581-off - Export function as it's called from a background job.
+// ACC:299-off, ACC:581-off - An export function as it's called from a background job.
 //
 Function ReportsBatchGenerationResult(Var_Reports, LogParameters, DeliveryParameters, Recipient = Undefined) Export
 	

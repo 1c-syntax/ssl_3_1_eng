@@ -10,36 +10,40 @@
 
 #Region Public
 
-// Adds currencies from the classifier to the currency catalog.
-// If ImportCurrenciesRates data processor is unavailable, exchange rates are added with a "Currency" name
-// and an alphabetic code is the same as numeric.
+// Adds the given currencies from the classifier to the currency catalog.
+// Intended to be invoked from initial population handlers.
+//
+// If no classifier is found, the added currencies have the name "Currency"
+// and the code that matches its numeric code.
 //
 // Parameters:
-//   Codes - Array - numeric codes for the currencies to be added.
+//   CurrencyCodes - Array of String - Numeric codes for the currencies to be added.
 //
 // Returns:
-//   Array, CatalogRef.Currencies - references to the created currencies.
+//   Array of CatalogRef.Currencies
 //
-Function AddCurrenciesByCode(Val Codes) Export
+Function AddCurrenciesByCode(Val CurrencyCodes) Export
 	
-	Result = New Array();
-	If Metadata.DataProcessors.Find("CurrenciesRatesImport") <> Undefined Then
-		Result = DataProcessors["CurrenciesRatesImport"].AddCurrenciesByCode(Codes);
-	Else
-		For Each Code In Codes Do
-			CurrencyRef = Catalogs.Currencies.FindByCode(Code);
-			If CurrencyRef.IsEmpty() Then
-				CurrencyObject = Catalogs.Currencies.CreateItem();
-				CurrencyObject.Code = Code;
-				CurrencyObject.Description = Code;
-				CurrencyObject.DescriptionFull = NStr("en = 'Currency';");
-				CurrencyObject.RateSource = Enums.RateSources.ManualInput;
-				CurrencyObject.Write();
-				CurrencyRef = CurrencyObject.Ref;
-			EndIf;
-			Result.Add(CurrencyRef);
-		EndDo;
+	Result = New Array;
+	StandardProcessing = True;
+	CurrencyRateOperationsLocalization.OnAddCurrenciesByCode(CurrencyCodes, Result, StandardProcessing);
+	If Not StandardProcessing Then
+		Return Result;
 	EndIf;
+	
+	For Each CurrencyCode_ In CurrencyCodes Do
+		CurrencyRef = Catalogs.Currencies.FindByCode(CurrencyCode_);
+		If CurrencyRef.IsEmpty() Then
+			CurrencyObject = Catalogs.Currencies.CreateItem();
+			CurrencyObject.Code = CurrencyCode_;
+			CurrencyObject.Description = CurrencyCode_;
+			CurrencyObject.DescriptionFull = NStr("en = 'Currency';");
+			CurrencyObject.RateSource = Enums.RateSources.ManualInput;
+			CurrencyObject.Write();
+			CurrencyRef = CurrencyObject.Ref;
+		EndIf;
+		Result.Add(CurrencyRef);
+	EndDo;
 	
 	Return Result;
 	
@@ -168,38 +172,11 @@ EndProcedure
 //
 Procedure OnFillToDoList(ToDoList) Export
 	
-	MetadataObject = Metadata.DataProcessors.Find("CurrenciesRatesImport");
-	If MetadataObject = Undefined Then
+	If Not IsCurrencyRatesImportAvailable() Then
 		Return;
 	EndIf;
 
-	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
-	If Common.DataSeparationEnabled() // Automatic update in SaaS mode.
-		Or Common.IsStandaloneWorkplace()
-		Or Not CurrencyRateOperationsInternal.HasRightToChangeExchangeRates()
-		Or ModuleToDoListServer.UserTaskDisabled("CurrencyClassifier") Then
-		Return;
-	EndIf;
-	
-	RatesUpToDate = RatesUpToDate();
-	
-	// The procedure can be called only if the "To-do list" subsystem is integrated.
-	// Therefore, don't check if the subsystem is integrated.
-	Sections = ModuleToDoListServer.SectionsForObject(MetadataObject.FullName());
-	
-	For Each Section In Sections Do
-		
-		CurrencyID = "CurrencyClassifier" + StrReplace(Section.FullName(), ".", "");
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id  = CurrencyID;
-		ToDoItem.HasToDoItems       = Not RatesUpToDate;
-		ToDoItem.Presentation  = NStr("en = 'Outdated exchange rates';");
-		ToDoItem.Important         = True;
-		ToDoItem.Form          = "DataProcessor.CurrenciesRatesImport.Form";
-		ToDoItem.FormParameters = New Structure("OpeningFromList", True);
-		ToDoItem.Owner       = Section;
-		
-	EndDo;
+	CurrencyRateOperationsLocalization.OnFillToDoList(ToDoList);
 	
 EndProcedure
 
@@ -221,9 +198,7 @@ EndProcedure
 
 // See ScheduledJobsOverridable.OnDefineScheduledJobSettings.
 Procedure OnDefineScheduledJobSettings(Settings) Export
-	If Metadata.DataProcessors.Find("CurrenciesRatesImport") <> Undefined Then
-		DataProcessors["CurrenciesRatesImport"].OnDefineScheduledJobSettings(Settings);
-	EndIf;
+	CurrencyRateOperationsLocalization.OnDefineScheduledJobSettings(Settings);
 EndProcedure
 
 // See UsersOverridable.OnDefineRoleAssignment.
@@ -255,31 +230,21 @@ EndProcedure
 // See SafeModeManagerOverridable.OnFillPermissionsToAccessExternalResources.
 Procedure OnFillPermissionsToAccessExternalResources(PermissionsRequests) Export
 	
-	If Common.DataSeparationEnabled() Then
-		Return;
-	EndIf;
-	
-	ModuleSafeModeManager = Common.CommonModule("SafeModeManager");
-	PermissionsRequests.Add(
-		ModuleSafeModeManager.RequestToUseExternalResources(Permissions()));
+	CurrencyRateOperationsLocalization.OnFillPermissionsToAccessExternalResources(PermissionsRequests);
 	
 EndProcedure
 
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
 Procedure OnAddUpdateHandlers(Handlers) Export
 	
-	If Metadata.DataProcessors.Find("CurrenciesRatesImport") <> Undefined Then
-		DataProcessors["CurrenciesRatesImport"].OnAddUpdateHandlers(Handlers);
-	EndIf;
+	CurrencyRateOperationsLocalization.OnAddUpdateHandlers(Handlers);
 	
 EndProcedure
 
 // See OnlineUserSupportOverridable.OnChangeOnlineSupportAuthenticationData.
 Procedure OnChangeOnlineSupportAuthenticationData(UserData) Export
 	
-	If Metadata.DataProcessors.Find("CurrenciesRatesImport") <> Undefined Then
-		DataProcessors["CurrenciesRatesImport"].OnChangeOnlineSupportAuthenticationData(UserData);
-	EndIf;
+	CurrencyRateOperationsLocalization.OnChangeOnlineSupportAuthenticationData(UserData);
 	
 EndProcedure
 
@@ -329,7 +294,8 @@ Procedure WhenPreparingPrintData(DataSources, ExternalDataSets, DataCompositionS
 	AdditionalParameters) Export
 	
 	If DataCompositionSchemaId = "DataPrintAmountWords" Then
-		ExternalDataSets.Insert("Data", DataPrintAmountWords(AdditionalParameters.DataSourceDescriptions, LanguageCode));
+		ExternalDataSets.Insert("Data", 
+			DataPrintAmountWords(AdditionalParameters.DataSourceDescriptions, LanguageCode));
 		Return;
 	EndIf;
 	
@@ -339,33 +305,18 @@ EndProcedure
 
 #Region Private
 
-Procedure ImportActualRate(ImportParameters = Undefined, ResultAddress = Undefined) Export
-	
-	If Metadata.DataProcessors.Find("CurrenciesRatesImport") <> Undefined Then
-		DataProcessors["CurrenciesRatesImport"].ImportActualRate(ImportParameters, ResultAddress);
-	EndIf;
-	
-EndProcedure
-
-// Returns a list of permissions to import currency rates from external resources.
-//
 // Returns:
-//  Array
+//  Boolean
 //
-Function Permissions()
-	
-	Permissions = New Array;
-	DataProcessorName = "CurrenciesRatesImport";
-	If Metadata.DataProcessors.Find(DataProcessorName) <> Undefined Then
-		DataProcessors[DataProcessorName].AddPermissions(Permissions);
-	EndIf;
-	
-	Return Permissions;
-	
+Function IsCurrencyRatesImportAvailable() Export
+
+	Result = False;
+	CurrencyRateOperationsLocalization.OnDefineImportAvailabilityOfCurrencyRates(Result);
+	Return Result;
+
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Internal export procedures and functions.
+#Region ExportServiceProceduresAndFunctions
 
 // Returns an array of currencies whose exchange rates are imported from external resources.
 //
@@ -522,8 +473,9 @@ Procedure UpdateCurrencyRate(Parameters, ResultAddress) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Update currency rates.
+#EndRegion
+
+#Region ExchangeRateUpdate
 
 // Checks whether all currency rates are up-to-date.
 //
@@ -630,5 +582,7 @@ Function DataPrintAmountWords(DataSourceDescriptions, LanguageCode)
 	Return PrintData;
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion

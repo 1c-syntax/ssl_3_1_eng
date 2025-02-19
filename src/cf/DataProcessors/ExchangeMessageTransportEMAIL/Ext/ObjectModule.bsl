@@ -11,330 +11,140 @@
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Variables
-Var ErrorMessageString Export;
-Var ErrorMessageStringEL Export;
 
-// 
-Var ErrorsMessages;                 // Map
+Var ExchangeMessage Export; // For import, it is the name of the file stored in "TempDirectory". For export, the name of the file to be sent out
+Var TempDirectory Export; // A temporary exchange directory.
+Var DirectoryID Export;
+Var Peer Export;
+Var ExchangePlanName Export;
+Var CorrespondentExchangePlanName Export;
+Var ErrorMessage Export;
+Var ErrorMessageEventLog Export;
 
-Var ObjectName;                      // Metadata object name
-
-Var TempExchangeMessageFile;    // A temporary exchange message file.
-
-Var TempExchangeMessagesDirectory; // A temporary exchange directory.
-
-Var MessageSubject1;                   // A subject template
-
-Var SimpleBody;            // Message body text with an attached XML file.
-
-Var CompressedBody;             // Message body with an attached archive.
-
-Var BatchBody;           // Message body with an archive of files.
+Var NameTemplatesForReceivingMessage Export;
+Var NameOfMessageToSend Export;
 
 Var EmailOperationsCommonModule;
-Var DirectoryID;
+
+#EndRegion
+
+#Region Public
+
+// See DataProcessorObject.ExchangeMessageTransportFILE.SendData
+Function SendData(MessageForDataMapping = False) Export
+	
+	Try
+		Result = SendMessage();
+	Except
+		Result = False;
+	EndTry;
+	
+	Return Result;
+	
+EndFunction
+
+// See DataProcessorObject.ExchangeMessageTransportFILE.GetData
+Function GetData() Export
+	
+	Try
+		
+		For Each Template In NameTemplatesForReceivingMessage Do
+			
+			Result = GetMessage(Template);
+			
+			If Result Then
+				Break;
+			EndIf;
+			
+		EndDo;
+		
+	Except
+		
+		ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo());
+		ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject, "DataImport");
+		
+		Result = False;
+		
+	EndTry;
+	
+	Return Result;
+
+EndFunction
+
+// See DataProcessorObject.ExchangeMessageTransportFILE.BeforeExportData
+Function BeforeExportData(MessageForDataMapping = False) Export
+	
+	Return True;
+	
+EndFunction
+
+// See DataProcessorObject.ExchangeMessageTransportFILE.CorrespondentParameters
+Function CorrespondentParameters(ConnectionSettings) Export
+	
+	Result = ExchangeMessagesTransport.StructureOfResultOfObtainingParametersOfCorrespondent();
+	Result.ConnectionIsSet = True;
+	Result.ConnectionAllowed = True;
+	
+	Return Result;
+	
+EndFunction
+
+// See DataProcessorObject.ExchangeMessageTransportFILE.SaveSettingsInCorrespondent
+Function SaveSettingsInCorrespondent(ConnectionSettings) Export
+		
+	Return True;
+	
+EndFunction
+
+// See DataProcessorObject.ExchangeMessageTransportFILE.AuthenticationRequired
+Function AuthenticationRequired() Export
+	
+	Return False;
+	
+EndFunction
 
 #EndRegion
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Internal export procedures and functions.
-
-// Creates a temporary directory in the temporary file directory of the operating system user.
-//
-// Parameters:
-//  No.
-// 
-//  Returns:
-//    Boolean - True if the function is executed successfully, False if an error occurred.
-// 
-Function ExecuteActionsBeforeProcessMessage() Export
-	
-	InitMessages();
-	
-	DirectoryID = Undefined;
-	
-	Return CreateTempExchangeMessagesDirectory();
-	
-EndFunction
-
-// Sends the exchange message to the specified resource from the temporary exchange message directory.
-//
-// Parameters:
-//  No.
-// 
-//  Returns:
-//    Boolean - True if the function is executed successfully, False if an error occurred.
-// 
-Function SendMessage() Export
-	
-	InitMessages();
-	
-	Try
-		Result = SendExchangeMessage();
-	Except
-		Result = False;
-	EndTry;
-	
-	Return Result;
-	
-EndFunction
-
-// Gets an exchange message from the specified resource and puts it in the temporary exchange message directory.
-//
-// Parameters:
-//  ExistenceCheck - Boolean - True if it is necessary to check whether exchange messages exist without their import.
-// 
-//  Returns:
-//    Boolean - True if the function is executed successfully, False if an error occurred.
-// 
-Function GetMessage(ExistenceCheck = False) Export
-	
-	InitMessages();
-	
-	Try
-		Result = GetExchangeMessage(ExistenceCheck);
-	Except
-		Result = False;
-	EndTry;
-	
-	Return Result;
-	
-EndFunction
-
-// Deletes the temporary exchange message directory after performing data import or export.
-//
-// Parameters:
-//  No.
-// 
-//  Returns:
-//    Boolean - True
-//
-Function ExecuteActionsAfterProcessMessage() Export
-	
-	InitMessages();
-	
-	DeleteTempExchangeMessagesDirectory();
-	
-	Return True;
-	
-EndFunction
-
-// Initializes data processor properties with initial values and constants.
-//
-// Parameters:
-//  No.
-// 
-Procedure Initialize() Export
-	
-	InitMessages();
-	
-	MessageSubject1 = "Exchange message (%1)"; // 
-	MessageSubject1 = StringFunctionsClientServer.SubstituteParametersToString(MessageSubject1, MessageFileNameTemplate);
-	
-	SimpleBody	= NStr("en = 'Data exchange message';");
-	CompressedBody	= NStr("en = 'Compressed data exchange message';");
-	BatchBody	= NStr("en = 'Batch data exchange message';");
-	
-EndProcedure
-
-// Checks whether the connection to the specified resource can be established.
-//
-// Parameters:
-//  No.
-// 
-//  Returns:
-//    Boolean - True if connection can be established. Otherwise, False.
-//
-Function ConnectionIsSet() Export
-	
-	InitMessages();
-	
-	If Not ValueIsFilled(EMAILAccount) Then
-		GetErrorMessage(101);
-		Return False;
-	EndIf;
-	
-	Return True;
-	
-EndFunction
-
-///////////////////////////////////////////////////////////////////////////////
-// Functions for retrieving properties.
-
-// Time exchange message file changed.
-//
-// Returns:
-//  String - time exchange message file changed.
-//
-Function ExchangeMessageFileDate() Export
-	
-	Result = Undefined;
-	
-	If TypeOf(TempExchangeMessageFile) = Type("File") Then
+Function SendMessage()
 		
-		If TempExchangeMessageFile.Exists() Then
-			
-			Result = TempExchangeMessageFile.GetModificationTime();
-			
-		EndIf;
-		
-	EndIf;
-	
-	Return Result;
-	
-EndFunction
-
-// Full exchange message file name.
-//
-// Returns:
-//  String - full exchange message file name.
-//
-Function ExchangeMessageFileName() Export
-	
-	Name = "";
-	
-	If TypeOf(TempExchangeMessageFile) = Type("File") Then
-		
-		Name = TempExchangeMessageFile.FullName;
-		
-	EndIf;
-	
-	Return Name;
-	
-EndFunction
-
-// Full exchange message directory name.
-//
-// Returns:
-//  String - full exchange message directory name.
-//
-Function ExchangeMessageDirectoryName() Export
-	
-	Name = "";
-	
-	If TypeOf(TempExchangeMessagesDirectory) = Type("File") Then
-		
-		Name = TempExchangeMessagesDirectory.FullName;
-		
-	EndIf;
-	
-	Return Name;
-	
-EndFunction
-
-///////////////////////////////////////////////////////////////////////////////
-// Local internal procedures and functions.
-
-Function CreateTempExchangeMessagesDirectory()
-	
-	// Creating the temporary exchange message directory.
-	Try
-		TempDirectoryName = DataExchangeServer.CreateTempExchangeMessagesDirectory(DirectoryID);
-	Except
-		GetErrorMessage(4);
-		SupplementErrorMessage(ErrorProcessing.BriefErrorDescription(ErrorInfo()));
-		Return False;
-	EndTry;
-	
-	TempExchangeMessagesDirectory = New File(TempDirectoryName);
-	
-	MessageFileName = CommonClientServer.GetFullFileName(ExchangeMessageDirectoryName(), MessageFileNameTemplate + ".xml");
-	
-	TempExchangeMessageFile = New File(MessageFileName);
-	
-	Return True;
-EndFunction
-
-Function DeleteTempExchangeMessagesDirectory()
-	
-	Try
-		If Not IsBlankString(ExchangeMessageDirectoryName()) Then
-			DeleteFiles(ExchangeMessageDirectoryName());
-			TempExchangeMessagesDirectory = Undefined;
-		EndIf;
-		
-		If Not DirectoryID = Undefined Then
-			DataExchangeServer.GetFileFromStorage(DirectoryID);
-			DirectoryID = Undefined;
-		EndIf;
-	Except
-		Return False;
-	EndTry;
-	
-	Return True;
-	
-EndFunction
-
-Function SendExchangeMessage()
-	
 	Result = True;
 	
-	Extension = ?(CompressOutgoingMessageFile(), ".zip", ".xml");
-	
-	OutgoingMessageFileName = MessageFileNameTemplate + Extension;
-	
-	If CompressOutgoingMessageFile() Then
+	If CompressOutgoingMessageFile Then
 		
-		// Getting the temporary archive file name.
-		ArchiveTempFileName = CommonClientServer.GetFullFileName(ExchangeMessageDirectoryName(), MessageFileNameTemplate + ".zip");
-		
-		Try
-			
-			Archiver = New ZipFileWriter(ArchiveTempFileName, ArchivePasswordExchangeMessages, NStr("en = 'Exchange message file';"));
-			Archiver.Add(ExchangeMessageFileName());
-			Archiver.Write();
-			
-		Except
-			
+		If Not ExchangeMessagesTransport.PackExchangeMessageIntoZipFile(ThisObject, ArchivePasswordExchangeMessages) Then
 			Result = False;
-			GetErrorMessage(3);
-			SupplementErrorMessage(ErrorProcessing.BriefErrorDescription(ErrorInfo()));
-			
-		EndTry;
-		
-		Archiver = Undefined;
-		
-		If Result Then
-			
-			// Checking that the exchange message size does not exceed the maximum allowed size.
-			If DataExchangeServer.ExchangeMessageSizeExceedsAllowed(ArchiveTempFileName, MaxMessageSize()) Then
-				GetErrorMessage(108);
-				Result = False;
-			EndIf;
-			
 		EndIf;
 		
-		If Result Then
-			
-			Result = SendMessagebyEmail(
-									CompressedBody,
-									OutgoingMessageFileName,
-									ArchiveTempFileName);
-			
-		EndIf;
+		File = New File(ExchangeMessage);
+		ReceiverFileName = File.Name;
 		
 	Else
 		
-		If Result Then
-			
-			// Checking that the exchange message size does not exceed the maximum allowed size.
-			If DataExchangeServer.ExchangeMessageSizeExceedsAllowed(ExchangeMessageFileName(), MaxMessageSize()) Then
-				GetErrorMessage(108);
-				Result = False;
-			EndIf;
-			
+		ReceiverFileName = NameOfMessageToSend;
+		
+	EndIf;
+	
+	If Result Then
+		
+		// Checking that the exchange message size does not exceed the maximum allowed size.
+		If DataExchangeServer.ExchangeMessageSizeExceedsAllowed(ExchangeMessage, MaxMessageSize) Then
+			ErrorMessage = NStr("en = 'The maximum allowed exchange message size is exceeded.';");
+			ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject, "DataExport");
+			Result = False;
 		EndIf;
 		
-		If Result Then
-			
-			Result = SendMessagebyEmail(
-									SimpleBody,
-									OutgoingMessageFileName,
-									ExchangeMessageFileName());
-			
-		EndIf;
+	EndIf;
+	
+	If Result Then
+		
+		SimpleBody = NStr("en = 'Data exchange message';");
+		
+		Result = SendMessagebyEmail(
+			SimpleBody,
+			ReceiverFileName,
+			ExchangeMessage);
 		
 	EndIf;
 	
@@ -342,185 +152,156 @@ Function SendExchangeMessage()
 	
 EndFunction
 
-// Returns:
-//   ValueTable - A collection of exchange messages:
-//     * Id - Array of String - a message ID collection.
-//     * PostingDate - Date - message sending date.
-//
-Function ExchangeMessagesTable()
-	
-	ExchangeMessagesTable = New ValueTable;
-	ExchangeMessagesTable.Columns.Add("Id",   New TypeDescription("Array"));
-	ExchangeMessagesTable.Columns.Add("PostingDate", New TypeDescription("Date"));
-	
-	Return ExchangeMessagesTable;
-	
-EndFunction
-
-Function GetExchangeMessage(ExistenceCheck)
+Function GetMessage(MessageNameTemplate)
 	
 	ExchangeMessagesTable = ExchangeMessagesTable();
+	
+	ColumnsArray1 = New Array;
 	
 	ImportParameters = New Structure;
 	ImportParameters.Insert("GetHeaders", True);
 	ImportParameters.Insert("CastMessagesToType", False);
 	
 	Try
-		MessageSet = EmailOperationsCommonModule.DownloadEmailMessages(EMAILAccount, ImportParameters);
+		MessageSet = EmailOperationsCommonModule.DownloadEmailMessages(Account, ImportParameters);
 	Except
-		ErrorText = ErrorProcessing.DetailErrorDescription(ErrorInfo());
-		GetErrorMessage(103);
-		SupplementErrorMessage(ErrorText);
+		
+		ErrorMessage = NStr("en = 'Error receiving message headers from the email server.';");
+		ErrorMessageEventLog = ErrorMessage;
+		
+		ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo(), True);
+		ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject, "DataImport");
+		
 		Return False;
+		
 	EndTry;
-	
-	SearchSubjectsSubstring = Upper(StrReplace(TrimAll(MessageFileNameTemplate), "Message_", ""));
-	
+		
 	For Each MailMessage In MessageSet Do
 		
-		EmailMessageSubject = TrimAll(MailMessage.Subject);
-		EmailMessageSubject = StrReplace(EmailMessageSubject, Chars.Tab, "");
-		
-		If Upper(EmailMessageSubject) <> Upper(TrimAll(MessageSubject1)) Then
-			// The message name can be in the format of Message_[prefix]_UID1_UID2.
-			If StrFind(Upper(EmailMessageSubject), SearchSubjectsSubstring) = 0 Then
-				Continue;
-			EndIf;
-		EndIf;
+		Subject = TrimAll(MailMessage.Subject);
+		Subject = StrReplace(Subject, Chars.Tab, "");
 		
 		NewRow = ExchangeMessagesTable.Add();
+		NewRow.Subject = Subject;
 		NewRow.PostingDate = MailMessage.PostingDate;
+		NewRow.RowID = String(New UUID);
 		NewRow.Id.Add(MailMessage);
 		
 	EndDo;
+
+	Query = New Query;
+	Query.Text = 
+		"SELECT
+		|	T.RowID AS RowID,
+		|	T.PostingDate AS PostingDate,
+		|	T.Subject AS Subject
+		|INTO TT
+		|FROM
+		|	&ExchangeMessagesTable AS T
+		|;
+		|
+		|////////////////////////////////////////////////////////////////////////////////
+		|SELECT
+		|	TT.RowID AS RowID
+		|FROM
+		|	TT AS TT
+		|WHERE
+		|	TT.Subject LIKE &Template
+		|
+		|ORDER BY
+		|	TT.PostingDate DESC";
 	
-	If ExchangeMessagesTable.Count() = 0 Then
+	// Search ignoring the extension
+	Position = StrFind(MessageNameTemplate, ".", SearchDirection.FromEnd);
+	MessageNameTemplateForSearching = Left(MessageNameTemplate,  Position - 1);
+	MessageNameTemplateForSearching = "%" + StrReplace(MessageNameTemplateForSearching, "*", "%") + "%";
+	
+	Query.SetParameter("ExchangeMessagesTable", ExchangeMessagesTable);
+	Query.SetParameter("Template", MessageNameTemplateForSearching);
+	
+	EmailSearchResults = Query.Execute().Unload(); 
+	
+	If EmailSearchResults.Count() = 0 Then
 		
-		If Not ExistenceCheck Then
-			GetErrorMessage(104);
-		
-			MessageString = NStr("en = 'The messages with ""%1"" header are not found.';");
-			MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, MessageSubject1);
-			SupplementErrorMessage(MessageString);
-		EndIf;
+		ErrorMessage = NStr("en = 'The messages with ""%1"" header are not found.';");
+		ErrorMessage = StrTemplate(ErrorMessage, MessageNameTemplate);
+		ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject, "DataImport");
 		
 		Return False;
 		
+	EndIf;
+	
+	ColumnsArray1 = New Array;
+	ColumnsArray1.Add("Attachments");
+	
+	Id = ExchangeMessagesTable.Find(EmailSearchResults[0].RowID).Id;
+	
+	ImportParameters = New Structure;
+	ImportParameters.Insert("Columns", ColumnsArray1);
+	ImportParameters.Insert("HeadersIDs", Id);
+		
+	Try
+		MessageSet = EmailOperationsCommonModule.DownloadEmailMessages(Account, ImportParameters);
+	Except
+		
+		ErrorMessage = NStr("en = 'Error receiving the message from the email server.';");
+		ErrorMessageEventLog = ErrorMessage;
+		
+		ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo(), True);
+		ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject, "DataImport");
+		
+		Return False;
+		
+	EndTry;
+
+	BinaryData = Undefined;
+	For Each KeyAndValue In MessageSet[0].Attachments Do
+		FilePacked = Upper(Right(KeyAndValue.Key, 3)) = "ZIP";
+		BinaryData = KeyAndValue.Value;
+	EndDo;
+	
+	If BinaryData = Undefined Then
+		
+		ErrorMessage = NStr("en = 'Error: no exchange message file is found in the email message.';");
+		ErrorMessageEventLog = ErrorMessage;
+		
+		ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo(), True);
+		ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject, "DataImport");
+		
+		Return False;
+		
+	EndIf;
+		
+	If FilePacked Then
+		
+		// Getting the temporary archive file name.
+		ArchiveTempFileName = CommonClientServer.GetFullFileName(
+			ExchangeMessage, String(New UUID) + ".zip");
+		
+		BinaryData.Write(ArchiveTempFileName);
+		
+		If Not ExchangeMessagesTransport.UnzipExchangeMessageFromZipFile(
+			ThisObject, ArchiveTempFileName, ArchivePasswordExchangeMessages) Then
+			
+			Return False;
+			
+		EndIf;
+	
 	Else
 		
-		If ExistenceCheck Then
-			Return True;
-		EndIf;
-		
-		ExchangeMessagesTable.Sort("PostingDate Desc");
-		
-		ColumnsArray1 = New Array;
-		ColumnsArray1.Add("Attachments");
-		
-		ImportParameters = New Structure;
-		ImportParameters.Insert("Columns", ColumnsArray1);
-		ImportParameters.Insert("HeadersIDs", ExchangeMessagesTable[0].Id);
-		
 		Try
-			MessageSet = EmailOperationsCommonModule.DownloadEmailMessages(EMAILAccount, ImportParameters);
+			BinaryData.Write(ExchangeMessage);
 		Except
-			ErrorText = ErrorProcessing.DetailErrorDescription(ErrorInfo());
-			GetErrorMessage(105);
-			SupplementErrorMessage(ErrorText);
+			
+			ErrorMessage = NStr("en = 'Error saving the exchange message file to the hard drive.';");
+			ErrorMessageEventLog = ErrorMessage;
+		
+			ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo(), True);
+			ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject, "DataImport");
+			
 			Return False;
+			
 		EndTry;
-		
-		BinaryData = MessageSet[0].Attachments.Get(MessageFileNameTemplate+".zip"); // BinaryData
-		
-		If BinaryData <> Undefined Then
-			FilePacked = True;
-		Else
-			BinaryData = MessageSet[0].Attachments.Get(MessageFileNameTemplate+".xml");
-			FilePacked = False;
-		EndIf;
-		
-		// The message name can be in the format of Message_[prefix]_UID1_UID2.
-		FilePacked = False;
-		SearchTemplate = StrReplace(MessageFileNameTemplate, "Message_","");
-		For Each CurAttachment In MessageSet[0].Attachments Do
-			If StrFind(CurAttachment.Key, SearchTemplate) > 0 Then
-				BinaryData = CurAttachment.Value;
-				If StrEndsWith(CurAttachment.Key,".zip") > 0 Then
-					FilePacked = True;
-				EndIf;
-				// Rewrite the accurate file name template as an attachment name without an extension.
-				AttachedFileNameStructure = CommonClientServer.ParseFullFileName(CurAttachment.Key,False);
-				MessageFileNameTemplate = AttachedFileNameStructure.BaseName;
-				Break;
-			EndIf;
-		EndDo;
-			
-		If BinaryData = Undefined Then
-			GetErrorMessage(109);
-			Return False;
-		EndIf;
-		
-		If FilePacked Then
-			
-			// Getting the temporary archive file name.
-			ArchiveTempFileName = CommonClientServer.GetFullFileName(ExchangeMessageDirectoryName(), MessageFileNameTemplate + ".zip");
-			
-			Try
-				BinaryData.Write(ArchiveTempFileName);
-			Except
-				ErrorText = ErrorProcessing.DetailErrorDescription(ErrorInfo());
-				GetErrorMessage(106);
-				SupplementErrorMessage(ErrorText);
-				Return False;
-			EndTry;
-			
-			InformationRegisters.ArchiveOfExchangeMessages.PackMessageToArchive(InfobaseNode, ArchiveTempFileName);
-			
-			// Unpacking the temporary archive file.
-			SuccessfullyUnpacked = DataExchangeServer.UnpackZipFile(ArchiveTempFileName, ExchangeMessageDirectoryName(), ArchivePasswordExchangeMessages);
-			
-			If Not SuccessfullyUnpacked Then
-				GetErrorMessage(2);
-				Return False;
-			EndIf;
-			
-			// Checking that the message file exists.
-			File = New File(ExchangeMessageFileName());
-			
-			If Not File.Exists() Then
-				// The archive name probably does not match name of the file inside.
-				MessageFileNameStructure = CommonClientServer.ParseFullFileName(ExchangeMessageFileName(),False);
-
-				If MessageFileNameTemplate <> MessageFileNameStructure.BaseName Then
-					UnpackedFilesArray = FindFiles(ExchangeMessageDirectoryName(), "*.xml", False);
-					If UnpackedFilesArray.Count() > 0 Then
-						UnpackedFile = UnpackedFilesArray[0];
-						MoveFile(UnpackedFile.FullName,ExchangeMessageFileName());
-					Else
-						GetErrorMessage(5);
-						Return False;
-					EndIf;
-				Else
-					GetErrorMessage(5);
-					Return False;
-				EndIf;
-				
-			EndIf;
-			
-		Else
-			
-			Try
-				BinaryData.Write(ExchangeMessageFileName());
-			Except
-				ErrorText = ErrorProcessing.DetailErrorDescription(ErrorInfo());
-				GetErrorMessage(106);
-				SupplementErrorMessage(ErrorText);
-				Return False;
-			EndTry;
-			
-			InformationRegisters.ArchiveOfExchangeMessages.PackMessageToArchive(ExchangeMessageFileName(), ArchiveTempFileName);
-			
-		EndIf;
 		
 	EndIf;
 	
@@ -528,86 +309,29 @@ Function GetExchangeMessage(ExistenceCheck)
 	
 EndFunction
 
-Procedure GetErrorMessage(MessageNo)
+Function ConnectionIsSet() Export
 	
-	SetErrorMessageString(ErrorsMessages[MessageNo]);
-	
-EndProcedure
-
-Procedure SetErrorMessageString(Val Message)
-	
-	If Message = Undefined Then
-		Message = NStr("en = 'Internal error';");
+	If Not ValueIsFilled(Account) Then
+		ErrorMessage = NStr("en = 'Initialization error: the exchange message transport email account is not specified.';");
+		ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject);
+		Return False;
 	EndIf;
 	
-	ErrorMessageString   = Message;
-	ErrorMessageStringEL = ObjectName + ": " + Message;
-	
-EndProcedure
-
-Procedure SupplementErrorMessage(Message)
-	
-	ErrorMessageStringEL = ErrorMessageStringEL + Chars.LF + Message;
-	
-EndProcedure
-
-// The overridable function, returns the maximum allowed size of
-// a message to be sent.
-// 
-Function MaxMessageSize()
-	
-	Return EMAILMaxMessageSize;
+	Return True;
 	
 EndFunction
 
-///////////////////////////////////////////////////////////////////////////////
-// Functions for retrieving properties.
-
-// Retrieves a flag that shows that the outgoing message file is compressed.
-// 
-Function CompressOutgoingMessageFile()
+Function ExchangeMessagesTable()
 	
-	Return EMAILCompressOutgoingMessageFile;
+	ExchangeMessagesTable = New ValueTable;
+	ExchangeMessagesTable.Columns.Add("RowID", New TypeDescription("String",,,, New StringQualifiers(36)));
+	ExchangeMessagesTable.Columns.Add("Id",   New TypeDescription("Array"));
+	ExchangeMessagesTable.Columns.Add("PostingDate", New TypeDescription("Date"));
+	ExchangeMessagesTable.Columns.Add("Subject", New TypeDescription("String",,,, New StringQualifiers(200)));
+	
+	Return ExchangeMessagesTable;
 	
 EndFunction
-
-///////////////////////////////////////////////////////////////////////////////
-// Initialization.
-
-Procedure InitMessages()
-	
-	ErrorMessageString   = "";
-	ErrorMessageStringEL = "";
-	
-EndProcedure
-
-Procedure ErrorMessageInitialization()
-	
-	ErrorsMessages = New Map;
-	
-	// General error codes
-	ErrorsMessages.Insert(001, NStr("en = 'Exchange messages are not detected.';"));
-	ErrorsMessages.Insert(002, NStr("en = 'Error extracting message file.';"));
-	ErrorsMessages.Insert(003, NStr("en = 'Error packing the exchange message file.';"));
-	ErrorsMessages.Insert(004, NStr("en = 'An error occurred when creating a temporary directory.';"));
-	ErrorsMessages.Insert(005, NStr("en = 'The archive does not contain the exchange message file.';"));
-	ErrorsMessages.Insert(006, NStr("en = 'Couldn''t send the message. Message size exceeds the limit.';"));
-	
-	// Transport-specific error codes.
-	ErrorsMessages.Insert(101, NStr("en = 'Initialization error: the exchange message transport email account is not specified.';"));
-	ErrorsMessages.Insert(102, NStr("en = 'Error sending the email message.';"));
-	ErrorsMessages.Insert(103, NStr("en = 'Error receiving message headers from the email server.';"));
-	ErrorsMessages.Insert(104, NStr("en = 'Exchange messages were not found on the email server.';"));
-	ErrorsMessages.Insert(105, NStr("en = 'Error receiving the message from the email server.';"));
-	ErrorsMessages.Insert(106, NStr("en = 'Error saving the exchange message file to the hard drive.';"));
-	ErrorsMessages.Insert(107, NStr("en = 'Errors occurred while verifying account parameters.';"));
-	ErrorsMessages.Insert(108, NStr("en = 'The maximum allowed exchange message size is exceeded.';"));
-	ErrorsMessages.Insert(109, NStr("en = 'Error: no exchange message file is found in the email message.';"));
-	
-EndProcedure
-
-///////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for email management.
 
 Function SendMessagebyEmail(Body, OutgoingMessageFileName, PathToFile)
 	
@@ -615,8 +339,11 @@ Function SendMessagebyEmail(Body, OutgoingMessageFileName, PathToFile)
 	AttachmentDetails.Insert("Presentation", OutgoingMessageFileName);
 	AttachmentDetails.Insert("AddressInTempStorage", PutToTempStorage(New BinaryData(PathToFile)));
 	
-	Email = Common.ObjectAttributeValue(EMAILAccount, "Email");					
-						
+	Email = Common.ObjectAttributeValue(Account, "Email");
+	
+	MessageSubject1 = "Exchange message (%1)"; // Non-localizable string.
+	MessageSubject1 = StrTemplate(MessageSubject1, OutgoingMessageFileName);
+	
 	MessageParameters = New Structure;
 	MessageParameters.Insert("Whom",     Email);
 	MessageParameters.Insert("Subject",     MessageSubject1);
@@ -626,13 +353,18 @@ Function SendMessagebyEmail(Body, OutgoingMessageFileName, PathToFile)
 	MessageParameters.Attachments.Add(AttachmentDetails);
 	
 	Try
-		NewEmail = EmailOperationsCommonModule.PrepareEmail(EMAILAccount, MessageParameters);
-		EmailOperationsCommonModule.SendMail(EMAILAccount, NewEmail);
+		NewEmail = EmailOperationsCommonModule.PrepareEmail(Account, MessageParameters);
+		EmailOperationsCommonModule.SendMail(Account, NewEmail);
 	Except
-		ErrorText = ErrorProcessing.DetailErrorDescription(ErrorInfo());
-		GetErrorMessage(102);
-		SupplementErrorMessage(ErrorText);
+		
+		ErrorMessage = NStr("en = 'Error sending the email message.';");
+		ErrorMessageEventLog = ErrorMessage;
+		
+		ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo(), True);
+		ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject, "DataExport");
+		
 		Return False;
+		
 	EndTry;
 	
 	Return True;
@@ -643,14 +375,8 @@ EndFunction
 
 #Region Initialize
 
-InitMessages();
-ErrorMessageInitialization();
-
-TempExchangeMessagesDirectory = Undefined;
-TempExchangeMessageFile    = Undefined;
-
-ObjectName = NStr("en = 'Data processor: %1';");
-ObjectName = StringFunctionsClientServer.SubstituteParametersToString(ObjectName, Metadata().Name);
+TempDirectory = Undefined;
+MessagesOfExchange  = Undefined;
 
 If Common.SubsystemExists("StandardSubsystems.EmailOperations") Then
 	EmailOperationsCommonModule = Common.CommonModule("EmailOperations");

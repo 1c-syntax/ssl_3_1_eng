@@ -10,8 +10,7 @@
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-//  Main procedures and functions of contact search.
+#Region MainProceduresAndFunctionsForContactsSearch
 
 // Parameters:
 //  Contact                 - DefinedType.InteractionContact - a contact, for which the information is being received.
@@ -256,8 +255,9 @@ Function SendReceiveUserEmailInBackground(UUID) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-//  Miscellaneous.
+#EndRegion
+
+#Region Other
 
 // Parameters:
 //  InteractionsArray - Array - an array of interactions, for which a subject will be set
@@ -329,7 +329,7 @@ EndProcedure
 // Parameters:
 //  MailMessage                  - DocumentRef.IncomingEmail
 //                          - DocumentRef.OutgoingEmail - Email message that is being prepared for saving.
-//  UUID - UUID - an UUID of a form, from which a saving command was called.
+//  UUID - UUID - UUID of the form where the save command was invoked.
 //
 // Returns:
 //   See FileDataStructure
@@ -403,5 +403,7 @@ Procedure EnableSendingAndReceivingEmails() Export
 	Interactions.EnableSendingAndReceivingEmails();
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

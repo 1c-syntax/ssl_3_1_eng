@@ -36,6 +36,7 @@ Function AddressClassifierAvailabilityInfo() Export
 	Result.Insert("ClassifierAvailable",             False);
 	Result.Insert("UseImportedItems",           False);
 	Result.Insert("AddressClassifierUsed", False);
+	Result.Insert("ErrorText",                       "");
 	
 	Result["AddressClassifierUsed"] = Common.SubsystemExists("StandardSubsystems.AddressClassifier");
 	If Not Result["AddressClassifierUsed"] Then
@@ -47,6 +48,7 @@ Function AddressClassifierAvailabilityInfo() Export
 	
 	Result["ClassifierAvailable"]   = AddressInfoAvailabilityInfo.Get("ClassifierAvailable");
 	Result["UseImportedItems"] = AddressInfoAvailabilityInfo.Get("UseImportedItems");
+	Result["ErrorText"]             = AddressInfoAvailabilityInfo.Get("ErrorText");
 	
 	Return New FixedMap(Result);
 	
@@ -165,7 +167,6 @@ Function CommandsOfContactInfoType(Type) Export
 	If Type = Enums.ContactInformationTypes.Address Then
 
 		TypeCommands.Insert("AddCommentToAddress", ContactsManager.CommandDetailsByName("AddCommentToAddress"));
-		TypeCommands.Insert("ShowOnYandexMaps",    ContactsManager.CommandDetailsByName("ShowOnYandexMaps"));
 		TypeCommands.Insert("ShowOnGoogleMap",    ContactsManager.CommandDetailsByName("ShowOnGoogleMap"));
 		TypeCommands.Insert("PlanMeeting",     ContactsManager.CommandDetailsByName("PlanMeeting"));
 		TypeCommands.Insert("ShowChangeHistory", ContactsManager.CommandDetailsByName("ShowChangeHistory"));
@@ -199,6 +200,8 @@ Function CommandsOfContactInfoType(Type) Export
 		TypeCommands.Insert("OpenWindowOther", ContactsManager.CommandDetailsByName("OpenWindowOther"));
 
 	EndIf;
+
+	ContactsManagerLocalization.WhenDefiningCommandsOfTypeOfContactInformation(TypeCommands, Type);
 
 	Return TypeCommands;
 

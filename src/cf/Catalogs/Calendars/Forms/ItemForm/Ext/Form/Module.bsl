@@ -228,7 +228,7 @@ Procedure CurrentYearNumberOnChange(Item)
 	If ResultModified Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Do you want to save the changes for year %1?';"), Format(PreviousYearNumber, "NG=0"));
 		
-		Notification = New NotifyDescription("CurrentYearNumberOnChangeCompletion", ThisObject);
+		Notification = New CallbackDescription("CurrentYearNumberOnChangeCompletion", ThisObject);
 		ShowQueryBox(Notification, MessageText, QuestionDialogMode.YesNo);
 		Return;
 		
@@ -616,15 +616,15 @@ Procedure SetAvailabilityConsiderNonWorkPeriods(Form)
 		Return;
 	EndIf;
 	
-	TimeIntervals = NonWorkDaysPeriods(Object.BusinessCalendar, Object.StartDate, Object.EndDate);
-	If TimeIntervals.Count() = 0 Then
+	TimeIntervals_ = NonWorkDaysPeriods(Object.BusinessCalendar, Object.StartDate, Object.EndDate);
+	If TimeIntervals_.Count() = 0 Then
 		Return;
 	EndIf;
 	
 	Items.ConsiderNonWorkPeriodsGroup.Visible = True;
 	
 	Explanation = "";
-	For Each PeriodDetails In TimeIntervals Do
+	For Each PeriodDetails In TimeIntervals_ Do
 		Explanation = Explanation + ?(Not IsBlankString(Explanation), Chars.LF, "") + PeriodDetails.Presentation;
 	EndDo;
 	Items.NonWorkPeriodsInformation.Title = Explanation;
@@ -1018,7 +1018,7 @@ Procedure StartFillDaySchedule(DayNumber, TemplateRowID = Undefined)
 	FormParameters.Insert("WorkSchedule", WorkSchedule(ChoiceContext.DayNumber));
 	FormParameters.Insert("ReadOnly", ReadOnly);
 	
-	CloseHandler = New NotifyDescription("CompleteDayScheduleFilling", ThisObject, ChoiceContext);
+	CloseHandler = New CallbackDescription("CompleteDayScheduleFilling", ThisObject, ChoiceContext);
 	OpenForm("Catalog.Calendars.Form.WorkSchedule", FormParameters, ThisObject, , , , CloseHandler);
 	
 EndProcedure

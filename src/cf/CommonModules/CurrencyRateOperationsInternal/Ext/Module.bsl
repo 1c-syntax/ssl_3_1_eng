@@ -157,8 +157,7 @@ Procedure UpdateCurrencyRates() Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // The procedure is called when a new data notification is received.
 // In the procedure body, check whether the application requires this data. 
@@ -252,6 +251,8 @@ EndFunction
 
 #EndRegion
 
+#EndRegion
+
 #Region Private
 
 // Registers default master data handlers for the day and for all time.
@@ -279,8 +280,7 @@ Procedure RegisterSuppliedDataHandlers(Val Handlers)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Rate file serialization/deserialization.
+#Region ExchangeRateFileSerializationDeserialization
 
 // Writes files in the default master data format.
 //
@@ -787,9 +787,7 @@ Function WritingInWordsInputForms() Export
 	CollectionsOfForms = New Array;
 	CollectionsOfForms.Add(Metadata.CommonForms);
 	CollectionsOfForms.Add(Metadata.Catalogs.Currencies.Forms);
-	If Metadata.DataProcessors.Find("CurrenciesRatesImport") <> Undefined Then
-		CollectionsOfForms.Add(Metadata.DataProcessors["CurrenciesRatesImport"].Forms);
-	EndIf;
+	CurrencyRateOperationsLocalization.OnDefineWritingInWordsInputForms(CollectionsOfForms);
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
 		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
@@ -843,5 +841,7 @@ Function LanguagePresentation(LanguageCode) Export
 	Return Presentation;
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion

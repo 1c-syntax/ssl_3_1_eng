@@ -23,6 +23,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If ValueIsFilled(Parameters.SectionName)
 		And Parameters.SectionName <> AdditionalReportsAndDataProcessorsClientServer.StartPageName() Then
 		SectionRef = Common.MetadataObjectID(Metadata.Subsystems.Find(Parameters.SectionName));
+	Else
+		SectionRef = Catalogs.MetadataObjectIDs.EmptyRef();
 	EndIf;
 	
 	DataProcessorsKind = AdditionalReportsAndDataProcessors.GetDataProcessorKindByKindStringPresentation(Parameters.Kind);
@@ -140,9 +142,9 @@ Procedure FillDataProcessorsTable()
 	CommandsTypes.Add(Enums.AdditionalDataProcessorsCallMethods.OpeningForm);
 	CommandsTypes.Add(Enums.AdditionalDataProcessorsCallMethods.SafeModeScenario);
 	
-	Query = AdditionalReportsAndDataProcessors.NewQueryByAvailableCommands(DataProcessorsKind, ?(AreGlobalDataProcessors, SectionRef, ParentRef), IsObjectForm, CommandsTypes);
-	ResultTable1 = Query.Execute().Unload();
-	CommandsTable.Load(ResultTable1);
+	AdditionalCommands = AdditionalReportsAndDataProcessors.AdditionalCommands(DataProcessorsKind, 
+		?(AreGlobalDataProcessors, SectionRef, ParentRef), IsObjectForm, CommandsTypes);
+	CommandsTable.Load(AdditionalCommands);
 EndProcedure
 
 &AtClient
@@ -202,7 +204,7 @@ Procedure ExecuteDataProcessorServerMethod()
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	WaitSettings.OutputIdleWindow = False;
 	
-	Handler = New NotifyDescription("ExecuteDataProcessorServerMethodCompletion", ThisObject);
+	Handler = New CallbackDescription("ExecuteDataProcessorServerMethodCompletion", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(Job, Handler, WaitSettings);
 	
 EndProcedure

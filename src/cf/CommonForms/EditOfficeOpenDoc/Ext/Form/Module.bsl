@@ -114,53 +114,48 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.ButtonShowOriginalAllActions.Visible = Items.ButtonShowOriginal.Visible;
 	Items.ButtonShowOriginalAllActions.Enabled = Items.ButtonShowOriginal.Enabled;
 	
-	If Common.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
-		ModuleConstructorFormula = Common.CommonModule("FormulasConstructor");
-		
-		DataSource = Parameters.DataSource;
-		If Not ValueIsFilled(Parameters.DataSource) Then
-			DataSource = DataSources[0].Value;
-		EndIf;
-
-		MetadataObject = Common.MetadataObjectByID(DataSource);
-		PickupSample(MetadataObject);
-	
-		AddingOptions = ModuleConstructorFormula.ParametersForAddingAListOfFields();
-		AddingOptions.ListName = NameOfTheFieldList();
-		AddingOptions.LocationOfTheList = Items.AvailableFieldsGroup;
-		AddingOptions.FieldsCollections = FieldsCollections(DataSources.UnloadValues(), EditParameters());
-		AddingOptions.HintForEnteringTheSearchString = PromptInputStringSearchFieldList();
-		AddingOptions.WhenDefiningAvailableFieldSources = "PrintManagement";
-		AddingOptions.ListHandlers.Insert("Selection", "Attachable_ListOfFieldsSelection");
-		AddingOptions.ListHandlers.Insert("BeforeRowChange", "Attachable_AvailableFieldsBeforeStartOfChange");
-		AddingOptions.ListHandlers.Insert("OnEditEnd", "Attachable_AvailableFieldsAtEndOfEditing");
-		AddingOptions.UseBackgroundSearch = True;
-		
-		If Not IsLinuxClient Then
-			AddingOptions.ContextMenu.Insert("Duplicate", "PutToClipboard");
-		EndIf;
-		
-		ModuleConstructorFormula.AddAListOfFieldsToTheForm(ThisObject, AddingOptions);
-		
-		AddingOptions = ModuleConstructorFormula.ParametersForAddingAListOfFields();
-		AddingOptions.ListName = NameOfTheListOfOperators();
-		AddingOptions.LocationOfTheList = Items.OperatorsAndFunctionsGroup;
-		AddingOptions.FieldsCollections.Add(ListOfOperators());
-		AddingOptions.HintForEnteringTheSearchString = NStr("en = 'Find operator or function…';");
-		AddingOptions.ViewBrackets = False;
-		AddingOptions.ListHandlers.Insert("Selection", "Attachable_ListOfFieldsSelection");
-		AddingOptions.ListHandlers.Insert("OnActivateRow", "Attachable_FieldListRowActivation");
-		AddingOptions.ListHandlers.Insert("DragStart", "Attachable_OperatorsDragStart");
-				
-		If Not IsLinuxClient Then
-			AddingOptions.ContextMenu.Insert("Duplicate", "PutToClipboard");
-		EndIf;
-		
-		ModuleConstructorFormula.AddAListOfFieldsToTheForm(ThisObject, AddingOptions);
-		PrepareTemplateForOpening(PreparedTemplate);
-		ExpandFieldList();
-		
+	DataSource = Parameters.DataSource;
+	If Not ValueIsFilled(Parameters.DataSource) Then
+		DataSource = DataSources[0].Value;
 	EndIf;
+
+	MetadataObject = Common.MetadataObjectByID(DataSource);
+	PickupSample(MetadataObject);
+
+	AddingOptions = FormulasConstructor.ParametersForAddingAListOfFields();
+	AddingOptions.ListName = NameOfTheFieldList();
+	AddingOptions.LocationOfTheList = Items.AvailableFieldsGroup;
+	AddingOptions.FieldsCollections = FieldsCollections(DataSources.UnloadValues(), EditParameters());
+	AddingOptions.HintForEnteringTheSearchString = PromptInputStringSearchFieldList();
+	AddingOptions.WhenDefiningAvailableFieldSources = "PrintManagement";
+	AddingOptions.ListHandlers.Insert("Selection", "Attachable_ListOfFieldsSelection");
+	AddingOptions.ListHandlers.Insert("BeforeRowChange", "Attachable_AvailableFieldsBeforeStartOfChange");
+	AddingOptions.ListHandlers.Insert("OnEditEnd", "Attachable_AvailableFieldsAtEndOfEditing");
+	AddingOptions.UseBackgroundSearch = True;
+	
+	If Not IsLinuxClient Then
+		AddingOptions.ContextMenu.Insert("Copy", "PutToClipboard");
+	EndIf;
+	
+	FormulasConstructor.AddAListOfFieldsToTheForm(ThisObject, AddingOptions);
+	
+	AddingOptions = FormulasConstructor.ParametersForAddingAListOfFields();
+	AddingOptions.ListName = NameOfTheListOfOperators();
+	AddingOptions.LocationOfTheList = Items.OperatorsAndFunctionsGroup;
+	AddingOptions.FieldsCollections.Add(ListOfOperators());
+	AddingOptions.HintForEnteringTheSearchString = NStr("en = 'Find operator or function…';");
+	AddingOptions.ViewBrackets = False;
+	AddingOptions.ListHandlers.Insert("Selection", "Attachable_ListOfFieldsSelection");
+	AddingOptions.ListHandlers.Insert("OnActivateRow", "Attachable_FieldListRowActivation");
+	AddingOptions.ListHandlers.Insert("DragStart", "Attachable_OperatorsDragStart");
+			
+	If Not IsLinuxClient Then
+		AddingOptions.ContextMenu.Insert("Copy", "PutToClipboard");
+	EndIf;
+	
+	FormulasConstructor.AddAListOfFieldsToTheForm(ThisObject, AddingOptions);
+	PrepareTemplateForOpening(PreparedTemplate);
+	ExpandFieldList();
 	
 	PutToTempStorage(PreparedTemplate, TemplateFileAddress);
 	EditableTemplateHash = GetTemplateHash(TemplateFileAddress);
@@ -233,8 +228,8 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		If Not WritingCompleted Then
 			AdditionalParameters = New Structure;
 			AdditionalParameters.Insert("Cancel", Cancel);
-			Notification = New NotifyDescription("BeforeCloseEnd", ThisObject, AdditionalParameters);
-			ErrorAlert = New NotifyDescription("ErrorReadingFile", ThisObject);
+			Notification = New CallbackDescription("BeforeCloseEnd", ThisObject, AdditionalParameters);
+			ErrorAlert = New CallbackDescription("ErrorReadingFile", ThisObject);
 
 			ReadTemplateEditableFile(Notification, ErrorAlert);
 			Cancel = True;
@@ -275,15 +270,15 @@ EndProcedure
 
 &AtClient
 Procedure Write(Command)
-	Notification = New NotifyDescription("WriteFollowUp", ThisObject);
-	ErrorAlert = New NotifyDescription("ErrorReadingFile", ThisObject);
+	Notification = New CallbackDescription("WriteFollowUp", ThisObject);
+	ErrorAlert = New CallbackDescription("ErrorReadingFile", ThisObject);
 	ReadTemplateEditableFile(Notification, ErrorAlert);
 EndProcedure
 
 &AtClient
 Procedure Rename(Command)
 	
-	NotifyDescription = New NotifyDescription("OnSelectingLayoutName", ThisObject);
+	NotifyDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject);
 	ShowInputString(NotifyDescription, DocumentName, NStr("en = 'Enter a template description';"), 100, False);
 	
 EndProcedure
@@ -296,7 +291,7 @@ Procedure Translate(Command)
 	Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Translate';"));
 	Buttons.Add(DialogReturnCode.No, NStr("en = 'Do not translate';"));
 	
-	NotifyDescription = New NotifyDescription("WhenAnsweringAQuestionAboutTranslatingALayout", ThisObject);
+	NotifyDescription = New CallbackDescription("WhenAnsweringAQuestionAboutTranslatingALayout", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, Buttons);
 EndProcedure
 
@@ -311,8 +306,8 @@ EndProcedure
 
 &AtClient
 Procedure OpenEditor(Command)
-	Notification = New NotifyDescription("OpenEditorFollowUp", ThisObject);
-	ErrorAlert = New NotifyDescription("ErrorOpeningFile", ThisObject);
+	Notification = New CallbackDescription("OpenEditorFollowUp", ThisObject);
+	ErrorAlert = New CallbackDescription("ErrorOpeningFile", ThisObject);
 	ReadTemplateEditableFile(Notification, ErrorAlert);
 	
 	If Not IsNew() Then
@@ -328,21 +323,21 @@ Procedure LoadFromFile(Command)
 	ImportParameters.Dialog.Title = NStr("en = 'Select an office document';");
 	ImportParameters.Dialog.Filter = NStr("en = 'Office document';") + " (*.docx)|*.docx";
 
-	NotifyDescription = New NotifyDescription("ContinueDownloadFromFile", ThisObject);
+	NotifyDescription = New CallbackDescription("ContinueDownloadFromFile", ThisObject);
 	FileSystemClient.ImportFile_(NotifyDescription, ImportParameters,, TemplateFileAddress);
 EndProcedure
 
 &AtClient
 Procedure SaveToFile(Command)
-	Notification = New NotifyDescription("SaveToFileFollowUp", ThisObject);
-	ErrorAlert = New NotifyDescription("ErrorReadingFile", ThisObject);
+	Notification = New CallbackDescription("SaveToFileFollowUp", ThisObject);
+	ErrorAlert = New CallbackDescription("ErrorReadingFile", ThisObject);
 	ReadTemplateEditableFile(Notification, ErrorAlert);
 EndProcedure
 
 &AtClient
 Procedure ExitAppUpdate(Command)
-	Notification = New NotifyDescription("ExitAppUpdateCompletion", ThisObject);
-	ErrorAlert = New NotifyDescription("ErrorReadingFile", ThisObject);
+	Notification = New CallbackDescription("ExitAppUpdateCompletion", ThisObject);
+	ErrorAlert = New CallbackDescription("ErrorReadingFile", ThisObject);
 	ReadTemplateEditableFile(Notification, ErrorAlert);
 EndProcedure
 
@@ -362,8 +357,8 @@ EndProcedure
 
 &AtClient
 Procedure ViewPrintableForm(Command)
-	Notification = New NotifyDescription("ViewPrintFormFollowUp", ThisObject);
-	ErrorAlert = New NotifyDescription("ErrorReadingFile", ThisObject);
+	Notification = New CallbackDescription("ViewPrintFormFollowUp", ThisObject);
+	ErrorAlert = New CallbackDescription("ErrorReadingFile", ThisObject);
 	ReadTemplateEditableFile(Notification, ErrorAlert);
 EndProcedure
 
@@ -403,7 +398,7 @@ EndProcedure
 &AtClient
 Procedure ReadTemplateEditableFile(ContinueNotification, ErrorAlert)
 	If PathToTemplateFile = "" Then
-		ExecuteNotifyProcessing(ContinueNotification, Undefined);
+		RunCallback(ContinueNotification, Undefined);
 		Return;
 	EndIf;
 
@@ -411,7 +406,7 @@ Procedure ReadTemplateEditableFile(ContinueNotification, ErrorAlert)
 	NotificationParameters.ContinueNotification = ContinueNotification;
 	NotificationParameters.ErrorAlert = ErrorAlert;
 	
-	NotifyDescription = New NotifyDescription("OnImportFileToStorage", ThisObject, NotificationParameters);
+	NotifyDescription = New CallbackDescription("OnImportFileToStorage", ThisObject, NotificationParameters);
 #If WebClient Then
 	RequestCheckPermissionsAndImportFile(NotifyDescription);
 #Else
@@ -426,7 +421,7 @@ EndProcedure
 &AtClient
 Procedure RequestCheckPermissionsAndImportFile(DetailsOfNotificationFollowUp)
 	
-	AfterPermissionsHandler = New NotifyDescription("AfterRequestedPermissionsToCheckFile", ThisObject, DetailsOfNotificationFollowUp);
+	AfterPermissionsHandler = New CallbackDescription("AfterRequestedPermissionsToCheckFile", ThisObject, DetailsOfNotificationFollowUp);
 	
 	ArrayOfFilesToPut = New Array;
 	ArrayOfFilesToPut.Add(New TransferableFileDescription(PathToTemplateFile, TemplateFileAddress));
@@ -456,7 +451,7 @@ Procedure AfterRequestedPermissionsToCheckFile(PermissionsGranted, DetailsOfNoti
 	If Not PermissionsGranted Then
 		Return;
 	EndIf;
-	NotifyDescription = New NotifyDescription("OnImportFileToStorageCheckReading", ThisObject, DetailsOfNotificationFollowUp);
+	NotifyDescription = New CallbackDescription("OnImportFileToStorageCheckReading", ThisObject, DetailsOfNotificationFollowUp);
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.FormIdentifier = UUID;
 	ImportParameters.Interactively = False;
@@ -474,7 +469,7 @@ EndProcedure
 Procedure OnImportFileToStorageCheckReading(FileThatWasPut, DetailsOfNotificationFollowUp) Export
 	Context = New Structure("DetailsOfNotificationCompletion", DetailsOfNotificationFollowUp);
 	Context.Insert("FilesToUpload", FileThatWasPut);
-	NotifyDescription = New NotifyDescription("AfterCheckingExistence", ThisObject, Context);
+	NotifyDescription = New CallbackDescription("AfterCheckingExistence", ThisObject, Context);
 	File = New File(FileThatWasPut.Name);
 	File.BeginCheckingExistence(NotifyDescription);
 EndProcedure
@@ -483,12 +478,12 @@ EndProcedure
 // Parameters:
 //  Result - Boolean
 //  Context - Structure: 
-//               * DetailsOfNotificationCompletion - NotifyDescription
+//               * DetailsOfNotificationCompletion - CallbackDescription
 //               * FilesToUpload - See OnImportFileToStorageCheckReading.FileThatWasPut
 //
 &AtClient
 Procedure AfterCheckingExistence(Result, Context) Export
-	DetailsStartMovingFile = New NotifyDescription("AfterTryToDelete", ThisObject, Context, "FileDeletionError", ThisObject);	
+	DetailsStartMovingFile = New CallbackDescription("AfterTryToDelete", ThisObject, Context, "FileDeletionError", ThisObject);	
 	If Result Then
 		BeginDeletingFiles(DetailsStartMovingFile, Context.FilesToUpload.Name);  
 	EndIf;
@@ -498,7 +493,7 @@ EndProcedure
 Procedure AfterTryToDelete(Context) Export
 	PathToTemplateFile = "";
 	FileStorageStructure = New Structure("Location", TemplateFileAddress);
-	ExecuteNotifyProcessing(Context.DetailsOfNotificationCompletion, FileStorageStructure);
+	RunCallback(Context.DetailsOfNotificationCompletion, FileStorageStructure);
 EndProcedure
 
 &AtClient
@@ -522,9 +517,9 @@ Procedure OnImportFileToStorage(File, NotificationParameters) Export
 	
 	If File <> Undefined Then
 		TemplateFileAddress = File.Location;
-		ExecuteNotifyProcessing(NotificationParameters.ContinueNotification, Undefined);
+		RunCallback(NotificationParameters.ContinueNotification, Undefined);
 	Else
-		ExecuteNotifyProcessing(NotificationParameters.ErrorAlert);
+		RunCallback(NotificationParameters.ErrorAlert);
 	EndIf;
 	
 EndProcedure
@@ -545,7 +540,7 @@ EndProcedure
 
 &AtClient
 Procedure ExitAppUpdateCompletion(Result, AdditionalParameters) Export
-	NotifyDescription = New NotifyDescription("OnImportFile", ThisObject);
+	NotifyDescription = New CallbackDescription("OnImportFile", ThisObject);
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.FormIdentifier = UUID;
 	ImportParameters.Interactively = Not ValueIsFilled(PathToTemplateFile);
@@ -639,12 +634,12 @@ EndProcedure
 &AtClient
 Procedure NotifyWhenOfficeDocSaved()
 	
-	NotificationParameters = New Structure;
-	NotificationParameters.Insert("PathToFile", PathToTemplateFile);
-	NotificationParameters.Insert("TemplateMetadataObjectName", IdentifierOfTemplate);
-	NotificationParameters.Insert("LanguageCode", CurrentLanguage);
-	NotificationParameters.Insert("Presentation", DocumentName);
-	NotificationParameters.Insert("DataSources", DataSources.UnloadValues());
+	NotificationParameters = StandardSubsystemsClient.NewNotificationParameterForSpreadsheetDocumentWrite();
+	NotificationParameters.PathToFile = PathToTemplateFile;
+	NotificationParameters.TemplateMetadataObjectName = IdentifierOfTemplate;
+	NotificationParameters.LanguageCode = CurrentLanguage;
+	NotificationParameters.Presentation = DocumentName;
+	NotificationParameters.DataSources = DataSources.UnloadValues();
 	
 	If WritingCompleted Then
 		EventName = "Write_OfficeDocument";
@@ -673,7 +668,7 @@ Procedure BeforeCloseEnd(Result, AdditionalParameters) Export
 	EndIf;
 	ReClosing = True;
 	
-	NotifyDescription = New NotifyDescription("BeforeCloseCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("BeforeCloseCompletion", ThisObject);
 	LanguageDetails = ?(ValueIsFilled(CurrentLanguage), " (" + CurrentLanguage + ")", "");
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Do you want to save the changes to %1%2?';"), 
 		DocumentName, LanguageDetails);
@@ -1228,7 +1223,7 @@ EndFunction
 &AtClient
 Procedure OpenTemplate(OpeningParameters)
 
-	CompletionHandler = New NotifyDescription("OpenAfterSavedAtClient", ThisObject, OpeningParameters);
+	CompletionHandler = New CallbackDescription("OpenAfterSavedAtClient", ThisObject, OpeningParameters);
 
 	Template = GetFromTempStorage(OpeningParameters.DocumentAddress);
 	
@@ -1243,8 +1238,8 @@ Procedure OpenTemplate(OpeningParameters)
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("CompletionHandler", CompletionHandler);
 	AdditionalParameters.Insert("TempDirectory", TempDirectory);
-	AfterAttachExtension = New NotifyDescription("AfterAttachExtension", ThisObject, AdditionalParameters);
-	FileSystemClient.AttachFileOperationsExtension(AfterAttachExtension);
+	AfterAttachExtension = New CallbackDescription("AfterAttachExtension", ThisObject, AdditionalParameters);
+	FileSystemClient.Attach1CEnterpriseExtension(AfterAttachExtension);
 	
 	Items.OpenEditor.DefaultButton = False;
 	Items.WriteAndClose.DefaultButton = True;
@@ -1256,7 +1251,7 @@ EndProcedure
 &AtClient
 Procedure AfterAttachExtension(Attached, AdditionalParameters) Export
 	If Attached Then
-		Handler = New NotifyDescription("OpenTemplateAfterGotTempDir", ThisObject, AdditionalParameters.CompletionHandler);
+		Handler = New CallbackDescription("OpenTemplateAfterGotTempDir", ThisObject, AdditionalParameters.CompletionHandler);
 		If TempDirectory = "" Then
 #If WebClient Then
 			FileSystemClient.SelectDirectory(Handler);	
@@ -1264,17 +1259,17 @@ Procedure AfterAttachExtension(Attached, AdditionalParameters) Export
 			FileSystemClient.CreateTemporaryDirectory(Handler);
 #EndIf
 		Else
-			ExecuteNotifyProcessing(Handler, TempDirectory);
+			RunCallback(Handler, TempDirectory);
 		EndIf;
 	Else
-		Handler = New NotifyDescription("AfterRequestPermissionsToOpenTemplate", ThisObject, AdditionalParameters);
-		ExecuteNotifyProcessing(Handler);
+		Handler = New CallbackDescription("AfterRequestPermissionsToOpenTemplate", ThisObject, AdditionalParameters);
+		RunCallback(Handler);
 	EndIf;
 EndProcedure
 
 // Parameters:
 //  CreatedTempDir - String
-//  CompletionHandler - NotifyDescription
+//  CompletionHandler - CallbackDescription
 //
 &AtClient
 Procedure OpenTemplateAfterGotTempDir(CreatedTempDir, CompletionHandler) Export
@@ -1287,7 +1282,7 @@ Procedure OpenTemplateAfterGotTempDir(CreatedTempDir, CompletionHandler) Export
 	Context.Insert("CompletionHandler", CompletionHandler);
 	Context.Insert("TempDirectory", TempDirectory);
 	
-	AfterPermissionsHandler = New NotifyDescription("AfterRequestPermissionsToOpenTemplate", ThisObject, Context);
+	AfterPermissionsHandler = New CallbackDescription("AfterRequestPermissionsToOpenTemplate", ThisObject, Context);
 	
 	ArrayOfReceivedFiles = New Array;
 	ArrayOfReceivedFiles.Add(New TransferableFileDescription(TempDirectory+OpeningParameters.NameOfFileToOpen,OpeningParameters.DocumentAddress));
@@ -1317,7 +1312,7 @@ Procedure AfterRequestPermissionsToOpenTemplate(PermissionsGranted, Context) Exp
 		Return;
 	EndIf;
 	
-	AfterPermissionsHandler = Context.CompletionHandler; // NotifyDescription
+	AfterPermissionsHandler = Context.CompletionHandler; // CallbackDescription
 	TempDirectory = Context.TempDirectory;
 	
 	SavingParameters = FileSystemClient.FileSavingParameters();
@@ -1343,7 +1338,7 @@ Procedure OpenAfterSavedAtClient(ObtainedFiles, OpeningParameters) Export
 		EndIf;
 		
 		FileOnHardDrive = New File(PathToFile);
-		DetailsAfterSetReadOnly = New NotifyDescription("OpenFileCompletion", ThisObject, PathToFile);
+		DetailsAfterSetReadOnly = New CallbackDescription("OpenFileCompletion", ThisObject, PathToFile);
 		FileOnHardDrive.BeginSettingReadOnly(DetailsAfterSetReadOnly, OpeningParameters.ReadOnly);
 	EndIf;
 EndProcedure
@@ -1453,8 +1448,8 @@ Procedure Attachable_SwitchLanguage(Command)
 	EndIf;
 	
 	ParametersForResuming = New Structure("Command", Command);
-	Notification = New NotifyDescription("SwitchLangAfterImportFileFollowUp", ThisObject, ParametersForResuming);
-	ErrorAlert = New NotifyDescription("ErrorReadingFile", ThisObject);
+	Notification = New CallbackDescription("SwitchLangAfterImportFileFollowUp", ThisObject, ParametersForResuming);
+	ErrorAlert = New CallbackDescription("ErrorReadingFile", ThisObject);
 	ReadTemplateEditableFile(Notification, ErrorAlert);
 EndProcedure
 
@@ -1470,7 +1465,7 @@ Procedure Attachable_WhenSwitchingTheLanguage(LanguageCode, AdditionalParameters
 		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Translate';"));
 		Buttons.Add(DialogReturnCode.No, NStr("en = 'Do not translate';"));
 		
-		NotifyDescription = New NotifyDescription("WhenAnsweringAQuestionAboutTranslatingALayout", ThisObject);
+		NotifyDescription = New CallbackDescription("WhenAnsweringAQuestionAboutTranslatingALayout", ThisObject);
 		ShowQueryBox(NotifyDescription, QueryText, Buttons);
 	Else
 		TemplateOpenParameters = GetTemplateOpeningParameters(TemplateFileAddress);
@@ -1487,7 +1482,7 @@ Procedure SwitchLangAfterImportFileFollowUp(Result, AdditionalParameters) Export
 	Modified = Modified Or TemplateChanged();
 	
 	ParametersForResuming = New Structure("Command", AdditionalParameters.Command);
-	NotifyDescription = New NotifyDescription("SwitchLangFollowUp", ThisObject, ParametersForResuming);
+	NotifyDescription = New CallbackDescription("SwitchLangFollowUp", ThisObject, ParametersForResuming);
 	
 	If Modified Then
 		LanguageDetails = ?(ValueIsFilled(CurrentLanguage), " (" + CurrentLanguage + ")", "");
@@ -1495,7 +1490,7 @@ Procedure SwitchLangAfterImportFileFollowUp(Result, AdditionalParameters) Export
 		ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNoCancel, ,
 			DialogReturnCode.Yes);
 	Else
-		ExecuteNotifyProcessing(NotifyDescription, DialogReturnCode.No);
+		RunCallback(NotifyDescription, DialogReturnCode.No);
 	EndIf;
 			
 EndProcedure
@@ -1531,7 +1526,7 @@ Procedure DeleteLayoutLanguage(Command)
 		Return;
 	EndIf;
 	
-	NotifyDescription = New NotifyDescription("DeleteTemplateLanguageFollowUp", ThisObject, , "ErrorMovingDeletingFile", ThisObject);
+	NotifyDescription = New CallbackDescription("DeleteTemplateLanguageFollowUp", ThisObject, , "ErrorMovingDeletingFile", ThisObject);
 	BeginDeletingFiles(NotifyDescription, PathToTemplateFile);
 	
 EndProcedure
@@ -1544,7 +1539,7 @@ EndProcedure
 
 &AtClient
 Procedure WarnAboutLockAndOpenApp()
-	NotifyDescription = New NotifyDescription("OpenFileCompletion", ThisObject, PathToTemplateFile);
+	NotifyDescription = New CallbackDescription("OpenFileCompletion", ThisObject, PathToTemplateFile);
 	ShowMessageBox(NotifyDescription, NStr("en = 'Complete the operation with the file in another application.';"), , NStr("en = 'The file is opened in another application';"));
 EndProcedure
 
@@ -1641,8 +1636,24 @@ Procedure WhenAnsweringAQuestionAboutTranslatingALayout(Response, AdditionalPara
 		Return;
 	EndIf;
 	
+	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport.TextTranslation") Then
+		NotifyDescription = New CallbackDescription("OnCompleteTranslationSettingsCheck", ThisObject, TemplateOpenParameters);
+		ModuleTranslationOfTextIntoOtherLanguagesClient = CommonClient.CommonModule("TextTranslationToolClient");
+		ModuleTranslationOfTextIntoOtherLanguagesClient.CheckSettings(ThisObject, NotifyDescription);
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure OnCompleteTranslationSettingsCheck(SetupExecuted, TemplateOpenParameters) Export
+	
+	If Not SetupExecuted Then
+		Return;
+	EndIf;
+	
 	TranslateLayoutTexts();
 	OpenTemplate(TemplateOpenParameters);
+	
 EndProcedure
 
 &AtServer
@@ -1697,11 +1708,7 @@ Procedure ExpandFieldList()
 	FieldList.Header = True;
 	FieldList.SetAction("OnActivateRow", "Attachable_AvailableFieldsWhenLineIsActivated");
 	
-	ColumnNamePresentation = NameOfTheFieldList() + "Presentation";
-	If Common.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
-		ModuleConstructorFormulaInternal = Common.CommonModule("FormulasConstructorInternal");
-		ColumnNamePresentation = ModuleConstructorFormulaInternal.ColumnNamePresentation(NameOfTheFieldList());
-	EndIf;
+	ColumnNamePresentation = FormulasConstructorInternal.ColumnNamePresentation(NameOfTheFieldList());
 	
 	ColumnPresentation = Items[ColumnNamePresentation];
 	ColumnPresentation.Title = NStr("en = 'Field';");
@@ -1974,20 +1981,14 @@ EndFunction
 &AtClient
 Procedure Attachable_ListOfFieldsBeforeExpanding(Item, String, Cancel)
 	
-	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
-		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
-		ModuleConstructorFormulaClient.ListOfFieldsBeforeExpanding(ThisObject, Item, String, Cancel);
-	EndIf;
+	FormulasConstructorClient.ListOfFieldsBeforeExpanding(ThisObject, Item, String, Cancel);
 	
 EndProcedure
 
 &AtClient
 Procedure Attachable_ExpandTheCurrentFieldListItem()
 	
-	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
-		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
-		ModuleConstructorFormulaClient.ExpandTheCurrentFieldListItem(ThisObject);
-	EndIf;
+	FormulasConstructorClient.ExpandTheCurrentFieldListItem(ThisObject);
 	
 EndProcedure
 
@@ -2001,19 +2002,16 @@ EndProcedure
 &AtServer
 Procedure FillInTheListOfAvailableFields(FillParameters)
 	
-	If Common.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
-		ModuleConstructorFormula = Common.CommonModule("FormulasConstructor");
-		ModuleConstructorFormula.FillInTheListOfAvailableFields(ThisObject, FillParameters);
-	
-		CurrentData = ThisObject[NameOfTheFieldList()].FindByID(FillParameters.RowID);
-		SetExamplesValues(CurrentData);
-		SetFormatValuesDefault(CurrentData);
-		If (CurrentData.Folder Or CurrentData.Table) And CurrentData.GetParent() = Undefined Then
-			MarkCommonFields(CurrentData);
-		Else
-			SetCommonFIeldFlagForSubordinateFields(CurrentData);
-		EndIf;		
-	EndIf;
+	FormulasConstructor.FillInTheListOfAvailableFields(ThisObject, FillParameters);
+
+	CurrentData = ThisObject[NameOfTheFieldList()].FindByID(FillParameters.RowID);
+	SetExamplesValues(CurrentData);
+	SetFormatValuesDefault(CurrentData);
+	If (CurrentData.Folder Or CurrentData.Table) And CurrentData.GetParent() = Undefined Then
+		MarkCommonFields(CurrentData);
+	Else
+		SetCommonFIeldFlagForSubordinateFields(CurrentData);
+	EndIf;		
 	
 EndProcedure
 
@@ -2042,10 +2040,7 @@ EndProcedure
 &AtClient
 Procedure Attachable_SearchStringEditTextChange(Item, Text, StandardProcessing)
 	
-	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
-		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
-		ModuleConstructorFormulaClient.SearchStringEditTextChange(ThisObject, Item, Text, StandardProcessing);
-	EndIf;
+	FormulasConstructorClient.SearchStringEditTextChange(ThisObject, Item, Text, StandardProcessing);
 	
 EndProcedure
 
@@ -2059,10 +2054,7 @@ EndProcedure
 &AtServer
 Procedure PerformASearchInTheListOfFields()
 	
-	If Common.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
-		ModuleConstructorFormula = Common.CommonModule("FormulasConstructor");
-		ModuleConstructorFormula.PerformASearchInTheListOfFields(ThisObject);
-	EndIf;
+	FormulasConstructor.PerformASearchInTheListOfFields(ThisObject);
 	
 EndProcedure
 
@@ -2075,35 +2067,29 @@ EndProcedure
 
 &AtServer
 Procedure Attachable_FormulaEditorHandlerServer(Parameter, AdditionalParameters)
-	If Common.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
-		ModuleConstructorFormula = Common.CommonModule("FormulasConstructor");
-		ModuleConstructorFormula.FormulaEditorHandler(ThisObject, Parameter, AdditionalParameters);
-	EndIf;
-	
+
+	FormulasConstructor.FormulaEditorHandler(ThisObject, Parameter, AdditionalParameters);
 	If AdditionalParameters.OperationKey = "HandleSearchMessage" Then
 		MarkCommonFields();
 		SetFormatValuesDefault();
 	EndIf;
+
 EndProcedure
 
 &AtClient
-Procedure Attachable_FormulaEditorHandlerClient(Parameter, AdditionalParameters = Undefined) Export  // ACC:78 - Procedure is called from FormulaConstructorClient.StartSearchInFieldsList.
-	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
-		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
-		ModuleConstructorFormulaClient.FormulaEditorHandler(ThisObject, Parameter, AdditionalParameters);
-		If AdditionalParameters <> Undefined And AdditionalParameters.RunAtServer Then
-			Attachable_FormulaEditorHandlerServer(Parameter, AdditionalParameters);
-		EndIf;
+Procedure Attachable_FormulaEditorHandlerClient(Parameter, AdditionalParameters = Undefined) Export  // ACC:78 - The procedure is called from "FormulaConstructorClient.StartSearchInFieldsList".
+		
+	FormulasConstructorClient.FormulaEditorHandler(ThisObject, Parameter, AdditionalParameters);
+	If AdditionalParameters <> Undefined And AdditionalParameters.RunAtServer Then
+		Attachable_FormulaEditorHandlerServer(Parameter, AdditionalParameters);
 	EndIf;
+
 EndProcedure
 
 &AtClient
 Procedure Attachable_StartSearchInFieldsList()
 
-	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
-		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
-		ModuleConstructorFormulaClient.StartSearchInFieldsList(ThisObject);
-	EndIf;
+	FormulasConstructorClient.StartSearchInFieldsList(ThisObject);
 	
 EndProcedure
 
@@ -2176,16 +2162,11 @@ EndFunction
 &AtClient
 Procedure Attachable_AvailableFieldsBeforeStartOfChange(Item, Cancel)
 	
-	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
-		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
-		
-		CurrentData = Items[NameOfTheFieldList()].CurrentData;
-		CurrentData.Pattern = CurrentData.Value;
-		InputField = Items[NameOfTheFieldList() + "Pattern"];
-		SelectedField = ModuleConstructorFormulaClient.TheSelectedFieldInTheFieldList(ThisObject, NameOfTheFieldList());
-		InputField.TypeRestriction = SelectedField.Type;
-		
-	EndIf;
+	CurrentData = Items[NameOfTheFieldList()].CurrentData;
+	CurrentData.Pattern = CurrentData.Value;
+	InputField = Items[NameOfTheFieldList() + "Pattern"];
+	SelectedField = FormulasConstructorClient.TheSelectedFieldInTheFieldList(ThisObject, NameOfTheFieldList());
+	InputField.TypeRestriction = SelectedField.Type;
 	
 EndProcedure
 
@@ -2198,16 +2179,9 @@ EndProcedure
 &AtClient
 Procedure Attachable_ListOfFieldsSelection(Item, RowSelected, Field, StandardProcessing)
 	
-	ModuleConstructorFormulaClient = Undefined;
-	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
-		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
-	Else
-		Return;
-	EndIf;
-	
 	If Field.Name = Item.Name + "Presentation" Then
 		StandardProcessing = False;
-		SelectedField = ModuleConstructorFormulaClient.TheSelectedFieldInTheFieldList(ThisObject);
+		SelectedField = FormulasConstructorClient.TheSelectedFieldInTheFieldList(ThisObject);
 		If ValueIsFilled(CurrentValue) Then
 			CurrentValue = TrimR(CurrentValue) + " ";
 		Else
@@ -2216,7 +2190,7 @@ Procedure Attachable_ListOfFieldsSelection(Item, RowSelected, Field, StandardPro
 		If Item.Name = NameOfTheFieldList() Then
 			CurrentValue = CurrentValue + "[" + SelectedField.RepresentationOfTheDataPath + "]";
 		Else
-			CurrentValue = CurrentValue + ModuleConstructorFormulaClient.ExpressionToInsert(SelectedField);
+			CurrentValue = CurrentValue + FormulasConstructorClient.ExpressionToInsert(SelectedField);
 		EndIf;
 	EndIf;
 	
@@ -2224,7 +2198,7 @@ Procedure Attachable_ListOfFieldsSelection(Item, RowSelected, Field, StandardPro
 		StandardProcessing = False;
 		Designer = New FormatStringWizard(Items[NameOfTheFieldList()].CurrentData.Format);
 		Designer.AvailableTypes = Items[NameOfTheFieldList()].CurrentData.Type;
-		NotifyDescription = New NotifyDescription("WhenFormatFieldSelection", ThisObject);
+		NotifyDescription = New CallbackDescription("WhenFormatFieldSelection", ThisObject);
 		Designer.Show(NotifyDescription);
 	EndIf;	
 	
@@ -2233,59 +2207,51 @@ EndProcedure
 &AtClient
 Procedure Attachable_FieldListRowActivation(Item)
 	
-	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
-		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
+	Operator = FormulasConstructorClient.TheSelectedFieldInTheFieldList(ThisObject, NameOfTheListOfOperators());
+	
+	If ValueIsFilled(Operator.Parent) Then
+		OperatorsGroup = Operator.Parent; // See FormulasConstructorClient.TheSelectedFieldInTheFieldList
+		OperatorGroupName = OperatorsGroup.Name;
 		
-		Operator = ModuleConstructorFormulaClient.TheSelectedFieldInTheFieldList(ThisObject, NameOfTheListOfOperators());
-		
-		If ValueIsFilled(Operator.Parent) Then
-			OperatorsGroup = Operator.Parent; // See FormulasConstructorClient.TheSelectedFieldInTheFieldList
-			OperatorGroupName = OperatorsGroup.Name;
-			
-			If OperatorGroupName = "ConditionalOutput" Then
-				If Operator.Name = "AreaStart" Then
-					SetInHTMLField(StrTemplate("{%1 *text conditions*}", TagNameCondition()));
-				ElsIf Operator.Name = "EndOfRegion" Then
-					SetInHTMLField(StrTemplate("{/%1}", TagNameCondition()));
-				EndIf;
-				Return;
+		If OperatorGroupName = "ConditionalOutput" Then
+			If Operator.Name = "AreaStart" Then
+				SetInHTMLField(StrTemplate("{%1 *text conditions*}", TagNameCondition()));
+			ElsIf Operator.Name = "EndOfRegion" Then
+				SetInHTMLField(StrTemplate("{/%1}", TagNameCondition()));
 			EndIf;
+			Return;
 		EndIf;
-		
-		SetInHTMLField(ModuleConstructorFormulaClient.ExpressionToInsert(Operator));
 	EndIf;
+	
+	SetInHTMLField(FormulasConstructorClient.ExpressionToInsert(Operator));
 	
 EndProcedure
 
 &AtClient
 Procedure Attachable_OperatorsDragStart(Item, DragParameters, Perform)
 	
-	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
-		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
+	Operator = FormulasConstructorClient.TheSelectedFieldInTheFieldList(ThisObject, NameOfTheListOfOperators());
+	
+	If ValueIsFilled(Operator.Parent) Then
+		OperatorsGroup = Operator.Parent; // See FormulasConstructorClient.TheSelectedFieldInTheFieldList
+		OperatorGroupName = OperatorsGroup.Name;
 		
-		Operator = ModuleConstructorFormulaClient.TheSelectedFieldInTheFieldList(ThisObject, NameOfTheListOfOperators());
-		
-		If ValueIsFilled(Operator.Parent) Then
-			OperatorsGroup = Operator.Parent; // See FormulasConstructorClient.TheSelectedFieldInTheFieldList
-			OperatorGroupName = OperatorsGroup.Name;
-			
-			If OperatorGroupName = "ConditionalOutput" Then
-				If Operator.Name = "AreaStart" Then
-					DragParameters.Value = "{v8 Condition *text conditions*}";
-				ElsIf Operator.Name = "EndOfRegion" Then
-					DragParameters.Value = "{/v8 Condition}";
-				EndIf;
-				Return;
+		If OperatorGroupName = "ConditionalOutput" Then
+			If Operator.Name = "AreaStart" Then
+				DragParameters.Value = "{v8 Condition *text conditions*}";
+			ElsIf Operator.Name = "EndOfRegion" Then
+				DragParameters.Value = "{/v8 Condition}";
 			EndIf;
+			Return;
 		EndIf;
-		
-		DragParameters.Value = ModuleConstructorFormulaClient.ExpressionToInsert(Operator);
-		
-		If Operator.DataPath = "PrintControl_NumberofLines" Then
-			CurrentTablePresentation = CurrentTablePresentation();
-			Perform = CurrentTablePresentation <> Undefined;
-			DragParameters.Value = StrReplace(DragParameters.Value, "()", "(["+CurrentTablePresentation+"])");
-		EndIf;
+	EndIf;
+	
+	DragParameters.Value = FormulasConstructorClient.ExpressionToInsert(Operator);
+	
+	If Operator.DataPath = "PrintControl_NumberofLines" Then
+		CurrentTablePresentation = CurrentTablePresentation();
+		Perform = CurrentTablePresentation <> Undefined;
+		DragParameters.Value = StrReplace(DragParameters.Value, "()", "(["+CurrentTablePresentation+"])");
 	EndIf;
 	
 EndProcedure
@@ -2381,7 +2347,7 @@ Procedure TemplateAssignmentClick(Item)
 	PickingParameters.Title = NStr("en = 'Template assignment';");
 	PickingParameters.FilterByMetadataObjects = ObjectsWithPrintCommands();
 	
-	NotifyDescription = New NotifyDescription("OnChooseTemplateOwners", ThisObject);
+	NotifyDescription = New CallbackDescription("OnChooseTemplateOwners", ThisObject);
 	StandardSubsystemsClient.ChooseMetadataObjects(PickingParameters, NotifyDescription);
 
 EndProcedure

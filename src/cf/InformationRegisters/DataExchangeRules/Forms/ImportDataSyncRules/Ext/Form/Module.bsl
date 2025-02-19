@@ -75,8 +75,8 @@ Procedure OnOpen(Cancel)
 		AdditionalParameters.Insert("FileLocation1",                 "");
 		
 		SuggestionText = NStr("en = 'To open the directory, install 1C:Enterprise Extension.';");
-		Notification = New NotifyDescription("AfterCheckFileSystemExtension", ThisObject, AdditionalParameters);
-		FileSystemClient.AttachFileOperationsExtension(Notification, SuggestionText);
+		Notification = New CallbackDescription("AfterCheckFileSystemExtension", ThisObject, AdditionalParameters);
+		FileSystemClient.Attach1CEnterpriseExtension(Notification, SuggestionText);
 	Else
 		SetInformationTitleOnReceive(AdditionalParameters);
 	EndIf;
@@ -90,7 +90,7 @@ Procedure AfterCheckFileSystemExtension(Result, AdditionalParameters) Export
 	If Result Then
 		File = New File(AdditionalParameters.UserTemplateSettings);
 		
-		Notification = New NotifyDescription("DetermineFileExists", ThisObject, AdditionalParameters);
+		Notification = New CallbackDescription("DetermineFileExists", ThisObject, AdditionalParameters);
 		File.BeginCheckingExistence(Notification);
 		
 	Else
@@ -142,7 +142,7 @@ Procedure DetermineFileExists(Exists, AdditionalParameters) Export
 	
 	File = New File(AdditionalParameters.FileLocation1);
 	
-	Notification = New NotifyDescription("DetermineDirectoryExists", ThisObject, AdditionalParameters);
+	Notification = New CallbackDescription("DetermineDirectoryExists", ThisObject, AdditionalParameters);
 	File.BeginCheckingExistence(Notification);
 	
 #EndIf
@@ -297,7 +297,7 @@ Procedure ExchangeProtocolFileStartChoice(Item, ChoiceData, StandardProcessing)
 	DebuggingSettingsChanged = True;
 	DialogSettings = New Structure;
 	DialogSettings.Insert("Filter", NStr("en = 'Text document (*.txt)';")+ "|*.txt" );
-	DialogSettings.Insert("CheckFileExist", False);
+	DialogSettings.Insert("CheckFileExistence", False);
 	
 	DataExchangeClient.FileSelectionHandler(ThisObject, "ExchangeProtocolFileName", StandardProcessing, DialogSettings);
 	
@@ -330,7 +330,7 @@ Procedure RulesImportInfoDecorationURLProcessing(
 	AdditionalParameters = New Structure;	
 	AdditionalParameters.Insert("FormattedStringURL", FormattedStringURL);
 		
-	Notification = New NotifyDescription("DecorationRuleReceiptInformationURLProcessingAfterFinish",
+	Notification = New CallbackDescription("DecorationRuleReceiptInformationURLProcessingAfterFinish",
 		ThisObject, AdditionalParameters);
 		
 	StandardProcessing = False;
@@ -353,7 +353,7 @@ Procedure ImportRules(Command)
 	DialogParameters.Insert("Filter", NStr("en = 'ZIP archive (*.zip)';") + "|*.zip");
 	DialogParameters.Insert("FullFileName", NameParts.FullName);
 	
-	Notification = New NotifyDescription("ImportRulesCompletion", ThisObject);
+	Notification = New CallbackDescription("ImportRulesCompletion", ThisObject);
 	DataExchangeClient.SelectAndSendFileToServer(Notification, DialogParameters, UUID);
 	
 EndProcedure
@@ -399,7 +399,7 @@ Procedure WriteAndClose(Command)
 			ErrorDescription = NStr("en = 'Rules are not imported. If you close the form, the default conversion rules will apply.
 			|Apply the default rules?';");
 			
-			Notification = New NotifyDescription("CloseRuleImportForm", ThisObject);
+			Notification = New CallbackDescription("CloseRuleImportForm", ThisObject);
 			
 			Buttons = New ValueList;
 			Buttons.Add("Use", NStr("en = 'Use';"));
@@ -486,7 +486,7 @@ Procedure PerformRuleImport(Val PutFileAddress, Val FileName, ErrorDescription =
 		AdditionalParameters = New Structure;
 		AdditionalParameters.Insert("PutFileAddress", PutFileAddress);
 		AdditionalParameters.Insert("FileName", FileName);
-		Notification = New NotifyDescription("AfterConversionRulesCheckForCompatibility", ThisObject, AdditionalParameters);
+		Notification = New CallbackDescription("AfterConversionRulesCheckForCompatibility", ThisObject, AdditionalParameters);
 		
 		FormParameters = StandardSubsystemsClient.QuestionToUserParameters();
 		FormParameters.DefaultButton = "Cancel";
@@ -503,7 +503,7 @@ Procedure PerformRuleImport(Val PutFileAddress, Val FileName, ErrorDescription =
 	ElsIf Cancel Then
 		ErrorText = NStr("en = 'Errors occurred when importing the rules.
 			|Go to the event log?';");
-		Notification = New NotifyDescription("ShowEventLogWhenErrorOccurred", ThisObject);
+		Notification = New CallbackDescription("ShowEventLogWhenErrorOccurred", ThisObject);
 		ShowQueryBox(Notification, ErrorText, QuestionDialogMode.YesNo, ,DialogReturnCode.No);
 	Else
 		ShowUserNotification(,, NStr("en = 'The rules are imported to the infobase.';"));
@@ -732,13 +732,13 @@ Procedure BeforeRuleImport(Val PutFileAddress, Val FileName)
 		AdditionalParameters = New Structure;
 		AdditionalParameters.Insert("PutFileAddress", PutFileAddress);
 		AdditionalParameters.Insert("FileName", FileName);
-		ClosingNotification1 = New NotifyDescription("AllowExternalResourceCompletion", ThisObject, AdditionalParameters);
+		ClosingNotification1 = New CallbackDescription("AllowExternalResourceCompletion", ThisObject, AdditionalParameters);
 		If CommonClient.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
 			Queries = CreateRequestToUseExternalResources();
 			ModuleSafeModeManagerClient = CommonClient.CommonModule("SafeModeManagerClient");
 			ModuleSafeModeManagerClient.ApplyExternalResourceRequests(Queries, ThisObject, ClosingNotification1);
 		Else
-			ExecuteNotifyProcessing(ClosingNotification1, DialogReturnCode.OK);
+			RunCallback(ClosingNotification1, DialogReturnCode.OK);
 		EndIf;
 		Return;
 		

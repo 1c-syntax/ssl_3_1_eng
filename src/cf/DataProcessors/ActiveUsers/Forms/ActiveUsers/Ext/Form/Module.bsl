@@ -104,7 +104,7 @@ Procedure TerminateSession(Command)
 		Return;
 	ElsIf SelectedLinesNumber = 1 Then
 		If Items.UsersList.CurrentData.Session = InfoBaseSessionNumber Then
-			ShowMessageBox(,NStr("en = 'Cannot close the current session. To exit the app, close its main window.';"));
+			ShowMessageBox(,NStr("en = 'Cannot close the current session. To exit the application, close its main window.';"));
 			Return;
 		EndIf;
 	EndIf;
@@ -122,13 +122,13 @@ Procedure TerminateSession(Command)
 	   And CommonClient.SeparatedDataUsageAvailable() Then
 		
 		StandardProcessing = True;
-		NotificationAfterSessionTermination = New NotifyDescription(
+		NotificationAfterSessionTermination = New CallbackDescription(
 			"AfterSessionTermination", ThisObject, New Structure("SessionsNumbers", SessionsNumbers));
 		SSLSubsystemsIntegrationClient.OnEndSessions(ThisObject, SessionsNumbers, StandardProcessing, NotificationAfterSessionTermination);
 		
 	Else
 		If PromptForIBAdministrationParameters Then
-			NotifyDescription = New NotifyDescription("TerminateSessionContinuation", ThisObject, SessionsNumbers);
+			NotifyDescription = New CallbackDescription("TerminateSessionContinuation", ThisObject, SessionsNumbers);
 			FormCaption = NStr("en = 'Close session';");
 			NoteLabel = NStr("en = 'To end the session, enter
 				|the server cluster administration parameters';");

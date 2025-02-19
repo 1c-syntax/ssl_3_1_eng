@@ -220,7 +220,7 @@ EndFunction
 //
 Procedure WriteObjectVersion(Val Source, WriteMode = Undefined) Export
 	
-	// No need to check for "DataExchange.Load" as when writing the versioned object during exchange,
+	// No need to check for DataExchange.Load as when writing the versioned object during exchange,
 	// the current object version is saved.
 	If Not GetFunctionalOption("UseObjectsVersioning") Then
 		Return;
@@ -755,8 +755,7 @@ Function ChangeHistoryCommand(Form) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // See CommonOverridable.OnAddReferenceSearchExceptions.
 Procedure OnAddReferenceSearchExceptions(RefSearchExclusions) Export
@@ -1112,7 +1111,7 @@ Procedure OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating, Recipie
 	
 EndProcedure
 
-// 
+// See StandardSubsystems.OnSendDataToMaster.
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 	OnSendDataToRecipient1(DataElement, ItemSend, Recipient);
@@ -1343,6 +1342,8 @@ Procedure SetSettingsForObsoleteObjectVersionsCleanupScheduledJob() Export
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -1726,7 +1727,7 @@ Function RestoreObjectByXML(ObjectData, ErrorMessageText = "")
 		WriteLogEvent(NStr("en = 'Versioning';", Common.DefaultLanguageCode()),
 			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		ErrorMessageText = NStr("en = 'Couldn''t migrate to the selected version.
-											|Possible causes: The object version was saved in the app with a different version.
+											|Possible reasons: The object version was saved in the application with a different version.
 											|Error details: %1';");
 		ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageText, ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		Return Undefined;
@@ -1795,7 +1796,7 @@ Function ObjectVersionInfo(Val Ref, Val VersionNumber) Export
 	EndIf;
 	
 	If Result.ObjectVersion = Undefined Then
-		Raise NStr("en = 'Selected object version is not available in the app.';");
+		Raise NStr("en = 'Selected object version is not available in the application.';");
 	EndIf;
 	
 	Return Result;
@@ -2275,8 +2276,7 @@ Function DataSizeString(Val DataSize)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Functions related to object report generation.
+#Region FunctionsForGettingObjectReport
 
 // Returns a serialized object in the binary data format.
 //
@@ -2765,14 +2765,14 @@ Procedure OutputHeaderForVersion(Result, Val Text, Val LineNumber, Val ColumnNum
 		
 		Result.Area("C" + String(ColumnNumber)).ColumnWidth = 50;
 		
-		State = "R" + Format(LineNumber, "NG=0") + "C" + Format(ColumnNumber, "NG=0");
-		Result.Area(State).Text = Text;
-		Result.Area(State).BackColor = StyleColors.InaccessibleCellTextColor;
-		Result.Area(State).Font = StyleFonts.ImportantLabelFont;
-		Result.Area(State).TopBorder = New Line(SpreadsheetDocumentCellLineType.Solid);
-		Result.Area(State).BottomBorder  = New Line(SpreadsheetDocumentCellLineType.Solid);
-		Result.Area(State).LeftBorder  = New Line(SpreadsheetDocumentCellLineType.Solid);
-		Result.Area(State).RightBorder = New Line(SpreadsheetDocumentCellLineType.Solid);
+		State_SSLym = "R" + Format(LineNumber, "NG=0") + "C" + Format(ColumnNumber, "NG=0");
+		Result.Area(State_SSLym).Text = Text;
+		Result.Area(State_SSLym).BackColor = StyleColors.InaccessibleCellTextColor;
+		Result.Area(State_SSLym).Font = StyleFonts.ImportantLabelFont;
+		Result.Area(State_SSLym).TopBorder = New Line(SpreadsheetDocumentCellLineType.Solid);
+		Result.Area(State_SSLym).BottomBorder  = New Line(SpreadsheetDocumentCellLineType.Solid);
+		Result.Area(State_SSLym).LeftBorder  = New Line(SpreadsheetDocumentCellLineType.Solid);
+		Result.Area(State_SSLym).RightBorder = New Line(SpreadsheetDocumentCellLineType.Solid);
 		
 	EndIf;
 	
@@ -2928,13 +2928,13 @@ Procedure OutputParsedObjectTabularSections(Result, ObjectVersion, OutputRowNumb
 	
 EndProcedure
 
-Function OutputTextToReport(Result, Val Section3, Val State, Val Text, Val Font = Undefined)
+Function OutputTextToReport(Result, Val Section3, Val State_SSLym, Val Text, Val Font = Undefined)
 	
 	If Font = Undefined Then
 		Font = StyleFonts.TextFont;
 	EndIf;
 	
-	SectionArea1 = Section3.Area(State);
+	SectionArea1 = Section3.Area(State_SSLym);
 	
 	If TypeOf(SectionArea1) = Type("SpreadsheetDocumentRange") Then
 	
@@ -3645,5 +3645,7 @@ Procedure EnableAutoPurgeOfObsoleteObjectVersions()
 	SetScheduledJobParameter("Use", True);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

@@ -242,7 +242,7 @@ EndProcedure
 &AtClient
 Procedure UsersKindStartChoice(Item, ChoiceData, StandardProcessing)
 	
-	NotifyDescription = New NotifyDescription("AfterAssignmentChoice", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterAssignmentChoice", ThisObject);
 	UsersInternalClient.SelectPurpose(ThisObject, NStr("en = 'Select users type';"), False, True, NotifyDescription);
 	
 EndProcedure
@@ -443,7 +443,7 @@ Procedure ExternalUsersGroupsDrag(Item, DragParameters, StandardProcessing, Stri
 		
 		AdditionalParameters = New Structure("DragParameters, String, Move",
 			DragParameters.Value, String, Move);
-		Notification = New NotifyDescription("ExternalUserGroupsDragQuestionProcessing", ThisObject, AdditionalParameters);
+		Notification = New CallbackDescription("ExternalUserGroupsDragQuestionProcessing", ThisObject, AdditionalParameters);
 		ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo, 60, DialogReturnCode.Yes);
 		Return;
 		
@@ -670,8 +670,7 @@ Procedure ExternalUsersInfo(Command)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Support of batch object change.
+#Region BatchObjectModificationSupport
 
 &AtClient
 Procedure ChangeSelectedItems(Command)
@@ -682,6 +681,8 @@ Procedure ChangeSelectedItems(Command)
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -1188,8 +1189,7 @@ Procedure ListOnChangeAtServer()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Drag-and-drop users.
+#Region DraggingUsers
 
 // A question handler.
 // 
@@ -1248,7 +1248,7 @@ Procedure UsersKindClearing(Item, StandardProcessing)
 	
 EndProcedure
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
@@ -1274,5 +1274,7 @@ Procedure Attachable_UpdateCommands()
 EndProcedure
 
 // End StandardSubsystems.AttachableCommands
+
+#EndRegion
 
 #EndRegion

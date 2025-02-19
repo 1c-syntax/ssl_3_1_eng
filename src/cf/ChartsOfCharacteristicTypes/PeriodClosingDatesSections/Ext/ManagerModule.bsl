@@ -14,7 +14,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// SaaSTechnology.ExportImportData
+// CloudTechnology.ExportImportData
 
 // Returns the catalog attributes that naturally form a catalog item key.
 //
@@ -30,7 +30,7 @@ Function NaturalKeyFields() Export
 	
 EndFunction
 
-// End SaaSTechnology.ExportImportData
+// End CloudTechnology.ExportImportData
 
 #EndRegion
 

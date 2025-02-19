@@ -18,7 +18,9 @@ Procedure BeforeWrite(Cancel, Replacing)
 		Return;
 	EndIf;
 	
-	AdditionalProperties.Insert("RecordStructure", RecordStructure()); // Used by the consumers.
+	OldSet = Common.SetRecordsFromDatabase(ThisObject, Replacing, FieldsForAnalysis());
+	
+	AdditionalProperties.Insert("OldSet", OldSet);
 	
 EndProcedure
 
@@ -32,8 +34,17 @@ Procedure OnWrite(Cancel, Replacing)
 		Return;
 	EndIf;
 	
-	OldRecord     = AdditionalProperties.RecordStructure;
-	NewRecord      = RecordStructure();
+	OldSet = AdditionalProperties.OldSet;
+	
+	If Common.IsRecordSetDeletion(Replacing) Then
+		NewSet = Unload(New Array, FieldsForAnalysis());
+	Else
+		NewSet = Unload(, FieldsForAnalysis());
+	EndIf;
+	
+	OldRecord = RecordStructure(OldSet);
+	NewRecord  = RecordStructure(NewSet);
+	
 	DataForCalculation = New Structure("NewRecord, OldRecord", NewRecord, OldRecord);
 	
 	If NewRecord.Reviewed <> OldRecord.Reviewed Then
@@ -42,7 +53,7 @@ Procedure OnWrite(Cancel, Replacing)
 		Interactions.CalculateReviewedBySubjects(Interactions.TableOfDataForReviewedCalculation(DataForCalculation, "SubjectOf"));
 		
 		Return;
-
+		
 	EndIf;
 	
 	If NewRecord.Folder <> OldRecord.Folder Then
@@ -66,38 +77,37 @@ EndProcedure
 
 #Region Private
 
-Function RecordStructure()
+Function FieldsForAnalysis()
+	
+	RegisterMetadata = Metadata();
+	
+	FieldsForAnalysis = New Array;
+	FieldsForAnalysis.Add(RegisterMetadata.Resources.SubjectOf.Name);
+	FieldsForAnalysis.Add(RegisterMetadata.Resources.EmailMessageFolder.Name);
+	FieldsForAnalysis.Add(RegisterMetadata.Resources.Reviewed.Name);
+	
+	Return StrConcat(FieldsForAnalysis, ",");
+	
+EndFunction
 
-	ReturnStructure = New Structure;
-	ReturnStructure.Insert("SubjectOf", Undefined);
-	ReturnStructure.Insert("Folder", Catalogs.EmailMessageFolders.EmptyRef());
-	ReturnStructure.Insert("Reviewed", Undefined);
+Function RecordStructure(RecordSet)
+
+	RecordStructure = New Structure;
+	RecordStructure.Insert("SubjectOf",     Undefined);
+	RecordStructure.Insert("Folder",       Catalogs.EmailMessageFolders.EmptyRef());
+	RecordStructure.Insert("Reviewed", Undefined);
 	
-	If Filter.Count() = 0 Then
-		Return Undefined;
+	If RecordSet.Count() = 0 Then
+		Return RecordStructure;
 	EndIf;
 	
-	Query = New Query;
-	Query.Text = "SELECT
-	|	InteractionsFolderSubjects.SubjectOf,
-	|	InteractionsFolderSubjects.EmailMessageFolder AS Folder,
-	|	InteractionsFolderSubjects.Reviewed
-	|FROM
-	|	InformationRegister.InteractionsFolderSubjects AS InteractionsFolderSubjects
-	|WHERE
-	|	InteractionsFolderSubjects.Interaction = &Interaction";
+	SetRecord = RecordSet[0];
 	
-	Query.SetParameter("Interaction", Filter.Interaction.Value);
+	RecordStructure.SubjectOf     = SetRecord.SubjectOf;
+	RecordStructure.Folder       = SetRecord.EmailMessageFolder;
+	RecordStructure.Reviewed = SetRecord.Reviewed;
 	
-	Result = Query.Execute();
-	If Result.IsEmpty() Then
-		Return ReturnStructure;
-	EndIf;
-	
-	Selection = Result.Select();
-	Selection.Next();
-	FillPropertyValues(ReturnStructure, Selection);
-	Return ReturnStructure;
+	Return RecordStructure;
 	
 EndFunction
 

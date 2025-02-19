@@ -97,7 +97,7 @@ Procedure ClearReportDistributionHistory(Form) Export
 
 	Parameters = New Structure("Form", Form);
 
-	ShowQueryBox(New NotifyDescription("ResponseClearUpReportDistributionHistory", ThisObject, Parameters), QueryText,
+	ShowQueryBox(New CallbackDescription("ResponseClearUpReportDistributionHistory", ThisObject, Parameters), QueryText,
 		QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
 
 EndProcedure
@@ -140,7 +140,7 @@ Procedure SelectRecipient(ResultHandler, Object, MultipleChoice, ReturnsMap) Exp
 				Result = New Structure("Recipient, MailAddress", KeyAndValue.Key, KeyAndValue.Value);
 			EndDo;
 		EndIf;
-		ExecuteNotifyProcessing(ResultHandler, Result);
+		RunCallback(ResultHandler, Result);
 		Return;
 	EndIf;
 	
@@ -157,7 +157,7 @@ Procedure SelectRecipient(ResultHandler, Object, MultipleChoice, ReturnsMap) Exp
 	AdditionalParameters.Insert("Recipients", Recipients);
 	AdditionalParameters.Insert("ReturnsMap", ReturnsMap);
 	
-	Handler = New NotifyDescription("SelectRecipientCompletion", ThisObject, AdditionalParameters);
+	Handler = New CallbackDescription("SelectRecipientCompletion", ThisObject, AdditionalParameters);
 	PossibleRecipients.ShowChooseItem(Handler, NStr("en = 'Select recipient';"));
 	
 EndProcedure
@@ -167,7 +167,7 @@ EndProcedure
 // Parameters:
 //   SelectedElement - ValueListItem
 //   AdditionalParameters - Structure:
-//     * ResultHandler - NotifyDescription
+//     * ResultHandler - CallbackDescription
 //     * Recipients - Map of KeyAndValue:
 //       ** Key - Arbitrary
 //       ** Value - String 
@@ -189,12 +189,12 @@ Procedure SelectRecipientCompletion(SelectedElement, AdditionalParameters) Expor
 		EndIf;
 	EndIf;
 	
-	ExecuteNotifyProcessing(AdditionalParameters.ResultHandler, Result);
+	RunCallback(AdditionalParameters.ResultHandler, Result);
 EndProcedure
 
 // Executes mailing in the background.
 Procedure ExecuteNow(Parameters) Export
-	Handler = New NotifyDescription("ExecuteNowInBackground", ThisObject, Parameters);
+	Handler = New CallbackDescription("ExecuteNowInBackground", ThisObject, Parameters);
 	If Parameters.IsItemForm Then
 		Object = Parameters.Form.Object;
 		If Not Object.IsPrepared Then
@@ -206,7 +206,7 @@ Procedure ExecuteNow(Parameters) Export
 			Return;
 		EndIf;
 	EndIf;
-	ExecuteNotifyProcessing(Handler, Undefined);
+	RunCallback(Handler, Undefined);
 EndProcedure
 
 // Runs background job, it is called when all parameters are ready.
@@ -235,7 +235,7 @@ Procedure ExecuteNowInBackground(Recipients, Parameters) Export
 	WaitSettings.MessageText = StateText;
 	WaitSettings.OutputProgressBar = True;
 	
-	Handler = New NotifyDescription("ExecuteNowInBackgroundCompletion", ThisObject, Parameters);
+	Handler = New CallbackDescription("ExecuteNowInBackgroundCompletion", ThisObject, Parameters);
 	TimeConsumingOperationsClient.WaitCompletion(Job, Handler, WaitSettings);
 	
 EndProcedure
@@ -262,7 +262,7 @@ Procedure ExecuteNowInBackgroundCompletion(Job, Parameters) Export
 		
 	Else
 		Result = GetFromTempStorage(Job.ResultAddress);
-		If Result <> Undefined And Result.ThereAreErrorsInEncryption
+		If Result <> Undefined And Result.HasEncryptionErrors
 		   And CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
 			AdditionalData = New Structure;
 			AdditionalData.Insert("Certificate", Result.CertificateToEncrypt);
@@ -411,8 +411,8 @@ EndFunction
 
 // Sends out text messages with archive passwords in the background.
 Procedure SendBulkSMSMessages(Parameters) Export
-	Handler = New NotifyDescription("SendBulkSMSMessagesInBackground", ThisObject, Parameters);
-	ExecuteNotifyProcessing(Handler, Undefined);
+	Handler = New CallbackDescription("SendBulkSMSMessagesInBackground", ThisObject, Parameters);
+	RunCallback(Handler, Undefined);
 EndProcedure
 
 // Runs background job, it is called when all parameters are ready.
@@ -429,7 +429,7 @@ Procedure SendBulkSMSMessagesInBackground(Recipients, Parameters) Export
 	WaitSettings.OutputIdleWindow = True;
 	WaitSettings.MessageText = NStr("en = 'Sending text messages with passwords for the report distribution.';");
 	
-	Handler = New NotifyDescription("SendBulkSMSMessagesInBackgroundCompletion", ThisObject, Parameters);
+	Handler = New CallbackDescription("SendBulkSMSMessagesInBackgroundCompletion", ThisObject, Parameters);
 	TimeConsumingOperationsClient.WaitCompletion(Job, Handler, WaitSettings);
 
 EndProcedure
@@ -486,8 +486,8 @@ EndProcedure
 Procedure ResponseClearUpReportDistributionHistory(Result, Parameters) Export  
 	
 	If Result = DialogReturnCode.Yes Then
-		Handler = New NotifyDescription("ClearUpReportDistributionHistoryInBackground", ThisObject, Parameters);
-		ExecuteNotifyProcessing(Handler, Undefined);
+		Handler = New CallbackDescription("ClearUpReportDistributionHistoryInBackground", ThisObject, Parameters);
+		RunCallback(Handler, Undefined);
 	EndIf;
 	
 EndProcedure
@@ -504,7 +504,7 @@ Procedure ClearUpReportDistributionHistoryInBackground(Parameters, AdditionalPar
 	WaitSettings.OutputIdleWindow = True;
 	WaitSettings.MessageText = NStr("en = 'Clearing the report distribution history.';");
 	
-	Handler = New NotifyDescription("ClearUpReportDistributionHistoryCompletion", ThisObject, AdditionalParameters);
+	Handler = New CallbackDescription("ClearUpReportDistributionHistoryCompletion", ThisObject, AdditionalParameters);
 	TimeConsumingOperationsClient.WaitCompletion(Job, Handler, WaitSettings);
 
 EndProcedure

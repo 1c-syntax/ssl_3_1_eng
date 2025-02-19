@@ -29,17 +29,17 @@ Procedure LoadKeyOperationsProfile(Command)
 			ImportParameters.Dialog.Title = NStr("en = 'Select file of key operation profile';");
 			ImportParameters.Dialog.Filter = "Files profile2 key operations (*.xml)|*.xml";
 			
-			NotifyDescription = New NotifyDescription("FileDialogCompletion", ThisObject, Undefined);
+			NotifyDescription = New CallbackDescription("FileDialogCompletion", ThisObject, Undefined);
 			ModuleFileSystemClient.ImportFile_(NotifyDescription, ImportParameters);
 		EndIf;
 	Else          		
 		AdditionalParameters = New Structure("Mode, Title, ClosingNotification1",  
 		FileDialogMode.Open, 
 		NStr("en = 'Select file of key operation profile';"),
-		New NotifyDescription("FileDialogCompletion", ThisObject, Undefined));  
+		New CallbackDescription("FileDialogCompletion", ThisObject, Undefined));  
 #If WebClient Then
-			Notification = New NotifyDescription("BeginAttachingFileSystemExtensionCompletion", ThisObject,
-			New NotifyDescription("DialogueFileSelectionShow", ThisObject, AdditionalParameters));
+			Notification = New CallbackDescription("BeginAttachingFileSystemExtensionCompletion", ThisObject,
+			New CallbackDescription("DialogueFileSelectionShow", ThisObject, AdditionalParameters));
 			BeginAttachingFileSystemExtension(Notification);
 #Else
 			DialogueFileSelectionShow(True, AdditionalParameters);
@@ -57,16 +57,16 @@ Procedure SaveKeyOperationsProfile(Command)
 			SavingParameters = ModuleFileSystemClient.FileSavingParameters();
 			SavingParameters.Dialog.Title = NStr("en = 'Save key operation profile to file';");
 			SavingParameters.Dialog.Filter = "Files profile2 key operations (*.xml)|*.xml";  		
-			ModuleFileSystemClient.SaveFile(New NotifyDescription("SaveFileDialogCompletion", ThisObject, Undefined), SaveKeyOperationsProfileToServer(), , SavingParameters);
+			ModuleFileSystemClient.SaveFile(New CallbackDescription("SaveFileDialogCompletion", ThisObject, Undefined), SaveKeyOperationsProfileToServer(), , SavingParameters);
 		EndIf;
 	Else              		
 		AdditionalParameters = New Structure("Mode, Title, ClosingNotification1",  
 			FileDialogMode.Save, 
 			NStr("en = 'Save key operation profile to file';"),
-			New NotifyDescription("SaveFileDialogCompletion", ThisObject, Undefined));  
+			New CallbackDescription("SaveFileDialogCompletion", ThisObject, Undefined));  
 #If WebClient Then
-		Notification = New NotifyDescription("BeginAttachingFileSystemExtensionCompletion", ThisObject,
-			New NotifyDescription("DialogueFileSelectionShow", ThisObject, AdditionalParameters));
+		Notification = New CallbackDescription("BeginAttachingFileSystemExtensionCompletion", ThisObject,
+			New CallbackDescription("DialogueFileSelectionShow", ThisObject, AdditionalParameters));
 		BeginAttachingFileSystemExtension(Notification);
 #Else
 			DialogueFileSelectionShow(True, AdditionalParameters);
@@ -139,16 +139,16 @@ EndProcedure
 Procedure BeginAttachingFileSystemExtensionCompletion(ExtensionAttached, AdditionalParameters) Export
 	
 	If ExtensionAttached Then
-		ExecuteNotifyProcessing(AdditionalParameters, True);
+		RunCallback(AdditionalParameters, True);
 		Return;
 	EndIf;
 	
 	If Not ExtensionInstallationPrompted Then
 		ExtensionInstallationPrompted = True;
-		NotifyDescriptionQuestion = New NotifyDescription("QueryAboutExtensionInstallation", ThisObject, AdditionalParameters);
+		NotifyDescriptionQuestion = New CallbackDescription("QueryAboutExtensionInstallation", ThisObject, AdditionalParameters);
 		BeginInstallFileSystemExtension(NotifyDescriptionQuestion );
 	Else
-		ExecuteNotifyProcessing(AdditionalParameters, ExtensionAttached);
+		RunCallback(AdditionalParameters, ExtensionAttached);
 	EndIf;
 	
 EndProcedure
@@ -156,8 +156,8 @@ EndProcedure
 &AtClient
 Procedure QueryAboutExtensionInstallation(Notification) Export
 	
-	NotificationOnChecking = New NotifyDescription("BeginAttachingFileSystemExtensionCompletion", ThisObject,
-			New NotifyDescription("DialogueFileSelectionShow", ThisObject, Notification));
+	NotificationOnChecking = New CallbackDescription("BeginAttachingFileSystemExtensionCompletion", ThisObject,
+			New CallbackDescription("DialogueFileSelectionShow", ThisObject, Notification));
 	BeginAttachingFileSystemExtension(NotificationOnChecking);
 	
 EndProcedure

@@ -19,7 +19,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Application = Parameters.Filter.Application;
 		
 		AutoTitle = False;
-		Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Paths to application %1 on Linux servers';"), Application);
+		Title = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Paths to %1 on Linux servers';"), Application);
 		
 		Items.ListApplication.Visible = False;
 	EndIf;

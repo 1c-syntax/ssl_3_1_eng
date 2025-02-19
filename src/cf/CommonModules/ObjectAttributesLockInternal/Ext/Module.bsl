@@ -82,8 +82,7 @@ Procedure PrepareForm(Form, Ref, LockButtonGroup, LockButtonTitle) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+#Region AuxiliaryProceduresAndFunctions
 
 // Intended for the PrepareForm procedure.
 Procedure PopulateDetailsForLockedAttributes(LongDesc, ObjectMetadata, AttributesToLock,
@@ -249,5 +248,7 @@ Function BlockedObjectDetailsAndFormElements(ObjectName) Export
 	Return Result;
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion

@@ -6,7 +6,6 @@
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -28,19 +27,19 @@ Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessin
 	Presentation = Undefined;
 	
 	If Parameters.FormName = "Catalog.Users.Form.ListForm" Then
-		Presentation = NStr("en = 'Changes in user group membership';");
+		Presentation = NStr("en = 'User group membership changes';");
 		VariantKey = "MembersChangeInUsersGroups";
 		
 	ElsIf Parameters.FormName = "Catalog.Users.Form.ItemForm" Then
-		Presentation = NStr("en = 'Change in user group membership';");
+		Presentation = NStr("en = 'User group membership changes';");
 		VariantKey = "MembersChangeInUsersGroups";
 		
 	ElsIf Parameters.FormName = "Catalog.ExternalUsers.Form.ListForm" Then
-		Presentation = NStr("en = 'Changes in external user group membership';");
+		Presentation = NStr("en = 'External user group membership changes';");
 		VariantKey = "MembersChangeInExternalUsersGroups";
 		
 	ElsIf Parameters.FormName = "Catalog.ExternalUsers.Form.ItemForm" Then
-		Presentation = NStr("en = 'Change in external user group membership';");
+		Presentation = NStr("en = 'External user group membership changes';");
 		VariantKey = "MembersChangeInExternalUsersGroups";
 	EndIf;
 	
@@ -77,12 +76,12 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "MembersChangeInUsersGroups");
 	OptionSettings.LongDesc =
-		NStr("en = 'Reads the event log and shows you the changes in the membership of user groups for the given time period considering the group hierarchy.';");
+		NStr("en = 'Reads the event log and displays the changes in user group membership for the specified time period, considering the group hierarchy.';");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "MembersChangeInExternalUsersGroups");
 	OptionSettings.FunctionalOptions.Add("UseExternalUsers");
 	OptionSettings.LongDesc =
-		NStr("en = 'Reads the event log and shows you the changes in the membership of external user groups for the given time period considering the group hierarchy.';");
+		NStr("en = 'Reads the event log and displays the changes in external user group membership for the specified time period, considering the group hierarchy.';");
 	
 EndProcedure
 

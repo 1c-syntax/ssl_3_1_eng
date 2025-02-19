@@ -269,6 +269,18 @@ EndProcedure
 
 #Region Private
 
+Function AvailableIntegrations() Export
+	
+	Result = New Array;
+	Result.Add("Telegram");
+	Result.Add("WebChat");
+	Result.Add("Webhook");
+
+	ConversationsLocalization.OnDefineAvailableIntegrations(Result);
+	Return Result;
+	
+EndFunction
+
 // Returns:
 //  Structure:
 //   * Id - Undefined
@@ -288,6 +300,7 @@ Function IntegrationParameters() Export
 	IntegrationParameters.Insert("Attendees", New Array);
 	IntegrationParameters.Insert("token", "");
 	IntegrationParameters.Insert("groupId", "");
+	IntegrationParameters.Insert("channel", "");
 	
 	Return IntegrationParameters;
 EndFunction
@@ -297,7 +310,7 @@ Function EventLogEvent(EventDetails = "") Export
 		+ ?(IsBlankString(EventDetails), "", "."+EventDetails);
 EndFunction
 
-Procedure CreateChangeIntegration(Parameters) Export
+Function CreateChangeIntegration(Parameters) Export
 
 	Id = CommonClientServer.StructureProperty(Parameters, "Id");
 	If Id <> Undefined Then
@@ -336,7 +349,10 @@ Procedure CreateChangeIntegration(Parameters) Export
 	EndDo;
 	
 	NewIntegration.Write();
-EndProcedure
+	
+	Return NewIntegration;
+	
+EndFunction
 
 Procedure DisableIntegration(Id) Export
 

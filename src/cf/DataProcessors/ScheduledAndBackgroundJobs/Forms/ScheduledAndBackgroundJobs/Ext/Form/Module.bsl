@@ -19,6 +19,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Raise(NStr("en = 'Insufficient access rights.';"), ErrorCategory.AccessViolation);
 	EndIf;
 	
+	FillFormSettings(New Map);
+	
 	BlankID = String(CommonClientServer.BlankUUID());
 	TextUndefined = ScheduledJobsInternal.TextUndefined();
 	IsSubordinateDIBNode = Common.IsSubordinateDIBNode();
@@ -28,7 +30,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ScheduledJobsTableExecuteNotInBackground.Visible = True;
 	EndIf;
 	
-	Items.ExternalResourcesOperationsLockGroup.Visible = ScheduledJobsServer.OperationsWithExternalResourcesLocked();
+	OperationsWithExternalResourcesLocked = ScheduledJobsServer.OperationsWithExternalResourcesLocked();
+	Items.ExternalResourcesOperationsLockGroup.Visible = OperationsWithExternalResourcesLocked;
+	Items.ScheduledJobsTableLockOperationsWithExternalResources.Enabled = Not OperationsWithExternalResourcesLocked;
 	
 	If Common.IsMobileClient() Then
 		
@@ -42,10 +46,6 @@ EndProcedure
 
 &AtClient
 Procedure OnOpen(Cancel)
-	
-	If Not SettingsImported Then
-		FillFormSettings(New Map);
-	EndIf;
 	
 	ImportScheduledJobs();
 	
@@ -63,6 +63,12 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		EndIf;
 	ElsIf EventName = "OperationsWithExternalResourcesAllowed" Then
 		Items.ExternalResourcesOperationsLockGroup.Visible = False;
+		Items.ScheduledJobsTableLockOperationsWithExternalResources.Enabled = True;
+		StandardSubsystemsClient.SetAdvancedApplicationCaption();
+	ElsIf EventName = "OperationsWithExternalResourcesProhibited" Then
+		Items.ExternalResourcesOperationsLockGroup.Visible = True;
+		Items.ScheduledJobsTableLockOperationsWithExternalResources.Enabled = False;
+		StandardSubsystemsClient.SetAdvancedApplicationCaption();
 	ElsIf EventName = "Write_ConstantsSet" Then
 		AttachIdleHandler("ScheduledJobsDeferredUpdate", 0.1, True);
 	EndIf;
@@ -73,8 +79,6 @@ EndProcedure
 Procedure BeforeLoadDataFromSettingsAtServer(Settings)
 	
 	FillFormSettings(Settings);
-	
-	SettingsImported = True;
 	
 EndProcedure
 
@@ -194,7 +198,7 @@ Procedure ScheduledJobsTableBeforeDeleteRow(Item, Cancel)
 		ShowMessageBox(, NStr("en = 'Predefined scheduled job cannot be deleted.';") );
 	Else
 		ShowQueryBox(
-			New NotifyDescription("ScheduledJobsTableBeforeDeleteRowCompletion", ThisObject),
+			New CallbackDescription("ScheduledJobsTableBeforeDeleteRowCompletion", ThisObject),
 			NStr("en = 'Do you want to delete the scheduled job?';"), QuestionDialogMode.YesNo);
 	EndIf;
 	
@@ -295,7 +299,7 @@ Procedure ExecuteScheduledJobManually(Command)
 			Buttons.Add(DialogReturnCode.Cancel);
 			
 			ShowQueryBox(
-				New NotifyDescription(
+				New CallbackDescription(
 					"ExecuteScheduledJobManuallyCompletion", ThisObject, AllErrorsText),
 				ErrorTextTitle, Buttons);
 		Else
@@ -319,7 +323,7 @@ Procedure SetUpSchedule(Command)
 		Dialog = New ScheduledJobDialog(
 			GetSchedule(CurrentData.Id));
 		
-		Dialog.Show(New NotifyDescription(
+		Dialog.Show(New CallbackDescription(
 			"OpenScheduleEnd", ThisObject, CurrentData));
 	EndIf;
 	
@@ -445,7 +449,7 @@ Procedure EventLogEvents(Command)
 			Return;
 		EndIf;
 		EventFilter.Insert("StartDate", CurrentData.StartDate);
-		If CurrentData.EndDate <> PresentationOfEmptyDate() Then
+		If CurrentData.EndDate <> EmptyDatePresentation() Then
 			EventFilter.Insert("EndDate", CurrentData.EndDate);
 		EndIf;
 		AddSelectionBySession(EventFilter, CurrentData.Id);
@@ -461,6 +465,25 @@ Procedure EventLogEvents(Command)
 	EndIf;
 	
 	EventLogClient.OpenEventLog(EventFilter, ThisObject);
+	
+EndProcedure
+
+&AtClient
+Procedure LockOperationsWithExternalResources(Command)
+	
+	OnCloseNotifyHandler = New CallbackDescription("LockOperationsWithExternalResourcesCompletion", ThisObject);
+	MessageText = NStr("en = 'All scheduled operations involving external resources (such as data synchronization and sending email) will be blocked.
+	|
+	|Possible reasons for blocking:
+	|• The infobase is mistakenly marked as moved.
+	|• Scheduled jobs need to be temporary disabled.';");
+	ButtonsList = New ValueList();
+	ButtonsList.Add(DialogReturnCode.Yes, "Lock");
+	ButtonsList.Add(DialogReturnCode.No, "Cancel");
+	ShowQueryBox(OnCloseNotifyHandler, 
+		MessageText, 
+		ButtonsList, , 
+		DialogReturnCode.No, NStr("en = 'Lock operations with external resources';"));
 	
 EndProcedure
 
@@ -482,7 +505,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("BackgroundJobsTable.End");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.NotFilled;
-	Item.Appearance.SetParameterValue("Text", PresentationOfEmptyDate());
+	Item.Appearance.SetParameterValue("Text", EmptyDatePresentation());
 	
 	//
 	Item = ConditionalAppearance.Items.Add();
@@ -639,39 +662,33 @@ Procedure FillFormSettings(Val Settings)
 	
 	DefaultSettings = New Structure;
 	
-	// Background job filter setting.
 	If Settings.Get("FilterByActiveState") = Undefined Then
 		Settings.Insert("FilterByActiveState", True);
 	EndIf;
 	
 	If Settings.Get("FilterByCompletedState") = Undefined Then
-		Settings.Insert("FilterByCompletedState", True);
+		Settings.Insert("FilterByCompletedState", False);
 	EndIf;
 	
 	If Settings.Get("FilterByFailedState") = Undefined Then
-		Settings.Insert("FilterByFailedState", True);
+		Settings.Insert("FilterByFailedState", False);
 	EndIf;
 
 	If Settings.Get("FilterByStateCanceled") = Undefined Then
-		Settings.Insert("FilterByStateCanceled", True);
+		Settings.Insert("FilterByStateCanceled", False);
 	EndIf;
 	
 	If Settings.Get("FilterByScheduledJob") = Undefined
-	 Or Settings.Get("ScheduledJobForFilterID")   = Undefined Then
+	 Or Settings.Get("ScheduledJobForFilterID") = Undefined Then
 		Settings.Insert("FilterByScheduledJob", False);
 		Settings.Insert("ScheduledJobForFilterID", BlankID);
 	EndIf;
 	
-	// Set the period filter to "All time".
-	// See also the radio button event handler "FilterKindByPeriodOnChange".
-	If Settings.Get("FilterKindByPeriod") = Undefined
-	 Or Settings.Get("FilterPeriodFrom")       = Undefined
-	 Or Settings.Get("FilterPeriodFor")      = Undefined Then
+	// See also the "FilterKindByPeriodOnChange" radio button event handler.
+	If Settings.Get("FilterKindByPeriod") = Undefined Then
 		
-		Settings.Insert("FilterKindByPeriod", 0);
+		Settings.Insert("FilterKindByPeriod", 3); // Today
 		CurrentSessionDate = CurrentSessionDate();
-		Settings.Insert("FilterPeriodFrom",  BegOfDay(CurrentSessionDate) - 3*3600);
-		Settings.Insert("FilterPeriodFor", BegOfDay(CurrentSessionDate) + 9*3600);
 	EndIf;
 	
 	For Each Setting In Settings Do
@@ -680,7 +697,6 @@ Procedure FillFormSettings(Val Settings)
 	
 	FillPropertyValues(ThisObject, DefaultSettings);
 	
-	// Setting visibility and accessibility.
 	Items.SettingArbitraryPeriod.Visible = (FilterKindByPeriod = 4);
 	Items.FilterPeriodFrom.ReadOnly  = Not (FilterKindByPeriod = 4);
 	Items.FilterPeriodFor.ReadOnly = Not (FilterKindByPeriod = 4);
@@ -921,8 +937,22 @@ Procedure LockOfOperationsWithExternalResourcesURLProcessingAtServerNote()
 	ScheduledJobsServer.UnlockOperationsWithExternalResources();
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Background import of scheduled jobs.
+&AtClient
+Procedure LockOperationsWithExternalResourcesCompletion(Result, AdditionalParameters) Export
+	
+	If Result = DialogReturnCode.Yes Then
+		LockOperationsWithExternalResourcesAtServer();
+		Notify("OperationsWithExternalResourcesProhibited");
+	EndIf;
+	
+EndProcedure
+
+&AtServerNoContext
+Procedure LockOperationsWithExternalResourcesAtServer()
+	ScheduledJobsServer.LockOperationsWithExternalResources();
+EndProcedure
+
+#Region BackgroundLoadingOfScheduledJobs
 
 &AtClient
 Procedure ImportScheduledJobs(JobID = Undefined, UpdateSilently = False)
@@ -933,11 +963,11 @@ Procedure ImportScheduledJobs(JobID = Undefined, UpdateSilently = False)
 	If Items.ScheduledJobsTable.CurrentData <> Undefined Then
 		CurrentRowID = Items.ScheduledJobsTable.CurrentData.Id;
 	EndIf;
-	Result = ScheduledJobsImport(JobID);
+	Result = ImportScheduledJobsServer(JobID);
 	
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
-	CallbackOnCompletion = New NotifyDescription("ImportScheduledJobsCompletion", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("ImportScheduledJobsCompletion", ThisObject);
 	
 	TimeConsumingOperationsClient.WaitCompletion(Result, CallbackOnCompletion, IdleParameters);
 	
@@ -959,14 +989,13 @@ Procedure ImportScheduledJobsCompletion(Result, AdditionalParameters) Export
 		Items.ScheduledJobsDeferredImportPages.CurrentPage = Items.ScheduledJobsPage;
 	ElsIf Result.Status = "Error" Then
 		Items.ScheduledJobsDeferredImportPages.CurrentPage = Items.ScheduledJobsPage;
-		StandardSubsystemsClient.OutputErrorInfo(
-			Result.ErrorInfo);
+		StandardSubsystemsClient.OutputErrorInfo(Result.ErrorInfo);
 	EndIf;
 	
 EndProcedure
 
 &AtServer
-Function ScheduledJobsImport(JobID)
+Function ImportScheduledJobsServer(JobID)
 	
 	If ExecutionResult <> Undefined
 		And ValueIsFilled(ExecutionResult.JobID) Then
@@ -980,7 +1009,7 @@ Function ScheduledJobsImport(JobID)
 	If JobID <> Undefined Then
 		ExecutionParameters.RunNotInBackground1 = True;
 	EndIf;
-	ExecutionParameters.WaitCompletion = 0; // Run immediately.
+	ExecutionParameters.WaitCompletion = 0; // Run immediately
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Generate scheduled job list';");
 	
 	Return TimeConsumingOperations.ExecuteInBackground("ScheduledJobsInternal.GenerateScheduledJobsTable",
@@ -1003,6 +1032,8 @@ EndFunction
 Procedure ProcessResult(JobParameters)
 	
 	Result = GetFromTempStorage(JobParameters.ResultAddress);
+	DeleteFromTempStorage(JobParameters.ResultAddress);
+	
 	DisabledJobs.Clear();
 	For Each ListItem In Result.DisabledJobs Do
 		DisabledJobs.Add(ListItem.Value);
@@ -1040,12 +1071,13 @@ Procedure ProcessResult(JobParameters)
 EndProcedure
 
 &AtClientAtServerNoContext
-Function PresentationOfEmptyDate()
+Function EmptyDatePresentation()
 	Return "<>";
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Background import of background jobs.
+#EndRegion
+
+#Region BackgroundLoadingOfBackgroundJobs
 
 &AtClient
 Procedure UpdateBackgroundJobsTableAtClient()
@@ -1060,7 +1092,7 @@ Procedure UpdateBackgroundJobsTableAtClient()
 	
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
-	CallbackOnCompletion = New NotifyDescription("UpdateBackgroundJobTableCompletion", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("UpdateBackgroundJobTableCompletion", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(Result, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
@@ -1082,7 +1114,7 @@ Function GenerateBackgroundJobsTableInBackground()
 	If Result.Status = "Completed2" Then
 		UpdateBackgroundJobTable(Result.ResultAddress);
 	ElsIf Result.Status = "Error" Then
-		Raise Result.BriefErrorDescription;
+		Raise Result.ErrorInfo;
 	EndIf;
 	
 	Return Result;
@@ -1092,10 +1124,7 @@ EndFunction
 &AtServer
 Function BackgroundJobsFilter()
 	
-	// 1. Prepare filter.
 	Filter = New Structure;
-	
-	// 1.1. Add filter by state.
 	StateArray = New Array;
 	
 	If FilterByActiveState Then 
@@ -1115,23 +1144,16 @@ Function BackgroundJobsFilter()
 	EndIf;
 	
 	If StateArray.Count() <> 4 Then
-		If StateArray.Count() = 1 Then
-			Filter.Insert("State", StateArray[0]);
-		Else
-			Filter.Insert("State", StateArray);
-		EndIf;
+		Filter.Insert("State", ?(StateArray.Count() = 1, StateArray[0], StateArray));
 	EndIf;
 	
-	// 1.2. Add filter by scheduled job.
 	If FilterByScheduledJob Then
-		Filter.Insert(
-				"ScheduledJobID",
-				?(ScheduledJobForFilterID = BlankID,
-				"",
-				ScheduledJobForFilterID));
+		Filter.Insert("ScheduledJobID",
+			?(ScheduledJobForFilterID = BlankID,
+			"",
+			ScheduledJobForFilterID));
 	EndIf;
 	
-	// 1.3. Add filter by period.
 	If FilterKindByPeriod <> 0 Then
 		RefreshAutomaticPeriod(ThisObject, CurrentSessionDate());
 		Filter.Insert("Begin", FilterPeriodFrom);
@@ -1144,8 +1166,6 @@ EndFunction
 
 &AtServer
 Procedure UpdateBackgroundJobTable(ResultAddress = Undefined)
-	
-	// Refreshing the background job list.
 	
 	If ResultAddress <> Undefined Then
 		DataFromStorage = GetFromTempStorage(ResultAddress);
@@ -1161,9 +1181,7 @@ Procedure UpdateBackgroundJobTable(ResultAddress = Undefined)
 		
 		If IndexOf >= Table.Count()
 		 Or Table.Get(IndexOf).Id <> Job.Id Then
-			// Insert a new job.
 			ToUpdate = Table.Insert(IndexOf);
-			// Assign a UUID.
 			ToUpdate.Id = Job.Id;
 		Else
 			ToUpdate = Table[IndexOf];
@@ -1184,16 +1202,13 @@ Procedure UpdateBackgroundJobTable(ResultAddress = Undefined)
 			ToUpdate.ScheduledJobID = TextUndefined;
 		EndIf;
 		
-		// Getting error details.
 		ToUpdate.MessagesToUserAndErrorDescription 
 			= ScheduledJobsInternal.BackgroundJobMessagesAndErrorDescriptions(
 				ToUpdate.Id, Job);
 		
-		// Index increase.
 		IndexOf = IndexOf + 1;
 	EndDo;
 	
-	// Deleting unnecessary rows.
 	While IndexOf < Table.Count() Do
 		Table.Delete(Table.Count()-1);
 	EndDo;
@@ -1229,8 +1244,7 @@ Procedure UpdateBackgroundJobTableCompletion(Result, AdditionalParameters) Expor
 	ElsIf Result.Status = "Error" Then
 		Items.HeaderGroup.Enabled = True;
 		Items.BackgroundJobsDeferredImportPages.CurrentPage = Items.BackgroundJobsPage;
-		StandardSubsystemsClient.OutputErrorInfo(
-			Result.ErrorInfo);
+		StandardSubsystemsClient.OutputErrorInfo(Result.ErrorInfo);
 	EndIf;
 	
 EndProcedure
@@ -1267,5 +1281,7 @@ Procedure AddSelectionBySession(Filter, Id)
 	EndDo;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

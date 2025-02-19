@@ -131,7 +131,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		Return;
 	EndIf;
 
-	ResultHandler = New NotifyDescription("BeforeCloseAfterAnswerQuestionOnClosingTextEditor", ThisObject);
+	ResultHandler = New CallbackDescription("BeforeCloseAfterAnswerQuestionOnClosingTextEditor", ThisObject);
 	ReminderText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'File ""%1"" was changed.
 			|Do you want to save the changes?';"), 
@@ -207,7 +207,7 @@ Procedure Write(Command)
 	WriteText();
 	HandlerParameters = New Structure;
 	HandlerParameters.Insert("Scenario", "TakeNoAction");
-	Handler = New NotifyDescription("EndEditCompletion", ThisObject, HandlerParameters);
+	Handler = New CallbackDescription("EndEditCompletion", ThisObject, HandlerParameters);
 	FileUpdateParameters = FilesOperationsInternalClient.FileUpdateParameters(Handler, File, OwnerID);
 	FileUpdateParameters.Encoding = FileTextEncoding;
 	FilesOperationsInternalClient.SaveFileChangesWithNotification(Handler, File, OwnerID);
@@ -221,7 +221,7 @@ Procedure EndEdit(Command)
 	
 	HandlerParameters = New Structure;
 	HandlerParameters.Insert("Scenario", "EndEdit");
-	Handler = New NotifyDescription("EndEditCompletion", ThisObject, HandlerParameters);
+	Handler = New CallbackDescription("EndEditCompletion", ThisObject, HandlerParameters);
 	
 	FileUpdateParameters = FilesOperationsInternalClient.FileUpdateParameters(Handler, File, OwnerID);
 	FileUpdateParameters.Encoding = FileTextEncoding;
@@ -255,7 +255,7 @@ Procedure WriteAndClose(Command)
 	
 	HandlerParameters = New Structure;
 	HandlerParameters.Insert("Scenario", "WriteAndClose");
-	Handler = New NotifyDescription("EndEditCompletion", ThisObject, HandlerParameters);
+	Handler = New CallbackDescription("EndEditCompletion", ThisObject, HandlerParameters);
 	
 	FileUpdateParameters = FilesOperationsInternalClient.FileUpdateParameters(Handler, File, OwnerID);
 	FileUpdateParameters.Encoding = FileTextEncoding;
@@ -267,7 +267,7 @@ EndProcedure
 Procedure SelectEncoding(Command)
 	FormParameters = New Structure;
 	FormParameters.Insert("CurrentEncoding", FileTextEncoding);
-	Handler = New NotifyDescription("SelectEncodingCompletion", ThisObject);
+	Handler = New CallbackDescription("SelectEncodingCompletion", ThisObject);
 	OpenForm("DataProcessor.FilesOperations.Form.SelectEncoding", FormParameters, ThisObject, , , , Handler);
 EndProcedure
 
@@ -283,7 +283,7 @@ Procedure BeforeCloseAfterAnswerQuestionOnClosingTextEditor(Result, ExecutionPar
 		WriteText();
 		HandlerParameters = New Structure;
 		HandlerParameters.Insert("Scenario", "Close");
-		Handler = New NotifyDescription("EndEditCompletion", ThisObject, HandlerParameters);
+		Handler = New CallbackDescription("EndEditCompletion", ThisObject, HandlerParameters);
 		FileUpdateParameters = FilesOperationsInternalClient.FileUpdateParameters(Handler, File, OwnerID);
 		FileUpdateParameters.Encoding = FileTextEncoding;
 		FilesOperationsInternalClient.EndEditAndNotify(FileUpdateParameters);
@@ -417,7 +417,7 @@ Procedure ExecuteCompareFiles(Result, ExecutionParameters) Export
 		// First call means that the setting has not been initialized yet.
 		If ExecutionParameters.FileVersionsComparisonMethod = Undefined Then
 			ExecutionParameters.CurrentStep = 1.1;
-			Handler = New NotifyDescription("ExecuteCompareFiles", ThisObject, ExecutionParameters);
+			Handler = New CallbackDescription("ExecuteCompareFiles", ThisObject, ExecutionParameters);
 			OpenForm("DataProcessor.FilesOperations.Form.SelectVersionCompareMethod", , ThisObject, , , , Handler);
 			Return;
 		EndIf;

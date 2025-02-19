@@ -177,13 +177,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.EndAndClose.Representation = ButtonRepresentation.Picture;
 	EndIf;
 	
-	SelectConversationParticipants = CommonClientServer.StructureProperty(Parameters, "SelectConversationParticipants", False);
-	
+	SelectConversationParticipants = Parameters.SelectConversationParticipants;
 	If Not Common.SubsystemExists("StandardSubsystems.ImportDataFromFile") Then
 		Items.PasteFromClipboard.Visible = False;
 	EndIf; 
 	
-	AddressUserWithoutPhoto = PutToTempStorage(PictureLib.UserWithoutPhoto, UUID);
+	AddressUserWithoutPhoto = PutToTempStorage(PictureLib.UserWithoutPhoto, 
+		UUID);
 	PhotoAddress = PutToTempStorage(Undefined, UUID);
 	FillContactInformation(ThisObject, Undefined);
 	SetTitleOfSelectedUsersAndGroups();
@@ -521,7 +521,7 @@ Procedure UserGroupsDrag(Item, DragParameters, StandardProcessing, String, Field
 	AdditionalParameters.Insert("String", String);
 	AdditionalParameters.Insert("Move", Move);
 	
-	Notification = New NotifyDescription("UserGroupsDragCompletion", ThisObject, AdditionalParameters);
+	Notification = New CallbackDescription("UserGroupsDragCompletion", ThisObject, AdditionalParameters);
 	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo, 60, DialogReturnCode.Yes);
 	
 EndProcedure
@@ -776,8 +776,7 @@ Procedure UsersInfo(Command)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Support of batch object change.
+#Region BatchObjectModificationSupport
 
 &AtClient
 Procedure ChangeSelectedItems(Command)
@@ -798,7 +797,7 @@ Procedure PasteFromClipboard(Command)
 	SearchParameters.Insert("Scenario", "RefsSearch");
 	
 	ExecutionParameters = New Structure;
-	Handler = New NotifyDescription("PasteFromClipboardCompletion", ThisObject, ExecutionParameters);
+	Handler = New CallbackDescription("PasteFromClipboardCompletion", ThisObject, ExecutionParameters);
 	
 	ModuleDataImportFromFileClient = CommonClient.CommonModule("ImportDataFromFileClient");
 	ModuleDataImportFromFileClient.ShowRefFillingForm(SearchParameters, Handler);
@@ -870,6 +869,8 @@ Function BlockInvalidUsersInTheInteractionSystemOnTheServer()
 	EndDo;
 	Return Result;
 EndFunction
+
+#EndRegion
 
 #EndRegion
 
@@ -1490,7 +1491,7 @@ Procedure ListOnChangeAtServer()
 	
 EndProcedure
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

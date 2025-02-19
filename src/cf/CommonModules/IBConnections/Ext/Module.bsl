@@ -10,8 +10,7 @@
 
 #Region Public
 
-////////////////////////////////////////////////////////////////////////////////
-// Locking the infobase and terminating connections.
+#Region InfobaseLockAndConnectionTerminations
 
 // Sets the infobase connection lock.
 // If this function is called from a session with separator values set,
@@ -220,8 +219,9 @@ Function ConnectionsInformation(GetConnectionString = False,
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Data area session lock.
+#EndRegion
+
+#Region DataAreaSessionsLock
 
 // Gets an empty structure with data area session lock parameters.
 // 
@@ -370,6 +370,8 @@ EndFunction
 
 #EndRegion
 
+#EndRegion
+
 #Region Internal
 
 Function IsSubsystemUsed() Export
@@ -478,8 +480,7 @@ Function BlockingSessionsInformation(MessageText = "") Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // See SaaSOperationsOverridable.OnFillIIBParametersTable.
 Procedure OnFillIIBParametersTable(Val ParametersTable) Export
@@ -692,6 +693,8 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 #Region Private
 
 Procedure SendServerNotificationAboutLockSet(OnSendServerNotification = False) Export
@@ -720,8 +723,7 @@ Procedure SendServerNotificationAboutLockSet(OnSendServerNotification = False) E
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Miscellaneous.
+#Region Other
 
 // Returns session lock message text.
 //
@@ -746,8 +748,8 @@ Function GenerateLockMessage(Val Message, Val KeyCode) Export
 	ParameterName = "AllowUserAuthorization";
 	If Common.DataSeparationEnabled() And Common.SeparatedDataUsageAvailable() Then
 		MessageText = MessageText + NStr("en = '%1
-			|To allow user access, you can open the application with parameter %2. For example:
-			|http://<server web address>/?C=%2';");
+			|To allow user access, you can open the application with the parameter %2. For example:
+			|https://<server web address>/?C=%2';");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, 
 			IBConnectionsClientServer.TextForAdministrator(), ParameterName);
 	Else
@@ -824,17 +826,12 @@ EndFunction
 //   * CurrentIBMode - SessionsLock
 //   * CurrentDate - Date
 //
-Function CurrentConnectionLockParameters(ShouldReturnUndefinedIfUnspecified = False)
+Function CurrentConnectionLockParameters()
 	
 	CurrentDate = CurrentDate(); // ACC:143 - CurrentSessionDate is not used since there's a lock in the server time zone.
 	
 	SetPrivilegedMode(True);
 	CurrentIBMode = GetSessionsLock();
-	If ShouldReturnUndefinedIfUnspecified
-	   And Not CurrentIBMode.Use
-	   And Not Common.DataSeparationEnabled() Then
-		Return Undefined;
-	EndIf;
 	CurrentDataAreaMode = GetDataAreaSessionLock();
 	SetPrivilegedMode(False);
 	
@@ -859,12 +856,13 @@ EndFunction
 //
 Function SessionsLockSettingsWhenSet()
 	
-	LockParameters = CurrentConnectionLockParameters(True);
-	If LockParameters = Undefined Then
+	LockParameters = CurrentConnectionLockParameters();
+	
+	Result = AdvancedSessionLockParameters(False, LockParameters);
+	If Not Result.Use Then
 		Return Undefined;
 	EndIf;
 	
-	Result = AdvancedSessionLockParameters(False, LockParameters);
 	If LockParameters.IBConnectionLockSetForDate Then
 		Result.Insert("Parameter", LockParameters.CurrentIBMode.Parameter);
 	EndIf;
@@ -883,5 +881,7 @@ Function EventLogEvent() Export
 	Return NStr("en = 'User sessions';", Common.DefaultLanguageCode());
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion

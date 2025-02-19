@@ -171,7 +171,7 @@ Procedure GenerateSpreadsheetDocumentClient()
 		IdleParameters.OutputIdleWindow  = False;
 		IdleParameters.OutputMessages     = True;
 		
-		CallbackOnCompletion = New NotifyDescription("BackgroundJobCompletion", ThisObject);
+		CallbackOnCompletion = New CallbackDescription("BackgroundJobCompletion", ThisObject);
 		TimeConsumingOperationsClient.WaitCompletion(BackgroundJobStartResult, CallbackOnCompletion, IdleParameters);
 		
 	Else

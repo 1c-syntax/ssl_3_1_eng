@@ -108,14 +108,22 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.CopiesCountSetup.Group = ChildFormItemsGroup.Vertical;
 		Items.Move(Items.IndicatorsCommands, Items.IndicatorsCommands.Parent, Items.Factor);
 		Items.GroupCommandBar.Group = ChildFormItemsGroup.Vertical;
+		Items.SaveButton.Title = NStr("en = 'To device…';");
+		Items.SaveButtonAllActions.Title = NStr("en = 'To device…';");
 	EndIf;
 	
+	SavingToAttachments = False;
+	If PrintObjects.Count() > 0 And Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
+		ModuleFilesOperations = Common.CommonModule("FilesOperations");
+		SavingToAttachments = ModuleFilesOperations.CanAttachFilesToObject(PrintObjects[0].Value);
+	EndIf;
+	Items.ButtonSaveToAttachments.Visible = SavingToAttachments;
+	Items.ButtonSaveToAttachmentsAllActions.Visible = SavingToAttachments;
+
 	If PrintManagement.PrintSettings().HideSignaturesAndSealsForEditing Then
 		DrawingsStorageAddress = PutToTempStorage(SignaturesAndSealsOfSpreadsheetDocuments(), UUID);
 	EndIf;
 	RemoveSignatureAndSeal();
-	
-	PrintManagement.PrintDocumentsOnCreateAtServer(ThisObject, Cancel, StandardProcessing);
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
 		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
@@ -123,6 +131,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	SetFormHeader();
+
+	PrintManagement.PrintDocumentsOnCreateAtServer(ThisObject, Cancel, StandardProcessing);
+	
 EndProcedure
 
 &AtServer
@@ -183,7 +194,7 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 					
 					WrittenObjects = AttachPrintFormsToObject(FilesInTempStorage);
 					Context = New Structure("WrittenObjects, ValueSelected", WrittenObjects, ValueSelected);
-					NotifyDescription = New NotifyDescription("CompleteSigningFiles", ThisObject, Context);
+					NotifyDescription = New CallbackDescription("CompleteSigningFiles", ThisObject, Context);
 					SignWrittenObjects(WrittenObjects, NotifyDescription);
 				Else
 					WrittenObjects = AttachPrintFormsToObject(FilesInTempStorage);
@@ -195,7 +206,7 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 						ModuleFilesOperationsInternalClient.NotifyOfFilesModification(WrittenObjects);
 					EndIf;
 					
-					ShowUserNotification(, , NStr("en = 'Saved';"), PictureLib.DialogInformation);					
+					ShowUserNotification(, , NStr("en = 'Print form saved';"), PictureLib.DialogInformation);					
 				EndIf;
 				
 			EndIf;
@@ -293,9 +304,9 @@ Procedure SIgnFiles(FilesInTempStorage, Context)
 	Context.Insert("MapBetweenFilesAndPrintableObjects", Map);
 	
 	If Context.Action = "SaveToFolder" Then
-		NotifyDescription = New NotifyDescription("CompleteSigningSaveToFolder", ThisObject, Context);
+		NotifyDescription = New CallbackDescription("CompleteSigningSaveToFolder", ThisObject, Context);
 	ElsIf Context.Action = "SendingEmail" Then
-		NotifyDescription = New NotifyDescription("CompleteSigningSendViaEmail", ThisObject, Context);
+		NotifyDescription = New CallbackDescription("CompleteSigningSendViaEmail", ThisObject, Context);
 	EndIf;
 
 	ModuleDigitalSignatureClient.Sign(DataDetails,, NotifyDescription, SignatureParameters);
@@ -503,11 +514,22 @@ EndProcedure
 #Region FormCommandsEventHandlers
 
 &AtClient
-Procedure Save(Command)
+Procedure SaveToComputer(Command)
 	
-	Notification = New NotifyDescription("WhenConnectingTheExtension", ThisObject);
-	FileSystemClient.AttachFileOperationsExtension(Notification);
+	Notification = New CallbackDescription("SaveToComputerOnAttachExtension", ThisObject);
+	FileSystemClient.Attach1CEnterpriseExtension(Notification);
 	
+EndProcedure
+
+&AtClient
+Procedure SaveToAttachments(Command)
+	
+	FormParameters = New Structure;
+	FormParameters.Insert("PrintObjects", PrintObjects);
+	FormParameters.Insert("FileOperationsExtensionAttached", False);
+	FormParameters.Insert("Purpose", "AttachedFiles");
+	OpenForm("CommonForm.SavePrintForm", FormParameters, ThisObject);
+
 EndProcedure
 
 &AtClient
@@ -523,7 +545,7 @@ Procedure GoToDocument(Command)
 		ChoiceList.Add(PrintObject.Presentation, String(PrintObject.Value));
 	EndDo;
 	
-	NotifyDescription = New NotifyDescription("GoToDocumentCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("GoToDocumentCompletion", ThisObject);
 	ChoiceList.ShowChooseItem(NotifyDescription, NStr("en = 'Go to print form';"));
 	
 EndProcedure
@@ -574,7 +596,7 @@ Procedure UncheckAll(Command)
 EndProcedure
 
 &AtClient
-Procedure ResetSettings(Command)
+Procedure ResetSetSettings(Command)
 	RestorePrintFormsSettings();
 	StartSaveSettings();
 EndProcedure
@@ -746,7 +768,7 @@ Procedure NotifyWhenPrintFormsPrepared(CombinedDocStructure = Undefined)
 	OpeningParameters.PrintFormSettingsAddress = GetPrintFormsSettingsAddress();
 	OpeningParameters.CombinedDocStructureAddress = PutToTempStorage(CombinedDocStructure, StorageUUID);
 		
-	NotifyDescription = New NotifyDescription("OpenOfficeOpenPrintingForm", ThisObject, OpeningParameters);
+	NotifyDescription = New CallbackDescription("OpenOfficeOpenPrintingForm", ThisObject, OpeningParameters);
 	If FilesInTempStorage.Count() = 1 Then
 		NotificationTitle = NStr("en = 'Document is generated';");
 		NotificationText1 = FilesInTempStorage[0].Presentation;
@@ -796,6 +818,12 @@ Function GeneratePrintForms(TemplatesNames, Cancel)
 		PrintObjects = PrintForms.PrintObjects;
 		OutputParameters = PrintForms.OutputParameters;
 		Result = PrintForms.PrintFormsCollection;
+		
+		DefaultPrintForm = Undefined;
+		Parameters.PrintParameters.Property("DefaultPrintForm", DefaultPrintForm);
+		If DefaultPrintForm <> Undefined Then
+			PrintManagement.OnExecutePrintCommand(Parameters.CommandParameter, Parameters.PrintParameters, Result);
+		EndIf;
 	EndIf;
 	
 	// Setting the flag of saving print forms to a file (do not open the form, save it directly to a file).
@@ -1001,17 +1029,23 @@ Procedure SetUpFormItemsVisibility()
 		Items.CurrentPrintForm.SetAction("OnActivate", "");
 	EndIf;
 	
-	Items.ShowHideSetSettingsButton.Visible = IsSetPrinting();
-	Items.ButtonShowHideSetSettingsAllActions.Visible = IsSetPrinting();
-	Items.PrintFormsSettings.Visible = IsSetPrinting();
-	
+	IsSetPrinting = IsSetPrinting();
 	SetSettingsAvailable = True;
 	If TypeOf(Parameters.PrintParameters) = Type("Structure") And Parameters.PrintParameters.Property("FixedSet") Then
 		SetSettingsAvailable = Not Parameters.PrintParameters.FixedSet;
 	EndIf;
+	IsCustomizedSetPrint = IsSetPrinting And SetSettingsAvailable;
+
+	Items.ShowHideSetSettingsButton.Visible = IsSetPrinting;
+	Items.ButtonShowHideSetSettingsAllActions.Visible = IsSetPrinting;
+	Items.ButtonResetSetSettings.Visible = IsSetPrinting;
+	Items.PrintFormsSettings.Visible = IsSetPrinting;
 	
 	Items.SetSettingsGroupContextMenu.Visible = SetSettingsAvailable;
-	Items.SetSettingsGroupCommandBar.Visible = IsSetPrinting() And SetSettingsAvailable;
+	Items.FlagsManagement.Visible = IsCustomizedSetPrint;
+	Items.LineManagement.Visible = IsCustomizedSetPrint;
+	Items.ManageCheckBoxesAllActions.Visible = IsCustomizedSetPrint;
+	Items.ManageRowsAllActions.Visible = IsCustomizedSetPrint;
 	Items.PrintFormsSettingsPrint.Visible = SetSettingsAvailable;
 	Items.PrintFormsSettingsCount.Visible = SetSettingsAvailable;
 	Items.PrintFormsSettings.Header = SetSettingsAvailable;
@@ -1059,7 +1093,10 @@ Procedure SetCopiesCountSettingsVisibility(Val Visible = Undefined)
 	EndIf;
 	
 	Items.PrintFormsSettings.Visible = Visible;
-	Items.SetSettingsGroupCommandBar.Visible = Visible And SetSettingsAvailable;
+	Items.FlagsManagement.Visible = Visible And SetSettingsAvailable;
+	Items.LineManagement.Visible = Visible And SetSettingsAvailable;
+	Items.ManageCheckBoxesAllActions.Visible = Visible And SetSettingsAvailable;
+	Items.ManageRowsAllActions.Visible = Visible And SetSettingsAvailable;
 EndProcedure
 
 &AtClient
@@ -1144,14 +1181,14 @@ Procedure SetCurrentPage()
 				|
 				|See the event log for details.
 				|
-				|You are using a customized template. Do you want to switch to the standard one?';"),
+				|You are using a custom template. Do you want to switch to the standard one?';"),
 			PrintFormSetting.GenerationErrorText);
 		
 		Buttons = New ValueList;
 		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Use standard template';"));
 		Buttons.Add(DialogReturnCode.Cancel);
 	
-		NotifyDescription = New NotifyDescription("OnReceiveAnswer", ThisObject, PrintFormSetting);
+		NotifyDescription = New CallbackDescription("OnReceiveAnswer", ThisObject, PrintFormSetting);
 		ShowQueryBox(NotifyDescription, QueryText, Buttons, , DialogReturnCode.Yes);
 	EndIf;
 	
@@ -1454,27 +1491,27 @@ Procedure SavePrintFormToFile()
 	FilesInTempStorage = PutSpreadsheetDocumentsInTempStorage(SettingsForSaving);
 	FilesInTempStorage = PutFilesToArchive(FilesInTempStorage, SettingsForSaving);
 	
-	DialogForPrintingOfficeDocumentsIsAvailable = FilesInTempStorage.Count() And FilesInTempStorage[0].PrintObject <> Undefined;
-	TableDocumentsAreBeingSaved = SaveFormatSettings.SpreadsheetDocumentFileType <> Undefined;
+	IsOfficeDocsPrintDialogAvailable = FilesInTempStorage.Count() And FilesInTempStorage[0].PrintObject <> Undefined;
+	IsSpreadsheetsSavingInProgress = SaveFormatSettings.SpreadsheetDocumentFileType <> Undefined;
 	
-	If DialogForPrintingOfficeDocumentsIsAvailable And UseOfficeDocPrintDialog() And Not TableDocumentsAreBeingSaved Then
+	If IsOfficeDocsPrintDialogAvailable And UseOfficeDocPrintDialog() And Not IsSpreadsheetsSavingInProgress Then
 		OpeningParameters = New Structure("OfficeDocuments, PrintFormSettingsAddress,OutputParameters");
 		OpeningParameters.PrintFormSettingsAddress = GetPrintFormsSettingsAddress();
 		OpeningParameters.OutputParameters = OutputParameters;
 		OpenForm("CommonForm.PrintOfficeOpenDocs", OpeningParameters, FormOwner, String(New UUID));
-	ElsIf DialogForPrintingOfficeDocumentsIsAvailable And PrintOfficeDocsAsSingleFile() And Not TableDocumentsAreBeingSaved Then
+	ElsIf IsOfficeDocsPrintDialogAvailable And PrintOfficeDocsAsSingleFile() And Not IsSpreadsheetsSavingInProgress Then
 		TimeConsumingOperation = StartGeneratingCombinedDoc();
 		
-		Notification = New NotifyDescription("OpenCombinedDoc", ThisObject);
+		Notification = New CallbackDescription("OpenCombinedDoc", ThisObject);
 		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, Notification, IdleParameters());
 	Else
 		Context = New Structure;
 		Context.Insert("FilesInTempStorage", FilesInTempStorage);
-		Context.Insert("DialogForPrintingOfficeDocumentsIsAvailable", DialogForPrintingOfficeDocumentsIsAvailable);
+		Context.Insert("IsOfficeDocsPrintDialogAvailable", IsOfficeDocsPrintDialogAvailable);
 				
-		Notification = New NotifyDescription("OpenOfficeDocsAfterExtensionAttached", ThisObject, Context);
+		Notification = New CallbackDescription("OpenOfficeDocsAfterExtensionAttached", ThisObject, Context);
 		MessageText = NStr("en = 'To print the document, install 1C:Enterprise Extension.';");
-		FileSystemClient.AttachFileOperationsExtension(Notification, MessageText);
+		FileSystemClient.Attach1CEnterpriseExtension(Notification, MessageText);
 	EndIf;
 	
 EndProcedure
@@ -1538,7 +1575,7 @@ Procedure OpenCombinedDoc(Result, AdditionalParameters) Export
 	EndIf;
 	
 	CombinedDocStructure = GetFromTempStorage(Result.ResultAddress);
-	NotificationDetailsCompletion = New NotifyDescription("OpenCombinedDocCompletion", ThisObject, CombinedDocStructure);
+	NotificationDetailsCompletion = New CallbackDescription("OpenCombinedDocCompletion", ThisObject, CombinedDocStructure);
 	
 	FileStructureInTempStorage = New Structure("AddressInTempStorage,Presentation");
 	FileStructureInTempStorage.AddressInTempStorage = CombinedDocStructure.PrintFormAddress;
@@ -1547,12 +1584,12 @@ Procedure OpenCombinedDoc(Result, AdditionalParameters) Export
 	FilesInTempStorage.Add(FileStructureInTempStorage);
 	Context = New Structure;
 	Context.Insert("FilesInTempStorage", FilesInTempStorage);
-	Context.Insert("DialogForPrintingOfficeDocumentsIsAvailable", True);
+	Context.Insert("IsOfficeDocsPrintDialogAvailable", True);
 	Context.Insert("CompletionHandler", NotificationDetailsCompletion);
 			
-	Notification = New NotifyDescription("OpenOfficeDocsAfterExtensionAttached", ThisObject, Context);
+	Notification = New CallbackDescription("OpenOfficeDocsAfterExtensionAttached", ThisObject, Context);
 	MessageText = NStr("en = 'To print the document, install 1C:Enterprise Extension.';");
-	FileSystemClient.AttachFileOperationsExtension(Notification, MessageText);
+	FileSystemClient.Attach1CEnterpriseExtension(Notification, MessageText);
 EndProcedure
 
 &AtClient
@@ -1563,11 +1600,11 @@ EndProcedure
 &AtClient
 Procedure OpenOfficeDocsAfterExtensionAttached(ExtensionAttached, Context) Export
 	If ExtensionAttached Then
-		Notification = New NotifyDescription("OpenOfficeDocsAfterTempDirReceived", ThisObject, Context);
+		Notification = New CallbackDescription("OpenOfficeDocsAfterTempDirReceived", ThisObject, Context);
 		If TempDirectoryNameClient = "" Then
 			FileSystemClient.CreateTemporaryDirectory(Notification);
 		Else
-			ExecuteNotifyProcessing(Notification, TempDirectoryNameClient);
+			RunCallback(Notification, TempDirectoryNameClient);
 		EndIf;
 	Else
 		SavingParameters = FileSystemClient.FilesSavingParameters();
@@ -1583,14 +1620,14 @@ Procedure OpenOfficeDocsAfterExtensionAttached(ExtensionAttached, Context) Expor
 			SavingParameters.Dialog.Title = NStr("en = 'Select a folder to save the print forms';");
 		EndIf;
 		
-		FileSystemClient.SaveFiles(New NotifyDescription, ArrayOfFilesToTransfer, SavingParameters);
+		FileSystemClient.SaveFiles(New CallbackDescription, ArrayOfFilesToTransfer, SavingParameters);
 	EndIf;
 EndProcedure
 
 &AtClient
 Procedure OpenOfficeDocsAfterTempDirReceived(ObtainedTempDir, Context) Export
 	TempDirectoryNameClient = ObtainedTempDir;
-	NotifyDescription = New NotifyDescription("OpenOfficeDocsAfterPermissionGranted", ThisObject, Context);
+	NotifyDescription = New CallbackDescription("OpenOfficeDocsAfterPermissionGranted", ThisObject, Context);
 	
 	Calls = New Array();
 		
@@ -1622,7 +1659,7 @@ EndProcedure
 Procedure OpenOfficeDocsAfterPermissionGranted(PermissionsGranted, Context) Export	
 
 	If PermissionsGranted Then
-		Notification = New NotifyDescription("OpenAfterFileWritten", ThisObject, Context);
+		Notification = New CallbackDescription("OpenAfterFileWritten", ThisObject, Context);
 		SavingParameters = FileSystemClient.FileSavingParameters();
 		SavingParameters.Interactively = False;
 		SavingParameters.Dialog.Directory = TempDirectoryNameClient;
@@ -1636,7 +1673,7 @@ Procedure OpenOfficeDocsAfterPermissionGranted(PermissionsGranted, Context) Expo
 			SavingParameters.Dialog.Title = NStr("en = 'Select a folder to save the print forms';");
 		EndIf;
 		
-		FileSystemClient.SaveFiles(New NotifyDescription, Context.ArrayOfFilesToTransfer, SavingParameters);
+		FileSystemClient.SaveFiles(New CallbackDescription, Context.ArrayOfFilesToTransfer, SavingParameters);
 	EndIf;	
 	
 EndProcedure
@@ -1652,17 +1689,17 @@ Procedure OpenAfterFileWritten(ObtainedFiles, Context) Export
 		CompletionParameters.Insert("CompletionHandler", CompletionHandler);
 		
 		FileOnHardDrive = New File(CompletionParameters.PathToFile);
-		DetailsAfterSetReadOnly = New NotifyDescription("OpenFileCompletion", ThisObject, CompletionParameters);
+		DetailsAfterSetReadOnly = New CallbackDescription("OpenFileCompletion", ThisObject, CompletionParameters);
 		
 		FileOnHardDrive.BeginSettingReadOnly(DetailsAfterSetReadOnly, Not CanEditPrintForms());
 	EndDo;
 	
-	If Context.DialogForPrintingOfficeDocumentsIsAvailable Then
+	If Context.IsOfficeDocsPrintDialogAvailable Then
 		NotifyWhenPrintFormsPrepared();
 	EndIf;
 
 	If ObtainedFiles = Undefined And CompletionHandler <> Undefined Then
-		ExecuteNotifyProcessing(CompletionHandler);
+		RunCallback(CompletionHandler);
 	EndIf;
 EndProcedure
 
@@ -1706,7 +1743,7 @@ Function UseOfficeDocPrintDialog()
 		Return True;
 	Else
 		Return Not Common.CommonSettingsStorageLoad("PrintOfficeOpenDocs",
-			"OutputImmediately", True);
+			"OutputImmediately", False);
 	EndIf;
 EndFunction
 
@@ -1730,7 +1767,7 @@ Procedure SavePrintFormsToDirectory(FilesListInTempStorage, Val DirectoryName = 
 		Return;
 	EndIf;
 	
-	NotifyDescription = New NotifyDescription("WhenPreparingFileNames", ThisObject, DirectoryName);
+	NotifyDescription = New CallbackDescription("WhenPreparingFileNames", ThisObject, DirectoryName);
 	PreparationParameters = PrintManagementClient.FileNamePreparationOptions(FilesListInTempStorage, DirectoryName, NotifyDescription);
 	PrepareFileNamesToSaveToADirectory(PreparationParameters);
 	
@@ -1753,9 +1790,10 @@ Procedure WhenPreparingFileNames(FilesListInTempStorage, DirectoryName) Export
 
 #If Not WebClient Then
 	If ValueIsFilled(DirectoryName) Then
-		NotifyDescription = New NotifyDescription("OpenFolderSaveTo", ThisObject, DirectoryName); 
-		ShowUserNotification(NStr("en = 'Saved successfully.';"), NotifyDescription,
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Folder: %1';"), DirectoryName), PictureLib.DialogInformation);
+		NotifyDescription = New CallbackDescription("OpenFolderSaveTo", ThisObject, DirectoryName); 
+		ShowUserNotification(NStr("en = 'Print form saved';"), NotifyDescription,
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'to directory %1';"), DirectoryName), 
+			PictureLib.DialogInformation);
 	EndIf;
 #EndIf
 	
@@ -1887,6 +1925,10 @@ Procedure OpenTemplateForEditing()
 	FormParameters.Insert("TemplateType", "MXL");
 	FormParameters.Insert("LanguageCode", StrSplit(CurrentLanguage, "_", True)[0]);
 	FormParameters.Insert("IsPrintForm", Parameters.PrintManagerName = "PrintManagement");
+	FormParameters.Insert("DefaultPrintForm",
+		CommonClientServer.StructureProperty(Parameters.PrintParameters, "DefaultPrintForm", False));
+	FormParameters.Insert("PrintFormDescription",
+		CommonClientServer.StructureProperty(Parameters.PrintParameters, "PrintFormDescription", ""));
 	
 	StandardSubsystemsClient.ShowSpreadsheetEditor(Undefined, FormParameters, , ThisObject);
 	
@@ -2039,7 +2081,7 @@ EndProcedure
 
 &AtClient
 Procedure SendPrintFormsByEmail()
-	NotifyDescription = New NotifyDescription("SendPrintFormsByEmailAccountSetupOffered", ThisObject);
+	NotifyDescription = New CallbackDescription("SendPrintFormsByEmailAccountSetupOffered", ThisObject);
 	If CommonClient.SubsystemExists("StandardSubsystems.EmailOperations") Then
 		ModuleEmailOperationsClient = CommonClient.CommonModule("EmailOperationsClient");
 		ModuleEmailOperationsClient.CheckAccountForSendingEmailExists(NotifyDescription);
@@ -2379,17 +2421,17 @@ Function AvailablePrintFormLanguages()
 EndFunction
 
 &AtClient
-Procedure WhenConnectingTheExtension(ExtensionAttached, AdditionalParameters) Export
+Procedure SaveToComputerOnAttachExtension(ExtensionAttached, AdditionalParameters) Export
 	
 	FileOperationsExtensionAttached = ExtensionAttached;
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("PrintObjects", PrintObjects);
 	FormParameters.Insert("FileOperationsExtensionAttached", ExtensionAttached);
+	FormParameters.Insert("Purpose", "Computer");
 	OpenForm("CommonForm.SavePrintForm", FormParameters, ThisObject);
 
 EndProcedure
-
 
 // Parameters:
 //  PreparationParameters - See PrintManagementClient.FileNamePreparationOptions

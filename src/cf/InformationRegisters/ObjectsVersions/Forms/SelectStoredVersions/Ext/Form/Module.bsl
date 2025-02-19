@@ -44,7 +44,7 @@ EndProcedure
 &AtClient
 Procedure AttributesStartChoice(Item, ChoiceData, StandardProcessing)
 	StandardProcessing = False;
-	NotifyDescription = New NotifyDescription("OnSelectAttribute", ThisObject);
+	NotifyDescription = New CallbackDescription("OnSelectAttribute", ThisObject);
 	OpenForm("InformationRegister.ObjectsVersions.Form.SelectObjectAttributes", New Structure(
 		"Ref,Filter", Ref, Filter.UnloadValues()), , , , , NotifyDescription);
 EndProcedure
@@ -219,7 +219,7 @@ Procedure GoToSelectedVersion(CancelPosting = False)
 				|Do you want to unpost the document and restore the version?';"),
 			ErrorMessageText);
 			
-		NotifyDescription = New NotifyDescription("GoToSelectedVersionQuestionAsked", ThisObject);
+		NotifyDescription = New CallbackDescription("GoToSelectedVersionQuestionAsked", ThisObject);
 		Buttons = New ValueList;
 		Buttons.Add("GoTo", NStr("en = 'Yes';"));
 		Buttons.Add(DialogReturnCode.Cancel);
@@ -607,7 +607,7 @@ EndProcedure
 
 &AtServer
 Function ThisInfobaseName()
-	Return NStr("en = 'App';");
+	Return NStr("en = 'This application';");
 EndFunction
 
 #EndRegion

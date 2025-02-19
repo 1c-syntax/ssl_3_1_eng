@@ -21,11 +21,13 @@
 //                      - ChartOfCalculationTypesObject
 //                      - BusinessProcessObject
 //                      - TaskObject
-//                      - ExchangePlanObject
+//                      - ExchangePlanObject - data object being checked.
 //                      - InformationRegisterRecordSet
 //                      - AccumulationRegisterRecordSet
 //                      - AccountingRegisterRecordSet
-//                      - CalculationRegisterRecordSet - Data item or record set to be checked.
+//                      - CalculationRegisterRecordSet - Record set being checked with the optional property
+//                          "Replacing" (Boolean, ReplacementMode) in the "AdditionalProperties" structure.
+//                          If "Replacing" is undefined, it is set to "True".
 //                      - String - Full name of a metadata object whose data is to be checked in the database.
 //                                 Example: "Document.PurchaseInvoice".
 //                                 To specify the data to read and check, use the DataID parameter.
@@ -41,6 +43,12 @@
 //                      - ExchangePlanRef
 //                      - Filter - Reference to a data item or a record set filter to be checked.
 //                                The value to be checked will be received from the database.
+//                      - InformationRegisterRecordSet
+//                      - AccumulationRegisterRecordSet
+//                      - AccountingRegisterRecordSet
+//                      - CalculationRegisterRecordSet - Record set with the optional property "Replacing" (Boolean, ReplacementMode)
+//                          in the "AdditionalProperties" structure and defined "Filter" property in the record replacement option
+//                          as in the "BeforeWrite" handler to retrieve the records being replaced from the database.
 //                      - Undefined - do not get data from the database  
 //                                       and check object data in DataOrFullName instead.
 //
@@ -73,10 +81,12 @@ Function DataChangesDenied(DataOrFullName, DataID = Undefined,
 		MetadataObject = DataOrFullName.Metadata();
 	EndIf;
 	
-	DataSources = PeriodClosingDatesInternal.DataSourcesForPeriodClosingCheck();
-	If DataSources.Get(MetadataObject.FullName()) = Undefined Then
+	TablesDataSources = PeriodClosingDatesInternal.DataSourcesForPeriodClosingCheck();
+	DataSources = TablesDataSources.Get(MetadataObject.FullName());
+	If DataSources = Undefined Then
 		Return False; // Restrictions by dates are not defined for this object type.
 	EndIf;
+	IsRegister = DataSources.IsRegister;
 	
 	PeriodClosingCheck = ImportRestrictionCheckNode = Undefined;
 	
@@ -90,6 +100,13 @@ Function DataChangesDenied(DataOrFullName, DataID = Undefined,
 			Source.Read();
 		ElsIf Not ValueIsFilled(DataID) Then
 			Return False;
+		ElsIf IsRegister Then
+			Source = DataID; // A set of new records for obtaining existing records.
+			Replacing = DataID.AdditionalProperties.Replacing;
+			If Replacing = False
+			 Or Common.IsRecordSetAddition(Replacing) Then
+				Return False;
+			EndIf;
 		Else
 			Source = DataID.GetObject();
 		EndIf;
@@ -101,6 +118,11 @@ Function DataChangesDenied(DataOrFullName, DataID = Undefined,
 		
 		Return PeriodClosingDatesInternal.DataChangesDenied(DataOrFullName,
 			DataID, ErrorDescription, ImportRestrictionCheckNode);
+	EndIf;
+	
+	If IsRegister Then
+		Mode = New Structure("Replacing", True);
+		FillPropertyValues(Mode, DataOrFullName.AdditionalProperties);
 	EndIf;
 	
 	ObjectVersion = "";
@@ -117,6 +139,9 @@ Function DataChangesDenied(DataOrFullName, DataID = Undefined,
 		
 	ElsIf ObjectVersion = "NewVersion" Then
 		Id = Undefined;
+		If IsRegister And Common.IsRecordSetDeletion(Mode.Replacing) Then
+			Return False;
+		EndIf;
 	EndIf;
 	
 	Return PeriodClosingDatesInternal.DataChangesDenied(Source,
@@ -443,8 +468,7 @@ Function PeriodEndClosingDatesCheckDisabled() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Event subscription handlers.
+#Region EventsSubscriptionsHandlers
 
 // BeforeWrite event subscription handler for checking period-end closing.
 //
@@ -495,13 +519,15 @@ EndProcedure
 //  Source   - InformationRegisterRecordSet
 //             - AccumulationRegisterRecordSet - a record set passed to the BeforeWrite event subscription.
 //  Cancel      - Boolean - a parameter passed to the BeforeWrite event subscription.
-//  Replacing  - Boolean - a parameter passed to the BeforeWrite event subscription.
+//  Replacing  - РежимЗамещения, Boolean - a parameter passed to the BeforeWrite event subscription.
 //
 Procedure CheckPeriodEndClosingDateBeforeWriteRecordSet(Source, Cancel, Replacing) Export
 	
 	If Source.DataExchange.Load Then
 		Return;
 	EndIf;
+	
+	Source.AdditionalProperties.Insert("Replacing", Replacing);
 	
 	CheckPeriodClosingDates(Source, Cancel, True, Replacing);
 	
@@ -513,14 +539,16 @@ EndProcedure
 //  Source    - AccountingRegisterRecordSet - a record set passed to
 //                the BeforeWrite event subscription.
 //  Cancel       - Boolean - a parameter passed to the BeforeWrite event subscription.
-//  WriteMode - Boolean - a parameter passed to the BeforeWrite event subscription.
+//  Replacing   - РежимЗамещения, Boolean - a parameter passed to the BeforeWrite event subscription.
 //
 Procedure CheckPeriodEndClosingDateBeforeWriteAccountingRegisterRecordSet(
-		Source, Cancel, WriteMode) Export
+		Source, Cancel, Replacing) Export
 	
 	If Source.DataExchange.Load Then
 		Return;
 	EndIf;
+	
+	Source.AdditionalProperties.Insert("Replacing", Replacing);
 	
 	CheckPeriodClosingDates(Source, Cancel, True);
 	
@@ -532,7 +560,7 @@ EndProcedure
 //  Source     - CalculationRegisterRecordSet - a record set passed to
 //                 the BeforeWrite event subscription.
 //  Cancel        - Boolean - a parameter passed to the BeforeWrite event subscription.
-//  Replacing    - Boolean - a parameter passed to the BeforeWrite event subscription.
+//  Replacing    - РежимЗамещения, Boolean - a parameter passed to the BeforeWrite event subscription.
 //  WriteOnly - Boolean - a parameter passed to the BeforeWrite event subscription.
 //  WriteActualActionPeriod - Boolean - a parameter passed to the BeforeWrite event subscription.
 //  WriteRecalculations - Boolean - a parameter passed to the BeforeWrite event subscription.
@@ -548,6 +576,8 @@ Procedure CheckPeriodEndClosingDateBeforeWriteCalculationRegisterRecordSet(
 	If Source.DataExchange.Load Then
 		Return;
 	EndIf;
+	
+	Source.AdditionalProperties.Insert("Replacing", Replacing);
 	
 	CheckPeriodClosingDates(Source, Cancel, True, Replacing);
 	
@@ -580,6 +610,8 @@ Procedure CheckPeriodEndClosingDateBeforeDelete(Source, Cancel) Export
 	CheckPeriodClosingDates(Source, Cancel, , , True);
 	
 EndProcedure
+
+#EndRegion
 
 #Region ObsoleteProceduresAndFunctions
 

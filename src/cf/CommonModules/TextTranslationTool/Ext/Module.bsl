@@ -64,7 +64,7 @@ Function TranslateTheTexts(Texts, TranslationLanguage = Undefined, SourceLanguag
 	
 	FoundTranslations = FindATranslationOfTexts(Texts, TranslationLanguage, SourceLanguage);
 	
-	If Not GetFunctionalOption("UseTextTranslationService") Then
+	If Not GetFunctionalOption("UseTextTranslationService") Or Not Common.AccessToInternetServicesAllowed() Then
 		Return FoundTranslations;
 	EndIf;	
 	
@@ -200,7 +200,7 @@ EndFunction
 //
 Function TextTranslationAvailable() Export
 	
-	Return GetFunctionalOption("UseTextTranslationService");
+	Return GetFunctionalOption("UseTextTranslationService") And Common.AccessToInternetServicesAllowed();
 	
 EndFunction
 
@@ -208,11 +208,29 @@ EndFunction
 
 #Region Internal
 
-Function TextTranslationService() Export
+// See SafeModeManagerOverridable.OnFillPermissionsToAccessExternalResources.
+Procedure OnFillPermissionsToAccessExternalResources(PermissionsRequests) Export
 	
-	Return Constants.TextTranslationService.Get();
+	ModuleSafeModeManager = Common.CommonModule("SafeModeManager");
+	
+	For Each ProviderModule In TextTranslationServiceModules() Do
+		TextTranslationServiceModule = ProviderModule.Value;
+		Permissions = TextTranslationServiceModule.Permissions();
+		PermissionsRequest = ModuleSafeModeManager.RequestToUseExternalResources(Permissions);
+		PermissionsRequests.Add(PermissionsRequest);
+	EndDo;
+	
+EndProcedure
+
+Function IsTextTranslationServiceSettingAvailable() Export
+	
+	Return AccessRight("View", Metadata.CommonForms.TextTranslationSetting);
 	
 EndFunction
+
+#EndRegion
+
+#Region Private
 
 Procedure TranslateSpreadsheetTexts(SpreadsheetDocument, TranslationLanguage, SourceLanguage) Export
 	
@@ -253,24 +271,6 @@ Procedure TranslateSpreadsheetTexts(SpreadsheetDocument, TranslationLanguage, So
 	EndDo;
 	
 EndProcedure
-
-// See SafeModeManagerOverridable.OnFillPermissionsToAccessExternalResources.
-Procedure OnFillPermissionsToAccessExternalResources(PermissionsRequests) Export
-	
-	ModuleSafeModeManager = Common.CommonModule("SafeModeManager");
-	
-	For Each ProviderModule In TextTranslationServiceModules() Do
-		TextTranslationServiceModule = ProviderModule.Value;
-		Permissions = TextTranslationServiceModule.Permissions();
-		PermissionsRequest = ModuleSafeModeManager.RequestToUseExternalResources(Permissions);
-		PermissionsRequests.Add(PermissionsRequest);
-	EndDo;
-	
-EndProcedure
-
-#EndRegion
-
-#Region Private
 
 Function FindATranslationOfTexts(Texts, TranslationLanguage, SourceLanguage)
 	
@@ -405,12 +405,24 @@ EndFunction
 
 Procedure CheckSettings()
 	
-	TextTranslationServiceModule = TextTranslationServiceModule();
-	If TextTranslationServiceModule = Undefined Or Not TextTranslationServiceModule.SetupExecuted() Then
+	If ConfigurationIsRequired() Then
 		Raise NStr("en = 'Text translation service settings are not specified.';");
 	EndIf;
 	
 EndProcedure
+
+Function ConfigurationIsRequired() Export
+	
+	If Not Constants.UseTextTranslationService.Get() Then
+		Return True;
+	EndIf;
+	
+	TextTranslationServiceModule = TextTranslationServiceModule();
+	SetupExecuted = TextTranslationServiceModule <> Undefined And TextTranslationServiceModule.SetupExecuted();
+	
+	Return Not SetupExecuted;
+	
+EndFunction
 
 // Returns:
 //  Structure:

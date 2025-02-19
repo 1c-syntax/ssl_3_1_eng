@@ -36,7 +36,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// StandardSubsystems.AccessManagement
+// СтандартныеПодсистемы.УправлениеДоступом
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -60,7 +60,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// SaaSTechnology.ExportImportData
+// ТехнологияСервиса.ВыгрузкаЗагрузкаДанных
 
 // Attached in ExportImportDataOverridable.OnRegisterDataExportHandlers.
 //
@@ -92,7 +92,7 @@ Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object,
 	
 EndProcedure
 
-// End SaaSTechnology.ExportImportData
+// End CloudTechnology.ExportImportData
 
 #EndRegion
 
@@ -992,7 +992,7 @@ EndFunction
 //
 Procedure FillSuppliedProfile(Val Profile, Val UpdateAccessGroups) Export
 	
-	UsersInternal.CheckSafeModeIsDisabled(
+	UsersInternal.CheckIfSafeModeOff(
 		"Catalogs.AccessGroupProfiles.FillSuppliedProfile");
 	
 	SuppliedDataID = String(Common.ObjectAttributeValue(
@@ -1164,7 +1164,7 @@ EndFunction
 //
 Procedure WhenChangingTheLanguageOfTheInformationBase(ChangingLanguages) Export
 	
-	UsersInternal.CheckSafeModeIsDisabled(
+	UsersInternal.CheckIfSafeModeOff(
 		"Catalogs.AccessGroupProfiles.WhenChangingTheLanguageOfTheInformationBase");
 	
 	AccessManagementInternal.SuppliedProfiles(); // Check the relevance of metadata.
@@ -1812,8 +1812,7 @@ Function RepresentationOfTheReference(Ref)
 	Return UsersInternal.RepresentationOfTheReference(Ref);
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions to support data exchange in DIB.
+#Region ProceduresAndFunctionsToSupportDataExchangeInDIB
 
 // For internal use only.
 //
@@ -1822,7 +1821,7 @@ EndFunction
 //
 Procedure RestoreExtensionsRolesComponents(DataElement) Export
 	
-	UsersInternal.CheckSafeModeIsDisabled(
+	UsersInternal.CheckIfSafeModeOff(
 		"Catalogs.AccessGroupProfiles.RestoreExtensionsRolesComponents");
 	
 	DeleteExtensionsRoles(DataElement);
@@ -1862,7 +1861,7 @@ EndProcedure
 // For internal use only.
 Procedure DeleteExtensionsRolesInAllAccessGroupsProfiles() Export
 	
-	UsersInternal.CheckSafeModeIsDisabled(
+	UsersInternal.CheckIfSafeModeOff(
 		"Catalogs.AccessGroupProfiles.DeleteExtensionsRolesInAllAccessGroupsProfiles");
 	
 	Query = New Query;
@@ -1996,7 +1995,7 @@ EndProcedure
 Procedure ProcessChangeRegisteredUponDataImport() Export
 	
 	If Common.DataSeparationEnabled() Then
-		// Changes to profiles in SWP are blocked and are not imported into the data area.
+		// In the SWS, profiles are locked for editing and are not imported into the data area.
 		Return;
 	EndIf;
 	
@@ -2038,8 +2037,9 @@ Procedure ProcessChangeRegisteredUponDataImport() Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Initial population.
+#EndRegion
+
+#Region InitialFilling
 
 // See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
 // 
@@ -2069,8 +2069,9 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+#EndRegion
+
+#Region AuxiliaryProceduresAndFunctions
 
 Function FilledSuppliedProfiles()
 	
@@ -2160,8 +2161,8 @@ Procedure FillInTheProfilesFolderAdditionalProfiles(FolderDescription_)
 	
 EndProcedure
 
-// For procedure AccessManagementInternalCached.
-// 
+// Intended for procedure "AccessManagementInternalCached.Session1CSuppliedProfilesDetails".
+// See also "AccessManagementOverridable.OnFillSuppliedAccessGroupProfiles".
 //
 // Parameters:
 //  AccessKindsProperties - See AccessManagementInternal.AccessKindsProperties
@@ -2613,7 +2614,7 @@ Procedure PrepareTheAccessValuesOfTheSuppliedProfile(ProfileProperties, ProfileD
 		AccessKindProperties = AccessKindsProperties.ByNames.Get(AccessKind);
 		If AccessKindProperties = Undefined Then
 			ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Access Value ""%3""
+				NStr("en = 'Access value ""%3""
 				           |of profile ""%1""
 				           |has invalid access kind:
 				           |""%2"".';"),
@@ -3286,6 +3287,8 @@ Function ProfilesAssignmentAndRolesAccessGroup()
 	Return Query.Execute().Unload();
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion
 

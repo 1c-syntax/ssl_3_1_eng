@@ -40,13 +40,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
 
-		If Common.DataSeparationEnabled() Then
-			Items.GenerateDigitalSignaturesAtServer.Visible = False;
-		EndIf;
-
+		Items.GenerateDigitalSignaturesAtServer.Visible = Not Common.DataSeparationEnabled();
+		
 		ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
-		AvailableAdvancedSignature = ModuleDigitalSignature.AvailableAdvancedSignature();
-		Items.GroupAdvancedSignature.Visible = AvailableAdvancedSignature;
 		
 		If Common.FileInfobase()
 			And Not Common.ClientConnectedOverWebServer() Then
@@ -68,6 +64,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
 		ThisIsTheAdministrator = Users.IsFullUser(, True);
 		Items.UseCloudSignatureService.Visible = ThisIsTheAdministrator;
+		Items.UseCloudSignatureService.Enabled = ThisIsTheAdministrator And ModuleDigitalSignature.AccessToInternetServicesAllowed();
 		Items.UseCloudSignatureService.ExtendedTooltip.Title = StringFunctions.FormattedString(
 					"Allows_ use for signings services signatures DSS. Use ofservice for formations ofqualified ofelectronic signatures requires <a href = ""DSSSettings"">additional_3 ofsettings</a>.")
 	Else	
@@ -98,12 +95,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If (Common.SubsystemExists("StandardSubsystems.MarkedObjectsDeletion") )
-		And Users.IsFullUser(,True) Then
+		And Users.IsFullUser(, True) Then
 		
 		ModuleMarkedObjectsDeletion = Common.CommonModule("MarkedObjectsDeletion");
 		ScheduledJobMode = ModuleMarkedObjectsDeletion.ModeDeleteOnSchedule();
 		DeleteMarkedObjectsUsage = ScheduledJobMode.Use;
 		Items.SetUpSchedule.Enabled = DeleteMarkedObjectsUsage;
+		Items.ScheduledMarkedObjectsDeletionGroup.Visible = Not Common.DataSeparationEnabled();
+		
 	Else
 		Items.MarkedObjectsDeletionGroup.Visible = False;
 	EndIf;
@@ -148,7 +147,6 @@ EndProcedure
 
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
-	
 	If CommonClient.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
 		ModuleObjectsVersioningClient = CommonClient.CommonModule("ObjectsVersioningClient");
 		ModuleObjectsVersioningClient.StoreHistoryCheckBoxChangeNotificationProcessing(
@@ -161,6 +159,10 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		ModuleFullTextSearchClient.UseSearchFlagChangeNotificationProcessing(
 			EventName, 
 			UseFullTextSearch);
+	EndIf;
+		
+	If EventName = "Write_ConstantsSet" And Source = "AllowAccessToInternetServices" Then
+		SetAvailability("AllowAccessToInternetServices");
 	EndIf;
 	
 EndProcedure
@@ -250,7 +252,7 @@ EndProcedure
 
 &AtClient
 Procedure DeleteMarkedObjectsUsageOnChange(Item)
-	ChangeNotification1 = New NotifyDescription("DeleteMarkedObjectsUsageOnChangeCompletion", ThisObject);
+	ChangeNotification1 = New CallbackDescription("DeleteMarkedObjectsUsageOnChangeCompletion", ThisObject);
 	
 	If (CommonClient.SubsystemExists("StandardSubsystems.MarkedObjectsDeletion")) Then
 		ModuleMarkedObjectsDeletionClient = CommonClient.CommonModule("MarkedObjectsDeletionClient");
@@ -393,7 +395,7 @@ Procedure UseCloudSignatureServiceOnChange(Item)
 		CycleParameters = New Structure;
 		CycleParameters.Insert("Item", Item);
 		
-		TheNotificationIsAsFollows = New NotifyDescription("CheckIfDSSUsageEnabled", ThisObject, CycleParameters);
+		TheNotificationIsAsFollows = New CallbackDescription("CheckIfDSSUsageEnabled", ThisObject, CycleParameters);
 		ListOfCommands = New ValueList;
 		ListOfCommands.Add("OK", NStr("en = 'Confirm';"));
 		ListOfCommands.Add("None", NStr("en = 'Cancel';"), True);
@@ -432,6 +434,7 @@ Procedure TimestampServersAddressesStartChoice(Item, ChoiceData, StandardProcess
 	AttachIdleHandler("TimestampServerAddressesStartChoiceFollowUp", 0.1, True);
 	
 EndProcedure
+
 
 #EndRegion
 
@@ -606,8 +609,7 @@ Function TimestampServerAddressesSetDefault()
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Client.
+#Region Client
 
 &AtClient
 Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
@@ -658,7 +660,7 @@ Procedure ProcessingNavigationLinkOpeningSettingsES(Item, FormattedStringURL, St
 		CheckParameters.Insert("SetComponent", True);
 		CheckParameters.Insert("ShouldPromptToInstallApp", True);
 		ModuleDigitalSignatureClient.CheckCryptographyAppsInstallation(ThisObject, CheckParameters,
-			New NotifyDescription("AfterCryptographyAppsChecked", ThisObject));
+			New CallbackDescription("AfterCryptographyAppsChecked", ThisObject));
 		
 	Else
 		ModuleDigitalSignatureClient.OpenDigitalSignatureAndEncryptionSettings("Certificates");
@@ -684,8 +686,9 @@ Procedure CheckIfDSSUsageEnabled(SelectionResult, CycleParameters) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Server call.
+#EndRegion
+
+#Region ServerCall
 
 &AtServer
 Function OnChangeAttributeServer(TagName)
@@ -698,8 +701,9 @@ Function OnChangeAttributeServer(TagName)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Server.
+#EndRegion
+
+#Region Server
 
 &AtServer
 Function SaveAttributeValue(DataPathAttribute)
@@ -782,20 +786,6 @@ Procedure SetAvailability(DataPathAttribute = "")
 			"Visible", Not ProxySettingAvailabilityAtServer);
 	EndIf;
 	
-	If (DataPathAttribute = "ConstantsSet.UseDigitalSignature"
-		Or DataPathAttribute = "ConstantsSet.UseEncryption"
-		Or DataPathAttribute = "ConstantsSet.UseDSSService"
-		Or DataPathAttribute = "")
-		And Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
-		
-		CloudSignatureAvailability = (ConstantsSet.UseDigitalSignature Or ConstantsSet.UseEncryption)
-			And (ConstantsSet.UseDSSService);
-			
-		Items.ProcessingDSSConnectionManagementCloudSignatureServers.Enabled = CloudSignatureAvailability;
-		Items.ProcessingDSSConnectionManagementCloudSignatureAccounts.Enabled = CloudSignatureAvailability;
-		
-	EndIf;
-		
 EndProcedure
 
 &AtClient
@@ -821,11 +811,12 @@ Procedure SetVisibilityAtClient(ConstantName)
 				CheckParameters.Insert("ShouldPromptToInstallApp", False);
 				
 				ModuleDigitalSignatureClient.CheckCryptographyAppsInstallation(ThisObject, CheckParameters,
-					New NotifyDescription("AfterCryptographyAppsChecked", ThisObject));
+					New CallbackDescription("AfterCryptographyAppsChecked", ThisObject));
 			Else
 				Items.GroupCryptoProvidersHint.Visible = False;
 			EndIf;
 		EndIf;
+		SetAvailability(ConstantName);
 	Else
 		Items.GroupCryptoProvidersHint.Visible = False;
 	EndIf;
@@ -860,7 +851,7 @@ Procedure SettingsSectionPerformance()
 EndProcedure
 
 
-// Time zones.
+// Часовые пояса
 
 &AtServer
 Procedure FillInTimeZones()
@@ -902,5 +893,7 @@ Procedure AppTimeZoneOnChangeAtServer()
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

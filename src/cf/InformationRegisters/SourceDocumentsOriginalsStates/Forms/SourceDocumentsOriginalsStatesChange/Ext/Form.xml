@@ -1,12 +1,13 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<Title>
 		<v8:item>
 			<v8:lang>en</v8:lang>
 			<v8:content>Change document original state</v8:content>
 		</v8:item>
 	</Title>
-	<Width>55</Width>
+	<Width>62</Width>
+	<Height>25</Height>
 	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
 	<AutoTitle>false</AutoTitle>
 	<AutoCommandBar name="FormCommandBar" id="-1">
@@ -40,7 +41,7 @@
 					<GroupVerticalAlign>Center</GroupVerticalAlign>
 					<PictureSize>AutoSize</PictureSize>
 					<Picture>
-						<xr:Ref>StdPicture.DialogInformation</xr:Ref>
+						<xr:Ref>StdPicture.Information</xr:Ref>
 						<xr:LoadTransparent>true</xr:LoadTransparent>
 					</Picture>
 					<ContextMenu name="PictureInfoContextMenu" id="94"/>
@@ -68,6 +69,7 @@
 				</v8:item>
 			</Title>
 			<HorizontalStretch>true</HorizontalStretch>
+			<Group>AlwaysHorizontal</Group>
 			<HorizontalSpacing>Single</HorizontalSpacing>
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
@@ -278,6 +280,7 @@
 									<v8:content>Search</v8:content>
 								</v8:item>
 							</Title>
+							<Width>12</Width>
 							<HorizontalStretch>false</HorizontalStretch>
 							<ContextMenu name="SearchContextMenu" id="164"/>
 							<ExtendedTooltip name="SearchExtendedTooltip" id="165"/>
@@ -456,60 +459,44 @@
 						</InputField>
 					</ChildItems>
 				</ColumnGroup>
-				<ColumnGroup name="PrintFormsSetGroupState" id="166">
+				<PictureField name="OriginalReceivedPicture" id="138">
+					<DataPath>PrintFormsSet.OriginalReceivedPicture</DataPath>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>State</v8:content>
+							<v8:content>Original received picture</v8:content>
 						</v8:item>
 					</Title>
-					<Group>InCell</Group>
-					<ExtendedTooltip name="PrintFormsSetGroupStateExtendedTooltip" id="167"/>
-					<ChildItems>
-						<PictureField name="OriginalReceivedPicture" id="138">
-							<DataPath>PrintFormsSet.OriginalReceivedPicture</DataPath>
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Original received picture</v8:content>
-								</v8:item>
-							</Title>
-							<TitleLocation>None</TitleLocation>
-							<EditMode>EnterOnInput</EditMode>
-							<HeaderPicture>
-								<xr:Ref>CommonPicture.SourceDocumentOriginalStateOriginalReceived</xr:Ref>
-								<xr:LoadTransparent>false</xr:LoadTransparent>
-							</HeaderPicture>
-							<ValuesPicture>
-								<xr:Ref>CommonPicture.IconsCollectionSourceDocumentOriginalAvailable</xr:Ref>
-								<xr:LoadTransparent>false</xr:LoadTransparent>
-							</ValuesPicture>
-							<ContextMenu name="OriginalReceivedPictureContextMenu" id="139"/>
-							<ExtendedTooltip name="OriginalReceivedPictureExtendedTooltip" id="140"/>
-						</PictureField>
-						<InputField name="PrintFormsSetState" id="64">
-							<DataPath>PrintFormsSet.State</DataPath>
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Original state</v8:content>
-								</v8:item>
-							</Title>
-							<EditMode>EnterOnInput</EditMode>
-							<HeaderPicture>
-								<xr:Ref>CommonPicture.SourceDocumentOriginalStateOriginalReceived</xr:Ref>
-								<xr:LoadTransparent>false</xr:LoadTransparent>
-							</HeaderPicture>
-							<DropListWidth>5</DropListWidth>
-							<ContextMenu name="PrintFormsSetStateContextMenu" id="65"/>
-							<ExtendedTooltip name="PrintFormsSetStateExtendedTooltip" id="66"/>
-							<Events>
-								<Event name="OnChange">PrintFormsSetStateOnChange</Event>
-								<Event name="ChoiceProcessing">PrintFormsSetStateChoiceProcessing</Event>
-							</Events>
-						</InputField>
-					</ChildItems>
-				</ColumnGroup>
+					<TitleLocation>None</TitleLocation>
+					<EditMode>EnterOnInput</EditMode>
+					<HeaderPicture>
+						<xr:Ref>CommonPicture.SourceDocumentOriginalStateOriginalReceived</xr:Ref>
+						<xr:LoadTransparent>false</xr:LoadTransparent>
+					</HeaderPicture>
+					<ValuesPicture>
+						<xr:Ref>CommonPicture.IconsCollectionSourceDocumentOriginalAvailable</xr:Ref>
+						<xr:LoadTransparent>false</xr:LoadTransparent>
+					</ValuesPicture>
+					<ContextMenu name="OriginalReceivedPictureContextMenu" id="139"/>
+					<ExtendedTooltip name="OriginalReceivedPictureExtendedTooltip" id="140"/>
+				</PictureField>
+				<InputField name="PrintFormsSetState" id="64">
+					<DataPath>PrintFormsSet.State</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Original state</v8:content>
+						</v8:item>
+					</Title>
+					<EditMode>EnterOnInput</EditMode>
+					<DropListWidth>5</DropListWidth>
+					<ContextMenu name="PrintFormsSetStateContextMenu" id="65"/>
+					<ExtendedTooltip name="PrintFormsSetStateExtendedTooltip" id="66"/>
+					<Events>
+						<Event name="OnChange">PrintFormsSetStateOnChange</Event>
+						<Event name="ChoiceProcessing">PrintFormsSetStateChoiceProcessing</Event>
+					</Events>
+				</InputField>
 				<InputField name="PrintFormsSetLastChangeDate" id="157">
 					<DataPath>PrintFormsSet.LastChangeDate</DataPath>
 					<ReadOnly>true</ReadOnly>
@@ -850,7 +837,7 @@
 	<Parameters>
 		<Parameter name="DocumentRef">
 			<Type>
-				<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+				<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
 			</Type>
 		</Parameter>
 	</Parameters>

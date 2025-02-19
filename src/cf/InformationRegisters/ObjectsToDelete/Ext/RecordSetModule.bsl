@@ -17,6 +17,10 @@ Procedure BeforeWrite(Cancel, Replacing)
 		Return;
 	EndIf;
 	
+	If Common.IsRecordSetDeletion(Replacing) Then
+		Return;
+	EndIf;
+	
 	// References to extension objects are not supported.
 	For Cnt = -(Count() - 1) To 0 Do
 		If ThisObject[-Cnt].Object = Undefined Then

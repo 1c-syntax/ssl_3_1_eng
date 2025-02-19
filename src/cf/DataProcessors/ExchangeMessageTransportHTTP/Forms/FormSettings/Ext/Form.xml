@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
+	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
+	<SaveWindowSettings>false</SaveWindowSettings>
+	<CommandBarLocation>Bottom</CommandBarLocation>
+	<AutoCommandBar name="FormCommandBar" id="-1">
+		<HorizontalAlign>Right</HorizontalAlign>
+		<Autofill>false</Autofill>
+		<ChildItems>
+			<Button name="FormTestConnection" id="22">
+				<Type>CommandBarButton</Type>
+				<CommandName>Form.Command.TestConnection</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Test connection</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="FormTestConnectionExtendedTooltip" id="23"/>
+			</Button>
+			<Button name="FormDone" id="20">
+				<Type>CommandBarButton</Type>
+				<DefaultButton>true</DefaultButton>
+				<CommandName>Form.Command.Done</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Finish</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="FormDoneExtendedTooltip" id="21"/>
+			</Button>
+		</ChildItems>
+	</AutoCommandBar>
+	<Events>
+		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
+	</Events>
+	<ChildItems>
+		<InputField name="DataExchangeDirectory" id="12">
+			<TitleLocation>Top</TitleLocation>
+			<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+			<Width>40</Width>
+			<AutoMaxWidth>false</AutoMaxWidth>
+			<ChoiceButton>true</ChoiceButton>
+			<OpenButton>true</OpenButton>
+			<ContextMenu name="DataExchangeDirectoryContextMenu" id="13"/>
+			<ExtendedTooltip name="DataExchangeDirectoryExtendedTooltip" id="14">
+				<Title formatted="false">
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Specify a local or network directory to be used for exchange messages.</v8:content>
+					</v8:item>
+				</Title>
+			</ExtendedTooltip>
+			<Events>
+				<Event name="StartChoice">DataExchangeDirectoryStartChoice</Event>
+				<Event name="Opening">DataExchangeDirectoryOpening</Event>
+			</Events>
+		</InputField>
+		<InputField name="WebServiceAddress" id="24">
+			<DataPath>Object.WebServiceAddress</DataPath>
+			<ContextMenu name="WebServiceAddressContextMenu" id="25"/>
+			<ExtendedTooltip name="WebServiceAddressExtendedTooltip" id="26"/>
+		</InputField>
+		<InputField name="PublicationName" id="40">
+			<ContextMenu name="PublicationNameContextMenu" id="41"/>
+			<ExtendedTooltip name="PublicationNameExtendedTooltip" id="42"/>
+		</InputField>
+		<InputField name="NameUser" id="27">
+			<DataPath>Object.UserName</DataPath>
+			<ContextMenu name="NameUserContextMenu" id="28"/>
+			<ExtendedTooltip name="NameUserExtendedTooltip" id="29"/>
+		</InputField>
+		<UsualGroup name="PasswordGroup" id="33">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Password</v8:content>
+				</v8:item>
+			</Title>
+			<Representation>None</Representation>
+			<ShowTitle>false</ShowTitle>
+			<ExtendedTooltip name="PasswordGroupExtendedTooltip" id="34"/>
+			<ChildItems>
+				<InputField name="Password" id="30">
+					<DataPath>Object.Password</DataPath>
+					<PasswordMode>true</PasswordMode>
+					<ContextMenu name="PasswordContextMenu" id="31"/>
+					<ExtendedTooltip name="PasswordExtendedTooltip" id="32"/>
+				</InputField>
+				<CheckBoxField name="RememberPassword" id="35">
+					<DataPath>Object.RememberPassword</DataPath>
+					<TitleLocation>Right</TitleLocation>
+					<CheckBoxType>Auto</CheckBoxType>
+					<ContextMenu name="RememberPasswordContextMenu" id="36"/>
+					<ExtendedTooltip name="RememberPasswordExtendedTooltip" id="37"/>
+				</CheckBoxField>
+			</ChildItems>
+		</UsualGroup>
+		<Button name="InternetAccessParameters" id="38">
+			<Type>Hyperlink</Type>
+			<CommandName>Form.Command.InternetAccessParameters</CommandName>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Internet access parameters</v8:content>
+				</v8:item>
+			</Title>
+			<ExtendedTooltip name="InternetAccessParametersExtendedTooltip" id="39"/>
+		</Button>
+	</ChildItems>
+	<Attributes>
+		<Attribute name="Object" id="1">
+			<Type>
+				<v8:Type>cfg:DataProcessorObject.ExchangeMessageTransportHTTP</v8:Type>
+			</Type>
+			<MainAttribute>true</MainAttribute>
+		</Attribute>
+	</Attributes>
+	<Commands>
+		<Command name="Done" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Finish</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Finish</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>Done</Action>
+		</Command>
+		<Command name="TestConnection" id="4">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Test connection</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Test connection</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>TestConnection</Action>
+		</Command>
+		<Command name="InternetAccessParameters" id="2">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Internet access parameters</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Internet access parameters</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>InternetAccessParameters</Action>
+			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+	</Commands>
+	<Parameters>
+		<Parameter name="TransportSettings">
+			<Type/>
+			<KeyParameter>true</KeyParameter>
+		</Parameter>
+	</Parameters>
+</Form>

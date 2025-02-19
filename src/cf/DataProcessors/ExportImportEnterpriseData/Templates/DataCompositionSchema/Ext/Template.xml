@@ -91,6 +91,12 @@ WHERE
 			<field xsi:type="DataSetFieldField">
 				<dataPath>Type</dataPath>
 				<field>Type</field>
+				<title xsi:type="v8:LocalStringType">
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Type</v8:content>
+					</v8:item>
+				</title>
 			</field>
 			<dataSource>CommonDataSource</dataSource>
 			<query>SELECT 

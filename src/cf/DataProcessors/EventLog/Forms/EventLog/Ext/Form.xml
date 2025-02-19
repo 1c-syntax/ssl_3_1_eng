@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<Title>
 		<v8:item>
 			<v8:lang>en</v8:lang>
@@ -304,7 +304,7 @@
 											<Button name="SetFilterByValueInCurrentColumnContext" id="98">
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
-												<CommandName>Form.Command.SetFilterByValueInCurrentColumn</CommandName>
+												<CommandName>Form.Command.SetFilterByValue</CommandName>
 												<TextColor>style:ButtonTextColor</TextColor>
 												<BackColor>style:ButtonBackColor</BackColor>
 												<BorderColor>style:BorderColor</BorderColor>
@@ -332,7 +332,7 @@
 									<Button name="ViewCurrentEventInNewWindowContext" id="96">
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
-										<CommandName>Form.Command.ViewCurrentEventInNewWindow</CommandName>
+										<CommandName>Form.Command.ViewEvent</CommandName>
 										<TextColor>style:ButtonTextColor</TextColor>
 										<BackColor>style:ButtonBackColor</BackColor>
 										<BorderColor>style:BorderColor</BorderColor>
@@ -376,37 +376,49 @@
 										<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 										<ExtendedTooltip name="ExportLogForTechnicalSupportExtendedTooltip" id="210"/>
 									</Button>
-									<Button name="ViewCurrentEventInNewWindow" id="38">
-										<Type>CommandBarButton</Type>
-										<Representation>PictureAndText</Representation>
-										<SkipOnInput>false</SkipOnInput>
-										<CommandName>Form.Command.ViewCurrentEventInNewWindow</CommandName>
-										<TextColor>style:ButtonTextColor</TextColor>
-										<BackColor>style:ButtonBackColor</BackColor>
-										<BorderColor>style:BorderColor</BorderColor>
+									<ButtonGroup name="OpenGroup" id="537">
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
 												<v8:content>Open</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ViewCurrentEventInNewWindowExtendedTooltip" id="126"/>
-									</Button>
-									<Button name="OpenDataForViewing" id="40">
-										<Type>CommandBarButton</Type>
-										<SkipOnInput>false</SkipOnInput>
-										<CommandName>Form.Command.OpenDataForViewing</CommandName>
-										<TextColor>style:ButtonTextColor</TextColor>
-										<BackColor>style:ButtonBackColor</BackColor>
-										<BorderColor>style:BorderColor</BorderColor>
-										<Title>
-											<v8:item>
-												<v8:lang>en</v8:lang>
-												<v8:content>View data</v8:content>
-											</v8:item>
-										</Title>
-										<ExtendedTooltip name="OpenDataForViewingExtendedTooltip" id="127"/>
-									</Button>
+										<Representation>Compact</Representation>
+										<ExtendedTooltip name="OpenGroupExtendedTooltip" id="538"/>
+										<ChildItems>
+											<Button name="ViewCurrentEventInNewWindow" id="38">
+												<Type>CommandBarButton</Type>
+												<Representation>PictureAndText</Representation>
+												<SkipOnInput>false</SkipOnInput>
+												<CommandName>Form.Command.ViewEvent</CommandName>
+												<TextColor>style:ButtonTextColor</TextColor>
+												<BackColor>style:ButtonBackColor</BackColor>
+												<BorderColor>style:BorderColor</BorderColor>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Open</v8:content>
+													</v8:item>
+												</Title>
+												<ExtendedTooltip name="ViewCurrentEventInNewWindowExtendedTooltip" id="126"/>
+											</Button>
+											<Button name="OpenDataForViewing" id="40">
+												<Type>CommandBarButton</Type>
+												<SkipOnInput>false</SkipOnInput>
+												<CommandName>Form.Command.OpenDataForViewing</CommandName>
+												<TextColor>style:ButtonTextColor</TextColor>
+												<BackColor>style:ButtonBackColor</BackColor>
+												<BorderColor>style:BorderColor</BorderColor>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>View data</v8:content>
+													</v8:item>
+												</Title>
+												<ExtendedTooltip name="OpenDataForViewingExtendedTooltip" id="127"/>
+											</Button>
+										</ChildItems>
+									</ButtonGroup>
 									<ButtonGroup name="FilterCommands" id="105">
 										<Title>
 											<v8:item>
@@ -423,42 +435,54 @@
 												<Title>
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>Date range</v8:content>
+														<v8:content>Period...</v8:content>
 													</v8:item>
 												</Title>
 												<ExtendedTooltip name="SetPeriodForViewingExtendedTooltip" id="122"/>
 											</Button>
-											<Button name="SetFilter" id="42">
-												<Type>CommandBarButton</Type>
-												<Representation>PictureAndText</Representation>
-												<SkipOnInput>false</SkipOnInput>
-												<CommandName>Form.Command.SetFilter</CommandName>
-												<TextColor>style:ButtonTextColor</TextColor>
-												<BackColor>style:ButtonBackColor</BackColor>
-												<BorderColor>style:BorderColor</BorderColor>
+											<ButtonGroup name="GroupFilters" id="535">
 												<Title>
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>Filter</v8:content>
+														<v8:content>Filters</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="SetFilterExtendedTooltip" id="123"/>
-											</Button>
-											<Button name="SetFilterByValueInCurrentColumn" id="43">
-												<Type>CommandBarButton</Type>
-												<SkipOnInput>false</SkipOnInput>
-												<CommandName>Form.Command.SetFilterByValueInCurrentColumn</CommandName>
-												<TextColor>style:ButtonTextColor</TextColor>
-												<BackColor>style:ButtonBackColor</BackColor>
-												<BorderColor>style:BorderColor</BorderColor>
-												<Title>
-													<v8:item>
-														<v8:lang>en</v8:lang>
-														<v8:content>Filter by current column value</v8:content>
-													</v8:item>
-												</Title>
-												<ExtendedTooltip name="SetFilterByValueInCurrentColumnExtendedTooltip" id="124"/>
-											</Button>
+												<Representation>Compact</Representation>
+												<ExtendedTooltip name="GroupFiltersExtendedTooltip" id="536"/>
+												<ChildItems>
+													<Button name="SetFilter" id="42">
+														<Type>CommandBarButton</Type>
+														<Representation>PictureAndText</Representation>
+														<SkipOnInput>false</SkipOnInput>
+														<CommandName>Form.Command.SetFilter</CommandName>
+														<TextColor>style:ButtonTextColor</TextColor>
+														<BackColor>style:ButtonBackColor</BackColor>
+														<BorderColor>style:BorderColor</BorderColor>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Filter</v8:content>
+															</v8:item>
+														</Title>
+														<ExtendedTooltip name="SetFilterExtendedTooltip" id="123"/>
+													</Button>
+													<Button name="SetFilterByValue" id="43">
+														<Type>CommandBarButton</Type>
+														<SkipOnInput>false</SkipOnInput>
+														<CommandName>Form.Command.SetFilterByValue</CommandName>
+														<TextColor>style:ButtonTextColor</TextColor>
+														<BackColor>style:ButtonBackColor</BackColor>
+														<BorderColor>style:BorderColor</BorderColor>
+														<Title>
+															<v8:item>
+																<v8:lang>en</v8:lang>
+																<v8:content>Filter by column value</v8:content>
+															</v8:item>
+														</Title>
+														<ExtendedTooltip name="SetFilterByValueExtendedTooltip" id="124"/>
+													</Button>
+												</ChildItems>
+											</ButtonGroup>
 											<Button name="ClearFilter" id="44">
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
@@ -509,7 +533,7 @@
 											<Button name="RefreshCurrentList" id="46">
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
-												<CommandName>Form.Command.RefreshCurrentList</CommandName>
+												<CommandName>Form.Command.UpdateList</CommandName>
 												<TextColor>style:ButtonTextColor</TextColor>
 												<BackColor>style:ButtonBackColor</BackColor>
 												<BorderColor>style:BorderColor</BorderColor>
@@ -613,7 +637,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Importance</v8:content>
+											<v8:content>Severity</v8:content>
 										</v8:item>
 									</Title>
 									<EditMode>EnterOnInput</EditMode>
@@ -1020,7 +1044,7 @@
 											<Button name="SetFilterByValueInCurrentColumnContext2" id="432">
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
-												<CommandName>Form.Command.SetFilterByValueInCurrentColumn</CommandName>
+												<CommandName>Form.Command.SetFilterByValue</CommandName>
 												<TextColor>style:ButtonTextColor</TextColor>
 												<BackColor>style:ButtonBackColor</BackColor>
 												<BorderColor>style:BorderColor</BorderColor>
@@ -1048,7 +1072,7 @@
 									<Button name="ViewCurrentEventInNewWindowContext2" id="436">
 										<Type>CommandBarButton</Type>
 										<SkipOnInput>false</SkipOnInput>
-										<CommandName>Form.Command.ViewCurrentEventInNewWindow</CommandName>
+										<CommandName>Form.Command.ViewEvent</CommandName>
 										<TextColor>style:ButtonTextColor</TextColor>
 										<BackColor>style:ButtonBackColor</BackColor>
 										<BorderColor>style:BorderColor</BorderColor>
@@ -1096,7 +1120,7 @@
 										<Type>CommandBarButton</Type>
 										<Representation>PictureAndText</Representation>
 										<SkipOnInput>false</SkipOnInput>
-										<CommandName>Form.Command.ViewCurrentEventInNewWindow</CommandName>
+										<CommandName>Form.Command.ViewEvent</CommandName>
 										<TextColor>style:ButtonTextColor</TextColor>
 										<BackColor>style:ButtonBackColor</BackColor>
 										<BorderColor>style:BorderColor</BorderColor>
@@ -1163,7 +1187,7 @@
 											<Button name="SetFilterByValueInCurrentColumn2" id="452">
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
-												<CommandName>Form.Command.SetFilterByValueInCurrentColumn</CommandName>
+												<CommandName>Form.Command.SetFilterByValue</CommandName>
 												<TextColor>style:ButtonTextColor</TextColor>
 												<BackColor>style:ButtonBackColor</BackColor>
 												<BorderColor>style:BorderColor</BorderColor>
@@ -1225,7 +1249,7 @@
 											<Button name="RefreshCurrentList2" id="464">
 												<Type>CommandBarButton</Type>
 												<SkipOnInput>false</SkipOnInput>
-												<CommandName>Form.Command.RefreshCurrentList</CommandName>
+												<CommandName>Form.Command.UpdateList</CommandName>
 												<TextColor>style:ButtonTextColor</TextColor>
 												<BackColor>style:ButtonBackColor</BackColor>
 												<BorderColor>style:BorderColor</BorderColor>
@@ -1329,7 +1353,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Importance</v8:content>
+											<v8:content>Severity</v8:content>
 										</v8:item>
 									</Title>
 									<EditMode>EnterOnInput</EditMode>
@@ -1823,7 +1847,7 @@
 						<v8:Type>xs:string</v8:Type>
 						<v8:Type>xs:dateTime</v8:Type>
 						<v8:Type>xs:decimal</v8:Type>
-						<v8:TypeSet>cfg:AnyRef</v8:TypeSet>
+						<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
 						<v8:NumberQualifiers>
 							<v8:Digits>10</v8:Digits>
 							<v8:FractionDigits>0</v8:FractionDigits>
@@ -2273,7 +2297,7 @@
 		</Attribute>
 	</Attributes>
 	<Commands>
-		<Command name="ViewCurrentEventInNewWindow" id="1">
+		<Command name="ViewEvent" id="1">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -2283,14 +2307,10 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>View the current event in a new window.</v8:content>
+					<v8:content>View the event in a new window</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Shortcut>F2</Shortcut>
-			<Picture>
-				<xr:Ref>StdPicture.Properties</xr:Ref>
-				<xr:LoadTransparent>true</xr:LoadTransparent>
-			</Picture>
 			<Action>ViewCurrentEventInNewWindow</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
@@ -2355,17 +2375,17 @@
 			<Representation>Picture</Representation>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
-		<Command name="SetFilterByValueInCurrentColumn" id="5">
+		<Command name="SetFilterByValue" id="5">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Filter by current column value</v8:content>
+					<v8:content>Filter by column value</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Filter by current column value</v8:content>
+					<v8:content>Filter by column value</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -2395,17 +2415,17 @@
 			<Action>ClearFilter</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
-		<Command name="RefreshCurrentList" id="8">
+		<Command name="UpdateList" id="8">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Refresh current list</v8:content>
+					<v8:content>Refresh list</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Refresh</v8:content>
+					<v8:content>Refresh the event list</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Shortcut>F5</Shortcut>
@@ -2423,7 +2443,12 @@
 					<v8:content>Export to file…</v8:content>
 				</v8:item>
 			</Title>
+			<Picture>
+				<xr:Ref>CommonPicture.Download</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
 			<Action>ExportLogForTechnicalSupport</Action>
+			<Representation>TextPicture</Representation>
 		</Command>
 	</Commands>
 	<Parameters>

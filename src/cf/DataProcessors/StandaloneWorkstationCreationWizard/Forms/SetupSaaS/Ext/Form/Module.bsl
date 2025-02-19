@@ -90,7 +90,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		Return;
 	EndIf;
 	
-	NotifyDescription = New NotifyDescription("CancelStandaloneWorkstationGeneration", ThisObject);
+	NotifyDescription = New CallbackDescription("CancelStandaloneWorkstationGeneration", ThisObject);
 	
 	WarningText = NStr("en = 'Do you want to cancel creation of a standalone workstation?';");
 	CommonClient.ShowArbitraryFormClosingConfirmation(
@@ -98,7 +98,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
 EndProcedure
 
-// Idle handlers.
+// Обработчики ожидания
 
 &AtClient
 Procedure TimeConsumingOperationIdleHandler()
@@ -149,7 +149,7 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-// Built-in part.
+// Поставляемая часть
 
 &AtClient
 Procedure NextCommand(Command)
@@ -181,7 +181,7 @@ Procedure CancelCommand(Command)
 	
 EndProcedure
 
-// Overridable part.
+// Переопределяемая часть
 
 &AtClient
 Procedure SetUpDataTransferRestrictions(Command)
@@ -190,7 +190,7 @@ Procedure SetUpDataTransferRestrictions(Command)
 	NodeSettingFormName = StrReplace(NodeSettingFormName, "[ExchangePlanName]", ExchangePlanName);
 	
 	FormParameters = New Structure("NodeFiltersSetting, CorrespondentVersion", NodeFiltersSetting, "");
-	Handler = New NotifyDescription("SetUpDataTransferRestrictionsCompletion", ThisObject);
+	Handler = New CallbackDescription("SetUpDataTransferRestrictionsCompletion", ThisObject);
 	Mode = FormWindowOpeningMode.LockOwnerWindow;
 	
 	OpenForm(NodeSettingFormName, FormParameters, ThisObject,,,,Handler, Mode);
@@ -223,7 +223,7 @@ Procedure CopyInitialImageToUserComputer(Command)
 		AdditionalParameters = New Structure;
 		AdditionalParameters.Insert("InstallationPackageFileID", FileData.InstallationPackageFileID);
 		
-		NotifyDescriptionOnCompletion = New NotifyDescription(
+		NotifyDescriptionOnCompletion = New CallbackDescription(
 			"CopyInitialImageToUserComputerCompletion",
 			ThisObject,
 			AdditionalParameters);
@@ -374,8 +374,7 @@ Function ExtensionsThatChangeDataStructure()
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Built-in part.
+#Region PartToSupply
 
 &AtClient
 Procedure ChangeNavigationNumber(Iterator_SSLy)
@@ -683,8 +682,9 @@ Procedure CancelStandaloneWorkstationGeneration(Result, AdditionalParameters) Ex
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Overridable part - internal procedures and functions
+#EndRegion
+
+#Region OverridablePartUtilityProceduresAndFunctions
 
 &AtServer
 Procedure CreateStandaloneWorkstationInitialImageAtServer(Cancel)
@@ -704,7 +704,6 @@ Procedure CreateStandaloneWorkstationInitialImageAtServer(Cancel)
 		ExecutionParameters.BackgroundJobDescription = NStr("en = 'Create initial image of standalone workstation';");
 		ExecutionParameters.AdditionalResult = True;
 		ExecutionParameters.RunNotInBackground1 = False;
-		ExecutionParameters.RunInBackground   = True;
 		
 		BackgroundJob = TimeConsumingOperations.ExecuteInBackground(
 			"StandaloneModeInternal.CreateStandaloneWorkstationInitialImage",
@@ -868,8 +867,9 @@ Function SynchronizationUsers()
 	Return Result;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Overridable part - navigation event handlers
+#EndRegion
+
+#Region OverridablePartNavigationEventHandlers
 
 &AtClient
 Function Attachable_ExportSettingsOnGoNext(Cancel)
@@ -963,8 +963,9 @@ Function Attachable_PresenceOfExtensionsThatChangeDataStructure_WhenOpened(Cance
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Overridable part - wizard navigation initialization
+#EndRegion
+
+#Region OverridablePartWizardNavigationInitialization
 
 &AtServer
 Procedure StandaloneWorkstationCreatingScript()
@@ -997,5 +998,7 @@ Procedure StandaloneWorkstationCreatingScript()
 	NewNavigation = NavigationTableNewRow("ExecutionError", "NavigationEndPage");
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

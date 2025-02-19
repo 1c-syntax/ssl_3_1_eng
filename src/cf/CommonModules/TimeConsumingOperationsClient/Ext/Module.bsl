@@ -13,17 +13,17 @@
 // Open the standard form for waiting the long-running operation completion or use a custom form
 // with an attached handler notifying about the procedure progress and completion.
 // 
-//  For a better UI responsiveness, use it with TimeConsumingOperations.ExecuteInBackground,
+// For a better UI responsiveness, use it with TimeConsumingOperations.ExecuteInBackground,
 // which replaces long server calls with a background job.
 // 
 // Parameters:
-//  TimeConsumingOperation     - See TimeConsumingOperations.ExecuteInBackground
-//  CallbackOnCompletion  - NotifyDescription - Notification that is called upon the completion of a long-running operation
-//                           (including cases when the idle dialog is closed).
-//                           Notification handler parameters: 
-//   * Result - See NewResultLongOperation
-//               - Undefined - In case the job is canceled.
-//   * AdditionalParameters - Arbitrary data passed in the notification. 
+//   TimeConsumingOperation     - See TimeConsumingOperations.ExecuteInBackground
+//   CallbackOnCompletion  - CallbackDescription - Notification that is called upon the completion of a long-running operation
+//                            (including cases when the idle dialog is closed).
+//                            Notification handler parameters: 
+//     # Result - See NewResultLongOperation
+//                          - Undefined - In case the job is canceled.
+//     # AdditionalParameters - Arbitrary - Arbitrary data passed within the notification details. 
 //  IdleParameters      - See TimeConsumingOperationsClient.IdleParameters
 //
 Procedure WaitCompletion(Val TimeConsumingOperation, Val CallbackOnCompletion = Undefined, 
@@ -68,7 +68,7 @@ Procedure WaitCompletion(Val TimeConsumingOperation, Val CallbackOnCompletion = 
 		Context.Insert("Result");
 		Context.Insert("JobID", AdvancedOptions_.JobID);
 		Context.Insert("CallbackOnCompletion", CallbackOnCompletion);
-		ClosingNotification1 = New NotifyDescription("OnFormClosureLongRunningOperation",
+		ClosingNotification1 = New CallbackDescription("OnFormClosureLongRunningOperation",
 			ThisObject, Context);
 		
 		OpenForm("CommonForm.TimeConsumingOperation", AdvancedOptions_, 
@@ -111,11 +111,11 @@ EndProcedure
 //   * OutputMessages          - Boolean - Flag indicating whether to output messages generated in long-running operation handler
 //                                       from the wait form to the message's OwnerForm.
 //   * CancelButtonTitle  - String - Title of the "Cancel" button. If not specified, "Canceled".
-//   * ExecutionProgressNotification - NotifyDescription - The notification called repeatedly to check if the background job is completed. 
-//                                      Applies if "OutputIdleWindow" is set to "False".
-//                                      The parameters of the event handler are::
-//      ** Result - See LongRunningOperationNewState
-//      ** AdditionalParameters - Arbitrary - arbitrary data that was passed in the notification details. 
+//   * ExecutionProgressNotification - CallbackDescription - Notification that is occasionally called when checking 
+//                                      if the background job is available provided that "OutputIdleWindow" is set to "False".
+//                                      The parameters of the notification handler are:
+//      # Result - See LongRunningOperationNewState
+//      AdditionalParameters - Arbitrary - Arbitrary data passed within the notification details. 
 //
 //   * Interval               - Number  - Interval between long-running operation completion checks, in seconds.
 //                                       The default value is 0. After each check, the value increases from 1 to 15 seconds
@@ -166,7 +166,7 @@ Function IdleParameters(OwnerForm) Export
 	
 EndFunction
 
-// Returns the result of the notification specified in the "CompletionNotification2" parameter 
+// Returns the result of the notification specified in the "NotificationOfCompletion" parameter 
 // of "TimeConsumingOperationsClient.WaitForCompletion".
 //
 // Returns:
@@ -225,9 +225,9 @@ EndFunction
 //                       "Error" if the job is completed with error.
 //
 //   * Progress   - See TimeConsumingOperations.ReadProgress
-//   * Messages  - Undefined - No messages
-//                - FixedArray - An array of "UserMessage" objects. 
-//                    A batch of messages sent from the long-running operation.
+//   * Messages  - Undefined - No messages.
+//                - FixedArray of UserMessage - A batch of messages
+//                  sent from a long-running opeation procedure.
 //
 //   * JobID - UUID - Background job id (if it was started).
 //                          - Undefined - If the job wasn't started (foreground execution).
@@ -324,8 +324,8 @@ EndProcedure
 // Configuration subsystems event handlers.
 
 // Parameters:
-//  Parameters - 
-//  AreChatsActive - Boolean - Flag indicating whether the Business interactions subsystem delivers messages.
+//  Parameters - See CommonOverridable.BeforeRecurringClientDataSendToServer.Parameters
+//  AreChatsActive - Boolean - Flag indicating that the message transport is the "Business interactions" subsystem.
 //  Interval - Number - Timeout in seconds before the next check.
 //
 Procedure BeforeRecurringClientDataSendToServer(Parameters, AreChatsActive, Interval) Export
@@ -341,7 +341,7 @@ EndProcedure
 
 // Parameters:
 //  Results - See CommonOverridable.OnReceiptRecurringClientDataOnServer.Results
-//  AreChatsActive - Boolean - Flag indicating whether the Business interactions subsystem delivers messages.
+//  AreChatsActive - Boolean - Flag indicating that the message transport is the "Business interactions" subsystem.
 //  Interval - Number - Timeout in seconds before the next check.
 //
 Procedure AfterRecurringReceiptOfClientDataOnServer(Results, AreChatsActive, Interval) Export
@@ -382,7 +382,7 @@ EndProcedure
 //               - Undefined
 //   * JobID  - UUID
 //                           - Undefined
-//   * CallbackOnCompletion - NotifyDescription
+//   * CallbackOnCompletion - CallbackDescription
 //                           - Undefined
 //
 Procedure OnFormClosureLongRunningOperation(Result, Context) Export
@@ -400,7 +400,7 @@ Procedure OnFormClosureLongRunningOperation(Result, Context) Export
 EndProcedure
 
 // Parameters:
-//  AreChatsActive - Boolean - Flag indicating whether the Business interactions subsystem delivers messages.
+//  AreChatsActive - Boolean - Flag indicating that the message transport is the "Business interactions" subsystem.
 //  Interval - Number - Timeout in seconds before the next check.
 //
 // Returns:
@@ -425,6 +425,9 @@ Function LongRunningOperationCheckParameters(AreChatsActive, Interval)
 		Return Undefined;
 	EndIf;
 	
+	RestAreActive = New Array;
+	ChatsControlInterval = ChatsControlInterval();
+	
 	For Each TimeConsumingOperation In TimeConsumingOperationsInProgress Do
 		
 		TimeConsumingOperation = TimeConsumingOperation.Value;
@@ -433,7 +436,6 @@ Function LongRunningOperationCheckParameters(AreChatsActive, Interval)
 			ActionsUnderControl.Insert(TimeConsumingOperation.JobID, TimeConsumingOperation);
 			JobsToCancel.Add(TimeConsumingOperation.JobID);
 		Else
-			ChatsControlInterval = ChatsControlInterval();
 			DateOfControl = TimeConsumingOperation.Control
 				+ ?(Not AreChatsActive Or TimeConsumingOperation.CurrentInterval > ChatsControlInterval,
 					0, ChatsControlInterval - TimeConsumingOperation.CurrentInterval);
@@ -441,6 +443,8 @@ Function LongRunningOperationCheckParameters(AreChatsActive, Interval)
 			If DateOfControl <= CurrentDate Then
 				ActionsUnderControl.Insert(TimeConsumingOperation.JobID, TimeConsumingOperation);
 				JobsToCheck.Add(TimeConsumingOperation.JobID);
+			ElsIf AreChatsActive Then
+				RestAreActive.Add(TimeConsumingOperation);
 			EndIf;
 		EndIf;
 	EndDo;
@@ -451,6 +455,11 @@ Function LongRunningOperationCheckParameters(AreChatsActive, Interval)
 		ReviseIdleHandlerInterval(Interval, TimeConsumingOperationsInProgress, AreChatsActive);
 		Return Undefined;
 	EndIf;
+	
+	For Each TimeConsumingOperation In RestAreActive Do
+		ActionsUnderControl.Insert(TimeConsumingOperation.JobID, TimeConsumingOperation);
+		JobsToCheck.Add(TimeConsumingOperation.JobID);
+	EndDo;
 	
 	Result = New Structure;
 	Result.Insert("JobsToCheck", JobsToCheck);
@@ -509,13 +518,13 @@ EndProcedure
 //  Number - Time in seconds when a long-running operation is controlled
 //          by the server call when chats are active but new messages weren't sent.
 //          For example, if the operation is running longer than the specified time or
-//          when the background job crashed and the message wasn't sent via Business interactions.
+//          when the background job crashed and the message wasn't sent via Collaboration System.
 //          
 //          
 //
 Function ChatsControlInterval()
 	
-	Return 30;
+	Return ?(ServerNotificationsClient.DataReceiptStatus().AreClientNotificationsAvailable, 180, 30);
 	
 EndFunction
 
@@ -549,7 +558,7 @@ EndProcedure
 //   * MessageText         - String
 //   * OutputIdleWindow   - Boolean
 //   * OutputProgressBar - Boolean
-//   * ExecutionProgressNotification - NotifyDescription
+//   * ExecutionProgressNotification - CallbackDescription
 //                                    - Undefined
 //   * OutputMessages      - Boolean
 //   * Interval               - Number
@@ -566,12 +575,12 @@ EndProcedure
 //   
 //   * JobID  - UUID
 //   * AccumulatedMessages  - Array
-//   * CallbackOnCompletion - NotifyDescription
+//   * CallbackOnCompletion - CallbackDescription
 //                           - Undefined
 //   * CurrentInterval       - Number
 //   * Control              - Date
 //    
-//   * LastProgressSendTime - Number - Universal date in milliseconds
+//   * LastProgressSendTime - Number - Universal date in milliseconds.
 //
 //  TimeConsumingOperation - See TimeConsumingOperations.OperationNewRuntimeResult
 //
@@ -585,7 +594,7 @@ Function ProcessActiveOperationResult(AdvancedOptions_, TimeConsumingOperation)
 			State.Messages = TimeConsumingOperation.Messages;
 			State.JobID = AdvancedOptions_.JobID;
 			Try
-				ExecuteNotifyProcessing(AdvancedOptions_.ExecutionProgressNotification, State);
+				RunCallback(AdvancedOptions_.ExecutionProgressNotification, State);
 			Except
 				ErrorInfo = ErrorInfo();
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -690,7 +699,7 @@ EndProcedure
 Procedure NotifyOfLongRunningOperationEnd(CallbackOnCompletion, Result, JobID)
 	
 	Try
-		ExecuteNotifyProcessing(CallbackOnCompletion, Result);
+		RunCallback(CallbackOnCompletion, Result);
 	Except
 		ErrorInfo = ErrorInfo();
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -738,7 +747,7 @@ Procedure CheckParametersWaitForCompletion(Val TimeConsumingOperation, Val Callb
 	
 	If CallbackOnCompletion <> Undefined Then
 		CommonClientServer.CheckParameter("TimeConsumingOperationsClient.WaitCompletion",
-			"CallbackOnCompletion", CallbackOnCompletion, Type("NotifyDescription"));
+			"CallbackOnCompletion", CallbackOnCompletion, Type("CallbackDescription"));
 	EndIf;
 	
 	If IdleParameters <> Undefined Then

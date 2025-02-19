@@ -38,9 +38,9 @@ Var MetadataCurrentRow;
 
 #Region ForCallsFromOtherSubsystems
 
-// StandardSubsystems.AdditionalReportsAndDataProcessors
+// СтандартныеПодсистемы.ДополнительныеОтчетыИОбработки
 
-// ACC:78-on additional data processor.
+// ACC:78-выкл дополнительная обработка
 
 // Command export handler for the additional reports and data processors subsystem.
 //
@@ -183,7 +183,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
 	If TimeConsumingOperationStarted Then
 		Cancel = True;
-		Notification = New NotifyDescription("ConfirmFormClosingCompletion", ThisObject);
+		Notification = New CallbackDescription("ConfirmFormClosingCompletion", ThisObject);
 		ShowQueryBox(Notification, NStr("en = 'Abort registration?';"), QuestionDialogMode.YesNo);
 	EndIf;
 	
@@ -237,7 +237,7 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 					 
 	QuestionTitle = NStr("en = 'Confirm operation';");
 	
-	Notification = New NotifyDescription("ChoiceProcessingCompletion", ThisObject, New Structure);
+	Notification = New CallbackDescription("ChoiceProcessingCompletion", ThisObject, New Structure);
 	Notification.AdditionalParameters.Insert("ValueSelected", ValueSelected);
 	ShowQueryBox(Notification, Text, QuestionDialogMode.YesNo, , , QuestionTitle);
 	
@@ -800,7 +800,7 @@ Procedure RegisterMOIDAndPredefinedItems(Command)
 		     |at node ""%1""?';"),
 		"%1", ExchangeNodeReference);
 	
-	Notification = New NotifyDescription("RegisterMetadataObjectIDCompletion", ThisObject);
+	Notification = New CallbackDescription("RegisterMetadataObjectIDCompletion", ThisObject);
 	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo, , , QuestionTitle);
 	
 EndProcedure
@@ -931,7 +931,7 @@ Procedure EditConstantMessageNo()
 		Return;
 	EndIf;
 	
-	Notification = New NotifyDescription("EditConstantMessageNoCompletion", ThisObject, New Structure);
+	Notification = New CallbackDescription("EditConstantMessageNoCompletion", ThisObject, New Structure);
 	Notification.AdditionalParameters.Insert("MetaFullName", curData.MetaFullName);
 	
 	MessageNo = curData.MessageNo;
@@ -973,7 +973,7 @@ Procedure EditRefMessageNo()
 		Return;
 	EndIf;
 	
-	Notification = New NotifyDescription(
+	Notification = New CallbackDescription(
 		"EditRefMessageNoCompletion",
 		ThisObject,
 		AdditionalMessageNumberEditParameters(curData.Ref));
@@ -1010,7 +1010,7 @@ Procedure EditMessageNoSetList()
 		Return;
 	EndIf;
 	
-	Notification = New NotifyDescription("EditMessageNoSetListCompletion", ThisObject, New Structure);
+	Notification = New CallbackDescription("EditMessageNoSetListCompletion", ThisObject, New Structure);
 	
 	RowData = New Structure;
 	KeysNames = RecordSetKeyNameArray(RecordSetsListTableName);
@@ -1214,7 +1214,7 @@ Procedure DeleteConstantRegistrationInList()
 	
 	QuestionTitle = NStr("en = 'Confirm operation';");
 	
-	Notification = New NotifyDescription("DeleteConstantRegistrationInListCompletion", ThisObject, New Structure);
+	Notification = New CallbackDescription("DeleteConstantRegistrationInListCompletion", ThisObject, New Structure);
 	Notification.AdditionalParameters.Insert("NamesList", NamesList);
 	
 	ShowQueryBox(Notification, Text, QuestionDialogMode.YesNo, , ,QuestionTitle);
@@ -1304,7 +1304,7 @@ Procedure DeleteRegistrationFromReferenceList()
 	
 	QuestionTitle = NStr("en = 'Confirm operation';");
 	
-	Notification = New NotifyDescription("DeleteRegistrationFromReferenceListCompletion", ThisObject, New Structure);
+	Notification = New CallbackDescription("DeleteRegistrationFromReferenceListCompletion", ThisObject, New Structure);
 	Notification.AdditionalParameters.Insert("DeletionList", DeletionList);
 	
 	ShowQueryBox(Notification, Text, QuestionDialogMode.YesNo, , , QuestionTitle);
@@ -1396,7 +1396,7 @@ Procedure AddSelectedObjectRegistration(NoAutoRegistration = True)
 	
 	QuestionTitle = NStr("en = 'Confirm operation';");
 	
-	Notification = New NotifyDescription("AddSelectedObjectRegistrationCompletion", ThisObject, New Structure);
+	Notification = New CallbackDescription("AddSelectedObjectRegistrationCompletion", ThisObject, New Structure);
 	Notification.AdditionalParameters.Insert("MetaNames", Data.MetaNames);
 	Notification.AdditionalParameters.Insert("NoAutoRegistration", NoAutoRegistration);
 	
@@ -1441,7 +1441,7 @@ Procedure DeleteSelectedObjectRegistration(NoAutoRegistration = True)
 	Text = StrReplace(Text, "%1", Data.LongDesc);
 	Text = StrReplace(Text, "%2", ExchangeNodeReference);
 	
-	Notification = New NotifyDescription("DeleteSelectedObjectRegistrationCompletion", ThisObject, New Structure);
+	Notification = New CallbackDescription("DeleteSelectedObjectRegistrationCompletion", ThisObject, New Structure);
 	Notification.AdditionalParameters.Insert("MetaNames", Data.MetaNames);
 	Notification.AdditionalParameters.Insert("NoAutoRegistration", NoAutoRegistration);
 	
@@ -1486,7 +1486,7 @@ Procedure BackgroundJobStartClient(BackgroundJobParameters)
 		IdleParameters.OutputIdleWindow  = False;
 		IdleParameters.OutputMessages     = True;
 		
-		CallbackOnCompletion = New NotifyDescription("BackgroundJobCompletion", ThisObject);
+		CallbackOnCompletion = New CallbackDescription("BackgroundJobCompletion", ThisObject);
 		CommonModuleTimeConsumingOperationsClient.WaitCompletion(Result, CallbackOnCompletion, IdleParameters);
 	Else
 		BackgroundJobCompleteResult = Result;
@@ -1726,7 +1726,7 @@ Procedure DataChoiceProcessing(FormTable, ValueSelected)
 	AdditionalParameters.TableName   = TableName;
 	AdditionalParameters.Ref       = Ref;
 	
-	Notification = New NotifyDescription("DataChoiceProcessingCompletion", ThisObject, AdditionalParameters);
+	Notification = New CallbackDescription("DataChoiceProcessingCompletion", ThisObject, AdditionalParameters);
 	
 	ShowQueryBox(Notification, Text, QuestionDialogMode.YesNo, , ,QuestionTitle);
 EndProcedure
@@ -1867,7 +1867,7 @@ Procedure ActionWithQueryResult(ActionCommand)
 	
 	QuestionTitle = NStr("en = 'Settings';");
 
-	Notification = New NotifyDescription("ActionWithQueryResultCompletion", ThisObject);
+	Notification = New CallbackDescription("ActionWithQueryResultCompletion", ThisObject);
 	ShowQueryBox(Notification, Text, QuestionDialogMode.YesNo, , , QuestionTitle);
 EndProcedure
 
@@ -2552,15 +2552,22 @@ Function GetCurrentRowMetadataNames(NoAutoRegistration)
 		New Array, GetSelectedMetadataDetails(NoAutoRegistration));
 	MetaName1 = String.MetaFullName;
 	If IsBlankString(MetaName1) Then
+		// Unmarked configuration root
 		Result.MetaNames.Add(Undefined);	
 	Else
-		Result.MetaNames.Add(MetaName1);	
-		
 		Parent = String.GetParent();
 		MetaParentName = Parent.MetaFullName;
 		If IsBlankString(MetaParentName) Then
+			
+			If MetadataNamesStructure.Property(MetaName1) Then
+				Result.MetaNames = MetadataNamesStructure[MetaName1];
+			Else
+				Result.MetaNames.Add(MetaName1);
+			EndIf;
+			
 			Result.LongDesc = GetSelectedMetadataDetails(NoAutoRegistration, String.Description);
 		Else
+			Result.MetaNames.Add(MetaName1);	
 			Result.LongDesc = GetSelectedMetadataDetails(NoAutoRegistration, MetaParentName, MetaName1);
 		EndIf;
 	EndIf;
@@ -2774,7 +2781,8 @@ EndFunction
 Procedure CheckPlatformVersionAndCompatibilityMode()
 	
 	Information = New SystemInfo;
-	If Not (Left(Information.AppVersion, 3) = "8.3"
+	VersionParts = StrSplit(Information.AppVersion, ".");
+	If Not (Not (VersionParts.Count() < 2 Or Number(VersionParts[0]) < 8 Or Number(VersionParts[1]) < 3)
 		And (Metadata.CompatibilityMode = Metadata.ObjectProperties.CompatibilityMode.DontUse
 		Or (Metadata.CompatibilityMode <> Metadata.ObjectProperties.CompatibilityMode.Version8_1
 		And Metadata.CompatibilityMode <> Metadata.ObjectProperties.CompatibilityMode.Version8_2_13
@@ -2877,9 +2885,9 @@ Procedure FillAdditionalInformation()
 		Return;
 	EndIf;
 	
-	ModuleDataExchangeCached = CommonModuleDataExchangeCached();
-	ModuleDataExchangeRegistrationCached = CommonModuleDataExchangeRegistrationCached();
-	ModuleDataExchangeRegistrationServer = CommonModuleDataExchangeRegistrationServer();
+	ModuleDataExchangeCached = CommonModule("DataExchangeCached");
+	ModuleDataExchangeRegistrationCached = CommonModule("DataExchangeRegistrationCached");
+	ModuleDataExchangeRegistrationServer = CommonModule("DataExchangeRegistrationServer");
 	
 	If ValueIsFilled(ExchangeNodeReference) Then
 		
@@ -2931,26 +2939,46 @@ Function IsConfigurationSupportsDataSyncLib()
 	
 EndFunction
 
-&AtServer
-Function CommonModuleDataExchangeCached()
-	Return Eval("DataExchangeCached"); // ACC:488 - No need to call "CalculateInSafeMode" as a string literal was passed.
+// Returns a reference to the common module by the name.
+//
+// Parameters:
+//  Name          - String - a common module name, for example:
+//                 "Common",
+//                 "CommonClient".
+//
+// Returns:
+//  CommonModule
+//
+&AtClientAtServerNoContext
+Function CommonModule(Name)
+	
+// ACC:488-off "Calculate" instead of "Common.CalculateInSafeMode" because it's a standalone data processor.
+#If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
+	If Metadata.CommonModules.Find(Name) <> Undefined Then
+		SetSafeMode(True);
+		Module = Eval(Name);
+	Else
+		Module = Undefined;
+	EndIf;
+	
+	If TypeOf(Module) <> Type("CommonModule") Then
+		Raise SubstituteParametersToString(NStr("en = 'Common module ""%1"" does not exist.';"), Name);
+	EndIf;
+#Else
+	Module = Eval(Name);
+	If TypeOf(Module) <> Type("CommonModule") Then
+		Raise SubstituteParametersToString(NStr("en = 'Common module ""%1"" does not exist.';"), Name);
+	EndIf;
+#EndIf
+// ACC:488-on
+	
+	Return Module;
+	
 EndFunction
 
-&AtServer
-Function CommonModuleDataExchangeRegistrationCached()
-	Return Eval("DataExchangeRegistrationCached"); // ACC:488 - No need to call "CalculateInSafeMode" as a string literal was passed.
-EndFunction
+#Region ProceduresAndFunctionsFromBasicFunctionalityToSupportSelfSufficiency
 
-&AtServer
-Function CommonModuleDataExchangeRegistrationServer()
-	Return Eval("DataExchangeRegistrationServer"); // ACC:488 - No need to call "CalculateInSafeMode" as a string literal was passed.
-EndFunction
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Base-functionality procedures and functions for standalone mode support.
-
-&AtServer
+&AtClientAtServerNoContext
 Function SubstituteParametersToString(Val SubstitutionString, Val Parameter1, Val Parameter2 = Undefined, Val Parameter3 = Undefined)
 	
 	SubstitutionString = StrReplace(SubstitutionString, "%1", Parameter1);
@@ -2967,5 +2995,7 @@ Function DefaultLanguageCode()
 	Return Metadata.DefaultLanguage.LanguageCode;
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion

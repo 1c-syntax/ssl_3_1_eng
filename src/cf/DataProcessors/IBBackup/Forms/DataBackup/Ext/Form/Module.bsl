@@ -251,7 +251,7 @@ Procedure GoToInformationAndBackupPage(GoToNext)
 	EndIf;
 	
 	CheckForBlockingSessions();
-	Notification = New NotifyDescription(
+	Notification = New CallbackDescription(
 		"GoToPageBackupAfterInfobaseAccessCheck", ThisObject);
 	IBBackupClient.CheckAccessToInfobase(IBAdministratorPassword, Notification);
 	
@@ -390,7 +390,7 @@ Function CheckAttributesFilling()
 		
 		If AttributesFilled Then
 			
-			// CAC:280-off Exceptions are not processed as files are not deleted on this step.
+			// ACC:280-off - Exceptions are not processed. This step does not delete any files.
 			Try
 				DeleteFiles(Object.BackupDirectory, "*.test1From1");
 			Except
@@ -426,7 +426,7 @@ Procedure Timeout2()
 	DetachIdleHandler("CheckForSingleConnection");
 	QueryText = NStr("en = 'Cannot terminate all user sessions. Are you sure you still want to back up the data? The backup might contain errors.';");
 	ExplanationText = NStr("en = 'Cannot terminate the user session.';");
-	NotifyDescription = New NotifyDescription("Timeout2Completion", ThisObject);
+	NotifyDescription = New CallbackDescription("Timeout2Completion", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, 30, DialogReturnCode.No, ExplanationText, DialogReturnCode.No);
 	
 EndProcedure
@@ -541,7 +541,7 @@ Procedure StartBackup()
 		IBBackupClient.StringUnicode(IBAdministratorPassword));
 	
 	ApplicationStartupParameters = FileSystemClient.ApplicationStartupParameters();
-	ApplicationStartupParameters.Notification = New NotifyDescription("AfterStartScript", ThisObject);
+	ApplicationStartupParameters.Notification = New CallbackDescription("AfterStartScript", ThisObject);
 	ApplicationStartupParameters.WaitForCompletion = False;
 	
 	FileSystemClient.StartApplication(CommandLine1, ApplicationStartupParameters);
@@ -561,8 +561,7 @@ Procedure AfterStartScript(Result, Context) Export
 	
 EndProcedure
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Handlers of form events on the server and changes of backup settings.
+#Region FormServerEventHandlersAndBackupSettingsChangeHandlers
 
 &AtServerNoContext
 Procedure SetBackupArchivePath(Val Path, Val AutomaticRun)
@@ -577,8 +576,9 @@ Procedure SetBackupArchivePath(Val Path, Val AutomaticRun)
 	
 EndProcedure
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions of backup preparation.
+#EndRegion
+
+#Region ProceduresAndFunctionsToPrepareBackup
 
 #If Not WebClient And Not MobileClient Then
 
@@ -593,6 +593,7 @@ Function GenerateScriptFiles()
 	ScriptParameters.ApplicationFileName = BackupParameters.ApplicationFileName;
 	ScriptParameters.EventLogEvent = BackupParameters.EventLogEvent;
 	ScriptParameters.COMConnectorName = CommonClientServer.COMConnectorName();
+	ScriptParameters.COMConnectorPath = BinDir() + "comcntr.dll";
 	ScriptParameters.IsBaseConfigurationVersion = StandardSubsystemsClient.IsBaseConfigurationVersion();
 	ScriptParameters.ScriptParameters = IBBackupClient.UpdateAdministratorAuthenticationParameters(IBAdministratorPassword);
 	ScriptParameters.OneCEnterpriseStartupParameters = CommonInternalClient.EnterpriseStartupParametersFromScript();
@@ -773,5 +774,7 @@ Procedure SetProcessRunning(Val ProcessRunning)
 	IBBackupServerCall.SetSettingValue("ProcessRunning", ProcessRunning);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

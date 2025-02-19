@@ -178,7 +178,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>App</v8:content>
+					<v8:content>Application</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -287,7 +287,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Valid till</v8:content>
+					<v8:content>Membership expires</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -458,7 +458,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Valid till (previous)</v8:content>
+					<v8:content>Membership expires (previous)</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -764,7 +764,7 @@ Else Max(PreviousMemberTill) End</expression>
 						<dcsat:value xsi:type="v8:LocalStringType">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>User's activity or validity was changed.</v8:content>
+								<v8:content>User's activity or expiration date was changed.</v8:content>
 							</v8:item>
 						</dcsat:value>
 					</dcsat:item>
@@ -788,7 +788,7 @@ Else Max(PreviousMemberTill) End</expression>
 						<dcsat:value xsi:type="v8:LocalStringType">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>R</v8:content>
+								<v8:content>M</v8:content>
 							</v8:item>
 						</dcsat:value>
 					</dcsat:item>
@@ -913,7 +913,7 @@ their profile, access group, user group, and the user itself.</v8:content>
 		<dcsset:presentation xsi:type="v8:LocalStringType">
 			<v8:item>
 				<v8:lang>en</v8:lang>
-				<v8:content>Changes in access group membership</v8:content>
+				<v8:content>Access group membership changes</v8:content>
 			</v8:item>
 		</dcsset:presentation>
 		<dcsset:settings xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows">

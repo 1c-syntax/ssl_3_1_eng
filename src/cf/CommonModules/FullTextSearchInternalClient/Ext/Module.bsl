@@ -20,7 +20,7 @@ Procedure ShowExclusiveChangeModeWarning() Export
 	Buttons.Add("ActiveUsers", NStr("en = 'Active users';"));
 	Buttons.Add(DialogReturnCode.Cancel);
 	
-	Handler = New NotifyDescription("AfterDisplayWarning", ThisObject);
+	Handler = New CallbackDescription("AfterDisplayWarning", ThisObject);
 	ShowQueryBox(Handler, QueryText, Buttons,, "ActiveUsers");
 	
 EndProcedure

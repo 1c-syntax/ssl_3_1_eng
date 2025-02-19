@@ -70,7 +70,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// End StandardSubsystems.AttachableCommands
 	
 	Items.FormCheckVolumeIntegrity.Visible = Not Common.SubsystemExists("StandardSubsystems.AttachableCommands")
-		Or Not Common.SubsystemExists("StandardSubsystems.ReportsOptions");
+		Or Not Common.SubsystemExists("StandardSubsystems.ReportsOptions") Or Not Common.SeparatedDataUsageAvailable();
 	
 EndProcedure
 
@@ -89,7 +89,7 @@ EndProcedure
 &AtClient
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
-	Notification = New NotifyDescription("WriteAndCloseNotification", ThisObject);
+	Notification = New CallbackDescription("WriteAndCloseNotification", ThisObject);
 	CommonClient.ShowFormClosingConfirmation(Notification, Cancel, Exit);
 	
 EndProcedure
@@ -219,7 +219,7 @@ Procedure CheckVolumeIntegrity(Command)
 	If Not ValueIsFilled(Object.Ref) Then
 			QueryText = NStr("en = 'To proceed with the integrity check, save the volume data.
 					|Do you want to save the data?';");
-			Notification = New NotifyDescription("WriteFormRequiredToCheckVolumeIntegrity", ThisObject);
+			Notification = New CallbackDescription("WriteFormRequiredToCheckVolumeIntegrity", ThisObject);
 			ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo);
 	Else
 		RunVolumeIntegrityCheck();
@@ -323,7 +323,7 @@ EndFunction
 &AtClient
 Procedure AllowExternalResourceBeginning()
 	
-	ClosingNotification1 = New NotifyDescription(
+	ClosingNotification1 = New CallbackDescription(
 		"AllowExternalResourceCompletion", ThisObject, CurrentWriteParameters);
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
@@ -337,7 +337,7 @@ Procedure AllowExternalResourceBeginning()
 		ModuleSafeModeManagerClient.ApplyExternalResourceRequests(ExternalResourceQueries, ThisObject, ClosingNotification1);
 		
 	Else
-		ExecuteNotifyProcessing(ClosingNotification1, DialogReturnCode.OK);
+		RunCallback(ClosingNotification1, DialogReturnCode.OK);
 	EndIf;
 	
 EndProcedure

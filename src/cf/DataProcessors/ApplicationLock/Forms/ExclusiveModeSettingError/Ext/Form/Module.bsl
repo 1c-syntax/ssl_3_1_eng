@@ -26,7 +26,7 @@ Procedure OnOpen(Cancel)
 	
 	If ExclusiveModeAvailable Then
 		Cancel = True;
-		ExecuteNotifyProcessing(OnCloseNotifyDescription, False);
+		RunCallback(CallbackDescriptionOnClose, False);
 		Return;
 	EndIf;
 	
@@ -52,7 +52,7 @@ EndProcedure
 Procedure ActiveUsersClick(Item)
 	
 	CheckExclusiveModeAtServer();
-	NotifyDescription = New NotifyDescription("OpenActiveUserListCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("OpenActiveUserListCompletion", ThisObject);
 	OpenForm("DataProcessor.ActiveUsers.Form.ActiveUsers", , , , , ,
 		NotifyDescription,
 		FormWindowOpeningMode.LockOwnerWindow);
@@ -63,7 +63,7 @@ EndProcedure
 Procedure ActiveUsers2Click(Item)
 	
 	CheckExclusiveModeAtServer();
-	NotifyDescription = New NotifyDescription("OpenActiveUserListCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("OpenActiveUserListCompletion", ThisObject);
 	OpenForm("DataProcessor.ActiveUsers.Form.ActiveUsers" , , , , , ,
 		NotifyDescription,
 		FormWindowOpeningMode.LockOwnerWindow);
@@ -147,7 +147,7 @@ Procedure UpdateActiveSessionCount(Form)
 		If ValueIsFilled(Form.Parameters.ErrorTextExitFailed) Then
 			ErrorMessageText = Form.Parameters.ErrorTextExitFailed;
 		Else	
-			ErrorMessageText = NStr("en = 'Cannot update the app because the following users are still logged in:';");
+			ErrorMessageText = NStr("en = 'Cannot update the application because the following users are still logged in:';");
 		EndIf;
 		Form.Items.ErrorMessageText.Title = ErrorMessageText;
 		Form.Items.FixErrorText.Title = NStr("en = 'To continue, close their sessions.';");
@@ -213,7 +213,7 @@ Procedure LockFileInfobase()
 	Object.LockEffectiveFrom = CurrentSessionDate() + 2*60;
 	BlockingPeriod = ?(ValueIsFilled(Parameters.BlockingPeriod), Parameters.BlockingPeriod, 5*60);
 	Object.LockEffectiveTo = Object.LockEffectiveFrom + BlockingPeriod;
-	Object.MessageForUsers = ?(ValueIsFilled(Parameters.LoginMessage), Parameters.LoginMessage, NStr("en = 'The app is unavailable while updating';"));
+	Object.MessageForUsers = ?(ValueIsFilled(Parameters.LoginMessage), Parameters.LoginMessage, NStr("en = 'The application is unavailable while updating.';"));
 	
 	Try
 		FormAttributeToValue("Object").PerformInstallation();

@@ -14,7 +14,7 @@
 //
 // Parameters:
 //  Parameters - See FormulaEditingOptions
-//  CompletionHandler - NotifyDescription 
+//  CompletionHandler - CallbackDescription 
 //
 Procedure StartEditingTheFormula(Parameters, CompletionHandler) Export
 	
@@ -307,8 +307,8 @@ Procedure StartSearchInFieldsList(Form) Export
 				CompletionChangeBorderColor(TimeConsumingOperation, CompletionParameters);
 				ShouldPreSelect = False;
 			Else
-				CompletionNotification = New NotifyDescription("CompletionChangeBorderColor", ThisObject, CompletionParameters);
-				ExecutionProgressNotification = New NotifyDescription("HandleSearchInFieldsList", ThisObject, Form); 
+				CompletionNotification = New CallbackDescription("CompletionChangeBorderColor", ThisObject, CompletionParameters);
+				ExecutionProgressNotification = New CallbackDescription("HandleSearchInFieldsList", ThisObject, Form); 
 				
 				IdleParameters = TimeConsumingOperationsClient.IdleParameters(Form);
 				IdleParameters.MessageText = NStr("en = 'Search for fields';");

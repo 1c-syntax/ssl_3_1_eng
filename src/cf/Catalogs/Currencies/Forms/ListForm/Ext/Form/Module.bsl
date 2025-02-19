@@ -26,7 +26,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	List.SetRestrictionsForUseInFilter(EditableFields);
 
 	CurrenciesChangeAvailable = CurrencyRateOperationsInternal.HasRightToChangeExchangeRates();
-	CurrenciesImportAvailable = Metadata.DataProcessors.Find("CurrenciesRatesImport") <> Undefined And CurrenciesChangeAvailable;
+	CurrenciesImportAvailable = CurrencyRateOperations.IsCurrencyRatesImportAvailable() And CurrenciesChangeAvailable;
 
 	Items.FormPickFromClassifier.Visible = CurrenciesImportAvailable;
 	Items.FormImportCurrenciesRates.Visible = CurrenciesImportAvailable;

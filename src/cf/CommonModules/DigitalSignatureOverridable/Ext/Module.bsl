@@ -125,25 +125,25 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Use CertificateRequestOverridable.OnFillCompanyAttributesInApplicationForCertificate instead.
+// Deprecated. Instead, use ApplicationForACertificateOverridable.OnFillCompanyAttributesInApplicationForCertificate.
 //
 Procedure OnFillCompanyAttributesInApplicationForCertificate(Parameters) Export
 	
 EndProcedure
 
-// Deprecated. Obsolete. Use CertificateRequestOverridable.OnFillOwnerAttributesInApplicationForCertificate instead.
+// Deprecated. Instead, use ApplicationForACertificateOverridable.OnFillOwnerAttributesInApplicationForCertificate.
 //
 Procedure OnFillOwnerAttributesInApplicationForCertificate(Parameters) Export
 	
 EndProcedure
 
-// Deprecated. Obsolete. Use CertificateRequestOverridable.OnFillOfficerAttributesInApplicationForCertificate instead.
+// Deprecated. Instead, use ApplicationForACertificateOverridable.OnFillOfficerAttributesInApplicationForCertificate.
 //
 Procedure OnFillOfficerAttributesInApplicationForCertificate(Parameters) Export
 	
 EndProcedure
 
-// Deprecated. Obsolete. Use CertificateRequestOverridable.OnFillPartnerAttributesInApplicationForCertificate instead.
+// Deprecated. Instead, use ApplicationForACertificateOverridable.OnFillPartnerAttributesInApplicationForCertificate.
 //
 Procedure OnFillPartnerAttributesInApplicationForCertificate(Parameters) Export
 	

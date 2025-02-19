@@ -214,7 +214,7 @@ Procedure UpdateRemindersTable()
 			FillPropertyValues(Context, Reminder);
 			Context.Insert("URL", RepresentationOfTheReference.URL);
 			
-			NotifyDescription = New NotifyDescription("HandleOpenOfNotification", UserRemindersInternalClient, Context);
+			NotifyDescription = New CallbackDescription("HandleOpenOfNotification", UserRemindersInternalClient, Context);
 			
 			ShowUserNotification(
 				Reminder.LongDesc, NotifyDescription,
@@ -347,9 +347,9 @@ Procedure FillRepeatedReminderPeriod()
 	
 	Items.RepeatedNotificationPeriod.ChoiceList.Clear();
 	SubsystemSettings = UserRemindersInternal.SubsystemSettings();
-	TimeIntervals_ = SubsystemSettings.StandardIntervals;
+	TimeIntervals = SubsystemSettings.StandardIntervals;
 	
-	For Each Interval In TimeIntervals_ Do
+	For Each Interval In TimeIntervals Do
 		Items.RepeatedNotificationPeriod.ChoiceList.Add(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'in %1';"), Interval));
 	EndDo;

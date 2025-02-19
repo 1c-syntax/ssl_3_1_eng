@@ -10,8 +10,7 @@
 
 #Region Public
 
-////////////////////////////////////////////////////////////////////////////////
-// File operation commands
+#Region FilesManagementCommands
 
 // Opens a file for viewing or editing.
 // If the file is opened for viewing,
@@ -60,7 +59,7 @@ EndProcedure
 //  Filter             - String - filter of a file being selected, for example, pictures for products.
 //  FilesGroup       - DefinedType.AttachedFile - a catalog group with files, to which 
 //                       a new file will be added.
-//  ResultHandler - NotifyDescription - Description of a procedure to be called after adding files.
+//  ResultHandler - CallbackDescription - Description of a procedure to be called after adding files.
 //                         This procedure takes the following parameters:
 //        Result - Array - References to the added files. If no files are added, an empty array.
 //        AdditionalParameters - Arbitrary - Value specified when creating the NotifyDescription.
@@ -81,15 +80,15 @@ Procedure AddFiles(Val FileOwner, Val FormIdentifier, Val Filter = "", FilesGrou
 	Parameters.Insert("FilesGroup",         FilesGroup);
 	Parameters.Insert("ResultHandler", ResultHandler);
 	
-	NotifyDescription = New NotifyDescription("AddFilesAddInSuggested", FilesOperationsInternalClient, Parameters);
-	FilesOperationsInternalClient.ShowFileSystemExtensionInstallationQuestion(NotifyDescription);
+	NotifyDescription = New CallbackDescription("AddFilesAddInSuggested", FilesOperationsInternalClient, Parameters);
+	FilesOperationsInternalClient.ShowQuestionOn1CEnterpriseExtensionInstallation(NotifyDescription);
 	
 EndProcedure
 
 // Opens a file selection dialog box for storing a single file to the application.
 //
 // Parameters:
-//   ResultHandler - NotifyDescription - Description of a procedure to be called after adding a file.
+//   ResultHandler - CallbackDescription - Description of a procedure to be called after adding a file.
 //                        This procedure takes the following parameters:
 //                    * Result - Structure:
 //                       ** FileRef - DefinedType.AttachedFile - a reference to the catalog item with the file
@@ -225,7 +224,7 @@ EndProcedure
 //  BasisFile - DefinedType.AttachedFile - a file being copied.
 //  AdditionalParameters - Structure - form opening parameters:
 //    * FilesStorageCatalogName - String - defines a catalog to store a file copy.
-//  OnCloseNotifyDescription - NotifyDescription - Description of a procedure to be called when the form is closed.
+//  OnCloseNotifyDescription - CallbackDescription - Description of a procedure to be called when the form is closed.
 //                                This procedure takes the following parameters:
 //                                <ClosingResult> - Value passed when calling Close() of the form.
 //                                <AdditionalParameters> - Value specified when creating OnCloseNotifyDescription.
@@ -293,7 +292,7 @@ Procedure SaveWithDigitalSignature(Val AttachedFile, Val FormIdentifier) Export
 	DataDetails.Insert("Object",              AttachedFile);
 	
 	DataDetails.Insert("Data",
-		New NotifyDescription("OnSaveFileData", FilesOperationsInternalClient, ExecutionParameters));
+		New CallbackDescription("OnSaveFileData", FilesOperationsInternalClient, ExecutionParameters));
 	
 	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
 	ModuleDigitalSignatureClient.SaveDataWithSignature(DataDetails);
@@ -304,7 +303,7 @@ EndProcedure
 //
 // Parameters:
 //   FileData           - See FilesOperations.FileData.
-//   CompletionHandler  - NotifyDescription
+//   CompletionHandler  - CallbackDescription
 //                         - Undefined - Description of a procedure to be called once this procedure
 //                           is competed. It takes the following parameters::
 //      PathToFile - String - Full path to the saved file.
@@ -312,7 +311,7 @@ EndProcedure
 //
 Procedure SaveFileAs(Val FileData, CompletionHandler = Undefined) Export
 	
-	Notification = New NotifyDescription("SaveFileAsAfterSave",
+	Notification = New CallbackDescription("SaveFileAsAfterSave",
 		FilesOperationsInternalClient, CompletionHandler);
 	
 	FilesOperationsInternalClient.SaveAs(Notification, FileData, Undefined);
@@ -329,7 +328,7 @@ EndProcedure
 //                 - FormField - the form item that will receive
 //                   a selection notification.
 //  StandardProcessing - Boolean - a return value. Always set to False.
-//  ChoiceNotificationDetails - NotifyDescription - Description of a procedure to be called when the form is closed. 
+//  ChoiceNotificationDetails - CallbackDescription - Description of a procedure to be called when the form is closed. 
 //                                                   This procedure takes the following parameters:
 //    SelectionValue - DefinedType.AttachedFile
 //                   - Undefined - if a value has been selected, 
@@ -342,7 +341,7 @@ Procedure OpenFileChoiceForm(Val FilesOwner, Val FormItem, StandardProcessing = 
 	StandardProcessing = False;
 
 	If FilesOwner.IsEmpty() Then
-		OnCloseNotifyHandler = New NotifyDescription("PromptForWriteRequiredAfterCompletion", ThisObject);
+		OnCloseNotifyHandler = New CallbackDescription("PromptForWriteRequiredAfterCompletion", ThisObject);
 		ShowQueryBox(OnCloseNotifyHandler,
 			NStr("en = 'You have unsaved data.
 				|You can open ""Attachments"" after saving the data.';"),
@@ -358,12 +357,16 @@ Procedure OpenFileChoiceForm(Val FilesOwner, Val FormItem, StandardProcessing = 
 EndProcedure
 
 // Opens the file list form.
-//
+// 
 // Parameters:
 //  FilesOwner - DefinedType.AttachedFilesOwner - a file folder or an object,
 //                   to which files to select are attached.
+//  FormParameters - See FileListFormOpeningParameters 
+//  FormOwner - ClientApplicationForm
+//  ClosingNotification1 - CallbackDescription
 //
-Procedure OpenFileListForm(Val FilesOwner) Export
+Procedure OpenFileListForm(Val FilesOwner, Val FormParameters = Undefined, 
+	FormOwner = Undefined, ClosingNotification1 = Undefined) Export
 	
 	If FilesOperationsInternalClient.Is1CDocumentManagementUsedForFileStorage(FilesOwner) Then
 		
@@ -372,15 +375,39 @@ Procedure OpenFileListForm(Val FilesOwner) Export
 		// End IntegrationWith1CDocumentManagement
 		
 	Else
-		
-		FormParameters = New Structure();
-		FormParameters.Insert("FileOwner", FilesOwner);
-		FormParameters.Insert("ShouldHideOwner", False);
-		OpenForm("DataProcessor.FilesOperations.Form.AttachedFiles", FormParameters);
-		
+		If FormParameters = Undefined Then
+			FormParameters = FileListFormOpeningParameters(FilesOwner);
+		EndIf;
+		OpenForm("DataProcessor.FilesOperations.Form.AttachedFiles", FormParameters, FormOwner, , , , 
+			ClosingNotification1);
 	EndIf;
 	
 EndProcedure
+
+// Constructor of file list form opening parameters for "OpenFileListForm".
+// 
+// Parameters:
+//  FilesOwner - DefinedType.AttachedFilesOwner - File folder or an object,
+//                   to which files to select are attached.
+//  FixedSettings - DataCompositionSettings - Dynamic list settings
+// 
+// Returns:
+//  Structure:
+//    * FileOwner - DefinedType.AttachedFilesOwner - File folder or an object,
+//                      to which files to select are attached.
+//    * ShouldHideOwner - Boolean - Flag indicating whether the element is shown on the file owner form.
+//    * FixedSettings - DataCompositionSettings - Dynamic list settings.
+//
+Function FileListFormOpeningParameters(FilesOwner, FixedSettings = Undefined) Export
+
+	FormParameters = New Structure;
+	FormParameters.Insert("FileOwner", FilesOwner);
+	FormParameters.Insert("ShouldHideOwner", False);
+	FormParameters.Insert("FixedSettings", FixedSettings);
+	
+	Return FormParameters;
+			
+EndFunction
 
 // Opens the file form.
 // Can be used as a file opening handler.
@@ -389,7 +416,7 @@ EndProcedure
 //  AttachedFile      - DefinedType.AttachedFile - a reference to the catalog item with file.
 //  StandardProcessing    - Boolean - a return value. Always set to False.
 //  AdditionalParameters - Structure - form opening parameters.
-//  OnCloseNotifyDescription - NotifyDescription - Description of a procedure to be called when the form is closed.
+//  OnCloseNotifyDescription - CallbackDescription - Description of a procedure to be called when the form is closed.
 //                                This procedure takes the following parameters:
 //                                <ClosingResult> - Value passed when calling Close() of the form.
 //                                <AdditionalParameters> - Value specified when creating OnCloseNotifyDescription. 
@@ -526,14 +553,14 @@ Function FileData(Val FileRef,
 EndFunction
 
 // Receives a file from the file storage to the user working directory.
-// This is the analog of the View or Edit interactive actions without opening the received file.
+// This is an alternative to the "View" or "Edit" interactive actions without opening the received file.
 // The ReadOnly property of the received file will be set depending on
 // whether the file is locked for editing or not. If it is not locked, the read only mode is set.
 // If there is an existing file in the working directory, it will be deleted and replaced by the file,
 // received from the file storage.
 //
 // Parameters:
-//  Notification - NotifyDescription - Notification that is triggered after the user's working directory
+//  Notification - CallbackDescription - Notification that is triggered after the user's working directory
 //   receives the file. The return value is a structure with the following properties::
 //     FullFileName - String - Full file name (with the path).
 //     ErrorDescription - String - Error text if the file was not received.
@@ -556,10 +583,10 @@ Procedure GetAttachedFile(Notification, AttachedFile, FormIdentifier, Additional
 EndProcedure
 
 // Places the file from the user working directory into the file storage.
-// It is the analogue of the Finish Editing interactive action.
+// It is an alternative to the "Finish Editing" interactive action.
 //
 // Parameters:
-//  Notification - NotifyDescription - Notification that is triggered after the file storage receives a file.
+//  Notification - CallbackDescription - Notification that is triggered after the file storage receives a file.
 //   The return value is a structure with the following property::
 //     ErrorDescription - String - Error text if the file was not received.
 //
@@ -580,8 +607,9 @@ Procedure PutAttachedFile(Notification, AttachedFile, FormIdentifier, Additional
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Scanner management.
+#EndRegion
+
+#Region ScannerOperations
 
 // Opens the scan settings form from user settings.
 //
@@ -593,7 +621,7 @@ Procedure OpenScanSettingForm() Export
 		Return;
 	EndIf;
 	
-	Handler = New NotifyDescription("OpenScanSettingFormCompletion", ThisObject);
+	Handler = New CallbackDescription("OpenScanSettingFormCompletion", ThisObject);
 	
 	FilesOperationsInternalClient.InitAddIn(Handler, True);
 		
@@ -663,7 +691,7 @@ EndFunction
 // Merge an array of transferred documents into one with the possibility of conversion.
 // 
 // Parameters:
-//  NotificationOfReturn - NotifyDescription - procedure that will be executed after merging the files.
+//  NotificationOfReturn - CallbackDescription - procedure that will be executed after merging the files.
 //  ObjectsForMerging - Array of BinaryData, DefinedType.AttachedFile, String - 
 //                          Objects can be input as binary data, a reference to an attachment, or as a path to files
 //                          on the client.
@@ -685,11 +713,12 @@ Procedure CombineToMultipageFile(NotificationOfReturn, ObjectsForMerging, Graphi
 	
 	If ObjectsForMerging.Count() = 0 Then
 		Result.ErrorDescription = NStr("en = 'Images for merging are not specified.';");
-		ExecuteNotifyProcessing(NotificationOfReturn, Result);
+		RunCallback(NotificationOfReturn, Result);
 		Return;
 	ElsIf UseImageMagick And Not ValueIsFilled(PathToConverterApplication) Then
-		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Path to the %1 application is not specified.
-		|Multipage documents are merged using 1C:Enterprise tools.';"), "ImageMagick");
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Path to %1 is missing.
+			|Multipage documents are merged using 1C:Enterprise tools.';"), 
+			"ImageMagick");
 		
 		EventLogClient.AddMessageForEventLog(EventLogEvent(),
 			"Warning", ErrorText,, True);
@@ -699,15 +728,13 @@ Procedure CombineToMultipageFile(NotificationOfReturn, ObjectsForMerging, Graphi
 	EndIf;
 	
 #If Not WebClient And Not MobileClient Then
-		
 	If UseImageMagick Then
-		NotificationOfResult = New NotifyDescription("AfterCheckIfConversionAppInstalled", ThisObject, Context);
+		NotificationOfResult = New CallbackDescription("AfterCheckIfConversionAppInstalled", ThisObject, Context);
 		StartCheckConversionAppPresence(PathToConverterApplication, NotificationOfResult);
 		Return;
 	EndIf;
 	
 	MergeIntoMultipageFileFollowUp(Context);
-	
 #EndIf
 EndProcedure
 
@@ -768,7 +795,7 @@ EndFunction
 // 
 // Returns:
 //  Structure:
-//    * ResultHandler - Undefined, NotifyDescription - notification that will be called after getting the images.
+//    * ResultHandler - Undefined, CallbackDescription - notification that will be called after getting the images.
 //    * FileOwner - Undefined, DefinedType.FilesOwner - owner of the file to get images
 //                                                                     to attachments.
 //    * OwnerForm - Undefined, Form - form from which the file is added.
@@ -804,10 +831,11 @@ Procedure AddFromScanner(AddingOptions, ScanningParameters = Undefined) Export
 	
 EndProcedure
 
-// Checks if the client has scanner management restrictions.
+// Checks if the client supports scanners.
+// Only Windows and Linux x86/x64 support scanning. 
 // 
 // Returns:
-//   See FilesOperationsInternalClient.ScanAvailable
+//   Boolean
 //
 Function ScanAvailable() Export
 	Return FilesOperationsInternalClient.ScanAvailable();
@@ -817,17 +845,17 @@ EndFunction
 // and if there is a plugged scanner.
 // 
 // Parameters:
-//  NotificationOfResult - NotifyDescription - procedure to which the check result will be passed:
+//  NotificationOfResult - CallbackDescription - procedure to which the check result will be passed:
 //   * Result - Boolean - scanner availability flag.
 //   * AdditionalParameters - Arbitrary - value specified when creating notification details.
 //
 Procedure ScanCommandAvailable(NotificationOfResult) Export
 	
 	If ScanAvailable() Then
-		NotifyDescription = New NotifyDescription("ScanCommandAvailableCompletion", ThisObject, NotificationOfResult);
+		NotifyDescription = New CallbackDescription("ScanCommandAvailableCompletion", ThisObject, NotificationOfResult);
 		FilesOperationsInternalClient.InitAddIn(NotifyDescription);
 	Else
-		ExecuteNotifyProcessing(NotificationOfResult, False);
+		RunCallback(NotificationOfResult, False);
 	EndIf;
 	
 EndProcedure
@@ -865,6 +893,8 @@ Procedure SaveUserScanSettings(UserScanSettings, ClientID = Undefined) Export
 	FilesOperationsInternalServerCall.SaveUserScanSettings(UserScanSettings, ClientID);
 	
 EndProcedure
+
+#EndRegion
 
 #Region AttachedFilesManagement
 
@@ -1029,8 +1059,8 @@ Procedure PreviewFieldDrag(Form, Item, DragParameters, StandardProcessing) Expor
 	If Not ValueIsFilled(AttachedFilesOwner) Then
 		AskQuestionAboutOwnerRecord(HandlerParameters);
 	Else
-		InstallationNotification = New NotifyDescription("PreviewFieldDragCompletion", ThisObject, HandlerParameters);
-		FileSystemClient.AttachFileOperationsExtension(InstallationNotification, , False);
+		InstallationNotification = New CallbackDescription("PreviewFieldDragCompletion", ThisObject, HandlerParameters);
+		FileSystemClient.Attach1CEnterpriseExtension(InstallationNotification, , False);
 	EndIf;
 	
 EndProcedure
@@ -1054,7 +1084,7 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Use FilesOperationsClient.OpenFileForm.
+// Deprecated. Instead, use FilesOperationsClient.OpenFileForm.
 // Opens the file form from the file catalog item form. Closes the item form.
 // 
 // Parameters:
@@ -1143,7 +1173,7 @@ EndProcedure
 // File printing procedure
 //
 // Parameters:
-//  ResultHandler - NotifyDescription
+//  ResultHandler - CallbackDescription
 //  ExecutionParameters  - Structure:
 //        * FileNumber               - Number - a current file number.
 //        * FileData              - Structure
@@ -1172,13 +1202,13 @@ Procedure PrintFilesExecution(ResultHandler, ExecutionParameters) Export
 		ExecutionParameters.FileData.SpreadsheetDocument.Print();
 		// proceeding to print the next file.
 		ExecutionParameters.FileNumber = ExecutionParameters.FileNumber + 1;
-		Handler = New NotifyDescription("PrintFilesExecution", ThisObject, ExecutionParameters);
-		ExecuteNotifyProcessing(Handler);
+		Handler = New CallbackDescription("PrintFilesExecution", ThisObject, ExecutionParameters);
+		RunCallback(Handler);
 		Return
 	EndIf;
 	
-	If FilesOperationsInternalClient.FileSystemExtensionAttached1() Then
-		Handler = New NotifyDescription("PrintFileAfterReceiveVersionInWorkingDirectory", ThisObject, 
+	If FilesOperationsInternalClient.Is1CEnterpriseExtensionAttached() Then
+		Handler = New CallbackDescription("PrintFileAfterReceiveVersionInWorkingDirectory", ThisObject, 
 			ExecutionParameters);
 		FilesOperationsInternalClient.GetVersionFileToWorkingDirectory(Handler, ExecutionParameters.FileData,
 			"", ExecutionParameters.UUID);
@@ -1214,8 +1244,8 @@ Procedure PrintFileAfterReceiveVersionInWorkingDirectory(Result, ExecutionParame
 
 	// proceeding to print the next file.
 	ExecutionParameters.FileNumber = ExecutionParameters.FileNumber + 1;
-	Handler = New NotifyDescription("PrintFilesExecution", ThisObject, ExecutionParameters);
-	ExecuteNotifyProcessing(Handler);
+	Handler = New CallbackDescription("PrintFilesExecution", ThisObject, ExecutionParameters);
+	RunCallback(Handler);
 	
 EndProcedure
 
@@ -1241,7 +1271,7 @@ Procedure OpenScanSettingFormCompletion(InitializationCheckResult, ExecutionPara
 		Return;
 	EndIf;
 	
-	ContinueNotification = New NotifyDescription("OpenScanSetupFormAfterLogEnabled", 
+	ContinueNotification = New CallbackDescription("OpenScanSetupFormAfterLogEnabled", 
 		ThisObject, AddInInstalled);
 	
 	FilesOperationsInternalClient.EnableScanLog(InitializationCheckResult.Attachable_Module, 
@@ -1275,11 +1305,11 @@ Function ImagesForMerging(ObjectsForMerging, UseImageMagick = False)
 		For Each ObjectForMerging In ObjectsForMerging Do
 			FileName = Undefined;
 #If Not WebClient And Not MobileClient Then
-				// ACC:441-off the file is a method result
-				TempFileName = GetTempFileName();
-				// ACC:441-on
+			// ACC:441-off the file is a method result
+			TempFileName = GetTempFileName();
+			// ACC:441-on
 #Else
-				TempFileName = Undefined;			
+			TempFileName = Undefined;			
 #EndIf
 			
 			If ObjectForMerging = Undefined Then
@@ -1367,7 +1397,7 @@ Procedure MergeIntoMultipageFileAfterCommandExecuted(ImageMagickResult, Context)
 
 	If ImageMagickResult.ReturnCode <> 0 Then
 		Result.ErrorDescription = ImageMagickResult.ErrorDescription;
-		ExecuteNotifyProcessing(NotificationOfReturn, Result);
+		RunCallback(NotificationOfReturn, Result);
 		Return;
 	EndIf;
 	
@@ -1384,7 +1414,7 @@ Procedure MergeIntoMultipageFileAfterCommandExecuted(ImageMagickResult, Context)
 	EndIf;
 	Result.Success = True;
 	
-	ExecuteNotifyProcessing(NotificationOfReturn, Result);
+	RunCallback(NotificationOfReturn, Result);
 		
 EndProcedure
 
@@ -1392,13 +1422,13 @@ Procedure ScanCommandAvailableCompletion(InitializationCheckResult, Notification
 
 	InitializationCheckResult.Insert("NotificationOfResult", NotificationOfResult);
 	
-	CompletionNotification = New NotifyDescription("ScanCommandAvailableAfterLogEnabled", ThisObject, 
+	CompletionNotification = New CallbackDescription("ScanCommandAvailableAfterLogEnabled", ThisObject, 
 		InitializationCheckResult);
 	If InitializationCheckResult.Attached Then
 		FilesOperationsInternalClient.EnableScanLog(InitializationCheckResult.Attachable_Module, 
 			CompletionNotification);
 	Else
-		ExecuteNotifyProcessing(CompletionNotification);
+		RunCallback(CompletionNotification);
 	EndIf;
 	
 EndProcedure
@@ -1408,7 +1438,7 @@ Procedure ScanCommandAvailableAfterLogEnabled(Result, Context) Export
 	ScanCommandAvailable = Context.Attached 
 		And FilesOperationsInternalClient.IsDevicePresent(Undefined, Context.Attachable_Module, False);
 
-	ExecuteNotifyProcessing(Context.NotificationOfResult, ScanCommandAvailable);
+	RunCallback(Context.NotificationOfResult, ScanCommandAvailable);
 	
 EndProcedure
 
@@ -1493,7 +1523,7 @@ Procedure MergeIntoMultipageFileFollowUp(Context)
 			Result.Success = True;
 		EndIf;
 		
-		ExecuteNotifyProcessing(NotificationOfReturn, Result);
+		RunCallback(NotificationOfReturn, Result);
 	Else
 		ImageFiles = ImagesForMerging(ObjectsForMerging, True);
 		
@@ -1508,7 +1538,7 @@ Procedure MergeIntoMultipageFileFollowUp(Context)
 		
 		ApplicationStartupParameters = FileSystemClient.ApplicationStartupParameters();
 		ApplicationStartupParameters.WaitForCompletion = True;
-		ApplicationStartupParameters.Notification = New NotifyDescription("MergeIntoMultipageFileAfterCommandExecuted", 
+		ApplicationStartupParameters.Notification = New CallbackDescription("MergeIntoMultipageFileAfterCommandExecuted", 
 			ThisObject, Context);
 		FileSystemClient.StartApplication(SystemCommands, ApplicationStartupParameters);
 				
@@ -1558,7 +1588,7 @@ Procedure AskQuestionAboutOwnerRecord(CompletionHandlerParameters)
 	QueryText = NStr("en = 'You have unsaved data.
 		|You can open the attachments after saving the data.
 		|Do you want to save the data?';");
-	HandlerNotifications = New NotifyDescription("ShowNewOwnerRecordQuestion", ThisObject, CompletionHandlerParameters);
+	HandlerNotifications = New CallbackDescription("ShowNewOwnerRecordQuestion", ThisObject, CompletionHandlerParameters);
 	
 	ShowQueryBox(HandlerNotifications, QueryText, QuestionDialogMode.OKCancel);
 	
@@ -1593,8 +1623,8 @@ Procedure ShowNewOwnerRecordQuestion(Response, AdditionalParameters) Export
 				AdditionalParameters.Item, StandardProcessing,
 				AdditionalParameters.View, AdditionalParameters.OneFileOnly);
 		ElsIf AdditionalParameters.Action = "Drag" Then
-			InstallationNotification = New NotifyDescription("PreviewFieldDragCompletion", ThisObject, AdditionalParameters);
-			FileSystemClient.AttachFileOperationsExtension(InstallationNotification, , False);
+			InstallationNotification = New CallbackDescription("PreviewFieldDragCompletion", ThisObject, AdditionalParameters);
+			FileSystemClient.Attach1CEnterpriseExtension(InstallationNotification, , False);
 		EndIf;
 		
 	EndIf;
@@ -1615,7 +1645,7 @@ Procedure AttachmentsControlCommandCompletion(Form, Command, AttachedFilesOwner)
 	ExecutionParameters = ManagementCommandParameters(Form);
 	ExecutionParameters.ItemNumber = ItemNumber;
 	
-	CompletionHandler = New NotifyDescription("CommandWithNotificationExecutionCompletion",
+	CompletionHandler = New CallbackDescription("CommandWithNotificationExecutionCompletion",
 		ThisObject, ExecutionParameters);
 		
 	NumberType = New TypeDescription("Number");
@@ -1647,10 +1677,9 @@ Procedure AttachmentsControlCommandCompletion(Form, Command, AttachedFilesOwner)
 			
 		Else
 			
-			FormParameters = New Structure();
+			FormParameters = New Structure;
 			FormParameters.Insert("FileOwner", AttachedFilesOwner);
 			FormParameters.Insert("ShouldHideOwner", True);
-			FormParameters.Insert("CurrentRow", Form.UUID);
 			OpenForm("DataProcessor.FilesOperations.Form.AttachedFiles", FormParameters);
 			
 		EndIf;
@@ -1757,7 +1786,7 @@ Procedure PreviewFieldClickCompletion(Form, AttachedFilesOwner, Item, StandardPr
 
 	Else
 		
-		CompletionHandler = New NotifyDescription("CommandWithNotificationExecutionCompletion",
+		CompletionHandler = New CallbackDescription("CommandWithNotificationExecutionCompletion",
 			ThisObject, ExecutionParameters);
 		
 		If OneFileOnly Then
@@ -1814,7 +1843,7 @@ Procedure PreviewFieldDragCompletion(ExtensionInstalled, AdditionalParameters) E
 		EndIf;
 		
 		ExecutionParameters.Action = "CompleteDragging";
-		CompletionHandler = New NotifyDescription("CommandWithNotificationExecutionCompletion",
+		CompletionHandler = New CallbackDescription("CommandWithNotificationExecutionCompletion",
 			ThisObject, ExecutionParameters);
 		
 		AddingOptions = New Structure;

@@ -174,7 +174,7 @@ Procedure ExecuteActions(Command)
 		Signature, SignatureType, AddArchiveTimestamp);
 	DataDetails.Signature = GetFromTempStorage(Signature);
 		
-	Notification = New NotifyDescription("AfterExecution", ThisObject);  
+	Notification = New CallbackDescription("AfterExecution", ThisObject);  
 	DigitalSignatureClient.EnhanceSignature(DataDetails, ThisObject, Notification, False); 
 	Items.ExecuteActions.Enabled = False;
 	
@@ -280,12 +280,16 @@ EndFunction
 &AtServer
 Procedure DetermineTypeSignaturesObject()
 	
-	SetSignatures = DigitalSignature.SetSignatures(
-		SignedObject, ?(ValueIsFilled(SequenceNumber), SequenceNumber, Undefined));
-		
-	ThereIsBasicSignature = False; ThereIsSignatureWithTimestamp = False; ThereIsArchivalSignature = False;
+	SignaturesAcquisitionParameters = DigitalSignature.NewObjectSignaturesAcquisitionParameters();
+	SignaturesAcquisitionParameters.SequenceNumber = ?(ValueIsFilled(SequenceNumber), SequenceNumber, Undefined);
 	
-	For Each CurrentSignature In SetSignatures Do
+	ObjectSignatures = DigitalSignature.ObjectSignatures(SignedObject, SignaturesAcquisitionParameters);
+	
+	ThereIsBasicSignature = False;
+	ThereIsSignatureWithTimestamp = False;
+	ThereIsArchivalSignature = False;
+	
+	For Each CurrentSignature In ObjectSignatures Do
 		
 		If Not CurrentSignature.SignatureCorrect Then
 			Continue;
@@ -340,7 +344,7 @@ Procedure DetermineTypeSignaturesObject()
 		Parameters.SignatureType = Enums.CryptographySignatureTypes.ArchivalCAdESAv3;
 		Items.SignatureType.Visible = False;
 	EndIf;
-
+	
 EndProcedure
 
 #EndRegion

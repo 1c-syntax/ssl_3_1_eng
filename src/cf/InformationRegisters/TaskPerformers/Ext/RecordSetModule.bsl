@@ -12,10 +12,9 @@
 
 #Region Variables
 
-// 
-Var ModifiedPerformersGroups; // Array of CatalogRef.TaskPerformersGroups -
-                                    // 
-// 
+// StandardSubsystems.AccessManagement
+Var OldRecords; // Array of CatalogRef.TaskPerformersGroups - The members of the assignee group before changes.
+// End StandardSubsystems.AccessManagement
 
 #EndRegion
 
@@ -27,7 +26,7 @@ Procedure BeforeWrite(Cancel, Replacing)
 		Return;
 	EndIf;
 	
-	If Count() > 0 Then
+	If Count() > 0 And Not Common.IsRecordSetDeletion(Replacing) Then
 		NewTasksPerformers = Unload();
 		SetPrivilegedMode(True);
 		TaskPerformersGroups = BusinessProcessesAndTasksServer.TaskPerformersGroups(NewTasksPerformers);
@@ -41,13 +40,14 @@ Procedure BeforeWrite(Cancel, Replacing)
 		
 	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
-		ModifiedPerformersGroups = ModifiedTasksAssigneesGroups();
+		OldRecords = Common.SetRecordsFromDatabase(ThisObject, Replacing, FieldList());
 	EndIf;
 	// End StandardSubsystems.AccessManagement
 	
 EndProcedure
 
 // StandardSubsystems.AccessManagement
+
 Procedure OnWrite(Cancel, Replacing)
 	
 	If DataExchange.Load Then
@@ -55,18 +55,41 @@ Procedure OnWrite(Cancel, Replacing)
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		
+		ModifiedRecords = Common.SetRecordsChange(OldRecords, ThisObject, Replacing, True);
+		ModifiedRecords.GroupBy("TaskPerformersGroup");
+		ModifiedPerformersGroups = ModifiedRecords.UnloadColumn("TaskPerformersGroup");
+		
 		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
 		ModuleAccessManagementInternal.UpdatePerformersGroupsUsers(ModifiedPerformersGroups);
+		
 	EndIf;
 	
 EndProcedure
+
 // End StandardSubsystems.AccessManagement
 
 #EndRegion
 
 #Region Private
 
+Function FieldList()
+	
+	RegisterMetadata = Metadata();
+	
+	Fields = New Array;
+	Fields.Add(RegisterMetadata.Dimensions.PerformerRole.Name);
+	Fields.Add(RegisterMetadata.Dimensions.Performer.Name);
+	Fields.Add(RegisterMetadata.Dimensions.MainAddressingObject.Name);
+	Fields.Add(RegisterMetadata.Dimensions.AdditionalAddressingObject.Name);
+	Fields.Add(RegisterMetadata.Attributes.TaskPerformersGroup.Name);
+	
+	Return StrConcat(Fields, ",");
+	
+EndFunction
+
 // StandardSubsystems.AccessManagement
+
 Function ModifiedTasksAssigneesGroups() Export
 	
 	Query = New Query;
@@ -139,6 +162,7 @@ Function ModifiedTasksAssigneesGroups() Export
 	Return Query.Execute().Unload().UnloadColumn("TaskPerformersGroup");
 	
 EndFunction
+
 // End StandardSubsystems.AccessManagement
 
 #EndRegion

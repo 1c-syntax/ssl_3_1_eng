@@ -353,7 +353,7 @@ EndProcedure
 //     * WrittenOnDisk - Number - contains the amount of data in bytes written on the disk by the session since it has started.
 //     * WrittenOnDiskInCurrentCall - Number - contains the amount of data in bytes written on the disk since the start
 //                  of the current call.
-//     * WrittenOnDiskIn5Minutes - Number - contains the amount of data in bytes written on the disk the disk during the last 5
+//     * WrittenOnDiskIn5Minutes - Number - contains the amount of data in bytes written on the disk during the last 5
 //                                        minutes.
 //     * IWorkingProcessInfo - Structure
 //                      - Undefined - Contains a working process with which the connection is established if 
@@ -507,7 +507,7 @@ EndFunction
 //     * SpentByTheLockManager - Number - shows the average time of addressing the lock manager.
 //     * SpentByTheServer - Number - shows the average time spent by the active process itself to execute
 //                  single client call.
-//     * ClientStreams - Number - shows the average number of client streams executed by the active process of cluster.
+//     * ClientStreams - Number - shows the average number of client threads executed by the active process of cluster.
 //     * Capacity - Number - relative process performance. The value can be 
 //                  in the range from 1 to 1000. It is used to select the active process
 //                  for connecting the next client. Clients are distributed between active processes in proportion
@@ -523,7 +523,7 @@ EndFunction
 //     * ExceedingTheCriticalValue - Number - Contains the time during which the virtual memory
 //                  of the active process exceeds the critical value set for the cluster, in seconds.
 //     * OccupiedMemory - Number - Contains the size of virtual memory occupied by the active process, in kilobytes.
-//     * Id - String - active active process ID in terms of the operating system.
+//     * Id - String - Active process ID in terms of the operating system.
 //     * Started2 - Number - a active process status.
 //                  0 - the process is inactive (not imported in memory or cannot execute client queries); 
 //                  1 - the process is active (it works). 
@@ -730,7 +730,7 @@ EndFunction
 //     * WrittenOnDisk - Number - contains the amount of data in bytes written on the disk by the session since it has started.
 //     * WrittenOnDiskInCurrentCall - Number - contains the amount of data in bytes written on the disk since the start
 //                  of the current call.
-//     * WrittenOnDiskIn5Minutes - Number - contains the amount of data in bytes written on the disk the disk during
+//     * WrittenOnDiskIn5Minutes - Number - contains the amount of data in bytes written on the disk during
 //                  the last 5 minutes.
 //     * ControlIsOnServer - Number - Indicates if management is on the server (0 - it is not on the server, otherwise 1).
 //

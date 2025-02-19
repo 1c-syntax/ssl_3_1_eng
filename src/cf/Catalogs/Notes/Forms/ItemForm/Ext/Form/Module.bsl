@@ -30,7 +30,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.NoteDate.Title = NStr("en = 'Saved';") + ": " + Format(Object.ChangeDate, "DLF=DDT");
 	EndIf;
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
@@ -52,7 +52,7 @@ Procedure OnReadAtServer(CurrentObject)
 	EndIf;
 	// End StandardSubsystems.AccessManagement
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClientServer = Common.CommonModule("AttachableCommandsClientServer");
 		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
@@ -64,7 +64,7 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -144,7 +144,7 @@ Procedure SetVisibility1()
 	Items.EditingCommandBar.Visible = OpenedByAuthor;
 EndProcedure
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	

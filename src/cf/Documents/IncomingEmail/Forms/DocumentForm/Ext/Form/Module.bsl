@@ -304,7 +304,7 @@ Procedure ReviewedOnChange(Item)
 	Items.ReviewAfter.Enabled = Not Reviewed;
 	If Reviewed And ReadReceiptRequestRequired Then
 		
-		OnCloseNotifyHandler = New NotifyDescription("PromptForSendingReadReceiptAfterCompletion", ThisObject);
+		OnCloseNotifyHandler = New CallbackDescription("PromptForSendingReadReceiptAfterCompletion", ThisObject);
 		ShowQueryBox(OnCloseNotifyHandler,
 		       NStr("en = 'Sender has requested a read receipt. Do you want to send a receipt?';"),
 		       QuestionDialogMode.YesNo,
@@ -516,7 +516,7 @@ EndProcedure
 Procedure ChangeEncoding(Command)
 	
 	EncodingsList = EncodingsList();
-	OnCloseNotifyHandler = New NotifyDescription("SelectEncodingAfterCompletion", ThisObject);
+	OnCloseNotifyHandler = New CallbackDescription("SelectEncodingAfterCompletion", ThisObject);
 	EncodingsList.ShowChooseItem(OnCloseNotifyHandler,
 		NStr("en = 'Select encoding';"), EncodingsList.FindByValue(Lower(Object.Encoding)));
 	
@@ -539,7 +539,7 @@ Procedure AttachmentProperties(Command)
 	
 EndProcedure
 
-// StandardSubsystems.Properties
+// СтандартныеПодсистемы.Свойства
 
 &AtClient
 Procedure UpdateAdditionalAttributesDependencies()
@@ -733,7 +733,7 @@ Procedure SelectEncodingAfterCompletion(SelectedElement, AdditionalParameters) E
 
 EndProcedure
 
-// StandardSubsystems.Properties
+// СтандартныеПодсистемы.Свойства
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()

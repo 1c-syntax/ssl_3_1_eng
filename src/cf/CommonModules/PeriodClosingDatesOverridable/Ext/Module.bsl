@@ -73,10 +73,13 @@ Procedure FillDataSourcesForPeriodClosingCheck(DataSources) Export
 	
 EndProcedure
 
-// Allows you to arbitrarily override period-end closing check:
+// "Allows overriding the execution of the change restriction check in an arbitrary way.<plch id="1">
 //
-// If you check upon writing the document, the AdditionalProperties property of the Object document contains
-// the WriteMode property.
+// If the check is performed during the document write process, the "AdditionalProperties" of<plch id="1">
+// the document "Object" includes the "WriteMode" ("DocumentWriteMode") property.<plch id="1">
+// If the check is performed on a record set, the "AdditionalProperties" of the record set "Object" contains the "Replacing" property ("Boolean, ReplacementMode).<plch id="1">
+// In the case of record replacement, the Filter property is configured to retrieve existing records from the database.
+// 
 //  
 // Parameters:
 //  Object       - CatalogObject
@@ -90,17 +93,17 @@ EndProcedure
 //               - InformationRegisterRecordSet
 //               - AccumulationRegisterRecordSet
 //               - AccountingRegisterRecordSet
-//               - CalculationRegisterRecordSet - a data item or a record set to be checked 
-//                 (passed from handlers BeforeWrite and OnReadAtServer).
+//               - CalculationRegisterRecordSet - The data item or record set to be checked
+//                 (as in the handlers "BeforeWrite" and "OnReadAtServer").
 //
 //  PeriodClosingCheck    - Boolean - set to False to skip period-end closing check.
 //  ImportRestrictionCheckNode - ExchangePlanRef
 //                              - Undefined - set to Undefined 
 //                                to skip data import restriction check.
-//  ObjectVersion               - String - set "OldVersion" or "NewVersion" to check only the old
-//                                object version (in the database) or only the new object version 
-//                                (in the Object parameter).
-//                                By default, contains the "" value - both object versions are checked at the same time.
+//  ObjectVersion               - String - Set "OldVersion" or "NewVersion" to check only the old
+//                                object version (in the database) or only the new object version
+//                                (in the "Object" parameter).
+//                                By default, it is set to "" (both object versions are checked at the same time).
 //
 Procedure BeforeCheckPeriodClosing(Object,
                                          PeriodClosingCheck,
@@ -111,7 +114,14 @@ Procedure BeforeCheckPeriodClosing(Object,
 	
 EndProcedure
 
-// Overrides getting data to check the closing date for an old (existing) data version.
+// Allows overriding the process of retrieving data for checking the date restriction of an old (existing) data version.
+// If "DataToCheck" is provided, it will not be automatically loaded from the database based on the "MetadataObject" and "DataID" parameters.
+// If the check is conducted on a record set, the "AdditionalProperties" of the record set "DataID" contains the
+//
+// "Replacing" property (Boolean, SubstitutionMode) with possible values:
+// "Replacing", "RefreshEnabled", "Join" and "Delete".
+// In the case of record replacement, the "Filter" property is configured to retrieve existing records from the database.
+// 
 //
 // Parameters:
 //  MetadataObject - MetadataObject - a metadata object of data to be received.
@@ -122,9 +132,12 @@ EndProcedure
 //                      - ChartOfCalculationTypesRef
 //                      - BusinessProcessRef
 //                      - TaskRef
-//                      - ExchangePlanRef
-//                      - Filter - Reference to a data item or a record set filter to be checked.
-//                                The value to be checked will be received from the database.
+//                      - ExchangePlanRef - Reference to the data item.
+//                      - Filter - Record set filter in case "Replacing" is set to "True".
+//                      - InformationRegisterRecordSet
+//                      - AccumulationRegisterRecordSet
+//                      - AccountingRegisterRecordSet
+//                      - CalculationRegisterRecordSet - Record set in case "Replacing" in not Boolean.
 //
 //  ImportRestrictionCheckNode - Undefined
 //                              - ExchangePlanRef - if Undefined, check period-end closing; 
@@ -147,7 +160,16 @@ Procedure BeforeCheckOldDataVersion(MetadataObject, DataID, ImportRestrictionChe
 	
 EndProcedure
 
-// Overrides getting data to check the closing date for a new (future) data version.
+// Allows overriding the process of retrieving data for checking the date restriction of a new (future) data version.
+// If "DataToCheck" is provided, it will not be automatically extracted from the object or additionally loaded from
+// the database based on the "MetadataObject" and "Data" parameters. If the check is performed during the document write process,
+//
+// the "AdditionalProperties" of the document "Data" includes the "WriteMode" ("DocumentWriteMode") property.
+// If the check is conducted on a record set, the "AdditionalProperties" of the record set "Data" contains the
+// "Replacing" property (Boolean, SubstitutionMode) with possible values:
+// "Add", "Replacing", "RefreshEnabled", "Join".
+// In the case of record replacement, the "Filter" property is configured to retrieve existing records from the database.
+// 
 //
 // Parameters:
 //  MetadataObject - MetadataObject - a metadata object of data to be received.

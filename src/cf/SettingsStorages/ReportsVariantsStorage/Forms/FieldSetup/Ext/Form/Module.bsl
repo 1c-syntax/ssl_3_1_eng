@@ -419,7 +419,7 @@ Procedure OutputAllReportSectionValuesClick(Item)
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	
-	Handler = New NotifyDescription("AfterFillingInTheValues", ThisObject);
+	Handler = New CallbackDescription("AfterFillingInTheValues", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(FillingResult, Handler, IdleParameters);
 	
 EndProcedure

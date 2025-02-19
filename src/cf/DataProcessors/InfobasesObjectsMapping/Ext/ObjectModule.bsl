@@ -21,8 +21,7 @@ Var UnlimitedLengthStringTypeField;
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Internal export procedures and functions.
+#Region ExportServiceProceduresAndFunctions
 
 // Maps objects from the current infobase to objects from the source Infobase.
 //  Generates a mapping table to be displayed to the user.
@@ -219,7 +218,7 @@ Procedure Designer() Export
 	TableFieldsList.LoadValues(StrSplit(DestinationTableFields, ",", False));
 	
 	SearchFieldArray = StrSplit(DestinationTableSearchFields, ",", False);
-		
+	
 	// Deleting fields with indexes exceeding the specified limit from the search array.
 	CheckMappingFieldCountInArray(SearchFieldArray);
 	
@@ -244,8 +243,9 @@ Procedure Designer() Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Functions for retrieving properties.
+#EndRegion
+
+#Region PropertyFunctions
 
 // Object mapping table.
 //
@@ -264,8 +264,9 @@ Function MappingTable() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Functions for retrieving properties - mapping digest.
+#EndRegion
+
+#Region MappingDigestPropertyFunctions
 
 // Retrieves the number of objects of the current data type in the exchange message file.
 //
@@ -322,8 +323,9 @@ Function MappedObjectPercentage() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Functions for retrieving local properties.
+#EndRegion
+
+#Region LocalFunctionsProperties
 
 Function MappingDigest()
 	
@@ -370,8 +372,9 @@ Function UnlimitedLengthStringType()
 	Return UnlimitedLengthStringTypeField;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Get map table.
+#EndRegion
+
+#Region GettingMappingTables
 
 Procedure ExecuteInfobaseObjectMapping(Cancel)
 	
@@ -2200,8 +2203,9 @@ Function GetMappingByFieldsCondition(MappingFieldsList)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Internal auxiliary procedures and functions.
+#EndRegion
+
+#Region AuxiliaryUtilityProceduresAndFunctions
 
 Procedure FillListWithSelectedItems(SourceList, DestinationList)
 	
@@ -2329,6 +2333,8 @@ Function IsUnlimitedLengthString(Attribute)
 	Return Attribute.Type = UnlimitedLengthStringType();
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion
 

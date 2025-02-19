@@ -20,7 +20,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	TitleText = "";
-	
 	If Parameters.TaskCount > 1 Then
 		TitleText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (%2)';"),
 			?(DefaultTitle, NStr("en = 'Selected tasks';"), FormTitleText),

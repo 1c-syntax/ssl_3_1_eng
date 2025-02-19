@@ -46,7 +46,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>String presentation</v8:content>
+					<v8:content>Row presentation</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -170,7 +170,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>App</v8:content>
+					<v8:content>Application</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -476,7 +476,7 @@
 						<dcsat:value xsi:type="v8:LocalStringType">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Date, Author, App, Computer, Session</v8:content>
+								<v8:content>Date, Author, Application, Computer, Session</v8:content>
 							</v8:item>
 						</dcsat:value>
 					</dcsat:item>
@@ -685,7 +685,7 @@
 						<dcsat:value xsi:type="v8:LocalStringType">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>U</v8:content>
+								<v8:content>M</v8:content>
 							</v8:item>
 						</dcsat:value>
 					</dcsat:item>
@@ -808,7 +808,7 @@ neither the user nor its user group are marked for deletion.</v8:content>
 						<dcsat:value xsi:type="v8:LocalStringType">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Date, Author, App, Computer, Session</v8:content>
+								<v8:content>Date, Author, Application, Computer, Session</v8:content>
 							</v8:item>
 						</dcsat:value>
 					</dcsat:item>
@@ -1017,7 +1017,7 @@ neither the user nor its user group are marked for deletion.</v8:content>
 						<dcsat:value xsi:type="v8:LocalStringType">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>U</v8:content>
+								<v8:content>M</v8:content>
 							</v8:item>
 						</dcsat:value>
 					</dcsat:item>
@@ -1156,7 +1156,7 @@ neither the user nor its external user group are marked for deletion.</v8:conten
 		<dcsset:presentation xsi:type="v8:LocalStringType">
 			<v8:item>
 				<v8:lang>en</v8:lang>
-				<v8:content>Changes in user group membership</v8:content>
+				<v8:content>User group membership changes</v8:content>
 			</v8:item>
 		</dcsset:presentation>
 		<dcsset:settings xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows">
@@ -1343,7 +1343,7 @@ neither the user nor its external user group are marked for deletion.</v8:conten
 		<dcsset:presentation xsi:type="v8:LocalStringType">
 			<v8:item>
 				<v8:lang>en</v8:lang>
-				<v8:content>Changes in external user group membership</v8:content>
+				<v8:content>External user group membership changes</v8:content>
 			</v8:item>
 		</dcsset:presentation>
 		<dcsset:settings xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows">
@@ -1501,7 +1501,7 @@ neither the user nor its external user group are marked for deletion.</v8:conten
 					<dcscor:value xsi:type="v8:LocalStringType">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Changes in external user group membership</v8:content>
+							<v8:content>External user group membership changes</v8:content>
 						</v8:item>
 					</dcscor:value>
 				</dcscor:item>

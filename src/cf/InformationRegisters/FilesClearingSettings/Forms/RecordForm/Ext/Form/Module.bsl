@@ -66,7 +66,7 @@ EndProcedure
 
 &AtServer
 Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
-	CurrentObject.FilterRule = New ValueStorage(Rule.GetSettings());
+	CurrentObject.FilterRule = New ValueStorage(Rule.GetSettings(), New Deflation(9));
 EndProcedure
 
 &AtClient

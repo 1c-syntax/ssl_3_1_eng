@@ -80,7 +80,7 @@ Procedure SelectUsersClick(Item)
 		UsersTypeSelection.Add("ExternalUsers", NStr("en = 'External users';"));
 		UsersTypeSelection.Add("Users",        NStr("en = 'Users';"));
 		
-		Notification = New NotifyDescription("SelectUsersClickSelectItem", ThisObject);
+		Notification = New CallbackDescription("SelectUsersClickSelectItem", ThisObject);
 		UsersTypeSelection.ShowChooseItem(Notification);
 		Return;
 	EndIf;
@@ -97,7 +97,7 @@ Procedure SelectSettings(Item)
 		FormParameters = New Structure("User, SettingsOperation, ClearSettingsSelectionHistory",
 			UserRef, "Clearing", ClearSettingsSelectionHistory);
 		OpenForm("DataProcessor.UsersSettings.Form.SettingsChoice", FormParameters, ThisObject,,,,
-			New NotifyDescription("SelectSettingsAfterChoice", ThisObject));
+			New CallbackDescription("SelectSettingsAfterChoice", ThisObject));
 	EndIf;
 	
 EndProcedure

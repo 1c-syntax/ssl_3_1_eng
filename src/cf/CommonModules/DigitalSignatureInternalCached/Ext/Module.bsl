@@ -30,6 +30,10 @@ Function CommonSettings() Export
 	
 	SetPrivilegedMode(True);
 	
+	CommonSettings.Insert("AccessToInternetServicesAllowed",
+		Constants.AllowAccessToDigitalSignatureInternetServices.Get()
+			And Common.AccessToInternetServicesAllowed());
+	
 	CommonSettings.Insert("UseDigitalSignature",
 		Constants.UseDigitalSignature.Get());
 	
@@ -155,7 +159,7 @@ Function CommonSettings() Export
 		Catalogs.DigitalSignatureAndEncryptionApplications.SupplyThePathToTheProgramModules());
 	
 	CommonSettings.Insert("SettingsVersion", String(New UUID));
-	CommonSettings.Insert("AvailableAdvancedSignature", AvailableAdvancedSignature());
+	CommonSettings.Insert("AvailableAdvancedSignature", True);
 	
 	TimestampServersAddresses = Constants.TimestampServersAddresses.Get();
 	If Not IsBlankString(TimestampServersAddresses) Then
@@ -166,9 +170,11 @@ Function CommonSettings() Export
 	
 	CommonSettings.Insert("ThisistheServiceModelwithEnhancementAvailable",
 		ThisistheServiceModelwithEnhancementAvailable());
-	CommonSettings.Insert("AvailableCheckAccordingtoCAList",
-		Metadata.CommonModules.Find("DigitalSignatureInternalLocalization") <> Undefined);
 		
+	AvailableCheckAccordingtoCAList = False;
+	DigitalSignatureLocalization.OnDetermineAvailabilityOfCheckByCAList(AvailableCheckAccordingtoCAList);
+	CommonSettings.Insert("AvailableCheckAccordingtoCAList", AvailableCheckAccordingtoCAList);
+
 	CommonSettings.Insert("YouCanCheckTheCertificateInTheCloudServiceWithTheFollowingParameters", 
 		YouCanCheckTheCertificateInTheCloudServiceWithTheFollowingParameters());
 	
@@ -230,7 +236,8 @@ Function OwnersTypes(RefsOnly = False) Export
 	TypesToExclude.Insert(Type("String"), True);
 	
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
-		TypesToExclude.Insert(Type("CatalogRef." + "FilesVersions"), True);
+		ModuleFilesOperationsInternal = Common.CommonModule("FilesOperationsInternal");
+		TypesToExclude.Insert(ModuleFilesOperationsInternal.FilesVersionsCatalog(), True);
 	EndIf;
 	
 	For Each Type In Types Do
@@ -254,7 +261,7 @@ Function CryptoErrorsClassifier() Export
 	
 EndFunction
 
-Function ClassifierError(TextToSearchInClassifier, ErrorAtServer, SignatureVerificationError) Export
+Function ClassifierError(TextToSearchInClassifier, ErrorAtServer, SignatureVerificationError, IsCertificateSpecified) Export
 	
 	If Not ValueIsFilled(TextToSearchInClassifier) Then
 		Return Undefined;
@@ -275,7 +282,7 @@ Function ClassifierError(TextToSearchInClassifier, ErrorAtServer, SignatureVerif
 			Filter = New Structure("OnlyServer, IsSignatureVerificationError", False, True);
 		EndIf;
 
-		ErrorString = FindErrorString(ErrorsClassifier, Filter, SearchText, ErrorAtServer, TextToSearchInClassifier);
+		ErrorString = FindErrorString(ErrorsClassifier, Filter, SearchText, ErrorAtServer, TextToSearchInClassifier, IsCertificateSpecified);
 		If ErrorString <> Undefined Then
 			Return ErrorString;
 		EndIf;
@@ -287,11 +294,11 @@ Function ClassifierError(TextToSearchInClassifier, ErrorAtServer, SignatureVerif
 		Filter = New Structure("OnlyServer", False);
 	EndIf;
 
-	Return FindErrorString(ErrorsClassifier, Filter, SearchText, ErrorAtServer, TextToSearchInClassifier);
+	Return FindErrorString(ErrorsClassifier, Filter, SearchText, ErrorAtServer, TextToSearchInClassifier, IsCertificateSpecified);
 
 EndFunction
 
-Function FindErrorString(ErrorsClassifier, Filter, SearchText, ErrorAtServer, ErrorText)
+Function FindErrorString(ErrorsClassifier, Filter, SearchText, ErrorAtServer, ErrorText, IsCertificateSpecified)
 	
 	Rows = ErrorsClassifier.FindRows(Filter);
 	For Each ClassifierRow In Rows Do
@@ -302,9 +309,22 @@ Function FindErrorString(ErrorsClassifier, Filter, SearchText, ErrorAtServer, Er
 			FillPropertyValues(ErrorPresentation, ClassifierRow);
 			ErrorPresentation.RemedyActions = ActionsToFixErrorsRead(
 				ErrorPresentation.Remedy);
+				
+			If ValueIsFilled(ErrorPresentation.RemedyActions)
+				And ErrorPresentation.RemedyActions.Find("ApplyforCertificate") <> Undefined Then
+				Decision = StrSplit(ErrorPresentation.Decision, Chars.LF);
+				CurrentIndex = Decision.UBound();
+				While CurrentIndex >= 0 Do
+					If StrFind(Decision[CurrentIndex], "ApplyforCertificate") > 0 Then
+						Decision.Delete(CurrentIndex);
+					EndIf;
+					CurrentIndex = CurrentIndex - 1;
+				EndDo;
+				ErrorPresentation.Decision = StrConcat(Decision, Chars.LF);
+			EndIf;
 			
 			SupplementSolutionWithAutomaticActions(ErrorPresentation.Decision,
-				ErrorPresentation.RemedyActions, ErrorAtServer, ErrorText);
+				ErrorPresentation.RemedyActions, ErrorAtServer, ErrorText, IsCertificateSpecified);
 			Add_Parameters(ErrorPresentation.Cause, ErrorPresentation.Decision,
 				ErrorPresentation.RemedyActions, ErrorText);
 			
@@ -320,31 +340,37 @@ Function FindErrorString(ErrorsClassifier, Filter, SearchText, ErrorAtServer, Er
 	
 EndFunction
 
-Procedure SupplementSolutionWithAutomaticActions(Decision, RemedyActions, ErrorAtServer, ErrorText)
+Procedure SupplementSolutionWithAutomaticActions(Decision, RemedyActions, ErrorAtServer, ErrorText, IsCertificateSpecified)
 	
 	If Not ValueIsFilled(RemedyActions) Then
 		Return;
 	EndIf;
 	
-	ThereIsReceiptOfFilesFromInternet = Common.SubsystemExists("StandardSubsystems.GetFilesFromInternet");
+	HasGetFilesFromInternet = Common.SubsystemExists("StandardSubsystems.GetFilesFromInternet");
 	
 	For Each Action In RemedyActions Do
 		
-		If Action = "SetListOfCertificateRevocation" And Not ErrorAtServer And ThereIsReceiptOfFilesFromInternet Then
+		If Action = "SetListOfCertificateRevocation" And Not ErrorAtServer And HasGetFilesFromInternet And IsCertificateSpecified Then
 			Decision = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = '• <a href=%1>Install a revocation list</a> of a certificate authority automatically.
 				|%2';"), Action, Decision);
-		ElsIf Action = "InstallRootCertificate" And Not ErrorAtServer Then
+		ElsIf Action = "InstallRootCertificate" And Not ErrorAtServer And IsCertificateSpecified Then
 			Decision = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = '- <a href=%1>Install a root certificate</a> of a certificate authority automatically.
 				|%2';"), Action, Decision);
-		ElsIf Action = "InstallCertificate" And Not ErrorAtServer Then
+		ElsIf Action = "InstallCertificate" And Not ErrorAtServer And IsCertificateSpecified Then
 			Decision = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = '- <a href=%1>Install the certificate</a> in the Current user/Personal certificate store automatically.
 				|%2';"), Action, Decision);
-		ElsIf Action = "InstallCertificateIntoContainer" And Not ErrorAtServer Then
+		ElsIf Action = "InstallCertificateIntoContainer" And Not ErrorAtServer And IsCertificateSpecified Then
 			Decision = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = '• <a href=%1>Install certificate on container</a> from the app.
+				|%2';"), Action, Decision);
+				
+		ElsIf Action = "ApplyforCertificate" And IsCertificateSpecified Then
+			
+			Decision = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = '• Submit a <a href=%1>certificate issuance application</a>.
 				|%2';"), Action, Decision);
 		EndIf;
 		
@@ -376,9 +402,9 @@ EndProcedure
 Procedure AddLinkToService(String, ErrorText)
 
 	Template = "(?i)\b(https?|ftps?|file)://[-A-Z0-9+&@#/%?=~_|$!:,.;]*[A-Z0-9+&@#/%?=_|$]";
-	SearchResult = EvalStrFindByRegularExpression(ErrorText, Template);
-	If SearchResult.StartPosition <> 0 Then
-		Address = Mid(ErrorText, SearchResult.StartPosition, SearchResult.Length);
+	SearchResult = StrFindByRegularExpression(ErrorText, Template);
+	If SearchResult.StartIndex <> 0 Then
+		Address = SearchResult.Value;
 		If StrStartsWith(Address, "http") Then
 			Address = StrTemplate("<a href=%1>%1</a>", Address);
 		EndIf;
@@ -390,41 +416,14 @@ EndProcedure
 
 Procedure RemoveParametersFromString(String)
 	
-	For ParameterNumber = 1 To 3 Do
-		String = StrReplace(String, ":%" + ParameterNumber, "");
-		String = StrReplace(String, " %" + ParameterNumber, "");
-		String = StrReplace(String, "%"  + ParameterNumber, "");
+	Template = "\b(:? ?)%[0-3]";
+	SearchResult = StrFindByRegularExpression(String, Template);
+	While SearchResult.StartIndex <> 0 Do
+		String = StrReplace(String, SearchResult.Value, "");
+		SearchResult = StrFindByRegularExpression(String, Template);
 	EndDo;
 	
 EndProcedure
-
-// Returns:
-//  Structure:
-//   * Length            - Number
-//   * Value         - String
-//   * StartPosition - Number
-//
-Function EvalStrFindByRegularExpression(Text, SearchExpression)
-	
-	CalculationResult = New Structure("StartPosition, Length, Value",0);
-	
-	SystemInfo = New SystemInfo;
-	AppVersion = SystemInfo.AppVersion;
-	If CommonClientServer.CompareVersions(AppVersion, "8.3.23.1437") < 0 Then
-		Return CalculationResult;
-	EndIf;
-	
-	Expression = "StrFindByRegularExpression(Text, SearchExpression)";
-	
-	Try
-		CalculationResult = Eval(Expression); // ACC:488 - Executable code is static and safe.
-	Except
-		Return CalculationResult;
-	EndTry;
-	
-	Return CalculationResult; // RegExSearchResult
-	
-EndFunction
 
 // For internal use only.
 Function ActionsToFixErrorsRead(Val Remedy)
@@ -570,19 +569,6 @@ Function YouCanCheckTheCertificateInTheCloudServiceWithTheFollowingParameters()
 	
 EndFunction
 
-// Function ImprovedSignatureAvailable.
-// Defines whether 1C:Enterprise has the 
-// 
-// 
-// Returns:
-//   Boolean
-//
-Function AvailableAdvancedSignature() Export
-	
-	Return Not ValueFromStringInternal("{""T"",a338a24d-6470-4101-8735-008988fb74d8}") = Type("Undefined");
-	
-EndFunction
-
 Function ThisistheServiceModelwithEnhancementAvailable()
 	
 	If Common.DataSeparationEnabled() Then
@@ -602,10 +588,6 @@ EndFunction
 
 Function CertificationAuthorityData(SearchValues) Export
 	
-	If Metadata.CommonModules.Find("DigitalSignatureInternalLocalization") = Undefined Then
-		Return Undefined;
-	EndIf;
-	
 	AccreditedCertificationCenters = DigitalSignatureInternalCached.AccreditedCertificationCenters();
 	If AccreditedCertificationCenters = Undefined Then
 		Return Undefined;
@@ -617,20 +599,17 @@ EndFunction
 
 Function AccreditedCertificationCenters() Export
 	
-	If Metadata.CommonModules.Find("DigitalSignatureInternalLocalization") = Undefined Then
-		Return Undefined;
-	EndIf;
-	
-	ModuleDigitalSignatureInternalLocalization = Common.CommonModule("DigitalSignatureInternalLocalization");
-	Return ModuleDigitalSignatureInternalLocalization.AccreditedCertificationCenters();
+	AccreditedCertificationCenters = Undefined;
+	DigitalSignatureLocalization.OnGetAccreditedCAs(AccreditedCertificationCenters);
+	Return AccreditedCertificationCenters;
 	
 EndFunction
 
-Function CataloguesOfReviewListsOfUTS() Export
+Function CARevocationListDirectories() Export
 	
 	AccreditedCertificationCenters = DigitalSignatureInternalCached.AccreditedCertificationCenters();
 	ModuleDigitalSignatureClientServerLocalization = Common.CommonModule("DigitalSignatureClientServerLocalization");
-	Return ModuleDigitalSignatureClientServerLocalization.CataloguesOfReviewListsOfUTS(AccreditedCertificationCenters);
+	Return ModuleDigitalSignatureClientServerLocalization.CARevocationListDirectories(AccreditedCertificationCenters);
 	
 EndFunction
 

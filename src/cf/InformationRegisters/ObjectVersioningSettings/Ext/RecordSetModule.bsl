@@ -18,6 +18,10 @@ Procedure BeforeWrite(Cancel, Replacing)
 		Return;
 	EndIf;
 	
+	If Common.IsRecordSetDeletion(Replacing) Then
+		Return;
+	EndIf;
+	
 	For Each String In ThisObject Do
 		String.Use = String.Variant <> Enums.ObjectsVersioningOptions.DontVersionize;
 	EndDo;

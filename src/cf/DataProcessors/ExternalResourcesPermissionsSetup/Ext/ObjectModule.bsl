@@ -12,36 +12,36 @@
 
 #Region Variables
 
-// 
+// Array of UUID - Requests to use external resources for using which this object is initialized.
 // 
 //
 Var RequestsIDs;
 
-// 
+// Administration operation execution plan upon applying requests to use external resources.
 Var AdministrationOperations; // See AdministrationOperations
 
-// 
+// The current plan of applying requests to use external resources.
 Var RequestsApplicationPlan; // See RequestsApplicationPlan
 
-// 
+// Source permission slice (by permission owners).
 Var SourcePermissionSliceByOwners; // See InformationRegisters.PermissionsToUseExternalResources.NewPermissionsSliceByOwner
 
-// 
+// Source permission slice (owners are ignored).
 Var SourcePermissionSliceIgnoringOwners; // See InformationRegisters.PermissionsToUseExternalResources.NewPermissionsSlice
 
-// 
+// Permission slice after applying requests (by permission owners).
 Var RequestsApplicationResultByOwners; // See InformationRegisters.PermissionsToUseExternalResources.NewPermissionsSliceByOwner
 
-// 
+// Permission slice after applying requests (by permission owners).
 Var RequestsApplicationResultIgnoringOwners; // See InformationRegisters.PermissionsToUseExternalResources.NewPermissionsSlice
 
-// 
+// Delta between the source and resulting permission slices (by permission owners).
 Var DeltaByOwners; // See DeltaByOwners
 
-// 
+// Delta between the source and resulting permission slices (ignoring permission owners).
 Var DeltaIgnoringOwners; // See DeltaIgnoringOwners
 
-// 
+// Flag indication whether information about granted permissions is cleared before applying the permissions.
 Var ClearingPermissionsBeforeApply; // Boolean
 
 #EndRegion
@@ -223,7 +223,7 @@ Procedure CalculateRequestsApplication() Export
 	
 	ExternalTransaction = TransactionActive();
 	If Not ExternalTransaction Then
-		BeginTransaction(); // CAC:326 there in no paired CommitTransaction for StartTransaction since the action is being canceled.
+		BeginTransaction(); // ACC:326 - BeginTransaction does not have a paired CommitTransaction because the action is aborted.
 	EndIf;
 	
 	Try

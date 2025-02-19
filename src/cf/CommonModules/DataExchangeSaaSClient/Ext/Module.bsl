@@ -43,8 +43,7 @@ Procedure OnStart(Parameters) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Internal event handlers of SSL subsystems
+#Region SSLSubsystemsInternalEventHandlers
 
 // Redefines a list of warnings displayed to a user before they exit the application.
 //
@@ -83,5 +82,7 @@ Procedure BeforeExit(Cancel, Warnings) Export
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

@@ -12,8 +12,7 @@
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Internal export procedures and functions.
+#Region ExportServiceProceduresAndFunctions
 
 // Imports data from the exchange message file.
 //
@@ -791,8 +790,9 @@ Procedure UpdatePredefinedItemDeletion(Table)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Local internal functions for retrieving properties.
+#EndRegion
+
+#Region LocalUtilityFunctionsProperties
 
 Function ExchangeMessageFileName()
 	
@@ -806,8 +806,9 @@ Function ExchangeMessageFileName()
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Details of execution context errors.
+#EndRegion
+
+#Region ExecutionContextErrorsDetails
 
 Function ErrorOpeningExchangeMessageFile()
 	
@@ -890,6 +891,8 @@ Function ThereIsAnExtensionInTheExchangeMessage(MessageReader)
 		Or HasExtensions And Not InfobaseNode.Metadata().IncludeConfigurationExtensions;
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion
 

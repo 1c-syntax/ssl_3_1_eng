@@ -18,8 +18,31 @@
 //
 Procedure HandlerCommands(Val ReferencesArrray, Val ExecutionParameters) Export
 	ExecutionParameters.Insert("PrintObjects", ReferencesArrray);
-	CommonClientServer.SupplementStructure(ExecutionParameters.CommandDetails, ExecutionParameters.CommandDetails.AdditionalParameters, True);
-	RunConnectedPrintCommandCompletion(True, ExecutionParameters);
+	CommandDetails = ExecutionParameters.CommandDetails;
+	CommonClientServer.SupplementStructure(CommandDetails, CommandDetails.AdditionalParameters, True);
+	
+	If CommandDetails.DefaultCommand Then
+		DefaultPrintOptions = PrintManagementServerCall.DefaultPrintExecutionParameters(ReferencesArrray);
+		If DefaultPrintOptions.HasExecutionParameters Then
+			For Each NewParameters In DefaultPrintOptions.NewExecutionParameters Do
+				FillPropertyValues(ExecutionParameters, NewParameters);
+				RunConnectedPrintCommandCompletion(True, ExecutionParameters);
+			EndDo;
+		Else
+			NewParameters = DefaultPrintOptions.NewExecutionParameters[0];
+			ListOfCommands = NewParameters.CommandsForSelection;
+			
+			NotificationParameters = New Structure;
+			NotificationParameters.Insert("TeamDescriptions", NewParameters.TeamDescriptions);
+			NotificationParameters.Insert("ExecutionParameters", ExecutionParameters);
+			
+			Notification = New CallbackDescription("AfterSelectDefaultCommand", ThisObject, NotificationParameters);
+			ListOfCommands.ShowChooseItem(Notification, NStr("en = 'Select print form';"));
+		EndIf;
+	Else
+		Notification = New CallbackDescription("ContinueExecutionOfCommandHandler", ThisObject, ExecutionParameters);
+		PrintManagementClient.BeforeStartExecutePrintCommand(ReferencesArrray, ExecutionParameters.CommandDetails, Notification);
+	EndIf;
 EndProcedure
 
 // Generates a spreadsheet document in the Print subsystem form.
@@ -30,7 +53,7 @@ Procedure ExecutePrintFormOpening(DataSource, CommandID, RelatedObjects, Form, S
 	Parameters.Insert("DataSource",       DataSource);
 	Parameters.Insert("CommandID", CommandID);
 	If StandardProcessing Then
-		NotifyDescription = New NotifyDescription("ExecutePrintFormOpeningCompletion", ThisObject, Parameters);
+		NotifyDescription = New CallbackDescription("ExecutePrintFormOpeningCompletion", ThisObject, Parameters);
 		PrintManagementClient.CheckDocumentsPosting(NotifyDescription, RelatedObjects, Form);
 	Else
 		ExecutePrintFormOpeningCompletion(RelatedObjects, Parameters);
@@ -45,13 +68,13 @@ Procedure OpenPrintSubmenuSettingsForm(Filter) Export
 	OpenForm("CommonForm.PrintCommandsSetup", OpeningParameters, , , , , , FormWindowOpeningMode.LockOwnerWindow);
 EndProcedure
 
-// Opening a form to select attachment format options
+// Opening a form to select attachment format options.
 //
 // Parameters:
 //  FormatSettings - Structure:
 //       * PackToArchive   - Boolean - shows whether it is necessary to archive attachments.
 //       * SaveFormats - Array - a list of the selected save formats.
-//  Notification       - NotifyDescription - a notification called after closing the form for processing
+//  Notification       - CallbackDescription - a notification called after closing the form for processing
 //                                          the selection result.
 //
 Procedure OpenAttachmentsFormatSelectionForm(FormatSettings, Notification) Export
@@ -73,11 +96,18 @@ EndProcedure
 //                     ** Address                        - String - Recipient's address.
 //                     ** Presentation                - String - Recipient's presentation.
 //                     ** ContactInformationSource - CatalogRef - Contact information owner. 
-//  NotifyDescriptionOnCompletion - NotifyDescription
+//  NotifyDescriptionOnCompletion - CallbackDescription
 //
 Procedure OpenNewMailPreparationForm(OwnerForm, FormParameters, NotifyDescriptionOnCompletion) Export
 	OpenForm("CommonForm.ComposeNewMessage", FormParameters, OwnerForm,,,, NotifyDescriptionOnCompletion);
 EndProcedure
+
+Function ParametersForOpeningPrintForm() Export
+	OpeningParameters = New Structure("PrintManagerName,TemplatesNames,CommandParameter,PrintParameters,StorageUUID,
+	|DataSource,PrintFormsCollection,SourceParameters,CurrentLanguage,FormOwner,OutputParameters");
+	OpeningParameters.Insert("PrintObjects", New ValueList);
+	Return OpeningParameters;
+EndFunction  
 
 #EndRegion
 
@@ -129,10 +159,18 @@ Procedure RunConnectedPrintCommandCompletion(FileSystemExtensionAttached1, Addit
 		FillPropertyValues(PrintParameters, CommandDetails);
 		Handler = HandlerName + "(PrintParameters)";
 		Result = Eval(Handler);
+		
+		CommandDetails.Delete("Form");
+		UpdateCommands(Form, CommandDetails);
+		
 		Return;
 	EndIf;
 	
 	If CommandDetails.SkipPreview Then
+		ToPrinterCommandDetails = New Structure("Id,DefaultPrintForm,PrintFormDescription,
+			|ReplaceDefaultPrintForm,IDFromSet");
+		FillPropertyValues(ToPrinterCommandDetails, CommandDetails);
+		CommandDetails.AdditionalParameters.Insert("CommandDetails", ToPrinterCommandDetails);
 		PrintManagementClient.ExecutePrintToPrinterCommand(CommandDetails.PrintManager, CommandDetails.Id,
 			PrintObjects, CommandDetails.AdditionalParameters);
 	Else
@@ -144,21 +182,22 @@ EndProcedure
 
 Procedure CheckDocumentsPostedPostingDialog(Parameters) Export
 	
-	If Not PrintManagementServerCall.HasRightToPost(Parameters.UnpostedDocuments) Then
+	If Not Parameters.HasPostingRight Then
 		If Parameters.UnpostedDocuments.Count() = 1 Then
-			WarningText = NStr("en = 'Cannot print unposted document. You have insufficient rights to post the document. Cannot print.';");
+			WarningText = NStr("en = 'To print the document, you must first post it. However, you do not have the required posting permissions. Printing is not possible.';");
 		Else
-			WarningText = NStr("en = 'Cannot print unposted document. You have insufficient rights to post the document. Cannot print.';");
+			WarningText = NStr("en = 'To print the documents, you must first post them. However, you do not have the required posting permissions. Printing is not possible.';");
 		EndIf;
 		Raise(WarningText, ErrorCategory.AccessViolation);
 	EndIf;
 
 	If Parameters.UnpostedDocuments.Count() = 1 Then
-		QueryText = NStr("en = 'Cannot print unposted document. Do you want to post the document and continue?';");
+		QueryText = NStr("en = 'To print the document, you must first post it. Do you want to post the document and continue?';");
 	Else
-		QueryText = NStr("en = 'Cannot print unposted document. Do you want to post the document and continue?';");
+		QueryText = NStr("en = 'To print the documents, you must first post them. Do you want to post the documents and continue?';");
 	EndIf;
-	NotifyDescription = New NotifyDescription("CheckDocumentsPostedDocumentsPosting", ThisObject, Parameters);
+	NotifyDescription = New CallbackDescription("CheckDocumentsPostedDocumentsPosting", 
+		ThisObject, Parameters);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo);
 	
 EndProcedure
@@ -176,12 +215,15 @@ Procedure CheckDocumentsPostedDocumentsPosting(QuestionResult, AdditionalParamet
 	UnpostedDocuments = New Array;
 	For Each DocumentInformation In UnpostedDocumentsData Do
 		CommonClient.MessageToUser(
-			StringFunctionsClientServer.SubstituteParametersToString(MessageTemplate, String(DocumentInformation.Ref), DocumentInformation.ErrorDescription),
+			StringFunctionsClientServer.SubstituteParametersToString(MessageTemplate, 
+			String(DocumentInformation.Ref), DocumentInformation.ErrorDescription),
 			DocumentInformation.Ref);
 		UnpostedDocuments.Add(DocumentInformation.Ref);
 	EndDo;
-	PostedDocuments = CommonClientServer.ArraysDifference(AdditionalParameters.DocumentsList, UnpostedDocuments);
-	ModifiedDocuments = CommonClientServer.ArraysDifference(AdditionalParameters.UnpostedDocuments, UnpostedDocuments);
+	PostedDocuments = CommonClientServer.ArraysDifference(AdditionalParameters.DocumentsList, 
+		UnpostedDocuments);
+	ModifiedDocuments = CommonClientServer.ArraysDifference(AdditionalParameters.UnpostedDocuments, 
+		UnpostedDocuments);
 	
 	AdditionalParameters.Insert("UnpostedDocuments", UnpostedDocuments);
 	AdditionalParameters.Insert("PostedDocuments", PostedDocuments);
@@ -210,7 +252,7 @@ Procedure CheckDocumentsPostedDocumentsPosting(QuestionResult, AdditionalParamet
 			DialogButtons.Add(DialogReturnCode.OK);
 		EndIf;
 		
-		NotifyDescription = New NotifyDescription("CheckDocumentsPostingCompletion", ThisObject, AdditionalParameters);
+		NotifyDescription = New CallbackDescription("CheckDocumentsPostingCompletion", ThisObject, AdditionalParameters);
 		ShowQueryBox(NotifyDescription, DialogText, DialogButtons);
 		Return;
 	EndIf;
@@ -225,7 +267,7 @@ Procedure CheckDocumentsPostingCompletion(QuestionResult, AdditionalParameters) 
 		Return;
 	EndIf;
 	
-	ExecuteNotifyProcessing(AdditionalParameters.CompletionProcedureDetails, AdditionalParameters.PostedDocuments);
+	RunCallback(AdditionalParameters.CompletionProcedureDetails, AdditionalParameters.PostedDocuments);
 	
 EndProcedure
 
@@ -274,13 +316,6 @@ Procedure ExecutePrintFormOpeningCompletion(RelatedObjects, AdditionalParameters
 	
 EndProcedure
 
-Function ParametersForOpeningPrintForm() Export
-	OpeningParameters = New Structure("PrintManagerName,TemplatesNames,CommandParameter,PrintParameters,StorageUUID,
-	|DataSource,PrintFormsCollection,SourceParameters,CurrentLanguage,FormOwner,OutputParameters");
-	OpeningParameters.Insert("PrintObjects", New ValueList);
-	Return OpeningParameters;
-EndFunction  
-
 Procedure ResumePrintCommand() Export
 	
 	ParameterName = "StandardSubsystems.Print.ExecutePrintCommand";
@@ -310,6 +345,7 @@ Procedure ResumePrintCommand() Export
 		RunPrintCommandInBackground(FormOwner, OpeningParameters);
 	Else
 		OpenForm("CommonForm.PrintDocuments", OpeningParameters, FormOwner, String(New UUID));
+		UpdateCommands(FormOwner, PrintParameters);
 	EndIf;
 	
 EndProcedure
@@ -325,7 +361,7 @@ Procedure RunPrintCommandInBackground(FormOwner, OpeningParameters)
 	TimeConsumingOperation = PrintManagementServerCall.StartGeneratingPrintForms(OpeningParameters);
 	OpeningParameters.FormOwner = FormOwner;
 	
-	CallbackOnCompletion = New NotifyDescription("OpenPrintDocumentsForm", ThisObject, OpeningParameters);
+	CallbackOnCompletion = New CallbackDescription("OpenPrintDocumentsForm", ThisObject, OpeningParameters);
 	IdleParameters = IdleParameters(FormOwner);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
@@ -384,6 +420,8 @@ Procedure OpenPrintDocumentsForm(Result, OpeningParameters) Export
 	OpenForm("CommonForm.PrintDocuments",
 		OpeningParameters, FormOwner, String(New UUID));
 	
+	UpdateCommands(FormOwner, ResultStructure1.PrintParameters);
+	
 EndProcedure
 
 Function IdleParameters(FormOwner) Export
@@ -397,7 +435,7 @@ Function IdleParameters(FormOwner) Export
 
 EndFunction
 
-// Synchronous analog of CommonClient.CreateTempDirectory for backward compatibility.
+// A synchronous alternative of CommonClient.CreateTempDirectory for backward compatibility.
 //
 Function CreateTemporaryDirectory(Val Extension = "") Export 
 	
@@ -409,5 +447,36 @@ Function CreateTemporaryDirectory(Val Extension = "") Export
 	Return DirectoryName;
 	
 EndFunction
+
+Procedure AfterSelectDefaultCommand(Result, ExecutionParameters) Export
+	
+	If Result <> Undefined Then
+		CommandParameters = New Structure("CommandDetails", ExecutionParameters.TeamDescriptions[Result.Value]);
+		ExecutionParameters = ExecutionParameters.ExecutionParameters;
+		
+		FillPropertyValues(ExecutionParameters, CommandParameters);
+		RunConnectedPrintCommandCompletion(True, ExecutionParameters);
+	EndIf;
+	
+EndProcedure
+
+Procedure ContinueExecutionOfCommandHandler(Result, ExecutionParameters) Export
+	ExecutionParameters.CommandDetails = Result;
+	RunConnectedPrintCommandCompletion(True, ExecutionParameters);
+EndProcedure
+
+Procedure UpdateCommands(Form, CommandDetails)
+	
+	If TypeOf(CommandDetails) = Type("Structure") Then
+		UpdateRequired = CommonClientServer.StructureProperty(CommandDetails, "ReplaceDefaultPrintForm", False)
+			Or CommonClientServer.StructureProperty(CommandDetails, "DefaultCommand", False);
+			
+		If UpdateRequired Then
+			Form.DetachIdleHandler("Attachable_UpdateCommands");
+			Form.AttachIdleHandler("Attachable_UpdateCommands", 0.2, True);
+		EndIf;
+	EndIf;
+	
+EndProcedure
 
 #EndRegion

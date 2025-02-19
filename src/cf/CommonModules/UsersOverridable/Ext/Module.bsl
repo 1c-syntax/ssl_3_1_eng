@@ -273,9 +273,9 @@ Procedure OnDefineUsersSelectionForm(SelectedForm, FormParameters) Export
 
 EndProcedure
 
-// Allows to add custom access event registration settings to the data
-// when either getting them using the "Users.RegistrationSettingsForDataAccessEvents" function
-// or setting them using the "Users.UpdateRegistrationSettingsForDataAccessEvents" procedure.
+// Allows you to add custom data access logging settings,
+// either when retrieving them with the "Users.RegistrationSettingsForDataAccessEvents" function
+// or when setting them with the "Users.UpdateRegistrationSettingsForDataAccessEvents" procedure.
 // 
 // 
 //

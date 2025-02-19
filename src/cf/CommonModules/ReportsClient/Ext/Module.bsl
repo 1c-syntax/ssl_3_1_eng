@@ -15,12 +15,12 @@
 //
 // Parameters:
 //   ReportForm - ClientApplicationForm - Report form.
-//   CompletionHandler - NotifyDescription - Handler to be called once the report is generated.
+//   CompletionHandler - CallbackDescription - Handler to be called once the report is generated.
 //     To the first parameter of the procedure, specified in CompletionHandler,
 //     the following parameter is passed: ReportGenerated (Boolean) - indicates that a report was generated successfully.
 //
 Procedure GenerateReport(ReportForm, CompletionHandler = Undefined) Export
-	If TypeOf(CompletionHandler) = Type("NotifyDescription") Then
+	If TypeOf(CompletionHandler) = Type("CallbackDescription") Then
 		ReportForm.HandlerAfterGenerateAtClient = CompletionHandler;
 	EndIf;
 	ReportForm.AttachIdleHandler("Generate", 0.1, True);
@@ -30,8 +30,7 @@ EndProcedure
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Method of working with DCS from the report option.
+#Region ApproachesToManageDCSFromReportForm
 
 Function ValueTypeRestrictedByLinkByType(Settings, UserSettings, SettingItem, SettingItemDetails, ValueType = Undefined) Export 
 	If SettingItemDetails = Undefined Then 
@@ -266,6 +265,8 @@ Function ValueOfFoldersAndItemsUseType(SourceValue, Condition = Undefined) Expor
 	Return Undefined;
 EndFunction
 
+#EndRegion
+
 #Region ReportPeriod
 
 // Calls a dialog box for editing a standard period.
@@ -286,7 +287,7 @@ Procedure SelectPeriod(Form, CommandName, Var_PeriodVariant = Undefined) Export
 	Context.Insert("Path", Path);
 	Context.Insert("Period", Period);
 	
-	Handler = New NotifyDescription("SelectPeriodCompletion", ThisObject, Context);
+	Handler = New CallbackDescription("SelectPeriodCompletion", ThisObject, Context);
 	
 	StandardProcessing = True;
 	ReportsClientOverridable.OnClickPeriodSelectionButton(Form, Period, StandardProcessing, Handler);
@@ -701,7 +702,7 @@ Procedure StartSelectUsers(Form, FormItem, AvailableTypes, Val MarkedValues,
 	EndIf;
 	
 	If Not IsSelectUsers Then
-		ExecuteNotifyProcessing(FollowUpHandler, Undefined);
+		RunCallback(FollowUpHandler, Undefined);
 		Return;
 	EndIf;
 	
@@ -748,7 +749,7 @@ Procedure StartSelectUsers(Form, FormItem, AvailableTypes, Val MarkedValues,
 				Form,,,, ChoiceHandler);
 		Else
 			Form.ShowChooseFromMenu(
-				New NotifyDescription("SelectUsersAfterSelectionType", ThisObject, Context),
+				New CallbackDescription("SelectUsersAfterSelectionType", ThisObject, Context),
 				UserTypesList,
 				FormItem);
 		EndIf;
@@ -797,7 +798,7 @@ Procedure SelectUsersAfterSelectionType(SelectedElement, Context) Export
 			PickFormHeader = NStr("en = 'Pick external users';");
 		EndIf;
 	Else
-		ExecuteNotifyProcessing(Context.FollowUpHandler, SelectedElement);
+		RunCallback(Context.FollowUpHandler, SelectedElement);
 		Return;
 	EndIf;
 	
@@ -816,7 +817,7 @@ Procedure SelectUsersAfterSelectionType(SelectedElement, Context) Export
 	PickingParameters.Insert("PickFormHeader", PickFormHeader);
 	PickingParameters.Insert("SelectedUsers", SelectedUsers);
 	
-	Handler = New NotifyDescription("SelectUsersCompletion", ThisObject, Context);
+	Handler = New CallbackDescription("SelectUsersCompletion", ThisObject, Context);
 	
 	OpenForm(FullChoiceFormName, PickingParameters, ThisObject,,,, Handler);
 	
@@ -838,9 +839,9 @@ Procedure SelectUsersCompletion(Result, Context) Export
 				FillPropertyValues(List.Add(), ListItem);
 			EndIf;
 		EndDo;
-		ExecuteNotifyProcessing(Context.ChoiceHandler, List);
+		RunCallback(Context.ChoiceHandler, List);
 	Else
-		ExecuteNotifyProcessing(Context.ChoiceHandler, Result);
+		RunCallback(Context.ChoiceHandler, Result);
 	EndIf;
 	
 EndProcedure

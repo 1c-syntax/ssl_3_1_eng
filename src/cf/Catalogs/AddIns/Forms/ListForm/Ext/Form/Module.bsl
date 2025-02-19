@@ -101,7 +101,7 @@ Procedure UpdateFromThePortal(Command)
 		Return;
 	EndIf;
 	
-	Notification = New NotifyDescription("AfterUpdateAddInFromPortal", ThisObject);
+	Notification = New CallbackDescription("AfterUpdateAddInFromPortal", ThisObject);
 	AddInsInternalClient.UpdateAddInsFromPortal(Notification, ReferencesArrray);
 	
 EndProcedure
@@ -140,10 +140,10 @@ Procedure AddFromDirectory(Command)
 	
 	ClearMessages();
 	
-	Notification = New NotifyDescription("AddAddInsFromDirectoryAfterExtensionsAttached", ThisObject);
+	Notification = New CallbackDescription("AddAddInsFromDirectoryAfterExtensionsAttached", ThisObject);
 		
 	SuggestionText =  NStr("en = 'To import add-ins from the directory, install 1C:Enterprise Extension.';");
-	FileSystemClient.AttachFileOperationsExtension(Notification, SuggestionText, False);
+	FileSystemClient.Attach1CEnterpriseExtension(Notification, SuggestionText, False);
 		
 EndProcedure
 
@@ -168,7 +168,7 @@ Procedure AddFromFiles(Command)
 	
 	ClearMessages();
 	
-	Notification = New NotifyDescription("AddAddInsAfterFilesPut",
+	Notification = New CallbackDescription("AddAddInsAfterFilesPut",
 		ThisObject);
 	
 	ImportParameters = FileSystemClient.FileImportParameters();
@@ -186,7 +186,7 @@ EndProcedure
 
 #Region Private
 
-// Continues the AddFromDirectory procedure.
+// Продолжение процедуры ДобавитьИзКаталога.
 
 &AtClient
 Procedure AddAddInsFromDirectoryAfterExtensionsAttached(Result, CreationParameters) Export
@@ -195,13 +195,13 @@ Procedure AddAddInsFromDirectoryAfterExtensionsAttached(Result, CreationParamete
 		Return;
 	EndIf;
 		
-	Notification = New NotifyDescription("AddAddInsAfterDirectorySelected", ThisObject);
+	Notification = New CallbackDescription("AddAddInsAfterDirectorySelected", ThisObject);
 	Items.Pages_Group.CurrentPage = Items.WaitPage;
 	FileSystemClient.SelectDirectory(Notification, NStr("en = 'Select a directory with add-in files';"));
 	
 EndProcedure
 
-// Continues the AddFromDirectory procedure.
+// Продолжение процедуры ДобавитьИзКаталога.
 
 &AtClient
 Async Procedure AddAddInsAfterDirectorySelected(SelectedDirectory, AdditionalParameters) Export
@@ -211,7 +211,7 @@ Async Procedure AddAddInsAfterDirectorySelected(SelectedDirectory, AdditionalPar
 		Return;
 	EndIf;
 	
-	Notification = New NotifyDescription("AddAddInsAfterFilesPut",
+	Notification = New CallbackDescription("AddAddInsAfterFilesPut",
 		ThisObject);
 	
 	DetailsOfFilesToTransfer = New Array;
@@ -316,7 +316,7 @@ Procedure AddAddInsAfterFilesPut(PlacedFiles, AdditionalParameters) Export
 		Return;
 	EndIf;
 	
-	Notification = New NotifyDescription("DownloadAddInsAfterSafetyWarning", ThisObject, PlacedFiles);
+	Notification = New CallbackDescription("DownloadAddInsAfterSafetyWarning", ThisObject, PlacedFiles);
 	UsersInternalClient.ShowSecurityWarning(Notification,
 		UsersInternalClientServer.SecurityWarningKinds().BeforeAddAddIn);
 	
@@ -330,7 +330,7 @@ Procedure AfterUpdateAddInFromPortal(Result, AdditionalParameters) Export
 EndProcedure
 
 /////////////////////////////////////////////////////////
-// Data presentation on the form.
+// Представление данных на форме.
 
 &AtServer
 Procedure SetFilter()

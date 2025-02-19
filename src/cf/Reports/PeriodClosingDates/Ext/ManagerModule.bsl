@@ -148,7 +148,7 @@ Function FirstOption()
 	OptionProperties.Insert("Name", VariantName);
 	
 	OptionProperties.Insert("Title",
-		NStr("en = 'Period-end closing dates by users';"));
+		NStr("en = 'Period-end closing dates by user';"));
 	
 	OptionProperties.Insert("LongDesc",
 		NStr("en = 'Displays period-end closing dates grouped by users.';"));
@@ -167,20 +167,20 @@ Function SecondOption()
 	
 	If Properties.ShowSections And Not Properties.AllSectionsWithoutObjects Then
 		VariantName = "PeriodClosingDatesBySectionsObjectsForUsers";
-		Title = NStr("en = 'Period-end closing dates by sections and objects';");
+		Title = NStr("en = 'Period-end closing dates by section and object';");
 		OptionDetails =
-			NStr("en = 'Displays period-end closing dates grouped by sections with objects.';");
+			NStr("en = 'Displays period-end closing dates grouped by section and object.';");
 		
 	ElsIf Properties.AllSectionsWithoutObjects Then
 		VariantName = "PeriodClosingDatesBySectionsForUsers";
-		Title = NStr("en = 'Period-end closing dates by sections';");
+		Title = NStr("en = 'Period-end closing dates by section';");
 		OptionDetails =
-			NStr("en = 'Displays period-end closing dates grouped by sections.';");
+			NStr("en = 'Displays period-end closing dates grouped by section.';");
 	Else
 		VariantName = "PeriodClosingDatesByObjectsForUsers";
-		Title = NStr("en = 'Period-end closing dates by objects';");
+		Title = NStr("en = 'Period-end closing dates by object';");
 		OptionDetails =
-			NStr("en = 'Displays period-end closing dates grouped by objects.';");
+			NStr("en = 'Displays period-end closing dates grouped by object.';");
 	EndIf;
 	
 	OptionProperties = New Structure;

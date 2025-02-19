@@ -16,6 +16,8 @@ Var DragSourceAtClient;
 Var DragDestinationAtClient;
 &AtClient
 Var List_BeforeStartChanges;
+&AtServer
+Var NonExistentFields;
 
 #EndRegion
 
@@ -183,7 +185,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	StandardProcessing = False;
 	
 	If Not SelectionResultGenerated Then
-		Notification = New NotifyDescription("ConfirmAndClose", ThisObject);
+		Notification = New CallbackDescription("ConfirmAndClose", ThisObject);
 		Modified = Modified Or VariantModified Or UserSettingsModified;
 		CommonClient.ShowFormClosingConfirmation(Notification, Cancel, Exit,
 			NStr("en = 'The settings were changed. Save the changes?';"));
@@ -197,8 +199,8 @@ EndProcedure
 &AtClient
 Procedure ConfirmAndClose(Result = Undefined, AdditionalParameters = Undefined) Export
 	
-	If OnCloseNotifyDescription <> Undefined Then
-		ExecuteNotifyProcessing(OnCloseNotifyDescription, SelectionResult(False));
+	If CallbackDescriptionOnClose <> Undefined Then
+		RunCallback(CallbackDescriptionOnClose, SelectionResult(False));
 	EndIf;
 	
 	Close();
@@ -279,8 +281,7 @@ Procedure OutputFiltersOnChange(Item)
 	DetermineIfModified();
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Attachable objects.
+#Region PlugIns
 
 &AtClient
 Procedure Attachable_Period_OnChange(Item)
@@ -409,9 +410,9 @@ Procedure Attachable_List_ChoiceProcessing(Item, SelectionResult, StandardProces
 	
 	If AddOn.Total > 0 Then
 		If AddOn.Total = 1 Then
-			NotificationTitle = NStr("en = 'The item added to the list.';");
+			NotificationTitle = NStr("en = 'Item added to list';");
 		Else
-			NotificationTitle = NStr("en = 'The items added to the list.';");
+			NotificationTitle = NStr("en = 'Items added to list';");
 		EndIf;
 		
 		ShowUserNotification(
@@ -473,6 +474,8 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 #Region FormTableItemsEventHandlersSort
 
 &AtClient
@@ -504,7 +507,7 @@ Procedure SortBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parameter)
 		Return;
 	EndIf;
 	
-	SelectField("Sort", New NotifyDescription("SortAfterFieldChoice", ThisObject));
+	SelectField("Sort", New CallbackDescription("SortAfterFieldChoice", ThisObject));
 EndProcedure
 
 &AtClient
@@ -703,7 +706,7 @@ Procedure SelectedFields_Group(Command)
 	EndIf;
 	
 	FormParameters = New Structure("Placement", DataCompositionFieldPlacement.Auto);
-	Handler = New NotifyDescription("SelectedFieldsBeforeGroupFields", ThisObject, GroupingParameters);
+	Handler = New CallbackDescription("SelectedFieldsBeforeGroupFields", ThisObject, GroupingParameters);
 	OpenForm("SettingsStorage.ReportsVariantsStorage.Form.SelectedFieldsGroup", FormParameters, 
 		ThisObject, UUID,,, Handler, FormWindowOpeningMode.LockOwnerWindow);
 EndProcedure
@@ -712,7 +715,7 @@ EndProcedure
 Procedure SelectedFields_Ungroup(Command)
 	RowsIDs = Items.SelectedFields.SelectedRows;
 	If RowsIDs.Count() <> 1 Then 
-		ShowMessageBox(, NStr("en = 'Select a group.';"));
+		ShowMessageBox(, NStr("en = 'Select one group.';"));
 		Return;
 	EndIf;
 	
@@ -910,7 +913,7 @@ EndProcedure
 Procedure Filters_Ungroup(Command)
 	RowsIDs = Items.Filters.SelectedRows;
 	If RowsIDs.Count() <> 1 Then 
-		ShowMessageBox(, NStr("en = 'Select a group.';"));
+		ShowMessageBox(, NStr("en = 'Select one group.';"));
 		Return;
 	EndIf;
 	
@@ -1384,7 +1387,7 @@ Procedure ChangeFormula(Command)
 	Formula = ReportsOptionsInternalClientServer.TheFormulaOnTheDataPath(Report.SettingsComposer.Settings, String(String.Field));
 	
 	If TypeOf(Formula) <> Type("DataCompositionUserFieldExpression") Then
-		NotifyDescription = New NotifyDescription("WhenClosingSettingsFormForTechnician", ThisObject);
+		NotifyDescription = New CallbackDescription("WhenClosingSettingsFormForTechnician", ThisObject);
 		OpenSettingsFormForTechnician("UserFieldsPage", NotifyDescription);
 		Return;
 	EndIf;
@@ -1754,7 +1757,7 @@ Procedure OptionStructure_MoveDownAndRight(Command)
 			SubordinateRow = SubordinateRows[LineNumber-1];
 			List.Add(SubordinateRow.GetID(), SubordinateRow.Presentation);
 		EndDo;
-		Handler = New NotifyDescription("OptionStructure_MoveTo", ThisObject, ExecutionParameters);
+		Handler = New CallbackDescription("OptionStructure_MoveTo", ThisObject, ExecutionParameters);
 		ShowChooseFromMenu(Handler, List);
 	EndIf;
 	
@@ -1882,7 +1885,7 @@ Procedure GroupingCompositionBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group,
 		Return;
 	EndIf;
 	
-	SelectField("GroupingComposition", New NotifyDescription("GroupCompositionAfterFieldChoice", ThisObject));
+	SelectField("GroupingComposition", New CallbackDescription("GroupCompositionAfterFieldChoice", ThisObject));
 EndProcedure
 
 &AtClient
@@ -1961,7 +1964,7 @@ Procedure AppearanceSelection(Item, RowID, Field, StandardProcessing)
 		If String(String.Id) = "TITLE"
 			And Field = Items.AppearanceTitle Then 
 			
-			Handler = New NotifyDescription("AppearanceTitleInputCompletion", ThisObject, RowID);
+			Handler = New CallbackDescription("AppearanceTitleInputCompletion", ThisObject, RowID);
 			ShowInputString(Handler, String.Value, NStr("en = 'Printing header';"),, True);
 		EndIf;
 	ElsIf Field = Items.AppearanceTitle Then // Change the order.
@@ -2007,16 +2010,14 @@ EndProcedure
 
 &AtClient
 Procedure CustomizeHeadersFooters(Command)
-	Var Settings;
 	
-	Report.SettingsComposer.Settings.AdditionalProperties.Property("HeaderOrFooterSettings", Settings);
-	
-	OpenForm("CommonForm.HeaderAndFooterSettings",
-		New Structure("Settings", Settings),
-		ThisObject,
-		UUID,,,
-		New NotifyDescription("RememberHeaderFooterSettings", ThisObject),
+	Var HeaderOrFooterSettings;
+	Report.SettingsComposer.Settings.AdditionalProperties.Property("HeaderOrFooterSettings", HeaderOrFooterSettings);
+	OpenForm("CommonForm.HeaderAndFooterSettings", New Structure("Settings, IsCustomSettings", HeaderOrFooterSettings, True),
+		ThisObject, UUID,,,
+		New CallbackDescription("RememberHeaderFooterSettings", ThisObject),
 		FormWindowOpeningMode.LockOwnerWindow);
+	
 EndProcedure
 
 #EndRegion
@@ -2039,7 +2040,7 @@ Procedure EditFiltersConditions(Command)
 	FormParameters.Insert("OwnerFormType", ReportFormType);
 	FormParameters.Insert("ReportSettings", ReportSettings);
 	FormParameters.Insert("SettingsComposer", Report.SettingsComposer);
-	Handler = New NotifyDescription("EditFiltersConditionsCompletion", ThisObject);
+	Handler = New CallbackDescription("EditFiltersConditionsCompletion", ThisObject);
 	OpenForm("SettingsStorage.ReportsVariantsStorage.Form.ReportFiltersConditions", FormParameters, ThisObject, True,,, Handler);
 EndProcedure
 
@@ -2074,8 +2075,7 @@ Procedure GoToSettingsForTechnician(Command)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Attachable commands.
+#Region AttachableCommands
 
 &AtClient
 Procedure Attachable_SelectPeriod(Command)
@@ -2126,11 +2126,13 @@ Procedure Attachable_List_PasteFromClipboard(Command)
 	SearchParameters.Insert("Scenario", "PastingFromClipboard");
 	SearchParameters.Insert("ChoiceParameters", ChoiceParameters);
 	
-	Handler = New NotifyDescription("PasteFromClipboard1Completion", ThisObject, ListPath);
+	Handler = New CallbackDescription("PasteFromClipboard1Completion", ThisObject, ListPath);
 	
 	ModuleDataImportFromFileClient = CommonClient.CommonModule("ImportDataFromFileClient");
 	ModuleDataImportFromFileClient.ShowRefFillingForm(SearchParameters, Handler);
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -2151,7 +2153,7 @@ EndFunction
 
 #Region GroupFields
 
-// Read settings.
+// Чтение настроек.
 
 &AtServer
 Procedure UpdateGroupFields()
@@ -2194,7 +2196,7 @@ Procedure UpdateGroupFields()
 	EndDo;
 EndProcedure
 
-// Add and modify items.
+// Добавление, изменение элементов.
 
 &AtClient
 Procedure GroupContentSelectField(RowID, String)
@@ -2202,7 +2204,7 @@ Procedure GroupContentSelectField(RowID, String)
 		Report.SettingsComposer, "GroupFields", SettingsStructureItemID);
 	SettingItem = SettingItem(StructureItemProperty, String);
 	
-	Handler = New NotifyDescription("GroupCompositionAfterFieldChoice", ThisObject, RowID);
+	Handler = New CallbackDescription("GroupCompositionAfterFieldChoice", ThisObject, RowID);
 	SelectField("GroupingComposition", Handler, SettingItem.Field);
 EndProcedure
 
@@ -2253,7 +2255,7 @@ Procedure GroupCompositionAfterFieldChoice(SettingDetails, RowID) Export
 	DetermineIfModified();
 EndProcedure
 
-// Shift items.
+// Сдвиг элементов.
 
 &AtClient
 Procedure ShiftGroupField(ToBeginning = True)
@@ -2301,7 +2303,7 @@ EndProcedure
 
 #Region DataParametersAndFilters
 
-// Read settings.
+// Чтение настроек.
 
 &AtServer
 Procedure UpdateDataParameters()
@@ -2463,11 +2465,11 @@ Function SetFiltersRowData(String, StructureItemProperty, SettingItem, SettingDe
 	Return InstalledSuccessfully1;
 EndFunction
 
-// Add and modify items.
+// Добавление, изменение элементов.
 
 &AtClient
 Procedure FiltersSelectGroup(RowID)
-	Handler = New NotifyDescription("FiltersAfterGroupChoice", ThisObject, RowID);
+	Handler = New CallbackDescription("FiltersAfterGroupChoice", ThisObject, RowID);
 	
 	List = New ValueList;
 	List.Add(DataCompositionFilterItemsGroupType.AndGroup);
@@ -2519,7 +2521,7 @@ Procedure QualifiersBeforeSelectField(RowID = Undefined)
 		EndIf;
 	EndIf;
 	
-	Handler = New NotifyDescription("FiltersAfterFieldChoice", ThisObject, RowID);
+	Handler = New CallbackDescription("FiltersAfterFieldChoice", ThisObject, RowID);
 	SelectField("Filters", Handler);
 EndProcedure
 
@@ -2736,7 +2738,7 @@ Procedure List_AtStartChanges()
 	
 EndProcedure
 
-// Modify item grouping.
+// Изменение группировки элементов.
 
 // Returns:
 //  Structure:
@@ -2842,7 +2844,7 @@ Procedure DeleteBasicFiltersGroupingItems(SettingsNodeFilters, GroupingParameter
 	EndDo;
 EndProcedure
 
-// Drag items.
+// Перетаскивание элементов.
 
 &AtClient
 Procedure CheckDraggableRowsFromSelections(RowsIDs)
@@ -2957,7 +2959,7 @@ Procedure DragAndDropFilters(SelectedSettingsNodeFields, IndexOf, Rows, Settings
 	EndDo;
 EndProcedure
 
-// Shift items.
+// Сдвиг элементов.
 
 &AtClient
 Procedure ShiftFilters(ToBeginning = True)
@@ -3040,7 +3042,7 @@ EndFunction
 
 #Region SelectedFields
 
-// Read settings.
+// Чтение настроек.
 
 &AtServer
 Procedure UpdateSelectedFields(Rows = Undefined, SettingsItems = Undefined)
@@ -3095,7 +3097,7 @@ Procedure UpdateSelectedFields(Rows = Undefined, SettingsItems = Undefined)
 	EndDo;
 EndProcedure
 
-// Add and modify items.
+// Добавление, изменение элементов.
 
 &AtClient
 Procedure SelectedFieldsSelectGroup(RowID, String)
@@ -3108,7 +3110,7 @@ Procedure SelectedFieldsSelectGroup(RowID, String)
 	FormParameters.Insert("GroupTitle", String.Title);
 	FormParameters.Insert("Placement", SettingItem.Placement);
 	
-	Handler = New NotifyDescription("SelectedFieldsAfterGroupChoice", ThisObject, RowID);
+	Handler = New CallbackDescription("SelectedFieldsAfterGroupChoice", ThisObject, RowID);
 	
 	OpenForm("SettingsStorage.ReportsVariantsStorage.Form.SelectedFieldsGroup",
 		FormParameters, ThisObject, UUID,,, Handler, FormWindowOpeningMode.LockOwnerWindow);
@@ -3151,7 +3153,7 @@ Procedure SelectedFieldsSelectField(RowID, String)
 	
 	SettingItem = SettingItem(StructureItemProperty, String);
 	
-	Handler = New NotifyDescription("SelectedFieldsAfterFieldChoice", ThisObject, RowID);
+	Handler = New CallbackDescription("SelectedFieldsAfterFieldChoice", ThisObject, RowID);
 	SelectField("SelectedFields", Handler, SettingItem.Field);
 EndProcedure
 
@@ -3231,11 +3233,11 @@ Procedure SelectedFieldsBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Para
 		Return;
 	EndIf;
 	
-	Handler = New NotifyDescription("SelectedFieldsAfterFieldChoice", ThisObject);
+	Handler = New CallbackDescription("SelectedFieldsAfterFieldChoice", ThisObject);
 	SelectField("SelectedFields", Handler);
 EndProcedure
 
-// Modify item grouping.
+// Изменение группировки элементов.
 
 // Returns:
 //  - Structure:
@@ -3411,7 +3413,7 @@ Function SelectedFieldsGroupTitle(SettingItem, StructureItemProperty = Undefined
 	Return GroupTitle;
 EndFunction
 
-// Drag items.
+// Перетаскивание элементов.
 
 &AtClient
 Procedure CheckRowsToDragFromSelectedFields(RowsIDs)
@@ -3535,7 +3537,7 @@ Procedure DragSelectedFields(SelectedSettingsNodeFields, IndexOf, Rows, Settings
 	EndDo;
 EndProcedure
 
-// Shift items.
+// Сдвиг элементов.
 
 &AtClient
 Procedure ShiftSelectedFields(ToBeginning = True)
@@ -3614,7 +3616,7 @@ Function ShiftParametersOfSelectedFields()
 	Return New Structure("Rows, Parent", ArraySort(Rows), Parents[0]);
 EndFunction
 
-// Common.
+// Common
 
 &AtClientAtServerNoContext
 Procedure CastValueToComparisonKind(String, SettingItem = Undefined)
@@ -3717,7 +3719,7 @@ Function ChoiceOverride(String, StandardProcessing)
 		CurrentValue = String.RightValue;
 	EndIf;
 	
-	Handler = New NotifyDescription("CompleteChoiceFromList", ThisObject, String.GetID());
+	Handler = New CallbackDescription("CompleteChoiceFromList", ThisObject, String.GetID());
 	
 	PropertyKey = SettingsStructureItemPropertyKey("Filters", String);
 	
@@ -3750,7 +3752,7 @@ Procedure ShowChoiceList(String, StandardProcessing, Item)
 		CurrentValue = String.RightValue;
 	EndIf;
 	
-	Handler = New NotifyDescription("CompleteChoiceFromList", ThisObject, String.GetID());
+	Handler = New CallbackDescription("CompleteChoiceFromList", ThisObject, String.GetID());
 	AvailableTypes = SelectableTypes(String.ValueType);
 	
 	If ReportsClient.IsSelectMetadataObjects(AvailableTypes, CurrentValue, Handler) Then
@@ -3779,7 +3781,7 @@ Procedure ShowChoiceList(String, StandardProcessing, Item)
 	Else
 		ReportsClient.StartSelectUsers(ThisObject,
 			Item, AvailableTypes, CurrentValue, ValueField.ChoiceParameters, Handler,
-			New NotifyDescription("ShowChoiceListFollowUp", ThisObject, Context));
+			New CallbackDescription("ShowChoiceListFollowUp", ThisObject, Context));
 	EndIf;
 	
 EndProcedure
@@ -3872,7 +3874,7 @@ EndProcedure
 
 #Region Order
 
-// Read settings.
+// Чтение настроек.
 
 &AtServer
 Procedure UpdateSorting()
@@ -3913,7 +3915,7 @@ Procedure UpdateSorting()
 	EndDo;
 EndProcedure
 
-// Add and modify items.
+// Добавление, изменение элементов.
 
 &AtClient
 Procedure SortingSelectField(RowID, String)
@@ -3922,7 +3924,7 @@ Procedure SortingSelectField(RowID, String)
 	
 	SettingItem = SettingItem(StructureItemProperty, String);
 	
-	Handler = New NotifyDescription("SortAfterFieldChoice", ThisObject, RowID);
+	Handler = New CallbackDescription("SortAfterFieldChoice", ThisObject, RowID);
 	SelectField("Sort", Handler, SettingItem.Field);
 EndProcedure
 
@@ -4008,7 +4010,7 @@ Procedure ChangeOrderType(String)
 	DetermineIfModified();
 EndProcedure
 
-// Drag items.
+// Перетаскивание элементов.
 
 // Parameters:
 //  Rows - Array of FormDataTreeItem:
@@ -4163,7 +4165,7 @@ Function FindSelectedField(SelectedSettingsNodeFields, Field)
 	Return FoundField;
 EndFunction
 
-// Shift items.
+// Сдвиг элементов.
 
 &AtClient
 Procedure ShiftSorting(ToBeginning = True)
@@ -4218,7 +4220,7 @@ EndProcedure
 
 #Region Appearance
 
-// Read settings.
+// Чтение настроек.
 
 &AtServer
 Procedure UpdateAppearance()
@@ -4310,11 +4312,11 @@ Procedure ReadPredefinedAppearanceParameters()
 	String.IsOutputParameter = True;
 EndProcedure
 
-// Add and modify items.
+// Добавление, изменение элементов.
 
 &AtClient
 Procedure AppearanceChangeItem(RowID = Undefined, String = Undefined)
-	Handler = New NotifyDescription("AppearanceChangeItemCompletion", ThisObject, RowID);
+	Handler = New CallbackDescription("AppearanceChangeItemCompletion", ThisObject, RowID);
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("ReportSettings", ReportSettings);
@@ -4443,7 +4445,7 @@ Procedure AppearanceTitleInputCompletion(Value, Id) Export
 	DetermineIfModified();
 EndProcedure
 
-// Shift items.
+// Сдвиг элементов.
 
 &AtClient
 Procedure ShiftAppearance(ToBeginning = True)
@@ -4505,7 +4507,7 @@ Procedure ShiftAppearance(ToBeginning = True)
 	DetermineIfModified();
 EndProcedure
 
-// Item usage.
+// Использование элементов.
 
 &AtClient
 Procedure ChangePredefinedOutputParametersUsage(Use = True)
@@ -4546,7 +4548,7 @@ EndProcedure
 
 #Region Structure
 
-// Read settings.
+// Чтение настроек.
 
 &AtServer
 Procedure UpdateStructure()
@@ -4793,7 +4795,7 @@ Procedure SetFlagsOfNestedSettingsItems(StructureItem, StructureItemProperties)
 	EndIf;
 EndProcedure
 
-// Add and modify items.
+// Добавление, изменение элементов.
 
 &AtClient
 Procedure AddOptionStructureGrouping(NextLevel = True)
@@ -4834,7 +4836,7 @@ Procedure AddOptionStructureGrouping(NextLevel = True)
 		EndDo;
 	EndIf;
 	
-	Handler = New NotifyDescription("OptionStructureAfterSelectField", ThisObject, ExecutionParameters);
+	Handler = New CallbackDescription("OptionStructureAfterSelectField", ThisObject, ExecutionParameters);
 	SelectField("OptionStructure", Handler, Undefined, StructureItemID);
 EndProcedure
 
@@ -4873,7 +4875,7 @@ Procedure AddSettingsStructureItem(ElementType)
 		SubordinateRow.Subtype = "ChartPoints";
 		SubordinateRow.Id = StructureItemProperty.GetIDByObject(SubordinateSettingItem);
 		SubordinateRow.Picture = -1;
-		SubordinateRow.Presentation = NStr("en = 'Dots';");
+		SubordinateRow.Presentation = NStr("en = 'Points';");
 		
 		SubordinateSettingItem = SettingItem.Series;
 		SubordinateRow = SubordinateRows.Add(); // See SettingsFormCollectionItem
@@ -5208,7 +5210,7 @@ Procedure ChangeStructureItem(String, PageName = Undefined, UseOptionForm = Unde
 			Or String.Type = "DataCompositionNestedObjectSettings");
 	EndIf;
 	
-	Handler = New NotifyDescription("ChangeStructureItemCompletion", ThisObject);
+	Handler = New CallbackDescription("ChangeStructureItemCompletion", ThisObject);
 	
 	TitleTemplate1 = NStr("en = '%1 settings of report %2';");
 	If String.Type = "DataCompositionChart" Then
@@ -5346,7 +5348,7 @@ Procedure StartListFilling(Item, FillParameters, ChoiceOverride = Undefined, IsP
 		FillParameters.Insert("CurrentRow", MarkedValues[0].Value);
 	EndIf;
 	
-	Handler = New NotifyDescription("CompleteListFilling", ThisObject, FillParameters);
+	Handler = New CallbackDescription("CompleteListFilling", ThisObject, FillParameters);
 	
 	If ReportsClient.ChoiceOverride(ThisObject, Handler, InformationRecords.LongDesc,
 			ValueType, MarkedValues, ChoiceParameters) Then
@@ -5379,7 +5381,7 @@ Procedure StartListFilling(Item, FillParameters, ChoiceOverride = Undefined, IsP
 	If CommonClientServer.StructureProperty(FillParameters, "IsPick", False) Then
 		ReportsClient.StartSelectUsers(ThisObject,
 			Item, ValueType, MarkedValues, ChoiceParameters, Handler,
-			New NotifyDescription("StartListPopulationFollowUp", ThisObject, Context));
+			New CallbackDescription("StartListPopulationFollowUp", ThisObject, Context));
 	Else
 		StartListPopulationFollowUp(Undefined, Context);
 	EndIf;
@@ -5403,7 +5405,7 @@ Procedure StartListPopulationFollowUp(SelectedElement, Context) Export
 	AvailableTypes = New ValueList;
 	AvailableTypes.LoadValues(Context.Types);
 	
-	Handler = New NotifyDescription("ContinueFillingList", ThisObject, Context.FillParameters);
+	Handler = New CallbackDescription("ContinueFillingList", ThisObject, Context.FillParameters);
 	ShowChooseFromMenu(Handler, AvailableTypes, Context.Item);
 EndProcedure
 
@@ -5829,8 +5831,7 @@ Procedure SetDeletionMark(CollectionName, String)
 	EndIf;
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Client
+#Region Client
 
 &AtClient
 Procedure WriteAndClose(Regenerate)
@@ -6148,8 +6149,9 @@ Function TheseAreSubordinateElements(ParentElementOfTree, TreeItem)
 	Return False;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Client - Fields tables (universal entry points).
+#EndRegion
+
+#Region FieldsTableClientUniversalEntryPoint
 
 &AtClient
 Procedure SelectTheDisplayModeForRows(PropertiesOfSettingsElements, CollectionName, ShowCheckBoxesModes = False, CurrentDisplayMode = Undefined)
@@ -6183,7 +6185,7 @@ EndProcedure
 Procedure SelectTheDisplayModeForTheLine(SettingsNodeFilters, CollectionName, RowID, ShowInputModes, ShowCheckBoxesModes, CurrentDisplayMode = Undefined)
 	
 	Context = New Structure("SettingsNodeFilters, CollectionName, RowID", SettingsNodeFilters, CollectionName, RowID);
-	Handler = New NotifyDescription("AfterSelectingTheLineDisplayMode", ThisObject, Context);
+	Handler = New CallbackDescription("AfterSelectingTheLineDisplayMode", ThisObject, Context);
 	
 	AvailableDisplayModes = AvailableDisplayModes(ShowCheckBoxesModes);
 	
@@ -6191,7 +6193,7 @@ Procedure SelectTheDisplayModeForTheLine(SettingsNodeFilters, CollectionName, Ro
 		ShowChooseFromMenu(Handler, AvailableDisplayModes);
 	Else
 		ViewMode = AvailableDisplayModes.FindByValue(CurrentDisplayMode);
-		ExecuteNotifyProcessing(Handler, ViewMode);
+		RunCallback(Handler, ViewMode);
 	EndIf;
 	
 EndProcedure
@@ -6344,8 +6346,9 @@ Function SettingItemDisplayModePicture(SettingItem)
 	Return DisplayModePicture;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Client - fields tables (functional part).
+#EndRegion
+
+#Region FieldsTableClientFunctionalPart
 
 // Parameters:
 //  SettingsNode - DataCompositionSettings
@@ -6587,8 +6590,9 @@ Procedure UpdateOptionStructureItemTitle(String)
 	EndIf;
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Client or server.
+#EndRegion
+
+#Region ClientOrServer
 
 &AtClientAtServerNoContext
 Function ArraySort(SourceArray, Direction = Undefined)
@@ -6603,8 +6607,9 @@ Function ArraySort(SourceArray, Direction = Undefined)
 	Return List.UnloadValues();
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Server call.
+#EndRegion
+
+#Region ServerCall
 
 &AtServer
 Procedure UpdateForm(ParametersOfUpdate)
@@ -6649,7 +6654,9 @@ Procedure UpdateSettingsFormCollections()
 	
 	// Searching for items marked for deletion.
 	MarkedForDeletion.Clear();
+	NonExistentFields = New Map;
 	FindFieldsMarkedForDeletion();
+	SetNonExistentFieldsHint(NonExistentFields);
 EndProcedure
 
 &AtServer
@@ -6914,8 +6921,9 @@ Procedure UpdateFormItemsProperties()
 #EndRegion
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Server.
+#EndRegion
+
+#Region Server
 
 &AtServer
 Procedure DefineBehaviorInMobileClient()
@@ -7718,9 +7726,11 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 #Region ProcessFieldsMarkedForDeletion
 
-// Search for fields marked for deletion.
+// Поиск полей, помеченных на удаление.
 
 &AtServer
 Procedure FindFieldsMarkedForDeletion(Val StructureItems = Undefined)
@@ -7793,6 +7803,7 @@ Procedure FindSelectedFieldsMarkedForDeletion(Settings, Val StructureItem = Unde
 		Record.StructureItemID = Settings.GetIDByObject(StructureItem);
 		Record.ItemID = StructureItemProperty.GetIDByObject(SettingItem);
 		Record.KeyStructureItemProperties = "Selection";
+		AddNonExistentField(SettingItem.Field, NStr("en = 'Select';"));
 	EndDo;
 EndProcedure
 
@@ -7822,6 +7833,7 @@ Procedure FindFilterFieldsMarkedForDeletion(Settings, Val StructureItem = Undefi
 		Record.StructureItemID = Settings.GetIDByObject(StructureItem);
 		Record.ItemID = StructureItemProperty.GetIDByObject(SettingItem);
 		Record.KeyStructureItemProperties = "Filter";
+		AddNonExistentField(SettingItem.LeftValue, NStr("en = 'Filter';"));
 	EndDo;
 EndProcedure
 
@@ -7845,6 +7857,7 @@ Procedure FindOrderFieldsMarkedForDeletion(Settings, Val StructureItem = Undefin
 		Record.StructureItemID = Settings.GetIDByObject(StructureItem);
 		Record.ItemID = StructureItemProperty.GetIDByObject(SettingItem);
 		Record.KeyStructureItemProperties = "Order";
+		AddNonExistentField(SettingItem.Field, NStr("en = 'Order';"));
 	EndDo;
 EndProcedure
 
@@ -7867,6 +7880,7 @@ Procedure FindConditionalAppearanceItemsMarkedForDeletion(Settings, Val Structur
 			Record.StructureItemID = Settings.GetIDByObject(StructureItem);
 			Record.ItemID = StructureItemProperty.GetIDByObject(SettingItem);
 			Record.KeyStructureItemProperties = "ConditionalAppearance";
+			AddNonExistentField(Item.Field, NStr("en = 'Conditional appearance';"));
 		EndDo;
 		
 		FindConditionalAppearanceFilterItemsMarkedForDeletion(Settings, StructureItem, SettingItem);
@@ -7896,6 +7910,7 @@ Procedure FindConditionalAppearanceFilterItemsMarkedForDeletion(Settings, Struct
 		Record.StructureItemID = Settings.GetIDByObject(StructureItem);
 		Record.ItemID = StructureItemProperty.GetIDByObject(AppearanceItem);
 		Record.KeyStructureItemProperties = "ConditionalAppearance";
+		AddNonExistentField(SettingItem.LeftValue, NStr("en = 'Conditional appearance';"));
 	EndDo;
 EndProcedure
 
@@ -7915,6 +7930,7 @@ Procedure FindGroupingFieldsMarkedForDeletion(Settings, StructureItem)
 		Record.StructureItemID = Settings.GetIDByObject(StructureItem);
 		Record.ItemID = StructureItemProperty.GetIDByObject(SettingItem);
 		Record.KeyStructureItemProperties = "GroupFields";
+		AddNonExistentField(SettingItem.Field, NStr("en = 'Grouping fields';"));
 	EndDo;
 EndProcedure
 
@@ -7953,14 +7969,52 @@ Function RepresentationOfACollectionOfAStructureElement(CollectionName)
 	PresentationOfCollections.Insert("Structure", NStr("en = 'Structure';"));
 	PresentationOfCollections.Insert("Rows", NStr("en = 'Rows';"));
 	PresentationOfCollections.Insert("Columns", NStr("en = 'Columns';"));
-	PresentationOfCollections.Insert("Points", NStr("en = 'Dots';"));
+	PresentationOfCollections.Insert("Points", NStr("en = 'Points';"));
 	PresentationOfCollections.Insert("Series", NStr("en = 'Series';"));
 	
 	Return PresentationOfCollections[CollectionName];
 	
 EndFunction
 
-// Delete fields marked for deletion.
+&AtServer
+Procedure AddNonExistentField(Val FieldName, Val CollectionName)
+	
+	FieldName = String(FieldName);
+	CollectionName = String(CollectionName);
+	
+	Properties = NonExistentFields.Get(FieldName);
+	If Properties = Undefined Then
+		Properties = New Array;
+		NonExistentFields.Insert(FieldName, Properties);
+	EndIf;
+	
+	If Properties.Find(CollectionName) = Undefined Then
+		Properties.Add(CollectionName);
+	EndIf;
+	
+EndProcedure
+
+&AtServer
+Procedure SetNonExistentFieldsHint(NonExistentFields)
+	
+	ToolTipText =
+		NStr("en = 'Non-existent fields occur when the report author removes or disables fields.
+		           |Non-existent fields might cause report generation issues.
+		           |Remove non-existent fields from report settings or replace them with existent fields.';");
+	
+	Rows = New Array;
+	For Each KeyAndValue In NonExistentFields Do
+		Rows.Add("- " + KeyAndValue.Key + " (" + StrConcat(KeyAndValue.Value, ", ") + ")");
+	EndDo;
+	
+	Items.HasNonexistentFieldsGroup.ExtendedTooltip.Title = ToolTipText
+		+ Chars.LF + Chars.LF
+		+ NStr("en = 'Non-existent fields:';")
+		+ Chars.LF + StrConcat(Rows, Chars.LF);
+	
+EndProcedure
+
+// Удаление полей, помеченных на удаление.
 
 &AtClient
 Procedure DeleteFiedsMarkedForDeletion()
@@ -8011,7 +8065,7 @@ EndProcedure
 
 #EndRegion
 
-// ACC:568-on Adjust code (fixes typifying issue).
+// ACC:568-выкл выполняет задачу адаптации кода (исправление проблем типизации).
 
 // Parameters:
 //  Collection - FormDataTree

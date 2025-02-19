@@ -12,9 +12,7 @@
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Logic of external resource permissions setup wizard.
-//
+#Region LogicOfExternalResourcesUsagePermissionsSetupWizard
 
 // For internal use.
 //
@@ -228,8 +226,8 @@ Procedure CommitRequests(Val State) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Managing registers used for storing granted permissions on using external resources.
-// 
+// Managing registers used for storing granted permissions
+// on using external resources.
 //
 
 // Sets an exclusive managed lock for tables of all registers used
@@ -315,9 +313,9 @@ Procedure ClearPermissions(Val ProgramModule = Undefined, Val ClearAttachmentMod
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Processing permission tables.
-//
+#EndRegion
+
+#Region PermissionTablesManagement
 
 // Returns a permission table row that meets the filter condition.
 // If the table does not contain rows meeting the filter condition, a new one can be added.
@@ -369,5 +367,6 @@ EndFunction
 
 #EndRegion
 
-#EndIf
+#EndRegion
 
+#EndIf

@@ -144,7 +144,7 @@ Procedure WriteAuthorizationSettingsForStandardODataInterface(Val AuthorizationS
 				Common.ValueToXMLString(AbbreviatedDetails));
 			
 			WriteLogEvent(
-				NStr("en = 'Configure the standard OData interface.Save user';", Common.DefaultLanguageCode()),
+				NStr("en = 'Set up standard OData interface.Save user';", Common.DefaultLanguageCode()),
 				EventLogLevel.Information,
 				Metadata.Catalogs.Users,
 				,
@@ -167,7 +167,7 @@ Procedure WriteAuthorizationSettingsForStandardODataInterface(Val AuthorizationS
 				Common.ValueToXMLString(IBUserDetails));
 			
 			WriteLogEvent(
-				NStr("en = 'Configure the standard OData interface.Save user';", Common.DefaultLanguageCode()),
+				NStr("en = 'Set up standard OData interface.Save user';", Common.DefaultLanguageCode()),
 				EventLogLevel.Error,
 				Metadata.Catalogs.Users,
 				,
@@ -344,7 +344,7 @@ Function ODataRoleCompositionErrors(ErrorsByObjects = Undefined) Export
 	
 	Errors = New Array();
 	If ExcessRights.Count() > 0 Then
-		ErrorText = Chars.NBSp + NStr("en = 'The following rights are excessively included in the role:';") + Chars.LF + Chars.CR
+		ErrorText = Chars.NBSp + NStr("en = 'The role contains the following redundant rights:';") + Chars.LF + Chars.CR
 			+ ExcessOrMissingRightsPresentation(ExcessRights, 2);
 		Errors.Add(ErrorText);
 	EndIf;
@@ -359,7 +359,7 @@ Function ODataRoleCompositionErrors(ErrorsByObjects = Undefined) Export
 		For Each KeyAndValue In ExcessRights Do
 			FullName = KeyAndValue.Key.FullName();
 			ErrorsByObjects.Insert(FullName, StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The following rights to object %1 are redundantly included in role %2: %3';"),
+				NStr("en = 'The %2 role contains the following redundant rights for object %1: %3';"),
 				FullName, Role.Name, StrConcat(KeyAndValue.Value, ", ")));
 		EndDo;
 		For Each KeyAndValue In MissingRights Do
@@ -664,7 +664,7 @@ Procedure CheckCanCreateUserForStandardODataInterfaceCalls()
 	SetPrivilegedMode(False);
 	
 	If UsersCount = 0 Then
-		Raise NStr("en = 'Cannot create a separate username and password for the automatic REST service, as there are no app users.';");
+		Raise NStr("en = 'Cannot create a separate username and password for the automatic REST service, as there are no application users.';");
 	EndIf;
 	
 EndProcedure

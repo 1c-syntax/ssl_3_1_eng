@@ -96,19 +96,12 @@ EndProcedure
 &AtClient
 Procedure ConnectionSettings(Command)
 	
-	Filter              = New Structure("Peer", ExchangeNode);
-	FillingValues = New Structure("Peer", ExchangeNode);
+	ClosingNotification1 = New CallbackDescription("ConnectionSettingsCompletion", ThisObject);
 	
-	ClosingNotification1 = New NotifyDescription("ConnectionSettingsCompletion", ThisObject);
+	FormParameters = New Structure("Peer", ExchangeNode);
 	
-	DataExchangeClient.OpenInformationRegisterWriteFormByFilter(
-		Filter,
-		FillingValues,
-		"DataExchangeTransportSettings",
-		ThisObject,
-		,
-		,
-		ClosingNotification1);
+	OpenForm("Catalog.ExchangeMessageTransportSettings.Form.TransportSettingPanel",
+		FormParameters,,,,, ClosingNotification1, FormWindowOpeningMode.LockOwnerWindow);
 	
 EndProcedure
 
@@ -122,10 +115,6 @@ EndProcedure
 Procedure OnStartTestConnection()
 	
 	ContinueWait = True;
-	
-	If ConnectOverExternalConnection Then
-		DataExchangeClient.CheckAndRegisterCOMConnector(ExchangeNode);
-	EndIf;
 	
 	OnStartTestConnectionAtServer(ContinueWait);
 	
@@ -176,19 +165,16 @@ EndProcedure
 &AtServer
 Procedure OnStartTestConnectionAtServer(ContinueWait)
 	
-	If TransportKind = Enums.ExchangeMessagesTransportTypes.WS
-		And (PromptForPassword Or ValueIsFilled(Endpoint)) Then
-		ConnectionSettings = InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(ExchangeNode, WSPassword);
-	Else
-		ConnectionSettings = InformationRegisters.DataExchangeTransportSettings.TransportSettings(ExchangeNode, TransportKind);
-	EndIf;
-	ConnectionSettings.Insert("ExchangeMessagesTransportKind", TransportKind);
-	
+	ConnectionSettings = New Structure;
+	ConnectionSettings.Insert("Peer", ExchangeNode);
+	ConnectionSettings.Insert("TransportID", TransportID);
+	ConnectionSettings.Insert("TransportSettings", TransportSettings);
 	ConnectionSettings.Insert("ExchangePlanName", DataExchangeCached.GetExchangePlanName(ExchangeNode));
 	ConnectionSettings.Insert("CorrespondentExchangePlanName", 
 		DataExchangeCached.GetNameOfCorrespondentExchangePlan(ExchangeNode));
 		
 	ConnectionSettings.Insert("ExchangeSetupOption", "");
+	ConnectionSettings.Insert("AuthenticationData", AuthenticationData);
 	
 	ModuleSetupWizard = DataExchangeServer.ModuleDataExchangeCreationWizard();
 	
@@ -355,12 +341,12 @@ Procedure OnStartExportDataForMapping()
 			AttachIdleHandler("OnWaitForExportDataForMapping",
 				MappingDataExportIdleHandlerParameters.CurrentInterval, True);
 		Else
-			CallbackOnCompletion = New NotifyDescription("ExportMappingDataCompletion", ThisObject);
+			CallbackOnCompletion = New CallbackDescription("ExportMappingDataCompletion", ThisObject);
 		
 			IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 			IdleParameters.OutputIdleWindow = False;
 			IdleParameters.OutputProgressBar = UseProgress;
-			IdleParameters.ExecutionProgressNotification = New NotifyDescription("DataExportForMappingProgress", ThisObject);
+			IdleParameters.ExecutionProgressNotification = New CallbackDescription("DataExportForMappingProgress", ThisObject);
 			
 			TimeConsumingOperationsClient.WaitCompletion(MappingDataExportHandlerParameters.BackgroundJob,
 				CallbackOnCompletion, IdleParameters);
@@ -437,12 +423,9 @@ Procedure OnStartDataExportToMapAtServer(ContinueWait)
 		ModuleInteractiveExchangeWizard = DataExchangeServer.ModuleInteractiveDataExchangeWizardSaaS();
 	Else
 		ExportSettings1.Insert("ExchangeNode", ExchangeNode);
-		ExportSettings1.Insert("TransportKind", TransportKind);
-		
-		If TransportKind = Enums.ExchangeMessagesTransportTypes.WS
-			And PromptForPassword Then
-			ExportSettings1.Insert("WSPassword", WSPassword);
-		EndIf;
+		ExportSettings1.Insert("TransportID", TransportID);
+		ExportSettings1.Insert("TransportSettings", TransportSettings);
+		ExportSettings1.Insert("AuthenticationData", AuthenticationData);
 		
 		ModuleInteractiveExchangeWizard = DataExchangeServer.ModuleInteractiveDataExchangeWizard();
 	EndIf;
@@ -543,6 +526,8 @@ Procedure InitializeFormAttributes()
 	Parameters.Property("IsExchangeWithApplicationInService", IsExchangeWithApplicationInService);
 	Parameters.Property("CorrespondentDataArea",  CorrespondentDataArea);
 	
+	AuthenticationData = ExchangeMessagesTransport.DataSynchronizationPassword(ExchangeNode);
+	
 	InitializeTransportParameters();
 		
 	SetApplicationDescriptionInFormLabels();
@@ -552,39 +537,21 @@ EndProcedure
 &AtServer
 Procedure InitializeTransportParameters()
 	
-	TransportSettings = InformationRegisters.DataExchangeTransportSettings.TransportSettings(ExchangeNode);
-	TransportSettings.Property("DefaultExchangeMessagesTransportKind", TransportKind);
-	TransportSettings.Property("WSCorrespondentEndpoint", Endpoint);
+	TransportID = ExchangeMessagesTransport.DefaultTransport(ExchangeNode);
+	UseProgress = ExchangeMessagesTransport.TransportParameter(TransportID, "UseProgress");
 	
-	If Not ValueIsFilled(TransportKind) Then
-		TransportKind = Enums.ExchangeMessagesTransportTypes.WSPassiveMode;
-	EndIf;
-	
-	ConnectOverExternalConnection = (TransportKind = Enums.ExchangeMessagesTransportTypes.COM);
-	
-	UseProgress = Not IsExchangeWithApplicationInService
-		And Not TransportKind = Enums.ExchangeMessagesTransportTypes.WS
-		And Not TransportKind = Enums.ExchangeMessagesTransportTypes.WSPassiveMode;
-		
 	PromptForPassword              = False;
 	ConnectionCheckCompleted = False;
 	DataExportCompleted      = False;
+	TransportSettingAvailable  = False;
 	
-	TransportSettingAvailable  = Not (IsExchangeWithApplicationInService
-		Or TransportKind = Enums.ExchangeMessagesTransportTypes.WSPassiveMode);
+	PassiveMode = ExchangeMessagesTransport.TransportParameter(ExchangeNode, "PassiveMode");
 	
-	If TransportKind = Enums.ExchangeMessagesTransportTypes.WS Then
-			
-		TransportSettings = InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(ExchangeNode);
+	If PassiveMode Then
 		
-		PromptForPassword = Not (TransportSettings.WSRememberPassword
-			Or DataExchangeServer.DataSynchronizationPasswordSpecified(ExchangeNode));
-			
-	ElsIf TransportKind = Enums.ExchangeMessagesTransportTypes.WSPassiveMode Then
-			
 		ConnectionCheckCompleted = True;
 		DataExportCompleted      = True;
-		
+	
 	EndIf;
 	
 	FillNavigationTable();
@@ -643,7 +610,8 @@ Procedure FillNavigationTable()
 		NewNavigation.OnNavigationToNextPageHandlerName = "Attachable_PasswordRequestPageOnGoNext";
 	EndIf;
 	
-	If Not TransportKind = Enums.ExchangeMessagesTransportTypes.WSPassiveMode Then
+	PassiveMode = ExchangeMessagesTransport.TransportParameter(TransportID, "PassiveMode");
+	If Not PassiveMode Then
 		NewNavigation = AddNavigationTableRow("ConnectionTestPage", "PageNavigationWait");
 		NewNavigation.TimeConsumingOperation = True;
 		NewNavigation.TimeConsumingOperationHandlerName = "Attachable_ConnectionCheckPageTimeConsumingOperation";
@@ -654,7 +622,7 @@ Procedure FillNavigationTable()
 	NewNavigation.TimeConsumingOperation = True;
 	NewNavigation.TimeConsumingOperationHandlerName = "Attachable_ChangeRegistrationPageTimeConsumingOperation";
 	
-	If Not TransportKind = Enums.ExchangeMessagesTransportTypes.WSPassiveMode Then
+	If Not PassiveMode Then
 		If UseProgress Then
 			NewNavigation = AddNavigationTableRow("ExportDataProgressPage", "PageNavigationWait");
 		Else

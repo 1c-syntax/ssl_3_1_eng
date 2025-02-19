@@ -348,7 +348,7 @@ Function ProcessFormParameters(BasicQuestionsFormulations)
 	GetBasicQuestionsFormulations(BasicQuestionsFormulations);
 	
 	Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Responses to question %1 of survey %2, %3.';"), FullCode, SurveyDescription, Format(SurveyDate, "DLF=D"));
+		NStr("en = 'Answers to question %1 of survey %2 dated %3';"), FullCode, SurveyDescription, Format(SurveyDate, "DLF=D"));
 	
 	Return True;
 

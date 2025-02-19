@@ -41,7 +41,6 @@ Procedure OnStartExportDataForMapping(ExportSettings1, HandlerParameters, Contin
 		ExportSettings1.Peer);
 	ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
 	ExecutionParameters.RunNotInBackground1    = False;
-	ExecutionParameters.RunInBackground      = True;
 	
 	BackgroundJob = TimeConsumingOperations.ExecuteInBackground(
 		"DataProcessors.InteractiveDataExchangeWizardSaaS.ExportDataForMapping",
@@ -320,7 +319,6 @@ Procedure OnWaitForExportData(HandlerParameters, ContinueWait) Export
 				ExportSettings1.Peer);
 			ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
 			ExecutionParameters.RunNotInBackground1    = False;
-			ExecutionParameters.RunInBackground      = True;
 			
 			BackgroundJob = TimeConsumingOperations.ExecuteInBackground(
 				"DataProcessors.InteractiveDataExchangeWizardSaaS.ExportImportDataOnRequest",
@@ -384,7 +382,7 @@ EndProcedure
 
 #Region MessagesExchangeSessions
 
-Procedure OnWaitSystemMessagesExchangeSession(HandlerParameters, ContinueWait)
+Procedure OnWaitSystemMessagesExchangeSession(HandlerParameters, ContinueWait) Export
 	
 	SessionStatus = "";
 	Try
@@ -666,7 +664,7 @@ Procedure RegisterAdditionExportData(Val ExportProcessing)
 	
 EndProcedure
 
-Procedure OnStartPuttingDataToMap(ExportSettings1, HandlerParameters, ContinueWait)
+Procedure OnStartPuttingDataToMap(ExportSettings1, HandlerParameters, ContinueWait) Export
 	
 	If Not Common.SubsystemExists("CloudTechnology") Then
 		Return;

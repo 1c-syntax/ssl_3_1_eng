@@ -13,8 +13,8 @@
 #Region Variables
 
 Var CurrentVariantKey; // String
-                            // 
-                            // 
+                            // A report option settings id.
+                            // For details, see Syntax Assistant.
 Var ParentOptionKey; // String
 Var RegistersProperties; // See NewRegisterProperties
 Var Remarks; // See NotesPropertiesPalette

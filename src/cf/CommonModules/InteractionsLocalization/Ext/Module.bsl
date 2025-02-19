@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-#Region Internal
+#Region Public
 
 // Converts the user-provided phone number into the format supported by the SMS service provider.
 //
@@ -37,8 +37,9 @@ EndProcedure
 // When sending such an email, the mail server might specify a different domain in the sender's address.
 // 
 // Parameters:
-//  EmailDomainsSynonyms - Map - "Key" is the name to be replaced.
-//    "Value" is the target domain name.
+//  EmailDomainsSynonyms - Map of KeyAndValue:
+//    * Key - Name to be replaced
+//    * Value - Domain name to replace with
 //
 Procedure OnDefineEmailDomainSynonyms(EmailDomainsSynonyms) Export
 	

@@ -61,13 +61,10 @@ Procedure OnSendServerNotification(NameOfAlert, ParametersVariants) Export
 EndProcedure
 
 // See CommonOverridable.OnAddMetadataObjectsRenaming.
-Procedure OnAddMetadataObjectsRenaming(Total) Export
+Procedure OnAddMetadataObjectsRenaming(Renamings) Export
 	
-	Library = "StandardSubsystems";
-	
-	OldName = "Role.UsingReminders";
-	NewName  = "Role.AddEditNotifications";
-	Common.AddRenaming(Total, "2.3.3.11", OldName, NewName, Library);
+	Common.AddRenaming(Renamings, "2.3.3.11", 
+		"Role.UsingReminders", "Role.AddEditNotifications", "StandardSubsystems");
 	
 EndProcedure
 
@@ -128,16 +125,28 @@ Procedure EditReminderTextOnSubject(SubjectOf, Id, NewText) Export
 	Query.SetParameter("Id", Id);
 	Query.SetParameter("Source", SubjectOf);
 	
-	QueryResult = Query.Execute();
-	SelectionDetailRecords = QueryResult.Select();
-	While SelectionDetailRecords.Next() Do
-		RecordManager = InformationRegisters.UserReminders.CreateRecordManager();
-		FillPropertyValues(RecordManager, SelectionDetailRecords);
-		RecordManager.Read();
-		RecordManager.LongDesc = NewText;
-		RecordManager.Write();
-	EndDo;
+	Block = New DataLock();
+	LockItem = Block.Add("InformationRegister.UserReminders");
+	LockItem.SetValue("Source", SubjectOf);
 	
+	BeginTransaction();
+	Try
+		Block.Lock();
+		
+		SelectionDetailRecords = Query.Execute().Select();
+		While SelectionDetailRecords.Next() Do
+			RecordManager = InformationRegisters.UserReminders.CreateRecordManager();
+			FillPropertyValues(RecordManager, SelectionDetailRecords);
+			RecordManager.Read();
+			RecordManager.LongDesc = NewText;
+			RecordManager.Write();
+		EndDo;
+		
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry	
 EndProcedure
 
 #EndRegion
@@ -1179,7 +1188,7 @@ Procedure OnCreateAtServer(Form, PlacementParameters) Export
 		InputField.HorizontalStretch = False;
 		
 		SubsystemSettings = SubsystemSettings();
-		TimeIntervals_ = SubsystemSettings.StandardIntervals;
+		TimeIntervals = SubsystemSettings.StandardIntervals;
 		
 		InputField.ChoiceList.Clear();
 		If Not SettingsOfReminder.ShouldAddFlag Then
@@ -1187,7 +1196,7 @@ Procedure OnCreateAtServer(Form, PlacementParameters) Export
 		EndIf;
 		InputField.ChoiceList.Add(UserRemindersClientServer.EnumPresentationOnOccurrence());
 		
-		For Each Interval In TimeIntervals_ Do
+		For Each Interval In TimeIntervals Do
 			If Not ShouldDisplayShortIntervals And TimeIntervalFromString(Interval) < 24*60*60 Then
 				Continue;
 			EndIf;

@@ -86,7 +86,7 @@ EndFunction
 //                           c) Or a password has been set earlier by the SetCertificatePassword method.
 //                           If an error occurs upon signing, the form will be opened with the ability to enter the password.
 //                           The ShowComment parameter is ignored.
-//    * BeforeExecute     - NotifyDescription - (Optional) Details of the additional data preparation handler,
+//    * BeforeExecute     - CallbackDescription - (Optional) Details of the additional data preparation handler,
 //                           that triggers after selecting a certificate for signing the data.
 //                           The handler is intended for filling the "Data" parameter if it depends
 //                           on the certificate that in the moment of call is already inserted in DataDetails
@@ -126,7 +126,7 @@ EndFunction
 //    Option 1.
 //    * Data              - BinaryData - data for signing.
 //                          - String - an address of a temporary storage with binary data.
-//                          - NotifyDescription - a data receipt handler that returns
+//                          - CallbackDescription - a data receipt handler that returns
 //                          it in the Data property (see the common approach above). In the moment of call,
 //                          DataDetails already has the selected certificate as SelectedCertificate (see below).
 //                          - Structure:
@@ -138,7 +138,7 @@ EndFunction
 //                                       - BinaryData - binary data for signing.
 //    * Object              - AnyRef - (optional) - a reference to an object to be signed.
 //                          If not specified, a signature is not required.
-//                          - NotifyDescription - (optional) - a handler for adding a signature to
+//                          - CallbackDescription - (optional) - a handler for adding a signature to
 //                          the DigitalSignatures information register. Consider the common approach (see above).
 //                          DataDetails already has the SignatureProperties parameter at the time it is called.
 //                          In case of the DataSet parameter, the DataSetCurrentItem property
@@ -150,7 +150,7 @@ EndFunction
 //                          - String
 //                          - Structure:
 //                             ** Value      - AnyRef
-//                                              - NotifyDescription - to open.
+//                                              - CallbackDescription - to open.
 //                             ** Presentation - String - - a value presentation.
 //    Option 2.
 //    * DataSet         - Array - structures with properties described in Option 1.
@@ -172,7 +172,7 @@ EndFunction
 //                                to lock an object.
 //        - Undefined     - use a standard form.
 //
-//  ResultProcessing - NotifyDescription -
+//  ResultProcessing - CallbackDescription -
 //     Required for non-standard result processing, for example, if the Object or Form parameter is not specified.
 //     The result gets the DataDetails parameter, to which the following properties are added in case of success::
 //     # Success - Boolean - True if everything is successfully completed.
@@ -209,7 +209,7 @@ Procedure Sign(DataDetails, Form = Undefined, ResultProcessing = Undefined, Sign
 	ClientParameters.Insert("Form", Form);
 	ClientParameters.Insert("ResultProcessing", ResultProcessing);
 	
-	CompletionProcessing = New NotifyDescription("RegularlyCompletion",
+	CompletionProcessing = New CallbackDescription("RegularlyCompletion",
 		DigitalSignatureInternalClient, ClientParameters);
 	
 	If DataDetails.Property("OperationContext")
@@ -257,9 +257,9 @@ EndProcedure
 //   * Enabled - Boolean - Signature type availability on the signing form.
 //   * CanSelectLetterOfAuthority - Boolean - Flag indicating whether to show the LoA selection field.
 //   * VerifyCertificate - String - The signature verification options:
-//       "CheckQualified" - (Default) Allow signing with NES and validate QES against the list of trusted non-accredited CAs. 
+//       "VerifyQualified" - (Default) Allow signing with NES and validate QES against the list of trusted non-accredited CAs. 
 //                                      "QualifiedOnly" - Allow signing with QES only and ignore the list of trusted non-accredited CAs.
-//       "DoNotCheckCertificates" - Skip validating certificates.
+//       "DoNotVerifyCertificate" - Skip certificate verification.
 //                                   
 //       
 //
@@ -295,7 +295,7 @@ EndFunction
 //    * ShowComment  - Boolean - (optional) - allows adding a comment in the
 //                             data signing form. False if not specified.
 //    * Object               - AnyRef - (optional) - a reference to an object to be signed.
-//                           - NotifyDescription - (optional) - a handler for adding a signature to
+//                           - CallbackDescription - (optional) - a handler for adding a signature to
 //                             the DigitalSignatures information register. Consider the common approach (see above).
 //                             DataDetails already has the Signatures parameter at the time it is called.
 //    * ObjectVersion        - String - (optional) - an object data version to check and
@@ -305,7 +305,7 @@ EndFunction
 //                             the presentation is calculated by the Object property value.
 //    * Data               - BinaryData - (optional) - data to check the signature.
 //                           - String - (optional) - an address of a temporary storage with binary data.
-//                           - NotifyDescription - (optional) - a data receipt handler that returns
+//                           - CallbackDescription - (optional) - a data receipt handler that returns
 //                             it in the Data property (see the common approach above).
 //
 //  Form - ClientApplicationForm - a form, from which you need to get an UUID
@@ -314,7 +314,7 @@ EndFunction
 //        to lock an object.
 //        - Undefined - use a standard form.
 //
-//  ResultProcessing - NotifyDescription -
+//  ResultProcessing - CallbackDescription -
 //     Required for non-standard result processing, for example, if the Object or Form parameter is not specified.
 //     Required for non-standard result processing, for example, if the Object or Form parameter is not specified.:
 //     # Success - Boolean - True if everything is successfully completed.
@@ -359,11 +359,11 @@ Procedure AddSignatureFromFile(DataDetails, Form = Undefined, ResultProcessing =
 	DigitalSignatureInternalClient.SetDataPresentation(ClientParameters, ServerParameters1);
 	
 	AdditionForm = OpenForm("CommonForm.AddDigitalSignatureFromFile", ServerParameters1,,,,,
-		New NotifyDescription("RegularlyCompletion", DigitalSignatureInternalClient, ClientParameters));
+		New CallbackDescription("RegularlyCompletion", DigitalSignatureInternalClient, ClientParameters));
 	
 	If AdditionForm = Undefined Then
 		If ResultProcessing <> Undefined Then
-			ExecuteNotifyProcessing(ResultProcessing, DataDetails);
+			RunCallback(ResultProcessing, DataDetails);
 		EndIf;
 		Return;
 	EndIf;
@@ -389,7 +389,7 @@ Procedure AddSignatureFromFile(DataDetails, Form = Undefined, ResultProcessing =
 		CreationParameters.ShowError = Undefined;
 		
 		DigitalSignatureInternalClient.CreateCryptoManager(
-			New NotifyDescription("AddSignatureFromFileAfterCreateCryptoManager",
+			New CallbackDescription("AddSignatureFromFileAfterCreateCryptoManager",
 				DigitalSignatureInternalClient, Context),
 			"", CreationParameters);
 			
@@ -417,7 +417,7 @@ EndProcedure
 //    * Object               - AnyRef - a reference to object, from which you need to get the signature list.
 //                           - String - a temporary storage address of a signature array with properties,
 //                           as the AddSignatureFromFile procedure returns.
-//    * Data               - NotifyDescription - Handler for saving data and receiving the full file
+//    * Data               - CallbackDescription - Handler for saving data and receiving the full file
 //                           name with a path (after saving it), returned in the FullFileName property
 //                           of the String type for saving digital signatures (see the common approach above).
 //                           If 1C:Enterprise Extension is not attached, return
@@ -434,7 +434,7 @@ EndProcedure
 //                                                     the notification for the BeginRequestingUserPermission method has.
 //                                                     If the permission is not received, everything is canceled.
 //
-//  ResultProcessing - NotifyDescription -
+//  ResultProcessing - CallbackDescription -
 //     The parameter is passed to the result of the type: Boolean - True if everything was successful.
 //
 Procedure SaveDataWithSignature(DataDetails, ResultProcessing = Undefined) Export
@@ -448,7 +448,7 @@ EndProcedure
 // had set the check of digital signatures on the server.
 //
 // Parameters:
-//   Notification           - NotifyDescription - CheckParameters.ResultAsStructure - True.:
+//   Notification           - CallbackDescription - CheckParameters.ResultAsStructure - True.:
 //             
 //             
 //             
@@ -481,7 +481,7 @@ EndProcedure
 //                          if the date cannot be extracted from the signature or XMLEnvelope is to be checked.
 //   CheckParameters    - See SignatureVerificationParameters
 //                        - Undefined - Flag indicating whether to
-//                          display a cryptographic manager creation error (when it's not specified).
+//                        display a cryptographic manager creation error (when it's not specified).
 //
 Procedure VerifySignature(Notification, RawData, Signature,
 	CryptoManager = Undefined,
@@ -502,10 +502,10 @@ EndProcedure
 //   * ResultAsStructure - Boolean - If True, the result will have the following format:
 //      See DigitalSignatureClientServer.SignatureVerificationResult
 //   * VerifyCertificate - String - The signature verification options. Applicable if "ResultAsStructure" is set to "True".
-//      Otherwise, the option is always "CheckQualified".
-//       "CheckQualified" - (Default) Allow signing with NES and validate QES against the list of trusted non-accredited CAs. 
+//      Otherwise, the option is always "VerifyQualified".
+//       "VerifyQualified" - (Default) Allow signing with NES and validate QES against the list of trusted non-accredited CAs. 
 //                                      "QualifiedOnly" - Allow signing with QES only and ignore the list of trusted non-accredited CAs.
-//       "DoNotCheckCertificates" - Skip validating certificates.
+//       "DoNotVerifyCertificate" - Skip certificate verification.
 //                                   
 //       
 //
@@ -571,11 +571,11 @@ EndFunction
 //    Option 1.
 //    * Data                - BinaryData - data to encrypt.
 //                            - String - an address of a temporary storage with binary data.
-//                            - NotifyDescription - a data receipt handler that returns
+//                            - CallbackDescription - a data receipt handler that returns
 //                            it in the Data property (see the common approach above).
 //    * ResultPlacement  - Undefined - (optional) - describes where to place the encrypted data.
 //                            If it is not specified or Undefined, use the ResultProcessing parameter.
-//                            - NotifyDescription - a handler of saving encrypted data.
+//                            - CallbackDescription - a handler of saving encrypted data.
 //                            Consider the common approach (see above).
 //                            DataDetails already has the EncryptedData parameter at the time it is called.
 //                            In case of the DataSet parameter,
@@ -589,7 +589,7 @@ EndFunction
 //                          - String
 //                          - Structure:
 //                             ** Value      - AnyRef
-//                                              - NotifyDescription - to open.
+//                                              - CallbackDescription - to open.
 //                             ** Presentation - String - - a value presentation.
 //
 //    Option 2.
@@ -612,7 +612,7 @@ EndFunction
 //        used to store encrypted data to a temporary storage.
 //        - Undefined      - use a standard form.
 //
-//  ResultProcessing - NotifyDescription -
+//  ResultProcessing - CallbackDescription -
 //     It is required for non-standard result processing, if the Form or the ResultPlacement parameter is not specified.
 //     The result gets the DataDetails parameter, to which the following properties are added in case of a success:
 //     # Success - Boolean - True if everything is successfully completed. If "Success" is False, the partial completion
@@ -637,7 +637,7 @@ Procedure Encrypt(DataDetails, Form = Undefined, ResultProcessing = Undefined) E
 	ClientParameters.Insert("Form", Form);
 	ClientParameters.Insert("ResultProcessing", ResultProcessing);
 	
-	CompletionProcessing = New NotifyDescription("RegularlyCompletion",
+	CompletionProcessing = New CallbackDescription("RegularlyCompletion",
 		DigitalSignatureInternalClient, ClientParameters);
 	
 	If DataDetails.Property("OperationContext")
@@ -694,7 +694,7 @@ EndProcedure
 //    * IsAuthentication    - Boolean - (optional) - if True, show the OK button
 //                           instead of the Decrypt button. And some labels will be corrected.
 //                           Besides, the ReportCompletion parameter is set to False.
-//    * BeforeExecute     - NotifyDescription - (optional) - details of the additional
+//    * BeforeExecute     - CallbackDescription - (optional) - details of the additional
 //                           data preparation handler, after selecting the certificate, by which the data will be decrypted.
 //                           In this handler you can fill the Data parameter if it is required.
 //                           DataDetails already has
@@ -732,12 +732,12 @@ EndProcedure
 //    Option 1.
 //    * Data                - BinaryData - data to decrypt.
 //                            - String - an address of a temporary storage with binary data.
-//                            - NotifyDescription - a data receipt handler that returns
+//                            - CallbackDescription - a data receipt handler that returns
 //                            it in the Data property (see the common approach above). In the moment of call,
 //                            DataDetails already has the selected certificate as SelectedCertificate (see below).
 //    * ResultPlacement  - Undefined - (optional) - describes where to place the decrypted data.
 //                            If it is not specified or Undefined, use the ResultProcessing parameter.
-//                            - NotifyDescription - a handler of saving decrypted data.
+//                            - CallbackDescription - a handler of saving decrypted data.
 //                            Consider the common approach (see above).
 //                            DataDetails already has the DecryptedData parameter at the time it is called.
 //                            In case of the DataSet parameter,
@@ -758,7 +758,7 @@ EndProcedure
 //                          - String
 //                          - Structure:
 //                             ** Value      - AnyRef
-//                                              - NotifyDescription - to open.
+//                                              - CallbackDescription - to open.
 //                             ** Presentation - String - - a value presentation.
 // 
 //    Option 2.
@@ -785,7 +785,7 @@ EndProcedure
 //        used to store decrypted data to a temporary storage.
 //        - Undefined - use a standard form.
 //
-//  ResultProcessing - NotifyDescription -
+//  ResultProcessing - CallbackDescription -
 //     It is required for non-standard result processing, if the Form and/or the ResultPlacement parameter is not specified.
 //     The result gets the DataDetails parameter, to which the following properties are added in case of a success:
 //     # Success - Boolean - True if everything is successfully completed. If Success = False, the partial completion
@@ -806,7 +806,7 @@ Procedure Decrypt(DataDetails, Form = Undefined, ResultProcessing = Undefined) E
 	ClientParameters.Insert("Form", Form);
 	ClientParameters.Insert("ResultProcessing", ResultProcessing);
 	
-	CompletionProcessing = New NotifyDescription("RegularlyCompletion",
+	CompletionProcessing = New CallbackDescription("RegularlyCompletion",
 		DigitalSignatureInternalClient, ClientParameters);
 	
 	If DataDetails.Property("OperationContext")
@@ -889,7 +889,7 @@ EndProcedure
 //                          - String
 //                          - Structure:
 //                             ** Value      - AnyRef
-//                                              - NotifyDescription - to open.
+//                                              - CallbackDescription - to open.
 //                             ** Presentation - String - Value presentation.
 //                          - ValueList
 //                          - Array - (Optional) Arbitrary list or array with the above values that users can open.
@@ -954,7 +954,7 @@ EndProcedure
 // Checks the crypto certificate validity.
 //
 // Parameters:
-//   Notification           - NotifyDescription - a notification about the execution result of the following types:
+//   Notification           - CallbackDescription - a notification about the execution result of the following types:
 //             = Boolean       - True if the check is completed successfully.
 //             = String       - a description of a certificate check error.
 //             = Undefined - cannot get the crypto manager (because it is not specified).
@@ -967,8 +967,8 @@ EndProcedure
 //                        - CryptoManager - use the specified crypto manager
 //                          (a check on the server will not be executed).
 //
-//   OnDate               - Date - check the certificate on the specified date.
-//                          If parameter is not specified or a blank date is specified,
+//   OnDate               - Date - Check the certificate on the specified date.
+//                          If the parameter is not specified or an empty value is passed,
 //                          check on the current session date.
 //   CheckParameters - See CertificateVerificationParameters.
 //
@@ -983,18 +983,21 @@ EndProcedure
 // Returns:
 //  Structure - Additional parameters for the certificate check:
 //   * PerformCAVerification - String - The signature verification options:
-//       "CheckQualified" - (Default) Allow signing with NES and validate QES against the list of trusted non-accredited CAs. 
+//       "VerifyQualified" - (Default) Allow signing with NES and validate QES against the list of trusted non-accredited CAs. 
 //                                      "QualifiedOnly" - Allow signing with QES only and ignore the list of trusted non-accredited CAs.
-//       "DoNotCheckCertificates" - Skip validating certificates.
+//       "DoNotVerifyCertificate" - Skip certificate verification.
 //                                   
 //       
 //   * IgnoreCertificateRevocationStatus - Boolean - Skip validating certificate against the revocation list.
+//   * IsTimestampDateSpecified - Boolean - The "OnDate" parameter specifies the date on which the certificate revocation and
+//                                        chain verification will be performed.
 //
 Function CertificateVerificationParameters() Export
 	
 	Structure = New Structure;
-	Structure.Insert("IgnoreCertificateRevocationStatus", False);
 	Structure.Insert("PerformCAVerification", DigitalSignatureInternalClientServer.VerifyQualified());
+	Structure.Insert("IgnoreCertificateRevocationStatus", False);
+	Structure.Insert("IsTimestampDateSpecified", False);
 	Return Structure;
 	
 EndFunction
@@ -1010,7 +1013,7 @@ EndFunction
 //    * FormCaption         - String - if specified, it replaces the form title.
 //    * CheckOnSelection      - Boolean - if True, the Check button will be called
 //                             "Check and continue", and the Close button will be called "Cancel".
-//    * ResultProcessing    - NotifyDescription - it is called immediately after the check,
+//    * ResultProcessing    - CallbackDescription - it is called immediately after the check,
 //                             Result.ChecksPassed (see below) is passed to the procedure with the initial value False.
 //                             If True is not set in the CheckOnChoose mode,
 //                             the form will not be closed after a return from the notification procedure and
@@ -1019,7 +1022,7 @@ EndFunction
 //                             the check will be executed immediately without opening the form.
 //                             If the mode is CheckOnChoose and the ResultProcessing parameter is set,
 //                             the form will not open if the ChecksPassed parameter is set to True.
-//    * CompletionProcessing    - NotifyDescription - it is called when the form is closed,
+//    * CompletionProcessing    - CallbackDescription - it is called when the form is closed,
 //                             the Undefined or the ChecksPassed value are passed as its result (see below).
 //    * OperationContext       - Arbitrary - if you pass the context returned by the Sign procedure,
 //                             Decrypt procedure, the password entered for the certificate can be used
@@ -1030,8 +1033,8 @@ EndFunction
 //                             to the user.
 //    * SignatureType             - EnumRef.CryptographySignatureTypes - By default, the type specified in the settings. 
 //                             It gets the type from "OperationContext" if it is passed from "Sign".
-//    * PerformCAVerification - 
-//    * IgnoreCertificateRevocationStatus - 
+//    * PerformCAVerification - See CertificateVerificationParameters.ВыполнятьПроверкуУдостоверяющегоЦентра
+//    * IgnoreCertificateRevocationStatus - See CertificateVerificationParameters.ИгнорироватьПроверкуВСпискеОтозванныхСертификатов
 //    * Result              - Undefined - a check was never performed.
 //                             - Structure - Return value. It is inserted before processing the result:
 //         * ChecksPassed  - Boolean - a return value. Is set in the procedure of the ResultProcessing parameter.
@@ -1077,7 +1080,7 @@ EndProcedure
 //   WithoutQuestion - Boolean - if True is set, the question will not be shown.
 //                It is required if the user clicked Install extension.
 //
-//   ResultHandler - NotifyDescription - details of the procedure that gets the ExtensionInstalled
+//   ResultHandler - CallbackDescription - details of the procedure that gets the ExtensionInstalled
 //      selection result of the following types:
 //       = Boolean
 //          True - The user confirmed the installation, the extension was successfully attached after installation.
@@ -1121,6 +1124,82 @@ Procedure OpenDigitalSignatureAndEncryptionSettings(Page = "Certificates") Expor
 	
 EndProcedure
 
+// Opens a diagnostics form that displays causes and possible solutions for known issues related to digital signatures.
+// These recommendations are automatically loaded from a classifier via the Internet. The form also provides an option to send information to technical support.
+// It is recommended to call this function instead of showing a technical error message to the user in all cases
+// following an unsuccessful operation with a digital signature.
+// 
+// Parameters:
+//  FormParameters - See ExtendedErrorPresentationFormParameters.
+//  OwnerForm - ClientApplicationForm - Form owner.
+//  CallbackOnCompletion - CallbackDescription - Notification about the closure of the error form.
+//  
+//  Example:
+//   FormParameters = ErrorExtendedPresentationFormParameters();
+//	 FormParameters.WarningTitle = NStr("en = 'Failed to distribute the reports'");
+//	 FormParameters.ErrorTextServer = EncryptionErrorAtServerText;
+//	 FormParameters.AdditionalData.Insert("Certificate", Result.CertificateToEncrypt);
+//	 FormParameters.ShowNeedHelp = True;
+//	 FormParameters.ShowInstruction = True;
+//	 ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
+//	 ModuleDigitalSignatureClient.OpenExtendedErrorPresentationForm(FormParameters);
+//  
+Procedure OpenExtendedErrorPresentationForm(FormParameters, OwnerForm = Undefined, CallbackOnCompletion = Undefined) Export
+	
+	DigitalSignatureInternalClient.OpenExtendedErrorPresentationForm(FormParameters, OwnerForm, CallbackOnCompletion);
+	
+EndProcedure
+
+// The parameter constructor for the extended error presentation form.
+// 
+// Returns:
+//  Structure - Parameters of the extended error presentation form.:
+//   * WarningTitle - String - The title of the error form.
+//   * SupportInformation - FormattedString - Item title for the technical support.
+//   * ErrorTextClient     - String - Text used to search for issues and solutions on the client.
+//                            It's provided if the error context is important or, in case of 
+//                            a single common error, the error text is important.
+//   * ErrorTextServer     - String - Text used to search for issues and solutions on the server. 
+//                            It's provided if the error context is important.
+//   * AdditionalData  - Structure:
+//      ** SignatureData     - String - (Optional) The address of the signature data in the temporary storage if a signature error occurred.
+//      ** Certificate        - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - (Optional) A reference to the certificate
+//                              associated with the error.
+//      ** CertificateData  - String - (Optional) Certificate data address in the temporary storage.
+//   * ShowNeedHelp - Boolean - Show the "Need help?" group and the buttons for installing the extension and setting up the applications.
+//   * ShowOpenApplicationsSettings - Boolean - If "ShowNeedHelp" is set to "True",
+//                            then display a button that navigates to the digital signature application setup.
+//   * ShowExtensionInstallation - Boolean - If "ShowNeedHelp" is set to "True",
+//                            display a button for installing the cryptography extension.
+//   * ShowInstruction - Boolean - If "ShowNeedHelp" is set to "True", then display the "Need help?" hyperlink.
+//   * AdditionalLinkText - String - The title of the additional link that runs the "AdditionalRefHandler"
+//                            event handler, whose outcome is a Structure:
+//                             # URL - String - The link specified in "AdditionalLinkText".
+//                             # AdditionalLinkHandlerParameter - See below.
+//   * AdditionalLinkHandler - String - The name of the notification handler from the common module.
+//                            For example, "EDLIssuesHandling.OpenDiagnosticWizard".
+//   * AdditionalLinkHandlerParameter - Arbitrary - A parameter of "AdditionalRefHandler".
+//
+Function ExtendedErrorPresentationFormParameters() Export
+	
+	Structure = New Structure;
+	Structure.Insert("WarningTitle", "");
+	Structure.Insert("SupportInformation", "");
+	Structure.Insert("ErrorTextClient", "");
+	Structure.Insert("ErrorTextServer", "");
+	Structure.Insert("AdditionalData");
+	Structure.Insert("ShowNeedHelp", False);
+	Structure.Insert("ShowOpenApplicationsSettings", False);
+	Structure.Insert("ShowExtensionInstallation", False);
+	Structure.Insert("ShowInstruction", False);
+	Structure.Insert("AdditionalLinkText", "");
+	Structure.Insert("AdditionalLinkHandler", "");
+	Structure.Insert("AdditionalLinkHandlerParameter");
+	
+	Return Structure;
+		
+EndFunction
+
 // Opens a reference to the "How to work with digital signature and encryption apps" ITS section.
 //
 Procedure OpenInstructionOfWorkWithApplications() Export
@@ -1129,28 +1208,10 @@ Procedure OpenInstructionOfWorkWithApplications() Export
 	
 EndProcedure
 
-// Opens an guide describing  typical issues with digital signature apps and how to solve them.
-// 
-//
-// Parameters:
-//   SectionName - String - a reference to the error in the instruction.
-//
-Procedure OpenInstructionOnTypicalProblemsOnWorkWithApplications(SectionName = "") Export
-	
-	URL = "";
-	DigitalSignatureClientServerLocalization.OnDefiningRefToAppsTroubleshootingGuide(
-		URL, SectionName);
-	
-	If Not IsBlankString(URL) Then
-		FileSystemClient.OpenURL(URL);
-	EndIf;
-	
-EndProcedure
-
 // Returns the date extracted from the signature binary data or Undefined.
 //
 // Parameters:
-//  Notification - NotifyDescription - Called to pass the return value, which has one of the following types::
+//  Notification - CallbackDescription - Called to pass the return value, which has one of the following types::
 //                 = Date - Date was successfully obtained.
 //                 = Undefined - Failed to obtain the date.
 //  Signature - BinaryData - signature data to extract a date from.
@@ -1161,7 +1222,7 @@ Procedure SigningDate(Notification, Signature, CastToSessionTimeZone = True) Exp
 	SigningDate = DigitalSignatureInternalClientServer.SigningDateUniversal(Signature);
 	
 	If SigningDate = Undefined Then
-		ExecuteNotifyProcessing(Notification, Undefined);
+		RunCallback(Notification, Undefined);
 		Return;
 	EndIf;
 	
@@ -1170,7 +1231,7 @@ Procedure SigningDate(Notification, Signature, CastToSessionTimeZone = True) Exp
 			- CommonClient.UniversalDate());
 	EndIf;
 	
-	ExecuteNotifyProcessing(Notification, SigningDate);
+	RunCallback(Notification, SigningDate);
 	
 EndProcedure
 	
@@ -1180,7 +1241,7 @@ EndProcedure
 // Parameters:
 //   Certificate   - CryptoCertificate - Cryptographic certificate.
 //                - Structure:
-//                   * ValidBefore - 
+//                   * ValidBefore - See DigitalSignature.CertificateProperties.ValidBefore
 //                   * Certificate   - CryptoCertificate - Cryptographic certificate.
 //
 // Returns:
@@ -1216,7 +1277,7 @@ EndFunction
 //   Certificate - CryptoCertificate - a crypto certificate.
 //
 // Returns:
-//   String - the issuer presentation in the format "CommonName, Company, Department",
+//   String - Issuer's presentation in the format "CommonName, Company, Department",
 //            Company and Department can be missing, if undefined.
 //
 Function IssuerPresentation(Certificate) Export
@@ -1239,9 +1300,17 @@ EndFunction
 //    * IssuedBy       - See DigitalSignatureClient.IssuerPresentation.
 //    * StartDate     - Date   - a StartDate certificate property in the session time zone.
 //    * EndDate  - Date   - an EndDate certificate property in the session time zone.
-//    * Purpose     - String - an extended property details of the EKU certificate.
+//    * Purpose     - String - Extended property details of the EKU certificate.
 //    * Signing     - Boolean - the UseToSign certificate property.
-//    * Encryption     - Boolean - the UseToEncrypt certificate property.
+//    * Encryption     - Boolean - Certificate property "UseToEncrypt".
+//        For 1C:Enterprise v.8.3.27 and later, the structure has the following properties:
+//    * ValidBefore - Date - The earliest date from "EndDate" and "PrivateKeyExpirationDate" (if specified in the certificate).
+//    * PrivateKeyStartDate     - Date   - Certificate's property specified in OID 2.5.29.16 in the session time zone.
+//    * PrivateKeyExpirationDate  - Date   - Certificate's property specified in OID 2.5.29.16 in the session time zone.
+//    * CertificateAuthorityKeyID - String - Issuer key ID.
+//    * SignAlgorithm - String - OID algorithm of the certificate's signature.
+//    * AlgorithmOfPublicKey - String - OID algorithm of the certificate's public key.
+//    * AddressesOfRevocationLists - Array of String
 //
 Function CertificateProperties(Certificate) Export
 	
@@ -1269,7 +1338,7 @@ EndFunction
 //                          according to ISO 3166-1:1997 (GOST 7.67-2003).
 //                        - Undefined - the certificate property does not exist.
 //
-//     * State           - String - (128) - it is extracted from the S field - the RF region name.
+//     * State_SSLym           - String - (128) - it is extracted from the S field - the RF region name.
 //                          LE - by the location address.
 //                          Individual - by the registration address.
 //                        - Undefined - such certificate property is missing.
@@ -1356,7 +1425,7 @@ EndFunction
 //                          according to ISO 3166-1:1997 (GOST 7.67-2003).
 //                        - Undefined - such certificate property is missing.
 //
-//     * State           - String - (128) - it is extracted from the S field - it is the RF region name
+//     * State_SSLym           - String - (128) - it is extracted from the S field - it is the RF region name
 //                          by the location address of hardware and software complex certificate authority.
 //                        - Undefined - such certificate property is missing.
 //
@@ -1379,7 +1448,7 @@ EndFunction
 //     * Email - String - (128) - it is extracted from the E field. It is an email address of the certificate authority.
 //                        - Undefined - such certificate property is missing.
 //
-//     * OGRN             - String - (13) - extracted from the OGRN field - a certificate authority's OGRN.
+//     * OGRN             - String - (13) - extracted from the OGRN field. A certificate authority's registration number.
 //                        - Undefined - such certificate property is missing.
 //
 //     * TIN              - String - (12) - extracted from the INN field - a TIN of the certificate authority company.
@@ -1597,7 +1666,7 @@ EndFunction
 // To add a certificate at the server, see DigitalSignature.WriteCertificateToCatalog.
 //
 // Parameters:
-//   CompletionHandler - NotifyDescription - Called after adding a certificate
+//   CompletionHandler - CallbackDescription - Called after adding a certificate
 //                           to pass the return value of the following types:
 //       = Undefined - Error occurred while checking or adding the certificate.
 //       = CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - Added certificate.
@@ -1643,7 +1712,7 @@ Procedure WriteCertificateToCatalog(CompletionHandler,
 		
 		CertificateRef = DigitalSignatureInternalServerCall.WriteCertificateAfterCheck(Context);
 		If CertificateRef <> Undefined Then
-			ExecuteNotifyProcessing(CompletionHandler, CertificateRef);
+			RunCallback(CompletionHandler, CertificateRef);
 			Return;
 		EndIf;
 		
@@ -1656,7 +1725,7 @@ Procedure WriteCertificateToCatalog(CompletionHandler,
 	CreationParameters.SignAlgorithm = Context.SignAlgorithm;
 	
 	DigitalSignatureInternalClient.CreateCryptoManager(
-		New NotifyDescription("AddCertificateAfterCreateCryptoManager",
+		New CallbackDescription("AddCertificateAfterCreateCryptoManager",
 		DigitalSignatureInternalClient, Context), "", CreationParameters);
 	
 EndProcedure
@@ -1683,7 +1752,7 @@ EndProcedure
 //                           The default value is Undefined.
 //                           In the case when the parameter is used to create an application, then the value
 //                           is passed to the OnFillCompanyAttributesInApplicationForCertificate procedure
-//                           of the CertificateRequestOverridable common module without change, and after the call
+//                           of the ApplicationForACertificateOverridable common module without change, and after the call
 //                           it cast to the types of the CompanyType property.
 //      * CreateRequest   - Boolean - if the parameter takes the True value, adds the ability
 //                           to create a new application for certificate issue.
@@ -1695,7 +1764,7 @@ EndProcedure
 //                           for certificate issue (when it is filled in, it has priority over the company).
 //                           The default value is Undefined.
 //                           The value is passed to the OnFillOwnerAttributesInApplicationForCertificate procedure
-//                           of the CertificateRequestOverridable common module without change, and after the call
+//                           of the ApplicationForACertificateOverridable common module without change, and after the call
 //                           is cast to the types of the OwnerType property.
 //      * IsOnToken           - Boolean - By default, select token in certificate issuance applications.
 //
@@ -1716,7 +1785,7 @@ EndFunction
 // Interactively adds a certificate from installed on the computer or creates an application for certificate issue.
 //
 // Parameters:
-//   CompletionHandler - NotifyDescription - Called after adding a certificate with a value of one of the following types:
+//   CompletionHandler - CallbackDescription - Called after adding a certificate with a value of one of the following types:
 //      = Undefined - Error occurred while checking or adding the certificate.
 //      = Structure
 //          # Ref - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - Added certificate.
@@ -1772,89 +1841,12 @@ EndProcedure
 
 #Region ForCallsFromOtherSubsystems
 
-// Opens a diagnostics form that displays causes and possible solutions for known issues related to digital signatures.
-// These recommendations are automatically loaded from a classifier via the Internet. The form also provides an option to send information to technical support.
-// It is recommended to call this function instead of showing a technical error message to the user in all cases
-// following an unsuccessful operation with a digital signature.
-// 
-// Parameters:
-//  FormParameters - See ParametersOfExtendedErrorRepresentationForm.
-//  OwnerForm - ClientApplicationForm - Form owner.
-//  CallbackOnCompletion - NotifyDescription - Notification about the closure of the error form.
-//  
-//  Example:
-//   FormParameters = ErrorExtendedPresentationFormParameters();
-//	 FormParameters.WarningTitle = NStr("en = 'Failed to distribute the reports'");
-//	 FormParameters.ErrorTextServer = EncryptionErrorAtServerText;
-//	 FormParameters.AdditionalData.Insert("Certificate", Result.CertificateToEncrypt);
-//	 FormParameters.ShowNeedHelp = True;
-//	 FormParameters.ShowInstruction = True;
-//	 ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
-//	 ModuleDigitalSignatureClient.OpenExtendedErrorPresentationForm(FormParameters);
-//  
-Procedure OpenExtendedErrorPresentationForm(FormParameters, OwnerForm = Undefined, CallbackOnCompletion = Undefined) Export
-	
-	DigitalSignatureInternalClient.OpenExtendedErrorPresentationForm(FormParameters, OwnerForm, CallbackOnCompletion);
-	
-EndProcedure
-
-// The parameter constructor for the extended error presentation form.
-// 
-// Returns:
-//  Structure - Parameters of the extended error presentation form.:
-//   * WarningTitle - String - The title of the error form.
-//   * SupportInformation - FormattedString - Item title for the technical support.
-//   * ErrorTextClient     - String - Text used to search for issues and solutions on the client.
-//                            It's provided if the error context is important or, in case of 
-//                            a single common error, the error text is important.
-//   * ErrorTextServer     - String - Text used to search for issues and solutions on the server. 
-//                            It's provided if the error context is important.
-//   * AdditionalData  - Structure:
-//      ** SignatureData     - String - (Optional) The addess of the signature data in the temporary storage if a signature error occurred.
-//      ** Certificate        - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - (Optional) A reference to the certificate
-//                              associated with the error.
-//      ** CertificateData  - String - (Optional) Certificate data address in the temporary storage.
-//   * ShowNeedHelp - Boolean - Show the "Need help?" group and the buttons for installing the extension and setting up the applications.
-//   * ShowOpenApplicationsSettings - Boolean - If "ShowNeedHelp" is set to "True",
-//                            then display a button that navigates to the digital signature application setup.
-//   * ShowExtensionInstallation - Boolean - If "ShowNeedHelp" is set to "True",
-//                            display a button for installing the cryptography extension.
-//   * ShowInstruction - Boolean - If "ShowNeedHelp" is set to "True", then display the "Need help?" hyperlink.
-//   * TextOfAdditionalLink - String - The title of the additional link that runs the "AdditionalRefHandler"
-//                            event handler, whose outcome is a Structure:
-//                             # URL - String - The link specified in "AdditionalLinkText".
-//                             # AdditionalLinkHandlerParameter - See below.
-//   * AdditionalLinkHandler - String - The name of the notification handler from the common module.
-//                            For example, "EDLIssuesHandling.OpenDiagnosticWizard".
-//   * ParameterOfAdditionalLinkHandler - Arbitrary - A parameter of "AdditionalRefHandler".
-//
-Function ParametersOfExtendedErrorRepresentationForm() Export
-	
-	Structure = New Structure;
-	Structure.Insert("WarningTitle", "");
-	Structure.Insert("SupportInformation", "");
-	Structure.Insert("ErrorTextClient", "");
-	Structure.Insert("ErrorTextServer", "");
-	Structure.Insert("AdditionalData");
-	Structure.Insert("ShowNeedHelp", False);
-	Structure.Insert("ShowOpenApplicationsSettings", False);
-	Structure.Insert("ShowExtensionInstallation", False);
-	Structure.Insert("ShowInstruction", False);
-	
-	Structure.Insert("TextOfAdditionalLink", "");
-	Structure.Insert("AdditionalLinkHandler", "");
-	Structure.Insert("ParameterOfAdditionalLinkHandler");
-	
-	Return Structure;
-		
-EndFunction
-
-// These procedures and functions are intended for integration with 1C:Electronic document library.
+// These procedures and functions are intended for integration with 1C:Electronic Document Library.
 
 // Creates and returns the cryptographic manager (on the client) for the specified app or data.
 //
 // Parameters:
-//  Notification     - NotifyDescription - Runtime result notification of the following types:
+//  Notification     - CallbackDescription - Runtime result notification of the following types:
 //                   = CryptoManager - Initialized crypto manager.
 //                   = String - Details of the cryptographic manager creation error.
 //
@@ -1898,7 +1890,7 @@ EndProcedure
 // For operations using platform tools only (CryptoManager).
 //
 // Parameters:
-//   Notification           - NotifyDescription - a notification about the execution result of the following types:
+//   Notification           - CallbackDescription - a notification about the execution result of the following types:
 //     = CryptoCertificate - a found certificate.
 //     = Undefined           - the certificate does not exist in the storage.
 //     = String                 - a text of the crypto manager creation error (or other error).
@@ -1921,7 +1913,7 @@ EndProcedure
 // Gets certificate thumbprints of the OS user.
 // 
 // Parameters:
-//  Notification     - NotifyDescription - Called for transferring return values of the following types:
+//  Notification     - CallbackDescription - Called for transferring return values of the following types:
 //                     Structure:
 //                     = Thumbprints - Map - Key: Thumbprint in the Base64 format. Value: Source
 //                      "Client", "Server", "Service".
@@ -1974,7 +1966,7 @@ EndFunction
 //  is specified in the certificate or no one is specified, and also that the app for working with the certificate is filled.
 //
 //  Parameters:
-//   Notification - NotifyDescription - Notification with the result of the type:
+//   Notification - CallbackDescription - Notification with the result of the type:
 //     = Array of Structure
 //            # Ref - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - Reference to the certificate.
 //            # Description - String - Certificate presentation in the list.
@@ -2004,7 +1996,7 @@ Procedure FindValidPersonalCertificates(Notification, Filter = Undefined) Export
 		"Filter", Filter, FilterTypesArray);
 	
 	CommonClientServer.CheckParameter("DigitalSignatureClient.FindValidPersonalCertificates",
-		"Notification", Notification, Type("NotifyDescription"));
+		"Notification", Notification, Type("CallbackDescription"));
 	
 	DigitalSignatureInternalClient.FindValidPersonalCertificates(Notification, Filter);
 	
@@ -2014,7 +2006,7 @@ EndProcedure
 // For operations using platform tools only (CryptoManager).
 //
 // Parameters:
-//   Notification - NotifyDescription - Notification with the result of the following type::
+//   Notification - CallbackDescription - Notification with the result of the following type::
 //     Array - Contains Structure values with the same properties as DigitalSignature.NewApplicationDetails
 //                and the following additional properties:
 //       # Set - Boolean - if True, it is specified at the client or at the server.
@@ -2046,7 +2038,7 @@ Procedure FindInstalledPrograms(Notification, ApplicationsDetails = Undefined, C
 		CheckAtServer1, TypesArrayCheckAtServer);
 		
 	CommonClientServer.CheckParameter("DigitalSignatureClient.FindInstalledPrograms", "Notification", 
-		Notification, Type("NotifyDescription"));
+		Notification, Type("CallbackDescription"));
 		
 	CommonClientServer.CheckParameter("DigitalSignatureClient.FindInstalledPrograms", "ApplicationsDetails", 
 		ApplicationsDetails, Type("Array"));
@@ -2075,7 +2067,7 @@ EndProcedure
 //        that automatically detects installed apps. By default, "True".
 //   * IsCheckedOnServer - Boolean, Undefined - If set to "Undefined", the check will run on server depending on the general settings.
 //                                                 By default, "Undefined".
-//  CallbackOnCompletion - NotifyDescription - :
+//  CallbackOnCompletion - CallbackDescription - :
 //     Runtime result notification. One of the types
 //     = Structure:
 //                           # CheckCompleted = Boolean - True if the check was performed on a computer and installed CSP are detected.
@@ -2121,7 +2113,7 @@ EndProcedure
 //     * HyperlinkNote - Boolean - if True, then call ActionProcessing by clicking the note.
 //     * ToolTipText       - String
 //                            - FormattedString - a text or a text with hyperlinks.
-//     * ProcessAction    - NotifyDescription - Calls a procedure, the result of which takes the value of the following type
+//     * ProcessAction    - CallbackDescription - Calls a procedure, the result of which takes the value of the following type
 //        = Structure:
 //        # Certificate - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - Reference
 //          to the selected certificate.
@@ -2183,7 +2175,7 @@ EndProcedure
 // Parameters:
 //   Certificate           - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - the certificate
 //                        for which a check was executed.
-//   Result            - 
+//   Result            - See DigitalSignatureClient.CheckCatalogCertificate.AdditionalParameters.Result
 //   FormOwner        - ClientApplicationForm - the owner of the certificate check form that is being opened.
 //   Title            - String - the title of the certificate check form that is being opened.
 //   MergeResults - String - determines the method of the check result representation in the client/server
@@ -2192,7 +2184,7 @@ EndProcedure
 //                        MergeByAnd or MergeByOr, the check results will be merged with 
 //                        the corresponding condition. Otherwise, the results will be displayed
 //                        separately for client and server checks.
-//   CompletionProcessing  - NotifyDescription - contains details of the procedure that will be called after
+//   CompletionProcessing  - CallbackDescription - contains details of the procedure that will be called after
 //                        closing the certificate check form.
 //
 Procedure ShowCertificateCheckResult(Certificate, Result, FormOwner,
@@ -2221,7 +2213,7 @@ EndProcedure
 // Get signature properties from the binary data without using the cryptographic manager.
 // 
 // Parameters:
-//  Notification - NotifyDescription - Depending on the passed data, returns the structure
+//  Notification - CallbackDescription - Depending on the passed data, returns the structure
 //                                   containing signature properties or a Map 
 //                                   in case an Array was passed (key is Signature, value is Structure).
 //   # Structure: 
@@ -2261,7 +2253,7 @@ Procedure NotifyAboutCertificateExpiring(Certificate) Export
 	If ValueIsFilled(Result.CertificateRef) And Not Result.IsNotified Then
 		
 		FormOpenParameters = New Structure("Certificate", Certificate);
-		ActionOnClick = New NotifyDescription("OpenNotificationFormNeedReplaceCertificate",
+		ActionOnClick = New CallbackDescription("OpenNotificationFormNeedReplaceCertificate",
 			DigitalSignatureInternalClient, FormOpenParameters);
 		ShowUserNotification(NStr("en = 'You need to reissue the certificate';"), ActionOnClick, Certificate,
 			PictureLib.DialogExclamation, UserNotificationStatus.Important, Certificate);
@@ -2274,19 +2266,19 @@ EndProcedure
 // 
 // Parameters:
 //  FormOwner - ClientApplicationForm - The owner of the signature manual verification form.
-//  Notification - NotifyDescription - Returns the result of updating the signature properties during a manual verification.
+//  Notification - CallbackDescription - Returns the result of updating the signature properties during a manual verification.
 //   If input is canceled, it returns "Undefined". Otherwise, returns Structure
 //   # IsAdditionalAttributesCheckedManually -:
-//    # AdditionalAttributesManualCheckAuthor -
-//    # AdditionalAttributesManualCheckJustification -
-//    # CheckDate -
-//    # SignatureCorrect -
-//    # IsVerificationRequired -
-//    
+//    # AdditionalAttributesManualCheckAuthor - See DigitalSignatureClientServer.NewSignatureProperties.IsAdditionalAttributesCheckedManually
+//    # AdditionalAttributesManualCheckJustification - See DigitalSignatureClientServer.NewSignatureProperties.AdditionalAttributesManualCheckAuthor
+//    # CheckDate - See DigitalSignatureClientServer.NewSignatureProperties.AdditionalAttributesManualCheckJustification
+//    # SignatureCorrect - See DigitalSignatureClientServer.NewSignatureProperties.CheckDate
+//    # IsVerificationRequired - See DigitalSignatureClientServer.NewSignatureProperties.SignatureCorrect
+//     See DigitalSignatureClientServer.NewSignatureProperties.IsVerificationRequired
 //
 Procedure EnterSignatureAuthenticityJustification(FormOwner, Notification) Export
 	
-	ClosingNotification1 = New NotifyDescription("AfterSignatureAuthenticityJustificationEntered", DigitalSignatureInternalClient, Notification);
+	ClosingNotification1 = New CallbackDescription("AfterSignatureAuthenticityJustificationEntered", DigitalSignatureInternalClient, Notification);
 	OpenForm("InformationRegister.DigitalSignatures.Form.SignatureAuthenticityJustification",,FormOwner,True,,,
 		ClosingNotification1, FormWindowOpeningMode.LockOwnerWindow);
 		
@@ -2395,7 +2387,7 @@ Procedure ObjectSigningInfo(DataPresentation, IsPluralForm = False, FromFile = F
 		If IsPluralForm Then
 			MessageText = NStr("en = 'Signatures from files added:';");
 		Else
-			MessageText = NStr("en = 'Signature from file is added:';");
+			MessageText = NStr("en = 'Signature from file added:';");
 		EndIf;
 	Else
 		If IsPluralForm Then

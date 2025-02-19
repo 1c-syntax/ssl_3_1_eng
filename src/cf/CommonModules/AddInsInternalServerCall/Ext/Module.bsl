@@ -13,13 +13,13 @@
 // Parameters:
 //  Id - String
 //  Version - String
-//         - Undefined
-//  ThePathToTheLayoutToSearchForTheLatestVersion - Undefined, String
+//  ThePathToTheLayoutToSearchForTheLatestVersion - String
 //
 // Returns:
 //   See AddInsInternal.SavedAddInInformation
 //
-Function SavedAddInInformation(Id, Version = Undefined, ThePathToTheLayoutToSearchForTheLatestVersion = Undefined) Export
+Function SavedAddInInformation(Val Id, Val Version = Undefined, 
+	Val ThePathToTheLayoutToSearchForTheLatestVersion = Undefined) Export
 	
 	Result = AddInsInternal.SavedAddInInformation(Id, Version, ThePathToTheLayoutToSearchForTheLatestVersion);
 	If Result.State = "FoundInStorage" Or Result.State = "FoundInSharedStorage" Then 
@@ -43,37 +43,36 @@ Function SavedAddInInformation(Id, Version = Undefined, ThePathToTheLayoutToSear
 	
 EndFunction
 
-// Details of add-in files.
-// 
 // Parameters:
-//  References References
+//  References - Array of CatalogRef.AddIns
 // 
 // Returns:
 //  Array of Structure:
 //   * Location - String
 //   * FileName - String
 //
-Function AddInsFilesDetails(References) Export
+Function AddInsFilesDetails(Val References) Export
 	
-	Array = New Array;
+	Result = New Array;
 	
-	ObjectsAttributesValues = Common.ObjectsAttributesValues(References, "FileName, Id");
-	For Each KeyAndValue In ObjectsAttributesValues Do
-		Structure = New Structure;
-		Structure.Insert("Location", GetURL(KeyAndValue.Key, "AddInStorage"));
+	AttributesValues = Common.ObjectsAttributesValues(References, "FileName, Id");
+	For Each KeyAndValue In AttributesValues Do
+		AddInFileDetails = New Structure;
+		AddInFileDetails.Insert("Location", 
+			GetURL(KeyAndValue.Key, "AddInStorage"));
 		FileName = KeyAndValue.Value.FileName;
 		If Not ValueIsFilled(FileName) Then
 			FileName = KeyAndValue.Value.Id + ".zip";
 		EndIf;
-		Structure.Insert("Name", FileName);
-		Array.Add(Structure);
+		AddInFileDetails.Insert("Name", FileName);
+		Result.Add(AddInFileDetails);
 	EndDo;
 	
-	Return Array;
+	Return Result;
 	
 EndFunction
 
-Function TemplateAddInInfo(Location) Export
+Function TemplateAddInInfo(Val Location) Export
 	Return AddInsInternal.TemplateAddInInfo(Location);
 EndFunction
 

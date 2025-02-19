@@ -312,7 +312,7 @@ Procedure Delete(Command)
 	DialogButtons.Add(DialogReturnCode.Yes, NStr("en = 'Dismiss';"));
 	DialogButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Not now';"));
 	
-	NotifyDescription = New NotifyDescription("DeleteReminder", ThisObject);
+	NotifyDescription = New CallbackDescription("DeleteReminder", ThisObject);
 	ShowQueryBox(NotifyDescription, NStr("en = 'Dismiss the reminder?';"), DialogButtons);
 	
 EndProcedure
@@ -392,8 +392,8 @@ Procedure FillNotificationMethods()
 	EndDo;	
 	
 	Items.RemindBeforeDueTime.ChoiceList.Clear();
-	TimeIntervals_ = SubsystemSettings.StandardIntervals;
-	For Each Interval In TimeIntervals_ Do
+	TimeIntervals = SubsystemSettings.StandardIntervals;
+	For Each Interval In TimeIntervals Do
 		NotificationMethods.Add(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'in %1';"), Interval));
 		Items.RemindBeforeDueTime.ChoiceList.Add(Interval);
@@ -490,7 +490,7 @@ Procedure OpenScheduleSettingDialog()
 		Schedule.DaysRepeatPeriod = 1;
 	EndIf;
 	ScheduleDialog1 = New ScheduledJobDialog(Schedule);
-	NotifyDescription = New NotifyDescription("OpenScheduleSettingDialogCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("OpenScheduleSettingDialogCompletion", ThisObject);
 	ScheduleDialog1.Show(NotifyDescription);
 EndProcedure
 

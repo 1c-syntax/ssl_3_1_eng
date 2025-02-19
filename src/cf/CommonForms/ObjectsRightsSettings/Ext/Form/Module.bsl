@@ -66,7 +66,7 @@ EndProcedure
 &AtClient
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
-	Notification = New NotifyDescription("WriteAndCloseNotification", ThisObject);
+	Notification = New CallbackDescription("WriteAndCloseNotification", ThisObject);
 	CommonClient.ShowFormClosingConfirmation(Notification, Cancel, Exit);
 	
 EndProcedure
@@ -283,7 +283,7 @@ Procedure Reread(Command)
 		ReadRights();
 	Else
 		ShowQueryBox(
-			New NotifyDescription("RereadCompletion", ThisObject),
+			New CallbackDescription("RereadCompletion", ThisObject),
 			NStr("en = 'The data was changed. Do you want to read the data without saving it?';"),
 			QuestionDialogMode.YesNo,
 			5,
@@ -391,7 +391,7 @@ Procedure WriteBeginning(Close = False)
 		Buttons.Add("WriteAndClose", NStr("en = 'Save and close';"));
 		Buttons.Add("Cancel", NStr("en = 'Cancel';"));
 		ShowQueryBox(
-			New NotifyDescription("SaveAfterConfirmation", ThisObject),
+			New CallbackDescription("SaveAfterConfirmation", ThisObject),
 			NStr("en = 'Once you save the access rights, you will not be able to change them.';"),
 			Buttons,, "Cancel");
 	Else
@@ -434,8 +434,7 @@ Procedure RereadCompletion(Response, Context) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+#Region AuxiliaryProceduresAndFunctions
 
 &AtClient
 Procedure UpdateDependentRights(Val Data, Val Right, Val PreviousValue2, Val RecursionDepth = 0)
@@ -908,14 +907,14 @@ Procedure ShowTypeSelectionUsersOrExternalUsers(ContinuationHandler)
 	If UseExternalUsers Then
 		
 		UserTypesList.ShowChooseItem(
-			New NotifyDescription(
+			New CallbackDescription(
 				"ShowTypeSelectionUsersOrExternalUsersCompletion",
 				ThisObject,
 				ContinuationHandler),
 			NStr("en = 'Select data type';"),
 			UserTypesList[0]);
 	Else
-		ExecuteNotifyProcessing(ContinuationHandler, ExternalUsersSelectionAndPickup);
+		RunCallback(ContinuationHandler, ExternalUsersSelectionAndPickup);
 	EndIf;
 	
 EndProcedure
@@ -927,9 +926,9 @@ Procedure ShowTypeSelectionUsersOrExternalUsersCompletion(SelectedElement, Conti
 		ExternalUsersSelectionAndPickup =
 			SelectedElement.Value = Type("CatalogRef.ExternalUsers");
 		
-		ExecuteNotifyProcessing(ContinuationHandler, ExternalUsersSelectionAndPickup);
+		RunCallback(ContinuationHandler, ExternalUsersSelectionAndPickup);
 	Else
-		ExecuteNotifyProcessing(ContinuationHandler, Undefined);
+		RunCallback(ContinuationHandler, Undefined);
 	EndIf;
 	
 EndProcedure
@@ -954,7 +953,7 @@ Procedure SelectUsers()
 		ExternalUsersSelectionAndPickup = True;
 	Else
 		ShowTypeSelectionUsersOrExternalUsers(
-			New NotifyDescription("SelectUsersCompletion", ThisObject));
+			New CallbackDescription("SelectUsersCompletion", ThisObject));
 		Return;
 	EndIf;
 	
@@ -1014,5 +1013,7 @@ Procedure ValidatePermissionToManageRights()
 	Raise NStr("en = 'You cannot change access rights.';");
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

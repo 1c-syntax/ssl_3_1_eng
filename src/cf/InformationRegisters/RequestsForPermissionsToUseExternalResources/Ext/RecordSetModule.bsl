@@ -14,7 +14,7 @@
 
 Procedure OnWrite(Cancel, Replacing)
 	
-	// No need to run "DataExchange.Load".
+	// No need to check for DataExchange.Load.
 	// Safe mode restricts writing internal data.
 	If SafeModeManager.SafeModeSet() Then
 		
@@ -23,29 +23,27 @@ Procedure OnWrite(Cancel, Replacing)
 		For Each Record In ThisObject Do
 			
 			If Record.SafeMode <> CurrentSafeMode Then
-				
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Safe mode (%1) is different from the current one (%2)';"),
+					NStr("en = 'Safe mode (%1) is different from the current one (%2).';"),
 					Record.SafeMode, CurrentSafeMode);
-				
+			EndIf;
+			
+			If Common.IsRecordSetDeletion(Replacing) Then
+				Continue;
 			EndIf;
 			
 			ProgramModule = SafeModeManagerInternal.ReferenceFormPermissionRegister(
 				Record.OwnerType, Record.ModuleID);
-			
-			If ProgramModule <> Catalogs.MetadataObjectIDs.EmptyRef() Then
+			If ProgramModule = Catalogs.MetadataObjectIDs.EmptyRef() Then
+				Continue;
+			EndIf;
 				
-				ProgramModuleSafeMode = InformationRegisters.ExternalModulesAttachmentModes.ExternalModuleAttachmentMode(
-					ProgramModule);
-				
-				If Record.SafeMode <> ProgramModuleSafeMode Then
-					
-					Raise StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Cannot perform the permission request for the %1 program module in the %2 safe mode';"),
-						String(ProgramModule), Record.SafeMode);
-					
-				EndIf;
-				
+			ProgramModuleSafeMode = InformationRegisters.ExternalModulesAttachmentModes.ExternalModuleAttachmentMode(
+				ProgramModule);
+			If Record.SafeMode <> ProgramModuleSafeMode Then
+				Raise StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Cannot perform the permission request for the %1 program module in the %2 safe mode.';"),
+					String(ProgramModule), Record.SafeMode);
 			EndIf;
 			
 		EndDo;

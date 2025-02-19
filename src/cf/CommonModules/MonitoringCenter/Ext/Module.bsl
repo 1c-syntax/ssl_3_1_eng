@@ -27,13 +27,18 @@ EndFunction
 // Enables the MonitoringCenter subsystem.
 //
 Procedure EnableSubsystem() Export
-
+	
+	If Not Common.AccessToInternetServicesAllowed() Then
+		Return;
+	EndIf;
+	
 	MonitoringCenterParameters = MonitoringCenterInternal.GetMonitoringCenterParameters();
 
 	MonitoringCenterParameters.EnableMonitoringCenter = True;
 	MonitoringCenterParameters.ApplicationInformationProcessingCenter = False;
 
 	MonitoringCenterInternal.SetMonitoringCenterParametersExternalCall(MonitoringCenterParameters);
+	
 	SchedJob = MonitoringCenterInternal.GetScheduledJobExternalCall("StatisticsDataCollectionAndSending", True);
 	MonitoringCenterInternal.SetDefaultScheduleExternalCall(SchedJob);
 
@@ -168,7 +173,7 @@ EndFunction
 
 #Region ConfigurationStatistics
 
-// Writes statistics by configuration objects.
+// Writes statistics on configuration objects.
 //
 // Parameters:
 //  MetadataNamesMap - Structure:
@@ -196,7 +201,7 @@ Procedure WriteConfigurationStatistics(MetadataNamesMap) Export
 	InformationRegisters.ConfigurationStatistics.Write(Parameters, DataAreaRef);
 EndProcedure
 
-// Writes statistics by a configuration object.
+// Writes statistics on a configuration object.
 //
 // Parameters:
 //  ObjectName -	String	- a statistics operation name, if it is missing, a new one is created.

@@ -87,7 +87,7 @@ Procedure GenerateDataAreaUpdatePlan(LibraryID, AllHandlers,
 				EndDo;
 			EndIf;
 			
-			RecordManager.UpdatePlan = New ValueStorage(PlanDetails);
+			RecordManager.UpdatePlan = New ValueStorage(PlanDetails, New Deflation(9));
 			RecordManager.Write();
 			
 			CommitTransaction();
@@ -403,6 +403,10 @@ EndFunction
 
 Procedure FillTagThisMainConfig(PreviousConfigurationName) Export
 	
+	Block = New DataLock;
+	LockItem = Block.Add("InformationRegister.DataAreasSubsystemsVersions");
+	LockItem.SetValue("SubsystemName", PreviousConfigurationName);
+
 	Query = New Query;
 	Query.SetParameter("SubsystemName", PreviousConfigurationName);
 	Query.Text = 
@@ -414,19 +418,28 @@ Procedure FillTagThisMainConfig(PreviousConfigurationName) Export
 		|WHERE
 		|	DataAreasSubsystemsVersions.SubsystemName = &SubsystemName
 		|	AND DataAreasSubsystemsVersions.IsMainConfiguration = FALSE";
-	Selection = Query.Execute().Select();
 	
-	While Selection.Next() Do
-		// Flag IsMainConfiguration is cleared for the previous configuration.
-		RecordManager = InformationRegisters.DataAreasSubsystemsVersions.CreateRecordManager();
-		RecordManager.SubsystemName = Selection.SubsystemName;
-		RecordManager.DataAreaAuxiliaryData = Selection.DataAreaAuxiliaryData;
-		RecordManager.Read();
-		
-		RecordManager.IsMainConfiguration = True;
-		RecordManager.Write();
-	EndDo;
-	
+	BeginTransaction();
+	Try
+		Block.Lock();
+
+		Selection = Query.Execute().Select();
+		While Selection.Next() Do
+			// Flag IsMainConfiguration is cleared for the previous configuration.
+			RecordManager = InformationRegisters.DataAreasSubsystemsVersions.CreateRecordManager();
+			RecordManager.SubsystemName = Selection.SubsystemName;
+			RecordManager.DataAreaAuxiliaryData = Selection.DataAreaAuxiliaryData;
+			RecordManager.Read();
+			
+			RecordManager.IsMainConfiguration = True;
+			RecordManager.Write();
+		EndDo;
+
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
 EndProcedure
 
 Function MainConfigurationInDataArea() Export
@@ -652,27 +665,39 @@ EndProcedure
 // For internal use only.
 Procedure OnMarkDeferredUpdateHandlersRegistration(SubsystemName, Value, StandardProcessing) Export
 	
-	If Common.DataSeparationEnabled()
-		And Common.SeparatedDataUsageAvailable() Then
+	If Not (Common.DataSeparationEnabled()
+		And Common.SeparatedDataUsageAvailable()) Then
+		Return;
+	EndIf;
 		
-		StandardProcessing = False;
-		
+	StandardProcessing = False;
+	
+	Block = New DataLock;
+	LockItem = Block.Add("InformationRegister.DataAreasSubsystemsVersions");
+	If SubsystemName <> Undefined Then
+		LockItem.SetValue("SubsystemName", SubsystemName);
+	EndIf;
+	
+	BeginTransaction();
+	Try
+		Block.Lock();
+
 		RecordSet = InformationRegisters.DataAreasSubsystemsVersions.CreateRecordSet();
 		If SubsystemName <> Undefined Then
 			RecordSet.Filter.SubsystemName.Set(SubsystemName);
 		EndIf;
 		RecordSet.Read();
 		
-		If RecordSet.Count() = 0 Then
-			Return;
-		EndIf;
-		
 		For Each RegisterRecord In RecordSet Do
 			RegisterRecord.DeferredHandlersRegistrationCompleted = Value;
 		EndDo;
 		RecordSet.Write();
-		
-	EndIf;
+
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
 	
 EndProcedure
 
@@ -1017,6 +1042,17 @@ Procedure ScheduleDataAreaUpdate()
 		
 		LockingError = False;
 		
+		Block = New DataLock;
+		
+		LockItem = Block.Add("InformationRegister.DataAreasSubsystemsVersions");
+		LockItem.SetValue("DataAreaAuxiliaryData", Selection.DataArea);
+		LockItem.SetValue("SubsystemName", Metadata.Name);
+		LockItem.Mode = DataLockMode.Shared;
+		
+		LockItem = Block.Add("InformationRegister.DataAreas");
+		LockItem.SetValue("DataAreaAuxiliaryData", Selection.DataArea);
+		LockItem.Mode = DataLockMode.Shared;
+			
 		BeginTransaction();
 		Try
 			Try
@@ -1026,23 +1062,10 @@ Procedure ScheduleDataAreaUpdate()
 				Raise;
 			EndTry;
 		
-			Block = New DataLock;
-			
-			LockItem = Block.Add("InformationRegister.DataAreasSubsystemsVersions");
-			LockItem.SetValue("DataAreaAuxiliaryData", Selection.DataArea);
-			LockItem.SetValue("SubsystemName", Metadata.Name);
-			LockItem.Mode = DataLockMode.Shared;
-			
-			LockItem = Block.Add("InformationRegister.DataAreas");
-			LockItem.SetValue("DataAreaAuxiliaryData", Selection.DataArea);
-			LockItem.Mode = DataLockMode.Shared;
-			
 			Block.Lock();
 			
 			AreaStatus = ModuleSaaSOperations.DataAreaStatus(Selection.DataArea);
-			
 			AreaVersion = AreasVersions[Selection.DataArea];
-			
 			If AreaStatus = Undefined
 				Or AreaStatus <> Enums["DataAreaStatuses"].Used
 				Or (AreaVersion <> Undefined And AreaVersion = MetadataVersion) Then
@@ -1092,25 +1115,20 @@ Procedure ScheduleDataAreaUpdate()
 			ModuleJobsQueue.AddJob(JobParameters);
 			
 			CommitTransaction();
-			
 		Except
-			
 			RollbackTransaction();
 			If LockingError Then
 				Continue;
-			Else
-				Raise;
 			EndIf;
-			
+			Raise;
 		EndTry;
 		
 	EndDo;
 	
 EndProcedure
 
-// Performs infobase version update in the current data area
-// and removes session locks in the area if they were
-// previously set.
+// 
+// 
 //
 Procedure UpdateCurrentDataArea(ActivatedExtensions = Undefined) Export
 	
@@ -1130,7 +1148,8 @@ Procedure UpdateCurrentDataArea(ActivatedExtensions = Undefined) Export
 	
 	For Each Id In ActivatedExtensions Do
 		
-		Extensions = ConfigurationExtensions.Get(New Structure("UUID", Id), ConfigurationExtensionsSource.SessionApplied);
+		Extensions = ConfigurationExtensions.Get(New Structure("UUID", Id), 
+			ConfigurationExtensionsSource.SessionApplied);
 		If Extensions.Count() = 0 Then
 			Continue;
 		EndIf;
@@ -1173,9 +1192,9 @@ Function EarliestDataAreaVersion() Export
 		ExceptionText = NStr("en = 'Cannot call function %1
 		                             |from sessions where the SaaS separators value is set.';");
 		ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(ExceptionText,
-			"InfobaseUpdateInternalCached.EarliestDataAreaVersion()");
+			"InfobaseUpdateInternalCached.EarliestDataAreaVersion");
 		
-		Raise ExceptionText;
+		Raise(ExceptionText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	Query = New Query;

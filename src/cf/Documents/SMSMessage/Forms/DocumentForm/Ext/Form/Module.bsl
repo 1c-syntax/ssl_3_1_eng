@@ -59,14 +59,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	// End StandardSubsystems.Properties
 	
-	// StandardSubsystems.StoredFiles
+	// StandardSubsystems.FilesOperations
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperations = Common.CommonModule("FilesOperations");
 		FilesHyperlink = ModuleFilesOperations.FilesHyperlink();
 		FilesHyperlink.Location = "CommandBar";
 		ModuleFilesOperations.OnCreateAtServer(ThisObject, FilesHyperlink);
 	EndIf;
-	// End StandardSubsystems.StoredFiles
+	// End StandardSubsystems.FilesOperations
 	
 	// StandardSubsystems.MessagesTemplates
 	DeterminePossibilityToFillEmailByTemplate();
@@ -146,12 +146,12 @@ Procedure OnOpen(Cancel)
 	EndIf;
 	// End StandardSubsystems.AttachableCommands
 	
-	// StandardSubsystems.StoredFiles
+	// StandardSubsystems.FilesOperations
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsClient = CommonClient.CommonModule("FilesOperationsClient");
 		ModuleFilesOperationsClient.OnOpen(ThisObject, Cancel);
 	EndIf;
-	// End StandardSubsystems.StoredFiles
+	// End StandardSubsystems.FilesOperations
 
 EndProcedure
 
@@ -173,12 +173,12 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	CheckContactCreationAvailability();
 	AddresseesCount = Object.SMSMessageRecipients.Count();
 	
-	// StandardSubsystems.StoredFiles
+	// StandardSubsystems.FilesOperations
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsClient = CommonClient.CommonModule("FilesOperationsClient");
 		ModuleFilesOperationsClient.NotificationProcessing(ThisObject, EventName);
 	EndIf;
-	// End StandardSubsystems.StoredFiles
+	// End StandardSubsystems.FilesOperations
 	
 	// StandardSubsystems.MessagesTemplates
 	If EventName = "Write_MessageTemplates" Then
@@ -308,7 +308,7 @@ Procedure SubjectOfStartChoice(Item, ChoiceData, StandardProcessing)
 	
 EndProcedure
 
-// StandardSubsystems.StoredFiles
+// StandardSubsystems.FilesOperations
 &AtClient
 Procedure Attachable_PreviewFieldClick(Item, StandardProcessing)
 	
@@ -340,7 +340,7 @@ Procedure Attachable_PreviewFieldDrag(Item, DragParameters, StandardProcessing)
 	EndIf;
 	
 EndProcedure
-// End StandardSubsystems.StoredFiles
+// End StandardSubsystems.FilesOperations
 
 #EndRegion
 
@@ -490,7 +490,7 @@ Procedure CheckDeliveryStatuses(Command)
 	
 EndProcedure
 
-// StandardSubsystems.Properties
+// СтандартныеПодсистемы.Свойства
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -504,7 +504,7 @@ EndProcedure
 
 // End StandardSubsystems.Properties
 
-// StandardSubsystems.StoredFiles
+// StandardSubsystems.FilesOperations
 &AtClient
 Procedure Attachable_AttachedFilesPanelCommand(Command)
 	
@@ -514,16 +514,16 @@ Procedure Attachable_AttachedFilesPanelCommand(Command)
 	EndIf;
 	
 EndProcedure
-// End StandardSubsystems.StoredFiles
+// End StandardSubsystems.FilesOperations
 
-// StandardSubsystems.MessagesTemplates
+// СтандартныеПодсистемы.ШаблоныСообщений
 
 &AtClient
 Procedure GenerateFromTemplate(Command)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.MessageTemplates") Then
 		ModuleMessageTemplatesClient = CommonClient.CommonModule("MessageTemplatesClient");
-		Notification = New NotifyDescription("FillByTemplateAfterTemplateChoice", ThisObject);
+		Notification = New CallbackDescription("FillByTemplateAfterTemplateChoice", ThisObject);
 		MessageSubject = ?(ValueIsFilled(SubjectOf), SubjectOf, "Shared");
 		ModuleMessageTemplatesClient.PrepareMessageFromTemplate(MessageSubject, "SMSMessage", Notification);
 	EndIf
@@ -554,7 +554,7 @@ Procedure SetConditionalAppearance()
 
 EndProcedure
 
-// StandardSubsystems.Properties
+// СтандартныеПодсистемы.Свойства
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()
@@ -600,7 +600,7 @@ EndProcedure
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Miscellaneous.
+// Other
 
 &AtClient
 Procedure CheckContactCreationAvailability()
@@ -642,6 +642,7 @@ Procedure SendExecute()
 	
 	SentSuccessfully = SendingResutAtServer();
 	If SentSuccessfully Then
+		NotifyChanged(Object.Ref);
 		Close();
 	EndIf;
 
@@ -895,7 +896,7 @@ Procedure Attachable_UpdateCommands()
 EndProcedure
 // End StandardSubsystems.AttachableCommands
 
-// StandardSubsystems.MessagesTemplates
+// СтандартныеПодсистемы.ШаблоныСообщений
 
 &AtClient
 Procedure FillByTemplateAfterTemplateChoice(Result, AdditionalParameters) Export

@@ -1,0 +1,686 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
+	<Width>50</Width>
+	<SaveWindowSettings>false</SaveWindowSettings>
+	<CommandBarLocation>Bottom</CommandBarLocation>
+	<AutoCommandBar name="FormCommandBar" id="-1">
+		<HorizontalAlign>Right</HorizontalAlign>
+		<Autofill>false</Autofill>
+	</AutoCommandBar>
+	<Events>
+		<Event name="OnOpen">OnOpen</Event>
+		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
+	</Events>
+	<ChildItems>
+		<RadioButtonField name="WorkOption" id="69">
+			<DataPath>WorkOption</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Operation mode</v8:content>
+				</v8:item>
+			</Title>
+			<TitleLocation>None</TitleLocation>
+			<RadioButtonType>Tumbler</RadioButtonType>
+			<EqualColumnsWidth>true</EqualColumnsWidth>
+			<ChoiceList>
+				<xr:Item>
+					<xr:Presentation/>
+					<xr:CheckState>0</xr:CheckState>
+					<xr:Value xsi:type="FormChoiceListDesTimeValue">
+						<Presentation>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>New setting</v8:content>
+							</v8:item>
+						</Presentation>
+						<Value xsi:type="xs:decimal">0</Value>
+					</xr:Value>
+				</xr:Item>
+				<xr:Item>
+					<xr:Presentation/>
+					<xr:CheckState>0</xr:CheckState>
+					<xr:Value xsi:type="FormChoiceListDesTimeValue">
+						<Presentation>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Setup continue</v8:content>
+							</v8:item>
+						</Presentation>
+						<Value xsi:type="xs:decimal">1</Value>
+					</xr:Value>
+				</xr:Item>
+			</ChoiceList>
+			<ContextMenu name="WorkOptionContextMenu" id="70"/>
+			<ExtendedTooltip name="WorkOptionExtendedTooltip" id="71"/>
+			<Events>
+				<Event name="OnChange">WorkOptionOnChange</Event>
+			</Events>
+		</RadioButtonField>
+		<Pages name="PanelMain" id="10">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Main panel</v8:content>
+				</v8:item>
+			</Title>
+			<PagesRepresentation>None</PagesRepresentation>
+			<ExtendedTooltip name="PanelMainExtendedTooltip" id="11"/>
+			<ChildItems>
+				<Page name="TransportTypesPageNewSettings" id="12">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Page Transport types New setup</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="TransportTypesPageNewSettingsExtendedTooltip" id="13"/>
+					<ChildItems>
+						<UsualGroup name="TransportTypesNewSetting" id="93">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Transport types New setup</v8:content>
+								</v8:item>
+							</Title>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="TransportTypesNewSettingExtendedTooltip" id="94"/>
+						</UsualGroup>
+						<Table name="NewSetupTable" id="105">
+							<Representation>List</Representation>
+							<ReadOnly>true</ReadOnly>
+							<SelectionMode>SingleRow</SelectionMode>
+							<AutoInsertNewRow>true</AutoInsertNewRow>
+							<EnableStartDrag>true</EnableStartDrag>
+							<EnableDrag>true</EnableDrag>
+							<DataPath>NewSetupTable</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>New setting table</v8:content>
+								</v8:item>
+							</Title>
+							<RowFilter xsi:nil="true"/>
+							<ContextMenu name="NewSetupTableContextMenu" id="106"/>
+							<AutoCommandBar name="NewSetupTableCommandBar" id="107">
+								<Autofill>false</Autofill>
+							</AutoCommandBar>
+							<ExtendedTooltip name="NewSetupTableExtendedTooltip" id="108"/>
+							<SearchStringAddition name="NewSetupTableSearchString" id="109">
+								<AdditionSource>
+									<Item>NewSetupTable</Item>
+									<Type>SearchStringRepresentation</Type>
+								</AdditionSource>
+								<ContextMenu name="NewSetupTableSearchStringContextMenu" id="110"/>
+								<ExtendedTooltip name="NewSetupTableSearchStringExtendedTooltip" id="111"/>
+							</SearchStringAddition>
+							<ViewStatusAddition name="NewSetupTableViewStatus" id="112">
+								<AdditionSource>
+									<Item>NewSetupTable</Item>
+									<Type>ViewStatusRepresentation</Type>
+								</AdditionSource>
+								<ContextMenu name="NewSetupTableViewStatusContextMenu" id="113"/>
+								<ExtendedTooltip name="NewSetupTableViewStatusExtendedTooltip" id="114"/>
+							</ViewStatusAddition>
+							<SearchControlAddition name="NewSetupTableSearchControl" id="115">
+								<AdditionSource>
+									<Item>NewSetupTable</Item>
+									<Type>SearchControl</Type>
+								</AdditionSource>
+								<ContextMenu name="NewSetupTableSearchControlContextMenu" id="116"/>
+								<ExtendedTooltip name="NewSetupTableSearchControlExtendedTooltip" id="117"/>
+							</SearchControlAddition>
+							<Events>
+								<Event name="Selection">NewSetupTableSelection</Event>
+							</Events>
+							<ChildItems>
+								<PictureField name="NewSetupTablePicture" id="118">
+									<DataPath>NewSetupTable.Picture</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Picture</v8:content>
+										</v8:item>
+									</Title>
+									<EditMode>EnterOnInput</EditMode>
+									<ShowInHeader>false</ShowInHeader>
+									<ContextMenu name="NewSetupTablePictureContextMenu" id="119"/>
+									<ExtendedTooltip name="NewSetupTablePictureExtendedTooltip" id="120"/>
+								</PictureField>
+								<InputField name="NewSetupTableAlias" id="121">
+									<DataPath>NewSetupTable.Alias</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Transport</v8:content>
+										</v8:item>
+									</Title>
+									<EditMode>EnterOnInput</EditMode>
+									<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+									<ContextMenu name="TableNewSetupAliasContextMenu" id="122"/>
+									<ExtendedTooltip name="TableNewSetupAliasExtendedTooltip" id="123"/>
+								</InputField>
+								<PictureField name="NewSetupTablePictureHelp" id="147">
+									<DataPath>NewSetupTable.PictureHelp</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Picture Help</v8:content>
+										</v8:item>
+									</Title>
+									<EditMode>EnterOnInput</EditMode>
+									<ShowInHeader>false</ShowInHeader>
+									<ContextMenu name="NewSetupTablePictureHelpContextMenu" id="148"/>
+									<ExtendedTooltip name="NewSetupTablePictureHelpExtendedTooltip" id="149"/>
+								</PictureField>
+							</ChildItems>
+						</Table>
+					</ChildItems>
+				</Page>
+				<Page name="TransportTypesPageContinuedSettings" id="67">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Page Transport types Continue setup</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="TransportTypesPageContinuedSettingsExtendedTooltip" id="68"/>
+					<ChildItems>
+						<UsualGroup name="GroupInformationWhenYouContinueSettingUp" id="97">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Info for continuing setup</v8:content>
+								</v8:item>
+							</Title>
+							<HorizontalStretch>true</HorizontalStretch>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<BackColor>#CCFFCC</BackColor>
+							<ExtendedTooltip name="GroupInformationWhenYouContinueSettingUpExtendedTooltip" id="98"/>
+							<ChildItems>
+								<PictureDecoration name="Decoration4" id="99">
+									<Width>5</Width>
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<Height>2</Height>
+									<AutoMaxHeight>false</AutoMaxHeight>
+									<Zoomable>true</Zoomable>
+									<ImageScale>200</ImageScale>
+									<Picture>
+										<xr:Ref>StdPicture.Information</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
+									</Picture>
+									<ContextMenu name="Decoration4ContextMenu" id="100"/>
+									<ExtendedTooltip name="Decoration4ExtendedTooltip" id="101"/>
+								</PictureDecoration>
+								<LabelDecoration name="Decoration7" id="102">
+									<Height>2</Height>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>To continue the setup, select the transport type and upload the settings file obtained from the peer infobase.</v8:content>
+										</v8:item>
+									</Title>
+									<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+									<GroupVerticalAlign>Center</GroupVerticalAlign>
+									<ContextMenu name="Decoration7ContextMenu" id="103"/>
+									<ExtendedTooltip name="Decoration7ExtendedTooltip" id="104"/>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="TransportTypesContinuedSettings" id="95">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Transport types Continue setup</v8:content>
+								</v8:item>
+							</Title>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="TransportTypesContinuedSettingsExtendedTooltip" id="96"/>
+						</UsualGroup>
+						<Table name="TableContinuedSettings" id="126">
+							<Representation>List</Representation>
+							<ReadOnly>true</ReadOnly>
+							<SelectionMode>SingleRow</SelectionMode>
+							<AutoInsertNewRow>true</AutoInsertNewRow>
+							<EnableStartDrag>true</EnableStartDrag>
+							<EnableDrag>true</EnableDrag>
+							<DataPath>TableContinuedSettings</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Table Continue setup</v8:content>
+								</v8:item>
+							</Title>
+							<RowFilter xsi:nil="true"/>
+							<ContextMenu name="TableContinuedSettingsContextMenu" id="127"/>
+							<AutoCommandBar name="TableContinuedSettingsCommandBar" id="128">
+								<Autofill>false</Autofill>
+							</AutoCommandBar>
+							<ExtendedTooltip name="TableContinuedSettingsExtendedTooltip" id="129"/>
+							<SearchStringAddition name="TableContinuedSettingsSearchString" id="130">
+								<AdditionSource>
+									<Item>TableContinuedSettings</Item>
+									<Type>SearchStringRepresentation</Type>
+								</AdditionSource>
+								<ContextMenu name="TableContinuedSettingsSearchStringContextMenu" id="131"/>
+								<ExtendedTooltip name="TableContinuedSettingsSearchStringExtendedTooltip" id="132"/>
+							</SearchStringAddition>
+							<ViewStatusAddition name="TableContinuedSettingsViewStatus" id="133">
+								<AdditionSource>
+									<Item>TableContinuedSettings</Item>
+									<Type>ViewStatusRepresentation</Type>
+								</AdditionSource>
+								<ContextMenu name="TableContinuedSettingsViewStatusContextMenu" id="134"/>
+								<ExtendedTooltip name="TableContinuedSettingsViewStatusExtendedTooltip" id="135"/>
+							</ViewStatusAddition>
+							<SearchControlAddition name="TableContinuedSettingsSearchControl" id="136">
+								<AdditionSource>
+									<Item>TableContinuedSettings</Item>
+									<Type>SearchControl</Type>
+								</AdditionSource>
+								<ContextMenu name="TableContinuedSettingsSearchControlContextMenu" id="137"/>
+								<ExtendedTooltip name="TableContinuedSettingsSearchControlExtendedTooltip" id="138"/>
+							</SearchControlAddition>
+							<Events>
+								<Event name="Selection">TableContinuedSettingsSelection</Event>
+							</Events>
+							<ChildItems>
+								<PictureField name="TableContinuedSettingsPicture" id="139">
+									<DataPath>TableContinuedSettings.Picture</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Picture</v8:content>
+										</v8:item>
+									</Title>
+									<EditMode>EnterOnInput</EditMode>
+									<ShowInHeader>false</ShowInHeader>
+									<ContextMenu name="TableContinuedSettingsPictureContextMenu" id="140"/>
+									<ExtendedTooltip name="TableContinuedSettingsPictureExtendedTooltip" id="141"/>
+								</PictureField>
+								<InputField name="TableContinuedSettingsAlias" id="142">
+									<DataPath>TableContinuedSettings.Alias</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Transport</v8:content>
+										</v8:item>
+									</Title>
+									<EditMode>EnterOnInput</EditMode>
+									<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+									<ContextMenu name="TableContinueSetupAliasContextMenu" id="143"/>
+									<ExtendedTooltip name="TableContinueSetupAliasExtendedTooltip" id="144"/>
+								</InputField>
+								<PictureField name="TableContinuedSettingsPictureHelp" id="150">
+									<DataPath>TableContinuedSettings.PictureHelp</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Picture Help</v8:content>
+										</v8:item>
+									</Title>
+									<EditMode>EnterOnInput</EditMode>
+									<ShowInHeader>false</ShowInHeader>
+									<ContextMenu name="TableContinuedSettingsPictureHelpContextMenu" id="151"/>
+									<ExtendedTooltip name="TableContinuedSettingsPictureHelpExtendedTooltip" id="152"/>
+								</PictureField>
+							</ChildItems>
+						</Table>
+					</ChildItems>
+				</Page>
+			</ChildItems>
+		</Pages>
+		<Pages name="GroupCommandBar" id="72">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Command bar</v8:content>
+				</v8:item>
+			</Title>
+			<PagesRepresentation>None</PagesRepresentation>
+			<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="73"/>
+			<ChildItems>
+				<Page name="CommandPanelNewSettingsPage" id="74">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Command bar Page New setup</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="CommandPanelNewSettingsPageExtendedTooltip" id="75"/>
+					<ChildItems>
+						<CommandBar name="CommandPanelNewSetup" id="78">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Command bar New setup</v8:content>
+								</v8:item>
+							</Title>
+							<HorizontalLocation>Right</HorizontalLocation>
+							<ExtendedTooltip name="CommandPanelNewSetupExtendedTooltip" id="79"/>
+							<ChildItems>
+								<Button name="Done" id="84">
+									<Type>CommandBarButton</Type>
+									<CommandName>Form.Command.Done</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Finish</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="DoneExtendedTooltip" id="85"/>
+								</Button>
+								<Button name="Cancel" id="82">
+									<Type>CommandBarButton</Type>
+									<CommandName>Form.Command.Cancel</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Cancel</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="CancelExtendedTooltip" id="83"/>
+								</Button>
+							</ChildItems>
+						</CommandBar>
+					</ChildItems>
+				</Page>
+				<Page name="CommandPanelContinuedSettingsPage" id="76">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Command bar Page Continue setup</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="CommandPanelContinuedSettingsPageExtendedTooltip" id="77"/>
+					<ChildItems>
+						<CommandBar name="CommandPanelContinuedSettings" id="80">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Command bar Continue setup</v8:content>
+								</v8:item>
+							</Title>
+							<HorizontalLocation>Right</HorizontalLocation>
+							<ExtendedTooltip name="CommandPanelContinuedSettingsExtendedTooltip" id="81"/>
+							<ChildItems>
+								<Button name="DownloadConnectionSettings" id="86">
+									<Type>CommandBarButton</Type>
+									<CommandName>Form.Command.DownloadConnectionSettings</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Import connection settings</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="DownloadConnectionSettingsExtendedTooltip" id="87"/>
+								</Button>
+								<Button name="Cancel1" id="88">
+									<Type>CommandBarButton</Type>
+									<CommandName>Form.Command.Cancel</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Cancel</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="Cancel1ExtendedTooltip" id="89"/>
+								</Button>
+							</ChildItems>
+						</CommandBar>
+					</ChildItems>
+				</Page>
+			</ChildItems>
+		</Pages>
+	</ChildItems>
+	<Attributes>
+		<Attribute name="ExchangePlanName" id="1">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="TransportID" id="4">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="SettingID" id="5">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="WorkOption" id="3">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Operation mode</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>10</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Any</v8:AllowedSign>
+				</v8:NumberQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="NewSetupTable" id="2">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>New setting table</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>v8:ValueTable</v8:Type>
+			</Type>
+			<Columns>
+				<Column name="Picture" id="1">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Picture</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>v8ui:Picture</v8:Type>
+					</Type>
+				</Column>
+				<Column name="Alias" id="2">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Alias</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="TransportID" id="3">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="FullNameOfTransportProcessing" id="4">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="PictureHelp" id="5">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Help picture</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>v8ui:Picture</v8:Type>
+					</Type>
+				</Column>
+				<Column name="Selected" id="6">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+			</Columns>
+		</Attribute>
+		<Attribute name="TableContinuedSettings" id="8">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>New setting table</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>v8:ValueTable</v8:Type>
+			</Type>
+			<Columns>
+				<Column name="Picture" id="1">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Picture</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>v8ui:Picture</v8:Type>
+					</Type>
+				</Column>
+				<Column name="Alias" id="2">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Alias</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="TransportID" id="3">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="FullNameOfTransportProcessing" id="4">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="PictureHelp" id="5">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Help picture</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>v8ui:Picture</v8:Type>
+					</Type>
+				</Column>
+				<Column name="Selected" id="6">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+			</Columns>
+		</Attribute>
+		<Attribute name="WizardRunOption" id="6">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+	</Attributes>
+	<Commands>
+		<Command name="Done" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Done</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Done</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>Done</Action>
+		</Command>
+		<Command name="Cancel" id="2">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Cancel</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Cancel</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>Cancel</Action>
+		</Command>
+		<Command name="DownloadConnectionSettings" id="4">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Import connection settings</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Import connection settings</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>DownloadConnectionSettings</Action>
+		</Command>
+	</Commands>
+</Form>

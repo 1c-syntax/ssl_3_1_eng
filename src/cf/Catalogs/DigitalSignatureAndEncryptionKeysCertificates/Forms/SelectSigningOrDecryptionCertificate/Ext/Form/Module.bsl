@@ -25,6 +25,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	HaveRightToAddInDirectory = AccessRight("Insert",
 		Metadata.Catalogs.DigitalSignatureAndEncryptionKeysCertificates);
 	IsFullUser = Users.IsFullUser(Users.CurrentUser());
+	CertificateIssueRequestAvailable = DigitalSignature.CommonSettings().CertificateIssueRequestAvailable;
 	
 	ConditionalAppearance.Items.Clear();
 	If Not HaveRightToAddInDirectory Then
@@ -33,11 +34,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		AppearanceColorItem = ConditionalAppearanceItem.Appearance.Items.Find("TextColor");
 		AppearanceColorItem.Value = Metadata.StyleItems.InaccessibleCellTextColor.Value;
 		AppearanceColorItem.Use = True;
-
+		
 		AppearanceField = ConditionalAppearanceItem.Fields.Items.Add();
 		AppearanceField.Field = New DataCompositionField("Certificates");
 		AppearanceField.Use = True;
-
+		
 		FilterElement = ConditionalAppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
 		FilterElement.LeftValue = New DataCompositionField("Certificates.Isinthedirectory");
 		FilterElement.ComparisonType = DataCompositionComparisonType.Equal;
@@ -95,17 +96,17 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Title = NStr("en = 'Add a certificate to sign data';");
 	EndIf;
 	
-	If DigitalSignature.GenerateDigitalSignaturesAtServer()
-	   And ExecuteAtServer <> False
-	 Or HasCloudSignature Then
-		
+	If DigitalSignature.GenerateDigitalSignaturesAtServer() And ExecuteAtServer <> False Or HasCloudSignature Then
 		If ExecuteAtServer = True Then
-			Items.CertificatesGroup.Title =
-				NStr("en = 'Personal certificates on the server';");
+			Items.CertificatesGroup.Title = NStr("en = 'Personal certificates on the server';");
 		Else
-			Items.CertificatesGroup.Title =
-				NStr("en = 'Personal certificates on computer and on server';");
+			Items.CertificatesGroup.Title = NStr("en = 'Personal certificates on computer and on server';");
 		EndIf;
+	EndIf;
+	
+	CertificateAddress = Parameters.CertificateAddress;
+	If IsTempStorageURL(CertificateAddress) Then
+		Items.Back.Visible = False;
 	EndIf;
 	
 	HasCompanies = DigitalSignature.CommonSettings().IsCompanyUsed;
@@ -131,7 +132,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	UpdateCertificatesListAtServer(Parameters.CertificatesPropertiesAtClient);
 	
 	If ValueIsFilled(Parameters.SelectedCertificateThumbprint)
-	   And Parameters.SelectedCertificateThumbprint <> SelectedCertificateThumbprint Then
+		And Parameters.SelectedCertificateThumbprint <> SelectedCertificateThumbprint Then
 		
 		SelectedCertificateThumbprintNotFound = True;
 	EndIf;
@@ -140,6 +141,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.SelectRef.DefaultButton = RefSelectionMode;
 	Items.CommandsNextAndCancel.Visible = Not RefSelectionMode;
 	Items.Next.DefaultButton = Not RefSelectionMode;
+	
+	SetVisibilityForCertificateAdditionCommands();
 	
 EndProcedure
 
@@ -156,7 +159,7 @@ EndProcedure
 Procedure NotificationProcessing(EventName, Parameter, Source)
 	
 	If Upper(EventName) = Upper("Write_DigitalSignatureAndEncryptionApplications")
-	 Or Upper(EventName) = Upper("Write_PathsToDigitalSignatureAndEncryptionApplicationsOnLinuxServers") Then
+		Or Upper(EventName) = Upper("Write_PathsToDigitalSignatureAndEncryptionApplicationsOnLinuxServers") Then
 		
 		RefreshReusableValues();
 		UpdateCertificatesList();
@@ -164,8 +167,23 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	EndIf;
 	
 	If Upper(EventName) = Upper("Write_DigitalSignatureAndEncryptionKeysCertificates") Then
-		UpdateCertificatesList();
+		
+		CurrentData = Items.Certificates.CurrentData;
+		
+		If Parameter.Property("Is_Specified") And Parameter.Is_Specified And CurrentData <> Undefined
+			And TypeOf(Source) = Type("CatalogRef.DigitalSignatureAndEncryptionKeysCertificates")
+			And Source = Certificate  And Not CurrentData.AtServer Then
+			
+			CertificateProperties = AddedCertificateProperties(Source);
+			FillPropertyValues(CurrentData, CertificateProperties);
+			Next(Undefined);
+			
+		Else
+			UpdateCertificatesList();
+		EndIf;
+		
 		Return;
+		
 	EndIf;
 	
 	If Upper(EventName) = Upper("InstallCryptoExtension")
@@ -179,7 +197,7 @@ EndProcedure
 &AtServer
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
-	// Check description for uniqueness.
+	// Check the description for uniqueness.
 	DigitalSignatureInternal.CheckPresentationUniqueness(
 		DescriptionCertificate, Certificate, "DescriptionCertificate", Cancel);
 		
@@ -298,7 +316,7 @@ EndProcedure
 &AtClient
 Procedure CloudSignatureAuthenticationRequiredLabelClick(Item)
 	
-	TheNotificationIsAsFollows = New NotifyDescription("RequiresAuthenticationOfTheCloudSignatureInscriptionAfterAuthentication", ThisObject);
+	TheNotificationIsAsFollows = New CallbackDescription("RequiresAuthenticationOfTheCloudSignatureInscriptionAfterAuthentication", ThisObject);
 	OperationParametersList = New Structure();
 	OperationParametersList.Insert("AccountsList", AccountsList.UnloadValues());
 	
@@ -372,7 +390,7 @@ Procedure ShowCurrentCertificateData(Command)
 		
 		CycleParameters = New Structure("IsRequest", CurrentData.IsRequest);
 		
-		TheNotificationIsAsFollows = New NotifyDescription("OpenTheCloudSignatureCertificate", ThisObject, CycleParameters);
+		TheNotificationIsAsFollows = New CallbackDescription("OpenTheCloudSignatureCertificate", ThisObject, CycleParameters);
 		TheDSSCryptographyServiceModuleClient.FindCertificate(TheNotificationIsAsFollows, CertificateThumbprint, OperationParametersList);
 	Else
 		DigitalSignatureClient.OpenCertificate(CurrentData.Thumbprint, Not CurrentData.IsRequest);
@@ -385,7 +403,7 @@ Procedure Next(Command)
 	
 	Items.Next.Enabled = False;
 	
-	GoToCurrentCertificateChoice(New NotifyDescription(
+	GoToCurrentCertificateChoice(New CallbackDescription(
 		"NextAfterGoToCurrentCertificateSelection", ThisObject));
 	
 EndProcedure
@@ -402,7 +420,7 @@ Procedure NextAfterGoToCurrentCertificateSelection(Result, Context) Export
 	Context = Result;
 	
 	If Context.UpdateCertificatesList Then
-		UpdateCertificatesList(New NotifyDescription(
+		UpdateCertificatesList(New CallbackDescription(
 			"NextAfterCertificatesListUpdate", ThisObject, Context));
 	Else
 		NextAfterCertificatesListUpdate(Undefined, Context);
@@ -449,7 +467,7 @@ Procedure Select(Command)
 		OperationParametersList.Insert("CertificateThumbprint", CertificateThumbprint);
 		
 		TheDSSCryptographyServiceModuleClient.CheckCertificate(
-			New NotifyDescription("SelectAfterVerifyingTheCloudSignatureCertificate", ThisObject, OperationParametersList),
+			New CallbackDescription("SelectAfterVerifyingTheCloudSignatureCertificate", ThisObject, OperationParametersList),
 			UserSettings,
 			GetFromTempStorage(AddressOfCertificate));
 	
@@ -457,7 +475,7 @@ Procedure Select(Command)
 		
 		ModuleCryptographyServiceClient = CommonClient.CommonModule("CryptographyServiceClient");
 		ModuleCryptographyServiceClient.CheckCertificate(
-			New NotifyDescription("SelectAfterCertificateCheckInSaaSMode", ThisObject, Undefined),
+			New CallbackDescription("SelectAfterCertificateCheckInSaaSMode", ThisObject, Undefined),
 			GetFromTempStorage(AddressOfCertificate));
 		
 	Else
@@ -470,7 +488,7 @@ Procedure Select(Command)
 		CertificateParameters.EnterPasswordInDigitalSignatureApplication = CertificateEnterPasswordInElectronicSignatureProgram;
 		
 		DigitalSignatureClient.WriteCertificateToCatalog(
-			New NotifyDescription("SelectAfterCertificateCheck", ThisObject, Undefined),
+			New CallbackDescription("SelectAfterCertificateCheck", ThisObject, Undefined),
 			AddressOfCertificate, PasswordProperties.Value, ToEncryptAndDecrypt, CertificateParameters);
 		
 	EndIf;
@@ -490,7 +508,7 @@ Procedure SelectRef(Command)
 		Return;
 	EndIf;
 	
-	CompletionNotification = New NotifyDescription("SelectRefCompletion", ThisObject);
+	CompletionNotification = New CallbackDescription("SelectRefCompletion", ThisObject);
 	
 	If CurrentData.LocationType = 3 Then
 		TheDSSCryptographyServiceModuleClientServer = CommonClient.CommonModule("DSSCryptographyServiceClientServer");
@@ -504,9 +522,10 @@ Procedure SelectRef(Command)
 	Else
 		DigitalSignatureInternalClient.GetCertificateByThumbprint(CompletionNotification, CurrentData.Thumbprint, False);
 	EndIf;
+	
 EndProcedure
 
-// Continues the SelectRef???????????? procedure.
+// Continues the SelectRef procedure.
 &AtClient
 Procedure SelectRefCompletion(Result, Context) Export 
 	Close(Result.Unload());
@@ -532,7 +551,7 @@ Procedure SelectAfterCertificateCheck(Result, Context) Export
 	DigitalSignatureInternalClient.ProcessPasswordInForm(ThisObject,
 		InternalData, PasswordProperties, New Structure("OnOperationSuccess", True));
 		
-	DigitalSignatureInternalClient.AfterAddingElectronicSignatureCertificatesToDirectory(Certificate, AdditionalParameters);
+	DigitalSignatureInternalClient.AfterAddingElectronicSignatureCertificatesToCatalog(Certificate, AdditionalParameters);
 	
 	If ReturnPassword Then
 		
@@ -550,7 +569,7 @@ Procedure SelectAfterCertificateCheck(Result, Context) Export
 EndProcedure
 
 // Continues the Select procedure.
-&AtClient                                                                   
+&AtClient
 Procedure SelectAfterVerifyingTheCloudSignatureCertificate(Result, Context) Export
 	
 	AdditionalParameters = DigitalSignatureInternalClient.ParametersNotificationWhenWritingCertificate();
@@ -577,7 +596,7 @@ Procedure SelectAfterVerifyingTheCloudSignatureCertificate(Result, Context) Expo
 	
 	WriteTheCertificateToTheCloudSignatureDirectory(Context.Account);
 	
-	DigitalSignatureInternalClient.AfterAddingElectronicSignatureCertificatesToDirectory(Certificate, AdditionalParameters);
+	DigitalSignatureInternalClient.AfterAddingElectronicSignatureCertificatesToCatalog(Certificate, AdditionalParameters);
 	
 	NotifyChoice(Certificate);
 	
@@ -611,7 +630,7 @@ Procedure SelectAfterCertificateCheckInSaaSMode(Result, Context) Export
 	EndIf;
 	
 	WriteCertificateToCatalogSaaS();
-	DigitalSignatureInternalClient.AfterAddingElectronicSignatureCertificatesToDirectory(Certificate, AdditionalParameters);
+	DigitalSignatureInternalClient.AfterAddingElectronicSignatureCertificatesToCatalog(Certificate, AdditionalParameters);
 	NotifyChoice(Certificate);
 	
 EndProcedure
@@ -644,15 +663,33 @@ Procedure PickIndividual(Command)
 
 EndProcedure
 
+&AtClient
+Procedure AddCertificateIssueRequest(Command)
+	
+	CreationParameters = DigitalSignatureInternalClient.CertificateAddingOptions();
+	CreationParameters.CreateRequest = True;
+	DigitalSignatureInternalClient.AddCertificateAfterPurposeChoice("CertificateIssueRequest", 
+		CreationParameters);
+	
+EndProcedure
+
+&AtClient
+Procedure AddForSigningAndEncryptionFromFiles(Command)
+	
+	CreationParameters = DigitalSignatureInternalClient.CertificateAddingOptions();
+	CreationParameters.CompletionHandler = New CallbackDescription("AfterAddCertificate", ThisObject);
+	DigitalSignatureInternalClient.AddCertificateAfterPurposeChoice("ForSigningEncryptionAndDecryptionFromFiles", CreationParameters);
+	
+EndProcedure
 
 #EndRegion
 
 #Region Private
 
-// CAC:78-off: to securely pass data between forms on the client without sending them to the server.
+// ACC:78-off - Intended for the secure transfer of data between forms on the client without sending it to the server.
 &AtClient
 Procedure ContinueOpening(Notification, CommonInternalData) Export
-// CAC:78-on: to securely pass data between forms on the client without sending them to the server.
+// ACC:78-on - Intended for the secure transfer of data between forms on the client without sending it to the server.
 	
 	InternalData = CommonInternalData;
 	DigitalSignatureInternalClient.ProcessPasswordInForm(ThisObject, InternalData, PasswordProperties);
@@ -661,11 +698,11 @@ Procedure ContinueOpening(Notification, CommonInternalData) Export
 	Context.Insert("Notification", Notification);
 	
 	If SelectedCertificateThumbprintNotFound = Undefined
-	 Or SelectedCertificateThumbprintNotFound = True Then
+		Or SelectedCertificateThumbprintNotFound = True Then
 		
 		ContinueOpeningAfterGoToChooseCurrentCertificate(Undefined, Context);
 	Else
-		GoToCurrentCertificateChoice(New NotifyDescription(
+		GoToCurrentCertificateChoice(New CallbackDescription(
 			"ContinueOpeningAfterGoToChooseCurrentCertificate", ThisObject, Context));
 	EndIf;
 	
@@ -681,12 +718,18 @@ Procedure ContinueOpeningAfterGoToChooseCurrentCertificate(Result, Context) Expo
 		Open();
 	EndIf;
 	
-	ExecuteNotifyProcessing(Context.Notification);
+	If ValueIsFilled(CertificateAddress) Then
+		CertificateData = New Structure;
+		CertificateData.Insert("Certificate", CertificateAddress);
+		AfterAddCertificate(CertificateData, Undefined);
+	EndIf;
+	
+	RunCallback(Context.Notification);
 	
 EndProcedure
 
 &AtServer
-Function FillCurrentCertificatePropertiesAtServer(Val Thumbprint, SavedProperties);
+Function FillCurrentCertificatePropertiesAtServer(Val Thumbprint, SavedProperties)
 	
 	CryptoCertificate = DigitalSignatureInternal.GetCertificateByThumbprint(Thumbprint, False);
 	If CryptoCertificate = Undefined Then
@@ -722,7 +765,7 @@ Procedure UpdateCertificatesList(Notification = Undefined)
 	Context.Insert("Notification", Notification);
 	
 	If DigitalSignatureClient.GenerateDigitalSignaturesAtServer()
-	   And ExecuteAtServer = True Then
+		And ExecuteAtServer = True Then
 		
 		Result = New Structure;
 		Result.Insert("CertificatesPropertiesAtClient", New Array);
@@ -730,7 +773,7 @@ Procedure UpdateCertificatesList(Notification = Undefined)
 		
 		UpdateCertificatesListFollowUp(Result, Context);
 	Else
-		DigitalSignatureInternalClient.GetCertificatesPropertiesAtClient(New NotifyDescription(
+		DigitalSignatureInternalClient.GetCertificatesPropertiesAtClient(New CallbackDescription(
 			"UpdateCertificatesListFollowUp", ThisObject, Context), True, ShowAll);
 	EndIf;
 	
@@ -745,7 +788,7 @@ Procedure UpdateCertificatesListFollowUp(Result, Context) Export
 	UpdateCertificatesListAtServer(Result.CertificatesPropertiesAtClient);
 	
 	If Context.Notification <> Undefined Then
-		ExecuteNotifyProcessing(Context.Notification);
+		RunCallback(Context.Notification);
 	EndIf;
 	
 EndProcedure
@@ -762,11 +805,17 @@ Procedure UpdateCertificatesListAtServer(Val CertificatesPropertiesAtClient)
 	DigitalSignatureInternal.UpdateCertificatesList(Certificates, CertificatesPropertiesAtClient,
 		CanAddToList, True, ErrorGettingCertificatesAtServer, ShowAll, AdditionalParameters);
 	
+	If CertificateIssueRequestAvailable Then
+		
+		ModuleApplicationForIssuingANewQualifiedCertificate = Common.CommonModule("DataProcessors.ApplicationForNewQualifiedCertificateIssue");
+		ModuleApplicationForIssuingANewQualifiedCertificate.ДополнитьТаблицуСертификатовЗаявлениями(Certificates);
+		
+	EndIf;
+	
 	If ValueIsFilled(SelectedCertificateThumbprint)
-	   And (    Items.Certificates.CurrentRow = Undefined
-	      Or Certificates.FindByID(Items.Certificates.CurrentRow) = Undefined
-	      Or Certificates.FindByID(Items.Certificates.CurrentRow).Thumbprint
-	              <> SelectedCertificateThumbprint) Then
+		And (Items.Certificates.CurrentRow = Undefined
+		Or Certificates.FindByID(Items.Certificates.CurrentRow) = Undefined
+		Or Certificates.FindByID(Items.Certificates.CurrentRow).Thumbprint <> SelectedCertificateThumbprint) Then
 		
 		Filter = New Structure("Thumbprint", SelectedCertificateThumbprint);
 		Rows = Certificates.FindRows(Filter);
@@ -804,9 +853,9 @@ Procedure OpenTheCloudSignatureCertificate(SearchResult, AdditionalParameters) E
 	
 	If SearchResult.Completed2 Then
 		DigitalSignatureClient.OpenCertificate(SearchResult.CertificateData.Certificate, Not AdditionalParameters.IsRequest);
-	EndIf;	
+	EndIf;
 	
-EndProcedure	
+EndProcedure
 
 &AtClient
 Procedure GoToCurrentCertificateChoice(Notification)
@@ -816,19 +865,28 @@ Procedure GoToCurrentCertificateChoice(Notification)
 	Result.Insert("UpdateCertificatesList", False);
 	
 	If Items.Certificates.CurrentData = Undefined Then
-		Result.ErrorDescription = NStr("en = 'Select a certificate to be used.';");
-		ExecuteNotifyProcessing(Notification, Result);
+		If Not ValueIsFilled(CertificateAddress) Then
+			Result.ErrorDescription = NStr("en = 'Select a certificate to be used.';");
+			RunCallback(Notification, Result);
+		EndIf;
 		Return;
 	EndIf;
 	
 	CurrentData = Items.Certificates.CurrentData;
 	
 	If CurrentData.IsRequest Then
-		Result.UpdateCertificatesList = True;
-		Result.ErrorDescription =
-			NStr("en = 'The application for this certificate has not yet been fulfilled.
-			           |Open the application and complete the necessary steps.';");
-		ExecuteNotifyProcessing(Notification, Result);
+		If ValueIsFilled(CurrentData.Ref) Then
+			Items.Next.Enabled = True;
+			FormParameters = New Structure;
+			FormParameters.Insert("Key", CurrentData.Ref);
+			OpenForm("Catalog.DigitalSignatureAndEncryptionKeysCertificates.ObjectForm", FormParameters, ThisObject);
+		Else
+			Result.UpdateCertificatesList = True;
+			Result.ErrorDescription =
+				NStr("en = 'The application for this certificate has not yet been fulfilled.
+				           |Open the application and complete the necessary steps.';");
+			RunCallback(Notification, Result);
+		EndIf;
 		Return;
 	EndIf;
 	
@@ -836,7 +894,7 @@ Procedure GoToCurrentCertificateChoice(Notification)
 		Result.UpdateCertificatesList = True;
 		Result.ErrorDescription =
 			NStr("en = 'Insufficient rights to use certificates that are not in the catalog.';");
-		ExecuteNotifyProcessing(Notification, Result);
+		RunCallback(Notification, Result);
 		Return;
 	EndIf;
 	
@@ -857,7 +915,7 @@ Procedure GoToCurrentCertificateChoice(Notification)
 		Else
 			Result.ErrorDescription = NStr("en = 'Certificate does not exist on the server (it might have been deleted).';");
 			Result.UpdateCertificatesList = True;
-			ExecuteNotifyProcessing(Notification, Result);
+			RunCallback(Notification, Result);
 		EndIf;
 		Return;
 	EndIf;
@@ -872,18 +930,18 @@ Procedure GoToCurrentCertificateChoice(Notification)
 		TheStructureOfTheSearch = New Structure;
 		TheStructureOfTheSearch.Insert("Thumbprint", TheDSSCryptographyServiceModuleClientServer.TransformFingerprint(CurrentData.Thumbprint));
 		
-		TheDSSCryptographyServiceModuleClient.FindCertificate(New NotifyDescription(
+		TheDSSCryptographyServiceModuleClient.FindCertificate(New CallbackDescription(
 			"GoToTheCurrentCertificateSelectionAfterSearchingForTheCertificateInTheCloudSignature", ThisObject, Context), TheStructureOfTheSearch, OperationParametersList);
 	
 	ElsIf CurrentData.InCloudService Then
 		TheStructureOfTheSearch = New Structure;
 		TheStructureOfTheSearch.Insert("Thumbprint", Base64Value(CurrentData.Thumbprint));
 		ModuleCertificateStoreClient = CommonClient.CommonModule("CertificatesStorageClient");
-		ModuleCertificateStoreClient.FindCertificate(New NotifyDescription(
+		ModuleCertificateStoreClient.FindCertificate(New CallbackDescription(
 			"GoToCurrentCertificateChoiceAfterCertificateSearchInCloudService", ThisObject, Context), TheStructureOfTheSearch);
 	Else
 		DigitalSignatureInternalClient.GetCertificateByThumbprint(
-			New NotifyDescription("GoToCurrentCertificateChoiceAfterCertificateSearch", ThisObject, Context),
+			New CallbackDescription("GoToCurrentCertificateChoiceAfterCertificateSearch", ThisObject, Context),
 			CurrentData.Thumbprint, False, Undefined);
 	EndIf;
 	
@@ -905,13 +963,13 @@ Procedure GoToCurrentCertificateChoiceAfterCertificateSearch(SearchResult, Conte
 			Context.Result.ErrorDescription = SearchResult.ErrorDescription;
 		EndIf;
 		Context.Result.UpdateCertificatesList = True;
-		ExecuteNotifyProcessing(Context.Notification, Context.Result);
+		RunCallback(Context.Notification, Context.Result);
 		Return;
 	EndIf;
 	
 	Context.Insert("CryptoCertificate", SearchResult);
 	
-	SearchResult.BeginUnloading(New NotifyDescription(
+	SearchResult.BeginUnloading(New CallbackDescription(
 		"GoToCurrentCertificateChoiceAfterCertificateExport", ThisObject, Context));
 	
 EndProcedure
@@ -931,14 +989,14 @@ Procedure GoToCurrentCertificateChoiceAfterCertificateSearchInCloudService(Searc
 	If Not SearchResult.Completed2 Then
 		Context.Result.ErrorDescription = SearchResult.ErrorDescription.LongDesc;
 		Context.Result.UpdateCertificatesList = True;
-		ExecuteNotifyProcessing(Context.Notification, Context.Result);
+		RunCallback(Context.Notification, Context.Result);
 		Return;
 	EndIf;
 	
 	If Not ValueIsFilled(SearchResult.Certificate) Then
 		Context.Result.ErrorDescription = NStr("en = 'The certificate does not exist in the service. It might have been deleted.';");
 		Context.Result.UpdateCertificatesList = True;
-		ExecuteNotifyProcessing(Context.Notification, Context.Result);
+		RunCallback(Context.Notification, Context.Result);
 		Return;
 	EndIf;
 	
@@ -961,14 +1019,14 @@ Procedure GoToTheCurrentCertificateSelectionAfterSearchingForTheCertificateInThe
 	If Not SearchResult.Completed2 Then
 		Context.Result.ErrorDescription = SearchResult.Error;
 		Context.Result.UpdateCertificatesList = True;
-		ExecuteNotifyProcessing(Context.Notification, Context.Result);
+		RunCallback(Context.Notification, Context.Result);
 		Return;
 	EndIf;
 	
 	If Not ValueIsFilled(SearchResult.CertificateData) Then
 		Context.Result.ErrorDescription = NStr("en = 'Certificate does not exist on the DSS server (it might have been deleted).';");
 		Context.Result.UpdateCertificatesList = True;
-		ExecuteNotifyProcessing(Context.Notification, Context.Result);
+		RunCallback(Context.Notification, Context.Result);
 		Return;
 	EndIf;
 	
@@ -1060,7 +1118,9 @@ Procedure GoToCurrentCertificateChoiceAfterFillCertificateProperties(Context)
 		AttachIdleHandler("IdleHandlerActivateItemPassword", 0.1, True);
 	EndIf;
 	
-	ExecuteNotifyProcessing(Context.Notification, True);
+	If Context.Notification <> Undefined Then
+		RunCallback(Context.Notification, True);
+	EndIf;
 	
 EndProcedure
 
@@ -1100,5 +1160,68 @@ Procedure OnCloseIndividualChoiceForm(Value, Var_Parameters) Export
 	CertificateIndividual = Value;
 
 EndProcedure
+
+&AtServer
+Procedure SetVisibilityForCertificateAdditionCommands()
+	
+	If Not AccessRight("Insert", Metadata.Catalogs.DigitalSignatureAndEncryptionKeysCertificates)
+		Or Not Parameters.ShouldDisplayAddCommands Then
+		
+		Items.AddForSigningAndEncryptionFromFiles.Visible = False;
+		Items.AddCertificateIssueRequest.Visible = False;
+		
+		Return;
+		
+	EndIf;
+	
+	Items.AddCertificateIssueRequest.Visible = CertificateIssueRequestAvailable;
+	
+EndProcedure
+
+&AtClient
+Async Procedure AfterAddCertificate(Result, Context) Export
+	
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	Context = New Structure;
+	Context.Insert("Notification",          Undefined);
+	Context.Insert("SavedProperties", Undefined);
+	
+	AddressOfCertificate = Result.Certificate;
+	CertificateData = GetFromTempStorage(AddressOfCertificate);
+	CryptoCertificate = New CryptoCertificate;
+	Await CryptoCertificate.InitializeAsync(CertificateData);
+	
+	CertificateProperties = DigitalSignatureClient.CertificateProperties(CryptoCertificate);
+	
+	ThumbprintOfCertificate = CertificateProperties.Thumbprint;
+	
+	DigitalSignatureInternalClientServer.FillCertificateDataDetails(DetailsOfCertificateData, CertificateProperties);
+	
+	Context.SavedProperties = SavedCertificateProperties(CertificateProperties.Thumbprint,
+		AddressOfCertificate, CertificateAttributeParameters);
+			
+	If ValueIsFilled(FilterByCompany) Then
+		Context.SavedProperties.Insert("Organization", FilterByCompany);
+	EndIf;
+	
+	GoToCurrentCertificateChoiceAfterFillCertificateProperties(Context);
+	
+EndProcedure
+
+&AtServerNoContext
+Function AddedCertificateProperties(Val Certificate)
+	
+	Result = New Structure;
+	Result.Insert("IsRequest", False);
+	Result.Insert("AtClient", True);
+	Result.Insert("Isinthedirectory", True);
+	Result.Insert("Thumbprint", Common.ObjectAttributeValue(Certificate, "Thumbprint"));
+	
+	Return Result;
+	
+EndFunction
 
 #EndRegion

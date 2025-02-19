@@ -12,7 +12,7 @@
 
 #Region Variables
 
-// 
+// Intended for the "OnWrite" event handler.
 Var PreviousValue2;
 
 #EndRegion
@@ -33,7 +33,7 @@ Procedure BeforeWrite(Cancel)
 	
 	If Common.IsStandaloneWorkplace() Then
 		ErrorText =
-			NStr("en = 'To update RLS access restrictions, go to the app in the service.';");
+			NStr("en = 'RLS access restrictions can only be changed in the SaaS version.';");
 		Raise ErrorText;
 		
 	ElsIf Common.IsSubordinateDIBNode() Then
@@ -83,7 +83,7 @@ EndProcedure
 Procedure ProcessChangeRegisteredUponDataImport() Export
 	
 	If Common.DataSeparationEnabled() Then
-		// Right settings changes in SWP are locked and cannot be imported into the data area.
+		// In the SWS, right settings are locked for editing and are not imported into the data area.
 		Return;
 	EndIf;
 	

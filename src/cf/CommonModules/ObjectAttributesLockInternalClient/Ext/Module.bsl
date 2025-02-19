@@ -12,7 +12,7 @@
 Procedure AllowObjectAttributeEditAfterWarning(ContinuationHandler) Export
 	
 	If ContinuationHandler <> Undefined Then
-		ExecuteNotifyProcessing(ContinuationHandler, False);
+		RunCallback(ContinuationHandler, False);
 	EndIf;
 	
 EndProcedure
@@ -41,20 +41,23 @@ Procedure AllowEditingObjectAttributesAfterFormClosed(Result, Parameters) Export
 	If Parameters.ContinuationHandler <> Undefined Then
 		ContinuationHandler = Parameters.ContinuationHandler;
 		Parameters.ContinuationHandler = Undefined;
-		ExecuteNotifyProcessing(ContinuationHandler, Result);
+		RunCallback(ContinuationHandler, Result);
 	EndIf;
 	
 EndProcedure
 
+#Region ObsoleteProceduresAndFunctions
+
+// For ObjectAttributesLockClient.CheckObjectRefs
 Procedure CheckObjectReferenceAfterValidationConfirm(Response, Parameters) Export
 	
 	If Response <> DialogReturnCode.Yes Then
-		ExecuteNotifyProcessing(Parameters.ContinuationHandler, False);
+		RunCallback(Parameters.ContinuationHandler, False);
 		Return;
 	EndIf;
 		
 	If Parameters.ReferencesArrray.Count() = 0 Then
-		ExecuteNotifyProcessing(Parameters.ContinuationHandler, True);
+		RunCallback(Parameters.ContinuationHandler, True);
 		Return;
 	EndIf;
 	
@@ -62,12 +65,12 @@ Procedure CheckObjectReferenceAfterValidationConfirm(Response, Parameters) Expor
 		
 		If Parameters.ReferencesArrray.Count() = 1 Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 is used elsewhere in the app.
+				NStr("en = '""%1"" is used elsewhere in the application.
 				           |Editing this object might lead to data inconsistency.';"),
 				Parameters.ReferencesArrray[0]);
 		Else
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 selected items are used elsewhere in the app.
+				NStr("en = 'Selected items (%1) are used elsewhere in the application.
 				           |Editing these items might lead to data inconsistency.';"),
 				Parameters.ReferencesArrray.Count());
 		EndIf;
@@ -76,7 +79,7 @@ Procedure CheckObjectReferenceAfterValidationConfirm(Response, Parameters) Expor
 		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Allow editing';"));
 		Buttons.Add(DialogReturnCode.No, NStr("en = 'Cancel';"));
 		ShowQueryBox(
-			New NotifyDescription(
+			New CallbackDescription(
 				"CheckObjectRefsAfterEditConfirmation", ThisObject, Parameters),
 			MessageText, Buttons, , DialogReturnCode.No, Parameters.DialogTitle);
 	Else
@@ -84,21 +87,24 @@ Procedure CheckObjectReferenceAfterValidationConfirm(Response, Parameters) Expor
 			ShowUserNotification(NStr("en = 'Attribute editing allowed';"),
 				GetURL(Parameters.ReferencesArrray[0]), Parameters.ReferencesArrray[0]);
 		Else
-			MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Allowed to edit attributes of %1 objects';"),
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Allowed to edit attributes of %1 objects';"),
 				Parameters.ReferencesArrray.Count());
 			
 			ShowUserNotification(NStr("en = 'Attribute editing allowed';"),,
 				MessageText);
 		EndIf;
-		ExecuteNotifyProcessing(Parameters.ContinuationHandler, True);
+		RunCallback(Parameters.ContinuationHandler, True);
 	EndIf;
 	
 EndProcedure
 
 Procedure CheckObjectRefsAfterEditConfirmation(Response, Parameters) Export
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler, Response = DialogReturnCode.Yes);
+	RunCallback(Parameters.ContinuationHandler, Response = DialogReturnCode.Yes);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

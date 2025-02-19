@@ -80,6 +80,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Items.CloudServiceNoteGroup.Visible = False;
 	UseFileSync = GetFunctionalOption("UseFileSync");
+
+	HasDigitalSignature = Common.SubsystemExists("StandardSubsystems.DigitalSignature");
+	Items.PrintWithStamp.Visible = HasDigitalSignature;
 	
 	Items.FoldersContextMenuSyncSettings.Visible = 
 		AccessRight("Edit", Metadata.Catalogs.FileSynchronizationAccounts);
@@ -225,7 +228,7 @@ Procedure ListSelection(Item, RowSelected, Field, StandardProcessing)
 	
 	HandlerParameters = New Structure;
 	HandlerParameters.Insert("FileData", FileData);
-	Handler = New NotifyDescription("ListSelectionAfterEditModeChoice", ThisObject, HandlerParameters);
+	Handler = New CallbackDescription("ListSelectionAfterEditModeChoice", ThisObject, HandlerParameters);
 	
 	FilesOperationsInternalClient.SelectModeAndEditFile(Handler, FileData, Items.FormEdit.Enabled);
 	
@@ -342,16 +345,16 @@ EndProcedure
 &AtClient
 Procedure FilesImportExecute()
 	
-	Handler = New NotifyDescription("ImportFilesAfterExtensionInstalled", ThisObject);
-	FilesOperationsInternalClient.ShowFileSystemExtensionInstallationQuestion(Handler);
+	Handler = New CallbackDescription("ImportFilesAfterExtensionInstalled", ThisObject);
+	FilesOperationsInternalClient.ShowQuestionOn1CEnterpriseExtensionInstallation(Handler);
 	
 EndProcedure
 
 &AtClient
 Procedure FolderImport(Command)
 	
-	Handler = New NotifyDescription("ImportFolderAfterExtensionInstalled", ThisObject);
-	FilesOperationsInternalClient.ShowFileSystemExtensionInstallationQuestion(Handler);
+	Handler = New CallbackDescription("ImportFolderAfterExtensionInstalled", ThisObject);
+	FilesOperationsInternalClient.ShowQuestionOn1CEnterpriseExtensionInstallation(Handler);
 	
 EndProcedure
 
@@ -361,8 +364,8 @@ Procedure FolderExportExecute()
 	FormParameters = New Structure;
 	FormParameters.Insert("ExportFolder", Items.Folders.CurrentRow);
 	
-	Handler = New NotifyDescription("ExportFolderAfterInstallExtension", ThisObject, FormParameters);
-	FilesOperationsInternalClient.ShowFileSystemExtensionInstallationQuestion(Handler);
+	Handler = New CallbackDescription("ExportFolderAfterInstallExtension", ThisObject, FormParameters);
+	FilesOperationsInternalClient.ShowQuestionOn1CEnterpriseExtensionInstallation(Handler);
 	
 EndProcedure
 
@@ -437,7 +440,7 @@ Procedure Edit(Command)
 		Return;
 	EndIf;
 	
-	Handler = New NotifyDescription("SetFileCommandsAvailability", ThisObject);
+	Handler = New CallbackDescription("SetFileCommandsAvailability", ThisObject);
 	FilesOperationsInternalClient.EditWithNotification(Handler, Items.List.CurrentRow);
 	
 EndProcedure
@@ -469,9 +472,9 @@ Procedure EndEdit(Command)
 		FormParameters.Insert("CanCreateFileVersions", True);
 		FormParameters.Insert("BeingEditedBy",                      RowData.BeingEditedBy);
 		
-		OpenForm("DataProcessor.FilesOperations.Form.FormFinishEditing", FormParameters, ThisObject);
+		OpenForm("DataProcessor.FilesOperations.Form.FinishingEditing", FormParameters, ThisObject);
 	ElsIf FilesArray.Count() = 1 Then
-		Handler = New NotifyDescription("SetFileCommandsAvailability", ThisObject);
+		Handler = New CallbackDescription("SetFileCommandsAvailability", ThisObject);
 		FileUpdateParameters = FilesOperationsInternalClient.FileUpdateParameters(Handler, RowData.Ref, UUID);
 		FilesOperationsInternalClient.EndEditAndNotify(FileUpdateParameters);
 	EndIf;
@@ -488,7 +491,7 @@ Procedure Lock(Command)
 	FilesCount = Items.List.SelectedRows.Count();
 	
 	If FilesCount = 1 Then
-		Handler = New NotifyDescription("SetFileCommandsAvailability", ThisObject);
+		Handler = New CallbackDescription("SetFileCommandsAvailability", ThisObject);
 		FilesOperationsInternalClient.LockWithNotification(Handler, Items.List.CurrentRow);
 	ElsIf FilesCount > 1 Then
 		FilesArray = New Array;
@@ -500,7 +503,7 @@ Procedure Lock(Command)
 			EndIf;
 			FilesArray.Add(RowData.Ref);
 		EndDo;
-		Handler = New NotifyDescription("SetFileCommandsAvailability", ThisObject, FilesArray);
+		Handler = New CallbackDescription("SetFileCommandsAvailability", ThisObject, FilesArray);
 		FilesOperationsInternalClient.LockWithNotification(Handler, FilesArray);
 	EndIf;
 	
@@ -525,7 +528,7 @@ Procedure SaveChanges(Command)
 		Return;
 	EndIf;
 	
-	Handler = New NotifyDescription("SetFileCommandsAvailability", ThisObject);
+	Handler = New CallbackDescription("SetFileCommandsAvailability", ThisObject);
 	
 	FilesOperationsInternalClient.SaveFileChangesWithNotification(
 		Handler,
@@ -604,7 +607,7 @@ Procedure Sign(Command)
 		Return;
 	EndIf;
 	
-	NotifyDescription      = New NotifyDescription("SignCompletion", ThisObject);
+	NotifyDescription      = New CallbackDescription("SignCompletion", ThisObject);
 	AdditionalParameters = New Structure("ResultProcessing", NotifyDescription);
 	
 	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
@@ -629,7 +632,7 @@ Procedure Encrypt(Command)
 	HandlerParameters = New Structure;
 	HandlerParameters.Insert("FileData", FileData);
 	HandlerParameters.Insert("ObjectRef", ObjectRef);
-	Handler = New NotifyDescription("EncryptAfterEncryptAtClient", ThisObject, HandlerParameters);
+	Handler = New CallbackDescription("EncryptAfterEncryptAtClient", ThisObject, HandlerParameters);
 	
 	FilesOperationsInternalClient.Encrypt(Handler, FileData, UUID);
 	
@@ -648,7 +651,7 @@ Procedure Decrypt(Command)
 	HandlerParameters = New Structure;
 	HandlerParameters.Insert("FileData", FileData);
 	HandlerParameters.Insert("ObjectRef", ObjectRef);
-	Handler = New NotifyDescription("DecryptAfterDecryptAtClient", ThisObject, HandlerParameters);
+	Handler = New CallbackDescription("DecryptAfterDecryptAtClient", ThisObject, HandlerParameters);
 	
 	FilesOperationsInternalClient.Decrypt(
 		Handler,
@@ -668,7 +671,7 @@ Procedure AddSignatureFromFile(Command)
 	FilesOperationsInternalClient.AddSignatureFromFile(
 		Items.List.CurrentRow,
 		UUID,
-		New NotifyDescription("SetFileCommandsAvailability", ThisObject));
+		New CallbackDescription("SetFileCommandsAvailability", ThisObject));
 	
 EndProcedure
 
@@ -721,6 +724,18 @@ Procedure Print(Command)
 		FilesOperationsClient.PrintFiles(SelectedRows, UUID);
 	EndIf;
 	
+EndProcedure
+
+&AtClient
+Procedure PrintWithStamp(Command)
+
+	CurrentData = CurrentData();
+	If CurrentData = Undefined Then
+		Return;
+	EndIf;
+	
+	FilesOperationsInternalClient.DoPrintFileWithStamp(CurrentData.Ref, UUID);
+
 EndProcedure
 
 &AtClient
@@ -787,7 +802,7 @@ Procedure Delete(Command)
 	
 	SelectedRows = SelectedRows();
 	
-	NotifyDescription = New NotifyDescription("AfterDeleteData", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterDeleteData", ThisObject);
 	FilesOperationsInternalClient.DeleteFilesData(NotifyDescription, SelectedRows, UUID);
 	
 EndProcedure
@@ -806,7 +821,7 @@ EndProcedure
 &AtClient
 Procedure ImportFilesAfterExtensionInstalled(Result, ExecutionParameters) Export
 	If Not Result Then
-		FilesOperationsInternalClient.ShowFileSystemExtensionRequiredMessageBox(Undefined);
+		FilesOperationsInternalClient.Show1CEnterpriseExtensionRequiredMessageBox(Undefined);
 		Return;
 	EndIf;
 	
@@ -828,14 +843,14 @@ Procedure ImportFilesAfterExtensionInstalled(Result, ExecutionParameters) Export
 	FormParameters.Insert("FolderForAdding", Items.Folders.CurrentRow);
 	FormParameters.Insert("FileNamesArray",   FileNamesArray);
 	
-	OpenForm("DataProcessor.FilesOperations.Form.FilesImportForm", FormParameters);
+	OpenForm("DataProcessor.FilesOperations.Form.FilesImport", FormParameters);
 EndProcedure
 
 &AtClient
 Procedure ImportFolderAfterExtensionInstalled(Result, ExecutionParameters) Export
 	
 	If Not Result Then
-		FilesOperationsInternalClient.ShowFileSystemExtensionRequiredMessageBox(Undefined);
+		FilesOperationsInternalClient.Show1CEnterpriseExtensionRequiredMessageBox(Undefined);
 		Return;
 	EndIf;
 	
@@ -852,7 +867,7 @@ Procedure ImportFolderAfterExtensionInstalled(Result, ExecutionParameters) Expor
 	FormParameters.Insert("FolderForAdding", Items.Folders.CurrentRow);
 	FormParameters.Insert("DirectoryOnHardDrive",     OpenFileDialog.Directory);
 	
-	OpenForm("DataProcessor.FilesOperations.Form.FolderImportForm", FormParameters);
+	OpenForm("DataProcessor.FilesOperations.Form.ImportingFolder", FormParameters);
 
 EndProcedure
 
@@ -860,11 +875,11 @@ EndProcedure
 Procedure ExportFolderAfterInstallExtension(Result, FormParameters) Export
 	
 	If Not Result Then
-		FilesOperationsInternalClient.ShowFileSystemExtensionRequiredMessageBox(Undefined);
+		FilesOperationsInternalClient.Show1CEnterpriseExtensionRequiredMessageBox(Undefined);
 		Return;
 	EndIf;
 	
-	OpenForm("DataProcessor.FilesOperations.Form.ExportFolderForm", FormParameters);
+	OpenForm("DataProcessor.FilesOperations.Form.SavingFolder", FormParameters);
 	
 EndProcedure
 
@@ -924,9 +939,7 @@ Procedure DragToFolder(FolderForAdding, DragValue, Action)
 			EndIf;
 			If Action = DragAction.Copy Then
 				
-				FilesOperationsInternalServerCall.DoCopyAttachedFiles(
-					DragValue,
-					FolderForAdding);
+				FilesOperationsInternalServerCall.DoCopyAttachedFiles(DragValue, FolderForAdding);
 				
 				Items.Folders.Refresh();
 				Items.List.Refresh();
@@ -1049,8 +1062,7 @@ EndProcedure
 
 &AtServer
 Procedure EncryptServer(Val DataArrayToStoreInDatabase, Val ThumbprintsArray, 
-	Val FilesArrayInWorkingDirectoryToDelete,
-	Val WorkingDirectoryName, Val ObjectRef)
+	Val FilesArrayInWorkingDirectoryToDelete, Val WorkingDirectoryName, Val ObjectRef)
 	
 	EncryptionInformationWriteParameters = FilesOperationsInternal.EncryptionInformationWriteParameters();
 	EncryptionInformationWriteParameters.WorkingDirectoryName = WorkingDirectoryName;
@@ -1196,46 +1208,40 @@ EndProcedure
 Procedure SetFilesSynchronizationNoteVisibility()
 	
 	FilesBeingEditedInCloudService = False;
-	
 	If Items.Folders.CurrentData = Undefined Or Items.Folders.CurrentRow.IsEmpty() Then
-		
 		Items.CloudServiceNoteGroup.Visible = False;
+		Return;
+	EndIf;
 		
-	Else
+	Items.CloudServiceNoteGroup.Visible = Items.Folders.CurrentData.FolderSynchronizationEnabled;
+	FilesBeingEditedInCloudService = Items.Folders.CurrentData.FolderSynchronizationEnabled;
+	
+	If Items.Folders.CurrentData.FolderSynchronizationEnabled Then
 		
-		Items.CloudServiceNoteGroup.Visible = Items.Folders.CurrentData.FolderSynchronizationEnabled;
-		FilesBeingEditedInCloudService = Items.Folders.CurrentData.FolderSynchronizationEnabled;
+		SynchronizationInfo = SynchronizationInfo(Items.Folders.CurrentData.Ref);
+		If SynchronizationInfo <> Undefined Then
 		
-		If Items.Folders.CurrentData.FolderSynchronizationEnabled Then
+			Items.DecorationNote.Title = StringFunctionsClient.FormattedString(
+				NStr("en = 'The files are stored in cloud service <a href=""%1"">%2</a>.';"),
+				SynchronizationInfo.FolderAddressInCloudService, SynchronizationInfo.AccountDescription1);
+		
+			Items.DecorationPictureSyncSettings.Visible  = Not SynchronizationInfo.IsSynchronized;
+			Items.DecorationSyncDate.ToolTipRepresentation = ?(SynchronizationInfo.IsSynchronized, 
+				ToolTipRepresentation.None, ToolTipRepresentation.Button);
+			Items.DecorationSyncDate.Visible            = True;
 			
-			FolderAddressInCloudService = FilesOperationsInternalClientServer.AddressInCloudService(
-			Items.Folders.CurrentData.AccountService, Items.Folders.CurrentData.Href);
-				
-			SynchronizationInfo = SynchronizationInfo(Items.Folders.CurrentData.Ref);
-			If ValueIsFilled(SynchronizationInfo) Then
+			Items.DecorationSyncDate.Title = StringFunctionsClient.FormattedString(
+				NStr("en = 'Synchronized on: <a href=""%1"">%2</a>';"),
+				"OpenJournal", Format(SynchronizationInfo.SynchronizationDate, "DLF=DD"));
 			
-				Items.DecorationNote.Title = StringFunctionsClient.FormattedString(
-					NStr("en = 'The files are stored in cloud service <a href=""%1"">%2</a>.';"),
-					FolderAddressInCloudService, SynchronizationInfo.AccountDescription1);
+		Else
 			
-				Items.DecorationPictureSyncSettings.Visible  = Not SynchronizationInfo.IsSynchronized;
-				Items.DecorationSyncDate.ToolTipRepresentation = ?(SynchronizationInfo.IsSynchronized, ToolTipRepresentation.None, ToolTipRepresentation.Button);
-				Items.DecorationSyncDate.Visible            = True;
+			Items.DecorationNote.Title = 
+				NStr("en = 'The files are stored in cloud service.';");
 				
-				Items.DecorationSyncDate.Title = StringFunctionsClient.FormattedString(
-					NStr("en = 'Synchronized on: <a href=""%1"">%2</a>';"),
-					"OpenJournal", Format(SynchronizationInfo.SynchronizationDate, "DLF=DD"));
-				
-			Else
-				
-				Items.DecorationNote.Title = 
-					NStr("en = 'The files are stored in cloud service.';");
-					
-				Items.DecorationPictureSyncSettings.Visible  = False;
-				Items.DecorationSyncDate.ToolTipRepresentation = ToolTipRepresentation.None;
-				Items.DecorationSyncDate.Visible            = False;
-			EndIf;
-			
+			Items.DecorationPictureSyncSettings.Visible  = False;
+			Items.DecorationSyncDate.ToolTipRepresentation = ToolTipRepresentation.None;
+			Items.DecorationSyncDate.Visible            = False;
 		EndIf;
 		
 	EndIf;
@@ -1261,11 +1267,8 @@ EndFunction
 Procedure FolderIdleHandlerOnActivateRow()
 	
 	If Items.Folders.CurrentRow <> List.Parameters.Items.Find("Owner").Value Then
-		// Update the right list and command availability using the rights settings.
-		// 1C:Enterprise calls the procedure of the "OnActivateRow" handler in the "List" table.
 		UpdateAndSaveFilesListParameters();
 	Else
-		// The procedure of calling the OnActivateRow handler of the List table is performed by the application.
 		IdleHandlerSetFileCommandsAccessibility();
 	EndIf;
 	
@@ -1325,12 +1328,13 @@ EndProcedure
 Procedure SetFileCommandsAvailability(Result = Undefined, ExecutionParameters = Undefined) Export
 	
 	CurrentData = Items.List.CurrentData;
-	If CurrentData <> Undefined
+	If CurrentData <> Undefined And Items.List.CurrentRow <> Undefined
 		And TypeOf(Items.List.CurrentRow) <> Type("DynamicListGroupRow") Then
 		SetCommandsAvailability(CurrentData, Items.List.SelectedRows.Count() > 1);
 	Else
 		MakeCommandsUnavailable();
 	EndIf;
+	
 	AttachIdleHandler("UpdatePreview1", 0.1, True);
 	
 EndProcedure
@@ -1458,6 +1462,10 @@ Procedure SetCommandsAvailability(Val CommandsData, Val SeveralLinesAreHighlight
 	
 	Items.Print.Enabled                      = True;
 	Items.ListContextMenuPrint.Enabled = True;
+
+	Items.PrintWithStamp.Visible = HasDigitalSignature
+		And (CommandsData.Extension = "mxl") Or (CommandsData.Extension = "docx")
+		And CommandsData.SignedWithDS;
 	
 	Items.Send.Enabled                      = True;
 	Items.ListContextMenuSend.Enabled = True;
@@ -1499,7 +1507,7 @@ EndProcedure
 &AtClient
 Procedure ListSelectionAfterEditModeChoice(Result, ExecutionParameters) Export
 	If Result = "Edit" Then
-		Handler = New NotifyDescription("SelectionListAfterEditFile", ThisObject, ExecutionParameters);
+		Handler = New CallbackDescription("SelectionListAfterEditFile", ThisObject, ExecutionParameters);
 		FilesOperationsInternalClient.EditFile(Handler, ExecutionParameters.FileData);
 	ElsIf Result = "Open" Then
 		FilesOperationsClient.OpenFile(ExecutionParameters.FileData, False);
@@ -1666,6 +1674,16 @@ Procedure Attachable_UpdateCommands()
 EndProcedure
 
 // End StandardSubsystems.AttachableCommands
+
+&AtClient
+Function CurrentData()
+	Result = Undefined;
+	If Not StandardSubsystemsClient.IsDynamicListItem(Items.List) Then
+	ElsIf Items.List.CurrentData.FileOwner = CurrentFolder Then
+		Result = Items.List.CurrentData;
+	EndIf;
+	Return Result;
+EndFunction
 
 &AtClient
 Function SelectedRows()

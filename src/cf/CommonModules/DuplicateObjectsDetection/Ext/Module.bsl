@@ -294,8 +294,7 @@ Function CheckCanReplaceItems(ReplacementPairs, ReplacementParameters) Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Subsystem event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // See ReportsOptionsOverridable.CustomizeReportsOptions.
 Procedure OnSetUpReportsOptions(Settings) Export
@@ -356,6 +355,8 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	EndDo;
 
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -914,22 +915,16 @@ EndProcedure
 
 Procedure ExecuteSearchByAppliedRules(Val UsedLinks, Val NotPickedReplacements, Val SubordinateObjectDetails, Val ReplacementPairs)
 	
-	Var SearchMethodParameters, Cnt;
-	
-	For Cnt = 0 To NotPickedReplacements.Count() - 1 Do
-		
-		NotPickedReplacements[Cnt] = NewReplacementParameters(
-			NotPickedReplacements[Cnt],
-			SubordinateObjectDetails,
-			UsedLinks);	
-		
+	For IndexOf = 0 To NotPickedReplacements.Count() - 1 Do
+		NotPickedReplacements[IndexOf] = NewReplacementParameters(NotPickedReplacements[IndexOf],
+			SubordinateObjectDetails, UsedLinks);	
 	EndDo;
 	
 	SearchMethodParameters = New Array;
 	SearchMethodParameters.Add(ReplacementPairs);
 	SearchMethodParameters.Add(NotPickedReplacements);
 	Common.ExecuteConfigurationMethod(
-		SubordinateObjectDetails.SearchMethodModuleName+".OnSearchForReferenceReplacement",
+		SubordinateObjectDetails.SearchMethodModuleName + ".OnSearchForReferenceReplacement",
 		SearchMethodParameters);
 
 EndProcedure

@@ -29,7 +29,7 @@ Procedure BackupDirectoryFieldStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	Dialog = New FileDialog(FileDialogMode.ChooseDirectory);
 	Dialog.Directory = Object.IBBackupDirectoryName;
-	Dialog.CheckFileExist = True;
+	Dialog.CheckFileExistence = True;
 	Dialog.Title = NStr("en = 'Select infobase backup directory';");
 	If Dialog.Choose() Then
 		Object.IBBackupDirectoryName = Dialog.Directory;

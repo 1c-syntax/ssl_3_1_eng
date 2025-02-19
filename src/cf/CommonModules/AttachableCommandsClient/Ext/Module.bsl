@@ -158,9 +158,9 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 	// Install 1C:Enterprise Extension.
 	If ExecutionParameters.FilesOperationsRequired Then
 		ExecutionParameters.FilesOperationsRequired = False;
-		Handler = New NotifyDescription("ContinueExecutionCommandAfterSetFileExtension", ThisObject, ExecutionParameters);
+		Handler = New CallbackDescription("ContinueCommandExecutionAfterInstall1CEnterpriseExtension", ThisObject, ExecutionParameters);
 		MessageText = NStr("en = 'To continue, install 1C:Enterprise Extension.';");
-		FileSystemClient.AttachFileOperationsExtension(Handler, MessageText);
+		FileSystemClient.Attach1CEnterpriseExtension(Handler, MessageText);
 		Return;
 	EndIf;
 	
@@ -183,7 +183,7 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 			Buttons.Add(DialogReturnCode.Cancel);
 			
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(QuestionTemplate, CommandDetails.Presentation);
-			Handler = New NotifyDescription("ProceedRunningCommandAfterRecordConfirmed", ThisObject, ExecutionParameters);
+			Handler = New CallbackDescription("ProceedRunningCommandAfterRecordConfirmed", ThisObject, ExecutionParameters);
 			
 			ShowQueryBox(Handler, QueryText, Buttons);
 			Return;
@@ -197,25 +197,26 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 	// Post documents.
 	If ExecutionParameters.PostingRequired Then
 		ExecutionParameters.PostingRequired = False;
-		DocumentsInfo = AttachableCommandsServerCall.DocumentsInfo(ExecutionParameters.ReferencesArrray);
-		If DocumentsInfo.Unposted.Count() > 0 Then
-			If DocumentsInfo.HasRightToPost Then
-				If DocumentsInfo.Unposted.Count() = 1 Then
-					QueryText = NStr("en = 'Cannot run the command for unposted documents. Do you want to post the document and continue?';");
+		DocumentsInfo = CommonServerCall.UnpostedDocuments(ExecutionParameters.ReferencesArrray);
+		If DocumentsInfo.UnpostedDocuments.Count() > 0 Then
+			If DocumentsInfo.HasPostingRight Then
+				If DocumentsInfo.UnpostedDocuments.Count() = 1 Then
+					QueryText = NStr("en = 'Cannot run the command for an unposted document. Do you want to post the document and continue?';");
 				Else
-					QueryText = NStr("en = 'Cannot run the command for unposted documents. Do you want to post the document and continue?';");
+					QueryText = NStr("en = 'Cannot run the command for unposted documents. Do you want to post the documents and continue?';");
 				EndIf;
-				ExecutionParameters.UnpostedDocuments = DocumentsInfo.Unposted;
-				Handler = New NotifyDescription("ContinueCommandExecutionAfterConfirmPosting", ThisObject, ExecutionParameters);
+				ExecutionParameters.UnpostedDocuments = DocumentsInfo.UnpostedDocuments;
+				Handler = New CallbackDescription("ContinueCommandExecutionAfterConfirmPosting", 
+					ThisObject, ExecutionParameters);
 				Buttons = New ValueList;
-				Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Continue';"));
+				Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Post and continue';"));
 				Buttons.Add(DialogReturnCode.Cancel);
 				ShowQueryBox(Handler, QueryText, Buttons);
 			Else
-				If DocumentsInfo.Unposted.Count() = 1 Then
-					WarningText = NStr("en = 'Cannot run the command for unposted documents. You are not authorized to post the document.';");
+				If DocumentsInfo.UnpostedDocuments.Count() = 1 Then
+					WarningText = NStr("en = 'Cannot run the command for an unposted document. You are not authorized to post the document.';");
 				Else
-					WarningText = NStr("en = 'Cannot run the command for unposted documents. You are not authorized to post the document.';");
+					WarningText = NStr("en = 'Cannot run the command for unposted documents. You are not authorized to post the documents.';");
 				EndIf;
 				Raise(WarningText, ErrorCategory.AccessViolation);
 			EndIf;
@@ -240,8 +241,8 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 		ServerContext.Insert("Result", Result);
 		
 		If ExecutionParameters.CallServerThroughNotificationProcessing Then
-			NotifyDescription = New NotifyDescription("Attachable_ContinueCommandExecutionAtServer", ExecutionParameters.Form);
-			ExecuteNotifyProcessing(NotifyDescription, ServerContext);
+			NotifyDescription = New CallbackDescription("Attachable_ContinueCommandExecutionAtServer", ExecutionParameters.Form);
+			RunCallback(NotifyDescription, ServerContext);
 			Result = ServerContext.Result;
 		Else
 			ExecutionParameters.Form.Attachable_ExecuteCommandAtServer(ServerContext, Result);
@@ -264,8 +265,8 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 				ModuleClient = CommonClient.CommonModule(SubstringsArray[0]);
 				ProcedureName = SubstringsArray[1];
 			EndIf;
-			Handler = New NotifyDescription(ProcedureName, ModuleClient, ExecutionParameters);
-			ExecuteNotifyProcessing(Handler, CommandParameter);
+			Handler = New CallbackDescription(ProcedureName, ModuleClient, ExecutionParameters);
+			RunCallback(Handler, CommandParameter);
 		ElsIf ValueIsFilled(CommandDetails.FormName) Then
 			FormParameters = FormParameters(ExecutionParameters, CommandParameter);
 			OpenForm(CommandDetails.FormName, FormParameters, ExecutionParameters.Form, True);
@@ -316,10 +317,8 @@ Procedure ContinueCommandExecutionAfterConfirmPosting(Response, Context) Export
 	UnpostedDocuments = New Array;
 	For Each DocumentInformation In UnpostedDocumentsData Do
 		CommonClient.MessageToUser(
-			StringFunctionsClientServer.SubstituteParametersToString(
-				MessageTemplate,
-				String(DocumentInformation.Ref),
-				DocumentInformation.ErrorDescription),
+			StringFunctionsClientServer.SubstituteParametersToString(MessageTemplate,
+				String(DocumentInformation.Ref), DocumentInformation.ErrorDescription),
 				DocumentInformation.Ref);
 		UnpostedDocuments.Add(DocumentInformation.Ref);
 	EndDo;
@@ -356,7 +355,7 @@ Procedure ContinueCommandExecutionAfterConfirmPosting(Response, Context) Export
 			DialogButtons.Add(DialogReturnCode.Cancel);
 		EndIf;
 		
-		Handler = New NotifyDescription("ContinueCommandExecutionAfterConfirmContinuation", ThisObject, Context);
+		Handler = New CallbackDescription("ContinueCommandExecutionAfterConfirmContinuation", ThisObject, Context);
 		ShowQueryBox(Handler, DialogText, DialogButtons);
 		Return;
 	EndIf;
@@ -373,7 +372,7 @@ Procedure ContinueCommandExecutionAfterConfirmContinuation(Response, Context) Ex
 EndProcedure
 
 // Branch of the procedure that triggers after 1C:Enterprise Extension is installed.
-Procedure ContinueExecutionCommandAfterSetFileExtension(FileSystemExtensionAttached1, Context) Export
+Procedure ContinueCommandExecutionAfterInstall1CEnterpriseExtension(FileSystemExtensionAttached1, Context) Export
 	If Not FileSystemExtensionAttached1 Then
 		Return;
 	EndIf;

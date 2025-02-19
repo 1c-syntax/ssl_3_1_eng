@@ -530,7 +530,7 @@ Procedure AddRegisterTotals(Val ReportParameters, Val DataCompositionSchema)
 		DataSetField.Role.IgnoreNULLValues = True;
 		
 		Order_Period = DataSetField.OrderExpressions.Add();
-		Order_Period.Expression = "TimeIntervals.SecondPeriod";
+		Order_Period.Expression = "TimeIntervals_.SecondPeriod";
 		Order_Period.OrderType = DataCompositionSortDirection.Asc;
 		
 		OrderRegistrar = DataSetField.OrderExpressions.Add();
@@ -816,7 +816,7 @@ Function AddPeriodFieldsInDataSet(DataSet, ThereIsFieldLogger)
 	PeriodsList.Add("HalfYearPeriod", NStr("en = 'Period half-year';"));
 	PeriodsList.Add("YearPeriod",       NStr("en = 'Period year';"));
 	
-	FolderName = "TimeIntervals";
+	FolderName = "TimeIntervals_";
 	DataSetFieldsList = New ValueList;
 	DataSetFieldsFolder = DataSet.Fields.Add(Type("DataCompositionSchemaDataSetFieldFolder"));
 	DataSetFieldsFolder.Title   = NStr("en = 'Periods';");
@@ -1036,7 +1036,7 @@ Procedure AddIndicators(ReportParameters, DCSettings)
 	
 EndProcedure
 
-// Generates the structure of data composition settings
+// Generates the structure of data composition settings.
 //
 // Parameters:
 //  ReportParameters - Structure - Description of a metadata object that is a data source
@@ -1110,8 +1110,7 @@ Procedure GenerateStructure(ReportParameters, Schema, Settings)
 	Structure.Order.Items.Add(Type("DataCompositionAutoOrderItem"));
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Work with a standard schema set in user settings.
+#Region ManagingBasicSchemaConfiguredInUserSettings
 
 Function DataCompositionSchema(FixedParameters) Export 
 	DataCompositionSchema = GetTemplate("MainDataCompositionSchema");
@@ -1179,8 +1178,9 @@ Procedure CustomizeStandardSettings(Report, FixedParameters, Settings, UserSetti
 	Settings.AdditionalProperties.Insert("ReportInitialized", True);
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Work with arbitrary schema from a file.
+#EndRegion
+
+#Region ManagingArbitrarySchemaFromFile
 
 // Returns the data composition schema being imported.
 //
@@ -1223,8 +1223,9 @@ Procedure SetStandardImportedSchemaSettings(Report, SchemaBinaryData, Settings, 
 	Settings.AdditionalProperties.Insert("ReportInitialized",  True);
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Work with the data source of a report option.
+#EndRegion
+
+#Region ReportOptionDataSourceManagement
 
 // Returns the report option settings with the set DataSource parameter.
 //
@@ -1382,8 +1383,9 @@ Function ObjectTypeByManagerType(ManagerType)
 	Return ?(Types[ManagerType] = Undefined, "", Types[ManagerType]);
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Default title.
+#EndRegion
+
+#Region StandardTitle
 
 // Parameters:
 //  Context - ClientApplicationForm
@@ -1531,8 +1533,9 @@ Function ReportPeriodView(Period)
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Subordinate item count in groupings.
+#EndRegion
+
+#Region ChildRecordsCountInGroupings
 
 Procedure OutputSubordinateRecordsCount(Settings, Schema, StandardProcessing) Export 
 	
@@ -1775,39 +1778,39 @@ EndFunction
 
 Function FixedParameterDisplayModes(Settings)
 	
-	DisplayMode = New Structure();
-	DisplayMode.Insert("Period", DataCompositionSettingsItemViewMode.QuickAccess);
-	DisplayMode.Insert("MetadataObjectType", DataCompositionSettingsItemViewMode.QuickAccess);
-	DisplayMode.Insert("MetadataObjectName", DataCompositionSettingsItemViewMode.QuickAccess);
-	DisplayMode.Insert("TableName", DataCompositionSettingsItemViewMode.QuickAccess);
-	DisplayMode.Insert("OutputSubordinateRecordsCount1", DataCompositionSettingsItemViewMode.Normal);
+	ViewModes = New Structure();
+	ViewModes.Insert("Period", DataCompositionSettingsItemViewMode.QuickAccess);
+	ViewModes.Insert("MetadataObjectType", DataCompositionSettingsItemViewMode.QuickAccess);
+	ViewModes.Insert("MetadataObjectName", DataCompositionSettingsItemViewMode.QuickAccess);
+	ViewModes.Insert("TableName", DataCompositionSettingsItemViewMode.QuickAccess);
+	ViewModes.Insert("OutputSubordinateRecordsCount1", DataCompositionSettingsItemViewMode.Normal);
 	
 	Parameters = Settings.DataParameters.Items;
 	
-	For Each ViewMode In DisplayMode Do 
+	For Each ViewMode In ViewModes Do 
 		
 		FoundParameter = Parameters.Find(ViewMode.Key);
 		
 		If FoundParameter <> Undefined Then 
-			DisplayMode[ViewMode.Key] = FoundParameter.ViewMode;
+			ViewModes[ViewMode.Key] = FoundParameter.ViewMode;
 		EndIf;
 		
 	EndDo;
 	
-	Return DisplayMode;
+	Return ViewModes;
 	
 EndFunction
 
-Procedure SetTheDisplayModesOfFixedParameters(Settings, DisplayMode)
+Procedure SetTheDisplayModesOfFixedParameters(Settings, ViewModes)
 	
 	Parameters = Settings.DataParameters.Items;
 	
-	For Each ViewMode In DisplayMode Do 
+	For Each ViewMode In ViewModes Do 
 		
 		FoundParameter = Parameters.Find(ViewMode.Key);
 		
 		If FoundParameter <> Undefined Then 
-			FoundParameter.ViewMode = DisplayMode[ViewMode.Key];
+			FoundParameter.ViewMode = ViewModes[ViewMode.Key];
 		EndIf;
 		
 	EndDo;
@@ -1836,6 +1839,8 @@ Function MainDataTableNamePresentation()
 	Return NStr("en = 'Main data';");
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion
 

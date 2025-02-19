@@ -147,7 +147,7 @@
 		<title xsi:type="v8:LocalStringType">
 			<v8:item>
 				<v8:lang>en</v8:lang>
-				<v8:content>Name of the metadata object type.</v8:content>
+				<v8:content>Metadata object type name</v8:content>
 			</v8:item>
 		</title>
 		<valueType>
@@ -166,7 +166,7 @@
 		<title xsi:type="v8:LocalStringType">
 			<v8:item>
 				<v8:lang>en</v8:lang>
-				<v8:content>Metadata object name.</v8:content>
+				<v8:content>Metadata object table name</v8:content>
 			</v8:item>
 		</title>
 		<valueType>

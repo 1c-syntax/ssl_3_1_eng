@@ -51,19 +51,20 @@ EndProcedure
 // Opens an additional report form with the specified report option.
 //
 // Parameters:
-//   Ref - CatalogRef.AdditionalReportsAndDataProcessors - an additional report reference.
+//   AdditionalReport - CatalogRef.AdditionalReportsAndDataProcessors
 //   VariantKey - String - a name of the additional report option.
 //
-Procedure OpenAdditionalReportOption(Ref, VariantKey) Export
+Procedure OpenAdditionalReportOption(AdditionalReport, VariantKey) Export
 	
-	If TypeOf(Ref) <> Type("CatalogRef.AdditionalReportsAndDataProcessors") Then
+	If TypeOf(AdditionalReport) <> Type("CatalogRef.AdditionalReportsAndDataProcessors") Then
 		Return;
 	EndIf;
 	
-	ReportName = AdditionalReportsAndDataProcessorsServerCall.AttachExternalDataProcessor(Ref);
+	ReportName = AdditionalReportsAndDataProcessorsServerCall.AttachExternalDataProcessor(AdditionalReport);
+	FormName = StrTemplate("ExternalReport.%1.Form", ReportName);
+	Uniqueness = StrTemplate("ExternalReport.%1/VariantKey.%2", ReportName, VariantKey);
 	OpeningParameters = New Structure("VariantKey", VariantKey);
-	Uniqueness = "ExternalReport." + ReportName + "/VariantKey." + VariantKey;
-	OpenForm("ExternalReport." + ReportName + ".Form", OpeningParameters, Undefined, Uniqueness);
+	OpenForm(FormName, OpeningParameters, Undefined, Uniqueness);
 	
 EndProcedure
 
@@ -139,7 +140,7 @@ Procedure ExecuteCommandInBackground(Val CommandID, Val CommandParameters, Val H
 		ProcedureName,
 		"Handler",
 		Handler,
-		New TypeDescription("NotifyDescription, ClientApplicationForm"));
+		New TypeDescription("CallbackDescription, ClientApplicationForm"));
 	
 	CommandParameters.Insert("CommandID", CommandID);
 	MustReceiveResult = CommonClientServer.StructureProperty(CommandParameters, "MustReceiveResult", False);
@@ -148,7 +149,7 @@ Procedure ExecuteCommandInBackground(Val CommandID, Val CommandParameters, Val H
 	If CommandParameters.Property("OwnerForm", Form) Then
 		CommandParameters.OwnerForm = Undefined;
 	EndIf;
-	If TypeOf(Handler) = Type("NotifyDescription") Then
+	If TypeOf(Handler) = Type("CallbackDescription") Then
 		CommonClientServer.CheckParameter(ProcedureName, "Handler.Module",
 			Handler.Module,
 			Type("ClientApplicationForm"));
@@ -262,10 +263,10 @@ Procedure ExecuteAssignablePrintCommand(CommandToExecute, Form) Export
 	
 EndProcedure
 
-// Opens the list of commands of additional reports and data processors.
+// 
 //
 // Parameters:
-//   ReferencesArrray - Array of AnyRef - references to the selected objects for which a command is being executed.
+//   Objects - Array of AnyRef - 
 //   ExecutionParameters - Structure:
 //       * CommandDetails - Structure:
 //          ** Id - String - Command ID.
@@ -276,11 +277,11 @@ EndProcedure
 //       * Source - FormDataStructure
 //                  - FormTable - an object or a form list with the Reference field.
 //
-Procedure OpenCommandList(Val ReferencesArrray, Val ExecutionParameters) Export
+Procedure OpenCommandList(Val Objects, Val ExecutionParameters) Export
 	Context = New Structure;
 	Context.Insert("Source", ExecutionParameters.Form);
 	Kind = ExecutionParameters.CommandDetails.AdditionalParameters.Kind;
-	OpenAdditionalReportAndDataProcessorCommandsForm(ReferencesArrray, Context, Kind);
+	OpenAdditionalReportAndDataProcessorCommandsForm(Objects, Context, Kind);
 EndProcedure
 
 // See AdditionalReportsAndDataProcessors.HandlerFillingCommands
@@ -303,22 +304,16 @@ Procedure HandlerFillingCommands(Val ReferencesArrray, Val ExecutionParameters) 
 	// If a form opens or client-side code is called, the result is output by the data processor.
 	If CommandToExecute.StartupOption = PredefinedValue("Enum.AdditionalDataProcessorsCallMethods.OpeningForm") Then
 		
-		ExternalObjectName = AdditionalReportsAndDataProcessorsServerCall.AttachExternalDataProcessor(CommandToExecute.Ref);
-		If CommandToExecute.IsReport Then
-			OpenForm("ExternalReport."+ ExternalObjectName +".Form", ServerCallParameters, Form);
-		Else
-			OpenForm("ExternalDataProcessor."+ ExternalObjectName +".Form", ServerCallParameters, Form);
-		EndIf;
+		OpenAdditionalReportDataProcessorForm(CommandToExecute.Ref, CommandToExecute.IsReport,
+			ServerCallParameters, Form);
 		
 	ElsIf CommandToExecute.StartupOption = PredefinedValue("Enum.AdditionalDataProcessorsCallMethods.ClientMethodCall") Then
 		
-		ExternalObjectName = AdditionalReportsAndDataProcessorsServerCall.AttachExternalDataProcessor(CommandToExecute.Ref);
-		If CommandToExecute.IsReport Then
-			ExternalObjectForm = GetForm("ExternalReport."+ ExternalObjectName +".Form", ServerCallParameters, Form);
-		Else
-			ExternalObjectForm = GetForm("ExternalDataProcessor."+ ExternalObjectName +".Form", ServerCallParameters, Form);
+		ExternalObjectForm = AdditionalReportDataProcessorForm(CommandToExecute.Ref, CommandToExecute.IsReport,
+			ServerCallParameters, Form);
+		If ExternalObjectForm <> Undefined Then
+			ExternalObjectForm.ExecuteCommand(ServerCallParameters.CommandID, ServerCallParameters.RelatedObjects);
 		EndIf;
-		ExternalObjectForm.ExecuteCommand(ServerCallParameters.CommandID, ServerCallParameters.RelatedObjects);
 		
 	ElsIf CommandToExecute.StartupOption = PredefinedValue("Enum.AdditionalDataProcessorsCallMethods.ServerMethodCall")
 		Or CommandToExecute.StartupOption = PredefinedValue("Enum.AdditionalDataProcessorsCallMethods.SafeModeScenario") Then
@@ -342,14 +337,44 @@ EndProcedure
 
 #Region Private
 
-// Displays a notification before command run.
+Procedure OpenAdditionalReportDataProcessorForm(AdditionalReportDataProcessor, IsReport, FormParameters, OwnerForm)
+
+	FormName = AdditionalReportDataProcessorFormName(AdditionalReportDataProcessor, IsReport);
+	If IsBlankString(FormName) Then
+		Return;
+	EndIf;
+	OpenForm(FormName, FormParameters, OwnerForm);
+
+EndProcedure
+
+Function AdditionalReportDataProcessorForm(AdditionalReportDataProcessor, IsReport, FormParameters, OwnerForm)
+
+	FormName = AdditionalReportDataProcessorFormName(AdditionalReportDataProcessor, IsReport);
+	If IsBlankString(FormName) Then
+		Return Undefined;
+	EndIf;
+	Return GetForm(FormName, FormParameters, OwnerForm); // ACC:65 Для обратной совместимости: вызов клиентской процедуры обработки.
+
+EndFunction
+
+Function AdditionalReportDataProcessorFormName(AdditionalReportDataProcessor, IsReport)
+
+	If TypeOf(AdditionalReportDataProcessor) <> Type("CatalogRef.AdditionalReportsAndDataProcessors") Then
+		Return "";
+	EndIf;
+	
+	ExternalObjectName = AdditionalReportsAndDataProcessorsServerCall.AttachExternalDataProcessor(AdditionalReportDataProcessor);
+	Return ?(IsReport, StrTemplate("ExternalReport.%1.Form", ExternalObjectName),
+		StrTemplate("ExternalDataProcessor.%1.Form", ExternalObjectName));
+
+EndFunction
+
 Procedure ShowNotificationOnCommandExecution(CommandToExecute)
 	If CommandToExecute.ShouldShowUserNotification Then
 		ShowUserNotification(NStr("en = 'Command running…';"), , CommandToExecute.Presentation);
 	EndIf;
 EndProcedure
 
-// Opens a data processor form.
 Procedure OpenDataProcessorForm(CommandToExecute, Form, RelatedObjects) Export
 	ProcessingParameters = New Structure("CommandID, AdditionalDataProcessorRef, FormName, SessionKey1");
 	ProcessingParameters.CommandID          = CommandToExecute.Id;
@@ -362,29 +387,24 @@ Procedure OpenDataProcessorForm(CommandToExecute, Form, RelatedObjects) Export
 	EndIf;
 	
 #If ThickClientOrdinaryApplication Then
-		ExternalDataProcessor = AdditionalReportsAndDataProcessorsServerCall.ExternalDataProcessorObject(CommandToExecute.Ref);
-		DataProcessorForm = ExternalDataProcessor.GetForm(, Form);
-		If DataProcessorForm = Undefined Then
-			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 report or data processor is missing the main form,
-				|or the main form does not support standard applications.
-				|Command %2 failed.';"),
-				String(CommandToExecute.Ref),
-				CommandToExecute.Presentation);
-		EndIf;
-		DataProcessorForm.Open();
-		DataProcessorForm = Undefined;
+	ExternalDataProcessor = AdditionalReportsAndDataProcessorsServerCall.ExternalDataProcessorObject(CommandToExecute.Ref);
+	DataProcessorForm = ExternalDataProcessor.GetForm(, Form); // ACC:65 Для улучшения диагностики.
+	If DataProcessorForm = Undefined Then
+		Raise StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = '%1 report or data processor is missing the main form,
+			|or the main form does not support standard applications.
+			|Command %2 failed.';"),
+			String(CommandToExecute.Ref),
+			CommandToExecute.Presentation);
+	EndIf;
+	DataProcessorForm.Open();
+	DataProcessorForm = Undefined;
 #Else
-		DataProcessorName = AdditionalReportsAndDataProcessorsServerCall.AttachExternalDataProcessor(CommandToExecute.Ref);
-		If CommandToExecute.IsReport Then
-			OpenForm("ExternalReport." + DataProcessorName + ".Form", ProcessingParameters, Form);
-		Else
-			OpenForm("ExternalDataProcessor." + DataProcessorName + ".Form", ProcessingParameters, Form);
-		EndIf;
+	OpenAdditionalReportDataProcessorForm(CommandToExecute.Ref, CommandToExecute.IsReport, ProcessingParameters, Form);
 #EndIf
+
 EndProcedure
 
-// Executes a data processor client method.
 Procedure ExecuteDataProcessorClientMethod(CommandToExecute, Form, RelatedObjects) Export
 	
 	ShowNotificationOnCommandExecution(CommandToExecute);
@@ -399,23 +419,18 @@ Procedure ExecuteDataProcessorClientMethod(CommandToExecute, Form, RelatedObject
 	EndIf;
 	
 #If ThickClientOrdinaryApplication Then
-		ExternalDataProcessor = AdditionalReportsAndDataProcessorsServerCall.ExternalDataProcessorObject(CommandToExecute.Ref);
-		DataProcessorForm = ExternalDataProcessor.GetForm(, Form);
-		If DataProcessorForm = Undefined Then
-			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 report or data processor is missing the main form,
-				|or the main form does not support standard applications.
-				|Command %2 failed.';"),
-				String(CommandToExecute.Ref),
-				CommandToExecute.Presentation);
-		EndIf;
+	ExternalDataProcessor = AdditionalReportsAndDataProcessorsServerCall.ExternalDataProcessorObject(CommandToExecute.Ref);
+	DataProcessorForm = ExternalDataProcessor.GetForm(, Form); // ACC:65 Для улучшения диагностики.
+	If DataProcessorForm = Undefined Then
+		Raise StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = '%1 report or data processor is missing the main form,
+			|or the main form does not support standard applications.
+			|Command %2 failed.';"),
+			String(CommandToExecute.Ref),
+			CommandToExecute.Presentation);
+	EndIf;
 #Else
-		DataProcessorName = AdditionalReportsAndDataProcessorsServerCall.AttachExternalDataProcessor(CommandToExecute.Ref);
-		If CommandToExecute.IsReport Then
-			DataProcessorForm = GetForm("ExternalReport."+ DataProcessorName +".Form", ProcessingParameters, Form);
-		Else
-			DataProcessorForm = GetForm("ExternalDataProcessor."+ DataProcessorName +".Form", ProcessingParameters, Form);
-		EndIf;
+	DataProcessorForm = AdditionalReportDataProcessorForm(CommandToExecute.Ref, CommandToExecute.IsReport, ProcessingParameters, Form);
 #EndIf
 	
 	If CommandToExecute.Kind = PredefinedValue("Enum.AdditionalReportsAndDataProcessorsKinds.AdditionalDataProcessor")
@@ -426,11 +441,9 @@ Procedure ExecuteDataProcessorClientMethod(CommandToExecute, Form, RelatedObject
 	ElsIf CommandToExecute.Kind = PredefinedValue("Enum.AdditionalReportsAndDataProcessorsKinds.RelatedObjectsCreation") Then
 		
 		CreatedObjects = New Array;
-		
 		DataProcessorForm.ExecuteCommand(CommandToExecute.Id, RelatedObjects, CreatedObjects);
 		
 		CreatedObjectTypes = New Array;
-		
 		For Each CreatedObject In CreatedObjects Do
 			Type = TypeOf(CreatedObject);
 			If CreatedObjectTypes.Find(Type) = Undefined Then
@@ -438,9 +451,7 @@ Procedure ExecuteDataProcessorClientMethod(CommandToExecute, Form, RelatedObject
 			EndIf;
 		EndDo;
 		
-		For Each Type In CreatedObjectTypes Do
-			NotifyChanged(Type);
-		EndDo;
+		StandardSubsystemsClient.NotifyFormsAboutChange(CreatedObjectTypes);
 		
 	ElsIf CommandToExecute.Kind = PredefinedValue("Enum.AdditionalReportsAndDataProcessorsKinds.PrintForm") Then
 		
@@ -451,7 +462,6 @@ Procedure ExecuteDataProcessorClientMethod(CommandToExecute, Form, RelatedObject
 		DataProcessorForm.ExecuteCommand(CommandToExecute.Id, RelatedObjects);
 		
 		ModifiedObjectTypes = New Array;
-		
 		For Each ModifiedObject In RelatedObjects Do
 			Type = TypeOf(ModifiedObject);
 			If ModifiedObjectTypes.Find(Type) = Undefined Then
@@ -459,9 +469,7 @@ Procedure ExecuteDataProcessorClientMethod(CommandToExecute, Form, RelatedObject
 			EndIf;
 		EndDo;
 		
-		For Each Type In ModifiedObjectTypes Do
-			NotifyChanged(Type);
-		EndDo;
+		StandardSubsystemsClient.NotifyFormsAboutChange(ModifiedObjectTypes);
 		
 	ElsIf CommandToExecute.Kind = PredefinedValue("Enum.AdditionalReportsAndDataProcessorsKinds.Report") Then
 		

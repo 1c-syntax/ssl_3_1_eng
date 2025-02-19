@@ -18,44 +18,50 @@ Procedure BeforeWrite(Cancel, Replacing)
 		Return;
 	EndIf;
 	
-	If Count() = 1 Then
-		Folder = Get(0).Folder;
-		Path = Get(0).Path;
-		
-		If IsBlankString(Path) Then
-			Return;
-		EndIf;						
-		
-		Query = New Query;
-		Query.Text = 
-			"SELECT
-			|	FilesFolders.Ref,
-			|	FilesFolders.Description
-			|FROM
-			|	Catalog.FilesFolders AS FilesFolders
-			|WHERE
-			|	FilesFolders.Parent = &Ref";
-		
-		Query.SetParameter("Ref", Folder);
-		
-		Result = Query.Execute();
-		Selection = Result.Select();
-		While Selection.Next() Do
-			
-			WorkingDirectory = Path;
-			// Add the slash sign (same as before) if it's missing. 
-			//  It's required on the client side, and "BeforeWrite" runs on the server.
-			WorkingDirectory = CommonClientServer.AddLastPathSeparator(WorkingDirectory);
-			
-			WorkingDirectory = WorkingDirectory + Selection.Description;
-			WorkingDirectory = CommonClientServer.AddLastPathSeparator(WorkingDirectory);
-			
-			FilesOperationsInternal.SaveFolderWorkingDirectory(
-				Selection.Ref, WorkingDirectory);
-		EndDo;
-		
+	If Common.IsRecordSetDeletion(Replacing) Then
+		Return;
 	EndIf;
 	
+	If Count() = 1 Then
+		FileWorkingDirectory = Get(0);
+		Folder = FileWorkingDirectory.Folder;
+		Path = FileWorkingDirectory.Path;
+		SetWorkingDirectory(Folder, Path);
+	EndIf;
+	
+EndProcedure
+
+#EndRegion
+
+#Region Private
+
+Procedure SetWorkingDirectory(Val Folder, Val PathOfWorkingDirectory)
+
+	If IsBlankString(PathOfWorkingDirectory) Then
+		Return;
+	EndIf;
+	
+	Query = New Query;
+	Query.Text = 
+		"SELECT
+		|	FilesFolders.Ref,
+		|	FilesFolders.Description
+		|FROM
+		|	Catalog.FilesFolders AS FilesFolders
+		|WHERE
+		|	FilesFolders.Parent = &Ref";
+	
+	Query.SetParameter("Ref", Folder);
+	
+	Result = Query.Execute();
+	Selection = Result.Select();
+	While Selection.Next() Do
+		WorkingDirectory = CommonClientServer.AddLastPathSeparator(PathOfWorkingDirectory)
+			+ Selection.Description;
+		WorkingDirectory = CommonClientServer.AddLastPathSeparator(WorkingDirectory);
+		FilesOperationsInternal.SaveFolderWorkingDirectory(Selection.Ref, WorkingDirectory);
+	EndDo;
+		
 EndProcedure
 
 #EndRegion

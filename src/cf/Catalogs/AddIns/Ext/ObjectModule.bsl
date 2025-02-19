@@ -33,10 +33,10 @@ Procedure BeforeWrite(Cancel)
 		UpdateFrom1CITSPortal = False;
 	EndIf;
 	
-	// Uniqueness control of the add-in ID and version.
+	// Check the add-in ID and version for uniqueness.
 	If Not ThisIsTheUniqueComponent() Then 
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The add-in with ID ""%1"" and date ""%2"" is already attached to the app.';"),
+			NStr("en = 'The add-in with ID ""%1"" and date ""%2"" already exists in the application.';"),
 			Id,
 			VersionDate);
 	EndIf;
@@ -44,7 +44,7 @@ Procedure BeforeWrite(Cancel)
 	// Storing binary add-in data.
 	ComponentBinaryData = Undefined;
 	If AdditionalProperties.Property("ComponentBinaryData", ComponentBinaryData) Then
-		AddInStorage = New ValueStorage(ComponentBinaryData);
+		AddInStorage = New ValueStorage(ComponentBinaryData, New Deflation(9));
 	EndIf;
 	
 EndProcedure

@@ -165,7 +165,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	Buttons.Add(DialogReturnCode.Abort, NStr("en = 'Cancel operation';"));
 	Buttons.Add(DialogReturnCode.No,      NStr("en = 'Continue operation';"));
 	
-	Handler = New NotifyDescription("AfterConfirmCancelJob", ThisObject);
+	Handler = New CallbackDescription("AfterConfirmCancelJob", ThisObject);
 	ShowQueryBox(Handler, QueryText, Buttons, , DialogReturnCode.No);
 EndProcedure
 
@@ -189,7 +189,7 @@ Procedure DuplicatesSearchAreaStartChoice(Item, ChoiceData, StandardProcessing)
 	FormParameters.Insert("SettingsAddress", SettingsAddress);
 	FormParameters.Insert("DuplicatesSearchArea", DuplicatesSearchArea);
 	
-	Handler = New NotifyDescription("DuplicatesSearchAreaSelectionCompletion", ThisObject);
+	Handler = New CallbackDescription("DuplicatesSearchAreaSelectionCompletion", ThisObject);
 	
 	OpenForm(Name, FormParameters, ThisObject, , , , Handler);
 EndProcedure
@@ -257,7 +257,7 @@ Procedure OnStartSelectFilterRules()
 	FormParameters.Insert("MasterFormID",      UUID);
 	FormParameters.Insert("FilterAreaPresentation",      SearchForDuplicatesAreaPresentation);
 	
-	Handler = New NotifyDescription("FilterRulesSelectionCompletion", ThisObject);
+	Handler = New CallbackDescription("FilterRulesSelectionCompletion", ThisObject);
 	
 	OpenForm(Name, FormParameters, ThisObject, , , , Handler);
 	
@@ -299,7 +299,7 @@ Procedure SearchRulesPresentationClick(Item, StandardProcessing)
 	FormParameters.Insert("SettingsAddress",              SearchRulesSettingsAddress());
 	FormParameters.Insert("FilterAreaPresentation", SearchForDuplicatesAreaPresentation);
 	
-	Handler = New NotifyDescription("SearchRulesSelectionCompletion", ThisObject);
+	Handler = New CallbackDescription("SearchRulesSelectionCompletion", ThisObject);
 	OpenForm(Name, FormParameters, ThisObject, , , , Handler);
 EndProcedure
 
@@ -726,8 +726,7 @@ EndProcedure
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Wizard API
+#Region WizardPageNavigation
 
 &AtServer
 Procedure InitializeStepByStepWizardSettings()
@@ -844,6 +843,8 @@ Procedure GoToWizardStep1(Val StepOrIndexOrFormGroup)
 	OnActivateWizardStep();
 	
 EndProcedure
+
+#EndRegion
 
 #Region WizardEvents
 
@@ -962,7 +963,7 @@ Procedure WizardStepNext()
 	CurrentPage = Items.WizardSteps.CurrentPage;
 	
 	Step = WizardSettings.CurrentStep;// See AddWizardStep
-	HandlerNextCompletion = New NotifyDescription("WizardStepNextCompletion", ThisObject);
+	HandlerNextCompletion = New CallbackDescription("WizardStepNextCompletion", ThisObject);
 	If CurrentPage = Items.NoSearchPerformedStep Then
 		
 		If IsBlankString(DuplicatesSearchArea) Then
@@ -970,33 +971,33 @@ Procedure WizardStepNext()
 			Return;
 		EndIf;
 		
-		ExecuteNotifyProcessing(HandlerNextCompletion, Step.IndexOf + 1);
+		RunCallback(HandlerNextCompletion, Step.IndexOf + 1);
 		
 	ElsIf CurrentPage = Items.MainItemSelectionStep Then
 		
 		Items.RetrySearch.Visible = False;
 		If ValueIsFilled(Step.WhenYouClickNext) Then
 		
-			Handler = New NotifyDescription(Step.WhenYouClickNext, ThisObject, 
+			Handler = New CallbackDescription(Step.WhenYouClickNext, ThisObject, 
 							New Structure("CompletionHandler", HandlerNextCompletion));
-			ExecuteNotifyProcessing(Handler, Step.IndexOf + 1);
+			RunCallback(Handler, Step.IndexOf + 1);
 		Else
 			
-			ExecuteNotifyProcessing(HandlerNextCompletion, Step.IndexOf + 1);
+			RunCallback(HandlerNextCompletion, Step.IndexOf + 1);
 		EndIf;
 		
 		
 	ElsIf CurrentPage = Items.UnsuccessfulReplacementsStep Then
 		
-		ExecuteNotifyProcessing(HandlerNextCompletion, Items.DeletionStep);
+		RunCallback(HandlerNextCompletion, Items.DeletionStep);
 		
 	ElsIf CurrentPage = Items.DuplicatesNotFoundStep Then
 		
-		ExecuteNotifyProcessing(HandlerNextCompletion, Items.PerformSearchStep);
+		RunCallback(HandlerNextCompletion, Items.PerformSearchStep);
 		
 	Else
 		
-		ExecuteNotifyProcessing(HandlerNextCompletion, Step.IndexOf + 1);
+		RunCallback(HandlerNextCompletion, Step.IndexOf + 1);
 		
 	EndIf;
 	
@@ -1063,14 +1064,14 @@ Procedure StepSelectTheMainElementWhenYouClickNext(DescriptionOfTheNextStep, Add
 		DescriptionOfTheNextStep, AdditionalParameters.CompletionHandler);
 	If ReturnedLessThanFound Then
 		
-		ResponseHandler1 = New NotifyDescription("StepSelectTheMainElementWhenYouClickNextCompletion", ThisObject, HandlerParameters);
+		ResponseHandler1 = New CallbackDescription("StepSelectTheMainElementWhenYouClickNextCompletion", ThisObject, HandlerParameters);
 		ShowQueryBox(
 			ResponseHandler1, 
 			NStr("en = 'Not all duplicates found are displayed. All duplicates found will be processed.
 			|Start processing the duplicates?';"), QuestionDialogMode.YesNo);
 	Else
 			
-		ExecuteNotifyProcessing(AdditionalParameters.CompletionHandler, DescriptionOfTheNextStep);
+		RunCallback(AdditionalParameters.CompletionHandler, DescriptionOfTheNextStep);
 	EndIf;
 
 EndProcedure
@@ -1080,7 +1081,7 @@ Procedure StepSelectTheMainElementWhenYouClickNextCompletion(Result, AdditionalP
 
 	If Result = DialogReturnCode.Yes Then
 	
-		ExecuteNotifyProcessing(
+		RunCallback(
 			AdditionalParameters.CompletionHandler, 
 			AdditionalParameters.DescriptionOfTheNextStep);
 	
@@ -1090,8 +1091,7 @@ EndProcedure
 
 #EndRegion
 
-////////////////////////////////////////////////////////////////////////////////
-// Internal functions and procedures
+#Region Utilities
 
 &AtServer
 Function DuplicatesDeletionSearchSettings()
@@ -1700,8 +1700,9 @@ Function ImageOfTheMetadataType(ImageCache, Kind)
 	Return Picture;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Long-running operation management
+#EndRegion
+
+#Region TimeConsumingOperations1
 
 &AtClient
 Procedure FindAndDeleteDuplicatesClient()
@@ -1718,8 +1719,8 @@ Procedure FindAndDeleteDuplicatesClient()
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	WaitSettings.OutputIdleWindow = False;
 	WaitSettings.OutputProgressBar = True;
-	WaitSettings.ExecutionProgressNotification = New NotifyDescription("FindAndRemoveDuplicatesProgress", ThisObject);
-	Handler = New NotifyDescription("FindAndDeleteDuplicatesCompletion", ThisObject);
+	WaitSettings.ExecutionProgressNotification = New CallbackDescription("FindAndRemoveDuplicatesProgress", ThisObject);
+	Handler = New CallbackDescription("FindAndDeleteDuplicatesCompletion", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, Handler, WaitSettings);
 	
 EndProcedure
@@ -2337,8 +2338,9 @@ Procedure AfterConfirmCancelJob(Response, ExecutionParameters) Export
 	EndIf;
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Wizard's internal procedures and functions
+#EndRegion
+
+#Region WizardUtilityProceduresAndFunctions
 
 // Description of wizard button settings.
 //
@@ -2415,5 +2417,7 @@ EndProcedure
 Function RepresentationOfTheSelectedPlaceOfUse()
 	Return NStr("en = 'Items that can include duplicates';");
 EndFunction
+
+#EndRegion
 
 #EndRegion

@@ -35,7 +35,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 		|	FilesInfo.File > &File
 		|	AND FilesInfo.FileStorageType = VALUE(Enum.FileStorageTypes.EmptyRef)";
 		Query.SetParameter("File", File);
-		// @skip-check query-in-loop - Batch processing of data
+		// @skip-check query-in-loop - Batch-wise data processing
 		RegisterDimensions = Query.Execute().Unload();
 		
 		AdditionalParameters = InfobaseUpdate.AdditionalProcessingMarkParameters();

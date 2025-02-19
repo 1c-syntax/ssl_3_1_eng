@@ -245,7 +245,7 @@ Procedure Pick(Command)
 		Case = New ValueList;
 		Case.Add("ExternalUser", NStr("en = 'External user';"));
 		Case.Add("User", NStr("en = 'User';"));
-		NotifyDescription = New NotifyDescription("AfterUserTypeChoice", ThisObject);
+		NotifyDescription = New CallbackDescription("AfterUserTypeChoice", ThisObject);
 		Case.ShowChooseItem(NotifyDescription, NStr("en = 'Select user type';"));
 	ElsIf RoleIsAvailableToUsers Then
 		OpenSelectionForm("User");

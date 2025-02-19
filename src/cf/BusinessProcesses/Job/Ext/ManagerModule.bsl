@@ -38,7 +38,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// StandardSubsystems.BusinessProcessesAndTasks
+// СтандартныеПодсистемы.БизнесПроцессыИЗадачи
 
 // Gets a structure with description of a task execution form.
 // The function is called when opening the task execution form.
@@ -76,7 +76,7 @@ EndFunction
 Procedure OnForwardTask(TaskRef, NewTaskRef) Export
 	
 	// ACC:1327-off - The business process was locked in the calling function
-	// "BusinessProcessesAndTasksServerCall.ForwardTasks".
+	// "BusinessProcessesAndTasks.ForwardTasks".
 	TaskInfo = Common.ObjectAttributesValues(TaskRef, 
 		"Ref,BusinessProcess,ExecutionResult,CompletionDate,Performer");
 	BusinessProcessObject = TaskInfo.BusinessProcess.GetObject();
@@ -119,7 +119,7 @@ Procedure DefaultCompletionHandler(TaskRef, BusinessProcessRef, BusinessProcessR
 			JobObject.Completed2 = True;
 			JobObject.Accepted = True;
 		EndIf;
-		JobObject.Write(); // CAC:1327 The lock is set in the BusinessProcessesAndTasksServer.LockBusinessProcesses.
+		JobObject.Write(); // ACC:1327 - A lock is set in BusinessProcessesAndTasksServer.LockBusinessProcesses.
 
 		CommitTransaction();
 	Except
@@ -170,7 +170,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
 // Defines the list of generation commands.
 //

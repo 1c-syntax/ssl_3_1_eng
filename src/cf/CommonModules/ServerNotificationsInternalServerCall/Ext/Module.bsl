@@ -116,10 +116,16 @@ EndProcedure
 //
 Procedure WritePerformanceIndicators(Val Comment) Export
 	
-	WriteLogEvent(
-		NStr("en = 'Server notifications.Performance indicators';",
-			Common.DefaultLanguageCode()),
+	EventName = NStr("en = 'Серверные оповещения.Показатели производительности';",
+		Common.DefaultLanguageCode());
+	
+	WriteLogEvent(EventName,
 		EventLogLevel.Information,,, Comment);
+	
+	If Common.SubsystemExists("CloudTechnology") Then
+		ModuleCommonCTL = Common.CommonModule("CommonCTL");
+		ModuleCommonCTL.TechnologyLogEntry(EventName, Comment);
+	EndIf;
 	
 EndProcedure
 

@@ -39,7 +39,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// StandardSubsystems.ObjectAttributesLock
+// Standard subsystems.Forbidding editingrequisitobjects
 
 // Returns:
 //   See ObjectAttributesLockOverridable.OnDefineLockedAttributes.LockedAttributes.
@@ -58,7 +58,7 @@ EndFunction
 
 // End StandardSubsystems.ObjectAttributesLock
 
-// StandardSubsystems.AccessManagement
+// СтандартныеПодсистемы.УправлениеДоступом
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.

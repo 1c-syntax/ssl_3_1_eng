@@ -6,7 +6,6 @@
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -14,7 +13,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// Set report form settings.
+// Configure report form.
 //
 // Parameters:
 //   Form - ClientApplicationForm

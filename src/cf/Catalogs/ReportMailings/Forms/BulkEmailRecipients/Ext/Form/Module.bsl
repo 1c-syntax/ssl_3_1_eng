@@ -111,6 +111,13 @@ Procedure RecipientsAfterDeleteRow(Item)
 	RefreshRecipientCount(ThisObject);
 EndProcedure
 
+&AtClient
+Procedure RecipientsBeforeEditEnd(Item, NewRow, CancelEdit, Cancel)
+	If Not ValueIsFilled(Item.CurrentData.Recipient) Then
+		Cancel = True;
+	EndIf;
+EndProcedure
+
 #EndRegion
 
 #Region FormCommandsEventHandlers
@@ -132,7 +139,7 @@ Procedure PasteFromClipboard(Command)
 	SearchParameters.Insert("Scenario", "RefsSearch");
 	
 	ExecutionParameters = New Structure;
-	Handler = New NotifyDescription("PasteFromClipboardCompletion", ThisObject, ExecutionParameters);
+	Handler = New CallbackDescription("PasteFromClipboardCompletion", ThisObject, ExecutionParameters);
 	
 	ModuleDataImportFromFileClient = CommonClient.CommonModule("ImportDataFromFileClient");
 	ModuleDataImportFromFileClient.ShowRefFillingForm(SearchParameters, Handler);

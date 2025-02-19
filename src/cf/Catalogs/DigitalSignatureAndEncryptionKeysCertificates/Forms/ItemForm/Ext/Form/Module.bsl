@@ -41,11 +41,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 		If Not AccessRight("Insert", Metadata.Catalogs.DigitalSignatureAndEncryptionKeysCertificates) Then
 		CommonClientServer.SetFormItemProperty(Items,
-			"FormCopy", "Visible", False);
+			"FormReissueCertificate", "Visible", False);
 		EndIf;
 	Else
 		CommonClientServer.SetFormItemProperty(Items,
-				"FormCopy", "Visible", False);
+				"FormReissueCertificate", "Visible", False);
 	EndIf;
 	
 	BuiltinCryptoprovider = DigitalSignatureInternal.BuiltinCryptoprovider();
@@ -171,7 +171,7 @@ EndProcedure
 &AtServer
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
-	// Checking description for uniqueness.
+	// Check the description for uniqueness.
 	If Not Items.Description.ReadOnly Then
 		DigitalSignatureInternal.CheckPresentationUniqueness(
 			Object.Description, Object.Ref, "Object.Description", Cancel);
@@ -242,7 +242,7 @@ Procedure DecorationReissuedURLProcessing(Item, FormattedStringURL, StandardProc
 	If IssuedCertificates.Count() = 1 Then
 		OpenCertificateAfterSelectionFromList(IssuedCertificates[0], Undefined);
 	Else	
-		NotifyDescription = New NotifyDescription("OpenCertificateAfterSelectionFromList", ThisObject, Item);
+		NotifyDescription = New CallbackDescription("OpenCertificateAfterSelectionFromList", ThisObject, Item);
 		ShowChooseFromList(NotifyDescription, IssuedCertificates);
 	EndIf;
 	
@@ -376,20 +376,20 @@ EndProcedure
 Procedure CertificateRevoked(Command)
 	
 	If Not Object.Revoked Then
-		TheDescriptionIsAsFollows = New NotifyDescription("AfterAnsweringQuestionCertificateRevoked", ThisObject);
+		TheDescriptionIsAsFollows = New CallbackDescription("AfterAnsweringQuestionCertificateRevoked", ThisObject);
 		ShowQueryBox(TheDescriptionIsAsFollows, NStr("en = 'The certificate will be marked as revoked, and you will not be able to use it for signing.
 		|Select this flag when the certificate revocation application is submitted but not fulfilled.
 		|Continue?';"), QuestionDialogMode.YesNo);
 	Else
-		TheDescriptionIsAsFollows = New NotifyDescription("AfterAnsweringQuestionCertificateRevoked", ThisObject);
-		ShowQueryBox(TheDescriptionIsAsFollows, NStr("en = 'If a certificate is revoked by the certificate authority, you will not be able to use it for signing even after clearing the checkmark.
+		TheDescriptionIsAsFollows = New CallbackDescription("AfterAnsweringQuestionCertificateRevoked", ThisObject);
+		ShowQueryBox(TheDescriptionIsAsFollows, NStr("en = 'If a certificate is revoked by the certificate authority, you will not be able to use it for signing even after clearing the check mark.
 		|Continue?';"), QuestionDialogMode.YesNo);
 	EndIf;
 	
 EndProcedure
 
 &AtClient
-Procedure Copy(Command)
+Procedure ReissueCertificate(Command)
 	
 	CreationParameters = New Structure;
 	CreationParameters.Insert("CreateRequest", True);
@@ -413,7 +413,7 @@ Procedure ChangePIN(Command)
 	TheDSSCryptographyServiceModuleClient = CommonClient.CommonModule("DSSCryptographyServiceClient");
 	
 	FingerprintRepresentation = TheDSSCryptographyServiceModuleClientServer.TransformFingerprint(Object.Thumbprint);
-	TheDescriptionIsAsFollows = New NotifyDescription("AfterChangingThePINCode", ThisObject);
+	TheDescriptionIsAsFollows = New CallbackDescription("AfterChangingThePINCode", ThisObject);
 	TheDSSCryptographyServiceModuleClient.ChangeCertificatePin(
 			TheDescriptionIsAsFollows,
 			Object.Application,
@@ -426,7 +426,7 @@ Procedure EditFirstNameAndPatronymic(Command)
 	
 	OpenForm("Catalog.DigitalSignatureAndEncryptionKeysCertificates.Form.EditFirstNameAndPatronymic",
 		New Structure("Name, MiddleName", Object.Name, Object.MiddleName), ThisObject,,,,
-		New NotifyDescription("EditFirstNameAndPatronymicContinuation", ThisObject),
+		New CallbackDescription("EditFirstNameAndPatronymicContinuation", ThisObject),
 		FormWindowOpeningMode.LockOwnerWindow);
 	
 EndProcedure
@@ -637,7 +637,7 @@ Procedure IdleHandlerOpenApplication()
 	If CanOpenRequest Then
 		FormParameters = New Structure;
 		FormParameters.Insert("CertificateReference", Object.Ref);
-		Notification = New NotifyDescription("NotificationClosedStatements", ThisObject);
+		Notification = New CallbackDescription("NotificationClosedStatements", ThisObject);
 		OpenForm(RequestFormName, FormParameters,,,,, Notification);
 	EndIf;
 	
@@ -662,7 +662,7 @@ Procedure WaitHandlerShowCertificateStatus()
 		Return;
 	EndIf;
 	
-	Notification = New NotifyDescription(
+	Notification = New CallbackDescription(
 		"VisibilityCertificateStatusAfterGettingCertificatesInPersonalStorage", ThisObject);
 	DigitalSignatureInternalClient.GetCertificatesPropertiesAtClient(
 		Notification, True, True, True);
@@ -850,19 +850,19 @@ Procedure AfterAnsweringQuestionCertificateRevoked(QuestionResult, AdditionalPar
 EndProcedure
 
 &AtClient
-Procedure OpenTheListOfUsers(ViewMode)
+Procedure OpenTheListOfUsers(DisplayMode)
 	
 	UsersArray = New Array;
 	For Each TableRow In Object.Users Do
 		UsersArray.Add(TableRow.User);
 	EndDo;	
 	
-	CompletionNotification = New NotifyDescription("UsersListCompletion", ThisObject);
+	CompletionNotification = New CallbackDescription("UsersListCompletion", ThisObject);
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("User", Object.User);
 	FormParameters.Insert("Users", UsersArray);
-	FormParameters.Insert("ViewMode", ViewMode Or ReadOnly);
+	FormParameters.Insert("DisplayMode", DisplayMode Or ReadOnly);
 	
 	OpenForm("Catalog.DigitalSignatureAndEncryptionKeysCertificates.Form.UsersList", 
 			FormParameters, ThisObject, , , , CompletionNotification);

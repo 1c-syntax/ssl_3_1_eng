@@ -83,7 +83,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 			Query = New Query;
 			Query.TempTablesManager = New TempTablesManager;
 			Query.Text =  StrReplace(FirstQueryText,"&CatalogName","Catalog." + KeyAndValue.Key);
-			// @skip-check query-in-loop - Batch processing of data
+			// @skip-check query-in-loop - Batch-wise data processing
 			Query.Execute();
 			
 			Query.Text = StrReplace(SecondQueryText,"&CatalogName","Catalog." + KeyAndValue.Key);
@@ -94,7 +94,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 				
 				Query.SetParameter("FileOwnerRef", FileOwnerRef);
 				
-				// @skip-check query-in-loop - Batch processing of data
+				// @skip-check query-in-loop - Batch-wise data processing
 				ValueTable = Query.Execute().Unload(); 
 			
 				InfobaseUpdate.MarkForProcessing(Parameters, ValueTable, AdditionalParameters);
@@ -122,13 +122,12 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	// Data selection for a multithread update.
 	DataToProcess = InfobaseUpdate.DataToUpdateInMultithreadHandler(Parameters);
 	
-	FullRegisterName = "InformationRegister.FilesExist";
-	
 	If DataToProcess.Count() = 0 Then
-		Parameters.ProcessingCompleted = Not InfobaseUpdate.HasDataToProcess(Parameters.Queue,
-			FullRegisterName);
+		Parameters.ProcessingCompleted = True;
 		Return;	
 	EndIf;
+	
+	FullRegisterName = "InformationRegister.FilesExist";
 	
 	AddlParameters = InfobaseUpdate.AdditionalProcessingMarkParameters();
 	AddlParameters.IsIndependentInformationRegister = True;
@@ -285,7 +284,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 					EndIf;
 				EndIf;
 				
-				ExceptionReason = 3; // Record
+				ExceptionReason = 3; // Write
 				If WriteSet Then
 					InfobaseUpdate.WriteRecordSet(RecordSetFilesExist, True);
 				Else
@@ -302,7 +301,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 				ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 				
 				MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot update information on the availability of files %1. Reason:
+					NStr("en = 'Couldn''t update information about availability of flies in %1. Reason:
 						|%2';"), 
 					RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,

@@ -125,7 +125,7 @@ Procedure OnWrite(Cancel)
 		|WHERE
 		|	Properties.Property = &Property
 		|	AND Properties.DeletionMark <> &DeletionMark";
-	If PropertyKind = Enums.PropertiesKinds.AdditionalInfo Then
+	If PropertyKind1 = Enums.PropertiesKinds.AdditionalInfo Then
 		TableName = "Catalog.AdditionalAttributesAndInfoSets.AdditionalInfo";
 	Else
 		TableName = "Catalog.AdditionalAttributesAndInfoSets.AdditionalAttributes";
@@ -138,7 +138,7 @@ Procedure OnWrite(Cancel)
 	
 	For Each ResultString1 In Result Do
 		PropertySetObject = ResultString1.Ref.GetObject();// CatalogObject.AdditionalAttributesAndInfoSets,
-		If PropertyKind = Enums.PropertiesKinds.AdditionalInfo Then
+		If PropertyKind1 = Enums.PropertiesKinds.AdditionalInfo Then
 			FillPropertyValues(PropertySetObject.AdditionalInfo.Find(Ref, "Property"), ObjectProperties);
 		Else
 			FillPropertyValues(PropertySetObject.AdditionalAttributes.Find(Ref, "Property"), ObjectProperties);
@@ -243,11 +243,11 @@ Function TitleForIDGeneration()
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 	
-		LanguageSuffix = ModuleNationalLanguageSupportServer.CurrentLanguageSuffix();
-		If ValueIsFilled(LanguageSuffix) Then
+		LanguageSuffix_ = ModuleNationalLanguageSupportServer.CurrentLanguageSuffix();
+		If ValueIsFilled(LanguageSuffix_) Then
 			
-			If ValueIsFilled(ThisObject["Title" + LanguageSuffix]) Then
-				TitleForID = ThisObject["Title" + LanguageSuffix];
+			If ValueIsFilled(ThisObject["Title" + LanguageSuffix_]) Then
+				TitleForID = ThisObject["Title" + LanguageSuffix_];
 			EndIf;
 		EndIf;
 	EndIf;

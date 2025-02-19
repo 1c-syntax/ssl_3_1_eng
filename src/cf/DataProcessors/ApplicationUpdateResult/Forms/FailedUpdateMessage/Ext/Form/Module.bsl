@@ -126,7 +126,7 @@ EndProcedure
 &AtClient
 Procedure OpenExternalDataProcessor(Command)
 	
-	ContinuationHandler = New NotifyDescription("OpenExternalDataProcessorAfterConfirmSafety", ThisObject);
+	ContinuationHandler = New CallbackDescription("OpenExternalDataProcessorAfterConfirmSafety", ThisObject);
 	OpenForm("DataProcessor.ApplicationUpdateResult.Form.SecurityWarning",,,,,, ContinuationHandler);
 	
 EndProcedure
@@ -145,7 +145,7 @@ Procedure OpenExternalDataProcessorAfterConfirmSafety(Result, AdditionalParamete
 		
 	EndIf;
 	
-	Notification = New NotifyDescription("OpenExternalDataProcessorCompletion", ThisObject);
+	Notification = New CallbackDescription("OpenExternalDataProcessorCompletion", ThisObject);
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.FormIdentifier = UUID;
 	ImportParameters.Dialog.Filter = NStr("en = 'External data processor';") + "(*.epf)|*.epf";
@@ -168,7 +168,7 @@ EndProcedure
 Procedure CheckPatches(Command)
 	Result = AvailableFixesOnServer();
 	
-	NotifyDescription = New NotifyDescription("CheckAvailableFixesContinued", ThisObject, Result);
+	NotifyDescription = New CallbackDescription("CheckAvailableFixesContinued", ThisObject, Result);
 	InfobaseUpdateClient.ProcessManualPatchCheckResult(Result, NotifyDescription);
 EndProcedure
 
@@ -199,7 +199,7 @@ Procedure CheckAvailableFixesContinued(Result, AdditionalParameters) Export
 	
 	TimeConsumingOperation    = StartingPatchInstallation();
 	IdleParameters     = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-	CallbackOnCompletion = New NotifyDescription("ProcessManualPatchInstallationResult", InfobaseUpdateClient, AdditionalParameters);
+	CallbackOnCompletion = New CallbackDescription("ProcessManualPatchInstallationResult", InfobaseUpdateClient, AdditionalParameters);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure

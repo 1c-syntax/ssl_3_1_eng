@@ -269,10 +269,10 @@ Procedure SetTransportSettings(Message, Sender)
 	RecordStructure.Insert("FILECompressOutgoingMessageFile", Body.FILE_CompressExchangeMessage);
 	
 	RecordStructure.Insert("FTPCompressOutgoingMessageFile",                  Body.FTP_CompressExchangeMessage);
-	RecordStructure.Insert("FTPConnectionMaxMessageSize", Body.FTP_MaxExchangeMessageSize);
+	RecordStructure.Insert("FTPConnectionMaximumAllowedMessageSize", Body.FTP_MaxExchangeMessageSize);
 	RecordStructure.Insert("FTPConnectionPassiveConnection",                   Body.FTP_PassiveMode);
-	RecordStructure.Insert("FTPConnectionUser",                          Body.FTP_User);
-	RecordStructure.Insert("FTPConnectionPort",                                  Body.FTP_Port);
+	RecordStructure.Insert("FTPUserConnection",                          Body.FTP_User);
+	RecordStructure.Insert("FTPConnection_Port",                                  Body.FTP_Port);
 	RecordStructure.Insert("FTPConnectionPath",                                  Body.FTP_ExchangeFolder);
 	
 	RecordStructure.Insert("DefaultExchangeMessagesTransportKind",      Enums.ExchangeMessagesTransportTypes[Body.ExchangeTransport]);

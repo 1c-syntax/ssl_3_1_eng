@@ -47,12 +47,12 @@ Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
 		Variant             = Form.CurrentVariantKey;
 		FormParametersSelection = Form.ParametersForm.Filter;
 		
-		If Variant = "RightsRolesOnMetadataObject" Then
+		If Variant = "RightsOfRolesAndProfilesToMetadataObject" Then
 			FormParametersSelection.Insert("MetadataObject", FormAttributes.OptionContext);
 			
 		ElsIf Form.Parameters.Property("CommandParameter") Then
 			ParameterName = "";
-			If Variant = "RightsRolesOnMetadataObjects" Then
+			If Variant = "RightsOfRoleAndProfilesToMetadataObjects" Then
 				ParameterName = "Profile";
 				ParameterValue = ProfileListWithoutGroups(Form.Parameters.CommandParameter);
 				
@@ -93,10 +93,22 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 		Return;
 	EndIf;
 	
-	Form = Context;
+	DataCompositionSchema.Parameters.Role.SetAvailableValues(
+		UsersInternal.AllRoles().List.Get());
+	
+	DataCompositionSchema.Parameters.MetadataObject.SetAvailableValues(
+		AccessManagementInternalCached.ListOfMetadataObjectsWithRights().Get());
+	
 	AdditionalProperties = SettingsComposer.Settings.AdditionalProperties;
-	Variant             = AdditionalProperties.PredefinedOptionKey;
+	Variant = AdditionalProperties.PredefinedOptionKey;
+	Form = Context;
 	FormParametersSelection = AdditionalProperties.FormParametersSelection;
+	
+	If NewDCSettings <> Undefined Then
+		HideExcessDataFields(Variant, FormParametersSelection, NewDCSettings, NewDCUserSettings);
+	EndIf;
+	
+	UnavailableOptions = New Structure;
 	
 	If Variant = "RolesRights"
 	   And Not FormParametersSelection.Property("InitialSelection") Then
@@ -106,45 +118,49 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 			
 			Form.ReportSettings.GenerateImmediately = False;
 		EndIf;
-		Return;
-	EndIf;
-	
-	If Not FormParametersSelection.Property("InitialSelection") Then
-		FormParametersSelection.Insert("InitialSelection", New Structure);
-	EndIf;
-	If TypeOf(FormParametersSelection.InitialSelection) <> Type("Structure") Then
-		FormParametersSelection.InitialSelection = New Structure;
-	EndIf;
-	If Not FormParametersSelection.InitialSelection.Property("InitialSelectionSet") Then
-		FormParametersSelection.InitialSelection.Insert("InitialSelectionSet",
-			Not ValueIsFilled(FormParametersSelection.InitialSelection)
-			And FormParametersSelection.Count() = 1);
-	EndIf;
-	
-	UnavailableOptions = New Structure;
-	If Variant = "DetailedPermissionsRolesOnMetadataObject" Then
-		UnavailableOptions = New Structure("AccessLevel,
-			|RightsOnDetails, ShowPermissionsofNonInterfaceSubsystems,
-			|DontWarnAboutLargeReportSize");
-		If SetSelectionByProfile(FormParametersSelection, SettingsComposer.Settings) Then
-			UnavailableOptions.Insert("Role");
-			UnavailableOptions.Insert("ShowObjectsAndRolesWithoutPermissions");
-			If TypeOf(NewDCSettings) = Type("DataCompositionSettings") Then
-				NewDCSettings.AdditionalProperties.Insert("SetSelectionByProfile");
-			EndIf;
-		Else
-			UnavailableOptions.Insert("Profile");
+		UnavailableOptions = New Structure("Right,Profile");
+	Else
+		If Not FormParametersSelection.Property("InitialSelection") Then
+			FormParametersSelection.Insert("InitialSelection", New Structure);
+		EndIf;
+		If TypeOf(FormParametersSelection.InitialSelection) <> Type("Structure") Then
+			FormParametersSelection.InitialSelection = New Structure;
+		EndIf;
+		If Not FormParametersSelection.InitialSelection.Property("InitialSelectionSet") Then
+			FormParametersSelection.InitialSelection.Insert("InitialSelectionSet",
+				Not ValueIsFilled(FormParametersSelection.InitialSelection)
+				And FormParametersSelection.Count() = 1);
 		EndIf;
 		
-	ElsIf Variant = "RightsRolesOnMetadataObject" Then
-		UnavailableOptions = New Structure("RightsOnDetails,Right,
-			|DontWarnAboutLargeReportSize");
-		
-	ElsIf Variant = "RightsRolesOnMetadataObjects" Then
-		UnavailableOptions = New Structure("Right");
+		If Variant = "DetailedRolesRightsToMetadataObject" Then
+			UnavailableOptions = New Structure("AccessLevel,
+				|RightsOnDetails, ShowPermissionsofNonInterfaceSubsystems,
+				|DontWarnAboutLargeReportSize");
+			If SetSelectionByProfile(FormParametersSelection, SettingsComposer.Settings) Then
+				UnavailableOptions.Insert("Role");
+				UnavailableOptions.Insert("ShowObjectsAndRolesWithoutPermissions");
+				If TypeOf(NewDCSettings) = Type("DataCompositionSettings") Then
+					NewDCSettings.AdditionalProperties.Insert("SetSelectionByProfile");
+				EndIf;
+			Else
+				UnavailableOptions.Insert("Profile");
+			EndIf;
+			
+		ElsIf Variant = "RightsOfRolesAndProfilesToMetadataObject" Then
+			UnavailableOptions = New Structure("RightsOnDetails,Right,
+				|DontWarnAboutLargeReportSize");
+			
+		ElsIf Variant = "RightsOfRoleAndProfilesToMetadataObjects" Then
+			If SetSelectionByProfile(FormParametersSelection, SettingsComposer.Settings) Then
+				UnavailableOptions.Insert("Role");
+			EndIf;
+			UnavailableOptions.Insert("Right");
+		EndIf;
 	EndIf;
 	
-	If Not FormParametersSelection.InitialSelection.InitialSelectionSet Then
+	If FormParametersSelection.Property("InitialSelection")
+	   And Not FormParametersSelection.InitialSelection.InitialSelectionSet Then
+		
 		AllParameters = New Structure("MetadataObject, Role, RightsOnDetails, Profile,
 			|AccessLevel, Right, ShowObjectsAndRolesWithoutPermissions, NameFormat,
 			|ShowPermissionsofNonInterfaceSubsystems, DontWarnAboutLargeReportSize");
@@ -154,21 +170,23 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 	
 	For Each ParameterDetails In AllParameters Do
 		If Not FormParametersSelection.Property(ParameterDetails.Key) Then
-			If TypeOf(NewDCSettings) = Type("DataCompositionSettings") Then
-				DisableOption(NewDCSettings.DataParameters, ParameterDetails.Key,
-					UnavailableOptions.Property(ParameterDetails.Key));
-			EndIf;
-			DisableOption(NewDCUserSettings, ParameterDetails.Key,
-				UnavailableOptions.Property(ParameterDetails.Key));
+			DisableOption(ParameterDetails.Key, UnavailableOptions,
+				NewDCSettings, NewDCUserSettings);
 		EndIf;
 	EndDo;
 	
-	If FormParametersSelection.InitialSelection.InitialSelectionSet Then
+	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
+		ModuleReportsServer = Common.CommonModule("ReportsServer");
+		ModuleReportsServer.AttachSchema(ThisObject, Context, DataCompositionSchema, SchemaKey);
+	EndIf;
+	
+	If Not FormParametersSelection.Property("InitialSelection")
+	 Or FormParametersSelection.InitialSelection.InitialSelectionSet Then
 		Return;
 	EndIf;
 	FormParametersSelection.InitialSelection.InitialSelectionSet = True;
 	
-	If Variant = "RightsRolesOnMetadataObjects"
+	If Variant = "RightsOfRoleAndProfilesToMetadataObjects"
 	   And FormParametersSelection.InitialSelection.Property("Profile") Then
 		
 		SetDisplayMode("Profile", DataCompositionSettingsItemViewMode.QuickAccess,
@@ -206,20 +224,20 @@ Procedure AfterLoadSettingsInLinker(AdditionalParameters) Export
 	If Variant = "RolesRights" Then
 		DescriptionOption = NStr("en = 'Role rights';");
 		
-	ElsIf Variant = "RightsRolesOnMetadataObjects" Then
+	ElsIf Variant = "RightsOfRoleAndProfilesToMetadataObjects" Then
 		If SetSelectionByProfile(FormParametersSelection, SettingsComposer.Settings)
 		 Or Not ParameterUsed(SettingsComposer.UserSettings, "Role") Then
 			DescriptionOption = NStr("en = 'Profile rights that apply to metadata objects';");
 		Else
-			DescriptionOption = NStr("en = 'Role rights that apply to metadata objects';");
+			DescriptionOption = NStr("en = 'Role and profile rights that apply to metadata object';");
 		EndIf;
 		
-	ElsIf Variant = "RightsRolesOnMetadataObject" Then
-		DescriptionOption = NStr("en = 'Role rights that apply to metadata object';");
+	ElsIf Variant = "RightsOfRolesAndProfilesToMetadataObject" Then
+		DescriptionOption = NStr("en = 'Role and profile rights that apply to metadata object';");
 	
-	ElsIf Variant = "DetailedPermissionsRolesOnMetadataObject" Then
+	ElsIf Variant = "DetailedRolesRightsToMetadataObject" Then
 		If SetSelectionByProfile(FormParametersSelection, SettingsComposer.Settings) Then
-			DescriptionOption = NStr("en = 'Detailed role rights that apply to metadata object';");
+			DescriptionOption = NStr("en = 'Detailed profile rights that apply to metadata object';");
 		Else
 			DescriptionOption = NStr("en = 'Detailed role rights that apply to metadata object';");
 		EndIf;
@@ -254,7 +272,7 @@ Procedure BeforeFormationReport(ReportForm, AdditionalParameters) Export
 	Variant = SettingsComposer.Settings.AdditionalProperties.PredefinedOptionKey;
 	
 	If Variant <> "RolesRights"
-	   And Variant <> "RightsRolesOnMetadataObjects" Then
+	   And Variant <> "RightsOfRoleAndProfilesToMetadataObjects" Then
 		Return;
 	EndIf;
 	
@@ -264,7 +282,7 @@ Procedure BeforeFormationReport(ReportForm, AdditionalParameters) Export
 		Return;
 	EndIf;
 	
-	Result = RolesRights(True, Variant = "RightsRolesOnMetadataObjects", True);
+	Result = RolesRights(True, Variant = "RightsOfRoleAndProfilesToMetadataObjects", True);
 	
 	RowsCount   = Result.Hierarchy.Count();
 	ColumnsCount = Result.Roles.Count();
@@ -383,22 +401,22 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	ExternalDataSets = New Structure;
 	Variant = ComposerSettings.AdditionalProperties.PredefinedOptionKey;
 	
-	RolesRights = RolesRights(Variant = "RolesRights" Or Variant = "RightsRolesOnMetadataObjects",
-		Variant = "RightsRolesOnMetadataObjects");
+	RolesRights = RolesRights(Variant = "RolesRights" Or Variant = "RightsOfRoleAndProfilesToMetadataObjects",
+		Variant = "RightsOfRoleAndProfilesToMetadataObjects");
 	ExternalDataSets.Insert("Hierarchy", RolesRights.Hierarchy);
 	ExternalDataSets.Insert("Rights",    RolesRights.Rights);
 	ExternalDataSets.Insert("Roles",     RolesRights.Roles);
 	
 	ProfilesInsteadofRoles = ComposerSettings.AdditionalProperties.Property("SetSelectionByProfile");
 	ExternalDataSets.Insert("DetailedObjectPermissions", DetailedObjectPermissions(
-		Variant = "DetailedPermissionsRolesOnMetadataObject",
+		Variant = "DetailedRolesRightsToMetadataObject",
 		ProfilesInsteadofRoles));
 	
 	ExternalDataSets.Insert("RightsRolesOnObject", RightsRolesOnObject(
-		Variant = "RightsRolesOnMetadataObject"));
+		Variant = "RightsOfRolesAndProfilesToMetadataObject"));
 	
 	ExternalDataSets.Insert("FilterRoles", FilterRoles(
-		Variant = "RightsRolesOnMetadataObjects"));
+		Variant = "RightsOfRoleAndProfilesToMetadataObjects"));
 	
 	CompositionProcessor = New DataCompositionProcessor;
 	CompositionProcessor.Initialize(CompositionTemplate, ExternalDataSets , DetailsData);
@@ -412,19 +430,24 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	
 EndProcedure
 
+#EndRegion
+
+#Region Private
+
+// 
 Procedure FinishOutput(ResultDocument, DetailsData, Variant, ProfilesInsteadofRoles, HeaderHeight)
 	
 	Images = Images();
 	None = New Line(SpreadsheetDocumentCellLineType.None);
 	// ACC:163-off - #598.1. The use is acceptable, as it affects the meaning.
-	TextIsRestriction = NStr("en = 'Not everything is available';");
+	TextIsRestriction = NStr("en = 'Has restriction';");
 	// ACC:163-on
 	
 	If Variant = "RolesRights"
-	 Or Variant = "RightsRolesOnMetadataObjects" Then
+	 Or Variant = "RightsOfRoleAndProfilesToMetadataObjects" Then
 		FirstTableHeader = NStr("en = 'Metadata object kind';");
 		
-	ElsIf Variant = "DetailedPermissionsRolesOnMetadataObject" Then
+	ElsIf Variant = "DetailedRolesRightsToMetadataObject" Then
 		FirstTableHeader = ?(ProfilesInsteadofRoles, NStr("en = 'Profile';"), NStr("en = 'Role';"));
 	Else
 		FirstTableHeader = NStr("en = 'Role';");
@@ -434,7 +457,7 @@ Procedure FinishOutput(ResultDocument, DetailsData, Variant, ProfilesInsteadofRo
 	TableWidth = ResultDocument.TableWidth;
 	DataCompositionDecryptionIdentifierType = Type("DataCompositionDetailsID");
 	InitialValueIsRightWithRestriction =
-		Variant = "DetailedPermissionsRolesOnMetadataObject";
+		Variant = "DetailedRolesRightsToMetadataObject";
 	TextRightAllowed = NStr("en = '✔';");
 	
 	For LineNumber = 1 To TableHeight Do
@@ -454,7 +477,7 @@ Procedure FinishOutput(ResultDocument, DetailsData, Variant, ProfilesInsteadofRo
 					Area.Text = FirstTableHeader;
 					If ValueIsFilled(HeaderHeight) Then
 						If Variant = "RolesRights"
-						 Or Variant = "RightsRolesOnMetadataObjects" Then
+						 Or Variant = "RightsOfRoleAndProfilesToMetadataObjects" Then
 							RegionLower = ResultDocument.Area(LineNumber + 1, ColumnNumber);
 							If ValueIsFilled(Area.RowHeight)
 							   And ValueIsFilled(RegionLower.RowHeight) Then
@@ -510,9 +533,75 @@ Procedure FinishOutput(ResultDocument, DetailsData, Variant, ProfilesInsteadofRo
 	
 EndProcedure
 
-#EndRegion
+// 
+Procedure HideExcessDataFields(Variant, FormParametersSelection, DCSettings, DCUserSettings)
+	
+	Hierarchy  = New Array;
+	Rights     = New Array;
+	Roles      = New Array;
+	FilterRoles = New Array;
+	
+	DetailedObjectPermissions = New Array;
+	RightsRolesOnObject    = New Array;
+	
+	If Variant = "DetailedRolesRightsToMetadataObject" Then
+		DetailedObjectPermissions = "*";
+		FieldRoleName           = DataCompositionSchema.DataSets.DetailedObjectPermissions.Fields.Find("NameOfRole2");
+		FieldRolePresentation = DataCompositionSchema.DataSets.DetailedObjectPermissions.Fields.Find("RolePresentation2");
+		FieldProfile           = DataCompositionSchema.DataSets.DetailedObjectPermissions.Fields.Find("Profile2");
+		If SetSelectionByProfile(FormParametersSelection, SettingsComposer.Settings) Then
+			FieldRoleName.Title           = NStr("en = 'Profile name';");
+			FieldRolePresentation.Title = NStr("en = 'Profile presentation';");
+			FieldProfile.Title           = NStr("en = 'Profile';");
+		Else
+			FieldRoleName.Title           = NStr("en = 'Role name';");
+			FieldRolePresentation.Title = NStr("en = 'Role presentation';");
+			FieldProfile.Title           = NStr("en = 'Profile (not used)';");
+		EndIf;
+		
+	ElsIf Variant = "RightsOfRolesAndProfilesToMetadataObject" Then
+		RightsRolesOnObject = "*";
+	Else
+		Hierarchy = "*";
+		Rights = "*";
+		Roles = New Map;
+		FieldHasRoleRights = DataCompositionSchema.DataSets.Roles.Fields.Find("HavePermissionsRoles");
+		FieldRoleCode       = DataCompositionSchema.DataSets.Rights.Fields.Find("RoleCode");
+		If Variant = "RightsOfRoleAndProfilesToMetadataObjects" Then
+			Roles.Insert("NameOfRole", False);
+			Roles.Insert("RolePresentation", False);
+			FieldRoleCode.Title       = NStr("en = 'Profile code';");
+			FieldHasRoleRights.Title = NStr("en = 'Has profile rights';");
+			If Not SetSelectionByProfile(FormParametersSelection, SettingsComposer.Settings) Then
+				FilterRoles = "*";
+			EndIf;
+		Else
+			Roles.Insert("Profile4", False);
+			FieldRoleCode.Title       = NStr("en = 'Role code';");
+			FieldHasRoleRights.Title = NStr("en = 'Has role rights';");
+		EndIf;
+	EndIf;
+	
+	OriginalScheme = GetTemplate("Template");
+	CurrentSchema = DataCompositionSchema;
+	
+	HideDataFieldsExceptSpecified("Hierarchy",  Hierarchy,  OriginalScheme, CurrentSchema);
+	HideDataFieldsExceptSpecified("Rights",     Rights,     OriginalScheme, CurrentSchema);
+	HideDataFieldsExceptSpecified("Roles",      Roles,      OriginalScheme, CurrentSchema);
+	HideDataFieldsExceptSpecified("FilterRoles", FilterRoles, OriginalScheme, CurrentSchema);
+	
+	HideDataFieldsExceptSpecified("DetailedObjectPermissions", DetailedObjectPermissions, OriginalScheme, CurrentSchema);
+	HideDataFieldsExceptSpecified("RightsRolesOnObject",    RightsRolesOnObject,    OriginalScheme, CurrentSchema);
+	
+EndProcedure
 
-#Region Private
+// 
+Procedure HideDataFieldsExceptSpecified(DataSetName, DataPaths, OriginalScheme, CurrentSchema)
+	
+	Reports.AccessRightsAnalysis.HideDataFieldsExceptSpecified(DataSetName,
+		DataPaths, OriginalScheme, CurrentSchema);
+	
+EndProcedure
 
 // For procedure AfterImportSettingsToComposer.
 Procedure ConfigureParameterAccessLevel(Settings)
@@ -527,17 +616,20 @@ Procedure ConfigureParameterAccessLevel(Settings)
 	List.Add(01, NStr("en = 'Right exists';"));
 	List.Add(02, NStr("en = 'Use';"));
 	List.Add(03, NStr("en = 'Read';"));
-	List.Add(04, NStr("en = 'View';"));
-	List.Add(05, NStr("en = 'Modify';"));
-	List.Add(06, NStr("en = 'Edit';"));
-	List.Add(07, NStr("en = 'Add';"));
-	List.Add(08, NStr("en = 'Add interactively';"));
-	List.Add(09, NStr("en = 'Get';"));
-	List.Add(10, NStr("en = 'Set';"));
-	List.Add(11, NStr("en = 'Get and Set';"));
-	List.Add(12, NStr("en = 'External data source: Use';"));
-	List.Add(13, NStr("en = 'External data source: Administration';"));
-	List.Add(14, NStr("en = 'External data source: Use and Administration';"));
+	List.Add(04, NStr("en = 'Modify';"));
+	List.Add(05, NStr("en = 'Add';"));
+	List.Add(06, NStr("en = 'View';"));
+	List.Add(07, NStr("en = 'View and Update';"));
+	List.Add(08, NStr("en = 'View and Add';"));
+	List.Add(09, NStr("en = 'Edit';"));
+	List.Add(10, NStr("en = 'Edit and Add';"));
+	List.Add(11, NStr("en = 'Create';"));
+	List.Add(12, NStr("en = 'Get';"));
+	List.Add(13, NStr("en = 'Set';"));
+	List.Add(14, NStr("en = 'Get and Set';"));
+	List.Add(15, NStr("en = 'External data source: Use';"));
+	List.Add(16, NStr("en = 'External data source: Administration';"));
+	List.Add(17, NStr("en = 'External data source: Use and Administration';"));
 	
 	AvailableParameter.AvailableValues = List;
 	
@@ -546,7 +638,7 @@ EndProcedure
 // For procedure AfterImportSettingsToComposer.
 Procedure ConfigureParameterRight(Variant, Settings)
 	
-	If Variant <> "DetailedPermissionsRolesOnMetadataObject" Then
+	If Variant <> "DetailedRolesRightsToMetadataObject" Then
 		Return;
 	EndIf;
 	
@@ -573,17 +665,30 @@ Procedure EnableParameter(UserSettings, ParameterName, Value, GenerateImmediatel
 		GenerateImmediately = False;
 	Else
 		SettingItem.Value = Value;
-		SettingItem.Use = True;
+		SettingItem.Use = ParameterName <> "Profile" Or ValueIsFilled(Value);
 	EndIf;
 	
 EndProcedure
 
 // For procedure BeforeImportSettingsToComposer.
-Procedure DisableOption(UserSettings, ParameterName, Inaccessible = False)
+Procedure DisableOption(ParameterName, UnavailableOptions, DCSettings, DCUserSettings)
 	
-	SettingItem = ParameterSetting(UserSettings, ParameterName);
-	If SettingItem = Undefined Then
+	If DCSettings = Undefined Then
 		Return;
+	EndIf;
+	
+	If UnavailableOptions.Property(ParameterName) Then
+		Parameter = DataCompositionSchema.Parameters.Find(ParameterName);
+		Parameter.UseRestriction = True;
+		Parameter.IncludeInAvailableFields = False;
+	EndIf;
+	
+	SettingItem = ParameterSetting(DCUserSettings, ParameterName);
+	If SettingItem = Undefined Then
+		SettingItem = ParameterSetting(DCSettings.DataParameters, ParameterName);
+		If SettingItem = Undefined Then
+			Return;
+		EndIf;
 	EndIf;
 	
 	If SettingItem.Use Then
@@ -594,13 +699,13 @@ Procedure DisableOption(UserSettings, ParameterName, Inaccessible = False)
 		SettingItem.Value = False;
 	EndIf;
 	
-	If Inaccessible Then
-		SettingItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
-	EndIf;
-	
 EndProcedure
 
-Procedure SetDisplayMode(ParameterName, Mode, DCSettings, UserSettings)
+Procedure SetDisplayMode(ParameterName, Mode, DCSettings, DCUserSettings)
+	
+	If DCSettings = Undefined Then
+		Return;
+	EndIf;
 	
 	SettingItem = ParameterSetting(DCSettings.DataParameters, ParameterName);
 	
@@ -608,7 +713,7 @@ Procedure SetDisplayMode(ParameterName, Mode, DCSettings, UserSettings)
 		SettingItem.ViewMode = Mode;
 	EndIf;
 	
-	SettingItem = ParameterSetting(UserSettings, ParameterName);
+	SettingItem = ParameterSetting(DCUserSettings, ParameterName);
 	
 	If SettingItem <> Undefined Then
 		SettingItem.ViewMode = Mode;
@@ -617,11 +722,11 @@ Procedure SetDisplayMode(ParameterName, Mode, DCSettings, UserSettings)
 EndProcedure
 
 // For procedure AfterImportSettingsToComposer.
-Function ParameterSetting(UserSettings, ParameterName)
+Function ParameterSetting(DCUserSettings, ParameterName)
 	
 	Parameter = New DataCompositionParameter(ParameterName);
 	
-	For Each SettingItem In UserSettings.Items Do
+	For Each SettingItem In DCUserSettings.Items Do
 		Properties = New Structure("Parameter");
 		FillPropertyValues(Properties, SettingItem);
 		If Properties.Parameter = Parameter Then
@@ -2103,7 +2208,7 @@ Function MetadataTree(WithFields)
 	LineOfAccountPlans.PathToObject         = "ChartOfAccounts.*";
 	LineOfAccountPlans.RightsDetails         = RightsofDirectoryandPlans();
 	LineOfAccountPlans.Presentation        = NStr("en = 'Charts of accounts';");
-	LineOfAccountPlans.ObjectPresentation = NStr("en = 'Chart of accounts.';");
+	LineOfAccountPlans.ObjectPresentation = NStr("en = 'Chart of accounts';");
 	AddCommandsFields(WithFields, LineOfAccountPlans, "Attributes, AccountingFlags,
 	|ExtDimensionAccountingFlags, TabularSections, StandardAttributes, StandardTabularSections");
 	
@@ -2114,7 +2219,7 @@ Function MetadataTree(WithFields)
 	StringPlansViewsCalculation.PathToObject         = "ChartOfCalculationTypes.*";
 	StringPlansViewsCalculation.RightsDetails         = RightsofDirectoryandPlans();
 	StringPlansViewsCalculation.Presentation        = NStr("en = 'Charts of calculation types';");
-	StringPlansViewsCalculation.ObjectPresentation = NStr("en = 'Chart of calculation types.';");
+	StringPlansViewsCalculation.ObjectPresentation = NStr("en = 'Chart of calculation types';");
 	AddCommandsFields(WithFields, StringPlansViewsCalculation, "Attributes, TabularSections,
 	|StandardAttributes, StandardTabularSections");
 	
@@ -2268,7 +2373,7 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		StringRequisitesAddresses.AttachmentName          = "AddressingAttributes";
 		StringRequisitesAddresses.PathToObject         = TreeRow.PathToObject + ".AddressingAttribute.*";
 		StringRequisitesAddresses.RightsDetails         = RightsAttributes(NoEdit);
-		StringRequisitesAddresses.Presentation        = NStr("en = 'Addressing attributes.';");
+		StringRequisitesAddresses.Presentation        = NStr("en = 'Addressing attributes';");
 		StringRequisitesAddresses.ObjectPresentation = NStr("en = 'Addressing attribute';");
 	EndIf;
 	
@@ -2301,7 +2406,7 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		StringAccountingAttributes.AttachmentName          = "AccountingFlags";
 		StringAccountingAttributes.PathToObject         = TreeRow.PathToObject + ".AccountingFlag.*";
 		StringAccountingAttributes.RightsDetails         = RightsAttributes(NoEdit);
-		StringAccountingAttributes.Presentation        = NStr("en = 'Accounting flags.';");
+		StringAccountingAttributes.Presentation        = NStr("en = 'Accounting flags';");
 		StringAccountingAttributes.ObjectPresentation = NStr("en = 'Accounting flag';");
 	EndIf;
 	
@@ -2312,7 +2417,7 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		LineAccountingAttributesSubconto.AttachmentName          = "ExtDimensionAccountingFlags";
 		LineAccountingAttributesSubconto.PathToObject         = TreeRow.PathToObject + ".ExtDimensionAccountingFlag.*";
 		LineAccountingAttributesSubconto.RightsDetails         = RightsAttributes(NoEdit);
-		LineAccountingAttributesSubconto.Presentation        = NStr("en = 'Extra dimension accounting flags.';");
+		LineAccountingAttributesSubconto.Presentation        = NStr("en = 'Extra dimension accounting flags';");
 		LineAccountingAttributesSubconto.ObjectPresentation = NStr("en = 'Extra dimension accounting flag';");
 	EndIf;
 	
@@ -2323,7 +2428,7 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		RowTableParts.AttachmentName          = "TabularSections";
 		RowTableParts.PathToObject         = TreeRow.PathToObject + ".TabularSection.*";
 		RowTableParts.RightsDetails         = RightsAttributes(NoEdit);
-		RowTableParts.Presentation        = NStr("en = 'Tables.';");
+		RowTableParts.Presentation        = NStr("en = 'Tables';");
 		RowTableParts.ObjectPresentation = NStr("en = 'Table';");
 		
 		// TabularSections.Attributes
@@ -2344,7 +2449,7 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		StringStandardAttributes.AttachmentName          = "StandardAttributes";
 		StringStandardAttributes.PathToObject         = TreeRow.PathToObject + ".StandardAttribute.*";
 		StringStandardAttributes.RightsDetails         = RightsAttributes(NoEdit);
-		StringStandardAttributes.Presentation        = NStr("en = 'Standard attributes.';");
+		StringStandardAttributes.Presentation        = NStr("en = 'Standard attributes';");
 		StringStandardAttributes.ObjectPresentation = NStr("en = 'Standard attribute';");
 	EndIf;
 	
@@ -2355,7 +2460,7 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		RowStandardTableParts.AttachmentName          = "StandardTabularSections";
 		RowStandardTableParts.PathToObject         = TreeRow.PathToObject + ".StandardTabularSection.*";
 		RowStandardTableParts.RightsDetails         = RightsAttributes(NoEdit);
-		RowStandardTableParts.Presentation        = NStr("en = 'Standard tables.';");
+		RowStandardTableParts.Presentation        = NStr("en = 'Standard tables';");
 		RowStandardTableParts.ObjectPresentation = NStr("en = 'Standard table';");
 		
 		// StandardTabularSections.StandardAttributes
@@ -2364,7 +2469,7 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		RowStandardTablePartsStandardAttributes.AttachmentName          = "StandardAttributes";
 		RowStandardTablePartsStandardAttributes.PathToObject         = RowStandardTableParts.PathToObject + ".StandardAttribute.*";
 		RowStandardTablePartsStandardAttributes.RightsDetails         = RightsAttributes(NoEdit);
-		RowStandardTablePartsStandardAttributes.Presentation        = NStr("en = 'Standard attributes.';");
+		RowStandardTablePartsStandardAttributes.Presentation        = NStr("en = 'Standard attributes';");
 		RowStandardTablePartsStandardAttributes.ObjectPresentation = NStr("en = 'Standard attribute';");
 		RowStandardTablePartsStandardAttributes.NoGroup            = True;
 	EndIf;
@@ -2514,7 +2619,7 @@ Function ViewRight()
 	
 	NewRow = RightsDetails.AccessLevels.Add();
 	NewRow.Right   = "View";
-	NewRow.Level = 4;
+	NewRow.Level = 6;
 	
 	Return RightsDetails;
 	
@@ -2550,18 +2655,17 @@ Function SessionSettingRights()
 		NStr("en = 'Install';"));
 	
 	NewRow = RightsDetails.AccessLevels.Add();
-	// @Access-right-1, @Access-right-2
-	NewRow.Right   = "Get" + "," + "Set";
-	NewRow.Level = 11;
+	NewRow.Right   = "Get" + "," + "Set"; // @Access-right-1, @Access-right-3
+	NewRow.Level = 14;
 	NewRow.ThisPermissionSet = True;
 	
 	NewRow = RightsDetails.AccessLevels.Add();
 	NewRow.Right   = "Set"; // @Access-right-1
-	NewRow.Level = 10;
+	NewRow.Level = 13;
 	
 	NewRow = RightsDetails.AccessLevels.Add();
 	NewRow.Right   = "Get"; // @Access-right-1
-	NewRow.Level = 9;
+	NewRow.Level = 12;
 	
 	Return RightsDetails;
 	
@@ -2581,12 +2685,12 @@ Function RightsAttributes(NoEdit = False)
 		
 		NewRow = RightsDetails.AccessLevels.Add();
 		NewRow.Right   = "Edit";
-		NewRow.Level = 6;
+		NewRow.Level = 9;
 	EndIf;
 	
 	NewRow = RightsDetails.AccessLevels.Add();
 	NewRow.Right   = "View";
-	NewRow.Level = 4;
+	NewRow.Level = 6;
 	
 	Return RightsDetails;
 	
@@ -2655,7 +2759,7 @@ Function SequenceAndRecalculationRights()
 	
 	NewRow = RightsDetails.AccessLevels.Add();
 	NewRow.Right   = "Update";
-	NewRow.Level = 5;
+	NewRow.Level = 4;
 	NewRow.RightWithRestriction = "Update";
 	
 	NewRow = RightsDetails.AccessLevels.Add();
@@ -2732,7 +2836,7 @@ Function RightsReportProcessingFunctions()
 	
 	NewRow = RightsDetails.AccessLevels.Add();
 	NewRow.Right   = "View";
-	NewRow.Level = 4;
+	NewRow.Level = 6;
 	
 	NewRow = RightsDetails.AccessLevels.Add();
 	NewRow.Right   = "Use";
@@ -2828,7 +2932,8 @@ Function RightsTasks()
 	
 	AddPermissionsProgrammingWorkWithObjects(RightsList);
 	
-	RightsList.Add("Perform",
+	// @Access-right-1
+	RightsList.Add("Execute",
 		NStr("en = 'Execute';"));
 	
 	AddPermissionsInteractiveWorkWithObjects(RightsList);
@@ -2855,9 +2960,11 @@ Function RightsExternalDataSource()
 	RightsDetails = RightsDetails();
 	RightsList = RightsDetails.RightsList;
 	
+	// @Access-right-1
 	RightsList.Add("Use",
 		NStr("en = 'Use';"));
 	
+	// @Access-right-1
 	RightsList.Add("Administration",
 		NStr("en = 'Administration';"));
 	
@@ -2871,17 +2978,17 @@ Function RightsExternalDataSource()
 		NStr("en = 'Change standard authentication for current session OS';"));
 	
 	NewRow = RightsDetails.AccessLevels.Add();
-	NewRow.Right   = "Use,Administration";
-	NewRow.Level = 14;
+	NewRow.Right   = "Use" + "," + "Administration"; // @Access-right-1, @Access-right-3
+	NewRow.Level = 17;
 	NewRow.ThisPermissionSet = True;
 	
 	NewRow = RightsDetails.AccessLevels.Add();
-	NewRow.Right   = "Administration";
-	NewRow.Level = 13;
+	NewRow.Right   = "Administration"; // @Access-right-1
+	NewRow.Level = 16;
 	
 	NewRow = RightsDetails.AccessLevels.Add();
-	NewRow.Right   = "Use";
-	NewRow.Level = 12;
+	NewRow.Right   = "Use"; // @Access-right-1
+	NewRow.Level = 15;
 	
 	NewRow = RightsDetails.AccessLevels.Add();
 	NewRow.Right   = "StandardAuthenticationChange";
@@ -2932,6 +3039,7 @@ EndFunction
 
 Procedure AddPermissionsProgrammingWorkWithObjects(RightsList, Un_changed = False, ReferenceItems = True, withlimit = True)
 	
+	// @Access-right-1
 	RightsList.Add("Read",
 		NStr("en = 'Read';"), withlimit);
 	
@@ -2939,6 +3047,7 @@ Procedure AddPermissionsProgrammingWorkWithObjects(RightsList, Un_changed = Fals
 		Return;
 	EndIf;
 	
+	// @Access-right-1
 	RightsList.Add("Update",
 		NStr("en = 'Modify';"), withlimit);
 	
@@ -2950,6 +3059,7 @@ Procedure AddPermissionsProgrammingWorkWithObjects(RightsList, Un_changed = Fals
 	RightsList.Add("Insert",
 		NStr("en = 'Add';"), withlimit);
 	
+	// @Access-right-1
 	RightsList.Add("Delete",
 		NStr("en = 'Delete';"), withlimit);
 	
@@ -2957,6 +3067,7 @@ EndProcedure
 
 Procedure AddPermissionsInteractiveWorkWithObjects(RightsList, Un_changed = False, ReferenceItems = True, WithDeletionTagged = True)
 	
+	// @Access-right-1
 	RightsList.Add("View",
 		NStr("en = 'View';"));
 	
@@ -2964,6 +3075,7 @@ Procedure AddPermissionsInteractiveWorkWithObjects(RightsList, Un_changed = Fals
 		Return;
 	EndIf;
 	
+	// @Access-right-1
 	RightsList.Add("Edit",
 		NStr("en = 'Edit';"));
 	
@@ -3049,15 +3161,16 @@ Procedure FillAccessLevels(RightsDetails, Un_changed = False, Referential = True
 	
 	If Referential And Not Un_changed Then
 		NewRow = AccessLevels.Add();
-		NewRow.Right   = "InteractiveInsert";
-		NewRow.Level = 8;
+		NewRow.Right   = "InteractiveInsert"; // @Access-right-1
+		NewRow.Level = 11;
 		If withlimit Then
 			NewRow.RightWithRestriction = "Insert"; // @Access-right-1
 		EndIf;
 		
 		NewRow = AccessLevels.Add();
-		NewRow.Right   = "Insert"; // @Access-right-1
-		NewRow.Level = 7;
+		NewRow.Right   = "Edit" + "," + "Insert"; // @Access-right-1, @Access-right-3
+		NewRow.Level = 10;
+		NewRow.ThisPermissionSet = True;
 		If withlimit Then
 			NewRow.RightWithRestriction = "Insert"; // @Access-right-1
 		EndIf;
@@ -3065,32 +3178,61 @@ Procedure FillAccessLevels(RightsDetails, Un_changed = False, Referential = True
 	
 	If Not Un_changed Then
 		NewRow = AccessLevels.Add();
-		NewRow.Right   = "Edit";
-		NewRow.Level = 6;
+		NewRow.Right   = "Edit"; // @Access-right-1
+		NewRow.Level = 9;
 		If withlimit Then
-			NewRow.RightWithRestriction = "Update";
+			NewRow.RightWithRestriction = "Update"; // @Access-right-1
+		EndIf;
+		
+		If Referential Then
+			NewRow = AccessLevels.Add();
+			NewRow.Right   = "View" + "," + "Insert"; // @Access-right-1, @Access-right-3
+			NewRow.Level = 8;
+			NewRow.ThisPermissionSet = True;
+			If withlimit Then
+				NewRow.RightWithRestriction = "Insert"; // @Access-right-1
+			EndIf;
 		EndIf;
 		
 		NewRow = AccessLevels.Add();
-		NewRow.Right   = "Update";
-		NewRow.Level = 5;
+		NewRow.Right   = "View" + "," + "Update"; // @Access-right-1, @Access-right-3
+		NewRow.Level = 7;
+		NewRow.ThisPermissionSet = True;
 		If withlimit Then
-			NewRow.RightWithRestriction = "Update";
+			NewRow.RightWithRestriction = "Update"; // @Access-right-1
 		EndIf;
 	EndIf;
 	
 	NewRow = AccessLevels.Add();
-	NewRow.Right   = "View";
-	NewRow.Level = 4;
+	NewRow.Right   = "View"; // @Access-right-1
+	NewRow.Level = 6;
 	If withlimit Then
-		NewRow.RightWithRestriction = "Read";
+		NewRow.RightWithRestriction = "Read"; // @Access-right-1
+	EndIf;
+	
+	If Referential And Not Un_changed Then
+		NewRow = AccessLevels.Add();
+		NewRow.Right   = "Insert"; // @Access-right-1
+		NewRow.Level = 5;
+		If withlimit Then
+			NewRow.RightWithRestriction = "Insert"; // @Access-right-1
+		EndIf;
+	EndIf;
+	
+	If Not Un_changed Then
+		NewRow = AccessLevels.Add();
+		NewRow.Right   = "Update"; // @Access-right-1
+		NewRow.Level = 4;
+		If withlimit Then
+			NewRow.RightWithRestriction = "Update"; // @Access-right-1
+		EndIf;
 	EndIf;
 	
 	NewRow = AccessLevels.Add();
-	NewRow.Right   = "Read";
+	NewRow.Right   = "Read"; // @Access-right-1
 	NewRow.Level = 3;
 	If withlimit Then
-		NewRow.RightWithRestriction = "Read";
+		NewRow.RightWithRestriction = "Read"; // @Access-right-1
 	EndIf;
 	
 EndProcedure

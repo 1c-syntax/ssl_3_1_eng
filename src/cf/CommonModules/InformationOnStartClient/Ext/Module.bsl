@@ -27,8 +27,7 @@ Procedure Show() Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // See CommonClientOverridable.AfterStart.
 Procedure AfterStart() Export
@@ -39,5 +38,7 @@ Procedure AfterStart() Export
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

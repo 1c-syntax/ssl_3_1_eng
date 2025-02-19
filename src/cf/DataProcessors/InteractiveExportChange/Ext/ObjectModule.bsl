@@ -524,7 +524,7 @@ Procedure DeleteSettingsOption(Presentation) Export
 	
 EndProcedure
 
-// Returns a name array of metadata tables according to the FullMetadataName composite parameter type.
+// Returns a metadata table name array based on the FullMetadataName flexible type.
 // The result is based on the current InfobaseNode attribute value.
 //
 // Parameters:
@@ -1258,7 +1258,12 @@ Function AdditionalParameterText()
 EndFunction
 
 // Returns a structure of object attributes.
-//
+// 
+// Returns:
+//  Structure - This object to structure for background job:
+//    * AllDocumentsFilterComposer - DataCompositionTemplateComposer
+//    * AllDocumentsFilterComposerSettings1 - DataCompositionSettings
+//  
 Function ThisObjectInStructureForBackgroundJob() Export
 	ResultStructure1 = New Structure();
 

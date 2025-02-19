@@ -12,12 +12,12 @@
 
 // Generates a string according to the specified pattern.
 // The possible tag values in the template:
-// - String  - formats text with style items described
+// - <span style="Property name: Style element name">String </span> - formats text with style items described
 //      in the style attribute.
-// -  String  - highlights the line with an ImportantLabelFont style item
+// - <b> String </b> - highlights the line with an ImportantLabelFont style item
 //      that matches the bold font.
-// - String - adds a hyperlink.
-// -  - adds a picture from the picture library.
+// - <a href="Ref">String</a> - adds a hyperlink.
+// - <img src="Calendar"> - adds a picture from the picture library.
 // The style attribute is used to arrange the text. The attribute can be used for the span and a tags.
 // First goes a style property name, then a style item name through the colon.
 // Style properties:
@@ -36,13 +36,13 @@
 //
 // Example:
 //  1. StringFunctionsClient.FormattedString(NStr("en='
-//       Minimum version 1.1. 
-//       Update the app.'"));
-//  2. StringFunctionsClient.FormattedString(NStr("en='Mode: 
-//       Edit'"));
-//       3. StringFunctionsClient.FormattedString(NStr("en='Current date 
-//  %1'"), CurrentSessionDate());
-//       
+//       <span style=""color: ЗаблокированныйРеквизитЦвет; font: ВажнаяНадписьШрифт"">Minimum</span> version <b>1.1</b>. 
+//       <a href = ""Update"">Update</a> the app.'"));
+//  2. StringFunctionsClient.FormattedString(NStr("en='Mode: <img src=""РедактироватьВДиалоге"">
+//       <a style=""color: ModifiedAttributeValueColor; background-color: ModifiedAttributeValueBackground""
+//       href=""e1cib/command/DataProcessor.Editor"">Edit</a>'"));
+//  3. StringFunctionsClient.FormattedString(NStr("en='Current date <img src=""Календарь"">
+//       <span style=""font:ВажнаяНадписьШрифт"">%1</span>'"), CurrentSessionDate());
 //
 Function FormattedString(Val StringPattern, Val Parameter1 = Undefined, Val Parameter2 = Undefined,
 	Val Parameter3 = Undefined, Val Parameter4 = Undefined, Val Parameter5 = Undefined) Export

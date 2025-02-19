@@ -101,12 +101,12 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 			CloudSignatureProperties = DigitalSignatureInternalClient.GetThePropertiesOfACloudSignature(DataDetails);
 			NotificationOnConfirmation = CloudSignatureProperties.NotificationOnConfirmation;
 			If NotificationOnConfirmation = Undefined Then
-				EncryptData(New NotifyDescription("EncryptCompletion", ThisObject));
+				EncryptData(New CallbackDescription("EncryptCompletion", ThisObject));
 			Else
-				ExecuteNotifyProcessing(NotificationOnConfirmation, ThisObject);
+				RunCallback(NotificationOnConfirmation, ThisObject);
 			EndIf;
 		Else
-			HandleError(New NotifyDescription("EncryptCompletion", ThisObject),
+			HandleError(New CallbackDescription("EncryptCompletion", ThisObject),
 				New Structure("ErrorDescription", Parameter.Error), New Structure);
 		EndIf;
 		
@@ -135,7 +135,7 @@ EndProcedure
 Procedure CertificateOnChange(Item)
 	
 	DigitalSignatureInternalClient.GetCertificatesThumbprintsAtClient(
-		New NotifyDescription("CertificateOnChangeCompletion", ThisObject));
+		New CallbackDescription("CertificateOnChangeCompletion", ThisObject));
 	
 EndProcedure
 
@@ -165,6 +165,7 @@ Procedure CertificateStartChoice(Item, ChoiceData, StandardProcessing)
 	FormParameters.Insert("SelectedCertificate", Certificate);
 	FormParameters.Insert("ToEncryptAndDecrypt", True);
 	FormParameters.Insert("ExecuteAtServer", ExecuteAtServer);
+	FormParameters.Insert("ShouldDisplayAddCommands", True);
 	
 	DigitalSignatureInternalClient.SelectSigningOrDecryptionCertificate(FormParameters, Item);
 	
@@ -188,7 +189,7 @@ Procedure CertificateChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	Certificate = ValueSelected;
 	
 	DigitalSignatureInternalClient.GetCertificatesThumbprintsAtClient(
-		New NotifyDescription("CertificateChoiceProcessingCompletion", ThisObject));
+		New CallbackDescription("CertificateChoiceProcessingCompletion", ThisObject));
 	
 EndProcedure
 
@@ -301,7 +302,7 @@ Procedure Encrypt(Command)
 	
 		Items.FormEncrypt.Enabled = False;
 		
-		EncryptData(New NotifyDescription("EncryptCompletion", ThisObject));
+		EncryptData(New CallbackDescription("EncryptCompletion", ThisObject));
 	EndIf;	
 	
 EndProcedure
@@ -544,7 +545,13 @@ Procedure FillEncryptionApplicationAtServer()
 	EndIf;
 	
 	ApplicationsDetailsCollection = DigitalSignature.CommonSettings().ApplicationsDetailsCollection;
-	SignAlgorithm = DigitalSignatureInternalClientServer.CertificateSignAlgorithm(CertificateBinaryData);
+	
+	If DigitalSignatureInternalClientServer.AreCertificateAdditionalPropertiesAvailable() Then
+		SignAlgorithm = DigitalSignatureInternalClientServer.SignAlgorithmPresentation(
+				CryptoCertificate.AlgorithmOfPublicKey, True, False);
+	Else
+		SignAlgorithm = DigitalSignatureInternalClientServer.CertificateSignAlgorithm(CertificateBinaryData);
+	EndIf;
 	
 	For Each ApplicationDetails In ApplicationsDetailsCollection Do
 		
@@ -607,6 +614,7 @@ Async Procedure FillEncryptionApplication(Notification = Undefined)
 	EndIf;
 	
 	CertificateData = GetFromTempStorage(AddressOfCertificate);
+	
 	Context.Insert("SignAlgorithm",
 		DigitalSignatureInternalClientServer.CertificateSignAlgorithm(CertificateData));
 		
@@ -620,7 +628,7 @@ Async Procedure FillEncryptionApplication(Notification = Undefined)
 	Context.Insert("ApplicationsDetailsCollection", ApplicationsDetailsCollection);
 	
 	CryptoCertificate = New CryptoCertificate;
-	CryptoCertificate.BeginInitialization(New NotifyDescription(
+	CryptoCertificate.BeginInitialization(New CallbackDescription(
 			"FillEncryptionApplicationAfterInitializeCertificate", ThisObject, Context),
 		CertificateData);
 	
@@ -664,7 +672,7 @@ Procedure FillEncryptionApplicationLoopStart(Context)
 	CreationParameters.ShowError = False;
 	CreationParameters.SignAlgorithm = Context.SignAlgorithm;
 	
-	DigitalSignatureInternalClient.CreateCryptoManager(New NotifyDescription(
+	DigitalSignatureInternalClient.CreateCryptoManager(New CallbackDescription(
 			"FillEncryptionApplicationAfterCreateCryptoManager", ThisObject, Context),
 		"Encryption", CreationParameters);
 	
@@ -687,7 +695,7 @@ Procedure FillEncryptionApplicationAfterCreateCryptoManager(CryptoManager, Conte
 		Return;
 	EndIf;
 		
-	CryptoManager.BeginEncrypting(New NotifyDescription(
+	CryptoManager.BeginEncrypting(New CallbackDescription(
 			"FillEncryptionApplicationAfterEncryption", ThisObject, Context,
 			"FillEncryptionProgramAfterEncryptionError", ThisObject),
 		Context.TestData, Context.EncryptionCertificate);
@@ -730,7 +738,7 @@ EndProcedure
 Procedure FillEncryptionApplicationAfterLoop(Context)
 	
 	If Context.Notification <> Undefined Then
-		ExecuteNotifyProcessing(Context.Notification);
+		RunCallback(Context.Notification);
 	EndIf;
 	
 EndProcedure
@@ -744,9 +752,9 @@ Procedure ContinueOpening(Notification, CommonInternalData, ClientParameters) Ex
 	
 	InternalData = CommonInternalData;
 	Context = New Structure("Notification", Notification);
-	Notification = New NotifyDescription("ContinueOpening", ThisObject);
+	Notification = New CallbackDescription("ContinueOpening", ThisObject);
 	
-	DigitalSignatureInternalClient.ContinueOpeningStart(New NotifyDescription(
+	DigitalSignatureInternalClient.ContinueOpeningStart(New CallbackDescription(
 		"ContinueOpeningAfterStart", ThisObject, Context), ThisObject, ClientParameters, True);
 	
 EndProcedure
@@ -761,7 +769,7 @@ Procedure ContinueOpeningAfterStart(Result, Context) Export
 	EndIf;
 	
 	If SpecifiedImmutableCertificateSet Then
-		FillEncryptionApplication(New NotifyDescription(
+		FillEncryptionApplication(New CallbackDescription(
 			"ContinueOpeningAfterFillApplication", ThisObject, Context));
 	Else
 		ContinueOpeningAfterFillApplication(Undefined, Context);
@@ -783,12 +791,12 @@ Procedure ContinueOpeningAfterFillApplication(Result, Context) Export
 			RequiresConfirmation = ModuleCryptographyServiceDSSConfirmationClient.CloudSignatureRequiresConfirmation(ThisObject);
 			If Not RequiresConfirmation Then
 				ProcessingAfterWarning = Undefined;
-				EncryptData(New NotifyDescription("ContinueOpeningAfterDataEncryption", ThisObject, Context));
+				EncryptData(New CallbackDescription("ContinueOpeningAfterDataEncryption", ThisObject, Context));
 				Return;
 			EndIf;	
 		Else	
 			ProcessingAfterWarning = Undefined;
-			EncryptData(New NotifyDescription("ContinueOpeningAfterDataEncryption", ThisObject, Context));
+			EncryptData(New CallbackDescription("ContinueOpeningAfterDataEncryption", ThisObject, Context));
 			Return;
 		EndIf;	
 	EndIf;
@@ -821,7 +829,7 @@ Procedure ContinueOpeningCompletion(Context, Result = Undefined)
 		ClearFormVariables();
 	EndIf;
 	
-	ExecuteNotifyProcessing(Context.Notification, Result);
+	RunCallback(Context.Notification, Result);
 	
 EndProcedure
 
@@ -843,10 +851,10 @@ Function VariablesCleared()
 	
 EndFunction
 
-// CAC:78-off: to securely pass data between forms on the client without sending them to the server.
+// ACC:78-off - Intended for the secure transfer of data between forms on the client without sending it to the server.
 &AtClient
 Procedure ExecuteEncryption(ClientParameters, CompletionProcessing) Export
-// CAC:78-on: to securely pass data between forms on the client without sending them to the server.
+// ACC:78-on - Intended for the secure transfer of data between forms on the client without sending it to the server.
 	
 	DigitalSignatureInternalClient.RefreshFormBeforeSecondUse(ThisObject, ClientParameters);
 	
@@ -857,7 +865,7 @@ Procedure ExecuteEncryption(ClientParameters, CompletionProcessing) Export
 	ProcessingAfterWarning = CompletionProcessing;
 	
 	Context = New Structure("CompletionProcessing", CompletionProcessing);
-	EncryptData(New NotifyDescription("ExecuteEncryptionCompletion", ThisObject, Context));
+	EncryptData(New CallbackDescription("ExecuteEncryptionCompletion", ThisObject, Context));
 	
 EndProcedure
 
@@ -865,7 +873,7 @@ EndProcedure
 &AtClient
 Procedure ExecuteEncryptionCompletion(Result, Context) Export
 	
-	ExecuteNotifyProcessing(Context.CompletionProcessing, Result);
+	RunCallback(Context.CompletionProcessing, Result);
 	
 EndProcedure
 
@@ -873,7 +881,7 @@ EndProcedure
 Procedure OnChangeCertificatesList()
 	
 	DigitalSignatureInternalClient.GetCertificatesThumbprintsAtClient(
-		New NotifyDescription("OnChangeCertificatesListCompletion", ThisObject));
+		New CallbackDescription("OnChangeCertificatesListCompletion", ThisObject));
 	
 EndProcedure
 
@@ -972,7 +980,7 @@ Async Procedure EncryptData(Notification)
 			EncryptDataAfterExecuteAtServerSide(Result, Context);
 		Else
 			// An attempt to encrypt on the server.
-			DigitalSignatureInternalClient.ExecuteAtSide(New NotifyDescription(
+			DigitalSignatureInternalClient.ExecuteAtSide(New CallbackDescription(
 					"EncryptDataAfterExecuteAtServerSide", ThisObject, Context),
 				"Encryption", "AtServerSide", Context.ExecutionParameters);
 		EndIf;
@@ -1006,7 +1014,7 @@ Async Procedure EncryptDataAfterExecuteAtServerSide(Result, Context) Export
 		EndIf;
 		
 		// An encryption attempt on the client.
-		DigitalSignatureInternalClient.ExecuteAtSide(New NotifyDescription(
+		DigitalSignatureInternalClient.ExecuteAtSide(New CallbackDescription(
 				"EncryptDataAfterExecuteAtClientSide", ThisObject, Context),
 			"Encryption", "OnClientSide", Context.ExecutionParameters);
 	EndIf;
@@ -1049,7 +1057,7 @@ Procedure EncryptDataAfterExecuteAtClientSide(Result, Context) Export
 	
 	If NotifyOfCertificateAboutToExpire Then
 		FormOpenParameters = New Structure("Certificate", Certificate);
-		ActionOnClick = New NotifyDescription("OpenNotificationFormNeedReplaceCertificate",
+		ActionOnClick = New CallbackDescription("OpenNotificationFormNeedReplaceCertificate",
 			DigitalSignatureInternalClient, FormOpenParameters);
 		
 		ShowUserNotification(
@@ -1058,7 +1066,7 @@ Procedure EncryptDataAfterExecuteAtClientSide(Result, Context) Export
 			Certificate);
 	EndIf;
 	
-	ExecuteNotifyProcessing(Context.Notification, True);
+	RunCallback(Context.Notification, True);
 	
 EndProcedure
 
@@ -1216,7 +1224,7 @@ Procedure HandleError(Notification, ErrorAtClient, ErrorAtServer)
 		If IsOpen() Then
 			Close(False);
 		Else
-			ExecuteNotifyProcessing(Notification, False);
+			RunCallback(Notification, False);
 		EndIf;
 		
 	Else
@@ -1254,7 +1262,7 @@ Procedure HandleError(Notification, ErrorAtClient, ErrorAtServer)
 			NStr("en = 'Cannot encrypt data';"), "",
 			ErrorAtClient, ErrorAtServer, AdditionalParameters, ProcessingAfterWarning);
 		
-		ExecuteNotifyProcessing(Notification, False);
+		RunCallback(Notification, False);
 		
 	EndIf;
 	

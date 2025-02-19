@@ -25,45 +25,45 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	ModuleReportsOptions.SetOutputModeInReportPanels(Settings, ReportSettings, False);
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "ViewAnswersSimpleQuestions");
-	OptionSettings.LongDesc = NStr("en = 'Information about how respondents answered basic questions.';");
+	OptionSettings.LongDesc = NStr("en = 'View respondents'' answers to basic questions.';");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "ViewTableQuestionsFlatView");
 	OptionSettings.LongDesc = 
-		NStr("en = 'Information about replies the respondents gave to question charts.
-		|Displayed as a list with grouping.';");
+		NStr("en = 'View respondents'' answers to question charts.
+		|Results are displayed as a grouped list.';");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "ViewTableQuestionsTableView");
 	OptionSettings.LongDesc = 
-		NStr("en = 'Information about replies the respondents gave to table questions.
-		|Each reply is displayed as a table.';");
+		NStr("en = 'View respondents'' answers to question charts.
+		|Each answer is displayed as a table.';");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "SimpleQuestionsAnswerCount");
-	OptionSettings.LongDesc = NStr("en = 'Information on how many times the response option was given to a basic question.';");
+	OptionSettings.LongDesc = NStr("en = 'View the distribution of answers to basic questions.';");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "SimpleQuestionsAggregatedIndicators");
 	OptionSettings.LongDesc = 
-		NStr("en = 'Information on average, minimum, and maximum response to a basic question
-		|that requires a numeric value.';");
+		NStr("en = 'View the average, minimum, and maximum for numeric answers to basic questions.
+		|';");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "TableQuestionsAnswerCount");
 	OptionSettings.LongDesc = 
-		NStr("en = 'Information on how many times the response option which requires a numeric value 
-		|was given in question charts.';");
+		NStr("en = 'View the distribution of numeric answers in question charts.
+		|';");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "TableQuestionsAggregatedParameters");
 	OptionSettings.LongDesc = 
-		NStr("en = 'Information on average, minimum, and maximum response in the cell of a question chart
-		|that requires a numeric value.';");
+		NStr("en = 'View the average, minimum, and maximum for numeric answers to question charts.
+		|';");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "SimpleQuestionsAnswerCountComparisonBySurveys");
 	OptionSettings.LongDesc = 
-		NStr("en = 'Comparative analysis of the responses
-		|to basic questions in surveys.';");
+		NStr("en = 'Comparative analysis of answers to basic survey questions.
+		|';");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "TableQuestionsAggregatedParametersComparisonBySurveys");
 	OptionSettings.LongDesc = 
-		NStr("en = 'Comparative analysis of the aggregated responses
-		|to question charts in surveys.';");
+		NStr("en = 'Comparative analysis of the aggregated answers to question charts in surveys.
+		|';");
 EndProcedure
 
 // End StandardSubsystems.ReportsOptions

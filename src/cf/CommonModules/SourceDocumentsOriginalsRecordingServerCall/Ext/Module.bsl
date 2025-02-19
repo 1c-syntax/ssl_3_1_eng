@@ -10,7 +10,10 @@
 
 #Region Public
 
-// Called to record original states of print forms to the register after printing the form.
+#Region ObsoleteProceduresAndFunctions
+
+// Deprecated. Instead, use "SourceDocumentsOriginalsRecordingClient.WriteOriginalsStatesAfterPrint". 
+// Called to record the original states of print forms to the register after printing the form.
 //
 //	Parameters:
 //  PrintObjects - ValueList - a list of references to print objects.
@@ -24,10 +27,12 @@ Procedure WriteOriginalsStatesAfterPrint(PrintObjects, PrintList, Written1 = Fal
 		If PrintList.Count() = 0 Then
 			Return;
 		EndIf;
-		InformationRegisters.SourceDocumentsOriginalsStates.WriteDocumentOriginalsStatesAfterPrintForm(PrintObjects, PrintList, Written1);
+		SourceDocumentsOriginalsRecording.WriteDocumentOriginalsStatesAfterPrintForm(PrintObjects, PrintList, Written1);
 	EndIf;
 
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -36,24 +41,24 @@ EndProcedure
 // Saves the new state of a source document.
 //	
 // Parameters:
-//  RecordData - Array of Structure - Information on the current document state:
-//                 * OverallState 						- Boolean - True if the current state is overall;
+//  WritingObjects - Array of Structure - Information on the current document state:
+//                 * OverallState 						- Boolean - "True" if the current state is aggregated.
 //                 * Ref 								- DocumentRef - A reference to the document whose source document's state should be changed.
 //                 * SourceDocumentOriginalState - CatalogRef.SourceDocumentsOriginalsStates -
-//                                                           a current state of the source document original.
-//                 * SourceDocument 					- String - a source document ID. It is specified if this state is not overall;
-//                 * FromOutside 								- Boolean - True if the source document was added by the user manually. Specified if this state is not overall. 
+//                                                           Current state of the source document original.
+//                 * SourceDocument 					- String - Source document ID. Required if the state is not aggregated.
+//                 * FromOutside 								- Boolean - "True" if the source document was added manually. It's required if the current state is not aggregated. 
 //               - DocumentRef - A reference to the document whose source document's state should be changed.
-//  StateName - String - The state to be applied.
+//  OriginalState - String - The state to be applied.
 // 
 // Returns:
 //  String - "IsChanged" is the source document state is not repeated and was saved.
 //           "NotIsChanged" 
 //           "NotCarriedOut" 
 //
-Function SetNewOriginalState(Val RecordData, Val StateName) Export
+Function SetNewOriginalState(Val WritingObjects, Val OriginalState) Export
 
-	Return SourceDocumentsOriginalsRecording.SetNewOriginalState(RecordData, StateName);
+	Return SourceDocumentsOriginalsRecording.SetNewOriginalState(WritingObjects, OriginalState);
 
 EndFunction
 
@@ -68,10 +73,10 @@ Procedure ProcessBarcode(Barcode) Export
 
 EndProcedure
 
-// Returns a structure with data on the current overall state of the document original by reference.
+// Returns a structure with the data on the source document's current aggregated state by reference.
 //
 //	Parameters:
-//  DocumentRef - DocumentRef - a reference to the document whose overall state details must be received. 
+//  DocumentRef - DocumentRef - The reference to the document whose aggregated state info should be received. 
 //
 //  Returns:
 //    Structure - General information about the source document state:
@@ -123,18 +128,53 @@ Function IsAccountingObject(ObjectRef) Export
 
 EndFunction
 
-// Returns a record key of the register of overall document original state by reference.
+// Returns the record key of the source document's aggregated state by reference.
 //
 //	Parameters:
-//  DocumentRef - DocumentRef - a reference to the document for which a record key of overall state must be received.
+//  DocumentRef - DocumentRef - The reference to the document whose aggregated state record key should be received.
 //
 //	Returns:
-//  InformationRegisterRecordKey.SourceDocumentsOriginalsStates - a record key of the register of overall document original state.
+//  InformationRegisterRecordKey.SourceDocumentsOriginalsStates - The record key of the source document's aggregated state.
 //
 Function OverallStateRecordKey(DocumentRef) Export
 
 	Return SourceDocumentsOriginalsRecording.OverallStateRecordKey(DocumentRef);
 
 EndFunction
+
+// Returns the reference to the source document's original state by catalog by UUID.
+//
+//	Parameters:
+//  CommandName - String- Name of the form command being executed. 
+//
+//  Returns:
+//    CatalogRef.SourceDocumentsOriginalsStates - Reference to the source document state.
+//
+Function SourceDocumentOriginalStateByCommandName(Val CommandName) Export  
+	
+	UIDOfState = StrReplace(StrReplace(CommandName, "Command", ""), "_", "-");
+	UIDOfState = New UUID(UIDOfState);
+	Return Catalogs.SourceDocumentsOriginalsStates.GetRef(UIDOfState);
+	
+EndFunction
+
+// Called to record original states of print forms in the register after printing the form.
+//
+//	Parameters:
+//  PrintObjects - ValueList - List of references to print objects.
+//  PrintList - ValueList - List with template names and print form presentations.
+//   Written1 - Boolean - Indicates that the document state is written to the register.
+//
+Procedure WriteOriginalsStatesAfterPrintingForms(PrintObjects, PrintList, Written1 = False) Export
+
+	If GetFunctionalOption("UseSourceDocumentsOriginalsRecording") And Not Users.IsExternalUserSession() Then
+		SourceDocumentsOriginalsRecording.WhenDeterminingTheListOfPrintedForms(PrintObjects, PrintList);
+		If PrintList.Count() = 0 Then
+			Return;
+		EndIf;
+		SourceDocumentsOriginalsRecording.WriteDocumentOriginalsStatesAfterPrintForm(PrintObjects, PrintList, Written1);
+	EndIf;
+
+EndProcedure 
 
 #EndRegion

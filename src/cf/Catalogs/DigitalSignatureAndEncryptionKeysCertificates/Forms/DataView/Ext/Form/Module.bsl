@@ -46,7 +46,7 @@ Procedure SetPresentationList(PresentationsList, Context) Export
 	
 	ListDataPresentations = PresentationsList;
 	
-	Context = New NotifyDescription("SetPresentationList", ThisObject, Context);
+	Context = New CallbackDescription("SetPresentationList", ThisObject, Context);
 	
 EndProcedure
 
@@ -76,8 +76,8 @@ Procedure OpenData()
 	
 	Value = ListDataPresentations[IndexOf].Value;
 	
-	If TypeOf(Value) = Type("NotifyDescription") Then
-		ExecuteNotifyProcessing(Value);
+	If TypeOf(Value) = Type("CallbackDescription") Then
+		RunCallback(Value);
 	Else
 		ShowValue(, Value);
 	EndIf;

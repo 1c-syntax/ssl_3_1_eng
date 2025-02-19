@@ -15,12 +15,15 @@ Function CommandDetails(CommandNameInForm, SettingsAddress) Export
 	Return AttachableCommands.CommandDetails(CommandNameInForm, SettingsAddress);
 EndFunction
 
-// Analyzes the document array for posting and for rights to post them.
-Function DocumentsInfo(ReferencesArrray) Export
+Function MainCommandsMarks(Val Ref, Val CommandsMarked) Export
+	
 	Result = New Structure;
-	Result.Insert("Unposted", Common.CheckDocumentsPosting(ReferencesArrray));
-	Result.Insert("HasRightToPost", StandardSubsystemsServer.HasRightToPost(Result.Unposted));
+	If Common.SubsystemExists("StandardSubsystems.Print") Then
+		ModulePrintManager = Common.CommonModule("PrintManagement");
+		ModulePrintManager.OnUpdateMainCommandsMarks(Ref, CommandsMarked, Result);
+	EndIf;
 	Return Result;
+	
 EndFunction
 
 #EndRegion

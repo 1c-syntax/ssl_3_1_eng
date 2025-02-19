@@ -15,7 +15,7 @@
 // Parameters:
 //  IDs - Array - Request IDs.
 //  OwnerForm - ClientApplicationForm - Form that must be locked before permissions are applied.
-//  ClosingNotification1 - NotifyDescription - Notification triggered when permissions are granted.
+//  ClosingNotification1 - CallbackDescription - Notification triggered when permissions are granted.
 //
 Procedure ApplyExternalResourceRequests(Val IDs, OwnerForm, ClosingNotification1) Export
 	

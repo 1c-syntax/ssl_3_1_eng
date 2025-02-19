@@ -286,7 +286,7 @@ EndProcedure
 //
 // Parameters:
 //   DynamicList - DynamicList - the list to be filtered.
-//   FieldName            - String - the field the filter to apply to.
+//   FieldName            - String - The field you want to filter by.
 //   RightValue     - Arbitrary - the filter value.
 //       Optional. The default value is Undefined.
 //       Warning! If Undefined is passed, the value will not be changed.
@@ -304,7 +304,7 @@ EndProcedure
 //   UserSettingID - String - Filter UUID.
 //       Intended for associating it with user settings.
 //
-// See the properties of "DataCompositionFilterItem" in Syntax Assistance.:
+// See the properties of DataCompositionFilterItem in Syntax Assistant.:
 //   
 //
 Procedure SetDynamicListFilterItem(DynamicList, FieldName,

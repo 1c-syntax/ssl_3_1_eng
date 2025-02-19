@@ -101,11 +101,11 @@ EndProcedure
 //                         ** Key - String - an address in the temporary storage of binary data of the print form;
 //                         ** Value - String - a print form file name.
 //
-//   * PrintFormFileName - String - a print form file name upon saving to a file or sending as
-//                                      an email attachment. Do not use for print forms in the office document format.
-//                                      By default, a file name is set as
-//                                      "[НазваниеПечатнойФормы] # [Номер] from [Дата]" for documents and
-//                                      "[НазваниеПечатнойФормы] — [ПредставлениеОбъекта] — [ТекущаяДата]" for objects.
+//   * PrintFormFileName - String - Name of a print form when saved to a file or attached to an email.
+//                                      Not to be used for office document print forms.
+//                                      The default format is
+//                                      "[PrintFormName] #[Number] dated [Date]" for documents and
+//                                      "[PrintFormName] - [ObjectPresentation] - [CurrentDate]" for objects.
 //                           - Map of KeyAndValue - Filenames for each object:
 //                              ** Key - AnyRef - a reference to a print object from the ObjectsArray collection;
 //                              ** Value - String - file name;
@@ -125,9 +125,9 @@ EndProcedure
 //  OutputParameters - Structure - Print form output settings:
 //   * SendOptions - Structure - Interned for autofilling fields in the message creation form upon sending generated print forms by email 
 //                                     :
-//     ** Recipient - 
-//     ** Subject       - 
-//     ** Text      - 
+//     ** Recipient - See EmailOperationsClient.EmailSendOptions.Recipient
+//     ** Subject       - See EmailOperationsClient.EmailSendOptions.Subject
+//     ** Text      - See EmailOperationsClient.EmailSendOptions.Text
 //   * LanguageCode - String - a language in which the print form needs to be generated.
 //                         Consists of the ISO 639-1 language code and the ISO 3166-1 country code (optional)
 //                         separated by the underscore character. Examples: "en", "en_US", "en_GB", "ru", "ru_RU".
@@ -201,8 +201,8 @@ EndProcedure
 //   * Key     - AnyRef - a reference to the print object;
 //   * Value - Structure   - Set of signatures and stamps:
 //     ** Key     - String - Identifier of a signature or stamp in print form template. 
-//                            It must end with "Signature…", "Stamp…", or "Facsimile".
-//                            For example, ManagerSignature or CompanyStamp.
+//                            It must start with "Signature…", "Stamp…", or "Facsimile".
+//                            For example, SignatureManager or StampCompany.
 //     ** Value - Picture - Signature or stamp image.
 //
 Procedure OnGetSignaturesAndSeals(Var_Documents, SignaturesAndSeals) Export
@@ -351,6 +351,21 @@ EndProcedure
 //   PrintCommands 		- See PrintManagement.CreatePrintCommandsCollection
 //
 Procedure OnReceivePrintCommands(Val FullMetadataObjectName, PrintCommands) Export
+	
+	
+	
+EndProcedure
+
+
+// 
+// 
+// Parameters:
+//  Ref - AnyRef - 
+//  KeyAttributes  - Structure:
+//                       * Organization - AnyRef - 
+//                       * Recipient - AnyRef - 
+//
+Procedure OnDefineKeyAttributesOfDefaultPrintForms(Ref, KeyAttributes) Export
 	
 	
 	

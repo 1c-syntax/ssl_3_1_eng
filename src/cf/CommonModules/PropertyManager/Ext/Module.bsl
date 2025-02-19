@@ -10,8 +10,7 @@
 
 #Region Public
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for standard processing of properties.
+#Region ProceduresAndFunctionsForStandardPropertiesProcessing
 
 // Creates main form attributes and fields necessary for work.
 // Fills additional attributes if used.
@@ -428,6 +427,10 @@ Procedure OnGetDataAtServer(Settings, Rows, OwnerName = Undefined) Export
 		Return;
 	EndIf;
 	
+	If Not AccessRight("Read", Metadata.Catalogs.AdditionalAttributesAndInfoSets) Then
+		Return;
+	EndIf;
+	
 	Keys = Rows.GetKeys();
 	If Keys.Count() = 0 Then
 		Return;
@@ -451,7 +454,7 @@ Procedure OnGetDataAtServer(Settings, Rows, OwnerName = Undefined) Export
 	EndIf;
 	
 	Labels = PropertiesListForObjectsKind.UnloadColumn("Property");
-	LabelsAttributes = Common.ObjectsAttributesValues(Labels, "PropertiesColor, DeletionMark");
+	LabelsAttributes = Common.ObjectsAttributesValues(Labels, "PropertyColor, DeletionMark");
 	
 	For Each ListLine In Rows Do
 		Composite = ListLine.Key;
@@ -475,7 +478,7 @@ Procedure OnGetDataAtServer(Settings, Rows, OwnerName = Undefined) Export
 			PropertyName = StrTemplate("Label%1", LabelNumber);
 			If RowData.Data.Property(PropertyName) Then
 				RowData.Data[PropertyName] =
-					Enums.PropertiesColors.IndexOf(LabelAttributes.PropertiesColor) + 1;
+					Enums.PropertiesColors.IndexOf(LabelAttributes.PropertyColor) + 1;
 				LabelNumber = LabelNumber + 1;
 			Else
 				Break;
@@ -485,27 +488,30 @@ Procedure OnGetDataAtServer(Settings, Rows, OwnerName = Undefined) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for managing properties
+#EndRegion
 
-// Adds an additional property to the passed object.
+#Region ProceduresAndFunctionsToManagePropertiesProgrammatically
+
+// 
 //
 // Parameters:
 //  Owner - MetadataObject
 //           - String - a full name of a metadata object or a property set name.
-//           - CatalogRef.AdditionalAttributesAndInfoSets - a property set reference.
+//           - CatalogRef.AdditionalAttributesAndInfoSets - 
 //  Parameters - See PropertyAdditionParameters.
-//  IsInfoRecord - Boolean - if True, an additional information record will be added.
-//                         Default value: False. Additional attribute is added.
+//  PropertyKind1 - EnumRef.PropertiesKinds -  
+//              - Boolean - for backward compatibility.
+// 
+// Returns:
+//  ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo
 //
-Procedure AddProperty(Owner, Parameters, IsInfoRecord = False) Export
+Function AddProperty(Val Owner, Val Parameters, Val PropertyKind1 = Undefined) Export
 	
 	If TypeOf(Owner) = Type("MetadataObject") Then
 		PredefinedItemName = StrReplace(Owner.FullName(), ".", "_");
 	ElsIf TypeOf(Owner) = Type("String") Then
 		If StrFind(Owner, ".") = 0 Then
-			// This is a property set.
-			PredefinedItemName = Owner;
+			PredefinedItemName = Owner; // This is a property set.
 		Else
 			PredefinedItemName = StrReplace(Owner, ".", "_");
 		EndIf;
@@ -529,45 +535,55 @@ Procedure AddProperty(Owner, Parameters, IsInfoRecord = False) Export
 		EndIf;
 	EndIf;
 	
-	MissingParameters = New Array;
-	If Not Parameters.Property("Description")
-		Or Not ValueIsFilled(Parameters.Description) Then
-		MissingParameters.Add("Description");
+	PropertyAdditionParameters = PropertyAdditionParameters();
+	FillPropertyValues(PropertyAdditionParameters, Parameters);
+	
+	BlankParameters = New Array;
+	If Not ValueIsFilled(PropertyAdditionParameters.Description) Then
+		BlankParameters.Add("Description");
 	EndIf;
 	
-	If Not Parameters.Property("ValueType")
-	 Or Not ValueIsFilled(Parameters.ValueType) Then
-		If Parameters.Property("Type") And ValueIsFilled(Parameters.Type) Then
-			Parameters.ValueType = Parameters.Type;
+	If Not ValueIsFilled(PropertyAdditionParameters.ValueType) Then
+		If ValueIsFilled(PropertyAdditionParameters.Type) Then
+			PropertyAdditionParameters.ValueType = PropertyAdditionParameters.Type;
 		Else
-			MissingParameters.Add("ValueType");
+			BlankParameters.Add("ValueType");
 		EndIf;
 	EndIf;
 	
-	If MissingParameters.Count() > 0 Then
-		MissingParameters = StrConcat(MissingParameters, ", ");
-		ExceptionText = NStr("en = 'Required parameters are not passed:
-			|%1.';");
-		Raise StringFunctionsClientServer.SubstituteParametersToString(ExceptionText, MissingParameters);
+	If TypeOf(PropertyKind1) = Type("Boolean") Or PropertyKind1 = Undefined Then
+		PropertyKind1 = ?(PropertyKind1 = True, Enums.PropertiesKinds.AdditionalInfo,
+			Enums.PropertiesKinds.AdditionalAttributes); // Для обратной совместимости
+	ElsIf PropertyKind1 = Enums.PropertiesKinds.Labels 
+		And (Not ValueIsFilled(PropertyAdditionParameters.PropertyColor)) Then
+		BlankParameters.Add("PropertyColor");
+	EndIf;
+	IsInfoRecord = (PropertyKind1 = Enums.PropertiesKinds.AdditionalInfo);
+	
+	If BlankParameters.Count() > 0 Then
+		BlankParameters = StrConcat(BlankParameters, ", ");
+		ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Required properties are not set in parameter %1 when calling %2:
+				|%3.';"), "Parameters", "PropertyManager.AddProperty", BlankParameters);
+		Raise(ExceptionText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	EmptyRef = ChartsOfCharacteristicTypes.AdditionalAttributesAndInfo.EmptyRef();
 	// 1. Check that the description is already used.
-	Result = PropertyManagerInternal.DescriptionAlreadyUsed(EmptyRef, PropertiesSet, Parameters.Description);
+	Result = PropertyManagerInternal.DescriptionAlreadyUsed(EmptyRef, PropertiesSet, PropertyAdditionParameters.Description);
 	If ValueIsFilled(Result) Then
 		Raise Result;
 	EndIf;
 	
 	// 2. Check that the name is already used.
-	If Parameters.Property("Name")
-		And ValueIsFilled(Parameters.Name) Then
-		Result = PropertyManagerInternal.NameAlreadyUsed(Parameters.Name, EmptyRef);
+	If ValueIsFilled(PropertyAdditionParameters.Name) Then
+		Result = PropertyManagerInternal.NameAlreadyUsed(PropertyAdditionParameters.Name, EmptyRef);
 		If ValueIsFilled(Result) Then
 			Raise Result;
 		EndIf;
 	Else
 		Name = "";
-		ObjectTitle = Parameters.Description;
+		ObjectTitle = PropertyAdditionParameters.Description;
 		PropertyManagerInternal.DeleteDisallowedCharacters(ObjectTitle);
 		ObjectTitleInParts = StrSplit(ObjectTitle, " ", False);
 		For Each TitlePart In ObjectTitleInParts Do
@@ -585,13 +601,12 @@ Procedure AddProperty(Owner, Parameters, IsInfoRecord = False) Export
 			Name = Name + "_" + UIDString;
 		EndIf;
 		
-		Parameters.Insert("Name", Name);
+		PropertyAdditionParameters.Insert("Name", Name);
 	EndIf;
 	
 	// 3. Check that the ID for formulas is already used.
-	If Parameters.Property("IDForFormulas")
-		And ValueIsFilled(Parameters.IDForFormulas) Then
-		Result = PropertyManagerInternal.IDForFormulasAlreadyUsed(Parameters.IDForFormulas, EmptyRef);
+	If ValueIsFilled(PropertyAdditionParameters.IDForFormulas) Then
+		Result = PropertyManagerInternal.IDForFormulasAlreadyUsed(PropertyAdditionParameters.IDForFormulas, EmptyRef);
 		If ValueIsFilled(Result) Then
 			Raise Result;
 		EndIf;
@@ -605,15 +620,22 @@ Procedure AddProperty(Owner, Parameters, IsInfoRecord = False) Export
 		Block.Lock();
 		
 		NewProperty = ChartsOfCharacteristicTypes.AdditionalAttributesAndInfo.CreateItem();
-		FillPropertyValues(NewProperty, Parameters);
+		FillPropertyValues(NewProperty, PropertyAdditionParameters);
 		
-		NewProperty.Title                 = Parameters.Description;
+		NewProperty.PropertyKind1 = PropertyKind1;
+		NewProperty.Title                 = PropertyAdditionParameters.Description;
 		NewProperty.IsAdditionalInfo = IsInfoRecord;
 		NewProperty.PropertiesSet              = PropertiesSet;
 		
 		// For multilingual.
-		NewProperty.TitleLanguage1 = Parameters.Description;
-		NewProperty.TitleLanguage2 = Parameters.Description;
+		If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
+			ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
+			
+			LanguagesInfo = ModuleNationalLanguageSupportServer.LanguagesInfo();
+			For Each LanguageInfo In LanguagesInfo.Used Do
+				NewProperty["Title" + LanguageInfo.Key] = PropertyAdditionParameters.Description;
+			EndDo;
+		EndIf;
 	
 		NewProperty.Write();
 		
@@ -631,12 +653,15 @@ Procedure AddProperty(Owner, Parameters, IsInfoRecord = False) Export
 		EndIf;
 		
 		CommitTransaction();
+		
 	Except
 		RollbackTransaction();
 		Raise;
 	EndTry;
 	
-EndProcedure
+	Return NewProperty.Ref;
+	
+EndFunction
 
 // Adds an available value for an attribute with the ObjectsPropertiesValues
 // or ObjectPropertyValueHierarchy type.
@@ -690,7 +715,8 @@ Function AddPropertyValue(Val Owner, Parameters, Hierarchy = False) Export
 	EndIf;
 	
 	IsFolder = Parameters.Property("IsFolder") And Parameters.IsFolder;
-	If Hierarchy Then
+	HierarchyValueTypeDetails = New TypeDescription("CatalogRef.ObjectPropertyValueHierarchy");
+	If AttributeType = HierarchyValueTypeDetails Then
 		If IsFolder Then
 			AttributeValue = Catalogs.ObjectPropertyValueHierarchy.CreateFolder();
 		Else
@@ -726,6 +752,7 @@ EndFunction
 //     * IDForFormulas - String
 //     * MultilineInputField - Boolean
 //     * ToolTip              - String
+//     * PropertyColor            - 
 //
 Function PropertyAdditionParameters() Export
 	
@@ -740,6 +767,7 @@ Function PropertyAdditionParameters() Export
 	Parameters.Insert("MultilineInputField", False);
 	Parameters.Insert("ToolTip", "");
 	Parameters.Insert("Type"); // For backward compatibility purposes.
+	Parameters.Insert("PropertyColor");
 	
 	Return Parameters;
 	
@@ -767,8 +795,9 @@ Function PropertyValAdditionParameters() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for non-standard processing of additional properties.
+#EndRegion
+
+#Region ProceduresAndFunctionsForNonStandardProcessingOfAdditionalProperties
 
 // Returns a reference to a predefined property set by the set name.
 // Used for sets specified in the
@@ -845,11 +874,11 @@ Procedure FillAdditionalAttributesInForm(Form, Object = Undefined, LabelsFields 
 	
 	UpdateFormAssignmentKey(Form, AssignmentKey);
 	
-	PropertyKind = Enums.PropertiesKinds.AdditionalAttributes;
+	PropertyKind1 = Enums.PropertiesKinds.AdditionalAttributes;
 	PropertiesDetails = PropertyManagerInternal.PropertiesValues(
 		ObjectDetails.AdditionalAttributes.Unload(),
 		Form.PropertiesObjectAdditionalAttributeSets,
-		PropertyKind);
+		PropertyKind1);
 	
 	PropertiesDetails.Columns.Add("ValueAttributeName");
 	PropertiesDetails.Columns.Add("RefTypeString");
@@ -1689,6 +1718,72 @@ Procedure WriteObjectProperties(PropertiesOwner, PropertyAndValueTable) Export
 	
 EndProcedure
 
+// 
+// 
+// 
+//
+// Parameters:
+//  Owner - CatalogObjectCatalogName
+//           - DocumentObjectDocumentName
+//           - ChartOfCharacteristicTypesObject
+//           - BusinessProcessObjectNameOfBusinessProcess
+//           - TaskObject
+//           - ChartOfCalculationTypesObject
+//           - ChartOfAccountsObject
+//  Properties - Array of Map:
+//     * Key - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - 
+//     * Value - Arbitrary -  
+//
+Procedure SetPropertiesForObject(Owner, Properties) Export
+	
+	AddlAttributesTable = New ValueTable;
+	AddlAttributesTable.Columns.Add("Property", New TypeDescription("ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo"));
+	AddlAttributesTable.Columns.Add("Value");
+	AddlAttributesTable.Columns.Add("TextString");
+	
+	PropertiesRefs = New Array;
+	For Each KeyValueProperty In Properties Do
+		PropertiesRefs.Add(KeyValueProperty.Key);
+	EndDo;
+	
+	PropertyTypesInfoItem = Common.ObjectsAttributeValue(PropertiesRefs, "IsAdditionalInfo");
+	For Each KeyValueProperty In Properties Do
+		If PropertyTypesInfoItem[KeyValueProperty.Key] = True Then
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Invalid value for parameter %1 in procedure %2. Only additional attributes can be set.';"),
+			"Properties",
+			"PropertyManager.SetPropertiesForObject");
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
+		EndIf;
+
+		NewRow = AddlAttributesTable.Add();
+		If TypeOf(KeyValueProperty.Value) = Type("String")
+			And StrLen(KeyValueProperty.Value) > 1024 Then
+			NewRow.TextString = KeyValueProperty.Value;
+		EndIf;
+		
+		NewRow.Property = KeyValueProperty.Key;
+		NewRow.Value = KeyValueProperty.Value
+		
+	EndDo;
+	
+	ArrayOfAdditionalOwnerAttributes = ObjectProperties(Owner, True, False);
+	For Each AdditionalAttribute5 In AddlAttributesTable Do
+		If ArrayOfAdditionalOwnerAttributes.Find(AdditionalAttribute5.Property) = Undefined Then
+			Continue;
+		EndIf;
+		RowsArray = Owner.AdditionalAttributes.FindRows(New Structure("Property", AdditionalAttribute5.Property));
+		If RowsArray.Count() > 0 Then
+			PropertyRow = RowsArray[0];
+			FillPropertyValues(PropertyRow, AdditionalAttribute5, "Property,Value,TextString");
+		Else
+			PropertyRow = Owner.AdditionalAttributes.Add();
+			FillPropertyValues(PropertyRow, AdditionalAttribute5, "Property,Value,TextString");
+		EndIf;
+	EndDo;
+	
+EndProcedure
+
 // Checks if additional attributes are used with the object.
 //
 // Parameters:
@@ -1797,8 +1892,9 @@ Function RepresentationsOfPropertyValues(ObjectsWithProperties, LanguageCode = "
 	Return Result;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Labels
+#EndRegion
+
+#Region Labels
 
 // Sets the visibility of the label legend within a session.
 // 
@@ -1906,7 +2002,7 @@ Procedure FillObjectLabels(Form, Object = Undefined, ArbitraryObject = False) Ex
 	
 	LabelsShownCount = 0;
 	LabelsAttributes = Common.ObjectsAttributesValues(Labels,
-		"Name, PropertiesColor, Description, DeletionMark, ToolTip");
+		"Name, PropertyColor, Description, DeletionMark, ToolTip");
 	If LabelsDisplayOption = Enums.LabelsDisplayOptions.Label Then
 		For IndexOf = 0 To LabelCount - 1 Do
 			Label = LabelsAttributes.Get(Labels[IndexOf]);
@@ -1919,7 +2015,7 @@ Procedure FillObjectLabels(Form, Object = Undefined, ArbitraryObject = False) Ex
 			NewItem.Height = 1;
 			NewItem.Title = Label.Description;
 			NewItem.TextColor = Metadata.StyleItems.LabelTextColor_SSLym.Value;
-			NewItem.BackColor = StyleItemByColor(Label.PropertiesColor);
+			NewItem.BackColor = StyleItemByColor(Label.PropertyColor);
 			NewItem.Font = Metadata.StyleItems.LabelsFont.Value;
 			NewItem.ToolTip = Label.ToolTip;
 			If Not ArbitraryObject Then
@@ -1945,7 +2041,7 @@ Procedure FillObjectLabels(Form, Object = Undefined, ArbitraryObject = False) Ex
 			If Not ArbitraryObject Then
 				NewItem.Hyperlink = True;
 			EndIf;
-			NewItem.Picture = PictureLabelsByColor(Label.PropertiesColor);
+			NewItem.Picture = PictureLabelsByColor(Label.PropertyColor);
 			NewItem.SetAction("Click", "Attachable_PropertiesExecuteCommand");
 			NewItem.ToolTip = Label.Description;
 			NewItem.Title = Label.Description;
@@ -2005,39 +2101,39 @@ Function LabelsDisplayParameters() Export
 	
 EndFunction
 
-// Returns properties of a specific kind.
+// Returns properties of a specific type.
 //
 // Parameters:
-//  Properties   - ValueTable - a property table.
+//  Properties   - ValueTable - A property table.
 //
-//  PropertyKind - EnumRef.PropertiesKinds - a property kind, additional attributes, or labels.
+//  PropertyKind1 - EnumRef.PropertiesKinds - A property type (additional attributes or labels).
 //
 // Returns:
-//  Array     - an array of properties of a certain kind.
+//  Array     - An array of properties of a specific type.
 //
-Function PropertiesByAdditionalAttributesKind(Properties, PropertyKind) Export
+Function PropertiesByAdditionalAttributesKind(Properties, PropertyKind1) Export
 	
 	PropertiesByKind = New Array;
 	ListOfProperties = Properties.UnloadColumn("Property");
-	ObjectsPropertiesKinds = Common.ObjectsAttributesValues(ListOfProperties, "PropertyKind");
-	If PropertyKind = Enums.PropertiesKinds.AdditionalAttributes Then
+	ObjectsPropertiesKinds = Common.ObjectsAttributesValues(ListOfProperties, "PropertyKind1");
+	If PropertyKind1 = Enums.PropertiesKinds.AdditionalAttributes Then
 		For Each Property In ListOfProperties Do
-			ObjectPropertiesKind = ObjectsPropertiesKinds.Get(Property);
-			If Not ValueIsFilled(ObjectPropertiesKind) Then
+			ObjectPropertyKind = ObjectsPropertiesKinds.Get(Property);
+			If Not ValueIsFilled(ObjectPropertyKind) Then
 				Continue;
 			EndIf;
-			If Not ValueIsFilled(ObjectPropertiesKind.PropertyKind)
-				Or ObjectPropertiesKind.PropertyKind = PropertyKind Then
+			If Not ValueIsFilled(ObjectPropertyKind.PropertyKind1)
+				Or ObjectPropertyKind.PropertyKind1 = PropertyKind1 Then
 				PropertiesByKind.Add(Property);
 			EndIf;
 		EndDo;
-	ElsIf PropertyKind = Enums.PropertiesKinds.Labels Then
+	ElsIf PropertyKind1 = Enums.PropertiesKinds.Labels Then
 		For Each Property In ListOfProperties Do
-			ObjectPropertiesKind = ObjectsPropertiesKinds.Get(Property);
-			If Not ValueIsFilled(ObjectPropertiesKind) Then
+			ObjectPropertyKind = ObjectsPropertiesKinds.Get(Property);
+			If Not ValueIsFilled(ObjectPropertyKind) Then
 				Continue;
 			EndIf;
-			If ObjectPropertiesKind.PropertyKind = PropertyKind Then
+			If ObjectPropertyKind.PropertyKind1 = PropertyKind1 Then
 				PropertiesByKind.Add(Property);
 			EndIf;
 		EndDo;
@@ -2063,8 +2159,9 @@ Function HasLabelsOwners() Export
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+#EndRegion
+
+#Region InfobaseUpdate
 
 // 1. Updates descriptions of predefined property sets
 // if they differ from the current presentations of matching
@@ -2330,6 +2427,8 @@ Procedure RestoreSettingsOfFormsWithAdditionalAttributes() Export
 	EndDo;
 	
 EndProcedure
+
+#EndRegion
 
 #Region ObsoleteProceduresAndFunctions
 
@@ -2754,7 +2853,7 @@ Procedure FillLabelsLegend(Form, Object)
 	
 	FilterLabelsCount = Form.PropertiesParameters.FilterLabelsCount;
 	LabelsAttributes = Common.ObjectsAttributesValues(Labels,
-		"Ref, Name, Description, PropertiesColor, DeletionMark");
+		"Ref, Name, Description, PropertyColor, DeletionMark");
 	If FilterLabelsCount Then
 		Attributes = New Array;
 		For Each Label In Labels Do
@@ -2793,7 +2892,7 @@ Procedure FillLabelsLegend(Form, Object)
 		
 		NewItem = Form.Items.Add("Legend_" + Label.Name, Type("FormDecoration"), Group);
 		NewItem.Type = FormDecorationType.Picture;
-		NewItem.Picture = PictureLabelsByColor(Label.PropertiesColor);
+		NewItem.Picture = PictureLabelsByColor(Label.PropertyColor);
 		NewItem.ToolTip = Label.Description;
 		NewItem.ToolTipRepresentation = ToolTipRepresentation.ShowRight;
 	EndDo;
@@ -3097,25 +3196,25 @@ Procedure SetLabelsVisibility(Form, LabelsDestinationElementName)
 	
 EndProcedure
 
-Function PictureLabelsByColor(PropertiesColor)
+Function PictureLabelsByColor(PropertyColor)
 	
-	If PropertiesColor = Enums.PropertiesColors.LightBlue Then
+	If PropertyColor = Enums.PropertiesColors.LightBlue Then
 		Picture = PictureLib.LabelLightBlue;
-	ElsIf PropertiesColor = Enums.PropertiesColors.Yellow Then
+	ElsIf PropertyColor = Enums.PropertiesColors.Yellow Then
 		Picture = PictureLib.LabelYellow;
-	ElsIf PropertiesColor = Enums.PropertiesColors.Green Then
+	ElsIf PropertyColor = Enums.PropertiesColors.Green Then
 		Picture = PictureLib.LabelGreen;
-	ElsIf PropertiesColor = Enums.PropertiesColors.GreenLime Then
+	ElsIf PropertyColor = Enums.PropertiesColors.GreenLime Then
 		Picture = PictureLib.LabelLime;
-	ElsIf PropertiesColor = Enums.PropertiesColors.Red Then
+	ElsIf PropertyColor = Enums.PropertiesColors.Red Then
 		Picture = PictureLib.LabelRed;
-	ElsIf PropertiesColor = Enums.PropertiesColors.Orange Then
+	ElsIf PropertyColor = Enums.PropertiesColors.Orange Then
 		Picture = PictureLib.LabelOrange;
-	ElsIf PropertiesColor = Enums.PropertiesColors.Pink Then
+	ElsIf PropertyColor = Enums.PropertiesColors.Pink Then
 		Picture = PictureLib.LabelPink;
-	ElsIf PropertiesColor = Enums.PropertiesColors.B Then
+	ElsIf PropertyColor = Enums.PropertiesColors.B Then
 		Picture = PictureLib.LabelBlue;
-	ElsIf PropertiesColor = Enums.PropertiesColors.Violet Then
+	ElsIf PropertyColor = Enums.PropertiesColors.Violet Then
 		Picture = PictureLib.LabelPurple;
 	Else
 		Picture = PictureLib.LabelGray;
@@ -3125,25 +3224,25 @@ Function PictureLabelsByColor(PropertiesColor)
 	
 EndFunction
 
-Function StyleItemByColor(PropertiesColor)
+Function StyleItemByColor(PropertyColor)
 	
-	If PropertiesColor = Enums.PropertiesColors.GreenLime Then
+	If PropertyColor = Enums.PropertiesColors.GreenLime Then
 		StyleItem = Metadata.StyleItems.LabelColorLime.Value;
-	ElsIf PropertiesColor = Enums.PropertiesColors.Red Then
+	ElsIf PropertyColor = Enums.PropertiesColors.Red Then
 		StyleItem = Metadata.StyleItems.LabelColorRed.Value;
-	ElsIf PropertiesColor = Enums.PropertiesColors.Orange Then
+	ElsIf PropertyColor = Enums.PropertiesColors.Orange Then
 		StyleItem = Metadata.StyleItems.LabelColorOrange.Value;
-	ElsIf PropertiesColor = Enums.PropertiesColors.Yellow Then
+	ElsIf PropertyColor = Enums.PropertiesColors.Yellow Then
 		StyleItem = Metadata.StyleItems.LabelColorYellow.Value;
-	ElsIf PropertiesColor = Enums.PropertiesColors.Green Then
+	ElsIf PropertyColor = Enums.PropertiesColors.Green Then
 		StyleItem = Metadata.StyleItems.LabelColorGreen.Value;
-	ElsIf PropertiesColor = Enums.PropertiesColors.B Then
+	ElsIf PropertyColor = Enums.PropertiesColors.B Then
 		StyleItem = Metadata.StyleItems.LabelColorBlue.Value;
-	ElsIf PropertiesColor = Enums.PropertiesColors.LightBlue Then
+	ElsIf PropertyColor = Enums.PropertiesColors.LightBlue Then
 		StyleItem = Metadata.StyleItems.LabelColorLightBlue.Value;
-	ElsIf PropertiesColor = Enums.PropertiesColors.Violet Then
+	ElsIf PropertyColor = Enums.PropertiesColors.Violet Then
 		StyleItem = Metadata.StyleItems.LabelColorPurple.Value;
-	ElsIf PropertiesColor = Enums.PropertiesColors.Pink Then
+	ElsIf PropertyColor = Enums.PropertiesColors.Pink Then
 		StyleItem = Metadata.StyleItems.LabelColorPink.Value;
 	Else
 		StyleItem = Metadata.StyleItems.LabelColorGray.Value;

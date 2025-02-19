@@ -15,7 +15,7 @@
 // Parameters:
 //   Settings - Structure:
 //       * Show - Boolean - Flag indicating whether to show information in the current session.
-//           If True, information will be shown after signing in.
+//           If True, information will be shown after logging in.
 //           If False, information will be hidden.
 //
 Procedure DefineSettings(Settings) Export

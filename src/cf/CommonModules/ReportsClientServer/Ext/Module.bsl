@@ -30,9 +30,9 @@
 //           If True, the Structure tab is shown for reports on DCS: in the extended mode,
 //           but also in the simple mode, if flags of using groups are output in user settings.
 //       
-//       * EditOptionsAllowed - Boolean - If False, buttons of changing options of this report are locked. 
-//           If the current user does not have rights "SaveUserData" and "Add" 
-//           of the ReportOptions catalog, False is force-set.
+//       * EditOptionsAllowed - Boolean - If False, the buttons for modifying the options of this report are disabled. 
+//           If the current user does not have the "SaveUserData" and "Insert" rights 
+//           for the ReportsOptions catalog, False is force-set.
 //
 //       * SelectAndEditOptionsWithoutSavingAllowed - Boolean - If True,
 //           you can select and set up predefined report options without being able to save 
@@ -304,7 +304,7 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Use ReportsClientServer.DefaultReportSettings.
+// Deprecated. Instead, use ReportsClientServer.DefaultReportSettings.
 // Default report form settings.
 //
 // Returns:
@@ -686,7 +686,7 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Use CommonClientServer.SupplementList instead.
+// Deprecated. Instead, use CommonClientServer.SupplementList.
 Function SupplementList(DestinationList, SourceList, ToControlType = Undefined, AddNewItems = True) Export
 	
 	If DestinationList = Undefined Or SourceList = Undefined Then
@@ -765,7 +765,7 @@ EndFunction
 //
 // Parameters:
 //   DCSettings - DataCompositionSettings
-//               - DataCompositionGroup - Settings ollections.
+//               - DataCompositionGroup - Settings collections.
 //   Field - String
 //        - DataCompositionField - Field name.
 //
@@ -1013,8 +1013,7 @@ Procedure DisplayReportState(Form, Val StateText = "", Val PictureStateValue = U
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Local internal procedures and functions.
+#Region LocalUtilityProceduresAndFunctions
 
 // Finds a common data composition setting by ID.
 Function FindSettingItem(SettingItem, UserSettingID)
@@ -1143,8 +1142,9 @@ Procedure FindFilterItemsFieldValues(Field, FilterItems1, UserSettings, Value, O
 	EndDo;
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Unifying the report form and report setting form.
+#EndRegion
+
+#Region AlignmentOfReportFormAndReportSettingsForm
 
 // Returns a presentation of a conditional appearance item.
 //
@@ -1382,8 +1382,9 @@ Function FilterPresentation(DCNode, DCRowSet, State)
 	Return Presentation;
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Miscellaneous.
+#EndRegion
+
+#Region Other
 
 Function CopyRecursive(Val Node, Val WhatToCopy, Val WhereToInsert, Val IndexOf, Map = Undefined, WithoutStructure = False) Export
 	If Map = Undefined Then
@@ -1758,7 +1759,7 @@ Function FillPropertiesRecursively(Node, WhatToFill, FillWithWhat, Map = Undefin
 		For Each SubordinateRow In NestedItemsCollection Do
 			CopyRecursive(Node, SubordinateRow, NewNestedItemsCollection, Undefined, Map);
 		EndDo;
-		//   Dots (DataCompositionChartStructureItemCollection).
+		//   Points (DataCompositionChartStructureItemCollection).
 		NestedItemsCollection = FillWithWhat.Points;
 		NewNestedItemsCollection = WhatToFill.Points;
 		OldID = Node.GetIDByObject(NestedItemsCollection);
@@ -2062,5 +2063,7 @@ Function ReportFormUpdateParameters(Val EventName = "") Export
 	Return Result;
 		
 EndFunction
+
+#EndRegion
 
 #EndRegion

@@ -67,7 +67,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
 EndProcedure
 
-// Fill in a value of the new RadioButtonType attribute for the the QuestionsForSurvey chart of characteristic types.
+// Fill in a value of the new RadioButtonType attribute for the QuestionsForSurvey chart of characteristic types.
 // 
 Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	

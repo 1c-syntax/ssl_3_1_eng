@@ -120,9 +120,9 @@ EndProcedure
 // that are displayed for the user at the first application startup (after update).
 //
 // Parameters:
-//   Template - SpreadsheetDocument - description of new version updates automatically
-//                               formed from the AppReleaseNotes common template.
-//                               A template can be programmatically modified or substituted with another one.
+//   Template - SpreadsheetDocument - Description of new version updates automatically
+//                               created from the SystemReleaseNotes common template.
+//                               The template can be changed or replaced programmatically.
 //
 Procedure OnPrepareUpdateDetailsTemplate(Val Template) Export
 	
@@ -299,10 +299,21 @@ Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
 	
 EndProcedure
 
+// 
+//
+// Parameters:
+//   Data - Arbitrary - 
+//
+Procedure AfterWriteData(Data) Export
+	
+	
+	
+EndProcedure
+
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Use 
-// InfobaseUpdateOverridable.OnGenerateListOfSubsystemsToDevelop instead
+// Deprecated. Instead, use 
+// InfobaseUpdateOverridable.OnGenerateListOfSubsystemsToDevelop 
 //
 Procedure OnGenerateListOfSubsystemsToDevelop(SubsystemsToDevelop) Export
 	

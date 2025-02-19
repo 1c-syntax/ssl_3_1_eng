@@ -28,8 +28,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-////////////////////////////////////////////////////////////////////////////////
-// Update handlers.
+#Region UpdateHandlers
 
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
@@ -53,7 +52,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 		|	BusinessProcessesData.Owner > &BusinessProcess
 		|	AND BusinessProcessesData.State = VALUE(Enum.BusinessProcessStates.EmptyRef)";
 		Query.SetParameter("BusinessProcess", BusinessProcess);
-		// @skip-check query-in-loop - Batch processing of data
+		// @skip-check query-in-loop - Batch-wise data processing
 		RegisterDimensions = Query.Execute().Unload();
 		
 		AdditionalParameters = InfobaseUpdate.AdditionalProcessingMarkParameters();
@@ -166,6 +165,8 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 

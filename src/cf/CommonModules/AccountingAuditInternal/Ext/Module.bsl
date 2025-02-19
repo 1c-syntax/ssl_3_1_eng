@@ -539,11 +539,11 @@ Function CheckKind(Val CheckExecutionParameters, Val SearchOnly = False) Export
 	
 EndFunction
 
-// Searches for a check kind by the passed parameters. 
+// Searches for a check type based on the passed parameters. 
 //
 // Parameters:
 //   CheckExecutionParameters - See AccountingAudit.CheckExecutionParameters.
-//   PropertiesCount           - Number - a number of properties, by which the search is performed.
+//   PropertiesCount           - Number - Number of properties to search by.
 //
 // Returns: 
 //   CatalogRef.ChecksKinds - a catalog item, or an empty reference if the search returned no results.
@@ -668,7 +668,7 @@ Function ChecksKindsLock(CheckExecutionParameters)
 	
 EndFunction
 
-// Searches for a check kind by the passed parameters. 
+// Searches for a check type based on the passed parameters. 
 //
 // Parameters:
 //   CheckExecutionParameters - See AccountingAudit.CheckExecutionParameters.
@@ -867,7 +867,7 @@ Procedure WriteIssue(CheckError, CheckParameters = Undefined) Export
 	
 	If Not ValueIsFilled(CheckError.CheckKind) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Check kind is not specified when saving the issue for the ""%1"" check.';"), 
+			NStr("en = 'The check type is missing when saving the issue for the ""%1"" check.';"), 
 				CheckError.CheckRule);
 	EndIf;
 	
@@ -2480,7 +2480,7 @@ Procedure FindDeadRefsInAccumulationRegisters(MetadataObject, CheckParameters, C
 				
 			AdditionalInformation = New Structure;
 			AdditionalInformation.Insert("Recorder", ResultString1.RecorderAttributeRef);
-			Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation);
+			Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation, New Deflation(9));
 			
 			WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
@@ -2564,6 +2564,7 @@ Procedure FindDeadRefsInSubordinateInformationRegisters(MetadataObject, CheckPar
 		For Each ResultString1 In Result Do
 			
 			CurrentRecordSet = RegisterManager.CreateRecordSet(); // InformationRegisterRecordSet
+			//@skip-check bsl-legacy-check-static-feature-access-for-unknown-left-part - A child information register.
 			CurrentRecordSet.Filter.Recorder.Set(ResultString1.RecorderAttributeRef);
 			CurrentRecordSet.Read();
 			
@@ -2592,7 +2593,7 @@ Procedure FindDeadRefsInSubordinateInformationRegisters(MetadataObject, CheckPar
 				
 			AdditionalInformation = New Structure;
 			AdditionalInformation.Insert("Recorder", ResultString1.RecorderAttributeRef);
-			Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation);
+			Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation, New Deflation(9));
 			
 			WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
@@ -2691,7 +2692,7 @@ Procedure FindDeadRefsInIndependentPeriodicalInformationRegisters(MetadataObject
 					OrderFields, 
 					BrokenRef,
 					TypeOf(BrokenRef));
-				Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation);
+				Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation, New Deflation(9));
 				WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 				
 			EndDo;
@@ -2807,7 +2808,7 @@ Procedure FindDeadRefsInIndependentNonPeriodicalInformationRegisters(MetadataObj
 					OrderFields, 
 					BrokenRef,
 					TypeOf(BrokenRef));
-				Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation);
+				Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation, New Deflation(9));
 				WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 				
 			EndDo;
@@ -2947,7 +2948,7 @@ Procedure FindDeadRefsInAccountingRegisters(MetadataObject, CheckParameters, Ext
 				
 			AdditionalInformation = New Structure;
 			AdditionalInformation.Insert("Recorder", ResultString1.RecorderAttributeRef);
-			Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation);
+			Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation, New Deflation(9));
 			
 			WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
@@ -3028,7 +3029,7 @@ Procedure FindDeadRefsInCalculationRegisters(MetadataObject, CheckParameters, Ch
 				
 			AdditionalInformation = New Structure;
 			AdditionalInformation.Insert("Recorder", ResultString1.RecorderAttributeRef);
-			Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation);
+			Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation, New Deflation(9));
 			
 			WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
@@ -3117,9 +3118,9 @@ Function ExtDimensionTypes(MetadataObject)
 	
 	Query = New Query(
 	"SELECT
-	|	ChartOfCharacteristicTypes.Ref AS ExtDimensionType
+	|	Table.Ref AS ExtDimensionType
 	|FROM
-	|	&ChartOfCharacteristicTypes AS ChartOfCharacteristicTypes");
+	|	&ChartOfCharacteristicTypes AS Table");
 	
 	Query.Text = StrReplace(Query.Text, "&ChartOfCharacteristicTypes", MetadataObject.ChartOfAccounts.ExtDimensionTypes.FullName());
 	Return Query.Execute().Unload().UnloadColumn("ExtDimensionType");
@@ -3414,6 +3415,7 @@ Procedure FindNotFilledRequiredAttributesInSubordinatePeriodicalRegisters(Metada
 		For Each ResultString1 In Result Do
 			
 			CurrentRecordSet = RegisterManager.CreateRecordSet(); // InformationRegisterRecordSet
+			//@skip-check bsl-legacy-check-static-feature-access-for-unknown-left-part - A child information register.
 			CurrentRecordSet.Filter.Recorder.Set(ResultString1.RecorderAttributeRef);
 			CurrentRecordSet.Read();
 			
@@ -3430,7 +3432,7 @@ Procedure FindNotFilledRequiredAttributesInSubordinatePeriodicalRegisters(Metada
 				|%1
 				|Some values are required: %2';"),
 				" • " + NStr("en = 'Recorder:';") + " = """ + ResultString1.RecorderAttributeRef, Chars.LF + ObjectFillingErrors());
-			Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation);
+			Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation, New Deflation(9));
 			
 			WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
@@ -3498,6 +3500,7 @@ Procedure FindNotFilledRequiredAttributesInSubordinateNonPeriodicalRegisters(Met
 		For Each ResultString1 In Result Do
 			
 			CurrentRecordSet = RegisterManager.CreateRecordSet(); // InformationRegisterRecordSet
+			//@skip-check bsl-legacy-check-static-feature-access-for-unknown-left-part - A child information register
 			CurrentRecordSet.Filter.Recorder.Set(ResultString1.RecorderAttributeRef);
 			CurrentRecordSet.Read();
 			
@@ -3514,7 +3517,7 @@ Procedure FindNotFilledRequiredAttributesInSubordinateNonPeriodicalRegisters(Met
 				|%1
 				|Some values are required: %2';"),
 				" • " + NStr("en = 'Recorder:';") + " = """ + ResultString1.RecorderAttributeRef, Chars.LF + ObjectFillingErrors());
-			Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation);
+			Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation, New Deflation(9));
 			
 			WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
@@ -3645,7 +3648,7 @@ Procedure FindNotFilledRequiredAttributesInIndependentNonPeriodicalInformationRe
 			Issue1.IssueSummary        = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Error in record with the following fields:
 				|%1
 				|Some values are required: %2';"), RecordSetFilterPresentation, Chars.LF + ObjectFillingErrors());
-			Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation);
+			Issue1.AdditionalInformation = New ValueStorage(AdditionalInformation, New Deflation(9));
 			
 			WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
@@ -3783,7 +3786,7 @@ Procedure FindNotFilledRequiredAttributesInIndependentPeriodicalInformationRegis
 			Issue1.IssueSummary        = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Error in record with the following fields:
 				|%1
 				|Some values are required: %2';"), RecordSetFilterPresentation, Chars.LF + IssueSummary);
-			Issue1.AdditionalInformation = New ValueStorage(RecordSetStructure);
+			Issue1.AdditionalInformation = New ValueStorage(RecordSetStructure, New Deflation(9));
 			WriteIssue(Issue1, CheckParameters); // @skip-check query-in-loop - A batch-wise data integrity check
 			
 		EndDo;
@@ -4013,7 +4016,7 @@ EndFunction
 //   * Ref - AnyRef
 //
 Function SubordinateParentItems(ObjectReference, Val SelectionExclusion)
-	Var Result;
+
 	QueryText =
 	"SELECT
 	|	SpecifiedTableAlias.Ref AS Ref
@@ -4031,10 +4034,8 @@ Function SubordinateParentItems(ObjectReference, Val SelectionExclusion)
 	Query = New Query(QueryText);
 	Query.SetParameter("Parent",          ObjectReference);
 	Query.SetParameter("SelectionExclusion", SelectionExclusion);
-	Result = Query.Execute();
-	
-	Upload0        = Result.Unload();
-	Return Upload0
+	Return Query.Execute().Unload();
+
 EndFunction
 
 #EndRegion
@@ -4514,10 +4515,10 @@ Function ObjectPresentationByType(ObjectReference)
 EndFunction
 
 // Returns the String, Array, and CatalogRef.ChecksKinds types
-// to check the parameters of methods working with the check kinds.
+// to check the parameters of methods that handle check types.
 //
 // Returns:
-//    Array - object types.
+//    Array - Object types.
 //
 Function TypeDetailsCheckKind() Export
 	
@@ -4561,7 +4562,7 @@ Function CheckParametersPropertiesExpectedTypes() Export
 	
 EndFunction
 
-// Returns the valid property types for the given check kind. See the Property1, Property2, ... attributes of the ChecksKinds catalog. 
+// Returns the valid property types for the given check type. See the Property1, Property2, ... attributes of the ChecksKinds catalog. 
 //
 // Returns:
 //   TypeDescription - all reference types as well as the Boolean, String, Number, and Date types.
@@ -4587,8 +4588,8 @@ EndFunction
 //   Structure:
 //        * ObjectWithIssue         - AnyRef - a reference to the object that is the Source of issues.
 //        * CheckRule          - CatalogRef.AccountingCheckRules - a reference to the executed check.
-//        * CheckKind              - CatalogRef.ChecksKinds - a reference to 
-//                                     a check kind.
+//        * CheckKind              - CatalogRef.ChecksKinds - Reference to the check type. 
+//                                     
 //        * IssueSummary        - String - a string summary of the found issue.
 //        * UniqueKey         - UUID - an issue unique key. 
 //                                     It is returned if IssueFullDetails = True.

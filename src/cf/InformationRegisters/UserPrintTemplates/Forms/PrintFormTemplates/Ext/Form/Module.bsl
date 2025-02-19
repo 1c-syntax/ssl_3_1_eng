@@ -22,8 +22,16 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	SetConditionalAppearance();
 	
+	ExportTemplates = Parameters.ExportTemplates;
+	LoadObjectsGroupMethodSettings();
+	
 	PopulateObjectsWithPrintCommands();
-	PopulateTemplateListBySections();
+	
+	If GroupingBySections Then
+		PopulateTemplateListBySections();
+	Else
+		FillObjectBasedExportTemplateList();
+	EndIf;
 	
 	If Parameters.Property("ShowOnlyUserChanges") Then
 		FilterByTemplateUsage = "UsedModifiedItems";
@@ -60,9 +68,23 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.FilterByLanguage.Visible = ThereAreAdditionalLanguagesAvailable;
 	Items.TemplatesAvailableLanguages.Visible = ThereAreAdditionalLanguagesAvailable;
 	Items.TemplatesAvailableTranslation.Visible = ThereAreAdditionalLanguagesAvailable;
+	Items.TemplatesExportSaveFormat.Visible = ExportTemplates;
+	Items.TemplatesAddTemplate.Visible = Not ExportTemplates;
+	Items.TemplatesAddOfficeOpenXMLTemplate.Visible = Not ExportTemplates;
+	Items.TemplatesAddExportTemplate.Visible = ExportTemplates;
 	
+	If ExportTemplates Then
+		
+		AutoTitle = False;
+		Title = NStr("en = 'Export file templates';");
+		Items.TemplatesAvailabilityConditions.Title = NStr("en = 'Visibility in ""Export to file…"" submenu';");
+		
+		ToolTipText = NStr("en = 'Show in ""Export to file…"" submenu';");
+		Items.TemplatesUsed.ToolTip = ToolTipText;
+		
+	EndIf;
 	TemplateOpeningModeView = False;
-
+	
 	If Common.IsMobileClient() Then
 		TemplateOpeningModeView = True;
 		Items.GroupFilters.Group = ChildFormItemsGroup.HorizontalIfPossible;
@@ -76,6 +98,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		If ValueIsFilled(PositionInTree) Then
 			NavigateToItem(PositionInTree);
 		EndIf;
+	ElsIf ValueIsFilled(Parameters.Owner) Then
+		
+		PositionInTree = OwnerPositionInTree(Parameters.Owner);
+		If ValueIsFilled(PositionInTree) Then
+			NavigateToItem(PositionInTree);
+		EndIf;
+		
 	EndIf;
 	
 EndProcedure
@@ -83,7 +112,8 @@ EndProcedure
 &AtServer
 Procedure OnLoadDataFromSettingsAtServer(Settings)
 	
-	If Not ValueIsFilled(Parameters.TemplatePath) Then
+	If Not ValueIsFilled(Parameters.TemplatePath)
+	   And Not ValueIsFilled(Parameters.Owner) Then
 		NavigateToItem(PositionInTree);
 	EndIf;
 	
@@ -94,7 +124,15 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	
 	If (EventName = "Write_SpreadsheetDocument" Or EventName = "Write_OfficeDocument" 
 		Or EventName = "Write_UserPrintTemplates") Then
-		If Not ReadOnly Then
+		
+		IsSourceMatchesDestination = True;
+		If Parameter.TemplateForObjectExport Then
+			IsSourceMatchesDestination = (ExportTemplates = Parameter.TemplateForObjectExport);
+		EndIf;
+		
+		If Not ReadOnly
+		   And IsSourceMatchesDestination Then
+			
 			IDsOfModifiedRows = UpdateDisplayLayout(Parameter);
 			If Items.Templates.CurrentData <> Undefined And Items.Templates.CurrentData.IsFolder Then
 				Items.Templates.CurrentRow = IDsOfModifiedRows[Items.Templates.CurrentData.GetID()];
@@ -135,6 +173,15 @@ Function UpdateDisplayLayout(Val Parameter)
 		EndIf;
 	EndDo;
 	
+	ExportFormatExtensionMap = New Map;
+	If Common.SubsystemExists("StandardSubsystems.ExportObjectsToFiles") Then
+		
+		ModuleExportObjectsToFiles = Common.CommonModule("ExportObjectsToFiles");
+		ExportFormatExtensionMap = 
+			ModuleExportObjectsToFiles.ExportFormatSaveFormatMap();
+		
+	EndIf;
+	
 	For Each DataSource In DataSources Do
 		TemplatesOwnerBranches = FindBranchesOfTemplateOwner(DataSource, Templates);
 		For Each Branch1 In TemplatesOwnerBranches Do
@@ -162,8 +209,15 @@ Function UpdateDisplayLayout(Val Parameter)
 			If Template.Changed Then
 				Template.UsagePicture = Number(Template.Changed) + Number(Template.ChangedTemplateUsed);
 			EndIf;
-			If Parameter.Property("Presentation") Then
-				Template.Presentation = Parameter.Presentation;
+			Template.Presentation = Parameter.Presentation;
+			If ExportTemplates Then
+				
+				ExportSaveFormat = Parameter.ExportSaveFormat;
+				Extension = ExportFormatExtensionMap[ExportSaveFormat];
+				Template.PictureIndexForSaveFormat =
+					InformationRegisters.UserPrintTemplates.IndexOfFileIcon(Extension);
+				Template.ExportSaveFormat = ExportSaveFormat;
+				
 			EndIf;
 	
 		EndDo;
@@ -187,12 +241,25 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		Cancel = True;
 	EndIf;
 	
+	If Not Cancel Then
+		SaveObjectsGroupMethodSettings(GroupingBySections);
+	EndIf;
+	
 EndProcedure
 
 &AtClient
 Procedure OnOpen(Cancel)
 	
 	SetTemplatesFilter();
+	
+EndProcedure
+
+&AtClient
+Procedure URLGetProcessing(Var_Key, Presentation, Var_URL, StandardProcessing)
+	
+	StandardProcessing = False;
+	ExportTemplatesParameter = New Structure("ExportTemplates", ExportTemplates);
+	Var_URL = URLByParameter(Presentation, ExportTemplatesParameter);
 	
 EndProcedure
 
@@ -255,7 +322,21 @@ Procedure AdditionalInformationURLProcessing(Item, FormattedStringURL, StandardP
 	EndIf;
 	
 EndProcedure
+
+&AtClient
+Procedure GroupingBySectionsOnChange(Item)
 	
+	If GroupingBySections Then
+		PopulateTemplateListBySections();
+	Else
+		FillObjectBasedExportTemplateList();
+	EndIf;
+	
+	IsGroupingMethodChanged = True;
+	SetTemplatesFilter();
+	
+EndProcedure
+
 #EndRegion
 
 #Region FormTableItemsEventHandlersTemplates
@@ -392,8 +473,11 @@ EndProcedure
 &AtClient
 Procedure AddTemplate(Command)
 	
-	NotificationParameters = New Structure("Copy, TemplateType", False, "MXL");
-	NotifyDescription = New NotifyDescription("OnSelectingLayoutName", ThisObject, NotificationParameters);
+	NotificationParameters = New Structure;
+	NotificationParameters.Insert("Copy", False);
+	NotificationParameters.Insert("TemplateType", "MXL");
+	NotificationParameters.Insert("TemplateForObjectExport", False);
+	NotifyDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject, NotificationParameters);
 	UniqueDescr = AssignUniqueDescription(NStr("en = 'New print form';"), False);
 	ShowInputString(NotifyDescription, UniqueDescr, NStr("en = 'Enter a template description';"), 100, False)
 	
@@ -407,8 +491,11 @@ EndProcedure
 &AtClient
 Procedure AddOfficeOpenXMLTemplate(Command)
 	
-	NotificationParameters = New Structure("Copy, TemplateType", False, "DOCX");
-	NotifyDescription = New NotifyDescription("OnSelectingLayoutName", ThisObject, NotificationParameters);
+	NotificationParameters = New Structure;
+	NotificationParameters.Insert("Copy", False);
+	NotificationParameters.Insert("TemplateType", "DOCX");
+	NotificationParameters.Insert("TemplateForObjectExport", False);
+	NotifyDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject, NotificationParameters);
 	UniqueDescr = AssignUniqueDescription(NStr("en = 'New print form';"), False);
 	ShowInputString(NotifyDescription, UniqueDescr, NStr("en = 'Enter a template description';"), 100, False)
 	
@@ -427,9 +514,26 @@ Procedure AvailabilityConditions(Command)
 		Return;
 	EndIf;
 	
-	OpeningParameters = New Structure("Key", CurrentData.Ref);
+	OpeningParameters = New Structure;
+	OpeningParameters.Insert("Key", CurrentData.Ref);
+	OpeningParameters.Insert("IsExportTemplate", ExportTemplates);
+	OpeningParameters.Insert("ExportTemplatePresentation", CurrentData.Presentation);
 	
 	OpenForm("Catalog.PrintFormTemplates.Form.VisibilityConditionsInPrintSubmenu", OpeningParameters, ThisObject);
+	
+EndProcedure
+
+&AtClient
+Procedure AddExportTemplate(Command)
+	
+	NotificationParameters = New Structure;
+	NotificationParameters.Insert("Copy", False);
+	NotificationParameters.Insert("TemplateType", "MXL");
+	NotificationParameters.Insert("TemplateForObjectExport", True);
+	NotifyDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject, NotificationParameters);
+	UniqueDescr = AssignUniqueDescription(NStr("en = 'New export form';"), False);
+	ToolTip = NStr("en = 'Enter a template description';");
+	ShowInputString(NotifyDescription, UniqueDescr, ToolTip, 100, False);
 	
 EndProcedure
 
@@ -473,7 +577,7 @@ EndProcedure
 
 #EndRegion
 
-// Template opening
+// Открытие макета
 
 &AtClient
 Procedure OpenPrintFormTemplate()
@@ -525,13 +629,13 @@ Procedure OpenPrintFormTemplateForEdit()
 	CurrentData = Items.Templates.CurrentData;
 	
 	If CurrentData.Changed And Not CurrentData.ChangedTemplateUsed Then
-		NotifyDescription = New NotifyDescription("OpenPrintFormTemplateForEditingFollowUp", ThisObject, CurrentData);
+		NotifyDescription = New CallbackDescription("OpenPrintFormTemplateForEditingFollowUp", ThisObject, CurrentData);
 		QueryText = NStr("en = 'An edited version of this template is available.
-		|You can switch to the edited template or continue with the standard one.
+		|You can switch to the custom template or continue with the standard one.
 		|';");
 		
 		Buttons = New ValueList();
-		Buttons.Add(True, NStr("en = 'Edited template';"));
+		Buttons.Add(True, NStr("en = 'Custom template';"));
 		Buttons.Add(False, NStr("en = 'Standard template';"));
 		Buttons.Add(Undefined, NStr("en = 'Cancel';"));
 		
@@ -559,7 +663,11 @@ Procedure OpenPrintFormTemplateForEditingFollowUp(SwitchUsages, CurrentData) Exp
 	OpeningParameters.Insert("DataSource", CurrentData.Owner);
 	OpeningParameters.Insert("DataSources", CurrentData.DataSources);
 	OpeningParameters.Insert("IsPrintForm", CurrentData.IsPrintForm);
+	OpeningParameters.Insert("DefaultPrintForm", CurrentData.DefaultPrintForm);
+	OpeningParameters.Insert("PrintFormDescription", CurrentData.PrintFormDescription);
 	OpeningParameters.Insert("IsValAvailable", Not CurrentData.Supplied);
+	OpeningParameters.Insert("TemplateForObjectExport", CurrentData.TemplateForObjectExport);
+	OpeningParameters.Insert("ExportSaveFormat", CurrentData.ExportSaveFormat);
 	
 	If CurrentData.TemplateType = "MXL" Then
 		FormParameters = StandardSubsystemsClient.SpreadsheetEditorParameters();
@@ -583,7 +691,7 @@ Procedure OpenPrintFormTemplateForEditingFollowUp(SwitchUsages, CurrentData) Exp
 	
 EndProcedure
 
-// Template actions
+// Действия с макетами
 
 &AtServerNoContext
 Function TemplateVersion(Id, TemplateType)
@@ -647,7 +755,7 @@ Procedure DeleteModifiedTemplates(TemplatesToDelete)
 	
 EndProcedure
 
-// Common
+// Overall
 
 &AtClient
 Procedure SetPictureUsage(TemplateDetails)
@@ -700,14 +808,30 @@ Procedure SetCommandBarButtonsEnabled()
 	Items.TemplatesAddOfficeOpenXMLTemplate.Enabled = CurrentTemplateSelected And CurrentTemplate.AvailableCreate;
 	Items.TemplatesChangeTemplate.Enabled = CurrentTemplateSelected And Not CurrentTemplate.IsFolder;
 	Items.FormShowInList.Enabled = DisplayInListIsAvailable;
+	Items.TemplatesAddExportTemplate.Enabled = CurrentTemplateSelected And CurrentTemplate.AvailableCreate;
 	
 EndProcedure
 
 &AtClient
 Procedure Copy(Command)
 	
-	NotificationParameters = New Structure("Copy, TemplateType", True);
-	NotifyDescription = New NotifyDescription("OnSelectingLayoutName", ThisObject, NotificationParameters);
+	NotificationParameters = New Structure;
+	NotificationParameters.Insert("Copy", True);
+	NotificationParameters.Insert("TemplateType");
+	
+	CurrentTemplate = Items.Templates.CurrentData;
+	If CurrentTemplate.TemplateForObjectExport Then
+		
+		NotificationParameters.Insert("TemplateForObjectExport", True); 
+		NotificationParameters.Insert("ExportSaveFormat", CurrentTemplate.ExportSaveFormat);
+		
+	Else
+		
+		NotificationParameters.Insert("TemplateForObjectExport", False); 
+		NotificationParameters.Insert("ExportSaveFormat");
+		
+	EndIf;
+	NotifyDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject, NotificationParameters);
 	CurrentTemplate = Items.Templates.CurrentData;
 	CopyDescr = AssignUniqueDescription(CurrentTemplate.Presentation);
 	ShowInputString(NotifyDescription, CopyDescr, NStr("en = 'Enter a template description';"), 100, False)
@@ -763,6 +887,16 @@ Procedure OnSelectingLayoutName(TemplateName, NotificationParameters) Export
 	OpeningParameters.Insert("DataSource", CurrentData.Owner);
 	OpeningParameters.Insert("IsPrintForm", True);
 	OpeningParameters.Insert("IsValAvailable", True);
+	OpeningParameters.Insert("TemplateForObjectExport", False);
+	
+	If  NotificationParameters.TemplateForObjectExport Then
+		
+		OpeningParameters.TemplateForObjectExport = True;
+		If Copy Then
+			OpeningParameters.Insert("ExportSaveFormat", CurrentData.ExportSaveFormat);
+		EndIf;
+		
+	EndIf;
 	
 	If TemplateType = "MXL" Then
 		FormParameters = StandardSubsystemsClient.SpreadsheetEditorParameters();
@@ -799,7 +933,7 @@ Procedure GoToList()
 	For Each ClientApplicationWindow In GetWindows() Do
 		If ClientApplicationWindow.GetURL() = ListURL Then
 			Form = ClientApplicationWindow.Content[0];
-			NotifyDescription = New NotifyDescription("GoToListCompletion", ThisObject, 
+			NotifyDescription = New CallbackDescription("GoToListCompletion", ThisObject, 
 				New Structure("Form, URL", Form, ListURL));
 			Buttons = New ValueList;
 			Buttons.Add("Reopen", NStr("en = 'Reopen';"));
@@ -856,6 +990,10 @@ Procedure DeleteTemplate(Command)
 	If CurrentData = Undefined Then
 		Return;
 	EndIf;
+	
+	Parent = CurrentData.GetParent();
+	MetadataObjectName = Parent.Id;
+	ClearUpCache(MetadataObjectName, ObjectsWithPrintCommands);
 	
 	IdentifierOfTemplate = CurrentData.Id;
 	DeleteLayoutOnServer(IdentifierOfTemplate);
@@ -978,6 +1116,20 @@ Procedure SetConditionalAppearance()
 	
 	AppearanceItem.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	
+	//
+	
+	AppearanceItem = ConditionalAppearance.Items.Add();
+	
+	FormattedField = AppearanceItem.Fields.Items.Add();
+	FormattedField.Field = New DataCompositionField(Items.TemplatesPictureIndexForSaveFormat.Name);
+	
+	FilterElement = AppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	FilterElement.LeftValue = New DataCompositionField("Templates.ExportSaveFormat");
+	FilterElement.ComparisonType = DataCompositionComparisonType.NotFilled;
+	
+	AppearanceItem.Appearance.SetParameterValue("Visible", False);
+	AppearanceItem.Appearance.SetParameterValue("Show", False);
+	
 EndProcedure
 
 &AtServer
@@ -990,7 +1142,20 @@ Procedure PopulateTemplateListBySections()
 EndProcedure
 
 &AtServer
+Procedure FillObjectBasedExportTemplateList()
+	
+	Templates.GetItems().Clear();
+	MetadataObjectTreeFill();
+	FillPrintFormsTemplatesTable(Templates);
+	
+EndProcedure
+
+&AtServer
 Procedure FillPrintFormsTemplatesTable(Branch1)
+	
+	If ExportTemplates Then
+		Return;
+	EndIf;
 	
 	ObjectsWithTemplates = New Map;
 	For Each TemplateDetails In PrintManagement.PrintFormTemplates(True) Do
@@ -1215,7 +1380,10 @@ Function ObjectTemplates(MetadataObjectName)
 		FoundItem.Presentation = Common.ValueToXMLString(ObjectTemplates);
 	EndIf;
 	
-	Return ObjectTemplates;
+	Filter = New Structure;
+	Filter.Insert("TemplateForObjectExport", ExportTemplates);
+	
+	Return ObjectTemplates.FindRows(Filter);
 	
 EndFunction
 
@@ -1384,8 +1552,19 @@ EndFunction
 &AtServer
 Procedure PopulateObjectsWithPrintCommands()
 	
+	MetadataForExport = New Array; // Array of String
+	MetadataForExport.Add("Catalogs");
+	MetadataForExport.Add("Documents");
+	
 	For Each MetadataObject In PrintManagement.PrintCommandsSources() Do
+		
+		BaseTypeName = Common.BaseTypeNameByMetadataObject(MetadataObject);
+		If ExportTemplates
+		   And MetadataForExport.Find(BaseTypeName) = Undefined Then
+			Continue;
+		EndIf;
 		ObjectsWithPrintCommands.Add(MetadataObject.FullName());
+		
 	EndDo;
 	
 	ObjectsWithTemplates = New Map;
@@ -1393,11 +1572,19 @@ Procedure PopulateObjectsWithPrintCommands()
 		ObjectsWithTemplates.Insert(TemplateDetails.Value, True);
 	EndDo;
 	
-	MetadataObjects = New Array;
 	For Each Object In ObjectsWithTemplates Do
+		
 		If Object.Key <> Metadata.CommonTemplates Then
+			
+			BaseTypeName = Common.BaseTypeNameByMetadataObject(Object.Key);
+			If ExportTemplates
+			   And MetadataForExport.Find(BaseTypeName) = Undefined Then
+				Continue;
+			EndIf;
 			ObjectsWithPrintCommands.Add(Object.Key.FullName());
+			
 		EndIf;
+		
 	EndDo;
 	
 EndProcedure
@@ -1479,15 +1666,18 @@ EndProcedure
 &AtClient
 Procedure UploadListOfTemplates()
 	
-	If IsDataImportInProgress Or Not HasObjectsWithNoCash() Then
+	If (IsDataImportInProgress
+	 Or Not HasObjectsWithNoCash())
+	       And Not IsGroupingMethodChanged Then
 		Return;
 	EndIf;
 	
+	IsGroupingMethodChanged = False;
 	IsDataImportInProgress = True;
 	Items.IsSearchRunning.Visible = True;
 	
 	TimeConsumingOperation = StartExecutionAtServer();
-	CallbackOnCompletion = New NotifyDescription("ProcessResult", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("ProcessResult", ThisObject);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
@@ -1664,5 +1854,210 @@ Function TemplatePositionInTree(Val TemplatePath)
 	Return Result;
 	
 EndFunction
+
+&AtServer
+Function OwnerPositionInTree(Val OwnerID)
+	
+	LayoutOwner = FindItemInTemplateTree(OwnerID);
+	
+	If LayoutOwner <> Undefined Then
+		Result = PathToItemInTree(LayoutOwner);
+	EndIf;
+	
+	Return Result;
+	
+EndFunction
+
+&AtServer
+Procedure LoadObjectsGroupMethodSettings()
+	
+	SettingsValue = Common.CommonSettingsStorageLoad(
+		"TemplateOpeningSettingObjectsGroupMethod",
+		"GroupingBySections");
+	If SettingsValue <> Undefined Then
+		GroupingBySections = SettingsValue;
+	Else
+		GroupingBySections = True;
+	EndIf;
+	
+EndProcedure
+
+&AtServer
+Function URLByParameter(Val Presentation, Val ExportTemplatesParameter)
+	
+	Return GetURL(
+		Metadata.InformationRegisters.UserPrintTemplates,
+		Presentation,
+		ExportTemplatesParameter);
+	
+EndFunction
+
+&AtServer
+Procedure MetadataObjectTreeFill()
+	
+	MetadataObjects = New ValueTable;
+	MetadataObjects.Columns.Add("Name", New TypeDescription("String"));
+	MetadataObjects.Columns.Add("Synonym", New TypeDescription("String"));
+	MetadataObjects.Columns.Add("Picture", New TypeDescription("Picture"));
+	MetadataObjects.Columns.Add("Output", New TypeDescription("Boolean"));
+	
+	DoOutputCollection = Not ExportTemplates;
+	
+	NameOfMetadataObjects = NStr("en = 'Catalogs';");
+	CollectionNewRow(
+		"Catalogs",
+		NameOfMetadataObjects,
+		PictureLib.MetadataCatalogs,
+		True,
+		MetadataObjects);
+	
+	NameOfMetadataObjects = NStr("en = 'Documents';");
+	CollectionNewRow(
+		"Documents",
+		NameOfMetadataObjects,
+		PictureLib.MetadataDocuments,
+		True,
+		MetadataObjects);
+	
+	NameOfMetadataObjects = NStr("en = 'Document journals';");
+	CollectionNewRow(
+		"DocumentJournals",
+		NameOfMetadataObjects,
+		PictureLib.MetadataDocumentJournals,
+		DoOutputCollection,
+		MetadataObjects);
+		
+	NameOfMetadataObjects = NStr("en = 'Charts of characteristic types';");
+	CollectionNewRow(
+		"ChartsOfCharacteristicTypes",
+		NameOfMetadataObjects,
+		PictureLib.MetadataChartsOfCharacteristicTypes,
+		DoOutputCollection,
+		MetadataObjects);
+		
+	NameOfMetadataObjects = NStr("en = 'Charts of accounts';");
+	CollectionNewRow(
+		"ChartsOfAccounts",
+		NameOfMetadataObjects,
+		PictureLib.MetadataChartsOfAccounts,
+		DoOutputCollection,
+		MetadataObjects);
+	
+	NameOfMetadataObjects = NStr("en = 'Charts of calculation types';");
+	CollectionNewRow(
+		"ChartsOfCalculationTypes",
+		NameOfMetadataObjects,
+		PictureLib.MetadataChartsOfCalculationTypes,
+		DoOutputCollection,
+		MetadataObjects);
+	
+	NameOfMetadataObjects = NStr("en = 'Business processes';");
+	CollectionNewRow(
+		"BusinessProcesses",
+		NameOfMetadataObjects,
+		PictureLib.MetadataBusinessProcesses,
+		DoOutputCollection,
+		MetadataObjects);
+		
+	NameOfMetadataObjects = NStr("en = 'Tasks';");
+	CollectionNewRow(
+		"Tasks",
+		NameOfMetadataObjects,
+		PictureLib.MetadataTasks,
+		DoOutputCollection,
+		MetadataObjects);
+	
+	MetadataObjectsToSelectCollection = New ValueList;
+	If ObjectsWithPrintCommands.Count() > 0 Then
+		
+		For Each MetadataObjectFullName In ObjectsWithPrintCommands Do
+			
+			MetadataObject = Common.MetadataObjectByFullName(MetadataObjectFullName.Value);
+			
+			If MetadataObject <> Undefined Then
+				
+				BaseTypeName = Common.BaseTypeNameByMetadataObject(MetadataObject);
+				
+				If MetadataObjectsToSelectCollection.FindByValue(BaseTypeName) = Undefined Then
+					MetadataObjectsToSelectCollection.Add(BaseTypeName);
+				EndIf;
+				
+			EndIf;
+			
+		EndDo;
+		
+	EndIf;
+	
+	For Each MetadataObject In MetadataObjects Do
+		
+		If Not MetadataObject.Output Then
+			Continue;
+		EndIf;
+		
+		If MetadataObjectsToSelectCollection.FindByValue(MetadataObject.Name) <> Undefined Then
+			
+			AddMetadataObjectTreeItem(MetadataObject);
+			
+		EndIf;
+		
+	EndDo;
+	
+EndProcedure
+
+&AtServer
+Procedure AddMetadataObjectTreeItem(ItemParameters)
+	
+	NewBranch = Templates.GetItems().Add();
+	NewBranch.Presentation = ItemParameters.Name;
+	NewBranch.PictureGroup = ItemParameters.Picture;
+	NewBranch.Id = ItemParameters.Name;
+	NewBranch.UsagePicture = -1;
+	NewBranch.IsFolder = True;
+	NewBranch.Used = True;
+	NewBranch.SearchString = Lower(NewBranch.Presentation);
+	
+	NewBranch.Owner = Common.MetadataObjectID(NewBranch.Id, False);
+	NewBranch.AvailableCreate = False;
+	
+	CollectionArray = New Array; // Array of Метаданные
+	For Each MetadataObjectFullName In ObjectsWithPrintCommands Do
+		
+		MetadataObject = Common.MetadataObjectByFullName(MetadataObjectFullName.Value);
+		
+		If MetadataObject <> Undefined Then
+			
+			BaseTypeName = Common.BaseTypeNameByMetadataObject(MetadataObject);
+			If ItemParameters.Name = BaseTypeName Then
+				CollectionArray.Add(MetadataObject);
+			EndIf;
+			
+		EndIf;
+		
+	EndDo;
+	
+	OutputCollection(NewBranch, CollectionArray);
+	
+EndProcedure
+
+&AtServer
+Procedure CollectionNewRow(Val Name, Val Synonym, Val Picture, Val DoOutputCollection, Table)
+	
+	NewRow = Table.Add();
+	NewRow.Name = Name;
+	NewRow.Synonym = Synonym;
+	NewRow.Picture = Picture;
+	NewRow.Output = DoOutputCollection;
+	
+EndProcedure
+
+&AtServerNoContext
+Procedure SaveObjectsGroupMethodSettings(Val GroupingBySections)
+	
+	Common.CommonSettingsStorageSave(
+		"TemplateOpeningSettingObjectsGroupMethod",
+		"GroupingBySections",
+		GroupingBySections);
+	
+EndProcedure
 
 #EndRegion

@@ -16,11 +16,11 @@
 
 #Region Core
 
-// The procedure is a handler for the event of the same name that occurs during data exchange in a distributed
-// infobase.
+// The procedure handles the same-name event that occurs during data exchange
+// in a distributed infobase.
 //
 // Parameters:
-//   see the OnSendDataToMaster() event handler details in Syntax Assistant.
+//   See the OnSendDataToMaster event handler in Syntax Assistant.
 // 
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
@@ -40,11 +40,11 @@ Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 EndProcedure
 
-// The procedure is a handler for the event of the same name that occurs during data exchange in a distributed
-// infobase.
+// The procedure handles the same-name event that occurs during data exchange
+// in a distributed infobase.
 //
 // Parameters:
-//   see the OnSendDataToSubordinate() event handler details in the Syntax Assistant.
+//   See the OnSendDataToSlave event handler in Syntax Assistant.
 // 
 Procedure OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating, Recipient) Export
 	
@@ -72,11 +72,11 @@ Procedure OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating, Recipie
 	
 EndProcedure
 
-// The procedure is a handler for the event of the same name that occurs during data exchange in a distributed
-// infobase.
+// The procedure handles the same-name event that occurs during data exchange
+// in a distributed infobase.
 //
 // Parameters:
-//   see the OnReceiveDataFromMaster() event handler details in Syntax Assistant.
+//   See the OnReceiveDataFromMaster event handler in Syntax Assistant.
 // 
 Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender) Export
 	
@@ -102,11 +102,11 @@ Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender) Ex
 	
 EndProcedure
 
-// The procedure is a handler for the event of the same name that occurs during data exchange in a distributed
-// infobase.
+// The procedure handles the same-name event that occurs during data exchange
+// in a distributed infobase.
 //
 // Parameters:
-//   see the OnReceiveDataFromSlave() event handler details in the Syntax Assistant.
+//   See the OnReceiveDataFromSlave event handler in Syntax Assistant.
 // 
 Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Sender) Export
 	

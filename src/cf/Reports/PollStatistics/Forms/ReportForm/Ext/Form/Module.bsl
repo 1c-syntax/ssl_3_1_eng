@@ -14,8 +14,7 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ReportKind = "ResponsesAnalysis";
-	
-	Survey = CommonClientServer.StructureProperty(Parameters, "Survey");
+	Survey = Parameters.Survey;
 	
 EndProcedure
 

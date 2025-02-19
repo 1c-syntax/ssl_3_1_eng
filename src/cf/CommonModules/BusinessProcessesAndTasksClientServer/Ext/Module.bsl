@@ -29,7 +29,7 @@ Procedure BusinessProcessPresentationFieldsGetProcessing(ObjectManager, Fields, 
 
 EndProcedure
 
-// CAC:547-off is called in the GetBusinessProcessPresentation event subscription.
+// ACC:547-on - Called in the GetBusinessProcessPresentation event subscription.
 
 // Processing for getting a business process presentation based on data fields.
 //
@@ -54,7 +54,7 @@ Procedure BusinessProcessPresentationGetProcessing(ObjectManager, Data, Presenta
 	
 EndProcedure
 
-// CAC:547-on is called in the GetBusinessProcessPresentation event subscription.
+// ACC:547-on - Called in the GetBusinessProcessPresentation event subscription.
 
 #EndRegion
 

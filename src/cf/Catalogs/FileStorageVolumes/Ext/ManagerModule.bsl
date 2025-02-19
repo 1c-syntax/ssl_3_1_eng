@@ -33,7 +33,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// StandardSubsystems.ReportsOptions
+// СтандартныеПодсистемы.VariantsОтчетов
 
 // Defines the list of report commands.
 //

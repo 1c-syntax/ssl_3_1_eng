@@ -317,21 +317,14 @@ EndFunction
 
 Function PredefinedItem(FullPredefinedItemName, PredefinedItemFields, PredefinedValues) Export
 	
-	// In case of error in metadata name.
+	// The enumeration is missing from metadata.
 	If PredefinedValues = Undefined Then 
-		Raise PredefinedValueNotFoundErrorText(FullPredefinedItemName);
+		Return Undefined;
 	EndIf;
 	
-	// Getting result from cache.
+	// The predefined item is missing either from metadata or from the infobase.
 	Result = PredefinedValues.Get(PredefinedItemFields.PredefinedItemName);
-	
-	// If the predefined item does not exist in metadata.
-	If Result = Undefined Then 
-		Raise PredefinedValueNotFoundErrorText(FullPredefinedItemName);
-	EndIf;
-	
-	// If the predefined item exists in metadata but not in the infobase.
-	If Result = Null Then 
+	If Result = Undefined Or Result = Null Then 
 		Return Undefined;
 	EndIf;
 	
@@ -385,7 +378,7 @@ Function EstablishExternalConnectionWithInfobase(Parameters, ConnectionNotAvaila
 	
 #If MobileClient Then
 	
-	ErrorMessageString = NStr("en = 'Mobile client does not support connecting other apps.';");
+	ErrorMessageString = NStr("en = 'Mobile client does not support connecting to other applications.';");
 	
 	Result.AddInAttachmentError = True;
 	Result.DetailedErrorDetails = ErrorMessageString;
@@ -406,7 +399,7 @@ Function EstablishExternalConnectionWithInfobase(Parameters, ConnectionNotAvaila
 		COMConnector = New COMObject(CommonClientServer.COMConnectorName()); // "V83.COMConnector"
 	Except
 		Information = ErrorInfo();
-		ErrorMessageString = NStr("en = 'Failed to connect to another app: %1';");
+		ErrorMessageString = NStr("en = 'Failed to connect to the application: %1';");
 		
 		Result.AddInAttachmentError = True;
 		Result.DetailedErrorDetails = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageString, ErrorProcessing.DetailErrorDescription(Information));
@@ -479,7 +472,7 @@ Function EstablishExternalConnectionWithInfobase(Parameters, ConnectionNotAvaila
 		Result.Join = COMConnector.Connect(ConnectionString);
 	Except
 		Information = ErrorInfo();
-		ErrorMessageString = NStr("en = 'Failed to connect to another app: %1';");
+		ErrorMessageString = NStr("en = 'Failed to connect to the application: %1';");
 		
 		Result.AddInAttachmentError = True;
 		Result.DetailedErrorDetails     = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageString, ErrorProcessing.DetailErrorDescription(Information));
@@ -512,7 +505,7 @@ EndFunction
 Procedure CheckContainsUnsafeActions(Val StartupCommand)
 	If ContainsUnsafeActions(StartupCommand) Then 
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot start the app. Invalid command line:
+			NStr("en = 'Cannot start the application. Invalid command line:
 			           |%1
 			           |
 			           |The following characters are not allowed: ""${"", ""$("", ""`"", ""|"", "";"", ""&"".';"),

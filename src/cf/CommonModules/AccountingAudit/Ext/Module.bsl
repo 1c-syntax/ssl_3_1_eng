@@ -10,8 +10,7 @@
 
 #Region Public
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions to perform data integrity checks and get their results.
+#Region ProceduresAndFunctionsToCheckDataIntegrityAndObtainCheckResults
 
 // Executes the indicated data integrity check with the specified parameters.
 //
@@ -90,7 +89,7 @@ EndProcedure
 //    AccountingChecksContext - DefinedType.AccountingChecksContext - Checks' context.
 //
 // Example:
-//    AccountingAudit.PerformChecksInContext(Enumerations.BusinessTransactions.MonthEndClosing);
+//    AccountingAudit.ExecuteChecksInContext(Enums.BusinessTransactions.MonthEndTransactions);
 //
 Procedure ExecuteChecksInContext(AccountingChecksContext) Export
 	
@@ -161,12 +160,12 @@ Procedure ExecuteChecksInContext(AccountingChecksContext) Export
 	
 EndProcedure
 
-// Sums up the detected issue amount for the specified check kind.
+// Returns a summary of issues found for the specified check type.
 //
 // Parameters:
-//   ChecksKind                - CatalogRef.ChecksKinds - a reference to a check kind.
-//                              - String - The string id of the check kind.
-//                              - Array of String - The string ids of the check kind.
+//   ChecksKind                - CatalogRef.ChecksKinds - Reference to the check type.
+//                              - String - String ID of the check type.
+//                              - Array of String - String IDs of the check type.
 //   SearchByExactMap - Boolean - regulates accuracy capabilities. If True, the search is conducted
 //                                by the passed properties for equality, other properties must be equal
 //                                Undefined (tabular section of additional properties has to be blank).
@@ -201,15 +200,15 @@ Function SummaryInformationOnChecksKinds(ChecksKind = Undefined, SearchByExactMa
 	
 EndFunction
 
-// Returns detailed information about detected issues of one or several check kinds of interest.
+// Returns detailed information about detected issues for one or more check types of interest.
 //
 // Parameters:
-//   ChecksKind                - CatalogRef.ChecksKinds - a reference to a check kind.
-//                              - String - The string id of the check kind.
-//                              - Array of String - The string ids of the check kind.
-//   SearchByExactMap - Boolean - If True, the check kind is determined by the exact match of
+//   ChecksKind                - CatalogRef.ChecksKinds - Reference to the check type.
+//                              - String - String ID of the check type.
+//                              - Array of String - String IDs of the check type.
+//   SearchByExactMap - Boolean - If True, the check type is determined by the exact match of
 //                                all property values in the ChecksKind parameter (see example 2).
-//                                If False, the check kind is determined by the specified property values
+//                                If False, the check type is determined by the specified property values
 //                                and by any values of the unspecified properties in the ViewCheck parameter (see example 3).
 //
 // Returns:
@@ -218,7 +217,7 @@ EndFunction
 //     * IssueSeverity         - EnumRef.AccountingIssueSeverity - Issue severity:
 //                                  Information, Warning, Error, UsefulTip, or ImportantInformation.
 //     * CheckRule          - CatalogRef.AccountingCheckRules - an executed check with issue details.
-//     * ChecksKind              - CatalogRef.ChecksKinds - check kind.
+//     * ChecksKind              - CatalogRef.ChecksKinds - Check type.
 //     * IssueSummary        - String - a text summary of the found issue.
 //     * EmployeeResponsible            - CatalogRef.Users - it is filled in if the checking algorithm
 //                                  identified a specific person responsible for the detected issue.
@@ -305,8 +304,8 @@ EndFunction
 //
 Function IssuesCountByCheckRule(CheckRule) Export
 	
-	CommonClientServer.CheckParameter("AccountingAudit.IssuesCountByCheckRule", "CheckRule",
-		CheckRule, Type("CatalogRef.AccountingCheckRules"));
+	CommonClientServer.CheckParameter("AccountingAudit.IssuesCountByCheckRule", 
+		"CheckRule", CheckRule, Type("CatalogRef.AccountingCheckRules"));
 	
 	Query = New Query(
 		"SELECT ALLOWED
@@ -321,12 +320,90 @@ Function IssuesCountByCheckRule(CheckRule) Export
 	SetPrivilegedMode(True);
 	Result = Query.Execute().Select();
 	If Result.Next() Then
-		IssuesCount = Result.Count;
-	Else
-		IssuesCount = 0;
+		Return Result.Count;
 	EndIf;
 	
-	Return IssuesCount;
+	Return 0;
+	
+EndFunction
+
+// 
+// 
+// Parameters:
+//  CheckRule - CatalogRef.AccountingCheckRules
+//  Parameters - See ParametersOfObjectsWithIssuesSelection
+// 
+// Returns:
+//  ValueTable:
+//    * ObjectWithIssue - AnyRef
+//    * CheckRule - CatalogRef.AccountingCheckRules
+//    * CheckKind - CatalogRef.ChecksKinds
+//    * UniqueKey - UUID
+// 
+Function ObjectsWithIssues(Val CheckRule, Val Parameters = Undefined) Export
+	
+	Query = New Query(
+		"SELECT TOP 1000
+		|	AccountingCheckResults.ObjectWithIssue AS ObjectWithIssue,
+		|	AccountingCheckResults.CheckRule AS CheckRule,
+		|	AccountingCheckResults.CheckKind AS CheckKind,
+		|	AccountingCheckResults.UniqueKey AS UniqueKey
+		|FROM
+		|	InformationRegister.AccountingCheckResults AS AccountingCheckResults
+		|WHERE
+		|	AccountingCheckResults.CheckRule = &CheckRule
+		|	AND NOT AccountingCheckResults.IgnoreIssue
+		|	AND AccountingCheckResults.ObjectWithIssue > &ObjectWithIssue
+		|	AND &AdditionalConditions
+		|
+		|ORDER BY
+		|	AccountingCheckResults.ObjectWithIssue");
+	
+	If Parameters = Undefined Then
+		Parameters = ParametersOfObjectsWithIssuesSelection();
+	EndIf;
+	If Parameters.PortionSize <> 1000 Then
+		Query.Text = StrReplace(Query.Text, "1000", Format(Parameters.PortionSize, "NG=0"));
+	EndIf;
+	If IsBlankString(Parameters.AdditionalConditions) Then
+		Query.Text = StrReplace(Query.Text, "&AdditionalConditions", "True");
+	Else
+		Query.Text = StrReplace(Query.Text, "&AdditionalConditions", Parameters.AdditionalConditions);
+		For Each AdditionalCondition In Parameters.AdditionalParameters Do
+			Query.SetParameter(AdditionalCondition.Key, AdditionalCondition.Value);
+		EndDo;
+	EndIf;
+	
+	If Parameters.InitialObjectWithIssue = Undefined Then
+		Parameters.InitialObjectWithIssue = "";
+	EndIf;
+	
+	Query.SetParameter("CheckRule",  CheckRule);
+	Query.SetParameter("ObjectWithIssue", Parameters.InitialObjectWithIssue);
+	
+	Return Query.Execute().Unload();
+	
+EndFunction
+
+// 
+// 
+// Returns:
+//  Structure:
+//   * InitialObjectWithIssue - Undefined 
+//   * PortionSize - Number - 
+//   * AdditionalConditions - String
+//   * AdditionalParameters - Map of KeyAndValue:
+//     ** Key - String - 
+//     ** Value - Arbitrary - 
+//
+Function ParametersOfObjectsWithIssuesSelection() Export
+	
+	Result = New Structure;
+	Result.Insert("InitialObjectWithIssue", Undefined);
+	Result.Insert("PortionSize", 1000);
+	Result.Insert("AdditionalConditions", "");
+	Result.Insert("AdditionalParameters", New Map);
+	Return Result;
 	
 EndFunction
 
@@ -366,7 +443,7 @@ EndFunction
 //
 // Returns:
 //    Structure:
-//       * Description - String - a check kind presentation. 
+//       * Description - String - Check type presentation. 
 //       * Property1 - AnyRef
 //                   - Boolean
 //                   - Number
@@ -383,11 +460,11 @@ EndFunction
 //                   - String
 //                   - Date - Check's third parameter.
 //       ...                                              
-//       *  - AnyRef
+//       * СвойствоН - AnyRef
 //                   - Boolean
 //                   - Number
 //                   - String
-//                   - Date - Check kind's last parameter.
+//                   - Date - Check type's last parameter.
 //
 // Example:
 //     1. Parameters = CheckExecutionParameters("SystemChecks");
@@ -424,8 +501,9 @@ Procedure ClearPreviousCheckResults(Val Validation, Val CheckExecutionParameters
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions to register data integrity issues.
+#EndRegion
+
+#Region ProceduresAndFunctionsToRegisterDataIntegrityIssues
 
 // Generates an issue description for the subsequent registration
 // using the AccountingAudit.WriteIssue procedure in the check handler procedure.
@@ -453,9 +531,9 @@ EndProcedure
 //     * ObjectWithIssue         - AnyRef - A reference to the erroneous object.
 //     * Validation                 - CatalogRef.AccountingCheckRules - a reference to the executed check.
 //                                  Taken from the CheckParameters structure.
-//     * CheckKind              - CatalogRef.ChecksKinds - Reference to the completed check's kind.
+//     * CheckKind              - CatalogRef.ChecksKinds - Reference to the type of the completed check.
 //                                  Defined by the CheckParameters structure.
-//     * IssueSeverity         - CatalogRef.ChecksKinds - Reference to the completed check's kind.
+//     * IssueSeverity         - CatalogRef.ChecksKinds - Reference to the type of the completed check.
 //                                  Defined by the CheckParameters structure.
 //     * IssueSummary        - String - an issue summary string. Not filled in by default.
 //     * UniqueKey         - UUID - Issue uniqueness key.
@@ -517,7 +595,7 @@ EndProcedure
 //   IssueDetails             - Structure:
 //     * ObjectWithIssue         - AnyRef - a reference to object, which the issue is connected to.
 //     * CheckRule          - CatalogRef.AccountingCheckRules - an executed check with issue details.
-//     * ChecksKind              - CatalogRef.ChecksKinds - check kind.
+//     * ChecksKind              - CatalogRef.ChecksKinds - Check type.
 //     * IssueSummary        - String - a text summary of the found issue.
 //     * AdditionalInformation - ValueStorage - additional information on the ignored issue.
 //   Ignore - Boolean - a value set to the specified issue.
@@ -533,8 +611,9 @@ Procedure IgnoreIssue(Val IssueDetails, Val Ignore) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for embedding a subsystem in forms of configuration objects.
+#EndRegion
+
+#Region ProceduresAndFunctionsForEmbeddingSubsystemIntoConfigurationObjectForms
 
 // In the list form, it displays a column with a picture informing that there are issues with objects in the rows. 
 // Called form the OnCreateAtServer event of the list form.
@@ -843,8 +922,9 @@ Procedure AfterWriteAtServer(CurrentObject) Export
 	TimeConsumingOperations.ExecuteProcedure(, "AccountingAuditInternal.CheckObject", CurrentObject.Ref, Checks);
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Other procedures and functions.
+#EndRegion
+
+#Region OtherProceduresAndFunctions_
 
 // Returns True if you have the rights to view data integrity issues.
 //
@@ -857,13 +937,13 @@ Function SubsystemAvailable() Export
 	
 EndFunction
 
-// Returns check kinds by passed parameters.
+// Returns check types based on passed parameters.
 //
 // Parameters:
 //   ChecksKind                - String
 //                              - Array of String 
-//                              - CatalogRef.ChecksKinds - Either a check kind id, or an array of kind ids,
-//                                or a check kind reference.
+//                              - CatalogRef.ChecksKinds - Either a check type ID, or an array of type IDs,
+//                                or a check type reference.
 //   SearchByExactMap - Boolean - regulates accuracy capabilities. If True, the search is conducted
 //                                by the passed properties for equality, other properties must be equal
 //                                Undefined (tabular section of additional properties has to be blank).
@@ -888,10 +968,10 @@ EndFunction
 // to register or filter records of data check results.
 //
 // Parameters:
-//     CheckExecutionParameters - String - a string ID of a check kind (Property1)
-//                                 - Structure - Information records that identify the check kind.
-//     SearchOnly - Boolean - If True and the specified check kind does not exist, returns an empty reference. 
-//                   If False, creates an item is and returns its reference.
+//     CheckExecutionParameters - String - String ID of the check type (Property1).
+//                                 - Structure - Information that identifies the check type.
+//     SearchOnly - Boolean - If True and the specified check type does not exist, returns an empty reference. 
+//                   If False, creates an item and returns its reference.
 //
 // Returns:
 //   CatalogRef.ChecksKinds - Existing or a created catalog item.
@@ -932,15 +1012,17 @@ Procedure UpdateAccountingChecksParameters() Export
 	
 EndProcedure
 
+#EndRegion
+
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Use DetailedInformationOnChecksKinds instead.
-// Returns detailed information about detected issues of the specified check kind.
+// Deprecated. Instead, use DetailedInformationOnChecksKinds.
+// Returns detailed information about detected issues for the specified check type.
 //
 // Parameters:
-//   ChecksKind                - CatalogRef.ChecksKinds - a reference to a check kind.
-//                              - String - The string id of the check kind.
-//                              - Array of String - The string ids of the check kind.
+//   ChecksKind                - CatalogRef.ChecksKinds - Reference to the check type.
+//                              - String - String ID of the check type.
+//                              - Array of String - String IDs of the check type.
 //   SearchByExactMap - Boolean - regulates accuracy capabilities. If True, the search is conducted
 //                                by the passed properties for equality, other properties must be equal
 //                                Undefined (tabular section of additional properties has to be blank).
@@ -1010,13 +1092,13 @@ Function DetailedInformationOnCheckKinds(ChecksKind, SearchByExactMap = True) Ex
 	
 EndFunction
 
-// Deprecated. Obsolete. Use SummaryInformationOnChecksKinds instead.
-// Sums up the detected issue amount for the specified check kind.
+// Deprecated. Instead, use SummaryInformationOnChecksKinds.
+// Returns a summary of issues found for the specified check type.
 //
 // Parameters:
-//   ChecksKind                - CatalogRef.ChecksKinds - a reference to a check kind.
-//                              - String - The string id of the check kind.
-//                              - Array of String - The string ids of the check kind.
+//   ChecksKind                - CatalogRef.ChecksKinds - Reference to the check type.
+//                              - String - String ID of the check type.
+//                              - Array of String - String IDs of the check type.
 //   SearchByExactMap - Boolean - regulates accuracy capabilities. If True, the search is conducted
 //                                by the passed properties for equality, other properties must be equal
 //                                Undefined (tabular section of additional properties has to be blank).
@@ -1085,40 +1167,6 @@ EndFunction
 #EndRegion
 
 #Region Internal
-
-Function ObjectsWithIssues(CheckRule, Offset = Undefined, Batch = 1000) Export
-	
-	Query = New Query;
-	QueryText = "SELECT TOP 1000
-		|	AccountingCheckResults.ObjectWithIssue AS ObjectWithIssue,
-		|	AccountingCheckResults.CheckRule AS CheckRule,
-		|	AccountingCheckResults.CheckKind AS CheckKind,
-		|	AccountingCheckResults.UniqueKey AS UniqueKey
-		|FROM
-		|	InformationRegister.AccountingCheckResults AS AccountingCheckResults
-		|WHERE
-		|	AccountingCheckResults.CheckRule = &CheckRule
-		|	AND NOT AccountingCheckResults.IgnoreIssue
-		|	AND AccountingCheckResults.ObjectWithIssue > &ObjectWithIssue
-		|
-		|ORDER BY
-		|	AccountingCheckResults.ObjectWithIssue";
-	
-	If Batch = 1000 Then
-		QueryText = StrReplace(QueryText, "1000", Format(Batch, "NG=0"));
-	EndIf;
-	Query.Text = QueryText;
-	
-	If Offset = Undefined Then
-		Offset = "";
-	EndIf;
-	
-	Query.SetParameter("CheckRule",  CheckRule);
-	Query.SetParameter("ObjectWithIssue", Offset);
-	
-	Return Query.Execute().Unload();
-	
-EndFunction
 
 Function ObjectsWithIssuesByCheckKind(CheckKind, Offset = Undefined, Batch = 1000) Export
 	
@@ -1201,7 +1249,8 @@ Procedure ClearCheckResult(ObjectWithIssue, CheckRule) Export
 		CommitTransaction();
 	Except
 		RollbackTransaction();
-		WriteLogEvent(EventLogEvent(), EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		WriteLogEvent(EventLogEvent(), EventLogLevel.Error,,, 
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	
 EndProcedure
@@ -1268,5 +1317,3 @@ Function EventLogEvent()
 EndFunction
 
 #EndRegion
-
-

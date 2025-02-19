@@ -39,8 +39,12 @@ Procedure OnOpen(Form, Object, Item, StandardProcessing) Export
 		Presentations = New Structure();
 		
 		Presentations.Insert(AttributeName, Object[AttributeName]);
-		Presentations.Insert(AttributeName + "Language1", Object[AttributeName + "Language1"]);
-		Presentations.Insert(AttributeName + "Language2", Object[AttributeName + "Language2"]);
+		
+		AdditionalLanguagesCount = StandardSubsystemsClient.ClientParameter("AdditionalLanguagesCount");
+		For LanguageSeqNumber = 1 To AdditionalLanguagesCount Do
+			LanguageSuffixName = NationalLanguageSupportClientServer.LanguageSuffix_(LanguageSeqNumber);
+			Presentations.Insert(AttributeName + LanguageSuffixName, Object[AttributeName + LanguageSuffixName]);
+		EndDo;
 		
 		FormParameters.Insert("AttributesValues", Presentations);
 		
@@ -51,7 +55,7 @@ Procedure OnOpen(Form, Object, Item, StandardProcessing) Export
 	AdditionalParameters.Insert("Object",       Object);
 	AdditionalParameters.Insert("AttributeName", AttributeName);
 	
-	Notification = New NotifyDescription("AfterInputStringsInDifferentLanguages", NationalLanguageSupportClient, AdditionalParameters);
+	Notification = New CallbackDescription("AfterInputStringsInDifferentLanguages", NationalLanguageSupportClient, AdditionalParameters);
 	OpenForm("CommonForm.InputInMultipleLanguages", FormParameters,,,,, Notification);
 	
 EndProcedure

@@ -98,8 +98,7 @@ Procedure CustomPeriodEndClosingDateOnChange(Item)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Identical event handlers of PeriodClosingDates and PeriodEndClosingDateEdit forms.
+#Region SameEventHandlersForFormsPeriodClosingDatesAndPeriodEndClosingDateEdit
 
 &AtClient
 Procedure PeriodEndClosingDateDetailsOnChange(Item)
@@ -181,6 +180,8 @@ Procedure LessOptionsClick(Item)
 	Items.OperationModesGroup.CurrentPage = Items.SimpleMode;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 

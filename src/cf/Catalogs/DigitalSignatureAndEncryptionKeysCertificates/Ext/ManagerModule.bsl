@@ -58,7 +58,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// StandardSubsystems.ReportsOptions
+// СтандартныеПодсистемы.VariantsОтчетов
 
 // Defines the list of report commands.
 //
@@ -84,20 +84,6 @@ Procedure AddReportCommands(ReportsCommands, Parameters) Export
 		Command.VariantKey      = "ExpiringSoon";
 		Command.Presentation     = NStr("en = 'Expiring certificates';");
 		Command.Id     = "ExpiringSoon";
-		Command.Manager          = "Report.DigitalSignatureCertificates";
-		Command.IsNonContextual     = True;
-		
-		Command = ReportsCommands.Add();
-		Command.VariantKey      = "EmployeesCertificates";
-		Command.Presentation     = NStr("en = 'Employees'' certificates';");
-		Command.Id     = "EmployeesCertificates";
-		Command.Manager          = "Report.DigitalSignatureCertificates";
-		Command.IsNonContextual     = True;
-		
-		Command = ReportsCommands.Add();
-		Command.VariantKey      = "IndividualCertificateIssuanceRequired";
-		Command.Presentation     = NStr("en = 'Individual''s certificate issuance required';");
-		Command.Id     = "IndividualCertificateIssuanceRequired";
 		Command.Manager          = "Report.DigitalSignatureCertificates";
 		Command.IsNonContextual     = True;
 		

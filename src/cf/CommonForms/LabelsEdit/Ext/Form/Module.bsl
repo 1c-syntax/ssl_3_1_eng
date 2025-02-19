@@ -164,7 +164,7 @@ Procedure OpenLabelCreationForm()
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("PropertiesSet", PropertiesSet);
-	FormParameters.Insert("PropertyKind", PredefinedValue("Enum.PropertiesKinds.Labels"));
+	FormParameters.Insert("PropertyKind1", PredefinedValue("Enum.PropertiesKinds.Labels"));
 	FormParameters.Insert("CurrentPropertiesSet", PropertiesSet);
 	
 	OpenForm("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo.ObjectForm",

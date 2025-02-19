@@ -38,7 +38,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// StandardSubsystems.AccessManagement
+// СтандартныеПодсистемы.УправлениеДоступом
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -58,7 +58,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
 // Defines the list of generation commands.
 //
@@ -111,23 +111,69 @@ Procedure ChoiceDataGetProcessing(ChoiceData, Parameters, StandardProcessing)
 EndProcedure
 
 Procedure FormGetProcessing(FormType, Parameters, SelectedForm, AdditionalInformation, StandardProcessing)
-	If FormType = "ChoiceForm" Or Parameters.Property("ChoiceMode") Then
-		
+	
+	If FormType = "ChoiceForm" Then
 		DefaultSelectedForm = SelectedForm;
 		UsersOverridable.OnDefineUsersSelectionForm(SelectedForm, Parameters);
-	    If DefaultSelectedForm <> SelectedForm Then
+		If DefaultSelectedForm <> SelectedForm Then
 			StandardProcessing = False;
 		EndIf;
-		
 	EndIf;
+	
 EndProcedure
 
 #EndRegion
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+// Parameters:
+//  Source - CatalogObject.Users
+//
+Function HasProhibitedChanges(Source) Export
+	
+	If Source.AdditionalProperties.Property("IBUserDetails") Then
+		Return True;
+	EndIf;
+	
+	PreviousValues1 = Common.ObjectAttributesValues(Source.Ref,
+		"Ref,
+		|DeletionMark,
+		|Invalid,
+		|IsInternal,
+		|Prepared,
+		|IBUserID,
+		|ServiceUserID");
+	
+	If ValueIsFilled(PreviousValues1.Ref) Then
+		For Each DetailsAndValue In PreviousValues1 Do
+			If Source[DetailsAndValue.Key] <> PreviousValues1[DetailsAndValue.Key] Then
+				Return True;
+			EndIf;
+		EndDo;
+		Return False;
+	EndIf;
+	
+	If Source.Prepared
+	 Or ValueIsFilled(Source.ServiceUserID) Then
+		Return True;
+	EndIf;
+	
+	If Not ValueIsFilled(Source.IBUserID) Then
+		Return False;
+	EndIf;
+	
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+	IBUser = InfoBaseUsers.FindByUUID(
+		Source.IBUserID);
+	SetPrivilegedMode(False);
+	SetSafeModeDisabled(False);
+	
+	Return IBUser <> Undefined;
+	
+EndFunction
+
+#Region InfobaseUpdate
 	
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
@@ -194,6 +240,8 @@ Procedure EnableStandardPasswordRecoverySettings()
 	AdditionalAuthenticationSettings.SetPasswordRecoverySettings(Settings);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 

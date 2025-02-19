@@ -43,7 +43,7 @@ Procedure OnOpen(Cancel)
 	Buttons = New ValueList;
 	Buttons.Add("ContinueWork", NStr("en = 'Continue';"));
 	
-	NotifyDescription = New NotifyDescription("AfterShowRecommendation", ThisObject);
+	NotifyDescription = New CallbackDescription("AfterShowRecommendation", ThisObject);
 	StandardSubsystemsClient.ShowQuestionToUser(NotifyDescription, MessageText, Buttons, QuestionParameters);
 	
 EndProcedure

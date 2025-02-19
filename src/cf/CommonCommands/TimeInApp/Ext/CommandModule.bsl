@@ -16,11 +16,11 @@ Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 	AdditionalInformation = AdditionalInformation();
 	ShowMessageBox(,
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'App time: %1
+			NStr("en = 'Application time: %1
 				|Server time: %2
 				|Client time: %3
 				|
-				|The app time is the server time converted to the device''s time zone
+				|The application time is the server time converted to the device''s time zone
 				|(%4).
 				|This time is used in timestamps when saving documents and other objects.';"),
 			Format(CommonClient.SessionDate(), "DLF=T"),

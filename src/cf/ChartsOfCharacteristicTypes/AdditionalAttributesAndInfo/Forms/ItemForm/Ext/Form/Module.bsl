@@ -110,7 +110,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 			Cancel = True;
 			
 			ShowQueryBox(
-				New NotifyDescription("AfterResponseToDescriptionChangeQuestion", ThisObject, WriteParameters),
+				New CallbackDescription("AfterResponseToDescriptionChangeQuestion", ThisObject, WriteParameters),
 				QueryText, Buttons, , "ReturnDescription");
 			Return;
 		EndIf;
@@ -137,7 +137,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 			Cancel = True;
 			
 			ShowQueryBox(
-				New NotifyDescription("AfterResponseOnQuestionWhenDescriptionIsAlreadyUsed", ThisObject, WriteParameters),
+				New CallbackDescription("AfterResponseOnQuestionWhenDescriptionIsAlreadyUsed", ThisObject, WriteParameters),
 				QueryText, Buttons, , "BackToDescriptionInput");
 			Return;
 		EndIf;
@@ -157,7 +157,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 			CancelOnWrite = True;
 			Cancel = True;
 			ShowQueryBox(
-				New NotifyDescription("AfterResponseOnQuestionWhenNameIsAlreadyUsed", ThisObject, WriteParameters),
+				New CallbackDescription("AfterResponseOnQuestionWhenNameIsAlreadyUsed", ThisObject, WriteParameters),
 				QueryText, Buttons, , "ContinueWrite");
 			Return;
 		EndIf;
@@ -179,7 +179,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 			Cancel = True;
 			
 			ShowQueryBox(
-				New NotifyDescription("AfterResponseOnQuestionWhenIDForFormulasIsAlreadyUsed", ThisObject, WriteParameters),
+				New CallbackDescription("AfterResponseOnQuestionWhenIDForFormulasIsAlreadyUsed", ThisObject, WriteParameters),
 				QueryText, Buttons, , "ContinueWrite");
 			Return;
 			
@@ -357,8 +357,8 @@ Procedure AfterWrite(WriteParameters)
 	If WriteParameters.Property("ContinuationHandler") Then
 		ContinuationHandlerOnWriteError = Undefined;
 		DetachIdleHandler("AfterWriteError");
-		ExecuteNotifyProcessing(
-			New NotifyDescription(WriteParameters.ContinuationHandler.ProcedureName,
+		RunCallback(
+			New CallbackDescription(WriteParameters.ContinuationHandler.ProcedureName,
 				ThisObject, WriteParameters.ContinuationHandler.Parameters),
 			False);
 	EndIf;
@@ -428,8 +428,8 @@ EndProcedure
 &AtClient
 Procedure PropertyKindOnChange(Item)
 	
-	Object.PropertyKind = PropertyKind;
-	If Object.PropertyKind = PredefinedValue("Enum.PropertiesKinds.AdditionalInfo") Then
+	Object.PropertyKind1 = PropertyKind1;
+	If Object.PropertyKind1 = PredefinedValue("Enum.PropertiesKinds.AdditionalInfo") Then
 		Object.IsAdditionalInfo = True;
 	EndIf;
 	
@@ -440,7 +440,7 @@ EndProcedure
 &AtClient
 Procedure ValueListAdjustmentCommentClick(Item)
 	
-	FollowUpHandler = New NotifyDescription("ValueListAdjustmentCommentClickCompletion", ThisObject);
+	FollowUpHandler = New CallbackDescription("ValueListAdjustmentCommentClickCompletion", ThisObject);
 	WriteObject("GoToValueList", FollowUpHandler);
 	
 EndProcedure
@@ -448,7 +448,7 @@ EndProcedure
 &AtClient
 Procedure SetsAdjustmentCommentClick(Item)
 	
-	FollowUpHandler = New NotifyDescription("SetAdjustmentCommentClickFollowUp", ThisObject);
+	FollowUpHandler = New CallbackDescription("SetAdjustmentCommentClickFollowUp", ThisObject);
 	WriteObject("GoToValueList", FollowUpHandler);
 	
 EndProcedure
@@ -481,7 +481,7 @@ Procedure AdditionalValuesWithWeightOnChange(Item)
 		Buttons.Add("Cancel", NStr("en = 'Cancel';"));
 		
 		ShowQueryBox(
-			New NotifyDescription("AfterConfirmClearWeightCoefficients", ThisObject),
+			New CallbackDescription("AfterConfirmClearWeightCoefficients", ThisObject),
 			QueryText, Buttons, , "ClearAndWrite");
 	Else
 		QueryText = NStr("en = 'Do you want to save the data?';");
@@ -491,7 +491,7 @@ Procedure AdditionalValuesWithWeightOnChange(Item)
 		Buttons.Add("Cancel", NStr("en = 'Cancel';"));
 		
 		ShowQueryBox(
-			New NotifyDescription("AfterConfirmEnableWeightCoefficients", ThisObject),
+			New CallbackDescription("AfterConfirmEnableWeightCoefficients", ThisObject),
 			QueryText, Buttons, , "Write");
 	EndIf;
 	
@@ -611,7 +611,7 @@ Procedure ValuesBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group)
 	AdditionalParameters.Insert("Parent", Parent);
 	AdditionalParameters.Insert("Group", Var_Group);
 	
-	FollowUpHandler = New NotifyDescription("ValuesBeforeAddRowCompletion", ThisObject);
+	FollowUpHandler = New CallbackDescription("ValuesBeforeAddRowCompletion", ThisObject);
 	WriteObject("GoToValueList", FollowUpHandler, AdditionalParameters);
 	
 EndProcedure
@@ -624,7 +624,7 @@ Procedure ValuesBeforeRowChange(Item, Cancel)
 		Return;
 	EndIf;
 	
-	FollowUpHandler = New NotifyDescription("ValuesBeforeRowChangeCompletion", ThisObject);
+	FollowUpHandler = New CallbackDescription("ValuesBeforeRowChangeCompletion", ThisObject);
 	WriteObject("GoToValueList", FollowUpHandler);
 	
 EndProcedure
@@ -720,14 +720,14 @@ Procedure EditValueFormat(Command)
 	Designer.AvailableTypes = Object.ValueType;
 	
 	Designer.Show(
-		New NotifyDescription("EditValueFormatCompletion", ThisObject));
+		New CallbackDescription("EditValueFormatCompletion", ThisObject));
 	
 EndProcedure
 
 &AtClient
 Procedure ValueListAdjustmentChange(Command)
 	
-	FollowUpHandler = New NotifyDescription("ValueListAdjustmentChangeCompletion", ThisObject);
+	FollowUpHandler = New CallbackDescription("ValueListAdjustmentChangeCompletion", ThisObject);
 	WriteObject("AttributeKindEdit", FollowUpHandler);
 	
 EndProcedure
@@ -735,7 +735,7 @@ EndProcedure
 &AtClient
 Procedure SetsAdjustmentChange(Command)
 	
-	FollowUpHandler = New NotifyDescription("SetsAdjustmentChangeCompletion", ThisObject);
+	FollowUpHandler = New CallbackDescription("SetsAdjustmentChangeCompletion", ThisObject);
 	WriteObject("AttributeKindEdit", FollowUpHandler);
 	
 EndProcedure
@@ -750,9 +750,9 @@ Procedure Attachable_AllowObjectAttributeEdit(Command)
 		FormParameters = New Structure;
 		FormParameters.Insert("Ref", Object.Ref);
 		FormParameters.Insert("IsAdditionalAttribute", Not Object.IsAdditionalInfo);
-		FormParameters.Insert("PropertyKind", Object.PropertyKind);
+		FormParameters.Insert("PropertyKind1", Object.PropertyKind1);
 		
-		Notification = New NotifyDescription("AfterAttributesToUnlockChoice", ThisObject);
+		Notification = New CallbackDescription("AfterAttributesToUnlockChoice", ThisObject);
 		OpenForm("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo.Form.AttributeUnlocking",
 			FormParameters, ThisObject,,,, Notification);
 	Else
@@ -800,7 +800,7 @@ EndProcedure
 
 &AtClient
 Procedure SetClearDeletionMark(Command)
-	FollowUpHandler = New NotifyDescription("SetClearDeletionMarkFollowUp", ThisObject);
+	FollowUpHandler = New CallbackDescription("SetClearDeletionMarkFollowUp", ThisObject);
 	WriteObject("DeletionMarkEdit", FollowUpHandler);
 EndProcedure
 
@@ -812,80 +812,80 @@ EndProcedure
 &AtClient
 Procedure PropertyGray(Command)
 	
-	Object.PropertiesColor = PredefinedValue("Enum.PropertiesColors.Gray");
-	SetLabelColor(ThisObject, Object.PropertiesColor);
+	Object.PropertyColor = PredefinedValue("Enum.PropertiesColors.Gray");
+	SetLabelColor(ThisObject, Object.PropertyColor);
 	
 EndProcedure
 
 &AtClient
 Procedure PropertyLightBlue(Command)
 	
-	Object.PropertiesColor = PredefinedValue("Enum.PropertiesColors.LightBlue");
-	SetLabelColor(ThisObject, Object.PropertiesColor);
+	Object.PropertyColor = PredefinedValue("Enum.PropertiesColors.LightBlue");
+	SetLabelColor(ThisObject, Object.PropertyColor);
 	
 EndProcedure
 
 &AtClient
 Procedure PropertyYellow(Command)
 	
-	Object.PropertiesColor = PredefinedValue("Enum.PropertiesColors.Yellow");
-	SetLabelColor(ThisObject, Object.PropertiesColor);
+	Object.PropertyColor = PredefinedValue("Enum.PropertiesColors.Yellow");
+	SetLabelColor(ThisObject, Object.PropertyColor);
 	
 EndProcedure
 
 &AtClient
 Procedure PropertyGreen(Command)
 	
-	Object.PropertiesColor = PredefinedValue("Enum.PropertiesColors.Green");
-	SetLabelColor(ThisObject, Object.PropertiesColor);
+	Object.PropertyColor = PredefinedValue("Enum.PropertiesColors.Green");
+	SetLabelColor(ThisObject, Object.PropertyColor);
 	
 EndProcedure
 
 &AtClient
 Procedure PropertyBrown(Command)
 	
-	Object.PropertiesColor = PredefinedValue("Enum.PropertiesColors.GreenLime");
-	SetLabelColor(ThisObject, Object.PropertiesColor);
+	Object.PropertyColor = PredefinedValue("Enum.PropertiesColors.GreenLime");
+	SetLabelColor(ThisObject, Object.PropertyColor);
 	
 EndProcedure
 
 &AtClient
 Procedure PropertyRed(Command)
 	
-	Object.PropertiesColor = PredefinedValue("Enum.PropertiesColors.Red");
-	SetLabelColor(ThisObject, Object.PropertiesColor);
+	Object.PropertyColor = PredefinedValue("Enum.PropertiesColors.Red");
+	SetLabelColor(ThisObject, Object.PropertyColor);
 	
 EndProcedure
 
 &AtClient
 Procedure PropertyOrange(Command)
 	
-	Object.PropertiesColor = PredefinedValue("Enum.PropertiesColors.Orange");
-	SetLabelColor(ThisObject, Object.PropertiesColor);
+	Object.PropertyColor = PredefinedValue("Enum.PropertiesColors.Orange");
+	SetLabelColor(ThisObject, Object.PropertyColor);
 	
 EndProcedure
 
 &AtClient
 Procedure PropertyPink(Command)
 	
-	Object.PropertiesColor = PredefinedValue("Enum.PropertiesColors.Pink");
-	SetLabelColor(ThisObject, Object.PropertiesColor);
+	Object.PropertyColor = PredefinedValue("Enum.PropertiesColors.Pink");
+	SetLabelColor(ThisObject, Object.PropertyColor);
 	
 EndProcedure
 
 &AtClient
 Procedure PropertyBlue(Command)
 	
-	Object.PropertiesColor = PredefinedValue("Enum.PropertiesColors.B");
-	SetLabelColor(ThisObject, Object.PropertiesColor);
+	Object.PropertyColor = PredefinedValue("Enum.PropertiesColors.B");
+	SetLabelColor(ThisObject, Object.PropertyColor);
 	
 EndProcedure
 
 &AtClient
 Procedure PropertyPurple(Command)
 	
-	Object.PropertiesColor = PredefinedValue("Enum.PropertiesColors.Violet");
-	SetLabelColor(ThisObject, Object.PropertiesColor);
+	Object.PropertyColor = PredefinedValue("Enum.PropertiesColors.Violet");
+	SetLabelColor(ThisObject, Object.PropertyColor);
 	
 EndProcedure
 
@@ -972,8 +972,8 @@ EndProcedure
 &AtServer
 Procedure FillChoicePage()
 	
-	If PassedFormParameters.PropertyKind <> Undefined Then
-		PropertyKind = PassedFormParameters.PropertyKind;
+	If PassedFormParameters.PropertyKind1 <> Undefined Then
+		PropertyKind1 = PassedFormParameters.PropertyKind1;
 	EndIf;
 	
 	Query = New Query;
@@ -991,9 +991,9 @@ Procedure FillChoicePage()
 	For Each Ref In Sets Do
 		SetPropertiesTypes = PropertyManagerInternal.SetPropertiesTypes(Ref, False);
 		
-		If PropertyKind = Enums.PropertiesKinds.AdditionalInfo And SetPropertiesTypes.AdditionalInfo
-			Or PropertyKind = Enums.PropertiesKinds.AdditionalAttributes And SetPropertiesTypes.AdditionalAttributes
-			Or PropertyKind = Enums.PropertiesKinds.Labels And SetPropertiesTypes.Labels Then
+		If PropertyKind1 = Enums.PropertiesKinds.AdditionalInfo And SetPropertiesTypes.AdditionalInfo
+			Or PropertyKind1 = Enums.PropertiesKinds.AdditionalAttributes And SetPropertiesTypes.AdditionalAttributes
+			Or PropertyKind1 = Enums.PropertiesKinds.Labels And SetPropertiesTypes.Labels Then
 			AvailableSets.Add(Ref);
 		EndIf;
 	EndDo;
@@ -1044,9 +1044,9 @@ Procedure FillChoicePage()
 		EndDo;
 	EndIf;
 	
-	If PropertyKind = Enums.PropertiesKinds.AdditionalInfo Then
+	If PropertyKind1 = Enums.PropertiesKinds.AdditionalInfo Then
 		Items.UnusedAttributes.Title = NStr("en = 'Unused additional information records';");
-	ElsIf PropertyKind = Enums.PropertiesKinds.Labels Then
+	ElsIf PropertyKind1 = Enums.PropertiesKinds.Labels Then
 		Items.UnusedAttributes.Title = NStr("en = 'Unused labels';");
 	Else
 		Items.UnusedAttributes.Title = NStr("en = 'Unused additional attributes';");
@@ -1059,7 +1059,7 @@ Procedure FillChoicePage()
 		PropertiesSets, "SetsToExclude", SetsToExclude, True);
 	
 	CommonClientServer.SetDynamicListParameter(
-		PropertiesSets, "PropertyKind", PropertyKind, True);
+		PropertiesSets, "PropertyKind1", PropertyKind1, True);
 	
 	CommonClientServer.SetDynamicListParameter(
 		PropertiesSets, "IsMainLanguage", Common.IsMainLanguage(), True);
@@ -1068,14 +1068,14 @@ Procedure FillChoicePage()
 		PropertiesSets, "LanguageCode", CurrentLanguage().LanguageCode, True);
 	
 	CommonClientServer.SetDynamicListParameter(
-		CommonPropertySets, "PropertyKind", PropertyKind, True);
+		CommonPropertySets, "PropertyKind1", PropertyKind1, True);
 	
 	ListPresentation = "";
-	If PropertyKind = PredefinedValue("Enum.PropertiesKinds.AdditionalInfo") Then
+	If PropertyKind1 = PredefinedValue("Enum.PropertiesKinds.AdditionalInfo") Then
 		ListPresentation = NStr("en = 'Unused additional information records';");
-	ElsIf PropertyKind = PredefinedValue("Enum.PropertiesKinds.AdditionalAttributes") Then
+	ElsIf PropertyKind1 = PredefinedValue("Enum.PropertiesKinds.AdditionalAttributes") Then
 		ListPresentation = NStr("en = 'Unused additional attributes';");
-	ElsIf PropertyKind = PredefinedValue("Enum.PropertiesKinds.Labels") Then
+	ElsIf PropertyKind1 = PredefinedValue("Enum.PropertiesKinds.Labels") Then
 		ListPresentation = NStr("en = 'Unused labels';");
 	EndIf;
 	
@@ -1168,7 +1168,7 @@ Procedure FillPropertyCard()
 	CurrentPropertiesSet = PassedFormParameters.CurrentPropertiesSet;
 	
 	If ValueIsFilled(Object.Ref) Then
-		Items.PropertyKind.Enabled = False;
+		Items.PropertyKind1.Enabled = False;
 		ShowSetAdjustment = PassedFormParameters.ShowSetAdjustment;
 	Else
 		Object.Available = True;
@@ -1185,13 +1185,13 @@ Procedure FillPropertyCard()
 			Object.AdditionalValuesOwner = PassedFormParameters.AdditionalValuesOwner;
 		EndIf;
 		
-		If PassedFormParameters.PropertyKind <> Undefined Then
-			Object.PropertyKind = PassedFormParameters.PropertyKind;
-			If Object.PropertyKind = Enums.PropertiesKinds.AdditionalInfo Then
+		If PassedFormParameters.PropertyKind1 <> Undefined Then
+			Object.PropertyKind1 = PassedFormParameters.PropertyKind1;
+			If Object.PropertyKind1 = Enums.PropertiesKinds.AdditionalInfo Then
 				Object.IsAdditionalInfo = True;
 			EndIf;
 		ElsIf Not ValueIsFilled(PassedFormParameters.CopyingValue) Then
-			Items.PropertyKind.Visible = True;
+			Items.PropertyKind1.Visible = True;
 		EndIf;
 	EndIf;
 	
@@ -1199,7 +1199,7 @@ Procedure FillPropertyCard()
 		Object.Title = Object.Description;
 	EndIf;
 	
-	PropertyKind = Object.PropertyKind;
+	PropertyKind1 = Object.PropertyKind1;
 	
 	If CreateAttributeByCopying Then
 		// For cases when the attribute is copied from its card using the Copy command.
@@ -1272,8 +1272,8 @@ Procedure AfterResponseOnQuestionWhenDescriptionIsAlreadyUsed(Response, WritePar
 	If Response <> "ContinueWrite" Then
 		CurrentItem = Items.Title;
 		If WriteParameters.Property("ContinuationHandler") Then
-			ExecuteNotifyProcessing(
-				New NotifyDescription(WriteParameters.ContinuationHandler.ProcedureName,
+			RunCallback(
+				New CallbackDescription(WriteParameters.ContinuationHandler.ProcedureName,
 					ThisObject, WriteParameters.ContinuationHandler.Parameters),
 				True);
 		EndIf;
@@ -1290,8 +1290,8 @@ Procedure AfterResponseToDescriptionChangeQuestion(Response, WriteParameters) Ex
 	If Response <> "ContinueWrite" Then
 		Object.Title = CurrentTitle;
 		If WriteParameters.Property("ContinuationHandler") Then
-			ExecuteNotifyProcessing(
-				New NotifyDescription(WriteParameters.ContinuationHandler.ProcedureName,
+			RunCallback(
+				New CallbackDescription(WriteParameters.ContinuationHandler.ProcedureName,
 					ThisObject, WriteParameters.ContinuationHandler.Parameters),
 				True);
 		EndIf;
@@ -1308,8 +1308,8 @@ Procedure AfterResponseOnQuestionWhenNameIsAlreadyUsed(Response, WriteParameters
 	If Response <> "ContinueWrite" Then
 		CurrentItem = Items.Title;
 		If WriteParameters.Property("ContinuationHandler") Then
-			ExecuteNotifyProcessing(
-				New NotifyDescription(WriteParameters.ContinuationHandler.ProcedureName,
+			RunCallback(
+				New CallbackDescription(WriteParameters.ContinuationHandler.ProcedureName,
 					ThisObject, WriteParameters.ContinuationHandler.Parameters),
 				True);
 		EndIf;
@@ -1325,8 +1325,8 @@ Procedure AfterResponseOnQuestionWhenIDForFormulasIsAlreadyUsed(Response, WriteP
 	
 	If Response <> "ContinueWrite" Then
 		If WriteParameters.Property("ContinuationHandler") Then
-			ExecuteNotifyProcessing(
-				New NotifyDescription(WriteParameters.ContinuationHandler.ProcedureName,
+			RunCallback(
+				New CallbackDescription(WriteParameters.ContinuationHandler.ProcedureName,
 					ThisObject, WriteParameters.ContinuationHandler.Parameters),
 				True);
 		EndIf;
@@ -1348,7 +1348,7 @@ Procedure AfterConfirmClearWeightCoefficients(Response, Context) Export
 	WriteParameters = New Structure;
 	WriteParameters.Insert("ClearEnteredWeightCoefficients");
 	
-	FollowUpHandler = New NotifyDescription("AdditionalValuesWithWeightOnChangeCompletion", ThisObject);
+	FollowUpHandler = New CallbackDescription("AdditionalValuesWithWeightOnChangeCompletion", ThisObject);
 	WriteObject("WeightUsageEdit", FollowUpHandler,, WriteParameters);
 	
 EndProcedure
@@ -1361,7 +1361,7 @@ Procedure AfterConfirmEnableWeightCoefficients(Response, Context) Export
 		Return;
 	EndIf;
 	
-	FollowUpHandler = New NotifyDescription("AdditionalValuesWithWeightOnChangeCompletion", ThisObject);
+	FollowUpHandler = New CallbackDescription("AdditionalValuesWithWeightOnChangeCompletion", ThisObject);
 	WriteObject("WeightUsageEdit", FollowUpHandler);
 	
 EndProcedure
@@ -1411,7 +1411,7 @@ Procedure SetAdjustmentCommentClickFollowUp(Cancel, Context) Export
 	
 	If SetsList.Count() > 1 Then
 		ShowChooseFromList(
-			New NotifyDescription("SetsAdjustmentCommentClickCompletion", ThisObject),
+			New CallbackDescription("SetsAdjustmentCommentClickCompletion", ThisObject),
 			SetsList, Items.SetsAdjustmentComment);
 	Else
 		SetsAdjustmentCommentClickCompletion(Undefined, SetsList[0].Value);
@@ -1434,7 +1434,7 @@ Procedure SetsAdjustmentCommentClickCompletion(SelectedElement, SelectedSet) Exp
 		SelectionValue = New Structure;
 		SelectionValue.Insert("Set", SelectedSet);
 		SelectionValue.Insert("Property", Object.Ref);
-		SelectionValue.Insert("PropertyKind", Object.PropertyKind);
+		SelectionValue.Insert("PropertyKind1", Object.PropertyKind1);
 		NotifyChoice(SelectionValue);
 	EndIf;
 	
@@ -1518,7 +1518,7 @@ Procedure ValueListAdjustmentChangeCompletion(Cancel, Context) Export
 	FormParameters.Insert("Property", Object.Ref);
 	FormParameters.Insert("AdditionalValuesOwner", Object.AdditionalValuesOwner);
 	FormParameters.Insert("IsAdditionalInfo", Object.IsAdditionalInfo);
-	FormParameters.Insert("PropertyKind", Object.PropertyKind);
+	FormParameters.Insert("PropertyKind1", Object.PropertyKind1);
 	
 	OpenForm("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo.Form.EditPropertySettings",
 		FormParameters, ThisObject);
@@ -1537,7 +1537,7 @@ Procedure SetsAdjustmentChangeCompletion(Cancel, Context) Export
 	FormParameters.Insert("Property", Object.Ref);
 	FormParameters.Insert("AdditionalValuesOwner", Object.AdditionalValuesOwner);
 	FormParameters.Insert("IsAdditionalInfo", Object.IsAdditionalInfo);
-	FormParameters.Insert("PropertyKind", Object.PropertyKind);
+	FormParameters.Insert("PropertyKind1", Object.PropertyKind1);
 	
 	OpenForm("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo.Form.EditPropertySettings",
 		FormParameters, ThisObject);
@@ -1564,14 +1564,14 @@ Procedure WriteObject(QuestionTextVariant, FollowUpHandler, AdditionalParameters
 		EndIf;
 		
 		ShowQueryBox(
-			New NotifyDescription(
+			New CallbackDescription(
 				FollowUpHandler.ProcedureName, FollowUpHandler.Module, WriteParameters),
 			QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
 		Return;
 	EndIf;
 	
 	If ValueIsFilled(Object.Ref) And Not Modified Then
-		ExecuteNotifyProcessing(New NotifyDescription(
+		RunCallback(New CallbackDescription(
 			FollowUpHandler.ProcedureName, FollowUpHandler.Module, AdditionalParameters), False);
 		Return;
 	EndIf;
@@ -1582,7 +1582,7 @@ Procedure WriteObject(QuestionTextVariant, FollowUpHandler, AdditionalParameters
 	WriteParameters.Insert("ContinuationHandler", ContinuationHandler);
 	
 	If ValueIsFilled(Object.Ref) Then
-		ProcessingEndOfRecording = New NotifyDescription("WriteObjectContinuation", ThisObject, WriteParameters);
+		ProcessingEndOfRecording = New CallbackDescription("WriteObjectContinuation", ThisObject, WriteParameters);
 		AttachIdleHandler("Attachable_EndOfObjectRecording", 0.1, True);
 		Return;
 	EndIf;
@@ -1598,7 +1598,7 @@ Procedure WriteObject(QuestionTextVariant, FollowUpHandler, AdditionalParameters
 	Buttons.Add("Cancel", NStr("en = 'Cancel';"));
 	
 	ShowQueryBox(
-		New NotifyDescription(
+		New CallbackDescription(
 			"WriteObjectContinuation", ThisObject, WriteParameters),
 		QueryText, Buttons, , "Write");
 	
@@ -1607,7 +1607,7 @@ EndProcedure
 &AtClient
 Procedure Attachable_EndOfObjectRecording()
 	
-	ExecuteNotifyProcessing(ProcessingEndOfRecording, "Write");
+	RunCallback(ProcessingEndOfRecording, "Write");
 	
 EndProcedure
 
@@ -1636,8 +1636,8 @@ EndProcedure
 Procedure AfterWriteError()
 	
 	If ContinuationHandlerOnWriteError <> Undefined Then
-		ExecuteNotifyProcessing(
-			New NotifyDescription(ContinuationHandlerOnWriteError.ProcedureName,
+		RunCallback(
+			New CallbackDescription(ContinuationHandlerOnWriteError.ProcedureName,
 				ThisObject, ContinuationHandlerOnWriteError.Parameters),
 			True);
 	EndIf;
@@ -1707,14 +1707,14 @@ Procedure SetWizardSettings(CurrentPage = Undefined)
 	
 	If CurrentPage = Items.SelectAttribute Then
 		
-		If PassedFormParameters.PropertyKind =
+		If PassedFormParameters.PropertyKind1 =
 			PredefinedValue("Enum.PropertiesKinds.AdditionalInfo") Then
 			Title = NStr("en = 'Add additional information record';");
 			ListHeaderTemplate =
 				NStr("en = 'Select an additional information record to include in the ""%1"" set';");
 			RadioButtonHeaderTemplate =
 				NStr("en = 'Select an option to add the ""%1"" additional information record to the ""%2"" set';");
-		ElsIf PassedFormParameters.PropertyKind =
+		ElsIf PassedFormParameters.PropertyKind1 =
 			PredefinedValue("Enum.PropertiesKinds.Labels") Then
 			Title = NStr("en = 'Add label';");
 			ListHeaderTemplate =
@@ -1758,10 +1758,10 @@ Procedure SetWizardSettings(CurrentPage = Undefined)
 			String(AdditionalValuesOwner),
 			String(PassedFormParameters.CurrentPropertiesSet));
 		
-		If PassedFormParameters.PropertyKind =
+		If PassedFormParameters.PropertyKind1 =
 			PredefinedValue("Enum.PropertiesKinds.AdditionalInfo") Then
 			Title = NStr("en = 'Add additional information record';");
-		ElsIf PassedFormParameters.PropertyKind =
+		ElsIf PassedFormParameters.PropertyKind1 =
 			PredefinedValue("Enum.PropertiesKinds.Labels") Then
 			Title = NStr("en = 'Add label';");
 		Else
@@ -1821,7 +1821,7 @@ Procedure RefreshFormItemsContent(WarningText = "")
 		Items.MultilineGroup.Visible = False;
 	EndIf;
 	
-	If Object.PropertyKind = Enums.PropertiesKinds.Labels Then
+	If Object.PropertyKind1 = Enums.PropertiesKinds.Labels Then
 		Object.ValueType = New TypeDescription("Boolean");
 		Items.ValueTypeGroup.Visible = False;
 		Items.GroupPropertiesColors.Visible = True;
@@ -1830,10 +1830,10 @@ Procedure RefreshFormItemsContent(WarningText = "")
 		Items.ItemAvailabilityGroup.Visible = False;
 		Items.PropertyGray.Check = True;
 		Items.Title.TypeRestriction = New TypeDescription("String",, New StringQualifiers(15));
-		If Not ValueIsFilled(Object.PropertiesColor) Then
-			Object.PropertiesColor = Enums.PropertiesColors.Gray;
+		If Not ValueIsFilled(Object.PropertyColor) Then
+			Object.PropertyColor = Enums.PropertiesColors.Gray;
 		EndIf;
-		SetLabelColor(ThisObject, Object.PropertiesColor);
+		SetLabelColor(ThisObject, Object.PropertyColor);
 	EndIf;
 	
 	If ValueIsFilled(Object.Ref) Then
@@ -2089,11 +2089,11 @@ Procedure RefreshFormItemsContent(WarningText = "")
 		Items.ValueListAdjustmentChange.Enabled    = ValueIsFilled(Object.Ref);
 		
 		OwnerProperties = Common.ObjectAttributesValues(
-			Object.AdditionalValuesOwner, "Title, PropertyKind");
+			Object.AdditionalValuesOwner, "Title, PropertyKind1");
 		
-		If OwnerProperties.PropertyKind = Enums.PropertiesKinds.AdditionalInfo Then
+		If OwnerProperties.PropertyKind1 = Enums.PropertiesKinds.AdditionalInfo Then
 			AdjustmentTemplate = NStr("en = 'The value list is shared with the ""%1"" information record';");
-		ElsIf OwnerProperties.PropertyKind = Enums.PropertiesKinds.Labels Then
+		ElsIf OwnerProperties.PropertyKind1 = Enums.PropertiesKinds.Labels Then
 			AdjustmentTemplate = NStr("en = 'The value list is shared with the ""%1"" label';");
 		Else
 			AdjustmentTemplate = NStr("en = 'The value list is shared with the ""%1"" attribute';");
@@ -2128,29 +2128,29 @@ Procedure RefreshFormItemsContent(WarningText = "")
 			Items.SetsAdjustmentComment.Hyperlink = False;
 			Items.SetsAdjustmentChange.Visible = False;
 			
-			If Object.PropertyKind = Enums.PropertiesKinds.AdditionalInfo
+			If Object.PropertyKind1 = Enums.PropertiesKinds.AdditionalInfo
 				Or Object.IsAdditionalInfo Then
 				CommentText1 = NStr("en = 'The information record is not included in any sets';");
-			ElsIf Object.PropertyKind = Enums.PropertiesKinds.Labels Then
+			ElsIf Object.PropertyKind1 = Enums.PropertiesKinds.Labels Then
 				CommentText1 = NStr("en = 'The label is not included in any sets';");
 			Else
 				CommentText1 = NStr("en = 'The attribute is not included in any sets';");
 			EndIf;
 		ElsIf SetsList.Count() < 2 Then
-			If Object.PropertyKind = Enums.PropertiesKinds.AdditionalInfo
+			If Object.PropertyKind1 = Enums.PropertiesKinds.AdditionalInfo
 				Or Object.IsAdditionalInfo Then
 				AdjustmentTemplate = NStr("en = 'The information record is included in the set: %1';");
-			ElsIf Object.PropertyKind = Enums.PropertiesKinds.Labels Then
+			ElsIf Object.PropertyKind1 = Enums.PropertiesKinds.Labels Then
 				AdjustmentTemplate = NStr("en = 'The label is included in the set: %1';");
 			Else
 				AdjustmentTemplate = NStr("en = 'The attribute is included in the set: %1';");
 			EndIf;
 			CommentText1 = StringFunctionsClientServer.SubstituteParametersToString(AdjustmentTemplate, TrimAll(SetsList[0].Presentation));
 		Else
-			If Object.PropertyKind = Enums.PropertiesKinds.AdditionalInfo
+			If Object.PropertyKind1 = Enums.PropertiesKinds.AdditionalInfo
 				Or Object.IsAdditionalInfo Then
 				AdjustmentTemplate = NStr("en = 'The information record is included in %1 %2';");
-			ElsIf Object.PropertyKind = Enums.PropertiesKinds.Labels Then
+			ElsIf Object.PropertyKind1 = Enums.PropertiesKinds.Labels Then
 				AdjustmentTemplate = NStr("en = 'The label is included in %1 %2';");
 			Else
 				AdjustmentTemplate = NStr("en = 'The attribute is included in %1 %2';");
@@ -2313,7 +2313,7 @@ Procedure FillActionListOnAddAttribute()
 	
 	AttributeWithAdditionalValuesList = AttributeWithAdditionalValuesList();
 	
-	If PassedFormParameters.PropertyKind = Enums.PropertiesKinds.AdditionalInfo Then
+	If PassedFormParameters.PropertyKind1 = Enums.PropertiesKinds.AdditionalInfo Then
 		AddCommon = NStr("en = 'Add the information record ""as is"" (recommended)
 			|
 			|You can use this information record to filter data of different types in lists and reports.';");
@@ -2331,7 +2331,7 @@ Procedure FillActionListOnAddAttribute()
 				|
 				|A copy of the information record will be created.';");
 		EndIf;
-	ElsIf PassedFormParameters.PropertyKind = Enums.PropertiesKinds.Labels Then
+	ElsIf PassedFormParameters.PropertyKind1 = Enums.PropertiesKinds.Labels Then
 		AddCommon = NStr("en = 'Add the label ""as is"" (recommended)
 			|
 			|You can use this label to filter data of different types in lists and reports.';");
@@ -2458,19 +2458,19 @@ EndProcedure
 Procedure SetFormHeader()
 	
 	If ValueIsFilled(Object.Ref) Then
-		If Object.PropertyKind = Enums.PropertiesKinds.AdditionalInfo
+		If Object.PropertyKind1 = Enums.PropertiesKinds.AdditionalInfo
 			Or Object.IsAdditionalInfo Then
 			Title = String(Object.Title) + " " + NStr("en = '(Additional information record)';");
-		ElsIf Object.PropertyKind = Enums.PropertiesKinds.Labels Then
+		ElsIf Object.PropertyKind1 = Enums.PropertiesKinds.Labels Then
 			Title = String(Object.Title) + " " + NStr("en = '(Label)';");
 		Else
 			Title = String(Object.Title) + " " + NStr("en = '(Additional attribute)';");
 		EndIf;
 	Else
-		If Object.PropertyKind = Enums.PropertiesKinds.AdditionalInfo
+		If Object.PropertyKind1 = Enums.PropertiesKinds.AdditionalInfo
 			Or Object.IsAdditionalInfo Then
 			Title = NStr("en = 'Additional information record (Create)';");
-		ElsIf Object.PropertyKind = Enums.PropertiesKinds.Labels Then
+		ElsIf Object.PropertyKind1 = Enums.PropertiesKinds.Labels Then
 			Title = NStr("en = 'Label (Create)';");
 		Else
 			Title = NStr("en = 'Additional attribute (Create)';");
@@ -2513,7 +2513,7 @@ Procedure UpdateCurrentSetPropertiesList()
 	
 	PropertyManagerInternal.UpdateCurrentSetPropertiesList(ThisObject, 
 			SelectedPropertiesSet,
-			PropertyKind);
+			PropertyKind1);
 	
 EndProcedure
 
@@ -2523,7 +2523,7 @@ Procedure NewPassedParametersStructure()
 	PassedFormParameters.Insert("AdditionalValuesOwner");
 	PassedFormParameters.Insert("ShowSetAdjustment", True);
 	PassedFormParameters.Insert("CurrentPropertiesSet");
-	PassedFormParameters.Insert("PropertyKind");
+	PassedFormParameters.Insert("PropertyKind1");
 	PassedFormParameters.Insert("SelectSharedProperty");
 	PassedFormParameters.Insert("SelectedValues");
 	PassedFormParameters.Insert("SelectAdditionalValuesOwner");

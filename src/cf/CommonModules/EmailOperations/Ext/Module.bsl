@@ -85,26 +85,9 @@ EndFunction
 //                                    as a value table with simple types. The default value is True.
 //
 // Returns:
-//  ValueTable, Boolean - list of emails with the following columns:
-//   * Importance - InternetMailMessageImportance
-//   * Attachments - InternetMailAttachments - if any of the attachments are email messages,
-//                 they are not returned but their attachments, binary
-//                 data and texts, are recursively returned as binary data.
-//   * PostingDate - Date
-//   * DateReceived - Date
-//   * Title - String
-//   * SenderName - String
-//   * Id - Array of String
-//   * Cc - InternetMailAddresses
-//   * ReplyTo - InternetMailAddresses
-//   * Sender - String
-//                 - InternetMailAddress
-//   * Recipients - InternetMailAddresses
-//   * Size - Number
-//   * Texts - InternetMailTexts
-//   * Encoding - String
-//   * NonASCIISymbolsEncodingMode - InternetMailMessageNonASCIISymbolsEncodingMode
-//   * Partial - Boolean - is filled in if the status is True. In test mode, True is returned.
+//   ValueTable of See EmailOperations.InternetMailMessageFields
+//   
+//   
 //
 Function DownloadEmailMessages(Val UserAccountOrConnection, Val ImportParameters = Undefined) Export
 	
@@ -138,10 +121,10 @@ EndFunction
 //   IncludingSystemEmailAccount - Boolean - include the system account if it is configured for sending and receiving emails.
 //
 // Returns:
-//  ValueTable - description of accounts:
-//   * Ref       - CatalogRef.EmailAccounts - an account.
-//   * Description - String - email name.
-//   * Address        - String - an email address.
+//  ValueTable - Account details:
+//   * Ref       - CatalogRef.EmailAccounts - Account.
+//   * Description - String - Account name.
+//   * Address        - String - Email address.
 //
 Function AvailableEmailAccounts(Val ForSending = Undefined,
 								Val ForReceiving  = Undefined,
@@ -327,7 +310,7 @@ EndFunction
 //
 // Parameters:
 //  HTMLDocument - HTMLDocument - HTMLDocument - an HTML document to clear unsafe content from.
-//  DisableExternalResources - Boolean - indicates whether is is necessary to clear links to resources downloaded using HTTP(S).
+//  DisableExternalResources - Boolean - indicates whether it s is necessary to clear links to resources downloaded using HTTP(S).
 // 
 Procedure DisableUnsafeContent(HTMLDocument, DisableExternalResources = True) Export
 	
@@ -613,7 +596,7 @@ EndFunction
 //   * MessageIDIMAPSending - String - (return parameter) ID of the sent
 //                                         email on IMAP server.
 //   * WrongRecipients - Map - (return parameter) list of addresses that sending was failed to. 
-//                                          (See return value of the InternetMail.Send() method in the Syntax Assistant.
+//                                          (See return value of the InternetMail.Send() method in Syntax Assistant.
 //
 //  DeleteConnection - InternetMail - obsolete, see parameter SendingParameters.Connection.
 //  DeleteMailProtocol - String     - obsolete, see parameter SendingParameters.MailProtocol.

@@ -157,10 +157,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
 		
 		ModuleContactsManager = Common.CommonModule("ContactsManager");
+		ContactInformationKindUserEmail   = ContactInformationKind("UserEmail");
+		ContactInformationKindUserPhone = ContactInformationKind("UserPhone");
 		
 		ExcludedKinds = New Array;
-		ExcludedKinds.Add(ContactInformationKind("UserPhone"));
-		ExcludedKinds.Add(ContactInformationKind("UserEmail"));
+		ExcludedKinds.Add(ContactInformationKindUserEmail);
+		ExcludedKinds.Add(ContactInformationKindUserPhone);
 		
 		AdditionalParameters = ModuleContactsManager.ContactInformationParameters();
 		AdditionalParameters.ItemForPlacementName = "ContactInformation";
@@ -234,7 +236,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If Not ValueIsFilled(PhotoAddress) Then
-		PhotoAddress = PutToTempStorage(PictureLib.UserWithoutPhoto, UUID);
+		PhotoAddress = PutToTempStorage(PictureLib.UserWithoutPhoto, 
+			UUID);
 	EndIf;
 	
 EndProcedure
@@ -350,7 +353,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 			If PasswordToConfirmEmailChange = Undefined Then
 				Cancel = True;
 				AdditionalParameters = New Structure("WriteParameters", WriteParameters);
-				Notification = New NotifyDescription("AfterRequestingAPasswordToChangeTheMail", ThisObject, AdditionalParameters);
+				Notification = New CallbackDescription("AfterRequestingAPasswordToChangeTheMail", ThisObject, AdditionalParameters);
 				OpenForm("Catalog.Users.Form.PasswordInput",, ThisObject,,,, Notification, FormWindowOpeningMode.LockOwnerWindow);
 				Return;
 			EndIf;
@@ -368,7 +371,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 		
 		Cancel = True;
 		ShowQueryBox(
-			New NotifyDescription("AfterAnswerToQuestionAboutCopyingRights", ThisObject, WriteParameters),
+			New CallbackDescription("AfterAnswerToQuestionAboutCopyingRights", ThisObject, WriteParameters),
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Do you want to copy the rights of the user ""%1""?';"), String(CopyingValue)),
 			QuestionDialogMode.YesNo,
@@ -385,7 +388,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 	
 		Cancel = True;
 		ShowQueryBox(
-			New NotifyDescription("AfterAnswerToQuestionAboutWritingWithEmptyRoleList", ThisObject, WriteParameters),
+			New CallbackDescription("AfterAnswerToQuestionAboutWritingWithEmptyRoleList", ThisObject, WriteParameters),
 			NStr("en = 'No roles are assigned to the infobase user. Do you want to continue?';"),
 			QuestionDialogMode.YesNo,
 			,
@@ -412,7 +415,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 		WriteParameters.Insert("AfterAuthenticationPasswordRequestInService");
 		Cancel = True;
 		UsersInternalClient.RequestPasswordForAuthenticationInService(
-			New NotifyDescription("AfterAuthenticationPasswordRequestInServiceBeforeWrite", ThisObject, WriteParameters),
+			New CallbackDescription("AfterAuthenticationPasswordRequestInServiceBeforeWrite", ThisObject, WriteParameters),
 			ThisObject,
 			ServiceUserPassword);
 		Return;
@@ -515,7 +518,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	EndIf;
 	
 	If PhotoSpecified And IsTempStorageURL(PhotoAddress) Then
-		CurrentObject.Photo = New ValueStorage(GetFromTempStorage(PhotoAddress));
+		CurrentObject.Photo = New ValueStorage(GetFromTempStorage(PhotoAddress), New Deflation(9));
 	Else 
 		CurrentObject.Photo = New ValueStorage(Undefined);
 	EndIf;
@@ -600,7 +603,7 @@ Procedure AfterWrite(WriteParameters)
 	EndIf;
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.Conversations") Then
-		CompletionDetails = New NotifyDescription("AfterWriteCompletion", ThisObject, WriteParameters);
+		CompletionDetails = New CallbackDescription("AfterWriteCompletion", ThisObject, WriteParameters);
 		ModuleConversationsInternalClient = CommonClient.CommonModule("ConversationsInternalClient");
 		ModuleConversationsInternalClient.AfterWriteUser(ThisObject, CompletionDetails);
 		Return;
@@ -814,7 +817,7 @@ Procedure CanSignInOnChange(Item)
 	If Object.DeletionMark And CanSignIn Then
 		CanSignIn = False;
 		ShowMessageBox(,
-			NStr("en = 'To allow logging in to the application, clear the deletion mark from the user.';"));
+			NStr("en = 'To allow login to the application, remove the deletion mark from the user.';"));
 		Return;
 	EndIf;
 	
@@ -862,7 +865,7 @@ EndProcedure
 Procedure ChangeAuthorizationRestriction(Command)
 	
 	OpenForm("Catalog.Users.Form.AuthorizationRestriction",, ThisObject,,,,
-		New NotifyDescription("ChangeAuthorizationRestrictionCompletion", ThisObject));
+		New CallbackDescription("ChangeAuthorizationRestrictionCompletion", ThisObject));
 	
 EndProcedure
 
@@ -1003,7 +1006,7 @@ EndProcedure
 &AtClient
 Procedure PhotoClick(Item, StandardProcessing)
 	StandardProcessing = False;
-	CompletionNotification1 = New NotifyDescription("PhotoClickCompletion", ThisObject);
+	CompletionNotification1 = New CallbackDescription("PhotoClickCompletion", ThisObject);
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.FormIdentifier = UUID;
 	ImportParameters.Dialog.Filter = NStr("en = 'Pictures';") + "|*.JPG;*.JPEG;*.JP2;*.JPG2;*.PNG;*.BMP;*.TIFF";
@@ -1017,16 +1020,16 @@ Procedure PhotoClickCompletion(Result, AdditionalParameters) Export
 	EndIf;
 	
 #If Not WebClient Then
-		Picture = New Picture(GetFromTempStorage(Result.Location));
-		If Picture.Format() = PictureFormat.UnknownFormat Then
-			ShowMessageBox(, NStr("en = 'Select a file with a picture.';"));
-			Return;
-		EndIf;
-		
-		If Picture.FileSize() > 2 * 1024 * 1024 Then
-			ShowMessageBox(, NStr("en = 'The picture size must be less than 2 MB.';"));
-			Return;
-		EndIf;
+	Picture = New Picture(GetFromTempStorage(Result.Location));
+	If Picture.Format() = PictureFormat.UnknownFormat Then
+		ShowMessageBox(, NStr("en = 'Choose an image file.';"));
+		Return;
+	EndIf;
+	
+	If Picture.FileSize() > 2 * 1024 * 1024 Then
+		ShowMessageBox(, NStr("en = 'Choose an image file up to 2 MB.';"));
+		Return;
+	EndIf;
 #EndIf
 	
 	If IsTempStorageURL(PhotoAddress) Then
@@ -1038,15 +1041,13 @@ Procedure PhotoClickCompletion(Result, AdditionalParameters) Export
 	PhotoSpecified = True;
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Provide contact information support.
+#Region ContactInformationSupport
 
 &AtClient
 Procedure Attachable_EMailOnChange(Item)
 	
-	ModuleContactsManagerClient =
+	ModuleContactsManagerClient = 
 		CommonClient.CommonModule("ContactsManagerClient");
-		
 	ModuleContactsManagerClient.StartChanging(ThisObject, Item);
 	
 	DetermineNecessityForSynchronizationWithService(ThisObject);
@@ -1058,7 +1059,7 @@ Procedure Attachable_EMailOnChange(Item)
 	CITable = ContactInformationAdditionalAttributesDetails;
 	
 	EmailRow = CITable.FindRows(New Structure("Kind",
-		ContactInformationKindUserEmail()))[0];
+		ContactInformationKindUserEmail))[0];
 	
 	If ValueIsFilled(ThisObject[EmailRow.AttributeName]) Then
 		IBUserPassword = "" + New UUID + "qQ";
@@ -1085,7 +1086,6 @@ Procedure Attachable_EMailClearing(Item, StandardProcessing)
 	
 	ModuleContactsManagerClient =
 		CommonClient.CommonModule("ContactsManagerClient");
-	
 	ModuleContactsManagerClient.StartClearing(ThisObject, Item.Name);
 	
 EndProcedure
@@ -1095,7 +1095,6 @@ Procedure Attachable_PhoneOnChange(Item)
 	
 	ModuleContactsManagerClient =
 		CommonClient.CommonModule("ContactsManagerClient");
-	
 	ModuleContactsManagerClient.StartChanging(ThisObject, Item);
 	
 	DetermineNecessityForSynchronizationWithService(ThisObject);
@@ -1111,15 +1110,14 @@ Procedure Attachable_EMailStartChoice(Item)
 	
 	CITable = ContactInformationAdditionalAttributesDetails;
 	
-	Filter = New Structure("Kind", ContactInformationKindUserEmail());
-	
+	Filter = New Structure("Kind", ContactInformationKindUserEmail);
 	EmailRow = CITable.FindRows(Filter)[0];
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("OldEmail",  ThisObject[EmailRow.AttributeName]);
 	
 	OpenForm("Catalog.Users.Form.EmailAddressChange", FormParameters, ThisObject,,,,
-		New NotifyDescription("AfterSelectNewEmail", ThisObject));
+		New CallbackDescription("AfterSelectNewEmail", ThisObject));
 	
 EndProcedure
 
@@ -1216,10 +1214,12 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 #Region FormTableItemsEventHandlersRoles
 
 ////////////////////////////////////////////////////////////////////////////////
-// Required by a role interface.
+// Для работы интерфейса ролей.
 
 &AtClient
 Procedure RolesCheckOnChange(Item)
@@ -1229,7 +1229,7 @@ Procedure RolesCheckOnChange(Item)
 		Return;
 	EndIf;
 	If TableRow.Check And TableRow.Name = "InteractiveOpenExtReportsAndDataProcessors" Then
-		Notification = New NotifyDescription("RolesMarkOnChangeAfterConfirm", ThisObject);
+		Notification = New CallbackDescription("RolesMarkOnChangeAfterConfirm", ThisObject);
 		UsersInternalClient.ShowSecurityWarning(Notification,
 			UsersInternalClientServer.SecurityWarningKinds().BeforeSelectRole);
 	Else
@@ -1273,7 +1273,7 @@ Procedure ChangePassword(Command)
 	AdditionalParameters.Insert("PreviousPassword", IBUserPreviousPassword);
 	AdditionalParameters.Insert("LoginName",  IBUserName);
 	
-	UsersInternalClient.OpenChangePasswordForm(Object.Ref, New NotifyDescription(
+	UsersInternalClient.OpenChangePasswordForm(Object.Ref, New CallbackDescription(
 		"ChangePasswordAfterGetPassword", ThisObject), AdditionalParameters);
 	
 EndProcedure
@@ -1290,8 +1290,7 @@ Procedure ClearPhoto(Command)
 	Modified = True;
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Required by a role interface.
+#Region ForRolesInterfaceOperation
 
 &AtClient
 Procedure ShowSelectedRolesOnly(Command)
@@ -1334,6 +1333,8 @@ Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 
@@ -1708,7 +1709,7 @@ Procedure AfterSelectNewEmail(NewEmailAddress, Context) Export
 	EndIf;
 	
 	UsersInternalClient.RequestPasswordForAuthenticationInService(
-		New NotifyDescription("ChangeEmailAfterAuthenticationPasswordRequestedInService", ThisObject, NewEmailAddress),
+		New CallbackDescription("ChangeEmailAfterAuthenticationPasswordRequestedInService", ThisObject, NewEmailAddress),
 		ThisObject,
 		ServiceUserPassword);
 	
@@ -2034,7 +2035,7 @@ Procedure CheckFirstAdministrator()
 	
 	QuestionTitle = NStr("en = 'Save infobase user';");
 	ShowQueryBox(
-		New NotifyDescription("AfterFirstAdministratorCreationConfirmation", ThisObject, WriteParameters),
+		New CallbackDescription("AfterFirstAdministratorCreationConfirmation", ThisObject, WriteParameters),
 		QueryText, QuestionDialogMode.YesNo, , , QuestionTitle);
 	
 EndProcedure
@@ -2084,8 +2085,7 @@ Procedure CloseForm()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Provide contact information support.
+#Region ContactInformationSupport
 
 &AtServer
 Procedure UpdateContactInformation(Result)
@@ -2104,7 +2104,7 @@ Procedure OverrideContactInformationEditingSaaS()
 	
 	ContactInformation = ContactInformationAdditionalAttributesDetails;
 	
-	EmailRow = ContactInformation.FindRows(New Structure("Kind", ContactInformationKind("UserEmail")))[0];
+	EmailRow = ContactInformation.FindRows(New Structure("Kind", ContactInformationKindUserEmail))[0];
 	EmailItem = Items[EmailRow.AttributeName];
 	EmailItem.SetAction("OnChange", "Attachable_EMailOnChange");
 	EmailItem.SetAction("Clearing",      "Attachable_EMailClearing");
@@ -2114,7 +2114,7 @@ Procedure OverrideContactInformationEditingSaaS()
 	EmailItem.TextEdit = Not EmailItem.ChoiceButton;
 	EmailItem.SetAction("StartChoice", "Attachable_EMailStartChoice");
 	
-	PhoneLine = ContactInformation.FindRows(New Structure("Kind", ContactInformationKind("UserPhone")))[0];
+	PhoneLine = ContactInformation.FindRows(New Structure("Kind", ContactInformationKindUserPhone))[0];
 	PhoneItem = Items[PhoneLine.AttributeName];
 	PhoneItem.SetAction("OnChange", "Attachable_PhoneOnChange");
 	
@@ -2129,7 +2129,7 @@ Procedure UpdateEmailChangeMethodSaaS()
 	
 	ContactInformation = ContactInformationAdditionalAttributesDetails;
 	
-	EmailRow = ContactInformation.FindRows(New Structure("Kind", ContactInformationKind("UserEmail")))[0];
+	EmailRow = ContactInformation.FindRows(New Structure("Kind", ContactInformationKindUserEmail))[0];
 	EmailItem = Items[EmailRow.AttributeName];
 	
 	EmailItem.ChoiceButton = ValueIsFilled(Object.Ref) And ValueIsFilled(ThisObject[EmailRow.AttributeName]);
@@ -2145,17 +2145,9 @@ Function ContactInformationKind(KindName)
 	
 EndFunction
 
-&AtClientAtServerNoContext
-Function ContactInformationKindUserEmail()
-	
-	PredefinedValueName = "Catalog." + "ContactInformationKinds" + ".UserEmail";
-	
-	Return PredefinedValue(PredefinedValueName);
-	
-EndFunction
+#EndRegion
 
-////////////////////////////////////////////////////////////////////////////////
-// Support of additional attributes.
+#Region AdditionalAttributesSupport
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()
@@ -2197,8 +2189,9 @@ Procedure UpdateAdditionalAttributesItems()
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Processes an infobase user.
+#EndRegion
+
+#Region InfobaseUserHandling
 
 &AtServer
 Function InitialIBUserDetails()
@@ -2400,7 +2393,7 @@ Procedure FindUserAndIBUserDifferences(WriteParameters = Undefined)
 				ModuleContactsManager = Common.CommonModule("ContactsManager");
 				
 				DetailsString = ModuleContactsManager.EmailDescriptionStringForPasswordRecoveryFromFormData(
-					ThisObject, ContactInformationKind("UserEmail"), IBUserEmailAddress);
+					ThisObject, ContactInformationKindUserEmail, IBUserEmailAddress);
 				
 				If DetailsString = Undefined Then
 					ShowDifferenceResolvingCommands =
@@ -2545,13 +2538,13 @@ Procedure FillInTheMailFieldForPasswordRecoveryFromTheInformationSecuritySystem(
 		If ValueIsFilled(MailForPasswordRecoveryFromAnObject[AttributeWithEmailForPasswordRecoveryName])
 			Or MailForPasswordRecoveryFromAnObject[AttributeWithEmailForPasswordRecoveryName] <> IBUserEmailAddress Then
 			
-			ViewOfTheUserSEmailAddress = ContactInformationKind("UserEmail");
-			EmailDescription = ModuleContactsManager.EmailDescriptionStringForPasswordRecoveryFromFormData(ThisObject, ViewOfTheUserSEmailAddress, ThisObject[AttributeWithEmailForPasswordRecoveryName]);
+			EmailDescription = ModuleContactsManager.EmailDescriptionStringForPasswordRecoveryFromFormData(ThisObject,
+				ContactInformationKindUserEmail, ThisObject[AttributeWithEmailForPasswordRecoveryName]);
 			
 			If EmailDescription <> Undefined Then
 				EmailDescription.Presentation = IBUserEmailAddress;
 				EmailDescription.Value = ModuleContactsManager.ContactsByPresentation(
-					IBUserEmailAddress, ViewOfTheUserSEmailAddress);
+					IBUserEmailAddress, ContactInformationKindUserEmail);
 				
 				ThisObject[AttributeWithEmailForPasswordRecoveryName] = IBUserEmailAddress;
 			EndIf;
@@ -2562,8 +2555,9 @@ Procedure FillInTheMailFieldForPasswordRecoveryFromTheInformationSecuritySystem(
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Initial filling, fill checks, and availability of properties.
+#EndRegion
+
+#Region InitialPopulationFillCheckingPropertiesAvailability
 
 &AtClientAtServerNoContext
 Procedure SetPropertiesAvailability(Form)
@@ -2573,7 +2567,7 @@ Procedure SetPropertiesAvailability(Form)
 	AccessLevel = Form.AccessLevel;
 	ActionsWithSaaSUser = Form.ActionsWithSaaSUser;
 	
-	// Note to the "Sign-in blocked" state.
+	// Note to the "Login blocked" state.
 	If Form.CanSignIn Then
 		Items.GroupNoRights.Visible         = Form.WhetherRightsAreAssigned.HasNoRights;
 		Items.GroupNoStartupRights.Visible = Not Form.WhetherRightsAreAssigned.HasNoRights
@@ -2617,7 +2611,7 @@ Procedure SetPropertiesAvailability(Form)
 	If ActionsWithSaaSUser <> Undefined Then
 		
 		// Contact information is editable.
-		Filter = New Structure("Kind", ContactInformationKindUserEmail());
+		Filter = New Structure("Kind", Form.ContactInformationKindUserEmail);
 		FoundRows = Form.ContactInformationAdditionalAttributesDetails.FindRows(Filter);
 		EmailFilled = (FoundRows <> Undefined) And ValueIsFilled(Form[FoundRows[0].AttributeName]);
 		If Object.Ref.IsEmpty() And EmailFilled Then
@@ -2724,7 +2718,7 @@ Function IBUserWritingRequired(Form, UseStandardName = True)
 	
 EndFunction
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
@@ -2751,8 +2745,9 @@ EndProcedure
 
 // End StandardSubsystems.AttachableCommands
 
-////////////////////////////////////////////////////////////////////////////////
-// Required by a role interface.
+#EndRegion
+
+#Region ForRolesInterfaceOperation
 
 &AtServer
 Procedure ProcessRolesInterface(Action, MainParameter = Undefined)
@@ -2780,5 +2775,7 @@ Procedure ProcessRolesInterface(Action, MainParameter = Undefined)
 	
 EndProcedure
 
+
+#EndRegion
 
 #EndRegion

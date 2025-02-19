@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<Width>55</Width>
 	<Height>20</Height>
 	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
@@ -144,21 +144,37 @@
 					<Behavior>PopUp</Behavior>
 					<ExtendedTooltip name="InstructionExtendedTooltip" id="55"/>
 					<ChildItems>
-						<LabelDecoration name="SupportInformation" id="69">
-							<Title formatted="true">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Facing issues? Learn how to &lt;link %1&gt;troubleshoot digital signing apps&lt;/&gt; (in Russian).
-
-If you didn't find a solution, contact the 1C support team and provide &lt;link %2&gt;technical information&lt;/&gt; about the issue.</v8:content>
-								</v8:item>
-							</Title>
-							<ContextMenu name="SupportInformationContextMenu" id="70"/>
-							<ExtendedTooltip name="SupportInformationExtendedTooltip" id="71"/>
-							<Events>
-								<Event name="URLProcessing">SupportInformationURLProcessing</Event>
-							</Events>
+						<LabelDecoration name="DecorationContactSupport" id="84">
+							<Visible>false</Visible>
+							<ContextMenu name="DecorationContactSupportContextMenu" id="85"/>
+							<ExtendedTooltip name="DecorationContactSupportExtendedTooltip" id="86"/>
 						</LabelDecoration>
+						<Button name="QuestionInSupport" id="72">
+							<Type>Hyperlink</Type>
+							<CommandName>Form.Command.QuestionInSupport</CommandName>
+							<ExtendedTooltip name="QuestionInSupportExtendedTooltip" id="73"/>
+						</Button>
+						<UsualGroup name="GroupDownloadTechnicalInfo" id="87">
+							<Group>AlwaysHorizontal</Group>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GroupDownloadTechnicalInfoExtendedTooltip" id="88"/>
+							<ChildItems>
+								<Button name="DownloadTechnicalInfo" id="74">
+									<Type>Hyperlink</Type>
+									<CommandName>Form.Command.DownloadTechnicalInfo</CommandName>
+									<ExtendedTooltip name="DownloadTechnicalInfoExtendedTooltip" id="75"/>
+								</Button>
+								<PictureDecoration name="DecorationPictureGeneratingTechnicalInfo" id="78">
+									<Visible>false</Visible>
+									<Picture>
+										<xr:Ref>CommonPicture.TimeConsumingOperation16</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<ContextMenu name="DecorationPictureGeneratingTechnicalInfoContextMenu" id="79"/>
+									<ExtendedTooltip name="DecorationPictureGeneratingTechnicalInfoExtendedTooltip" id="80"/>
+								</PictureDecoration>
+							</ChildItems>
+						</UsualGroup>
 					</ChildItems>
 				</UsualGroup>
 				<CommandBar name="CommandBar" id="64">
@@ -279,6 +295,18 @@ If you didn't find a solution, contact the 1C support team and provide &lt;link 
 						</v8:StringQualifiers>
 					</Type>
 				</Column>
+				<Column name="Action" id="6">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="Parameters" id="7">
+					<Type/>
+				</Column>
 			</Columns>
 		</Attribute>
 		<Attribute name="ErrorDescription" id="1">
@@ -335,6 +363,20 @@ If you didn't find a solution, contact the 1C support team and provide &lt;link 
 			</ToolTip>
 			<Action>InstallExtension</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="QuestionInSupport" id="3">
+			<Picture>
+				<xr:Ref>CommonPicture.SendEmail</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>QuestionInSupport</Action>
+		</Command>
+		<Command name="DownloadTechnicalInfo" id="4">
+			<Picture>
+				<xr:Ref>CommonPicture.Download</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>DownloadTechnicalInfo</Action>
 		</Command>
 	</Commands>
 	<Parameters>

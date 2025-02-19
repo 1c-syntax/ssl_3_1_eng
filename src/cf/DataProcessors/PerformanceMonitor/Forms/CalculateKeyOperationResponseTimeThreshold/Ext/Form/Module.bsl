@@ -12,7 +12,7 @@
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
-	Parameters.Property("KeyOperation", KeyOperation);
+	KeyOperation = Parameters.KeyOperation;
 	If Not ValueIsFilled(Period.StartDate) Then
 		Period.StartDate = AddMonth(BegOfDay(CurrentSessionDate()), -3);
 	EndIf;

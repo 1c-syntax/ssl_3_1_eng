@@ -214,8 +214,7 @@ Function IsGlobalDataProcessor()
 	
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Global data processors.
+#Region GlobalDataProcessors
 
 Procedure BeforeWriteGlobalDataProcessors(Cancel)
 	If Cancel Or Not AdditionalProperties.Property("RelevantCommands") Then
@@ -320,8 +319,9 @@ Procedure OnWriteGlobalDataProcessor(Cancel)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Operations with scheduled jobs.
+#EndRegion
+
+#Region WorkWithScheduledJobs
 
 Function ScheduleSetupRight()
 	// Checks whether a user has rights to schedule the execution of additional reports and data processors.
@@ -340,8 +340,9 @@ Function JobPresentation(Command)
 		+ TrimAll(Command.Presentation));
 EndFunction
 
-////////////////////////////////////////////////////////////////////////////////
-// Assignable data processors.
+#EndRegion
+
+#Region AssignableDataProcessors
 
 Procedure BeforeWriteAssignableDataProcessor(Cancel)
 	AssignmentTable = Purpose.Unload();
@@ -369,8 +370,9 @@ Procedure OnWriteAssignableDataProcessors(Cancel)
 	InformationRegisters.AdditionalDataProcessorsPurposes.UpdateDataByMetadataObjectsRefs(AdditionalProperties.MetadataObjectsRefs);
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Global reports.
+#EndRegion
+
+#Region GlobalReports
 
 Procedure OnWriteReport(Cancel)
 	
@@ -397,6 +399,8 @@ Procedure OnWriteReport(Cancel)
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 

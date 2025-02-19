@@ -117,6 +117,26 @@ Procedure SetServerNameCheckInLockParameters(CheckServerName) Export
 	
 EndProcedure
 
+Procedure WhenEnablingAccessToInternetServices() Export
+	
+	BeginTransaction();
+	Try
+		BlockLockParametersData();
+		
+		LockParameters = SavedLockParameters();
+		EnableDisabledScheduledJobs(LockParameters, True);
+		
+		NewLockParameters = CurrentLockParameters();
+		SaveLockParameters(NewLockParameters);
+		
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
+	
+EndProcedure
+
 #Region EventsSubscriptionsHandlers
 
 Procedure OnAddSessionParameterSettingHandlers(Handlers) Export
@@ -165,11 +185,14 @@ Procedure OnStartExecuteScheduledJob(ScheduledJob) Export
 		Return;
 	EndIf;
 	
-	If Not ScheduledJobUsesExternalResources(ScheduledJob) Then
-		Return;
-	EndIf;
+	WorkingWithExternalResources = ScheduledJobUsesExternalResources(ScheduledJob);
+	BlockForWorkingWithExternalResources = WorkingWithExternalResources.UseExternalResources
+		And OperationsWithExternalResourcesLocked();
+	BlockAccessToExternalResources = Not BlockForWorkingWithExternalResources
+		And Not Common.AccessToInternetServicesAllowed()
+		And WorkingWithExternalResources.AccessesExternalResources;
 	
-	If Not OperationsWithExternalResourcesLocked() Then
+	If Not BlockForWorkingWithExternalResources And Not BlockAccessToExternalResources Then
 		Return;
 	EndIf;
 	
@@ -178,7 +201,7 @@ Procedure OnStartExecuteScheduledJob(ScheduledJob) Export
 		BlockLockParametersData();
 		
 		LockParameters = SavedLockParameters();
-		DisableScheduledJob1(LockParameters, ScheduledJob);
+		DisableScheduledJob1(LockParameters, ScheduledJob, BlockAccessToExternalResources);
 		SaveLockParameters(LockParameters);
 		
 		CommitTransaction();
@@ -187,17 +210,23 @@ Procedure OnStartExecuteScheduledJob(ScheduledJob) Export
 		Raise;
 	EndTry;
 	
-	If Common.DataSeparationEnabled() Then
+	If BlockAccessToExternalResources Then
 		ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The application has been moved.
-			           |The ""%1"" scheduled job, which requires online activities, is disabled.';"), 
-			ScheduledJob.Synonym);
+				NStr("en = '%1
+				           |Scheduled job ""%2"" accessing external resources has been disabled.';"),
+				Common.AccessToInternetServicesDeniedMessageText(),
+				ScheduledJob.Synonym);
+	ElsIf Common.DataSeparationEnabled() Then
+			ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'The application has been moved.
+				           |The ""%1"" scheduled job, which requires online activities, is disabled.';"), 
+				ScheduledJob.Synonym);
 	Else 
-		ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The infobase connection string has changed.
-			           |The infobase might have been moved.
-			           |The ""%1"" scheduled job is disabled.';"), 
-			ScheduledJob.Synonym);
+			ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'The infobase connection string has changed.
+				           |The infobase might have been moved.
+				           |The ""%1"" scheduled job is disabled.';"), 
+				ScheduledJob.Synonym);
 	EndIf;
 	
 	ScheduledJobsServer.CancelJobExecution(ScheduledJob, ExceptionText);
@@ -284,6 +313,7 @@ Function CurrentLockParameters()
 	Result.Insert("CheckServerName", True);
 	Result.Insert("OperationsWithExternalResourcesLocked", False);
 	Result.Insert("DisabledJobs", New Array);
+	Result.Insert("DisabledTasksWhenAccessToInternetServicesIsDisabled", New Array);
 	Result.Insert("LockReason", "");
 	
 	Return Result;
@@ -325,7 +355,7 @@ Procedure SaveLockParameters(LockParameters)
 	
 	SetPrivilegedMode(True);
 	
-	ValueStorage = New ValueStorage(LockParameters);
+	ValueStorage = New ValueStorage(LockParameters, New Deflation(9));
 	Constants.ExternalResourceAccessLockParameters.Set(ValueStorage);
 	
 	SetPrivilegedMode(False);
@@ -336,9 +366,9 @@ EndProcedure
 
 #Region ScheduledJobs
 
-// ACC:453-disable integrated scheduled jobs management in the block of operation lock.
-
 Function ScheduledJobUsesExternalResources(ScheduledJob)
+	
+	Result = New Structure("UseExternalResources, AccessesExternalResources", False, False);
 	
 	JobDependencies = ScheduledJobsInternal.ScheduledJobsDependentOnFunctionalOptions();
 	
@@ -347,11 +377,26 @@ Function ScheduledJobUsesExternalResources(ScheduledJob)
 	Filter.Insert("UseExternalResources", True);
 	
 	FoundRows = JobDependencies.FindRows(Filter);
-	Return FoundRows.Count() <> 0;
+	If FoundRows.Count() <> 0 Then
+		Result.UseExternalResources = True;
+		Result.AccessesExternalResources = True;
+		Return Result;
+	EndIf;
+	
+	Filter = New Structure;
+	Filter.Insert("ScheduledJob", ScheduledJob);
+	Filter.Insert("AccessesExternalResources", True);
+	
+	FoundRows = JobDependencies.FindRows(Filter);
+	If FoundRows.Count() <> 0 Then
+		Result.AccessesExternalResources = True;
+	EndIf;
+	
+	Return Result;
 	
 EndFunction
 
-Procedure DisableScheduledJob1(LockParameters, ScheduledJob)
+Procedure DisableScheduledJob1(LockParameters, ScheduledJob, BlockAccessToExternalResources)
 	
 	Filter = New Structure;
 	Filter.Insert("Metadata", ScheduledJob);
@@ -361,16 +406,25 @@ Procedure DisableScheduledJob1(LockParameters, ScheduledJob)
 	
 	For Each Job In FoundJobs Do
 		ScheduledJobsServer.ChangeJob(Job, New Structure("Use", False));
-		LockParameters.DisabledJobs.Add(Job.UUID);
+		If BlockAccessToExternalResources Then
+			LockParameters.DisabledTasksWhenAccessToInternetServicesIsDisabled.Add(Job.UUID);
+		Else
+			LockParameters.DisabledJobs.Add(Job.UUID);
+		EndIf;
 	EndDo;
 	
 EndProcedure
 
-Procedure EnableDisabledScheduledJobs(LockParameters)
+Procedure EnableDisabledScheduledJobs(LockParameters, UnblockForAccessToInternetServices = False)
 	
 	DataSeparationEnabled = Common.DataSeparationEnabled();
+	If UnblockForAccessToInternetServices Then
+		DisabledJobs = LockParameters.DisabledTasksWhenAccessToInternetServicesIsDisabled;
+	Else
+		DisabledJobs = LockParameters.DisabledJobs;
+	EndIf;
 	
-	For Each JobID In LockParameters.DisabledJobs Do
+	For Each JobID In DisabledJobs Do
 		
 		If DataSeparationEnabled = (TypeOf(JobID) = Type("UUID")) Then
 			Continue;
@@ -384,14 +438,12 @@ Procedure EnableDisabledScheduledJobs(LockParameters)
 		
 		For Each Job In FoundJobs Do
 			ScheduledJobsServer.ChangeJob(Job, New Structure("Use", True));
-			LockParameters.DisabledJobs.Add(Job.UUID);
+			DisabledJobs.Add(Job.UUID);
 		EndDo;
 		
 	EndDo;
 	
 EndProcedure
-
-// ACC:453-on
 
 #EndRegion
 
@@ -511,7 +563,7 @@ Function SetExternalResourcesOperationsLock()
 		// Therefore, check if the infobase was re-located using the checking file.
 		
 		If Not FileInfobaseIDCheckFileExists() Then
-			MessageText = NStr("en = 'The infobase folder does not contain check file %1.';");
+			MessageText = NStr("en = 'The infobase directory does not contain check file %1.';");
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, "DoNotCopy.txt");
 			SetFlagShowsNecessityOfLock(LockParameters, MessageText);
 			Return True;
@@ -606,10 +658,10 @@ Function LockReasonPresentation(LockParameters)
 	Return StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'The lock was set on server <b>%1</b> on <b>%2</b> at <b>%3</b> %4.
 		           |
-		           |The infobase location has been changed. Old location: 
-		           |<b>%5</b>
-		           |New location: 
-		           |<b>%6</b>';"),
+		           |The infobase location has been changed.
+		           |Old location: <b>%5</b>
+		           |New location: <b>%6</b>
+		           |';"),
 		ComputerName(),
 		Format(CurrentDate, "DLF=D"),
 		Format(CurrentDate, "DLF=T"),

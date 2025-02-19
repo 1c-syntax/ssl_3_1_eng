@@ -26,7 +26,7 @@ EndProcedure
 &AtClient
 Procedure LanguageStartChoice(Item, ChoiceData, StandardProcessing)
 	
-	NotifyDescription = New NotifyDescription("WhenSelectingALanguage", ThisObject);
+	NotifyDescription = New CallbackDescription("WhenSelectingALanguage", ThisObject);
 	OpeningParameters = New Structure("Filter", Object.Code);
 	
 	OpenForm("Catalog.PrintFormsLanguages.Form.PickLanguageFromAvailableLanguagesList",

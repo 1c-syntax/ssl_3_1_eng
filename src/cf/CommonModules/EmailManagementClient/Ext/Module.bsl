@@ -24,7 +24,7 @@ Procedure OpenAttachment(Ref, Form, ForEditing = False) Export
 		AdditionalParameters = New Structure("FileData", FileData);
 		AdditionalParameters.Insert("ForEditing", ForEditing);
 		
-		Notification = New NotifyDescription("OpenFileAfterConfirm", ThisObject, AdditionalParameters);
+		Notification = New CallbackDescription("OpenFileAfterConfirm", ThisObject, AdditionalParameters);
 		UsersInternalClient.ShowSecurityWarning(Notification,
 			UsersInternalClientServer.SecurityWarningKinds().BeforeOpenFile,
 			FileData.FileName);
@@ -97,7 +97,7 @@ Procedure SendReceiveUserEmail(UUID, Form, ItemList = Undefined, DisplayProgress
 	Else
 		IdleParameters.OutputIdleWindow = False;
 	EndIf;
-	CallbackOnCompletion = New NotifyDescription("SendReceiveUserEmailCompletion", ThisObject, AdditionalParameters);
+	CallbackOnCompletion = New CallbackDescription("SendReceiveUserEmailCompletion", ThisObject, AdditionalParameters);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure

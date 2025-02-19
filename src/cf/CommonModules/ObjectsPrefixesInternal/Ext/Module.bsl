@@ -94,8 +94,7 @@ EndProcedure
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Internal export procedures and functions.
+#Region ExportServiceProceduresAndFunctions
 
 // Returns the flag that shows whether the object's company or date is changed.
 //
@@ -348,8 +347,9 @@ Function MetadataUsingPrefixesDetails(DiagnosticsMode = False) Export
 EndFunction
 
 
-////////////////////////////////////////////////////////////////////////////////
-// Local internal procedures and functions.
+#EndRegion
+
+#Region LocalUtilityProceduresAndFunctions
 
 // Determines whether the AfterDataImport event handler is to be executed upon exchange in DIB.
 //
@@ -567,5 +567,7 @@ Function EventLogEventReassignObjectsPrefixes()
 		Common.DefaultLanguageCode());
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion

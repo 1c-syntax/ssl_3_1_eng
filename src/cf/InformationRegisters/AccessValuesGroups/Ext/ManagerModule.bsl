@@ -194,8 +194,7 @@ Procedure UpdateAccessValuesGroups(AccessValue = Undefined,
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+#Region InfobaseUpdate
 
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
@@ -212,8 +211,9 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+#EndRegion
+
+#Region AuxiliaryProceduresAndFunctions
 
 // Deletes unnecessary records if any are found.
 Procedure DeleteUnusedRecords(HasChanges = Undefined)
@@ -451,7 +451,7 @@ Procedure DeleteUnusedRecords(HasChanges = Undefined)
 			RecordSet.Filter.AccessValue.Set(Selection.AccessValue);
 			RecordSet.Filter.AccessValuesGroup.Set(Selection.AccessValuesGroup);
 			RecordSet.Filter.DataGroup.Set(Selection.DataGroup);
-			RecordSet.Write();
+			InfobaseUpdate.WriteRecordSet(RecordSet);
 			HasChanges = True;
 		EndDo;
 	EndIf;
@@ -493,6 +493,10 @@ Procedure UpdateEmptyAccessValuesGroups(HasChanges = Undefined)
 	
 	AccessKindsProperties = AccessManagementInternal.AccessKindsProperties();
 	AccessValuesWithGroups = AccessKindsProperties.AccessValuesWithGroups;
+	
+	If Not ValueIsFilled(AccessValuesWithGroups.NamesOfTablesToUpdate) Then
+		Return;
+	EndIf;
 	
 	ByRefTypesForUpdate = AccessValuesWithGroups.ByRefTypesForUpdate;
 	QueriesTextsForMissing = New Array;
@@ -778,7 +782,7 @@ Procedure UpdateFromQueryResult(Query, Block,
 				RecordSet.Filter.DataGroup.Set(0);
 				RecordSet.Filter.AccessValue.Set(Selection.AccessValue);
 				RecordSet.Filter.AccessValuesGroup.Set(Selection.AccessValuesGroup);
-				RecordSet.Write(); // Delete unnecessary linkage records.
+				InfobaseUpdate.WriteRecordSet(RecordSet); // Delete unnecessary linkage records.
 				
 				ValueType = TypeOf(Selection.AccessValue);
 				IsTypeProcessed = ProcessedTypes.Get(ValueType);
@@ -801,7 +805,7 @@ Procedure UpdateFromQueryResult(Query, Block,
 				RecordSet.Filter.AccessValuesGroup.Set(Selection.AccessValuesGroup);
 				RecordSet.Filter.DataGroup.Set(0);
 				FillPropertyValues(Record, Selection);
-				RecordSet.Write(); // Add missing linkage records.
+				InfobaseUpdate.WriteRecordSet(RecordSet); // Add missing linkage records.
 				
 				ValueType = TypeOf(Selection.AccessValue);
 				IsTypeProcessed = ProcessedTypes.Get(ValueType);
@@ -852,7 +856,7 @@ EndProcedure
 Function ErrorTextTypeNotConfigured(AccessValueType)
 	
 	ErrorTitle =
-		NStr("en = 'An error occurred when updating Access Value Groups.';")
+		NStr("en = 'An error occurred when updating access value groups.';")
 		+ Chars.LF
 		+ Chars.LF;
 	
@@ -869,7 +873,7 @@ EndFunction
 Procedure CheckTablesMetadata(NamesOfTablesToUpdate, ByRefTypesForUpdate) Export
 	
 	ErrorTitle =
-		NStr("en = 'An error occurred when updating Access Value Groups.';")
+		NStr("en = 'An error occurred when updating access value groups.';")
 		+ Chars.LF
 		+ Chars.LF;
 	
@@ -1170,7 +1174,7 @@ Procedure UpdatePerformersGroups(PerformersGroups = Undefined,
 		RecordSet.Read();
 		If RecordSet.Count() > 0 Then
 			RecordSet.Clear();
-			RecordSet.Write();
+			InfobaseUpdate.WriteRecordSet(RecordSet);
 			HasChanges = True;
 		EndIf;
 		Return;
@@ -1411,6 +1415,8 @@ Procedure UpdateAuthorizationObjects(AuthorizationObjects = Undefined, HasChange
 	AccessManagementInternal.UpdateInformationRegister(Data, HasChanges);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 

@@ -228,9 +228,9 @@ Procedure ListChoiceProcessing(Item, SelectionResult, StandardProcessing)
 		Return;
 	EndIf;
 	If AddOn.Total = 1 Then
-		NotificationTitle = NStr("en = 'The item added to the list.';");
+		NotificationTitle = NStr("en = 'Item added to list';");
 	Else
-		NotificationTitle = NStr("en = 'The items added to the list.';");
+		NotificationTitle = NStr("en = 'Items added to list';");
 	EndIf;
 	ShowUserNotification(
 		NotificationTitle,
@@ -263,7 +263,7 @@ Procedure PasteFromClipboard(Command)
 	SearchParameters.Insert("Scenario", "RefsSearch");
 	
 	ExecutionParameters = New Structure;
-	Handler = New NotifyDescription("PasteFromClipboardCompletion", ThisObject, ExecutionParameters);
+	Handler = New CallbackDescription("PasteFromClipboardCompletion", ThisObject, ExecutionParameters);
 	
 	ModuleDataImportFromFileClient = CommonClient.CommonModule("ImportDataFromFileClient");
 	ModuleDataImportFromFileClient.ShowRefFillingForm(SearchParameters, Handler);
@@ -286,8 +286,7 @@ Procedure PasteFromClipboardCompletion(FoundObjects, ExecutionParameters) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Constructors.
+#Region Constructors
 
 // The constructor of details of value list item properties.
 //
@@ -310,5 +309,7 @@ Function ListItemBeforeStartChanging()
 	Return Item;
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion

@@ -40,7 +40,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			List, "Executed", False);
 	EndIf;
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		PlacementParameters = ModuleAttachableCommands.PlacementParameters();
@@ -86,7 +86,7 @@ EndProcedure
 &AtClient
 Procedure ListOnActivateRow(Item)
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -96,6 +96,7 @@ Procedure ListOnActivateRow(Item)
 EndProcedure
 
 #EndRegion
+
 #Region FormTableItemsEventHandlersTasksTree
 
 &AtClient
@@ -109,7 +110,7 @@ EndProcedure
 &AtClient
 Procedure TasksTreeOnActivateRow(Item)
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -144,10 +145,10 @@ EndProcedure
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
-		ElementsWithCommands = ?(Items.List.Visible = False, Items.TasksTree, Items.List);
+		ItemsWithCommands = ?(Items.List.Visible = False, Items.TasksTree, Items.List);
 		
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
-		ModuleAttachableCommandsClient.StartCommandExecution(ThisObject, Command, ElementsWithCommands);
+		ModuleAttachableCommandsClient.StartCommandExecution(ThisObject, Command, ItemsWithCommands);
 	EndIf;
 EndProcedure
 
@@ -159,20 +160,20 @@ EndProcedure
 &AtServer
 Procedure ExecuteCommandAtServer(ExecutionParameters)
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
-		ElementsWithCommands = ?(Items.List.Visible = False, Items.TasksTree, Items.List);
+		ItemsWithCommands = ?(Items.List.Visible = False, Items.TasksTree, Items.List);
 		
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
-		ModuleAttachableCommands.ExecuteCommand(ThisObject, ExecutionParameters, ElementsWithCommands);
+		ModuleAttachableCommands.ExecuteCommand(ThisObject, ExecutionParameters, ItemsWithCommands);
 	EndIf;
 EndProcedure
 
 &AtClient
 Procedure Attachable_UpdateCommands()
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
-		ElementsWithCommands = ?(Items.List.Visible = False, Items.TasksTree, Items.List);
+		ItemsWithCommands = ?(Items.List.Visible = False, Items.TasksTree, Items.List);
 		
 		ModuleAttachableCommandsClientServer = CommonClient.CommonModule("AttachableCommandsClientServer");
-		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, ElementsWithCommands);
+		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, ItemsWithCommands);
 	EndIf;
 EndProcedure
 

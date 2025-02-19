@@ -14,13 +14,10 @@
 // Configuration subsystems event handlers.
 
 // See CommonOverridable.OnAddMetadataObjectsRenaming.
-Procedure OnAddMetadataObjectsRenaming(Total) Export
+Procedure OnAddMetadataObjectsRenaming(Renamings) Export
 
-	Library = "StandardSubsystems";
-
-	OldName = "Role.UsingSubordinationStructure";
-	NewName  = "Role.ViewRelatedDocuments";
-	Common.AddRenaming(Total, "2.3.3.5", OldName, NewName, Library);
+	Common.AddRenaming(Renamings, "2.3.3.5", 
+		"Role.UsingSubordinationStructure", "Role.ViewRelatedDocuments", "StandardSubsystems");
 
 EndProcedure
 

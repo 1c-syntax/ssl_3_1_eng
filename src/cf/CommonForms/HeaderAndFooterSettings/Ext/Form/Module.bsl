@@ -21,7 +21,8 @@ Var TextTemplates;
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	DefineBehaviorInMobileClient();
 	
-	IsCustomSettings = Parameters.Property("Settings", Settings);
+	Settings = Parameters.Settings; // See HeaderFooterManagement.HeaderOrFooterSettings
+	IsCustomSettings = Parameters.IsCustomSettings;
 	If Not IsCustomSettings Then 
 		Items.FormOK.Title = NStr("en = 'Save';");
 	EndIf;
@@ -31,8 +32,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	CustomizeStandardSettingsServer();
 	
 	CurrentUser = Users.CurrentUser();
-	
 	PageSample = 1;
+	
 EndProcedure
 
 &AtClient
@@ -104,8 +105,7 @@ Procedure CustomizeHeaderFont(Command)
 	FontChooseDialog.Font = FontHeader;
 #EndIf
 	
-	NotifyDescription = New NotifyDescription("HeaderFontSettingCompletion", ThisObject);
-	
+	NotifyDescription = New CallbackDescription("HeaderFontSettingCompletion", ThisObject);
 	FontChooseDialog.Show(NotifyDescription);
 	
 EndProcedure
@@ -118,8 +118,7 @@ Procedure CustomizeFooterFont(Command)
 	FontChooseDialog.Font = FontFooter;
 #EndIf
 	
-	NotifyDescription = New NotifyDescription("FooterFontSettingCompletion", ThisObject);
-	
+	NotifyDescription = New CallbackDescription("FooterFontSettingCompletion", ThisObject);
 	FontChooseDialog.Show(NotifyDescription);
 	
 EndProcedure

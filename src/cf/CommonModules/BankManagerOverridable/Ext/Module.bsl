@@ -23,8 +23,8 @@ EndProcedure
 //
 // Parameters:
 //  Settings - Structure:
-//   * ShouldProcessDataAreas - Boolean - Enables the execution of the " OnProcessDataArea" procedure upon the classifier update.
-//                                          
+//   * ShouldProcessDataAreas - Boolean - Enables OnProcessDataArea procedure execution
+//                                          during classifier update.
 //
 Procedure OnDefineBankClassifiersImportSettings(Settings) Export
 	

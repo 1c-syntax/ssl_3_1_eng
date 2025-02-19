@@ -36,7 +36,7 @@ Function FileDataParameters() Export
 	
 EndFunction
 
-// Handler of the subscription to FormGetProcessing event for overriding file form.
+// FormGetProcessing event subscription handler for overriding the file form.
 //
 // Parameters:
 //  Source                 - CatalogManager - the *AttachedFiles catalog manager.
@@ -64,7 +64,7 @@ EndProcedure
 // Returns:
 //  Structure:
 //   * ShowScannerDialog - Boolean
-//   * DeviceName - String - ScannerDescription
+//   * DeviceName - String - NameOfScanner
 //   * ScannedImageFormat - EnumRef.ScannedImageFormats
 //   * ShouldSaveAsPDF - Boolean
 //   * MultipageStorageFormat - EnumRef.MultipageFileStorageFormats 

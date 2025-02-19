@@ -33,7 +33,7 @@ Procedure SelectExportDirectorySuggested(FileSystemExtensionAttached1, Additiona
 		SelectingFile.Multiselect = False;
 		SelectingFile.Title = NStr("en = 'Select export directory';");
 		
-		NotifyDescription = New NotifyDescription("DirectorySelectionDialogBoxCompletion", ThisObject, Undefined);
+		NotifyDescription = New CallbackDescription("DirectorySelectionDialogBoxCompletion", ThisObject, Undefined);
 		If SSLAvailable Then 
 			ModuleFileSystemClient = Eval("FileSystemClient");
 			If TypeOf(ModuleFileSystemClient) = Type("CommonModule") Then
@@ -50,10 +50,10 @@ EndProcedure
 &AtClient
 Procedure ExportDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
 	If SSLAvailable Then
-		NotifyDescription = New NotifyDescription("SelectExportDirectorySuggested", ThisObject);
+		NotifyDescription = New CallbackDescription("SelectExportDirectorySuggested", ThisObject);
 		ModuleFileSystemClient = Eval("FileSystemClient");
 		If TypeOf(ModuleFileSystemClient) = Type("CommonModule") Then
-			ModuleFileSystemClient.AttachFileOperationsExtension(NotifyDescription);
+			ModuleFileSystemClient.Attach1CEnterpriseExtension(NotifyDescription);
 		EndIf;
 	EndIf;
 EndProcedure

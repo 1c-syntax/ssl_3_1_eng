@@ -56,8 +56,7 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 EndProcedure
 
 
-////////////////////////////////////////////////////////////////////////////////
-// Update handlers.
+#Region UpdateHandlers
 
 // Registers in the InfobaseUpdate exchange plan the objects to update.
 // 
@@ -160,6 +159,8 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 #Region Private
 
 // In the passed item, re-populate internal attribute AddlOrderingAttribute.
@@ -194,4 +195,3 @@ EndProcedure
 #EndRegion
 
 #EndIf
-

@@ -21,32 +21,33 @@ Function TransportSettings(Val Peer) Export
 	MessagesExchangeTransportSettingsRegisterName = "MessageExchangeTransportSettings";
 	
 	QueryText =
-	"SELECT
-	|	"""" AS FILEDataExchangeDirectory,
-	|	"""" AS FTPConnectionPath,
-	|	DataAreaTransportSettings.DataExchangeDirectory AS RelativeInformationExchangeDirectory,
-	|	DataAreasTransportSettings.FILEDataExchangeDirectory AS FILECommonInformationExchangeDirectory,
-	|	DataAreasTransportSettings.FILECompressOutgoingMessageFile,
-	|	DataAreasTransportSettings.FTPConnectionPath AS FTPCommonInformationExchangeDirectory,
-	|	DataAreasTransportSettings.FTPCompressOutgoingMessageFile,
-	|	DataAreasTransportSettings.FTPConnectionMaxMessageSize,
-	|	DataAreasTransportSettings.FTPConnectionPassiveConnection,
-	|	DataAreasTransportSettings.FTPConnectionUser,
-	|	DataAreasTransportSettings.FTPConnectionPort,
-	|	DataAreasTransportSettings.DefaultExchangeMessagesTransportKind,
-	|	DataAreasTransportSettings.CorrespondentEndpoint,
-	|	TransportSettings.WebServiceAddress AS WSWebServiceURL,
-	|	TransportSettings.UserName AS WSUserName,
-	|	"""" AS WSCorrespondentDataArea,
-	|	"""" AS WSCorrespondentEndpoint
-	|FROM
-	|	InformationRegister.DataAreaExchangeTransportSettings AS DataAreaTransportSettings
-	|		LEFT JOIN InformationRegister.DataAreasExchangeTransportSettings AS DataAreasTransportSettings
-	|		ON (DataAreasTransportSettings.CorrespondentEndpoint = DataAreaTransportSettings.CorrespondentEndpoint)
-	|		LEFT JOIN #TransportSettingsTable AS TransportSettings
-	|		ON (TransportSettings.Endpoint = DataAreaTransportSettings.CorrespondentEndpoint)
-	|WHERE
-	|	DataAreaTransportSettings.Peer = &Peer";
+		"SELECT
+		|	"""" AS FILEDataExchangeDirectory,
+		|	"""" AS FTPConnectionPath,
+		|	DataAreaTransportSettings.DataExchangeDirectory AS RelativeInformationExchangeDirectory,
+		|	DataAreasTransportSettings.FILEDataExchangeDirectory AS FILECommonInformationExchangeDirectory,
+		|	DataAreasTransportSettings.FILECompressOutgoingMessageFile,
+		|	DataAreasTransportSettings.FTPConnectionPath AS FTPCommonInformationExchangeDirectory,
+		|	DataAreasTransportSettings.FTPCompressOutgoingMessageFile,
+		|	DataAreasTransportSettings.FTPConnectionMaximumAllowedMessageSize,
+		|	DataAreasTransportSettings.FTPConnectionPassiveConnection,
+		|	DataAreasTransportSettings.FTPUserConnection,
+		|	DataAreasTransportSettings.FTPConnection_Port,
+		|	DataAreasTransportSettings.DefaultExchangeMessagesTransportKind,
+		|	DataAreasTransportSettings.CorrespondentEndpoint,
+		|	TransportSettings.WebServiceAddress AS WSWebServiceURL,
+		|	TransportSettings.UserName AS WSUserName,
+		|	"""" AS WSCorrespondentDataArea,
+		|	"""" AS WSCorrespondentEndpoint
+		|FROM
+		|	InformationRegister.DataAreaExchangeTransportSettings AS DataAreaTransportSettings
+		|		LEFT JOIN InformationRegister.DataAreasExchangeTransportSettings AS DataAreasTransportSettings
+		|		ON (DataAreasTransportSettings.CorrespondentEndpoint = DataAreaTransportSettings.CorrespondentEndpoint)
+		|		LEFT JOIN #TransportSettingsTable AS TransportSettings
+		|		ON (TransportSettings.Endpoint = DataAreaTransportSettings.CorrespondentEndpoint)
+		|WHERE
+		|	DataAreaTransportSettings.Peer = &Peer";
+	
 	QueryText = StrReplace(QueryText, "#TransportSettingsTable", "InformationRegister." + MessagesExchangeTransportSettingsRegisterName);
 	
 	Query = New Query(QueryText);
@@ -82,12 +83,9 @@ Function TransportSettings(Val Peer) Export
 	Result.Insert("UseTempDirectoryToSendAndReceiveMessages", True);
 	
 	If Result.DefaultExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.FTP Then
-		
-		FTPParameters = DataExchangeServer.FTPServerNameAndPath(Result.FTPConnectionPath);
-		
+		FTPParameters = ExchangeMessagesTransport.FTPServerNameAndPath(Result.FTPConnectionPath);
 		Result.Insert("FTPServer", FTPParameters.Server);
 		Result.Insert("FTPPath",   FTPParameters.Path);
-		
 	Else
 		Result.Insert("FTPServer", "");
 		Result.Insert("FTPPath",   "");

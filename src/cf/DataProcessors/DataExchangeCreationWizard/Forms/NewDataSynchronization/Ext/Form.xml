@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<ChildItems>
 			<Button name="FormUpdateSettingsList" id="21">
@@ -92,7 +92,7 @@ Please wait…</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Data exchange with other applications</v8:content>
+									<v8:content>Data exchange with applications</v8:content>
 								</v8:item>
 							</Title>
 							<Group>Vertical</Group>
@@ -239,7 +239,7 @@ Please wait…</v8:content>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Group3</v8:content>
+															<v8:content>Group</v8:content>
 														</v8:item>
 													</Title>
 													<Group>AlwaysHorizontal</Group>
@@ -328,6 +328,34 @@ For details, see the &lt;link v8config://3cb7df0b-dc9c-4ab0-8981-61aa499325da/Op
 								</Pages>
 							</ChildItems>
 						</UsualGroup>
+					</ChildItems>
+				</Page>
+				<Page name="PageNoSettings" id="77">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Page No settings</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="PageNoSettingsExtendedTooltip" id="78"/>
+					<ChildItems>
+						<PictureDecoration name="DecorationEmpty" id="79">
+							<TextColor>#8C0000</TextColor>
+							<Font bold="true" kind="AutoFont"/>
+							<ToolTip>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Synchronization not set up</v8:content>
+								</v8:item>
+							</ToolTip>
+							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+							<Picture>
+								<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
+								<xr:LoadTransparent>true</xr:LoadTransparent>
+							</Picture>
+							<ContextMenu name="DecorationEmptyContextMenu" id="80"/>
+							<ExtendedTooltip name="DecorationEmptyExtendedTooltip" id="81"/>
+						</PictureDecoration>
 					</ChildItems>
 				</Page>
 			</ChildItems>
@@ -422,7 +450,7 @@ For details, see the &lt;link v8config://3cb7df0b-dc9c-4ab0-8981-61aa499325da/Op
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Enable internet support</v8:content>
+					<v8:content>Enable online support</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>EnableOnlineSupport</Action>

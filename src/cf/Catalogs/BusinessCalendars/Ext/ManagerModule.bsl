@@ -14,7 +14,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// SaaSTechnology.ExportImportData
+// CloudTechnology.ExportImportData
 
 // Returns the catalog attributes
 //  that naturally form a catalog item key.
@@ -32,9 +32,9 @@ Function NaturalKeyFields() Export
 	
 EndFunction
 
-// End SaaSTechnology.ExportImportData
+// End CloudTechnology.ExportImportData
 
-// StandardSubsystems.Print
+// СтандартныеПодсистемы.Печать
 
 // Generates print forms.
 //
@@ -1017,7 +1017,7 @@ EndFunction
 // Parameters:
 //  BusinessCalendar - CatalogRef.BusinessCalendars - a current catalog item.
 //  YearNumber - Number - a number of the year for which the business calendar is to be recorded.
-//  BusinessCalendarData - 
+//  BusinessCalendarData - See Catalog.BusinessCalendars.BusinessCalendarData.
 //
 Procedure WriteBusinessCalendarData(BusinessCalendar, YearNumber, BusinessCalendarData) Export
 	
@@ -1324,8 +1324,7 @@ Procedure WriteBusinessCalendar(CatalogObject)
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Business calendar print form.
+#Region BusinessCalendarPrintForm
 
 Function BusinessCalendarPrintForm(PrintFormPreparationParameters)
 	
@@ -1562,6 +1561,8 @@ Procedure FillAreaParameters(Parameters, IndicatorsGroup)
 	EndIf;
 
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 

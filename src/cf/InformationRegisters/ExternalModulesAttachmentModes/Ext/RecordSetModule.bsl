@@ -14,7 +14,7 @@
 
 Procedure OnWrite(Cancel, Replacing)
 	
-	// No need to run "DataExchange.Load".
+	// No need to check for DataExchange.Load.
 	// Safe mode restricts writing internal data.
 	SafeModeManagerInternal.OnSaveInternalData(ThisObject);
 	

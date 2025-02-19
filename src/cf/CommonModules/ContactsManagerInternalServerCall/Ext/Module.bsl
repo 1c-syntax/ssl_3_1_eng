@@ -41,12 +41,10 @@ EndFunction
 //
 Function ContactInformationCompositionString(Val XMLData) Export;
 	
-	If ContactsManagerInternalCached.IsLocalizationModuleAvailable() Then
-		ModuleContactsManagerLocalization = Common.CommonModule("ContactsManagerLocalization");
-		Return ModuleContactsManagerLocalization.ContactInformationCompositionString(XMLData);
-	EndIf;
+	Result = "";
+	ContactsManagerLocalization.OnGetContactInformationCompositionString(XMLData, Result);
 	
-	Return "";
+	Return Result;
 	
 EndFunction
 
@@ -63,11 +61,12 @@ Function TransformContactInformationXML(Val Data) Export
 	
 	Result = ContactsManager.ContactInfoFieldsToConvert();
 	
-	If ContactsManagerInternalCached.IsLocalizationModuleAvailable() Then
-		ModuleContactsManagerLocalization = Common.CommonModule("ContactsManagerLocalization");
-		Return ModuleContactsManagerLocalization.TransformContactInformationXML(Data);
+	StandardProcessing = True;
+	ContactsManagerLocalization.WhenConvertingContactInformationToXMLN(Data, Result, StandardProcessing);
+	If Not StandardProcessing And Result <> Undefined Then
+		Return Result;
 	EndIf;
-	
+
 	If ContactsManagerClientServer.IsJSONContactInformation(Data.FieldValues) Then
 		ContactInformationFields = ContactsManager.ContactInformationBasicInfo(Data.FieldValues);
 		FillPropertyValues(Result, ContactInformationFields);
@@ -105,7 +104,7 @@ Procedure WorldCountriesCollectionByClassifierData(Collection) Export
 	
 EndProcedure
 
-// Fills in the list of address options upon automatic completion by the text entered by the user.
+// Autocompletes the list of address options that match the user's input.
 //
 Procedure AutoCompleteAddress(Val Text, ChoiceData) Export
 	

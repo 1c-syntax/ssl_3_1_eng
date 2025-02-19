@@ -54,7 +54,7 @@ Procedure ReviseResult(Command)
 	
 	QueryText = NStr("en = 'Revise the conflict results for the marked lines?';");
 	
-	NotifyDescription = New NotifyDescription("ReviewTheResultsOfCollisions", ThisObject);
+	NotifyDescription = New CallbackDescription("ReviewTheResultsOfCollisions", ThisObject);
 	
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo);
 	

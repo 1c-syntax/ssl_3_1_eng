@@ -69,7 +69,7 @@ Procedure ChangeDeletionMark(Command)
 	Scenario = DeletionMarkEditScenario(SelectedItems, Statistics);
 	Scenario.Insert("SelectedItems", SelectedItems);
 	
-	Handler = New NotifyDescription("ExecuteDeletionMarkChangeScenario", ThisObject, Scenario);
+	Handler = New CallbackDescription("ExecuteDeletionMarkChangeScenario", ThisObject, Scenario);
 	ShowQueryBox(Handler, Scenario.DoQueryBox, QuestionDialogMode.YesNo);
 	
 EndProcedure
@@ -92,8 +92,7 @@ EndProcedure
 
 #Region Private
 
-//////////////////////////////////////////////////////////////////////////////////////////////
-// Procedures for output to a spreadsheet document.
+#Region ProceduresForOutputToSpreadsheet
 
 &AtServer
 Procedure OutputSpreadsheetDocument()
@@ -419,8 +418,9 @@ Procedure OutputHierarchy()
 
 EndProcedure
 
-//////////////////////////////////////////////////////////////////////////////////////////////
-// Procedures for generating a hierarchical tree of documents.
+#EndRegion
+
+#Region ProceduresForCreatingDocumentHierarchyTree
 
 &AtServer
 Procedure UpdateHierarchicalTree()
@@ -1068,8 +1068,9 @@ Function ObjectPresentationForOutput(Data)
 	
 EndFunction
 
-//////////////////////////////////////////////////////////////////////////////////////////////
-// Object state change procedures.
+#EndRegion
+
+#Region ObjectStateChangeProcedures
 
 &AtClient
 Function SelectedItems()
@@ -1132,7 +1133,7 @@ Function SelectedAreaBorders(SelectedArea1)
 	
 EndFunction
 
-// Modify the deletion mark.
+// Изменение пометки удаления.
 
 &AtServerNoContext
 Function StatisticsBySelectedItems(SelectedItems)
@@ -1415,7 +1416,7 @@ Function ProcessedDocuments(SelectedDocuments, Mode, Errors)
 	
 EndFunction
 
-// Common.
+// Общее.
 
 &AtClient
 Procedure WarnAboutAnErrorWhenChangingElements(Errors, Scenario)
@@ -1436,5 +1437,7 @@ Procedure WarnAboutAnErrorWhenChangingElements(Errors, Scenario)
 	ShowMessageBox(, WarningText);
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion

@@ -55,8 +55,7 @@ Procedure UpdatePeriodClosingDatesVersionOnDataImport(Object) Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // See CommonOverridable.OnAddSessionParameterSettingHandlers.
 Procedure OnAddSessionParameterSettingHandlers(Handlers) Export
@@ -104,7 +103,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	
 EndProcedure
 
-// 
+// See StandardSubsystems.OnSendDataToMaster.
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 	If RecordSetOnlyWithImportRestrictionDates(DataElement) Then
@@ -150,7 +149,7 @@ Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Sender) Exp
 	
 EndProcedure
 
-// Event handlers of the ReportsOptions subsystem.
+// Event handlers of the "ReportsOptions" subsystem.
 
 // See ReportsOptionsOverridable.CustomizeReportsOptions.
 Procedure OnSetUpReportsOptions(Settings) Export
@@ -161,7 +160,7 @@ Procedure OnSetUpReportsOptions(Settings) Export
 	
 EndProcedure
 
-// Event handlers of the Users subsystem.
+// Event handlers of the "Users" subsystem.
 
 // See SSLSubsystemsIntegration.AfterUserGroupsUpdate.
 Procedure AfterUserGroupsUpdate(ItemsToChange, ModifiedGroups) Export
@@ -170,7 +169,7 @@ Procedure AfterUserGroupsUpdate(ItemsToChange, ModifiedGroups) Export
 	
 EndProcedure
 
-// Event handlers of the Access management subsystem.
+// Event handlers of the "Access management" subsystem.
 
 // See AccessManagementOverridable.OnFillListsWithAccessRestriction.
 Procedure OnFillListsWithAccessRestriction(Lists) Export
@@ -179,7 +178,7 @@ Procedure OnFillListsWithAccessRestriction(Lists) Export
 	
 EndProcedure
 
-// Events handlers of the SaaSTechnology library.
+// Events handlers of the CloudTechnology library.
 
 // See ExportImportDataOverridable.OnFillCommonDataTypesSupportingRefMappingOnExport
 Procedure OnFillCommonDataTypesSupportingRefMappingOnExport(Types) Export
@@ -193,10 +192,11 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// Main procedures and functions.
+#Region MainProceduresAndFunctions
 
 // Parameters:
 //  ParameterName - String
@@ -385,8 +385,7 @@ EndFunction
 //
 //  SourceRegister - Boolean - False - a source is a register, otherwise, an object.
 //
-//  Replacing       - Boolean - if a source is a register and adding is carried out,
-//                    specify False.
+//  Replacing       - РежимЗамещения, Boolean - Record replacement mode (only for registers).
 //
 //  Delete        - Boolean - if a source is an object and an object is being deleted,
 //                    specify True.
@@ -434,11 +433,21 @@ Function CheckDataImportRestrictionDates1(Source, SourceRegister, Replacing, Del
 			Result.DataChangesDenied = True;
 		EndIf;
 		
-	ElsIf SourceRegister And Replacing Then
+	ElsIf SourceRegister
+	        And (Replacing = True
+	           Or Common.IsRecordSetReplacement(Replacing)
+	           Or Common.IsRecordSetUpdate(Replacing)
+	           Or Common.IsRecordSetMerge(Replacing)
+	           Or Common.IsRecordSetDeletion(Replacing)) Then
+		
+		FullName = Source.Metadata().FullName();
+		RefinedSource = ?(Common.IsRecordSetDeletion(Replacing),
+			FullName, Source);
+		RefinedDataID = ?(Replacing = True, Source.Filter, Source);
 		
 		If DataChangesDenied(
-				?(ObjectVersion <> "OldVersion", Source, Source.Metadata().FullName()),
-				?(ObjectVersion <> "NewVersion",  Source.Filter, Undefined),
+				?(ObjectVersion <> "OldVersion", RefinedSource, FullName),
+				?(ObjectVersion <> "NewVersion",  RefinedDataID, Undefined),
 				Result.ErrorDescription,
 				ImportRestrictionCheckNode) Then
 			
@@ -457,7 +466,7 @@ Function CheckDataImportRestrictionDates1(Source, SourceRegister, Replacing, Del
 	Else
 		// Executed when the condition is met:
 		//     NOT SourceRegister AND Source.IsNew
-		// OR SourceRegister AND NOT Replacing
+		// OR SourceRegister AND (Replacing = False or Common.IsRecordSetAddition(Replacing))
 		// OR NOT SourceRegister AND Delete.
 		If ObjectVersion <> "OldVersion"
 		   And DataChangesDenied(Source, Undefined,	Result.ErrorDescription, ImportRestrictionCheckNode) Then
@@ -546,8 +555,12 @@ Function DataChangesDenied(Data, DataID, ErrorDescription, ImportRestrictionChec
 		DataToCheck = DataToCheckFromDatabase(Data,
 			DataID, EffectiveDates, ImportRestrictionCheckNode);
 		
-		PeriodEndFound = PeriodEndClosingFound(DataToCheck,
-			PeriodEndMessageParameters, ErrorDescription, ImportRestrictionCheckNode, EffectiveDates);
+		If ValueIsFilled(DataToCheck) Then
+			PeriodEndFound = PeriodEndClosingFound(DataToCheck,
+				PeriodEndMessageParameters, ErrorDescription, ImportRestrictionCheckNode, EffectiveDates);
+		Else
+			PeriodEndFound = False;
+		EndIf;
 	EndIf;
 	
 	// Check a new object version or a record set.
@@ -559,8 +572,10 @@ Function DataChangesDenied(Data, DataID, ErrorDescription, ImportRestrictionChec
 		
 		DataToCheck = DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode);
 		
-		PeriodEndFound = PeriodEndClosingFound(DataToCheck,
-			PeriodEndMessageParameters, ErrorDescription, ImportRestrictionCheckNode, EffectiveDates);
+		If ValueIsFilled(DataToCheck) Then
+			PeriodEndFound = PeriodEndClosingFound(DataToCheck,
+				PeriodEndMessageParameters, ErrorDescription, ImportRestrictionCheckNode, EffectiveDates);
+		EndIf;
 	EndIf;
 	
 	Return PeriodEndFound;
@@ -807,7 +822,7 @@ Function DataSourcesForPeriodClosingCheck() Export
 	
 EndFunction
 
-// Returns a null reference of the specified type.
+// Returns an empty reference of the specified type.
 Function EmptyRef(RefType)
 	
 	Types = New Array;
@@ -820,8 +835,8 @@ EndFunction
 
 Function ErrorTextImportRestrictionDatesNotImplemented() Export
 	
-	Return NStr("en = 'No exchange plan is subject to data import restrictions
-	                   |from other apps for the past period.';");
+	Return NStr("en = 'No exchange plan is subject to data import restriction
+	                   |dates of previous periods.';");
 	
 EndFunction
 
@@ -988,8 +1003,9 @@ Procedure UpdatePeriodClosingDatesSections() Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+#EndRegion
+
+#Region InfobaseUpdate
 
 // Filling handler of the common initial period-end closing date before 1980.
 Procedure SetInitialPeriodEndClosingDate() Export
@@ -1195,8 +1211,9 @@ Procedure AppendSettingsForGivenAddressees() Export
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+#EndRegion
+
+#Region AuxiliaryProceduresAndFunctions
 
 // For the PeriodEndClosingDatesCheckDisabled function.
 Function PeriodEndClosingNotUsed(PeriodClosingCheck, ImportRestrictionCheckNode)
@@ -1258,7 +1275,7 @@ Function DataToCheckFromDatabase(Data, DataID, EffectiveDates, ImportRestriction
 		Query.Text = DataSources.QueryText;
 	EndIf;
 	If DataSources.IsRegister Then
-		InsertParametersAndFilterCriterion(Query, DataID);
+		Common.FilterSetRecordsFromDatabase(DataID,, Query);
 	Else
 		Query.SetParameter("Ref", DataID);
 	EndIf;
@@ -1274,31 +1291,6 @@ Function DataToCheckFromDatabase(Data, DataID, EffectiveDates, ImportRestriction
 	Return DataToCheck;
 	
 EndFunction
-
-// For the DataToCheckFromDatabase procedure.
-// Converts Filter to the condition of query language and inserts into the query.
-//
-// Parameters:
-//  Query - Query
-//  Filter  - Filter
-//
-Procedure InsertParametersAndFilterCriterion(Query, Filter)
-	
-	Condition = "";
-	For Each FilterElement In Filter Do
-		If FilterElement.Use Then
-			If Not IsBlankString(Condition) Then
-				Condition = Condition + Chars.LF + "And ";
-			EndIf;
-			Query.SetParameter(FilterElement.Name, FilterElement.Value);
-			Condition = Condition
-				+ "CurrentTable." + FilterElement.Name + " = &" + FilterElement.Name;
-		EndIf;
-	EndDo;
-	Condition = ?(ValueIsFilled(Condition), Condition, "True");
-	Query.Text = StrReplace(Query.Text, "&FilterCriterion", Condition);
-	
-EndProcedure
 
 // For the ChangeOrImportRestricted function.
 Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode)
@@ -1328,6 +1320,7 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 		FieldValues.GroupBy(DataSources.RegisterFields);
 		If FieldValues.Columns.Find("Recorder") <> Undefined
 		   And Data.Filter.Find("Recorder") <> Undefined
+		   And Data.Filter.Recorder.Use
 		   And Common.IsInformationRegister(MetadataObject) Then
 			FieldValues.FillValues(Data.Filter.Recorder.Value, "Recorder");
 		EndIf;
@@ -1620,7 +1613,7 @@ Function SessionParameterValueEffectivePeriodClosingDates() Export
 	
 EndFunction
 
-// For the PeriodEndClosingFound function.
+// Intended for "PeriodEndClosingFound" function.
 
 Function FindPeriodEndClosingDate(Sections, Data, BlankSection)
 	
@@ -1665,7 +1658,8 @@ EndFunction
 Function PeriodEndMessages(PeriodEnds, PeriodEndMessageParameters, SectionsProperties, SearchImportRestrictions, StructuralDetails)
 	
 	NewVersion = PeriodEndMessageParameters.NewVersion;
-	Text = DataPresentation(PeriodEndMessageParameters.Data);
+	IsRegister = False;
+	Text = DataPresentation(PeriodEndMessageParameters.Data, IsRegister);
 	
 	If StructuralDetails Then
 		ErrorDescription = New Structure;
@@ -1692,7 +1686,7 @@ Function PeriodEndMessages(PeriodEnds, PeriodEndMessageParameters, SectionsPrope
 		Else
 			If NewVersion Then
 				Template = NStr("en = 'Cannot store %1 after period-end closing date.';");
-			ElsIf IsDataSetDeletion(PeriodEndMessageParameters.Data) Then
+			ElsIf IsRegister And IsDataSetDeletion(PeriodEndMessageParameters.Data) Then
 				Template = NStr("en = 'Cannot delete %1 after period-end closing date.';");
 			Else
 				Template = NStr("en = 'Cannot change %1 after period-end closing date.';");
@@ -2036,7 +2030,7 @@ Function PeriodEndMessage(Val Prohibition, Val SearchImportRestrictions, Val Sec
 EndFunction
 
 // For the PeriodEndMessage function.
-Function DataPresentation(Data)
+Function DataPresentation(Data, IsRegister)
 	
 	If TypeOf(Data) = Type("String") Then
 		Return TrimAll(Data);
@@ -2091,12 +2085,20 @@ Function IsDataSetDeletion(Data)
 	
 	If TypeOf(Data) = Type("Structure") And TypeOf(Data.Register) <> Type("String") Then
 		Return Data.Register.Count() = 0; // The register dataset being written has no records.
+	Else
+		Replacing = Data.AdditionalProperties.Replacing;
+		If Common.IsRecordSetReplacement(Replacing) Then
+			Return Data.Count() = 0;
+		ElsIf Common.IsRecordSetDeletion(Replacing) Then
+			Return True;
+		EndIf;
 	EndIf;
+	
 	Return False;
 	
 EndFunction
 
-// For the SessionParameterValueEffectivePeriodClosingDates procedure.
+// Intended for "SessionParameterValueEffectivePeriodClosingDates" procedure.
 
 Function PeriodClosingDatesRequest()
 	
@@ -2105,11 +2107,11 @@ Function PeriodClosingDatesRequest()
 	Query = New Query;
 	Query.Text =
 	"SELECT
-	|	Constants.PeriodClosingDatesVersion AS PeriodClosingDatesVersion,
-	|	Constants.UseImportForbidDates AS UseImportForbidDates,
-	|	Constants.UsePeriodClosingDates AS UsePeriodClosingDates
+	|	ConstantValues.PeriodClosingDatesVersion AS PeriodClosingDatesVersion,
+	|	ConstantValues.UseImportForbidDates AS UseImportForbidDates,
+	|	ConstantValues.UsePeriodClosingDates AS UsePeriodClosingDates
 	|FROM
-	|	Constants AS Constants
+	|	Constants AS ConstantValues
 	|;
 	|
 	|////////////////////////////////////////////////////////////////////////////////
@@ -2384,7 +2386,7 @@ Function DataSourceDescription()
 	
 EndFunction
 
-// For the CurrentDataSourcesForPeriodClosingCheck function.
+// Intended for "CurrentDataSourcesForPeriodClosingCheck" function.
 
 Function TableField(Source, FieldKind, MetadataObject, IsRegister)
 	
@@ -2787,5 +2789,7 @@ Function IntervalOfRelativeClosingDate(PeriodEndClosingDateDetails)
 	Return Interval * 1000 + PermissionDaysCount;
 	
 EndFunction
+
+#EndRegion
 
 #EndRegion

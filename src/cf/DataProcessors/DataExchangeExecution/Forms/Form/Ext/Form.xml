@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
 	<AutoSaveDataInSettings>Use</AutoSaveDataInSettings>
 	<AutoTitle>false</AutoTitle>
@@ -234,223 +234,6 @@ Please wait…</v8:content>
 								</LabelDecoration>
 							</ChildItems>
 						</UsualGroup>
-					</ChildItems>
-				</Page>
-				<Page name="UserPasswordRequest" id="53">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>User password request</v8:content>
-						</v8:item>
-					</Title>
-					<ToolTip>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Data import</v8:content>
-						</v8:item>
-					</ToolTip>
-					<ExtendedTooltip name="UserPasswordRequestExtendedTooltip" id="89"/>
-					<ChildItems>
-						<UsualGroup name="PromptForPasswordGroup" id="131">
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Password request</v8:content>
-								</v8:item>
-							</Title>
-							<Group>Vertical</Group>
-							<Behavior>Usual</Behavior>
-							<Representation>NormalSeparation</Representation>
-							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="PromptForPasswordGroupExtendedTooltip" id="132"/>
-							<ChildItems>
-								<LabelDecoration name="Decoration2" id="63">
-									<AutoMaxWidth>false</AutoMaxWidth>
-									<Title formatted="false">
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Enter the password to log in to the web application.</v8:content>
-										</v8:item>
-									</Title>
-									<ContextMenu name="Decoration2ContextMenu" id="64"/>
-									<ExtendedTooltip name="Decoration2ExtendedTooltip" id="90"/>
-								</LabelDecoration>
-								<UsualGroup name="PasswordEntryGroup" id="59">
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Enter password</v8:content>
-										</v8:item>
-									</Title>
-									<Behavior>Usual</Behavior>
-									<Representation>None</Representation>
-									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="PasswordEntryGroupExtendedTooltip" id="91"/>
-									<ChildItems>
-										<InputField name="WSPassword" id="54">
-											<DataPath>WSPassword</DataPath>
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Password</v8:content>
-												</v8:item>
-											</Title>
-											<Width>20</Width>
-											<HorizontalStretch>false</HorizontalStretch>
-											<PasswordMode>true</PasswordMode>
-											<AutoMarkIncomplete>true</AutoMarkIncomplete>
-											<ContextMenu name="WSPasswordContextMenu" id="55"/>
-											<ExtendedTooltip name="WSPasswordExtendedTooltip" id="92"/>
-										</InputField>
-										<Button name="ForgotPassword" id="58">
-											<Type>Hyperlink</Type>
-											<CommandName>Form.Command.ForgotPassword</CommandName>
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Forgot password?</v8:content>
-												</v8:item>
-											</Title>
-											<ExtendedTooltip name="ForgotPasswordExtendedTooltip" id="93"/>
-										</Button>
-									</ChildItems>
-								</UsualGroup>
-							</ChildItems>
-						</UsualGroup>
-						<UsualGroup name="LongSyncWarningGroup" id="136">
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Long-running synchronization warning</v8:content>
-								</v8:item>
-							</Title>
-							<Behavior>Usual</Behavior>
-							<Representation>None</Representation>
-							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="LongSyncWarningGroupExtendedTooltip" id="137"/>
-							<ChildItems>
-								<UsualGroup name="WarningDecorationGroup" id="146">
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Warning decoration</v8:content>
-										</v8:item>
-									</Title>
-									<ToolTip>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Warning decoration</v8:content>
-										</v8:item>
-									</ToolTip>
-									<Group>Vertical</Group>
-									<Behavior>Usual</Behavior>
-									<Representation>None</Representation>
-									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="WarningDecorationGroupExtendedTooltip" id="147"/>
-									<ChildItems>
-										<PictureDecoration name="Decoration3" id="143">
-											<Picture>
-												<xr:Ref>CommonPicture.Warning</xr:Ref>
-												<xr:LoadTransparent>false</xr:LoadTransparent>
-											</Picture>
-											<FileDragMode>AsFile</FileDragMode>
-											<ContextMenu name="Decoration3ContextMenu" id="144"/>
-											<ExtendedTooltip name="Decoration3ExtendedTooltip" id="145"/>
-										</PictureDecoration>
-									</ChildItems>
-								</UsualGroup>
-								<UsualGroup name="GroupWarningText" id="141">
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Warning text</v8:content>
-										</v8:item>
-									</Title>
-									<ToolTip>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Warning text</v8:content>
-										</v8:item>
-									</ToolTip>
-									<Group>Vertical</Group>
-									<Behavior>Usual</Behavior>
-									<Representation>None</Representation>
-									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="GroupWarningTextExtendedTooltip" id="142"/>
-									<ChildItems>
-										<LabelDecoration name="Decoration1" id="133">
-											<AutoMaxWidth>false</AutoMaxWidth>
-											<Title formatted="false">
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Data synchronization may take a while if:
- • The connection is slow
- • The amount of data to sync is big
- • An application update is available online</v8:content>
-												</v8:item>
-											</Title>
-											<ContextMenu name="Decoration1ContextMenu" id="134"/>
-											<ExtendedTooltip name="Decoration1ExtendedTooltip" id="135"/>
-										</LabelDecoration>
-										<CheckBoxField name="NoLongSynchronizationPrompt" id="138">
-											<DataPath>NoLongSynchronizationPrompt</DataPath>
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Don't remind again</v8:content>
-												</v8:item>
-											</Title>
-											<TitleLocation>Right</TitleLocation>
-											<CheckBoxType>Auto</CheckBoxType>
-											<ContextMenu name="NoLongSynchronizationPromptContextMenu" id="139"/>
-											<ExtendedTooltip name="NoLongSynchronizationPromptExtendedTooltip" id="140"/>
-										</CheckBoxField>
-										<LabelDecoration name="Decoration4" id="148">
-											<VerticalStretch>true</VerticalStretch>
-											<ContextMenu name="Decoration4ContextMenu" id="149"/>
-											<ExtendedTooltip name="Decoration4ExtendedTooltip" id="150"/>
-										</LabelDecoration>
-									</ChildItems>
-								</UsualGroup>
-							</ChildItems>
-						</UsualGroup>
-						<CommandBar name="RunExchangeCommandBar" id="60">
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Run exchange command bar</v8:content>
-								</v8:item>
-							</Title>
-							<ToolTip>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Close command bar</v8:content>
-								</v8:item>
-							</ToolTip>
-							<HorizontalLocation>Right</HorizontalLocation>
-							<ExtendedTooltip name="RunExchangeCommandBarExtendedTooltip" id="94"/>
-							<ChildItems>
-								<Button name="ExecuteExchange" id="62">
-									<Type>CommandBarButton</Type>
-									<DefaultButton>true</DefaultButton>
-									<DefaultItem>true</DefaultItem>
-									<CommandName>Form.Command.ExecuteExchange</CommandName>
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Start sync</v8:content>
-										</v8:item>
-									</Title>
-									<ExtendedTooltip name="ExecuteExchangeExtendedTooltip" id="95"/>
-								</Button>
-								<Button name="FormClose2" id="70">
-									<Type>CommandBarButton</Type>
-									<Representation>Text</Representation>
-									<CommandName>Form.StandardCommand.Close</CommandName>
-									<ExtendedTooltip name="FormClose2ExtendedTooltip" id="96"/>
-								</Button>
-							</ChildItems>
-						</CommandBar>
 					</ChildItems>
 				</Page>
 				<Page name="DataSynchronizationWait" id="2">
@@ -953,7 +736,7 @@ Please contact the administrator.</v8:content>
 															<Title formatted="false">
 																<v8:item>
 																	<v8:lang>en</v8:lang>
-																	<v8:content>An application update is received from "%1". 
+																	<v8:content>An application update has been received from "%1". 
 The data synchronization will continue after the update installation. Please contact the administrator.</v8:content>
 																</v8:item>
 															</Title>
@@ -1239,7 +1022,7 @@ To continue with the changes made, restart the application.</v8:content>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Command bar Install close</v8:content>
+													<v8:content>Command bar Restart</v8:content>
 												</v8:item>
 											</Title>
 											<HorizontalLocation>Right</HorizontalLocation>
@@ -1251,7 +1034,7 @@ To continue with the changes made, restart the application.</v8:content>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Restart app</v8:content>
+															<v8:content>Restart application</v8:content>
 														</v8:item>
 													</Title>
 													<ExtendedTooltip name="RestartApplicationExtendedTooltip" id="262"/>
@@ -1393,12 +1176,6 @@ To continue with the changes made, restart the application.</v8:content>
 			</Type>
 		</Attribute>
 		<Attribute name="WSPassword" id="11">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Password</v8:content>
-				</v8:item>
-			</Title>
 			<Type>
 				<v8:Type>xs:string</v8:Type>
 				<v8:StringQualifiers>
@@ -1407,7 +1184,7 @@ To continue with the changes made, restart the application.</v8:content>
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="MessagesTransportKind" id="12">
+		<Attribute name="DeleteTypeOfMessageTransport" id="12">
 			<Type>
 				<v8:Type>cfg:EnumRef.ExchangeMessagesTransportTypes</v8:Type>
 			</Type>
@@ -1495,12 +1272,6 @@ To continue with the changes made, restart the application.</v8:content>
 			</Type>
 		</Attribute>
 		<Attribute name="NoLongSynchronizationPrompt" id="24">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Do not remind again</v8:content>
-				</v8:item>
-			</Title>
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
@@ -1684,6 +1455,18 @@ To continue with the changes made, restart the application.</v8:content>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
+		<Attribute name="TransportID" id="55">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="AuthenticationData" id="56">
+			<Type/>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="GoToEventLog" id="1">
@@ -1716,22 +1499,6 @@ To continue with the changes made, restart the application.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>InstallUpdate</Action>
-			<CurrentRowUse>DontUse</CurrentRowUse>
-		</Command>
-		<Command name="ForgotPassword" id="3">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Forgot password?</v8:content>
-				</v8:item>
-			</Title>
-			<ToolTip>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Forgot your password?</v8:content>
-				</v8:item>
-			</ToolTip>
-			<Action>ForgotPassword</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 		<Command name="ExecuteExchange" id="4">
@@ -1791,7 +1558,7 @@ To continue with the changes made, restart the application.</v8:content>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Restart application.</v8:content>
+					<v8:content>Restart application</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>RestartApplication</Action>

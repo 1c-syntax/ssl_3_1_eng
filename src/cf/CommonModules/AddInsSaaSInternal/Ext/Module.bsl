@@ -66,8 +66,8 @@ EndProcedure
 Procedure UpdateSharedAddIn(ComponentDetails) Export
 	
 	If Not Common.DataSeparationEnabled() Or Common.SeparatedDataUsageAvailable() Then 
-		Raise
-			NStr("en = 'Common add-ins can be imported only in shared SaaS mode.';");
+		Raise(NStr("en = 'Import of add-ins is unavailable.';"), 
+			ErrorCategory.AccessViolation);
 	EndIf;
 	
 	SetPrivilegedMode(True);
@@ -78,14 +78,12 @@ Procedure UpdateSharedAddIn(ComponentDetails) Export
 		StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Built-in data processor import is initiated
 			           |%1';"),
-		AddInsInternal.AddInPresentation(
-			ComponentDetails.Id, 
+		AddInsInternal.AddInPresentation(ComponentDetails.Id, 
 			ComponentDetails.Version)));
 	
 	BeginTransaction();
 	Try
-		Ref = Catalogs.CommonAddIns.FindByID(
-			ComponentDetails.Id, 
+		Ref = Catalogs.CommonAddIns.FindByID(ComponentDetails.Id, 
 			ComponentDetails.Version);
 		
 		If Ref.IsEmpty() Then
@@ -100,7 +98,7 @@ Procedure UpdateSharedAddIn(ComponentDetails) Export
 			SharedAddIn.Lock();
 		EndIf;
 		
-		SharedAddIn.Fill(Undefined); // Default constructor
+		SharedAddIn.Fill(Undefined);
 		
 		ComponentBinaryData = New BinaryData(ComponentDetails.PathToFile);
 		Information = AddInsInternal.InformationOnAddInFromFile(ComponentBinaryData, False);
@@ -146,9 +144,8 @@ EndFunction
 
 // Parameters:
 //   Result     - See AddInsInternal.SavedAddInInformation
-//   Id - String               - an add-in object ID.
-//   Version – String
-//                 - Undefined - an add-in version.
+//   Id - String - ID of the add-in object.
+//   Version – String - Add-in version.
 // 
 Procedure FillAddInInformation(Result, Version, Id) Export
 	
@@ -162,31 +159,33 @@ Procedure FillAddInInformation(Result, Version, Id) Export
 			Result.State = "FoundInSharedStorage";
 			Result.Ref = ReferenceFromSharedStorage;
 		EndIf;
+		Return;
+	EndIf;
+
+	If ReferenceFromSharedStorage.IsEmpty() Then
+		Result.State = "FoundInStorage";
+		Result.Ref = ReferenceFromStorage;
+		Return;
+	EndIf;
+
+	If ValueIsFilled(Version) Then
+		// The same version of an add-in is present in both the common storage and data area storage.
+		// The add-in in the data area has a higher priority.
+		Result.State = "FoundInStorage";
+		Result.Ref = ReferenceFromStorage;
+		Return;
+	EndIf;
+
+	StorageVersion = Common.ObjectAttributeValue(ReferenceFromStorage, "VersionDate");
+	SharedStorageVersion = Common.ObjectAttributeValue(ReferenceFromSharedStorage, "VersionDate");
+	If SharedStorageVersion > StorageVersion Then
+		Result.State = "FoundInSharedStorage";
+		Result.Ref = ReferenceFromSharedStorage;
 	Else
-		If ReferenceFromSharedStorage.IsEmpty() Then
-			Result.State = "FoundInStorage";
-			Result.Ref = ReferenceFromStorage;
-		Else
-			If ValueIsFilled(Version) Then
-				// The same add-in version is present in both the common storage and area storage.
-				// The add-in in the area has a higher priority.
-				Result.State = "FoundInStorage";
-				Result.Ref = ReferenceFromStorage;
-			Else
-				StorageVersion = Common.ObjectAttributeValue(ReferenceFromStorage, "VersionDate");
-				SharedStorageVersion = Common.ObjectAttributeValue(ReferenceFromSharedStorage, "VersionDate");
-				
-				If SharedStorageVersion > StorageVersion Then
-					Result.State = "FoundInSharedStorage";
-					Result.Ref = ReferenceFromSharedStorage;
-				Else
-					// The add-in is present in both the common storage and area storage.
-					// The add-in in the area has a higher priority.
-					Result.State = "FoundInStorage";
-					Result.Ref = ReferenceFromStorage;
-				EndIf;
-			EndIf;
-		EndIf;
+		// The add-in is present in both the common storage and area storage.
+		// The add-in in the area has a higher priority.
+		Result.State = "FoundInStorage";
+		Result.Ref = ReferenceFromStorage;
 	EndIf;
 
 EndProcedure
@@ -225,7 +224,7 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 	
 EndProcedure
 
-// 
+// See StandardSubsystems.OnSendDataToMaster.
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 	If TypeOf(DataElement) = Type("CatalogObject.CommonAddIns") Then

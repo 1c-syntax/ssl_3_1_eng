@@ -61,6 +61,63 @@ EndProcedure
 
 #Region Internal
 
+// Defines events, to which other libraries can subscribe.
+//
+// Returns:
+//   Structure - structure property keys are names of events, to which
+//               libraries can be subscribed.
+//
+Function SSLEvents() Export
+	
+	Events = New Structure;
+	
+	// Core
+	Events.Insert("BeforeStart", False);
+	Events.Insert("OnStart", False);
+	Events.Insert("AfterStart", False);
+	Events.Insert("LaunchParametersOnProcess", False);
+	Events.Insert("BeforeExit", False);
+	Events.Insert("BeforeRecurringClientDataSendToServer", False);
+	Events.Insert("AfterRecurringReceiptOfClientDataOnServer", False);
+	Events.Insert("OnGlobalSearch", False);
+	Events.Insert("OnGlobalSearchResultChoice", False);
+	Events.Insert("OnGlobalSearchResultActionChoice", False);
+	Events.Insert("NavigationByURLProcessing", False);
+	
+	// ReportsOptions
+	Events.Insert("AfterGenerate", False);
+	Events.Insert("AtStartValueSelection", False);
+	Events.Insert("OnProcessDetails", False);
+	Events.Insert("OnProcessAdditionalDetails", False);
+	Events.Insert("OnProcessCommand", False);
+	Events.Insert("OnProcessChoice", False);
+	Events.Insert("OnProcessSpreadsheetDocumentSelection", False);
+	Events.Insert("OnProcessNotification", False);
+	Events.Insert("OnClickPeriodSelectionButton", False);
+	
+	// UsersSessions
+	Events.Insert("OnEndSessions", False);
+	
+	// PrintTools
+	Events.Insert("PrintDocumentsAfterOpen", False);
+	Events.Insert("PrintDocumentsURLProcessing", False);
+	Events.Insert("PrintDocumentsExecuteCommand", False);
+	
+	// SecurityProfiles
+	Events.Insert("OnConfirmRequestsToUseExternalResources", False);
+	
+	// IBBackup
+	Events.Insert("OnCheckIfCanBackUpInUserMode", False);
+	Events.Insert("OnPromptUserForBackup", False);
+	
+	// SourceDocumentsOriginalsRecording
+	Events.Insert("OnAttachBarcodeScannerToOriginalsRecordingJournal", False);
+	Events.Insert("OnOpenOriginalsAccountingJournalForm", False);
+	
+	Return Events;
+	
+EndFunction
+
 #Region Core
 
 // See CommonClientOverridable.BeforeStart
@@ -146,7 +203,12 @@ Procedure BeforeStart(Parameters) Export
 		ModuleOSLSubsystemsIntegrationClient = CommonClient.CommonModule("OSLSubsystemsIntegrationClient");
 		ModuleOSLSubsystemsIntegrationClient.BeforeStart(Parameters);
 	EndIf;
-	
+
+	If SSLSubsystemsIntegrationClientCached.PlusSubscriptions().BeforeStart Then
+		ModulePlusSubsystemsIntegrationClient = ModulePlusSubsystemsIntegrationClient();
+		ModulePlusSubsystemsIntegrationClient.BeforeStart(Parameters);
+	EndIf;
+		
 EndProcedure
 
 // See CommonClientOverridable.OnStart
@@ -209,7 +271,12 @@ Procedure OnStart(Parameters) Export
 		ModuleOSLSubsystemsIntegrationClient = CommonClient.CommonModule("OSLSubsystemsIntegrationClient");
 		ModuleOSLSubsystemsIntegrationClient.OnStart(Parameters);
 	EndIf;
-	
+
+	If SSLSubsystemsIntegrationClientCached.PlusSubscriptions().OnStart Then
+		ModulePlusSubsystemsIntegrationClient = ModulePlusSubsystemsIntegrationClient();
+		ModulePlusSubsystemsIntegrationClient.OnStart(Parameters);
+	EndIf;
+		
 EndProcedure
 
 // See CommonClientOverridable.AfterStart.
@@ -270,7 +337,12 @@ Procedure AfterStart() Export
 		ModuleOSLSubsystemsIntegrationClient = CommonClient.CommonModule("OSLSubsystemsIntegrationClient");
 		ModuleOSLSubsystemsIntegrationClient.AfterStart();
 	EndIf;
-	
+
+	If SSLSubsystemsIntegrationClientCached.PlusSubscriptions().AfterStart Then
+		ModulePlusSubsystemsIntegrationClient = ModulePlusSubsystemsIntegrationClient();
+		ModulePlusSubsystemsIntegrationClient.AfterStart();
+	EndIf;
+		
 EndProcedure
 
 // See CommonClientOverridable.LaunchParametersOnProcess.
@@ -290,7 +362,12 @@ Procedure LaunchParametersOnProcess(StartupParameters, Cancel) Export
 		ModuleOSLSubsystemsIntegrationClient = CommonClient.CommonModule("OSLSubsystemsIntegrationClient");
 		ModuleOSLSubsystemsIntegrationClient.LaunchParametersOnProcess(StartupParameters, Cancel);
 	EndIf;
-	
+
+	If SSLSubsystemsIntegrationClientCached.PlusSubscriptions().LaunchParametersOnProcess Then
+		ModulePlusSubsystemsIntegrationClient = ModulePlusSubsystemsIntegrationClient();
+		ModulePlusSubsystemsIntegrationClient.LaunchParametersOnProcess(StartupParameters, Cancel);
+	EndIf;
+		
 EndProcedure
 
 // See CommonClientOverridable.BeforeExit.
@@ -330,7 +407,12 @@ Procedure BeforeExit(Cancel, Warnings) Export
 		ModuleOSLSubsystemsIntegrationClient = CommonClient.CommonModule("OSLSubsystemsIntegrationClient");
 		ModuleOSLSubsystemsIntegrationClient.BeforeExit(Cancel, Warnings);
 	EndIf;
-	
+
+	If SSLSubsystemsIntegrationClientCached.PlusSubscriptions().BeforeExit Then
+		ModulePlusSubsystemsIntegrationClient = ModulePlusSubsystemsIntegrationClient();
+		ModulePlusSubsystemsIntegrationClient.BeforeExit(Cancel, Warnings);
+	EndIf;
+		
 EndProcedure
 
 // See CommonClientOverridable.BeforeRecurringClientDataSendToServer
@@ -381,6 +463,11 @@ Procedure BeforeRecurringClientDataSendToServer(Parameters) Export
 	ServerNotificationsClient.AddIndicator(StartMoment,
 		"EDLSubsystemsIntegrationClient.BeforeRecurringClientDataSendToServer");
 	
+	If SSLSubsystemsIntegrationClientCached.PlusSubscriptions().BeforeRecurringClientDataSendToServer Then
+		ModulePlusSubsystemsIntegrationClient = ModulePlusSubsystemsIntegrationClient();
+		ModulePlusSubsystemsIntegrationClient.BeforeRecurringClientDataSendToServer(Parameters);
+	EndIf;
+	
 EndProcedure
 
 // See CommonClientOverridable.AfterRecurringReceiptOfClientDataOnServer
@@ -406,7 +493,12 @@ Procedure AfterRecurringReceiptOfClientDataOnServer(Results) Export
 	EndTry;
 	ServerNotificationsClient.AddIndicator(StartMoment,
 		"MonitoringCenterClientInternal.AfterRecurringReceiptOfClientDataOnServer");
-	
+
+	If SSLSubsystemsIntegrationClientCached.PlusSubscriptions().AfterRecurringReceiptOfClientDataOnServer Then
+		ModulePlusSubsystemsIntegrationClient = ModulePlusSubsystemsIntegrationClient();
+		ModulePlusSubsystemsIntegrationClient.AfterRecurringReceiptOfClientDataOnServer(Results);
+	EndIf;
+		
 	StartMoment = CurrentUniversalDateInMilliseconds();
 	Try
 		If SSLSubsystemsIntegrationClientCached.EDLSubscriptions().AfterRecurringReceiptOfClientDataOnServer Then
@@ -419,6 +511,49 @@ Procedure AfterRecurringReceiptOfClientDataOnServer(Results) Export
 	ServerNotificationsClient.AddIndicator(StartMoment,
 		"EDLSubsystemsIntegrationClient.AfterRecurringReceiptOfClientDataOnServer");
 	
+EndProcedure
+
+// See CommonClientOverridable.OnGlobalSearch
+Procedure OnGlobalSearch(SearchString, SearchPlan) Export
+	
+	If SSLSubsystemsIntegrationClientCached.PlusSubscriptions().OnGlobalSearch Then
+		ModulePlusSubsystemsIntegrationClient = ModulePlusSubsystemsIntegrationClient();
+		ModulePlusSubsystemsIntegrationClient.OnGlobalSearch(SearchString, SearchPlan);
+	EndIf;
+	
+EndProcedure
+
+// See CommonClientOverridable.OnGlobalSearchResultChoice
+Procedure OnGlobalSearchResultChoice(ResultItem, StandardProcessing) Export
+	
+	If SSLSubsystemsIntegrationClientCached.PlusSubscriptions().OnGlobalSearchResultChoice Then
+		ModulePlusSubsystemsIntegrationClient = ModulePlusSubsystemsIntegrationClient();
+		ModulePlusSubsystemsIntegrationClient.OnGlobalSearchResultChoice(
+			ResultItem, StandardProcessing);
+	EndIf;
+	
+EndProcedure
+
+// See CommonClientOverridable.OnGlobalSearchResultActionChoice
+Procedure OnGlobalSearchResultActionChoice(ResultItem, Action) Export
+	
+	If SSLSubsystemsIntegrationClientCached.PlusSubscriptions().OnGlobalSearchResultActionChoice Then
+		ModulePlusSubsystemsIntegrationClient = ModulePlusSubsystemsIntegrationClient();
+		ModulePlusSubsystemsIntegrationClient.OnGlobalSearchResultActionChoice(
+			ResultItem, Action);
+	EndIf;
+	
+EndProcedure
+
+// See CommonClientOverridable.NavigationByURLProcessing
+Procedure NavigationByURLProcessing(URLNavigationData, StandardProcessing) Export
+	
+	If SSLSubsystemsIntegrationClientCached.PlusSubscriptions().NavigationByURLProcessing Then
+		ModulePlusSubsystemsIntegrationClient = ModulePlusSubsystemsIntegrationClient();
+		ModulePlusSubsystemsIntegrationClient.NavigationByURLProcessing(
+			URLNavigationData, StandardProcessing);
+	EndIf;
+		
 EndProcedure
 
 #EndRegion
@@ -483,6 +618,12 @@ Procedure OnProcessAdditionalDetails(ReportForm, Item, Details, StandardProcessi
 		ModuleUserMonitoringInternalClient =
 			CommonClient.CommonModule("UserMonitoringInternalClient");
 		ModuleUserMonitoringInternalClient.OnProcessAdditionalDetails(ReportForm,
+			Item, Details, StandardProcessing);
+	EndIf;
+	
+	If CommonClient.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		ModuleAccessManagementInternalClient = CommonClient.CommonModule("AccessManagementInternalClient");
+		ModuleAccessManagementInternalClient.OnProcessAdditionalDetails(ReportForm,
 			Item, Details, StandardProcessing);
 	EndIf;
 	
@@ -648,7 +789,7 @@ EndProcedure
 //    requesting cluster connection parameters from the current user). Can be
 //    set to False in the event handler. In this case, standard
 //    session termination processing is not performed,
-//  NotificationAfterTerminateSession - NotifyDescription - the procedure
+//  NotificationAfterTerminateSession - CallbackDescription - the procedure
 //    called after the session is terminated (to automatically refresh the active
 //    user list). If the StandardProcessing parameter value is set to False,
 //    once the session is terminated, use the ExecuteNotificationProcessing method
@@ -668,7 +809,12 @@ Procedure OnEndSessions(OwnerForm, Val SessionsNumbers, StandardProcessing, Val 
 		ModuleOSLSubsystemsIntegrationClient = CommonClient.CommonModule("OSLSubsystemsIntegrationClient");
 		ModuleOSLSubsystemsIntegrationClient.OnEndSessions(OwnerForm, SessionsNumbers, StandardProcessing, NotificationAfterTerminateSession);
 	EndIf;
-	
+
+	If SSLSubsystemsIntegrationClientCached.PlusSubscriptions().OnEndSessions Then
+		ModulePlusSubsystemsIntegrationClient = ModulePlusSubsystemsIntegrationClient();
+		ModulePlusSubsystemsIntegrationClient.OnEndSessions(OwnerForm, SessionsNumbers, StandardProcessing, NotificationAfterTerminateSession);
+	EndIf;
+		
 EndProcedure
 
 #EndRegion
@@ -747,7 +893,12 @@ Procedure OnConfirmRequestsToUseExternalResources(IDs, OwnerForm, ClosingNotific
 		ModuleOSLSubsystemsIntegrationClient = CommonClient.CommonModule("OSLSubsystemsIntegrationClient");
 		ModuleOSLSubsystemsIntegrationClient.OnConfirmRequestsToUseExternalResources(IDs, OwnerForm, ClosingNotification1, StandardProcessing);
 	EndIf;
-	
+
+	If SSLSubsystemsIntegrationClientCached.PlusSubscriptions().OnConfirmRequestsToUseExternalResources Then
+		ModulePlusSubsystemsIntegrationClient = ModulePlusSubsystemsIntegrationClient();
+		ModulePlusSubsystemsIntegrationClient.OnConfirmRequestsToUseExternalResources(IDs, OwnerForm, ClosingNotification1, StandardProcessing);
+	EndIf;
+		
 EndProcedure
 
 #EndRegion
@@ -775,7 +926,12 @@ Procedure OnCheckIfCanBackUpInUserMode(Result) Export
 		ModuleOSLSubsystemsIntegrationClient = CommonClient.CommonModule("OSLSubsystemsIntegrationClient");
 		ModuleOSLSubsystemsIntegrationClient.OnCheckIfCanBackUpInUserMode(Result);
 	EndIf;
-	
+
+	If SSLSubsystemsIntegrationClientCached.PlusSubscriptions().OnCheckIfCanBackUpInUserMode Then
+		ModulePlusSubsystemsIntegrationClient = ModulePlusSubsystemsIntegrationClient();
+		ModulePlusSubsystemsIntegrationClient.OnCheckIfCanBackUpInUserMode(Result);
+	EndIf;
+		
 EndProcedure
 
 // Called when the user is prompted to back up.
@@ -796,6 +952,45 @@ Procedure OnPromptUserForBackup() Export
 		ModuleOSLSubsystemsIntegrationClient.OnPromptUserForBackup();
 	EndIf;
 	
+	If SSLSubsystemsIntegrationClientCached.PlusSubscriptions().OnPromptUserForBackup Then
+		ModulePlusSubsystemsIntegrationClient = ModulePlusSubsystemsIntegrationClient();
+		ModulePlusSubsystemsIntegrationClient.OnPromptUserForBackup();
+	EndIf;
+		
+EndProcedure
+
+#EndRegion
+
+#Region SourceDocumentsOriginalsRecording
+
+// See SourceDocumentsOriginalsRecordingClientOverridable.OnConnectBarcodeScanner.
+Procedure OnAttachBarcodeScannerToOriginalsRecordingJournal(Form) Export
+		
+	If SSLSubsystemsIntegrationClientCached.SubscriptionsCTL().OnAttachBarcodeScannerToOriginalsRecordingJournal Then
+		ModuleCTLSubsystemsIntegrationClient = CommonClient.CommonModule("CTLSubsystemsIntegrationClient");
+		ModuleCTLSubsystemsIntegrationClient.OnAttachBarcodeScannerToOriginalsRecordingJournal(Form);
+	EndIf;
+	
+	If SSLSubsystemsIntegrationClientCached.SubscriptionsOSL().OnAttachBarcodeScannerToOriginalsRecordingJournal Then
+		ModuleOSLSubsystemsIntegrationClient = CommonClient.CommonModule("OSLSubsystemsIntegrationClient");
+		ModuleOSLSubsystemsIntegrationClient.OnAttachBarcodeScannerToOriginalsRecordingJournal(Form);
+	EndIf;
+	
+EndProcedure
+
+// See SourceDocumentsOriginalsRecordingClientOverridable.OnOpenOriginalsAccountingJournalForm.
+Procedure OnOpenOriginalsAccountingJournalForm() Export
+		
+	If SSLSubsystemsIntegrationClientCached.SubscriptionsCTL().OnOpenOriginalsAccountingJournalForm Then
+		ModuleCTLSubsystemsIntegrationClient = CommonClient.CommonModule("CTLSubsystemsIntegrationClient");
+		ModuleCTLSubsystemsIntegrationClient.OnOpenOriginalsAccountingJournalForm();
+	EndIf;
+	
+	If SSLSubsystemsIntegrationClientCached.SubscriptionsOSL().OnOpenOriginalsAccountingJournalForm Then
+		ModuleOSLSubsystemsIntegrationClient = CommonClient.CommonModule("OSLSubsystemsIntegrationClient");
+		ModuleOSLSubsystemsIntegrationClient.OnOpenOriginalsAccountingJournalForm();
+	EndIf;
+	
 EndProcedure
 
 #EndRegion
@@ -804,52 +999,9 @@ EndProcedure
 
 #Region Private
 
-// Defines events, to which other libraries can subscribe.
-//
-// Returns:
-//   Structure - structure property keys are names of events, to which
-//               libraries can be subscribed.
-//
-Function SSLEvents() Export
+Function ModulePlusSubsystemsIntegrationClient()
 	
-	Events = New Structure;
-	
-	// Core
-	Events.Insert("BeforeStart", False);
-	Events.Insert("OnStart", False);
-	Events.Insert("AfterStart", False);
-	Events.Insert("LaunchParametersOnProcess", False);
-	Events.Insert("BeforeExit", False);
-	Events.Insert("BeforeRecurringClientDataSendToServer", False);
-	Events.Insert("AfterRecurringReceiptOfClientDataOnServer", False);
-	
-	// ReportsOptions
-	Events.Insert("AfterGenerate", False);
-	Events.Insert("AtStartValueSelection", False);
-	Events.Insert("OnProcessDetails", False);
-	Events.Insert("OnProcessAdditionalDetails", False);
-	Events.Insert("OnProcessCommand", False);
-	Events.Insert("OnProcessChoice", False);
-	Events.Insert("OnProcessSpreadsheetDocumentSelection", False);
-	Events.Insert("OnProcessNotification", False);
-	Events.Insert("OnClickPeriodSelectionButton", False);
-	
-	// UsersSessions
-	Events.Insert("OnEndSessions", False);
-	
-	// PrintTools
-	Events.Insert("PrintDocumentsAfterOpen", False);
-	Events.Insert("PrintDocumentsURLProcessing", False);
-	Events.Insert("PrintDocumentsExecuteCommand", False);
-	
-	// SecurityProfiles
-	Events.Insert("OnConfirmRequestsToUseExternalResources", False);
-	
-	// IBBackup
-	Events.Insert("OnCheckIfCanBackUpInUserMode", False);
-	Events.Insert("OnPromptUserForBackup", False);
-	
-	Return Events;
+	Return CommonClient.CommonModule("IntegrationOfSubsystemsPlusClient");
 	
 EndFunction
 

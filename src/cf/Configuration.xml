@@ -1,34 +1,34 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
-	<Configuration uuid="ba1e05d4-b4bc-46c4-8410-16adf5920d7b">
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
+	<Configuration uuid="aca74008-018d-4e28-b788-127da2344bad">
 		<InternalInfo>
 			<xr:ContainedObject>
 				<xr:ClassId>9cd510cd-abfc-11d4-9434-004095e12fc7</xr:ClassId>
-				<xr:ObjectId>38e76dee-5af8-49d1-b27b-5e6d0c7aa37e</xr:ObjectId>
+				<xr:ObjectId>cf18ea6e-d203-48df-9592-89714ec9135e</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>9fcd25a0-4822-11d4-9414-008048da11f9</xr:ClassId>
-				<xr:ObjectId>ddad89ed-4104-4422-b93c-f68a72e5fa1a</xr:ObjectId>
+				<xr:ObjectId>7a9ab2d2-8daf-48b4-9671-854a6ebcd499</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>e3687481-0a87-462c-a166-9f34594f9bba</xr:ClassId>
-				<xr:ObjectId>a21f8114-3542-4bee-9ca9-4a0d834e9296</xr:ObjectId>
+				<xr:ObjectId>6415992d-7e7e-4ada-9719-17ab2d3d8923</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>9de14907-ec23-4a07-96f0-85521cb6b53b</xr:ClassId>
-				<xr:ObjectId>f5c88ef9-2a56-4c0c-8f1c-cf578763eaa1</xr:ObjectId>
+				<xr:ObjectId>111b8b3c-0f26-4d7a-a2d8-8315d9fc38df</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>51f2d5d8-ea4d-4064-8892-82951750031e</xr:ClassId>
-				<xr:ObjectId>8c2ac387-64d9-496e-b506-ec36a9327389</xr:ObjectId>
+				<xr:ObjectId>ab0caf82-3326-4266-989f-17e0afbc161d</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>e68182ea-4237-4383-967f-90c1e3370bc7</xr:ClassId>
-				<xr:ObjectId>e373fbc4-2ac7-439a-927d-403788ae1b43</xr:ObjectId>
+				<xr:ObjectId>f1d664e7-5533-4113-99df-5a0ae4194159</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>fb282519-d103-4dd3-bc12-cb271d631dfc</xr:ClassId>
-				<xr:ObjectId>8cc23f13-948c-4e79-9f82-613980fb3c7a</xr:ObjectId>
+				<xr:ObjectId>ba0525b1-89f3-4c79-90bc-2873d106be22</xr:ObjectId>
 			</xr:ContainedObject>
 		</InternalInfo>
 		<Properties>
@@ -41,7 +41,7 @@
 			</Synonym>
 			<Comment/>
 			<NamePrefix/>
-			<ConfigurationExtensionCompatibilityMode>Version8_3_23</ConfigurationExtensionCompatibilityMode>
+			<ConfigurationExtensionCompatibilityMode>Version8_3_25</ConfigurationExtensionCompatibilityMode>
 			<DefaultRunMode>ManagedApplication</DefaultRunMode>
 			<UsePurposes>
 				<v8:Value xsi:type="app:ApplicationUsePurpose">PlatformApplication</v8:Value>
@@ -53,7 +53,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">Role.InteractiveOpenExtReportsAndDataProcessors</xr:Item>
 			</DefaultRoles>
 			<Vendor>1C Company</Vendor>
-			<Version>3.1.10.386</Version>
+			<Version>3.1.11.102</Version>
 			<UpdateCatalogAddress/>
 			<IncludeHelpInContents>true</IncludeHelpInContents>
 			<UseManagedFormInOrdinaryApplication>false</UseManagedFormInOrdinaryApplication>
@@ -210,9 +210,30 @@
 					<app:functionality>DocumentScanning</app:functionality>
 					<app:use>false</app:use>
 				</app:functionality>
+				<app:functionality>
+					<app:functionality>SpeechToText</app:functionality>
+					<app:use>false</app:use>
+				</app:functionality>
+				<app:functionality>
+					<app:functionality>Geofences</app:functionality>
+					<app:use>false</app:use>
+				</app:functionality>
+				<app:functionality>
+					<app:functionality>IncomingShareRequests</app:functionality>
+					<app:use>false</app:use>
+				</app:functionality>
+				<app:functionality>
+					<app:functionality>AllIncomingShareRequestsTypesProcessing</app:functionality>
+					<app:use>false</app:use>
+				</app:functionality>
+				<app:functionality>
+					<app:functionality>TextToSpeech</app:functionality>
+					<app:use>false</app:use>
+				</app:functionality>
 			</UsedMobileApplicationFunctionalities>
 			<StandaloneConfigurationRestrictionRoles/>
 			<MobileApplicationURLs/>
+			<AllowedIncomingShareRequestTypes/>
 			<MainClientApplicationWindowMode>Normal</MainClientApplicationWindowMode>
 			<DefaultInterface/>
 			<DefaultStyle/>
@@ -248,7 +269,7 @@
 			<SynchronousPlatformExtensionAndAddInCallUseMode>Use</SynchronousPlatformExtensionAndAddInCallUseMode>
 			<InterfaceCompatibilityMode>TaxiEnableVersion8_2</InterfaceCompatibilityMode>
 			<DatabaseTablespacesUseMode>DontUse</DatabaseTablespacesUseMode>
-			<CompatibilityMode>Version8_3_21</CompatibilityMode>
+			<CompatibilityMode>Version8_3_24</CompatibilityMode>
 			<DefaultConstantsForm/>
 		</Properties>
 		<ChildObjects>
@@ -276,6 +297,7 @@
 			<StyleItem>CreateRightBackground</StyleItem>
 			<StyleItem>DeniedAccessRightColor</StyleItem>
 			<StyleItem>DocumentRecordsReportGroupHeadingFont</StyleItem>
+			<StyleItem>DSStampColor</StyleItem>
 			<StyleItem>EmptyHyperlinkColor</StyleItem>
 			<StyleItem>ErrorFullTextSearchBackground</StyleItem>
 			<StyleItem>ErrorNoteText</StyleItem>
@@ -346,9 +368,15 @@
 			<CommonPicture>AccessLevelCreate</CommonPicture>
 			<CommonPicture>AccessLevelEdit</CommonPicture>
 			<CommonPicture>AccessLevelHasRight</CommonPicture>
+			<CommonPicture>AccessLevelInsertWithoutCreate</CommonPicture>
+			<CommonPicture>AccessLevelInsertWithoutEditAndCreate</CommonPicture>
+			<CommonPicture>AccessLevelInsertWithoutViewEditAndCreate</CommonPicture>
 			<CommonPicture>AccessLevelInstall</CommonPicture>
+			<CommonPicture>AccessLevelReadWithoutView</CommonPicture>
 			<CommonPicture>AccessLevelReceive</CommonPicture>
 			<CommonPicture>AccessLevelReceiveAndInstall</CommonPicture>
+			<CommonPicture>AccessLevelUpdateWithoutEdit</CommonPicture>
+			<CommonPicture>AccessLevelUpdateWithoutViewAndEdit</CommonPicture>
 			<CommonPicture>AccessLevelUse</CommonPicture>
 			<CommonPicture>AccessLevelUseAndAdministerSource</CommonPicture>
 			<CommonPicture>AccessLevelUseSource</CommonPicture>
@@ -388,6 +416,9 @@
 			<CommonPicture>BorderColor</CommonPicture>
 			<CommonPicture>BotFather</CommonPicture>
 			<CommonPicture>BotFatherVKontakte</CommonPicture>
+			<CommonPicture>BotFatherWebChat</CommonPicture>
+			<CommonPicture>BotFatherWebhook</CommonPicture>
+			<CommonPicture>BotFatherWhatsapp</CommonPicture>
 			<CommonPicture>BottomBorder</CommonPicture>
 			<CommonPicture>Calculate</CommonPicture>
 			<CommonPicture>Call</CommonPicture>
@@ -449,6 +480,7 @@
 			<CommonPicture>Count</CommonPicture>
 			<CommonPicture>CrossTableReport</CommonPicture>
 			<CommonPicture>DataAnalysis48</CommonPicture>
+			<CommonPicture>DataExchangeSettingActive</CommonPicture>
 			<CommonPicture>DataExchangeState</CommonPicture>
 			<CommonPicture>DataExchangeStateError</CommonPicture>
 			<CommonPicture>DataSynchronization</CommonPicture>
@@ -469,6 +501,7 @@
 			<CommonPicture>DataTypeIcons</CommonPicture>
 			<CommonPicture>DateType</CommonPicture>
 			<CommonPicture>DecreaseFont</CommonPicture>
+			<CommonPicture>DefaultTransport</CommonPicture>
 			<CommonPicture>DefaultWorkingDirectory</CommonPicture>
 			<CommonPicture>DigitalSignatureStamp</CommonPicture>
 			<CommonPicture>Disconnect</CommonPicture>
@@ -536,6 +569,7 @@
 			<CommonPicture>FormMetadata</CommonPicture>
 			<CommonPicture>ForwardEmail</CommonPicture>
 			<CommonPicture>ForwardEmailAsAttachment</CommonPicture>
+			<CommonPicture>GooggleDrive</CommonPicture>
 			<CommonPicture>GoogleMaps</CommonPicture>
 			<CommonPicture>GrayCross</CommonPicture>
 			<CommonPicture>GreenDownArrow</CommonPicture>
@@ -548,6 +582,7 @@
 			<CommonPicture>HTMLFormat</CommonPicture>
 			<CommonPicture>HyperlinkType</CommonPicture>
 			<CommonPicture>IconCollectionMessageTemplateParameters</CommonPicture>
+			<CommonPicture>IconForInstallingBOTComponent</CommonPicture>
 			<CommonPicture>IconsCollectionSourceDocumentOriginalAvailable</CommonPicture>
 			<CommonPicture>IconsCollectionSourceDocumentOriginalPrintForms</CommonPicture>
 			<CommonPicture>IconsExchangePlanNode</CommonPicture>
@@ -770,6 +805,7 @@
 			<CommonPicture>SortRowsDesc</CommonPicture>
 			<CommonPicture>SourceDocumentOriginalStateOriginalNotReceived</CommonPicture>
 			<CommonPicture>SourceDocumentOriginalStateOriginalReceived</CommonPicture>
+			<CommonPicture>StatesOfInstallationOfComponentsForBOTOperation</CommonPicture>
 			<CommonPicture>StopSign</CommonPicture>
 			<CommonPicture>StopSignBW</CommonPicture>
 			<CommonPicture>StringType</CommonPicture>
@@ -789,6 +825,10 @@
 			<CommonPicture>Telegram16x16</CommonPicture>
 			<CommonPicture>TemplateTypes</CommonPicture>
 			<CommonPicture>TemplateUsage</CommonPicture>
+			<CommonPicture>TextAlignmentAuto</CommonPicture>
+			<CommonPicture>TextAlignmentClip</CommonPicture>
+			<CommonPicture>TextAlignmentFill</CommonPicture>
+			<CommonPicture>TextAlignmentWrap</CommonPicture>
 			<CommonPicture>TextColor</CommonPicture>
 			<CommonPicture>TextTranslation</CommonPicture>
 			<CommonPicture>ThickBottomBorder</CommonPicture>
@@ -797,6 +837,15 @@
 			<CommonPicture>TimeConsumingOperation16</CommonPicture>
 			<CommonPicture>TimeConsumingOperation48</CommonPicture>
 			<CommonPicture>TopBorder</CommonPicture>
+			<CommonPicture>TransportCOM</CommonPicture>
+			<CommonPicture>TransportDataTransfer</CommonPicture>
+			<CommonPicture>TransportEmail</CommonPicture>
+			<CommonPicture>TransportESB1C</CommonPicture>
+			<CommonPicture>TransportFresh</CommonPicture>
+			<CommonPicture>TransportFTP</CommonPicture>
+			<CommonPicture>TransportHTTP</CommonPicture>
+			<CommonPicture>TransportPassiveMode</CommonPicture>
+			<CommonPicture>TransportWS</CommonPicture>
 			<CommonPicture>TXTFormat</CommonPicture>
 			<CommonPicture>TypeConstant</CommonPicture>
 			<CommonPicture>TypeFilter</CommonPicture>
@@ -851,10 +900,14 @@
 			<CommonPicture>VKontakte16</CommonPicture>
 			<CommonPicture>Warning</CommonPicture>
 			<CommonPicture>Warning32</CommonPicture>
+			<CommonPicture>WebChat16</CommonPicture>
+			<CommonPicture>Webhook16</CommonPicture>
 			<CommonPicture>WebPage</CommonPicture>
+			<CommonPicture>WhatsApp16</CommonPicture>
 			<CommonPicture>WordFormat</CommonPicture>
 			<CommonPicture>WordFormat2007</CommonPicture>
 			<CommonPicture>WriteSMS</CommonPicture>
+			<CommonPicture>YandexDisk</CommonPicture>
 			<CommonPicture>YandexMaps</CommonPicture>
 			<CommonPicture>DeleteInformation</CommonPicture>
 			<SessionParameter>AccessKindsWithoutGroupsForAccessValues</SessionParameter>
@@ -887,6 +940,7 @@
 			<SessionParameter>DIsableAccessKeysUpdate</SessionParameter>
 			<SessionParameter>DisabledAccessKinds</SessionParameter>
 			<SessionParameter>ExtensionsVersion</SessionParameter>
+			<SessionParameter>ExternalReportsAndDataProcessorsRunModes</SessionParameter>
 			<SessionParameter>IBUpdateInProgress</SessionParameter>
 			<SessionParameter>IDsOfTablesWithIndividualRightsSettings</SessionParameter>
 			<SessionParameter>InstalledExtensions</SessionParameter>
@@ -894,7 +948,6 @@
 			<SessionParameter>ListsWithReadRestrictionDisabled</SessionParameter>
 			<SessionParameter>ListsWithRestrictionByFields</SessionParameter>
 			<SessionParameter>ListsWithUsersAccessKeysRestriction</SessionParameter>
-			<SessionParameter>ModesForLaunchingExternalReportsAndProcessing</SessionParameter>
 			<SessionParameter>ObjectsDeletionInProgress</SessionParameter>
 			<SessionParameter>ObjectsRegistrationRules</SessionParameter>
 			<SessionParameter>ObjectWritingInProgress</SessionParameter>
@@ -956,6 +1009,7 @@
 			<Role>EditAccessGroupMembers</Role>
 			<Role>EditAdditionalInfo</Role>
 			<Role>EditCompleteTask</Role>
+			<Role>EditExportFileTemplates</Role>
 			<Role>EditObjectAttributes</Role>
 			<Role>EditPrintFormTemplates</Role>
 			<Role>EncryptAndDecryptData</Role>
@@ -1014,7 +1068,7 @@
 			<CommonTemplate>GuideToCreateFacsimileAndStamp</CommonTemplate>
 			<CommonTemplate>InstructionToSetCodeForPredefinedNode_en</CommonTemplate>
 			<CommonTemplate>ManualUpdateInstruction</CommonTemplate>
-			<CommonTemplate>OfficeOpenDigitalSignatureStampTemplate</CommonTemplate>
+			<CommonTemplate>OfficeOpenDigitalSignatureStamp</CommonTemplate>
 			<CommonTemplate>PrintDataCharacterCase</CommonTemplate>
 			<CommonTemplate>PrintDataCommonAttributes</CommonTemplate>
 			<CommonTemplate>QRCodePrintingComponent</CommonTemplate>
@@ -1121,10 +1175,13 @@
 			<CommonModule>ConfigurationUpdateServerCall</CommonModule>
 			<CommonModule>ContactsManager</CommonModule>
 			<CommonModule>ContactsManagerClient</CommonModule>
+			<CommonModule>ContactsManagerClientLocalization</CommonModule>
 			<CommonModule>ContactsManagerClientServer</CommonModule>
+			<CommonModule>ContactsManagerClientServerLocalization</CommonModule>
 			<CommonModule>ContactsManagerInternal</CommonModule>
 			<CommonModule>ContactsManagerInternalCached</CommonModule>
 			<CommonModule>ContactsManagerInternalServerCall</CommonModule>
+			<CommonModule>ContactsManagerLocalization</CommonModule>
 			<CommonModule>ContactsManagerOverridable</CommonModule>
 			<CommonModule>Conversations</CommonModule>
 			<CommonModule>ConversationsClient</CommonModule>
@@ -1132,13 +1189,16 @@
 			<CommonModule>ConversationsInternalClient</CommonModule>
 			<CommonModule>ConversationsInternalClientServer</CommonModule>
 			<CommonModule>ConversationsInternalServerCall</CommonModule>
+			<CommonModule>ConversationsLocalization</CommonModule>
 			<CommonModule>CurrenciesExchangeRatesClientServer</CommonModule>
 			<CommonModule>CurrenciesExchangeRatesServerCall</CommonModule>
 			<CommonModule>CurrencyRateOperations</CommonModule>
 			<CommonModule>CurrencyRateOperationsClient</CommonModule>
+			<CommonModule>CurrencyRateOperationsClientLocalization</CommonModule>
 			<CommonModule>CurrencyRateOperationsClientServer</CommonModule>
 			<CommonModule>CurrencyRateOperationsGlobal</CommonModule>
 			<CommonModule>CurrencyRateOperationsInternal</CommonModule>
+			<CommonModule>CurrencyRateOperationsLocalization</CommonModule>
 			<CommonModule>CurrencyRateOperationsOverridable</CommonModule>
 			<CommonModule>DataExchangeCached</CommonModule>
 			<CommonModule>DataExchangeClient</CommonModule>
@@ -1197,12 +1257,22 @@
 			<CommonModule>EmailOperationsClientOverridable</CommonModule>
 			<CommonModule>EmailOperationsInternal</CommonModule>
 			<CommonModule>EmailOperationsInternalClientServer</CommonModule>
+			<CommonModule>EmailOperationsLocalization</CommonModule>
 			<CommonModule>EmailOperationsOverridable</CommonModule>
 			<CommonModule>EmailServerCall</CommonModule>
 			<CommonModule>EventLog</CommonModule>
 			<CommonModule>EventLogClient</CommonModule>
 			<CommonModule>EventLogOperations</CommonModule>
 			<CommonModule>EventLogServerCall</CommonModule>
+			<CommonModule>ExchangeMessagesTransport</CommonModule>
+			<CommonModule>ExchangeMessagesTransportCashed</CommonModule>
+			<CommonModule>ExchangeMessagesTransportClient</CommonModule>
+			<CommonModule>ExchangeMessagesTransportClientServer</CommonModule>
+			<CommonModule>ExchangeMessagesTransportOverridable</CommonModule>
+			<CommonModule>ExchangeMessageTransportServerCall</CommonModule>
+			<CommonModule>ExchangeWebServiceOperationData</CommonModule>
+			<CommonModule>ExportObjectsToFiles</CommonModule>
+			<CommonModule>ExportObjectsToFilesInternalClient</CommonModule>
 			<CommonModule>ExternalResourcesOperationsLock</CommonModule>
 			<CommonModule>ExternalResourcesOperationsLockOverridable</CommonModule>
 			<CommonModule>ExternalResourcesPermissionsSetupClient</CommonModule>
@@ -1223,6 +1293,7 @@
 			<CommonModule>FilesOperationsInternalSaaSCached</CommonModule>
 			<CommonModule>FilesOperationsInternalServerCall</CommonModule>
 			<CommonModule>FilesOperationsInVolumesInternal</CommonModule>
+			<CommonModule>FilesOperationsLocalization</CommonModule>
 			<CommonModule>FilesOperationsOverridable</CommonModule>
 			<CommonModule>FileSystem</CommonModule>
 			<CommonModule>FileSystemClient</CommonModule>
@@ -1248,6 +1319,7 @@
 			<CommonModule>GetFilesFromInternetClientServer</CommonModule>
 			<CommonModule>GetFilesFromInternetInternal</CommonModule>
 			<CommonModule>GetFilesFromInternetInternalServerCall</CommonModule>
+			<CommonModule>GetFilesFromInternetLocalization</CommonModule>
 			<CommonModule>GoogleTranslate</CommonModule>
 			<CommonModule>HeaderFooterManagement</CommonModule>
 			<CommonModule>IBBackupClient</CommonModule>
@@ -1406,6 +1478,7 @@
 			<CommonModule>ReportsOptionsServerCall</CommonModule>
 			<CommonModule>ReportsOverridable</CommonModule>
 			<CommonModule>ReportsServer</CommonModule>
+			<CommonModule>ReportsSnapshots</CommonModule>
 			<CommonModule>SaaSOperationsSSL</CommonModule>
 			<CommonModule>SafeModeManager</CommonModule>
 			<CommonModule>SafeModeManagerClient</CommonModule>
@@ -1430,6 +1503,7 @@
 			<CommonModule>SMS</CommonModule>
 			<CommonModule>SMSClient</CommonModule>
 			<CommonModule>SoftwareLicenseCheckClient</CommonModule>
+			<CommonModule>SoftwareLicenseCheckOverridable</CommonModule>
 			<CommonModule>SourceDocumentsOriginalsRecording</CommonModule>
 			<CommonModule>SourceDocumentsOriginalsRecordingClient</CommonModule>
 			<CommonModule>SourceDocumentsOriginalsRecordingClientOverridable</CommonModule>
@@ -1462,6 +1536,8 @@
 			<CommonModule>SurveysClientServer</CommonModule>
 			<CommonModule>TextTranslationTool</CommonModule>
 			<CommonModule>TextTranslationToolClient</CommonModule>
+			<CommonModule>TextTranslationToolLocalization</CommonModule>
+			<CommonModule>TextTranslationToolServerCall</CommonModule>
 			<CommonModule>TimeConsumingOperations</CommonModule>
 			<CommonModule>TimeConsumingOperationsClient</CommonModule>
 			<CommonModule>TimeConsumingOperationsServerCall</CommonModule>
@@ -1499,7 +1575,6 @@
 			<CommonModule>UsersOverridable</CommonModule>
 			<CommonModule>WorkSchedules</CommonModule>
 			<CommonModule>WorkSchedulesClient</CommonModule>
-			<CommonModule>YandexTranslate</CommonModule>
 			<CommonAttribute>CommentLanguage1</CommonAttribute>
 			<CommonAttribute>CommentLanguage2</CommonAttribute>
 			<CommonAttribute>DescriptionLanguage1</CommonAttribute>
@@ -1563,6 +1638,7 @@
 			<WebService>RemoteAdministrationOfExchange_2_1_6_1</WebService>
 			<WebService>RemoteAdministrationOfExchange_2_4_5_1</WebService>
 			<WebService>RemoteControl</WebService>
+			<HTTPService>exchange_dsl_1_0_0_1</HTTPService>
 			<EventSubscription>AdditionalAttributesFillCheckProcessing</EventSubscription>
 			<EventSubscription>AdditionalReportsAndDataProcessorsBeforeDeleteMetadataObjectID</EventSubscription>
 			<EventSubscription>BeforeDeleteExchangePlan</EventSubscription>
@@ -1692,6 +1768,7 @@
 			<ScheduledJob>UpdateAggregates</ScheduledJob>
 			<ScheduledJob>DeleteObsoleteExtensionsVersionsParameters</ScheduledJob>
 			<SettingsStorage>ReportsVariantsStorage</SettingsStorage>
+			<FunctionalOption>AllowAccessToInternetServices</FunctionalOption>
 			<FunctionalOption>ChangeJobsBackdated</FunctionalOption>
 			<FunctionalOption>DataChangesRecorded</FunctionalOption>
 			<FunctionalOption>DeferredMasterNodeUpdateCompleted</FunctionalOption>
@@ -1791,6 +1868,7 @@
 			<DefinedType>DetailedInfoOwner</DefinedType>
 			<DefinedType>DigitalSignatureApplication</DefinedType>
 			<DefinedType>Employee</DefinedType>
+			<DefinedType>ExchangePlansDSL</DefinedType>
 			<DefinedType>ExternalUser</DefinedType>
 			<DefinedType>ExternalUserObject</DefinedType>
 			<DefinedType>ExternalValuesOwnerInAccessValueSetsObject</DefinedType>
@@ -1810,12 +1888,14 @@
 			<DefinedType>NotesSubjectObject</DefinedType>
 			<DefinedType>ObjectWithAdditionalCommands</DefinedType>
 			<DefinedType>ObjectWithCustomOrder</DefinedType>
+			<DefinedType>ObjectWithDefaultPrintForms</DefinedType>
 			<DefinedType>ObjectWithSourceDocumentsOriginalsAccounting</DefinedType>
 			<DefinedType>OptionOfReportToUpdate</DefinedType>
 			<DefinedType>Organization</DefinedType>
 			<DefinedType>OwnerLimitedByAccessValuesSetsObject</DefinedType>
 			<DefinedType>OwnerWithRestrictedAccessValueSetsDocument</DefinedType>
 			<DefinedType>PeriodClosingTarget</DefinedType>
+			<DefinedType>RecipientOfPrintForms</DefinedType>
 			<DefinedType>RegisterAccessKeysRegisterField</DefinedType>
 			<DefinedType>ReminderSubject</DefinedType>
 			<DefinedType>ReminderSubjectObject</DefinedType>
@@ -1849,6 +1929,7 @@
 			<CommonCommand>DataSyncWarnings</CommonCommand>
 			<CommonCommand>DataToSendComposition</CommonCommand>
 			<CommonCommand>ExitWarnings</CommonCommand>
+			<CommonCommand>ExportFilesTemplates</CommonCommand>
 			<CommonCommand>FilesInVolume</CommonCommand>
 			<CommonCommand>FilesToEdit</CommonCommand>
 			<CommonCommand>GetSynchronizationSettingsForOtherApplication</CommonCommand>
@@ -1900,6 +1981,8 @@
 			<Constant>AdditionalLanguage2</Constant>
 			<Constant>AdditionalReportAndDataProcessorFolderUsageSaaS</Constant>
 			<Constant>AddTimestampsAutomatically</Constant>
+			<Constant>AllowAccessToDigitalSignatureInternetServices</Constant>
+			<Constant>AllowAccessToInternetServices</Constant>
 			<Constant>AllowScheduledJobsExecutionSaaS</Constant>
 			<Constant>AutomaticallyConfigurePermissionsInSecurityProfiles</Constant>
 			<Constant>BackupParameters</Constant>
@@ -1965,10 +2048,12 @@
 			<Constant>MonitoringCenterParameters</Constant>
 			<Constant>NewTasksNotificationDate</Constant>
 			<Constant>NotUseSeparationByDataAreas</Constant>
+			<Constant>NumberOfMonthsOfMinimumPeriodOfCalculatedTotals</Constant>
 			<Constant>OrderOfDataToProcess</Constant>
 			<Constant>ORMCachedValuesRefreshDate</Constant>
 			<Constant>ParametersOfFilesStorageInIB</Constant>
 			<Constant>PasswordRecoveryAccount</Constant>
+			<Constant>PatchPropertiesBeforeInfobaseUpdate</Constant>
 			<Constant>PerformanceMonitorRecordPeriod</Constant>
 			<Constant>PeriodClosingDatesVersion</Constant>
 			<Constant>ProxyServerSetting</Constant>
@@ -2086,8 +2171,8 @@
 			<CommonForm>Extensions</CommonForm>
 			<CommonForm>ExternalResourcesOperationsLock</CommonForm>
 			<CommonForm>FilesInVolume</CommonForm>
-			<CommonForm>FileSystemExtensionInstallationQuestion</CommonForm>
 			<CommonForm>FontChoiceForm</CommonForm>
+			<CommonForm>GettingStartedWithElectronicSignature</CommonForm>
 			<CommonForm>HeaderAndFooterSettings</CommonForm>
 			<CommonForm>InfobaseUserRoleChangeControl</CommonForm>
 			<CommonForm>InputInMultipleLanguages</CommonForm>
@@ -2106,6 +2191,7 @@
 			<CommonForm>ProxyServerParameters</CommonForm>
 			<CommonForm>QuestionInstallCryptographyExtension</CommonForm>
 			<CommonForm>QuestionnaireBySectionWizard</CommonForm>
+			<CommonForm>QuestionOn1CEnterpriseExtensionInstallation</CommonForm>
 			<CommonForm>ReconnectToMasterNode</CommonForm>
 			<CommonForm>RegionalSettings</CommonForm>
 			<CommonForm>RegistrationSettingsForDataAccessEvents</CommonForm>
@@ -2118,6 +2204,7 @@
 			<CommonForm>ReportSettingsAuxiliaryForm</CommonForm>
 			<CommonForm>ReportSettingsForm</CommonForm>
 			<CommonForm>ReportVariantForm</CommonForm>
+			<CommonForm>SaveByExportFormat</CommonForm>
 			<CommonForm>SavePrintForm</CommonForm>
 			<CommonForm>SaveWithDigitalSignature</CommonForm>
 			<CommonForm>SearchForm</CommonForm>
@@ -2128,6 +2215,7 @@
 			<CommonForm>SelectContactPerson</CommonForm>
 			<CommonForm>SelectCorrespondentInfobaseObjects</CommonForm>
 			<CommonForm>SelectDate</CommonForm>
+			<CommonForm>SelectDefaultPrintFormCommand</CommonForm>
 			<CommonForm>SelectExchangePlanNodes</CommonForm>
 			<CommonForm>SelectMetadataObjects</CommonForm>
 			<CommonForm>SelectPathToVolumeFilesArchive</CommonForm>
@@ -2168,6 +2256,7 @@
 			<Catalog>EmailAccounts</Catalog>
 			<Catalog>EmailMessageFolders</Catalog>
 			<Catalog>EmailProcessingRules</Catalog>
+			<Catalog>ExchangeMessageTransportSettings</Catalog>
 			<Catalog>ExtensionObjectIDs</Catalog>
 			<Catalog>ExtensionsVersions</Catalog>
 			<Catalog>ExternalUsers</Catalog>
@@ -2264,6 +2353,7 @@
 			<Enum>LabelsDisplayOptions</Enum>
 			<Enum>MultipageFileStorageFormats</Enum>
 			<Enum>NoteColors</Enum>
+			<Enum>ObjectsExportFormats</Enum>
 			<Enum>ObjectsVersioningOptions</Enum>
 			<Enum>ObjectVersionTypes</Enum>
 			<Enum>OpenFileForViewingMethods</Enum>
@@ -2361,9 +2451,17 @@
 			<DataProcessor>DuplicateObjectsDetection</DataProcessor>
 			<DataProcessor>EnableDiscussions</DataProcessor>
 			<DataProcessor>EventLog</DataProcessor>
+			<DataProcessor>ExchangeMessageTransportCOM</DataProcessor>
 			<DataProcessor>ExchangeMessageTransportEMAIL</DataProcessor>
+			<DataProcessor>ExchangeMessageTransportESB1C</DataProcessor>
 			<DataProcessor>ExchangeMessageTransportFILE</DataProcessor>
 			<DataProcessor>ExchangeMessageTransportFTP</DataProcessor>
+			<DataProcessor>ExchangeMessageTransportGoogleDrive</DataProcessor>
+			<DataProcessor>ExchangeMessageTransportHTTP</DataProcessor>
+			<DataProcessor>ExchangeMessageTransportPassiveMode</DataProcessor>
+			<DataProcessor>ExchangeMessageTransportSM</DataProcessor>
+			<DataProcessor>ExchangeMessageTransportWS</DataProcessor>
+			<DataProcessor>ExchangeMessageTransportYandexDisk</DataProcessor>
 			<DataProcessor>ExportImportDataCollapsingUserReferencesInSeparatedData</DataProcessor>
 			<DataProcessor>ExportImportEnterpriseData</DataProcessor>
 			<DataProcessor>ExternalResourcesPermissionsSetup</DataProcessor>
@@ -2445,11 +2543,12 @@
 			<InformationRegister>DataExchangeRules</InformationRegister>
 			<InformationRegister>DataExchangesStates</InformationRegister>
 			<InformationRegister>DataExchangeTasksInternalPublication</InformationRegister>
-			<InformationRegister>DataExchangeTransportSettings</InformationRegister>
 			<InformationRegister>DataProcessedInMasterDIBNode</InformationRegister>
 			<InformationRegister>DataProcessorAccessUserSettings</InformationRegister>
 			<InformationRegister>DataSyncEventHandlers</InformationRegister>
 			<InformationRegister>DefaultAccessGroupsValues</InformationRegister>
+			<InformationRegister>DefaultCounterpartyPrintForms</InformationRegister>
+			<InformationRegister>DefaultObjectPrintForms</InformationRegister>
 			<InformationRegister>DigitalSignatures</InformationRegister>
 			<InformationRegister>EmailAccountSettings</InformationRegister>
 			<InformationRegister>EmailFolderStates</InformationRegister>
@@ -2489,6 +2588,7 @@
 			<InformationRegister>ObjectsUnregisteredDuringLoop</InformationRegister>
 			<InformationRegister>ObjectsVersions</InformationRegister>
 			<InformationRegister>ObjectVersioningSettings</InformationRegister>
+			<InformationRegister>ObsoleteSafeDataAreaDataStorage</InformationRegister>
 			<InformationRegister>OutgoingMailNotAcceptedByMailServer</InformationRegister>
 			<InformationRegister>PackagesToSend</InformationRegister>
 			<InformationRegister>PathsToDigitalSignatureAndEncryptionApplicationsOnLinuxServers</InformationRegister>
@@ -2553,6 +2653,7 @@
 			<InformationRegister>UseSuppliedAdditionalReportsAndProcessorsInDataAreas</InformationRegister>
 			<InformationRegister>XDTODataExchangeSettings</InformationRegister>
 			<InformationRegister>DeleteDataExchangeResults</InformationRegister>
+			<InformationRegister>DeleteDataExchangeTransportSettings</InformationRegister>
 			<InformationRegister>DeleteExchangeTransportSettings</InformationRegister>
 			<InformationRegister>DeleteFilesBinaryData</InformationRegister>
 			<InformationRegister>DeleteStoredVersionFiles</InformationRegister>

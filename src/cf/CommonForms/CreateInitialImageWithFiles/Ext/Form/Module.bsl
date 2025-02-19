@@ -209,11 +209,11 @@ Procedure CreateInitialImage(Command)
 		If TypeOf(Result) = Type("Structure") Then
 			If Result.DataReady Then
 				JobParametersAddress = PutToTempStorage(JobParameters, UUID);
-				NotifyDescription = New NotifyDescription("RunCreateInitialImage", ThisObject);
+				NotifyDescription = New CallbackDescription("RunCreateInitialImage", ThisObject);
 				If Result.ConfirmationRequired Then
 					ShowQueryBox(NotifyDescription, Result.QueryText, QuestionDialogMode.YesNo);
 				Else
-					ExecuteNotifyProcessing(NotifyDescription, DialogReturnCode.Yes);
+					RunCallback(NotifyDescription, DialogReturnCode.Yes);
 				EndIf;
 			EndIf;
 		EndIf;
@@ -294,7 +294,7 @@ Procedure SaveFileHandler(
 			Context.FileName,
 			ThisObject[Context.PropertyName]);
 	
-	ChoiceDialogNotificationDetails = New NotifyDescription(
+	ChoiceDialogNotificationDetails = New CallbackDescription(
 		"FileSaveHandlerAfterChoiceInDialog", ThisObject, Context);
 	FileSystemClient.ShowSelectionDialog(ChoiceDialogNotificationDetails, Dialog);
 	
@@ -380,11 +380,11 @@ Procedure StartInitialImageCreation()
 		Return;
 	EndIf;
 	
-	CallbackOnCompletion = New NotifyDescription("CreateInitialImageAtServerCompletion", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("CreateInitialImageAtServerCompletion", ThisObject);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	IdleParameters.OutputProgressBar = True;
-	IdleParameters.ExecutionProgressNotification = New NotifyDescription("CreateInitialImageAtServerProgress", ThisObject);
+	IdleParameters.ExecutionProgressNotification = New CallbackDescription("CreateInitialImageAtServerProgress", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(Result, CallbackOnCompletion, IdleParameters);
 
 EndProcedure

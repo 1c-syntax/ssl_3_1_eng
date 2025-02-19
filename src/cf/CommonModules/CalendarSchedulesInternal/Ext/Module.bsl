@@ -35,8 +35,7 @@ Procedure PlanUpdateOfDataDependentOnBusinessCalendars(Val UpdateConditions) Exp
 
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#Region ConfigurationSubsystemsEventHandlers
 
 // See JobsQueueOverridable.OnDefineHandlerAliases.
 Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
@@ -44,6 +43,8 @@ Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 	NamesAndAliasesMap.Insert("CalendarSchedulesInternal.UpdateDataDependentOnBusinessCalendars");
 	
 EndProcedure
+
+#EndRegion
 
 #EndRegion
 

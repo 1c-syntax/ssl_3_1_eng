@@ -51,7 +51,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		Return;
 	EndIf;
 	
-	ShowQueryBox(New NotifyDescription("BeforeCloseCompletion", ThisObject), NStr("en = 'The data has been changed. Do you want to save the changes?';"), QuestionDialogMode.YesNoCancel);
+	ShowQueryBox(New CallbackDescription("BeforeCloseCompletion", ThisObject), NStr("en = 'The data has been changed. Do you want to save the changes?';"), QuestionDialogMode.YesNoCancel);
 	
 EndProcedure
 
@@ -107,7 +107,7 @@ Procedure OperandsSelection(Item, RowSelected, Field, StandardProcessing)
 		StandardProcessing = False;
 		
 		ShowQueryBox(
-			New NotifyDescription("OperandsSelectionCompletion", ThisObject), 
+			New CallbackDescription("OperandsSelectionCompletion", ThisObject), 
 			NStr("en = 'Selected item is marked for deletion.
 				|Continue?';"), 
 			QuestionDialogMode.YesNo);
@@ -140,7 +140,7 @@ EndProcedure
 Procedure OperandsDragEnd(Item, DragParameters, StandardProcessing)
 	
 	If Item.CurrentData.DeletionMark Then
-		ShowQueryBox(New NotifyDescription("OperandsDragEndCompletion", ThisObject),
+		ShowQueryBox(New CallbackDescription("OperandsDragEndCompletion", ThisObject),
 			NStr("en = 'Selected item is marked for deletion.
 			|Continue?';"), QuestionDialogMode.YesNo);
 	EndIf;
@@ -236,7 +236,7 @@ Procedure OperatorsDragEnd(Item, DragParameters, StandardProcessing)
 	
 	If Item.CurrentData.Operator = "Format(,)" Then
 		RowFormat = New FormatStringWizard;
-		RowFormat.Show(New NotifyDescription("OperatorsDragEndCompletion", ThisObject, New Structure("RowFormat", RowFormat)));
+		RowFormat.Show(New CallbackDescription("OperatorsDragEndCompletion", ThisObject, New Structure("RowFormat", RowFormat)));
 	EndIf;
 	
 EndProcedure
@@ -330,7 +330,7 @@ Procedure InsertOperatorIntoFormula()
 	
 	If Items.Operators.CurrentData.Description = "Format" Then
 		RowFormat = New FormatStringWizard;
-		RowFormat.Show(New NotifyDescription("InsertOperatorIntoFormulaCompletion", ThisObject, New Structure("RowFormat", RowFormat)));
+		RowFormat.Show(New CallbackDescription("InsertOperatorIntoFormulaCompletion", ThisObject, New Structure("RowFormat", RowFormat)));
 		Return;
 	Else	
 		InsertTextIntoFormula(Items.Operators.CurrentData.Operator, Items.Operators.CurrentData.Move);
@@ -500,7 +500,7 @@ Function CheckFormula(Formula, Operands)
 	Except
 		ErrorText = NStr("en = 'Formula is invalid.
 			|Formulas must comply with the syntax of 1C:Enterprise regular expressions.';");
-		MessageToUser(ErrorText, , "Formula");
+		CommonClient.MessageToUser(ErrorText, , "Formula");
 		Return False;
 	EndTry;
 	
@@ -517,38 +517,10 @@ Procedure CheckFormulaInteractive(Formula, Operands)
 				NStr("en = 'Formula is valid.';"),
 				,
 				,
-				PictureInformation32());
+				PictureLib.Information32);
 		EndIf;
 	EndIf;
 	
-EndProcedure
-
-&AtServer
-Function PictureInformation32()
-	If SSLVersionMatchesRequirements() Then
-		Return PictureLib["Information32"];
-	Else
-		Return New Picture;
-	EndIf;
-EndFunction
-
-&AtServer
-Function SSLVersionMatchesRequirements()
-	DataProcessorObject = FormAttributeToValue("Object");
-	Return DataProcessorObject.SSLVersionMatchesRequirements();
-EndFunction
-
-&AtClient
-Procedure MessageToUser(Val MessageToUserText, Val Field = "", Val DataPath = "")
-	Message = New UserMessage;
-	Message.Text = MessageToUserText;
-	Message.Field = Field;
-	
-	If Not IsBlankString(DataPath) Then
-		Message.DataPath = DataPath;
-	EndIf;
-		
-	Message.Message();
 EndProcedure
 
 #EndRegion

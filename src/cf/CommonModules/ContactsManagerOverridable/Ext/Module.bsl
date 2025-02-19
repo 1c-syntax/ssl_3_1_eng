@@ -37,16 +37,16 @@
 //     Settings.CommentFieldWidth = 10;
 //     Settings.PositionOfAddButton = ItemHorizontalLocation.Auto;
 //
-//     Address = Enum.ContactInformationTypes.Address;
-//     Settings.CommandDetails[Address].PlanMeeting.Title = NStr("ru='Meeting'");
-//     Settings.CommandDetails[Address].PlanMeeting.ToolTip = NStr("en='Schedule a meeting.'");
-//     Settings.CommandDetails[Address].PlanMeeting.Picture = PictureLib.PlannedInteraction;
-//     Settings.CommandDetails[Address].PlanMeeting.Action = "StandardSubsystemsClient.OpenMeetingDocForm";
+//     Address = Enums.ContactInformationTypes.Address;
+//     Settings.DetailsOfCommands[Address].PlanMeeting.Title = NStr("ru='Meeting'");
+//     Settings.DetailsOfCommands[Address].PlanMeeting.ToolTip = NStr("en='Schedule a meeting.'");
+//     Settings.DetailsOfCommands[Address].PlanMeeting.Picture = PictureLib.PlannedInteraction;
+//     Settings.DetailsOfCommands[Address].PlanMeeting.Action = "StandardSubsystemsClient.OpenMeetingDocForm";
 //    
-//     CompanyPhysicalAddress = ContactsManager.ContactInformationKindByName("_DemoCompanyPhysicalAddress");
-//      Settings.CommandDetails[CompanyPhysicalAddress] = 
+//     CompanyPhysicalAddress = ContactsManager.ContactInformationKindByName("CompanyPhysicalAddress");
+//      Settings.DetailsOfCommands[CompanyPhysicalAddress] = 
 //    	Common.CopyRecursive(ContactsManager.CommandsOfContactInfoType(Enums.ContactInformationTypes.Address));
-//      Settings.CommandDetails[CompanyPhysicalAddress].PlanMeeting.Action = ""; // Disable the command for the contact information kind.
+//      Settings.DetailsOfCommands[CompanyPhysicalAddress].PlanMeeting.Action = ""; // Disable the command for the contact information kind.
 //
 //   2 parameters are passed to the procedures specified in "Action":
 //       ContactInformation - Structure:

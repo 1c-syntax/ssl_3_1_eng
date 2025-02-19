@@ -271,7 +271,7 @@ Procedure BeforeWrite(Cancel, WriteMode, PostingMode)
 		If Attachment.Placement = 0 
 			And Attachment.IsBeingEdited Then
 			
-			PutFileNotifyDescription = New NotifyDescription("AfterPutFile", ThisObject);
+			PutFileNotifyDescription = New CallbackDescription("AfterPutFile", ThisObject);
 			FilesOperationsClient.PutAttachedFile(PutFileNotifyDescription, Attachment.Ref, UUID);
 			
 		EndIf;
@@ -307,7 +307,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 			QueryText = NStr("en = 'The data has been changed. Save the changes?';");
 			AdditionalParameters = New Structure;
 			AdditionalParameters.Insert("FilesToEditArray", FilesToEditArray);
-			NotificationAfterClosingPrompt = New NotifyDescription("AfterQuestionOnClose", ThisObject, AdditionalParameters);
+			NotificationAfterClosingPrompt = New CallbackDescription("AfterQuestionOnClose", ThisObject, AdditionalParameters);
 			
 			ShowQueryBox(NotificationAfterClosingPrompt, QueryText, QuestionDialogMode.YesNoCancel);
 			
@@ -736,7 +736,7 @@ Procedure AttachmentsDrag(Item, DragParameters, StandardProcessing, String, Fiel
 	For Each SelectedFile In FilesArray Do
 		
 		AdditionalParameters = New Structure("SelectedFile", SelectedFile);
-		DescriptionOfTheAlert = New NotifyDescription("IsFileAfterCompletionCheck", ThisObject, AdditionalParameters);
+		DescriptionOfTheAlert = New CallbackDescription("IsFileAfterCompletionCheck", ThisObject, AdditionalParameters);
 		SelectedFile.BeginCheckingIsFile(DescriptionOfTheAlert);
 		
 	EndDo;
@@ -1029,7 +1029,7 @@ Procedure ImportanceLow(Command)
 	
 EndProcedure
 
-// StandardSubsystems.Properties
+// СтандартныеПодсистемы.Свойства
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -1043,7 +1043,7 @@ EndProcedure
 
 // End StandardSubsystems.Properties
 
-// StandardSubsystems.MessagesTemplates
+// СтандартныеПодсистемы.ШаблоныСообщений
 
 &AtClient
 Procedure GenerateFromTemplate(Command)
@@ -1053,7 +1053,7 @@ Procedure GenerateFromTemplate(Command)
 		FillTabularSectionsByRecipientsList();
 		
 		ModuleMessageTemplatesClient = CommonClient.CommonModule("MessageTemplatesClient");
-		Notification = New NotifyDescription("FillByTemplateAfterTemplateChoice", ThisObject);
+		Notification = New CallbackDescription("FillByTemplateAfterTemplateChoice", ThisObject);
 		MessageSubject = ?(ValueIsFilled(SubjectOf), SubjectOf, "Shared");
 		ModuleMessageTemplatesClient.PrepareMessageFromTemplate(MessageSubject, "MailMessage", Notification);
 		
@@ -1217,8 +1217,7 @@ Procedure DoDisplayImportance()
 
 EndProcedure
 
-/////////////////////////////////////////////////////////////////////////////////
-//  Managing form item availability.
+#Region ManagingAvailabilityOfFormElements
 
 &AtClient
 Procedure AvailabilityControl()
@@ -1308,6 +1307,8 @@ Procedure DefineItemsVisibilityAvailabilityDependingOnEmailStatus()
 
 EndProcedure
 
+#EndRegion
+
 #Region AttachmentsOperations
 
 &AtServer
@@ -1378,7 +1379,7 @@ Procedure AddEmail(Command)
 	OpeningParameters.Insert("ChoiceMode", True);
 	OpeningParameters.Insert("CloseOnChoice", True);
 	OpeningParameters.Insert("OnlyEmail", True);
-	NotifyDescription = New NotifyDescription("AddEmailCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("AddEmailCompletion", ThisObject);
 	OpenForm("DocumentJournal.Interactions.ListForm",
 	             OpeningParameters,
 	             ThisObject,,,,
@@ -1432,7 +1433,7 @@ EndProcedure
 &AtClient
 Procedure AddAttachmentExecute()
 	
-	DescriptionOfTheAlert = New NotifyDescription("FileSelectionDialogAfterChoice", ThisObject);
+	DescriptionOfTheAlert = New CallbackDescription("FileSelectionDialogAfterChoice", ThisObject);
 	FileSystemClient.ImportFiles(DescriptionOfTheAlert);
 	
 EndProcedure
@@ -1635,7 +1636,7 @@ Procedure AttachmentProperties(Command)
 	
 	If CurrentData.Ref = Undefined Then
 		AdditionalParameters = New Structure("CurrentIndexInCollection", CurrentIndexInCollection);
-		OnCloseNotifyHandler = New NotifyDescription("QuestionOfFileRecordAfterClose", ThisObject, AdditionalParameters);
+		OnCloseNotifyHandler = New CallbackDescription("QuestionOfFileRecordAfterClose", ThisObject, AdditionalParameters);
 		QueryText = NStr("en = 'You can access the file''s properties after you save the file. Save it now?';");
 		ShowQueryBox(OnCloseNotifyHandler, QueryText, QuestionDialogMode.YesNo);
 	Else
@@ -1721,7 +1722,7 @@ Procedure FileSelectionDialogAfterChoice(SelectedFiles, AdditionalParameters) Ex
 		NewRow.PictureIndex      = FilesOperationsInternalClientServer.IndexOfFileIcon(Extension);
 		AdditionalParameters = New Structure("AttachmentsTableRow", NewRow);
 		File = New File(SelectedFile.FullName);
-		File.BeginGettingSize(New NotifyDescription("ReceivingSizeCompletion", ThisObject, AdditionalParameters));
+		File.BeginGettingSize(New CallbackDescription("ReceivingSizeCompletion", ThisObject, AdditionalParameters));
 	EndDo;
 	
 	If SelectedFiles.Count() > 0 Then
@@ -1750,7 +1751,7 @@ Procedure IsFileAfterCompletionCheck(IsFile, AdditionalParameters) Export
 	NewRow.PictureIndex      = FilesOperationsInternalClientServer.IndexOfFileIcon(Extension);
 	AdditionalParameters         = New Structure("AttachmentsTableRow", NewRow);
 	File = New File(FullName);
-	File.BeginGettingSize(New NotifyDescription("ReceivingSizeCompletion", ThisObject, AdditionalParameters));
+	File.BeginGettingSize(New CallbackDescription("ReceivingSizeCompletion", ThisObject, AdditionalParameters));
 
 EndProcedure
 
@@ -2235,7 +2236,7 @@ Procedure SendExecute()
 		
 		QueryText = NStr("en = 'This email account doesn''t store sent messages in the app.
 		                    |Do you want to continue?';");
-		CloseNotificationHandler = New NotifyDescription("PromptForNotSavingSentEmail", ThisObject);
+		CloseNotificationHandler = New CallbackDescription("PromptForNotSavingSentEmail", ThisObject);
 		ShowQueryBox(CloseNotificationHandler,QueryText, ButtonsList,, DialogReturnCode.Yes, NStr("en = 'Send message';"));
 	Else
 		SendMailClient();
@@ -2399,7 +2400,7 @@ Procedure EditRecipientsList(ToSelect, SelectionGroup = "")
 	OpeningParameters.Insert("MailMessage", Object.Ref);
 	OpeningParameters.Insert("DefaultGroup", ?(IsBlankString(SelectionGroup), "Whom", SelectionGroup));
 	
-	NotificationAfterClose = New NotifyDescription("AfterFillAddressBook", ThisObject);
+	NotificationAfterClose = New CallbackDescription("AfterFillAddressBook", ThisObject);
 	CommonFormName = ?(ToSelect, "CommonForm.AddressBook", "CommonForm.ContactsClarification");
 	
 	OpenForm(CommonFormName, OpeningParameters, ThisObject,,,, NotificationAfterClose);
@@ -2570,13 +2571,17 @@ Function ExecuteSendingAtServer()
 	Try
 		SendingResult = EmailOperations.SendMail(EmailObject.Account, MailMessage);
 	Except
+		ErrorInfo = ErrorInfo();
+		If ErrorInfo.IsErrorOfCategory(ErrorCategory.ConfigurationError) Then
+			Raise;
+		EndIf;
+
 		ErrorText = EmailOperations.ExtendedErrorPresentation(
-			ErrorInfo(), Common.DefaultLanguageCode());
-		
+			ErrorInfo, Common.DefaultLanguageCode());
 		WriteLogEvent(EmailManagement.EventLogEvent(),
 			EventLogLevel.Error, , EmailObject.Ref, ErrorText);
 		
-		Result.MessageText = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+		Result.MessageText = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 		Result.AttachmentError = True;
 		Return Result;
 	EndTry;
@@ -3038,7 +3043,7 @@ Procedure FillTabularSectionsByRecipientsList()
 	
 EndProcedure
 
-// StandardSubsystems.Properties
+// СтандартныеПодсистемы.Свойства
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()
@@ -3082,7 +3087,7 @@ EndProcedure
 
 // End StandardSubsystems.Properties
 
-// StandardSubsystems.MessagesTemplates
+// СтандартныеПодсистемы.ШаблоныСообщений
 
 &AtClient
 Procedure FillByTemplateAfterTemplateChoice(Result, AdditionalParameters) Export
@@ -3114,7 +3119,7 @@ Procedure DeterminePossibilityToFillEmailByTemplate()
 	
 EndProcedure
 
-// End StandardSubsystems.MessagesTemplates
+// End StandardSubsystems.MessageTemplates
 
 &AtServer
 Procedure SetSecurityWarningVisiblity()

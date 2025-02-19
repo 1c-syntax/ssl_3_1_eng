@@ -446,7 +446,7 @@ Function Attachable_WaitingPageOnOpen(Cancel, SkipPage, Val IsMoveNext)
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	WaitSettings.OutputIdleWindow = False;
 		
-	Handler = New NotifyDescription("AfterChangePrefix", ThisObject);
+	Handler = New CallbackDescription("AfterChangePrefix", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(BackgroundJob, Handler, WaitSettings);
 
 	Return Undefined;

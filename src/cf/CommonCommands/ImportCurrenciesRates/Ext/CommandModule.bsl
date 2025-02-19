@@ -13,7 +13,7 @@
 &AtClient
 Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 	
-	NotifyDescription = New NotifyDescription("ImportCurrencyRatesClient", ThisObject);
+	NotifyDescription = New CallbackDescription("ImportCurrencyRatesClient", ThisObject);
 	ShowQueryBox(NotifyDescription, 
 		NStr("en = 'You are about to import a file with full exchange rates data for all the periods from the service manager.
               |The exchange rates that are marked to be imported from the Internet in specific data areas will be replaced in a background job. Do you want to continue?';"), 

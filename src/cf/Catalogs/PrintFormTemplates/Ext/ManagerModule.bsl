@@ -26,6 +26,8 @@ Function AttributesToEditInBatchProcessing() Export
 	
 	AttributesToEdit = New Array;
 	AttributesToEdit.Add("Used");
+	AttributesToEdit.Add("DefaultPrintForm");
+	AttributesToEdit.Add("PrintFormDescription");
 	
 	Return AttributesToEdit;
 	
@@ -109,6 +111,112 @@ Function LayoutLanguages(Template) Export
 	
 EndFunction
 
+// Parameters:
+//  TemplatesNames - Array of String - 
+// 
+// Returns:
+//  Map of KeyAndValue:
+//   * Key - String - 
+//   * Value - See NewTemplatesDataStructure
+//
+Function DataOfTemplates(Val TemplatesNames) Export
+	
+	TemplatesDataMap = New Map;
+	
+	If TypeOf(TemplatesNames) = Type("String") Then
+		TemplatesNames = StrSplit(TemplatesNames, ",");
+	Else
+		TemplatesNames = Common.CopyRecursive(TemplatesNames);
+	EndIf;
+	
+	TableOfTemplates = New ValueTable;
+	TableOfTemplates.Columns.Add("TemplateName", New TypeDescription("String"));
+	TableOfTemplates.Columns.Add("Id", New TypeDescription("UUID"));
+	
+	For Each TemplateName In TemplatesNames Do 
+		
+		NewRow = TableOfTemplates.Add();
+		NewRow.TemplateName = TemplateName;
+		
+		Id = IdentifierOfTemplate(TemplateName);
+		If Id <> Undefined Then
+			NewRow.Id = Id;
+		EndIf;
+		
+	EndDo;
+	
+	QueryText =
+	"SELECT
+	|	TableOfTemplates.TemplateName AS TemplateName,
+	|	TableOfTemplates.Id AS Id
+	|INTO TT_TableOfTemplates
+	|FROM
+	|	&TableOfTemplates AS TableOfTemplates
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT
+	|	ISNULL(PrintFormTemplates.Description, """") AS Presentation,
+	|	TT_TableOfTemplates.TemplateName AS TemplateName,
+	|	TT_TableOfTemplates.Id AS Id,
+	|	ISNULL(PrintFormTemplates.ObjectSaveFormat, VALUE(Enum.ObjectsExportFormats.EmptyRef)) AS ObjectSaveFormat,
+	|	ISNULL(PrintFormTemplates.Ref, VALUE(Catalog.PrintFormTemplates.EmptyRef)) AS Ref
+	|INTO TT_Templates
+	|FROM
+	|	TT_TableOfTemplates AS TT_TableOfTemplates
+	|		LEFT JOIN Catalog.PrintFormTemplates AS PrintFormTemplates
+	|		ON TT_TableOfTemplates.Id = PrintFormTemplates.Id
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT
+	|	TT_Templates.TemplateName AS TemplateName,
+	|	TT_Templates.Presentation AS Presentation,
+	|	TT_Templates.Id AS Id,
+	|	TT_Templates.ObjectSaveFormat AS ObjectSaveFormat,
+	|	CASE
+	|		WHEN
+	|			VALUETYPE(PrintFormTemplatesDataSources.DataSource) = TYPE(Catalog.MetadataObjectIDs)
+	|			THEN VALUETYPE(CAST(PrintFormTemplatesDataSources.DataSource AS Catalog.MetadataObjectIDs).EmptyRefValue)
+	|		WHEN
+	|			VALUETYPE(PrintFormTemplatesDataSources.DataSource) = TYPE(Catalog.ExtensionObjectIDs)
+	|			THEN VALUETYPE(CAST(PrintFormTemplatesDataSources.DataSource AS Catalog.ExtensionObjectIDs).EmptyRefValue)
+	|		ELSE UNDEFINED
+	|	END AS SourceType
+	|FROM
+	|	TT_Templates AS TT_Templates
+	|		INNER JOIN Catalog.PrintFormTemplates.DataSources AS PrintFormTemplatesDataSources
+	|		ON TT_Templates.Ref = PrintFormTemplatesDataSources.Ref";
+	
+	Query = New Query;
+	Query.Text = QueryText;
+	Query.SetParameter("TableOfTemplates", TableOfTemplates);
+	Selection = Query.Execute().Select();
+	
+	For Each TemplateName In TemplatesNames Do
+		
+		MetadataTypes = New Array;
+		
+		TemplatesDataStructure = NewTemplatesDataStructure();
+		
+		While Selection.FindNext(TemplateName, "TemplateName") Do
+			
+			TemplatesDataStructure.ObjectSaveFormat = Selection.ObjectSaveFormat;
+			TemplatesDataStructure.Presentation = Selection.Presentation;
+			MetadataTypes.Add(Selection.SourceType);
+			
+		EndDo;
+		Selection.Reset();
+		
+		TemplatesDataStructure.SourcesTypes = MetadataTypes;
+		TemplatesDataMap.Insert(TemplateName, TemplatesDataStructure);
+		
+	EndDo;
+	
+	Return TemplatesDataMap;
+	
+EndFunction
+
 #EndRegion
 
 #Region Private
@@ -176,6 +284,9 @@ Function WriteTemplate(TemplateDetails) Export
 		Object.Id = New UUID;
 	EndIf;
 	
+	Object.TemplateForObjectExport = TemplateDetails.TemplateForObjectExport;
+	Object.ObjectSaveFormat = TemplateDetails.ExportSaveFormat;
+	
 	Object.DataSources.Clear();
 	For Each DataSource In TemplateDetails.DataSources Do
 		NewRow = Object.DataSources.Add();
@@ -185,9 +296,13 @@ Function WriteTemplate(TemplateDetails) Export
 	Description = TemplateDetails.Description;
 	LanguageCode = TemplateDetails.LanguageCode;
 	Template = New ValueStorage(GetFromTempStorage(TemplateDetails.TemplateAddressInTempStorage));
+	PrintFormDescription = TemplateDetails.PrintFormDescription;
 
 	Common.SetAttributeValue(Object, "Description", Description, LanguageCode);
 	Common.SetAttributeValue(Object, "Template", Template, LanguageCode);
+	Common.SetAttributeValue(Object, "PrintFormDescription", PrintFormDescription, LanguageCode);
+	
+	Object.DefaultPrintForm = TemplateDetails.DefaultPrintForm;
 	
 	Block = New DataLock;
 	LockItem = Block.Add("Catalog.PrintFormTemplates");
@@ -427,6 +542,25 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.ObjectsToLock = StrConcat(ToLock, ",");
 
 EndProcedure
+
+// 
+// 
+// Returns:
+//  Structure - :
+//   * ObjectSaveFormat - EnumRef.ObjectsExportFormats
+//   * SourcesTypes - Array of TypeDescription
+//   * Presentation - String
+//
+Function NewTemplatesDataStructure()
+	
+	TemplatesDataStructure = New Structure;
+	TemplatesDataStructure.Insert("ObjectSaveFormat", Enums.ObjectsExportFormats.EmptyRef());
+	TemplatesDataStructure.Insert("SourcesTypes", New Array);
+	TemplatesDataStructure.Insert("Presentation", "");
+	
+	Return TemplatesDataStructure;
+	
+EndFunction
 
 #EndRegion
 

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<AutoSaveDataInSettings>Use</AutoSaveDataInSettings>
 	<AutoTitle>false</AutoTitle>
 	<AutoURL>false</AutoURL>
@@ -396,15 +396,18 @@
 										</Button>
 									</ChildItems>
 								</ButtonGroup>
-								<ButtonGroup name="GroupSaveDispatchOption" id="1123">
+								<Popup name="SubmenuSend" id="1123">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Save and distribute an option</v8:content>
+											<v8:content>Send</v8:content>
 										</v8:item>
 									</Title>
-									<Representation>Compact</Representation>
-									<ExtendedTooltip name="GroupSaveDispatchOptionExtendedTooltip" id="1124"/>
+									<Picture>
+										<xr:Ref>StdPicture.SendMessage</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
+									</Picture>
+									<ExtendedTooltip name="SubmenuSendExtendedTooltip" id="1124"/>
 									<ChildItems>
 										<Button name="SaveReport" id="1101">
 											<Type>CommandBarButton</Type>
@@ -412,13 +415,26 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Save to file</v8:content>
+													<v8:content>To computer</v8:content>
 												</v8:item>
 											</Title>
 											<LocationInCommandBar>InCommandBar</LocationInCommandBar>
 											<ExtendedTooltip name="SaveReportExtendedTooltip" id="1102"/>
 										</Button>
-										<Popup name="SendGroup" id="63">
+										<Button name="SendByEmail" id="97">
+											<Type>CommandBarButton</Type>
+											<Representation>Picture</Representation>
+											<CommandName>Form.Command.SendByEmail</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Email</v8:content>
+												</v8:item>
+											</Title>
+											<LocationInCommandBar>InCommandBar</LocationInCommandBar>
+											<ExtendedTooltip name="SendByEmailExtendedTooltip" id="128"/>
+										</Button>
+										<ButtonGroup name="SendGroup" id="63">
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
@@ -431,30 +447,10 @@
 													<v8:content>Send report by email</v8:content>
 												</v8:item>
 											</ToolTip>
-											<Picture>
-												<xr:Ref>CommonPicture.EmailMessage</xr:Ref>
-												<xr:LoadTransparent>false</xr:LoadTransparent>
-											</Picture>
-											<Representation>Picture</Representation>
 											<ExtendedTooltip name="SendGroupExtendedTooltip" id="127"/>
-											<ChildItems>
-												<Button name="SendByEmail" id="97">
-													<Type>CommandBarButton</Type>
-													<Representation>Picture</Representation>
-													<CommandName>Form.Command.SendByEmail</CommandName>
-													<Title>
-														<v8:item>
-															<v8:lang>en</v8:lang>
-															<v8:content>Send now...</v8:content>
-														</v8:item>
-													</Title>
-													<LocationInCommandBar>InCommandBar</LocationInCommandBar>
-													<ExtendedTooltip name="SendByEmailExtendedTooltip" id="128"/>
-												</Button>
-											</ChildItems>
-										</Popup>
+										</ButtonGroup>
 									</ChildItems>
-								</ButtonGroup>
+								</Popup>
 							</ChildItems>
 						</ButtonGroup>
 						<ButtonGroup name="GroupTransitionBetweenSettingsChanges" id="1107">
@@ -634,7 +630,7 @@ Use:
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Range sum</v8:content>
+													<v8:content>Sum</v8:content>
 												</v8:item>
 											</Title>
 											<LocationInCommandBar>InCommandBar</LocationInCommandBar>
@@ -658,7 +654,7 @@ Use:
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Range average</v8:content>
+													<v8:content>Average</v8:content>
 												</v8:item>
 											</Title>
 											<LocationInCommandBar>InCommandBar</LocationInCommandBar>
@@ -670,7 +666,7 @@ Use:
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Range minimum</v8:content>
+													<v8:content>Min</v8:content>
 												</v8:item>
 											</Title>
 											<LocationInCommandBar>InCommandBar</LocationInCommandBar>
@@ -682,7 +678,7 @@ Use:
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Range maximum</v8:content>
+													<v8:content>Max</v8:content>
 												</v8:item>
 											</Title>
 											<LocationInCommandBar>InCommandBar</LocationInCommandBar>
@@ -1159,50 +1155,58 @@ Use:
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="PageSetupExtendedTooltip" id="140"/>
 								</Button>
-								<Button name="SaveReportMore" id="1103">
-									<Type>CommandBarButton</Type>
-									<CommandName>Form.Command.SaveReport</CommandName>
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Save to file</v8:content>
-										</v8:item>
-									</Title>
-									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-									<ExtendedTooltip name="SaveReportMoreExtendedTooltip" id="1104"/>
-								</Button>
-								<Popup name="MoreCommandBarSendGroup" id="754">
+								<Popup name="GroupSendReportMoreActions" id="1226">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
 											<v8:content>Send</v8:content>
 										</v8:item>
 									</Title>
-									<ToolTip>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Send report by email</v8:content>
-										</v8:item>
-									</ToolTip>
 									<Picture>
-										<xr:Ref>CommonPicture.EmailMessage</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
+										<xr:Ref>StdPicture.SendMessage</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
-									<Representation>Picture</Representation>
-									<ExtendedTooltip name="MoreCommandBarSendGroupExtendedTooltip" id="755"/>
+									<ExtendedTooltip name="GroupSendReportMoreActionsExtendedTooltip" id="1227"/>
 									<ChildItems>
+										<Button name="SaveReportMore" id="1103">
+											<Type>CommandBarButton</Type>
+											<CommandName>Form.Command.SaveReport</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>To computer</v8:content>
+												</v8:item>
+											</Title>
+											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+											<ExtendedTooltip name="SaveReportMoreExtendedTooltip" id="1104"/>
+										</Button>
 										<Button name="MoreCommandBarSendByEmail" id="756">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.Command.SendByEmail</CommandName>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Send now...</v8:content>
+													<v8:content>Email</v8:content>
 												</v8:item>
 											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="MoreCommandBarSendByEmailExtendedTooltip" id="757"/>
 										</Button>
+										<ButtonGroup name="MoreCommandBarSendGroup" id="754">
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Send</v8:content>
+												</v8:item>
+											</Title>
+											<ToolTip>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Send report by email</v8:content>
+												</v8:item>
+											</ToolTip>
+											<ExtendedTooltip name="MoreCommandBarSendGroupExtendedTooltip" id="755"/>
+										</ButtonGroup>
 									</ChildItems>
 								</Popup>
 							</ChildItems>
@@ -1264,7 +1268,7 @@ Use:
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Range sum</v8:content>
+											<v8:content>Sum</v8:content>
 										</v8:item>
 									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -1288,7 +1292,7 @@ Use:
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Range average</v8:content>
+											<v8:content>Average</v8:content>
 										</v8:item>
 									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -1300,7 +1304,7 @@ Use:
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Range minimum</v8:content>
+											<v8:content>Min</v8:content>
 										</v8:item>
 									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -1312,7 +1316,7 @@ Use:
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Range maximum</v8:content>
+											<v8:content>Max</v8:content>
 										</v8:item>
 									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -1406,7 +1410,7 @@ Use:
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Spreadsheet document: report generation result</v8:content>
+					<v8:content>Spreadsheet: report generation result</v8:content>
 				</v8:item>
 			</Title>
 			<TitleLocation>None</TitleLocation>
@@ -2058,7 +2062,7 @@ Use:
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Amount</v8:content>
+									<v8:content>Sum</v8:content>
 								</v8:item>
 							</Title>
 							<TitleLocation>Left</TitleLocation>
@@ -2073,7 +2077,7 @@ Use:
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Quantity</v8:content>
+									<v8:content>Number of cells</v8:content>
 								</v8:item>
 							</Title>
 							<TitleLocation>Left</TitleLocation>
@@ -2103,7 +2107,7 @@ Use:
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Minimum</v8:content>
+									<v8:content>Min</v8:content>
 								</v8:item>
 							</Title>
 							<TitleLocation>Left</TitleLocation>
@@ -2118,7 +2122,7 @@ Use:
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Maximum</v8:content>
+									<v8:content>Max</v8:content>
 								</v8:item>
 							</Title>
 							<TitleLocation>Left</TitleLocation>
@@ -2653,7 +2657,7 @@ Use:
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Spreadsheet document: report generation result</v8:content>
+					<v8:content>Spreadsheet: report generation result</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2814,7 +2818,7 @@ Use:
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Range sum</v8:content>
+					<v8:content>Sum</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2846,7 +2850,7 @@ Use:
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Range average</v8:content>
+					<v8:content>Average</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2862,7 +2866,7 @@ Use:
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Range minimum</v8:content>
+					<v8:content>Min</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2878,7 +2882,7 @@ Use:
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Range maximum</v8:content>
+					<v8:content>Max</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2922,7 +2926,7 @@ Use:
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Check box</v8:content>
+					<v8:content>Checkbox</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -2933,7 +2937,7 @@ Use:
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Check box</v8:content>
+					<v8:content>Checkbox</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -3198,7 +3202,7 @@ Use:
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Range sum</v8:content>
+					<v8:content>Calculate sum</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -3213,13 +3217,13 @@ Use:
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Number of cells</v8:content>
+					<v8:content>Calculate number of cells</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Calculate the number of cells in the range.</v8:content>
+					<v8:content>Calculate the number of cells in a range.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>CalculateCount</Action>
@@ -3228,13 +3232,13 @@ Use:
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Range average</v8:content>
+					<v8:content>Calculate average</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Calculate the average value for the range.</v8:content>
+					<v8:content>Calculate the average value for a range.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>CalculateAverage</Action>
@@ -3243,13 +3247,13 @@ Use:
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Range minimum</v8:content>
+					<v8:content>Calculate minimum</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Calculate the minimum value for the range.</v8:content>
+					<v8:content>Calculate the minimum value for a range.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>CalculateMin</Action>
@@ -3258,13 +3262,13 @@ Use:
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Range maximum</v8:content>
+					<v8:content>Calculate maximum</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Calculate the maximum value for the range.</v8:content>
+					<v8:content>Calculate the maximum value for a range.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>CalculateMax</Action>
@@ -3385,7 +3389,7 @@ Use:
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Save to file…</v8:content>
+					<v8:content>To computer</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>

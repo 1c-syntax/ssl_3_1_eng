@@ -43,13 +43,12 @@ EndProcedure
 Procedure InstallInteractiveDataProcessorOnInsufficientRightsToSignInError(Parameters, ErrorDescription) Export
 	
 	Parameters.Cancel = True;
-	Parameters.InteractiveHandler = New NotifyDescription(
+	Parameters.InteractiveHandler = New CallbackDescription(
 		"InteractiveDataProcessorOnInsufficientRightsToSignInError", ThisObject, ErrorDescription);
 	
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// For role interface in client application forms.
+#Region ForRolesInterfaceOperationInManagedForm
 
 // For internal use only.
 //
@@ -82,7 +81,7 @@ Procedure SelectPurpose(FormData1, Title, SelectUsersAllowed = True, IsFilter = 
 	AdditionalParameters.Insert("IsFilter", IsFilter);
 	AdditionalParameters.Insert("NotifyDescription", NotifyDescription);
 	
-	OnCloseNotifyDescription = New NotifyDescription("AfterAssignmentChoice", ThisObject, AdditionalParameters);
+	OnCloseNotifyDescription = New CallbackDescription("AfterAssignmentChoice", ThisObject, AdditionalParameters);
 	
 	Purpose = ?(IsFilter, FormData1.UsersKind, FormData1.Object.Purpose);
 	
@@ -98,7 +97,7 @@ EndProcedure
 // Opens a security warning window of the given type.
 //
 // Parameters:
-//  Notification - NotifyDescription - A notification about closing the form. The output value is either "Undefined" or "String".
+//  Notification - CallbackDescription - A notification about closing the form. The output value is either "Undefined" or "String".
 //                 If "String", then it contains the name of the selected button (depending on the warning type).
 //             - Undefined - Do not notify.
 //
@@ -144,8 +143,9 @@ Procedure OnControlRestartWhenAccessRightsReduced() Export
 	NotifyAboutAppRestart();
 EndProcedure
 
-////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+#EndRegion
+
+#Region ConfigurationSubsystemsEventHandlers
 
 // See CommonClientOverridable.BeforeStart.
 Procedure BeforeStart(Parameters) Export
@@ -168,7 +168,7 @@ Procedure BeforeStart2(Parameters) Export
 	
 	If ClientParameters.Property("AuthorizationError") Then
 		Parameters.Cancel = True;
-		Parameters.InteractiveHandler = New NotifyDescription("ShowMessageBoxAndContinue",
+		Parameters.InteractiveHandler = New CallbackDescription("ShowMessageBoxAndContinue",
 			StandardSubsystemsClient, ClientParameters.AuthorizationError);
 		Return;
 	EndIf;
@@ -182,7 +182,7 @@ Procedure BeforeStart3(Parameters) Export
 	ClientParameters = StandardSubsystemsClient.ClientParametersOnStart();
 	
 	If ClientParameters.Property("PasswordChangeRequired") Then
-		Parameters.InteractiveHandler = New NotifyDescription(
+		Parameters.InteractiveHandler = New CallbackDescription(
 			"InteractiveHandlerOnChangePasswordOnStart", ThisObject);
 		Return;
 	EndIf;
@@ -200,7 +200,7 @@ Procedure AfterStart() Export
 	EndIf;
 	
 	If ClientRunParameters.Property("AskAboutDisablingOpenIDConnect") Then
-		ClickNotification = New NotifyDescription("AskAboutDisablingOpenIDConnect", ThisObject);
+		ClickNotification = New CallbackDescription("AskAboutDisablingOpenIDConnect", ThisObject);
 		MessageTitle = NStr("en = 'Security warning';");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Disable %1 authentication if it is not used.';"), "OpenID-Connect");
@@ -250,6 +250,8 @@ EndProcedure
 
 #EndRegion
 
+#EndRegion
+
 #Region Private
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -259,7 +261,7 @@ EndProcedure
 Procedure InteractiveDataProcessorOnInsufficientRightsToSignInError(Parameters, ErrorDescription) Export
 	
 	ShowMessageBox(
-		New NotifyDescription("InteractiveDataProcessorOnInsufficientRightsToSignInErrorAfterWarning",
+		New CallbackDescription("InteractiveDataProcessorOnInsufficientRightsToSignInErrorAfterWarning",
 			ThisObject, Parameters),
 		ErrorDescription);
 	
@@ -268,7 +270,7 @@ EndProcedure
 // Exit the application after warning the user about the error of the lack of rights to sign in to the application.
 Procedure InteractiveDataProcessorOnInsufficientRightsToSignInErrorAfterWarning(Parameters) Export
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 
@@ -278,7 +280,7 @@ Procedure InteractiveHandlerOnChangePasswordOnStart(Parameters, Context) Export
 	FormParameters = New Structure;
 	FormParameters.Insert("OnAuthorization", True);
 	
-	OpenForm("CommonForm.PasswordChange", FormParameters,,,,, New NotifyDescription(
+	OpenForm("CommonForm.PasswordChange", FormParameters,,,,, New CallbackDescription(
 		"InteractiveHandlerOnChangePasswordOnStartCompletion", ThisObject, Parameters));
 	
 EndProcedure
@@ -290,14 +292,14 @@ Procedure InteractiveHandlerOnChangePasswordOnStartCompletion(Result, Parameters
 		Parameters.Cancel = True;
 	EndIf;
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 
 // Prompts to disable OpenID-Connect authentication on startup.
 Procedure AskAboutDisablingOpenIDConnect(Context) Export
 	
-	CompletionProcessing = New NotifyDescription(
+	CompletionProcessing = New CallbackDescription(
 		"AskAboutDisablingOpenIDConnectCompletion", ThisObject);
 	
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -344,7 +346,7 @@ EndProcedure
 //        ** Items - FormAllItems:
 //              *** SelectPurpose - FormButton
 //    * IsFilter - Boolean
-//    * NotifyDescription - NotifyDescription
+//    * NotifyDescription - CallbackDescription
 //
 Procedure AfterAssignmentChoice(ClosingResult, AdditionalParameters) Export
 	
@@ -382,7 +384,7 @@ Procedure AfterAssignmentChoice(ClosingResult, AdditionalParameters) Export
 	EndIf;
 	
 	If AdditionalParameters.NotifyDescription <> Undefined Then
-		ExecuteNotifyProcessing(AdditionalParameters.NotifyDescription, TypesArray);
+		RunCallback(AdditionalParameters.NotifyDescription, TypesArray);
 	EndIf;
 	
 EndProcedure
@@ -593,7 +595,7 @@ Procedure NotifyAboutAppRestart()
 	EndIf;
 	
 	WaitTimeout = 10; // 10 minutes.
-	ExitWithConfirmationTimeout = 5; // 10 minutes.
+	ExitWithConfirmationTimeout = 5; // 5 minutes.
 	CurrentMoment = CommonClient.SessionDate();
 	
 	If Parameters.RestartDate - CurrentMoment < 5 Then
@@ -729,7 +731,7 @@ Procedure AskOnTermination(QueryText)
 		Return;
 	EndIf;
 	
-	NotifyDescription = New NotifyDescription("AskOnTerminationCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("AskOnTerminationCompletion", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, 30, DialogReturnCode.Yes);
 	
 EndProcedure

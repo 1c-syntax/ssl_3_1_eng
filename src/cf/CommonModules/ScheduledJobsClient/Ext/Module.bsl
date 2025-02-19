@@ -15,7 +15,7 @@ Procedure OnStart(Parameters) Export
 	
 	ClientParametersOnStart = StandardSubsystemsClient.ClientParametersOnStart();
 	If ClientParametersOnStart.ShowExternalResourceLockForm Then
-		Parameters.InteractiveHandler = New NotifyDescription("ShowExternalResourceLockForm", ThisObject);
+		Parameters.InteractiveHandler = New CallbackDescription("ShowExternalResourceLockForm", ThisObject);
 	EndIf;
 	
 EndProcedure
@@ -24,7 +24,7 @@ EndProcedure
 Procedure ShowExternalResourceLockForm(Parameters, AdditionalParameters) Export
 	
 	FormParameters = New Structure("LockDecisionMaking", True);
-	Notification = New NotifyDescription("AfterOpenOperationsWithExternalResourcesLockWindow", ThisObject, Parameters);
+	Notification = New CallbackDescription("AfterOpenOperationsWithExternalResourcesLockWindow", ThisObject, Parameters);
 	OpenForm("CommonForm.ExternalResourcesOperationsLock", FormParameters,,,,, Notification);
 	
 EndProcedure
@@ -32,7 +32,7 @@ EndProcedure
 // For internal use only.
 Procedure AfterOpenOperationsWithExternalResourcesLockWindow(Result, Parameters) Export
 	
-	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
+	RunCallback(Parameters.ContinuationHandler);
 	
 EndProcedure
 

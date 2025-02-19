@@ -184,7 +184,7 @@ EndProcedure
 Procedure ModifySchedule(Command)
 	
 	ScheduleDialog1 = New ScheduledJobDialog(Schedule);
-	NotifyDescription = New NotifyDescription("ModifyScheduleCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("ModifyScheduleCompletion", ThisObject);
 	ScheduleDialog1.Show(NotifyDescription);
 	
 EndProcedure
@@ -209,7 +209,7 @@ Procedure GoFromSettingPage()
 		Context.Insert("IBBackupParameters", Settings);
 		Context.Insert("CurrentUser", CurrentUser);
 		
-		Notification = New NotifyDescription(
+		Notification = New CallbackDescription(
 			"NavigateFromSettingPageAfterCheckAccessToInfobase", ThisObject, Context);
 		
 		IBBackupClient.CheckAccessToInfobase(IBAdministratorPassword, Notification);
@@ -393,7 +393,7 @@ Procedure ModifyScheduleCompletion(ScheduleResult, AdditionalParameters) Export
 EndProcedure
 
 /////////////////////////////////////////////////////////
-// Data presentation on the form.
+// Представление данных на форме.
 
 &AtServer
 Procedure SetVisibilityAvailability()

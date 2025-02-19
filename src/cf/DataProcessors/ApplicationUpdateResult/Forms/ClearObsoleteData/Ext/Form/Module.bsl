@@ -164,10 +164,10 @@ Procedure Refresh(Command)
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	IdleParameters.ExecutionProgressNotification =
-		New NotifyDescription("UpdateOnGettingProgress",
+		New CallbackDescription("UpdateOnGettingProgress",
 			ThisObject, LongRunningUpdateOperation);
 	
-	CallbackOnCompletion = New NotifyDescription("RefreshCompletion",
+	CallbackOnCompletion = New CallbackDescription("RefreshCompletion",
 		ThisObject, LongRunningUpdateOperation);
 	
 	TimeConsumingOperationsClient.WaitCompletion(LongRunningUpdateOperation,
@@ -183,7 +183,7 @@ Procedure Clear(Command)
 		Return;
 	EndIf;
 	
-	CompletionProcessing = New NotifyDescription(
+	CompletionProcessing = New CallbackDescription(
 		"CearAfterConfirmation", ThisObject, Command);
 	
 	QueryText =
@@ -475,10 +475,10 @@ Procedure CearAfterConfirmation(Response, Command) Export
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	IdleParameters.ExecutionProgressNotification =
-		New NotifyDescription("ClearUpOnGetProgress",
+		New CallbackDescription("ClearUpOnGetProgress",
 			ThisObject, LongRunningCleaningOperation);
 	
-	CallbackOnCompletion = New NotifyDescription("ClearCompletion",
+	CallbackOnCompletion = New CallbackDescription("ClearCompletion",
 		ThisObject, LongRunningCleaningOperation);
 	
 	TimeConsumingOperationsClient.WaitCompletion(LongRunningCleaningOperation,

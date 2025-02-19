@@ -24,8 +24,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Object.SafeMode = True;
 	Object.ExchangeProtocolFileEncoding = "TextEncoding.UTF8";
 	
-	FormCaption = NStr("en = 'Conversion Rule Data Exchange in XML format (%DataProcessorVersion%)';");
-	FormCaption = StrReplace(FormCaption, "%DataProcessorVersion%", ObjectVersionAsStringAtServer());
+	FormCaption = NStr("en = 'Conversion Rule Data Exchange in XML format (%1)';");
+	FormCaption = StrTemplate(FormCaption, VersionOfObjectAtServer());
 	
 	Title = FormCaption;
 	
@@ -82,7 +82,7 @@ Procedure OnOpen(Cancel)
 		
 		If Object.AutomaticDataImportSetup = 1 Then
 			
-			NotifyDescription = New NotifyDescription("OnOpenCompletion", ThisObject);
+			NotifyDescription = New CallbackDescription("OnOpenCompletion", ThisObject);
 			ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to import data from the exchange file?';"), QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
 			
 		Else
@@ -96,6 +96,10 @@ Procedure OnOpen(Cancel)
 	If Not IsWindowsClient() Then
 		Items.OSGroup.CurrentPage = Items.OSGroup.ChildItems.LinuxGroup;
 	EndIf;
+	
+#If WebClient Then
+		FileSystemExtensionAttachment(True);
+#EndIf	
 	
 EndProcedure
 
@@ -215,9 +219,9 @@ Procedure InfobaseToConnectDirectoryStartChoice(Item, ChoiceData, StandardProces
 	
 	FileDialog.Title = NStr("en = 'Select an infobase directory';");
 	FileDialog.Directory = Object.InfobaseToConnectDirectory;
-	FileDialog.CheckFileExist = True;
+	FileDialog.CheckFileExistence = True;
 	
-	Notification = New NotifyDescription("ProcessSelectionInfobaseDirectoryToAdd", ThisObject);
+	Notification = New CallbackDescription("ProcessSelectionInfobaseDirectoryToAdd", ThisObject);
 	FileDialog.Show(Notification);
 	
 EndProcedure
@@ -267,7 +271,7 @@ Procedure RulesFileNameOnChange(Item)
 	
 	File = New File(RulesFileName);
 	
-	Notification = New NotifyDescription("AfterExistenceCheckRulesFileName", ThisObject);
+	Notification = New CallbackDescription("AfterExistenceCheckRulesFileName", ThisObject);
 	File.BeginCheckingExistence(Notification);
 	
 EndProcedure
@@ -285,7 +289,7 @@ Procedure AfterExistenceCheckRulesFileName(Exists, AdditionalParameters) Export
 		Return;
 	EndIf;
 	
-	NotifyDescription = New NotifyDescription("RulesFileNameOnChangeCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("RulesFileNameOnChangeCompletion", ThisObject);
 	ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to import data exchange rules?';"), QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
 	
 EndProcedure
@@ -489,33 +493,18 @@ Procedure GetExchangeFileInfo(Command)
 	
 	If IsClient Then
 		
-		NotifyDescription = New NotifyDescription("GetExchangeFileInfoCompletion", ThisObject);
-		BeginPutFile(NotifyDescription, FileAddress, , , UUID);
+		NotifyDescription = New CallbackDescription("GetExchangeFileInfoCompletion", ThisObject);
+ 
+		BeginPutFileToServer(NotifyDescription,,, FileAddress, 
+			PreparedParametersOfFilePlacementDialog(), UUID);	
 		
 	Else
 		
-		GetExchangeFileInfoCompletion(True, FileAddress, "", Undefined);
+		AdditionalParameters = AdditionalNotificationProcessingParameters();
 		
-	EndIf;
-	
-EndProcedure
-
-&AtClient
-Procedure GetExchangeFileInfoCompletion(Result, Address, SelectedFileName, AdditionalParameters) Export
-	
-	If Result Then
+		AdditionalParameters.AddressOfFileOnServer = FileAddress;
 		
-		Try
-			
-			OpenImportFileAtServer(Address);
-			ExportPeriodPresentation = PeriodPresentation(Object.StartDate, Object.EndDate);
-			
-		Except
-			
-			MessageToUser(NStr("en = 'Cannot read the exchange file.';"));
-			ClearDataImportFileData();
-			
-		EndTry;
+		GetExchangeFileInfoCompletion(True, AdditionalParameters);
 		
 	EndIf;
 	
@@ -546,7 +535,7 @@ EndProcedure
 &AtClient
 Procedure DeletionDelete(Command)
 	
-	NotifyDescription = New NotifyDescription("DeletionDeleteCompletion", ThisObject);
+	NotifyDescription = New CallbackDescription("DeletionDeleteCompletion", ThisObject);
 	ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to delete the selected data from the infobase?';"), QuestionDialogMode.YesNo, , DialogReturnCode.No);
 	
 EndProcedure
@@ -653,12 +642,13 @@ EndProcedure
 Procedure ImportDebugSetup(Command)
 	
 	ExchangeFileAddressInStorage = "";
-	FileNameForExtension = "";
 	
 	If IsClient Then
 		
-		NotifyDescription = New NotifyDescription("ImportDebugSetupCompletion", ThisObject);
-		BeginPutFile(NotifyDescription, ExchangeFileAddressInStorage, , , UUID);
+		NotifyDescription = New CallbackDescription("ImportDebugSetupCompletion", ThisObject);
+
+		BeginPutFileToServer(NotifyDescription,,, ExchangeFileAddressInStorage, 
+			PreparedParametersOfFilePlacementDialog(), UUID);
 		
 	Else
 		
@@ -666,20 +656,11 @@ Procedure ImportDebugSetup(Command)
 			Return;
 		EndIf;
 		
-		ImportDebugSetupCompletion(True, ExchangeFileAddressInStorage, FileNameForExtension, Undefined);
+		AdditionalParameters = AdditionalNotificationProcessingParameters();
 		
-	EndIf;
-	
-EndProcedure
-
-&AtClient
-Procedure ImportDebugSetupCompletion(Result, Address, SelectedFileName, AdditionalParameters) Export
-	
-	If Result Then
+		AdditionalParameters.AddressOfFileOnServer = RuleFileAddressInStorage;
 		
-		Object.ExchangeFileName = FileNameAtServerOrClient(ExchangeFileName ,Address, SelectedFileName);
-		
-		OpenHandlerDebugSetupForm(False);
+		ImportDebugSetupCompletion(True, AdditionalParameters);
 		
 	EndIf;
 	
@@ -707,8 +688,6 @@ Procedure ReadExchangeRules(Command)
 		Return;
 	EndIf;
 	
-	FileNameForExtension = "";
-	
 	If IsClient Then
 		
 		If Not IsBlankString(RuleFileAddressInStorage)
@@ -717,8 +696,10 @@ Procedure ReadExchangeRules(Command)
 			RuleFileAddressInStorage = "";
 		EndIf;
 		
-		NotifyDescription = New NotifyDescription("ReadExchangeRulesCompletion", ThisObject);
-		BeginPutFile(NotifyDescription, RuleFileAddressInStorage, , , UUID);
+		NotifyDescription = New CallbackDescription("ReadExchangeRulesCompletion", ThisObject); 
+				
+		BeginPutFileToServer(NotifyDescription,,, RuleFileAddressInStorage, 
+			PreparedParametersOfFilePlacementDialog(), UUID);
 		
 	Else
 		
@@ -727,30 +708,11 @@ Procedure ReadExchangeRules(Command)
 			Return;
 		EndIf;
 		
-		ReadExchangeRulesCompletion(True, RuleFileAddressInStorage, FileNameForExtension, Undefined);
+		AdditionalParameters = AdditionalNotificationProcessingParameters();
 		
-	EndIf;
-	
-EndProcedure
-
-&AtClient
-Procedure ReadExchangeRulesCompletion(Result, Address, SelectedFileName, AdditionalParameters) Export
-	
-	If Result Then
+		AdditionalParameters.AddressOfFileOnServer = RuleFileAddressInStorage;
 		
-		RuleFileAddressInStorage = Address;
-		
-		ExecuteImportExchangeRules(Address, SelectedFileName);
-		
-		If Object.FlagErrors Then
-			
-			SetImportRuleFlag(False);
-			
-		Else
-			
-			SetImportRuleFlag(True);
-			
-		EndIf;
+		ReadExchangeRulesCompletion(True, AdditionalParameters);
 		
 	EndIf;
 	
@@ -772,11 +734,11 @@ Procedure OpenInApplication(FileName, StandardProcessing = False)
 	
 	AdditionalParameters = New Structure();
 	AdditionalParameters.Insert("FileName", FileName);
-	AdditionalParameters.Insert("NotifyDescription", New NotifyDescription);
+	AdditionalParameters.Insert("NotifyDescription", New CallbackDescription);
 	
 	File = New File(FileName);
 	
-	NotifyDescription = New NotifyDescription("AfterDetermineFileExistence", ThisObject, AdditionalParameters);
+	NotifyDescription = New CallbackDescription("AfterDetermineFileExistence", ThisObject, AdditionalParameters);
 	File.BeginCheckingExistence(NotifyDescription);
 	
 EndProcedure
@@ -933,14 +895,6 @@ Procedure FillTypeAvailableToDeleteList()
 	
 EndProcedure
 
-// Returns data processor version.
-&AtServer
-Function ObjectVersionAsStringAtServer()
-	
-	Return FormAttributeToValue("Object").ObjectVersion();
-	
-EndFunction
-
 &AtClient
 Procedure ExecuteImportExchangeRules(RuleFileAddressInStorage = "", FileNameForExtension = "")
 	
@@ -1044,6 +998,68 @@ Procedure ImportExchangeRulesAndParametersAtServer(RuleFileAddressInStorage, Fil
 	
 EndProcedure
 
+&AtClient
+Procedure ImportDebugSetupCompletion(Result, AdditionalParameters) Export
+	
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	Address = "";
+	
+	If TypeOf(AdditionalParameters) = Type("Structure") 
+		And AdditionalParameters.Property("AddressOfFileOnServer") Then
+		
+		Address = AdditionalParameters.AddressOfFileOnServer;
+		
+	Else
+		
+		Address = Result.Address;
+		
+	EndIf;
+		
+	Object.ExchangeFileName = FileNameAtServerOrClient(ExchangeFileName ,Address);
+	
+	OpenHandlerDebugSetupForm(False);
+	
+EndProcedure
+
+&AtClient
+Procedure ReadExchangeRulesCompletion(Result, AdditionalParameters) Export
+	
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	NameOfSelectedFile = "";
+	
+	If TypeOf(AdditionalParameters) = Type("Structure") 
+		And AdditionalParameters.Property("AddressOfFileOnServer") Then
+		
+		RuleFileAddressInStorage = AdditionalParameters.AddressOfFileOnServer;
+		
+	Else
+		
+		RuleFileAddressInStorage = Result.Address;
+		NameOfSelectedFile = Result.FileRef.Name;
+		
+	EndIf;
+	
+			
+	ExecuteImportExchangeRules(RuleFileAddressInStorage, NameOfSelectedFile);
+	
+	If Object.FlagErrors Then
+		
+		SetImportRuleFlag(False);
+		
+	Else
+		
+		SetImportRuleFlag(True);
+		
+	EndIf;
+			
+EndProcedure
+
 // Opens file selection dialog.
 //
 &AtClient
@@ -1090,14 +1106,14 @@ Procedure SelectingFile(Item, StorageObject, PropertyName, CheckForExistence, Va
 	FileDialog.Preview = False;
 	FileDialog.FilterIndex = 0;
 	FileDialog.FullFileName = Item.EditText;
-	FileDialog.CheckFileExist = CheckForExistence;
+	FileDialog.CheckFileExistence = CheckForExistence;
 	
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("StorageObject", StorageObject);
 	AdditionalParameters.Insert("PropertyName",    PropertyName);
 	AdditionalParameters.Insert("Item",        Item);
 	
-	Notification = New NotifyDescription("FileSelectionDialogChoiceProcessing", ThisObject, AdditionalParameters);
+	Notification = New CallbackDescription("FileSelectionDialogChoiceProcessing", ThisObject, AdditionalParameters);
 	FileDialog.Show(Notification);
 	
 EndProcedure
@@ -1352,14 +1368,15 @@ EndProcedure
 Procedure ExecuteImportFromForm()
 	
 	FileAddress = "";
-	FileNameForExtension = "";
 	
 	AddRowToChoiceList(Items.ExchangeFileName.ChoiceList, ExchangeFileName, DataImportFromFile);
 	
 	If IsClient Then
 		
-		NotifyDescription = New NotifyDescription("ExecuteImportFromFormCompletion", ThisObject);
-		BeginPutFile(NotifyDescription, FileAddress, , , UUID);
+		NotifyDescription = New CallbackDescription("ExecuteImportFromFormCompletion", ThisObject);
+
+		BeginPutFileToServer(NotifyDescription,,, FileAddress, 
+			PreparedParametersOfFilePlacementDialog(), UUID);
 		
 	Else
 		
@@ -1367,23 +1384,76 @@ Procedure ExecuteImportFromForm()
 			Return;
 		EndIf;
 		
-		ExecuteImportFromFormCompletion(True, FileAddress, FileNameForExtension, Undefined);
+		AdditionalParameters = AdditionalNotificationProcessingParameters();
 		
+		AdditionalParameters.AddressOfFileOnServer = FileAddress;
+		
+		ExecuteImportFromFormCompletion(True, AdditionalParameters);
+						
 	EndIf;
 	
 EndProcedure
 
 &AtClient
-Procedure ExecuteImportFromFormCompletion(Result, Address, SelectedFileName, AdditionalParameters) Export
+Procedure ExecuteImportFromFormCompletion(Result, AdditionalParameters) Export
 	
-	If Result Then
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	NameOfSelectedFile= "";
+	Address = "";
+	
+	If TypeOf(AdditionalParameters) = Type("Structure") 
+		And AdditionalParameters.Property("AddressOfFileOnServer") Then
 		
-		ExecuteImportAtServer(Address, SelectedFileName);
+		Address = AdditionalParameters.AddressOfFileOnServer;
 		
-		OpenExchangeProtocolDataIfNecessary();
+	Else
+		
+		Address = Result.Address;
+		NameOfSelectedFile = Result.FileRef.Name;
+		
+	EndIf;
+		
+	ExecuteImportAtServer(Address, NameOfSelectedFile);
+	
+	OpenExchangeProtocolDataIfNecessary();
+	
+EndProcedure
+
+&AtClient
+Procedure GetExchangeFileInfoCompletion(Result, AdditionalParameters) Export
+	
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	Address  = "";
+	
+	If TypeOf(AdditionalParameters) = Type("Structure") 
+		And AdditionalParameters.Property("AddressOfFileOnServer") Then
+		
+		Address = AdditionalParameters.AddressOfFileOnServer;
+		
+	Else
+		
+		Address = Result.Address;
 		
 	EndIf;
 	
+	Try
+		
+		OpenImportFileAtServer(Address);
+		ExportPeriodPresentation = PeriodPresentation(Object.StartDate, Object.EndDate);
+		
+	Except
+		
+		MessageToUser(NStr("en = 'Cannot read the exchange file.';"));
+		ClearDataImportFileData();
+		
+	EndTry;
+			
 EndProcedure
 
 &AtServer
@@ -1423,7 +1493,7 @@ Procedure ExecuteImportAtServer(FileAddress, FileNameForExtension)
 		EndIf;
 		
 	Except
-		WriteLogEvent(NStr("en = 'Conversion Rule Data Exchange in XML format';", Common.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Conversion Rule Data Exchange in XML format';", ObjectForServer.DefaultLanguageCode()),
 			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	
@@ -1536,13 +1606,32 @@ Procedure ExecuteExportFromForm()
 	
 	If IsClient And Not DirectExport And Not Object.FlagErrors Then
 		
-		FileToSaveName = ?(Object.ArchiveFile, NStr("en = 'Export file.zip';"),NStr("en = 'Export file.xml';"));
-		
-		GetFile(DataFileAddressInStorage, FileToSaveName)
+		GetUploadFileOnClient(DataFileAddressInStorage);
 		
 	EndIf;
 	
 	OpenExchangeProtocolDataIfNecessary();
+	
+EndProcedure
+
+&AtClient
+Procedure GetUploadFileOnClient(Address)
+	
+	FileToSaveName = NStr("en = 'Export file';");
+	
+	ChoiceDialog = New FileDialog(FileDialogMode.Save);
+	
+	ChoiceDialog.Title = NStr("en = 'Select a path to save the export file';");
+	ChoiceDialog.DefaultExt = ?(Object.ArchiveFile, "zip", "xml");
+	ChoiceDialog.Filter = ?(Object.ArchiveFile, "(*.zip)|*.zip", "(*.xml)|*.xml");
+	
+    Notification = New CallbackDescription;
+	
+	FilesToObtain = New Array;
+	
+	FilesToObtain.Add(New TransferableFileDescription(FileToSaveName, Address));
+	
+	BeginGettingFiles(Notification, FilesToObtain, ChoiceDialog);
 	
 EndProcedure
 
@@ -1611,8 +1700,10 @@ Function ExecuteExportAtServer()
 	
 	If IsClient And Not DirectExport Then
 		
-		DataFileAddress = PutToTempStorage(New BinaryData(Object.ExchangeFileName), UUID);
-		DeleteFiles(Object.ExchangeFileName);
+		DataFileAddress = PutToTempStorage(New BinaryData(ObjectForServer.ExchangeFileName), 
+			UUID);
+			
+		DeleteFiles(ObjectForServer.ExchangeFileName);
 		
 	Else
 		
@@ -1736,7 +1827,7 @@ Procedure OpenHandlerDebugSetupForm(EventHandlersFromRuleFile)
 	FormParameters.Insert("DataProcessorName", DataProcessorName);
 	
 	Mode = FormWindowOpeningMode.LockOwnerWindow;
-	Handler = New NotifyDescription("OpenHandlerDebugSetupFormCompletion", ThisObject, EventHandlersFromRuleFile);
+	Handler = New CallbackDescription("OpenHandlerDebugSetupFormCompletion", ThisObject, EventHandlersFromRuleFile);
 	
 	OpenForm(FormNameToCall, FormParameters, ThisObject,,,,Handler, Mode);
 	
@@ -1761,7 +1852,7 @@ Procedure OpenHandlerDebugSetupFormCompletion(DebugParameters, EventHandlersFrom
 				
 			EndIf;
 			
-			Notification = New NotifyDescription("OpenHandlersDebugSettingsFormCompletionFileDeletion", ThisObject);
+			Notification = New CallbackDescription("OpenHandlersDebugSettingsFormCompletionFileDeletion", ThisObject);
 			BeginDeletingFiles(Notification, FileName);
 			
 		EndIf;
@@ -1913,7 +2004,8 @@ EndFunction
 Procedure CheckPlatformVersionAndCompatibilityMode()
 	
 	Information = New SystemInfo;
-	If Not (Left(Information.AppVersion, 3) = "8.3"
+	VersionParts = StrSplit(Information.AppVersion, ".");
+	If Not (Not (VersionParts.Count() < 2 Or Number(VersionParts[0]) < 8 Or Number(VersionParts[1]) < 3)
 		And (Metadata.CompatibilityMode = Metadata.ObjectProperties.CompatibilityMode.DontUse
 		Or (Metadata.CompatibilityMode <> Metadata.ObjectProperties.CompatibilityMode.Version8_1
 		And Metadata.CompatibilityMode <> Metadata.ObjectProperties.CompatibilityMode.Version8_2_13
@@ -1921,7 +2013,7 @@ Procedure CheckPlatformVersionAndCompatibilityMode()
 		And Metadata.CompatibilityMode <> Metadata.ObjectProperties.CompatibilityMode["Version8_3_1"]
 		And Metadata.CompatibilityMode <> Metadata.ObjectProperties.CompatibilityMode["Version8_3_2"]))) Then
 		
-		Raise NStr("en = 'The data processor supports 1C:Enterprise 8.3 or later,
+		Raise NStr("en = 'The data processor supports 1C:Enterprise 8.3.3 or later,
 			|with disabled compatibility mode.';");
 		
 	EndIf;
@@ -1932,8 +2024,9 @@ EndProcedure
 Procedure ChangeSafeImportMode(Interactively = True)
 	
 	Items.SafeImportGroup.Enabled = Object.SafeImport;
-	
+
 	ThroughStorage = IsClient;
+	
 #If WebClient Then
 		ThroughStorage = True;
 #EndIf
@@ -1948,28 +2041,102 @@ EndProcedure
 Procedure PutImportRulesFileInStorage()
 	
 	ThroughStorage = IsClient;
+	
 #If WebClient Then
 		ThroughStorage = True;
 #EndIf
 	
 	FileAddress = "";
-	NotifyDescription = New NotifyDescription("PutImportRulesFileInStorageCompletion", ThisObject);
+	
+	NotifyDescription = New CallbackDescription("PutImportRulesFileInStorageCompletion", ThisObject); 
 	
 	If ThroughStorage Then
-		BeginPutFile(NotifyDescription, FileAddress, , , UUID);
-	Else
-		BeginPutFile(NotifyDescription, FileAddress, NameOfImportRulesFile, False, UUID);
+				
+		BeginPutFileToServer(NotifyDescription,,, FileAddress, 
+			PreparedParametersOfFilePlacementDialog(), UUID);
+		
+	Else 
+		
+		BeginPutFileToServer(NotifyDescription,,, FileAddress, NameOfImportRulesFile, UUID);
+		
 	EndIf;
 	
 EndProcedure
 
 &AtClient
-Procedure PutImportRulesFileInStorageCompletion(Result, Address, SelectedFileName, AdditionalParameters) Export
+Procedure PutImportRulesFileInStorageCompletion(Result, AdditionalParameters) Export
 	
-	If Result Then
-		ImportRulesFileAddressInStorage = Address;
+	If Result = Undefined Or Result.PutFileCanceled Then
+		Return;
+	EndIf;
+	
+	ImportRulesFileAddressInStorage = Result.Address;
+	
+EndProcedure
+
+&AtClient 
+Procedure FileSystemExtensionAttachment(InstallIfNotAttachable) Export
+	
+	BeginAttachingFileSystemExtension(
+		New CallbackDescription("AfterConnecting", ThisObject, InstallIfNotAttachable));
+		
+EndProcedure
+
+&AtClient
+Procedure AfterConnecting(Attached, InstallIfNotAttachable) Export
+	
+	If Attached Then
+		
+		// 1C:Enterprise Extension is installed
+		
+	ElsIf InstallIfNotAttachable Then
+		
+		BeginInstallFileSystemExtension(
+			New CallbackDescription("FileSystemExtensionAttachment", ThisObject, False));
+		
+	Else
+		
+		MessageText = NStr("en = 'Failed to install or attach 1C:Enterprise Extension';");
+		MessageToUser(MessageText);
+		
 	EndIf;
 	
 EndProcedure
+
+// Returns data processor version.
+&AtServer
+Function VersionOfObjectAtServer()
+	
+	Return FormAttributeToValue("Object").ObjectVersion();
+	
+EndFunction
+
+&AtClient
+Function PreparedParametersOfFilePlacementDialog()
+	
+	RoomDialogParameters = New PutFilesDialogParameters;
+	
+	RoomDialogParameters.MultipleChoice = False;
+	RoomDialogParameters.Filter = "All files (*.*)|*.*";
+	RoomDialogParameters.Title = NStr("en = 'Select a file to import';");
+	
+	Return RoomDialogParameters;
+	
+EndFunction 
+
+// Returns:
+//   Structure:
+//     * AddressOfFileOnServer - String
+//
+&AtClient
+Function AdditionalNotificationProcessingParameters()
+	
+	Structure = New Structure; 
+	
+	Structure.Insert("AddressOfFileOnServer", "");
+	
+	Return Structure;
+	
+EndFunction
 
 #EndRegion

@@ -93,11 +93,11 @@ Procedure IndividualSchedulePresentationURLProcessing(Item, FormattedStringURL, 
 	StorageData = GetFromTempStorage(FormattedStringURL);
 	If StorageData = "AddJob" Then
 		ScheduleDialog1    = New ScheduledJobDialog(New JobSchedule);
-		ChangeNotification = New NotifyDescription("AddJobAtClientCompletion", ThisObject);
+		ChangeNotification = New CallbackDescription("AddJobAtClientCompletion", ThisObject);
 		ScheduleDialog1.Show(ChangeNotification);
 	Else
 		ScheduleDialog1    = New ScheduledJobDialog(StorageData);
-		ChangeNotification = New NotifyDescription("ChangeTaskOnClientCompletion", ThisObject);
+		ChangeNotification = New CallbackDescription("ChangeTaskOnClientCompletion", ThisObject);
 		ScheduleDialog1.Show(ChangeNotification);
 	EndIf;
 	
@@ -136,7 +136,7 @@ Procedure ExecuteCheck(Command)
 	EndIf;	
 	
 	If Not Object.Use Then
-		CallbackOnCompletion = New NotifyDescription("ExecuteCheckAfterQuestion", ThisObject);
+		CallbackOnCompletion = New CallbackDescription("ExecuteCheckAfterQuestion", ThisObject);
 		ShowQueryBox(CallbackOnCompletion, NStr("en = 'Checkup is disabled. Check anyway?';"), QuestionDialogMode.YesNo);
 		Return;
 	EndIf;	
@@ -148,8 +148,8 @@ EndProcedure
 &AtClient
 Procedure CustomizeStandardSettings(Command)
 	
-	QueryText = NStr("en = 'Set standard settings?';");
-	Handler = New NotifyDescription("SetStandardSettingsAtClient", ThisObject);
+	QueryText = NStr("en = 'Restore default settings?';");
+	Handler = New CallbackDescription("SetStandardSettingsAtClient", ThisObject);
 	ShowQueryBox(Handler, QueryText, QuestionDialogMode.YesNo);
 	
 EndProcedure
@@ -191,7 +191,7 @@ Procedure ExecuteCheckAfterQuestion(QuestionResult, AdditionalParameters) Export
 	
 	TimeConsumingOperation = RunCheckAtServer();
 	
-	CallbackOnCompletion = New NotifyDescription("ExecuteCheckCompletion", ThisObject);
+	CallbackOnCompletion = New CallbackDescription("ExecuteCheckCompletion", ThisObject);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.MessageText = NStr("en = 'Checking. This might take a while.';");
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);

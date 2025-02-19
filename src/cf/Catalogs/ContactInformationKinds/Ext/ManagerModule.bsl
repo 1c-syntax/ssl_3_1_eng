@@ -32,7 +32,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// StandardSubsystems.ObjectAttributesLock
+// Standard subsystems.Forbidding editingrequisitobjects
 
 // Returns:
 //   See ObjectAttributesLockOverridable.OnDefineLockedAttributes.LockedAttributes.
@@ -51,7 +51,7 @@ EndFunction
 
 // End StandardSubsystems.ObjectAttributesLock
 
-// StandardSubsystems.DuplicateObjectsDetection
+// СтандартныеПодсистемы.ПоискИУдалениеДублей
 
 // Parameters: 
 //   ReplacementPairs - See DuplicateObjectsDetectionOverridable.OnDefineItemsReplacementAvailability.ReplacementPairs
@@ -74,7 +74,8 @@ Function CanReplaceItems(Val ReplacementPairs, Val ReplacementParameters = Undef
 		// Replacing a contact information kind with another kind is only allowed if they both belong to the same group.
 		ReplacementAllowed = CurrentRef.Parent = DestinationRef.Parent;
 		If Not ReplacementAllowed Then
-			Error = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Item ""%1"" belongs to ""%2,"" while ""%3"" belongs to ""%4.""';"),
+			Error = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Item ""%1"" belongs to ""%2,"" while ""%3"" belongs to ""%4.""';"),
 				CurrentRef, CurrentRef.Parent, DestinationRef, DestinationRef.Parent);
 			Result.Insert(CurrentRef, Error);
 		EndIf;
@@ -120,7 +121,7 @@ EndProcedure
 
 // End StandardSubsystems.DuplicateObjectsDetection
 
-// StandardSubsystems.ObjectsVersioning
+// СтандартныеПодсистемы.ВерсионированиеОбъектов
 
 // 
 // Defines object settings for the ObjectsVersioning subsystem.

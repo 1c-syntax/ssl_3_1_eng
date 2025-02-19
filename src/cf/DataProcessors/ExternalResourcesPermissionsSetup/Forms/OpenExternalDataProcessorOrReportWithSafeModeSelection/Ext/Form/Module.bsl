@@ -93,7 +93,7 @@ EndProcedure
 &AtClient
 Procedure ImportDataProcessorFile()
 	
-	Notification = New NotifyDescription("ImportDataProcessorFileCompletion", ThisObject);
+	Notification = New CallbackDescription("ImportDataProcessorFileCompletion", ThisObject);
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.FormIdentifier = UUID;
 	FileSystemClient.ImportFile_(Notification);

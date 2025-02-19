@@ -375,6 +375,11 @@ Procedure RunDataImport(ImportParameters = Undefined) Export
 		ExchangeComponents.UseTransactions = False;
 	EndIf;
 	
+#If ExternalConnection Then
+	InformationRegisters.ArchiveOfExchangeMessages.PackMessageToArchive(
+		ExchangeNodeDataImport, ExchangeFileName);
+#EndIf
+	
 	DataExchangeXDTOServer.OpenImportFile(ExchangeComponents, ExchangeFileName);
 	
 	// Format extension can be initialized following reading the format version from a message file.
@@ -473,10 +478,10 @@ EndProcedure
 // Imports data from an exchange message file to an infobase of the specified object types only.
 //
 // Parameters:
-//  TablesToImport - Array of String - array of types to be imported from the exchange message.
-//                       For example, to import from the exchange message the "Counterparties" catalog items only:
+//  TablesToImport - Array of String - Array of types to be imported from the exchange message.
+//                       For example, to import from the exchange message the Demo:Counterparties catalog items only::
 //                         TablesToImport = New Array;
-//                         TablesToImport.Add("CatalogRef.Counterparties");
+//                         TablesToImport.Add(CatalogRef.Currencies);
 //                       You can receive the list of all types that are contained in the current exchange message
 //                       by calling the ExecuteExchangeMessageAnalysis() procedure.
 // 
@@ -644,10 +649,10 @@ EndProcedure
 // Imports data from the exchange message file to values table of specified objects types.
 //
 // Parameters:
-//  TablesToImport - Array of String - array of types to be imported from the exchange message.
-//                       For example, to import from the exchange message the "Counterparties" catalog items only:
+//  TablesToImport - Array of String - Array of types to be imported from the exchange message.
+//                       For example, to import from the exchange message the Demo:Counterparties catalog items only::
 //                         TablesToImport = New Array;
-//                         TablesToImport.Add("CatalogRef.Counterparties");
+//                         TablesToImport.Add(CatalogRef.Currencies);
 //                       You can receive the list of all types that are contained in the current exchange message
 //                       by calling the ExecuteExchangeMessageAnalysis() procedure.
 // 
@@ -764,8 +769,6 @@ Procedure ToDownloadTheMessageDataExchange(XMLExportData) Export
 	TextDocument.AddLine(XMLExportData);
 	TextDocument.Write(ExchangeFileName, , Chars.LF);
 	
-	InformationRegisters.ArchiveOfExchangeMessages.PackMessageToArchive(ExchangeNodeDataImport, ExchangeFileName);
-	
 	RunDataImport();
 	
 	DeleteFiles(ExchangeFileName);
@@ -790,7 +793,7 @@ Function InitExchangeMessageDataTable(ObjectType)
 	
 	MetadataObject = Metadata.FindByType(ObjectType);
 	
-	// Getting a description of all metadata object fields from the configuration.
+	// Get details of all metadata object fields from the configuration.
 	ObjectPropertiesDescriptionTable = Common.ObjectPropertiesDetails(MetadataObject, "Name, Type");
 	
 	For Each PropertyDetails In ObjectPropertiesDescriptionTable Do

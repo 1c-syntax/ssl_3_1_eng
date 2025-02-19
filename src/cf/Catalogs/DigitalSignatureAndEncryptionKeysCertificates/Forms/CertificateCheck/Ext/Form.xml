@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.16">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
+	<SaveWindowSettings>false</SaveWindowSettings>
 	<CommandBarLocation>Top</CommandBarLocation>
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<Autofill>false</Autofill>
@@ -49,14 +50,14 @@
 			<PagesRepresentation>None</PagesRepresentation>
 			<ExtendedTooltip name="GroupPagesExtendedTooltip" id="446"/>
 			<ChildItems>
-				<Page name="VerificationPage" id="447">
+				<Page name="PageChecks" id="447">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>Page Checks</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="VerificationPageExtendedTooltip" id="448"/>
+					<ExtendedTooltip name="PageChecksExtendedTooltip" id="448"/>
 					<ChildItems>
 						<UsualGroup name="HeaderGroup" id="333">
 							<Title>
@@ -454,7 +455,6 @@ It is recommended that you use signature key qualified certificates (SKQS) that 
 														<LabelDecoration name="CertificateExistsErrorClientLabel" id="347">
 															<AutoMaxWidth>false</AutoMaxWidth>
 															<MaxWidth>70</MaxWidth>
-															<TextColor>style:NoteText</TextColor>
 															<Title formatted="false">
 																<v8:item>
 																	<v8:lang>en</v8:lang>
@@ -472,7 +472,6 @@ It is recommended that you use signature key qualified certificates (SKQS) that 
 												<LabelDecoration name="CertificateExistsDecisionClientLabel" id="179">
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<MaxWidth>70</MaxWidth>
-													<TextColor>style:NoteText</TextColor>
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -515,7 +514,6 @@ It is recommended that you use signature key qualified certificates (SKQS) that 
 														<LabelDecoration name="CertificateExistsErrorServerLabel" id="363">
 															<AutoMaxWidth>false</AutoMaxWidth>
 															<MaxWidth>70</MaxWidth>
-															<TextColor>style:NoteText</TextColor>
 															<Title formatted="false">
 																<v8:item>
 																	<v8:lang>en</v8:lang>
@@ -533,7 +531,6 @@ It is recommended that you use signature key qualified certificates (SKQS) that 
 												<LabelDecoration name="CertificateExistsDecisionServerLabel" id="185">
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<MaxWidth>70</MaxWidth>
-													<TextColor>style:NoteText</TextColor>
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -674,7 +671,6 @@ Certificate data imported from a certificate file or using another method might 
 														<LabelDecoration name="CertificateDataErrorClientLabel" id="400">
 															<AutoMaxWidth>false</AutoMaxWidth>
 															<MaxWidth>70</MaxWidth>
-															<TextColor>style:NoteText</TextColor>
 															<Title formatted="false">
 																<v8:item>
 																	<v8:lang>en</v8:lang>
@@ -692,7 +688,6 @@ Certificate data imported from a certificate file or using another method might 
 												<LabelDecoration name="CertificateDataDecisionClientLabel" id="197">
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<MaxWidth>70</MaxWidth>
-													<TextColor>style:NoteText</TextColor>
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -735,7 +730,6 @@ Certificate data imported from a certificate file or using another method might 
 														<LabelDecoration name="CertificateDataErrorServerLabel" id="403">
 															<AutoMaxWidth>false</AutoMaxWidth>
 															<MaxWidth>70</MaxWidth>
-															<TextColor>style:NoteText</TextColor>
 															<Title formatted="false">
 																<v8:item>
 																	<v8:lang>en</v8:lang>
@@ -753,7 +747,6 @@ Certificate data imported from a certificate file or using another method might 
 												<LabelDecoration name="CertificateDataDecisionServerLabel" id="203">
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<MaxWidth>70</MaxWidth>
-													<TextColor>style:NoteText</TextColor>
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -770,7 +763,7 @@ Certificate data imported from a certificate file or using another method might 
 										</UsualGroup>
 									</ChildItems>
 								</UsualGroup>
-								<UsualGroup name="GroupAvailabilityOfProgram" id="16">
+								<UsualGroup name="GroupAppPresence" id="16">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -781,7 +774,7 @@ Certificate data imported from a certificate file or using another method might 
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="GroupAvailabilityOfProgramExtendedTooltip" id="17"/>
+									<ExtendedTooltip name="GroupAppPresenceExtendedTooltip" id="17"/>
 									<ChildItems>
 										<PictureDecoration name="ProgramExistsAtClientPicture" id="18">
 											<Width>2</Width>
@@ -889,7 +882,6 @@ Certificate data imported from a certificate file or using another method might 
 														<LabelDecoration name="ProgramExistsErrorClientLabel" id="406">
 															<AutoMaxWidth>false</AutoMaxWidth>
 															<MaxWidth>70</MaxWidth>
-															<TextColor>style:NoteText</TextColor>
 															<Title formatted="false">
 																<v8:item>
 																	<v8:lang>en</v8:lang>
@@ -907,7 +899,6 @@ Certificate data imported from a certificate file or using another method might 
 												<LabelDecoration name="ProgramExistsDecisionClientLabel" id="231">
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<MaxWidth>70</MaxWidth>
-													<TextColor>style:NoteText</TextColor>
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -950,7 +941,6 @@ Certificate data imported from a certificate file or using another method might 
 														<LabelDecoration name="ProgramExistsErrorServerLabel" id="409">
 															<AutoMaxWidth>false</AutoMaxWidth>
 															<MaxWidth>70</MaxWidth>
-															<TextColor>style:NoteText</TextColor>
 															<Title formatted="false">
 																<v8:item>
 																	<v8:lang>en</v8:lang>
@@ -968,7 +958,6 @@ Certificate data imported from a certificate file or using another method might 
 												<LabelDecoration name="ProgramExistsDecisionServerLabel" id="236">
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<MaxWidth>70</MaxWidth>
-													<TextColor>style:NoteText</TextColor>
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -1121,7 +1110,6 @@ Certificate data imported from a certificate file or using another method might 
 														<LabelDecoration name="SigningErrorClientLabel" id="412">
 															<AutoMaxWidth>false</AutoMaxWidth>
 															<MaxWidth>70</MaxWidth>
-															<TextColor>style:NoteText</TextColor>
 															<Title formatted="false">
 																<v8:item>
 																	<v8:lang>en</v8:lang>
@@ -1139,7 +1127,6 @@ Certificate data imported from a certificate file or using another method might 
 												<LabelDecoration name="SigningDecisionClientLabel" id="249">
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<MaxWidth>70</MaxWidth>
-													<TextColor>style:NoteText</TextColor>
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -1182,7 +1169,6 @@ Certificate data imported from a certificate file or using another method might 
 														<LabelDecoration name="SigningErrorServerLabel" id="415">
 															<AutoMaxWidth>false</AutoMaxWidth>
 															<MaxWidth>70</MaxWidth>
-															<TextColor>style:NoteText</TextColor>
 															<Title formatted="false">
 																<v8:item>
 																	<v8:lang>en</v8:lang>
@@ -1200,7 +1186,6 @@ Certificate data imported from a certificate file or using another method might 
 												<LabelDecoration name="SigningDecisionServerLabel" id="254">
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<MaxWidth>70</MaxWidth>
-													<TextColor>style:NoteText</TextColor>
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -1217,7 +1202,7 @@ Certificate data imported from a certificate file or using another method might 
 										</UsualGroup>
 									</ChildItems>
 								</UsualGroup>
-								<UsualGroup name="SignatureVerificationGroup" id="96">
+								<UsualGroup name="GroupSignatureVerification" id="96">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -1228,7 +1213,7 @@ Certificate data imported from a certificate file or using another method might 
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="SignatureVerificationGroupExtendedTooltip" id="97"/>
+									<ExtendedTooltip name="GroupSignatureVerificationExtendedTooltip" id="97"/>
 									<ChildItems>
 										<PictureDecoration name="CheckSignatureAtClientPicture" id="98">
 											<Width>2</Width>
@@ -1337,7 +1322,6 @@ Certificate data imported from a certificate file or using another method might 
 														<LabelDecoration name="CheckSignatureErrorClientSignature" id="418">
 															<AutoMaxWidth>false</AutoMaxWidth>
 															<MaxWidth>70</MaxWidth>
-															<TextColor>style:NoteText</TextColor>
 															<Title formatted="false">
 																<v8:item>
 																	<v8:lang>en</v8:lang>
@@ -1355,7 +1339,6 @@ Certificate data imported from a certificate file or using another method might 
 												<LabelDecoration name="CheckSignatureDecisionClientLabel" id="267">
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<MaxWidth>70</MaxWidth>
-													<TextColor>style:NoteText</TextColor>
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -1398,7 +1381,6 @@ Certificate data imported from a certificate file or using another method might 
 														<LabelDecoration name="CheckSignatureErrorServerSignature" id="421">
 															<AutoMaxWidth>false</AutoMaxWidth>
 															<MaxWidth>70</MaxWidth>
-															<TextColor>style:NoteText</TextColor>
 															<Title formatted="false">
 																<v8:item>
 																	<v8:lang>en</v8:lang>
@@ -1416,7 +1398,6 @@ Certificate data imported from a certificate file or using another method might 
 												<LabelDecoration name="CheckSignatureDecisionServerLabel" id="272">
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<MaxWidth>70</MaxWidth>
-													<TextColor>style:NoteText</TextColor>
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -1449,7 +1430,7 @@ Certificate data imported from a certificate file or using another method might 
 										</UsualGroup>
 									</ChildItems>
 								</UsualGroup>
-								<UsualGroup name="EncryptionGroup" id="60">
+								<UsualGroup name="GroupEncryption" id="60">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -1460,7 +1441,7 @@ Certificate data imported from a certificate file or using another method might 
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="EncryptionGroupExtendedTooltip" id="61"/>
+									<ExtendedTooltip name="GroupEncryptionExtendedTooltip" id="61"/>
 									<ChildItems>
 										<PictureDecoration name="EncryptionAtClientPicture" id="62">
 											<Width>2</Width>
@@ -1569,7 +1550,6 @@ Certificate data imported from a certificate file or using another method might 
 														<LabelDecoration name="EncryptionErrorClientLabel" id="424">
 															<AutoMaxWidth>false</AutoMaxWidth>
 															<MaxWidth>70</MaxWidth>
-															<TextColor>style:NoteText</TextColor>
 															<Title formatted="false">
 																<v8:item>
 																	<v8:lang>en</v8:lang>
@@ -1587,7 +1567,6 @@ Certificate data imported from a certificate file or using another method might 
 												<LabelDecoration name="EncryptionDecisionClientLabel" id="285">
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<MaxWidth>70</MaxWidth>
-													<TextColor>style:NoteText</TextColor>
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -1630,7 +1609,6 @@ Certificate data imported from a certificate file or using another method might 
 														<LabelDecoration name="EncryptionErrorServerLabel" id="427">
 															<AutoMaxWidth>false</AutoMaxWidth>
 															<MaxWidth>70</MaxWidth>
-															<TextColor>style:NoteText</TextColor>
 															<Title formatted="false">
 																<v8:item>
 																	<v8:lang>en</v8:lang>
@@ -1648,7 +1626,6 @@ Certificate data imported from a certificate file or using another method might 
 												<LabelDecoration name="EncryptionDecisionServerLabel" id="290">
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<MaxWidth>70</MaxWidth>
-													<TextColor>style:NoteText</TextColor>
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -1784,7 +1761,6 @@ Certificate data imported from a certificate file or using another method might 
 														<LabelDecoration name="DetailsErrorClientLabel" id="430">
 															<AutoMaxWidth>false</AutoMaxWidth>
 															<MaxWidth>70</MaxWidth>
-															<TextColor>style:NoteText</TextColor>
 															<Title formatted="false">
 																<v8:item>
 																	<v8:lang>en</v8:lang>
@@ -1802,7 +1778,6 @@ Certificate data imported from a certificate file or using another method might 
 												<LabelDecoration name="DetailsDecisionClientLabel" id="303">
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<MaxWidth>70</MaxWidth>
-													<TextColor>style:NoteText</TextColor>
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -1845,7 +1820,6 @@ Certificate data imported from a certificate file or using another method might 
 														<LabelDecoration name="DetailsErrorServerLabel" id="433">
 															<AutoMaxWidth>false</AutoMaxWidth>
 															<MaxWidth>70</MaxWidth>
-															<TextColor>style:NoteText</TextColor>
 															<Title formatted="false">
 																<v8:item>
 																	<v8:lang>en</v8:lang>
@@ -1863,7 +1837,6 @@ Certificate data imported from a certificate file or using another method might 
 												<LabelDecoration name="DetailsDecisionServerLabel" id="308">
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<MaxWidth>70</MaxWidth>
-													<TextColor>style:NoteText</TextColor>
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -1897,7 +1870,7 @@ Certificate data imported from a certificate file or using another method might 
 						</UsualGroup>
 					</ChildItems>
 				</Page>
-				<Page name="VerificationPageIsSuccessful" id="449">
+				<Page name="PageChecksPassed" id="449">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -1907,9 +1880,9 @@ Certificate data imported from a certificate file or using another method might 
 					<Group>AlwaysHorizontal</Group>
 					<VerticalAlign>Center</VerticalAlign>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="VerificationPageIsSuccessfulExtendedTooltip" id="450"/>
+					<ExtendedTooltip name="PageChecksPassedExtendedTooltip" id="450"/>
 					<ChildItems>
-						<PictureDecoration name="SceneryPictureChecksAreSuccessful" id="462">
+						<PictureDecoration name="DecorationPictureChecksPassed" id="462">
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -1920,10 +1893,10 @@ Certificate data imported from a certificate file or using another method might 
 								<xr:Ref>CommonPicture.Success32</xr:Ref>
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
-							<ContextMenu name="SceneryPictureChecksAreSuccessfulContextMenu" id="463"/>
-							<ExtendedTooltip name="SceneryPictureChecksAreSuccessfulExtendedTooltip" id="464"/>
+							<ContextMenu name="DecorationPictureChecksPassedContextMenu" id="463"/>
+							<ExtendedTooltip name="DecorationPictureChecksPassedExtendedTooltip" id="464"/>
 						</PictureDecoration>
-						<LabelDecoration name="BackgroundChecksAreSuccessful" id="451">
+						<LabelDecoration name="DecorationChecksPassed" id="451">
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -1931,15 +1904,15 @@ Certificate data imported from a certificate file or using another method might 
 								</v8:item>
 							</Title>
 							<Hyperlink>true</Hyperlink>
-							<ContextMenu name="BackgroundChecksAreSuccessfulContextMenu" id="452"/>
-							<ExtendedTooltip name="BackgroundChecksAreSuccessfulExtendedTooltip" id="453"/>
+							<ContextMenu name="DecorationChecksPassedContextMenu" id="452"/>
+							<ExtendedTooltip name="DecorationChecksPassedExtendedTooltip" id="453"/>
 							<Events>
-								<Event name="Click">BackgroundChecksAreSuccessfulClick</Event>
+								<Event name="Click">DecorationChecksPassedClick</Event>
 							</Events>
 						</LabelDecoration>
 					</ChildItems>
 				</Page>
-				<Page name="PageIsBeingChecked" id="454">
+				<Page name="PageVerificationInProgress" id="454">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -1947,9 +1920,9 @@ Certificate data imported from a certificate file or using another method might 
 						</v8:item>
 					</Title>
 					<Group>AlwaysHorizontal</Group>
-					<ExtendedTooltip name="PageIsBeingCheckedExtendedTooltip" id="455"/>
+					<ExtendedTooltip name="PageVerificationInProgressExtendedTooltip" id="455"/>
 					<ChildItems>
-						<PictureDecoration name="DecorationPictureIsBeingChecked" id="459">
+						<PictureDecoration name="DecorationPictureCheckInProgress" id="459">
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -1960,18 +1933,18 @@ Certificate data imported from a certificate file or using another method might 
 								<xr:Ref>CommonPicture.TimeConsumingOperation16</xr:Ref>
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
-							<ContextMenu name="DecorationPictureIsBeingCheckedContextMenu" id="460"/>
-							<ExtendedTooltip name="DecorationPictureIsBeingCheckedExtendedTooltip" id="461"/>
+							<ContextMenu name="DecorationPictureCheckInProgressContextMenu" id="460"/>
+							<ExtendedTooltip name="DecorationPictureCheckInProgressExtendedTooltip" id="461"/>
 						</PictureDecoration>
-						<LabelDecoration name="DecorationIsBeingChecked" id="456">
+						<LabelDecoration name="DecorationCheckInProgress" id="456">
 							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
 									<v8:content>Validating certificate…</v8:content>
 								</v8:item>
 							</Title>
-							<ContextMenu name="DecorationIsBeingCheckedContextMenu" id="457"/>
-							<ExtendedTooltip name="DecorationIsBeingCheckedExtendedTooltip" id="458"/>
+							<ContextMenu name="DecorationCheckInProgressContextMenu" id="457"/>
+							<ExtendedTooltip name="DecorationCheckInProgressExtendedTooltip" id="458"/>
 						</LabelDecoration>
 					</ChildItems>
 				</Page>
@@ -2160,22 +2133,17 @@ Certificate data imported from a certificate file or using another method might 
 					<Behavior>PopUp</Behavior>
 					<ExtendedTooltip name="AssistanceRequiredGroupExtendedTooltip" id="159"/>
 					<ChildItems>
-						<LabelDecoration name="SupportInformation" id="439">
-							<Title formatted="true">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Facing issues? Learn how to &lt;link %1&gt;troubleshoot digital signing apps&lt;/&gt; (in Russian).
-
-If you didn't find a solution, contact the 1C support team and provide &lt;link %2&gt;technical information&lt;/&gt; about the issue.</v8:content>
-								</v8:item>
-							</Title>
-							<ContextMenu name="SupportInformationContextMenu" id="440"/>
-							<ExtendedTooltip name="SupportInformationExtendedTooltip" id="441"/>
-							<Events>
-								<Event name="URLProcessing">SupportInformationURLProcessing</Event>
-							</Events>
+						<LabelDecoration name="DecorationContactSupport" id="479">
+							<Visible>false</Visible>
+							<ContextMenu name="DecorationContactSupportContextMenu" id="480"/>
+							<ExtendedTooltip name="DecorationContactSupportExtendedTooltip" id="481"/>
 						</LabelDecoration>
-						<UsualGroup name="GroupDownloadTechnicalInformation" id="475">
+						<Button name="QuestionInSupport" id="477">
+							<Type>Hyperlink</Type>
+							<CommandName>Form.Command.QuestionInSupport</CommandName>
+							<ExtendedTooltip name="QuestionInSupportExtendedTooltip" id="478"/>
+						</Button>
+						<UsualGroup name="GroupDownloadTechnicalInfo" id="475">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -2184,61 +2152,28 @@ If you didn't find a solution, contact the 1C support team and provide &lt;link 
 							</Title>
 							<Group>AlwaysHorizontal</Group>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupDownloadTechnicalInformationExtendedTooltip" id="476"/>
+							<ExtendedTooltip name="GroupDownloadTechnicalInfoExtendedTooltip" id="476"/>
 							<ChildItems>
-								<Button name="DownloadTechnicalInformation" id="465">
-									<Type>UsualButton</Type>
-									<Representation>Picture</Representation>
-									<CommandName>Form.Command.DownloadTechnicalInformation</CommandName>
-									<Picture>
-										<xr:Ref>CommonPicture.Download</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
-									</Picture>
+								<Button name="DownloadTechnicalInfo" id="465">
+									<Type>Hyperlink</Type>
+									<CommandName>Form.Command.DownloadTechnicalInfo</CommandName>
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
 											<v8:content>Download technical information</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="DownloadTechnicalInformationExtendedTooltip" id="466"/>
+									<ExtendedTooltip name="DownloadTechnicalInfoExtendedTooltip" id="466"/>
 								</Button>
-								<UsualGroup name="GroupGeneratesTechnicalInformation" id="467">
+								<PictureDecoration name="DecorationPictureGeneratingTechnicalInfo" id="469">
 									<Visible>false</Visible>
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Gathering technical information</v8:content>
-										</v8:item>
-									</Title>
-									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="GroupGeneratesTechnicalInformationExtendedTooltip" id="468"/>
-									<ChildItems>
-										<PictureDecoration name="SceneryPictureTechnicalInformationIsBeingGenerated" id="469">
-											<Title formatted="false">
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Decoration picture Gathering technical information</v8:content>
-												</v8:item>
-											</Title>
-											<Picture>
-												<xr:Ref>CommonPicture.TimeConsumingOperation16</xr:Ref>
-												<xr:LoadTransparent>false</xr:LoadTransparent>
-											</Picture>
-											<ContextMenu name="SceneryPictureTechnicalInformationIsBeingGeneratedContextMenu" id="470"/>
-											<ExtendedTooltip name="SceneryPictureTechnicalInformationIsBeingGeneratedExtendedTooltip" id="471"/>
-										</PictureDecoration>
-										<LabelDecoration name="DecorationInscriptionTechnicalInformationIsBeingFormed" id="472">
-											<Title formatted="false">
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Gathering technical information…</v8:content>
-												</v8:item>
-											</Title>
-											<ContextMenu name="DecorationInscriptionTechnicalInformationIsBeingFormedContextMenu" id="473"/>
-											<ExtendedTooltip name="DecorationInscriptionTechnicalInformationIsBeingFormedExtendedTooltip" id="474"/>
-										</LabelDecoration>
-									</ChildItems>
-								</UsualGroup>
+									<Picture>
+										<xr:Ref>CommonPicture.TimeConsumingOperation16</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<ContextMenu name="DecorationPictureGeneratingTechnicalInfoContextMenu" id="470"/>
+									<ExtendedTooltip name="DecorationPictureGeneratingTechnicalInfoExtendedTooltip" id="471"/>
+								</PictureDecoration>
 							</ChildItems>
 						</UsualGroup>
 					</ChildItems>
@@ -2454,15 +2389,6 @@ If you didn't find a solution, contact the 1C support team and provide &lt;link 
 		<Attribute name="AppAutoAtServer" id="30">
 			<Type/>
 		</Attribute>
-		<Attribute name="CheckCertificateInClientLocalStore" id="33">
-			<Type>
-				<v8:Type>xs:string</v8:Type>
-				<v8:StringQualifiers>
-					<v8:Length>0</v8:Length>
-					<v8:AllowedLength>Variable</v8:AllowedLength>
-				</v8:StringQualifiers>
-			</Type>
-		</Attribute>
 		<Attribute name="SignatureType" id="34">
 			<Type>
 				<v8:Type>cfg:EnumRef.CryptographySignatureTypes</v8:Type>
@@ -2561,7 +2487,7 @@ If you didn't find a solution, contact the 1C support team and provide &lt;link 
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="ChecksAreSuccessful" id="31">
+		<Attribute name="AreChecksPassed" id="31">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
@@ -2578,7 +2504,7 @@ If you didn't find a solution, contact the 1C support team and provide &lt;link 
 			<Action>Validate</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
-		<Command name="DownloadTechnicalInformation" id="2">
+		<Command name="DownloadTechnicalInfo" id="2">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -2591,7 +2517,18 @@ If you didn't find a solution, contact the 1C support team and provide &lt;link 
 					<v8:content>Download technical information</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>DownloadTechnicalInformation</Action>
+			<Picture>
+				<xr:Ref>CommonPicture.Download</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>DownloadTechnicalInfo</Action>
+		</Command>
+		<Command name="QuestionInSupport" id="3">
+			<Picture>
+				<xr:Ref>CommonPicture.SendEmail</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>QuestionInSupport</Action>
 		</Command>
 	</Commands>
 	<Parameters>

@@ -307,16 +307,16 @@ Procedure SetHelpTexts()
 				InformationFooter = NStr("en = 'Click Next to view the resulting table.';");
 			ElsIf TabularQuestionType = PredefinedValue("Enum.TabularQuestionTypes.PredefinedAnswersInRowsAndColumns") Then
 				InformationHeader  =NStr("en = 'Pick questions. Specify three questions:';");
-				InformationFooter =NStr("en = 'Click Next to pick predefined responses.';");
+				InformationFooter =NStr("en = 'Click Next to pick predefined answers.';");
 			Else
 				InformationHeader   =NStr("en = 'Pick questions. Specify at least two questions:';");
-				InformationFooter  =NStr("en = 'Click Next to pick predefined responses.';");
+				InformationFooter  =NStr("en = 'Click Next to pick predefined answers.';");
 			EndIf;
 		ElsIf CurrentPage = Items.TableQuestionTypePage Then
 			InformationHeader       = NStr("en = 'Select a question chart type:';");
 			InformationFooter      = NStr("en = 'Click Next to pick questions:';");
 		Else
-			InformationHeader  = NStr("en = 'Pick predefined responses:';");
+			InformationHeader  = NStr("en = 'Pick predefined answers:';");
 			InformationFooter = NStr("en = 'Click Next to view the resulting table:';");
 		EndIf;
 	EndIf;
