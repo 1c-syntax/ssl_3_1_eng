@@ -266,7 +266,8 @@ Procedure WhenChangingOfflineModeOption(PreviousValue, NewCurrent, StandardProce
 EndProcedure
 
 // Populates an array of types that must be excluded from the scope of the troubleshooting check 
-// (See InformationRegisters.DataExchangeResults.RecordIssueResolved).
+// (See InformationRegisters.DataExchangeResults.RecordIssueResolved)
+// .
 //
 // Parameters:
 //  Types - Array of MetadataObject 

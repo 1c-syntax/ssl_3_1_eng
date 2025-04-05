@@ -10,13 +10,13 @@
 
 #Region Public
 
-// 
+// Determines the command action for a contact information type.
 // 
 // Parameters:
-//  Action - String - 
-//  TypeOfAction - String - 
+//  Action - String - Command action
+//  TypeOfAction - String - Command action. For example, "ShowOnMap".
 //
-Procedure WhenDeterminingActionOfCommandOfTypeOfContactInformation(Action, TypeOfAction) Export
+Procedure OnDefineContactInfoTypeCommandActions(Action, TypeOfAction) Export
 	
 	
 EndProcedure

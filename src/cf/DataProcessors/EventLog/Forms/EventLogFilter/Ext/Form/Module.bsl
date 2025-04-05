@@ -302,7 +302,7 @@ Procedure SaveSettingsToFile(Command)
 	TempStorageAddress =  SaveSettingsToTempStorage();
 	
 	FileSavingParameters = FileSystemClient.FileSavingParameters();                            
-	FileSavingParameters.Dialog.Filter = NStr("en = 'Event log settings';") + "(*.xml)|*.xml";
+	FileSavingParameters.Dialog.Filter = NStr("en = 'Event log settings'") + "(*.xml)|*.xml";
 	FileSystemClient.SaveFile(Undefined, TempStorageAddress, "Settings.xml", FileSavingParameters);
 	
 EndProcedure
@@ -311,8 +311,8 @@ EndProcedure
 Procedure ImportSettingsFromFile(Command)
 	
 	FileImportParameters = FileSystemClient.FileImportParameters();   
-	FileImportParameters.Dialog.Title = NStr("en = 'Choose a file with event log filter settings';");
-	FileImportParameters.Dialog.Filter = NStr("en = 'XML file';") + "(*.xml)|*.xml";
+	FileImportParameters.Dialog.Title = NStr("en = 'Choose a file with event log filter settings'");
+	FileImportParameters.Dialog.Filter = NStr("en = 'XML file'") + "(*.xml)|*.xml";
 	
 	NotifyDescription = New CallbackDescription("ImportSettingsFromFileCompletion", ThisObject);
 	FileSystemClient.ImportFile_(NotifyDescription, FileImportParameters);
@@ -770,7 +770,7 @@ Procedure ImportSettingsFromFileCompletion(Result, AdditionalParameters) Export
 	EndIf;	
 	
 	ImportSettingsFromFileAtServer(Result.Location);
-	ShowUserNotification(NStr("en = 'Filter settings';"),, NStr("en = 'Filter settings are imported';"));
+	ShowUserNotification(NStr("en = 'Filter settings'"),, NStr("en = 'Filter settings are imported'"));
 	
 EndProcedure
 
@@ -1029,7 +1029,7 @@ Function AvailableEventLogFilters()
 	AvailableFilterParameters["User"] = ListOfUsersToFilter;	
 	
 	If Not Common.SeparatedDataUsageAvailable() Then
-		AvailableFilterParameters.SessionDataSeparationValues["DataAreaMainData"].Insert("", NStr("en = '<Not set>';"));
+		AvailableFilterParameters.SessionDataSeparationValues["DataAreaMainData"].Insert("", NStr("en = '<Not set>'"));
 	EndIf;
 	
 	ProcessAvailableSelectionParameters(AvailableFilterParameters);

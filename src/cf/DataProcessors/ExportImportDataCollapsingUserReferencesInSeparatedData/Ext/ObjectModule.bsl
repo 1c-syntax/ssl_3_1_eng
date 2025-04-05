@@ -60,7 +60,7 @@ Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object,
 	
 	If TypeOf(Object) <> Type("CatalogObject.Users") Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Handler %2 cannot handle metadata object %1.';"),
+			NStr("en = 'Handler %2 cannot handle metadata object %1.'"),
 			Object.Metadata().FullName(),
 			"ExportImportDataCollapsingUserReferencesInSeparatedData.BeforeExportObject");
 	EndIf;
@@ -84,7 +84,7 @@ Procedure AfterExportObject(Container, ObjectExportManager, Serializer, Object, 
 	
 	If TypeOf(Object) <> Type("CatalogObject.Users") Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Handler %2 cannot handle metadata object %1.';"),
+			NStr("en = 'Handler %2 cannot handle metadata object %1.'"),
 			Object.Metadata().FullName(),
 			"ExportImportDataCollapsingUserReferencesInSeparatedData.AfterExportObject");
 	EndIf;
@@ -129,7 +129,7 @@ Procedure BeforeMapRefs(Container, MetadataObject, SourceRefsTable, StandardProc
 		
 	Else
 		
-		Raise NStr("en = 'Data type is specified incorrectly';");
+		Raise NStr("en = 'Data type is specified incorrectly'");
 		
 	EndIf;
 	
@@ -271,7 +271,7 @@ Procedure BeforeImportObject(Container, Object, Artifacts, Cancel) Export
 		
 	Else
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Handler %2 cannot handle metadata object %1.';"),
+			NStr("en = 'Handler %2 cannot handle metadata object %1.'"),
 			Object.Metadata().FullName(),
 			"ExportImportDataCollapsingUserReferencesInSeparatedData.BeforeImportObject");
 	EndIf;
@@ -475,12 +475,12 @@ Function ReadObjectFromStream(ReaderStream)
 	
 	If ReaderStream.NodeType <> XMLNodeType.StartElement Or ReaderStream.Name <> "Data" Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'XML reading error. Invalid file format. Start of ""%1"" element is expected.';"),
+			NStr("en = 'XML reading error. Invalid file format. Start of ""%1"" element is expected.'"),
 			"Data");
 	EndIf;
 	
 	If Not ReaderStream.Read() Then
-		Raise NStr("en = 'XML reading error. File end is detected.';");
+		Raise NStr("en = 'XML reading error. File end is detected.'");
 	EndIf;
 	
 	Object = XDTOSerializer.ReadXML(ReaderStream);
@@ -513,5 +513,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

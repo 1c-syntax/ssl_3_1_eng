@@ -119,13 +119,13 @@ Function HasRole(Val Role, Val ObjectReference = Undefined, Val User = Undefined
 					           |The access value set contains the ""%3"" access kind 
 					           |for the table with ID ""%4"".
 					           |The only additional right that can be included
-					           |in the access restriction is Read.';"),
+					           |in the access restriction is Read.'"),
 					"HasRole",
 					"AccessManagement",
 					"EditRight",
 					String.AccessValue,
 					"Reads");
-				Raise ErrorText;
+				Raise(ErrorText, ErrorCategory.ConfigurationError);
 			EndIf;
 		ElsIf AccessKindsNames.Get(String.AccessKind) <> Undefined
 		      Or String.AccessKind = "RightsSettings" Then
@@ -136,21 +136,21 @@ Function HasRole(Val Role, Val ObjectReference = Undefined, Val User = Undefined
 				           |It cannot contain this access kind.
 				           |
 				           |It can only contain special access kinds
-				           |""%4"" and ""%5"".';"),
+				           |""%4"" and ""%5"".'"),
 				"HasRole",
 				"AccessManagement",
 				String.AccessKind,
 				"ReadRight1",
 				"EditRight");
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		Else
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Error in function ""%1"" of module ""%2"".
-				           |The access value set contains an unknown access kind ""%1"".';"),
+				           |The access value set contains an unknown access kind ""%1"".'"),
 				"HasRole",
 				"AccessManagement",
 				String.AccessKind);
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndIf;
 		
 		String.AccessKind = "";
@@ -402,7 +402,7 @@ Function HasRight(Right, ObjectReference, Val User = Undefined) Export
 	
 	If RightsDetails = Undefined Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Details about rights valid for table ""%1"" are missing.';"),
+			NStr("en = 'Details about rights valid for table ""%1"" are missing.'"),
 			ObjectReference.Metadata().FullName());
 		Raise ErrorText;
 	EndIf;
@@ -411,7 +411,7 @@ Function HasRight(Right, ObjectReference, Val User = Undefined) Export
 	
 	If RightDetails = Undefined Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Details about right ""%1"" for table ""%2"" are missing.';"),
+			NStr("en = 'Details about right ""%1"" for table ""%2"" are missing.'"),
 			Right, ObjectReference.Metadata().FullName());
 		Raise ErrorText;
 	EndIf;
@@ -555,7 +555,7 @@ EndFunction
 //                 - InformationRegisterRecordSet
 //                 - AccumulationRegisterRecordSet
 //                 - AccountingRegisterRecordSet
-//                 - CalculationRegisterRecordSet - A set of records in memory and in the database that need toi be verified.<plch id="1">
+//                 - CalculationRegisterRecordSet - A set of records in memory and in the database that need to be verified.<plch id="1">
 //                     An optional "Replacing" property (Boolean, ReplacementMode) can be added to the "AdditionalProperties" structure.<plch id="1">
 //                     If not specified, it defaults to True.<plch id="1">
 //                     If "Replacing" is "False" or "ReplacementMode.Addition", database records are not checked.<plch id="1">
@@ -600,23 +600,25 @@ Procedure CheckChangeAllowed(DataDetails) Export
 	
 EndProcedure
 
-// 
-// 
-// 
-// 
+// Returns "Read" and "Update" permissions for the specified or all users and
+// external users on the given existing data element or an array of such elements.
+// Requirements:
+// - Administrative rights or privileged mode is required to use this function.
 //
-// 
-// 
-// 
-// 
+// - Service users are skipped.
+// - If an object does not exist or has no assigned permissions, an empty permission list is returned.
+// - If registry records do not exist, an empty permission list is returned.
+// - If a registry record key field name matches one of the returned table columns "UserWithPermission" or "ModifyPermission",
 //
-// 
-// 
-// 
-// 
+// it will be prefixed with an underscore.
+// Key differences from related functions:
+// Unlike "ReadingAllowed", "EditionAllowed", and procedures "CheckReadAllowed", "CheckChangeAllowed",
+// this function retrieves permissions based on their state in the database, not the session state
 //
-// 
-// 
+// (for example, if permissions changed after session startup).
+// Important:
+// - This function requires ProductiveOption for access restriction.
+// - The "ProductiveOption" function is implemented to verify the operation mode.
 //
 // Parameters:
 //  DataDetails - CatalogRef
@@ -634,35 +636,35 @@ EndProcedure
 //                 - Array of ChartOfCalculationTypesRef
 //                 - Array of BusinessProcessRef
 //                 - Array of TaskRef
-//                 - Array of ExchangePlanRef - 
+//                 - Array of ExchangePlanRef - Array of references to objects of the same type.
 //                 - InformationRegisterRecordKey
 //                 - AccumulationRegisterRecordKey
 //                 - AccountingRegisterRecordKey
-//                 - CalculationRegisterRecordKey - 
-//                     
+//                 - CalculationRegisterRecordKey - Record key used to
+//                     identify the database entry for retrieving permissions.
 //                 - InformationRegisterRecordSet
 //                 - AccumulationRegisterRecordSet
 //                 - AccountingRegisterRecordSet
-//                 - CalculationRegisterRecordSet - 
-//                     
-//                     
-//                     
-//                     
+//                 - CalculationRegisterRecordSet - A record set with the "Filter" property,
+//                     which determines the database records for retrieving permissions.
+//                     If the "Filter" property is not set but the record set is not empty,
+//                     permissions will be returned for the records contained in the set.
+//                     In this case, only the dimension values of the records in the set are used.
 //
-//  ForExternalUsers - Boolean - 
-//                          - Undefined - 
+//  ForExternalUsers - Boolean - If set to "True", the function will return access rights for external users.
+//                          - Undefined - Return for internal and external users.
 //
-//  UsersContent - Undefined - 
-//                      - Array of CatalogRef.Users, CatalogRef.ExternalUsers - 
+//  UsersContent - Undefined - Return all users with access rights.
+//                      - Array of CatalogRef.Users, CatalogRef.ExternalUsers - User list.
 //                        
 //
 // Returns:
 //  ValueTable:
 //    * UserWithRight - CatalogRef.Users
-//                          - CatalogRef.ExternalUsers - 
-//    * RightUpdate - Boolean - 
-//                                
-//    
+//                          - CatalogRef.ExternalUsers - User granted at least the Read right.
+//    * RightUpdate - Boolean - "True" if the user is granted the Update and Read rights.
+//                                "False" if the user is granted only the Read right.
+//    <A Ref field or register record key fields>.
 //
 Function AccessRightsToData(DataDetails, ForExternalUsers = False, UsersContent = Undefined) Export
 	
@@ -854,7 +856,7 @@ Procedure OnCreateAccessValueForm(Form, AdditionalParameters = Undefined,
 	
 	ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Error in procedure %1
-		           |of common module %2.';"),
+		           |of common module %2.'"),
 		"OnCreateAccessValueForm",
 		"AccessManagement");
 	
@@ -867,11 +869,11 @@ Procedure OnCreateAccessValueForm(Form, AdditionalParameters = Undefined,
 			ErrorText = ErrorTitle + Chars.LF + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Parameter ""%1"" is required. Automatic filling
 				           |from form attribute ""%2"" is not available. Reason:
-				           |%3';"),
+				           |%3'"),
 				"CreateNewAccessValue",
 				"Object.Ref",
 				ErrorProcessing.BriefErrorDescription(ErrorInfo));
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndTry;
 	EndIf;
 	
@@ -884,11 +886,11 @@ Procedure OnCreateAccessValueForm(Form, AdditionalParameters = Undefined,
 			ErrorText = ErrorTitle + Chars.LF + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Parameter ""%1"" is required. Automatic filling
 				           |from form attribute ""%2"" is not available. Reason:
-				           |%3';"),
+				           |%3'"),
 				"ValueType",
 				"Object.Ref",
 				ErrorProcessing.BriefErrorDescription(ErrorInfo));
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndTry;
 	Else
 		AccessValueType = ValueType;
@@ -913,11 +915,11 @@ Procedure OnCreateAccessValueForm(Form, AdditionalParameters = Undefined,
 			ErrorText = ErrorTitle + Chars.LF + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Parameter ""Attribute"" is required. Cannot populate is automatically
 				           |form attribute ""%2"" due to:
-				           |%3';"),
+				           |%3'"),
 				"Attribute",
 				"Object.AccessGroup",
 				ErrorProcessing.BriefErrorDescription(ErrorInfo));
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndTry;
 	Else
 		PointPosition = StrFind(Attribute, ".");
@@ -929,11 +931,11 @@ Procedure OnCreateAccessValueForm(Form, AdditionalParameters = Undefined,
 				ErrorText = ErrorTitle + Chars.LF + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Couldn''t get the value of form attribute ""%1""
 					           |specified in parameter ""%2"". Reason:
-					           |%3';"),
+					           |%3'"),
 					Attribute,
 					"Attribute",
 					ErrorProcessing.BriefErrorDescription(ErrorInfo));
-				Raise ErrorText;
+				Raise(ErrorText, ErrorCategory.ConfigurationError);
 			EndTry;
 		Else
 			Try
@@ -943,11 +945,11 @@ Procedure OnCreateAccessValueForm(Form, AdditionalParameters = Undefined,
 				ErrorText = ErrorTitle + Chars.LF + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Couldn''t get the value of form attribute ""%1""
 					           |specified in parameter ""%2"". Reason:
-					           |%3';"),
+					           |%3'"),
 					Attribute,
 					"Attribute",
 					ErrorProcessing.BriefErrorDescription(ErrorInfo));
-				Raise ErrorText;
+				Raise(ErrorText, ErrorCategory.ConfigurationError);
 			EndTry;
 		EndIf;
 	EndIf;
@@ -958,13 +960,13 @@ Procedure OnCreateAccessValueForm(Form, AdditionalParameters = Undefined,
 			           |with ""%3"" value type
 			           |specified in the overridable module is used for access values of ""%1"" type.
 			           |This type does not match the ""%4"" type of the %5 attribute
-			           |in the access value form.';"),
+			           |in the access value form.'"),
 			String(AccessValueType),
 			String(GroupsProperties.AccessKind),
 			String(GroupsProperties.Type),
 			String(TypeOf(AccessValuesGroup)),
 			"AccessGroup");
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	If Not AccessManagementInternal.AccessKindUsed(GroupsProperties.AccessKind) Then
@@ -990,7 +992,7 @@ Procedure OnCreateAccessValueForm(Form, AdditionalParameters = Undefined,
 	   And CreateNewAccessValue Then
 		
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot add an item because this requires allowed ""%1"".';"),
+			NStr("en = 'Cannot add an item because this requires allowed ""%1"".'"),
 			Metadata.FindByType(GroupsProperties.Type).Presentation());
 		Raise ErrorText;
 	EndIf;
@@ -1074,7 +1076,7 @@ Function AccessValuesGroupsAllowingAccessValuesChange(AccessValuesType, ReturnAl
 	
 	ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Error in procedure %1
-		           |of common module %2.';"),
+		           |of common module %2.'"),
 		"AccessValuesGroupsAllowingAccessValuesChange",
 		"AccessManagement");
 	
@@ -1216,31 +1218,31 @@ Procedure SetDynamicListFilters(List, FiltersDetails) Export
 	If TypeOf(List) <> Type("DynamicList") Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Error calling procedure ""%1"" of common module ""%2"".
-			           |Value ""%4"" of parameter ""%3"" is not a dynamic list.';"),
+			           |Value ""%4"" of parameter ""%3"" is not a dynamic list.'"),
 			"SetDynamicListFilters",
 			"AccessManagement",
 			"List",
 			String(List));
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	If Not ValueIsFilled(List.MainTable) Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Error calling procedure ""%1"" of common module ""%2"".
-			           |The main table of the dynamic list passed to the procedure is not specified.';"),
+			           |The main table of the dynamic list passed to the procedure is not specified.'"),
 			"SetDynamicListFilters",
 			"AccessManagement");
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	If Not List.CustomQuery Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Error calling procedure ""%1"" of common module ""%2"".
-			           |The passed dynamic list is missing flag ""%3"".';"),
+			           |The passed dynamic list is missing flag ""%3"".'"),
 			"SetDynamicListFilters",
 			"AccessManagement",
 			"CustomQuery");
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	QuerySchema = New QuerySchema;
@@ -1267,11 +1269,11 @@ Procedure SetDynamicListFilters(List, FiltersDetails) Export
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Error calling procedure ""%1"" of common module ""%2"".
 				           |Cannot find the alias of the ""%1"" main table
-				           |of the dynamic list passed to the procedure.';"),
+				           |of the dynamic list passed to the procedure.'"),
 				"SetDynamicListFilters",
 				"AccessManagement",
 				List.MainTable);
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndIf;
 		Filter = QuerySchema.QueryBatch[0].Operators[0].Filter;
 		ParameterName = "AllowedFieldValues" + FieldName;
@@ -1475,7 +1477,7 @@ Procedure FillAccessValuesSets(Val Object, Table, Val SubordinateObjectRef = Und
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid parameters.
 			           |Cannot find object type ""%1""
-			           |in event subscriptions %2, %3.';"),
+			           |in event subscriptions %2, %3.'"),
 			ValueTypeObject,
 			"WriteAccessValuesSets",
 			"WriteDependentAccessValuesSets");
@@ -1490,7 +1492,7 @@ Procedure FillAccessValuesSets(Val Object, Table, Val SubordinateObjectRef = Und
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = '%1 ""%2""
 			           |has not generated an access value set. Reason:
-			           |%3';"),
+			           |%3'"),
 			TypeOf(ObjectReference),
 			Object,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo));
@@ -1502,7 +1504,7 @@ Procedure FillAccessValuesSets(Val Object, Table, Val SubordinateObjectRef = Und
 		// for access restriction will get stuck in a loop.
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = '%1 ""%2""
-			           |generated a blank access value set.';"),
+			           |generated a blank access value set.'"),
 			TypeOf(ObjectReference),
 			Object);
 		Raise ErrorText;
@@ -2160,11 +2162,11 @@ Procedure ReplaceRightsInObjectsRightsSettings(RenamedTable) Export
 				           |of common module ""%2""..
 				           |
 				           |After the update, the following new access right names will have identical settings:
-				           |%1.';"),
+				           |%1.'"),
 				"ReplaceRightsInObjectsRightsSettings",
 				"AccessManagement",
 				RepeatedNewRightsNames);
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndIf;
 		
 		ReplacementTable1 = QueryResults[QueryResults.Count()-1].Unload();
@@ -2350,7 +2352,7 @@ Procedure DisableAccessKeysUpdate(Disconnect, ScheduleUpdate1 = True) Export
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid call of procedure ""%1"" of common module ""%2"".
 			           |Only full-access users or
-			           |users that run the application in privileged mode can disable update of access keys.';"),
+			           |users that run the application in privileged mode can disable update of access keys.'"),
 			"DisableAccessKeysUpdate",
 			"AccessManagement");
 		Raise ErrorText;
@@ -2427,15 +2429,16 @@ Procedure DisableAccessKeysUpdate(Disconnect, ScheduleUpdate1 = True) Export
 	
 EndProcedure
 
-// 
-// 
+// Adds a deferred update handler that enables universal access restriction
+// (including the "LimitAccessAtRecordLevelUniversally" constant). NOTE: Intended only for end-user solutions, not for libraries.
 // 
 //
 // Parameters:
-//  Version      - String - Version to be used in "InfobaseUpdate.NewUpdateHandlersTable".
-//                  Pass an empty string if "IsInitialPopulationOnly" is set to "True".
+//  Version      - String - 
+//                  
 //  Handlers - See InfobaseUpdate.NewUpdateHandlerTable
 //  ObsoleteIsInitialPopulationOnly - Boolean - 
+//    
 //  ObsoleteExclusiveOfDIB - Boolean - 
 //
 // Example:
@@ -2457,12 +2460,16 @@ Procedure AddUpdateHandlerToEnableUniversalRestriction(Version, Handlers,
 	Handler.Procedure = "InformationRegisters.AccessRestrictionParameters.EnableUniversalRecordLevelAccessRestriction";
 	Handler.ExecutionMode = "Seamless";
 	
+	If ObsoleteIsInitialPopulationOnly Then
+		Return;
+	EndIf;
+	
 	Handler = Handlers.Add();
 	Handler.Version = Version;
 	Handler.Procedure = "InformationRegisters.AccessRestrictionParameters.ProcessDataForMigrationToNewVersion";
 	Handler.ExecutionMode = "Deferred";
 	Handler.RunAlsoInSubordinateDIBNodeWithFilters = True;
-	Handler.Comment = NStr("en = 'Enables universal record-level access restriction.';");
+	Handler.Comment = NStr("en = 'Enables universal record-level access restriction.'");
 	Handler.Id = New UUID("74cb1992-c9ac-4b46-90db-810544dee86c");
 	Handler.UpdateDataFillingProcedure = "InformationRegisters.AccessRestrictionParameters.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.ObjectsToRead = "InformationRegister.AccessRestrictionParameters";
@@ -2470,16 +2477,16 @@ Procedure AddUpdateHandlerToEnableUniversalRestriction(Version, Handlers,
 	
 EndProcedure
 
-// 
-// 
-// 
+// Schedules an access update for the specified table.
+// All access keys for objects in the specified table will be checked and updated if they are outdated.
+// Permissions for all access keys of objects in the specified table will also be recalculated and updated if necessary.
 //
-// 
-// 
+// This is required when correcting specific application-level errors that may necessitate updating access keys
+// or their permissions, but the system has not automatically detected the need for this update.
 //
 // Parameters:
 //  Table - String - Full name of a metadata object.
-//          - Array of String - 
+//          - Array of String - Full names of metadata objects.
 //
 Procedure ScheduleAccessUpdate(Table) Export
 	
@@ -2522,7 +2529,7 @@ EndFunction
 
 // End ServiceSubsystems.TMPAMEM
 
-// Разработка.РазработкаПравИОграниченийДоступа
+// 
 
 // Assignment: to call ASDS restrictions from the constructor.
 // 
@@ -2704,7 +2711,7 @@ EndFunction
 
 // End Development.RightsAndAccessRestrictionsDevelopment
 
-// ТехнологияСервиса.ServiceUsers
+// 
 
 // Sets user permissions according to the provided access groups 
 // (in case of simplified mode, access group profiles) and user groups.
@@ -2829,7 +2836,7 @@ Procedure SpecifyAccessValuesSets(ObjectReference, Table)
 				           |containing a known access kind ""%2."" It cannot contain this access kind.
 				           |
 				           |It can only contain special access kinds
-				           |""%3"" and ""%4"".';"),
+				           |""%3"" and ""%4"".'"),
 				TypeOf(ObjectReference),
 				String.AccessKind,
 				"ReadRight1",
@@ -2838,7 +2845,7 @@ Procedure SpecifyAccessValuesSets(ObjectReference, Table)
 		Else
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Object ""%1"" generated an access value set
-				           |containing an unknown access kind ""%2.""';"),
+				           |containing an unknown access kind ""%2.""'"),
 				TypeOf(ObjectReference),
 				String.AccessKind);
 			Raise ErrorText;
@@ -3222,9 +3229,9 @@ Function AccessValueGroupsProperties(AccessValueType, ErrorTitle)
 	If AccessKindProperties = Undefined Then
 		ErrorText = ErrorTitle + Chars.LF + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Access value groups are not used for
-			           |access values of ""%1"" type.';"),
+			           |access values of ""%1"" type.'"),
 			String(AccessValueType));
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	GroupsProperties.Insert("AccessKind", AccessKindProperties.Name);
@@ -3270,7 +3277,7 @@ Procedure EnableDisableUserProfile(User, Profile, Enable, Source = Undefined) Ex
 	If Not AccessManagementInternal.SimplifiedAccessRightsSetupInterface() Then
 		ErrorText =
 			NStr("en = 'This operation is available only in the simplified
-			           |access rights interface.';");
+			           |access rights interface.'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -3292,11 +3299,11 @@ Procedure EnableDisableUserProfile(User, Profile, Enable, Source = Undefined) Ex
 		ExpectedTypes = New TypeDescription(Types);
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid value of the %1 parameter in %2. 
-			           |Expected value: %3, actual value: %4 (%5 type).';"),
+			           |Expected value: %3, actual value: %4 (%5 type).'"),
 			ParameterName,
 			NameOfAProcedureOrAFunction,
 			ExpectedTypes, 
-			?(ParameterValue <> Undefined, ParameterValue, NStr("en = 'Undefined';")),
+			?(ParameterValue <> Undefined, ParameterValue, NStr("en = 'Undefined'")),
 			TypeOf(ParameterValue));
 		Raise ErrorText;
 	EndIf;
@@ -3319,11 +3326,11 @@ Procedure EnableDisableUserProfile(User, Profile, Enable, Source = Undefined) Ex
 		ExpectedTypes = New TypeDescription(Types);
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid value of the %1 parameter in %2. 
-			           |Expected value: %3, actual value: %4 (%5 type).';"),
+			           |Expected value: %3, actual value: %4 (%5 type).'"),
 			ParameterName,
 			NameOfAProcedureOrAFunction,
 			ExpectedTypes, 
-			?(ParameterValue <> Undefined, ParameterValue, NStr("en = 'Undefined';")),
+			?(ParameterValue <> Undefined, ParameterValue, NStr("en = 'Undefined'")),
 			TypeOf(ParameterValue));
 		Raise ErrorText;
 	EndIf;
@@ -3413,7 +3420,7 @@ Procedure EnableDisableUserProfile(User, Profile, Enable, Source = Undefined) Ex
 					If ValueIsFilled(ErrorDescription) Then
 						ErrorText =
 							NStr("en = 'At least one user authorized to log in
-							           |must have the Administrator profile.';");
+							           |must have the Administrator profile.'");
 						Raise ErrorText;
 					EndIf;
 				EndIf;

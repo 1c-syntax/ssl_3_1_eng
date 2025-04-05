@@ -112,9 +112,9 @@ Function ErrorTextFailedToDefineApp(Error) Export
 	If ValueIsFilled(Error) Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Couldn''t auto-determine digital signing and encryption app:
-			|%1';"), Error);
+			|%1'"), Error);
 	Else
-		ErrorText = NStr("en = 'Couldn''t auto-determine digital signing and encryption app.';");
+		ErrorText = NStr("en = 'Couldn''t auto-determine digital signing and encryption app.'");
 	EndIf;
 	
 	Return ErrorText;
@@ -123,7 +123,7 @@ EndFunction
 
 Procedure FillCertificateUnqualifiedVerificationResult(CheckParameters, Result) Export
 	If CheckParameters.VerifyCertificate = QualifiedOnly() Then
-		ErrorText = NStr("en = 'The certificate is non-qualified. A signature made with such a certificate is not legally binding.';");
+		ErrorText = NStr("en = 'The certificate is non-qualified. A signature made with such a certificate is not legally binding.'");
 		Result.Valid_SSLyf = False;
 		Result.Warning.ErrorText = ErrorText;
 		Result.Warning.AllowSigning = False;
@@ -140,17 +140,17 @@ Function CryptoProvidersSearchResult(CryptoProvidersResult, ServerName = "") Exp
 
 		If CryptoProvidersResult = Undefined Then
 			ErrorText = NStr(
-				"en = 'Couldn''t find digital signing and encryption apps on your computer.';");
+				"en = 'Couldn''t find digital signing and encryption apps on your computer.'");
 		ElsIf CryptoProvidersResult.CheckCompleted Then
 			If CryptoProvidersResult.Cryptoproviders.Count() > 0 Then
 				Return CryptoProvidersResult.Cryptoproviders;
 			Else
-				ErrorText = NStr("en = 'No digital signing and encryption apps are installed on your computer.';");
+				ErrorText = NStr("en = 'No digital signing and encryption apps are installed on your computer.'");
 			EndIf;
 		Else
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Couldn''t find digital signing and encryption apps on your computer:
-				 |%1';"), CryptoProvidersResult.Error);
+				 |%1'"), CryptoProvidersResult.Error);
 		EndIf;
 
 	Else
@@ -159,19 +159,19 @@ Function CryptoProvidersSearchResult(CryptoProvidersResult, ServerName = "") Exp
 
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr(
-				"en = 'Couldn''t find digital signing and encryption apps installed on the server %1.';"),
+				"en = 'Couldn''t find digital signing and encryption apps installed on the server %1.'"),
 				ServerName);
 		ElsIf CryptoProvidersResult.CheckCompleted Then
 			If CryptoProvidersResult.Cryptoproviders.Count() > 0 Then
 				Return CryptoProvidersResult.Cryptoproviders;
 			Else
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'No digital signing and encryption apps are installed on the server %1.';"), ServerName);
+				NStr("en = 'No digital signing and encryption apps are installed on the server %1.'"), ServerName);
 			EndIf;
 		Else
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Couldn''t find digital signing and encryption apps installed on the server %1:
-				 |%2';"), ServerName, CryptoProvidersResult.Error);
+				 |%2'"), ServerName, CryptoProvidersResult.Error);
 		EndIf;
 		
 	EndIf;
@@ -308,13 +308,13 @@ Function ComponentDetails() Export
 	
 EndFunction
 
-// 
+// Message: Access to web services is restricted.
 // 
 // Returns:
 //  String
 //
 Function AccessToInternetServicesDeniedMessageText() Export
-	Return NStr("en = 'Access to digital signing web services is forbidden by the administrator (General settings > Digital signature > Allow access to web services).';");
+	Return NStr("en = 'Access to digital signing web services is forbidden by the administrator (General settings > Digital signature > Allow access to web services).'");
 EndFunction
 
 #EndRegion
@@ -443,7 +443,7 @@ Function UsersCertificateString(User1, User2, UsersCount) Export
 	UserRow = StrTemplate("%1, %2", User1, User2);
 	If UsersCount > 2 Then
 		UserRow = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 and other (total %2)';"), UserRow, Format(UsersCount, "NG=0"));
+			NStr("en = '%1 and other (total %2)'"), UserRow, Format(UsersCount, "NG=0"));
 	EndIf;
 
 	Return UserRow;
@@ -540,10 +540,9 @@ Function CertificatePropertiesFromAddInResponse(AddInResponse) Export
 		Return CertificateProperties;
 
 	Except
-
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'An error occurred when reading the extended certificate properties:
-				 | %1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+			NStr("en = 'Unable to retrieve extended certificate properties: %1'"),
+			ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 	EndTry;
 
 EndFunction
@@ -559,7 +558,7 @@ Function CertificatesChainFromAddInResponse(AddInResponse, FormIdentifier) Expor
 	Except
 		
 		Result.Error = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'An error occurred when receiving the certificate chain %1';"),
+			NStr("en = 'Unable to retrieve certificate chain %1'"),
 				ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		Return Result;
 		
@@ -596,8 +595,8 @@ Function InstalledCryptoProvidersFromAddInResponse(AddInResponse, ApplicationsBy
 		Cryptoproviders = AllCryptoProviders.Get("providers");
 	Except
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'An error occurred when reading the cryptographic service provider properties:
-				 | %1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+			NStr("en = 'Unable to retrieve cryptographic provider properties:
+				 |%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 	EndTry;
 	
 	If TypeOf(Cryptoproviders) <> Type("Array") Then
@@ -638,7 +637,7 @@ Function ReadAddInResponce(Text) Export
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot read the add-in response: %1
-					|%2';"), Text, ErrorInfo);
+					|%2'"), Text, ErrorInfo);
 		
 	EndTry;
 	
@@ -651,7 +650,7 @@ Function DefineApp(CertificateProperties,
 			InstalledCryptoProviders, SearchOfAppsByPublicKey, ErrorDescription = "") Export
 	
 	If InstalledCryptoProviders.Count() = 0 Then
-		ErrorDescription = NStr("en = 'No installed digital signing and encryption apps are found.';");
+		ErrorDescription = NStr("en = 'No installed digital signing and encryption apps are found.'");
 		Return Undefined;
 	EndIf;
 	
@@ -659,7 +658,7 @@ Function DefineApp(CertificateProperties,
 	
 	If AppsByPublicKey = Undefined Then
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t find digital signing and encryption apps by the passed private key: %1.';"),
+			NStr("en = 'Couldn''t find digital signing and encryption apps by the passed private key: %1.'"),
 			CertificateProperties.AlgorithmOfPublicKey);
 		Return Undefined;
 	EndIf;
@@ -697,7 +696,7 @@ Function DefineApp(CertificateProperties,
 		AlgorithmsIDs = IDsOfSignatureAlgorithms(True);
 		SignAlgorithm = AlgorithmByOID(CertificateProperties.AlgorithmOfPublicKey, AlgorithmsIDs, False);
 		
-		ErrorTemplate = NStr("en = 'Couldn''t find any apps that are configured for this signature algorithm: %1.';");
+		ErrorTemplate = NStr("en = 'Couldn''t find any apps that are configured for this signature algorithm: %1.'");
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
 			TrimAll(StrSplit(SignAlgorithm, ",")[0]));
 			
@@ -788,7 +787,7 @@ EndFunction
 Function ErrorCallMethodComponents(MethodName, ErrorInfo) Export
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Error when calling method ""%1"" of add-in ""%2"".';"), MethodName, "ExtraCryptoAPI")
+		NStr("en = 'Error when calling method ""%1"" of add-in ""%2"".'"), MethodName, "ExtraCryptoAPI")
 		+ Chars.LF + ErrorInfo;
 	
 EndFunction
@@ -805,11 +804,11 @@ Function ErrorTextForRevokedSignatureCertificate(SignatureVerificationResult) Ex
 	
 	If ValueIsFilled(SignatureVerificationResult.DateSignedFromLabels) Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The certificate is revoked. The signature is considered valid if the revocation occurred after %1. To determine the signature validity, request the revocation reason and date from the certificate authority that issued the certificate.';"),
+			NStr("en = 'The certificate is revoked. The signature is considered valid if the revocation occurred after %1. To determine the signature validity, request the revocation reason and date from the certificate authority that issued the certificate.'"),
 			SignatureVerificationResult.DateSignedFromLabels);
 	Else
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The certificate is revoked. The signature might have been valid as of signing date %1 if the revocation occurred later. To find out the revocation reason and date, contact the certificate authority that issued the certificate.';"),
+			NStr("en = 'The certificate is revoked. The signature might have been valid as of signing date %1 if the revocation occurred later. To find out the revocation reason and date, contact the certificate authority that issued the certificate.'"),
 			SignatureVerificationResult.UnverifiedSignatureDate);
 	EndIf;
 	
@@ -873,7 +872,7 @@ Function CryptoManagerApplicationsDetails(Application, Errors, Val ApplicationsD
 		
 		If Not ApplicationFound Then
 			CryptoManagerAddError(Errors, Application, StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 is forbidden by Administrator';"), Application), True);
+				NStr("en = '%1 is forbidden by Administrator'"), Application), True);
 			Return Undefined;
 		EndIf;
 		
@@ -945,13 +944,13 @@ Function CryptoManagerApplicationProperties(ApplicationDetails, IsLinux, Errors,
 	
 	If Not ValueIsFilled(ApplicationDetails.ApplicationName) Then
 		CryptoManagerAddError(Errors, ApplicationDetails.Ref,
-			NStr("en = 'App name required.';"), True);
+			NStr("en = 'App name required.'"), True);
 		Return Undefined;
 	EndIf;
 	
 	If Not ValueIsFilled(ApplicationDetails.ApplicationType) Then
 		CryptoManagerAddError(Errors, ApplicationDetails.Ref,
-			NStr("en = 'App type required.';"), True);
+			NStr("en = 'App type required.'"), True);
 		Return Undefined;
 	EndIf;
 	
@@ -965,15 +964,15 @@ Function CryptoManagerApplicationProperties(ApplicationDetails, IsLinux, Errors,
 			   And ValueIsFilled(DescriptionOfWay.ErrorText) Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Couldn''t find the path to the digital signing and encryption app due to:
-					           |%1';"), DescriptionOfWay.ErrorText);
+					           |%1'"), DescriptionOfWay.ErrorText);
 			Else
 				ThePathToTheModules = StrSplit(DescriptionOfWay.ApplicationPath, ":", False);
 				If ThePathToTheModules.Count() = 1 Then
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'File does not exist: ""%1"".';"), ThePathToTheModules[0]);
+						NStr("en = 'File does not exist: ""%1"".'"), ThePathToTheModules[0]);
 				Else
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'None of the files exists: ""%1"".';"),
+						NStr("en = 'None of the files exists: ""%1"".'"),
 						StrConcat(ThePathToTheModules, """, """));
 				EndIf;
 			EndIf;
@@ -1031,7 +1030,7 @@ Function CryptoManagerSignAlgorithmSupported(ApplicationDetails, Operation,
 	EndIf;
 	
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'The app does not support signature algorithm %1.';"),
+		NStr("en = 'The app does not support signature algorithm %1.'"),
 		TrimAll(PossibleAlgorithms[0]));
 	
 	CryptoManagerAddError(Errors, ApplicationDetails.Ref, ErrorText, IsServer, True);
@@ -1074,7 +1073,7 @@ Function CryptoManagerAlgorithmsSet(ApplicationDetails, Manager, Errors, Encrypt
 		Manager = Undefined;
 		// 1C:Enterprise uses a vague message "Unknown crypto algorithm". Need to replace with a more specific message.
 		CryptoManagerAddError(Errors, ApplicationDetails.Ref, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Unknown signature algorithm ""%1"" is selected.';"), SignAlgorithm), True);
+			NStr("en = 'Unknown signature algorithm ""%1"" is selected.'"), SignAlgorithm), True);
 		Return False;
 	EndTry;
 	
@@ -1085,7 +1084,7 @@ Function CryptoManagerAlgorithmsSet(ApplicationDetails, Manager, Errors, Encrypt
 		Manager = Undefined;
 		// 1C:Enterprise uses a vague message "Unknown crypto algorithm". Need to replace with a more specific message.
 		CryptoManagerAddError(Errors, ApplicationDetails.Ref, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Unknown hashing algorithm ""%1"" is selected.';"), HashAlgorithm), True);
+			NStr("en = 'Unknown hashing algorithm ""%1"" is selected.'"), HashAlgorithm), True);
 		Return False;
 	EndTry;
 	If IsBlankString(EncryptAlgorithm) Then
@@ -1099,7 +1098,7 @@ Function CryptoManagerAlgorithmsSet(ApplicationDetails, Manager, Errors, Encrypt
 		Manager = Undefined;
 		// 1C:Enterprise uses a vague message "Unknown crypto algorithm". Need to replace with a more specific message.
 		CryptoManagerAddError(Errors, ApplicationDetails.Ref, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Unknown encryption algorithm ""%1"" is selected.';"), EncryptAlgorithm), True);
+			NStr("en = 'Unknown encryption algorithm ""%1"" is selected.'"), EncryptAlgorithm), True);
 		Return False;
 	EndTry;
 	
@@ -1117,7 +1116,7 @@ EndFunction
 Procedure CryptoManagerApplicationNotFound(ApplicationDetails, Errors, IsServer) Export
 	
 	CryptoManagerAddError(Errors, ApplicationDetails.Ref,
-		NStr("en = 'Application is not installed on the computer.';"), IsServer, True);
+		NStr("en = 'Application is not installed on the computer.'"), IsServer, True);
 	
 EndProcedure
 
@@ -1136,7 +1135,7 @@ Function CryptoManagerApplicationNameMaps(ApplicationDetails, ApplicationNameRec
 	
 	If ApplicationNameReceived <> ApplicationDetails.ApplicationName Then
 		CryptoManagerAddError(Errors, ApplicationDetails.Ref, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'A different digital signing and encryption app found: %1.';"), 
+			NStr("en = 'A different digital signing and encryption app found: %1.'"), 
 			ApplicationNameReceived), IsServer, True);
 		Return False;
 	EndIf;
@@ -1198,9 +1197,9 @@ Procedure CryptoManagerFillErrorsPresentation(ErrorsDescription,
 		
 	If ErrorsDescription.Errors.Count() = 0 Then
 		If Not ValueIsFilled(SignAlgorithm) Then
-			ErrorText = NStr("en = 'Couldn''t find any configured digital signing and encryption apps.';");
+			ErrorText = NStr("en = 'Couldn''t find any configured digital signing and encryption apps.'");
 		Else
-			ErrorTemplate = NStr("en = 'Couldn''t find any apps that are configured for this signature algorithm: %1.';");
+			ErrorTemplate = NStr("en = 'Couldn''t find any apps that are configured for this signature algorithm: %1.'");
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
 				TrimAll(StrSplit(SignAlgorithm, ",")[0]));
 		EndIf;
@@ -1242,7 +1241,7 @@ Procedure FillCommonErrorsPresentation(ErrorsDescription, IsFullUser)
 	
 	If ToAdministrator And Not IsFullUser Then
 		ErrorDescription = ErrorDescription + Chars.LF + Chars.LF
-			+ NStr("en = 'Please contact the administrator.';");
+			+ NStr("en = 'Please contact the administrator.'");
 	EndIf;
 	
 	ErrorsDescription.ErrorDescription = ErrorDescription;
@@ -1283,10 +1282,10 @@ Function WriteCertificateToCatalog(Context, Error) Export
 			Context.CertificateData, Context.AdditionalParameters);
 	Except
 		Certificate = Undefined;
-		Context.FormCaption = NStr("en = 'Cannot add certificate';");
+		Context.FormCaption = NStr("en = 'Unable to add certificate'");
 		
 		Error.Shared3 = True;
-		Error.ErrorTitle = NStr("en = 'Couldn''t save the certificate due to:';");
+		Error.ErrorTitle = NStr("en = 'Couldn''t save the certificate due to:'");
 		
 		ErrorProperties = NewErrorProperties();
 		ErrorProperties.LongDesc = ErrorProcessing.DetailErrorDescription(ErrorInfo());
@@ -1302,27 +1301,27 @@ Function CertificateAddingErrorTitle(Operation, ComputerName = "") Export
 	
 	If ValueIsFilled(ComputerName) Then // IsServer flag.
 		If Operation = "Signing" Then
-			TitleTemplate1 = NStr("en = 'Cannot pass the signing check on the server %1 due to:';");
+			TitleTemplate1 = NStr("en = 'Cannot pass the signing check on the server %1 due to:'");
 		ElsIf Operation = "Encryption" Then
-			TitleTemplate1 = NStr("en = 'Cannot pass the encryption check on the server %1 due to:';");
+			TitleTemplate1 = NStr("en = 'Cannot pass the encryption check on the server %1 due to:'");
 		ElsIf Operation = "Details" Then
-			TitleTemplate1 = NStr("en = 'Cannot pass the decryption check on the server %1 due to:';");
+			TitleTemplate1 = NStr("en = 'Cannot pass the decryption check on the server %1 due to:'");
 		EndIf;
 		ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
 			TitleTemplate1, ComputerName);
 	Else
 		If Operation = "Signing" Then
-			ErrorTitle = NStr("en = 'Cannot pass the signing check on the computer due to:';");
+			ErrorTitle = NStr("en = 'Cannot pass the signing check on the computer due to:'");
 		ElsIf Operation = "Encryption" Then
-			ErrorTitle = NStr("en = 'Cannot pass the encryption check on the computer due to:';");
+			ErrorTitle = NStr("en = 'Cannot pass the encryption check on the computer due to:'");
 		ElsIf Operation = "Details" Then
-			ErrorTitle = NStr("en = 'Cannot pass the decryption check on the computer due to:';");
+			ErrorTitle = NStr("en = 'Cannot pass the decryption check on the computer due to:'");
 		EndIf;
 	EndIf;
 	
 	If Not ValueIsFilled(ErrorTitle) Then
 		CurrentErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Incorrect value of the Operation %1 parameter in the %2 procedure';"),
+			NStr("en = 'Incorrect value of the Operation %1 parameter in the %2 procedure'"),
 			Operation,
 			"FillErrorAddingCertificate");
 		Raise CurrentErrorText;
@@ -1338,8 +1337,8 @@ EndFunction
 //  ErrorsDescription - See NewErrorsDescription
 //  ApplicationDetails - Structure:
 //   * Ref - CatalogRef.DigitalSignatureAndEncryptionApplications
-//            - String - 
-//   See DigitalSignatureInternalClient.TokenNewProperties
+//            - String - Token presentation.
+//  Token - See DigitalSignatureInternalClient.TokenNewProperties
 //        - Undefined
 //  Operation - String
 //  ErrorText - String
@@ -1446,7 +1445,7 @@ Function CertificateOverdue(Certificate, OnDate, UTCOffset) Export
 	EndIf;
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Certificate is overdue on %1.';"), Format(BegOfDay(OnDate), "DLF=D"));
+		NStr("en = 'Certificate is overdue on %1.'"), Format(BegOfDay(OnDate), "DLF=D"));
 	
 EndFunction
 
@@ -1462,14 +1461,14 @@ Function PrivateKeyExpired(CertificateProperties, OnDate) Export
 	EndIf;
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'As of %1, the private certificate key has expired.';"), Format(BegOfDay(OnDate), "DLF=D"));
+		NStr("en = 'As of %1, the private certificate key has expired.'"), Format(BegOfDay(OnDate), "DLF=D"));
 	
 EndFunction
 
 // For internal use only.
 Function ServiceErrorTextCertificateInvalid() Export
 	
-	Return NStr("en = 'The service reported that the certificate is invalid.';");
+	Return NStr("en = 'The service reported that the certificate is invalid.'");
 	
 EndFunction
 
@@ -1480,7 +1479,7 @@ EndFunction
 //
 Function ServiceErrorTextSignatureInvalid() Export
 	
-	Return NStr("en = 'The service reported that the signature is invalid.';");
+	Return NStr("en = 'The service reported that the signature is invalid.'");
 	
 EndFunction
 
@@ -1883,14 +1882,14 @@ Function SignatureCreationSettings(SignatureType, TimestampServersAddresses) Exp
 		
 		If Result.TimestampServersAddresses.Count() = 0 Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'To create a signature with type ""%1"", fill in timestamp server addresses.';"), SignatureType);
+				NStr("en = 'To create a signature with type ""%1"", fill in timestamp server addresses.'"), SignatureType);
 		EndIf;
 		
 	ElsIf SignatureType <> PredefinedValue("Enum.CryptographySignatureTypes.BasicCAdESBES")
 		And SignatureType <> PredefinedValue("Enum.CryptographySignatureTypes.NormalCMS") Then
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Creating a signature of type ""%1"" is not supported.';"), SignatureType);
+			NStr("en = 'Creating a signature of type ""%1"" is not supported.'"), SignatureType);
 	EndIf;
 	
 	Result.SignatureType = CryptoSignatureType(SignatureType);
@@ -1927,13 +1926,13 @@ EndFunction
 Function DataGettingErrorTitle(Operation) Export
 	
 	If Operation = "Signing" Then
-		Return NStr("en = 'Cannot receive data for signing due to:';");
+		Return NStr("en = 'Cannot receive data for signing due to:'");
 	ElsIf Operation = "Encryption" Then
-		Return NStr("en = 'Cannot receive data to encrypt due to:';");
+		Return NStr("en = 'Cannot receive data to encrypt due to:'");
 	ElsIf Operation = "ExtensionValiditySignature" Then
-		Return NStr("en = 'Cannot receive the signature data to renew due to:';");
+		Return NStr("en = 'Cannot receive the signature data to renew due to:'");
 	Else
-		Return NStr("en = 'Cannot receive data to decrypt due to:';");
+		Return NStr("en = 'Cannot receive data to decrypt due to:'");
 	EndIf;
 	
 EndFunction
@@ -1942,7 +1941,7 @@ EndFunction
 Function BlankSignatureData(SignatureData, ErrorDescription) Export
 	
 	If Not ValueIsFilled(SignatureData) Then
-		ErrorDescription = NStr("en = 'Empty signature is generated.';");
+		ErrorDescription = NStr("en = 'Empty signature is generated.'");
 		Return True;
 	EndIf;
 	
@@ -1954,7 +1953,7 @@ EndFunction
 Function BlankEncryptedData(EncryptedData, ErrorDescription) Export
 	
 	If Not ValueIsFilled(EncryptedData) Then
-		ErrorDescription = NStr("en = 'Empty encrypted data is generated.';");
+		ErrorDescription = NStr("en = 'Empty encrypted data is generated.'");
 		Return True;
 	EndIf;
 	
@@ -1966,7 +1965,7 @@ EndFunction
 Function BlankDecryptedData(DecryptedData, ErrorDescription) Export
 	
 	If Not ValueIsFilled(DecryptedData) Then
-		ErrorDescription = NStr("en = 'Empty decrypted data is generated.';");
+		ErrorDescription = NStr("en = 'Empty decrypted data is generated.'");
 		Return True;
 	EndIf;
 	
@@ -1983,7 +1982,7 @@ Function GeneralDescriptionOfTheError(ErrorAtClient, ErrorAtServer, ErrorTitle =
 	If Not ValueIsFilled(ErrorDetailsAtClient.ErrorDescription)
 	   And Not ValueIsFilled(ErrorDescriptionAtServer.ErrorDescription) Then
 	
-		GeneralDescriptionOfTheError = NStr("en = 'Unexpected error';");
+		GeneralDescriptionOfTheError = NStr("en = 'Unexpected error'");
 		
 	ElsIf Not ValueIsFilled(ErrorDetailsAtClient.ErrorDescription)
 	      Or ErrorDetailsAtClient.NotSupported
@@ -1995,11 +1994,11 @@ Function GeneralDescriptionOfTheError(ErrorAtClient, ErrorAtServer, ErrorTitle =
 			GeneralDescriptionOfTheError =
 				  ErrorDescriptionAtServer.ErrorTitle
 				+ Chars.LF
-				+ NStr("en = 'On the server:';")
+				+ NStr("en = 'On the server:'")
 				+ " " + ErrorDescriptionAtServer.LongDesc;
 		Else
 			GeneralDescriptionOfTheError =
-				NStr("en = 'On the server:';")
+				NStr("en = 'On the server:'")
 				+ " " + ErrorDescriptionAtServer.ErrorDescription;
 		EndIf;
 		
@@ -2019,10 +2018,10 @@ Function GeneralDescriptionOfTheError(ErrorAtClient, ErrorAtServer, ErrorTitle =
 		EndIf;
 		
 		GeneralDescriptionOfTheError = GeneralDescriptionOfTheError
-			+ NStr("en = 'On computer:';")
+			+ NStr("en = 'On computer:'")
 			+ " " + ErrorTextOnTheClient
 			+ Chars.LF
-			+ NStr("en = 'On the server:';")
+			+ NStr("en = 'On the server:'")
 			+ " " + ErrorTextOnTheServer;
 	EndIf;
 	
@@ -2492,12 +2491,12 @@ Function CertificatePresentation(Certificate, UTCOffset = Undefined) Export
 	
 	If IsBlankString(Presentation) Then
 		If TypeOf(Certificate) = Type("Structure") Then
-			Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1, to %2';"),
+			Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1, to %2'"),
 				SubjectPresentation(Certificate.Certificate),
 				Format(Certificate.ValidBefore, "DF=MM.yyyy"));
 		Else
 			CertificateDates = CertificateDates(Certificate, UTCOffset);
-			Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1, to %2';"),
+			Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1, to %2'"),
 				SubjectPresentation(Certificate),
 				Format(CertificateDates.ValidBefore, "DF=MM.yyyy"));
 		EndIf;
@@ -2568,6 +2567,34 @@ Function IssuerPresentation(Certificate) Export
 	
 EndFunction
 
+// Certificate properties.
+// 
+// Parameters:
+//  Certificate - CryptoCertificate - Alternatively, the structure may repeat the property structure of the cryptography certificate.
+//  UTCOffset - Number
+//  CertificateBinaryData - BinaryData
+// 
+// Returns:
+//  Structure:
+// * Thumbprint - String 
+// * SerialNumber - BinaryData
+// * IssuedTo - String
+// * IssuedBy - String 
+// * Signing - Boolean
+// * Encryption - Boolean
+// * StartDate - Date
+// * EndDate - Date
+// * PrivateKeyStartDate - Date
+// * PrivateKeyExpirationDate - Date 
+// * ValidBefore - Date 
+// * CertificateAuthorityKeyID - String
+// * ContainsEmbeddedLicenseCryptoPro - Boolean
+// * SignAlgorithm - String
+// * AlgorithmOfPublicKey - String 
+// * AddressesOfRevocationLists - Array 
+// * Purpose - String
+// * Presentation - String
+// 
 Function CertificateProperties(Certificate, UTCOffset, CertificateBinaryData = Undefined) Export
 	
 	Properties = New Structure;
@@ -2643,34 +2670,34 @@ EndFunction
 Procedure FillCertificateDataDetails(Table, CertificateProperties) Export
 	
 	If CertificateProperties.Signing And CertificateProperties.Encryption Then
-		Purpose = NStr("en = 'Data signing, Data encryption';");
+		Purpose = NStr("en = 'Data signing, Data encryption'");
 		
 	ElsIf CertificateProperties.Signing Then
-		Purpose = NStr("en = 'Data signing';");
+		Purpose = NStr("en = 'Data signing'");
 	Else
-		Purpose = NStr("en = 'Data encryption';");
+		Purpose = NStr("en = 'Data encryption'");
 	EndIf;
 	
 	Table.Clear();
 	String = Table.Add();
-	String.Property = NStr("en = 'Owner:';");
+	String.Property = NStr("en = 'Owner:'");
 	String.Value = TrimAll(CertificateProperties.IssuedTo);
 	
 	String = Table.Add();
-	String.Property = NStr("en = 'Issued by:';");
+	String.Property = NStr("en = 'Issued by:'");
 	String.Value = TrimAll(CertificateProperties.IssuedBy);
 	
 	String = Table.Add();
-	String.Property = NStr("en = 'Expiration date:';");
+	String.Property = NStr("en = 'Expiration date:'");
 	If TypeOf(CertificateProperties) <> Type("Structure") Or CertificateProperties.ValidBefore = CertificateProperties.EndDate Then
 		String.Value = Format(CertificateProperties.ValidBefore, "DLF=D");
 	Else
 		String.Value = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 (private key validity period)';"), Format(CertificateProperties.ValidBefore, "DLF=D"));
+			NStr("en = '%1 (private key validity period)'"), Format(CertificateProperties.ValidBefore, "DLF=D"));
 	EndIf;
 	
 	String = Table.Add();
-	String.Property = NStr("en = 'Purpose:';");
+	String.Property = NStr("en = 'Purpose:'");
 	String.Value = Purpose;
 	
 EndProcedure
@@ -2850,7 +2877,7 @@ Function XMLEnvelope(Parameters) Export
 	
 	If XMLEnvelope = Undefined Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The %1 unknown value of the %2 parameter is specified in the %3 function';"),
+				NStr("en = 'The %1 unknown value of the %2 parameter is specified in the %3 function'"),
 				Parameters.Variant, "Variant", "XMLEnvelope");
 		Raise ErrorText;
 	EndIf;
@@ -2904,11 +2931,11 @@ EndFunction
 Function XMLSignatureVerificationErrorText(SignatureCorrect, HashMaps) Export
 	
 	If SignatureCorrect Then
-		ErrorText = NStr("en = 'Invalid signature (%1 is valid, %2 is invalid).';");
+		ErrorText = NStr("en = 'Invalid signature (%1 is valid, %2 is invalid).'");
 	ElsIf HashMaps Then
-		ErrorText = NStr("en = 'Invalid signature (%1 is invalid, %2 is valid).';");
+		ErrorText = NStr("en = 'Invalid signature (%1 is invalid, %2 is valid).'");
 	Else
-		ErrorText = NStr("en = 'Invalid signature (%1 is invalid, %2 is invalid).';");
+		ErrorText = NStr("en = 'Invalid signature (%1 is invalid, %2 is invalid).'");
 	EndIf;
 	Return StringFunctionsClientServer.SubstituteParametersToString(ErrorText, "SignatureValue", "DigestValue");
 	
@@ -2967,7 +2994,7 @@ Function CheckChooseSignAlgorithm(Base64CryptoCertificate, SigningAlgorithmData,
 		Base64Value(Base64CryptoCertificate),, True);
 	
 	If Not ValueIsFilled(OIDOfPublicKeyAlgorithm) Then
-		ErrorText = NStr("en = 'Cannot get a public key algorithm from the certificate.';");
+		ErrorText = NStr("en = 'Cannot get a public key algorithm from the certificate.'");
 		If RaiseException1 Then
 			Raise ErrorText;
 		EndIf;
@@ -3021,7 +3048,7 @@ Function CheckChooseSignAlgorithm(Base64CryptoCertificate, SigningAlgorithmData,
 		
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Signature and hash algorithms that match the certificate''s public key
-			           |algorithm (OID %1) are not specified.';"),
+			           |algorithm (OID %1) are not specified.'"),
 			OIDOfPublicKeyAlgorithm);
 		
 		If RaiseException1 Then
@@ -3042,7 +3069,7 @@ Function CheckChooseSignAlgorithm(Base64CryptoCertificate, SigningAlgorithmData,
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The %1 signature algorithm
 			           |(%2 OID)
-			           |specified in the XML document does not match the signature algorithm in the certificate (%3 OID).';"),
+			           |specified in the XML document does not match the signature algorithm in the certificate (%3 OID).'"),
 			XMLEnvelopeProperties.SignAlgorithm.Name,
 			XMLEnvelopeProperties.SignAlgorithm.Id,
 			SigningAlgorithmData.SelectedSignatureAlgorithmOID);
@@ -3087,7 +3114,7 @@ Function AddInParametersCMSSign(CMSParameters, DataDetails) Export
 		AddInParameters.Insert("SignatureType", 0);
 	Else
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'In add-in ""%3"", method ""%2"" has invalid parameter ""%1"".';"),
+			NStr("en = 'In add-in ""%3"", method ""%2"" has invalid parameter ""%1"".'"),
 			"SignatureType", "CMSSign", "ExtraCryptoAPI");
 	EndIf;
 	
@@ -3097,7 +3124,7 @@ Function AddInParametersCMSSign(CMSParameters, DataDetails) Export
 		AddInParameters.Insert("Data", Data);
 	Else
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'In add-in ""%3"", method ""%2"" has invalid parameter ""%1"".';"),
+			NStr("en = 'In add-in ""%3"", method ""%2"" has invalid parameter ""%1"".'"),
 			"Data", "CMSSign", "ExtraCryptoAPI");
 	EndIf;
 	
@@ -3105,7 +3132,7 @@ Function AddInParametersCMSSign(CMSParameters, DataDetails) Export
 		AddInParameters.Insert("DetachedAddIn", CMSParameters.DetachedAddIn);
 	Else
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'In add-in ""%3"", method ""%2"" has invalid parameter ""%1"".';"),
+			NStr("en = 'In add-in ""%3"", method ""%2"" has invalid parameter ""%1"".'"),
 			"DetachedAddIn", "CMSSign", "ExtraCryptoAPI");
 	EndIf;
 	
@@ -3255,7 +3282,7 @@ Function DetailsCertificateString(CertificateProperties) Export
 		NStr("en = 'Certificate: %1
 			|Issued by: %2
 			|Issued to: %3
-			|Valid: from %4 to %5';"),
+			|Valid: from %4 to %5'"),
 		String(CertificateProperties.SerialNumber),
 		CertificateProperties.IssuedBy,
 		CertificateProperties.IssuedTo,
@@ -3324,31 +3351,10 @@ Function SimplifiedErrorStructure(Error, ErrorTitle)
 	
 EndFunction
 
-// Returns the information about the computer being used.
-//
-// Returns:
-//   String - computer information.
-//
-Function DiagnosticsInformationOnComputer(ForTheClient = False) Export
-	
-	SysInfo = New SystemInfo;
-	Viewer = ?(ForTheClient, SysInfo.UserAgentInformation, "");
-	
-	If Not IsBlankString(Viewer) Then
-		Viewer = Chars.LF + NStr("en = 'App:';") + " " + Viewer;
-	EndIf;
-	
-	Return NStr("en = 'Operating system:';") + " " + SysInfo.OSVersion
-		+ Chars.LF + NStr("en = 'Version:';") + " " + SysInfo.AppVersion
-		+ Chars.LF + NStr("en = 'Platform type:';") + " " + SysInfo.PlatformType
-		+ Viewer;
-	
-EndFunction
-
 Function DiagnosticInformationAboutTheProgram(Application, CryptoManager, ErrorDescription) Export
 	
 	If TypeOf(CryptoManager) = Type("CryptoManager") Then
-		Result = NStr("en = 'OK';");
+		Result = NStr("en = 'OK'");
 	Else
 		ErrorText = "";
 		If TypeOf(ErrorDescription) = Type("Structure")
@@ -3360,7 +3366,7 @@ Function DiagnosticInformationAboutTheProgram(Application, CryptoManager, ErrorD
 			ErrorText = Error.LongDesc;
 		EndIf;
 		Result = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Error ""%1""';"), ErrorText);
+			NStr("en = 'Error ""%1""'"), ErrorText);
 	EndIf;
 	
 	Return Application.Presentation + " - " + Result + Chars.LF;
@@ -3478,8 +3484,10 @@ EndProcedure
 
 Function DigitalSignatureApplication(Cryptoprovider)
 	
+	Result = "";
+	DigitalSignatureClientServerLocalization.OnGetDigitalSigningAppName(Cryptoprovider, Result);
 	
-	Return "";
+	Return Result;
 	
 EndFunction
 
@@ -3603,15 +3611,6 @@ Function DataToSupplementErrorFromClassifier(AdditionalData) Export
 	
 EndFunction
 
-Function ClassifierErrorSolutionTextSupplementOptions() Export
-	
-	Structure = New Structure;
-	Structure.Insert("TimestampServersDiagnosticsClient", False);
-	
-	Return Structure;
-	
-EndFunction
-
 Function TimestampServersDiagnostics(TimestampServersAddresses, StringForConnection) Export
 	
 	Array = New Array;
@@ -3625,7 +3624,7 @@ Function TimestampServersDiagnostics(TimestampServersAddresses, StringForConnect
 		If ValueIsFilled(ErrorMessage) Then
 			Array.Add(ErrorMessage);
 		Else
-			Array.Add(StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 is available.';"), Address));
+			Array.Add(StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 is available.'"), Address));
 		EndIf;
 		
 		Array.Add(Chars.LF);
@@ -3650,7 +3649,7 @@ Function TimestampServerDiagnostics(Val URL, Redirections = Undefined)
 #If WebClient Then
 	Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr(
-			"en = 'Web client doesn''t support availability testing. Download the file by URL: %1';"),
+			"en = 'Web client doesn''t support availability testing. Download the file by URL: %1'"),
 		URL);
 
 #Else
@@ -3699,7 +3698,7 @@ Function TimestampServerDiagnostics(Val URL, Redirections = Undefined)
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t establish HTTP connection to server %1:%2.
 					 |Reason:
-					 |%3';"), Server, Format(Port, "NG="), ErrorProcessing.BriefErrorDescription(
+					 |%3'"), Server, Format(Port, "NG="), ErrorProcessing.BriefErrorDescription(
 				ErrorInfo()));
 
 			Return ErrorText;
@@ -3716,7 +3715,7 @@ Function TimestampServerDiagnostics(Val URL, Redirections = Undefined)
 				
 				If Redirections.Count() > 7 Then
 					Raise 
-						NStr("en = 'Redirections limit exceeded.';");
+						NStr("en = 'Redirections limit exceeded.'");
 				Else 
 					
 					Headers = New Map;
@@ -3727,19 +3726,19 @@ Function TimestampServerDiagnostics(Val URL, Redirections = Undefined)
 					NewURL1 = Headers["location"];
 					If NewURL1 = Undefined Then 
 						Raise 
-							NStr("en = 'Invalid redirection: no ""Location"" header in the HTTP response.';");
+							NStr("en = 'Invalid redirection: no ""Location"" header in the HTTP response.'");
 					EndIf;
 					
 					NewURL1 = TrimAll(NewURL1);
 					If IsBlankString(NewURL1) Then
 						Raise 
-							NStr("en = 'Invalid redirection: blank ""Location"" header in the HTTP response.';");
+							NStr("en = 'Invalid redirection: blank ""Location"" header in the HTTP response.'");
 					EndIf;
 					
 					If Redirections.Find(NewURL1) <> Undefined Then
 						Raise StringFunctionsClientServer.SubstituteParametersToString(
 							NStr("en = 'Circular redirect.
-							           |Redirect to %1 was attempted earlier.';"),
+							           |Redirect to %1 was attempted earlier.'"),
 							NewURL1);
 					EndIf;
 					
@@ -3761,20 +3760,20 @@ Function TimestampServerDiagnostics(Val URL, Redirections = Undefined)
 				If HTTPResponse.StatusCode < 200 Or HTTPResponse.StatusCode >= 300 And HTTPResponse.StatusCode < 400 Then
 
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Unsupported server response (%1)';"), HTTPResponse.StatusCode);
+						NStr("en = 'Unsupported server response (%1)'"), HTTPResponse.StatusCode);
 
 					Raise ErrorText;
 
 				ElsIf HTTPResponse.StatusCode >= 400 And HTTPResponse.StatusCode < 500 Then
 
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Request error (%1)';"), HTTPResponse.StatusCode);
+						NStr("en = 'Request error (%1)'"), HTTPResponse.StatusCode);
 					Raise ErrorText;
 
 				Else
 
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'A server error occurred while processing a request (%1)';"), HTTPResponse.StatusCode);
+						NStr("en = 'A server error occurred while processing a request (%1)'"), HTTPResponse.StatusCode);
 
 					Raise ErrorText;
 
@@ -3786,7 +3785,7 @@ Function TimestampServerDiagnostics(Val URL, Redirections = Undefined)
 
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot get file %1 from server %2.%3 Reason:
-					 |%4';"), URL, Server, Format(Port, "NG="), ErrorProcessing.BriefErrorDescription(
+					 |%4'"), URL, Server, Format(Port, "NG="), ErrorProcessing.BriefErrorDescription(
 				ErrorInfo()));
 			Return ErrorText;
 
@@ -3818,16 +3817,16 @@ Function TokensTechnicalInfo(TokensInfo, ForTheClient = True) Export
 	If ForTheClient Then
 		If Tokens.Count() > 0 Then
 			Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Tokens found on computer:
-			|%1';"), StrConcat(Tokens, Chars.LF));
+			|%1'"), StrConcat(Tokens, Chars.LF));
 		Else
-			Return NStr("en = 'No tokens found on computer.';");
+			Return NStr("en = 'No tokens found on computer.'");
 		EndIf;
 	Else
 		If Tokens.Count() > 0 Then
 			Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Tokens found on server:
-			|%1';"), StrConcat(Tokens, Chars.LF));
+			|%1'"), StrConcat(Tokens, Chars.LF));
 		Else
-			Return NStr("en = 'No tokens found on server.';");
+			Return NStr("en = 'No tokens found on server.'");
 		EndIf;
 	EndIf;
 
@@ -3860,7 +3859,7 @@ Function XMLScope(XMLLine, TagName, NumberSingnature = 1) Export
 		Position = StrFind(XMLLine, IndicatesTheBeginningOfTheArea, , , NumberSingnature);
 		If Position = 0 Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The %1 element is not found in the XML document.';"), TagName);
+				NStr("en = 'The %1 element is not found in the XML document.'"), TagName);
 			Result.ErrorText = ErrorText;
 		EndIf;
 	EndIf;
@@ -3877,7 +3876,7 @@ Function XMLScope(XMLLine, TagName, NumberSingnature = 1) Export
 	Position = StrFind(Text, IndicatesTheEndOfTheArea);
 	If Position = 0 Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 element end is not found in the XML document.';"), TagName);
+			NStr("en = '%1 element end is not found in the XML document.'"), TagName);
 		Result.ErrorText = ErrorText;
 	EndIf;
 	
@@ -3890,7 +3889,7 @@ Function XMLScope(XMLLine, TagName, NumberSingnature = 1) Export
 	Position = StrFind(Text, ">");
 	If Position = 0 Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The %1 element title end is not found in the XML document.';"), TagName);
+			NStr("en = 'The %1 element title end is not found in the XML document.'"), TagName);
 		Result.ErrorText = ErrorText;
 	EndIf;
 	
@@ -4055,7 +4054,7 @@ Function SignAlgorithmCorrespondsToCertificate(CertificatePresentation, Certific
 				And AlgorithmsForCheck.SignatureAlgorithmNames.Find(Upper(SignAlgorithm)) = Undefined Then
 				Error = StringFunctionsClientServer.SubstituteParametersToString(
 							NStr(
-							"en = 'Certificate %1 is associated with an app whose signature algorithm (%2) does not support the certificate. Associate the certificate with an app that uses the %3 algorithm.';"),
+							"en = 'Certificate %1 is associated with an app whose signature algorithm (%2) does not support the certificate. Associate the certificate with an app that uses the %3 algorithm.'"),
 					CertificatePresentation, SignAlgorithm, AlgorithmPresentation(
 							AlgorithmsForCheck.SignatureAlgorithmNames));
 
@@ -4069,7 +4068,7 @@ Function SignAlgorithmCorrespondsToCertificate(CertificatePresentation, Certific
 							HashAlgorithm)) = Undefined Then
 				Error = StringFunctionsClientServer.SubstituteParametersToString(
 							NStr(
-								"en = 'Certificate %1 is associated with an app whose hashing algorithm (%2) does not support the certificate. Associate the certificate with an app that uses the %3 algorithm.';"),
+								"en = 'Certificate %1 is associated with an app whose hashing algorithm (%2) does not support the certificate. Associate the certificate with an app that uses the %3 algorithm.'"),
 					CertificatePresentation, HashAlgorithm, AlgorithmPresentation(
 								AlgorithmsForCheck.HashAlgorithmNames));
 				Return Error;
@@ -4112,7 +4111,7 @@ Function CertificateAdditionalProperties(Data, UTCOffset = Undefined) Export
 				SkipBlockStart(DataAnalysis, 0, 2); 
 				Integer = ToReadTheWholeStream(DataAnalysis);
 				If Integer <> 2 Then
-					Structure.ErrorText = NStr("en = 'The data is not a certificate.';");
+					Structure.ErrorText = NStr("en = 'The data is not a certificate.'");
 					Return Structure;
 				EndIf;
 				SkipTheParentBlock(DataAnalysis);
@@ -4137,7 +4136,7 @@ Function CertificateAdditionalProperties(Data, UTCOffset = Undefined) Export
 			// [3] EXPLICIT SEQUENCE SIZE (1..MAX) OF Extension (extensions). 
 			SkipBlockStart(DataAnalysis, 2, 3);
 			If DataAnalysis.HasError Then
-				Structure.ErrorText = NStr("en = 'Error in the certificate data.';");
+				Structure.ErrorText = NStr("en = 'Invalid certificate data.'");
 				Return Structure;
 			EndIf; 
 				// SEQUENCE OF
@@ -4147,7 +4146,7 @@ Function CertificateAdditionalProperties(Data, UTCOffset = Undefined) Export
 					// SEQUENCE (extension).
 					SkipBlockStart(DataAnalysis, 0, 16);
 					If DataAnalysis.HasError Then
-						Structure.ErrorText = NStr("en = 'Error in the certificate data.';");
+						Structure.ErrorText = NStr("en = 'Invalid certificate data.'");
 						Return Structure;
 					EndIf; 
 						// OBJECT IDENTIFIER
@@ -4155,7 +4154,7 @@ Function CertificateAdditionalProperties(Data, UTCOffset = Undefined) Export
 							
 						DataSize = DataAnalysis.Parents[0].DataSize;
 						If DataSize = 0 Then
-							Structure.ErrorText = NStr("en = 'Error in the certificate data.';");
+							Structure.ErrorText = NStr("en = 'Invalid certificate data.'");
 							Return Structure;
 						EndIf;
 						
@@ -4371,7 +4370,7 @@ Function SignAlgorithm(Data, IsCertificateData, IncludingOID = False, OIDOnly = 
 		HashAlgorithm = AlgorithmByOID(HashingAlgorithmOID, AlgorithmsIDs, True);
 		
 		SignAlgorithmDoesNotComplyWithGOST = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The %1 algorithm specified in the signature does not comply with the standard. Specify the %2 algorithm that corresponds to the %3 hashing algorithm.';"),
+			NStr("en = 'The %1 algorithm specified in the signature does not comply with the standard. Specify the %2 algorithm that corresponds to the %3 hashing algorithm.'"),
 			AlgorithmIncorrect, AlgorithmCorrect, HashAlgorithm);
 		SignatureAlgorithmOID = SignatureRelatedOID;
 	EndIf;
@@ -4597,14 +4596,14 @@ Function BinaryDataFromTheData(Data, FunctionName) Export
 			CommonClientServer.Validate(False,
 				StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Incorrect address of a temporary storage in the Data parameter:
-					           |%1';") + Chars.LF, Data),
+					           |%1'") + Chars.LF, Data),
 				FunctionName);
 		EndIf;
 		If TypeOf(BinaryData) <> Type("BinaryData") Then
 			CommonClientServer.Validate(False,
 				StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Invalid type of the ""%1"" value
-					           |at the temporary storage address specified in the Data parameter';") + Chars.LF,
+					           |at the temporary storage address specified in the Data parameter'") + Chars.LF,
 					String(TypeOf(BinaryData))),
 				FunctionName);
 		EndIf;
@@ -4645,7 +4644,7 @@ Function AlgorithmByOID(AlgorithmOID, AlgorithmsIDs, IncludingOID)
 	
 	If AlgorithmName = Undefined Then
 		If IncludingOID Then
-			Return NStr("en = 'Unknown';") + " (OID " + AlgorithmOID + ")";
+			Return NStr("en = 'Unknown'") + " (OID " + AlgorithmOID + ")";
 		EndIf;
 		Return "";
 	ElsIf IncludingOID Then

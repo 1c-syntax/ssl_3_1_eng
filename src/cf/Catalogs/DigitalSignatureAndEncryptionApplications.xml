@@ -658,7 +658,7 @@
 					<MinValue xsi:nil="true"/>
 					<MaxValue xsi:nil="true"/>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:type="xr:DesignTimeRef">Enum.DigitalSignatureAppUsageModes.EnumValue.SetupDone</FillValue>
+					<FillValue xsi:type="xr:DesignTimeRef">Enum.DigitalSignatureAppUsageModes.EnumValue.Configured</FillValue>
 					<FillChecking>DontCheck</FillChecking>
 					<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
 					<ChoiceParameterLinks/>

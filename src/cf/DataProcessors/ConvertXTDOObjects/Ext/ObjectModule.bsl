@@ -412,7 +412,7 @@ Procedure RunDataImport(ImportParameters = Undefined) Export
 	Except
 		DataExchangeInternal.DisableAccessKeysUpdate(False);
 		Information = ErrorInfo();
-		MessageString = NStr("en = 'Data import error: %1';");
+		MessageString = NStr("en = 'Data import error: %1'");
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(
 			MessageString, ErrorProcessing.DetailErrorDescription(Information));
 		DataExchangeXDTOServer.WriteToExecutionProtocol(ExchangeComponents, MessageString, , , , , True);
@@ -426,7 +426,7 @@ Procedure RunDataImport(ImportParameters = Undefined) Export
 	Except
 		DataExchangeInternal.DisableAccessKeysUpdate(False);
 		Information = ErrorInfo();
-		MessageString = NStr("en = 'Cannot delete temporary objects created by references: %1';");
+		MessageString = NStr("en = 'Cannot delete temporary objects created by references: %1'");
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(
 			MessageString, ErrorProcessing.DetailErrorDescription(Information));
 		DataExchangeXDTOServer.WriteToExecutionProtocol(ExchangeComponents, MessageString, , , , , True);
@@ -511,7 +511,7 @@ Procedure ExecuteDataImportForInfobase(TablesToImport) Export
 	EndIf;
 	
 	// Record in the event log.
-	MessageString = NStr("en = 'Data exchange started. Node: %1.';", Common.DefaultLanguageCode());
+	MessageString = NStr("en = 'Data exchange started. Node: %1.'", Common.DefaultLanguageCode());
 	MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, String(ExchangeNodeDataImport));
 	DataExchangeXDTOServer.WriteEventLogDataExchange1(MessageString, ExchangeComponents, EventLogLevel.Information);
 	
@@ -520,7 +520,7 @@ Procedure ExecuteDataImportForInfobase(TablesToImport) Export
 		DataExchangeXDTOServer.RunReadingData(ExchangeComponents, TablesToImport);
 	Except
 		Information = ErrorInfo();
-		MessageString = NStr("en = 'Data import error: %1';");
+		MessageString = NStr("en = 'Data import error: %1'");
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(
 			MessageString, ErrorProcessing.DetailErrorDescription(Information));
 		DataExchangeXDTOServer.WriteEventLogDataExchange1(MessageString, ExchangeComponents, EventLogLevel.Error);
@@ -530,7 +530,7 @@ Procedure ExecuteDataImportForInfobase(TablesToImport) Export
 		DataExchangeXDTOServer.DeleteTempObjectsCreatedByRefs(ExchangeComponents);
 	Except
 		Information = ErrorInfo();
-		MessageString = NStr("en = 'Cannot delete temporary objects created by references: %1';");
+		MessageString = NStr("en = 'Cannot delete temporary objects created by references: %1'");
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(
 			MessageString, ErrorProcessing.DetailErrorDescription(Information));
 		DataExchangeXDTOServer.WriteEventLogDataExchange1(MessageString, ExchangeComponents, EventLogLevel.Error);
@@ -540,7 +540,7 @@ Procedure ExecuteDataImportForInfobase(TablesToImport) Export
 	// Record in the event log.
 	MessageString = NStr("en = 'Action to execute: %1;
 		|Completion status: %2;
-		|Objects processed: %3.';",
+		|Objects processed: %3.'",
 		Common.DefaultLanguageCode());
 	MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString,
 					ExchangeComponents.DataExchangeState.ExchangeExecutionResult,
@@ -634,7 +634,7 @@ Procedure ExecuteExchangeMessageAnalysis(AnalysisParameters = Undefined) Export
 		EndDo;
 		
 	Except
-		MessageString = NStr("en = 'Data analysis error: %1';");
+		MessageString = NStr("en = 'Data analysis error: %1'");
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		DataExchangeXDTOServer.WriteToExecutionProtocol(ExchangeComponents, MessageString,,,,,True);
@@ -920,7 +920,7 @@ Procedure CheckNodesCodes(DataAnalysisResultToExport, InfobaseNode)
 								|In the ""More actions"" menu, select ""New predefined node code…"".
 								|Select the exchange plan you want to fix.
                                 |Read the information on the form and click ""Set new code"".
-                                |Then retry the synchronization (or create a new exchange setting).';");
+                                |Then retry the synchronization (or create a new exchange setting).'");
 		
 					Raise ExceptionText;
 		
@@ -964,5 +964,5 @@ Parameters = New Structure;
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

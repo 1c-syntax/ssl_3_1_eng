@@ -871,7 +871,12 @@
 							<xr:DataHistory>Use</xr:DataHistory>
 							<xr:MarkNegatives>false</xr:MarkNegatives>
 							<xr:MinValue xsi:nil="true"/>
-							<xr:Synonym/>
+							<xr:Synonym>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Day number</v8:content>
+								</v8:item>
+							</xr:Synonym>
 							<xr:Comment/>
 							<xr:FullTextSearch>Use</xr:FullTextSearch>
 							<xr:ChoiceParameterLinks/>

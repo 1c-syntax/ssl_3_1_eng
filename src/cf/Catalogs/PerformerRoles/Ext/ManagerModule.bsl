@@ -36,7 +36,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// Заполнение предопределенных элементов
+// Populate predefined items
 
 #EndRegion
 
@@ -68,12 +68,12 @@ Procedure ChoiceDataGetProcessing(ChoiceData, Parameters, StandardProcessing)
 		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 		
 		LanguagesInformation = ModuleNationalLanguageSupportServer.LanguagesInfo();
-		RequestFragmentTemplate = "PerformerRoles.%1 LIKE &SearchString ESCAPE ""~""";
+		QueryFragmentTemplate = "PerformerRoles.%1 LIKE &SearchString ESCAPE ""~""";
 		For Each AdditionalLanguage In LanguagesInformation.Used Do
 			If AdditionalLanguage.Value Then
 				
 				TextFragmentsSearchForAdditionalLangs.Add(
-					StrTemplate(RequestFragmentTemplate, "Description" + AdditionalLanguage.Key));
+					StrTemplate(QueryFragmentTemplate, "Description" + AdditionalLanguage.Key));
 			EndIf;
 		EndDo;
 		
@@ -176,16 +176,16 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 		ModuleNationalLanguageSupportServer.FillMultilanguageAttribute(Item, "Description",
-			"en = 'Task control manager';", LanguagesCodes); // @NStr-1
+			"en = 'Task control manager'", LanguagesCodes); // @NStr-2
 	Else
-		Item.Description = NStr("en = 'Task control manager';", Common.DefaultLanguageCode());
+		Item.Description = NStr("en = 'Task control manager'", Common.DefaultLanguageCode());
 	EndIf;
 	
 	Item.UsedWithoutAddressingObjects = True;
 	Item.UsedByAddressingObjects  = True;
 	Item.ExternalRole                      = False;
 	Item.Code                              = "000000001";
-	Item.BriefPresentation             = NStr("en = '000000001';", Common.DefaultLanguageCode());
+	Item.BriefPresentation             = NStr("en = '000000001'", Common.DefaultLanguageCode());
 	Item.MainAddressingObjectTypes = ChartsOfCharacteristicTypes.TaskAddressingObjects.AllAddressingObjects;
 	
 	Purpose = TabularSections.Purpose.Copy(); // ValueTable

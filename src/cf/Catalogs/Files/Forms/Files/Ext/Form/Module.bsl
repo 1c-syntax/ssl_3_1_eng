@@ -97,7 +97,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Common.IsMobileClient() Then
 		Items.Folders.TitleLocation = FormItemTitleLocation.Auto;
 		Items.FormCreateSubmenu.Representation = ButtonRepresentation.Picture;
-		Items.FormCreateFromScanner.Title = NStr("en = 'From device camera…';");
+		Items.FormCreateFromScanner.Title = NStr("en = 'From device camera…'");
 	EndIf;
 	
 	// StandardSubsystems.AttachableCommands
@@ -592,7 +592,7 @@ Procedure MoveToFolder(Command)
 	EndIf;
 	
 	FormParameters = New Structure;
-	FormParameters.Insert("Title",    NStr("en = 'Select folder';"));
+	FormParameters.Insert("Title",    NStr("en = 'Select folder'"));
 	FormParameters.Insert("CurrentFolder", Items.Folders.CurrentRow);
 	FormParameters.Insert("ChoiceMode",  True);
 	
@@ -827,9 +827,9 @@ Procedure ImportFilesAfterExtensionInstalled(Result, ExecutionParameters) Export
 	
 	OpenFileDialog = New FileDialog(FileDialogMode.Open);
 	OpenFileDialog.FullFileName = "";
-	OpenFileDialog.Filter = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
+	OpenFileDialog.Filter = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1'"), GetAllFilesMask());
 	OpenFileDialog.Multiselect = True;
-	OpenFileDialog.Title = NStr("en = 'Select files';");
+	OpenFileDialog.Title = NStr("en = 'Select files'");
 	If Not OpenFileDialog.Choose() Then
 		Return;
 	EndIf;
@@ -856,9 +856,9 @@ Procedure ImportFolderAfterExtensionInstalled(Result, ExecutionParameters) Expor
 	
 	OpenFileDialog = New FileDialog(FileDialogMode.ChooseDirectory);
 	OpenFileDialog.FullFileName = "";
-	OpenFileDialog.Filter = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
+	OpenFileDialog.Filter = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1'"), GetAllFilesMask());
 	OpenFileDialog.Multiselect = False;
-	OpenFileDialog.Title = NStr("en = 'Select directory';");
+	OpenFileDialog.Title = NStr("en = 'Select directory'");
 	If Not OpenFileDialog.Choose() Then
 		Return;
 	EndIf;
@@ -945,16 +945,16 @@ Procedure DragToFolder(FolderForAdding, DragValue, Action)
 				Items.List.Refresh();
 				
 				If DragValue.Count() = 1 Then
-					NotificationTitle1 = NStr("en = 'File copied.';");
+					NotificationTitle1 = NStr("en = 'File copied.'");
 					NotificationText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'File ""%1"" 
-						           |is copied to folder ""%2"".';"),
+						           |is copied to folder ""%2"".'"),
 						DragValue[0],
 						String(FolderForAdding));
 				Else
-					NotificationTitle1 = NStr("en = 'Files copied.';");
+					NotificationTitle1 = NStr("en = 'Files copied.'");
 					NotificationText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = '%1 files are copied to folder ""%2.""';"),
+						NStr("en = '%1 files are copied to folder ""%2.""'"),
 						DragValue.Count(),
 						String(FolderForAdding));
 				EndIf;
@@ -970,16 +970,16 @@ Procedure DragToFolder(FolderForAdding, DragValue, Action)
 				Items.List.Refresh();
 				
 				If DragValue.Count() = 1 Then
-					NotificationTitle1 = NStr("en = 'File moved.';");
+					NotificationTitle1 = NStr("en = 'File moved.'");
 					NotificationText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'File ""%1"" 
-						           |is moved to folder ""%2.""';"),
+						           |is moved to folder ""%2.""'"),
 						String(DragValue[0]),
 						String(FolderForAdding));
 				Else
-					NotificationTitle1 = NStr("en = 'Files moved.';");
+					NotificationTitle1 = NStr("en = 'Files moved.'");
 					NotificationText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = '%1 files are moved to folder ""%2.""';"),
+						NStr("en = '%1 files are moved to folder ""%2.""'"),
 						String(DragValue.Count()),
 						String(FolderForAdding));
 				EndIf;
@@ -993,10 +993,10 @@ Procedure DragToFolder(FolderForAdding, DragValue, Action)
 				If LoopFound = True Then
 					If DragValue.Count() = 1 Then
 						MessageText = NStr("en = 'Cannot move the folder.
-							|The ""%1"" folder is subordinate to the ""%2"" folder that you want to move.';");
+							|The ""%1"" folder is subordinate to the ""%2"" folder that you want to move.'");
 					Else
 						MessageText = NStr("en = 'Cannot move the folder.
-							|The ""%1"" folder is subordinate to one of the folders that you want to move.';");
+							|The ""%1"" folder is subordinate to one of the folders that you want to move.'");
 					EndIf;
 					MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, FolderForAdding, DragValue[0]);
 					ShowMessageBox(, MessageText);
@@ -1009,16 +1009,16 @@ Procedure DragToFolder(FolderForAdding, DragValue, Action)
 			
 			If DragValue.Count() = 1 Then
 				Items.Folders.CurrentRow = DragValue[0];
-				NotificationTitle1 = NStr("en = 'Folder moved.';");
+				NotificationTitle1 = NStr("en = 'Folder moved.'");
 				NotificationText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Folder ""%1""
-					           |is moved to folder ""%2.""';"),
+					           |is moved to folder ""%2.""'"),
 					String(DragValue[0]),
 					String(FolderForAdding));
 			Else
-				NotificationTitle1 = NStr("en = 'Folders moved.';");
+				NotificationTitle1 = NStr("en = 'Folders moved.'");
 				NotificationText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '%1 folders are moved to folder ""%2.""';"),
+					NStr("en = '%1 folders are moved to folder ""%2.""'"),
 					String(DragValue.Count()),
 					String(FolderForAdding));
 			EndIf;
@@ -1222,7 +1222,7 @@ Procedure SetFilesSynchronizationNoteVisibility()
 		If SynchronizationInfo <> Undefined Then
 		
 			Items.DecorationNote.Title = StringFunctionsClient.FormattedString(
-				NStr("en = 'The files are stored in cloud service <a href=""%1"">%2</a>.';"),
+				NStr("en = 'The files are stored in cloud service <a href=""%1"">%2</a>.'"),
 				SynchronizationInfo.FolderAddressInCloudService, SynchronizationInfo.AccountDescription1);
 		
 			Items.DecorationPictureSyncSettings.Visible  = Not SynchronizationInfo.IsSynchronized;
@@ -1231,13 +1231,13 @@ Procedure SetFilesSynchronizationNoteVisibility()
 			Items.DecorationSyncDate.Visible            = True;
 			
 			Items.DecorationSyncDate.Title = StringFunctionsClient.FormattedString(
-				NStr("en = 'Synchronized on: <a href=""%1"">%2</a>';"),
+				NStr("en = 'Synchronized on: <a href=""%1"">%2</a>'"),
 				"OpenJournal", Format(SynchronizationInfo.SynchronizationDate, "DLF=DD"));
 			
 		Else
 			
 			Items.DecorationNote.Title = 
-				NStr("en = 'The files are stored in cloud service.';");
+				NStr("en = 'The files are stored in cloud service.'");
 				
 			Items.DecorationPictureSyncSettings.Visible  = False;
 			Items.DecorationSyncDate.ToolTipRepresentation = ToolTipRepresentation.None;
@@ -1576,13 +1576,13 @@ Procedure UpdatePreview1()
 		Except
 			// If the file does not exist, an exception will be called.
 			FileDataURL         = Undefined;
-			NonselectedPictureText = NStr("en = 'Preview is not available. Reason:';") + Chars.LF + ErrorProcessing.BriefErrorDescription(ErrorInfo());
+			NonselectedPictureText = NStr("en = 'Preview is not available. Reason:'") + Chars.LF + ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		EndTry;
 		
 	Else
 		
 		FileDataURL         = Undefined;
-		NonselectedPictureText = NStr("en = 'No data to preview';");
+		NonselectedPictureText = NStr("en = 'No data to preview'");
 		
 	EndIf;
 	

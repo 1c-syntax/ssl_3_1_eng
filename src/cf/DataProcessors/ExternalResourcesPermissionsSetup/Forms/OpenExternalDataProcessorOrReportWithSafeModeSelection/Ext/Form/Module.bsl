@@ -28,20 +28,20 @@ EndProcedure
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
 	If Not ValueIsFilled(NameOfDataProcessorFile) Or Not ValueIsFilled(DataProcessorFileAddress) Then
-		Common.MessageToUser(NStr("en = 'Specify an external report file or a data processor file.';"),, 
+		Common.MessageToUser(NStr("en = 'Specify an external report file or a data processor file.'"),, 
 			"NameOfDataProcessorFile");
 		Cancel = True;
 	Else
 		FileProperties = CommonClientServer.ParseFullFileName(NameOfDataProcessorFile);
 		If Lower(FileProperties.Extension) <> Lower(".epf") And Lower(FileProperties.Extension) <> Lower(".erf") Then
-			Common.MessageToUser(NStr("en = 'The selected file is not an external report or data processor.';"),,
+			Common.MessageToUser(NStr("en = 'The selected file is not an external report or data processor.'"),,
 				"NameOfDataProcessorFile");
 			Cancel = True;
 		EndIf;
 	EndIf;
 	
 	If Not ValueIsFilled(SafeMode) Then
-		Common.MessageToUser(NStr("en = 'Specify the safe mode for the external module connection.';"),, 
+		Common.MessageToUser(NStr("en = 'Specify the safe mode for the external module connection.'"),, 
 			"SafeMode");
 		Cancel = True;
 	EndIf;
@@ -112,7 +112,7 @@ Procedure ImportDataProcessorFileCompletion(FileThatWasPut, AdditionalParameters
 	
 	FileProperties = CommonClientServer.ParseFullFileName(NameOfDataProcessorFile);
 	If Lower(FileProperties.Extension) <> Lower(".epf") And Lower(FileProperties.Extension) <> Lower(".erf") Then
-		ShowMessageBox(, NStr("en = 'The selected file is not an external report or data processor.';"));
+		ShowMessageBox(, NStr("en = 'The selected file is not an external report or data processor.'"));
 	EndIf;
 	
 EndProcedure

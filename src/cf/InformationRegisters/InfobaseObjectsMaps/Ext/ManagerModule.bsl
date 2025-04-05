@@ -23,9 +23,9 @@ Procedure AddRecord(RecordStructure, Load = False) Export
 		If RecordStructure.Property(AttributeToCheck)
 			And Not ValueIsFilled(RecordStructure[AttributeToCheck]) Then
 			
-			EventDescription1 = NStr("en = 'Add a record to the ""Mapping of infobase objects"" information register';",
+			EventDescription1 = NStr("en = 'Add a record to the ""Mapping of infobase objects"" information register'",
 				Common.DefaultLanguageCode());
-			Comment     = NStr("en = 'Attribute %1 is not filled in. Cannot create the register record.';");
+			Comment     = NStr("en = 'Attribute %1 is not filled in. Cannot create the register record.'");
 			Comment     = StringFunctionsClientServer.SubstituteParametersToString(Comment, AttributeToCheck);
 			WriteLogEvent(EventDescription1, 
 			                         EventLogLevel.Error,

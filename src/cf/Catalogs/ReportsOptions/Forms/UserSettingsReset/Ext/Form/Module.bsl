@@ -13,12 +13,12 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If TypeOf(Parameters.Variants) <> Type("Array") Then
-		ErrorText = NStr("en = 'No report options provided.';");
+		ErrorText = NStr("en = 'No report options provided.'");
 		Return;
 	EndIf;
 
 	If Not HasUserSettings(Parameters.Variants) Then
-		ErrorText = NStr("en = 'Custom settings for the %1selected report options have not been defined or have been reset.';");
+		ErrorText = NStr("en = 'Custom settings for %1 selected report options have not been defined or have been reset.'");
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText, 
 			Format(Parameters.Variants.Count(), "NZ=0; NG=0"));
 		Return;
@@ -44,20 +44,20 @@ EndProcedure
 Procedure ResetCommand(Command)
 	OptionsCount = OptionsToAssign.Count();
 	If OptionsCount = 0 Then
-		ShowMessageBox(, NStr("en = 'No report options provided.';"));
+		ShowMessageBox(, NStr("en = 'No report options provided.'"));
 		Return;
 	EndIf;
 
 	ResetUserSettingsServer(OptionsToAssign);
 	If OptionsCount = 1 Then
 		OptionRef1 = OptionsToAssign[0].Value;
-		NotificationTitle1 = NStr("en = 'Custom settings for the report option have been reset.';");
+		NotificationTitle1 = NStr("en = 'Custom settings for the report option have been reset.'");
 		NotificationRef    = GetURL(OptionRef1);
 		NotificationText     = String(OptionRef1);
 		ShowUserNotification(NotificationTitle1, NotificationRef, NotificationText);
 	Else
 		NotificationText = NStr("en = 'Custom settings for %1 report options
-							   |have been reset.';");
+							   |have been reset.'");
 		NotificationText = StringFunctionsClientServer.SubstituteParametersToString(NotificationText, 
 			Format(OptionsCount, "NZ=0; NG=0"));
 		ShowUserNotification(,, NotificationText);

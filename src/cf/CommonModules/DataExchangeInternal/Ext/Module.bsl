@@ -299,13 +299,13 @@ Function ImportFilePart(FileID, FilePartToImportNumber, FilePartToImport, ErrorM
 
 	If Not ValueIsFilled(FileID) Then
 		ErrorMessage = NStr("en = 'Cannot execute the method. The ID of the file to be imported is not specified.
-								|Specify a UUID for the file to be imported.';");
+								|Specify a UUID for the file to be imported.'");
 		Raise (ErrorMessage);
 	EndIf;
 
 	If Not ValueIsFilled(FilePartToImport) And TypeOf(FilePartToImport) <> Type("BinaryData") Then
 		ErrorMessage = NStr(
-			"en = 'Cannot execute the method. The passed data type does not match the expected type.';");
+			"en = 'Cannot execute the method. The passed data type does not match the expected type.'");
 		Raise (ErrorMessage);
 	EndIf;
 
@@ -358,7 +358,7 @@ Function ExportFilePart(FileID, FilePartToExportNumber, ErrorMessage) Export
 	If FilePart.Exists() Then
 		Return New BinaryData(FilePartName);
 	Else
-		ErrorMessage = NStr("en = 'The file part with the ID is not found.';");
+		ErrorMessage = NStr("en = 'The file part with the ID is not found.'");
 	EndIf;
 
 EndFunction
@@ -387,7 +387,7 @@ Function PrepareFileForImport(FileID, ErrorMessage) Export
 	Else
 		MessageTemplate = NStr("en = 'No parts of the transfer session with the %1 ID are found.
 							|Ensure that the ""Linux temporary files directory"" and
-							|""Windows temporary files directory"" parameters are specified in the application settings.';");
+							|""Windows temporary files directory"" parameters are specified in the application settings.'");
 		ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(MessageTemplate, String(
 			FileID));
 		Raise (ErrorMessage);
@@ -414,7 +414,7 @@ Function PrepareFileForImport(FileID, ErrorMessage) Export
 			Raise (ErrorMessage);
 		EndTry;
 
-		ErrorMessage = NStr("en = 'The archive file is empty.';");
+		ErrorMessage = NStr("en = 'The archive file is empty.'");
 		Raise (ErrorMessage);
 
 	EndIf;
@@ -528,7 +528,7 @@ Procedure PrepareDataForExportFromInfobase(ProcedureParameters, StorageAddress) 
 			TempDirectory, "data.xml");
 
 		CreateDirectory(TempDirectory);
-		FileCopy(FullFileName, SourceFileNameInTemporaryDirectory);
+		CopyFile(FullFileName, SourceFileNameInTemporaryDirectory);
 		
 		// Archive the file.
 		Archiver = New ZipFileWriter(SharedFileName);
@@ -580,7 +580,7 @@ Procedure ImportXDTODateToInfobase(ProcedureParameters, StorageAddress) Export
 		Except
 			DisableAccessKeysUpdate(False);
 			Information = ErrorInfo();
-			ErrorMessage = NStr("en = 'Data import error: %1';");
+			ErrorMessage = NStr("en = 'Data import error: %1'");
 			ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
 				ErrorMessage, ErrorProcessing.DetailErrorDescription(Information));
 			DataExchangeXDTOServer.WriteToExecutionProtocol(ExchangeComponents, ErrorMessage, , , , , True);
@@ -594,7 +594,7 @@ Procedure ImportXDTODateToInfobase(ProcedureParameters, StorageAddress) Export
 		Except
 			DisableAccessKeysUpdate(False);
 			Information = ErrorInfo();
-			ErrorMessage = NStr("en = 'Cannot delete temporary objects created by references: %1';");
+			ErrorMessage = NStr("en = 'Cannot delete temporary objects created by references: %1'");
 			ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
 				ErrorMessage, ErrorProcessing.DetailErrorDescription(Information));
 			DataExchangeXDTOServer.WriteToExecutionProtocol(ExchangeComponents, ErrorMessage, , , , , True);
@@ -660,7 +660,7 @@ Procedure CheckInfobaseLockForUpdate() Export
 
 	If ValueIsFilled(InfobaseUpdateInternal.InfobaseLockedForUpdate()) Then
 
-		Raise NStr("en = 'Data synchronization is temporarily unavailable due to the application update.';");
+		Raise NStr("en = 'Data synchronization is temporarily unavailable due to the application update.'");
 
 	EndIf;
 
@@ -1074,7 +1074,7 @@ EndProcedure
 Function DataAreaNumberFromExchangePlanNodeCode(Val NodeCode) Export
 
 	If TypeOf(NodeCode) <> Type("String") Then
-		Raise NStr("en = 'Invalid type in parameter number [1].';");
+		Raise NStr("en = 'Invalid type in parameter number [1].'");
 	EndIf;
 
 	Result = StrReplace(NodeCode, "S0", "");
@@ -1325,9 +1325,9 @@ EndFunction
 Function GenerateEventLogMessageKey(ExchangeDirection, WebServiceParameters)
 
 	If ExchangeDirection = "Receive" Then
-		MessageKeyTemplate = NStr("en = 'Import data over web service %1';", Common.DefaultLanguageCode());
+		MessageKeyTemplate = NStr("en = 'Import data over web service %1'", Common.DefaultLanguageCode());
 	Else
-		MessageKeyTemplate = NStr("en = 'Export data over web service %1';", Common.DefaultLanguageCode());
+		MessageKeyTemplate = NStr("en = 'Export data over web service %1'", Common.DefaultLanguageCode());
 	EndIf;
 
 	Return StringFunctionsClientServer.SubstituteParametersToString(MessageKeyTemplate,
@@ -1345,7 +1345,7 @@ Function ExchangeSettingsStructure(ExchangeComponents, DataExchangeAction)
 		ExchangeComponents.CorrespondentNode, DataExchangeAction);
 	
 	If ExchangeSettingsStructure.Cancel Then
-		ErrorMessageString = NStr("en = 'Cannot initialize data exchange.';");
+		ErrorMessageString = NStr("en = 'Cannot initialize data exchange.'");
 		DataExchangeServer.WriteExchangeFinish(ExchangeSettingsStructure);
 		Raise ErrorMessageString;
 	EndIf;
@@ -1353,7 +1353,7 @@ Function ExchangeSettingsStructure(ExchangeComponents, DataExchangeAction)
 	ExchangeSettingsStructure.ExchangeExecutionResult = Undefined;
 	ExchangeSettingsStructure.StartDate = CurrentSessionDate();
 
-	MessageString = NStr("en = 'Data exchange started. Node: %1';", Common.DefaultLanguageCode());
+	MessageString = NStr("en = 'Data exchange started. Node: %1'", Common.DefaultLanguageCode());
 	MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString,
 		ExchangeSettingsStructure.InfobaseNodeDescription);
 
@@ -1581,12 +1581,12 @@ Procedure CheckCanSynchronizeData() Export
 
 	If Not AccessRight("View", Metadata.CommonCommands.Synchronize) Then
 
-		Raise NStr("en = 'Insufficient rights to synchronize data.';");
+		Raise NStr("en = 'Insufficient rights to synchronize data.'");
 
 	ElsIf InfobaseUpdate.InfobaseUpdateRequired()
 		And Not DataExchangeMessageImportModeBeforeStart("ImportPermitted") Then
 
-		Raise NStr("en = 'Infobase is updating.';");
+		Raise NStr("en = 'Infobase is updating.'");
 
 	EndIf;
 

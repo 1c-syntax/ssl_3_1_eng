@@ -404,17 +404,17 @@ Procedure CheckDataSynchronizationSettingPossibility(Cancel = False)
 		If Common.SeparatedDataUsageAvailable() Then
 			ModuleDataExchangeSaaSCached = Common.CommonModule("DataExchangeSaaSCached");
 			If Not ModuleDataExchangeSaaSCached.DataSynchronizationSupported() Then
-		 		MessageText = NStr("en = 'This application does not support data synchronization setup.';");
+		 		MessageText = NStr("en = 'This application does not support data synchronization setup.'");
 				Cancel = True;
 			EndIf;
 		Else
-			MessageText = NStr("en = 'Cannot configure data synchronization in shared mode.';");
+			MessageText = NStr("en = 'Cannot configure data synchronization in shared mode.'");
 			Cancel = True;
 		EndIf;
 	Else
 		ExchangePlansList = DataExchangeCached.SSLExchangePlans();
 		If ExchangePlansList.Count() = 0 Then
-			MessageText = NStr("en = 'This application does not support data synchronization setup.';");
+			MessageText = NStr("en = 'This application does not support data synchronization setup.'");
 			Cancel = True;
 		EndIf;
 	EndIf;

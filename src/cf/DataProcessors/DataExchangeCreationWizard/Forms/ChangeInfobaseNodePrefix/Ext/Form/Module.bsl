@@ -36,7 +36,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 
 	If Items.PanelMain.CurrentPage = Items.PageWait Then
 	
-		WarningText = NStr("en = 'Undo renumbering?';");
+		WarningText = NStr("en = 'Undo renumbering?'");
 		CommonClient.ShowArbitraryFormClosingConfirmation(
 			ThisObject, Cancel, Exit, WarningText, "ForceCloseForm");
 			
@@ -147,7 +147,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -257,7 +257,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -310,7 +310,7 @@ Procedure ExecuteTimeConsumingOperationHandler()
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -401,7 +401,7 @@ Function SetExclusiveModeAtServer()
 			SetExclusiveMode(True);
 			Result = True;
 		Except
-			ExclusiveModeSettingError = NStr("en = 'Technical details:';") + " " 
+			ExclusiveModeSettingError = NStr("en = 'Technical details:'") + " " 
 				+ ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		EndTry;
 		If ExclusiveMode() Then
@@ -412,9 +412,9 @@ Function SetExclusiveModeAtServer()
 		Items.ActiveUsers.Visible = True;
 		Items.DecorationExplanationOnError.Visible = True;
 		
-		Items.ErrorDecoration.Title = NStr("en = 'Couldn''t change the prefix. There are active user sessions:';");
-		Items.ActiveUsers.Title = StringFunctions.FormattedString(NStr("en = 'Active users (%1)';"), ActiveSessionCount);
-		Items.DecorationExplanationOnError.Title = NStr("en = 'To continue, close their sessions.';")
+		Items.ErrorDecoration.Title = NStr("en = 'Couldn''t change the prefix. There are active user sessions:'");
+		Items.ActiveUsers.Title = StringFunctions.FormattedString(NStr("en = 'Active users (%1)'"), ActiveSessionCount);
+		Items.DecorationExplanationOnError.Title = NStr("en = 'To continue, close their sessions.'")
 		
 	EndIf;
 		
@@ -459,7 +459,7 @@ Function StartIBPrefixChangeInBackgroundJob()
 	ProcedureParameters = New Structure("NewIBPrefix, ContinueNumbering", NewIBPrefix, True);
 		
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Change prefix';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Change prefix'");
 	ExecutionParameters.WaitCompletion = 0;
 		
 	Return TimeConsumingOperations.ExecuteProcedure(ExecutionParameters,"ObjectsPrefixesInternal.ChangeIBPrefix", ProcedureParameters);
@@ -486,7 +486,7 @@ Procedure AfterChangePrefix(BackgroundJob, AdditionalParameters) Export
 		
 		Template = NStr("en = '%1
                        |
-                       |Retry later or in exclusive mode';");
+                       |Retry later or in exclusive mode'");
 		
 		Items.ErrorDecoration.Title = StringFunctionsClient.FormattedString(Template, BackgroundJob.BriefErrorDescription);
 		ChangeNavigationNumber(+1);

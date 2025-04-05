@@ -29,13 +29,13 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	ModuleReportsOptions = Common.CommonModule("ReportsOptions");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "DigitalSignatureCertificates");
-	OptionSettings.LongDesc = NStr("en = 'Digital signature certificates valid in this year.';");
+	OptionSettings.LongDesc = NStr("en = 'Digital signature certificates valid in this year.'");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "ExpiringSoon");
-	OptionSettings.LongDesc = NStr("en = 'Expiring certificates.';");
+	OptionSettings.LongDesc = NStr("en = 'Expiring certificates.'");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "MRLOARequired");
-	OptionSettings.LongDesc = NStr("en = 'Certificates that require MR LOA.';");
+	OptionSettings.LongDesc = NStr("en = 'Certificates that require MR LOA.'");
 		
 EndProcedure
 
@@ -71,7 +71,11 @@ EndProcedure
 // Defines settings for integrating the report with configuration functionality. 
 //
 // Parameters:
-//  InterfaceSettings4 - See AttachableCommands.AttachableObjectSettings
+//  InterfaceSettings4 - Structure - Object integration settings:
+//   * Location - Array of MetadataObject - objects to which an object is attached.
+//   * AddReportCommands    - Boolean - the AddReportCommands function is defined in the object manager module. 
+//   * CustomizeReportOptions   - Boolean - the CustomizeReportOptions function is defined in the object manager module. 
+//   * DefineFormSettings  - Boolean - the DefineFormSettings function is defined in the object manager module. 
 //
 Procedure OnDefineSettings(InterfaceSettings4) Export
 	

@@ -10,20 +10,20 @@
 
 #Region Public
 
-// 
+// Determines the URL of the mapping service.
 // 
 // Parameters:
-//  MapServiceName - String - 
-//  ResourceAddress - String -  
-//          
-//          
+//  MapServiceName - String - Mapping service name.
+//  ResourceAddress - String - URL of the mapping service. This parameter must include %1, 
+//          which will be replaced with the searched address for display on the map.
+//          For example, "https://www.openstreetmap.org/search?query=%1".
 //
 Procedure OnDefineMapServiceURL(MapServiceName, ResourceAddress) Export
 	
 	
 EndProcedure
 
-// 
+// Show the address on Yandex.Maps.
 // 
 // Parameters:
 //  ContactInformation - See ContactsManagerClient.ParameterContactInfoForCommandExecution
@@ -34,14 +34,14 @@ Procedure ShowAddressOnYandexMaps(ContactInformation, AdditionalParameters) Expo
 	
 EndProcedure
 
-//  
-// 
+// Determines the order of the address fields. 
+// It is called only in the international library edition.
 // 
 // Parameters:
-//  FieldsOrder - Array - 
-//  Country - CatalogRef.WorldCountries - 
-//  IncludeCountryInPresentation - Boolean - 
-//                                           
+//  FieldsOrder - Array - A list of roles in the proper order. For example, "area", "ZIPcode", "city".
+//  Country - CatalogRef.WorldCountries - Reference to the catalog of countries
+//  IncludeCountryInPresentation - Boolean - Set to "True" if the contact information kind has a flag indicating that
+//                                           the country should be included in the address presentation.
 //
 Procedure OnDefineAddressFieldsOrder(FieldsOrder, Country, IncludeCountryInPresentation) Export
 	

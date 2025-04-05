@@ -35,7 +35,7 @@ Procedure OnDefineSectionsWithReportOptions(Sections) Export
 	Subsystem = Metadata.Subsystems.Find("Administration");
 	
 	If Subsystem <> Undefined Then
-		Sections.Add(Subsystem, NStr("en = 'Administrator reports';"));
+		Sections.Add(Subsystem, NStr("en = 'Administrator reports'"));
 	EndIf;
 	
 EndProcedure

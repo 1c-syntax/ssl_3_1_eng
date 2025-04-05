@@ -22,7 +22,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			ChoiceList.Add(CurrentVariantOfSetting.Value, CurrentVariantOfSetting.Presentation);
 		EndDo;
 	ElsIf Parameters.InstallationOptions = "Container" Then
-		ChoiceList.Add("Container", NStr("en = 'Container and Personal store';"));
+		ChoiceList.Add("Container", NStr("en = 'Container and Personal store'"));
 	ElsIf TypeOf(Parameters.InstallationOptions) = Type("String") Then
 		ChoiceList.Add(Parameters.InstallationOptions);
 	Else
@@ -111,14 +111,14 @@ Procedure Set(Command)
 		
 		CurrentData = Items.Containers.CurrentData;
 		If CurrentData = Undefined Then
-			ShowMessageBox(, NStr("en = 'Select a container';"));
+			ShowMessageBox(, NStr("en = 'Select a container'"));
 			Return;
 		EndIf;
 		
 		ContainerProperties = DigitalSignatureInternalClient.ContainerNewProperties();
 		FillPropertyValues(ContainerProperties, CurrentData);
 		CertificateInstallationParameters.ContainerProperties = ContainerProperties;
-		CertificateInstallationParameters.Storage = NStr("en = 'container';");
+		CertificateInstallationParameters.Storage = NStr("en = 'container'");
 		
 	Else
 		
@@ -149,7 +149,7 @@ Procedure AfterInstallingTheCertificate(Result, Context) Export
 		Close(Result);
 	Else
 		FormParameters = New Structure;
-		FormParameters.Insert("WarningTitle", NStr("en = 'Cannot install the certificate.';"));
+		FormParameters.Insert("WarningTitle", NStr("en = 'Cannot install the certificate.'"));
 		FormParameters.Insert("ErrorTextClient", Result.Message);
 		
 		DigitalSignatureInternalClient.OpenExtendedErrorPresentationForm(FormParameters, Context.Form);
@@ -168,6 +168,11 @@ Async Procedure FindContainers()
 	
 	ContainersByCertificate = Await DigitalSignatureInternalClient.ContainersByCertificate(
 		Parameters.Certificate); // Array of See DigitalSignatureInternalClient.ContainerNewProperties
+		
+	If ContainersByCertificate = Undefined Then
+		Items.GroupContainers.CurrentPage = Items.TableContainers;
+		Return;
+	EndIf;
 	
 	For Each Container In ContainersByCertificate Do 
 		NewRow = Containers.Add();
@@ -176,13 +181,13 @@ Async Procedure FindContainers()
 		If Container.IsCurrentContainer = True Then
 			Items.DecorationCurrentContainer.Visible = True;
 			Items.DecorationCurrentContainer.Title = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The certificate is installed in the container: %1';"), Container.Name);
+				NStr("en = 'The certificate is installed in the container: %1'"), Container.Name);
 		EndIf;
 	EndDo;
 	
 	Items.GroupContainers.CurrentPage = Items.TableContainers;
 	If ContainersByCertificate.Count() = 0 Then
-		Items.DecorationCurrentContainer.Title = NStr("en = 'Appropriate containers to install the certificate are not found';");
+		Items.DecorationCurrentContainer.Title = NStr("en = 'Appropriate containers to install the certificate are not found'");
 	EndIf;
 	
 EndProcedure
@@ -193,16 +198,16 @@ Function ReadingTool(Val NameOfContainer)
 	NameOfContainer = Upper(NameOfContainer);
 	
 	If StrStartsWith(NameOfContainer, "\\.\REGISTRY") Then
-		Return NStr("en = 'Registry';");
+		Return NStr("en = 'Registry'");
 	EndIf;
 
 	If StrStartsWith(NameOfContainer, "\\.\FAT12") Then
 		Return StringFunctionsClientServer.SubstituteParametersToString( 
-			NStr("en = 'Hard drive %1';"), Mid(NameOfContainer, 11, 1));
+			NStr("en = 'Hard drive %1'"), Mid(NameOfContainer, 11, 1));
 	EndIf;
 	
 	If StrStartsWith(NameOfContainer, "\\.\HDIMAGE") Then
-		Return NStr("en = 'Disk';");
+		Return NStr("en = 'Disk'");
 	EndIf;
 	
 	Return "";
@@ -213,10 +218,10 @@ EndFunction
 Function CertificateInstallationOptions()
 	
 	ValueList = New ValueList;
-	ValueList.Add("MY", NStr("en = 'Personal certificate store';"));
-	ValueList.Add("CA", NStr("en = 'Intermediate certificates';"));
-	ValueList.Add("ROOT", NStr("en = 'Trusted root certificates';"));
-	ValueList.Add("Container", NStr("en = 'Container and Personal store';"));
+	ValueList.Add("MY", NStr("en = 'Personal certificate store'"));
+	ValueList.Add("CA", NStr("en = 'Intermediate certificates'"));
+	ValueList.Add("ROOT", NStr("en = 'Trusted root certificates'"));
+	ValueList.Add("Container", NStr("en = 'Container and Personal store'"));
 	Return ValueList;
 	
 EndFunction

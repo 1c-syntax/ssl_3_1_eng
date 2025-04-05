@@ -15,7 +15,7 @@
 Function TransportSettings(Val Peer) Export
 	
 	If Not Common.SubsystemExists("CloudTechnology") Then
-		Raise NStr("en = 'The manager of exchange message transport settings is not defined.';");
+		Raise NStr("en = 'The manager of exchange message transport settings is not defined.'");
 	EndIf;
 	
 	MessagesExchangeTransportSettingsRegisterName = "MessageExchangeTransportSettings";
@@ -99,7 +99,7 @@ EndFunction
 Function TransportSettingsWS(Val Peer) Export
 	
 	If Not Common.SubsystemExists("CloudTechnology") Then
-		Raise NStr("en = 'The manager of exchange message transport settings is not defined.';");
+		Raise NStr("en = 'The manager of exchange message transport settings is not defined.'");
 	EndIf;
 	
 	MessagesExchangeTransportSettingsRegisterName = "MessageExchangeTransportSettings";
@@ -124,7 +124,7 @@ Function TransportSettingsWS(Val Peer) Export
 	
 	If Not ValueIsFilled(SettingsStructure_.WSWebServiceURL) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Peer infobase ""%1"" connection is not set up.';"),
+			NStr("en = 'Peer infobase ""%1"" connection is not set up.'"),
 			String(Peer));
 	EndIf;
 	

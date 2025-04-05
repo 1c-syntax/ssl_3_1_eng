@@ -34,7 +34,7 @@ Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessin
 	EndIf;
 	
 	Command = ReportsCommands.Add();
-	Command.Presentation = NStr("en = 'Changes in profile roles';");
+	Command.Presentation = NStr("en = 'Changes in profile roles'");
 	Command.Manager = "Report.ProfilesRolesChanges";
 	Command.VariantKey = "Main";
 	Command.OnlyInAllActions = True;
@@ -59,7 +59,7 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "Main");
 	OptionSettings.Enabled = Common.SubsystemExists("StandardSubsystems.AccessManagement");
 	OptionSettings.LongDesc =
-		NStr("en = 'Reads the event log and displays the changes in profile roles based on updates to metadata object role lists for the specified time period.';");
+		NStr("en = 'Reads the event log and displays the changes in profile roles based on updates to metadata object role lists for the specified time period.'");
 	
 EndProcedure
 

@@ -69,11 +69,11 @@ EndFunction
 // Valid values are:
 //
 //   Disabled - Register all objects
-//                         (See DataExchangeRegistrationServer.РежимВыборочнойРегистрацииОтключен()).
+//                         ).
 //   AccordingToXMLRules - Register the objects whose PCR fields were modified
-//                         (See DataExchangeRegistrationServer.РежимВыборочнойРегистрацииСогласноПравиламXML()).
+//                         ).
 //   Modified - Register the objects whose "Modified" property is set to True
-//                         (See DataExchangeRegistrationServer.РежимВыборочнойРегистрацииМодифицированность()).
+//                         ).
 //
 Function ExchangePlanDataSelectiveRegistrationMode(ExchangePlanName) Export
 	

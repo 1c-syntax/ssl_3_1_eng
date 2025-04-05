@@ -23,7 +23,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		// Object attribute lock subsystem handler.
 		If Common.SubsystemExists("StandardSubsystems.ObjectAttributesLock") Then
 			ModuleObjectAttributesLock = Common.CommonModule("ObjectAttributesLock");
-			ModuleObjectAttributesLock.LockAttributes(ThisObject,, NStr("en = 'Allow edit type and group';"));
+			ModuleObjectAttributesLock.LockAttributes(ThisObject,, NStr("en = 'Allow edit type and group'"));
 			
 		Else
 			Items.Parent.ReadOnly = True;
@@ -143,7 +143,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 	
 	If Object.PhoneWithExtensionNumber And Object.EnterNumberByMask Then
 		CommonClient.MessageToUser(NStr(
-			"en = 'You cannot enter a phone number with an extension when the ""Enter number by mask"" option is set';"),
+			"en = 'You cannot enter a phone number with an extension when the ""Enter number by mask"" option is set'"),
 			, "PhoneWithExtensionNumber", "Object", Cancel);
 	EndIf;
 	
@@ -156,8 +156,8 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 		
 		If ValueIsFilled(QueryText) Then
 			Buttons = New ValueList;
-			Buttons.Add("ContinueWrite",              NStr("en = 'Continue';"));
-			Buttons.Add("BackToIDInput", NStr("en = 'Cancel';"));
+			Buttons.Add("ContinueWrite",              NStr("en = 'Continue'"));
+			Buttons.Add("BackToIDInput", NStr("en = 'Cancel'"));
 			
 			Cancel = True;
 			
@@ -182,7 +182,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	If TheTypeOfCISWithThisNameAlreadyExists(CurrentObject) Then
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Contact information kind with the %1 description already exists. Specify another description.';"),
+			NStr("en = 'Contact information kind with the %1 description already exists. Specify another description.'"),
 			String(CurrentObject.Description));
 		
 	EndIf;
@@ -601,7 +601,7 @@ Function IDForFormulasAlreadyUsed(Val IDForFormulas, Val CurrentContactInformati
 		QueryText = NStr("en = 'ID ""%1"" does not comply with variable naming rules.
 		                          |An ID must not contain spaces and special characters.
 		                          |
-		                          |Do you want to create a new ID for formulas and continue saving?';");
+		                          |Do you want to create a new ID for formulas and continue saving?'");
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 			QueryText,
 			IDForFormulas);
@@ -645,7 +645,7 @@ Function IDForFormulasAlreadyUsed(Val IDForFormulas, Val CurrentContactInformati
 	                          |It is recommended that you use another ID for formulas.
 	                          |Otherwise, the application might malfunction.
 	                          |
-	                          |Create a new ID for the formulas and continue saving?';");
+	                          |Create a new ID for the formulas and continue saving?'");
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 		QueryText,
 		IDForFormulas);

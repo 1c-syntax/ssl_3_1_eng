@@ -13,13 +13,10 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	ErrorTitle = NStr("en = 'An error occurred when configuring the dynamic list of attachments.';");
-	ErrorEnd = NStr("en = 'Cannot configure the dynamic list.';");
-	
+	ErrorTitle = NStr("en = 'Unable to open the attachment list.'");
 	FileOwner = Common.ObjectAttributeValue(Parameters.File, "FileOwner");
-	
 	FileVersionsStorageCatalogName = FilesOperationsInternal.FilesVersionsStorageCatalogName(
-		FileOwner, "", ErrorTitle, ErrorEnd);
+		FileOwner, "", ErrorTitle);
 		
 	If Not IsBlankString(FileVersionsStorageCatalogName) Then
 		SetUpDynamicList(FileVersionsStorageCatalogName);
@@ -67,9 +64,9 @@ Procedure MakeActiveExecute()
 	FileData = FilesOperationsInternalServerCall.FileData(CurrentData.Owner, CurrentData.Ref, FileDataParameters);
 	
 	If ValueIsFilled(FileData.BeingEditedBy) Then
-		ShowMessageBox(, NStr("en = 'Cannot change the active version because the file is locked.';"));
+		ShowMessageBox(, NStr("en = 'Cannot change the active version because the file is locked.'"));
 	ElsIf FileData.SignedWithDS Then
-		ShowMessageBox(, NStr("en = 'Cannot change the active version because the file is signed.';"));
+		ShowMessageBox(, NStr("en = 'Cannot change the active version because the file is signed.'"));
 	Else
 		ChangeActiveFileVersion(NewActiveVersion);
 		FileWriteNotificationParameters = FilesOperationsInternalClient.FileWriteNotificationParameters("ActiveVersionChanged");
@@ -167,7 +164,7 @@ Procedure Compare(Command)
 	
 	SelectedRowsCount = Items.List.SelectedRows.Count();
 	If SelectedRowsCount <> 2 And SelectedRowsCount <> 1 Then
-		ShowMessageBox(, NStr("en = 'To view the differences, select two file versions.';"));
+		ShowMessageBox(, NStr("en = 'To view the differences, select two file versions.'"));
 		Return;
 	EndIf;
 		
@@ -280,7 +277,7 @@ Procedure ChangeActiveFileVersion(Version)
 		
 		FileObject1 = NewVersionAttributes.Owner.GetObject();
 		If FileObject1.SignedWithDS Then
-			Raise NStr("en = 'Cannot change the active version because the file is signed.';");
+			Raise NStr("en = 'Cannot change the active version because the file is signed.'");
 		EndIf;
 		FileObject1.CurrentVersion = Version;
 		FileObject1.TextStorage = NewVersionAttributes.TextStorage;

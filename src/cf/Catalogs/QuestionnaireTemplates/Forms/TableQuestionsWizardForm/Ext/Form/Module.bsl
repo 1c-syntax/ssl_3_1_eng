@@ -246,7 +246,7 @@ Procedure PreviousPage(Command)
 			SetAnswersPage();
 		EndIf;
 		
-		Items.NextPageButton.Title = NStr("en = 'Next';") + ">";
+		Items.NextPageButton.Title = NStr("en = 'Next'") + ">";
 		
 	ElsIf Items.Pages.CurrentPage = Items.QuestionsPage Then
 		
@@ -296,28 +296,28 @@ Procedure SetHelpTexts()
 	CurrentPage = Items.Pages.CurrentPage;
 	
 	If CurrentPage = Items.ResultTablePage Then
-		InformationHeader                 = NStr("en = 'Result table:';");
-		InformationFooter                = NStr("en = 'Click Finish to finish editing.';");
-		Items.NextPageButton.Title = NStr("en = 'Finish';");
+		InformationHeader                 = NStr("en = 'Result table:'");
+		InformationFooter                = NStr("en = 'Click Finish to finish editing.'");
+		Items.NextPageButton.Title = NStr("en = 'Finish'");
 	Else
-		Items.NextPageButton.Title = NStr("en = 'Next>>';");
+		Items.NextPageButton.Title = NStr("en = 'Next>>'");
 		If CurrentPage = Items.QuestionsPage Then
 			If TabularQuestionType = PredefinedValue("Enum.TabularQuestionTypes.Composite") Then
-				InformationHeader  = NStr("en = 'Pick questions. Specify at least one question:';");
-				InformationFooter = NStr("en = 'Click Next to view the resulting table.';");
+				InformationHeader  = NStr("en = 'Pick questions. Specify at least one question:'");
+				InformationFooter = NStr("en = 'Click Next to view the resulting table.'");
 			ElsIf TabularQuestionType = PredefinedValue("Enum.TabularQuestionTypes.PredefinedAnswersInRowsAndColumns") Then
-				InformationHeader  =NStr("en = 'Pick questions. Specify three questions:';");
-				InformationFooter =NStr("en = 'Click Next to pick predefined answers.';");
+				InformationHeader  =NStr("en = 'Pick questions. Specify three questions:'");
+				InformationFooter =NStr("en = 'Click Next to pick predefined answers.'");
 			Else
-				InformationHeader   =NStr("en = 'Pick questions. Specify at least two questions:';");
-				InformationFooter  =NStr("en = 'Click Next to pick predefined answers.';");
+				InformationHeader   =NStr("en = 'Pick questions. Specify at least two questions:'");
+				InformationFooter  =NStr("en = 'Click Next to pick predefined answers.'");
 			EndIf;
 		ElsIf CurrentPage = Items.TableQuestionTypePage Then
-			InformationHeader       = NStr("en = 'Select a question chart type:';");
-			InformationFooter      = NStr("en = 'Click Next to pick questions:';");
+			InformationHeader       = NStr("en = 'Select a question chart type:'");
+			InformationFooter      = NStr("en = 'Click Next to pick questions:'");
 		Else
-			InformationHeader  = NStr("en = 'Pick predefined answers:';");
-			InformationFooter = NStr("en = 'Click Next to view the resulting table:';");
+			InformationHeader  = NStr("en = 'Pick predefined answers:'");
+			InformationFooter = NStr("en = 'Click Next to view the resulting table:'");
 		EndIf;
 	EndIf;
 	
@@ -521,7 +521,7 @@ Procedure GenerateResultingTable()
 	
 	Surveys.UpdateTabularQuestionPreview(FormAttributeToValue("Questions"), Replies, TabularQuestionType,
 		ThisObject, "ResultingTable", "");
-	Items.NextPageButton.Title = NStr("en = 'Finish';");
+	Items.NextPageButton.Title = NStr("en = 'Finish'");
 	
 EndProcedure
 

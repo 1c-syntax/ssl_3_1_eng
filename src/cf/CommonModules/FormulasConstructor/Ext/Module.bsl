@@ -164,7 +164,7 @@ EndProcedure
 //  Form - ClientApplicationForm
 //  Parameter - Arbitrary
 //  AdditionalParameters - Structure:
-//   * OperationKey - String - 
+//   * OperationKey - String - Operation.
 // 
 Procedure FormulaEditorHandler(Form, Parameter, AdditionalParameters) Export
 	FormulasConstructorInternal.FormulaEditorHandler(Form, Parameter, AdditionalParameters);

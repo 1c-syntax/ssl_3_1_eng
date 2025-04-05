@@ -38,7 +38,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// СтандартныеПодсистемы.УправлениеДоступом
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -58,7 +58,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 // Defines the list of generation commands.
 //
@@ -221,13 +221,13 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Couldn''t process (skipped) some external user information records: %1
-			|%2';"), ObjectsWithIssuesCount, StrConcat(ErrorList, Chars.LF));
+			|%2'"), ObjectsWithIssuesCount, StrConcat(ErrorList, Chars.LF));
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
 			Metadata.Catalogs.Users,,
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Yet another batch of user information records is processed: %1';"),
+				NStr("en = 'Yet another batch of user information records is processed: %1'"),
 				ObjectsProcessed));
 	EndIf;
 	

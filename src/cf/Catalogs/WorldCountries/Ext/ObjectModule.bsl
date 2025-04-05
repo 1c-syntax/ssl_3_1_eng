@@ -112,14 +112,14 @@ Function CheckTheUniquenessOfTheElements()
 		If StrCompare(Selection.Code, Code) = 0 Then
 			
 			Message.MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Code %1 already assigned to country %2. Change the code, or use the existing data.';"),
+				NStr("en = 'Code %1 already assigned to country %2. Change the code, or use the existing data.'"),
 				Code, Selection.Description);
 			Message.FieldName = "Object.Code";
 			
 		ElsIf StrCompare(Selection.Description, Description) = 0 Then
 			
 			Message.MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Description %1 already assigned to the country. Change the description, or use the existing data.';"),
+				NStr("en = 'Description %1 already assigned to the country. Change the description, or use the existing data.'"),
 				Selection.Description);
 			Message.FieldName = "Object.Description";
 			
@@ -127,7 +127,7 @@ Function CheckTheUniquenessOfTheElements()
 				  And StrCompare(Selection.DescriptionFull, DescriptionFull) = 0 Then
 			
 			Message.MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Full description %1 already assigned to country %2. Change the full description, or use the existing data.';"),
+				NStr("en = 'Full description %1 already assigned to country %2. Change the full description, or use the existing data.'"),
 				DescriptionFull, Selection.Description);
 			Message.FieldName = "Object.DescriptionFull";
 			
@@ -135,7 +135,7 @@ Function CheckTheUniquenessOfTheElements()
 				  And StrCompare(Selection.CodeAlpha2, CodeAlpha2) = 0 Then
 			
 			Message.MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Alpha-2 code %1 already assigned to country %2. Change the Alpha-2 code, or use the existing data.';"),
+				NStr("en = 'Alpha-2 code %1 already assigned to country %2. Change the Alpha-2 code, or use the existing data.'"),
 				CodeAlpha2, Selection.Description);
 			Message.FieldName = "Object.CodeAlpha2";
 			
@@ -143,7 +143,7 @@ Function CheckTheUniquenessOfTheElements()
 				  And StrCompare(Selection.CodeAlpha3, CodeAlpha3) = 0 Then
 			
 			Message.MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Alpha-3 code %1 already assigned to country %2. Change the Alpha-3 code, or use the existing data.';"),
+				NStr("en = 'Alpha-3 code %1 already assigned to country %2. Change the Alpha-3 code, or use the existing data.'"),
 				CodeAlpha3, Selection.Description);
 			Message.FieldName = "Object.CodeAlpha3";
 			
@@ -180,7 +180,7 @@ Procedure CheckTheChangeOfAPredefinedElement()
 	If StrCompare(PreviousValues.Description, Description) <> 0 Then
 		
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Description cannot be changed for country %1';"), PreviousValues.Description);
+			NStr("en = 'Description cannot be changed for country %1'"), PreviousValues.Description);
 		Raise MessageText;
 		
 	EndIf;
@@ -188,7 +188,7 @@ Procedure CheckTheChangeOfAPredefinedElement()
 	If StrCompare(PreviousValues.Code, Code) <> 0 Then
 		
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Code cannot be changed for country %1';"), PreviousValues.Description);
+			NStr("en = 'Code cannot be changed for country %1'"), PreviousValues.Description);
 		Raise MessageText;
 		
 	EndIf;
@@ -198,5 +198,5 @@ EndProcedure
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

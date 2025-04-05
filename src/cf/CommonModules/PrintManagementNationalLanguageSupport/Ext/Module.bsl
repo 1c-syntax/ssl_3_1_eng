@@ -54,7 +54,7 @@ EndFunction
 Function LayoutLanguages(TemplatePath) Export
 	
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Template ""%1"" does not exist. The operation is canceled.';"), TemplatePath);
+		NStr("en = 'Template ""%1"" does not exist. The operation is canceled.'"), TemplatePath);
 	PathParts = StrSplit(TemplatePath, ".", True);
 	
 	PrintFormsLanguages = AvailableLanguages();
@@ -314,12 +314,12 @@ Procedure FillInTheLanguageSubmenu(Form, CurrentLanguage = Undefined, Val Filter
 		If IsEditorForm Then
 			Command = Commands.Add("AddLanguage_" + LocalizationCode);
 			Command.Action = "Attachable_SwitchLanguage";
-			Command.Title = NStr("en = 'Add:';") + " " + LanguagePresentation;
+			Command.Title = NStr("en = 'Add:'") + " " + LanguagePresentation;
 			
 			FormButton = Items.Add(Command.Name, Type("FormButton"), Items.LangsToAdd);
 			FormButton.Type = FormButtonType.CommandBarButton;
 			FormButton.CommandName = Command.Name;
-			FormButton.Title = NStr("en = 'Add:';") + " " + LanguagePresentation;
+			FormButton.Title = NStr("en = 'Add:'") + " " + LanguagePresentation;
 			FormButton.LocationInCommandBar= ?(IsMobileClient, 
 			ButtonLocationInCommandBar.InAdditionalSubmenu, ButtonLocationInCommandBar.InCommandBar);
 			FormButton.Visible = Not TemplateInCurrLang;
@@ -328,7 +328,7 @@ Procedure FillInTheLanguageSubmenu(Form, CurrentLanguage = Undefined, Val Filter
 				FormButton = Items.Add(Command.Name+"AllActions", Type("FormButton"), Items.LangsToAddAllActions);
 				FormButton.Type = FormButtonType.CommandBarButton;
 				FormButton.CommandName = Command.Name;
-				FormButton.Title = NStr("en = 'Add:';") + " " + LanguagePresentation;
+				FormButton.Title = NStr("en = 'Add:'") + " " + LanguagePresentation;
 				FormButton.LocationInCommandBar = ButtonLocationInCommandBar.InAdditionalSubmenu;
 				FormButton.Visible = Not TemplateInCurrLang;
 			EndIf;
@@ -435,7 +435,7 @@ Function SchemaDataPrintingMultilanguageRequisites()
 	
 	Field = FieldList.Add();
 	Field.Id = "Ref";
-	Field.Presentation = NStr("en = 'Ref';");
+	Field.Presentation = NStr("en = 'Ref'");
 	Field.ValueType = New TypeDescription();	
 
 	AvailableLanguages = AvailableLanguages();

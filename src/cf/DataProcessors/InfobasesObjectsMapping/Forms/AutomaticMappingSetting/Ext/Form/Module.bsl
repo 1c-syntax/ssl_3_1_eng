@@ -16,7 +16,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Verify that the form is opened with the required parameters
 	If Not Parameters.Property("MappingFieldsList") Then
 		
-		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
+		Raise NStr("en = 'This is a dependent form and opens from a different form.'", Common.DefaultLanguageCode());
 		
 	EndIf;
 	
@@ -71,11 +71,11 @@ Procedure UpdateCommentLabelText()
 	
 	If MarkedListItemArray.Count() = 0 Then
 		
-		NoteLabel = NStr("en = 'Mapping will be performed by internal object UUIDs only.';");
+		NoteLabel = NStr("en = 'Mapping will be performed by internal object UUIDs only.'");
 		
 	Else
 		
-		NoteLabel = NStr("en = 'Mapping will be performed by internal object UUIDs and the selected fields.';");
+		NoteLabel = NStr("en = 'Mapping will be performed by internal object UUIDs and the selected fields.'");
 		
 	EndIf;
 	

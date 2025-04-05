@@ -27,7 +27,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 		
 		If IntegrationDetails.Use Then
-			Items.Close.Title = NStr("en = 'Save and close';");
+			Items.Close.Title = NStr("en = 'Save and close'");
 			Items.Disconnect.Visible = True;
 		EndIf;
 		
@@ -41,7 +41,7 @@ EndProcedure
 &AtServer
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	If Not StringFunctionsClientServer.OnlyNumbersInString(GroupIdentifier) Then
-		Common.MessageToUser(NStr("en = 'The group key must contain only numbers.';")
+		Common.MessageToUser(NStr("en = 'The group key must contain only numbers.'")
 			,,"GroupIdentifier",,Cancel);
 	EndIf;
 EndProcedure
@@ -66,7 +66,7 @@ Procedure ActivateBot(Command)
 	Except
 		ErrorInfo = ErrorInfo();
 		Refinement = CommonClientServer.ExceptionClarification(ErrorInfo, 
-			NStr("en = 'Cannot enable the chat bot due to:';"), True);
+			NStr("en = 'Cannot enable the chat bot due to:'"), True);
 		Raise(Refinement.Text, Refinement.Category,,, ErrorInfo);
 	EndTry;
 	Close(True);
@@ -115,7 +115,7 @@ Procedure Disconnect(Command)
 	Except
 		ErrorInfo = ErrorInfo();
 		Refinement = CommonClientServer.ExceptionClarification(ErrorInfo, 
-			NStr("en = 'Cannot disable the chat bot due to:';"), True);
+			NStr("en = 'Cannot disable the chat bot due to:'"), True);
 		Raise(Refinement.Text, Refinement.Category,,, ErrorInfo);
 	EndTry;
 	Close(True);

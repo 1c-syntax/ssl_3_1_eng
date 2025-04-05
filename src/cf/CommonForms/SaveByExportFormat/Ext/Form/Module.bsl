@@ -21,7 +21,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	EndIf;
 	
-	// Место сохранения по умолчанию.
+	// The default save directory.
 	ExportOption = "SaveToFolder";
 	
 	If TypeOf(Parameters.ExecutionCommandDetails) = Type("Structure") Then
@@ -114,7 +114,7 @@ Procedure ExecuteSelectedOption(Command)
 	If ExportOption = "SaveToFolder"
 	   And IsBlankString(SelectedDirectory) Then
 		
-		MessageText = NStr("en = 'Select folder';");
+		MessageText = NStr("en = 'Select folder'");
 		CommonClient.MessageToUser(MessageText,, "SelectedDirectory");
 		Return;
 		
@@ -162,7 +162,7 @@ Procedure ExecuteSelectedOption(Command)
 		If MoreErrorsCounter > 0 Then
 			
 			TemplateQuestionText = NStr("en = 'The following objects cannot be attached:
-										|%1… and %2 more';");
+										|%1… and %2 more'");
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 				TemplateQuestionText,
 				ErrorString,
@@ -171,17 +171,17 @@ Procedure ExecuteSelectedOption(Command)
 		Else
 			
 			TemplateQuestionText = NStr("en = 'The following objects cannot be attached:
-										|%1';");
+										|%1'");
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(TemplateQuestionText, ErrorString);
 			
 		EndIf;
 		
 		Buttons = New ValueList;
-		Buttons.Add("Cancel", NStr("en = 'Cancel';"));
-		Buttons.Add("Continue", NStr("en = 'Continue';"));
+		Buttons.Add("Cancel", NStr("en = 'Cancel'"));
+		Buttons.Add("Continue", NStr("en = 'Continue'"));
 		
 		QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
-		QuestionParameters.Title = NStr("en = 'Insufficient rights to attach objects';");
+		QuestionParameters.Title = NStr("en = 'Insufficient rights to attach objects'");
 		QuestionParameters.LockWholeInterface = True;
 		QuestionParameters.PromptDontAskAgain = False;
 		
@@ -214,7 +214,7 @@ EndProcedure
 &AtServer
 Procedure ConfigureActionOptionsAvailability(PrintObjects, Var_Parameters)
 	
-	// настройка видимости
+	// Visibility settings
 	CanBeSaved = (PrintObjects.Count() > 0);
 	
 	AttachmentObjects = ObjectsToAttach(PrintObjects);
@@ -265,7 +265,7 @@ Procedure ConfigureActionOptionsAvailability(PrintObjects, Var_Parameters)
 	If PrintObjects.Count() > 1
 	   And AttachableItem <> Undefined Then
 		
-		Template = NStr("en = 'Attach to documents (%1)';");
+		Template = NStr("en = 'Attach to documents (%1)'");
 		QuantityByString = Format(PrintObjects.Count(), "NFD=0;");
 		AttachableItem.Presentation = StringFunctionsClientServer.SubstituteParametersToString(
 			Template,
@@ -321,11 +321,11 @@ Function ObjectsToAttach(PrintObjects)
 EndFunction
 
 // Parameters:
-//  PrintManagerName - String - 
+//  PrintManagerName - String - Print manager for the objects being exported.
 //  TemplatesNames       - String - Print form IDs.
 //  ObjectsArray     - AnyRef
 //                     - Array of AnyRef - Print objects.
-//  Var_FormOwner      - ClientApplicationForm - 
+//  Var_FormOwner      - ClientApplicationForm - Source form.
 //  CommandDetails    - Structure - Arbitrary parameters to pass to the print manager.
 //
 &AtClient
@@ -406,7 +406,7 @@ Procedure ExecuteExportingToFileCommandCompletion(ResultAddress, PrintParameters
 				ModuleFilesOperationsInternalClient.NotifyOfFilesModification(WrittenObjects);
 			EndIf;
 			
-			ShowUserNotification(,, NStr("en = 'Saved';"), PictureLib.Information32);
+			ShowUserNotification(,, NStr("en = 'Saved'"), PictureLib.Information32);
 			
 		EndIf;
 		
@@ -487,7 +487,7 @@ Procedure SavePrintFormsToDirectory(FilesListInTempStorage, Val DirectoryName = 
 	
 EndProcedure
 
-// 
+// Saves a file to the passed directory and notifies about the status of the operation.
 // 
 // Parameters:
 //  FilesListInTempStorage - Array of Structure:
@@ -517,9 +517,9 @@ Procedure WhenPreparingFileNames(FilesListInTempStorage, DirectoryName) Export
 	If ValueIsFilled(DirectoryName) Then
 		
 		NotifyDescription = New CallbackDescription("OpenFolderSaveTo", ThisObject, DirectoryName);
-		Template = NStr("en = 'into %1';");
+		Template = NStr("en = 'into %1'");
 		SavingPath = StringFunctionsClientServer.SubstituteParametersToString(Template, DirectoryName);
-		Text = NStr("en = 'Saved';");
+		Text = NStr("en = 'Saved'");
 		ShowUserNotification(
 			Text,
 			NotifyDescription,
@@ -532,7 +532,7 @@ Procedure WhenPreparingFileNames(FilesListInTempStorage, DirectoryName) Export
 
 EndProcedure
 
-// 
+// Opens the file explorer at the specified path.
 // 
 // Parameters:
 //  DirectoryName - String
@@ -554,7 +554,7 @@ Procedure PrepareFileNamesToSaveToADirectory(PreparationParameters)
 	
 EndProcedure
 
-// 
+// Puts a file to an archive.
 // 
 // Parameters:
 //  DocsPrintForms - Array of Structure
@@ -633,14 +633,14 @@ Function PutFilesToArchive(DocsPrintForms, PresentationToArchive)
 	
 EndFunction
 
-// 
+// Returns the filename for the archive.
 // 
 // Parameters:
 //  TransliterateFilesNames - Boolean
 //  PresentationToArchive - String
 // 
 // Returns:
-//  String - 
+//  String - Filename for the archive.
 // 
 &AtServer
 Function FileNameForArchive(TransliterateFilesNames, PresentationToArchive)
@@ -649,7 +649,7 @@ Function FileNameForArchive(TransliterateFilesNames, PresentationToArchive)
 	If PresentationToArchive <> "" Then
 		Result = PresentationToArchive;
 	Else
-		Result = NStr("en = 'Documents';");
+		Result = NStr("en = 'Documents'");
 	EndIf;
 	
 	If TransliterateFilesNames Then
@@ -675,7 +675,7 @@ Function AttachPrintFormsToObject(Val FilesInTempStorage)
 				FileParameters.FilesOwner = File.UploadObject;
 				FileParameters.BaseName = File.Presentation;
 				AttachedFile = ModuleFilesOperations.AppendFile(
-					FileParameters, File.AddressInTempStorage, , NStr("en = 'Export';"));
+					FileParameters, File.AddressInTempStorage, , NStr("en = 'Export'"));
 				Result.Add(AttachedFile);
 				
 			EndIf;

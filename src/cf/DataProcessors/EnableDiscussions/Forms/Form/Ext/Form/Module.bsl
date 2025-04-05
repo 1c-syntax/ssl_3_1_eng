@@ -133,17 +133,17 @@ Procedure OnReceiveRegistrationCode()
 	EndIf;
 	
 	If IsBlankString(Email) Then 
-		ShowMessageBox(, NStr("en = 'Email address is not filled in';"));
+		ShowMessageBox(, NStr("en = 'Email address is not filled in'"));
 		Return;
 	EndIf;
 	
 	If Not CommonClientServer.EmailAddressMeetsRequirements(Email) Then 
-		ShowMessageBox(, NStr("en = 'The email address contains errors';"));
+		ShowMessageBox(, NStr("en = 'The email address contains errors'"));
 		Return;
 	EndIf;
 	
 	If CollaborationServerChoice = 1 And IsBlankString(CollaborationServerAddress) Then
-		ShowMessageBox(, NStr("en = 'URL of local collaboration server is not specified';"));
+		ShowMessageBox(, NStr("en = 'URL of local collaboration server is not specified'"));
 		Return;
 	EndIf;
 		
@@ -185,7 +185,7 @@ EndProcedure
 Procedure OnRegister()
 	
 	If IsBlankString(RegistrationCode) Then 
-		ShowMessageBox(, NStr("en = 'Registration code is required';"));
+		ShowMessageBox(, NStr("en = 'Registration code is required'"));
 		Return;
 	EndIf;
 	
@@ -237,7 +237,7 @@ Procedure OnRejectConfirmationCodeInput()
 	Notification = New CallbackDescription("AfterConfirmRefuseToEnterConfirmationCode", ThisObject);
 	ShowQueryBox(Notification, 
 		NStr("en = 'If not entered, the code sent to your email will be invalid.
-		           |You can continue only after a new code is requested.';"), 
+		           |You can continue only after a new code is requested.'"), 
 		QuestionDialogMode.OKCancel,, DialogReturnCode.Cancel);
 	
 EndProcedure
@@ -337,7 +337,7 @@ Procedure RefreshCommandBarButtonsVisibility(Form)
 		Form.Items.Back.Visible = False;
 	ElsIf RegistrationState = "UnlockRequired" Then 
 		Form.Items.CreateAccount.Visible = True;
-		Form.Items.CreateAccount.Title = NStr("en = 'Restore connection';");
+		Form.Items.CreateAccount.Title = NStr("en = 'Restore connection'");
 		Form.Items.Back.Visible = False;
 	ElsIf RegistrationState = "NotRegistered1" Then 
 		Form.Items.CreateAccount.Visible = True;
@@ -352,7 +352,7 @@ Procedure RefreshCommandBarButtonsVisibility(Form)
 		Form.Items.CreateAccount.Visible = False;
 		Form.Items.Back.Visible = False;
 		Form.Items.Close.DefaultButton = True;
-		Form.Items.Close.Title = NStr("en = 'Finish';");
+		Form.Items.Close.Title = NStr("en = 'Finish'");
 	EndIf;
 	
 EndProcedure
@@ -360,10 +360,10 @@ EndProcedure
 &AtClientAtServerNoContext
 Procedure UpdateServerChoiceItems(Form)
 	CollaborationServerPresentation = ?(Form.CollaborationServerChoice = 0, 
-		NStr("en = '1C:Dialog';"),
+		NStr("en = '1C:Dialog'"),
 		Form.CollaborationServer);
 	CaptionPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Connect to %1';"),
+		NStr("en = 'Connect to %1'"),
 		CollaborationServerPresentation);
 			
 	CommonClientServer.SetFormItemProperty(

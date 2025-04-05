@@ -16,7 +16,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Verify that the form is opened with the required parameters
 	If Not Parameters.Property("FieldList") Then
 		
-		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
+		Raise NStr("en = 'This is a dependent form and opens from a different form.'", Common.DefaultLanguageCode());
 		
 	EndIf;
 	
@@ -35,7 +35,7 @@ Procedure Apply(Command)
 	
 	If MarkedListItemArray.Count() = 0 Then
 		
-		NString = NStr("en = 'Specify at least one field';");
+		NString = NStr("en = 'Specify at least one field'");
 		
 		CommonClient.MessageToUser(NString,,"FieldList");
 		

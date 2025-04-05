@@ -26,7 +26,7 @@ Procedure LoadKeyOperationsProfile(Command)
 		ModuleFileSystemClient = Eval("FileSystemClient");
 		If TypeOf(ModuleFileSystemClient) = Type("CommonModule") Then
 			ImportParameters = ModuleFileSystemClient.FileImportParameters();
-			ImportParameters.Dialog.Title = NStr("en = 'Select file of key operation profile';");
+			ImportParameters.Dialog.Title = NStr("en = 'Select file of key operation profile'");
 			ImportParameters.Dialog.Filter = "Files profile2 key operations (*.xml)|*.xml";
 			
 			NotifyDescription = New CallbackDescription("FileDialogCompletion", ThisObject, Undefined);
@@ -35,7 +35,7 @@ Procedure LoadKeyOperationsProfile(Command)
 	Else          		
 		AdditionalParameters = New Structure("Mode, Title, ClosingNotification1",  
 		FileDialogMode.Open, 
-		NStr("en = 'Select file of key operation profile';"),
+		NStr("en = 'Select file of key operation profile'"),
 		New CallbackDescription("FileDialogCompletion", ThisObject, Undefined));  
 #If WebClient Then
 			Notification = New CallbackDescription("BeginAttachingFileSystemExtensionCompletion", ThisObject,
@@ -55,14 +55,14 @@ Procedure SaveKeyOperationsProfile(Command)
 		ModuleFileSystemClient = Eval("FileSystemClient");
 		If TypeOf(ModuleFileSystemClient) = Type("CommonModule") Then
 			SavingParameters = ModuleFileSystemClient.FileSavingParameters();
-			SavingParameters.Dialog.Title = NStr("en = 'Save key operation profile to file';");
+			SavingParameters.Dialog.Title = NStr("en = 'Save key operation profile to file'");
 			SavingParameters.Dialog.Filter = "Files profile2 key operations (*.xml)|*.xml";  		
 			ModuleFileSystemClient.SaveFile(New CallbackDescription("SaveFileDialogCompletion", ThisObject, Undefined), SaveKeyOperationsProfileToServer(), , SavingParameters);
 		EndIf;
 	Else              		
 		AdditionalParameters = New Structure("Mode, Title, ClosingNotification1",  
 			FileDialogMode.Save, 
-			NStr("en = 'Save key operation profile to file';"),
+			NStr("en = 'Save key operation profile to file'"),
 			New CallbackDescription("SaveFileDialogCompletion", ThisObject, Undefined));  
 #If WebClient Then
 		Notification = New CallbackDescription("BeginAttachingFileSystemExtensionCompletion", ThisObject,
@@ -99,7 +99,7 @@ Procedure DialogueFileSelectionShow(Result, AdditionalParameters) Export
 		EndIf;
 		
 	Else
-		MessageToUser(NStr("en = 'To manage files, install 1C:Enterprise Extension.';"), "Object");
+		MessageToUser(NStr("en = 'To manage files, install 1C:Enterprise Extension.'"), "Object");
 	EndIf;
 EndProcedure
 
@@ -131,7 +131,7 @@ EndProcedure
 &AtClient
 Procedure SaveFileDialogCompletion(SelectedFiles, AdditionalParameters) Export
     
-	Status(NStr("en = 'The files are saved.';"));
+	Status(NStr("en = 'The files are saved.'"));
     
 EndProcedure
 

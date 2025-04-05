@@ -69,13 +69,13 @@ Procedure OnCreateAtServerListForm(Form, List, Placement = Undefined) Export
 	AttributeListStateReceived.TitleLocation = FormItemTitleLocation.None; 
 	AttributeListStateReceived.ValuesPicture = PictureLib.IconsCollectionSourceDocumentOriginalAvailable;
 	AttributeListStateReceived.HeaderPicture = PictureLib.SourceDocumentOriginalStateOriginalReceived;
-	AttributeListStateReceived.Title = NStr("en = 'Status ""Hard copy received""';");
+	AttributeListStateReceived.Title = NStr("en = 'Status ""Hard copy received""'");
 	AttributeListStateReceived.DataPath = List.Name + ".StateOriginalReceived";
 	
 	AttributeListState = Form.Items.Insert("SourceDocumentOriginalState",Type("FormField"),List,Placement);
 	AttributeListState.Type = FormFieldType.LabelField;
 	AttributeListState.CellHyperlink = True;
-	AttributeListState.Title = NStr("en = 'Original state';");
+	AttributeListState.Title = NStr("en = 'Original state'");
 	AttributeListState.DataPath = List.Name + ".SourceDocumentOriginalState";
 	
 	If Not RightsToChangeState() Then
@@ -155,7 +155,7 @@ Procedure OnGetDataAtServer(ListRows) Export
 				String.Data["SourceDocumentOriginalState"] = Selection.SourceDocumentOriginalState;
 				String.Appearance["SourceDocumentOriginalState"].SetParameterValue("TextColor", ColorOfHyperlink);
 			Else
-				String.Data["SourceDocumentOriginalState"] = NStr("en = '<Unknown>';");
+				String.Data["SourceDocumentOriginalState"] = NStr("en = '<Unknown>'");
 				String.Appearance["SourceDocumentOriginalState"].SetParameterValue("TextColor", InactiveHyperlinkColor);
 			EndIf;
 		EndDo;
@@ -327,7 +327,7 @@ Procedure SetConditionalAppearanceInListForm(Form, List) Export
 	FilterElement.ComparisonType = DataCompositionComparisonType.NotFilled;
 	FilterElement.Use = True;
 
-	AppearanceItem.Appearance.SetParameterValue("Text", NStr("en = '<Unknown>';"));
+	AppearanceItem.Appearance.SetParameterValue("Text", NStr("en = '<Unknown>'"));
 	AppearanceItem.Appearance.SetParameterValue("TextColor",  StyleColors.InaccessibleCellTextColor);
 	AppearanceItem.Use = True;
 	
@@ -421,7 +421,7 @@ EndFunction
 //
 Procedure OutputOriginalStateCommandsToForm(Form, List, OriginalsStates) Export
 	
-	// Check and create a submenu and button list on the list command panel.
+	// Check and create a submenu and button list on the list command bar.
 	Items = Form.Items;
 	Parent = ?(TypeOf(List) = Type("FormTable"), List.CommandBar, Form.CommandBar);
 	Picture = ?(TypeOf(List) = Type("FormTable"), PictureLib.SetSourceDocumentOriginalState,
@@ -432,8 +432,8 @@ Procedure OutputOriginalStateCommandsToForm(Form, List, OriginalsStates) Export
 		SetConfigureOriginalStateSubmenu.Type = FormGroupType.Popup;
 		SetConfigureOriginalStateSubmenu.Representation = ButtonRepresentation.Picture; 
 		SetConfigureOriginalStateSubmenu.Picture  = Picture;
-		SetConfigureOriginalStateSubmenu.Title = NStr("en = 'Set original state';");
-		SetConfigureOriginalStateSubmenu.ToolTip = NStr("en = 'Use these commands to set and change states of source document originals.';");
+		SetConfigureOriginalStateSubmenu.Title = NStr("en = 'Set original state'");
+		SetConfigureOriginalStateSubmenu.ToolTip = NStr("en = 'Use these commands to set and change states of source document originals.'");
 	EndIf;
 	SetConfigureOriginalStateSubmenu = Items.Find("SetConfigureOriginalStateSubmenu");
 	
@@ -455,7 +455,7 @@ Procedure OutputOriginalStateCommandsToForm(Form, List, OriginalsStates) Export
 		SetOriginalReceivedGroup =  Items.Add("SetOriginalReceivedGroup", Type("FormGroup"), 
 			List.CommandBar); 
 		SetOriginalReceivedGroup.Type = FormGroupType.ButtonGroup;
-		SetOriginalReceivedGroup.ToolTip = NStr("en = 'Set the final ""Original received"" state of the source document original.';");
+		SetOriginalReceivedGroup.ToolTip = NStr("en = 'Set the final ""Original received"" state of the source document original.'");
 	EndIf;
 	SetOriginalReceivedGroup = Items.Find("SetOriginalReceivedGroup");
 	
@@ -482,7 +482,7 @@ Procedure OutputOriginalStateCommandsToForm(Form, List, OriginalsStates) Export
 			Command = Form.Commands.Add(CommandName);
 			Command.Action = "Attachable_SetOriginalState";
 
-			// Command panel buttons.
+			// Command bar buttons.
 			SetStateButton = Form.Items.Add(CommandName, Type("FormButton"), SetOriginalStateGroup);
 			SetStateButton.Title = ButtonName;
 			SetStateButton.CommandName = CommandName;
@@ -500,7 +500,7 @@ Procedure OutputOriginalStateCommandsToForm(Form, List, OriginalsStates) Export
 	// Adds a button for identifying the original state by print forms.
 	If TypeOf(List) = Type("Boolean") Then
 		CommandName = "ClarifyByPrintForms";
-		ButtonName = NStr("en = 'Specify for print forms…';");
+		ButtonName = NStr("en = 'Specify for print forms…'");
 
 		If Form.Commands.Find(CommandName) = Undefined Then
 			FormCommand  = Form.Commands.Add(CommandName);
@@ -518,7 +518,7 @@ Procedure OutputOriginalStateCommandsToForm(Form, List, OriginalsStates) Export
 	// Adds a state settings navigation button to the command bar submenu of the "Set state" list.
 	If AccessRight("InteractiveInsert", Metadata.Catalogs.SourceDocumentsOriginalsStates) Then
 		CommandName = "StatesSetup";
-		ButtonName = NStr("en = 'Configure…';");
+		ButtonName = NStr("en = 'Configure…'");
 
 		If Form.Commands.Find(CommandName) = Undefined Then
 			FormCommand  = Form.Commands.Add(CommandName);
@@ -533,13 +533,13 @@ Procedure OutputOriginalStateCommandsToForm(Form, List, OriginalsStates) Export
 		
 	EndIf;
 
-	// Adds button "Set original received" on the list command panel. 
+	// Adds the "Set original received" button to the list command bar. 
 	CommandName = "SettingStateOriginalReceived";
 	If Form.Commands.Find(CommandName) = Undefined And Not TypeOf(List) = Type("Boolean") Then
 		FormCommand  = Form.Commands.Add(CommandName);
 		FormCommand.Action = "Attachable_SetOriginalState";
-		FormCommand.Title = NStr("en = 'Set ""Original received""';");
-		FormCommand.ToolTip = NStr("en = 'Set ""Original received""';");
+		FormCommand.Title = NStr("en = 'Set ""Original received""'");
+		FormCommand.ToolTip = NStr("en = 'Set ""Original received""'");
 		
 		NewButton = Form.Items.Add("Button" + CommandName , Type("FormButton"), SetOriginalReceivedGroup);
 		NewButton.Picture = PictureLib.SourceDocumentOriginalStateOriginalReceived;
@@ -561,13 +561,13 @@ Function StateHyperlinkPresentation(Document) Export
 	ReferencesArrray = CommonClientServer.ValueInArray(Document);
 	UnpostedDocuments = Common.CheckDocumentsPosting(ReferencesArrray);
 	If UnpostedDocuments.Count() > 0 Then
-		CurrentOriginalState = NStr("en = '<Original state is unknown>';");
+		CurrentOriginalState = NStr("en = '<Original state is unknown>'");
 		Return CurrentOriginalState;
 	EndIf;
 	
 	CurrentOriginalState = OriginalStateInfoByRef(Document);
 	If CurrentOriginalState.Count() = 0 Then
-		CurrentOriginalState=NStr("en = '<Original state is unknown>';");
+		CurrentOriginalState=NStr("en = '<Original state is unknown>'");
 	Else
 		CurrentOriginalState = CurrentOriginalState.SourceDocumentOriginalState;
 	EndIf;
@@ -660,7 +660,7 @@ Procedure WriteDocumentOriginalStateByPrintForms(Document, PrintForm, Presentati
 		EmployeeView = StrFind(Presentation, LastFirstName);
 		If EmployeeView = 0 Then
 			OriginalStateRecord.SourceDocumentPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 %2';"), Presentation, LastFirstName);
+				NStr("en = '%1 %2'"), Presentation, LastFirstName);
 		Else
 			OriginalStateRecord.SourceDocumentPresentation = Presentation;
 		EndIf;
@@ -731,8 +731,8 @@ Procedure WriteCommonDocumentOriginalState(Document, State) Export
 	OriginalStateRecord.LastChangeDate = CurrentSessionDate();
 	OriginalStateRecord.Write();
 	
-	SSLSubsystemsIntegration.OnChangeAggregatedOriginalState(Document, State);
-	SourceDocumentsOriginalsRecordingOverridable.OnChangeAggregatedOriginalState(Document, State);
+	SSLSubsystemsIntegration.OnChangeAggregatedOriginalState(Document, OriginalState);
+	SourceDocumentsOriginalsRecordingOverridable.OnChangeAggregatedOriginalState(Document, OriginalState);
 	
 EndProcedure
 
@@ -754,7 +754,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Id = New UUID("35320bc5-3ec6-4036-9253-ee5c507531e3");
 	Handler.Procedure = "Catalogs.SourceDocumentsOriginalsStates.ProcessDataForMigrationToNewVersion";
 	Handler.Comment = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Repopulate internal attribute %1 to prevent misordering.';"),
+		NStr("en = 'Repopulate internal attribute %1 to prevent misordering.'"),
 		"AddlOrderingAttribute");
 	Handler.ExecutionMode = "Deferred";
 	Handler.UpdateDataFillingProcedure = "Catalogs.SourceDocumentsOriginalsStates.RegisterDataToProcessForMigrationToNewVersion";
@@ -803,14 +803,14 @@ Procedure OnDefineAttachableCommandsKinds(AttachableCommandsKinds) Export
 	Kind = AttachableCommandsKinds.Add();
 	Kind.Name         = "SettingOriginalState";
 	Kind.SubmenuName  = "SetConfigureOriginalStateSubmenu";
-	Kind.Title   = NStr("en = 'Set original state';");
+	Kind.Title   = NStr("en = 'Set original state'");
 	Kind.Picture    = PictureLib.SetSourceDocumentOriginalState;
 	Kind.Representation = ButtonRepresentation.Picture;
 	
 	Kind = AttachableCommandsKinds.Add();
 	Kind.Name         = "SettingStateOriginalReceived";
 	Kind.SubmenuName  = "SetStateOriginalReceived";
-	Kind.Title   = NStr("en = 'Set ""Original received"" state';");
+	Kind.Title   = NStr("en = 'Set ""Original received"" state'");
 	Kind.Picture    = PictureLib.SourceDocumentOriginalStateOriginalReceived;	
 	Kind.Representation = ButtonRepresentation.Picture;
 
@@ -893,7 +893,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	Command.Kind = "SettingOriginalState";
 	Command.Order = Order; 
 	Command.Id = "ClarifyByPrintForms";
-	Command.Presentation = NStr("en = 'Specify for print forms…';");
+	Command.Presentation = NStr("en = 'Specify for print forms…'");
 	Command.Picture = PictureLib.SetSourceDocumentOriginalStateByPrintForms;
 	Command.Purpose = "ForObject";
 	Command.ParameterType = Metadata.DefinedTypes.ObjectWithSourceDocumentsOriginalsAccounting.Type;
@@ -907,7 +907,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 		Command = Commands.Add();
 		Command.Kind = "SettingOriginalState";
 		Command.Id = "StatesSetup";
-		Command.Presentation = NStr("en = 'Configure…';");
+		Command.Presentation = NStr("en = 'Configure…'");
 		Command.Importance = "SeeAlso";
 		Command.Picture = PictureLib.ConfigureSourceDocumentOriginalStates;
 		Command.ParameterType = Metadata.DefinedTypes.ObjectWithSourceDocumentsOriginalsAccounting.Type;
@@ -918,11 +918,11 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	
 	Description = String(Catalogs.SourceDocumentsOriginalsStates.OriginalReceived);
 
-	// Command "Set original received" on the list command panel. 
+	// Command "Set original received" on the list command bar. 
 	Command = Commands.Add();
 	Command.Kind = "SettingStateOriginalReceived";
 	Command.Id = "SettingStateOriginalReceived";
-	Command.Presentation = StringFunctionsClientServer.InsertParametersIntoString(NStr("en = 'Set the ""[Description]"" state';"),
+	Command.Presentation = StringFunctionsClientServer.InsertParametersIntoString(NStr("en = 'Set the ""[Description]"" state'"),
 																							New Structure("Description",Description));
 	Command.ButtonRepresentation = ButtonRepresentation.Picture;
 	Command.Picture = PictureLib.SourceDocumentOriginalStateOriginalReceived;
@@ -967,7 +967,7 @@ Procedure BeforeItemMoved(ItemToMove, AdjacentElement, Direction, ErrorText,
 		Or (ItemToMove = ItemFormPrinted And MovingDown) Then
 		StandardProcessing = False;
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" state is the initial state. No other states can be set before it.';"),
+			NStr("en = 'The ""%1"" state is the initial state. No other states can be set before it.'"),
 			ItemFormPrinted);
 	EndIf;
 	
@@ -975,7 +975,7 @@ Procedure BeforeItemMoved(ItemToMove, AdjacentElement, Direction, ErrorText,
 		Or (ItemToMove = ItemOriginalReceived And MovingUp) Then
 		StandardProcessing = False;
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" state is the final state. No other states can be set after it.';"),
+			NStr("en = 'The ""%1"" state is the final state. No other states can be set after it.'"),
 			ItemOriginalReceived);
 	EndIf;
 	
@@ -1033,13 +1033,13 @@ Procedure ConfigureHyperlinkOnDocumentForm(Form, Placement)
 	If ValueIsFilled(Form.Object.Ref) Then
 		CurrentOriginalState = OriginalStateInfoByRef(Form.Object.Ref);
 		If CurrentOriginalState.Count() = 0 Then
-			CurrentOriginalState=NStr("en = '<Original state is unknown>';");
+			CurrentOriginalState=NStr("en = '<Original state is unknown>'");
 			OriginalStateDecoration.TextColor = StyleColors.InaccessibleCellTextColor;
 		Else
 			CurrentOriginalState = CurrentOriginalState.SourceDocumentOriginalState;
 		EndIf;
 	Else
-		CurrentOriginalState=NStr("en = '<Original state is unknown>';");
+		CurrentOriginalState=NStr("en = '<Original state is unknown>'");
 		OriginalStateDecoration.TextColor = StyleColors.InaccessibleCellTextColor;
 	EndIf;
 
@@ -1482,7 +1482,7 @@ Function RefBySpreadsheetDocumentBarcode(Barcode, Managers = Undefined)
 				ObjectsManagers.Add(ChartsOfCharacteristicTypes[EmptyRef.Metadata().Name]);
 				
 			Else
-				ExceptionText = NStr("en = 'Barcode recognition error: type ""%Type%"" is not supported.';");
+				ExceptionText = NStr("en = 'Unknown barcode type: %Type%.'");
 				ExceptionText = StrReplace(ExceptionText, "%Type%", RefType);				
 				Raise ExceptionText;
 			EndIf;
@@ -1591,24 +1591,24 @@ Procedure WriteSourceDocumentOriginalState() Export
 
 	OriginalState = Catalogs.SourceDocumentsOriginalsStates.FormPrinted.GetObject();
 	LockDataForEdit(OriginalState.Ref);
-	OriginalState.Description = NStr("en = 'Form printed';", Common.DefaultLanguageCode());
-	OriginalState.LongDesc = NStr("en = 'State that means that the print form was printed only.';", 
+	OriginalState.Description = NStr("en = 'Form printed'", Common.DefaultLanguageCode());
+	OriginalState.LongDesc = NStr("en = 'State that means that the print form was printed only.'", 
 		Common.DefaultLanguageCode());
 	OriginalState.AddlOrderingAttribute = 1;
 	InfobaseUpdate.WriteObject(OriginalState);
 
 	OriginalState = Catalogs.SourceDocumentsOriginalsStates.OriginalsNotAll.GetObject();
 	LockDataForEdit(OriginalState.Ref);
-	OriginalState.Description = NStr("en = 'Not all originals';", Common.DefaultLanguageCode());
-	OriginalState.LongDesc = NStr("en = 'The aggregated state of a document whose print forms have different states.';", 
+	OriginalState.Description = NStr("en = 'Not all originals'", Common.DefaultLanguageCode());
+	OriginalState.LongDesc = NStr("en = 'The aggregated state of a document whose print forms have different states.'", 
 		Common.DefaultLanguageCode());
 	OriginalState.AddlOrderingAttribute = 99998;
 	InfobaseUpdate.WriteObject(OriginalState);
 
 	OriginalState = Catalogs.SourceDocumentsOriginalsStates.OriginalReceived.GetObject();
 	LockDataForEdit(OriginalState.Ref);
-	OriginalState.Description = NStr("en = 'Original received';", Common.DefaultLanguageCode());
-	OriginalState.LongDesc = NStr("en = 'State that means that the signed print form original is available.';", 
+	OriginalState.Description = NStr("en = 'Original received'", Common.DefaultLanguageCode());
+	OriginalState.LongDesc = NStr("en = 'State that means that the signed print form original is available.'", 
 		Common.DefaultLanguageCode());
 	OriginalState.AddlOrderingAttribute = 99999;
 	InfobaseUpdate.WriteObject(OriginalState);

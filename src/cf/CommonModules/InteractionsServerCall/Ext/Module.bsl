@@ -240,14 +240,14 @@ EndFunction
 Function SendReceiveUserEmailInBackground(UUID) Export
 	
 	If Interactions.BackgroundJobReceivingSendingMailInProgress() Then
-		Common.MessageToUser(NStr("en = 'Mail synchronization in progress. Please wait…';"));
+		Common.MessageToUser(NStr("en = 'Mail synchronization in progress. Please wait…'"));
 		Return Undefined;
 	EndIf;
 	
 	ProcedureParameters = New Structure;
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Mail Sync';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Mail Sync'");
 	
 	TimeConsumingOperation = TimeConsumingOperations.ExecuteInBackground("EmailManagement.SendReceiveUserEmail",
 		ProcedureParameters,	ExecutionParameters);

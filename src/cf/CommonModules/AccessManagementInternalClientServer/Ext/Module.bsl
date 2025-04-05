@@ -119,11 +119,11 @@ Procedure FillAllAllowedPresentation(Form, AccessKindDetails, AddValuesCount = T
 	
 	If Form.IsAccessGroupProfile Then
 		If ValuesCount = 0 Then
-			NumberAndSubject = NStr("en = 'not assigned';");
+			NumberAndSubject = NStr("en = 'not assigned'");
 		Else
 			NumberAndSubject = Format(ValuesCount, "NG=") + " "
 				+ UsersInternalClientServer.IntegerSubject(ValuesCount,
-					"", NStr("en = 'value,values,,,0';"));
+					"", NStr("en = 'value,values,,,0'"));
 		EndIf;
 		
 		AccessKindDetails.AllAllowedPresentation =
@@ -134,17 +134,17 @@ Procedure FillAllAllowedPresentation(Form, AccessKindDetails, AddValuesCount = T
 	
 	If ValuesCount = 0 Then
 		Presentation = ?(AccessKindDetails.AllAllowed,
-			NStr("en = 'All allowed, no exceptions';"),
-			NStr("en = 'All denied, no exceptions';"));
+			NStr("en = 'All allowed, no exceptions'"),
+			NStr("en = 'All denied, no exceptions'"));
 	Else
 		NumberAndSubject = Format(ValuesCount, "NG=") + " "
 			+ UsersInternalClientServer.IntegerSubject(ValuesCount,
-				"", NStr("en = 'value,values,,,0';"));
+				"", NStr("en = 'value,values,,,0'"));
 		
 		Presentation = StringFunctionsClientServer.SubstituteParametersToString(
 			?(AccessKindDetails.AllAllowed,
-				NStr("en = 'All allowed, except %1';"),
-				NStr("en = 'All denied, except %1';")),
+				NStr("en = 'All allowed, except %1'"),
+				NStr("en = 'All denied, except %1'")),
 			NumberAndSubject);
 	EndIf;
 	
@@ -246,12 +246,12 @@ Procedure OnChangeCurrentAccessKind(Form, ProcessingAtClient = True) Export
 		 Or CurrentData.AccessKind = Form.AccessKindExternalUsers Then
 			
 			LabelPattern = ?(CurrentData.AllAllowed,
-				NStr("en = 'Forbidden values (%1): Authorized user and their groups are always allowed';"),
-				NStr("en = 'Allowed values (%1): Authorized user and their groups are always allowed';") );
+				NStr("en = 'Forbidden values (%1): Authorized user and their groups are always allowed'"),
+				NStr("en = 'Allowed values (%1): Authorized user and their groups are always allowed'") );
 		Else
 			LabelPattern = ?(CurrentData.AllAllowed,
-				NStr("en = 'Denied values (%1)';"),
-				NStr("en = 'Allowed values (%1)';") );
+				NStr("en = 'Denied values (%1)'"),
+				NStr("en = 'Allowed values (%1)'") );
 		EndIf;
 		
 		// Refresh the field AccessKindLabel.
@@ -304,7 +304,7 @@ Procedure OnChangeCurrentAccessKind(Form, ProcessingAtClient = True) Export
 	EndIf;
 	
 	If Form.CurrentTypesOfValuesToSelect.Count() = 0 Then
-		Form.CurrentTypesOfValuesToSelect.Add(Undefined, NStr("en = 'Undefined';"));
+		Form.CurrentTypesOfValuesToSelect.Add(Undefined, NStr("en = 'Undefined'"));
 	EndIf;
 	
 	Items.AccessValues.Enabled = CanEditValues;
@@ -466,10 +466,10 @@ Procedure ProcessingOfCheckOfFillingAtServerAllowedValuesEditForm(
 		If AccessKindRow.AccessKind = Undefined Then
 			CommonClientServer.AddUserError(Errors,
 				Parameters.PathToTables + "AccessKinds[%1].AccessKind",
-				NStr("en = 'The access kind is not selected.';"),
+				NStr("en = 'The access kind is not selected.'"),
 				"AccessKinds",
 				AccessKinds.Find(AccessKindRow),
-				NStr("en = 'No access kind selected in line #%1.';"),
+				NStr("en = 'No access kind selected in line #%1.'"),
 				Parameters.AccessKinds.IndexOf(AccessKindRow));
 			Cancel = True;
 			Continue;
@@ -481,11 +481,11 @@ Procedure ProcessingOfCheckOfFillingAtServerAllowedValuesEditForm(
 			
 			CommonClientServer.AddUserError(Errors,
 				Parameters.PathToTables + "AccessKinds[%1].AccessKind",
-				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Access kind ""%1"" does not match the profile assignment.';"),
+				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Access kind ""%1"" does not match the profile assignment.'"),
 					AccessKindRow.AccessKindPresentation),
 				"AccessKinds",
 				AccessKinds.Find(AccessKindRow),
-				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Access kind ""%1"" in line #%2 does not match the profile assignment.';"),
+				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Access kind ""%1"" in line #%2 does not match the profile assignment.'"),
 					AccessKindRow.AccessKindPresentation, "%1"),
 				Parameters.AccessKinds.IndexOf(AccessKindRow));
 			Cancel = True;
@@ -499,11 +499,11 @@ Procedure ProcessingOfCheckOfFillingAtServerAllowedValuesEditForm(
 		If FoundAccessKinds.Count() > 1 Then
 			CommonClientServer.AddUserError(Errors,
 				Parameters.PathToTables + "AccessKinds[%1].AccessKind",
-				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Duplicate access kind: ""%1"".';"),
+				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Duplicate access kind: ""%1"".'"),
 					AccessKindRow.AccessKindPresentation),
 				"AccessKinds",
 				AccessKinds.Find(AccessKindRow),
-				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Duplicate access kind ""%1"" in line #%2.';"),
+				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Duplicate access kind ""%1"" in line #%2.'"),
 					AccessKindRow.AccessKindPresentation, "%1"),
 				Parameters.AccessKinds.IndexOf(AccessKindRow));
 			Cancel = True;
@@ -527,10 +527,10 @@ Procedure ProcessingOfCheckOfFillingAtServerAllowedValuesEditForm(
 				
 				CommonClientServer.AddUserError(Errors,
 					Parameters.PathToTables + "AccessValues[%1].AccessValue",
-					NStr("en = 'No value is selected.';"),
+					NStr("en = 'No value is selected.'"),
 					"AccessValues",
 					AccessValues.Find(AccessValueRow),
-					NStr("en = 'No value selected in line #%1.';"),
+					NStr("en = 'No value selected in line #%1.'"),
 					Parameters.AccessValues.IndexOf(AccessValueRow));
 				Cancel = True;
 				Continue;
@@ -546,10 +546,10 @@ Procedure ProcessingOfCheckOfFillingAtServerAllowedValuesEditForm(
 				
 				CommonClientServer.AddUserError(Errors,
 					Parameters.PathToTables + "AccessValues[%1].AccessValue",
-					NStr("en = 'Duplicate value.';"),
+					NStr("en = 'Duplicate value.'"),
 					"AccessValues",
 					AccessValues.Find(AccessValueRow),
-					NStr("en = 'Duplicate value in line #%1.';"),
+					NStr("en = 'Duplicate value in line #%1.'"),
 					Parameters.AccessValues.IndexOf(AccessValueRow));
 				Cancel = True;
 				Continue;
@@ -685,32 +685,32 @@ EndFunction
 // For internal use only.
 Procedure AddMetadataObjectCollectionWithRights(Collections) Export
 	
-	Collections.Add("Subsystems",              NStr("en = 'Subsystems';"));
-	Collections.Add("SessionParameters",         NStr("en = 'Session parameters';"));
-	Collections.Add("CommonAttributes",          NStr("en = 'Common attributes';"));
-	Collections.Add("ExchangePlans",             NStr("en = 'Exchange plans';"));
-	Collections.Add("FilterCriteria",          NStr("en = 'Filter criteria';"));
-	Collections.Add("CommonForms",              NStr("en = 'Common forms';"));
-	Collections.Add("CommonCommands",            NStr("en = 'Common commands';"));
-	Collections.Add("WebServices",              NStr("en = 'Web services';"));
-	Collections.Add("HTTPServices",             NStr("en = 'HTTP services';"));
-	Collections.Add("Constants",               NStr("en = 'Constants';"));
-	Collections.Add("Catalogs",             NStr("en = 'Catalogs';"));
-	Collections.Add("Documents",               NStr("en = 'Documents';"));
-	Collections.Add("DocumentJournals",       NStr("en = 'Document journals';"));
-	Collections.Add("Enums",            NStr("en = 'Enumerations';"));
-	Collections.Add("Reports",                  NStr("en = 'Reports';"));
-	Collections.Add("DataProcessors",               NStr("en = 'Data processors';"));
-	Collections.Add("ChartsOfCharacteristicTypes", NStr("en = 'Charts of characteristic types';"));
-	Collections.Add("ChartsOfAccounts",             NStr("en = 'Charts of accounts';"));
-	Collections.Add("ChartsOfCalculationTypes",       NStr("en = 'Charts of calculation types';"));
-	Collections.Add("InformationRegisters",        NStr("en = 'Information registers';"));
-	Collections.Add("AccumulationRegisters",      NStr("en = 'Accumulation registers';"));
-	Collections.Add("AccountingRegisters",     NStr("en = 'Accounting registers';"));
-	Collections.Add("CalculationRegisters",         NStr("en = 'Calculation registers';"));
-	Collections.Add("BusinessProcesses",          NStr("en = 'Business processes';"));
-	Collections.Add("Tasks",                  NStr("en = 'Tasks';"));
-	Collections.Add("ExternalDataSources",  NStr("en = 'External data sources';"));
+	Collections.Add("Subsystems",              NStr("en = 'Subsystems'"));
+	Collections.Add("SessionParameters",         NStr("en = 'Session parameters'"));
+	Collections.Add("CommonAttributes",          NStr("en = 'Common attributes'"));
+	Collections.Add("ExchangePlans",             NStr("en = 'Exchange plans'"));
+	Collections.Add("FilterCriteria",          NStr("en = 'Filter criteria'"));
+	Collections.Add("CommonForms",              NStr("en = 'Common forms'"));
+	Collections.Add("CommonCommands",            NStr("en = 'Common commands'"));
+	Collections.Add("WebServices",              NStr("en = 'Web services'"));
+	Collections.Add("HTTPServices",             NStr("en = 'HTTP services'"));
+	Collections.Add("Constants",               NStr("en = 'Constants'"));
+	Collections.Add("Catalogs",             NStr("en = 'Catalogs'"));
+	Collections.Add("Documents",               NStr("en = 'Documents'"));
+	Collections.Add("DocumentJournals",       NStr("en = 'Document journals'"));
+	Collections.Add("Enums",            NStr("en = 'Enumerations'"));
+	Collections.Add("Reports",                  NStr("en = 'Reports'"));
+	Collections.Add("DataProcessors",               NStr("en = 'Data processors'"));
+	Collections.Add("ChartsOfCharacteristicTypes", NStr("en = 'Charts of characteristic types'"));
+	Collections.Add("ChartsOfAccounts",             NStr("en = 'Charts of accounts'"));
+	Collections.Add("ChartsOfCalculationTypes",       NStr("en = 'Charts of calculation types'"));
+	Collections.Add("InformationRegisters",        NStr("en = 'Information registers'"));
+	Collections.Add("AccumulationRegisters",      NStr("en = 'Accumulation registers'"));
+	Collections.Add("AccountingRegisters",     NStr("en = 'Accounting registers'"));
+	Collections.Add("CalculationRegisters",         NStr("en = 'Calculation registers'"));
+	Collections.Add("BusinessProcesses",          NStr("en = 'Business processes'"));
+	Collections.Add("Tasks",                  NStr("en = 'Tasks'"));
+	Collections.Add("ExternalDataSources",  NStr("en = 'External data sources'"));
 	
 EndProcedure
 

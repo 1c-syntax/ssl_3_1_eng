@@ -25,7 +25,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ElsIf ValueIsFilled(Parameters.FullTabularSectionName) Then
 		ImportType = "TabularSection";
 	ElsIf Not Users.IsFullUser() Then
-		Raise(NStr("en = 'Insufficient rights to import data from spreadsheets';"),
+		Raise(NStr("en = 'Insufficient rights to import data from spreadsheets'"),
 			ErrorCategory.AccessViolation);
 	EndIf;	
 	
@@ -108,13 +108,13 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
 	Cancel = Cancel Or (FormClosingConfirmation <> True);
 	If Exit Then
-		WarningText = NStr("en = 'The data that you entered will be lost.';");
+		WarningText = NStr("en = 'The data that you entered will be lost.'");
 		Return;
 	EndIf;
 		
 	If Cancel Then
 		Notification = New CallbackDescription("FormClosingCompletion1", ThisObject);
-		QueryText = NStr("en = 'Changes are not saved. Close the form?';");
+		QueryText = NStr("en = 'Changes are not saved. Close the form?'");
 		ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo);
 	Else
 		If OpenCatalogAfterCloseWizard Then 
@@ -328,7 +328,7 @@ EndProcedure
 &AtClient
 Procedure CancelMapping(Command)
 	Notification = New CallbackDescription("AfterCancelMappingPrompt", ThisObject);
-	ShowQueryBox(Notification, NStr("en = 'Do you want to clear the mapping?';"), QuestionDialogMode.YesNo);
+	ShowQueryBox(Notification, NStr("en = 'Do you want to clear the mapping?'"), QuestionDialogMode.YesNo);
 EndProcedure
 
 &AtClient
@@ -386,7 +386,7 @@ Procedure StepBack()
 		
 		Items.WizardPages.CurrentPage = Items.SelectCatalogToImport;
 		Items.Back.Visible = False;
-		Title = NStr("en = 'Import data to catalog';");
+		Title = NStr("en = 'Import data to catalog'");
 		ClearTable();
 		
 	ElsIf Items.WizardPages.CurrentPage = Items.DataToImportMapping
@@ -400,7 +400,7 @@ Procedure StepBack()
 		Items.Next.Visible = True;
 		Items.Next.Enabled = True;
 		Items.Next.Title = ?(ImportType = "PastingFromClipboard",
-				NStr("en = 'Add to list';"), NStr("en = 'Next >';"));
+				NStr("en = 'Add to list'"), NStr("en = 'Next >'"));
 		
 		If ImportType = "TabularSection" Or ImportType = "PastingFromClipboard" Then
 			Items.Back.Visible = False;
@@ -458,7 +458,6 @@ EndProcedure
 
 #Region Private
 
-/////////////////////////////////////// КЛИЕНТ ///////////////////////////////////////////
 
 // Ending the form closing dialog.
 &AtClient
@@ -488,9 +487,9 @@ Procedure ProceedToNextStepOfDataImport()
 	ElsIf Items.WizardPages.CurrentPage = Items.MappingResults Then
 		Items.WizardPages.CurrentPage = Items.DataToImportMapping;
 		Items.AddToList.Visible = False;
-		Items.Next.Title = NStr("en = 'Add to list';");
+		Items.Next.Title = NStr("en = 'Add to list'");
 		Items.Next.DefaultButton = True;
-		Items.Back.Title = NStr("en = '< To beginning';");
+		Items.Back.Title = NStr("en = '< To beginning'");
 	ElsIf Items.WizardPages.CurrentPage = Items.DataToImportMapping Then
 		Items.AddToList.Visible = False;
 		FormClosingConfirmation = True;
@@ -499,15 +498,15 @@ Procedure ProceedToNextStepOfDataImport()
 			Rows = DataMappingTable.FindRows(Filter);
 			If Rows.Count() > 0 Then
 				Notification = New CallbackDescription("AfterAddToTabularSectionPrompt", ThisObject);
-				ShowQueryBox(Notification, NStr("en = 'Rows that contain empty required cells will be skipped.';")
-					+ Chars.LF + NStr("en = 'Do you want to continue?';"), QuestionDialogMode.YesNo);
+				ShowQueryBox(Notification, NStr("en = 'Rows that contain empty required cells will be skipped.'")
+					+ Chars.LF + NStr("en = 'Do you want to continue?'"), QuestionDialogMode.YesNo);
 				Return;
 			EndIf;
 			
 			ImportedDataAddress = MappingTableAddressInStorage();
 			Close(ImportedDataAddress);
 		ElsIf ImportType = "PastingFromClipboard" Then
-			Items.Back.Title = NStr("en = '< To beginning';");
+			Items.Back.Title = NStr("en = '< To beginning'");
 			CloseFormAndReturnRefArray();
 		Else
 			Items.WizardPages.CurrentPage = Items.TimeConsumingOperations;
@@ -557,7 +556,7 @@ Procedure RunMapping()
 	ItemsMappedByColumnsCount = 0;
 	ColumnsList = "";
 	ExecuteMappingBySelectedAttribute(ItemsMappedByColumnsCount, ColumnsList);
-	ShowUserNotification(NStr("en = 'Mapping completed';"),, NStr("en = 'Items mapped:';") + " " + String(ItemsMappedByColumnsCount));
+	ShowUserNotification(NStr("en = 'Mapping completed'"),, NStr("en = 'Items mapped:'") + " " + String(ItemsMappedByColumnsCount));
 	ShowMappingStatisticsImportFromFile();
 EndProcedure
 
@@ -609,24 +608,24 @@ Procedure ShowMappingStatisticsImportFromFile()
 	
 	Statistics = MappingStatistics();
 	
-	AllText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All (%1)';"), Statistics.Total);
+	AllText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All (%1)'"), Statistics.Total);
 	
-	Items.CreateIfUnmapped.Title = NStr("en = 'Unmapped items (';") + Statistics.Incomparable + ")";
-	Items.UpdateExistingItems.Title       = NStr("en = 'Mapped items (';") + String(Statistics.Mapped2) + ")";
+	Items.CreateIfUnmapped.Title = NStr("en = 'Unmapped items ('") + Statistics.Incomparable + ")";
+	Items.UpdateExistingItems.Title       = NStr("en = 'Mapped items ('") + String(Statistics.Mapped2) + ")";
 	
 	ChoiceList = Items.MappingTableFilter.ChoiceList;
 	ChoiceList.Clear();
 	ChoiceList.Add("All", AllText, True);
-	ChoiceList.Add("Unmapped", StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Unmapped items (%1 out of %2)';"),
+	ChoiceList.Add("Unmapped", StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Unmapped items (%1 out of %2)'"),
 		Statistics.Incomparable, Statistics.Total));
-	ChoiceList.Add("Mapped1", StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Mapped items (%1 out of %2)';"),
+	ChoiceList.Add("Mapped1", StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Mapped items (%1 out of %2)'"),
 		Statistics.Mapped2, Statistics.Total));
-	ChoiceList.Add("Ambiguous", StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Ambiguous items (%1 out of %2)';"),
+	ChoiceList.Add("Ambiguous", StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Ambiguous items (%1 out of %2)'"),
 		Statistics.Ambiguous1, Statistics.Total));
 	
 	If Statistics.Ambiguous1 > 0 Then
 		Items.ConflictDetails.Visible = True;
-		Items.ConflictDetails.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '(conflicts: %1)';"),
+		Items.ConflictDetails.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '(conflicts: %1)'"),
 			Statistics.Ambiguous1);
 	Else
 		Items.ConflictDetails.Visible = False;
@@ -647,7 +646,7 @@ Procedure ExportTemplateToFileCompletion(Attached, AdditionalParameters) Export
 		Notification = New CallbackDescription("AfterFileChoiceForSaving", ThisObject);
 		FileName = GenerateFileNameForMetadataObject(MappingObjectName);
 		FileDialog = New FileDialog(FileDialogMode.Save);
-		FileDialog.Filter                      = NStr("en = 'Excel Workbook 97 (*.xls)|*.xls|Excel Workbook 2007 (*.xlsx)|*.xlsx|OpenDocument Spreadsheet (*.ods)|*.ods|Comma-separated values file (*.csv)|*.csv|Spreadsheet document (*.mxl)|*.mxl';");
+		FileDialog.Filter                      = NStr("en = 'Excel Workbook 97 (*.xls)|*.xls|Excel Workbook 2007 (*.xlsx)|*.xlsx|OpenDocument Spreadsheet (*.ods)|*.ods|Comma-separated values file (*.csv)|*.csv|Spreadsheet document (*.mxl)|*.mxl'");
 		FileDialog.DefaultExt                  = "xls";
 		FileDialog.Multiselect = False;
 		FileDialog.FilterIndex               = 0;
@@ -665,16 +664,15 @@ Procedure NotifyFormsAboutChange(ReferencesArrray)
 	StandardSubsystemsClient.NotifyFormsAboutChange(ReferencesArrray);
 EndProcedure
 
-/////////////////////////////////////// СЕРВЕР ///////////////////////////////////////////
 
 &AtServer
 Procedure InsertFromClipboardInitialization()
 	MappingTableFilter = "Unmapped";
 	
 	If ValueIsFilled("FieldPresentation") Then
-		Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Paste (%1)';"), Parameters.FieldPresentation);
+		Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Paste (%1)'"), Parameters.FieldPresentation);
 	Else
-		Title = NStr("en = 'Paste';");
+		Title = NStr("en = 'Paste'");
 	EndIf;
 	
 	ImportDataFromFile.AddStatisticalInformation("RunMode.PastingFromClipboard");
@@ -686,7 +684,7 @@ Procedure InsertFromClipboardInitialization()
 		Items.FillWithDataPages.CurrentPage = Items.SingleColumnPage;
 		Items.ImportOption.Visible = False;
 		Items.AddToList.Visible = False;
-		Items.Next.Title = NStr("en = 'Add to list';");
+		Items.Next.Title = NStr("en = 'Add to list'");
 	Else
 		Items.FillWithDataPages.CurrentPage = Items.FillTableOptionPage;
 	EndIf;
@@ -696,21 +694,21 @@ EndProcedure
 &AtServer
 Procedure SetFormItemsVisibility()
 	
-	Title = ?(IsBlankString(Parameters.Title), NStr("en = 'Import data to catalog';"), Parameters.Title);
+	Title = ?(IsBlankString(Parameters.Title), NStr("en = 'Import data to catalog'"), Parameters.Title);
 	
 	If Common.IsWebClient() Then
 		Items.FillTableOptionPage.Visible = False;
 		Items.ImportOption.Visible                  = False;
 		Items.FillWithDataPages.CurrentPage = Items.ImportFromFileOptionPage;
 		Items.SelectCatalogToImportNote.Title = NStr("en = 'Select a catalog you want to import data from a spreadsheet file to.
-		|';");
+		|'");
 	EndIf;
 	
 	If ImportType = "PastingFromClipboard" Then
 		Items.WizardPages.CurrentPage = Items.FillTableWithData;
 		Items.MappingSettingsGroup.Visible = False;
 		Items.MappingColumnsList.Visible   = False;
-		Items.Close.Title = NStr("en = 'Cancel';");
+		Items.Close.Title = NStr("en = 'Cancel'");
 	ElsIf ImportType = "TabularSection" Then
 		Items.WizardPages.CurrentPage = Items.FillTableWithData;
 		Items.MappingSettingsGroup.Visible = False;
@@ -814,7 +812,7 @@ Procedure ExecuteStepFillTableWithDataAtServer(SelectionRowDetails)
 	Else
 		WindowTitle = LoadingParametersOnTheForm().Title;
 	EndIf;
-	Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Import data to catalog ""%1""';"), WindowTitle);
+	Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Import data to catalog ""%1""'"), WindowTitle);
 	
 EndProcedure
 
@@ -935,7 +933,7 @@ Procedure ExecuteDataToImportMappingStepAfterMapAtServer(ResultAddress)
 	
 	If Result.Count() = MappingTable.Count() Then
 		Explanation = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Data is mapped. If necessary, you can map the data manually by filling in the ""%1"" column.';"),
+			NStr("en = 'Data is mapped. If necessary, you can map the data manually by filling in the ""%1"" column.'"),
 			ImportParameters.ObjectPresentation);
 		MappingTableFilter = Items.MappingTableFilter.ChoiceList.FindByValue("");
 	Else
@@ -954,7 +952,7 @@ Procedure MapDataToImport()
 	
 	If ImportType = "PastingFromClipboard" Then
 		If IsBlankString(TemplateWithDataSingleColumn) Then
-			ShowMessageBox(, (NStr("en = 'To add mapped data to the list, fill in the text field.';")));
+			ShowMessageBox(, (NStr("en = 'To add mapped data to the list, fill in the text field.'")));
 			Return;
 		EndIf;
 		
@@ -967,10 +965,10 @@ Procedure MapDataToImport()
 		If EmptyDataTable() Then
 		
 			If ImportOption = 0 Then
-				ShowMessageBox(, (NStr("en = 'To map and import data, fill in the table.';")));
+				ShowMessageBox(, (NStr("en = 'To map and import data, fill in the table.'")));
 			Else
 				ShowMessageBox(, (NStr("en = 'Cannot import data from the spreadsheet.
-				|It appears that column titles in the file don''t match the column titles in the template.';")));
+				|It appears that column titles in the file don''t match the column titles in the template.'")));
 				Items.Back.Visible = False;
 			EndIf;
 			
@@ -986,13 +984,13 @@ Procedure MapDataToImport()
 	UnfilledColumnsList = NotFilledRequiredColumns();
 	If UnfilledColumnsList.Count() > 0 Then
 		If UnfilledColumnsList.Count() = 1 Then
-			TextAboutColumns = NStr("en = 'Required column ""';") + " " + UnfilledColumnsList[0]
-				+ NStr("en = '"" contains blank cells. Rows with these cells will be skipped.';");
+			TextAboutColumns = NStr("en = 'Required column ""'") + " " + UnfilledColumnsList[0]
+				+ NStr("en = '"" contains blank cells. Rows with these cells will be skipped.'");
 		Else
-			TextAboutColumns = NStr("en = 'Required columns ""';") + " " + StrConcat(UnfilledColumnsList,", ")
-				+ NStr("en = '"" contain blank cells. Rows with these cells will be skipped.';");
+			TextAboutColumns = NStr("en = 'Required columns ""'") + " " + StrConcat(UnfilledColumnsList,", ")
+				+ NStr("en = '"" contain blank cells. Rows with these cells will be skipped.'");
 		EndIf;
-		TextAboutColumns = TextAboutColumns + Chars.LF + NStr("en = 'Do you want to continue?';");
+		TextAboutColumns = TextAboutColumns + Chars.LF + NStr("en = 'Do you want to continue?'");
 		
 		Notification = New CallbackDescription("AfterQuestionAboutBlankStrings", ThisObject);
 		ShowQueryBox(Notification, TextAboutColumns, QuestionDialogMode.YesNo,, DialogReturnCode.No);
@@ -1121,10 +1119,10 @@ Procedure ShowReport(ResultAddress)
 	TotalInvalidItemsReport = Report.Invalid2;
 	
 	Items.FilterReport.ChoiceList.Clear();
-	Items.FilterReport.ChoiceList.Add("AllItems", NStr("en = 'All (';") + Report.Total + ")");
-	Items.FilterReport.ChoiceList.Add("New_Items", NStr("en = 'New items (';") + Report.CreatedOn+ ")");
-	Items.FilterReport.ChoiceList.Add("Updated2", NStr("en = 'Updated items (';") + Report.Updated3+ ")");
-	Items.FilterReport.ChoiceList.Add("Skipped2", NStr("en = 'Skipped items (';") + Report.Skipped3+ ")");
+	Items.FilterReport.ChoiceList.Add("AllItems", NStr("en = 'All ('") + Report.Total + ")");
+	Items.FilterReport.ChoiceList.Add("New_Items", NStr("en = 'New items ('") + Report.CreatedOn+ ")");
+	Items.FilterReport.ChoiceList.Add("Updated2", NStr("en = 'Updated items ('") + Report.Updated3+ ")");
+	Items.FilterReport.ChoiceList.Add("Skipped2", NStr("en = 'Skipped items ('") + Report.Skipped3+ ")");
 	FilterReport = Report.ReportType;
 
 	TableReport = Report.TableReport;
@@ -1140,40 +1138,40 @@ Procedure ExecuteDataToImportMappingStepClient()
 		Statistics = MappingStatistics();
 		
 		If Statistics.Mapped2 > 0 Then
-			TextFound = NStr("en = '%2 out of %1 entered lines will be added to the list.';");
+			TextFound = NStr("en = '%2 out of %1 entered lines will be added to the list.'");
 			Items.MappingResultLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(TextFound,
 				Statistics.Total, Statistics.Mapped2);
 			
 			If Statistics.Ambiguous1 > 0 And Statistics.NotFound4 > 0 Then 
 				TextNotFound = NStr("en = 'Total rows skipped: %3. Details:
 				| • No matches found: %1
-				| • Multiple matches found: %2';");
+				| • Multiple matches found: %2'");
 				TextNotFound = StringFunctionsClientServer.SubstituteParametersToString(TextNotFound, Statistics.NotFound4, Statistics.Ambiguous1, Statistics.Incomparable);
 			ElsIf Statistics.Ambiguous1 > 0 Then
-				TextNotFound = NStr("en = 'Rows that have multiple matches will be skipped: %1';");
+				TextNotFound = NStr("en = 'Rows that have multiple matches will be skipped: %1'");
 				TextNotFound = StringFunctionsClientServer.SubstituteParametersToString(TextNotFound, Statistics.Ambiguous1);
 			ElsIf Statistics.NotFound4 > 0 Then
-				TextNotFound = NStr("en = 'Rows that have no matches will be skipped: %1';");
+				TextNotFound = NStr("en = 'Rows that have no matches will be skipped: %1'");
 				TextNotFound = StringFunctionsClientServer.SubstituteParametersToString(TextNotFound, Statistics.NotFound4);
 			EndIf;
-			TextNotFound = TextNotFound + Chars.LF + NStr("en = 'To view skipped rows and map them manually, click ""Next"".';");
+			TextNotFound = TextNotFound + Chars.LF + NStr("en = 'To view skipped rows and map them manually, click ""Next"".'");
 			Items.NotFoundAndConflictsDecoration.Title = TextNotFound;
 			
 			Items.WizardPages.CurrentPage = Items.MappingResults;
 			Items.Back.Visible = True;
 			Items.AddToList.Visible = True;
 			Items.Next.Visible = True;
-			Items.Back.Title = NStr("en = '< Back';");
-			Items.Next.Title = NStr("en = 'Next >';");
+			Items.Back.Title = NStr("en = '< Back'");
+			Items.Next.Title = NStr("en = 'Next >'");
 			Items.Next.DefaultItem = False;
 			Items.AddToList.DefaultItem = True;
 			Items.AddToList.DefaultButton = True;
 			
 			ShowMappingStatisticsImportFromFile();
-			SetAppearanceForMappingPage(False, Items.RefSearchNote, False, NStr("en = 'Next >';"));
+			SetAppearanceForMappingPage(False, Items.RefSearchNote, False, NStr("en = 'Next >'"));
 		Else
 			Items.WizardPages.CurrentPage = Items.NotFound4;
-			Items.Close.Title = NStr("en = 'Close';");
+			Items.Close.Title = NStr("en = 'Close'");
 			Items.Back.Visible = True;
 			Items.AddToList.Visible = False;
 			Items.Next.Visible = False;
@@ -1184,7 +1182,7 @@ Procedure ExecuteDataToImportMappingStepClient()
 		ShowMappingStatisticsImportFromFile();
 		
 		If ImportType = "UniversalImport" Then
-			SetAppearanceForMappingPage(True, Items.DataMappingNote, True, NStr("en = 'Import data >';"));
+			SetAppearanceForMappingPage(True, Items.DataMappingNote, True, NStr("en = 'Import data >'"));
 		ElsIf ImportType = "TabularSection" Then
 			FilterNotMapped = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusUnmapped());
 			FilterConflict1 = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusAmbiguity());
@@ -1194,10 +1192,10 @@ Procedure ExecuteDataToImportMappingStepClient()
 				ProceedToNextStepOfDataImport();
 			EndIf;
 			
-			SetAppearanceForMappingPage(False, Items.TabularSectionNote, True, NStr("en = 'Import data';"));
+			SetAppearanceForMappingPage(False, Items.TabularSectionNote, True, NStr("en = 'Import data'"));
 			SetAppearanceForConflictFields(FilterConflict1);
 		Else
-			SetAppearanceForMappingPage(False, Items.AppliedImportNote, False, NStr("en = 'Import data >';"));
+			SetAppearanceForMappingPage(False, Items.AppliedImportNote, False, NStr("en = 'Import data >'"));
 		EndIf;
 	EndIf;
 	
@@ -1376,7 +1374,7 @@ Procedure ExecuteDataImportReportStepClient()
 	
 	Items.WizardPages.CurrentPage = Items.DataImportReport;
 	Items.OpenCatalogAfterCloseWizard.Visible = True;
-	Items.Close.Title = NStr("en = 'Finish';");
+	Items.Close.Title = NStr("en = 'Finish'");
 	Items.Next.Visible = False;
 	Items.Back.Visible = False;
 	
@@ -1499,11 +1497,11 @@ Procedure SetDataAppearance(ColumnsList = Undefined)
 	
 	
 	If ImportType = "PastingFromClipboard" Then 
-		TextObjectNotFound = NStr("en = '<Not found>';");
+		TextObjectNotFound = NStr("en = '<Not found>'");
 		ColorObjectNotFound = StyleColors.InaccessibleCellTextColor;
 		ColorConflict = StyleColors.ErrorNoteText;
 	Else
-		TextObjectNotFound = NStr("en = '<New>';");
+		TextObjectNotFound = NStr("en = '<New>'");
 		ColorObjectNotFound = StyleColors.SuccessResultColor;
 		ColorConflict = StyleColors.ErrorNoteText;
 	EndIf;
@@ -1540,7 +1538,7 @@ Procedure SetDataAppearance(ColumnsList = Undefined)
 			FilterElement.Use = True;
 			ConditionalAppearanceItem.Appearance.SetParameterValue("TextColor", ColorConflict);
 			ConditionalAppearanceItem.Appearance.SetParameterValue("ReadOnly", True);
-			ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = '<ambiguity>';"));
+			ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = '<ambiguity>'"));
 		EndDo;
 	Else
 		ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
@@ -1555,7 +1553,7 @@ Procedure SetDataAppearance(ColumnsList = Undefined)
 		FilterElement.Use = True;
 		ConditionalAppearanceItem.Appearance.SetParameterValue("TextColor", ColorConflict);
 		ConditionalAppearanceItem.Appearance.SetParameterValue("ReadOnly", True);
-		ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = '<ambiguity>';"));
+		ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = '<ambiguity>'"));
 		
 	EndIf;
 	
@@ -1868,7 +1866,7 @@ Procedure PutDataInMappingTable(ImportedDataAddress, TabularSectionCopyAddress, 
 				FilterElement.Use = True;
 				ConditionalAppearanceItem.Appearance.SetParameterValue("TextColor", StyleColors.ErrorNoteText);
 				ConditionalAppearanceItem.Appearance.SetParameterValue("ReadOnly", True);
-				ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = '<ambiguity>';"));
+				ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = '<ambiguity>'"));
 			EndDo;
 		EndIf;
 	EndDo;
@@ -1930,7 +1928,7 @@ Function ObjectManager(MappingObjectName)
 	ElsIf ObjectArray.ObjectType = "DataProcessor" Then
 		ObjectManager = DataProcessors[ObjectArray.NameOfObject];
 	Else
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Object ""%1"" is not found.';"), MappingObjectName);
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Object ""%1"" is not found.'"), MappingObjectName);
 	EndIf;
 	
 	Return ObjectManager;
@@ -2119,9 +2117,9 @@ Procedure ShowInfoBarAboutRequiredColumns()
 		| • Microsoft Excel 97 Workbook (.xls) or Microsoft Excel 2007 Workbook (.xlsx)
 		| • LibreOffice Calc Spreadsheet (.ods)
 		| • Comma-separated values file (.csv)
-		| • Spreadsheet document (.mxl)';") + Chars.LF;
+		| • Spreadsheet document (.mxl)'") + Chars.LF;
 	Else
-		ToolTipText = NStr("en = 'To fill in the table, copy and paste data to the table from an external file.';") + Chars.LF;
+		ToolTipText = NStr("en = 'To fill in the table, copy and paste data to the table from an external file.'") + Chars.LF;
 	EndIf;
 	
 	Filter = New Structure("IsRequiredInfo", True);
@@ -2140,9 +2138,9 @@ Procedure ShowInfoBarAboutRequiredColumns()
 		ColumnsList = Mid(ColumnsList, 3);
 		
 		If RequiredColumns2.Count() = 1 Then
-			ToolTipText = ToolTipText + NStr("en = 'Required column:';") + " " + ColumnsList;
+			ToolTipText = ToolTipText + NStr("en = 'Required column:'") + " " + ColumnsList;
 		Else
-			ToolTipText = ToolTipText + NStr("en = 'Required columns:';") + " " + ColumnsList;
+			ToolTipText = ToolTipText + NStr("en = 'Required columns:'") + " " + ColumnsList;
 		EndIf;
 		
 	EndIf;
@@ -2157,14 +2155,14 @@ Procedure AddStandardColumnsToMappingTable(TemporarySpecification, MappingObject
 		AddErrorDescription, AddRowMappingResult, AddConflictsList)
 		
 	If AddID Then 
-		TemporarySpecification.Columns.Add("Id", New TypeDescription("Number"), NStr("en = '#';"));
+		TemporarySpecification.Columns.Add("Id", New TypeDescription("Number"), NStr("en = '#'"));
 	EndIf;
 	
 	If ValueIsFilled(MappingObjectStructure) Then 
 		If Not ValueIsFilled(MappingObjectStructure.Synonym) Then
 			ColumnTitle = "";
 			If MappingObjectStructure.MappingObjectTypeDetails.Types().Count() > 1 Then 
-				ColumnTitle = NStr("en = 'Objects';");
+				ColumnTitle = NStr("en = 'Objects'");
 			Else
 				ColumnTitle = String(MappingObjectStructure.MappingObjectTypeDetails.Types()[0]);
 			EndIf;
@@ -2176,10 +2174,10 @@ Procedure AddStandardColumnsToMappingTable(TemporarySpecification, MappingObject
 	EndIf;
 	
 	If AddRowMappingResult Then 
-		TemporarySpecification.Columns.Add("RowMappingResult", New TypeDescription("String"), NStr("en = 'Status';"));
+		TemporarySpecification.Columns.Add("RowMappingResult", New TypeDescription("String"), NStr("en = 'Status'"));
 	EndIf;
 	If AddErrorDescription Then
-		TemporarySpecification.Columns.Add("ErrorDescription", New TypeDescription("String"), NStr("en = 'Reason';"));
+		TemporarySpecification.Columns.Add("ErrorDescription", New TypeDescription("String"), NStr("en = 'Reason'"));
 	EndIf;
 
 	If AddConflictsList Then 
@@ -2486,7 +2484,7 @@ Procedure CreateMappingTableByColumnsInformationForTS()
 					NewItem.DataPath = "DataMappingTable." + ColumnLevel2.Name;
 					ColumnType = Metadata.FindByType(ColumnLevel2.ValueType.Types()[0]);
 					If ColumnType <> Undefined And StrFind(ColumnType.FullName(), "Catalog") > 0 Then
-						NewItem.Title = NStr("en = 'File';");
+						NewItem.Title = NStr("en = 'File'");
 					Else
 						NewItem.Title = " ";
 					EndIf;
@@ -2499,7 +2497,7 @@ Procedure CreateMappingTableByColumnsInformationForTS()
 				TSDataToImportColumnsGroup.Group = ColumnsGroup.InCell;
 				Parent = TSDataToImportColumnsGroup;
 				
-				Prefix = NStr("en = 'File:';");
+				Prefix = NStr("en = 'File:'");
 				For Each GroupColumn In GroupColumns Do
 					Column2 = TemporarySpecification.Columns.Find("PL_" + GroupColumn.ColumnName);
 					If Column2 <> Undefined Then 
@@ -2562,7 +2560,6 @@ Function BatchAttributesModificationAtServer(UpperPosition, LowerPosition)
 	Return ReferencesArrray;
 EndFunction
 
-////////////////////// Работа с файлами //////////////////////
 
 &AtClient
 Procedure AfterFileChoiceForSaving(Result, AdditionalParameters) Export
@@ -2585,7 +2582,7 @@ Procedure AfterFileChoiceForSaving(Result, AdditionalParameters) Export
 				ElsIf FileExtention = "ods" Then
 					FileType = SpreadsheetDocumentFileType.ODS;
 				Else
-					ShowMessageBox(, NStr("en = 'The file template is not saved.';"));
+					ShowMessageBox(, NStr("en = 'The file template is not saved.'"));
 					Return;
 				EndIf;
 				Notification = New CallbackDescription("AfterSaveSpreadsheetDocumentToFile", ThisObject);
@@ -2598,7 +2595,7 @@ EndProcedure
 &AtClient
 Procedure AfterSaveSpreadsheetDocumentToFile(Result, AdditionalParameters) Export
 	If Result = False Then
-		ShowMessageBox(, NStr("en = 'The file template is not saved.';"));
+		ShowMessageBox(, NStr("en = 'The file template is not saved.'"));
 	EndIf;
 EndProcedure
 
@@ -2762,7 +2759,7 @@ EndProcedure
 
 #Region BackgroundJobs
 
-// Фоновая загрузка файла с данными
+// 
 
 &AtServer
 Function ImportFileWithDataToSpreadsheetDocumentAtServer(TempStorageAddress, Extension)
@@ -2785,9 +2782,9 @@ Function ImportFileWithDataToSpreadsheetDocumentAtServer(TempStorageAddress, Ext
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = '%1 subsystem: import data from file using the server method';"), "ImportDataFromFile");
+		NStr("en = '%1 subsystem: import data from file using the server method'"), "ImportDataFromFile");
 	ExecutionParameters.RefinementErrors =
-		NStr("en = 'Could not import data due to:';");
+		NStr("en = 'Could not import data due to:'");
 	
 	Return TimeConsumingOperations.ExecuteInBackground("DataProcessors.ImportDataFromFile.ImportFileToTable",
 		ProcedureParameters, ExecutionParameters);
@@ -2819,7 +2816,7 @@ Procedure AfterImportDataFileToSpreadsheetDocument(Result, AdditionalParameters)
 	
 EndProcedure
 
-// Фоновое сопоставление загруженных данных
+// 
 
 &AtServer
 Function MapDataToImportAtServerUniversalImport()
@@ -2834,9 +2831,9 @@ Function MapDataToImportAtServerUniversalImport()
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.BackgroundJobDescription =
-		NStr("en = 'Populate mapping table with data imported from file.';");
+		NStr("en = 'Populate mapping table with data imported from file.'");
 	ExecutionParameters.RefinementErrors =
-		NStr("en = 'Could not map data due to:';");
+		NStr("en = 'Could not map data due to:'");
 	
 	Return TimeConsumingOperations.ExecuteInBackground(
 		"DataProcessors.ImportDataFromFile.FillMappingTableWithDataFromTemplateBackground", 
@@ -2867,7 +2864,7 @@ Procedure AfterMapImportedData(Result, AdditionalParameters) Export
 	
 EndProcedure
 
-// Фоновая запись загружаемых данных
+// 
 
 &AtServer
 Function RecordDataToImportReportUniversalImport()
@@ -2883,8 +2880,8 @@ Function RecordDataToImportReportUniversalImport()
 	ProcedureParameters.Insert("ColumnsInformation", FormAttributeToValue("ColumnsInformation"));
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Save data imported from file';");
-	ExecutionParameters.RefinementErrors = NStr("en = 'Could not save data due to:';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Save data imported from file'");
+	ExecutionParameters.RefinementErrors = NStr("en = 'Could not save data due to:'");
 	
 	Return TimeConsumingOperations.ExecuteInBackground("DataProcessors.ImportDataFromFile.WriteMappedData", 
 		ProcedureParameters, ExecutionParameters);
@@ -2924,7 +2921,7 @@ Procedure FillMappingTableFromTempStorage(AddressInTempStorage, RefsToNotificati
 	
 EndProcedure
 
-// Фоновое формирование отчета
+// 
 
 &AtServer
 Function GenerateReportOnImport(ReportType = "AllItems",  CalculateProgressPercent = False)
@@ -2942,7 +2939,7 @@ Function GenerateReportOnImport(ReportType = "AllItems",  CalculateProgressPerce
 	ProcedureParameters.Insert("ColumnsInformation", TableColumnsInformation);
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Create report on data import from file';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Create report on data import from file'");
 	
 	Return TimeConsumingOperations.ExecuteInBackground("DataProcessors.ImportDataFromFile.GenerateReportOnBackgroundImport",
 		ProcedureParameters, ExecutionParameters);

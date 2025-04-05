@@ -43,14 +43,6 @@ Procedure OnDefineCurrencyCodesImportedFromInternet(CurrenciesImportedFromIntern
 
 EndProcedure
 
-// Parameters:
-//  CurrenciesImportedFromInternet - Array of CatalogRef.Currencies - Output parameter.
-//
-Procedure OnDefineCurrenciesImportedFromInternet(CurrenciesImportedFromInternet) Export
-
-
-EndProcedure
-
 // Called when importing exchange rates on the current date.
 //
 // Parameters:

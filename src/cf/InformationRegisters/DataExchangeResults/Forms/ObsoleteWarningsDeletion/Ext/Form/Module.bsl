@@ -162,7 +162,7 @@ Procedure FilterByPeriodPresentation()
 	
 	If Not ValueIsFilled(ValuesCache.SelectionByDateOfOccurrence) Then
 		
-		FilterByPeriodPresentation = NStr("en = 'Filter not set';", CommonClient.DefaultLanguageCode());
+		FilterByPeriodPresentation = NStr("en = 'Filter not set'", CommonClient.DefaultLanguageCode());
 		
 	Else
 		
@@ -178,7 +178,7 @@ Procedure RepresentationOfTheSelectionOfExchangeNodes()
 	If ValuesCache.SelectionOfExchangePlanNodes = Undefined
 		Or ValuesCache.SelectionOfExchangePlanNodes.Count() = 0 Then
 		
-		SynchronizationsFilterPresentation = NStr("en = 'Filter not set';", CommonClient.DefaultLanguageCode());
+		SynchronizationsFilterPresentation = NStr("en = 'Filter not set'", CommonClient.DefaultLanguageCode());
 		
 	ElsIf ValuesCache.SelectionOfExchangePlanNodes.Count() = 1 Then
 		
@@ -186,7 +186,7 @@ Procedure RepresentationOfTheSelectionOfExchangeNodes()
 		
 	Else
 		
-		TextTemplate1 = NStr("en = '%1%2 (and %3 more pcs)';", CommonClient.DefaultLanguageCode());
+		TextTemplate1 = NStr("en = '%1%2 (and %3 more pcs)'", CommonClient.DefaultLanguageCode());
 		Triplets = ?(StrLen(TrimAll(ValuesCache.SelectionOfExchangePlanNodes[0])) > 29, "...", "");
 		NumberOfMore = ValuesCache.SelectionOfExchangePlanNodes.Count() - 1;
 		
@@ -202,7 +202,7 @@ Procedure RepresentationOfTheSelectionByTypesOfWarnings()
 	If ValuesCache.SelectingTypesOfWarnings = Undefined
 		Or ValuesCache.SelectingTypesOfWarnings.Count() = 0 Then
 		
-		WarningsTypesFilterPresentation = NStr("en = 'Filter not set';", CommonClient.DefaultLanguageCode());
+		WarningsTypesFilterPresentation = NStr("en = 'Filter not set'", CommonClient.DefaultLanguageCode());
 		
 	ElsIf ValuesCache.SelectingTypesOfWarnings.Count() = 1 Then
 		
@@ -210,11 +210,11 @@ Procedure RepresentationOfTheSelectionByTypesOfWarnings()
 		
 	ElsIf ValuesCache.SelectingTypesOfWarnings.Count() > 8 Then
 		
-		WarningsTypesFilterPresentation = NStr("en = 'All warning types';", CommonClient.DefaultLanguageCode());
+		WarningsTypesFilterPresentation = NStr("en = 'All warning types'", CommonClient.DefaultLanguageCode());
 		
 	Else
 		
-		TextTemplate1 = NStr("en = '%1%2 (and %3 more pcs)';", CommonClient.DefaultLanguageCode());
+		TextTemplate1 = NStr("en = '%1%2 (and %3 more pcs)'", CommonClient.DefaultLanguageCode());
 		Triplets = ?(StrLen(TrimAll(ValuesCache.SelectingTypesOfWarnings[0])) > 29, "...", "");
 		NumberOfMore = ValuesCache.SelectingTypesOfWarnings.Count() - 1;
 		
@@ -373,7 +373,7 @@ Procedure DeleteWarningsInALongOperation()
 	Items.FormPages.CurrentPage = Items.TimeConsumingOperationPage;
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Delete synchronization warnings';", Common.DefaultLanguageCode());
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Delete synchronization warnings'", Common.DefaultLanguageCode());
 	
 	DeletionParameters = New Structure;
 	DeletionParameters.Insert("SelectionByDateOfOccurrence", ValuesCache.SelectionByDateOfOccurrence);

@@ -10,11 +10,12 @@
 
 #Region Private
 
-// See StandardSubsystemsClient.ClientParametersOnStart().
+// See StandardSubsystemsClient.ClientParametersOnStart
+// ().
 Function ClientParametersOnStart() Export
 	
 	CommonStartTime = CurrentUniversalDateInMilliseconds();
-	Indicators = ?(StandardSubsystemsClientServer.RegisterPerformanceIndicators(),
+	Indicators = ?(StandardSubsystemsClientServer.ShouldRegisterPerformanceIndicators(),
 		New Array, Undefined);
 	
 	CheckIfAppStartupFinished(True);
@@ -82,11 +83,12 @@ Function ClientParametersOnStart() Export
 	
 EndFunction
 
-// See StandardSubsystemsClient.ClientRunParameters().
+// See StandardSubsystemsClient.ClientRunParameters
+// ().
 Function ClientRunParameters() Export
 	
 	CommonStartTime = CurrentUniversalDateInMilliseconds();
-	Indicators = ?(StandardSubsystemsClientServer.RegisterPerformanceIndicators(),
+	Indicators = ?(StandardSubsystemsClientServer.ShouldRegisterPerformanceIndicators(),
 		New Array, Undefined);
 	
 	CheckIfAppStartupFinished();
@@ -136,7 +138,7 @@ Procedure CheckIfAppStartupFinished(OnlyBeforeSystemStartup = False)
 			           |
 			           |Technical details:
 			           |Invalid %1 call during startup.
-			           |The first procedure that is called from the %2 event handler must be %3.';"),
+			           |The first procedure that is called from the %2 event handler must be %3.'"),
 			"StandardSubsystemsClient.ClientRunParameters",
 			"BeforeStart", 
 			"StandardSubsystemsClient.BeforeStart");
@@ -150,7 +152,7 @@ Procedure CheckIfAppStartupFinished(OnlyBeforeSystemStartup = False)
 	If Not StandardSubsystemsClient.ApplicationStartCompleted() Then
 		If StandardSubsystemsClient.ApplicationStartupLogicDisabled() Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The action is unavailable when running with the %1 parameter.';"),
+				NStr("en = 'The action is unavailable when running with the %1 parameter.'"),
 				"DisableSystemStartupLogic");
 		Else
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -159,7 +161,7 @@ Procedure CheckIfAppStartupFinished(OnlyBeforeSystemStartup = False)
 			           |Details:
 			           |Invalid %1 call during startup. Call %2 while the procedure %3 is still running.
 			           |The invoked procedures (most recent first):
-			           |%4';"),
+			           |%4'"),
 				"StandardSubsystemsClient.ClientRunParameters", 
 				"StandardSubsystemsClient.ClientParametersOnStart",
 				"StandardSubsystemsClient.BeforeStart",
@@ -197,14 +199,14 @@ Procedure WriteIndicators(OnStart, Indicators, TotalDuration)
 	
 	Comment = StrConcat(Indicators, Chars.LF);
 	
-	СтекВызова = "";
+	CallStack = "";
 	Try
-		Raise NStr("en = 'Стек вызова:';");
+		Raise NStr("en = 'Call stack:'");
 	Except
-		СтекВызова = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		CallStack = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 	EndTry;
 	
-	StandardSubsystemsServerCall.WritePerformanceIndicators(OnStart, Comment, СтекВызова);
+	StandardSubsystemsServerCall.WritePerformanceIndicators(OnStart, Comment, CallStack);
 	
 EndProcedure
 

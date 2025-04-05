@@ -208,7 +208,7 @@ Function GenerateInfoLabelMessageCharsCount(SendInTransliteration, MessageText) 
 	CountOfCharacters = StrLen(MessageText);
 	MessagesCount   = Int(CountOfCharacters / CharsInMessage) + 1;
 	CharsLeft      = CharsInMessage - CountOfCharacters % CharsInMessage;
-	MessageTextTemplate = NStr("en = 'Messages: %1. Symbols left: %2';");
+	MessageTextTemplate = NStr("en = 'Messages: %1. Symbols left: %2'");
 	Return StringFunctionsClientServer.SubstituteParametersToString(MessageTextTemplate, MessagesCount, CharsLeft);
 
 EndFunction
@@ -270,9 +270,9 @@ Function GetFileSizeStringPresentation(SizeInBytes) Export
 	
 	SizeMB = SizeInBytes / (1024*1024);
 	If SizeMB > 1 Then
-		StringSize = Format(SizeMB, "NFD=1") + " " + NStr("en = 'MB';");
+		StringSize = Format(SizeMB, "NFD=1") + " " + NStr("en = 'MB'");
 	Else
-		StringSize = Format(SizeInBytes /1024, "NFD=0; NZ=0") + " " + NStr("en = 'kB';");
+		StringSize = Format(SizeInBytes /1024, "NFD=0; NZ=0") + " " + NStr("en = 'kB'");
 	EndIf;
 	
 	Return StringSize;
@@ -333,7 +333,7 @@ Procedure OnChangeFilterInteractionType(Form,InteractionType) Export
 	
 	// Clear linked filters.
 	FilterGroup = CommonClientServer.CreateFilterItemGroup(
-		Filter.Items, NStr("en = 'Filter by interaction category';"), DataCompositionFilterItemsGroupType.AndGroup);
+		Filter.Items, NStr("en = 'Filter by interaction category'"), DataCompositionFilterItemsGroupType.AndGroup);
 	
 	// .Set filters by type.
 	If InteractionType = "AllEmails" Then
@@ -585,21 +585,21 @@ Procedure PresentationGetProcessing(ObjectManager, Data, Presentation, StandardP
 	Date = Format(Data.Date, "DLF=D");
 	DocumentType = "";
 	If TypeOf(ObjectManager) = Type("DocumentManager.Meeting") Then
-		DocumentType = NStr("en = 'Appointment';");
+		DocumentType = NStr("en = 'Appointment'");
 		Date = Format(Data.StartDate, "DLF=D");
 	ElsIf TypeOf(ObjectManager) = Type("DocumentManager.PlannedInteraction") Then
-		DocumentType = NStr("en = 'Scheduled interaction';");
+		DocumentType = NStr("en = 'Scheduled interaction'");
 	ElsIf TypeOf(ObjectManager) = Type("DocumentManager.SMSMessage") Then
-		DocumentType = NStr("en = 'SMS';");
+		DocumentType = NStr("en = 'SMS'");
 	ElsIf TypeOf(ObjectManager) = Type("DocumentManager.PhoneCall") Then
-		DocumentType = NStr("en = 'Phone call';");
+		DocumentType = NStr("en = 'Phone call'");
 	ElsIf TypeOf(ObjectManager) = Type("DocumentManager.IncomingEmail") Then
-		DocumentType = NStr("en = 'Incoming mail';");
+		DocumentType = NStr("en = 'Incoming mail'");
 	ElsIf TypeOf(ObjectManager) = Type("DocumentManager.OutgoingEmail") Then
-		DocumentType = NStr("en = 'Outgoing mail';");
+		DocumentType = NStr("en = 'Outgoing mail'");
 	EndIf;
 	
-	TemplateOfPresentation = NStr("en = '%1, %2 (%3)';");
+	TemplateOfPresentation = NStr("en = '%1, %2 (%3)'");
 	Presentation = StringFunctionsClientServer.SubstituteParametersToString(TemplateOfPresentation, Subject, Date, DocumentType);
 	
 	StandardProcessing = False;
@@ -641,7 +641,7 @@ EndFunction
 
 Function InteractionSubject1(Subject) Export
 
-	Return ?(IsBlankString(Subject), NStr("en = '<No subject>';"), Subject);
+	Return ?(IsBlankString(Subject), NStr("en = '<No subject>'"), Subject);
 
 EndFunction 
 

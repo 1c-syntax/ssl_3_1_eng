@@ -61,7 +61,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 			|	UniqueKey";
 		
 		Query.SetParameter("UniqueKey", UniqueKey);
-		Result = Query.Execute().Unload(); // @skip-check query-in-loop - Batch-wise data registration for update.
+		Result = Query.Execute().Unload(); // @skip-check query-in-loop
 	
 		InfobaseUpdate.MarkForProcessing(Parameters, Result, AdditionalParameters);
 		
@@ -88,7 +88,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	FilterPresentation   = NStr("en = 'Object with issues = ""%1""
 		|Check rule = ""%2""
 		|Check type = ""%3""
-		|Unique key = ""%4""';");
+		|Unique key = ""%4""'");
 	
 	AdditionalProcessingDataSelectionParameters = InfobaseUpdate.AdditionalProcessingDataSelectionParameters();
 	
@@ -151,7 +151,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process data integrity check results with filter %1. Reason:
-				|%2';"), FilterPresentation, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				|%2'"), FilterPresentation, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			
 			InfobaseUpdate.WriteErrorToEventLog(
 				RegisterMetadata,
@@ -168,14 +168,14 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) some data integrity check results: %1';"), 
+			NStr("en = 'Couldn''t process (skipped) some data integrity check results: %1'"), 
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), 
 			EventLogLevel.Information, Metadata.InformationRegisters.AccountingCheckResults, ,
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Yet another batch of data integrity check results is processed: %1';"),
+				NStr("en = 'Yet another batch of data integrity check results is processed: %1'"),
 				ObjectsProcessed));
 	EndIf;
 	

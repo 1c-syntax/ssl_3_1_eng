@@ -38,7 +38,7 @@ EndProcedure
 Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
 	
 	If Form.Parameters.VariantPresentation = "Details" Then
-		Raise NStr("en = 'The selected action is unavailable in this report.';");
+		Raise NStr("en = 'The selected action is unavailable in this report.'");
 	EndIf;
 	
 	ReportsDistributionRef = Undefined;
@@ -175,7 +175,7 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	ReportData = ReportDistributionHistoryData(ReportsDistributionRef, Period, AdditionalParameters); 
 	
 	DistributionResultsString = StringFunctionsClientServer.SubstituteParametersToString(
-	NStr("en = 'Sent: %1. Not sent: %2. Total: %3';"), ReportData.Sent, ReportData.NotSent, ReportData.Total);	
+	NStr("en = 'Sent: %1. Not sent: %2. Total: %3'"), ReportData.Sent, ReportData.NotSent, ReportData.Total);	
 	SettingsComposer.Settings.DataParameters.SetParameterValue("DistributionResultsString", DistributionResultsString);
 	
 	TemplateComposer = New DataCompositionTemplateComposer;
@@ -364,5 +364,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

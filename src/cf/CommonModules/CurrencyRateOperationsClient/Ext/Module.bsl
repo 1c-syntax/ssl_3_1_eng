@@ -67,9 +67,9 @@ Procedure NotifyRatesObsolete(Val ShouldCheckValidity = False) Export
 	Settings.LastNotificationDayStart = DateStartOfDay;
 	
 	ShowNotification(
-		NStr("en = 'Outdated exchange rates';"),
+		NStr("en = 'Outdated exchange rates'"),
 		DataProcessorURL(),
-		NStr("en = 'Update exchange rates';"),
+		NStr("en = 'Update exchange rates'"),
 		PictureLib.DialogExclamation,
 		UserNotificationStatus.Important,
 		"ExchangeRatesAreOutdated");
@@ -81,9 +81,9 @@ EndProcedure
 Procedure NotifyRatesAreUpdated() Export
 	
 	ShowUserNotification(
-		NStr("en = 'Exchange rates updated';"),
+		NStr("en = 'Exchange rates updated'"),
 		,
-		NStr("en = 'The exchange rates are updated.';"),
+		NStr("en = 'The exchange rates are updated.'"),
 		PictureLib.DialogInformation);
 	
 EndProcedure
@@ -92,7 +92,7 @@ EndProcedure
 //
 Procedure NotifyRatesUpToDate() Export
 	
-	ShowMessageBox(,NStr("en = 'Up-to-date exchange rates are imported.';"));
+	ShowMessageBox(,NStr("en = 'Up-to-date exchange rates are imported.'"));
 	
 EndProcedure
 

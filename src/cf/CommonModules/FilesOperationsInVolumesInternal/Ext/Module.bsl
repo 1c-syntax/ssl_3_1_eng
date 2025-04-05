@@ -10,7 +10,7 @@
 
 #Region Internal
 
-// 
+// Returns the settings for mixed (volumes/infobase) file storage.
 //
 // Returns:
 //   Structure::
@@ -25,7 +25,7 @@ Function FilesStorageParametersInInfobase() Export
 	
 EndFunction
 
-// 
+// Sets the settings for mixed (volumes/infobase) file storage.
 //
 // Parameters:
 //  StorageParameters - Structure - settings of file storage in the infobase. Properties:
@@ -41,7 +41,7 @@ Procedure SetFilesStorageParametersInInfobase(StorageParameters) Export
 	
 EndProcedure
 
-// 
+// Returns "True" if at least one file storage volume is configured.
 //
 // Returns:
 //   Boolean
@@ -194,7 +194,7 @@ Procedure FillInTheFileDetails(AttachedFile, BinaryDataOrPath,
 		And Not ValueIsFilled(AttachedFile.Ref) Then
 		
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Blank value of the %1 property the %2 parameter (Structure) of the %3 procedure.';"),
+			NStr("en = 'Blank value of the %1 property the %2 parameter (Structure) of the %3 procedure.'"),
 			"Ref",
 			"AttachedFile",
 			"FilesOperationsInVolumesInternal.AppendFile"), ErrorCategory.ConfigurationError);
@@ -211,7 +211,7 @@ Procedure FillInTheFileDetails(AttachedFile, BinaryDataOrPath,
 			
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot add file ""%1"" to a volume as the file is missing.
-				|The file might have been deleted by antivirus software. Please contact the administrator.';"),
+				|The file might have been deleted by antivirus software. Please contact the administrator.'"),
 				AttachedFile.Description + "." + AttachedFile.Extension);
 			Raise ErrorText;
 			
@@ -291,11 +291,11 @@ Procedure CopyAttachedFile(AttachedFile, FilePathDestination) Export
 	If Not SourceFile1.Exists() Then
 		ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'File data was deleted. The file might have been cleaned up as unused or deleted by the antivirus software.
-				|%1';"), String(AttachedFile));
+				|%1'"), String(AttachedFile));
 		Raise ErrorMessage;		
 	EndIf;
 	
-	FileCopy(FilePathSource, FilePathDestination);
+	CopyFile(FilePathSource, FilePathDestination);
 	
 	// If the file is read-only, clear this attribute for 
 	// the destination file to be able to edit or delete.
@@ -325,7 +325,7 @@ Function DeleteFile(PathToFile) Export
 	EndIf;
 		
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Deleting file: %1';"), 
+		NStr("en = 'Deleting file: %1'"), 
 		PathToFile);
 	WriteLogEvent(EventLogEvent(),
 		EventLogLevel.Information,,, EventLogMessage(MessageText));
@@ -339,7 +339,7 @@ Function DeleteFile(PathToFile) Export
 		FilesInDirectory = FindFiles(FileDirectory, GetAllFilesMask());
 		If FilesInDirectory.Count() = 0 Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Deleting empty directory: %1';"), 
+				NStr("en = 'Deleting empty directory: %1'"), 
 				FileDirectory);
 			WriteLogEvent(EventLogEvent(),
 				EventLogLevel.Information,,, EventLogMessage(MessageText));
@@ -360,7 +360,7 @@ EndFunction
 
 Function EventLogEvent()
 	
-	Return NStr("en = 'Files.Delete files in volume';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Files.Delete files in volume'", Common.DefaultLanguageCode());
 	
 EndFunction
 
@@ -556,7 +556,7 @@ Function FullFileNameInVolume(FileProperties, FileDateInVolume = Undefined) Expo
 		If Not Volume.Exists() Or Not Volume.IsDirectory() Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'A network directory for the ""%1"" storage volume does not exist: %2
-					|Contact your administrator.';"), FileProperties.Volume, FullVolumePath);
+					|Contact your administrator.'"), FileProperties.Volume, FullVolumePath);
 		EndIf;
 		Raise;
 	EndTry	
@@ -664,7 +664,7 @@ Function VolumeSize(Volume) Export
 	
 EndFunction
 
-// 
+// Checks whether the file is on the volume.
 //
 // Parameters:
 //   AttachedFile - DefinedType.AttachedFile - catalog item with a file.
@@ -695,11 +695,11 @@ Procedure OnDefineChecks(ChecksGroups, Checks) Export
 	
 	Validation = Checks.Add();
 	Validation.GroupID          = "SystemChecks";
-	Validation.Description                 = NStr("en = 'Search for references to missing files in storage volumes';");
+	Validation.Description                 = NStr("en = 'Search for references to missing files in storage volumes'");
 	Validation.Reasons                      = NStr("en = 'The file was deleted or moved by the antivirus software,
-		|unintentional actions of the administrator, or similar reasons.';");
+		|unintentional actions of the administrator, or similar reasons.'");
 	Validation.Recommendation                 = NStr("en = '• Mark the file for deletion.
-		|• Restore the volume file from a backup.';");
+		|• Restore the volume file from a backup.'");
 	Validation.Id                = "StandardSubsystems.ReferenceToNonexistingFilesInVolumeCheck";
 	Validation.HandlerChecks           = "FilesOperationsInVolumesInternal.ReferenceToNonexistingFilesInVolumeCheck";
 	Validation.AccountingChecksContext = "SystemChecks";
@@ -740,7 +740,7 @@ Procedure ReferenceToNonexistingFilesInVolumeCheck(Validation, CheckParameters) 
 			If Not CheckAttachedFilesObject(MetadataObject) Then
 				Continue;
 			EndIf;
-			// @skip-check query-in-loop - Batch processing of a large amount of data.
+			// @skip-check query-in-loop
 			SearchRefsToNonExistingFilesInVolumes(MetadataObject, CheckParameters, AvailableVolumes);
 		EndDo;
 	EndDo;
@@ -856,7 +856,7 @@ Function SetFilesStoragePaths(FilesToRecover, VolumePath) Export
 		Except
 			RollbackTransaction();
 			WriteLogEvent(
-				NStr("en = 'Files.File recovery in volume';", Common.DefaultLanguageCode()),
+				NStr("en = 'Files.File recovery in volume'", Common.DefaultLanguageCode()),
 				EventLogLevel.Error,,,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
@@ -932,7 +932,7 @@ Function SizesOfVolumes(Volumes)
 		|GROUP BY
 		|	NestedQuery.Volume";
 	QueryText = StrReplace(QueryText, "&AttachmentsQueryText", 
-		"(" + StrConcat(QueriesTexts, Chars.LF + "UNION ALL" + Chars.LF) + ")"); // @query-part
+		"(" + StrConcat(QueriesTexts, Chars.LF + "UNION ALL" + Chars.LF) + ")"); // @query-part-3
 	
 	Query = New Query(QueryText); 
 	Query.Parameters.Insert("Volumes", Volumes);
@@ -995,7 +995,7 @@ Procedure WriteTheFileDataToTheVolume(AttachedFile, BinaryDataOrPath)
 				EndIf;
 			EndIf;
 				
-			FileCopy(BinaryDataOrPath, PathToFile);
+			CopyFile(BinaryDataOrPath, PathToFile);
 			
 		Else
 			BinaryDataOrPath.Write(PathToFile);
@@ -1009,9 +1009,9 @@ Procedure WriteTheFileDataToTheVolume(AttachedFile, BinaryDataOrPath)
 		
 		ErrorDescriptionTemplate = NStr("en = 'An error occurred when adding file ""%1""
 			|to volume ""%2"" (%3):
-			|""%4"".';");
+			|""%4"".'");
 		
-		WriteLogEvent(NStr("en = 'Files.Add file';", Common.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Files.Add file'", Common.DefaultLanguageCode()),
 			EventLogLevel.Error,,,
 			StringFunctionsClientServer.SubstituteParametersToString(
 				ErrorDescriptionTemplate,
@@ -1036,7 +1036,7 @@ Procedure WriteTheFileDataToTheVolume(AttachedFile, BinaryDataOrPath)
 				NStr("en = 'Cannot add file:
 				|""%1.%2"".
 				|
-				|Please contact the administrator.';"),
+				|Please contact the administrator.'"),
 				AttachedFile.Description,
 				AttachedFile.Extension);
 				
@@ -1075,7 +1075,7 @@ Procedure ClearDeletedFiles() Export
 	EndDo;
 	
 	For Each Volume In ProcessedDirectories Do
-		// @skip-check query-in-loop - Insignificant number of calls.
+		// @skip-check query-in-loop - Незначительное количество вызовов.
 		ClearDeletedFilesInTheVolume(Volume.Value);
 	EndDo;
 EndProcedure
@@ -1170,7 +1170,7 @@ Procedure ClearDeletedFilesInTheVolume(Directory)
 	Except
 		RollbackTransaction();
 		Error = ErrorInfo();
-		WriteLogEvent(NStr("en = 'File management.File cleanup';", Common.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'File management.File cleanup'", Common.DefaultLanguageCode()),
 			EventLogLevel.Error,
 			Metadata.Catalogs.FileStorageVolumes,
 			Volume.Ref,
@@ -1665,7 +1665,7 @@ Procedure AddFilesToVolumes(WindowsArchivePath, PathToArchiveLinux) Export
 	
 	For Each ZIPItem In ZipFile.Items Do
 		FullFilePath1 = DirectoryName + "\" + ZIPItem.Name;
-		// For filename generation, See FilesOperationsInternal.WhenSendingAFileCreateTheInitialImage
+		// For filename generation,
 		CatalogUUID = ZIPItem.Name;
 		
 		FilesPathsMap.Insert(CatalogUUID, FullFilePath1);
@@ -1956,13 +1956,13 @@ EndProcedure
 // For the VolumeIntegrityCheck DCS report.
 Function ViewStatusChecks(Val CheckStatus) Export
 	If CheckStatus = "OK" Then
-		Return NStr("en = 'Data integrity check passed';");
+		Return NStr("en = 'Data integrity check passed'");
 	ElsIf CheckStatus = "ExtraFileInTome" Then 
-		Return NStr("en = 'Unreferenced files (files in the volume that have no entries in the application)';");
+		Return NStr("en = 'Unreferenced files (files in the volume that have no entries in the application)'");
 	ElsIf CheckStatus = "NoFileInVolume" Then
-		Return NStr("en = 'No files in the volume';");
+		Return NStr("en = 'No files in the volume'");
 	ElsIf CheckStatus = "FixingPossible" Then
-		Return NStr("en = 'Corrupted file info';");
+		Return NStr("en = 'Corrupted file info'");
 	EndIf;
 EndFunction
 
@@ -2004,7 +2004,7 @@ Function VolumeAvailable(Volume, VolumePresentation, Path, CheckParameters)
 	If IsBlankString(Path) Then
 		
 		IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t save files to file storage volume ""%1"" as it does not have a path to the network directory.';"), 
+			NStr("en = 'Couldn''t save files to file storage volume ""%1"" as it does not have a path to the network directory.'"), 
 			VolumePresentation);
 		WriteVolumeIssue(Volume, IssueSummary, CheckParameters);
 		Return False;
@@ -2023,7 +2023,7 @@ Function VolumeAvailable(Volume, VolumePresentation, Path, CheckParameters)
 				|%2
 				|
 				|The network directory might be unavailable, or you have insufficient access rights.
-				|Cannot access the files stored in the volume.';"),
+				|Cannot access the files stored in the volume.'"),
 				Path, ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		IssueSummary = IssueSummary + Chars.LF;
 		WriteVolumeIssue(Volume, IssueSummary, CheckParameters);
@@ -2079,7 +2079,7 @@ Procedure SearchRefsToNonExistingFilesInVolumes(MetadataObject, CheckParameters,
 	QueryText = StrReplace(QueryText, "&Author", 
 		?(MetadataObject.Attributes.Find("Author") <> Undefined, "MetadataObject.Author", "NULL"));
 		
-	OwnerField = ?(FullName = FullFileVersionName, "REFPRESENTATION(MetadataObject.Owner) ","UNDEFINED "); // @query-part-2
+	OwnerField = ?(FullName = FullFileVersionName, "REFPRESENTATION(MetadataObject.Owner) ","UNDEFINED "); //  @query-part-1, @query-part-2
 	QueryText = StrReplace(QueryText, "&OwnerField", OwnerField);
 	
 	Query = New Query(QueryText);
@@ -2097,11 +2097,11 @@ Procedure SearchRefsToNonExistingFilesInVolumes(MetadataObject, CheckParameters,
 			If Not ValueIsFilled(ResultString1.PathToFile) Then
 				If ResultString1.Owner <> Undefined Then
 					IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Full path to version %1 of file %2 is not specified in volume %3.';"),
+						NStr("en = 'Full path to version %1 of file %2 is not specified in volume %3.'"),
 						ResultString1.File, ResultString1.Owner, ResultString1.Volume);
 				Else
 					IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Full path to file %1 is not specified in volume %2.';"),
+						NStr("en = 'Full path to file %1 is not specified in volume %2.'"),
 						ResultString1.File, ResultString1.Volume);
 				EndIf;
 				
@@ -2114,11 +2114,11 @@ Procedure SearchRefsToNonExistingFilesInVolumes(MetadataObject, CheckParameters,
 
 				If ResultString1.Owner <> Undefined Then
 					IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'The infobase retains redundant binary data of version %1 of file %2 stored in volume %3.';"),
+						NStr("en = 'The infobase retains redundant binary data of version %1 of file %2 stored in volume %3.'"),
 						ResultString1.File, ResultString1.Owner, ResultString1.Volume);
 				Else
 					IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'The infobase retains redundant binary data of file %1 stored in volume %2.';"),
+						NStr("en = 'The infobase retains redundant binary data of file %1 stored in volume %2.'"),
 						ResultString1.File, ResultString1.Volume);
 				EndIf;
 				
@@ -2139,12 +2139,12 @@ Procedure SearchRefsToNonExistingFilesInVolumes(MetadataObject, CheckParameters,
 				
 			If ResultString1.Owner <> Undefined Then
 				IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Version ""%1"" of file ""%2"" does not exist in volume ""%3"" (%4).';"),
+					NStr("en = 'Version ""%1"" of file ""%2"" does not exist in volume ""%3"" (%4).'"),
 					ResultString1.File, ResultString1.Owner, ResultString1.Volume,
 					PathToFile);
 			Else
 				IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'File ""%1"" does not exist in volume ""%2"" (%3).';"),
+					NStr("en = 'File ""%1"" does not exist in volume ""%2"" (%3).'"),
 					ResultString1.File, ResultString1.Volume, PathToFile);
 			EndIf;
 			
@@ -2154,7 +2154,7 @@ Procedure SearchRefsToNonExistingFilesInVolumes(MetadataObject, CheckParameters,
 		EndDo;
 		
 		Query.SetParameter("Ref", ResultString1.ObjectWithIssue);
-		Result = Query.Execute().Unload(); // @skip-check query-in-loop - Batch-wise data processing
+		Result = Query.Execute().Unload(); // @skip-check query-in-loop 
 		
 	EndDo;
 	
@@ -2218,7 +2218,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Version = "3.1.11.80";
 	Handler.Procedure = "Catalogs.FilesVersions.ProcessDataForMigrationToNewVersion";
 	Handler.ExecutionMode = "Deferred";
-	Handler.Comment = NStr("en = 'Fixes invalid file storage paths in volumes and removes redundant binary data in file versions.';");
+	Handler.Comment = NStr("en = 'Fixes invalid file storage paths in volumes and removes redundant binary data in file versions.'");
 	Handler.Id = New UUID("06354049-b702-4f27-8e99-f49b86f7f152");
 	Handler.CheckProcedure = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
 	Handler.ObjectsToLock = "Catalog.FilesVersions";
@@ -2279,7 +2279,7 @@ Procedure UpdateVolumePathLinux() Export
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process file storage volume %1. Reason:
-				|%2';"), 
+				|%2'"), 
 				Selection.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
@@ -2398,7 +2398,7 @@ Function FreeVolume(AttachedFile)
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot add the %1 file 
 				|as no file storage volume is configured.
-				|Contact the administrator.';"),
+				|Contact the administrator.'"),
 			AttachedFile.Description + "." + AttachedFile.Extension);
 	EndIf;
 	
@@ -2412,7 +2412,7 @@ Function FreeVolume(AttachedFile)
 		EndIf;
 
 		If SizesOfVolumes = Undefined Then
-			// @skip-check query-in-loop - One-time call
+			// @skip-check query-in-loop - Разовый вызов
 			SizesOfVolumes = SizesOfVolumes(FileStorageVolumes.UnloadColumn("Ref"));
 		EndIf;
 		VolumeSize = SizesOfVolumes[FileStorageVolume.Ref];
@@ -2425,7 +2425,7 @@ Function FreeVolume(AttachedFile)
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 	NStr("en = 'Cannot add the %1 file 
 		|as the file storage volumes do not have enough space.
-		|Contact the administrator.';"),
+		|Contact the administrator.'"),
 		AttachedFile.Description + "." + AttachedFile.Extension);
 	Raise ErrorText;	
 	

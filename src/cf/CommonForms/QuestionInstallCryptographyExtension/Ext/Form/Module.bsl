@@ -30,14 +30,14 @@ EndProcedure
 &AtClient
 Procedure InstallAndContinue(Command)
 	
-	Close(DialogReturnCode.Yes);
+	Close(True);
 	
 EndProcedure
 
 &AtClient
 Procedure Cancel(Command)
 	
-	Close();
+	Close(False);
 	
 EndProcedure
 

@@ -54,7 +54,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Id = New UUID("cfda47d2-f61f-4c23-84a6-80c77b52e6e5");
 	Handler.Procedure = "Documents.Questionnaire.ProcessDataForMigrationToNewVersion";
 	Handler.Comment = NStr("en = 'The new attribute ""Survey mode"" is being populated in the ""Questionnaire"" documents.
-								  |Until the population is complete, the attribute might be displayed incorrectly.';");
+								  |Until the population is complete, the attribute might be displayed incorrectly.'");
 	Handler.ExecutionMode = "Deferred";
 	Handler.UpdateDataFillingProcedure = "Documents.Questionnaire.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.CheckProcedure    = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
@@ -67,7 +67,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Id = New UUID("1fdb0962-f814-463a-b560-48ea3d51be27");
 	Handler.Procedure = "Catalogs.QuestionnaireTemplateQuestions.ProcessDataForMigrationToNewVersion";
 	Handler.Comment = NStr("en = 'New attribute ""Tooltip display mode"" is being populated in the ""Questionnaire template questions"" catalog.
-								  |Until the population is complete, the attribute might be displayed incorrectly.';");
+								  |Until the population is complete, the attribute might be displayed incorrectly.'");
 	Handler.ExecutionMode = "Deferred";
 	Handler.UpdateDataFillingProcedure = "Catalogs.QuestionnaireTemplateQuestions.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.CheckProcedure    = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
@@ -80,7 +80,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Id = New UUID("a1581723-c1f5-4b90-b716-a180a4d5a4ad");
 	Handler.Procedure = "ChartsOfCharacteristicTypes.QuestionsForSurvey.ProcessDataForMigrationToNewVersion";
 	Handler.Comment = NStr("en = 'Fill the new ""Display format"", ""Use minimum value"", and ""Use maximum value"" attributes in survey questions.
-								  |Until the processing is completed, the questions will be displayed incorrectly.';");
+								  |Until the processing is completed, the questions will be displayed incorrectly.'");
 	Handler.ExecutionMode = "Deferred";
 	Handler.UpdateDataFillingProcedure = "ChartsOfCharacteristicTypes.QuestionsForSurvey.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.CheckProcedure    = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
@@ -317,7 +317,7 @@ Procedure SetQuestionnaireTreeRootItem(QuestionnaireTree) Export
 	TreeItems = QuestionnaireTree.GetItems(); // ValueTreeRowCollection
 	NewRow    = TreeItems.Add();
 
-	NewRow.Wording = NStr("en = 'Questionnaire';");
+	NewRow.Wording = NStr("en = 'Questionnaire'");
 	NewRow.RowType    = "Root";
 	NewRow.PictureCode  = SurveysClientServer.GetQuestionnaireTemplatePictureCode(False);
 
@@ -422,7 +422,7 @@ Procedure AddQuestionnaireTreeRows(Selection, ParentRow, RecursionLevel, Form)
 		NewRow.TableQuestionComposition.Sort("LineNumber Asc");
 		NewRow.NumericalQuestionHintsRange = Selection.NumericalQuestionHintsRange.Unload();
 		NewRow.NumericalQuestionHintsRange.Sort("LineNumber Desc");
-		NewRow.Composite                        = New UUID;
+		NewRow.RowKey                        = New UUID;
 		NewRow.Length                             = Selection.Length;
 		NewRow.MinValue               = Selection.MinValue;
 		NewRow.MaxValue              = Selection.MaxValue;
@@ -533,7 +533,7 @@ Procedure CreateFillingFormBySection(Form, CurrentDataSectionsTree) Export
 	ItemLabelIntroduction = Form.Items.IntroductionLabel; //FormField
 	If CurrentDataSectionsTree.RowType = "Section" Then
 
-		ItemLabelIntroduction.Title  = NStr("en = 'Section';") + " " + CurrentDataSectionsTree.Wording;
+		ItemLabelIntroduction.Title  = NStr("en = 'Section'") + " " + CurrentDataSectionsTree.Wording;
 		ItemLabelIntroduction.TextColor =  StyleColors.FunctionsPanelSectionColor;
 		ItemLabelIntroduction.Font = StyleFonts.LargeTextFont;
 
@@ -547,9 +547,9 @@ Procedure CreateFillingFormBySection(Form, CurrentDataSectionsTree) Export
 
 	Else
 
-		Introduction = ?(IsBlankString(Form.Introduction), NStr("en = 'Click Next to fill out the questionnaire.';"),
+		Introduction = ?(IsBlankString(Form.Introduction), NStr("en = 'Click Next to fill out the questionnaire.'"),
 			Form.Introduction);
-		ClosingStatement = ?(IsBlankString(Form.ClosingStatement), NStr("en = 'Thank you for filling out the questionnaire.';"),
+		ClosingStatement = ?(IsBlankString(Form.ClosingStatement), NStr("en = 'Thank you for filling out the questionnaire.'"),
 			Form.ClosingStatement);
 
 		ItemLabelIntroduction.Title = ?(CurrentDataSectionsTree.RowType = "Introduction", Introduction,
@@ -599,7 +599,7 @@ EndProcedure
 //
 Procedure AddAttributesForQuestion(TreeRow, AttributesToBeAdded, Form)
 
-	QuestionName = SurveysClientServer.QuestionName(TreeRow.Composite);
+	QuestionName = SurveysClientServer.QuestionName(TreeRow.RowKey);
 
 	RowTypeDetails = New TypeDescription("String");
 	AttributesToBeAdded.Add(New FormAttribute(QuestionName + "_Wording", RowTypeDetails));
@@ -690,7 +690,7 @@ EndProcedure
 Procedure AddAttributesTabularQuestion(TreeRow, AttributesToBeAdded, Form)
 
 	TabularQuestionType = TreeRow.TabularQuestionType;
-	QuestionName           = SurveysClientServer.QuestionName(TreeRow.Composite);
+	QuestionName           = SurveysClientServer.QuestionName(TreeRow.RowKey);
 	TableName           = QuestionName + "_Table";
 	NameOfColumnWithoutNumber  = TableName + "_Column_";
 	CCTTypesDetails     = Metadata.ChartsOfCharacteristicTypes.QuestionsForSurvey.Type;
@@ -777,7 +777,7 @@ EndProcedure
 //
 Procedure AddAttributesComplexQuestion(TreeRow, AttributesToBeAdded, Form)
 
-	QuestionName = SurveysClientServer.QuestionName(TreeRow.Composite);
+	QuestionName = SurveysClientServer.QuestionName(TreeRow.RowKey);
 	For Each ComplexQuestionRow In TreeRow.ComplexQuestionComposition Do // LineOfATabularSection of See CatalogTabularSection.QuestionnaireTemplateQuestions.CatalogTabularSection.QuestionnaireTemplateQuestions.ComplexQuestionComposition
 
 		FoundRows = Form.QuestionsPresentationTypes.FindRows(New Structure("DoQueryBox",
@@ -853,7 +853,7 @@ Procedure PositionOnFirstSectionQuestion(Form)
 
 	If Form.SectionQuestionsTable.Count() > 0 Then
 
-		QuestionName = SurveysClientServer.QuestionName(Form.SectionQuestionsTable[0].Composite);
+		QuestionName = SurveysClientServer.QuestionName(Form.SectionQuestionsTable[0].RowKey);
 
 		FoundItem = Form.Items.Find(QuestionName);
 		If FoundItem = Undefined Then
@@ -896,7 +896,7 @@ EndProcedure
 //
 Procedure AddItemsSection(TableRow, GroupItem, Form)
 
-	SectionName = "Section_" + StrReplace(TableRow.Composite, "-", "_");
+	SectionName = "Section_" + StrReplace(TableRow.RowKey, "-", "_");
 
 	SectionItem = Form.Items.Add(SectionName, Type("FormGroup"), GroupItem);
 	SectionItem.Type           = FormGroupType.UsualGroup;
@@ -913,7 +913,7 @@ EndProcedure
 //
 Procedure AddQuestionItems(TableRow, GroupItem1, Form)
 
-	QuestionName = SurveysClientServer.QuestionName(TableRow.Composite);
+	QuestionName = SurveysClientServer.QuestionName(TableRow.RowKey);
 	
 	// Setting group item for the question.
 	QuestionGroupItem = Form.Items.Add(QuestionName + "_Group", Type("FormGroup"), GroupItem1);
@@ -1042,15 +1042,15 @@ Procedure AddQuestionItems(TableRow, GroupItem1, Form)
 				ToolTipText = "";
 				If TableRow.ShouldUseMinValue And TableRow.ShouldUseMaxValue Then
 					ToolTipText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-						"en = 'You can enter value from %1 to %2';"), TableRow.MinValue,
+						"en = 'You can enter value from %1 to %2'"), TableRow.MinValue,
 						TableRow.MaxValue);
 				ElsIf Not TableRow.ShouldUseMinValue
 					And TableRow.ShouldUseMaxValue Then
 					ToolTipText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-						"en = 'You can enter value to %1';"), TableRow.MaxValue);
+						"en = 'You can enter value to %1'"), TableRow.MaxValue);
 				Else
 					ToolTipText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-						"en = 'You can enter value from %1';"), TableRow.MinValue);
+						"en = 'You can enter value from %1'"), TableRow.MinValue);
 				EndIf;
 
 				Item.ToolTip = ToolTipText;
@@ -1207,7 +1207,7 @@ EndProcedure
 Procedure AddTabularQuestionItems(TableRow, GroupItem1, Form)
 
 	TabularQuestionType = TableRow.TabularQuestionType;
-	QuestionName = SurveysClientServer.QuestionName(TableRow.Composite);
+	QuestionName = SurveysClientServer.QuestionName(TableRow.RowKey);
 	TableName = QuestionName + "_Table";
 	
 	ItemTable = Form.Items.Add(TableName, Type("FormTable"), GroupItem1);
@@ -1379,7 +1379,7 @@ EndProcedure
 //
 Procedure AddComplexQuestionItems(TableRow, GroupItem1, Form)
 
-	QuestionName = SurveysClientServer.QuestionName(TableRow.Composite);
+	QuestionName = SurveysClientServer.QuestionName(TableRow.RowKey);
 	For Each ComplexQuestionRow In TableRow.ComplexQuestionComposition Do // LineOfATabularSection of See CatalogTabularSection.QuestionnaireTemplateQuestions.CatalogTabularSection.QuestionnaireTemplateQuestions.ComplexQuestionComposition
 
 		FoundRows = Form.QuestionsPresentationTypes.FindRows(New Structure("DoQueryBox",
@@ -1494,16 +1494,16 @@ Procedure AddComplexQuestionItems(TableRow, GroupItem1, Form)
 				If ElementaryQuestionAttributes.ShouldUseMinValue
 					And ElementaryQuestionAttributes.ShouldUseMaxValue Then
 					ToolTipText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-						"en = 'You can enter value from %1 to %2';"),
+						"en = 'You can enter value from %1 to %2'"),
 						ElementaryQuestionAttributes.ShouldUseMinValue,
 						ElementaryQuestionAttributes.MaxValue);
 				ElsIf Not ElementaryQuestionAttributes.ShouldUseMinValue
 					And ElementaryQuestionAttributes.ShouldUseMaxValue Then
 					ToolTipText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-						"en = 'You can enter value to %1';"), ElementaryQuestionAttributes.MaxValue);
+						"en = 'You can enter value to %1'"), ElementaryQuestionAttributes.MaxValue);
 				Else
 					ToolTipText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-						"en = 'You can enter value from %1';"), ElementaryQuestionAttributes.MinValue);
+						"en = 'You can enter value from %1'"), ElementaryQuestionAttributes.MinValue);
 				EndIf;
 
 				Item.ToolTip = ToolTipText;
@@ -1974,7 +1974,7 @@ Procedure GetInformationOnQuestionnaireQuestions(Form, QuestionnaireTemplate, Se
 		NewRow.NumericalQuestionHintsRange.Load(
 			QuestionsByQuestionnaireSectionSelection.NumericalQuestionHintsRange.Unload());
 		NewRow.NumericalQuestionHintsRange.Sort("LineNumber Desc");
-		NewRow.Composite = New UUID;
+		NewRow.RowKey = New UUID;
 		NewRow.FullCode  = FullSectionCode + "." + XMLString(QuestionsCounter);
 
 	EndDo;
@@ -2022,7 +2022,7 @@ Procedure GenerateQuestionsSubordinationTable(Form) Export
 	|SELECT
 	|	SectionQuestions.ParentQuestion AS ParentQuestion,
 	|	SectionQuestions.TemplateQuestion,
-	|	SectionQuestions.KeyString AS Composite,
+	|	SectionQuestions.KeyString AS RowKey,
 	|	QuestionsWithCondition.KeyString AS ParentSrtingKey,
 	|	SectionQuestions.IsRequired,
 	|	SectionQuestions.CommentRequired,
@@ -2045,7 +2045,7 @@ Procedure GenerateQuestionsSubordinationTable(Form) Export
 	ExternalSource = Form.SectionQuestionsTable.Unload(); // ValueTable
 	ExternalSource.Columns.Add("KeyString", New TypeDescription("String", , New StringQualifiers(50)));
 	For Each TableRow In ExternalSource Do
-		TableRow.KeyString = String(TableRow.Composite);
+		TableRow.KeyString = String(TableRow.RowKey);
 	EndDo;
 	Query.SetParameter("ExternalSource", ExternalSource);
 
@@ -2067,7 +2067,7 @@ Procedure GenerateQuestionsSubordinationTable(Form) Export
 
 		While DetailsSelection.Next() Do
 
-			QuestionName = SurveysClientServer.QuestionName(DetailsSelection.Composite);
+			QuestionName = SurveysClientServer.QuestionName(DetailsSelection.RowKey);
 			SubordinatesTable = NewRow.SubordinateItems; // ValueTable
 			If DetailsSelection.QuestionType = Enums.QuestionnaireTemplateQuestionTypes.Tabular Then
 

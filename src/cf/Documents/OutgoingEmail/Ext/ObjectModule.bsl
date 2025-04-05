@@ -83,7 +83,7 @@ EndProcedure
 
 // End StandardSubsystems.Interactions
 
-// СтандартныеПодсистемы.УправлениеДоступом
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Table - See AccessManagement.AccessValuesSetsTable
@@ -539,5 +539,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

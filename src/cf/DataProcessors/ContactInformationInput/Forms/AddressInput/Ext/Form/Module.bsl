@@ -35,7 +35,7 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 		If Not Parameters.Property("OpenByScenario") Then
-		Raise NStr("en = 'The data processor cannot be opened manually.';");
+		Raise NStr("en = 'The data processor cannot be opened manually.'");
 	EndIf;
 	
 	// Form settings.
@@ -177,9 +177,9 @@ Procedure AddressOnDateOnChange(Item)
 		
 		
 		If ValueIsFilled(Result.ValidTo) Then
-			TextHistoricalAddress = " " + StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'valid until %1';"), Format(Result.ValidTo - 10, "DLF=DD"));
+			TextHistoricalAddress = " " + StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'valid until %1'"), Format(Result.ValidTo - 10, "DLF=DD"));
 		Else
-			TextHistoricalAddress = NStr("en = 'valid as of today.';");
+			TextHistoricalAddress = NStr("en = 'valid as of today.'");
 		EndIf;
 		Items.AddressStillValid.Title = TextHistoricalAddress;
 	Else
@@ -320,7 +320,7 @@ Procedure CustomFormatAddress(Command)
 			EndDo;
 		EndIf;
 		
-		ClearLocalityFields();
+		ClearSettlementFields();
 		
 		For FieldSeqNumber = 0 To FieldsOrder.UBound() Do
 			
@@ -354,7 +354,7 @@ Procedure CustomFormatAddress(Command)
 		Items.CustomFormatAddress.Check   = True;
 		LocalityDetailed.addressType     = ContactsManagerClientServer.CustomFormatAddress();
 		
-		ClearLocalityFields();
+		ClearSettlementFields();
 		If IsBlankString(LocalityDetailed.value) Then
 			LocalityDetailed.admLevels = New Array;
 		EndIf;
@@ -399,7 +399,7 @@ Function FieldsInAddressOrder(IncludeCountryInPresentation)
 EndFunction
 
 &AtClient
-Procedure ClearLocalityFields()
+Procedure ClearSettlementFields()
 	LocalityDetailed.street      = "";
 	LocalityDetailed.houseNumber = "";
 	LocalityDetailed.city        = "";
@@ -671,7 +671,7 @@ EndFunction
 //  ReturnValueList - Boolean
 //
 // Returns:
-//		See NewSelectionResult
+//		See NewSelectionResults
 //
 &AtServerNoContext
 Function SelectionResult(Context, ReturnValueList = False)
@@ -679,7 +679,7 @@ Function SelectionResult(Context, ReturnValueList = False)
 	LocalityDetailed = Context.LocalityDetailed;
 	Presentation = TrimAll(StrReplace(LocalityDetailed.Value, Chars.LF, " "));
 	
-	Result = NewSelectionResult();
+	Result = NewSelectionResults();
 
 	Result.ChoiceData.Presentation = Presentation;
 	Result.ChoiceData.Comment = LocalityDetailed.Comment;
@@ -710,7 +710,7 @@ EndFunction
 //        ** Type - EnumRef.ContactInformationTypes
 //
 &AtServerNoContext
-Function NewSelectionResult()
+Function NewSelectionResults()
 	
 	ChoiceData = New Structure();
 	ChoiceData.Insert("Presentation", "");
@@ -720,7 +720,7 @@ Function NewSelectionResult()
 	ChoiceData.Insert("AsHyperlink",       False);
 	ChoiceData.Insert("Kind", Catalogs.ContactInformationKinds.EmptyRef());
 	ChoiceData.Insert("Type", Enums.ContactInformationTypes.EmptyRef());
-	ChoiceData.Insert("ContactInformation",      ""); //  Устарело. Для обратной совместимости.
+	ChoiceData.Insert("ContactInformation",      ""); //  Obsolete. For backward compatibility purposes.
 	
 	Result = New Structure;
 	Result.Insert("FillingErrors", New Array);
@@ -883,9 +883,9 @@ Procedure DisplayInformationAboutAddressValidityDate(ValidFrom)
 				And IsBlankString(Result.CurrentRow.Presentation) Then
 					Items.HistoricalAddressGroup.Visible = False;
 			ElsIf ValueIsFilled(Result.ValidTo) Then
-				TextHistoricalAddress = " " + StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'valid until %1';"), Format(Result.ValidTo - 10, "DLF=DD"));
+				TextHistoricalAddress = " " + StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'valid until %1'"), Format(Result.ValidTo - 10, "DLF=DD"));
 			Else
-				TextHistoricalAddress = NStr("en = 'valid as of today.';");
+				TextHistoricalAddress = NStr("en = 'valid as of today.'");
 			EndIf;
 			DisplayRecordsCountInHistoryChange();
 		EndIf;
@@ -902,12 +902,12 @@ Procedure DisplayRecordsCountInHistoryChange()
 	Filter = New Structure("Kind", ContactInformationKindDetails(ThisObject).Ref);
 	FoundRows = ContactInformationAdditionalAttributesDetails.FindRows(Filter);
 	If FoundRows.Count() > 1 Then
-		Items.ChangeHistoryHyperlink.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Change history (%1)';"), FoundRows.Count());
+		Items.ChangeHistoryHyperlink.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Change history (%1)'"), FoundRows.Count());
 		Items.ChangeHistoryHyperlink.Visible = True;
 	ElsIf FoundRows.Count() = 1 And IsBlankString(FoundRows[0].Value) Then
 		Items.ChangeHistoryHyperlink.Visible = False;
 	Else
-		Items.ChangeHistoryHyperlink.Title = NStr("en = 'Change history';");
+		Items.ChangeHistoryHyperlink.Title = NStr("en = 'Change history'");
 		Items.ChangeHistoryHyperlink.Visible = True;
 	EndIf;
 
@@ -1055,12 +1055,12 @@ Function ContactInformationKindDetails(Form)
 	Return Form.ContactInformationKind;
 EndFunction
 
-// 
+// Fill address presentation.
 // 
 // Parameters:
 //  Address - See ContactsManagerClientServer.NewContactInformationDetails
 //  IncludeCountryInPresentation - Boolean
-//  AddressType -  
+//  AddressType - String, Undefined 
 //
 &AtClient
 Procedure FillAddressPresentation(Address, IncludeCountryInPresentation, AddressType = Undefined)
@@ -1094,7 +1094,7 @@ EndProcedure
 &AtClientAtServerNoContext
 Function TheBeginningOfTheAccounting()
 	
-	Return NStr("en = 'accounting start date';");
+	Return NStr("en = 'accounting start date'");
 	
 EndFunction
 

@@ -29,8 +29,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	IsAuthentication = Parameters.IsAuthentication;
 	
 	If IsAuthentication Then
-		Items.FormDecrypt.Title = NStr("en = 'OK';");
-		Items.AdvancedPasswordNote.Title = NStr("en = 'Click OK to enter the password.';");
+		Items.FormDecrypt.Title = NStr("en = 'OK'");
+		Items.AdvancedPasswordNote.Title = NStr("en = 'Click OK to enter the password.'");
 	EndIf;
 	
 	If DigitalSignatureInternal.UseCloudSignatureService() Then
@@ -787,7 +787,7 @@ Function WriteEncryptionCertificatesAtServer(Val ObjectsDetails, Val FormIdentif
 	Except
 		RollbackTransaction();
 		ErrorInfo = ErrorInfo();
-		Error.Insert("ErrorDescription", NStr("en = 'Cannot clear the encryption certificates due to:';")
+		Error.Insert("ErrorDescription", NStr("en = 'Cannot clear the encryption certificates due to:'")
 			+ Chars.LF + ErrorProcessing.BriefErrorDescription(ErrorInfo));
 	EndTry;
 	
@@ -805,7 +805,7 @@ Procedure HandleError(Notification, ErrorAtClient, ErrorAtServer, AdditionalData
 		EndIf;
 		
 		DataDetails.ErrorDescription = DigitalSignatureInternalClientServer.GeneralDescriptionOfTheError(
-			ErrorAtClient, ErrorAtServer, NStr("en = 'Cannot decrypt data due to:';"));
+			ErrorAtClient, ErrorAtServer, NStr("en = 'Cannot decrypt data due to:'"));
 		
 		If IsOpen() Then
 			Close(False);
@@ -828,7 +828,7 @@ Procedure HandleError(Notification, ErrorAtClient, ErrorAtServer, AdditionalData
 		EndIf;
 		
 		DigitalSignatureInternalClient.ShowApplicationCallError(
-			NStr("en = 'Cannot decrypt data';"), "",
+			NStr("en = 'Cannot decrypt data'"), "",
 			ErrorAtClient, ErrorAtServer, AdditionalParameters, ProcessingAfterWarning);
 		
 		RunCallback(Notification, False);

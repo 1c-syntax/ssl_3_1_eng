@@ -23,7 +23,7 @@ Var StandardCloseAlert;
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	MessageText = NStr("en = 'Please wait…';");
+	MessageText = NStr("en = 'Please wait…'");
 	If Not IsBlankString(Parameters.MessageText) Then
 		MessageText = Parameters.MessageText + Chars.LF + MessageText;
 		Items.TimeConsumingOperationNoteTextDecoration.Title = MessageText;
@@ -90,6 +90,9 @@ Procedure OnOpen(Cancel)
 		IdleParameters.Interval = Parameters.Interval;
 		IdleParameters.ExecutionProgressNotification = NotificationAboutProgress;
 		IdleParameters.ShouldCancelWhenOwnerFormClosed = ShouldCancelOnClose;
+		If TypeOf(Parameters.UserNotification) = Type("Structure") Then
+			FillPropertyValues(IdleParameters.UserNotification, Parameters.UserNotification);
+		EndIf;
 		
 		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	EndIf;
@@ -233,7 +236,6 @@ Procedure FinishLongRunningOperationAndCloseForm(TimeConsumingOperation)
 	
 	If Status = "Completed2" Then
 		
-		ShowNotification();
 		If ReturnResultToChoiceProcessing() Then
 			NotifyChoice(TimeConsumingOperation.Result);
 			Return;
@@ -294,17 +296,6 @@ Procedure Attachable_CancelJob()
 	
 	TimeConsumingOperation = CheckJobAndCancelIfRunning(JobID, ShouldCancelOnClose);
 	FinishLongRunningOperationAndCloseForm(TimeConsumingOperation);
-	
-EndProcedure
-
-&AtClient
-Procedure ShowNotification()
-	
-	If Parameters.UserNotification = Undefined Then
-		Return;
-	EndIf;
-	
-	TimeConsumingOperationsClient.ShowNotification(Parameters.UserNotification, FormOwner);
 	
 EndProcedure
 

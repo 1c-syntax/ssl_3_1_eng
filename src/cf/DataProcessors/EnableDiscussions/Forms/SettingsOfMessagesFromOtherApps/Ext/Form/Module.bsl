@@ -21,7 +21,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	AvailableCreationCommands["CreateTelegramBot"] = IsIntegrationAvailable;
 	If IsIntegrationAvailable Then
 		Connection = ConnectionsList.GetItems().Add();
-		Connection.Description = NStr("en = 'Telegram chats';");
+		Connection.Description = NStr("en = 'Telegram chats'");
 		Connection.Active = -1;
 		Connection.Type = ExternalSystemType;
 	EndIf;
@@ -31,7 +31,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	AvailableCreationCommands["CreateBotVKontakte"] = IsIntegrationAvailable;
 	If IsIntegrationAvailable Then
 		Connection = ConnectionsList.GetItems().Add();
-		Connection.Description = NStr("en = 'VK chats';");
+		Connection.Description = NStr("en = 'VK chats'");
 		Connection.Active = -1;
 		Connection.Type = ExternalSystemType;
 	EndIf;
@@ -41,7 +41,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	AvailableCreationCommands["CreateWhatsAppBot"] = IsIntegrationAvailable;
 	If IsIntegrationAvailable Then
 		Connection = ConnectionsList.GetItems().Add();
-		Connection.Description = NStr("en = 'WhatsApp chats';");
+		Connection.Description = NStr("en = 'WhatsApp chats'");
 		Connection.Active = -1;
 		Connection.Type = ExternalSystemType;
 	EndIf;
@@ -51,7 +51,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	AvailableCreationCommands["CreateWebChat"] = IsIntegrationAvailable;
 	If IsIntegrationAvailable Then
 		Connection = ConnectionsList.GetItems().Add();
-		Connection.Description = NStr("en = 'Website chats';");
+		Connection.Description = NStr("en = 'Website chats'");
 		Connection.Active = -1;
 		Connection.Type = ExternalSystemType;
 	EndIf;
@@ -61,7 +61,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	AvailableCreationCommands["CreateWebhookBot"] = IsIntegrationAvailable;
 	If IsIntegrationAvailable Then
 		Connection = ConnectionsList.GetItems().Add();
-		Connection.Description = NStr("en = 'Webhook integration';");
+		Connection.Description = NStr("en = 'Webhook integration'");
 		Connection.Active = -1;
 		Connection.Type = ExternalSystemType;
 	EndIf;
@@ -181,7 +181,7 @@ Procedure UpdateIntegrationsList(Val AvailableIntegrations = Undefined)
 			WriteLogEvent(ConversationsInternal.EventLogEvent(),
 				EventLogLevel.Error,,,
 				StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Unsupported external integration type: %1.';"), Integration.ExternalSystemType));
+					NStr("en = 'Unsupported external integration type: %1.'"), Integration.ExternalSystemType));
 		EndIf;
 		
 	EndDo;

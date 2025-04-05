@@ -20,7 +20,7 @@ Procedure BeforeWrite(Cancel)
 		Return;
 	EndIf;
 	If Not AdditionalProperties.Property("PredefinedObjectsFilling") Then
-		Raise NStr("en = 'Cannot save to ""Predefined report options"" catalog. It is populated automatically.';");
+		Raise NStr("en = 'Cannot save to ""Predefined report options"" catalog. It is populated automatically.'");
 	EndIf;
 EndProcedure
 
@@ -34,12 +34,12 @@ Procedure CheckPredefinedReportOptionFilling(Cancel)
 		Return;
 	EndIf;
 		
-	Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Field %1 is required.';"), "Report");
+	Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Field %1 is required.'"), "Report");
 	
 EndProcedure
 
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

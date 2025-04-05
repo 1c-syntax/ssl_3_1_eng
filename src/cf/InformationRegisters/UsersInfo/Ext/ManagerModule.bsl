@@ -37,7 +37,7 @@ Procedure UpdateRegisterData(User = Undefined, HasChanges = Undefined) Export
 		If Properties = Undefined Then
 			Continue;
 		EndIf;
-		// @skip-check query-in-loop - Batch-wise data processing within a transaction
+		// @skip-check query-in-loop  в транзакции
 		UpdateUserInfoRecords(Selection.Ref, Undefined,,, HasChanges);
 	EndDo;
 	
@@ -691,7 +691,7 @@ Procedure UpdateUsersInfoAndDisableAuthentication() Export
 		Try
 			Block.Lock();
 			HasChanges = False;
-			// @skip-check query-in-loop - Batch-wise data processing within a transaction
+			// @skip-check query-in-loop  в транзакции
 			DeleteInfoRecordsOnDeletedUsers(User, HasChanges);
 			If Not HasChanges Then
 				UserObject = ServiceItem(User);
@@ -706,7 +706,7 @@ Procedure UpdateUsersInfoAndDisableAuthentication() Export
 								UsersInternal.StoredIBUserProperties(PreviousProperties));
 						EndIf;
 					EndIf;
-					// @skip-check query-in-loop - Batch-wise data processing within a transaction
+					// @skip-check query-in-loop  в транзакции
 					UpdateUserInfoRecords(User, UserObject);
 					If UserObject.Modified() Then
 						// ACC:1363-off - Cleanup of stored authentication properties that do not participate in data exchange.
@@ -842,7 +842,7 @@ Procedure ResetOpenIDConnectAuthenticationForAllUsers()
 		Try
 			IBUser.Write();
 			If String <> Undefined Then
-				// @skip-check query-in-loop - Batch-wise data processing within a transaction
+				// @skip-check query-in-loop  в транзакции
 				UpdateUserInfoRecords(String.Ref, Undefined);
 			EndIf;
 			CommitTransaction();

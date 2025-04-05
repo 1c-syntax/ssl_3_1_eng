@@ -24,7 +24,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.FormAddressInApplication.Visible = False;
 	EndIf;
 	
-	Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'What''s new in %1';"), Metadata.Synonym);
+	Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'What''s new in %1'"), Metadata.Synonym);
 	
 	If ValueIsFilled(Parameters.UpdateStartTime) Then
 		UpdateStartTime = Parameters.UpdateStartTime;
@@ -57,7 +57,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If DocumentUpdatesDetails.TableHeight = 0 Then
-		Text = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The application is updated to version %1.';"), Metadata.Version);
+		Text = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The application is updated to version %1.'"), Metadata.Version);
 		DocumentUpdatesDetails.Area("R1C1:R1C1").Text = Text;
 	EndIf;
 	
@@ -87,13 +87,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If Common.FileInfobase() Then
-		MessageTitle = NStr("en = 'Additional data processing required';");
+		MessageTitle = NStr("en = 'Additional data processing required'");
 		Items.DeferredDataUpdate.Title = MessageTitle;
 	EndIf;
 	
 	If Not Users.IsFullUser(, True) Then
 		Items.DeferredDataUpdate.Title =
-			NStr("en = 'Additional data processing skipped';");
+			NStr("en = 'Additional data processing skipped'");
 	EndIf;
 	
 	Items.TechnicalInformationOnUpdateResult.Visible = 
@@ -194,7 +194,7 @@ Procedure ScheduledJobsDisabledURLProcessing(Item, FormattedStringURL, StandardP
 	StandardProcessing = False;
 	
 	Notification = New CallbackDescription("ScheduledJobsDisabledURLProcessingCompletion", ThisObject);
-	QueryText = NStr("en = 'Restart the application?';");
+	QueryText = NStr("en = 'Restart the application?'");
 	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo,, DialogReturnCode.No);
 EndProcedure
 

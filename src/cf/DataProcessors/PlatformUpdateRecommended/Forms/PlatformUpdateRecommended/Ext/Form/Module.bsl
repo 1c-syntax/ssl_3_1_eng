@@ -14,7 +14,7 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not Parameters.Property("OpenByScenario") Then
-		Raise NStr("en = 'The data processor cannot be opened manually.';");
+		Raise NStr("en = 'The data processor cannot be opened manually.'");
 	EndIf;
 	
 	SkipExit = Parameters.SkipExit;
@@ -33,12 +33,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	TextCondition = "";
 	If CommonClientServer.CompareVersions(Current, Min) < 0 Then
 		TextCondition = NStr("en = 'The application requires 1C:Enterprise version %1 or later.
-			|The current version is %2.';");
+			|The current version is %2.'");
 		CannotContinue = True;
 		VersionNumber = Min;
 	Else
 		TextCondition = NStr("en = 'We recommend using 1C:Enterprise version %1 or later.
-			|The current version is %2.';");
+			|The current version is %2.'");
 	EndIf;
 	
 	Items.Version.Title = StringFunctionsClientServer.SubstituteParametersToString(
@@ -49,7 +49,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If CannotContinue Then
 		Items.QueryText.Visible = False;
 		Items.FormNo.Visible     = False;
-		Title = NStr("en = '1C:Enterprise update required';");
+		Title = NStr("en = '1C:Enterprise update required'");
 	EndIf;
 	
 EndProcedure

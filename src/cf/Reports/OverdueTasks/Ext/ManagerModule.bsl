@@ -22,10 +22,10 @@
 //
 Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	ModuleReportsOptions = Common.CommonModule("ReportsOptions");
-	ReportSettings.LongDesc = NStr("en = 'Tasks completed with delay by assignee.';");
+	ReportSettings.LongDesc = NStr("en = 'Tasks completed with delay by assignee.'");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "TasksCompletedWithDeadlineViolation");
-	OptionSettings.LongDesc = NStr("en = 'Tasks completed with delay by assignee.';");
+	OptionSettings.LongDesc = NStr("en = 'Tasks completed with delay by assignee.'");
 EndProcedure
 
 // End StandardSubsystems.ReportsOptions

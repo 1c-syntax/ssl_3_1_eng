@@ -25,8 +25,8 @@ Procedure OpenExportTemplatesForm(Val ReferencesArrray, Val ExecutionParameters)
 	
 EndProcedure
 
-// 
-//  
+// Installs 1C:Enterprise Extension and runs the procedure
+//  that opens the export form.
 //  See FileSystemClient.AttachFileOperationsExtension
 //  
 // Parameters:
@@ -53,7 +53,7 @@ EndProcedure
 
 #Region Private
 
-// 
+// Opens the "SaveByExportFormat" common form.
 // 
 // Parameters:
 //  ExtensionAttached - Boolean

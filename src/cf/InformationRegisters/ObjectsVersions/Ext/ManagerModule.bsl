@@ -32,7 +32,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// ТехнологияСервиса.ВыгрузкаЗагрузкаДанных
+// CloudTechnology.ExportImportData
 
 // Attached in ExportImportDataOverridable.OnRegisterDataExportHandlers.
 //
@@ -122,7 +122,7 @@ Procedure DeleteVersionAuthorInfo(Val VersionAuthor) Export
 			Break;
 		EndIf;
 		
-		Selection = Query.Execute().Select(); // @skip-check query-in-loop - Batch processing of a large amount of data.
+		Selection = Query.Execute().Select(); // @skip-check query-in-loop
 	EndDo;
 	
 EndProcedure
@@ -642,18 +642,18 @@ Procedure OutputSpreadsheetDocumentsChanges(ReportTS, VersionNumberArray, Spread
 				Area = ReportTS.Join(TemplateCellChanged);
 				VersionNumber0 = Format(VersionNumber, "NG=0");
 				VersionNumber1 = Format(VersionNumberArray[VersionNumberIndex-1], "NG=0");
-				TextTemplate1 = NStr("en = 'compare version #%1 with version #%2';");
+				TextTemplate1 = NStr("en = 'compare version #%1 with version #%2'");
 				Area.Text = StringFunctionsClientServer.SubstituteParametersToString(TextTemplate1, VersionNumber0, VersionNumber1);
 				Area.Details = New Structure("Compare, Version0, Version1",
 					CurRow.Description, VersionNumberIndex, VersionNumberIndex-1);
 				
 			ElsIf CurRow[ColumnName] = "U" Then
 				Area = ReportTS.Join(TemplateCellDeleted);
-				Area.Text = NStr("en = 'Saving changes is disabled for spreadsheet documents';");
+				Area.Text = NStr("en = 'Saving changes is disabled for spreadsheet documents'");
 				
 			ElsIf CurRow[ColumnName] = "D" Then
 				Area = ReportTS.Join(TemplateCellAdded);
-				Area.Text = NStr("en = 'open';");
+				Area.Text = NStr("en = 'open'");
 				Area.Details = New Structure("Open, Version", CurRow.Description, VersionNumberIndex); 
 				
 			Else
@@ -711,7 +711,7 @@ EndProcedure
 Procedure OutputHeader(ReportTS, VersionsList, VersionsCount, CommonTemplate, ObjectReference)
 	
 	SectionHeader = CommonTemplate.GetArea("Header");
-	SectionHeader.Parameters.ReportDescription1 = NStr("en = 'Object version delta report';");
+	SectionHeader.Parameters.ReportDescription1 = NStr("en = 'Object version delta report'");
 	SectionHeader.Parameters.ObjectDescription = String(ObjectReference);
 	
 	ReportTS.Put(SectionHeader);
@@ -1189,7 +1189,7 @@ Function GetVersionDetails(ObjectReference, VersionNumber)
 	
 	VersionInfo = ObjectsVersioning.ObjectVersionInfo(ObjectReference, VersionNumber.Value);
 	
-	LongDesc = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '#%1 / (%2) / %3';"), VersionNumber.Presentation, 
+	LongDesc = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '#%1 / (%2) / %3'"), VersionNumber.Presentation, 
 		String(VersionInfo.VersionDate), TrimAll(String(VersionInfo.VersionAuthor)));
 		
 	VersionInfo.Insert("LongDesc", LongDesc);
@@ -1370,7 +1370,7 @@ Procedure AddRowNumbersToTabularSections(TabularSections)
 		If Table.Columns.Find("LineNumber") <> Undefined Then
 			Continue;
 		EndIf;
-		Table.Columns.Insert(0, "LineNumber",,NStr("en = '#';"));
+		Table.Columns.Insert(0, "LineNumber",,NStr("en = '#'"));
 		For LineNumber = 1 To Table.Count() Do
 			Table[LineNumber-1].LineNumber = LineNumber;
 		EndDo;
@@ -1378,12 +1378,18 @@ Procedure AddRowNumbersToTabularSections(TabularSections)
 	
 EndProcedure
 
-Function FindSimilarTableRows(Table1, Val Table2, Val RequiredDifferenceCount = 0, Val MaxDifferences = Undefined, Table1RowsAndTable2RowsMap = Undefined)
+Function FindSimilarTableRows(Val Table1, Val Table2, Val RequiredDifferenceCount = 0, Val MaxDifferences = Undefined, Table1RowsAndTable2RowsMap = Undefined)
 	
 	Ignore = "Ignore_";
 	
-	Table2 = Table2.Copy();
+	If Table1.Columns.Find(Ignore) = Undefined Then
+		Table1 = Table1.Copy();
+		Table1.Columns.Add(Ignore, New TypeDescription("Boolean"));
+		Table1.Indexes.Add(Ignore);
+	EndIf;
+	
 	If Table2.Columns.Find(Ignore) = Undefined Then
+		Table2 = Table2.Copy();
 		Table2.Columns.Add(Ignore, New TypeDescription("Boolean"));
 		Table2.Indexes.Add(Ignore);
 	EndIf;
@@ -1399,15 +1405,13 @@ Function FindSimilarTableRows(Table1, Val Table2, Val RequiredDifferenceCount = 
 	CommonColumns = FindCommonColumns(Table1, Table2);
 	OtherColumns = FindNonmatchingColumns(Table1, Table2);
 	
-	// Comparing each row with each other row.
-	For Each TableRow1 In Table1 Do
+	For Each TableRow1 In Table1.FindRows(New Structure(Ignore, False)) Do
 		For Each TableRow2 In Table2.FindRows(New Structure(Ignore, False)) Do
-			// Count differences ignoring internal column.
-			DifferenceCount = DifferenceCountInTableRows(TableRow1, TableRow2, CommonColumns, OtherColumns) - 1;
+			DifferenceCount = DifferenceCountInTableRows(TableRow1, TableRow2, CommonColumns, OtherColumns);
 			
-			// Analyzing the result of rows comparison.
 			If DifferenceCount = RequiredDifferenceCount Then
 				Table1RowsAndTable2RowsMap.Insert(TableRow1.LineNumber, TableRow2.LineNumber);
+				TableRow1[Ignore] = True;
 				TableRow2[Ignore] = True;
 				Break;
 			EndIf;
@@ -1576,12 +1580,12 @@ Procedure ProgressDeletingSyncAlerts(Val CurrentStep, Maximum, SampleIterator = 
 	
 	If SampleIterator = 0 Then
 		
-		Template = NStr("en = '%1 out of %2 iterations completed';",  Common.DefaultLanguageCode());
+		Template = NStr("en = '%1 out of %2 iterations completed'",  Common.DefaultLanguageCode());
 		ProgressText = StringFunctionsClientServer.SubstituteParametersToString(Template, CurrentStep, Maximum);
 		
 	Else
 		
-		Template = NStr("en = '%1 out of %2 iterations completed (%3)';",  Common.DefaultLanguageCode());
+		Template = NStr("en = '%1 out of %2 iterations completed (%3)'",  Common.DefaultLanguageCode());
 		ProgressText = StringFunctionsClientServer.SubstituteParametersToString(
 			Template, CurrentStep, Maximum, SampleIterator);
 		
@@ -1735,7 +1739,7 @@ Procedure RemovePreviousWarningExchanges(ObjectVersionInfo) Export
 		
 	Except
 		
-		EventName = NStr("en = 'Data exchange';", Common.DefaultLanguageCode());
+		EventName = NStr("en = 'Data exchange'", Common.DefaultLanguageCode());
 		WriteLogEvent(EventName, EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		
 	EndTry;
@@ -1792,7 +1796,7 @@ Procedure RemovePreviousExchangeWarningsByType(ObjectVersionInfo, AcceptableType
 			
 		EndIf;
 		
-		Selection = Query.Execute().Select(); // @skip-check query-in-loop - Batch processing of a large amount of data.
+		Selection = Query.Execute().Select(); // @skip-check query-in-loop
 		
 	EndDo;
 	
@@ -1835,7 +1839,7 @@ Procedure DeletePreviousWarningExchangesByComment(ObjectVersionInfo)
 			
 		EndIf;
 		
-		Selection = Query.Execute().Select(); // @skip-check query-in-loop - Batch processing of a large amount of data.
+		Selection = Query.Execute().Select(); // @skip-check query-in-loop
 		
 	EndDo;
 	

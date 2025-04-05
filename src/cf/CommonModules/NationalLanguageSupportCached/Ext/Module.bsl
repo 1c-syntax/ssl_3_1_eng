@@ -81,7 +81,7 @@ Function LanguagesInfo() Export
 	
 	Used = New Structure;
 	For LanguageSeqNumber = 1 To AdditionalLanguagesCount Do
-		LanguageSuffixName = NationalLanguageSupportClientServer.LanguageSuffix_(LanguageSeqNumber);
+		LanguageSuffixName = NationalLanguageSupportClientServer.LanguageSuffix(LanguageSeqNumber);
 		LanguageCode = NationalLanguageSupportServer.InfobaseAdditionalLanguageCode(LanguageSeqNumber);
 		Result.Insert(LanguageSuffixName, LanguageCode);
 			
@@ -98,7 +98,7 @@ Function InfoAboutLanguagesUsed() Export
 	
 	Used = New Structure;
 	For LanguageSeqNumber = 1 To AdditionalLanguagesCount() Do
-		LanguageSuffixName = NationalLanguageSupportClientServer.LanguageSuffix_(LanguageSeqNumber);
+		LanguageSuffixName = NationalLanguageSupportClientServer.LanguageSuffix(LanguageSeqNumber);
 		LanguageCode = NationalLanguageSupportServer.InfobaseAdditionalLanguageCode(LanguageSeqNumber);
 			
 		Used.Insert(LanguageSuffixName,
@@ -116,7 +116,7 @@ Function LanguageSuffixByLanguageCode(Language) Export
 		ConstantName    =  NationalLanguageSupportServer.LanguageConstantName(LanguageSeqNumber);
 		If StrCompare(Language, Constants[ConstantName].Get()) = 0
 		   And IsAdditionalLangUsed(LanguageSeqNumber) Then
-				Return NationalLanguageSupportClientServer.LanguageSuffix_(LanguageSeqNumber);
+				Return NationalLanguageSupportClientServer.LanguageSuffix(LanguageSeqNumber);
 		EndIf;
 		
 	EndDo;

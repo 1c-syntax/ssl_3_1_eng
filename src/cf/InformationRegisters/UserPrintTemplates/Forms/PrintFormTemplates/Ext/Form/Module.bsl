@@ -42,7 +42,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	HasUpdateRight = AccessRight("Update", Metadata.InformationRegisters.UserPrintTemplates);
 	If Not HasUpdateRight Then
 		StandardProcessing = False;
-		MessageText = NStr("en = 'Insufficient rights to edit templates.';");
+		MessageText = NStr("en = 'Insufficient rights to edit templates.'");
 		Raise(MessageText, ErrorCategory.AccessViolation);
 	EndIf;
 	
@@ -54,7 +54,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
 			AdditionalLanguagesOfPrintedForms = PrintManagementModuleNationalLanguageSupport.AdditionalLanguagesOfPrintedForms();
 			
-			Items.FilterByLanguage.ChoiceList.Add("", NStr("en = 'All';"));
+			Items.FilterByLanguage.ChoiceList.Add("", NStr("en = 'All'"));
 			For Each Language In AdditionalLanguagesOfPrintedForms Do
 				LanguagePresentation = ModuleNationalLanguageSupportServer.LanguagePresentation(Language);
 				Items.FilterByLanguage.ChoiceList.Add(LanguagePresentation);
@@ -76,10 +76,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If ExportTemplates Then
 		
 		AutoTitle = False;
-		Title = NStr("en = 'Export file templates';");
-		Items.TemplatesAvailabilityConditions.Title = NStr("en = 'Visibility in ""Export to file…"" submenu';");
+		Title = NStr("en = 'Export file templates'");
+		Items.TemplatesAvailabilityConditions.Title = NStr("en = 'Visibility in ""Export to file…"" submenu'");
 		
-		ToolTipText = NStr("en = 'Show in ""Export to file…"" submenu';");
+		ToolTipText = NStr("en = 'Show in ""Export to file…"" submenu'");
 		Items.TemplatesUsed.ToolTip = ToolTipText;
 		
 	EndIf;
@@ -478,8 +478,8 @@ Procedure AddTemplate(Command)
 	NotificationParameters.Insert("TemplateType", "MXL");
 	NotificationParameters.Insert("TemplateForObjectExport", False);
 	NotifyDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject, NotificationParameters);
-	UniqueDescr = AssignUniqueDescription(NStr("en = 'New print form';"), False);
-	ShowInputString(NotifyDescription, UniqueDescr, NStr("en = 'Enter a template description';"), 100, False)
+	UniqueDescr = AssignUniqueDescription(NStr("en = 'New print form'"), False);
+	ShowInputString(NotifyDescription, UniqueDescr, NStr("en = 'Enter a template description'"), 100, False)
 	
 EndProcedure
 
@@ -496,8 +496,8 @@ Procedure AddOfficeOpenXMLTemplate(Command)
 	NotificationParameters.Insert("TemplateType", "DOCX");
 	NotificationParameters.Insert("TemplateForObjectExport", False);
 	NotifyDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject, NotificationParameters);
-	UniqueDescr = AssignUniqueDescription(NStr("en = 'New print form';"), False);
-	ShowInputString(NotifyDescription, UniqueDescr, NStr("en = 'Enter a template description';"), 100, False)
+	UniqueDescr = AssignUniqueDescription(NStr("en = 'New print form'"), False);
+	ShowInputString(NotifyDescription, UniqueDescr, NStr("en = 'Enter a template description'"), 100, False)
 	
 EndProcedure
 
@@ -531,8 +531,8 @@ Procedure AddExportTemplate(Command)
 	NotificationParameters.Insert("TemplateType", "MXL");
 	NotificationParameters.Insert("TemplateForObjectExport", True);
 	NotifyDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject, NotificationParameters);
-	UniqueDescr = AssignUniqueDescription(NStr("en = 'New export form';"), False);
-	ToolTip = NStr("en = 'Enter a template description';");
+	UniqueDescr = AssignUniqueDescription(NStr("en = 'New export form'"), False);
+	ToolTip = NStr("en = 'Enter a template description'");
 	ShowInputString(NotifyDescription, UniqueDescr, ToolTip, 100, False);
 	
 EndProcedure
@@ -577,7 +577,7 @@ EndProcedure
 
 #EndRegion
 
-// Открытие макета
+// 
 
 &AtClient
 Procedure OpenPrintFormTemplate()
@@ -632,14 +632,14 @@ Procedure OpenPrintFormTemplateForEdit()
 		NotifyDescription = New CallbackDescription("OpenPrintFormTemplateForEditingFollowUp", ThisObject, CurrentData);
 		QueryText = NStr("en = 'An edited version of this template is available.
 		|You can switch to the custom template or continue with the standard one.
-		|';");
+		|'");
 		
 		Buttons = New ValueList();
-		Buttons.Add(True, NStr("en = 'Custom template';"));
-		Buttons.Add(False, NStr("en = 'Standard template';"));
-		Buttons.Add(Undefined, NStr("en = 'Cancel';"));
+		Buttons.Add(True, NStr("en = 'Custom template'"));
+		Buttons.Add(False, NStr("en = 'Standard template'"));
+		Buttons.Add(Undefined, NStr("en = 'Cancel'"));
 		
-		ShowQueryBox(NotifyDescription, QueryText, Buttons, , , NStr("en = 'Which template do you want to proceed with?';"));
+		ShowQueryBox(NotifyDescription, QueryText, Buttons, , , NStr("en = 'Which template do you want to proceed with?'"));
 		Return;
 	EndIf;
 	
@@ -691,7 +691,7 @@ Procedure OpenPrintFormTemplateForEditingFollowUp(SwitchUsages, CurrentData) Exp
 	
 EndProcedure
 
-// Действия с макетами
+// 
 
 &AtServerNoContext
 Function TemplateVersion(Id, TemplateType)
@@ -834,7 +834,7 @@ Procedure Copy(Command)
 	NotifyDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject, NotificationParameters);
 	CurrentTemplate = Items.Templates.CurrentData;
 	CopyDescr = AssignUniqueDescription(CurrentTemplate.Presentation);
-	ShowInputString(NotifyDescription, CopyDescr, NStr("en = 'Enter a template description';"), 100, False)
+	ShowInputString(NotifyDescription, CopyDescr, NStr("en = 'Enter a template description'"), 100, False)
 	
 EndProcedure
 
@@ -847,7 +847,7 @@ Function AssignUniqueDescription(TemplateDescr, ThisIsCopying = True)
 	TreeOfTemplates = FormAttributeToValue("Templates");
 	While TreeOfTemplates.Rows.Find(NewDescription + EndOfCopy, "Presentation", True) <> Undefined Do
 		If ThisIsCopying Then
-			EndOfCopy = " - " + NStr("en = 'copy';");
+			EndOfCopy = " - " + NStr("en = 'copy'");
 		Else
 			EndOfCopy = "";
 		EndIf;
@@ -936,11 +936,11 @@ Procedure GoToList()
 			NotifyDescription = New CallbackDescription("GoToListCompletion", ThisObject, 
 				New Structure("Form, URL", Form, ListURL));
 			Buttons = New ValueList;
-			Buttons.Add("Reopen", NStr("en = 'Reopen';"));
-			Buttons.Add("Cancel", NStr("en = 'Do not reopen';"));
+			Buttons.Add("Reopen", NStr("en = 'Reopen'"));
+			Buttons.Add("Cancel", NStr("en = 'Do not reopen'"));
 			QueryText = 
 				NStr("en = 'The list is already open. Reopen the list
-				|to see the changes in Print menu?';");
+				|to see the changes in Print menu?'");
 			ShowQueryBox(NotifyDescription, QueryText, Buttons, , "Reopen");
 			Return;
 		EndIf;
@@ -1185,7 +1185,7 @@ Procedure FillPrintFormsTemplatesTable(Branch1)
 	LayoutGroups = New Map();
 	
 	GroupOther = Branch1.GetItems().Add();
-	GroupOther.Presentation = NStr("en = 'Other';");
+	GroupOther.Presentation = NStr("en = 'Other'");
 	GroupOther.PictureGroup = PictureLib.Enum;
 	GroupOther.Id = "CommonTemplates";
 	GroupOther.UsagePicture = -1;
@@ -1871,11 +1871,11 @@ EndFunction
 &AtServer
 Procedure LoadObjectsGroupMethodSettings()
 	
-	SettingsValue = Common.CommonSettingsStorageLoad(
+	SettingsValue_ = Common.CommonSettingsStorageLoad(
 		"TemplateOpeningSettingObjectsGroupMethod",
 		"GroupingBySections");
-	If SettingsValue <> Undefined Then
-		GroupingBySections = SettingsValue;
+	If SettingsValue_ <> Undefined Then
+		GroupingBySections = SettingsValue_;
 	Else
 		GroupingBySections = True;
 	EndIf;
@@ -1903,7 +1903,7 @@ Procedure MetadataObjectTreeFill()
 	
 	DoOutputCollection = Not ExportTemplates;
 	
-	NameOfMetadataObjects = NStr("en = 'Catalogs';");
+	NameOfMetadataObjects = NStr("en = 'Catalogs'");
 	CollectionNewRow(
 		"Catalogs",
 		NameOfMetadataObjects,
@@ -1911,7 +1911,7 @@ Procedure MetadataObjectTreeFill()
 		True,
 		MetadataObjects);
 	
-	NameOfMetadataObjects = NStr("en = 'Documents';");
+	NameOfMetadataObjects = NStr("en = 'Documents'");
 	CollectionNewRow(
 		"Documents",
 		NameOfMetadataObjects,
@@ -1919,7 +1919,7 @@ Procedure MetadataObjectTreeFill()
 		True,
 		MetadataObjects);
 	
-	NameOfMetadataObjects = NStr("en = 'Document journals';");
+	NameOfMetadataObjects = NStr("en = 'Document journals'");
 	CollectionNewRow(
 		"DocumentJournals",
 		NameOfMetadataObjects,
@@ -1927,7 +1927,7 @@ Procedure MetadataObjectTreeFill()
 		DoOutputCollection,
 		MetadataObjects);
 		
-	NameOfMetadataObjects = NStr("en = 'Charts of characteristic types';");
+	NameOfMetadataObjects = NStr("en = 'Charts of characteristic types'");
 	CollectionNewRow(
 		"ChartsOfCharacteristicTypes",
 		NameOfMetadataObjects,
@@ -1935,7 +1935,7 @@ Procedure MetadataObjectTreeFill()
 		DoOutputCollection,
 		MetadataObjects);
 		
-	NameOfMetadataObjects = NStr("en = 'Charts of accounts';");
+	NameOfMetadataObjects = NStr("en = 'Charts of accounts'");
 	CollectionNewRow(
 		"ChartsOfAccounts",
 		NameOfMetadataObjects,
@@ -1943,7 +1943,7 @@ Procedure MetadataObjectTreeFill()
 		DoOutputCollection,
 		MetadataObjects);
 	
-	NameOfMetadataObjects = NStr("en = 'Charts of calculation types';");
+	NameOfMetadataObjects = NStr("en = 'Charts of calculation types'");
 	CollectionNewRow(
 		"ChartsOfCalculationTypes",
 		NameOfMetadataObjects,
@@ -1951,7 +1951,7 @@ Procedure MetadataObjectTreeFill()
 		DoOutputCollection,
 		MetadataObjects);
 	
-	NameOfMetadataObjects = NStr("en = 'Business processes';");
+	NameOfMetadataObjects = NStr("en = 'Business processes'");
 	CollectionNewRow(
 		"BusinessProcesses",
 		NameOfMetadataObjects,
@@ -1959,7 +1959,7 @@ Procedure MetadataObjectTreeFill()
 		DoOutputCollection,
 		MetadataObjects);
 		
-	NameOfMetadataObjects = NStr("en = 'Tasks';");
+	NameOfMetadataObjects = NStr("en = 'Tasks'");
 	CollectionNewRow(
 		"Tasks",
 		NameOfMetadataObjects,

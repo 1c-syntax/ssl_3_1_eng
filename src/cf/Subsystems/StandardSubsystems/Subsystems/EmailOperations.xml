@@ -35,6 +35,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">Enum.EmailMessagesStatuses</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.EmailOperationsLocalization</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.EmailOperationsInternalClientServer</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.EmailOperationsInternalClient</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

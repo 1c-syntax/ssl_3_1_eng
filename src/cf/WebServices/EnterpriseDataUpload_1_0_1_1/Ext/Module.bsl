@@ -70,7 +70,7 @@ Function ImportDataToInfobase(FileID, BackgroundJobIdentifier, ErrorMessage)
 	ProcedureParameters.Insert("ErrorMessage",   ErrorMessage);
 
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Import data to the infobase using the ""Enterprise Data Upload"" web service';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Import data to the infobase using the ""Enterprise Data Upload"" web service'");
 	ExecutionParameters.BackgroundJobKey = String(New UUID);
 	ExecutionParameters.WaitCompletion = 0;
 

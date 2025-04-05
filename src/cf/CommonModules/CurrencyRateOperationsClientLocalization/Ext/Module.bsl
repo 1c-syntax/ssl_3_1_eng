@@ -9,11 +9,11 @@
 
 #Region Public
 
-// 
+// Performs interactive actions related to importing exchange rates.
 //
 // Parameters:
 //  ImportParameters - Structure:
-//   * OpeningFromList - Boolean - 
+//   * OpeningFromList - Boolean - Set to "True" if the action is called from a currency list.
 // 
 Procedure ShowExchangeRatesImport(ImportParameters) Export
 	

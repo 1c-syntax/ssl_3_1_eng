@@ -34,7 +34,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// СтандартныеПодсистемы.УправлениеДоступом
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -131,13 +131,13 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	Parameters.ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue, "Document.Questionnaire");
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) some questionnaires: %1';"), ObjectsWithIssuesCount);
+			NStr("en = 'Couldn''t process (skipped) some questionnaires: %1'"), ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
 			Metadata.Documents.Questionnaire,,
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Yet another batch of questionnaires is processed: %1';"), ObjectsProcessed));
+				NStr("en = 'Yet another batch of questionnaires is processed: %1'"), ObjectsProcessed));
 	EndIf;
 	
 EndProcedure

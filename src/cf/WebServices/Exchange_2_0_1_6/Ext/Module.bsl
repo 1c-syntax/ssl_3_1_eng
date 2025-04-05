@@ -126,7 +126,7 @@ Function CreateDataExchange(ExchangePlanName, ParametersString1, FiltersSettings
 	DataExchangeCreationWizard.ImportWizardParameters(Cancel, ParametersString1);
 	
 	If Cancel Then
-		Message = NStr("en = 'Errors occurred in the peer infobase during the data exchange setup: %1';");
+		Message = NStr("en = 'Errors occurred in the peer infobase during the data exchange setup: %1'");
 		Message = StringFunctionsClientServer.SubstituteParametersToString(Message, DataExchangeCreationWizard.ErrorMessageString());
 		
 		WriteLogEvent(DataExchangeServer.DataExchangeCreationEventLogEvent(),
@@ -147,7 +147,7 @@ Function CreateDataExchange(ExchangePlanName, ParametersString1, FiltersSettings
 											XDTOSerializer.ReadXDTO(DefaultValuesXDTO));
 	
 	If Cancel Then
-		Message = NStr("en = 'Errors occurred in the peer infobase during the data exchange setup: %1';");
+		Message = NStr("en = 'Errors occurred in the peer infobase during the data exchange setup: %1'");
 		Message = StringFunctionsClientServer.SubstituteParametersToString(Message, DataExchangeCreationWizard.ErrorMessageString());
 		
 		WriteLogEvent(DataExchangeServer.DataExchangeCreationEventLogEvent(),
@@ -202,7 +202,7 @@ Function GetTimeConsumingOperationState(OperationID, ErrorMessageString)
 	
 	If BackgroundJob = Undefined Then
 		ErrorMessageString = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'No long-running operation with ID %1 was found.';"),
+			NStr("en = 'No long-running operation with ID %1 was found.'"),
 			OperationID);
 		Return BackgroundJobStates.Get(BackgroundJobState.Canceled);
 	EndIf;
@@ -262,13 +262,13 @@ Function GetFilePart(TransferId, PartNumber, PartData)
 	
 	If FilesNames.Count() = 0 Then
 		
-		MessageTemplate = NStr("en = 'Part %1 of the transfer session with ID %2 is not found';");
+		MessageTemplate = NStr("en = 'Part %1 of the transfer session with ID %2 is not found'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageTemplate, String(PartNumber), String(TransferId));
 		Raise(MessageText);
 		
 	ElsIf FilesNames.Count() > 1 Then
 		
-		MessageTemplate = NStr("en = 'Multiple parts %1 of the transfer session with ID %2 are not found';");
+		MessageTemplate = NStr("en = 'Multiple parts %1 of the transfer session with ID %2 are not found'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageTemplate, String(PartNumber), String(TransferId));
 		Raise(MessageText);
 		
@@ -336,7 +336,7 @@ Function SaveFileFromParts(TransferId, PartQuantity, FileId)
 		If FindFiles(FileName).Count() = 0 Then
 			MessageTemplate = NStr("en = 'Part %1 of the transfer session with ID %2 is not found. 
 					|Make sure that the ""Directory of temporary files for Linux""
-					| and ""Directory of temporary files for Windows"" parameters are specified in the application settings.';");
+					| and ""Directory of temporary files for Windows"" parameters are specified in the application settings.'");
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageTemplate, String(PartNumber), String(TransferId));
 			Raise(MessageText);
 		EndIf;
@@ -358,7 +358,7 @@ Function SaveFileFromParts(TransferId, PartQuantity, FileId)
 			WriteLogEvent(DataExchangeServer.TempFileDeletionEventLogEvent(),
 				EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
-		Raise(NStr("en = 'The archive file is empty.';"));
+		Raise(NStr("en = 'The archive file is empty.'"));
 	EndIf;
 	
 	DumpDirectory = DataExchangeServer.TempFilesStorageDirectory();
@@ -466,7 +466,7 @@ Function TestConnection(ExchangePlanName, NodeCode, Result)
 		ExchangePlanPresentation1 = Metadata.ExchangePlans[ExchangePlanName].Presentation();
 			
 		Result = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Data synchronization setting ""%2"" with ID %3 is not found in %1.';"),
+			NStr("en = 'Data synchronization setting ""%2"" with ID %3 is not found in %1.'"),
 			ApplicationPresentation, ExchangePlanPresentation1, NodeCode);
 		
 		Return False;
@@ -483,7 +483,7 @@ Procedure CheckInfobaseLockForUpdate()
 	
 	If ValueIsFilled(InfobaseUpdateInternal.InfobaseLockedForUpdate()) Then
 		
-		Raise NStr("en = 'Data synchronization is temporarily unavailable due to online application update.';");
+		Raise NStr("en = 'Data synchronization is temporarily unavailable due to online application update.'");
 		
 	EndIf;
 	
@@ -498,10 +498,10 @@ Procedure RunExportDataInClientServerMode(ExchangePlanName,
 	
 	BackgroundJobKey = ExportImportDataBackgroundJobKey(ExchangePlanName,
 		InfobaseNodeCode,
-		NStr("en = 'Export';"));
+		NStr("en = 'Export'"));
 	
 	If DataExchangeServer.HasActiveBackgroundJobs(BackgroundJobKey) Then
-		Raise NStr("en = 'Data synchronization is already running.';");
+		Raise NStr("en = 'Data synchronization is already running.'");
 	EndIf;
 	
 	ProcedureParameters = New Structure;
@@ -511,7 +511,7 @@ Procedure RunExportDataInClientServerMode(ExchangePlanName,
 	ProcedureParameters.Insert("UseCompression", True);
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Export data via web service.';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Export data via web service.'");
 	ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
 	ExecutionParameters.RunNotInBackground1 = Not TimeConsumingOperationAllowed;
 	
@@ -528,7 +528,7 @@ Procedure RunExportDataInClientServerMode(ExchangePlanName,
 		TimeConsumingOperation = False;
 		Return;
 	Else
-		Message = NStr("en = 'Error exporting data via web service.';");
+		Message = NStr("en = 'Error exporting data via web service.'");
 		If ValueIsFilled(BackgroundJob.DetailErrorDescription) Then
 			Message = BackgroundJob.DetailErrorDescription;
 		EndIf;
@@ -551,10 +551,10 @@ Procedure RunImportDataInClientServerMode(ExchangePlanName,
 													
 	BackgroundJobKey = ExportImportDataBackgroundJobKey(ExchangePlanName,
 		InfobaseNodeCode,
-		NStr("en = 'Import';"));
+		NStr("en = 'Import'"));
 	
 	If DataExchangeServer.HasActiveBackgroundJobs(BackgroundJobKey) Then
-		Raise NStr("en = 'Data synchronization is already running.';");
+		Raise NStr("en = 'Data synchronization is already running.'");
 	EndIf;
 	
 	ProcedureParameters = New Structure;
@@ -563,7 +563,7 @@ Procedure RunImportDataInClientServerMode(ExchangePlanName,
 	ProcedureParameters.Insert("FileID", FileID);
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Import data via web service.';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Import data via web service.'");
 	ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
 	ExecutionParameters.RunNotInBackground1 = Not TimeConsumingOperationAllowed;
 	
@@ -581,7 +581,7 @@ Procedure RunImportDataInClientServerMode(ExchangePlanName,
 		Return;
 	Else
 		
-		Message = NStr("en = 'Error importing data via web service.';");
+		Message = NStr("en = 'Error importing data via web service.'");
 		If ValueIsFilled(BackgroundJob.DetailErrorDescription) Then
 			Message = BackgroundJob.DetailErrorDescription;
 		EndIf;
@@ -597,7 +597,7 @@ EndProcedure
 Function ExportImportDataBackgroundJobKey(ExchangePlan, NodeCode, Action)
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'ExchangePlan:%1 NodeCode:%2 Action:%3';"),
+		NStr("en = 'ExchangePlan:%1 NodeCode:%2 Action:%3'"),
 		ExchangePlan,
 		NodeCode,
 		Action);
@@ -611,7 +611,7 @@ Procedure RegisterDataForInitialExport(Val ExchangePlanName, Val NodeCode, TimeC
 	InfobaseNode = DataExchangeServer.ExchangePlanNodeByCode(ExchangePlanName, NodeCode);
 	
 	If Not ValueIsFilled(InfobaseNode) Then
-		Message = NStr("en = 'Node not found. Exchange plan: %1. Node ID: %2';");
+		Message = NStr("en = 'Node not found. Exchange plan: %1. Node ID: %2'");
 		Message = StringFunctionsClientServer.SubstituteParametersToString(Message, ExchangePlanName, NodeCode);
 		Raise Message;
 	EndIf;
@@ -632,10 +632,10 @@ Procedure RegisterDataForInitialExport(Val ExchangePlanName, Val NodeCode, TimeC
 		
 		If CatalogsOnly Then
 			MethodName = "DataExchangeServer.RegisterCatalogsOnlyForInitialBackgroundExport";
-			JobDescription = NStr("en = 'Register catalog changes for initial export.';");
+			JobDescription = NStr("en = 'Register catalog changes for initial export.'");
 		Else
 			MethodName = "DataExchangeServer.RegisterAllDataExceptCatalogsForInitialBackgroundExport";
-			JobDescription = NStr("en = 'Register all data changes except for catalogs for initial export.';");
+			JobDescription = NStr("en = 'Register all data changes except for catalogs for initial export.'");
 		EndIf;
 		
 		ProcedureParameters = New Structure;
@@ -657,7 +657,7 @@ Procedure RegisterDataForInitialExport(Val ExchangePlanName, Val NodeCode, TimeC
 			EndIf;
 			
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Background job error: %1.';"),
+				NStr("en = 'Background job error: %1.'"),
 				JobDescription);
 		EndIf;
 		

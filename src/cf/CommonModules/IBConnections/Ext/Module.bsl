@@ -260,7 +260,7 @@ EndFunction
 Procedure SetDataAreaSessionLock(Val Parameters, Val LocalTime = True, Val DataArea = -1) Export
 	
 	If Not Users.IsFullUser() Then
-		Raise(NStr("en = 'Insufficient rights to perform the operation.';"), ErrorCategory.AccessViolation);
+		Raise(NStr("en = 'Insufficient rights to perform the operation.'"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	// For backward compatibility purposes.
@@ -269,7 +269,7 @@ Procedure SetDataAreaSessionLock(Val Parameters, Val LocalTime = True, Val DataA
 	Parameters = ConnectionsLockParameters;
 	 
 	If Parameters.Exclusive And Not Users.IsFullUser(, True) Then
-		Raise(NStr("en = 'Not enough rights to perform the operation.';"), ErrorCategory.AccessViolation);
+		Raise(NStr("en = 'Not enough rights to perform the operation.'"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	If Common.SeparatedDataUsageAvailable() Then
@@ -280,11 +280,11 @@ Procedure SetDataAreaSessionLock(Val Parameters, Val LocalTime = True, Val DataA
 		If DataArea = -1 Then
 			DataArea = SessionSeparatorValue;
 		ElsIf DataArea <> SessionSeparatorValue Then
-			Raise NStr("en = 'Cannot set a session lock for a data area that is different from the session data area because the session uses separator values.';");
+			Raise NStr("en = 'Cannot set a session lock for a data area that is different from the session data area because the session uses separator values.'");
 		EndIf;
 		
 	ElsIf DataArea = -1 Then
-		Raise NStr("en = 'Cannot lock data area sessions because the data area is not specified.';");
+		Raise NStr("en = 'Cannot lock data area sessions because the data area is not specified.'");
 	EndIf;
 	
 	SetPrivilegedMode(True);
@@ -340,7 +340,7 @@ Function GetDataAreaSessionLock(Val LocalTime = True) Export
 	EndIf;
 	
 	If Not Users.IsFullUser() Then
-		Raise(NStr("en = 'Not enough rights to perform the operation.';"), ErrorCategory.AccessViolation);
+		Raise(NStr("en = 'Not enough rights to perform the operation.'"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
@@ -392,7 +392,7 @@ EndFunction
 //
 Function ActiveSessionsMessage() Export
 	
-	Message = NStr("en = 'Cannot close sessions:';");
+	Message = NStr("en = 'Cannot close sessions:'");
 	CurrentSessionNumber = InfoBaseSessionNumber();
 	For Each Session In GetInfoBaseSessions() Do
 		If Session.SessionNumber <> CurrentSessionNumber Then
@@ -470,7 +470,7 @@ Function BlockingSessionsInformation(MessageText = "") Export
 		Message = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'There are active sessions that cannot be closed:
 			|%1
-			|%2';"),
+			|%2'"),
 			ActiveSessionNames, MessageText);
 		BlockingSessionsInformation.Insert("MessageText", Message);
 		
@@ -526,27 +526,27 @@ Procedure OnAddClientParametersOnStart(Parameters) Export
 		If ValueIsFilled(CurrentMode.Message) Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The application administrator locked the application for the period from %1 to %2. Reason:
-					|%3.';"), CurrentMode.Begin, CurrentMode.End, CurrentMode.Message);
+					|%3.'"), CurrentMode.Begin, CurrentMode.End, CurrentMode.Message);
 		Else
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The application administrator locked the application for the period from %1 to %2 for scheduled maintenance.';"), 
+				NStr("en = 'The application administrator locked the application for the period from %1 to %2 for scheduled maintenance.'"), 
 				CurrentMode.Begin, CurrentMode.End);
 		EndIf;		
 	Else
 		If ValueIsFilled(CurrentMode.Message) Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The application administrator locked the application at %1. Reason:
-					|%2.';"), CurrentMode.Begin, CurrentMode.Message);
+					|%2.'"), CurrentMode.Begin, CurrentMode.Message);
 		Else
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The application administrator locked the application at %1 due for scheduled maintenance.';"), 
+				NStr("en = 'The application administrator locked the application at %1 due for scheduled maintenance.'"), 
 				CurrentMode.Begin);
 		EndIf;		
 	EndIf;
-	Parameters.Insert("DataAreaSessionsLocked", MessageText + Chars.LF + Chars.LF + NStr("en = 'The application is temporarily unavailable.';"));
+	Parameters.Insert("DataAreaSessionsLocked", MessageText + Chars.LF + Chars.LF + NStr("en = 'The application is temporarily unavailable.'"));
 	LogonMessageText = "";
 	If Users.IsFullUser() Then
-		LogonMessageText = MessageText + Chars.LF + Chars.LF + NStr("en = 'Do you want to log in to the locked application?';");
+		LogonMessageText = MessageText + Chars.LF + Chars.LF + NStr("en = 'Do you want to log in to the locked application?'");
 	EndIf;
 	Parameters.Insert("PromptToAuthorize", LogonMessageText);
 	If (Users.IsFullUser() And Not CurrentMode.Exclusive) 
@@ -602,27 +602,27 @@ Procedure OnFillToDoList(ToDoList) Export
 	If LockParameters.Use Then
 		If CurrentSessionDate < LockParameters.Begin Then
 			If LockParameters.End <> Date(1, 1, 1) Then
-				Message = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Scheduled from %1 to %2';"),
+				Message = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Scheduled from %1 to %2'"),
 					Format(LockParameters.Begin, "DLF=DT"), Format(LockParameters.End, "DLF=DT"));
 			Else
-				Message = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Scheduled from %1';"), Format(LockParameters.Begin, "DLF=DT"));
+				Message = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Scheduled from %1'"), Format(LockParameters.Begin, "DLF=DT"));
 			EndIf;
 			Importance = False;
 		ElsIf LockParameters.End <> Date(1, 1, 1) And CurrentSessionDate > LockParameters.End And LockParameters.Begin <> Date(1, 1, 1) Then
 			Importance = False;
-			Message = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Inactive (expired on %1)';"), Format(LockParameters.End, "DLF=DT"));
+			Message = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Inactive (expired on %1)'"), Format(LockParameters.End, "DLF=DT"));
 		Else
 			If LockParameters.End <> Date(1, 1, 1) Then
-				Message = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'from %1 to %2';"),
+				Message = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'from %1 to %2'"),
 					Format(LockParameters.Begin, "DLF=DT"), Format(LockParameters.End, "DLF=DT"));
 			Else
-				Message = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'from %1';"), 
+				Message = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'from %1'"), 
 					Format(LockParameters.Begin, "DLF=DT"));
 			EndIf;
 			Importance = True;
 		EndIf;
 	Else
-		Message = NStr("en = 'Inactive';");
+		Message = NStr("en = 'Inactive'");
 		Importance = False;
 	EndIf;
 
@@ -634,7 +634,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		ToDoItem = ToDoList.Add();
 		ToDoItem.Id  = ToDoItemID;
 		ToDoItem.HasToDoItems       = LockParameters.Use;
-		ToDoItem.Presentation  = NStr("en = 'Deny user access';");
+		ToDoItem.Presentation  = NStr("en = 'Deny user access'");
 		ToDoItem.Form          = "DataProcessor.ApplicationLock.Form";
 		ToDoItem.Important         = Importance;
 		ToDoItem.Owner       = Section;
@@ -749,15 +749,15 @@ Function GenerateLockMessage(Val Message, Val KeyCode) Export
 	If Common.DataSeparationEnabled() And Common.SeparatedDataUsageAvailable() Then
 		MessageText = MessageText + NStr("en = '%1
 			|To allow user access, you can open the application with the parameter %2. For example:
-			|https://<server web address>/?C=%2';");
+			|https://<server web address>/?C=%2'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, 
 			IBConnectionsClientServer.TextForAdministrator(), ParameterName);
 	Else
 		MessageText = MessageText + NStr("en = '%1
 			|To allow user access, use the server cluster console or run 1C:Enterprise with the following parameters:
-			|ENTERPRISE %2 /C%3 /UC%4';");
+			|ENTERPRISE %2 /C%3 /UC%4'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, IBConnectionsClientServer.TextForAdministrator(),
-			InfobasePathString, ParameterName, NStr("en = '<access code>';"));
+			InfobasePathString, ParameterName, NStr("en = '<access code>'"));
 	EndIf;
 	
 	Return MessageText;
@@ -878,7 +878,7 @@ EndFunction
 //
 Function EventLogEvent() Export
 	
-	Return NStr("en = 'User sessions';", Common.DefaultLanguageCode());
+	Return NStr("en = 'User sessions'", Common.DefaultLanguageCode());
 	
 EndFunction
 

@@ -30,7 +30,7 @@ Procedure BackupDirectoryFieldStartChoice(Item, ChoiceData, StandardProcessing)
 	Dialog = New FileDialog(FileDialogMode.ChooseDirectory);
 	Dialog.Directory = Object.IBBackupDirectoryName;
 	Dialog.CheckFileExistence = True;
-	Dialog.Title = NStr("en = 'Select infobase backup directory';");
+	Dialog.Title = NStr("en = 'Select infobase backup directory'");
 	If Dialog.Choose() Then
 		Object.IBBackupDirectoryName = Dialog.Directory;
 	EndIf;
@@ -58,7 +58,7 @@ Procedure OkCommand(Command)
 		File = New File(Object.IBBackupDirectoryName);
 		Cancel = Not File.Exists() Or Not File.IsDirectory();
 		If Cancel Then
-			ShowMessageBox(, NStr("en = 'Please specify an existing directory for storing the infobase backup.';"));
+			ShowMessageBox(, NStr("en = 'Please specify an existing directory for storing the infobase backup.'"));
 			CurrentItem = Items.BackupDirectoryField;
 		EndIf;
 	EndIf;

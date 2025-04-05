@@ -30,7 +30,7 @@ Procedure RecordDataChanges(ExchangeNode) Export
 	For Each ExchangePlanContentItem In ExchangePlanContent Do
 		
 		If ExchangePlanContentItem.Metadata = Metadata.Catalogs.ReportsOptions Then
-			// @skip-check query-in-loop - Single-stage data processing
+			// @skip-check query-in-loop - Однократная обработка данных
 			ReferencesArrray = Query.Execute().Unload().UnloadColumn("Variant");
 			ExchangePlans.RecordChanges(ExchangeNode, ReferencesArrray);
 		Else
@@ -277,12 +277,12 @@ Procedure ReadReportSnapshotsFromXML(XMLReader)
 	Except
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot save the %1 report snapshot due to: 
-				 |%2';"), ?(ValueIsFilled(Variant), Variant, Report), ErrorProcessing.DetailErrorDescription(
+				 |%2'"), ?(ValueIsFilled(Variant), Variant, Report), ErrorProcessing.DetailErrorDescription(
 			ErrorInfo()));
 #If MobileStandaloneServer Then
 		Common.MessageToUser(MessageText);
 #Else
-		WriteLogEvent(NStr("en = 'Import a report snapshot from XML';", Common.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Import a report snapshot from XML'", Common.DefaultLanguageCode()),
 			EventLogLevel.Error, Metadata.InformationRegisters.ReportsSnapshots, , MessageText);
 #EndIf
 	EndTry;

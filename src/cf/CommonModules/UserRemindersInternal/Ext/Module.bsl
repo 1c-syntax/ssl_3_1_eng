@@ -81,7 +81,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	If AccessRight("Edit", Metadata.InformationRegisters.UserReminders) Then
 		Command = Commands.Add();
 		Command.Kind = "Organizer";
-		Command.Presentation = NStr("en = 'Remind…';");
+		Command.Presentation = NStr("en = 'Remind…'");
 		Command.FunctionalOptions = "UseUserReminders";
 		Command.Picture = PictureLib.Reminder;
 		Command.ParameterType = Metadata.DefinedTypes.ReminderSubject.Type;
@@ -165,19 +165,19 @@ EndFunction
 Function StandardNotifyIntervals()
 	
 	Result = New Array;
-	Result.Add(NStr("en = '5 minutes';"));
-	Result.Add(NStr("en = '10 minutes';"));
-	Result.Add(NStr("en = '15 minutes';"));
-	Result.Add(NStr("en = '30 minutes';"));
-	Result.Add(NStr("en = '1 hour';"));
-	Result.Add(NStr("en = '2 hours';"));
-	Result.Add(NStr("en = '4 hours';"));
-	Result.Add(NStr("en = '8 hours';"));
-	Result.Add(NStr("en = '1 day';"));
-	Result.Add(NStr("en = '2 days';"));
-	Result.Add(NStr("en = '3 days';"));
-	Result.Add(NStr("en = '1 week';"));
-	Result.Add(NStr("en = '2 weeks';"));
+	Result.Add(NStr("en = '5 minutes'"));
+	Result.Add(NStr("en = '10 minutes'"));
+	Result.Add(NStr("en = '15 minutes'"));
+	Result.Add(NStr("en = '30 minutes'"));
+	Result.Add(NStr("en = '1 hour'"));
+	Result.Add(NStr("en = '2 hours'"));
+	Result.Add(NStr("en = '4 hours'"));
+	Result.Add(NStr("en = '8 hours'"));
+	Result.Add(NStr("en = '1 day'"));
+	Result.Add(NStr("en = '2 days'"));
+	Result.Add(NStr("en = '3 days'"));
+	Result.Add(NStr("en = '1 week'"));
+	Result.Add(NStr("en = '2 weeks'"));
 	
 	Return Result;
 	
@@ -195,7 +195,7 @@ Function StandardSchedulesForReminder()
 	WeekDays = New Array;
 	WeekDays.Add(1);
 	Schedule.WeekDays = WeekDays;
-	Result.Insert(NStr("en = 'on Mondays at 9.00 AM';"), Schedule);
+	Result.Insert(NStr("en = 'on Mondays at 9.00 AM'"), Schedule);
 	
 	// On Fridays at 3 p.m.
 	Schedule = New JobSchedule;
@@ -205,14 +205,14 @@ Function StandardSchedulesForReminder()
 	WeekDays = New Array;
 	WeekDays.Add(5);
 	Schedule.WeekDays = WeekDays;
-	Result.Insert(NStr("en = 'on Fridays at 3.00 PM';"), Schedule);
+	Result.Insert(NStr("en = 'on Fridays at 3.00 PM'"), Schedule);
 	
 	// Every day at 9:00 a.m.
 	Schedule = New JobSchedule;
 	Schedule.DaysRepeatPeriod = 1;
 	Schedule.WeeksPeriod = 1;
 	Schedule.BeginTime = '00010101090000';
-	Result.Insert(NStr("en = 'every day at 9:00 AM';"), Schedule);
+	Result.Insert(NStr("en = 'every day at 9:00 AM'"), Schedule);
 	
 	Return Result;
 	
@@ -600,7 +600,7 @@ Procedure UpdateRemindersForSubjects(Subjects) Export
 	For Each TableRow In ResultTable2 Do
 		SubjectDate = Common.ObjectAttributeValue(TableRow.Source, TableRow.SourceAttributeName);
 		If (SubjectDate - TableRow.ReminderInterval) <> TableRow.EventTime Then
-			// @skip-check query-in-loop - Write data as a dataset with reading within a loop.
+			// @skip-check query-in-loop - запись данных набором с чтением в цикле.
 			DisableReminder(TableRow, False);
 			TableRow.ReminderTime = SubjectDate - TableRow.ReminderInterval;
 			TableRow.EventTime = SubjectDate;
@@ -610,7 +610,7 @@ Procedure UpdateRemindersForSubjects(Subjects) Export
 			
 			ReminderParameters = Common.ValueTableRowToStructure(TableRow);
 			ReminderParameters.Schedule = TableRow.Schedule.Get();
-			// @skip-check query-in-loop - Write data as a dataset with reading within a loop.
+			// @skip-check query-in-loop - запись данных набором с чтением в цикле.
 			Reminder = CreateReminder(ReminderParameters);
 			AttachReminder(Reminder);
 		EndIf;
@@ -971,9 +971,9 @@ Procedure UpdateRemindersList(OnStart)
 			Continue;
 		EndIf;
 		
-		// @skip-check query-in-loop - The query does not address infobase data.
+		// @skip-check query-in-loop - нет обращения к данным ИБ в запросе.
 		EventScheduleForYear = EventSchedule(Schedule, Reminder.EventTime, AddMonth(Reminder.EventTime, 12) - 1);
-		// @skip-check query-in-loop - The query does not address infobase data.
+		// @skip-check query-in-loop - нет обращения к данным ИБ в запросе.
 		ComingEventTime = EventSchedule(Schedule, Reminder.EventTime + 1, CurrentSessionDate());
 		
 		EventTime = Reminder.EventTime;
@@ -998,13 +998,13 @@ Procedure UpdateRemindersList(OnStart)
 		If ShouldReconnectOnSchedule Then
 			BeginTransaction();
 			Try
-				// @skip-check query-in-loop - Write data as a dataset with reading within a loop.
+				// @skip-check query-in-loop - запись данных набором с чтением в цикле.
 				DisableReminder(Reminder, IsOverdueReminder, OnStart);
 				
 				If Not IsOverdueReminder Then
 					ReminderParameters = Common.ValueTableRowToStructure(Reminder);
 					ReminderParameters.Schedule = Reminder.Schedule.Get();
-					// @skip-check query-in-loop - Write data as a dataset with reading within a loop.
+					// @skip-check query-in-loop - запись данных набором с чтением в цикле.
 					Reminder = CreateReminder(ReminderParameters);
 					Reminder.EventTime = EventTime;
 					Reminder.ReminderTime = Reminder.EventTime - Reminder.ReminderInterval;
@@ -1014,7 +1014,7 @@ Procedure UpdateRemindersList(OnStart)
 				CommitTransaction();
 			Except
 				RollbackTransaction();
-				WriteLogEvent(NStr("en = 'User reminders';", Common.DefaultLanguageCode()),
+				WriteLogEvent(NStr("en = 'User reminders'", Common.DefaultLanguageCode()),
 					EventLogLevel.Error, Metadata.InformationRegisters.UserReminders, , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			EndTry;
 		EndIf;
@@ -1151,17 +1151,17 @@ Procedure OnCreateAtServer(Form, PlacementParameters) Export
 		AttributesToBeAdded.Add(New FormAttribute(NameOfReminderSettingsField, New TypeDescription));
 			
 		AttributesToBeAdded.Add(New FormAttribute(FieldNameRemindAboutEvent,
-			New TypeDescription("Boolean"), , NStr("en = 'Remind';"), True));
+			New TypeDescription("Boolean"), , NStr("en = 'Remind'"), True));
 			
 		AttributesToBeAdded.Add(New FormAttribute(FieldNameReminderTimeInterval,
-			New TypeDescription("String"), ,  NStr("en = 'Reminder interval';"), True));
+			New TypeDescription("String"), ,  NStr("en = 'Reminder interval'"), True));
 		
 		Form.ChangeAttributes(AttributesToBeAdded);
 		
 		Group = Form.Items.Add(NameOfItemGroup, Type("FormGroup"), PlacementParameters.Group);
 		Group.Type = FormGroupType.UsualGroup;
 		Group.ShowTitle = False;
-		Group.Title = NStr("en = 'Set up reminder';");
+		Group.Title = NStr("en = 'Set up reminder'");
 		Group.Representation = UsualGroupRepresentation.None;
 		
 		If SettingsOfReminder.ShouldAddFlag Then
@@ -1169,17 +1169,17 @@ Procedure OnCreateAtServer(Form, PlacementParameters) Export
 			CheckBox.DataPath = FieldNameRemindAboutEvent;
 			CheckBox.Type = FormFieldType.CheckBoxField;
 			CheckBox.TitleLocation = FormItemTitleLocation.Right;
-			CheckBox.Title = NStr("en = 'Remind:';");
+			CheckBox.Title = NStr("en = 'Remind:'");
 		EndIf;
 		
 		InputField = Form.Items.Add(FieldNameReminderTimeInterval, Type("FormField"), Group);
 		InputField.DataPath = FieldNameReminderTimeInterval;
 		InputField.Type = FormFieldType.InputField;
-		InputField.ToolTip = NStr("en = 'Time interval to remind about the event';");
+		InputField.ToolTip = NStr("en = 'Time interval to remind about the event'");
 		If SettingsOfReminder.ShouldAddFlag Then
 			InputField.TitleLocation = FormItemTitleLocation.None;
 		Else
-			InputField.Title = NStr("en = 'Remind';");
+			InputField.Title = NStr("en = 'Remind'");
 		EndIf;
 		InputField.SetAction("OnChange", "Attachable_OnChangeReminderSettings");
 		InputField.EditTextUpdate = EditTextUpdate.OnValueChange;
@@ -1202,7 +1202,7 @@ Procedure OnCreateAtServer(Form, PlacementParameters) Export
 			EndIf;
 
 			InputField.ChoiceList.Add(StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 before';"), Interval));
+				NStr("en = '%1 before'"), Interval));
 		EndDo;
 		
 		If SettingsOfReminder.ReminderInterval = Undefined Then
@@ -1214,7 +1214,7 @@ Procedure OnCreateAtServer(Form, PlacementParameters) Export
 				Form[FieldNameReminderTimeInterval] = UserRemindersClientServer.EnumPresentationOnOccurrence();
 			Else
 				Form[FieldNameReminderTimeInterval] = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = '%1 before';"), TimePresentation(SettingsOfReminder.ReminderInterval, , False));
+						NStr("en = '%1 before'"), TimePresentation(SettingsOfReminder.ReminderInterval, , False));
 			EndIf;
 		Else
 			Form[FieldNameReminderTimeInterval] = UserRemindersClientServer.EnumPresentationDoNotRemind();
@@ -1307,7 +1307,7 @@ Procedure DeleteRemindersBySubject(SubjectOf, AttributeName)
 	RemindersBySubject = UserReminders.FindReminders(SubjectOf);
 	For Each Reminder In RemindersBySubject Do
 		If Lower(Reminder.SourceAttributeName) = Lower(AttributeName) Then
-			// @skip-check query-in-loop - Write data as a dataset with reading within a loop.
+			// @skip-check query-in-loop - запись данных набором с чтением в цикле.
 			DisableReminder(Reminder, False);
 		EndIf;
 	EndDo;

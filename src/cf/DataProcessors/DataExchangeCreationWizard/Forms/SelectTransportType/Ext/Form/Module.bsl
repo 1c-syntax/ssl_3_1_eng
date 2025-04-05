@@ -88,7 +88,7 @@ Procedure Done(Command)
 	
 	If CurrentData = Undefined Then
 		
-		Text = NStr("en = 'To continue, select a transport type';", 
+		Text = NStr("en = 'To continue, select a transport type'", 
 			CommonClient.DefaultLanguageCode());
 		
 		CommonClient.MessageToUser(Text);
@@ -120,7 +120,7 @@ Procedure DownloadConnectionSettings(Command)
 	
 	If CurrentData = Undefined Then
 		
-		Text = NStr("en = 'To continue, select a transport type';", 
+		Text = NStr("en = 'To continue, select a transport type'", 
 			CommonClient.DefaultLanguageCode());
 		
 		CommonClient.MessageToUser(Text);
@@ -134,8 +134,8 @@ Procedure DownloadConnectionSettings(Command)
 	Notification = New CallbackDescription("EndingSelectionOfSettingsFile", ThisObject);
 		
 	ImportParameters = FileSystemClient.FileImportParameters();
-	ImportParameters.Dialog.Filter = NStr("en = 'Setting file';") + "|*.json;*.xml";
-	ImportParameters.Dialog.Title = NStr("en = 'Select setting file';");
+	ImportParameters.Dialog.Filter = NStr("en = 'Setting file'") + "|*.json;*.xml";
+	ImportParameters.Dialog.Title = NStr("en = 'Select setting file'");
 	
 	FileSystemClient.ImportFile_(Notification, ImportParameters);
 	
@@ -183,7 +183,7 @@ Procedure InitializationOfFormAttributes()
 	
 	If Not Parameters.Property("ExchangePlanName") Then
 		
-		Raise NStr("en = 'This is a dependent form and opens from a different form.';", 
+		Raise NStr("en = 'This is a dependent form and opens from a different form.'", 
 			Common.DefaultLanguageCode());
 		
 	EndIf;
@@ -257,7 +257,7 @@ Procedure EndingSelectionOfSettingsFile(Result, AdditionalSettings) Export
 		
 		BriefErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		Template = NStr("en = 'Error reading setting file. Perhaps, the file format is unsupported.
-						|%1';");
+						|%1'");
 		
 		ErrorMessage = StrTemplate(Template, BriefErrorDescription);
 		
@@ -294,7 +294,7 @@ Function ReadAndCheckConnectionSettings(SettingsFileName, Address, ErrorMessage)
 	ElsIf Lower(File.Extension) = ".json" Then
 		ConnectionSettings = ReadAndCheckConnectionSettingsFromJSON(Text, ErrorMessage);
 	Else
-		ErrorText = NStr("en = 'Invalid setting file extension.';",
+		ErrorText = NStr("en = 'Invalid setting file extension.'",
 			Common.DefaultLanguageCode());
 		Raise ErrorText;
 	EndIf;

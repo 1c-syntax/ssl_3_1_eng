@@ -243,7 +243,7 @@ Function DeleteDataExchangeNode(ExchangePlanName, NodeID, DataArea = 0) Export
 			Metadata.Synonym, DataExchangeCached.ThisInfobaseName());
 			
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Exchange plan node ""%2"" with ID %3 is not found in %1.';"),
+			NStr("en = 'Exchange plan node ""%2"" with ID %3 is not found in %1.'"),
 			ApplicationPresentation, ExchangePlanName, NodeID);
 	EndIf;
 	
@@ -272,7 +272,7 @@ Function GetTimeConsumingOperationState(OperationID, ErrorMessageString, DataAre
 	If BackgroundJob = Undefined Then
 		
 		ErrorMessageString = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'No long-running operation with ID %1 was found.';"),
+			NStr("en = 'No long-running operation with ID %1 was found.'"),
 			OperationID);
 			
 		SignOutOfDataArea(DataArea);
@@ -338,14 +338,14 @@ Function GetFileChunk(TransferID, PartNumber, PartData, Area = 0) Export
 	
 	If FilesNames.Count() = 0 Then
 		
-		MessageTemplate = NStr("en = 'Part %1 of the transfer session with ID %2 is not found';");
+		MessageTemplate = NStr("en = 'Part %1 of the transfer session with ID %2 is not found'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			MessageTemplate, String(PartNumber), String(TransferID));
 		Raise(MessageText);
 		
 	ElsIf FilesNames.Count() > 1 Then
 		
-		MessageTemplate = NStr("en = 'Multiple parts %1 of the transfer session with ID %2 are not found';");
+		MessageTemplate = NStr("en = 'Multiple parts %1 of the transfer session with ID %2 are not found'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			MessageTemplate, String(PartNumber), String(TransferID));
 		Raise(MessageText);
@@ -413,7 +413,7 @@ Function AssembleFileFromParts(TransferID, PartCount, FileID, Area = 0) Export
 		If FindFiles(FileName).Count() = 0 Then
 			MessageTemplate = NStr("en = 'Part %1 of the transfer session with ID %2 is not found. 
 					|Make sure that the ""Directory of temporary files for Linux""
-					| and ""Directory of temporary files for Windows"" parameters are specified in the application settings.';");
+					| and ""Directory of temporary files for Windows"" parameters are specified in the application settings.'");
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				MessageTemplate, String(PartNumber), String(TransferID));
 			Raise(MessageText);
@@ -439,7 +439,7 @@ Function AssembleFileFromParts(TransferID, PartCount, FileID, Area = 0) Export
 		EndTry;
 		
 		SignOutOfDataArea(Area);
-		Raise(NStr("en = 'The archive file is empty.';"));
+		Raise(NStr("en = 'The archive file is empty.'"));
 		
 	EndIf;
 	
@@ -484,7 +484,7 @@ Function PutMessageForDataMapping(ExchangePlanName, NodeID, FileID, DataArea = 0
 		SignOutOfDataArea(DataArea);	
 			
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Exchange plan node ""%2"" with ID %3 is not found in %1.';"),
+			NStr("en = 'Exchange plan node ""%2"" with ID %3 is not found in %1.'"),
 			ApplicationPresentation, ExchangePlanName, NodeID);
 			
 	EndIf;
@@ -539,7 +539,7 @@ Function TestingConnection(ExchangePlanName, NodeCode, Result, DataArea = 0) Exp
 		ExchangePlanPresentation1 = Metadata.ExchangePlans[ExchangePlanName].Presentation();
 			
 		Result = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Data synchronization setting ""%2"" with ID %3 is not found in %1.';"),
+			NStr("en = 'Data synchronization setting ""%2"" with ID %3 is not found in %1.'"),
 			ApplicationPresentation, ExchangePlanPresentation1, NodeCode);
 			
 		SignOutOfDataArea(DataArea);
@@ -569,7 +569,7 @@ Function ChangeTransportToInternalPublishingWebService(XDTOParameters, DataArea)
 			Metadata.Synonym, DataExchangeCached.ThisInfobaseName());
 			
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Exchange plan node ""%2"" with ID %3 is not found in %1.';"),
+			NStr("en = 'Exchange plan node ""%2"" with ID %3 is not found in %1.'"),
 			ApplicationPresentation, Parameters.ExchangePlanName, Parameters.CorrespondentNodeCode);
 			
 	EndIf;
@@ -586,7 +586,7 @@ Function ChangeTransportToInternalPublishingWebService(XDTOParameters, DataArea)
 	ExchangeMessagesTransport.SaveTransportSettings(ExchangeNode, "SM", TransportSettings, True);
 	
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Change the transport for node ""%1"" of exchange plan ""%2"" in data area %3 to ""Internet connection"".';"),
+		NStr("en = 'Change the transport for node ""%1"" of exchange plan ""%2"" in data area %3 to ""Internet connection"".'"),
 		Parameters.CorrespondentNodeCode, Parameters.ExchangePlanName, DataArea);
 			
 	WriteLogEvent(DataExchangeWebService.EventLogEventTransportChangedOnWS(),
@@ -720,7 +720,7 @@ Procedure CheckInfobaseLockForUpdate()
 	
 	If ValueIsFilled(InfobaseUpdateInternal.InfobaseLockedForUpdate()) Then
 		
-		Raise NStr("en = 'Data synchronization is temporarily unavailable due to online application update.';");
+		Raise NStr("en = 'Data synchronization is temporarily unavailable due to online application update.'");
 		
 	EndIf;
 	
@@ -735,10 +735,10 @@ Procedure RunExportDataInClientServerMode(ExchangePlanName,
 	
 	BackgroundJobKey = ExportImportDataBackgroundJobKey(ExchangePlanName,
 		InfobaseNodeCode,
-		NStr("en = 'Export';"));
+		NStr("en = 'Export'"));
 	
 	If DataExchangeServer.HasActiveBackgroundJobs(BackgroundJobKey) Then
-		Raise NStr("en = 'Data synchronization is already running.';");
+		Raise NStr("en = 'Data synchronization is already running.'");
 	EndIf;
 	
 	ProcedureParameters = New Structure;
@@ -748,7 +748,7 @@ Procedure RunExportDataInClientServerMode(ExchangePlanName,
 	ProcedureParameters.Insert("UseCompression", True);
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Export data via web service.';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Export data via web service.'");
 	ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
 	ExecutionParameters.RunNotInBackground1 = Not TimeConsumingOperationAllowed;
 	
@@ -765,7 +765,7 @@ Procedure RunExportDataInClientServerMode(ExchangePlanName,
 		TimeConsumingOperation = False;
 		Return;
 	Else
-		Message = NStr("en = 'Error exporting data via web service.';");
+		Message = NStr("en = 'Error exporting data via web service.'");
 		If ValueIsFilled(BackgroundJob.DetailErrorDescription) Then
 			Message = BackgroundJob.DetailErrorDescription;
 		EndIf;
@@ -813,10 +813,10 @@ Procedure RunImportDataInClientServerMode(ExchangePlanName,
 													
 	BackgroundJobKey = ExportImportDataBackgroundJobKey(ExchangePlanName,
 		InfobaseNodeCode,
-		NStr("en = 'Import';"));
+		NStr("en = 'Import'"));
 	
 	If DataExchangeServer.HasActiveBackgroundJobs(BackgroundJobKey) Then
-		Raise NStr("en = 'Data synchronization is already running.';");
+		Raise NStr("en = 'Data synchronization is already running.'");
 	EndIf;
 	
 	ProcedureParameters = New Structure;
@@ -825,7 +825,7 @@ Procedure RunImportDataInClientServerMode(ExchangePlanName,
 	ProcedureParameters.Insert("FileID", FileID);
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Import data via web service.';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Import data via web service.'");
 	ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
 	ExecutionParameters.RunNotInBackground1 = Not TimeConsumingOperationAllowed;
 	
@@ -843,7 +843,7 @@ Procedure RunImportDataInClientServerMode(ExchangePlanName,
 		Return;
 	Else
 		
-		Message = NStr("en = 'Error importing data via web service.';");
+		Message = NStr("en = 'Error importing data via web service.'");
 		If ValueIsFilled(BackgroundJob.DetailErrorDescription) Then
 			Message = BackgroundJob.DetailErrorDescription;
 		EndIf;
@@ -885,7 +885,7 @@ EndProcedure
 Function ExportImportDataBackgroundJobKey(ExchangePlan, NodeCode, Action)
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'ExchangePlan:%1 NodeCode:%2 Action:%3';"),
+		NStr("en = 'ExchangePlan:%1 NodeCode:%2 Action:%3'"),
 		ExchangePlan,
 		NodeCode,
 		Action);

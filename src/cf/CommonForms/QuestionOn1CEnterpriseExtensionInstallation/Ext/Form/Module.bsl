@@ -15,16 +15,16 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Not IsBlankString(Parameters.SuggestionText) Then
 		Items.DecorationNote.Title = Parameters.SuggestionText
 			+ Chars.LF
-			+ NStr("en = 'Do you want to install the extension?';");
+			+ NStr("en = 'Do you want to install the extension?'");
 		
 	ElsIf Not Parameters.CanContinueWithoutInstalling Then
 		Items.DecorationNote.Title =
 			NStr("en = 'This operation requires 1C:Enterprise Extension.
-			           |Do you want to install it?';");
+			           |Do you want to install it?'");
 	EndIf;
 	
 	If Not Parameters.CanContinueWithoutInstalling Then
-		Items.ContinueWithoutInstalling.Title = NStr("en = 'Cancel';");
+		Items.ContinueWithoutInstalling.Title = NStr("en = 'Cancel'");
 	EndIf;
 	
 EndProcedure

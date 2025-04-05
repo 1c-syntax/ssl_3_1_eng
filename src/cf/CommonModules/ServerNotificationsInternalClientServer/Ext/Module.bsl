@@ -27,15 +27,7 @@ EndFunction
 
 Function IsForTestingOnly()
 	
-// ACC:547-off - A temporary workaround for the testing purpose.
-#If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
-	DataSeparationEnabled = Common.DataSeparationEnabled();
-#Else
-	DataSeparationEnabled = CommonClient.DataSeparationEnabled();
-#EndIf
-// ACC:547-on
-	
-	Return DataSeparationEnabled;
+	Return True;
 	
 EndFunction
 

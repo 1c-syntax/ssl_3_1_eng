@@ -248,15 +248,7 @@ Procedure CalculateRequestsApplication() Export
 	EndTry;
 	
 	If MustApplyPermissionsInServersCluster() Then
-		
-		Try
-			LockDataForEdit(Semaphore());
-		Except
-			Raise
-				NStr("en = 'An error occurred when competitively accessing settings of permissions for external resource usage.
-				           |Try to execute the operation later.';");
-		EndTry;
-		
+		LockDataForEdit(Semaphore());
 	EndIf;
 	
 EndProcedure
@@ -1139,7 +1131,7 @@ EndFunction
 //
 Function NewSecurityProfileDetails(Val ProgramModuleType, Val ModuleID)
 	
-	Template = NStr("en = '[Infobase %1] %2 ""%3""';");
+	Template = NStr("en = '[Infobase %1] %2 ""%3""'");
 	
 	IBName = "";
 	ConnectionString = InfoBaseConnectionString();
@@ -1150,12 +1142,12 @@ Function NewSecurityProfileDetails(Val ProgramModuleType, Val ModuleID)
 		EndIf;
 	EndDo;
 	If IsBlankString(IBName) Then
-		Raise NStr("en = 'Infobase connection string must contain the infobase.';");
+		Raise NStr("en = 'Infobase connection string must contain the infobase.'");
 	EndIf;
 	
 	If ProgramModuleType = Catalogs.MetadataObjectIDs.EmptyRef() Then
 		Return StringFunctionsClientServer.SubstituteParametersToString(Template, IBName,
-			NStr("en = 'Security profile for infobase';"), InfoBaseConnectionString());
+			NStr("en = 'Security profile for infobase'"), InfoBaseConnectionString());
 	Else
 		ProgramModule = SafeModeManagerInternal.ReferenceFormPermissionRegister(ProgramModuleType, ModuleID);
 		Dictionary = SafeModeManagerInternal.ExternalModuleManager(ProgramModule).ExternalModuleContainerDictionary();
@@ -1309,5 +1301,5 @@ ClearingPermissionsBeforeApply = False;
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

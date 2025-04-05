@@ -168,7 +168,7 @@ Function RecordKeyOperationsDuration(MeasurementsToWrite) Export
 		Try
 			RecordSet.Write(False);
 		Except
-			WriteLogEvent(NStr("en = 'Performance monitor.Error saving measurements';", 
+			WriteLogEvent(NStr("en = 'Performance monitor.Error saving measurements'", 
 				PerformanceMonitorInternal.DefaultLanguageCode()),
 				EventLogLevel.Error,,,ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
@@ -178,7 +178,7 @@ Function RecordKeyOperationsDuration(MeasurementsToWrite) Export
 		Try
 			TechnologicalRecordSet.Write(False);
 		Except
-			WriteLogEvent(NStr("en = 'Failed to save service samples';", 
+			WriteLogEvent(NStr("en = 'Failed to save service samples'", 
 				PerformanceMonitorInternal.DefaultLanguageCode()),
 				EventLogLevel.Error,,,ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;

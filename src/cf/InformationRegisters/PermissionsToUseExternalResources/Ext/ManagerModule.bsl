@@ -34,7 +34,7 @@ Function PermissionKey(Val Resolution) Export
 	Var_Key = XDTOFactory.Create(XDTOFactory.Type("http://www.w3.org/2001/XMLSchema", "hexBinary"), Hashing.HashSum).LexicalValue;
 	
 	If StrLen(Var_Key) > 32 Then
-		Raise NStr("en = 'Key length exceeded';");
+		Raise NStr("en = 'Key length exceeded'");
 	EndIf;
 	
 	Return Var_Key;
@@ -207,7 +207,7 @@ Procedure AddPermission(Val ProgramModuleType, Val ModuleID, Val OwnerType, Val 
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The extension to be added already exists:
-				|%1, %2, %3, %4, %5.';"),
+				|%1, %2, %3, %4, %5.'"),
 			String(ProgramModuleType),
 			String(ModuleID),
 			String(OwnerType),
@@ -260,7 +260,7 @@ Procedure DeletePermission(Val ProgramModuleType, Val ModuleID, Val OwnerType, V
 			
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Position of permissions by keys:
-	                  |%1, %2, %3, %4, %5.';"),
+	                  |%1, %2, %3, %4, %5.'"),
 				String(ProgramModuleType),
 				String(ModuleID),
 				String(OwnerType),
@@ -275,7 +275,7 @@ Procedure DeletePermission(Val ProgramModuleType, Val ModuleID, Val OwnerType, V
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Attempt to delete an extension that does not exist:
-                  |%1, %2, %3, %4, %5.';"),
+                  |%1, %2, %3, %4, %5.'"),
 			String(ProgramModuleType),
 			String(ModuleID),
 			String(OwnerType),

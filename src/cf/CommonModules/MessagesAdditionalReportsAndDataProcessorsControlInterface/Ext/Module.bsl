@@ -23,23 +23,6 @@ Function Version() Export
 	
 EndFunction
 
-#EndRegion
-
-#EndRegion
-
-#Region Private
-
-// Returns a namespace of the current (used by the calling code) message interface version.
-//
-// Returns:
-//   String
-//
-Function Package() Export
-	
-	Return "http://www.1c.ru/1cFresh/ApplicationExtensions/Control/" + Version();
-	
-EndFunction
-
 // Returns the name of the message API.
 //
 // Returns:
@@ -70,6 +53,23 @@ Procedure MessagesTranslationHandlers(Val HandlersArray) Export
 	HandlersArray.Add(MessagesAdditionalReportsAndDataProcessorsControlTranslationHandler_1_0_0_1);
 	
 EndProcedure
+
+#EndRegion
+
+#EndRegion
+
+#Region Private
+
+// Returns a namespace of the current (used by the calling code) message interface version.
+//
+// Returns:
+//   String
+//
+Function Package() Export
+	
+	Return "http://www.1c.ru/1cFresh/ApplicationExtensions/Control/" + Version();
+	
+EndFunction
 
 // Returns {http://www.1c.ru/1cFresh/ApplicationExtensions/Control/a.b.c.d}ExtensionInstalled message type
 //

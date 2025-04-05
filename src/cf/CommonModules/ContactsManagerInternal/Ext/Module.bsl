@@ -16,7 +16,7 @@ Function ValidateAddress(Address, AddressCheckParameters = Undefined) Export
 	
 	If TypeOf(Address) <> Type("String") Then
 		CheckResult.Result = "ContainsErrors";
-		CheckResult.ErrorList.Add("AddressFormat", NStr("en = 'Invalid address format';"));
+		CheckResult.ErrorList.Add("AddressFormat", NStr("en = 'Invalid address format'"));
 		Return CheckResult;
 	EndIf;
 	
@@ -184,7 +184,6 @@ Function WorldCountriesCatalogEmptyRef() Export
 
 EndFunction
 
-
 #Region ConfigurationSubsystemsEventHandlers
 
 // See ObjectsVersioningOverridable.OnPrepareObjectData.
@@ -261,7 +260,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.ObjectsToLock = "Catalog.WorldCountries";
 	Handler.CheckProcedure  = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
 	Handler.Comment = NStr("en = 'Updates Countries details against the Country classifier.
-		|Until it is complete, some country names might not be shown correctly.';");
+		|Until it is complete, some country names might not be shown correctly.'");
 
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		Handler.ExecutionPriorities = InfobaseUpdate.HandlerExecutionPriorities();
@@ -281,7 +280,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.ObjectsToLock = "Catalog.ContactInformationKinds";
 	Handler.CheckProcedure  = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
 	Handler.Comment = NStr("en = 'Updates contact information kinds.
-		|While the update is in progress, names of contact information kinds in documents might be displayed incorrectly.';");
+		|While the update is in progress, names of contact information kinds in documents might be displayed incorrectly.'");
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		Handler.ExecutionPriorities = InfobaseUpdate.HandlerExecutionPriorities();
@@ -320,18 +319,18 @@ EndProcedure
 Procedure OnDefineChecks(ChecksGroups, Checks) Export
 	
 	ChecksGroup = ChecksGroups.Add();
-	ChecksGroup.Description                 = NStr("en = 'Contact information';");
+	ChecksGroup.Description                 = NStr("en = 'Contact information'");
 	ChecksGroup.Id                = "ContactInformation";
 	ChecksGroup.AccountingChecksContext = "_ContactInformation";
 	
 	Validation = Checks.Add();
 	Validation.GroupID          = "ContactInformation";
-	Validation.Description                 = NStr("en = 'Identifying incorrect contact information kind settings';");
-	Validation.Reasons                      = NStr("en = 'There are no contact information fields in the card or in the document, or a situation arises that blocks operations with them.';");
+	Validation.Description                 = NStr("en = 'Identifying incorrect contact information kind settings'");
+	Validation.Reasons                      = NStr("en = 'There are no contact information fields in the card or in the document, or a situation arises that blocks operations with them.'");
 	Validation.Recommendation                 = NStr("en = 'Perform partial automatic restoration of contact information kinds (to do this, click the link below).
 	|
 	|For distributed infobases (DIB), run the repair procedure for the master node only.
-	|After that, perform synchronization with subordinate nodes.';");
+	|After that, perform synchronization with subordinate nodes.'");
 	Validation.Id                = "ContactInformation.CheckAndCorrectContactInformationKinds";
 	Validation.HandlerChecks           = "ContactsManagerInternal.CheckContactInformationKinds";
 	Validation.GoToCorrectionHandler = "Catalog.ContactInformationKinds.Form.ContactInformationKindsCorrection";
@@ -357,7 +356,7 @@ Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 	NamesAndAliasesMap.Insert("ContactsManagerInternal.ObsoleteAddressesCorrection");
 EndProcedure
 
-// See NationalLanguageSupportServer.ObjectsSCHRepresentations
+// 
 Procedure OnDefineObjectsWithTablePresentation(Objects) Export
 	Objects.Add("Catalog.ContactInformationKinds");
 EndProcedure
@@ -734,11 +733,11 @@ Procedure CorrectContactInformationKindsInBackground(Val CheckParameters, Storag
 		
 		InitialObjectWithIssue = ObjectsWithIssues.Get(ObjectsWithIssues.Count() - 1).ObjectWithIssue;
 		TotalObjectCount = TotalObjectCount + ObjectsWithIssues.Count();
-		// @skip-check query-in-loop - Batch processing of a large amount of data.
+		// @skip-check query-in-loop
 		TotalObjectsCorrected = TotalObjectsCorrected + CorrectContactInformationKindsBatch(ObjectsWithIssues, Validation);
 		
 		SelectionParameters.InitialObjectWithIssue = InitialObjectWithIssue;
-		// @skip-check query-in-loop - Batch processing of a large amount of data.
+		// @skip-check query-in-loop
 		ObjectsWithIssues = ModuleAccountingAudit.ObjectsWithIssues(Validation, SelectionParameters);
 	
 	EndDo;
@@ -793,7 +792,7 @@ Procedure CheckContactInformationKinds(Validation, CheckParameters) Export
 	StringFromQuery = QueryResult.Select();
 	
 	CheckExecutionParameters = ModuleAccountingAudit.CheckExecutionParameters("ContactInformation", 
-		NStr("en = 'Contact information kinds';", Common.DefaultLanguageCode()));
+		NStr("en = 'Contact information kinds'", Common.DefaultLanguageCode()));
 	ModuleAccountingAudit.ClearPreviousCheckResults(Validation, CheckExecutionParameters);
 	
 	CheckKind = ModuleAccountingAudit.CheckKind(CheckExecutionParameters);
@@ -807,7 +806,7 @@ Procedure CheckContactInformationKinds(Validation, CheckParameters) Export
 		Issue1 = ModuleAccountingAudit.IssueDetails(StringFromQuery.Ref, CheckParameters);
 		Issue1.CheckKind = CheckKind;
 		Issue1.IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The group that determines a contact information owner is required';"), StringFromQuery.Description);
+			NStr("en = 'The group that determines a contact information owner is required'"), StringFromQuery.Description);
 		
 		ModuleAccountingAudit.WriteIssue(Issue1, CheckParameters);
 		
@@ -871,7 +870,9 @@ Procedure UpdateExistingWorldCountries() Export
 		Except
 			RollbackTransaction();
 			Info = ErrorInfo();
-			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Error saving country %1 (code %2) while updating classifier, %3';"),
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Couldn''t save ""%1"" (code %2) during the classifier update. Reason:
+						|%3'"),
 				Selection.Code, Selection.Description, ErrorProcessing.BriefErrorDescription(Info));
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(),
 				EventLogLevel.Error,,,
@@ -1015,7 +1016,7 @@ Procedure ContactInformationValidationProcessing(Source, Cancel, CheckedAttribut
 		
 		If FoundRows.Count() = 0 Then
 			
-			Text = StringFunctionsClientServer.SubstituteParametersToString( NStr("en = 'Please fill in the ""%1"" field.';"),
+			Text = StringFunctionsClientServer.SubstituteParametersToString( NStr("en = 'Please fill in the ""%1"" field.'"),
 				ContactInformationKind);
 			Messages.Add(Text);
 			
@@ -1027,7 +1028,7 @@ Procedure ContactInformationValidationProcessing(Source, Cancel, CheckedAttribut
 					Or (IsBlankString(ContactInformationRow.Value)
 					And IsBlankString(ContactInformationRow.FieldValues)) Then
 					
-					Text = StringFunctionsClientServer.SubstituteParametersToString( NStr("en = 'Please fill in the ""%1"" field.';"),
+					Text = StringFunctionsClientServer.SubstituteParametersToString( NStr("en = 'Please fill in the ""%1"" field.'"),
 						ContactInformationRow.Kind);
 					Messages.Add(Text);
 					Break;
@@ -1125,7 +1126,7 @@ EndProcedure
 
 Function EventLogEvent() Export
 	
-	Return NStr("en = 'Contact information';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Contact information'", Common.DefaultLanguageCode());
 	
 EndFunction
 
@@ -1282,7 +1283,7 @@ EndFunction
 Procedure UpdateAddressPresentation(Address, IncludeCountryInPresentation)
 	
 	If TypeOf(Address) <> Type("Structure") Then
-		Raise NStr("en = 'Cannot generate address. Invalid address type passed.';");
+		Raise NStr("en = 'Cannot generate address. Invalid address type passed.'");
 	EndIf;
 	
 	FilledLevelsList = New Array;
@@ -1382,6 +1383,21 @@ Function AddressPartsAsTable(Val Text) Export
 			
 		EndDo;
 		
+		If RegionCode = Undefined And Common.SubsystemExists("StandardSubsystems.AddressClassifier") Then			
+			
+			ModuleAddressClassifier = Common.CommonModule("AddressClassifier");
+			RegionCode = ModuleAddressClassifier.КодРегионаПоНаименованию(
+				ContactsManagerClientServer.ConnectTheNameAndTypeOfTheAddressObject(String.Description, String.ObjectType, True));
+			
+			If RegionCode = Undefined And ValueIsFilled(Value) Then
+				RegionCode = ModuleAddressClassifier.КодРегионаПоНаименованию(Value);
+			EndIf;
+				
+			If RegionCode <> Undefined Then
+				String.Value = ModuleAddressClassifier.НаименованиеРегионаПоКоду(RegionCode);
+				String.Level  = 1;
+			EndIf;
+		EndIf;
 		
 		If ValueIsFilled(String.Value) Then
 			Continue;
@@ -1536,7 +1552,7 @@ Procedure DefineCountryAndPostalCode(AddressByFields) Export
 			AddressItem.Level = -1;
 		Else
 			CountryByClassifier = Classifier.Find(Upper(AddressItem.Value), "Description");
-			ContactsManagerLocalization.ПриПроверкеСтраныПослеПоискаСтраныПоКлассификатору(CountryByClassifier);
+			ContactsManagerLocalization.OnCheckCountryAfterCountrySearchInClassifier(CountryByClassifier);
 			If CountryByClassifier <> Undefined Then
 				AddressItem.Level = -2;
 			EndIf;
@@ -1808,6 +1824,7 @@ EndFunction
 // Parameters:
 //   Object - CatalogObject
 ///
+///
 Procedure UpdateCotactsForListsForObject(Object) Export
 	
 	ContactInformation = Object.ContactInformation;
@@ -1978,7 +1995,7 @@ Procedure UpdateContactInformationForLists() Export
 				|	ContactInformation.Presentation TOTALS BY Kind";
 			
 			Query.SetParameter("ContactInformation", ContactInformation);
-			QueryResult = Query.Execute(); // @skip-check query-in-loop - Multi-table queries.
+			QueryResult = Query.Execute(); // @skip-check query-in-loop - Запросы к разным таблицам.
 			SelectionKind = QueryResult.Select(QueryResultIteration.ByGroups);
 			
 			While SelectionKind.Next() Do
@@ -2097,7 +2114,7 @@ Function CheckContactsKindParameters(ContactInformationKind) Export
 	If Not ValueIsFilled(ContactInformationKind.Description) Then
 		Result.HasErrors = True;
 		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Field ""Description"" of the ""%1"" contact information kind is empty. The field is required.';"),
+			NStr("en = 'Field ""Description"" of the ""%1"" contact information kind is empty. The field is required.'"),
 			String(ContactInformationKind.PredefinedKindName));
 		Return Result;
 	EndIf;
@@ -2109,7 +2126,7 @@ Function CheckContactsKindParameters(ContactInformationKind) Export
 	If Not ValueIsFilled(ContactInformationKind.Type) Then
 		Result.HasErrors = True;
 		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Field ""Type"" of the ""%1"" contact information kind is empty. The field is required.';"),
+			NStr("en = 'Field ""Type"" of the ""%1"" contact information kind is empty. The field is required.'"),
 			String(ContactInformationKind.Description));
 		Return Result;
 	EndIf;
@@ -2122,7 +2139,7 @@ Function CheckContactsKindParameters(ContactInformationKind) Export
 			Or ContactInformationKind.HideObsoleteAddresses) Then
 				Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Invalid address validation settings for the %1 contact information kind.
-					|Validation for this kind is not available.';"), 
+					|Validation for this kind is not available.'"), 
 					String(ContactInformationKind.Description));
 					Separator = Chars.LF;
 			EndIf;
@@ -2132,7 +2149,7 @@ Function CheckContactsKindParameters(ContactInformationKind) Export
 				Result.ErrorText = Result.ErrorText + Separator 
 					+ StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Invalid address settings for the %1 contact information kind.
-						|Contact information does not support multiple entry if the Change history feature is selected.';"),
+						|Contact information does not support multiple entry if the Change history feature is selected.'"),
 						String(ContactInformationKind.Description));
 		EndIf;
 	EndIf;
@@ -2192,7 +2209,7 @@ Procedure AddContactInformation(Object, ValueOrPresentation, ContactInformationK
 	ObjectMetadata = Metadata.FindByType(TypeOf(Object));
 	If ObjectMetadata = Undefined
 		Or ObjectMetadata.TabularSections.Find("ContactInformation") = Undefined Then
-		Raise NStr("en = 'Cannot add contact information. The object does not have a contact information table.';");
+		Raise NStr("en = 'Cannot add contact information. The object does not have a contact information table.'");
 	EndIf;
 	
 	If IsContactInformationInJSONStructure Then
@@ -2878,7 +2895,7 @@ Function PhoneFaxDeserializationInJSON(FieldValues, Presentation = "", ExpectedT
 	
 	// Fix possible errors.
 	If IsBlankString(Data.Number) Then
-		If StrStartsWith(TrimL(Presentation), "+") Then
+		If StrStartsWith(TrimL(Presentation), "+") And StrLen(Presentation) > CityBeginning Then
 			// An attempt to specify the area code explicitly is detected. Leaving the area code "as is".
 			Data.AreaCode  = "";
 			Data.Number      = RemoveNonDigitCharacters(Mid(Presentation, CityBeginning));
@@ -3173,7 +3190,7 @@ Function JSONStringToStructure1(Value) Export
 		Result = ReadJSON(JSONReader,,,, "RestoreContactInformationFields", 
 			ContactsManagerInternal);
 	Except
-		ErrorText = NStr("en = 'An error occurred while converting contact information from JSON.';");
+		ErrorText = NStr("en = 'Invalid contact information.'");
 		WriteLogEvent(EventLogEvent(),
 			EventLogLevel.Error,,,
 			ErrorText + Chars.LF + String(Value));
@@ -3182,7 +3199,6 @@ Function JSONStringToStructure1(Value) Export
 	EndTry;
 	
 	JSONReader.Close();
-	
 	Return Result;
 	
 EndFunction

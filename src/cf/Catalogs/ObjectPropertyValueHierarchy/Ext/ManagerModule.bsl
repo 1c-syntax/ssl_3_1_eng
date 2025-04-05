@@ -34,7 +34,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// СтандартныеПодсистемы.УправлениеДоступом
+// 
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.

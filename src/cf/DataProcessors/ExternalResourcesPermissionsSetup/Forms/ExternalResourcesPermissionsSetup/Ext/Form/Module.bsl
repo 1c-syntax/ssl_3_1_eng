@@ -88,7 +88,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.AdministrationGroup.Visible = InfobaseAdministrationParametersRequired;
 	Items.RestartRequiredWarningGroup.Visible = InfobaseAdministrationParametersRequired;
 	
-	Items.FormAllow.Title = NStr("en = 'Next >';");
+	Items.FormAllow.Title = NStr("en = 'Next >'");
 	Items.FormBack.Visible = False;
 	
 	VisibilityManagement();
@@ -99,7 +99,7 @@ EndProcedure
 Procedure OnOpen(Cancel)
 	
 #If MobileClient Then
-	ShowMessageBox(, NStr("en = 'The report is unavailable in mobile client. Start thin client or web client.';"));
+	ShowMessageBox(, NStr("en = 'The report is unavailable in mobile client. Start thin client or web client.'"));
 	Cancel = True;
 	Return;
 #EndIf
@@ -133,13 +133,13 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 		FieldName = "IBAdministrator";
 		IBUser = GetIBAdministrator();
 		If IBUser = Undefined Then
-			Common.MessageToUser(NStr("en = 'This user is not allowed to access the infobase.';"),,
+			Common.MessageToUser(NStr("en = 'This user is not allowed to access the infobase.'"),,
 				FieldName,,Cancel);
 			Return;
 		EndIf;
 		
 		If Not Users.IsFullUser(IBUser, True) Then
-			Common.MessageToUser(NStr("en = 'This user has no administrative rights.';"),,
+			Common.MessageToUser(NStr("en = 'This user has no administrative rights.'"),,
 				FieldName,,Cancel);
 			Return;
 		EndIf;
@@ -170,7 +170,7 @@ Procedure Next(Command)
 		
 		ErrorText = "";
 		Items.ErrorGroup.Visible = False;
-		Items.FormAllow.Title = NStr("en = 'Set up permissions in server cluster';");
+		Items.FormAllow.Title = NStr("en = 'Set up permissions in server cluster'");
 		Items.GroupPages.CurrentPage = Items.ConnectionPage;
 		Items.FormBack.Visible = True;
 		
@@ -198,7 +198,7 @@ Procedure Back(Command)
 	If Items.GroupPages.CurrentPage = Items.ConnectionPage Then
 		Items.GroupPages.CurrentPage = Items.PermissionsPage;
 		Items.FormBack.Visible = False;
-		Items.FormAllow.Title = NStr("en = 'Next >';");
+		Items.FormAllow.Title = NStr("en = 'Next >'");
 	EndIf;
 	
 EndProcedure
@@ -392,7 +392,7 @@ Procedure ApplyPermissionsChangesInSecurityProfilesInServerCluster(Val Operation
 			If ClusterAdministration.SecurityProfileExists(ClusterAdministrationParameters, ScenarioItem.Profile) Then
 				
 				Common.MessageToUser(
-					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Security profile %1 already exists in the server cluster. Settings in the security profile will be replaced…';"), ScenarioItem.Profile));
+					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Security profile %1 already exists in the server cluster. Settings in the security profile will be replaced…'"), ScenarioItem.Profile));
 				
 				ClusterAdministration.SetSecurityProfileProperties(ClusterAdministrationParameters, ScenarioItem.Permissions);
 				
@@ -419,7 +419,7 @@ Procedure ApplyPermissionsChangesInSecurityProfilesInServerCluster(Val Operation
 			Else
 				
 				Common.MessageToUser(
-					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Security profile %1 does not exist in the server cluster. Security profile might have been deleted earlier…';"), ScenarioItem.Profile));
+					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Security profile %1 does not exist in the server cluster. Security profile might have been deleted earlier…'"), ScenarioItem.Profile));
 				
 			EndIf;
 			

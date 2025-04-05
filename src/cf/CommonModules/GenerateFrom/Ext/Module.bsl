@@ -56,7 +56,7 @@ Procedure OnDefineAttachableCommandsKinds(AttachableCommandsKinds) Export
 	Kind = AttachableCommandsKinds.Add();
 	Kind.Name         = "GenerateFrom";
 	Kind.SubmenuName  = "CreateBasedOnSubmenu";
-	Kind.Title   = NStr("en = 'Generate';");
+	Kind.Title   = NStr("en = 'Generate'");
 	Kind.Order     = 60;
 	Kind.Picture    = PictureLib.InputOnBasis;
 	Kind.Representation = ButtonRepresentation.Picture;
@@ -75,7 +75,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	
 	GenerationCommands.FillValues(True, "Processed1");
 	
-	AllowedTypes = New Array; // Типы источников, которые пользователь может изменять (см. ниже проверку права "Изменение").
+	AllowedTypes = New Array; // 
 	If StandardProcessing Then
 		ObjectsWithCreationBasedOnCommands = ObjectsWithCreationBasedOnCommands();
 		For Each Source In Sources.Rows Do

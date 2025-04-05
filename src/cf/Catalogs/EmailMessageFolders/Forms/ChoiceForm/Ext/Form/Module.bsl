@@ -66,7 +66,7 @@ Procedure SetPredefinedFilters()
 	                                                                        "DeletionMark",
 	                                                                        False,
 	                                                                        DataCompositionComparisonType.Equal,
-	                                                                        NStr("en = 'Show only folders not marked for deletion';"),
+	                                                                        NStr("en = 'Show only folders not marked for deletion'"),
 	                                                                        True, 
 	                                                                        DataCompositionSettingsItemViewMode.Inaccessible);
 	
@@ -79,7 +79,7 @@ Procedure OnChangeOwnerAtServer()
 	                                                                        "Owner",
 	                                                                        Owner,
 	                                                                        DataCompositionComparisonType.Equal,
-	                                                                        NStr("en = 'Filter by folder owner';"),
+	                                                                        NStr("en = 'Filter by folder owner'"),
 	                                                                        ValueIsFilled(Owner), 
 	                                                                        DataCompositionSettingsItemViewMode.Inaccessible);
 	

@@ -49,7 +49,7 @@ Procedure OpenReportForm(Val OwnerForm, Val Variant, Val AdditionalParameters = 
 	
 	OpeningParameters.ReportType = ReportsOptionsClientServer.ReportByStringType(OpeningParameters.ReportType, OpeningParameters.Report);
 	If Not ValueIsFilled(OpeningParameters.ReportType) Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Report type is not specified in %1';"), "ReportsOptionsClient.OpenReportForm");
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Report type is not specified in %1'"), "ReportsOptionsClient.OpenReportForm");
 	EndIf;
 	
 	If OpeningParameters.ReportType = "BuiltIn" Or OpeningParameters.ReportType = "Extension" Then
@@ -71,12 +71,12 @@ Procedure OpenReportForm(Val OwnerForm, Val Variant, Val AdditionalParameters = 
 			Return;
 		EndIf;
 	Else
-		ShowMessageBox(, NStr("en = 'You can open external report options only from report forms.';"));
+		ShowMessageBox(, NStr("en = 'You can open external report options only from report forms.'"));
 		Return;
 	EndIf;
 	
 	If Not ValueIsFilled(OpeningParameters.ReportName) Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Report name is not specified in %1';"), "ReportsOptionsClient.OpenReportForm");
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Report name is not specified in %1'"), "ReportsOptionsClient.OpenReportForm");
 	EndIf;
 	
 	FullReportName = CommonClientServer.StructureProperty(OpeningParameters, "FullReportName");
@@ -168,7 +168,7 @@ Procedure OnStart(Parameters) Export
 	Except
 		ErrorInfo = ErrorInfo();
 		EventLogClient.AddMessageForEventLog(
-			NStr("en = 'Report options.An error occurred when attaching a message action handler';",
+			NStr("en = 'Report options.An error occurred when attaching a message action handler'",
 				CommonClient.DefaultLanguageCode()),
 			"Error",
 			ErrorProcessing.DetailErrorDescription(ErrorInfo));
@@ -196,7 +196,7 @@ EndProcedure
 Procedure OpenOptionArrangeInSectionsDialog(Variants, Owner = Undefined) Export
 	
 	If TypeOf(Variants) <> Type("Array") Or Variants.Count() < 1 Then
-		ShowMessageBox(, NStr("en = 'Select report options to add to sections.';"));
+		ShowMessageBox(, NStr("en = 'Select report options to add to sections.'"));
 		Return;
 	EndIf;
 	
@@ -214,7 +214,7 @@ Procedure OnMessageActionHandlerError(ErrorInfo, StandardProcessing, Context) Ex
 	StandardProcessing = False;
 	
 	EventLogClient.AddMessageForEventLog(
-		NStr("en = 'Report options.An error occurred when processing a message action';",
+		NStr("en = 'Report options.An error occurred when processing a message action'",
 			CommonClient.DefaultLanguageCode()),
 		"Error",
 		ErrorProcessing.DetailErrorDescription(ErrorInfo));
@@ -376,7 +376,7 @@ Function ReportOptionUsersPickingParameters(Form, PickUsersGroups, ExternalUsers
 	PickingParameters.Insert("CloseOnChoice", False);
 	PickingParameters.Insert("MultipleChoice", True);
 	PickingParameters.Insert("AdvancedPick", True);
-	PickingParameters.Insert("PickFormHeader", NStr("en = 'Pick report option users';"));
+	PickingParameters.Insert("PickFormHeader", NStr("en = 'Pick report option users'"));
 	PickingParameters.Insert("UsersGroupsSelection", PickUsersGroups);
 	PickingParameters.Insert("SelectedUsers", SelectedUsers);
 	
@@ -602,7 +602,7 @@ Procedure RegisterReportOptionUsers(Form, ResetUsageFlag = True) Export
 	
 	MarkedItemCount = 0;
 	For Each TableRow In Form.OptionUsers Do 
-		If TableRow.Value = OptionAuthor Then
+		If TableRow.Value = OptionAuthor And OptionAuthor <> Undefined Then
 			AuthorFlag = "[IsReportOptionAuthor]";
 		Else
 			AuthorFlag = "";
@@ -641,7 +641,7 @@ EndFunction
 Procedure UpdateReportOptionFromFiles(ReportOptionProperties, FormIdentifier) Export
 
 	ImportParameters = FileSystemClient.FileImportParameters();
-	ImportParameters.Dialog.Filter = NStr("en = 'Report information (*.zip)|*.zip';");
+	ImportParameters.Dialog.Filter = NStr("en = 'Report information (*.zip)|*.zip'");
 	ImportParameters.FormIdentifier = FormIdentifier;
 	
 	Handler = New CallbackDescription("UpdateReportOptionsFromFilesCompletion", ThisObject, 
@@ -669,9 +669,9 @@ Procedure UpdateReportOptionsFromFilesCompletion(FilesDetails, BaseReportOptionP
 	
 	ReportsOptionsProperties = ReportsOptionsServerCall.UpdateReportOptionsFromFiles(FilesDetails);
 	NotificationText2 = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Imported from the file: %1';"), ReportsOptionsProperties.Count());
+		NStr("en = 'Imported from the file: %1'"), ReportsOptionsProperties.Count());
 	
-	ShowUserNotification(NStr("en = 'The reports are updated';"),, NotificationText2);
+	ShowUserNotification(NStr("en = 'The reports are updated'"),, NotificationText2);
 	Notify(NameOfTheEventForUpdatingReportVariantsFromFiles(), ReportsOptionsProperties);
 	
 EndProcedure
@@ -697,14 +697,14 @@ Procedure UpdateReportOptionFromFile(FileDetails, BaseReportOptionProperties)
 	If BaseReportOptionProperties.ReportName = ReportOptionProperties.ReportName Then 
 		
 		UpdateOpenForms(ReportOptionProperties.VariantKey);
-		ShowUserNotification(NStr("en = 'The report is updated from the file';"), 
+		ShowUserNotification(NStr("en = 'The report is updated from the file'"), 
 			GetURL(ReportOptionProperties.Ref),
 			ReportOptionProperties.VariantPresentation);
 		
 	ElsIf BaseReportOptionProperties.VariantPresentation = ReportOptionProperties.VariantPresentation Then 
 		
 		OpenReportForm(Undefined, ReportOptionProperties.Ref);
-		ShowUserNotification(NStr("en = 'The report is updated from the file';"), 
+		ShowUserNotification(NStr("en = 'The report is updated from the file'"), 
 			GetURL(ReportOptionProperties.Ref),
 			ReportOptionProperties.VariantPresentation);
 		
@@ -717,7 +717,7 @@ Procedure UpdateReportOptionFromFile(FileDetails, BaseReportOptionProperties)
 			|do not match the settings of ""%2"".
 			|Cannot replace the settings of the selected report option.
 			|
-			|Do you want to create a new report option (or update the report option if it exists)?';");
+			|Do you want to create a new report option (or update the report option if it exists)?'");
 		
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 			QuestionTextTemplate,
@@ -773,7 +773,7 @@ Procedure ShareUserSettings(SettingsDescription) Export
 	
 	If SettingsDescription.Settings.Items.Count() = 0 Then 
 		
-		CommonClient.MessageToUser(NStr("en = 'The user settings are not specified.';"));
+		CommonClient.MessageToUser(NStr("en = 'The user settings are not specified.'"));
 		Return;
 		
 	EndIf;
@@ -785,8 +785,8 @@ Procedure ShareUserSettings(SettingsDescription) Export
 	PickingParameters.Insert("AdvancedPick", True);
 	PickingParameters.Insert("HideUsersWithoutMatchingIBUsers", True);
 	PickingParameters.Insert("SelectedUsers", New Array);
-	PickingParameters.Insert("PickFormHeader", NStr("en = 'Share report settings with users';"));
-	PickingParameters.Insert("PickingCompletionButtonTitle", NStr("en = 'Share';"));
+	PickingParameters.Insert("PickFormHeader", NStr("en = 'Share report settings with users'"));
+	PickingParameters.Insert("PickingCompletionButtonTitle", NStr("en = 'Share'"));
 	
 	Handler = New CallbackDescription(
 		"ShareUserSettingsAfterUsersChoice", ReportsOptionsClient, SettingsDescription);
@@ -815,7 +815,7 @@ Procedure ShareUserSettingsAfterUsersChoice(SelectedUsers, SettingsDescription) 
 	EndIf;
 	
 	Explanation = CommonClientServer.StructureProperty(SettingsDescription, "Explanation", "");
-	ShowUserNotification(NStr("en = 'The settings are shared';"),, Explanation);
+	ShowUserNotification(NStr("en = 'The settings are shared'"),, Explanation);
 	
 EndProcedure
 

@@ -226,8 +226,8 @@ Procedure OnFillUnavailablePublicationKinds(Val NotAvailablePublicationKinds) Ex
 	
 EndProcedure
 
-// The procedure is called from the BeforeWrite event of catalog
-//  AdditionalReportsAndDataProcessors. Validates changes to the catalog item
+// The procedure is called from the "BeforeWrite" event of catalog
+//  "AdditionalReportsAndDataProcessors". Validates changes to the catalog item
 //  attributes for additional data processors retrieved from the
 //  additional data processor directory from the service manager.
 //
@@ -248,7 +248,7 @@ Procedure BeforeWriteAdditionalDataProcessor(Source, Cancel) Export
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Additional report or data processor %1 was imported from the service and cannot be disabled from the standalone workstation.
 					|To remove the additional report or data processor, perform a disconnection operation
-					|in the service application and synchronize the standalone workstation data with the service.';"),
+					|in the service application and synchronize the standalone workstation data with the service.'"),
 				Source.Description);
 			
 		EndIf;

@@ -23,7 +23,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetFormStateByScheduledJobSettings(ThisObject);
 	
 	If Common.DataSeparationEnabled() Then
-		Items.UseScheduledDeletion.Title = NStr("en = 'Autodelete objects marked for deletion';");
+		Items.UseScheduledDeletion.Title = NStr("en = 'Autodelete objects marked for deletion'");
 		Items.DeleteMarkedObjectsConfigureSchedule.Visible = False;
 	EndIf;
 EndProcedure
@@ -343,7 +343,7 @@ Procedure SetFormStateByScheduledJobSettings(Form)
 		SchedulePresentation = String(Schedule);
 		Presentation = Upper(Left(SchedulePresentation, 1)) + Mid(SchedulePresentation, 2);
 	Else
-		Presentation = NStr("en = '<Disabled>';");
+		Presentation = NStr("en = '<Disabled>'");
 	EndIf;
 	
 	Form.Items.DeleteMarkedObjectsSchedulePresentation.Title = Presentation;

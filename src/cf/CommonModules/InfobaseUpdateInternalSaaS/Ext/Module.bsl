@@ -168,7 +168,7 @@ Procedure GenerateDataAreaUpdatePlan(LibraryID, AllHandlers,
 				If Not Selection.Updated1 Then
 					UpdatePlanEmpty = False;
 					
-					CommentTemplate = NStr("en = 'Configuration version update was performed before updating %1 library version';");
+					CommentTemplate = NStr("en = 'Configuration version update was performed before updating %1 library version'");
 					CommentText1 = StringFunctionsClientServer.SubstituteParametersToString(CommentTemplate, Selection.Name);
 					WriteLogEvent(
 						InfobaseUpdate.EventLogEvent(),
@@ -189,7 +189,7 @@ Procedure GenerateDataAreaUpdatePlan(LibraryID, AllHandlers,
 				If LibraryUpdatePlanDetails = Undefined Then
 					UpdatePlanEmpty = False;
 					
-					CommentTemplate = NStr("en = 'The update plan for library %1 does not exist';");
+					CommentTemplate = NStr("en = 'The update plan for library %1 does not exist'");
 					CommentText1 = StringFunctionsClientServer.SubstituteParametersToString(CommentTemplate, Selection.Name);
 					WriteLogEvent(
 						InfobaseUpdate.EventLogEvent(),
@@ -205,7 +205,7 @@ Procedure GenerateDataAreaUpdatePlan(LibraryID, AllHandlers,
 					UpdatePlanEmpty = False;
 					
 					CommentTemplate = NStr("en = 'Incorrect update plan of the %1 library is detected.
-						|Plan for updating to version %2 is required, plan for updating to version %3 is found.';");
+						|Plan for updating to version %2 is required, plan for updating to version %3 is found.'");
 					CommentText1 = StringFunctionsClientServer.SubstituteParametersToString(CommentTemplate, Selection.Name, String(LibraryUpdatePlanDetails.VersionTo1), String(Selection.Version));
 					WriteLogEvent(
 						InfobaseUpdate.EventLogEvent(),
@@ -481,7 +481,7 @@ Procedure BeforeUpdateInfobase() Export
 		SharedDataVersion = InfobaseUpdateInternal.IBVersion(Metadata.Name, True);
 		If InfobaseUpdateInternal.UpdateRequired(Metadata.Version, SharedDataVersion) Then
 			Message = NStr("en = 'General part of the infobase update is not performed.
-				|Contact the Administrator.';");
+				|Contact the Administrator.'");
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Error,,, Message);
 			Raise Message;
 		EndIf;
@@ -1127,7 +1127,7 @@ Procedure ScheduleDataAreaUpdate()
 	
 EndProcedure
 
-// 
+// Updates the infobase version in the current data area and removes the session locks (if any).
 // 
 //
 Procedure UpdateCurrentDataArea(ActivatedExtensions = Undefined) Export
@@ -1190,7 +1190,7 @@ Function EarliestDataAreaVersion() Export
 	If Common.DataSeparationEnabled()
 		And Common.SeparatedDataUsageAvailable() Then
 		ExceptionText = NStr("en = 'Cannot call function %1
-		                             |from sessions where the SaaS separators value is set.';");
+		                             |from sessions where the SaaS separators value is set.'");
 		ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(ExceptionText,
 			"InfobaseUpdateInternalCached.EarliestDataAreaVersion");
 		
@@ -1317,10 +1317,10 @@ Function DataAreaLockResult(RecordKey, AttemptNumber)
 			Return "Repeat";
 		EndIf;
 		WriteLogEvent(InfobaseUpdate.EventLogEvent() + "." 
-			+ NStr("en = 'Data area update';", Common.DefaultLanguageCode()),
+			+ NStr("en = 'Data area update'", Common.DefaultLanguageCode()),
 			EventLogLevel.Error,,,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		Raise(NStr("en = 'An error occurred when updating the data area. Saving data area versions is locked.';"));
+		Raise(NStr("en = 'Failed to update the data area. Saving data area versions is disabled.'"));
 	EndTry;
 	
 	Return "Success";
@@ -1369,7 +1369,7 @@ EndProcedure
 Function ExecuteQueryOutsideTransaction(Val Query)
 	
 	If TransactionActive() Then
-		Raise(NStr("en = 'The transaction is active. Cannot execute a query outside the transaction.';"));
+		Raise(NStr("en = 'The transaction is active. Cannot execute a query outside the transaction.'"));
 	EndIf;
 	
 	AttemptsNumber = 0;

@@ -145,7 +145,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	If Not ValueIsFilled(Author) Then 
 		Cancel = True;
 		Common.MessageToUser(
-			NStr("en = 'The ""Person responsible"" field is required.';"), ThisObject, "Author",, Cancel);
+			NStr("en = 'The ""Person responsible"" field is required.'"), ThisObject, "Author",, Cancel);
 	EndIf;
 		
 	GroupIncludedIntoPersonalDistributionHierarchy = ReportMailing.IsMemberOfPersonalReportGroup(Parent);
@@ -153,15 +153,15 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	If Not Personal And Not Personalized And GroupIncludedIntoPersonalDistributionHierarchy Then
 		Cancel = True;
 		Common.MessageToUser(
-			NStr("en = 'You cannot specify a group included in ""Personal distributions"" for the ""Reports to specified recipients"" distributions.';"), ThisObject, "Parent",, Cancel);
+			NStr("en = 'You cannot specify a group included in ""Personal distributions"" for the ""Reports to specified recipients"" distributions.'"), ThisObject, "Parent",, Cancel);
 	ElsIf Not Personal And Personalized And GroupIncludedIntoPersonalDistributionHierarchy Then
 		Cancel = True;
 		Common.MessageToUser(
-			NStr("en = 'You cannot specify a group included in ""Personal distributions"" for the ""Individual report for each recipient"" distributions.';"), ThisObject, "Parent",, Cancel);
+			NStr("en = 'You cannot specify a group included in ""Personal distributions"" for the ""Individual report for each recipient"" distributions.'"), ThisObject, "Parent",, Cancel);
 	ElsIf Personal And Not GroupIncludedIntoPersonalDistributionHierarchy  Then
 		Cancel = True;
 		Common.MessageToUser(
-			NStr("en = 'Specify a ""Personal distributions"" group or its subgroup for personal report distributions.';"), ThisObject, "Parent",, Cancel);
+			NStr("en = 'Specify a ""Personal distributions"" group or its subgroup for personal report distributions.'"), ThisObject, "Parent",, Cancel);
 	EndIf;
 
 EndProcedure
@@ -171,11 +171,11 @@ EndProcedure
 #Region Private
 
 Function JobByMailingPresentation(MailingDescription)
-	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Report distribution: %1';"), TrimAll(MailingDescription));
+	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Report distribution: %1'"), TrimAll(MailingDescription));
 EndFunction
 
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

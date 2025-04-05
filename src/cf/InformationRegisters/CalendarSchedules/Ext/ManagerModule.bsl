@@ -59,7 +59,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	RegisterMetadata    = Metadata.InformationRegisters.CalendarSchedules;
 	FullRegisterName     = RegisterMetadata.FullName();
 	RegisterPresentation = RegisterMetadata.Presentation();
-	FilterPresentation   = NStr("en = 'Calendar = ""%1""';");
+	FilterPresentation   = NStr("en = 'Calendar = ""%1""'");
 	
 	Selection = InfobaseUpdate.SelectStandaloneInformationRegisterDimensionsToProcess(Parameters.Queue, FullRegisterName);
 	
@@ -106,8 +106,8 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			RecordsWithIssuesCount = RecordsWithIssuesCount + 1;
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Error processing register records with the filter ""%1"" applied. Reason:
-					|%2';"),
+				NStr("en = 'Couldn''t process register records with filter %1 due to:
+					|%2'"),
 				StringFunctionsClientServer.SubstituteParametersToString(
 					FilterPresentation,
 					RepresentationOfTheReference),
@@ -128,7 +128,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	If Processed = 0 And RecordsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Procedure %1 failed to process and skipped %2 records.';"), 
+			NStr("en = 'Procedure %1 failed to process and skipped %2 records.'"), 
 			ProcedureName,
 			RecordsWithIssuesCount);
 		Raise MessageText;
@@ -138,7 +138,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		InfobaseUpdate.EventLogEvent(), 
 		EventLogLevel.Information, RegisterMetadata, ,
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Procedure %1 processed yet another batch of records: %2.';"),
+			NStr("en = 'Procedure %1 processed yet another batch of records: %2.'"),
 			ProcedureName,
 			Processed));
 	Parameters.ProcessingCompleted = ProcessingCompleted;
@@ -335,7 +335,7 @@ Procedure UpdateWorkSchedulesAccordingToBusinessCalendars(UpdateConditions) Expo
 			FillParameters.StartingDate = SelectionBySchedule.StartingDate;
 			DaysIncludedInSchedule = InformationRegisters.CalendarSchedules.DaysIncludedInSchedule(
 				SelectionBySchedule.StartDate, SelectionBySchedule.EndDate, FillParameters);
-			// @skip-check query-in-loop - Read data by datasets with reading within a loop.
+			// @skip-check query-in-loop - Запись данных по наборам с чтением в цикле.
 			WriteScheduleDataToRegister(SelectionBySchedule.WorkScheduleCalendar, DaysIncludedInSchedule, 
 				SelectionBySchedule.StartDate, SelectionBySchedule.EndDate);
 		EndDo;

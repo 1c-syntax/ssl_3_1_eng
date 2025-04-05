@@ -85,9 +85,27 @@ EndFunction
 //                                    as a value table with simple types. The default value is True.
 //
 // Returns:
-//   ValueTable of See EmailOperations.InternetMailMessageFields
-//   
-//   
+//  ValueTable - List of email messages with the following columns:
+//   * Importance - InternetMailMessageImportance
+//   * Attachments - InternetMailAttachments - if any of the attachments are email messages,
+//                 they are not returned but their attachments, binary
+//                 data and texts, are recursively returned as binary data.
+//   * PostingDate - Date
+//   * DateReceived - Date
+//   * Title - String
+//   * SenderName - String
+//   * Id - Array of String
+//   * Cc - InternetMailAddresses
+//   * ReplyTo - InternetMailAddresses
+//   * From - String
+//                 - InternetMailAddress
+//   * Recipients - InternetMailAddresses
+//   * Size - Number
+//   * Texts - InternetMailTexts
+//   * Encoding - String
+//   * NonASCIISymbolsEncodingMode - InternetMailMessageNonASCIISymbolsEncodingMode
+//   * Partial - Boolean - Filled if the status is set to "True". Always returns "True" in the test mode.
+//  Boolean - If the "TestMode" parameter is set to "True". Returns "True" if the connection is established.
 //
 Function DownloadEmailMessages(Val UserAccountOrConnection, Val ImportParameters = Undefined) Export
 	
@@ -100,7 +118,7 @@ Function DownloadEmailMessages(Val UserAccountOrConnection, Val ImportParameters
 	If Account <> Undefined Then
 		UseForReceiving = Common.ObjectAttributeValue(Account, "UseForReceiving");
 		If Not UseForReceiving Then
-			Raise NStr("en = 'The account is not intended to receive messages.';");
+			Raise NStr("en = 'The account is not intended to receive messages.'");
 		EndIf;
 	EndIf;
 	
@@ -475,11 +493,11 @@ Function PrepareEmail(Account, EmailParameters) Export
 	
 	If TypeOf(Account) <> Type("CatalogRef.EmailAccounts")
 		Or Not ValueIsFilled(Account) Then
-		Raise NStr("en = 'The account is not specified or specified incorrectly.';");
+		Raise NStr("en = 'The account is not specified or specified incorrectly.'");
 	EndIf;
 	
 	If EmailParameters = Undefined Then
-		Raise NStr("en = 'The mail sending parameters are not specified.';");
+		Raise NStr("en = 'The mail sending parameters are not specified.'");
 	EndIf;
 	
 	RecipientValType = ?(EmailParameters.Property("Whom"), TypeOf(EmailParameters.Whom), Undefined);
@@ -487,7 +505,7 @@ Function PrepareEmail(Account, EmailParameters) Export
 	BCCs = CommonClientServer.StructureProperty(EmailParameters, "BCCs");
 	
 	If RecipientValType = Undefined And CcType = Undefined And BCCs = Undefined Then
-		Raise NStr("en = 'No recipient is selected.';");
+		Raise NStr("en = 'No recipient is selected.'");
 	EndIf;
 	
 	If RecipientValType = Type("String") Then
@@ -617,11 +635,11 @@ Function SendEmailMessage(Val Account, Val SendOptions,
 	
 	If TypeOf(Account) <> Type("CatalogRef.EmailAccounts")
 		Or Not ValueIsFilled(Account) Then
-		Raise NStr("en = 'The account is not specified or specified incorrectly.';");
+		Raise NStr("en = 'The account is not specified or specified incorrectly.'");
 	EndIf;
 	
 	If SendOptions = Undefined Then
-		Raise NStr("en = 'The mail sending parameters are not specified.';");
+		Raise NStr("en = 'The mail sending parameters are not specified.'");
 	EndIf;
 	
 	RecipientValType = ?(SendOptions.Property("Whom"), TypeOf(SendOptions.Whom), Undefined);
@@ -629,7 +647,7 @@ Function SendEmailMessage(Val Account, Val SendOptions,
 	BCCs = CommonClientServer.StructureProperty(SendOptions, "BCCs");
 	
 	If RecipientValType = Undefined And CcType = Undefined And BCCs = Undefined Then
-		Raise NStr("en = 'No recipient is selected.';");
+		Raise NStr("en = 'No recipient is selected.'");
 	EndIf;
 	
 	If RecipientValType = Type("String") Then
@@ -658,7 +676,7 @@ Function SendEmailMessage(Val Account, Val SendOptions,
 	EmailOperationsOverridable.AfterEmailSending(SendOptions);
 	
 	If SendOptions.WrongRecipients.Count() > 0 Then
-		ErrorText = NStr("en = 'The following email addresses were declined by mail server:';");
+		ErrorText = NStr("en = 'The following email addresses were declined by mail server:'");
 		For Each WrongRecipient In SendOptions.WrongRecipients Do
 			ErrorText = ErrorText + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString("%1: %2",
 				WrongRecipient.Key, WrongRecipient.Value);

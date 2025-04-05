@@ -524,13 +524,13 @@
 											<Button name="AccessValuesAdd" id="461">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.AccessValues.StandardCommand.Add</CommandName>
-												<ExtendedTooltip name="AccessValuesAddExtendedTooltip" id="462"/>
+												<ExtendedTooltip name="AddAccessValuesExtendedTooltip" id="462"/>
 											</Button>
 											<Button name="AccessValuesDelete" id="466">
 												<Type>CommandBarButton</Type>
 												<CommandName>Form.Item.AccessValues.StandardCommand.Delete</CommandName>
 												<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-												<ExtendedTooltip name="AccessValuesDeleteExtendedTooltip" id="467"/>
+												<ExtendedTooltip name="DeleteAccessValuesExtendedTooltip" id="467"/>
 											</Button>
 											<ButtonGroup name="AccessValuesStandardCommands" id="459">
 												<Title>

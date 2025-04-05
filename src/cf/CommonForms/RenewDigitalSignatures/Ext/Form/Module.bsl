@@ -26,11 +26,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Items.DecorationImprovement.Visible = True;
 			Items.DecorationImprovement.Title = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Signatures will be enhanced to:
-			|%1';"), SignatureType);
+			|%1'"), SignatureType);
 		ElsIf Parameters.ExtensionMode = "RequiredAddArchiveTags" Then
 			Items.AddArchiveTimestamp.Visible = False;
 			Items.DecorationAddingTimestamps.Visible = True; 
-			Items.DecorationAddingTimestamps.Title = NStr("en = 'Archive timestamps will be added to the signatures';");
+			Items.DecorationAddingTimestamps.Title = NStr("en = 'Archive timestamps will be added to the signatures'");
 			Items.SignatureType.Visible = False;
 		Else
 			Items.AddArchiveTimestamp.Visible = True;
@@ -75,7 +75,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			
 			Items.AddArchiveTimestamp.Visible = False;
 			Items.DecorationAddingTimestamps.Visible = True; 
-			Items.DecorationAddingTimestamps.Title = NStr("en = 'Archive timestamps will be added to the signatures';");
+			Items.DecorationAddingTimestamps.Title = NStr("en = 'Archive timestamps will be added to the signatures'");
 			
 			Items.SignatureType.Visible = False;
 			AddArchiveTimestamp = True;
@@ -97,7 +97,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		DigitalSignatureInternal.FillListSignatureTypesCryptography(Items.SignatureType.ChoiceList,
 			"Improvement", ?(ValueIsFilled(Parameters.SignatureType), Parameters.SignatureType, Undefined));
 		If Items.AddArchiveTimestamp.Visible Then
-			Items.SignatureType.ChoiceList.Add(Enums.CryptographySignatureTypes.EmptyRef(), NStr("en = 'Do not enhance';"));
+			Items.SignatureType.ChoiceList.Add(Enums.CryptographySignatureTypes.EmptyRef(), NStr("en = 'Do not enhance'"));
 		EndIf;
 		If Items.SignatureType.ChoiceList.Count() = 1 Then
 			SignatureType = Items.SignatureType.ChoiceList[0].Value;
@@ -105,7 +105,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Items.DecorationImprovement.Visible = True;
 			Items.DecorationImprovement.Title = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Signatures will be enhanced to:
-					|%1';"), SignatureType);
+					|%1'"), SignatureType);
 		Else
 			SignatureType = Constants.CryptoSignatureTypeDefault.Get();
 			If SignatureType = Enums.CryptographySignatureTypes.BasicCAdESBES
@@ -166,7 +166,7 @@ Procedure ExecuteActions(Command)
 	EndIf;
 	
 	If Not ValueIsFilled(Signature) Then
-		ShowMessageBox(, NStr("en = 'Signature data is required';"));
+		ShowMessageBox(, NStr("en = 'Signature data is required'"));
 		Return;
 	EndIf;
 	
@@ -226,16 +226,16 @@ Procedure UpdateDataView(CalculateQuantity = False)
 
 	If Parameters.ExtensionMode = "RequireImprovementSignatures" Then
 		DataPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Signatures pending enhancement (%1)';"), SignaturesCount);
+			NStr("en = 'Signatures pending enhancement (%1)'"), SignaturesCount);
 	ElsIf Parameters.ExtensionMode = "RequiredAddArchiveTags" Then
 		DataPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Signatures to add archive timestamps (%1)';"), SignaturesCount);
+			NStr("en = 'Signatures to add archive timestamps (%1)'"), SignaturesCount);
 	ElsIf Parameters.ExtensionMode = "rawsignatures" Then
 		DataPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Previously added signatures with a blank type (%1)';"), SignaturesCount);
+			NStr("en = 'Previously added signatures with a blank type (%1)'"), SignaturesCount);
 	ElsIf Parameters.ExtensionMode = "ErrorsOnAutoRenewal" Then
 		DataPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Automatic signature renewal errors (%1)';"), SignaturesCount);
+			NStr("en = 'Automatic signature renewal errors (%1)'"), SignaturesCount);
 	EndIf;
 	
 EndProcedure
@@ -324,7 +324,7 @@ Procedure DetermineTypeSignaturesObject()
 		If Not ThereIsBasicSignature And Not ThereIsSignatureWithTimestamp Then
 			Items.AddArchiveTimestamp.Visible = False;
 			Items.DecorationAddingTimestamps.Visible = True; 
-			Items.DecorationAddingTimestamps.Title = NStr("en = 'Archive timestamps will be added to the signatures';");
+			Items.DecorationAddingTimestamps.Title = NStr("en = 'Archive timestamps will be added to the signatures'");
 			Items.SignatureType.Visible = False;
 			AddArchiveTimestamp = True;
 		Else

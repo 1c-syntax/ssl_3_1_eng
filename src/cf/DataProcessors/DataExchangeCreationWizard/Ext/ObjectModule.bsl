@@ -352,7 +352,7 @@ Procedure CreateUpdateExchangePlanNodes(NodeFiltersSetting, DefaultNodeValues, T
 		If MasterNode = Undefined Then
 			
 			Raise NStr("en = 'The master node is not defined.
-							|Probably this infobase is not a subordinate DIB node.';");
+							|Probably this infobase is not a subordinate DIB node.'");
 		EndIf;
 		
 		NewNode = MasterNode.GetObject();
@@ -367,7 +367,7 @@ Procedure CreateUpdateExchangePlanNodes(NodeFiltersSetting, DefaultNodeValues, T
 			NewNode.Code = NewNodeCode;
 		Else
 			Raise NStr("en = 'The first infobase prefix is not unique.
-				|A data synchronization for an infobase (application) with this prefix already exists.';");
+				|A data synchronization for an infobase (application) with this prefix already exists.'");
 		EndIf;
 		
 		NewNode.Description = SecondInfobaseDescription;
@@ -534,7 +534,7 @@ Procedure ImportWizardParameters(Cancel, XMLLine, TrasportID = "") Export
 	// Checking whether it is possible to use the exchange plan in SaaS.
 	If Common.DataSeparationEnabled()
 		And Not DataExchangeCached.ExchangePlanUsedInSaaS(ExchangePlanName) Then
-		ErrorMessageStringField = NStr("en = 'Data synchronization with this application is not available in SaaS mode.';");
+		ErrorMessageStringField = NStr("en = 'Data synchronization with this application is not available in SaaS mode.'");
 		DataExchangeServer.ReportError(ErrorMessageString(), Cancel);
 		Return;
 	EndIf;
@@ -573,5 +573,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

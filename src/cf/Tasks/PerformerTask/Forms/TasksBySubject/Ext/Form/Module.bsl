@@ -31,7 +31,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	List.Parameters.Items[0].Value = Parameters.FilterValue;
 	List.Parameters.Items[0].Use = True;
-	Title = NStr("en = 'Tasks on this subject';");
+	Title = NStr("en = 'Tasks on this subject'");
 	UseDateAndTimeInTaskDeadlines = GetFunctionalOption("UseDateAndTimeInTaskDeadlines");
 	Items.TaskDueDate.Format = ?(UseDateAndTimeInTaskDeadlines, "DLF=DT", "DLF=D");
 	SetFilter(New Structure("ShowExecuted", ShowExecuted));
@@ -383,7 +383,7 @@ Procedure AddSubordinateBusinessProcesses(Tree, TasksBySubject)
 
 	While SelectionDetailRecords.Next() Do
 		
-		// @skip-check query-in-loop - Recursive algorithm to process a tree.
+		// @skip-check query-in-loop - Рекурсивный алгоритм обработки дерева.
 		AddSubordinateBusinessProcessTasks(Tree, SelectionDetailRecords.Ref, SelectionDetailRecords.TaskRef);
 		
 	EndDo;

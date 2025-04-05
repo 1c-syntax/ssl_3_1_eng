@@ -24,21 +24,21 @@ Var StandardInterfaceComposition;
 Function InitializeDataToSetUpStandardODataInterfaceComposition() Export
 	
 	// Filling in tree root rows by metadata object collections.
-	AddTreeRootRow("Constant", NStr("en = 'Constants';"), 1, PictureLib.Constant);
-	AddTreeRootRow("Catalog", NStr("en = 'Catalogs';"), 2, PictureLib.Catalog);
-	AddTreeRootRow("Document", NStr("en = 'Documents';"), 3, PictureLib.Document);
-	AddTreeRootRow("DocumentJournal", NStr("en = 'Document journals';"), 4, PictureLib.DocumentJournal);
-	AddTreeRootRow("Enum", NStr("en = 'Enumeration';"), 5, PictureLib.Enum);
-	AddTreeRootRow("ChartOfCharacteristicTypes", NStr("en = 'Charts of characteristic types';"), 6, PictureLib.ChartOfCharacteristicTypes);
-	AddTreeRootRow("ChartOfAccounts", NStr("en = 'Charts of accounts';"), 7, PictureLib.ChartOfAccounts);
-	AddTreeRootRow("ChartOfCalculationTypes", NStr("en = 'Charts of calculation types';"), 8, PictureLib.ChartOfCalculationTypes);
-	AddTreeRootRow("InformationRegister", NStr("en = 'Information registers';"), 9, PictureLib.InformationRegister);
-	AddTreeRootRow("AccumulationRegister", NStr("en = 'Accumulation registers';"), 10, PictureLib.AccumulationRegister);
-	AddTreeRootRow("AccountingRegister", NStr("en = 'Accounting registers';"), 11, PictureLib.AccountingRegister);
-	AddTreeRootRow("CalculationRegister", NStr("en = 'Calculation registers';"), 12, PictureLib.CalculationRegister);
-	AddTreeRootRow("BusinessProcess", NStr("en = 'Business processes';"), 13, PictureLib.BusinessProcess);
-	AddTreeRootRow("Task", NStr("en = 'Tasks';"), 14, PictureLib.Task);
-	AddTreeRootRow("ExchangePlan", NStr("en = 'Exchange plans';"), 15, PictureLib.ExchangePlan);
+	AddTreeRootRow("Constant", NStr("en = 'Constants'"), 1, PictureLib.Constant);
+	AddTreeRootRow("Catalog", NStr("en = 'Catalogs'"), 2, PictureLib.Catalog);
+	AddTreeRootRow("Document", NStr("en = 'Documents'"), 3, PictureLib.Document);
+	AddTreeRootRow("DocumentJournal", NStr("en = 'Document journals'"), 4, PictureLib.DocumentJournal);
+	AddTreeRootRow("Enum", NStr("en = 'Enumeration'"), 5, PictureLib.Enum);
+	AddTreeRootRow("ChartOfCharacteristicTypes", NStr("en = 'Charts of characteristic types'"), 6, PictureLib.ChartOfCharacteristicTypes);
+	AddTreeRootRow("ChartOfAccounts", NStr("en = 'Charts of accounts'"), 7, PictureLib.ChartOfAccounts);
+	AddTreeRootRow("ChartOfCalculationTypes", NStr("en = 'Charts of calculation types'"), 8, PictureLib.ChartOfCalculationTypes);
+	AddTreeRootRow("InformationRegister", NStr("en = 'Information registers'"), 9, PictureLib.InformationRegister);
+	AddTreeRootRow("AccumulationRegister", NStr("en = 'Accumulation registers'"), 10, PictureLib.AccumulationRegister);
+	AddTreeRootRow("AccountingRegister", NStr("en = 'Accounting registers'"), 11, PictureLib.AccountingRegister);
+	AddTreeRootRow("CalculationRegister", NStr("en = 'Calculation registers'"), 12, PictureLib.CalculationRegister);
+	AddTreeRootRow("BusinessProcess", NStr("en = 'Business processes'"), 13, PictureLib.BusinessProcess);
+	AddTreeRootRow("Task", NStr("en = 'Tasks'"), 14, PictureLib.Task);
+	AddTreeRootRow("ExchangePlan", NStr("en = 'Exchange plans'"), 15, PictureLib.ExchangePlan);
 	
 	// Read the current content of the standard OData interface.
 	SystemComposition = GetStandardODataInterfaceContent();
@@ -111,7 +111,7 @@ Procedure AddNestedTreeRow(Val FullName, Val ReadOnly, Val Use, Val Dependencies
 	
 	If RowOwner = Undefined Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Unknown metadata object: %1';"), FullName);
+			NStr("en = 'Unknown metadata object: %1'"), FullName);
 	EndIf;
 	
 	NewRow = RowOwner.Rows.Add();
@@ -222,5 +222,5 @@ DeletionDependencies.Columns.Add("DependentObjectName", New TypeDescription("Str
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

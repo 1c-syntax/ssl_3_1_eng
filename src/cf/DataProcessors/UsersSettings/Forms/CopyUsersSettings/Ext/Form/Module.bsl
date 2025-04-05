@@ -55,7 +55,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		ElsIf UsersCount > 1 Then
 			NumberAndSubject = Format(UsersCount, "NFD=0") + " "
 				+ UsersInternalClientServer.IntegerSubject(UsersCount,
-					"", NStr("en = 'user, users,,,0';"));
+					"", NStr("en = 'user, users,,,0'"));
 			Items.SelectUsers.Title = NumberAndSubject;
 		EndIf;
 		Items.SelectUsers.ToolTip = "";
@@ -86,8 +86,8 @@ Procedure UserStartChoice(Item, ChoiceData, StandardProcessing)
 		
 		If UseExternalUsers Then
 			UsersTypeSelection = New ValueList;
-			UsersTypeSelection.Add("ExternalUsers", NStr("en = 'External users';"));
-			UsersTypeSelection.Add("Users", NStr("en = 'Users';"));
+			UsersTypeSelection.Add("ExternalUsers", NStr("en = 'External users'"));
+			UsersTypeSelection.Add("Users", NStr("en = 'Users'"));
 			
 			Notification = New CallbackDescription("UserStartChoiceCompletion", ThisObject, FilterParameters);
 			UsersTypeSelection.ShowChooseItem(Notification);
@@ -134,7 +134,7 @@ Procedure UserRefOnChange(Item)
 	If UserRef <> Undefined
 		And IBUserName(UserRef) = Undefined Then
 		ShowMessageBox(,NStr("en = 'The selected user does not have any settings to copy.
-				|Please select another user.';"));
+				|Please select another user.'"));
 		UserRef = UserRefOld;
 		Return;
 	EndIf;
@@ -144,7 +144,7 @@ Procedure UserRefOnChange(Item)
 		
 		If SettingsRecipientsUsers.UsersArray.Find(UserRef) <> Undefined Then
 			ShowMessageBox(,NStr("en = 'Cannot copy user settings to the source user.
-					|Please select a different user.';"));
+					|Please select a different user.'"));
 				UserRef = UserRefOld;
 				Return;
 		EndIf;
@@ -155,7 +155,7 @@ Procedure UserRefOnChange(Item)
 	
 	SelectedSettings = Undefined;
 	SettingsCount = 0;
-	Items.SelectSettings.Title = NStr("en = 'Select';");
+	Items.SelectSettings.Title = NStr("en = 'Select'");
 	
 EndProcedure
 
@@ -228,23 +228,23 @@ Procedure Copy(Command)
 	
 	If UserRef = Undefined Then
 		CommonClient.MessageToUser(
-			NStr("en = 'Select the source user.';"), , "UserRef");
+			NStr("en = 'Select the source user.'"), , "UserRef");
 		Return;
 	EndIf;
 	
 	If UsersCount = 0 And CopySettingsToRadioButtons <> "ToAllUsers" Then
 		CommonClient.MessageToUser(
-			NStr("en = 'Select one or several destination users.';"), , "Receiver");
+			NStr("en = 'Select one or several destination users.'"), , "Receiver");
 		Return;
 	EndIf;
 	
 	If SettingsToCopyRadioButton = "CopySelectedSettings1" And SettingsCount = 0 Then
 		CommonClient.MessageToUser(
-			NStr("en = 'Select the settings to copy.';"), , "SettingsToCopyRadioButton");
+			NStr("en = 'Select the settings to copy.'"), , "SettingsToCopyRadioButton");
 		Return;
 	EndIf;
 	
-	// XnWhen copying external type settings or all settings to other users,
+	// When copying appearance settings or all settings to other users,
 	// check if the app supports them. And if it does, inform the user in a user message.
 	OpenFormsToCopy = OpenFormsToCopy();
 	CheckActiveUsers();
@@ -305,7 +305,7 @@ Function OpenFormsToCopy()
 		If StrFind(AllSettingsToCopyRow, OpenFormName) > 0 Then
 			OpenFormsRow = ?(ValueIsFilled(OpenFormsRow),
 				OpenFormsRow + Chars.LF + "- " + OpenWindow.Caption,
-				NStr("en = 'The open windows';") + ":" + Chars.LF + "- " + OpenWindow.Caption)
+				NStr("en = 'The open windows'") + ":" + Chars.LF + "- " + OpenWindow.Caption)
 		EndIf;
 		
 	EndDo;
@@ -350,14 +350,14 @@ Procedure SelectSettingsAfterChoice(Parameter, Context) Export
 	SettingsCount = Parameter.SettingsCount;
 	
 	If SettingsCount = 0 Then
-		TitleText = NStr("en = 'Select';");
+		TitleText = NStr("en = 'Select'");
 	ElsIf SettingsCount = 1 Then
 		SettingPresentation = Parameter.SettingsPresentations[0];
 		TitleText = SettingPresentation;
 	Else
 		TitleText = Format(SettingsCount, "NFD=0") + " "
 			+ UsersInternalClientServer.IntegerSubject(SettingsCount,
-				"", NStr("en = 'setting,settings,,,0';"));
+				"", NStr("en = 'setting,settings,,,0'"));
 	EndIf;
 	
 	Items.SelectSettings.Title = TitleText;
@@ -373,10 +373,10 @@ Procedure CopySettings(CommandName)
 		SettingsCopiedToNote = UsersInternalClient.UsersNote(
 			UsersCount, SettingsRecipientsUsers.UsersArray[0]);
 	Else
-		SettingsCopiedToNote = NStr("en = 'all users';");
+		SettingsCopiedToNote = NStr("en = 'all users'");
 	EndIf;
 	
-	NotificationText1    = NStr("en = 'Copy settings';");
+	NotificationText1    = NStr("en = 'Copy settings'");
 	NotificationPicture = PictureLib.DialogInformation;
 	
 	If SettingsToCopyRadioButton = "CopySelectedSettings1" Then
@@ -384,10 +384,10 @@ Procedure CopySettings(CommandName)
 		CopySelectedSettings(Report);
 		
 		If Report <> Undefined Then
-			QueryText = NStr("en = 'Some report options and settings are not copied.';");
+			QueryText = NStr("en = 'Some report options and settings are not copied.'");
 			QuestionButtons = New ValueList;
-			QuestionButtons.Add("OK", NStr("en = 'OK';"));
-			QuestionButtons.Add("ShowReport", NStr("en = 'View report';"));
+			QuestionButtons.Add("OK", NStr("en = 'OK'"));
+			QuestionButtons.Add("ShowReport", NStr("en = 'View report'"));
 			
 			Notification = New CallbackDescription("CopySettingsShowQueryBox", ThisObject, Report);
 			ShowQueryBox(Notification, QueryText, QuestionButtons,, QuestionButtons[0].Value);
@@ -405,13 +405,13 @@ Procedure CopySettings(CommandName)
 		If Not SettingsCopied Then
 			
 			ShowMessageBox(, StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The settings were not copied because user ""%1"" does not have any saved settings.';"),
+				NStr("en = 'The settings were not copied because user ""%1"" does not have any saved settings.'"),
 				String(UserRef)));
 			Return;
 		EndIf;
 		
 		NotificationComment = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'All settings are copied to %1';"), SettingsCopiedToNote);
+			NStr("en = 'All settings are copied to %1'"), SettingsCopiedToNote);
 		
 		ShowUserNotification(NotificationText1, , NotificationComment, NotificationPicture);
 	EndIf;

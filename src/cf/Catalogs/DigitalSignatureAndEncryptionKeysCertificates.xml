@@ -1406,7 +1406,7 @@ certificate expiration.</v8:content>
 			<Form>UsersList</Form>
 			<Form>EditFirstNameAndPatronymic</Form>
 			<Form>InstallingTheCertificate</Form>
-			<Template>ComponentExtraCryptoAPI_3_0_3_47</Template>
+			<Template>ComponentExtraCryptoAPI_3_0_3_49</Template>
 			<Template>Stamp</Template>
 			<Template>ExtendedStamp</Template>
 		</ChildObjects>

@@ -48,7 +48,7 @@ Procedure RemoveUnusedAddIns() Export
 			CommitTransaction();
 		Except
 			RollbackTransaction();
-			WriteLogEvent(NStr("en = 'Built-in add-ins.Delete unused add-in';",
+			WriteLogEvent(NStr("en = 'Built-in add-ins.Delete unused add-in'",
 				Common.DefaultLanguageCode()),
 				EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(
 				ErrorInfo()));
@@ -66,18 +66,18 @@ EndProcedure
 Procedure UpdateSharedAddIn(ComponentDetails) Export
 	
 	If Not Common.DataSeparationEnabled() Or Common.SeparatedDataUsageAvailable() Then 
-		Raise(NStr("en = 'Import of add-ins is unavailable.';"), 
+		Raise(NStr("en = 'Import of add-ins is unavailable.'"), 
 			ErrorCategory.AccessViolation);
 	EndIf;
 	
 	SetPrivilegedMode(True);
 	
-	WriteLogEvent(NStr("en = 'Built-in add-ins.Import built-in add-in';", 
+	WriteLogEvent(NStr("en = 'Built-in add-ins.Import built-in add-in'", 
 		Common.DefaultLanguageCode()),
 		EventLogLevel.Information,,,
 		StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Built-in data processor import is initiated
-			           |%1';"),
+			           |%1'"),
 		AddInsInternal.AddInPresentation(ComponentDetails.Id, 
 			ComponentDetails.Version)));
 	
@@ -108,7 +108,7 @@ Procedure UpdateSharedAddIn(ComponentDetails) Export
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot parse the built-in add-in
 				           |due to:
-				           |%1 %2';"),
+				           |%1 %2'"),
 				Information.ErrorDescription, 
 				?(Information.ErrorInfo = Undefined, "", 
 					": " + ErrorProcessing.BriefErrorDescription(Information.ErrorInfo)));
@@ -126,7 +126,7 @@ Procedure UpdateSharedAddIn(ComponentDetails) Export
 	Except
 		RollbackTransaction();
 		WriteLogEvent(
-			NStr("en = 'Built-in add-ins.Import built-in add-in';",
+			NStr("en = 'Built-in add-ins.Import built-in add-in'",
 				Common.DefaultLanguageCode()),
 			EventLogLevel.Error,,,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
@@ -224,7 +224,7 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 	
 EndProcedure
 
-// See StandardSubsystems.OnSendDataToMaster.
+// 
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 	If TypeOf(DataElement) = Type("CatalogObject.CommonAddIns") Then
@@ -268,7 +268,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.SharedData = True;
 	Handler.Id = New UUID("a76bc949-68aa-4ba3-b9f3-a03b530da817");
 	Handler.Procedure = "Catalogs.CommonAddIns.HandleCommonAddIns";
-	Handler.Comment = NStr("en = 'Fill in compatibility attributes of common add-ins.';");
+	Handler.Comment = NStr("en = 'Fill in compatibility attributes of common add-ins.'");
 	Handler.ExecutionMode = "Seamless";
 	
 EndProcedure

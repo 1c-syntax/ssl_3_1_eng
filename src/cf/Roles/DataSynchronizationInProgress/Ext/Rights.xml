@@ -722,33 +722,6 @@
 		</right>
 	</object>
 	<object>
-		<name>Configuration.StandardSubsystemsLibrary</name>
-		<right>
-			<name>MainWindowModeNormal</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeEmbeddedWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeFullscreenWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeKiosk</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>AnalyticsSystemClient</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
 		<name>InformationRegister.PredefinedNodesAliases</name>
 		<right>
 			<name>Read</name>
@@ -971,6 +944,33 @@
 		<name>WebService.EnterpriseDataExchange_1_0_1_1.Operation.PrepareDataActionResult</name>
 		<right>
 			<name>Use</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>Configuration.StandardSubsystemsLibrary</name>
+		<right>
+			<name>MainWindowModeNormal</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeEmbeddedWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeFullscreenWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeKiosk</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>AnalyticsSystemClient</name>
 			<value>true</value>
 		</right>
 	</object>

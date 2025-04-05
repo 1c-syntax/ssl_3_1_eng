@@ -16,11 +16,11 @@
 Function TransportParameters() Export
 	
 	LongDesc = NStr("en = 'This option is recommended if both applications are located
-		|on the same computer or in the local network (in the same office).';");
+		|on the same computer or in the local network (in the same office).'");
 	
 	Parameters = ExchangeMessagesTransport.StructureOfTransportParameters();
 	
-	Parameters.Alias = NStr("en = 'Direct COM connection';");
+	Parameters.Alias = NStr("en = 'Direct COM connection'");
 	Parameters.TransportID = "COM";
 	Parameters.LongDesc = LongDesc;
 	Parameters.NameOfAuthenticationForm = "AuthenticationForm";

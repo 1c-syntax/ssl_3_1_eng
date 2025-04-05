@@ -28,8 +28,8 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	ReportSettings.DefineFormSettings = True;
 	
 	OptionSettingsMain = ReportsOptions.OptionDetails(Settings, ReportSettings, "Main");
-	OptionSettingsMain.LongDesc = NStr("en = 'Displays the data integrity check results.';");
-	OptionSettingsMain.SearchSettings.Keywords = NStr("en = 'Report on object issues';");
+	OptionSettingsMain.LongDesc = NStr("en = 'Displays the data integrity check results.'");
+	OptionSettingsMain.SearchSettings.Keywords = NStr("en = 'Report on object issues'");
 	
 EndProcedure
 
@@ -53,7 +53,7 @@ Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessin
 	EndIf;
 	
 	Command                   = ReportsCommands.Add();
-	Command.Presentation     = NStr("en = 'Data integrity check results';");
+	Command.Presentation     = NStr("en = 'Data integrity check results'");
 	Command.FormParameterName = "";
 	Command.Importance          = "SeeAlso";
 	Command.VariantKey      = "Main";

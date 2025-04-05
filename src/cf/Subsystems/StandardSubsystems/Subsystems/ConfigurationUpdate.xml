@@ -25,6 +25,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">XDTOPackage.Patch</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonForm.CheckUpdateFile</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Constant.PatchPropertiesBeforeInfobaseUpdate</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.ConfigurationUpdateGlobal</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

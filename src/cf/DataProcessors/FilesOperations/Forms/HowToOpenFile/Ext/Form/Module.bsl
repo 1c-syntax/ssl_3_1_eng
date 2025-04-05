@@ -35,12 +35,12 @@ Procedure OpenFile(Command)
 	
 	If HowToOpenSavedOption <> HowToOpen Then
 		OpeningMode = ?(HowToOpen = 1, "Edit", "Open");
-		CommonServerCall.CommonSettingsStorageSave(
+		CommonClient.CommonSettingsStorageSave(
 			"OpenFileSettings", "FileOpeningOption", OpeningMode,,, True);
 	EndIf;
 	
 	If DontAskAgain = True Then
-		CommonServerCall.CommonSettingsStorageSave(
+		CommonClient.CommonSettingsStorageSave(
 			"OpenFileSettings", "PromptForEditModeOnOpenFile", False,,, True);
 		
 		RefreshReusableValues();

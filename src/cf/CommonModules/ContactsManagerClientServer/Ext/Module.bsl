@@ -38,7 +38,7 @@ Function GeneratePhonePresentation(CountryCode, CityCode, PhoneNumber, PhoneExte
 	EndIf;
 	
 	If Not IsBlankString(PhoneExtension) Then
-		Presentation = Presentation + ?(IsBlankString(Presentation), "", ", ") + NStr("en = 'ext.';") + " " + TrimAll(PhoneExtension);
+		Presentation = Presentation + ?(IsBlankString(Presentation), "", ", ") + NStr("en = 'ext.'") + " " + TrimAll(PhoneExtension);
 	EndIf;
 	
 	If Not IsBlankString(Comment) Then
@@ -84,7 +84,7 @@ EndFunction
 //  String - a text that is displayed in the contact information field.
 //
 Function BlankAddressTextAsHyperlink() Export
-	Return NStr("en = 'Fill';");
+	Return NStr("en = 'Fill'");
 EndFunction
 
 // Determines whether information is entered in the contact information field when it is displayed as a hyperlink.
@@ -210,25 +210,25 @@ EndFunction
 // Returns:
 //   Structure - Contact information fields:
 //     * value - String - Contact information presentation.
-//     * comment - String -  comment.
+//     * comment - String - Comment.
 //     * type - String - Contact information type. See the value in Enum.ContactInformationTypes.Address.
 //     Extended composition of fields for the "Address" contact information type:
-//     * country - String - 
-//     * countryCode - String - country code.
+//     * country - String - Country name. For example, "Peru".
+//     * countryCode - String -Country code.
 //     * ZIPcode- String - postal code.
-//     * area - String -  name of the region.
+//     * area - String - State description.
 //     * areaType - String - a short form (type) of "state".
 //     * city - String - a city description.
 //     * cityType - String - a short form (type) of "city", for example, c.
-//     * street - String - 
+//     * street - String - Name of the street (avenue, alley, etc). It may also include the number of the house, apartment, or office.
 //                         
-//     * streetType - String - 
-//     * houseNumber - String -  
-//                              
-//     * admLevels - String - 
-//     * addressType - String - 
-//     :
-//     * CountryCode - String -  country code.
+//     * streetType - String - Short form of the street (avenue, alley, etc). For example, "st."
+//     * houseNumber - String - An additional field for additional address information, 
+//                              such as intercom, entrance number, or floor.
+//     * admLevels - String - Fields in the order they will appear in the address presentation. For example, "ZIPcode,Area,Street".
+//     * addressType - String - Address type: either a free form or structured by field.
+//     The "Phone" contact information kind has an extended set of fields.:
+//     * CountryCode - String - Country code.
 //     * AreaCode - String - a state code.
 //     * Number - String - a phone number.
 //     * ExtNumber - String - an extension.
@@ -325,24 +325,24 @@ Function ContactInformationDetails(FieldValues, Presentation, ContactInformation
 	
 EndFunction
 
-// 
-//  
+// Returns a structure of address fields that will be used to generate an international address.
+// If the "AddressManager" common module is integrated, call the function from this module. 
 //
 // Returns:
 //  Structure:
-//    * Presentation    - String - 
-//                                  
-//    * AddressType        - String - 
-//                                  
-//    * Country           - String - 
-//    * CountryCode        - String - 
-//    * IndexOf           - String - 
-//    * State_SSLym           - String - 
-//    * City            - String -  
-//    * Street            - String - 
+//    * Presentation    - String - Text presentation of the address according to its administrative structure.
+//                                  For example, "Av. Larco 1234, Miraflores 15074, Lima, Peru".
+//    * AddressType        - String - Main address type. Applies only to addresses in the Russian Federation.
+//                                  Valid options are "FreeForm" and "Foreign".
+//    * Country           - String - Text presentation of a country. For example, "Peru".
+//    * CountryCode        - String - Country code. For example, "51".
+//    * IndexOf           - String - Postal code. For example, "15074".
+//    * State_SSLym           - String - Text presentation of a region or state. For example, "Miraflores".
+//    * City            - String - Text presentation of a city. 
+//    * Street            - String - Text presentation of a street. For example, "Main".
 //    * AdditionalInformation - String - Text presentation of additional information  
 //                                 (such as office, floor, intercom, and other instructions).
-//    * Comment - String - 
+//    * Comment - String - Comment to the address.
 //
 Function AddressFields() Export
 	
@@ -543,7 +543,7 @@ Function ExtendedTooltipForAddress(CommandsForOutput, AddressPresentation, Comme
 			If IsBlankString(ShowOnMap) Then
 				ShowOnMap = New FormattedString(CommandToOutput.Value.Title,, WebColors.Gray,, TypeOfAction);
 			Else
-				ShowOnMap = New FormattedString(NStr("en = 'On map';"),, WebColors.Gray,, TypeOfAction);
+				ShowOnMap = New FormattedString(NStr("en = 'On map'"),, WebColors.Gray,, TypeOfAction);
 				Break;
 			EndIf;
 		EndIf;
@@ -587,7 +587,7 @@ Function ActionKindOfContactInformationTypeCommand(Action) Export
 		TypeOfAction = "ShowOnMap";
 	Else
 		TypeOfAction = "";
-		ContactsManagerClientServerLocalization.WhenDeterminingActionOfCommandOfTypeOfContactInformation(Action, TypeOfAction);
+		ContactsManagerClientServerLocalization.OnDefineContactInfoTypeCommandActions(Action, TypeOfAction);
 	EndIf;
 	Return TypeOfAction;
 	
@@ -839,29 +839,29 @@ Function PhoneFillingErrors(InfoAboutPhone, AdditionalChecksModule = Undefined) 
 	
 	CountryCodeNumbersOnly = LeaveOnlyTheNumbersInTheLine(InfoAboutPhone.CountryCode);
 	If ValueIsFilled(InfoAboutPhone.CountryCode) And IsBlankString(CountryCodeNumbersOnly) Then
-		ErrorList.Add("CountryCode", NStr("en = 'Country code contains invalid characters';"));
+		ErrorList.Add("CountryCode", NStr("en = 'Country code contains invalid characters'"));
 	EndIf;
 	
 	PhoneNumberNumbersOnly = LeaveOnlyTheNumbersInTheLine(InfoAboutPhone.Presentation);
 	If IsBlankString(PhoneNumberNumbersOnly) Then
-		ErrorList.Add("PhoneNumber", NStr("en = 'Phone number does not contain digits';"));
+		ErrorList.Add("PhoneNumber", NStr("en = 'Phone number does not contain digits'"));
 	EndIf;
 
 	FullPhoneNumberOnlyDigits = LeaveOnlyTheNumbersInTheLine(FullPhoneNumber);
 	If StrLen(FullPhoneNumberOnlyDigits) > 15 Then
-		ErrorList.Add("PhoneNumber", NStr("en = 'Phone number is too long.';"));
+		ErrorList.Add("PhoneNumber", NStr("en = 'Phone number is too long.'"));
 	EndIf;
 	
 	If ValueIsFilled(InfoAboutPhone.CountryCode) And PhoneNumberContainsProhibitedChars(InfoAboutPhone.CountryCode) Then
-		ErrorList.Add("CountryCode", NStr("en = 'Country code contains invalid characters';"));
+		ErrorList.Add("CountryCode", NStr("en = 'Country code contains invalid characters'"));
 	EndIf;
 	
 	If ValueIsFilled(InfoAboutPhone.CityCode) And PhoneNumberContainsProhibitedChars(InfoAboutPhone.CityCode) Then
-		ErrorList.Add("CityCode", NStr("en = 'City code contains invalid characters';"));
+		ErrorList.Add("CityCode", NStr("en = 'City code contains invalid characters'"));
 	EndIf;
 	
 	If ValueIsFilled(InfoAboutPhone.PhoneNumber) And PhoneNumberContainsProhibitedChars(InfoAboutPhone.PhoneNumber) Then
-		ErrorList.Add("PhoneNumber", NStr("en = 'Phone number contains illegal characters.';"));
+		ErrorList.Add("PhoneNumber", NStr("en = 'Phone number contains illegal characters.'"));
 	EndIf;
 	
 	If AdditionalChecksModule <> Undefined Then

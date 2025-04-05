@@ -33,7 +33,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 		Items.GroupExternalUsers.Visible = False;
 		Items.SectionDetails.Title =
-			NStr("en = 'Manage users, configure access groups, grant access to external users, and manage user settings.';");
+			NStr("en = 'Manage users, configure access groups, grant access to external users, and manage user settings.'");
 	EndIf;
 	
 	If StandardSubsystemsServer.IsBaseConfigurationVersion()
@@ -70,9 +70,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	   And Items.Find("ShouldRegisterChangesInAccessRights") <> Undefined Then
 		
 		Items.ShouldRegisterChangesInAccessRights.Title =
-			NStr("en = 'Log changes in user group membership';");
+			NStr("en = 'Log changes in user group membership'");
 		Items.ShouldRegisterChangesInAccessRights.ExtendedTooltip.Title =
-			NStr("en = 'Logging events of changes in user group membership.';");
+			NStr("en = 'Logging events of changes in user group membership.'");
 	EndIf;
 	
 	If Not Common.SubsystemExists("StandardSubsystems.PeriodClosingDates") Then
@@ -170,7 +170,7 @@ Procedure UseExternalUsersOnChange(Item)
 			           |
 			           |This will clear the user list in the startup dialog.
 			           |The ""Show in choice list"" checkbox will be cleared and hidden in all user cards).
-			           |';");
+			           |'");
 		
 		ShowQueryBox(
 			New CallbackDescription(
@@ -184,7 +184,7 @@ Procedure UseExternalUsersOnChange(Item)
 			NStr("en = 'Do you want to deny external user access?
 			           |
 			           |The ""Login allowed"" checkbox will be cleared in all external user cards.
-			           |';");
+			           |'");
 		
 		ShowQueryBox(
 			New CallbackDescription(
@@ -205,13 +205,13 @@ Procedure LimitAccessAtRecordLevelUniversallyOnChange(Item)
 			NStr("en = 'Do you want to enable the high-performance access restriction mode?
 			           |
 			           |The update of the right settings will take some time.
-			           |To monitor the progress, click ""RLS access update progress"".';");
+			           |To monitor the progress, click ""RLS access update progress"".'");
 	Else
 		QueryText =
 			NStr("en = 'Are you sure you want to enable the standard access restriction mode, which is obsolete?
 			           |
 			           |The update of the right settings will take some time.
-			           |To monitor the progress, click ""RLS access update progress"".';");
+			           |To monitor the progress, click ""RLS access update progress"".'");
 	EndIf;
 	
 	If ValueIsFilled(QueryText) Then
@@ -235,12 +235,12 @@ Procedure LimitAccessAtRecordLevelOnChange(Item)
 			           |To monitor the progress, click ""RLS access update progress"".
 			           |
 			           |This might slow down the app and take
-			           |from seconds to a few hours, depending on the data volume.';");
+			           |from seconds to a few hours, depending on the data volume.'");
 		If ConstantsSet.LimitAccessAtRecordLevel Then
-			QueryText = NStr("en = 'Do you want to enable record-level access restrictions?';")
+			QueryText = NStr("en = 'Do you want to enable record-level access restrictions?'")
 				+ Chars.LF + Chars.LF + QueryText;
 		Else
-			QueryText = NStr("en = 'Do you want to disable record-level access restrictions?';")
+			QueryText = NStr("en = 'Do you want to disable record-level access restrictions?'")
 				+ Chars.LF + Chars.LF + QueryText;
 		EndIf;
 		
@@ -250,7 +250,7 @@ Procedure LimitAccessAtRecordLevelOnChange(Item)
 			           |
 			           |This might slow down the app and take
 			           |from seconds to a few hours, depending on the data volume.
-			           |To monitor the progress, see ""Populate data for access restriction"" in the event log.';");
+			           |To monitor the progress, see ""Populate data for access restriction"" in the event log.'");
 	Else
 		QueryText = "";
 	EndIf;

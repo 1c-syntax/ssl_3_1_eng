@@ -15,11 +15,11 @@
 // See DataProcessorManager.ExchangeMessageTransportFILE.TransportParameters
 Function TransportParameters() Export
 	
-	LongDesc = NStr("en = 'With the current connection settings, this application sends and receives data only upon request from the peer application.';");
+	LongDesc = NStr("en = 'With the current connection settings, this application sends and receives data only upon request from the peer application.'");
 	
 	Parameters = ExchangeMessagesTransport.StructureOfTransportParameters();
 	
-	Parameters.Alias = NStr("en = 'Passive mode';");
+	Parameters.Alias = NStr("en = 'Passive mode'");
 	Parameters.TransportID = "PassiveMode";
 	Parameters.LongDesc = LongDesc;
 	Parameters.StartDataExchangeFromCorrespondent = False;

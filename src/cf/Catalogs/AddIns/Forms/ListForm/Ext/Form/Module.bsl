@@ -142,7 +142,7 @@ Procedure AddFromDirectory(Command)
 	
 	Notification = New CallbackDescription("AddAddInsFromDirectoryAfterExtensionsAttached", ThisObject);
 		
-	SuggestionText =  NStr("en = 'To import add-ins from the directory, install 1C:Enterprise Extension.';");
+	SuggestionText =  NStr("en = 'To import add-ins from the directory, install 1C:Enterprise Extension.'");
 	FileSystemClient.Attach1CEnterpriseExtension(Notification, SuggestionText, False);
 		
 EndProcedure
@@ -172,9 +172,9 @@ Procedure AddFromFiles(Command)
 		ThisObject);
 	
 	ImportParameters = FileSystemClient.FileImportParameters();
-	ImportParameters.Dialog.Title = NStr("en = 'Select add-in files';");
-	ImportParameters.Dialog.Filter = NStr("en = 'Archive (*.zip)|*.zip';") + "|"
-			+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
+	ImportParameters.Dialog.Title = NStr("en = 'Select add-in files'");
+	ImportParameters.Dialog.Filter = NStr("en = 'Archive (*.zip)|*.zip'") + "|"
+			+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1'"), GetAllFilesMask());
 	
 	ImportParameters.Dialog.Multiselect = True;
 	Items.Pages_Group.CurrentPage = Items.WaitPage;
@@ -186,7 +186,7 @@ EndProcedure
 
 #Region Private
 
-// Продолжение процедуры ДобавитьИзКаталога.
+// 
 
 &AtClient
 Procedure AddAddInsFromDirectoryAfterExtensionsAttached(Result, CreationParameters) Export
@@ -197,11 +197,11 @@ Procedure AddAddInsFromDirectoryAfterExtensionsAttached(Result, CreationParamete
 		
 	Notification = New CallbackDescription("AddAddInsAfterDirectorySelected", ThisObject);
 	Items.Pages_Group.CurrentPage = Items.WaitPage;
-	FileSystemClient.SelectDirectory(Notification, NStr("en = 'Select a directory with add-in files';"));
+	FileSystemClient.SelectDirectory(Notification, NStr("en = 'Select a directory with add-in files'"));
 	
 EndProcedure
 
-// Продолжение процедуры ДобавитьИзКаталога.
+// 
 
 &AtClient
 Async Procedure AddAddInsAfterDirectorySelected(SelectedDirectory, AdditionalParameters) Export
@@ -227,7 +227,7 @@ Async Procedure AddAddInsAfterDirectorySelected(SelectedDirectory, AdditionalPar
 	EndDo;
 	
 	If DetailsOfFilesToTransfer.Count() = 0 Then
-		Raise NStr("en = 'The specified directory does not contain any add-in files.';");
+		Raise NStr("en = 'The specified directory does not contain any add-in files.'");
 	EndIf;
 	
 	ImportParameters = FileSystemClient.FileImportParameters();
@@ -264,9 +264,9 @@ Procedure DownloadAddInsAfterSafetyWarning(Response, PlacedFiles) Export
 		TextDocument = New TextDocument;
 		TextDocument.SetText(StrConcat(Result, Chars.LF));
 		TextDocument.InsertLine(0, NStr(
-			"en = 'Cannot import the add-ins. To fill add-in properties manually, import files one by one:';")
+			"en = 'Cannot import the add-ins. To fill add-in properties manually, import files one by one:'")
 			+ Chars.LF);
-		TextDocument.Show(NStr("en = 'Cannot import the add-ins';"));
+		TextDocument.Show(NStr("en = 'Cannot import the add-ins'"));
 	EndIf;
 	
 	Items.List.Refresh();
@@ -288,7 +288,7 @@ Function DownloadAddInsAtServer(Val PlacedFiles)
 			ImportParameters.UpdateFrom1CITSPortal = False;
 			ImportParameters.Data = ComponentFile.Location;
 			ImportParameters.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Imported from the %1 file. %2.';"),
+				NStr("en = 'Imported from the %1 file. %2.'"),
 				ComponentFile.FileName,
 				CurrentSessionDate());
 			AddInsInternal.LoadAComponentFromBinaryData(ImportParameters, True, UsedAddIns);
@@ -330,7 +330,7 @@ Procedure AfterUpdateAddInFromPortal(Result, AdditionalParameters) Export
 EndProcedure
 
 /////////////////////////////////////////////////////////
-// Представление данных на форме.
+// 
 
 &AtServer
 Procedure SetFilter()

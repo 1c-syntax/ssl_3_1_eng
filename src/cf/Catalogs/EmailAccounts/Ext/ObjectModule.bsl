@@ -38,7 +38,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 		
 	If Not IsBlankString(Email) And Not CommonClientServer.EmailAddressMeetsRequirements(Email, True) Then
 		Common.MessageToUser(
-			NStr("en = 'Invalid email address.';"), ThisObject, "Email");
+			NStr("en = 'Invalid email address.'"), ThisObject, "Email");
 		NotCheckedAttributeArray.Add("Email");
 		Cancel = True;
 	EndIf;
@@ -76,7 +76,7 @@ Procedure BeforeWrite(Cancel)
 		If PasswordCheckIsRequired Then
 			PasswordCheck = Undefined;
 			If Not AdditionalProperties.Property("Password", PasswordCheck) Or Not PasswordCorrect(PasswordCheck) Then
-				ErrorMessageText = NStr("en = 'The password required to change the account settings is not confirmed.';");
+				ErrorMessageText = NStr("en = 'The password required to change the account settings is not confirmed.'");
 				Raise ErrorMessageText;
 			EndIf;
 		EndIf;
@@ -112,7 +112,7 @@ Procedure OnWrite(Cancel)
 			AdditionalAuthenticationSettings.SetPasswordRecoverySettings(Settings);
 		Else
 			Raise NStr("en = 'Email settings are used for password recovery and
-			|can only be changed by the administrator.';");
+			|can only be changed by the administrator.'");
 		EndIf;
 		
 	EndIf;
@@ -125,7 +125,7 @@ EndProcedure
 
 Procedure FillObjectWithDefaultValues()
 	
-	UserName = NStr("en = '1C:Enterprise';");
+	UserName = NStr("en = '1C:Enterprise'");
 	UseForReceiving = False;
 	UseForSending = False;
 	KeepMessageCopiesAtServer = False;
@@ -136,7 +136,7 @@ Procedure FillObjectWithDefaultValues()
 	ProtocolForIncomingMail = "POP";
 	
 	If Predefined Then
-		Description = NStr("en = 'System account';");
+		Description = NStr("en = 'System account'");
 	EndIf;
 	
 EndProcedure
@@ -177,5 +177,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

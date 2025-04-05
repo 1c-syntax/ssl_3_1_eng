@@ -106,7 +106,7 @@ Procedure DeleteScheduledJob(Cancel)
 				ScheduledJobObject.Delete();
 			EndIf;	
 		Except
-			MessageString = NStr("en = 'Cannot delete the scheduled job: %1';");
+			MessageString = NStr("en = 'Cannot delete the scheduled job: %1'");
 			MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, 
 				ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 			DataExchangeServer.ReportError(MessageString, Cancel);
@@ -119,5 +119,5 @@ EndProcedure
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

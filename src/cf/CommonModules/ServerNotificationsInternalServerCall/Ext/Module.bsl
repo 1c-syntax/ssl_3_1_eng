@@ -50,17 +50,17 @@ Procedure LogErrorGettingDataFromMessage(Val LongDesc) Export
 					XMLNotificationContent = XMLString(NotificationContent);
 				EndIf;
 			Else
-				XMLNotificationContent = "<" + NStr("en = 'The notification content is not found in the database';") + ">"; 
+				XMLNotificationContent = "<" + NStr("en = 'The notification content is not found in the database'") + ">"; 
 			EndIf;
 		Else
-			XMLNotificationContent = "<" + NStr("en = 'The notification ID is not a UUID';") + ">"; 
+			XMLNotificationContent = "<" + NStr("en = 'The notification ID is not a UUID'") + ">"; 
 		EndIf;
 	EndIf;
 	If Not ValueIsFilled(NameOfAlert) Then
-		NameOfAlert = "<" + NStr("en = 'No data';") + ">";
+		NameOfAlert = "<" + NStr("en = 'No data'") + ">";
 	EndIf;
 	If Not ValueIsFilled(NotificationID) Then
-		NotificationID = "<" + NStr("en = 'No data';") + ">";
+		NotificationID = "<" + NStr("en = 'No data'") + ">";
 	EndIf;
 	
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -70,7 +70,7 @@ Procedure LogErrorGettingDataFromMessage(Val LongDesc) Export
 		           |- Conversation: %4
 		           |- Text
 		           |	Notification name: %5
-		           |	Notification ID: %6';"),
+		           |	Notification ID: %6'"),
 		"Data",
 		LongDesc.Date,
 		LongDesc.Id,
@@ -83,7 +83,7 @@ Procedure LogErrorGettingDataFromMessage(Val LongDesc) Export
 		
 		ErrorText = ErrorText + "
 		|	" + StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Long-running operation procedure name: %1';"),
+			NStr("en = 'Long-running operation procedure name: %1'"),
 			LongRunningOperationProcedureName);
 	EndIf;
 	
@@ -91,7 +91,7 @@ Procedure LogErrorGettingDataFromMessage(Val LongDesc) Export
 	ErrorText = ErrorText + StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'An error occurred:
 		           |
-		           |%1';"),
+		           |%1'"),
 		LongDesc.DetailErrorDescription);
 	
 	If ValueIsFilled(XMLNotificationContent)
@@ -100,12 +100,12 @@ Procedure LogErrorGettingDataFromMessage(Val LongDesc) Export
 		ErrorText = ErrorText + Chars.LF + Chars.LF;
 		ErrorText = ErrorText + StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Notification content in a value storage format in XML (from the database):
-			           |%1';"),
+			           |%1'"),
 			XMLNotificationContent);
 	EndIf;
 	
 	WriteLogEvent(
-		NStr("en = 'Server notifications.An error occurred when receiving the notification data from the message';",
+		NStr("en = 'Server notifications.An error occurred when receiving the notification data from the message'",
 			Common.DefaultLanguageCode()),
 		EventLogLevel.Error,, NameOfAlert, ErrorText);
 	
@@ -116,7 +116,7 @@ EndProcedure
 //
 Procedure WritePerformanceIndicators(Val Comment) Export
 	
-	EventName = NStr("en = 'Серверные оповещения.Показатели производительности';",
+	EventName = NStr("en = 'Server notifications.Performance indicators'",
 		Common.DefaultLanguageCode());
 	
 	WriteLogEvent(EventName,

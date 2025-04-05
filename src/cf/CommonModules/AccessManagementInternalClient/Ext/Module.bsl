@@ -162,7 +162,7 @@ Procedure AccessValueStartChoice(Form, Item, ChoiceData, StandardProcessing) Exp
 		
 		Form.CurrentTypesOfValuesToSelect.ShowChooseItem(
 			New CallbackDescription("AccessValueStartChoiceFollowUp", ThisObject, Context),
-			NStr("en = 'Select data type';"),
+			NStr("en = 'Select data type'"),
 			Form.CurrentTypesOfValuesToSelect[0]);
 	EndIf;
 	
@@ -359,7 +359,7 @@ Procedure AccessKindsAccessKindPresentationChoiceProcessing(Form, Item, ValueSel
 		
 		ShowMessageBox(, StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The ""%1"" access kind is already selected.
-			           |Please select another one.';"),
+			           |Please select another one.'"),
 			ValueSelected));
 		
 		StandardProcessing = False;
@@ -662,7 +662,7 @@ EndProcedure
 
 // Process report details.
 
-// 
+// Intended for procedures "OnProcessDetails", "OnProcessAdditionalDetails".
 Procedure OnProcessReportDrilldown(ReportForm, Item, Details,
 			StandardProcessing, IsAdditionalDrilldown)
 	
@@ -691,7 +691,7 @@ Procedure OnProcessReportDrilldown(ReportForm, Item, Details,
 	
 EndProcedure
 
-// 
+// Intended for procedure "OnProcessReportDrilldown".
 Procedure ProcessDrilldownAction(Action, Context) Export
 	
 	If Action = Undefined Then
@@ -714,7 +714,7 @@ Procedure ProcessDrilldownAction(Action, Context) Export
 	
 EndProcedure
 
-// 
+// Intended for procedure "OnProcessReportDrilldown".
 Function AccessRightsAnalysisReportDrilldownActions(ReportForm, Item, Details)
 	
 	Actions = New ValueList;
@@ -738,7 +738,7 @@ Function AccessRightsAnalysisReportDrilldownActions(ReportForm, Item, Details)
 		Parameters = NewActionExecutionParameters();
 		Parameters.FullFormName = "CommonForm.ObjectsRightsSettings";
 		Parameters.FormParameters = New Structure("ObjectReference", SettingsOwner);
-		Actions.Insert(0, Parameters, NStr("en = 'Access right settings';"));
+		Actions.Insert(0, Parameters, NStr("en = 'Access right settings'"));
 		Return Actions;
 	ElsIf DetailsParameters.DetailsFieldName1 = "AccessValue" Then
 		AccessGroup = DetailsParameters.FieldList.Get("AccessGroup");
@@ -756,33 +756,33 @@ Function AccessRightsAnalysisReportDrilldownActions(ReportForm, Item, Details)
 		Parameters.FormParameters.Insert("Key", AccessGroup);
 		Parameters.FormParameters.Insert("GotoViewAccess", AccessKind);
 		Parameters.FormParameters.Insert("JumpToAccessValue", AccessValue);
-		Actions.Insert(0, Parameters, NStr("en = 'View value in access group';"));
+		Actions.Insert(0, Parameters, NStr("en = 'View value in access group'"));
 		Return Actions;
 	EndIf;
 	
 	Table = DetailsParameters.FieldList.Get("MetadataObjectFullName");
 	If ValueIsFilled(Table)
 	   And Actions <> Undefined
-	   And DetailsParameters.RoleRightsReportIsAvailable Then
+	   And DetailsParameters.CanUseRolesRightsReport Then
 		
 		Filter = New Structure("MetadataObject", Table);
 		AddOpenRolesRightsReportOption(ReportForm,
 			"RightsOfRolesAndProfilesToMetadataObject", Details, Filter, Actions,
 			?(DetailsParameters.DetailsFieldName1 = "Report",
-				NStr("en = 'Role and profile rights that apply to report';"),
-				NStr("en = 'Role and profile rights that apply to table';")));
+				NStr("en = 'Role and profile rights that apply to report'"),
+				NStr("en = 'Role and profile rights that apply to table'")));
 		Filter = New Structure("MetadataObject, Profile", Table);
 		AddOpenRolesRightsReportOption(ReportForm,
 			"DetailedRolesRightsToMetadataObject", Details, Filter, Actions,
 			?(DetailsParameters.DetailsFieldName1 = "Report",
-				NStr("en = 'Detailed profile rights that apply to report';"),
-				NStr("en = 'Detailed profile rights that apply to table';")));
+				NStr("en = 'Detailed profile rights that apply to report'"),
+				NStr("en = 'Detailed profile rights that apply to table'")));
 		Filter = New Structure("MetadataObject", Table);
 		AddOpenRolesRightsReportOption(ReportForm,
 			"DetailedRolesRightsToMetadataObject", Details, Filter, Actions,
 			?(DetailsParameters.DetailsFieldName1 = "Report",
-				NStr("en = 'Detailed role rights that apply to report';"),
-				NStr("en = 'Detailed role rights that apply to table';")));
+				NStr("en = 'Detailed role rights that apply to report'"),
+				NStr("en = 'Detailed role rights that apply to table'")));
 	EndIf;
 	
 	URL = DetailsParameters.FieldList.Get("MetadataObjectURL");
@@ -794,7 +794,7 @@ Function AccessRightsAnalysisReportDrilldownActions(ReportForm, Item, Details)
 		Parameters = NewActionExecutionParameters();
 		Parameters.URL = URL;
 		Actions.Insert(0, Parameters, ?(DetailsParameters.DetailsFieldName1 = "FilterTitle",
-			NStr("en = 'Open';"), NStr("en = 'Show list';")));
+			NStr("en = 'Open'"), NStr("en = 'Show list'")));
 		Return Actions;
 	EndIf;
 	
@@ -802,7 +802,7 @@ Function AccessRightsAnalysisReportDrilldownActions(ReportForm, Item, Details)
 		Parameters = NewActionExecutionParameters();
 		Parameters.URL = URL;
 		Actions.Add(Parameters, ?(DetailsParameters.DetailsFieldName1 = "Report",
-			NStr("en = 'Open';"), NStr("en = 'Show list';")));
+			NStr("en = 'Open'"), NStr("en = 'Show list'")));
 	EndIf;
 	
 	If DetailsParameters.DetailsFieldName1 = "User" Then
@@ -810,10 +810,10 @@ Function AccessRightsAnalysisReportDrilldownActions(ReportForm, Item, Details)
 		If ValueIsFilled(User) Then
 			Parameters = NewActionExecutionParameters();
 			Parameters.User = User;
-			Actions.Add(Parameters, NStr("en = 'View user right settings';"));
+			Actions.Add(Parameters, NStr("en = 'View user right settings'"));
 			Parameters = NewActionExecutionParameters();
 			Parameters.Value = User;
-			Actions.Add(Parameters, NStr("en = 'Open';"));
+			Actions.Add(Parameters, NStr("en = 'Open'"));
 		EndIf;
 	EndIf;
 	
@@ -933,7 +933,7 @@ Function AccessRightsAnalysisReportDrilldownActions(ReportForm, Item, Details)
 			If DetailsParameters.DetailsFieldName1 <> "User" Then
 				Parameters = NewActionExecutionParameters();
 				Parameters.Value = DetailsValue;
-				Actions.Insert(0, Parameters, NStr("en = 'Open';"));
+				Actions.Insert(0, Parameters, NStr("en = 'Open'"));
 			EndIf;
 		EndIf;
 		
@@ -986,7 +986,7 @@ Procedure AddOpenAccessRightsAnalysisReportOption(ReportForm, VariantKey, Detail
 	
 EndProcedure
 
-// 
+// Intended for procedure "OnProcessReportDrilldown".
 Function RolesRightsReportDrilldownActions(ReportForm, Item, Details)
 	
 	Actions = New ValueList;
@@ -1000,7 +1000,7 @@ Function RolesRightsReportDrilldownActions(ReportForm, Item, Details)
 			
 			Parameters = NewActionExecutionParameters();
 			Parameters.Value = Profile;
-			Actions.Insert(0, Parameters, NStr("en = 'Open';"));
+			Actions.Insert(0, Parameters, NStr("en = 'Open'"));
 		EndIf;
 	EndIf;
 	
@@ -1011,11 +1011,11 @@ Function RolesRightsReportDrilldownActions(ReportForm, Item, Details)
 		Parameters = NewActionExecutionParameters();
 		Parameters.URL = URL;
 		If StrFind(URL, "/command/") > 0 Then
-			Actions.Add(Parameters, NStr("en = 'Run command';"));
+			Actions.Add(Parameters, NStr("en = 'Run command'"));
 		ElsIf StrStartsWith(URL, "e1cib/list/") Then
-			Actions.Add(Parameters, NStr("en = 'Show list';"));
+			Actions.Add(Parameters, NStr("en = 'Show list'"));
 		ElsIf StrStartsWith(URL, "e1cib/app/") Then
-			Actions.Add(Parameters, NStr("en = 'Open';"));
+			Actions.Add(Parameters, NStr("en = 'Open'"));
 		EndIf;
 	EndIf;
 	
@@ -1344,38 +1344,38 @@ EndProcedure
 Function AccessRightsAnalysisReportOptionPresentation(VariantKey)
 	
 	If VariantKey = "AccessRightsAnalysis" Then
-		Return NStr("en = 'Access rights analysis';");
+		Return NStr("en = 'Access rights analysis'");
 		
 	ElsIf VariantKey = "UsersRightsToTables" Then
-		Return NStr("en = 'Users rights to tables';");
+		Return NStr("en = 'Users rights to tables'");
 		
 	ElsIf VariantKey = "UserRightsToTables" Then
-		Return NStr("en = 'User rights to tables';");
+		Return NStr("en = 'User rights to tables'");
 		
 	ElsIf VariantKey = "UsersRightsToTable" Then
-		Return NStr("en = 'Users rights to a table';");
+		Return NStr("en = 'Users rights to a table'");
 		
 	ElsIf VariantKey = "UserRightsToTable" Then
-		Return NStr("en = 'User rights to table';");
+		Return NStr("en = 'User rights to table'");
 		
 	ElsIf VariantKey = "UsersRightsToReportTables" Then
-		Return NStr("en = 'Users rights to report tables';");
+		Return NStr("en = 'Users rights to report tables'");
 		
 	ElsIf VariantKey = "UserRightsToReportTables" Then
-		Return NStr("en = 'User rights to report tables';");
+		Return NStr("en = 'User rights to report tables'");
 		
 	ElsIf VariantKey = "UserRightsToReportsTables" Then
-		Return NStr("en = 'User rights to reports tables';");
+		Return NStr("en = 'User rights to reports tables'");
 		
 	ElsIf VariantKey = "UsersRightsToObject" Then
-		Return NStr("en = 'User rights to object';");
+		Return NStr("en = 'User rights to object'");
 		
 	ElsIf VariantKey = "UsersRightsByAllowedValue" Then
-		Return NStr("en = 'User rights by allowed value';");
+		Return NStr("en = 'User rights by allowed value'");
 	EndIf;
 	
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Unknown report option name: %1.';"), VariantKey);
+		NStr("en = 'Unknown report option name: %1.'"), VariantKey);
 	
 	Raise(ErrorText, ErrorCategory.ConfigurationError);
 	
@@ -1384,32 +1384,32 @@ EndFunction
 Function RolesRightsReportOptionPresentation(VariantKey, FilterComposition)
 	
 	If VariantKey = "RolesRights" Then
-		Return NStr("en = 'Role rights';");
+		Return NStr("en = 'Role rights'");
 		
 	ElsIf VariantKey = "DetailedRolesRightsToMetadataObject" Then
 		If FilterComposition.Profile = True Then
-			Return NStr("en = 'Detailed profile rights that apply to metadata object';");
+			Return NStr("en = 'Detailed profile rights that apply to metadata object'");
 		ElsIf FilterComposition.Profile = Undefined Then
-			Return NStr("en = 'Detailed profile rights that apply to metadata object';");
+			Return NStr("en = 'Detailed profile rights that apply to metadata object'");
 		ElsIf FilterComposition.Role Then
-			Return NStr("en = 'Detailed role rights that apply to metadata object';");
+			Return NStr("en = 'Detailed role rights that apply to metadata object'");
 		Else
-			Return NStr("en = 'Detailed role rights that apply to metadata object';");
+			Return NStr("en = 'Detailed role rights that apply to metadata object'");
 		EndIf;
 		
 	ElsIf VariantKey = "RightsOfRolesAndProfilesToMetadataObject" Then
-		Return NStr("en = 'Role and profile rights that apply to metadata object';");
+		Return NStr("en = 'Role and profile rights that apply to metadata object'");
 		
 	ElsIf VariantKey = "RightsOfRoleAndProfilesToMetadataObjects" Then
 		If FilterComposition.Role Then
-			Return NStr("en = 'Role and profile rights that apply to metadata object';");
+			Return NStr("en = 'Role and profile rights that apply to metadata object'");
 		Else
-			Return NStr("en = 'Profile rights that apply to metadata objects';");
+			Return NStr("en = 'Profile rights that apply to metadata objects'");
 		EndIf;
 	EndIf;
 	
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Unknown report option name: %1.';"), VariantKey);
+		NStr("en = 'Unknown report option name: %1.'"), VariantKey);
 	
 	Raise(ErrorText, ErrorCategory.ConfigurationError);
 	
@@ -1431,7 +1431,7 @@ Procedure AttheStartofSelectingReportValuesAnalysisAccessPermissions(ReportForm,
 	
 EndProcedure
 
-// 
+// Intended for procedure "AttheStartofSelectingReportValuesAnalysisAccessPermissions".
 Procedure OnStartSelectMetadataObjectOfAccessRightsAnalysisReport(ReportForm,
 			SelectionConditions, ClosingNotification1, StandardProcessing)
 	
@@ -1459,7 +1459,7 @@ Procedure OnStartSelectMetadataObjectOfAccessRightsAnalysisReport(ReportForm,
 	PickingParameters.SelectedMetadataObjects = Selected_;
 	PickingParameters.MetadataObjectsToSelectCollection = Collections;
 	PickingParameters.ObjectsGroupMethod = "BySections,ByKinds";
-	PickingParameters.Title = NStr("en = 'Pick tables';");
+	PickingParameters.Title = NStr("en = 'Pick tables'");
 	
 	Context = New Structure;
 	Context.Insert("SelectionConditions", SelectionConditions);
@@ -1471,7 +1471,7 @@ Procedure OnStartSelectMetadataObjectOfAccessRightsAnalysisReport(ReportForm,
 EndProcedure
 
 
-// 
+// Intended for procedure "AttheStartofSelectingReportValuesAnalysisAccessPermissions".
 Procedure OnStartSelectDataElementOfAccessRightsAnalysisReport(ReportForm,
 			SelectionConditions, ClosingNotification1, StandardProcessing)
 	
@@ -1491,13 +1491,13 @@ Procedure OnStartSelectDataElementOfAccessRightsAnalysisReport(ReportForm,
 	InitialItem = ?(ValueIsFilled(Context.InitialValue),
 		List.FindByValue(TypeOf(Context.InitialValue)), Undefined);
 	
-	Title = NStr("en = 'Select data type';");
+	Title = NStr("en = 'Select data type'");
 	
 	List.ShowChooseItem(Notification, Title, InitialItem);
 	
 EndProcedure
 
-// 
+// Intended for procedure "AttheStartofSelectingReportValuesAnalysisAccessPermissions".
 Procedure OnStartSelectDataElementOfAccessRightsAnalysisReportAfterTypeSelected(Result, Context) Export
 	
 	If Result = Undefined Then
@@ -1524,7 +1524,7 @@ Procedure OnStartSelectDataElementOfAccessRightsAnalysisReportAfterTypeSelected(
 	
 EndProcedure
 
-// 
+// Intended for procedure "AttheStartofSelectingReportValuesAnalysisAccessPermissions".
 Procedure OnStartSelectDataElementOfAccessRightsAnalysisReportAfterValueSelected(Result, Context) Export
 	
 	If Not ValueIsFilled(Result) Then
@@ -1560,11 +1560,11 @@ Procedure AttheStartofSelectingReportValuesRoleRights(ReportForm, SelectionCondi
 			ListItem.Value = "Role." + ListItem.Value;
 		EndDo;
 		PickingParameters.ObjectsGroupMethod = "ByKinds";
-		PickingParameters.Title = NStr("en = 'Pick roles';");
+		PickingParameters.Title = NStr("en = 'Pick roles'");
 		Collections.Add("Roles");
 	Else
 		PickingParameters.ObjectsGroupMethod = "ByKinds,BySections";
-		PickingParameters.Title = NStr("en = 'Pick metadata objects';");
+		PickingParameters.Title = NStr("en = 'Pick metadata objects'");
 		PickingParameters.SelectCollectionsWhenAllObjectsSelected = True;
 		AccessManagementInternalClientServer.AddMetadataObjectCollectionWithRights(Collections);
 	EndIf;

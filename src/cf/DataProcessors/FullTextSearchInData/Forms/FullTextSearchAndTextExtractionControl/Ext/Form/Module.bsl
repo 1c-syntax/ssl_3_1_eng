@@ -39,10 +39,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		If Common.FileInfobase() Then
 			ChoiceList = Items.ExtractFilesTextsAtWindowsServer.ChoiceList;
-			ChoiceList[0].Presentation = NStr("en = 'All workstations run on Windows.';");
+			ChoiceList[0].Presentation = NStr("en = 'All workstations run on Windows.'");
 			
 			ChoiceList = Items.ExtractFilesTextsAtLinuxServer.ChoiceList;
-			ChoiceList[0].Presentation = NStr("en = 'One or more workstations run on Linux.';");
+			ChoiceList[0].Presentation = NStr("en = 'One or more workstations run on Linux.'");
 		EndIf;
 		
 		// Form attributes values.
@@ -52,9 +52,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		FillScheduledJobInfo("TextExtraction");
 	Else
 		AutoTitle = False;
-		Title = NStr("en = 'Full-text search management';");
+		Title = NStr("en = 'Manage full-text search'");
 		Items.SectionDetails.Title =
-			NStr("en = 'Full-text search toggle, search index update.';");
+			NStr("en = 'Full-text search toggle, search index update.'");
 	EndIf;
 	
 	// Update items states.
@@ -118,16 +118,16 @@ EndProcedure
 &AtClient
 Procedure UpdateIndex(Command)
 	UpdateIndexServer();
-	ShowUserNotification(NStr("en = 'Full-text search';"),, NStr("en = 'Index has been updated';"));
+	ShowUserNotification(NStr("en = 'Full-text search'"),, NStr("en = 'Index has been updated'"));
 EndProcedure
 
 &AtClient
 Procedure ClearIndex(Command)
 	QueryText = NStr("en = 'The search index will be cleared, and you
 		|will not be able to use the full-text search.
-		|To enable the full-text search, update the index.
+		|To enable the full-text search, you must update the index.
 		|
-		|Continue?';");
+		|Continue?'");
 	
 	Handler = New CallbackDescription("ClearTheIndexAfterAnsweringTheQuestion", ThisObject);
 	ShowQueryBox(Handler, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
@@ -137,7 +137,7 @@ EndProcedure
 Procedure CheckIndex(Command)
 	ClearMessages();
 	CheckIndexServer();
-	ShowUserNotification(NStr("en = 'Full-text search';"),, NStr("en = 'Index is up to date';"));
+	ShowUserNotification(NStr("en = 'Full-text search'"),, NStr("en = 'Index is up to date'"));
 EndProcedure
 
 &AtClient
@@ -160,10 +160,10 @@ Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
 	
 	If Result.Property("CannotEnableFullTextSearchMode") Then
 		// Display a warning message.
-		QueryText = NStr("en = 'To change the full-text search mode, close all sessions, except for the current user session.';");
+		QueryText = NStr("en = 'To change the full-text search mode, close all sessions, except for the current user session.'");
 		
 		Buttons = New ValueList;
-		Buttons.Add("ActiveUsers", NStr("en = 'Active users';"));
+		Buttons.Add("ActiveUsers", NStr("en = 'Active users'"));
 		Buttons.Add(DialogReturnCode.Cancel);
 		
 		Handler = New CallbackDescription("OnChangeAttributeAfterAnswerToQuestion", ThisObject);
@@ -235,7 +235,7 @@ Procedure ClearTheIndexAfterAnsweringTheQuestion(Result, AdditionalParameters) E
 	
 	If Result = DialogReturnCode.Yes Then
 		ClearIndexServer();
-		ShowUserNotification(NStr("en = 'Full-text search';"),, NStr("en = 'Index has been cleaned up';"));
+		ShowUserNotification(NStr("en = 'Full-text search'"),, NStr("en = 'Index has been cleaned up'"));
 	EndIf;
 	
 EndProcedure
@@ -262,7 +262,7 @@ Procedure CheckIndexServer()
 		IndexContainsCorrectData = FullTextSearch.CheckIndex();
 	Except
 		ErrorMessageText = 
-			NStr("en = 'Cannot check index status. The index is being updated or cleaned up.';");
+			NStr("en = 'Cannot check index status. The index is being updated or cleaned up.'");
 		Common.MessageToUser(ErrorMessageText);
 		FullTextSearchServer.LogRecord(EventLogLevel.Warning, 
 			"", ErrorInfo());
@@ -334,7 +334,7 @@ Function SaveAttributeValue(DataPathAttribute)
 				EndIf;
 			Except
 				WriteLogEvent(
-					NStr("en = 'Full-text search';", Common.DefaultLanguageCode()),
+					NStr("en = 'Full-text search'", Common.DefaultLanguageCode()),
 					EventLogLevel.Error,
 					,
 					,
@@ -382,16 +382,16 @@ Procedure SetAvailability(DataPathAttribute = "", IndexChecked = False)
 			IndexUpdateDate = FullTextSearch.UpdateDate();
 			IndexTrue = (State = "SearchAllowed");
 			If IndexChecked And Not IndexContainsCorrectData Then
-				IndexStatus = NStr("en = 'Cleanup and update required';");
+				IndexStatus = NStr("en = 'Cleanup and update required'");
 			ElsIf IndexTrue Then
-				IndexStatus = NStr("en = 'No update required';");
+				IndexStatus = NStr("en = 'No update required'");
 			Else
-				IndexStatus = NStr("en = 'Update required';");
+				IndexStatus = NStr("en = 'Update required'");
 			EndIf;
 		Else
 			IndexUpdateDate = '00010101';
 			IndexTrue = False;
-			IndexStatus = NStr("en = 'Full-text search is disabled';");
+			IndexStatus = NStr("en = 'Full-text search is disabled'");
 		EndIf;
 		IndexedDataMaxSize = FullTextSearch.GetMaxIndexedDataSize() / 1048576;
 		LimitMaxIndexedDataSize = IndexedDataMaxSize <> 0;
@@ -414,7 +414,7 @@ Procedure SetAvailability(DataPathAttribute = "", IndexChecked = False)
 			SchedulePresentation = String(InformationRecords.Schedule);
 			SchedulePresentation = Upper(Left(SchedulePresentation, 1)) + Mid(SchedulePresentation, 2);
 		Else
-			SchedulePresentation = NStr("en = 'Automatic text extraction is not scheduled.';");
+			SchedulePresentation = NStr("en = 'Automatic text extraction is not scheduled.'");
 		EndIf;
 		Items.EditScheduledJob.ExtendedTooltip.Title = SchedulePresentation;
 	EndIf;

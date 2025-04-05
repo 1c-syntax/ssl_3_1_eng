@@ -29,25 +29,25 @@ Function AllFormSettings(UserName)
 	
 	// Adding standard forms to the list.
 	FormsList.Add("ExternalDataProcessor.StandardEventLog.Form.EventsJournal", 
-		PrefixOfStandardForms() + "." + NStr("en = 'Event log';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'Event log'") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardEventLog.Form.EventForm", 
-		PrefixOfStandardForms() + "." + NStr("en = 'Event log, Event';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'Event log, Event'") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardEventLog.Form.EventsJournalFilter", 
-		PrefixOfStandardForms() + "." + NStr("en = 'Event log, Event filter settings';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'Event log, Event filter settings'") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardFindByRef.Form.MainForm", 
-		PrefixOfStandardForms() + "." + NStr("en = 'Find references to objects';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'Find references to objects'") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardFullTextSearchManagement.Form.MainForm", 
-		PrefixOfStandardForms() + "." + NStr("en = 'Full-text search management';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'Manage full-text search'") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardDocumentsPosting.Form.MainForm", 
-		PrefixOfStandardForms() + "." + NStr("en = 'Post documents';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'Post documents'") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardDeleteMarkedObjects.Form.Form", 
-		PrefixOfStandardForms() + "." + NStr("en = 'Delete marked objects';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'Delete marked objects'") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardExternalDataSourceManagement.Form.Form", 
-		PrefixOfStandardForms() + "." + NStr("en = 'External data source management';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'External data source management'") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardTotalsManagement.Form.MainForm", 
-		PrefixOfStandardForms() + "." + NStr("en = 'Totals management';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'Totals management'") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardActiveUsers.Form.ActiveUsersListForm", 
-		PrefixOfStandardForms() + "." + NStr("en = 'Active users';") , False, PictureLib.Form);
+		PrefixOfStandardForms() + "." + NStr("en = 'Active users'") , False, PictureLib.Form);
 		
 	Return FormSettingsList(FormsList, UserName);
 	
@@ -55,7 +55,7 @@ EndFunction
 
 Function PrefixOfStandardForms()
 	
-	Return NStr("en = 'Standard';");
+	Return NStr("en = 'Standard'");
 	
 EndFunction
 
@@ -80,11 +80,11 @@ Function MetadataObjectForms1()
 
 	StandardFormNames = New ValueList;
 	StandardFormNames.Add("Form");
-	FillMetadataObjectForms(Metadata.FilterCriteria, "FilterCriterion", NStr("en = 'Filter criterion';"),
+	FillMetadataObjectForms(Metadata.FilterCriteria, "FilterCriterion", NStr("en = 'Filter criterion'"),
 		StandardFormNames, PictureLib.FilterCriterion, FormsList);
 		
 	StandardFormNames = New ValueList;
-	FillMetadataObjectForms(Metadata.SettingsStorages, "SettingsStorage", NStr("en = 'Settings storage';"),
+	FillMetadataObjectForms(Metadata.SettingsStorages, "SettingsStorage", NStr("en = 'Settings storage'"),
 		StandardFormNames, PictureLib.SettingsStorage, FormsList);
 	
 	StandardFormNames = New ValueList;
@@ -93,37 +93,37 @@ Function MetadataObjectForms1()
 	StandardFormNames.Add("ListForm");
 	StandardFormNames.Add("ChoiceForm_", "ChoiceForm");
 	StandardFormNames.Add("FolderChoiceForm", "GroupChoiceForm");
-	FillMetadataObjectForms(Metadata.Catalogs, "Catalog", NStr("en = 'Catalog';"),
+	FillMetadataObjectForms(Metadata.Catalogs, "Catalog", NStr("en = 'Catalog'"),
 		StandardFormNames, PictureLib.Catalog, FormsList);
 	
 	StandardFormNames = New ValueList;
 	StandardFormNames.Add("ObjectForm");
 	StandardFormNames.Add("ListForm");
 	StandardFormNames.Add("ChoiceForm_", "ChoiceForm");
-	FillMetadataObjectForms(Metadata.Documents, "Document", NStr("en = 'Document';"),
+	FillMetadataObjectForms(Metadata.Documents, "Document", NStr("en = 'Document'"),
 		StandardFormNames, PictureLib.Document, FormsList);
 	
 	StandardFormNames = New ValueList;
 	StandardFormNames.Add("Form");
-	FillMetadataObjectForms(Metadata.DocumentJournals, "DocumentJournal", NStr("en = 'Document journal';"),
+	FillMetadataObjectForms(Metadata.DocumentJournals, "DocumentJournal", NStr("en = 'Document journal'"),
 		StandardFormNames, PictureLib.DocumentJournal, FormsList);
 	
 	StandardFormNames = New ValueList;
 	StandardFormNames.Add("ListForm");
 	StandardFormNames.Add("ChoiceForm_", "ChoiceForm");
-	FillMetadataObjectForms(Metadata.Enums, "Enum", NStr("en = 'Enumeration';"),
+	FillMetadataObjectForms(Metadata.Enums, "Enum", NStr("en = 'Enumeration'"),
 		StandardFormNames, PictureLib.Enum, FormsList);
 	
 	StandardFormNames = New ValueList;
 	StandardFormNames.Add("Form");
 	StandardFormNames.Add("SettingsForm");
 	StandardFormNames.Add("VariantForm");
-	FillMetadataObjectForms(Metadata.Reports, "Report", NStr("en = 'Report';"),
+	FillMetadataObjectForms(Metadata.Reports, "Report", NStr("en = 'Report'"),
 		StandardFormNames, PictureLib.Report, FormsList);
 	
 	StandardFormNames = New ValueList;
 	StandardFormNames.Add("Form");
-	FillMetadataObjectForms(Metadata.DataProcessors, "DataProcessor", NStr("en = 'Data processor';"),
+	FillMetadataObjectForms(Metadata.DataProcessors, "DataProcessor", NStr("en = 'Data processor'"),
 		StandardFormNames, PictureLib.DataProcessor, FormsList);
 	
 	StandardFormNames = New ValueList;
@@ -132,62 +132,62 @@ Function MetadataObjectForms1()
 	StandardFormNames.Add("ListForm");
 	StandardFormNames.Add("ChoiceForm_", "ChoiceForm");
 	StandardFormNames.Add("FolderChoiceForm", "GroupChoiceForm");
-	FillMetadataObjectForms(Metadata.ChartsOfCharacteristicTypes, "ChartOfCharacteristicTypes", NStr("en = 'Chart of characteristic types';"),
+	FillMetadataObjectForms(Metadata.ChartsOfCharacteristicTypes, "ChartOfCharacteristicTypes", NStr("en = 'Chart of characteristic types'"),
 		StandardFormNames, PictureLib.ChartOfCharacteristicTypes, FormsList);
 	
 	StandardFormNames = New ValueList;
 	StandardFormNames.Add("ObjectForm");
 	StandardFormNames.Add("ListForm");
 	StandardFormNames.Add("ChoiceForm_", "ChoiceForm");
-	FillMetadataObjectForms(Metadata.ChartsOfAccounts, "ChartOfAccounts", NStr("en = 'Chart of accounts';"),
+	FillMetadataObjectForms(Metadata.ChartsOfAccounts, "ChartOfAccounts", NStr("en = 'Chart of accounts'"),
 		StandardFormNames, PictureLib.ChartOfAccounts, FormsList);
 	
 	StandardFormNames = New ValueList;
 	StandardFormNames.Add("ObjectForm");
 	StandardFormNames.Add("ListForm");
 	StandardFormNames.Add("ChoiceForm_", "ChoiceForm");
-	FillMetadataObjectForms(Metadata.ChartsOfCalculationTypes, "ChartOfCalculationTypes", NStr("en = 'Chart of calculation types';"),
+	FillMetadataObjectForms(Metadata.ChartsOfCalculationTypes, "ChartOfCalculationTypes", NStr("en = 'Chart of calculation types'"),
 		StandardFormNames, PictureLib.ChartOfCalculationTypes, FormsList);
 	
 	StandardFormNames = New ValueList;
 	StandardFormNames.Add("RecordForm");
 	StandardFormNames.Add("ListForm");
-	FillMetadataObjectForms(Metadata.InformationRegisters, "InformationRegister", NStr("en = 'Information register';"),
+	FillMetadataObjectForms(Metadata.InformationRegisters, "InformationRegister", NStr("en = 'Information register'"),
 		StandardFormNames, PictureLib.InformationRegister, FormsList);
 	
 	StandardFormNames = New ValueList;
 	StandardFormNames.Add("ListForm");
-	FillMetadataObjectForms(Metadata.AccumulationRegisters, "AccumulationRegister", NStr("en = 'Accumulation register';"),
+	FillMetadataObjectForms(Metadata.AccumulationRegisters, "AccumulationRegister", NStr("en = 'Accumulation register'"),
 		StandardFormNames, PictureLib.AccumulationRegister, FormsList);
 	
 	StandardFormNames = New ValueList;
 	StandardFormNames.Add("ListForm");
-	FillMetadataObjectForms(Metadata.AccountingRegisters, "AccountingRegister", NStr("en = 'Accounting register';"),
+	FillMetadataObjectForms(Metadata.AccountingRegisters, "AccountingRegister", NStr("en = 'Accounting register'"),
 		StandardFormNames, PictureLib.AccountingRegister, FormsList);
 	
 	StandardFormNames = New ValueList;
 	StandardFormNames.Add("ListForm");
-	FillMetadataObjectForms(Metadata.CalculationRegisters, "CalculationRegister", NStr("en = 'Calculation register';"),
+	FillMetadataObjectForms(Metadata.CalculationRegisters, "CalculationRegister", NStr("en = 'Calculation register'"),
 		StandardFormNames, PictureLib.CalculationRegister, FormsList);
 	
 	StandardFormNames = New ValueList;
 	StandardFormNames.Add("ObjectForm");
 	StandardFormNames.Add("ListForm");
 	StandardFormNames.Add("ChoiceForm_", "ChoiceForm");
-	FillMetadataObjectForms(Metadata.BusinessProcesses, "BusinessProcess", NStr("en = 'Business process';"),
+	FillMetadataObjectForms(Metadata.BusinessProcesses, "BusinessProcess", NStr("en = 'Business process'"),
 		StandardFormNames, PictureLib.BusinessProcess, FormsList);
 	
 	StandardFormNames = New ValueList;
 	StandardFormNames.Add("ObjectForm");
 	StandardFormNames.Add("ListForm");
 	StandardFormNames.Add("ChoiceForm_", "ChoiceForm");
-	FillMetadataObjectForms(Metadata.Tasks, "Task", NStr("en = 'Task';"),
+	FillMetadataObjectForms(Metadata.Tasks, "Task", NStr("en = 'Task'"),
 		StandardFormNames, PictureLib.Task, FormsList);
 	
 	StandardFormNames = New ValueList;
 	StandardFormNames.Add("RecordForm");
 	StandardFormNames.Add("ListForm");
-	FillMetadataObjectForms(Metadata.ExternalDataSources, "ExternalDataSource", NStr("en = 'External data sources';"),
+	FillMetadataObjectForms(Metadata.ExternalDataSources, "ExternalDataSource", NStr("en = 'External data sources'"),
 		StandardFormNames, PictureLib.ExternalDataSourceTable, FormsList);
 
 	Return FormsList;
@@ -558,8 +558,8 @@ Procedure DeleteAnOutdatedSetting(Selection, Storage, Context)
 	EndIf;
 	
 	If NameParts.Count() > 3
-	   And (    Upper(NameParts[2]) = Upper("Форма") // @Non-NLS
-		  Or Upper(NameParts[2]) = Upper("Form")) Then
+	   And (    Upper(NameParts[2]) = Upper("Форма")
+		  Or Upper(NameParts[2]) = Upper("Form")) Then // @Non-NLS
 		
 		FullObjectName = NameParts[0] + "." + NameParts[1]
 			+ "." + NameParts[2] + "." + NameParts[3];
@@ -963,7 +963,7 @@ Procedure CopyReportAndPersonalSettings(SettingsManager, SourceUser,
 	
 EndProcedure
 
-// Copies the interface settings.
+// Copies appearance settings.
 // 
 // Parameters:
 //   SourceUser - String - infobase source user for copying the settings.
@@ -1788,13 +1788,13 @@ Procedure AddFormTypeToPresentation(Object, Form, FormName)
 	FillPropertyValues(ObjectValues, Object);
 	
 	If Form = ObjectValues.DefaultListForm Then
-		FormName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (list)';"), FormName);
+		FormName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (list)'"), FormName);
 	ElsIf Form = ObjectValues.DefaultChoiceForm Then
-		FormName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (choice)';"), FormName);
+		FormName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (choice)'"), FormName);
 	ElsIf Form = ObjectValues.DefaultFolderForm Then
-		FormName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (group)';"), FormName);
+		FormName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (group)'"), FormName);
 	ElsIf Form = ObjectValues.DefaultFolderChoiceForm Then
-		FormName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (select group)';"), FormName);
+		FormName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (select group)'"), FormName);
 	EndIf;
 	
 EndProcedure
@@ -1802,11 +1802,11 @@ EndProcedure
 Procedure AddFormTypeToAutogeneratedFormPresentation(Object, Form, FormName)
 	
 	If Form = "ListForm" Then
-		FormName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (list)';"), FormName);
+		FormName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (list)'"), FormName);
 	ElsIf Form = "ChoiceForm_" Then
-		FormName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (choice)';"), FormName);
+		FormName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (choice)'"), FormName);
 	ElsIf Form = "FolderChoiceForm" Then
-		FormName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (group)';"), FormName);
+		FormName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (group)'"), FormName);
 	EndIf;
 	
 EndProcedure
@@ -1990,7 +1990,7 @@ Function CreateReportOnCopyingSettings(NotCopiedReportSettings,
 			NStr("en = 'Cannot copy personal report options.
 			|To make a personal report option available to other users,
 			|save it with the ""Available to author only"" check box cleared.
-			|List of skipped report options:';");
+			|List of skipped report options:'");
 		TabDoc.Put(HeaderArea_);
 		
 		TabDoc.Put(TabTemplate.GetArea("IsBlankString"));
@@ -2012,7 +2012,7 @@ Function CreateReportOnCopyingSettings(NotCopiedReportSettings,
 	If NotCopiedReportSettings.Count() <> 0 Then
 		HeaderArea_ = TabTemplate.GetArea("Title");
 		HeaderArea_.Parameters.LongDesc = 
-			NStr("en = 'The following users have insufficient access rights for reports:';");
+			NStr("en = 'The following users have insufficient access rights for reports:'");
 		TabDoc.Put(HeaderArea_);
 		
 		AreaContent = TabTemplate.GetArea("ReportContent");
@@ -2266,7 +2266,7 @@ Procedure FillInterfaceSettingsList(Parameters)
 	
 	Parameters.InterfaceSettings2.Rows.Sort("Setting Asc", True);
 	
-	Setting = NStr("en = 'Command interface and home page';");
+	Setting = NStr("en = 'Command interface and home page'");
 	DesktopAndCommandInterface = Parameters.InterfaceSettings2.Rows.Find(Setting, "Setting");
 	
 	If DesktopAndCommandInterface <> Undefined Then
@@ -2293,7 +2293,7 @@ Procedure FillOtherSettingsList(Parameters)
 	EndDo;
 	
 	If Keys.Count() > 0 Then
-		Setting = NStr("en = 'Personal settings';");
+		Setting = NStr("en = 'Personal settings'");
 		SettingType = "PersonalSettings";
 		If TypeOf(Parameters.UserRef) = Type("CatalogRef.ExternalUsers") Then
 			Picture = PictureLib.UserState08;
@@ -2332,7 +2332,7 @@ Procedure FillOtherSettingsList(Parameters)
 	
 	// Adding print settings tree row.
 	If HasPrintSettings Then
-		Setting = NStr("en = 'Spreadsheet document print settings';");
+		Setting = NStr("en = 'Spreadsheet document print settings'");
 		Picture = PictureLib.Print;
 		SettingType = "PrintSettings";
 		AddTreeRow(Parameters.OtherSettingsTree, Setting, Picture, Keys, SettingType);
@@ -2341,7 +2341,7 @@ Procedure FillOtherSettingsList(Parameters)
 	// Adding "Favorites" tree row.
 	If HasFavorites Then
 		
-		Setting = NStr("en = 'Favorites';");
+		Setting = NStr("en = 'Favorites'");
 		Picture = PictureLib.AddToFavorites;
 		Keys.Clear();
 		Keys.Add("Common/UserWorkFavorites", "OtherItems");
@@ -2395,7 +2395,7 @@ Procedure FillOtherSettingsList(Parameters)
 	
 	// Other settings that are not included in other sections.
 	If OtherKeys.Count() <> 0 Then
-		Setting = NStr("en = 'Other settings';");
+		Setting = NStr("en = 'Other settings'");
 		Picture = PictureLib.OtherUserSettings;
 		SettingType = "OtherSetting";
 		AddTreeRow(Parameters.OtherSettingsTree, Setting, Picture, OtherKeys, SettingType);
@@ -2473,9 +2473,9 @@ Procedure AddDesktopAndCommandInterfaceSettings(Parameters, SettingsTree)
 	If AllSettingsKeys.Count() > 0 Then
 		// Adding top-level groups for desktop settings and command-interface settings.
 		NewInterfaceRow = SettingsTree.Rows.Add();
-		NewInterfaceRow.Setting = NStr("en = 'Command interface and home page';");
+		NewInterfaceRow.Setting = NStr("en = 'Command interface and home page'");
 		NewInterfaceRow.Picture = PictureLib.Picture;
-		NewInterfaceRow.RowType = NStr("en = 'Command interface and home page';");
+		NewInterfaceRow.RowType = NStr("en = 'Command interface and home page'");
 		NewInterfaceRow.Type = "InterfaceSettings1";
 		NewInterfaceRow.Keys = AllSettingsKeys.Copy();
 	EndIf;
@@ -2493,7 +2493,7 @@ Procedure AddDesktopAndCommandInterfaceSettings(Parameters, SettingsTree)
 	If InterfaceSettingsKeys.Count() > 0 Then
 		// Creating a command interface settings row.
 		NewSubordinateInterfaceRow = NewInterfaceRow.Rows.Add();
-		NewSubordinateInterfaceRow.Setting = NStr("en = 'Command interface';");
+		NewSubordinateInterfaceRow.Setting = NStr("en = 'Command interface'");
 		NewSubordinateInterfaceRow.Picture = PictureLib.Picture;
 		NewSubordinateInterfaceRow.RowType = "CommandInterfaceSettings";
 		NewSubordinateInterfaceRow.Type = "InterfaceSettings1";

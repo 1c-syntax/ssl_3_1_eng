@@ -22,10 +22,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If MetadataObject = Undefined
 	 Or Not Common.IsRegister(MetadataObject) Then
 		
-		ErrorText = NStr("en = 'A parameter is required to open the form';");
+		ErrorText = NStr("en = 'A parameter is required to open the form'");
 		ForAdministrator = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'To open form %1, the record key type of the register
-			           |in the form parameter %2 is expected. The actual type is ""%3"".';"),
+			           |in the form parameter %2 is expected. The actual type is ""%3"".'"),
 			"SelectRegisterRow",
 			"DataItemType",
 			Parameters.DataItemType);

@@ -40,7 +40,7 @@ Procedure WriteAndClose(Command)
 	Item.Insert("Value", FileVersionsComparisonMethod);
 	StructuresArray.Add(Item);
 	
-	CommonServerCall.CommonSettingsStorageSaveArray(StructuresArray, True);
+	CommonClient.CommonSettingsStorageSaveArray(StructuresArray, True);
 	
 	SelectionResult = DialogReturnCode.OK;
 	NotifyChoice(SelectionResult);

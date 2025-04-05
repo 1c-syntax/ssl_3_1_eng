@@ -80,17 +80,17 @@ Function FilesAndEmailTextParameters() Export
 
 	ReportDistributionParameters = New Structure;
 	
-	ReportDistributionParameters.Insert("Recipient", NStr("en = 'Recipient';"));
-	ReportDistributionParameters.Insert("ExecutionDate", NStr("en = 'Fulfillment date';"));
-	ReportDistributionParameters.Insert("Author", NStr("en = 'Author';"));
-	ReportDistributionParameters.Insert("MailingDescription", NStr("en = 'Distribution description';"));
-	ReportDistributionParameters.Insert("GeneratedReports", NStr("en = 'Generated reports';"));
-	ReportDistributionParameters.Insert("SystemTitle", NStr("en = 'Application title';"));
-	ReportDistributionParameters.Insert("DeliveryMethod", NStr("en = 'Delivery method';"));
-	ReportDistributionParameters.Insert("ReportFormat", NStr("en = 'Report format';"));
-	ReportDistributionParameters.Insert("Period", NStr("en = 'Period';"));
-	ReportDistributionParameters.Insert("MailingDate", NStr("en = 'Send date';"));
-	ReportDistributionParameters.Insert("ReportDescription1", NStr("en = 'Report name';"));
+	ReportDistributionParameters.Insert("Recipient", NStr("en = 'Recipient'"));
+	ReportDistributionParameters.Insert("ExecutionDate", NStr("en = 'Fulfillment date'"));
+	ReportDistributionParameters.Insert("Author", NStr("en = 'Author'"));
+	ReportDistributionParameters.Insert("MailingDescription", NStr("en = 'Distribution description'"));
+	ReportDistributionParameters.Insert("GeneratedReports", NStr("en = 'Generated reports'"));
+	ReportDistributionParameters.Insert("SystemTitle", NStr("en = 'Application title'"));
+	ReportDistributionParameters.Insert("DeliveryMethod", NStr("en = 'Delivery method'"));
+	ReportDistributionParameters.Insert("ReportFormat", NStr("en = 'Report format'"));
+	ReportDistributionParameters.Insert("Period", NStr("en = 'Period'"));
+	ReportDistributionParameters.Insert("MailingDate", NStr("en = 'Send date'"));
+	ReportDistributionParameters.Insert("ReportDescription1", NStr("en = 'Report name'"));
 	
 	Return ReportDistributionParameters;
 

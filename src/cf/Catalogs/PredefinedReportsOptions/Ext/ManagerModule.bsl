@@ -31,7 +31,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// ТехнологияСервиса.ВыгрузкаЗагрузкаДанных
+// CloudTechnology.ExportImportData
 
 // Names of catalog attributes used to ensure item uniqueness.
 //

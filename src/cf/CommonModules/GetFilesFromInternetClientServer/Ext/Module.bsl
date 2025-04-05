@@ -23,11 +23,11 @@
 //     * SecureConnection         - Boolean       - indicates the use of secure ftps or https connection.
 //                                    - OpenSSLSecureConnection
 //                                    - Undefined - In case secure connection is not used.
-//     * IsPackageDeliveryCheckOnErrorEnabled - Boolean - 
-//     * ShouldCheckAccessToInternetServices - Boolean - 
-//                                             
+//     * IsPackageDeliveryCheckOnErrorEnabled - Boolean - Include PING in the diagnostics details in case of a URL access error.
+//     * ShouldCheckAccessToInternetServices - Boolean - Optional. If set to "True", access to web services is tested.
+//                                             By default, it is set to "True".
 //
-//    :
+//    The parameters apply only to HTTP(S) connections.:
 //     * Headers                    - Map - see details of the Headers parameter of the HTTPRequest object in Syntax Assistant.
 //     * UseOSAuthentication - Boolean       - see Syntax Assistant for details of
 //                                                     the UseOSAuthentication parameter of the HTTPConnection object.
@@ -75,7 +75,7 @@ EndFunction
 Function GetProxy(Val URLOrProtocol) Export
 	
 #If WebClient Then
-	Raise NStr("en = 'Web client does not support proxy server.';");
+	Raise NStr("en = 'Web client does not support proxy server.'");
 #Else
 	
 	AcceptableProtocols = New Map();
@@ -172,7 +172,7 @@ Function ProxySettingsState() Export
 	
 	Result = New Structure;
 	Result.Insert("ProxyConnection", False);
-	Result.Insert("Presentation", NStr("en = 'Web client does not support proxy server.';"));
+	Result.Insert("Presentation", NStr("en = 'Web client does not support proxy server.'"));
 	Return Result;
 	
 #Else

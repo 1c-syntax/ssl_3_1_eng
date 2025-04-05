@@ -55,9 +55,9 @@ Function GenerateDigitalSignaturesAtServer() Export
 	
 EndFunction
 
-// 
+// Verifies that digital signing web services are enabled for the application.
 // Parameters:
-//  ShowError - Boolean - 
+//  ShowError - Boolean - Raise an exception.
 // 
 // Returns:
 //  Boolean
@@ -154,6 +154,7 @@ Function ObjectSignatures(Object, AdditionalParameters = Undefined) Export
 	SelectionDetailRecords = QueryResult.Select();
 	
 	
+	SignatureFilesExtension = PersonalSettings().SignatureFilesExtension;
 	Result = New Array;
 	While SelectionDetailRecords.Next() Do
 		
@@ -162,8 +163,39 @@ Function ObjectSignatures(Object, AdditionalParameters = Undefined) Export
 		FillPropertyValues(SignatureProperties, SelectionDetailRecords);
 		SignatureProperties.Signature = SignatureProperties.Signature.Get();
 		
+		SignedObjectName = Common.ObjectAttributeValue(ObjectRef, "Description");
+		SignatureProperties.SignatureFileName = DigitalSignatureClientServer.SignatureFileName(SignedObjectName,
+			SelectionDetailRecords.CertificateOwner, SignatureFilesExtension);
+		
 		If AdditionalParameters.ShouldExtractCertificatesFromSignatures Then
 			SignatureProperties.Certificate = DigitalSignatureInternal.CertificateFromSignatureBinaryData(SignatureProperties.Signature);
+			If SignatureProperties.Certificate = Undefined And DigitalSignatureInternal.CryptographyIsAvailable() Then
+				// 
+				CreationParameters = DigitalSignatureInternal.CryptoManagerCreationParameters();
+				CreationParameters.SignAlgorithm =
+					DigitalSignatureInternalClientServer.GeneratedSignAlgorithm(SignatureProperties.Signature);
+				
+				CryptoManager = DigitalSignatureInternal.CryptoManager("ReadSignature", CreationParameters);
+				If CryptoManager <> Undefined Then
+					ContainerReceived = False;
+					Try
+						ContainerSignatures = CryptoManager.GetCryptoSignaturesContainer(SignatureProperties.Signature);
+						ContainerReceived = True;
+					Except
+						WriteLogEvent(
+							NStr("en = 'Электронная подпись.Получение контейнера подписи'",
+								Common.DefaultLanguageCode()),
+							EventLogLevel.Error, , ,
+							ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+					EndTry;
+					If ContainerReceived Then
+						Certificate = ContainerSignatures.Signatures[0].SignatureCertificate;
+						If DigitalSignatureInternalClientServer.IsCertificateExists(Certificate) Then
+							SignatureProperties.Certificate = Certificate.Unload();
+						EndIf;
+					EndIf;
+				EndIf;
+			EndIf;
 		EndIf;
 		
 		
@@ -264,7 +296,7 @@ Procedure AddSignature(Object, Val SignatureProperties, FormIdentifier = Undefin
 		ErrorInfo = ErrorInfo();
 		If ValueIsFilled(EventLogMessage) Then
 			WriteLogEvent(
-				NStr("en = 'Digital signature. An error occurred while adding a signature';", Common.DefaultLanguageCode()),
+				NStr("en = 'Digital signature. An error occurred while adding a signature'", Common.DefaultLanguageCode()),
 				EventLogLevel.Information,
 				Object.Metadata(),
 				Object.Ref,
@@ -338,7 +370,8 @@ Procedure UpdateSignature(Object, Val SignatureProperties, UpdateByOrderNumber =
 							Or KeyAndValue.Key = "SignatureDate"
 							Or KeyAndValue.Key = "SequenceNumber"
 							Or KeyAndValue.Key = "CertificateDetails"
-							Or KeyAndValue.Key = "SignatureID" Then
+							Or KeyAndValue.Key = "SignatureID"
+							Or KeyAndValue.Key = "SignatureFileName" Then
 							Continue;
 						EndIf;
 						
@@ -364,6 +397,7 @@ Procedure UpdateSignature(Object, Val SignatureProperties, UpdateByOrderNumber =
 						If KeyAndValue.Key = "Certificate"
 							Or KeyAndValue.Key = "Signature"
 							Or KeyAndValue.Key = "CertificateDetails"
+							Or KeyAndValue.Key = "SignatureFileName" 
 							Or KeyAndValue.Key = "SignatureID"
 								And ValueIsFilled(SignatureToRefresh.SignatureID) Then
 							Continue;
@@ -385,7 +419,7 @@ Procedure UpdateSignature(Object, Val SignatureProperties, UpdateByOrderNumber =
 				
 				RecordSet.Write(True);
 			EndIf;
-			
+				
 			
 		EndDo;
 		CommitTransaction();
@@ -461,7 +495,7 @@ Procedure DeleteSignature(Object, SequenceNumber, FormIdentifier = Undefined,
 		ErrorInfo = ErrorInfo();
 		If ValueIsFilled(EventLogMessage) Then
 			WriteLogEvent(
-				NStr("en = 'Digital signature.Signature deletion error';", Common.DefaultLanguageCode()),
+				NStr("en = 'Digital signature.Signature deletion error'", Common.DefaultLanguageCode()),
 				EventLogLevel.Information,
 				Object.Metadata(),
 				Object.Ref,
@@ -780,7 +814,7 @@ Function WriteCertificateToCatalog(Val Certificate, AdditionalParameters = Undef
 	AccessRightInsert = AccessRight("Insert", Metadata.Catalogs.DigitalSignatureAndEncryptionKeysCertificates);
 	
 	If Not AccessRightInsert And Not ValueIsFilled(CertificateReference) Then
-		Raise(NStr("en = 'insufficient rights to use the certificate.';"), ErrorCategory.AccessViolation);
+		Raise(NStr("en = 'insufficient rights to use the certificate.'"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	AllowedFieldsToChange = Undefined;
@@ -819,7 +853,7 @@ Function WriteCertificateToCatalog(Val Certificate, AdditionalParameters = Undef
 		If CertificateObject.CertificateData.Get() <> CertificateBinaryData Then
 			If Not AccessRightInsert Then
 				RollbackTransaction();
-				Raise(NStr("en = 'Insufficient rights to modify certificate data.';"), ErrorCategory.AccessViolation);
+				Raise(NStr("en = 'Insufficient rights to modify certificate data.'"), ErrorCategory.AccessViolation);
 			EndIf;
 			CertificateObject.CertificateData = New ValueStorage(CertificateBinaryData, New Deflation(9));
 		EndIf;
@@ -928,7 +962,7 @@ Function DigitalSignatureVisualizationStamp(Val Signature, Val SignatureDate = U
 
 	If TypeOf(Signature) = Type("CryptoCertificate") Then
 		NewSignature = DigitalSignatureClientServer.NewSignatureProperties();
-		//@skip-check bsl-legacy-check-expression-type - For backward compatibility purposes
+		//@skip-check bsl-legacy-check-expression-type - для обратной совместимости
 		NewSignature.Certificate = Signature;
 		NewSignature.SignatureDate = ?(SignatureDate = Undefined, Date(1,1,1), SignatureDate);
 		Signature = NewSignature;
@@ -936,7 +970,7 @@ Function DigitalSignatureVisualizationStamp(Val Signature, Val SignatureDate = U
 		Signature.SignatureDate = ?(SignatureDate = Undefined, Signature.SignatureDate, SignatureDate);
 	EndIf;
 	
-	Result = DigitalSignatureVisualizationStamps(CommonClientServer.ValueInArray(Signature),,
+	Result = DigitalSignatureVisualizationStamps(Undefined, CommonClientServer.ValueInArray(Signature),
 		?(Not IsBlankString(MarkText), CommonClientServer.ValueInArray(MarkText), Undefined));
 	Return Result[0];
 	
@@ -966,7 +1000,7 @@ Function DigitalSignatureVisualizationStamps(Val SignedFile, Val DigitalSignatur
 		DigitalSignatures = ObjectSignatures(SignedFile, SignaturesAcquisitionParameters);
 	EndIf;
 
-	ActionPeriodTemplate = NStr("en = 'from %1 to %2';");
+	ActionPeriodTemplate = NStr("en = 'from %1 to %2'");
 	IndexOf = 0;
 	StampsParameters = New Array;
 	Certificates = New Array;
@@ -985,8 +1019,22 @@ Function DigitalSignatureVisualizationStamps(Val SignedFile, Val DigitalSignatur
 	EndIf;
 	
 	For Each Signature In DigitalSignatures Do
+		
+		If Signature.Certificate = Undefined Then
+			ErrorText = ?(Signature.SignatureFileName = "",
+				NStr("en = 'Сертификат подписанта отсутствует в подписи и не найден в локальном хранилище.'"),
+				StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Сертификат подписанта отсутствует в подписи ""%1"" и не найден в локальном хранилище.'"),
+					Signature.SignatureFileName));
+			WriteLogEvent(
+				NStr("en = 'Электронная подпись.Получение штампов визуализации электронных подписей'",
+					Common.DefaultLanguageCode()),
+				EventLogLevel.Error, , ,
+				ErrorText);
+			Continue;
+		EndIf;
 
-		Certificate = ?(TypeOf(Signature.Certificate) = Type("CryptoCertificate"), // для обратной совместимости
+		Certificate = ?(TypeOf(Signature.Certificate) = Type("CryptoCertificate"), // 
 			Signature.Certificate, New CryptoCertificate(Signature.Certificate));
 		CertificateProperties = CertificateProperties(Certificate);
 
@@ -1091,15 +1139,15 @@ EndFunction
 //
 // Parameters:
 //  Document        - SpreadsheetDocument - a spreadsheet document to add stamps to.
-//  StampsDetails - Array of SpreadsheetDocument - 
-//                             
-//                              
-//                             :
-//                               
-//                                  
-//                               
-//                                  
-//                             
+//  StampsDetails - Array of SpreadsheetDocument - Stamps obtained using the
+//                             "DigitalSignature.DigitalSignatureVisualizationStamp" function.
+//                             The provided stamps will be placed either at the end of the document or in designated 
+//                             stamp areas if they are defined in the spreadsheet template::
+//                               a) The area name is specified as "DSStamp" followed by the stamp number
+//                                  (for example, "DSStamp1").
+//                               b) The stamp output area consists of two columns and seven rows,
+//                                  with column widths set arbitrarily. In this case, the stamps will be placed in
+//                             the specified areas in the order they appear in the "StampsDetails" parameter.
 //                             
 //                  - Map of KeyAndValue - Describes stamp output locations:
 //                       * Key     - String - an area name, where the stump must be put. For such an area,
@@ -1144,9 +1192,10 @@ Procedure AddStampsToSpreadsheetDocument(Document, StampsDetails, CellSize = Und
 			If AreaFound Then
 				StampArea = Document.Areas[AreaName];
 				Document.InsertArea(Stamp.Areas.Stamp, StampArea,, True);
-				StampArea.CreateFormatOfRows();
 				Document.Area(StampArea.Top, StampArea.Left, StampArea.Top, StampArea.Left).ColumnWidth = CellSize.LeftColumn;
 				Document.Area(StampArea.Top, StampArea.Right, StampArea.Top, StampArea.Right).ColumnWidth = CellSize.RightColumn;
+				Document.Area(StampArea.Top, , StampArea.Bottom).RowHeight = 0;
+				Document.Area(StampArea.Top, , StampArea.Bottom).AutoRowHeight = True;
 			Else
 				StampNumberInRow = StampNumberInRow + 1;
 				
@@ -1477,7 +1526,7 @@ Function EnhanceSignature(Signature, SignatureType, AddArchiveTimestamp = False,
 		ContainerSignatures = CryptoManager.GetCryptoSignaturesContainer(Signature);
 	Except
 		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot read the signature data: %1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+			NStr("en = 'Cannot read the signature data: %1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		Return Result;
 	EndTry;
 	
@@ -1485,7 +1534,7 @@ Function EnhanceSignature(Signature, SignatureType, AddArchiveTimestamp = False,
 		DigitalSignatureInternal.UTCOffset(), CurrentSessionDate());
 		
 	If ParametersCryptoSignatures.CertificateLastTimestamp = Undefined Then
-		Result.ErrorText = NStr("en = 'Cannot get the signature certificate';");
+		Result.ErrorText = NStr("en = 'Cannot get the signature certificate'");
 		Return Result;
 	EndIf;
 	
@@ -1498,7 +1547,7 @@ Function EnhanceSignature(Signature, SignatureType, AddArchiveTimestamp = False,
 		And ValueIsFilled(ParametersCryptoSignatures.DateActionLastTimestamp)
 		And ParametersCryptoSignatures.DateActionLastTimestamp < CurrentSessionDate() Then
 		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The signature expired: %1';"), ParametersCryptoSignatures.DateActionLastTimestamp);
+			NStr("en = 'The signature expired: %1'"), ParametersCryptoSignatures.DateActionLastTimestamp);
 		Return Result;
 	EndIf;
 	
@@ -1513,7 +1562,7 @@ Function EnhanceSignature(Signature, SignatureType, AddArchiveTimestamp = False,
 					DigitalSignatureInternalClientServer.CryptoSignatureType(SignatureType));
 			Except
 				Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Couldn''t enhance the signature: %1';"), ErrorProcessing.BriefErrorDescription(
+						NStr("en = 'Couldn''t enhance the signature: %1'"), ErrorProcessing.BriefErrorDescription(
 					ErrorInfo()));
 				Return Result;
 			EndTry;
@@ -1524,7 +1573,7 @@ Function EnhanceSignature(Signature, SignatureType, AddArchiveTimestamp = False,
 				ResultBinaryData = CryptoManager.AddArchiveTimestamp(Signature);
 			Except
 				Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Cannot add an archive timestamp to the signature: %1';"), ErrorProcessing.BriefErrorDescription(
+						NStr("en = 'Cannot add an archive timestamp to the signature: %1'"), ErrorProcessing.BriefErrorDescription(
 					ErrorInfo()));
 				Return Result;
 			EndTry;
@@ -1539,7 +1588,7 @@ Function EnhanceSignature(Signature, SignatureType, AddArchiveTimestamp = False,
 				
 		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The signature certificate is invalid: %1
-				|%2';"), ErrorDescription, InformationAboutCertificate);
+				|%2'"), ErrorDescription, InformationAboutCertificate);
 		Return Result;
 	EndIf;
 	
@@ -1547,7 +1596,7 @@ Function EnhanceSignature(Signature, SignatureType, AddArchiveTimestamp = False,
 		ContainerSignatures = CryptoManager.GetCryptoSignaturesContainer(ResultBinaryData);
 	Except
 		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Couldn''t read the enhanced signature data: %1';"), ErrorProcessing.BriefErrorDescription(
+				NStr("en = 'Couldn''t read the enhanced signature data: %1'"), ErrorProcessing.BriefErrorDescription(
 			ErrorInfo()));
 		Return Result;
 	EndTry;
@@ -1574,7 +1623,7 @@ Function EnhanceSignature(Signature, SignatureType, AddArchiveTimestamp = False,
 
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The certificate of the received timestamp is invalid: %1
-					 |%2';"), ErrorDescription, InformationAboutCertificate);
+					 |%2'"), ErrorDescription, InformationAboutCertificate);
 
 		Raise ErrorDescription;
 	EndIf;
@@ -1640,7 +1689,7 @@ Function ImproveObjectSignature(SignedObject, SequenceNumber, SignatureType, Add
 	
 	If ObjectSignatures.Count() = 0 Then
 		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot find a signature with sequence number %1 for %2';"), SequenceNumber, SignedObject);
+			NStr("en = 'Cannot find a signature with sequence number %1 for %2'"), SequenceNumber, SignedObject);
 		Return Result;
 	EndIf;
 	
@@ -1703,14 +1752,14 @@ Function NewObjectSignaturesAcquisitionParameters() Export
 	
 EndFunction
 
-// 
+// Extracts the certificate from the signature's binary data.
 // 
 // Parameters:
-//  Signature - See DigitalSignatureClientServer.NewSignatureProperties
+//  Signature - BinaryData - Signing result
 // 
 // Returns:
-//   BinaryData - 
-//   
+//   BinaryData - Certificate's binary data.
+//   Undefined - The signature does not contain any cryptography certificates.
 //
 Function CertificateFromSignatureBinaryData(Signature) Export
 	
@@ -1720,8 +1769,8 @@ EndFunction
 
 #Region ForCallsFromOtherSubsystems
 
-// Следующие процедуры и функции предназначены для интеграции с 1С:Библиотека электронных документов
-// и 1С:Библиотека регламентированной отчетности.
+// The following procedures and functions are intended for integration with 1C:Electronic Document Library
+// and 1C:Regulated Reporting Library.
 
 // Returns the crypto manager (on the server) for the specified app.
 //
@@ -1797,7 +1846,7 @@ EndFunction
 // Parameters:
 //  CheckParameters - Undefined, Structure:
 //   * AppsToCheck - Undefined - By default, returns all installed apps.
-//                          - Boolean - See DigitalSignatureInternalClientServer.AppsRelevantAlgorithms
+//                          - Boolean - See DigitalSignatureClientServerLocalization.AppsRelevantAlgorithms
 //                          - BinaryData - Signature or certificate data used for determining suitable apps.
 //                          - String - Address of the signature or certificate data in the temp storage.
 //                               - Array - Contains values as the DigitalSignature.NewApplicationDetails function returns.
@@ -1846,7 +1895,7 @@ Function CheckCryptographyAppsInstallation(CheckParameters = Undefined) Export
 			ElsIf Context.DataType = "Signature" Then
 				SignAlgorithm = DigitalSignatureInternalClientServer.GeneratedSignAlgorithm(BinaryData);
 			Else
-				Raise NStr("en = 'The data to search for a cryptography app is not a certificate or a signature.';");
+				Raise NStr("en = 'The data to search for a cryptography app is not a certificate or a signature.'");
 			EndIf;
 			Context.SignAlgorithms.Add(SignAlgorithm);
 		EndIf;
@@ -2098,7 +2147,7 @@ Function VerifySignature(CryptoManager, RawData, Signature, ErrorDescription = N
 		EndIf;
 		
 		If SignatureProperties.Certificate = Undefined Then
-			ErrorDescription = NStr("en = 'The certificate does not exist in signature data.';");
+			ErrorDescription = NStr("en = 'The certificate does not exist in signature data.'");
 			FillSignatureVerificationResult(ErrorDescription, ResultStructure);
 			If RaiseException1 Then
 				Raise ErrorDescription;
@@ -2386,7 +2435,7 @@ Procedure FillApplicationsList(ApplicationsDetails) Export
 			
 			UpdateValue(ApplicationObject.DeletionMark, False);
 			If Not ValueIsFilled(ApplicationObject.UsageMode) Then
-				UpdateValue(ApplicationObject.UsageMode, Enums.DigitalSignatureAppUsageModes.SetupDone);
+				UpdateValue(ApplicationObject.UsageMode, Enums.DigitalSignatureAppUsageModes.Configured);
 			EndIf;
 			
 			Rows = SettingsToSupply.FindRows(Filter);
@@ -2515,6 +2564,30 @@ Procedure SavePersonalSettings(PersonalSettings) Export
 	
 EndProcedure
 
+// Checks whether the CA service has completed processing the submitted application,
+// updates the application status, and retrieves the certificate from the CA service if available.
+// The certificate is not installed automatically after retrieval.
+//
+// Parameters:
+//   Certificate - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates
+//
+//  Returns:
+//   Undefined - The certificate has been installed and is ready for use, or it does not contain a certificate issuance request.
+//   Structure:
+//     * IsApplicationProcessed - Boolean - If "False", the CA service is processing the application.
+//     * IsApplicationRejected  - Boolean - If "True", the CA service has rejected the application.
+//
+Function CertificateIssuanceApplicationState(Certificate) Export
+	
+	Result = New Structure;
+	Result.Insert("IsApplicationProcessed", False);
+	Result.Insert("IsApplicationRejected", False);
+	
+	DigitalSignatureLocalization.OnGetCertificateIssuanceApplicationStatus(Certificate, Result);
+	
+	Return Result;
+	
+EndFunction
 
 #EndRegion
 
@@ -2549,7 +2622,7 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated.
+// Deprecated. Always returns "True".
 //
 // Returns:
 //  Boolean - if True, digital signatures are used.
@@ -2633,6 +2706,7 @@ Function SetSignatures(Object, SequenceNumber = Undefined, ShouldReturnMachineRe
 	SelectionDetailRecords = QueryResult.Select();
 	
 	
+	SignatureFilesExtension = PersonalSettings().SignatureFilesExtension;
 	DigitalSignaturesArray = New Array;
 	While SelectionDetailRecords.Next() Do
 		SignatureProperties = DigitalSignatureClientServer.NewSignatureProperties();
@@ -2640,6 +2714,10 @@ Function SetSignatures(Object, SequenceNumber = Undefined, ShouldReturnMachineRe
 		FillPropertyValues(SignatureProperties, SelectionDetailRecords);
 		SignatureProperties.Signature = SignatureProperties.Signature.Get();
 		SignatureProperties.Certificate = DigitalSignatureInternal.CertificateFromSignatureBinaryData(SignatureProperties.Signature, True);
+		
+		SignedObjectName = Common.ObjectAttributeValue(ObjectRef, "Description");
+		SignatureProperties.SignatureFileName = DigitalSignatureClientServer.SignatureFileName(SignedObjectName,
+			SelectionDetailRecords.CertificateOwner, SignatureFilesExtension);
 		
 		
 		DigitalSignaturesArray.Add(SignatureProperties);
@@ -2678,7 +2756,7 @@ Function DERSignature(SignatureData) Export
 		DeleteFiles(TempFileFullName);
 	Except
 		WriteLogEvent(
-			NStr("en = 'Digital signature.Delete temporary file';",
+			NStr("en = 'Digital signature.Delete temporary file'",
 				Common.DefaultLanguageCode()),
 			EventLogLevel.Error, , ,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
@@ -2701,7 +2779,7 @@ Function DERSignature(SignatureData) Export
 			ErrorInfo = ErrorInfo();
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot get data from the signature file. Reason:
-						|%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
+						|%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		EndTry;
 	EndIf;
 	
@@ -2771,15 +2849,15 @@ EndFunction
 //           ** Key     - CatalogRef.DigitalSignatureAndEncryptionApplications - App.
 //           ** Value - String - App path on the user's computer.
 //       * SignatureFilesExtension - String - an extension for DS files.
-//       * EncryptedFilesExtension - String - 
+//       * EncryptedFilesExtension - String - Encrypted file extension.
 //       * SaveCertificateWithSignature - Boolean
 //       * PathToDiagnosticsDirectory - Map of KeyAndValue:
-//           ** Key - UUID - 
-//           ** Value - String - 
+//           ** Key - UUID - Client ID.
+//           ** Value - String - Directory path.
 //
-// :
-//   
-//   
+// See also::
+//   CommonForm.DigitalSignatureAndEncryptionSettings - a location to determine these parameters and
+//   their text descriptions.
 //
 Function PersonalSettings() Export
 	
@@ -2825,7 +2903,7 @@ EndFunction
 Function Encrypt(Data, Certificate, EncryptAlgorithm = "") Export
 	
 	If Not CommonSettings().UseEncryption Then
-		Raise NStr("en = 'Encryption unavailable.';");
+		Raise NStr("en = 'Encryption unavailable.'");
 	EndIf;
 	
 	ErrorList = New Array;
@@ -2843,7 +2921,7 @@ Function Encrypt(Data, Certificate, EncryptAlgorithm = "") Export
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot receive the ""%1"" certificate data
 			           |from the infobase due to:
-			           |%2';"),
+			           |%2'"),
 			Certificate,
 			ErrorDescription);
 	EndTry;
@@ -2862,9 +2940,7 @@ Function Encrypt(Data, Certificate, EncryptAlgorithm = "") Export
 			Return DigitalSignatureInternal.EncryptByBuiltInCryptoProvider(
 				Data, CertificateBinaryData);
 			
-		ElsIf Not Common.DataSeparationEnabled()
-			And (CommonSettings().GenerateDigitalSignaturesAtServer Or Common.FileInfobase())
-			Then
+		ElsIf DigitalSignatureInternal.CryptographyIsAvailable() Then
 
 			CreationParameters = DigitalSignatureInternal.CryptoManagerCreationParameters();
 			CreationParameters.Application = AttributesValues.Application;
@@ -2878,13 +2954,13 @@ Function Encrypt(Data, Certificate, EncryptAlgorithm = "") Export
 			If ValueIsFilled(ErrorAtServer) Then
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot encrypt with the ""%1"" certificate:
-						 |%2';"), Certificate, ErrorAtServer);
+						 |%2'"), Certificate, ErrorAtServer);
 			EndIf;
 
 			If CryptoManager = Undefined Then
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot encrypt with the ""%1"" certificate:
-						|Cannot create a crypto manager';"), Certificate);
+						|Cannot create a crypto manager'"), Certificate);
 			EndIf;
 
 			Try
@@ -2895,19 +2971,18 @@ Function Encrypt(Data, Certificate, EncryptAlgorithm = "") Export
 				ErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot encrypt with the ""%1"" certificate:
-						 |%2';"), Certificate, ErrorDescription);
+						 |%2'"), Certificate, ErrorDescription);
 			EndTry;
 			
 		EndIf;
 		
-		ErrorList.Add(NStr("en = 'Encryption on the server is unavailable.';"));
+		ErrorList.Add(NStr("en = 'Encryption on the server is unavailable.'"));
 
 	EndIf;
 	
 	SignAlgorithm = DigitalSignatureInternalClientServer.CertificateSignAlgorithm(CertificateBinaryData);
 	
-	If Not Common.DataSeparationEnabled() And (CommonSettings().GenerateDigitalSignaturesAtServer
-		Or Common.FileInfobase()) Then
+	If DigitalSignatureInternal.CryptographyIsAvailable() Then
 	
 		CreationParameters = DigitalSignatureInternal.CryptoManagerCreationParameters();
 		CreationParameters.ErrorDescription	 = "";
@@ -2921,7 +2996,7 @@ Function Encrypt(Data, Certificate, EncryptAlgorithm = "") Export
 		If Not ValueIsFilled(ErrorDescription) Then
 			
 			If CryptoManager = Undefined Then
-				ErrorDescription = NStr("en = 'Cannot create a crypto manager';");
+				ErrorDescription = NStr("en = 'Cannot create a crypto manager'");
 			Else
 
 				Try
@@ -2970,15 +3045,14 @@ Function Encrypt(Data, Certificate, EncryptAlgorithm = "") Export
 	If ValueIsFilled(ErrorList) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot encrypt with the ""%1"" certificate:
-					 |%2';"), Certificate, StrConcat(ErrorList, Chars.LF));
+					 |%2'"), Certificate, StrConcat(ErrorList, Chars.LF));
 	EndIf;
 
 	Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot encrypt with the ""%1"" certificate';"), Certificate);
+					NStr("en = 'Cannot encrypt with the ""%1"" certificate'"), Certificate);
 EndFunction
 
 #Region ScheduledJobsHandlers
-
 
 // Scheduled job.
 Procedure ExtendSignatureValidity() Export
@@ -3030,7 +3104,7 @@ Procedure ExtendSignatureValidity() Export
 		If RequireImprovementSignatures Or RequiredAddArchiveTags Then
 			TimestampServersAddresses = CommonSettings().TimestampServersAddresses;
 			If TimestampServersAddresses.Count() = 0 Then
-				Raise NStr("en = 'Timestamp server addresses are not specified.';");
+				Raise NStr("en = 'Timestamp server addresses are not specified.'");
 			EndIf;
 		EndIf;
 		ExecutionParameters.TimestampServersAddresses = TimestampServersAddresses;
@@ -3193,7 +3267,7 @@ Procedure AddSignatureRows(DataObject, PropertiesSignatures, EventLogMessage)
 		
 		
 		WriteLogEvent(
-				NStr("en = 'Digital signature.Add signature';", Common.DefaultLanguageCode()),
+				NStr("en = 'Digital signature.Add signature'", Common.DefaultLanguageCode()),
 			EventLogLevel.Information, DataObject.Metadata(), DataObject.Ref,
 			EventLogMessage, EventLogEntryTransactionMode.Transactional);
 		
@@ -3245,7 +3319,7 @@ Procedure DeleteSignatureRows(SignedObject, SequenceNumbers, EventLogMessage)
 
 		SelectionDetailRecords = Query.Execute().Select();
 		If SelectionDetailRecords.Count() <> SequenceNumbersArray.Count() Then
-			Raise NStr("en = 'A signature row does not exist.';");
+			Raise NStr("en = 'A signature row does not exist.'");
 		EndIf;
 
 		While SelectionDetailRecords.Next() Do
@@ -3266,12 +3340,12 @@ Procedure DeleteSignatureRows(SignedObject, SequenceNumbers, EventLogMessage)
 				RecordManager.SignatureDate, SignatureProperties);
 
 			If Not HasRights Then
-				Raise(NStr("en = 'Insufficient rights to delete the signature.';"), ErrorCategory.AccessViolation);
+				Raise(NStr("en = 'Insufficient rights to delete the signature.'"), ErrorCategory.AccessViolation);
 			EndIf;
 			RecordManager.Delete();
 			
 
-			WriteLogEvent(NStr("en = 'Digital signature.Delete signature';", Common.DefaultLanguageCode()),
+			WriteLogEvent(NStr("en = 'Digital signature.Delete signature'", Common.DefaultLanguageCode()),
 				EventLogLevel.Information, SignedObject.Metadata(), SignedObject.Ref,
 				EventLogMessage, EventLogEntryTransactionMode.Transactional);
 

@@ -60,6 +60,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.ContactInformationSendEmail</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.ContactsManagerClientLocalization</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.ContactsManagerClientServerLocalization</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.AddressManagerInternalClient</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

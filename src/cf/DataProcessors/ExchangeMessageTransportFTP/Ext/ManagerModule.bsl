@@ -15,11 +15,11 @@
 // See DataProcessorManager.ExchangeMessageTransportFILE.TransportParameters
 Function TransportParameters() Export
 	
-	LongDesc = NStr("en = 'Connection requires an FTP directory available for exchanging applications.';");
+	LongDesc = NStr("en = 'Connection requires an FTP directory available for exchanging applications.'");
 	
 	Parameters = ExchangeMessagesTransport.StructureOfTransportParameters();
 	
-	Parameters.Alias = NStr("en = 'FTP server';");
+	Parameters.Alias = NStr("en = 'FTP server'");
 	Parameters.TransportID = "FTP";
 	Parameters.LongDesc = LongDesc;
 	Parameters.Picture = PictureLib.TransportFTP;

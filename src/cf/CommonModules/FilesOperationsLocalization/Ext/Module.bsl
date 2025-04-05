@@ -22,12 +22,12 @@ Procedure OnDefineAddressInCloudService(Val Service, Val Href, ObjectAddress) Ex
 	
 EndProcedure
 
-// 
+// Called to determine the list of cloud file services.
 // 
 // Parameters:
 //  Services - ValueList:
-//   * Value - 
-//   * Presentation - 
+//   * Value - Address of the cloud file service.
+//   * Presentation - Name of the cloud file service.
 //
 Procedure OnDefineCloudServices(Services) Export
 	

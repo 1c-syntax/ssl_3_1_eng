@@ -235,7 +235,7 @@ Procedure WriteAndClose(Command)
 		"ShowLockedFilesOnExit",
 		ShowLockedFilesOnExit));
 	
-	CommonServerCall.CommonSettingsStorageSaveArray(StructuresArray, True);
+	CommonClient.CommonSettingsStorageSaveArray(StructuresArray, True);
 	Close();
 	
 EndProcedure
@@ -322,7 +322,7 @@ Procedure SetUpDynamicList()
 				|
 				|UNION ALL
 				|";
-				QueryFragment = StrReplace(QueryFragment, "SELECT ALLOWED", "SELECT"); // @query-part-1 @query-part-2
+				QueryFragment = StrReplace(QueryFragment, "SELECT ALLOWED", "SELECT"); // @query-part-1, @query-part-2
 			EndIf;
 			QueryText = QueryText + QueryFragment;
 			

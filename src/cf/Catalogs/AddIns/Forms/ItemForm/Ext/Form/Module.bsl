@@ -148,7 +148,7 @@ Procedure UpdateFromThePortal(Command)
 	If Modified Then
 		Notification = New CallbackDescription("AfterCloseQuestionWriteObject", ThisObject);
 		ShowQueryBox(Notification, 
-			NStr("en = 'Before checking for updates, save the changes. Save the changes?';"),
+			NStr("en = 'Before checking for updates, save the changes. Save the changes?'"),
 			QuestionDialogMode.YesNo);
 	Else 
 		StartAddInUpdateFromPortal();
@@ -169,7 +169,7 @@ EndProcedure
 Procedure SaveAs(Command)
 	
 	If IsTempStorageURL(ComponentBinaryDataAddress) Then
-		ShowMessageBox(, NStr("en = 'Save the catalog item before saving the add-in.';"));
+		ShowMessageBox(, NStr("en = 'Save the catalog item before saving the add-in.'"));
 	Else 
 		ClearMessages();
 		AddInsInternalClient.SaveAddInToFile(Object.Ref);
@@ -223,9 +223,9 @@ Procedure ImportAddInAfterSecurityWarning(Response, Context) Export
 	Notification = New CallbackDescription("ImportAddInAfterPutFile", ThisObject, Context);
 	ImportParameters = FileSystemClient.FileImportParameters();
 	
-	ImportParameters.Dialog.Filter    = NStr("en = 'Add-in (*.zip)|*.zip';")+"|"
-			+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
-	ImportParameters.Dialog.Title = NStr("en = 'Select an add-in file';");
+	ImportParameters.Dialog.Filter    = NStr("en = 'Add-in (*.zip)|*.zip'")+"|"
+			+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1'"), GetAllFilesMask());
+	ImportParameters.Dialog.Title = NStr("en = 'Select an add-in file'");
 	ImportParameters.FormIdentifier = UUID;
 	FileSystemClient.ImportFile_(Notification, ImportParameters, Object.FileName);
 
@@ -236,7 +236,7 @@ EndProcedure
 Procedure ImportAddInAfterPutFile(FileThatWasPut, Context) Export
 	
 	If FileThatWasPut = Undefined Then
-		ImportAddInOnErrorDisplay(NStr("en = 'Cannot import an add-in file.';"));
+		ImportAddInOnErrorDisplay(NStr("en = 'Cannot import an add-in file.'"));
 		Return;
 	EndIf;
 	
@@ -265,7 +265,7 @@ Procedure ImportAddInOnErrorDisplay(ErrorDescription = "", ErrorInfo = Undefined
 		
 		StringWithWarning = NStr("en = '%1
 			|Specify a ZIP archive with an add-in.
-			|For more information, see <a href = ""%2"">Add-in Development Technology</a> (in Russian).';")
+			|For more information, see <a href = ""%2"">Add-in Development Technology</a> (in Russian).'")
 			+ ?(ErrorInfo = Undefined, "",
 				Chars.LF + ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		
@@ -332,7 +332,7 @@ EndProcedure
 Function ImportAddInFromFileOnServer(Val ImportParameters)
 	
 	If Not Users.IsFullUser(,, False) Then
-		Raise(NStr("en = 'Insufficient rights to import an add-in.';"), ErrorCategory.AccessViolation);
+		Raise(NStr("en = 'Insufficient rights to import an add-in.'"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	ObjectOfCatalog = FormAttributeToValue("Object");
@@ -355,7 +355,7 @@ Function ImportAddInFromFileOnServer(Val ImportParameters)
 		If ObjectOfCatalog.Id <> Information.Attributes.Id Then 
 			Result.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot update the add-in as IDs are different.
-					|Expected ID is %1, and ID of the add-in to be imported is %2.';"),
+					|Expected ID is %1, and ID of the add-in to be imported is %2.'"),
 				ObjectOfCatalog.Id, Information.Attributes.Id);
 			Return Result;
 		EndIf;
@@ -373,7 +373,7 @@ Function ImportAddInFromFileOnServer(Val ImportParameters)
 		UUID);
 	
 	ObjectOfCatalog.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Imported from file %1. %2.';"),
+		NStr("en = 'Imported from file %1. %2.'"),
 		ObjectOfCatalog.FileName,
 		CurrentSessionDate());
 	

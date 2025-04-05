@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
+// Copyright (c) 2024, ООО 1С-Софт
+// Все права защищены. Эта программа и сопроводительные материалы предоставляются 
+// в соответствии с условиями лицензии Attribution 4.0 International (CC BY 4.0)
+// Текст лицензии доступен по ссылке:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -13,7 +12,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	Raise NStr("en = 'The data processor cannot be opened manually.';");
+	Raise NStr("en = 'Обработка не предназначена для непосредственного использования.'");
 	
 EndProcedure
 

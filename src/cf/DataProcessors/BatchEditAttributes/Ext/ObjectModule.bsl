@@ -678,7 +678,7 @@ Function EvalExpression(Val Expression, Object, AvailableAttributes)
 			EndDo;
 		Else
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Expressions do not support the ""%1"" attribute';"), AttributeDetails.Presentation);
+				NStr("en = 'Expressions do not support the ""%1"" attribute'"), AttributeDetails.Presentation);
 			Raise ErrorText;
 		EndIf;
 		
@@ -846,7 +846,7 @@ Function RunObjectsChangeInMultipleThreads(Parameters, ObjectsToProcess, ChangeR
 	FormIdentifier = New UUID;
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(FormIdentifier);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Bulk attribute edit';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Bulk attribute edit'");
 	
 	BatchesArray    = New Array;
 	PortionOfObjects  = New Array;
@@ -966,5 +966,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

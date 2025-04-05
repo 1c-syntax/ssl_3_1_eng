@@ -13,7 +13,7 @@
 Procedure RunDataExchangeByScenario(ExchangeScenarioCode) Export
 	
 	If Not ValueIsFilled(ExchangeScenarioCode) Then		
-		Raise NStr("en = 'Data exchange scenario not specified.';");		
+		Raise NStr("en = 'Data exchange scenario not specified.'");		
 	EndIf;
 	
 	Common.OnStartExecuteScheduledJob(Metadata.ScheduledJobs.DataSynchronization);
@@ -37,7 +37,7 @@ Procedure RunDataExchangeByScenario(ExchangeScenarioCode) Export
 		
 	Else	
 		
-		MessageString = NStr("en = 'Data exchange scenario with code %1 is not found.';");
+		MessageString = NStr("en = 'Data exchange scenario with code %1 is not found.'");
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, ExchangeScenarioCode);
 		Raise MessageString;
 		
@@ -50,25 +50,30 @@ Procedure RunDataExchangeByScenario(ExchangeScenarioCode) Export
 	EndIf;
 	
 	// Jobs from the last runtime scenario must be completed.
-	If Not IsTaskQueueCompleted(Scenario) Then
+	FirstTask = Undefined;
+	If Not IsTaskQueueCompleted(Scenario, , , FirstTask) Then
 		
-		MessageText = NStr("en = 'A scenario-based synchronization run couldn not start.
-                               |The previous synchronization session has not neem completed.';",
-                               Common.DefaultLanguageCode());
+		MessageText = NStr("en = 'Обнаружены задачи синхронизации по сценарию предыдущей сессии.'",
+			Common.DefaultLanguageCode());
 		
 		WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
 			EventLogLevel.Information,,,MessageText);
 		
-		Return;
+		If ValueIsFilled(FirstTask) Then
+			
+			RunTaskQueue(FirstTask);
+			
+		EndIf;
+		
+	Else
+		
+		FirstTask = Undefined;
+		RunTaskByScenario(Scenario, FirstTask);
+		
+		RunTaskQueue(FirstTask);
 		
 	EndIf;
-
-			
-	FirstTask = Undefined;
-	RunTaskByScenario(Scenario, FirstTask);
 	
-	RunTaskQueue(FirstTask);
-		
 EndProcedure
 
 Procedure RunDataExchangeManually(Node, ExchangeParameters, ExportAddition = Undefined) Export
@@ -133,7 +138,7 @@ Procedure RunTaskQueue(Task, JobPrev = "") Export
 		
 		DataExchangeServer.RecordExchangeStartInInformationRegister(ExchangeSettingsStructure);
 		
-		MessageString = NStr("en = 'Data exchange started. Node: %1.';", Common.DefaultLanguageCode());
+		MessageString = NStr("en = 'Data exchange started. Node: %1.'", Common.DefaultLanguageCode());
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, ExchangeSettingsStructure.InfobaseNodeDescription);
 		DataExchangeServer.WriteEventLogDataExchange(MessageString, ExchangeSettingsStructure);
 	
@@ -762,7 +767,7 @@ Procedure DeleteObsoleteTasks(Scenario = Undefined, ManualExchange = False)
 		
 		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		
-		Event = NStr("en = 'Data exchange.Records deleted from task register';", Common.DefaultLanguageCode());
+		Event = NStr("en = 'Data exchange.Records deleted from task register'", Common.DefaultLanguageCode());
 		
 		WriteLogEvent(Event, EventLogLevel.Error, , , ErrorMessage);
 	
@@ -841,7 +846,7 @@ Function DisableScenarioOnDemand(Scenario)
 	
 EndFunction
 
-Function IsTaskQueueCompleted(Scenario = Undefined, ExchangeID = "", Error = "")
+Function IsTaskQueueCompleted(Scenario = Undefined, ExchangeID = "", Error = "", FoundSynchronizationTask = Undefined)
 	
 	// Assume that the scenario (or manual exchange) is completed if "CompletedSuccessfully" is set to "True" for all tasks, or an error occurred. 
 	If ValueIsFilled(Scenario) And Not ValueIsFilled(ExchangeID) Then
@@ -964,9 +969,10 @@ Function IsTaskQueueCompleted(Scenario = Undefined, ExchangeID = "", Error = "")
 			Or Selection.Action = Enums.ActionsAtCancelInternalPublication.DataExport
 			Or Selection.Action = Enums.ActionsAtCancelInternalPublication.AdditionalRegistration) Then
 			
+			FoundSynchronizationTask = Selection.TaskID__;
 			Return False;
 			
-		EndIf;	
+		EndIf;
 		
 		// Check the task queue on the peer infobase
 		
@@ -1010,7 +1016,7 @@ Function IsTaskQueueCompleted(Scenario = Undefined, ExchangeID = "", Error = "")
 			Record.Read();
 			
 			Template = NStr("en = 'Active exchange tasks not found in the peer infobase.
-                                |For information, see the event log in the peer infobase (%1).';", Common.DefaultLanguageCode());
+                                |For information, see the event log in the peer infobase (%1).'", Common.DefaultLanguageCode());
 			
 			Error = StrTemplate(Template, Selection.InfobaseNode);
 				
@@ -1089,7 +1095,7 @@ Procedure RunTaskByScenario(Scenario, FirstTask = Undefined)
 		TransportSettings = ExchangeMessagesTransport.TransportSettings(Selection.InfobaseNode, "SM");	
 		
 		Record.CorrespondentDataArea = TransportSettings.CorrespondentDataArea;
-		Record.Mode = NStr("en = 'Automatic';", Common.DefaultLanguageCode());
+		Record.Mode = NStr("en = 'Automatic'", Common.DefaultLanguageCode());
 		
 		If Selection.CurrentAction = Enums.ActionsOnExchange.DataImport Then
 			
@@ -1163,7 +1169,7 @@ Procedure PopulatesTasksForManualExchange(InfobaseNode, ExchangeID, FirstTask, E
 	TransportSettings = ExchangeMessagesTransport.TransportSettings(InfobaseNode, "SM");
 	
 	Record.CorrespondentDataArea = TransportSettings.CorrespondentDataArea;
-	Record.Mode = NStr("en = 'Manual';", Common.DefaultLanguageCode());
+	Record.Mode = NStr("en = 'Manual'", Common.DefaultLanguageCode());
 		
 	Set = InformationRegisters.DataExchangeTasksInternalPublication.CreateRecordSet();
 	
@@ -1240,7 +1246,7 @@ Procedure CallingBack(ExchangePlanName, InfobaseNodeCode, TaskID__, Error = "")
 	Proxy = DataExchangeWebService.WSProxy(ConnectionParameters, Error);
 	
 	If Proxy = Undefined Then
-		ExceptionText = NStr("en = 'Couldn''t connect to the peer infobase';",
+		ExceptionText = NStr("en = 'Couldn''t connect to the peer infobase'",
 			Common.DefaultLanguageCode());
 		Raise ExceptionText;
 	EndIf;
@@ -1264,6 +1270,13 @@ Procedure ExecuteTask(Task, ExchangeParameters, Cancel) Export
 	
 	SetPrivilegedMode(True);
 	
+	CheckIfIssueIsBlocked(Task, Cancel);
+	If Cancel = True Then
+		
+		Return;
+		
+	EndIf;
+	
 	Proxy = Undefined;
 	ExchangeSettingsStructure = Undefined;
 	
@@ -1276,7 +1289,7 @@ Procedure ExecuteTask(Task, ExchangeParameters, Cancel) Export
 	ProxyInitialization(Proxy, ExchangeSettingsStructure, Cancel, Error);
 	
 	Template = NStr("en = 'Running a synchronization scenario step.
-                   |SequenceNumber: %1; App: %2; Action: %3; Mode: %4.';");
+                   |SequenceNumber: %1; App: %2; Action: %3; Mode: %4.'");
 	
 	Comment = StrTemplate(Template, Task.TaskNumber, Task.CorrespondentDataArea, Task.Action, Task.Mode); 
 		
@@ -1328,7 +1341,7 @@ Procedure RunTaskExportDataPeer(Task, Proxy, ExchangeSettingsStructure, DataArea
 								
 	Except
 		
-		Error = StrTemplate(NStr("en = 'Peer infobase error: %1 %2';"),
+		Error = StrTemplate(NStr("en = 'Peer infobase error: %1 %2'"),
 			Chars.LF,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		
@@ -1355,7 +1368,7 @@ Procedure ImportDataImportTask(Task, Proxy, ExchangeParameters, ExchangeSettings
 		
 	Except
 		
-		Error = StrTemplate(NStr("en = 'Peer infobase error: %1 %2';"), 
+		Error = StrTemplate(NStr("en = 'Peer infobase error: %1 %2'"), 
 			Chars.LF, 
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		
@@ -1442,7 +1455,7 @@ Procedure PerformTaskDataExport(Task, Proxy, ExchangeSettingsStructure, DataArea
 		Except
 			
 			Cancel = True;
-			Error = StrTemplate(NStr("en = 'Peer infobase error: %1 %2';"),
+			Error = StrTemplate(NStr("en = 'Peer infobase error: %1 %2'"),
 				Chars.LF,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			
@@ -1481,7 +1494,7 @@ Procedure RunTaskImportDataPeer(Task, Proxy, ExchangeParameters, ExchangeSetting
 		
 		Cancel = True;
 		
-		Error = StrTemplate(NStr("en = 'Peer infobase error: %1 %2';"),
+		Error = StrTemplate(NStr("en = 'Peer infobase error: %1 %2'"),
 			Chars.LF,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		
@@ -1525,13 +1538,55 @@ Procedure PerformTaskAdditionalRegistration(Task, Cancel, Error)
 		
 		Information = ErrorInfo();
 		
-		Error = NStr("en = 'An issue occurred while adding data to export:';") 
+		Error = NStr("en = 'An issue occurred while adding data to export:'") 
 			+ Chars.LF + ErrorProcessing.BriefErrorDescription(Information)
-			+ Chars.LF + NStr("en = 'Edit filter criteria.';");
+			+ Chars.LF + NStr("en = 'Edit filter criteria.'");
 			
 		WriteLogEvent(DataExchangeServer.DataExchangeCreationEventLogEvent(),
 			EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(Information));
 			
+	EndTry;
+	
+EndProcedure
+
+Procedure CheckIfIssueIsBlocked(Task, Cancel)
+	Var TaskID__, CreationDate, InfobaseNode, TaskNumber, ExchangeID, Scenario;
+	
+	If TypeOf(Task) <> Type("Structure") Then
+		
+		Return;
+		
+	EndIf;
+	
+	Try
+		
+		RegisterKey = InformationRegisters.DataExchangeTasksInternalPublication.CreateRecordKey(Task);
+		LockDataForEdit(RegisterKey);
+		
+	Except
+		
+		Cancel = True;
+		TextTemplate1 = NStr("en = 'Задача с идентификатором [%1] заблокирована.
+			|Вероятно она находится в состоянии выполнения.
+			|	Дата создания: %2
+			|	Узел ИБ: %3
+			|	Номер: %4
+			|	Идентификатор Обмена: %5
+			|	Сценарий: %6'", Common.DefaultLanguageCode());
+		
+		Task.Property("TaskID__", TaskID__);
+		Task.Property("CreationDate", CreationDate);
+		Task.Property("InfobaseNode", InfobaseNode);
+		Task.Property("TaskNumber", TaskNumber);
+		Task.Property("ExchangeID", ExchangeID);
+		Task.Property("Scenario", Scenario);
+		
+		Comment = StrTemplate(TextTemplate1, TaskID__, CreationDate,
+			InfobaseNode, TaskNumber, ExchangeID, Scenario);
+			
+		EventName = DataExchangeSaaS.DataSyncronizationLogEvent();
+		WriteLogEvent(EventName, EventLogLevel.Information, , , Comment);
+		
 	EndTry;
 	
 EndProcedure
@@ -1634,7 +1689,7 @@ Procedure SetUpFormElementsForMigrationToWS(Form)
 		PanelText = 
 			NStr("en = '<br>You have not completely switched to exchange over the Internet (web service). 
                   |<br> 
-                  |<br>Use the <a href=ФормаПомощникПереходаНаИнтернетВнутренняяПубликация>wizard</a> to complete the operation.';"); 
+                  |<br>Use the <a href=ФормаПомощникПереходаНаИнтернетВнутренняяПубликация>wizard</a> to complete the operation.'"); 
 			
 	ElsIf Not ShouldMutePromptToMigrateToWebService Then
 												
@@ -1643,7 +1698,7 @@ Procedure SetUpFormElementsForMigrationToWS(Form)
                   |<br>It allows you to speed up the exchange and set up a more flexible synchronization schedule.
                   |<br>To switch to exchange using a web service, use the switch to the <a href=ФормаПомощникПереходаНаИнтернетВнутренняяПубликация>Internet connection wizard</a>.
                   |<br><br>
-                  |<a href=НеПредлагатьПерейтиНаВебСервис>Do not offer to switch to a web service again</a>. You can call the wizard in the <b>More<b> menu.';");
+                  |<a href=НеПредлагатьПерейтиНаВебСервис>Do not offer to switch to a web service again</a>. You can call the wizard in the <b>More<b> menu.'");
 									
 	EndIf;
 	
@@ -1725,7 +1780,7 @@ EndProcedure
 
 Function EventLogEventScenarioDisabled()
 	
-	Return NStr("en = 'Data exchange.Disable scenario';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Data exchange.Disable scenario'", Common.DefaultLanguageCode());
 	
 EndFunction
 

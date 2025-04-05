@@ -32,7 +32,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// ТехнологияСервиса.ВыгрузкаЗагрузкаДанных
+// CloudTechnology.ExportImportData
 
 // Returns the catalog attributes that naturally form a catalog item key.
 //

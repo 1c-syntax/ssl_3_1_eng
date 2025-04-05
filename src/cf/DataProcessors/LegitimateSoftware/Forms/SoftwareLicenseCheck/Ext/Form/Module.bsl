@@ -14,7 +14,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not Parameters.OpenProgrammatically Then
 		Raise
-			NStr("en = 'The data processor cannot be opened manually.';");
+			NStr("en = 'The data processor cannot be opened manually.'");
 	EndIf;
 	
 	SkipRestart = Parameters.SkipRestart;
@@ -73,7 +73,7 @@ Function TextFromUpdateDistributionTermsTemplate()
 	
 	If InformationTemplate = Undefined Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The required template %2 is missing from the data processor %1.';"),
+				NStr("en = 'The required template %2 is missing from the data processor %1.'"),
 				Metadata.DataProcessors.LegitimateSoftware.Name, TemplateName);
 			Raise(ErrorText, ErrorCategory.ConfigurationError);
  	EndIf;
@@ -169,7 +169,7 @@ Procedure WriteLegalityAndStatisticsSendingConfirmation(AllowSendStatistics)
 		
 		If (Not SendStatisticsParameters.EnableMonitoringCenter And SendStatisticsParameters.ApplicationInformationProcessingCenter) Then
 			// Sending statistics to a third-party developer is configured.
-			// Do not change them.
+			// Do not change it.
 			//
 		Else
 			If AllowSendStatistics Then

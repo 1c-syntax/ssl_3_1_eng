@@ -95,7 +95,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	QuestionnaireTemplateTree  = FormAttributeToValue("QuestionnaireTree");
 	
 	If QuestionnaireTemplateTree.Rows[0].Rows.Find("","Wording",True) <> Undefined Then
-		Common.MessageToUser(NStr("en = 'Not all wordings or section names are filled in.';"),,"QuestionnaireTree");
+		Common.MessageToUser(NStr("en = 'Not all wordings or section names are filled in.'"),,"QuestionnaireTree");
 		Cancel = True;
 	EndIf;
 	
@@ -109,7 +109,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 			If FoundRow.QuestionType <> Enums.QuestionnaireTemplateQuestionTypes.Tabular
 					And FoundRow.QuestionType <> Enums.QuestionnaireTemplateQuestionTypes.Complex Then
 				
-				Common.MessageToUser(NStr("en = 'Not all questions are filled in.';"),,"QuestionnaireTree");
+				Common.MessageToUser(NStr("en = 'Not all questions are filled in.'"),,"QuestionnaireTree");
 				Cancel = True;
 				Break;
 				
@@ -345,14 +345,14 @@ Procedure QuestionnaireTreeFormBeforeAddRow(Item, Cancel, Copy, Parent, Var_Grou
 	Cancel = True;
 	
 	ChoiceList = New ValueList;
-	ChoiceList.Add("Section", NStr("en = 'Section';"));
-	ChoiceList.Add("Basic", NStr("en = 'Basic question';"));
-	ChoiceList.Add("Complex", NStr("en = 'Interview question';"));
-	ChoiceList.Add("Conditional", NStr("en = 'Conditional question';"));
-	ChoiceList.Add("Tabular", NStr("en = 'Question chart';"));
+	ChoiceList.Add("Section", NStr("en = 'Section'"));
+	ChoiceList.Add("Basic", NStr("en = 'Basic question'"));
+	ChoiceList.Add("Complex", NStr("en = 'Interview question'"));
+	ChoiceList.Add("Conditional", NStr("en = 'Conditional question'"));
+	ChoiceList.Add("Tabular", NStr("en = 'Question chart'"));
 	
 	OnCloseNotifyHandler = New CallbackDescription("SelectAddedItemTypeOnCompletion", ThisObject);
-	ChoiceList.ShowChooseItem(OnCloseNotifyHandler, NStr("en = 'Select a type of the item being added.';"), ChoiceList[0]);
+	ChoiceList.ShowChooseItem(OnCloseNotifyHandler, NStr("en = 'Select a type of the item being added.'"), ChoiceList[0]);
 	
 EndProcedure
 
@@ -413,7 +413,7 @@ EndProcedure
 Procedure QuestionnaireTreeNotesStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	ClosingNotification1 = New CallbackDescription("NoteEditOnClose", ThisObject);
-	CommonClient.ShowMultilineTextEditingForm(ClosingNotification1, Item.EditText, NStr("en = 'Notes';"));
+	CommonClient.ShowMultilineTextEditingForm(ClosingNotification1, Item.EditText, NStr("en = 'Notes'"));
 	
 EndProcedure
 
@@ -512,11 +512,11 @@ Procedure OpenQuestionnaireResponseForm(Command)
 		ShowQueryBox(OnCloseNotifyHandler,
 		               NStr("en = 'The questionnaire template was modified. 
 		                   |To display all the changes correctly, save the template.
-		                   |Do you want to save it?';"),
+		                   |Do you want to save it?'"),
 		               QuestionDialogMode.YesNo,
 		               ,
 		               DialogReturnCode.Yes,
-		               NStr("en = 'Do you want to save it?';"));
+		               NStr("en = 'Do you want to save it?'"));
 	Else
 		OpenQuestionnaireWizardFormBySections();
 	EndIf;
@@ -542,7 +542,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("QuestionnaireTree.RowType");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.NotEqual;
-	ItemFilter.RightValue = NStr("en = 'Question';");
+	ItemFilter.RightValue = NStr("en = 'Question'");
 
 	Item.Appearance.SetParameterValue("BackColor", WebColors.Gainsboro);
 	Item.Appearance.SetParameterValue("TextColor", WebColors.Gainsboro);
@@ -572,7 +572,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("QuestionnaireTree.RowType");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.NotEqual;
-	ItemFilter.RightValue = NStr("en = 'Root';");
+	ItemFilter.RightValue = NStr("en = 'Root'");
 
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("QuestionnaireTree.Wording");
@@ -596,7 +596,7 @@ Function AddQuestionnaireTreeRow(Parent,RowType,QuestionType = Undefined)
 	
 	NewRow.RowType      = RowType;
 	NewRow.IsRequired   = False;
-	NewRow.Composite     = New UUID;
+	NewRow.RowKey     = New UUID;
 	NewRow.IsNewLine = True;
 	
 	If RowType = "DoQueryBox" Then
@@ -854,7 +854,7 @@ Procedure AddQuestion(CurrentData, QuestionType)
 
 	Parent = GetParentQuestionnaireTree(CurrentData, False, QuestionType);
 	If Parent.RowType = "Root" Then
-		ShowMessageBox(, NStr("en = 'Cannot add questions to the questionnaire root.';"));
+		ShowMessageBox(, NStr("en = 'Cannot add questions to the questionnaire root.'"));
 		Return;
 	EndIf;
 	AddQuestionnaireTreeRow(Parent, "DoQueryBox", QuestionType);

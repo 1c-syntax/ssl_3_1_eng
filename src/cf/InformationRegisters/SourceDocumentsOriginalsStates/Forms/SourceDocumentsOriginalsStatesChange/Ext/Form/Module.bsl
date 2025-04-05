@@ -21,11 +21,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If ValueIsFilled(Parameters.DocumentRef) And Not Parameters.DocumentRef.IsEmpty() Then
 		Record.Owner = Parameters.DocumentRef;
 		PrintFormsFilter = "All";
-		Items.WarningLabel.Title = NStr("en = 'The document original state will be set according to print forms.';");
+		Items.WarningLabel.Title = NStr("en = 'The document original state will be set according to print forms.'");
 	ElsIf PrintFormsSet.Count() = 0 Then
 		FillAllPrintForms();
 		PrintFormsFilter = "All";
-		Items.WarningLabel.Title = NStr("en = 'The document original state will be set according to print forms.';");
+		Items.WarningLabel.Title = NStr("en = 'The document original state will be set according to print forms.'");
 	Else
 		PrintFormsFilter = "Tracked";
 	EndIf;	
@@ -144,7 +144,7 @@ Procedure PrintFormsSetStateOnChange(Item)
 	EndIf;
 
 	Items.PrintFormsSet.CurrentData.ChangeAuthor = UsersClient.CurrentUser();
-	Items.PrintFormsSet.CurrentData.LastChangeDate = NStr("en = '<just now>';");
+	Items.PrintFormsSet.CurrentData.LastChangeDate = NStr("en = '<just now>'");
 	
 EndProcedure
 
@@ -221,7 +221,7 @@ Procedure SetOriginalState(CommandName)
 		RowData.State = OriginalState;
 		RowData.OriginalReceivedPicture = ?(RowData.State = OriginalReceived, 1, 0);
 		RowData.ChangeAuthor = UsersClient.CurrentUser();
-		RowData.LastChangeDate = NStr("en = '<just now>';");
+		RowData.LastChangeDate = NStr("en = '<just now>'");
 	EndDo;
 
 	Items.PrintFormsSet.Refresh();
@@ -255,7 +255,7 @@ Procedure AddManually(Command)
 
 	If FoundRows.Count() > 0 Then
 		ClearMessages();
-		CommonClient.MessageToUser(NStr("en = 'The list already contains such form.';"));
+		CommonClient.MessageToUser(NStr("en = 'The list already contains such form.'"));
 		Return;
 	EndIf;
 
@@ -339,7 +339,7 @@ Procedure FillInitialPrintFormsList()
 				NewRow = PrintFormsSet.Add();
 				NewRow.TemplateName = CurRow.Value;
 				NewRow.Presentation = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '%1 %2';"), CurRow.Presentation, LastFirstName);
+					NStr("en = '%1 %2'"), CurRow.Presentation, LastFirstName);
 				NewRow.Picture = 1; 
 				NewRow.OriginalReceivedPicture = 0;
 				NewRow.Employee = Employee;
@@ -354,7 +354,7 @@ Procedure FillInitialPrintFormsList()
 						NewRow = PrintFormsSet.Add();
 						NewRow.TemplateName = CurRow.Id;
 						NewRow.Presentation =  StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = '%1 %2';"), CurRow.Presentation, LastFirstName);
+							NStr("en = '%1 %2'"), CurRow.Presentation, LastFirstName);
 						NewRow.Picture = 1;
 						NewRow.OriginalReceivedPicture = 0;
 						NewRow.Employee = Employee;
@@ -388,13 +388,13 @@ Procedure FillInitialPrintFormsList()
 	EndIf;
 
 	UnusedRows = PrintFormsSet.FindRows(
-		New Structure("Presentation", NStr("en = 'Document set for printing';")));
+		New Structure("Presentation", NStr("en = 'Document set for printing'")));
 	For Each UnusedRow In UnusedRows Do
 		PrintFormsSet.Delete(UnusedRow);
 	EndDo;
 
 	UnusedRows = PrintFormsSet.FindRows(
-		New Structure("Presentation", NStr("en = 'Document set with setting...';")));
+		New Structure("Presentation", NStr("en = 'Document set with setting...'")));
 	For Each UnusedRow In UnusedRows Do
 		PrintFormsSet.Delete(UnusedRow);
 	EndDo;
@@ -594,14 +594,14 @@ Procedure SetOriginalRef()
 	EndIf;
 	 
 	If ValueIsFilled(NumberForPrinting) And ValueIsFilled(DocumentInformation_.Date) Then
-		DocumentReference = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 #%2, %3';"),
-			DocumentType, NumberForPrinting, Format(DocumentInformation_.Date, NStr("en = 'DLF=DD';")));
+		DocumentReference = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 #%2, %3'"),
+			DocumentType, NumberForPrinting, Format(DocumentInformation_.Date, NStr("en = 'DLF=DD'")));
 	ElsIf ValueIsFilled(NumberForPrinting) And Not ValueIsFilled(DocumentInformation_.Date) Then 
-		DocumentReference = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 #%2';"), DocumentType,
+		DocumentReference = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 #%2'"), DocumentType,
 			NumberForPrinting);
 	Else 
-		DocumentReference = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1, %2';"),
-			DocumentType, Format(DocumentInformation_.Date, NStr("en = 'DLF=DD';")));
+		DocumentReference = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1, %2'"),
+			DocumentType, Format(DocumentInformation_.Date, NStr("en = 'DLF=DD'")));
 	EndIf;
 
 EndProcedure

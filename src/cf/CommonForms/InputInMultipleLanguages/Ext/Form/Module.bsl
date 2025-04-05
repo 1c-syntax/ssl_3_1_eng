@@ -86,10 +86,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				EndIf;
 
 				
-				LanguageSuffix_ = NationalLanguageSupportClientServer.LanguageSuffix_(LanguageSeqNumber);
+				LanguageSuffix = NationalLanguageSupportClientServer.LanguageSuffix(LanguageSeqNumber);
 				
-				If StrCompare(ConfigurationLanguage.LanguageCode, LanguagesInformationRecords[LanguageSuffix_]) = 0 Then
-					LanguageData.Suffix = LanguageSuffix_;
+				If StrCompare(ConfigurationLanguage.LanguageCode, LanguagesInformationRecords[LanguageSuffix]) = 0 Then
+					LanguageData.Suffix = LanguageSuffix;
 					Break;
 				EndIf;
 				
@@ -100,7 +100,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Attribute = Undefined Then
 		ErrorTemplate = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'When opening form %1, parameter %2 contains attribute %1 that does not exist';"), "InputInMultipleLanguages", "AttributeName");
+			NStr("en = 'When opening form %1, parameter %2 contains attribute %1 that does not exist'"), "InputInMultipleLanguages", "AttributeName");
 		Raise StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate, Parameters.AttributeName);
 	EndIf;
 	
@@ -120,7 +120,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Title = Parameters.Title;
 	Else
 		Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 in different languages';"), Attribute.Presentation());
+			NStr("en = '%1 in different languages'"), Attribute.Presentation());
 		If IsBlankString(Title) Then
 			Title = Attribute.Presentation();
 		EndIf;
@@ -174,7 +174,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		For Each AdditionalLanguage In LanguagesInformationRecords.Used Do
 			If AdditionalLanguage.Value  Then
 				LanguageCode = LanguagesInformationRecords[AdditionalLanguage.Key];
-				If IsBlankString(LanguageCode) Then
+				If IsBlankString(LanguageCode) Or StrCompare(CurrentLanguage().LanguageCode, LanguageCode) = 0 Then
 					Continue;
 				EndIf;
 				LanguageDetails = LanguageDetails(LanguageCode);

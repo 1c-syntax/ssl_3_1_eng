@@ -10,7 +10,7 @@
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
-#Region Internal
+#Region Private
 
 // Defines the object manager to call applied rules.
 //
@@ -39,7 +39,7 @@ Function SearchForDuplicatesAreaManager(Val DataSearchAreaName) Export
 	EndIf;
 	
 	Raise StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Invalid type of ""%1"" metadata object.';"), DataSearchAreaName);
+		NStr("en = 'Invalid type of ""%1"" metadata object.'"), DataSearchAreaName);
 EndFunction
 
 // Searches for duplicates across all data in the infobase.
@@ -138,6 +138,8 @@ Function DuplicatesGroups(Val SearchParameters, Val SampleObject = Undefined) Ex
 	Result.Insert("UsageInstances");
 	
 	CandidatesTable = CandidatesTable();
+	ParametersOfSearchForSimilarStrings = Undefined;
+	DuplicateCount = 0;
 	
 	While NextSelectionItem(QuerySchema.SampleObjectsSelection) Do
 		SampleItem = QuerySchema.SampleObjectsSelection.CurrentItem;
@@ -154,13 +156,15 @@ Function DuplicatesGroups(Val SearchParameters, Val SampleObject = Undefined) Ex
 		If RequestStructure.FieldsNamesToCompareForSimilarity.Count() > 0 Then
 			
 			StringsComparisonForSimilarity = AppliedSearchParameters.StringsComparisonForSimilarity;
-			Try
-				ParametersOfSearchForSimilarStrings = DuplicateObjectsDetection.ParametersOfSearchForSimilarStrings();
-			Except
-				Result.ErrorDescription = 
-					NStr("en = 'Cannot attach the add-in for fuzzy search for duplicates. For more information, see the event log.';");
-				Return Result;
-			EndTry;
+			If ParametersOfSearchForSimilarStrings = Undefined Then
+				Try
+					ParametersOfSearchForSimilarStrings = DuplicateObjectsDetection.ParametersOfSearchForSimilarStrings();
+				Except
+					Result.ErrorDescription = 
+						NStr("en = 'Cannot attach the add-in for fuzzy search for duplicates. For more information, see the event log.'");
+					Return Result;
+				EndTry;
+			EndIf;
 			FillPropertyValues(ParametersOfSearchForSimilarStrings, StringsComparisonForSimilarity);
 			
 			For Each FieldName In RequestStructure.FieldsNamesToCompareForSimilarity Do
@@ -184,10 +188,12 @@ Function DuplicatesGroups(Val SearchParameters, Val SampleObject = Undefined) Ex
 					DuplicateItem1 = DuplicatesCandidates[Number(RowIndex)];
 					
 					If HasSearchRules Then
-						AddCandidatesRow(CandidatesTable, SampleItem, DuplicateItem1, RequestStructure);
+						AddCandidatesRow(DuplicatesCollection, CandidatesTable, SampleItem, DuplicateItem1, 
+							RequestStructure);
 						If CandidatesTable.Count() = ItemsCountToCompare Then
-							RegisterDuplicatesByAppliedRules(DuplicatesCollection, FullMetadataObjectName, SearchAreaManager, 
-								SampleItem, CandidatesTable, RequestStructure, AdditionalParameters);
+							RegisterDuplicatesByAppliedRules(DuplicatesCollection, FullMetadataObjectName, 
+								SearchAreaManager, SampleItem, CandidatesTable, RequestStructure, 
+								AdditionalParameters);
 							CandidatesTable.Clear();
 						EndIf;
 					Else
@@ -201,10 +207,12 @@ Function DuplicatesGroups(Val SearchParameters, Val SampleObject = Undefined) Ex
 			For Each DuplicateItem1 In DuplicatesCandidates Do
 				
 				If HasSearchRules Then
-					AddCandidatesRow(CandidatesTable, SampleItem, DuplicateItem1, RequestStructure);
+					AddCandidatesRow(DuplicatesCollection, CandidatesTable, SampleItem, DuplicateItem1, 
+						RequestStructure);
 					If CandidatesTable.Count() = ItemsCountToCompare Then
-						RegisterDuplicatesByAppliedRules(DuplicatesTable, FullMetadataObjectName, SearchAreaManager, 
-							SampleItem, CandidatesTable, RequestStructure, AdditionalParameters);
+						RegisterDuplicatesByAppliedRules(DuplicatesTable, FullMetadataObjectName, 
+							SearchAreaManager, SampleItem, CandidatesTable, RequestStructure, 
+							AdditionalParameters);
 						CandidatesTable.Clear();
 					EndIf;
 				Else
@@ -221,21 +229,23 @@ Function DuplicatesGroups(Val SearchParameters, Val SampleObject = Undefined) Ex
 			CandidatesTable.Clear();
 		EndIf;
 		
-		// Process pending duplicates.
 		DeleteNotSignificantDuplicates(DuplicatesCollection);	
 		DeleteNotSignificantGroups(DuplicatesCollection);
 		
-		// Consider restriction.
+		If DuplicateCount <> DuplicatesTable.Count() Then
+			DuplicateCount = DuplicatesTable.Count();
+			TimeConsumingOperations.ReportProgress(DuplicateCount, "RegisterDuplicate");
+		EndIf;
+
 		If ReturnedBatchSize > 0 And (DuplicatesTable.Count() > ReturnedBatchSize) Then
 				Result.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Too many duplicates were found. First %1 items are shown.';"), ReturnedBatchSize); 
+					NStr("en = 'Too many duplicates were found. First %1 items are shown.'"), ReturnedBatchSize); 
 				Result.ReturnedLessThanFound = True;
 			Break;
 		EndIf;
 				
 	EndDo;
 	
-	// Compute occurrences.
 	If CalculateUsageInstances Then
 		
 		TimeConsumingOperations.ReportProgress(0, "CalculateUsageInstances");
@@ -247,7 +257,7 @@ Function DuplicatesGroups(Val SearchParameters, Val SampleObject = Undefined) Ex
 			EndIf;
 		EndDo;
 		
-		UsageInstances = SearchForReferences(ObjectsRefs1);
+		UsageInstances = Common.UsageInstances(ObjectsRefs1);
 		UsageInstances = UsageInstances.Copy(
 			UsageInstances.FindRows(New Structure("AuxiliaryData", False)));
 		UsageInstances.Indexes.Add("Ref");
@@ -269,20 +279,27 @@ EndFunction
 Function HasSearchForDuplicatesAreaAppliedRules(Val ObjectName) Export
 	
 	ObjectInfo = DuplicateObjectsDetection.ObjectsWithDuplicatesSearch()[ObjectName];
-	Return ObjectInfo <> Undefined And (ObjectInfo = "" Or StrFind(ObjectInfo, "DuplicatesSearchParameters") > 0);
+	Return ObjectInfo <> Undefined 
+		And (ObjectInfo = "" Or StrFind(ObjectInfo, "DuplicatesSearchParameters") > 0);
 	
 EndFunction
 
-// Handler of background search for duplicates.
+// Handler for searching for background duplicates. Called from the "FindAndDeleteDuplicates" procedure of the "SearchForDuplicates" form.
 //
 // Parameters:
-//     Parameters       - Structure - data to be analyzed.
-//     ResultAddress - String    - a temporary storage address to save the result.
+//   SearchParameters - See DuplicateObjectsDetection.DuplicatesSearchParameters
+//   ResultAddress - String - Address in the temporary storage for returning the result.
 //
 Procedure BackgroundSearchForDuplicates(Val Parameters, Val ResultAddress) Export
 	
+	StartDuplicatesSearch = CurrentSessionDate();
+	WriteLogEvent(DuplicateObjectsDetection.SubsystemDescription(False),
+		EventLogLevel.Information,,,
+		StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Duplicate search has started: %1.'"), Parameters.DuplicatesSearchArea));
+
 	PrefilterComposer = New DataCompositionSettingsComposer;
-	PrefilterComposer.Initialize( New DataCompositionAvailableSettingsSource(Parameters.CompositionSchema) );
+	PrefilterComposer.Initialize(New DataCompositionAvailableSettingsSource(Parameters.CompositionSchema));
 	PrefilterComposer.LoadSettings(Parameters.PrefilterComposerSettings);
 	Parameters.Insert("PrefilterComposer", PrefilterComposer);
 	
@@ -299,15 +316,16 @@ Procedure BackgroundSearchForDuplicates(Val Parameters, Val ResultAddress) Expor
 	Result = DuplicatesGroups(Parameters);
 	PutToTempStorage(Result, ResultAddress);
 	
+	WriteLogEvent(DuplicateObjectsDetection.SubsystemDescription(False),
+		EventLogLevel.Information,,,
+		StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Duplicate search for %1 completed in %2 min.'"), 
+			Parameters.DuplicatesSearchArea,
+			Format((CurrentSessionDate() - StartDuplicatesSearch) / 60, "NFD=2")));
+
 EndProcedure
 
-#EndRegion
-
-#Region Private
-
-// ACC:299-off - Called as a multi-threaded background job in the "FindAndDeleteDuplicates" procedure of the "SearchForDuplicates" form.
-
-// Handler of background deletion of duplicates.
+// Handler for background duplicate deletion. Called from the "FindAndDeleteDuplicates" procedure of the "SearchForDuplicates" form.
 //
 // Parameters:
 //     Parameters - Structure - data to be analyzed.
@@ -317,6 +335,13 @@ EndProcedure
 //
 Function BackgroundDuplicateDeletion(Val Parameters) Export
 	
+	StartDeletingDuplicates = CurrentSessionDate();
+	DuplicateCount = Parameters.ReplacementPairs.Count(); 
+	WriteLogEvent(DuplicateObjectsDetection.SubsystemDescription(False),
+		EventLogLevel.Information,,,
+		StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Duplicate deletion has started: %1.'"), DuplicateCount));
+
 	ReplacementParameters = New Structure;
 	ReplacementParameters.Insert("IncludeBusinessLogic", False);
 	ReplacementParameters.Insert("TakeAppliedRulesIntoAccount", Parameters.TakeAppliedRulesIntoAccount);
@@ -324,11 +349,16 @@ Function BackgroundDuplicateDeletion(Val Parameters) Export
 	ReplacementParameters.Insert("DeletionMethod", Parameters.DeletionMethod);
 	
 	Result = Common.ReplaceReferences(Parameters.ReplacementPairs, ReplacementParameters);
+	WriteLogEvent(DuplicateObjectsDetection.SubsystemDescription(False),
+		EventLogLevel.Information,,,
+		StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Duplicates of %1 deleted in %2 min.'"), 
+			DuplicateCount,
+			Format((CurrentSessionDate() - StartDeletingDuplicates) / 60, "NFD=2")));
+
 	Return Result;
 	
 EndFunction
-
-// ACC:299-on
 
 // Converts an object to a table for adding to a query.
 Function ObjectIntoValueTable(Val DataObject, Val AdditionalFieldsDetails)
@@ -417,11 +447,14 @@ EndProcedure
 //     * DeletionMark - Boolean
 //   RequestStructure - See QueryTextForDuplicatesSearch
 //
-// Returns:
-//   ValueTableRow
-//
-Function AddCandidatesRow(CandidatesTable,  Val MainItemData, Val CandidateData, Val RequestStructure)
+Procedure AddCandidatesRow(DuplicatesCollection, CandidatesTable,  Val MainItemData, 
+	Val CandidateData, Val RequestStructure)
 	
+	If DuplicatesCollection.NotSignificantDuplicates[MainItemData.Ref] <> Undefined
+		Or DuplicatesCollection.NotSignificantDuplicates[CandidateData.Ref] <> Undefined Then
+		Return;
+	EndIf;
+
 	String = CandidatesTable.Add();
 	String.IsDuplicates = False;
 	String.Ref1  = MainItemData.Ref;
@@ -450,29 +483,26 @@ Function AddCandidatesRow(CandidatesTable,  Val MainItemData, Val CandidateData,
 		String.Fields2.Insert(ColumnName, CandidateData[FieldName]);
 	EndDo;
 	
-	Return String;
-EndFunction
+EndProcedure
 
 Procedure RegisterDuplicate(DuplicatesCollection, Val Item1, Val Item2, Val RequestStructure)
 	
 	DuplicatesTable = DuplicatesCollection.DuplicatesTable;
 	NotSignificantDuplicates = DuplicatesCollection.NotSignificantDuplicates;
-	// Defining which item is already added to duplicates.
+	// Identifies which of the items is a duplicate.
 	DuplicatesRow1 = DuplicatesTable.Find(Item1.Ref, "Ref");
 	DuplicatesRow2 = DuplicatesTable.Find(Item2.Ref, "Ref");
 	
-	NotSignificantDuplicatesRow1 = NotSignificantDuplicates.Find(Item1.Ref);
-	NotSignificantDuplicatesRow2 = NotSignificantDuplicates.Find(Item2.Ref);
+	HasInsignificantDuplicate1 = DuplicatesCollection.NotSignificantDuplicates[Item1.Ref] <> Undefined;
+	HasInsignificantDuplicate2 = DuplicatesCollection.NotSignificantDuplicates[Item2.Ref] <> Undefined;
 	
-	Duplicate1Registered = (DuplicatesRow1 <> Undefined) Or (NotSignificantDuplicatesRow1 <> Undefined);
-	Duplicate2Registered = (DuplicatesRow2 <> Undefined) Or (NotSignificantDuplicatesRow2 <> Undefined);
+	Duplicate1Registered = (DuplicatesRow1 <> Undefined) Or HasInsignificantDuplicate1;
+	Duplicate2Registered = (DuplicatesRow2 <> Undefined) Or HasInsignificantDuplicate2;
 	
-	// If both items are added as duplicates, do nothing.
+	// If both items are duplicates, do nothing.
 	// If either of the items is insignificant, it is not considered a duplicate.
 	If Duplicate1Registered And Duplicate2Registered
-		Or NotSignificantDuplicatesRow1 <> Undefined
-		Or NotSignificantDuplicatesRow2 <> Undefined Then
-		
+		Or HasInsignificantDuplicate1 Or HasInsignificantDuplicate2 Then
 		Return;
 	EndIf;
 	
@@ -520,12 +550,6 @@ Procedure RegisterDuplicate(DuplicatesCollection, Val Item1, Val Item2, Val Requ
 	EndIf;
 	
 EndProcedure
-
-Function SearchForReferences(Val RefSet, Val ResultAddress = "")
-	
-	Return Common.UsageInstances(RefSet, ResultAddress);
-	
-EndFunction
 
 #Region OtherItems
 
@@ -672,7 +696,7 @@ Function DuplicateSearchDataCompositionSchema(SearchParameters, Characteristics,
 		If AvailableDCField = Undefined Then
 			WriteLogEvent(DuplicateObjectsDetection.SubsystemDescription(False),
 				EventLogLevel.Warning, Characteristics.MetadataObject, SampleObject,
-				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Field %1 does not exist.';"), String(DCField)));
+				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Field %1 does not exist.'"), String(DCField)));
 			Continue;
 		EndIf;
 		SelectedDCField = DCSettings.Selection.Items.Add(Type("DataCompositionSelectedField"));
@@ -702,7 +726,6 @@ Function DuplicateSearchDataCompositionSchema(SearchParameters, Characteristics,
 	DCOrderItem.Field = New DataCompositionField("Ref");
 	
 	// Filters.
-	//
 	If Characteristics.MetadataObject = Metadata.Catalogs.Users Then
 		DCFilterItem = DCSettings.Filter.Items.Add(Type("DataCompositionFilterItem"));
 		DCFilterItem.LeftValue  = New DataCompositionField("IsInternal");
@@ -869,9 +892,7 @@ Function NextSelectionItem(Selection)
 	Return True;
 EndFunction
 
-// Deletes duplicates that are marked for deletion and have no occurrences. 
-// 
-//
+// Deletes duplicates that are marked for deletion and have no occurrences.
 Procedure DeleteNotSignificantDuplicates(DuplicatesCollection)
 	
 	// Don't delete unimportant duplicates since there are no restrictions.
@@ -885,14 +906,14 @@ Procedure DeleteNotSignificantDuplicates(DuplicatesCollection)
 	// There's enough items to output. Don't check duplicates. 
 	If DuplicatesTable.Count() - DuplicatesToCheck.Count() <= DuplicatesCollection.ItemsCountToCompare Then
 		
-		UsageInstances = SearchForReferences(DuplicatesToCheck);
+		UsageInstances = Common.UsageInstances(DuplicatesToCheck);
 		UsageInstances.Indexes.Add("Ref, AuxiliaryData");
 		DuplicatesFilter = New Structure("Ref", Undefined);
 		FilterUsageInstancesCount = New Structure("Ref, AuxiliaryData", Undefined, False);
 		 
-		For Cnt = 0 To DuplicatesToCheck.UBound() Do
+		For IndexOf = 0 To DuplicatesToCheck.UBound() Do
 			
-			DuplicatesFilter.Ref = DuplicatesToCheck[Cnt];
+			DuplicatesFilter.Ref = DuplicatesToCheck[IndexOf];
 			DuplicatesToCheck1 = DuplicatesTable.FindRows(DuplicatesFilter);
 			For Each Duplicate1 In DuplicatesToCheck1 Do
 				
@@ -903,7 +924,8 @@ Procedure DeleteNotSignificantDuplicates(DuplicatesCollection)
 				FilterUsageInstancesCount.Ref = Duplicate1.Ref;
 				UsageInstancesInternal = UsageInstances.FindRows(FilterUsageInstancesCount);
 				If UsageInstancesInternal.Count() = 0 And Duplicate1.DeletionMark Then
-					FillPropertyValues(DuplicatesCollection.NotSignificantDuplicates.Add(), Duplicate1);	
+					DuplicatesCollection.NotSignificantDuplicates[Duplicate1.Ref] = True;
+					DuplicatesCollection.NotSignificantDuplicates[Duplicate1.Parent] = True;
 					DuplicatesCollection.ProcessedGroups.Insert(Duplicate1.Parent);
 					DuplicatesTable.Delete(Duplicate1);
 				EndIf;
@@ -914,7 +936,6 @@ Procedure DeleteNotSignificantDuplicates(DuplicatesCollection)
 	EndIf;
 	
 	DuplicatesToCheck.Clear();
-	TimeConsumingOperations.ReportProgress(DuplicatesTable.Count(), "RegisterDuplicate");
 
 EndProcedure
 
@@ -973,18 +994,16 @@ Function DuplicatesTable(FieldsNamesToCompareForSimilarity, FieldsNamesToCompare
 	
 	DuplicatesTable.Indexes.Add("Ref");
 	DuplicatesTable.Indexes.Add("Parent");
-	DuplicatesTable.Indexes.Add("Ref, Parent,IsFolder");
+	DuplicatesTable.Indexes.Add("Ref,Parent,IsFolder");
 	
 	Return DuplicatesTable;
 EndFunction
 
 // Returns:
 //   Structure:
-//     * NotSignificantDuplicates - ValueTable:
-//       ** Ref - AnyRef
-//       ** Parent - AnyRef
-//       ** Ref - AnyRef
-//       ** Parent - AnyRef
+//     * NotSignificantDuplicates - Map of KeyAndValue:
+//       ** Key - AnyRef
+//       ** Value - Boolean
 //     * ProcessedGroups - Map
 //     * HideInsignificantDuplicates - Boolean
 //     * DuplicatesToCheck - Array
@@ -1009,13 +1028,8 @@ Function DuplicatesCollection(Val SearchParameters, FieldsNamesToCompareForSimil
 	EndIf;
 	 
 	DuplicatesCollection.Insert("ProcessedGroups", New Map);	
-	
-	NotSignificantDuplicates = New ValueTable;
-	NotSignificantDuplicates.Columns.Add("Ref");
-	NotSignificantDuplicates.Columns.Add("Parent");
-	NotSignificantDuplicates.Indexes.Add("Ref");	
-	
-	DuplicatesCollection.Insert("NotSignificantDuplicates", NotSignificantDuplicates);
+	DuplicatesCollection.Insert("NotSignificantDuplicates", New Map);
+
 	Return DuplicatesCollection;
 
 EndFunction
@@ -1050,5 +1064,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

@@ -309,7 +309,7 @@ Procedure InitializeKeepExchangeProtocol(ExchangeComponents, ExchangeProtocolFil
 				ExchangeComponents.KeepDataProtocol.AppendDataToExchangeLog);
 		Except
 			
-			MessageString = NStr("en = 'Cannot log to ""%1"". Error details: %2';",
+			MessageString = NStr("en = 'Cannot log to ""%1"". Error details: %2'",
 				Common.DefaultLanguageCode());
 			MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString,
 				ExchangeProtocolFileName, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
@@ -508,7 +508,7 @@ Function OCRByName(ExchangeComponents, Name) Export
 	
 	If ConversionRule = Undefined Then
 		
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Object conversion rule ""%1"" is not found.';"), Name);
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Object conversion rule ""%1"" is not found.'"), Name);
 			
 	Else
 		Return ConversionRule;
@@ -545,7 +545,7 @@ Procedure ExecuteDataExport(ExchangeComponents) Export
 			|Handler: %2.
 			|
 			|Handler execution error.
-			|%3.';");
+			|%3.'");
 		
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorDescriptionTemplate,
 			ExchangeComponents.ExchangeDirection,
@@ -587,7 +587,7 @@ Procedure ExecuteDataExport(ExchangeComponents) Export
 			
 		EndIf;
 		
-		Raise NStr("en = 'Errors generating data exchange message. For details, see the event log.';");
+		Raise NStr("en = 'Errors generating data exchange message. For details, see the event log.'");
 		
 	EndIf;
 	
@@ -607,7 +607,7 @@ Procedure ExecuteDataExport(ExchangeComponents) Export
 				|Handler: %2.
 				|
 				|Handler execution error.
-				|%3.';");
+				|%3.'");
 		
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorDescriptionTemplate,
 			ExchangeComponents.ExchangeDirection,
@@ -1024,7 +1024,7 @@ Function XDTODataObjectFromXDTOData(ExchangeComponents, Val Source, Val XDTOType
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'XDTO object generation error. Property type: %1. Property name: %2.
 				|
-				|%3';"),
+				|%3'"),
 				PropertyType1,
 				Property.Name,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
@@ -1109,7 +1109,7 @@ Function XDTODataFromIBData(ExchangeComponents, Source, Val ConversionRule, Expo
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'XML schema error. The destination object must have only one type.
 				|Source type: %1
-				|Destination type: %2';"),
+				|Destination type: %2'"),
 				String(TypeOf(Source)),
 				ConversionRule.XDTOType);
 		EndIf;
@@ -1538,7 +1538,7 @@ Procedure OpenExportFile(ExchangeComponents, ExchangeFileName = "") Export
 		WriteMessage1.Recipient = ExchangeComponents.CorrespondentNode;
 		
 		If TransactionActive() Then
-			Raise NStr("en = 'Cannot apply a data exchange lock to an active transaction.';");
+			Raise NStr("en = 'Cannot apply a data exchange lock to an active transaction.'");
 		EndIf;
 		
 		// Setting a lock to the recipient node.
@@ -1550,7 +1550,7 @@ Procedure OpenExportFile(ExchangeComponents, ExchangeFileName = "") Export
 				|The data exchange might be running in another session.
 				|
 				|Details:
-				|%1';"),
+				|%1'"),
 				ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		EndTry;
 		
@@ -1664,7 +1664,7 @@ Procedure PropertyTypeByPropertyNameAndValue(XDTOType, PropertyFound, Property, 
 	Else
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Property <%1> has unknown type. Object type: %2';"),
+			NStr("en = 'Property <%1> has unknown type. Object type: %2'"),
 			Property.Name,
 			String(XDTOType));
 			
@@ -2107,7 +2107,7 @@ Procedure RunReadingData(ExchangeComponents, TablesToImport = Undefined) Export
 					|Handler: %2.
 					|
 					|Handler execution error.
-					|%3.';");
+					|%3.'");
 				
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorDescriptionTemplate,
 					ExchangeComponents.ExchangeDirection,
@@ -2177,7 +2177,7 @@ Procedure OpenImportFile(ExchangeComponents, ExchangeFileName) Export
 			XMLReader.OpenFile(ExchangeFileName);
 			ExchangeComponents.Insert("ExchangeFile", XMLReader);
 		Except
-			ErrorMessageString = NStr("en = 'Data import error: %1';");
+			ErrorMessageString = NStr("en = 'Data import error: %1'");
 			ErrorMessageString = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageString,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteToExecutionProtocol(ExchangeComponents, ErrorMessageString);
@@ -2196,7 +2196,7 @@ Procedure OpenImportFile(ExchangeComponents, ExchangeFileName) Export
 					|	- Repeat data synchronization later.
 					|2) For the other transport types:
 					|	- Synchronize data on the source side.
-					|	 Then repeat data synchronization in this infobase.';");
+					|	 Then repeat data synchronization in this infobase.'");
 				WriteToExecutionProtocol(ExchangeComponents, ErrorMessageString);
 			Else
 				WriteToExecutionProtocol(ExchangeComponents, 9);
@@ -2262,7 +2262,7 @@ Procedure OpenImportFile(ExchangeComponents, ExchangeFileName) Export
 				// Check the basic format.
 				If ExchangePlanFormat <> ExchangeFormat.BasicFormat Then
 					MessageString = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'The exchange message format ""%1"" does not match the exchange plan format ""%2.""';"),
+						NStr("en = 'The exchange message format ""%1"" does not match the exchange plan format ""%2.""'"),
 						ExchangeFormat.BasicFormat,
 						ExchangePlanFormat);
 					WriteToExecutionProtocol(ExchangeComponents, MessageString);
@@ -2272,7 +2272,7 @@ Procedure OpenImportFile(ExchangeComponents, ExchangeFileName) Export
 				// Checking a version of the exchange message format.
 				If ExhangeFormatVersionsArray(ExchangeComponents.CorrespondentNode).Find(ExchangeFormat.Version) = Undefined Then
 					MessageString = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Version %1 of exchange message format ""%2"" is not supported.';"),
+						NStr("en = 'Version %1 of exchange message format ""%2"" is not supported.'"),
 						ExchangeFormat.Version, ExchangeFormat.BasicFormat);
 					WriteToExecutionProtocol(ExchangeComponents, MessageString);
 					Break;
@@ -2313,7 +2313,7 @@ Procedure OpenImportFile(ExchangeComponents, ExchangeFileName) Export
 					If SenderFromMessage = Undefined
 						Or SenderFromMessage <> ExchangeComponents.CorrespondentNode Then
 						
-						MessageString = NStr("en = 'Cannot find the exchange node for data import. Exchange plan: %1, ID: %2.';");
+						MessageString = NStr("en = 'Cannot find the exchange node for data import. Exchange plan: %1, ID: %2.'");
 						MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, ExchangePlanName, FromWhomCode);
 						WriteToExecutionProtocol(ExchangeComponents, MessageString);
 						Break;
@@ -2502,7 +2502,7 @@ Procedure WriteObjectToIB(ExchangeComponents, Object, Type, WriteObject = False,
 	
 	If Not WriteObjectAllowed(Object, ExchangeComponents) Then
 		ErrorMessageString = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Attempting to modify shared data (%1: %2) in separated mode.';"),
+			NStr("en = 'Attempting to modify shared data (%1: %2) in separated mode.'"),
 			Object.Metadata().FullName(), String(Object));
 
 		If ExchangeComponents.DataExchangeState.ExchangeExecutionResult = Undefined
@@ -2668,7 +2668,7 @@ Function UndoObjectPostingInIB(Object, Sender, ExchangeComponents = Undefined) E
 			|Error details:
 			|%2
 			|You can ignore and hide the error if the document was posted after upload.
-			|For more information about the error, see the event log.';", Common.DefaultLanguageCode());
+			|For more information about the error, see the event log.'", Common.DefaultLanguageCode());
 		Brief1 = StrTemplate(TextTemplate1, String(Object), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		More = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		
@@ -3129,7 +3129,7 @@ Procedure AfterOpenImportFile(ExchangeComponents, Cancel, InitializeRulesTables 
 					NodeIDChanged = True;
 					
 					InfoMessage = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'The node ID has been changed from %1 to %2.';"),
+						NStr("en = 'The node ID has been changed from %1 to %2.'"),
 						CorrespondentNodeCode,
 						ExchangeComponents.CorrespondentID);
 				EndIf;
@@ -3209,7 +3209,7 @@ Function FormatVersionExchangeManager(Val FormatVersion, Val InfobaseNode = Unde
 	
 	If Result = Undefined Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Conversion manager for exchange format v.%1 is not specified.';"),
+			NStr("en = 'Conversion manager for exchange format v.%1 is not specified.'"),
 			FormatVersion);
 	EndIf;
 	
@@ -3562,7 +3562,7 @@ Function ExchangeMessageInConnectionSettings(XMLText) Export
 		UID = New UUID(UID);
 	Except
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The sender ID %1 in the EnterpriseData settings file does not match the expected GUID format.';"),
+			NStr("en = 'The sender ID %1 in the EnterpriseData settings file does not match the expected GUID format.'"),
 			UID);
 	EndTry;
 	
@@ -4359,7 +4359,7 @@ Procedure UploadRegisteredDataWithBatchRegistration(
 					NStr("en = 'Event: %1.
 					|Object: %2.
 					|
-					|%3';"),
+					|%3'"),
 					ExchangeComponents.ExchangeDirection,
 					DataPresentation,
 					ErrorProcessing.DetailErrorDescription(Info));
@@ -4452,7 +4452,7 @@ Procedure UploadingRegisteredObject(ExchangeComponents, InitialDataExport, NodeF
 			NStr("en = 'Event: %1.
 			|Object: %2.
 			|
-			|%3';"),
+			|%3'"),
 			ExchangeComponents.ExchangeDirection,
 			DataPresentation,
 			ErrorProcessing.DetailErrorDescription(Info));
@@ -4676,14 +4676,14 @@ Function FindConversionRuleForValue(PredefinedDataConversionRules, Val Type, Val
 			
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Predefined data conversion rule error.
-				|Multiple conversion rules are specified for source type ""%1"".';"),
+				|Multiple conversion rules are specified for source type ""%1"".'"),
 				String(Type));
 			
 		EndIf;
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Predefined data conversion rule error.
-			|Conversion rule is not specified for source type ""%1"".';"),
+			|Conversion rule is not specified for source type ""%1"".'"),
 			String(Type));
 			
 	Else
@@ -4700,7 +4700,7 @@ Function FindConversionRuleForValue(PredefinedDataConversionRules, Val Type, Val
 			
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Predefined data conversion rule error.
-				|Multiple conversion rules are specified for source type ""%1"" and destination type ""%2"".';"),
+				|Multiple conversion rules are specified for source type ""%1"" and destination type ""%2"".'"),
 				String(Type),
 				String(XDTOType));
 			
@@ -4708,7 +4708,7 @@ Function FindConversionRuleForValue(PredefinedDataConversionRules, Val Type, Val
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Predefined data conversion rule error.
-			|Conversion rule is not specified for source type ""%1"" and destination type ""%2"".';"),
+			|Conversion rule is not specified for source type ""%1"" and destination type ""%2"".'"),
 			String(Type),
 			String(XDTOType));
 		
@@ -4724,7 +4724,7 @@ Function XDTOEnumValue(Val ValuesConversions, Val Value)
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Predefined data conversion rule is not found.
 			|Source value type: ""%1"".
-			|Source value: ""%2""';"),
+			|Source value: ""%2""'"),
 			TypeOf(Value),
 			String(Value));
 	EndIf;
@@ -5132,7 +5132,7 @@ Procedure CheckXDTOObjectBySchema(XDTODataObject, XDTOType, Context, Cancel, Err
 	|OCR: %5.
 	|Object: %6.
 	|
-	|For more details, see the event log.';");
+	|For more details, see the event log.'");
 	
 	EventLogErrorMessageTemplate = 
 	NStr("en = 'Direction: %1.
@@ -5140,7 +5140,7 @@ Procedure CheckXDTOObjectBySchema(XDTODataObject, XDTOType, Context, Cancel, Err
 	|OCR: %3.
 	|Object: %4.
 	|
-	|%5';");
+	|%5'");
 	
 	ErrorDescription.BriefPresentation = StringFunctionsClientServer.SubstituteParametersToString(
 		UserErrorMessageTemplate,
@@ -5170,7 +5170,7 @@ Procedure FillXDTOObjectCheckErrors(XDTODataObject, XDTOObjectType, ErrorsStack,
 				And Not Property.Nillable Then
 				Indent = StringFunctionsClientServer.GenerateCharacterString("  ", Level);
 				ErrorMessage = Indent + StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '%1: required field is blank.';"),
+					NStr("en = '%1: required field is blank.'"),
 					Property.Name);
 				ErrorsStack.Add(ErrorMessage);
 			EndIf;
@@ -5195,7 +5195,7 @@ Procedure FillXDTOObjectCheckErrors(XDTODataObject, XDTOObjectType, ErrorsStack,
 				Except
 					Indent = StringFunctionsClientServer.GenerateCharacterString("  ", Level);
 					ErrorMessage = Indent + StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = '%1: field value is invalid.';"),
+						NStr("en = '%1: field value is invalid.'"),
 						Property.Name);
 					ErrorsStack.Add(ErrorMessage);
 				EndTry;
@@ -5312,7 +5312,7 @@ Procedure ConvertXDTOPropertyToStructureItem(Source, Property, Receiver,
 		EndIf;
 	Except
 		ErrorPresentation = ErrorProcessing.DetailErrorDescription(ErrorInfo());
-		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'XDTO object reading error. Property: <%1>.';"), PropertyName)
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'XDTO object reading error. Property: <%1>.'"), PropertyName)
 			+ Chars.LF + Chars.LF + ErrorPresentation;
 		Raise ErrorText;
 	EndTry;
@@ -5799,7 +5799,7 @@ Procedure ConversionOfXDTOObjectStructureProperties(
 				|Object: %2.
 				|
 				|Property conversion error.
-				|%3.';"),
+				|%3.'"),
 			ExchangeComponents.ExchangeDirection,
 			ObjectPresentationForProtocol(ReceivedData),
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
@@ -5937,7 +5937,7 @@ Procedure ConversionOfXDTOObjectStructureProperty(
 		
 	Except
 		ErrorPresentation = ErrorProcessing.DetailErrorDescription(ErrorInfo());
-		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'XDTO object property conversion error. Property: <%1>.';"), PCR.ConfigurationProperty)
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'XDTO object property conversion error. Property: <%1>.'"), PCR.ConfigurationProperty)
 			+ Chars.LF + Chars.LF + ErrorPresentation;
 		Raise ErrorText;
 	EndTry;
@@ -6325,7 +6325,7 @@ Procedure DeferredObjectsFilling(ExchangeComponents)
 			|Handler: %2.
 			|
 			|Handler execution error.
-			|%3.';");
+			|%3.'");
 		
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorDescriptionTemplate,
 			ExchangeComponents.ExchangeDirection,
@@ -6384,7 +6384,7 @@ Procedure DeferredObjectsFilling(ExchangeComponents)
 				|Object: %3.
 				|
 				|Handler execution error.
-				|%4.';");
+				|%4.'");
 			
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorDescriptionTemplate,
 				ExchangeComponents.ExchangeDirection,
@@ -6541,7 +6541,7 @@ Procedure ReadExchangeMessage(ExchangeComponents, Results, TablesToImport = Unde
 			|Handler: %2.
 			|
 			|Handler execution error.
-			|%3.';");
+			|%3.'");
 		
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorDescriptionTemplate,
 			ExchangeComponents.ExchangeDirection,
@@ -6821,7 +6821,7 @@ Function ParseExchangeFormat(Val ExchangeFormat)
 	FormatItems = StrSplit(ExchangeFormat, "/");
 	
 	If FormatItems.Count() = 0 Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Non-canonical exchange format name: ""%1""';"), ExchangeFormat);
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Non-canonical exchange format name: ""%1""'"), ExchangeFormat);
 	EndIf;
 	
 	Result.Version = FormatItems[FormatItems.UBound()];
@@ -7132,8 +7132,8 @@ Procedure DeleteObject(Object, DeleteDirectly, ExchangeComponents)
 	If Not WriteObjectAllowed(Object, ExchangeComponents) Then
 		ErrorMessageString = StringFunctionsClientServer.SubstituteParametersToString(
 			?(DeleteDirectly,
-				NStr("en = 'Attempting to delete shared data (%1: %2) in separated mode.';"),
-				NStr("en = 'Attempting to mark shared data (%1: %2) for deletion in separated mode.';")),
+				NStr("en = 'Attempting to delete shared data (%1: %2) in separated mode.'"),
+				NStr("en = 'Attempting to mark shared data (%1: %2) for deletion in separated mode.'")),
 			Object.Metadata().FullName(),
 			String(Object));
 
@@ -7310,7 +7310,7 @@ Procedure UpdateCorrespondentXDTOSettings(ExchangeComponents)
 		EndTry;
 		
 		WriteToExecutionProtocol(ExchangeComponents, 
-			NStr("en = 'Exchange format version has been changed.';"), , False, , , True);
+			NStr("en = 'Exchange format version has been changed.'"), , False, , , True);
 	EndIf;
 	
 	InformationRegisters.XDTODataExchangeSettings.UpdateCorrespondentSettings(ExchangeComponents.CorrespondentNode,
@@ -7534,7 +7534,7 @@ Function DPRByXDTORefType(ExchangeComponents, XDTORefType, ReturnEmptyValue = Fa
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot find a DPR for an XDTO reference type.
 					|XDTO reference type: %1.
-					|Error details: %2';"),
+					|Error details: %2'"),
 				String(XDTORefType),
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				
@@ -7558,7 +7558,7 @@ Function DPRByXDTOObjectType(ExchangeComponents, XDTOObjectType, ReturnEmptyValu
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot find a DPR for an XDTO object type.
 					|XDTO object type: %1.
-					|Error details: %2';"),
+					|Error details: %2'"),
 				String(XDTOObjectType),
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				
@@ -7577,7 +7577,7 @@ Function DPRByMetadataObject(ExchangeComponents, MetadataObject)
 	If ProcessingRule = Undefined Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot find a DPR for a metadata object.
-			|Metadata object: %3.';"),
+			|Metadata object: %3.'"),
 			String(MetadataObject));
 	EndIf;
 	
@@ -7591,7 +7591,7 @@ Function DPRByName(ExchangeComponents, Name)
 	
 	If ProcessingRule = Undefined Then
 		
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot find a DPR with name ""%1"".';"), Name);
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot find a DPR with name ""%1"".'"), Name);
 			
 	Else
 		Return ProcessingRule;
@@ -7608,7 +7608,7 @@ Procedure GetProcessingRuleForObject(ExchangeComponents, Object, ProcessingRule)
 			NStr("en = 'Event: %1.
 			|Object: %2.
 			|
-			|%3.';"),
+			|%3.'"),
 			ExchangeComponents.ExchangeDirection,
 			ObjectPresentationForProtocol(Object),
 			ErrorProcessing.BriefErrorDescription(ErrorInfo()));
@@ -7704,7 +7704,7 @@ Function DataSelection(ExchangeComponents, ProcessingRule)
 					|DPR: %3.
 					|
 					|Handler execution error.
-					|%4.';");
+					|%4.'");
 			
 			ErrorText = Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(ErrorDescriptionTemplate,
 				ExchangeComponents.ExchangeDirection,
@@ -7774,7 +7774,7 @@ Procedure OnSendData(IBData, XDTOData, Val HandlerName, ExchangeComponents, Expo
 				|Object: %3.
 				|
 				|Handler execution error.
-				|%4.';");
+				|%4.'");
 		
 		ErrorText = Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(ErrorDescriptionTemplate,
 			ExchangeComponents.ExchangeDirection,
@@ -7825,7 +7825,7 @@ Procedure OnConvertXDTOData(XDTOData, ReceivedData, ExchangeComponents, Val Hand
 				|Object: %3.
 				|
 				|Handler execution error.
-				|%4.';");
+				|%4.'");
 		
 		ErrorText = Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(ErrorDescriptionTemplate,
 			ExchangeComponents.ExchangeDirection,
@@ -7881,7 +7881,7 @@ Procedure BeforeWriteReceivedData(ReceivedData, IBData, ExchangeComponents, Hand
 				|Object: %3.
 				|
 				|Handler execution error.
-				|%4.';");
+				|%4.'");
 		
 		ErrorText = Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(ErrorDescriptionTemplate,
 			ExchangeComponents.ExchangeDirection,
@@ -7917,7 +7917,7 @@ Procedure SearchAlgorithm(IBData, Val ReceivedData, Val ExchangeComponents, Val 
 				|Object: %3.
 				|
 				|Handler execution error.
-				|%4.';");
+				|%4.'");
 		
 		ErrorText = Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(ErrorDescriptionTemplate,
 			ExchangeComponents.ExchangeDirection,
@@ -8091,37 +8091,37 @@ Function PropertiesCollectionPresentationForProtocol(PropertiesCollection)
 				
 	PropertyValue = Undefined;
 	
-	If PropertiesCollection.Property("Наименование", PropertyValue) // @Non-NLS
-		And ValueIsFilled(PropertyValue) Then
+	If PropertiesCollection.Property("Наименование", PropertyValue)
+		And ValueIsFilled(PropertyValue) Then // @Non-NLS
 		PresentationItems.Add(TrimAll(PropertyValue));
 	EndIf;
 	
-	If PropertiesCollection.Property("Код", PropertyValue) // @Non-NLS
-		And ValueIsFilled(PropertyValue) Then
+	If PropertiesCollection.Property("Код", PropertyValue)
+		And ValueIsFilled(PropertyValue) Then // @Non-NLS
 		PresentationItems.Add("(" + TrimAll(PropertyValue) + ")");
-	ElsIf PropertiesCollection.Property("КодВПрограмме", PropertyValue) // @Non-NLS
-		And ValueIsFilled(PropertyValue) Then
+	ElsIf PropertiesCollection.Property("КодВПрограмме", PropertyValue)
+		And ValueIsFilled(PropertyValue) Then // @Non-NLS
 		PresentationItems.Add("(" + TrimAll(PropertyValue) + ")");
 	EndIf;
 	
-	If PropertiesCollection.Property("Номер", PropertyValue) // @Non-NLS
-		And ValueIsFilled(PropertyValue) Then
+	If PropertiesCollection.Property("Номер", PropertyValue)
+		And ValueIsFilled(PropertyValue) Then // @Non-NLS
 		
 		DatePropertyValue = Undefined;
-		If PropertiesCollection.Property("Дата", DatePropertyValue) // @Non-NLS
-			And ValueIsFilled(DatePropertyValue) Then
+		If PropertiesCollection.Property("Дата", DatePropertyValue)
+			And ValueIsFilled(DatePropertyValue) Then // @Non-NLS
 			PresentationItems.Add(
-				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '#%1, %2';"), PropertyValue, Format(DatePropertyValue, "DLF=D")));
+				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '#%1, %2'"), PropertyValue, Format(DatePropertyValue, "DLF=D")));
 		Else
 			PresentationItems.Add(
-				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '#%1';"), PropertyValue));
+				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '#%1'"), PropertyValue));
 		EndIf;
 		
-	ElsIf PropertiesCollection.Property("Дата", PropertyValue) // @Non-NLS
-		And ValueIsFilled(PropertyValue) Then
+	ElsIf PropertiesCollection.Property("Дата", PropertyValue)
+		And ValueIsFilled(PropertyValue) Then // @Non-NLS
 		
 		PresentationItems.Add(
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = ', %1';"), PropertyValue));
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = ', %1'"), PropertyValue));
 		
 	EndIf;
 	
@@ -8153,7 +8153,7 @@ Function DPRErrorDescription(ExchangeDirection, DPRName, ObjectPresentation, Inf
 		|Object: %4.
 		|
 		|Handler execution error.
-		|%5.';");
+		|%5.'");
 	
 	Result.BriefPresentation = StringFunctionsClientServer.SubstituteParametersToString(
 		ErrorDescriptionTemplate,
@@ -8184,7 +8184,7 @@ Function OCRErrorDescription(ExchangeDirection, DPRName, OCRName, ObjectPresenta
 		|OCR: %3.
 		|Object: %4.
 		|
-		|%5';");
+		|%5'");
 	
 	Result.BriefPresentation = StringFunctionsClientServer.SubstituteParametersToString(
 		ErrorDescriptionTemplate,
@@ -8293,7 +8293,7 @@ Function ExchangeFormatVersions(Val InfobaseNode)
 			
 			ErrorDescriptionTemplate = NStr("en = 'Exchange format versions not set.
 				|Exchange plan name: %1
-				|Procedure: %2';");
+				|Procedure: %2'");
 			
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorDescriptionTemplate,
 				ExchangePlanName,
@@ -8304,7 +8304,7 @@ Function ExchangeFormatVersions(Val InfobaseNode)
 		Else
 			
 			ErrorDescriptionTemplate = NStr("en = 'Exchange format versions not set.
-				|Procedure: %1';");
+				|Procedure: %1'");
 			
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorDescriptionTemplate,
 				"DataExchangeOverridable.OnGetAvailableFormatVersions(<ExchangeFormatVersions>)");
@@ -8347,7 +8347,7 @@ Procedure CheckVersion(Val Version)
 	Versions = StrSplit(Version, ".");
 	
 	If Versions.Count() = 0 Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Non-canonical presentation of the exchange format v.%1.';"), Version);
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Non-canonical presentation of the exchange format v.%1.'"), Version);
 	EndIf;
 	
 EndProcedure
@@ -8399,7 +8399,7 @@ Function CompareVersions(Val VersionString1, Val VersionString2)
 	String2 = ?(IsBlankString(VersionString2), "0.0", VersionString2);
 	Version1 = StrSplit(String1, ".");
 	
-	ErrorDescriptionTemplate = NStr("en = 'Invalid %1 parameter format: %2';");
+	ErrorDescriptionTemplate = NStr("en = 'Invalid %1 parameter format: %2'");
 	
 	If Version1.Count() < 2 Or Version1.Count() > 3 Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(ErrorDescriptionTemplate,"VersionString1", VersionString1);

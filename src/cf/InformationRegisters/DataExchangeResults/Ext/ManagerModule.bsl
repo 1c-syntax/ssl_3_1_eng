@@ -393,13 +393,13 @@ Procedure ClearSynchronizationWarnings(TimeConsumingOperationParameters, Storage
 	If DeletionParameters.SelectingTheTypesOfVersionWarnings.Count() > 0
 		And Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
 		
-		EventName = NStr("en = 'Data exchange';", Common.DefaultLanguageCode());
+		EventName = NStr("en = 'Data exchange'", Common.DefaultLanguageCode());
 		InformationRegisters["ObjectsVersions"].ClearVersionWarnings(DeletionParameters, EventName);
 		
 	EndIf;
 	
 	ProgressText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Deleted %1 of %1';", Common.DefaultLanguageCode()),
+			NStr("en = 'Deleted %1 of %1'", Common.DefaultLanguageCode()),
 			DeletionParameters.MaximumNumberOfOperations);
 			
 	TimeConsumingOperations.ReportProgress(100, ProgressText);	
@@ -675,7 +675,7 @@ Function TitleOfWarningsByNumber(NumberOfWarnings)
 	WarningTitle = "";
 	If NumberOfWarnings > 100 Then
 		
-		WarningTitle = NStr("en = 'more than 100 warnings';", Common.DefaultLanguageCode());
+		WarningTitle = NStr("en = 'more than 100 warnings'", Common.DefaultLanguageCode());
 		
 	ElsIf NumberOfWarnings = 0 Then
 		
@@ -684,7 +684,7 @@ Function TitleOfWarningsByNumber(NumberOfWarnings)
 	Else
 			
 		WarningTitle = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 warnings';", Common.DefaultLanguageCode()),
+			NStr("en = '%1 warnings'", Common.DefaultLanguageCode()),
 			NumberOfWarnings);
 		
 	EndIf;
@@ -759,13 +759,13 @@ Procedure ProgressDeletingSyncAlerts(Val CurrentStep, Maximum, SampleIterator = 
 	If SampleIterator = 0 Then
 		
 		ProgressText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 out of %2 iterations completed';",  Common.DefaultLanguageCode()),
+			NStr("en = '%1 out of %2 iterations completed'",  Common.DefaultLanguageCode()),
 			CurrentStep, Maximum);
 		
 	Else
 				
 		ProgressText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 out of %2 iterations completed (%3)';",  Common.DefaultLanguageCode()),
+			NStr("en = '%1 out of %2 iterations completed (%3)'",  Common.DefaultLanguageCode()),
 			CurrentStep, Maximum, SampleIterator);
 		
 	EndIf;
@@ -885,7 +885,7 @@ Procedure ClearBypassExchangeWarnings(DeletionParameters)
 			// roll back the transaction and log the error.
 			RollbackTransaction();
 			
-			EventName = NStr("en = 'Data exchange';", Common.DefaultLanguageCode());
+			EventName = NStr("en = 'Data exchange'", Common.DefaultLanguageCode());
 			WriteLogEvent(EventName, EventLogLevel.Error,,,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			Raise;
@@ -956,7 +956,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process the register record set ""%1"" due to:
-				|%2';"), RegisterPresentation, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				|%2'"), RegisterPresentation, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
 				RegisterMetadata, , MessageText);
@@ -971,14 +971,14 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	If Processed = 0 And RecordsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Procedure InformationRegisters.DataExchangeResults.ProcessDataForMigrationToNewVersion failed to process (skipped) some records: %1';"), 
+			NStr("en = 'Procedure InformationRegisters.DataExchangeResults.ProcessDataForMigrationToNewVersion failed to process (skipped) some records: %1'"), 
 			RecordsWithIssuesCount);
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
 			, ,
 			StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The InformationRegisters.DataExchangeResults.ProcessDataForMigrationToNewVersion procedure processed records: %1';"),
+			NStr("en = 'The InformationRegisters.DataExchangeResults.ProcessDataForMigrationToNewVersion procedure processed records: %1'"),
 			Processed));
 	EndIf;
 	

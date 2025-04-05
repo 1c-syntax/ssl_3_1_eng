@@ -16,7 +16,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Verify that the form is opened with the required parameters
 	If Not Parameters.Property("ExchangePlanName") Then
 		
-		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
+		Raise NStr("en = 'This is a dependent form and opens from a different form.'", Common.DefaultLanguageCode());
 		
 	EndIf;
 	
@@ -38,11 +38,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	RulesFromFile = InformationRegisters.DataExchangeRules.RulesFromFileUsed(ExchangePlanName, True);
 	
 	If RulesFromFile.ConversionRules And RulesFromFile.RecordRules Then
-		RulesType = NStr("en = 'conversions and registrations';");
+		RulesType = NStr("en = 'conversions and registrations'");
 	ElsIf RulesFromFile.ConversionRules Then
-		RulesType = NStr("en = 'conversions';");
+		RulesType = NStr("en = 'conversions'");
 	ElsIf RulesFromFile.RecordRules Then
-		RulesType = NStr("en = 'registrations';");
+		RulesType = NStr("en = 'registrations'");
 	EndIf;
 	
 	Items.RulesTextFromFile.Title = StringFunctionsClientServer.SubstituteParametersToString(

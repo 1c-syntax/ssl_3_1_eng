@@ -104,7 +104,7 @@ EndProcedure
 //   Commands - ValueTable - write the generated commands to this parameter for output in submenu: 
 //       * Kind - String - Command type.
 //            See AttachableCommandsOverridable.OnDefineAttachableCommandsKinds.
-//       * Id - String - a command ID.
+//       * Id - String - Command ID.
 //       
 //       1) Appearance settings.
 //       * Presentation - String   - Command presentation in a form.

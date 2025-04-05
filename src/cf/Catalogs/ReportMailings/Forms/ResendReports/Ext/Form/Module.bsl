@@ -18,10 +18,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If MailoutStatus.WithErrors Then 
 		Items.HeadingDecoration.Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The report distribution (%1) was not delivered to some recipients. Resend the reports to the following recipients:';"),
+			NStr("en = 'The report distribution (%1) was not delivered to some recipients. Resend the reports to the following recipients:'"),
 			MailoutStatus.LastRunStart);
 	Else	
-		Items.HeadingDecoration.Title = NStr("en = 'No need to resend the reports.';");
+		Items.HeadingDecoration.Title = NStr("en = 'No need to resend the reports.'");
 	EndIf;
 	
 	PopulateRedistributionRecipients(DistributionRef, MailoutStatus);

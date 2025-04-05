@@ -27,7 +27,7 @@ Procedure CheckTheLocationOfTheComponent(Id, Location) Export
 		NStr("en = 'Cannot attach the %1 add-in in the client application
 		           |due to:
 		           |Add-in
-		           |%2 location is incorrect';"),
+		           |%2 location is incorrect'"),
 		Id, Location);
 
 EndProcedure
@@ -61,7 +61,7 @@ Procedure CheckAddInAvailability(Notification, Context) Export
 	
 	If Information.State = "DisabledByAdministrator" Then 
 		
-		Result.ErrorDescription = NStr("en = 'Disabled by administrator.';");
+		Result.ErrorDescription = NStr("en = 'Disabled by administrator.'");
 		RunCallback(Notification, Result);
 		
 	ElsIf Information.State = "NotFound1" Then 
@@ -82,7 +82,7 @@ Procedure CheckAddInAvailability(Notification, Context) Export
 			AddInsClientLocalization.OnSearchAddInsOnPortal(Notification, Context);
 			
 		Else 
-			Result.ErrorDescription = NStr("en = 'The add-in is missing from the list of allowed add-ins.';");
+			Result.ErrorDescription = NStr("en = 'The add-in is missing from the list of allowed add-ins.'");
 			RunCallback(Notification, Result);
 		EndIf;
 		
@@ -159,12 +159,12 @@ Async Function AddInAvailabilityCheckResult(Context) Export
 	
 	If Information.State = "DisabledByAdministrator" Then 
 		
-		Result.ErrorDescription = NStr("en = 'Disabled by administrator.';");
+		Result.ErrorDescription = NStr("en = 'Disabled by administrator.'");
 		Return Result;
 		
 	ElsIf Information.State = "NotFound1" Then 
 		
-		Result.ErrorDescription = NStr("en = 'The add-in is missing from the list of allowed add-ins.';");
+		Result.ErrorDescription = NStr("en = 'The add-in is missing from the list of allowed add-ins.'");
 		
 		Return Result;
 		
@@ -189,19 +189,19 @@ Async Function AddInAvailabilityCheckResult(Context) Export
 			ErrorDescription = StringFunctionsClient.FormattedString(
 				NStr("en = 'Client application <b>%1</b>
 					 |does not support the add-in.
-					 |Contact the add-in developer.';"), PresentationOfCurrentClient());
+					 |Contact the add-in developer.'"), PresentationOfCurrentClient());
 
 			If Not Context.SuggestInstall Then
 				Result.Available = False;
 				Result.ErrorDescription = ErrorDescription;
 			Else
 				QuestionButtons = New ValueList;
-				QuestionButtons.Add("Close", NStr("en = 'Close';"));
-				QuestionButtons.Add("ResumeInstallationAttempt", NStr("en = 'Install anyway';"));
+				QuestionButtons.Add("Close", NStr("en = 'Close'"));
+				QuestionButtons.Add("ResumeInstallationAttempt", NStr("en = 'Install anyway'"));
 
 				QuestionTitle = Context.ExplanationText;
 				If IsBlankString(QuestionTitle) Then
-					QuestionTitle = NStr("en = 'Cannot install the add-in.';");
+					QuestionTitle = NStr("en = 'Cannot install the add-in.'");
 				EndIf;
 
 				Response = Await DoQueryBoxAsync(ErrorDescription, QuestionButtons,, "Close", QuestionTitle);
@@ -310,7 +310,7 @@ EndProcedure
 
 Function AddInCompatibilityErrorDetails()
 	Return StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Client application %1 does not support the add-in. Contact the add-in developer.';"),
+			NStr("en = 'Client application %1 does not support the add-in. Contact the add-in developer.'"),
 			CommonInternalClient.ApplicationKind());
 EndFunction
 
@@ -377,7 +377,7 @@ EndProcedure
 // The add-in supports the client.
 // 
 // Parameters:
-//  Attributes - See AddInsInternal.AddInAttributes
+//  Attributes - 
 // 
 // Returns:
 //  Boolean - Flag indicating whether the add-in supports the client.
@@ -601,14 +601,14 @@ EndFunction
 Function TextCannotInstallAddIn(Val ExplanationText) Export
 
 	If IsBlankString(ExplanationText) Then
-		ExplanationText = NStr("en = 'Cannot install the add-in.';");
+		ExplanationText = NStr("en = 'Cannot install the add-in.'");
 	EndIf;
 
 	Return StringFunctionsClient.FormattedString(NStr("en = '%1
 			  |
 			  |The add-in is not supported 
 			  |in the client application <b>%2</b>.
-			  |Use <a href = about:blank>a supported client application</a> or contact the add-in developer.';"),
+			  |Use <a href = about:blank>a supported client application</a> or contact the add-in developer.'"),
 		ExplanationText, PresentationOfCurrentClient());
 		
 EndFunction
@@ -621,71 +621,71 @@ Function PresentationOfCurrentClient()
 	String = SystemInfo.UserAgentInformation;
 	
 	If StrFind(String, "YaBrowser/") > 0 Then
-		Browser = NStr("en = 'Yandex Browser';");
+		Browser = NStr("en = 'Yandex Browser'");
 	ElsIf StrFind(String, "Chrome/") > 0 Then
-		Browser = NStr("en = 'Chrome';");
+		Browser = NStr("en = 'Chrome'");
 	ElsIf StrFind(String, "MSIE") > 0 Then
-		Browser = NStr("en = 'Internet Explorer';");
+		Browser = NStr("en = 'Internet Explorer'");
 	ElsIf StrFind(String, "Safari/") > 0 Then
-		Browser = NStr("en = 'Safari';");
+		Browser = NStr("en = 'Safari'");
 	ElsIf StrFind(String, "Firefox/") > 0 Then
-		Browser = NStr("en = 'Firefox';");
+		Browser = NStr("en = 'Firefox'");
 	EndIf;
 	
-	Package = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'web client %1';"), Browser);
+	Package = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'web client %1'"), Browser);
 #ElsIf MobileAppClient Then
-	Package = NStr("en = 'mobile application';");
+	Package = NStr("en = 'mobile application'");
 #ElsIf MobileClient Then
-	Package = NStr("en = 'mobile client';");
+	Package = NStr("en = 'mobile client'");
 #ElsIf ThinClient Then
-	Package = NStr("en = 'thin client';");
+	Package = NStr("en = 'thin client'");
 #ElsIf ThickClientOrdinaryApplication Then
-	Package = NStr("en = 'thick client (ordinary application)';");
+	Package = NStr("en = 'thick client (ordinary application)'");
 #ElsIf ThickClientManagedApplication Then
-	Package = NStr("en = 'thick client';");
+	Package = NStr("en = 'thick client'");
 #EndIf
 
 	NameOfThePlatformType = CommonClientServer.NameOfThePlatformType(SystemInfo.PlatformType);
 	If NameOfThePlatformType = "Windows_x86" Then
-		Platform = NStr("en = 'Windows x86';");
+		Platform = NStr("en = 'Windows x86'");
 	ElsIf NameOfThePlatformType = "Windows_x86_64" Then
-		Platform = NStr("en = 'Windows x86-64';");
+		Platform = NStr("en = 'Windows x86-64'");
 	ElsIf NameOfThePlatformType = "Linux_x86" Then
-		Platform = NStr("en = 'Linux x86';");
+		Platform = NStr("en = 'Linux x86'");
 	ElsIf NameOfThePlatformType = "Linux_x86_64" Then
-		Platform = NStr("en = 'Linux x86-64';");
+		Platform = NStr("en = 'Linux x86-64'");
 	ElsIf NameOfThePlatformType = "MacOS_x86" Then
-		Platform = NStr("en = 'macOS x86';");
+		Platform = NStr("en = 'macOS x86'");
 	ElsIf NameOfThePlatformType = "MacOS_x86_64" Then
-		Platform = NStr("en = 'macOS x86-64';");
+		Platform = NStr("en = 'macOS x86-64'");
 	ElsIf NameOfThePlatformType = "Linux_ARM64" Then
-		Platform = NStr("en = 'Linux ARM64';");
+		Platform = NStr("en = 'Linux ARM64'");
 	ElsIf NameOfThePlatformType = "Linux_E2K" Then
-		Platform = NStr("en = 'Linux E2K';");
+		Platform = NStr("en = 'Linux E2K'");
 	ElsIf NameOfThePlatformType = "Android_ARM" Then
-		Platform = NStr("en = 'Android ARM';");
+		Platform = NStr("en = 'Android ARM'");
 	ElsIf NameOfThePlatformType = "Android_ARM_64" Then
-		Platform = NStr("en = 'Android_ARM64';");
+		Platform = NStr("en = 'Android_ARM64'");
 	ElsIf NameOfThePlatformType = "Android_x86" Then
-		Platform = NStr("en = 'Android x86';");
+		Platform = NStr("en = 'Android x86'");
 	ElsIf NameOfThePlatformType = "Android_x86_64" Then
-		Platform = NStr("en = 'Android x86-64';");
+		Platform = NStr("en = 'Android x86-64'");
 	ElsIf NameOfThePlatformType = "iOS_ARM" Then
-		Platform = NStr("en = 'iOS ARM';");
+		Platform = NStr("en = 'iOS ARM'");
 	ElsIf NameOfThePlatformType = "iOS_ARM_64" Then
-		Platform = NStr("en = 'iOS ARM64';");
+		Platform = NStr("en = 'iOS ARM64'");
 	ElsIf NameOfThePlatformType = "WinRT_ARM" Then
-		Platform = NStr("en = 'WinRT ARM';");
+		Platform = NStr("en = 'WinRT ARM'");
 	ElsIf NameOfThePlatformType = "WinRT_x86" Then
-		Platform = NStr("en = 'WinRT x86';");
+		Platform = NStr("en = 'WinRT x86'");
 	ElsIf NameOfThePlatformType = "WinRT_x86_64" Then
-		Platform = NStr("en = 'WinRT x86-64';");
+		Platform = NStr("en = 'WinRT x86-64'");
 	EndIf;
 	
 	// Example:
 	// Firefox Windows x86 web client
 	// Windows x86-64 thin client
-	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 %2';"), Package, Platform);
+	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 %2'"), Package, Platform);
 	
 EndFunction
 
@@ -708,7 +708,7 @@ Async Function AttachAddInSSLAsync(Context) Export
 				NStr("en = 'Cannot attach the ""%1"" add-in
 				           |on the client from the add-in storage.
 				           |Reason:
-				           |%2';"),
+				           |%2'"),
 				Context.Id,
 				Result.ErrorDescription);
 		EndIf;
@@ -747,7 +747,7 @@ Procedure AttachAddInAfterAvailabilityCheck(Result, Context) Export
 				NStr("en = 'Cannot attach the ""%1"" add-in
 				           |on the client from the add-in storage.
 				           |Reason:
-				           |%2';"),
+				           |%2'"),
 				Context.Id,
 				Result.ErrorDescription);
 		EndIf;
@@ -795,7 +795,7 @@ Async Function AttachAddInFromWindowsRegistryAsync(Context) Export
 				NStr("en = 'Cannot attach the ""%1"" add-in on the client
 					 |from Windows registry.
 					 |Reason:
-					 |%2';"), Context.Id, ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+					 |%2'"), Context.Id, ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 
 			Return CommonInternalClient.AddInAttachmentError(ErrorText);
 		EndTry;
@@ -811,7 +811,7 @@ Async Function AttachAddInFromWindowsRegistryAsync(Context) Export
 			Try
 				Attachable_Module = New ("AddIn." + ObjectCreationID);
 				If Attachable_Module = Undefined Then
-					Raise NStr("en = 'The New operator returned Undefined.';");
+					Raise NStr("en = 'The New operator returned Undefined'");
 				EndIf;
 			Except
 				Attachable_Module = Undefined;
@@ -824,7 +824,7 @@ Async Function AttachAddInFromWindowsRegistryAsync(Context) Export
 				NStr("en = 'Cannot create object of the ""%1"" add-in attached on the client
 					 |from Windows registry.
 					 |Reason:
-					 |%2';"), Context.Id, ErrorText);
+					 |%2'"), Context.Id, ErrorText);
 
 				Return CommonInternalClient.AddInAttachmentError(ErrorText);
 
@@ -843,7 +843,7 @@ Async Function AttachAddInFromWindowsRegistryAsync(Context) Export
 			NStr("en = 'Couldn''t attach add-in ""%1"" on the client
 				 |from Windows registry.
 				 |Reason:
-				 |Method ""%2"" returned ""%3"".';"), Context.Id, "AttachAddInAsync", "False");
+				 |Method ""%2"" returned ""%3"".'"), Context.Id, "AttachAddInAsync", "False");
 
 			Return CommonInternalClient.AddInAttachmentError(ErrorText);
 
@@ -855,7 +855,7 @@ Async Function AttachAddInFromWindowsRegistryAsync(Context) Export
 			NStr("en = 'Cannot attach the ""%1"" add-in
 			           |on the client from Windows registry.
 			           |Reason:
-			           |Attaching add-ins from Windows is allowed only in the thin and thick clients.';"),
+			           |Attaching add-ins from Windows is allowed only in the thin and thick clients.'"),
 			Context.Id);
 		
 		Return CommonInternalClient.AddInAttachmentError(ErrorText);
@@ -885,7 +885,7 @@ Procedure AttachAddInFromWindowsRegistry(Context) Export
 			NStr("en = 'Cannot attach the ""%1"" add-in
 			           |on the client from Windows registry.
 			           |Reason:
-			           |Attaching add-ins from Windows is allowed only in the thin and thick clients.';"),
+			           |Attaching add-ins from Windows is allowed only in the thin and thick clients.'"),
 		Context.Id);
 		
 		CommonInternalClient.AttachAddInSSLNotifyOnError(ErrorText, Context);
@@ -913,7 +913,7 @@ Procedure AttachAddInFromWindowsRegistryAfterAttachmentAttempt(Attached, Context
 		Try
 			Attachable_Module = New("AddIn." + ObjectCreationID);
 			If Attachable_Module = Undefined Then 
-				Raise NStr("en = 'The New operator returned Undefined';");
+				Raise NStr("en = 'The New operator returned Undefined'");
 			EndIf;
 		Except
 			Attachable_Module = Undefined;
@@ -926,7 +926,7 @@ Procedure AttachAddInFromWindowsRegistryAfterAttachmentAttempt(Attached, Context
 				NStr("en = 'Cannot create object of the ""%1"" add-in attached on the client
 				           |from Windows registry.
 				           |Reason:
-				           |%2';"),
+				           |%2'"),
 				Context.Id,
 				ErrorText);
 				
@@ -942,7 +942,7 @@ Procedure AttachAddInFromWindowsRegistryAfterAttachmentAttempt(Attached, Context
 			NStr("en = 'Couldn''t attach add-in ""%1"" on the client
 			           |from Windows registry.
 			           |Reason:
-			           |Method ""%2"" returned ""%3"".';"),
+			           |Method ""%2"" returned ""%3"".'"),
 			Context.Id, "BeginAttachingAddIn", "False");
 			
 		CommonInternalClient.AttachAddInSSLNotifyOnError(ErrorText, Context);
@@ -966,7 +966,7 @@ Procedure AttachAddInFromWIndowsRegisterOnProcessError(ErrorInfo, StandardProces
 		NStr("en = 'Cannot attach the ""%1"" add-in on the client
 		           |from Windows registry.
 		           |Reason:
-		           |%2';"),
+		           |%2'"),
 		Context.Id,
 		ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		
@@ -1003,7 +1003,7 @@ Async Function InstallAddInSSLAsync(Context) Export
 			NStr("en = 'Cannot attach the ""%1"" add-in
 			           |on the client from the add-in storage.
 			           |Reason:
-			           |%2';"),
+			           |%2'"),
 			Context.Id,
 			CheckResult.ErrorDescription);
 			
@@ -1039,7 +1039,7 @@ Procedure InstallAddInAfterAvailabilityCheck(Result, Context) Export
 			NStr("en = 'Cannot attach the ""%1"" add-in
 			           |on the client from the add-in storage.
 			           |Reason:
-			           |%2';"),
+			           |%2'"),
 			Context.Id,
 			Result.ErrorDescription);
 			
@@ -1104,7 +1104,7 @@ Procedure ImportAddInFromFile(Context) Export
 		ShowMessageBox(Notification, 
 			NStr("en = 'Add-in import is canceled
 			           |due to:
-			           |You must have administrative rights';"));
+			           |You must have administrative rights'"));
 		
 	EndIf;
 	
@@ -1205,9 +1205,9 @@ Procedure SaveAddInToFile(AddInRef) Export
 	If References.Count() = 1 Then
 		
 		SavingParameters = FileSystemClient.FileSavingParameters();
-		SavingParameters.Dialog.Title = NStr("en = 'Select a file to save the add-in to';");
-		SavingParameters.Dialog.Filter    = NStr("en = 'Add-in files (*.zip)|*.zip';") + "|"
-			+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), 
+		SavingParameters.Dialog.Title = NStr("en = 'Select a file to save the add-in to'");
+		SavingParameters.Dialog.Filter    = NStr("en = 'Add-in files (*.zip)|*.zip'") + "|"
+			+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1'"), 
 				GetAllFilesMask());
 		
 		Notification = New CallbackDescription("SaveAddInToFileAfterReceivingFiles", ThisObject);
@@ -1217,7 +1217,7 @@ Procedure SaveAddInToFile(AddInRef) Export
 	EndIf;
 	
 	Notification = New CallbackDescription("SaveAddInsToFileAfterDirectorySelected", ThisObject, FilesDetails);
-	FileSystemClient.SelectDirectory(Notification, NStr("en = 'Select a directory to save the add-ins';"));
+	FileSystemClient.SelectDirectory(Notification, NStr("en = 'Select a directory to save the add-ins'"));
 	
 EndProcedure
 
@@ -1249,10 +1249,10 @@ Procedure SaveAddInToFileAfterReceivingFiles(ObtainedFiles, Context) Export
 		And ObtainedFiles.Count() > 0 Then
 		
 		MessageText = ?(ObtainedFiles.Count() = 1, 
-			NStr("en = 'The add-in is saved to the file.';"),
-			NStr("en = 'The add-ins are saved to the files.';"));
+			NStr("en = 'The add-in is saved to the file.'"),
+			NStr("en = 'The add-ins are saved to the files.'"));
 		
-		ShowUserNotification(NStr("en = 'Save to file';"),,
+		ShowUserNotification(NStr("en = 'Save to file'"),,
 			MessageText, PictureLib.Success32);
 	EndIf;
 	

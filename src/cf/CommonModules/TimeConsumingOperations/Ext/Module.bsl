@@ -189,6 +189,7 @@ EndFunction
 //     EndIf;
 //     OnCalculaionCompletion();
 //    EndProcedure 
+//  @skip-check method-optional-parameter-before-required
 //   
 //@skip-check method-optional-parameter-before-required
 //
@@ -647,7 +648,7 @@ Function ExecuteInBackground(Val ProcedureName, Val ProcedureParameters, Val Exe
 				EndTry;
 			EndIf;
 			SetErrorProperties(Result, ErrorInfo);
-			WriteLogEvent(NStr("en = 'Long-running operations.Runtime error';", Common.DefaultLanguageCode()),
+			WriteLogEvent(NStr("en = 'Long-running operations.Runtime error'", Common.DefaultLanguageCode()),
 				EventLogLevel.Error, , , Result.DetailErrorDescription);
 		EndTry;
 		Result.Messages = GetUserMessages(True);
@@ -670,7 +671,7 @@ Function ExecuteInBackground(Val ProcedureName, Val ProcedureParameters, Val Exe
 			Job.ErrorInfo, ErrorInfo());
 		SetErrorProperties(Result, ErrorInfo);
 		If Not IsJobWithThisKeyValueAlreadyRunningError(Job, Result, ExecutionParameters) Then
-			WriteLogEvent(NStr("en = 'Long-running operations.Runtime error';", Common.DefaultLanguageCode()),
+			WriteLogEvent(NStr("en = 'Long-running operations.Runtime error'", Common.DefaultLanguageCode()),
 				EventLogLevel.Error, , , Result.DetailErrorDescription);
 		EndIf;
 		Return Result;
@@ -792,12 +793,12 @@ EndFunction
 // If the progress is updated in less than 3 seconds after the last call, the new message overwrites the old one
 //
 // (if the Collaboration System is used, each new message is sent with at least 3-second delay).
-// After the progress is updated, all messages from the background job queue are sent.
-// To display the progress for users, set OutputProgressBar to True.
+// Before the progress is updated, all messages from the background job queue are sent.
+// To display the progress for users, set OutputProgressBar to True in the standard idle form
+//
+// .
 //
 // 
-//
-//  
 //  (See TimeConsumingOperationsClient.IdleParameters)
 //
 // Parameters:
@@ -888,7 +889,7 @@ Procedure CancelJobExecution(Val JobID) Export
 		Job.Cancel();
 	Except
 		// The job might have been completed at that moment and no error occurred.
-		WriteLogEvent(NStr("en = 'Long-running operations.Cancel background job';", Common.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Long-running operations.Cancel background job'", Common.DefaultLanguageCode()),
 			EventLogLevel.Information, , , ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 	EndTry;
 	
@@ -953,7 +954,7 @@ Function JobCompleted(Val JobID, ExtendedResult = False) Export
 	EndIf;
 	
 	If Result.Status = "Canceled" Then
-		ErrorText = NStr("en = 'Operation canceled';");
+		ErrorText = NStr("en = 'Operation canceled'");
 		Try
 			Raise ErrorText;
 		Except
@@ -970,11 +971,11 @@ Function JobCompleted(Val JobID, ExtendedResult = False) Export
 			           |Technical details:
 			           |%2
 			           |
-			           |See also the event log.';"),
+			           |See also the event log.'"),
 			Result.BriefErrorDescription,
 			Result.DetailErrorDescription);
 		Refinement = CommonClientServer.ExceptionClarification(Result.ErrorInfo);
-		ForAdministrator = NStr("en = 'Also, see the event log.';");
+		ForAdministrator = NStr("en = 'Also, see the event log.'");
 		Try
 			Raise(Refinement.Text, Refinement.Category,, ForAdministrator, Result.ErrorInfo);
 		Except
@@ -991,7 +992,7 @@ Function JobCompleted(Val JobID, ExtendedResult = False) Export
 			           |An error occurred while executing background job %2 with ID %3. Reason:
 			           |%4
 			           |
-			           |See the Event log for details.';"),
+			           |See the Event log for details.'"),
 			Result.BriefErrorDescription,
 			Job.MethodName,
 			String(JobID),
@@ -999,7 +1000,7 @@ Function JobCompleted(Val JobID, ExtendedResult = False) Export
 		Refinement = CommonClientServer.ExceptionClarification(Result.ErrorInfo);
 		ForAdministrator = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Error executing the background job ""%1"" (id %2).
-			           |See also: Event log.';"),
+			           |See also: Event log.'"),
 			Job.MethodName,
 			String(JobID));
 		Try
@@ -1171,8 +1172,8 @@ Function ActionCompleted(Val JobID, Job = Undefined) Export
 		If IsThreadOfControlRestarted(JobID, Job) Then
 			Return Result;
 		EndIf;
-		ErrorText = NStr("en = 'Cannot perform the operation due to abnormal termination of a background job.';");
-		ClarificationForAdmin = NStr("en = 'The background job does not exist';") + ": "
+		ErrorText = NStr("en = 'Cannot perform the operation due to abnormal termination of a background job.'");
+		ClarificationForAdmin = NStr("en = 'The background job does not exist'") + ": "
 			+ String(LastID_);
 		Try
 			Raise(ErrorText,,, ClarificationForAdmin);
@@ -1180,13 +1181,11 @@ Function ActionCompleted(Val JobID, Job = Undefined) Export
 			ErrorInfo = ErrorInfo();
 		EndTry;
 		SetErrorProperties(Result, ErrorInfo);
-		WriteLogEvent(NStr("en = 'Long-running operations.Background job not found';", Common.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Long-running operations.Background job not found'", Common.DefaultLanguageCode()),
 			EventLogLevel.Error, , , Result.DetailErrorDescription);
 		Result.Status = "Error";
 		Return Result;
 	EndIf;
-	
-	WritePendingUserMessages(JobID);
 	
 	If Job.State = BackgroundJobState.Active
 	 Or IsThreadOfControlRestarted(JobID, Job) Then
@@ -1199,7 +1198,7 @@ Function ActionCompleted(Val JobID, Job = Undefined) Export
 			Result.Status = "Error";
 			If Job.ErrorInfo <> Undefined Then
 				Refinement = CommonClientServer.ExceptionClarification(Job.ErrorInfo,
-					NStr("en = 'Operation canceled by administrator.';"));
+					NStr("en = 'Operation canceled by administrator.'"));
 				Try
 					Raise(Refinement.Text, Refinement.Category,,, Job.ErrorInfo);
 				Except
@@ -1320,6 +1319,8 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 		Properties.Insert("Restarted", New FixedMap(New Map));
 		Properties.Insert("MainJobID");
 		Properties.Insert("ReceivedNotifications", New FixedMap(New Map));
+		Properties.Insert("AddedOn", '00010101');
+		Properties.Insert("DateAddedMilliseconds", 0);
 		SessionParameters.TimeConsumingOperations = New FixedStructure(Properties);
 		SpecifiedParameters.Add("TimeConsumingOperations");
 	EndIf;
@@ -1532,7 +1533,7 @@ EndFunction
 // See CommonOverridable.OnReceiptRecurringClientDataOnServer
 Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
 	
-	CheckParameters = Parameters.Get( // See TimeConsumingOperationsClient.LongRunningOperationCheckParameters
+	CheckParameters = Parameters.Get( // 
 		"StandardSubsystems.Core.LongRunningOperationCheckParameters");
 	
 	If CheckParameters = Undefined Then
@@ -1545,7 +1546,7 @@ Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
 EndProcedure
 
 // Parameters:
-//  Parameters - See TimeConsumingOperationsClient.LongRunningOperationCheckParameters
+//  Parameters - 
 //
 // Returns:
 //  Map of KeyAndValue:
@@ -1556,7 +1557,7 @@ Function LongRunningOperationCheckResult(Parameters) Export
 	
 	Result = New Map;
 	For Each JobID In Parameters.JobsToCheck Do
-		// @skip-check query-in-loop - Query branch is rarely called (only when the main thread is restarted)
+		// @skip-check query-in-loop - ветка с запросом вызывается редко (только при перезапуске управляющего потока)
 		Result.Insert(JobID, ActionCompleted(JobID));
 	EndDo;
 	
@@ -1586,7 +1587,7 @@ Function RunBackgroundJobWithClientContext(ProcedureName,
 	StartupStack = "";
 	If Common.CommonCoreParameters().ShouldIncludeFullStackInLongRunningOperationErrors Then
 		Try
-			Raise NStr("en = 'Starting the background job of a long-running operation:';");
+			Raise NStr("en = 'Starting the background job of a long-running operation:'");
 		Except
 			StartupStack = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		EndTry;
@@ -1626,7 +1627,7 @@ Function IsJobWithThisKeyValueAlreadyRunningError(Job, Result, ExecutionParamete
 	
 	BriefErrorDescription = ErrorProcessing.BriefErrorDescription(Result.ErrorInfo);
 	// ACC:1405-off - Intended for prompt identification of the error cause.
-	SearchString = NStr("en = 'A job with the same key value is already running';");
+	SearchString = NStr("en = 'A job with the same key value is already running'");
 	// ACC:1405-on
 	If ValueIsFilled(SearchString) And StrStartsWith(BriefErrorDescription, SearchString) Then
 		Return True;
@@ -1806,7 +1807,7 @@ Procedure CallProcedure(ProcedureName, CallParameters, ExecutionParameters)
 	EndIf;
 	
 	Raise(StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Invalid format of the %2 parameter (passed value: %1).';"), ProcedureName, "ProcedureName"),
+		NStr("en = 'Invalid format of the %2 parameter (passed value: %1).'"), ProcedureName, "ProcedureName"),
 		ErrorCategory.ConfigurationError);
 	
 EndProcedure
@@ -1821,7 +1822,7 @@ Function ExternalDataProcessorReportObject(IsExternalReport, ExecutionParameters
 		EndIf;
 
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Parameter ""%1"" is required to run the external report or external data processor.';"),
+			NStr("en = 'Parameter ""%1"" is required to run the external report or external data processor.'"),
 			"ExternalReportDataProcessor");
 		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
@@ -1914,7 +1915,7 @@ Procedure CallFunction(FunctionName, ProcedureParameters, ExecutionParameters)
 	EndIf;
 	
 	Raise(StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Invalid format of the %2 parameter (passed value: %1).';"), FunctionName, "FunctionName"),
+		NStr("en = 'Invalid format of the %2 parameter (passed value: %1).'"), FunctionName, "FunctionName"),
 		ErrorCategory.ConfigurationError);
 	
 EndProcedure
@@ -1952,7 +1953,9 @@ EndFunction
 
 Function GetFromNotifications(ShouldSkipReceivedNotifications, JobID, NotificationsType)
 	
-	WritePendingUserMessages(JobID);
+	If NotificationsType = "Messages" Then
+		WritePendingUserMessages(JobID);
+	EndIf;
 	
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
@@ -2079,7 +2082,9 @@ Procedure SendClientNotification(NotificationKind, ValueToPass,
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
-	WriteUserMessages = BackgroundJob <> Undefined And NotificationKind = "UserMessage";
+	WriteUserMessages = BackgroundJob <> Undefined And NotificationKind = "UserMessage"
+		And Not StandardSubsystemsCached.IsLongRunningOperationSession();
+	
 	If WriteUserMessages Then
 		ParentSessionKey = ServerNotifications.SessionKey();
 	Else
@@ -2110,23 +2115,26 @@ Procedure SendClientNotification(NotificationKind, ValueToPass,
 	Else
 		Result = OperationNewRuntimeResult();
 	EndIf;
+	
+	If Not WriteUserMessages Then
+		// Send accumulated messages, for example, from 1C:Enterprise
+		// , which does not use "Common.MessageToUser".
+		Messages = BackgroundJob.GetUserMessages(True);
+		For Each Message In Messages Do
+			// @skip-check query-in-loop - ветка с запросом вызывается только при первом вызове в сеансе
+			SendClientNotification("UserMessage", Message);
+		EndDo;
+	EndIf;
+	
 	If NotificationKind = "UserMessage" Then
+		If ValueToPass = Null Then
+			Return; // Only send accumulated messages.
+		EndIf;
 		Result.Messages = New FixedArray(
 			CommonClientServer.ValueInArray(ValueToPass));
 	ElsIf NotificationKind = "Progress" Then
-		Messages = BackgroundJob.GetUserMessages(True);
-		For Each Message In Messages Do
-			// @skip-check query-in-loop - The query branch opens only at the first call in the session
-			SendClientNotification("UserMessage", Message);
-		EndDo;
 		Result.Messages = New FixedArray(New Array);
 		Result.Progress = ValueToPass;
-	ElsIf NotificationKind = "TimeConsumingOperationCompleted" Then
-		Messages = BackgroundJob.GetUserMessages(True);
-		For Each Message In Messages Do
-			// @skip-check query-in-loop - The query branch opens only at the first call in the session
-			SendClientNotification("UserMessage", Message);
-		EndDo;
 	EndIf;
 	
 	NotificationParameters = New Structure;
@@ -2142,15 +2150,16 @@ Procedure SendClientNotification(NotificationKind, ValueToPass,
 	AdditionalSendingParameters = ServerNotifications.AdditionalSendingParameters();
 	AdditionalSendingParameters.GroupID  = MainJobID;
 	AdditionalSendingParameters.NotificationTypeInGroup = NotificationTypeID(NotificationKind);
+	AdditionalSendingParameters.ShouldWriteUnconditionally = NotificationKind = "UserMessage";
 	
 	If NotificationKind = "Progress" Then
 		AdditionalSendingParameters.Replace = True;
 		AdditionalSendingParameters.DeliveryDeferral = 3;
 		AdditionalSendingParameters.LogEventOnDeliveryDeferral =
-			NStr("en = 'Long-running operations.Deferred progress delivery';",
+			NStr("en = 'Long-running operations.Deferred progress delivery'",
 				Common.DefaultLanguageCode());
 		AdditionalSendingParameters.LogCommentOnDeliveryDeferral =
-			NStr("en = 'Send progress more often than every 3 seconds';");
+			NStr("en = 'Send progress more often than every 3 seconds'");
 	EndIf;
 	
 	ServerNotifications.SendServerNotificationWithGroupID(NameOfAlert(),
@@ -2175,8 +2184,19 @@ Function NotificationTypeID(NotificationKind)
 	EndIf;
 	
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Unknown notification type of the long-running operation: ""%1"".';"), NotificationKind);
+		NStr("en = 'Unknown notification type of the long-running operation: ""%1"".'"), NotificationKind);
 	Raise(ErrorText, ErrorCategory.ConfigurationError);
+	
+EndFunction
+
+Function TimeConsumingOperationNotificationKinds() Export
+	
+	Result = New Array;
+	Result.Add(Lower(NotificationTypeID("UserMessage")));
+	Result.Add(Lower(NotificationTypeID("Progress")));
+	Result.Add(Lower(NotificationTypeID("TimeConsumingOperationCompleted")));
+	
+	Return Result;
 	
 EndFunction
 
@@ -2188,15 +2208,23 @@ EndFunction
 //
 Procedure WritePendingUserMessages(JobID)
 	
+	If StandardSubsystemsCached.IsLongRunningOperationSession() Then
+		// Send accumulated messages.
+		SendClientNotification("UserMessage", Null);
+		Return;
+	EndIf;
+	
 	LastID_ = LastID_(JobID);
 	BackgroundJob = BackgroundJobs.FindByUUID(LastID_);
 	
 	If BackgroundJob <> Undefined
+	   And BackgroundJob.State <> BackgroundJobState.Active
 	   And Not ExclusiveModeInBackgroundJob(BackgroundJob) Then
 		
 		Messages = BackgroundJob.GetUserMessages(True);
+		// Write accumulated messages.
 		For Each Message In Messages Do
-			// @skip-check query-in-loop - The query branch opens only at the first call in the session
+			// @skip-check query-in-loop - ветка с запросом вызывается только при первом вызове в сеансе
 			SendClientNotification("UserMessage", Message, BackgroundJob, JobID);
 		EndDo;
 	EndIf;
@@ -2258,10 +2286,10 @@ Function RunBackgroundJob(ExecutionParameters, MethodName, Parameters, Var_Key, 
 		
 		Session = GetCurrentInfoBaseSession();
 		If ExecutionParameters.WaitCompletion = Undefined And Session.ApplicationName = "BackgroundJob" Then
-			Raise(NStr("en = 'In a file infobase, only one background job can run at a time.';"), 
+			Raise(NStr("en = 'In a file infobase, only one background job can run at a time.'"), 
 				ErrorCategory.ConfigurationError);
 		ElsIf Session.ApplicationName = "COMConnection" Then
-			Raise(NStr("en = 'In a file infobase, background jobs can only be started from the client application.';"),
+			Raise(NStr("en = 'In a file infobase, background jobs can only be started from the client application.'"),
 				ErrorCategory.ConfigurationError);
 		EndIf;
 		
@@ -2334,14 +2362,14 @@ Procedure VerifyExecutionParameters(ExecutionParameters)
 	If ExecutionParameters.RunNotInBackground1 And ExecutionParameters.RunInBackground Then
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(NStr(
 			"en = 'Parameters ""%1"" and ""%2""
-			|cannot have value %3 in %4 at the same time.';"),
+			|cannot have value %3 in %4 at the same time.'"),
 			"RunNotInBackground1", "RunInBackground", "True", "TimeConsumingOperations.ExecuteInBackground"),
 			ErrorCategory.ConfigurationError);
 	EndIf;
 	If ExecutionParameters.NoExtensions And ExecutionParameters.WithDatabaseExtensions Then
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(NStr(
 			"en = 'Parameters ""%1"" and ""%2""
-			|cannot have value %3 in %4 at the same time.';"),
+			|cannot have value %3 in %4 at the same time.'"),
 			"NoExtensions", "WithDatabaseExtensions", "True", "TimeConsumingOperations.ExecuteInBackground"),
 			ErrorCategory.ConfigurationError);
 	EndIf;
@@ -2351,13 +2379,13 @@ Procedure VerifyExecutionParameters(ExecutionParameters)
 	If ExecutionParameters.NoExtensions And FileInfobase Then
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(NStr(
 			"en = 'Cannot start the background job with the ""%1"" parameter
-			|in the external connection with the file infobase in %2.';"),
+			|in the external connection with the file infobase in %2.'"),
 			"NoExtensions", "TimeConsumingOperations.ExecuteInBackground"),
 			ErrorCategory.ConfigurationError);
 	ElsIf ExecutionParameters.WithDatabaseExtensions And FileInfobase Then
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(NStr(
 			"en = 'Cannot start the background job with the ""%1"" parameter
-			|in the external connection with the file infobase in %2.';"),
+			|in the external connection with the file infobase in %2.'"),
 			"WithDatabaseExtensions", "TimeConsumingOperations.ExecuteInBackground"),
 			ErrorCategory.ConfigurationError);
 	EndIf;
@@ -2370,13 +2398,13 @@ Procedure VerifyExecutionParameters(ExecutionParameters)
 					Raise(StringFunctionsClientServer.SubstituteParametersToString(NStr(
 						"en = 'Form UUID is not specified in the %1 parameter and temporary storage address is not specified
 						|in the %2 parameter in %3.
-						|Make sure that the temporary storage is cleared explicitly with the %4 method on result processing.';"),
+						|Make sure that the temporary storage is cleared explicitly with the %4 method on result processing.'"),
 						"ExecutionParameters.FormIdentifier", "ExecutionParameters.ResultAddress",
 						"TimeConsumingOperations.ExecuteInBackground", "DeleteFromTempStorage"),
 						ErrorCategory.ConfigurationError);
 				Except
 					// ACC:154-on Recommendation: Log as a warning, not as an error.
-					WriteLogEvent(NStr("en = 'Long-running operations.Diagnostics';", Common.DefaultLanguageCode()),
+					WriteLogEvent(NStr("en = 'Long-running operations.Diagnostics'", Common.DefaultLanguageCode()),
 						EventLogLevel.Warning, , , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 					// ACC:154-on 
 				EndTry;
@@ -2385,7 +2413,7 @@ Procedure VerifyExecutionParameters(ExecutionParameters)
 		ElsIf Not IsTempStorageURL(ExecutionParameters.ResultAddress) Then
 			Raise(StringFunctionsClientServer.SubstituteParametersToString(NStr(
 				"en = 'Temporary storage address is not specified in the %1 parameter
-				|in %2.';"),
+				|in %2.'"),
 				"ExecutionParameters.ResultAddress", "TimeConsumingOperations.ExecuteInBackground"),
 				ErrorCategory.ConfigurationError);
 		EndIf;
@@ -2490,7 +2518,7 @@ Function ExecuteMultithreadedProcess(OperationParametersList) Export
 				ResultsNewAddresses, ProcessID, NewBatches, OperationParametersList);
 		EndIf;
 		
-		// @skip-check query-in-loop - Get up-to-date tread details considering other running processes.
+		// @skip-check query-in-loop - Получение актуальных данных о потоках с учетом работы других процессов.
 		Threads = TreadsPendingProcessing(ProcessID);
 		If Threads.Count() = 0 Then
 			Break;
@@ -2525,7 +2553,7 @@ Function ExecuteMultithreadedProcess(OperationParametersList) Export
 			Break;
 		EndIf;
 		
-		// @skip-check query-in-loop - Read up-to-date data from the infobase at each iteration.
+		// @skip-check query-in-loop - На каждой итерации необходимо зачитывать актуальные данные из ИБ.
 		WaitForAllThreadsCompletion(ProcessID, AbortExecutionIfError, FinishEarly);
 		
 		If FinishEarly Then
@@ -2560,7 +2588,7 @@ Function ExecuteMultithreadedProcess(OperationParametersList) Export
 		FillPropertyValues(Results[Var_Key], Stream, 
 			"Status, DetailErrorDescription, BriefErrorDescription, JobID");
 		
-		// @skip-check query-in-loop - The query branch opens only at the first call in the session
+		// @skip-check query-in-loop - ветка с запросом вызывается только при первом вызове в сеансе
 		SendThreadMessages(Stream.JobID);
 	EndDo;
 	
@@ -2577,19 +2605,19 @@ Function MonitorThreadExecution(Stream, OperationParametersList, ProcessJobID)
 		If AbortExecutionIfError Then
 			Return True;
 		EndIf; 
-		// @skip-check query-in-loop - The query branch opens only at the first call in the session
+		// @skip-check query-in-loop - ветка с запросом вызывается только при первом вызове в сеансе
 		SendThreadMessages(Stream.JobID);
 	EndIf;
 	
 	Result = Undefined;
 	While Result = Undefined Do
-		// @skip-check query-in-loop - Read up-to-date thread details from the infobase.
+		// @skip-check query-in-loop - зачитывание актуальных данных о потоках из ИБ.
 		ExecuteInBackground = WaitForAvailableThread(ProcessID, AbortExecutionIfError);
 		If ExecuteInBackground = Undefined Then
 			Return True;
 		EndIf;
 		
-		// @skip-check query-in-loop - Read up-to-date thread details from the infobase.
+		// @skip-check query-in-loop - зачитывание актуальных данных о потоках из ИБ.
 		Result = ExecuteThread(Stream, OperationParametersList, ExecuteInBackground, ProcessJobID);
 		
 	EndDo;
@@ -2799,7 +2827,7 @@ Function FirstIDOfThreadOfControlJob(ProcessID)
 	EndIf;
 	
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Long-running operation ""%1"" missing the main thread.';"),
+		NStr("en = 'Long-running operation ""%1"" missing the main thread.'"),
 		String(ProcessID));
 	Raise(ErrorText, ErrorCategory.ConfigurationError);
 	
@@ -2954,7 +2982,7 @@ Procedure SendThreadMessages(Val JobID)
 	
 	Messages = BackgroundJob.GetUserMessages(True);
 	For Each Message In Messages Do
-		// @skip-check query-in-loop - The query branch opens only at the first call in the session
+		// @skip-check query-in-loop - ветка с запросом вызывается только при первом вызове в сеансе
 		SendClientNotification("UserMessage", Message);
 	EndDo;
 
@@ -3384,7 +3412,7 @@ Procedure PrepareMultiThreadOperationForStartup(Val MethodName, ResultAddresses,
 			SetOfOneRecord.Read();
 			If SetOfOneRecord.Count() <> 1 Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Long-running operation ""%1"" missing the main thread.';"),
+					NStr("en = 'Long-running operation ""%1"" missing the main thread.'"),
 					String(ProcessID));
 				Raise(ErrorText, ErrorCategory.ConfigurationError);
 			EndIf;
@@ -3408,12 +3436,12 @@ Procedure CheckIfCanRunMultiThreadLongRunningOperation(ExecutionParameters, Para
 	If ParametersSet <> Undefined
 	   And TypeOf(ParametersSet) <> Type("Map")
 	   And TypeOf(ParametersSet) <> Type("Structure") Then
-		Raise(NStr("en = 'Multithreaded long-running operation has invalid type of parameter set.';"), 
+		Raise(NStr("en = 'Multithreaded long-running operation has invalid type of parameter set.'"), 
 			ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	If Common.DataSeparationEnabled() And Not Common.SeparatedDataUsageAvailable() Then
-		Raise(NStr("en = 'Multi-threaded long-running operations in a shared session are not supported.';"),
+		Raise(NStr("en = 'Multi-threaded long-running operations in a shared session are not supported.'"),
 			ErrorCategory.ConfigurationError);
 	EndIf;
 	
@@ -3500,13 +3528,13 @@ Function IsThreadOfControlRestarted(JobID, Job)
 			MultithreadProcessMethodName(), OperationParametersList);
 		
 		If Not ValueIsFilled(RunResult.JobID) Then
-			Raise(NStr("en = 'Empty UUID of the background job.';"), 
+			Raise(NStr("en = 'Empty UUID of the background job.'"), 
 				ErrorCategory.ConfigurationError);
 		EndIf;
 		NewJob = FindJobByID(RunResult.JobID);
 		If NewJob = Undefined Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Background job with this ID doesn''t exist: %1.';"),
+				NStr("en = 'Background job with this ID doesn''t exist: %1.'"),
 				RunResult.JobID);
 			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndIf;
@@ -3526,7 +3554,7 @@ Function IsThreadOfControlRestarted(JobID, Job)
 			NStr("en = 'Error restarting the background job %1
 			           |of the main thread %2:
 			           |
-			           |%3';"),
+			           |%3'"),
 			String(JobID),
 			String(Stream.ProcessID),
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
@@ -3610,7 +3638,7 @@ EndProcedure
 //
 Function EventLogEvent() Export
 	
-	Return NStr("en = 'Multithreaded long-running operations';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Multithreaded long-running operations'", Common.DefaultLanguageCode());
 	
 EndFunction
 

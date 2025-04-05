@@ -34,7 +34,7 @@ EndFunction
 
 // End CloudTechnology.ExportImportData
 
-// СтандартныеПодсистемы.Печать
+// StandardSubsystems.Print
 
 // Generates print forms.
 //
@@ -49,7 +49,7 @@ Procedure Print(ObjectsArray, PrintParameters, PrintFormsCollection, PrintObject
 	
 	If Common.SubsystemExists("StandardSubsystems.Print") Then
 		Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Business calendar ""%1"" for %2';"), 
+			NStr("en = 'Business calendar ""%1"" for %2'"), 
 			PrintParameters.BusinessCalendar,
 			Format(PrintParameters.YearNumber, "NG=;"));
 		ModulePrintManager = Common.CommonModule("PrintManagement");
@@ -926,11 +926,11 @@ Function DefaultBusinessCalendars() Export
 	Try
 		Return BusinessCalendarsFromClassifierFile();
 	Except
-		EventName = NStr("en = 'Calendar schedules.Get calendars from classifier';", Common.DefaultLanguageCode());
+		EventName = NStr("en = 'Calendar schedules.Get calendars from classifier'", Common.DefaultLanguageCode());
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot get business calendars from the classifier.
                   |The calendars are retrieved from a built-in template.
-                  |%1';"), 
+                  |%1'"), 
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		WriteLogEvent(EventName, EventLogLevel.Error, , , MessageText);
 	EndTry;
@@ -1017,7 +1017,7 @@ EndFunction
 // Parameters:
 //  BusinessCalendar - CatalogRef.BusinessCalendars - a current catalog item.
 //  YearNumber - Number - a number of the year for which the business calendar is to be recorded.
-//  BusinessCalendarData - See Catalog.BusinessCalendars.BusinessCalendarData.
+//  BusinessCalendarData - 
 //
 Procedure WriteBusinessCalendarData(BusinessCalendar, YearNumber, BusinessCalendarData) Export
 	
@@ -1410,7 +1410,7 @@ Function BusinessCalendarPrintForm(PrintFormPreparationParameters)
 		SelectionByQuarter = SelectionByYear.Select(QueryResultIteration.ByGroups);
 		While SelectionByQuarter.Next() Do
 			QuarterNumber = Template.GetArea("Quarter");
-			QuarterNumber.Parameters.QuarterNumber = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'quarter %1';"), SelectionByQuarter.CalendarQuarter);
+			QuarterNumber.Parameters.QuarterNumber = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'quarter %1'"), SelectionByQuarter.CalendarQuarter);
 			SpreadsheetDocument.Put(QuarterNumber);
 			QuarterHeader = Template.GetArea("QuarterHeader");
 			SpreadsheetDocument.Put(QuarterHeader);
@@ -1463,34 +1463,34 @@ Function BusinessCalendarPrintForm(PrintFormPreparationParameters)
 			MonthColumn = Template.GetArea("MonthColumn");
 			FillAreaParameters(MonthColumn.Parameters, ForQuarter);
 			MonthColumn.Parameters.MonthName = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'quarter %1';"), SelectionByQuarter.CalendarQuarter);
+				NStr("en = 'quarter %1'"), SelectionByQuarter.CalendarQuarter);
 			SpreadsheetDocument.Join(MonthColumn);
 			If SelectionByQuarter.CalendarQuarter = 2 
 				Or SelectionByQuarter.CalendarQuarter = 4 Then 
 				MonthColumn = Template.GetArea("MonthColumn");
 				FillAreaParameters(MonthColumn.Parameters, ForHalfYear);
 				MonthColumn.Parameters.MonthName = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'half year %1';"), SelectionByQuarter.CalendarQuarter / 2);
+					NStr("en = 'half year %1'"), SelectionByQuarter.CalendarQuarter / 2);
 				SpreadsheetDocument.Join(MonthColumn);
 			EndIf;
 		EndDo;
 		MonthColumn = Template.GetArea("MonthColumn");
 		FillAreaParameters(MonthColumn.Parameters, ForYear);
 		MonthColumn.Parameters.MonthName = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'year %1';"), Format(SelectionByYear.CalendarYear, "NG="));
+			NStr("en = 'year %1'"), Format(SelectionByYear.CalendarYear, "NG="));
 		SpreadsheetDocument.Join(MonthColumn);
 	EndDo;
 	
 	MonthColumn = Template.GetArea("MonthAverage");
 	FillAreaParameters(MonthColumn.Parameters, ForYear);
-	MonthColumn.Parameters.MonthName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'year %1';"), Format(YearNumber, "NG="));
+	MonthColumn.Parameters.MonthName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'year %1'"), Format(YearNumber, "NG="));
 	SpreadsheetDocument.Put(MonthColumn);
 	
 	MonthColumn = Template.GetArea("MonthColumnAverage");
 	MonthColumn.Parameters.WorkTime40 = Format(ForYear.Main.WorkTime40 / 12, "NFD=2; NG=0");
 	MonthColumn.Parameters.WorkTime36 = Format(ForYear.Main.WorkTime36 / 12, "NFD=2; NG=0");
 	MonthColumn.Parameters.WorkTime24 = Format(ForYear.Main.WorkTime24 / 12, "NFD=2; NG=0");
-	MonthColumn.Parameters.MonthName = NStr("en = 'Average per month';");
+	MonthColumn.Parameters.MonthName = NStr("en = 'Average per month'");
 	SpreadsheetDocument.Join(MonthColumn);
 	
 	Return SpreadsheetDocument;

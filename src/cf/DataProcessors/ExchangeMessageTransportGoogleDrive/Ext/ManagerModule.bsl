@@ -15,11 +15,11 @@
 // See DataProcessorManager.ExchangeMessageTransportFILE.TransportParameters
 Function TransportParameters() Export
 	
-	LongDesc = NStr("en = 'Connection requires authentication parameters for the cloud service.';");
+	LongDesc = NStr("en = 'Connection requires authentication parameters for the cloud service.'");
 	
 	Parameters = ExchangeMessagesTransport.StructureOfTransportParameters();
 	
-	Parameters.Alias = NStr("en = 'Google Drive';");
+	Parameters.Alias = NStr("en = 'Google Drive'");
 	Parameters.TransportID = "GoogleDrive";
 	Parameters.LongDesc = LongDesc;
 	Parameters.Picture = PictureLib.GooggleDrive;

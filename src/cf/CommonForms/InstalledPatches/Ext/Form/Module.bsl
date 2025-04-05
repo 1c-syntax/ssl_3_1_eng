@@ -23,9 +23,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	DataSeparationEnabled = Common.DataSeparationEnabled();
 	
 	If DataSeparationEnabled Then
-		Items.InformationDetails.Title = NStr("en = 'Patches are configured by the application administrator.';");
+		Items.InformationDetails.Title = NStr("en = 'Patches are configured by the application administrator.'");
 	ElsIf Parameters.OnUpdate Then
-		Items.InformationDetails.Title = NStr("en = 'Installed patches will be applied after the application restart.';");
+		Items.InformationDetails.Title = NStr("en = 'Installed patches will be applied after the application restart.'");
 	ElsIf Not Common.IsWindowsClient() Then
 		Items.InformationPages.Visible = False;
 	EndIf;
@@ -69,9 +69,9 @@ EndProcedure
 &AtClient
 Procedure DecorationEventLogClick(Item)
 	EventsArray = New Array;
-	EventsArray.Add(NStr("en = 'Patch.Install';"));
-	EventsArray.Add(NStr("en = 'Patch.Modify';"));
-	EventsArray.Add(NStr("en = 'Patch.Delete';"));
+	EventsArray.Add(NStr("en = 'Patch.Install'"));
+	EventsArray.Add(NStr("en = 'Patch.Modify'"));
+	EventsArray.Add(NStr("en = 'Patch.Delete'"));
 	SelectionOfLogEvents = New Structure("EventLogEvent", EventsArray);
 	EventLogClient.OpenEventLog(SelectionOfLogEvents);
 EndProcedure
@@ -292,9 +292,9 @@ Procedure DeleteExtensions(SelectedRows)
 	
 	Notification = New CallbackDescription("DeleteExtensionAfterConfirmation", ThisObject, Context);
 	If ExtensionsIDs.Count() > 1 Then
-		QueryText = NStr("en = 'Do you want to delete the selected patches?';");
+		QueryText = NStr("en = 'Do you want to delete the selected patches?'");
 	Else
-		QueryText = NStr("en = 'Do you want to delete the patch?';");
+		QueryText = NStr("en = 'Do you want to delete the patch?'");
 	EndIf;
 	
 	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo);
@@ -399,13 +399,13 @@ Procedure SavePatches(OnlyAttachedOnes = False)
 	
 	If SelectedRows.Count() = 0 Then
 		If OnlyAttachedOnes Then
-			ShowMessageBox(, NStr("en = 'No attached patches.';"));
+			ShowMessageBox(, NStr("en = 'No attached patches.'"));
 		EndIf;
 		Return;
 	ElsIf Not OnlyAttachedOnes And SelectedRows.Count() = 1 Then
 		FilesToSave = SaveAtServer(SelectedRows);
 	Else
-		Title = NStr("en = 'Choose a directory to save the patch';");
+		Title = NStr("en = 'Choose a directory to save the patch'");
 		FileSystemClient.SelectDirectory(NotifyDescription, Title);
 		Return;
 	EndIf;
@@ -415,9 +415,9 @@ Procedure SavePatches(OnlyAttachedOnes = False)
 	EndIf;
 	
 	SavingParameters = FileSystemClient.FileSavingParameters();
-	SavingParameters.Dialog.Title = NStr("en = 'Choose a file to save the patch';");
-	SavingParameters.Dialog.Filter    = NStr("en = '1C:Enterprise patch files (*.cfe)|*.cfe';") + "|" 
-		+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
+	SavingParameters.Dialog.Title = NStr("en = 'Choose a file to save the patch'");
+	SavingParameters.Dialog.Filter    = NStr("en = '1C:Enterprise patch files (*.cfe)|*.cfe'") + "|" 
+		+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1'"), GetAllFilesMask());
 	
 	FileSystemClient.SaveFiles(Undefined, FilesToSave, SavingParameters);
 	

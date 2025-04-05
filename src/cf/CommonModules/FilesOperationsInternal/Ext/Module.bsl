@@ -33,6 +33,31 @@ Function FilesVersionsCatalog() Export
 	Return Type("CatalogRef.FilesVersions"); 
 EndFunction
 
+//  
+// 
+// 
+// Parameters:
+//  VerificationObject - MetadataObject
+//                 - CatalogRef
+//                 - CatalogObject
+// 
+// Returns:
+//  Boolean - 
+// 
+Function IsDirectoryFiles(VerificationObject) Export
+	
+	If TypeOf(VerificationObject) = Type("MetadataObject") And VerificationObject = Metadata.Catalogs.Files Then
+		Return True;
+	ElsIf TypeOf(VerificationObject) = Type("CatalogRef.Files") Then
+		Return True;
+	ElsIf TypeOf(VerificationObject) = Type("CatalogObject.Files") Then
+		Return True;
+	EndIf;
+	
+	Return False;
+
+EndFunction
+
 // Used when exporting files for cloud migration (CTL).
 //
 // Parameters:
@@ -50,7 +75,7 @@ Procedure ExportFile(Val FileObject, Val NewFileName) Export
 		Except
 			ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'File data was deleted. The file might have been cleaned up as unused.
-					|%1';"), String(FileObject.Ref));
+					|%1'"), String(FileObject.Ref));
 			Raise ErrorMessage;
 		EndTry;
 	EndIf;
@@ -258,7 +283,7 @@ Function CheckExtentionOfFileToDownload(FileExtention, RaiseException1 = True) E
 		If RaiseException1 Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Uploading files with the ""%1"" extension is not allowed.
-				           |Please contact the administrator.';"),
+				           |Please contact the administrator.'"),
 				FileExtention);
 		EndIf;
 		Return False;
@@ -632,7 +657,7 @@ Procedure OnExecuteDeliveryToFolder(DeliveryParameters, Attachments) Export
 	EndDo;
 	
 	Comment = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Report distribution ""%1"", %2';"),
+		NStr("en = 'Report distribution ""%1"", %2'"),
 		DeliveryParameters.BulkEmail,
 		Format(DeliveryParameters.ExecutionDate, "DLF=DT"));
 	
@@ -644,7 +669,7 @@ Procedure OnExecuteDeliveryToFolder(DeliveryParameters, Attachments) Export
 		FileInfo1.Comment = Comment;
 		
 		If ValueIsFilled(Attachment.FileRef) Then
-			VersionRef = CreateVersion(Attachment.FileRef, FileInfo1); // @skip-check query-in-loop - Writing data object-by-object.
+			VersionRef = CreateVersion(Attachment.FileRef, FileInfo1); // @skip-check query-in-loop - по-объектная запись данных.
 			UpdateVersionInFile(Attachment.FileRef, VersionRef, FileInfo1.TempTextStorageAddress);
 		Else
 			Attachment.FileRef = FilesOperationsInternalServerCall.CreateFileWithVersion(DeliveryParameters.Folder, FileInfo1); 
@@ -741,7 +766,7 @@ Function FileStorageCatalogNames(FilesOwner, NotRaiseException1 = False) Export
 	
 	DefaultCatalogIsSpecified = False;
 	Errors = New Array;
-	Errors.Add(NStr("en = 'Couldn''t determine the names of catalogs for storing files.';"));
+	Errors.Add(NStr("en = 'Couldn''t determine the names of catalogs for storing files.'"));
 	
 	For Each KeyAndValue In CatalogNames Do
 		
@@ -749,7 +774,7 @@ Function FileStorageCatalogNames(FilesOwner, NotRaiseException1 = False) Export
 			
 			Errors.Add(StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'File location of type ""%1""
-					|contains the catalog ""%2"" that does not exist.';"),
+					|contains the catalog ""%2"" that does not exist.'"),
 				String(FilesOwnerType), String(KeyAndValue.Key)));
 				
 		ElsIf Not StrEndsWith(KeyAndValue.Key, CatalogSuffix) And Not KeyAndValue.Key ="Files" Then
@@ -757,7 +782,7 @@ Function FileStorageCatalogNames(FilesOwner, NotRaiseException1 = False) Export
 			Errors.Add(StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'File location of type ""%1""
 					|contains a name of catalog ""%2""
-					|without the required postfix ""%3"".';"),
+					|without the required postfix ""%3"".'"),
 				String(FilesOwnerType), String(KeyAndValue.Key), CatalogSuffix));
 			
 		ElsIf KeyAndValue.Value = Undefined Then
@@ -767,7 +792,7 @@ Function FileStorageCatalogNames(FilesOwner, NotRaiseException1 = False) Export
 			If DefaultCatalogIsSpecified Then
 				Errors.Add(StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'File location of type ""%1""
-						|contains more than one main catalog.';"),
+						|contains more than one main catalog.'"),
 					String(FilesOwnerType), String(KeyAndValue.Key)));
 			EndIf;
 			DefaultCatalogIsSpecified = True;
@@ -782,7 +807,7 @@ Function FileStorageCatalogNames(FilesOwner, NotRaiseException1 = False) Export
 		
 		Errors.Add(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'File location of type ""%1""
-				|does not have file storage catalogs.';"),
+				|does not have file storage catalogs.'"),
 			String(FilesOwnerType)));
 		Raise(StrConcat(Errors, Chars.LF + Chars.LF),  ErrorCategory.ConfigurationError);
 	EndIf;
@@ -1159,12 +1184,12 @@ Procedure CryptographyOnCreateFormAtServer(Form, IsListForm = True, RowsPictureO
 	EndIf;
 	
 	If ViewEncrypted Then
-		Title = NStr("en = 'Digital signature and encryption';");
-		ToolTip = NStr("en = 'Digital signature or encryption available.';");
+		Title = NStr("en = 'Digital signature and encryption'");
+		ToolTip = NStr("en = 'Digital signature or encryption available.'");
 		Picture  = PictureLib["SignedEncryptedTitle"];
 	Else
-		Title = NStr("en = 'Digital signature';");
-		ToolTip = NStr("en = 'Digital signature available.';");
+		Title = NStr("en = 'Digital signature'");
+		ToolTip = NStr("en = 'Digital signature available.'");
 		Picture  = PictureLib["SignedWithDS"];
 	EndIf;
 	
@@ -1391,7 +1416,7 @@ Procedure WriteEncryptionInformation(FileRef, EncryptionInformationWriteParamete
 				FileInfo1 = EncryptionInformationWriteParameters.FileInfo1;
 			EndIf;
 			
-			// @skip-check query-in-loop - Save data object-by-object.
+			// @skip-check query-in-loop - По-объектная запись данных.
 			UpdateFileVersion(FileRef, FileInfo1, VersionRef, EncryptionInformationWriteParameters.UUID);
 			
 			// For the option of storing files in volumes, delete the File from the temporary storage after receiving it.
@@ -1466,8 +1491,8 @@ Procedure ExtractTextFromFiles() Export
 		Return; // Text extraction is available only under Windows.
 	EndIf;
 	
-	WriteLogEvent(NStr("en = 'Files.Extract text';", Common.DefaultLanguageCode()),
-		EventLogLevel.Information,,, NStr("en = 'Scheduled text extraction started';"));
+	WriteLogEvent(NStr("en = 'Files.Extract text'", Common.DefaultLanguageCode()),
+		EventLogLevel.Information,,, NStr("en = 'Scheduled text extraction started'"));
 	
 	Query = New Query(QueryTextToExtractText());
 	FilesToExtractText = Query.Execute().Unload();
@@ -1482,13 +1507,13 @@ Procedure ExtractTextFromFiles() Export
 			If FileLocked Then
 				FileFields = Common.ObjectAttributesValues(FileWithoutText.Ref,
 					"Description, Extension");
-				WriteLogEvent(NStr("en = 'Files.Extract text';", Common.DefaultLanguageCode()),
+				WriteLogEvent(NStr("en = 'Files.Extract text'", Common.DefaultLanguageCode()),
 					EventLogLevel.Error,,,
 					StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Cannot complete scheduled text extraction from file
 						           |""%1.""
 						           |Reason:
-						           |%2';"),
+						           |%2'"),
 						CommonClientServer.GetNameWithExtension(FileFields.Description, FileFields.Extension),
 						ErrorProcessing.DetailErrorDescription(ErrorInfo()) ));
 			EndIf;
@@ -1500,7 +1525,7 @@ Procedure ExtractTextFromFiles() Export
 				Try
 					DeleteFiles(FileWithBinaryDataName);
 				Except
-					WriteLogEvent(NStr("en = 'Files.Extract text';", Common.DefaultLanguageCode()),
+					WriteLogEvent(NStr("en = 'Files.Extract text'", Common.DefaultLanguageCode()),
 						EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				EndTry;
 			EndIf;
@@ -1508,8 +1533,8 @@ Procedure ExtractTextFromFiles() Export
 		
 	EndDo;
 	
-	WriteLogEvent(NStr("en = 'Files.Extract text';", Common.DefaultLanguageCode()),
-		EventLogLevel.Information,,, NStr("en = 'Scheduled text extraction completed';"));
+	WriteLogEvent(NStr("en = 'Files.Extract text'", Common.DefaultLanguageCode()),
+		EventLogLevel.Information,,, NStr("en = 'Scheduled text extraction completed'"));
 	
 EndProcedure
 
@@ -1685,7 +1710,7 @@ Procedure ScheduledFileSynchronizationWebdav(Parameters = Undefined, ResultAddre
 			Continue;
 		EndIf;
 		
-		// @skip-check query-in-loop - Batch processing of a large amount of data.
+		// @skip-check query-in-loop
 		SynchronizeFilesWithCloudService(Selection.Ref);
 		
 	EndDo;
@@ -1702,8 +1727,8 @@ EndProcedure
 //
 Procedure FillListWithFilesTypes(List) Export
 	
-	List.Add("Pictures", NStr("en = 'Images (JPG, JPEG, PNG…)';"));
-	List.Add("OfficeDocuments", NStr("en = 'Office documents (DOC, DOCX, XLS…)';"));
+	List.Add("Pictures", NStr("en = 'Images (JPG, JPEG, PNG…)'"));
+	List.Add("OfficeDocuments", NStr("en = 'Office documents (DOC, DOCX, XLS…)'"));
 	
 EndProcedure
 
@@ -1742,7 +1767,7 @@ Function PrepareDataToCreateFileInitialImage(ParametersStructure) Export
 				
 				Common.MessageToUser(
 					NStr("en = 'The path to the volume archive must be
-					           |in the UNC format (\\servername\resource).';"),
+					           |in the UNC format (\\servername\resource).'"),
 					,
 					"WindowsVolumesFilesArchivePath");
 				Result.DataReady = False;
@@ -1750,7 +1775,7 @@ Function PrepareDataToCreateFileInitialImage(ParametersStructure) Export
 			If Not IsBlankString(FullFileInfobaseName) And (Left(FullFileInfobaseName, 2) <> "\\" Or StrFind(FullFileInfobaseName, ":") <> 0) Then
 				Common.MessageToUser(
 					NStr("en = 'The path to the file infobase must be
-					           |in the UNC format (\\servername\resource).';"),
+					           |in the UNC format (\\servername\resource).'"),
 					,
 					"FullWindowsFileInfobaseName");
 				Result.DataReady = False;
@@ -1763,7 +1788,7 @@ Function PrepareDataToCreateFileInitialImage(ParametersStructure) Export
 	
 	If IsBlankString(FullFileInfobaseName) Then
 		Common.MessageToUser(
-			NStr("en = 'Please provide the full name of the file infobase (1cv8.1cd file).';"),,
+			NStr("en = 'Please provide the full name of the file infobase (1cv8.1cd file).'"),,
 			"FullWindowsFileInfobaseName");
 		Result.DataReady = False;
 	ElsIf Result.DataReady Then
@@ -1772,7 +1797,7 @@ Function PrepareDataToCreateFileInitialImage(ParametersStructure) Export
 		If HasFilesInVolumes Then
 			If IsBlankString(VolumesFilesArchivePath) Then
 				Common.MessageToUser(
-					NStr("en = 'Please provide the full name of the archive with volume files (it is a *.zip file).';"),, 
+					NStr("en = 'Please provide the full name of the archive with volume files (it is a *.zip file).'"),, 
 					"WindowsVolumesFilesArchivePath");
 				Result.DataReady = False;
 			Else
@@ -1780,11 +1805,11 @@ Function PrepareDataToCreateFileInitialImage(ParametersStructure) Export
 				
 				If File.Exists() And InfobaseFile.Exists() Then
 					Result.QueryText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Files ""%1"" and ""%2"" already exist.
-							           |Do you want to overwrite them?';"), VolumesFilesArchivePath, FullFileInfobaseName);
+							           |Do you want to overwrite them?'"), VolumesFilesArchivePath, FullFileInfobaseName);
 					Result.ConfirmationRequired = True;
 				ElsIf File.Exists() Then
 					Result.QueryText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'File ""%1"" already exists.
-							           |Do you want to overwrite it?';"), VolumesFilesArchivePath);
+							           |Do you want to overwrite it?'"), VolumesFilesArchivePath);
 					Result.ConfirmationRequired = True;
 				EndIf;
 			EndIf;
@@ -1793,7 +1818,7 @@ Function PrepareDataToCreateFileInitialImage(ParametersStructure) Export
 		If Result.DataReady Then
 			If InfobaseFile.Exists() And Not Result.ConfirmationRequired Then
 				Result.QueryText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'File ""%1"" already exists.
-						           |Do you want to overwrite it?';"), FullFileInfobaseName);
+						           |Do you want to overwrite it?'"), FullFileInfobaseName);
 				Result.ConfirmationRequired = True;
 			EndIf;
 			
@@ -1904,7 +1929,7 @@ Function PrepareDataToCreateServerInitialImage(ParametersStructure) Export
 				
 				Common.MessageToUser(
 					NStr("en = 'The path to the volume archive must be
-					           |in the UNC format (\\servername\resource).';"),
+					           |in the UNC format (\\servername\resource).'"),
 					,
 					"WindowsVolumesFilesArchivePath");
 				Result.DataReady = False;
@@ -1918,7 +1943,7 @@ Function PrepareDataToCreateServerInitialImage(ParametersStructure) Export
 	If Result.DataReady Then
 		If HasFilesInVolumes And IsBlankString(VolumesFilesArchivePath) Then
 				Common.MessageToUser(
-					NStr("en = 'Please provide the full name of the archive with volume files (it is a *.zip file).';"),
+					NStr("en = 'Please provide the full name of the archive with volume files (it is a *.zip file).'"),
 					,
 					"WindowsVolumesFilesArchivePath");
 				Result.DataReady = False;
@@ -1927,7 +1952,7 @@ Function PrepareDataToCreateServerInitialImage(ParametersStructure) Export
 				File = New File(VolumesFilesArchivePath);
 				If File.Exists() Then
 					Result.QueryText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'File ""%1"" already exists.
-							           |Do you want to overwrite it?';"), VolumesFilesArchivePath);
+							           |Do you want to overwrite it?'"), VolumesFilesArchivePath);
 					Result.ConfirmationRequired = True;
 				EndIf;
 			EndIf;
@@ -2234,7 +2259,7 @@ Procedure ClearExcessiveFiles(Parameters = Undefined, ResultAddress = Undefined)
 		CleanUpUnnecessaryFiles = FilesCleanupMode();
 	EndIf;
 	WriteToEventLogCleanupFiles(StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Scheduled cleanup of unused files is started (%1).';"), CleanUpUnnecessaryFiles));
+		NStr("en = 'Scheduled cleanup of unused files is started (%1).'"), CleanUpUnnecessaryFiles));
 	
 	If CleanUpUnnecessaryFiles = Enums.FilesCleanupModes.CleanUpDeletedAndUnusedFiles Then
 		CleanupSettings = InformationRegisters.FilesClearingSettings.CurrentClearSettings();
@@ -2255,7 +2280,7 @@ Procedure ClearExcessiveFiles(Parameters = Undefined, ResultAddress = Undefined)
 	EndIf;
 	
 	FilesOperationsInVolumesInternal.ClearDeletedFiles();
-	WriteToEventLogCleanupFiles(NStr("en = 'Scheduled cleanup of unused files is completed.';"));
+	WriteToEventLogCleanupFiles(NStr("en = 'Scheduled cleanup of unused files is completed.'"));
 	
 EndProcedure
 
@@ -2276,7 +2301,7 @@ Procedure OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating, Recipie
 	
 EndProcedure
 
-// See StandardSubsystems.OnSendDataToMaster.
+// 
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 	WhenSendingFile(DataElement, ItemSend);
@@ -2330,7 +2355,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		ToDoItem = ToDoList.Add();
 		ToDoItem.Id  = EditedFilesID;
 		ToDoItem.HasToDoItems       = LockedFilesCount > 0;
-		ToDoItem.Presentation  = NStr("en = 'Locked files';");
+		ToDoItem.Presentation  = NStr("en = 'Locked files'");
 		ToDoItem.Count     = LockedFilesCount;
 		ToDoItem.Important         = False;
 		ToDoItem.Form          = "DataProcessor.FilesOperations.Form.FilesToEdit";
@@ -2400,8 +2425,8 @@ Procedure OnFillAvailableRightsForObjectsRightsSettings(AvailableRights) Export
 	Right = AvailableRights.Add();
 	Right.RightsOwner  = Metadata.Catalogs.FilesFolders.FullName();
 	Right.Name           = "Read";
-	Right.Title     = NStr("en = 'Read';");
-	Right.ToolTip     = NStr("en = 'Read folders and files.';");
+	Right.Title     = NStr("en = 'Read'");
+	Right.ToolTip     = NStr("en = 'Read folders and files.'");
 	Right.InitialValue = True;
 	// Rights for standard access restriction templates.
 	Right.ReadInTables.Add("*");
@@ -2411,9 +2436,9 @@ Procedure OnFillAvailableRightsForObjectsRightsSettings(AvailableRights) Export
 	Right.RightsOwner  = Metadata.Catalogs.FilesFolders.FullName();
 	Right.Name           = "FoldersModification";
 	Right.Title     = NStr("en = 'Edit
-	                                 |folders';");
+	                                 |folders'");
 	Right.ToolTip     = NStr("en = 'Add, edit, and mark folders
-	                                 |for deletion.';");
+	                                 |for deletion.'");
 	// Rights that are required for this right.
 	Right.RequiredRights1.Add("Read");
 	// Rights for standard access restriction templates.
@@ -2424,8 +2449,8 @@ Procedure OnFillAvailableRightsForObjectsRightsSettings(AvailableRights) Export
 	Right.RightsOwner  = Metadata.Catalogs.FilesFolders.FullName();
 	Right.Name           = "FilesModification";
 	Right.Title     = NStr("en = 'Edit
-	                                 |files';");
-	Right.ToolTip     = NStr("en = 'Edit files in a folder.';");
+	                                 |files'");
+	Right.ToolTip     = NStr("en = 'Edit files in a folder.'");
 	// Rights that are required for this right.
 	Right.RequiredRights1.Add("Read");
 	// Rights for standard access restriction templates.
@@ -2436,8 +2461,8 @@ Procedure OnFillAvailableRightsForObjectsRightsSettings(AvailableRights) Export
 	Right.RightsOwner  = Metadata.Catalogs.FilesFolders.FullName();
 	Right.Name           = "AddFilesAllowed";
 	Right.Title     = NStr("en = 'Add
-	                                 |files';");
-	Right.ToolTip     = NStr("en = 'Add files to a folder.';");
+	                                 |files'");
+	Right.ToolTip     = NStr("en = 'Add files to a folder.'");
 	// Rights that are required for this right.
 	Right.RequiredRights1.Add("FilesModification");
 	
@@ -2446,8 +2471,8 @@ Procedure OnFillAvailableRightsForObjectsRightsSettings(AvailableRights) Export
 	Right.RightsOwner  = Metadata.Catalogs.FilesFolders.FullName();
 	Right.Name           = "FilesDeletionMark";
 	Right.Title     = NStr("en = 'Mark for
-	                                 |deletion';");
-	Right.ToolTip     = NStr("en = 'Set deletion marks to files in a folder.';");
+	                                 |deletion'");
+	Right.ToolTip     = NStr("en = 'Set deletion marks to files in a folder.'");
 	// Rights that are required for this right.
 	Right.RequiredRights1.Add("FilesModification");
 	
@@ -2455,8 +2480,8 @@ Procedure OnFillAvailableRightsForObjectsRightsSettings(AvailableRights) Export
 	Right.RightsOwner  = Metadata.Catalogs.FilesFolders.FullName();
 	Right.Name           = "RightsManagement";
 	Right.Title     = NStr("en = 'Manage
-	                                 |access rights';");
-	Right.ToolTip     = NStr("en = 'Manage folder access rights.';");
+	                                 |access rights'");
+	Right.ToolTip     = NStr("en = 'Manage folder access rights.'");
 	// Rights that are required for this right.
 	Right.RequiredRights1.Add("Read");
 	
@@ -2520,7 +2545,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 			
 	Handler = Handlers.Add();
 	Handler.Version = "3.1.11.80";
-	Handler.Comment = NStr("en = 'Update the universal date and file storage type, and delete redundant binary data from the ""Files"" catalog.';");
+	Handler.Comment = NStr("en = 'Update the universal date and file storage type, and delete redundant binary data from the ""Files"" catalog.'");
 	Handler.Id = New UUID("8b417c47-dd46-45ce-b59b-c675059c9020");
 	Handler.Procedure = "Catalogs.Files.ProcessDataForMigrationToNewVersion";
 	Handler.ExecutionMode = "Deferred";
@@ -2545,7 +2570,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Multithreaded = True;
 	Handler.UpdateDataFillingProcedure = "InformationRegisters.FilesInfo.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.CheckProcedure = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
-	Handler.Comment = NStr("en = 'Move file data to the ""File info"" information register.';");
+	Handler.Comment = NStr("en = 'Move file data to the ""File info"" information register.'");
 	
 	ItemsToRead = New Array;
 	ItemsToRead.Add(Metadata.Catalogs.Files.FullName());
@@ -2578,7 +2603,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Id = New UUID("84e58943-94fe-4f92-99b3-91be534d3754");
 	Handler.UpdateDataFillingProcedure = "InformationRegisters.FileRepository.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.CheckProcedure = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
-	Handler.Comment = NStr("en = 'Creating missing file versions for the Files catalog items.';");
+	Handler.Comment = NStr("en = 'Creating missing file versions for the Files catalog items.'");
 	
 	ObjectsToRead = New Array;
 	ObjectsToRead.Add(Metadata.Catalogs.Files.FullName());
@@ -2612,7 +2637,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Id = New UUID("fb2fba94-f4a1-408a-9274-d5c44e5a42a1");
 	Handler.UpdateDataFillingProcedure = "InformationRegisters.FilesExist.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.CheckProcedure = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
-	Handler.Comment = NStr("en = 'Update the attachment flag (ignores service files).';");
+	Handler.Comment = NStr("en = 'Update the attachment flag (ignores service files).'");
 	Handler.ObjectsToRead = NamesOfCatalogsWithServiceFiles();
 	Handler.ObjectsToChange = Metadata.InformationRegisters.FilesExist.FullName();
     Handler.Multithreaded = True;
@@ -2834,7 +2859,7 @@ Procedure OnDefineUsedAddIns(Components) Export
 	
 EndProcedure
 
-// See MarkedObjectsDeletionInternal.IsTechnicalObject
+// 
 Function IsTechnicalObject(FullObjectName) Export
 	Return FullObjectName = Upper(Metadata.Catalogs.FilesVersions.FullName());
 EndFunction
@@ -3061,10 +3086,10 @@ Function QueryTextToClearFiles(FileOwner, Setting, ExceptionsArray, ExceptionIte
 	If HasAbilityToStoreVersions And Setting.Action = Enums.FilesCleanupOptions.CleanUpVersions Then
 		QueryText =  QueryText + "
 		|	AND FilesVersions.Ref <> Files.CurrentVersion
-		|	AND FilesVersions.ParentVersion <> VALUE(Catalog.FilesVersions.EmptyRef)"; // @query-part
+		|	AND FilesVersions.ParentVersion <> VALUE(Catalog.FilesVersions.EmptyRef)"; // @query-part-1, @query-part-2
 	EndIf;
 	QueryText = StrReplace(QueryText, "&ThisIsNotGroup", 
-		?(FilesObjectMetadata.Hierarchical, "NOT Files.IsFolder", "TRUE")); // @query-part
+		?(FilesObjectMetadata.Hierarchical, "NOT Files.IsFolder", "TRUE")); // @query-part-2, @query-part-3
 	
 	Return QueryText;
 	
@@ -3136,7 +3161,7 @@ EndProcedure
 
 Function LogEventRegistrationClearFiles()
 	
-	Return NStr("en = 'Files.File cleanup';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Files.File cleanup'", Common.DefaultLanguageCode());
 	
 EndFunction
 
@@ -3158,7 +3183,7 @@ Function BinaryDataFromFileInformation(FileInfo1) Export
 		Return GetFromTempStorage(FileInfo1.TempFileStorageAddress);
 	Else
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid file storage type %1 in %2.';"),
+			NStr("en = 'Invalid file storage type %1 in %2.'"),
 				FileInfo1.TempFileStorageAddress, 
 				"FilesOperationsInternal.BinaryDataFromFileInformation"), 
 			ErrorCategory.ConfigurationError);
@@ -3262,8 +3287,9 @@ Procedure OnWriteAttachedFileServer(FilesOwner, Source) Export
 		EndIf;
 		
 		IsInternalFile = False;
-		If Common.HasObjectAttribute("IsInternal",Source.Metadata()) Then
-			IsInternalFile = Source.IsInternal;	
+		If Common.HasObjectAttribute("IsInternal", Source.Metadata())
+		   And TypeOf(Source.IsInternal) = Type("Boolean") Then
+			IsInternalFile = Source.IsInternal;
 		EndIf;
 		
 		HasFiles = Not Source.DeletionMark And Not IsInternalFile Or OwnerHasFiles(FilesOwner);
@@ -3385,7 +3411,7 @@ Procedure WhenSendingAFileCreateTheInitialImage(DataElement, ItemSend, Recipient
 		Else
 			
 			// Files with versions
-			// Files in the "AttachedFiles" catalogs
+			// Files in the "AttachedFiles" catalogs.
 			// Copy the files from the volume to the initial image directory.
 			NewFilePath1 = CommonClientServer.GetFullFileName(
 				String(CommonSettingsStorage.Load("FileExchange", "TempDirectory")),
@@ -3395,7 +3421,7 @@ Procedure WhenSendingAFileCreateTheInitialImage(DataElement, ItemSend, Recipient
 				// File data can be cleared.
 				FilesOperationsInVolumesInternal.CopyAttachedFile(DataElement.Ref, NewFilePath1);
 			Except
-				ErrorMessage = NStr("en = 'Cannot copy file data to the temporary directory.';") 
+				ErrorMessage = NStr("en = 'Cannot copy file data to the temporary directory.'") 
 					+ Chars.LF + Chars.LF 
 					+ ErrorProcessing.DetailErrorDescription(ErrorInfo());
 									
@@ -3450,8 +3476,8 @@ Procedure WhenReceivingFile(DataElement, ItemReceive, Sender = Undefined)
 			Return;
 		EndIf;
 		
-		// Двоичные данные файла в реквизите ФайлХранилище обрабатываем только в случае, если нет версий.
-		// Если версии есть, то двоичные данные будут обработаны при обработке версий.
+		// Process the file's binary data in the "FileStorage" attribute only if it has no versions.
+		// Otherwise, process binary data when handling file versions.
 		ProcessReceivedFiles = Not DataElement.StoreVersions;
 		If Not ProcessReceivedFiles Then
 			DataElement.FileStorage = New ValueStorage(Undefined);
@@ -3526,11 +3552,11 @@ Procedure WhenReceivingFile(DataElement, ItemReceive, Sender = Undefined)
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot add the file to a volume as the file does not exist.
 					|The file might have been deleted by the antivirus software.
-					|%1.';"),
+					|%1.'"),
 					CommonClientServer.GetNameWithExtension(DataElement.Description, 
 						DataElement.Extension));
 			
-			WriteLogEvent(NStr("en = 'Files.Add file to volume';", Common.DefaultLanguageCode()),
+			WriteLogEvent(NStr("en = 'Files.Add file to volume'", Common.DefaultLanguageCode()),
 				EventLogLevel.Error, MetadataType, DataElement.Ref, ErrorText);
 			
 		Else
@@ -3767,7 +3793,7 @@ Function FileStoringCatalogName(FilesOwner, CatalogName = "",
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
 			ErrorTitle + Chars.LF
 			+ NStr("en = 'File owner ""%1"" of type ""%2""
-					|does not have file storage catalogs.';"),
+					|does not have file storage catalogs.'"),
 				String(FilesOwner),
 				String(TypeOf(FilesOwner))),
 			ErrorCategory.ConfigurationError);
@@ -3785,7 +3811,7 @@ Function FileStoringCatalogName(FilesOwner, CatalogName = "",
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
 			ErrorTitle + Chars.LF
 			+ NStr("en = 'File location ""%1"" of type ""%2""
-					|does not have file storage catalog ""%3"".';"),
+					|does not have file storage catalog ""%3"".'"),
 				String(FilesOwner),
 				String(TypeOf(FilesOwner)),
 				String(CatalogName)),
@@ -3809,7 +3835,7 @@ Function FileStoringCatalogName(FilesOwner, CatalogName = "",
 	EndIf;
 	
 	ErrorReasonTemplate = NStr("en = 'The main file storage catalog is not specified
-		|for file owner ""%1"" of type ""%2"".';") + Chars.LF;
+		|for file owner ""%1"" of type ""%2"".'") + Chars.LF;
 	ErrorReason = StringFunctionsClientServer.SubstituteParametersToString(
 		ErrorReasonTemplate, String(FilesOwner), String(TypeOf(FilesOwner)));
 	ErrorText = ErrorTitle + Chars.LF + ErrorReason + Chars.LF + ErrorEnd;
@@ -3918,7 +3944,7 @@ Function FilesVersionsStorageCatalogName(FilesOwner, CatalogName = "",
 	
 	ErrorReasonTemplate = 
 		NStr("en = 'The main catalog to store file versions is not specified
-			|for file owner ""%1"".';") + Chars.LF;
+			|for file owner ""%1"".'") + Chars.LF;
 			
 	ErrorReason = StringFunctionsClientServer.SubstituteParametersToString(
 		ErrorReasonTemplate, String(FilesOwner));
@@ -4054,7 +4080,7 @@ Function FilesImportGenerateReport(ArrayOfFilesNamesWithErrors) Export
 	Template = Catalogs.Files.GetTemplate("ReportTemplate");
 	
 	HeaderArea_ = Template.GetArea("Title");
-	HeaderArea_.Parameters.LongDesc = NStr("en = 'Cannot upload the following files:';");
+	HeaderArea_.Parameters.LongDesc = NStr("en = 'Cannot upload the following files:'");
 	Document.Put(HeaderArea_);
 	
 	AreaRow = Template.GetArea("String");
@@ -4297,18 +4323,18 @@ Function ErrorFileNotFoundInFileStorage(FileObject1)
 		NStr("en = 'Cannot open file:
 			|%1
 			|that is attached to:
-			|%2';"),
+			|%2'"),
 		FileName, Common.SubjectString(FileObject1.FileOwner));
 
 	If FileObject1.DeletionMark Then
 		ErrorText = ErrorText + Chars.LF + Chars.LF
-			+ NStr("en = 'File is marked for deletion and cleaned up as unused.';");	
+			+ NStr("en = 'File is marked for deletion and cleaned up as unused.'");	
 	ElsIf FileObject1.FileStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive Then
 		ErrorText = ErrorText + Chars.LF + Chars.LF
-			+ NStr("en = 'File data is unavailable because the file might have been cleaned up as unused or deleted by the antivirus software.';");
+			+ NStr("en = 'File data is unavailable because the file might have been cleaned up as unused or deleted by the antivirus software.'");
 	Else
 		ErrorText = ErrorText + Chars.LF + Chars.LF
-			+ NStr("en = 'File data is unavailable because the file might have been cleaned up as unused.';");
+			+ NStr("en = 'File data is unavailable because the file might have been cleaned up as unused.'");
 	EndIf;
 	
 	Return ErrorText;
@@ -4323,7 +4349,7 @@ Procedure ReportErrorFileNotFound(FileObject1, RaiseException1) Export
 	
 	ErrorMessage = ErrorFileNotFoundInFileStorage(FileObject1);
 	CriticalityOfTheError = ?(RaiseException1, EventLogLevel.Error, EventLogLevel.Warning);
-	WriteLogEvent(NStr("en = 'Files.Open file';", Common.DefaultLanguageCode()),
+	WriteLogEvent(NStr("en = 'Files.Open file'", Common.DefaultLanguageCode()),
 		CriticalityOfTheError, FileObject1.Ref.Metadata(), FileObject1.Ref, ErrorMessage);
 		
 	If RaiseException1 Then
@@ -4653,8 +4679,8 @@ Procedure ProcessFileSendingByStorageType(DataElement)
 		DataElement.FileStorage = New ValueStorage(
 			GetFromTempStorage(AddressInTempStorage), New Deflation(9));
 	Except
-		// Возможно, файл не был найден. Отправку данных не прерываем.
-		// ACC:154-выкл - отсутствие данных файла - штатная ситуация.
+		// The file is probably not found. Resume the data export.
+		// ACC:154-off - File data is missing (an ordinary situation).
 		WriteLogEvent(EventLogEventForExchange(), 
 			EventLogLevel.Warning,,, 
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
@@ -4734,7 +4760,7 @@ EndFunction
 //
 Function EventLogEventForExchange() 
 	
-	Return NStr("en = 'Files.Cannot send file during data exchange';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Files.Cannot send file during data exchange'", Common.DefaultLanguageCode());
 	
 EndFunction
 
@@ -5041,13 +5067,10 @@ Function UpdateFileVersion(FileRef,
 	
 	If FileInfo1.StoreVersions Then
 			
-		ErrorTitle = NStr("en = 'An error occurred when saving a new version of the attachments.';");
-		ErrorEnd = NStr("en = 'Cannot overwrite the file.';");
-		
+		ErrorTitle = NStr("en = 'Failed to write the attachment version.'");
 		FileAttributesValues = Common.ObjectAttributesValues(FileRef, "FileOwner,CurrentVersion");
-		
 		FileVersionsStorageCatalogName = FilesVersionsStorageCatalogName(
-			TypeOf(FileAttributesValues.FileOwner), "", ErrorTitle, ErrorEnd);
+			TypeOf(FileAttributesValues.FileOwner), "", ErrorTitle);
 		
 		Version = Catalogs[FileVersionsStorageCatalogName].CreateItem();
 		Version.ParentVersion = FileAttributesValues.CurrentVersion;
@@ -5292,7 +5315,7 @@ Procedure CheckFileSizeForImport(File) Export
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The size of file ""%1"" (%2 MB)
-			           |exceeds the limit (%3 MB).';"),
+			           |exceeds the limit (%3 MB).'"),
 			Name,
 			FilesOperationsInternalClientServer.FileSizePresentation(SizeInMB),
 			FilesOperationsInternalClientServer.FileSizePresentation(SizeInMBMax));
@@ -5331,7 +5354,7 @@ Procedure ItemFormOnCreateAtServer(Context, Cancel, StandardProcessing, Paramete
 		ElsIf ValueIsFilled(Parameters.Key) Then
 			ObjectValue = Parameters.Key.GetObject();
 		Else
-			Raise NStr("en = 'You cannot create a file.';");
+			Raise NStr("en = 'You cannot create a file.'");
 		EndIf;
 		InfobaseUpdate.CheckObjectProcessed(ObjectValue, Context);
 	EndIf;
@@ -5383,7 +5406,7 @@ Procedure ItemFormOnCreateAtServer(Context, Cancel, StandardProcessing, Paramete
 		EndIf;
 		
 		If Not ValueIsFilled(Context.Encoding) Then
-			Context.Encoding = NStr("en = 'Default';");
+			Context.Encoding = NStr("en = 'Default'");
 		EndIf;
 		
 	Else
@@ -5563,7 +5586,7 @@ Procedure FillEncryptionList(Context, Val Source = Undefined) Export
 		
 	EndIf;
 	
-	TitleText = NStr("en = 'Decryption allowed';");
+	TitleText = NStr("en = 'Decryption allowed'");
 	
 	If Context.EncryptionCertificates.Count() <> 0 Then
 		TitleText =TitleText + " (" + Format(Context.EncryptionCertificates.Count(), "NG=") + ")";
@@ -5612,7 +5635,7 @@ Procedure FillSignatureList(Context, Val Source = Undefined) Export
 		
 	EndDo;
 	
-	TitleText = NStr("en = 'Digital signatures';");
+	TitleText = NStr("en = 'Digital signatures'");
 	
 	If Context.DigitalSignatures.Count() <> 0 Then
 		TitleText = TitleText + " (" + String(Context.DigitalSignatures.Count()) + ")";
@@ -5822,7 +5845,7 @@ Procedure ClearUnusedFilesData(UnusedFiles)
 		If Not DeletionResult.Success Then
 			WriteToEventLogCleanupFiles(StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Some of the files have not been deleted automatically (%1) as they are used elsewhere in the application or due to other reasons.
-				|To view the reasons why the files cannot be deleted, open ""Marked object deletion"" in the application settings.';"),
+				|To view the reasons why the files cannot be deleted, open ""Marked object deletion"" in the application settings.'"),
 				DeletionResult.NotTrash.Count()), EventLogLevel.Warning);
 		EndIf;
 		Return;
@@ -5854,7 +5877,7 @@ Function PrepareTheFileForDeletion(AttachedFile)
 	Result = Undefined;
 	
 	WriteToEventLogCleanupFiles(StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Deleting unused file ""%1""...';"), Common.SubjectString(AttachedFile)),,
+		NStr("en = 'Deleting unused file ""%1""...'"), Common.SubjectString(AttachedFile)),,
 		AttachedFile);
 	Block = New DataLock();
 	LockItem = Block.Add(AttachedFile.Metadata().FullName());
@@ -5872,7 +5895,7 @@ Function PrepareTheFileForDeletion(AttachedFile)
 		EndIf;
 		If Common.HasObjectAttribute("BeingEditedBy", FileObject1.Metadata())
 			And ValueIsFilled(FileObject1.BeingEditedBy) Then
-			WriteToEventLogCleanupFiles(NStr("en = 'The file cannot be deleted as it is being edited.';"),,
+			WriteToEventLogCleanupFiles(NStr("en = 'The file cannot be deleted as it is being edited.'"),,
 				AttachedFile);
 			CommitTransaction();
 			Return Result;
@@ -6426,7 +6449,7 @@ Function CheckHTTP1CException(Response, ServerAddress)
 	
 	If IsErrorStateCode(Response.StatusCode) Then
 		
-		ErrorTemplate = NStr("en = 'Cannot synchronize the file at %2 as the server returned HTTP code %1. %3';");
+		ErrorTemplate = NStr("en = 'Cannot synchronize the file at %2 as the server returned HTTP code %1. %3'");
 		ErrorInfo = Response.GetBodyAsString();
 		
 		Result.Success = False;
@@ -6668,10 +6691,10 @@ Function CallGETMethod(FileAddressHRef, EtagID, SynchronizationParameters, FileM
 	FileWithBinaryData = SynchronizationParameters.Response.GetBodyAsBinaryData(); // BinaryData
 	
 	// ACC:216-off External service IDs contain Latin and Cyrillic letters.
-	Var_653_HTTPHeaders = StandardSubsystemsServer.HTTPHeadersInLowercase(SynchronizationParameters.Response.Headers);
-	EtagID = ?(Var_653_HTTPHeaders["etagid"] = Undefined, "", Var_653_HTTPHeaders["etagid"]);
-	FileModificationDate = ?(Var_653_HTTPHeaders["last-modified"] = Undefined, CurrentUniversalDate(), 
-		CommonClientServer.RFC1123Date(Var_653_HTTPHeaders["last-modified"]));
+	Var_652_HTTPHeaders = StandardSubsystemsServer.HTTPHeadersInLowercase(SynchronizationParameters.Response.Headers);
+	EtagID = ?(Var_652_HTTPHeaders["etagid"] = Undefined, "", Var_652_HTTPHeaders["etagid"]);
+	FileModificationDate = ?(Var_652_HTTPHeaders["last-modified"] = Undefined, CurrentUniversalDate(), 
+		CommonClientServer.RFC1123Date(Var_652_HTTPHeaders["last-modified"]));
 	FileLength = FileWithBinaryData.Size();
 	// ACC:216-on
 	
@@ -6724,7 +6747,7 @@ Function ImportFileFromServer(FileParameters, IsFile = Undefined)
 	ExistingFileRef = FileParameters.ExistingFileRef;
 	SynchronizationParameters   = FileParameters.SynchronizationParameters;
 	
-	EventText = NStr("en = 'Upload file from server: %1';");
+	EventText = NStr("en = 'Upload file from server: %1'");
 	WriteToEventLogOfFilesSynchronization(StringFunctionsClientServer.SubstituteParametersToString(EventText, 
 		FileParameters.FileName), SynchronizationParameters.Account);
 	
@@ -6816,10 +6839,10 @@ Function ImportFileFromServer(FileParameters, IsFile = Undefined)
 		RememberRefServerData(NewFile, FileAddress, EtagID, IsFile, OwnerObject, False, 
 			SynchronizationParameters.Account);
 		
-		MessageText = NStr("en = 'File ""%1"" is uploaded from the cloud service.';");
+		MessageText = NStr("en = 'File ""%1"" is uploaded from the cloud service.'");
 		StatusForEventLog = EventLogLevel.Information;
 	Else
-		MessageText = NStr("en = 'Cannot upload file ""%1"" from the cloud service. Reason:';") + " " 
+		MessageText = NStr("en = 'Cannot upload file ""%1"" from the cloud service. Reason:'") + " " 
 			+ Chars.LF + ImportResult1.ErrorText;
 		StatusForEventLog = EventLogLevel.Error;
 	EndIf;
@@ -6846,7 +6869,7 @@ EndProcedure
 
 Function EventLogEventSynchronization()
 	
-	Return NStr("en = 'Files.Synchronization with cloud service';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Files.Synchronization with cloud service'", Common.DefaultLanguageCode());
 	
 EndFunction
 
@@ -6915,7 +6938,7 @@ Procedure ReadDirectoryParameters(CheckResult, HttpAddress, ExchangeStructure)
 							SizeInMegabytes = 0;
 						EndTry;
 						
-						FreeSpaceInformation = NStr("en = 'Free space: %1 MB';");
+						FreeSpaceInformation = NStr("en = 'Free space: %1 MB'");
 						
 						CheckResult.ResultText = CheckResult.ResultText 
 							+ ?(IsBlankString(CheckResult.ResultText), "", Chars.LF)
@@ -6927,7 +6950,7 @@ Procedure ReadDirectoryParameters(CheckResult, HttpAddress, ExchangeStructure)
 							SizeInMegabytes = 0;
 						EndTry;
 						
-						OccupiedSpaceInformation = NStr("en = 'Occupied: %1 MB';");
+						OccupiedSpaceInformation = NStr("en = 'Occupied: %1 MB'");
 						
 						CheckResult.ResultText = CheckResult.ResultText 
 							+ ?(IsBlankString(CheckResult.ResultText), "", Chars.LF)
@@ -7009,7 +7032,7 @@ Procedure CheckIfCanStoreFiles(CheckResult, HttpAddress, SynchronizationParamete
 			CheckResult.Cancel = True;
 			CheckResult.ErrorCode = 10000+PropertySetResponseCode;
 			
-			ErrorTemplate = NStr("en = 'Cannot set the file property at %2 as the server returned an HTTP code: %1. %3';");
+			ErrorTemplate = NStr("en = 'Cannot set the file property at %2 as the server returned an HTTP code: %1. %3'");
 			ErrorInfo = SynchronizationParameters.Response.GetBodyAsString();
 		
 			CheckResult.ResultText = CheckResult.ResultText + ?(IsBlankString(CheckResult.ResultText), "", Chars.LF) 
@@ -7396,7 +7419,7 @@ Procedure ImportFilesTreeRecursively(CurrentRowsOfFilesTree, HttpAddress, Synchr
 			// There is always Href, otherwise, it is a critical error.
 			FoundHref = CalculateXPath("./*[local-name()='href']", XMLDocumentContext, FoundResponse).IterateNext();
 			If FoundHref = Undefined Then
-				ErrorText = NStr("en = 'The server returned an error: HREF is not found in %1.';");
+				ErrorText = NStr("en = 'The cloud drive returned an invalid response without HREF in %1.'");
 				Raise StringFunctionsClientServer.SubstituteParametersToString(ErrorText, ServerAddress);
 			EndIf; 
 			
@@ -7494,7 +7517,7 @@ Procedure ImportNewAttachedFiles(FilesTreeRows, TableOfFiles, SynchronizationPar
 				
 				// Checking if it is possible to store UID1C. If it is not, folder is not loaded.
 				If Not CheckUID1CAbility(FilesTreeRow.Href, String(New UUID), SynchronizationParameters) Then
-					EventText = NStr("en = 'Cannot download file %1 because an error occurred when saving its additional properties.';");
+					EventText = NStr("en = 'Cannot download file %1 because an error occurred when saving its additional properties.'");
 					WriteToEventLogOfFilesSynchronization(StringFunctionsClientServer.SubstituteParametersToString(
 							EventText, FilesTreeRow.FileName), 
 						SynchronizationParameters.Account, EventLogLevel.Error);
@@ -7538,7 +7561,7 @@ Procedure ImportNewAttachedFiles(FilesTreeRows, TableOfFiles, SynchronizationPar
 						NewFilesTableRow.Is_Directory,
 						SynchronizationParameters.Account);
 					
-					EventText = NStr("en = 'Downloaded folder from server %1.';");
+					EventText = NStr("en = 'Downloaded folder from server %1.'");
 					WriteToEventLogOfFilesSynchronization(StringFunctionsClientServer.SubstituteParametersToString(
 							EventText, NewFilesTableRow.DescriptionServer), 
 						SynchronizationParameters.Account);
@@ -7561,7 +7584,7 @@ Procedure ImportNewAttachedFiles(FilesTreeRows, TableOfFiles, SynchronizationPar
 				EndIf;
 				
 				If PreviousFIlesTableRow = Undefined Then
-					EventText = NStr("en = 'Skipped synchronization of the %1 folder. The folder is missing on the server.';");
+					EventText = NStr("en = 'Skipped synchronization of the %1 folder. The folder is missing on the server.'");
 					WriteToEventLogOfFilesSynchronization(StringFunctionsClientServer.SubstituteParametersToString(
 						EventText, DecodeString(FilesTreeRow.Href, StringEncodingMethod.URLInURLEncoding)),
 						SynchronizationParameters.Account, EventLogLevel.Error);
@@ -7569,11 +7592,12 @@ Procedure ImportNewAttachedFiles(FilesTreeRows, TableOfFiles, SynchronizationPar
 				EndIf;
 				
 				// The directory is found by "Href". Now, find the record in the "FilesSynchronizationWithCloudServiceStatuses" information register by "UID1C".
-				// @skip-check query-in-loop - A rare query in a cycle during batch data import.
+// @skip-check query-in-loop - A rare query in a cycle during batch data import.
+				// @skip-check query-in-loop - Редкий запрос в цикле при пакетной загрузке данных.
 				CurrentFilesFolder = FileOwnerByUID(PreviousFIlesTableRow.UID1C);	
 				If Not ValueIsFilled(CurrentFilesFolder) Then
 					EventText = NStr("en = 'Cannot synchronize the %1 folder.
-						|The %2 folder ID is missing in the file synchronization information records.';");
+						|The %2 folder ID is missing in the file synchronization information records.'");
 					WriteToEventLogOfFilesSynchronization(StringFunctionsClientServer.SubstituteParametersToString(
 						EventText, DecodeString(FilesTreeRow.Href, StringEncodingMethod.URLInURLEncoding),
 							PreviousFIlesTableRow.UID1C),
@@ -7595,7 +7619,7 @@ Procedure ImportNewAttachedFiles(FilesTreeRows, TableOfFiles, SynchronizationPar
 				PreviousFIlesTableRow.ModifiedAtServer   = Not IsIdenticalURIPaths(PreviousFIlesTableRow.ToHref,PreviousFIlesTableRow.Href);
 			EndIf;
 			
-			// @skip-check query-in-loop - Recursive algorithm of tree processing.
+			// @skip-check query-in-loop - Рекурсивный алгоритм обработки дерева.
 			ImportNewAttachedFiles(FilesTreeRow.Rows, TableOfFiles, SynchronizationParameters, Signatures, CurrentFilesFolder.Ref);
 			Continue;
 			
@@ -7620,7 +7644,7 @@ Procedure ImportNewAttachedFiles(FilesTreeRows, TableOfFiles, SynchronizationPar
 		If (CurrentFile = Undefined) Or (TableOfFiles.Find(CurrentFile.FileRef ,"FileRef") = Undefined) Then
 			// This is a new file on the server, importing it.
 			If Not CheckUID1CAbility(FilesTreeRow.Href, String(New UUID), SynchronizationParameters) Then
-				EventText = NStr("en = 'Cannot download file %1 because an error occurred when saving its additional properties.';");
+				EventText = NStr("en = 'Cannot download file %1 because an error occurred when saving its additional properties.'");
 				WriteToEventLogOfFilesSynchronization(StringFunctionsClientServer.SubstituteParametersToString(
 					EventText, FilesTreeRow.FileName), SynchronizationParameters.Account, EventLogLevel.Error);
 				Continue;
@@ -7719,7 +7743,7 @@ Procedure UploadFileSignatures(FileRef, Signatures, SynchronizationParameters)
 		FileModificationDate     = FileParameters.FileModificationDate;
 		FileLength               = FileParameters.FileLength;
 
-		EventText = NStr("en = 'Import the signature from the server: %1';");
+		EventText = NStr("en = 'Import the signature from the server: %1'");
 		WriteToEventLogOfFilesSynchronization(StringFunctionsClientServer.SubstituteParametersToString(EventText,
 			FileParameters.FileName), SynchronizationParameters.Account);
 
@@ -7729,7 +7753,7 @@ Procedure UploadFileSignatures(FileRef, Signatures, SynchronizationParameters)
 		If ImportResult1.Success And ImportResult1.ImportedFileAddress <> Undefined Then
 			
 			If Not ImportResult1.ThisIsSignature Then
-				EventText = NStr("en = 'This is not a signature file: %1';");
+				EventText = NStr("en = 'This is not a signature file: %1'");
 				WriteToEventLogOfFilesSynchronization(StringFunctionsClientServer.SubstituteParametersToString(
 					EventText, FileName), SynchronizationParameters.Account, EventLogLevel.Error);
 				Continue;
@@ -7762,7 +7786,7 @@ Procedure UploadFileSignatures(FileRef, Signatures, SynchronizationParameters)
 				SignatureData.Insert("UnverifiedSignatureDate", ResultOfReadSignatureProperties.UnverifiedSignatureDate);
 			Else
 				If IsBlankString(ErrorSignatureDataCouldNotBeRead) Then
-					EventText = NStr("en = 'Cannot read the %1 file signature data: %2';");
+					EventText = NStr("en = 'Cannot read the %1 file signature data: %2'");
 					ErrorSignatureDataCouldNotBeRead = StringFunctionsClientServer.SubstituteParametersToString(
 						EventText, FileName, ResultOfReadSignatureProperties.ErrorText);
 				EndIf;
@@ -7773,10 +7797,10 @@ Procedure UploadFileSignatures(FileRef, Signatures, SynchronizationParameters)
 			UID1CFile = UID1C + PostfixForCaption(FileSignatures.Count() + SignaturesToAdd.UBound());
 			UpdateFileUID1C(FileAddress, UID1CFile, SynchronizationParameters);
 
-			MessageText = NStr("en = 'The signature from the cloud service is imported: ""%1""';");
+			MessageText = NStr("en = 'The signature from the cloud service is imported: ""%1""'");
 			StatusForEventLog = EventLogLevel.Information;
 		Else
-			MessageText = NStr("en = 'Cannot import the %1 signature from the cloud service. Reason:';") + " "
+			MessageText = NStr("en = 'Cannot import the %1 signature from the cloud service. Reason:'") + " "
 				+ Chars.LF + ImportResult1.ErrorText;
 			StatusForEventLog = EventLogLevel.Error;
 		EndIf;
@@ -7900,7 +7924,7 @@ Procedure FillDataFromCloudService(FilesTreeRows, TableOfFiles, SynchronizationP
 					PreviousFIlesTableRow.Href);
 			EndIf; 
 			
-			// @skip-check query-in-loop - Recursive algorithm of tree processing.
+			// @skip-check query-in-loop - Рекурсивный алгоритм обработки дерева.
 			FillDataFromCloudService(FilesTreeRow.Rows, TableOfFiles, SynchronizationParameters, 
 				CurrentFilesFolder.Ref);
 			Continue;
@@ -8039,12 +8063,12 @@ Procedure SynchronizeFilesWithCloudService(Account)
 		Return;
 	EndIf;
 	
-	EventText = NStr("en = 'File synchronization with cloud service started.';");
+	EventText = NStr("en = 'File synchronization with cloud service started.'");
 	WriteToEventLogOfFilesSynchronization(EventText, SynchronizationParameters.Account);
 	
 	ExecuteFilesSynchronizationWithCloudService(SynchronizationParameters);
 	
-	EventText = NStr("en = 'File synchronization with the cloud service is completed.';");
+	EventText = NStr("en = 'File synchronization with the cloud service is completed.'");
 	WriteToEventLogOfFilesSynchronization(EventText, SynchronizationParameters.Account);
 
 EndProcedure
@@ -8071,7 +8095,7 @@ Procedure ExecuteFilesSynchronizationWithCloudService(SynchronizationParameters)
 				CallMKCOLMethod(ServerAddress, SynchronizationParameters);
 			EndIf;
 		Except
-			EventText = NStr("en = 'Cannot create a root folder on the server. The files are not synchronized.';");
+			EventText = NStr("en = 'Cannot create a root folder on the server. The files are not synchronized.'");
 			WriteToEventLogOfFilesSynchronization(EventText, SynchronizationParameters.Account, EventLogLevel.Error);
 			Return;
 		EndTry
@@ -8083,7 +8107,7 @@ Procedure ExecuteFilesSynchronizationWithCloudService(SynchronizationParameters)
 	
 	ImportFilesTreeRecursively(ServerFilesTree.Rows, ServerAddress, SynchronizationParameters, Cancel);
 	If Cancel = True Then
-		EventText = NStr("en = 'Cannot synchronize the files because an error occurred when uploading the file structure from the server.';");
+		EventText = NStr("en = 'Cannot synchronize the files because an error occurred when uploading the file structure from the server.'");
 		WriteToEventLogOfFilesSynchronization(EventText, SynchronizationParameters.Account, EventLogLevel.Error);
 		Return;
 	EndIf;
@@ -8091,7 +8115,7 @@ Procedure ExecuteFilesSynchronizationWithCloudService(SynchronizationParameters)
 	// Comparing it with the file tree in the system, synchronization by UUID.
 	TableOfFiles = SelectDataByRules(SynchronizationParameters.Account);
 	If TableOfFiles = Undefined Then
-		EventText = NStr("en = 'Cannot synchronize the files because an error occurred when getting a file table from the infobase.';");
+		EventText = NStr("en = 'Cannot synchronize the files because an error occurred when getting a file table from the infobase.'");
 		WriteToEventLogOfFilesSynchronization(EventText, SynchronizationParameters.Account, EventLogLevel.Error);
 		Return;
 	EndIf;
@@ -8167,7 +8191,7 @@ Function SynchronizeFiles(TableOfFiles, SynchronizationParameters, ServerAddress
 					
 					If ModifiedAtServer And TableRow.SignedWithDS Then
 						Raise NStr("en = 'You cannot import changed files with signatures in the application from the cloud.
-							|Delete the signatures from the application and add them to the cloud to synchronize the file.';")
+							|Delete the signatures from the application and add them to the cloud to synchronize the file.'")
 					EndIf;
 					
 					If ModifiedAtServer And Not ModifiedInBase Then
@@ -8196,7 +8220,7 @@ Function SynchronizeFiles(TableOfFiles, SynchronizationParameters, ServerAddress
 			
 			SynchronizationCompleted = False;
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot synchronize file ""%1"". Reason:';"), String(TableRow.FileRef))
+				NStr("en = 'Cannot synchronize file ""%1"". Reason:'"), String(TableRow.FileRef))
 				+ Chars.LF + ErrorProcessing.DetailErrorDescription(ErrorInfo());
 			WriteToEventLogOfFilesSynchronization(ErrorText, SynchronizationParameters.Account, EventLogLevel.Error);
 		EndTry;
@@ -8210,7 +8234,7 @@ Function SynchronizeFiles(TableOfFiles, SynchronizationParameters, ServerAddress
 			CurrentFile = FindRowByURI(KeyAndValue.Key, TableOfFiles, "ToHref", True);
 			
 			If CurrentFile = Undefined Then
-				EventText = NStr("en = 'The %1 file to import signatures is not found.';");
+				EventText = NStr("en = 'The %1 file to import signatures is not found.'");
 				WriteToEventLogOfFilesSynchronization(StringFunctionsClientServer.SubstituteParametersToString(
 					EventText, KeyAndValue.Key),
 				SynchronizationParameters.Account, EventLogLevel.Error);
@@ -8350,7 +8374,7 @@ Function ModifyFileInCloudService(Val ModifiedContentAtServer, UpdateFileSynchro
 	TableRow.Processed = True;
 	TableRow.SynchronizationDate = CurrentSessionDate();
 	
-	EventText = NStr("en = 'File modified: %1';");
+	EventText = NStr("en = 'File modified: %1'");
 	WriteToEventLogOfFilesSynchronization(StringFunctionsClientServer.SubstituteParametersToString(
 			EventText, TableRow.Description), 
 		SynchronizationParameters.Account);
@@ -8381,7 +8405,7 @@ Function DeleteFileInCloudService(Val SynchronizationParameters, Val TableRow)
 		
 		RollbackTransaction();
 		WriteToEventLogOfFilesSynchronization(
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'File is not deleted: %1';"), TableRow.Description), 
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'File is not deleted: %1'"), TableRow.Description), 
 			SynchronizationParameters.Account, EventLogLevel.Error);
 		Return False;
 		
@@ -8393,7 +8417,7 @@ Function DeleteFileInCloudService(Val SynchronizationParameters, Val TableRow)
 	TableRow.SynchronizationDate  = CurrentSessionDate();
 	
 	WriteToEventLogOfFilesSynchronization(
-		StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'File is deleted: %1';"), TableRow.Description), 
+		StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'File is deleted: %1'"), TableRow.Description), 
 		SynchronizationParameters.Account);
 	
 	Return True;
@@ -8493,7 +8517,7 @@ Function CreateFileInCloudService(Val ServerAddress, Val SynchronizationParamete
 		FilesOperationsInternalServerCall.LockFile(FileData, , FileLockParameters);
 	EndIf;
 	
-	EventText = NStr("en = 'Object %1 created in cloud service';");
+	EventText = NStr("en = 'Object %1 created in cloud service'");
 	WriteToEventLogOfFilesSynchronization(
 		StringFunctionsClientServer.SubstituteParametersToString(EventText, TableRow.Description), 
 		SynchronizationParameters.Account);
@@ -8898,13 +8922,13 @@ Procedure ExecuteConnectionCheck(Account, CheckResult) Export
 	
 	UserAccountDescription = String(Account);
 	
-	EventText = NStr("en = 'File synchronization check started';") + " " + UserAccountDescription;
+	EventText = NStr("en = 'File synchronization check started'") + " " + UserAccountDescription;
 	WriteToEventLogOfFilesSynchronization(EventText, SynchronizationParameters.Account);
 	
 	ReadDirectoryParameters(CheckResult, ServerAddress, SynchronizationParameters);
 	CheckIfCanStoreFiles(CheckResult, ServerAddress, SynchronizationParameters);
 	
-	EventText = NStr("en = 'File synchronization check completed';") + " " + UserAccountDescription;
+	EventText = NStr("en = 'File synchronization check completed'") + " " + UserAccountDescription;
 	WriteToEventLogOfFilesSynchronization(EventText, SynchronizationParameters.Account);
 
 EndProcedure
@@ -8934,7 +8958,7 @@ Procedure DeleteUnsynchronizedFiles()
 	|	FileSynchronizationAccounts.Ref";
 	SelectionAccount = Query.Execute().Select();
 	While SelectionAccount.Next() Do
-		// @skip-check query-in-loop - Batch processing of a large amount of data.
+		// @skip-check query-in-loop
 		DeleteAccountUnsynchronizedFiles(SelectionAccount.Account);
 	EndDo;
 	
@@ -8951,7 +8975,7 @@ Procedure DeleteAccountUnsynchronizedFiles(Account)
 	
 	ServerAddress = EncodeURIByStructure(SynchronizationParameters.ServerAddressStructure);
 	
-	EventText = NStr("en = 'Releasing files locked by the cloud service started.';");
+	EventText = NStr("en = 'Releasing files locked by the cloud service started.'");
 	WriteToEventLogOfFilesSynchronization(EventText, SynchronizationParameters.Account);
 	
 	ServerFilesTree = GenerateStructureOfServerFilesTree();
@@ -8961,7 +8985,7 @@ Procedure DeleteAccountUnsynchronizedFiles(Account)
 		Cancel = False;
 		ImportFilesTreeRecursively(ServerFilesTree.Rows, ServerAddress, SynchronizationParameters, Cancel);
 		If Cancel = True Then
-			ErrorText = NStr("en = 'Cannot synchronize the files as an error occurred when importing the file structure from the cloud service.';");
+			ErrorText = NStr("en = 'Cannot synchronize the files as an error occurred when importing the file structure from the cloud service.'");
 			Raise ErrorText;
 		EndIf;
 		
@@ -8991,7 +9015,7 @@ Procedure DeleteAccountUnsynchronizedFiles(Account)
 					
 					If ValueIsFilled(TableRow.Href) Then
 						CallDELETEMethod(TableRow.Href, SynchronizationParameters);
-						EventText = NStr("en = 'Object deleted in cloud service %1';");
+						EventText = NStr("en = 'Object deleted in cloud service %1'");
 						WriteToEventLogOfFilesSynchronization(StringFunctionsClientServer.SubstituteParametersToString(
 								EventText, TableRow.DescriptionServer), 
 							SynchronizationParameters.Account);
@@ -9017,7 +9041,7 @@ Procedure DeleteAccountUnsynchronizedFiles(Account)
 				Except
 					RollbackTransaction();
 					EventText = NStr("en = 'The object is not deleted in the %1 cloud service due to:
-						|%2';");
+						|%2'");
 					WriteToEventLogOfFilesSynchronization(StringFunctionsClientServer.SubstituteParametersToString(
 						EventText, TableRow.DescriptionServer, ErrorProcessing.DetailErrorDescription(ErrorInfo())),
 						SynchronizationParameters.Account, EventLogLevel.Error);
@@ -9031,7 +9055,7 @@ Procedure DeleteAccountUnsynchronizedFiles(Account)
 			SynchronizationParameters.Account, EventLogLevel.Error);
 	EndTry;
 	
-	EventText = NStr("en = 'Files locked by the cloud service are released.';");
+	EventText = NStr("en = 'Files locked by the cloud service are released.'");
 	WriteToEventLogOfFilesSynchronization(EventText, SynchronizationParameters.Account);
 	
 EndProcedure
@@ -9060,7 +9084,7 @@ Procedure DeleteUnsynchronizedSignatures(TableRow, StringServerFileTree, Synchro
 			And StrEndsWith(TreeRow.UID1C, "p7s") Then
 			
 			CallDELETEMethod(TreeRow.Href, SynchronizationParameters);
-			EventText = NStr("en = 'The %1 signature of the %2 object is deleted from the cloud service';");
+			EventText = NStr("en = 'The %1 signature of the %2 object is deleted from the cloud service'");
 			WriteToEventLogOfFilesSynchronization(StringFunctionsClientServer.SubstituteParametersToString(
 				EventText, TreeRow.FileName, TableRow.Description),
 				SynchronizationParameters.Account);
@@ -9282,8 +9306,7 @@ Function QueryTextForFilesWithUnextractedText(CatalogName, FilesNumberInSelectio
 		EndIf;
 	EndIf;
 	
-	ReplacementString = ?(GetAllFiles, "SELECT", // @query-part
-		"SELECT TOP " + Format(FilesNumberInSelection, "NG=; NZ=")); // @query-part
+	ReplacementString = ?(GetAllFiles, "SELECT", "SELECT TOP " + Format(FilesNumberInSelection, "NG=; NZ=")); // @query-part-1, @query-part-2
 	QueryText = StrReplace(QueryText, "SELECT TOP 1", ReplacementString); // @query-part
 	QueryText = StrReplace(QueryText, "&CatalogName", "Catalog." + CatalogName);
 	Return QueryText;
@@ -9410,7 +9433,7 @@ Function ExtractText1(Val TempTextStorageAddress, Val BinaryData = Undefined,
 	Try
 		DeleteFiles(TempFileName);
 	Except
-		WriteLogEvent(NStr("en = 'Files.Extract text';",	Common.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Files.Extract text'",	Common.DefaultLanguageCode()),
 			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	
@@ -9493,7 +9516,7 @@ Function RowFromTempStorage(TempTextStorageAddress)
 	Try
 		DeleteFiles(TempFileName);
 	Except
-		WriteLogEvent(NStr("en = 'Files.Extract text';",	Common.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Files.Extract text'",	Common.DefaultLanguageCode()),
 			EventLogLevel.Error,,,	ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	
@@ -9758,7 +9781,7 @@ Function OwnerHasFiles(Val FilesOwner, Val ExceptionFile = Undefined) Export
 		If Not ValueIsFilled(CurrExceptionConditions) Then
 			CurrExceptionConditions = "TRUE";
 		EndIf;
-		CurrentQueryText = StrReplace(CurrentQueryText, "&ExceptionConditions", CurrExceptionConditions); // @Query-part-2
+		CurrentQueryText = StrReplace(CurrentQueryText, "&ExceptionConditions", CurrExceptionConditions); // @Query-part-1
 		QueryTexts.Add(StrReplace(CurrentQueryText, "&CatalogName", "Catalog." + KeyAndValue.Key));
 	EndDo;
 	

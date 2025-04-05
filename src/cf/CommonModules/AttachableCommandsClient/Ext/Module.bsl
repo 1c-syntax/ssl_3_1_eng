@@ -138,6 +138,26 @@ EndFunction
 
 #EndRegion
 
+#Region Internal
+
+// Checks the posting status of the passed documents and returns the unposted documents.
+//
+// Parameters:
+//  Var_Documents - Array of DocumentRef - Documents to check.
+//
+// Returns:
+//  Structure:
+//    * UnpostedDocuments - Array of DocumentRef
+//    * HasPostingRight - Boolean
+//
+Function DocsPostInfoRecords(Val Var_Documents) Export
+	
+	Return AttachableCommandsServerCall.DocsPostInfoRecords(Var_Documents);
+	
+EndFunction
+
+#EndRegion
+
 #Region Private
 
 // Executes the command attached to the form.
@@ -148,7 +168,7 @@ EndFunction
 Procedure ContinueCommandExecution(ExecutionParameters)
 	
 	If ExecutionParameters.Form.ReadOnly And ExecutionParameters.CommandDetails.ChangesSelectedObjects Then
-		ShowMessageBox(, NStr("en = 'To perform this action, you must allow editing in the form.';"));
+		ShowMessageBox(, NStr("en = 'To perform this action, you must allow editing in the form.'"));
 		Return;
 	EndIf;
 	
@@ -159,7 +179,7 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 	If ExecutionParameters.FilesOperationsRequired Then
 		ExecutionParameters.FilesOperationsRequired = False;
 		Handler = New CallbackDescription("ContinueCommandExecutionAfterInstall1CEnterpriseExtension", ThisObject, ExecutionParameters);
-		MessageText = NStr("en = 'To continue, install 1C:Enterprise Extension.';");
+		MessageText = NStr("en = 'To continue, install 1C:Enterprise Extension.'");
 		FileSystemClient.Attach1CEnterpriseExtension(Handler, MessageText);
 		Return;
 	EndIf;
@@ -168,17 +188,18 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 	If ExecutionParameters.WritingRequired Then
 		ExecutionParameters.WritingRequired = False;
 		If Source.Ref.IsEmpty()
-			Or (CommandDetails.WriteMode <> "WriteNewOnly" And ExecutionParameters.Form.Modified) Then
+			Or (CommandDetails.WriteMode <> "WriteNewOnly" And ExecutionParameters.Form.Modified)
+			Or ExecutionParameters.PostingRequired And Not Source.Posted Then
 			
 			Buttons = New ValueList;
 			If ExecutionParameters.PostingRequired Then
 				QuestionTemplate = NStr("en = 'The document will be posted in order to run the ""%1"" command.
-					|Do you want to continue?';");
-				Buttons.Add(DialogReturnCode.OK, NStr("en = 'Post and continue';"));
+					|Do you want to continue?'");
+				Buttons.Add(DialogReturnCode.OK, NStr("en = 'Post and continue'"));
 			Else
 				QuestionTemplate = NStr("en = 'To run the ""%1"" command,
-					|the data will be saved. Do you want to continue?';");
-				Buttons.Add(DialogReturnCode.OK, NStr("en = 'Save and continue';"));
+					|the data will be saved. Do you want to continue?'");
+				Buttons.Add(DialogReturnCode.OK, NStr("en = 'Save and continue'"));
 			EndIf;
 			Buttons.Add(DialogReturnCode.Cancel);
 			
@@ -197,26 +218,26 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 	// Post documents.
 	If ExecutionParameters.PostingRequired Then
 		ExecutionParameters.PostingRequired = False;
-		DocumentsInfo = CommonServerCall.UnpostedDocuments(ExecutionParameters.ReferencesArrray);
+		DocumentsInfo = DocsPostInfoRecords(ExecutionParameters.ReferencesArrray);
 		If DocumentsInfo.UnpostedDocuments.Count() > 0 Then
 			If DocumentsInfo.HasPostingRight Then
 				If DocumentsInfo.UnpostedDocuments.Count() = 1 Then
-					QueryText = NStr("en = 'Cannot run the command for an unposted document. Do you want to post the document and continue?';");
+					QueryText = NStr("en = 'Cannot run the command for an unposted document. Do you want to post the document and continue?'");
 				Else
-					QueryText = NStr("en = 'Cannot run the command for unposted documents. Do you want to post the documents and continue?';");
+					QueryText = NStr("en = 'Cannot run the command for unposted documents. Do you want to post the documents and continue?'");
 				EndIf;
 				ExecutionParameters.UnpostedDocuments = DocumentsInfo.UnpostedDocuments;
 				Handler = New CallbackDescription("ContinueCommandExecutionAfterConfirmPosting", 
 					ThisObject, ExecutionParameters);
 				Buttons = New ValueList;
-				Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Post and continue';"));
+				Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Post and continue'"));
 				Buttons.Add(DialogReturnCode.Cancel);
 				ShowQueryBox(Handler, QueryText, Buttons);
 			Else
 				If DocumentsInfo.UnpostedDocuments.Count() = 1 Then
-					WarningText = NStr("en = 'Cannot run the command for an unposted document. You are not authorized to post the document.';");
+					WarningText = NStr("en = 'Cannot run the command for an unposted document. You are not authorized to post the document.'");
 				Else
-					WarningText = NStr("en = 'Cannot run the command for unposted documents. You are not authorized to post the documents.';");
+					WarningText = NStr("en = 'Cannot run the command for unposted documents. You are not authorized to post the documents.'");
 				EndIf;
 				Raise(WarningText, ErrorCategory.AccessViolation);
 			EndIf;
@@ -286,7 +307,9 @@ Procedure ProceedRunningCommandAfterRecordConfirmed(Response, Context) Export
 		
 		WriteMode = DocumentWriteMode.Write;
 		If Context.PostingRequired Then
+			Context.PostingRequired = False;
 			WriteMode = DocumentWriteMode.Posting;
+			Context.Form.Modified = True;
 		EndIf;
 		
 		AttachableCommandExecutionParameters = CommonClient.CopyRecursive(Context); // Structure
@@ -312,8 +335,8 @@ Procedure ContinueCommandExecutionAfterConfirmPosting(Response, Context) Export
 	EndIf;
 	
 	ClearMessages();
-	UnpostedDocumentsData = CommonServerCall.PostDocuments(Context.UnpostedDocuments);
-	MessageTemplate = NStr("en = 'Document %1 is not posted: %2';");
+	UnpostedDocumentsData = CommonClient.PostDocuments(Context.UnpostedDocuments);
+	MessageTemplate = NStr("en = 'Document %1 is not posted: %2'");
 	UnpostedDocuments = New Array;
 	For Each DocumentInformation In UnpostedDocumentsData Do
 		CommonClient.MessageToUser(
@@ -344,14 +367,14 @@ Procedure ContinueCommandExecutionAfterConfirmPosting(Response, Context) Export
 	
 	If UnpostedDocuments.Count() > 0 Then
 		// Asking the user whether the procedure execution must be continued even if there are unposted documents.
-		DialogText = NStr("en = 'Failed to post one or several documents.';");
+		DialogText = NStr("en = 'Failed to post one or several documents.'");
 		
 		DialogButtons = New ValueList;
 		If Context.ReferencesArrray.Count() = 0 Then
-			DialogButtons.Add(DialogReturnCode.Cancel, NStr("en = 'OK';"));
+			DialogButtons.Add(DialogReturnCode.Cancel, NStr("en = 'OK'"));
 		Else
-			DialogText = DialogText + " " + NStr("en = 'Continue?';");
-			DialogButtons.Add(DialogReturnCode.Ignore, NStr("en = 'Continue';"));
+			DialogText = DialogText + " " + NStr("en = 'Continue?'");
+			DialogButtons.Add(DialogReturnCode.Ignore, NStr("en = 'Continue'"));
 			DialogButtons.Add(DialogReturnCode.Cancel);
 		EndIf;
 		
@@ -475,7 +498,7 @@ Function SelectedObjects(Source, CommandDetails)
 	EndIf;
 	
 	If Not ValueIsFilled(Result) And CommandDetails.WriteMode <> "NotWrite" Then
-		Raise NStr("en = 'Cannot run the command for the object.';");
+		Raise NStr("en = 'Cannot run the command for the object.'");
 	EndIf;
 	
 	Return Result;

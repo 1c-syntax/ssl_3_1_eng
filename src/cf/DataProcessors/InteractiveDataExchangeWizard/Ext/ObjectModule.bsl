@@ -277,7 +277,7 @@ Procedure ExecuteDataImportFromExchangeMessagesIntoCache(Cancel, RowIndexes)
 		
 		If DataExchangeDataProcessor.FlagErrors() Then
 			Cancel = True;
-			NString = NStr("en = 'Errors occurred while importing the exchange message: %1';");
+			NString = NStr("en = 'Errors occurred while importing the exchange message: %1'");
 			NString = StringFunctionsClientServer.SubstituteParametersToString(NString, DataExchangeDataProcessor.ErrorMessageString());
 			DataExchangeServer.WriteExchangeFinishWithError(ExchangeSettingsStructure.InfobaseNode,
 												ExchangeSettingsStructure.ActionOnExchange, 
@@ -317,5 +317,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

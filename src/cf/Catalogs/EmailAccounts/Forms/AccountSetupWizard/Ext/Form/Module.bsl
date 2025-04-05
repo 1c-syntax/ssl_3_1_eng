@@ -43,11 +43,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.KeepMessagesOnServer.Visible = CanReceiveEmails;
 	
 	Items.AccountSettingsTitle.Title = ?(ContextMode,
-		NStr("en = 'To send messages, set up the email account.';"),
-		NStr("en = 'Enter email settings';"));
+		NStr("en = 'To send messages, set up the email account.'"),
+		NStr("en = 'Enter email settings'"));
 		
 	Items.AccountSettingsTitle.Visible = ContextMode;
-	Title = NStr("en = 'Account setup';");
+	Title = NStr("en = 'Account setup'");
 	
 	UseForReceiving = Not ContextMode And CanReceiveEmails;
 	UseForSending = True;
@@ -99,7 +99,22 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.GroupAuthenticationMethodPassword.Group = ChildFormItemsGroup.Vertical;
 		Items.Password.TitleLocation = FormItemTitleLocation.Auto;
 	EndIf;
-
+	
+	Items.AssistanceRequiredGroup.Visible = False;
+	
+	// 
+	If Common.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+		
+		ModuleForContactingTechnicalSupportService = Common.CommonModule(
+			"ContactingTechnicalSupportInternal");
+		
+		ModuleForContactingTechnicalSupportService.OnCreateAtServer(ThisObject);
+		
+	Else
+		Items.AssistanceRequiredGroup.Visible = False;
+	EndIf;
+	// End StandardSubsystems.ContactingTechnicalSupport
+	
 EndProcedure
 
 &AtClient
@@ -159,7 +174,7 @@ EndProcedure
 Procedure ProtocolOnChange(Item)
 	SetItemsVisibility();
 	Items.IncomingMailServer.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = '%1 server';"), Protocol);
+		NStr("en = '%1 server'"), Protocol);
 EndProcedure
 
 &AtClient
@@ -170,13 +185,6 @@ EndProcedure
 &AtClient
 Procedure EncryptOnReceiveMailOnChange(Item)
 	UseSecureConnectionForIncomingMail = EncryptOnReceiveMail = "SSL";
-EndProcedure
-
-&AtClient
-Procedure NeedHelpClick(Item)
-	
-	EmailOperationsClient.GoToEmailAccountInputDocumentation();
-	
 EndProcedure
 
 &AtClient
@@ -235,13 +243,71 @@ Procedure Back(Command)
 		Items.Pages.CurrentPage = Items.UserAccountSetup;
 	EndIf;
 	
-	SetCurrentPageItems()
+	SetCurrentPageItems();
+	
 EndProcedure
 
 &AtClient
 Procedure Cancel(Command)
 	CancelJobExecution(JobID);
 	Close(False);
+EndProcedure
+
+&AtClient
+Procedure QuestionInSupport(Command)
+	
+	// 
+	If CommonClient.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+		
+		ModuleForContactingTechnicalSupportServiceClient = CommonClient.CommonModule(
+			"ContactingTechnicalSupportInternalClient");
+		
+		If ValueIsFilled(BriefErrorDetails) Then
+			DescriptionForSubjectOfAppeal = BriefErrorDetails;
+		Else
+			DescriptionForSubjectOfAppeal = ErrorsMessages;
+		EndIf;
+		
+		RequestParameters_ = ModuleForContactingTechnicalSupportServiceClient.RequestParameters_();
+		RequestParameters_.TechnologicalInfo = ErrorsMessages;
+		RequestParameters_.EventLogFilter.Insert("StartDate", ErrorRegistrationTime);
+		
+		RequestParameters_.Subject = EmailOperationsInternalClient.SubjectOfSupportRequest(
+			DescriptionForSubjectOfAppeal);
+		
+		RequestParameters_.Message = EmailOperationsInternalClient.TextOfSupportRequest(
+			Email,
+			DescriptionForSubjectOfAppeal);
+		
+		ModuleForContactingTechnicalSupportServiceClient.SendQuestionToSupport(
+			ThisObject,
+			RequestParameters_);
+		
+	EndIf;
+	// End StandardSubsystems.ContactingTechnicalSupport
+	
+EndProcedure
+
+&AtClient
+Procedure InformationToSendToSupport(Command)
+	
+	// 
+	If CommonClient.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+		
+		ModuleForContactingTechnicalSupportServiceClient = CommonClient.CommonModule(
+			"ContactingTechnicalSupportInternalClient");
+		
+		RequestParameters_ = ModuleForContactingTechnicalSupportServiceClient.RequestParameters_();
+		RequestParameters_.TechnologicalInfo = ErrorsMessages;
+		RequestParameters_.EventLogFilter.Insert("StartDate", ErrorRegistrationTime);
+		
+		ModuleForContactingTechnicalSupportServiceClient.DownloadInformationToSendToSupport(
+			ThisObject,
+			RequestParameters_);
+		
+	EndIf;
+	// End StandardSubsystems.ContactingTechnicalSupport
+	
 EndProcedure
 
 #EndRegion
@@ -306,12 +372,12 @@ EndProcedure
 
 &AtClient
 Procedure ShowQueryBoxBeforeCloseForm()
-	QueryText = NStr("en = 'Changes are not saved. Close the form?';");
+	QueryText = NStr("en = 'Changes are not saved. Close the form?'");
 	NotifyDescription = New CallbackDescription("CloseFormConfirmed", ThisObject);
 	Buttons = New ValueList;
-	Buttons.Add("Close", NStr("en = 'Close';"));
-	Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Do not close';"));
-	ShowQueryBox(NotifyDescription, QueryText, Buttons, , DialogReturnCode.Cancel, NStr("en = 'Account setup';"));
+	Buttons.Add("Close", NStr("en = 'Close'"));
+	Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Do not close'"));
+	ShowQueryBox(NotifyDescription, QueryText, Buttons, , DialogReturnCode.Cancel, NStr("en = 'Account setup'"));
 EndProcedure
 
 &AtClient
@@ -358,7 +424,7 @@ Procedure GotoNextPage(Command = Undefined)
 			If Not ValueIsFilled(RedirectAddress) 
 				Or ValueIsFilled(AuthorizationSettings) And Not ValueIsFilled(AuthorizationSettings.AuthorizationAddress)
 				Or IsWebClient() And Not AvailableAuthorizationByCode() Then
-				ErrorsMessages = NStr("en = 'Email service authorization settings are not found. Use password authorization.';");
+				ErrorsMessages = NStr("en = 'Email service authorization settings are not found. Use password authorization.'");
 				ValidationCompletedWithErrors = True;
 				AuthenticationOption = "Password";
 				NextPage = Items.UserAccountSetup;
@@ -569,7 +635,7 @@ Function Permissions()
 				"SMTP",
 				OutgoingMailServer,
 				OutgoingMailServerPort,
-				NStr("en = 'Email.';")));
+				NStr("en = 'Email.'")));
 	EndIf;
 	
 	If UseForReceiving Then
@@ -578,7 +644,7 @@ Function Permissions()
 				Protocol,
 				IncomingMailServer,
 				IncomingMailServerPort,
-				NStr("en = 'Email.';")));
+				NStr("en = 'Email.'")));
 	EndIf;
 	
 	Return Result;
@@ -591,9 +657,9 @@ Procedure CheckFillingOnAccountSettingsPage(Cancel)
 	ClearMessages();
 	
 	If IsBlankString(Email) Then
-		CommonClient.MessageToUser(NStr("en = 'Email address required';"), , "Email", , Cancel);
+		CommonClient.MessageToUser(NStr("en = 'Email address required'"), , "Email", , Cancel);
 	ElsIf Not CommonClientServer.EmailAddressMeetsRequirements(Email, True) Then
-		CommonClient.MessageToUser(NStr("en = 'Invalid email address';"), , "Email", , Cancel);
+		CommonClient.MessageToUser(NStr("en = 'Invalid email address'"), , "Email", , Cancel);
 	EndIf;
 	
 EndProcedure
@@ -606,25 +672,25 @@ Procedure SetCurrentPageItems()
 	// NextButton
 	If CurrentPage = Items.AccountConfigured Then
 		If ContextMode Then
-			ButtonNextTitle = NStr("en = 'Continue';");
+			ButtonNextTitle = NStr("en = 'Continue'");
 		Else
-			ButtonNextTitle = NStr("en = 'Close';");
+			ButtonNextTitle = NStr("en = 'Close'");
 		EndIf;
 	Else
 		If CurrentPage = Items.UserAccountSetup
 			And ValidationCompletedWithErrors Or CurrentPage = Items.TechnicalDetailsOfError Then
-				ButtonNextTitle = NStr("en = 'Retry';");
+				ButtonNextTitle = NStr("en = 'Retry'");
 		ElsIf CurrentPage = Items.UserAccountSetup
 			And SetupMethod = "Automatically" Then
 			If ContextMode Or Reconfigure Then
-				ButtonNextTitle = NStr("en = 'Setup';");
+				ButtonNextTitle = NStr("en = 'Setup'");
 			Else
-				ButtonNextTitle = NStr("en = 'Create';");
+				ButtonNextTitle = NStr("en = 'Create'");
 			EndIf;
 		ElsIf CurrentPage = Items.ValidatingAccountSettings Then
-			ButtonNextTitle = NStr("en = 'Skip test';");
+			ButtonNextTitle = NStr("en = 'Skip test'");
 		Else
-			ButtonNextTitle = NStr("en = 'Next >';");
+			ButtonNextTitle = NStr("en = 'Next >'");
 		EndIf;
 	EndIf;
 	
@@ -646,11 +712,10 @@ Procedure SetCurrentPageItems()
 		And ValidationCompletedWithErrors Or Not ContextMode And Not Reconfigure And CurrentPage = Items.AccountConfigured);
 		
 	If Not ContextMode And CurrentPage = Items.AccountConfigured Then
-		Items.GoToSettingsButton.Title = NStr("en = 'Settings';");
+		Items.GoToSettingsButton.Title = NStr("en = 'Settings'");
 	Else
-		Items.GoToSettingsButton.Title = NStr("en = 'Manual setup';");
+		Items.GoToSettingsButton.Title = NStr("en = 'Manual setup'");
 	EndIf;
-
 	
 	If CurrentPage = Items.UserAccountSetup Then
 		Items.CannotConnectPictureAndLabel.Visible = ValidationCompletedWithErrors;
@@ -665,7 +730,7 @@ Procedure SetCurrentPageItems()
 	If CurrentPage = Items.AccountConfigured Then
 		Items.AccountConfiguredLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Email account
-				|%1 is set up successfully.';"), Email);
+				|%1 is set up successfully.'"), Email);
 	EndIf;
 	
 	If CurrentPage = Items.Authorization 
@@ -767,6 +832,7 @@ Procedure ValidateAccountSettings()
 	CheckResult = Catalogs.EmailAccounts.CheckProfilesSettings(
 		OutgoingMailProfile, IncomingMailProfile, Email);
 	
+	BriefErrorDetails = StrConcat(CheckResult.ErrorsTexts, Chars.LF);
 	ErrorsMessages = CheckResult.ConnectionErrors;
 	ValidationCompletedWithErrors = ValueIsFilled(ErrorsMessages);
 	
@@ -777,6 +843,23 @@ Procedure ValidateAccountSettings()
 			ValidationCompletedWithErrors = True;
 			ErrorsMessages = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		EndTry;
+	EndIf;
+	
+	If ValidationCompletedWithErrors Then
+		
+		ErrorRegistrationTime = CurrentSessionDate();
+		
+		// 
+		If Common.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+			
+			ModuleForContactingTechnicalSupportService = Common.CommonModule(
+				"ContactingTechnicalSupportInternal");
+			
+			ModuleForContactingTechnicalSupportService.ShowHelpNeededSection(Items);
+			
+		EndIf;
+		// End StandardSubsystems.ContactingTechnicalSupport
+		
 	EndIf;
 	
 EndProcedure
@@ -853,7 +936,7 @@ Procedure NewAccount1()
 		CommitTransaction();
 	Except
 		RollbackTransaction();
-		WriteLogEvent(NStr("en = 'Email management';", Common.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Email management'", Common.DefaultLanguageCode()),
 			EventLogLevel.Error, , AccountRef, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Raise;
 	EndTry;
@@ -925,7 +1008,7 @@ EndFunction
 Procedure SetUpConnectionParametersAutomatically()
 	
 	ErrorsMessages = NStr("en = 'Couldn''t configure email server settings.
-	|Please provide settings manually.';");
+	|Please provide settings manually.'");
 	
 	ValidationCompletedWithErrors = False;
 	
@@ -944,7 +1027,7 @@ EndProcedure
 Function StartSearchAccountSettings()
 	
 	ExecutionParameters = TimeConsumingOperations.FunctionExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Look up mail server settings';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Look up mail server settings'");
 	
 	Return TimeConsumingOperations.ExecuteFunction(ExecutionParameters, "Catalogs.EmailAccounts.DefineAccountSettings",
 		Email, PasswordForReceivingEmails, UseForSending, UseForReceiving);
@@ -999,6 +1082,7 @@ Procedure OnCompleteSettingsSearch(Result, AdditionalParameters) Export
 			CommonClient.NotifyObjectChanged(NewAccountRef);	
 		EndIf;
 	EndIf;
+	
 	GotoNextPage();
 	
 EndProcedure
@@ -1065,7 +1149,7 @@ Procedure LoginAtMailServer()
 		EndIf;
 		
 		Items.ExplanationByConfirmationCode.Title = StringFunctionsClient.FormattedString(NStr(
-			"en = 'Authorize on the <a href=""%1"">email service page</a> and enter the received code in the field below:';"),
+			"en = 'Authorize on the <a href=""%1"">email service page</a> and enter the received code in the field below:'"),
 			QueryAuthorizationString);
 		Items.AuthorizationOptions.CurrentPage = Items.OperatingSystemBrowser;
 
@@ -1137,7 +1221,7 @@ Function ParametersAuthorizationRequest()
 
 	If IsWebClient() Then
 		If Not ValueIsFilled(AuthorizationSettings.DeviceRegistrationAddress) Then
-			QueryOptions.Insert("device_name", NStr("en = '1C:Enterprise';"));
+			QueryOptions.Insert("device_name", NStr("en = '1C:Enterprise'"));
 		EndIf;
 		QueryOptions.Insert("device_id", DeviceID);
 	EndIf;
@@ -1214,7 +1298,7 @@ Procedure OnReceiveMailServerResponse(ParametersString1, KeyReceiptAddress)
 		ErrorsMessages = DescriptionErrorsMailServerAuthorization(ErrorCode, ErrorText);
 		ValidationCompletedWithErrors = True;
 	ElsIf QueryID <> Response["state"] Then
-		ErrorsMessages = NStr("en = 'Cannot authorize on the mail server. Incorrect response ID.';");
+		ErrorsMessages = NStr("en = 'Cannot authorize on the mail server. Incorrect response ID.'");
 		ValidationCompletedWithErrors = True;
 	ElsIf Not GetAccessKeysToMailServer(AuthorizationCode, KeyReceiptAddress) Then
 		ValidationCompletedWithErrors = True;
@@ -1278,11 +1362,11 @@ Function GetAccessKeysToMailServer(AuthorizationCode, KeyReceiptAddress, Applica
 	If ValueIsFilled(ErrorCode) Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot get access keys to the %1 email account due to:
-			|%2';"), Email, ErrorText);
+			|%2'"), Email, ErrorText);
 			
 		TechnicalDetails = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Server response:
-			|%1';"), QueryResult.ServerResponse1);
+			|%1'"), QueryResult.ServerResponse1);
 			
 		WriteLogEvent(EmailOperationsInternal.EventNameAuthorizationByProtocolOAuth(),
 			EventLogLevel.Error, , , ErrorText + Chars.LF + TechnicalDetails);
@@ -1291,11 +1375,11 @@ Function GetAccessKeysToMailServer(AuthorizationCode, KeyReceiptAddress, Applica
 	ElsIf Not QueryResult.QueryCompleted Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot get access keys to the %1 email account due to:
-			|Request failed.';"), Email);
+			|Request failed.'"), Email);
 			
 		TechnicalDetails = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Server response:
-			|%1';"), QueryResult.ServerResponse1);
+			|%1'"), QueryResult.ServerResponse1);
 			
 		WriteLogEvent(EmailOperationsInternal.EventNameAuthorizationByProtocolOAuth(),
 			EventLogLevel.Error, , , ErrorText + Chars.LF + TechnicalDetails);
@@ -1337,7 +1421,7 @@ Function DescriptionErrorsMailServerAuthorization(Val ErrorCode, Val ErrorText)
 	
 	Result = StringFunctionsClientServer.SubstituteParametersToString(NStr(
 		"en = 'Authorization on the email server failed:
-		|%1';"), Result);
+		|%1'"), Result);
 	
 	Return Result;
 	
@@ -1421,11 +1505,11 @@ Function GetAuthorizationParametersInWebClient(KeyReceiptAddress)
 	If ValueIsFilled(ErrorCode) Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot get access keys to the %1 email account due to:
-			|%2';"), Email, ErrorText);
+			|%2'"), Email, ErrorText);
 			
 		TechnicalDetails = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Server response:
-			|%1';"), QueryResult.ServerResponse1);
+			|%1'"), QueryResult.ServerResponse1);
 			
 		WriteLogEvent(EmailOperationsInternal.EventNameAuthorizationByProtocolOAuth(),
 			EventLogLevel.Error, , , ErrorText + Chars.LF + TechnicalDetails);
@@ -1435,11 +1519,11 @@ Function GetAuthorizationParametersInWebClient(KeyReceiptAddress)
 	ElsIf Not QueryResult.QueryCompleted Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot get access keys to the %1 email account due to:
-			|Request failed.';"), Email);
+			|Request failed.'"), Email);
 			
 		TechnicalDetails = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Server response:
-			|%1';"), QueryResult.ServerResponse1);
+			|%1'"), QueryResult.ServerResponse1);
 			
 		WriteLogEvent(EmailOperationsInternal.EventNameAuthorizationByProtocolOAuth(),
 			EventLogLevel.Error, , , ErrorText + Chars.LF + TechnicalDetails);
@@ -1505,11 +1589,11 @@ Function GetDeviceAccessKey()
 	If ValueIsFilled(ErrorCode) Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot get access keys to the %1 email account due to:
-			|%2';"), Email, ErrorText);
+			|%2'"), Email, ErrorText);
 			
 		TechnicalDetails = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Server response:
-			|%1';"), QueryResult.ServerResponse1);
+			|%1'"), QueryResult.ServerResponse1);
 			
 		WriteLogEvent(EmailOperationsInternal.EventNameAuthorizationByProtocolOAuth(),
 			EventLogLevel.Error, , , ErrorText + Chars.LF + TechnicalDetails);
@@ -1518,11 +1602,11 @@ Function GetDeviceAccessKey()
 	ElsIf Not QueryResult.QueryCompleted Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot get access keys to the %1 email account due to:
-			|Request failed.';"), Email);
+			|Request failed.'"), Email);
 			
 		TechnicalDetails = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Server response:
-			|%1';"), QueryResult.ServerResponse1);
+			|%1'"), QueryResult.ServerResponse1);
 			
 		WriteLogEvent(EmailOperationsInternal.EventNameAuthorizationByProtocolOAuth(),
 			EventLogLevel.Error, , , ErrorText + Chars.LF + TechnicalDetails);
@@ -1555,7 +1639,7 @@ Procedure CheckTheFillingOfTheBankingDetails(Item, Cancel)
 	
 	If Item.Visible And Not ValueIsFilled(ThisObject[AttributeName]) Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Enter %1';"), Item.Title);
+			NStr("en = 'Enter %1'"), Item.Title);
 			
 		CommonClient.MessageToUser(
 			MessageText, , AttributeName, , Cancel);
@@ -1582,7 +1666,7 @@ Procedure AdjustCurrentPageElementsOnOpening()
 	If OnlyAuthorization Then
 		If Not ValueIsFilled(AuthorizationSettings) Then
 			Close(NStr("en = 'Cannot find authorization settings for the specified email address.
-			|Use username and password authorization.';"));
+			|Use username and password authorization.'"));
 			Return;
 		EndIf;
 		SetTextsExplanationsByRegistrationApplication();
@@ -1603,8 +1687,8 @@ Procedure FillinExplanations()
 	PossibleReasons = EmailOperationsInternal.FormattedList(ExplanationOnError.PossibleReasons);
 	MethodsToFixError = EmailOperationsInternal.FormattedList(ExplanationOnError.MethodsToFixError);
 	
+	Items.DecorationRecommendations.Title = MethodsToFixError;
 	Items.DecorationPossibleReasons.Title = PossibleReasons;
-	Items.DecorationWaystoEliminate.Title = MethodsToFixError;
 	
 EndProcedure
 

@@ -17,7 +17,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	DataSeparationEnabled = Common.DataSeparationEnabled();
 	If Not Users.IsFullUser(, Not DataSeparationEnabled) Then
-		Raise(NStr("en = 'Insufficient rights to access the infobase user list.';"),
+		Raise(NStr("en = 'Insufficient rights to access the infobase user list.'"),
 			ErrorCategory.AccessViolation);
 	EndIf;
 	
@@ -142,15 +142,15 @@ Procedure CancelMapping(Command)
 	EndIf;
 	
 	Buttons = New ValueList;
-	Buttons.Add("CancelMapping", NStr("en = 'Clear mapping';"));
-	Buttons.Add("KeepMapping", NStr("en = 'Keep mapping';"));
+	Buttons.Add("CancelMapping", NStr("en = 'Clear mapping'"));
+	Buttons.Add("KeepMapping", NStr("en = 'Keep mapping'"));
 	
 	ShowQueryBox(
 		New CallbackDescription("CancelMappingFollowUp", ThisObject),
 		NStr("en = 'Do you want to clear the mapping between the infobase user and the application user?
 		           |
 		           |It is required in rare cases when a mapping is incorrect
-		           |(for example, an infobase update might generate an incorrect mapping). It is recommended that you never clear correct mappings.';"),
+		           |(for example, an infobase update might generate an incorrect mapping). It is recommended that you never clear correct mappings.'"),
 		Buttons,
 		,
 		"KeepMapping");
@@ -271,8 +271,8 @@ Procedure SetConditionalAppearance()
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = True;
 
-	Item.Appearance.SetParameterValue("Text", NStr("en = '<No data>';"));
-	Item.Appearance.SetParameterValue("Format", NStr("en = 'BF=No; BT=Yes';"));
+	Item.Appearance.SetParameterValue("Text", NStr("en = '<No data>'"));
+	Item.Appearance.SetParameterValue("Format", NStr("en = 'BF=No; BT=Yes'"));
 
 	//
 
@@ -284,7 +284,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("IBUsers.OSUser");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.NotFilled;
-	Item.Appearance.SetParameterValue("Format", NStr("en = 'BF=; BT=Yes';"));
+	Item.Appearance.SetParameterValue("Format", NStr("en = 'BF=; BT=Yes'"));
 
 EndProcedure
 
@@ -452,7 +452,7 @@ Procedure DeleteCurrentIBUser(DeleteRow = False)
 	
 	ShowQueryBox(
 		New CallbackDescription("DeleteCurrentIBUserCompletion", ThisObject, DeleteRow),
-		NStr("en = 'Do you want to delete the infobase user?';"),
+		NStr("en = 'Do you want to delete the infobase user?'"),
 		QuestionDialogMode.YesNo);
 	
 EndProcedure
@@ -478,7 +478,7 @@ Procedure MapIBUser(WithNew = False)
 	If UsersTypes.Count() > 1 Then
 		UsersTypes.ShowChooseItem(
 			New CallbackDescription("MapIBUserForItemType", ThisObject, WithNew),
-			NStr("en = 'Select data type';"),
+			NStr("en = 'Select data type'"),
 			UsersTypes[0]);
 	Else
 		MapIBUserForItemType(UsersTypes[0], WithNew);

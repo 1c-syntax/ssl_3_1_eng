@@ -243,11 +243,11 @@ Function TitleForIDGeneration()
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 	
-		LanguageSuffix_ = ModuleNationalLanguageSupportServer.CurrentLanguageSuffix();
-		If ValueIsFilled(LanguageSuffix_) Then
+		LanguageSuffix = ModuleNationalLanguageSupportServer.CurrentLanguageSuffix();
+		If ValueIsFilled(LanguageSuffix) Then
 			
-			If ValueIsFilled(ThisObject["Title" + LanguageSuffix_]) Then
-				TitleForID = ThisObject["Title" + LanguageSuffix_];
+			If ValueIsFilled(ThisObject["Title" + LanguageSuffix]) Then
+				TitleForID = ThisObject["Title" + LanguageSuffix];
 			EndIf;
 		EndIf;
 	EndIf;
@@ -259,5 +259,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

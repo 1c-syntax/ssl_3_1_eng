@@ -28,7 +28,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	If Parent = Users.AllUsersGroup() Then
 		CommonClientServer.AddUserError(Errors,
 			"Object.Parent",
-			NStr("en = 'Cannot set the ""All users"" group as a parent.';"),
+			NStr("en = 'Cannot set the ""All users"" group as a parent.'"),
 			"");
 	EndIf;
 	
@@ -42,10 +42,10 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 		If Not ValueIsFilled(CurrentRow.User) Then
 			CommonClientServer.AddUserError(Errors,
 				"Object.Content[%1].User",
-				NStr("en = 'User is not selected.';"),
+				NStr("en = 'User is not selected.'"),
 				"Object.Content",
 				LineNumber,
-				NStr("en = 'User is not selected in line #%1.';"));
+				NStr("en = 'User is not selected in line #%1.'"));
 			Continue;
 		EndIf;
 		
@@ -54,10 +54,10 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 		If FoundValues.Count() > 1 Then
 			CommonClientServer.AddUserError(Errors,
 				"Object.Content[%1].User",
-				NStr("en = 'Duplicate user.';"),
+				NStr("en = 'Duplicate user.'"),
 				"Object.Content",
 				LineNumber,
-				NStr("en = 'Duplicate user in line #%1.';"));
+				NStr("en = 'Duplicate user in line #%1.'"));
 		EndIf;
 	EndDo;
 	
@@ -103,16 +103,16 @@ Procedure OnWrite(Cancel)
 	
 	If Ref = AllUsersGroup Then
 		If Not Parent.IsEmpty() Then
-			ErrorText = NStr("en = 'The position of the ""All users"" group cannot be changed. It is the root of the group tree.';");
+			ErrorText = NStr("en = 'The position of the ""All users"" group cannot be changed. It is the root of the group tree.'");
 			Raise ErrorText;
 		EndIf;
 		If Content.Count() > 0 Then
-			ErrorText = NStr("en = 'Cannot add members to the ""All users"" group.';");
+			ErrorText = NStr("en = 'Cannot add members to the ""All users"" group.'");
 			Raise ErrorText;
 		EndIf;
 	Else
 		If Parent = AllUsersGroup Then
-			ErrorText = NStr("en = 'Cannot set the ""All users"" group as a parent.';");
+			ErrorText = NStr("en = 'Cannot set the ""All users"" group as a parent.'");
 			Raise ErrorText;
 		EndIf;
 	EndIf;
@@ -208,7 +208,7 @@ Procedure CheckChangeCompositionRight(CompositionChange)
 		           |
 		           |Only new users who have not yet been approved by the administrator
 		           |can be included in or excluded from user groups
-		           |(that is, the administrator has not yet allowed users to log in).';"),
+		           |(that is, the administrator has not yet allowed users to log in).'"),
 		StrConcat(UsersContent, Chars.LF));
 	Raise(ErrorText, ErrorCategory.AccessViolation);
 	
@@ -217,5 +217,5 @@ EndProcedure
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

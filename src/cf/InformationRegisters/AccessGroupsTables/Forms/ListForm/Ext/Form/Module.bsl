@@ -36,9 +36,9 @@ Procedure UpdateRegisterData(Command)
 	UpdateRegisterDataAtServer(HasChanges);
 	
 	If HasChanges Then
-		Text = NStr("en = 'Updated successfully.';");
+		Text = NStr("en = 'Updated successfully.'");
 	Else
-		Text = NStr("en = 'The update is not required.';");
+		Text = NStr("en = 'The update is not required.'");
 	EndIf;
 	
 	ShowMessageBox(, Text);

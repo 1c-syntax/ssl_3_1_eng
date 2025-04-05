@@ -37,7 +37,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// СтандартныеПодсистемы.УправлениеДоступом
+// 
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -55,7 +55,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// ТехнологияСервиса.ВыгрузкаЗагрузкаДанных
+// 
 
 // Attached in ExportImportDataOverridable.OnRegisterDataExportHandlers.
 //
@@ -253,7 +253,7 @@ Function AdministratorsAccessGroup(ProfileAdministrator = Undefined) Export
 			AccessGroupObject.Profile = ProfileAdministrator;
 		Else
 			AccessGroupByName = AccessGroupByName(
-				NStr("en = 'Administrators';", Common.DefaultLanguageCode()));
+				NStr("en = 'Administrators'", Common.DefaultLanguageCode()));
 			If ValueIsFilled(AccessGroupByName) Then
 				AccessGroupObject = AccessGroupByName.GetObject();
 			Else
@@ -288,7 +288,7 @@ Function AdministratorsAccessGroup(ProfileAdministrator = Undefined) Export
 			InfobaseUpdate.WriteObject(CurrentAccessGroupObject);
 		EndDo;
 		
-		AccessGroupObject.Description = NStr("en = 'Administrators';",
+		AccessGroupObject.Description = NStr("en = 'Administrators'",
 			Common.DefaultLanguageCode());
 		InfobaseUpdate.WriteObject(AccessGroupObject);
 		
@@ -368,7 +368,7 @@ Procedure MarkForDeletionSelectedProfilesAccessGroups(HasChanges = Undefined) Ex
 			InfobaseUpdate.WriteObject(AccessGroupObject);
 			InformationRegisters.AccessGroupsTables.UpdateRegisterData(Selection.Ref);
 			InformationRegisters.AccessGroupsValues.UpdateRegisterData(Selection.Ref);
-			// @skip-check query-in-loop - Batch-wise data processing within a transaction
+			// @skip-check query-in-loop  в транзакции
 			UsersForUpdate = UsersForRolesUpdate(Undefined, AccessGroupObject);
 			AccessManagement.UpdateUserRoles(UsersForUpdate);
 			HasChanges = True;
@@ -529,7 +529,7 @@ Function PersonalAccessGroupsParent(Val DoNotCreate = False, ItemsGroupDescripti
 	
 	SetPrivilegedMode(True);
 	
-	ItemsGroupDescription = NStr("en = 'Personal access groups';");
+	ItemsGroupDescription = NStr("en = 'Personal access groups'");
 	
 	Query = New Query(
 		"SELECT
@@ -786,7 +786,7 @@ Procedure RegisterChangeInAccessGroupsMembers(Object, PreviousValues1) Export
 		If Object.AdditionalProperties.Property("MarkAccessGroupForDeletionWhenProfileMarkedForDeletion") Then
 			If Not PrivilegedMode() Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Property ""%1"" is supported only in privileged mode.';"),
+					NStr("en = 'Property ""%1"" is supported only in privileged mode.'"),
 					"MarkAccessGroupForDeletionWhenProfileMarkedForDeletion");
 				Raise ErrorText;
 			EndIf;
@@ -866,7 +866,7 @@ Procedure RegisterChangeInAccessGroupsMembers(Object, PreviousValues1) Export
 		If Object.AdditionalProperties.Property("UnmarkProfileForDeletionWhenAccessGroupUnmarkedForDeletion") Then
 			If Not PrivilegedMode() Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Property ""%1"" is supported only in privileged mode.';"),
+					NStr("en = 'Property ""%1"" is supported only in privileged mode.'"),
 					"UnmarkProfileForDeletionWhenAccessGroupUnmarkedForDeletion");
 				Raise ErrorText;
 			EndIf;
@@ -1261,7 +1261,7 @@ Procedure RegisterChangeInAllowedValues(Object, PreviousValues1) Export
 		If Not ValueIsFilled(AccessGroupsProperties.AccessGroups) Then
 			NewRow = AccessGroupsProperties.AccessGroups.Add();
 			NewRow.AccessGroup = Catalogs.AccessGroups.EmptyRef();
-			NewRow.Presentation = "<" + NStr("en = 'No access group';",
+			NewRow.Presentation = "<" + NStr("en = 'No access group'",
 				Common.DefaultLanguageCode()) + ">";
 		EndIf;
 		For Each AccessGroupDetails In AccessGroupsProperties.AccessGroups Do
@@ -2773,7 +2773,7 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 
 	Item = Items.Add();
 	Item.PredefinedDataName = "Administrators";
-	Item.Description = NStr("en = 'Administrators';", Common.DefaultLanguageCode());
+	Item.Description = NStr("en = 'Administrators'", Common.DefaultLanguageCode());
 	Item.Profile      = AccessManagement.ProfileAdministrator();
 	
 EndProcedure
@@ -2830,7 +2830,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		ResultAddress = PutToTempStorage(Undefined);
 		ParametersOfUpdate.Insert("ResultAddress", ResultAddress);
 		JobDescription =
-			NStr("en = 'Updating service data of access groups';",
+			NStr("en = 'Updating service data of access groups'",
 				Common.DefaultLanguageCode());
 		BackgroundJob = ConfigurationExtensions.ExecuteBackgroundJobWithDatabaseExtensions(
 			"AccessManagementInternal.UpdateAuxiliaryAccessGroupsData",
@@ -2841,19 +2841,19 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			If BackgroundJob.ErrorInfo <> Undefined Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Background job ""%1"" completed with error:
-					           |%2';"),
+					           |%2'"),
 					JobDescription,
 					ErrorProcessing.DetailErrorDescription(BackgroundJob.ErrorInfo));
 			Else
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Background job ""%1"" did not complete.';"), JobDescription);
+					NStr("en = 'Background job ""%1"" did not complete.'"), JobDescription);
 			EndIf;
 			Raise ErrorText;
 		EndIf;
 		Result = GetFromTempStorage(ResultAddress);
 		If TypeOf(Result) <> Type("Structure") Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Background job ""%1"" did not return the result.';"), JobDescription);
+				NStr("en = 'Background job ""%1"" did not return the result.'"), JobDescription);
 			Raise ErrorText;
 		EndIf;
 	Else
@@ -2876,7 +2876,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) some access groups: %1';"), 
+			NStr("en = 'Couldn''t process (skipped) some access groups: %1'"), 
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
@@ -2884,7 +2884,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			EventLogLevel.Information,
 			Metadata.Catalogs.AccessGroups,,
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Yet another batch of access groups is processed: %1';"),
+				NStr("en = 'Yet another batch of access groups is processed: %1'"),
 				ObjectsProcessed));
 	EndIf;
 	
@@ -2911,13 +2911,13 @@ Procedure UpdateAuxiliaryAccessGroupsData(Parameters) Export
 	
 	AccessGroupProcessingErrorTemplate =
 		NStr("en = 'Couldn''t process the ""%1"" access group. Reason:
-		           |%2';");
+		           |%2'");
 	AccessGroupsTablesUpdateErrorTemplate =
 		NStr("en = 'Cannot update tables of the ""%1"" access group. Reason:
-		           |%2';");
+		           |%2'");
 	AccessGroupsValuesUpdateErrorTemplate =
 		NStr("en = 'Cannot update access values of the ""%1"" access group. Reason:
-		           |%2';");
+		           |%2'");
 	
 	ObjectsWithIssuesCount = 0;
 	ProcessedAccessGroups = New Array;

@@ -106,7 +106,7 @@ Procedure CreateDataExchangeInInfobase(Sender, Settings, NodeFiltersSetting, Def
 		
 		If CorrespondentEndpoint.IsEmpty() Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Endpoint with ID %1 not found in peer infobase.';"),
+				NStr("en = 'Endpoint with ID %1 not found in peer infobase.'"),
 				Settings.CorrespondentEndpoint);
 		EndIf;
 		
@@ -271,7 +271,7 @@ EndProcedure
 
 Function EventLogEventMessagesSending()
 	
-	Return NStr("en = 'Send messages';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Send messages'", Common.DefaultLanguageCode());
 	
 EndFunction
 

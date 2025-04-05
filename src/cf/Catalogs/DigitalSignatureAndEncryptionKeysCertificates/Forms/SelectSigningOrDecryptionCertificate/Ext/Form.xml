@@ -181,12 +181,6 @@
 										</PictureDecoration>
 										<LabelDecoration name="CloudSignatureAuthenticationRequiredLabel" id="863">
 											<AutoMaxWidth>false</AutoMaxWidth>
-											<Title formatted="false">
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>To display certificates, authorize on the DSS server</v8:content>
-												</v8:item>
-											</Title>
 											<Hyperlink>true</Hyperlink>
 											<ContextMenu name="CloudSignatureAuthenticationRequiredLabelContextMenu" id="864"/>
 											<ExtendedTooltip name="CloudSignatureAuthenticationRequiredLabelExtendedTooltip" id="865"/>

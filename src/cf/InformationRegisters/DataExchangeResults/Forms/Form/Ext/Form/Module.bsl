@@ -47,7 +47,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	DynamicListsFiltersSettings = DynamicListsFiltersSettings();
 	
 	If Common.DataSeparationEnabled() And VersioningUsed Then
-		Items.ConflictsOtherVersionAuthor.Title = NStr("en = 'The version is received from the application';");
+		Items.ConflictsOtherVersionAuthor.Title = NStr("en = 'The version is received from the application'");
 	EndIf;
 	
 	FillNodeList();
@@ -243,13 +243,13 @@ Procedure ConflictsOnActivateRow(Item)
 		If Item.CurrentData.OtherVersionAccepted Then
 			
 			ConflictReason = NStr("en = 'The conflict was automatically resolved for application ""%1"". 
-				|This application version was replaced with the version of another application.';");
+				|This application version was replaced with the version of another application.'");
 			ConflictReason = StringFunctionsClientServer.SubstituteParametersToString(ConflictReason, Item.CurrentData.OtherVersionAuthor);
 			
 		Else
 			
 			ConflictReason =NStr("en = 'The conflict was automatically resolved for this application.
-				|This application version was saved, the other application version was rejected.';");
+				|This application version was saved, the other application version was rejected.'");
 			
 		EndIf;
 		
@@ -491,7 +491,7 @@ EndProcedure
 Procedure AcceptVersionDeclined(Command)
 	
 	NotifyDescription = New CallbackDescription("AcceptVersionDeclinedCompletion", ThisObject);
-	ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to accept the version even though import is restricted?';"), QuestionDialogMode.YesNo, , DialogReturnCode.No);
+	ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to accept the version even though import is restricted?'"), QuestionDialogMode.YesNo, , DialogReturnCode.No);
 	
 EndProcedure
 
@@ -573,11 +573,11 @@ Procedure ChangeConflictResult(Command)
 		
 		If Items.Conflicts.CurrentData.OtherVersionAccepted Then
 			
-			QueryText = NStr("en = 'Do you want to replace the version from another application with the version from this application?';");
+			QueryText = NStr("en = 'Do you want to replace the version from another application with the version from this application?'");
 			
 		Else
 			
-			QueryText = NStr("en = 'Do you want to replace the version from this application with the version from another application?';");
+			QueryText = NStr("en = 'Do you want to replace the version from this application with the version from another application?'");
 			
 		EndIf;
 		
@@ -771,7 +771,7 @@ Procedure PostDocuments(Val SelectedRows, ErrorMessage = "")
 			If Not LockSet Then
 				Common.MessageToUser(StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot post the document ""%1"" due to:
-					|%2.';"),
+					|%2.'"),
 					SelectedRow.ObjectWithIssue,
 					ErrorProcessing.BriefErrorDescription(ErrorInfo())));
 			EndIf;
@@ -782,7 +782,7 @@ Procedure PostDocuments(Val SelectedRows, ErrorMessage = "")
 	
 	If UnpostedDocumentsCounter > 0 Then
 		ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Not posted documents: %1 from %2.';"),
+			NStr("en = 'Not posted documents: %1 from %2.'"),
 			Format(UnpostedDocumentsCounter, "NZ=; NG=0"),
 			Format(TotalDocumentsCounter, "NZ=; NG=0"));
 	EndIf;
@@ -858,7 +858,7 @@ Procedure FillNodeList()
 	
 	If NoneExchangeByRules And NoneXDTOExchange And NoneStandardExchange Then
 		
-		Title = NStr("en = 'Data synchronization conflicts';");
+		Title = NStr("en = 'Data synchronization conflicts'");
 		Items.SearchString.Visible = False;
 		Items.DataExchangeResults.CurrentPage = Items.DataExchangeResults.ChildItems.ConflictPage;
 		Items.DataExchangeResults.PagesRepresentation = FormPagesRepresentation.None;
@@ -1081,7 +1081,7 @@ EndProcedure
 Procedure OpenObject(Item)
 	
 	If Item.CurrentRow = Undefined Or TypeOf(Item.CurrentRow) = Type("DynamicListGroupRow") Then
-		ShowMessageBox(, NStr("en = 'Cannot run the command for the object.';"));
+		ShowMessageBox(, NStr("en = 'Cannot run the command for the object.'"));
 		Return;
 	Else
 		ShowValue(, Item.CurrentData.Ref);
@@ -1145,7 +1145,7 @@ Procedure ShowDifferences(Item)
 	
 	If VersionsToCompare.Count() <> 2 Then
 		
-		CommonClient.MessageToUser(NStr("en = 'No object version to compare.';"));
+		CommonClient.MessageToUser(NStr("en = 'No object version to compare.'"));
 		Return;
 		
 	EndIf;
@@ -1290,13 +1290,13 @@ EndProcedure
 &AtServer
 Procedure UpdatePageTitles()
 	
-	SetPageTitle(Items.UnpostedDocumentsPage, NStr("en = 'Unposted documents';"), UnpostedDocumentCount());
-	SetPageTitle(Items.BlankAttributesPage, NStr("en = 'Blank attributes';"), BlankAttributeCount());
-	SetPageTitle(Items.XDTOErrorPage,             NStr("en = 'An error occurred when checking the objects being converted';"), XDTOErrorsCount());	
+	SetPageTitle(Items.UnpostedDocumentsPage, NStr("en = 'Unposted documents'"), UnpostedDocumentCount());
+	SetPageTitle(Items.BlankAttributesPage, NStr("en = 'Blank attributes'"), BlankAttributeCount());
+	SetPageTitle(Items.XDTOErrorPage,             NStr("en = 'An error occurred when checking the objects being converted'"), XDTOErrorsCount());	
 	
 	If VersioningUsed Then
-		SetPageTitle(Items.ConflictPage, NStr("en = 'Conflicts';"), ConflictCount());
-		SetPageTitle(Items.RejectedByRestrictionDatePage, NStr("en = 'Items rejected due to restriction date';"), NotAcceptedCount());
+		SetPageTitle(Items.ConflictPage, NStr("en = 'Conflicts'"), ConflictCount());
+		SetPageTitle(Items.RejectedByRestrictionDatePage, NStr("en = 'Items rejected due to restriction date'"), NotAcceptedCount());
 	EndIf;
 	
 EndProcedure
@@ -1375,7 +1375,7 @@ Procedure AcceptRejectVersionAtServer(Val SelectedRows, TagName, ErrorMessage = 
 					SelectedRow.Object.Metadata());
 				Common.MessageToUser(StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot accept the object version ""%1"" due to:
-					|%2.';"),
+					|%2.'"),
 					ObjectPresentation,
 					ErrorProcessing.BriefErrorDescription(ErrorInfo())));
 				RejectedDocumentsCounter = RejectedDocumentsCounter + 1;
@@ -1386,7 +1386,7 @@ Procedure AcceptRejectVersionAtServer(Val SelectedRows, TagName, ErrorMessage = 
 	
 	If RejectedDocumentsCounter > 0 Then
 		ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Not accepted object versions: %1 from %2.';"),
+			NStr("en = 'Not accepted object versions: %1 from %2.'"),
 			Format(RejectedDocumentsCounter, "NZ=; NG=0"),
 			Format(TotalDocumentsCounter, "NZ=; NG=0"));
 	EndIf;
@@ -1625,7 +1625,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.LeftValue = New DataCompositionField("Conflicts.OtherVersionNumber");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.NotFilled;
 	
-	Item.Appearance.SetParameterValue("Text", NStr("en = 'Deleted';"));
+	Item.Appearance.SetParameterValue("Text", NStr("en = 'Deleted'"));
 	
 	// Blank attributes.
 	
@@ -1682,7 +1682,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = True;
 	
-	Item.Appearance.SetParameterValue("Text", NStr("en = 'Missing';"));
+	Item.Appearance.SetParameterValue("Text", NStr("en = 'Missing'"));
 	
 	// Data declined by date.
 	

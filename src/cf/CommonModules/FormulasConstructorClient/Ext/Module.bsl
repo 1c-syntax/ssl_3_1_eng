@@ -273,7 +273,7 @@ Procedure StartSearchInFieldsList(Form) Export
 	Filter = Form[Form.NameOfCurrSearchString];
 	FilterStringLength = StrLen(Filter);
 	
-	WaitStringMessage = NStr("en = 'Continue typing…';");
+	WaitStringMessage = NStr("en = 'Continue typing…'");
 	
 	NameOfTheFieldList = AttachedFieldList.NameOfTheFieldList;
 	TreeOnForm = Form[NameOfTheFieldList];
@@ -311,7 +311,7 @@ Procedure StartSearchInFieldsList(Form) Export
 				ExecutionProgressNotification = New CallbackDescription("HandleSearchInFieldsList", ThisObject, Form); 
 				
 				IdleParameters = TimeConsumingOperationsClient.IdleParameters(Form);
-				IdleParameters.MessageText = NStr("en = 'Search for fields';");
+				IdleParameters.MessageText = NStr("en = 'Search for fields'");
 				IdleParameters.UserNotification.Show = False;
 				IdleParameters.OutputIdleWindow = False;
 				IdleParameters.OutputMessages = False;
@@ -461,20 +461,6 @@ Procedure FormulaEditorHandler(Form, Parameter, AdditionalParameters) Export
 	EndIf;
 	
 EndProcedure
-
-// An additional parameters constructor for universal handlers of Formula Editor.
-// 
-// Returns:
-//  Structure:
-//   * RunAtServer - Boolean - Run the universal server handler.
-//   * OperationKey - String 
-//
-Function HandlerParameters() Export
-	Parameters = New Structure;
-	Parameters.Insert("RunAtServer", False);
-	Parameters.Insert("OperationKey");
-	Return Parameters;
-EndFunction
 
 #EndRegion
 
@@ -776,6 +762,20 @@ Function FindTextInALine(String, Text, SearchConsideringLevels)
 	Return FormulasConstructorClientServer.FindTextInALine(String, Text,
 		CommonClient.StyleFont("ImportantLabelFont"), CommonClient.StyleColor("SuccessResultColor"), SearchConsideringLevels);
 		
+EndFunction
+
+// An additional parameters constructor for universal handlers of Formula Editor.
+// 
+// Returns:
+//  Structure:
+//   * RunAtServer - Boolean - Run the universal server handler.
+//   * OperationKey - String 
+//
+Function HandlerParameters()
+	Parameters = New Structure;
+	Parameters.Insert("RunAtServer", False);
+	Parameters.Insert("OperationKey");
+	Return Parameters;
 EndFunction
 
 #EndRegion

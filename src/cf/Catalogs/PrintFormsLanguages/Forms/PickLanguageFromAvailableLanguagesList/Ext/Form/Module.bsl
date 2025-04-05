@@ -18,7 +18,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If ValueIsFilled(Parameters.Filter) Then
 		Filter = StrSplit(Parameters.Filter, "_", True)[0];
 		Title = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-			"en = 'Select regional settings for the %1 language';"),
+			"en = 'Select regional settings for the %1 language'"),
 			NationalLanguageSupportServer.LanguagePresentation(Filter));
 	EndIf;
 	

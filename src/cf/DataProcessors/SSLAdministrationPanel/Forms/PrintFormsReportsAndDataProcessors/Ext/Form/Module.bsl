@@ -35,12 +35,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.OpenReportsBulkEmails.Visible = ModuleReportDistribution.InsertRight1(); 
 		If Common.SubsystemExists("StandardSubsystems.Interactions") Then
 			ToolTipText = NStr("en = 'Provides you with the information on the date when reports were sent, the recipients, and the result of sending. To limit the amount of stored data,
-			|obsolete report distribution history is automatically deleted. Besides the report distribution history, sent emails are saved indefinitely.';");
+			|obsolete report distribution history is automatically deleted. Besides the report distribution history, sent emails are saved indefinitely.'");
 			Items.GroupReportDistributionHistorySetup.ExtendedTooltip.Title = ToolTipText;
 		EndIf;
-		NumberFormat_ = NStr("en = '%Number% %OfMonths%';");
+		NumberFormat_ = NStr("en = '%Number% %OfMonths%'");
 		NumberFormat_ = StrReplace(NumberFormat_, "%Number%", "Ch");
-		NumberFormat_ = StrReplace(NumberFormat_, "%OfMonths%", NStr("en = 'months';"));
+		NumberFormat_ = StrReplace(NumberFormat_, "%OfMonths%", NStr("en = 'months'"));
 		Items.ReportDistributionHistoryRetentionPeriodInMonths.EditFormat =
 			StringFunctionsClientServer.SubstituteParametersToString("BLACKSEAFLEET='%1'", NumberFormat_);	
 		Items.ReportDistributionHistoryRetentionPeriodInMonths.Width = StrLen(NumberFormat_);
@@ -210,9 +210,9 @@ EndProcedure
 Function TitleOfTheTextTranslationServiceSettings(TextTranslationService)
 	
 	If ValueIsFilled(TextTranslationService) Then
-		Template = NStr("en = 'Translate with <a href=""%1"">%2</a>';");
+		Template = NStr("en = 'Translate with <a href=""%1"">%2</a>'");
 	Else
-		Template = NStr("en = 'Online translation service';");
+		Template = NStr("en = 'Online translation service'");
 	EndIf;
 	
 #If Client Then

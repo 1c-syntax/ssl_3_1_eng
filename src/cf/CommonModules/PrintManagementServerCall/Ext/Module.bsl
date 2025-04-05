@@ -64,6 +64,43 @@ Function GeneratePrintFormsForQuickPrintOrdinaryApplication(PrintManagerName, Te
 	
 EndFunction
 
+// Generates print forms according to the run print command.
+//
+// For details, see "PrintManagement.GeneratePrintForms".
+//
+Function GeneratePrintForms(ObjectsArray, Commands) Export
+	
+	PrintFormsCollection = New ValueTable;
+	For Each ColumnName In PrintManagementClientServer.PrintFormsCollectionFieldsNames() Do
+		PrintFormsCollection.Columns.Add(ColumnName);
+	EndDo;
+	
+	For Each PrintCommand In Commands Do
+		Result = PrintManagement.GeneratePrintForms(
+			PrintCommand.PrintManager,
+			PrintCommand.Id,
+			ObjectsArray,
+			PrintCommand.AdditionalParameters);
+		
+		CommonClientServer.SupplementTable(Result.PrintFormsCollection, PrintFormsCollection);
+		PrintManagement.OnExecutePrintCommand(ObjectsArray, PrintCommand, PrintFormsCollection);
+	EndDo;
+	
+	Return Common.ValueTableToArray(PrintFormsCollection);
+	
+EndFunction
+
+// Generates print forms in the given format and saves them to files.
+//
+// For details, see "PrintManagement.PrintToFile".
+//
+Function PrintToFile(PrintCommands, ListOfObjects, SettingsForSaving) Export
+	
+	Result = PrintManagement.PrintToFile(PrintCommands, ListOfObjects, SettingsForSaving);
+	Return Common.ValueTableToArray(Result);
+	
+EndFunction
+
 // See PrintManagement.DocumentsPackage.
 Function DocumentsPackage(SpreadsheetDocuments, PrintObjects, PrintInSets, Copies = 1) Export
 	
@@ -84,6 +121,11 @@ Function DefaultPrintFormInSet(Val ObjectsArray, Val PrintCommand) Export
 	Return PrintManagement.DefaultPrintFormInSet(ObjectsArray, PrintCommand);
 EndFunction
 
+Function CreatePrintCommand() Export
+	CollectionOfPrintCommands = PrintManagement.CreatePrintCommandsCollection();
+	Return Common.ValueTableRowToStructure(CollectionOfPrintCommands.Add());
+EndFunction
+
 #Region PrintingInBackgroundJob
 
 Function StartGeneratingPrintForms(ParametersForOpeningIncoming) Export
@@ -100,7 +142,7 @@ Function StartGeneratingPrintForms(ParametersForOpeningIncoming) Export
 			StringFunctionsClientServer.SubstituteParametersToString(NStr(
 				"en = 'Invalid parameter value. %1 parameter, %2 method.
 				|Expected value: %3, %4.
-				|Passed value: %5.';"),
+				|Passed value: %5.'"),
 				"CommandParameter",
 				"PrintManagementClient.ExecutePrintCommand",
 				"Array",

@@ -38,7 +38,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// СтандартныеПодсистемы.БизнесПроцессыИЗадачи
+// StandardSubsystems.BusinessProcessesAndTasks
 
 // Gets a structure with description of a task execution form.
 // The function is called when opening the task execution form.
@@ -82,6 +82,7 @@ Procedure OnForwardTask(TaskRef, NewTaskRef) Export
 	BusinessProcessObject = TaskInfo.BusinessProcess.GetObject();
 	LockDataForEdit(BusinessProcessObject.Ref);
 	BusinessProcessObject.ExecutionResult = ExecutionResultOnForward(TaskInfo)
+		+ ?(ValueIsFilled(BusinessProcessObject.ExecutionResult), Chars.LF, "")
 		+ BusinessProcessObject.ExecutionResult;
 	SetPrivilegedMode(True);
 	BusinessProcessObject.Write();
@@ -170,7 +171,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 // Defines the list of generation commands.
 //
@@ -244,16 +245,23 @@ EndProcedure
 
 Function ExecutionResultOnForward(Val TaskInfo)
 
-	StringFormat = "%1, %2 " + NStr("en = 'redirected the task';") + ":
-																	   |%3
-																	   |";
-
 	Comment = TrimAll(TaskInfo.ExecutionResult);
-	Comment = ?(IsBlankString(Comment), "", Comment + Chars.LF);
-	Result = StringFunctionsClientServer.SubstituteParametersToString(StringFormat, TaskInfo.CompletionDate,
-		TaskInfo.Performer, Comment);
+	If Not IsBlankString(Comment) Then
+		Comment = ": " + Comment;
+	EndIf;
+	
+	If Users.CurrentUser() = TaskInfo.Performer Then
+		StringFormat = NStr("en = '%1, %2 перенаправил(а) задачу%3'");
+		Result = StringFunctionsClientServer.SubstituteParametersToString(StringFormat, TaskInfo.CompletionDate,
+			TaskInfo.Performer, Comment);
+	Else
+		StringFormat = NStr("en = '%1, %4 (ранее исполнителем был %2) перенаправил(а) задачу%3'");
+		Result = StringFunctionsClientServer.SubstituteParametersToString(StringFormat, TaskInfo.CompletionDate,
+			TaskInfo.Performer, Comment,  Users.CurrentUser() );
+	EndIf;
+	
 	Return Result;
-
+	
 EndFunction
 
 #EndRegion

@@ -171,7 +171,7 @@ Procedure BeforeWriteAdditionalDataProcessor(Source, Cancel) Export
 			If SourceAttribute <> ResultingAttribute Then
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Invalid attempt to change attribute value %1 for additional data processor %2
-						|received from the additional data processor catalog of the Service manager.';"), 
+						|received from the additional data processor catalog of the Service manager.'"), 
 					AttributeToControl, Source.Description);
 				
 			EndIf;
@@ -242,7 +242,7 @@ Procedure OnAttachExternalDataProcessor(Val Ref, StandardProcessing, Result) Exp
 	
 	If TypeOf(Ref) <> Type("CatalogRef.AdditionalReportsAndDataProcessors")
 		Or Ref = Catalogs.AdditionalReportsAndDataProcessors.EmptyRef() Then
-		Raise NStr("en = 'A non-existing additional data processor connection requested.';");
+		Raise NStr("en = 'A non-existing additional data processor connection requested.'");
 	EndIf;
 	
 	CheckCanExecute(Ref);
@@ -334,7 +334,7 @@ Procedure OnCreateExternalDataProcessor(Val Ref, StandardProcessing, Result) Exp
 	EndIf;
 		
 	If DataProcessorName = Undefined Then
-		Raise NStr("en = 'Creation is requested for an object of a non-existing additional data processor.';");
+		Raise NStr("en = 'Creation is requested for an object of a non-existing additional data processor.'");
 	EndIf;
 	
 	CheckCanExecute(Ref);
@@ -370,7 +370,7 @@ Procedure BeforeUpdateJob(Object, Command, Job, Changes) Export
 	EndIf;
 	
 	If Not Constants.AllowScheduledJobsExecutionSaaS.Get() Then
-		Raise NStr("en = 'It is prohibited by the service administrator to periodically run additional data processor commands as jobs.';");
+		Raise NStr("en = 'It is prohibited by the service administrator to periodically run additional data processor commands as jobs.'");
 	EndIf;
 	
 	MinInterval = Constants.MinimalARADPScheduledJobIntervalSaaS.Get();
@@ -379,7 +379,7 @@ Procedure BeforeUpdateJob(Object, Command, Job, Changes) Export
 	
 	If Job.Schedule.ExecutionRequired(DateToCheck, SourceDate1) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Schedule set for execution of commands of an additional report or a data processor as jobs must be maximum once in %1 seconds.';"), 
+			NStr("en = 'Schedule set for execution of commands of an additional report or a data processor as jobs must be maximum once in %1 seconds.'"), 
 			MinInterval);
 	EndIf;
 		
@@ -495,7 +495,7 @@ Procedure InstallSuppliedDataProcessorToDataArea(Val InstallationDetails, Val Qu
 	SetPrivilegedMode(True);
 	
 	WriteLogEvent(
-		NStr("en = 'Built-in additional reports and data processors.Installation of the built-in data processor is initiated in the data area';",
+		NStr("en = 'Built-in additional reports and data processors.Installation of the built-in data processor is initiated in the data area'",
 		Common.DefaultLanguageCode()),
 		EventLogLevel.Information,
 		,
@@ -620,7 +620,7 @@ Procedure InstallSuppliedDataProcessorToDataArea(Val InstallationDetails, Val Qu
 			ModuleMessagesSaaS.SendMessage(Message,
 				ModuleSaaSOperationsCTLCached.ServiceManagerEndpoint(),  True);
 			
-			WriteLogEvent(NStr("en = 'Additional built-in reports and data processors.Installation to the data area';",
+			WriteLogEvent(NStr("en = 'Additional built-in reports and data processors.Installation to the data area'",
 				Common.DefaultLanguageCode()),
 				EventLogLevel.Information,
 				,
@@ -649,7 +649,7 @@ Procedure InstallSuppliedDataProcessorToDataArea(Val InstallationDetails, Val Qu
 			Manager.InstallationParameters1 = New ValueStorage(Context, New Deflation(9));
 			Manager.Write();
 			
-			WriteLogEvent(NStr("en = 'Additional built-in reports and data processors. Installation to the data area is deferred';",
+			WriteLogEvent(NStr("en = 'Additional built-in reports and data processors. Installation to the data area is deferred'",
 				Common.DefaultLanguageCode()),
 				EventLogLevel.Information,
 				,
@@ -728,7 +728,7 @@ Procedure DeleteSuppliedDataProcessorFromDataArea(Val SuppliedDataProcessor, Val
 			Message,
 			ModuleSaaSOperationsCTLCached.ServiceManagerEndpoint());
 		
-		WriteLogEvent(NStr("en = 'Built-in additional reports and data processors.Delete from the data area';",
+		WriteLogEvent(NStr("en = 'Built-in additional reports and data processors.Delete from the data area'",
 			Common.DefaultLanguageCode()),
 			EventLogLevel.Information,
 			,
@@ -743,7 +743,7 @@ Procedure DeleteSuppliedDataProcessorFromDataArea(Val SuppliedDataProcessor, Val
 			
 	If Not IsBlankString(ExceptionText) Then
 		
-		WriteLogEvent(NStr("en = 'Built-in additional reports and data processors. An error occurred when deleting from the data area';",
+		WriteLogEvent(NStr("en = 'Built-in additional reports and data processors. An error occurred when deleting from the data area'",
 			Common.DefaultLanguageCode()),
 			EventLogLevel.Error,
 			,
@@ -830,7 +830,7 @@ Procedure ProcessErrorOfInstallingAdditionalDataProcessorToDataArea(Val Supplied
 		Return;
 	EndIf;
 	
-	WriteLogEvent(NStr("en = 'Additional built-in reports and data processors. An error occurred during installation to the data area';",
+	WriteLogEvent(NStr("en = 'Additional built-in reports and data processors. An error occurred during installation to the data area'",
 		Common.DefaultLanguageCode()),
 		EventLogLevel.Error,
 		,
@@ -1115,7 +1115,7 @@ Procedure AppliedDataProcessorSettingsUpdate(Val Ref) Export
 		SuppliedDataProcessor = SuppliedDataProcessor(Ref);
 		If Not ValueIsFilled(SuppliedDataProcessor) Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Additional data processor with %1 ID is not built-in.';"),
+				NStr("en = 'Additional data processor with %1 ID is not built-in.'"),
 				String(Ref.UUID()));
 		EndIf;
 			
@@ -1175,12 +1175,12 @@ Procedure NewDataAvailable(Val Descriptor, ToImport) Export
 			ToImport = False;
 			
 			WriteLogEvent(
-				NStr("en = 'Built-in additional reports and data processors.Built-in data processor import canceled';", 
+				NStr("en = 'Built-in additional reports and data processors.Built-in data processor import canceled'", 
 				Common.DefaultLanguageCode()),
 				EventLogLevel.Information,
 				,
 				,
-				NStr("en = 'The built-in data processor is not compatible with this configuration';") + Chars.LF + Chars.CR + SuppliedDataProcessorDetails.Compatibility);
+				NStr("en = 'The built-in data processor is not compatible with this configuration'") + Chars.LF + Chars.CR + SuppliedDataProcessorDetails.Compatibility);
 			
 		EndIf;
 		
@@ -1284,7 +1284,7 @@ EndProcedure
 Function SuppliedDataProcessor(DataProcessorToUse)
 	
 	If Not Common.SeparatedDataUsageAvailable() Then
-		MessageText = NStr("en = 'You can use function %1 only in sessions with enabled data separation.';");
+		MessageText = NStr("en = 'You can use function %1 only in sessions with enabled data separation.'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText,
 			"AdditionalReportsAndDataProcessorsSaaS.SuppliedDataProcessor");
 		Raise MessageText;
@@ -1321,7 +1321,7 @@ EndFunction
 Function DataProcessorToUse(SuppliedDataProcessor, InstallationID = Undefined)
 	
 	If Not Common.SeparatedDataUsageAvailable() Then
-		MessageText = NStr("en = 'You can use function %1 only in sessions with enabled data separation.';");
+		MessageText = NStr("en = 'You can use function %1 only in sessions with enabled data separation.'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText,
 			"AdditionalReportsAndDataProcessorsSaaS.DataProcessorToUse");
 		Raise MessageText;
@@ -1488,12 +1488,12 @@ Procedure ProcessSuppliedAdditionalReportsAndDataProcessors(Descriptor, PathToFi
 	XDTOCompatibilityTable = XDTOFactory.ReadXML(Read, XDTOFactory.Type(Read.NamespaceURI, Read.Name));
 	CompatibilityTable = ReadCompatibilityTable(XDTOCompatibilityTable);
 	
-	WriteLogEvent(NStr("en = 'Built-in additional reports and data processors.Import built-in data processor';", 
+	WriteLogEvent(NStr("en = 'Built-in additional reports and data processors.Import built-in data processor'", 
 		Common.DefaultLanguageCode()),
 		EventLogLevel.Information,
 		,
 		,
-		NStr("en = 'Built-in data processor import initiated';") + Chars.LF + Chars.CR + SuppliedDataProcessorDetails.Manifest);
+		NStr("en = 'Built-in data processor import initiated'") + Chars.LF + Chars.CR + SuppliedDataProcessorDetails.Manifest);
 	
 	BeginTransaction();
 	Try
@@ -1560,12 +1560,12 @@ Procedure ProcessSuppliedAdditionalReportsAndDataProcessors(Descriptor, PathToFi
 		Raise;
 	EndTry;
 	
-	WriteLogEvent(NStr("en = 'Built-in additional reports and data processors.Built-in data processor is imported';",
+	WriteLogEvent(NStr("en = 'Built-in additional reports and data processors.Built-in data processor is imported'",
 		Common.DefaultLanguageCode()),
 		EventLogLevel.Information,
 		,
 		SuppliedDataProcessor.Ref,
-		NStr("en = 'Built-in data processor import is completed';") + Chars.LF + Chars.CR + SuppliedDataProcessorDetails.Manifest);
+		NStr("en = 'Built-in data processor import is completed'") + Chars.LF + Chars.CR + SuppliedDataProcessorDetails.Manifest);
 		
 	If Not Common.SubsystemExists("CloudTechnology.JobsQueue") Then
 		Return;
@@ -1587,12 +1587,12 @@ Procedure ProcessSuppliedAdditionalReportsAndDataProcessors(Descriptor, PathToFi
 		
 		ModuleJobsQueue.AddJob(JobParameters);
 		
-		WriteLogEvent(NStr("en = 'Built-in additional reports and data processors.Update of the built-in data processor settings is scheduled';",
+		WriteLogEvent(NStr("en = 'Built-in additional reports and data processors.Update of the built-in data processor settings is scheduled'",
 			Common.DefaultLanguageCode()),
 			EventLogLevel.Information,
 			,
 			SuppliedDataProcessor.Ref,
-			NStr("en = 'Data area:';") + DataProcessorInstallation.DataArea);
+			NStr("en = 'Data area:'") + DataProcessorInstallation.DataArea);
 		
 	EndDo;
 	
@@ -1626,12 +1626,12 @@ Procedure ProcessSuppliedAdditionalReportsAndDataProcessors(Descriptor, PathToFi
 		ModuleJobsQueue.AddJob(JobParameters);
 		
 		WriteLogEvent(
-			NStr("en = 'Additional built-in reports and data processors.Deferred installation of the built-in data processor to the data area is scheduled';",
+			NStr("en = 'Additional built-in reports and data processors.Deferred installation of the built-in data processor to the data area is scheduled'",
 			Common.DefaultLanguageCode()),
 			EventLogLevel.Information,
 			,
 			SuppliedDataProcessor.Ref,
-			NStr("en = 'Data area:';") + QueueItem.DataArea);
+			NStr("en = 'Data area:'") + QueueItem.DataArea);
 		
 	EndDo;
 	
@@ -1811,7 +1811,7 @@ Procedure CheckCanExecute(Ref)
 	SetPrivilegedMode(True);
 	If Not IsSuppliedDataProcessor(Ref) Then
 		If Not GetFunctionalOption("IndependentUsageOfAdditionalReportsAndDataProcessorsSaaS") Then
-			Raise NStr("en = 'This additional report or data processor cannot be used in SaaS.';");
+			Raise NStr("en = 'This additional report or data processor cannot be used in SaaS.'");
 		EndIf;
 		Return;
 	EndIf;
@@ -1828,7 +1828,7 @@ Procedure CheckCanExecuteSuppliedDataProcessor(Val DataProcessorToUse)
 	PublicationParametersOfDataProcessorToUse = Common.ObjectAttributesValues(DataProcessorToUse, "Publication, Version");
 	If PublicationParametersOfDataProcessorToUse.Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled Then
 		Raise NStr(
-			"en = 'Usage of additional data processor is prohibited. Contact the user with administrative rights in the application.';");
+			"en = 'Usage of additional data processor is prohibited. Contact the user with administrative rights in the application.'");
 	EndIf;
 	
 	LockReasonsDetails = AdditionalReportsAndDataProcessorsSaaSCached.ExtendedLockReasonsDetails();
@@ -1849,7 +1849,7 @@ Procedure CheckCanExecuteSuppliedDataProcessor(Val DataProcessorToUse)
 	// Checking for data processor version update
 	If PublicationParametersOfDataProcessorToUse.Version <> PublicationParametersOfSuppliedDataProcessor.Version Then
 		Raise NStr(
-			"en = 'Usage of additional data processor is temporarily unavailable. Try again in a few minutes. We apologize for the inconvenience.';");
+			"en = 'Usage of additional data processor is temporarily unavailable. Try again in a few minutes. We apologize for the inconvenience.'");
 	EndIf;
 	
 EndProcedure

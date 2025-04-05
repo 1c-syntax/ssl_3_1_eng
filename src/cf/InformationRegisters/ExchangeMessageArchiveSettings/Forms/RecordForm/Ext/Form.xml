@@ -263,19 +263,19 @@
 											<v8:content>Date created</v8:content>
 										</v8:item>
 									</Title>
-									<ContextMenu name="ArchiveOfExchangeMessagesPeriodContextMenu" id="62"/>
-									<ExtendedTooltip name="ArchiveOfExchangeMessagesPeriodExtendedTooltip" id="63"/>
+									<ContextMenu name="ArchiveOfMessagesExchangesPeriodContextMenu" id="62"/>
+									<ExtendedTooltip name="ArchiveOfMessagesExchangesPeriodExtendedTooltip" id="63"/>
 								</LabelField>
 								<LabelField name="ArchiveOfExchangeMessagesReceivedMessageNumber" id="66">
 									<DataPath>ArchiveOfExchangeMessages.ReceivedMessageNumber</DataPath>
 									<AutoMaxWidth>false</AutoMaxWidth>
-									<ContextMenu name="ArchiveOfExchangeMessagesReceivedMessageNumberContextMenu" id="67"/>
-									<ExtendedTooltip name="ArchiveOfExchangeMessagesReceivedMessageNumberExtendedTooltip" id="68"/>
+									<ContextMenu name="ArchiveOfMessagesExchangesNumberOfReceivedMessageContextMenu" id="67"/>
+									<ExtendedTooltip name="ArchiveOfMessagesExchangesNumberOfReceivedMessageExtendedTooltip" id="68"/>
 								</LabelField>
 								<LabelField name="ArchiveOfExchangeMessagesFileSize" id="72">
 									<DataPath>ArchiveOfExchangeMessages.FileSize</DataPath>
-									<ContextMenu name="ArchiveOfExchangeMessagesFileSizeContextMenu" id="73"/>
-									<ExtendedTooltip name="ArchiveOfExchangeMessagesFileSizeExtendedTooltip" id="74"/>
+									<ContextMenu name="ArchiveOfMessagesExchangesFileSizeContextMenu" id="73"/>
+									<ExtendedTooltip name="ArchiveOfMessagesExchangesFileSizeExtendedTooltip" id="74"/>
 								</LabelField>
 								<CheckBoxField name="ArchiveOfExchangeMessagesIsFileExceeds100MB" id="79">
 									<DataPath>ArchiveOfExchangeMessages.IsFileExceeds100MB</DataPath>
@@ -286,8 +286,8 @@
 										</v8:item>
 									</Title>
 									<CheckBoxType>Auto</CheckBoxType>
-									<ContextMenu name="ArchiveOfExchangeMessagesIsFileExceeds100MBContextMenu" id="80"/>
-									<ExtendedTooltip name="ArchiveOfExchangeMessagesIsFileExceeds100MBExtendedTooltip" id="81"/>
+									<ContextMenu name="ArchiveOfMessagesExchangesFileMoreThan100MbContextMenu" id="80"/>
+									<ExtendedTooltip name="ArchiveOfMessagesExchangesFileMoreThan100MbExtendedTooltip" id="81"/>
 								</CheckBoxField>
 							</ChildItems>
 						</Table>

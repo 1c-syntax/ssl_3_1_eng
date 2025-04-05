@@ -32,7 +32,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// Standard subsystems.Forbidding editingrequisitobjects
+// StandardSubsystems.ObjectAttributesLock
 
 // Returns:
 //   See ObjectAttributesLockOverridable.OnDefineLockedAttributes.LockedAttributes.
@@ -51,7 +51,7 @@ EndFunction
 
 // End StandardSubsystems.ObjectAttributesLock
 
-// СтандартныеПодсистемы.ПоискИУдалениеДублей
+// StandardSubsystems.DuplicateObjectsDetection
 
 // Parameters: 
 //   ReplacementPairs - See DuplicateObjectsDetectionOverridable.OnDefineItemsReplacementAvailability.ReplacementPairs
@@ -75,7 +75,7 @@ Function CanReplaceItems(Val ReplacementPairs, Val ReplacementParameters = Undef
 		ReplacementAllowed = CurrentRef.Parent = DestinationRef.Parent;
 		If Not ReplacementAllowed Then
 			Error = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Item ""%1"" belongs to ""%2,"" while ""%3"" belongs to ""%4.""';"),
+				NStr("en = 'Item ""%1"" belongs to ""%2,"" while ""%3"" belongs to ""%4.""'"),
 				CurrentRef, CurrentRef.Parent, DestinationRef, DestinationRef.Parent);
 			Result.Insert(CurrentRef, Error);
 		EndIf;
@@ -92,7 +92,7 @@ EndFunction
 Procedure DuplicatesSearchParameters(SearchParameters, AdditionalParameters = Undefined) Export
 	
 	Restriction = New Structure;
-	Restriction.Insert("Presentation",      NStr("en = 'Same group and same type (for example, ""address"" or ""phone"" type).';"));
+	Restriction.Insert("Presentation",      NStr("en = 'Same group and same type (for example, ""address"" or ""phone"" type).'"));
 	Restriction.Insert("AdditionalFields", "Parent, Type, Used");
 	SearchParameters.ComparisonRestrictions.Add(Restriction);
 	
@@ -121,7 +121,7 @@ EndProcedure
 
 // End StandardSubsystems.DuplicateObjectsDetection
 
-// СтандартныеПодсистемы.ВерсионированиеОбъектов
+// StandardSubsystems.ObjectsVersioning
 
 // 
 // Defines object settings for the ObjectsVersioning subsystem.
@@ -197,9 +197,9 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 		ModuleNationalLanguageSupportServer.FillMultilanguageAttribute(Item, "Description", 
-			"en = '""Users"" catalog contact information';", LanguagesCodes); // @NStr-1
+			"en = '""Users"" catalog contact information'", LanguagesCodes); // @NStr-2
 	Else
-		Item.Description = NStr("en = '""Users"" catalog contact information';", 
+		Item.Description = NStr("en = '""Users"" catalog contact information'", 
 			Common.DefaultLanguageCode());
 	EndIf;
 	
@@ -217,9 +217,9 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 		ModuleNationalLanguageSupportServer.FillMultilanguageAttribute(Item, "Description", 
-		"en = 'Email';", LanguagesCodes); // @NStr-1
+		"en = 'Email'", LanguagesCodes); // @NStr-2
 	Else
-		Item.Description = NStr("en = 'Email';", Common.DefaultLanguageCode());
+		Item.Description = NStr("en = 'Email'", Common.DefaultLanguageCode());
 	EndIf;
 	
 	
@@ -238,9 +238,9 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 		ModuleNationalLanguageSupportServer.FillMultilanguageAttribute(Item, "Description", 
-		"en = 'Phone';", LanguagesCodes); // @NStr-1
+		"en = 'Phone'", LanguagesCodes); // @NStr-2
 	Else
-		Item.Description = NStr("en = 'Phone';", Common.DefaultLanguageCode());
+		Item.Description = NStr("en = 'Phone'", Common.DefaultLanguageCode());
 	EndIf;
 	
 	ContactsManagerOverridable.OnInitialItemsFilling(LanguagesCodes, Items, TabularSections);
@@ -305,15 +305,15 @@ Procedure CheckIDUniqueness(IDForFormulas, Ref, Parent, Cancel) Export
 			IDByRules = False;
 			
 			ErrorText = NStr("en = 'ID ""%1"" does not comply with variable naming rules.
-									|An ID must not contain spaces and special characters.';");
+									|An ID must not contain spaces and special characters.'");
 			Common.MessageToUser(
 				StringFunctionsClientServer.SubstituteParametersToString(ErrorText, IDForFormulas),,
 				"IDForFormulas",, Cancel);
 				
 			LanguageCode = Common.DefaultLanguageCode();
-			EventName = NStr("en = 'Save additional attribute or information record';", LanguageCode);
+			EventName = NStr("en = 'Save additional attribute or information record'", LanguageCode);
 			ErrorText = NStr("en = 'ID ""%1"" does not comply with variable naming rules.
-									|An ID must not contain spaces and special characters.';", LanguageCode);
+									|An ID must not contain spaces and special characters.'", LanguageCode);
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText,
 				IDForFormulas);
 			WriteLogEvent(EventName,
@@ -337,16 +337,16 @@ Procedure CheckIDUniqueness(IDForFormulas, Ref, Parent, Cancel) Export
 				
 				Cancel = True;
 				
-				ErrorText = NStr("en = 'The database already contains a contact information kind with ID ""%1"" within group ""%2"". The ID must be unique';");
+				ErrorText = NStr("en = 'The database already contains a contact information kind with ID ""%1"" within group ""%2"". The ID must be unique'");
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText,
 					IDForFormulas, TopLevelParent);
 				Common.MessageToUser(ErrorText,, "IDForFormulas");
 				
 				LanguageCode = Common.DefaultLanguageCode();
-				ErrorText = NStr("en = 'The database already contains a contact information kind with ID ""%1"" within group ""%2"". The ID must be unique';", LanguageCode);
+				ErrorText = NStr("en = 'The database already contains a contact information kind with ID ""%1"" within group ""%2"". The ID must be unique'", LanguageCode);
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText,
 					IDForFormulas, TopLevelParent);
-				EventName = NStr("en = 'Save additional attribute or information record';", LanguageCode);
+				EventName = NStr("en = 'Save additional attribute or information record'", LanguageCode);
 				WriteLogEvent(EventName,
 					EventLogLevel.Error,
 					Ref.Metadata(),
@@ -357,14 +357,14 @@ Procedure CheckIDUniqueness(IDForFormulas, Ref, Parent, Cancel) Export
 		
 	Else
 		
-		ErrorText = NStr("en = 'ID for formulas is required';");
+		ErrorText = NStr("en = 'ID for formulas is required'");
 		Common.MessageToUser(
 			StringFunctionsClientServer.SubstituteParametersToString(ErrorText, IDForFormulas),,
 			"IDForFormulas",, Cancel);
 			
 		LanguageCode = Common.DefaultLanguageCode();
-		EventName = NStr("en = 'Save additional attribute or information record';", LanguageCode);
-		ErrorText = NStr("en = 'ID for formulas is required';", LanguageCode);
+		EventName = NStr("en = 'Save additional attribute or information record'", LanguageCode);
+		ErrorText = NStr("en = 'ID for formulas is required'", LanguageCode);
 		WriteLogEvent(EventName,
 			EventLogLevel.Error,
 			Ref.Metadata(),
@@ -389,7 +389,7 @@ Function UUIDForFormulas(ObjectPresentation, CurrentObjectRef, Parent) Export
 	Id = IDForFormulas(ObjectPresentation);
 	If IsBlankString(Id) Then
 		// Presentation consists of special characters and digits.
-		Prefix = NStr("en = 'ID';");
+		Prefix = NStr("en = 'ID'");
 		Id = IDForFormulas(Prefix + ObjectPresentation);
 	EndIf;
 	
@@ -672,7 +672,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 				And Not ValueIsFilled(ContactInformationKind.IDForFormulas) Then
 				DescriptionForID = DescriptionForIDGeneration(ContactInformationKind.Description,
 					ContactInformationKind.Presentations);
-				// @skip-check query-in-loop - Read up-to-date data from the infobase at each iteration.
+				// @skip-check query-in-loop - На каждой итерации необходимо зачитывать актуальные данные из ИБ.
 				ContactInformationKind.IDForFormulas = UUIDForFormulas(DescriptionForID,
 					ContactInformationKind.Ref, ContactInformationKind.Parent);
 			EndIf;
@@ -707,14 +707,14 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) some contact information kinds: %1';"), 
+			NStr("en = 'Couldn''t process (skipped) some contact information kinds: %1'"), 
 				ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
 			Metadata.Catalogs.ContactInformationKinds,,
 				StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Yet another batch of contact information kinds is processed: %1';"),
+					NStr("en = 'Yet another batch of contact information kinds is processed: %1'"),
 					ObjectsProcessed));
 	EndIf;
 	

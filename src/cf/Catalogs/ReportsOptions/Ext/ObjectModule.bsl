@@ -34,7 +34,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 		Cancel = True;
 		Common.MessageToUser(
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '""%1"" is taken. Enter another description.';"), 
+				NStr("en = '""%1"" is taken. Enter another description.'"), 
 				Description),, 
 			"Description");
 	EndIf;
@@ -60,9 +60,9 @@ Procedure BeforeWrite(Cancel)
 
 	If Not Custom And UserChangedDeletionMark Then
 		If DeletionMark Then
-			ErrorText = NStr("en = 'Predefined report options cannot be marked for deletion.';");
+			ErrorText = NStr("en = 'Predefined report options cannot be marked for deletion.'");
 		Else
-			ErrorText = NStr("en = 'Predefined report options cannot be unmarked for deletion.';");
+			ErrorText = NStr("en = 'Predefined report options cannot be unmarked for deletion.'");
 		EndIf;
 		Raise ErrorText;
 	EndIf;
@@ -71,18 +71,18 @@ Procedure BeforeWrite(Cancel)
 		DescriptionIsUsed = ReportsOptions.DescriptionIsUsed(Report, Ref, Description);
 		OptionKeyIsUsed  = ReportsOptions.OptionKeyIsUsed(Report, Ref, VariantKey);
 		If DescriptionIsUsed Or OptionKeyIsUsed Then
-			ErrorText = NStr("en = 'Cannot clear the deletion mark from the report option:';");
+			ErrorText = NStr("en = 'Cannot clear the deletion mark from the report option:'");
 			If DescriptionIsUsed Then
 				ErrorText = ErrorText + StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Name ""%1"" is taken by another option of this report.';"), 
+					NStr("en = 'Name ""%1"" is taken by another option of this report.'"), 
 					Description);
 			Else
 				ErrorText = ErrorText + StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Key ""%1"" is assigned to another option of this report.';"), 
+					NStr("en = 'Key ""%1"" is assigned to another option of this report.'"), 
 					VariantKey);
 			EndIf;
 			ErrorText = ErrorText + NStr("en = 'Before you clear the deletion mark for the report option 
-											 |mark the conflicting report option for deletion.';");
+											 |mark the conflicting report option for deletion.'");
 			Raise ErrorText;
 		EndIf;
 	EndIf;
@@ -250,7 +250,7 @@ Procedure FillFieldsForSearch()
 		ReportsOptions.FillFieldsForSearch(ThisObject);
 	Except
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot index the scheme of option ""%1"" of report ""%2"":';"), 
+			NStr("en = 'Cannot index the scheme of option ""%1"" of report ""%2"":'"), 
 			VariantKey, String(Report));
 		ErrorText = ErrorText + Chars.LF + ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		ReportsOptions.WriteToLog(EventLogLevel.Error, ErrorText, Ref);
@@ -348,7 +348,7 @@ Procedure CheckPredefinedReportOptionFilling(Cancel)
 	ElsIf Not ValueIsFilled(ReportType) Then
 		Raise FieldIsRequired("ReportType");
 	ElsIf ReportType <> ReportsOptions.ReportType(Report) Then
-		ErrorText = NStr("en = 'Fields ""%1"" and ""%2"" contains inconsistent values.';");
+		ErrorText = NStr("en = 'Fields ""%1"" and ""%2"" contains inconsistent values.'");
 		Raise StringFunctionsClientServer.SubstituteParametersToString(ErrorText, "ReportType", "Report");
 	ElsIf Not ValueIsFilled(PredefinedOption) And (ReportType = Enums.ReportsTypes.BuiltIn
 		Or ReportType = Enums.ReportsTypes.Extension) Then
@@ -359,7 +359,7 @@ EndProcedure
 
 Function FieldIsRequired(FieldName)
 
-	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Field %1 is required.';"), FieldName);
+	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Field %1 is required.'"), FieldName);
 
 EndFunction
 
@@ -368,6 +368,6 @@ EndFunction
 #EndIf
 
 #Else
-	Raise NStr("en = 'Invalid object call on the client.';");
+	Raise NStr("en = 'Invalid object call on the client.'");
 
 #EndIf

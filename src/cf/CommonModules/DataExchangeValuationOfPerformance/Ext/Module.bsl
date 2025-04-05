@@ -23,7 +23,7 @@ Procedure Initialize(ExchangeComponents, Analysis = False) Export
 	
 	DefaultLanguageCode = Common.DefaultLanguageCode();
 	
-	DescriptionTemplate = NStr("en = '%1 on %2 for %3 (%4)';", DefaultLanguageCode); // Send on 7/18/2022 3:09 PM for "Enterprise Accounting 3.0"
+	DescriptionTemplate = NStr("en = '%1 on %2 for %3 (%4)'", DefaultLanguageCode); // Send on 7/18/2022 3:09 PM for "Enterprise Accounting 3.0"
 	Description = StrTemplate(DescriptionTemplate,
 		ExchangeComponents.ExchangeDirection,
 		CurrentSessionDate(),
@@ -31,7 +31,7 @@ Procedure Initialize(ExchangeComponents, Analysis = False) Export
 		ExchangeComponents.CorrespondentNode.Code);
 				
 	If Analysis Then
-		Description = Description + " " + NStr("en = '(Analysis)';", DefaultLanguageCode);
+		Description = Description + " " + NStr("en = '(Analysis)'", DefaultLanguageCode);
 	EndIf;
 	
 	ExchangeSession.Description = Description;
@@ -61,7 +61,7 @@ Procedure Initialize(ExchangeComponents, Analysis = False) Export
 	ExchangeComponents.NameOfTemporaryMeasurementFile = NameOfTemporaryMeasurementFile;
 	ExchangeComponents.RecordingMeasurements = New TextWriter(NameOfTemporaryMeasurementFile, TextEncoding.UTF8);
 	
-	LogHeader = NStr("en = 'Sampling start; Runtime; Event type; Event; Comment';");
+	LogHeader = NStr("en = 'Sampling start; Runtime; Event type; Event; Comment'");
 	ExchangeComponents.RecordingMeasurements.WriteLine(LogHeader, DefaultLanguageCode);
 	
 	BeginTransaction();
@@ -106,7 +106,7 @@ Procedure Initialize(ExchangeComponents, Analysis = False) Export
 		
 		RollbackTransaction();
 	
-		MessageString = NStr("en = 'An error occurred when deleting the exchange session: %1. Error details: %2';",
+		MessageString = NStr("en = 'An error occurred when deleting the exchange session: %1. Error details: %2'",
 			Common.DefaultLanguageCode());
 			
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString,
@@ -143,22 +143,22 @@ Procedure ExitApp(ExchangeComponents) Export
 	DefaultLanguageCode = Common.DefaultLanguageCode();
 	
 	// The header
-	RecordingResults.WriteLine(NStr("en = '--- Exchange session ---';", DefaultLanguageCode));
-	RecordingResults.WriteLine(NStr("en = 'Exchange direction:';", DefaultLanguageCode) + ExchangeComponents.ExchangeDirection);
+	RecordingResults.WriteLine(NStr("en = '--- Exchange session ---'", DefaultLanguageCode));
+	RecordingResults.WriteLine(NStr("en = 'Exchange direction:'", DefaultLanguageCode) + ExchangeComponents.ExchangeDirection);
 	
-	Template = NStr("en = 'Node: %1 (%2)';", DefaultLanguageCode); 
+	Template = NStr("en = 'Node: %1 (%2)'", DefaultLanguageCode); 
 	RecordingResults.WriteLine(StrTemplate(Template, 
 		ExchangeComponents.CorrespondentNode,
 		ExchangeComponents.CorrespondentNode.Code));
 	
-	RecordingResults.WriteLine(NStr("en = 'Start:';", DefaultLanguageCode) + BeginTime);
-	RecordingResults.WriteLine(NStr("en = 'End:';", DefaultLanguageCode) + EndTime);
-	RecordingResults.WriteLine(NStr("en = 'Runtime (sec):';", DefaultLanguageCode) + (EndTime - BeginTime));
+	RecordingResults.WriteLine(NStr("en = 'Start:'", DefaultLanguageCode) + BeginTime);
+	RecordingResults.WriteLine(NStr("en = 'End:'", DefaultLanguageCode) + EndTime);
+	RecordingResults.WriteLine(NStr("en = 'Runtime (sec):'", DefaultLanguageCode) + (EndTime - BeginTime));
 	RecordingResults.WriteLine("");
 	
 	// Event type summary
-	RecordingResults.WriteLine(NStr("en = '--- Totals by event type ---';", DefaultLanguageCode));
-	RecordingResults.WriteLine(NStr("en = 'Event type; Runtime';", DefaultLanguageCode));
+	RecordingResults.WriteLine(NStr("en = '--- Totals by event type ---'", DefaultLanguageCode));
+	RecordingResults.WriteLine(NStr("en = 'Event type; Runtime'", DefaultLanguageCode));
 	
 	TableOfMeasurementsByEventType = ExchangeComponents.TableOfMeasurementsByEvents.Copy(, "EventType, RunTime");
 	TableOfMeasurementsByEventType.GroupBy("EventType", "RunTime");
@@ -177,8 +177,8 @@ Procedure ExitApp(ExchangeComponents) Export
 	RecordingResults.WriteLine("");
 	
 	// Event summary
-	RecordingResults.WriteLine(NStr("en = '--- Totals by event ---';", DefaultLanguageCode));
-	RecordingResults.WriteLine(NStr("en = 'Percentage; Average time; Time; Number of events; Event type; Event';", DefaultLanguageCode));
+	RecordingResults.WriteLine(NStr("en = '--- Totals by event ---'", DefaultLanguageCode));
+	RecordingResults.WriteLine(NStr("en = 'Percentage; Average time; Time; Number of events; Event type; Event'", DefaultLanguageCode));
 	
 	MeasurementsTable = ExchangeComponents.TableOfMeasurementsByEvents;
 	MeasurementsTable.Sort("RunTime Desc");
@@ -303,19 +303,19 @@ EndFunction
 
 Function EventTypeRule() Export
 
-	Return NStr("en = 'Exchange rules';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Exchange rules'", Common.DefaultLanguageCode());
 	
 EndFunction
 
 Function EventTypeLibrary() Export
 
-	Return NStr("en = 'Exchange subsystem';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Exchange subsystem'", Common.DefaultLanguageCode());
 	
 EndFunction
 
 Function EventTypeApplied() Export
 
-	Return NStr("en = 'Other configuration components';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Other configuration components'", Common.DefaultLanguageCode());
 	
 EndFunction	
 

@@ -86,7 +86,7 @@ Procedure AddMicrosoftEnhancedCSPSettings(Settings) Export
 	
 	// Microsoft Enhanced CSP
 	Setting = Settings.Add();
-	Setting.Presentation       = NStr("en = 'Microsoft Enhanced CSP';");
+	Setting.Presentation       = NStr("en = 'Microsoft Enhanced CSP'");
 	Setting.ApplicationName        = "Microsoft Enhanced Cryptographic Provider v1.0";
 	Setting.ApplicationType        = 1;
 	Setting.SignAlgorithm     = "RSA_SIGN"; // One option.
@@ -108,7 +108,7 @@ Procedure AddMicrosoftEnhancedCSPSettings(Settings) Export
 	
 	// Microsoft Enhanced RSA and AES CSP
 	Setting = Settings.Add();
-	Setting.Presentation       = NStr("en = 'Microsoft Enhanced RSA and AES CSP';");
+	Setting.Presentation       = NStr("en = 'Microsoft Enhanced RSA and AES CSP'");
 	Setting.ApplicationName        = "Microsoft Enhanced RSA and AES Cryptographic Provider";
 	Setting.ApplicationType        = 24;
 	Setting.SignAlgorithm     = "RSA_SIGN"; // One option.
@@ -131,7 +131,7 @@ Procedure AddMicrosoftEnhancedCSPSettings(Settings) Export
 	
 	// Microsoft Base Smart Card Crypto Provider
 	Setting = Settings.Add();
-	Setting.Presentation       = NStr("en = 'Microsoft Base Smart Card CSP';");
+	Setting.Presentation       = NStr("en = 'Microsoft Base Smart Card CSP'");
 	Setting.ApplicationName        = "Microsoft Base Smart Card Crypto Provider";
 	Setting.ApplicationType        = 1;
 	Setting.SignAlgorithm     = "RSA_SIGN"; // One option.
@@ -243,14 +243,14 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) some digital signing apps: %1';"), 
+			NStr("en = 'Couldn''t process (skipped) some digital signing apps: %1'"), 
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
 			Metadata.Catalogs.DigitalSignatureAndEncryptionApplications,,
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Yet another batch of digital signing apps is processed: %1';"),
+				NStr("en = 'Yet another batch of digital signing apps is processed: %1'"),
 				ObjectsProcessed));
 	EndIf;
 	
@@ -287,7 +287,7 @@ Procedure UpdateAppDataWithDeferral(Application, ObjectsProcessed, ObjectsWithIs
 			If Not ValueIsFilled(Properties.UsageMode) Then
 				ApplicationObject.UsageMode = ?(Properties.DeletionMark,
 					Enums.DigitalSignatureAppUsageModes.NotUsed,
-					Enums.DigitalSignatureAppUsageModes.SetupDone)
+					Enums.DigitalSignatureAppUsageModes.Configured)
 			EndIf;
 			InfobaseUpdate.WriteObject(ApplicationObject);
 		ElsIf Not ValueIsFilled(Properties.UsageMode) Then
@@ -295,7 +295,7 @@ Procedure UpdateAppDataWithDeferral(Application, ObjectsProcessed, ObjectsWithIs
 			ApplicationObject = Application.GetObject();
 			ApplicationObject.UsageMode = ?(Properties.DeletionMark,
 				Enums.DigitalSignatureAppUsageModes.NotUsed,
-				Enums.DigitalSignatureAppUsageModes.SetupDone);
+				Enums.DigitalSignatureAppUsageModes.Configured);
 			InfobaseUpdate.WriteObject(ApplicationObject);
 			
 		EndIf;
@@ -354,7 +354,7 @@ Procedure FillInitialSettingsDeferred(ObjectsProcessed, ObjectsWithIssuesCount)
 		
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Couldn''t perform the initial population of the app settings due to:
-			|%1';"), ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+			|%1'"), ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		
 		Raise MessageText;
 	EndTry;

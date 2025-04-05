@@ -169,7 +169,7 @@ Function ApplicationParameterChanges(ParameterName) Export
 	If Not IsApplicationParameterChanges(LastChanges) Then
 		CheckIfCanUpdateSaaS(ParameterName, Undefined, "GettingChanges");
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'No changes are found for parameter ""%1"".';"), ParameterName)
+			NStr("en = 'No changes are found for parameter ""%1"".'"), ParameterName)
 			+ StandardSubsystemsServer.ApplicationRunParameterErrorClarificationForDeveloper();
 		Raise ErrorText;
 	EndIf;
@@ -370,7 +370,7 @@ EndFunction
 Function ImportApplicationParametersInBackground(WaitCompletion, FormIdentifier, ReportProgress) Export
 	
 	OperationParametersList = TimeConsumingOperations.BackgroundExecutionParameters(FormIdentifier);
-	OperationParametersList.BackgroundJobDescription = NStr("en = 'Background import of application parameters';");
+	OperationParametersList.BackgroundJobDescription = NStr("en = 'Background import of application parameters'");
 	// To view the process bar, the update should run in the background.
 	// In the update mode, the launch of a background job is intermitted by a block of code,
 	// which mitigates the launch delay event without the exclusive mode set.
@@ -396,7 +396,7 @@ EndFunction
 Function UpdateApplicationParametersInBackground(WaitCompletion, FormIdentifier, ReportProgress) Export
 	
 	OperationParametersList = TimeConsumingOperations.BackgroundExecutionParameters(FormIdentifier);
-	OperationParametersList.BackgroundJobDescription = NStr("en = 'Background update of application parameters';");
+	OperationParametersList.BackgroundJobDescription = NStr("en = 'Background update of application parameters'");
 	OperationParametersList.NoExtensions = True;
 	OperationParametersList.WaitCompletion = WaitCompletion;
 	
@@ -415,7 +415,7 @@ Function UpdateApplicationParametersInBackground(WaitCompletion, FormIdentifier,
 			           |In a file infobase, a background job cannot be started from
 			           |another background job, or from a COM connection.
 			           |
-			           |Update in 1C:Enterprise or temporarily disable configuration extensions.';");
+			           |Update in 1C:Enterprise or temporarily disable configuration extensions.'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -433,7 +433,7 @@ EndFunction
 Function UpdateExtensionVersionParametersInBackground(WaitCompletion, FormIdentifier, ReportProgress) Export
 	
 	OperationParametersList = TimeConsumingOperations.BackgroundExecutionParameters(FormIdentifier);
-	OperationParametersList.BackgroundJobDescription = NStr("en = 'Update extension version parameters in background';");
+	OperationParametersList.BackgroundJobDescription = NStr("en = 'Update extension version parameters in background'");
 	// To view the process bar, the update should run in the background.
 	// In the update mode, the launch of a background job is intermitted by a block of code,
 	// which mitigates the launch delay event without the exclusive mode set.
@@ -470,17 +470,17 @@ Function ProcessedTimeConsumingOperationResult(Result, Operation) Export
 		If Operation = "ImportApplicationParameters" Then
 			BriefErrorDescription =
 				NStr("en = 'Couldn''t import application parameters. Reason:
-				           |The import background job is canceled.';");
+				           |The import background job is canceled.'");
 			
 		ElsIf Operation = "ApplicationParametersUpdate" Then
 			BriefErrorDescription =
 				NStr("en = 'Couldn''t update application parameters. Reason:
-				           |The update background job is canceled.';");
+				           |The update background job is canceled.'");
 			
 		Else // ExtensionVersionParametersUpdate.
 			BriefErrorDescription =
 				NStr("en = 'Cannot update extension version parameters. Reason:
-				           |The update background job is canceled.';");
+				           |The update background job is canceled.'");
 		EndIf;
 		
 	ElsIf Result.Status = "Completed2" Then
@@ -492,17 +492,17 @@ Function ProcessedTimeConsumingOperationResult(Result, Operation) Export
 		ElsIf Operation = "ImportApplicationParameters" Then
 			BriefErrorDescription =
 				NStr("en = 'Couldn''t import application parameters. Reason:
-				           |The import background job has not returned the result.';");
+				           |The import background job has not returned the result.'");
 			
 		ElsIf Operation = "ApplicationParametersUpdate" Then
 			BriefErrorDescription =
 				NStr("en = 'Couldn''t update application parameters. Reason:
-				           |The update background job has not returned the result.';");
+				           |The update background job has not returned the result.'");
 			
 		Else // ExtensionVersionParametersUpdate.
 			BriefErrorDescription =
 				NStr("en = 'Cannot update extension version parameters. Reason:
-				           |The update background job has not returned the result.';");
+				           |The update background job has not returned the result.'");
 		EndIf;
 	ElsIf Result.Status <> "ImportApplicationParametersNotRequired"
 	        And Result.Status <> "ApplicationParametersImportAndUpdateNotRequired"
@@ -603,7 +603,7 @@ EndFunction
 Procedure ExecuteUpdateUnsharedDataInBackground(Parameters, FormIdentifier) Export
 	
 	OperationParametersList = TimeConsumingOperations.BackgroundExecutionParameters(FormIdentifier);
-	OperationParametersList.BackgroundJobDescription = NStr("en = 'Update shared service data';");
+	OperationParametersList.BackgroundJobDescription = NStr("en = 'Update shared service data'");
 	OperationParametersList.NoExtensions = True;
 	OperationParametersList.WaitCompletion = Undefined;
 	
@@ -614,16 +614,16 @@ Procedure ExecuteUpdateUnsharedDataInBackground(Parameters, FormIdentifier) Expo
 		If TimeConsumingOperation.Status = "Error" Then
 			ErrorText = TimeConsumingOperation.DetailErrorDescription;
 		ElsIf TimeConsumingOperation.Status = "Canceled" Then
-			ErrorText = NStr("en = 'The background job is canceled';");
+			ErrorText = NStr("en = 'The background job is canceled'");
 		Else
-			ErrorText = NStr("en = 'Background job error';");
+			ErrorText = NStr("en = 'Background job error'");
 		EndIf;
 		Raise ErrorText;
 	EndIf;
 	
 	Result = GetFromTempStorage(TimeConsumingOperation.ResultAddress);
 	If TypeOf(Result) <> Type("Structure") Then
-		ErrorText = NStr("en = 'Background job did not return the result';");
+		ErrorText = NStr("en = 'Background job did not return the result'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -641,7 +641,7 @@ Procedure LongOperationHandlerPerformUpdateUnsharedData(Parameters, ResultAddres
 	
 	If ValueIsFilled(SessionParameters.AttachedExtensions) Then
 		ErrorText =
-			NStr("en = 'Couldn''t update the application parameters as it has installed extensions.';");
+			NStr("en = 'Couldn''t update the application parameters as it has installed extensions.'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -649,7 +649,7 @@ Procedure LongOperationHandlerPerformUpdateUnsharedData(Parameters, ResultAddres
 	   And Common.SeparatedDataUsageAvailable() Then
 		ErrorText =
 			NStr("en = 'Couldn''t update application parameters. Reason:
-			           |Cannot perform the update in the data area.';");
+			           |Cannot perform the update in the data area.'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -854,7 +854,7 @@ Procedure LoadProgramOperationParametersTakingIntoAccountExecutionMode(ReportPro
 	   And Common.SeparatedDataUsageAvailable() Then
 		ErrorText =
 			NStr("en = 'Couldn''t import application parameters. Reason:
-			           |Cannot perform the import in the data area.';");
+			           |Cannot perform the import in the data area.'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -916,7 +916,7 @@ Procedure LoadProgramOperationParametersTakingIntoAccountExecutionMode(ReportPro
 	
 	If ValueIsFilled(ListOfCriticalChanges) Then
 		
-		EventName = NStr("en = 'Metadata object IDs.Import of critical changes required';",
+		EventName = NStr("en = 'Metadata object IDs.Import of critical changes required'",
 			Common.DefaultLanguageCode());
 		
 		WriteLogEvent(EventName, EventLogLevel.Error, , , ListOfCriticalChanges);
@@ -938,19 +938,19 @@ Procedure LoadProgramOperationParametersTakingIntoAccountExecutionMode(ReportPro
 			           |Update the master node again, register priority data for export,
 			           |and repeat data synchronization:
 			           |- In the master node, start the application with the ""%1"" command-line option.
-			           |%2';");
+			           |%2'");
 		
 		If SubordinateDIBNodeSetup Then
 			// Setting up a subordinate DIB node during the first start.
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
 				"/C" + " " + "StartInfobaseUpdate",
-				NStr("en = '- Then retry creating a subordinate node.';"));
+				NStr("en = '- Then retry creating a subordinate node.'"));
 		Else
 			// Updating a subordinate DIB node.
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
 				"/C" + " " + "StartInfobaseUpdate",
 				NStr("en = '- Then repeat data synchronization with this infobase: 
-				           | first in the master node, then in the infobase (restart the infobase before the synchronization).';"));
+				           | first in the master node, then in the infobase (restart the infobase before the synchronization).'"));
 		EndIf;
 		
 		Raise ErrorText;
@@ -974,7 +974,7 @@ Procedure UpdateProgramOperationParametersBasedOnExecutionMode(ReportProgress)
 		And Not UpdateWithoutBackgroundJob() Then
 		ErrorText =
 			NStr("en = 'Couldn''t update application parameters. Reason:
-			           |Attached configuration extensions are found.';");
+			           |Attached configuration extensions are found.'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -982,7 +982,7 @@ Procedure UpdateProgramOperationParametersBasedOnExecutionMode(ReportProgress)
 	   And Common.SeparatedDataUsageAvailable() Then
 		ErrorText =
 			NStr("en = 'Couldn''t update application parameters. Reason:
-			           |Cannot perform the update in the data area.';");
+			           |Cannot perform the update in the data area.'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -1152,10 +1152,10 @@ Function ApplicationParameterStoredData(ParameterName)
 			Comment = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Error getting parameter of %1
 				           |Failed to retrieve the value from the storage:
-				           |%2';"),
+				           |%2'"),
 				ParameterName,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo));
-			EventName = NStr("en = 'Application parameters.Get parameter';",
+			EventName = NStr("en = 'Application parameters.Get parameter'",
 				Common.DefaultLanguageCode());
 			WriteLogEvent(EventName, EventLogLevel.Information,,, Comment);
 		EndTry;
@@ -1204,7 +1204,7 @@ Procedure CheckIfCanUpdateSaaS(Val ParameterName, NewValue, Val Operation)
 	ChangeStorageParameterName = ParameterName + ChangeStorageParameterNameClarification();
 	LastChanges = ApplicationParameterStoredData(ChangeStorageParameterName);
 	
-	EventName = NStr("en = 'Application parameters.Not updated in shared mode';",
+	EventName = NStr("en = 'Application parameters.Not updated in shared mode'",
 		Common.DefaultLanguageCode());
 	
 	Comment = StringFunctionsClientServer.SubstituteParametersToString(
@@ -1214,7 +1214,7 @@ Procedure CheckIfCanUpdateSaaS(Val ParameterName, NewValue, Val Operation)
 		           |on behalf of a user with service administrator rights
 		           |(in shared mode).
 		           |
-		           |Invalid parameter:';"),
+		           |Invalid parameter:'"),
 		"/From1" + " " + "StartInfobaseUpdate");
 
 	Comment = Comment + Chars.LF +
@@ -1233,7 +1233,7 @@ Procedure CheckIfCanUpdateSaaS(Val ParameterName, NewValue, Val Operation)
 	// Exception for the user.
 	ErrorText =
 		NStr("en = 'The application parameters are not updated in shared mode.
-		           |Please contact the service administrator. See the Event log for details.';");
+		           |Please contact the service administrator. See the Event log for details.'");
 	
 	Raise ErrorText;
 	

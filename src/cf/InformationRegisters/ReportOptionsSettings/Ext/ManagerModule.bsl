@@ -552,7 +552,7 @@ Procedure NotifyReportOptionUsers(Records, Replacing) Export
 		
 		ReportVariant = OptionUsers.Variant;
 		Text = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Report %1 is configured';"),
+		NStr("en = 'Report %1 is configured'"),
 		GetURL(ReportVariant));
 		
 		Message = ModuleConversations.MessageDetails(Text);
@@ -564,7 +564,7 @@ Procedure NotifyReportOptionUsers(Records, Replacing) Export
 			DefaultLanguageCode = Common.DefaultLanguageCode();
 			ReportOptionPresentation = String(ReportVariant);
 			WriteLogEvent(
-			NStr("en = 'Report options';", DefaultLanguageCode),
+			NStr("en = 'Report options'", DefaultLanguageCode),
 			EventLogLevel.Error,,
 			ReportOptionPresentation,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
@@ -710,7 +710,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			Declined = Declined + 1;
 			
 			CommentTemplate = NStr("en = 'Cannot move the availability settings of the ""%1"" report option to the ""%2"" register.
-				|Reason: %3';");
+				|Reason: %3'");
 				
 			Comment = StringFunctionsClientServer.SubstituteParametersToString(
 				CommentTemplate,
@@ -731,11 +731,11 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		Parameters.Queue, Metadata.Catalogs.ReportsOptions.FullName());
 	
 	If Processed = 0 And Declined <> 0 Then
-		MessageTemplate = NStr("en = 'Couldn''t process (skipped) some report option settings: %1';");
+		MessageTemplate = NStr("en = 'Couldn''t process (skipped) some report option settings: %1'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageTemplate, Declined);
 		Raise MessageText;
 	Else
-		CommentTemplate = NStr("en = 'Yet another batch of report option settings is processed: %1';");
+		CommentTemplate = NStr("en = 'Yet another batch of report option settings is processed: %1'");
 		Comment = StringFunctionsClientServer.SubstituteParametersToString(CommentTemplate, Processed);
 		WriteLogEvent(
 			InfobaseUpdate.EventLogEvent(),

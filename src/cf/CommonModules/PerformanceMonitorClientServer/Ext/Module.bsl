@@ -412,44 +412,28 @@ Function OnlyNumbersInString(Val CheckString, Val IncludingLeadingZeros = True, 
 	
 EndFunction
 
-// Checks whether the string contains Cyrillic characters only.
+// Validates strings by finding invalid characters.
 //
 // Parameters:
-//  WithWordSeparators - Boolean - if True, treat word separators as legit characters.
-//  AllowedChars - a string to check.
+//  RowToValidate - String - String to validate.
+//  AdditionalValidChars - Undefined, String - Additional valid characters.
+//                                                           If left blank, only non-printing characters are valid:
+//  	whitespace, non-breaking space, tab, line feed, 
+//  	and form feed.
 //
 // Returns:
-//  Boolean - True if the string contains Cyrillic or allowed chars only or is empty;
-//           False otherwise.
+//  Boolean - "True" if the string contains only the valid characters.
+//           Otherwise, "False".
 //
-Function OnlyLatinInString(Val CheckString, Val WithWordSeparators = True, AllowedChars = "") Export
+Function IsStringContainsOnlyNationalAlphabetChars(Val RowToValidate, Val AdditionalValidChars = Undefined) Export
 	
-	If TypeOf(CheckString) <> Type("String") Then
-		Return False;
+	NationalAlphabetChars = "abcdefghijklmnopqrstuvwxyz";
+	
+	If AdditionalValidChars = Undefined Then
+		AllowedChars = " " + Chars.Tab + Chars.LF + Chars.CR + Chars.VTab + Chars.NBSp + Chars.FF;
 	EndIf;
 	
-	If Not ValueIsFilled(CheckString) Then
-		Return True;
-	EndIf;
-	
-	ValidCharCodes = New Array;
-	ValidCharCodes.Add(1105); // ""
-	ValidCharCodes.Add(1025); // ""
-	
-	For IndexOf = 1 To StrLen(AllowedChars) Do
-		ValidCharCodes.Add(CharCode(Mid(AllowedChars, IndexOf, 1)));
-	EndDo;
-	
-	For IndexOf = 1 To StrLen(CheckString) Do
-		CharCode = CharCode(Mid(CheckString, IndexOf, 1));
-		If ((CharCode < 1040) Or (CharCode > 1103)) 
-			And (ValidCharCodes.Find(CharCode) = Undefined) 
-			And Not (Not WithWordSeparators And IsWordSeparator(CharCode)) Then
-			Return False;
-		EndIf;
-	EndDo;
-	
-	Return True;
+	Return StrSplit(Lower(RowToValidate), NationalAlphabetChars + AdditionalValidChars, False).Count() = 0;
 	
 EndFunction
 

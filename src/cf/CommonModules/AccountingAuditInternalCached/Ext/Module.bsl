@@ -92,18 +92,18 @@ EndFunction
 Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 	
 	ChecksGroup = ChecksGroups.Add();
-	ChecksGroup.Description                 = NStr("en = 'System checks';");
+	ChecksGroup.Description                 = NStr("en = 'System checks'");
 	ChecksGroup.Id                = "SystemChecks";
 	ChecksGroup.AccountingChecksContext = "SystemChecks";
 	
 	Validation = Checks.Add();
 	Validation.GroupID          = ChecksGroup.Id;
-	Validation.Description                 = NStr("en = 'Check for empty required attributes';");
-	Validation.Reasons                      = NStr("en = 'Invalid data synchronization with external applications or data import.';");
+	Validation.Description                 = NStr("en = 'Check for empty required attributes'");
+	Validation.Reasons                      = NStr("en = 'Invalid data synchronization with external applications or data import.'");
 	Validation.Recommendation                 = NStr("en = 'Reconfigure data synchronization or fill the mandatory attributes manually.
 		|Batch modification of attributes (the Administration section) can be used for this purpose.
 		|If unfilled mandatory attributes are found in registers,
-		| generally, you only need to fill in the corresponding fields in the recorder document to eliminate this issue.';");
+		| generally, you only need to fill in the corresponding fields in the recorder document to eliminate this issue.'");
 	Validation.Id                = "StandardSubsystems.CheckBlankMandatoryAttributes";
 	Validation.HandlerChecks           = "AccountingAuditInternal.CheckUnfilledRequiredAttributes";
 	Validation.AccountingChecksContext = "SystemChecks";
@@ -112,26 +112,26 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 	
 	Validation = Checks.Add();
 	Validation.GroupID          = ChecksGroup.Id;
-	Validation.Description                 = NStr("en = 'Reference integrity check';");
-	Validation.Reasons                      = NStr("en = 'Accidental or intentional data deletion without reference integrity control, equipment failures, invalid data synchronization with external applications or data import, errors in third-party tools (such as external data processors or extensions).';");
+	Validation.Description                 = NStr("en = 'Reference integrity check'");
+	Validation.Reasons                      = NStr("en = 'Accidental or intentional data deletion without reference integrity control, equipment failures, invalid data synchronization with external applications or data import, errors in third-party tools (such as external data processors or extensions).'");
 	Validation.Recommendation                 = NStr("en = 'Depending on the situation, select one of the following options:
 		|• Restore deleted data from backup.
-		|• Clear references to deleted data (if this is no longer needed).';");
+		|• Clear references to deleted data (if this is no longer needed).'");
 	If Not Common.DataSeparationEnabled() Then
 		Validation.Recommendation = Validation.Recommendation + Chars.LF + Chars.LF 
 			+ NStr("en = 'To clear references to deleted data, do the following:
 			|• Terminate all user sessions, lock the application, and create an infobase backup.
 			|• Start Designer, open the Administration – Verify and repair menu, and select checkboxes for the logical integrity check and the referential integrity check.
-			| For more information, see <link https://kb.1ci.com/1C_Enterprise_Platform/Guides/Administrator_Guides/1C_Enterprise_8.3.22_Administrator_Guide/Chapter_6._Infobase_administration/6.10._Verifying_and_repairing_an_infobase/>1C:Enterprise Administrator Guide</>
+			| For more information, see 1C:Enterprise Administrator Guide</>
 			|• Wait for verification and repair to complete, and unlock the application.
 			|
 			|For distributed infobases, run the repair procedure for the master node only.
-			|After that, perform synchronization with subordinate nodes.';");
+			|After that, perform synchronization with subordinate nodes.'");
 	
 	EndIf;
 	Validation.Recommendation = Validation.Recommendation + Chars.LF
 		+ NStr("en = 'If some dead references are detected in registers, usually, it is enough to remove dead references
-		|in recording documents to eliminate the issue.';");
+		|in recording documents to eliminate the issue.'");
 	Validation.Id                = "StandardSubsystems.CheckReferenceIntegrity1";
 	Validation.HandlerChecks           = "AccountingAuditInternal.CheckReferenceIntegrity";
 	Validation.AccountingChecksContext = "SystemChecks";
@@ -140,11 +140,11 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 	
 	Validation = Checks.Add();
 	Validation.GroupID            = ChecksGroup.Id;
-	Validation.Description                   = NStr("en = 'Check for circular references';");
-	Validation.Reasons                        = NStr("en = 'Invalid data synchronization with external applications or data import.';");
+	Validation.Description                   = NStr("en = 'Check for circular references'");
+	Validation.Reasons                        = NStr("en = 'Invalid data synchronization with external applications or data import.'");
 	Validation.Recommendation                   = NStr("en = 'In one of the items, remove a reference to the parent item (click the hyperlink below to fix the issue automatically).
 		|For distributed infobases, run the repair procedure for the master node only.
-		|After that, perform synchronization with subordinate nodes.';");
+		|After that, perform synchronization with subordinate nodes.'");
 	Validation.Id                  = "StandardSubsystems.CheckCircularRefs1";
 	Validation.HandlerChecks             = "AccountingAuditInternal.CheckCircularRefs";
 	Validation.GoToCorrectionHandler = "Report.AccountingCheckResults.Form.AutoCorrectIssues";
@@ -153,16 +153,16 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 	
 	Validation = Checks.Add();
 	Validation.GroupID            = ChecksGroup.Id;
-	Validation.Description                   = NStr("en = 'Check for missing predefined items';");
-	Validation.Reasons                        = NStr("en = 'Invalid data synchronization with external applications or data import, errors in third-party tools (such as external data processors or extensions).';");
+	Validation.Description                   = NStr("en = 'Check for missing predefined items'");
+	Validation.Reasons                        = NStr("en = 'Invalid data synchronization with external applications or data import, errors in third-party tools (such as external data processors or extensions).'");
 	Validation.Recommendation                   = NStr("en = 'Depending on the situation, do one of the following:
 		|• Select and specify one of existing items in the list as a predefined item. 
 		|• Restore predefined items from backup.
-		|• Create missing predefined items again (to do this, click the link below).';"); 
+		|• Create missing predefined items again (to do this, click the link below).'"); 
 	If Not Common.DataSeparationEnabled() Then
 		Validation.Recommendation = Validation.Recommendation + Chars.LF
 			+ NStr("en = 'For distributed infobases, run the repair procedure for the master node only.
-			|After that, perform synchronization with subordinate nodes.';");
+			|After that, perform synchronization with subordinate nodes.'");
 	EndIf;
 	Validation.Id                  = "StandardSubsystems.CheckNoPredefinedItems";
 	Validation.HandlerChecks             = "AccountingAuditInternal.CheckMissingPredefinedItems";
@@ -172,13 +172,13 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 	
 	Validation = Checks.Add();
 	Validation.GroupID          = ChecksGroup.Id;
-	Validation.Description                 = NStr("en = 'Check for duplicate predefined items';");
-	Validation.Reasons                      = NStr("en = 'Invalid data synchronization with external applications or data import.';");
-	Validation.Recommendation                 = NStr("en = 'Run duplicate cleaner in the Administration section.';");
+	Validation.Description                 = NStr("en = 'Check for duplicate predefined items'");
+	Validation.Reasons                      = NStr("en = 'Invalid data synchronization with external applications or data import.'");
+	Validation.Recommendation                 = NStr("en = 'Run duplicate cleaner in the Administration section.'");
 	If Not Common.DataSeparationEnabled() Then
 		Validation.Recommendation = Validation.Recommendation + Chars.LF  
 			+ NStr("en = 'For distributed infobases, run the repair procedure for the master node only.
-			|After that, perform synchronization with subordinate nodes.';");
+			|After that, perform synchronization with subordinate nodes.'");
 	EndIf;
 	Validation.Id                = "StandardSubsystems.CheckDuplicatePredefinedItems1";
 	Validation.HandlerChecks           = "AccountingAuditInternal.CheckDuplicatePredefinedItems";
@@ -187,19 +187,19 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 	
 	Validation = Checks.Add();
 	Validation.GroupID          = ChecksGroup.Id;
-	Validation.Description                 = NStr("en = 'Check for missing predefined nodes in exchange plan';");
-	Validation.Reasons                      = NStr("en = 'Incorrect application behavior when running on an obsolete 1C:Enterprise version';");
+	Validation.Description                 = NStr("en = 'Check for missing predefined nodes in exchange plan'");
+	Validation.Reasons                      = NStr("en = 'Incorrect application behavior when running on an obsolete 1C:Enterprise version'");
 	If Common.DataSeparationEnabled() Then
-		Validation.Recommendation             = NStr("en = 'Contact technical service support.';");
+		Validation.Recommendation             = NStr("en = 'Contact technical service support.'");
 	Else	
 		Validation.Recommendation             = NStr("en = '• Upgrade 1C:Enterprise to 8.3.9.2033 or later
 			|• Terminate all user sessions, lock the application, and create an infobase backup.
 			|• Start Designer, open the Administration – Verify and repair menu, and select checkboxes for the logical integrity check and the referential integrity check.
-			|  For more information, see <link https://kb.1ci.com/1C_Enterprise_Platform/Guides/Administrator_Guides/1C_Enterprise_8.3.22_Administrator_Guide/Chapter_6._Infobase_administration/6.10._Verifying_and_repairing_an_infobase/>1C:Enterprise Administrator Guide</>
+			|  For more information, see 1C:Enterprise Administrator Guide</>
 			|• Wait for verification and repair to complete, and unlock the application.
 			|
 			|For distributed infobases, run the repair procedure for the master node only.
-			|After that, perform synchronization with subordinate nodes.';");
+			|After that, perform synchronization with subordinate nodes.'");
 	EndIf;
 	Validation.Id                = "StandardSubsystems.CheckNoPredefinedExchangePlansNodes";
 	Validation.HandlerChecks           = "AccountingAuditInternal.CheckPredefinedExchangePlanNodeAvailability";

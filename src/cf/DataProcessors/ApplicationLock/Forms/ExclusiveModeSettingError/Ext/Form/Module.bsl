@@ -129,10 +129,10 @@ EndProcedure
 Procedure UpdateActiveSessionCount(Form)
 	
 	If Form.ActiveSessionCount > 0 Then
-		HyperlinkText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Active users (%1)';"), 
+		HyperlinkText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Active users (%1)'"), 
 			Form.ActiveSessionCount);
 	Else
-		HyperlinkText = NStr("en = 'Active users';");
+		HyperlinkText = NStr("en = 'Active users'");
 	EndIf;	
 	
 	Form.Items.ActiveUsers.Title = HyperlinkText;
@@ -141,16 +141,16 @@ Procedure UpdateActiveSessionCount(Form)
 	Form.Items.ActiveUsersWait.ExtendedTooltip.Title = Form.ExclusiveModeSettingError;
 	
 	If Form.ActiveSessionCount = 0 And IsBlankString(Form.ExclusiveModeSettingError) Then
-		Form.Items.ErrorMessageText.Title = NStr("en = 'Other users have already signed out:';");
-		Form.Items.FixErrorText.Title = NStr("en = 'To continue, click Retry.';");
+		Form.Items.ErrorMessageText.Title = NStr("en = 'Other users have already signed out:'");
+		Form.Items.FixErrorText.Title = NStr("en = 'To continue, click Retry.'");
 	Else	
 		If ValueIsFilled(Form.Parameters.ErrorTextExitFailed) Then
 			ErrorMessageText = Form.Parameters.ErrorTextExitFailed;
 		Else	
-			ErrorMessageText = NStr("en = 'Cannot update the application because the following users are still logged in:';");
+			ErrorMessageText = NStr("en = 'Cannot update the application because the following users are still logged in:'");
 		EndIf;
 		Form.Items.ErrorMessageText.Title = ErrorMessageText;
-		Form.Items.FixErrorText.Title = NStr("en = 'To continue, close their sessions.';");
+		Form.Items.FixErrorText.Title = NStr("en = 'To continue, close their sessions.'");
 	EndIf;	
 	
 EndProcedure
@@ -175,7 +175,7 @@ Procedure CheckExclusiveModeAtServer()
 		Try
 			SetExclusiveMode(True);
 		Except
-			ExclusiveModeSettingError = NStr("en = 'Details:';") + " " 
+			ExclusiveModeSettingError = NStr("en = 'Details:'") + " " 
 				+ ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		EndTry;
 		If ExclusiveMode() Then
@@ -213,7 +213,7 @@ Procedure LockFileInfobase()
 	Object.LockEffectiveFrom = CurrentSessionDate() + 2*60;
 	BlockingPeriod = ?(ValueIsFilled(Parameters.BlockingPeriod), Parameters.BlockingPeriod, 5*60);
 	Object.LockEffectiveTo = Object.LockEffectiveFrom + BlockingPeriod;
-	Object.MessageForUsers = ?(ValueIsFilled(Parameters.LoginMessage), Parameters.LoginMessage, NStr("en = 'The application is unavailable while updating.';"));
+	Object.MessageForUsers = ?(ValueIsFilled(Parameters.LoginMessage), Parameters.LoginMessage, NStr("en = 'The application is unavailable while updating.'"));
 	
 	Try
 		FormAttributeToValue("Object").PerformInstallation();

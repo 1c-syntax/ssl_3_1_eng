@@ -212,6 +212,7 @@ Function RolesAvailable(RolesNames,
 	If IBUserProperies.IsCurrentIBUser Then
 		For Each NameOfRole In RolesNamesArray Do
 			// ACC:336-off - Do not replace with "RolesAvailable". Roles are validated in the "RolesAvailable" function.
+// @skip-check using-isinrole
 			//@skip-check using-isinrole
 			If IsInRole(TrimAll(NameOfRole)) Then
 				Return True;
@@ -675,16 +676,16 @@ EndProcedure
 //                   Users catalog item.
 //
 // Returns:
-//  Undefined                  - the first administrator already exists.
-//  CatalogRef.Users - a user in the directory,
-//                                  to which the created first administrator or the specified existing one is mapped.
+//  Undefined                  - The first administrator already exists.
+//  CatalogRef.Users - User in the catalog,
+//                                  to which the first administrator or the specified one is mapped.
 //
 Function CreateAdministrator(IBUser = Undefined) Export
 	
 	UsersInternal.CheckIfSafeModeOff("Users.CreateAdministrator");
 	
 	If Not Common.SeparatedDataUsageAvailable() Then
-		ErrorText = NStr("en = 'The ""Users"" catalog is unavailable in shared mode.';");
+		ErrorText = NStr("en = 'The ""Users"" catalog is unavailable in shared mode.'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -697,7 +698,7 @@ Function CreateAdministrator(IBUser = Undefined) Export
 		If IBUsers.Count() = 0 Then
 			If Common.DataSeparationEnabled() Then
 				ErrorText =
-					NStr("en = 'Cannot automatically create the first administrator of the data area.';");
+					NStr("en = 'Cannot automatically create the first administrator of the data area.'");
 				Raise ErrorText;
 			EndIf;
 			IBUser = InfoBaseUsers.CreateUser();
@@ -724,7 +725,7 @@ Function CreateAdministrator(IBUser = Undefined) Export
 				           |with ""Full access"" and ""System administrator"" roles are found.
 				           |
 				           |The users might have been created in Designer.
-				           |Assign ""Full access"" and ""System administrator"" roles to at least one user.';");
+				           |Assign ""Full access"" and ""System administrator"" roles to at least one user.'");
 			Raise ErrorText;
 		EndIf;
 	Else
@@ -736,7 +737,7 @@ Function CreateAdministrator(IBUser = Undefined) Export
 				           |
 				           |The user was probably created in Designer.
 				           |To have a user created in the catalog automatically,
-				           |grant the infobase user both ""Full access"" and ""System administrator"" roles.';"),
+				           |grant the infobase user both ""Full access"" and ""System administrator"" roles.'"),
 				String(IBUser));
 			Raise ErrorText;
 		EndIf;
@@ -794,10 +795,10 @@ Function CreateAdministrator(IBUser = Undefined) Export
 			"IBUserDetails", IBUserDetails);
 		User.AdditionalProperties.Insert("CreateAdministrator",
 			?(IBUser = Undefined,
-			  NStr("en = 'The first administrator is created.';"),
+			  NStr("en = 'The first administrator is created.'"),
 			  ?(UserCreated,
-			    NStr("en = 'The administrator is mapped to a new catalog user.';"),
-			    NStr("en = 'The administrator is mapped to an existing catalog user.';")) ) );
+			    NStr("en = 'The administrator is mapped to a new catalog user.'"),
+			    NStr("en = 'The administrator is mapped to an existing catalog user.'")) ) );
 			
 		User.Write();
 	
@@ -865,7 +866,7 @@ EndFunction
 //
 Function UnspecifiedUserFullName() Export
 	
-	Return "<" + NStr("en = 'Not specified';") + ">";
+	Return "<" + NStr("en = 'Not specified'") + ">";
 	
 EndFunction
 
@@ -935,12 +936,12 @@ EndFunction
 //    If set to "True", the structure properties take "Undefined" to avoid changing properties of
 //    the object "InfobaseUser" when calling the "SetIBUserProperies" procedure.
 //    The default value is "True".
-//  ForInternalUser - Boolean - 
-//    
-//    
-//    
-//    
-//    
+//  ForInternalUser - Boolean - The initial value is "False".
+//    If "IsIntendedForSetting" and "ForInternalUser" are set to "True",
+//    certain properties are initialized with values typical for a service user:
+//    Authentication properties are set to "False". The "Roles" property is assigned an empty array.
+//    Password modification and recovery are disabled. The user is hidden from the selection list.
+//    The "PasswordIsSet" property is set to "False" (see "InfobaseDummyUser")."
 //
 // Returns:
 //  Structure:
@@ -1106,8 +1107,8 @@ EndFunction
 //
 //  CreateNewOne - Boolean - specify True to create a new infobase user called NameOrID.
 //
-//  IsExternalUser - Boolean - specify True if the infobase user corresponds to an external user
-//                                    (the ExternalUsers item in the directory).
+//  IsExternalUser - Boolean - Specify "True" if the infobase user corresponds to an external user
+//                                    (the "ExternalUsers" item in the catalog).
 //
 Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
 	Val CreateNewOne = False, Val IsExternalUser = False) Export
@@ -1142,7 +1143,7 @@ Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
 	If Not UserExists Then
 		If Not CreateNewOne Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Infobase user ""%1"" does not exist.';"),
+				NStr("en = 'Infobase user ""%1"" does not exist.'"),
 				NameOrID);
 			Raise ErrorText;
 		EndIf;
@@ -1150,7 +1151,7 @@ Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
 	Else
 		If CreateNewOne Then
 			ErrorText = ErrorDescriptionOnWriteIBUser(
-				NStr("en = 'Cannot create infobase user ""%1"". The user already exists.';"),
+				NStr("en = 'Cannot create infobase user ""%1"". The user already exists.'"),
 				PreviousProperties.Name,
 				PreviousProperties.UUID);
 			Raise ErrorText;
@@ -1164,7 +1165,7 @@ Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
 			
 			If Not PreviousPasswordMatches Then
 				ErrorText = ErrorDescriptionOnWriteIBUser(
-					NStr("en = 'Couldn''t save infobase user ""%1"". The previous password is incorrect.';"),
+					NStr("en = 'Couldn''t save infobase user ""%1"". The previous password is incorrect.'"),
 					PreviousProperties.Name,
 					PreviousProperties.UUID);
 				Raise ErrorText;
@@ -1203,7 +1204,7 @@ Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
 		If ValueIsFilled(PasswordErrorText) Then
 			ErrorText = ErrorDescriptionOnWriteIBUser(
 				NStr("en = 'Couldn''t save properties of infobase user ""%1"". Reason:
-				           |%2.';"),
+				           |%2.'"),
 				IBUser.Name,
 				?(UserExists, PreviousProperties.UUID, Undefined),
 				PasswordErrorText);
@@ -1237,7 +1238,7 @@ Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
 			Except
 				ErrorText = ErrorDescriptionOnWriteIBUser(
 					NStr("en = 'Couldn''t save properties of infobase user ""%1"". Reason:
-					           |%2.';"),
+					           |%2.'"),
 					IBUser.Name,
 					?(UserExists, PreviousProperties.UUID, Undefined),
 					ErrorInfo());
@@ -1284,7 +1285,7 @@ Procedure DeleteIBUser(Val NameOrID) Export
 	DeletedIBUserProperties = IBUserProperies(NameOrID);
 	If DeletedIBUserProperties = Undefined Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Infobase user ""%1"" does not exist.';"),
+			NStr("en = 'Infobase user ""%1"" does not exist.'"),
 			NameOrID);
 		Raise ErrorText;
 	EndIf;
@@ -1296,7 +1297,7 @@ Procedure DeleteIBUser(Val NameOrID) Export
 	Except
 		ErrorText = ErrorDescriptionOnWriteIBUser(
 			NStr("en = 'Cannot delete infobase user ""%1"". Reason:
-			           |%2.';"),
+			           |%2.'"),
 			IBUser.Name,
 			IBUser.UUID,
 			ErrorInfo());
@@ -1363,7 +1364,7 @@ Procedure CopyIBUserProperties(Receiver,
 		
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid value of parameter %1 or %2.
-			           |Common module: %4. Procedure: %3.';"),
+			           |Common module: %4. Procedure: %3.'"),
 			"Receiver",
 			"Source",
 			"CopyIBUserProperties",
@@ -1557,16 +1558,14 @@ Procedure CopyIBUserProperties(Receiver,
 						If StrLen(PropertyValue) > 64 Then
 							ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 								NStr("en = 'Couldn''t save the infobase user.
-								           |The username ""%1""
-								           |exceeds the limit of 64 characters.';"),
+								           |The username ""%1"" exceeds the limit of 64 characters.'"),
 								PropertyValue);
 							Raise ErrorText;
 							
 						ElsIf StrFind(PropertyValue, ":") > 0 Then
 							ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 								NStr("en = 'Couldn''t save the infobase user.
-								           |The username ""%1""
-								           |contains an illegal character (colon).';"),
+								           |The username contains colon ( : ), which is an illegal character: %1.'"),
 								PropertyValue);
 							Raise ErrorText;
 						EndIf;
@@ -1707,35 +1706,35 @@ Function FindByReference(User) Export
 	
 EndFunction
 
-// 
-// 
-// 
-// 
-// 
-// 
+// Returns the database user with the specified name.
+// If the user does not exist, a new infobase user and a corresponding catalog item are created.
+// If the "PasswordIsSet" property is set to "False", a newly generated password is assigned to
+// the empty "PasswordHash" property, provided that the found infobase user does not have
+// a password set or a new user is being created. If the properties of the found user differ from
+// the specified values, they are updated accordingly.
 // 
 //
 // Parameters:
 //  Properties     - See Users.NewIBUserDetails
-//  RefToNew - CatalogRef.Users - 
-//                 
-//                 
-//               - Undefined - 
-//                 
+//  RefToNew - CatalogRef.Users - If the user is not found in the catalog,
+//                 a new one is created with the specified reference.
+//                 This prevents duplicate users from being in the catalog across DIB nodes.
+//               - Undefined - If the user is not found in the catalog,
+//                 create a new one with the specified reference.
 //
 // Returns:
 //  InfoBaseUser
-//  
+//  Undefined - If the list of infobase users is empty.
 //
 // Example:
-//	
-//	
-//	
-//		
-//		
-//	
-//	
-//	
+//	Property = Users.NewIBUserDetails(, True);
+//	Properties.Name = InternalUsername();
+//	RefToNew = Catalogs.Users.GetRef(
+//		New UUID("<new UUID, obtained in debugger with the call
+//		|String(Catalogs.Users.GetRef().UUID())>"));
+//	Properties.<other properties to set> = <value>;
+//	IBUser = InfobaseDummyUser(Properties, RefToNew );
+//	…
 //
 Function InfobaseDummyUser(Properties, RefToNew = Undefined) Export
 	
@@ -1757,7 +1756,7 @@ Function InfobaseDummyUser(Properties, RefToNew = Undefined) Export
 				// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
 				Properties.StoredPasswordValue =
 					Eval("EvaluateStoredUserPasswordValue(NewPassword)");
-				// ACC:488-вкл
+				// ACC:488-on
 			Else
 				Properties.StoredPasswordValue =
 					PasswordHashString(NewPassword);
@@ -2103,7 +2102,7 @@ Procedure FindAmbiguousIBUsers(Val User,
 				EndIf;
 				
 				If CurrentIBUser = Undefined Then
-					LoginName = "<" + NStr("en = 'not found';") + ">";
+					LoginName = "<" + NStr("en = 'not found'") + ">";
 				Else
 					LoginName = CurrentIBUser.Name;
 				EndIf;
@@ -2111,12 +2110,12 @@ Procedure FindAmbiguousIBUsers(Val User,
 				If ServiceUserID Then
 					ErrorDescription = ErrorDescription + StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'The service user with ID ""%1""
-						           |is mapped to multiple catalog items:';"),
+						           |is mapped to multiple catalog items:'"),
 						CurrentAmbiguousID);
 				Else
 					ErrorDescription = ErrorDescription + StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Infobase user ""%1"" with ID ""%2""
-						           |is mapped to multiple catalog items:';"),
+						           |is mapped to multiple catalog items:'"),
 						LoginName,
 						CurrentAmbiguousID);
 				EndIf;
@@ -2129,7 +2128,7 @@ Procedure FindAmbiguousIBUsers(Val User,
 		Else
 			ErrorDescription = ErrorDescription + "- "
 				+ StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '""%1"" %2';"),
+					NStr("en = '""%1"" %2'"),
 					TableRow.User,
 					GetURL(TableRow.User)) + Chars.LF;
 		EndIf;
@@ -2142,8 +2141,8 @@ Procedure FindAmbiguousIBUsers(Val User,
 EndProcedure
 
 // Returns the password hash calculated using the SHA-1 algorithm.
-// On 1C:Enterprise 8.3.26 and later, use the method "CalculateUserPasswordHash".
-// To verify a password, use the method "VerifyUserPasswordAgainstHash".
+// On 1C:Enterprise 8.3.26 and later, use the method "EvaluateStoredUserPasswordValue".
+// To verify a password, use the method "CheckUserPasswordComplianceWithStoredValue".
 // The "equal to" comparison supports only SHA-1 hash.
 // 
 // 
@@ -2159,7 +2158,7 @@ EndProcedure
 //	FillPropertyValues(Properties, InfoBaseUsers.CurrentUser());
 //	If Properties.PasswordHashAlgorithmType <> Null Then
 //		ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe).
-//		PasswordMatches = Evaluate("VerifyUserPasswordAgainstHash(Password, IBUser)");
+//		PasswordMatches = Evaluate("CheckUserPasswordComplianceWithStoredValue(Password, IBUser)");
 //		ACC:488-off
 //	Else
 //		PasswordMatches = IBUser.StoredPasswordValue
@@ -2400,7 +2399,7 @@ Procedure SetExternalReportsAndDataProcessorsOpenRight(OpenAllowed) Export
 		EndIf;
 		
 		SettingsDescription = New SettingsDescription;
-		SettingsDescription.Presentation = NStr("en = 'Security warning';");
+		SettingsDescription.Presentation = NStr("en = 'Security warning'");
 		Common.CommonSettingsStorageSave(
 			"SecurityWarning", 
 			"UserAccepts", 
@@ -2668,12 +2667,12 @@ Procedure UpdateRegistrationSettingsForDataAccessEvents() Export
 			IsTruncatedUsageDetailsEnabled = False;
 		EndTry;
 		If IsTruncatedUsageDetailsEnabled Then
-			EventName = NStr("en = 'Users.Error setting up Access.Access event';",
+			EventName = NStr("en = 'Users.Error setting up Access.Access event'",
 				Common.DefaultLanguageCode());
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The following non-existent fields or tables with fields
 				           |were removed from the ""Access.Access"" event usage:
-				           |%1';"),
+				           |%1'"),
 				StrConcat(UnfoundFields, Chars.LF));
 			If Common.SubsystemExists("StandardSubsystems.UserMonitoring") Then
 				ModuleUserMonitoringInternal = Common.CommonModule("UserMonitoringInternal");
@@ -2763,14 +2762,14 @@ Function ErrorDescriptionOnWriteIBUser(ErrorTemplate,
 	
 	If WriteToLog Then
 		WriteLogEvent(
-			NStr("en = 'Users.Error saving infobase user';",
+			NStr("en = 'Users.Error saving infobase user'",
 			     Common.DefaultLanguageCode()),
 			EventLogLevel.Error,
 			,
 			,
 			StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
 				"""" + LoginName + """ (" + ?(ValueIsFilled(IBUserID),
-					NStr("en = 'New';"), String(IBUserID)) + ")",
+					NStr("en = 'New'"), String(IBUserID)) + ")",
 				?(TypeOf(ErrorInfo) = Type("ErrorInfo"),
 					ErrorProcessing.DetailErrorDescription(ErrorInfo), String(ErrorInfo))));
 	EndIf;

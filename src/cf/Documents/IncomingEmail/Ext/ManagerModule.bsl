@@ -45,7 +45,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// СтандартныеПодсистемы.Взаимодействия
+// StandardSubsystems.Interactions
 
 // Receives a sender and addressees of an email.
 //
@@ -159,7 +159,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 // Defines the list of generation commands.
 //

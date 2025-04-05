@@ -63,9 +63,9 @@ Procedure NotifyClassifierObsolete() Export
 	EndIf;
 	
 	ShowUserNotification(
-		NStr("en = 'The bank classifier is outdated';"),
+		NStr("en = 'The bank classifier is outdated'"),
 		NotificationURLImportForm(),
-		NStr("en = 'Update the bank classifier';"),
+		NStr("en = 'Update the bank classifier'"),
 		PictureLib.DialogExclamation,
 		UserNotificationStatus.Important,
 		"BankClassifierIsOutdated");
@@ -89,10 +89,10 @@ EndProcedure
 Procedure SuggestToImportClassifier() Export
 	
 	NotifyDescription = New CallbackDescription("OnGetAnswerToQuestionAboutClassifierImport", ThisObject);
-	QuestionTitle = NStr("en = 'Import bank classifier';");
-	QueryText = NStr("en = 'Bank classifier has not been imported yet. Import now?';");
+	QuestionTitle = NStr("en = 'Import bank classifier'");
+	QueryText = NStr("en = 'Bank classifier has not been imported yet. Import now?'");
 	Buttons = New ValueList;
-	Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Import';"));
+	Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Import'"));
 	Buttons.Add(DialogReturnCode.Cancel);
 	ShowQueryBox(NotifyDescription, QueryText, Buttons, , Buttons[0].Value, QuestionTitle);
 

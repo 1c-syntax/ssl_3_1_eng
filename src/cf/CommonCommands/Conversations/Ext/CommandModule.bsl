@@ -16,14 +16,14 @@ Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 	NewConversation = NewConversation(CommandParameter);
 	
 	If NewConversation = "Unavailable" Or NewConversation = "DisabledNoEnableRight" Then
-		ShowMessageBox(, NStr("en = 'Conversations are not available. Contact the Administrator.';"));
+		ShowMessageBox(, NStr("en = 'Conversations are not available. Contact the Administrator.'"));
 		Return;
 	ElsIf NewConversation = "DisabledCanEnable" Then
 		SuggestConversationsText = 
 			NStr("en = 'Do you want to enable conversations?
 				|
 				|With them, users will be able to exchange text messages, make video calls,
-				|create themed conversations, and correspond on documents.';");
+				|create themed conversations, and correspond on documents.'");
 		CallbackOnCompletion = New CallbackDescription("SuggestDiscussionsCompletion", ThisObject);
 		
 		ShowQueryBox(CallbackOnCompletion, SuggestConversationsText, QuestionDialogMode.YesNo);
@@ -75,12 +75,12 @@ Function NewConversation(UserRef)
 	Except
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'To start a conversation, user ""%1""
-			           |must run the application at least once.';"),
+			           |must run the application at least once.'"),
 			UserRef);
 	EndTry;
 	
 	If UserIDCollaborationSystem = CollaborationSystem.CurrentUserID() Then 
-		Raise NStr("en = 'Select another user to start the conversation.';");
+		Raise NStr("en = 'Select another user to start the conversation.'");
 	EndIf;
 	
 	Conversation = CollaborationSystem.CreateConversation();

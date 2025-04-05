@@ -23,7 +23,7 @@ Function SettingFlagShouldMutePromptToMigrateToWebService(SettingObject1, Value 
 		Return Common.CommonSettingsStorageLoad("ApplicationSettings", Var_Key, False,, UserName());
 	EndIf;
 	
-	SettingsDescription = NStr("en = 'Do not offer to switch to a web service';");
+	SettingsDescription = NStr("en = 'Do not offer to switch to a web service'");
 	
 	// Write
 	Common.CommonSettingsStorageSave("ApplicationSettings", Var_Key, Value, SettingsDescription, UserName());

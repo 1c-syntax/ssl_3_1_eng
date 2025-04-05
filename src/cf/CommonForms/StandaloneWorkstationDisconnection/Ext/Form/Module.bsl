@@ -16,14 +16,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Verify that the form is opened with the required parameters
 	If Not Parameters.Property("StandaloneWorkstation") Then
 		
-		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
+		Raise NStr("en = 'This is a dependent form and opens from a different form.'", Common.DefaultLanguageCode());
 		
 	EndIf;
 	
 	StandaloneWorkstation = Parameters.StandaloneWorkstation;
 	
 	If Not ValueIsFilled(StandaloneWorkstation) Then
-		Raise NStr("en = 'Standalone workstation is not specified.';");
+		Raise NStr("en = 'Standalone workstation is not specified.'");
 	EndIf;
 	
 	StandaloneWorkstationDeletionEventLogMessageText = StandaloneModeInternal.StandaloneWorkstationDeletionEventLogMessageText();
@@ -65,7 +65,7 @@ Procedure CloseForm(Command)
 	
 EndProcedure
 
-// Обработчики ожидания
+// 
 
 &AtClient
 Procedure TimeConsumingOperationIdleHandler()
@@ -92,7 +92,7 @@ Procedure TimeConsumingOperationIdleHandler()
 		
 		TimeConsumingOperation = False;
 		GoBack();
-		ShowMessageBox(,NStr("en = 'Errors occurred when processing.';"));
+		ShowMessageBox(,NStr("en = 'Errors occurred when processing.'"));
 		
 	EndTry;
 	
@@ -102,7 +102,7 @@ EndProcedure
 
 #Region Private
 
-// Поставляемая часть
+// 
 
 &AtClient
 Procedure ChangeNavigationNumber(Iterator_SSLy)
@@ -140,7 +140,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -246,7 +246,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -302,7 +302,7 @@ Procedure ExecuteTimeConsumingOperationHandler()
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -410,7 +410,7 @@ Procedure DeleteStandaloneWorkstation1(Cancel, ErrorMessage = "")
 	DeletionContext = New Structure("StandaloneWorkstation", StandaloneWorkstation);
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Delete standalone workstation';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Delete standalone workstation'");
 	ExecutionParameters.RunNotInBackground1 = False;
 	
 	BackgroundJob = TimeConsumingOperations.ExecuteInBackground(
@@ -457,7 +457,7 @@ Function Attachable_WaitTimeConsumingOperationProcessing(Cancel, GoToNext)
 	If Cancel Then
 		
 		ShowMessageBox(, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Errors occurred when deleting the standalone workstation: %1';"), ErrorMessage));
+			NStr("en = 'Errors occurred when deleting the standalone workstation: %1'"), ErrorMessage));
 		
 	ElsIf Not TimeConsumingOperation Then
 		

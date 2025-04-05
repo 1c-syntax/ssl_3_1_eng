@@ -81,7 +81,7 @@ Function GetExchangeServiceWSProxy() Export
 	EndIf;
 	
 	If Result = Undefined Then
-		Raise NStr("en = 'An error occurred when getting the data exchange web service from the managing application.';");
+		Raise NStr("en = 'An error occurred when getting the data exchange web service from the managing application.'");
 	EndIf;
 	
 	Return Result;

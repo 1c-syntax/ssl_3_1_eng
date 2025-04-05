@@ -320,7 +320,7 @@ Function CompanyAttributeAvailable(Object)
 				
 			EndIf;
 			
-			MessageString = NStr("en = 'The %2 attribute is not defined for the %1 metadata object.';");
+			MessageString = NStr("en = 'The %2 attribute is not defined for the %1 metadata object.'");
 			MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, ObjectMetadata.FullName(), CompanyAttributeName);
 			Raise MessageString;
 		EndIf;

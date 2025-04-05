@@ -26,6 +26,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		HyperlinkParameters = ModuleFilesOperations.FilesHyperlink();
 		HyperlinkParameters.Location = "CommandBar";
 		HyperlinkParameters.Owner = "Object.BusinessProcess";
+		HyperlinkParameters.Title = NStr("en = 'Job files'");
 		ModuleFilesOperations.OnCreateAtServer(ThisObject, HyperlinkParameters);
 	EndIf;
 	// End StandardSubsystems.FilesOperations
@@ -56,7 +57,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 
 	If Not JobCompleted And Not ValueIsFilled(CurrentObject.ExecutionResult) Then
 		Common.MessageToUser(
-			NStr("en = 'Please tell why you decline the task.';"),, 
+			NStr("en = 'Please tell why you decline the task.'"),, 
 			"Object.ExecutionResult",, Cancel);
 		Return;
 	EndIf;

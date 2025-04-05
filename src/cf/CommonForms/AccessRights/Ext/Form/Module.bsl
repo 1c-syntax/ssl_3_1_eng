@@ -196,7 +196,7 @@ EndProcedure
 Procedure RemoveFromGroup(Command)
 	
 	If Not ValueIsFilled(CurrentAccessGroup) Then
-		ShowMessageBox(, NStr("en = 'No access group is selected.';"));
+		ShowMessageBox(, NStr("en = 'No access group is selected.'"));
 		Return;
 	EndIf;
 	
@@ -210,7 +210,7 @@ Procedure ChangeGroup(Command)
 	FormParameters = New Structure;
 	
 	If Not ValueIsFilled(CurrentAccessGroup) Then
-		ShowMessageBox(, NStr("en = 'No access group is selected.';"));
+		ShowMessageBox(, NStr("en = 'No access group is selected.'"));
 		Return;
 		
 	ElsIf IBUserFull
@@ -221,7 +221,7 @@ Procedure ChangeGroup(Command)
 		OpenForm("Catalog.AccessGroups.ObjectForm", FormParameters);
 	Else
 		Raise(NStr("en = 'Insufficient rights to edit the access group.
-			|Only employees responsible for access group members and administrators can edit the access group.';"),
+			|Only employees responsible for access group members and administrators can edit the access group.'"),
 			ErrorCategory.AccessViolation);
 	EndIf;
 	
@@ -432,11 +432,11 @@ Procedure ChangeGroupContent(Val AccessGroup, Val Add, ErrorDescription = "")
 		If Add Then
 			ErrorDescription =
 				NStr("en = 'Insufficient rights to add the user to the access group.
-				           |Only employees responsible for access group members and administrators can add users to access groups.';");
+				           |Only employees responsible for access group members and administrators can add users to access groups.'");
 		Else
 			ErrorDescription =
 				NStr("en = 'Insufficient rights to remove the user from the access group.
-				           |Only employees responsible for access group members and administrators can remove users from access groups.';");
+				           |Only employees responsible for access group members and administrators can remove users from access groups.'");
 		EndIf;
 		Return;
 	EndIf;
@@ -444,7 +444,7 @@ Procedure ChangeGroupContent(Val AccessGroup, Val Add, ErrorDescription = "")
 	If Not Add And Not UserIncludedInAccessGroup(CurrentAccessGroup) Then
 		ErrorDescription =
 			NStr("en = 'Cannot remove the user from the access group
-			           |as the user is not a direct member of the group.';");
+			           |as the user is not a direct member of the group.'");
 		Return;
 	EndIf;
 	
@@ -456,7 +456,7 @@ Procedure ChangeGroupContent(Val AccessGroup, Val Add, ErrorDescription = "")
 		ActionsWithSaaSUser = ModuleUsersInternalSaaS.GetActionsWithSaaSUser();
 		
 		If Not ActionsWithSaaSUser.ChangeAdministrativeAccess Then
-			Raise(NStr("en = 'Insufficient access rights to edit administrators.';"),
+			Raise(NStr("en = 'Insufficient access rights to edit administrators.'"),
 				ErrorCategory.AccessViolation);
 		EndIf;
 	EndIf;

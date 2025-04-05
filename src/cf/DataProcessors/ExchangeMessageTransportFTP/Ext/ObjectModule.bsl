@@ -126,7 +126,7 @@ Function ConnectionIsSet() Export
 	EndIf;
 	
 	If IsBlankString(Path) Then
-		ErrorMessage = NStr("en = 'Path on the server is not specified.';");
+		ErrorMessage = NStr("en = 'Path on the server is not specified.'");
 		ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject);
 		Return False;
 	EndIf;
@@ -178,7 +178,7 @@ Function SendMessage()
 		// Checking that the exchange message size does not exceed the maximum allowed size.
 		If DataExchangeServer.ExchangeMessageSizeExceedsAllowed(ExchangeMessage, MaxMessageSize) Then
 			
-			ErrorMessage = NStr("en = 'The maximum allowed exchange message size is exceeded.';");
+			ErrorMessage = NStr("en = 'The maximum allowed exchange message size is exceeded.'");
 			ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject, "DataExport");
 			
 			Result = False;
@@ -210,7 +210,7 @@ Function GetMessage(MessageNameTemplate)
 		FTPConnection = GetFTPConnection(SendGetDataTimeout);
 	Except
 		
-		ErrorMessage = NStr("en = 'An occurred when initializing connection to the FTP server.';");
+		ErrorMessage = NStr("en = 'An occurred when initializing connection to the FTP server.'");
 		ErrorMessageEventLog = ErrorMessage;
 		
 		ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo(), True);
@@ -224,7 +224,7 @@ Function GetMessage(MessageNameTemplate)
 		FoundFileArray = FTPConnection.FindFiles(DirectoryAtFTPServer, MessageNameTemplate, False);
 	Except
 		
-		ErrorMessage = NStr("en = 'An occurred when initializing connection to the FTP server.';");
+		ErrorMessage = NStr("en = 'An occurred when initializing connection to the FTP server.'");
 		ErrorMessageEventLog = ErrorMessage;
 		
 		ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo(), True);
@@ -258,7 +258,7 @@ Function GetMessage(MessageNameTemplate)
 		
 		ErrorMessage = NStr("en = 'An information exchange directory is missing a message file.
                                   |Server directory: %1
-                                  |File: %2';");
+                                  |File: %2'");
 		
 		ErrorMessage = StrTemplate(ErrorMessage, DirectoryAtFTPServer, MessageNameTemplate);
 		ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject, "DataImport");
@@ -282,7 +282,7 @@ Function GetMessage(MessageNameTemplate)
 				FTPConnection.Get(File.FullName, ArchiveTempFileName);
 			Except
 
-				ErrorMessage = NStr("en = 'Error receiving the file from the FTP server.';");
+				ErrorMessage = NStr("en = 'Error receiving the file from the FTP server.'");
 				ErrorMessageEventLog = ErrorMessage;
 					
 				ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo(), True);
@@ -307,7 +307,7 @@ Function GetMessage(MessageNameTemplate)
 				
 			Except
 				
-				ErrorMessage = NStr("en = 'Error receiving the file from the FTP server.';");
+				ErrorMessage = NStr("en = 'Error receiving the file from the FTP server.'");
 				ErrorMessageEventLog = ErrorMessage;
 		
 				ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo(), True);
@@ -357,7 +357,7 @@ Function CopyFileToFTPServer(Val SourceFileName, ReceiverFileName, Val Timeout)
 		FTPConnection = GetFTPConnection(Timeout);
 	Except
 		
-		ErrorMessage = NStr("en = 'An occurred when initializing connection to the FTP server.';");
+		ErrorMessage = NStr("en = 'An occurred when initializing connection to the FTP server.'");
 		ErrorMessageEventLog = ErrorMessage;
 		
 		ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo(), True);
@@ -371,7 +371,7 @@ Function CopyFileToFTPServer(Val SourceFileName, ReceiverFileName, Val Timeout)
 		And FTPConnection.PassiveMode 
 		And Not PassiveConnection Then
 		
-		ErrorMessage = NStr("en = 'An error occurred during the attempt to establish an active connection to the FTP server. Try establishing a passive connection.';");
+		ErrorMessage = NStr("en = 'An error occurred during the attempt to establish an active connection to the FTP server. Try establishing a passive connection.'");
 		ErrorMessageEventLog = ErrorMessage;
 		
 		ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo(), True);
@@ -387,7 +387,7 @@ Function CopyFileToFTPServer(Val SourceFileName, ReceiverFileName, Val Timeout)
 		FTPConnection.Put(SourceFileName, DirectoryAtServer + ReceiverFileName);
 	Except
 		
-		ErrorMessage = NStr("en = 'An error occurred when establishing connection to the FTP server. Check whether the path is specified correctly and access rights are sufficient.';");
+		ErrorMessage = NStr("en = 'An error occurred when establishing connection to the FTP server. Check whether the path is specified correctly and access rights are sufficient.'");
 		ErrorMessageEventLog = ErrorMessage;
 		
 		ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo(), True);
@@ -404,7 +404,7 @@ Function CopyFileToFTPServer(Val SourceFileName, ReceiverFileName, Val Timeout)
 		FilesArray = FTPConnection.FindFiles(DirectoryAtServer, ReceiverFileName, False);
 	Except
 		
-		ErrorMessage = NStr("en = 'Error searching for files on the FTP server.';");
+		ErrorMessage = NStr("en = 'Error searching for files on the FTP server.'");
 		ErrorMessageEventLog = ErrorMessage;
 		
 		ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo(), True);
@@ -465,7 +465,7 @@ Function DeleteFileAtFTPServer(Val FileName, ConnectionCheckUp = False)
 		FTPConnection = GetFTPConnection(ConnectionCheckTimeout);
 	Except
 		
-		ErrorMessage = NStr("en = 'An occurred when initializing connection to the FTP server.';");
+		ErrorMessage = NStr("en = 'An occurred when initializing connection to the FTP server.'");
 		ErrorMessageEventLog = ErrorMessage;
 		
 		ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo(), True); 
@@ -479,7 +479,7 @@ Function DeleteFileAtFTPServer(Val FileName, ConnectionCheckUp = False)
 		FTPConnection.Delete(DirectoryAtServer + FileName);
 	Except
 		
-		ErrorMessage = NStr("en = 'Error deleting the file from the FTP server. Check whether resource access rights are sufficient.';");
+		ErrorMessage = NStr("en = 'Error deleting the file from the FTP server. Check whether resource access rights are sufficient.'");
 		ErrorMessageEventLog = ErrorMessage;
 		
 		ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo(), True);
@@ -489,7 +489,7 @@ Function DeleteFileAtFTPServer(Val FileName, ConnectionCheckUp = False)
 			
 			ErrorMessage = NStr("en = 'Cannot check connection using test file ""%1"".
 				|Maybe, the specified directory does not exist or is unavailable.
-				|Check FTP server documentation to configure support of Cyrillic file names.';");
+				|Check FTP server documentation to configure support of Cyrillic file names.'");
 			ErrorMessage = StrTemplate(ErrorMessage, FileName);
 			ErrorMessageEventLog = ErrorMessage;
 			
@@ -534,5 +534,5 @@ ConnectionCheckTimeout = 10;
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

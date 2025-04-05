@@ -278,10 +278,10 @@ Function QueryTextSubstringForIntervals(IntervalsTable, SourceTableName, SourceC
 		
 	EndDo;
 	
-	// @query-part-1
 	// ACC:1297-off - Queries are not localizable.
-	QueryText = "CASE " + QueryText + ?(IsBlankString(QueryText), "", Chars.LF) + " Else 0 End" + ?(WithName, " AS ExecutionTime, ", ",");
-	// ACC:1297-on
+	QueryText = "CASE " + QueryText + ?(IsBlankString(QueryText), "", Chars.LF) + " Else 0 End" + ?(WithName, " AS ExecutionTime, ", ","); // @query-part-1
+	// @query-part-1
+// ACC:1297-on.
 	
 	Return QueryText;
 	

@@ -110,7 +110,7 @@ Procedure ShowSecurityWarning(Notification, WarningKind, AdditionalParameter = U
 	If Not UsersInternalClientServer.SecurityWarningKinds().Property(WarningKind) Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid value of parameter ""%1"" in procedure ""%2"":
-			           |""%3"".';"),
+			           |""%3"".'"),
 			"WarningKind",
 			"UsersInternalClient.ShowSecurityWarning",
 			WarningKind);
@@ -201,9 +201,9 @@ Procedure AfterStart() Export
 	
 	If ClientRunParameters.Property("AskAboutDisablingOpenIDConnect") Then
 		ClickNotification = New CallbackDescription("AskAboutDisablingOpenIDConnect", ThisObject);
-		MessageTitle = NStr("en = 'Security warning';");
+		MessageTitle = NStr("en = 'Security warning'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Disable %1 authentication if it is not used.';"), "OpenID-Connect");
+			NStr("en = 'Disable %1 authentication if it is not used.'"), "OpenID-Connect");
 		ShowUserNotification(MessageTitle, ClickNotification,
 			MessageText, PictureLib.DialogExclamation, UserNotificationStatus.Important);
 	EndIf;
@@ -223,9 +223,9 @@ Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
 	ElsIf Result = "RolesIncreased" Then
 		StopAppRestart();
 		ShowUserNotification(
-			NStr("en = 'Access rights updated';"),
+			NStr("en = 'Access rights updated'"),
 			"e1cib/app/CommonForm.InfobaseUserRoleChangeControl",
-			NStr("en = 'Restart the application so that they come into force.';"),
+			NStr("en = 'Restart the application so that they come into force.'"),
 			PictureLib.DialogExclamation,
 			UserNotificationStatus.Important,
 			"InfobaseUserRoleChangeControl");
@@ -233,13 +233,13 @@ Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
 	ElsIf TypeOf(Result) = Type("Number") Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Your access will expire in %1.
-			           |To extend access, contact your administrator.';"),
+			           |To extend access, contact your administrator.'"),
 			Format(Result, "NG=") + " "
 				+ UsersInternalClientServer.IntegerSubject(Result,
-					"", NStr("en = 'day,days,,,0';")));
+					"", NStr("en = 'day,days,,,0'")));
 		
 		ShowUserNotification(
-			NStr("en = 'Access about to expire';"),,
+			NStr("en = 'Access about to expire'"),,
 			MessageText,
 			PictureLib.DialogExclamation,
 			UserNotificationStatus.Important,
@@ -304,16 +304,16 @@ Procedure AskAboutDisablingOpenIDConnect(Context) Export
 	
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = '%1 authentication is enabled for users.
-		           |If you do not use this authentication kind, disable it.';"),
+		           |If you do not use this authentication kind, disable it.'"),
 		"OpenID-Connect");
 	
 	Buttons = New ValueList;
-	Buttons.Add("DisabledForAllUsers", NStr("en = 'Disable for all users';"));
-	Buttons.Add("DoNotDisable",                 NStr("en = 'Do not disable';"));
-	Buttons.Add("RemindLater",              NStr("en = 'Remind me later';"));
+	Buttons.Add("DisabledForAllUsers", NStr("en = 'Disable for all users'"));
+	Buttons.Add("DoNotDisable",                 NStr("en = 'Do not disable'"));
+	Buttons.Add("RemindLater",              NStr("en = 'Remind me later'"));
 	
 	AdditionalParameters = StandardSubsystemsClient.QuestionToUserParameters();
-	AdditionalParameters.Title = NStr("en = 'Security warning';");
+	AdditionalParameters.Title = NStr("en = 'Security warning'");
 	AdditionalParameters.PromptDontAskAgain = False;
 	
 	StandardSubsystemsClient.ShowQuestionToUser(CompletionProcessing,
@@ -412,7 +412,7 @@ Procedure OpenReportOrForm(CurrentItem, User, CurrentUser, PersonalSettingsFormN
 	If User <> CurrentUser Then
 		WarningText =
 			NStr("en = 'To view settings of another user,
-			           |restart the application on behalf of that user and open the setting.';");
+			           |restart the application on behalf of that user and open the setting.'");
 		ShowMessageBox(,WarningText);
 		Return;
 	EndIf;
@@ -451,21 +451,21 @@ Procedure OpenReportOrForm(CurrentItem, User, CurrentUser, PersonalSettingsFormN
 				
 				If ValueTreeItem.CurrentData.RowType = "DesktopSettings" Then
 					ShowMessageBox(,
-						NStr("en = 'Navigate to ""Home page"" to view its settings.';"));
+						NStr("en = 'Navigate to ""Home page"" to view its settings.'"));
 					Return;
 				EndIf;
 				
 				If ValueTreeItem.CurrentData.RowType = "CommandInterfaceSettings" Then
 					ShowMessageBox(,
 						NStr("en = 'To view the command interface settings,
-						           |select a section in the application command interface.';"));
+						           |select a section in the application command interface.'"));
 					Return;
 				EndIf;
 				
 				If ItemParent <> Undefined Then
 					WarningText =
 						NStr("en = 'To view this setting, open ""%1""
-						           |and go to the ""%2"" form.';");
+						           |and go to the ""%2"" form.'");
 					WarningText = StringFunctionsClientServer.SubstituteParametersToString(WarningText,
 						ItemParent.Setting, ValueTreeItem.CurrentData.Setting);
 					ShowMessageBox(,WarningText);
@@ -476,7 +476,7 @@ Procedure OpenReportOrForm(CurrentItem, User, CurrentUser, PersonalSettingsFormN
 			
 		EndDo;
 		
-		ShowMessageBox(,NStr("en = 'Cannot view this setting.';"));
+		ShowMessageBox(,NStr("en = 'Cannot view this setting.'"));
 		Return;
 		
 	ElsIf ValueTreeItem.Name = "OtherSettings" Then
@@ -487,12 +487,12 @@ Procedure OpenReportOrForm(CurrentItem, User, CurrentUser, PersonalSettingsFormN
 			Return;
 		EndIf;
 		
-		ShowMessageBox(,NStr("en = 'Cannot view this setting.';"));
+		ShowMessageBox(,NStr("en = 'Cannot view this setting.'"));
 		Return;
 		
 	EndIf;
 	
-	ShowMessageBox(,NStr("en = 'Select a setting to view.';"));
+	ShowMessageBox(,NStr("en = 'Select a setting to view.'"));
 	
 EndProcedure
 
@@ -515,16 +515,16 @@ Function GenerateNoteOnCopy(SettingPresentation, SettingsCount, SettingsCopiedTo
 		EndIf;
 		
 		NotificationComment = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '""%1"" copied to %2.';"),
+			NStr("en = '""%1"" copied to %2.'"),
 			SettingPresentation,
 			SettingsCopiedToNote);
 	Else
 		SubjectInWords = Format(SettingsCount, "NFD=0") + " "
 			+ UsersInternalClientServer.IntegerSubject(SettingsCount,
-				"", NStr("en = 'setting,settings,,,0';"));
+				"", NStr("en = 'setting,settings,,,0'"));
 		
 		NotificationComment = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 copied to %2.';"),
+			NStr("en = '%1 copied to %2.'"),
 			SubjectInWords,
 			SettingsCopiedToNote);
 	EndIf;
@@ -547,10 +547,10 @@ Function UsersNote(UsersCount, User) Export
 	
 	If UsersCount = 1 Then
 		SettingsCopiedToNote = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'user ""%1""';"), User);
+			NStr("en = 'user ""%1""'"), User);
 	Else
 		SettingsCopiedToNote = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 users.';"), UsersCount);
+			NStr("en = '%1 users.'"), UsersCount);
 	EndIf;
 	
 	Return SettingsCopiedToNote;
@@ -607,18 +607,18 @@ Procedure NotifyAboutAppRestart()
 	MinutesLeftPresentation = MinutesBeforeRestartPresentation(MinutesLeft);
 	
 	ShowRestartAlert(StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'App will restart in %1. Save the changes.';"),
+		NStr("en = 'App will restart in %1. Save the changes.'"),
 		MinutesLeftPresentation));
 	
 	If MinutesLeft <= ExitWithConfirmationTimeout Then
 		AskOnTermination(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'App will restart in %1. Save the changes.
-			           |Restart now?';"),
+			           |Restart now?'"),
 			MinutesLeftPresentation));
 		
 	ElsIf MinutesLeft <= WaitTimeout Then
 		ShowWarningOnExit(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'App will restart in %1. Save the changes.';"),
+			NStr("en = 'App will restart in %1. Save the changes.'"),
 			MinutesLeftPresentation));
 	EndIf;
 	
@@ -639,7 +639,7 @@ EndFunction
 Function MinutesBeforeRestartPresentation(MinutesLeft) Export
 	
 	Return StringFunctionsClientServer.StringWithNumberForAnyLanguage(
-		NStr("en = ';%1 minute;;;;%1 minutes';"),
+		NStr("en = ';%1 minute;;;;%1 minutes'"),
 		MinutesLeft);
 	
 EndFunction
@@ -689,7 +689,7 @@ Procedure ShowRestartAlert(MessageText)
 	EndIf;
 	
 	ShowUserNotification(
-		NStr("en = 'App will restart';"),
+		NStr("en = 'App will restart'"),
 		"e1cib/app/CommonForm.InfobaseUserRoleChangeControl",
 		MessageText,
 		PictureLib.DialogExclamation,
@@ -708,7 +708,7 @@ Procedure ClearRestartAlert()
 	EndIf;
 	Parameters.IsNotificationDisplayed = False;
 	
-	ShowUserNotification(NStr("en = 'Restart canceled';"),,,,
+	ShowUserNotification(NStr("en = 'Restart canceled'"),,,,
 		UserNotificationStatus.Important, "ControlRestartWhenAccessRightsReduced");
 	
 EndProcedure

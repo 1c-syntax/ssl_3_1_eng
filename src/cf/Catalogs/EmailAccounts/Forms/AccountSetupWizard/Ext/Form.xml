@@ -90,6 +90,7 @@
 											<v8:content>Error messages</v8:content>
 										</v8:item>
 									</Title>
+									<VerticalStretch>false</VerticalStretch>
 									<Group>Vertical</Group>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
@@ -108,6 +109,7 @@
 											<TitleLocation>None</TitleLocation>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<Height>2</Height>
+											<AutoMaxHeight>false</AutoMaxHeight>
 											<HorizontalStretch>true</HorizontalStretch>
 											<VerticalStretch>false</VerticalStretch>
 											<MultiLine>true</MultiLine>
@@ -120,21 +122,6 @@
 												<Event name="Opening">ErrorsMessagesOpening</Event>
 											</Events>
 										</InputField>
-										<LabelDecoration name="NeedHelp" id="272">
-											<Title formatted="false">
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Need help?</v8:content>
-												</v8:item>
-											</Title>
-											<GroupHorizontalAlign>Left</GroupHorizontalAlign>
-											<Hyperlink>true</Hyperlink>
-											<ContextMenu name="NeedHelpContextMenu" id="273"/>
-											<ExtendedTooltip name="NeedHelpExtendedTooltip" id="274"/>
-											<Events>
-												<Event name="Click">NeedHelpClick</Event>
-											</Events>
-										</LabelDecoration>
 									</ChildItems>
 								</UsualGroup>
 							</ChildItems>
@@ -1119,21 +1106,6 @@ This might take a while.</v8:content>
 										<Event name="Opening">TextTechnicalDetailsOfErrorOpening</Event>
 									</Events>
 								</InputField>
-								<LabelDecoration name="NeedHelpTechnicalDetailsOfError" id="287">
-									<Title formatted="false">
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Need help?</v8:content>
-										</v8:item>
-									</Title>
-									<GroupHorizontalAlign>Left</GroupHorizontalAlign>
-									<Hyperlink>true</Hyperlink>
-									<ContextMenu name="NeedHelpTechnicalDetailsOfErrorContextMenu" id="288"/>
-									<ExtendedTooltip name="NeedHelpTechnicalDetailsOfErrorExtendedTooltip" id="289"/>
-									<Events>
-										<Event name="Click">NeedHelpClick</Event>
-									</Events>
-								</LabelDecoration>
 							</ChildItems>
 						</UsualGroup>
 					</ChildItems>
@@ -1220,6 +1192,7 @@ This might take a while.</v8:content>
 									<v8:content>Error details</v8:content>
 								</v8:item>
 							</Title>
+							<VerticalStretch>false</VerticalStretch>
 							<Group>AlwaysHorizontal</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
@@ -1251,7 +1224,6 @@ This might take a while.</v8:content>
 										</v8:item>
 									</Title>
 									<TitleLocation>None</TitleLocation>
-									<Width>40</Width>
 									<AutoMaxWidth>false</AutoMaxWidth>
 									<Height>2</Height>
 									<AutoMaxHeight>false</AutoMaxHeight>
@@ -1265,113 +1237,104 @@ This might take a while.</v8:content>
 								</InputField>
 							</ChildItems>
 						</UsualGroup>
-						<UsualGroup name="GroupPossibleReason" id="405">
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Possible reasons</v8:content>
-								</v8:item>
-							</Title>
+						<UsualGroup name="RecommendationGroupPossibleCauses" id="523">
 							<Group>Vertical</Group>
 							<Behavior>Usual</Behavior>
-							<ControlRepresentation>Picture</ControlRepresentation>
-							<Representation>NormalSeparation</Representation>
-							<ExtendedTooltip name="GroupPossibleReasonExtendedTooltip" id="406"/>
-							<ChildItems>
-								<LabelDecoration name="DecorationPossibleReasons" id="407">
-									<Title formatted="false">
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Decoration possible reasons</v8:content>
-										</v8:item>
-									</Title>
-									<ContextMenu name="DecorationPossibleReasonsContextMenu" id="408"/>
-									<ExtendedTooltip name="DecorationPossibleReasonsExtendedTooltip" id="409"/>
-								</LabelDecoration>
-							</ChildItems>
-						</UsualGroup>
-						<UsualGroup name="GroupWaystoEliminate" id="410">
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Methods to fix the error</v8:content>
-								</v8:item>
-							</Title>
-							<Group>Vertical</Group>
-							<Behavior>Usual</Behavior>
-							<ControlRepresentation>Picture</ControlRepresentation>
-							<Representation>NormalSeparation</Representation>
-							<ExtendedTooltip name="GroupWaystoEliminateExtendedTooltip" id="411"/>
-							<ChildItems>
-								<LabelDecoration name="DecorationWaystoEliminate" id="412">
-									<Title formatted="false">
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Decoration methods to fix the error</v8:content>
-										</v8:item>
-									</Title>
-									<ContextMenu name="DecorationWaystoEliminateContextMenu" id="413"/>
-									<ExtendedTooltip name="DecorationWaystoEliminateExtendedTooltip" id="414"/>
-								</LabelDecoration>
-							</ChildItems>
-						</UsualGroup>
-						<UsualGroup name="GroupAdditionalLinks" id="415">
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Additional references</v8:content>
-								</v8:item>
-							</Title>
-							<VerticalStretch>true</VerticalStretch>
-							<VerticalAlign>Bottom</VerticalAlign>
-							<Behavior>Usual</Behavior>
-							<Representation>NormalSeparation</Representation>
+							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupAdditionalLinksExtendedTooltip" id="416"/>
+							<ExtendedTooltip name="RecommendationGroupPossibleCausesExtendedTooltip" id="524"/>
 							<ChildItems>
-								<LabelDecoration name="RecommendationsForSolvingTypicalProblems" id="417">
-									<Title formatted="false">
+								<UsualGroup name="RecommendationGroup" id="525">
+									<Behavior>Usual</Behavior>
+									<Representation>None</Representation>
+									<ExtendedTooltip name="RecommendationGroupExtendedTooltip" id="526"/>
+									<ChildItems>
+										<LabelDecoration name="DecorationRecommendations" id="527">
+											<ContextMenu name="DecorationRecommendationsContextMenu" id="528"/>
+											<ExtendedTooltip name="DecorationRecommendationsExtendedTooltip" id="529"/>
+										</LabelDecoration>
+									</ChildItems>
+								</UsualGroup>
+								<UsualGroup name="GroupPossibleReason" id="530">
+									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Need help?</v8:content>
+											<v8:content>Possible reasons</v8:content>
 										</v8:item>
 									</Title>
-									<GroupHorizontalAlign>Left</GroupHorizontalAlign>
-									<Hyperlink>true</Hyperlink>
-									<ContextMenu name="RecommendationsForSolvingTypicalProblemsContextMenu" id="418"/>
-									<ExtendedTooltip name="RecommendationsForSolvingTypicalProblemsExtendedTooltip" id="419"/>
-									<Events>
-										<Event name="Click">NeedHelpClick</Event>
-									</Events>
-								</LabelDecoration>
+									<Behavior>Usual</Behavior>
+									<Representation>None</Representation>
+									<ExtendedTooltip name="GroupPossibleReasonExtendedTooltip" id="531"/>
+									<ChildItems>
+										<LabelDecoration name="DecorationPossibleReasons" id="532">
+											<ContextMenu name="DecorationPossibleReasonsContextMenu" id="533"/>
+											<ExtendedTooltip name="DecorationPossibleReasonsExtendedTooltip" id="534"/>
+										</LabelDecoration>
+									</ChildItems>
+								</UsualGroup>
 							</ChildItems>
 						</UsualGroup>
 					</ChildItems>
 				</Page>
 			</ChildItems>
 		</Pages>
-		<UsualGroup name="CommandBar" id="28">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Command bar</v8:content>
-				</v8:item>
-			</Title>
+		<UsualGroup name="FooterGroup" id="28">
 			<VerticalStretch>true</VerticalStretch>
 			<VerticalAlign>Bottom</VerticalAlign>
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="CommandBarExtendedTooltip" id="29"/>
+			<ExtendedTooltip name="FooterGroupExtendedTooltip" id="29"/>
 			<ChildItems>
-				<CommandBar name="CommandBarLeftPart" id="11">
+				<UsualGroup name="AssistanceRequiredGroup" id="504">
+					<GroupVerticalAlign>Center</GroupVerticalAlign>
+					<Group>Vertical</Group>
+					<Behavior>PopUp</Behavior>
+					<ExtendedTooltip name="AssistanceRequiredGroupExtendedTooltip" id="505"/>
+					<ChildItems>
+						<UsualGroup name="TechnicalSupportGroup" id="540">
+							<Group>Vertical</Group>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="TechnicalSupportGroupExtendedTooltip" id="541"/>
+							<ChildItems>
+								<LabelDecoration name="DescriptionOfSupportRequest" id="542">
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<ContextMenu name="DescriptionOfSupportRequestContextMenu" id="543"/>
+									<ExtendedTooltip name="DescriptionOfSupportRequestExtendedTooltip" id="544"/>
+								</LabelDecoration>
+								<Button name="QuestionInSupport" id="547">
+									<Type>Hyperlink</Type>
+									<CommandName>Form.Command.QuestionInSupport</CommandName>
+									<Picture>
+										<xr:Ref>CommonPicture.SendEmail</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<ExtendedTooltip name="QuestionInSupportExtendedTooltip" id="548"/>
+								</Button>
+								<Button name="InformationToSendToSupport" id="551">
+									<Type>Hyperlink</Type>
+									<CommandName>Form.Command.InformationToSendToSupport</CommandName>
+									<Picture>
+										<xr:Ref>CommonPicture.Download</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<ExtendedTooltip name="InformationToSendToSupportExtendedTooltip" id="552"/>
+								</Button>
+							</ChildItems>
+						</UsualGroup>
+					</ChildItems>
+				</UsualGroup>
+				<CommandBar name="CommandBar" id="30">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Command bar left part</v8:content>
+							<v8:content>Command bar</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="CommandBarLeftPartExtendedTooltip" id="12"/>
+					<HorizontalLocation>Right</HorizontalLocation>
+					<CommandSource>Form</CommandSource>
+					<ExtendedTooltip name="CommandBarExtendedTooltip" id="31"/>
 					<ChildItems>
 						<Button name="BackButton" id="20">
 							<Type>CommandBarButton</Type>
@@ -1384,18 +1347,6 @@ This might take a while.</v8:content>
 							</Title>
 							<ExtendedTooltip name="BackButtonExtendedTooltip" id="21"/>
 						</Button>
-					</ChildItems>
-				</CommandBar>
-				<CommandBar name="CommandBarRightPart" id="30">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Command bar right part</v8:content>
-						</v8:item>
-					</Title>
-					<HorizontalLocation>Right</HorizontalLocation>
-					<ExtendedTooltip name="CommandBarRightPartExtendedTooltip" id="31"/>
-					<ChildItems>
 						<Button name="GoToSettingsButton" id="156">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.GoToSettings</CommandName>
@@ -1998,6 +1949,23 @@ This might take a while.</v8:content>
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
+		<Attribute name="ErrorRegistrationTime" id="65">
+			<Type>
+				<v8:Type>xs:dateTime</v8:Type>
+				<v8:DateQualifiers>
+					<v8:DateFractions>DateTime</v8:DateFractions>
+				</v8:DateQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="BriefErrorDetails" id="66">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="Back" id="1">
@@ -2045,6 +2013,12 @@ This might take a while.</v8:content>
 			</ToolTip>
 			<Action>Cancel</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="QuestionInSupport" id="9">
+			<Action>QuestionInSupport</Action>
+		</Command>
+		<Command name="InformationToSendToSupport" id="10">
+			<Action>InformationToSendToSupport</Action>
 		</Command>
 	</Commands>
 	<Parameters>

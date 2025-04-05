@@ -22,7 +22,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			
 	If Common.IsMobileClient() Then
 		Raise NStr("en = 'Cannot edit an office document in the mobile client.
-		|Use thin client or web client.';");
+		|Use thin client or web client.'");
 	EndIf;
 	
 	IsLinuxClient = Common.IsLinuxClient();
@@ -143,7 +143,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	AddingOptions.ListName = NameOfTheListOfOperators();
 	AddingOptions.LocationOfTheList = Items.OperatorsAndFunctionsGroup;
 	AddingOptions.FieldsCollections.Add(ListOfOperators());
-	AddingOptions.HintForEnteringTheSearchString = NStr("en = 'Find operator or function…';");
+	AddingOptions.HintForEnteringTheSearchString = NStr("en = 'Find operator or function…'");
 	AddingOptions.ViewBrackets = False;
 	AddingOptions.ListHandlers.Insert("Selection", "Attachable_ListOfFieldsSelection");
 	AddingOptions.ListHandlers.Insert("OnActivateRow", "Attachable_FieldListRowActivation");
@@ -217,7 +217,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	If Exit Then
 		If Modified And Not CancelSavingChanges Then
 			WarningText = NStr("en = 'The print form''s template has been edited in another application.
-				|Click ""Save"" to save the changes.';");
+				|Click ""Save"" to save the changes.'");
 			Cancel = True;
 		EndIf;
 		Return;
@@ -279,17 +279,17 @@ EndProcedure
 Procedure Rename(Command)
 	
 	NotifyDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject);
-	ShowInputString(NotifyDescription, DocumentName, NStr("en = 'Enter a template description';"), 100, False);
+	ShowInputString(NotifyDescription, DocumentName, NStr("en = 'Enter a template description'"), 100, False);
 	
 EndProcedure
 
 &AtClient
 Procedure Translate(Command)
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Do you want to automatically translate into the %1 language?';"), Items.Language.Title);
+		NStr("en = 'Do you want to automatically translate into the %1 language?'"), Items.Language.Title);
 	Buttons = New ValueList;
-	Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Translate';"));
-	Buttons.Add(DialogReturnCode.No, NStr("en = 'Do not translate';"));
+	Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Translate'"));
+	Buttons.Add(DialogReturnCode.No, NStr("en = 'Do not translate'"));
 	
 	NotifyDescription = New CallbackDescription("WhenAnsweringAQuestionAboutTranslatingALayout", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, Buttons);
@@ -320,8 +320,8 @@ EndProcedure
 Procedure LoadFromFile(Command)
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.FormIdentifier = UUID;
-	ImportParameters.Dialog.Title = NStr("en = 'Select an office document';");
-	ImportParameters.Dialog.Filter = NStr("en = 'Office document';") + " (*.docx)|*.docx";
+	ImportParameters.Dialog.Title = NStr("en = 'Select an office document'");
+	ImportParameters.Dialog.Filter = NStr("en = 'Office document'") + " (*.docx)|*.docx";
 
 	NotifyDescription = New CallbackDescription("ContinueDownloadFromFile", ThisObject);
 	FileSystemClient.ImportFile_(NotifyDescription, ImportParameters,, TemplateFileAddress);
@@ -348,7 +348,7 @@ Procedure PutToClipboard(Command)
 	HTMLDocument.defaultView.value_to_copy = GetCurrentRowValue();
 	Button = HTMLDocument.getElementById("myb");
 	If Button = Undefined Then
-		ShowMessageBox(,NStr("en = 'Select an object field, operator, or function.';"));
+		ShowMessageBox(,NStr("en = 'Select an object field, operator, or function.'"));
 	Else
 		Button.onclick();
 	EndIf;
@@ -371,7 +371,7 @@ Procedure ViewPrintFormFollowUp(Result, Context) Export
 		TemplateOpenParameters.ShouldPrepareTemplate = False;
 		TemplateOpenParameters.ShouldReadHash = False;
 		CurrentDate = CommonClient.SessionDate();
-		TemplateOpenParameters.NameOfFileToOpen = NStr("en = 'Preview';")+" "+ StrReplace(CurrentDate, ":", "_")+".docx";
+		TemplateOpenParameters.NameOfFileToOpen = NStr("en = 'Preview'")+" "+ StrReplace(CurrentDate, ":", "_")+".docx";
 		OpenTemplate(TemplateOpenParameters);
 	EndIf;
 EndProcedure
@@ -532,8 +532,8 @@ Procedure SaveToFileFollowUp(Result, AdditionalParameters) Export
 	TemplateAddressInTempStorage = PutToTempStorage(Template, UUID);
 	
 	SavingParameters = FileSystemClient.FileSavingParameters();
-	SavingParameters.Dialog.Title = NStr("en = 'Save template to file';");
-	SavingParameters.Dialog.Filter = NStr("en = 'Office document';") + " (*.docx)|*.docx";
+	SavingParameters.Dialog.Title = NStr("en = 'Save template to file'");
+	SavingParameters.Dialog.Filter = NStr("en = 'Office document'") + " (*.docx)|*.docx";
 	FileSystemClient.SaveFile(Undefined, TemplateAddressInTempStorage, DocumentName, SavingParameters);
 	
 EndProcedure
@@ -670,7 +670,7 @@ Procedure BeforeCloseEnd(Result, AdditionalParameters) Export
 	
 	NotifyDescription = New CallbackDescription("BeforeCloseCompletion", ThisObject);
 	LanguageDetails = ?(ValueIsFilled(CurrentLanguage), " (" + CurrentLanguage + ")", "");
-	QueryText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Do you want to save the changes to %1%2?';"), 
+	QueryText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Do you want to save the changes to %1%2?'"), 
 		DocumentName, LanguageDetails);
 	CommonClient.ShowFormClosingConfirmation(NotifyDescription, Cancel, False, QueryText);
 	
@@ -975,10 +975,10 @@ Procedure SetInHTMLField(Value)
 	
 	HTMLField = StringFunctionsClientServer.SubstituteParametersToString(HTMLText,
 		StrReplace(Value, """", "&quot;"),
-		NStr("en = 'Wrap the text';"),
-		NStr("en = 'Drag<br> to the editor';"),
-		NStr("en = 'Copy';"),
-		NStr("en = 'Select a field';"));
+		NStr("en = 'Wrap the text'"),
+		NStr("en = 'Drag<br> to the editor'"),
+		NStr("en = 'Copy'"),
+		NStr("en = 'Select a field'"));
 	HTMLField = StrReplace(HTMLField, "%%", "%");
 EndProcedure
 
@@ -1206,7 +1206,7 @@ EndProcedure
 
 &AtClient
 Function NewDocumentName()
-	Return NStr("en = 'New';");
+	Return NStr("en = 'New'");
 EndFunction
 
 &AtClient
@@ -1411,9 +1411,9 @@ Procedure SetHeader()
 	EndIf;
 	
 	If IsNew() Then
-		Title = Title + " (" + NStr("en = 'create';") + ")";
+		Title = Title + " (" + NStr("en = 'create'") + ")";
 	ElsIf EditingDenied Then
-		Title = Title + " (" + NStr("en = 'read-only';") + ")";
+		Title = Title + " (" + NStr("en = 'read-only'") + ")";
 	EndIf;
 	
 EndProcedure
@@ -1460,10 +1460,10 @@ Procedure Attachable_WhenSwitchingTheLanguage(LanguageCode, AdditionalParameters
 	If TranslationRequired And AutomaticTranslationAvailable Then
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Template has not been translated into the %1 language yet.
-			|Do you want to translate it automatically?';"), Items.Language.Title);
+			|Do you want to translate it automatically?'"), Items.Language.Title);
 		Buttons = New ValueList;
-		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Translate';"));
-		Buttons.Add(DialogReturnCode.No, NStr("en = 'Do not translate';"));
+		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Translate'"));
+		Buttons.Add(DialogReturnCode.No, NStr("en = 'Do not translate'"));
 		
 		NotifyDescription = New CallbackDescription("WhenAnsweringAQuestionAboutTranslatingALayout", ThisObject);
 		ShowQueryBox(NotifyDescription, QueryText, Buttons);
@@ -1486,7 +1486,7 @@ Procedure SwitchLangAfterImportFileFollowUp(Result, AdditionalParameters) Export
 	
 	If Modified Then
 		LanguageDetails = ?(ValueIsFilled(CurrentLanguage), " (" + CurrentLanguage + ")", "");
-		QueryText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Do you want to save the changes to %1%2?';"), DocumentName, LanguageDetails);
+		QueryText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Do you want to save the changes to %1%2?'"), DocumentName, LanguageDetails);
 		ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNoCancel, ,
 			DialogReturnCode.Yes);
 	Else
@@ -1540,7 +1540,7 @@ EndProcedure
 &AtClient
 Procedure WarnAboutLockAndOpenApp()
 	NotifyDescription = New CallbackDescription("OpenFileCompletion", ThisObject, PathToTemplateFile);
-	ShowMessageBox(NotifyDescription, NStr("en = 'Complete the operation with the file in another application.';"), , NStr("en = 'The file is opened in another application';"));
+	ShowMessageBox(NotifyDescription, NStr("en = 'Complete the operation with the file in another application.'"), , NStr("en = 'The file is opened in another application'"));
 EndProcedure
 
 &AtServer
@@ -1711,12 +1711,12 @@ Procedure ExpandFieldList()
 	ColumnNamePresentation = FormulasConstructorInternal.ColumnNamePresentation(NameOfTheFieldList());
 	
 	ColumnPresentation = Items[ColumnNamePresentation];
-	ColumnPresentation.Title = NStr("en = 'Field';");
+	ColumnPresentation.Title = NStr("en = 'Field'");
 	
 	ColumnPattern = Items.Add(NameOfTheFieldList() + "Pattern", Type("FormField"), FieldList);
 	ColumnPattern.DataPath = NameOfTheFieldList() + "." + "Pattern";
 	ColumnPattern.Type = FormFieldType.InputField;
-	ColumnPattern.Title = NStr("en = 'Preview';");
+	ColumnPattern.Title = NStr("en = 'Preview'");
 	ColumnPattern.SetAction("OnChange", "Attachable_SampleWhenChanging");
 	ColumnPattern.ShowInFooter = False;
 	
@@ -1726,7 +1726,7 @@ Procedure ExpandFieldList()
 	ButtonSettingsFormat.ShowInHeader = True;
 	ButtonSettingsFormat.HeaderPicture = PictureLib.DataCompositionOutputParameters;	
 	ButtonSettingsFormat.ValuesPicture = PictureLib.DataCompositionOutputParameters;	
-	ButtonSettingsFormat.Title = NStr("en = 'Configure format';");
+	ButtonSettingsFormat.Title = NStr("en = 'Configure format'");
 	ButtonSettingsFormat.TitleLocation = FormItemTitleLocation.None;
 	ButtonSettingsFormat.CellHyperlink = True;
 	ButtonSettingsFormat.ShowInFooter = False;
@@ -1860,17 +1860,17 @@ Function DefaultFormat(TypeDescription)
 	
 	If Type = Type("Number") Then
 		Format = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'ND=%1; NFD=%2';"),
+			NStr("en = 'ND=%1; NFD=%2'"),
 			TypeDescription.NumberQualifiers.Digits,
 			TypeDescription.NumberQualifiers.FractionDigits);
 	ElsIf Type = Type("Date") Then
 		If TypeDescription.DateQualifiers.DateFractions = DateFractions.Date Then
-			Format = NStr("en = 'DLF=D';");
+			Format = NStr("en = 'DLF=D'");
 		Else
-			Format = NStr("en = 'DLF=DT';");
+			Format = NStr("en = 'DLF=DT'");
 		EndIf;
 	ElsIf Type = Type("Boolean") Then
-		Format = NStr("en = 'BF=No; BT=Yes';");
+		Format = NStr("en = 'BF=No; BT=Yes'");
 	EndIf;
 	
 	Return Format;
@@ -1948,19 +1948,19 @@ Function ListOfOperators()
 		AdditionalFields = New Structure;
 		
 		DetailsOfAdditionalFields = New Structure("Presentation, Type");
-		DetailsOfAdditionalFields.Presentation = NStr("en = 'Condition start';");
+		DetailsOfAdditionalFields.Presentation = NStr("en = 'Condition start'");
 		DetailsOfAdditionalFields.Type = New TypeDescription("Boolean");
 		AdditionalFields.Insert("AreaStart", DetailsOfAdditionalFields);
 		
 		DetailsOfAdditionalFields = New Structure("Presentation, Type");
-		DetailsOfAdditionalFields.Presentation = NStr("en = 'Condition end';");
+		DetailsOfAdditionalFields.Presentation = NStr("en = 'Condition end'");
 		DetailsOfAdditionalFields.Type = New TypeDescription("Boolean");
 		AdditionalFields.Insert("EndOfRegion", DetailsOfAdditionalFields);
 		
 		
 		AdditionalFieldsGroupDetails = New Structure("Presentation, Order, Picture");
 		AdditionalFieldsGroupDetails.Insert("Items", AdditionalFields);
-		AdditionalFieldsGroupDetails.Presentation = NStr("en = 'Conditional display';");
+		AdditionalFieldsGroupDetails.Presentation = NStr("en = 'Conditional display'");
 		AdditionalFieldsGroupDetails.Order = 7;
 		
 		GroupsOfAdditionalFields = New Structure;
@@ -2301,7 +2301,7 @@ EndProcedure
 &AtClientAtServerNoContext
 Function PromptInputStringSearchFieldList()
 	
-	Return NStr("en = 'Find field…';");
+	Return NStr("en = 'Find field…'");
 	
 EndFunction
 
@@ -2344,7 +2344,7 @@ Procedure TemplateAssignmentClick(Item)
 	PickingParameters = StandardSubsystemsClientServer.MetadataObjectsSelectionParameters();
 	PickingParameters.SelectedMetadataObjects = CommonClient.CopyRecursive(DataSources);
 	PickingParameters.ChooseRefs = True;
-	PickingParameters.Title = NStr("en = 'Template assignment';");
+	PickingParameters.Title = NStr("en = 'Template assignment'");
 	PickingParameters.FilterByMetadataObjects = ObjectsWithPrintCommands();
 	
 	NotifyDescription = New CallbackDescription("OnChooseTemplateOwners", ThisObject);
@@ -2375,7 +2375,7 @@ Function PresentationOfDataSource(DataSources)
 	
 	Result = StrConcat(Values, ", ");
 	If Not ValueIsFilled(Result) Then
-		Result = "<" + NStr("en = 'not selected';") + ">";
+		Result = "<" + NStr("en = 'not selected'") + ">";
 	EndIf;
 	
 	Return Result;
@@ -2427,7 +2427,7 @@ Procedure SetUpFieldSample()
 	Offset = 0;
 	For Each FieldDetails In FieldsCollection Do
 		If FieldDetails.DataPath = "Ref" Then
-			FieldDetails.Title = NStr("en = 'Preview';");
+			FieldDetails.Title = NStr("en = 'Preview'");
 			If Offset <> 0 Then
 				IndexOf = FieldsCollection.IndexOf(FieldDetails);
 				FieldsCollection.Move(IndexOf, Offset);

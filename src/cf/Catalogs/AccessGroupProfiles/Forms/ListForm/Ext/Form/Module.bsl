@@ -33,9 +33,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Items.List.MultipleChoice = True;
 			Items.List.SelectionMode = TableSelectionMode.MultiRow;
 			
-			Title = NStr("en = 'Pick access group profiles';");
+			Title = NStr("en = 'Pick access group profiles'");
 		Else
-			Title = NStr("en = 'Select access group profile';");
+			Title = NStr("en = 'Select access group profile'");
 		EndIf;
 	Else
 		Items.List.ChoiceMode = False;
@@ -80,7 +80,7 @@ Procedure UsersKindStartChoice(Item, ChoiceData, StandardProcessing)
 	NotifyDescription = New CallbackDescription("AfterAssignmentChoice", ThisObject);
 	
 	UsersInternalClient.SelectPurpose(ThisObject,
-		NStr("en = 'Select profile assignment';"), True, True, NotifyDescription);
+		NStr("en = 'Select profile assignment'"), True, True, NotifyDescription);
 	
 EndProcedure
 

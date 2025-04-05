@@ -91,7 +91,7 @@ Procedure ServiceChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	If Not IsBlankString(ValueSelected) And SelectedService <> Undefined Then
 		Object.Description = SelectedService.Presentation;	
 	Else
-		Object.Description = NStr("en = 'Cloud file service';");	
+		Object.Description = NStr("en = 'Cloud file service'");	
 	EndIf;
 	
 EndProcedure
@@ -122,9 +122,9 @@ Procedure CheckSettings(Command)
 	
 	If Object.Ref.IsEmpty() Or Modified Then
 		NotifyDescription = New CallbackDescription("CheckSettingsCompletion", ThisObject);
-		QueryText = NStr("en = 'To proceed with the settings validation, save the account data. Do you want to continue?';");
+		QueryText = NStr("en = 'To proceed with the settings validation, save the account data. Do you want to continue?'");
 		Buttons = New ValueList;
-		Buttons.Add("Continue", NStr("en = 'Continue';"));
+		Buttons.Add("Continue", NStr("en = 'Continue'"));
 		Buttons.Add(DialogReturnCode.Cancel);
 		ShowQueryBox(NotifyDescription, QueryText, Buttons);
 		Return;
@@ -178,12 +178,12 @@ Procedure CheckCanSyncWithCloudService()
 				|
 				|Technical details:
 				|The %1 service returned the error code %2.
-				|%5%4';");
+				|%5%4'");
 		Recommendations = New Array;
 		Recommendations.Add(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Try again later (there might be temporary issues in the service). Contact the technical service %1.';"),
+			NStr("en = 'Try again later (there might be temporary issues in the service). Contact the technical service %1.'"),
 			Object.Service));
-		Recommendations.Add(NStr("en = 'Select another service for file synchronization.';"));
+		Recommendations.Add(NStr("en = 'Select another service for file synchronization.'"));
 		
 		ErrorText = "";
 		
@@ -195,22 +195,22 @@ Procedure CheckCanSyncWithCloudService()
 			ProtocolText       = DiagnosticsResult.DiagnosticsLog;
 			
 		ElsIf ResultStructure1.ErrorCode = 404 Then
-			Recommendations.Insert(0, NStr("en = 'Check whether the specified root folder exists in the cloud service.';"));
+			Recommendations.Insert(0, NStr("en = 'Check whether the specified root folder exists in the cloud service.'"));
 		ElsIf ResultStructure1.ErrorCode = 401 Then
-			Recommendations.Insert(0, NStr("en = 'Check whether the username and password are valid.';"));
+			Recommendations.Insert(0, NStr("en = 'Check whether the username and password are valid.'"));
 		ElsIf ResultStructure1.ErrorCode = 10404 Then
 			ResultStructure1.ErrorCode = ResultStructure1.ErrorCode - 10000;
 			// The server does not allow saving additional file properties
 		ElsIf ResultStructure1.ErrorCode = 501 Then
 			// No WebDAV protocol method is implemented on the server
 		Else
-			Recommendations.Insert(0, NStr("en = 'Check the validity of the data you entered.';"));
+			Recommendations.Insert(0, NStr("en = 'Check the validity of the data you entered.'"));
 		EndIf;
 		
 		QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
 		QuestionParameters.PromptDontAskAgain = False;
 		QuestionParameters.Picture = PictureLib.DialogStop;
-		QuestionParameters.Title = NStr("en = 'Check the setting';");
+		QuestionParameters.Title = NStr("en = 'Check the setting'");
 		
 		RecommendationsText = "";
 		
@@ -233,13 +233,13 @@ Procedure CheckCanSyncWithCloudService()
 		QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
 		QuestionParameters.PromptDontAskAgain = False;
 		QuestionParameters.Picture = PictureLib.Success32;
-		QuestionParameters.Title = NStr("en = 'Check the setting';");
+		QuestionParameters.Title = NStr("en = 'Check the setting'");
 	
 		StandardSubsystemsClient.ShowQuestionToUser(
 			Undefined,
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Parameters for file synchronization are successfully checked. 
-						   |%1';"),
+						   |%1'"),
 				ResultText),
 			QuestionDialogMode.OK,
 			QuestionParameters);
@@ -264,7 +264,7 @@ Function CheckConnection(Val Service, Val ProtocolText)
 	Else
 		
 		Return New Structure("ErrorDescription, DiagnosticsLog",
-			NStr("en = 'Please check the Internet connection.';"), ProtocolText);
+			NStr("en = 'Please check the Internet connection.'"), ProtocolText);
 			
 	EndIf;
 	

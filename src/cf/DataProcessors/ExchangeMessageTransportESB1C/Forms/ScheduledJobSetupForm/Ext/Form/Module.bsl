@@ -15,7 +15,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not Parameters.Property("Id") Then
 				
-		MessageText = NStr("en = 'This is a dependent form and opens from a different form.';");
+		MessageText = NStr("en = 'This is a dependent form and opens from a different form.'");
 		Common.MessageToUser(MessageText, , , , Cancel);
 		
 		Return;
@@ -91,7 +91,7 @@ Procedure SetScheduledJobParameters()
 		
 	Except
 		
-		Template = NStr("en = 'Couldn''t save the exchange schedule. Error details: %1';");
+		Template = NStr("en = 'Couldn''t save the exchange schedule. Error details: %1'");
 		MessageString = StrTemplate(Template, ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 			
 		Common.MessageToUser(MessageString);

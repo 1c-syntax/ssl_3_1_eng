@@ -51,7 +51,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		Return;
 	EndIf;
 	
-	ShowQueryBox(New CallbackDescription("BeforeCloseCompletion", ThisObject), NStr("en = 'The data has been changed. Do you want to save the changes?';"), QuestionDialogMode.YesNoCancel);
+	ShowQueryBox(New CallbackDescription("BeforeCloseCompletion", ThisObject), NStr("en = 'The data has been changed. Do you want to save the changes?'"), QuestionDialogMode.YesNoCancel);
 	
 EndProcedure
 
@@ -109,7 +109,7 @@ Procedure OperandsSelection(Item, RowSelected, Field, StandardProcessing)
 		ShowQueryBox(
 			New CallbackDescription("OperandsSelectionCompletion", ThisObject), 
 			NStr("en = 'Selected item is marked for deletion.
-				|Continue?';"), 
+				|Continue?'"), 
 			QuestionDialogMode.YesNo);
 		Return;
 		
@@ -142,7 +142,7 @@ Procedure OperandsDragEnd(Item, DragParameters, StandardProcessing)
 	If Item.CurrentData.DeletionMark Then
 		ShowQueryBox(New CallbackDescription("OperandsDragEndCompletion", ThisObject),
 			NStr("en = 'Selected item is marked for deletion.
-			|Continue?';"), QuestionDialogMode.YesNo);
+			|Continue?'"), QuestionDialogMode.YesNo);
 	EndIf;
 	
 EndProcedure
@@ -405,7 +405,7 @@ Function GetStandardOperatorsTree()
 	
 	Tree = GetEmptyOperatorsTree();
 	
-	OperatorsGroup = AddOperatorsGroup(Tree, NStr("en = 'Separators';"));
+	OperatorsGroup = AddOperatorsGroup(Tree, NStr("en = 'Separators'"));
 	
 	AddOperator(Tree, OperatorsGroup, "/", " + ""/"" + ");
 	AddOperator(Tree, OperatorsGroup, "\", " + ""\"" + ");
@@ -413,19 +413,19 @@ Function GetStandardOperatorsTree()
 	AddOperator(Tree, OperatorsGroup, "_", " + ""_"" + ");
 	AddOperator(Tree, OperatorsGroup, ",", " + "", "" + ");
 	AddOperator(Tree, OperatorsGroup, ".", " + "". "" + ");
-	AddOperator(Tree, OperatorsGroup, NStr("en = 'Whitespace';"), " + "" "" + ");
+	AddOperator(Tree, OperatorsGroup, NStr("en = 'Whitespace'"), " + "" "" + ");
 	AddOperator(Tree, OperatorsGroup, "(", " + "" ("" + ");
 	AddOperator(Tree, OperatorsGroup, ")", " + "") "" + ");
 	AddOperator(Tree, OperatorsGroup, """", " + """""""" + ");
 	
-	OperatorsGroup = AddOperatorsGroup(Tree, NStr("en = 'Operators';"));
+	OperatorsGroup = AddOperatorsGroup(Tree, NStr("en = 'Operators'"));
 	
 	AddOperator(Tree, OperatorsGroup, "+", " + ");
 	AddOperator(Tree, OperatorsGroup, "-", " - ");
 	AddOperator(Tree, OperatorsGroup, "*", " * ");
 	AddOperator(Tree, OperatorsGroup, "/", " / ");
 	
-	OperatorsGroup = AddOperatorsGroup(Tree, NStr("en = 'Logical operators and constants';"));
+	OperatorsGroup = AddOperatorsGroup(Tree, NStr("en = 'Logical operators and constants'"));
 	AddOperator(Tree, OperatorsGroup, "<", " < ");
 	AddOperator(Tree, OperatorsGroup, ">", " > ");
 	AddOperator(Tree, OperatorsGroup, "<=", " <= ");
@@ -438,14 +438,14 @@ Function GetStandardOperatorsTree()
 	AddOperator(Tree, OperatorsGroup, "TRUE", " " + "TRUE" + " ");
 	AddOperator(Tree, OperatorsGroup, "FALSE",   " " + "FALSE"   + " ");
 	
-	OperatorsGroup = AddOperatorsGroup(Tree, NStr("en = 'Numeric functions';"));
+	OperatorsGroup = AddOperatorsGroup(Tree, NStr("en = 'Numeric functions'"));
 	
 	AddOperator(Tree, OperatorsGroup, "Max", "Max(,)", 2);
 	AddOperator(Tree, OperatorsGroup, "Min",  "Min(,)", 2);
 	AddOperator(Tree, OperatorsGroup, "Round",  "Round(,)", 2);
 	AddOperator(Tree, OperatorsGroup, "Int",  "Int()", 1);
 	
-	OperatorsGroup = AddOperatorsGroup(Tree, NStr("en = 'String functions';"));
+	OperatorsGroup = AddOperatorsGroup(Tree, NStr("en = 'String functions'"));
 	
 	AddOperator(Tree, OperatorsGroup, "String", "String()");
 	AddOperator(Tree, OperatorsGroup, "Upper", "Upper()");
@@ -459,9 +459,9 @@ Function GetStandardOperatorsTree()
 	AddOperator(Tree, OperatorsGroup, "StrReplace", "StrReplace(,,)");
 	AddOperator(Tree, OperatorsGroup, "StrLen", "StrLen()");
 	
-	OperatorsGroup = AddOperatorsGroup(Tree, NStr("en = 'Other functions';"));
+	OperatorsGroup = AddOperatorsGroup(Tree, NStr("en = 'Other functions'"));
 	
-	AddOperator(Tree, OperatorsGroup, NStr("en = 'Condition';"), "?(,,)", 3);
+	AddOperator(Tree, OperatorsGroup, NStr("en = 'Condition'"), "?(,,)", 3);
 	AddOperator(Tree, OperatorsGroup, "PredefinedValue", "PredefinedValue()");
 	AddOperator(Tree, OperatorsGroup, "ValueIsFilled", "ValueIsFilled()");
 	AddOperator(Tree, OperatorsGroup, "Format", "Format(,)");
@@ -499,7 +499,7 @@ Function CheckFormula(Formula, Operands)
 		CalculationResult2 = Eval(CalculationText);
 	Except
 		ErrorText = NStr("en = 'Formula is invalid.
-			|Formulas must comply with the syntax of 1C:Enterprise regular expressions.';");
+			|Formulas must comply with the syntax of 1C:Enterprise regular expressions.'");
 		CommonClient.MessageToUser(ErrorText, , "Formula");
 		Return False;
 	EndTry;
@@ -514,7 +514,7 @@ Procedure CheckFormulaInteractive(Formula, Operands)
 	If ValueIsFilled(Formula) Then
 		If CheckFormula(Formula, Operands) Then
 			ShowUserNotification(
-				NStr("en = 'Formula is valid.';"),
+				NStr("en = 'Formula is valid.'"),
 				,
 				,
 				PictureLib.Information32);

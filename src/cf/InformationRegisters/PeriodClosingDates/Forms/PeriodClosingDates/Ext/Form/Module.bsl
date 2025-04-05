@@ -44,11 +44,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Raise PeriodClosingDatesInternal.ErrorTextImportRestrictionDatesNotImplemented();
 		EndIf;
 		If Not HasRightToViewDataImportRestrictionDates Then
-			Raise(NStr("en = 'Insufficient rights to view data import restriction dates of previous periods.';"),
+			Raise(NStr("en = 'Insufficient rights to view data import restriction dates of previous periods.'"),
 				ErrorCategory.AccessViolation);
 		EndIf;
 	ElsIf Not HasRightToViewPeriodEndClosingDates Then
-		Raise(NStr("en = 'Insufficient rights to view period-end closing dates of previous periods.';"),
+		Raise(NStr("en = 'Insufficient rights to view period-end closing dates of previous periods.'"),
 			ErrorCategory.AccessViolation);
 	EndIf;
 	
@@ -107,19 +107,19 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Form field setup.
 	If Parameters.DataImportRestrictionDates Then
 		Items.ClosingDatesUsageDisabledLabel.Title =
-			NStr("en = 'Data import restriction dates of previous periods are disabled in the settings.';");
+			NStr("en = 'Data import restriction dates of previous periods are disabled in the settings.'");
 		
-		Title = NStr("en = 'Data import restriction dates';");
+		Title = NStr("en = 'Data import restriction dates'");
 		Items.SetPeriodEndClosingDates.ChoiceList.FindByValue("ForAllUsers").Presentation =
-			NStr("en = 'For all infobases';");
+			NStr("en = 'For all infobases'");
 		Items.SetPeriodEndClosingDates.ChoiceList.FindByValue("ForSpecifiedUsers").Presentation =
-			NStr("en = 'By infobase';");
+			NStr("en = 'By infobase'");
 		
 		Items.UsersFullPresentation.Title =
-			NStr("en = 'Application: infobase';");
+			NStr("en = 'Application: infobase'");
 		
 		Items.UsersComment.ToolTip =
-			NStr("en = 'Describes a reason for a particular restriction for an infobase or application';");
+			NStr("en = 'Describes a reason for a particular restriction for an infobase or application'");
 		
 		ValueForAllUsers = Enums.PeriodClosingDatesPurposeTypes.ForAllInfobases;
 		
@@ -143,41 +143,41 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		If GetFunctionalOption("UsePeriodClosingDates") Then
 			If HasRightToEditPeriodEndClosingDates Then
 				GoToOtherClosingDates = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'You can also set up <a href=""%1"">period-end closing dates</a> of previous periods.';"),
+					NStr("en = 'You can also set up <a href=""%1"">period-end closing dates</a> of previous periods.'"),
 					"e1cib/command/InformationRegister.PeriodClosingDates.Command.PeriodEndClosingDates");
 					
 			ElsIf HasRightToViewPeriodEndClosingDates Then
 				GoToOtherClosingDates = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'You can also view <a href=""%1"">period-end closing dates</a> of previous periods.';"),
+					NStr("en = 'You can also view <a href=""%1"">period-end closing dates</a> of previous periods.'"),
 					"e1cib/command/InformationRegister.PeriodClosingDates.Command.PeriodEndClosingDates");
 			EndIf;
 		EndIf;
 	Else
 		Items.ClosingDatesUsageDisabledLabel.Title =
-			NStr("en = 'Dates of restriction of entering and editing previous period data are disabled in the settings.';");
+			NStr("en = 'Dates of restriction of entering and editing previous period data are disabled in the settings.'");
 		Items.UsersFullPresentation.Title = 
 			?(GetFunctionalOption("UseUserGroups"),
-			NStr("en = 'User, user group';"), NStr("en = 'User';"));
+			NStr("en = 'User, user group'"), NStr("en = 'User'"));
 		Items.UsersComment.ToolTip =
 			NStr("en = '1. Determines a user group order when calculating period-end closing dates
-			           |2. Describes a reason for a particular restriction for a user or a user group';");
+			           |2. Describes a reason for a particular restriction for a user or a user group'");
 		ValueForAllUsers = Enums.PeriodClosingDatesPurposeTypes.ForAllUsers;
 		UserTypesList.Add(
-			Type("CatalogRef.Users"),        NStr("en = 'User';"));
+			Type("CatalogRef.Users"),        NStr("en = 'User'"));
 		UserTypesList.Add(
-			Type("CatalogRef.ExternalUsers"), NStr("en = 'External user';"));
+			Type("CatalogRef.ExternalUsers"), NStr("en = 'External user'"));
 		
 		URL = "e1cib/command/InformationRegister.PeriodClosingDates.Command.PeriodEndClosingDates";
 		
 		If GetFunctionalOption("UseImportForbidDates") Then
 			If HasRightToEditDataImportRestrictionDates Then
 				GoToOtherClosingDates = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'You can also set up <a href=""%1"">restriction dates</a> for importing data from other applications.';"),
+					NStr("en = 'You can also set up <a href=""%1"">restriction dates</a> for importing data from other applications.'"),
 					"e1cib/command/InformationRegister.PeriodClosingDates.Command.DataImportRestrictionDates");
 					
 			ElsIf HasRightToViewDataImportRestrictionDates Then
 				GoToOtherClosingDates = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'You can also view <a href=""%1"">restriction dates</a> for importing data from other applications.';"),
+					NStr("en = 'You can also view <a href=""%1"">restriction dates</a> for importing data from other applications.'"),
 					"e1cib/command/InformationRegister.PeriodClosingDates.Command.DataImportRestrictionDates");
 			EndIf;
 		EndIf;
@@ -263,8 +263,8 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		Return;
 	EndIf;
 	
-	QueryText = NStr("en = 'The period-end closing date settings will be adjusted automatically.';") 
-		+ Chars.LF + Chars.LF + QueryText + Chars.LF + Chars.LF + NStr("en = 'Close?';");
+	QueryText = NStr("en = 'The period-end closing date settings will be adjusted automatically.'") 
+		+ Chars.LF + Chars.LF + QueryText + Chars.LF + Chars.LF + NStr("en = 'Close?'");
 	CommonClient.ShowArbitraryFormClosingConfirmation(
 		ThisObject, Cancel, Exit, QueryText, "CloseFormWithoutConfirmation");
 	
@@ -315,12 +315,12 @@ Procedure SetPeriodEndClosingDatesOnChange(Item)
 		
 		If HasInvalidObjectsByUsers Then
 			SetPeriodEndClosingDateNew = CurrentSettingOfPeriodEndClosingDate;
-			Raise(NStr("en = 'You are not authorized to edit period-end closing dates.';"), ErrorCategory.AccessViolation);
+			Raise(NStr("en = 'You are not authorized to edit period-end closing dates.'"), ErrorCategory.AccessViolation);
 		EndIf;
 			
 		QueryText = NStr("en = 'Do you want to turn off all period-end closing dates except the dates applied for all users?
 		|
-		|Warning: disabled settings will be permanently deleted.';");
+		|Warning: disabled settings will be permanently deleted.'");
 		ShowQueryBox(
 			New CallbackDescription(
 				"SetPeriodEndClosingDateChoiceProcessingContinue", ThisObject, ValueSelected),
@@ -533,30 +533,30 @@ Procedure UsersBeforeDeleteRow(Item, Cancel)
 	If ValueIsFilled(CurrentData.Presentation) And Not CurrentData.NoPeriodEndClosingDate Then
 		// Confirm to delete users with records.
 		If AdditionalParameters.ClosingDatesForAllUsers Then
-			QueryText = NStr("en = 'Do you want to turn off period-end closing dates for all users?';");
+			QueryText = NStr("en = 'Do you want to turn off period-end closing dates for all users?'");
 		Else
 			If TypeOf(CurrentData.User) = Type("CatalogRef.Users") Then
 				QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Do you want to turn off period-end closing dates for ""%1""?';"), CurrentData.User);
+					NStr("en = 'Do you want to turn off period-end closing dates for ""%1""?'"), CurrentData.User);
 				
 			ElsIf TypeOf(CurrentData.User) = Type("CatalogRef.UserGroups") Then
 				QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Do you want to turn off period-end closing dates for ""%1"" user group?';"), CurrentData.User);
+					NStr("en = 'Do you want to turn off period-end closing dates for ""%1"" user group?'"), CurrentData.User);
 				
 			ElsIf TypeOf(CurrentData.User) = Type("CatalogRef.ExternalUsers") Then
 				QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Do you want to turn off period-end closing dates for external user ""%1""?';"), CurrentData.User);
+					NStr("en = 'Do you want to turn off period-end closing dates for external user ""%1""?'"), CurrentData.User);
 				
 			ElsIf TypeOf(CurrentData.User) = Type("CatalogRef.ExternalUsersGroups") Then
 				QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Do you want to turn off period-end closing dates for external user group ""%1""?';"), CurrentData.User);
+					NStr("en = 'Do you want to turn off period-end closing dates for external user group ""%1""?'"), CurrentData.User);
 			Else
-				QueryText = NStr("en = 'Do you want to turn off period-end closing dates?';");
+				QueryText = NStr("en = 'Do you want to turn off period-end closing dates?'");
 			EndIf;
 		EndIf;
 		
 		QueryText = QueryText + Chars.LF + Chars.LF 
-			+ NStr("en = 'Warning: disabled settings will be permanently deleted.';");
+			+ NStr("en = 'Warning: disabled settings will be permanently deleted.'");
 		
 		ShowQueryBox(
 			New CallbackDescription(
@@ -858,26 +858,26 @@ Procedure ClosingDatesBeforeDeleteRow(Item, Cancel)
 	SeveralSectionsSelected = Items.ClosingDates.SelectedRows.Count() > 1;
 	
 	If SeveralSectionsSelected Then
-		QueryText = NStr("en = 'Do you want to turn off period-end closing dates for the selected sections?';");
+		QueryText = NStr("en = 'Do you want to turn off period-end closing dates for the selected sections?'");
 	ElsIf CurrentData.IsSection Then
 		If ValueIsFilled(CurrentData.Section) Then
 			If CurrentData.GetItems().Count() > 0 Then
 				QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Do you want to turn off all period-end closing dates for section ""%1"" and its objects?';"), CurrentData.Section);
+					NStr("en = 'Do you want to turn off all period-end closing dates for section ""%1"" and its objects?'"), CurrentData.Section);
 			Else
 				QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Do you want to turn off the period-end closing date for section ""%1""?';"), CurrentData.Section);
+					NStr("en = 'Do you want to turn off the period-end closing date for section ""%1""?'"), CurrentData.Section);
 			EndIf;
 		Else
-			QueryText = NStr("en = 'Do you want to turn off the common-date restriction setting for all sections?';");
+			QueryText = NStr("en = 'Do you want to turn off the common-date restriction setting for all sections?'");
 		EndIf;
 	Else
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Do you want to turn off the period-end closing date for object ""%1""?';"), CurrentData.Object);
+			NStr("en = 'Do you want to turn off the period-end closing date for object ""%1""?'"), CurrentData.Object);
 	EndIf;
 	
 	QueryText = QueryText + Chars.LF + Chars.LF 
-		+ NStr("en = 'Warning: disabled settings will be permanently deleted.';");
+		+ NStr("en = 'Warning: disabled settings will be permanently deleted.'");
 	
 	If SeveralSectionsSelected Then
 		ShowQueryBox(New CallbackDescription("ClosingDatesBeforeDeleteRowCompletion", 
@@ -894,7 +894,7 @@ Procedure ClosingDatesBeforeDeleteRow(Item, Cancel)
 			ShowQueryBox(New CallbackDescription("ClosingDatesBeforeDeleteSection", ThisObject, CurrentData),
 				QueryText, QuestionDialogMode.YesNo);
 		Else
-			MessageText = NStr("en = 'To disable a period-end closing date for an object, select the object in one of the sections.';");
+			MessageText = NStr("en = 'To disable a period-end closing date for an object, select the object in one of the sections.'");
 			ShowMessageBox(, MessageText);
 		EndIf;
 		Return;
@@ -1085,7 +1085,7 @@ Procedure ClosingDatesFullPresentationChoiceProcessing(Item, ValueSelected, Stan
 	
 	If Not ValueFound2 Then
 		ShowMessageBox(, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '""%1"" is already in the object list';"), ValueSelected));
+			NStr("en = '""%1"" is already in the object list'"), ValueSelected));
 		Return;
 	EndIf;
 	
@@ -1104,7 +1104,7 @@ Procedure ClosingDatesFullPresentationChoiceProcessing(Item, ValueSelected, Stan
 			
 			ShowMessageBox(, StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = '""%1"" is already in the object list.
-					|Refresh the form (F5).';"), ValueSelected));
+					|Refresh the form (F5).'"), ValueSelected));
 			Return;
 		Else
 			UpdateReadPropertiesValues(
@@ -1296,7 +1296,7 @@ Procedure SetConditionalAppearance()
 	
 	// Default period-end closing date.
 	Item = ConditionalAppearance.Items.Add();
-	Item.Appearance.SetParameterValue("Text", NStr("en = 'Default settings. Effective when there are no overriding settings.';"));
+	Item.Appearance.SetParameterValue("Text", NStr("en = 'Default settings. Effective when there are no overriding settings.'"));
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	
 	ItemField = Item.Fields.Items.Add();
@@ -1358,27 +1358,27 @@ Procedure IndicationMethodOfClosingDateChoiceProcessingIdleHandler()
 	
 	QueryText = "";
 	If CurrentMethod = "BySectionsAndObjects" And ValueSelected = "SingleDate" Then
-		QueryText = NStr("en = 'Do you want to turn off period-end closing dates for sections and objects?';");
+		QueryText = NStr("en = 'Do you want to turn off period-end closing dates for sections and objects?'");
 		
 	ElsIf CurrentMethod = "BySectionsAndObjects" And ValueSelected = "BySections"
 	      Or CurrentMethod = "ByObjects"          And ValueSelected = "SingleDate" Then
-		QueryText = NStr("en = 'Do you want to turn period-end closing dates for objects?';");
+		QueryText = NStr("en = 'Do you want to turn period-end closing dates for objects?'");
 		
 	ElsIf CurrentMethod = "BySectionsAndObjects" And ValueSelected = "ByObjects"
 	      Or CurrentMethod = "BySections"          And ValueSelected = "ByObjects"
 	      Or CurrentMethod = "BySections"          And ValueSelected = "SingleDate" Then
-		QueryText = NStr("en = 'Do you want to turn off period-end closing dates for sections?';");
+		QueryText = NStr("en = 'Do you want to turn off period-end closing dates for sections?'");
 		
 	EndIf;
 	
 	If ValueIsFilled(QueryText) Then
 		
 		If HasUnavailableObjects Then
-			Raise(NStr("en = 'You are not authorized to change period-end closing dates.';"), ErrorCategory.AccessViolation);
+			Raise(NStr("en = 'You are not authorized to change period-end closing dates.'"), ErrorCategory.AccessViolation);
 		EndIf;
 			
 		QueryText = QueryText + Chars.LF + Chars.LF 
-			+ NStr("en = 'Warning: disabled settings will be permanently deleted.';");
+			+ NStr("en = 'Warning: disabled settings will be permanently deleted.'");
 		
 		AdditionalParameters = New Structure;
 		AdditionalParameters.Insert("Data", Data);
@@ -1449,7 +1449,7 @@ Procedure UsersFullPresentationChoiceProcessingIdleHandler()
 		If Not ReplaceUserRecordSet(CurrentUser, ValueSelected, LocksAddress) Then
 			ShowMessageBox(, StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = '""%1"" is already in the user list.
-					|Refresh the form (F5).';"), ValueSelected));
+					|Refresh the form (F5).'"), ValueSelected));
 			Return;
 		EndIf;
 		// Set the selected user.
@@ -1469,7 +1469,7 @@ Procedure UsersFullPresentationChoiceProcessingIdleHandler()
 		AttachIdleHandler("UsersChangeRow", 0.1, True);
 	Else
 		ShowMessageBox(, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '""%1"" is already in the user list.';"), ValueSelected));
+			NStr("en = '""%1"" is already in the user list.'"), ValueSelected));
 	EndIf;
 	
 EndProcedure
@@ -1607,7 +1607,7 @@ Procedure ClosingDatesBeforeDeleteRowCompletion(Response, SelectedRows) Export
 		EndIf;	
 		
 		CurrentSection = CurrentData.GetParent();
-		// @skip-check query-in-loop - Save data object-by-object
+		// @skip-check query-in-loop - По-объектная запись данных
 		DeleteUserRecord(LocksAddress, 
 			?(CurrentSection <> Undefined, CurrentSection.Section, Undefined), 
 			CurrentData.Object, CurrentUser);
@@ -1739,7 +1739,7 @@ Procedure UpdateUserData()
 					IndicationMethodValueInList.Value,
 					?(ListItem = Undefined, CurrentIndicationMethod, ListItem.Presentation),
 					CurrentUser,
-					ThisObject) + Chars.LF + Chars.LF + NStr("en = 'Continue?';"),
+					ThisObject) + Chars.LF + Chars.LF + NStr("en = 'Continue?'"),
 				QuestionDialogMode.YesNo);
 			Return;
 		EndIf;
@@ -1900,7 +1900,7 @@ Procedure ReadUserData(Form, ErrorText, CurrentIndicationMethod = Undefined, Dat
 		If FoundRows.Count() > 0 Then
 			Form.Items.CurrentUserPresentation.Title =
 				StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Setting for ""%1"":';"), FoundRows[0].Presentation);
+					NStr("en = 'Setting for ""%1"":'"), FoundRows[0].Presentation);
 		EndIf;
 	EndIf;
 	
@@ -2009,11 +2009,11 @@ Procedure ReadUserData(Form, ErrorText, CurrentIndicationMethod = Undefined, Dat
 			// Only the "Section" dimension date is used.
 			// The "Object" dimension value repeats the "Section" dimension value.
 			// The object is hidden.
-			Form.Items.ClosingDatesFullPresentation.Title = NStr("en = 'Section';");
+			Form.Items.ClosingDatesFullPresentation.Title = NStr("en = 'Section'");
 			Form.Items.ClosingDates.Representation = TableRepresentation.List;
 			
 		Else
-			Form.Items.ClosingDatesFullPresentation.Title = NStr("en = 'Section, object';");
+			Form.Items.ClosingDatesFullPresentation.Title = NStr("en = 'Section, object'");
 			Form.Items.ClosingDates.Representation = TableRepresentation.Tree;
 		EndIf;
 	Else
@@ -2863,7 +2863,7 @@ Procedure DeleteUserRecord(Val LocksAddress, Val Section, Val Object, Val User)
 	EndIf;
 	
 	For Each CurrentObject In Objects Do
-		// @skip-check query-in-loop - The query branch is not triggered in this call
+		// @skip-check query-in-loop - В этом вызове ветка с запросом не выполняется
 		LockUserRecordAtServer(LocksAddress,
 			Section, CurrentObject, User);
 	EndDo;
@@ -2968,7 +2968,7 @@ Procedure SelectPickUsersCompletion(ExternalUsersSelectionAndPickup, Pick) Expor
 	
 	If ExternalUsersSelectionAndPickup Then
 		If Not ExternalUsersCatalogAvailable Then
-			Raise(NStr("en = 'Insufficient rights to select external users.';"), ErrorCategory.AccessViolation);
+			Raise(NStr("en = 'Insufficient rights to select external users.'"), ErrorCategory.AccessViolation);
 		EndIf;
 		OpenForm("Catalog.ExternalUsers.ChoiceForm", FormParameters, FormOwner);
 	Else
@@ -3129,7 +3129,7 @@ Procedure ClosingDatesSetCommandsAvailability(Val CommandsAvailability)
 	Items.ClosingDatesContextMenuChange.Enabled = CommandsAvailability;
 	
 	If PeriodEndClosingDateSettingMethod = "ByObjects" Then
-		CommandsAvailability = Items.ClosingDates.ReadOnly;
+		CommandsAvailability = Not Items.ClosingDates.ReadOnly;
 	EndIf;
 	
 	Items.ClosingDatesPick.Enabled = CommandsAvailability;
@@ -3326,15 +3326,15 @@ Procedure SetVisibility1()
 	ChangeVisibility(Items.ClosingDateSetting, True);
 	If Parameters.DataImportRestrictionDates Then
 		If SetPeriodEndClosingDates = "ForAllUsers" Then
-			ExtendedTooltip = NStr("en = 'Data import restriction dates are applied for all users.';");
+			ExtendedTooltip = NStr("en = 'Data import restriction dates are applied for all users.'");
 		Else
-			ExtendedTooltip = NStr("en = 'Customization of data import restriction dates of previous periods for selected users.';");
+			ExtendedTooltip = NStr("en = 'Customization of data import restriction dates of previous periods for selected users.'");
 		EndIf;
 	Else
 		If SetPeriodEndClosingDates = "ForAllUsers" Then
-			ExtendedTooltip = NStr("en = 'Dates of restriction of entering and editing previous period data are applied the same way for all users.';");
+			ExtendedTooltip = NStr("en = 'Dates of restriction of entering and editing previous period data are applied the same way for all users.'");
 		Else
-			ExtendedTooltip = NStr("en = 'Custom setup of period-end closing dates of previous periods for the selected users.';");
+			ExtendedTooltip = NStr("en = 'Custom setup of period-end closing dates of previous periods for the selected users.'");
 		EndIf;
 	EndIf;
 	If Not IsBlankString(GoToOtherClosingDates) Then
@@ -3409,7 +3409,7 @@ Procedure ChangeSettingOfPeriodEndClosingDate(Val ValueSelected, Val DeleteExtra
 			
 			// Lock records to delete.
 			For Each RecordKeyValues In RecordKeysValues Do
-				// @skip-check query-in-loop - Save data object-by-object
+				// @skip-check query-in-loop - По-объектная запись данных
 				LockUserRecordAtServer(LocksAddress,
 					RecordKeyValues.Section,
 					RecordKeyValues.Object,
@@ -3418,7 +3418,7 @@ Procedure ChangeSettingOfPeriodEndClosingDate(Val ValueSelected, Val DeleteExtra
 			
 			// Delete locked records.
 			For Each RecordKeyValues In RecordKeysValues Do
-				// @skip-check query-in-loop - Save data object-by-object
+				// @skip-check query-in-loop - По-объектная запись данных
 				DeleteUserRecord(LocksAddress,
 					RecordKeyValues.Section,
 					RecordKeyValues.Object,
@@ -3632,7 +3632,7 @@ Procedure EditPeriodEndClosingDateInForm()
 	EndDo;
 	
 	If SelectedRows.Count() = 0 Then
-		ShowMessageBox(, NStr("en = 'The selected lines are not filled in.';"));
+		ShowMessageBox(, NStr("en = 'The selected lines are not filled in.'"));
 		Return;
 	EndIf;
 	
@@ -3640,7 +3640,7 @@ Procedure EditPeriodEndClosingDateInForm()
 		Items.ClosingDates.Refresh();
 		ShowMessageBox(
 			New CallbackDescription("EditPeriodEndClosingDateInFormCompletion", ThisObject, SelectedRows),
-			NStr("en = 'Unfilled lines are unchecked.';"));
+			NStr("en = 'Unfilled lines are unchecked.'"));
 	Else
 		EditPeriodEndClosingDateInFormCompletion(SelectedRows)
 	EndIf;
@@ -3653,7 +3653,7 @@ Procedure EditPeriodEndClosingDateInFormCompletion(SelectedRows) Export
 	// Locking records of the selected rows.
 	For Each SelectedRow In SelectedRows Do
 		CurrentData = ClosingDates.FindByID(SelectedRow);
-		// @skip-check query-in-loop - The query branch is not triggered in this call
+		// @skip-check query-in-loop - В этом вызове ветка с запросом не выполняется
 		ReadProperties = LockUserRecordAtServer(LocksAddress,
 			CurrentSection(CurrentData), CurrentData.Object, CurrentUser);
 		
@@ -3690,7 +3690,7 @@ Procedure EditPeriodEndClosingDateInFormCompletion(SelectedRows) Export
 		EndIf;
 	Else
 		FormParameters.Object = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Selected lines (%1)';"), SelectedRows.Count());
+			NStr("en = 'Selected lines (%1)'"), SelectedRows.Count());
 	EndIf;
 	
 	OpenForm("InformationRegister.PeriodClosingDates.Form.PeriodEndClosingDateEdit",
@@ -3733,14 +3733,14 @@ EndProcedure
 Function NoClosingDatePresentation(Data)
 	
 	If Data.IsSection And Not Data.Section.IsEmpty() Then
-		Return NStr("en = 'Common date for all sections';");
+		Return NStr("en = 'Common date for all sections'");
 	ElsIf Not Data.IsSection Then	
 		SectionData = Data.GetParent();
 		If SectionData = Undefined Then
 			Return "";
 		ElsIf Not ValueIsFilled(SectionData.PeriodEndClosingDate) Then
 			Return StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Common date for section %1';"), SectionData.Presentation);
+				NStr("en = 'Common date for section %1'"), SectionData.Presentation);
 		Else	
 			Return SectionData.PeriodEndClosingDateDetailsPresentation + " (" + SectionData.Presentation + ")";
 		EndIf;
@@ -3834,7 +3834,7 @@ Procedure LockAndWriteBlankDates(LocksAddress, Section, Object, User, Comment)
 	EndIf;
 	
 	For Each CurrentObject In ObjectsForAdding Do
-		// @skip-check query-in-loop - Save data object-by-object
+		// @skip-check query-in-loop - По-объектная запись данных
 		LockUserRecordAtServer(LocksAddress,
 			Section, CurrentObject, User);
 	EndDo;
@@ -3928,7 +3928,7 @@ Function UserPresentationText(Form, User)
 				If ValueIsFilled(User) Then
 					Return ListValue.Presentation + ": " + String(User);
 				Else
-					Return ListValue.Presentation + ": " + NStr("en = '<All infobases>';");
+					Return ListValue.Presentation + ": " + NStr("en = '<All infobases>'");
 				EndIf;
 			EndIf;
 		EndDo;
@@ -3945,7 +3945,7 @@ EndFunction
 &AtClientAtServerNoContext
 Function CommonDatePresentationText()
 	
-	Return "<" + NStr("en = 'Common date for all sections';") + ">";
+	Return "<" + NStr("en = 'Common date for all sections'") + ">";
 	
 EndFunction
 
@@ -3956,24 +3956,24 @@ Function MessageTextExcessSetting(IndicationMethodInForm, IndicationMethodInData
 		If IsAllUsers(CurrentUser) Then
 			Return StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'No sections have effective period-end closing dates.
-					|A general setting %1 will be applied to all users.';"),
+					|A general setting %1 will be applied to all users.'"),
 				IndicationMethodInDatabase);
 		Else
 			Return StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'No sections have effective period-end closing dates.
-					|A general setting %1 will be applied to %2.';"),
+					|A general setting %1 will be applied to %2.'"),
 				CurrentUser, IndicationMethodInDatabase);
 		EndIf;
 	Else // ByObjects
 		If IsAllUsers(CurrentUser) Then
 			Return StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'No objects have effective period-end closing dates.
-					|A general setting %1 will be applied to all users.';"),
+					|A general setting %1 will be applied to all users.'"),
 				IndicationMethodInDatabase);
 		Else
 			Return StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'No objects have effective period-end closing dates.
-					|A general setting %1 will be applied to %2.';"),
+					|A general setting %1 will be applied to %2.'"),
 				CurrentUser, IndicationMethodInDatabase);
 		EndIf;
 	EndIf;
@@ -3985,15 +3985,15 @@ Function MessageTextInSelectedSectionClosingDatesForObjectsNotSet(Section)
 	
 	Return ?(Section <> SectionEmptyRef, 
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Period-end closing date setting is not available for separate objects in the ""%1"" section.';"), Section),
-		NStr("en = 'To set a period-end closing date for particular objects, select one of the sections below, and then click Pick.';"));
+			NStr("en = 'Period-end closing date setting is not available for separate objects in the ""%1"" section.'"), Section),
+		NStr("en = 'To set a period-end closing date for particular objects, select one of the sections below, and then click Pick.'"));
 	
 EndFunction
 
 &AtClientAtServerNoContext
 Function HeaderTextDataTypeSelection()
 	
-	Return NStr("en = 'Select data type';");
+	Return NStr("en = 'Select data type'");
 	
 EndFunction
 

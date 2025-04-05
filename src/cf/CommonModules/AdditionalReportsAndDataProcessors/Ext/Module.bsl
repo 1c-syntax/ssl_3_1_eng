@@ -129,7 +129,7 @@ Function AttachExternalDataProcessor(Ref) Export
 	EndIf;
 	
 	WriteComment(Ref,
-		StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Attachment, %1 = ""%2"".';"), "SafeMode",
+		StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Attachment, %1 = ""%2"".'"), "SafeMode",
 			AttachmentMode));
 	
 	Return DataProcessorName;
@@ -1064,7 +1064,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		ToDoItem = ToDoList.Add();
 		ToDoItem.Id = "AdditionalReportsAndDataProcessors";
 		ToDoItem.HasToDoItems      = OutputToDoItem And Count > 0;
-		ToDoItem.Presentation = NStr("en = 'Additional reports and data processors';");
+		ToDoItem.Presentation = NStr("en = 'Additional reports and data processors'");
 		ToDoItem.Count    = Count;
 		ToDoItem.Form         = "Catalog.AdditionalReportsAndDataProcessors.Form.AdditionalReportsAndDataProcessorsCheck";
 		ToDoItem.Owner      = SectionID;
@@ -1075,7 +1075,7 @@ Procedure OnFillToDoList(ToDoList) Export
 			ToDoGroup = ToDoList.Add();
 			ToDoGroup.Id = SectionID;
 			ToDoGroup.HasToDoItems      = ToDoItem.HasToDoItems;
-			ToDoGroup.Presentation = NStr("en = 'Check compatibility';");
+			ToDoGroup.Presentation = NStr("en = 'Check compatibility'");
 			If ToDoItem.HasToDoItems Then
 				ToDoGroup.Count = ToDoItem.Count;
 			EndIf;
@@ -1098,7 +1098,7 @@ Procedure OnFillAccessKinds(AccessKinds) Export
 	
 	AccessKind = AccessKinds.Add();
 	AccessKind.Name = "AdditionalReportsAndDataProcessors";
-	AccessKind.Presentation = NStr("en = 'Additional reports and data processors';");
+	AccessKind.Presentation = NStr("en = 'Additional reports and data processors'");
 	AccessKind.ValuesType   = Type("CatalogRef.AdditionalReportsAndDataProcessors");
 	
 EndProcedure
@@ -1159,7 +1159,7 @@ Procedure OnGetOtherSettings(UserInfo, Settings) Export
 	EndIf;
 	
 	// Settings string name to be displayed in the data processor settings tree.
-	SettingName1 = NStr("en = 'Settings for additional report and data processor quick access';");
+	SettingName1 = NStr("en = 'Settings for additional report and data processor quick access'");
 	
 	// Settings string picture.
 	PictureSettings = "";
@@ -1274,7 +1274,7 @@ Procedure OnDefineAttachableCommandsKinds(AttachableCommandsKinds) Export
 		Kind = AttachableCommandsKinds.Add();
 		Kind.Name         = "ObjectsFilling";
 		Kind.SubmenuName  = "FillSubmenu";
-		Kind.Title   = NStr("en = 'Fill';");
+		Kind.Title   = NStr("en = 'Fill'");
 		Kind.Picture    = PictureLib.FillForm;
 		Kind.Representation = ButtonRepresentation.Picture;
 	EndIf;
@@ -1358,11 +1358,11 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 		Command = Commands.Add();
 		If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 			Command.Kind           = "ObjectsFilling";
-			Command.Presentation = NStr("en = 'Object filling additional data processors…';");
+			Command.Presentation = NStr("en = 'Object filling additional data processors…'");
 			Command.Importance      = "SeeAlso";
 		Else
 			Command.Kind           = "CommandBar";
-			Command.Presentation = NStr("en = 'Filling…';");
+			Command.Presentation = NStr("en = 'Filling…'");
 		EndIf;
 		Command.ChangesSelectedObjects = True;
 		Command.Order            = 50;
@@ -1380,10 +1380,10 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 		If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
 			Command.Kind           = "Reports";
 			Command.Importance      = "SeeAlso";
-			Command.Presentation = NStr("en = 'Additional reports…';");
+			Command.Presentation = NStr("en = 'Additional reports…'");
 		Else
 			Command.Kind           = "CommandBar";
-			Command.Presentation = NStr("en = 'Reports…';");
+			Command.Presentation = NStr("en = 'Reports…'");
 		EndIf;
 		Command.Order            = 50;
 		Command.Handler         = "AdditionalReportsAndDataProcessorsClient.OpenCommandList";
@@ -1399,7 +1399,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 		Else
 			Command = Commands.Add();
 			Command.Kind                = ?(SetFOParameters, "CommandBar", "GenerateFrom");
-			Command.Presentation      = NStr("en = 'Create related objects…';");
+			Command.Presentation      = NStr("en = 'Create related objects…'");
 			Command.Picture           = PictureLib.InputOnBasis;
 			Command.Order            = 50;
 			Command.Handler         = "AdditionalReportsAndDataProcessorsClient.OpenCommandList";
@@ -1611,7 +1611,7 @@ EndProcedure
 Procedure OnAttachAdditionalReport(Ref, ReportParameters, Result, GetMetadata) Export
 	If Not GetFunctionalOption("UseAdditionalReportsAndDataProcessors") Then
 		ReportParameters.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot attach %1. Additional reports and data processors are disabled in the application settings.';"),
+			NStr("en = 'Cannot attach %1. Additional reports and data processors are disabled in the application settings.'"),
 			"'" + String(Ref) + "'");
 		Return;
 	EndIf;
@@ -1630,7 +1630,7 @@ Procedure OnAttachAdditionalReport(Ref, ReportParameters, Result, GetMetadata) E
 		Except
 			ReportParameters.ErrorText = 
 				StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot attach the ""%1"" additional report due to:';"), String(Ref))
+					NStr("en = 'Cannot attach the ""%1"" additional report due to:'"), String(Ref))
 				+ Chars.LF + ErrorProcessing.DetailErrorDescription(ErrorInfo());
 			Result = False;
 		EndTry;
@@ -1638,7 +1638,7 @@ Procedure OnAttachAdditionalReport(Ref, ReportParameters, Result, GetMetadata) E
 	Else
 		
 		ReportParameters.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 is not an additional report.';"),
+			NStr("en = '%1 is not an additional report.'"),
 			"'"+ String(Ref) +"'");
 		
 		Result = False;
@@ -1661,12 +1661,12 @@ Procedure OnAttachReport(Context) Export
 	Ref = CommonClientServer.StructureProperty(Context, "Report");
 	If TypeOf(Ref) <> Type("CatalogRef.AdditionalReportsAndDataProcessors") Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'No report is passed to the ""%1"" procedure.';"),
+			NStr("en = 'No report is passed to the ""%1"" procedure.'"),
 			"AdditionalReportsAndDataProcessors.OnAttachReport");
 	EndIf;
 	
 	If Not GetFunctionalOption("UseAdditionalReportsAndDataProcessors") Then
-		Raise NStr("en = 'The ""Additional reports and data processors"" feature is disabled in the application settings.';");
+		Raise NStr("en = 'The ""Additional reports and data processors"" feature is disabled in the application settings.'");
 	EndIf;
 	
 	Kind = Common.ObjectAttributeValue(Ref, "Kind");
@@ -1678,7 +1678,7 @@ Procedure OnAttachReport(Context) Export
 		
 	Else
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '""%1"" is not an additional report.';"), String(Ref));
+			NStr("en = '""%1"" is not an additional report.'"), String(Ref));
 	EndIf;
 	
 EndProcedure
@@ -1704,15 +1704,15 @@ Procedure OnDefineReportsAvailability(AddlReportsRefs, Result) Export
 		For Each TableRow In FoundItems Do
 			If Not SubsystemEnabled Then
 				TableRow.Presentation = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'The ""%1"" report is unavailable as additional reports and data processors are disabled in the application settings.';"),
+					NStr("en = 'The ""%1"" report is unavailable as additional reports and data processors are disabled in the application settings.'"),
 					TableRow.Presentation);
 			ElsIf Not HasReadRight Then
 				TableRow.Presentation = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'The ""%1"" report is unavailable as you do not have the right to read additional reports and processors.';"),
+					NStr("en = 'The ""%1"" report is unavailable as you do not have the right to read additional reports and processors.'"),
 					TableRow.Presentation);
 			ElsIf Not IsSuppliedDataProcessor(Report) Then
 				TableRow.Presentation = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'The ""%1"" report is unavailable in SaaS mode.';"),
+					NStr("en = 'The ""%1"" report is unavailable in SaaS mode.'"),
 					TableRow.Presentation);
 			Else
 				TableRow.Available = True;
@@ -1946,7 +1946,7 @@ Procedure ExecuteDataProcessorByScheduledJob(ExternalDataProcessor, CommandID) E
 	
 	// Event log record.
 	WriteInformation(ExternalDataProcessor, 
-		StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Command %1: Start.';"), CommandID));
+		StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Command %1: Start.'"), CommandID));
 	
 	// Run the command.
 	Try
@@ -1954,13 +1954,13 @@ Procedure ExecuteDataProcessorByScheduledJob(ExternalDataProcessor, CommandID) E
 	Except
 		Refinement = CommonClientServer.ExceptionClarification(ErrorInfo(),
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Couldn''t execute command %1 due to:';"), CommandID));
+				NStr("en = 'Couldn''t execute command %1 due to:'"), CommandID));
 		Raise(Refinement.Text, Refinement.Category,,, ErrorInfo());
 	EndTry;
 	
 	// Event log record.
 	WriteInformation(ExternalDataProcessor, 
-		StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Command %1: Complete.';"), CommandID));
+		StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Command %1: Complete.'"), CommandID));
 	
 EndProcedure
 
@@ -2053,7 +2053,7 @@ Function MetadataObjectPresentation(Object) Export
 		Or TypeOf(Object) = Type("CatalogRef.ExtensionObjectIDs") Then
 		MetadataObject = Common.MetadataObjectByID(Object, False);
 		If TypeOf(MetadataObject) <> Type("MetadataObject") Then
-			Return NStr("en = '<does not exist>';");
+			Return NStr("en = '<does not exist>'");
 		EndIf;
 	Else
 		MetadataObject = ?(TypeOf(Object) = Type("MetadataObject"), Object, Metadata.Subsystems.Find(Object));
@@ -2203,7 +2203,7 @@ EndProcedure
 // Generates a subsystem description to write an event to the event log.
 //
 Function SubsystemDescription()
-	Return NStr("en = 'Additional reports and data processors';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Additional reports and data processors'", Common.DefaultLanguageCode());
 EndFunction
 
 #EndRegion
@@ -2276,7 +2276,7 @@ Function ExecuteExternalObjectCommand(ExternalObject, CommandID, CommandParamete
 	
 	CommandDetails = ExternalObjectInfo.Commands.Find(CommandID, "Id");
 	If CommandDetails = Undefined Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Command %1 is not found.';"), CommandID);
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Command %1 is not found.'"), CommandID);
 	EndIf;
 	
 	ModifiedObjects = Undefined;
@@ -2515,7 +2515,7 @@ Procedure ExportReportsAndDataProcessorsToFiles(ReportsAndDataProcessors)
 	Upload0 = DesignerBatchRun(Parameters, StartupCommand);
 	If Not Upload0.Success Then
 		ErrorText = TrimAll(
-			NStr("en = 'Failed to export reports and configuration data processors to external files:';")
+			NStr("en = 'Failed to export reports and configuration data processors to external files:'")
 			+ Chars.LF + Upload0.Brief1
 			+ Chars.LF + Upload0.More);
 		WriteWarning(Undefined, ErrorText);
@@ -2534,7 +2534,7 @@ Procedure ExportReportsAndDataProcessorsToFiles(ReportsAndDataProcessors)
 		Else
 			WriteError(TableRow.Ref, 
 				StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Invalid metadata object kind: ""1""';"), TableRow.Kind));
+					NStr("en = 'Invalid metadata object kind: ""1""'"), TableRow.Kind));
 			ReportsAndDataProcessors.Delete(ReverseIndex);
 			Continue;
 		EndIf;
@@ -2543,7 +2543,7 @@ Procedure ExportReportsAndDataProcessorsToFiles(ReportsAndDataProcessors)
 		SchemaText = ReadTextFile(FullObjectSchemaName);
 		If SchemaText = Undefined Then
 			WriteError(TableRow.Ref, 
-				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot find file: %1.';"), 
+				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot find file: %1.'"), 
 					FullObjectSchemaName));
 			ReportsAndDataProcessors.Delete(ReverseIndex);
 			Continue;
@@ -2594,7 +2594,7 @@ Procedure ExportReportsAndDataProcessorsToFiles(ReportsAndDataProcessors)
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot create %1 from the external file %2:
 					|%3
-					|%4';"),
+					|%4'"),
 				TableRow.FullName, FullObjectSchemaName, 
 				CreateDataProcessor.Brief1, CreateDataProcessor.More);
 			WriteWarning(Undefined, ErrorText);
@@ -2631,11 +2631,11 @@ Function DesignerBatchRun(Parameters, PassedStartupCommands)
 				InfobaseDirectory = StringFunctionsClientServer.ParametersFromString(Parameters.ConfigurationPath).file;
 				Parameters.OneCDCopyDirectory = Parameters.WorkingDirectory + "BaseCopy" + GetPathSeparator();
 				CreateDirectory(Parameters.OneCDCopyDirectory);
-				FileCopy(InfobaseDirectory + "\1Cv8.1CD", Parameters.OneCDCopyDirectory + "1Cv8.1CD");
+				CopyFile(InfobaseDirectory + "\1Cv8.1CD", Parameters.OneCDCopyDirectory + "1Cv8.1CD");
 				Parameters.ConfigurationPath = StringFunctionsClientServer.SubstituteParametersToString(
 					"File=""%1"";", Parameters.OneCDCopyDirectory);
 			Else
-				Result.Brief1 = NStr("en = 'To export modules, close Designer.';");
+				Result.Brief1 = NStr("en = 'To export modules, close Designer.'");
 				Return Result;
 			EndIf;
 		EndIf;
@@ -2670,7 +2670,7 @@ Function DesignerBatchRun(Parameters, PassedStartupCommands)
 	EndIf;
 	
 	Result.Brief1 = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Cannot dump configuration to XML. Error code: %1.';"),
+		NStr("en = 'Cannot dump configuration to XML. Error code: %1.'"),
 		ReturnCode);
 	If FileExists(MessagesFileName) Then
 		TextReader = New TextReader(MessagesFileName, , , , False);
@@ -2823,7 +2823,7 @@ Procedure RegisterReportsAndDataProcessors(ReportsAndDataProcessors)
 		If Not Result.Success Then
 			If Conflicting.Count() <> 0 Then
 				Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Name %1 is assigned to objects %2.';"),
+					NStr("en = 'Name %1 is assigned to objects %2.'"),
 					ObjectName,
 					String(Conflicting));
 			EndIf;
@@ -2859,7 +2859,7 @@ Procedure RegisterReportsAndDataProcessors(ReportsAndDataProcessors)
 					EventLogLevel.Error,, CatalogObject.Ref,
 					StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Cannot delete the ""%1"" scheduled job due to:
-							|%2';"),
+							|%2'"),
 						KeyAndValue.Value,
 						ErrorProcessing.DetailErrorDescription(ErrorInfo())));
 			EndTry;
@@ -2972,12 +2972,12 @@ Function RegisterDataProcessor(Val Object, Val RegistrationParameters) Export
 	
 	If RegistrationData.Kind = Enums.AdditionalReportsAndDataProcessorsKinds.PrintForm
 		And Not Common.SubsystemExists("StandardSubsystems.Print") Then
-		Result.ErrorText = NStr("en = 'Operations with print forms are unavailable.';");
+		Result.ErrorText = NStr("en = 'Operations with print forms are unavailable.'");
 		Return Result;
 	EndIf;
 	
 	If Not RegistrationData.SafeMode And Not Users.IsFullUser(, True) Then
-		Result.ErrorText = NStr("en = 'Cannot attach the data processor. Only users with the ""System administrator"" role can attach data processors that require disabling safe mode.';");
+		Result.ErrorText = NStr("en = 'Cannot attach the data processor. Only users with the ""System administrator"" role can attach data processors that require disabling safe mode.'");
 		Return Result;
 	EndIf;
 	
@@ -2985,12 +2985,12 @@ Function RegisterDataProcessor(Val Object, Val RegistrationParameters) Export
 	If Not Object.IsNew() And RegistrationData.Kind <> Object.Kind Then
 		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Object kind mismatch. Imported object: %1. Current object: %2.
-				|To import a new object, select Create.';"),
+				|To import a new object, select Create.'"),
 			String(RegistrationData.Kind),
 			String(Object.Kind));
 		Return Result;
 	ElsIf RegistrationParameters.IsReport <> IsExternalReport Then
-		Result.ErrorText = NStr("en = 'The data processor type specified in the data processor details does not match the actual extension.';");
+		Result.ErrorText = NStr("en = 'The data processor type specified in the data processor details does not match the actual extension.'");
 		Return Result;
 	EndIf;
 	
@@ -3063,7 +3063,7 @@ Function RegisterDataProcessor(Val Object, Val RegistrationParameters) Export
 		
 		If Not ValueIsFilled(DetailsCommand.StartupOption) Then
 			Common.MessageToUser(StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Startup option is not specified for command %1.';"), DetailsCommand.Presentation));
+				NStr("en = 'Startup option is not specified for command %1.'"), DetailsCommand.Presentation));
 		EndIf;
 		Command = Object.Commands.Add();
 		FillPropertyValues(Command, DetailsCommand);
@@ -3199,7 +3199,7 @@ Procedure OnGetRegistrationData(Object, RegistrationData, RegistrationParameters
 	Except
 		WarningText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot delete the ""%1"" temporary file due to:
-			|%2';"),
+			|%2'"),
 			RegistrationResult.ObjectName,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		WriteWarning(Object.Ref, WarningText);
@@ -3208,12 +3208,12 @@ Procedure OnGetRegistrationData(Object, RegistrationData, RegistrationParameters
 	If ErrorInfo <> Undefined Then
 		If RegistrationParameters.IsReport Then
 			ErrorText = NStr("en = 'Cannot attach an additional report from a file.
-			|It might not be compatible with this application version.';");
+			|It might not be compatible with this application version.'");
 		Else
 			ErrorText = NStr("en = 'Cannot attach an additional data processor from a file.
-			|It might not be compatible with this application version.';");
+			|It might not be compatible with this application version.'");
 		EndIf;
-		ErrorText = ErrorText + Chars.LF + Chars.LF + NStr("en = 'Technical information:';") + Chars.LF;
+		ErrorText = ErrorText + Chars.LF + Chars.LF + NStr("en = 'Technical information:'") + Chars.LF;
 		RegistrationResult.BriefErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 		RegistrationResult.ErrorText = ErrorText + RegistrationResult.BriefErrorDescription;
 		WriteError(Object.Ref, ErrorText + ErrorProcessing.DetailErrorDescription(ErrorInfo));

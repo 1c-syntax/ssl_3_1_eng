@@ -314,19 +314,19 @@ Function GenerateMetadataStructure(ExchangePlanName = Undefined) Export
 	Result.Insert("AutoRecordStructure", CurParameters.AutoRecordStructure);
 
 	CurRowNumber = 1;
-	GenerateMetadataLevel(CurRowNumber, CurParameters, 1,  2,  False,   "Constants",               NStr("en = 'Constants';"));
-	GenerateMetadataLevel(CurRowNumber, CurParameters, 3,  4,  True, "Catalogs",             NStr("en = 'Catalogs';"));
-	GenerateMetadataLevel(CurRowNumber, CurParameters, 5,  6,  True, "Sequences",      NStr("en = 'Sequences';"));
-	GenerateMetadataLevel(CurRowNumber, CurParameters, 7,  8,  True, "Documents",               NStr("en = 'Documents';"));
-	GenerateMetadataLevel(CurRowNumber, CurParameters, 9,  10, True, "ChartsOfCharacteristicTypes", NStr("en = 'Charts of characteristic types';"));
-	GenerateMetadataLevel(CurRowNumber, CurParameters, 11, 12, True, "ChartsOfAccounts",             NStr("en = 'Charts of accounts';"));
-	GenerateMetadataLevel(CurRowNumber, CurParameters, 13, 14, True, "ChartsOfCalculationTypes",       NStr("en = 'Charts of calculation types';"));
-	GenerateMetadataLevel(CurRowNumber, CurParameters, 15, 16, True, "InformationRegisters",        NStr("en = 'Information registers';"));
-	GenerateMetadataLevel(CurRowNumber, CurParameters, 17, 18, True, "AccumulationRegisters",      NStr("en = 'Accumulation registers';"));
-	GenerateMetadataLevel(CurRowNumber, CurParameters, 19, 20, True, "AccountingRegisters",     NStr("en = 'Accounting registers';"));
-	GenerateMetadataLevel(CurRowNumber, CurParameters, 21, 22, True, "CalculationRegisters",         NStr("en = 'Calculation registers';"));
-	GenerateMetadataLevel(CurRowNumber, CurParameters, 23, 24, True, "BusinessProcesses",          NStr("en = 'Business processes';"));
-	GenerateMetadataLevel(CurRowNumber, CurParameters, 25, 26, True, "Tasks",                  NStr("en = 'Tasks';"));
+	GenerateMetadataLevel(CurRowNumber, CurParameters, 1,  2,  False,   "Constants",               NStr("en = 'Constants'"));
+	GenerateMetadataLevel(CurRowNumber, CurParameters, 3,  4,  True, "Catalogs",             NStr("en = 'Catalogs'"));
+	GenerateMetadataLevel(CurRowNumber, CurParameters, 5,  6,  True, "Sequences",      NStr("en = 'Sequences'"));
+	GenerateMetadataLevel(CurRowNumber, CurParameters, 7,  8,  True, "Documents",               NStr("en = 'Documents'"));
+	GenerateMetadataLevel(CurRowNumber, CurParameters, 9,  10, True, "ChartsOfCharacteristicTypes", NStr("en = 'Charts of characteristic types'"));
+	GenerateMetadataLevel(CurRowNumber, CurParameters, 11, 12, True, "ChartsOfAccounts",             NStr("en = 'Charts of accounts'"));
+	GenerateMetadataLevel(CurRowNumber, CurParameters, 13, 14, True, "ChartsOfCalculationTypes",       NStr("en = 'Charts of calculation types'"));
+	GenerateMetadataLevel(CurRowNumber, CurParameters, 15, 16, True, "InformationRegisters",        NStr("en = 'Information registers'"));
+	GenerateMetadataLevel(CurRowNumber, CurParameters, 17, 18, True, "AccumulationRegisters",      NStr("en = 'Accumulation registers'"));
+	GenerateMetadataLevel(CurRowNumber, CurParameters, 19, 20, True, "AccountingRegisters",     NStr("en = 'Accounting registers'"));
+	GenerateMetadataLevel(CurRowNumber, CurParameters, 21, 22, True, "CalculationRegisters",         NStr("en = 'Calculation registers'"));
+	GenerateMetadataLevel(CurRowNumber, CurParameters, 23, 24, True, "BusinessProcesses",          NStr("en = 'Business processes'"));
+	GenerateMetadataLevel(CurRowNumber, CurParameters, 25, 26, True, "Tasks",                  NStr("en = 'Tasks'"));
 	
 	Return Result;
 EndFunction
@@ -519,10 +519,10 @@ Function ExternalDataProcessorInfo() Export
 	Info.Insert("SafeMode", True);
 	Info.Insert("Purpose",      New Array);
 	
-	Info.Insert("Description", NStr("en = 'Data registration manager';"));
+	Info.Insert("Description", NStr("en = 'Data registration manager'"));
 	Info.Insert("Version",       "1.0");
 	Info.Insert("SSLVersion",    "1.2.1.4");
-	Info.Insert("Information",    NStr("en = 'The data processor is intended for managing registration of objects at exchange nodes before exporting data. When used in configurations with SSL version 2.1.2.0 or later, it manages data migration restrictions.';"));
+	Info.Insert("Information",    NStr("en = 'The data processor is intended for managing registration of objects at exchange nodes before exporting data. When used in configurations with SSL version 2.1.2.0 or later, it manages data migration restrictions.'"));
 	
 	Info.Purpose.Add("ExchangePlans.*");
 	Info.Purpose.Add("Constants.*");
@@ -549,7 +549,7 @@ Function ExternalDataProcessorInfo() Export
 	
 	// The only command. Determine what to do by type of the passed item.
 	Command = Info.Commands.Add();
-	Command.Presentation = NStr("en = 'Change item registration state';");
+	Command.Presentation = NStr("en = 'Change item registration state'");
 	Command.Id = "OpenRegistrationEditingForm";
 	Command.Use = "ClientMethodCall";
 	
@@ -1121,7 +1121,7 @@ Function RepresentationOfTheReference(ObjectToGetPresentation) Export
 	EndIf;
 	
 	If IsBlankString(Result) Then
-		Result = NStr("en = 'not specified';");
+		Result = NStr("en = 'not specified'");
 	EndIf;
 	
 	Return Result;
@@ -1290,7 +1290,7 @@ Function CheckSettingsCorrectness(SettingsKey = "") Export
 	Else
 		// Use built-in console
 		If Metadata.DataProcessors.Find(QueryExternalDataProcessorAddressSetting) = Undefined Then
-			Text = NStr("en = 'Data processor %1is not found in the configuration';");
+			Text = NStr("en = 'Data processor %1is not found in the configuration'");
 			Result.QueryExternalDataProcessorAddressSetting = StrReplace(Text, "%1", QueryExternalDataProcessorAddressSetting);
 			
 			Result.HasErrors = True;
@@ -2028,7 +2028,7 @@ Function CommonModule(Name)
 	EndIf;
 	
 	If TypeOf(Module) <> Type("CommonModule") Then
-		Raise SubstituteParametersToString(NStr("en = 'Common module ""%1"" does not exist.';"), Name);
+		Raise SubstituteParametersToString(NStr("en = 'Common module ""%1"" does not exist.'"), Name);
 	EndIf;
 	
 	Return Module;
@@ -2544,5 +2544,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

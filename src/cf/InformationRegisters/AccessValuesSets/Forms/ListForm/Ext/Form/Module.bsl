@@ -43,7 +43,7 @@ Procedure SetConditionalAppearance()
 	AppearanceItem = List.SettingsComposer.Settings.ConditionalAppearance.Items.Add();
 	AppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
-	AppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'Check Read right';"));
+	AppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'Check Read right'"));
 	
 	FilterElement = AppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	FilterElement.LeftValue = New DataCompositionField("IsTableRightCheck");
@@ -62,7 +62,7 @@ Procedure SetConditionalAppearance()
 	AppearanceItem = List.SettingsComposer.Settings.ConditionalAppearance.Items.Add();
 	AppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
-	AppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'Check Update right';"));
+	AppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'Check Update right'"));
 	
 	FilterElement = AppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	FilterElement.LeftValue = New DataCompositionField("IsTableRightCheck");

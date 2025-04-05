@@ -63,7 +63,7 @@ Function SchemaCompositionDataPrint(FieldList) Export
 	EndIf;
 
 	Raise StringFunctionsClientServer.SubstituteParametersToString(NStr(
-		"en = 'Invalid type ""%1"" is passed in parameter ""%2""';"),
+		"en = 'Invalid type ""%1"" is passed in parameter ""%2""'"),
 		TypeOf(FieldList), "FieldList");
 	
 EndFunction
@@ -162,11 +162,11 @@ Procedure SetDocumentPrintArea(SpreadsheetDocument, RowNumberStart, PrintObjects
 	If Not Common.IsReference(TypeOf(Ref)) Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Invalid value of the ""Ref"" parameter.
-			|Reference type value was expected, actual value: ""%1"" (type: %2)';"), Ref, TypeOf(Ref));
+			|Reference type value was expected, actual value: ""%1"" (type: %2)'"), Ref, TypeOf(Ref));
 		Try // This architecture ensures transfer of stack to the registration log.
 			Raise MessageText;
 		Except
-			WriteLogEvent(NStr("en = 'Print';", Common.DefaultLanguageCode()), EventLogLevel.Error, , ,
+			WriteLogEvent(NStr("en = 'Print'", Common.DefaultLanguageCode()), EventLogLevel.Error, , ,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
 		Return;
@@ -490,12 +490,12 @@ EndFunction
 //                                        If the parameter is not passed, the extension won't be enabled.
 //                                        
 //
-//   * DefaultPrintForm             - Boolean - 
-//                                        
+//   * DefaultPrintForm             - Boolean - (Optional) Flag indicating if the descriptions of
+//                                        the generated print forms will be saved.
 //
-//   * PrintFormDescription         - String - 
-//                                         
-//                                         
+//   * PrintFormDescription         - String - (Optional) The name that will be saved if
+//                                         the "DefaultPrintForm" flag is set. If the flag is not set,
+//                                         the value from the "Presentation" field is used.
 //
 Function CreatePrintCommandsCollection() Export
 	
@@ -506,7 +506,7 @@ Function CreatePrintCommandsCollection() Export
 	Result.Columns.Add("Presentation", New TypeDescription("String"));
 	
 	//////////
-	// Options (optional parameters).
+	// Optional parameters.
 	
 	// Print manager.
 	Result.Columns.Add("PrintManager", Undefined);
@@ -550,7 +550,7 @@ Function CreatePrintCommandsCollection() Export
 	// For using office document templates in the web client.
 	Result.Columns.Add("FileSystemExtensionIsRequired", New TypeDescription("Boolean"));
 	
-	// Механизм хранения наименований для основных печатных форм
+	// Description store mechanism for default print forms.
 	Result.Columns.Add("DefaultPrintForm", New TypeDescription("Boolean"));
 	Result.Columns.Add("PrintFormDescription", New TypeDescription("String"));
 	
@@ -670,10 +670,10 @@ Procedure FillProfileEditPrintForms(ProfilesDetails) Export
 	ProfileDetails = ModuleAccessManagement.NewAccessGroupProfileDescription();
 	ProfileDetails.Parent      = "AdditionalProfiles";
 	ProfileDetails.Id = "70179f20-2315-11e6-9bff-d850e648b60c";
-	ProfileDetails.Description = NStr("en = 'Edit, send by email, and save print forms to file (additionally)';",
+	ProfileDetails.Description = NStr("en = 'Edit, send by email, and save print forms to file (additionally)'",
 		Common.DefaultLanguageCode());
 	ProfileDetails.LongDesc = NStr("en = 'Assign to users whose duties include editing,
-		|sending by email, and saving print forms to file.';");
+		|sending by email, and saving print forms to file.'");
 	ProfileDetails.Roles.Add("PrintFormsEdit");
 	ProfilesDetails.Add(ProfileDetails);
 	
@@ -799,7 +799,7 @@ Function UserTemplateUsed(TemplatePath) Export
 	EndIf;
 	
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Template ""%1"" does not exist. The operation is canceled.';"), TemplatePath);
+		NStr("en = 'Template ""%1"" does not exist. The operation is canceled.'"), TemplatePath);
 	PathParts = StrSplit(TemplatePath, ".", True);
 	If PathParts.Count() <> 2 And PathParts.Count() <> 3 Then
 		Raise ErrorText;
@@ -847,7 +847,7 @@ EndFunction
 Function SuppliedTemplateChanged(TemplatePath) Export
 	
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Template ""%1"" does not exist. The operation is canceled.';"), TemplatePath);
+		NStr("en = 'Template ""%1"" does not exist. The operation is canceled.'"), TemplatePath);
 	PathParts = StrSplit(TemplatePath, ".", True);
 	If PathParts.Count() <> 2 And PathParts.Count() <> 3 Then
 		Raise ErrorText;
@@ -1001,7 +1001,7 @@ Function PrintToFile(PrintCommands, ListOfObjects, SettingsForSaving) Export
 	For Each Command In ListOfCommands Do
 		PrintCommand = Common.CopyRecursive(CommandDetails);
 		FillPropertyValues(PrintCommand, Command);
-		//@skip-check query-in-loop - The query is used within the exception handler for unforeknown data.
+		//@skip-check query-in-loop - запрос используется внутри обработки исключения для заранее неизвестных данных.
 		ExecutePrintToFileCommand(PrintCommand, SettingsForSaving, ListOfObjects, Result);
 	EndDo;
 	
@@ -1077,17 +1077,17 @@ Function ObjectPrintingSettings(ObjectManager) Export
 	
 EndFunction
 
-// 
+// Returns the names of the default print forms generated for the given objects.
 //
 // Parameters:
 //  References   - Array of AnyRef
-//           - FixedArray of AnyRef - 
+//           - FixedArray of AnyRef - Documents whose print form names should be obtained.
 //
 // Returns:
 //  Map of KeyAndValue:
-//      * Key     - AnyRef - 
-//      * Value - String - 
-//                 - Undefined - 
+//      * Key     - AnyRef - Document whose print form name is obtained.
+//      * Value - String - Name of the default print form.
+//                 - Undefined - In case the document has not been printed yet.
 //
 Function DescriptionsOfGeneratedDefaultPrintForms(References) Export
 	
@@ -1099,14 +1099,14 @@ Function DescriptionsOfGeneratedDefaultPrintForms(References) Export
 	
 EndFunction
 
-// 
+// Returns the name of the default print form generated for the given object.
 //
 // Parameters:
-//  Ref - AnyRef - 
+//  Ref - AnyRef - Document whose print form name should be obtained.
 //
 // Returns:
-//  String       - 
-//  
+//  String       - Print form name.
+//  Undefined - In case the document has not been printed yet.
 //
 Function DescriptionOfGeneratedDefaultPrintForm(Ref) Export
 	
@@ -1121,36 +1121,36 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Operations with office document templates.
 
-//	Секция содержит интерфейсные функции (API), используемые при создании
-//	печатных форм основанных на офисных документах. На данный момент поддерживается
-//	офисные пакеты, работающие с форматом Office Open XML (MS Office, Open Office, Google Docs).
+//	
+//	
+//	
 //
 ////////////////////////////////////////////////////////////////////////////////
-//	Типы используемых данных (определяется конкретными реализациями).
-//	СсылкаПечатнаяФорма	- ссылка на печатную форму.
-//	СсылкаМакет			- ссылка на макет.
-//	Область				- ссылка на область в печатной форме или макете (структура)
-//						доопределяется в интерфейсном модуле служебной информацией
-//						об области.
-//	ОписаниеОбласти		- описание области макета (см. ниже).
-//	ДанныеЗаполнения	- либо структура, либо массив структур (для случая
-//						списков и таблиц.
+//	
+//	
+//	
+//	
+//						
+//						
+//	
+//	
+//						
 ////////////////////////////////////////////////////////////////////////////////
-//	ОписаниеОбласти - структура, описывающая подготовленные пользователем области макета
-//	ключ ИмяОбласти - имя области
-//	ключ ТипТипОбласти - 	ВерхнийКолонтитул.
-//							НижнийКолонтитул
-//							ВерхнийТитульныйКолонтитул
-//							НижнийТитульныйКолонтитул
-//							ВерхнийЧетныйКолонтитул
-//							НижнийЧетныйКолонтитул
-//							Общая
-//							СтрокаТаблицы
-//							Список
+//	
+//	
+//	
+//							
+//							
+//							
+//							
+//							
+//							
+//							
+//							
 //
 
 ////////////////////////////////////////////////////////////////////////////////
-// Функции инициализации и закрытия ссылок.
+// 
 
 // ACC:1382-off - Cannot define the type in the return value.
 //
@@ -1172,7 +1172,7 @@ EndFunction
 Function InitializePrintForm(Val DeleteDocumentType, Val DeleteTemplatePageSettings = Undefined, Template = Undefined) Export
 	
 	If Template = Undefined Then
-		Raise NStr("en = 'Specify the ""Template"" parameter value';");
+		Raise NStr("en = 'Specify the ""Template"" parameter value'");
 	EndIf;
 	
 	PrintForm = PrintManagementInternal.InitializePrintForm(Template);
@@ -1280,7 +1280,7 @@ Function TemplateArea(RefToTemplate, AreaDetails) Export
 		Area = PrintManagementInternal.GetTemplateArea(RefToTemplate, AreaDetails.AreaName);
 	Else
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Area type is not specified or invalid: %1.';"), AreaDetails.AreaType);
+			NStr("en = 'Area type is not specified or invalid: %1.'"), AreaDetails.AreaType);
 	EndIf;
 	
 	If Area <> Undefined Then
@@ -1333,7 +1333,7 @@ Procedure AttachArea(PrintForm, TemplateArea, Val GoToNextRow1 = False) Export
 		ErrorMessage = TrimAll(ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		ErrorMessage = ?(Right(ErrorMessage, 1) = ".", ErrorMessage, ErrorMessage + ".");
 		ErrorMessage = ErrorMessage + " " + StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Error occurred during output of %1 template area.';"),
+			NStr("en = 'Cannot output area ""%1"" from the template into the print form.'"),
 			TemplateArea.AreaDetails.AreaName);
 		Raise ErrorMessage;
 	EndTry;
@@ -1476,7 +1476,7 @@ Function QRCodeData(QRString, CorrectionLevel, Size) Export
 	Try
 		BinaryPictureData = QRCodeGenerator.GenerateQRCode(QRString, CorrectionLevel, Size);
 	Except
-		WriteLogEvent(NStr("en = 'QR code generation';", Common.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'QR code generation'", Common.DefaultLanguageCode()),
 			EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	
@@ -1557,7 +1557,7 @@ Procedure AddStampsToOfficeDoc(DocumentAddress, DigitalSignatures) Export
 	
 	
 	ValuesForPopulation = New Map;
-	ValuesForPopulation.Insert("[Title]", NStr("en = 'DOCUMENT IS DIGITALLY SIGNED';"));
+	ValuesForPopulation.Insert("[Title]", NStr("en = 'DOCUMENT IS DIGITALLY SIGNED'"));
 	ValuesForPopulation.Insert("[HeaderCertificate]", "Certificate");
 	ValuesForPopulation.Insert("[HeaderOwner]", "Owner");
 	ValuesForPopulation.Insert("[TitleValidityPeriod]", "Valid1");
@@ -1572,7 +1572,7 @@ Procedure AddStampsToOfficeDoc(DocumentAddress, DigitalSignatures) Export
 		ValuesForPopulation.Insert("[Certificate]", CryptoCertificate.SerialNumber);
 		
 		ActionPeriod = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'from %1 to %2';"),
+			NStr("en = 'from %1 to %2'"),
 			Format(CryptoCertificate.ValidFrom, "DLF=D"), 
 			Format(CryptoCertificate.ValidTo, "DLF=D"));
 			
@@ -2016,7 +2016,7 @@ Procedure PrintByExternalSource(AdditionalDataProcessorRef, SourceParameters, Pr
 	ExternalProcessingObject = ModuleAdditionalReportsAndDataProcessors.ExternalDataProcessorObject(AdditionalDataProcessorRef);
 	If ExternalProcessingObject = Undefined Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'External data processor %1, type %2, is not supported.';"),
+			NStr("en = 'External data processor %1, type %2, is not supported.'"),
 			String(AdditionalDataProcessorRef),
 			String(TypeOf(AdditionalDataProcessorRef)));
 	EndIf;
@@ -2041,7 +2041,7 @@ Procedure PrintByExternalSource(AdditionalDataProcessorRef, SourceParameters, Pr
 			
 		If PrintForm.SpreadsheetDocument = Undefined Then
 			ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Print handler did not generate the spreadsheet document for: %1';"),
+				NStr("en = 'Print handler did not generate the spreadsheet document for: %1'"),
 				PrintForm.TemplateName);
 			Raise(ErrorMessageText);
 		EndIf;
@@ -2069,7 +2069,7 @@ Procedure OnDefineAttachableCommandsKinds(AttachableCommandsKinds) Export
 	Kind = AttachableCommandsKinds.Add();
 	Kind.Name         = "Print";
 	Kind.SubmenuName  = "PrintSubmenu";
-	Kind.Title   = NStr("en = 'Print';");
+	Kind.Title   = NStr("en = 'Print'");
 	Kind.Order     = 40;
 	Kind.Picture    = PictureLib.Print;
 	Kind.Representation = ButtonRepresentation.PictureAndText;
@@ -2094,7 +2094,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 		DefaultPrintCommand = PrintCommands.Add();
 		DefaultPrintCommand.PrintManager = "PrintManagement";
 		DefaultPrintCommand.Id = "DefaultPrint";
-		DefaultPrintCommand.Presentation = NStr("en = 'Default print';");
+		DefaultPrintCommand.Presentation = NStr("en = 'Default print'");
 		DefaultPrintCommand.DefaultCommand = True;
 		DefaultPrintCommand.Picture = PictureLib.Print;
 		DefaultPrintCommand.CheckPostingBeforePrint = False;
@@ -2182,7 +2182,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Procedure = "InformationRegisters.UserPrintTemplates.ProcessUserTemplates";
 	Handler.ExecutionMode = "Deferred";
 	Handler.Comment = NStr("en = 'Removes custom templates that are indistinguishable from the built-in templates.
-		|Disables custom templates that are incompatible with the configuration version.';");
+		|Disables custom templates that are incompatible with the configuration version.'");
 	Handler.Id = New UUID("e5b0d876-c766-40a0-a0cf-ffccc83a193f");
 	Handler.CheckProcedure = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
 	Handler.ObjectsToLock = "InformationRegister.UserPrintTemplates";
@@ -2194,7 +2194,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Version = "*";
 	Handler.Procedure = "InformationRegisters.SuppliedPrintTemplates.UpdateTemplatesCheckSum";
 	Handler.ExecutionMode = "Deferred";
-	Handler.Comment = NStr("en = 'Determines which built-in extension print form templates were modified compared to the previous version.';");
+	Handler.Comment = NStr("en = 'Determines which built-in extension print form templates were modified compared to the previous version.'");
 	Handler.Id = New UUID("51f71246-67e3-40e0-80e5-ebb3192fa6c0");
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
@@ -2213,7 +2213,7 @@ Procedure OnFillPermissionsToAccessExternalResources(PermissionsRequests) Export
 	
 	Permissions = New Array;
 	Permissions.Add(ModuleSafeModeManager.PermissionToUseAddIn(
-		"CommonTemplate.QRCodePrintingComponent", NStr("en = 'Print QR codes.';")));
+		"CommonTemplate.QRCodePrintingComponent", NStr("en = 'Print QR codes.'")));
 	PermissionsRequests.Add(
 		ModuleSafeModeManager.RequestToUseExternalResources(Permissions));
 	
@@ -2260,7 +2260,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		ToDoItem = ToDoList.Add();
 		ToDoItem.Id = "PrintFormTemplates";
 		ToDoItem.HasToDoItems      = OutputToDoItem And UserTemplatesCount > 0;
-		ToDoItem.Presentation = NStr("en = 'Print form templates';");
+		ToDoItem.Presentation = NStr("en = 'Print form templates'");
 		ToDoItem.Count    = UserTemplatesCount;
 		ToDoItem.Form         = "InformationRegister.UserPrintTemplates.Form.CheckPrintForms";
 		ToDoItem.Owner      = SectionID;
@@ -2271,7 +2271,7 @@ Procedure OnFillToDoList(ToDoList) Export
 			ToDoGroup = ToDoList.Add();
 			ToDoGroup.Id = SectionID;
 			ToDoGroup.HasToDoItems      = ToDoItem.HasToDoItems;
-			ToDoGroup.Presentation = NStr("en = 'Check compatibility';");
+			ToDoGroup.Presentation = NStr("en = 'Check compatibility'");
 			If ToDoItem.HasToDoItems Then
 				ToDoGroup.Count = ToDoItem.Count;
 			EndIf;
@@ -2428,18 +2428,18 @@ Function ListOfOperators(AdditionalFields = Undefined) Export
 	If Group = Undefined Then
 		Group = ListOfOperators.Rows.Add();
 		Group.Id = "StringFunctions";
-		Group.Presentation = NStr("en = 'String functions';");
+		Group.Presentation = NStr("en = 'String functions'");
 		Group.Order = 5;
 		Group.Picture = PictureLib.TypeFunction;
 	EndIf;
 	
-	AddAnOperatorToAGroup(Group, PrintModuleName() + CommandSeparator() + "LatinString", NStr("en = 'Latin string';"), New TypeDescription("String"), True);
+	AddAnOperatorToAGroup(Group, PrintModuleName() + CommandSeparator() + "LatinString", NStr("en = 'Latin string'"), New TypeDescription("String"), True);
 	
 	Group = ListOfOperators.Rows.Find("OtherFunctions");
 	If Group = Undefined Then
 		Group = ListOfOperators.Rows.Add();
 		Group.Id = "OtherFunctions";
-		Group.Presentation = NStr("en = 'Other functions';");
+		Group.Presentation = NStr("en = 'Other functions'");
 		Group.Order = 7;
 		Group.Picture = PictureLib.TypeFunction;
 	EndIf;
@@ -2880,7 +2880,7 @@ Procedure DeleteTemplate(TemplatePath, LanguageCode = Undefined) Export
 	EndIf;
 	
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Template ""%1"" does not exist. The operation is canceled.';"), TemplatePath);
+		NStr("en = 'Template ""%1"" does not exist. The operation is canceled.'"), TemplatePath);
 	PathParts = StrSplit(TemplatePath, ".", True);
 	If PathParts.Count() <> 2 And PathParts.Count() <> 3 Then
 		Raise ErrorText;
@@ -3271,14 +3271,14 @@ Procedure OnOutputCommands(Form, AttachedCommands) Export
 	
 EndProcedure
 
-// 
+// Writes data of the default print form generated for the given object.
 //
 // Parameters:
 //  Objects               - AnyRef
-//                        - Array of AnyRef - 
-//  CommandDetails       - Structure -  See PrintManagement.CreatePrintCommandsCollection.
+//                        - Array of AnyRef - Documents whose print form names should be saved.
+//  CommandDetails       - Structure - Table row See PrintManagement.CreatePrintCommandsCollection.
 //  PrintFormsCollection - ValueTable - See PrintManagementOverridable.OnPrint.PrintFormsCollection.
-//                          
+//                          This parameter is passed if the selected print option is a spreadsheet.
 //
 Procedure OnExecutePrintCommand(Objects, CommandDetails, PrintFormsCollection = Undefined) Export
 	
@@ -3437,7 +3437,7 @@ Function EvalExpression(Val OriginalExpression, PrintData, FieldFormatSettings, 
 	Except
 		ErrorText = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		Common.MessageToUser(StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Expression ""%1"" contains errors:
-			|%2';"), OriginalExpression, ErrorText));
+			|%2'"), OriginalExpression, ErrorText));
 		Result = "";
 	EndTry;
 	
@@ -3461,7 +3461,7 @@ EndFunction
 Function TemplatePresentation(TemplatePath, LanguageCode) Export
 	
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Template ""%1"" does not exist. The operation is canceled.';"), TemplatePath);
+		NStr("en = 'Template ""%1"" does not exist. The operation is canceled.'"), TemplatePath);
 	PathParts = StrSplit(TemplatePath, ".", True);
 	
 	FoundTemplate = Catalogs.PrintFormTemplates.RefTemplate(TemplatePath);
@@ -3560,8 +3560,9 @@ Procedure Print(ObjectsArray, PrintParameters, PrintFormsCollection, PrintObject
 		PrintForm.OutputInOtherLanguagesAvailable = True;
 		PrintForm.FullTemplatePath = PrintForm.TemplateName;
 		PrintForm.TemplateSynonym = TemplatePresentation(PrintForm.FullTemplatePath, LanguageCode);
-		// @skip-check query-in-loop - A few loop iterations that query the table 
-		// "InformationRegister.UserPrintTemplates", which contains just a handful of records.
+		// @skip-check query-in-loop - Небольшое количество итераций цикла с запросом к таблице РегистрСведений.ПользовательскиеМакетыПечати 
+		// @skip-check query-in-loop - A few loop iterations that query the table
+// "InformationRegister.UserPrintTemplates", which contains just a handful of records.
 		Template = PrintFormTemplate(PrintForm.FullTemplatePath, LanguageCode); 
 		
 		If TypeOf(Template) = Type("BinaryData") Then
@@ -3704,6 +3705,8 @@ Function FieldsLayout(Template) Export
 		EndDo;
 	EndDo;
 	
+	Result = CommonClientServer.CollapseArray(Result);
+	
 	Return Result;
 	
 EndFunction
@@ -3730,10 +3733,9 @@ EndProcedure
 
 Procedure FixTagCheckingHandlingBeforePrinting(PrintCommands, MetadataObject) Export
 	
-	If Metadata.Documents.Contains(MetadataObject) Then
-		If MetadataObject.Posting = Metadata.ObjectProperties.Posting.Deny Then
+	If Not Metadata.Documents.Contains(MetadataObject)
+		Or MetadataObject.Posting = Metadata.ObjectProperties.Posting.Deny Then
 			PrintCommands.FillValues(False, "CheckPostingBeforePrint");
-		EndIf;
 	EndIf;
 	
 EndProcedure
@@ -3780,10 +3782,10 @@ EndFunction
 
 // Parameters:
 //  DataPath - String
-//  TableName - Undefined, String - 
+//  TableName - Undefined, String - Table name
 // 
 // Returns:
-//  String - 
+//  String - Table field name
 //
 Function FieldNameToTable(DataPath, TableName = Undefined) Export
 	
@@ -4038,7 +4040,7 @@ Function ObjectPrintFormFileName(PrintObject, PrintFormFileName, PrintFormName) 
 		If ValueIsFilled(PrintFormName) Then
 			Return PrintFormName;
 		EndIf;
-		Return NStr("en = 'Document';");
+		Return NStr("en = 'Document'");
 	EndIf;
 	
 	If TypeOf(PrintFormFileName) = Type("Map") Then
@@ -4246,7 +4248,7 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 				If ObjectsCorrespondingToPrintForm <> Undefined Then
 					ThisPrintableFormSKD = UsedPrintManager = PrintModuleName();
 					If ThisPrintableFormSKD Then
-						// @skip-check query-in-loop - Minor cycle
+						// @skip-check query-in-loop - Малый цикл
 						Print(ObjectsCorrespondingToPrintForm, PrintParameters, TempCollectionForSinglePrintForm, 
 							PrintObjects, OutputParameters); 
 					Else
@@ -4260,18 +4262,18 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 								Raise;
 							EndIf;
 							
-							WriteLogEvent(NStr("en = 'Print';", Common.DefaultLanguageCode()), EventLogLevel.Error, , ,
+							WriteLogEvent(NStr("en = 'Print'", Common.DefaultLanguageCode()), EventLogLevel.Error, , ,
 								ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 							
 							If Not AccessRight("Update", Metadata.InformationRegisters.UserPrintTemplates) Then
 								Raise NStr("en = 'Cannot generate the print form.
-									|Contact the administrator.';");
+									|Contact the administrator.'");
 							EndIf;
 							
 							If Not ValueIsFilled(TempCollectionForSinglePrintForm[0].FullTemplatePath) Then
 								FullTemplatePath = LastUsedTemplate();
 								
-								//@skip-check query-in-loop - The list of templates is unforeknown.
+								//@skip-check query-in-loop - список макетов заранее неизвестен.
 								If ValueIsFilled(FullTemplatePath) And UserTemplateUsed(FullTemplatePath) Then
 									TempCollectionForSinglePrintForm[0].FullTemplatePath = LastUsedTemplate();
 								Else
@@ -4293,7 +4295,7 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 		For Each PrintFormDetails In TempCollectionForSinglePrintForm Do
 			CommonClientServer.Validate(
 				TypeOf(PrintFormDetails.Copies2) = Type("Number") And PrintFormDetails.Copies2 > 0,
-				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The number of copies is not specified for %1 print form.';"),
+				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The number of copies is not specified for %1 print form.'"),
 				?(IsBlankString(PrintFormDetails.TemplateSynonym), PrintFormDetails.TemplateName, PrintFormDetails.TemplateSynonym)));
 		EndDo;
 				
@@ -4328,7 +4330,7 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 		// Raise an exception based on the error.
 		If Cancel Then
 			ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-				"en = 'Cannot generate the ""%1"" print form. Contact the administrator.';"), TemplateName);
+				"en = 'Cannot generate the ""%1"" print form. Contact the administrator.'"), TemplateName);
 			Raise ErrorMessageText;
 		EndIf;
 		
@@ -4420,7 +4422,7 @@ EndFunction
 
 Function QRCodeGenerationComponent()
 	
-	ErrorText = NStr("en = 'Failed to attach QR code add-in. See the Event log for details.';");
+	ErrorText = NStr("en = 'Failed to attach QR code add-in. See the Event log for details.'");
 	
 	Result = Common.AttachAddInFromTemplate("QRCodeExtension", "CommonTemplate.QRCodePrintingComponent");
 	If Result = Undefined Then 
@@ -4432,7 +4434,7 @@ Function QRCodeGenerationComponent()
 EndFunction
 
 Procedure MessagePrintFormUnavailable(Object)
-	MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot print %1: the print form is unavailable.';"), Object);
+	MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot print %1: the print form is unavailable.'"), Object);
 	Common.MessageToUser(MessageText, Object);
 EndProcedure
 
@@ -4505,7 +4507,7 @@ Procedure FillPrintCommandsForObjectsList(ListOfObjects, PrintCommands)
 		If PrintCommandsSources[MetadataObject] = Undefined Then
 			Continue;
 		EndIf;
-		FormPrintCommands = ObjectPrintCommands(MetadataObject); // @skip-check query-in-loop - Minor cycle
+		FormPrintCommands = ObjectPrintCommands(MetadataObject); // @skip-check query-in-loop - Малый цикл
 		
 		For Each PrintCommandToAdd In FormPrintCommands Do
 			If PrintCommandToAdd.isDisabled Then
@@ -4710,7 +4712,7 @@ Procedure CheckSpreadsheetDocumentLayoutByPrintObjects(SpreadsheetDocument, Prin
 	LayoutErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
 		"en = 'Spreadsheet document %1 has no layout for print objects.
 		|When you generate a spreadsheet document, use the
-		|%2() procedure';"), 
+		|%2() procedure'"), 
 		Id, "PrintManagement.SetDocumentPrintArea");
 	
 	CommonClientServer.Validate(HasLayoutByPrintObjects, LayoutErrorText, PrintManager + "." + "Print()");
@@ -4754,7 +4756,7 @@ Function NormalizeTemplate(Val Template)
 EndFunction
 
 Function AreaTypeSpecifiedIncorrectlyText()
-	Return NStr("en = 'Area type is not specified or invalid.';");
+	Return NStr("en = 'Area type is not specified or invalid.'");
 EndFunction
 
 Function ObjectsSignaturesAndSeals(Val PrintObjects) Export
@@ -4839,10 +4841,10 @@ Function DefaultPrintFormFileName(PrintObject, PrintFormName)
 		
 		If DocumentContainsNumber Then
 			AttributesList = "Date,Number";
-			Template = NStr("en = '[PrintFormName] #[Number] dated [Date]';");
+			Template = NStr("en = '[PrintFormName] #[Number] dated [Date]'");
 		Else
 			AttributesList = "Date";
-			Template = NStr("en = '[PrintFormName] dated [Date]';");
+			Template = NStr("en = '[PrintFormName] dated [Date]'");
 		EndIf;
 		
 		ParametersToInsert = Common.ObjectAttributesValues(PrintObject, AttributesList);
@@ -4859,7 +4861,7 @@ Function DefaultPrintFormFileName(PrintObject, PrintFormName)
 		ParametersToInsert.Insert("PrintFormName",PrintFormName);
 		ParametersToInsert.Insert("ObjectPresentation", Common.SubjectString(PrintObject));
 		ParametersToInsert.Insert("CurrentDate",Format(CurrentSessionDate(), "DLF=D"));
-		Template = NStr("en = '[PrintFormName] - [ObjectPresentation] - [CurrentDate]';");
+		Template = NStr("en = '[PrintFormName] - [ObjectPresentation] - [CurrentDate]'");
 		
 	EndIf;
 	
@@ -5100,7 +5102,7 @@ EndFunction
 Function FindTemplate(TemplatePath, LanguageCode, SuppliedOnly = False)
 	
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Template ""%1"" does not exist. The operation is canceled.';"), TemplatePath);
+		NStr("en = 'Template ""%1"" does not exist. The operation is canceled.'"), TemplatePath);
 	PathParts = StrSplit(TemplatePath, ".", True);
 	
 	FoundTemplate = Catalogs.PrintFormTemplates.FindTemplate(TemplatePath, LanguageCode);
@@ -5380,6 +5382,8 @@ Procedure FillDataPrint(PrintData, FieldsDetails, FieldHierarchy, Objects, Langu
 						EndIf;
 					EndDo;
 				EndIf;
+				
+				PrintData["ObjectTablePartNames"] = CommonClientServer.CollapseArray(PrintData["ObjectTablePartNames"]);
 				
 				For Each Object In Objects Do
 					If SourceOfFieldsInTablePart Then
@@ -5856,7 +5860,7 @@ Function ComposeData(Parameters)
 	If KeyField = Undefined Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr(
 			"en = 'The ""%1"" key field is not found in the list of fields of the data composition schema for printing ""%2"".
-			|See the ""%3"" parameter details in the ""%4"" procedure.';"),
+			|See the ""%3"" parameter details in the ""%4"" procedure.'"),
 			"Ref",
 			DataCompositionSchemaId,
 			"PrintDataSources",
@@ -6186,7 +6190,7 @@ Function RowsCount(Table, ColumnName = Undefined) Export
 		Return Table.Count();
 	EndIf;
 	
-	Raise NStr("en = 'Incorrect table';");
+	Raise NStr("en = 'Incorrect table'");
 	
 EndFunction
 
@@ -6203,7 +6207,7 @@ Function SumByColumn(Table, ColumnName = Undefined) Export // ACC:299 - Formula 
 		Return Value;
 	EndIf;
 	
-	Raise NStr("en = 'The table column is incorrect';");
+	Raise NStr("en = 'The table column is incorrect'");
 	
 EndFunction
 
@@ -6222,7 +6226,7 @@ Function ColumnMax(Table, ColumnName = Undefined) Export // ACC:299 - Formula co
 		Return Value;
 	EndIf;
 	
-	Raise NStr("en = 'The table column is incorrect';");
+	Raise NStr("en = 'The table column is incorrect'");
 	
 EndFunction
 
@@ -6241,7 +6245,7 @@ Function ColumnMin(Table, ColumnName = Undefined) Export // ACC:299 - Formula co
 		Return Value;
 	EndIf;
 	
-	Raise NStr("en = 'The table column is incorrect';");
+	Raise NStr("en = 'The table column is incorrect'");
 	
 EndFunction
 
@@ -6258,7 +6262,7 @@ Function ColumnAverage(Table, ColumnName = Undefined) Export // ACC:299 - Formul
 		Return ?(Table.Count(), Value/Table.Count(), 0);
 	EndIf;
 	
-	Raise NStr("en = 'The table column is incorrect';");
+	Raise NStr("en = 'The table column is incorrect'");
 
 EndFunction
 
@@ -6720,7 +6724,7 @@ Function DefaultFormat(TypeDescription)
 			Format = "DLF=DT";
 		EndIf;
 	ElsIf Type = Type("Boolean") Then
-		Format = NStr("en = 'BF=No; BT=Yes';");
+		Format = NStr("en = 'BF=No; BT=Yes'");
 	EndIf;
 	
 	Return Format;
@@ -6802,7 +6806,7 @@ Function DataLayoutSchemaContactInformation(MetadataObjectName)
 	
 	Field = FieldList.Add();
 	Field.Id = "Ref";
-	Field.Presentation = NStr("en = 'Ref';");
+	Field.Presentation = NStr("en = 'Ref'");
 	Field.ValueType = New TypeDescription();	
 
 	For Each ContactInformationKind In ContactInformationKinds Do
@@ -6866,7 +6870,7 @@ Function LayoutSchemeDataAdditionalDetailsAndDetails(MetadataObjectName)
 	
 	Field = FieldList.Add();
 	Field.Id = "Ref";
-	Field.Presentation = NStr("en = 'Ref';");
+	Field.Presentation = NStr("en = 'Ref'");
 	Field.ValueType = New TypeDescription();	
 
 	Return SchemaCompositionDataPrint(FieldList);
@@ -7457,7 +7461,7 @@ EndFunction
 Procedure AddGroupOfFunctionOperatorsForTables(ListOfOperators)
 	Group = ListOfOperators.Rows.Add();
 	Group.Id = "TableFunctions";
-	Group.Presentation = NStr("en = 'Functions for tables';");
+	Group.Presentation = NStr("en = 'Functions for tables'");
 	Group.Order = 5;
 	Group.Picture = PictureLib.TypeFunction;
 	
@@ -7465,11 +7469,11 @@ Procedure AddGroupOfFunctionOperatorsForTables(ListOfOperators)
 	
 	Prefix = PrintModuleName() + CommandSeparator();
 	
-	AddAnOperatorToAGroup(Group, Prefix + "SumByColumn", NStr("en = 'Column sum';"), Type, True);
-	AddAnOperatorToAGroup(Group, Prefix + "RowsCount", NStr("en = 'Number of rows';"), Type, True);
-	AddAnOperatorToAGroup(Group, Prefix + "ColumnMax", NStr("en = 'Column max';"), Type, True);
-	AddAnOperatorToAGroup(Group, Prefix + "ColumnMin", NStr("en = 'Column min';"), Type, True);
-	AddAnOperatorToAGroup(Group, Prefix + "ColumnAverage", NStr("en = 'Column average';"), Type, True);
+	AddAnOperatorToAGroup(Group, Prefix + "SumByColumn", NStr("en = 'Column sum'"), Type, True);
+	AddAnOperatorToAGroup(Group, Prefix + "RowsCount", NStr("en = 'Number of rows'"), Type, True);
+	AddAnOperatorToAGroup(Group, Prefix + "ColumnMax", NStr("en = 'Column max'"), Type, True);
+	AddAnOperatorToAGroup(Group, Prefix + "ColumnMin", NStr("en = 'Column min'"), Type, True);
+	AddAnOperatorToAGroup(Group, Prefix + "ColumnAverage", NStr("en = 'Column average'"), Type, True);
 	
 EndProcedure
 
@@ -7568,10 +7572,10 @@ Procedure ProcessSendingCommands(Form)
 	
 EndProcedure
 
-// 
+// It groups references by print command ID.
 Function DefaultPrintExecutionParameters(References) Export
 	
-	// поиск по объектам
+	// Search by objects.
 	RefsByIDs = InformationRegisters.DefaultObjectPrintForms.CommandsIDs(References);
 	
 	RefsWithIDs = New Array;
@@ -7583,7 +7587,7 @@ Function DefaultPrintExecutionParameters(References) Export
 		EndDo;
 	EndDo;
 	
-	// поиск оставшихся по контрагентам
+	// Search by counterparties.
 	RefsWithoutIDs = CommonClientServer.ArraysDifference(References, RefsWithIDs);
 	IDsWithoutObjects = New Array;
 	
@@ -7596,7 +7600,7 @@ Function DefaultPrintExecutionParameters(References) Export
 				Ref, KeyAttributes.Organization, KeyAttributes.Recipient);
 			
 			If Not IsBlankString(Id) Then
-				If RefsByIDs.Property(Id) Then // ACC:1416 структура является хранилищем списка вместо массива
+				If RefsByIDs.Property(Id) Then // ACC:1416 - The structure stores a list instead of an array.
 					RefsByIDs[Id].Add(Ref);
 				Else
 					Array = New Array;
@@ -7618,7 +7622,7 @@ Function DefaultPrintExecutionParameters(References) Export
 	AllPrintCommands.Columns.Add("IDWithoutSpecialChars");
 	
 	For Each RefMetadata In MetadataArray1 Do
-		ObjectPrintCommands = ObjectPrintCommands(RefMetadata); // @skip-check query-in-loop - Minor cycle
+		ObjectPrintCommands = ObjectPrintCommands(RefMetadata); // @skip-check query-in-loop - Малый цикл
 		
 		For Each PrintCommand In ObjectPrintCommands Do
 			NewCommand = AllPrintCommands.Add();
@@ -7629,7 +7633,7 @@ Function DefaultPrintExecutionParameters(References) Export
 	
 	NewExecutionParameters = New Array;
 	
-	// основной позитивный сценарий
+	// Main positive scenario
 	DetailsFieldsToReplace = "Id,PrintManager,Handler,PrintObjects,SkipPreview,SaveFormat,
 		|FixedSet,AdditionalParameters,DefaultPrintForm,ReplaceDefaultPrintForm,
 		|PrintFormDescription,DefaultCommand,IDFromSet,CheckPostingBeforePrint";
@@ -7654,7 +7658,7 @@ Function DefaultPrintExecutionParameters(References) Export
 	
 	HasExecutionParameters = True;
 	
-	// печать в первый раз нужно предоставить выбор команды
+	// This is a first-time printing, prompt commands.
 	If Not NewExecutionParameters.Count() And References.Count() = 1 Then
 		HasExecutionParameters = False;
 		
@@ -7731,7 +7735,7 @@ Function IsIncludedInObjectsWithDefaultPrintForms(Type) Export
 	ElsIf ParameterType = Type("String") Then
 		
 		For Each Item In Type_Recipient.Types() Do
-			If Item = Type("String") Then // рудимент остается после встраивания, нужно пропустить
+			If Item = Type("String") Then // Integration legacy, skip it.
 				Continue;
 			EndIf;
 			If Common.TypePresentationString(Item) = Type Then

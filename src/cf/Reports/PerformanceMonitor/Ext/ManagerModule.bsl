@@ -28,15 +28,15 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 		
 		OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "PerformanceMonitorByKeyOperations"); // See ReportsOptions.OptionDetails		
 		OptionSettings.LongDesc = 
-			NStr("en = 'Provides Apdex metrics.';");
+			NStr("en = 'Provides Apdex metrics.'");
 			
 		OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "PerformanceMonitorComparison"); // See ReportsOptions.OptionDetails
 		OptionSettings.LongDesc = 
-			NStr("en = 'Compares Apdex metrics during a period';");
+			NStr("en = 'Compares Apdex metrics during a period'");
 			
 		OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "PerformanceMonitorPeriodInColumns"); // See ReportsOptions.OptionDetails
 		OptionSettings.LongDesc = 
-			NStr("en = 'Provides Apdex metrics by period.';");
+			NStr("en = 'Provides Apdex metrics by period.'");
 	EndIf;
 			
 EndProcedure

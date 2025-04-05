@@ -40,7 +40,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If SelectedSaveFormats.Count() = 1 Then
 		Items.FormatsSelectionGroup.Visible = False;
 		AutoTitle = False;
-		Title = NStr("en = 'Select attachment parameters';");
+		Title = NStr("en = 'Select attachment parameters'");
 		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, "WithoutChoosingFormat");
 	ElsIf SelectedSaveFormats.Count() > 1 Then
 		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, "");

@@ -45,7 +45,7 @@ Procedure CreateScenario(
 	
 	Cancel = False;
 	
-	Description = NStr("en = 'Synchronize data with %1 automatically';");
+	Description = NStr("en = 'Synchronize data with %1 automatically'");
 	Description = StringFunctionsClientServer.SubstituteParametersToString(Description,
 			String(InfobaseNode));
 			
@@ -187,7 +187,7 @@ Procedure SetScheduledJobParameters(ScheduledJobObject, JobSchedule, CurrentObje
 	ScheduledJobParameters = New Array;
 	ScheduledJobParameters.Add(CurrentObject.Code);
 	
-	ScheduledJobDescription = NStr("en = 'Exchange data by scenario: %1';");
+	ScheduledJobDescription = NStr("en = 'Exchange data by scenario: %1'");
 	ScheduledJobDescription = StringFunctionsClientServer.SubstituteParametersToString(ScheduledJobDescription, TrimAll(CurrentObject.Description));
 	
 	ScheduledJobObject.Description  = Left(ScheduledJobDescription, 120);
@@ -219,7 +219,7 @@ Procedure WriteScheduledJob(Cancel, ScheduledJobObject)
 		
 	Except
 		
-		MessageString = NStr("en = 'Couldn''t save the exchange schedule. Error details: %1';");
+		MessageString = NStr("en = 'Couldn''t save the exchange schedule. Error details: %1'");
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString,
 			ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		DataExchangeServer.ReportError(MessageString, Cancel);

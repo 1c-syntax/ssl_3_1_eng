@@ -89,7 +89,7 @@ Function CalculationCellsIndicators(Val SpreadsheetDocument, SelectedAreas, UUID
 	EndIf;
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Cell indicator calculation';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Cell indicator calculation'");
 	
 	Return TimeConsumingOperations.ExecuteFunction(
 		ExecutionParameters, 
@@ -126,7 +126,7 @@ EndFunction
 Function ClientParametersOnStart(Parameters) Export
 	
 	CommonStartTime = CurrentUniversalDateInMilliseconds();
-	Indicators = ?(StandardSubsystemsClientServer.RegisterPerformanceIndicators(),
+	Indicators = ?(StandardSubsystemsClientServer.ShouldRegisterPerformanceIndicators(),
 		New Array, Undefined);
 	
 	NewParameters = New Structure;
@@ -152,11 +152,11 @@ Function ClientParametersOnStart(Parameters) Export
 	EndIf;
 	
 	StartMoment = CurrentUniversalDateInMilliseconds();
-	AllAdded = StandardSubsystemsServer.AddClientParametersOnStart(Parameters);
+	IsAllAdded = StandardSubsystemsServer.AddClientParametersOnStart(Parameters);
 	StandardSubsystemsServer.AddMainIndicator(Indicators, StartMoment,
 		"StandardSubsystemsServer.AddClientParametersOnStart", Parameters);
 	
-	If Not AllAdded Then
+	If Not IsAllAdded Then
 		Result = FixedClientParametersWithoutTemporaryParameters(Parameters, Indicators);
 		StandardSubsystemsServer.AddMainIndicator(Indicators, CommonStartTime,
 			"StandardSubsystemsServerCall.ClientParametersOnStart",, True);
@@ -200,7 +200,7 @@ EndFunction
 Function ClientRunParameters(ClientProperties) Export
 	
 	CommonStartTime = CurrentUniversalDateInMilliseconds();
-	Indicators = ?(StandardSubsystemsClientServer.RegisterPerformanceIndicators(),
+	Indicators = ?(StandardSubsystemsClientServer.ShouldRegisterPerformanceIndicators(),
 		New Array, Undefined);
 	
 	Parameters = New Structure;
@@ -237,31 +237,31 @@ EndFunction
 // Parameters:
 //  OnStart - Boolean
 //  Indicators - String
-//  СтекВызова - String
+//  CallStack - String
 //
-Procedure WritePerformanceIndicators(Val OnStart, Val Indicators, Val СтекВызова) Export
+Procedure WritePerformanceIndicators(Val OnStart, Val Indicators, Val CallStack) Export
 	
 	EventName = ?(OnStart,
-		NStr("en = 'Параметры работы клиента при запуске.Показатели производительности';",
+		NStr("en = 'Client parameters on startup.Performance indicators'",
 			Common.DefaultLanguageCode()),
-		NStr("en = 'Параметры работы клиента.Показатели производительности';",
+		NStr("en = 'Client parameters.Performance indicators'",
 			Common.DefaultLanguageCode()));
 	
-	Comment = Indicators + Chars.LF + Chars.LF + СтекВызова;
+	Comment = Indicators + Chars.LF + Chars.LF + CallStack;
 	
 	WriteLogEvent(EventName,
 		EventLogLevel.Information,,, Comment);
 	
 	If Common.SubsystemExists("CloudTechnology") Then
-		ИмяСобытияСтек = ?(OnStart,
-			NStr("en = 'Параметры работы клиента при запуске.Стек вызова';",
+		EventNameStack = ?(OnStart,
+			NStr("en = 'Client parameters on startup.Call stack'",
 				Common.DefaultLanguageCode()),
-			NStr("en = 'Параметры работы клиента.Стек вызова';",
+			NStr("en = 'Client parameters.Call stack'",
 				Common.DefaultLanguageCode()));
 		
 		ModuleCommonCTL = Common.CommonModule("CommonCTL");
 		ModuleCommonCTL.TechnologyLogEntry(EventName, Indicators);
-		ModuleCommonCTL.TechnologyLogEntry(ИмяСобытияСтек, СтекВызова);
+		ModuleCommonCTL.TechnologyLogEntry(EventNameStack, CallStack);
 	EndIf;
 	
 EndProcedure
@@ -291,7 +291,7 @@ Procedure CheckDisableStartupLogicRight(ClientProperties) Export
 	If Not LoginDataArea And Not AccessRight("Administration", Metadata)
 		Or LoginDataArea And Not AccessRight("DataAdministration", Metadata) Then
 		
-		ErrorText = NStr("en = 'Insufficient rights to perform the operation.';");
+		ErrorText = NStr("en = 'Insufficient rights to perform the operation.'");
 	Else
 		ErrorText = UsersInternal.ErrorCheckingTheRightsOfTheCurrentUserWhenLoggingIn();
 	EndIf;
@@ -306,15 +306,15 @@ EndProcedure
 Procedure WriteErrorToEventLogOnStartOrExit(Shutdown, Val Event, Val ErrorText) Export
 	
 	If Event = "Run" Then
-		EventName = NStr("en = 'Startup';", Common.DefaultLanguageCode());
+		EventName = NStr("en = 'Startup'", Common.DefaultLanguageCode());
 		If Shutdown Then
-			ErrorDescriptionBeginning = NStr("en = 'Startup failed due to:';");
+			ErrorDescriptionBeginning = NStr("en = 'Startup failed due to:'");
 		Else
-			ErrorDescriptionBeginning = NStr("en = 'Exception occurred during startup:';");
+			ErrorDescriptionBeginning = NStr("en = 'Exception occurred during startup:'");
 		EndIf;
 	Else
-		EventName = NStr("en = 'Exit';", Common.DefaultLanguageCode());
-		ErrorDescriptionBeginning = NStr("en = 'Exception occurred while exiting the application:';");
+		EventName = NStr("en = 'Exit'", Common.DefaultLanguageCode());
+		ErrorDescriptionBeginning = NStr("en = 'Exception occurred while exiting the application:'");
 	EndIf;
 	
 	ErrorDescription = ErrorDescriptionBeginning + Chars.LF + Chars.LF + ErrorText;

@@ -16,7 +16,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Verify that the form is opened with the required parameters
 	If Not Parameters.Property("ExchangeNode") Then
 		
-		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
+		Raise NStr("en = 'This is a dependent form and opens from a different form.'", Common.DefaultLanguageCode());
 		
 	EndIf;
 	
@@ -30,7 +30,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.ErrorLabelDecoration.Title = StringFunctionsClientServer.SubstituteParametersToString(
 		Items.ErrorLabelDecoration.Title, PeerInfobaseName);
 	
-	Title = NStr("en = 'Import data exchange parameters';");
+	Title = NStr("en = 'Import data exchange parameters'");
 	
 EndProcedure
 

@@ -109,7 +109,7 @@ Function StartRequestsProcessing(Val Queries, Val EnablingMode, DisablingMode, V
 	Job = BackgroundJobs.Execute("Common.ExecuteConfigurationMethod",
 			MethodCallParameters,
 			,
-			NStr("en = 'Processing requests for external resources…';"));
+			NStr("en = 'Processing requests for external resources…'"));
 	
 	JobID = Job.UUID;
 	
@@ -161,7 +161,7 @@ Function RequestsProcessed(Val JobID)
 	EndIf;
 	
 	If Job = Undefined Then
-		Raise(NStr("en = 'An unexpected error occurred while processing permission requests to use external resources.';"));
+		Raise(NStr("en = 'An unexpected error occurred while processing permission requests to use external resources.'"));
 	EndIf;
 	
 	If Job.State = BackgroundJobState.Failed Then
@@ -169,10 +169,10 @@ Function RequestsProcessed(Val JobID)
 		If JobError <> Undefined Then
 			Raise(ErrorProcessing.DetailErrorDescription(JobError));
 		Else
-			Raise(NStr("en = 'Cannot process permission requests to use external resources.';"));
+			Raise(NStr("en = 'Cannot process permission requests to use external resources.'"));
 		EndIf;
 	ElsIf Job.State = BackgroundJobState.Canceled Then
-		Raise(NStr("en = 'Cannot process permission requests to use external resources as the administrator canceled the job.';"));
+		Raise(NStr("en = 'Cannot process permission requests to use external resources as the administrator canceled the job.'"));
 	Else
 		JobID = Undefined;
 		Return True;
@@ -217,7 +217,7 @@ Procedure CancelRequestsProcessing(Val JobID)
 		Job.Cancel();
 	Except
 		// The job might have been completed at that moment and no error occurred.
-		WriteLogEvent(NStr("en = 'External resource permission setup.Cancel background job';", Common.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'External resource permission setup.Cancel background job'", Common.DefaultLanguageCode()),
 			EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	

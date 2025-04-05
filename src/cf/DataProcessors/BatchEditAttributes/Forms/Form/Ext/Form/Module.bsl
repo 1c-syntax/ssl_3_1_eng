@@ -35,9 +35,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ExecuteActionsOnContextOpen();
 	Else
 		If Not Users.IsFullUser() Then
-			Raise(NStr("en = 'Insufficient access rights.';"), ErrorCategory.AccessViolation);
+			Raise(NStr("en = 'Insufficient access rights.'"), ErrorCategory.AccessViolation);
 		EndIf;
-		Title = NStr("en = 'Bulk attribute edit';");
+		Title = NStr("en = 'Bulk attribute edit'");
 		FillObjectsTypesList();
 	EndIf;
 	
@@ -150,13 +150,13 @@ Procedure OperationKindOnChange(Item)
 	
 	If Object.OperationType = "ExecuteAlgorithm" Then
 		Items.OperationKindPages.CurrentPage = Items.ArbitraryAlgorithm;
-		Items.FormChange.Title = NStr("en = 'Run';");
+		Items.FormChange.Title = NStr("en = 'Run'");
 		Items.PreviouslyChangedAttributes.Visible = False;
 		Items.Algorithms.Visible = True;
 		Items.AttributesSearchString.Visible = False;
 	Else
 		Items.OperationKindPages.CurrentPage = Items.AttributesToChange;
-		Items.FormChange.Title = NStr("en = 'Edit attributes';");
+		Items.FormChange.Title = NStr("en = 'Edit attributes'");
 		Items.PreviouslyChangedAttributes.Visible = True;
 		Items.Algorithms.Visible = False;
 		Items.AttributesSearchString.Visible = True;
@@ -389,7 +389,7 @@ Procedure Change(Command)
 	
 	If ButtonPurpose = "Change" Then
 		If Not SelectedObjectsAvailable() Then
-			ShowMessageBox(, NStr("en = 'Items to edit are not specified.';"));
+			ShowMessageBox(, NStr("en = 'Items to edit are not specified.'"));
 			Return;
 		EndIf;
 		
@@ -400,9 +400,9 @@ Procedure Change(Command)
 		If AvailableConfiguredFilters() Then
 			ExecuteChangeFilterCheckCompleted();
 		Else
-			QueryText = NStr("en = 'Filter not set. Do you want to edit all items?';");
+			QueryText = NStr("en = 'Filter not set. Do you want to edit all items?'");
 			NotifyDescription = New CallbackDescription("ExecuteChangeFilterCheckCompleted", ThisObject);
-			ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.OKCancel, , , NStr("en = 'Edit items';"));
+			ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.OKCancel, , , NStr("en = 'Edit items'"));
 		EndIf;
 		
 		Return;
@@ -642,9 +642,9 @@ Procedure ExecuteChangeFilterCheckCompleted(QuestionResult = Undefined, Addition
 	EndIf;
 	
 	If Not AvailableConfiguredChanges() And Object.OperationType = "EnterValues" Then
-		QueryText = NStr("en = 'No changes found. Overwrite the items without introducing changes?';");
+		QueryText = NStr("en = 'No changes found. Overwrite the items without introducing changes?'");
 		NotifyDescription = New CallbackDescription("ExecuteChangeChecksCompleted", ThisObject);
-		ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.OKCancel, , , NStr("en = 'Edit items';"));
+		ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.OKCancel, , , NStr("en = 'Edit items'"));
 	Else
 		ExecuteChangeChecksCompleted();
 	EndIf;
@@ -664,7 +664,7 @@ EndFunction
 &AtServer
 Procedure ExecuteActionsOnContextOpen()
 	
-	TitleTemplate1 = NStr("en = 'Edit selected %1 elements (%2)';");
+	TitleTemplate1 = NStr("en = 'Edit selected %1 elements (%2)'");
 	
 	ObjectsTypes = New ValueList;
 	For Each PassedObject In Parameters.ObjectsArray Do
@@ -678,7 +678,7 @@ Procedure ExecuteActionsOnContextOpen()
 	TypePresentation = Parameters.ObjectsArray[0].Metadata().Presentation();
 	If ObjectsTypes.Count() > 1 Then
 		TypePresentation = "";
-		TitleTemplate1 = NStr("en = 'Edit selected items (%2)';");
+		TitleTemplate1 = NStr("en = 'Edit selected items (%2)'");
 	EndIf;
 	
 	ObjectCount = Parameters.ObjectsArray.Count();
@@ -822,7 +822,7 @@ EndProcedure
 Procedure AskForAttributeUnlockConfirmation(SelectedAttribute)
 	
 	Buttons = New ValueList;
-	Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Allow editing';"));
+	Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Allow editing'"));
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'To prevent data inconsistency, attribute %1 has been locked.
 			|
@@ -830,13 +830,13 @@ Procedure AskForAttributeUnlockConfirmation(SelectedAttribute)
 			|and consider possible data implications.
 			|
 			|Allow editing of %1?
-			|';"),
+			|'"),
 		SelectedAttribute.Presentation);
 	
-	Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
+	Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
 	
 	NotifyDescription = New CallbackDescription("AskForAttributeUnlockConfirmationCompletion", ThisObject, SelectedAttribute);
-	ShowQueryBox(NotifyDescription, QueryText, Buttons, , DialogReturnCode.Yes, NStr("en = 'Attribute is locked';"));
+	ShowQueryBox(NotifyDescription, QueryText, Buttons, , DialogReturnCode.Yes, NStr("en = 'Attribute is locked'"));
 	
 EndProcedure
 
@@ -1063,12 +1063,12 @@ Procedure SettButtonsDuringChange(StartChange)
 	Items.FormChange.Enabled = True;
 	
 	If StartChange Then
-		Items.FormChange.Title = NStr("en = 'Abort';");
+		Items.FormChange.Title = NStr("en = 'Abort'");
 	Else
 		If ObjectsThatCouldNotBeChanged.Count() > 0 Then
-			Items.FormChange.Title = NStr("en = 'Edit same attributes';");
+			Items.FormChange.Title = NStr("en = 'Edit same attributes'");
 		Else
-			Items.FormChange.Title = NStr("en = 'Close';");
+			Items.FormChange.Title = NStr("en = 'Close'");
 		EndIf;
 	EndIf;
 	
@@ -1081,8 +1081,8 @@ Procedure ChangeObjects1()
 	CurrentChangeStatus = New Structure;
 	ObjectsCountForProcessing = SelectedObjectsCount(True, True);
 	
-	ShowUserNotification(NStr("en = 'Edit selected items';"),, 
-		NStr("en = 'Please wait. Processing may take some time…';"));
+	ShowUserNotification(NStr("en = 'Edit selected items'"),, 
+		NStr("en = 'Please wait. Processing may take some time…'"));
 	ShowProcessedItemsPercentage = False;
 	
 	CurrentChangeStatus.Insert("ItemsAvailableForProcessing", True);
@@ -1149,7 +1149,7 @@ Procedure OnCompleteChange(Result, AdditionalParameters) Export
 	ResultsOfChanges = GetFromTempStorage(Result.ResultAddress);
 	
 	If TypeOf(ResultsOfChanges) <> Type("Map") Then
-		ErrorText = NStr("en = 'The background job did not return a result';");
+		ErrorText = NStr("en = 'The background job did not return a result'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -1163,7 +1163,7 @@ Procedure OnCompleteChange(Result, AdditionalParameters) Export
 		Else
 			ResultOfBatchChange = GetFromTempStorage(ResultOfBatchExecution.ResultAddress);
 			If TypeOf(ResultOfBatchChange) <> Type("Structure") Then
-				ErrorText = NStr("en = 'The thread background job did not return a result';");
+				ErrorText = NStr("en = 'The thread background job did not return a result'");
 				Raise ErrorText;
 			EndIf;
 		
@@ -1199,16 +1199,16 @@ Procedure ProcessChangeResult(ChangeResult = Undefined, ContinueProcessing = Und
 		EndIf;
 		
 		QueryText = NStr("en = 'Errors editing items.
-			|Do you want to cancel editing and see the Error log?';");
+			|Do you want to cancel editing and see the Error log?'");
 		Buttons = New ValueList;
-		Buttons.Add(DialogReturnCode.Abort, NStr("en = 'Cancel';"));
-		Buttons.Add(DialogReturnCode.Ignore, NStr("en = 'Continue';"));
-		Buttons.Add(DialogReturnCode.No, NStr("en = 'Do not ask again';"));
+		Buttons.Add(DialogReturnCode.Abort, NStr("en = 'Cancel'"));
+		Buttons.Add(DialogReturnCode.Ignore, NStr("en = 'Continue'"));
+		Buttons.Add(DialogReturnCode.No, NStr("en = 'Do not ask again'"));
 		
 		NotifyDescription = New CallbackDescription("ProcessChangeResultResponseReceived", 
 			ThisObject, ChangeResult);
 		ShowQueryBox(NotifyDescription, QueryText, Buttons, , DialogReturnCode.Abort, 
-			NStr("en = 'Editing errors';"));
+			NStr("en = 'Editing errors'"));
 		Return;
 	EndDo;
 	
@@ -1217,7 +1217,7 @@ Procedure ProcessChangeResult(ChangeResult = Undefined, ContinueProcessing = Und
 	If CurrentChangeStatus.ShowProcessedItemsPercentage Then
 		// Calculating the current percentage of processed objects.
 		CurrentPercentage = Round(CurrentChangeStatus.CurrentPosition / CurrentChangeStatus.ObjectsCountForProcessing * 100);
-		Status(NStr("en = 'Processing in progress…';"), CurrentPercentage, NStr("en = 'Edit selected items';"));
+		Status(NStr("en = 'Processing in progress…'"), CurrentPercentage, NStr("en = 'Edit selected items'"));
 	EndIf;
 	
 	ItemsAvailableForProcessing = ?(CurrentChangeStatus.CurrentPosition < CurrentChangeStatus.ObjectsCountForProcessing, True, False);
@@ -1258,9 +1258,9 @@ Procedure CompleteObjectChange()
 	
 	ProcessingCompleted = CurrentChangeStatus.ChangedCount = CurrentChangeStatus.ObjectsCountForProcessing;
 	If ProcessingCompleted Then
-		ShowUserNotification(NStr("en = 'Edit attributes';"), , 
+		ShowUserNotification(NStr("en = 'Edit attributes'"), , 
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 items have been edited.';"), CurrentChangeStatus.ChangedCount));
+				NStr("en = '%1 items have been edited.'"), CurrentChangeStatus.ChangedCount));
 		GoToCompletedPage();
 		Return;
 	EndIf;
@@ -1268,13 +1268,13 @@ Procedure CompleteObjectChange()
 	Items.ObjectsThatCouldNotBeChangedGroup.Visible = ObjectsThatCouldNotBeChanged.Count() > 0;
 	
 	If ProcessingCompleted Then
-		MessageTemplate = NStr("en = 'All %2 selected items have been edited.';");
+		MessageTemplate = NStr("en = 'All %2 selected items have been edited.'");
 	Else
 		If Object.ChangeInTransaction Or CurrentChangeStatus.ChangedCount = 0 Then
-			MessageTemplate = NStr("en = 'No items have been edited.';");
+			MessageTemplate = NStr("en = 'No items have been edited.'");
 		Else
 			MessageTemplate = NStr("en = 'Items edited partially.
-										|Edited: %1. Could not edit: %3.';");
+										|Edited: %1. Could not edit: %3.'");
 		EndIf;
 	EndIf;
 	
@@ -1283,8 +1283,8 @@ Procedure CompleteObjectChange()
 		If SkippedItemsCount > 0 And Not CurrentChangeStatus.AbortUpdate Then
 			TableRow = ObjectsThatCouldNotBeChanged.Add();
 			TableRow.Object = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '… and other items (%1)';"), SkippedItemsCount);
-			TableRow.Cause = NStr("en = 'Cannot modify some items. The items were skipped.';");
+				NStr("en = '… and other items (%1)'"), SkippedItemsCount);
+			TableRow.Cause = NStr("en = 'Cannot modify some items. The items were skipped.'");
 		EndIf;
 	EndIf;
 	
@@ -1307,10 +1307,10 @@ Procedure BackServer()
 	ObjectsThatCouldNotBeChanged.Clear();
 	Items.FormBack.Visible = False;
 	If Object.OperationType = "ExecuteAlgorithm" Then
-		Items.FormChange.Title = NStr("en = 'Run';");
-		Items.FormChange.ExtendedTooltip.Title = NStr("en = 'Run algorithm';");
+		Items.FormChange.Title = NStr("en = 'Run'");
+		Items.FormChange.ExtendedTooltip.Title = NStr("en = 'Run algorithm'");
 	Else
-		Items.FormChange.Title = NStr("en = 'Edit attributes';");
+		Items.FormChange.Title = NStr("en = 'Edit attributes'");
 	EndIf;
 	
 	UpdateLabelServer();
@@ -1323,8 +1323,8 @@ Procedure GoToCompletedPage()
 	Items.Pages.CurrentPage = Items.AllDone;
 	Items.DoneLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Attributes of selected items edited.
-			|Total items edited: %1.';"), CurrentChangeStatus.ChangedCount);
-	Items.FormChange.Title = NStr("en = 'Finish';");
+			|Total items edited: %1.'"), CurrentChangeStatus.ChangedCount);
+	Items.FormChange.Title = NStr("en = 'Finish'");
 	Items.FormBack.Visible = True;
 	
 	AddMessagePossibleToEditAttributesFaster();
@@ -1351,7 +1351,7 @@ Procedure AddMessagePossibleToEditAttributesFaster()
 	Items.DoneLabel.Title = Items.DoneLabel.Title
 		+ Chars.LF + Chars.LF
 		+ NStr("en = 'You can edit attributes faster.
-		|To do it, clear the ""Edit in transaction"" check box in the additional parameters.';");
+		|To do it, clear the ""Edit in transaction"" check box in the additional parameters.'");
 	
 EndProcedure
 
@@ -1959,9 +1959,9 @@ Procedure GenerateNoteAboutAutonumbering()
 	If Autonumbering = Undefined Then
 		NoteOnAutonumbering = "";
 	ElsIf Autonumbering Then
-		NoteOnAutonumbering = NStr("en = '<Set automatically>';");
+		NoteOnAutonumbering = NStr("en = '<Set automatically>'");
 	Else
-		NoteOnAutonumbering = NStr("en = '<Clear>';");
+		NoteOnAutonumbering = NStr("en = '<Clear>'");
 	EndIf;
 	
 EndProcedure
@@ -2331,7 +2331,7 @@ Function AttributesTableColumnDescriptions()
 	ColumnDetails = TableColumns.Add();
 	ColumnDetails.Name = "Presentation";
 	ColumnDetails.Type = New TypeDescription("String");
-	ColumnDetails.Presentation = NStr("en = 'Attribute';");
+	ColumnDetails.Presentation = NStr("en = 'Attribute'");
 	ColumnDetails.FieldKind = FormFieldType.InputField;
 	ColumnDetails.ReadOnly = True;
 	
@@ -2345,7 +2345,7 @@ Function AttributesTableColumnDescriptions()
 	ColumnDetails = TableColumns.Add();
 	ColumnDetails.Name = "Value";
 	ColumnDetails.Type = AllTypes();
-	ColumnDetails.Presentation = NStr("en = 'New value';");
+	ColumnDetails.Presentation = NStr("en = 'New value'");
 	ColumnDetails.FieldKind = FormFieldType.InputField;
 	ColumnDetails.Actions = New Structure("OnChange", "Attachable_ValueOnChange");
 	
@@ -2736,7 +2736,7 @@ EndProcedure
 &AtServer
 Procedure AddExternalAttributesToSet(AttributesSets, KindsOfObjectsToChangeList)
 	
-	ExternalAttributes = New Array; // Array of See UsersInternal.ExternalAttribute
+	ExternalAttributes = New Array; // Array of
 	UsersInternal.OnFillExternalAttributes(KindsOfObjectsToChangeList, ExternalAttributes);
 	
 	For Each ExternalAttribute In ExternalAttributes Do
@@ -3024,14 +3024,14 @@ Procedure GenerateNoteOnConfiguredChanges()
 	EndDo;
 	
 	If Not SelectedObjectsAvailable() Then
-		Explanation = NStr("en = 'No items selected.';");
+		Explanation = NStr("en = 'No items selected.'");
 	Else
 		If AttributesToChange.Count() = 1 Then
-			NoteTemplate = NStr("en = 'Change the %1 attribute for the selected items';") // Example: "Update attribute ""Warehouse""..."
+			NoteTemplate = NStr("en = 'Change the %1 attribute for the selected items'") // Example: "Update attribute ""Warehouse""..."
 		ElsIf AttributesToChange.Count() > 3 Then
-			NoteTemplate = NStr("en = 'Change attributes (%1) for the selected items';"); // Example: "Update attributes (5)..."
+			NoteTemplate = NStr("en = 'Change attributes (%1) for the selected items'"); // Example: "Update attributes (5)..."
 		ElsIf AttributesToChange.Count() > 1 Then
-			NoteTemplate = NStr("en = 'Change the %1 attributes for the selected items';"); // Example: "Update attributes ""Warehouse"", ""Office""..."
+			NoteTemplate = NStr("en = 'Change the %1 attributes for the selected items'"); // Example: "Update attributes ""Warehouse"", ""Office""..."
 		Else	
 			NoteTemplate = "";
 		EndIf;
@@ -3053,16 +3053,16 @@ Procedure GenerateNoteOnConfiguredChanges()
 			
 			If AttributesToChange.Count() = 1 Then
 				NoteTemplate = ?(IsBlankString(Explanation),
-					NStr("en = 'Change the %1 attribute in table ""%2""';"),
-					NStr("en = 'the %1 attribute in table ""%2""';")); 
+					NStr("en = 'Change the %1 attribute in table ""%2""'"),
+					NStr("en = 'the %1 attribute in table ""%2""'")); 
 			ElsIf AttributesToChange.Count() > 3 Then
 				NoteTemplate = ?(IsBlankString(Explanation),
-					NStr("en = 'Change attributes (%1) in table ""%2""';"),
-					NStr("en = '%1 attributes in table ""%2""';")); 
+					NStr("en = 'Change attributes (%1) in table ""%2""'"),
+					NStr("en = '%1 attributes in table ""%2""'")); 
 			Else 
 				NoteTemplate = ?(IsBlankString(Explanation),
-					NStr("en = 'Change the %1 attributes in table ""%2""';"),
-					NStr("en = 'the %1 attributes in table ""%2""';")); 
+					NStr("en = 'Change the %1 attributes in table ""%2""'"),
+					NStr("en = 'the %1 attributes in table ""%2""'")); 
 			EndIf;
 			
 			If Not IsBlankString(Explanation) Then
@@ -3082,23 +3082,23 @@ Procedure GenerateNoteOnConfiguredChanges()
 			If TabularSectionsToChange.Count() > 0 Then
 				If FilterByRowsAvailable Then 
 					Explanation = Explanation + " " + StringFunctionsClientServer.SubstituteParametersToString(NStr(
-						"en = 'Apply the changes only to the lines of the selected items that match the <a href = ""%1"">filter</a>.';"),
+						"en = 'Apply the changes only to the lines of the selected items that match the <a href = ""%1"">filter</a>.'"),
 						"GoToFilterSettings");
 				Else
 					Explanation = Explanation + " " + StringFunctionsClientServer.SubstituteParametersToString(NStr(
-						"en = 'Apply the changes <a href = ""%1"">to all lines</a> of the selected items.';"),
+						"en = 'Apply the changes <a href = ""%1"">to all lines</a> of the selected items.'"),
 						"GoToFilterSettings");
 				EndIf;
 			EndIf;
 		Else
-			Explanation = NStr("en = '<b>Overwrite</b> the selected items.';");
+			Explanation = NStr("en = '<b>Overwrite</b> the selected items.'");
 		EndIf;
 	EndIf;
 	
 	Items.NoteOnConfiguredChanges.Title = StringFunctions.FormattedString(Explanation);
 	If IsBlankString(AlgorithmCode) Then
 		AlgorithmCode = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '// Available variables:
-		|// %1 - an object to be processed.';"), "Object") + Chars.LF;
+		|// %1 - an object to be processed.'"), "Object") + Chars.LF;
 	EndIf;
 	
 EndProcedure
@@ -3130,10 +3130,10 @@ Procedure UpdateSelectedCountLabel()
 	If AvailableConfiguredFilters() Then
 		ErrorMessageText = "";
 		SelectedObjectsCount = SelectedObjectsCount(True, , ErrorMessageText);
-		LabelText = StringFunctionsClientServer.StringWithNumberForAnyLanguage(NStr("en = ';%1 item;;;;%1 items';"),
+		LabelText = StringFunctionsClientServer.StringWithNumberForAnyLanguage(NStr("en = ';%1 item;;;;%1 items'"),
 			SelectedObjectsCount);
 	Else
-		LabelText = NStr("en = 'All items';");
+		LabelText = NStr("en = 'All items'");
 	EndIf;
 	
 	Items.FilterSettings.Title = LabelText;
@@ -3260,7 +3260,7 @@ Procedure SetChangeSetting(Val Setting)
 	EndDo;
 	
 	If LockedAttributesAvailable Then
-		ShowMessageBox(, NStr("en = 'Some attributes are locked for editing. Changes are not saved.';"));
+		ShowMessageBox(, NStr("en = 'Some attributes are locked for editing. Changes are not saved.'"));
 	EndIf;
 	
 	UpdateCountersOfAttributesToChange();
@@ -3349,7 +3349,7 @@ Function ChoiceParameterLinksPresentation(ChoiceParameterLinks, MetadataObject)
 			If Attribute <> Undefined Then
 				AttributeRepresentation = Attribute.Presentation();
 				If Not IsBlankString(TabularSectionPresentation) Then
-					AttributeRepresentation = AttributeRepresentation + " (" + NStr("en = 'table';") + " " 
+					AttributeRepresentation = AttributeRepresentation + " (" + NStr("en = 'table'") + " " 
 						+ TabularSectionPresentation + ")";
 				EndIf;
 				LinkedAttributes.Add(AttributeRepresentation);
@@ -3358,9 +3358,9 @@ Function ChoiceParameterLinksPresentation(ChoiceParameterLinks, MetadataObject)
 	EndDo;
 	
 	If LinkedAttributes.Count() > 0 Then
-		LinkPresentationPattern = NStr("en = 'Dependency to attributes: %1.';");
+		LinkPresentationPattern = NStr("en = 'Dependency to attributes: %1.'");
 		If LinkedAttributes.Count() = 1 Then
-			LinkPresentationPattern = NStr("en = 'Depends on the %1 attribute.';");
+			LinkPresentationPattern = NStr("en = 'Depends on the %1 attribute.'");
 		EndIf;
 		Result = StringFunctionsClientServer.SubstituteParametersToString(
 			LinkPresentationPattern, StrConcat(LinkedAttributes, ", "));
@@ -3398,7 +3398,7 @@ EndProcedure
 Function ComposerParameters(Formula)
 	Result = New Structure;
 	Result.Insert("Formula", Formula);
-	Result.Insert("OperandsTitle", NStr("en = 'Available attributes';"));
+	Result.Insert("OperandsTitle", NStr("en = 'Available attributes'"));
 	Result.Insert("Operands", Operands());
 	Result.Insert("Advanced", False);
 	Return Result;

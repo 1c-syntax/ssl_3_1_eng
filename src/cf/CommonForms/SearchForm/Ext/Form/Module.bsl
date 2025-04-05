@@ -46,7 +46,7 @@ Procedure OnOpen(Cancel)
 	
 	If UsersClient.IsExternalUserSession() Then 
 		Cancel = True;
-		Raise(NStr("en = 'Insufficient rights to search.';"), ErrorCategory.AccessViolation);
+		Raise(NStr("en = 'Insufficient rights to search.'"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 EndProcedure
@@ -151,7 +151,7 @@ EndProcedure
 Procedure OnExecuteSearch(Val Var_SearchDirection)
 	
 	If IsBlankString(SearchString) Then
-		ShowMessageBox(, NStr("en = 'Please enter text to search for.';"));
+		ShowMessageBox(, NStr("en = 'Please enter text to search for.'"));
 		Return;
 	EndIf;
 	
@@ -201,7 +201,7 @@ EndProcedure
 Procedure AfterOpenURL(ApplicationStarted, Context) Export
 	
 	If Not ApplicationStarted Then 
-		ShowMessageBox(, NStr("en = 'Cannot open objects of this type';"));
+		ShowMessageBox(, NStr("en = 'Cannot open objects of this type'"));
 	EndIf;
 	
 EndProcedure
@@ -223,7 +223,7 @@ Procedure UpdateForm(SearchResults)
 	
 	If Count <> 0 Then
 		FoundItemsInformationPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Results %1–%2 out of %3';"),
+			NStr("en = 'Results %1–%2 out of %3'"),
 			Format(CurrentPosition + 1, "NZ=0; NG="),
 			Format(CurrentPosition + Count, "NZ=0; NG="),
 			Format(TotalCount, "NZ=0; NG="));
@@ -243,14 +243,14 @@ Procedure UpdateForm(SearchResults)
 		Or SearchState = "IndexMergeInProgress"
 		Or SearchState = "IndexUpdateRequired" Then 
 		
-		SearchStatePresentation = NStr("en = 'Search results might be inaccurate. Try the search later.';");
+		SearchStatePresentation = NStr("en = 'Search results might be inaccurate. Try the search later.'");
 	ElsIf SearchState = "SearchSettingsError" Then 
 		
 		// For non-administrators.
-		SearchStatePresentation = NStr("en = 'Full-text search is not set up. Contact your administrator.';");
+		SearchStatePresentation = NStr("en = 'Full-text search is not set up. Contact your administrator.'");
 		
 	ElsIf SearchState = "SearchProhibited" Then 
-		SearchStatePresentation = NStr("en = 'Full-text search is disabled.';");
+		SearchStatePresentation = NStr("en = 'Full-text search is disabled.'");
 	EndIf;
 	
 	Items.SearchState.Visible = (SearchState <> "SearchAllowed");
@@ -263,7 +263,7 @@ Procedure UpdateSearchAreaPresentation()
 	SearchAreasSpecified = SearchAreas.Count() > 0;
 	
 	If Not SearchInSections Or Not SearchAreasSpecified Then
-		SearchAreasPresentation = NStr("en = 'Everywhere';");
+		SearchAreasPresentation = NStr("en = 'Everywhere'");
 		Return;
 	EndIf;
 	
@@ -275,7 +275,7 @@ Procedure UpdateSearchAreaPresentation()
 		EndDo;
 		SearchAreasPresentation = Left(SearchAreasPresentation, StrLen(SearchAreasPresentation) - 2);
 	Else	
-		SearchAreasPresentation = NStr("en = 'In selected sections';");
+		SearchAreasPresentation = NStr("en = 'In selected sections'");
 	EndIf;
 	
 EndProcedure
@@ -464,7 +464,7 @@ Function NewHTMLErrorPage()
 			|    Child by one, two, or three letters.
 			|   </li>
 			|</ul>
-			|<div class ""presentation""><a href=""%3"">Searching with regular expressions</a></div>';");
+			|<div class ""presentation""><a href=""%3"">Searching with regular expressions</a></div>'");
 	
 	SearchAreasSpecified = SearchAreas.Count() > 0;
 	
@@ -477,11 +477,11 @@ Function NewHTMLErrorPage()
 		
 			SearchAreaRecommendationHTML = 
 				NStr("en = '<li><b>Refine the search.</b><br>
-					|Try to select other locations.</li>';");
+					|Try to select other locations.</li>'");
 		EndIf;
 		
 		QueryTextRecommendationHTML =
-			NStr("en = '<li><b>Try searching for fewer words.</b></li>';");
+			NStr("en = '<li><b>Try searching for fewer words.</b></li>'");
 		
 	ElsIf ErrorCode = "TooManyResults" Then
 		
@@ -489,7 +489,7 @@ Function NewHTMLErrorPage()
 			
 			SearchAreaRecommendationHTML = 
 			NStr("en = '<li><b>Refine the search.</b><br>
-				|Try to select a location or list.</li>';");
+				|Try to select a location or list.</li>'");
 		EndIf;
 		
 	EndIf;

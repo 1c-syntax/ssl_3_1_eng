@@ -14,9 +14,9 @@
 Procedure PerformanceMeasurements(Command)
 	
 	FileAddress = GetFileAddressOnServer();
-	Title = NStr("en = 'Save file';");
+	Title = NStr("en = 'Save file'");
 		
-	FileName = NStr("en = 'Samples.zip';", CommonClient.DefaultLanguageCode());
+	FileName = NStr("en = 'Samples.zip'", CommonClient.DefaultLanguageCode());
 		
 	DialogParameters = New GetFilesDialogParameters(Title, True);
 	BeginGetFileFromServer(FileAddress, FileName, DialogParameters);

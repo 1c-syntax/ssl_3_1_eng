@@ -135,8 +135,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.InstructionGroup_.Visible = False;
 		Items.Move(Items.Show, Items.MoreCommandBar, Items.SaveButtonAllActions);
 		Items.Show.LocationInCommandBar = ButtonLocationInCommandBar.InAdditionalSubmenu;
-		Items.Save.Title = NStr("en = 'To device…';");
-		Items.SaveButtonAllActions.Title = NStr("en = 'To device…';");
+		Items.Save.Title = NStr("en = 'To device…'");
+		Items.SaveButtonAllActions.Title = NStr("en = 'To device…'");
 		Items.GoToTemplatesManagement.Visible = False;
 		
 	Else
@@ -395,12 +395,12 @@ Procedure SetFormHeader()
 	If Not ValueIsFilled(FormCaption) Then
 		
 		If PrintObjects.Count() > 1 Then
-			FormCaption = NStr("en = 'Print documents';");
+			FormCaption = NStr("en = 'Print documents'");
 		ElsIf PrintObjects.Count() = 1 And Common.IsReference(TypeOf(PrintObjects[0].Value))
 			And Common.ObjectAttributeValue(PrintObjects[0].Value, "Ref", True) <> Undefined Then
 			FormCaption = String(PrintObjects[0].Value);
 		Else
-			FormCaption = NStr("en = 'Print document';");
+			FormCaption = NStr("en = 'Print document'");
 		EndIf;
 	EndIf;
 	
@@ -440,7 +440,7 @@ Procedure CustomizeForm(PrintFormCount)
 	MultiplePrintFormsMode = PrintFormCount > 1;
 	
 	If Not MultiplePrintFormsMode Then	
-		Items.Show.Title = NStr("en = 'Show';");
+		Items.Show.Title = NStr("en = 'Show'");
 	EndIf;
 	
 	Items.MergeDocsFlag.Visible = MultiplePrintFormsMode;
@@ -483,9 +483,9 @@ Function GetInstructionText(Presentation = Undefined, PrintFormAddress = Undefin
 	
 	
 	If Presentation = Undefined Then	
-		InstructionText = StringFunctionsClientServer.SubstituteParametersToString(InstructionText, NStr("en = 'The documents are generated and prepared for printing';"), NStr("en = 'You can open the document to view or send it to print.';"));
+		InstructionText = StringFunctionsClientServer.SubstituteParametersToString(InstructionText, NStr("en = 'The documents are generated and prepared for printing'"), NStr("en = 'You can open the document to view or send it to print.'"));
 	Else
-		InstructionText = StringFunctionsClientServer.SubstituteParametersToString(InstructionText, NStr("en = 'The document is generated and prepared for printing';"), "<a href=""OpenSinglePrintingForm"">"+Presentation+"</a>");
+		InstructionText = StringFunctionsClientServer.SubstituteParametersToString(InstructionText, NStr("en = 'The document is generated and prepared for printing'"), "<a href=""OpenSinglePrintingForm"">"+Presentation+"</a>");
 	EndIf;
 
 	Return InstructionText;			
@@ -495,7 +495,7 @@ EndFunction
 Function IdleParameters()
 	
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-	IdleParameters.MessageText = NStr("en = 'The parameters for generating print forms are changed.';");
+	IdleParameters.MessageText = NStr("en = 'The parameters for generating print forms are changed.'");
 	IdleParameters.UserNotification.Show = False;
 	IdleParameters.OutputIdleWindow = True;
 	IdleParameters.Interval = 1;
@@ -839,8 +839,8 @@ Procedure SIgnFiles(FilesInTempStorage, ChoiceParameters)
 	DataDetails = New Structure;
 	DataDetails.Insert("ShowComment", False);
 	If FilesInTempStorage.Count() > 1 Then
-		DataDetails.Insert("Operation", NStr("en = 'Sign files';"));
-		DataDetails.Insert("DataTitle", NStr("en = 'Files';"));
+		DataDetails.Insert("Operation", NStr("en = 'Sign files'"));
+		DataDetails.Insert("DataTitle", NStr("en = 'Files'"));
 
 		DataSet = New Array;
 		For Each File In FilesInTempStorage Do
@@ -857,8 +857,8 @@ Procedure SIgnFiles(FilesInTempStorage, ChoiceParameters)
 		DataDetails.Insert("SetPresentation", "Files (%1)");
 	Else
 		File = FilesInTempStorage[0];
-		DataDetails.Insert("Operation", NStr("en = 'Sign a file';"));
-		DataDetails.Insert("DataTitle", NStr("en = 'File';"));
+		DataDetails.Insert("Operation", NStr("en = 'Sign a file'"));
+		DataDetails.Insert("DataTitle", NStr("en = 'File'"));
 		DataDetails.Insert("Presentation", File.Presentation);
 		DataDetails.Insert("Data", File.AddressInTempStorage);
 		
@@ -913,7 +913,7 @@ Procedure SelectionProcessingCompletion(Result, ChoiceParameters) Export
 				ModuleFilesOperationsInternalClient = CommonClient.CommonModule("FilesOperationsInternalClient");
 				ModuleFilesOperationsInternalClient.NotifyOfFilesModification(WrittenObjects);
 				
-				ShowUserNotification(NStr("en = 'Print form saved';"), , , PictureLib.DialogInformation);
+				ShowUserNotification(NStr("en = 'Print form saved'"), , , PictureLib.DialogInformation);
 			EndIf;
 		EndIf;
 		
@@ -1016,9 +1016,9 @@ EndProcedure
 Procedure ContinuePrintingAfterInstall1CEnterpriseExtension(ExtensionAttached, AdditionalParameters) Export
 	
 #If WebClient Then
-	Text = NStr("en = 'Print the document using an application designed to manage this file.';");
+	Text = NStr("en = 'Print the document using an application designed to manage this file.'");
 	NotifyDescription = New CallbackDescription("OpenMarkedPrintForms", ThisObject);
-	ShowMessageBox(NotifyDescription, Text,,NStr("en = 'Print document from web client';"));
+	ShowMessageBox(NotifyDescription, Text,,NStr("en = 'Print document from web client'"));
 	Return;
 #EndIf
 	
@@ -1075,7 +1075,7 @@ EndProcedure
 Procedure PrintFileByApplication(FilenameForPrint)
 	
 #If MobileClient Then
-	ShowMessageBox(, NStr("en = 'You can print this type of files only from an application for Windows or Linux.';"));
+	ShowMessageBox(, NStr("en = 'You can print this type of files only from an application for Windows or Linux.'"));
 	Return;
 #Else
 		
@@ -1090,7 +1090,7 @@ Procedure PrintFileByApplication(FilenameForPrint)
 	Except
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot print the file. Reason:
-				|%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo())); 
+				|%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo())); 
 		
 	EndTry;
 #EndIf
@@ -1278,7 +1278,7 @@ Function PutFilesToArchive(DocsPrintForms, PassedSettings)
 			ArchiveName = GetTempFileName("zip");
 			ZipFileWriter = New ZipFileWriter(ArchiveName);
 			
-			Presentation = ?(PrintObject = Undefined, NStr("en = 'Documents';"), CommonClientServer.ReplaceProhibitedCharsInFileName(String(PrintObject)));
+			Presentation = ?(PrintObject = Undefined, NStr("en = 'Documents'"), CommonClientServer.ReplaceProhibitedCharsInFileName(String(PrintObject)));
 			If TransliterateFilesNames Then
 				Presentation = StringFunctions.LatinString(Presentation);
 			EndIf;
@@ -1442,7 +1442,7 @@ Function GetFileNameForArchive(TransliterateFilesNames, PrintFormsSettingsTemp =
 		If IsBlankString(Result) Then
 			Result = PrintFormSetting.Name1;
 		Else
-			Result = NStr("en = 'Documents';");
+			Result = NStr("en = 'Documents'");
 			Break;
 		EndIf;
 	EndDo;
@@ -1511,8 +1511,8 @@ Procedure WhenPreparingFileNames(FilesListInTempStorage, DirectoryName) Export
 #If Not WebClient Then
 	If ValueIsFilled(DirectoryName) Then
 		NotifyDescription = New CallbackDescription("OpenFolderSaveTo", ThisObject, DirectoryName); 
-		ShowUserNotification(NStr("en = 'Print form saved';"), NotifyDescription,
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'to directory %1';"), DirectoryName), 
+		ShowUserNotification(NStr("en = 'Print form saved'"), NotifyDescription,
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'to directory %1'"), DirectoryName), 
 			PictureLib.DialogInformation);
 	EndIf;
 #EndIf
@@ -1535,7 +1535,7 @@ Function AttachPrintFormsToObject(FilesInTempStorage)
 				FileParameters.FilesOwner = File["PrintObject"];
 				FileParameters.BaseName = File.Presentation;
 				Result.Add(ModuleFilesOperations.AppendFile(
-					FileParameters, File.AddressInTempStorage, , NStr("en = 'Print form';")));
+					FileParameters, File.AddressInTempStorage, , NStr("en = 'Print form'")));
 			EndIf;
 		EndDo;
 	EndIf;
@@ -1562,7 +1562,7 @@ EndProcedure
 &AtClient
 Procedure PrintCompletion(ArrayOfPrintForms)	
 	Handler = New CallbackDescription("ContinuePrintingAfterInstall1CEnterpriseExtension", ThisObject, ArrayOfPrintForms);
-	MessageText = NStr("en = 'To continue, install 1C:Enterprise Extension.';");
+	MessageText = NStr("en = 'To continue, install 1C:Enterprise Extension.'");
 	FileSystemClient.Attach1CEnterpriseExtension(Handler, MessageText);
 EndProcedure
 

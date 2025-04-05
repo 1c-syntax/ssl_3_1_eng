@@ -26,9 +26,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	HasMetadataObjectsIDs = Metadata.Catalogs.Find("MetadataObjectIDs") <> Undefined;
 	
 	OrderArray = New Array;
-	OrderArray.Add(NStr("en = 'Current';"));
-	OrderArray.Add(NStr("en = 'Conflicting';"));
-	OrderArray.Add(NStr("en = 'Any';"));
+	OrderArray.Add(NStr("en = 'Current'"));
+	OrderArray.Add(NStr("en = 'Conflicting'"));
+	OrderArray.Add(NStr("en = 'Any'"));
 	
 	Items.ExecutionPrioritiesSelectExecutionOrder.ChoiceList.LoadValues(OrderArray);
 	
@@ -117,7 +117,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	If Modified Then
 		Cancel = True;
 		ResponseHandler1 = New CallbackDescription("FormClosingCompletion", ThisObject);
-		ShowQueryBox(ResponseHandler1, NStr("en = 'The data has been changed. Do you want to save the changes?';"), QuestionDialogMode.YesNoCancel);
+		ShowQueryBox(ResponseHandler1, NStr("en = 'The data has been changed. Do you want to save the changes?'"), QuestionDialogMode.YesNoCancel);
 	EndIf;
 	
 EndProcedure
@@ -267,7 +267,7 @@ Procedure CheckProcedureStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	If Object.ObjectsToRead.FindRows(New Structure("LockInterface", True)).Count() > 0
 		Or Object.ObjectsToLock.Count() > 0 Then
-		MessageText = NStr("en = 'Do not use the ""%1"" procedure to check locks in handlers that control locking of data to read or other objects.';");
+		MessageText = NStr("en = 'Do not use the ""%1"" procedure to check locks in handlers that control locking of data to read or other objects.'");
 		MessageText = StrReplace(MessageText, "%1", "InfobaseUpdate.DataUpdatedForNewApplicationVersion");
 		CommonClient.MessageToUser(MessageText,,"CheckProcedure","Object");
 		Return;	
@@ -304,7 +304,7 @@ Procedure CommentStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	Notification = New CallbackDescription("CommentStartChoiceCompletion", ThisObject);
 	CommonClient.ShowMultilineTextEditingForm(
-		Notification, Items.Comment.EditText, NStr("en = 'Internal comment';"));
+		Notification, Items.Comment.EditText, NStr("en = 'Internal comment'"));
 	
 EndProcedure
 
@@ -388,7 +388,7 @@ Procedure InfoAboutLock(Command)
 		|
 		|• If you want to select data for update with updated readable data, specify additional sources in the registration procedure selection parameters.
 		|
-		|	Additional sources are readable data tables whose items must have a lower number in a queue on the exchange plan than the current handler number.';");
+		|	Additional sources are readable data tables whose items must have a lower number in a queue on the exchange plan than the current handler number.'");
 	
 	ShowMessageBox(, WarningText);
 	
@@ -578,7 +578,7 @@ Procedure AddAttributeTypesToObjectsToLock(Command)
 	
 	AdditionalParameters = New Structure("TableName", "ObjectsToLock");
 	ChoiceHandler = New CallbackDescription("MetadataObjectChoiceCompletion", ThisObject, AdditionalParameters);
-	ObjectsNames.ShowChooseItem(ChoiceHandler, NStr("en = 'Select metadata object';"));
+	ObjectsNames.ShowChooseItem(ChoiceHandler, NStr("en = 'Select metadata object'"));
 	
 EndProcedure
 
@@ -670,7 +670,7 @@ Function FilledCorrectly()
 	CurrentHandler = Object.UpdateHandlers[0];
 	If CurrentHandler.ExecutionMode = "Deferred" 
 		And Object.ObjectsToChange.Count() = 0 Then
-		MessageText = NStr("en = 'Couldn''t save the deferred handler. ""Objects to change"" is empty.';");
+		MessageText = NStr("en = 'Couldn''t save the deferred handler. ""Objects to change"" is empty.'");
 		CommonClient.MessageToUser(MessageText);
 		Items.FormPages.CurrentPage = Items.ObjectsPage;
 		Return False;
@@ -794,7 +794,7 @@ Function MainMetadataObjectName(ProcedureName, SingularForm, PluralForm)
 				DefaultLanguageCode = Common.DefaultLanguageCode();
 #EndIf
 			MessageText = NStr("en = 'Cannot recognize the ""%1"" metadata object kind.
-				|The object kind must be plural.';", DefaultLanguageCode);
+				|The object kind must be plural.'", DefaultLanguageCode);
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, NameParts[0]);
 			Raise MessageText;
 		EndTry;
@@ -1049,7 +1049,7 @@ Procedure ImportLowPriorityReading(LowPriorityReading)
 			EndIf;
 		EndDo;
 		MessageText = NStr("en = 'Readable handler objects include objects that are processed by handlers with a lower priority than the current one.
-		|This will cause the current handler to wait for them to complete. Resolve this mismatch.';");
+		|This will cause the current handler to wait for them to complete. Resolve this mismatch.'");
 		Common.MessageToUser(MessageText);
 	Else
 		Items.ObjectsToReadWarning.Visible = False;
@@ -1265,7 +1265,7 @@ Procedure AddAttributeTypes(TableName, ObjectName = "")
 	
 	If IsBlankString(ObjectName) Then
 		If Items[TableName].CurrentData = Undefined Then
-			ShowMessageBox(,NStr("en = 'Metadata object is not selected';"));
+			ShowMessageBox(,NStr("en = 'Metadata object is not selected'"));
 			Return;
 		EndIf;
 		
@@ -1288,7 +1288,7 @@ Procedure SelectTheMetadataObjectSDetails(Attributes, TableName, ObjectName)
 	
 	AdditionalParameters = New Structure("TableName, ObjectName", TableName, ObjectName);
 	ChoiceHandler = New CallbackDescription("CompletingTheSelectionOfTheMetadataObjectSProps", ThisObject, AdditionalParameters);
-	Attributes.ShowChooseItem(ChoiceHandler, NStr("en = 'Select an object attribute';"));
+	Attributes.ShowChooseItem(ChoiceHandler, NStr("en = 'Select an object attribute'"));
 	
 EndProcedure
 
@@ -1435,18 +1435,18 @@ EndFunction
 Function TextWarningChangedCheckProcedure(DoQueryBox = False)
 	
 	TextHat = NStr("en = 'Use a custom check procedure responsibly,
-		|when the standard check procedure is insufficient.';");
+		|when the standard check procedure is insufficient.'");
 	TextHat = StrConcat(StrSplit(TextHat, Chars.LF), " ");
 	
 	TextContinued = NStr("en = 'Follow these development recommendations:
 		| • The handler can lock only non-updated data.
 		| • Processed data is unlocked in chunks (not after all objects are processed)
-		| • Users can always enter new data.';");
+		| • Users can always enter new data.'");
 	
 	WarningText = TextHat + Chars.LF + Chars.LF + TextContinued;
 	
 	If DoQueryBox Then
-		WarningText = WarningText + Chars.LF + Chars.LF + NStr("en = 'Do you want to continue?';");
+		WarningText = WarningText + Chars.LF + Chars.LF + NStr("en = 'Do you want to continue?'");
 	EndIf;
 	
 	Return WarningText;

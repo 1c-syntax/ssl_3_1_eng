@@ -22,7 +22,7 @@ Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 				|
 				|The application time is the server time converted to the device''s time zone
 				|(%4).
-				|This time is used in timestamps when saving documents and other objects.';"),
+				|This time is used in timestamps when saving documents and other objects.'"),
 			Format(CommonClient.SessionDate(), "DLF=T"),
 			Format(AdditionalInformation.ServerDate, "DLF=T"),
 			Format(CurrentDate(), "DLF=T"), // ACC:143 - An example of CurrentDate call for determining the computer time

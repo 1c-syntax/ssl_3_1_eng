@@ -154,7 +154,7 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 		Except
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid value of the %1 parameter, function %2:
-				|%3.';"), "Ref", "Common.ObjectAttributesValues", 
+				|%3.'"), "Ref", "Common.ObjectAttributesValues", 
 				ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndTry;
@@ -169,7 +169,7 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 			ObjectMetadata = MetadataObjectByFullName(FullMetadataObjectName);
 			If Not AccessRight("Read", ObjectMetadata) Then 
 				Raise(StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Insufficient rights to access table %1.';"), FullMetadataObjectName),
+					NStr("en = 'Insufficient rights to access table %1.'"), FullMetadataObjectName),
 					ErrorCategory.AccessViolation);
 			EndIf;
 		EndIf;
@@ -181,7 +181,7 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 		Except
 			Raise (StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Invalid value of the %1 parameter, function %2:
-					|The value must contain predefined item name or reference.';"), 
+					|The value must contain predefined item name or reference.'"), 
 				"Ref", "Common.ObjectAttributesValues"),
 				ErrorCategory.ConfigurationError);
 		EndTry;
@@ -201,12 +201,12 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 	EndIf;
 	
 	MultilingualAttributes = New Map;
-	LanguageSuffix_ = "";
+	LanguageSuffix = "";
 	If ValueIsFilled(LanguageCode) Then
 		If SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 			ModuleNationalLanguageSupportServer = CommonModule("NationalLanguageSupportServer");
-			LanguageSuffix_ = ModuleNationalLanguageSupportServer.LanguageSuffix_(LanguageCode);
-			If ValueIsFilled(LanguageSuffix_) Then
+			LanguageSuffix = ModuleNationalLanguageSupportServer.LanguageSuffix(LanguageCode);
+			If ValueIsFilled(LanguageSuffix) Then
 				MultilingualAttributes = ModuleNationalLanguageSupportServer.MultilingualObjectAttributes(Ref);
 			EndIf;
 		EndIf;
@@ -236,7 +236,7 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 				Result = CheckIfObjectAttributesExist(FullMetadataObjectName, Attributes);
 				If Result.Error Then 
 					Raise(StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Invalid value of the %1 parameter, function %2: %3.';"),
+						NStr("en = 'Invalid value of the %1 parameter, function %2: %3'"),
 						"Attributes", "Common.ObjectAttributesValues", Result.ErrorDescription),
 						ErrorCategory.ConfigurationError);
 				EndIf;
@@ -248,7 +248,7 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 		EndDo;
 	Else
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid type of parameter %1 in function %2: %3.';"), 
+			NStr("en = 'Invalid type of parameter %1 in function %2: %3.'"), 
 			"Attributes", "Common.ObjectAttributesValues", String(TypeOf(Attributes))),
 			ErrorCategory.ConfigurationError);
 	EndIf;
@@ -266,7 +266,7 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 		FieldAlias = KeyAndValue.Key;
 		
 		If MultilingualAttributes[FieldName] <> Undefined Then
-			FieldName = FieldName + LanguageSuffix_;
+			FieldName = FieldName + LanguageSuffix;
 		EndIf;
 		
 		FieldQueryText = 
@@ -367,7 +367,7 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 		Result = CheckIfObjectAttributesExist(FullMetadataObjectName, Attributes);
 		If Result.Error Then 
 			Raise(StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Invalid value of the %1 parameter, function %2: %3.';"), 
+				NStr("en = 'Invalid value of the %1 parameter, function %2: %3'"), 
 				"Attributes", "Common.ObjectAttributesValues", Result.ErrorDescription),
 				ErrorCategory.ConfigurationError);
 		EndIf;
@@ -417,7 +417,7 @@ Function ObjectAttributeValue(Ref, AttributeName, SelectAllowedItems = False, Va
 	If IsBlankString(AttributeName) Then 
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid value of the %1 parameter, function %2:
-				|The attribute name cannot be empty.';"), 
+				|The attribute name cannot be empty.'"), 
 			"AttributeName", "Common.ObjectAttributeValue"),
 			ErrorCategory.ConfigurationError);
 	EndIf;
@@ -467,7 +467,7 @@ Function ObjectsAttributesValues(References, Val Attributes, SelectAllowedItems 
 	If IsBlankString(Attributes) Then 
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid value of the %1 parameter, function %2:
-				|The object field must be specified.';"), 
+				|The object field must be specified.'"), 
 			"Attributes", "Common.ObjectsAttributesValues"),
 			ErrorCategory.ConfigurationError);
 	EndIf;
@@ -475,7 +475,7 @@ Function ObjectsAttributesValues(References, Val Attributes, SelectAllowedItems 
 	If StrFind(Attributes, ".") <> 0 Then 
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid value of the %1 parameter, function %2:
-				|Dot syntax is not supported.';"), 
+				|Dot syntax is not supported.'"), 
 			"Attributes", "Common.ObjectsAttributesValues"),
 			ErrorCategory.ConfigurationError);
 	EndIf;
@@ -494,14 +494,14 @@ Function ObjectsAttributesValues(References, Val Attributes, SelectAllowedItems 
 	If SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportServer = CommonModule("NationalLanguageSupportServer");
 		If ValueIsFilled(LanguageCode) Then
-			LanguageSuffix_ = ModuleNationalLanguageSupportServer.LanguageSuffix_(LanguageCode);
-			If ValueIsFilled(LanguageSuffix_) Then
+			LanguageSuffix = ModuleNationalLanguageSupportServer.LanguageSuffix(LanguageCode);
+			If ValueIsFilled(LanguageSuffix) Then
 				MultilingualAttributes = ModuleNationalLanguageSupportServer.MultilingualObjectAttributes(References[0]);
 				AttributesSet = StrSplit(Attributes, ",");
 				For Position = 0 To AttributesSet.UBound() Do
 					AttributeName = TrimAll(AttributesSet[Position]);
 					If MultilingualAttributes[AttributeName] <> Undefined Then
-						NameWithSuffix = AttributeName + LanguageSuffix_;
+						NameWithSuffix = AttributeName + LanguageSuffix;
 						AttributesSet[Position] = NameWithSuffix + " AS " + AttributeName;
 					EndIf;
 				EndDo;
@@ -531,7 +531,7 @@ Function ObjectsAttributesValues(References, Val Attributes, SelectAllowedItems 
 		If MetadataObject = Undefined Then
 			Raise(StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Invalid value of the %1 parameter, function %2:
-					|The array values must be references.';"), 
+					|The array values must be references.'"), 
 				"References", "Common.ObjectsAttributesValues"),
 				ErrorCategory.ConfigurationError);
 		EndIf;
@@ -571,8 +571,8 @@ Function ObjectsAttributesValues(References, Val Attributes, SelectAllowedItems 
 						If MultilingualAttributes[Attribute] = True Then
 							AttributeField = "ISNULL(PresentationTable." + Attribute + ", """")";
 						Else
-							LanguageSuffix_ = ModuleNationalLanguageSupportServer.LanguageSuffix_(LanguageCode);
-							AttributeField = ?(ValueIsFilled(LanguageSuffix_), Attribute + LanguageSuffix_, Attribute);
+							LanguageSuffix = ModuleNationalLanguageSupportServer.LanguageSuffix(LanguageCode);
+							AttributeField = ?(ValueIsFilled(LanguageSuffix), Attribute + LanguageSuffix, Attribute);
 						EndIf;
 						
 						TablesFields.Add(StringFunctionsClientServer.SubstituteParametersToString("%1 AS %2",
@@ -635,7 +635,7 @@ Function ObjectsAttributesValues(References, Val Attributes, SelectAllowedItems 
 		
 		If ValueIsFilled(ErrorList) Then
 			Raise(StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Invalid value of the %1 parameter, function %2: %3';"), 
+				NStr("en = 'Invalid value of the %1 parameter, function %2: %3'"), 
 				"Attributes", "Common.ObjectsAttributesValues", 
 				StrConcat(ErrorList, Chars.LF)),
 				ErrorCategory.ConfigurationError);
@@ -686,7 +686,7 @@ Function ObjectsAttributeValue(ReferencesArrray, AttributeName, SelectAllowedIte
 	If IsBlankString(AttributeName) Then 
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid value of the %1 parameter, function %2:
-			|The attribute name cannot be empty.';"), 
+			|The attribute name cannot be empty.'"), 
 			"AttributeName", "Common.ObjectsAttributeValue"),
 			ErrorCategory.ConfigurationError);
 	EndIf;
@@ -946,7 +946,7 @@ Function PostDocuments(Var_Documents) Export
 				DocumentObject.Write(DocumentWriteMode.Posting, PostingMode);
 				ExecutedSuccessfully = True;
 			Else
-				ErrorPresentation = NStr("en = 'Document fields cannot be empty.';");
+				ErrorPresentation = NStr("en = 'Document fields cannot be empty.'");
 			EndIf;
 			CommitTransaction();
 		Except
@@ -1307,17 +1307,20 @@ Function ReplaceReferences(Val ReplacementPairs, Val ReplacementParameters = Und
 	ExecutionParameters.Insert("SuccessfulReplacements", New Map);
 	
 	DisableAccessKeysUpdate(True);
-	
 	Try
 		
+		ProgressText = NStr("en = 'Replacing duplicates…'");
+		AdditionalProgressParameters = New Structure;
+		AdditionalProgressParameters.Insert("ProcessedItemsCount", 0);
+		
 		DuplicateCount = Duplicates.Count();
-		Number = 1;
+		
 		For Each Duplicate1 In Duplicates Do
 			
 			HadErrors = Result.HasErrors;
 			Result.HasErrors = False;
 			
-			// @skip-check query-in-loop - Batch processing of a large amount of data.
+			// @skip-check query-in-loop
 			ReplaceRefsUsingShortTransactions(Result, ExecutionParameters, Duplicate1, SearchTable);
 					
 			If Not Result.HasErrors Then
@@ -1325,21 +1328,26 @@ Function ReplaceReferences(Val ReplacementPairs, Val ReplacementParameters = Und
 			EndIf;
 			Result.HasErrors = Result.HasErrors Or HadErrors;
 			
-			AdditionalParameters = New Structure;
-			AdditionalParameters.Insert("SessionNumber", InfoBaseSessionNumber());
-			AdditionalParameters.Insert("ProcessedItemsCount", Number);
-			TimeConsumingOperations.ReportProgress(Number,
-				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Replacing duplicates… Processed (%1 out of %2)';"), 
-					Number, DuplicateCount), AdditionalParameters);
-			Number = Number + 1;
+			AdditionalProgressParameters.ProcessedItemsCount = 
+				AdditionalProgressParameters.ProcessedItemsCount + 1;
+			
 			AddToReferenceReplacementStatistics(Statistics, Duplicate1, Result.HasErrors);
+			
+			If AdditionalProgressParameters.ProcessedItemsCount >9 Then
+				TimeConsumingOperations.ReportProgress(AdditionalProgressParameters.ProcessedItemsCount,
+					ProgressText, AdditionalProgressParameters);
+				AdditionalProgressParameters.ProcessedItemsCount = 0;
+			EndIf;
 			
 		EndDo;
 		
-		CommonOverridable.AfterReplaceRefs(Result, ExecutionParameters, SearchTable);
-	
-		DisableAccessKeysUpdate(False);
+		If AdditionalProgressParameters.ProcessedItemsCount > 0 Then
+			TimeConsumingOperations.ReportProgress(AdditionalProgressParameters.ProcessedItemsCount, 
+				ProgressText, AdditionalProgressParameters);
+		EndIf;
 		
+		CommonOverridable.AfterReplaceRefs(Result, ExecutionParameters, SearchTable);
+		DisableAccessKeysUpdate(False);
 	Except
 		DisableAccessKeysUpdate(False);
 		Raise;
@@ -1350,7 +1358,9 @@ Function ReplaceReferences(Val ReplacementPairs, Val ReplacementParameters = Und
 		
 		ModuleMarkedObjectsDeletion = CommonModule("MarkedObjectsDeletion");
 		
-		TimeConsumingOperations.ReportProgress(0, NStr("en = 'Deleting duplicates…';"));
+		AdditionalProgressParameters = New Structure;
+		TimeConsumingOperations.ReportProgress(0, NStr("en = 'Deleting duplicates…'"), AdditionalProgressParameters);
+		
 		DeletionResult = ModuleMarkedObjectsDeletion.ToDeleteMarkedObjects(Result.QueueForDirectDeletion);
 		RegisterDeletionErrors(Result, DeletionResult.ObjectsPreventingDeletion);
 		
@@ -1476,10 +1486,10 @@ Function UsageInstances(Val RefSet, Val ResultAddress = "", AdditionalParameters
 			Presentation = String(UsageInstance1.Data);
 			
 		ElsIf ConstantMetadata.Contains(UsageInstance1.Metadata) Then
-			Presentation = UsageInstance1.Metadata.Presentation() + " (" + NStr("en = 'constant';") + ")";
+			Presentation = UsageInstance1.Metadata.Presentation() + " (" + NStr("en = 'constant'") + ")";
 			
 		ElsIf SequenceMetadata.Contains(UsageInstance1.Metadata) Then
-			Presentation = UsageInstance1.Metadata.Presentation() + " (" + NStr("en = 'sequence';") + ")";
+			Presentation = UsageInstance1.Metadata.Presentation() + " (" + NStr("en = 'sequence'") + ")";
 			
 		ElsIf AllRefsType.ContainsType(DataType) Then
 			ObjectMetaPresentation = New Structure("ObjectPresentation");
@@ -1784,7 +1794,7 @@ Function CommonModule(Name) Export
 	
 	If TypeOf(Module) <> Type("CommonModule") Then
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid parameter %1 in %2. Common module ""%3"" does not exist.';"), 
+			NStr("en = 'Invalid parameter %1 in %2. Common module ""%3"" does not exist.'"), 
 			"Name", "Common.CommonModule", Name), 
 			ErrorCategory.ConfigurationError);
 	EndIf;
@@ -2168,7 +2178,7 @@ Function InfobasePublicationURL() Export
 			Try
 				Result = ModuleServiceProgrammingInterface.ApplicationProperties(SessionSeparator).ApplicationURL;
 			Except
-				WriteLogEvent(NStr("en = 'Publication address';", DefaultLanguageCode()), // ACC:154 - Unavailability of the Server Manager is not considered an issue. 
+				WriteLogEvent(NStr("en = 'Publication address'", DefaultLanguageCode()), // ACC:154 - Unavailability of the Server Manager is not considered an issue. 
 					EventLogLevel.Warning,,, 
 					ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				Return "";
@@ -2308,6 +2318,7 @@ Function CommonCoreParameters(ShouldReturnCachedValue = True) Export
 	Result.MinPlatformVersion = BuildNumberForTheCurrentPlatformVersion(Result.MinPlatformVersion);
 	Result.RecommendedPlatformVersion = BuildNumberForTheCurrentPlatformVersion(Result.RecommendedPlatformVersion);
 	
+	SpecifyMinimumPlatformVersionFromService(Result);
 	
 	SystemInfo = New SystemInfo;
 	If CommonClientServer.CompareVersions(SystemInfo.AppVersion, Result.MinPlatformVersion) < 0
@@ -2325,13 +2336,13 @@ Function CommonCoreParameters(ShouldReturnCachedValue = True) Export
 			| - The minimum version cannot be earlier than the recommended version.
 			|Minimum version: %3
 			|Minimum SSL version: %4
-			|Recommended version: %5';",
+			|Recommended version: %5'",
 			DefaultLanguageCode());
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText,
 			"CommonOverridable.OnDetermineCommonCoreParameters",
 			"Common.MinPlatformVersion",
 			Min, BuildNumberForTheCurrentPlatformVersion(MinPlatformVersion()), Recommended);
-		WriteLogEvent(NStr("en = 'Core';", DefaultLanguageCode()), EventLogLevel.Warning,,, 
+		WriteLogEvent(NStr("en = 'Core'", DefaultLanguageCode()), EventLogLevel.Warning,,, 
 			MessageText);		
 	EndIf;
 	
@@ -2450,15 +2461,15 @@ Function TimeIntervalString(Val BeginTime, Val EndTime = Undefined) Export
 	IntervalValueInDays = Int(IntervalValue/60/60/24);
 	
 	If IntervalValueInDays > 365 Then
-		IntervalDetails = NStr("en = 'more than a year';");
+		IntervalDetails = NStr("en = 'more than a year'");
 	ElsIf IntervalValueInDays > 31 Then
-		IntervalDetails = NStr("en = 'more than a month';");
+		IntervalDetails = NStr("en = 'more than a month'");
 	ElsIf IntervalValueInDays >= 1 Then
 		IntervalDetails = Format(IntervalValueInDays, "NFD=0") + " "
 			+ UsersInternalClientServer.IntegerSubject(IntervalValueInDays, "",
-				NStr("en = 'day,days,,,0';"));
+				NStr("en = 'day,days,,,0'"));
 	Else
-		IntervalDetails = NStr("en = 'less than a day';");
+		IntervalDetails = NStr("en = 'less than a day'");
 	EndIf;
 	
 	Return IntervalDetails;
@@ -2734,12 +2745,12 @@ EndFunction
 //
 // Parameters:
 //  XML - String
-//      - XMLReader - text in XML or ReadXML format.
+//      - XMLReader - Text in XML or XMLReader format.
 //
 // Returns:
 //  Structure:
-//   * TableName - String          - table name.
-//   * Data     - ValueTable - the table converted from XML.
+//   * TableName - String          - Table name.
+//   * Data     - ValueTable - Table converted from XML.
 //
 // Example:
 //   ClassifierTable = Common.ReadXMLToTable(
@@ -2756,10 +2767,10 @@ Function ReadXMLToTable(Val XML) Export
 	
 	// Read the first node and check it.
 	If Not Read.Read() Then
-		Raise NStr("en = 'The XML file is empty. Data couldn''t be imported.';");
+		Raise NStr("en = 'The XML file is empty. Data couldn''t be imported.'");
 	ElsIf Read.Name <> "Items" Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t export data from the XML file. The file is missing a required tag: ""%1"".';"),
+			NStr("en = 'Couldn''t export data from the XML file. The file is missing a required tag: ""%1"".'"),
 			"Items");
 	EndIf;
 	
@@ -2782,7 +2793,7 @@ Function ReadXMLToTable(Val XML) Export
 			Continue;
 		ElsIf Read.Name <> "Item" Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Couldn''t export data from the XML file. The tag ""%1"" is missing a required tag: ""%2"".';"),
+				NStr("en = 'Couldn''t export data from the XML file. The tag ""%1"" is missing a required tag: ""%2"".'"),
 				"Items", "Item");
 		EndIf;
 		
@@ -3124,7 +3135,7 @@ Function TrimStringUsingChecksum(String, MaxLength) Export
 	
 	If MaxLength < 32 Then
 		CommonClientServer.Validate(False, 
-		StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The %1 parameter cannot be less than 32.';"),
+		StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The %1 parameter cannot be less than 32.'"),
 			"MaxLength"), "Common.TrimStringUsingChecksum");
 	EndIf;
 	
@@ -3209,7 +3220,7 @@ Function SubjectString(ReferenceToSubject) Export
 	If ReferenceToSubject <> Undefined Then
 		Return SubjectAsString(CommonClientServer.ValueInArray(ReferenceToSubject))[ReferenceToSubject];
 	Else
-		Return NStr("en = 'not specified';");
+		Return NStr("en = 'not specified'");
 	EndIf;
 	
 EndFunction
@@ -3235,11 +3246,11 @@ Function SubjectAsString(Val RefsToSubjects) Export
 	Result = New Map;
 	For Each ReferenceToSubject In RefsToSubjects Do
 		If ReferenceToSubject = Undefined Then
-			Result[ReferenceToSubject] = NStr("en = 'empty';");
+			Result[ReferenceToSubject] = NStr("en = 'empty'");
 		ElsIf Not IsReference(TypeOf(ReferenceToSubject)) Then 
 			Result[ReferenceToSubject] = String(ReferenceToSubject);
 		ElsIf ReferenceToSubject.IsEmpty() Then	
-			Result[ReferenceToSubject] = NStr("en = 'empty';");
+			Result[ReferenceToSubject] = NStr("en = 'empty'");
 		ElsIf Metadata.Enums.Contains(ReferenceToSubject.Metadata()) Then
 			Result[ReferenceToSubject] = String(ReferenceToSubject);
 		Else
@@ -3340,7 +3351,7 @@ Function RefsPresentations(RefsToCheck) Export
 	EndDo;
 	For Each Ref In RefsToCheck Do
 		If Result[Ref] = Undefined Then
-			Result[Ref] = NStr("en = 'does not exist';");
+			Result[Ref] = NStr("en = 'does not exist'");
 		EndIf;
 	EndDo;
 		
@@ -3425,7 +3436,7 @@ Function COMConnectorID(Val COMConnectorName) Export
 	EndIf;
 	
 	Raise(StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Invalid value of parameter ""%1"" in function ""%2"". CLSID for class ""%3"" is not specified.';"), 
+		NStr("en = 'Invalid value of parameter ""%1"" in function ""%2"". CLSID for class ""%3"" is not specified.'"), 
 		"COMConnectorName", "Common.COMConnectorID", COMConnectorName),
 		ErrorCategory.ConfigurationError);
 	
@@ -3448,7 +3459,7 @@ EndFunction
 Function EstablishExternalConnectionWithInfobase(Parameters) Export
 	
 	ConnectionNotAvailable = IsLinuxServer();
-	BriefErrorDetails = NStr("en = 'Servers on Linux do not support direct infobase connections.';");
+	BriefErrorDetails = NStr("en = 'Servers on Linux do not support direct infobase connections.'");
 	
 	Return CommonInternalClientServer.EstablishExternalConnectionWithInfobase(Parameters, ConnectionNotAvailable, BriefErrorDetails);
 	
@@ -4040,7 +4051,7 @@ Function ObjectManagerByFullName(FullName) Export
 	If Manager = Undefined Then
 		CheckMetadataObjectExists(FullName);
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid value of parameter ""%1"" in function ""%2"". Metadata object ""%3"" is missing an object manager.';"), 
+			NStr("en = 'Invalid value of parameter ""%1"" in function ""%2"". Metadata object ""%3"" is missing an object manager.'"), 
 			"FullName", "Common.ObjectManagerByFullName", FullName),
 			ErrorCategory.ConfigurationError);
 	EndIf;
@@ -4206,7 +4217,7 @@ Function ObjectKindByType(ObjectType) Export
 	
 	Else
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid data type of parameter ""%1"" in function ""%2"": ""%3"".';"), String(ObjectType)),
+			NStr("en = 'Invalid data type of parameter ""%1"" in function ""%2"": ""%3"".'"), String(ObjectType)),
 			"ObjectType", "Common.ObjectKindByType", ErrorCategory.ConfigurationError);
 	EndIf;
 	
@@ -4945,8 +4956,8 @@ Function FilterSetRecordsFromDatabase(RecordSet, Replacing = Undefined, Query = 
 			If Query <> Undefined Then
 				Query.SetParameter(TableParameterName, Upload0);
 			EndIf;
-			Condition = StrTemplate("(%1) IN (&" + TableParameterName + ")", // @query-part-1
-				Alias + StrReplace(FieldList, ",", ", " + Alias));
+			Condition = StrTemplate("(%1) IN (&" + TableParameterName + ")",
+				Alias + StrReplace(FieldList, ",", ", " + Alias)); // @query-part-1
 		Else
 			Condition = "TRUE";
 		EndIf;
@@ -5030,22 +5041,19 @@ EndFunction
 //
 Function SetRecordsFromDatabase(RecordSet, Replacing = Undefined, FieldList = "") Export
 	
-	Query = New Query;
-	Query.Text =
-	"SELECT DISTINCT
-	|	&SelectedFields
-	|FROM
-	|	&Table AS CurrentTable
-	|WHERE
-	|	&FilterCriterion";
-	FilterSetRecordsFromDatabase(RecordSet, Replacing, Query);
+	FullRegisterName = RecordSet.Metadata().FullName();
+	CollapseResult = False;
 	
-	If Replacing = False Or IsRecordSetAddition(Replacing) Then
-		Return RecordSet.Unload(New Array,
-			?(ValueIsFilled(FieldList), FieldList, Undefined));
-	EndIf;
-	
-	If Not ValueIsFilled(FieldList) Then
+	If ValueIsFilled(FieldList) Then
+		RecordKeyDetails = StandardSubsystemsServer.RecordKeyDetails(FullRegisterName);
+		Fields = StrSplit(Upper(FieldList), ",");
+		For Each Field In RecordKeyDetails.FieldsDetails Do
+			If Fields.Find(Upper(Field.Name)) = Undefined Then
+				CollapseResult = True;
+				Break;
+			EndIf;
+		EndDo;
+	Else
 		Table = RecordSet.Unload(New Array);
 		Fields = New Array;
 		For Each Column In Table.Columns Do
@@ -5054,10 +5062,32 @@ Function SetRecordsFromDatabase(RecordSet, Replacing = Undefined, FieldList = ""
 		FieldList = StrConcat(Fields, ",");
 	EndIf;
 	
-	Query.Text = StrReplace(Query.Text, "&Table", RecordSet.Metadata().FullName());
+	Query = New Query;
+	Query.Text =
+	"SELECT
+	|	&SelectedFields
+	|FROM
+	|	&Table AS CurrentTable
+	|WHERE
+	|	&FilterCriterion";
+	
+	FilterSetRecordsFromDatabase(RecordSet, Replacing, Query);
+	
+	If Replacing = False Or IsRecordSetAddition(Replacing) Then
+		Return RecordSet.Unload(New Array,
+			?(ValueIsFilled(FieldList), FieldList, Undefined));
+	EndIf;
+	
+	Query.Text = StrReplace(Query.Text, "&Table", FullRegisterName);
 	Query.Text = StrReplace(Query.Text, "&SelectedFields", FieldList);
 	
-	Return Query.Execute().Unload();
+	Result = Query.Execute().Unload();
+	
+	If CollapseResult Then
+		Result.GroupBy(FieldList);
+	EndIf;
+	
+	Return Result;
 	
 EndFunction
 
@@ -5588,16 +5618,21 @@ Function AccessToInternetServicesAllowed(ShowError = False) Export
 	If DataSeparationEnabled() Then
 		Return True;
 	EndIf;
-	
-	If InfobaseUpdate.InfobaseUpdateRequired() Then
-		Return True;
-	EndIf;
-	
+
 	AccessAllowed = GetFunctionalOption("AllowAccessToInternetServices");
+
+	If Not AccessAllowed Then
+		MetadataVersion = Metadata.Version;
+		If Not IsBlankString(MetadataVersion) And MetadataVersion <> InfobaseUpdateInternal.IBVersion(
+			Metadata.Name) Then
+			Return True;
+		EndIf;
+	EndIf;
+
 	If Not AccessAllowed And ShowError Then
 		Raise AccessToInternetServicesDeniedMessageText();
 	EndIf;
-	
+
 	Return AccessAllowed;
 	
 EndFunction
@@ -5609,7 +5644,7 @@ EndFunction
 //
 Function AccessToInternetServicesDeniedMessageText() Export
 	
-	Return NStr("en = 'Access to web services in the application is prohibited by the administrator (Online support and services > Allow access to web services).';");
+	Return NStr("en = 'Access to web services in the application is prohibited by the administrator (Online support and services > Allow access to web services).'");
 	
 EndFunction
 
@@ -5630,7 +5665,7 @@ Procedure SetUpInternetServicesOperations(Enable) Export
 	If Enable And SubsystemExists("StandardSubsystems.ScheduledJobs") Then
 
 		ModuleWorkLockWithExternalResources = CommonModule("ExternalResourcesOperationsLock");
-		ModuleWorkLockWithExternalResources.WhenEnablingAccessToInternetServices();
+		ModuleWorkLockWithExternalResources.OnEnableAccessToWebServices();
 		
 	EndIf;
 	
@@ -5725,7 +5760,7 @@ Function CreateWSProxy(Val WSProxyConnectionParameters) Export
 				NStr("en = 'Cannot check availability of the web service
 				           |%1.
 				           |Reason:
-				           |%2.';"),
+				           |%2.'"),
 				ConnectionParameters.WSDLAddress,
 				ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 			
@@ -5736,7 +5771,7 @@ Function CreateWSProxy(Val WSProxyConnectionParameters) Export
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = '%1
 					           |Diagnostics result:
-					           |%2';"),
+					           |%2'"),
 					ErrorText,
 					DiagnosticsResult.ErrorDescription);
 			EndIf;
@@ -5802,7 +5837,7 @@ Function GetInterfaceVersions(Val Address, Val User, Val Password = Undefined,
 		Or Not ValueIsFilled(ConnectionParameters.URL) Then
 		
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid value of parameter ""%1"" in function ""%2"". Service URL is not specified.';"), 
+			NStr("en = 'Invalid value of parameter ""%1"" in function ""%2"". Service URL is not specified.'"), 
 			"ConnectionParameters", "Common.GetInterfaceVersions"), ErrorCategory.ConfigurationError);
 	EndIf;
 	
@@ -5839,9 +5874,9 @@ Function GetInterfaceVersionsViaExternalConnection(ExternalConnection, Val Inter
 		XMLInterfaceVersions = ExternalConnection.StandardSubsystemsServer.SupportedVersions(InterfaceName);
 	Except
 		MessageString = NStr("en = 'The peer infobase does not support application interface versioning.
-			|Error details: %1';");
+			|Error details: %1'");
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		WriteLogEvent(NStr("en = 'Getting interface versions';", DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Getting interface versions'", DefaultLanguageCode()),
 			EventLogLevel.Error, , , MessageString);
 		
 		Return New FixedArray(New Array);
@@ -5980,20 +6015,20 @@ Procedure WriteDataToSecureStorage(Owner, Data, Var_Key = "Password") Export
 	CommonClientServer.Validate(ValueIsFilled(Owner),
 		StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid value of the %1 parameter in %2.
-			           |The parameter must contain a reference. The passed value is %3 (type: %4).';"),
+			           |The parameter must contain a reference. The passed value is %3 (type: %4).'"),
 			"Owner", "Common.WriteDataToSecureStorage", Owner, TypeOf(Owner)));
 			
 	If ValueIsFilled(Var_Key) Then
 		CommonClientServer.Validate(TypeOf(Var_Key) = Type("String"),
 			StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid value of the %1 parameter in %2.
-			|The parameter must contain a string. The passed value is %3 (type: %4).';"),
+			|The parameter must contain a string. The passed value is %3 (type: %4).'"),
 			"Key", "Common.WriteDataToSecureStorage", Var_Key, TypeOf(Var_Key))); 
 	Else
 		CommonClientServer.Validate(TypeOf(Data) = Type("Structure"),
 			StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid value of the %1 parameter in %2.
-			|If Key = Undefined, the parameter must contain a structure. The passed value is %3 (type: %4).';"),
+			|If Key = Undefined, the parameter must contain a structure. The passed value is %3 (type: %4).'"),
 			"Data", "Common.WriteDataToSecureStorage", Data, TypeOf(Data)));
 	EndIf;
 	
@@ -6105,14 +6140,14 @@ Function ReadOwnersDataFromSecureStorage(
 	CommonClientServer.Validate(TypeOf(Owners) = Type("Array"),
 		StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid value of the %1 parameter in %2.
-			           |The parameter must contain an array. The passed value is %3 (type: %4).';"),
+			           |The parameter must contain an array. The passed value is %3 (type: %4).'"),
 			"Owners", "Common.ReadDataFromSecureStorage", Owners, TypeOf(Owners)));
 	
 	If ValueIsFilled(DataArea) Then
 		CommonClientServer.Validate(TypeOf(DataArea) = Type("Number"),
 			StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid value of the %1 parameter in %2.
-			|The parameter must contain a string. The passed value is %3 (type: %4).';"),
+			|The parameter must contain a string. The passed value is %3 (type: %4).'"),
 			"DataArea", "Common.WriteDataToSecureStorage",
 				DataArea,
 				TypeOf(DataArea)));
@@ -6207,7 +6242,7 @@ Procedure DeleteDataFromSecureStorage(Val Owner, Val Keys = Undefined) Export
 	CommonClientServer.Validate(ValueIsFilled(Owner),
 		StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid value of the %1 parameter in %2.
-			           |The parameter must contain a reference. The passed value is %3 (type: %4).';"),
+			           |The parameter must contain a reference. The passed value is %3 (type: %4).'"),
 			"Owner", "Common.DeleteDataFromSecureStorage", Owner, TypeOf(Owner)));
 	
 	Block = New DataLock();
@@ -6458,11 +6493,11 @@ Procedure ExecuteObjectMethod(Val Object, Val MethodName, Val Parameters = Undef
 	Try
 		Test = New Structure(MethodName, MethodName);
 		If Test = Undefined Then 
-			Raise NStr("en = 'Method name validation.';");
+			Raise NStr("en = 'Method name validation.'");
 		EndIf;
 	Except
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid value of the %1 parameter in %3: %2.';"), 
+			NStr("en = 'Invalid value of the %1 parameter in %3: %2.'"), 
 				"MethodName", MethodName, "Common.ExecuteObjectMethod"),
 			ErrorCategory.ConfigurationError);
 	EndTry;
@@ -6499,28 +6534,28 @@ Procedure ExecuteObjectMethod(Val Object, Val MethodName, Val Parameters = Undef
 	
 EndProcedure
 
-// 
-// 
-// 
+// Executes any algorithm written in 1C:Enterprise language after setting
+// the script execution safe mode and date separation safe mode for
+// all separators within the configuration.
 //
-// 
-// 
-// 
-//   
-//   
-//   
-//   
-//   
-//   
-//   
+// Also, the following restrictions are applied to the executable code:
 //
-// 
-//   
-//   
+// 1. The code cannot call the following methods:
+//   - Execute
+//   - Eval
+//   - Attach (for external data processors)
+//   - CommitTransaction
+//   - TruncateEventLog
+//   - SetEventLogEventUse
+//   - RunApp
 //
-// 
-// 
-// 
+// 2. The code cannot call the global context common modules and context:
+//   - TimeConsumingOperations
+//   - InfoBaseUsers
+//
+// We recommend calling the method outside of transactions. By doing that, the executable code
+// will be executed within a transaction automatically, which reliably protects
+// the data from being modified by the executable code.
 //
 // Parameters:
 //  Algorithm  - String - the algorithm in the 1C:Enterprise language.
@@ -6528,17 +6563,31 @@ EndProcedure
 //    To address the context in the algorithm text, use "Parameters" name.
 //    For example, expression "Parameters.Value1 = Parameters.Value2" addresses values
 //    Value1 and Value2 that were passed to Parameters as properties.
+//  AlgorithmCheckParameters - See Common.AlgorithmCheckParameters
+//    Allows specifying a list of methods, modules, and global context properties that
+//    are not allowed during algorithm execution. Enhances the base check.
 //
 // Example:
 //
+//  Example 1
 //  Parameters = New Structure;
-//  Parameters.Insert("Value1", 1);
-//  Parameters.Insert("Value2", 10);
-//  Common.ExecuteInSafeMode("Parameters.Value1 = Parameters.Value2", Parameters);
+//  Parameters .Insert("Val1", 1);
+//  Parameters .Insert("Val2", 10);
+//  Common.ExecuteInSafeMode("Parameters.Val1= Parameters.Val2", Parameters);
 //
-Procedure ExecuteInSafeMode(Val Algorithm, Val Parameters = Undefined) Export
+//  Example 2
+//  Parameters = New Structure;
+//  Parameters .Insert("Источник", Источник);
+//  Parameters .Insert("Результат", Undefined);
+//  AlgorithmCheckParameters = Common.AlgorithmCheckParameters();
+//  AlgorithmCheckParameters.InvalidMethods.Add("Write");
+//  AlgorithmCheckParameters.InvalidMethods.Add("Base64Value");
+//  Common.ExecuteInSafeMode(ComputedExpression, Parameters, AlgorithmCheckParameters);
+//
+Procedure ExecuteInSafeMode(Val Algorithm, Val Parameters = Undefined,
+		Val AlgorithmCheckParameters = Undefined) Export
 	
-	CheckAlgorithm(Algorithm);
+	CheckAlgorithm(Algorithm, AlgorithmCheckParameters);
 	
 	SetSafeMode(True);
 	
@@ -6574,27 +6623,28 @@ Procedure ExecuteInSafeMode(Val Algorithm, Val Parameters = Undefined) Export
 
 EndProcedure
 
-// 
-// 
+// Computes the passed expression after setting the
+// script execution safe mode and date separation safe mode for
 //
+// all separators within the configuration.
 // 
-// 
-// 
-//   
-//   
-//   
-//   
-//   
-//   
-//   
+// Also, the following restrictions are applied to the executable code:
+//   - 1. The code cannot call the following methods:
+//   - Execute
+//   - Eval
+//   - Attach (for external data processors)
+//   - CommitTransaction
+//   - TruncateEventLog
+//   - SetEventLogEventUse
 //
-// 
-//   
-//   
+// - RunApp
+//   - 2. The code cannot call the global context common modules and context:
+//   - TimeConsumingOperations
 //
-// 
-// 
-// 
+// - InfoBaseUsers
+// We recommend calling the method outside of transactions. By doing that, the executable code
+// will be executed within a transaction automatically, which reliably protects
+// the data from being modified by the executable code.
 //
 // Parameters:
 //  Expression - String - an expression in the 1C:Enterprise language.
@@ -6602,6 +6652,9 @@ EndProcedure
 //    To address the context in the expression text, use "Parameters" name.
 //    For example, expression "Parameters.Value1 = Parameters.Value2" addresses values
 //    Value1 and Value2 that were passed to Parameters as properties.
+//  AlgorithmCheckParameters - See Common.AlgorithmCheckParameters
+//    Allows specifying a list of methods, modules, and global context properties that
+//    are not allowed during algorithm execution. Enhances the base check.
 //
 // Returns:
 //   Arbitrary - the result of the expression calculation.
@@ -6617,9 +6670,10 @@ EndProcedure
 //  // Example 2
 //  Result = Common.ExecuteInSafeMode("StandardSubsystemsServer.LibraryVersion()");
 //
-Function CalculateInSafeMode(Val Expression, Val Parameters = Undefined) Export
+Function CalculateInSafeMode(Val Expression, Val Parameters = Undefined,
+		Val AlgorithmCheckParameters = Undefined) Export
 	
-	CheckAlgorithm(Expression);
+	CheckAlgorithm(Expression, AlgorithmCheckParameters);
 	
 	SetSafeMode(True);
 	
@@ -6668,6 +6722,29 @@ Function ProtectionWithoutWarningsDetails() Export
 	ProtectionDetails.UnsafeOperationWarnings = False;
 	
 	Return ProtectionDetails;
+	
+EndFunction
+
+// A structure constructor for the AlgorithmCheckParameters parameter of the functions
+// "Common.ExecuteInSafeMode" and "Common.CalculateInSafeMode".
+//
+// Returns:
+//   Structure:
+//     * InvalidMethods - Array of String - List of methods that are not allowed
+//         to be called during algorithm execution.
+//     * GlobalContextBlacklistedProperties - Array of String - List of global context properties that are not
+//         allowed to be called during algorithm execution.
+//     * BlacklistedModules - Array of String - List of modules that are not allowed
+//         during algorithm execution.
+//
+Function AlgorithmCheckParameters() Export
+	
+	CheckParameters = New Structure;
+	CheckParameters.Insert("InvalidMethods", New Array);
+	CheckParameters.Insert("GlobalContextBlacklistedProperties", New Array);
+	CheckParameters.Insert("BlacklistedModules", New Array);
+	
+	Return CheckParameters;
 	
 EndFunction
 
@@ -6762,7 +6839,7 @@ Procedure OnStartExecuteScheduledJob(ScheduledJob = Undefined) Export
 	
 	If InformationRegisters.ApplicationRuntimeParameters.UpdateRequired1() Then
 		Text = NStr("en = 'The application is temporarily unavailable due to a version update.
-			               |It is recommended that you disable scheduled jobs for the duration of the update.';");
+			               |It is recommended that you disable scheduled jobs for the duration of the update.'");
 		ScheduledJobsServer.CancelJobExecution(ScheduledJob, Text);
 		Raise Text;
 	EndIf;
@@ -6772,7 +6849,7 @@ Procedure OnStartExecuteScheduledJob(ScheduledJob = Undefined) Export
 	   And ValueIsFilled(Constants.MasterNode.Get()) Then
 	
 		Text = NStr("en = 'The application is temporarily unavailable until the connection to the master node is restored.
-			               |It is recommended that you disable scheduled jobs until the connection is restored.';");
+			               |It is recommended that you disable scheduled jobs until the connection is restored.'");
 		ScheduledJobsServer.CancelJobExecution(ScheduledJob, Text);
 		Raise Text;
 	EndIf;
@@ -6794,7 +6871,7 @@ Procedure OnStartExecuteScheduledJob(ScheduledJob = Undefined) Export
 			EndDo;
 			Text = NStr("en = 'The scheduled job is unavailable due to functional option values
 				               |or is not supported in the current application run mode.
-				               |The scheduled job execution is canceled, and the job is disabled.';");
+				               |The scheduled job execution is canceled, and the job is disabled.'");
 			ScheduledJobsServer.CancelJobExecution(ScheduledJob, Text);
 			Raise Text;
 		EndIf;
@@ -6803,7 +6880,7 @@ Procedure OnStartExecuteScheduledJob(ScheduledJob = Undefined) Export
 	
 	If StandardSubsystemsServer.RegionalInfobaseSettingsRequired() Then
 		Text = NStr("en = 'The scheduled job cannot run until the regional settings are configured.
-			                |The scheduled job is aborted.';");
+			                |The scheduled job is aborted.'");
 		ScheduledJobsServer.CancelJobExecution(ScheduledJob, Text);
 		Raise Text;
 	EndIf;
@@ -6874,7 +6951,7 @@ Function SpreadsheetDocumentFitsPage(TabDocument, AreasToOutput, ResultOnError =
 EndFunction 
 
 // Saves the user's personal settings related to the "Core" subsystem.
-// The following functions are available to retrieve settings:
+// The following functions are available to retrieve the settings:
 //  - StandardSubsystemsServer.AskConfirmationOnExit
 //  - StandardSubsystemsServer.ShowInstalledApplicationUpdatesWarning
 //  - FileSystemClient.Attach1CEnterpriseExtension
@@ -6982,7 +7059,8 @@ EndProcedure
 //                   - Undefined - Defines the 1C:Enterprise behavior.:
 //                              Non-isolatedly if the add-in supports only this mode. 
 //                              Isolatedly, in other cases. By default, "Undefined".
-//                              See https://its.1c.eu/db/v83doc#bookmark:dev:TI000001866
+//                              See https://its.1c.eu/db/v83doc
+//                                    #bookmark:dev:TI000001866
 //
 // Returns:
 //   - AddInObject - Add-in instance.
@@ -7222,7 +7300,7 @@ Function ObjectByFullName(FullName) Export
 		Name = RowsArray[1];
 	Else
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid value of parameter ""%1"" in function ""%2"". Invalid name of a report or data processor: ""%3"".';"), 
+			NStr("en = 'Invalid value of parameter ""%1"" in function ""%2"". Invalid name of a report or data processor: ""%3"".'"), 
 			"FullName", "Common.ObjectByFullName", FullName),
 			ErrorCategory.ConfigurationError);
 	EndIf;
@@ -7233,7 +7311,7 @@ Function ObjectByFullName(FullName) Export
 		Return DataProcessors[Name].Create();
 	Else
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid value of parameter ""%1"" in function ""%2"". The object is not a report or data processor: ""%3"".';"), 
+			NStr("en = 'Invalid value of parameter ""%1"" in function ""%2"". The object is not a report or data processor: ""%3"".'"), 
 			"FullName", "Common.ObjectByFullName", FullName),
 			ErrorCategory.ConfigurationError);
 	EndIf;
@@ -7311,7 +7389,7 @@ Function AttachAddInSSLByID(Val Id, Val Location, Val Isolated = Undefined) Expo
 	Except
 		ErrorInfo = ErrorInfo();
 		ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot attach the ""%1"" add-in on the server due to:';"),
+			NStr("en = 'Cannot attach the ""%1"" add-in on the server due to:'"),
 			Id);
 		
 		Result.ErrorDescription = ErrorTitle + Chars.LF
@@ -7321,7 +7399,7 @@ Function AttachAddInSSLByID(Val Id, Val Location, Val Isolated = Undefined) Expo
 			+ ErrorProcessing.DetailErrorDescription(ErrorInfo)
 			+ SystemInformationForLogging();
 		
-		WriteLogEvent(NStr("en = 'Attaching add-in on the server';", DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Attaching add-in on the server'", DefaultLanguageCode()),
 			EventLogLevel.Error,,, CommentForLog);
 		Return Result;
 	EndTry;
@@ -7336,25 +7414,25 @@ Function AttachAddInSSLByID(Val Id, Val Location, Val Isolated = Undefined) Expo
 					 |%2.
 					 |Technical information:
 					 |%3
-					 |Method ""%4"" returned ""False"".';"), Id, TemplateAddInCompatibilityError, Location,
+					 |Method ""%4"" returned ""False"".'"), Id, TemplateAddInCompatibilityError, Location,
 				"AttachAddIn");
 		Else
 			Result.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot attach the ""%1"" add-in on the server.
 					 |Technical information:
 					 |%2
-					 |The method ""%3"" returned ""False"".';"), Id, Location, "AttachAddIn");
+					 |The method ""%3"" returned ""False"".'"), Id, Location, "AttachAddIn");
 		EndIf;
 		
 		Try
-			Raise NStr("en = 'Call stack:';")
+			Raise NStr("en = 'Call stack:'")
 		Except
 			CommentForLog = Result.ErrorDescription + Chars.LF + Chars.LF
 				+ ErrorProcessing.DetailErrorDescription(ErrorInfo())
 				+ SystemInformationForLogging();
 		EndTry;
 		
-		WriteLogEvent(NStr("en = 'Attaching add-in on the server';", DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Attaching add-in on the server'", DefaultLanguageCode()),
 			EventLogLevel.Error,,, CommentForLog);
 		Return Result;
 	EndIf;
@@ -7363,7 +7441,7 @@ Function AttachAddInSSLByID(Val Id, Val Location, Val Isolated = Undefined) Expo
 	Try
 		Attachable_Module = New("AddIn." + Id + "SymbolicName" + "." + Id);
 		If Attachable_Module = Undefined Then 
-			Raise NStr("en = 'The New operator returned Undefined.';");
+			Raise NStr("en = 'The New operator returned Undefined.'");
 		EndIf;
 	Except
 		Attachable_Module = Undefined;
@@ -7373,16 +7451,16 @@ Function AttachAddInSSLByID(Val Id, Val Location, Val Isolated = Undefined) Expo
 	If Attachable_Module = Undefined Then
 		Result.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot create object of the %1 add-in on the server due to:
-			           |%2';"),
+			           |%2'"),
 			Id, ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		
 		CommentForLog = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot create an object of the %1 add-in on the server due to:
-			           |%2';"),
+			           |%2'"),
 			Id, ErrorProcessing.DetailErrorDescription(ErrorInfo)
 				+ SystemInformationForLogging());
 		
-		WriteLogEvent(NStr("en = 'Attaching add-in on the server';", DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Attaching add-in on the server'", DefaultLanguageCode()),
 			EventLogLevel.Error,,, CommentForLog);
 		Return Result;
 	EndIf;
@@ -7589,10 +7667,10 @@ Function TemplateExists(FullTemplateName) Export
 	Template = Metadata.FindByFullName(FullTemplateName);
 	If TypeOf(Template) = Type("MetadataObject") Then 
 		
-		Var_525_Template = New Structure("TemplateType");
-		FillPropertyValues(Var_525_Template, Template);
+		Var_533_Template = New Structure("TemplateType");
+		FillPropertyValues(Var_533_Template, Template);
 		TemplateType = Undefined;
-		If Var_525_Template.Property("TemplateType", TemplateType) Then 
+		If Var_533_Template.Property("TemplateType", TemplateType) Then 
 			Return TemplateType <> Undefined;
 		EndIf;
 		
@@ -7639,7 +7717,7 @@ Function CheckIfObjectAttributesExist(FullMetadataObjectName, ExpressionsToCheck
 	If ObjectMetadata = Undefined Then 
 		Return New Structure("Error, ErrorDescription", True, 
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Non-existing metadata object: ""%1"".';"), FullMetadataObjectName));
+				NStr("en = 'Non-existing metadata object: ""%1"".'"), FullMetadataObjectName));
 	EndIf;
 
 	// Allow a call from the safe mode of an external data processor or extension.
@@ -7658,7 +7736,7 @@ Function CheckIfObjectAttributesExist(FullMetadataObjectName, ExpressionsToCheck
 		
 		If Not QuerySchemaSourceFieldAvailable(Source, CurrentExpression) Then 
 			ErrorText = ErrorText + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The ""%1"" object field does not exist.';"), CurrentExpression);
+				NStr("en = 'The ""%1"" object field does not exist.'"), CurrentExpression);
 		EndIf;
 		
 	EndDo;
@@ -7739,7 +7817,7 @@ Function MarkUsageInstances(Val ExecutionParameters, Val Ref, Val DestinationRef
 			// Unknown object for reference replacement.
 			Result.Success = False;
 			Text = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot replace references in ""%1"".';"), Information.FullName);
+				NStr("en = 'Cannot replace references in ""%1"".'"), Information.FullName);
 			ErrorDescription = New Structure("Object, Text", UsageInstance1.Data, Text);
 			Result.MarkupErrors.Add(ErrorDescription);
 		EndIf;
@@ -7832,7 +7910,7 @@ Procedure ReplaceInConstant(Result, Val UsageInstance1, Val WriteParameters)
 			ActionState = "LockError";
 			RefinementErrors = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Failed to make replacement in constant ""%1"". Another user is editing the data.
-				|Please try again later.';"), 
+				|Please try again later.'"), 
 				DataPresentation);
 			ErrorInfo = ErrorInfo();
 			Refinement = CommonClientServer.ExceptionClarification(ErrorInfo, RefinementErrors);
@@ -7866,7 +7944,7 @@ Procedure ReplaceInConstant(Result, Val UsageInstance1, Val WriteParameters)
 			ActionState = "WritingError";
 			ErrorInfo = ErrorInfo();
 			Refinement = CommonClientServer.ExceptionClarification(ErrorInfo,
-				NStr("en = 'Couldn''t make replacement due to:';"));
+				NStr("en = 'Couldn''t make replacement due to:'"));
 			Raise(Refinement.Text, Refinement.Category,,, ErrorInfo);
 		EndTry;
 		
@@ -7916,7 +7994,7 @@ Procedure ReplaceInObject(Result, Val UsageInstance1, Val ExecutionParameters)
 			ActionState = "LockError";
 			RefinementErrors = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Failed to make replacement in ""%1"". Another user is editing the data.
-				|Please try again later.';"), 
+				|Please try again later.'"), 
 				DataPresentation);
 			ErrorInfo = ErrorInfo();
 			Refinement = CommonClientServer.ExceptionClarification(ErrorInfo, RefinementErrors);
@@ -7953,7 +8031,7 @@ Procedure ReplaceInObject(Result, Val UsageInstance1, Val ExecutionParameters)
 			ActionState = "WritingError";
 			ErrorInfo = ErrorInfo();
 			Refinement = CommonClientServer.ExceptionClarification(ErrorInfo,
-				NStr("en = 'Couldn''t make replacement due to:';"));
+				NStr("en = 'Couldn''t make replacement due to:'"));
 			Raise(Refinement.Text, Refinement.Category,,, ErrorInfo);
 		EndTry;
 		
@@ -8034,7 +8112,7 @@ Procedure ReplaceInSet(Result, Val UsageInstance1, Val ExecutionParameters)
 			ActionState = "LockError";
 			RefinementErrors = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Failed to make replacement in register ""%1"". Another user is editing the data.
-				|Please try again later.';"), 
+				|Please try again later.'"), 
 				DataPresentation);
 			ErrorInfo = ErrorInfo();
 			Refinement = CommonClientServer.ExceptionClarification(ErrorInfo, RefinementErrors);
@@ -8059,7 +8137,7 @@ Procedure ReplaceInSet(Result, Val UsageInstance1, Val ExecutionParameters)
 			ActionState = "WritingError";
 			ErrorInfo = ErrorInfo();
 			Refinement = CommonClientServer.ExceptionClarification(ErrorInfo,
-				NStr("en = 'Couldn''t make replacement due to:';"));
+				NStr("en = 'Couldn''t make replacement due to:'"));
 			Raise(Refinement.Text, Refinement.Category,,, ErrorInfo);
 		EndTry;
 		
@@ -8521,7 +8599,7 @@ Function SetDeletionMark(Result, Val RefToDelete, Val AllUsageInstances, Val Exe
 		Success = False;
 		ErrorInfo = ErrorInfo();
 		Refinement = CommonClientServer.ExceptionClarification(ErrorInfo,
-			NStr("en = 'Cannot mark the item for deletion. Reason:';"));
+			NStr("en = 'Cannot mark the item for deletion. Reason:'"));
 		Try
 			Raise(Refinement.Text, Refinement.Category,,, ErrorInfo);
 		Except
@@ -8555,7 +8633,7 @@ Procedure AddModifiedObjectReplacementResults(Result, RepeatSearchTable)
 
 		RegisterReplacementError(Result, TableRow.Ref, 
 			ReplacementErrorDescription("DataChanged1", TableRow.Data, SubjectString(TableRow.Data),
-				NStr("en = 'Some of the instances were not replaced. Probably these instances were added or edited by other users.';")));
+				NStr("en = 'Some of the instances were not replaced. Probably these instances were added or edited by other users.'")));
 	EndDo;
 	
 EndProcedure
@@ -8678,7 +8756,8 @@ Function RegisterRecordsDetails(Val MetadataObject)
 		EndIf;
 		
 		// Ref fields and candidate dimensions.
-		// @skip-check query-in-loop - An empty request to obtain a list of table fields.
+// @skip-check query-in-loop - An empty request to obtain a list of table fields.
+		// @skip-check query-in-loop - Пустой запрос для получения списка полей таблицы.
 		LongDesc = ObjectFieldLists(RecordSet, Movement.Dimensions, ExcludeFields);
 		If LongDesc.FieldList.Count() = 0 Then
 			// No need to process.
@@ -8717,7 +8796,7 @@ Function SequencesDetails(Val Meta)
 		
 		TableName = Sequence.FullName();
 		
-		// @skip-check query-in-loop - Empty query for obtaining the list of table fields.
+		// @skip-check query-in-loop - Пустой запрос для получения списка полей таблицы.
 		LongDesc = ObjectFieldLists(TableName, Sequence.Dimensions, "Recorder");
 		If LongDesc.FieldList.Count() > 0 Then
 			
@@ -8853,7 +8932,8 @@ Function RecordsSetDetails(Val MetadataTables)
 	TableName = MetadataTables.FullName();
 	
 	// Candidate Ref fields and a dimension set.
-	// @skip-check query-in-loop - An empty request to obtain a list of table fields.
+// @skip-check query-in-loop - An empty request to obtain a list of table fields.
+	// @skip-check query-in-loop - Пустой запрос для получения списка полей таблицы.
 	KeyDetails = ObjectFieldLists(TableName, MetadataTables.Dimensions, "Period, Recorder");
 	
 	If Metadata.InformationRegisters.Contains(MetadataTables) Then
@@ -9103,7 +9183,7 @@ Procedure WriteObject(Val Object, Val WriteParameters)
 		
 		If Object.Parent = Object.Ref Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot write ""%1"" because it cannot be its own parent element.';"),
+				NStr("en = 'Cannot write ""%1"" because it cannot be its own parent element.'"),
 				SubjectString(Object));
 			EndIf;
 			
@@ -9112,7 +9192,7 @@ Procedure WriteObject(Val Object, Val WriteParameters)
 	// Check the owner.
 	If ObjectProperties.Owners.Count() > 1 And Object.Owner = Object.Ref Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot write ""%1"" because it cannot own itself.';"),
+			NStr("en = 'Cannot write ""%1"" because it cannot own itself.'"),
 			SubjectString(Object));
 	EndIf;
 	
@@ -9129,7 +9209,7 @@ EndProcedure
 
 Function RefReplacementEventLogMessageText()
 	
-	Return NStr("en = 'Searching for references and deleting them';", DefaultLanguageCode());
+	Return NStr("en = 'Searching for references and deleting them'", DefaultLanguageCode());
 	
 EndFunction
 
@@ -9203,23 +9283,23 @@ Procedure RegisterErrorInTable(Result, Duplicate1, Original, Data, Information, 
 	Error.ErrorObjectPresentation = FullDataPresentation;
 	
 	If ErrorType = "LockForRegister" Then
-		NewTemplate = NStr("en = 'Cannot start editing %1: %2';");
+		NewTemplate = NStr("en = 'Cannot start editing %1: %2'");
 		Error.ErrorType = "LockError";
 	ElsIf ErrorType = "DataLockForDuplicateDeletion" Then
-		NewTemplate = NStr("en = 'Cannot start deletion: %2';");
+		NewTemplate = NStr("en = 'Cannot start deletion: %2'");
 		Error.ErrorType = "LockError";
 	ElsIf ErrorType = "DeleteDuplicateSet" Then
-		NewTemplate = NStr("en = 'Cannot clear duplicate''s details in %1: %2';");
+		NewTemplate = NStr("en = 'Cannot clear duplicate''s details in %1: %2'");
 		Error.ErrorType = "WritingError";
 	ElsIf ErrorType = "WriteOriginalSet" Then
-		NewTemplate = NStr("en = 'Cannot update information in %1: %2';");
+		NewTemplate = NStr("en = 'Cannot update information in %1: %2'");
 		Error.ErrorType = "WritingError";
 	Else
 		NewTemplate = ErrorType + " (%1): %2";
 		Error.ErrorType = ErrorType;
 	EndIf;
 	
-	NewTemplate = NewTemplate + Chars.LF + Chars.LF + NStr("en = 'See the Event log for details.';");
+	NewTemplate = NewTemplate + Chars.LF + Chars.LF + NStr("en = 'See the Event log for details.'");
 	
 	BriefPresentation = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 	Error.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NewTemplate, FullDataPresentation, BriefPresentation);
@@ -9444,7 +9524,7 @@ Procedure RegisterDeletionErrors(Result, ObjectsPreventingDeletion)
 
 	RefsPresentations = SubjectAsString(ObjectsPreventingDeletion.UnloadColumn("UsageInstance1"));	
 	For Each ObjectsPreventingDeletion In ObjectsPreventingDeletion Do
-		ErrorText = NStr("en = 'An item is not deleted since there are references to it.';");
+		ErrorText = NStr("en = 'An item is not deleted since there are references to it.'");
 		ErrorDescription = ReplacementErrorDescription("DeletionError", ObjectsPreventingDeletion.UsageInstance1, 
 			RefsPresentations[ObjectsPreventingDeletion.UsageInstance1], ErrorText);
 		RegisterReplacementError(Result, ObjectsPreventingDeletion.ItemToDeleteRef, ErrorDescription);
@@ -9589,45 +9669,45 @@ Function RecordSetDimensionsDetails(Val RegisterMetadata, RegisterDimensionCache
 		
 		If MetaPeriod = Periodicity.RecorderPosition Then
 			DimensionData.Type           = Documents.AllRefsType();
-			DimensionData.Presentation = NStr("en = 'Recorder';");
+			DimensionData.Presentation = NStr("en = 'Recorder'");
 			DimensionData.Master       = True;
 			DimensionsDetails.Insert("Recorder", DimensionData);
 			
 		ElsIf MetaPeriod = Periodicity.Year Then
 			DimensionData.Type           = New TypeDescription("Date");
-			DimensionData.Presentation = NStr("en = 'Period';");
-			DimensionData.Format        = NStr("en = 'DF=''yyyy''; DE=''No date''';");
+			DimensionData.Presentation = NStr("en = 'Period'");
+			DimensionData.Format        = NStr("en = 'DF=''yyyy''; DE=''No date'''");
 			DimensionsDetails.Insert("Period", DimensionData);
 			
 		ElsIf MetaPeriod = Periodicity.Day Then
 			DimensionData.Type           = New TypeDescription("Date");
-			DimensionData.Presentation = NStr("en = 'Period';");
-			DimensionData.Format        = NStr("en = 'DLF=D; DE=''No date''';");
+			DimensionData.Presentation = NStr("en = 'Period'");
+			DimensionData.Format        = NStr("en = 'DLF=D; DE=''No date'''");
 			DimensionsDetails.Insert("Period", DimensionData);
 			
 		ElsIf MetaPeriod = Periodicity.Quarter Then
 			DimensionData.Type           = New TypeDescription("Date");
-			DimensionData.Presentation = NStr("en = 'Period';");
-			DimensionData.Format        =  NStr("en = 'DF=''""""Q""""q yyyy''; DE=''No date''';");
+			DimensionData.Presentation = NStr("en = 'Period'");
+			DimensionData.Format        =  NStr("en = 'DF=''""""Q""""q yyyy''; DE=''No date'''");
 			DimensionsDetails.Insert("Period", DimensionData);
 			
 		ElsIf MetaPeriod = Periodicity.Month Then
 			DimensionData.Type           = New TypeDescription("Date");
-			DimensionData.Presentation = NStr("en = 'Period';");
-			DimensionData.Format        = NStr("en = 'DF=''MMMM yyyy''; DE=''No date''';");
+			DimensionData.Presentation = NStr("en = 'Period'");
+			DimensionData.Format        = NStr("en = 'DF=''MMMM yyyy''; DE=''No date'''");
 			DimensionsDetails.Insert("Period", DimensionData);
 			
 		ElsIf MetaPeriod = Periodicity.Second Then
 			DimensionData.Type           = New TypeDescription("Date");
-			DimensionData.Presentation = NStr("en = 'Period';");
-			DimensionData.Format        = NStr("en = 'DLF=DT; DE=''No date''';");
+			DimensionData.Presentation = NStr("en = 'Period'");
+			DimensionData.Format        = NStr("en = 'DLF=DT; DE=''No date'''");
 			DimensionsDetails.Insert("Period", DimensionData);
 			
 		EndIf;
 		
 	Else
 		DimensionData.Type           = Documents.AllRefsType();
-		DimensionData.Presentation = NStr("en = 'Recorder';");
+		DimensionData.Presentation = NStr("en = 'Recorder'");
 		DimensionData.Master       = True;
 		DimensionsDetails.Insert("Recorder", DimensionData);
 		
@@ -9733,7 +9813,7 @@ Function ServerManagerModule(Name)
 	
 	If Not ObjectFound Then
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid value of parameter ""%1"" in function ""%2"". Metadata object doesn''t exist: ""%3"".';"), 
+			NStr("en = 'Invalid value of parameter ""%1"" in function ""%2"". Metadata object doesn''t exist: ""%3"".'"), 
 			"Name", "Common.ServerManagerModule", Name),
 			ErrorCategory.ConfigurationError);
 	EndIf;
@@ -9777,7 +9857,7 @@ Function ColumnsToCompare(Val RowsCollection, Val ColumnsNames, Val ExcludingCol
 			ColumnsToCompare.Add("Value");
 		Else	
 			Raise(StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Invalid value of parameter ""%1"" (of ""%2"" type) in ""%3"". Specify the names of the fields for comparison.';"),
+				NStr("en = 'Invalid value of parameter ""%1"" (of ""%2"" type) in ""%3"". Specify the names of the fields for comparison.'"),
 				"RowsCollection1", CollectionType, "Common.IdenticalCollections"),
 				ErrorCategory.ConfigurationError);
 		EndIf;
@@ -9990,7 +10070,7 @@ Procedure CheckFixedData(Data, DataInFixedTypeValue = False)
 	EndIf;
 	
 	Raise(StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Invalid value of parameter ""%1"" in function ""%2"". Data of type ""%3"" cannot be immutable.';"),
+		NStr("en = 'Invalid value of parameter ""%1"" in function ""%2"". Data of type ""%3"" cannot be immutable.'"),
 		"Data", "Common.FixedData", String(DataType)),
 		ErrorCategory.ConfigurationError);
 	
@@ -10102,7 +10182,7 @@ Procedure CheckMetadataObjectExists(FullName)
 	
 	If MetadataObjectByFullName(FullName) = Undefined Then 
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Non-existing metadata object type: ""%1"".';"), FullName),
+			NStr("en = 'Non-existing metadata object type: ""%1"".'"), FullName),
 			ErrorCategory.ConfigurationError);
 	EndIf;
 	
@@ -10178,7 +10258,7 @@ Function ClearNonExistentRefs(Value)
 		Count = Value.Count();
 		For Number = 1 To Count Do
 			ReverseIndex = Count - Number;
-			// @skip-check query-in-loop - Set of reference from tables.
+			// @skip-check query-in-loop - выборка ссылок из разных таблиц.
 			If ClearNonExistentRefs(Value[ReverseIndex]) Then
 				Value.Delete(ReverseIndex);
 			EndIf;
@@ -10190,7 +10270,7 @@ Function ClearNonExistentRefs(Value)
 		Or Type = Type("Map") Then
 		
 		For Each KeyAndValue In Value Do
-			// @skip-check query-in-loop - Set of reference from tables.
+			// @skip-check query-in-loop - выборка ссылок из разных таблиц.
 			If ClearNonExistentRefs(KeyAndValue.Value) Then
 				Value.Insert(KeyAndValue.Key, Undefined);
 			EndIf;
@@ -10347,7 +10427,7 @@ Procedure CheckConfigurationProcedureName(Val ProcedureName)
 	NameParts = StrSplit(ProcedureName, ".");
 	If NameParts.Count() <> 2 And NameParts.Count() <> 3 Then
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid format of %1 parameter (passed value: ""%2"") in %3.';"), 
+			NStr("en = 'Invalid format of %1 parameter (passed value: ""%2"") in %3.'"), 
 			"ProcedureName", ProcedureName, "Common.ExecuteConfigurationMethod"),
 			ErrorCategory.ConfigurationError);
 	EndIf;
@@ -10356,7 +10436,7 @@ Procedure CheckConfigurationProcedureName(Val ProcedureName)
 	If NameParts.Count() = 2 And Metadata.CommonModules.Find(ObjectName) = Undefined Then
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Incorrect format of parameter %1 (passed value: ""%2"") in %3:
-				|Common module ""%4"" does not exist.';"),
+				|Common module ""%4"" does not exist.'"),
 			"ProcedureName", ProcedureName, "Common.ExecuteConfigurationMethod", ObjectName),
 			ErrorCategory.ConfigurationError);
 	EndIf;
@@ -10371,7 +10451,7 @@ Procedure CheckConfigurationProcedureName(Val ProcedureName)
 		If Manager = Undefined Then
 			Raise(StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Incorrect format of parameter %1 (passed value: ""%2"") in %3:
-				           |Object manager ""%4"" does not exist.';"),
+				           |Object manager ""%4"" does not exist.'"),
 				"ProcedureName", ProcedureName, "Common.ExecuteConfigurationMethod", FullObjectName),
 				ErrorCategory.ConfigurationError);
 		EndIf;
@@ -10384,11 +10464,11 @@ Procedure CheckConfigurationProcedureName(Val ProcedureName)
 		// For example, "MyProcedure".
 		TempStructure.Insert(ObjectMethodName);
 	Except
-		WriteLogEvent(NStr("en = 'Executing method in safe mode';", DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Executing method in safe mode'", DefaultLanguageCode()),
 			EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Incorrect format of parameter %1 (passed value: ""%2"") in %3:
-			           |Name of method ""%4"" does not meet the requirements of procedure and function name formation.';"),
+			           |Name of method ""%4"" does not meet the requirements of procedure and function name formation.'"),
 			"ProcedureName", ProcedureName, "Common.ExecuteConfigurationMethod", ObjectMethodName),
 			ErrorCategory.ConfigurationError);
 	EndTry;
@@ -10531,7 +10611,7 @@ Function ObjectManagerByName(Name)
 	EndIf;
 	
 	Raise(StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Invalid value of parameter ""%1"" in ""%2"". Manager for object ""%3"" doesn''t exist.';"), Name),
+		NStr("en = 'Invalid value of parameter ""%1"" in ""%2"". Manager for object ""%3"" doesn''t exist.'"), Name),
 		"Name", "Common.ObjectManagerByName", ErrorCategory.ConfigurationError);
 	
 EndFunction
@@ -10607,7 +10687,7 @@ Function CallObjectFunction(Val Object, Val MethodName, Val Parameters = Undefin
 		Test.Insert(MethodName, MethodName);
 	Except
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Incorrect value of parameter %1 in %3: %2.';"), 
+			NStr("en = 'Incorrect value of parameter %1 in %3: %2.'"), 
 			"MethodName", MethodName, "Common.ExecuteObjectMethod"),
 			ErrorCategory.ConfigurationError);
 	EndTry;
@@ -10660,7 +10740,7 @@ Procedure CheckTheLocationOfTheComponent(Id, Location)
 		Return;
 	EndIf;
 	Raise(StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Attempting to attach add-in ""%2"" from non-existent template ""%1"".';"),
+		NStr("en = 'Attempting to attach add-in ""%2"" from non-existent template ""%1"".'"),
 			Location, Id),
 		ErrorCategory.ConfigurationError);
 	
@@ -10681,20 +10761,7 @@ EndFunction
 
 Function SystemInformationForLogging()
 	
-	SystemInfo = New SystemInfo;
-	
-	Return Chars.LF + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = '1C:Enterprise: %1
-		           |Type: %2
-		           |OS version: %3
-		           |CPU: %4
-		           |RAM: %5';",
-		           DefaultLanguageCode()),
-		SystemInfo.AppVersion,
-		SystemInfo.PlatformType,
-		SystemInfo.OSVersion,
-		SystemInfo.Processor,
-		SystemInfo.RAM);
+	Return StandardSubsystemsServer.SupportInformation();
 	
 EndFunction
 
@@ -10827,44 +10894,91 @@ Procedure ClarifyPlatformVersion(CommonParameters)
 	
 EndProcedure
 
+// Parameters:
+//   CommonParameters - See CommonCoreParameters
+// 
+Procedure SpecifyMinimumPlatformVersionFromService(CommonParameters)
+	
+	MinimalFromService = "";
+	RecommendedFromService = "";
+
+	StandardSubsystemsServerLocalization.OnDefineMinAndRecommended1CEnterpriseVersions(
+		MinimalFromService, RecommendedFromService);
+	
+	If Not ValueIsFilled(MinimalFromService) And Not ValueIsFilled(RecommendedFromService) Then
+		Return;
+	EndIf;
+	
+	Min = BuildNumberForTheCurrentPlatformVersion(MinimalFromService);
+	Recommended = BuildNumberForTheCurrentPlatformVersion(RecommendedFromService);
+	
+	If IsMinRecommended1CEnterpriseVersionInvalid(Min, Recommended) Then
+		StandardSubsystemsServerLocalization.OnFillIncorrectMinAndRecommended1CEnterpriseVersions(
+			Min, Recommended, BuildNumberForTheCurrentPlatformVersion(MinPlatformVersion()), CommonParameters);
+		Return;
+	EndIf;
+
+	CommonParameters.MinPlatformVersion = Min;
+	CommonParameters.RecommendedPlatformVersion = Recommended;
+
+EndProcedure
 
 #EndRegion
 
 #Region AlgorithmCheck
 
-Procedure CheckAlgorithm(Val Algorithm)
+// Checks whether a piece of 1C:Enterprise code contains dangerous expressions that
+// could grant unauthorized access to the database.
+//
+// Parameters:
+//  Algorithm - String - Expression to be checked.
+//  CheckParameters - See Common.AlgorithmCheckParameters
+//                    - Undefined
+//
+Procedure CheckAlgorithm(Val Algorithm, CheckParameters)
 	
 	ErrorsTexts = New Array;
+	
+	If CheckParameters = Undefined Then
+		CheckParameters = AlgorithmCheckParameters();
+	EndIf;
 	
 	Algorithm = Upper(Algorithm);
 	// Exclude the method of the "Query" object.
 	Algorithm = StrReplace(StrReplace(Algorithm, Upper("Execute()"), ""), Upper("Execute()"), "");
 	// Check if the algorithm contains invalid methods.
-	FoundCalls = FoundCalls(Algorithm, InvalidMethods(), "(");
+	InvalidMethods = InvalidMethods();
+	CommonClientServer.SupplementArray(InvalidMethods, CheckParameters.InvalidMethods, True);
+	FoundCalls = FoundCalls(Algorithm, InvalidMethods, "(");
 	If FoundCalls.Count() > 0 Then
 		ErrorText = NStr("en = 'Invalid method calls:
-			|%1';");
+			|%1'");
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText, StrConcat(FoundCalls, Chars.LF));
 		
 		ErrorsTexts.Add(ErrorText);
 	EndIf;
 	
 	// Check for calls to the global context common modules and properties.
-	FoundCalls = FoundCalls(Algorithm, GlobalContextBlacklistedProperties(), ".");
-	FoundCallsAlternative = FoundCalls(Algorithm, GlobalContextBlacklistedProperties(), "[");
+	GlobalContextBlacklistedProperties = GlobalContextBlacklistedProperties();
+	CommonClientServer.SupplementArray(
+		GlobalContextBlacklistedProperties, CheckParameters.GlobalContextBlacklistedProperties, True);
+	FoundCalls = FoundCalls(Algorithm, GlobalContextBlacklistedProperties, ".");
+	FoundCallsAlternative = FoundCalls(Algorithm, GlobalContextBlacklistedProperties, "[");
 	CommonClientServer.SupplementArray(FoundCalls, FoundCallsAlternative, True);
 	If FoundCalls.Count() > 0 Then
 		ErrorText = NStr("en = 'Invalid global context property calls:
-			|%1';");
+			|%1'");
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText, StrConcat(FoundCalls, Chars.LF));
 		
 		ErrorsTexts.Add(ErrorText);
 	EndIf;
 	
-	FoundCalls = FoundCalls(Algorithm, BlacklistedModules(), ".");
+	BlacklistedModules = BlacklistedModules();
+	CommonClientServer.SupplementArray(BlacklistedModules, CheckParameters.BlacklistedModules, True);
+	FoundCalls = FoundCalls(Algorithm, BlacklistedModules, ".");
 	If FoundCalls.Count() > 0 Then
 		ErrorText = NStr("en = 'Invalid modules calls:
-			|%1';");
+			|%1'");
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText, StrConcat(FoundCalls, Chars.LF));
 		
 		ErrorsTexts.Add(ErrorText);
@@ -10873,6 +10987,7 @@ Procedure CheckAlgorithm(Val Algorithm)
 	If ErrorsTexts.Count() > 0 Then
 		Raise (StrConcat(ErrorsTexts, Chars.LF + Chars.LF), ErrorCategory.ExternalDataSourceError);
 	EndIf;
+	
 EndProcedure
 
 Function FoundCalls(Algorithm, SearchBars, Ending = Undefined)

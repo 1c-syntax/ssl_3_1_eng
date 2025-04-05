@@ -437,7 +437,7 @@ Procedure PickLOAByCertificate()
 	If Not ValueIsFilled(Certificate) Then
 		SettingByLOA = Undefined;
 	Else
-		SettingByLOA = CommonServerCall.CommonSettingsStorageLoad(
+		SettingByLOA = Common.CommonSettingsStorageLoad(
 				Certificate, "ByLetterOfAuthority", Undefined);
 	EndIf;
 
@@ -710,10 +710,10 @@ Procedure SignData(Notification)
 		If ValueIsFilled(PrivateKeyExpirationDate) And PrivateKeyExpirationDate
 			< CommonClient.SessionDate() Then
 			Context.ErrorAtClient.Insert("ErrorDescription", NStr("en = 'The selected certificate''s private key has expired.
-																	 |Select another certificate.';"));
+																	 |Select another certificate.'"));
 		Else
 			Context.ErrorAtClient.Insert("ErrorDescription", NStr("en = 'The selected certificate has expired.
-																	 |Select another certificate.';"));
+																	 |Select another certificate.'"));
 		EndIf;
 		
 		HandleError(Context.Notification, Context.ErrorAtClient, Context.ErrorAtServer);
@@ -723,7 +723,7 @@ Procedure SignData(Notification)
 	If CertificateRevoked Then
 		Context.ErrorAtClient.Insert("ErrorDescription",
 			NStr("en = 'The certificate is marked as revoked.
-			|Select another certificate.';"));
+			|Select another certificate.'"));
 		AdditionalErrorData = New Structure("AdditionalDataChecksOnClient", ErrorCertificateMarkedAsRevoked());
 		HandleError(Context.Notification, Context.ErrorAtClient, Context.ErrorAtServer,,AdditionalErrorData);
 		Return;
@@ -734,7 +734,7 @@ Procedure SignData(Notification)
 		And Not CertificationAuthorityAuditResult.Valid_SSLyf Then
 		
 		If CertificationAuthorityAuditResult.Warning.AllowSigning Then
-			SigningAllowed = CommonServerCall.CommonSettingsStorageLoad(
+			SigningAllowed = CommonClient.CommonSettingsStorageLoad(
 				Certificate, "AllowSigning", Undefined);
 			
 			If SigningAllowed = Undefined Then
@@ -742,13 +742,13 @@ Procedure SignData(Notification)
 				
 				QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
 				QuestionParameters.Picture = PictureLib.DialogExclamation;
-				QuestionParameters.Title = NStr("en = 'Request for permission to sign';");
+				QuestionParameters.Title = NStr("en = 'Request for permission to sign'");
 				QuestionParameters.CheckBoxText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Remember my choice for certificate ""%1""';"), Certificate);
+					NStr("en = 'Remember my choice for certificate ""%1""'"), Certificate);
 				
 				Buttons = New ValueList;
-				Buttons.Add(True, NStr("en = 'Allow signing';"));
-				Buttons.Add(False,   NStr("en = 'Cancel signing';"));
+				Buttons.Add(True, NStr("en = 'Allow signing'"));
+				Buttons.Add(False,   NStr("en = 'Cancel signing'"));
 				
 				ErrorWarning = CertificationAuthorityAuditResult.Warning; // See DigitalSignatureInternalClientServer.WarningWhileVerifyingCertificateAuthorityCertificate
 				StandardSubsystemsClient.ShowQuestionToUser(Notification, ErrorWarning.ErrorText, Buttons, QuestionParameters);
@@ -776,7 +776,7 @@ Procedure SignDataAfterCAQuestionAnswered(Result, Context) Export
 		Result = Result.Value;
 		
 		If NeverAskAgain Then
-			CommonServerCall.CommonSettingsStorageSave(
+			CommonClient.CommonSettingsStorageSave(
 				Certificate, "AllowSigning", Result);
 		EndIf;
 		
@@ -815,7 +815,7 @@ Procedure SignDataAfterSelectedCertificateVerified(Result, Context) Export
 		
 		If Result.CertificateRevoked Then
 			Context.ErrorAtClient.Insert("ErrorDescription", NStr("en = 'The certificate is revoked.
-																	 |Select another certificate.';"));
+																	 |Select another certificate.'"));
 			AdditionalErrorData = New Structure("AdditionalDataChecksOnClient",
 				ErrorCertificateMarkedAsRevoked());
 			HandleError(Context.Notification, Context.ErrorAtClient, Context.ErrorAtServer, ,
@@ -831,18 +831,18 @@ Procedure SignDataAfterSelectedCertificateVerified(Result, Context) Export
 		
 		QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
 		QuestionParameters.Picture = PictureLib.DialogExclamation;
-		QuestionParameters.Title = NStr("en = 'The signature will be invalid';");
+		QuestionParameters.Title = NStr("en = 'The signature will be invalid'");
 		QuestionParameters.PromptDontAskAgain = False;
 		
 		Buttons = New ValueList;
-		Buttons.Add("CancelSigning",  NStr("en = 'Cancel signing';"));
-		Buttons.Add("AllowSigning", NStr("en = 'Allow signing';"));
-		Buttons.Add("ShowError",      NStr("en = 'Details...';"));
+		Buttons.Add("CancelSigning",  NStr("en = 'Cancel signing'"));
+		Buttons.Add("AllowSigning", NStr("en = 'Allow signing'"));
+		Buttons.Add("ShowError",      NStr("en = 'Details...'"));
 		
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The certificate has failed verification. A signature created by this certificate will be invalid.
 				|
-				|%1';"), DigitalSignatureInternalClientServer.GeneralDescriptionOfTheError(
+				|%1'"), DigitalSignatureInternalClientServer.GeneralDescriptionOfTheError(
 			Result.ErrorDetailsAtClient, Result.ErrorDescriptionAtServer, Undefined));
 		
 		StandardSubsystemsClient.ShowQuestionToUser(Notification, ErrorText, Buttons, QuestionParameters);
@@ -1037,7 +1037,7 @@ Procedure SignDataAfterExecutionAtClientSide(Result, Context) Export
 			DigitalSignatureInternalClient, FormOpenParameters);
 		
 		ShowUserNotification(
-			NStr("en = 'You need to reissue the certificate';"), ActionOnClick, Certificate,
+			NStr("en = 'You need to reissue the certificate'"), ActionOnClick, Certificate,
 			PictureLib.DialogExclamation, UserNotificationStatus.Important,
 			Certificate);
 	EndIf;
@@ -1064,7 +1064,7 @@ Procedure SignDataAfterExecute(Result)
 	EndIf;
 	
 	If Items.PowerOfAttorneyGroup.Visible Then
-		CommonServerCall.CommonSettingsStorageSave(
+		CommonClient.CommonSettingsStorageSave(
 			Certificate, "ByLetterOfAuthority", ByLetterOfAuthority);
 	EndIf;
 	
@@ -1088,7 +1088,7 @@ Procedure HandleError(Notification, ErrorAtClient, ErrorAtServer, UnsignedData =
 			EndIf;
 		
 		DataDetails.ErrorDescription = DigitalSignatureInternalClientServer.GeneralDescriptionOfTheError(
-			ErrorAtClient, ErrorAtServer, NStr("en = 'Cannot sign documents due to:';"));
+			ErrorAtClient, ErrorAtServer, NStr("en = 'Cannot sign documents due to:'"));
 
 		EndIf;
 		
@@ -1117,7 +1117,7 @@ Procedure HandleError(Notification, ErrorAtClient, ErrorAtServer, UnsignedData =
 			AdditionalParameters.Insert("Certificate", Certificate);
 			
 			DigitalSignatureInternalClient.ShowApplicationCallError(
-				NStr("en = 'Cannot sign documents';"), "", 
+				NStr("en = 'Cannot sign documents'"), "", 
 				ErrorAtClient, ErrorAtServer, AdditionalParameters, ProcessingAfterWarning);
 		EndIf;
 			

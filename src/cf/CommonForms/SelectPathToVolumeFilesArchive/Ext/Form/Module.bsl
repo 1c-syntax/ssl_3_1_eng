@@ -14,7 +14,7 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Common.FileInfobase() Then
-		Items.WindowsArchivePath.Title = NStr("en = 'For 1C:Enterprise server on Microsoft Windows';"); 
+		Items.WindowsArchivePath.Title = NStr("en = 'For 1C:Enterprise server on Microsoft Windows'"); 
 	Else
 		Items.WindowsArchivePath.ChoiceButton = False; 
 	EndIf;
@@ -41,12 +41,12 @@ Procedure WindowsArchivePathStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	Dialog = New FileDialog(FileDialogMode.Open);
 	
-	Dialog.Title                    = NStr("en = 'Select file';");
+	Dialog.Title                    = NStr("en = 'Select file'");
 	Dialog.FullFileName               = ?(WindowsArchivePath = "", "files.zip", WindowsArchivePath);
 	Dialog.Multiselect           = False;
 	Dialog.Preview      = False;
 	Dialog.CheckFileExistence  = True;
-	Dialog.Filter                       = NStr("en = 'ZIP archive (*.zip)|*.zip';");
+	Dialog.Filter                       = NStr("en = 'ZIP archive (*.zip)|*.zip'");
 	
 	If Dialog.Choose() Then
 		
@@ -67,7 +67,7 @@ Procedure Place(Command)
 	
 	If IsBlankString(WindowsArchivePath) And IsBlankString(PathToArchiveLinux) Then
 		Text = NStr("en = 'Please specify the full name of the archive 
-		                   |with initial image files (a *.zip file).';");
+		                   |with initial image files (a *.zip file).'");
 		CommonClient.MessageToUser(Text, , "WindowsArchivePath");
 		Return;
 	EndIf;
@@ -76,7 +76,7 @@ Procedure Place(Command)
 	
 		If Not IsBlankString(WindowsArchivePath) And (Left(WindowsArchivePath, 2) <> "\\" Or StrFind(WindowsArchivePath, ":") <> 0) Then
 			ErrorText = NStr("en = 'The path to the archive with initial image files
-			                         |must be in the UNC format (\\servername\resource).';");
+			                         |must be in the UNC format (\\servername\resource).'");
 			CommonClient.MessageToUser(ErrorText, , "WindowsArchivePath");
 			Return;
 		EndIf;
@@ -86,8 +86,8 @@ Procedure Place(Command)
 	AddFilesToVolumes();
 	
 	NotificationText1 = NStr("en = 'Files from the initial image archive
-		|are stored to volumes.';");
-	ShowUserNotification(NStr("en = 'Store files';"),, NotificationText1);
+		|are stored to volumes.'");
+	ShowUserNotification(NStr("en = 'Store files'"),, NotificationText1);
 	
 EndProcedure
 

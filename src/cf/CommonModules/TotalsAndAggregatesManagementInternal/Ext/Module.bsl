@@ -17,19 +17,19 @@ Procedure CalculateTotals() Export
 	AccumulationRegisterPeriod  = EndOfMonth(AddMonth(SessionDate, -1)); // End of the last month.
 	AccountingRegisterPeriod = EndOfMonth(SessionDate); // End of the current month.
 	
-	SetMinimumPeriod = False;
-	MinimumPeriodOfCalculatedTotalsOfAccumulationRegisters = Date(1,1,1);
-	MinimumPeriodOfCalculatedTotalsOfAccountingRegisters = Date(1,1,1);
+	ShouldSetMinPeriod = False;
+	AccumulationRegistersCalculatedTotalsMinPeriod = Date(1,1,1);
+	AccountingRegistersCalculatedTotalsMinPeriod = Date(1,1,1);
 	
-	NumberOfMonthsOfMinimumPeriodOfCalculatedTotals =
-		Constants.NumberOfMonthsOfMinimumPeriodOfCalculatedTotals.Get();
-	If ValueIsFilled(NumberOfMonthsOfMinimumPeriodOfCalculatedTotals) Then
-		SetMinimumPeriod = True;
+	MonthsCountInCalculatedTotalsMinPeriod =
+		Constants.MonthsCountInCalculatedTotalsMinPeriod.Get();
+	If ValueIsFilled(MonthsCountInCalculatedTotalsMinPeriod) Then
+		ShouldSetMinPeriod = True;
 		
-		MinimumPeriodOfCalculatedTotalsOfAccumulationRegisters =
-			BegOfMonth(AddMonth(SessionDate, -(NumberOfMonthsOfMinimumPeriodOfCalculatedTotals - 1)));
-		MinimumPeriodOfCalculatedTotalsOfAccountingRegisters =
-			BegOfMonth(AddMonth(SessionDate, -(NumberOfMonthsOfMinimumPeriodOfCalculatedTotals - 2)));
+		AccumulationRegistersCalculatedTotalsMinPeriod =
+			BegOfMonth(AddMonth(SessionDate, -(MonthsCountInCalculatedTotalsMinPeriod - 1)));
+		AccountingRegistersCalculatedTotalsMinPeriod =
+			BegOfMonth(AddMonth(SessionDate, -(MonthsCountInCalculatedTotalsMinPeriod - 2)));
 	EndIf;
 	
 	Cache = SplitCheckCache();
@@ -44,23 +44,23 @@ Procedure CalculateTotals() Export
 			Continue;
 		EndIf;
 		AccumulationRegisterManager = AccumulationRegisters[MetadataRegister.Name]; // AccumulationRegisterManager
-		MaximumPeriodOfCalculatedTotals = AccumulationRegisterManager.GetMaxTotalsPeriod();
-		MinimumPeriodOfCalculatedTotals = AccumulationRegisterManager.GetMinTotalsPeriod();
-		If MaximumPeriodOfCalculatedTotals >= AccumulationRegisterPeriod
-			And (Not SetMinimumPeriod 
-				Or MinimumPeriodOfCalculatedTotals = MinimumPeriodOfCalculatedTotalsOfAccumulationRegisters)Then
+		CalculatedTotalsMaxPeriod = AccumulationRegisterManager.GetMaxTotalsPeriod();
+		CalculatedTotalsMinPeriod = AccumulationRegisterManager.GetMinTotalsPeriod();
+		If CalculatedTotalsMaxPeriod >= AccumulationRegisterPeriod
+			And (Not ShouldSetMinPeriod 
+				Or CalculatedTotalsMinPeriod = AccumulationRegistersCalculatedTotalsMinPeriod)Then
 			Continue;
 		EndIf;
-		If MaximumPeriodOfCalculatedTotals < AccumulationRegisterPeriod
-			And (SetMinimumPeriod
-				And MinimumPeriodOfCalculatedTotals <> MinimumPeriodOfCalculatedTotalsOfAccumulationRegisters) Then
+		If CalculatedTotalsMaxPeriod < AccumulationRegisterPeriod
+			And (ShouldSetMinPeriod
+				And CalculatedTotalsMinPeriod <> AccumulationRegistersCalculatedTotalsMinPeriod) Then
 				AccumulationRegisterManager.SetMinAndMaxTotalsPeriods(
-					MinimumPeriodOfCalculatedTotalsOfAccumulationRegisters, AccumulationRegisterPeriod);
-		ElsIf MaximumPeriodOfCalculatedTotals < AccumulationRegisterPeriod Then
+					AccumulationRegistersCalculatedTotalsMinPeriod, AccumulationRegisterPeriod);
+		ElsIf CalculatedTotalsMaxPeriod < AccumulationRegisterPeriod Then
 			AccumulationRegisterManager.SetMaxTotalsPeriod(AccumulationRegisterPeriod);
-		ElsIf SetMinimumPeriod
-			And MinimumPeriodOfCalculatedTotals <> MinimumPeriodOfCalculatedTotalsOfAccumulationRegisters Then
-			AccumulationRegisterManager.SetMinTotalsPeriod(MinimumPeriodOfCalculatedTotalsOfAccumulationRegisters);
+		ElsIf ShouldSetMinPeriod
+			And CalculatedTotalsMinPeriod <> AccumulationRegistersCalculatedTotalsMinPeriod Then
+			AccumulationRegisterManager.SetMinTotalsPeriod(AccumulationRegistersCalculatedTotalsMinPeriod);
 		EndIf;
 		If Not AccumulationRegisterManager.GetTotalsUsing()
 			Or Not AccumulationRegisterManager.GetPresentTotalsUsing() Then
@@ -75,23 +75,23 @@ Procedure CalculateTotals() Export
 			Continue;
 		EndIf;
 		AccountingRegisterManager = AccountingRegisters[MetadataRegister.Name]; // AccountingRegisterManager
-		MaximumPeriodOfCalculatedTotals = AccountingRegisterManager.GetTotalsPeriod();
-		MinimumPeriodOfCalculatedTotals = AccountingRegisterManager.GetMinTotalsPeriod();
-		If MaximumPeriodOfCalculatedTotals >= AccountingRegisterPeriod
-			And (Not SetMinimumPeriod 
-				Or MinimumPeriodOfCalculatedTotals = MinimumPeriodOfCalculatedTotalsOfAccountingRegisters) Then
+		CalculatedTotalsMaxPeriod = AccountingRegisterManager.GetTotalsPeriod();
+		CalculatedTotalsMinPeriod = AccountingRegisterManager.GetMinTotalsPeriod();
+		If CalculatedTotalsMaxPeriod >= AccountingRegisterPeriod
+			And (Not ShouldSetMinPeriod 
+				Or CalculatedTotalsMinPeriod = AccountingRegistersCalculatedTotalsMinPeriod) Then
 			Continue;
 		EndIf;
-		If MaximumPeriodOfCalculatedTotals < AccountingRegisterPeriod
-			And (SetMinimumPeriod
-				And MinimumPeriodOfCalculatedTotals <> MinimumPeriodOfCalculatedTotalsOfAccountingRegisters) Then
+		If CalculatedTotalsMaxPeriod < AccountingRegisterPeriod
+			And (ShouldSetMinPeriod
+				And CalculatedTotalsMinPeriod <> AccountingRegistersCalculatedTotalsMinPeriod) Then
 				AccountingRegisterManager.SetMinAndMaxTotalsPeriods(
-					MinimumPeriodOfCalculatedTotalsOfAccountingRegisters, AccountingRegisterPeriod);
-		ElsIf MaximumPeriodOfCalculatedTotals < AccountingRegisterPeriod Then
+					AccountingRegistersCalculatedTotalsMinPeriod, AccountingRegisterPeriod);
+		ElsIf CalculatedTotalsMaxPeriod < AccountingRegisterPeriod Then
 			AccountingRegisterManager.SetMaxTotalsPeriod(AccountingRegisterPeriod);
-		ElsIf SetMinimumPeriod
-			And MinimumPeriodOfCalculatedTotals <> MinimumPeriodOfCalculatedTotalsOfAccountingRegisters Then
-			AccountingRegisterManager.SetMinTotalsPeriod(MinimumPeriodOfCalculatedTotalsOfAccountingRegisters);
+		ElsIf ShouldSetMinPeriod
+			And CalculatedTotalsMinPeriod <> AccountingRegistersCalculatedTotalsMinPeriod Then
+			AccountingRegisterManager.SetMinTotalsPeriod(AccountingRegistersCalculatedTotalsMinPeriod);
 		EndIf;
 		If Not AccountingRegisterManager.GetTotalsUsing()
 			Or Not AccountingRegisterManager.GetPresentTotalsUsing() Then
@@ -119,7 +119,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Procedure           = "TotalsAndAggregatesManagementInternal.UpdateScheduledJobUsage";
 	Handler.ExecutionMode     = "Seamless";
 	Handler.Id       = New UUID("16ec32f9-d68f-4283-9e6f-924a8655d2e4");
-	Handler.Comment         = NStr("en = 'Toggles the update and rebuild schedule for aggregates.';");
+	Handler.Comment         = NStr("en = 'Toggles the update and rebuild schedule for aggregates.'");
 	
 EndProcedure
 
@@ -169,9 +169,9 @@ Procedure OnFillToDoList(ToDoList) Export
 	Prototype.HasToDoItems = MustMoveTotalsBorder();
 	Prototype.Important   = True;
 	Prototype.Form    = ProcessFullName + ".Form";
-	Prototype.Presentation = NStr("en = 'Optimize performance';");
+	Prototype.Presentation = NStr("en = 'Optimize performance'");
 	Prototype.ToolTip     = NStr("en = 'Speed up document posting and report generation.
-		|Required monthly procedure, this might take a while. ';");
+		|Required monthly procedure, this might take a while. '");
 	
 	For Each Section In Sections Do
 		ToDoItem = ToDoList.Add();

@@ -28,14 +28,14 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	ReportSettings.DefineFormSettings = True;
 	
 	OptionSettingsHorizontal = ReportsOptions.OptionDetails(Settings, ReportSettings, "Main");
-	OptionSettingsHorizontal.LongDesc = NStr("en = 'Horizontal arrangement of columns with dimensions, resources, and register attributes.';");
-	OptionSettingsHorizontal.SearchSettings.Keywords = NStr("en = 'Document register records';");
+	OptionSettingsHorizontal.LongDesc = NStr("en = 'Horizontal arrangement of columns with dimensions, resources, and register attributes.'");
+	OptionSettingsHorizontal.SearchSettings.Keywords = NStr("en = 'Document register records'");
 	OptionSettingsHorizontal.Enabled = False;
 	OptionSettingsHorizontal.ShouldShowInOptionsSubmenu = True;
 	
 	OptionSettingsVertical = ReportsOptions.OptionDetails(Settings, ReportSettings, "Additional");
-	OptionSettingsVertical.LongDesc = NStr("en = 'Vertical arrangement of columns with dimensions, resources, and attributes allows you to arrange data more compactly to view registers with a large number of columns.';");
-	OptionSettingsVertical.SearchSettings.Keywords = NStr("en = 'Document register records';");
+	OptionSettingsVertical.LongDesc = NStr("en = 'Vertical arrangement of columns with dimensions, resources, and attributes allows you to arrange data more compactly to view registers with a large number of columns.'");
+	OptionSettingsVertical.SearchSettings.Keywords = NStr("en = 'Document register records'");
 	OptionSettingsVertical.Enabled = False;
 	OptionSettingsVertical.ShouldShowInOptionsSubmenu = True;
 	
@@ -94,7 +94,7 @@ Function AddDocumentRecordsReportCommand(ReportsCommands, Parameters, DocumentsW
 	EndIf;
 	
 	Command                    = ReportsCommands.Add();
-	Command.Presentation      = NStr("en = 'Document register records';");
+	Command.Presentation      = NStr("en = 'Document register records'");
 	Command.MultipleChoice = False;
 	Command.FormParameterName  = "";
 	Command.Importance           = "SeeAlso";

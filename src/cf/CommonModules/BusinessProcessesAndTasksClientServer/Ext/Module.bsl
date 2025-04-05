@@ -47,7 +47,7 @@ Procedure BusinessProcessPresentationGetProcessing(ObjectManager, Data, Presenta
 	Presentation = Metadata.FindByType(TypeOf(ObjectManager)).Presentation();
 #Else	
 	Date = Format(Data.Date, "DLF=D");
-	Presentation = NStr("en = 'Business process';");
+	Presentation = NStr("en = 'Business process'");
 #EndIf
 	
 	BusinessProcessRepresentation(ObjectManager, Data, Date, Presentation, StandardProcessing);
@@ -74,8 +74,8 @@ EndProcedure
 Procedure BusinessProcessRepresentation(ObjectManager, Data, Date, Presentation, StandardProcessing)
 	
 	StandardProcessing = False;
-	TemplateOfPresentation  = NStr("en = '%1, started on %2 (%3)';");
-	Description         = ?(IsBlankString(Data.Description), NStr("en = 'No details';"), Data.Description);
+	TemplateOfPresentation  = NStr("en = '%1, started on %2 (%3)'");
+	Description         = ?(IsBlankString(Data.Description), NStr("en = 'No details'"), Data.Description);
 	
 	Presentation = StringFunctionsClientServer.SubstituteParametersToString(TemplateOfPresentation, Description, Date, Presentation);
 	

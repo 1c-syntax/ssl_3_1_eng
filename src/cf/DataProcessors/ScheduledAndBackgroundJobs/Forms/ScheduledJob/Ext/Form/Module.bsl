@@ -15,13 +15,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not Users.IsFullUser(, True) Then
 		Raise NStr("en = 'Insufficient access rights.
-		                             |Only administrators can change scheduled job settings.';",
+		                             |Only administrators can change scheduled job settings.'",
 			ErrorCategory.AccessViolation);
 	EndIf;
 	
 	Action = Parameters.Action;
 	If StrFind(", Add, Copy, Change,", ", " + Action + ",") = 0 Then
-		Raise NStr("en = 'Cannot open the ""Scheduled job"" form. Invalid opening parameters.';",
+		Raise NStr("en = 'Cannot open the ""Scheduled job"" form. Invalid opening parameters.'",
 			ErrorCategory.ConfigurationError);
 	EndIf;
 	
@@ -67,9 +67,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		Id = String(Job.UUID);
 		If Job.Metadata = Undefined Then
-			NameOfMetadataObjects        = NStr("en = '<no metadata>';");
-			MetadataSynonym    = NStr("en = '<no metadata>';");
-			MetadataMethodName  = NStr("en = '<no metadata>';");
+			NameOfMetadataObjects        = NStr("en = '<no metadata>'");
+			MetadataSynonym    = NStr("en = '<no metadata>'");
+			MetadataMethodName  = NStr("en = '<no metadata>'");
 		Else
 			NameOfMetadataObjects        = Job.Metadata.Name;
 			MetadataSynonym    = Job.Metadata.Synonym;
@@ -88,7 +88,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If Action <> "Change" Then
-		Id = NStr("en = '<will be generated automatically>';");
+		Id = NStr("en = '<will be generated automatically>'");
 		Use = False;
 		
 		Description = ?(Action = "Add", "", ScheduledJobsInternal.ScheduledJobPresentation(Job));
@@ -177,7 +177,7 @@ Procedure SelectNewScheduledJobTemplate()
 	// Scheduled job template selection (metadata).
 	ScheduledJobMetadataDetailsCollection.ShowChooseItem(
 		New CallbackDescription("SelectNewScheduledJobTemplateCompletion", ThisObject),
-		NStr("en = 'Select a scheduled job template';"));
+		NStr("en = 'Select a scheduled job template'"));
 	
 EndProcedure
 
@@ -265,9 +265,9 @@ Procedure RefreshFormTitle()
 	EndIf;
 	
 	If Action = "Change" Then
-		Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (Scheduled job)';"), Presentation);
+		Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (Scheduled job)'"), Presentation);
 	Else
-		Title = NStr("en = 'Scheduled job (Create)';");
+		Title = NStr("en = 'Scheduled job (Create)'");
 	EndIf;
 	
 EndProcedure

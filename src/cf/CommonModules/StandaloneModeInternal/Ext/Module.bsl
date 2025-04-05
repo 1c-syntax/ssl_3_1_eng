@@ -27,7 +27,7 @@ Function LongSynchronizationQuestionSetupFlag(FlagValue1 = Undefined, SettingDet
 	
 	SettingDetails.Insert("ObjectKey",  "ApplicationSettings");
 	SettingDetails.Insert("SettingsKey", "ShowLongSynchronizationWarningSW");
-	SettingDetails.Insert("Presentation", NStr("en = 'Show warning about long synchronization';"));
+	SettingDetails.Insert("Presentation", NStr("en = 'Show warning about long synchronization'"));
 	
 	SettingsDescription = New SettingsDescription;
 	FillPropertyValues(SettingsDescription, SettingDetails);
@@ -354,7 +354,7 @@ EndFunction
 //
 Function InstallPackageFileName() Export
 	
-	Return NStr("en = 'Standalone mode.zip';");
+	Return NStr("en = 'Standalone mode.zip'");
 	
 EndFunction
 
@@ -464,7 +464,7 @@ Function StandaloneWorkstationsMonitor() Export
 			SyncSetup.SynchronizationDatePresentation =
 				DataExchangeServer.RelativeSynchronizationDate(SyncSetup.SynchronizationDate);
 		Else
-			SyncSetup.SynchronizationDatePresentation = NStr("en = 'not performed';");
+			SyncSetup.SynchronizationDatePresentation = NStr("en = 'not performed'");
 		EndIf;
 		
 	EndDo;
@@ -479,7 +479,7 @@ EndFunction
 //
 Function StandaloneWorkstationCreationEventLogMessageText() Export
 	
-	Return NStr("en = 'Standalone mode.Create standalone workstation';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Standalone mode.Create standalone workstation'", Common.DefaultLanguageCode());
 	
 EndFunction
 
@@ -490,7 +490,7 @@ EndFunction
 //
 Function StandaloneWorkstationDeletionEventLogMessageText() Export
 	
-	Return NStr("en = 'Standalone mode.Delete standalone workstation';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Standalone mode.Delete standalone workstation'", Common.DefaultLanguageCode());
 	
 EndFunction
 
@@ -525,10 +525,10 @@ Procedure SynchronizeDataWithWebApplication() Export
 	If Not IsStandaloneWorkplace() Then
 		
 		DetailErrorDescriptionForEventLog =
-			NStr("en = 'This infobase is not a standalone workstation. Data synchronization is canceled.';",
+			NStr("en = 'This infobase is not a standalone workstation. Data synchronization is canceled.'",
 			Common.DefaultLanguageCode());
 		DetailErrorDescription =
-			NStr("en = 'This infobase is not a standalone workstation. Data synchronization is canceled.';");
+			NStr("en = 'This infobase is not a standalone workstation. Data synchronization is canceled.'");
 		
 		WriteLogEvent(DataSynchronizationEventLogEvent(),
 			EventLogLevel.Error,,, DetailErrorDescriptionForEventLog);
@@ -558,7 +558,7 @@ Procedure SynchronizeDataWithWebApplication() Export
 	DataExchangeServer.ExecuteDataExchangeForInfobaseNode(ExchangeNode, ExchangeParameters, Cancel);
 	
 	If Cancel Then
-		Raise NStr("en = 'Errors occurred during data synchronization with the web application. See the event log.';");
+		Raise NStr("en = 'Errors occurred during data synchronization with the web application. See the event log.'");
 	EndIf;
 	
 EndProcedure
@@ -571,7 +571,7 @@ EndProcedure
 Procedure PerformStandaloneWorkstationSetupOnFirstStart(DataImport = False) Export
 	
 	If Not Common.FileInfobase() Then
-		Raise NStr("en = 'The first start of a standalone workstation must be performed in a file infobase.';");
+		Raise NStr("en = 'The first start of a standalone workstation must be performed in a file infobase.'");
 	EndIf;
 	
 	SetPrivilegedMode(True);
@@ -793,7 +793,7 @@ Procedure DeleteObsoleteExchangeMessages(StandaloneWorkstation) Export
 	EndIf;
 	
 	TempFilesStorageDirectory = DataExchangeServer.TempFilesStorageDirectory();
-	EventLogEvent = NStr("en = 'Data exchange';", Common.DefaultLanguageCode());
+	EventLogEvent = NStr("en = 'Data exchange'", Common.DefaultLanguageCode());
 	
 	Selection = Result.Select();
 	While Selection.Next() Do
@@ -895,10 +895,10 @@ Procedure WriteInitialImageDataElement(DataElement, MetadataProperties1, Recipie
 		ItemMetadata = DataElement.Metadata();
 		
 		If Common.IsRefTypeObject(ItemMetadata) Then
-			Template = NStr("en = 'URL: %1';", Common.DefaultLanguageCode());
+			Template = NStr("en = 'URL: %1'", Common.DefaultLanguageCode());
 			Ref = StrTemplate(Template, GetURL(DataElement.Ref));
 		ElsIf Common.IsRegister(ItemMetadata) Then
-			Template = NStr("en = 'Filter: %1';", Common.DefaultLanguageCode());
+			Template = NStr("en = 'Filter: %1'", Common.DefaultLanguageCode());
 			Ref = StrTemplate(Template, DataElement.Filter);
 		Else
 			Ref = "";
@@ -907,7 +907,7 @@ Procedure WriteInitialImageDataElement(DataElement, MetadataProperties1, Recipie
 		Template = NStr(
 			"en = 'An error occurred when writing item ""%1"" during an initial image creation:
 		     |%2
-		     |For detailed information, see the event log.';",
+		     |For detailed information, see the event log.'",
 			Common.DefaultLanguageCode());
 			
 		ExceptionText = StrTemplate(Template, DataElement, Ref);
@@ -1066,7 +1066,7 @@ EndFunction
 // 
 Function DefaultStandaloneWorkstationDescription()
 	
-	Result = NStr("en = 'Standalone mode - %1';");
+	Result = NStr("en = 'Standalone mode - %1'");
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(Result, UserFullName());
 	
@@ -1076,7 +1076,7 @@ EndFunction
 // 
 Function StandaloneWorkstationPrefixAllowedChars()
 	
-	Return NStr("en = 'ABCDEFGHIKLMNOPQRSTVXYZabcdefghiklmnopqrstvxyz';"); // 54 characters.
+	Return NStr("en = 'ABCDEFGHIKLMNOPQRSTVXYZabcdefghiklmnopqrstvxyz'"); // 54 characters.
 	
 EndFunction
 
@@ -1093,7 +1093,7 @@ Procedure DoImportParametersFromInitialImage()
 		WriteLogEvent(StandaloneWorkstationCreationEventLogMessageText(),
 			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Raise NStr("en = 'The infobase might be opened in Designer mode.
-		|Close Designer and restart the application.';");
+		|Close Designer and restart the application.'");
 	EndTry;
 	
 	BeginTransaction();
@@ -1206,7 +1206,7 @@ Procedure DoImportParametersFromInitialImage()
 		
 		If User = Undefined Then
 			Raise NStr("en = 'User identification failed.
-				|The Users catalog might not be included in the exchange plan of the standalone mode.';");
+				|The Users catalog might not be included in the exchange plan of the standalone mode.'");
 		EndIf;
 		
 		SetUserPasswordMinLength(0);
@@ -1215,7 +1215,7 @@ Procedure DoImportParametersFromInitialImage()
 		User.IsInternal = False;
 		User.AdditionalProperties.Insert("IBUserDetails", IBUserDetails);
 		User.AdditionalProperties.Insert("CreateAdministrator",
-			NStr("en = 'Initial standalone workstation setup.';"));
+			NStr("en = 'Initial standalone workstation setup.'"));
 		User.Write();
 		
 		ExchangePlans.DeleteChangeRecords(ApplicationNodeInSaaS.Ref);
@@ -1383,12 +1383,12 @@ Function GetOrderedListDataFiles(InfobaseDirectory)
 		
 		FileNameParts = StrSplit(DataArchiveFile.BaseName, "_", False);
 		If FileNameParts.Count() <> 2 Then
-			Raise NStr("en = 'File name invalid format';");
+			Raise NStr("en = 'File name invalid format'");
 		EndIf;
 		
 		FileNumber = NumberType.AdjustValue(FileNameParts[1]);
 		If FileNumber = 0 Then
-			Raise NStr("en = 'File name invalid format';");
+			Raise NStr("en = 'File name invalid format'");
 		EndIf;
 		
 		ReadingArchive = New ZipFileReader(DataArchiveFile.FullName);
@@ -1432,7 +1432,7 @@ Function GetParametersFromInitialImage()
 	
 	If IsBlankString(XMLLine) Then
 		Raise NStr("en = 'Settings were not transferred to a standalone workstation.
-									|Cannot work with the standalone workstation.';");
+									|Cannot work with the standalone workstation.'");
 	EndIf;
 	
 	XMLReader = New XMLReader;
@@ -1458,7 +1458,7 @@ Function ReadDataToStructure(XMLReader)
 	Result = New Structure;
 	
 	If XMLReader.NodeType <> XMLNodeType.StartElement Then
-		Raise NStr("en = 'XML reading error';");
+		Raise NStr("en = 'XML reading error'");
 	EndIf;
 	
 	XMLReader.Read();
@@ -1480,7 +1480,7 @@ EndFunction
 // 
 Function DataSynchronizationEventLogEvent()
 	
-	Return NStr("en = 'Standalone mode.Data synchronization';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Standalone mode.Data synchronization'", Common.DefaultLanguageCode());
 	
 EndFunction
 

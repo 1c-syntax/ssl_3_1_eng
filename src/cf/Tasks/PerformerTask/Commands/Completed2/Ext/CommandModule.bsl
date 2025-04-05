@@ -14,7 +14,7 @@
 Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 	
 	If CommandParameter = Undefined Then
-		ShowMessageBox(,NStr("en = 'Tasks are not selected.';"));
+		ShowMessageBox(,NStr("en = 'Tasks are not selected.'"));
 		Return;
 	EndIf;
 		
@@ -29,13 +29,13 @@ EndProcedure
 Function PeformTasks(Val Var_Tasks)
 	
 	Result = New Structure;
-	Result.Insert("MessageText", NStr("en = 'Tasks are completed';"));
+	Result.Insert("MessageText", NStr("en = 'Tasks are completed'"));
 	Result.Insert("URL", Undefined);
 	Result.Insert("Explanation", "");
 	For Each Task In Var_Tasks Do
 		BusinessProcessesAndTasksServer.ExecuteTask(Task, True);
 		If Result.URL = Undefined Then
-			Result.MessageText = NStr("en = 'Task is completed';");
+			Result.MessageText = NStr("en = 'Task is completed'");
 			Result.URL = GetURL(Task);
 			Result.Explanation = String(Task);
 		EndIf;

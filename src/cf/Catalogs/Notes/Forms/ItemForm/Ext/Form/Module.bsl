@@ -25,9 +25,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Object.Author = Users.CurrentUser();
 		FormattedText = Parameters.CopyingValue.Content.Get();
 		
-		Items.NoteDate.Title = NStr("en = 'Not saved';")
+		Items.NoteDate.Title = NStr("en = 'Not saved'")
 	Else
-		Items.NoteDate.Title = NStr("en = 'Saved';") + ": " + Format(Object.ChangeDate, "DLF=DDT");
+		Items.NoteDate.Title = NStr("en = 'Saved'") + ": " + Format(Object.ChangeDate, "DLF=DDT");
 	EndIf;
 	
 	// StandardSubsystems.AttachableCommands
@@ -96,7 +96,7 @@ Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	EndIf;
 	// End StandardSubsystems.AccessManagement
 
-	Items.NoteDate.Title = NStr("en = 'Saved';") + ": " + Format(Object.ChangeDate, "DLF=DDT");
+	Items.NoteDate.Title = NStr("en = 'Saved'") + ": " + Format(Object.ChangeDate, "DLF=DDT");
 EndProcedure
 
 &AtClient

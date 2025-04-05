@@ -39,7 +39,7 @@ EndProcedure
 &AtClient
 Procedure NameOfFolderWhereSettingsAreSavedStartChoice(Item, ChoiceData, StandardProcessing)
 	
-	DialogTitle = NStr("en = 'Choose a directory to save the connection settings';");
+	DialogTitle = NStr("en = 'Choose a directory to save the connection settings'");
 	Notification = New CallbackDescription("NameOfFolderWhereSettingsAreSavedStartChoiceCompletion", ThisObject);
 
 	FileSystemClient.SelectDirectory(Notification, DialogTitle, NameOfFolderWhereSettingsAreSaved);
@@ -60,7 +60,7 @@ EndProcedure
 &AtClient
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
-	WarningText = NStr("en = 'Do you want to discard the connection parameters for data synchronization?';");
+	WarningText = NStr("en = 'Do you want to discard the connection parameters for data synchronization?'");
 	CommonClient.ShowArbitraryFormClosingConfirmation(
 		ThisObject, Cancel, Exit, WarningText, "ForceCloseForm");
 
@@ -151,7 +151,7 @@ Procedure CheckCanUseForm(Cancel = False)
 	// Parameters of the data exchange creation wizard must be passed.
 	If Not Parameters.Property("ConnectionSettings") Then
 				
-		MessageText = NStr("en = 'The form cannot be opened manually.';");
+		MessageText = NStr("en = 'The form cannot be opened manually.'");
 		Common.MessageToUser(MessageText, , , , Cancel);
 		
 		Return;
@@ -212,7 +212,7 @@ Procedure InitializeFormAttributes()
 		
 	TitleTemplate1 = 
 		NStr("en = 'This directory will contains the settings files ""%1.*"".
-              |Use one of them to resume the setup in the peer infobase.';");
+              |Use one of them to resume the setup in the peer infobase.'");
 	
 	Items.NameOfFolderWhereSettingsAreSaved.ToolTip = StrTemplate(TitleTemplate1, SettingsFileNameForDestination);
 	
@@ -278,7 +278,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -388,7 +388,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -440,7 +440,7 @@ Procedure ExecuteTimeConsumingOperationHandler()
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -513,7 +513,7 @@ EndFunction
 
 #Region NavigationEventHandlers
 
-// Получение параметров корреспондента
+// 
 
 &AtClient
 Function Attachable_GettingCorresponding_ParametersWhenOpening(Cancel, SkipPage, Val IsMoveNext) Export
@@ -537,7 +537,7 @@ Function GettingParametersOfCorrespondentBeginning()
 	FillPropertyValues(ConnectionSettings, Object);
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Get peer parameters';", Common.DefaultLanguageCode());
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Get peer parameters'", Common.DefaultLanguageCode());
 	ExecutionParameters.WaitCompletion = 0;
 		
 	Return TimeConsumingOperations.ExecuteFunction(
@@ -672,7 +672,7 @@ Procedure FillCorrespondentParameters(CorrespondentParameters, CorrespondentInSa
 	
 EndProcedure
 
-// Страница общих параметров
+// 
 
 &AtClient
 Function Attachable_GeneralSynchronizationSettingsPageOnGoNext(Cancel) Export
@@ -685,7 +685,7 @@ Function Attachable_GeneralSynchronizationSettingsPageOnGoNext(Cancel) Export
 	
 EndFunction
 
-// Сохранение настроек подключения
+// 
 
 &AtClient
 Function Attachable_SavingConnectionSettings_WhenOpening(Cancel, SkipPage, Val IsMoveNext) Export
@@ -709,7 +709,7 @@ Function Attachable_ErrorPage_WhenOpening(Cancel, SkipPage, Val IsMoveNext) Expo
 		
 		ErrorMessage = NStr(
 			"en = 'Error setting up common parameters.
-			|See the event log for details.';",
+			|See the event log for details.'",
 			CommonClient.DefaultLanguageCode());
 		
 	EndIf;
@@ -728,15 +728,15 @@ Function SavingConnectionSettingsStart()
 	ProcedureParameters.ThisNodeExistsInPeerInfobase = ThisNodeExistsInPeerInfobase;
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Get peer parameters';", Common.DefaultLanguageCode());
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Get peer parameters'", Common.DefaultLanguageCode());
 	ExecutionParameters.WaitCompletion = 0;
 	
 	BackgroundJobKey = DataExchangeServer.BackgroundJobKey(Object.ExchangePlanName,
-		NStr("en = 'Save connection settings';"));
+		NStr("en = 'Save connection settings'"));
 		
 	If DataExchangeServer.HasActiveBackgroundJobs(BackgroundJobKey) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Saving connection settings for ""%1"" is already in progress.';"), Object.ExchangePlanName);
+			NStr("en = 'Saving connection settings for ""%1"" is already in progress.'"), Object.ExchangePlanName);
 	EndIf; 
 		
 	ExecutionParameters.BackgroundJobKey = BackgroundJobKey;

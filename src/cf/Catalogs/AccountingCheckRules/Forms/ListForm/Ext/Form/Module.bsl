@@ -38,9 +38,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				EndIf;
 				
 				If LastCheckDate = Undefined Then
-					ToolTipText = NStr("en = 'No information on the last check start.';");
+					ToolTipText = NStr("en = 'No information on the last check start.'");
 				Else
-					ToolTipText = NStr("en = 'The last check was completed on %1 at %2';");
+					ToolTipText = NStr("en = 'The last check was completed on %1 at %2'");
 					ToolTipText = StringFunctionsClientServer.SubstituteParametersToString(ToolTipText,
 						Format(LastCheckDate, "DLF=D"), Format(LastCheckDate, "DLF=T"));
 				EndIf;
@@ -57,7 +57,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			EndIf;
 		Else
 			If (Common.DataSeparationEnabled() And IsSystemAdministrator) Or Not Common.DataSeparationEnabled() Then
-				CommonSchedulePresentation = NStr("en = 'The scheduled job is not available';");
+				CommonSchedulePresentation = NStr("en = 'The scheduled job is not available'");
 			Else
 				CommonSchedulePresentation                     = "";
 				Items.PresentationOfCommonSchedule.Visible = False;
@@ -101,19 +101,19 @@ Procedure ListOnGetDataAtServer(TagName, Settings, Rows)
 	EndIf;
 	
 	RowsKeys = Rows.GetKeys();
-	For Each Composite In RowsKeys Do
-		RowData = Rows[Composite].Data;
+	For Each RowKey In RowsKeys Do
+		RowData = Rows[RowKey].Data;
 		If RowData.IsFolder Then
 			Continue;
 		EndIf;
 		If RowData.RunMethod = Enums.CheckMethod.Manually Then
-			RowData.ScheduledJobPresentation = NStr("en = 'Manually';");
+			RowData.ScheduledJobPresentation = NStr("en = 'Manually'");
 		ElsIf RowData.RunMethod = Enums.CheckMethod.ByCommonSchedule Then
-			RowData.ScheduledJobPresentation = NStr("en = 'On general schedule';")
+			RowData.ScheduledJobPresentation = NStr("en = 'On general schedule'")
 		ElsIf RowData.RunMethod = Enums.CheckMethod.OnSeparateSchedule Then
 			JobID = RowData.ScheduledJobID;
 			If Not ValueIsFilled(JobID) Then
-				RowData.ScheduledJobPresentation = NStr("en = 'No schedule';");
+				RowData.ScheduledJobPresentation = NStr("en = 'No schedule'");
 			Else
 				FoundScheduledJob = ScheduledJobsServer.Job(New UUID(JobID));
 				If FoundScheduledJob <> Undefined Then
@@ -122,11 +122,11 @@ Procedure ListOnGetDataAtServer(TagName, Settings, Rows)
 					
 					Block = New DataLock;
 					LockItem = Block.Add("Catalog.AccountingCheckRules");
-					LockItem.SetValue("Ref", Composite);
+					LockItem.SetValue("Ref", RowKey);
 					BeginTransaction();
 					Try
 						Block.Lock();
-						RuleObject = Composite.GetObject();
+						RuleObject = RowKey.GetObject();
 						
 						Parameters = New Structure;
 						Parameters.Insert("Use", True);
@@ -155,7 +155,7 @@ Procedure ListOnGetDataAtServer(TagName, Settings, Rows)
 					
 				EndIf;
 				RowData.ScheduledJobPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'On schedule: ""%1""';"), ScheduleAsString);
+					NStr("en = 'On schedule: ""%1""'"), ScheduleAsString);
 			EndIf;
 		EndIf;
 	EndDo;
@@ -185,7 +185,7 @@ Procedure ExecuteCheck(Command)
 	HasGroups = False;
 	Checks = ChecksSelected(HasGroups);
 	If Checks.Count() = 0 Then
-		Raise NStr("en = 'Select one or several checks in the list.';");
+		Raise NStr("en = 'Select one or several checks in the list.'");
 	EndIf;
 		
 	If HasGroups Then
@@ -195,12 +195,12 @@ Procedure ExecuteCheck(Command)
 	If Checks.Count() > 1 Then
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Run the selected checks (%1)?
-				|This might take a while.';"),
+				|This might take a while.'"),
 			Checks.Count());
 	Else
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Run selected check ""%1""?
-				|This might take a while.';"),
+				|This might take a while.'"),
 			Checks[0]);
 	EndIf;
 	ShowQueryBox(New CallbackDescription("ExecuteCheckContinue", ThisObject, Checks),
@@ -212,12 +212,12 @@ EndProcedure
 Procedure ExecuteAllChecks(Command)
 	Checks = AllSelectedChecks();
 	If Checks.Count() = 0 Then
-		Raise NStr("en = 'Select one or several checks in the list.';");
+		Raise NStr("en = 'Select one or several checks in the list.'");
 	EndIf;
 	
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Run all checks (%1)?
-			|This might take a while.';"),
+			|This might take a while.'"),
 		Checks.Count());
 	ShowQueryBox(New CallbackDescription("ExecuteCheckContinue", ThisObject, Checks),
 		QueryText, QuestionDialogMode.YesNo);
@@ -263,7 +263,7 @@ Function ExecuteChecksAtServer(Checks)
 	FormIdentifier = New UUID;
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(FormIdentifier);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Run data integrity checks';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Run data integrity checks'");
 	
 	MethodParameters        = New Map;
 	CheckUpperBoundary = Checks.UBound();
@@ -293,7 +293,7 @@ Procedure ExecuteCheckContinue(QuestionResult, Checks) Export
 	
 	CallbackOnCompletion = New CallbackDescription("ExecuteCheckCompletion", ThisObject);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-	IdleParameters.MessageText = NStr("en = 'Checking. This might take a while.';");
+	IdleParameters.MessageText = NStr("en = 'Checking. This might take a while.'");
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
@@ -315,9 +315,9 @@ Procedure ExecuteCheckCompletion(Result, AdditionalParameters) Export
 	
 	ElsIf Result.Status = "Completed2" Then
 		Notify("AccountingAuditSuccessfulCheck");
-		ShowUserNotification(NStr("en = 'Scan completed';"),
+		ShowUserNotification(NStr("en = 'Scan completed'"),
 			"e1cib/data/Report.AccountingCheckResults",
-			NStr("en = 'Data integrity check completed successfully.';"));
+			NStr("en = 'Data integrity check completed successfully.'"));
 	EndIf;
 	
 EndProcedure
@@ -387,24 +387,24 @@ Function GenerateRowWithSchedule()
 				CommonSchedulePresentation = String(CommonSchedule);
 			Else
 				CommonSchedule = Undefined;
-				CommonSchedulePresentation = NStr("en = 'Viewing schedule is unavailable';");
+				CommonSchedulePresentation = NStr("en = 'Viewing schedule is unavailable'");
 			EndIf;
 		EndIf;
 	Else
 		CommonSchedule              = Undefined;
-		CommonSchedulePresentation = NStr("en = 'The scheduled job is not available';");
+		CommonSchedulePresentation = NStr("en = 'The scheduled job is not available'");
 	EndIf;
 	
 	If Not Common.DataSeparationEnabled() Then
 		
 		TextRef = PutToTempStorage(CommonSchedule, UUID);
 	
-		Return New FormattedString(NStr("en = 'General check schedule:';") + " ",
+		Return New FormattedString(NStr("en = 'General check schedule:'") + " ",
 			New FormattedString(CommonSchedulePresentation, , , , TextRef));
 			
 	Else
 			
-		Return New FormattedString(NStr("en = 'General check schedule:';") + " ",
+		Return New FormattedString(NStr("en = 'General check schedule:'") + " ",
 			New FormattedString(CommonSchedulePresentation, , StyleColors.HyperlinkColor));
 			
 	EndIf;

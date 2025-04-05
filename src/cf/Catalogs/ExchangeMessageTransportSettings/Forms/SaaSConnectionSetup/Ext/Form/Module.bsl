@@ -18,7 +18,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Or Not Parameters.Property("AccountPasswordRecoveryAddress")
 		Or Not Parameters.Property("AutomaticSynchronizationSetup") Then
 		
-		Raise NStr("en = 'This is a dependent form and opens from a different form.';",
+		Raise NStr("en = 'This is a dependent form and opens from a different form.'",
 			Common.DefaultLanguageCode());
 		
 	EndIf;

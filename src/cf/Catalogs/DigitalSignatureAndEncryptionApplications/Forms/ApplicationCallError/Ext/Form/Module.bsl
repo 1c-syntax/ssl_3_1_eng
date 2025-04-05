@@ -43,14 +43,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	DetermineCapabilities(ShowInstruction, ShowOpenApplicationsSettings, ShowExtensionInstallation,
 		ErrorAtServer, IsFullUser);
 	
-	Items.Instruction.Visible = ShowInstruction;
-	
-	If ShowInstruction Then
-		QuestionIsAvailableInSupport = Common.SubsystemExists("OnlineUserSupport.MessagesToTechSupportService");
-		Items.QuestionInSupport.Visible				 = QuestionIsAvailableInSupport;
-		Items.DecorationContactSupport.Visible = Not QuestionIsAvailableInSupport;
-	EndIf;
-	
 	ShowExtensionInstallation = ShowExtensionInstallation And Not Parameters.ExtensionAttached;
 	
 	If Not ShowExtensionInstallation Then
@@ -71,6 +63,25 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		AdditionalData.UnsignedData = Undefined;
 	EndIf;
+	
+	// 
+	If Common.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+		
+		ModuleForContactingTechnicalSupportService = Common.CommonModule(
+			"ContactingTechnicalSupportInternal");
+		
+		ModuleForContactingTechnicalSupportService.OnCreateAtServer(ThisObject);
+		
+		If ShowInstruction Then
+			ModuleForContactingTechnicalSupportService.ShowHelpNeededSection(Items);
+		Else
+			ModuleForContactingTechnicalSupportService.HideHelpNeededSection(Items);
+		EndIf;
+		
+	Else
+		Items.AssistanceRequiredGroup.Visible = False;
+	EndIf;
+	// End StandardSubsystems.ContactingTechnicalSupport
 	
 	StandardSubsystemsServer.ResetWindowLocationAndSize(ThisObject);
 	
@@ -105,10 +116,10 @@ Procedure ErrorsSelection(Item, RowSelected, Field, StandardProcessing)
 		CurrentData = Items.Errors.CurrentData;
 		
 		If CurrentData.Action = "InstallLibrariesForTokens" Then
-			OpeningParameters = New Structure("TokenKind, OnlyInstallationOfTokens");
+			OpeningParameters = New Structure("TokenKind, OnlyTokenInstallation");
 			FillPropertyValues(OpeningParameters, CurrentData.Parameters);
-			OpeningParameters.OnlyInstallationOfTokens = True;
-			DigitalSignatureInternalClient.OpenFormForInstallingCryptoproviderPrograms(OpeningParameters,
+			OpeningParameters.OnlyTokenInstallation = True;
+			DigitalSignatureInternalClient.OpenCryptoProviderAppsInstallationForm(OpeningParameters,
 				ThisObject, New CallbackDescription("AfterPerformActionsDetails", ThisObject));
 		Else
 			
@@ -157,8 +168,9 @@ Procedure QuestionInSupport(Command)
 EndProcedure
 
 &AtClient
-Procedure DownloadTechnicalInfo(Command)
+Procedure InformationToSendToSupport(Command)
 	
+	Items.AssistanceRequiredGroup.Hide();
 	ExportTechnicalInfo(True);
 	
 EndProcedure
@@ -280,12 +292,12 @@ Procedure AddErrors(ErrorsDescription, ErrorAtServer = False)
 			
 			If ValueIsFilled(NewErrorProperties.Token)
 				And DigitalSignatureInternalClientServer.TokenLibraryLoadingError(NewErrorProperties.LongDesc) Then
-				ErrorString.MoreDetails = NStr("en = 'Install libraries';") + "...";
+				ErrorString.MoreDetails = NStr("en = 'Install'") + "...";
 				ErrorString.Action = DigitalSignatureInternalClientServer.ActionInstallLibrariesForTokens();
 				ErrorString.Parameters = New Structure("TokenKind", NewErrorProperties.Token.Token);
 			EndIf;
 			If Not ValueIsFilled(ErrorString.MoreDetails) Then
-				ErrorString.MoreDetails = NStr("en = 'Details';") + "...";
+				ErrorString.MoreDetails = NStr("en = 'Details'") + "...";
 			EndIf;
 			
 			ErrorString.ErrorAtServer = ErrorAtServer;
@@ -298,7 +310,7 @@ Procedure AddErrors(ErrorsDescription, ErrorAtServer = False)
 		ErrorString = Errors.Add();
 		ErrorString.Cause = ErrorsDescription.ErrorDescription;
 		ErrorString.DetailsWithTitle = ErrorsDescription.ErrorDescription;
-		ErrorString.MoreDetails = NStr("en = 'Details';") + "...";
+		ErrorString.MoreDetails = NStr("en = 'Details'") + "...";
 		ErrorString.ErrorAtServer = ErrorAtServer;
 		ErrorString.Picture = ?(ErrorAtServer,
 			PictureLib.ComputerServer,
@@ -315,11 +327,6 @@ EndProcedure
 &AtClient
 Procedure ExportTechnicalInfo(ExportArchive)
 	
-	If ExportArchive Then
-		Items.DownloadTechnicalInfo.Enabled = False;
-		Items.DecorationPictureGeneratingTechnicalInfo.Visible = True;
-	EndIf;
-	
 	ErrorsText = "";
 	FilesDetails = New Array;
 	If ValueIsFilled(AdditionalData) Then
@@ -331,19 +338,11 @@ Procedure ExportTechnicalInfo(ExportArchive)
 	
 	If ExportArchive Then
 		DigitalSignatureInternalClient.GenerateTechnicalInformation(
-			ErrorsText, Undefined, New CallbackDescription("AfterTechnicalInfoExported", ThisObject), FilesDetails);
+			ErrorsText, Undefined, , FilesDetails);
 	Else
 		DigitalSignatureInternalClient.GenerateTechnicalInformation(
-			ErrorsText, New Structure("Subject, Message", ThisObject.Title), , FilesDetails);
+			ErrorsText, New Structure("Subject, Message", Title), , FilesDetails);
 	EndIf;
-	
-EndProcedure
-
-&AtClient
-Procedure AfterTechnicalInfoExported(Result, Context) Export
-	
-	Items.DownloadTechnicalInfo.Enabled = True;
-	Items.DecorationPictureGeneratingTechnicalInfo.Visible = False;
 	
 EndProcedure
 

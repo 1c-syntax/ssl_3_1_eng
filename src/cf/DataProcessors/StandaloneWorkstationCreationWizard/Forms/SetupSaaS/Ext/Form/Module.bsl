@@ -34,7 +34,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Items.PlatformVersionHelpLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'To run applications in a standalone mode, install 
-		|1C:Enterprise platform %1.';"),
+		|1C:Enterprise platform %1.'"),
 		DataExchangeSaaS.RequiredPlatformVersion());
 	
 	Object.StandaloneWorkstationDescription = StandaloneModeInternal.GenerateDefaultStandaloneWorkstationDescription();
@@ -92,13 +92,13 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
 	NotifyDescription = New CallbackDescription("CancelStandaloneWorkstationGeneration", ThisObject);
 	
-	WarningText = NStr("en = 'Do you want to cancel creation of a standalone workstation?';");
+	WarningText = NStr("en = 'Do you want to cancel creation of a standalone workstation?'");
 	CommonClient.ShowArbitraryFormClosingConfirmation(
 		ThisObject, Cancel, Exit, WarningText, "ForceCloseForm", NotifyDescription);
 	
 EndProcedure
 
-// Обработчики ожидания
+// 
 
 &AtClient
 Procedure TimeConsumingOperationIdleHandler()
@@ -120,7 +120,7 @@ Procedure TimeConsumingOperationIdleHandler()
 	Except
 		TimeConsumingOperation = False;
 		GoToTheErrorPage();
-		ShowMessageBox(, NStr("en = 'Cannot perform the operation.';"));
+		ShowMessageBox(, NStr("en = 'Cannot perform the operation.'"));
 		
 		ExecutionErrorText = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 	
@@ -149,7 +149,7 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-// Поставляемая часть
+// 
 
 &AtClient
 Procedure NextCommand(Command)
@@ -181,7 +181,7 @@ Procedure CancelCommand(Command)
 	
 EndProcedure
 
-// Переопределяемая часть
+// 
 
 &AtClient
 Procedure SetUpDataTransferRestrictions(Command)
@@ -237,8 +237,8 @@ Procedure CopyInitialImageToUserComputer(Command)
 		FileGettingParameters.LinuxFilePath   = FileData.LinuxFilePath;
 		FileGettingParameters.BlockedForm = ThisObject;
 		
-		FileGettingParameters.TitleOfSaveDialog = NStr("en = 'Saving installation package';");
-		FileGettingParameters.FilterSaveDialog    = NStr("en = 'ZIP archive (*.zip)|*.zip';");
+		FileGettingParameters.TitleOfSaveDialog = NStr("en = 'Saving installation package'");
+		FileGettingParameters.FilterSaveDialog    = NStr("en = 'ZIP archive (*.zip)|*.zip'");
 		FileGettingParameters.FileNameOfSaveDialog  = InstallPackageFileName;
 		
 		FileGettingParameters.NotifyDescriptionOnCompletion = NotifyDescriptionOnCompletion;
@@ -251,7 +251,7 @@ Procedure CopyInitialImageToUserComputer(Command)
 		FileToReceive.Insert("Location", InitialImageTempStorageAddress);
 		
 		DialogParameters = New Structure;
-		DialogParameters.Insert("Filter", NStr("en = 'ZIP archive (*.zip)|*.zip';"));
+		DialogParameters.Insert("Filter", NStr("en = 'ZIP archive (*.zip)|*.zip'"));
 		
 		DataExchangeClient.SelectAndSaveFileAtClient(FileToReceive, DialogParameters);
 	EndIf;
@@ -263,7 +263,7 @@ Procedure HowToInstallOrUpdate1CEnterprisePlatfomVersion(Command)
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("TemplateName", "HowToInstallOrUpdate1CEnterprisePlatfomVersion");
-	FormParameters.Insert("Title", NStr("en = 'How to install or update 1C:Enterprise platform';"));
+	FormParameters.Insert("Title", NStr("en = 'How to install or update 1C:Enterprise platform'"));
 	
 	OpenForm("DataProcessor.StandaloneWorkstationCreationWizard.Form.AdditionalDetails", FormParameters, ThisObject, "HowToInstallOrUpdate1CEnterprisePlatfomVersion");
 	
@@ -280,11 +280,11 @@ EndProcedure
 Procedure SaveGuideAs(Command)
 	
 	FileToReceive = New Structure;
-	FileToReceive.Insert("Name",      NStr("en = 'How to set up standalone workstations.html';"));
+	FileToReceive.Insert("Name",      NStr("en = 'How to set up standalone workstations.html'"));
 	FileToReceive.Insert("Location", GetTemplate());
 	
 	DialogParameters = New Structure;
-	DialogParameters.Insert("Filter", NStr("en = 'Web page, only HTML (*.html)|*.html';"));
+	DialogParameters.Insert("Filter", NStr("en = 'Web page, only HTML (*.html)|*.html'"));
 	
 	DataExchangeClient.SelectAndSaveFileAtClient(FileToReceive, DialogParameters);
 	
@@ -412,7 +412,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -518,7 +518,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -563,7 +563,7 @@ Procedure ExecuteTimeConsumingOperationHandler()
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -701,7 +701,7 @@ Procedure CreateStandaloneWorkstationInitialImageAtServer(Cancel)
 	
 	Try
 		ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-		ExecutionParameters.BackgroundJobDescription = NStr("en = 'Create initial image of standalone workstation';");
+		ExecutionParameters.BackgroundJobDescription = NStr("en = 'Create initial image of standalone workstation'");
 		ExecutionParameters.AdditionalResult = True;
 		ExecutionParameters.RunNotInBackground1 = False;
 		
@@ -755,7 +755,7 @@ Function OnlineApplicationAddress()
 	ConnectionParameters = StringFunctionsClientServer.ParametersFromString(InfoBaseConnectionString());
 	
 	If Not ConnectionParameters.Property("ws") Then
-		Raise NStr("en = 'Standalone workstation creation is available in web client only.';");
+		Raise NStr("en = 'Standalone workstation creation is available in web client only.'");
 	EndIf;
 	
 	Return ConnectionParameters.ws;
@@ -875,7 +875,7 @@ EndFunction
 Function Attachable_ExportSettingsOnGoNext(Cancel)
 	
 	If IsBlankString(Object.StandaloneWorkstationDescription) Then
-		CommonClient.MessageToUser(NStr("en = 'Standalone workstation description is not specified.';"),
+		CommonClient.MessageToUser(NStr("en = 'Standalone workstation description is not specified.'"),
 			, "Object.StandaloneWorkstationDescription", , Cancel);
 	EndIf;
 	
@@ -942,7 +942,7 @@ EndFunction
 Function Attachable_EndOnOpen(Cancel, SkipPage, IsMoveNext)
 	
 	ItemTitle = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = '%1 (%2 MB)';"),
+		NStr("en = '%1 (%2 MB)'"),
 		InstallPackageFileName,
 		Format(Round(InstallPackageFileSize / (1024 * 1024), 1), "NFD=1; NG=3,0"));
 	Items.CopyInitialImageToUserComputer.Title = ItemTitle;

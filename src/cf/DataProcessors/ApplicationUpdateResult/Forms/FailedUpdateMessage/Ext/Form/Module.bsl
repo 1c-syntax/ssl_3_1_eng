@@ -42,7 +42,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The application was not updated to a new version due to:
 		|
-		|%1';"),
+		|%1'"),
 		BriefErrorDescription);
 	
 	Items.ErrorMessageText.Title = ErrorMessageText;
@@ -148,9 +148,9 @@ Procedure OpenExternalDataProcessorAfterConfirmSafety(Result, AdditionalParamete
 	Notification = New CallbackDescription("OpenExternalDataProcessorCompletion", ThisObject);
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.FormIdentifier = UUID;
-	ImportParameters.Dialog.Filter = NStr("en = 'External data processor';") + "(*.epf)|*.epf";
+	ImportParameters.Dialog.Filter = NStr("en = 'External data processor'") + "(*.epf)|*.epf";
 	ImportParameters.Dialog.Multiselect = False;
-	ImportParameters.Dialog.Title = NStr("en = 'Select external data processor';");
+	ImportParameters.Dialog.Title = NStr("en = 'Select external data processor'");
 	FileSystemClient.ImportFile_(Notification, ImportParameters);
 EndProcedure
 
@@ -208,7 +208,7 @@ EndProcedure
 Function StartingPatchInstallation()
 	
 	ExecutionParameters = TimeConsumingOperations.FunctionExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Installing patches';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Installing patches'");
 	Return TimeConsumingOperations.ExecuteFunction(ExecutionParameters, "GetApplicationUpdates.DownloadAndInstallFixes");
 	
 EndFunction
@@ -217,7 +217,7 @@ EndFunction
 Function AttachExternalDataProcessor(AddressInTempStorage)
 	
 	If Not Users.IsFullUser(, True) Then
-		Raise NStr("en = 'Insufficient access rights.';");
+		Raise NStr("en = 'Insufficient access rights.'");
 	EndIf;
 	
 	// ACC:552-off - The infobase repair scenario with update errors for the full-rights administrator.

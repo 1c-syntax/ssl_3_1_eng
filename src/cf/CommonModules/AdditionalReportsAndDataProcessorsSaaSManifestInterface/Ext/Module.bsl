@@ -47,26 +47,6 @@ Function Package(Val Version = "") Export
 	
 EndFunction
 
-// Returns a name of the message API
-//
-// Returns:
-//   String
-//
-Function Public() Export
-	
-	Return "ApplicationExtensionsCore";
-	
-EndFunction
-
-// Registers message handlers as message exchange channel handlers.
-//
-// Parameters:
-//  HandlersArray - Array - common modules or manager modules.
-//
-Procedure MessagesChannelsHandlers(Val HandlersArray) Export
-	
-EndProcedure
-
 // Returns type {http://www.1c.ru/1cFresh/ApplicationExtensions/Core/a.b.c.d}ExtensionAssignmentObject
 //
 // Parameters:

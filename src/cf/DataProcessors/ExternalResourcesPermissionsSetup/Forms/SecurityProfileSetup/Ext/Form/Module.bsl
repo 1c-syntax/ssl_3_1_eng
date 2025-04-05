@@ -21,15 +21,15 @@ Var RefreshInterface;
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not SafeModeManagerInternal.SecurityProfilesUsageAvailable() Then
-		Raise NStr("en = 'Security profiles are unavailable';");
+		Raise NStr("en = 'Security profiles are unavailable'");
 	EndIf;
 	
 	If Not SafeModeManagerInternal.CanSetUpSecurityProfiles() Then
-		Raise NStr("en = 'Setting of security profiles is unavailable.';");
+		Raise NStr("en = 'Setting of security profiles is unavailable.'");
 	EndIf;
 	
 	If Not Users.IsFullUser(, True) Then
-		Raise(NStr("en = 'Insufficient access rights.';"), ErrorCategory.AccessViolation);
+		Raise(NStr("en = 'Insufficient access rights.'"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	ReadSecurityProfilesUsageMode();
@@ -195,7 +195,7 @@ EndFunction
 Procedure StartApplyingSecurityProfilesSettings(Val UUID)
 	
 	If Not SafeModeManagerInternal.SecurityProfilesUsageAvailable() Then
-		Raise NStr("en = 'Warning! Enabling automatic permission request is not available.';");
+		Raise NStr("en = 'Warning! Enabling automatic permission request is not available.'");
 	EndIf;
 	
 	SetExclusiveMode(True);

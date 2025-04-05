@@ -159,7 +159,7 @@ EndFunction
 
 Procedure TransferData_(ShouldReportProgress = False, ResultAddress = Undefined) Export
 	
-	ProgressTemplate = NStr("en = '%1 (%2 MB) out of %3 (%4 MB) files processed';");
+	ProgressTemplate = NStr("en = '%1 (%2 MB) out of %3 (%4 MB) files processed'");
 	TotalRecords = 0;
 	TotalSizeMB = 0;
 	If ShouldReportProgress Then
@@ -202,7 +202,7 @@ Procedure TransferData_(ShouldReportProgress = False, ResultAddress = Undefined)
 				BinaryData = BinaryData.GetBinaryData();
 
 			ElsIf TypeOf(BinaryData) <> Type("BinaryData") Then
-				ErrorText = NStr("en = 'Detected data type: %3. Expected data type: %4. Information register: %1. File: %2';");
+				ErrorText = NStr("en = 'Detected data type: %3. Expected data type: %4. Information register: %1. File: %2'");
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText,
 					Metadata.InformationRegisters.DeleteFilesBinaryData.Name,
 					FileDescription,
@@ -215,13 +215,13 @@ Procedure TransferData_(ShouldReportProgress = False, ResultAddress = Undefined)
 				ErrorDescription.Insert("Version", File);
 				Errors.Add(ErrorDescription);
 				
-				WriteLogEvent(NStr("en = 'Files.File deduplication error.';", Common.DefaultLanguageCode()),
+				WriteLogEvent(NStr("en = 'Files.File deduplication error.'", Common.DefaultLanguageCode()),
 					EventLogLevel.Error, , File, ErrorText);
 				RollbackTransaction();
 				Continue;
 			EndIf;
 			
-			// @skip-check query-in-loop - Batch processing of a large amount of data. 
+			// @skip-check query-in-loop 
 			If Not RecordExists(File) Then
 				WriteBinaryData(File, BinaryData);
 			EndIf;
@@ -341,7 +341,7 @@ Procedure TransferFilesBinaryDataToFileStorageInfoRegister(Selection)
 			WriteFileVersionManager.Read();
 			
 			BinaryData = WriteFileVersionManager.StoredFile.Get();
-			// @skip-check query-in-loop - Batch processing of a large amount of data. 
+			// @skip-check query-in-loop 
 			WriteBinaryData(Selection.Ref, BinaryData);
 
 			InfobaseUpdate.MarkProcessingCompletion(Selection.Ref);
@@ -354,7 +354,7 @@ Procedure TransferFilesBinaryDataToFileStorageInfoRegister(Selection)
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process binary data of file %1. Reason:
-				|%2';"), 
+				|%2'"), 
 				Selection.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(), 
 				EventLogLevel.Warning, Selection.Ref.Metadata(), Selection.Ref, 
@@ -365,14 +365,14 @@ Procedure TransferFilesBinaryDataToFileStorageInfoRegister(Selection)
 	
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) some binary data of the file: %1';"), 
+			NStr("en = 'Couldn''t process (skipped) some binary data of the file: %1'"), 
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), 
 			EventLogLevel.Information, Metadata.Catalogs.FilesVersions,,
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Another batch of file binary data is processed: %1';"),
+				NStr("en = 'Another batch of file binary data is processed: %1'"),
 				ObjectsProcessed));
 	EndIf;
 	
@@ -423,7 +423,7 @@ Procedure ToCreateTheMissingVersionFile(Selection)
 				BinaryFilesData.File = FileRef;
 				BinaryFilesData.Read();
 				If BinaryFilesData.Selected() Then
-					// @skip-check query-in-loop - Batch processing of a large amount of data. 
+					// @skip-check query-in-loop 
 					WriteBinaryData(Version.Ref, BinaryFilesData.FileBinaryData.Get());
 					BinaryFilesData.Delete();
 				EndIf;
@@ -449,14 +449,14 @@ Procedure ToCreateTheMissingVersionFile(Selection)
 	
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) some files: %1';"), 
+			NStr("en = 'Couldn''t process (skipped) some files: %1'"), 
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
 			Metadata.Catalogs.FilesVersions,,
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Another batch of files is processed: %1';"),
+				NStr("en = 'Another batch of files is processed: %1'"),
 				ObjectsProcessed));
 	EndIf;
 	

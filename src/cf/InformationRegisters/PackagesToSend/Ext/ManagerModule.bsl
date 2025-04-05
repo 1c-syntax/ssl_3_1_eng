@@ -94,7 +94,7 @@ Procedure DeleteOldPackages() Export
 			CommitTransaction();
 		Except
 			RollbackTransaction();
-			WriteLogEvent(NStr("en = 'Monitoring center';", Common.DefaultLanguageCode()), 
+			WriteLogEvent(NStr("en = 'Monitoring center'", Common.DefaultLanguageCode()), 
 				EventLogLevel.Error, Metadata.InformationRegisters.PackagesToSend,, 
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			Raise;
@@ -130,7 +130,7 @@ Procedure DeletePackage(PackageNumber) Export
 		CommitTransaction();
 	Except
 		RollbackTransaction();
-		WriteLogEvent(NStr("en = 'Monitoring center';", Common.DefaultLanguageCode()), 
+		WriteLogEvent(NStr("en = 'Monitoring center'", Common.DefaultLanguageCode()), 
 			EventLogLevel.Error, Metadata.InformationRegisters.PackagesToSend,, 
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Raise;

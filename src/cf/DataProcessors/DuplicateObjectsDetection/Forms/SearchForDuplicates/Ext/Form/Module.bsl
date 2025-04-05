@@ -11,7 +11,7 @@
 #Region Variables
 
 &AtClient
-Var ReportsToSend; // Array of ErrorReport 
+Var ReportsToSend; // Array of ErrorReport
 
 #EndRegion
 
@@ -41,7 +41,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	StatePresentation = Items.NoSearchPerformed.StatePresentation;
 	StatePresentation.Visible = True;
 	StatePresentation.Text = NStr("en = 'You did not run duplicate search yet.
-	                                  |Set filter criteria and select Find duplicates.';");
+	                                  |Set filter criteria and select Find duplicates.'");
 	
 	StatePresentation = Items.Searching.StatePresentation;
 	StatePresentation.Visible = True;
@@ -54,7 +54,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	StatePresentation = Items.DuplicatesNotFound.StatePresentation;
 	StatePresentation.Visible = True;
 	StatePresentation.Text = NStr("en = 'No duplicates found by the specified criteria.
-	                                        |Edit the filter criteria and select Find duplicates.';");
+	                                        |Edit the filter criteria and select Find duplicates.'");
 	
 	// Settings autosave.
 	SavedInSettingsDataModified = True;
@@ -65,61 +65,61 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// 1. Search was not performed.
 	SearchStep = AddWizardStep(Items.NoSearchPerformedStep);
 	SearchStep.BackButton.Visible = False;
-	SearchStep.NextButton.Title = NStr("en = 'Find duplicates >';");
-	SearchStep.NextButton.ToolTip = NStr("en = 'Find duplicates by the specified criteria.';");
-	SearchStep.CancelButton.Title = NStr("en = 'Close';");
-	SearchStep.CancelButton.ToolTip = NStr("en = 'Close the form without duplicate search.';");
+	SearchStep.NextButton.Title = NStr("en = 'Find duplicates >'");
+	SearchStep.NextButton.ToolTip = NStr("en = 'Find duplicates by the specified criteria.'");
+	SearchStep.CancelButton.Title = NStr("en = 'Close'");
+	SearchStep.CancelButton.ToolTip = NStr("en = 'Close the form without duplicate search.'");
 	
 	// 2. Long-running search.
 	Step = AddWizardStep(Items.PerformSearchStep);
 	Step.BackButton.Visible = False;
 	Step.NextButton.Visible = False;
-	Step.CancelButton.Title = NStr("en = 'Cancel';");
-	Step.CancelButton.ToolTip = NStr("en = 'Cancel duplicate search.';");
+	Step.CancelButton.Title = NStr("en = 'Cancel'");
+	Step.CancelButton.ToolTip = NStr("en = 'Cancel duplicate search.'");
 	
 	// 3. Process search results and selecting main items.
 	Step = AddWizardStep(Items.MainItemSelectionStep);
 	Step.BackButton.Visible = False;
-	Step.NextButton.Title = NStr("en = 'Delete duplicates >';");
-	Step.NextButton.ToolTip = NStr("en = 'Delete duplicates';");
+	Step.NextButton.Title = NStr("en = 'Delete duplicates >'");
+	Step.NextButton.ToolTip = NStr("en = 'Delete duplicates'");
 	Step.WhenYouClickNext = "StepSelectTheMainElementWhenYouClickNext";
-	Step.CancelButton.Title = NStr("en = 'Close';");
-	Step.CancelButton.ToolTip = NStr("en = 'Close the form without duplicate search.';");
+	Step.CancelButton.Title = NStr("en = 'Close'");
+	Step.CancelButton.ToolTip = NStr("en = 'Close the form without duplicate search.'");
 	
 	// 4. Long-running deletion of duplicates.
 	Step = AddWizardStep(Items.DeletionStep);
 	Step.BackButton.Visible = False;
 	Step.NextButton.Visible = False;
-	Step.CancelButton.Title = NStr("en = 'Cancel';");
-	Step.CancelButton.ToolTip = NStr("en = 'Cancel duplicate deletion.';");
+	Step.CancelButton.Title = NStr("en = 'Cancel'");
+	Step.CancelButton.ToolTip = NStr("en = 'Cancel duplicate deletion.'");
 	
 	// 5. Successful deletion.
 	Step = AddWizardStep(Items.SuccessfulDeletionStep);
-	Step.BackButton.Title = NStr("en = 'Search again';");
-	Step.BackButton.ToolTip = NStr("en = 'Start a new duplicate search.';");
+	Step.BackButton.Title = NStr("en = 'Search again'");
+	Step.BackButton.ToolTip = NStr("en = 'Start a new duplicate search.'");
 	Step.NextButton.Visible = False;
 	Step.CancelButton.DefaultButton = True;
-	Step.CancelButton.Title = NStr("en = 'Close';");
+	Step.CancelButton.Title = NStr("en = 'Close'");
 	
 	// 6. Incomplete deletion.
 	Step = AddWizardStep(Items.UnsuccessfulReplacementsStep);
 	Step.BackButton.Visible = False;
-	Step.NextButton.Title = NStr("en = 'Delete again >';");
-	Step.NextButton.ToolTip = NStr("en = 'Delete duplicates';");
-	Step.CancelButton.Title = NStr("en = 'Close';");
+	Step.NextButton.Title = NStr("en = 'Delete again >'");
+	Step.NextButton.ToolTip = NStr("en = 'Delete duplicates'");
+	Step.CancelButton.Title = NStr("en = 'Close'");
 	
 	// 7. No duplicates found.
 	Step = AddWizardStep(Items.DuplicatesNotFoundStep);
 	Step.BackButton.Visible = False;
-	Step.NextButton.Title = NStr("en = 'Find duplicates >';");
-	Step.NextButton.ToolTip = NStr("en = 'Find duplicates by the specified criteria.';");
-	Step.CancelButton.Title = NStr("en = 'Close';");
+	Step.NextButton.Title = NStr("en = 'Find duplicates >'");
+	Step.NextButton.ToolTip = NStr("en = 'Find duplicates by the specified criteria.'");
+	Step.CancelButton.Title = NStr("en = 'Close'");
 	
 	// 8 Runtime errors.
 	Step = AddWizardStep(Items.ErrorOccurredStep);
 	Step.BackButton.Visible = False;
 	Step.NextButton.Visible = False;
-	Step.CancelButton.Title = NStr("en = 'Close';");
+	Step.CancelButton.Title = NStr("en = 'Close'");
 	
 	// Update form items.
 	WizardSettings.CurrentStep = SearchStep;
@@ -156,14 +156,14 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	Cancel = True;
 	CurrentPage = Items.WizardSteps.CurrentPage;
 	If CurrentPage = Items.PerformSearchStep Then
-		QueryText = NStr("en = 'Do you want to stop search and close the form?';");
+		QueryText = NStr("en = 'Do you want to stop search and close the form?'");
 	ElsIf CurrentPage = Items.DeletionStep Then
-		QueryText = NStr("en = 'Do you want to stop deletion and close the form?';");
+		QueryText = NStr("en = 'Do you want to stop deletion and close the form?'");
 	EndIf;
 	
 	Buttons = New ValueList;
-	Buttons.Add(DialogReturnCode.Abort, NStr("en = 'Cancel operation';"));
-	Buttons.Add(DialogReturnCode.No,      NStr("en = 'Continue operation';"));
+	Buttons.Add(DialogReturnCode.Abort, NStr("en = 'Cancel operation'"));
+	Buttons.Add(DialogReturnCode.No,      NStr("en = 'Continue operation'"));
 	
 	Handler = New CallbackDescription("AfterConfirmCancelJob", ThisObject);
 	ShowQueryBox(Handler, QueryText, Buttons, , DialogReturnCode.No);
@@ -369,14 +369,14 @@ Procedure UpdateCandidateUsageInstances(Val RowID)
 		EndDo;
 		
 		LongDesc = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Found %2 duplicates for %1.';"),
+			NStr("en = 'Found %2 duplicates for %1.'"),
 			OriginalDescription, CurrentRow.Count);
 		If MarkedForDeletionAndNotUsed Then
 			LongDesc = LongDesc + Chars.LF
-				+ NStr("en = 'All duplicates are marked for deletion and there are no references to them, so deleting duplicates is no longer required.';");
+				+ NStr("en = 'All duplicates are marked for deletion and there are no references to them, so deleting duplicates is no longer required.'");
 		EndIf;
 				
-		Items.DetailsGroup1.Title = NStr("en = 'Information records:';");
+		Items.DetailsGroup1.Title = NStr("en = 'Information records:'");
 		Items.CurrentDuplicatesGroupDetails.Title = LongDesc;
 		Items.UsageInstancesPages.CurrentPage = Items.GroupDetails;
 		Return;
@@ -390,13 +390,13 @@ Procedure UpdateCandidateUsageInstances(Val RowID)
 	
 	If CurrentRow.Count = 0 Then
 		Items.CurrentDuplicatesGroupDetails.Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 has no occurrences';"), 
+			NStr("en = '%1 has no occurrences'"), 
 			CurrentRow.Description);
-		Items.DetailsGroup1.Title = NStr("en = 'Information records:';");
+		Items.DetailsGroup1.Title = NStr("en = 'Information records:'");
 		Items.UsageInstancesPages.CurrentPage = Items.GroupDetails;
 	Else
 		Items.DetailsGroup1.Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Occurrences of ""%1"" (%2):';"), 
+			NStr("en = 'Occurrences of ""%1"" (%2):'"), 
 			CurrentRow.Description,
 			CurrentRow.Count);
 		
@@ -461,7 +461,7 @@ Procedure UpdateUnprocessedItemsUsageInstancesDuplicates(Val DataString1)
 	
 	If RowData.GetParent() = Undefined Or RowData.Main Then
 		UnprocessedItemsUsageInstances.Clear();
-		Items.CurrentDuplicatesGroupDetails1.Title = NStr("en = 'To view details, select the duplicate that caused the issue.';");
+		Items.CurrentDuplicatesGroupDetails1.Title = NStr("en = 'To view details, select the duplicate that caused the issue.'");
 		Items.UnprocessedItemsUsageInstancesPages.CurrentPage = Items.UnprocessedItemsGroupDetails;
 		Return;
 	EndIf;
@@ -469,7 +469,7 @@ Procedure UpdateUnprocessedItemsUsageInstancesDuplicates(Val DataString1)
 	If RowData.Count = 0 Then
 		UnprocessedItemsUsageInstances.Clear();
 		Items.CurrentDuplicatesGroupDetails1.Title = 
-			NStr("en = 'Cannot replace the selected duplicate as it is impossible to replace other duplicates.';");
+			NStr("en = 'Cannot replace the selected duplicate as it is impossible to replace other duplicates.'");
 		Items.UnprocessedItemsUsageInstancesPages.CurrentPage = Items.UnprocessedItemsGroupDetails;
 	Else
 		ErrorsTable = GetFromTempStorage(ReplacementResultAddress); // See Common.ReplaceReferences
@@ -481,7 +481,7 @@ Procedure UpdateUnprocessedItemsUsageInstancesDuplicates(Val DataString1)
 		UnprocessedItemsUsageInstances.Load(Data);
 		
 		Items.ProbableDuplicateUsageInstances.Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot replace some of the duplicates (%1).';"), 
+			NStr("en = 'Cannot replace some of the duplicates (%1).'"), 
 			RowData.Count);
 		Items.UnprocessedItemsUsageInstancesPages.CurrentPage = Items.UnprocessedItemsUsageInstanceDetails;
 	EndIf;
@@ -607,7 +607,7 @@ EndProcedure
 &AtClient
 Procedure RefreshPossibleDuplicatesStatus()
 
-	GroupTitle = NStr("en = 'The replacement of duplicates might have generated duplicates in other lists (%1)';");
+	GroupTitle = NStr("en = 'The replacement of duplicates might have generated duplicates in other lists (%1)'");
 	UnprocessedItemsCount = PossibleDuplicates.FindRows(New Structure("Processed", False)).Count();
 	Items.GroupPossibleDuplicates.Title = StringFunctionsClientServer.SubstituteParametersToString(GroupTitle, UnprocessedItemsCount);
 	Items.GroupPossibleDuplicates.Visible = UnprocessedItemsCount > 0;	
@@ -719,7 +719,7 @@ EndProcedure
 &AtClient
 Procedure More(Command)
 	Items.DetailsGroup1.Visible = Not Items.DetailsGroup1.Visible;
-	Items.MoreDetails.Title = ?(Items.DetailsGroup1.Visible, NStr("en = '<< Hide';"), NStr("en = 'Details >>';"));
+	Items.MoreDetails.Title = ?(Items.DetailsGroup1.Visible, NStr("en = '<< Hide'"), NStr("en = 'Details >>'"));
 EndProcedure
 
 #EndRegion
@@ -772,14 +772,14 @@ Function AddWizardStep(Val Page)
 	StepDescription.PageName = Page.Name;
 	
 	StepDescription.BackButton = WizardButton();
-	StepDescription.BackButton.Title = NStr("en = '< Back';");
+	StepDescription.BackButton.Title = NStr("en = '< Back'");
 	
 	StepDescription.NextButton = WizardButton();
 	StepDescription.NextButton.DefaultButton = True;
-	StepDescription.NextButton.Title = NStr("en = 'Next >';");
+	StepDescription.NextButton.Title = NStr("en = 'Next >'");
 	
 	StepDescription.CancelButton = WizardButton();
-	StepDescription.CancelButton.Title = NStr("en = 'Cancel';");
+	StepDescription.CancelButton.Title = NStr("en = 'Cancel'");
 	
 	WizardSettings.Steps.Add(StepDescription);
 	
@@ -814,9 +814,9 @@ Procedure GoToWizardStep1(Val StepOrIndexOrFormGroup)
 	ElsIf Type = Type("Number") Then
 		StepIndex = StepOrIndexOrFormGroup;
 		If StepIndex < 0 Then
-			Raise NStr("en = 'Attempt to go back from the first step.';");
+			Raise NStr("en = 'Attempt to go back from the first step.'");
 		ElsIf StepIndex > WizardSettings.Steps.UBound() Then
-			Raise NStr("en = 'Attempt to go next from the last step.';");
+			Raise NStr("en = 'Attempt to go next from the last step.'");
 		EndIf;
 		StepDescription = WizardSettings.Steps[StepIndex];
 	Else
@@ -830,7 +830,7 @@ Procedure GoToWizardStep1(Val StepOrIndexOrFormGroup)
 		EndDo;
 		If Not StepFound Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Step %1 is not found.';"),
+				NStr("en = 'Step %1 is not found.'"),
 				RequiredPageName);
 		EndIf;
 	EndIf; 
@@ -860,17 +860,17 @@ Procedure OnActivateWizardStep()
 		// Filter rule presentation.
 		FilterRulesPresentation = String(PrefilterComposer.Settings.Filter);
 		If IsBlankString(FilterRulesPresentation) Then
-			FilterRulesPresentation = NStr("en = 'All items';");
+			FilterRulesPresentation = NStr("en = 'All items'");
 		EndIf;
 		
 		// Search rule presentation.
-		Conjunction = " " + NStr("en = 'AND';") + " ";
+		Conjunction = " " + NStr("en = 'AND'") + " ";
 		RulesText = "";
 		For Each Rule In SearchRules Do
 			If Rule.Rule = "Equal" Then
-				Comparison = Rule.AttributeRepresentation + " " + NStr("en = 'attributes are identical';");
+				Comparison = Rule.AttributeRepresentation + " " + NStr("en = 'attributes are identical'");
 			ElsIf Rule.Rule = "Like" Then
-				Comparison = Rule.AttributeRepresentation + " " + NStr("en = 'attributes are similar';");
+				Comparison = Rule.AttributeRepresentation + " " + NStr("en = 'attributes are similar'");
 			Else
 				Continue;
 			EndIf;
@@ -885,11 +885,11 @@ Procedure OnActivateWizardStep()
 			EndDo;
 		EndIf;
 		If IsBlankString(RulesText) Then
-			RulesText = NStr("en = 'No rules set';");
+			RulesText = NStr("en = 'No rules set'");
 		EndIf;
 		
 		If HideInsignificantDuplicates Then
-			RulesRow = NStr("en = 'hide duplicates that are marked for deletion and never referred';");
+			RulesRow = NStr("en = 'hide duplicates that are marked for deletion and never referred'");
 			RulesText = ?(RulesText = "", "", RulesText + Conjunction) + RulesRow;
 		EndIf;
 		
@@ -925,10 +925,10 @@ Procedure OnActivateWizardStep()
 		Items.Header.Enabled = False;
 		
 		If PossibleDuplicateSelected Then
-			Items.WizardStepBack.Title = NStr("en = 'New search';");
+			Items.WizardStepBack.Title = NStr("en = 'New search'");
 			Items.WizardStepBack.DefaultButton = True;
 		Else
-			Items.WizardStepBack.Title = NStr("en = 'Search again';");
+			Items.WizardStepBack.Title = NStr("en = 'Search again'");
 			Items.WizardStepBack.DefaultButton = False;
 		EndIf;
 		
@@ -940,12 +940,12 @@ Procedure OnActivateWizardStep()
 		
 		Items.Header.Enabled = True;
 		If IsBlankString(DuplicatesSearchErrorDescription) Then
-			Message = NStr("en = 'No duplicates found by the specified parameters.';");
+			Message = NStr("en = 'No duplicates found by the specified parameters.'");
 		Else	
 			Message = DuplicatesSearchErrorDescription;
 		EndIf;	
 		Items.DuplicatesNotFound.StatePresentation.Text = Message + Chars.LF 
-			+ NStr("en = 'Edit the criteria and select Find duplicates.';");
+			+ NStr("en = 'Edit the criteria and select Find duplicates.'");
 		
 	ElsIf CurrentPage = Items.ErrorOccurredStep Then
 		
@@ -967,7 +967,7 @@ Procedure WizardStepNext()
 	If CurrentPage = Items.NoSearchPerformedStep Then
 		
 		If IsBlankString(DuplicatesSearchArea) Then
-			ShowMessageBox(, NStr("en = 'Select a search location';"));
+			ShowMessageBox(, NStr("en = 'Select a search location'"));
 			Return;
 		EndIf;
 		
@@ -1068,7 +1068,7 @@ Procedure StepSelectTheMainElementWhenYouClickNext(DescriptionOfTheNextStep, Add
 		ShowQueryBox(
 			ResponseHandler1, 
 			NStr("en = 'Not all duplicates found are displayed. All duplicates found will be processed.
-			|Start processing the duplicates?';"), QuestionDialogMode.YesNo);
+			|Start processing the duplicates?'"), QuestionDialogMode.YesNo);
 	Else
 			
 		RunCallback(AdditionalParameters.CompletionHandler, DescriptionOfTheNextStep);
@@ -1259,7 +1259,7 @@ Procedure UpdateFoundDuplicatesStateDetails()
 	
 	If IsBlankString(DuplicatesSearchErrorDescription) Then
 		LongDesc = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Selected duplicates: %1 out of %2.';"),
+			NStr("en = 'Selected duplicates: %1 out of %2.'"),
 			TotalFoundDuplicates, TotalItems);
 	Else	
 		LongDesc = DuplicatesSearchErrorDescription;
@@ -1268,18 +1268,18 @@ Procedure UpdateFoundDuplicatesStateDetails()
 	If HasMarkedObjectsDeletionSubsystem Then
 	
 		If DeletionMethod = "Check" Then
-			ToolTipText = NStr("en = 'The selected items will be <a href = ""[Action]"">marked for deletion</a> and replaced with the original items (the original items are marked with an arrow icon).';");
+			ToolTipText = NStr("en = 'The selected items will be <a href = ""[Action]"">marked for deletion</a> and replaced with the original items (the original items are marked with an arrow icon).'");
 			RowParameters = New Structure("Action", "DeletionMethod");
 			ToolTipText = StringFunctionsClientServer.InsertParametersIntoString(ToolTipText, RowParameters);
 		Else
-			ToolTipText = NStr("en = 'The selected items will be <a href = ""[Action]"">deleted permanently</a> and replaced with the original items (the original items are marked with an arrow icon).';");
+			ToolTipText = NStr("en = 'The selected items will be <a href = ""[Action]"">deleted permanently</a> and replaced with the original items (the original items are marked with an arrow icon).'");
 			RowParameters = New Structure("Action", "DeletionMethod");
 			ToolTipText = StringFunctionsClientServer.InsertParametersIntoString(ToolTipText, RowParameters);
 		EndIf;
 		
 	Else
 		
-		ToolTipText = NStr("en = 'The selected items will be marked for deletion and replaced with the original items, which are marked with an arrow.';");
+		ToolTipText = NStr("en = 'The selected items will be marked for deletion and replaced with the original items, which are marked with an arrow.'");
 		
 	EndIf;
 	FoundDuplicatesStateDetails = StringFunctionsClient.FormattedString(LongDesc + Chars.LF + ToolTipText);
@@ -1358,6 +1358,12 @@ Procedure InitializeFilterComposerAndRules(Val FormSettings)
 	RulesTable.Clear();
 	
 	AttributesToExclude = New Structure("DeletionMark, Ref, Predefined, PredefinedDataName, IsFolder");
+	For Each AttributeMetadata1 In MetadataObject.Attributes Do
+		If Not Common.MetadataObjectAvailableByFunctionalOptions(AttributeMetadata1) Then
+			AttributesToExclude.Insert(AttributeMetadata1.Name);
+		EndIf;
+	EndDo;
+	
 	AddAttributesRules(RulesTable, AttributesToExclude, AllComparisonOptions, MetadataObject.StandardAttributes, FuzzySearch1);
 	AddAttributesRules(RulesTable, AttributesToExclude, AllComparisonOptions, MetadataObject.Attributes, FuzzySearch1);
 	
@@ -1481,8 +1487,8 @@ Procedure OnCreateAtServerDataInitialization(FormSettings)
 		ChoiceList.Add(TableRow.FullName, TableRow.ListPresentation, , PictureOfTheView);
 	EndDo;
 	
-	AllComparisonOptions.Add("Equal",   NStr("en = 'Match';"));
-	AllComparisonOptions.Add("Like", NStr("en = 'Fuzzy match';"));
+	AllComparisonOptions.Add("Equal",   NStr("en = 'Match'"));
+	AllComparisonOptions.Add("Like", NStr("en = 'Fuzzy match'"));
 EndProcedure
 
 &AtServer
@@ -1547,7 +1553,7 @@ Procedure SetConditionalAppearance()
 	AppearanceFilter.ComparisonType = DataCompositionComparisonType.Equal;
 	AppearanceFilter.RightValue = 0;
 	
-	AppearanceItem.Appearance.SetParameterValue("Text", NStr("en = '-';"));
+	AppearanceItem.Appearance.SetParameterValue("Text", NStr("en = '-'"));
 	
 	AppearanceField = AppearanceItem.Fields.Items.Add();
 	AppearanceField.Field = New DataCompositionField("FoundDuplicatesCount");
@@ -1622,22 +1628,24 @@ EndFunction
 
 &AtServerNoContext
 Function AvailableFilterAttributes(MetadataObject)
-	AttributesArray = New Array;
+	Result = New Array;
 	For Each AttributeMetadata1 In MetadataObject.StandardAttributes Do
 		If Not AttributeMetadata1.Type.ContainsType(Type("ValueStorage")) Then
-			AttributesArray.Add(AttributeMetadata1.Name);
+			Result.Add(AttributeMetadata1.Name);
 		EndIf
 	EndDo;
 	For Each AttributeMetadata1 In MetadataObject.Attributes Do
-		If Not AttributeMetadata1.Type.ContainsType(Type("ValueStorage")) Then
-			AttributesArray.Add(AttributeMetadata1.Name);
+		If Not AttributeMetadata1.Type.ContainsType(Type("ValueStorage"))
+			Or Not Common.MetadataObjectAvailableByFunctionalOptions(AttributeMetadata1) Then
+			Result.Add(AttributeMetadata1.Name);
 		EndIf
 	EndDo;
-	Return StrConcat(AttributesArray, ",");
+	Return StrConcat(Result, ",");
 EndFunction
 
 &AtServerNoContext
-Procedure AddAttributesRules(RulesTable, Val AttributesToExclude, Val AllComparisonOptions, Val AttributesCollection, Val FuzzySearchAvailable)
+Procedure AddAttributesRules(RulesTable, Val AttributesToExclude, Val AllComparisonOptions, 
+	Val AttributesCollection, Val FuzzySearchAvailable)
 	
 	For Each AttributeMetadata In AttributesCollection Do
 		
@@ -1663,8 +1671,7 @@ Function ComparisonOptionsForType(Val AvailableTypes, Val AllComparisonOptions, 
 	
 	IsStorage = AvailableTypes.ContainsType(Type("ValueStorage"));
 	If IsStorage Then 
-		// Cannot be compared.
-		Return Undefined;
+		Return Undefined; // Cannot be compared.
 	EndIf;
 	
 	IsString = AvailableTypes.ContainsType(Type("String"));
@@ -1672,15 +1679,14 @@ Function ComparisonOptionsForType(Val AvailableTypes, Val AllComparisonOptions, 
 		And AvailableTypes.StringQualifiers.Length <> 0;
 		
 	If IsString And Not IsFixedString Then
-		// Cannot be compared.
-		Return Undefined;
+		Return Undefined; // Cannot be compared.
 	EndIf;
 	
 	Result = New ValueList;
-	FillPropertyValues(Result.Add(), AllComparisonOptions[0]);		// Match
+	FillPropertyValues(Result.Add(), AllComparisonOptions[0]); // Match
 	
 	If FuzzySearchAvailable And IsString Then
-		FillPropertyValues(Result.Add(), AllComparisonOptions[1]);	// Similar
+		FillPropertyValues(Result.Add(), AllComparisonOptions[1]); // Similar
 	EndIf;
 		
 	Return Result;
@@ -1691,10 +1697,8 @@ Function ImageOfTheMetadataType(ImageCache, Kind)
 
 	Picture = ImageCache[Kind];
 	If Picture = Undefined Then
-	
 		Picture = PictureLib[Kind];
 		ImageCache.Insert(Kind, Picture);
-	
 	EndIf;
 
 	Return Picture;
@@ -1734,10 +1738,9 @@ Function FindAndDeleteDuplicates()
 	CurrentPage = Items.WizardSteps.CurrentPage;
 	If CurrentPage = Items.PerformSearchStep Then
 		
-		Items.Searching.StatePresentation.Text = NStr("en = 'Searching for duplicates…';");
+		Items.Searching.StatePresentation.Text = NStr("en = 'Searching for duplicates…'");
 
-		ProcedureName = FormAttributeToValue("Object").Metadata().FullName() + ".ObjectModule.BackgroundSearchForDuplicates";
-		MethodDescription = NStr("en = 'Duplicate cleaner: Find duplicates';");
+		ProcedureName = "DataProcessor.DuplicateObjectsDetection.ObjectModule.BackgroundSearchForDuplicates";
 		ProcedureParameters.Insert("DuplicatesSearchArea",     DuplicatesSearchArea);
 		ProcedureParameters.Insert("MaxDuplicates", 1500);
 		SearchRulesArray = New Array;
@@ -1750,7 +1753,7 @@ Function FindAndDeleteDuplicates()
 		ProcedureParameters.Insert("HideInsignificantDuplicates", HideInsignificantDuplicates);
 		
 		StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-		StartSettings1.BackgroundJobDescription = MethodDescription;
+		StartSettings1.BackgroundJobDescription = NStr("en = 'Duplicate cleaner: Find duplicates'");
 		
 		Return TimeConsumingOperations.ExecuteInBackground(ProcedureName, ProcedureParameters, StartSettings1);
 		
@@ -1758,24 +1761,20 @@ Function FindAndDeleteDuplicates()
 		
 		DeletionParameters = DuplicatesPurgeParameters();
 		If DeletionParameters.Count() = 0 Then
-			Common.MessageToUser(NStr("en = 'Select at least one duplicate group.';"),, "FoundDuplicates");
+			Common.MessageToUser(NStr("en = 'Select at least one duplicate group.'"),, "FoundDuplicates");
 			Return Undefined;
 		EndIf;
 		
-		Items.Deletion.StatePresentation.Text = NStr("en = 'Processing duplicates…';");
+		Items.Deletion.StatePresentation.Text = NStr("en = 'Processing duplicates…'");
 		
-		ProcedureName = FormAttributeToValue("Object").Metadata().FullName() + ".ObjectModule.BackgroundDuplicateDeletion";
-		MethodDescription = NStr("en = 'Duplicate cleaner: Delete duplicates';");
-		
+		ProcedureName = "DataProcessor.DuplicateObjectsDetection.ObjectModule.BackgroundDuplicateDeletion";
+
 		StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-		StartSettings1.BackgroundJobDescription = MethodDescription;
+		StartSettings1.BackgroundJobDescription = NStr("en = 'Duplicate cleaner: Delete duplicates'");
 		
 		BatchesCount = DeletionParameters.Count();
 		Return TimeConsumingOperations.ExecuteFunctionInMultipleThreads(ProcedureName, StartSettings1, DeletionParameters);
 		
-	Else
-		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Incorrect operation: %1.';"), String(CurrentPage));
 	EndIf;
 	
 EndFunction
@@ -1795,13 +1794,13 @@ Procedure FindAndRemoveDuplicatesProgress(Result, AdditionalParameters) Export
 	CurrentPage = Items.WizardSteps.CurrentPage;
 	If CurrentPage = Items.PerformSearchStep Then
 		
-		Message = NStr("en = 'Searching for duplicates…';");
+		Message = NStr("en = 'Searching for duplicates…'");
 		If Result.Progress.Text = "CalculateUsageInstances" Then 
-			Message = NStr("en = 'Searching for duplicate occurrences…';");
+			Message = NStr("en = 'Searching for duplicate occurrences…'");
 		ElsIf Result.Progress.Percent > 0 Then
 			Message = Message + " " 
 				+ StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '(%1 locations found)';"), Result.Progress.Percent);
+					NStr("en = '(%1 locations found)'"), Result.Progress.Percent);
 		EndIf;
 		Items.Searching.StatePresentation.Text = Message;
 		
@@ -1820,7 +1819,7 @@ Procedure FindAndRemoveDuplicatesProgress(Result, AdditionalParameters) Export
 				Message = ProgressText(ProgressParameters, Result.Progress.Text);
 			EndIf;
 		Else	
-			Message = NStr("en = 'Processing duplicates…';");
+			Message = NStr("en = 'Processing duplicates…'");
 		EndIf;
 		
 		Items.Deletion.StatePresentation.Text = Message;
@@ -1832,35 +1831,22 @@ EndProcedure
 &AtServer
 Function ProgressText(Val ProgressParameters, Val SourceProgressText)
 	
-	ThisIsReplacement = StrStartsWith(SourceProgressText, NStr("en = 'Replacing duplicates';"));
+	ThisIsReplacement = StrStartsWith(SourceProgressText, NStr("en = 'Replacing duplicates'"));
 	ProgressAttributeName = ?(ThisIsReplacement, "ProcessedItemsCount", "DeletedItemsCount");
-	Filter = New Structure;
-	Filter.Insert("SessionNumber", ProgressParameters.SessionNumber);
-	TableRows = DeletionProgress.FindRows(Filter);
-	If TableRows.Count() = 0 Then
-		TableRow = DeletionProgress.Add();
-		TableRow.SessionNumber = ProgressParameters.SessionNumber;
-		PreviousProcessedCount = 0;
-	Else
-		TableRow = TableRows[0];
-		PreviousProcessedCount = TableRow[ProgressAttributeName];
-	EndIf;
-	TableRow[ProgressAttributeName] = ProgressParameters.ProcessedItemsCount;
-	ProgressToAdd = (ProgressParameters.ProcessedItemsCount - PreviousProcessedCount);
 	If ThisIsReplacement Then
-		ProcessedTotalCount = ProcessedTotalCount + ProgressToAdd;
+		ProcessedTotalCount = ProcessedTotalCount + ProgressParameters.ProcessedItemsCount;
 	Else
-		DeletedTotalCount = DeletedTotalCount + ProgressToAdd;
+		DeletedTotalCount = DeletedTotalCount + ProgressParameters.ProcessedItemsCount;
 	EndIf;
 	
 	ProgressText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Replacing duplicates… Processed (%1 out of %2)';"),
+		NStr("en = 'Replacing duplicates… Processed (%1 out of %2)'"),
 		ProcessedTotalCount,
 		SelectedCountTotal);
 	If DeletionMethod = "Directly" Then
 		ProgressText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = '%1
-			|Deleting duplicates... Processed (%2 out of %3)';"),
+			|Deleting duplicates... Processed (%2 out of %3)'"),
 			ProgressText,
 			DeletedTotalCount,
 			SelectedCountTotal);
@@ -1887,9 +1873,9 @@ Procedure FindAndDeleteDuplicatesCompletion(Result, AdditionalParameters) Export
 	If Result.Status <> "Completed2" Then
 		// Background job is completed with error.
 		If CurrentPage = Items.PerformSearchStep Then
-			Brief1 = NStr("en = 'Cannot find duplicates. Reason:';");
+			Brief1 = NStr("en = 'Cannot find duplicates. Reason:'");
 		ElsIf CurrentPage = Items.DeletionStep Then
-			Brief1 = NStr("en = 'Cannot delete the duplicates. Reason:';");
+			Brief1 = NStr("en = 'Cannot delete the duplicates. Reason:'");
 		EndIf;
 		Brief1 = Brief1 + Chars.LF + Result.BriefErrorDescription;
 		More = Brief1 + Chars.LF + Chars.LF + Result.DetailErrorDescription;
@@ -1998,7 +1984,7 @@ Function FillDuplicatesSearchResults(Val ResultAddress)
 	ValueToFormAttribute(FoundDuplicatesTree, "FoundDuplicates");
 	
 	ProbableDuplicateUsageInstances.Clear();
-	Items.CurrentDuplicatesGroupDetails.Title = NStr("en = 'No duplicates found';");
+	Items.CurrentDuplicatesGroupDetails.Title = NStr("en = 'No duplicates found'");
 	
 	If IsTempStorageURL(UsageInstancesAddress) Then
 		DeleteFromTempStorage(UsageInstancesAddress);
@@ -2054,14 +2040,14 @@ Function FillDuplicatesDeletionResults(Val ResultAddress)
 			If LastCandidate = Undefined Then
 				FoundDuplicatesStateDetails = New FormattedString(
 					StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'All %1 duplicates have been merged.';"),
+						NStr("en = 'All %1 duplicates have been merged.'"),
 						ProcessedItemsTotal));
 			Else
 				LastCandidateAsString = Common.SubjectString(LastCandidate);
 				FoundDuplicatesStateDetails = New FormattedString(
 					StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'All %1 duplicates have been merged
-							|into %2.';"),
+							|into %2.'"),
 						ProcessedItemsTotal, LastCandidateAsString));
 			EndIf;
 		Else
@@ -2069,7 +2055,7 @@ Function FillDuplicatesDeletionResults(Val ResultAddress)
 			FoundDuplicatesStateDetails = New FormattedString(
 				StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'All %1 duplicates have been merged.
-						|Number of resulted items: %2.';"),
+						|Number of resulted items: %2.'"),
 					ProcessedItemsTotal,
 					MainItemsTotal));
 		EndIf;
@@ -2415,7 +2401,7 @@ EndProcedure
 // Used as a filter ID.
 &AtServer
 Function RepresentationOfTheSelectedPlaceOfUse()
-	Return NStr("en = 'Items that can include duplicates';");
+	Return NStr("en = 'Items that can include duplicates'");
 EndFunction
 
 #EndRegion

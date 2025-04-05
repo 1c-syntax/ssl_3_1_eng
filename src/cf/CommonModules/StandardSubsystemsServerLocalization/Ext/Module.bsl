@@ -21,4 +21,32 @@ Procedure OnSetupSpreadsheetSaveFormats(FormatsTable) Export
 	
 EndProcedure
 
+// Defines the minimum and recommended 1C:Enterprise versions required for the configuration,
+// as defined in "GeneralPurposeOverridable.OnDefiningCommonParametersOfBasicFunctionality".
+// You can use it to set the minimum and recommended 1C:Enterprise versions based on external service data.
+// 
+// Parameters:
+//  MinPlatformVersion   - 
+//  RecommendedPlatformVersion - 
+//
+Procedure OnDefineMinAndRecommended1CEnterpriseVersions(MinPlatformVersion, RecommendedPlatformVersion) Export
+	
+	
+EndProcedure
+
+// Called when the minimum and recommended 1C:Enterprise versions are incorrectly specified
+// in the procedure "OnDefineMinimalAndRecommended1CEnterpriseVersion".
+//
+// Parameters:
+//  MinSpecified - String
+//  RecommendedSpecified - String
+//  RequiredMinSSL - String
+//  CommonParameters - See Common.CommonCoreParameters
+//
+Procedure OnFillIncorrectMinAndRecommended1CEnterpriseVersions(MinSpecified, RecommendedSpecified,
+	RequiredMinSSL, CommonParameters) Export
+	
+
+EndProcedure
+
 #EndRegion

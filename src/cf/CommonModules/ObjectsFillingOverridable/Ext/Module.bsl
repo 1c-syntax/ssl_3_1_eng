@@ -30,7 +30,7 @@ EndProcedure
 //   FillingCommands - ValueTable - Generated commands to be shown in the submenu:
 //     
 //     Common settings
-//       * Id - String - a command ID.
+//       * Id - String - Command ID.
 //     
 //     Appearance settings:
 //       * Presentation - String   - Command presentation in a form.

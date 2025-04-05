@@ -28,31 +28,31 @@ EndProcedure
 
 Function AttachExternalDataProcessor(AddressInTempStorage) Export
 	
-	// ACC:552-выкл подключение выполняется при наличии права интерактивного открытия внешних отчетов и обработок.
-	// ACC:556-выкл
-	// ACC:553-выкл
+	// ACC:552-off - An attaching attempt is made by a user who has the right to open external reports and data processors interactively.
+	// ACC:556-off
+	// ACC:553-off
 	VerifyAccessRights("InteractiveOpenExtDataProcessors", Metadata);
 	Return ExternalDataProcessors.Connect(AddressInTempStorage, , False);
-	// ACC:553-вкл
-	// ACC:556-вкл
-	// ACC:552-вкл
+	// ACC:552-on
+	// ACC:556-on
+	// ACC:552-on
 	
 EndFunction
 
-Function ConnectExternalReport(AddressInTempStorage) Export
+Function AttachExternalReport(AddressInTempStorage) Export
 	
-	// ACC:552-выкл подключение выполняется при наличии права интерактивного открытия внешних отчетов и обработок.
-	// ACC:556-выкл
-	// ACC:553-выкл
+	// ACC:552-off - An attaching attempt is made by a user who has the right to open external reports and data processors interactively.
+	// ACC:556-off
+	// ACC:553-off
 	VerifyAccessRights("InteractiveOpenExtDataProcessors", Metadata);
 	Return ExternalReports.Connect(AddressInTempStorage, , False);
-	// ACC:553-вкл
-	// ACC:556-вкл
-	// ACC:552-вкл
+	// ACC:552-on
+	// ACC:556-on
+	// ACC:552-on
 	
 EndFunction
 
-Function ItIsPossibleToOpenExternalReportsAndTreatments() Export
+Function CanOpenExternalReportsAndDataProcessors() Export
 
 	Return AccessRight("InteractiveOpenExtDataProcessors", Metadata);
 

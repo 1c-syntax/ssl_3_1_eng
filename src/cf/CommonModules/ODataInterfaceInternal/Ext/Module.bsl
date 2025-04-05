@@ -197,12 +197,12 @@ Procedure BeforeImportData(Container) Export
 			Or ReaderStream.Name <> "Data" Then
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid XML file format. Start of ""%1"" element is expected.';"), "Data");
+			NStr("en = 'Invalid XML file format. Start of ""%1"" element is expected.'"), "Data");
 		
 	EndIf;
 	
 	If Not ReaderStream.Read() Then
-		Raise NStr("en = 'Invalid XML file format. File end is detected.';");
+		Raise NStr("en = 'Invalid XML file format. File end is detected.'");
 	EndIf;
 	
 	Content = XDTOSerializer.ReadXML(ReaderStream);

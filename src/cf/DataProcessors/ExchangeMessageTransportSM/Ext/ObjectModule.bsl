@@ -160,7 +160,7 @@ Function InternalPublication_CorrespondentParameters()
 	If Not StrFind("3.0.2.1, 3.0.2.2", InterfaceVersion)  Then
 			
 		ErrorMessage = NStr("en = 'The peer infobase does not support version 3.0.2.x of the DataExchange interface.
-								|To set up the connection, update the peer infobase configuration.';");
+								|To set up the connection, update the peer infobase configuration.'");
 		
 		Result.ConnectionAllowed = False;
 		Result.ErrorMessage = ErrorMessage;
@@ -197,7 +197,7 @@ Function InternalPublication_CorrespondentParameters()
 		Text = NStr("en = 'Exchange plan ""%1"" is not found in the peer application.
 			|Ensure that the following data is correct:
 			|- The application type selected in the exchange settings.
-			|- The web application address.';");
+			|- The web application address.'");
 		
 		ErrorMessage = StrTemplate(Text, ExchangePlanName);
 		
@@ -769,5 +769,5 @@ ExchangeMessage = Undefined;
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

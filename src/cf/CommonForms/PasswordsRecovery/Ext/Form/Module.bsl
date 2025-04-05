@@ -14,7 +14,7 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not Users.IsFullUser() Then
-		Raise(NStr("en = 'Insufficient rights to perform the operation.';"),
+		Raise(NStr("en = 'Insufficient rights to perform the operation.'"),
 			ErrorCategory.AccessViolation);
 	EndIf;
 	
@@ -216,7 +216,7 @@ Function PasswordRecoverySettingsAreCorrect()
 	
 	If ShowHelpHyperlink And IsBlankString(HelpURL) Then
 		
-		CommonClient.MessageToUser(NStr("en = 'Help page address is required';"),,
+		CommonClient.MessageToUser(NStr("en = 'Help page address is required'"),,
 					"HelpURL");
 		TheSettingsAreCorrect = False;
 		
@@ -226,7 +226,7 @@ Function PasswordRecoverySettingsAreCorrect()
 		
 		If IsBlankString(PasswordRecoveryURL) Then
 			
-			CommonClient.MessageToUser(NStr("en = 'Password recovery page address is required';"),,
+			CommonClient.MessageToUser(NStr("en = 'Password recovery page address is required'"),,
 					"PasswordRecoveryURL");
 				TheSettingsAreCorrect = False;
 				
@@ -240,13 +240,13 @@ Function PasswordRecoverySettingsAreCorrect()
 		
 		If Not ValueIsFilled(AccountEmail) Then
 		
-			CommonClient.MessageToUser(NStr("en = 'Email account is required';"),,
+			CommonClient.MessageToUser(NStr("en = 'Email account is required'"),,
 				"AccountEmail");
 			TheSettingsAreCorrect = False;
 			
 		ElsIf Not AccountSetUp(AccountEmail) Then
 			
-			CommonClient.MessageToUser(NStr("en = 'The email account is not configured to send mail';"),,
+			CommonClient.MessageToUser(NStr("en = 'The email account is not configured to send mail'"),,
 				"AccountEmail");
 			TheSettingsAreCorrect = False;
 			
@@ -256,7 +256,7 @@ Function PasswordRecoverySettingsAreCorrect()
 		
 		If IsBlankString(SMTPServerAddress) Then
 		
-			CommonClient.MessageToUser(NStr("en = 'SMTP server address is required';"),,
+			CommonClient.MessageToUser(NStr("en = 'SMTP server address is required'"),,
 				"SMTPServerAddress");
 			TheSettingsAreCorrect = False;
 			
@@ -264,7 +264,7 @@ Function PasswordRecoverySettingsAreCorrect()
 		
 		If IsBlankString(SMTPUser) Then
 		
-			CommonClient.MessageToUser(NStr("en = 'SMTP user is required';"),,
+			CommonClient.MessageToUser(NStr("en = 'SMTP user is required'"),,
 				"SMTPUser");
 			TheSettingsAreCorrect = False;
 			
@@ -272,7 +272,7 @@ Function PasswordRecoverySettingsAreCorrect()
 		
 		If IsBlankString(SMTPPassword) Then
 		
-			CommonClient.MessageToUser(NStr("en = 'SMTP password is required';"),,
+			CommonClient.MessageToUser(NStr("en = 'SMTP password is required'"),,
 				"SMTPPassword");
 			TheSettingsAreCorrect = False;
 			
@@ -280,7 +280,7 @@ Function PasswordRecoverySettingsAreCorrect()
 		
 		If IsBlankString(SenderName) Then
 		
-			CommonClient.MessageToUser(NStr("en = 'Sender name is required';"),,
+			CommonClient.MessageToUser(NStr("en = 'Sender name is required'"),,
 				"SenderName");
 			TheSettingsAreCorrect = False;
 			
@@ -325,7 +325,7 @@ EndProcedure
 Procedure StartBackgroundFillingOfUsersMail()
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Fill in user email for password recovery';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Fill in user email for password recovery'");
 	
 	TimeConsumingOperations.ExecuteInBackground("UsersInternal.FillInTheEmailForPasswordRecoveryFromUsersInTheBackground",
 		New Structure, ExecutionParameters);
@@ -458,7 +458,7 @@ Procedure ReadPasswordRestorationSettings()
 	MessageText.SetHTML(HTMLMessageText, New Structure);
 	
 	EmailSubject = ?(ValueIsFilled(Settings.Header),
-		Settings.Header, NStr("en = 'Password recovery';"));
+		Settings.Header, NStr("en = 'Password recovery'"));
 	
 	If Settings.PasswordRecoveryMethod = InfoBaseUserPasswordRecoveryMethod.None Then
 		RestorePassword = False;
@@ -506,7 +506,7 @@ Function DefaultText()
 	|
 	|To reset the password, enter the code: %3.
 	|
-	|If you didn''t send the request, please contact the technical support.';");
+	|If you didn''t send the request, please contact the technical support.'");
 	
 	HTMLMessageText = StringFunctionsClientServer.SubstituteParametersToString(TemplateMessageHTML,
 		"&UserPresentation", "&ApplicationPresentation", "&VerificationCode");

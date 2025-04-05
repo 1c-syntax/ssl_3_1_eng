@@ -130,7 +130,7 @@ Procedure ApplyUnapprovedRecordsTable(Cancel) Export
 		CommitTransaction();
 	Except
 		RollbackTransaction();
-		WriteLogEvent(NStr("en = 'Data exchange';", Common.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Data exchange'", Common.DefaultLanguageCode()),
 			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Cancel = True;
 		Return;
@@ -200,7 +200,7 @@ Procedure ExecuteDataImportForInfobase(Cancel, TablesToImport) Export
 	EndDo;
 	
 	If DataExchangeDataProcessor.FlagErrors() Then
-		NString = NStr("en = 'Errors occurred while importing the exchange message: %1';");
+		NString = NStr("en = 'Errors occurred while importing the exchange message: %1'");
 		NString = StringFunctionsClientServer.SubstituteParametersToString(NString, DataExchangeDataProcessor.ErrorMessageString());
 		Common.MessageToUser(NString,,,, Cancel);
 		Return;
@@ -2096,7 +2096,7 @@ Function SourceInfobaseData(Cancel)
 		
 		If DataExchangeDataProcessor.FlagErrors() Then
 			
-			NString = NStr("en = 'Errors occurred while importing the exchange message: %1';");
+			NString = NStr("en = 'Errors occurred while importing the exchange message: %1'");
 			NString = StringFunctionsClientServer.SubstituteParametersToString(NString, DataExchangeDataProcessor.ErrorMessageString());
 			Common.MessageToUser(NString,,,, Cancel);
 			Return Undefined;
@@ -2261,7 +2261,7 @@ Procedure FillListWithAdditionalParameters(TableFieldsList)
 		
 		If Attribute = Undefined Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The %2 attribute is not defined for the %1 metadata object.';"),
+				NStr("en = 'The %2 attribute is not defined for the %1 metadata object.'"),
 				MetadataObject.FullName(),
 				String(Item.Value));
 		EndIf;
@@ -2339,5 +2339,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

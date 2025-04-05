@@ -55,7 +55,7 @@ Procedure BeforeStart(Parameters) Export
 	
 EndProcedure
 
-// For internal use only. Continues the execution of the CheckLegitimateSoftwareOnStart procedure.
+// For internal use only. Continues the CheckLegitimateSoftwareOnStart procedure.
 Procedure LegitimateSoftwareCheckInteractiveHandler(Parameters, Context) Export
 	
 	FormParameters = New Structure;
@@ -73,7 +73,7 @@ EndProcedure
 
 #Region Private
 
-// For internal use only. Follows up the "CheckLegitimateSoftwareOnStart procedure".
+// For internal use only. Continues the CheckLegitimateSoftwareOnStart procedure.
 Procedure AfterCloseLegitimateSoftwareCheckFormOnStart(Result, Parameters) Export
 	
 	If Result <> True Then

@@ -113,7 +113,7 @@ EndProcedure
 Procedure HandleError(ErrorInfo) Export
 	
 	WriteLogEvent(
-		NStr("en = 'Server notifications.Error getting or processing notifications';",
+		NStr("en = 'Server notifications.Error getting or processing notifications'",
 			Common.DefaultLanguageCode()),
 		EventLogLevel.Error,,,
 		ErrorProcessing.DetailErrorDescription(ErrorInfo));
@@ -231,6 +231,10 @@ EndProcedure
 //    * LogEventOnDeliveryDeferral     - String - Event name that will be logged upon the delayed delivery.
 //                                                Applicable if "Replace" is set to True.
 //    * LogCommentOnDeliveryDeferral - String - Event comment for the Event Log.
+//    
+//    * ShouldWriteUnconditionally - Boolean - If set to "True", the method writers the notification to the register
+//                                    even in cases where client notifications are available
+//                                    (for example, to get messages from the notifications).
 //
 Function AdditionalSendingParameters() Export
 	
@@ -241,6 +245,7 @@ Function AdditionalSendingParameters() Export
 	Result.Insert("DeliveryDeferral", 0);
 	Result.Insert("LogEventOnDeliveryDeferral", "");
 	Result.Insert("LogCommentOnDeliveryDeferral", "");
+	Result.Insert("ShouldWriteUnconditionally", False);
 	
 	Return Result;
 	
@@ -275,7 +280,7 @@ Procedure SendServerNotificationWithGroupID(NameOfAlert, Result, SMSMessageRecip
 		
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'In procedure %1, you cannot specify value %2 for parameter %3
-			           |when calling from procedures %4.';"),
+			           |when calling from procedures %4.'"),
 			"ServerNotifications.SendServerNotification",
 			"True",
 			"SendImmediately",
@@ -285,7 +290,7 @@ Procedure SendServerNotificationWithGroupID(NameOfAlert, Result, SMSMessageRecip
 	
 	NotificationID = Lower(New UUID);
 	AddedOn = CurrentSessionDate();
-	DateAddedMilliseconds = Milliseconds();
+	DateAddedMilliseconds = Milliseconds(AddedOn);
 	AdditionalParameters = ?(AdditionalSendingParameters = Undefined,
 		AdditionalSendingParameters(), AdditionalSendingParameters);
 	
@@ -359,6 +364,7 @@ Procedure SendServerNotificationWithGroupID(NameOfAlert, Result, SMSMessageRecip
 	
 	If Not AdditionalParameters.Replace
 	   And AreClientNotificationsAvailable
+	   And Not AdditionalParameters.ShouldWriteUnconditionally
 	   And ValueIsFilled(NewRecord.CollaborationSystemRecordDate) Then
 		
 		Return;
@@ -371,7 +377,7 @@ Procedure SendServerNotificationWithGroupID(NameOfAlert, Result, SMSMessageRecip
 		StartDeliverDeferredServerNotifications(Launched);
 		If Launched And ValueIsFilled(AdditionalParameters.LogEventOnDeliveryDeferral) Then
 			Try
-				Raise NStr("en = 'Call stack:';");
+				Raise NStr("en = 'Call stack:'");
 			Except
 				CallStack = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 			EndTry;
@@ -467,11 +473,45 @@ Function SendMessageImmediately(NotificationID, AddedOn, NotificationContent)
 	
 EndFunction
 
-Function Milliseconds()
+Function Milliseconds(AddedOn = Undefined)
 	
 	DateInMilliseconds = CurrentUniversalDateInMilliseconds();
 	
-	Return DateInMilliseconds - Int(DateInMilliseconds/1000)*1000;
+	Result = DateInMilliseconds - Int(DateInMilliseconds/1000)*1000;
+	
+	If AddedOn = Undefined Then
+		Return Result;
+	EndIf;
+	
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+	Properties = New Structure(SessionParameters.TimeConsumingOperations);
+	
+	If AddedOn < Properties.AddedOn
+	   And Properties.AddedOn - AddedOn < 5 Then
+		
+		AddedOn = Properties.AddedOn;
+		Result = Properties.DateAddedMilliseconds;
+	EndIf;
+	
+	If AddedOn = Properties.AddedOn
+	   And Result <= Properties.DateAddedMilliseconds Then
+		
+		Result = Properties.DateAddedMilliseconds + 1;
+		If Result > 999 Then
+			Result = 0;
+			AddedOn = AddedOn + 1;
+		EndIf;
+	EndIf;
+	
+	Properties.AddedOn = AddedOn;
+	Properties.DateAddedMilliseconds = Result;
+	
+	SessionParameters.TimeConsumingOperations = New FixedStructure(Properties);
+	SetPrivilegedMode(False);
+	SetSafeModeDisabled(False);
+	
+	Return Result;
 	
 EndFunction
 
@@ -946,11 +986,11 @@ Procedure PrepareServerNotifications(SendStatus, MaxIntervalByUser = Undefined)
 			ErrorInfo = ErrorInfo();
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot execute the ""%1"" procedure due to:
-				           |%2';"),
+				           |%2'"),
 				Notification.NotificationSendModuleName + ".OnSendServerNotification",
 				ErrorProcessing.DetailErrorDescription(ErrorInfo));
 			WriteLogEvent(
-				NStr("en = 'Server notifications.Background job error';",
+				NStr("en = 'Server notifications.Background job error'",
 					Common.DefaultLanguageCode()),
 				EventLogLevel.Error,,, ErrorText);
 		EndTry;
@@ -1312,9 +1352,17 @@ Function NewServerNotifications(LastNotificationDate)
 	|	SentServerNotifications.AddedOn,
 	|	SentServerNotifications.DateAddedMilliseconds";
 	
-	Query.Text = StrReplace(Query.Text, "&Filter",
-		?(Common.SeparatedDataUsageAvailable(), "TRUE",
-			"SentServerNotifications.DataAreaAuxiliaryData = 0"));
+	FilterCriterion = ?(Common.SeparatedDataUsageAvailable(), "TRUE",
+			"SentServerNotifications.DataAreaAuxiliaryData = 0");
+	
+	If ServerNotificationsInternalCached.AreClientNotificationsAvailable() Then
+		FilterCriterion = FilterCriterion + "
+		|	AND NOT SentServerNotifications.NotificationTypeInGroup IN (&TimeConsumingOperationNotificationKinds)";
+		Query.SetParameter("TimeConsumingOperationNotificationKinds",
+			TimeConsumingOperations.TimeConsumingOperationNotificationKinds());
+	EndIf;
+	
+	Query.Text = StrReplace(Query.Text, "&Filter", FilterCriterion);
 	
 	Return Query.Execute().Select();
 	
@@ -1582,11 +1630,11 @@ Procedure UpdateSendStatus(NewSendStatus, PropertiesNames)
 		ErrorInfo = ErrorInfo();
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot set constant %1 due to:
-			           |%2';"),
+			           |%2'"),
 			"ServerNotificationsSendStatus",
 			ErrorProcessing.DetailErrorDescription(ErrorInfo));
 		WriteLogEvent(
-			NStr("en = 'Server notifications.Background job error';",
+			NStr("en = 'Server notifications.Background job error'",
 				Common.DefaultLanguageCode()),
 			EventLogLevel.Error,,, ErrorText);
 	EndTry;
@@ -1631,11 +1679,11 @@ Function SendStatusOnBackgroundJobStart()
 		SendStatus = Undefined;
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot set constant %1 due to:
-			           |%2';"),
+			           |%2'"),
 			"ServerNotificationsSendStatus",
 			ErrorProcessing.DetailErrorDescription(ErrorInfo));
 		WriteLogEvent(
-			NStr("en = 'Server notifications.Background job startup error';",
+			NStr("en = 'Server notifications.Background job startup error'",
 				Common.DefaultLanguageCode()),
 			EventLogLevel.Error,,, ErrorText);
 	EndTry;
@@ -1704,10 +1752,10 @@ Procedure StartDeliverDeferredServerNotifications(Launched = False)
 	
 	CurrentSession = GetCurrentInfoBaseSession();
 	JobDescription =
-		NStr("en = 'Autostart';", Common.DefaultLanguageCode()) + ": "
-		+ NStr("en = 'Delayed server notification delivery';", Common.DefaultLanguageCode()) + " ("
+		NStr("en = 'Autostart'", Common.DefaultLanguageCode()) + ": "
+		+ NStr("en = 'Delayed server notification delivery'", Common.DefaultLanguageCode()) + " ("
 		+ StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'from session %1 started on %2';", Common.DefaultLanguageCode()),
+			NStr("en = 'from session %1 started on %2'", Common.DefaultLanguageCode()),
 			Format(CurrentSession.SessionNumber, "NG="),
 			Format(CurrentSession.SessionStarted, "DLF=DT")) + ")";
 	
@@ -1923,7 +1971,7 @@ Function ServerNotificationsParametersThisSession() Export
 				NStr("en = 'In procedure ""%1"",
 				           |the notification name is either unspecified or filled in incorrectly
 				           |%2 = ""%3""
-				           |%4 = ""%5"".';"),
+				           |%4 = ""%5"".'"),
 					"CommonOverridable.OnAddServerNotifications",
 					"Key", KeyAndValue.Key, "Notification.Name", Notification.Name);
 			Raise ErrorText;
@@ -1932,7 +1980,7 @@ Function ServerNotificationsParametersThisSession() Export
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'In procedure ""%1"",
 				           |property ""%3"" of notification ""%2""
-				           |is not filled in.';"),
+				           |is not filled in.'"),
 					"CommonOverridable.OnAddServerNotifications",
 					Notification.Name, "NotificationReceiptModuleName");
 			Raise ErrorText;
@@ -1942,7 +1990,7 @@ Function ServerNotificationsParametersThisSession() Export
 				NStr("en = 'In procedure ""%1"",
 				           |property ""%3"" of notification ""%2""
 				           |has non-existent common module
-				           |""%4"".';"),
+				           |""%4"".'"),
 					"CommonOverridable.OnAddServerNotifications",
 					Notification.Name, "NotificationReceiptModuleName", Notification.NotificationReceiptModuleName);
 			Raise ErrorText;
@@ -1955,7 +2003,7 @@ Function ServerNotificationsParametersThisSession() Export
 				NStr("en = 'In procedure ""%1"",
 				           |property ""%3"" of notification ""%2""
 				           |has non-existent common module
-				           |""%4"".';"),
+				           |""%4"".'"),
 					"CommonOverridable.OnAddServerNotifications",
 					Notification.Name, "NotificationSendModuleName", Notification.NotificationSendModuleName);
 			Raise ErrorText;
@@ -2091,11 +2139,11 @@ Procedure ConfigureJobSendServerNotificationsToClients(Enable, RepeatPeriod = 0,
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot set up scheduled job
 			           |""%1"" due to:
-			           |%2';"),
+			           |%2'"),
 			Metadata.ScheduledJobs.SendServerNotificationsToClients.Name,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo));
 		WriteLogEvent(
-			NStr("en = 'Server notifications.Scheduled job setup error';",
+			NStr("en = 'Server notifications.Scheduled job setup error'",
 				Common.DefaultLanguageCode()),
 			EventLogLevel.Error,,, ErrorText);
 	EndTry;
@@ -2114,7 +2162,7 @@ Procedure ConfigureJobSendServerNotificationsToClientsNoAttempt(Enable, RepeatPe
 			ErrorInfo = ErrorInfo();
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot create utility user ""%1"" due to:
-				           |%2';"),
+				           |%2'"),
 				InternalUsername(),
 				ErrorProcessing.DetailErrorDescription(ErrorInfo));
 			Raise ErrorText;
@@ -2245,21 +2293,39 @@ Procedure SetUsageOfJobSendServerNotificationsToClients(Use)
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot change the usage of
 			           |the ""%1"" scheduled job due to:
-			           |%2';"),
+			           |%2'"),
 			Metadata.ScheduledJobs.SendServerNotificationsToClients.Name,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo));
 		WriteLogEvent(
-			NStr("en = 'Server notifications.Scheduled job setup error';",
+			NStr("en = 'Server notifications.Scheduled job setup error'",
 				Common.DefaultLanguageCode()),
 			EventLogLevel.Error,,, ErrorText);
 	EndTry;
 	
 EndProcedure
 
-Procedure SetUsageOfJobSendServerNotificationsToClientsNoAttempt(Use)
+Procedure SetUsageOfJobSendServerNotificationsToClientsNoAttempt(Val Use)
 	
-	Jobs = ScheduledJobsServer.FindJobs(New Structure("Metadata",
-		Metadata.ScheduledJobs.SendServerNotificationsToClients));
+	JobMetadata = Metadata.ScheduledJobs.SendServerNotificationsToClients;
+	If Common.DataSeparationEnabled() Then
+		Filter = New Structure("MethodName", JobMetadata.MethodName);
+	Else
+		Filter = New Structure("Metadata", JobMetadata);
+	EndIf;
+	If Not Common.SeparatedDataUsageAvailable() Then
+		Use = False;
+		FilterShared = New Structure("Metadata, Use", JobMetadata, True);
+		// ACC:453-off - No.760.3. It is acceptable to obtain an invalid job to disable it.
+		Jobs = ScheduledJobs.GetScheduledJobs(FilterShared);
+		// ACC:453-on
+		For Each Job In Jobs Do
+			ScheduledJobsServer.SetScheduledJobUsage(Job, False);
+		EndDo;
+		Filter.Insert("DataArea", 0);
+	EndIf;
+	Filter.Insert("Use", Not Use);
+	
+	Jobs = ScheduledJobsServer.FindJobs(Filter);
 	
 	For Each Job In Jobs Do
 		ScheduledJobsServer.ChangeJob(Job.UUID,
@@ -2348,12 +2414,12 @@ Function IsCurrentUserRegisteredInInteractionSystem(UserIDCollaborationSystem = 
 			NStr("en = 'Cannot register current user
 			           |""%1 (%2)""
 			           |in the collaboration system due to:
-			           |%3';"),
+			           |%3'"),
 			IBUser.Name,
 			Lower(IBUser.UUID),
 			ErrorProcessing.DetailErrorDescription(ErrorInfo));
 		WriteLogEvent(
-			NStr("en = 'Server notifications.An error occurred when registering the user in the collaboration system';",
+			NStr("en = 'Server notifications.An error occurred when registering the user in the collaboration system'",
 				Common.DefaultLanguageCode()),
 			EventLogInteractionSystemErrorSeverity(ErrorInfo),,,
 			ErrorText);
@@ -2422,7 +2488,7 @@ Function IsInteractionSystemTemporarilyUnavailable(CheckAvailability = False)
 	
 	If PreviousValue2 = CurrentValue Then
 		WriteLogEvent(
-			NStr("en = 'Server notifications.Collaboration system is unavailable';",
+			NStr("en = 'Server notifications.Collaboration system is unavailable'",
 				Common.DefaultLanguageCode()),
 			EventLogLevel.Warning,,,
 			ErrorProcessing.BriefErrorDescription(ErrorInfo));
@@ -2601,12 +2667,12 @@ Function PersonalChatID(IBUserID = Undefined,
 		ErrorInfo = ErrorInfo();
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot create a personal conversation for user ""%1 (%2)"" due to:
-			           |%3';"),
+			           |%3'"),
 			InfoBaseUsers.CurrentUser().Name,
 			Lower(IBUserID),
 			ErrorProcessing.DetailErrorDescription(ErrorInfo));
 		WriteLogEvent(
-			NStr("en = 'Server notifications.An error occurred when creating a personal conversation';",
+			NStr("en = 'Server notifications.An error occurred when creating a personal conversation'",
 				Common.DefaultLanguageCode()),
 			EventLogInteractionSystemErrorSeverity(ErrorInfo),,, ErrorText);
 		Return Undefined;
@@ -2653,7 +2719,7 @@ Function GlobalChatID()
 	Except
 		ErrorInfo = ErrorInfo();
 		WriteLogEvent(
-			NStr("en = 'Server notifications.An error occurred when creating a common conversation';",
+			NStr("en = 'Server notifications.An error occurred when creating a common conversation'",
 				Common.DefaultLanguageCode()),
 			EventLogInteractionSystemErrorSeverity(ErrorInfo),,,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo));
@@ -2693,11 +2759,11 @@ Function SendMessage(Data, ConversationID)
 		ErrorInfo = ErrorInfo();
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot send the message to conversation %1 due to:
-			           |%2';"),
+			           |%2'"),
 			Lower(ConversationID),
 			ErrorProcessing.DetailErrorDescription(ErrorInfo));
 		WriteLogEvent(
-			NStr("en = 'Server notifications.Send message error';",
+			NStr("en = 'Server notifications.Send message error'",
 				Common.DefaultLanguageCode()),
 			EventLogInteractionSystemErrorSeverity(ErrorInfo),,, ErrorText);
 		Return False;
@@ -2748,16 +2814,16 @@ Function SendNotification(Data)
 	EndIf;
 	
 	Notification_Key = ServerNotificationsInternalClientServer.ServerNotificationsNotificationsKey();
-	
-	If SessionsNumbers = Undefined Then
-		ClientNotificationManager().SendNotification(Notification_Key, Data);
-	Else
-		ClientNotificationManager().SendNotification(Notification_Key, Data, SessionsNumbers);
-	EndIf;
+	SendClientNotifications(Notification_Key, Data, SessionsNumbers);
 	
 	Return True;
 	
 EndFunction
+
+// Allows to attach an extension that logs outgoing notifications.
+Procedure SendClientNotifications(Notification_Key, Data, SessionsNumbers)
+	ClientNotificationManager().SendNotification(Notification_Key, Data, SessionsNumbers);
+EndProcedure
 
 Procedure CleanUpObsoleteMessages(SendStatus)
 	
@@ -2792,7 +2858,7 @@ Procedure CleanUpObsoleteMessages(SendStatus)
 	Except
 		ErrorInfo = ErrorInfo();
 		WriteLogEvent(
-			NStr("en = 'Server notifications.An error occurred when clearing obsolete messages';",
+			NStr("en = 'Server notifications.An error occurred when clearing obsolete messages'",
 				Common.DefaultLanguageCode()),
 			EventLogInteractionSystemErrorSeverity(ErrorInfo),,,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo));

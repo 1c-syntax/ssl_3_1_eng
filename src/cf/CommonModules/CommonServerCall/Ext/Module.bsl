@@ -10,55 +10,11 @@
 
 #Region Public
 
-#Region InfobaseData
+#Region ObsoleteProceduresAndFunctions
 
-////////////////////////////////////////////////////////////////////////////////
-// Common procedures and functions to manage infobase data.
-
-// Checks posting status of the passed documents and returns the unposted documents.
-//
-// Parameters:
-//  Var_Documents - Array of DocumentRef - documents to check.
-//
-// Returns:
-//  Structure:
-//    * UnpostedDocuments - Array of DocumentRef
-//    * HasPostingRight - Boolean
-//
-Function UnpostedDocuments(Val Var_Documents) Export
-	
-	Result = New Structure;
-	Result.Insert("UnpostedDocuments", 
-		Common.CheckDocumentsPosting(Var_Documents));
-	Result.Insert("HasPostingRight", 
-		StandardSubsystemsServer.HasRightToPost(Result.UnpostedDocuments));
-	Return Result;
-	
-EndFunction
-
-// Attempts to post the documents.
-//
-// See Common.PostDocuments
-//
-// Parameters:
-//  Var_Documents - See Common.PostDocuments.Documents
-//
-// Returns:
-//   See Common.PostDocuments
-//
-Function PostDocuments(Var_Documents) Export
-	
-	Return Common.PostDocuments(Var_Documents);
-	
-EndFunction 
-
-#EndRegion
-
-#Region SettingsStorage
-
-////////////////////////////////////////////////////////////////////////////////
-// Saving, reading, and deleting settings from storages.
-
+// Deprecated. Instead, use the function
+// with the same name in the "Common" or "CommonClient" common modules.
+// 
 // Saves a setting to the common settings storage as the Save method
 // of StandardSettingsStorageManager or SettingsStorageManager.<Storage name>,
 // object. Setting keys exceeding 128 characters are supported by hashing the key part
@@ -90,6 +46,9 @@ Procedure CommonSettingsStorageSave(ObjectKey, SettingsKey, Settings,
 		
 EndProcedure
 
+// Deprecated. Instead, use the function
+// with the same name in the "Common" or "CommonClient" common modules.
+// 
 // Saves settings to the common settings storage as the Save method
 // of StandardSettingsStorageManager or SettingsStorageManager.<Storage name>,
 // object. Setting keys exceeding 128 characters are supported by hashing the key part
@@ -113,6 +72,9 @@ Procedure CommonSettingsStorageSaveArray(MultipleSettings, RefreshReusableValues
 	
 EndProcedure
 
+// Deprecated. Instead, use the function
+// with the same name in the "Common" or "CommonClient" common modules.
+// 
 // Imports the setting from the common settings storage as the Import method
 // of the StandardSettingsStorageManager or SettingsStorageManager.<Storage name> objects.
 // Setting keys exceeding 128 characters are supported by hashing the key part
@@ -152,6 +114,9 @@ Function CommonSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefi
 		
 EndFunction
 
+// Deprecated. Instead, use the function
+// with the same name in the "Common" or "CommonClient" common modules.
+// 
 // Removes a setting from the general settings storage as the Remove method,
 // StandardSettingsStorageManager objects, or SettingsStorageManager.<Storage name>,
 // The setting key supports more than 128 characters by hashing the part
@@ -174,6 +139,9 @@ Procedure CommonSettingsStorageDelete(ObjectKey, SettingsKey, UserName) Export
 	
 EndProcedure
 
+// Deprecated. Instead, use the function
+// with the same name in the "Common" or "CommonClient" common modules.
+// 
 // Saves a setting to the system settings storage as the Save method
 // of StandardSettingsStorageManager object. Setting keys
 // exceeding 128 characters are supported by hashing the key part that exceeds 96 characters.
@@ -204,6 +172,9 @@ Procedure SystemSettingsStorageSave(ObjectKey, SettingsKey, Settings,
 	
 EndProcedure
 
+// Deprecated. Instead, use the function
+// with the same name in the "Common" or "CommonClient" common modules.
+// 
 // Imports settings from the system settings storage as the Import method
 // of the StandardSettingsStorageManager object. Setting keys exceeding
 // 128 characters are supported by hashing the key part that exceeds 96 characters.
@@ -242,6 +213,9 @@ Function SystemSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefi
 	
 EndFunction
 
+// Deprecated. Instead, use the function
+// with the same name in the "Common" or "CommonClient" common modules.
+// 
 // Removes a setting from the system settings storage as the Remove method
 // or the StandardSettingsStorageManager object. The setting key supports
 // more than 128 characters by hashing the part that exceeds 96 characters.
@@ -263,6 +237,9 @@ Procedure SystemSettingsStorageDelete(ObjectKey, SettingsKey, UserName) Export
 	
 EndProcedure
 
+// Deprecated. Instead, use the function
+// with the same name in the "Common" or "CommonClient" common modules.
+// 
 // Saves a setting to the form data settings storage as the Save method of
 // StandardSettingsStorageManager or SettingsStorageManager.<Storage name>,
 // object. Setting keys exceeding 128 characters are supported by hashing the key part
@@ -294,6 +271,9 @@ Procedure FormDataSettingsStorageSave(ObjectKey, SettingsKey, Settings,
 	
 EndProcedure
 
+// Deprecated. Instead, use the function
+// with the same name in the "Common" or "CommonClient" common modules.
+// 
 // Imports the setting from the common settings storage as the Import method
 // of the StandardSettingsStorageManager or SettingsStorageManager.<Storage name> objects.
 // Setting keys exceeding 128 characters are supported by hashing the key part
@@ -333,6 +313,9 @@ Function FormDataSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Unde
 	
 EndFunction
 
+// Deprecated. Instead, use the function
+// with the same name in the "Common" or "CommonClient" common modules.
+// 
 // Deletes the setting from the form data settings storage using the Delete method
 // for StandardSettingsStorageManager or SettingsStorageManager.<Storage name>,
 // objects. Setting keys exceeding 128 characters are supported by hashing the key part
@@ -355,10 +338,6 @@ Procedure FormDataSettingsStorageDelete(ObjectKey, SettingsKey, UserName) Export
 	
 EndProcedure
 
-#EndRegion
-
-#Region ObsoleteProceduresAndFunctions
-
 // Deprecated. Open the form from a long-running operation and call the "Common.RefsToObjectFound" function from it.
 // It checks for the existence of references to the object in the database.
 // When called in a shared session, it does not detect references in separated areas.
@@ -380,9 +359,11 @@ Function RefsToObjectFound(Val RefOrRefArray, Val SearchInInternalObjects = Fals
 	
 EndFunction
 
-// Deprecated. Instead, use the "UnpostedDocuments" function.
-// Checks posting status of the passed documents and returns
-// the unposted documents.
+// Deprecated. Instead, use the function
+// with the same name in the "Common" or "CommonClient" common modules.
+// 
+// Checks posting status of the passed documents and returns the unposted documents.
+// 
 //
 // Parameters:
 //  Var_Documents - Array of DocumentRef - documents to check.
@@ -393,6 +374,25 @@ EndFunction
 Function CheckDocumentsPosting(Val Var_Documents) Export
 	
 	Return Common.CheckDocumentsPosting(Var_Documents);
+	
+EndFunction
+
+// Deprecated. Instead, use the function
+// with the same name in the "Common" or "CommonClient" common modules.
+// 
+// Posts documents.
+//
+// See Common.PostDocuments
+//
+// Parameters:
+//  Var_Documents - See Common.PostDocuments.Documents
+//
+// Returns:
+//   See Common.PostDocuments
+//
+Function PostDocuments(Var_Documents) Export
+	
+	Return Common.PostDocuments(Var_Documents);
 	
 EndFunction
 

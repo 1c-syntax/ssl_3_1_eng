@@ -37,7 +37,7 @@ Function GeneratePrintForms(TableOfPrintedForms, GenerationParameters, OfficeDoc
 					EndDo;
 				Else
 					Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Error: Cannot generate %1';"), PrintFormString.Presentation);
+					NStr("en = 'Could not generate %1.'"), PrintFormString.Presentation);
 				EndIf;
 			EndIf;
 			
@@ -76,49 +76,49 @@ EndFunction
 
 #Region PrintUsingOfficeOpenXMLTemplates
 
-// Описание структур данных:
+// 
 //
-// Макет - структура, используемая для хранения областей, разделов и колонтитулов из исходного шаблона.
-//  - ИмяКаталога - Строка - путь, куда распаковывается контейнер DOCX шаблона для дальнейшего анализа.
-//  - СтруктураДокумента - Структура - коллекция, куда собирается информация по областям, разделам и колонтитулам,
-//                                     входящих в шаблон.
+// 
+//  
+//  
+//                                     
 //
-// ПечатнаяФорма - структура, используемая для вывода и заполнения областей из структуры "Макет".
-//  - ИмяКаталога - Строка - путь, куда помещается структура каталогов конечного документа для последующей сборки
-//                           контейнера DOCX.
-//  - СтруктураДокумента - Структура - коллекция, куда собирается информация по областям, разделам и колонтитулам,
-//                                     выведенных в конечный документ.
+// 
+//  
+//                           
+//  
+//                                     
 //
-// Структура документа
-//  - ОбластиДокумента - Соответствие - коллекция шаблонов областей, в которой ключ - имя области в исходном шаблоне.
-//  - Разделы - Соответствие - коллекция разделов шаблона, в которой ключ - номер раздела в исходном шаблоне.
-//  - Колонтитулы - Соответствие - коллекция колонтитулов шаблона, в которой ключ - имя верхнего или нижнего колонтитула,
-//                                 сформированное из исходного шаблона.
-//  - ПрисоединенныеОбласти - Массив - коллекция заполненных и выведенных областей в конечном документе.
-//  - ТипыКонтента - Строка - текст файла [Content_Types].xml из контейнера DOCX.
-//  - СвязиКонтента - Строка - текст файла document.xml.rels из контейнера DOCX.
-//  - ТаблицаСвязейКонтента - таблица значений - разобранный файл document.xml.rels по именам и
-//                                               идентификаторам ресурсов.
-//  - КаталогКартинок - Строка - путь для сохранения картинок в конечном документе.
-//  - РасширенияКартинок - Массив - расширения добавленных изображений в конечный документ.
-//  - ИдентификаторДокумента - Строка - идентификатор ревизии документа.
+// 
+//  
+//  
+//  
+//                                 
+//  
+//  
+//  
+//  
+//                                               
+//  
+//  
+//  
 //
-// Структура раздела
-//  - Колонтитулы - Соответствие - коллекция верхних и нижних колонтитулов шаблона для конкретного раздела, в которой
-//                                 ключ - имя колонтитула в исходном шаблоне.
-//  - Текст - Строка - текст раздела в исходном шаблоне.
-//  - Номер - Число - номер раздела в исходном шаблоне.
+// 
+//  
+//                                 
+//  
+//  
 //
-// Структура области
-//  - Имя - Строка - имя области, заданное в исходном шаблоне.
-//  - Текст - Строка - текст области, заданный в исходном шаблоне.
-//  - НомерРаздела - Число - номер раздела в исходном шаблоне, в который входит область.
+// 
+//  
+//  
+//  
 //
-// Структура верхнего/нижнего колонтитула
-//  - Имя - Строка - имя колонтитула, сформированное из исходного шаблона.
-//  - ИмяВнутр - Строка - имя файла колонтитула из структуры контейнера DOCX исходного шаблона.
-//  - Текст - Строка - текст колонтитула, заданный в исходном шаблоне.
-//  - НомерРаздела - Число - номер раздела в исходном шаблоне, к которому относится колонтитул.
+// 
+//  
+//  
+//  
+//  
 //
 
 // Returns the structure of the printed form for generating the final document.
@@ -171,7 +171,7 @@ Function TemplateFromBinaryData(BinaryTemplateData) Export
 	
 	Extension = DefineDataFileExtensionBySignature(BinaryTemplateData);
 	If Extension <> "docx" Then
-		ErrorText = NStr("en = 'Incorrect layout format for MS Word template.';");
+		ErrorText = NStr("en = 'Incorrect layout format for MS Word template.'");
 		WriteEventsToEventLog(EventLogEvent(), "Error", ErrorText);
 		Raise ErrorText;
 	EndIf;
@@ -218,7 +218,7 @@ Function TemplateFromDCSBinaryData(BinaryTemplateData) Export
 	
 	Extension = DefineDataFileExtensionBySignature(BinaryTemplateData);
 	If Extension <> "docx" Then
-		ErrorText = NStr("en = 'Incorrect layout format for MS Word template.';");
+		ErrorText = NStr("en = 'Incorrect layout format for MS Word template.'");
 		WriteEventsToEventLog(EventLogEvent(), "Error", ErrorText);
 		Raise ErrorText;
 	EndIf;
@@ -376,7 +376,7 @@ Procedure CloseConnection(PrintForm) Export
 		FileSystem.DeleteTemporaryDirectory(PrintForm.DirectoryName);
 	Except
 		WriteEventsToEventLog(EventLogEvent(), "Error", ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		Raise(NStr("en = 'Failed to delete temporary directory where print form template is stored. Reason:';") + Chars.LF 
+		Raise(NStr("en = 'Failed to delete temporary directory where print form template is stored. Reason:'") + Chars.LF 
 			+ ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 	EndTry;
 	
@@ -1005,7 +1005,7 @@ Procedure ProcessStructure(InitialKey, NewKey, Receiver, Source, Encoding = "UTF
 			CreateDirectory(FileDestination.Path);
 		EndIf;
 	
-		FileCopy(SourceFileName, ReceiverFileName);
+		CopyFile(SourceFileName, ReceiverFileName);
 	EndIf;
 	
 	DestinationLinksRoot = TreeOfDestinationLinks.Rows[0];
@@ -1087,14 +1087,14 @@ EndFunction
 Function GetNameWithoutDigits(Val Name)
 	ArrayOfKey = StrSplit(Name, "0123456789", False);
 	If ArrayOfKey.Count() > 1 Then
-		Raise NStr("en = 'Unexpected key';");
+		Raise NStr("en = 'Unexpected key'");
 	EndIf;
 	Result = New Structure ("NameTemplate, Number");
 	Result.NameTemplate 	= ArrayOfKey[0]+"%1";
 	UnwantedChars = StrConcat(ArrayOfKey,"");
 	NumbersArray = StrSplit(Name, UnwantedChars, False);
 	If NumbersArray.Count() > 1 Then
-		Raise NStr("en = 'Unexpected key, several numbers';");
+		Raise NStr("en = 'Unexpected key, several numbers'");
 	EndIf;
 	Result.Number	= Number(NumbersArray[0]);
 	Return Result;
@@ -1230,7 +1230,7 @@ Function ReadRecord(XMLReader, TreeRow, Hyperlinks)
 			TreeRow.WholeText = TreeRow.Text;
 			WholeText = WholeText + TreeRow.WholeText;
 		Else
-			Raise (NStr("en = 'Unknown:';") + " " + XMLReader.NodeType);
+			Raise (NStr("en = 'Unknown:'") + " " + XMLReader.NodeType);
 		EndIf;
 	EndDo;
 	Return WholeText;
@@ -1449,7 +1449,7 @@ Procedure FindAreas(DocumentStructure, ObjectTablePartNames) Export
 		AreaCondition = AreaCondition(ConditionalAreaStart);
 		If ConditionalAreaEnd = Undefined Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'In the document template, the end of the %1 conditional area is not specified.';"), AreaCondition);
+				NStr("en = 'In the document template, the end of the %1 conditional area is not specified.'"), AreaCondition);
 		EndIf;
 		ShouldAddConditionalAreas = True;
 		CollectionArea = Undefined;
@@ -1872,7 +1872,7 @@ Procedure GetAreasFromTree(TreePointer, Areas, TabularSectionNames, EndRegion = 
 				GetAreasFromTree(TreeRow, Areas, TabularSectionNames, IsAreaEnd);
 			EndIf;
 			
-			// Поиск условий области
+			// 
 			EdgeArea = Areas[Areas.Count()-1];
 			If EdgeArea <> Undefined And StrFind(TreeRow.WholeText, "{" + TagNameCondition()) 
 				And StrFind(TreeRow.WholeText, "}") And EdgeArea.AreaCondition = Undefined Then
@@ -2198,7 +2198,7 @@ EndFunction
 // 
 // 
 // Parameters:
-//  TreeOfTemplate - See PrintManagementInternal.InitializeDCSDoc.
+//  TreeOfTemplate - 
 //  Encoding - String - Encoding
 // 
 // Returns:
@@ -2236,13 +2236,13 @@ Function CollectOfficeDocumentFile(TreeOfTemplate, Encoding = "UTF-8") Export
 		HeadersOrFootersFilesArray.Add(HeaderOrFooter.Key);
 	EndDo;
 	
-	// Обрабатываем связи контента
+	// 
 	
 	XMLWriter = InitializeXMLRecord("", FilesToChange.Get("ContentRelations"));
 	PutTreeToXMLEntry(XMLWriter, DocumentStructure.ContentRelations);
 	XMLWriter.Close();
 	
-	// Обрабатываем типы контента
+	// 
 	
 	XMLWriter = InitializeXMLRecord("", FilesToChange.Get("ContentTypes1"));
 	PutTreeToXMLEntry(XMLWriter, DocumentStructure.ContentTypes1);
@@ -2449,8 +2449,8 @@ Procedure AssignValToDoc(Node, ReplacementCompliance, TreeOfTemplate, ShouldAddL
 				TableCellWidth = 0;
 			ElsIf PCTType And Not TableWidth = 0 Then
 				
-				// 5000 - значение равное 100% для типа "pct".
-				// ПолеРодитель - в значениях dxa.
+				// 
+				// 
 				
 				TableCellWidth = TableWidth * TableCellWidth / 50 / 100;
 				
@@ -2728,7 +2728,7 @@ Procedure ParseDOCXDocumentContainer(Val FullFileName, Val FileStructurePath)
 	Except
 		DeleteFiles(FullFileName);
 		WriteEventsToEventLog(EventLogEvent(), "Error", ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		Raise(NStr("en = 'Cannot open template file. Reason:';") + Chars.LF 
+		Raise(NStr("en = 'Cannot open template file. Reason:'") + Chars.LF 
 			+ ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 	EndTry;
 	
@@ -2738,7 +2738,7 @@ Procedure ParseDOCXDocumentContainer(Val FullFileName, Val FileStructurePath)
 		Archiver.Close();
 		DeleteFiles(FullFileName);
 		WriteEventsToEventLog(EventLogEvent(), "Error", ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		Raise(NStr("en = 'Cannot parse template file. Reason:';") + Chars.LF 
+		Raise(NStr("en = 'Cannot parse template file. Reason:'") + Chars.LF 
 			+ ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 	EndTry;
 	
@@ -2752,7 +2752,7 @@ Procedure AssembleDOCXDocumentContainer(Val FullFileName, Val FileStructurePath)
 		Archiver = New ZipFileWriter(FullFileName);
 	Except
 		WriteEventsToEventLog(EventLogEvent(), "Error", ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		Raise(NStr("en = 'Cannot create MS Word document. Reason:';") + Chars.LF 
+		Raise(NStr("en = 'Cannot create MS Word document. Reason:'") + Chars.LF 
 			+ ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 	EndTry;
 	
@@ -2763,7 +2763,7 @@ Procedure AssembleDOCXDocumentContainer(Val FullFileName, Val FileStructurePath)
 		Archiver.Write();
 	Except
 		WriteEventsToEventLog(EventLogEvent(), "Error", ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		Raise(NStr("en = 'Cannot generate MS Word document. Reason:';") + Chars.LF 
+		Raise(NStr("en = 'Cannot generate MS Word document. Reason:'") + Chars.LF 
 			+ ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 	EndTry;
 	
@@ -2776,7 +2776,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 	FilesToChange.Insert("ContentTypes1",  PrintForm.DirectoryName + SetPathSeparator("\[Content_Types].xml"));
 	FilesToChange.Insert("Document",      PrintForm.DirectoryName + SetPathSeparator("\word\document.xml"));
 	
-	// Удаляем файлы пустых колонтитулов
+	// 
 	HeaderOrFooterOutput = New Map;
 	
 	For Each Section In PrintForm.DocumentStructure.Sections Do
@@ -2817,7 +2817,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 		
 	EndDo;
 	
-	// Обрабатываем связи контента
+	// 
 	
 	XMLReader = InitializeXMLReader(PrintForm.DocumentStructure.ContentRelations);
 	XMLWriter = InitializeXMLRecord("", FilesToChange.Get("ContentRelations"));
@@ -2862,7 +2862,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 	
 	PrintForm.DocumentStructure.ContentRelations = XMLWriter.Close(); 
 	
-	// Обрабатываем типы контента
+	// 
 	
 	XMLReader = InitializeXMLReader(PrintForm.DocumentStructure.ContentTypes1);
 	XMLWriter = InitializeXMLRecord("", FilesToChange.Get("ContentTypes1"));
@@ -2907,7 +2907,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 	
 	PrintForm.DocumentStructure.ContentTypes1 = XMLWriter.Close(); 
 	
-	// Формирование документа печатной формы
+	// 
 	
 	SequenceNumber = 1;
 	
@@ -2927,7 +2927,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 		
 		IsLastArea = ?(SequenceNumber = AreasCount, True, False);
 		
-		// Запись промежуточного раздела
+		// 
 		
 		If OutputIntermediateSection = True And IsLastArea = False Then
 			
@@ -2946,7 +2946,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 			
 		EndIf;
 		
-		// Запись тела
+		// 
 		
 		XMLReader = InitializeXMLReader(Area.Text);
 		
@@ -2968,7 +2968,7 @@ Function AssembleDOCXDocumentFile(PrintForm)
 			
 		EndDo;
 		
-		// Запись заключительного раздела
+		// 
 		
 		If IsLastArea Then
 			
@@ -2985,8 +2985,8 @@ Function AssembleDOCXDocumentFile(PrintForm)
 		
 	EndDo;
 	
-	XMLWriter.WriteEndElement(); // Закрытие тэга </w:body>
-	XMLWriter.WriteEndElement(); // Закрытие тэга </w:document>
+	XMLWriter.WriteEndElement(); // 
+	XMLWriter.WriteEndElement(); // 
 	
 	XMLWriter.Close();
 	
@@ -3095,7 +3095,7 @@ Procedure InitializeTemplateStructure(Template)
 		EndDo;
 	EndIf;
 	
-	// Получить таблицу номеров ресурсов
+	// 
 	
 	DirectoryWithFileStructure = DirectoryName + "word" + GetPathSeparator();
 	
@@ -3178,7 +3178,7 @@ Procedure InitializePrintFormStructure(PrintForm, Template)
 		EndIf;
 	EndDo;
 	
-	// Текст копирования колонтитулов и разделов из макета
+	// 
 	For Each Section In Template.DocumentStructure.Sections Do
 		AddSectionToDocumentStructure(DocumentStructure, Section.Value);
 	EndDo;
@@ -3503,8 +3503,8 @@ Procedure SetFieldWidth(XMLReader, Width, Val TableWidth = 0)
 		Width = 0;
 	ElsIf PCTType And Not TableWidth = 0 Then
 		
-		// 5000 - значение равное 100% для типа "pct".
-		// ПолеРодитель - в значениях dxa.
+		// 
+		// 
 		
 		Width = TableWidth * Width / 50 / 100;
 		
@@ -3570,14 +3570,14 @@ EndFunction
 
 Procedure PreparePictureTemplate(TemplatePicture, StructurePicture)
 	
-	// Параметры подстановки
-	// 1 - id
-	// 2 - name
-	// 3 - descr
-	// 4 - rId
-	// 5 - uri
-	// 6 - cx
-	// 7 - cy
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
 	ProcessedPictureTemplate = StringFunctionsClientServer.SubstituteParametersToString(TemplatePicture, 
 		"0",
 		StructurePicture.IconName,
@@ -3600,7 +3600,7 @@ Procedure IncludePictureToDocumentLibrary(DocumentStructure, StructurePicture)
 		CreateDirectory(StructurePicture.PicturesDirectory);
 	EndIf;
 	
-	// Добавить строку в rels файл
+	// 
 	XMLReader = InitializeXMLReader(DocumentStructure.ContentRelations);
 	XMLWriter = InitializeXMLRecord("");
 	
@@ -3640,7 +3640,7 @@ Procedure IncludePictureToDocumentLibrary(DocumentStructure, StructurePicture)
 	XMLReader.Close();
 	DocumentStructure.ContentRelations = XMLWriter.Close();
 	
-	// Записать картинку в каталог media
+	// 
 	BinaryData = StructurePicture.BinaryData;
 	BinaryData.Write(StructurePicture.PicturesDirectory + StructurePicture.IconName + "." + StructurePicture.PictureExtension);
 	
@@ -3648,7 +3648,7 @@ EndProcedure
 
 Procedure IncludePictureTextToDocument(XMLWriter, StructurePicture)
 	
-	XMLWriter.WriteEndElement(); // Закрывается текстовый тэг параметра w:t.
+	XMLWriter.WriteEndElement(); // 
 	XMLWriter.WriteRaw(StructurePicture.PictureText);
 	XMLWriter.WriteStartElement("w:t");
 	
@@ -4665,7 +4665,7 @@ Procedure SplitTemplateTextToAreas(XMLReader, DocumentStructure, AnalysisParamet
 	
 	While XMLReader.Read() Do
 		
-		// тег описания пространства имен во временном xml
+		// 
 		If XMLReader.Name = "w:next" Then
 			Continue;
 		EndIf;
@@ -4920,13 +4920,13 @@ EndProcedure
 
 Procedure AnalyzeParametersInString(Val String, XMLParseStructure)
 	
-	// 1 - начало тэга {v8
-	// 2 - начало параметра тэга {v8
-	// 3 - конец параметра тэга {v8
+	// 
+	// 
+	// 
 	
-	// 5 - начало тэга {/v8
-	// 6 - начало параметра тэга {/v8
-	// 7 - конец параметра тэга {/v8
+	// 
+	// 
+	// 
 	
 	FlagOf1CTagStart = "{v8 ";
 	FlagOf1CTagEnd  = "{/v8 ";
@@ -5121,7 +5121,7 @@ EndFunction
 #Region ImagesOperations
 
 ////////////////////////////////////////////////////////////////////////////////
-// Функции обработки файлов изображений
+// 
 
 // Returns the width, height, and image type for GIF, JPG, PNG, BMP, and TIFF files
 Function GetImageAttributes(ReadingData)
@@ -5396,7 +5396,7 @@ EndFunction
 
 Function EventLogEvent()
 	
-	Return NStr("en = 'Print';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Print'", Common.DefaultLanguageCode());
 	
 EndFunction
 
@@ -5419,7 +5419,7 @@ Procedure CopyDirectoryContent(From_, Where) Export
 		If File.IsDirectory() Then
 			CopyDirectoryContent(File.FullName, SetPathSeparator(Where + "\" + File.Name));
 		Else
-			FileCopy(File.FullName, SetPathSeparator(Where + "\" + File.Name));
+			CopyFile(File.FullName, SetPathSeparator(Where + "\" + File.Name));
 		EndIf;
 	EndDo;
 	
@@ -5502,7 +5502,7 @@ Function DefineDataFileExtensionBySignature(DataOrStructure) Export
 		Except
 			DeleteFiles(TempFileName);
 			WriteEventsToEventLog(EventLogEvent(), "Error", ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-			Raise(NStr("en = 'Cannot open template file. Reason:';") + Chars.LF 
+			Raise(NStr("en = 'Cannot open template file. Reason:'") + Chars.LF 
 				+ ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		EndTry;
 		

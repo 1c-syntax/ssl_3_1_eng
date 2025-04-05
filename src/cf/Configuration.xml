@@ -1,34 +1,34 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
-	<Configuration uuid="aca74008-018d-4e28-b788-127da2344bad">
+	<Configuration uuid="db64b4c0-9057-45c8-869c-38fdea503219">
 		<InternalInfo>
 			<xr:ContainedObject>
 				<xr:ClassId>9cd510cd-abfc-11d4-9434-004095e12fc7</xr:ClassId>
-				<xr:ObjectId>cf18ea6e-d203-48df-9592-89714ec9135e</xr:ObjectId>
+				<xr:ObjectId>b7c0dc55-f669-4ca1-93f5-3cb092742afc</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>9fcd25a0-4822-11d4-9414-008048da11f9</xr:ClassId>
-				<xr:ObjectId>7a9ab2d2-8daf-48b4-9671-854a6ebcd499</xr:ObjectId>
+				<xr:ObjectId>e950bef9-248f-4721-a349-e9339dc3a324</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>e3687481-0a87-462c-a166-9f34594f9bba</xr:ClassId>
-				<xr:ObjectId>6415992d-7e7e-4ada-9719-17ab2d3d8923</xr:ObjectId>
+				<xr:ObjectId>e9e70d87-233d-4e4e-9fe4-8eddad57a465</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>9de14907-ec23-4a07-96f0-85521cb6b53b</xr:ClassId>
-				<xr:ObjectId>111b8b3c-0f26-4d7a-a2d8-8315d9fc38df</xr:ObjectId>
+				<xr:ObjectId>baf634d7-7d2e-47d1-aa97-bbd23fd3f2a1</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>51f2d5d8-ea4d-4064-8892-82951750031e</xr:ClassId>
-				<xr:ObjectId>ab0caf82-3326-4266-989f-17e0afbc161d</xr:ObjectId>
+				<xr:ObjectId>2fe8860c-ec42-4bf1-96a3-2789006427c1</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>e68182ea-4237-4383-967f-90c1e3370bc7</xr:ClassId>
-				<xr:ObjectId>f1d664e7-5533-4113-99df-5a0ae4194159</xr:ObjectId>
+				<xr:ObjectId>760f345e-5925-47d6-ae5a-24ffb347be56</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>fb282519-d103-4dd3-bc12-cb271d631dfc</xr:ClassId>
-				<xr:ObjectId>ba0525b1-89f3-4c79-90bc-2873d106be22</xr:ObjectId>
+				<xr:ObjectId>24b2a8c9-2409-44c9-9509-aab12ccc57b9</xr:ObjectId>
 			</xr:ContainedObject>
 		</InternalInfo>
 		<Properties>
@@ -53,7 +53,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">Role.InteractiveOpenExtReportsAndDataProcessors</xr:Item>
 			</DefaultRoles>
 			<Vendor>1C Company</Vendor>
-			<Version>3.1.11.102</Version>
+			<Version>3.1.11.143</Version>
 			<UpdateCatalogAddress/>
 			<IncludeHelpInContents>true</IncludeHelpInContents>
 			<UseManagedFormInOrdinaryApplication>false</UseManagedFormInOrdinaryApplication>
@@ -259,7 +259,7 @@
 			<VendorInformationAddress>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>https://1c-dn.com</v8:content>
+					<v8:content>https://www.1c.ru</v8:content>
 				</v8:item>
 			</VendorInformationAddress>
 			<ConfigurationInformationAddress/>
@@ -504,6 +504,8 @@
 			<CommonPicture>DefaultTransport</CommonPicture>
 			<CommonPicture>DefaultWorkingDirectory</CommonPicture>
 			<CommonPicture>DigitalSignatureStamp</CommonPicture>
+			<CommonPicture>DigitalSigningAddInsInstallationIcon</CommonPicture>
+			<CommonPicture>DigitalSigningExtensionInstallationState</CommonPicture>
 			<CommonPicture>Disconnect</CommonPicture>
 			<CommonPicture>DocumentMarkedForDeletionConnectorBottom</CommonPicture>
 			<CommonPicture>DocumentMarkedForDeletionConnectorLeft</CommonPicture>
@@ -582,7 +584,6 @@
 			<CommonPicture>HTMLFormat</CommonPicture>
 			<CommonPicture>HyperlinkType</CommonPicture>
 			<CommonPicture>IconCollectionMessageTemplateParameters</CommonPicture>
-			<CommonPicture>IconForInstallingBOTComponent</CommonPicture>
 			<CommonPicture>IconsCollectionSourceDocumentOriginalAvailable</CommonPicture>
 			<CommonPicture>IconsCollectionSourceDocumentOriginalPrintForms</CommonPicture>
 			<CommonPicture>IconsExchangePlanNode</CommonPicture>
@@ -805,7 +806,6 @@
 			<CommonPicture>SortRowsDesc</CommonPicture>
 			<CommonPicture>SourceDocumentOriginalStateOriginalNotReceived</CommonPicture>
 			<CommonPicture>SourceDocumentOriginalStateOriginalReceived</CommonPicture>
-			<CommonPicture>StatesOfInstallationOfComponentsForBOTOperation</CommonPicture>
 			<CommonPicture>StopSign</CommonPicture>
 			<CommonPicture>StopSignBW</CommonPicture>
 			<CommonPicture>StringType</CommonPicture>
@@ -1120,6 +1120,7 @@
 			<CommonModule>AdditionalReportsAndDataProcessorsScheduledJobsSaaS</CommonModule>
 			<CommonModule>AdditionalReportsAndDataProcessorsServerCall</CommonModule>
 			<CommonModule>AdditionalReportsAndDataProcessorsStandaloneMode</CommonModule>
+			<CommonModule>AddressManagerInternalClient</CommonModule>
 			<CommonModule>ApplicationSettings</CommonModule>
 			<CommonModule>ApplicationSettingsClient</CommonModule>
 			<CommonModule>ApplicationSettingsOverridable</CommonModule>
@@ -1172,7 +1173,13 @@
 			<CommonModule>ConfigurationSubsystemsOverridable</CommonModule>
 			<CommonModule>ConfigurationUpdate</CommonModule>
 			<CommonModule>ConfigurationUpdateClient</CommonModule>
+			<CommonModule>ConfigurationUpdateGlobal</CommonModule>
 			<CommonModule>ConfigurationUpdateServerCall</CommonModule>
+			<CommonModule>ContactingTechnicalSupportGlobal</CommonModule>
+			<CommonModule>ContactingTechnicalSupportInternal</CommonModule>
+			<CommonModule>ContactingTechnicalSupportInternalClient</CommonModule>
+			<CommonModule>ContactingTechnicalSupportInternalServerCall</CommonModule>
+			<CommonModule>ContactingTechnicalSupportLocalization</CommonModule>
 			<CommonModule>ContactsManager</CommonModule>
 			<CommonModule>ContactsManagerClient</CommonModule>
 			<CommonModule>ContactsManagerClientLocalization</CommonModule>
@@ -1256,6 +1263,7 @@
 			<CommonModule>EmailOperationsClient</CommonModule>
 			<CommonModule>EmailOperationsClientOverridable</CommonModule>
 			<CommonModule>EmailOperationsInternal</CommonModule>
+			<CommonModule>EmailOperationsInternalClient</CommonModule>
 			<CommonModule>EmailOperationsInternalClientServer</CommonModule>
 			<CommonModule>EmailOperationsLocalization</CommonModule>
 			<CommonModule>EmailOperationsOverridable</CommonModule>
@@ -2046,9 +2054,9 @@
 			<Constant>MeasurementsCountInExportPackage</Constant>
 			<Constant>MinimalARADPScheduledJobIntervalSaaS</Constant>
 			<Constant>MonitoringCenterParameters</Constant>
+			<Constant>MonthsCountInCalculatedTotalsMinPeriod</Constant>
 			<Constant>NewTasksNotificationDate</Constant>
 			<Constant>NotUseSeparationByDataAreas</Constant>
-			<Constant>NumberOfMonthsOfMinimumPeriodOfCalculatedTotals</Constant>
 			<Constant>OrderOfDataToProcess</Constant>
 			<Constant>ORMCachedValuesRefreshDate</Constant>
 			<Constant>ParametersOfFilesStorageInIB</Constant>
@@ -2149,7 +2157,6 @@
 			<CommonForm>BlankHomePage</CommonForm>
 			<CommonForm>CannotInstallAddIn</CommonForm>
 			<CommonForm>Certificate</CommonForm>
-			<CommonForm>CheckResult</CommonForm>
 			<CommonForm>CheckUpdateFile</CommonForm>
 			<CommonForm>ColorChoiceForm</CommonForm>
 			<CommonForm>CompareSpreadsheetDocuments</CommonForm>
@@ -2172,7 +2179,6 @@
 			<CommonForm>ExternalResourcesOperationsLock</CommonForm>
 			<CommonForm>FilesInVolume</CommonForm>
 			<CommonForm>FontChoiceForm</CommonForm>
-			<CommonForm>GettingStartedWithElectronicSignature</CommonForm>
 			<CommonForm>HeaderAndFooterSettings</CommonForm>
 			<CommonForm>InfobaseUserRoleChangeControl</CommonForm>
 			<CommonForm>InputInMultipleLanguages</CommonForm>
@@ -2215,7 +2221,7 @@
 			<CommonForm>SelectContactPerson</CommonForm>
 			<CommonForm>SelectCorrespondentInfobaseObjects</CommonForm>
 			<CommonForm>SelectDate</CommonForm>
-			<CommonForm>SelectDefaultPrintFormCommand</CommonForm>
+			<CommonForm>SelectDefaultPrintForm</CommonForm>
 			<CommonForm>SelectExchangePlanNodes</CommonForm>
 			<CommonForm>SelectMetadataObjects</CommonForm>
 			<CommonForm>SelectPathToVolumeFilesArchive</CommonForm>
@@ -2228,6 +2234,7 @@
 			<CommonForm>StandaloneMode</CommonForm>
 			<CommonForm>StandaloneModeSaaS</CommonForm>
 			<CommonForm>StandaloneWorkstationDisconnection</CommonForm>
+			<CommonForm>StartWorkWithDigitalSignature</CommonForm>
 			<CommonForm>SupportedClientApplications</CommonForm>
 			<CommonForm>TextTranslationSetting</CommonForm>
 			<CommonForm>TimeConsumingOperation</CommonForm>

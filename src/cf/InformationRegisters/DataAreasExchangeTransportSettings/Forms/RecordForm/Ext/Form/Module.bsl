@@ -116,7 +116,7 @@ Procedure TestConnection(TransportKindAsString)
 	
 	TestConnectionAtServer(Cancel, TransportKindAsString);
 	
-	WarningText = ?(Cancel, NStr("en = 'Cannot establish connection.';"), NStr("en = 'Connection established.';"));
+	WarningText = ?(Cancel, NStr("en = 'Cannot establish connection.'"), NStr("en = 'Connection established.'"));
 	ShowMessageBox(, WarningText);
 	
 EndProcedure

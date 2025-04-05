@@ -19,7 +19,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If InfobaseNode = Undefined Then
 		
-		Raise NStr("en = 'The infobase is neither a standalone workstation nor a distributed infobase.';", Common.DefaultLanguageCode());
+		Raise NStr("en = 'The infobase is neither a standalone workstation nor a distributed infobase.'", Common.DefaultLanguageCode());
 		
 	EndIf;
 	
@@ -38,7 +38,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	NodeNameLabel = NStr("en = 'Cannot install the application update received from
 		|""%1"".
-		|See <a href = ""%2"">Event log</a> for technical information.';");
+		|See <a href = ""%2"">Event log</a> for technical information.'");
 	Items.NodeNameHelpText.Title = 
 		StringFunctions.FormattedString(NodeNameLabel, String(InfobaseNode), "EventLog");
 	
@@ -86,7 +86,7 @@ Procedure SyncAndContinue(Command)
 	ElsIf UpdateStatus = "ConfigurationUpdate" Then
 		
 		WarningText = NStr("en = 'Changes that have not been applied yet were received from the main node.
-			|Open Designer and update the database configuration.';");
+			|Open Designer and update the database configuration.'");
 		
 	EndIf;
 	
@@ -183,7 +183,7 @@ Procedure SynchronizeAndContinueWithoutIBUpdateCompletion()
 			Constants.LoadDataExchangeMessage.Set(True);
 		EndIf;
 		WarningText = NStr("en = 'Changes to be applied were received from the main node.
-			|Open Designer and update the database configuration.';");
+			|Open Designer and update the database configuration.'");
 	Else
 		
 		If InfobaseUpdate.InfobaseUpdateRequired() Then
@@ -191,7 +191,7 @@ Procedure SynchronizeAndContinueWithoutIBUpdateCompletion()
 		EndIf;
 		
 		WarningText = NStr("en = 'Receiving data from the master node is completed with errors.
-			|For more information, see the event log.';");
+			|For more information, see the event log.'");
 		
 		DataExchangeServer.SetDataExchangeMessageImportModeBeforeStart("ImportPermitted", False);
 		
@@ -354,7 +354,7 @@ Procedure SynchronizeAndContinueWithIBUpdateCompletion()
 			Constants.LoadDataExchangeMessage.Set(True);
 		EndIf;
 		WarningText = NStr("en = 'Changes to be applied were received from the main node.
-			|Open Designer and update the database configuration.';");
+			|Open Designer and update the database configuration.'");
 		
 	Else
 		
@@ -363,7 +363,7 @@ Procedure SynchronizeAndContinueWithIBUpdateCompletion()
 		EnableDataExchangeMessageImportRecurrenceBeforeStart();
 		
 		WarningText = NStr("en = 'Receiving data from the master node is completed with errors.
-			|For more information, see the event log.';");
+			|For more information, see the event log.'");
 		
 	EndIf;
 	
@@ -425,7 +425,7 @@ Procedure ImportPriorityDataToSubordinateDIBNode()
 			RegistrationRulesUpdated = StandardSubsystemsServer.ApplicationParameter(ParameterName);
 			If RegistrationRulesUpdated = Undefined Then
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot update data registration rules cache for exchange plan ""%1""';"),
+					NStr("en = 'Cannot update data registration rules cache for exchange plan ""%1""'"),
 					DataExchangeCached.GetExchangePlanName(InfobaseNode));
 			EndIf;
 			

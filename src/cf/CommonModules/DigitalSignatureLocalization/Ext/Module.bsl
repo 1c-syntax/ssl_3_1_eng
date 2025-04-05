@@ -31,7 +31,7 @@ Procedure OnPopulateSignatureTypePresentation(SignatureType, SignaturePresentati
 EndProcedure
 
 
-// 
+// On exporting MR LOAs.
 // 
 // Parameters:
 //  Form - See CommonForm.AddDigitalSignatureFromFile
@@ -41,7 +41,18 @@ Procedure OnImportMRLOAs(Form) Export
 	
 EndProcedure
 
+// On getting the status of a certificate issuance application.
 // 
+// Parameters:
+//  Certificate - See DigitalSignature.CertificateIssuanceApplicationState.Certificate
+//  Result - See DigitalSignature.CertificateIssuanceApplicationState
+//
+Procedure OnGetCertificateIssuanceApplicationStatus(Certificate, Result) Export
+	
+	
+EndProcedure
+
+// On filling MR LOAs.
 // 
 // Parameters:
 //  Form - See CommonForm.AddDigitalSignatureFromFile
@@ -52,12 +63,12 @@ Procedure OnFillMRLOAs(Form, SignedObject = Undefined) Export
 	
 EndProcedure
 
-// 
+// On filling an MR LOA in a row.
 // 
 // Parameters:
 //  Form - See CommonForm.AddDigitalSignatureFromFile
 //  SignedObject - DefinedType.SignedObject
-//  
+//  RowID - Number
 //
 Procedure OnFillMRLOAInRow(Form, RowID, SignedObject) Export
 
@@ -76,7 +87,7 @@ Procedure OnImportClassifier(Id, Version, Address, Processed, AdditionalParamete
 	
 EndProcedure
 
-// 
+// On adding rows on the server.
 // 
 // Parameters:
 //  Form - See CommonForm.AddDigitalSignatureFromFile
@@ -90,7 +101,7 @@ Procedure OnAddRowsAtServer(Form, PlacedFiles, OtherFiles, ErrorOnLOAsImport, UU
 	
 EndProcedure
 
-// 
+// On verifying MR LOA signatures.
 // 
 // Parameters:
 //  Signatures - Array
@@ -102,7 +113,7 @@ Procedure OnVerifySignaturesOnMRLOA(Signatures, SignedObject, ChecksResults) Exp
 
 EndProcedure
 
-// 
+// On determining if an application can be created.
 // 
 // Parameters:
 //  AvailabilityOfCreatingAnApplication - See DigitalSignature.AvailabilityOfCreatingAnApplication
@@ -112,7 +123,7 @@ Procedure OnDetermineAvailabilityOfApplicationCreation(AvailabilityOfCreatingAnA
 	
 EndProcedure
 
-// 
+// On filling the result of checking a CA.
 // 
 // Parameters:
 //  Result - See DigitalSignatureInternalClientServer.DefaultCAVerificationResult
@@ -127,7 +138,7 @@ Procedure OnFillCertificationAuthorityAuditResult(
 	
 EndProcedure
 
-// 
+// On getting a list of accredited certificate authorities.
 // 
 // Parameters:
 //  AccreditedCertificationCenters - Structure
@@ -137,17 +148,17 @@ Procedure OnGetAccreditedCAs(AccreditedCertificationCenters) Export
 	
 EndProcedure
 
-// 
+// On getting a classifier of cryptographic errors.
 // 
 // Parameters:
-//  ClassifierData - 
+//  ClassifierData - Undefined, Structure
 //
 Procedure OnGetCryptoErrorsClassifier(ClassifierData) Export
 	
 	
 EndProcedure
 
-// 
+// On determining the availability of verification against the CA list.
 // 
 // Parameters:
 //  IsCheckAvailable - Boolean
@@ -157,7 +168,7 @@ Procedure OnDetermineAvailabilityOfCheckByCAList(IsCheckAvailable) Export
 	
 EndProcedure
 
-// 
+// On getting a distribution package.
 // 
 // Parameters:
 //  Parameters - Structure
@@ -169,17 +180,88 @@ Procedure OnGetDistribution(Parameters, Id, Result) Export
 	
 EndProcedure
 
-// 
+// On processing the result of obtaining a distribution package.
 // 
 // Parameters:
 //  TimeConsumingOperation - Structure:
-//   * ResultAddress - String - 
+//   * ResultAddress - String - Address in the temp storage.
 //  FormIdentifier - UUID
 //  Result - Structure
 //
 Procedure OnProcessDistributionGetResult(TimeConsumingOperation, FormIdentifier, Result) Export
 	
 	
+EndProcedure
+
+// On determining if a cloud signing service is used.
+// 
+// Parameters:
+//  Result - Boolean
+//
+Procedure OnDefineCloudSigningServiceUsage(Result) Export
+	
+	
+EndProcedure
+
+// On determining the type of a signing service.
+// 
+// Parameters:
+//  Result - Type
+//
+Procedure OnDefineSigningServiceAppType(Result) Export
+	
+	
+EndProcedure
+
+// On getting timestamp server addresses.
+// 
+// Parameters:
+//  TimestampServersAddresses - String
+//
+Procedure OnGetTimestampServerAddresses(TimestampServersAddresses) Export
+	
+	
+EndProcedure
+
+// On getting cloud service thumbprints.
+// 
+// Parameters:
+//  ThumbprintsArray - Array
+//
+Procedure OnGetCloudServiceThumbprints(ThumbprintsArray) Export
+	
+	
+EndProcedure
+
+// On adding cloud service certificate properties.
+// 
+// Parameters:
+//  CertificatesPropertiesTable - ValueTable
+//  NoFilter - Boolean
+//
+Procedure OnAddCloudServiceCertificatesProperties(CertificatesPropertiesTable, NoFilter) Export
+	
+	
+EndProcedure
+
+// On determining a configured cloud service.
+// 
+// Parameters:
+//  Result - Boolean
+//
+Procedure OnDefineConfiguredCloudService(Result) Export
+	
+	
+EndProcedure
+
+// On filling cloud service certificates.
+// 
+// Parameters:
+//  CertificatesThumbprintsAtClient - Array
+//
+Procedure OnFillCloudServiceCertificates(CertificatesThumbprintsAtClient) Export
+
+		
 EndProcedure
 
 #EndRegion

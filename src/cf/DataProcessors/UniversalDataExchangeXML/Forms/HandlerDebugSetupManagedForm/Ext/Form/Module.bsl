@@ -15,7 +15,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	// First of all, checking the access rights.
 	If Not AccessRight("Administration", Metadata) Then
-		Raise NStr("en = 'Only administrators can run the data processor manually.';");
+		Raise NStr("en = 'Only administrators can run the data processor manually.'");
 	EndIf;
 	
 	Object.ExchangeFileName = Parameters.ExchangeFileName;
@@ -25,11 +25,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Object.ReadEventHandlersFromExchangeRulesFile = Parameters.ReadEventHandlersFromExchangeRulesFile;
 	
 	If Parameters.ReadEventHandlersFromExchangeRulesFile Then
-		Title = NStr("en = 'Set up handler debugging on data export';");
-		ButtonTitle = NStr("en = 'Generate export debugging module';");
+		Title = NStr("en = 'Set up handler debugging on data export'");
+		ButtonTitle = NStr("en = 'Generate export debugging module'");
 	Else
-		Title = NStr("en = 'Set up handler debugging on data import';");
-		ButtonTitle = NStr("en = 'Generate import debugging module';");
+		Title = NStr("en = 'Set up handler debugging on data import'");
+		ButtonTitle = NStr("en = 'Generate import debugging module'");
 	EndIf;		
 	Items.ExportHandlersCode.Title = ButtonTitle;
 	
@@ -60,9 +60,9 @@ Procedure EventHandlerExternalDataProcessorFileNameStartChoice(Item, ChoiceData,
 	
 	FileDialog = New FileDialog(FileDialogMode.Open);
 	
-	FileDialog.Filter     = NStr("en = 'External data processor file (*.epf)|*.epf';");
+	FileDialog.Filter     = NStr("en = 'External data processor file (*.epf)|*.epf'");
 	FileDialog.DefaultExt = "epf";
-	FileDialog.Title = NStr("en = 'Select file';");
+	FileDialog.Title = NStr("en = 'Select file'");
 	FileDialog.Preview = False;
 	FileDialog.FilterIndex = 0;
 	FileDialog.FullFileName = Item.EditText;
@@ -114,11 +114,11 @@ Procedure CheckAvailabilityOnServer()
 	
 	If File.Exists() Then
 		
-		MessageText = NStr("en = 'Data processor is available';");
+		MessageText = NStr("en = 'Data processor is available'");
 		
 	Else
 		
-		MessageText = NStr("en = 'Data processor is unavailable';");
+		MessageText = NStr("en = 'Data processor is unavailable'");
 		
 	EndIf;
 	
@@ -137,7 +137,7 @@ Procedure Done(Command)
 	
 	If IsBlankString(Object.EventHandlerExternalDataProcessorFileName) Then
 		
-		MessageToUser(NStr("en = 'Please specify an external data processor file name.';"), "EventHandlerExternalDataProcessorFileName");
+		MessageToUser(NStr("en = 'Please specify an external data processor file name.'"), "EventHandlerExternalDataProcessorFileName");
 		Return;
 		
 	EndIf;
@@ -153,7 +153,7 @@ EndProcedure
 Procedure EventHandlerExternalDataProcessorFileExistanceCheckCompletion(Exists, AdditionalParameters) Export
 	
 	If Not Exists Then
-		MessageToUser(NStr("en = 'The specified external data processor file does not exist.';"),
+		MessageToUser(NStr("en = 'The specified external data processor file does not exist.'"),
 			"EventHandlerExternalDataProcessorFileName");
 		Return;
 	EndIf;
@@ -195,12 +195,12 @@ Procedure ExportHandlersCode(Command)
 	If Not IsBlankString(Object.EventHandlersTempFileName) Then
 		
 		ButtonsList = New ValueList;
-		ButtonsList.Add(DialogReturnCode.Yes, NStr("en = 'Repeat export';"));
-		ButtonsList.Add(DialogReturnCode.No, NStr("en = 'Open module';"));
+		ButtonsList.Add(DialogReturnCode.Yes, NStr("en = 'Repeat export'"));
+		ButtonsList.Add(DialogReturnCode.No, NStr("en = 'Open module'"));
 		ButtonsList.Add(DialogReturnCode.Cancel);
 		
 		NotifyDescription = New CallbackDescription("ExportHandlersCodeCompletion", ThisObject);
-		ShowQueryBox(NotifyDescription, NStr("en = 'The debugging module with the handler code is already exported.';"), ButtonsList,,DialogReturnCode.No);
+		ShowQueryBox(NotifyDescription, NStr("en = 'The debugging module with the handler code is already exported.'"), ButtonsList,,DialogReturnCode.No);
 		
 	Else
 		
@@ -241,13 +241,13 @@ Procedure ShowEventHandlersInWindow()
 	
 	EventHandlers = EventHandlers();
 	If EventHandlers <> Undefined Then
-		EventHandlers.Show(NStr("en = 'Handler debugging module';"));
+		EventHandlers.Show(NStr("en = 'Handler debugging module'"));
 	EndIf;
 	
 	
 	ExchangeProtocol = ExchangeProtocol();
 	If ExchangeProtocol <> Undefined Then
-		ExchangeProtocol.Show(NStr("en = 'Errors occurred while exporting an event handler module';"));
+		ExchangeProtocol.Show(NStr("en = 'Errors occurred while exporting an event handler module'"));
 	EndIf;
 	
 EndProcedure

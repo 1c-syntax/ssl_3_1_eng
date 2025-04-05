@@ -110,7 +110,7 @@ EndProcedure
 &AtClient
 Procedure AcceptVersionDeclined(Command)
 	
-	QueryText = NStr("en = 'Do you want to accept the version even though import is restricted?';", CommonClient.DefaultLanguageCode());
+	QueryText = NStr("en = 'Do you want to accept the version even though import is restricted?'", CommonClient.DefaultLanguageCode());
 	
 	NotifyDescription = New CallbackDescription("AcceptVersionCompletion", ThisObject);
 	
@@ -151,7 +151,7 @@ Procedure ShowDifferences(Item)
 	If ThisApplicationVersion = 0
 		Or VersionFromOtherApplication = 0 Then
 		
-		CommonClient.MessageToUser(NStr("en = 'There must be two object versions for comparison.';"), CommonClient.DefaultLanguageCode());
+		CommonClient.MessageToUser(NStr("en = 'There must be two object versions for comparison.'"), CommonClient.DefaultLanguageCode());
 		Return;
 		
 	EndIf;
@@ -231,7 +231,7 @@ Procedure AcceptRejectVersionAtServer(ErrorMessage)
 		
 		ObjectPresentation	= ?(Common.RefExists(ObjectWithIssue), ObjectWithIssue, ObjectWithIssue.Metadata());
 		ExceptionText			= ErrorProcessing.BriefErrorDescription(ErrorInfo());
-		TextTemplate1			= NStr("en = 'Cannot accept the object version ""%1"" due to:%2 %3.';", Common.DefaultLanguageCode());
+		TextTemplate1			= NStr("en = 'Cannot accept the object version ""%1"" due to:%2 %3.'", Common.DefaultLanguageCode());
 		ExceptionText			= StringFunctionsClientServer.SubstituteParametersToString(TextTemplate1, ObjectPresentation, Chars.LF, ExceptionText);
 		
 		Common.MessageToUser(ExceptionText);

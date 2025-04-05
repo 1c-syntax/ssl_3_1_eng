@@ -224,151 +224,170 @@
 				</PictureField>
 			</ChildItems>
 		</UsualGroup>
-		<UsualGroup name="ScanningError" id="66">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Scanning error</v8:content>
-				</v8:item>
-			</Title>
+		<UsualGroup name="FooterGroup" id="77">
+			<Group>Vertical</Group>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="ScanningErrorExtendedTooltip" id="67"/>
+			<ExtendedTooltip name="FooterGroupExtendedTooltip" id="78"/>
 			<ChildItems>
-				<PictureDecoration name="PictureScanError" id="68">
-					<Title formatted="false">
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Scanning error picture</v8:content>
-						</v8:item>
-					</Title>
-					<Picture>
-						<xr:Ref>CommonPicture.Warning</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
-					</Picture>
-					<ContextMenu name="PictureScanErrorContextMenu" id="69"/>
-					<ExtendedTooltip name="PictureScanErrorExtendedTooltip" id="70"/>
-				</PictureDecoration>
-				<LabelDecoration name="ScanErrorText" id="71">
-					<AutoMaxWidth>false</AutoMaxWidth>
-					<Title formatted="true">
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Scanning crashed. Save the &lt;link TechnicalInformation&gt;information for technical support&lt;/&gt;.</v8:content>
-						</v8:item>
-					</Title>
-					<ContextMenu name="ScanErrorTextContextMenu" id="72"/>
-					<ExtendedTooltip name="ScanErrorTextExtendedTooltip" id="73"/>
-					<Events>
-						<Event name="URLProcessing">ScanErrorTextURLProcessing</Event>
-					</Events>
-				</LabelDecoration>
-			</ChildItems>
-		</UsualGroup>
-		<UsualGroup name="MessageGroup" id="20">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Message</v8:content>
-				</v8:item>
-			</Title>
-			<Height>2</Height>
-			<Behavior>Usual</Behavior>
-			<Representation>None</Representation>
-			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="MessageGroupExtendedTooltip" id="36"/>
-			<ChildItems>
-				<PictureDecoration name="IconDecoration1" id="21">
-					<SkipOnInput>false</SkipOnInput>
-					<Title formatted="false">
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Icon decoration</v8:content>
-						</v8:item>
-					</Title>
-					<Picture>
-						<xr:Ref>StdPicture.Information</xr:Ref>
-						<xr:LoadTransparent>true</xr:LoadTransparent>
-					</Picture>
-					<FileDragMode>AsFile</FileDragMode>
-					<ContextMenu name="IconDecoration1ContextMenu" id="22"/>
-					<ExtendedTooltip name="IconDecoration1ExtendedTooltip" id="37"/>
-				</PictureDecoration>
-				<Button name="SettingsTextChange1" id="64">
-					<Type>UsualButton</Type>
-					<Visible>false</Visible>
-					<Representation>Picture</Representation>
-					<CommandName>Form.Command.SettingsTextChange</CommandName>
-					<Picture>
-						<xr:Ref>CommonPicture.OtherUserSettings</xr:Ref>
-						<xr:LoadTransparent>false</xr:LoadTransparent>
-					</Picture>
+				<UsualGroup name="ScanningError" id="66">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Settings text change</v8:content>
+							<v8:content>Scanning error</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="SettingsTextChange1ExtendedTooltip" id="65"/>
-				</Button>
-				<UsualGroup name="SettingsTextGroup" id="53">
+					<Representation>None</Representation>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="ScanningErrorExtendedTooltip" id="67"/>
+					<ChildItems>
+						<PictureDecoration name="PictureScanError" id="68">
+							<Title formatted="false">
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Scanning error picture</v8:content>
+								</v8:item>
+							</Title>
+							<Picture>
+								<xr:Ref>CommonPicture.Warning</xr:Ref>
+								<xr:LoadTransparent>false</xr:LoadTransparent>
+							</Picture>
+							<ContextMenu name="PictureScanErrorContextMenu" id="69"/>
+							<ExtendedTooltip name="PictureScanErrorExtendedTooltip" id="70"/>
+						</PictureDecoration>
+						<LabelDecoration name="ScanErrorText" id="71">
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<ContextMenu name="ScanErrorTextContextMenu" id="72"/>
+							<ExtendedTooltip name="ScanErrorTextExtendedTooltip" id="73"/>
+						</LabelDecoration>
+					</ChildItems>
+				</UsualGroup>
+				<UsualGroup name="MessageGroup" id="20">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Settings text</v8:content>
+							<v8:content>Message</v8:content>
 						</v8:item>
 					</Title>
-					<Group>Vertical</Group>
+					<Height>2</Height>
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="SettingsTextGroupExtendedTooltip" id="54"/>
+					<ExtendedTooltip name="MessageGroupExtendedTooltip" id="36"/>
 					<ChildItems>
-						<LabelField name="SettingsText" id="17">
-							<DataPath>SettingsText</DataPath>
-							<Title>
+						<PictureDecoration name="IconDecoration1" id="21">
+							<SkipOnInput>false</SkipOnInput>
+							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Settings text</v8:content>
+									<v8:content>Icon decoration</v8:content>
 								</v8:item>
 							</Title>
-							<TitleLocation>None</TitleLocation>
-							<Width>75</Width>
-							<Height>2</Height>
-							<VerticalStretch>false</VerticalStretch>
-							<ContextMenu name="SettingsTextContextMenu" id="18"/>
-							<ExtendedTooltip name="SettingsTextExtendedTooltip" id="38"/>
-						</LabelField>
-						<Button name="SettingsTextChange" id="60">
-							<Type>Hyperlink</Type>
+							<Picture>
+								<xr:Ref>StdPicture.Information</xr:Ref>
+								<xr:LoadTransparent>true</xr:LoadTransparent>
+							</Picture>
+							<FileDragMode>AsFile</FileDragMode>
+							<ContextMenu name="IconDecoration1ContextMenu" id="22"/>
+							<ExtendedTooltip name="IconDecoration1ExtendedTooltip" id="37"/>
+						</PictureDecoration>
+						<Button name="SettingsTextChange1" id="64">
+							<Type>UsualButton</Type>
 							<Visible>false</Visible>
-							<Width>75</Width>
-							<Height>2</Height>
+							<Representation>Picture</Representation>
 							<CommandName>Form.Command.SettingsTextChange</CommandName>
+							<Picture>
+								<xr:Ref>CommonPicture.OtherUserSettings</xr:Ref>
+								<xr:LoadTransparent>false</xr:LoadTransparent>
+							</Picture>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
 									<v8:content>Settings text change</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="SettingsTextChangeExtendedTooltip" id="61"/>
+							<ExtendedTooltip name="SettingsTextChange1ExtendedTooltip" id="65"/>
 						</Button>
+						<UsualGroup name="SettingsTextGroup" id="53">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Settings text</v8:content>
+								</v8:item>
+							</Title>
+							<Group>Vertical</Group>
+							<Behavior>Usual</Behavior>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="SettingsTextGroupExtendedTooltip" id="54"/>
+							<ChildItems>
+								<LabelField name="SettingsText" id="17">
+									<DataPath>SettingsText</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Settings text</v8:content>
+										</v8:item>
+									</Title>
+									<TitleLocation>None</TitleLocation>
+									<Width>75</Width>
+									<Height>2</Height>
+									<VerticalStretch>false</VerticalStretch>
+									<ContextMenu name="SettingsTextContextMenu" id="18"/>
+									<ExtendedTooltip name="SettingsTextExtendedTooltip" id="38"/>
+								</LabelField>
+								<Button name="SettingsTextChange" id="60">
+									<Type>Hyperlink</Type>
+									<Visible>false</Visible>
+									<Width>75</Width>
+									<Height>2</Height>
+									<CommandName>Form.Command.SettingsTextChange</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Settings text change</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="SettingsTextChangeExtendedTooltip" id="61"/>
+								</Button>
+							</ChildItems>
+						</UsualGroup>
 					</ChildItems>
 				</UsualGroup>
-				<LabelDecoration name="AssistanceRequired" id="74">
-					<Title formatted="false">
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Need help?</v8:content>
-						</v8:item>
-					</Title>
-					<Hyperlink>true</Hyperlink>
-					<ContextMenu name="AssistanceRequiredContextMenu" id="75"/>
-					<ExtendedTooltip name="AssistanceRequiredExtendedTooltip" id="76"/>
-					<Events>
-						<Event name="Click">AssistanceRequiredClick</Event>
-					</Events>
-				</LabelDecoration>
+				<UsualGroup name="AssistanceRequiredGroup" id="90">
+					<GroupVerticalAlign>Center</GroupVerticalAlign>
+					<Group>Vertical</Group>
+					<Behavior>PopUp</Behavior>
+					<ExtendedTooltip name="AssistanceRequiredGroupExtendedTooltip" id="91"/>
+					<ChildItems>
+						<LabelDecoration name="Recommendations" id="92">
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<Title formatted="true"/>
+							<ContextMenu name="RecommendationsContextMenu" id="93"/>
+							<ExtendedTooltip name="RecommendationsExtendedTooltip" id="94"/>
+							<Events>
+								<Event name="URLProcessing">RecommendationsURLProcessing</Event>
+							</Events>
+						</LabelDecoration>
+						<UsualGroup name="TechnicalSupportGroup" id="95">
+							<Group>Vertical</Group>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="TechnicalSupportGroupExtendedTooltip" id="96"/>
+							<ChildItems>
+								<LabelDecoration name="DescriptionOfSupportRequest" id="97">
+									<Width>55</Width>
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<ContextMenu name="DescriptionOfSupportRequestContextMenu" id="98"/>
+									<ExtendedTooltip name="DescriptionOfSupportRequestExtendedTooltip" id="99"/>
+									<Events>
+										<Event name="URLProcessing">DescriptionOfSupportRequestURLProcessing</Event>
+									</Events>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
+					</ChildItems>
+				</UsualGroup>
 			</ChildItems>
 		</UsualGroup>
 	</ChildItems>
@@ -713,6 +732,15 @@
 		<Attribute name="DocumentAutoFeederAvailable" id="43">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="ErrorPresentation" id="44">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
 	</Attributes>

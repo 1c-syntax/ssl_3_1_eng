@@ -1713,8 +1713,8 @@
 															<UserVisible>
 																<xr:Common>false</xr:Common>
 															</UserVisible>
-															<ContextMenu name="TabsRefContextMenu" id="941"/>
-															<ExtendedTooltip name="TabsRefExtendedTooltip" id="942"/>
+															<ContextMenu name="BookmarksLinkContextMenu" id="941"/>
+															<ExtendedTooltip name="BookmarksLinkExtendedTooltip" id="942"/>
 														</InputField>
 													</ChildItems>
 												</Table>

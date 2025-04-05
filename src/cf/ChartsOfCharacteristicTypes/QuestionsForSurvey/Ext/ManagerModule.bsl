@@ -97,14 +97,14 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) some survey questions: %1';"), 
+			NStr("en = 'Couldn''t process (skipped) some survey questions: %1'"), 
 				ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
 			Metadata.ChartsOfCharacteristicTypes.QuestionsForSurvey,,
 				StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Another batch of survey questions is processed: %1';"),
+					NStr("en = 'Another batch of survey questions is processed: %1'"),
 					ObjectsProcessed));
 	EndIf;
 	

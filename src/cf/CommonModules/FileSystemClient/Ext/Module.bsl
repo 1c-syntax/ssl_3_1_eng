@@ -48,7 +48,7 @@ Procedure ImportFile_(CompletionHandler, ImportParameters = Undefined, FileName 
 	If ImportParameters = Undefined Then
 		ImportParameters = FileImportParameters();
 	ElsIf Not ImportParameters.Interactively And IsBlankString(FileName) Then
-		Raise NStr("en = 'Import in non-interactive mode failed. The name of the file to import is not specified.';");
+		Raise NStr("en = 'Import in non-interactive mode failed. The name of the file to import is not specified.'");
 	EndIf;
 	
 	If Not ValueIsFilled(ImportParameters.FormIdentifier) Then
@@ -113,7 +113,7 @@ Procedure ImportFiles(CompletionHandler, ImportParameters = Undefined, FilesToUp
 		Or (TypeOf(FilesToUpload) = Type("Array")
 		And FilesToUpload.Count() = 0)) Then
 		
-		Raise NStr("en = 'Import in non-interactive mode failed. The files to import are not specified.';");
+		Raise NStr("en = 'Import in non-interactive mode failed. The files to import are not specified.'");
 		
 	EndIf;
 	
@@ -368,7 +368,7 @@ Procedure OpenFile(FileLocation1, CompletionHandler = Undefined, FileName = "",
 	EndIf;
 		
 	If IsBlankString(FileName) Then
-		Raise NStr("en = 'The file name is not specified.';");
+		Raise NStr("en = 'The file name is not specified.'");
 	EndIf;
 	
 	PathToFile = TempFileFullName(FileName);
@@ -412,7 +412,7 @@ Procedure OpenExplorer(PathToDirectoryOrFile) Export
 	Notification = New CallbackDescription(
 		"OpenExplorerAfterCheck1CEnterpriseExtension", FileSystemInternalClient, Context);
 		
-	SuggestionText = NStr("en = 'To open the folder, install 1C:Enterprise Extension.';");
+	SuggestionText = NStr("en = 'To open the folder, install 1C:Enterprise Extension.'");
 	Attach1CEnterpriseExtension(Notification, SuggestionText, False);
 	
 EndProcedure
@@ -448,7 +448,7 @@ Procedure OpenURL(URL, Val Notification = Undefined) Export
 	
 	ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Cannot open URL ""%1"".
-		           |The URL is invalid.';"),
+		           |The URL is invalid.'"),
 		URL);
 	
 	If Not FileSystemInternalClient.IsAllowedRef(URL) Then 
@@ -490,7 +490,7 @@ Procedure OpenURL(URL, Val Notification = Undefined) Export
 			"OpenURLAfterCheck1CEnterpriseExtension", FileSystemInternalClient, Context);
 		
 		SuggestionText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'To open link %1, install 1C:Enterprise Extension.';"),
+			NStr("en = 'To open link %1, install 1C:Enterprise Extension.'"),
 			URL);
 		Attach1CEnterpriseExtension(Notification, SuggestionText, False);
 		
@@ -652,7 +652,7 @@ Procedure StartApplication(Val StartupCommand, Val ApplicationStartupParameters 
 	Notification = New CallbackDescription("StartApplicationAfterCheck1CEnterpriseExtension", 
 		FileSystemInternalClient, Context);
 	Attach1CEnterpriseExtension(Notification, 
-		NStr("en = 'To create a temporary folder, install 1C:Enterprise Extension.';"), False);
+		NStr("en = 'To create a temporary folder, install 1C:Enterprise Extension.'"), False);
 	
 EndProcedure
 
@@ -678,7 +678,7 @@ Procedure PrintFromApplicationByFileName(FileToOpenName) Export
 			ThisObject, AdditionalParameters);
 		CheckIfTheLinuxProgramIsInstalled("Unoconv", NotifyDescription);
 	Else
-		ShowMessageBox(, NStr("en = 'You can print this type of files only from an application for Windows or Linux.';"));
+		ShowMessageBox(, NStr("en = 'You can print this type of files only from an application for Windows or Linux.'"));
 		Return;
 	EndIf;
 #EndIf
@@ -755,7 +755,7 @@ Procedure CreateTemporaryDirectory(Val Notification, Extension = "") Export
 	Notification = New CallbackDescription("CreateTemporaryDirectoryAfterCheck1CEnterpriseExtension",
 		FileSystemInternalClient, Context);
 	Attach1CEnterpriseExtension(Notification, 
-		NStr("en = 'To create a temporary folder, install 1C:Enterprise Extension.';"), False);
+		NStr("en = 'To create a temporary folder, install 1C:Enterprise Extension.'"), False);
 	
 EndProcedure
 
@@ -910,7 +910,8 @@ Function OperationContext(DialogMode)
 EndFunction
 
 // Puts the selected files to a temporary storage.
-// See FileSystemClient.ImportFile_and FileSystemClient.ImportFiles
+// See FileSystemClient.ImportFile_
+// and FileSystemClient.ImportFiles
 //
 Procedure ShowPutFile(CompletionHandler, PutParameters)
 	
@@ -922,7 +923,8 @@ Procedure ShowPutFile(CompletionHandler, PutParameters)
 EndProcedure
 
 // Saves files from temporary storage to the file system.
-// See FileSystemClient.SaveFileand FileSystemClient.SaveFiles
+// See FileSystemClient.SaveFile
+// and FileSystemClient.SaveFiles
 //
 Procedure ShowDownloadFiles(CompletionHandler, FilesToSave, ReceivingParameters)
 	
@@ -985,7 +987,7 @@ Procedure ShortenFullFileNameToAllowedNTFSLength(FullFileName)
 	// Analyze the directory path length. 1 character is the minimum length of the directory name.
 	If PathLength > AllowedNTFSLength - ExtensionLength - 1 Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'File path is too long:
-		|%1';"), FullFileName);
+		|%1'"), FullFileName);
 	EndIf;
 	
 	BaseName = Mid(File.BaseName, 1, AllowedNTFSLength - PathLength - ExtensionLength - 1);
@@ -1036,7 +1038,7 @@ Procedure PrintFromTheApplicationByTheLinuxFileName(Result, Parameters) Export
 			|To do so, open the terminal and run:
 			|%2
 			|
-			|Alternatively, send a request to the administrator.';"),
+			|Alternatively, send a request to the administrator.'"),
 			"https://docs.moodle.org/404/en/Universal_Office_Converter_%28unoconv%29", 
 			"sudo apt update
 			|sudo apt install unoconv"));
@@ -1118,14 +1120,14 @@ Procedure PrintFromTheApplicationByTheLinuxFileNameCompletion(Result, Parameters
 				NStr("en = 'Set the default printer:
 					|1. In the terminal window, run ""%1"" and select a printer from the list.
 					|2. In the terminal window, run: %2 ""printer name"".
-					|Alternatively, send a request to the administrator.';"),
+					|Alternatively, send a request to the administrator.'"),
 					"lpstat -p -d",
 					"lpoptions -d");
 		EndIf;
 		
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Couldn''t print the file. Reason:
-				|%1';"),
+				|%1'"),
 			ErrorDescription, Result.ReturnCode);
 		If Result.ReturnCode <> 0 Then
 			ErrorDescription = ErrorDescription 
@@ -1135,7 +1137,7 @@ Procedure PrintFromTheApplicationByTheLinuxFileNameCompletion(Result, Parameters
 			ErrorDescription = ErrorDescription + Chars.LF + Chars.LF + Recommendation;
 		EndIf;
 		
-		EventLogClient.AddMessageForEventLog(NStr("en = 'Standard subsystems';", 
+		EventLogClient.AddMessageForEventLog(NStr("en = 'Standard subsystems'", 
 				CommonClient.DefaultLanguageCode()),
 			"Warning",,, True);
 		ShowMessageBox(, ErrorDescription);
@@ -1162,7 +1164,7 @@ Procedure GetTheFullNameOfTheTemporaryFile(Val Notification, Extension = "")
 	Notification = New CallbackDescription("GetTheNameOfATemporaryFileAfterCheckingTheFileExtension",
 		ThisObject, Context);
 	Attach1CEnterpriseExtension(Notification, 
-		NStr("en = 'To get a temporary file name, install 1C:Enterprise Extension.';"), False);
+		NStr("en = 'To get a temporary file name, install 1C:Enterprise Extension.'"), False);
 	
 EndProcedure
 
@@ -1186,7 +1188,7 @@ Procedure GetTheNameOfATemporaryFileAfterCheckingTheFileExtension(ExtensionAttac
 		GetTheNameOfTheTemporaryFileAfterGettingTheTemporaryDirectory("", Context);
 #EndIf
 	Else
-		GetTheNameOfTheTemporaryFileNotifyAboutTheError(NStr("en = 'Cannot install 1C:Enterprise Extension.';"), 
+		GetTheNameOfTheTemporaryFileNotifyAboutTheError(NStr("en = 'Cannot install 1C:Enterprise Extension.'"), 
 			Context);
 	EndIf;
 	

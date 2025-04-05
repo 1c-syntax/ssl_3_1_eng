@@ -114,7 +114,7 @@ Procedure DistributeBusinessCalendarsDataToDependentData(Val UpdateConditions,
 			CommitTransaction();
 		Except
 			RollbackTransaction();
-			WriteLogEvent(NStr("en = 'Calendar schedules.Distribute business calendars';", Common.DefaultLanguageCode()),
+			WriteLogEvent(NStr("en = 'Calendar schedules.Distribute business calendars'", Common.DefaultLanguageCode()),
 									EventLogLevel.Error,,,
 									ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;

@@ -70,13 +70,13 @@ Function GetExternalUserAuthorizationObject(ExternalUser = Undefined) Export
 		If UsersInternal.AuthorizationObjectIsInUse(AuthorizationObject, ExternalUser) Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Authorization object ""%1"" (%2)
-					|is set for several external users.';"),
+					|is set for several external users.'"),
 				AuthorizationObject,
 				TypeOf(AuthorizationObject));
 		EndIf;
 	Else
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'No authorization object is set for the external user ""%1"".';"),
+			NStr("en = 'No authorization object is set for the external user ""%1"".'"),
 			ExternalUser);
 	EndIf;
 	

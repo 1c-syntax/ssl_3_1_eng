@@ -121,7 +121,7 @@ Function ExecuteDataExchangeScenarioActionInFirstInfobase(ScenarioRowIndex, Data
 		
 	Else
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Unknown data exchange mode: %1';"), String(ExchangeMode));
+			NStr("en = 'Unknown data exchange mode: %1'"), String(ExchangeMode));
 	EndIf;
 	
 	Return "";
@@ -189,7 +189,7 @@ Function ExecuteDataExchangeScenarioActionInSecondInfobase(ScenarioRowIndex, Dat
 		
 	Else
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Unknown data exchange mode: %1';"), String(ExchangeMode));
+			NStr("en = 'Unknown data exchange mode: %1'"), String(ExchangeMode));
 	EndIf;
 	
 	Return "";

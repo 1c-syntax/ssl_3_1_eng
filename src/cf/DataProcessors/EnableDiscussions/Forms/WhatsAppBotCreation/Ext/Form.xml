@@ -131,7 +131,7 @@
 					<InputHint>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>WhatsApp integrwation token</v8:content>
+							<v8:content>WhatsApp integration token</v8:content>
 						</v8:item>
 					</InputHint>
 					<ContextMenu name="TokenContextMenu" id="34"/>

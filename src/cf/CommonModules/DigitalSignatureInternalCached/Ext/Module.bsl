@@ -353,25 +353,25 @@ Procedure SupplementSolutionWithAutomaticActions(Decision, RemedyActions, ErrorA
 		If Action = "SetListOfCertificateRevocation" And Not ErrorAtServer And HasGetFilesFromInternet And IsCertificateSpecified Then
 			Decision = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = '• <a href=%1>Install a revocation list</a> of a certificate authority automatically.
-				|%2';"), Action, Decision);
+				|%2'"), Action, Decision);
 		ElsIf Action = "InstallRootCertificate" And Not ErrorAtServer And IsCertificateSpecified Then
 			Decision = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = '- <a href=%1>Install a root certificate</a> of a certificate authority automatically.
-				|%2';"), Action, Decision);
+				|%2'"), Action, Decision);
 		ElsIf Action = "InstallCertificate" And Not ErrorAtServer And IsCertificateSpecified Then
 			Decision = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = '- <a href=%1>Install the certificate</a> in the Current user/Personal certificate store automatically.
-				|%2';"), Action, Decision);
+				|%2'"), Action, Decision);
 		ElsIf Action = "InstallCertificateIntoContainer" And Not ErrorAtServer And IsCertificateSpecified Then
 			Decision = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = '• <a href=%1>Install certificate on container</a> from the app.
-				|%2';"), Action, Decision);
+				|%2'"), Action, Decision);
 				
 		ElsIf Action = "ApplyforCertificate" And IsCertificateSpecified Then
 			
 			Decision = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = '• Submit a <a href=%1>certificate issuance application</a>.
-				|%2';"), Action, Decision);
+				|%2'"), Action, Decision);
 		EndIf;
 		
 	EndDo;

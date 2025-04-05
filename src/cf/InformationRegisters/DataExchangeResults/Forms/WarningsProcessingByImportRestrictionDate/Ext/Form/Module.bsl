@@ -15,7 +15,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not Parameters.Property("DataForSelectedRows") Then
 		
-		Raise NStr("en = 'The form cannot be used independently.';", Common.DefaultLanguageCode());
+		Raise NStr("en = 'The form cannot be used independently.'", Common.DefaultLanguageCode());
 		
 	EndIf;
 	
@@ -45,7 +45,7 @@ EndProcedure
 &AtClient
 Procedure AcceptVersion(Command)
 	
-	QueryText = NStr("en = 'Accept versions in the selected lines even though import is restricted?';", CommonClient.DefaultLanguageCode());
+	QueryText = NStr("en = 'Accept versions in the selected lines even though import is restricted?'", CommonClient.DefaultLanguageCode());
 	
 	NotifyDescription = New CallbackDescription("AcceptVersionCompletion", ThisObject);
 	
@@ -77,7 +77,7 @@ Procedure AcceptVersionCompletion(Response, AdditionalParameters) Export
 	ClearMessages();
 	If RevisionParameters.NumberOfRevised <> RevisionParameters.TotalCount1 Then
 		
-		MessageTemplate = NStr("en = 'Lines selected: %1. Objects changed: %2.';", CommonClient.DefaultLanguageCode());
+		MessageTemplate = NStr("en = 'Lines selected: %1. Objects changed: %2.'", CommonClient.DefaultLanguageCode());
 		
 		ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
 			MessageTemplate,
@@ -158,7 +158,7 @@ Procedure ReviewTheResultsOnTheServer(RevisionParameters)
 	EndIf;
 	
 	ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");
-	ErrorTextTemplate = NStr("en = 'Cannot change the object version due to:%1%2';", Common.DefaultLanguageCode());
+	ErrorTextTemplate = NStr("en = 'Cannot change the object version due to:%1%2'", Common.DefaultLanguageCode());
 	
 	For Each SelectedRow In PatchObjectsTable Do
 		

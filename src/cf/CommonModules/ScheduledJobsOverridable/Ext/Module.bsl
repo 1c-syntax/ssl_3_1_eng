@@ -44,16 +44,16 @@
 //        execution (including queue jobs) in the infobase with enabled separator must be locked.
 //        The Undefined value is read as True.
 //        Default value: Undefined.
-//    * UseExternalResources  - Boolean - 
-//        
-//        
-//        
-//        
-//        
-//    * AccessesExternalResources - Boolean - 
-//        
-//        
-//        
+//    * UseExternalResources  - Boolean - "True" if the scheduled job modifies data
+//        in external sources (receiving emails, synchronizing data, etc.). Do not set the
+//        value to True for scheduled jobs that do not modify data in external sources.
+//        For example, CurrencyRateImport scheduled job. Scheduled jobs operating with external resources are
+//        automatically disabled in the copy of the infobase and are blocked if the
+//        "Allow access to web services" functional option is disabled. The default value is False.
+//    * CanAccessExternalResources - Boolean - "True" if the scheduled job accesses external resources
+//        (web services) without modifying them, such as the "CurrenciesRatesImport" task.
+//        Scheduled jobs that interact with web  services are not executed when the
+//        "Allow access to web services" functional option is disabled. The default value is "False".
 //        
 //    * IsParameterized             - Boolean - True if the scheduled job is parameterized.
 //        The default value is False.

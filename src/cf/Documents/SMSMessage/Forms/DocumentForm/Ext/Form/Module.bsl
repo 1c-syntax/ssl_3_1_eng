@@ -68,9 +68,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	// End StandardSubsystems.FilesOperations
 	
-	// StandardSubsystems.MessagesTemplates
+	// StandardSubsystems.MessageTemplates
 	DeterminePossibilityToFillEmailByTemplate();
-	// End StandardSubsystems.MessagesTemplates
+	// End StandardSubsystems.MessageTemplates
 	
 EndProcedure
 
@@ -180,11 +180,11 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	EndIf;
 	// End StandardSubsystems.FilesOperations
 	
-	// StandardSubsystems.MessagesTemplates
+	// StandardSubsystems.MessageTemplates
 	If EventName = "Write_MessageTemplates" Then
 		DeterminePossibilityToFillEmailByTemplate();
 	EndIf;
-	// End StandardSubsystems.MessagesTemplates
+	// End StandardSubsystems.MessageTemplates
 	
 EndProcedure
 
@@ -490,7 +490,7 @@ Procedure CheckDeliveryStatuses(Command)
 	
 EndProcedure
 
-// СтандартныеПодсистемы.Свойства
+// 
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -516,7 +516,7 @@ Procedure Attachable_AttachedFilesPanelCommand(Command)
 EndProcedure
 // End StandardSubsystems.FilesOperations
 
-// СтандартныеПодсистемы.ШаблоныСообщений
+// 
 
 &AtClient
 Procedure GenerateFromTemplate(Command)
@@ -530,7 +530,7 @@ Procedure GenerateFromTemplate(Command)
 	
 EndProcedure
 
-// End StandardSubsystems.MessagesTemplates
+// End StandardSubsystems.MessageTemplates
 
 #EndRegion
 
@@ -554,7 +554,7 @@ Procedure SetConditionalAppearance()
 
 EndProcedure
 
-// СтандартныеПодсистемы.Свойства
+// 
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()
@@ -662,7 +662,7 @@ Procedure CheckPhoneFilling(Addressee, Cancel)
 	
 	If IsBlankString(Addressee.HowToContact) Then
 		Common.MessageToUser(
-			NStr("en = 'Phone number is required.';"),
+			NStr("en = 'Phone number is required.'"),
 			,
 			CommonClientServer.PathToTabularSection("Object.SMSMessageRecipients", Addressee.LineNumber, "HowToContact"),
 			,
@@ -672,7 +672,7 @@ Procedure CheckPhoneFilling(Addressee, Cancel)
 		
 	If StrSplit(Addressee.HowToContact, ";", False).Count() > 1 Then
 		Common.MessageToUser(
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Line %1 contains more than one phone number.';"), Addressee.LineNumber),
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Line %1 contains more than one phone number.'"), Addressee.LineNumber),
 			,
 			CommonClientServer.PathToTabularSection("Object.SMSMessageRecipients", Addressee.LineNumber, "HowToContact"),
 			,
@@ -684,7 +684,7 @@ Procedure CheckPhoneFilling(Addressee, Cancel)
 		Common.MessageToUser(
 			NStr("en = 'Enter a phone number in the international format.
 			|You can use spaces, brackets, and hyphens.
-			|For example: +1 (123) 456-78-90.';"),
+			|For example: +1 (123) 456-78-90.'"),
 			,
 			CommonClientServer.PathToTabularSection("Object.SMSMessageRecipients", Addressee.LineNumber, "HowToContact"),
 			,
@@ -798,7 +798,7 @@ Procedure CheckDeliveryStatusesServer()
 
 	SetPrivilegedMode(True);
 	If Not SendSMSMessage.SMSMessageSendingSetupCompleted() Then
-		Common.MessageToUser(NStr("en = 'SMS settings not configured.';"),,"Object");
+		Common.MessageToUser(NStr("en = 'SMS settings not configured.'"),,"Object");
 		Return;
 	EndIf;
 	
@@ -896,7 +896,7 @@ Procedure Attachable_UpdateCommands()
 EndProcedure
 // End StandardSubsystems.AttachableCommands
 
-// СтандартныеПодсистемы.ШаблоныСообщений
+// 
 
 &AtClient
 Procedure FillByTemplateAfterTemplateChoice(Result, AdditionalParameters) Export
@@ -930,6 +930,6 @@ Procedure DeterminePossibilityToFillEmailByTemplate()
 	
 EndProcedure
 
-// End StandardSubsystems.MessagesTemplates
+// End StandardSubsystems.MessageTemplates
 
 #EndRegion

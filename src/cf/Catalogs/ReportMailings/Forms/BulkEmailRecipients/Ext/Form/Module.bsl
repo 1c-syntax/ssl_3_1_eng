@@ -16,7 +16,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	FillPropertyValues(ThisObject, Parameters, "MailingRecipientType, RecipientsEmailAddressKind");
 	Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Report recipients (%1)';"),
+		NStr("en = 'Report recipients (%1)'"),
 		Parameters.MailingDescription);
 	
 	For Each TableRow In Parameters.Recipients Do
@@ -81,7 +81,7 @@ Procedure OpenAddRecipientsForm(IsPick)
 	// See the "Users" catalog list form for the attribute description.
 	If IsPick Then
 		ChoiceFormParameters.Insert("AdvancedPick", True);
-		ChoiceFormParameters.Insert("PickFormHeader", NStr("en = 'Pick recipients';"));
+		ChoiceFormParameters.Insert("PickFormHeader", NStr("en = 'Pick recipients'"));
 		ChoiceFormParameters.Insert("SelectedUsers", SelectedUsers);
 	EndIf;
 	
@@ -195,9 +195,9 @@ Procedure AddDragRecipient(RecipientOrRecipientsSet)
 	// Prepare notification text.
 	If NewRowArray.Count() > 0 Then
 		If NewRowArray.Count() = 1 Then
-			NotificationTitle = NStr("en = 'The user is added to the recipient list.';");
+			NotificationTitle = NStr("en = 'The user is added to the recipient list.'");
 		Else
-			NotificationTitle = NStr("en = 'The users are added to the recipient list.';");
+			NotificationTitle = NStr("en = 'The users are added to the recipient list.'");
 		EndIf;
 		
 		NotificationText1 = "";

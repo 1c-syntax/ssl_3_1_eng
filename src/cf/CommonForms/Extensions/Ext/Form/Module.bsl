@@ -216,7 +216,7 @@ Procedure SaveAs(Command)
 	ElsIf SelectedRows.Count() = 1 Then
 		FilesToSave = SaveAtServer(SelectedRows);
 	Else
-		Title = NStr("en = 'Select directory';");
+		Title = NStr("en = 'Select directory'");
 		FileSystemClient.SelectDirectory(NotifyDescription, Title);
 		Return;
 	EndIf;
@@ -226,9 +226,9 @@ Procedure SaveAs(Command)
 	EndIf;
 	
 	SavingParameters = FileSystemClient.FileSavingParameters();
-	SavingParameters.Dialog.Title = NStr("en = 'Select file';");
-	SavingParameters.Dialog.Filter    = NStr("en = 'Configuration extension files (*.cfe)|*.cfe';") + "|"
-			+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
+	SavingParameters.Dialog.Title = NStr("en = 'Select file'");
+	SavingParameters.Dialog.Filter    = NStr("en = 'Configuration extension files (*.cfe)|*.cfe'") + "|"
+			+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1'"), GetAllFilesMask());
 	
 	FileSystemClient.SaveFiles(Undefined, FilesToSave, SavingParameters);
 	
@@ -271,7 +271,7 @@ EndProcedure
 Procedure DeleteObsoleteParametersWorkExtensions(Command)
 	
 	DeleteDeprecatedSettingsExtensionsWorkOnServer();
-	ShowMessageBox(, NStr("en = 'Obsolete versions of extension parameters are deleted.';"));
+	ShowMessageBox(, NStr("en = 'Obsolete versions of extension parameters are deleted.'"));
 	
 EndProcedure
 
@@ -294,13 +294,13 @@ Procedure CheckIfAllExtensionsCanBeApplied(Command)
 		QuestionFormParameters = StandardSubsystemsClient.QuestionToUserParameters();
 		QuestionFormParameters.Picture = PictureLib.DialogInformation;
 		QuestionFormParameters.PromptDontAskAgain = False;
-		QuestionFormParameters.Title = NStr("en = 'Result of extensions applicability check';");
+		QuestionFormParameters.Title = NStr("en = 'Result of extensions applicability check'");
 		StandardSubsystemsClient.ShowQuestionToUser(Undefined,
-			NStr("en = 'The extensions applicability check is passed.';"),
+			NStr("en = 'The extensions applicability check is passed.'"),
 			QuestionDialogMode.OK,
 			QuestionFormParameters);
 	Else
-		Result.InfoOnIssues.Show(NStr("en = 'The extension check result.';"));
+		Result.InfoOnIssues.Show(NStr("en = 'The extension check result.'"));
 	EndIf;
 	
 EndProcedure
@@ -444,13 +444,13 @@ Procedure UpdateList(AfterAdd = False)
 		ExtensionKey = Extension.Name + Extension.HashSum + Extension.Scope;	
 		If AttachedExtensions[ExtensionKey] <> Undefined Then
 			ExtensionItem.Attached = 0;
-			ExtensionItem.ActivationState = NStr("en = 'Attached';");
+			ExtensionItem.ActivationState = NStr("en = 'Attached'");
 		ElsIf DetachedExtensions[ExtensionKey] <> Undefined Then
 			ExtensionItem.Attached = 2;
-			ExtensionItem.ActivationState = NStr("en = 'Detached';");
+			ExtensionItem.ActivationState = NStr("en = 'Detached'");
 		Else
 			ExtensionItem.Attached = 1;
-			ExtensionItem.ActivationState = NStr("en = 'Restart required';");
+			ExtensionItem.ActivationState = NStr("en = 'Restart required'");
 		EndIf;	
 			
 		If IsBlankString(ExtensionItem.Synonym) Then
@@ -568,7 +568,7 @@ Procedure RunUpdateSettingsExtensionsWorkInBackgroundOnServer(WarningText)
 		           |2. See the result in the event log in the events
 		           |""%2"",
 		           |for example, by clicking
-		           |""%3"" in the More menu.';"),
+		           |""%3"" in the More menu.'"),
 		InformationRegisters.ExtensionVersionParameters.TaskNameFillingParameters(),
 		InformationRegisters.ExtensionVersionParameters.ParameterFillingEventName(),
 		Commands.Find("RunUpdateSettingsExtensionsWorkInBackground").Title);
@@ -796,8 +796,8 @@ Procedure LoadExtensionAfterConfirmation(Response, Context) Export
 	Notification = New CallbackDescription("LoadExtensionAfterPutFiles", ThisObject, Context);
 	
 	ImportParameters = FileSystemClient.FileImportParameters();
-	ImportParameters.Dialog.Filter = NStr("en = 'Configuration extensions';")+ " (*.cfe)|*.cfe";
-	ImportParameters.Dialog.Title = NStr("en = 'Select configuration extension file';");
+	ImportParameters.Dialog.Filter = NStr("en = 'Configuration extensions'")+ " (*.cfe)|*.cfe";
+	ImportParameters.Dialog.Title = NStr("en = 'Select configuration extension file'");
 	ImportParameters.Dialog.CheckFileExistence = True;
 	
 	ImportParameters.FormIdentifier = UUID;
@@ -826,7 +826,7 @@ Procedure LoadExtensionAfterPutFiles(PlacedFiles, Context) Export
 			
 		ElsIf SelectedFilesContainPatches(PlacedFiles, ModuleConfigurationUpdateClient) Then 
 			ShowMessageBox(,
-				NStr("en = 'The selected files cannot contain both patches and extensions of other types.';"));
+				NStr("en = 'The selected files cannot contain both patches and extensions of other types.'"));
 			Return;
 		EndIf;
 	EndIf;
@@ -966,7 +966,7 @@ Procedure LoadExtensionCompletion()
 			           |If extension ""%2"" is not an update for extension ""%1"",
 			           |refuse to replace it and add extension ""%2"" as a new one.
 			           |Note: if you cannot add extension ""%2"" because of extension ""%1"",
-			           |delete extension ""%1"" before adding extension ""%2"".';"),
+			           |delete extension ""%1"" before adding extension ""%2"".'"),
 			NameReplacementConfirmation.OldName,
 			NameReplacementConfirmation.NewName);
 			
@@ -974,8 +974,8 @@ Procedure LoadExtensionCompletion()
 			"LoadExtensionAfterQuestionNameReplacement", ThisObject, Context);
 		
 		Buttons = New ValueList;
-		Buttons.Add("Replace",   NStr("en = 'Replace';"));
-		Buttons.Add("NotReplace", NStr("en = 'Do not replace';"));
+		Buttons.Add("Replace",   NStr("en = 'Replace'"));
+		Buttons.Add("NotReplace", NStr("en = 'Do not replace'"));
 		
 		QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
 		QuestionParameters.DefaultButton = "NotReplace";
@@ -992,12 +992,12 @@ Procedure LoadExtensionCompletion()
 	
 	If Context.ExtensionID = Undefined Then
 		If Context.PlacedFiles.Count() > 1 Then
-			NotificationText1 = NStr("en = 'Configuration extensions added';");
+			NotificationText1 = NStr("en = 'Configuration extensions added'");
 		Else
-			NotificationText1 = NStr("en = 'Configuration extension added';");
+			NotificationText1 = NStr("en = 'Configuration extension added'");
 		EndIf;
 	Else
-		NotificationText1 = NStr("en = 'Configuration extension updated';");
+		NotificationText1 = NStr("en = 'Configuration extension updated'");
 	EndIf;
 	
 	ShowUserNotification(NotificationText1);
@@ -1008,13 +1008,13 @@ Procedure LoadExtensionCompletion()
 	
 	If Context.PlacedFiles.Count() > 1 Then
 		If StrFind(UnattachedExtensions, ",") > 0 Then
-			WarningText = NStr("en = 'Cannot attach the following extensions:';");
+			WarningText = NStr("en = 'Cannot attach the following extensions:'");
 		Else
-			WarningText = NStr("en = 'Cannot attach the extension:';");
+			WarningText = NStr("en = 'Cannot attach the extension:'");
 		EndIf;
 		WarningText = WarningText + " " + UnattachedExtensions;
 	Else
-		WarningText = NStr("en = 'Cannot attach an extension.';");
+		WarningText = NStr("en = 'Cannot attach an extension.'");
 	EndIf;
 	
 	ShowMessageBox(, WarningText);
@@ -1101,7 +1101,7 @@ Procedure ChangeExtensionsAtServer(PlacedFiles, RowsIDs,
 				If ValueIsFilled(ErrorText) Then
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Cannot apply the extension. Reason:
-						           |%1';"),
+						           |%1'"),
 						ErrorText);
 					Break;
 				Else
@@ -1120,7 +1120,7 @@ Procedure ChangeExtensionsAtServer(PlacedFiles, RowsIDs,
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Cannot add extension ""%1""
 						           | from file %2, 
-						           |as an extension with this name already exists.';"),
+						           |as an extension with this name already exists.'"),
 						ExtensionDetails.Name,
 						FileThatWasPut.Name);
 					Break;
@@ -1147,7 +1147,7 @@ Procedure ChangeExtensionsAtServer(PlacedFiles, RowsIDs,
 		If RowsIDs <> Undefined Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot update the extension. Reason:
-				           |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
+				           |%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
 			
 		ElsIf ValueIsFilled(AddedExtensionFileName) Then
 			BriefErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo);
@@ -1164,7 +1164,7 @@ Procedure ChangeExtensionsAtServer(PlacedFiles, RowsIDs,
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot add extension ""%1""
 					           | from file %2. Reason:
-					           |%3';"),
+					           |%3'"),
 					ExtensionDetails.Name,
 					AddedExtensionFileName,
 					BriefErrorDescription);
@@ -1172,7 +1172,7 @@ Procedure ChangeExtensionsAtServer(PlacedFiles, RowsIDs,
 		Else
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot add the extension. Reason:
-				           |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
+				           |%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		EndIf;
 	EndTry;
 	
@@ -1184,7 +1184,7 @@ Procedure ChangeExtensionsAtServer(PlacedFiles, RowsIDs,
 			ErrorInfo = ErrorInfo();
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'An unexpected error occurred while preparing the added extensions:
-				           |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
+				           |%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		EndTry;
 	EndIf;
 	
@@ -1222,12 +1222,12 @@ Procedure ChangeExtensionsAtServer(PlacedFiles, RowsIDs,
 				ErrorText = ErrorText + Chars.LF + Chars.LF
 					+ StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'An unexpected error occurred while restoring the changed extension:
-						           |%1';"), ErrorProcessing.BriefErrorDescription(RecoveryErrorInformation));
+						           |%1'"), ErrorProcessing.BriefErrorDescription(RecoveryErrorInformation));
 			Else
 				ErrorText = ErrorText + Chars.LF + Chars.LF
 					+ StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'An unexpected error occurred while trying to delete the added extensions:
-						           |%1';"), ErrorProcessing.BriefErrorDescription(RecoveryErrorInformation));
+						           |%1'"), ErrorProcessing.BriefErrorDescription(RecoveryErrorInformation));
 			EndIf;
 		EndTry;
 		If RecoveryPerformed
@@ -1236,14 +1236,14 @@ Procedure ChangeExtensionsAtServer(PlacedFiles, RowsIDs,
 			If RowsIDs <> Undefined Then
 				If ExtensionsToCheck.Count() > 0 Then
 					ErrorText = ErrorText + Chars.LF + Chars.LF
-						+ NStr("en = 'The modified extension is restored.';");
+						+ NStr("en = 'The modified extension is restored.'");
 				Else
 					ErrorText = ErrorText + Chars.LF + Chars.LF
-						+ NStr("en = 'The extension is not modified.';");
+						+ NStr("en = 'The extension is not modified.'");
 				EndIf;
 			Else
 				ErrorText = ErrorText + Chars.LF + Chars.LF
-					+ NStr("en = 'The added extensions are deleted.';");
+					+ NStr("en = 'The added extensions are deleted.'");
 			EndIf;
 		EndIf;
 	EndIf;
@@ -1290,11 +1290,11 @@ Procedure ExtensionListSafeModeFlagOnChangeAtServer(RowID)
 		If Extension.SafeMode Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'An unexpected error occurred while preparing the extensions (after enabling the safe mode):
-				           |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
+				           |%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		Else
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'An unexpected error occurred while preparing the extensions (after disabling the safe mode):
-				           |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
+				           |%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		EndIf;
 	EndTry;
 	
@@ -1308,12 +1308,12 @@ Procedure ExtensionListSafeModeFlagOnChangeAtServer(RowID)
 			ErrorText = ErrorText + Chars.LF + Chars.LF
 				+ StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'An unexpected error occurred when trying to cancel the change of the safe extension mode check box:
-					           |%1';"), ErrorProcessing.BriefErrorDescription(RecoveryErrorInformation));
+					           |%1'"), ErrorProcessing.BriefErrorDescription(RecoveryErrorInformation));
 		EndTry;
 		If RecoveryErrorInformation = Undefined Then
 			ListLine.SafeModeFlag = Extension.SafeMode;
 			ErrorText = ErrorText + Chars.LF + Chars.LF
-				+ NStr("en = 'The change of the ""Safe mode"" extension parameter is canceled.';");
+				+ NStr("en = 'The change of the ""Safe mode"" extension parameter is canceled.'");
 		EndIf;
 	EndIf;
 	
@@ -1424,7 +1424,7 @@ Procedure AddPermissionRequest(PermissionsRequests, PlacedFiles, ExtensionID = U
 				TemporaryExtension = FindExtension(ExtensionID);
 				If TemporaryExtension = Undefined Then
 					Raise StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'The application does not have extensions with the id ""%1"". Probably, the extension was deleted by another user.';"),
+						NStr("en = 'The application does not have extensions with the id ""%1"". Probably, the extension was deleted by another user.'"),
 						ExtensionID);
 				EndIf;
 				UpdatedExtensionData = TemporaryExtension.GetData();
@@ -1462,18 +1462,18 @@ Procedure AddPermissionRequest(PermissionsRequests, PlacedFiles, ExtensionID = U
 							NStr("en = 'Cannot add extensions from the file
 							           |""%1""
 							           |when receiving permissions due to:
-							           |%2';"),
+							           |%2'"),
 							FileThatWasPut.Name,
 							ErrorProcessing.BriefErrorDescription(ErrorInfo));
 				Else
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 							NStr("en = 'Cannot add the extension when receiving permissions due to:
-							           |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
+							           |%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
 				EndIf;
 			Else
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Cannot update the extension when receiving permissions due to:
-						           |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
+						           |%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
 			EndIf;
 			If RecoveryRequired Then
 				Try
@@ -1497,20 +1497,20 @@ Procedure AddPermissionRequest(PermissionsRequests, PlacedFiles, ExtensionID = U
 									NStr("en = 'Cannot delete the added extension from the file when receiving permissions
 									           |%1
 									           |due to:
-									           |%2';"),
+									           |%2'"),
 									FileThatWasPut.Name,
 									ErrorProcessing.BriefErrorDescription(ErrorInfo));
 						Else
 							ErrorText = ErrorText + Chars.LF + Chars.LF
 								+ StringFunctionsClientServer.SubstituteParametersToString(
 									NStr("en = 'An unexpected error occurred when trying to delete the temporarily added extension:
-									           |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
+									           |%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
 						EndIf;
 					Else
 						ErrorText = ErrorText + Chars.LF + Chars.LF
 							+ StringFunctionsClientServer.SubstituteParametersToString(
 								NStr("en = 'An unexpected error occurred when trying to restore the temporarily changed extension:
-								           |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
+								           |%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
 					EndIf;
 				EndTry;
 			EndIf;
@@ -1743,7 +1743,7 @@ Procedure OutputErrorsInfoOnExtensionsReconfiguration(ExtensionsModificationErro
 	QuestionFormParameters = StandardSubsystemsClient.QuestionToUserParameters();
 	QuestionFormParameters.Picture = PictureLib.DialogExclamation;
 	QuestionFormParameters.PromptDontAskAgain = False;
-	QuestionFormParameters.Title = NStr("en = 'Failed to reconfigure some extensions';");
+	QuestionFormParameters.Title = NStr("en = 'Failed to reconfigure some extensions'");
 	StandardSubsystemsClient.ShowQuestionToUser(Undefined,
 		ErrorInformation_,
 		QuestionDialogMode.OK,
@@ -1842,7 +1842,7 @@ Procedure DisableAttachExtensions()
 				           |The related application data might become unchangeable.
 				           |
 				           |The extension with data stored in the application:
-				           | - %1';"),
+				           | - %1'"),
 				ExtensionsSynonyms.WithData[0]);
 		Else
 			ExtensionsWithDataText = StrConcat(ExtensionsSynonyms.WithData, Chars.LF + " - ");
@@ -1851,7 +1851,7 @@ Procedure DisableAttachExtensions()
 				           |The related application data might become unchangeable.
 				           |
 				           |The extensions with data stored in the application:
-				           | - %1';"),
+				           | - %1'"),
 				ExtensionsWithDataText);
 		EndIf;
 			
@@ -1860,27 +1860,27 @@ Procedure DisableAttachExtensions()
 		
 		Buttons = New ValueList;
 		If ExtensionsSynonyms.NoData.Count() > 0 Then
-			Buttons.Add("TurnOffExtensionsWithoutData", NStr("en = 'Disabled only extensions without stored data';"));
+			Buttons.Add("TurnOffExtensionsWithoutData", NStr("en = 'Disabled only extensions without stored data'"));
 			
 			If ExtensionsSynonyms.NoData.Count() = 1 Then
 				ExtensionsWithoutDataText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'An extension without stored data:
-			           | - %1';"),
+			           | - %1'"),
 					ExtensionsSynonyms.NoData[0]);
 			Else
 				ExtensionsWithoutDataText = StrConcat(ExtensionsSynonyms.NoData, Chars.LF + " - ");
 				ExtensionsWithoutDataText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Extensions without stored data:
-			           | - %1';"), 
+			           | - %1'"), 
 					ExtensionsWithoutDataText);
 			EndIf;
 			QueryText = QueryText + Chars.LF + Chars.LF + ExtensionsWithoutDataText;
 		EndIf;
-		Buttons.Add("TurnOffAll", NStr("en = 'Disable all';"));
-		Buttons.Add("Cancel", NStr("en = 'Cancel';"));
+		Buttons.Add("TurnOffAll", NStr("en = 'Disable all'"));
+		Buttons.Add("Cancel", NStr("en = 'Cancel'"));
 		
 		QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
-		QuestionParameters.Title = NStr("en = 'Warning';");
+		QuestionParameters.Title = NStr("en = 'Warning'");
 		QuestionParameters.Picture = PictureLib.DialogExclamation;
 		QuestionParameters.DefaultButton = "TurnOffExtensionsWithoutData";
 		QuestionParameters.PromptDontAskAgain = False;
@@ -2032,7 +2032,7 @@ Procedure SetTitleToCommentItem()
 	EndIf;
 	
 	Items.ExtensionsListComment.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Comment for %1';"), Items.ExtensionsList.CurrentData.Synonym);
+		NStr("en = 'Comment for %1'"), Items.ExtensionsList.CurrentData.Synonym);
 		
 EndProcedure
 
@@ -2063,7 +2063,7 @@ EndProcedure
 
 &AtServerNoContext
 Function IsInfobaseExclusiveLockError(ErrorText)
-	ExclusiveLockErrorText = NStr("en = 'Error setting an exclusive lock';");
+	ExclusiveLockErrorText = NStr("en = 'Error setting an exclusive lock'");
 	Return (StrFind(ErrorText, ExclusiveLockErrorText) <> 0);
 EndFunction
 
@@ -2081,16 +2081,16 @@ Procedure ToOpenTheFormCompleteTheUserExperience()
 		FormParameters = ModuleIBConnectionsClient.ExclusiveModeSetErrorFormOpenParameters();
 		ItemsToImportCount = ExtensionsToReAdd.Count();
 		FormParameters.Title = ?(ItemsToImportCount = 1,
-			NStr("en = 'Couldn''t add extension';"), NStr("en = 'Couldn''t add extensions';"));
+			NStr("en = 'Couldn''t add extension'"), NStr("en = 'Couldn''t add extensions'"));
 		FormParameters.ErrorMessageText = ?(ItemsToImportCount = 1, 
-			NStr("en = 'Couldn''t add extension: active users detected';"),
+			NStr("en = 'Couldn''t add extension: active users detected'"),
 			StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t add extensions (%1): active users detected';"), ItemsToImportCount));
+			NStr("en = 'Couldn''t add extensions (%1): active users detected'"), ItemsToImportCount));
 		FormParameters.ErrorTextExitFailed = ?(ItemsToImportCount = 1, 
-			NStr("en = 'Couldn''t add extensions. Failed to terminate the user sessions:';"),
+			NStr("en = 'Couldn''t add extensions. Failed to terminate the user sessions:'"),
 			StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t add extensions (%1). Failed to terminate the user sessions:';"), ItemsToImportCount));
-		FormParameters.LoginMessage = NStr("en = 'The application is locked while extensions are being added.';");
+			NStr("en = 'Couldn''t add extensions (%1). Failed to terminate the user sessions:'"), ItemsToImportCount));
+		FormParameters.LoginMessage = NStr("en = 'The application is locked while extensions are being added.'");
 		FormParameters.ShouldCloseAllSessionsButCurrent = True;
 		FormParameters.ShouldCloseDesignerSession = True;
 		FormParameters.BlockingPeriod = 60;

@@ -44,8 +44,8 @@ Procedure OnStart(Parameters) Export
 	FillGlobalVariableValues(Settings);
 	CheckIBBackup(Settings);
 	If Settings.RestorePerformed Then
-		NotificationText1 = NStr("en = 'Data successfully restored.';");
-		ShowUserNotification(NStr("en = 'Data is restored.';"), , NotificationText1);
+		NotificationText1 = NStr("en = 'Data successfully restored.'");
+		ShowUserNotification(NStr("en = 'Data is restored.'"), , NotificationText1);
 	EndIf;
 	
 	NotificationOption = Settings.NotificationParameter1;
@@ -93,9 +93,9 @@ Procedure BeforeExit(Cancel, Warnings) Export
 	EndIf;
 	
 	WarningParameters = StandardSubsystemsClient.WarningOnExit();
-	WarningParameters.CheckBoxText = NStr("en = 'Back up';");
+	WarningParameters.CheckBoxText = NStr("en = 'Back up'");
 	WarningParameters.Priority = 50;
-	WarningParameters.WarningText = NStr("en = 'Backup scheduled at exit.';");
+	WarningParameters.WarningText = NStr("en = 'Backup scheduled at exit.'");
 	
 	ActionIfFlagSet = WarningParameters.ActionIfFlagSet;
 	ActionIfFlagSet.Form = "DataProcessor.IBBackup.Form.DataBackup";
@@ -207,14 +207,14 @@ EndFunction
 Procedure PerformABackup()
 	
 	Buttons = New ValueList;
-	Buttons.Add("Yes", NStr("en = 'Yes';"));
-	Buttons.Add("None", NStr("en = 'No';"));
-	Buttons.Add("Snooze", NStr("en = 'Snooze for 15 minutes';"));
+	Buttons.Add("Yes", NStr("en = 'Yes'"));
+	Buttons.Add("None", NStr("en = 'No'"));
+	Buttons.Add("Snooze", NStr("en = 'Snooze for 15 minutes'"));
 	
 	DescriptionOfTheAlert = New CallbackDescription("PerformABackupCompletion", ThisObject);
 	ShowQueryBox(DescriptionOfTheAlert, NStr("en = 'Scheduled backup is all set to start.
-		|Do you want to start it now?';"),
-		Buttons, 30, "Yes", NStr("en = 'Scheduled backup';"), "Yes");
+		|Do you want to start it now?'"),
+		Buttons, 30, "Yes", NStr("en = 'Scheduled backup'"), "Yes");
 	
 EndProcedure
 
@@ -255,9 +255,9 @@ Procedure CheckIBBackup(Parameters)
 		
 	Else
 		
-		ShowUserNotification(NStr("en = 'Backup';"),
+		ShowUserNotification(NStr("en = 'Backup'"),
 			"e1cib/command/CommonCommand.ShowBackupResult",
-			NStr("en = 'Backup successful';"), PictureLib.DialogInformation);
+			NStr("en = 'Backup successful'"), PictureLib.DialogInformation);
 		IBBackupServerCall.SetSettingValue("BackupCreated1", False);
 		
 	EndIf;
@@ -274,15 +274,15 @@ Procedure NotifyUserOfBackup(NotificationOption)
 	ExplanationText = "";
 	If NotificationOption = "Overdue" Then
 		
-		ExplanationText = NStr("en = 'Automatic backup has not been done.';"); 
-		ShowUserNotification(NStr("en = 'Backup';"),
+		ExplanationText = NStr("en = 'Automatic backup has not been done.'"); 
+		ShowUserNotification(NStr("en = 'Backup'"),
 			"e1cib/app/DataProcessor.IBBackup", ExplanationText, PictureLib.DialogExclamation);
 		
 	ElsIf NotificationOption = "NotConfiguredYet" Then
 		
 		SettingsFormName = "e1cib/app/DataProcessor.IBBackupSetup/";
-		ExplanationText = NStr("en = 'It is recommended that you set up infobase backup.';"); 
-		ShowUserNotification(NStr("en = 'Backup';"),
+		ExplanationText = NStr("en = 'It is recommended that you set up infobase backup.'"); 
+		ShowUserNotification(NStr("en = 'Backup'"),
 			SettingsFormName, ExplanationText, PictureLib.DialogExclamation);
 			
 	EndIf;
@@ -299,7 +299,7 @@ EndProcedure
 //
 Function EventLogEvent() Export
 	
-	Return NStr("en = 'Infobase backup';", CommonClient.DefaultLanguageCode());
+	Return NStr("en = 'Infobase backup'", CommonClient.DefaultLanguageCode());
 	
 EndFunction
 
@@ -484,14 +484,14 @@ Procedure DeleteConfigurationBackups() Export
 				DeleteFiles(DeletedFile);
 			Except
 				EventLogClient.AddMessageForEventLog(EventLogEvent(), "Error",
-					NStr("en = 'Failed to clean up backup storage directory.';") + Chars.LF 
+					NStr("en = 'Failed to clean up backup storage directory.'") + Chars.LF 
 					+ ErrorProcessing.DetailErrorDescription(ErrorInfo()),,True);
 			EndTry;
 		EndDo;
 		
 	Except
 		EventLogClient.AddMessageForEventLog(EventLogEvent(), "Error",
-			NStr("en = 'Failed to clean up backup storage directory.';") + Chars.LF 
+			NStr("en = 'Failed to clean up backup storage directory.'") + Chars.LF 
 			+ ErrorProcessing.DetailErrorDescription(ErrorInfo()),,True);
 	EndTry;
 	
@@ -515,7 +515,7 @@ Function ClientBackupParameters() Export
 	
 	ParametersStructure = New Structure();
 	ParametersStructure.Insert("ApplicationFileName", StandardSubsystemsClient.ApplicationExecutableFileName());
-	ParametersStructure.Insert("EventLogEvent", NStr("en = 'Infobase backup';"));
+	ParametersStructure.Insert("EventLogEvent", NStr("en = 'Infobase backup'"));
 	
 	// Call "TempFilesDir" (instead of "GetTempFileName") as the directory shouldn't be deleted when the client app exits. 
 	// 

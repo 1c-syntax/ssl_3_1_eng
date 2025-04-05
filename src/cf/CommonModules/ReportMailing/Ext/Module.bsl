@@ -45,14 +45,14 @@ Function ExecuteReportsMailing(BulkEmail, LogParameters = Undefined, AdditionalS
 		
 		Cause = "";
 		If Not BulkEmailObject.IsPrepared Then
-			Cause = Cause + Chars.LF + NStr("en = 'Distribution not prepared';");
+			Cause = Cause + Chars.LF + NStr("en = 'Distribution not prepared'");
 		EndIf;
 		If BulkEmailObject.DeletionMark Then
-			Cause = Cause + Chars.LF + NStr("en = 'The distribution is marked for deletion.';");
+			Cause = Cause + Chars.LF + NStr("en = 'The distribution is marked for deletion.'");
 		EndIf;
 		
 		LogRecord(LogParameters, EventLogLevel.Warning,
-			NStr("en = 'Completing';"), TrimAll(Cause));
+			NStr("en = 'Completing'"), TrimAll(Cause));
 		Return False;
 		
 	EndIf;
@@ -79,7 +79,7 @@ Function ExecuteReportsMailing(BulkEmail, LogParameters = Undefined, AdditionalS
 		EndDo;
 	EndIf;
 	If DefaultFormats.Count() = 0 Then
-		Raise NStr("en = 'Default formats are not set.';");
+		Raise NStr("en = 'Default formats are not set.'");
 	EndIf;
 	
 	// Populate report table.
@@ -133,7 +133,7 @@ Function ExecuteReportsMailing(BulkEmail, LogParameters = Undefined, AdditionalS
 		And Not DeliveryParameters.UseNetworkDirectory
 		And Not DeliveryParameters.UseFTPResource
 		And Not DeliveryParameters.UseEmail Then
-		LogRecord(LogParameters, EventLogLevel.Warning, NStr("en = 'Delivery method is not selected.';"));
+		LogRecord(LogParameters, EventLogLevel.Warning, NStr("en = 'Delivery method is not selected.'"));
 		Return False;
 	EndIf;
 	
@@ -263,7 +263,7 @@ Function ExecuteBulkEmail(Var_Reports, DeliveryParameters, MailingDescription = 
 	DeliveryParameters.ExecutionDate = ExecutionDate;
 	
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Report distribution %1 is started by %2';"),
+		NStr("en = 'Report distribution %1 is started by %2'"),
 		MailingDescription, DeliveryParameters.Author);
 	
 	LogRecord(LogParameters,, MessageText);
@@ -291,7 +291,7 @@ Function ExecuteBulkEmail(Var_Reports, DeliveryParameters, MailingDescription = 
 
 		LogRecord(LogParameters,
 			EventLogLevel.Warning,
-			NStr("en = 'Report distribution failed. Reports are empty or cannot be generated.';"));
+			NStr("en = 'Report distribution failed. Reports are empty or cannot be generated.'"));
 		Return False;
 	EndIf;
 	
@@ -300,7 +300,7 @@ Function ExecuteBulkEmail(Var_Reports, DeliveryParameters, MailingDescription = 
 		And DeliveryParameters.ReportsForEmailText.Count() = 0 Then
 		LogRecord(LogParameters,
 			EventLogLevel.Warning,
-			NStr("en = 'Report distribution failed. Reports are empty or cannot be generated.';"));
+			NStr("en = 'Report distribution failed. Reports are empty or cannot be generated.'"));
 			
 		DeleteTempFiles(DeliveryParameters.TempFilesDir, LogParameters);
 		Return False;
@@ -341,7 +341,7 @@ Function ExecuteBulkEmail(Var_Reports, DeliveryParameters, MailingDescription = 
 	
 	LogRecord(LogParameters,
 		EventLogLevel.Note,
-		NStr("en = 'Start report distribution to recipients.';"));
+		NStr("en = 'Start report distribution to recipients.'"));
 	
 	// Send personal reports (personalized).
 	QuantityToSend = ReportsTree.Rows.Count();
@@ -400,7 +400,7 @@ Function ExecuteBulkEmail(Var_Reports, DeliveryParameters, MailingDescription = 
 						AttachmentBinaryData.Write(Attachment.Value);
 						CharCountBeforeExtension = StrFind(Attachment.Key, ".", SearchDirection.FromEnd);
 						EncryptedFileName = Left(Attachment.Key, CharCountBeforeExtension-1) + " " + NStr(
-							"en = '(Decrypt)';") + Mid(Attachment.Key, CharCountBeforeExtension);
+							"en = '(Decrypt)'") + Mid(Attachment.Key, CharCountBeforeExtension);
 						EncryptedAttachments.Insert(EncryptedFileName, Attachment.Value);
 					EndDo;
 					RecipientsAttachments = EncryptedAttachments;
@@ -426,12 +426,15 @@ Function ExecuteBulkEmail(Var_Reports, DeliveryParameters, MailingDescription = 
 			MailingExecuted = True;
 		Except
 			ErrorInfo = ErrorInfo();
-			If ErrorInfo.IsErrorOfCategory(ErrorCategory.ConfigurationError) Then
+			
+			If Not EmailOperationsInternalClientServer.ThisIsErrorInWorkOfInternetMail(
+				ErrorInfo) Then
+				
 				Raise;
 			EndIf;
-
+			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot send reports to %1:';"), RecipientPresentation1);
+				NStr("en = 'Cannot send reports to %1:'"), RecipientPresentation1);
 			ExtendedErrorPresentation = EmailOperations.ExtendedErrorPresentation(
 				ErrorInfo, Common.DefaultLanguageCode(), False);
 			LogRecord(LogParameters,, MessageText, ExtendedErrorPresentation);
@@ -460,10 +463,10 @@ Function ExecuteBulkEmail(Var_Reports, DeliveryParameters, MailingDescription = 
 
 			AdditionalInfo = "";
 			If SendHiddenCopiesToSender Then
-				AdditionalInfo = NStr("en = 'A copy was sent to the sender.';");
+				AdditionalInfo = NStr("en = 'A copy was sent to the sender.'");
 			EndIf;
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Reports are sent from %2 to ''%1''. %3';"), RecipientPresentation1, SenderSRepresentation,
+			NStr("en = 'Reports are sent from %2 to ''%1''. %3'"), RecipientPresentation1, SenderSRepresentation,
 				AdditionalInfo);
 
 			LogRecord(LogParameters, , MessageText);
@@ -511,7 +514,7 @@ Function ExecuteBulkEmail(Var_Reports, DeliveryParameters, MailingDescription = 
 						AttachmentBinaryData.Write(Attachment.Value);
 						CharCountBeforeExtension = StrFind(Attachment.Key, ".", SearchDirection.FromEnd);
 						EncryptedFileName = Left(Attachment.Key, CharCountBeforeExtension-1) + " " + NStr(
-							"en = '(Decrypt)';") + Mid(Attachment.Key, CharCountBeforeExtension);
+							"en = '(Decrypt)'") + Mid(Attachment.Key, CharCountBeforeExtension);
 						EncryptedAttachments.Insert(EncryptedFileName, Attachment.Value);
 					EndDo;
 					SharedAttachments = EncryptedAttachments;
@@ -539,12 +542,12 @@ Function ExecuteBulkEmail(Var_Reports, DeliveryParameters, MailingDescription = 
 				
 				AdditionalInfo = "";
 				If SendHiddenCopiesToSender Then 
-					AdditionalInfo = NStr("en = 'A copy was sent to the sender.';");
+					AdditionalInfo = NStr("en = 'A copy was sent to the sender.'");
 				EndIf;
 				
 				MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Reports are sent from %2 to %1 users. %3
-					|%4';"),
+					|%4'"),
 					DeliveryParameters.Recipients.Count(), SenderSRepresentation, 
 					AdditionalInfo, RecipientPresentation1);
 				LogRecord(LogParameters,, MessageText);
@@ -553,9 +556,9 @@ Function ExecuteBulkEmail(Var_Reports, DeliveryParameters, MailingDescription = 
 	EndIf;
 
 	If MailingExecuted Then
-		LogRecord(LogParameters, , NStr("en = 'Report distribution completed.';"));
+		LogRecord(LogParameters, , NStr("en = 'Report distribution completed.'"));
 	Else
-		LogRecord(LogParameters, , NStr("en = 'Report distribution failed.';"));
+		LogRecord(LogParameters, , NStr("en = 'Report distribution failed.'"));
 	EndIf;
 	
 	If Not IsAutoRedistribution And IsReportsDistributionCatalog Then
@@ -591,7 +594,7 @@ EndFunction
 Function LogParameters(BulkEmail = Undefined) Export
 	
 	LogParameters = New Structure;
-	LogParameters.Insert("EventName", NStr("en = 'Report distribution. Manual start';", Common.DefaultLanguageCode()));
+	LogParameters.Insert("EventName", NStr("en = 'Report distribution. Manual start'", Common.DefaultLanguageCode()));
 	LogParameters.Insert("Data", BulkEmail);
 	LogParameters.Insert("Metadata", ?(BulkEmail <> Undefined, BulkEmail.Metadata(), Undefined));
 	LogParameters.Insert("ErrorsArray", Undefined); // Service property.
@@ -942,18 +945,18 @@ Procedure SendBulkEmailsInBackgroundJob(ExecutionParameters, ResultAddress) Expo
 	NotCompleted2  = Prepared2 - Completed2;
 	
 	If Total = 0 Then
-		MessageText = NStr("en = 'The selected groups contain  no report distributions.';");
+		MessageText = NStr("en = 'The selected groups contain  no report distributions.'");
 	ElsIf Total <= 5 Then
 		MessageText = "";
 		For Each TableRow In MailingsTable Do
 			If Not TableRow.IsPrepared Then
-				MessageTemplate = NStr("en = 'Report distribution ""%1"" not prepared.';");
+				MessageTemplate = NStr("en = 'Report distribution ""%1"" not prepared.'");
 			ElsIf Not TableRow.Executed Then
-				MessageTemplate = NStr("en = 'Report distribution ""%1"" not completed.';");
+				MessageTemplate = NStr("en = 'Report distribution ""%1"" not completed.'");
 			ElsIf TableRow.WithErrors Then
-				MessageTemplate = NStr("en = 'The ""%1"" report distribution is partially completed';");
+				MessageTemplate = NStr("en = 'The ""%1"" report distribution is partially completed'");
 			Else
-				MessageTemplate = NStr("en = 'Report distribution ""%1"" completed successfully.';");
+				MessageTemplate = NStr("en = 'Report distribution ""%1"" completed successfully.'");
 			EndIf;
 			MessageTemplate = StringFunctionsClientServer.SubstituteParametersToString(MessageTemplate, TableRow.Presentation);
 			
@@ -968,7 +971,7 @@ Procedure SendBulkEmailsInBackgroundJob(ExecutionParameters, ResultAddress) Expo
 			NStr("en = 'Prepared %1 out of %2 report distributions
 			|Completed: %3
 			|Partially: %4
-			|Not completed: %5';"),
+			|Not completed: %5'"),
 			Format(Prepared2, "NZ=0; NG=0"), Format(Total, "NZ=0; NG=0"),
 			Format(Completed2,    "NZ=0; NG=0"),
 			Format(WithErrors,    "NZ=0; NG=0"),
@@ -1039,23 +1042,23 @@ Procedure ReportFormAddCommands(Form, Cancel, StandardProcessing) Export
 	CreateCommand = Form.Commands.Add(NamePrefix + "ReportMailingCreateNew");
 	CreateCommand.Action  = "ReportMailingClient.CreateNewBulkEmailFromReport";
 	CreateCommand.Picture  = PictureLib.ReportMailing;
-	CreateCommand.Title = NStr("en = 'Create report distribution';");
-	CreateCommand.ToolTip = NStr("en = 'Send report on schedule: distribute over email, publish to directory, and so on.';");
+	CreateCommand.Title = NStr("en = 'Create report distribution'");
+	CreateCommand.ToolTip = NStr("en = 'Send report on schedule: distribute over email, publish to directory, and so on.'");
 	Commands.Add(CreateCommand);
 	
 	AttachCommand = Form.Commands.Add("ReportMailingAddToExisting");
 	AttachCommand.Action  = "ReportMailingClient.AttachReportToExistingBulkEmail";
-	AttachCommand.Title = NStr("en = 'Include in distribution…';");
-	AttachCommand.ToolTip = NStr("en = 'Include this report option to an existing report distribution.';");
+	AttachCommand.Title = NStr("en = 'Include in distribution…'");
+	AttachCommand.ToolTip = NStr("en = 'Include this report option to an existing report distribution.'");
 	Commands.Add(AttachCommand);
 	
 	MailingsWithReportsNumber = MailingsWithReportsNumber(Form.ReportSettings.OptionRef);
 	If MailingsWithReportsNumber > 0 Then
 		MailingsCommand = Form.Commands.Add("ReportMailingOpenMailingsWithReport");
 		MailingsCommand.Action  = "ReportMailingClient.OpenBulkEmailsWithReport";
-		MailingsCommand.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Report distribution (%1)';"), 
+		MailingsCommand.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Report distribution (%1)'"), 
 			MailingsWithReportsNumber);
-		MailingsCommand.ToolTip = NStr("en = 'Show the list of distributions that contain the report.';");
+		MailingsCommand.ToolTip = NStr("en = 'Show the list of distributions that contain the report.'");
 		Commands.Add(MailingsCommand);
 	EndIf;
 	
@@ -1172,7 +1175,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		ToDoItem = ToDoList.Add();
 		ToDoItem.Id  = ToDoName + StrReplace(Section.FullName(), ".", "");
 		ToDoItem.HasToDoItems       = IssuesCount > 0;
-		ToDoItem.Presentation  = NStr("en = 'Report distribution issues';");
+		ToDoItem.Presentation  = NStr("en = 'Report distribution issues'");
 		ToDoItem.Count     = IssuesCount;
 		ToDoItem.Form          = "Catalog.ReportMailings.ListForm";
 		ToDoItem.FormParameters = FormParameters;
@@ -1240,7 +1243,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.ObjectsToLock = "Catalog.ReportMailings";
 	Handler.CheckProcedure  = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
 	Handler.Comment = NStr("en = 'Set default report name templates in report distributions. 
-		|Set the Attach reports checkbox. We do not recommend that you run report distributions until processing is completed.';");
+		|Set the Attach reports checkbox. We do not recommend that you run report distributions until processing is completed.'");
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		Handler.ExecutionPriorities = InfobaseUpdate.HandlerExecutionPriorities();
@@ -1372,19 +1375,19 @@ Procedure ExecuteScheduledMailing(BulkEmail) Export
 	InformationRegisters.ReportMailingStates.FixMailingStart(BulkEmail);
 	
 	If Not AccessRight("Read", Metadata.Catalogs.ReportMailings) Then
-		Raise(NStr("en = 'Insufficient rights to view the report distributions.';"), ErrorCategory.AccessViolation);
+		Raise(NStr("en = 'Insufficient rights to view the report distributions.'"), ErrorCategory.AccessViolation);
 	EndIf;
 		
 	Query = New Query("SELECT ALLOWED ExecuteOnSchedule FROM Catalog.ReportMailings WHERE Ref = &Ref");
 	Query.SetParameter("Ref", BulkEmail);
 	Selection = Query.Execute().Select();
 	If Not Selection.Next() Then
-		Raise(NStr("en = 'Insufficient rights to view the report distribution.';"), ErrorCategory.AccessViolation);
+		Raise(NStr("en = 'Insufficient rights to view the report distribution.'"), ErrorCategory.AccessViolation);
 	EndIf;
 	If Not Selection.ExecuteOnSchedule Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The ""Schedule"" check box is cleared for report distribution ""%1"". 
-				|Disable the associated scheduled task or edit the report distribution.';"),
+				|Disable the associated scheduled task or edit the report distribution.'"),
 			String(BulkEmail));
 	EndIf;
 	
@@ -1441,10 +1444,10 @@ Function GenerateMailingRecipientsList(BulkEmail, LogParameters = Undefined, Del
 		EndIf;
 	EndIf;
 	
-	EmptyRecipientValue = ?(TypeOf(RecipientsType) = Type("Type"), New (RecipientsType), Undefined);
-	SearchParameters = New Structure("Recipient", EmptyRecipientValue);
-	LinesWithoutRecipients = TableOfRecipients.FindRows(SearchParameters);
-	For Each RecipientRow In LinesWithoutRecipients Do
+	RecipientEmptyValue = ?(TypeOf(RecipientsType) = Type("Type"), New (RecipientsType), Undefined);
+	SearchParameters = New Structure("Recipient", RecipientEmptyValue);
+	RowsWithoutRecipients = TableOfRecipients.FindRows(SearchParameters);
+	For Each RecipientRow In RowsWithoutRecipients Do
 		TableOfRecipients.Delete(RecipientRow);
 	EndDo;
 	
@@ -1559,7 +1562,7 @@ Function GenerateMailingRecipientsList(BulkEmail, LogParameters = Undefined, Del
 	Query.Text = QueryText;
 	
 	ErrorMessageTextForEventLog = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Cannot generate recipient list ""%1"" due to:';"), String(RecipientsType));
+		NStr("en = 'Cannot generate recipient list ""%1"" due to:'"), String(RecipientsType));
 	
 	// Extension mechanism.
 	Try
@@ -1601,7 +1604,7 @@ Function GenerateMailingRecipientsList(BulkEmail, LogParameters = Undefined, Del
 	If RecipientsWithoutAnAddress.Count() > 0 And LogParameters <> Undefined Then
 		
 		PatternOfTheWarningText = NStr("en = 'The reports were not sent to the following recipients as the email address is not filled in:
-			|-%1.';");
+			|-%1.'");
 		
 		WarningText = StringFunctionsClientServer.SubstituteParametersToString(
 			PatternOfTheWarningText, StrConcat(RecipientsWithoutAddressDescriptions, ";" + Chars.LF + "- "));
@@ -1615,9 +1618,9 @@ Function GenerateMailingRecipientsList(BulkEmail, LogParameters = Undefined, Del
 				HistoryFields = ReportDistributionHistoryFields(LogParameters.Data, RecipientsWithoutAddress, DeliveryParameters.ExecutionDate);
 				HistoryFields.Account = DeliveryParameters.Account;
 				If DeliveryParameters.NotifyOnly Then
-					HistoryFields.Comment = NStr("en = 'Couldn''t send notifications: Email address not specified.';");
+					HistoryFields.Comment = NStr("en = 'Couldn''t send notifications: Email address not specified.'");
 				Else
-					HistoryFields.Comment = NStr("en = 'Couldn''t send notifications: Email address not specified.';");
+					HistoryFields.Comment = NStr("en = 'Couldn''t send notifications: Email address not specified.'");
 				EndIf;
 				HistoryFields.Executed = False;
 				HistoryFields.MethodOfObtaining = DistributionReceiptMethod(DeliveryParameters, RecipientsWithoutAddress);
@@ -1634,7 +1637,7 @@ Function GenerateMailingRecipientsList(BulkEmail, LogParameters = Undefined, Del
 		| - The list of recipients is empty or recipients are marked for deletion.
 		| - The groups of recipients are empty.
 		| - All recipients are excluded. If you exclude a group, all its members are excluded from the recipient list.
-		| - You have insufficient rights to access catalog ""%1"".';");
+		| - You have insufficient rights to access catalog ""%1"".'");
 		
 		LogRecord(LogParameters, EventLogLevel.Error,
 			StringFunctionsClientServer.SubstituteParametersToString(ErrorsText, String(RecipientsType),
@@ -1674,10 +1677,10 @@ Function GenerateArrayOfDistributionRecipients(BulkEmail, LogParameters)
 		TableOfRecipients = BulkEmail.Recipients.Unload();
 	EndIf;
 	
-	EmptyRecipientValue = ?(TypeOf(RecipientsType) = Type("Type"), New (RecipientsType), Undefined);
-	SearchParameters = New Structure("Recipient", EmptyRecipientValue);
-	LinesWithoutRecipients = TableOfRecipients.FindRows(SearchParameters);
-	For Each RecipientRow In LinesWithoutRecipients Do
+	RecipientEmptyValue = ?(TypeOf(RecipientsType) = Type("Type"), New (RecipientsType), Undefined);
+	SearchParameters = New Structure("Recipient", RecipientEmptyValue);
+	RowsWithoutRecipients = TableOfRecipients.FindRows(SearchParameters);
+	For Each RecipientRow In RowsWithoutRecipients Do
 		TableOfRecipients.Delete(RecipientRow);
 	EndDo;
 	
@@ -1770,7 +1773,7 @@ Function GenerateArrayOfDistributionRecipients(BulkEmail, LogParameters)
 	Query.Text = QueryText;
 	
 	ErrorMessageTextForEventLog = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Cannot generate recipient list ""%1"" due to:';"), String(RecipientsType));
+		NStr("en = 'Cannot generate recipient list ""%1"" due to:'"), String(RecipientsType));
 	
 	// Extension mechanism.
 	RecipientsList = New Map;
@@ -1915,7 +1918,7 @@ Function InitializeReport(LogParameters, ReportParameters, PersonalizationAvaila
 		CommonClientServer.SupplementStructure(ReportParameters, Connection, True);
 	Except
 		ReportParameters.Errors = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot import settings from the ""%1"" report.';"),
+			NStr("en = 'Cannot import settings from the ""%1"" report.'"),
 			String(ReportParameters.Report));
 		LogRecord(
 			LogParameters,
@@ -1928,7 +1931,7 @@ Function InitializeReport(LogParameters, ReportParameters, PersonalizationAvaila
 	// In existing mailings, we generate only reports that are ready for mailing.
 	If ReportMailingCached.ReportsToExclude().Find(Connection.RefOfReport) <> Undefined Then
 		ReportParameters.Errors = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Report ""%1"" is not intended for distribution.';"), String(Connection.RefOfReport));
+			NStr("en = 'Report ""%1"" is not intended for distribution.'"), String(Connection.RefOfReport));
 		LogRecord(LogParameters, EventLogLevel.Error, ReportParameters.Errors);
 		Return False;
 	EndIf;
@@ -2029,7 +2032,7 @@ Function GenerateReport(LogParameters, ReportParameters, Recipient = Undefined)
 	
 	If Not ReportParameters.Property("Initialized") Then
 		LogRecord(LogParameters, ,
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Report ''%1'' not initialized';"), String(ReportParameters.Report)));
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Report ''%1'' not initialized'"), String(ReportParameters.Report)));
 		Return Result;
 	EndIf;
 	
@@ -2038,7 +2041,7 @@ Function GenerateReport(LogParameters, ReportParameters, Recipient = Undefined)
 	
 	If Not Generation1.Success Then
 		LogRecord(LogParameters, EventLogLevel.Error,
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Report ""%1"":';"),
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Report ""%1"":'"),
 			String(ReportParameters.Report)), Generation1.ErrorText);
 		Result.TabDoc = Undefined;
 		Return Result;
@@ -2252,7 +2255,7 @@ Function PermissionsToUseServerResources(BulkEmail) Export
 				BulkEmail.NetworkDirectoryWindows,
 				True,
 				True,
-				NStr("en = 'Network directory to publish reports from a Windows server.';"));
+				NStr("en = 'Network directory to publish reports from a Windows server.'"));
 			Permissions.Add(Item);
 		EndIf;
 		If ValueIsFilled(BulkEmail.NetworkDirectoryLinux) Then
@@ -2260,7 +2263,7 @@ Function PermissionsToUseServerResources(BulkEmail) Export
 				BulkEmail.NetworkDirectoryLinux,
 				True,
 				True,
-				NStr("en = 'Network directory to publish reports from a Linux server.';"));
+				NStr("en = 'Network directory to publish reports from a Linux server.'"));
 			Permissions.Add(Item);
 		EndIf;
 	EndIf;
@@ -2270,7 +2273,7 @@ Function PermissionsToUseServerResources(BulkEmail) Export
 				"FTP",
 				BulkEmail.FTPServer + BulkEmail.FTPDirectory,
 				BulkEmail.FTPPort,
-				NStr("en = 'FTP server to publish reports.';"));
+				NStr("en = 'FTP server to publish reports.'"));
 			Permissions.Add(Item);
 		EndIf;
 	EndIf;
@@ -2398,25 +2401,25 @@ EndFunction
 //   String
 //
 Function DeliveryMethodsPresentation(DeliveryParameters) Export
-	Prefix = NStr("en = 'Result';");
+	Prefix = NStr("en = 'Result'");
 	PresentationText = "";
 	Suffix = "";
 	
 	If Not DeliveryParameters.NotifyOnly Then
 		
 		PresentationText = PresentationText 
-		+ ?(PresentationText = "", Prefix, " " + NStr("en = 'and';")) 
+		+ ?(PresentationText = "", Prefix, " " + NStr("en = 'and'")) 
 		+ " "
-		+ NStr("en = 'sent by email (see attachment)';");
+		+ NStr("en = 'sent by email (see attachment)'");
 		
 	EndIf;
 	
 	If DeliveryParameters.ExecutedToFolder Then
 		
 		PresentationText = PresentationText 
-		+ ?(PresentationText = "", Prefix, " " + NStr("en = 'and';")) 
+		+ ?(PresentationText = "", Prefix, " " + NStr("en = 'and'")) 
 		+ " "
-		+ NStr("en = 'delivered to folder';")
+		+ NStr("en = 'delivered to folder'")
 		+ " ";
 		
 		Ref = GetInfoBaseURL() +"#"+ GetURL(DeliveryParameters.Folder);
@@ -2441,9 +2444,9 @@ Function DeliveryMethodsPresentation(DeliveryParameters) Export
 	If DeliveryParameters.ExecutedToNetworkDirectory Then
 		
 		PresentationText = PresentationText 
-		+ ?(PresentationText = "", Prefix, " " + NStr("en = 'and';")) 
+		+ ?(PresentationText = "", Prefix, " " + NStr("en = 'and'")) 
 		+ " "
-		+ NStr("en = 'delivered to network directory';")
+		+ NStr("en = 'delivered to network directory'")
 		+ " ";
 		
 		If DeliveryParameters.HTMLFormatEmail Then
@@ -2465,9 +2468,9 @@ Function DeliveryMethodsPresentation(DeliveryParameters) Export
 	If DeliveryParameters.ExecutedAtFTP Then
 		
 		PresentationText = PresentationText 
-		+ ?(PresentationText = "", Prefix, " " + NStr("en = 'and';")) 
+		+ ?(PresentationText = "", Prefix, " " + NStr("en = 'and'")) 
 		+ " "
-		+ NStr("en = 'delivered to FTP resource';")
+		+ NStr("en = 'delivered to FTP resource'")
 		+ " ";
 		
 		Ref = "ftp://"
@@ -2533,7 +2536,7 @@ Function FillTemplate(Template, Parameters) Export
 			FormatString = Mid(Result, Position1 + LengthLeftFormat, Position2 - Position1 - LengthLeftFormat);
 			Try
 				If TypeOf(KeyAndValue.Value) = Type("StandardPeriod") Then
-					ValueWithFormat = NStr("en = '%StartDate% - %EndDate%';");
+					ValueWithFormat = NStr("en = '%StartDate% - %EndDate%'");
 					ValueWithFormat = StrReplace(ValueWithFormat, "%StartDate%", Format(
 						KeyAndValue.Value.StartDate, FormatString));
 					ValueWithFormat = StrReplace(ValueWithFormat, "%EndDate%", Format(
@@ -2595,10 +2598,10 @@ Procedure GenerateAndSaveReport(LogParameters, ReportParameters, ReportsTree, De
 		   And TypeOf(LogParameters.Data) = Type("CatalogRef.ReportMailings") Then
 			If Result.Generated1 Then
 				MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-				"en = '- ""%1"" is not sent as it is empty.';"), String(ReportParameters.Report));
+				"en = '- ""%1"" is not sent as it is empty.'"), String(ReportParameters.Report));
 			Else
 				MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-				"en = '- ""%1"" is not sent as it is not generated due to incorrect parameters.';"),
+				"en = '- ""%1"" is not sent as it is not generated due to incorrect parameters.'"),
 				String(ReportParameters.Report));
 			EndIf;
 			
@@ -2670,7 +2673,7 @@ Procedure GenerateAndSaveReport(LogParameters, ReportParameters, ReportsTree, De
 	Else
 		Period = GetPeriodFromUserSettings(ReportParameters.DCUserSettings);
 		IsReportPreparedForEmailText = False;
-	// Save a spreadsheet document in formats.
+		// Save a spreadsheet document in formats.
 		FormatsPresentation = "";
 		For Each Format In ReportParameters.Formats Do
 
@@ -2687,24 +2690,21 @@ Procedure GenerateAndSaveReport(LogParameters, ReportParameters, ReportsTree, De
 			FindFreeFileName(FullFileName);
 
 			StandardProcessing = True;
-		
-		// Extension mechanism.
 			ReportMailingOverridable.BeforeSaveSpreadsheetDocumentToFormat(
-			StandardProcessing, RowReport.Value, Format, FullFileName);
+				StandardProcessing, RowReport.Value, Format, FullFileName);
 		
-		// Save a report by the built-in subsystem tools.
+			// Save a report with the built-in tools.
 			If StandardProcessing = True Then
-				ErrorTitle = NStr("en = 'Error saving report %1 as %2:';");
+				ErrorTitle = NStr("en = 'Cannot save report %1 as %2:'");
 
 				If FormatParameters.FileType = Undefined Then
 					LogRecord(LogParameters, EventLogLevel.Error,
 						StringFunctionsClientServer.SubstituteParametersToString(ErrorTitle, RowReport.Key,
-						FormatParameters.Name), NStr("en = 'Format is not supported.';"));
+						FormatParameters.Name), NStr("en = 'Format is not supported.'"));
 					Continue;
 				EndIf;
 
 				ResultDocument = RowReport.Value; // SpreadsheetDocument
-
 				Try
 					ResultDocument.Write(FullFileName, FormatParameters.FileType);
 				Except
@@ -2715,28 +2715,28 @@ Procedure GenerateAndSaveReport(LogParameters, ReportParameters, ReportsTree, De
 				EndTry;
 			EndIf;
 		
-		// Checks and result registration.
+			// Checks and result registration.
 			TempFile = New File(FullFileName);
 			If Not TempFile.Exists() Then
 				LogRecord(LogParameters, EventLogLevel.Error,
-					StringFunctionsClientServer.SubstituteParametersToString(ErrorTitle + Chars.LF + NStr(
-					"en = 'File ""%3"" does not exist.';"), RowReport.Key, FormatParameters.Name,
+					StringFunctionsClientServer.SubstituteParametersToString(ErrorTitle + Chars.LF 
+						+ NStr("en = 'File ""%3"" does not exist.'"), RowReport.Key, FormatParameters.Name,
 					TempFile.FullName));
 				Continue;
 			EndIf;
 		
-		// Register the final result: the report saved to a temp directory.
-		// 3 - Recipients' files
-		//   Key - Filename
-		//   Value - Full file path.
-		//   Settings - File settings.
+			// Register the final result: the report saved to a temp directory.
+			// 3 - Recipients' files
+			//   Key - Filename
+			//   Value - Full file path.
+			//   Settings - File settings.
 			FileRow = RowReport.Rows.Add();
 			FileRow.Level = 3;
 			FileRow.Key      = TempFile.Name;
 			FileRow.Value  = TempFile.FullName;
 
 			FileRow.Settings = New Structure("FileWithDirectory, FileName, FullFileName, DirectoryName, FullDirectoryName, 
-												   |Format, Name, Extension, FileType, Ref");
+				|Format, Name, Extension, FileType, Ref");
 
 			FileRow.Settings.Format = Format;
 			FillPropertyValues(FileRow.Settings, FormatParameters, "Name, Extension, FileType");
@@ -2853,11 +2853,11 @@ Function PathToTempReportFileForEmailText(DeliveryParameters, ReportParameters, 
 		FormatParameters, DeliveryParameters, ReportParameters.DescriptionTemplate, Undefined);
 
 	FindFreeFileName(FullFileName);
-	ErrorTitle = NStr("en = 'Error saving report %1 as %2:';");
+	ErrorTitle = NStr("en = 'Cannot save report %1 as %2:'");
 	If FormatParameters.FileType = Undefined Then
 		LogRecord(LogParameters, EventLogLevel.Error,
 			StringFunctionsClientServer.SubstituteParametersToString(ErrorTitle, ReportParameters.ReportPresentation,
-			FormatParameters.Name), NStr("en = 'Format is not supported.';"));
+			FormatParameters.Name), NStr("en = 'Format is not supported.'"));
 		Return Undefined;
 	EndIf;
 
@@ -2887,7 +2887,7 @@ Function CheckAndFillExecutionParameters(ReportsTable, DeliveryParameters, Maili
 		LogParameters = New Structure;
 	EndIf;
 	If Not LogParameters.Property("EventName") Then
-		LogParameters.Insert("EventName", NStr("en = 'Report distribution. Manual start';", Common.DefaultLanguageCode()));
+		LogParameters.Insert("EventName", NStr("en = 'Report distribution. Manual start'", Common.DefaultLanguageCode()));
 	EndIf;
 	If Not LogParameters.Property("Data") Then
 		LogParameters.Insert("Data", MailingDescription);
@@ -2909,7 +2909,7 @@ Function CheckAndFillExecutionParameters(ReportsTable, DeliveryParameters, Maili
 	Unavailable2 = ReportsAvailability.Copy(New Structure("Available", False));
 	If Unavailable2.Count() > 0 Then
 		LogRecord(LogParameters, EventLogLevel.Error,
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Report distribution contains unavailable reports (%1):%2';"),
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Report distribution contains unavailable reports (%1):%2'"),
 			Unavailable2.Count(),
 			Chars.LF + Chars.Tab + StrConcat(Unavailable2.UnloadColumn("Presentation"), Chars.LF + Chars.Tab)));
 		Return False;
@@ -2929,7 +2929,7 @@ Function CheckAndFillExecutionParameters(ReportsTable, DeliveryParameters, Maili
 		If Not ValueIsFilled(DeliveryParameters.Folder) Then
 			DeliveryParameters.UseFolder = False;
 			LogRecord(LogParameters, EventLogLevel.Warning,
-				NStr("en = 'Directory not specified. Delivery to directory is disabled.';"));
+				NStr("en = 'Directory not specified. Delivery to directory is disabled.'"));
 		Else
 			If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 				ModuleFilesOperationsInternal = Common.CommonModule("FilesOperationsInternal");
@@ -2942,7 +2942,7 @@ Function CheckAndFillExecutionParameters(ReportsTable, DeliveryParameters, Maili
 				FoldersPresentation = String(DeliveryParameters.Folder);
 				SetPrivilegedMode(False);
 				LogRecord(LogParameters, EventLogLevel.Error,
-					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Insufficient rights to create files in directory ""%1"".';"),
+					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Insufficient rights to create files in directory ""%1"".'"),
 					FoldersPresentation));
 				Return False;
 			EndIf;
@@ -2954,16 +2954,16 @@ Function CheckAndFillExecutionParameters(ReportsTable, DeliveryParameters, Maili
 			Or Not ValueIsFilled(DeliveryParameters.NetworkDirectoryLinux) Then
 			
 			If ValueIsFilled(DeliveryParameters.NetworkDirectoryWindows) Then
-				SubstitutionValue = NStr("en = 'Linux';");
+				SubstitutionValue = NStr("en = 'Linux'");
 			ElsIf ValueIsFilled(DeliveryParameters.NetworkDirectoryLinux) Then
-				SubstitutionValue = NStr("en = 'Windows';");
+				SubstitutionValue = NStr("en = 'Windows'");
 			Else
-				SubstitutionValue = NStr("en = 'Windows and Linux';");
+				SubstitutionValue = NStr("en = 'Windows and Linux'");
 			EndIf;
 			
 			DeliveryParameters.UseNetworkDirectory = False;
 			LogRecord(LogParameters, EventLogLevel.Error,
-				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Network directory %1 not selected. Delivery to network directory is disabled.';"),
+				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Network directory %1 not selected. Delivery to network directory is disabled.'"),
 				SubstitutionValue));
 			
 		Else
@@ -2979,19 +2979,19 @@ Function CheckAndFillExecutionParameters(ReportsTable, DeliveryParameters, Maili
 	If DeliveryParameters.UseFTPResource And Not ValueIsFilled(DeliveryParameters.Server) Then
 		DeliveryParameters.UseFTPResource = False;
 		LogRecord(LogParameters, EventLogLevel.Error,
-			NStr("en = 'FTP server not specified. Delivery to FTP directory is disabled.';"));
+			NStr("en = 'FTP server not specified. Delivery to FTP directory is disabled.'"));
 	EndIf;
 	
 	If DeliveryParameters.UseEmail And Not ValueIsFilled(DeliveryParameters.Account) Then
 		DeliveryParameters.UseEmail = False;
 		LogRecord(LogParameters, EventLogLevel.Error,
-			NStr("en = 'Email account is not selected. Email delivery is disabled.';"));
+			NStr("en = 'Email account is not selected. Email delivery is disabled.'"));
 	EndIf;
 	
 	If DeliveryParameters.Personalized Then
 		If Not DeliveryParameters.UseEmail Then
 			LogRecord(LogParameters, EventLogLevel.Error,
-				NStr("en = 'Individual reports can be distributed via email only.';"));
+				NStr("en = 'Individual reports can be distributed via email only.'"));
 			Return False;
 		EndIf;
 		
@@ -3007,7 +3007,7 @@ Function CheckAndFillExecutionParameters(ReportsTable, DeliveryParameters, Maili
 			And Not DeliveryParameters.UseNetworkDirectory
 			And Not DeliveryParameters.UseFTPResource Then
 			LogRecord(LogParameters, EventLogLevel.Warning,
-				NStr("en = 'Email notifications are available only with other delivery methods.';"));
+				NStr("en = 'Email notifications are available only with other delivery methods.'"));
 			Return False;
 		EndIf;
 		
@@ -3346,7 +3346,7 @@ Function AdditionalDistributionResultParameters(DeliveryParameters, RecipientRow
 
 		AdditionalInformation = "";
 		If SendHiddenCopiesToSender Then
-			AdditionalInformation = NStr("en = 'A copy was sent to the sender.';");
+			AdditionalInformation = NStr("en = 'A copy was sent to the sender.'");
 		EndIf;
 		
 		AdditionalParameters = New Structure;
@@ -3368,7 +3368,7 @@ Procedure RecordEmailDistributionResult(DeliveryParameters, LogParameters, Recip
 		
 		If DeliveryParameters.NotifyOnly Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Notifications are sent from %2 to %1. %3';"), RecipientPresentation1,
+			NStr("en = 'Notifications are sent from %2 to %1. %3'"), RecipientPresentation1,
 			AdditionalParameters.SenderSRepresentation, AdditionalParameters.AdditionalInformation);
 		Else
 			MessageText = TestOfSuccessfulReportDistribution(DeliveryParameters, 
@@ -3550,7 +3550,8 @@ EndFunction
 //
 // Parameters:
 //   Attachments - Map
-//            - ValueTreeRow - See CreateReportsTree, the return value, level 3.
+//            - ValueTreeRow - See CreateReportsTree
+//                                     , the return value, level 3.
 //   DeliveryParameters - See ExecuteBulkEmail.DeliveryParameters
 //   TempFilesDir - String - a directory for archiving.
 //
@@ -3560,7 +3561,7 @@ Procedure ArchiveAttachments(Attachments, DeliveryParameters, TempFilesDir, LogP
 	EndIf;
 	
 	If DeliveryParameters.ShouldSetPasswordsAndEncrypt And ValueIsFilled(DeliveryParameters.CertificateToEncrypt) Then
-		ArchiveNameTooltip = NStr("en = '(Decrypt)';");
+		ArchiveNameTooltip = NStr("en = '(Decrypt)'");
 		If Lower(Right(DeliveryParameters.ArchiveName, 4)) <> ".zip" Then
 			DeliveryParameters.ArchiveName = DeliveryParameters.ArchiveName + " " + ArchiveNameTooltip +".zip";
 		Else
@@ -3607,7 +3608,7 @@ Procedure ArchiveAttachments(Attachments, DeliveryParameters, TempFilesDir, LogP
 				DeliveryParameters.RecipientReportsPresentation 
 				+ Chars.LF 
 				+ Chars.LF
-				+ NStr("en = 'Report files are archived';")
+				+ NStr("en = 'Report files are archived'")
 				+ " ";
 		EndIf;
 		
@@ -3805,7 +3806,7 @@ Function OutputRight(LogParameters)
 	OutputRight = AccessRight("Output", Metadata);
 	If Not OutputRight Then
 		LogRecord(LogParameters, EventLogLevel.Error,
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 has insufficient rights to export data.';"),
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 has insufficient rights to export data.'"),
 			Users.CurrentUser()));
 	EndIf;
 	Return OutputRight;
@@ -3824,7 +3825,7 @@ Function MessagesToUserString(Errors = Undefined, SeeEventLog = True) Export
 		AllErrors = TrimAll(AllErrors + Indent + ?(TypeOf(Error) = Type("String"), Error, Error.Text));
 	EndDo;
 	If AllErrors <> "" And SeeEventLog Then
-		AllErrors = AllErrors + Indent + "---" + Indent + NStr("en = 'See the event log for details.';");
+		AllErrors = AllErrors + Indent + "---" + Indent + NStr("en = 'See the event log for details.'");
 	EndIf;
 	
 	Return AllErrors;
@@ -3966,7 +3967,7 @@ Function TestOfSuccessfulReportDistribution(DeliveryParameters, RecipientRow, Re
 
 	If GeneratedReports.Count() = 1 Then 
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '- ""%1"" is sent from %2. %3';"), GeneratedReports[0],
+			NStr("en = '- ""%1"" is sent from %2. %3'"), GeneratedReports[0],
 			SenderSRepresentation, AdditionalInfo);	
 	Else
 
@@ -3981,13 +3982,13 @@ Function TestOfSuccessfulReportDistribution(DeliveryParameters, RecipientRow, Re
 		EndDo;
 				
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 are sent from %2. %3';"), ReportsAsString, SenderSRepresentation,
+			NStr("en = '%1 are sent from %2. %3'"), ReportsAsString, SenderSRepresentation,
 				AdditionalInfo);
 
 	EndIf;
 
 	If DeliveryParameters.Archive Then
-		PackedToArchive = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Packed in the ""%1"" archive';"), DeliveryParameters.ArchiveName);
+		PackedToArchive = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Packed in the ""%1"" archive'"), DeliveryParameters.ArchiveName);
 		MessageText = MessageText + Chars.LF + PackedToArchive;	
 	EndIf;
 
@@ -4050,13 +4051,13 @@ EndFunction
 // Checks rights and generates error text.
 Function CheckAddRightErrorText() Export
 	If Not AccessRight("Output", Metadata) Then
-		Return NStr("en = 'You have insufficient rights to export data.';");
+		Return NStr("en = 'You have insufficient rights to export data.'");
 	EndIf;
 	If Not AccessRight("Update", Metadata.Catalogs.ReportMailings) Then
-		Return NStr("en = 'You have insufficient rights to distribute reports.';");
+		Return NStr("en = 'You have insufficient rights to distribute reports.'");
 	EndIf;
 	If Not EmailOperations.CanSendEmails() Then
-		Return NStr("en = 'You have insufficient rights to send emails or no email accounts.';");
+		Return NStr("en = 'You have insufficient rights to send emails or no email accounts.'");
 	EndIf;
 	Return "";
 EndFunction
@@ -4198,14 +4199,14 @@ Procedure SendBulkSMSMessagesWithReportDistributionArchivePasswordsInBackgroundJ
 			RecipientResult.NotSent = True;
 		Else	
 			SentCount = SentCount + 1;
-			RecipientResult.Comment = NStr("en = 'The text message is sent.';");
+			RecipientResult.Comment = NStr("en = 'The text message is sent.'");
 		EndIf;
 		ResultByRecipients.Add(RecipientResult);
 	EndDo;
 	
 	UnsentCount = Parameters.UnsentCount + DistributionErrorsMessages.Count();
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Text messages with archive passwords are sent. Sent: %1. Not sent: %2.';"), SentCount,
+		NStr("en = 'Text messages with archive passwords are sent. Sent: %1. Not sent: %2.'"), SentCount,
 		UnsentCount);
 	
 	Result = New Structure;
@@ -4250,11 +4251,11 @@ Procedure HandleEncryptionError(ResultAddress, CertificateToEncrypt, ErrorInfo, 
 		StringsErrors = New Array;
 		StringsErrors.Add(Refinement.Text);
 		If ValueIsFilled(ClassifierError.Cause) Then
-			Reasons = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Possible reasons: %1';"), ClassifierError.Cause);
+			Reasons = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Possible reasons: %1'"), ClassifierError.Cause);
 			StringsErrors.Add(Reasons);
 		EndIf;
 		If ValueIsFilled(ClassifierError.Decision) Then
-			Decision = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Recommendations: %1';"), ClassifierError.Decision);
+			Decision = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Recommendations: %1'"), ClassifierError.Decision);
 			StringsErrors.Add(Decision);
 		EndIf;
 		ErrorText = StrConcat(StringsErrors, Chars.LF);
@@ -4294,37 +4295,37 @@ Function DistributionReceiptMethod(DeliveryParameters, Recipient, MailAddr = "")
 		EndIf;
 
 		MethodOfObtaining = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-			"en = 'Publish to the network directory: ""%1"".';"), ServerNetworkDdirectory);
+			"en = 'Publish to the network directory: ""%1"".'"), ServerNetworkDdirectory);
 	EndIf;
 
 	If DeliveryParameters.UseFTPResource Then
 		FTPResource = "ftp://" + DeliveryParameters.Server + ":" + Format(DeliveryParameters.Port, "NZ=0; NG=0")
 			+ DeliveryParameters.Directory;
 		MethodOfObtaining = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-			"en = 'Publish to the FTP resource: ""%1"".';"), FTPResource);
+			"en = 'Publish to the FTP resource: ""%1"".'"), FTPResource);
 	EndIf;
 
 	If DeliveryParameters.UseFolder Then
 		MethodOfObtaining = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-			"en = 'Publish to the folder: ""%1"".';"), String(DeliveryParameters.Folder));
+			"en = 'Publish to the folder: ""%1"".'"), String(DeliveryParameters.Folder));
 	EndIf;
 
 	If DeliveryParameters.UseEmail Then
 		If Not ValueIsFilled(MailAddr) Then
 			If DeliveryParameters.Recipients <> Undefined Then
 				Address = DeliveryParameters.Recipients.Get(Recipient);
-				MailAddr = ?(Address <> Undefined, Address, NStr("en = 'An email address is not specified.';"));
+				MailAddr = ?(Address <> Undefined, Address, NStr("en = 'An email address is not specified.'"));
 			Else
-				MailAddr = NStr("en = 'An email address is not specified.';");	
+				MailAddr = NStr("en = 'An email address is not specified.'");	
 			EndIf;
 		EndIf;
 		If DeliveryParameters.NotifyOnly Then
 			Text = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-				"en = 'Send a notification by email: ""%1"".';"), MailAddr);
+				"en = 'Send a notification by email: ""%1"".'"), MailAddr);
 			MethodOfObtaining = ?(ValueIsFilled(MethodOfObtaining), MethodOfObtaining + " " + Text, Text);
 		Else
 			Text = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-				"en = 'Send by email: ""%1"".';"), MailAddr);
+				"en = 'Send by email: ""%1"".'"), MailAddr);
 			MethodOfObtaining = ?(ValueIsFilled(MethodOfObtaining), MethodOfObtaining + " " + Text, Text);
 		EndIf;
 
@@ -4403,7 +4404,7 @@ Procedure ClearUpReportDistributionHistoryInBackgroundJob(Parameters, ResultAddr
 	
 	MessageText = StringFunctionsClientServer.StringWithNumberForAnyLanguage(NStr(
 		"en = ';%1 report distribution history record is cleared;;;;
-		|%1 report distribution history records are cleared';"),
+		|%1 report distribution history records are cleared'"),
 		DeletionResult.DeletedCount);
 	
 	Result = New Structure;
@@ -4438,7 +4439,7 @@ Function TextTemplate1(AllParametersOfFilesAndEmailText = Undefined) Export
 		Return StringFunctionsClientServer.SubstituteParametersToString(NStr(
 		"en = 'Reports are generated:
 		|
-		|%1';"),
+		|%1'"),
 		"[" + AllParametersOfFilesAndEmailText.GeneratedReports + "]
 		|
 		|[" + AllParametersOfFilesAndEmailText.DeliveryMethod + "]
@@ -4449,7 +4450,7 @@ Function TextTemplate1(AllParametersOfFilesAndEmailText = Undefined) Export
 		Return StringFunctionsClientServer.SubstituteParametersToString(NStr(
 		"en = 'Reports are generated:
 		|
-		|%1';"),
+		|%1'"),
 		"[GeneratedReports]
 		|
 		|[DeliveryMethod]
@@ -4553,15 +4554,15 @@ Function ReportDistributionProgressText(DeliveryParameters, SentCount, QuantityT
 	If DeliveryParameters.UseNetworkDirectory Then
 		Text = NStr("en = 'Distributing the reports.
 			|Reports placed to the network directory: %1 out of %2.
-			|Please wait…';");
+			|Please wait…'");
 	ElsIf DeliveryParameters.UseFTPResource Then
 		Text = NStr("en = 'Distributing the reports.
 			|Reports published on FTP: %1 out of %2.
-			|Please wait...';");
+			|Please wait...'");
 	Else 
 		Text = NStr("en = 'Distributing the reports.
 			|Sent %1 out of %2.
-			|Please wait...';");
+			|Please wait...'");
 	EndIf;
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(Text,
@@ -4713,7 +4714,7 @@ Procedure ResendByEmail(ReportsTable, DeliveryParameters, BulkEmail, LogParamete
 
 	LogRecord(LogParameters,
 		EventLogLevel.Note,
-		NStr("en = 'Resend the reports by email.';"));
+		NStr("en = 'Resend the reports by email.'"));
 
 	ExecuteBulkEmail(ReportsTable, DeliveryParameters, BulkEmail, LogParameters);
 	
@@ -4730,7 +4731,7 @@ Function RunReportsGeneration(Var_Reports, DeliveryParameters, MailingDescriptio
 			"ShouldLogReportDistributionAccelerationPrompt", True);
 		If Not Common.FileInfobase() And Not Common.DataSeparationEnabled() And WriteToLog Then
 			LogRecord(LogParameters, EventLogLevel.Information, NStr(
-				"en = 'Reports can be sent faster. To send reports in multiple threads, specify a directory of temporary files of the 1C:Enterprise server cluster.';"));
+				"en = 'Reports can be sent faster. To send reports in multiple threads, specify a directory of temporary files of the 1C:Enterprise server cluster.'"));
 			Common.CommonSettingsStorageSave("ReportMailings", "ShouldLogReportDistributionAccelerationPrompt", False);
 		EndIf;
 		
@@ -4748,9 +4749,9 @@ Function RunReportsGenerationInSingleThread(Var_Reports, DeliveryParameters, Mai
 	DeliveryParameters.GeneralReportsRow = DefineTreeRowForRecipient(ReportsTree, Undefined, DeliveryParameters);
 	
 	For Each RowReport In Var_Reports Do
-		LogText = NStr("en = 'Generating report: %1';");
+		LogText = NStr("en = 'Generating report: %1'");
 		If RowReport.Settings = Undefined Then
-			LogText = LogText + Chars.LF + NStr("en = '(user settings are not set)';");
+			LogText = LogText + Chars.LF + NStr("en = '(user settings are not set)'");
 		EndIf;
 		
 		ReportPresentation = String(RowReport.Report);
@@ -4768,7 +4769,7 @@ Function RunReportsGenerationInSingleThread(Var_Reports, DeliveryParameters, Mai
 		
 		If DeliveryParameters.Personalized And Not ReportParameters.IsPersonalized Then
 			ReportParameters.Errors = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot generate report ""%1"". Recipient is required.';"),
+				NStr("en = 'Cannot generate report ""%1"". Recipient is required.'"),
 				ReportPresentation);
 			
 			LogRecord(LogParameters, EventLogLevel.Error, ReportParameters.Errors);
@@ -4798,12 +4799,12 @@ Function RunReportsGenerationInSingleThread(Var_Reports, DeliveryParameters, Mai
 			EndIf;
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The ""%1"" report is successfully generated.';"), ReportPresentation);
+				NStr("en = 'The ""%1"" report is successfully generated.'"), ReportPresentation);
 			
 			LogRecord(LogParameters, EventLogLevel.Note, MessageText);
 		Except
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Report ""%1"" was not generated:';"), ReportPresentation);
+				NStr("en = 'Report ""%1"" was not generated:'"), ReportPresentation);
 			
 			LogRecord(LogParameters, , MessageText, ErrorProcessing.DetailErrorDescription(
 				ErrorInfo()));
@@ -4852,9 +4853,9 @@ Procedure AddToToDoListSetTempFilesDirectory(ToDoList)
 		ToDoItem = ToDoList.Add();
 		ToDoItem.Id  = ToDoName + StrReplace(Section.FullName(), ".", "");
 		ToDoItem.HasToDoItems       = True;
-		ToDoItem.Presentation  = NStr("en = 'Reports can be sent faster';");
+		ToDoItem.Presentation  = NStr("en = 'Reports can be sent faster'");
 		ToDoItem.Owner       = Section;
-		ToDoItem.ToolTip  = NStr("en = 'To send reports in multiple threads, specify a directory of temporary files of the 1C:Enterprise server cluster.';");	
+		ToDoItem.ToolTip  = NStr("en = 'To send reports in multiple threads, specify a directory of temporary files of the 1C:Enterprise server cluster.'");	
 		If Common.SubsystemExists("StandardSubsystems.ApplicationSettings") Then
 			AppSettingsModule = Common.CommonModule("ApplicationSettings");
 			ToDoItem.Form = AppSettingsModule.CommonSettingsFormName();
@@ -4871,7 +4872,7 @@ Procedure DeleteTempFiles(Val Path, LogParameters)
 		LogRecord(LogParameters, EventLogLevel.Warning,
 		StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot delete temporary file %1. Reason:
-					|%2';"),
+					|%2'"),
 				Path,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo())));
 	EndTry;
@@ -4894,7 +4895,7 @@ Procedure DeliverToNetworkDirectory(LogParameters, DeliveryParameters, Attachmen
 		SentCount = 0;
 		QuantityToSend = Attachments.Count();
 		For Each Attachment In Attachments Do
-			FileCopy(Attachment.Value, ServerNetworkDdirectory + Attachment.Key);
+			CopyFile(Attachment.Value, ServerNetworkDdirectory + Attachment.Key);
 			If DeliveryParameters.AddReferences <> "" Then
 				DeliveryParameters.RecipientReportsPresentation = StrReplace(
 						DeliveryParameters.RecipientReportsPresentation, Attachment.Value,
@@ -4917,7 +4918,7 @@ Procedure DeliverToNetworkDirectory(LogParameters, DeliveryParameters, Attachmen
 		
 		IsDeliveryCompleted = True;
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-			"en = 'Report distributions are placed in the ''%1'' network directory.';"), ServerNetworkDdirectory);
+			"en = 'Report distributions are placed in the ''%1'' network directory.'"), ServerNetworkDdirectory);
 
 	Except
 		IsDeliveryCompleted = False;
@@ -4996,7 +4997,7 @@ Procedure DeliverToFTPResource(LogParameters, DeliveryParameters, Attachments, R
 		
 		IsDeliveryCompleted = True;
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-				"en = 'Report distributions published on ''%1''.';"), Target);
+				"en = 'Report distributions published on ''%1''.'"), Target);
 				
 	Except
 		IsDeliveryCompleted = False;
@@ -5008,7 +5009,7 @@ Procedure DeliverToFTPResource(LogParameters, DeliveryParameters, Attachments, R
 					NStr("en = '%1
 						 |
 						 |Diagnostics result:
-						 |%2';"), MessageText, DiagnosticsResult.ErrorDescription);
+						 |%2'"), MessageText, DiagnosticsResult.ErrorDescription);
 		EndIf;
 		
 		LogRecord(LogParameters,, MessageText, ErrorInfo());
@@ -5050,7 +5051,7 @@ Procedure DeliverToFolder(LogParameters, DeliveryParameters, Attachments, Result
 		
 		IsDeliveryCompleted = True;
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-			"en = 'Report distributions are placed in the ''%1'' folder.';"), String(DeliveryParameters.Folder));
+			"en = 'Report distributions are placed in the ''%1'' folder.'"), String(DeliveryParameters.Folder));
 
 	Except
 		IsDeliveryCompleted = False;
@@ -5083,12 +5084,12 @@ Procedure DeliverByEmail(LogParameters, DeliveryParameters, Attachments, Result)
 	TestMode = CommonClientServer.StructureProperty(DeliveryParameters, "TestMode", False);
 	
 	If DeliveryParameters.NotifyOnly Then
-		ErrorMessageTemplate = NStr("en = 'Cannot send report distribution notification by email:';");
+		ErrorMessageTemplate = NStr("en = 'Cannot send report distribution notification by email:'");
 		EmailAttachments1 = New Map;
 	ElsIf Not DeliveryParameters.ShouldAttachReports Then
 		EmailAttachments1 = New Map;
 	Else
-		ErrorMessageTemplate = NStr("en = 'Cannot send report by email:';");
+		ErrorMessageTemplate = NStr("en = 'Cannot send report by email:'");
 		EmailAttachments1 = Attachments;
 	EndIf;
 
@@ -5098,15 +5099,16 @@ Procedure DeliverByEmail(LogParameters, DeliveryParameters, Attachments, Result)
 		AreReportsSent = True;
 	Except
 		ErrorInfo = ErrorInfo();
-		If ErrorInfo.IsErrorOfCategory(ErrorCategory.ConfigurationError) Then
+		
+		If Not EmailOperationsInternalClientServer.ThisIsErrorInWorkOfInternetMail(ErrorInfo) Then
 			Raise;
 		EndIf;
-
+		
 		ExtendedErrorPresentation = EmailOperations.ExtendedErrorPresentation(
 				ErrorInfo, Common.DefaultLanguageCode(), False);
 		LogRecord(LogParameters, EventLogLevel.Error, ErrorMessageTemplate,
 			ExtendedErrorPresentation);
-
+		
 		If GetFunctionalOption("RetainReportDistributionHistory") And Not EmailClientUsed() And TypeOf(
 			LogParameters.Data) = Type("CatalogRef.ReportMailings") Then
 			For Each RecipientRow In DeliveryParameters.Recipients Do
@@ -5141,7 +5143,7 @@ Procedure DeliverByEmail(LogParameters, DeliveryParameters, Attachments, Result)
 EndProcedure
 
 Function ErrorMessageTemplate()
-	Return NStr("en = 'Reports are not delivered';");
+	Return NStr("en = 'Reports are not delivered'");
 EndFunction
 
 #EndRegion
@@ -5157,9 +5159,9 @@ Function GenerateReportsInMultipleThreads(Var_Reports, DeliveryParameters, Maili
 	ReportsNumber = 1;
 	For Each RowReport In Var_Reports Do
 		
-		LogText = NStr("en = 'Generating report: %1';");
+		LogText = NStr("en = 'Generating report: %1'");
 		If RowReport.Settings = Undefined Then
-			LogText = LogText + Chars.LF + NStr("en = '(user settings are not set)';");
+			LogText = LogText + Chars.LF + NStr("en = '(user settings are not set)'");
 		EndIf;
 		
 		ReportPresentation = String(RowReport.Report);
@@ -5177,7 +5179,7 @@ Function GenerateReportsInMultipleThreads(Var_Reports, DeliveryParameters, Maili
 		
 		If DeliveryParameters.Personalized And Not ReportParameters.IsPersonalized Then
 			ReportParameters.Errors = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot generate report ""%1"". Recipient is required.';"),
+				NStr("en = 'Cannot generate report ""%1"". Recipient is required.'"),
 				ReportPresentation);
 			
 			LogRecord(LogParameters, EventLogLevel.Error, ReportParameters.Errors);
@@ -5245,7 +5247,7 @@ Function GenerateReportsInMultipleThreads(Var_Reports, DeliveryParameters, Maili
 	EndDo;
 
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID());
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Report distribution';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Report distribution'");
 	ExecutionParameters.WaitCompletion = Undefined;
 	
 	ResultAddress = PutToTempStorage(Undefined, New UUID());
@@ -5315,7 +5317,7 @@ Function ReportsBatchGenerationResult(Var_Reports, LogParameters, DeliveryParame
 		
 		If DeliveryParameters.Personalized And Not ReportParameters.IsPersonalized Then
 			ReportParameters.Errors = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot generate report ""%1"". Recipient is required.';"),
+				NStr("en = 'Cannot generate report ""%1"". Recipient is required.'"),
 				ReportPresentation);
 			
 			LogRecord(LogParameters, EventLogLevel.Error, ReportParameters.Errors);
@@ -5343,12 +5345,12 @@ Function ReportsBatchGenerationResult(Var_Reports, LogParameters, DeliveryParame
 			EndIf;
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The ""%1"" report is successfully generated.';"), ReportPresentation);
+				NStr("en = 'The ""%1"" report is successfully generated.'"), ReportPresentation);
 			
 			LogRecord(LogParameters, EventLogLevel.Note, MessageText);
 		Except
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Report ""%1"" was not generated:';"), ReportPresentation);
+				NStr("en = 'Report ""%1"" was not generated:'"), ReportPresentation);
 			
 			LogRecord(LogParameters, , MessageText, ErrorProcessing.DetailErrorDescription(
 				ErrorInfo()));

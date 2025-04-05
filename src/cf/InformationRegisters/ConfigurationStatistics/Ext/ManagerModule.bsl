@@ -341,7 +341,7 @@ Procedure Write(ConfigurationStatistics, Area) Export
 	OperationsRefs = New Map;
 	For Each CurObject In ConfigurationStatistics Do
 		If CurObject.Value["StatisticsKind"] = 0 Then
-			QueryResult = GetResult(CurObject.Value["Query"]);  // @skip-check query-in-loop - Getting a large amount of data from multiple tables.
+			QueryResult = GetResult(CurObject.Value["Query"]);  // @skip-check query-in-loop - Сбор большого объема данных из разных таблиц.
 			StatisticsOperations = GetStatisticsOperationResult(CurObject.Key, QueryResult);
 		ElsIf CurObject.Value["StatisticsKind"] = 1 Then
 			Value = ?(Constants[CurObject.Value["Query"].Name].Get(), 1, 0);
@@ -397,9 +397,9 @@ Procedure WriteSeparated(ConfigurationStatistics)
 			Except
 				
 				Info = ErrorInfo();
-				WriteLogEvent(NStr("en = 'Monitoring center';", Common.DefaultLanguageCode()),
+				WriteLogEvent(NStr("en = 'Monitoring center'", Common.DefaultLanguageCode()),
 					EventLogLevel.Error,,,
-					NStr("en = 'Cannot set the session separation. Data area';") + " = " + Format(Selection.DataArea, "NG=0")
+					NStr("en = 'Cannot set the session separation. Data area'") + " = " + Format(Selection.DataArea, "NG=0")
 						+ Chars.LF + ErrorProcessing.DetailErrorDescription(Info));
 				
 				If CoreSaaSAvailable Then
@@ -410,7 +410,7 @@ Procedure WriteSeparated(ConfigurationStatistics)
 				
 			EndTry;
 			
-			Write(ConfigurationStatistics, DataAreaRef); // @skip-check query-in-loop - Reading and writing data in different data areas.
+			Write(ConfigurationStatistics, DataAreaRef); // @skip-check query-in-loop - Чтение и запись данных в разных областях данных.
 			
 			If CoreSaaSAvailable Then
 				ModuleSaaSOperations.SignOutOfDataArea();

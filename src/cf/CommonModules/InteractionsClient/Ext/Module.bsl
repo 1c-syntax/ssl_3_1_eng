@@ -273,7 +273,7 @@ Procedure CreateContact(LongDesc, Address, Basis, ContactsTypes) Export
 	AdditionalParameters.Insert("Address", Address);
 	AdditionalParameters.Insert("Basis", Basis);
 	HandlerNotifications = New CallbackDescription("SelectContactTypeOnCompletion", ThisObject, AdditionalParameters);
-	ContactsTypes.ShowChooseItem(HandlerNotifications, NStr("en = 'Select contact type';"));
+	ContactsTypes.ShowChooseItem(HandlerNotifications, NStr("en = 'Select contact type'"));
 
 EndProcedure
 
@@ -600,8 +600,8 @@ EndProcedure
 Procedure PromptOnChangeMessageFormatToPlainText(Form, AdditionalParameters = Undefined) Export
 	
 	OnCloseNotifyHandler = New CallbackDescription("PromptOnChangeFormatOnClose", Form, AdditionalParameters);
-	MessageText = NStr("en = 'If you change the message format to plain text, all images and formatting will be lost. Continue?';");
-	ShowQueryBox(OnCloseNotifyHandler, MessageText, QuestionDialogMode.YesNo, , DialogReturnCode.No, NStr("en = 'Change mail format';"));
+	MessageText = NStr("en = 'If you change the message format to plain text, all images and formatting will be lost. Continue?'");
+	ShowQueryBox(OnCloseNotifyHandler, MessageText, QuestionDialogMode.YesNo, , DialogReturnCode.No, NStr("en = 'Change mail format'"));
 	
 EndProcedure
 
@@ -634,7 +634,7 @@ Procedure ListBeforeAddRow(Item, Cancel, Copy,OnlyEmail,DocumentsAvailableForCre
 			Or TypeOf(CurrentData.Ref) = Type("DocumentRef.OutgoingEmail") Then
 			Cancel = True;
 			If Not OnlyEmail Then
-				ShowMessageBox(, NStr("en = 'Copying messages is not allowed';"));
+				ShowMessageBox(, NStr("en = 'Copying messages is not allowed'"));
 			EndIf;
 		EndIf;
 		
@@ -670,7 +670,7 @@ Procedure CheckOfDeferredSendingAttributesFilling(Object, Cancel) Export
 	If Object.DateToSendEmail > Object.EmailSendingRelevanceDate And (Not Object.EmailSendingRelevanceDate = Date(1,1,1)) Then
 		
 		Cancel = True;
-		MessageText= NStr("en = '""Schedule send"" date cannot be later than ""Don''t send after"" date.';");
+		MessageText= NStr("en = '""Schedule send"" date cannot be later than ""Don''t send after"" date.'");
 		CommonClient.MessageToUser(MessageText,, "Object.EmailSendingRelevanceDate");
 		
 	EndIf;
@@ -679,7 +679,7 @@ Procedure CheckOfDeferredSendingAttributesFilling(Object, Cancel) Export
 			And Object.EmailSendingRelevanceDate < CommonClient.SessionDate() Then
 	
 		Cancel = True;
-		MessageText= NStr("en = '""Don''t send after"" date is earlier than today. This message will never be sent.';");
+		MessageText= NStr("en = '""Don''t send after"" date is earlier than today. This message will never be sent.'");
 		CommonClient.MessageToUser(MessageText,, "Object.EmailSendingRelevanceDate");
 	
 	EndIf;

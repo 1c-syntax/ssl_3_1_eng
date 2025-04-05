@@ -62,7 +62,7 @@ Function DatesBySchedule(Val WorkScheduleCalendar, Val DateFrom, Val DaysArray,
 	If Selection.Count() < ShiftDays.Maximum Then
 		If RaiseException1 Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Work schedule ""%1"" is not filled in for the specified number of workdays after %2.';"), 
+				NStr("en = 'Work schedule ""%1"" is not filled in for the specified number of workdays after %2.'"), 
 				WorkScheduleCalendar, 
 				Format(DateFrom, "DLF=D"));
 		Else
@@ -173,7 +173,7 @@ Function NearestDatesIncludedInSchedule(WorkScheduleCalendar, InitialDates, Rece
 
 	CommonClientServer.Validate(
 		ValueIsFilled(WorkScheduleCalendar), 
-		NStr("en = 'Work schedule is not specified.';"), 
+		NStr("en = 'Work schedule is not specified.'"), 
 		"WorkSchedules.NearestDatesIncludedInSchedule");
 	
 	QueryTextTT = "";
@@ -245,7 +245,7 @@ Function NearestDatesIncludedInSchedule(WorkScheduleCalendar, InitialDates, Rece
 			If ReceivingParameters.RaiseException1 Then
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot determine the nearest date included in the schedule for date %1.
-						 |The work schedule might be blank.';"), 
+						 |The work schedule might be blank.'"), 
 					Format(Selection.Date, "DLF=D"));
 			Else
 				Return Undefined;
@@ -531,7 +531,7 @@ Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate
 	
 	If Not ValueIsFilled(WorkScheduleCalendar) Then
 		If RaiseException1 Then
-			Raise NStr("en = 'Work schedule is not specified.';");
+			Raise NStr("en = 'Work schedule is not specified.'");
 		EndIf;
 		Return Undefined;
 	EndIf;
@@ -643,7 +643,7 @@ Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate
 	
 	If Result.IsEmpty() Then
 		If RaiseException1 Then
-			ErrorMessage = NStr("en = 'The ""%1"" work schedule is blank for period: %2.';");
+			ErrorMessage = NStr("en = 'The ""%1"" work schedule is blank for period: %2.'");
 			Raise StringFunctionsClientServer.SubstituteParametersToString(ErrorMessage, WorkScheduleCalendar, PeriodPresentation(StartDate, EndOfDay(EndDate)));
 		Else
 			Return Undefined;
@@ -708,7 +708,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.ObjectsToChange = "InformationRegister.CalendarSchedules";
 	Handler.CheckProcedure = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
 	Handler.Id = New UUID("39e6fbf8-c02d-4459-bdbd-58adf6c6127c");
-	Handler.Comment = NStr("en = 'Corrects the inclusion of working days and days before the holidays falling on Saturdays or Sundays in the schedule.';");
+	Handler.Comment = NStr("en = 'Corrects the inclusion of working days and days before the holidays falling on Saturdays or Sundays in the schedule.'");
 	Handler.ObjectsToLock = "Catalog.Calendars";
 	Handler.ExecutionPriorities = InfobaseUpdate.HandlerExecutionPriorities();
 	
@@ -728,7 +728,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.ObjectsToChange = "Catalog.Calendars";
 	Handler.CheckProcedure = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
 	Handler.Id = New UUID("fe8c3f3a-8973-4538-a993-ba74fa9162d8");
-	Handler.Comment = NStr("en = 'Set the new ""Skip non-work periods"" flag to the default value.';");
+	Handler.Comment = NStr("en = 'Set the new ""Skip non-work periods"" flag to the default value.'");
 	Handler.ObjectsToLock = "Catalog.Calendars";
 	Handler.ExecutionPriorities = InfobaseUpdate.HandlerExecutionPriorities();
 	

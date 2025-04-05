@@ -44,7 +44,7 @@ EndProcedure
 &AtClient
 Procedure Fill(Command)
 	If Server = "" Then
-		FullAddress = NStr("en = 'ftp://username:password@server:port/directory';");
+		FullAddress = NStr("en = 'ftp://username:password@server:port/directory'");
 	Else
 		If Login = "" Then
 			FullAddress = "ftp://"+ Server +":"+ Format(Port, "NZ=21; NG=0") + Directory;
@@ -54,7 +54,7 @@ Procedure Fill(Command)
 	EndIf;
 	
 	Handler = New CallbackDescription("FillCompletion", ThisObject);
-	ShowInputString(Handler, FullAddress, NStr("en = 'Enter full ftp address';"))
+	ShowInputString(Handler, FullAddress, NStr("en = 'Enter full ftp address'"))
 EndProcedure
 
 &AtClient

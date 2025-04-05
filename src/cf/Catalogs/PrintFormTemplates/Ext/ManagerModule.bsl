@@ -112,11 +112,11 @@ Function LayoutLanguages(Template) Export
 EndFunction
 
 // Parameters:
-//  TemplatesNames - Array of String - 
+//  TemplatesNames - Array of String - Template name
 // 
 // Returns:
 //  Map of KeyAndValue:
-//   * Key - String - 
+//   * Key - String - Template name
 //   * Value - See NewTemplatesDataStructure
 //
 Function DataOfTemplates(Val TemplatesNames) Export
@@ -260,14 +260,14 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) some print templates: %1';"),
+			NStr("en = 'Couldn''t process (skipped) some print templates: %1'"),
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(),
 			EventLogLevel.Information, Metadata.InformationRegisters.UserPrintTemplates,,
 				StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Another batch of print templates is processed: %1';"),
+					NStr("en = 'Another batch of print templates is processed: %1'"),
 			ObjectsProcessed));
 	EndIf;
 	
@@ -527,7 +527,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Id = New UUID("959d09e5-1dc3-4f32-833a-05ff17365e30");
 	Handler.UpdateDataFillingProcedure = "Catalogs.PrintFormTemplates.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.CheckProcedure = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
-	Handler.Comment = NStr("en = 'Fills information about print data sources for custom print forms. Some print forms might be unavailable until processing is completed.';");
+	Handler.Comment = NStr("en = 'Fills information about print data sources for custom print forms. Some print forms might be unavailable until processing is completed.'");
 	
 	ItemsToRead = New Array;
 	ItemsToRead.Add(Metadata.Catalogs.PrintFormTemplates.FullName());
@@ -543,10 +543,10 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 
 EndProcedure
 
-// 
+// Template data structure.
 // 
 // Returns:
-//  Structure - :
+//  Structure - New template data structure.:
 //   * ObjectSaveFormat - EnumRef.ObjectsExportFormats
 //   * SourcesTypes - Array of TypeDescription
 //   * Presentation - String

@@ -15,7 +15,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not Parameters.Property("Peer") Then
 		
-		Raise NStr("en = 'This is a dependent form and opens from a different form.';", 
+		Raise NStr("en = 'This is a dependent form and opens from a different form.'", 
 			Common.DefaultLanguageCode());
 		
 	EndIf;
@@ -68,7 +68,7 @@ Procedure UseByDefault(Command)
 	
 	If Not CurrentData.HasSettings Then
 		
-		Text = NStr("en = 'Unconfigured transport type cannot be set as default.';",
+		Text = NStr("en = 'Unconfigured transport type cannot be set as default.'",
 			CommonClient.DefaultLanguageCode());
 		
 		CommonClient.MessageToUser(Text);

@@ -54,7 +54,7 @@ Function PlusSubscriptions() Export
 	
 	Subscriptions = SSLSubsystemsIntegrationClient.SSLEvents();
 	If CommonClient.SubsystemExists("PlusService") Then
-		ModulePlusSubsystemsIntegrationClient = CommonClient.CommonModule("IntegrationOfSubsystemsPlusClient");
+		ModulePlusSubsystemsIntegrationClient = CommonClient.CommonModule("SubsystemIntegrationPlusClient");
 		ModulePlusSubsystemsIntegrationClient.OnDefineEventSubscriptionsSSL(Subscriptions);
 	EndIf;
 	

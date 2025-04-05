@@ -88,13 +88,13 @@ Function DaySchedule()
 		If ScheduleString.BeginTime > ScheduleString.EndTime 
 			And ValueIsFilled(ScheduleString.EndTime) Then
 			CommonClient.MessageToUser(
-				NStr("en = 'The start time is greater than the end time.';"), ,
+				NStr("en = 'The start time is greater than the end time.'"), ,
 				StringFunctionsClientServer.SubstituteParametersToString("WorkSchedule[%1].EndTime", RowIndex), ,
 				Cancel);
 		EndIf;
 		If ScheduleString.BeginTime = ScheduleString.EndTime Then
 			CommonClient.MessageToUser(
-				NStr("en = 'The interval length is not specified.';"), ,
+				NStr("en = 'The interval length is not specified.'"), ,
 				StringFunctionsClientServer.SubstituteParametersToString("WorkSchedule[%1].EndTime", RowIndex), ,
 				Cancel);
 		EndIf;
@@ -102,7 +102,7 @@ Function DaySchedule()
 			If EndDay > ScheduleString.BeginTime 
 				Or Not ValueIsFilled(EndDay) Then
 				CommonClient.MessageToUser(
-					NStr("en = 'Overlapping intervals are detected.';"), ,
+					NStr("en = 'Overlapping intervals are detected.'"), ,
 					StringFunctionsClientServer.SubstituteParametersToString("WorkSchedule[%1].BeginTime", RowIndex), ,
 					Cancel);
 			EndIf;
@@ -136,9 +136,9 @@ EndProcedure
 Procedure AdjustTimeFieldsFormat()
 	
 	TimeFormat = ?(WorkSchedules.TwelveHourTimeFormat(),
-		NStr("en = 'DF=''hh:mm tt''; DE=';"), NStr("en = 'DF=HH:mm; DE=';"));
+		NStr("en = 'DF=''hh:mm tt''; DE='"), NStr("en = 'DF=HH:mm; DE='"));
 	EditingTimeFormat = ?(WorkSchedules.TwelveHourTimeFormat(),
-		NStr("en = 'DF=''hh:mm tt''';"), NStr("en = 'DF=HH:mm';"));
+		NStr("en = 'DF=''hh:mm tt'''"), NStr("en = 'DF=HH:mm'"));
 	
 	Items.WorkScheduleBeginTime.Format = TimeFormat;
 	Items.WorkScheduleBeginTime.EditFormat = EditingTimeFormat;

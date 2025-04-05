@@ -35,7 +35,7 @@ EndFunction
 
 // End StandardSubsystems.Interactions
 
-// СтандартныеПодсистемы.ГрупповоеИзменениеОбъектов
+// StandardSubsystems.BatchEditObjects
 
 // Returns object attributes that can be edited using the bulk attribute modification data processor.
 // 
@@ -60,7 +60,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// СтандартныеПодсистемы.УправлениеДоступом
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -77,7 +77,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 // Defines the list of generation commands.
 //

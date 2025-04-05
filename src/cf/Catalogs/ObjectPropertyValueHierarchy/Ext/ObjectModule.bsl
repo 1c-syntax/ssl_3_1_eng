@@ -25,7 +25,7 @@ Procedure BeforeWrite(Cancel)
 		If ValueIsFilled(AdditionalValuesOwner) Then
 			ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The ""%1"" property is based
-				           |on the ""%2"" master property. Please create additional values for the master property.';"),
+				           |on the ""%2"" master property. Please create additional values for the master property.'"),
 				Owner,
 				AdditionalValuesOwner);
 			
@@ -55,5 +55,5 @@ EndProcedure
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

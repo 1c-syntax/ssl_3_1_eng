@@ -40,7 +40,7 @@ EndFunction
 Function BaseType() Export
 	
 	If Not Common.SubsystemExists("CloudTechnology") Then
-		Raise NStr("en = 'There is no Service manager.';");
+		Raise NStr("en = 'There is no Service manager.'");
 	EndIf;
 	
 	ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
@@ -207,37 +207,37 @@ EndProcedure
 
 Function SynchronizationSetupStep1Presentation()
 	
-	Return NStr("en = 'Synchronization setup, step 1.';");
+	Return NStr("en = 'Synchronization setup, step 1.'");
 	
 EndFunction
 
 Function SynchronizationSetupStep2Presentation()
 	
-	Return NStr("en = 'Synchronization setup, step 2.';");
+	Return NStr("en = 'Synchronization setup, step 2.'");
 	
 EndFunction
 
 Function ExchangeMessageImportPresentation()
 	
-	Return NStr("en = 'Importing an exchange message.';");
+	Return NStr("en = 'Importing an exchange message.'");
 	
 EndFunction
 
 Function CorrespondentDataGettingPresentation()
 	
-	Return NStr("en = 'Receiving data from the peer infobase.';");
+	Return NStr("en = 'Receiving data from the peer infobase.'");
 	
 EndFunction
 
 Function GettingCommonDataOfCorrespondentNodePresentation()
 	
-	Return NStr("en = 'Receiving common data from peer infobase nodes.';");
+	Return NStr("en = 'Receiving common data from peer infobase nodes.'");
 	
 EndFunction
 
 Function GettingCorrespondentAccountingParametersPresentation()
 	
-	Return NStr("en = 'Receiving accounting settings from the peer infobase.';");
+	Return NStr("en = 'Receiving accounting settings from the peer infobase.'");
 	
 EndFunction
 

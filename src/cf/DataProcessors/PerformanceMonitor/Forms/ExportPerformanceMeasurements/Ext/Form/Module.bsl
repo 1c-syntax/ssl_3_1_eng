@@ -31,7 +31,7 @@ Procedure SelectExportDirectorySuggested(FileSystemExtensionAttached1, Additiona
 		
 		SelectingFile = New FileDialog(FileDialogMode.ChooseDirectory);
 		SelectingFile.Multiselect = False;
-		SelectingFile.Title = NStr("en = 'Select export directory';");
+		SelectingFile.Title = NStr("en = 'Select export directory'");
 		
 		NotifyDescription = New CallbackDescription("DirectorySelectionDialogBoxCompletion", ThisObject, Undefined);
 		If SSLAvailable Then 
@@ -72,7 +72,7 @@ Procedure ExportPerformanceTestFile(Command)
         UserMessage = New UserMessage;
         UserMessage.Field = "ExportPeriodStartDate";
         UserMessage.Text = NStr("en = 'Start date is required.
-			|Cannot export.';");
+			|Cannot export.'");
         UserMessage.Message();
         
         HasErrors = True;
@@ -84,7 +84,7 @@ Procedure ExportPerformanceTestFile(Command)
         UserMessage = New UserMessage;
         UserMessage.Field = "ExportPeriodEndDate";
         UserMessage.Text = NStr("en = 'End date is required.
-			|Cannot export.';");
+			|Cannot export.'");
         UserMessage.Message();
         
         HasErrors = True;
@@ -96,7 +96,7 @@ Procedure ExportPerformanceTestFile(Command)
         UserMessage = New UserMessage;
         UserMessage.Field = "ExportDirectory";
         UserMessage.Text = NStr("en = 'Export directory is required.
-			|Cannot export.';");
+			|Cannot export.'");
         UserMessage.Message();
         
         HasErrors = True;
@@ -108,7 +108,7 @@ Procedure ExportPerformanceTestFile(Command)
         UserMessage = New UserMessage;
         UserMessage.Field = "ArchiveName";
         UserMessage.Text = NStr("en = 'Archive name is required.
-			|Cannot export.';");
+			|Cannot export.'");
         UserMessage.Message();
         
         HasErrors = True;
@@ -120,7 +120,7 @@ Procedure ExportPerformanceTestFile(Command)
         UserMessage = New UserMessage;
         UserMessage.Field = "ExportPeriodStartDate";
         UserMessage.Text = NStr("en = 'End date must be greater than Start date.
-			|Cannot export.';");
+			|Cannot export.'");
         UserMessage.Message();
         
         HasErrors = True;
@@ -146,7 +146,7 @@ Procedure ExportPerformanceTestFile(Command)
         BinaryData.Write(ExportDirectory + GetClientPathSeparator() + ArchiveName + ".zip");
     Else
         UserMessage = New UserMessage;
-        UserMessage.Text = NStr("en = 'There are no samples for the period. The archive was not generated.';") + Chars.LF;
+        UserMessage.Text = NStr("en = 'There are no samples for the period. The archive was not generated.'") + Chars.LF;
         UserMessage.Message();
     EndIf;
     	

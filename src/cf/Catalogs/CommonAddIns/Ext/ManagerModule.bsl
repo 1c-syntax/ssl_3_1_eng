@@ -161,7 +161,7 @@ Procedure HandleCommonAddIns() Export
 
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process the common add-in %1 due to:
-					 |%2';"), RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+					 |%2'"), RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(),
 				EventLogLevel.Warning, Selection.Ref.Metadata(), Selection.Ref, MessageText);
@@ -172,7 +172,7 @@ Procedure HandleCommonAddIns() Export
 
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) some common add-ins: %1';"),
+			NStr("en = 'Couldn''t process (skipped) some common add-ins: %1'"),
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	EndIf;

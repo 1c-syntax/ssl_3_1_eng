@@ -246,7 +246,7 @@ Procedure UpdateAccessGroupsProfileByTemplate(TemplateName, Comment, IdentifierT
 		MetadataObjectRole = Metadata.Roles.Find(NameOfRole);
 		If MetadataObjectRole = Undefined Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Role not found: %1';"), NameOfRole);
+				NStr("en = 'Role not found: %1'"), NameOfRole);
 			Raise ErrorText;
 		EndIf;
 		
@@ -430,6 +430,8 @@ Procedure SendAccessGroupsToServiceManager() Export
 	|		ServiceUserID
 	|FROM
 	|	Catalog.AccessGroups.Users AS AccessGroups_Users
+	|WHERE
+	|	NOT CAST(AccessGroups_Users.User AS Catalog.Users).ServiceUserID IS NULL
 	|
 	|UNION
 	|
@@ -437,7 +439,9 @@ Procedure SendAccessGroupsToServiceManager() Export
 	|	UserGroupsComposition.User,
 	|	CAST(UserGroupsComposition.User AS Catalog.Users).ServiceUserID
 	|FROM
-	|	Catalog.UserGroups.Content AS UserGroupsComposition");
+	|	Catalog.UserGroups.Content AS UserGroupsComposition
+	|WHERE
+	|	NOT CAST(UserGroupsComposition.User AS Catalog.Users).ServiceUserID IS NULL");
 	// ACC:96-on
 	
 	Query.Text = Query.Text + Common.QueryBatchSeparator() + QueryTextOfAccessGroupsSelection();
@@ -478,7 +482,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Version = "3.1.11.1";
 	Handler.Procedure = "AccessManagementInternalSaaS.ProcessDataForMigrationToNewVersion";
 	Handler.ExecutionMode = "Deferred";
-	Handler.Comment = NStr("en = 'Sends access groups and user groups to the Service Manager.';");
+	Handler.Comment = NStr("en = 'Sends access groups and user groups to the Service Manager.'");
 	Handler.Id = New UUID("7fce724c-8d26-49ab-805d-dd5c21ca0af5");
 	Handler.UpdateDataFillingProcedure = "AccessManagementInternalSaaS.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.ObjectsToRead = "Catalog.AccessGroups,Catalog.UserGroups";
@@ -544,7 +548,7 @@ Function IsCTLUserRightsSetupSupported() Export
 		
 		IsInterfaceSupported = IsAPISupported(
 			SupportedVersions,
-			NameOfRightsManagementAccessInterface());
+			AccessRightsManagementInterfaceName());
 		
 	EndIf;
 	
@@ -686,6 +690,7 @@ EndProcedure
 
 Function ServiceUsersIDs(GroupUsers, AllServiceUsersIDs = Undefined)
 	Result = New Array;
+	BlankID = New UUID("00000000-0000-0000-0000-000000000000");
 	
 	If AllServiceUsersIDs = Undefined Then
 		
@@ -694,8 +699,10 @@ Function ServiceUsersIDs(GroupUsers, AllServiceUsersIDs = Undefined)
 		|FROM
 		|	Catalog.Users AS Users
 		|WHERE 
-		|	Ref IN (&GroupUsers)");
+		|	Ref IN (&GroupUsers)
+		|	AND Users.ServiceUserID <> &BlankID");
 		Query.SetParameter("GroupUsers", GroupUsers);
+		Query.SetParameter("BlankID", BlankID);
 		
 		UsersTable = Query.Execute().Unload();
 		For Each CurRow In UsersTable Do
@@ -706,7 +713,7 @@ Function ServiceUsersIDs(GroupUsers, AllServiceUsersIDs = Undefined)
 		
 		For Each GroupUser1 In GroupUsers Do
 			UserIdentificator = AllServiceUsersIDs.Get(GroupUser1);
-			If UserIdentificator = Undefined Then
+			If UserIdentificator = Undefined Or UserIdentificator = BlankID Then
 				Continue;
 			EndIf;
 			
@@ -800,7 +807,7 @@ Function IsAPISupported(
 	
 EndFunction
 
-Function NameOfRightsManagementAccessInterface()
+Function AccessRightsManagementInterfaceName()
 	
 	Return "ManageAccessRights";
 	

@@ -40,5 +40,5 @@ EndProcedure
 #EndRegion
 
 #Else
-	Raise NStr("en = 'Invalid object call on the client.';");
+	Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

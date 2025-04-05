@@ -228,8 +228,8 @@ Procedure Sign(DataDetails, Form = Undefined, ResultProcessing = Undefined, Sign
 	EndIf;
 	
 	ServerParameters1 = New Structure;
-	ServerParameters1.Insert("Operation",            NStr("en = 'Data signing';"));
-	ServerParameters1.Insert("DataTitle",     NStr("en = 'Data';"));
+	ServerParameters1.Insert("Operation",            NStr("en = 'Data signing'"));
+	ServerParameters1.Insert("DataTitle",     NStr("en = 'Data'"));
 	ServerParameters1.Insert("ShowComment", False);
 	ServerParameters1.Insert("CertificatesFilter");
 	ServerParameters1.Insert("ExecuteAtServer");
@@ -348,7 +348,7 @@ Procedure AddSignatureFromFile(DataDetails, Form = Undefined, ResultProcessing =
 	DataDetails.Insert("Success", False);
 	
 	ServerParameters1 = New Structure;
-	ServerParameters1.Insert("DataTitle", NStr("en = 'Data';"));
+	ServerParameters1.Insert("DataTitle", NStr("en = 'Data'"));
 	ServerParameters1.Insert("ShowComment", False);
 	FillPropertyValues(ServerParameters1, DataDetails);
 	
@@ -373,7 +373,7 @@ Procedure AddSignatureFromFile(DataDetails, Form = Undefined, ResultProcessing =
 	Context = New Structure;
 	Context.Insert("ResultProcessing", ResultProcessing);
 	Context.Insert("AdditionForm", AdditionForm);
-	Context.Insert("CheckCryptoManagerAtClient", True);
+	Context.Insert("CheckCryptoManagerAtClient", False);
 	Context.Insert("DataDetails", DataDetails);
 	
 	If (VerifyDigitalSignaturesOnTheServer()
@@ -481,7 +481,7 @@ EndProcedure
 //                          if the date cannot be extracted from the signature or XMLEnvelope is to be checked.
 //   CheckParameters    - See SignatureVerificationParameters
 //                        - Undefined - Flag indicating whether to
-//                        display a cryptographic manager creation error (when it's not specified).
+//                          display a cryptographic manager creation error (when it's not specified).
 //
 Procedure VerifySignature(Notification, RawData, Signature,
 	CryptoManager = Undefined,
@@ -653,8 +653,8 @@ Procedure Encrypt(DataDetails, Form = Undefined, ResultProcessing = Undefined) E
 	EndIf;
 	
 	ServerParameters1 = New Structure;
-	ServerParameters1.Insert("Operation",            NStr("en = 'Data encryption';"));
-	ServerParameters1.Insert("DataTitle",     NStr("en = 'Data';"));
+	ServerParameters1.Insert("Operation",            NStr("en = 'Data encryption'"));
+	ServerParameters1.Insert("DataTitle",     NStr("en = 'Data'"));
 	ServerParameters1.Insert("CertificatesSet");
 	ServerParameters1.Insert("ChangeSet");
 	ServerParameters1.Insert("ExecuteAtServer");
@@ -825,8 +825,8 @@ Procedure Decrypt(DataDetails, Form = Undefined, ResultProcessing = Undefined) E
 	EndIf;
 	
 	ServerParameters1 = New Structure;
-	ServerParameters1.Insert("Operation",            NStr("en = 'Data decryption';"));
-	ServerParameters1.Insert("DataTitle",     NStr("en = 'Data';"));
+	ServerParameters1.Insert("Operation",            NStr("en = 'Data decryption'"));
+	ServerParameters1.Insert("DataTitle",     NStr("en = 'Data'"));
 	ServerParameters1.Insert("CertificatesFilter");
 	ServerParameters1.Insert("EncryptionCertificates");
 	ServerParameters1.Insert("IsAuthentication");
@@ -1033,8 +1033,8 @@ EndFunction
 //                             to the user.
 //    * SignatureType             - EnumRef.CryptographySignatureTypes - By default, the type specified in the settings. 
 //                             It gets the type from "OperationContext" if it is passed from "Sign".
-//    * PerformCAVerification - See CertificateVerificationParameters.ВыполнятьПроверкуУдостоверяющегоЦентра
-//    * IgnoreCertificateRevocationStatus - See CertificateVerificationParameters.ИгнорироватьПроверкуВСпискеОтозванныхСертификатов
+//    * PerformCAVerification - 
+//    * IgnoreCertificateRevocationStatus - 
 //    * Result              - Undefined - a check was never performed.
 //                             - Structure - Return value. It is inserted before processing the result:
 //         * ChecksPassed  - Boolean - a return value. Is set in the procedure of the ResultProcessing parameter.
@@ -1235,13 +1235,13 @@ Procedure SigningDate(Notification, Signature, CastToSessionTimeZone = True) Exp
 	
 EndProcedure
 	
-// Returns a certificate presentation in the directory, generated
-// from the subject presentation (IssuedTo) and certificate expiration date.
+// Returns a certificate presentation in the catalog, generated
+// from the subject presentation ("IssuedTo") and certificate expiration date.
 //
 // Parameters:
 //   Certificate   - CryptoCertificate - Cryptographic certificate.
 //                - Structure:
-//                   * ValidBefore - See DigitalSignature.CertificateProperties.ValidBefore
+//                   * ValidBefore - 
 //                   * Certificate   - CryptoCertificate - Cryptographic certificate.
 //
 // Returns:
@@ -1692,8 +1692,8 @@ Procedure WriteCertificateToCatalog(CompletionHandler,
 	Context.Insert("AdditionalParameters", ?(AdditionalParameters = Undefined,
 		CertificateRecordParameters(), AdditionalParameters));
 	Context.Insert("FormCaption", ?(Context.ToEncrypt = True,
-		NStr("en = 'Cannot check encryption and decryption.';"),
-		NStr("en = 'Cannot check if it is digitally signed.';")));
+		NStr("en = 'Cannot check encryption and decryption.'"),
+		NStr("en = 'Cannot check if it is digitally signed.'")));
 	Context.Insert("ApplicationErrorTitle",
 		DigitalSignatureInternalClientServer.CertificateAddingErrorTitle(
 			?(Context.ToEncrypt = True, "Encryption", "Signing")));
@@ -2053,11 +2053,11 @@ EndProcedure
 //  Form - ClientApplicationForm
 //  CheckParameters - Undefined, Structure:
 //   * ShouldPromptToInstallApp - Boolean - If set to "True", the data processor form opens. 
-//      See "DataProcessor.DigitalSignatureAndEncryptionApplications.InstallCryptoProvidersApps" (if the data processor is present and the list of installed apps is empty).
+//      See "DataProcessor.DigitalSignatureAndEncryptionApplications.InstallDigitalSignaturesManagementApps" (if the data processor is present and the list of installed apps is empty).
 //      By default "True" if "AppsToCheck" is set to "True" and cloud signatures and cryptographic operations 
 //      are not used on the server side. Otherwise, "False" by default.
 //   * AppsToCheck - Undefined - (Default value) Returns all the installed apps.
-//      - Boolean - See DigitalSignatureInternalClientServer.AppsRelevantAlgorithms
+//      - Boolean - See DigitalSignatureClientServerLocalization.AppsRelevantAlgorithms
 //      - BInaryData - Signature/certificate data used for looking for suitable apps.
 //      - String - Address of the signature/certificate data in a temporary storage.
 //      - Array - contains value that are returned by "DigitalSignature.NewApplicationDetails".
@@ -2175,7 +2175,7 @@ EndProcedure
 // Parameters:
 //   Certificate           - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - the certificate
 //                        for which a check was executed.
-//   Result            - See DigitalSignatureClient.CheckCatalogCertificate.AdditionalParameters.Result
+//   Result            - 
 //   FormOwner        - ClientApplicationForm - the owner of the certificate check form that is being opened.
 //   Title            - String - the title of the certificate check form that is being opened.
 //   MergeResults - String - determines the method of the check result representation in the client/server
@@ -2255,7 +2255,7 @@ Procedure NotifyAboutCertificateExpiring(Certificate) Export
 		FormOpenParameters = New Structure("Certificate", Certificate);
 		ActionOnClick = New CallbackDescription("OpenNotificationFormNeedReplaceCertificate",
 			DigitalSignatureInternalClient, FormOpenParameters);
-		ShowUserNotification(NStr("en = 'You need to reissue the certificate';"), ActionOnClick, Certificate,
+		ShowUserNotification(NStr("en = 'You need to reissue the certificate'"), ActionOnClick, Certificate,
 			PictureLib.DialogExclamation, UserNotificationStatus.Important, Certificate);
 
 	EndIf;
@@ -2269,12 +2269,12 @@ EndProcedure
 //  Notification - CallbackDescription - Returns the result of updating the signature properties during a manual verification.
 //   If input is canceled, it returns "Undefined". Otherwise, returns Structure
 //   # IsAdditionalAttributesCheckedManually -:
-//    # AdditionalAttributesManualCheckAuthor - See DigitalSignatureClientServer.NewSignatureProperties.IsAdditionalAttributesCheckedManually
-//    # AdditionalAttributesManualCheckJustification - See DigitalSignatureClientServer.NewSignatureProperties.AdditionalAttributesManualCheckAuthor
-//    # CheckDate - See DigitalSignatureClientServer.NewSignatureProperties.AdditionalAttributesManualCheckJustification
-//    # SignatureCorrect - See DigitalSignatureClientServer.NewSignatureProperties.CheckDate
-//    # IsVerificationRequired - See DigitalSignatureClientServer.NewSignatureProperties.SignatureCorrect
-//     See DigitalSignatureClientServer.NewSignatureProperties.IsVerificationRequired
+//    # AdditionalAttributesManualCheckAuthor -
+//    # AdditionalAttributesManualCheckJustification -
+//    # CheckDate -
+//    # SignatureCorrect -
+//    # IsVerificationRequired -
+//    
 //
 Procedure EnterSignatureAuthenticityJustification(FormOwner, Notification) Export
 	
@@ -2385,15 +2385,15 @@ Procedure ObjectSigningInfo(DataPresentation, IsPluralForm = False, FromFile = F
 	
 	If FromFile Then
 		If IsPluralForm Then
-			MessageText = NStr("en = 'Signatures from files added:';");
+			MessageText = NStr("en = 'Signatures from files added:'");
 		Else
-			MessageText = NStr("en = 'Signature from file added:';");
+			MessageText = NStr("en = 'Signature from file added:'");
 		EndIf;
 	Else
 		If IsPluralForm Then
-			MessageText = NStr("en = 'Digitally signed:';");
+			MessageText = NStr("en = 'Digitally signed:'");
 		Else
-			MessageText = NStr("en = 'Digitally signed:';");
+			MessageText = NStr("en = 'Digitally signed:'");
 		EndIf;
 	EndIf;
 	
@@ -2411,7 +2411,7 @@ EndProcedure
 //
 Procedure InformOfObjectEncryption(DataPresentation, IsPluralForm = False) Export
 	
-	MessageText = NStr("en = 'Encrypted:';");
+	MessageText = NStr("en = 'Encrypted:'");
 	
 	ShowUserNotification(MessageText, , DataPresentation);
 	
@@ -2427,7 +2427,7 @@ EndProcedure
 //
 Procedure InformOfObjectDecryption(DataPresentation, IsPluralForm = False) Export
 	
-	MessageText = NStr("en = 'Decrypted:';");
+	MessageText = NStr("en = 'Decrypted:'");
 	
 	ShowUserNotification(MessageText, , DataPresentation);
 	

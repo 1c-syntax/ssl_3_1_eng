@@ -14,7 +14,7 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Common.FileInfobase() And Parameters.PromptForClusterAdministrationParameters Then
-		Raise NStr("en = 'Specifying cluster server parameters is only available in client/server mode.';");
+		Raise NStr("en = 'Specifying cluster server parameters is only available in client/server mode.'");
 	EndIf;
 	
 	If Parameters.PromptForClusterAdministrationParameters
@@ -79,7 +79,7 @@ Procedure OnOpen(Cancel)
 	If Parameters.PromptForClusterAdministrationParameters
 		And CommonClient.IsMacOSClient() Then
 		Cancel = True;
-		MessageText = NStr("en = 'Cannot connect to the server cluster on the client running on OS X.';");
+		MessageText = NStr("en = 'Cannot connect to the server cluster on the client running on OS X.'");
 		ShowMessageBox(,MessageText);
 		Return;
 	EndIf;
@@ -113,13 +113,13 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 		IBUser = Undefined;
 		GetIBAdministrator(IBUser);
 		If IBUser = Undefined Then
-			Common.MessageToUser(NStr("en = 'This user is not allowed to access the infobase.';"),,
+			Common.MessageToUser(NStr("en = 'This user is not allowed to access the infobase.'"),,
 				FieldName,,Cancel);
 			Return;
 		EndIf;
 		
 		If Not Users.IsFullUser(IBUser, True) Then
-			Common.MessageToUser(NStr("en = 'This user has no administrative rights.';"),,
+			Common.MessageToUser(NStr("en = 'This user has no administrative rights.'"),,
 				FieldName,,Cancel);
 			Return;
 		EndIf;

@@ -41,48 +41,48 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SearchStep = AddWizardStep(Items.SearchForUsageInstancesStep);
 	SearchStep.BackButton.Visible = False;
 	SearchStep.NextButton.Visible = False;
-	SearchStep.CancelButton.Title = NStr("en = 'Cancel';");
-	SearchStep.CancelButton.ToolTip = NStr("en = 'Cancel merging.';");
+	SearchStep.CancelButton.Title = NStr("en = 'Cancel'");
+	SearchStep.CancelButton.ToolTip = NStr("en = 'Cancel merging.'");
 	
 	// 2. Select main item.
 	Step = AddWizardStep(Items.MainItemSelectionStep);
 	Step.BackButton.Visible = False;
 	Step.NextButton.DefaultButton = True;
-	Step.NextButton.Title = NStr("en = 'Merge >';");
-	Step.NextButton.ToolTip = NStr("en = 'Run merging.';");
-	Step.CancelButton.Title = NStr("en = 'Cancel';");
-	Step.CancelButton.ToolTip = NStr("en = 'Cancel merging.';");
+	Step.NextButton.Title = NStr("en = 'Merge >'");
+	Step.NextButton.ToolTip = NStr("en = 'Run merging.'");
+	Step.CancelButton.Title = NStr("en = 'Cancel'");
+	Step.CancelButton.ToolTip = NStr("en = 'Cancel merging.'");
 	
 	// 3. Waiting for process.
 	Step = AddWizardStep(Items.MergeStep);
 	Step.CancelButton.Visible = False;
 	Step.NextButton.Visible = False;
-	Step.BackButton.Title = NStr("en = 'Cancel';");
-	Step.BackButton.ToolTip = NStr("en = 'Return to selection of the main item.';");
+	Step.BackButton.Title = NStr("en = 'Abort'");
+	Step.BackButton.ToolTip = NStr("en = 'Return to selection of the main item.'");
 	
 	// 4. Merged successfully.
 	Step = AddWizardStep(Items.SuccessfulCompletionStep);
 	Step.BackButton.Visible = False;
 	Step.NextButton.Visible = False;
 	Step.CancelButton.DefaultButton = True;
-	Step.CancelButton.Title = NStr("en = 'Close';");
-	Step.CancelButton.ToolTip = NStr("en = 'Close merge results.';");
+	Step.CancelButton.Title = NStr("en = 'Close'");
+	Step.CancelButton.ToolTip = NStr("en = 'Close merge results.'");
 	
 	// 5. Reference replacement issues.
 	Step = AddWizardStep(Items.RetryMergeStep);
-	Step.BackButton.Title = NStr("en = '< To beginning';");
-	Step.BackButton.ToolTip = NStr("en = 'Return to selection of the main item.';");
+	Step.BackButton.Title = NStr("en = '< To beginning'");
+	Step.BackButton.ToolTip = NStr("en = 'Return to selection of the main item.'");
 	Step.NextButton.DefaultButton = True;
-	Step.NextButton.Title = NStr("en = 'Merge again';");
-	Step.NextButton.ToolTip = NStr("en = 'Repeat merge';");
-	Step.CancelButton.Title = NStr("en = 'Cancel';");
-	Step.CancelButton.ToolTip = NStr("en = 'Close merge results.';");
+	Step.NextButton.Title = NStr("en = 'Merge again'");
+	Step.NextButton.ToolTip = NStr("en = 'Repeat merge'");
+	Step.CancelButton.Title = NStr("en = 'Cancel'");
+	Step.CancelButton.ToolTip = NStr("en = 'Close merge results.'");
 	
 	// 6 Runtime errors.
 	Step = AddWizardStep(Items.ErrorOccurredStep);
 	Step.BackButton.Visible = False;
 	Step.NextButton.Visible = False;
-	Step.CancelButton.Title = NStr("en = 'Close';");
+	Step.CancelButton.Title = NStr("en = 'Close'");
 	
 	// Update form items.
 	WizardSettings.CurrentStep = SearchStep;
@@ -107,11 +107,11 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 			Return;
 		EndIf;
 		
-		QueryText = NStr("en = 'Do you want to cancel merging and close the form?';");
+		QueryText = NStr("en = 'Do you want to cancel merging and close the form?'");
 		
 		Buttons = New ValueList;
-		Buttons.Add(DialogReturnCode.Abort, NStr("en = 'Cancel merging';"));
-		Buttons.Add(DialogReturnCode.No,      NStr("en = 'Continue merging';"));
+		Buttons.Add(DialogReturnCode.Abort, NStr("en = 'Cancel merging'"));
+		Buttons.Add(DialogReturnCode.No,      NStr("en = 'Continue merging'"));
 		
 		Handler = New CallbackDescription("AfterConfirmCancelJob", ThisObject);
 		ShowQueryBox(Handler, QueryText, Buttons, , DialogReturnCode.No);
@@ -216,7 +216,7 @@ Procedure UsageInstancesBeforeDeleteRow(Item, Cancel)
 	Code    = String(CurrentData.Code);
 	
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Delete item %1 from the merge list?';"),
+		NStr("en = 'Delete item %1 from the merge list?'"),
 		String(Ref) + ?(IsBlankString(Code), "", " (" + Code + ")" ));
 	
 	Notification = New CallbackDescription("UsageInstancesBeforeDeleteRowCompletion", ThisObject, New Structure);
@@ -438,12 +438,12 @@ Function AddWizardStep(Val Page)
 	StepDescription.Insert("CancelButton", WizardButton());
 	StepDescription.PageName = Page.Name;
 	
-	StepDescription.BackButton.Title = NStr("en = '< Back';");
+	StepDescription.BackButton.Title = NStr("en = '< Back'");
 	
 	StepDescription.NextButton.DefaultButton = True;
-	StepDescription.NextButton.Title = NStr("en = 'Next >';");
+	StepDescription.NextButton.Title = NStr("en = 'Next >'");
 	
-	StepDescription.CancelButton.Title = NStr("en = 'Cancel';");
+	StepDescription.CancelButton.Title = NStr("en = 'Cancel'");
 	
 	WizardSettings.Steps.Add(StepDescription);
 	
@@ -485,9 +485,9 @@ Procedure GoToWizardStep1(Val StepOrIndexOrFormGroup)
 	ElsIf Type = Type("Number") Then
 		StepIndex = StepOrIndexOrFormGroup;
 		If StepIndex < 0 Then
-			Raise NStr("en = 'Attempt to go back from the first step.';");
+			Raise NStr("en = 'Attempt to go back from the first step.'");
 		ElsIf StepIndex > WizardSettings.Steps.UBound() Then
-			Raise NStr("en = 'Attempt to go next from the last step.';");
+			Raise NStr("en = 'Attempt to go next from the last step.'");
 		EndIf;
 		StepDescription = WizardSettings.Steps[StepIndex];
 	Else
@@ -501,7 +501,7 @@ Procedure GoToWizardStep1(Val StepOrIndexOrFormGroup)
 		EndDo;
 		If Not StepFound Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Step %1 is not found.';"),
+				NStr("en = 'Step %1 is not found.'"),
 				RequiredPageName);
 		EndIf;
 	EndIf;
@@ -561,7 +561,7 @@ Procedure WizardStepNext()
 		If Not IsBlankString(ErrorText) Then
 			StandardSubsystemsClient.ShowQuestionToUser(Undefined, 
 				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot merge items due to:
-					|%1';"), ErrorText), QuestionDialogMode.OK);
+					|%1'"), ErrorText), QuestionDialogMode.OK);
 			Return;
 		EndIf;
 		
@@ -736,7 +736,7 @@ Function CheckReferencesToMerge(Val RefSet)
 	
 	RefsCount = RefSet.Count();
 	If RefsCount < 2 Then
-		Raise NStr("en = 'Select more than one item to merge.';");
+		Raise NStr("en = 'Select more than one item to merge.'");
 	EndIf;
 	
 	TheFirstControl = RefSet[0];	
@@ -774,12 +774,12 @@ Function CheckReferencesToMerge(Val RefSet)
 	Control = Query.Execute().Unload()[0];
 	If Control.HasGroups Then
 		Raise NStr("en = 'One of the items to merge is a group.
-			|Groups cannot be merged.';");
+			|Groups cannot be merged.'");
 	ElsIf Control.OwnersCount > 1 Then 
 		Raise NStr("en = 'Items to merge have different owners.
-			|They cannot be merged.';");
+			|They cannot be merged.'");
 	ElsIf Control.RefsCount <> RefsCount Then
-		Raise NStr("en = 'All items to merge must be of the same type.';");
+		Raise NStr("en = 'All items to merge must be of the same type.'");
 	EndIf;
 
 	Return ?(HasOwners, Control.CommonOwner, Undefined);
@@ -826,18 +826,18 @@ Procedure GenerateMergeTooltip()
 	If HasRightToDeletePermanently Then
 		If CurrentDeletionOption = "Check" Then
 			ToolTipText = NStr("en = '%1 items will be <a href = ""[Action]"">marked for deletion</a>
-				|and replaced with %2.';");
+				|and replaced with %2.'");
 			RowParameters = New Structure("Action", "SwitchDeletionMode");
 			ToolTipText = StringFunctionsClientServer.InsertParametersIntoString(ToolTipText, RowParameters);
 		Else
 			ToolTipText = NStr("en = '%1 items will be <a href = ""[Action]"">permanently deleted</a>
-				|and replaced with %2.';");
+				|and replaced with %2.'");
 			RowParameters = New Structure("Action", "SwitchDeletionMode");
 			ToolTipText = StringFunctionsClientServer.InsertParametersIntoString(ToolTipText, RowParameters);
 		EndIf;
 	Else
 		ToolTipText = NStr("en = '%1 items will be marked for deletion
-			|and replaced with %2.';");
+			|and replaced with %2.'");
 	EndIf;
 	
 	Items.MainItemSelectionTooltip.Title = StringFunctions.FormattedString(ToolTipText, UsageInstances.Count()-1, MainItem);
@@ -847,7 +847,7 @@ EndProcedure
 &AtClient
 Function CompleteMessage()
 	Return StringFunctionsClientServer.StringWithNumberForAnyLanguage(
-		NStr("en = ';%1 item was merged into:;;;;%1 items were merged into:';"),
+		NStr("en = ';%1 item was merged into:;;;;%1 items were merged into:'"),
 		UsageInstances.Count());
 EndFunction
 
@@ -856,7 +856,7 @@ Procedure GenerateUnsuccessfulReplacementLabel()
 	
 	Items.UnsuccessfulReplacementsResult.Title = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Cannot merge the items. Cannot replace some items
-			|to ""%1"".';"),
+			|to ""%1"".'"),
 		MainItem);
 	
 EndProcedure
@@ -890,7 +890,7 @@ Procedure AddUsageInstancesRows(Val ReferencesArrray)
 			String.Code      = ObjectCode(Ref, MetadataCache);
 			String.Owner = ObjectOfOwner(Ref, MetadataCache);
 			String.UsageInstancesCount = -1;
-			String.NotUsed    = NStr("en = 'Locations not searched for';");
+			String.NotUsed    = NStr("en = 'Locations not searched for'");
 		Else
 			String = ExistingRows[0];
 		EndIf;
@@ -1006,7 +1006,7 @@ EndProcedure
 Function DefineUsageInstances()
 	
 	StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	StartSettings1.BackgroundJobDescription = NStr("en = 'Duplicate cleaner: Find occurrences';");
+	StartSettings1.BackgroundJobDescription = NStr("en = 'Duplicate cleaner: Find occurrences'");
 	Return TimeConsumingOperations.ExecuteInBackground("DuplicateObjectsDetection.DefineUsageInstances", 
 		UsageInstances.Unload(, "Ref").UnloadColumn(0), StartSettings1);
 		
@@ -1023,7 +1023,7 @@ Procedure AfterCompleteDeterminingUseLocations(Job, AdditionalParameters) Export
 	EndIf;
 	
 	If Job.Status <> "Completed2" Then
-		Brief1 = NStr("en = 'Couldn''t find item occurrences:';") 
+		Brief1 = NStr("en = 'Couldn''t find item occurrences:'") 
 			+ Chars.LF + Job.BriefErrorDescription;
 		More = Brief1 + Chars.LF + Chars.LF + Job.DetailErrorDescription;
 		Items.ErrorTextLabel.Title = Brief1;
@@ -1067,7 +1067,7 @@ Function ReplaceReferences()
 	MethodParameters.Insert("DeletionMethod", CurrentDeletionOption);
 
 	StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	StartSettings1.BackgroundJobDescription = NStr("en = 'Duplicate cleaner: Merge items';");
+	StartSettings1.BackgroundJobDescription = NStr("en = 'Duplicate cleaner: Merge items'");
 	
 	Return TimeConsumingOperations.ExecuteInBackground("DuplicateObjectsDetection.ReplaceReferences", 
 		MethodParameters, StartSettings1);
@@ -1084,7 +1084,7 @@ Procedure AfterCompletionReplacingLinks(Job, AdditionalParameters) Export
 	EndIf;
 	
 	If Job.Status <> "Completed2" Then
-		Brief1 = NStr("en = 'Failed to replace items:';") + Chars.LF + Job.BriefErrorDescription;
+		Brief1 = NStr("en = 'Failed to replace items:'") + Chars.LF + Job.BriefErrorDescription;
 		More = Brief1 + Chars.LF + Chars.LF + Job.DetailErrorDescription;
 		Items.ErrorTextLabel.Title = Brief1;
 		Items.DetailsRef.ToolTip    = More;
@@ -1152,7 +1152,7 @@ Procedure FillUsageInstances(Val ResultAddress)
 		UsageRow.Code      = ObjectCode(TableRow.Ref, MetadataCache);
 		UsageRow.Owner = ObjectOfOwner(TableRow.Ref, MetadataCache);
 		
-		UsageRow.NotUsed = ?(Instances = 0, NStr("en = 'Not applicable';"), "");
+		UsageRow.NotUsed = ?(Instances = 0, NStr("en = 'Not applicable'"), "");
 	EndDo;
 	
 	UsageInstances.Load(NewUsageInstances);
@@ -1163,7 +1163,7 @@ Procedure FillUsageInstances(Val ResultAddress)
 	
 	// Refresh headers.
 	Presentation = ?(MainItem = Undefined, "", MainItem.Metadata().Presentation());
-	Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Merge %1 items into one item';"), Presentation);
+	Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Merge %1 items into one item'"), Presentation);
 EndProcedure
 
 &AtServer
@@ -1197,13 +1197,13 @@ Function FillUnsuccessfulReplacements(Val ResultAddress)
 		
 		ErrorType = ResultString1.ErrorType;
 		If ErrorType = "UnknownData" Then
-			ErrorString.Cause = NStr("en = 'Found instances whose replacement wasn''t intended.';");
+			ErrorString.Cause = NStr("en = 'Found instances whose replacement wasn''t intended.'");
 			
 		ElsIf ErrorType = "LockError" Then
-			ErrorString.Cause = NStr("en = 'Another user updated some data. Retry replacement.';");
+			ErrorString.Cause = NStr("en = 'Another user updated some data. Retry replacement.'");
 			
 		ElsIf ErrorType = "DataChanged1" Then
-			ErrorString.Cause = NStr("en = 'Another user updated some data.';");
+			ErrorString.Cause = NStr("en = 'Another user updated some data.'");
 			
 		ElsIf ErrorType = "WritingError" Then
 			ErrorString.Cause = ?(ResultString1.ErrorInfo <> Undefined,
@@ -1211,10 +1211,10 @@ Function FillUnsuccessfulReplacements(Val ResultAddress)
 				ResultString1.ErrorText);
 			
 		ElsIf ErrorType = "DeletionError" Then
-			ErrorString.Cause = NStr("en = 'Cannot delete data.';");
+			ErrorString.Cause = NStr("en = 'Cannot delete data.'");
 			
 		Else
-			ErrorString.Cause = NStr("en = 'Unexpected error.';");
+			ErrorString.Cause = NStr("en = 'Unexpected error.'");
 			
 		EndIf;
 		

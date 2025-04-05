@@ -127,7 +127,7 @@ Procedure ListBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group)
 	If Copy And Var_Group Then
 		Cancel = True;
 		
-		ShowMessageBox(, NStr("en = 'Adding new groups to the catalog is prohibited.';"));
+		ShowMessageBox(, NStr("en = 'Adding new groups to the catalog is prohibited.'"));
 	EndIf;
 	
 EndProcedure
@@ -260,7 +260,7 @@ Function ListFormName(ContactInformationKindRef)
 		EndIf;	
 	EndDo;
 	Raise StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Cannot go to the %1 list';"), ContactInformationKindRef);
+		NStr("en = 'Cannot go to the %1 list'"), ContactInformationKindRef);
 	
 EndFunction	
 	

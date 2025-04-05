@@ -52,7 +52,6 @@
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.EncryptionCertificates</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.DigitalSignatures</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.SignedObject</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">CommonForm.CheckResult</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.DigitalSignatureClientServerLocalization</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.CertificateIssueRequestKeyFieldTitleFont</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Constant.CryptoErrorsClassifier</xr:Item>
@@ -92,9 +91,9 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.DigitalSignatureClientLocalization</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.DSStampColor</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Constant.AllowAccessToDigitalSignatureInternetServices</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.IconForInstallingBOTComponent</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.StatesOfInstallationOfComponentsForBOTOperation</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">CommonForm.GettingStartedWithElectronicSignature</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.DigitalSigningAddInsInstallationIcon</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.DigitalSigningExtensionInstallationState</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonForm.StartWorkWithDigitalSignature</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

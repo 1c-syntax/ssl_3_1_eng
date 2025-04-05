@@ -343,11 +343,11 @@ EndProcedure
 Procedure OnStartSaveConnectionSettings(ConnectionSettings, HandlerParameters, ContinueWait = True) Export
 	
 	BackgroundJobKey = DataExchangeServer.BackgroundJobKey(ConnectionSettings.ExchangePlanName,
-		NStr("en = 'Peer infobase connection setup';"));
+		NStr("en = 'Peer infobase connection setup'"));
 
 	If DataExchangeServer.HasActiveBackgroundJobs(BackgroundJobKey) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Connection to ""%1"" is being set up.';"), ConnectionSettings.ExchangePlanName);
+			NStr("en = 'Connection to ""%1"" is being set up.'"), ConnectionSettings.ExchangePlanName);
 	EndIf;
 		
 	ProcedureParameters = New Structure;
@@ -355,7 +355,7 @@ Procedure OnStartSaveConnectionSettings(ConnectionSettings, HandlerParameters, C
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
 	ExecutionParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Peer infobase ""%1"" connection setup';"), ConnectionSettings.ExchangePlanName);
+		NStr("en = 'Peer infobase ""%1"" connection setup'"), ConnectionSettings.ExchangePlanName);
 	ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
 	ExecutionParameters.RunNotInBackground1    = False;
 	
@@ -576,7 +576,7 @@ Procedure OnCompleteGetCommonDataFromCorrespondentNodes(HandlerParameters, Compl
 			If Not CorrespondentData.Property("InfoBaseAdmParams", Result.CorrespondentParameters) Then
 				Result.ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'DataExchange interface 3.0.1.1 is not supported.
-					|To set up the connection, update %1 or start the setup from it.';"),
+					|To set up the connection, update %1 or start the setup from it.'"),
 					ConnectionSettings.PeerInfobaseName);
 				Result.CorrespondentParametersReceived = False;
 			EndIf;
@@ -628,7 +628,7 @@ Procedure OnStartDeleteSynchronizationSettings(DeletionSettings, HandlerParamete
 		HandlerParameters.OperationID = DataExchangeSaaS.SendMessage(Message);
 		
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Disable ""%1"" data synchronization with application ""%2"".';"),
+			NStr("en = 'Disable ""%1"" data synchronization with application ""%2"".'"),
 			DeletionSettings.ExchangePlanName, XMLString(DeletionSettings.CorrespondentDataArea));
 		
 		WriteLogEvent(DataExchangeSaaS.EventLogEventDataSynchronizationSetup(),
@@ -719,7 +719,7 @@ Procedure OnStartDisconnectingFromSM(Settings, HandlerParameters, ContinueWait) 
 		HandlerParameters.OperationID = DataExchangeSaaS.SendMessage(Message);
 		
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Disable data synchronization using service manager (switch to a web service) ""%1"" with application ""%2"".';"),
+			NStr("en = 'Disable data synchronization using service manager (switch to a web service) ""%1"" with application ""%2"".'"),
 			Settings.ExchangePlanName, XMLString(Settings.CorrespondentDataArea));
 		
 		WriteLogEvent(DataExchangeSaaS.EventLogEventDataSynchronizationSetup(),
@@ -1121,14 +1121,14 @@ Function DataSynchronizationApplicationsTable(Parameters)
 		If ApplicationRow.CorrespondentEndpoint.IsEmpty() Then
 			ApplicationRow.SyncSetupUnavailable = True;
 			ApplicationRow.ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'An endpoint with ID ""%2"" is not found for application ""%1"".';"),
+				NStr("en = 'An endpoint with ID ""%2"" is not found for application ""%1"".'"),
 				SettingFromServiceManager.ApplicationDescription,
 				SettingFromServiceManager.CorrespondentEndpoint);
 		ElsIf SettingFromServiceManager.SynchronizationSetupInServiceManager Then
 			ApplicationRow.SyncSetupUnavailable = True;
 			ApplicationRow.ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Endpoint ""%1"" is temporarily unavailable.
-				|Try again later.';"),
+				|Try again later.'"),
 				ApplicationRow.CorrespondentEndpoint);
 		Else
 			Try
@@ -1144,7 +1144,7 @@ Function DataSynchronizationApplicationsTable(Parameters)
 				ApplicationRow.ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot get connection settings for application ""%1"" due to:
 					|%2
-					|';"),
+					|'"),
 					SettingFromServiceManager.ApplicationDescription,
 					ErrorProcessing.BriefErrorDescription(Information));
 			EndTry;

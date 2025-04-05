@@ -42,7 +42,7 @@ Procedure OnOpen(Form, Object, Item, StandardProcessing) Export
 		
 		AdditionalLanguagesCount = StandardSubsystemsClient.ClientParameter("AdditionalLanguagesCount");
 		For LanguageSeqNumber = 1 To AdditionalLanguagesCount Do
-			LanguageSuffixName = NationalLanguageSupportClientServer.LanguageSuffix_(LanguageSeqNumber);
+			LanguageSuffixName = NationalLanguageSupportClientServer.LanguageSuffix(LanguageSeqNumber);
 			Presentations.Insert(AttributeName + LanguageSuffixName, Object[AttributeName + LanguageSuffixName]);
 		EndDo;
 		

@@ -235,7 +235,7 @@ Function InformationAboutCertificates()
 		
 		CertificateData = String.CertificateData.Get();
 		If Not ValueIsFilled(CertificateData) Then
-			String.Warning = NStr("en = 'Catalog requires certificate data';");
+			String.Warning = NStr("en = 'Catalog requires certificate data'");
 			Continue;
 		EndIf;
 		Try
@@ -244,7 +244,7 @@ Function InformationAboutCertificates()
 				CryptoCertificate, DigitalSignatureInternal.UTCOffset(), CertificateData);
 		Except
 			String.Warning = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot read the certificate properties: (%1)';"), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+				NStr("en = 'Cannot read the certificate properties: (%1)'"), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 			Continue;
 		EndTry;
 		
@@ -360,5 +360,5 @@ EndFunction
 #EndRegion
 	
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

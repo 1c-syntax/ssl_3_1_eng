@@ -238,6 +238,17 @@
 		</right>
 	</object>
 	<object>
+		<name>InformationRegister.TimeMeasurementsTechnological</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>Configuration.StandardSubsystemsLibrary</name>
 		<right>
 			<name>MainWindowModeNormal</name>
@@ -261,17 +272,6 @@
 		</right>
 		<right>
 			<name>AnalyticsSystemClient</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>InformationRegister.TimeMeasurementsTechnological</name>
-		<right>
-			<name>Read</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>View</name>
 			<value>true</value>
 		</right>
 	</object>

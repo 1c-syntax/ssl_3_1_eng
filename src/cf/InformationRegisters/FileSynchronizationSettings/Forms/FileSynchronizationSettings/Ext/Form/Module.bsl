@@ -78,7 +78,7 @@ Procedure MetadataObjectsTreeSynchronizeOnChange(Item)
 	
 		Notification = New CallbackDescription("AftertheQuestionAboutDisablingSynchronization", ThisObject);
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Do you want to finish and disable file synchronization for ""%1""?';"), 
+			NStr("en = 'Do you want to finish and disable file synchronization for ""%1""?'"), 
 			CurrentData.ObjectDescriptionSynonym);
 		ShowQueryBox(Notification, MessageText, QuestionDialogMode.YesNo);
 		
@@ -128,10 +128,10 @@ Procedure MetadataObjectsTreeBeforeDeleteRow(Item, Cancel)
 	Cancel = True;
 	
 	QueryText = NStr("en = 'If you delete the setting, you will not be able
-		|to synchronize files according to the rules defined in it. Continue?';");
+		|to synchronize files according to the rules defined in it. Continue?'");
 		
 	NotifyDescription = New CallbackDescription("DeleteSettingItemCompletion", ThisObject);
-	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No, NStr("en = 'Warning';"));
+	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No, NStr("en = 'Warning'"));
 	
 EndProcedure
 
@@ -151,7 +151,7 @@ Procedure ItemSynchronization(Command)
 	
 	TreeRow = Items.MetadataObjectsTree.CurrentData;
 	If Not TreeRow.DetailedInfoAvailable Then
-		MessageText = NStr("en = 'The setting is only available for hierarchical catalogs.';");
+		MessageText = NStr("en = 'The setting is only available for hierarchical catalogs.'");
 		CommonClient.MessageToUser(MessageText);
 		Return;
 	EndIf;
@@ -169,7 +169,7 @@ Procedure ItemSynchronization(Command)
 	ChoiceFormParameters.Insert("UsersGroupsSelection", True);
 	
 	ChoiceFormParameters.Insert("AdvancedPick", True);
-	ChoiceFormParameters.Insert("PickFormHeader", NStr("en = 'Select settings items';"));
+	ChoiceFormParameters.Insert("PickFormHeader", NStr("en = 'Select settings items'"));
 	
 	// Excluding already existing settings from the selection list.
 	ExistingSettings1 = TreeRow.GetItems();
@@ -312,19 +312,19 @@ Procedure FillObjectTypesInValueTree()
 		If AllCatalogs.ContainsType(OwnerInfo1.FileOwner) Then
 			If CatalogsNode = Undefined Then
 				CatalogsNode = SettingsTree.Rows.Add();
-				CatalogsNode.ObjectDescriptionSynonym = NStr("en = 'Catalogs';");
+				CatalogsNode.ObjectDescriptionSynonym = NStr("en = 'Catalogs'");
 			EndIf;
 			NewTableRow = CatalogsNode.Rows.Add();
 		ElsIf AllDocuments.ContainsType(OwnerInfo1.FileOwner) Then
 			If DocumentsNode = Undefined Then
 				DocumentsNode = SettingsTree.Rows.Add();
-				DocumentsNode.ObjectDescriptionSynonym = NStr("en = 'Documents';");
+				DocumentsNode.ObjectDescriptionSynonym = NStr("en = 'Documents'");
 			EndIf;
 			NewTableRow = DocumentsNode.Rows.Add();
 		ElsIf BusinessProcesses.AllRefsType().ContainsType(OwnerInfo1.FileOwner) Then
 			If BusinessProcessesNode = Undefined Then
 				BusinessProcessesNode = SettingsTree.Rows.Add();
-				BusinessProcessesNode.ObjectDescriptionSynonym = NStr("en = 'Business processes';");
+				BusinessProcessesNode.ObjectDescriptionSynonym = NStr("en = 'Business processes'");
 			EndIf;
 			NewTableRow = BusinessProcessesNode.Rows.Add();
 		EndIf;
@@ -360,7 +360,7 @@ Procedure FillObjectTypesInValueTree()
 				DetalizedSetting.Account    = Setting.Account;
 				DetalizedSetting.IsFile          = Setting.IsFile;
 				DetalizedSetting.FilterRule    =
-					?(HasFilterRules, NStr("en = 'Selected files';"), NStr("en = 'All files';"));
+					?(HasFilterRules, NStr("en = 'Selected files'"), NStr("en = 'All files'"));
 				
 			EndDo;
 		EndIf;
@@ -383,14 +383,14 @@ Procedure FillObjectTypesInValueTree()
 			NewTableRow.Account    = FoundSettings[0].Account;
 			If FilterRule <> Undefined And FilterRule.Filter.Items.Count() > 0 Then
 				NewTableRow.FilterRule = ?(IsBlankString(FoundSettings[0].Description), 
-					NStr("en = 'Selected files';"), FoundSettings[0].Description);
+					NStr("en = 'Selected files'"), FoundSettings[0].Description);
 			Else
-				NewTableRow.FilterRule = NStr("en = 'All files';");
+				NewTableRow.FilterRule = NStr("en = 'All files'");
 			EndIf;
 			
 		Else
 			NewTableRow.Synchronize = Enums.FilesCleanupOptions.NotClear;
-			NewTableRow.FilterRule = NStr("en = 'All files';");
+			NewTableRow.FilterRule = NStr("en = 'All files'");
 		EndIf;
 		
 		NewTableRow.PreviousSynchronization = NewTableRow.Synchronize;
@@ -459,9 +459,9 @@ Procedure SetFilterSettings(ValueSelected, AdditionalParameters) Export
 	
 	If ValueSelected.HasFilterRules Then
 		RowToRefresh.FilterRule =
-			?( ValueIsFilled(ValueSelected.Description), ValueSelected.Description, NStr("en = 'Selected files';"));
+			?( ValueIsFilled(ValueSelected.Description), ValueSelected.Description, NStr("en = 'Selected files'"));
 	Else
-		RowToRefresh.FilterRule = NStr("en = 'All files';");
+		RowToRefresh.FilterRule = NStr("en = 'All files'");
 	EndIf;
 	
 EndProcedure
@@ -575,7 +575,7 @@ Function ClearSettingData()
 	ServerCallParameters = New Structure();
 	
 	BackgroundExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	BackgroundExecutionParameters.BackgroundJobDescription = NStr("en = 'Subsystem ""File management"": Disable file synchronization with cloud service';");
+	BackgroundExecutionParameters.BackgroundJobDescription = NStr("en = 'Subsystem ""File management"": Disable file synchronization with cloud service'");
 	
 	BackgroundJob = TimeConsumingOperations.ExecuteInBackground("FilesOperationsInternal.UnlockLockedFilesBackground",
 		ServerCallParameters, BackgroundExecutionParameters);
@@ -721,7 +721,7 @@ Procedure RunScheduledJob()
 		BackgroundJobIdentifier = SynchronizationBackgroundJobs[0].UUID;
 	Else
 		JobParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-		JobParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Manual start: %1';"), ScheduledJobMetadata1.Synonym);
+		JobParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Manual start: %1'"), ScheduledJobMetadata1.Synonym);
 		JobResult = TimeConsumingOperations.ExecuteInBackground(ScheduledJobMetadata1.MethodName, New Structure, JobParameters);
 		If ValueIsFilled(BackgroundJobIdentifier) Then
 			BackgroundJobIdentifier = JobResult.JobID;

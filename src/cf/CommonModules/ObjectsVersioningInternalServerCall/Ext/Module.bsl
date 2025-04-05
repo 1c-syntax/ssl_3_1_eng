@@ -18,7 +18,7 @@
 Function SetChangeHistoryStorageMode(StoreChangeHistory) Export
 	
 	If Not Users.IsFullUser(,, False) Then
-		Raise(NStr("en = 'Insufficient rights to perform the operation.';"), ErrorCategory.AccessViolation);
+		Raise(NStr("en = 'Insufficient rights to perform the operation.'"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	Try

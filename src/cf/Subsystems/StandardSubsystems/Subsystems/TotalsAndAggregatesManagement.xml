@@ -23,7 +23,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.TotalsAndAggregatesManagementInternal</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Constant.TotalsAndAggregatesParameters</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.ShiftTotalsBoundary</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">Constant.NumberOfMonthsOfMinimumPeriodOfCalculatedTotals</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Constant.MonthsCountInCalculatedTotalsMinPeriod</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

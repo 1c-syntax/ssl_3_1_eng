@@ -15,11 +15,11 @@
 // See DataProcessorManager.ExchangeMessageTransportFILE.TransportParameters
 Function TransportParameters() Export
 	
-	LongDesc = NStr("en = 'Exchange via managing application (service manager).';");
+	LongDesc = NStr("en = 'Exchange via managing application (service manager).'");
 	
 	Parameters = ExchangeMessagesTransport.StructureOfTransportParameters();
 	
-	Parameters.Alias = NStr("en = 'Exchange with service application';");
+	Parameters.Alias = NStr("en = 'Exchange with service application'");
 	Parameters.TransportID = "SM";
 	Parameters.LongDesc = LongDesc;
 	Parameters.NameOfFirstSetupForm = "FirstSettingForm";

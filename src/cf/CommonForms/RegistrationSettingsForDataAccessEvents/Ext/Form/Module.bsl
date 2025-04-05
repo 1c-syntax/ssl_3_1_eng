@@ -509,7 +509,7 @@ Function IsWrittenAtServer()
 	For Each RowColumn In TablesItems Do
 		If RowColumn.IsNameDeleted Then
 			Common.MessageToUser(StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Table ""%1"" is not found.';"), RowColumn.Name), , "Settings");
+				NStr("en = 'Table ""%1"" is not found.'"), RowColumn.Name), , "Settings");
 			HasErrors = True;
 			Continue;
 		EndIf;
@@ -530,7 +530,7 @@ Function IsWrittenAtServer()
 				If FieldItem.IsNameDeleted
 				   And (FieldItem.ToControl Or FieldItem.DoRegister) Then
 					Common.MessageToUser(StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'The ""%1"" field is not found.';"),
+							NStr("en = 'The ""%1"" field is not found.'"),
 						RowColumn.Name + "." + FieldName), , "Settings");
 					HasErrors = True;
 					Continue;
@@ -550,7 +550,7 @@ Function IsWrittenAtServer()
 		If Not ValueIsFilled(AccessFields) Then
 			If ValueIsFilled(RegistrationFields) Then
 				Common.MessageToUser(StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'The table ""%1"" specifies fields to include in the event but does not specify fields that trigger event recording upon access.';"),
+						NStr("en = 'The table ""%1"" specifies fields to include in the event but does not specify fields that trigger event recording upon access.'"),
 					RowColumn.Presentation), , "Settings");
 				HasErrors = True;
 			EndIf;

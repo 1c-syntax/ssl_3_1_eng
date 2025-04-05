@@ -299,10 +299,10 @@ Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
 	
 EndProcedure
 
-// 
+// Called after the update handler writes data but before setting the processing flag.
 //
 // Parameters:
-//   Data - Arbitrary - 
+//   Data - Arbitrary - An object, record set, or constant manager.
 //
 Procedure AfterWriteData(Data) Export
 	

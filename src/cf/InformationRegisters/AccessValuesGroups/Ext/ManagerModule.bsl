@@ -90,7 +90,7 @@ Procedure UpdateUsersGroups(Parameters = Undefined, HasChanges = Undefined) Expo
 			NStr("en = 'Error in procedure %1
 			           |of the %2 information register manager module.
 			           |
-			           |Some parameters are invalid.';"),
+			           |Some parameters are invalid.'"),
 			"UpdateUsersGroups",
 			"AccessValuesGroups");
 		Raise ErrorText;
@@ -856,13 +856,13 @@ EndProcedure
 Function ErrorTextTypeNotConfigured(AccessValueType)
 	
 	ErrorTitle =
-		NStr("en = 'An error occurred when updating access value groups.';")
+		NStr("en = 'An error occurred when updating access value groups.'")
 		+ Chars.LF
 		+ Chars.LF;
 	
 	ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'For type ""%1""
-		           |usage of access value groups is not configured.';"),
+		           |usage of access value groups is not configured.'"),
 		String(AccessValueType));
 	
 	Return ErrorText;
@@ -873,7 +873,7 @@ EndFunction
 Procedure CheckTablesMetadata(NamesOfTablesToUpdate, ByRefTypesForUpdate) Export
 	
 	ErrorTitle =
-		NStr("en = 'An error occurred when updating access value groups.';")
+		NStr("en = 'An error occurred when updating access value groups.'")
 		+ Chars.LF
 		+ Chars.LF;
 	
@@ -894,7 +894,7 @@ Procedure CheckTablesMetadata(NamesOfTablesToUpdate, ByRefTypesForUpdate) Export
 				ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Special tabular section ""%2""
 					           |with special attribute ""%3"" is not created
-					           |for access value type ""%1"".';"),
+					           |for access value type ""%1"".'"),
 					String(AccessValueType),
 					"AccessGroups",
 					"AccessGroup");
@@ -904,7 +904,7 @@ Procedure CheckTablesMetadata(NamesOfTablesToUpdate, ByRefTypesForUpdate) Export
 		ElsIf TypeMetadata.Attributes.Find("AccessGroup") = Undefined Then
 			ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Special attribute ""%2""
-				           |is not created for access value type ""%1"".';"),
+				           |is not created for access value type ""%1"".'"),
 				String(AccessValueType), "AccessGroup");
 			Raise ErrorText;
 		EndIf;
@@ -1158,7 +1158,7 @@ Procedure UpdatePerformersGroups(PerformersGroups = Undefined,
 			NStr("en = 'Error in procedure %1
 			           |of the %2 information register manager module.
 			           |
-			           |Some parameters are invalid.';"),
+			           |Some parameters are invalid.'"),
 			"UpdatePerformersGroups",
 			"AccessValuesGroups");
 		Raise ErrorText;

@@ -501,7 +501,7 @@ Procedure OutputAnswerAnswersOptions(ReportTable,TreeRow,Template,FullCode)
 	If TreeRow.Rows[0].ReplyType = Enums.TypesOfAnswersToQuestion.Boolean Then
 		
 		Area = Template.GetArea("AnswersOptions");
-		Area.Parameters.AnswerOption = NStr("en = 'Yes';");
+		Area.Parameters.AnswerOption = NStr("en = 'Yes'");
 		FoundRow = TreeRow.Rows.Find(True,"AnswerOption");
 		If FoundRow <> Undefined Then
 			Area.Parameters.Value = FoundRow.Count;
@@ -510,7 +510,7 @@ Procedure OutputAnswerAnswersOptions(ReportTable,TreeRow,Template,FullCode)
 		ReportTable.Put(Area);
 		
 		Area = Template.GetArea("AnswersOptions");
-		Area.Parameters.AnswerOption = NStr("en = 'No';");
+		Area.Parameters.AnswerOption = NStr("en = 'No'");
 		FoundRow = TreeRow.Rows.Find(False,"AnswerOption");
 		If FoundRow <> Undefined Then
 			Area.Parameters.Value = FoundRow.Count;
@@ -1033,9 +1033,9 @@ Function ExecuteQueryOnSurveysRespondentsWithSpecificCompositionOfRespondents(Su
 	|	Answered";
 	
 	Query.SetParameter("Survey",Survey);
-	Query.SetParameter("Filled2",NStr("en = 'Respondent';"));
-	Query.SetParameter("StartedFilling",NStr("en = 'Started filling';"));
-	Query.SetParameter("NotFilled2",NStr("en = 'Not filled';"));
+	Query.SetParameter("Filled2",NStr("en = 'Respondent'"));
+	Query.SetParameter("StartedFilling",NStr("en = 'Started filling'"));
+	Query.SetParameter("NotFilled2",NStr("en = 'Not filled'"));
 	
 	Return Query.Execute();
 	
@@ -1108,9 +1108,9 @@ Function ExecuteQueryOnFreeFormSurveysRespondents(Survey,RespondentsType)
 	         "NOT CatalogTable.IsFolder", "TRUE"));
 	
 	Query.SetParameter("Survey",Survey);
-	Query.SetParameter("Filled2",NStr("en = 'Respondent';"));
-	Query.SetParameter("StartedFilling",NStr("en = 'Started filling';"));
-	Query.SetParameter("NotFilled2",NStr("en = 'Not filled';"));
+	Query.SetParameter("Filled2",NStr("en = 'Respondent'"));
+	Query.SetParameter("StartedFilling",NStr("en = 'Started filling'"));
+	Query.SetParameter("NotFilled2",NStr("en = 'Not filled'"));
 	
 	Return Query.Execute();
 	
@@ -1124,22 +1124,22 @@ Function SurveyPresentationForHeader(SurveyDetails)
 	
 	If SurveyDetails.StartDate <> Date(1, 1, 1) And SurveyDetails.EndDate <> Date(1, 1, 1) Then
 		Result = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'A survey is held from %1 to %2 on a basis of a document %3.';"),
+			NStr("en = 'A survey is held from %1 to %2 on a basis of a document %3.'"),
 			Format(SurveyDetails.StartDate, "DLF=DD"), Format(SurveyDetails.EndDate, "DLF=DD"),
 			SurveyDetails.Presentation);
 	ElsIf SurveyDetails.StartDate <> Date(1, 1, 1) Then
 		Result = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'A survey is held from %1 on a basis of a document %2.';"),
+			NStr("en = 'A survey is held from %1 on a basis of a document %2.'"),
 			Format(SurveyDetails.StartDate, "DLF=DD"), 
 			SurveyDetails.Presentation);
 	ElsIf SurveyDetails.EndDate <> Date(1, 1, 1) Then
 		Result = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'A survey is held until %1 on a basis of a document %2.';"),
+			NStr("en = 'A survey is held until %1 on a basis of a document %2.'"),
 			Format(SurveyDetails.EndDate, "DLF=DD"), 
 			SurveyDetails.Presentation);
 	Else
 		Result = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'A survey is held on a basis of a document %1.';"),
+			NStr("en = 'A survey is held on a basis of a document %1.'"),
 			SurveyDetails.Presentation);
 	EndIf; 
 	Return Result;
@@ -1151,5 +1151,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

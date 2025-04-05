@@ -167,6 +167,32 @@ LEFT JOIN Catalog.ExternalUsers AS Т2 ON Т2.AuthorizationObject = Т.Interview
 		</right>
 	</object>
 	<object>
+		<name>DataProcessor.AvailableQuestionnaires</name>
+		<right>
+			<name>Use</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>ChartOfCharacteristicTypes.QuestionsForSurvey</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>InputByString</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>Configuration.StandardSubsystemsLibrary</name>
 		<right>
 			<name>MainWindowModeNormal</name>
@@ -190,32 +216,6 @@ LEFT JOIN Catalog.ExternalUsers AS Т2 ON Т2.AuthorizationObject = Т.Interview
 		</right>
 		<right>
 			<name>AnalyticsSystemClient</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>DataProcessor.AvailableQuestionnaires</name>
-		<right>
-			<name>Use</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>View</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>ChartOfCharacteristicTypes.QuestionsForSurvey</name>
-		<right>
-			<name>Read</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>View</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>InputByString</name>
 			<value>true</value>
 		</right>
 	</object>

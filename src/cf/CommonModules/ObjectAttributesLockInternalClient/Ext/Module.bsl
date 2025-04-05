@@ -66,32 +66,32 @@ Procedure CheckObjectReferenceAfterValidationConfirm(Response, Parameters) Expor
 		If Parameters.ReferencesArrray.Count() = 1 Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = '""%1"" is used elsewhere in the application.
-				           |Editing this object might lead to data inconsistency.';"),
+				           |Editing this object might lead to data inconsistency.'"),
 				Parameters.ReferencesArrray[0]);
 		Else
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Selected items (%1) are used elsewhere in the application.
-				           |Editing these items might lead to data inconsistency.';"),
+				           |Editing these items might lead to data inconsistency.'"),
 				Parameters.ReferencesArrray.Count());
 		EndIf;
 		
 		Buttons = New ValueList;
-		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Allow editing';"));
-		Buttons.Add(DialogReturnCode.No, NStr("en = 'Cancel';"));
+		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Allow editing'"));
+		Buttons.Add(DialogReturnCode.No, NStr("en = 'Cancel'"));
 		ShowQueryBox(
 			New CallbackDescription(
 				"CheckObjectRefsAfterEditConfirmation", ThisObject, Parameters),
 			MessageText, Buttons, , DialogReturnCode.No, Parameters.DialogTitle);
 	Else
 		If Parameters.ReferencesArrray.Count() = 1 Then
-			ShowUserNotification(NStr("en = 'Attribute editing allowed';"),
+			ShowUserNotification(NStr("en = 'Attribute editing allowed'"),
 				GetURL(Parameters.ReferencesArrray[0]), Parameters.ReferencesArrray[0]);
 		Else
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Allowed to edit attributes of %1 objects';"),
+				NStr("en = 'Allowed to edit attributes of %1 objects'"),
 				Parameters.ReferencesArrray.Count());
 			
-			ShowUserNotification(NStr("en = 'Attribute editing allowed';"),,
+			ShowUserNotification(NStr("en = 'Attribute editing allowed'"),,
 				MessageText);
 		EndIf;
 		RunCallback(Parameters.ContinuationHandler, True);

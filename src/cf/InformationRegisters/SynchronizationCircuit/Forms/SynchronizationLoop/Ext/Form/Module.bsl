@@ -125,7 +125,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = False;
 	
-	Text = NStr("en = 'Resume registration';");
+	Text = NStr("en = 'Resume registration'");
 	Item.Appearance.SetParameterValue("Text", Text);
 	Item.Appearance.SetParameterValue("ReadOnly", True);
 	Item.Appearance.SetParameterValue("TextColor", WebColors.Blue);
@@ -141,7 +141,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = True;
 	
-	Text = NStr("en = 'Terminate registration';");
+	Text = NStr("en = 'Terminate registration'");
 	Item.Appearance.SetParameterValue("Text", Text);
 	Item.Appearance.SetParameterValue("ReadOnly", True);
 	Item.Appearance.SetParameterValue("TextColor", WebColors.Blue);
@@ -156,7 +156,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.LeftValue = New DataCompositionField("NodeTable_.InfobaseNode");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Filled;
 	
-	Text = NStr("en = 'Navigate';");
+	Text = NStr("en = 'Navigate'");
 	Item.Appearance.SetParameterValue("Text", Text);
 	Item.Appearance.SetParameterValue("ReadOnly", True);
 	Item.Appearance.SetParameterValue("TextColor", WebColors.Blue);

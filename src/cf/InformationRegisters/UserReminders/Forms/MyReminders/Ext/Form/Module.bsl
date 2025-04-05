@@ -48,7 +48,7 @@ Procedure ListSelection(Item, RowSelected, Field, StandardProcessing)
 		If ValueIsFilled(Items.List.CurrentData.Source) Then
 			ShowValue(, Items.List.CurrentData.Source);
 		Else
-			ShowMessageBox(, NStr("en = 'Please specify the reminder source.';"));
+			ShowMessageBox(, NStr("en = 'Please specify the reminder source.'"));
 		EndIf;
 	EndIf;
 EndProcedure
@@ -92,11 +92,11 @@ EndProcedure
 Procedure DeleteReminder()
 	
 	DialogButtons = New ValueList;
-	DialogButtons.Add(DialogReturnCode.Yes, NStr("en = 'Delete';"));
-	DialogButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Do not delete';"));
+	DialogButtons.Add(DialogReturnCode.Yes, NStr("en = 'Delete'"));
+	DialogButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Do not delete'"));
 	NotifyDescription = New CallbackDescription("DeleteReminderCompletion", ThisObject);
 	
-	ShowQueryBox(NotifyDescription, NStr("en = 'Delete the reminder?';"), DialogButtons);
+	ShowQueryBox(NotifyDescription, NStr("en = 'Delete the reminder?'"), DialogButtons);
 	
 EndProcedure
 

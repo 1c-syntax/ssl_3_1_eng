@@ -15,7 +15,7 @@
 Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	
 	If ValueIsFilled(EndDate) And EndDate < StartDate Then
-		MessageText = NStr("en = 'The end date is earlier than the start date. Probably the end date is incorrect.';");
+		MessageText = NStr("en = 'The end date is earlier than the start date. Probably the end date is incorrect.'");
 		Common.MessageToUser(MessageText, Ref, , , Cancel);
 	EndIf;
 	
@@ -74,5 +74,5 @@ EndProcedure
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

@@ -17,7 +17,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Verify that the form is opened with the required parameters
 	If Parameters.Object = Undefined Then
 		
-		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
+		Raise NStr("en = 'This is a dependent form and opens from a different form.'", Common.DefaultLanguageCode());
 		
 	EndIf;
 	
@@ -68,8 +68,8 @@ Procedure SettingVariantsBeforeDeleteRow(Item, Cancel)
 	
 	SettingPresentation = Item.CurrentData.Presentation;
 	
-	TitleText = NStr("en = 'Confirm operation';");
-	QueryText   = NStr("en = 'Do you want to delete setting ""%1""?';");
+	TitleText = NStr("en = 'Confirm operation'");
+	QueryText   = NStr("en = 'Do you want to delete setting ""%1""?'");
 	
 	QueryText = StrReplace(QueryText, "%1", SettingPresentation);
 	
@@ -90,13 +90,13 @@ Procedure SaveSetting(Command)
 	
 	If IsBlankString(CurrentSettingsItemPresentation) Then
 		CommonClient.MessageToUser(
-			NStr("en = 'Please enter the setting name.';"), , "CurrentSettingsItemPresentation");
+			NStr("en = 'Please enter the setting name.'"), , "CurrentSettingsItemPresentation");
 		Return;
 	EndIf;
 		
 	If SettingVariants.FindByValue(CurrentSettingsItemPresentation)<>Undefined Then
-		TitleText = NStr("en = 'Confirm operation';");
-		QueryText   = NStr("en = 'Do you want to overwrite setting ""%1""?';");
+		TitleText = NStr("en = 'Confirm operation'");
+		QueryText   = NStr("en = 'Do you want to overwrite setting ""%1""?'");
 		QueryText = StrReplace(QueryText, "%1", CurrentSettingsItemPresentation);
 		
 		AdditionalParameters = New Structure("SettingPresentation", CurrentSettingsItemPresentation);

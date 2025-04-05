@@ -10,15 +10,15 @@
 
 #Region Public
 
-// 
+// Returns a language postfix followed by its index number. For example, "Lang1".
 // 
 // Parameters:
-//  LanguageSeqNumber - Number - 
+//  LanguageSeqNumber - Number - Index of the language in the application.
 // 
 // Returns:
-//  String - 
+//  String - Language postfix followed by its index in the application.
 //
-Function LanguageSuffix_(LanguageSeqNumber = Undefined) Export
+Function LanguageSuffix(LanguageSeqNumber = Undefined) Export
 	
 	SuffixName = "Language";
 	
@@ -47,12 +47,12 @@ Procedure PresentationGetProcessing(Data, Presentation, StandardProcessing, Attr
 			Return;
 		EndIf;
 		
-		LanguageSuffix_ = NationalLanguageSupportServer.CurrentLanguageSuffix();
-		If ValueIsFilled(LanguageSuffix_) Then
+		LanguageSuffix = NationalLanguageSupportServer.CurrentLanguageSuffix();
+		If ValueIsFilled(LanguageSuffix) Then
 	
-			If Data.Property(AttributeName + LanguageSuffix_) Then
+			If Data.Property(AttributeName + LanguageSuffix) Then
 				
-				Presentation = Data[AttributeName + LanguageSuffix_];
+				Presentation = Data[AttributeName + LanguageSuffix];
 				If IsBlankString(Presentation) And Data.Property(AttributeName) Then
 					Presentation = Data[AttributeName];
 					If IsBlankString(Presentation) Then
@@ -87,7 +87,8 @@ Procedure PresentationGetProcessing(Data, Presentation, StandardProcessing, Attr
 				Query.SetParameter("Language",   CurrentLanguage().LanguageCode);
 				
 				QueryResult = Query.Execute();
-				If Not QueryResult.IsEmpty() Then
+				If Not QueryResult.IsEmpty() 
+				   And Not IsBlankString(QueryResult.Unload()[0].Description) Then
 					StandardProcessing = False;
 					Presentation = QueryResult.Unload()[0].Description;
 				EndIf;

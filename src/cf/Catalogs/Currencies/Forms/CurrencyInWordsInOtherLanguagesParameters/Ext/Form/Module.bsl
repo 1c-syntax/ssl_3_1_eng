@@ -141,10 +141,10 @@ Procedure GenerateInputFieldsInDifferentLanguages(MultiLine, Var_ReadOnly)
 	StringType = New TypeDescription("String");
 	For Each ConfigurationLanguage In Languages Do
 		Add.Add(New FormAttribute(ConfigurationLanguage.Name, StringType, ,
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Parameters for spelling out numbers in %1';"),
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Parameters for spelling out numbers in %1'"),
 			ConfigurationLanguage.Presentation)));
 		Add.Add(New FormAttribute("InputHint" + ConfigurationLanguage.Name, StringType, ,
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Input tooltip for the %1 language';"),
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Input tooltip for the %1 language'"),
 			ConfigurationLanguage.Presentation)));
 	EndDo;
 
@@ -198,7 +198,7 @@ Procedure GenerateInputFieldsInDifferentLanguages(MultiLine, Var_ReadOnly)
 			InputHint.BorderColor = StyleColors.FormBackColor;
 
 			If Not ValueIsFilled(ToolTip.Instruction) Then
-				ToolTip.Instruction = NStr("en = 'Cannot set up writing amounts in words for this language.';");
+				ToolTip.Instruction = NStr("en = 'Cannot set up writing amounts in words for this language.'");
 			EndIf;
 			
 			ThisObject["InputHint" + ConfigurationLanguage.Name] = ToolTip.Instruction;
@@ -296,9 +296,9 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 		|рублей – genitive plural
 		|м – masculine (ж – feminine, с – neuter)
 		|""копейка, копейки, копеек, ж"" – the fractional part similar to the calculation object (may be missing)
-		|""2"" – the number of decimal places (may be missing; the default value is 2).';"));
+		|""2"" – the number of decimal places (may be missing; the default value is 2).'"));
 
-		Result.InputHint = NStr("en = 'рубль, рубля, рублей, м, копейка, копейки, копеек, ж, 2';");
+		Result.InputHint = NStr("en = 'рубль, рубля, рублей, м, копейка, копейки, копеек, ж, 2'");
 
 	ElsIf LanguageCode = "uk" Then
 
@@ -315,9 +315,9 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 		|гривен – genitive plural
 		|м – masculine (ж – feminine, с – neuter)
 		|""копейка, копейки, копеек, ж"" – the fractional part similar to the calculation object (may be missing)
-		|""2"" – the number of decimal places (may be missing; the default value is 2).';"));
+		|""2"" – the number of decimal places (may be missing; the default value is 2).'"));
 
-		Result.InputHint = NStr("en = 'гривна, гривны, гривен, м, копейка, копейки, копеек, ж, 2';");
+		Result.InputHint = NStr("en = 'гривна, гривны, гривен, м, копейка, копейки, копеек, ж, 2'");
 
 	ElsIf LanguageCode = "pl" Then
 
@@ -334,9 +334,9 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 		|złotych - accusative plural
 		|m - masculine (ż - feminine, ń - neuter, mo – masculine personal)
 		|""grosz, grosze, groszy, m "" - the fractional part (may be missing) (similar to the integral part)
-		|2 - the number of decimal places (may be missing; the default value is 2).';"));
+		|2 - the number of decimal places (may be missing; the default value is 2).'"));
 
-		Result.InputHint = NStr("en = 'złoty, złote, złotych, m, grosz, grosze, groszy, m, 2';");
+		Result.InputHint = NStr("en = 'złoty, złote, złotych, m, grosz, grosze, groszy, m, 2'");
 
 	ElsIf LanguageCode = "en" Or LanguageCode = "fr" Or LanguageCode = "fi" Or LanguageCode = "kk" Then
 
@@ -349,9 +349,9 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 		|
 		|""dollar, dollars"" – calculation object singular and plural
 		|""cent, cents"" - fractional part singular and plural (may be missing)
-		|""2"" - the number of decimal places (may be missing; the default value is 2).';"));
+		|""2"" - the number of decimal places (may be missing; the default value is 2).'"));
 
-		Result.InputHint = NStr("en = 'dollar, dollars, cent, cents, 2';");
+		Result.InputHint = NStr("en = 'dollar, dollars, cent, cents, 2'");
 
 	ElsIf LanguageCode = "de" Then
 
@@ -366,9 +366,9 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 		|EURO, EURO - calculation object singular and plural
 		|M – masculine (F – feminine, N - neuter)
 		|""Cent, Cent, M"" – the fractional part similar to the calculation object (may be missing)
-		|""2"" – the number of decimal places (may be missing; the default value is 2).';"));
+		|""2"" – the number of decimal places (may be missing; the default value is 2).'"));
 
-		Result.InputHint = NStr("en = 'EURO, EURO, M, Cent, Cent, M, 2';");
+		Result.InputHint = NStr("en = 'EURO, EURO, M, Cent, Cent, M, 2'");
 
 	ElsIf LanguageCode = "lv" Then
 
@@ -389,9 +389,9 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 		|""J"" - the number 100 is displayed as ""One hundred"" for the calculation object (N - the number 100 is displayed as ""Hundred"");
 		|may be missing; the default value is ""J""
 		|""J"" - the number 100 is displayed as ""One hundred"" for the fractional part (N - the number 100 is displayed as ""Hundred"")
-		|may be missing; the default value is ""J"".';"));
+		|may be missing; the default value is ""J"".'"));
 
-		Result.InputHint = NStr("en = 'lats, lati, latu, V, santīms, santīmi, santīmu, V, 2, J, J';");
+		Result.InputHint = NStr("en = 'lats, lati, latu, V, santīms, santīmi, santīmu, V, 2, J, J'");
 
 	ElsIf LanguageCode = "lt" Then
 
@@ -408,9 +408,9 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 		|litų - integral part plural (other)
 		|m - the integral part gender (f - feminine),
 		|""centas, centai, centų, M"" – the fractional part similar to the calculation object (may be missing)
-		|""2"" - the number of decimal places (may be missing; the default value is 2).';"));
+		|""2"" - the number of decimal places (may be missing; the default value is 2).'"));
 
-		Result.InputHint = NStr("en = 'litas, litai, litų, M, centas, centai, centų, M, 2';");
+		Result.InputHint = NStr("en = 'litas, litai, litų, M, centas, centai, centų, M, 2'");
 
 	ElsIf LanguageCode = "et" Then
 
@@ -423,9 +423,9 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 		|
 		|""kroon, krooni"" – calculation object singular and plural
 		|""sent, senti"" - fractional part singular and plural (may be missing)
-		|2 - the number of decimal places (may be missing; the default value is 2).';"));
+		|2 - the number of decimal places (may be missing; the default value is 2).'"));
 
-		Result.InputHint = NStr("en = 'kroon, krooni, sent, senti, 2';");
+		Result.InputHint = NStr("en = 'kroon, krooni, sent, senti, 2'");
 
 	ElsIf LanguageCode = "bg" Then
 
@@ -444,9 +444,9 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 		|стотинка - fractional part singular
 		|стотинки - fractional part plural
 		|ж - the fractional part gender
-		|""2"" - the number of decimal places.';"));
+		|""2"" - the number of decimal places.'"));
 
-		Result.InputHint = NStr("en = 'лев, лева, м, стотинка, стотинки, ж, 2';");
+		Result.InputHint = NStr("en = 'лев, лева, м, стотинка, стотинки, ж, 2'");
 
 	ElsIf LanguageCode = "ro" Then
 
@@ -465,9 +465,9 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 		|ban - fractional part singular
 		|bani - fractional part plural
 		|W - the fractional part gender
-		|""2"" - the number of decimal places.';"));
+		|""2"" - the number of decimal places.'"));
 
-		Result.InputHint = NStr("en = 'leu, lei, M, ban, bani, W, 2';");
+		Result.InputHint = NStr("en = 'leu, lei, M, ban, bani, W, 2'");
 
 	ElsIf LanguageCode = "ka" Then
 
@@ -480,9 +480,9 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 		|
 		|ლარი - the integral part
 		|თეთრი - the fractional part
-		|2 - the number of decimal places.';"));
+		|2 - the number of decimal places.'"));
 
-		Result.InputHint = NStr("en = 'ლარი, თეთრი, 2';");
+		Result.InputHint = NStr("en = 'ლარი, თეთრი, 2'");
 
 	ElsIf LanguageCode = "az" Or LanguageCode = "tk" Then
 
@@ -494,9 +494,9 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 		|
 		|""TL"" - the calculation object
 		|""Kr"" - the fractional part (may be missing)
-		|2 - the number of decimal places (may be missing; the default value is 2)';"));
+		|2 - the number of decimal places (may be missing; the default value is 2)'"));
 
-		Result.InputHint = NStr("en = 'TL,Kr,2';");
+		Result.InputHint = NStr("en = 'TL,Kr,2'");
 
 	ElsIf LanguageCode = "vi" Then
 
@@ -509,9 +509,9 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 		|
 		|dong, - the integral part
 		|xu, - the fractional part
-		|2 - the number of decimal places.';"));
+		|2 - the number of decimal places.'"));
 
-		Result.InputHint = NStr("en = 'dong, xu, 2';");
+		Result.InputHint = NStr("en = 'dong, xu, 2'");
 
 	ElsIf LanguageCode = "tr" Then
 
@@ -525,9 +525,9 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 		|TL - the integral part
 		|Kr - the fractional part (may be missing)
 		|2 - the number of decimal places (may be missing; the default value is 2)
-		|""Separate"" - indicates whether to write words separately, ""Solid"" - indicates whether to write words solid (may be missing; the default value is ""Solid"").';"));
+		|""Separate"" - indicates whether to write words separately, ""Solid"" - indicates whether to write words solid (may be missing; the default value is ""Solid"").'"));
 
-		Result.InputHint = NStr("en = 'TL,Kr,2,Separate';");
+		Result.InputHint = NStr("en = 'TL,Kr,2,Separate'");
 
 	ElsIf LanguageCode = "hu" Then
 
@@ -539,9 +539,9 @@ Function HintForFillingInTheRegistrationParameters(Val LanguageCode)
 		|
 		|Forint - the integral part
 		|fillér - the fractional part
-		|""2"" - the number of decimal places.';"));
+		|""2"" - the number of decimal places.'"));
 
-		Result.InputHint = NStr("en = 'Forint, fillér, 2';");
+		Result.InputHint = NStr("en = 'Forint, fillér, 2'");
 
 	EndIf;
 

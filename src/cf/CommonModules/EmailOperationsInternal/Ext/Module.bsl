@@ -309,7 +309,7 @@ EndProcedure
 Procedure SaveYourAccountSettingsForPasswordRecovery(Settings) Export
 	
 	If TypeOf(Settings) <> Type("Structure") Then
-		Raise NStr("en = 'Incorrect account settings type for password recovery.';");
+		Raise NStr("en = 'Incorrect account settings type for password recovery.'");
 	EndIf;
 	
 	AccountInformation = DescriptionOfAccountSettingsForPasswordRecovery();
@@ -408,7 +408,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.ExecutionMode = "Deferred";
 	Handler.Id = New UUID("d57f7a36-46ca-4a52-baab-db960e3d376d");
 	Handler.Comment = NStr("en = 'Updates email account data.
-		|Until processing is finished, the list of email accounts can be incomplete.';");
+		|Until processing is finished, the list of email accounts can be incomplete.'");
 	Handler.UpdateDataFillingProcedure = "Catalogs.EmailAccounts.RegisterDataToProcessForMigrationToNewVersion";
 	
 	ObjectsToRead = New Array;
@@ -440,7 +440,7 @@ Procedure OnFillAccessKinds(AccessKinds) Export
 	
 	AccessKind = AccessKinds.Add();
 	AccessKind.Name = "EmailAccounts";
-	AccessKind.Presentation = NStr("en = 'User email accounts';");
+	AccessKind.Presentation = NStr("en = 'User email accounts'");
 	AccessKind.ValuesType   = Type("CatalogRef.EmailAccounts");
 	
 EndProcedure
@@ -664,7 +664,7 @@ Function UseIMAPOnSendingEmails(Profile)
 EndFunction
 
 // Parameters:
-//  UserAccountOrConnection - See EmailOperations.DownloadEmailMessages.Account
+//  UserAccountOrConnection - 
 //  ImportParameters - See EmailOperations.DownloadEmailMessages.ImportParameters
 //
 // Returns:
@@ -971,10 +971,10 @@ Procedure CheckSendReceiveEmailAvailability(Account, ErrorMessage, AdditionalMes
 	If AccountSettings1.UseForSending Then
 		ErrorText = Catalogs.EmailAccounts.CheckCanConnectToMailServer(Account, False);
 		If ValueIsFilled(ErrorText) Then
-			ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot connect to SMTP server: %1';") + Chars.LF, ErrorText);
+			ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot connect to SMTP server: %1'") + Chars.LF, ErrorText);
 		EndIf;
 		If Not AccountSettings1.UseForReceiving Then
-			AdditionalMessage = Chars.LF + NStr("en = '(The check whether the mail is sent is performed.)';");
+			AdditionalMessage = Chars.LF + NStr("en = '(The check whether the mail is sent is performed.)'");
 		EndIf;
 	EndIf;
 	
@@ -988,11 +988,11 @@ Procedure CheckSendReceiveEmailAvailability(Account, ErrorMessage, AdditionalMes
 			EndIf;
 			
 			ErrorMessage = ErrorMessage + StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot connect to %1 server:
-				|%2';"), AccountSettings1.ProtocolForIncomingMail, ErrorText);
+				|%2'"), AccountSettings1.ProtocolForIncomingMail, ErrorText);
 		EndIf;
 		
 		If Not AccountSettings1.UseForSending Then
-			AdditionalMessage = Chars.LF + NStr("en = '(The check whether the mail is received is performed.)';");
+			AdditionalMessage = Chars.LF + NStr("en = '(The check whether the mail is received is performed.)'");
 		EndIf;
 		
 	EndIf;
@@ -1099,7 +1099,7 @@ Procedure PrepareAttachments(Attachments, SettingsForSaving) Export
 			If FileNameForArchive = Undefined Then
 				FileNameForArchive = FileName + ".zip";
 			Else
-				FileNameForArchive = NStr("en = 'Documents';") + ".zip";
+				FileNameForArchive = NStr("en = 'Documents'") + ".zip";
 			EndIf;
 			FileName = FileName + "." + FormatSettings.Extension;
 			
@@ -1303,10 +1303,10 @@ EndFunction
 
 Function EmailPresentation(EmailSubject, EmailDate)
 	
-	TemplateOfPresentation = NStr("en = '%1, %2';");
+	TemplateOfPresentation = NStr("en = '%1, %2'");
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(TemplateOfPresentation,
-		?(IsBlankString(EmailSubject), NStr("en = '<No subject>';"), EmailSubject),
+		?(IsBlankString(EmailSubject), NStr("en = '<No subject>'"), EmailSubject),
 		Format(EmailDate, "DLF=D"));
 	
 EndFunction
@@ -1494,7 +1494,8 @@ Function SendEmails(UserAccountOrConnection, Emails, ExceptionText = Undefined) 
 			EndIf;
 		Except
 			ErrorInfo = ErrorInfo();
-			If ErrorInfo.IsErrorOfCategory(ErrorCategory.ConfigurationError)
+			
+			If Not EmailOperationsInternalClientServer.ThisIsErrorInWorkOfInternetMail(ErrorInfo)
 				Or ReceivingProtocol <> InternetMailProtocol.IMAP Or SenderAttributes.UseForReceiving Then
 				Raise;
 			EndIf;
@@ -1502,13 +1503,15 @@ Function SendEmails(UserAccountOrConnection, Emails, ExceptionText = Undefined) 
 			ErrorText = ExtendedErrorPresentation(ErrorInfo, Common.DefaultLanguageCode());
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot connect to IMAP server:
-				|%1';", Common.DefaultLanguageCode()), ErrorText);
+				|%1'", Common.DefaultLanguageCode()), ErrorText);
 			
 			WriteLogEvent(EventNameSendEmail(), EventLogLevel.Error, 
 				Metadata.Catalogs.EmailAccounts, Account, ErrorText);
+			
 			ReceivingProtocol = InternetMailProtocol.POP3;
 			Join = New InternetMail;
-			Join.Logon(Profile, ReceivingProtocol);
+			ConnectToInternetMail(Join, Profile, ReceivingProtocol);
+			
 		EndTry;
 	EndIf;
 	
@@ -1555,7 +1558,13 @@ Function SendEmails(UserAccountOrConnection, Emails, ExceptionText = Undefined) 
 						WrongRecipients.Insert(Recipient.Address, ErrorText);
 					EndDo;
 				Else
-					Raise;
+					
+					ExceptionClarification = CommonClientServer.ExceptionClarification(ErrorInfo);
+					ErrorCode = EmailOperationsInternalClientServer.ErrorCodeOfInternetMailWorks();
+					
+					Raise(
+						ExceptionClarification.Text, ExceptionClarification.Category, ErrorCode, , ErrorInfo);
+					
 				EndIf;
 			EndTry;
 			
@@ -1568,11 +1577,11 @@ Function SendEmails(UserAccountOrConnection, Emails, ExceptionText = Undefined) 
 					Recipient = WrongRecipient.Key;
 					ErrorText = WrongRecipient.Value;
 					ErrorsTexts.Add(StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = '%1: %2';"), Recipient, ErrorText));
+						NStr("en = '%1: %2'"), Recipient, ErrorText));
 				EndDo;
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'The message was not sent to the following recipients:
-					|%1';", 
+					|%1'", 
 					Common.DefaultLanguageCode()), StrConcat(ErrorsTexts, Chars.LF));
 				WriteLogEvent(EventNameSendEmail(), EventLogLevel.Error, , 
 					Account, ErrorText);
@@ -1590,9 +1599,9 @@ Function SendEmails(UserAccountOrConnection, Emails, ExceptionText = Undefined) 
 				// is passed to the calling code and will be handled there.
 			EndTry;
 		EndIf;
-
+		
 		ExceptionText = ErrorProcessing.BriefErrorDescription(ErrorInfo);
-		If ErrorInfo.IsErrorOfCategory(ErrorCategory.ConfigurationError)
+		If Not EmailOperationsInternalClientServer.ThisIsErrorInWorkOfInternetMail(ErrorInfo)
 			Or EmailsSendingResults.Count() = 0 Then
 			Raise;
 		EndIf;
@@ -1613,7 +1622,7 @@ EndFunction
 
 Function EventNameSendEmail()
 	
-	Return NStr("en = 'Email management.Send message';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Email management.Send message'", Common.DefaultLanguageCode());
 
 EndFunction
 
@@ -1810,7 +1819,7 @@ Function Permissions() Export
 	Protocol = "HTTPS";
 	Address = AddressOfExternalResource();
 	Port = Undefined;
-	LongDesc = NStr("en = 'Search for email settings and run connection error troubleshooting.';");
+	LongDesc = NStr("en = 'Search for email settings and run connection error troubleshooting.'");
 	
 	ModuleSafeModeManager = Common.CommonModule("SafeModeManager");
 	
@@ -1821,7 +1830,7 @@ Function Permissions() Export
 	For Each Address In DNSServerAddresses() Do
 		Protocol = "TCP";
 		Port = 53;
-		LongDesc = NStr("en = 'Search for email settings.';");
+		LongDesc = NStr("en = 'Search for email settings.'");
 	
 		Permissions.Add(
 			ModuleSafeModeManager.PermissionToUseInternetResource(Protocol, Address, Port, LongDesc));
@@ -1833,7 +1842,7 @@ Function Permissions() Export
 		CommandTemplate = "nslookup -type=mx % %";
 	EndIf;
 	Permissions.Add(ModuleSafeModeManager.PermissionToUseOperatingSystemApplications(CommandTemplate,
-		NStr("en = 'Permission for nslookup.';", Common.DefaultLanguageCode())));
+		NStr("en = 'Permission for nslookup.'", Common.DefaultLanguageCode())));
 	
 	Return Permissions;
 	
@@ -1901,28 +1910,28 @@ Function ExplanationOnError(ErrorText, Val LanguageCode = Undefined, ForSetupAss
 	
 	If Not ValueIsFilled(PossibleReasons) Then
 		If Not ValueIsFilled(ErrorsDetails) Then
-			PossibleReasons.Add(NStr("en = 'No Internet connection.';"));
+			PossibleReasons.Add(NStr("en = 'No Internet connection.'"));
 		EndIf;
-		PossibleReasons.Add(NStr("en = 'Invalid email server connection settings.';"));
-		PossibleReasons.Add(NStr("en = 'Mail server malfunction.';"));
+		PossibleReasons.Add(NStr("en = 'Invalid email server connection settings.'"));
+		PossibleReasons.Add(NStr("en = 'Mail server malfunction.'"));
 	EndIf;
 	
 	If Not ValueIsFilled(MethodsToFixError) Then
 		If Not ValueIsFilled(ErrorsDetails) Then
-			MethodsToFixError.Add(NStr("en = 'Check the Internet connection.';"));
+			MethodsToFixError.Add(NStr("en = 'Check the Internet connection.'"));
 		EndIf; 
 		
 		If ForSetupAssistant Then
-			MethodsToFixError.Add(NStr("en = 'Check the specified settings.';"));
+			MethodsToFixError.Add(NStr("en = 'Check the specified settings.'"));
 		Else
 			MethodsToFixError.Add(StringFunctionsClientServer.SubstituteParametersToString(NStr(
-				"en = 'Try reconfiguring your account (click <a href=\""%1\"">Reconfigure</a> in account settings).';"),
-				"Readjust"));
+				"en = 'Try reconfiguring your account (click <a href=""%1"">Reconfigure</a> in account settings).'"),
+				"00aae216-28f1-4b32-8ac5-d2a104368df5"));
 		EndIf;
 	
-		MethodsToFixError.Add(NStr("en = 'Try again later.';"));
-		MethodsToFixError.Add(NStr("en = 'Contact the network administrator.';"));
-		MethodsToFixError.Add(NStr("en = 'Contact the email server administrator.';"));
+		MethodsToFixError.Add(NStr("en = 'Try again later.'"));
+		MethodsToFixError.Add(NStr("en = 'Contact the network administrator.'"));
+		MethodsToFixError.Add(NStr("en = 'Contact the email server administrator.'"));
 	EndIf;
 	
 	PossibleReasons = CommonClientServer.CollapseArray(PossibleReasons);
@@ -2007,7 +2016,7 @@ Function ExtendedErrorPresentation(ErrorInfo, LanguageCode, EnableVerboseReprese
 	|%2
 	|
 	|Methods to fix the error:
-	|%3';", LanguageCode);
+	|%3'", LanguageCode);
 	
 	
 	PossibleReasons = FormattedList(ExplanationOnError.PossibleReasons);
@@ -2020,7 +2029,7 @@ Function ExtendedErrorPresentation(ErrorInfo, LanguageCode, EnableVerboseReprese
 		Template = NStr("en = '%1
 		|
 		|Additional information:
-		|%2';", LanguageCode);
+		|%2'", LanguageCode);
 		
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(Template, ErrorText, DetailErrorDescription);
 	EndIf;
@@ -2126,7 +2135,7 @@ Function ExecuteQuery(ServerAddress, ResourceAddress, QueryOptions, PutParameter
 	If HTTPResponse <> Undefined Then
 		If HTTPResponse.StatusCode <> 200 Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Request failed: %1. Status code: %2.';"), ResourceAddress, HTTPResponse.StatusCode) + Chars.LF
+				NStr("en = 'Request failed: %1. Status code: %2.'"), ResourceAddress, HTTPResponse.StatusCode) + Chars.LF
 				+ HTTPResponse.GetBodyAsString();
 			WriteLogEvent(EventNameAuthorizationByProtocolOAuth(),
 				EventLogLevel.Error, , , ErrorText);
@@ -2142,7 +2151,7 @@ EndFunction
 
 Function EventNameAuthorizationByProtocolOAuth() Export
 	
-	Return NStr("en = 'Email management. Email server authorization';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Email management. Email server authorization'", Common.DefaultLanguageCode());
 
 EndFunction
 
@@ -2203,7 +2212,7 @@ Function RefreshAccessToken(Val Account, Val UpdateToken)
 	EndIf;	
 
 	If Not ValueIsFilled(AttributesValues.EmailServiceName) Then
-		ErrorText = NStr("en = 'Email service for authorization is not specified. Reconfigure your account.';");
+		ErrorText = NStr("en = 'Email service for authorization is not specified. Reconfigure your account.'");
 		WriteLogEvent(EventNameAuthorizationByProtocolOAuth(), EventLogLevel.Error, , Account,
 			ErrorText);
 		Return "";
@@ -2217,7 +2226,7 @@ Function RefreshAccessToken(Val Account, Val UpdateToken)
 	SetPrivilegedMode(False);
 		
 	If Not ValueIsFilled(AuthorizationSettings.AppID) Then
-		ErrorText = NStr("en = 'Authorization settings of the ""%1"" online service are not found for domain ""%2"". Reconfigure your account.';");
+		ErrorText = NStr("en = 'Authorization settings of the ""%1"" online service are not found for domain ""%2"". Reconfigure your account.'");
 		WriteLogEvent(EventNameAuthorizationByProtocolOAuth(), EventLogLevel.Error, , Account,
 			ErrorText);
 			Return "";
@@ -2264,7 +2273,7 @@ Function RefreshAccessToken(Val Account, Val UpdateToken)
 			NStr("en = 'Cannot get access keys to the %1 email account due to:
 			|%2
 			|Server response:
-			|%3';"), AttributesValues.Email, ErrorText, QueryResult.ServerResponse1);
+			|%3'"), AttributesValues.Email, ErrorText, QueryResult.ServerResponse1);
 		WriteLogEvent(EventNameAuthorizationByProtocolOAuth(),
 			EventLogLevel.Error, , , ErrorText);
 
@@ -2274,7 +2283,7 @@ Function RefreshAccessToken(Val Account, Val UpdateToken)
 			NStr("en = 'Cannot get access keys to the %1 email account due to:
 			|Request failed.
 			|Server response:
-			|%2';"), AttributesValues.Email, QueryResult.ServerResponse1);
+			|%2'"), AttributesValues.Email, QueryResult.ServerResponse1);
 		WriteLogEvent(EventNameAuthorizationByProtocolOAuth(), EventLogLevel.Error, , Account,
 			ErrorText);
 		Return "";
@@ -2409,9 +2418,9 @@ Procedure GetStatusesOfEmailMessages() Export
 							CharNumberNewLine = StrFind(Cause, Chars.LF);
 							Cause = TrimAll(Left(Cause, CharNumberNewLine));
 							Cause = StringFunctionsClientServer.SubstituteParametersToString(
-								NStr("en = 'The message is not delivered due to: %1.';"), Cause);
+								NStr("en = 'The message is not delivered due to: %1.'"), Cause);
 						Else
-								Cause = NStr("en = 'The message is not delivered.';");
+								Cause = NStr("en = 'The message is not delivered.'");
 						EndIf;
 						
 						DeliveryStatusesString.Cause = Cause;
@@ -2466,7 +2475,7 @@ Procedure GetStatusesOfEmailMessages() Export
 								Cause = Mid(Cause, 1, CharNumberReasonEnd);
 								
 								Cause = StringFunctionsClientServer.SubstituteParametersToString(
-								NStr("en = 'The message is not delivered due to: %1.';"), TrimAll(Cause));
+								NStr("en = 'The message is not delivered due to: %1.'"), TrimAll(Cause));
 								
 								DeliveryStatusesString.Cause = Cause;
 								DeliveryStatusesString.StatusChangeDate = Message.PostingDate;
@@ -2494,7 +2503,7 @@ Procedure GetStatusesOfEmailMessages() Export
 								Cause = StrReplace(Cause, Chars.CR, "");
 								
 								Cause = StringFunctionsClientServer.SubstituteParametersToString(
-								NStr("en = 'The message is not delivered due to: %1.';"), TrimAll(Cause));
+								NStr("en = 'The message is not delivered due to: %1.'"), TrimAll(Cause));
 								
 								DeliveryStatusesString.Cause = Cause;
 								DeliveryStatusesString.StatusChangeDate = Message.PostingDate;
@@ -2542,11 +2551,27 @@ Function ConnectToEmailAccount(Val Account, Val ForReceiving = False) Export
 	EndIf;
 	
 	InternetMail = New InternetMail;
-	InternetMail.Logon(InternetMailProfile, Protocol);
+	ConnectToInternetMail(InternetMail, InternetMailProfile, Protocol);
 	
 	Return InternetMail;
 	
 EndFunction
+
+Procedure ConnectToInternetMail(InternetMail, Profile, Protocol)
+	
+	Try
+		InternetMail.Logon(Profile, Protocol);
+	Except
+		
+		ErrorInfo = ErrorInfo();
+		ExceptionClarification = CommonClientServer.ExceptionClarification(ErrorInfo);
+		ErrorCode = EmailOperationsInternalClientServer.ErrorCodeOfInternetMailWorks();
+		
+		Raise(ExceptionClarification.Text, ExceptionClarification.Category, ErrorCode, , ErrorInfo);
+		
+	EndTry;
+	
+EndProcedure
 
 #Region Punycode
 
@@ -2624,7 +2649,7 @@ Function CharCodeToOrdinalNum(Val Code)
 	ElsIf Code - CodeA < 26 Then
 		Return Code - CodeA;
 	Else
-		Raise NStr("en = 'Bad input data';");
+		Raise NStr("en = 'Bad input data'");
 	EndIf;
 EndFunction
 
@@ -2756,7 +2781,7 @@ Function DecodePunycodeString(Val EncodedString)
 		For SymbolIndex = 1 To ReadPosition-1 Do
 			NextInTurnChar = Mid(EncodedString, SymbolIndex, 1);
 			If Not IsASCIIChar(NextInTurnChar) Then
-				Raise NStr("en = 'Bad input data';");
+				Raise NStr("en = 'Bad input data'");
 			EndIf;
 			Result.Add(NextInTurnChar);
 		EndDo;
@@ -2770,7 +2795,7 @@ Function DecodePunycodeString(Val EncodedString)
 		
 		While True Do
 			If ReadPosition > StrLen(EncodedString) Then
-				Raise NStr("en = 'Bad input data';");
+				Raise NStr("en = 'Bad input data'");
 			EndIf;
 			
 			NextCharCode = CharCode(Mid(EncodedString, ReadPosition, 1));
@@ -2778,7 +2803,7 @@ Function DecodePunycodeString(Val EncodedString)
 			
 			NextCharOrdinalNum = CharCodeToOrdinalNum(NextCharCode);
 			If NextCharOrdinalNum > (9999999999 - InsertPosition) / InsertionPositionMultiplier Then
-				Raise NStr("en = 'Overflow';");
+				Raise NStr("en = 'Overflow'");
 			EndIf;
 			
 			InsertPosition = InsertPosition + NextCharOrdinalNum * InsertionPositionMultiplier;
@@ -2800,7 +2825,7 @@ Function DecodePunycodeString(Val EncodedString)
 		EndDo;
 		
 		If (InsertPosition / (Result.Count() + 1)) > (9999999999 - Code) Then
-			Raise NStr("en = 'Overflow';");
+			Raise NStr("en = 'Overflow'");
 		EndIf;
 		
 		Offset = OffsetAdaptation(InsertPosition - PrevInsertionPosition, Result.Count() + 1, PrevInsertionPosition = 0);
@@ -2862,7 +2887,7 @@ EndFunction
 
 Function AddressOfFIleWithErrorsDetails()
 	
-	FileAddress = "https://downloads.1c.eu/content/common/settings/mailerrors.json";
+	FileAddress = "https://downloads.1c.eu/content/common/settings/v2/mailerrors.json";
 	EmailOperationsLocalization.OnReceivingAddressOfFileWithDescriptionOfErrors(FileAddress);
 	Return FileAddress;
 	

@@ -713,7 +713,7 @@ Procedure CheckAndFillInXMLConnectionSettings(
 		
 		Template = NStr("en = 'The file does not contain connection settings for the selected data exchange.
 			|Exchange ""%1"" is selected,
-			|while the file contains settings for exchange ""%2"".';");
+			|while the file contains settings for exchange ""%2"".'");
 		
 		ErrorMessage = StrTemplate(Template, ConnectionSettings.ExchangePlanName, ExchangePlanNameInSettings);
 		
@@ -786,7 +786,7 @@ Procedure CheckAndFillInXMLConnectionSettings(
 			And IBPrefix <> ConnectionSettings.SourceInfobasePrefix Then
 			
 			Template = NStr("en = 'The application prefix specified during setup (""%1"") does not match the prefix in this application (""%2"").
-				|To continue, start the setup from another application and specify the correct prefix (""%2"").';");
+				|To continue, start the setup from another application and specify the correct prefix (""%2"").'");
 			
 			ErrorMessage = StrTemplate(Template, ConnectionSettings.SourceInfobasePrefix, IBPrefix);
 			
@@ -799,7 +799,7 @@ Procedure CheckAndFillInXMLConnectionSettings(
 	// Supporting the exchange settings file of the 1.0 version format.
 	If ConnectionSettings.ExchangeDataSettingsFileFormatVersion = "1.0" Then
 		
-		ConnectionSettings.ThisInfobaseDescription    = NStr("en = 'This infobase';");
+		ConnectionSettings.ThisInfobaseDescription    = NStr("en = 'This infobase'");
 		ConnectionSettingsFromFile.Property("DataExchangeExecutionSettingsDescription", ConnectionSettings.SecondInfobaseDescription);
 		ConnectionSettingsFromFile.Property("NewNodeCode", ConnectionSettings.SecondInfobaseNewNodeCode);
 		
@@ -1023,14 +1023,14 @@ Function FTPServerNameAndPath(Val StringForConnection) Export
 		And Upper(Left(StringForConnection, 7)) <> "FTPS://")
 		Or StrFind(StringForConnection, "@") <> 0 Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The FTP connection string has invalid format: ""%1""';"), StringForConnection);
+			NStr("en = 'The FTP connection string has invalid format: ""%1""'"), StringForConnection);
 	EndIf;
 	
 	ConnectionParameters = StrSplit(StringForConnection, "/");
 	
 	If ConnectionParameters.Count() < 3 Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The server name is missing from the FTP connection string: ""%1""';"), StringForConnection);
+			NStr("en = 'The server name is missing from the FTP connection string: ""%1""'"), StringForConnection);
 	EndIf;
 	
 	Result.Server = ConnectionParameters[2];
@@ -1087,19 +1087,19 @@ Function EstablishExternalConnectionWithInfobase(SettingsStructure_) Export
 	EmbeddedLanguageOptionsAreDifferent = False;
 	If Metadata.ScriptVariant = Metadata.ObjectProperties.ScriptVariant.Russian
 		And ExternalConnection.Metadata.ScriptVariant <> ExternalConnection.Metadata.ObjectProperties.ScriptVariant.Russian Then
-		VariantOfBuiltInCorrespondentLanguage = NStr("en = 'English';");
+		VariantOfBuiltInCorrespondentLanguage = NStr("en = 'English'");
 		EmbeddedLanguageOptionsAreDifferent = True;
 	EndIf;
 	
 	If Metadata.ScriptVariant = Metadata.ObjectProperties.ScriptVariant.English
 		And ExternalConnection.Metadata.ScriptVariant <> ExternalConnection.Metadata.ObjectProperties.ScriptVariant.English Then
-		VariantOfBuiltInCorrespondentLanguage = NStr("en = 'Russian';");
+		VariantOfBuiltInCorrespondentLanguage = NStr("en = 'Russian'");
 		EmbeddedLanguageOptionsAreDifferent = True;
 	EndIf;
 	
 	If EmbeddedLanguageOptionsAreDifferent Then
 		
-		DetailedErrorDetails = NStr("en = 'The application to connect has a different 1C:Enterprise language option (%1). Connection is unavailable.';");
+		DetailedErrorDetails = NStr("en = 'The application to connect has a different 1C:Enterprise language option (%1). Connection is unavailable.'");
 		DetailedErrorDetails = StrTemplate(DetailedErrorDetails, VariantOfBuiltInCorrespondentLanguage); 
 		
 		Result.DetailedErrorDetails = DetailedErrorDetails;
@@ -1119,7 +1119,7 @@ Function EstablishExternalConnectionWithInfobase(SettingsStructure_) Export
 	EndTry;
 	
 	If NoFullAccess Then
-		Result.DetailedErrorDetails = NStr("en = 'The user on whose behalf connection to the peer application is established must be assigned the ""System administrator"" and ""Full access"" roles.';");
+		Result.DetailedErrorDetails = NStr("en = 'The user on whose behalf connection to the peer application is established must be assigned the ""System administrator"" and ""Full access"" roles.'");
 		Result.BriefErrorDetails   = Result.DetailedErrorDetails;
 		Result.Join = Undefined;
 	Else
@@ -1130,7 +1130,7 @@ Function EstablishExternalConnectionWithInfobase(SettingsStructure_) Export
 		EndTry;
 		
 		If InvalidState Then
-			Result.DetailedErrorDetails = NStr("en = 'Peer application is updating.';");
+			Result.DetailedErrorDetails = NStr("en = 'Peer application is updating.'");
 			Result.BriefErrorDetails   = Result.DetailedErrorDetails;
 			Result.Join = Undefined;
 		EndIf;
@@ -1264,7 +1264,7 @@ Procedure CheckExchangeMessageTransportDataProcessorAttachment(Cancel,
 		Cancel = True;
 		
 		ErrorMessage = Transport.ErrorMessage
-			+ Chars.LF + NStr("en = 'See the event log for details.';");
+			+ Chars.LF + NStr("en = 'See the event log for details.'");
 				
 	EndIf;
 	
@@ -1587,10 +1587,10 @@ Procedure WriteMessageToRegistrationLog(Transport, ActionOnExchange = Undefined,
 	ElsIf ValueIsFilled(Transport.ErrorMessage) Then
 		ErrorMessageEventLog = Transport.ErrorMessage;
 	Else
-		ErrorMessageEventLog = NStr("en = 'Internal error';");
+		ErrorMessageEventLog = NStr("en = 'Internal error'");
 	EndIf;
 	
-	TransportName = NStr("en = 'Data processor: %1';");
+	TransportName = NStr("en = 'Data processor: %1'");
 	TransportName = StrTemplate(TransportName, Transport.Metadata().Name);
 	
 	ErrorMessageEventLog = TransportName + Chars.LF + ErrorMessageEventLog;
@@ -1602,7 +1602,7 @@ Procedure WriteMessageToRegistrationLog(Transport, ActionOnExchange = Undefined,
 	Peer = Transport.Peer;
 	
 	If Not ValueIsFilled(ActionOnExchange) Or Not ValueIsFilled(Peer) Then
-		EventLogMessageKey = NStr("en = 'Exchange message transport';");
+		EventLogMessageKey = NStr("en = 'Exchange message transport'");
 	Else
 		EventLogMessageKey = DataExchangeServer.EventLogMessageKey(
 			Transport.Peer, ActionOnExchange);
@@ -1780,7 +1780,7 @@ Function PackExchangeMessageIntoZipFile(Transport, Password) Export
 	
 	Try
 		
-		Archiver = New ZipFileWriter(ArchiveTempFileName, Password, NStr("en = 'Exchange message file';"));
+		Archiver = New ZipFileWriter(ArchiveTempFileName, Password, NStr("en = 'Exchange message file'"));
 		Archiver.Add(Transport.ExchangeMessage);
 		Archiver.Write();
 		
@@ -1791,7 +1791,7 @@ Function PackExchangeMessageIntoZipFile(Transport, Password) Export
 		Result = False;
 		
 		ErrorMessage = NStr("en = 'Error packing the exchange message file.
-                                  |%1';");
+                                  |%1'");
 		ErrorMessage = StrTemplate(ErrorMessage, ErrorProcessing.BriefErrorDescription(ErrorInfo())); 
 		
 		WriteMessageToRegistrationLog(Transport, Enums.ActionsOnExchange.DataExport);
@@ -1823,7 +1823,7 @@ Function UnzipExchangeMessageFromZipFile(Transport, ArchiveFileName, Password) E
 		Result = False;
 		
 		ErrorMessage = NStr("en = 'Error extracting message file.
-                                  |%1';");
+                                  |%1'");
 		ErrorMessage = StrTemplate(ErrorMessage, ErrorProcessing.BriefErrorDescription(ErrorInfo())); 
 		
 		Transport.ErrorMessage = ErrorMessage;
@@ -2416,7 +2416,7 @@ Procedure OnConnectToCorrespondent(Cancel, ExchangePlanName, Val CorrespondentVe
 	Except
 		
 		DetailErrorDescription = ErrorProcessing.DetailErrorDescription(ErrorInfo());
-		MessageTemplate = NStr("en = 'Event handler error: OnConnectToCorrespondent. Details: %1%2';");
+		MessageTemplate = NStr("en = 'Event handler error: OnConnectToCorrespondent. Details: %1%2'");
 		ErrorMessage = StrTemplate(MessageTemplate, Chars.LF, DetailErrorDescription);
 		
 		WriteLogEvent(DataExchangeServer.DataExchangeCreationEventLogEvent(),

@@ -16,7 +16,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetConditionalAppearance();
 	
 	If Not Users.IsFullUser(, True) Then
-		Raise(NStr("en = 'Insufficient access rights.';"), ErrorCategory.AccessViolation);
+		Raise(NStr("en = 'Insufficient access rights.'"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	FillFormSettings(New Map);
@@ -192,14 +192,14 @@ Procedure ScheduledJobsTableBeforeDeleteRow(Item, Cancel)
 	Cancel = True;
 	
 	If Items.ScheduledJobsTable.SelectedRows.Count() > 1 Then
-		ShowMessageBox(, NStr("en = 'Select one scheduled job.';"));
+		ShowMessageBox(, NStr("en = 'Select one scheduled job.'"));
 		
 	ElsIf Item.CurrentData.Predefined Then
-		ShowMessageBox(, NStr("en = 'Predefined scheduled job cannot be deleted.';") );
+		ShowMessageBox(, NStr("en = 'Predefined scheduled job cannot be deleted.'") );
 	Else
 		ShowQueryBox(
 			New CallbackDescription("ScheduledJobsTableBeforeDeleteRowCompletion", ThisObject),
-			NStr("en = 'Do you want to delete the scheduled job?';"), QuestionDialogMode.YesNo);
+			NStr("en = 'Do you want to delete the scheduled job?'"), QuestionDialogMode.YesNo);
 	EndIf;
 	
 EndProcedure
@@ -223,7 +223,7 @@ EndProcedure
 Procedure ExecuteScheduledJobManually(Command)
 
 	If Items.ScheduledJobsTable.CurrentData = Undefined Then
-		ShowMessageBox(, NStr("en = 'Select a scheduled job.';"));
+		ShowMessageBox(, NStr("en = 'Select a scheduled job.'"));
 		Return;
 	EndIf;
 	
@@ -240,7 +240,7 @@ Procedure ExecuteScheduledJobManually(Command)
 		CurrentData = ScheduledJobsTable.FindByID(SelectedRow);
 		
 		If CurrentData.Parameterized And SelectedJobsCount = 1 Then
-			ShowMessageBox(, NStr("en = 'The scheduled job cannot be started manually.';"));
+			ShowMessageBox(, NStr("en = 'The scheduled job cannot be started manually.'"));
 			Return;
 		ElsIf CurrentData.Parameterized Then
 			Continue;
@@ -250,9 +250,9 @@ Procedure ExecuteScheduledJobManually(Command)
 		If ExecutionParameters.Started1 Then
 			
 			ShowUserNotification(
-				NStr("en = 'Scheduled job started';"), ,
+				NStr("en = 'Scheduled job started'"), ,
 				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1.
-					|The scheduled job has been started in the background job ""%2"".';"),
+					|The scheduled job has been started in the background job ""%2"".'"),
 					CurrentData.Description,
 					String(ExecutionParameters.StartedAt)),
 				PictureLib.ExecuteScheduledJobManually);
@@ -267,7 +267,7 @@ Procedure ExecuteScheduledJobManually(Command)
 			ErrorMessageArray.Add(
 				StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'The scheduled job ""%1"" is running in
-					|the background job ""%2""  started on %3.';"),
+					|the background job ""%2""  started on %3.'"),
 					CurrentData.Description,
 					ExecutionParameters.BackgroundJobPresentation,
 					String(ExecutionParameters.StartedAt)));
@@ -282,7 +282,7 @@ Procedure ExecuteScheduledJobManually(Command)
 	ErrorsCount = ErrorMessageArray.Count();
 	If ErrorsCount > 0 Then
 		ErrorTextTitle = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The jobs are not completed (%1 out of %2)';"),
+			NStr("en = 'The jobs are not completed (%1 out of %2)'"),
 			Format(ErrorsCount, "NG="),
 			Format(SelectedRows.Count(), "NG="));
 		
@@ -295,7 +295,7 @@ Procedure ExecuteScheduledJobManually(Command)
 		
 		If ErrorsCount > 5 Then
 			Buttons = New ValueList;
-			Buttons.Add(1, NStr("en = 'Show errors';"));
+			Buttons.Add(1, NStr("en = 'Show errors'"));
 			Buttons.Add(DialogReturnCode.Cancel);
 			
 			ShowQueryBox(
@@ -315,10 +315,10 @@ Procedure SetUpSchedule(Command)
 	CurrentData = Items.ScheduledJobsTable.CurrentData;
 	
 	If CurrentData = Undefined Then
-		ShowMessageBox(, NStr("en = 'Select a scheduled job.';"));
+		ShowMessageBox(, NStr("en = 'Select a scheduled job.'"));
 	
 	ElsIf Items.ScheduledJobsTable.SelectedRows.Count() > 1 Then
-		ShowMessageBox(, NStr("en = 'Select one scheduled job.';"));
+		ShowMessageBox(, NStr("en = 'Select one scheduled job.'"));
 	Else
 		Dialog = New ScheduledJobDialog(
 			GetSchedule(CurrentData.Id));
@@ -354,7 +354,7 @@ EndProcedure
 Procedure CancelBackgroundJob(Command)
 	
 	If Items.BackgroundJobsTable.CurrentData = Undefined Then
-		ShowMessageBox(, NStr("en = 'Select a background job.';"));
+		ShowMessageBox(, NStr("en = 'Select a background job.'"));
 		Return;
 	EndIf;
 
@@ -363,7 +363,7 @@ Procedure CancelBackgroundJob(Command)
 	
 	ShowMessageBox(,
 		NStr("en = 'You have canceled the background job, but the server will stop it with a delay.,
-		           |You might need to update data on the client manually.';"));
+		           |You might need to update data on the client manually.'"));
 	
 EndProcedure
 
@@ -379,7 +379,7 @@ EndProcedure
 Procedure ExecuteNotInBackground(Command)
 	
 	If Items.ScheduledJobsTable.CurrentData = Undefined Then
-		ShowMessageBox(, NStr("en = 'Select a scheduled job.';"));
+		ShowMessageBox(, NStr("en = 'Select a scheduled job.'"));
 		Return;
 	EndIf;
 	
@@ -394,7 +394,7 @@ Procedure ExecuteNotInBackground(Command)
 		CurrentData = ScheduledJobsTable.FindByID(SelectedRow);
 		
 		If CurrentData.Parameterized And SelectedJobsCount = 1 Then
-			ShowMessageBox(, NStr("en = 'The scheduled job cannot be started manually.';"));
+			ShowMessageBox(, NStr("en = 'The scheduled job cannot be started manually.'"));
 			Return;
 		ElsIf CurrentData.Parameterized Then
 			Continue;
@@ -405,9 +405,9 @@ Procedure ExecuteNotInBackground(Command)
 	EndDo;
 	
 	ShowUserNotification(
-		NStr("en = 'Scheduled job completed';"), ,
+		NStr("en = 'Scheduled job completed'"), ,
 		StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1.
-			|The scheduled job has been completed manually.';"),
+			|The scheduled job has been completed manually.'"),
 			CurrentData.Description),
 		PictureLib.ExecuteScheduledJobManually);
 	
@@ -440,12 +440,12 @@ Procedure EventLogEvents(Command)
 	If Items.Jobs.CurrentPage = Items.ScheduledJobs Then
 		CurrentData = Items.ScheduledJobsTable.CurrentData;
 		If CurrentData = Undefined Then
-			ShowMessageBox(, NStr("en = 'Select a scheduled job.';"));
+			ShowMessageBox(, NStr("en = 'Select a scheduled job.'"));
 			Return;
 		EndIf;
 		If Not ValueIsFilled(CurrentData.StartDate) And Not ValueIsFilled(CurrentData.EndDate)
 			Or (CurrentData.StartDate = TextUndefined And CurrentData.EndDate = TextUndefined) Then
-			ShowMessageBox(, NStr("en = 'The scheduled job has not run yet. There are no related records in the event log.';"));
+			ShowMessageBox(, NStr("en = 'The scheduled job has not run yet. There are no related records in the event log.'"));
 			Return;
 		EndIf;
 		EventFilter.Insert("StartDate", CurrentData.StartDate);
@@ -456,7 +456,7 @@ Procedure EventLogEvents(Command)
 	ElsIf Items.Jobs.CurrentPage = Items.BackgroundJobs Then
 		CurrentData = Items.BackgroundJobsTable.CurrentData;
 		If CurrentData = Undefined Then
-			ShowMessageBox(, NStr("en = 'Select a background job.';"));
+			ShowMessageBox(, NStr("en = 'Select a background job.'"));
 			Return;
 		EndIf;
 		EventFilter.Insert("StartDate", CurrentData.Begin);
@@ -476,14 +476,14 @@ Procedure LockOperationsWithExternalResources(Command)
 	|
 	|Possible reasons for blocking:
 	|• The infobase is mistakenly marked as moved.
-	|• Scheduled jobs need to be temporary disabled.';");
+	|• Scheduled jobs need to be temporary disabled.'");
 	ButtonsList = New ValueList();
 	ButtonsList.Add(DialogReturnCode.Yes, "Lock");
 	ButtonsList.Add(DialogReturnCode.No, "Cancel");
 	ShowQueryBox(OnCloseNotifyHandler, 
 		MessageText, 
 		ButtonsList, , 
-		DialogReturnCode.No, NStr("en = 'Lock operations with external resources';"));
+		DialogReturnCode.No, NStr("en = 'Lock operations with external resources'"));
 	
 EndProcedure
 
@@ -516,7 +516,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("ScheduledJobsTable.ExecutionState");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
-	ItemFilter.RightValue = NStr("en = '<undefined>';");
+	ItemFilter.RightValue = NStr("en = '<undefined>'");
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	
 	//
@@ -528,7 +528,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("ScheduledJobsTable.EndDate");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
-	ItemFilter.RightValue = NStr("en = '<undefined>';");
+	ItemFilter.RightValue = NStr("en = '<undefined>'");
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	
 	//
@@ -540,7 +540,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("ScheduledJobsTable.StartDate");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
-	ItemFilter.RightValue = NStr("en = '<undefined>';");
+	ItemFilter.RightValue = NStr("en = '<undefined>'");
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	
 	//
@@ -684,7 +684,7 @@ Procedure FillFormSettings(Val Settings)
 		Settings.Insert("ScheduledJobForFilterID", BlankID);
 	EndIf;
 	
-	// See also the "FilterKindByPeriodOnChange" radio button event handler.
+	// See also the FilterKindByPeriodOnChange radio button event handler.
 	If Settings.Get("FilterKindByPeriod") = Undefined Then
 		
 		Settings.Insert("FilterKindByPeriod", 3); // Today
@@ -710,7 +710,7 @@ EndProcedure
 Procedure OpenBackgroundJob()
 	
 	If Items.BackgroundJobsTable.CurrentData = Undefined Then
-		ShowMessageBox(, NStr("en = 'Select a background job.';"));
+		ShowMessageBox(, NStr("en = 'Select a background job.'"));
 		Return;
 	EndIf;
 	
@@ -796,11 +796,11 @@ Procedure NotifyAboutManualScheduledJobCompletion()
 	For Each Notification In CompletionNotifications Do
 		
 		ShowUserNotification(
-			NStr("en = 'Scheduled job procedure completed';"),
+			NStr("en = 'Scheduled job procedure completed'"),
 			,
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = '%1.
-				           |The scheduled job has been completed in the background job ""%2"".';"),
+				           |The scheduled job has been completed in the background job ""%2"".'"),
 				Notification.ScheduledJobPresentation,
 				String(Notification.FinishedAt)),
 			PictureLib.ExecuteScheduledJobManually);
@@ -884,7 +884,7 @@ Procedure AddCopyEditScheduledJob(Val Action)
 	
 	If Action <> "Add" Then
 		If Items.ScheduledJobsTable.CurrentData = Undefined Then
-			ShowMessageBox(, NStr("en = 'Select a scheduled job.';"));
+			ShowMessageBox(, NStr("en = 'Select a scheduled job.'"));
 			Return;
 		Else
 			FormParameters.Insert("Id", Items.ScheduledJobsTable.CurrentData.Id);
@@ -1010,7 +1010,7 @@ Function ImportScheduledJobsServer(JobID)
 		ExecutionParameters.RunNotInBackground1 = True;
 	EndIf;
 	ExecutionParameters.WaitCompletion = 0; // Run immediately
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Generate scheduled job list';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Generate scheduled job list'");
 	
 	Return TimeConsumingOperations.ExecuteInBackground("ScheduledJobsInternal.GenerateScheduledJobsTable",
 		TimeConsumingOperationParameters, ExecutionParameters);
@@ -1106,7 +1106,7 @@ Function GenerateBackgroundJobsTableInBackground()
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.WaitCompletion = 0;
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Scheduled jobs. Update background job list';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Scheduled jobs. Update background job list'");
 	
 	Result = TimeConsumingOperations.ExecuteInBackground("ScheduledJobsInternal.FillBackgroundJobsPropertiesTableInBackground",
 		TransmittedParameters, ExecutionParameters);
@@ -1196,7 +1196,7 @@ Procedure UpdateBackgroundJobTable(ResultAddress = Undefined)
 				New Structure("Id", ToUpdate.ScheduledJobID));
 			
 			ToUpdate.ScheduledJobDescription
-				= ?(Rows.Count() = 0, NStr("en = '<not found>';"), Rows[0].Description);
+				= ?(Rows.Count() = 0, NStr("en = '<not found>'"), Rows[0].Description);
 		Else
 			ToUpdate.ScheduledJobDescription  = TextUndefined;
 			ToUpdate.ScheduledJobID = TextUndefined;

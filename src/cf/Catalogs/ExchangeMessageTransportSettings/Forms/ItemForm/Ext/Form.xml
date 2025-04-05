@@ -88,8 +88,8 @@
 					<DataPath>Object.Settings.Setting</DataPath>
 					<EditMode>EnterOnInput</EditMode>
 					<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
-					<ContextMenu name="SettingsSettingContextMenu" id="30"/>
-					<ExtendedTooltip name="SettingsSettingExtendedTooltip" id="31"/>
+					<ContextMenu name="SettingsSetupContextMenu" id="30"/>
+					<ExtendedTooltip name="SettingsSetupExtendedTooltip" id="31"/>
 				</InputField>
 				<InputField name="SettingsValue" id="32">
 					<DataPath>Object.Settings.Value</DataPath>

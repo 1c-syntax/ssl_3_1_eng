@@ -113,8 +113,8 @@ Procedure TestConnectionCompletion(Result, AdditionalParameters) Export
 		ConnectionIsSet = False;
 		TestConnectionAtServer(ConnectionIsSet);
 		
-		WarningText = ?(ConnectionIsSet, NStr("en = 'Connection established.';"),
-								NStr("en = 'Cannot establish connection.';"));
+		WarningText = ?(ConnectionIsSet, NStr("en = 'Connection established.'"),
+								NStr("en = 'Cannot establish connection.'"));
 		ShowMessageBox(, WarningText);
 		
 	EndIf;
@@ -138,7 +138,7 @@ Procedure TestConnectionAtServer(ConnectionIsSet)
 		Cancel = True;
 		
 		ErrorMessage = DataProcessorObject.ErrorMessage
-			+ Chars.LF + NStr("en = 'See the event log for details.';");
+			+ Chars.LF + NStr("en = 'See the event log for details.'");
 		
 		Common.MessageToUser(ErrorMessage, , , , Cancel);
 			

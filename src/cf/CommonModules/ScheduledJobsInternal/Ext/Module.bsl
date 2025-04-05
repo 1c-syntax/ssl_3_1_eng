@@ -100,9 +100,9 @@ EndFunction
 //    * UseExternalResources   - Boolean - True if the scheduled job is operating
 //        with external resources (receiving emails, synchronizing data, etc.).
 //        The default value is False.
-//    * AccessesExternalResources - Boolean - 
-//        
-//        
+//    * CanAccessExternalResources - Boolean - "True" if the scheduled job accesses web services
+//        but its "UseExternalResources" property is not set to "True".
+//        The default value is "False".
 //
 Function ScheduledJobsDependentOnFunctionalOptions() Export
 	
@@ -115,7 +115,7 @@ Function ScheduledJobsDependentOnFunctionalOptions() Export
 	Dependencies.Columns.Add("EnableOnEnableFunctionalOption");
 	Dependencies.Columns.Add("AvailableAtStandaloneWorkstation");
 	Dependencies.Columns.Add("UseExternalResources", New TypeDescription("Boolean"));
-	Dependencies.Columns.Add("AccessesExternalResources", New TypeDescription("Boolean"));
+	Dependencies.Columns.Add("CanAccessExternalResources", New TypeDescription("Boolean"));
 	Dependencies.Columns.Add("IsParameterized", New TypeDescription("Boolean"));
 	
 	SSLSubsystemsIntegration.OnDefineScheduledJobSettings(Dependencies);
@@ -126,77 +126,6 @@ Function ScheduledJobsDependentOnFunctionalOptions() Export
 	Return Dependencies;
 	
 EndFunction
-
-// Sets a flag of scheduled jobs usage in the infobase
-// depending on values of functional options.
-//
-// Parameters:
-//  EnableJobs - Boolean - if True, disabled scheduled jobs will be enabled
-//                             when they become available according to functional options. The default value is False.
-//
-Procedure SetScheduledJobsUsageByFunctionalOptions(EnableJobs = False) Export
-	
-	IsSubordinateDIBNode = Common.IsSubordinateDIBNode();
-	IsStandaloneWorkplace = Common.IsStandaloneWorkplace();
-	
-	DependentScheduledJobs = ScheduledJobsDependentOnFunctionalOptions();
-	Jobs = DependentScheduledJobs.Copy(,"ScheduledJob");
-	Jobs.GroupBy("ScheduledJob");
-	
-	For Each RowJob In Jobs Do
-		
-		Use                    = Undefined;
-		DisableJob                 = True;
-		DisableInSubordinateDIBNode     = False;
-		DisableInStandaloneWorkplace = False;
-		
-		FoundRows = DependentScheduledJobs.FindRows(New Structure("ScheduledJob", RowJob.ScheduledJob));
-		
-		For Each DependencyString In FoundRows Do
-			DisableInSubordinateDIBNode = (DependencyString.AvailableInSubordinateDIBNode = False) And IsSubordinateDIBNode;
-			DisableInStandaloneWorkplace = (DependencyString.AvailableAtStandaloneWorkstation = False) And IsStandaloneWorkplace;
-			If DisableInSubordinateDIBNode Or DisableInStandaloneWorkplace Then
-				Use = False;
-				Break;
-			EndIf;
-			
-			If DependencyString.FunctionalOption = Undefined Then
-				Continue;
-			EndIf;
-			
-			FOValue = GetFunctionalOption(DependencyString.FunctionalOption.Name);
-			
-			If DependencyString.EnableOnEnableFunctionalOption = False Then
-				If DisableJob Then
-					DisableJob = Not FOValue;
-				EndIf;
-				FOValue = False;
-			EndIf;
-			
-			If Use = Undefined Then
-				Use = FOValue;
-			ElsIf DependencyString.DependenceByT Then
-				Use = Use And FOValue;
-			Else
-				Use = Use Or FOValue;
-			EndIf;
-		EndDo;
-		
-		If Use = Undefined
-			Or (Use And Not EnableJobs) // Only disable scheduled jobs automatically on update.
-			Or (Not Use And Not DisableJob) Then
-			Continue;
-		EndIf;
-		
-		JobsList = ScheduledJobsServer.FindJobs(New Structure("Metadata", RowJob.ScheduledJob));
-		For Each ScheduledJob In JobsList Do
-			JobParameters = New Structure("Use", Use);
-			ScheduledJobsServer.ChangeJob(ScheduledJob, JobParameters);
-		EndDo;
-		
-	EndDo;
-	
-EndProcedure
 
 // Returns a table containing background job properties.
 // 
@@ -380,6 +309,77 @@ Procedure EnableScheduledJobOnChangeFunctionalOption(Source, Cancel) Export
 	
 EndProcedure
 
+// Sets a flag of scheduled jobs usage in the infobase
+// depending on values of functional options.
+//
+// Parameters:
+//  EnableJobs - Boolean - if True, disabled scheduled jobs will be enabled
+//                             when they become available according to functional options. The default value is False.
+//
+Procedure SetScheduledJobsUsageByFunctionalOptions(EnableJobs = False) Export
+	
+	IsSubordinateDIBNode = Common.IsSubordinateDIBNode();
+	IsStandaloneWorkplace = Common.IsStandaloneWorkplace();
+	
+	DependentScheduledJobs = ScheduledJobsDependentOnFunctionalOptions();
+	Jobs = DependentScheduledJobs.Copy(,"ScheduledJob");
+	Jobs.GroupBy("ScheduledJob");
+	
+	For Each RowJob In Jobs Do
+		
+		Use                    = Undefined;
+		DisableJob                 = True;
+		DisableInSubordinateDIBNode     = False;
+		DisableInStandaloneWorkplace = False;
+		
+		FoundRows = DependentScheduledJobs.FindRows(New Structure("ScheduledJob", RowJob.ScheduledJob));
+		
+		For Each DependencyString In FoundRows Do
+			DisableInSubordinateDIBNode = (DependencyString.AvailableInSubordinateDIBNode = False) And IsSubordinateDIBNode;
+			DisableInStandaloneWorkplace = (DependencyString.AvailableAtStandaloneWorkstation = False) And IsStandaloneWorkplace;
+			If DisableInSubordinateDIBNode Or DisableInStandaloneWorkplace Then
+				Use = False;
+				Break;
+			EndIf;
+			
+			If DependencyString.FunctionalOption = Undefined Then
+				Continue;
+			EndIf;
+			
+			FOValue = GetFunctionalOption(DependencyString.FunctionalOption.Name);
+			
+			If DependencyString.EnableOnEnableFunctionalOption = False Then
+				If DisableJob Then
+					DisableJob = Not FOValue;
+				EndIf;
+				FOValue = False;
+			EndIf;
+			
+			If Use = Undefined Then
+				Use = FOValue;
+			ElsIf DependencyString.DependenceByT Then
+				Use = Use And FOValue;
+			Else
+				Use = Use Or FOValue;
+			EndIf;
+		EndDo;
+		
+		If Use = Undefined
+			Or (Use And Not EnableJobs) // Only disable scheduled jobs automatically on update.
+			Or (Not Use And Not DisableJob) Then
+			Continue;
+		EndIf;
+		
+		JobsList = ScheduledJobsServer.FindJobs(New Structure("Metadata", RowJob.ScheduledJob));
+		For Each ScheduledJob In JobsList Do
+			JobParameters = New Structure("Use", Use);
+			ScheduledJobsServer.ChangeJob(ScheduledJob, JobParameters);
+		EndDo;
+		
+	EndDo;
+	
+EndProcedure
+
 #EndRegion
 
 #Region ConfigurationSubsystemsEventHandlers
@@ -467,7 +467,7 @@ Function DefaultSettings()
 	
 	SubsystemSettings = New Structure;
 	SubsystemSettings.Insert("UnlockCommandPlacement",
-		NStr("en = 'You can release the lock later in <b>Administration > Support and service</b>.';"));
+		NStr("en = 'You can release the lock later in <b>Administration > Support and service</b>.'"));
 	
 	Return SubsystemSettings;
 	
@@ -479,7 +479,7 @@ Procedure RaiseIfNoAdministrationRights() Export
 	If Common.DataSeparationEnabled()
 		And Common.SeparatedDataUsageAvailable() Then
 		If Not Users.IsFullUser() Then
-			Raise NStr("en = 'Access violation.';");
+			Raise NStr("en = 'Access violation.'");
 		EndIf;
 	Else
 		If Not PrivilegedMode() Then
@@ -488,7 +488,6 @@ Procedure RaiseIfNoAdministrationRights() Export
 	EndIf;
 	
 EndProcedure
-
 
 // Parameters:
 //  Parameters - Structure:
@@ -680,7 +679,7 @@ Function ExecuteScheduledJobManually(Val Job) Export
 			ExecutionParameters.BackgroundJobPresentation = ScheduledJobPresentation(Job);
 		EndIf;
 	Else
-		BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Manual start: %1';"), ScheduledJobPresentation(Job));
+		BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Manual start: %1'"), ScheduledJobPresentation(Job));
 		// Long-running operations are not used because the scheduled job method is called.
 		BackgroundJob = ConfigurationExtensions.ExecuteBackgroundJobWithDatabaseExtensions(Job.Metadata.MethodName, Job.Parameters, String(Job.UUID), BackgroundJobDescription);
 		ExecutionParameters.BackgroundJobIdentifier = String(BackgroundJob.UUID);
@@ -751,7 +750,7 @@ EndFunction
 // Returns the text "<not defined>".
 Function TextUndefined() Export
 	
-	Return NStr("en = '<not defined>';");
+	Return NStr("en = '<not defined>'");
 	
 EndFunction
 
@@ -799,11 +798,11 @@ Procedure CancelBackgroundJob(Id) Export
 	If BackgroundJobArray.Count() = 1 Then
 		BackgroundJob = BackgroundJobArray[0];
 	Else
-		Raise NStr("en = 'The background job does not exist.';");
+		Raise NStr("en = 'The background job does not exist.'");
 	EndIf;
 	
 	If BackgroundJob.State <> BackgroundJobState.Active Then
-		Raise NStr("en = 'The job is not running. It cannot be canceled.';");
+		Raise NStr("en = 'The job is not running. It cannot be canceled.'");
 	EndIf;
 	
 	BackgroundJob.Cancel();

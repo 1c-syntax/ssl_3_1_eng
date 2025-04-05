@@ -33,7 +33,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// СтандартныеПодсистемы.УправлениеДоступом
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -77,7 +77,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 // Defines the list of generation commands.
 //
@@ -154,9 +154,9 @@ EndProcedure
 
 Procedure PresentationGetProcessing(Data, Presentation, StandardProcessing)
 	
-	Description = ?(IsBlankString(Data.Description), NStr("en = 'No details';"), Data.Description);
+	Description = ?(IsBlankString(Data.Description), NStr("en = 'No details'"), Data.Description);
 	Date = Format(Data.Date, ?(GetFunctionalOption("UseDateAndTimeInTaskDeadlines"), "DLF=DT", "DLF=D"));
-	Presentation = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1, created on %2';"), Description, Date);
+	Presentation = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1, created on %2'"), Description, Date);
 	StandardProcessing = False;
 	
 EndProcedure

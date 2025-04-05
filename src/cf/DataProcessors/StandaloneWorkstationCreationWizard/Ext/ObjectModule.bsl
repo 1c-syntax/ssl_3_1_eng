@@ -404,7 +404,7 @@ Function GenerateApplicationDescriptionInSaaS()
 	
 	ApplicationDescription = DataExchangeSaaS.GeneratePredefinedNodeDescription();
 	Return StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = '%1 (web application)';"), ApplicationDescription);
+		NStr("en = '%1 (web application)'"), ApplicationDescription);
 	
 EndFunction
 
@@ -425,7 +425,7 @@ Function SystemTitle()
 	EndIf;
 	
 	Return ?(IsBlankString(Result),
-		NStr("en = 'Standalone workstation';"),
+		NStr("en = 'Standalone workstation'"),
 		Result);
 	
 EndFunction
@@ -474,5 +474,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

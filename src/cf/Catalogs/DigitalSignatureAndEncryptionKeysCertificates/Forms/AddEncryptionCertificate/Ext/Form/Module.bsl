@@ -62,7 +62,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Else
 		If DigitalSignature.GenerateDigitalSignaturesAtServer() Then
 			Items.CertificatesGroup.Title =
-				NStr("en = 'Personal certificates on computer and on server';");
+				NStr("en = 'Personal certificates on computer and on server'");
 		EndIf;
 		
 		ErrorOnGetCertificatesAtClient = Parameters.ErrorOnGetCertificatesAtClient;
@@ -157,7 +157,7 @@ EndProcedure
 Procedure CertificatesUnavailableAtClientLabelClick(Item)
 	
 	DigitalSignatureInternalClient.ShowApplicationCallError(
-		NStr("en = 'Certificates not available on computer';"),
+		NStr("en = 'Certificates not available on computer'"),
 		"",
 		ErrorOnGetCertificatesAtClient,
 		New Structure);
@@ -168,7 +168,7 @@ EndProcedure
 Procedure CertificatesUnavailableAtServerLabelClick(Item)
 	
 	DigitalSignatureInternalClient.ShowApplicationCallError(
-		NStr("en = 'Certificates not available on server';"),
+		NStr("en = 'Certificates not available on server'"),
 		"",
 		New Structure,
 		ErrorGettingCertificatesAtServer);
@@ -238,7 +238,7 @@ EndProcedure
 Procedure Next(Command)
 	
 	If Items.Certificates.CurrentData = Undefined Then
-		ShowMessageBox(, NStr("en = 'Select certificates that you want to add.';"));
+		ShowMessageBox(, NStr("en = 'Select certificates that you want to add.'"));
 		Return;
 	EndIf;
 	
@@ -247,13 +247,13 @@ Procedure Next(Command)
 	If CurrentData.IsRequest Then
 		ShowMessageBox(,
 			NStr("en = 'The application for this certificate has not yet been fulfilled.
-			           |Open the application and complete the necessary steps.';"));
+			           |Open the application and complete the necessary steps.'"));
 		UpdateCertificatesList();
 		Return;
 	EndIf;
 	
 	If Not HaveRightToAddInDirectory And Not CurrentData.Isinthedirectory Then
-		Raise(NStr("en = 'insufficient rights to use the certificate.';"),
+		Raise(NStr("en = 'insufficient rights to use the certificate.'"),
 			ErrorCategory.AccessViolation);
 	EndIf;
 	
@@ -304,7 +304,7 @@ Procedure NextAfterCertificateSearch(Result, Context) Export
 	Context = New Structure;
 	
 	If Result.Property("CertificateNotFound") Then
-		Context.Insert("ErrorDescription", NStr("en = 'The certificate is not installed or was deleted from your computer.';"));
+		Context.Insert("ErrorDescription", NStr("en = 'The certificate is not installed or was deleted from your computer.'"));
 	Else
 		Context.Insert("ErrorDescription", Result.ErrorDescription);
 	EndIf;
@@ -328,7 +328,7 @@ Procedure NextAfterSearchingForTheCertificateTheCloudSignature(Result, Context) 
 		
 	If Not ValueIsFilled(Result.CertificateData) Then
 		Context = New Structure;
-		Context.Insert("ErrorDescription", NStr("en = 'The certificate does not exist in the service. It might have been deleted.';"));
+		Context.Insert("ErrorDescription", NStr("en = 'The certificate does not exist in the service. It might have been deleted.'"));
 		UpdateCertificatesList(New CallbackDescription(
 			"NextAfterCertificatesListUpdate", ThisObject, Context));
 		Return;
@@ -379,7 +379,7 @@ Procedure NextAfterCertificateSearchInCloudService(Result, Context) Export
 		
 	If Not ValueIsFilled(Result.Certificate) Then
 		Context = New Structure;
-		Context.Insert("ErrorDescription", NStr("en = 'The certificate does not exist in the service. It might have been deleted.';"));
+		Context.Insert("ErrorDescription", NStr("en = 'The certificate does not exist in the service. It might have been deleted.'"));
 		UpdateCertificatesList(New CallbackDescription(
 			"NextAfterCertificatesListUpdate", ThisObject, Context));
 		Return;
@@ -434,10 +434,10 @@ EndProcedure
 Procedure PickIndividual(Command)
 	
 	FilterParameters = New Structure;
-	FilterParameters.Insert("Property", NStr("en = 'Owner:';"));
+	FilterParameters.Insert("Property", NStr("en = 'Owner:'"));
 	CertificateDataDetailsStrings = DetailsOfCertificateData.FindRows(FilterParameters);
 	If CertificateDataDetailsStrings.Count() = 0 Then 
-		CommonClient.MessageToUser(NStr("en = 'An appropriate individual does not exist.';"));
+		CommonClient.MessageToUser(NStr("en = 'An appropriate individual does not exist.'"));
 		Return;
 	EndIf;
 	
@@ -496,7 +496,7 @@ Procedure ShowCertificatePropertiesAdjustmentPage(Form, CryptoCertificate, Certi
 	Items.Add.DefaultButton = True;
 	Items.Next.Enabled          = True;
 	
-	String = ?(ValueIsFilled(Form.Certificate), NStr("en = 'Update';"), NStr("en = 'Add';"));
+	String = ?(ValueIsFilled(Form.Certificate), NStr("en = 'Update'"), NStr("en = 'Add'"));
 	If Items.Add.Title <> String Then
 		Items.Add.Title = String;
 	EndIf;

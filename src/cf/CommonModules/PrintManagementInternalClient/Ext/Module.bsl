@@ -37,10 +37,10 @@ Procedure HandlerCommands(Val ReferencesArrray, Val ExecutionParameters) Export
 			NotificationParameters.Insert("ExecutionParameters", ExecutionParameters);
 			
 			Notification = New CallbackDescription("AfterSelectDefaultCommand", ThisObject, NotificationParameters);
-			ListOfCommands.ShowChooseItem(Notification, NStr("en = 'Select print form';"));
+			ListOfCommands.ShowChooseItem(Notification, NStr("en = 'Select print form'"));
 		EndIf;
 	Else
-		Notification = New CallbackDescription("ContinueExecutionOfCommandHandler", ThisObject, ExecutionParameters);
+		Notification = New CallbackDescription("ContinueExecutionCommandHandler", ThisObject, ExecutionParameters);
 		PrintManagementClient.BeforeStartExecutePrintCommand(ReferencesArrray, ExecutionParameters.CommandDetails, Notification);
 	EndIf;
 EndProcedure
@@ -52,12 +52,8 @@ Procedure ExecutePrintFormOpening(DataSource, CommandID, RelatedObjects, Form, S
 	Parameters.Insert("Form",                Form);
 	Parameters.Insert("DataSource",       DataSource);
 	Parameters.Insert("CommandID", CommandID);
-	If StandardProcessing Then
-		NotifyDescription = New CallbackDescription("ExecutePrintFormOpeningCompletion", ThisObject, Parameters);
-		PrintManagementClient.CheckDocumentsPosting(NotifyDescription, RelatedObjects, Form);
-	Else
-		ExecutePrintFormOpeningCompletion(RelatedObjects, Parameters);
-	EndIf;
+	
+	ExecutePrintFormOpeningCompletion(RelatedObjects, Parameters);
 	
 EndProcedure
 
@@ -129,7 +125,7 @@ Procedure RunConnectedPrintCommandCompletion(FileSystemExtensionAttached1, Addit
 	If CommonClient.SubsystemExists("StandardSubsystems.PerformanceMonitor") Then
 		ModulePerformanceMonitorClient = CommonClient.CommonModule("PerformanceMonitorClient");
 		
-		IndicatorName = NStr("en = 'Print';") + StringFunctionsClientServer.SubstituteParametersToString("/%1/%2/%3/%4/%5/%6/%7",
+		IndicatorName = NStr("en = 'Print'") + StringFunctionsClientServer.SubstituteParametersToString("/%1/%2/%3/%4/%5/%6/%7",
 			CommandDetails.Id,
 			CommandDetails.PrintManager,
 			CommandDetails.Handler,
@@ -184,17 +180,17 @@ Procedure CheckDocumentsPostedPostingDialog(Parameters) Export
 	
 	If Not Parameters.HasPostingRight Then
 		If Parameters.UnpostedDocuments.Count() = 1 Then
-			WarningText = NStr("en = 'To print the document, you must first post it. However, you do not have the required posting permissions. Printing is not possible.';");
+			WarningText = NStr("en = 'To print the document, you must first post it. However, you do not have the required posting permissions. Printing is not possible.'");
 		Else
-			WarningText = NStr("en = 'To print the documents, you must first post them. However, you do not have the required posting permissions. Printing is not possible.';");
+			WarningText = NStr("en = 'To print the documents, you must first post them. However, you do not have the required posting permissions. Printing is not possible.'");
 		EndIf;
 		Raise(WarningText, ErrorCategory.AccessViolation);
 	EndIf;
 
 	If Parameters.UnpostedDocuments.Count() = 1 Then
-		QueryText = NStr("en = 'To print the document, you must first post it. Do you want to post the document and continue?';");
+		QueryText = NStr("en = 'To print the document, you must first post it. Do you want to post the document and continue?'");
 	Else
-		QueryText = NStr("en = 'To print the documents, you must first post them. Do you want to post the documents and continue?';");
+		QueryText = NStr("en = 'To print the documents, you must first post them. Do you want to post the documents and continue?'");
 	EndIf;
 	NotifyDescription = New CallbackDescription("CheckDocumentsPostedDocumentsPosting", 
 		ThisObject, Parameters);
@@ -209,9 +205,9 @@ Procedure CheckDocumentsPostedDocumentsPosting(QuestionResult, AdditionalParamet
 	EndIf;
 	
 	ClearMessages();
-	UnpostedDocumentsData = CommonServerCall.PostDocuments(AdditionalParameters.UnpostedDocuments);
+	UnpostedDocumentsData = CommonClient.PostDocuments(AdditionalParameters.UnpostedDocuments);
 	
-	MessageTemplate = NStr("en = 'Document %1 is not posted: %2';");
+	MessageTemplate = NStr("en = 'Document %1 is not posted: %2'");
 	UnpostedDocuments = New Array;
 	For Each DocumentInformation In UnpostedDocumentsData Do
 		CommonClient.MessageToUser(
@@ -241,12 +237,12 @@ Procedure CheckDocumentsPostedDocumentsPosting(QuestionResult, AdditionalParamet
 		
 	If UnpostedDocuments.Count() > 0 Then
 		// Asking a user whether they want to continue printing if there are unposted documents.
-		DialogText = NStr("en = 'Failed to post one or several documents.';");
+		DialogText = NStr("en = 'Failed to post one or several documents.'");
 		
 		DialogButtons = New ValueList;
 		If PostedDocuments.Count() > 0 Then
-			DialogText = DialogText + " " + NStr("en = 'Continue?';");
-			DialogButtons.Add(DialogReturnCode.Ignore, NStr("en = 'Continue';"));
+			DialogText = DialogText + " " + NStr("en = 'Continue?'");
+			DialogButtons.Add(DialogReturnCode.Ignore, NStr("en = 'Continue'"));
 			DialogButtons.Add(DialogReturnCode.Cancel);
 		Else
 			DialogButtons.Add(DialogReturnCode.OK);
@@ -283,7 +279,7 @@ Function IsReportOrDataProcessor(PrintManager)
 	Return Kind = "REPORT" Or Kind = "DATAPROCESSOR";
 EndFunction
 
-Procedure ExecutePrintFormOpeningCompletion(RelatedObjects, AdditionalParameters) Export
+Procedure ExecutePrintFormOpeningCompletion(RelatedObjects, AdditionalParameters)
 	
 	Form = AdditionalParameters.Form;
 	
@@ -427,7 +423,7 @@ EndProcedure
 Function IdleParameters(FormOwner) Export
 	
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(FormOwner);
-	IdleParameters.MessageText = NStr("en = 'Preparing print forms.';");
+	IdleParameters.MessageText = NStr("en = 'Preparing print forms.'");
 	IdleParameters.UserNotification.Show = False;
 	IdleParameters.OutputIdleWindow = True;
 	IdleParameters.OutputMessages = False;
@@ -460,7 +456,7 @@ Procedure AfterSelectDefaultCommand(Result, ExecutionParameters) Export
 	
 EndProcedure
 
-Procedure ContinueExecutionOfCommandHandler(Result, ExecutionParameters) Export
+Procedure ContinueExecutionCommandHandler(Result, ExecutionParameters) Export
 	ExecutionParameters.CommandDetails = Result;
 	RunConnectedPrintCommandCompletion(True, ExecutionParameters);
 EndProcedure

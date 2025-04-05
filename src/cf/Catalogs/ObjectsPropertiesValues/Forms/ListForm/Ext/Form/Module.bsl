@@ -190,11 +190,11 @@ Procedure SetHeader()
 		
 		If ValueIsFilled(Property) Then
 			If Not Parameters.ChoiceMode Then
-				TitleLine = NStr("en = '""%1"" property values';");
+				TitleLine = NStr("en = '""%1"" property values'");
 			ElsIf SelectGroups Then
-				TitleLine = NStr("en = 'Select ""%1"" property values group';");
+				TitleLine = NStr("en = 'Select ""%1"" property values group'");
 			Else
-				TitleLine = NStr("en = 'Select ""%1"" property value';");
+				TitleLine = NStr("en = 'Select ""%1"" property value'");
 			EndIf;
 			
 			TitleLine = StringFunctionsClientServer.SubstituteParametersToString(TitleLine,
@@ -204,9 +204,9 @@ Procedure SetHeader()
 		ElsIf Parameters.ChoiceMode Then
 			
 			If SelectGroups Then
-				TitleLine = NStr("en = 'Select property value group';");
+				TitleLine = NStr("en = 'Select property value group'");
 			Else
-				TitleLine = NStr("en = 'Select property value';");
+				TitleLine = NStr("en = 'Select property value'");
 			EndIf;
 		EndIf;
 	EndIf;

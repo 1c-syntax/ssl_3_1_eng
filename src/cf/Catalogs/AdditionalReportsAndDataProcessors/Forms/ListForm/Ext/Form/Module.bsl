@@ -40,7 +40,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	If AllPublicationsExceptDisabled.Count() > 1 Then
 		ArrayPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 or %2';"),
+			NStr("en = '%1 or %2'"),
 			String(AllPublicationsExceptDisabled[0]),
 			String(AllPublicationsExceptDisabled[1]));
 		PublicationsKindsList.Add(1, ArrayPresentation);
@@ -60,8 +60,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	ChoiceList = Items.KindFilter.ChoiceList;
-	ChoiceList.Add(1, NStr("en = 'Reports only';"));
-	ChoiceList.Add(2, NStr("en = 'Data processors only';"));
+	ChoiceList.Add(1, NStr("en = 'Reports only'"));
+	ChoiceList.Add(2, NStr("en = 'Data processors only'"));
 	For Each EnumerationValue In Enums.AdditionalReportsAndDataProcessorsKinds Do
 		ChoiceList.Add(EnumerationValue, String(EnumerationValue));
 	EndDo;
@@ -203,12 +203,12 @@ EndProcedure
 Function ItemSelected(RowData)
 	If TypeOf(RowData.Ref) <> Type("CatalogRef.AdditionalReportsAndDataProcessors") Then
 		ShowMessageBox(, NStr("en = 'Cannot run the command for the object.
-			|Please select an additional report or data processor.';"));
+			|Please select an additional report or data processor.'"));
 		Return False;
 	EndIf;
 	If RowData.IsFolder Then
 		ShowMessageBox(, NStr("en = 'Cannot run the command for a group.
-			|Please select an additional report or data processor.';"));
+			|Please select an additional report or data processor.'"));
 		Return False;
 	EndIf;
 	Return True;
@@ -247,21 +247,21 @@ Procedure EditPublication(PublicationOption)
 	SelectedRows = Items.List.SelectedRows;
 	RowsCount = SelectedRows.Count();
 	If RowsCount = 0 Then
-		ShowMessageBox(, NStr("en = 'No additional report or data processor is selected.';"));
+		ShowMessageBox(, NStr("en = 'No additional report or data processor is selected.'"));
 		Return;
 	EndIf;
 	
 	EditingPublication(PublicationOption);
 	
 	If RowsCount = 1 Then
-		MessageText = NStr("en = 'Availability for the additional report or data processor has been changed: %1.';");
+		MessageText = NStr("en = 'Availability for the additional report or data processor has been changed: %1.'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, String(SelectedRows[0]));
 	Else
-		MessageText = NStr("en = 'Availability for the additional reports or data processors have been changed: %1.';");
+		MessageText = NStr("en = 'Availability for the additional reports or data processors have been changed: %1.'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, RowsCount);
 	EndIf;
 	
-	ShowUserNotification(NStr("en = 'Availability changed';"),, MessageText);
+	ShowUserNotification(NStr("en = 'Availability changed'"),, MessageText);
 	
 EndProcedure
 

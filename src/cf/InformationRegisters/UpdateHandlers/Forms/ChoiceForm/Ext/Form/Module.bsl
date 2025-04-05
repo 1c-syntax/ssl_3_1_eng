@@ -12,7 +12,7 @@
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
-	Title = NStr("en = 'Select handlers for deferred update restart';");
+	Title = NStr("en = 'Select handlers for deferred update restart'");
 	
 	SetConditionalAppearance();
 	FillHandlerList(Parameters.SelectedHandlers.UnloadValues());

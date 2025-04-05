@@ -45,7 +45,7 @@ Procedure PackMessageToArchive(InfobaseNode, PathToSourceFile) Export
 		WriteLogEvent(EventLogEventMessagePutToArchive(),
 			EventLogLevel.Error, , , ErrorMessage);
 		
-		ReasonText = NStr("en = 'The file was not archived.';") + Chars.LF + ErrorMessage;
+		ReasonText = NStr("en = 'The file was not archived.'") + Chars.LF + ErrorMessage;
 		
 		WriteParameters = New Structure;
 		WriteParameters.Insert("InfobaseNode", InfobaseNode);
@@ -144,7 +144,7 @@ Procedure PutToArchive(InfobaseNode, PathToSourceFile, Settings)
 			FileNameInArchive,
 			FileExtention);
 			
-		FileCopy(FileName, FullFilenameInFolder);
+		CopyFile(FileName, FullFilenameInFolder);
 		NewArchive.FullFileName = FullFilenameInFolder;
 			
 	Else
@@ -153,7 +153,7 @@ Procedure PutToArchive(InfobaseNode, PathToSourceFile, Settings)
 			
 			NewArchive.IsFileExceeds100MB = True;
 			
-			Cause = NStr("en = 'Exchange message larger than 100 MB. The file is not placed to the archive.';");
+			Cause = NStr("en = 'Exchange message larger than 100 MB. The file is not placed to the archive.'");
 			WriteParameters = New Structure;
 			WriteParameters.Insert("InfobaseNode", InfobaseNode);
 			WriteParameters.Insert("Cause", Cause);
@@ -176,7 +176,7 @@ EndProcedure
 
 Function EventLogEventMessagePutToArchive()
 	
-	Return NStr("en = 'Data exchange.Place message to archive';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Data exchange.Place message to archive'", Common.DefaultLanguageCode());
 	
 EndFunction
 

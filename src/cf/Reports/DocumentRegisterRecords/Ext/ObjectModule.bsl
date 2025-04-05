@@ -76,7 +76,7 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 	ReportParameters = ReportParameters(NewDCSettings, NewDCUserSettings);
 	
 	If ReportParameters.OwnerDocument = Undefined Then
-		Raise NStr("en = 'You can open the document record history from the document form.';");
+		Raise NStr("en = 'You can open the document record history from the document form.'");
 	EndIf;
 	
 	ParentOptionKey = ParentOptionKey(Context, VariantKey, NewDCSettings);
@@ -127,7 +127,7 @@ EndProcedure
 Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
 	
 	If Form.Parameters.VariantPresentation = "Details" Then
-		Raise NStr("en = 'The selected action is unavailable in this report.';");
+		Raise NStr("en = 'The selected action is unavailable in this report.'");
 	EndIf;
 	
 	OwnerDocument = Undefined;
@@ -374,10 +374,10 @@ Function DataSetForAccountingRegister(RegisterProperties, RegisterMetadata)
 	
 	MaxExtDimensionCount = RegisterMetadata.ChartOfAccounts.MaxExtDimensionCount;
 	
-	DebitSubmission    = NStr("en = 'Dr';");
-	SubmissionCredit   = NStr("en = 'Cr';");
-	RepresentationOfSubconto = NStr("en = 'Extra dimension';");
-	AccountSubmission     = NStr("en = 'Account';");
+	DebitSubmission    = NStr("en = 'Dr'");
+	SubmissionCredit   = NStr("en = 'Cr'");
+	RepresentationOfSubconto = NStr("en = 'Extra dimension'");
+	AccountSubmission     = NStr("en = 'Account'");
 	
 	ExceptionAttributes = CommonClientServer.ArrayOfValues(
 		"LineNumber", "Recorder", "Account");
@@ -624,7 +624,7 @@ Procedure PrepareAHorizontalVersionOfTheAccumulationAndDataRegisters(DCSettings,
 		GroupParameters.Insert("GroupName",                    "StandardAttributes");
 		GroupParameters.Insert("SelectedGroupLocation",  Undefined);
 		GroupParameters.Insert("SelectedGroupEmpty",         False);
-		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Standard attributes.';"));
+		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Standard attributes.'"));
 		
 		PlaceDSCFieldsGroup(StandardAttributesStructure, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
 	
@@ -636,7 +636,7 @@ Procedure PrepareAHorizontalVersionOfTheAccumulationAndDataRegisters(DCSettings,
 		GroupParameters.Insert("GroupName",                    "Dimensions");
 		GroupParameters.Insert("SelectedGroupLocation",  Undefined);
 		GroupParameters.Insert("SelectedGroupEmpty",         False);
-		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Dimensions';"));
+		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Dimensions'"));
 		
 		PlaceDSCFieldsGroup(DimensionStructure, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
 	
@@ -648,7 +648,7 @@ Procedure PrepareAHorizontalVersionOfTheAccumulationAndDataRegisters(DCSettings,
 		GroupParameters.Insert("GroupName",                    "Resources");
 		GroupParameters.Insert("SelectedGroupLocation",  Undefined);
 		GroupParameters.Insert("SelectedGroupEmpty",         False);
-		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Resources';"));
+		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Resources'"));
 		
 		PlaceDSCFieldsGroup(ResourcesStructure, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
 	
@@ -660,7 +660,7 @@ Procedure PrepareAHorizontalVersionOfTheAccumulationAndDataRegisters(DCSettings,
 		GroupParameters.Insert("GroupName",                    "Attributes");
 		GroupParameters.Insert("SelectedGroupLocation",  Undefined);
 		GroupParameters.Insert("SelectedGroupEmpty",         False);
-		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Attributes';"));
+		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Attributes'"));
 		
 		PlaceDSCFieldsGroup(AttributesStructure1, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
 	
@@ -679,7 +679,7 @@ Procedure PrepareHorizontalOptionOfCalculationRegisters(DCSettings, DCDataSet, D
 	ResourcesStructure              = DataElement.Resources;
 	AttributesStructure1            = DataElement.Attributes;
 	
-	UserHeader = NStr("en = 'Calculation register';") + " " + RegisterPresentation;
+	UserHeader = NStr("en = 'Calculation register'") + " " + RegisterPresentation;
 	
 	DetailedRecordsGroup = DetailedRecordsByRegister(DCSettings,
 		RegisterType + "_" + RegisterName, UserHeader);
@@ -702,7 +702,7 @@ Procedure PrepareHorizontalOptionOfCalculationRegisters(DCSettings, DCDataSet, D
 		GroupParameters.Insert("GroupName",                    "Dimensions");
 		GroupParameters.Insert("SelectedGroupLocation",  Undefined);
 		GroupParameters.Insert("SelectedGroupEmpty",         False);
-		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Dimensions';"));
+		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Dimensions'"));
 		
 		PlaceDSCFieldsGroup(DimensionStructure, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
 		
@@ -714,7 +714,7 @@ Procedure PrepareHorizontalOptionOfCalculationRegisters(DCSettings, DCDataSet, D
 		GroupParameters.Insert("GroupName",                    "Resources");
 		GroupParameters.Insert("SelectedGroupLocation",  Undefined);
 		GroupParameters.Insert("SelectedGroupEmpty",         False);
-		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Resources';"));
+		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Resources'"));
 		
 		PlaceDSCFieldsGroup(ResourcesStructure, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
 		
@@ -726,7 +726,7 @@ Procedure PrepareHorizontalOptionOfCalculationRegisters(DCSettings, DCDataSet, D
 		GroupParameters.Insert("GroupName",                    "Attributes");
 		GroupParameters.Insert("SelectedGroupLocation",  Undefined);
 		GroupParameters.Insert("SelectedGroupEmpty",         False);
-		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Attributes';"));
+		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Attributes'"));
 		
 		PlaceDSCFieldsGroup(AttributesStructure1, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
 		
@@ -831,7 +831,7 @@ Procedure PrepareVerticalOptionOfAccumulationAndInfoRegisters(DCSettings, DCData
 		GroupParameters.Insert("GroupName",                    "StandardAttributes");
 		GroupParameters.Insert("SelectedGroupLocation",  DataCompositionFieldPlacement.Vertically);
 		GroupParameters.Insert("SelectedGroupEmpty",         False);
-		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Standard attributes.';"));
+		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Standard attributes.'"));
 		
 		PlaceDSCFieldsGroup(StandardAttributesStructure, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
 	
@@ -843,7 +843,7 @@ Procedure PrepareVerticalOptionOfAccumulationAndInfoRegisters(DCSettings, DCData
 		GroupParameters.Insert("GroupName",                    "Dimensions");
 		GroupParameters.Insert("SelectedGroupLocation",  DataCompositionFieldPlacement.Vertically);
 		GroupParameters.Insert("SelectedGroupEmpty",         False);
-		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Dimensions';"));
+		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Dimensions'"));
 		
 		PlaceDSCFieldsGroup(DimensionStructure, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
 	
@@ -855,7 +855,7 @@ Procedure PrepareVerticalOptionOfAccumulationAndInfoRegisters(DCSettings, DCData
 		GroupParameters.Insert("GroupName",                    "Resources");
 		GroupParameters.Insert("SelectedGroupLocation",  DataCompositionFieldPlacement.Vertically);
 		GroupParameters.Insert("SelectedGroupEmpty",         False);
-		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Resources';"));
+		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Resources'"));
 		
 		PlaceDSCFieldsGroup(ResourcesStructure, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
 	
@@ -867,7 +867,7 @@ Procedure PrepareVerticalOptionOfAccumulationAndInfoRegisters(DCSettings, DCData
 		GroupParameters.Insert("GroupName",                    "Attributes");
 		GroupParameters.Insert("SelectedGroupLocation",  DataCompositionFieldPlacement.Vertically);
 		GroupParameters.Insert("SelectedGroupEmpty",         False);
-		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Attributes';"));
+		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Attributes'"));
 		
 		PlaceDSCFieldsGroup(AttributesStructure1, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
 	
@@ -887,7 +887,7 @@ Procedure PrepareVerticalOptionOfCalculationRegisters(DCSettings, DCDataSet, Dat
 	AttributesStructure1            = DataElement.Attributes;
 	NumeratorStructure            = DataElement.Numerator;
 	
-	UserHeader = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Calculation register %1';"),
+	UserHeader = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Calculation register %1'"),
 		RegisterPresentation);
 	
 	DetailedRecordsGroup = DetailedRecordsByRegister(DCSettings, RegisterType + "_" + RegisterName,
@@ -911,7 +911,7 @@ Procedure PrepareVerticalOptionOfCalculationRegisters(DCSettings, DCDataSet, Dat
 		GroupParameters.Insert("GroupName",                    "StandardAttributes");
 		GroupParameters.Insert("SelectedGroupLocation",  DataCompositionFieldPlacement.Vertically);
 		GroupParameters.Insert("SelectedGroupEmpty",         False);
-		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Standard attributes.';"));
+		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Standard attributes.'"));
 		
 		PlaceDSCFieldsGroup(StandardAttributesStructure, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
 		
@@ -923,7 +923,7 @@ Procedure PrepareVerticalOptionOfCalculationRegisters(DCSettings, DCDataSet, Dat
 		GroupParameters.Insert("GroupName",                    "Dimensions");
 		GroupParameters.Insert("SelectedGroupLocation",  DataCompositionFieldPlacement.Vertically);
 		GroupParameters.Insert("SelectedGroupEmpty",         False);
-		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Dimensions';"));
+		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Dimensions'"));
 		
 		PlaceDSCFieldsGroup(DimensionStructure, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
 		
@@ -935,7 +935,7 @@ Procedure PrepareVerticalOptionOfCalculationRegisters(DCSettings, DCDataSet, Dat
 		GroupParameters.Insert("GroupName",                    "Resources");
 		GroupParameters.Insert("SelectedGroupLocation",  DataCompositionFieldPlacement.Vertically);
 		GroupParameters.Insert("SelectedGroupEmpty",         False);
-		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Resources';"));
+		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Resources'"));
 		
 		PlaceDSCFieldsGroup(ResourcesStructure, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
 		
@@ -947,7 +947,7 @@ Procedure PrepareVerticalOptionOfCalculationRegisters(DCSettings, DCDataSet, Dat
 		GroupParameters.Insert("GroupName",                    "Attributes");
 		GroupParameters.Insert("SelectedGroupLocation",  DataCompositionFieldPlacement.Vertically);
 		GroupParameters.Insert("SelectedGroupEmpty",         False);
-		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Attributes';"));
+		GroupParameters.Insert("SelectedGroupPresentation", NStr("en = 'Attributes'"));
 		
 		PlaceDSCFieldsGroup(AttributesStructure1, DCDataSet, DetailedRecordsGroup, GroupParameters, RegisterType, RegisterName);
 		
@@ -977,7 +977,7 @@ Procedure PrepareHorizontalOptionOfAccountingRegisters(DCSettings, DCDataSet, Da
 	ExtDimensionStructureCr            = DataElement.ExtDimensionCr;
 	AttributesStructure1            = DataElement.Attributes;
 	
-	UserHeader = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Accounting register %1';"),
+	UserHeader = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Accounting register %1'"),
 		RegisterPresentation);
 	
 	DetailedRecordsGroup = DetailedRecordsByRegister(DCSettings,
@@ -1432,7 +1432,7 @@ Procedure RegisterResult(Settings, ResultDocument, DocumentRecorder)
 		If NotesBorder = StringHeight Then
 			
 			NoteText2 = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'In this line: %1';"), NoteProperties.Note + ".");
+				NStr("en = 'In this line: %1'"), NoteProperties.Note + ".");
 			
 			NumeratorArea.Comment.Text = NoteText2;
 		Else
@@ -1653,14 +1653,14 @@ Procedure GetRegistersProperties(Context, OwnerDocument = Undefined)
 		If Common.IsAccumulationRegister(RegisterMetadata) Then
 			
 			RegisterProperties.RegisterType = "AccumulationRegister";
-			RegisterProperties.RegisterKindPresentation = NStr("en = 'Accumulation register';");
+			RegisterProperties.RegisterKindPresentation = NStr("en = 'Accumulation register'");
 			RegisterProperties.AccumulationRegisterType = RegisterMetadata.RegisterType;
 			RegisterProperties.Priority = 1;
 			
 		ElsIf Common.IsInformationRegister(RegisterMetadata) Then
 			
 			RegisterProperties.RegisterType = "InformationRegister";
-			RegisterProperties.RegisterKindPresentation = NStr("en = 'Information register';");
+			RegisterProperties.RegisterKindPresentation = NStr("en = 'Information register'");
 			RegisterProperties.InformationRegisterPeriodicity = RegisterMetadata.InformationRegisterPeriodicity;
 			RegisterProperties.InformationRegisterWriteMode = RegisterMetadata.WriteMode;
 			RegisterProperties.Priority  = 2;
@@ -1668,13 +1668,13 @@ Procedure GetRegistersProperties(Context, OwnerDocument = Undefined)
 		ElsIf Common.IsAccountingRegister(RegisterMetadata) Then
 			
 			RegisterProperties.RegisterType = "AccountingRegister";
-			RegisterProperties.RegisterKindPresentation = NStr("en = 'Accounting register';");
+			RegisterProperties.RegisterKindPresentation = NStr("en = 'Accounting register'");
 			RegisterProperties.Priority = 3;
 			
 		ElsIf Common.IsCalculationRegister(RegisterMetadata) Then
 			
 			RegisterProperties.RegisterType = "CalculationRegister";
-			RegisterProperties.RegisterKindPresentation = NStr("en = 'Calculation register';");
+			RegisterProperties.RegisterKindPresentation = NStr("en = 'Calculation register'");
 			RegisterProperties.CalculationRegisterPeriodicity = RegisterMetadata.Periodicity;
 			RegisterProperties.Priority = 4;
 			
@@ -1853,22 +1853,22 @@ Procedure FillNotes(Settings)
 				EndIf;
 		
 				Title = "";
-				HeaderOfStandardBankDetails = NStr("en = 'Standard attributes.';");
-				MeasurementHeader = NStr("en = 'Dimensions';");
-				ResourceHeader = NStr("en = 'Resources';");
-				TitleOfTheBankDetails = NStr("en = 'Attributes';");
-				TitleOfTheCalculationData = NStr("en = 'Calculation data';");
+				HeaderOfStandardBankDetails = NStr("en = 'Standard attributes.'");
+				MeasurementHeader = NStr("en = 'Dimensions'");
+				ResourceHeader = NStr("en = 'Resources'");
+				TitleOfTheBankDetails = NStr("en = 'Attributes'");
+				TitleOfTheCalculationData = NStr("en = 'Calculation data'");
 				
 				If GroupOfFields.Title = HeaderOfStandardBankDetails Then
-					Title = NStr("en = 'Standard attribute';");
+					Title = NStr("en = 'Standard attribute'");
 				ElsIf GroupOfFields.Title = MeasurementHeader Then
-					Title = NStr("en = 'Dimension';");
+					Title = NStr("en = 'Dimension'");
 				ElsIf GroupOfFields.Title = ResourceHeader Then
-					Title = NStr("en = 'Resource';");
+					Title = NStr("en = 'Resource'");
 				ElsIf GroupOfFields.Title = TitleOfTheBankDetails Then
-					Title = NStr("en = 'Attribute';");
+					Title = NStr("en = 'Attribute'");
 				ElsIf GroupOfFields.Title = TitleOfTheCalculationData Then
-					Title = NStr("en = 'Calculation data';");
+					Title = NStr("en = 'Calculation data'");
 				EndIf;
 
 				Items = GroupOfFields.Items; // DataCompositionSelectedFieldCollection
@@ -2083,7 +2083,7 @@ Function RecordsCountByRecorder(Recorder, DocumentRegisterRecords)
 		If ValueIsFilled(QueryText) Then
 			
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				"%1 UNION ALL  %2", QueryText, StrReplace(QueryTextTemplate, "SELECT ALLOWED", "SELECT")); // @query-part-2 @query-part-3 for this case.
+				"%1 UNION ALL  %2", QueryText, StrReplace(QueryTextTemplate, "SELECT ALLOWED", "SELECT")); // @query-part-2, @query-part-3
 			
 		Else
 			QueryText = QueryTextTemplate;
@@ -2418,7 +2418,7 @@ Procedure RestoreFilterByRegistersGroups(Settings)
 			"RegisterName",
 			StructureItem.Name,
 			DataCompositionComparisonType.Equal,
-			NStr("en = 'Service filter';"),
+			NStr("en = 'Service filter'"),
 			True,
 			DataCompositionSettingsItemViewMode.Inaccessible);
 		
@@ -2447,5 +2447,5 @@ EndProcedure
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

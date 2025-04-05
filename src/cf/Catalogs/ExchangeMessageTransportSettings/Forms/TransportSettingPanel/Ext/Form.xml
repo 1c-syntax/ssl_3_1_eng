@@ -217,7 +217,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Page Setup incompleted</v8:content>
+							<v8:content>Page Setup not completed</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="SetupPageIsNotCompletedExtendedTooltip" id="19"/>
@@ -240,7 +240,7 @@
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Picture Setting up incompleted</v8:content>
+											<v8:content>Picture Setup not completed</v8:content>
 										</v8:item>
 									</Title>
 									<PictureSize>Proportionally</PictureSize>

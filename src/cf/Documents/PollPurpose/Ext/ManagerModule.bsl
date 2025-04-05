@@ -34,9 +34,9 @@ Function AttributesToEditInBatchProcessing() Export
 	
 EndFunction
 
-// End StandardSubsystems.BatchEditObjects
+// ШаблоныСообщенийzEnd StandardSubsystems.BatchEditObjects
 
-// СтандартныеПодсистемы.VariantsОтчетов
+// StandardSubsystems.ReportsOptions
 
 // Defines the list of report commands.
 //
@@ -48,7 +48,7 @@ Procedure AddReportCommands(ReportsCommands, Parameters) Export
 	
 	If AccessRight("View", Metadata.Reports.PollStatistics) Then
 		Command = ReportsCommands.Add();
-		Command.Presentation      = NStr("en = 'Survey analysis';");
+		Command.Presentation      = NStr("en = 'Survey analysis'");
 		Command.MultipleChoice = False;
 		Command.FormParameterName  = "Survey";
 		Command.WriteMode        = "Write";
@@ -59,7 +59,7 @@ EndProcedure
 
 // End StandardSubsystems.ReportsOptions
 
-// СтандартныеПодсистемы.ШаблоныСообщений
+// StandardSubsystems.MessageTemplates
 
 // Called when preparing message templates. Overrides the list of attributes and attachments.
 //
@@ -136,7 +136,7 @@ Procedure OnFillRecipientsEmailsInMessage(EmailRecipients, MessageSubject) Expor
 	
 EndProcedure
 
-// End StandardSubsystems.MessagesTemplates
+// End StandardSubsystems.MessageTemplates
 
 #EndRegion
 

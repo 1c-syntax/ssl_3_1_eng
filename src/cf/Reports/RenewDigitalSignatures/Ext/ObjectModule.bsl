@@ -55,8 +55,8 @@ Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
 		ModuleReportsServer = Common.CommonModule("ReportsServer");
 		Command = Form.Commands.Add("ExtendActionSignatures");
 		Command.Action  = "Attachable_Command";
-		Command.Title = NStr("en = 'Renew signatures.';");
-		Command.ToolTip = NStr("en = 'Renew signatures.';");
+		Command.Title = NStr("en = 'Renew signatures.'");
+		Command.ToolTip = NStr("en = 'Renew signatures.'");
 		ModuleReportsServer.OutputCommand(Form, Command, "Settings");
 	EndIf;
 	
@@ -113,5 +113,5 @@ EndProcedure
 #EndRegion
 	
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

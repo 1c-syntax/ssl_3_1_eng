@@ -167,7 +167,7 @@ Procedure CheckAdministrationParameters(Val ClusterAdministrationParameters, Val
 			Raise ErrorProcessing.BriefErrorDescription(ErrorInfo()) + Chars.LF + Chars.LF
 				+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'If the comcntr version mismatch error occurs, register comcntr on computer %1
 					|using a Windows account under which 1C:Enterprise runs. Example:
-					|regsvr32.exe ""%2\comcntr.dll""';"), ComputerName(), BinDir());
+					|regsvr32.exe ""%2\comcntr.dll""'"), ComputerName(), BinDir());
 #EndIf
 		EndTry;
 		
@@ -274,7 +274,8 @@ EndProcedure
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.SessionsFilter, Array of See ClusterAdministration.SessionsFilter
+//   Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
+//            , Array of
 //
 // Returns:
 //   Array of See ClusterAdministrationClientServer.SessionProperties
@@ -308,7 +309,8 @@ EndFunction
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.SessionsFilter, Array of See ClusterAdministration.SessionsFilter
+//   Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
+//            , Array of
 //
 Procedure DeleteInfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -367,7 +369,7 @@ Procedure DeleteInfobaseSessions(Val ClusterAdministrationParameters, Val IBAdmi
 	
 	If Not AllSessionsTerminated Then
 	
-		Raise NStr("en = 'Cannot delete sessions.';");
+		Raise NStr("en = 'Cannot delete sessions.'");
 		
 	EndIf;
 	
@@ -382,7 +384,8 @@ EndProcedure
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.JoinsFilters, Array of See ClusterAdministration.JoinsFilters
+//   Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
+//            , Array of
 //
 // Returns:
 //   Array of See ClusterAdministrationClientServer.ConnectionProperties
@@ -417,7 +420,8 @@ EndFunction
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//   Filter - See ClusterAdministration.JoinsFilters, Array of See ClusterAdministration.JoinsFilters
+//   Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
+//            , Array of
 //
 Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -489,7 +493,7 @@ Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val 
 	
 	If Not AllConnectionsTerminated Then
 	
-		Raise NStr("en = 'Cannot close connections.';");
+		Raise NStr("en = 'Cannot close connections.'");
 		
 	EndIf;
 	
@@ -890,16 +894,16 @@ Function COMConnector()
 	
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then 
 	If SafeMode() <> False Then
-		Raise NStr("en = 'Warning! Cluster administration is unavailable in safe mode.';");
+		Raise NStr("en = 'Warning! Cluster administration is unavailable in safe mode.'");
 	EndIf;
 	
 	If Common.DataSeparationEnabled() Then
-		Raise NStr("en = 'Warning! The infobase features related to cluster administration are unavailable in SaaS mode.';");
+		Raise NStr("en = 'Warning! The infobase features related to cluster administration are unavailable in SaaS mode.'");
 	EndIf;
 	
 	Return New COMObject(CommonClientServer.COMConnectorName());
 #ElsIf MobileClient Then
-	Raise NStr("en = 'Warning! The mobile client does not support cluster administration.';");
+	Raise NStr("en = 'Warning! The mobile client does not support cluster administration.'");
 #Else
 	Return New COMObject(CommonClientServer.COMConnectorName());
 #EndIf
@@ -930,7 +934,7 @@ Function GetCluster(IServerAgentConnection, Val ClusterPort, Val ClusterAdminist
 		
 	EndDo;
 	
-	Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cluster %2 does not exist on production server %1';"),
+	Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cluster %2 does not exist on production server %1'"),
 		IServerAgentConnection.ConnectionString,
 		ClusterPort);
 	
@@ -945,7 +949,7 @@ Function IWorkingProcessConnection(COMConnector, IServerAgentConnection, Cluster
 		EndIf;
 	EndDo;
 	
-	Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'There are no active working processes on server cluster %1:%2.';"),
+	Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'There are no active working processes on server cluster %1:%2.'"),
 		Cluster.HostName,
 		Format(Cluster.MainPort, "NG=0"));
 	
@@ -963,7 +967,7 @@ Function GetIBDetails(IServerAgentConnection, Cluster, Val NameInCluster)
 		
 	EndDo;
 	
-	Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Infobase ""%3"" does not exist on server cluster %1:%2';"),
+	Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Infobase ""%3"" does not exist on server cluster %1:%2'"),
 		Cluster.HostName,
 		Format(Cluster.MainPort, "NG=0"),
 		NameInCluster);
@@ -980,7 +984,7 @@ Function GetIB(IWorkingProcessConnection, Cluster, Val NameInCluster, Val IBAdmi
 			
 			If Not ValueIsFilled(InfoBase.DBMS) Then
 				
-				Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Incorrect administrator name or password for infobase %1, server cluster %2:%3 (name: ""%4"").';"),
+				Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Incorrect administrator name or password for infobase %1, server cluster %2:%3 (name: ""%4"").'"),
 					NameInCluster,
 					Cluster.HostName, 
 					Cluster.MainPort,
@@ -994,7 +998,7 @@ Function GetIB(IWorkingProcessConnection, Cluster, Val NameInCluster, Val IBAdmi
 		
 	EndDo;
 	
-	Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Infobase ""%3"" does not exist on server cluster %1:%2';"),
+	Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Infobase ""%3"" does not exist on server cluster %1:%2'"),
 		Cluster.HostName,
 		Format(Cluster.MainPort, "NG=0"),
 		NameInCluster);
@@ -1094,7 +1098,7 @@ Function GetSecurityProfile(IServerAgentConnection, Cluster, ProfileName)
 		
 	EndDo;
 	
-	Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Security profile ""%3"" does not exist on server cluster %1:%2';"),
+	Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Security profile ""%3"" does not exist on server cluster %1:%2'"),
 		Cluster.HostName,
 		Format(Cluster.MainPort, "NG=0"),
 		ProfileName);

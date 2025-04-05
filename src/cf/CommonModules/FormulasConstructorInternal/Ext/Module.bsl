@@ -324,11 +324,11 @@ Function CheckFormula(Form, FormulaPresentation) Export
 		If RecognizedElements[ItemDetails.Key] = Undefined Then
 			If IsFunction Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Unknown function in the expression - ""%1""';"),
+					NStr("en = 'Unknown function in the expression - ""%1""'"),
 					Operand);
 			Else
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Field %1 is not found in the list of available fields';"),
+					NStr("en = 'Field %1 is not found in the list of available fields'"),
 					Operand);
 			EndIf;
 			Errors.Add(ErrorText);
@@ -639,7 +639,7 @@ Procedure AddAListOfFieldsToTheForm(Form, Parameters) Export
 	SearchCleanUpButton.VerticalAlignInGroup = ItemVerticalAlign.Center;
 	SearchCleanUpButton.CommandName = NameOfCleanupCommand;
 	SearchCleanUpButton.ShapeRepresentation = ButtonShapeRepresentation.WhenActive;
-	SearchCleanUpButton.Title = NStr("en = 'Clear';");
+	SearchCleanUpButton.Title = NStr("en = 'Clear'");
 	
 	If FieldList <> Undefined Then
 		Form.Items.Move(SearchGroup1, LocationOfTheSearchString, FieldList);
@@ -652,7 +652,7 @@ Procedure AddAListOfFieldsToTheForm(Form, Parameters) Export
 	SearchString.SetAction("EditTextChange", "Attachable_SearchStringEditTextChange");
 	SearchString.AutoMaxWidth = False;
 	SearchString.EditTextUpdate = EditTextUpdate.DontUse;
-	SearchString.Title = NStr("en = 'Find';");
+	SearchString.Title = NStr("en = 'Find'");
 	
 	If FieldList = Undefined Then
 		FieldList = Form.Items.Add(NameOfTheFieldList, Type("FormTable"), AddingOptions.LocationOfTheList);
@@ -690,20 +690,20 @@ Procedure AddAListOfFieldsToTheForm(Form, Parameters) Export
 	FieldPicture.DataPath = NameOfTheFieldList + ".Picture";
 	FieldPicture.Type = FormFieldType.PictureField;
 	FieldPicture.ShowInHeader = False;
-	FieldPicture.Title = NStr("en = 'Picture';");
+	FieldPicture.Title = NStr("en = 'Picture'");
 	
 	FieldPresentation = Form.Items.Add(ColumnNamePresentation(NameOfTheFieldList), Type("FormField"), ColumnGroup);
 	FieldPresentation.DataPath = NameOfTheFieldList + ".Title";
 	FieldPresentation.Type = FormFieldType.InputField;
 	FieldPresentation.ReadOnly = True;
-	FieldPresentation.Title = NStr("en = 'Title';");
+	FieldPresentation.Title = NStr("en = 'Title'");
 	
 	FieldPresentation = Form.Items.Add(NameOfTheFieldList + "RepresentationOfTheDataPath", Type("FormField"), ColumnGroup);
 	FieldPresentation.DataPath = NameOfTheFieldList + ".RepresentationOfTheDataPath";
 	FieldPresentation.Type = FormFieldType.LabelField;
 	FieldPresentation.ReadOnly = True;
 	FieldPresentation.Visible = False;
-	FieldPresentation.Title = NStr("en = 'Field';");
+	FieldPresentation.Title = NStr("en = 'Field'");
 	
 	ConnectedFieldLists = Form.ConnectedFieldLists; // ValueTable
 	ConnectedList = ConnectedFieldLists.Add();
@@ -804,7 +804,7 @@ Function ParametersForAddingAListOfFields() Export
 	Result.Insert("ListName", "AvailableFields");
 	Result.Insert("FieldsCollections", New Array);
 	Result.Insert("LocationOfTheSearchString");
-	Result.Insert("HintForEnteringTheSearchString", NStr("en = 'Find…';"));
+	Result.Insert("HintForEnteringTheSearchString", NStr("en = 'Find…'"));
 	Result.Insert("ListHandlers", New Structure);
 	Result.Insert("IncludeGroupsInTheDataPath", True);
 	Result.Insert("IdentifierBrackets", False);
@@ -1131,7 +1131,7 @@ Function AvailableAttributes(CollectionsOfAvailableFields)
 				Attribute.Order = 2;
 			EndIf;
 			If FieldDetails.Field = New DataCompositionField("UserFields") Then
-				Attribute.Title = NStr("en = 'Formulas';");
+				Attribute.Title = NStr("en = 'Formulas'");
 				Attribute.Picture = PictureLib.TypeFunction;
 				Attribute.Order = 3;
 			EndIf;
@@ -2759,16 +2759,16 @@ Procedure AddAGroupOfOperatorsLogicalOperatorsAndConstants(ListOfOperators)
 	
 	Group = ListOfOperators.Rows.Add();
 	Group.Id = "LogicalOperatorsAndConstants";
-	Group.Presentation = NStr("en = 'Logical operators and constants';");
+	Group.Presentation = NStr("en = 'Logical operators and constants'");
 	Group.Order = 3;
 	
 	Type = New TypeDescription("Boolean");
 	
-	AddAnOperatorToAGroup(Group, "And", NStr("en = 'AND';"), Type);
-	AddAnOperatorToAGroup(Group, "Or", NStr("en = 'OR';"), Type);
-	AddAnOperatorToAGroup(Group, "Not", NStr("en = 'NOT';"), Type);
-	AddAnOperatorToAGroup(Group, "True", NStr("en = 'True';"), Type);
-	AddAnOperatorToAGroup(Group, "False", NStr("en = 'False';"), Type);
+	AddAnOperatorToAGroup(Group, "And", NStr("en = 'AND'"), Type);
+	AddAnOperatorToAGroup(Group, "Or", NStr("en = 'OR'"), Type);
+	AddAnOperatorToAGroup(Group, "Not", NStr("en = 'NOT'"), Type);
+	AddAnOperatorToAGroup(Group, "True", NStr("en = 'True'"), Type);
+	AddAnOperatorToAGroup(Group, "False", NStr("en = 'False'"), Type);
 	
 EndProcedure
 
@@ -2776,16 +2776,16 @@ Procedure AddAGroupOfOperatorsNumericFunctions(ListOfOperators)
 	
 	Group = ListOfOperators.Rows.Add();
 	Group.Id = "NumericFunction";
-	Group.Presentation = NStr("en = 'Numeric functions';");
+	Group.Presentation = NStr("en = 'Numeric functions'");
 	Group.Order = 4;
 	Group.Picture = PictureLib.TypeFunction;
 	
 	Type = New TypeDescription("Number");
 	
-	AddAnOperatorToAGroup(Group, "Max", NStr("en = 'Max';"), Type, True);
-	AddAnOperatorToAGroup(Group, "Min", NStr("en = 'Min';"), Type, True);
-	AddAnOperatorToAGroup(Group, "Round", NStr("en = 'Round off';"), Type, True);
-	AddAnOperatorToAGroup(Group, "Int", NStr("en = 'Integral part';"), Type, True);
+	AddAnOperatorToAGroup(Group, "Max", NStr("en = 'Max'"), Type, True);
+	AddAnOperatorToAGroup(Group, "Min", NStr("en = 'Min'"), Type, True);
+	AddAnOperatorToAGroup(Group, "Round", NStr("en = 'Round off'"), Type, True);
+	AddAnOperatorToAGroup(Group, "Int", NStr("en = 'Integral part'"), Type, True);
 	
 EndProcedure
 
@@ -2793,7 +2793,7 @@ Procedure AddAGroupOfOperatorsStringFunctions(ListOfOperators)
 	
 	Group = ListOfOperators.Rows.Add();
 	Group.Id = "StringFunctions";
-	Group.Presentation = NStr("en = 'String functions';");
+	Group.Presentation = NStr("en = 'String functions'");
 	Group.Order = 5;
 	Group.Picture = PictureLib.TypeFunction;
 	
@@ -2801,17 +2801,17 @@ Procedure AddAGroupOfOperatorsStringFunctions(ListOfOperators)
 	
 	// NStr has localizable IDs.
 	
-	AddAnOperatorToAGroup(Group, "String", NStr("en = 'Convert into a string';"), Type, True);
-	AddAnOperatorToAGroup(Group, "Upper", NStr("en = 'Uppercase';"), Type, True);
-	AddAnOperatorToAGroup(Group, "Lower", NStr("en = 'Lowercase';"), Type, True);
-	AddAnOperatorToAGroup(Group, "Title", NStr("en = 'Each word is uppercase';"), Type, True);
-	AddAnOperatorToAGroup(Group, "Left", NStr("en = 'Left characters';"), Type, True);
-	AddAnOperatorToAGroup(Group, "Right", NStr("en = 'Right characters';"), Type, True);
-	AddAnOperatorToAGroup(Group, "TrimL", NStr("en = 'Remove spaces on the left';"), Type, True);
-	AddAnOperatorToAGroup(Group, "TrimAll", NStr("en = 'Remove spaces on the left and right';"), Type, True);
-	AddAnOperatorToAGroup(Group, "TrimR", NStr("en = 'Remove spaces on the right';"), Type, True);
-	AddAnOperatorToAGroup(Group, "StrReplace", NStr("en = 'Replace characters in the string';"), Type, True);
-	AddAnOperatorToAGroup(Group, "StrLen", NStr("en = 'String length';"), New TypeDescription("Number"), True);
+	AddAnOperatorToAGroup(Group, "String", NStr("en = 'Convert into a string'"), Type, True);
+	AddAnOperatorToAGroup(Group, "Upper", NStr("en = 'Uppercase'"), Type, True);
+	AddAnOperatorToAGroup(Group, "Lower", NStr("en = 'Lowercase'"), Type, True);
+	AddAnOperatorToAGroup(Group, "Title", NStr("en = 'Each word is uppercase'"), Type, True);
+	AddAnOperatorToAGroup(Group, "Left", NStr("en = 'Left characters'"), Type, True);
+	AddAnOperatorToAGroup(Group, "Right", NStr("en = 'Right characters'"), Type, True);
+	AddAnOperatorToAGroup(Group, "TrimL", NStr("en = 'Remove spaces on the left'"), Type, True);
+	AddAnOperatorToAGroup(Group, "TrimAll", NStr("en = 'Remove spaces on the left and right'"), Type, True);
+	AddAnOperatorToAGroup(Group, "TrimR", NStr("en = 'Remove spaces on the right'"), Type, True);
+	AddAnOperatorToAGroup(Group, "StrReplace", NStr("en = 'Replace characters in the string'"), Type, True);
+	AddAnOperatorToAGroup(Group, "StrLen", NStr("en = 'String length'"), New TypeDescription("Number"), True);
 	
 EndProcedure
 
@@ -2819,13 +2819,13 @@ Procedure AddAGroupOfOperatorsOtherFunctions(ListOfOperators)
 	
 	Group = ListOfOperators.Rows.Add();
 	Group.Id = "OtherFunctions";
-	Group.Presentation = NStr("en = 'Other functions';");
+	Group.Presentation = NStr("en = 'Other functions'");
 	Group.Order = 6;
 	Group.Picture = PictureLib.TypeFunction;
 	
-	AddAnOperatorToAGroup(Group, "?", NStr("en = 'Condition';"), New TypeDescription("Boolean"), True);
-	AddAnOperatorToAGroup(Group, "ValueIsFilled", NStr("en = 'Value is filled';"), New TypeDescription("Boolean"), True);
-	AddAnOperatorToAGroup(Group, "Format", NStr("en = 'Format';"), New TypeDescription("String"), True);
+	AddAnOperatorToAGroup(Group, "?", NStr("en = 'Condition'"), New TypeDescription("Boolean"), True);
+	AddAnOperatorToAGroup(Group, "ValueIsFilled", NStr("en = 'Value is filled'"), New TypeDescription("Boolean"), True);
+	AddAnOperatorToAGroup(Group, "Format", NStr("en = 'Format'"), New TypeDescription("String"), True);
 	
 EndProcedure
 
@@ -2845,12 +2845,12 @@ Procedure AddAGroupOfOperatorsOperationsOnStrings(ListOfOperators)
 	
 	Group = ListOfOperators.Rows.Add();
 	Group.Id = "OperationsOnStrings";
-	Group.Presentation = NStr("en = 'String operations';");
+	Group.Presentation = NStr("en = 'String operations'");
 	Group.Order = 2;
 	
 	Type = New TypeDescription("String");
 	
-	AddAnOperatorToAGroup(Group, "LIKE", NStr("en = 'LIKE';"), Type);
+	AddAnOperatorToAGroup(Group, "LIKE", NStr("en = 'LIKE'"), Type);
 	
 EndProcedure
 
@@ -2858,30 +2858,30 @@ Procedure AddGroupOfOperatorsWorkingWithDates(ListOfOperators)
 	
 	Group = ListOfOperators.Rows.Add();
 	Group.Id = "WorkingWithDCSDates";
-	Group.Presentation = NStr("en = 'Date management';");
+	Group.Presentation = NStr("en = 'Date management'");
 	Group.Order = 2;
 	Group.Picture = PictureLib.TypeFunction;
 	
 	Type = New TypeDescription("Number");
 	
-	AddAnOperatorToAGroup(Group, "YEAR", NStr("en = 'YEAR';"), Type, True);
-	AddAnOperatorToAGroup(Group, "MONTH", NStr("en = 'MONTH';"), Type, True);
-	AddAnOperatorToAGroup(Group, "NUMBER", NStr("en = 'NUMBER';"), Type, True);
-	AddAnOperatorToAGroup(Group, "DAYOFYEAR", NStr("en = 'Day of the year';"), Type, True);
-	AddAnOperatorToAGroup(Group, "DAY", NStr("en = 'DAY';"), Type, True);
-	AddAnOperatorToAGroup(Group, "WEEK", NStr("en = 'WEEK';"), Type, True);
-	AddAnOperatorToAGroup(Group, "WEEKDAY", NStr("en = 'Day of the week';"), Type, True);
-	AddAnOperatorToAGroup(Group, "HOUR", NStr("en = 'HOUR';"), Type, True);
-	AddAnOperatorToAGroup(Group, "MINUTE", NStr("en = 'MINUTE';"), Type, True);
-	AddAnOperatorToAGroup(Group, "SECOND", NStr("en = 'SECOND';"), Type, True);
+	AddAnOperatorToAGroup(Group, "YEAR", NStr("en = 'YEAR'"), Type, True);
+	AddAnOperatorToAGroup(Group, "MONTH", NStr("en = 'MONTH'"), Type, True);
+	AddAnOperatorToAGroup(Group, "NUMBER", NStr("en = 'NUMBER'"), Type, True);
+	AddAnOperatorToAGroup(Group, "DAYOFYEAR", NStr("en = 'Day of the year'"), Type, True);
+	AddAnOperatorToAGroup(Group, "DAY", NStr("en = 'DAY'"), Type, True);
+	AddAnOperatorToAGroup(Group, "WEEK", NStr("en = 'WEEK'"), Type, True);
+	AddAnOperatorToAGroup(Group, "WEEKDAY", NStr("en = 'Day of the week'"), Type, True);
+	AddAnOperatorToAGroup(Group, "HOUR", NStr("en = 'HOUR'"), Type, True);
+	AddAnOperatorToAGroup(Group, "MINUTE", NStr("en = 'MINUTE'"), Type, True);
+	AddAnOperatorToAGroup(Group, "SECOND", NStr("en = 'SECOND'"), Type, True);
 
-	AddAnOperatorToAGroup(Group, "BEGINOFPERIOD", NStr("en = 'Period start';"), New TypeDescription, True);
-	AddAnOperatorToAGroup(Group, "ENDOFPERIOD", NStr("en = 'Period end';"), New TypeDescription, True);
-	AddAnOperatorToAGroup(Group, "ADDTODATE", NStr("en = 'Add to the date';"), New TypeDescription, True);
+	AddAnOperatorToAGroup(Group, "BEGINOFPERIOD", NStr("en = 'Period start'"), New TypeDescription, True);
+	AddAnOperatorToAGroup(Group, "ENDOFPERIOD", NStr("en = 'Period end'"), New TypeDescription, True);
+	AddAnOperatorToAGroup(Group, "ADDTODATE", NStr("en = 'Add to the date'"), New TypeDescription, True);
 	
-	AddAnOperatorToAGroup(Group, "DATEDIFF", NStr("en = 'Difference between dates';"), Type, True);
+	AddAnOperatorToAGroup(Group, "DATEDIFF", NStr("en = 'Difference between dates'"), Type, True);
 	
-	AddAnOperatorToAGroup(Group, "CURRENTDATE", NStr("en = 'Current date';"), New TypeDescription, True);
+	AddAnOperatorToAGroup(Group, "CURRENTDATE", NStr("en = 'Current date'"), New TypeDescription, True);
 	
 EndProcedure
 
@@ -2889,13 +2889,13 @@ Procedure AddAGroupOfComparisonOperationOperators(ListOfOperators)
 	
 	Group = ListOfOperators.Rows.Add();
 	Group.Id = "ComparisonOperation";
-	Group.Presentation = NStr("en = 'Comparison operations';");
+	Group.Presentation = NStr("en = 'Comparison operations'");
 	Group.Order = 3;
 	
 	Type = New TypeDescription("Boolean");
 	
-	AddAnOperatorToAGroup(Group, "In", NStr("en = 'IN';"), Type, True);
-	AddAnOperatorToAGroup(Group, "ValueIsFilled", NStr("en = 'Value is filled';"), Type, True);
+	AddAnOperatorToAGroup(Group, "In", NStr("en = 'IN'"), Type, True);
+	AddAnOperatorToAGroup(Group, "ValueIsFilled", NStr("en = 'Value is filled'"), Type, True);
 	
 EndProcedure
 
@@ -2903,42 +2903,42 @@ Procedure AddAGroupOfLogicalOperationsOperators(ListOfOperators)
 	
 	Group = ListOfOperators.Rows.Add();
 	Group.Id = "LogicalOperations";
-	Group.Presentation = NStr("en = 'Logical operations';");
+	Group.Presentation = NStr("en = 'Logical operations'");
 	Group.Order = 4;
 	
 	Type = New TypeDescription("Boolean");
 	
-	AddAnOperatorToAGroup(Group, "NOT", NStr("en = 'NOT';"), Type);
-	AddAnOperatorToAGroup(Group, "And", NStr("en = 'AND';"), Type);
-	AddAnOperatorToAGroup(Group, "OR", NStr("en = 'OR';"), Type);
+	AddAnOperatorToAGroup(Group, "NOT", NStr("en = 'NOT'"), Type);
+	AddAnOperatorToAGroup(Group, "And", NStr("en = 'AND'"), Type);
+	AddAnOperatorToAGroup(Group, "OR", NStr("en = 'OR'"), Type);
 	
 	Operator = Group.Rows.Add();
 	Operator.Id = "CHOICEIFTHENELSEEND";
 	Operator.Presentation = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = '%1 %2 ... %3 ...';"),
-		OperatorPresentation(NStr("en = 'CASE';")),
-		OperatorPresentation(NStr("en = 'WHEN';")),
-		OperatorPresentation(NStr("en = 'THEN';")));
+		NStr("en = '%1 %2 ... %3 ...'"),
+		OperatorPresentation(NStr("en = 'CASE'")),
+		OperatorPresentation(NStr("en = 'WHEN'")),
+		OperatorPresentation(NStr("en = 'THEN'")));
 	Operator.Picture = PictureLib.IsEmpty;
 	Operator.ExpressionToInsert = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = '%1
 		|	%2 <%6> %3 <%6>
 		|	%4 <%6>
-		|%5';"),
-		OperatorPresentation(NStr("en = 'CASE';")),
-		OperatorPresentation(NStr("en = 'WHEN';")),
-		OperatorPresentation(NStr("en = 'THEN';")),
-		OperatorPresentation(NStr("en = 'ELSE';")),
-		OperatorPresentation(NStr("en = 'END';")),
-		NStr("en = 'Expression';"));
+		|%5'"),
+		OperatorPresentation(NStr("en = 'CASE'")),
+		OperatorPresentation(NStr("en = 'WHEN'")),
+		OperatorPresentation(NStr("en = 'THEN'")),
+		OperatorPresentation(NStr("en = 'ELSE'")),
+		OperatorPresentation(NStr("en = 'END'")),
+		NStr("en = 'Expression'"));
 	
-	AddAnOperatorToAGroup(Group, "CASE", NStr("en = 'CASE';"), , , True); // @query-part
-	AddAnOperatorToAGroup(Group, "WHEN", NStr("en = 'WHEN';"), , , True);
-	AddAnOperatorToAGroup(Group, "THEN", NStr("en = 'THEN';"), , , True);
-	AddAnOperatorToAGroup(Group, "ELSE", NStr("en = 'ELSE';"), , , True);
-	AddAnOperatorToAGroup(Group, "END", NStr("en = 'END';"), , , True);
-	AddAnOperatorToAGroup(Group, "TRUE", NStr("en = 'TRUE';"), , , True);
-	AddAnOperatorToAGroup(Group, "FALSE", NStr("en = 'FALSE';"), , , True);
+	AddAnOperatorToAGroup(Group, "CASE", NStr("en = 'CASE'"), , , True); // @query-part
+	AddAnOperatorToAGroup(Group, "WHEN", NStr("en = 'WHEN'"), , , True);
+	AddAnOperatorToAGroup(Group, "THEN", NStr("en = 'THEN'"), , , True);
+	AddAnOperatorToAGroup(Group, "ELSE", NStr("en = 'ELSE'"), , , True);
+	AddAnOperatorToAGroup(Group, "END", NStr("en = 'END'"), , , True);
+	AddAnOperatorToAGroup(Group, "TRUE", NStr("en = 'TRUE'"), , , True);
+	AddAnOperatorToAGroup(Group, "FALSE", NStr("en = 'FALSE'"), , , True);
 	
 EndProcedure
 
@@ -2946,17 +2946,17 @@ Procedure AddAGroupOfOperatorsAggregateFunctions(ListOfOperators)
 	
 	Group = ListOfOperators.Rows.Add();
 	Group.Id = "AggregateFunctions";
-	Group.Presentation = NStr("en = 'Aggregate functions';");
+	Group.Presentation = NStr("en = 'Aggregate functions'");
 	Group.Order = 5;
 	Group.Picture = PictureLib.TypeFunction;
 	
 	Type = New TypeDescription("Number");
 	
-	AddAnOperatorToAGroup(Group, "SUM", NStr("en = 'SUM';"), Type, True);
-	AddAnOperatorToAGroup(Group, "COUNT", NStr("en = 'COUNT';"), Type, True);
-	AddAnOperatorToAGroup(Group, "MAXIMUM", NStr("en = 'MAX';"), Type, True);
-	AddAnOperatorToAGroup(Group, "MINIMUM", NStr("en = 'MIN';"), Type, True);
-	AddAnOperatorToAGroup(Group, "MEAN", NStr("en = 'AVG';"), Type, True);
+	AddAnOperatorToAGroup(Group, "SUM", NStr("en = 'SUM'"), Type, True);
+	AddAnOperatorToAGroup(Group, "COUNT", NStr("en = 'COUNT'"), Type, True);
+	AddAnOperatorToAGroup(Group, "MAXIMUM", NStr("en = 'MAX'"), Type, True);
+	AddAnOperatorToAGroup(Group, "MINIMUM", NStr("en = 'MIN'"), Type, True);
+	AddAnOperatorToAGroup(Group, "MEAN", NStr("en = 'AVG'"), Type, True);
 	
 EndProcedure
 
@@ -2964,12 +2964,12 @@ Procedure AddGroupOfOperatorsOtherDCSFunctions(ListOfOperators)
 	
 	Group = ListOfOperators.Rows.Add();
 	Group.Id = "OtherFunctions";
-	Group.Presentation = NStr("en = 'Other functions';");
+	Group.Presentation = NStr("en = 'Other functions'");
 	Group.Order = 6;
 	Group.Picture = PictureLib.TypeFunction;
 	
-	AddAnOperatorToAGroup(Group, "STRING", NStr("en = 'STRING';"), New TypeDescription("String"), True);
-	AddAnOperatorToAGroup(Group, "VALUE", NStr("en = 'VALUE';"), New TypeDescription, True);
+	AddAnOperatorToAGroup(Group, "STRING", NStr("en = 'STRING'"), New TypeDescription("String"), True);
+	AddAnOperatorToAGroup(Group, "VALUE", NStr("en = 'VALUE'"), New TypeDescription, True);
 	
 EndProcedure
 

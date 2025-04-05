@@ -31,7 +31,7 @@ Procedure SelectFileToImportSuggested(FileSystemExtensionAttached1, AdditionalPa
 		
 		SelectingFile = New FileDialog(FileDialogMode.Open);
 		SelectingFile.Multiselect = False;
-		SelectingFile.Title = NStr("en = 'Choose a sample file';");
+		SelectingFile.Title = NStr("en = 'Choose a sample file'");
 		SelectingFile.Filter = "Files import2 measurings (*.zip)|*.zip";
 		
 		NotifyDescription = New CallbackDescription("FileDialogCompletion", ThisObject, Undefined);
@@ -75,7 +75,7 @@ EndProcedure
 Procedure ImportAfterExistenceCheck(Exists, AdditionalParameters) Export
 	If Not Exists Then 
 		Message = New UserMessage();
-    	Message.Text = NStr("en = 'Choose a sample file';");
+    	Message.Text = NStr("en = 'Choose a sample file'");
     	Message.Field = "ImportFile3";
     	Message.Message();
 		Return;

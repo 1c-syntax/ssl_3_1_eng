@@ -83,7 +83,7 @@ EndProcedure
 Procedure SetVersioningOptionOnPost(Command)
 	
 	If DocumentsThatCannotBePostedSelected() Then
-		ShowMessageBox(, NStr("en = 'Documents that cannot be posted are applied with the ""on write"" versioning mode.';"));
+		ShowMessageBox(, NStr("en = 'Documents that cannot be posted are applied with the ""on write"" versioning mode.'"));
 	EndIf;
 	
 	SetSelectedRowsVersioningMode(
@@ -225,7 +225,7 @@ Procedure FillObjectTypesInValueTree()
 		If AllCatalogs.ContainsType(Type) Then
 			If CatalogsNode = Undefined Then
 				CatalogsNode = MOTree.Rows.Add();
-				CatalogsNode.ObjectDescriptionSynonym = NStr("en = 'Catalogs';");
+				CatalogsNode.ObjectDescriptionSynonym = NStr("en = 'Catalogs'");
 				CatalogsNode.ObjectClass = "01ClassReferencesRoot";
 				CatalogsNode.PictureCode = 2;
 			EndIf;
@@ -235,7 +235,7 @@ Procedure FillObjectTypesInValueTree()
 		ElsIf AllDocuments.ContainsType(Type) Then
 			If DocumentsNode = Undefined Then
 				DocumentsNode = MOTree.Rows.Add();
-				DocumentsNode.ObjectDescriptionSynonym = NStr("en = 'Documents';");
+				DocumentsNode.ObjectDescriptionSynonym = NStr("en = 'Documents'");
 				DocumentsNode.ObjectClass = "02ClassDocumentsRoot";
 				DocumentsNode.PictureCode = 3;
 			EndIf;
@@ -245,7 +245,7 @@ Procedure FillObjectTypesInValueTree()
 		ElsIf BusinessProcesses.AllRefsType().ContainsType(Type) Then
 			If BusinessProcessesNode = Undefined Then
 				BusinessProcessesNode = MOTree.Rows.Add();
-				BusinessProcessesNode.ObjectDescriptionSynonym = NStr("en = 'Business processes';");
+				BusinessProcessesNode.ObjectDescriptionSynonym = NStr("en = 'Business processes'");
 				BusinessProcessesNode.ObjectClass = "03BusinessProcessesRoot";
 				BusinessProcessesNode.ObjectType = "BusinessProcesses";
 			EndIf;
@@ -254,7 +254,7 @@ Procedure FillObjectTypesInValueTree()
 			HasBusinessProcesses = True;
 		ElsIf ChartsOfAccounts.AllRefsType().ContainsType(Type) Then
 			GroupName = "04ChartsAccountsRoot";
-			GroupPresentation = NStr("en = 'Charts of accounts';");
+			GroupPresentation = NStr("en = 'Charts of accounts'");
 			GroupObjectsType = "ChartsOfAccounts";
 			Var_Group = MOTree.Rows.Find(GroupName, "ObjectClass");
 			If Var_Group = Undefined Then
@@ -267,7 +267,7 @@ Procedure FillObjectTypesInValueTree()
 			NewTableRow.ObjectClass = "ChartsOfAccountsClass";
 		ElsIf ChartsOfCharacteristicTypes.AllRefsType().ContainsType(Type) Then
 			GroupName = "05PlansViewsCharacteristicsRoot";
-			GroupPresentation = NStr("en = 'Charts of characteristic types';");
+			GroupPresentation = NStr("en = 'Charts of characteristic types'");
 			GroupObjectsType = "ChartsOfCharacteristicTypes";
 			Var_Group = MOTree.Rows.Find(GroupName, "ObjectClass");
 			If Var_Group = Undefined Then
@@ -280,7 +280,7 @@ Procedure FillObjectTypesInValueTree()
 			NewTableRow.ObjectClass = "ChartsOfCharacteristicTypesClass";
 		ElsIf ChartsOfCalculationTypes.AllRefsType().ContainsType(Type) Then
 			GroupName = "06PlansCalculationTypesRoot";
-			GroupPresentation = NStr("en = 'Charts of calculation types';");
+			GroupPresentation = NStr("en = 'Charts of calculation types'");
 			GroupObjectsType = "ChartsOfCalculationTypes";
 			Var_Group = MOTree.Rows.Find(GroupName, "ObjectClass");
 			If Var_Group = Undefined Then
@@ -515,7 +515,7 @@ Procedure RunScheduledJob()
 		BackgroundJobIdentifier = CleanupBackgroundJobs[0].UUID;
 	Else
 		JobParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-		JobParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Manual start: %1';"), ScheduledJobMetadata1.Synonym);
+		JobParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Manual start: %1'"), ScheduledJobMetadata1.Synonym);
 		JobResult = TimeConsumingOperations.ExecuteProcedure(JobParameters, ScheduledJobMetadata1.MethodName);
 		If ValueIsFilled(JobResult.JobID) Then
 			BackgroundJobIdentifier = JobResult.JobID;
@@ -592,19 +592,19 @@ EndProcedure
 
 &AtClientAtServerNoContext
 Function StatusTextCalculation()
-	Return NStr("en = 'Searching for outdated versions…';");
+	Return NStr("en = 'Searching for outdated versions…'");
 EndFunction
 
 &AtClientAtServerNoContext
 Function StatusTextCleanup()
-	Return NStr("en = 'Cleaning up outdated versions…';");
+	Return NStr("en = 'Cleaning up outdated versions…'");
 EndFunction
 
 &AtServer
 Function SerachForObsoleteVersions()
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Search for outdated versions';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Search for outdated versions'");
 	
 	TimeConsumingOperation = TimeConsumingOperations.ExecuteFunction(ExecutionParameters,
 		"ObjectsVersioning.ObsoleteVersionsInformation");
@@ -628,11 +628,11 @@ Procedure OutputObsoleteVersionsInfo()
 	Items.Clear.Visible = ObsoleteVersionsInformation.DataSize > 0;
 	If ObsoleteVersionsInformation.DataSize > 0 Then
 		Items.ObsoleteVersionsInformation.Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Total outdated versions: %1 (%2)';"),
+			NStr("en = 'Total outdated versions: %1 (%2)'"),
 			ObsoleteVersionsInformation.VersionsCount,
 			ObsoleteVersionsInformation.DataSizeString);
 	Else
-		Items.ObsoleteVersionsInformation.Title = NStr("en = 'Total outdated versions: none';");
+		Items.ObsoleteVersionsInformation.Title = NStr("en = 'Total outdated versions: none'");
 	EndIf;
 	
 EndProcedure

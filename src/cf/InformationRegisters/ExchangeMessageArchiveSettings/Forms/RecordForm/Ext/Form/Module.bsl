@@ -49,7 +49,7 @@ Procedure FullPathStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	StandardProcessing = False;
 	
-	Title = NStr("en = 'Select a folder to store exchange files';");
+	Title = NStr("en = 'Select a folder to store exchange files'");
 	CompletionHandler = New CallbackDescription("FullPathToSelectionCompletion", ThisObject);
 	
 	FileSystemClient.SelectDirectory(CompletionHandler, Title, Record.FullPath);
@@ -93,7 +93,7 @@ Procedure Save(Command)
 		
 	FilesForDownloading = PrepareFilesAtServer(Record.InfobaseNode, TimeIntervals_);
 	If FilesForDownloading.Count() <> 0 Then
-		Title = NStr("en = 'Select a directory to save the files';");
+		Title = NStr("en = 'Select a directory to save the files'");
 		DialogParameters = New GetFilesDialogParameters(Title, True);
 		BeginGetFilesFromServer(FilesForDownloading, DialogParameters);
 	EndIf;
@@ -160,9 +160,9 @@ Procedure CheckAvailabilityOfServerDir()
 	
 	HelpDir = New File(Record.FullPath);
 	If HelpDir.Exists() Then
-		Common.MessageToUser(NStr("en = 'Directory is available';"));
+		Common.MessageToUser(NStr("en = 'Directory is available'"));
 	Else
-		Common.MessageToUser(NStr("en = 'Directory is not available';"));	
+		Common.MessageToUser(NStr("en = 'Directory is not available'"));	
 	EndIf;
 	
 EndProcedure
@@ -215,7 +215,7 @@ Function PrepareFilesAtServer(InfobaseNode, TimeIntervals_)
 		
 		If BinaryData = Undefined Then
 			
-			Template = NStr("en = 'Message #%1 dated %2 is not found';");
+			Template = NStr("en = 'Message #%1 dated %2 is not found'");
 			MessageText = StrTemplate(Template,
 				Selection.ReceivedMessageNumber,
 				Selection.Period);

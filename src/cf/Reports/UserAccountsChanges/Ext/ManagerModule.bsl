@@ -30,12 +30,12 @@ Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessin
 	If Parameters.FormName = "Catalog.Users.Form.ListForm"
 	 Or Parameters.FormName = "Catalog.ExternalUsers.Form.ListForm" Then
 		
-		Presentation = NStr("en = 'User account change history';");
+		Presentation = NStr("en = 'User account change history'");
 		
 	ElsIf Parameters.FormName = "Catalog.Users.Form.ItemForm"
 	      Or Parameters.FormName = "Catalog.ExternalUsers.Form.ItemForm" Then
 		
-		Presentation = NStr("en = 'User account change history';");
+		Presentation = NStr("en = 'User account change history'");
 	EndIf;
 	
 	If Presentation = Undefined Then
@@ -66,7 +66,7 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "Main");
 	OptionSettings.LongDesc = 
-		NStr("en = 'Reads the event log and shows you the changes in the properties of infobase users for the given time period.';");
+		NStr("en = 'Reads the event log and shows you the changes in the properties of infobase users for the given time period.'");
 	
 EndProcedure
 

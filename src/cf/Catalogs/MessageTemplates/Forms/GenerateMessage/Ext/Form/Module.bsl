@@ -30,11 +30,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If MessageKind = "SMSMessage" Then
 		ForSMSMessages = True;
-		Title = NStr("en = 'Text templates';");
+		Title = NStr("en = 'Text templates'");
 	ElsIf MessageKind = "MailMessage" Then
 		ForEmails = True;
 	Else
-		Title = NStr("en = 'Message templates';");
+		Title = NStr("en = 'Message templates'");
 	EndIf;
 	
 	If Not AccessRight("Update", Metadata.Catalogs.MessageTemplates) Then
@@ -45,14 +45,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		HasUpdateRight = True;
 	EndIf;
 	
-	AttachmentsKinds.Add("PrintForms", NStr("en = 'Print forms';"));
-	AttachmentsKinds.Add("ExportFiles", NStr("en = 'Export files';"));
+	AttachmentsKinds.Add("PrintForms", NStr("en = 'Print forms'"));
+	AttachmentsKinds.Add("ExportFiles", NStr("en = 'Export files'"));
 	
 	SetConditionalAppearance();
 	
 	If ChoiceMode Or MessageKind = "Arbitrary" Then
 		Items.FormGenerateAndSend.Visible = False;
-		Items.FormGenerate.Title = NStr("en = 'Select';");
+		Items.FormGenerate.Title = NStr("en = 'Select'");
 	ElsIf PrepareTemplate Then
 		Items.FormGenerateAndSend.Visible = False;
 	EndIf;
@@ -69,7 +69,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		If Common.SubsystemExists("StandardSubsystems.ExportObjectsToFiles") Then
 			
-			TitleSelectPrintForms = NStr("en = 'Choose print forms or export files';");
+			TitleSelectPrintForms = NStr("en = 'Choose print forms or export files'");
 			Items.SelectPrintFormsExportFiles.Title = TitleSelectPrintForms;
 			
 		EndIf;
@@ -432,7 +432,7 @@ Procedure AfterGenerateAndSendMessage(Result, SendOptions)
 		Close();
 	Else
 		Notification = New CallbackDescription("AfterQuestionOnOpenMessageForm", ThisObject, SendOptions);
-		ErrorDescription = Result.ErrorDescription + Chars.LF + NStr("en = 'Do you want to open the message?';");
+		ErrorDescription = Result.ErrorDescription + Chars.LF + NStr("en = 'Do you want to open the message?'");
 		ShowQueryBox(Notification, ErrorDescription, QuestionDialogMode.YesNo);
 	EndIf;
 
@@ -632,7 +632,7 @@ Procedure FillAvailableTemplatesList()
 	If Not ChoiceMode And Not PrepareTemplate Then
 		FirstRow = Templates.Insert(0);
 		FirstRow.Name = "<NoTemplate>";
-		FirstRow.Presentation = NStr("en = '<No template>';");
+		FirstRow.Presentation = NStr("en = '<No template>'");
 	EndIf;
 	
 	If Templates.Count() = 0 Then
@@ -995,8 +995,8 @@ Procedure SIgnFiles(Result, SendOptions)
 		DataDetails = New Structure;
 		DataDetails.Insert("ShowComment", False);
 		If FilesToSign.Count() > 1 Then
-			DataDetails.Insert("Operation",            NStr("en = 'Sign files';"));
-			DataDetails.Insert("DataTitle",     NStr("en = 'Files';"));
+			DataDetails.Insert("Operation",            NStr("en = 'Sign files'"));
+			DataDetails.Insert("DataTitle",     NStr("en = 'Files'"));
 			
 			DataSet = New Array;
 			For Each File In FilesToSign Do
@@ -1011,8 +1011,8 @@ Procedure SIgnFiles(Result, SendOptions)
 			DataDetails.Insert("SetPresentation", "Files (%1)");
 		Else
 			File = FilesToSign[0];
-			DataDetails.Insert("Operation",        NStr("en = 'Sign a file';"));
-			DataDetails.Insert("DataTitle", NStr("en = 'File';"));
+			DataDetails.Insert("Operation",        NStr("en = 'Sign a file'"));
+			DataDetails.Insert("DataTitle", NStr("en = 'File'"));
 			DataDetails.Insert("Presentation", File.Presentation);
 			DataDetails.Insert("Data", File.AddressInTempStorage);
 			DataDetails.Insert("PrintObject", SubjectOf);

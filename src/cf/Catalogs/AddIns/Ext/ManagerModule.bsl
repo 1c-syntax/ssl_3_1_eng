@@ -173,10 +173,10 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			AddInParameters = AddInsInternal.ImportParameters();
 			AddInParameters.Id = ComponentDetails.ObjectName;
 			AddInParameters.Description = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 for 1C:Enterprise';", Common.DefaultLanguageCode()), "ExtraCryptoAPI");
+				NStr("en = '%1 for 1C:Enterprise'", Common.DefaultLanguageCode()), "ExtraCryptoAPI");
 			AddInParameters.Version = TheComponentOfTheLatestVersionFromTheLayout.Version;
 			AddInParameters.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Added automatically on %1.';", Common.DefaultLanguageCode()), CurrentSessionDate());
+				NStr("en = 'Added automatically on %1.'", Common.DefaultLanguageCode()), CurrentSessionDate());
 			AddInParameters.UpdateFrom1CITSPortal = True;
 			AddInParameters.Data = BinaryData;
 			
@@ -205,10 +205,10 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 				
 			AddInParameters = AddInsInternal.ImportParameters();
 			AddInParameters.Id = ComponentDetails.ObjectName;
-			AddInParameters.Description = NStr("en = 'Add-in to scan documents and images';");
+			AddInParameters.Description = NStr("en = 'Add-in to scan documents and images'");
 			AddInParameters.Version = TheComponentOfTheLatestVersionFromTheLayout.Version;
 			AddInParameters.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Added automatically on %1.';"), CurrentSessionDate());
+				NStr("en = 'Added automatically on %1.'"), CurrentSessionDate());
 			AddInParameters.UpdateFrom1CITSPortal = True;
 			AddInParameters.Data = BinaryData;
 			
@@ -336,7 +336,7 @@ Procedure ProcessExternalComponents(Selection, SubsystemVersionAtStartUpdates)
 
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process the %1 add-in due to:
-					 |%2';"), RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+					 |%2'"), RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(),
 				EventLogLevel.Warning, Selection.Ref.Metadata(), Selection.Ref, MessageText);
@@ -347,14 +347,14 @@ Procedure ProcessExternalComponents(Selection, SubsystemVersionAtStartUpdates)
 
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process some add-ins (skipped): %1';"),
+			NStr("en = 'Couldn''t process some add-ins (skipped): %1'"),
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(),
 			EventLogLevel.Information, Metadata.Catalogs.AddIns,,
 				StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Yet another batch of add-ins is processed: %1';"),
+					NStr("en = 'Yet another batch of add-ins is processed: %1'"),
 			ObjectsProcessed));
 	EndIf;
 	

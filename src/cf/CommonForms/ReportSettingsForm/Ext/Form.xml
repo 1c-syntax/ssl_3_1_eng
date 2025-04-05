@@ -5941,7 +5941,7 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Turn off all groupings.</v8:content>
+					<v8:content>Disable all groupings</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -6441,7 +6441,7 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Select check boxes for the selected appearance items</v8:content>
+					<v8:content>Select all appearance items</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -6462,7 +6462,7 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Appearance clear check boxes for the selected appearance items</v8:content>
+					<v8:content>Clear selected appearance items</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

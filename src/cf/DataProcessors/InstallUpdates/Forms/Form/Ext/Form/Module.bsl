@@ -27,10 +27,10 @@ Var FirstOpeningOfForm; // Boolean
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not ConfigurationUpdate.HasRightsToInstallUpdate() Then
-		Raise(NStr("en = 'Insufficient rights to update the application. Please contact the administrator.';"),
+		Raise(NStr("en = 'Insufficient rights to update the application. Please contact the administrator.'"),
 			ErrorCategory.AccessViolation);
 	ElsIf Users.IsExternalUserSession() Then
-		Raise(NStr("en = 'Insufficient access rights.';"), ErrorCategory.AccessViolation);
+		Raise(NStr("en = 'Insufficient access rights.'"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	If Not Common.IsWindowsClient() Then
@@ -95,7 +95,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.FindAndInstallUpdates.Visible = Common.SubsystemExists("OnlineUserSupport.GetApplicationUpdates");
 	
 	If IsWebClient Or IsSubordinateDIBNode Then
-		SelectionOptionTitle = NStr("en = 'Specify a patch file:';");
+		SelectionOptionTitle = NStr("en = 'Specify a patch file:'");
 		Items.UpdateFileRequiredRadioButtons.ChoiceList[1].Presentation = SelectionOptionTitle;
 	EndIf;
 	
@@ -206,7 +206,7 @@ EndProcedure
 Procedure PatchInstallationErrorLabelURLProcessing(Item, FormattedStringURL, StandardProcessing)
 	StandardProcessing = False;
 	LogFilter = New Structure;
-	LogFilter.Insert("EventLogEvent", NStr("en = 'Patch.Install';"));
+	LogFilter.Insert("EventLogEvent", NStr("en = 'Patch.Install'"));
 	EventLogClient.OpenEventLog(LogFilter);
 EndProcedure
 
@@ -317,9 +317,9 @@ EndFunction
 Procedure RestartApplicationOnChange(Item)
 	
 	If RestartApplication Then
-		Items.NextButton.Title = NStr("en = 'Restart';");
+		Items.NextButton.Title = NStr("en = 'Restart'");
 	Else
-		Items.NextButton.Title = NStr("en = 'Finish';");
+		Items.NextButton.Title = NStr("en = 'Finish'");
 	EndIf;
 
 EndProcedure
@@ -329,10 +329,10 @@ Procedure DecorationNotifyUsersURLProcessing(Item, FormattedStringURL, StandardP
 	StandardProcessing = False;
 	
 	ChoiceList = New ValueList;
-	ChoiceList.Add("5", NStr("en = '5 minutes';"));
-	ChoiceList.Add("10", NStr("en = '10 minutes';"));
-	ChoiceList.Add("15", NStr("en = '15 minutes';"));
-	ChoiceList.Add("30", NStr("en = '30 minutes';"));
+	ChoiceList.Add("5", NStr("en = '5 minutes'"));
+	ChoiceList.Add("10", NStr("en = '10 minutes'"));
+	ChoiceList.Add("15", NStr("en = '15 minutes'"));
+	ChoiceList.Add("30", NStr("en = '30 minutes'"));
 	
 	Notification = New CallbackDescription("AfterNotificationIntervalSelected", ThisObject);
 	ShowChooseFromMenu(Notification, ChoiceList, Items.DecorationForSubmenu);
@@ -383,7 +383,7 @@ Procedure FillInformationPanel()
 		Information = ModuleAccountingAuditInternal.AccountingSystemChecksInformation();
 		If Information.WarnSecondCheckRequired Then
 			If ValueIsFilled(Information.LastCheckDate) Then
-				ToolTip = NStr("en = 'Last system check was on %1.';");
+				ToolTip = NStr("en = 'Last system check was on %1.'");
 				ToolTip = StringFunctionsClientServer.SubstituteParametersToString(ToolTip, 
 					Format(Information.LastCheckDate, "DLF=D"));
 			Else
@@ -512,8 +512,8 @@ Procedure BeforeOpenPage(Val NewPage = Undefined)
 		EndIf;
 	EndIf;
 	
-	NextButton.Title = ?(NextButtonFunction, NStr("en = 'Next >';"), NStr("en = 'Finish';"));
-	CloseButton.Title = ?(CloseButtonFunction, NStr("en = 'Cancel';"), NStr("en = 'Close';"));
+	NextButton.Title = ?(NextButtonFunction, NStr("en = 'Next >'"), NStr("en = 'Finish'"));
+	CloseButton.Title = ?(CloseButtonFunction, NStr("en = 'Cancel'"), NStr("en = 'Close'"));
 	FirstOpeningOfForm = False;
 	
 EndProcedure
@@ -547,27 +547,27 @@ Function PropertiesOfTheUpdateFileSelectionDialog()
 	
 #If WebClient Then
 	
-	Properties.Title = NStr("en = 'Select patches';");
-	Properties.Filter = NStr("en = 'Patch files (*.cfe*;*.zip)|*.cfe*;*.zip';");
+	Properties.Title = NStr("en = 'Select patches'");
+	Properties.Filter = NStr("en = 'Patch files (*.cfe*;*.zip)|*.cfe*;*.zip'");
 	
 #Else
 	
 	If CommonClient.ClientConnectedOverWebServer() Or IsSubordinateDIBNode Then 
 		
-		Properties.Title = NStr("en = 'Select patches';");
-		Properties.Filter = NStr("en = 'Patch files (*.cfe*;*.zip)|*.cfe*;*.zip';");
+		Properties.Title = NStr("en = 'Select patches'");
+		Properties.Filter = NStr("en = 'Patch files (*.cfe*;*.zip)|*.cfe*;*.zip'");
 		
 	Else
 		
-		Properties.Title = NStr("en = 'Select configuration updates';");
+		Properties.Title = NStr("en = 'Select configuration updates'");
 		
 		DescriptionOfTheDialogFilter = New Array;
 		
-		DescriptionOfTheDialogFilter.Add(NStr("en = 'Configuration files (*.cf)|*.cf';"));
-		DescriptionOfTheDialogFilter.Add(NStr("en = 'Update files(*.cfu)|*.cfu';"));
+		DescriptionOfTheDialogFilter.Add(NStr("en = 'Configuration files (*.cf)|*.cf'"));
+		DescriptionOfTheDialogFilter.Add(NStr("en = 'Update files(*.cfu)|*.cfu'"));
 		
-		DescriptionOfTheDialogFilter.Insert(0, NStr("en = 'All files (*.cf*;*.cfu;*.cfe;*.zip)|*.cf*;*.cfu;*.cfe;*.zip';"));
-		DescriptionOfTheDialogFilter.Add(NStr("en = 'Patch files (*.cfe*;*.zip)|*.cfe*;*.zip';"));
+		DescriptionOfTheDialogFilter.Insert(0, NStr("en = 'All files (*.cf*;*.cfu;*.cfe;*.zip)|*.cf*;*.cfu;*.cfe;*.zip'"));
+		DescriptionOfTheDialogFilter.Add(NStr("en = 'Patch files (*.cfe*;*.zip)|*.cfe*;*.zip'"));
 		
 		Properties.Filter = StrConcat(DescriptionOfTheDialogFilter, "|");
 		
@@ -823,7 +823,7 @@ Procedure NavigateFromUpdateFilePage()
 	For Each FileName In SelectedFilesNames Do
 		If Not ThisIsTheFixFile(FileName) Then
 			If Not IsBlankString(Object.UpdateFileName) Then
-				Raise NStr("en = 'Please select a single update file.';");
+				Raise NStr("en = 'Please select a single update file.'");
 			EndIf;
 			Object.UpdateFileName = FileName;
 		EndIf;
@@ -831,14 +831,14 @@ Procedure NavigateFromUpdateFilePage()
 	
 	If UpdateFileRequired = 1 Then
 		If Not ValueIsFilled(SelectedFiles) Then
-			CommonClient.MessageToUser(NStr("en = 'Please select an update file.';"),,"Object.UpdateFileName");
+			CommonClient.MessageToUser(NStr("en = 'Please select an update file.'"),,"Object.UpdateFileName");
 			CurrentItem = Items.UpdateFileField;
 			Return;
 		EndIf;
 		If Not IsBlankString(Object.UpdateFileName) Then
 			File = New File(Object.UpdateFileName);
 			If Not File.Exists() Or Not File.IsFile() Then
-				CommonClient.MessageToUser(NStr("en = 'The update file is not found.';"),,"Object.UpdateFileName");
+				CommonClient.MessageToUser(NStr("en = 'The update file is not found.'"),,"Object.UpdateFileName");
 				CurrentItem = Items.UpdateFileField;
 				Return;
 			EndIf;
@@ -878,7 +878,7 @@ Procedure CheckUpdateFilesApplicability(Result, AdditionalParameters) Export
 		Return;
 	EndIf;
 	
-	Status(NStr("en = 'Checking applicability…';"), 75);
+	Status(NStr("en = 'Checking applicability…'"), 75);
 	UpdateInfo = CheckUpdateFileApplicability(Object.UpdateFileName, UUID);
 	If Not IsBlankString(UpdateInfo.ErrorText) Then
 		OnUpdateLegalityCheck();
@@ -930,8 +930,8 @@ Procedure ContinueInstallUpdates(PlacedFiles, AdditionalParameters) Export
 	InstallPatchesAtServer(PlacedFiles);
 	
 	Items.WizardPages.CurrentPage = Items.AfterInstallUpdates;
-	Items.NextButton.Title = NStr("en = 'Finish';");
-	Items.CloseButton.Title = NStr("en = 'Close';");
+	Items.NextButton.Title = NStr("en = 'Finish'");
+	Items.CloseButton.Title = NStr("en = 'Close'");
 	
 EndProcedure
 
@@ -958,7 +958,7 @@ Procedure InstallPatchesAtServer(PlacedFiles)
 	If HasErrors Then
 		If PatchesInstalled1 > 0 Then
 			LabelText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Patches installed: %1 out of %2. The changes will be applied after you restart the application.';"),
+				NStr("en = 'Patches installed: %1 out of %2. The changes will be applied after you restart the application.'"),
 				PatchesInstalled1,
 				PlacedFiles.Count());
 			Items.PatchesInstalledDecoration.Title = LabelText;
@@ -984,14 +984,14 @@ Procedure ProceedToUpdateModeSelection(IsMoveNext = False)
 	If AdministrationParameters = Undefined Then
 		
 		NotifyDescription = New CallbackDescription("AfterGetAdministrationParameters", ThisObject, IsMoveNext);
-		FormCaption = NStr("en = 'Install update';");
+		FormCaption = NStr("en = 'Install update'");
 		If IsFileInfobase Then
 			NoteLabel = NStr("en = 'To install the update, enter
-				|the infobase administration parameters';");
+				|the infobase administration parameters'");
 			PromptForClusterAdministrationParameters = False;
 		Else
 			NoteLabel = NStr("en = 'To install the update, enter
-				|the server cluster and infobase administration parameters';");
+				|the server cluster and infobase administration parameters'");
 			PromptForClusterAdministrationParameters = True;
 		EndIf;
 		
@@ -1051,11 +1051,11 @@ Procedure AfterGetAdministrationParameters(Result, IsMoveNext) Export
 		
 	Else
 		
-		WarningText = NStr("en = 'To install the update, enter the administration parameters.';");
+		WarningText = NStr("en = 'To install the update, enter the administration parameters.'");
 		ShowMessageBox(, WarningText);
 		
 		MessageText = NStr("en = 'Cannot install the application update as the specified administrator name or password is invalid
-			|(or other client/server infobase administration parameters are invalid).';");
+			|(or other client/server infobase administration parameters are invalid).'");
 		EventLogClient.AddMessageForEventLog(ConfigurationUpdateClient.EventLogEvent(), "Error", MessageText);
 		
 	EndIf;
@@ -1156,7 +1156,7 @@ Procedure AfterNotificationIntervalSelected(Result, AdditionalParameters) Export
 		Return;
 	EndIf;
 	
-	TitleTemplate1 = NStr("en = 'Notify users about an update <a href=""Ссылка"">%1 minutes</a> in advance';");
+	TitleTemplate1 = NStr("en = 'Notify users about an update <a href=""Ссылка"">%1 minutes</a> in advance'");
 	Items.DecorationNotifyUsers.Title = StringFunctionsClient.FormattedString(TitleTemplate1, Result.Value);
 	
 #If Not WebClient Then

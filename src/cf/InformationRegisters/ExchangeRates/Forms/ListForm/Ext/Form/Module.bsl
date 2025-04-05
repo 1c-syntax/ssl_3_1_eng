@@ -40,8 +40,7 @@ EndProcedure
 &AtServerNoContext
 Function CoursesAreBeingUploaded(Currency)
 	
-	CurrenciesImportedFromInternet = New Array();
-	CurrencyRateOperationsLocalization.OnDefineCurrenciesImportedFromInternet(CurrenciesImportedFromInternet);
+	CurrenciesImportedFromInternet = Catalogs.Currencies.CurrenciesImportedFromInternet();
 	If CurrenciesImportedFromInternet.Find(Currency) = Undefined Then
 		Return False;
 	EndIf;

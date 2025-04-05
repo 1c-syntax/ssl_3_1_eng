@@ -47,7 +47,7 @@ Procedure OpenNewForm(FormType, ServerParameters1, ClientParameters = Undefined,
 	
 	If StrFind(FormsKinds, "," + FormType + ",") = 0 Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Error in procedure %1. %2 ""%3"" is not supported.';"),
+			NStr("en = 'Error in procedure %1. %2 ""%3"" is not supported.'"),
 			"OpenNewForm", "FormType", FormType);
 	EndIf;
 	

@@ -85,7 +85,7 @@ Procedure BeforeWrite(Cancel)
 			Raise
 				NStr("en = 'The predefined access group ""Administrators""
 				           |can be changed only if you have the ""Full access"" role
-				           |or in privileged mode.';");
+				           |or in privileged mode.'");
 		EndIf;
 		
 		// Checking whether the access group contains regular users only.
@@ -96,7 +96,7 @@ Procedure BeforeWrite(Cancel)
 					           |can contain only users.
 					           |
 					           |User groups, external users, and
-					           |external user groups are not allowed.';");
+					           |external user groups are not allowed.'");
 			EndIf;
 		EndDo;
 		
@@ -104,7 +104,7 @@ Procedure BeforeWrite(Cancel)
 	ElsIf Profile = AccessManagement.ProfileAdministrator() Then
 		Raise
 			NStr("en = 'Only the predefined access group ""Administrators""
-			           |can have the predefined profile ""Administrator.""';");
+			           |can have the predefined profile ""Administrator.""'");
 	EndIf;
 	
 	// Automatically setting attributes for the personal access group.
@@ -407,5 +407,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

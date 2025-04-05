@@ -743,7 +743,7 @@ EndProcedure
 
 Function RunFilesRecovery(Volume, FormUniqueID) Export
 	ExecutionParameters = TimeConsumingOperations.FunctionExecutionParameters(FormUniqueID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = '""File recovery""';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = '""File recovery""'");
 	ExecutionParameters.BackgroundJobKey = "FileRecovery";
 	
 	Return TimeConsumingOperations.ExecuteFunction(ExecutionParameters, "Reports.VolumeIntegrityCheck.RecoverFiles", Volume);
@@ -772,7 +772,7 @@ Procedure SetUserWorkingDirectory(DirectoryName, User = Undefined) Export
 		UserName = CommonClientServer.StructureProperty(IBUserProperies, "Name");
 	EndIf;
 
-	CommonServerCall.CommonSettingsStorageSave(
+	Common.CommonSettingsStorageSave(
 		"LocalFileCache", "PathToLocalFileCache", DirectoryName,, UserName, True);
 
 EndProcedure
@@ -1044,7 +1044,7 @@ Function SaveChangesAndUnlockFile(FileData, FileInfo1, DontChangeRecordInWorking
 	FileDataCurrent = FileData(FileData.Ref,, FileDataParameters);
 	If Not FileDataCurrent.CurrentUserEditsFile And Not FileToSynchronizeByCloudService(
 		FileData.Ref) Then
-		Raise NStr("en = 'The file is not locked by the current user.';");
+		Raise NStr("en = 'The file is not locked by the current user.'");
 	EndIf;
 
 	PreviousVersion = FileData.CurrentVersion;
@@ -1127,7 +1127,7 @@ Function SaveFileChanges(FileRef, FileInfo1, DontChangeRecordInWorkingDirectory,
 	FileDataParameters.GetBinaryDataRef = False;
 	FileDataCurrent = FileData(FileRef,, FileDataParameters);
 	If Not FileDataCurrent.CurrentUserEditsFile And Not FileToSynchronizeByCloudService(FileRef) Then
-		Raise NStr("en = 'The file is not locked by the current user.';");
+		Raise NStr("en = 'The file is not locked by the current user.'");
 	EndIf;
 
 	OldVersion = ?(FileInfo1.StoreVersions, FileRef.CurrentVersion, FileRef);
@@ -1358,7 +1358,7 @@ EndProcedure
 //    * FileData    - Structure
 //    * MessageText - String - Contains the error reason. For example, "The file is locked by another user".
 //    * FileIsAlreadyEditedByCurrentUser - Boolean - True if the file has already been locked for editing.
-//
+///
 Function BorrowFileToEdit(FileRef, UUID = Undefined,
 	OwnerWorkingDirectory = Undefined, VersionRef = Undefined) Export
 
@@ -1528,7 +1528,7 @@ Function GetFileDataAndSaveFileChanges(FileRef, FileInfo1, RelativeFilePath,
 
 	FileData = FileData(FileRef,, FileDataParameters);
 	If Not FileData.CurrentUserEditsFile Then
-		Raise NStr("en = 'The file is not locked for editing.';");
+		Raise NStr("en = 'The file is not locked for editing.'");
 	EndIf;
 
 	VersionCreated = SaveFileChanges(FileRef, FileInfo1, False, RelativeFilePath,
@@ -1758,7 +1758,7 @@ Function FilesInfoInWorkingDir(Val FilesNames) Export
 			FillPropertyValues(FileInfo1, Selection);
 			FileInfo1.FileIsInRegister = True;
 
-			// @skip-check query-in-loop - Addressing flexible-type tables
+			// @skip-check query-in-loop - обращения к разным таблицам из составного типа
 			FileOwner = Common.ObjectAttributesValues(Selection.Owner, "FileOwner,BeingEditedBy");
 			FileInfo1.InRegisterFolder = FileOwner.FileOwner;
 			FileInfo1.EditedByCurrentUser = FileOwner.BeingEditedBy = AuthorizedUser;
@@ -2224,7 +2224,7 @@ Procedure ShowTooltipsOnEditFiles(Value = Undefined) Export
 
 	SetPrivilegedMode(True);
 	If Value <> Undefined Then
-		CommonServerCall.CommonSettingsStorageSave(
+		Common.CommonSettingsStorageSave(
 			"ApplicationSettings", "ShowTooltipsOnEditFiles", Value,,, True);
 		RefreshReusableValues();
 	EndIf;
@@ -2247,15 +2247,15 @@ Function FilesDeletionResult(FilesOrVersions, UUID) Export
 		Result = New Structure("WarningText, Files", "", New Array);
 		If FilesAuthors[FileOrVersion] = AuthorizedUser Then
 			If IsFileVersion Then
-				// @skip-check query-in-loop - Batch-wise deletion of versions in transactions. 
+				// @skip-check query-in-loop - Порционное удаление каждой версии в своей транзакции 
 				DeleteVersionData(FileOrVersion, UUID, Result);
 			Else
-				// @skip-check query-in-loop - Batch-wise deletion of files in transactions. 
+				// @skip-check query-in-loop - Порционное удаление каждого файла в своей транзакции 
 				DeleteFileData(FileOrVersion, UUID, Result, AuthorizedUser);
 			EndIf;
 		Else
-			Result.WarningText = ?(IsFileVersion, NStr("en = 'Only the author can delete the file version.';"),
-				NStr("en = 'Only the author can delete the file.';"));
+			Result.WarningText = ?(IsFileVersion, NStr("en = 'Only the author can delete the file version.'"),
+				NStr("en = 'Only the author can delete the file.'"));
 		EndIf;
 		DeletionResult.Insert(FileOrVersion, Result);
 
@@ -3091,7 +3091,7 @@ Procedure ResetScanLogDirectoryParameters(ClientID) Export
 	StructuresArray.Add(FilesOperationsInternal.ScanningSettings("UseScanLogDirectory",
 		False, ClientID));
 	
-	CommonServerCall.CommonSettingsStorageSaveArray(StructuresArray, True);
+	Common.CommonSettingsStorageSaveArray(StructuresArray, True);
 		
 EndProcedure
 
@@ -3104,7 +3104,7 @@ EndProcedure
 Function TechnicalInformation() Export
 
 	Result = New Structure;
-	ScanLogEvent = NStr("en = 'Scan images';", Common.DefaultLanguageCode());
+	ScanLogEvent = NStr("en = 'Scan images'", Common.DefaultLanguageCode());
 
 	FilterEvents = New Array;
 	FilterEvents.Add(ScanLogEvent + "." + "EnumDevices.Start");
@@ -3141,14 +3141,14 @@ Function TechnicalInformation() Export
 	
 	Result.Insert("TechnicalInfoOnExtensionsAndSubsystemsVersions",
 		StandardSubsystemsServer.TechnicalInfoOnExtensionsAndSubsystemsVersions());
-	Result.Insert("NameOfLogFile", CommonServerCall.CommonSettingsStorageLoad(
+	Result.Insert("NameOfLogFile", Common.CommonSettingsStorageLoad(
 		"ScanAddIn", "NameOfLogFile"));
 	Return Result;
 EndFunction
 
 Procedure SetScanLogStartParameters(NameOfLogFile) Export
-	CommonServerCall.CommonSettingsStorageSave("ScanAddIn", "NameOfLogFile", NameOfLogFile);
-	CommonServerCall.CommonSettingsStorageSave("ScanAddIn",
+	Common.CommonSettingsStorageSave("ScanAddIn", "NameOfLogFile", NameOfLogFile);
+	Common.CommonSettingsStorageSave("ScanAddIn",
 		"ScanLogStartDate", CurrentSessionDate());
 EndProcedure
 

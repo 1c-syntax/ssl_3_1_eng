@@ -98,18 +98,18 @@ Procedure ListOnGetDataAtServer(TagName, Settings, Rows)
 		PossibleReason = "";
 		If ValueIsFilled(Selection.BusinessCalendar) Then
 			If Not ValueIsFilled(Selection.BusinessCalendarFillDate) Then
-				PossibleReason = NStr("en = 'The business calendar is blank.';");
+				PossibleReason = NStr("en = 'The business calendar is blank.'");
 			Else
 				If Selection.BusinessCalendarFillDate < RequiredFillingDate Then
-					PossibleReason = NStr("en = 'The business calendar for the next calendar year is blank.';");
+					PossibleReason = NStr("en = 'The business calendar for the next calendar year is blank.'");
 				EndIf;
 			EndIf;
 		Else
 			If Not ValueIsFilled(Selection.EndDate) Then
-				PossibleReason = NStr("en = 'The schedule for the next calendar year was not filled in.';");
+				PossibleReason = NStr("en = 'The schedule for the next calendar year was not filled in.'");
 			Else
 				If Selection.EndDate < RequiredFillingDate Then
-					PossibleReason = NStr("en = 'The schedule period is limited (see the ""End date"" field).';")
+					PossibleReason = NStr("en = 'The schedule period is limited (see the ""End date"" field).'")
 				EndIf;
 			EndIf;
 		EndIf;

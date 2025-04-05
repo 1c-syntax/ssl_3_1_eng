@@ -1447,7 +1447,7 @@ to display in value edit forms. </v8:content>
 																		<Title>
 																			<v8:item>
 																				<v8:lang>en</v8:lang>
-																				<v8:content>Values edit context menu</v8:content>
+																				<v8:content>Values Editing context menu</v8:content>
 																			</v8:item>
 																		</Title>
 																		<ExtendedTooltip name="ValuesEditingContextMenuExtendedTooltip" id="134"/>
@@ -1476,7 +1476,7 @@ to display in value edit forms. </v8:content>
 																				<Title>
 																					<v8:item>
 																						<v8:lang>en</v8:lang>
-																						<v8:content>Values context menu standard commands</v8:content>
+																						<v8:content>Values Context menu standard commands</v8:content>
 																					</v8:item>
 																				</Title>
 																				<CommandSource>Item.Values</CommandSource>
@@ -1493,7 +1493,7 @@ to display in value edit forms. </v8:content>
 																		<Title>
 																			<v8:item>
 																				<v8:lang>en</v8:lang>
-																				<v8:content>Values edit command bar</v8:content>
+																				<v8:content>Values Editing toolbar</v8:content>
 																			</v8:item>
 																		</Title>
 																		<ExtendedTooltip name="ValuesEditingCommandBarExtendedTooltip" id="140"/>

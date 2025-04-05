@@ -45,16 +45,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	GuideRefVisibility = URL <> "";
 	
 	If Parameters.ShowNeedHelp Then
-		Items.Help.Visible                     = Parameters.ShowInstruction;
 		Items.FormOpenApplicationsSettings.Visible = Parameters.ShowOpenApplicationsSettings;
 		Items.FormInstallExtension.Visible      = Parameters.ShowExtensionInstallation;
 		ErrorDescription = Parameters.ErrorDescription;
-	EndIf;
-	
-	If Items.Help.Visible Then
-		QuestionIsAvailableInSupport = Common.SubsystemExists("OnlineUserSupport.MessagesToTechSupportService");
-		Items.QuestionInSupport.Visible				 = QuestionIsAvailableInSupport;
-		Items.DecorationContactSupport.Visible = Not QuestionIsAvailableInSupport;
 	EndIf;
 	
 	Items.InstructionClient.Visible = GuideRefVisibility And Not IsBlankString(ErrorTextClient);
@@ -68,6 +61,25 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Else
 		Items.AdditionalLink.Visible = False;
 	EndIf;
+	
+	// 
+	If Common.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+		
+		ModuleForContactingTechnicalSupportService = Common.CommonModule(
+			"ContactingTechnicalSupportInternal");
+		
+		ModuleForContactingTechnicalSupportService.OnCreateAtServer(ThisObject);
+		
+		If Parameters.ShowInstruction Then
+			ModuleForContactingTechnicalSupportService.ShowHelpNeededSection(Items);
+		Else
+			ModuleForContactingTechnicalSupportService.HideHelpNeededSection(Items);
+		EndIf;
+		
+	Else
+		Items.AssistanceRequiredGroup.Visible = False;
+	EndIf;
+	// End StandardSubsystems.ContactingTechnicalSupport
 	
 EndProcedure
 
@@ -178,8 +190,9 @@ Procedure QuestionInSupport(Command)
 EndProcedure
 
 &AtClient
-Procedure DownloadTechnicalInfo(Command)
+Procedure InformationToSendToSupport(Command)
 	
+	Items.AssistanceRequiredGroup.Hide();
 	ExportTechnicalInfo(True);
 	
 EndProcedure
@@ -190,11 +203,6 @@ EndProcedure
 
 &AtClient
 Procedure ExportTechnicalInfo(ExportArchive)
-
-	If ExportArchive Then
-		Items.DownloadTechnicalInfo.Enabled = False;
-		Items.DecorationPictureGeneratingTechnicalInfo.Visible = True;
-	EndIf;
 	
 	FilesDetails = New Array;
 	ErrorsText = "";
@@ -212,7 +220,7 @@ Procedure ExportTechnicalInfo(ExportArchive)
 	ElsIf ValueIsFilled(ErrorTextServer) Then
 		MessageSubject1 = MessageSubject1(ErrorTextServer);
 	Else
-		MessageSubject1 = NStr("en = 'Technical details about the issue';");
+		MessageSubject1 = NStr("en = 'Technical details about the issue'");
 	EndIf;
 	
 	Array = New Array;
@@ -226,11 +234,11 @@ Procedure ExportTechnicalInfo(ExportArchive)
 		Array.Add(ErrorText);
 	EndIf;
 	If ValueIsFilled(ErrorTextClient) Then
-		Array.Add(NStr("en = 'On client:';"));
+		Array.Add(NStr("en = 'On client:'"));
 		Array.Add(ErrorTextClient);
 	EndIf;
 	If ValueIsFilled(ErrorTextServer) Then
-		Array.Add(NStr("en = 'On server:';"));
+		Array.Add(NStr("en = 'On server:'"));
 		Array.Add(ErrorTextServer);
 	EndIf;
 	
@@ -238,20 +246,12 @@ Procedure ExportTechnicalInfo(ExportArchive)
 	
 	If ExportArchive Then
 		DigitalSignatureInternalClient.GenerateTechnicalInformation(
-			ErrorsText, Undefined, New CallbackDescription("AfterTechnicalInfoExported", ThisObject), FilesDetails);
+			ErrorsText, Undefined, , FilesDetails);
 	Else
 		DigitalSignatureInternalClient.GenerateTechnicalInformation(
 			ErrorsText, New Structure("Subject, Message", MessageSubject1), , FilesDetails);
 	EndIf;
 	
-EndProcedure
-
-&AtClient
-Procedure AfterTechnicalInfoExported(Result, Context) Export
-	
-	Items.DownloadTechnicalInfo.Enabled = True;
-	Items.DecorationPictureGeneratingTechnicalInfo.Visible = False;
-
 EndProcedure
 
 &AtServer
@@ -264,6 +264,7 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 		ReasonItemText = Items.ReasonsServerText;
 		ItemDecisionText = Items.DecisionsServerText;
 		ReasonsAndDecisionsGroup = Items.PossibleReasonsAndSolutionsServer;
+		GroupTechnicalDetails = Items.TechnicalDetailsServer;
 	ElsIf ErrorLocation = "Client" Then
 		ItemError = Items.ErrorClient;
 		ErrorTextElement = Items.ErrorTextClient;
@@ -271,6 +272,7 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 		ReasonItemText = Items.ReasonsClientText;
 		ItemDecisionText = Items.DecisionsClientText;
 		ReasonsAndDecisionsGroup = Items.PossibleReasonsAndSolutionsClient;
+		GroupTechnicalDetails = Items.TechnicalDetailsClient;
 		Items.TitleClient.Visible = TwoMistakes;
 	Else
 		ItemError = Items.Error;
@@ -279,6 +281,7 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 		ReasonItemText = Items.ReasonsText;
 		ItemDecisionText = Items.SolutionsText;
 		ReasonsAndDecisionsGroup = Items.PossibleReasonsAndSolutions;
+		GroupTechnicalDetails = Items.TechnicalDetails;
 	EndIf;
 	
 	ItemError.Visible = Not IsBlankString(ErrorText);
@@ -312,11 +315,8 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 		IsKnownError = ClassifierError <> Undefined;
 		
 		ReasonsAndDecisionsGroup.Visible = IsKnownError;
-			
+		
 		If IsKnownError Then
-			
-			ErrorTextElement.TitleLocation = FormItemTitleLocation.Top;
-			
 			If ValueIsFilled(ClassifierError.RemedyActions) Then
 				ClassifierError = DigitalSignatureInternal.SupplementErrorClassifierSolutionWithDetails(
 					ClassifierError, DataToSupplement, ErrorLocation);
@@ -349,12 +349,13 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 			Else
 				ErrorAnchor = ClassifierError.Ref;
 			EndIf;
+			
 		Else
-			ErrorTextElement.TitleLocation = FormItemTitleLocation.None;
+			GroupTechnicalDetails.Show();
 		EndIf;
 		
 		CommonClientServer.SetFormItemProperty(Items,
-				InstructionItem.Name, "Title", NStr("en = 'Finding solution…';"));
+				InstructionItem.Name, "Title", NStr("en = 'Finding solution…'"));
 		
 		RequiredNumberOfRows = 0;
 		MarginWidth = Int(?(Width < 20, 20, Width) * 1.4);

@@ -16,7 +16,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Not Parameters.Property("ClientID") 
 		Or Not Parameters.Property("ClientSecret") Then
 		
-		Raise NStr("en = 'This is a dependent form and opens from a different form.';", 
+		Raise NStr("en = 'This is a dependent form and opens from a different form.'", 
 			Common.DefaultLanguageCode());
 		
 	EndIf;

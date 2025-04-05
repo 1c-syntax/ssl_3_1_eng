@@ -23,7 +23,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	If Parameters.FileOwner = Undefined Then
 		Raise NStr("en = 'You can view the list of attachments
-		                             |only in the owner object form.';");
+		                             |only in the owner object form.'");
 	EndIf;
 	
 	OwnerType = TypeOf(Parameters.FileOwner);
@@ -62,7 +62,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Parameters.ChoiceMode Then
 		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, "SelectionPick");
 		WindowOpeningMode = FormWindowOpeningMode.LockOwnerWindow;
-		Title = NStr("en = 'Select attachment';");
+		Title = NStr("en = 'Select attachment'");
 	Else
 		Items.List.ChoiceMode = False;
 	EndIf;
@@ -164,7 +164,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	If Common.IsMobileClient() Then
 		Items.AddSubmenu.Representation = ButtonRepresentation.Picture;
-		Items.AddFileFromScanner.Title = NStr("en = 'From device camera…';");
+		Items.AddFileFromScanner.Title = NStr("en = 'From device camera…'");
 	EndIf;
 	
 	FilesOperationsOverridable.OnCreateFilesListForm(ThisObject);
@@ -567,13 +567,13 @@ Procedure SetDeletionMark(Command)
 	CurrentData = CurrentData();
 	If SelectedRows.Count() = 1 Then
 		QuestionTemplate = ?(CurrentData.DeletionMark,
-			NStr("en = 'Do you want to clear the deletion mark from ""%1""?';"),
-			NStr("en = 'Do you want to mark ""%1"" for deletion?';"));
+			NStr("en = 'Do you want to clear the deletion mark from ""%1""?'"),
+			NStr("en = 'Do you want to mark ""%1"" for deletion?'"));
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(QuestionTemplate, CurrentData.Description);
 	Else
 		QueryText = ?(CurrentData.DeletionMark,
-			NStr("en = 'Do you want to clear the deletion mark from the selected files?';"),
-			NStr("en = 'Do you want to mark the selected files for deletion?';"));
+			NStr("en = 'Do you want to clear the deletion mark from the selected files?'"),
+			NStr("en = 'Do you want to mark the selected files for deletion?'"));
 	EndIf;
 	AdditionalParameters = New Structure("Files", SelectedRows);
 	Notification = New CallbackDescription("SetDeletionMarkCompletion", ThisObject, AdditionalParameters);
@@ -683,7 +683,7 @@ EndProcedure
 Procedure ImportFiles(Command)
 #If WebClient Then
 		WarningText =  NStr("en = 'The web client does not support file upload.
-		                                  |Please use the ""Create"" button in the file list.';");
+		                                  |Please use the ""Create"" button in the file list.'");
 		ShowMessageBox(, WarningText);
 		Return;
 #EndIf
@@ -720,16 +720,16 @@ Procedure ImportFolder(Command)
 	
 #If WebClient Then
 		WarningText = NStr("en = 'The web client does not support folder upload.
-			                             |Please use the ""Create"" button in the file list.';");
+			                             |Please use the ""Create"" button in the file list.'");
 		ShowMessageBox(, WarningText);
 		Return;
 #EndIf
 	
 	OpenFileDialog = New FileDialog(FileDialogMode.ChooseDirectory);
 	OpenFileDialog.FullFileName = "";
-	OpenFileDialog.Filter = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
+	OpenFileDialog.Filter = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1'"), GetAllFilesMask());
 	OpenFileDialog.Multiselect = False;
-	OpenFileDialog.Title = NStr("en = 'Select directory';");
+	OpenFileDialog.Title = NStr("en = 'Select directory'");
 	If Not OpenFileDialog.Choose() Then
 		Return;
 	EndIf;
@@ -1878,13 +1878,13 @@ Procedure UpdatePreview1()
 		Except
 			// If the file does not exist, an exception will be called.
 			FileDataURL         = Undefined;
-			NonselectedPictureText = NStr("en = 'Preview is not available. Reason:';") + Chars.LF + ErrorProcessing.BriefErrorDescription(ErrorInfo());
+			NonselectedPictureText = NStr("en = 'Preview is not available. Reason:'") + Chars.LF + ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		EndTry;
 		
 	Else
 		
 		FileDataURL         = Undefined;
-		NonselectedPictureText = NStr("en = 'No data to preview';");
+		NonselectedPictureText = NStr("en = 'No data to preview'");
 		
 	EndIf;
 	
@@ -1909,7 +1909,7 @@ Procedure UpdateCloudServiceNote()
 			NoteVisibility = True;
 			
 			Items.DecorationNote.Title = StringFunctions.FormattedString(
-				NStr("en = 'The files are stored in cloud service <a href=""%1"">%2</a>.';"),
+				NStr("en = 'The files are stored in cloud service <a href=""%1"">%2</a>.'"),
 				SynchronizationInfo.FolderAddressInCloudService, SynchronizationInfo.AccountDescription1);
 			
 			Items.DecorationPictureSyncStatus.Visible = Not SynchronizationInfo.IsSynchronized;
@@ -1917,7 +1917,7 @@ Procedure UpdateCloudServiceNote()
 				ToolTipRepresentation.None, ToolTipRepresentation.Button);
 			
 			Items.DecorationSyncDate.Title = StringFunctions.FormattedString(
-				NStr("en = 'Synchronized on: <a href=""%1"">%2</a>';"),
+				NStr("en = 'Synchronized on: <a href=""%1"">%2</a>'"),
 				"OpenJournal", Format(SynchronizationInfo.SynchronizationDate, "DLF=DD"));
 			
 		EndIf;

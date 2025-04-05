@@ -33,7 +33,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// СтандартныеПодсистемы.УправлениеДоступом
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -103,7 +103,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	While Not AllFilesProcessed Do
 
 		Query.SetParameter("Ref", Ref);
-		//@skip-check query-in-loop - Batch data registration for processing
+		//@skip-check query-in-loop
 		VersionsForProcessing = Query.Execute().Unload().UnloadColumn("Ref");
 		InfobaseUpdate.MarkForProcessing(Parameters, VersionsForProcessing);
 		
@@ -137,7 +137,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) the files: %1';"), 
+			NStr("en = 'Couldn''t process (skipped) the files: %1'"), 
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	EndIf;
@@ -145,7 +145,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	WriteLogEvent(InfobaseUpdate.EventLogEvent(), 
 		EventLogLevel.Information, , ,
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Yet another batch of files is processed: %1';"),
+			NStr("en = 'Yet another batch of files is processed: %1'"),
 			ObjectsProcessed));
 	Parameters.ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue, "Catalog.FilesVersions");
 
@@ -171,7 +171,7 @@ Function ProcessFileVersion(VersionRef)
 		VersionObject = Undefined;
 		ItIsRequiredToRecord = False;
 		
-		// @skip-check query-in-loop - Порционная обработка большого объема данных.
+		// @skip-check query-in-loop
 		PathToFile = Common.ObjectAttributeValue(VersionRef, "PathToFile");
 		If StrStartsWith(PathToFile, "/") Or StrStartsWith(PathToFile, "\") Then
 			NewFilePath = Mid(PathToFile, 2);

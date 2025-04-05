@@ -168,7 +168,7 @@ Procedure ExecuteCommandInBackground(Val CommandID, Val CommandParameters, Val H
 		AccompanyingText1 = TrimAll(Title + Chars.LF + AccompanyingText1);
 	EndIf;
 	If Not ValueIsFilled(AccompanyingText1) Then
-		AccompanyingText1 = NStr("en = 'Command running.';");
+		AccompanyingText1 = NStr("en = 'Command running.'");
 	EndIf;
 	
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(Form);
@@ -263,10 +263,10 @@ Procedure ExecuteAssignablePrintCommand(CommandToExecute, Form) Export
 	
 EndProcedure
 
-// 
+// Opens a list of commands of additional reports and data processors for the given objects.
 //
 // Parameters:
-//   Objects - Array of AnyRef - 
+//   Objects - Array of AnyRef - Objects targeted by the command.
 //   ExecutionParameters - Structure:
 //       * CommandDetails - Structure:
 //          ** Id - String - Command ID.
@@ -353,7 +353,7 @@ Function AdditionalReportDataProcessorForm(AdditionalReportDataProcessor, IsRepo
 	If IsBlankString(FormName) Then
 		Return Undefined;
 	EndIf;
-	Return GetForm(FormName, FormParameters, OwnerForm); // ACC:65 Для обратной совместимости: вызов клиентской процедуры обработки.
+	Return GetForm(FormName, FormParameters, OwnerForm); // ACC:65 - Intended for backward compatibility: Invocation of a client data processor procedure.
 
 EndFunction
 
@@ -371,7 +371,7 @@ EndFunction
 
 Procedure ShowNotificationOnCommandExecution(CommandToExecute)
 	If CommandToExecute.ShouldShowUserNotification Then
-		ShowUserNotification(NStr("en = 'Command running…';"), , CommandToExecute.Presentation);
+		ShowUserNotification(NStr("en = 'Command running…'"), , CommandToExecute.Presentation);
 	EndIf;
 EndProcedure
 
@@ -388,12 +388,12 @@ Procedure OpenDataProcessorForm(CommandToExecute, Form, RelatedObjects) Export
 	
 #If ThickClientOrdinaryApplication Then
 	ExternalDataProcessor = AdditionalReportsAndDataProcessorsServerCall.ExternalDataProcessorObject(CommandToExecute.Ref);
-	DataProcessorForm = ExternalDataProcessor.GetForm(, Form); // ACC:65 Для улучшения диагностики.
+	DataProcessorForm = ExternalDataProcessor.GetForm(, Form); // ACC:65 - Improves diagnostics.
 	If DataProcessorForm = Undefined Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = '%1 report or data processor is missing the main form,
 			|or the main form does not support standard applications.
-			|Command %2 failed.';"),
+			|Command %2 failed.'"),
 			String(CommandToExecute.Ref),
 			CommandToExecute.Presentation);
 	EndIf;
@@ -420,12 +420,12 @@ Procedure ExecuteDataProcessorClientMethod(CommandToExecute, Form, RelatedObject
 	
 #If ThickClientOrdinaryApplication Then
 	ExternalDataProcessor = AdditionalReportsAndDataProcessorsServerCall.ExternalDataProcessorObject(CommandToExecute.Ref);
-	DataProcessorForm = ExternalDataProcessor.GetForm(, Form); // ACC:65 Для улучшения диагностики.
+	DataProcessorForm = ExternalDataProcessor.GetForm(, Form); // ACC:65 - Improves diagnostics.
 	If DataProcessorForm = Undefined Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = '%1 report or data processor is missing the main form,
 			|or the main form does not support standard applications.
-			|Command %2 failed.';"),
+			|Command %2 failed.'"),
 			String(CommandToExecute.Ref),
 			CommandToExecute.Presentation);
 	EndIf;
@@ -516,9 +516,9 @@ Procedure ExportToFile(ExportingParameters) Export
 	EndIf;
 	
 	SavingParameters = FileSystemClient.FileSavingParameters();
-	SavingParameters.SuggestionText = NStr("en = 'It is recommended that you install 1C:Enterprise Extension before you save the external report or data processor to a file.';");
+	SavingParameters.SuggestionText = NStr("en = 'It is recommended that you install 1C:Enterprise Extension before you save the external report or data processor to a file.'");
 	SavingParameters.Dialog.Filter = AdditionalReportsAndDataProcessorsClientServer.SelectingAndSavingDialogFilter();
-	SavingParameters.Dialog.Title = NStr("en = 'Select file';");
+	SavingParameters.Dialog.Title = NStr("en = 'Select file'");
 	SavingParameters.Dialog.FilterIndex = ?(ExportingParameters.IsReport, 1, 2);
 	SavingParameters.Dialog.FullFileName = ExportingParameters.FileName;
 	

@@ -14,7 +14,7 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Parameters.FolderForAdding = Undefined Then
-		Raise NStr("en = 'The data processor cannot be opened manually.';");
+		Raise NStr("en = 'The data processor cannot be opened manually.'");
 	EndIf;
 	
 	FilesGroup = Parameters.FilesGroup;
@@ -33,8 +33,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If Common.IsMobileClient() Then
-		Title = NStr("en = 'Import files from device';");
-		Items.DeleteAfterAdding.Title = NStr("en = 'Delete files from device after import completed';");
+		Title = NStr("en = 'Import files from device'");
+		Items.DeleteAfterAdding.Title = NStr("en = 'Delete files from device after import completed'");
 	EndIf;
 
 EndProcedure
@@ -73,7 +73,7 @@ Procedure AddExecute()
 	
 	If SelectedFiles.Count() = 0 Then
 		CommonClient.MessageToUser(
-			NStr("en = 'No files to add.';"), , "SelectedFiles");
+			NStr("en = 'No files to add.'"), , "SelectedFiles");
 		FieldsNotFilled = True;
 	EndIf;
 	
@@ -185,10 +185,10 @@ Procedure SelectFilesExecuteAfterInstallExtension(ExtensionInstalled, ExecutionP
 	
 	OpenFileDialog = New FileDialog(Mode);
 	OpenFileDialog.FullFileName = "";
-	Filter = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
+	Filter = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1'"), GetAllFilesMask());
 	OpenFileDialog.Filter = Filter;
 	OpenFileDialog.Multiselect = True;
-	OpenFileDialog.Title = NStr("en = 'Select files';");
+	OpenFileDialog.Title = NStr("en = 'Select files'");
 	If OpenFileDialog.Choose() Then
 		SelectedFiles.Clear();
 		

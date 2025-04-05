@@ -18,8 +18,8 @@
 //  HasChanges - Boolean - (return value) - if recorded,
 //                  True is set, otherwise, it does not change.
 //
-//  ShouldUpdateIgnoringUsage - Boolean - 
-//                  
+//  ShouldUpdateIgnoringUsage - Boolean - If set to "True", then update even if
+//                  the "LimitAccessAtRecordLevelUniversally" constant is disabled.
 //
 Procedure UpdateRegisterData(HasChanges = Undefined, ShouldUpdateIgnoringUsage = False) Export
 	
@@ -69,7 +69,7 @@ Procedure UpdateRegisterDataInBackground(HasChanges)
 	
 	CurrentSession = GetCurrentInfoBaseSession();
 	JobDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Access management: Update access restriction parameters (from session %1 started on %2)';",
+		NStr("en = 'Access management: Update access restriction parameters (from session %1 started on %2)'",
 			Common.DefaultLanguageCode()),
 		Format(CurrentSession.SessionNumber, "NG="),
 		Format(CurrentSession.SessionStarted, "DLF=DT"));
@@ -81,22 +81,22 @@ Procedure UpdateRegisterDataInBackground(HasChanges)
 	
 	ProcedureName = "InformationRegisters.AccessRestrictionParameters.HandlerForLongTermUpdateOperationInBackground";
 	TimeConsumingOperation = TimeConsumingOperations.ExecuteInBackground(ProcedureName, Undefined, OperationParametersList);
-	ErrorTitle = NStr("en = 'Cannot update access restriction parameters due to:';") + Chars.LF;
+	ErrorTitle = NStr("en = 'Cannot update access restriction parameters due to:'") + Chars.LF;
 	
 	If TimeConsumingOperation.Status <> "Completed2" Then
 		If TimeConsumingOperation.Status = "Error" Then
 			ErrorText = TimeConsumingOperation.DetailErrorDescription;
 		ElsIf TimeConsumingOperation.Status = "Canceled" Then
-			ErrorText = NStr("en = 'The background job is canceled.';");
+			ErrorText = NStr("en = 'The background job is canceled.'");
 		Else
-			ErrorText = NStr("en = 'Background job error';");
+			ErrorText = NStr("en = 'Background job error'");
 		EndIf;
 		Raise ErrorTitle + ErrorText;
 	EndIf;
 	
 	Result = GetFromTempStorage(TimeConsumingOperation.ResultAddress);
 	If TypeOf(Result) <> Type("Structure") Then
-		ErrorText = NStr("en = 'Background job did not return the result';");
+		ErrorText = NStr("en = 'Background job did not return the result'");
 		Raise ErrorTitle + ErrorText;
 	EndIf;
 	

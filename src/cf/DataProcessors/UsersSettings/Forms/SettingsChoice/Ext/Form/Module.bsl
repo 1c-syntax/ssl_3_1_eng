@@ -238,7 +238,7 @@ Function UpdatingSettingsList()
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.WaitCompletion = 0; // Run immediately.
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update user settings';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update user settings'");
 	
 	TimeConsumingOperation = TimeConsumingOperations.ExecuteInBackground("UsersInternal.FillSettingsLists",
 		TimeConsumingOperationParameters, ExecutionParameters);
@@ -349,9 +349,9 @@ Procedure RefreshPageTitle(SettingsCount)
 		ReportSettingsCount = ReportSettingsCount + SettingsCount;
 		
 		If ReportSettingsCount = 0 Then
-			TitleText = NStr("en = 'Report settings';");
+			TitleText = NStr("en = 'Report settings'");
 		Else
-			TitleText = NStr("en = 'Report settings (%1)';");
+			TitleText = NStr("en = 'Report settings (%1)'");
 			TitleText = StringFunctionsClientServer.SubstituteParametersToString(TitleText, ReportSettingsCount);
 		EndIf;
 		
@@ -361,9 +361,9 @@ Procedure RefreshPageTitle(SettingsCount)
 		
 		InterfaceSettingsCount = InterfaceSettingsCount + SettingsCount;
 		If InterfaceSettingsCount = 0 Then
-			TitleText = NStr("en = 'Interface settings';");
+			TitleText = NStr("en = 'Appearance'");
 		Else
-			TitleText = NStr("en = 'Interface settings (%1)';");
+			TitleText = NStr("en = 'Appearance (%1)'");
 			TitleText = StringFunctionsClientServer.SubstituteParametersToString(TitleText, InterfaceSettingsCount);
 		EndIf;
 		
@@ -373,9 +373,9 @@ Procedure RefreshPageTitle(SettingsCount)
 		
 		OtherSettingsCount = OtherSettingsCount + SettingsCount;
 		If OtherSettingsCount = 0 Then
-			TitleText = NStr("en = 'Other settings';");
+			TitleText = NStr("en = 'Other settings'");
 		Else
-			TitleText = NStr("en = 'Other settings (%1)';");
+			TitleText = NStr("en = 'Other settings (%1)'");
 			TitleText = StringFunctionsClientServer.SubstituteParametersToString(TitleText, OtherSettingsCount);
 		EndIf;
 		
@@ -629,13 +629,13 @@ Procedure ImportMarkValues(ValueTree, MarkedSettings, SettingsType)
 		
 		If SettingsType = "ReportsSettings" Then
 			ReportSettingsCount = MarkedItemCount;
-			Items.ReportSettingsPage.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Report settings (%1)';"), MarkedItemCount);
+			Items.ReportSettingsPage.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Report settings (%1)'"), MarkedItemCount);
 		ElsIf SettingsType = "Interface" Then
 			InterfaceSettingsCount = MarkedItemCount;
-			Items.InterfacePage.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Interface settings (%1)';"), MarkedItemCount);
+			Items.InterfacePage.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Appearance (%1)'"), MarkedItemCount);
 		ElsIf SettingsType = "OtherSettings" Then
 			OtherSettingsCount = MarkedItemCount;
-			Items.OtherSettingsPage.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Other settings (%1)';"), MarkedItemCount);
+			Items.OtherSettingsPage.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Other settings (%1)'"), MarkedItemCount);
 		EndIf;
 		
 	EndIf;

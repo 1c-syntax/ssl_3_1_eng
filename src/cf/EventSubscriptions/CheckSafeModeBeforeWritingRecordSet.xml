@@ -9,7 +9,7 @@
 					<v8:content>Before you start writing, check if the safe mode is on.</v8:content>
 				</v8:item>
 			</Synonym>
-			<Comment/>
+			<Comment>// ACC:1371</Comment>
 			<Source>
 				<v8:Type>cfg:InformationRegisterRecordSet.DeleteDataExchangeTransportSettings</v8:Type>
 				<v8:Type>cfg:InformationRegisterRecordSet.DataExchangeRules</v8:Type>

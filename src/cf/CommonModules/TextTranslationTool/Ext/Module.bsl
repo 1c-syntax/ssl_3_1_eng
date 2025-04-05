@@ -107,15 +107,15 @@ Function TranslateTheTexts(Texts, TranslationLanguage = Undefined, SourceLanguag
 		Try
 			Transfers = TextTranslationServiceModule.TranslateTheTexts(Batch, TranslationLanguage, SourceLanguage);
 		Except
-			WriteLogEvent(NStr("en = 'Translator';", Common.DefaultLanguageCode()), EventLogLevel.Error,
+			WriteLogEvent(NStr("en = 'Translator'", Common.DefaultLanguageCode()), EventLogLevel.Error,
 				Metadata.Enums.TextTranslationServices, Constants.TextTranslationService.Get(), ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				
 			If Users.IsFullUser() Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
 					"en = 'Cannot perform the operation. Reason:
-					|%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+					|%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 			Else
-				ErrorText = NStr("en = 'Cannot perform the operation. Contact the Administrator.';");
+				ErrorText = NStr("en = 'Cannot perform the operation. Contact the Administrator.'");
 			EndIf;
 			
 			Raise ErrorText;
@@ -166,15 +166,15 @@ Function AvailableLanguages() Export
 	Try
 		AvailableLanguages = TextTranslationServiceModule.AvailableLanguages();
 	Except
-		WriteLogEvent(NStr("en = 'Translator';", Common.DefaultLanguageCode()), EventLogLevel.Error,
+		WriteLogEvent(NStr("en = 'Translator'", Common.DefaultLanguageCode()), EventLogLevel.Error,
 			Metadata.Enums.TextTranslationServices, Constants.TextTranslationService.Get(), ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			
 		If Users.IsFullUser() Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
 				"en = 'Cannot perform the operation. Reason:
-				|%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+				|%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		Else
-			ErrorText = NStr("en = 'Cannot perform the operation. Contact the Administrator.';");
+			ErrorText = NStr("en = 'Cannot perform the operation. Contact the Administrator.'");
 		EndIf;
 		
 		Raise ErrorText;
@@ -406,7 +406,7 @@ EndFunction
 Procedure CheckSettings()
 	
 	If ConfigurationIsRequired() Then
-		Raise NStr("en = 'Text translation service settings are not specified.';");
+		Raise NStr("en = 'Text translation service settings are not specified.'");
 	EndIf;
 	
 EndProcedure
@@ -533,7 +533,7 @@ Function SplitTextByDelimiter(Val Text, Val TextPartsMaxSize, Val Separators)
 			If Separators <> "" Then
 				FragmentParts = SplitTextByDelimiter(Particle, TextPartsMaxSize, Separators);
 			Else
-				Raise NStr("en = 'Cannot split the text into parts.';");
+				Raise NStr("en = 'Cannot split the text into parts.'");
 			EndIf;
 			
 			For Each Particle In FragmentParts Do

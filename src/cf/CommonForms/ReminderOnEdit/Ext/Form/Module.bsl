@@ -38,7 +38,7 @@ EndProcedure
 Procedure ContinueExecute(Command)
 	
 	If DontShowAgain = True Then
-		CommonServerCall.CommonSettingsStorageSave(
+		CommonClient.CommonSettingsStorageSave(
 			"ApplicationSettings", "ShowTooltipsOnEditFiles", False,,, True);
 	EndIf;
 	

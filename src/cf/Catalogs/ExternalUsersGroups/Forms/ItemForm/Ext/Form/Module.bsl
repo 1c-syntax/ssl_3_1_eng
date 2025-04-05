@@ -14,7 +14,7 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not UsersInternal.ExternalUsersEmbedded() Then
-		Raise NStr("en = 'This application version does not support external users.';");
+		Raise NStr("en = 'This application version does not support external users.'");
 	EndIf;
 	
 	SetConditionalAppearance();
@@ -179,24 +179,24 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 				CommonClientServer.AddUserError(Errors,
 					"Roles[%1].RolesSynonym",
 					StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Role ""%1"" does not exist.';"), 
+						NStr("en = 'Role ""%1"" does not exist.'"), 
 						Item.Synonym),
 					"Roles",
 					TreeItems.IndexOf(Item),
 					StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Non-existent role ""%1"" in line %2.';"), 
+						NStr("en = 'Non-existent role ""%1"" in line %2.'"), 
 						Item.Synonym, "%1"));
 			EndIf;
 			If Item.IsUnavailableRole Then
 				CommonClientServer.AddUserError(Errors,
 					"Roles[%1].RolesSynonym",
 					StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Role ""%1"" is unavailable to external users.';"), 
+						NStr("en = 'Role ""%1"" is unavailable to external users.'"), 
 						Item.Synonym),
 					"Roles",
 					TreeItems.IndexOf(Item),
 					StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Role ""%1"" in line %2 is unavailable to external users.';"), 
+						NStr("en = 'Role ""%1"" in line %2 is unavailable to external users.'"), 
 						Item.Synonym, "%1"));
 			EndIf;
 		EndDo;
@@ -267,7 +267,7 @@ EndProcedure
 #Region FormTableItemsEventHandlersRoles
 
 ////////////////////////////////////////////////////////////////////////////////
-// Для работы интерфейса ролей.
+// 
 
 &AtClient
 Procedure RolesCheckOnChange(Item)
@@ -320,7 +320,7 @@ Procedure ContentDrag(Item, DragParameters, StandardProcessing, String, Field)
 	UserMessage = MoveUserToGroup(DragParameters.Value, Object.Ref);
 	If UserMessage <> Undefined Then
 		ShowUserNotification(
-			NStr("en = 'Move users';"), , UserMessage, PictureLib.DialogInformation);
+			NStr("en = 'Move users'"), , UserMessage, PictureLib.DialogInformation);
 	EndIf;
 	
 EndProcedure
@@ -368,7 +368,7 @@ EndProcedure
 Procedure SelectPurpose(Command)
 	
 	NotifyDescription = New CallbackDescription("AfterAssignmentChoice", ThisObject);
-	UsersInternalClient.SelectPurpose(ThisObject, NStr("en = 'Select users type';"), False, False, NotifyDescription);
+	UsersInternalClient.SelectPurpose(ThisObject, NStr("en = 'Select users type'"), False, False, NotifyDescription);
 	
 EndProcedure
 
@@ -663,7 +663,7 @@ EndProcedure
 Function ExtendedPickFormParameters()
 	
 	PickingParameters = UsersInternal.NewParametersOfExtendedPickForm();
-	PickingParameters.PickFormHeader = NStr("en = 'Pick external user group members';");
+	PickingParameters.PickFormHeader = NStr("en = 'Pick external user group members'");
 	
 	PickingParameters.SelectedUsers =
 		Object.Content.Unload(, "ExternalUser").UnloadColumn("ExternalUser");

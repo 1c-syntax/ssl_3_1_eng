@@ -68,8 +68,8 @@ Procedure SelectedUsersBeforeAddRow(Item, Cancel, Copy, Parent, IsFolder, Parame
 	
 	PickingParameters.Insert("SelectedUsers", Selected_);
 	PickingParameters.Insert("PickFormHeader",
-		NStr("en = 'Select users who will see the certificate in the choice list';"));
-	PickingParameters.Insert("PickingCompletionButtonTitle", NStr("en = 'Select';"));
+		NStr("en = 'Select users who will see the certificate in the choice list'"));
+	PickingParameters.Insert("PickingCompletionButtonTitle", NStr("en = 'Select'"));
 	
 	Handler = New CallbackDescription("Add_Users", ThisObject);
 	

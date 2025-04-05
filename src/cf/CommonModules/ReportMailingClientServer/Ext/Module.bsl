@@ -52,11 +52,11 @@ EndFunction
 Function SubjectTemplate(AllParametersOfFilesAndEmailText = Undefined) Export
 	If AllParametersOfFilesAndEmailText <> Undefined Then 
 		Return StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 dated %2';"), "[" + AllParametersOfFilesAndEmailText.MailingDescription + "]",
+			NStr("en = '%1 dated %2'"), "[" + AllParametersOfFilesAndEmailText.MailingDescription + "]",
 			"[" + AllParametersOfFilesAndEmailText.ExecutionDate + "(DLF='D')]");
 	Else
 		Return StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 dated %2';"), "[MailingDescription]", "[ExecutionDate(DLF='D')]");
+			NStr("en = '%1 dated %2'"), "[MailingDescription]", "[ExecutionDate(DLF='D')]");
 	EndIf;
 EndFunction
 
@@ -64,11 +64,11 @@ EndFunction
 Function ArchivePatternName(AllParametersOfFilesAndEmailText = Undefined) Export
 	If AllParametersOfFilesAndEmailText <> Undefined Then
 		Return StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 dated %2';"), "[" + AllParametersOfFilesAndEmailText.MailingDescription + "]",
+			NStr("en = '%1 dated %2'"), "[" + AllParametersOfFilesAndEmailText.MailingDescription + "]",
 			"[" + AllParametersOfFilesAndEmailText.ExecutionDate + "(DF='yyyy-MM-dd')]");
 	Else
 		Return StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 dated %2';"), "[MailingDescription]", "[ExecutionDate(DF='yyyy-MM-dd')]");
+			NStr("en = '%1 dated %2'"), "[MailingDescription]", "[ExecutionDate(DF='yyyy-MM-dd')]");
 	EndIf;
 EndFunction
 

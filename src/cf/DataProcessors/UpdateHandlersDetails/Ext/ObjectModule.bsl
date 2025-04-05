@@ -1126,7 +1126,7 @@ Function TempTablesQuery()
 	Query = New Query;
 	Query.TempTablesManager = New TempTablesManager;
 	Query.Text = TempTablesQueryText();
-	Query.SetParameter("NoIssues", NStr("en = 'No issues';"));
+	Query.SetParameter("NoIssues", NStr("en = 'No issues'"));
 	Query.SetParameter("StandardCheckProcedure", "InfobaseUpdate.DataUpdatedForNewApplicationVersion");
 	Query.SetParameter("Before", "Before");
 	Query.SetParameter("After", "After");
@@ -1577,7 +1577,7 @@ Procedure ShiftRecursivelyLinkedHandlers(HandlersQueue, HandlersAvailabilityInQu
 			EndIf;
 			
 		Else
-			ExceptionText = NStr("en = 'An error occurred while building the queue.';");
+			ExceptionText = NStr("en = 'Failed to build a queue of deferred update handlers'");
 			Raise ExceptionText;
 		EndIf;
 	
@@ -1639,9 +1639,9 @@ Function HasQueueBuildingErrors(Query, ReportErrors = True)
 	
 	Selection = QueryResult.Select();
 	While Selection.Next() Do
-		MessageText = NStr("en = 'An error occurred in the queue building algorithm: the %Handler1% handler is to be placed in queue 1.';");
+		MessageText = NStr("en = 'An error occurred in the queue building algorithm: the %Handler1% handler is to be placed in queue 1.'");
 		If Selection.Issue1 = "IssueInHandlersOrder" Then
-			MessageText = NStr("en = 'An error occurred in the queue building algorithm: the %Handler1% and %Handler2% handlers are placed in the incorrect order.';");
+			MessageText = NStr("en = 'An error occurred in the queue building algorithm: the %Handler1% and %Handler2% handlers are placed in the incorrect order.'");
 			MessageText = StrReplace(MessageText, "%Handler2%", Selection.Handler2);
 		EndIf;
 		MessageText = StrReplace(MessageText, "%Handler1%", Selection.Handler1);
@@ -1688,11 +1688,11 @@ Function CanBuildQueue()
 	EmptyPriorities = Query.Execute().Select();
 	OK1 = EmptyPriorities.Count() = 0;
 	While EmptyPriorities.Next() Do
-		MessageText = NStr("en = 'Operations with the pair of handlers %Handler% - %LinkedHandler% are not completed.';");
-		MessageText = MessageText + Chars.LF + NStr("en = 'Issue status: %QueuingOrder%';");
+		MessageText = NStr("en = 'Operations with the pair of handlers %Handler% - %LinkedHandler% are not completed.'");
+		MessageText = MessageText + Chars.LF + NStr("en = 'Issue status: %QueuingOrder%'");
 		MessageText = StrReplace(MessageText, "%Handler%", EmptyPriorities.Handler1);
 		MessageText = StrReplace(MessageText, "%LinkedHandler%", EmptyPriorities.Handler2);
-		MessageText = StrReplace(MessageText, "%QueuingOrder%", NStr("en = 'Execution priority is not set.';"));
+		MessageText = StrReplace(MessageText, "%QueuingOrder%", NStr("en = 'Execution priority is not set.'"));
 		AddError(EmptyPriorities.Handler1, MessageText);
 	EndDo;
 	
@@ -1702,7 +1702,7 @@ Function CanBuildQueue()
 	For Each Handler In WrongPriorities Do
 		MessageText = NStr("en = 'Readable objects of the %Handler% handler
 		|include objects that are processed by handlers with a lower priority than the current one.
-		|This will cause the current handler to wait for them to complete. Resolve this mismatch.';");
+		|This will cause the current handler to wait for them to complete. Resolve this mismatch.'");
 		MessageText = StrReplace(MessageText, "%Handler%", Handler.ReaderProcedure);
 		AddError(Handler.ReaderProcedure, MessageText);
 	EndDo;
@@ -1775,7 +1775,7 @@ EndFunction
 Procedure OutputErrorMessage(RaiseException = True)
 	
 	If RaiseException Then
-		EventName = NStr("en = 'Build the update handlers queue';", Common.DefaultLanguageCode());
+		EventName = NStr("en = 'Build the update handlers queue'", Common.DefaultLanguageCode());
 		ListOfProblemHandlers = "";
 		For Each Error In Errors Do
 			If Not IsBlankString(Error.Handler) Then
@@ -1802,7 +1802,7 @@ Procedure OutputErrorMessage(RaiseException = True)
 			|To do this, start the application with the ""%1"" startup parameter.
 			|Errors are listed in the event log.
 			|
-			|List of handlers with issues:';");
+			|List of handlers with issues:'");
 		ExceptionText = StrReplace(ExceptionText, "%1", "DisableSystemStartupLogic");
 		Raise ExceptionText + Chars.LF + ListOfProblemHandlers;
 	Else
@@ -1894,7 +1894,7 @@ Function HasHandlersExecutionCycle(TheHandlerBeingChecked = Undefined, Val Handl
 			EndDo;
 			PathText = StrConcat(FullPath, Chars.LF);
 			
-			MessageText = NStr("en = 'An execution order cycle is found:';") + Chars.LF + "%Path%";
+			MessageText = NStr("en = 'An execution order cycle is found:'") + Chars.LF + "%Path%";
 			MessageText = StrReplace(MessageText, "%Path%", PathText);
 			
 			AddError(PathText, MessageText);
@@ -2183,7 +2183,8 @@ Procedure SetQueueNumber(UpdateIterations)
 		
 		Filter = New Structure("ExecutionMode", "Deferred");
 		Filter.Insert("DeferredProcessingQueue", 0);
-		DeferredHandlers = Library.Handlers.FindRows(Filter); // See InfobaseUpdate.NewUpdateHandlerTable()
+		DeferredHandlers = Library.Handlers.FindRows(Filter); // See InfobaseUpdate.NewUpdateHandlerTable
+// ()
 		For Each Handler In DeferredHandlers Do
 			Filter = New Structure;
 			Filter.Insert("Version", Handler.Version);
@@ -2363,5 +2364,5 @@ FillInMetaDataTypePriorities();
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

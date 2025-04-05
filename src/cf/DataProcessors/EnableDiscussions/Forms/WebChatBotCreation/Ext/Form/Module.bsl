@@ -36,7 +36,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				
 			IsIntegrationUsed = IntegrationDetails.Use;
 			If IsIntegrationUsed Then
-				Items.Close.Title = NStr("en = 'Save and close';");
+				Items.Close.Title = NStr("en = 'Save and close'");
 				Items.Disconnect.Visible = True;
 			EndIf;
 
@@ -82,19 +82,19 @@ Procedure PreviewDocumentComplete(Item)
 	UpdatePreviewParameters();
 	
 	PageObject = Items.Preview.Document.defaultView;
-	PageObject.initString("today", 				NStr("en = 'Today';"));
-	PageObject.initString("administrator",		NStr("en = 'Administrator';"));
-	PageObject.initString("text1", 				NStr("en = 'Hi, what can I do for you?';"));
-	PageObject.initString("text2", 				NStr("en = 'Hi, I would like to integrate your service into my website.';"));
-	PageObject.initString("time", 				NStr("en = '14:53';"));
-	PageObject.initString("textareaTooltip", 	NStr("en = 'Enter your message…';"));
-	PageObject.initString("attachFileTooltip", 	NStr("en = 'Attach file';"));
+	PageObject.initString("today", 				NStr("en = 'Today'"));
+	PageObject.initString("administrator",		NStr("en = 'Administrator'"));
+	PageObject.initString("text1", 				NStr("en = 'Hi, what can I do for you?'"));
+	PageObject.initString("text2", 				NStr("en = 'Hi, I would like to integrate your service into my website.'"));
+	PageObject.initString("time", 				NStr("en = '14:53'"));
+	PageObject.initString("textareaTooltip", 	NStr("en = 'Enter your message…'"));
+	PageObject.initString("attachFileTooltip", 	NStr("en = 'Attach file'"));
 	
 	// ACC:1036-off - Domain-specific terminology.
-	PageObject.initString("videoCallTooltip", 	NStr("en = 'Video call';"));
+	PageObject.initString("videoCallTooltip", 	NStr("en = 'Video call'"));
 	// ACC:1036-on
 	
-	PageObject.initString("closeTooltip",		NStr("en = 'Close';"));
+	PageObject.initString("closeTooltip",		NStr("en = 'Close'"));
 	
 EndProcedure
 
@@ -108,7 +108,7 @@ Procedure ExternalParametersOnChange(Item)
 	UpdatePreviewParameters();
 
 	If FormClosing = True Then
-		Items.Close.Title = NStr("en = 'Save and close';");
+		Items.Close.Title = NStr("en = 'Save and close'");
 		IsIntegrationUsed = False;
 	EndIf;
 	
@@ -190,7 +190,7 @@ Procedure ActivateBot(Command)
 	Except
 		ErrorInfo = ErrorInfo();
 		Refinement = CommonClientServer.ExceptionClarification(ErrorInfo, 
-			NStr("en = 'Cannot enable the chat bot due to:';"), True);
+			NStr("en = 'Cannot enable the chat bot due to:'"), True);
 		Raise(Refinement.Text, Refinement.Category,,, ErrorInfo);
 	EndTry;
 	
@@ -199,7 +199,7 @@ Procedure ActivateBot(Command)
 		Return;		
 	EndIf;
 	
-	Items.Close.Title = NStr("en = 'Close';");
+	Items.Close.Title = NStr("en = 'Close'");
 	FormClosing = True;
 	
 EndProcedure
@@ -211,7 +211,7 @@ Procedure Disconnect(Command)
 	Except
 		ErrorInfo = ErrorInfo();
 		Refinement = CommonClientServer.ExceptionClarification(ErrorInfo, 
-			NStr("en = 'Cannot disable the chat bot due to:';"), True);
+			NStr("en = 'Cannot disable the chat bot due to:'"), True);
 		Raise(Refinement.Text, Refinement.Category,,, ErrorInfo);
 	EndTry;
 	Close(True);
@@ -220,7 +220,7 @@ EndProcedure
 &AtClient
 Procedure SaveWebPageFile(Command)
 
-	MessageText = NStr("en = 'To save the file, install 1C:Enterprise Extension.';");
+	MessageText = NStr("en = 'To save the file, install 1C:Enterprise Extension.'");
 	
 	NotifyDescription = New CallbackDescription("SaveWebPageFileFollowUp", ThisObject);
 	FileSystemClient.Attach1CEnterpriseExtension(NotifyDescription, MessageText);
@@ -239,8 +239,8 @@ Async Procedure SaveWebPageFileFollowUp(FileSystemExtensionAttached1, Additional
 	EndIf;  
 
 	FileDialog = New FileDialog(FileDialogMode.Save);
-	FileDialog.Title = NStr("en = 'Save file';");
-	FileDialog.Filter = NStr("en = 'HTML files (*.html)|*.html|All files  (*.*)|*.*';");
+	FileDialog.Title = NStr("en = 'Save file'");
+	FileDialog.Filter = NStr("en = 'HTML files (*.html)|*.html|All files  (*.*)|*.*'");
 	
 	SelectedFiles = Await FileDialog.ChooseAsync();
 	If SelectedFiles = Undefined Then
@@ -255,20 +255,20 @@ Async Procedure SaveWebPageFileFollowUp(FileSystemExtensionAttached1, Additional
 	Except
 		ErrorInfo = ErrorInfo();
 		Refinement = CommonClientServer.ExceptionClarification(ErrorInfo, 
-			NStr("en = 'Couldn''t save the file due to:';"), True);
+			NStr("en = 'Couldn''t save the file due to:'"), True);
 		Raise(Refinement.Text, Refinement.Category,,, ErrorInfo);
 	EndTry;
 	
 	If RecordingResult = True Then
 		
-		Explanation = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'File saved to %1';"), 
+		Explanation = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'File saved to %1'"), 
 			SelectedFiles[0]);
 		
 		AdditionalParameters = New Structure("FileName", SelectedFiles[0]);
 		NotifyDescription = New CallbackDescription("SaveWebPageFileOpenFileDirectory",
 			ThisObject, AdditionalParameters);
 		
-		ShowUserNotification(NStr("en = 'Save file';"), NotifyDescription, Explanation, 
+		ShowUserNotification(NStr("en = 'Save file'"), NotifyDescription, Explanation, 
 			PictureLib.Information32);
 		
 	EndIf;
@@ -296,7 +296,7 @@ Function WebPageFileContent()
 		|</body>
 		|</html>";
 	
-	ConnectionPointPresentation = NStr("en = 'Insert connection point';");
+	ConnectionPointPresentation = NStr("en = 'Insert connection point'");
 	
 	ReplaceSubstring = ?(IsBlankString(EndpointURL), 
 		ConnectionPointPresentation, EndpointURL);
@@ -426,14 +426,14 @@ Procedure UpdateOrientationPadding()
 	
 	If OrientationParameter.Value = "bottom" Then
 		IndentParameter.ValueList.Clear();
-		IndentParameter.ValueList.Insert("_0",	NStr("en = 'Left';"));
-		IndentParameter.ValueList.Insert("_50", 	NStr("en = 'Center';"));
-		IndentParameter.ValueList.Insert("_100", NStr("en = 'Right';"));
+		IndentParameter.ValueList.Insert("_0",	NStr("en = 'Left'"));
+		IndentParameter.ValueList.Insert("_50", 	NStr("en = 'Center'"));
+		IndentParameter.ValueList.Insert("_100", NStr("en = 'Right'"));
 	ElsIf OrientationParameter.Value = "left" Or OrientationParameter.Value = "right" Then
 		IndentParameter.ValueList.Clear();
-		IndentParameter.ValueList.Insert("_100", NStr("en = 'Top';"));
-		IndentParameter.ValueList.Insert("_50", 	NStr("en = 'Center';"));
-		IndentParameter.ValueList.Insert("_0", 	NStr("en = 'Bottom';"));
+		IndentParameter.ValueList.Insert("_100", NStr("en = 'Top'"));
+		IndentParameter.ValueList.Insert("_50", 	NStr("en = 'Center'"));
+		IndentParameter.ValueList.Insert("_0", 	NStr("en = 'Bottom'"));
 	EndIf;       
 	
 	UpdateParameterPresentationByValue(IndentParameter);
@@ -516,45 +516,45 @@ Procedure FillParameterData(WebChatParameter)
 	
 	If WebChatParameter.Name = "allowVideoconferences" Then
 		
-		WebChatParameter.Presentation = NStr("en = 'Video calls';");
+		WebChatParameter.Presentation = NStr("en = 'Video calls'");
 		WebChatParameter.Type = "String";
 		WebChatParameter.StandardValue = "allowed";
 		
 		WebChatParameter.ValueList = New Structure;
-		WebChatParameter.ValueList.Insert("allowed", NStr("en = 'Available';"));
-		WebChatParameter.ValueList.Insert("allowedToWebChatOnly", NStr("en = 'Available for chat only';"));
-		WebChatParameter.ValueList.Insert("disallowed", NStr("en = 'Unavailable';"));  
+		WebChatParameter.ValueList.Insert("allowed", NStr("en = 'Available'"));
+		WebChatParameter.ValueList.Insert("allowedToWebChatOnly", NStr("en = 'Available for chat only'"));
+		WebChatParameter.ValueList.Insert("disallowed", NStr("en = 'Unavailable'"));  
 			
 	ElsIf WebChatParameter.Name = "defaultApplicationUserCameraState" Then
 		
-		WebChatParameter.Presentation = NStr("en = 'Default application camera status';");
+		WebChatParameter.Presentation = NStr("en = 'Default application camera status'");
 		WebChatParameter.Type = "String";
 		WebChatParameter.StandardValue = "on";
 		
 		WebChatParameter.ValueList = New Structure;
-		WebChatParameter.ValueList.Insert("on", NStr("en = 'Enabled';"));
-		WebChatParameter.ValueList.Insert("off", NStr("en = 'Disabled';"));
+		WebChatParameter.ValueList.Insert("on", NStr("en = 'Enabled'"));
+		WebChatParameter.ValueList.Insert("off", NStr("en = 'Disabled'"));
 			
 	ElsIf WebChatParameter.Name = "signKey" Then
 		
-		WebChatParameter.Presentation = NStr("en = 'Signature key';");
+		WebChatParameter.Presentation = NStr("en = 'Signature key'");
 		WebChatParameter.Type = "String";
 		WebChatParameter.ChoiceButton = PictureLib.Reread;
 		
 	ElsIf WebChatParameter.Name = "orientation" Then
 		
-		WebChatParameter.Presentation = NStr("en = 'Chat position';");
+		WebChatParameter.Presentation = NStr("en = 'Chat position'");
 		WebChatParameter.Type = "String";
 		WebChatParameter.StandardValue = "bottom";
 		
 		WebChatParameter.ValueList = New Structure;
-		WebChatParameter.ValueList.Insert("left", NStr("en = 'Left';"));
-		WebChatParameter.ValueList.Insert("bottom", NStr("en = 'Bottom';"));
-		WebChatParameter.ValueList.Insert("right", NStr("en = 'Right';"));
+		WebChatParameter.ValueList.Insert("left", NStr("en = 'Left'"));
+		WebChatParameter.ValueList.Insert("bottom", NStr("en = 'Bottom'"));
+		WebChatParameter.ValueList.Insert("right", NStr("en = 'Right'"));
 		
 	ElsIf WebChatParameter.Name = "orientationPadding" Then 
 		
-		WebChatParameter.Presentation = NStr("en = 'Chat alignment';");
+		WebChatParameter.Presentation = NStr("en = 'Chat alignment'");
 		WebChatParameter.Type = "String";
 		WebChatParameter.StandardValue = "100";
 		
@@ -562,47 +562,47 @@ Procedure FillParameterData(WebChatParameter)
 		
 	ElsIf WebChatParameter.Name = "mobileButtonOrientation" Then
 		
-		WebChatParameter.Presentation = NStr("en = 'Chat button orientation in mobile version';");
+		WebChatParameter.Presentation = NStr("en = 'Chat button orientation in mobile version'");
 		WebChatParameter.Type = "String";
 		WebChatParameter.StandardValue = "rightBottom";
 		
 		WebChatParameter.ValueList = New Structure;
-		WebChatParameter.ValueList.Insert("leftBottom", NStr("en = 'Bottom left';"));
-		WebChatParameter.ValueList.Insert("rightBottom", NStr("en = 'Bottom right';"));
+		WebChatParameter.ValueList.Insert("leftBottom", NStr("en = 'Bottom left'"));
+		WebChatParameter.ValueList.Insert("rightBottom", NStr("en = 'Bottom right'"));
 		
 	ElsIf WebChatParameter.Name = "colorTheme" Then
 		
-		WebChatParameter.Presentation = NStr("en = 'Color mode';");
+		WebChatParameter.Presentation = NStr("en = 'Color mode'");
 		WebChatParameter.Type = "String";
 		WebChatParameter.StandardValue = "auto";
 		
 		WebChatParameter.ValueList = New Structure;
-		WebChatParameter.ValueList.Insert("auto", NStr("en = 'Auto';"));
-		WebChatParameter.ValueList.Insert("light", NStr("en = 'Light';"));
-		WebChatParameter.ValueList.Insert("dark", NStr("en = 'Dark';"));
+		WebChatParameter.ValueList.Insert("auto", NStr("en = 'Auto'"));
+		WebChatParameter.ValueList.Insert("light", NStr("en = 'Light'"));
+		WebChatParameter.ValueList.Insert("dark", NStr("en = 'Dark'"));
 			
 	ElsIf WebChatParameter.Name = "titleText" Then
 		
-		WebChatParameter.Presentation = NStr("en = 'Chat title';");
+		WebChatParameter.Presentation = NStr("en = 'Chat title'");
 		WebChatParameter.Type = "String";
 		
 	ElsIf WebChatParameter.Name = "titleBackColor" Then
 		
-		WebChatParameter.Presentation = NStr("en = 'Chat background color';");
+		WebChatParameter.Presentation = NStr("en = 'Chat background color'");
 		WebChatParameter.Type = "Color";
 		WebChatParameter.StandardValue = "#FBED9E";
 		WebChatParameter.ChoiceButton = PictureLib.InputFieldSelect;
 		
 	ElsIf WebChatParameter.Name = "titleTextColor" Then
 		
-		WebChatParameter.Presentation = NStr("en = 'Chat title font color';");
+		WebChatParameter.Presentation = NStr("en = 'Chat title font color'");
 		WebChatParameter.Type = "Color";
 		WebChatParameter.StandardValue = "#333333";
 		WebChatParameter.ChoiceButton = PictureLib.InputFieldSelect;
 		
 	ElsIf WebChatParameter.Name = "displayUserPictures" Then
 		
-		WebChatParameter.Presentation = NStr("en = 'Show profile pictures';");
+		WebChatParameter.Presentation = NStr("en = 'Show profile pictures'");
 		WebChatParameter.Type = "Boolean";
 		WebChatParameter.StandardValue = "true";
 		
@@ -612,7 +612,7 @@ Procedure FillParameterData(WebChatParameter)
 		
 	ElsIf WebChatParameter.Name = "languageCode" Then
 		
-		WebChatParameter.Presentation = NStr("en = 'Chat language code';");
+		WebChatParameter.Presentation = NStr("en = 'Chat language code'");
 		WebChatParameter.Type = "String"; 
 		
 		LocalizationList = AvailableLocales();

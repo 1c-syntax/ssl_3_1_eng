@@ -48,7 +48,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 
 	If Cancel Then
 		Common.MessageToUser(
-			NStr("en = 'An exchange rate can only depend on an independent exchange rate.';"));
+			NStr("en = 'An exchange rate can only depend on an independent exchange rate.'"));
 	EndIf;
 
 	If RateSource <> Enums.RateSources.MarkupForOtherCurrencyRate Then
@@ -67,7 +67,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	If Not IsNew() And RateSource = Enums.RateSources.MarkupForOtherCurrencyRate
 		And CurrencyRateOperations.DependentCurrenciesList(Ref).Count() > 0 Then
 		Common.MessageToUser(
-			NStr("en = 'The currency cannot be subordinate because it is used as the base currency for other currencies.';"));
+			NStr("en = 'The currency cannot be subordinate because it is used as the base currency for other currencies.'"));
 		Cancel = True;
 	EndIf;
 
@@ -124,7 +124,7 @@ Procedure BeforeWrite(Cancel)
 		Except
 			ErrorInfo = ErrorInfo();
 			Refinement = CommonClientServer.ExceptionClarification(ErrorInfo,
-				NStr("en = 'Failed to calculate the exchange rate using the formula:';"));
+				NStr("en = 'Failed to calculate the exchange rate using the formula:'"));
 			Raise(Refinement.Text, Refinement.Category, , , ErrorInfo);
 		EndTry;
 	EndIf;
@@ -144,7 +144,7 @@ Procedure OnWrite(Cancel)
 	
 	If ShouldWriteExchangeRates And IsBackgroundCurrencyExchangeRatesRecalculationRunning Then
 		Raise NStr("en = 'Couldn''t save the currency because the background calculation of exchange rates is running.
-							   |Try to save the currency later.';");
+							   |Try to save the currency later.'");
 	EndIf;
 
 	If UpdateRates Then
@@ -211,7 +211,7 @@ Procedure StartBackgroundCurrencyExchangeRatesUpdate()
 	
 	If Result.Status = "Error" Then
 		Refinement = CommonClientServer.ExceptionClarification(Result.ErrorInfo,
-			NStr("en = 'Couldn''t update exchange rates due to:';"));
+			NStr("en = 'Couldn''t update exchange rates due to:'"));
 		Raise(Refinement.Text, Refinement.Category,,, Result.ErrorInfo);
 	EndIf;
 
@@ -250,7 +250,7 @@ Function CurrenciesUsedInCalculatingTheExchangeRate()
 	QueryResult = Query.Execute();
 
 	If QueryResult.IsEmpty() Then
-		ErrorText = NStr("en = 'The formula must include at least one base currency.';");
+		ErrorText = NStr("en = 'The formula must include at least one base currency.'");
 		Common.MessageToUser(ErrorText,, "Object.RateCalculationFormula");
 		Raise ErrorText;
 	EndIf;
@@ -275,5 +275,5 @@ EndProcedure
 #EndRegion
 
 #Else
-	Raise NStr("en = 'Invalid object call on the client.';");
+	Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

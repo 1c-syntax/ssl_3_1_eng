@@ -27,13 +27,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Not AvailableOptions.SMS Then
 		Items.FormCreateGroup.Type = FormGroupType.ButtonGroup;
 		Items.FormCreateSMSMessageTemplate.Visible       = False;
-		Items.FormCreateEmailTemplate.Title = NStr("en = 'Create';");
+		Items.FormCreateEmailTemplate.Title = NStr("en = 'Create'");
 	EndIf;
 	
 	If Not AvailableOptions.Mail Then
 		Items.FormCreateGroup.Type = FormGroupType.ButtonGroup;
 		Items.FormCreateEmailTemplate.Visible = False;
-		Items.FormCreateSMSMessageTemplate.Title       = NStr("en = 'Create';");
+		Items.FormCreateSMSMessageTemplate.Title       = NStr("en = 'Create'");
 	EndIf;
 	
 	If Common.IsMobileClient() Then
@@ -185,8 +185,8 @@ Procedure InitializeFilters()
 	
 	TemplatesKinds = MessageTemplatesInternal.TemplatesKinds();
 	TemplatesKinds.Insert(0,
-		NStr("en = 'All messages';"),
-		NStr("en = 'All messages';"));
+		NStr("en = 'All messages'"),
+		NStr("en = 'All messages'"));
 	
 	AvailableOptions = MessageTemplatesInternal.MessageTemplatesAvailableSendOutOptions();
 	If AvailableOptions.SMS Then
@@ -196,13 +196,13 @@ Procedure InitializeFilters()
 		List.Parameters.SetParameterValue("Email", TemplatesKinds.FindByValue("Email").Presentation);
 	EndIf;
 	List.Parameters.SetParameterValue("ShowContextTemplates", ShowContextTemplates);
-	List.Parameters.SetParameterValue("Arbitrary", NStr("en = 'Arbitrary message';"));
+	List.Parameters.SetParameterValue("Arbitrary", NStr("en = 'Arbitrary message'"));
 	
 	For Each TemplateKind In TemplatesKinds Do
 		Items.TemplateForFilter.ChoiceList.Add(TemplateKind.Value, TemplateKind.Presentation);
 	EndDo;
 	
-	Items.AssignmentFilter.ChoiceList.Add("", NStr("en = 'All';"));
+	Items.AssignmentFilter.ChoiceList.Add("", NStr("en = 'All'"));
 	
 	List.Parameters.SetParameterValue(MessageTemplatesClientServer.CommonID(),
 		MessageTemplatesClientServer.CommonID());
@@ -239,7 +239,7 @@ Procedure InitializeFilters()
 	EndDo;
 	
 	Purpose = "";
-	TemplateFor = NStr("en = 'All messages';");
+	TemplateFor = NStr("en = 'All messages'");
 	
 EndProcedure
 

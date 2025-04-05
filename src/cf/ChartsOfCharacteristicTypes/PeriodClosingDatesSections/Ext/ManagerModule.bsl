@@ -65,7 +65,7 @@ Function ClosingDatesSectionsProperties() Export
 	PeriodClosingDatesOverridable.OnFillPeriodClosingDatesSections(Sections);
 	
 	ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Error in procedure %1 of common module %2.';"),
+		NStr("en = 'Error in procedure %1 of common module %2.'"),
 		"OnFillPeriodClosingDatesSections", "PeriodClosingDatesOverridable")
 		+ Chars.LF + Chars.LF;
 	
@@ -86,18 +86,18 @@ Function ClosingDatesSectionsProperties() Export
 	
 	For Each Section In Sections Do
 		If Not ValueIsFilled(Section.Name) Then
-			Raise ErrorTitle + NStr("en = 'Name is required for the period-end closing date section.';");
+			Raise ErrorTitle + NStr("en = 'Name is required for the period-end closing date section.'");
 		EndIf;
 		
 		If ClosingDatesSections.Get(Section.Name) <> Undefined Then
 			Raise ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '""%1"" period-end closing date section already has a name.';"),
+				NStr("en = '""%1"" period-end closing date section already has a name.'"),
 				Section.Name);
 		EndIf;
 		
 		If Not ValueIsFilled(Section.Id) And Section.Name <> "SingleDate" Then
 			Raise ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'ID is required for ""%1"" period-end closing date section.';"),
+				NStr("en = 'ID is required for ""%1"" period-end closing date section.'"),
 				Section.Name);
 		EndIf;
 		
@@ -107,7 +107,7 @@ Function ClosingDatesSectionsProperties() Export
 			SectionClosingDates = ClosingDatesSections.Get(SectionReference); // See SectionProperties
 			Raise ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'ID ""%1"" of ""%2"" period-end closing date section
-				           |has already been assigned to ""%3"" section.';"),
+				           |has already been assigned to ""%3"" section.'"),
 				Section.Id, Section.Name, SectionClosingDates.Name);
 		EndIf;
 		
@@ -117,13 +117,13 @@ Function ClosingDatesSectionsProperties() Export
 			If Not Common.IsReference(Type) Then
 				Raise ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Object type for ""%2"" period-end closing date section is defined as ""%1"". 
-					           |But it is not a reference type.';"),
+					           |But it is not a reference type.'"),
 					String(Type), Section.Name);
 			EndIf;
 			If ClosingDatesObjectsTypes.Get(Type) = Undefined Then
 				Raise ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Property ""Type"" in chart of characteristic types ""Period-end closing dates sections""
-					           |requires ""%1"" object type of ""%2"" period-end closing dates section.';"),
+					           |requires ""%1"" object type of ""%2"" period-end closing dates section.'"),
 					String(Type), Section.Name);
 			EndIf;
 			TypeMetadata = Metadata.FindByType(Type);
@@ -179,7 +179,7 @@ Function SectionProperties(Ref, Val Name = "", Val Presentation = "", Val Object
 	SectionProperties = New Structure;
 	SectionProperties.Insert("Name", Name);
 	SectionProperties.Insert("Ref", Ref);
-	SectionProperties.Insert("Presentation", ?(IsBlankString(Presentation), NStr("en = 'Common date';"), Presentation));
+	SectionProperties.Insert("Presentation", ?(IsBlankString(Presentation), NStr("en = 'Common date'"), Presentation));
 	SectionProperties.Insert("ObjectsTypes", ?(ObjectsTypes = Undefined, New FixedArray(New Array), ObjectsTypes));
 	Return SectionProperties;
 

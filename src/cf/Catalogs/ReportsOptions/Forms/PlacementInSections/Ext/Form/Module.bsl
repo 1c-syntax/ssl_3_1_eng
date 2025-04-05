@@ -15,7 +15,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	SetConditionalAppearance();
 
-	MixedImportance = NStr("en = 'Mixed';");
+	MixedImportance = NStr("en = 'Mixed'");
 	
 	// The number of report options is checked before opening the form.
 	OptionsToAssign.LoadValues(Parameters.Variants);
@@ -32,7 +32,7 @@ Procedure OnOpen(Cancel)
 		StandardSubsystemsClient.ShowQuestionToUser(Undefined,
 			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1
 				|Details:
-				|%2';"), 
+				|%2'"), 
 			ErrorsMessages.Text, ErrorsMessages.More), QuestionDialogMode.OK);
 	EndIf;
 EndProcedure
@@ -58,7 +58,7 @@ EndProcedure
 &AtClient
 Procedure Place(Command)
 	WriteAtServer();
-	NotificationText1 = NStr("en = 'Settings changed for %1 report options.';");
+	NotificationText1 = NStr("en = 'Settings changed for %1 report options.'");
 	NotificationText1 = StringFunctionsClientServer.SubstituteParametersToString(NotificationText1, Format(
 		OptionsToAssign.Count(), "NZ=0; NG=0"));
 	ShowUserNotification(,, NotificationText1);
@@ -134,13 +134,13 @@ Procedure FillSections()
 				CurrentReason = TableRow.Cause;
 				ErrorsMessages.More = ErrorsMessages.More + Chars.LF + Chars.LF;
 				If CurrentReason = 1 Then
-					ErrorsMessages.More = ErrorsMessages.More + NStr("en = 'Marked for deletion:';");
+					ErrorsMessages.More = ErrorsMessages.More + NStr("en = 'Marked for deletion:'");
 				ElsIf CurrentReason = 2 Then
-					ErrorsMessages.More = ErrorsMessages.More + NStr("en = 'Insufficient rights to modify:';");
+					ErrorsMessages.More = ErrorsMessages.More + NStr("en = 'Insufficient rights to modify:'");
 				ElsIf CurrentReason = 3 Then
-					ErrorsMessages.More = ErrorsMessages.More + NStr("en = 'The report is disabled or cannot be accessed with the rights:';");
+					ErrorsMessages.More = ErrorsMessages.More + NStr("en = 'The report is disabled or cannot be accessed with the rights:'");
 				ElsIf CurrentReason = 4 Then
-					ErrorsMessages.More = ErrorsMessages.More + NStr("en = 'Report option is disabled using the functional option:';");
+					ErrorsMessages.More = ErrorsMessages.More + NStr("en = 'Report option is disabled using the functional option:'");
 				EndIf;
 			EndIf;
 
@@ -152,10 +152,10 @@ Procedure FillSections()
 		OptionsCount = OptionsToAssign.Count();
 
 		If OptionsCount = 0 Then
-			ErrorsMessages.Text = NStr("en = 'Insufficient rights to add selected report options to sections.';");
+			ErrorsMessages.Text = NStr("en = 'Insufficient rights to add selected report options to sections.'");
 		Else
 			ErrorsMessages.Text = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Insufficient rights to add some report options (%1) to sections.';"),
+				NStr("en = 'Insufficient rights to add some report options (%1) to sections.'"),
 				Format(ErrorsCount, "NG="));
 		EndIf;
 

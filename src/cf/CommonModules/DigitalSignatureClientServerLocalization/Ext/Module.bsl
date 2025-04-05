@@ -10,36 +10,79 @@
 
 #Region Public
 
+// Overrides certificate presentations.
+// 
+// Parameters:
+//  Certificate - CryptoCertificate
+//  UTCOffset - Number
+//  Presentation - String
+//
 Procedure OnGetCertificatePresentation(Val Certificate, Val UTCOffset, Presentation) Export
 	
 	
 EndProcedure
 
+// Overrides certificate subject presentations.
+// 
+// Parameters:
+//  Certificate - CryptoCertificate
+//  Presentation - String
+//
 Procedure OnGetSubjectPresentation(Val Certificate, Presentation) Export
 	
 	
 EndProcedure
 
+// Overrides the extended property structure of the certificate subject.
+// 
+// Parameters:
+//  Subject - FixedStructure
+//  Properties - Structure
+//
 Procedure OnGetExtendedCertificateSubjectProperties(Val Subject, Properties) Export
 	
 	
 EndProcedure
 
+// Overrides the extended property structure of the certificate issuer.
+// 
+// Parameters:
+//  Issuer - FixedStructure
+//  Properties - Structure
+//
 Procedure OnGetExtendedCertificateIssuerProperties(Val Issuer, Properties) Export
 	
 	
 EndProcedure
 
+// Overrides the certificate comparison result by the subject properties.
+// 
+// Parameters:
+//  PropertiesOfNew - Structure
+//  PropertiesOfOld - Structure
+//  Result - Boolean
+//
 Procedure WhenComparingCertificates(PropertiesOfNew, PropertiesOfOld, Result) Export
 	
 	
 EndProcedure
 
+// On receiving an XML envelope.
+// 
+// Parameters:
+//  Parameters - Structure
+//  XMLEnvelope - String
+//
 Procedure OnReceivingXMLEnvelope(Parameters, XMLEnvelope) Export
 	
 	
 EndProcedure
 
+// On receiving the default envelope version.
+// 
+// Parameters:
+//  XMLEnvelope - String
+//
 Procedure OnGetDefaultEnvelopeVariant(XMLEnvelope) Export
 
 	
@@ -89,22 +132,37 @@ Function RevocationListInternalAddress(CertificateAuthorityName, CertificateProp
 	
 EndFunction
 
+// CA revocation list catalogs.
+// 
+// Parameters:
+//  AccreditedCertificationCenters - Structure
+// 
+// Returns:
+//  String - CA revocation list catalogs
+//
 Function CARevocationListDirectories(AccreditedCertificationCenters) Export
 	
 	Return "";
 	
 EndFunction
 
+// Returns data required for the CA check.
+// 
+// Parameters:
+//  SearchValues - String
+//  AccreditedCertificationCenters - Structure
+// 
 // Returns:
-//  Undefined, Structure - Certificate authority data:
-//   * IsState - Boolean
-//   * AllowedUncredited - Boolean
-//   * ActionPeriods - Undefined, Array of Structure
-//     **DateFrom - Date
-//     **DateBy - Date, Undefined
-//   * ValidityEndDate - Undefined, Date
-//   * UpdateDate  - Undefined, Date
-//   * FurtherSettings - Map
+//  Undefined
+//  :
+//   
+//   
+//   
+//     
+//     
+//   
+//   
+//   
 //
 Function CertificationAuthorityData(SearchValues, AccreditedCertificationCenters) Export
 	
@@ -115,11 +173,23 @@ Function CertificationAuthorityData(SearchValues, AccreditedCertificationCenters
 	
 EndFunction
 
+// On determining the link to the application guides.
+// 
+// Parameters:
+//  Section - String
+//  URL - String
+//
 Procedure OnDefineRefToAppsGuide(Section, URL) Export
 	
 	
 EndProcedure
 
+// On determining the reference to the error search when managing digital signatures.
+// 
+// Parameters:
+//  URL - String
+//  SearchString - String - Search string
+//
 Procedure OnDefineRefToSearchByErrorsWhenManagingDigitalSignature(URL, SearchString = "") Export
 	
 	
@@ -194,66 +264,12 @@ Function AppsRelevantAlgorithms() Export
 	
 EndFunction
 
-Function CertificateCAVerificationContext() Export
-	
-	Structure = New Structure;
-	Structure.Insert("CertificationAuthorityData");
-	Structure.Insert("SearchValues");
-	Structure.Insert("CertificateAuthorityDescription", "");
-	Structure.Insert("UTCOffset");
-	Structure.Insert("OnDate");
-	Structure.Insert("ThisVerificationSignature", False);
-	Structure.Insert("CertificateProperties");
-	Structure.Insert("VerifyCertificate", DigitalSignatureInternalClientServer.VerifyQualified());
-	
-	Return Structure;
-	
-EndFunction
-
-Function DataForVerificationOfCertificationCenter(Certificate) Export
-	
-	Result = New Structure("SearchValues, CertificateAuthorityDescription");
-	
-	CertificateAuthorityProperties = DigitalSignatureInternalClientServer.CertificateIssuerProperties(Certificate);
-	
-	Result.CertificateAuthorityDescription = CertificateAuthorityProperties.CommonName;
-	
-	SearchValues = New Array;
-	
-	If CertificateAuthorityProperties.Property("OGRN") And ValueIsFilled(CertificateAuthorityProperties.OGRN) Then
-		SearchValues.Add(CertificateAuthorityProperties.OGRN);
-	EndIf;
-	
-	If ValueIsFilled(CertificateAuthorityProperties.CommonName) Then
-		SearchValues.Add(CertificateAuthorityProperties.CommonName);
-	EndIf;
-	
-	If SearchValues.Count() > 0 Then
-		Result.SearchValues = StrConcat(SearchValues, ",");
-	EndIf;
-	
-	Return Result;
-
-EndFunction
-
-Function PrepareSearchValue(Val SearchValue) Export
-	
-	SearchValue = Upper(SearchValue);
-	SearchValue = StrReplace(SearchValue, """", "");
-	SearchValue = StrReplace(SearchValue, "«", "");
-	SearchValue = StrReplace(SearchValue, "»", "");
-	SearchValue = StrReplace(SearchValue, "“", "");
-	SearchValue = StrReplace(SearchValue, "”", "");
-	
-	Return SearchValue;
-	
-EndFunction
 
 // For internal use only.
 // 
 // Parameters:
 //  Certificate - CryptoCertificate
-//  CheckContext - See CertificateCAVerificationContext
+//  CheckContext - See "CertificateCAVerificationContext"
 // 
 // Returns:
 //   See DigitalSignatureInternalClientServer.DefaultCAVerificationResult
@@ -267,21 +283,18 @@ Function ResultofCertificateAuthorityVerification(Certificate, CheckContext) Exp
 	
 EndFunction
 
-Function LinktothearticleonCAs() Export
-	
-	Return "https://its.1c.ru/bmk/esig_uc";
-	
-EndFunction
-
-Function VipNetApplicationName() Export
-	Return "ViPNet CSP";
-EndFunction
-
-Function CryptoProApplicationName() Export
-	Return "CryptoPro CSP";
-EndFunction
-
+// On getting the name of a digital signing application.
 // 
+// Parameters:
+//  Cryptoprovider - Structure
+//  Result - String
+//
+Procedure OnGetDigitalSigningAppName(Cryptoprovider, Result) Export
+	
+	
+EndProcedure
+
+// Error occurred due to missing token libraries.
 // 
 // Parameters:
 //  ErrorText - String
@@ -291,5 +304,17 @@ Procedure OnDefineImportErrorInTokenLibraries(ErrorText, Result) Export
 	
 	
 EndProcedure
+
+// Link to the article about CAs.
+// 
+// Returns:
+//  String - Link to the article about CAs
+//
+Function LinktothearticleonCAs() Export
+	
+	Ref = "";
+	Return Ref;
+	
+EndFunction
 
 #EndRegion

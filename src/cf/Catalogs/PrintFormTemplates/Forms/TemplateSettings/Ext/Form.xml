@@ -47,7 +47,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Main commands are grouped at the top of the Print submenu. Applicable to documents that serve as confirmation of a business transaction.</v8:content>
+							<v8:content>Default print forms are grouped at the top of the Print submenu. Applicable to documents that serve as confirmation of a business transaction.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<ToolTipRepresentation>Button</ToolTipRepresentation>

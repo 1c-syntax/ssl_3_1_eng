@@ -36,7 +36,7 @@ Procedure BeforeWrite(Cancel)
 	// Check the add-in ID and version for uniqueness.
 	If Not ThisIsTheUniqueComponent() Then 
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The add-in with ID ""%1"" and date ""%2"" already exists in the application.';"),
+			NStr("en = 'The add-in with ID ""%1"" and date ""%2"" already exists in the application.'"),
 			Id,
 			VersionDate);
 	EndIf;
@@ -144,5 +144,5 @@ EndProcedure
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

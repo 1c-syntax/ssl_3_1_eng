@@ -32,8 +32,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If CheckOnSelection Then
-		Items.FormClose.Title = NStr("en = 'Cancel';");
-		Items.FormValidate.Title = NStr("en = 'Check and continue';");
+		Items.FormClose.Title = NStr("en = 'Cancel'");
+		Items.FormValidate.Title = NStr("en = 'Check and continue'");
 	EndIf;
 	
 	EnterPassword = True;
@@ -63,7 +63,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Not StandardChecks And Checks.Count() = 0 Then
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Standard checks for checking the certificate are disabled,
-			|at that additional checks are not specified in %1.';"), 
+			|at that additional checks are not specified in %1.'"), 
 			"DigitalSignatureOverridable.OnCreateFormCertificateCheck"), 
 			ErrorCategory.ConfigurationError);
 	EndIf;
@@ -191,9 +191,18 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.AssistanceRequiredGroup.Behavior = UsualGroupBehavior.Collapsible;
 	EndIf;
 	
-	QuestionIsAvailableInSupport = Common.SubsystemExists("OnlineUserSupport.MessagesToTechSupportService");
-	Items.QuestionInSupport.Visible				 = QuestionIsAvailableInSupport;
-	Items.DecorationContactSupport.Visible = Not QuestionIsAvailableInSupport;
+	// 
+	If Common.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+		
+		ModuleForContactingTechnicalSupportService = Common.CommonModule(
+			"ContactingTechnicalSupportInternal");
+		
+		ModuleForContactingTechnicalSupportService.OnCreateAtServer(ThisObject);
+		
+	Else
+		Items.AssistanceRequiredGroup.Visible = False;
+	EndIf;
+	// End StandardSubsystems.ContactingTechnicalSupport
 	
 	StandardSubsystemsServer.ResetWindowLocationAndSize(ThisObject);
 	
@@ -369,8 +378,9 @@ Procedure QuestionInSupport(Command)
 EndProcedure
 
 &AtClient
-Procedure DownloadTechnicalInfo(Command)
+Procedure InformationToSendToSupport(Command)
 	
+	Items.AssistanceRequiredGroup.Hide();
 	ExportTechnicalInfo(True);
 	
 EndProcedure
@@ -402,13 +412,8 @@ Procedure ExportTechnicalInfo(ExportArchive)
 	
 	If Not CheckCompleted Then
 		ShowMessageBox(,
-			NStr("en = 'To gather technical information about the issue, validate the certificate.';"));
+			NStr("en = 'To gather technical information about the issue, validate the certificate.'"));
 		Return;
-	EndIf;
-	
-	If ExportArchive Then
-		Items.DownloadTechnicalInfo.Enabled = False;
-		Items.DecorationPictureGeneratingTechnicalInfo.Visible = True;
 	EndIf;
 	
 	ChecksContent = StandardChecks();
@@ -429,31 +434,23 @@ Procedure ExportTechnicalInfo(ExportArchive)
 		New Structure("Certificate", Certificates), FilesDetails, ErrorsText);
 		
 	MessageSubject1 = "";
-	ErrorsText = ErrorsText + NStr("en = 'Result of validation on client';") + ":" + Chars.LF;
+	ErrorsText = ErrorsText + NStr("en = 'Result of validation on client'") + ":" + Chars.LF;
 	SupplementTextWithErrors(ErrorsText, ChecksContent, False, MessageSubject1);
 	
 	ErrorsText = ErrorsText + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Result of verification on server ""%1"":';"), ServerName) + Chars.LF;
+		NStr("en = 'Result of verification on server ""%1"":'"), ServerName) + Chars.LF;
 	SupplementTextWithErrors(ErrorsText, ChecksContent, True, MessageSubject1);
 	
 	If ExportArchive Then
 		DigitalSignatureInternalClient.GenerateTechnicalInformation(
-			ErrorsText, Undefined, New CallbackDescription("AfterTechnicalInfoExported", ThisObject), FilesDetails);
+			ErrorsText, Undefined, , FilesDetails);
 	Else
 		DigitalSignatureInternalClient.GenerateTechnicalInformation(
 			ErrorsText, New Structure("Subject, Message",
-				?(IsBlankString(MessageSubject1), NStr("en = 'Issue occurred verifying the signature certificate';"), MessageSubject1),
+				?(IsBlankString(MessageSubject1), NStr("en = 'Issue occurred verifying the signature certificate'"), MessageSubject1),
 				DigitalSignatureInternalClient.TechnicalSupportRequestTextUponCertificateCheck()),
 			Undefined, FilesDetails);
 	EndIf;
-	
-EndProcedure
-
-&AtClient
-Procedure AfterTechnicalInfoExported(Result, Context) Export
-	
-	Items.DownloadTechnicalInfo.Enabled = True;
-	Items.DecorationPictureGeneratingTechnicalInfo.Visible = False;
 	
 EndProcedure
 
@@ -472,15 +469,15 @@ Procedure ValidateCompletion(NotDefined, Context) Export
 		For Each TimestampCertificate In TimestampCertificates Do
 			If Not TimestampCertificate.IsObtainedAtClient Then
 				Array.Add(StringFunctionsClient.FormattedString(
-							NStr("en = 'Certificate of server-side timestamp: <a href = %1>%2</a>.';"),
+							NStr("en = 'Certificate of server-side timestamp: <a href = %1>%2</a>.'"),
 						TimestampCertificate.CertificateAddress, TimestampCertificate.Presentation));
 			ElsIf Not TimestampCertificate.IsObtainedAtServer Then
 				Array.Add(StringFunctionsClient.FormattedString(
-							NStr("en = 'Certificate of computer-side timestamp: <a href = %1>%2</a>.';"),
+							NStr("en = 'Certificate of computer-side timestamp: <a href = %1>%2</a>.'"),
 						TimestampCertificate.CertificateAddress, TimestampCertificate.Presentation));
 			Else
 				Array.Add(StringFunctionsClient.FormattedString(
-							NStr("en = 'Timestamp certificate: <a href = %1>%2</a>.';"),
+							NStr("en = 'Timestamp certificate: <a href = %1>%2</a>.'"),
 						TimestampCertificate.CertificateAddress, TimestampCertificate.Presentation));
 			EndIf;
 		EndDo;
@@ -604,7 +601,7 @@ EndProcedure
 Procedure ShowCannotContinueWarning()
 	
 	ShowMessageBox(,
-		NStr("en = 'Cannot continue as not all required checks are passed.';"));
+		NStr("en = 'Cannot continue as not all required checks are passed.'"));
 	
 EndProcedure
 
@@ -649,26 +646,6 @@ EndProcedure
 // Continues the CheckCertificate procedure.
 &AtClient
 Procedure CheckCertificateAfterCheckAtClient(Result, Context) Export
-	
-	CheckCertificateAfterCheckedOnClientAndSupplemented(Result, Context);
-		
-EndProcedure
-
-// Follows the "CheckCertificate" procedure.
-&AtClient
-Procedure AfterErrorClassifierSolutionSupplemented(ClassifierError, ExtensionParameters_) Export
-	
-	If Items[ExtensionParameters_.Item + "DecisionClientLabel"].Title <> ClassifierError.Decision Then
-		Items[ExtensionParameters_.Item + "DecisionClientLabel"].Title = ClassifierError.Decision;
-	EndIf;
-	
-	CheckCertificateAfterCheckedOnClientAndSupplemented(ExtensionParameters_.Result, ExtensionParameters_.Context);
-
-EndProcedure
-
-// Follows the "CheckCertificate" procedure.
-&AtClient
-Procedure CheckCertificateAfterCheckedOnClientAndSupplemented(Result, Context)
 	
 	If IsBuiltInCryptoProvider Or ThisServiceAccount Then
 		
@@ -723,7 +700,7 @@ Procedure CheckCertificateAfterCheckedOnClientAndSupplemented(Result, Context)
 		EndIf;
 		
 	EndIf;
-	
+		
 EndProcedure
 
 &AtClient
@@ -770,7 +747,7 @@ Procedure CheckAtClientSide(Notification, Context = Undefined)
 	If StandardChecks Then
 		DigitalSignatureClient.InstallExtension(False, New CallbackDescription(
 			"CheckAtClientSideAfterAttachCryptoExtension", ThisObject, Context),
-			NStr("en = 'To continue, install 1C:Enterprise Extension.';"));
+			NStr("en = 'To continue, install 1C:Enterprise Extension.'"));
 	Else
 		Context.Insert("CryptoManager", Undefined);
 		CheckAtClientSideAdditionalChecks(Context);
@@ -905,7 +882,7 @@ Procedure CheckLegalCertificateAtClient(Context)
 		
 		ErrorDescription = "";
 	Else
-		ErrorDescription = NStr("en = 'The ""SN"" field is not found in the certificate subject description.';");
+		ErrorDescription = NStr("en = 'The ""SN"" field is not found in the certificate subject description.'");
 	EndIf;
 	SetItem(ThisObject, "LegalCertificate", False, ErrorDescription, , MergeResults);
 
@@ -920,7 +897,7 @@ Procedure CheckAtClientSideAfterCertificateSearch(Result, Context) Export
 	Else
 		SetItem(ThisObject, "CertificateExists", False,
 			?(TypeOf(Result) = Type("String"), Result, Result.ErrorDescription) + Chars.LF + Chars.LF
-			+ NStr("en = 'Cannot check signing, created signature and decryption.';"),
+			+ NStr("en = 'Cannot check signing, created signature and decryption.'"),
 			True, MergeResults);
 	EndIf;
 	
@@ -949,11 +926,11 @@ Procedure CheckAtClientSideAfterCertificateSearchInSaaSMode(Result, Context) Exp
 	If Not Result.Completed2 Then
 		ErrorDescription = Result.ErrorDescription.LongDesc;
 	ElsIf Not ValueIsFilled(Result.Certificate) Then
-		ErrorDescription = NStr("en = 'The certificate does not exist in the service. It might have been deleted.';");
+		ErrorDescription = NStr("en = 'The certificate does not exist in the service. It might have been deleted.'");
 	EndIf;
 	If Not IsBlankString(ErrorDescription) Then
 		ErrorDescription = ErrorDescription + Chars.LF
-			+ NStr("en = 'Cannot check signing, created signature and decryption.';");
+			+ NStr("en = 'Cannot check signing, created signature and decryption.'");
 	EndIf;
 	SetItem(ThisObject, "CertificateExists", True, ErrorDescription, , MergeResults);
 	
@@ -995,7 +972,9 @@ Async Procedure CheckAtClientSideAfterCreateAnyCryptoManager(Result, Context) Ex
 	EndIf;
 	
 	Context.Insert("CryptoManager", Undefined);
-	
+	Token.Insert("Password", PasswordProperties.Value);
+	Context.Insert("Token", Token);
+		
 	If Result = True Then
 		ErrorDetailsAtClient = "";
 	ElsIf TypeOf(Result) = Type("Structure") Then
@@ -1005,17 +984,17 @@ Async Procedure CheckAtClientSideAfterCreateAnyCryptoManager(Result, Context) Ex
 	EndIf;
 	
 	SetItem(ThisObject, "CertificateData", False,
-		NStr("en = 'Certificate validation using the token''s built-in mechanisms will be released later.';"),
+		NStr("en = 'Certificate validation using the token''s built-in mechanisms will be released later.'"),
 		True, MergeResults);
 	
-	SetItem(ThisObject, "ProgramExists", False, NStr("en = 'Certificate is validated using the token''s built-in mechanisms.';" + Chars.LF + ErrorDetailsAtClient),
+	SetItem(ThisObject, "ProgramExists", False, NStr("en = 'Certificate is validated using the token''s built-in mechanisms.'" + Chars.LF + ErrorDetailsAtClient),
 		False, MergeResults);
 		
 	// Signing
 	ErrorDescription = Await AdditionalCheckOnthePossibilityofSigning(Context.CryptoCertificate, False);
-	
+	SignatureData = Undefined;
 	If Not ValueIsFilled(ErrorDescription) Then
-		SignatureParameters = DigitalSignatureInternalClient.ParametersOfSignatureOnToken(Token, PasswordProperties.Value,
+		SignatureParameters = DigitalSignatureInternalClient.ParametersOfSignatureOnToken(Token, 
 			Context.CryptoCertificate, PredefinedValue("Enum.CryptographySignatureTypes.BasicCAdESBES"));
 		SignatureData = Await DigitalSignatureInternalClient.SignatureOnToken(SignatureParameters, Context.CertificateData);
 		If TypeOf(SignatureData) = Type("String") Then
@@ -1035,17 +1014,59 @@ Async Procedure CheckAtClientSideAfterCreateAnyCryptoManager(Result, Context) Ex
 	
 	SetItem(ThisObject, "Signing", False, ErrorDescription, True, MergeResults);
 	
-	SetItem(ThisObject, "CheckSignature", False,
-		NStr("en = 'Signature validation using the token''s built-in mechanisms will be released later.';"),
-		True, MergeResults);
+	If TypeOf(SignatureData) = Type("BinaryData") Then
+		SignatureVerificationParameters = New Structure;
+		SignatureVerificationParameters.Insert("Signature", SignatureData);
+		SignatureVerificationParameters.Insert("SignAlgorithm", Context.SignAlgorithm);
+		SignatureVerificationParameters.Insert("CheckResult", DigitalSignatureClientServer.SignatureVerificationResult());
+		SignatureVerificationParameters.Insert("Notification", New CallbackDescription("AfterSignatureInTokenChecked", ThisObject, Context));
+		SignatureVerificationParameters.Insert("VerifyCertificate",
+			DigitalSignatureInternalClientServer.NotVerifyCertificate());
+		SignatureVerificationParameters.Insert("RawData", Context.CertificateData);
+		DigitalSignatureInternalClient.VerifySignatureUsingToken(SignatureVerificationParameters);
+	Else
+		AfterSignatureInTokenChecked(Undefined, Context);
+	EndIf;
 	
-	SetItem(ThisObject, "Encryption", False,
-		NStr("en = 'Encryption using the token''s built-in mechanisms will be released later.';"),
-		True, MergeResults);
+EndProcedure
+
+// Continues the "CheckAtClientSide" procedure.
+&AtClient
+Async Procedure AfterSignatureInTokenChecked(Result, Context) Export
+	
+	If Result <> Undefined Then
+		If Not Result.SignatureCorrect Then
+			ErrorDescription = ?(ValueIsFilled(Result.SignatureMathValidationError),
+				Result.SignatureMathValidationError, Result.AdditionalAttributesCheckError);
+			SetItem(ThisObject, "CheckSignature", False, ErrorDescription, True, MergeResults);
+		Else
+			SetItem(ThisObject, "CheckSignature", False, "", False, MergeResults);
+		EndIf;
+	EndIf;
 		
-	SetItem(ThisObject, "Details", False,
-		NStr("en = 'Decryption using the token''s built-in mechanisms will be released later.';"),
-		True, MergeResults);
+	EncryptionParameters = DigitalSignatureInternalClient.EncryptionOnTokenParameters(Context.Token,
+		Context.CryptoCertificate);
+	EncryptedData = Await DigitalSignatureClientLocalization.EncryptionOnToken(EncryptionParameters, Context.CertificateData);
+	If TypeOf(EncryptedData) = Type("String") Then
+		SetItem(ThisObject, "Encryption", False, EncryptedData, True, MergeResults);
+	Else
+		
+		If TypeOf(EncryptedData) <> Type("BinaryData") Then
+			SetItem(ThisObject, "Encryption", False, NStr(
+				"en = 'Couldn''t encrypt data using the token.'"), True, MergeResults);
+		Else
+			SetItem(ThisObject, "Encryption", False, "", False, MergeResults);
+			DetailsParameters = DigitalSignatureInternalClient.DecryptionOnTokenParameters(Context.Token,
+				Context.CryptoCertificate);
+			DecryptedData = Await DigitalSignatureClientLocalization.DecryptionOnToken(DetailsParameters, EncryptedData);
+			If TypeOf(DecryptedData) = Type("String") Then
+				SetItem(ThisObject, "Details", False, DecryptedData, True, MergeResults);
+			
+			Else
+				SetItem(ThisObject, "Details", False, "", False, MergeResults);
+			EndIf;
+		EndIf;
+	EndIf;
 	
 	CheckAtClientSideAdditionalChecks(Context);
 	
@@ -1133,7 +1154,7 @@ Procedure CheckAtClientSideAfterCertificateCheckInSaaSMode(Result, Context) Expo
 	If ValueIsFilled(Application) Then
 		CheckAtClientSideInSaaSMode("CryptographyService", Context);
 	Else
-		ErrorDescription = NStr("en = 'The certificate does not specify an application for using the private key.';");
+		ErrorDescription = NStr("en = 'The certificate does not specify an application for using the private key.'");
 		CheckAtClientSideAfterCreateCryptoManager(ErrorDescription, Context);
 	EndIf;
 	
@@ -1151,7 +1172,7 @@ Async Procedure CheckAtClientSideAfterCreateCryptoManager(Result, Context) Expor
 	Else
 		ErrorDescription = Result + Chars.LF + Chars.LF
 			+ NStr("en = 'Cannot verify signing, signature, 
-			             |decryption and encryption. ';");
+			             |decryption and encryption. '");
 	EndIf;
 	SetItem(ThisObject, "ProgramExists", Context.ThisOperationInService, ErrorDescription, True, MergeResults);
 	
@@ -1237,7 +1258,7 @@ Async Procedure CheckAtClientSideInSaaSMode(Result, Context)
 	Else
 		ErrorDescription = Result + Chars.LF + Chars.LF
 			+ NStr("en = 'Cannot verify signing, signature, 
-			             |decryption and encryption. ';");
+			             |decryption and encryption. '");
 	EndIf;
 	SetItem(ThisObject, "ProgramExists", True, ErrorDescription, True, MergeResults);
 	
@@ -1658,16 +1679,16 @@ Procedure CheckOnTheClientSideAfterSearchingForTheCloudSignatureCertificate(Call
 	
 	ErrorDescription = "";
 	If Not TheOperationIsActive() Then
-		ErrorDescription = NStr("en = 'Check form is closed.';");
+		ErrorDescription = NStr("en = 'Check form is closed.'");
 	ElsIf Not CallResult.Completed2 Then
 		ErrorDescription = CallResult.Error;
 	ElsIf Not ValueIsFilled(CallResult.CertificateData) Then
-		ErrorDescription = NStr("en = 'The certificate does not exist in the service. It might have been deleted.';");
+		ErrorDescription = NStr("en = 'The certificate does not exist in the service. It might have been deleted.'");
 	EndIf;
 	
 	If Not IsBlankString(ErrorDescription) Then
 		ErrorDescription = ErrorDescription + Chars.LF
-			+ NStr("en = 'Cannot check signing, created signature and decryption.';");
+			+ NStr("en = 'Cannot check signing, created signature and decryption.'");
 	EndIf;
 	SetItem(ThisObject, "CertificateExists", True, ErrorDescription, , MergeResults);
 	
@@ -1691,7 +1712,7 @@ EndProcedure
 Procedure VerifyOnTheClientSideAfterVerifyingTheCloudSignatureCertificate(Result, Context) Export
 	
 	If Not TheOperationIsActive() Then
-		ErrorDescription = NStr("en = 'Check form is closed.';");
+		ErrorDescription = NStr("en = 'Check form is closed.'");
 	ElsIf Result.Completed2 And Result.Result Then
 		ErrorDescription = "";
 	Else
@@ -1710,7 +1731,7 @@ Procedure VerifyOnTheClientSideAfterVerifyingTheCloudSignatureCertificate(Result
 	If ValueIsFilled(Application) Then
 		VerifyClientSideCloudSignature("CloudSignature", Context);
 	Else
-		ErrorDescription = NStr("en = 'The certificate does not specify an application for using the private key.';");
+		ErrorDescription = NStr("en = 'The certificate does not specify an application for using the private key.'");
 		CheckAtClientSideAfterCreateCryptoManager(ErrorDescription, Context);
 	EndIf;
 	
@@ -1724,14 +1745,14 @@ Async Procedure VerifyClientSideCloudSignature(Result, Context)
 	Context.Insert("CryptoManager", Undefined);
 	
 	If Not TheOperationIsActive() Then
-		ErrorDescription = NStr("en = 'Check form is closed.';");
+		ErrorDescription = NStr("en = 'Check form is closed.'");
 	ElsIf TypeOf(Result) = Type("String") And Result = "CloudSignature" Then
 		Context.CryptoManager = Result;
 		ErrorDescription = "";
 	Else
 		ErrorDescription = Result + Chars.LF + Chars.LF
 			+ NStr("en = 'Cannot verify signing, signature, 
-			             |decryption and encryption.';");
+			             |decryption and encryption.'");
 	EndIf;
 	SetItem(ThisObject, "ProgramExists", True, ErrorDescription, True, MergeResults);
 	
@@ -1780,7 +1801,7 @@ Procedure VerifyOnTheClientSideAfterSigningCloudSignature(CallResult, Context) E
 	ErrorDescription = Undefined;
 	
 	If Not TheOperationIsActive() Then
-		ErrorDescription = NStr("en = 'Check form is closed.';");
+		ErrorDescription = NStr("en = 'Check form is closed.'");
 	ElsIf CallResult <> Undefined Then
 		If Not CallResult.Completed2 Then
 			ErrorDescription = CallResult.Error;
@@ -1822,7 +1843,7 @@ Procedure VerifyOnTheClientSideAfterVerifyingTheSignatureCloudSignature(CallResu
 	ErrorDescription = Undefined;
 	
 	If Not TheOperationIsActive() Then
-		ErrorDescription = NStr("en = 'Check form is closed.';");
+		ErrorDescription = NStr("en = 'Check form is closed.'");
 	ElsIf CallResult <> Undefined Then
 		If Not CallResult.Completed2 Then
 			ErrorDescription = DigitalSignatureInternalClient.ErrorTextCloudSignature(
@@ -1853,7 +1874,7 @@ Procedure VerifyOnTheClientSideAfterEncryptionCloudSignature(CallResult, Context
 	
 	ErrorDescription = Undefined;
 	If Not TheOperationIsActive() Then
-		ErrorDescription = NStr("en = 'Check form is closed.';");
+		ErrorDescription = NStr("en = 'Check form is closed.'");
 	ElsIf CallResult <> Undefined Then
 		If Not CallResult.Completed2 Then
 			ErrorDescription = CallResult.Error;
@@ -1892,7 +1913,7 @@ Procedure VerifyOnTheClientSideAfterDecryptingTheCloudSignature(CallResult, Cont
 	
 	ErrorDescription = Undefined;
 	If Not TheOperationIsActive() Then
-		ErrorDescription = NStr("en = 'Check form is closed.';");
+		ErrorDescription = NStr("en = 'Check form is closed.'");
 	ElsIf CallResult <> Undefined Then
 		If Not CallResult.Completed2 Then
 			ErrorDescription = CallResult.Error;
@@ -1947,7 +1968,7 @@ Procedure CheckAtServerSide(Val PasswordValue)
 	ErrorDescription = "";
 	If ValueIsFilled(Result) Then
 		ErrorDescription = Result.ErrorDescription + Chars.LF + Chars.LF
-			+ NStr("en = 'Cannot check signing, created signature and decryption.';");
+			+ NStr("en = 'Cannot check signing, created signature and decryption.'");
 	EndIf;
 	SetItem(ThisObject, "CertificateExists", True, ErrorDescription, , MergeResults);
 	
@@ -2002,7 +2023,7 @@ Procedure CheckAtServerSide(Val PasswordValue)
 		
 		ErrorDescription = ErrorDescription + Chars.LF + Chars.LF
 			+ NStr("en = 'Cannot verify signing, signature, 
-			|decryption and encryption. ';");
+			|decryption and encryption. '");
 		
 	EndIf;
 	SetItem(ThisObject, "ProgramExists", True, ErrorDescription, True, MergeResults);
@@ -2070,7 +2091,7 @@ Procedure CheckLegalCertificateAtServer(CryptoCertificate)
 	If Items.LegalCertificateGroup.Visible
 		And Not CryptoCertificate.Subject.Property("SN") Then
 		
-		ErrorDescription = NStr("en = 'The ""SN"" field is not found in the certificate subject description.';");
+		ErrorDescription = NStr("en = 'The ""SN"" field is not found in the certificate subject description.'");
 	EndIf;
 	SetItem(ThisObject, "LegalCertificate", True, ErrorDescription, , MergeResults);
 
@@ -2465,7 +2486,7 @@ Procedure SetItem(Form, Action, AtServer,
 			
 			SolutionLabelFormItem.Visible = False;
 			ElementLabelError.Visible = True;
-			ElementLabelError.Title = NStr("en = 'See the ""Data signing"" item.';");
+			ElementLabelError.Title = NStr("en = 'See the ""Data signing"" item.'");
 			Return;
 		EndIf;
 		
@@ -2492,21 +2513,21 @@ Procedure SetItem(Form, Action, AtServer,
 			ErrorGroup.Visible = False;
 			ItemDecision.Visible = False;
 			ItemPicture1.Picture = PictureLib.NoCertificateCheckPerformed;
-			ItemPicture1.ToolTip = NStr("en = 'No check was performed.';");
+			ItemPicture1.ToolTip = NStr("en = 'No check was performed.'");
 			ItemLabel.Hyperlink = False;
 			ItemLabel.Title = ItemTitle(Form.AdditionalChecks, ItemLabel.Name, Form.SignatureType);
 		ElsIf CheckValue <> Undefined And SecondContextCheckValue = Undefined Then
 			ErrorGroup.Visible = False;
 			ItemDecision.Visible = False;
 			ItemPicture1.Picture = PictureLib.CertificateCheckSuccess;
-			ItemPicture1.ToolTip = NStr("en = 'Check succeeded.';");
+			ItemPicture1.ToolTip = NStr("en = 'Check succeeded.'");
 			ItemLabel.Hyperlink = False;
 			ItemLabel.Title = ItemTitle(Form.AdditionalChecks, ItemLabel.Name, Form.SignatureType);
 		ElsIf CheckValue <> Undefined And CheckResult Then
 			ErrorGroup.Visible = False;
 			ItemDecision.Visible = False;
 			ItemPicture1.Picture = PictureLib.CertificateCheckSuccess;
-			ItemPicture1.ToolTip = NStr("en = 'Check succeeded.';");
+			ItemPicture1.ToolTip = NStr("en = 'Check succeeded.'");
 			ItemLabel.Hyperlink = False;
 			ItemLabel.Title = ItemTitle(Form.AdditionalChecks, ItemLabel.Name, Form.SignatureType);
 		EndIf;
@@ -2518,8 +2539,8 @@ Procedure SetItem(Form, Action, AtServer,
 		PictureLib.NoCertificateCheckPerformed,
 		PictureLib.CertificateCheckSuccess);
 	ItemPicture1.ToolTip = ?(ErrorDescription = Undefined,
-		NStr("en = 'No check was performed.';"),
-		NStr("en = 'Check succeeded.';"));
+		NStr("en = 'No check was performed.'"),
+		NStr("en = 'Check succeeded.'"));
 	
 	If SecondContextChecks = Undefined
 		Or Not SecondContextChecks.Property(Action + "Error")
@@ -2548,7 +2569,7 @@ Function GenerateHeaderInDetail(ErrorDescription)
 	Array.Add(" ");
 
 	String = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = '<a href = %1>Finding solution…</a>';"), URL);
+		NStr("en = '<a href = %1>Finding solution…</a>'"), URL);
 
 #If Server Then
 	Array.Add(StringFunctions.FormattedString(String));
@@ -2580,16 +2601,16 @@ EndFunction
 Function StandardItemTitle(TagName, SignatureType)
 	
 	If TagName = "LegalCertificateLabel" Then
-		Return NStr("en = 'Compliance with legislation of the Russian Federation';");
+		Return NStr("en = 'Compliance with legislation of the Russian Federation'");
 		
 	ElsIf TagName = "CertificateExistsLabel" Then
-		Return NStr("en = 'Certificate is available in the Personal list';");
+		Return NStr("en = 'Certificate is available in the Personal list'");
 		
 	ElsIf TagName = "CertificateDataLabel" Then
-		Return NStr("en = 'Certificate data accuracy';");
+		Return NStr("en = 'Certificate data accuracy'");
 		
 	ElsIf TagName = "ProgramExistsLabel" Then
-		Return NStr("en = 'Existence of a signing and decryption app';");
+		Return NStr("en = 'Existence of a signing and decryption app'");
 		
 	ElsIf TagName = "SigningLabel" Then
 		
@@ -2598,20 +2619,20 @@ Function StandardItemTitle(TagName, SignatureType)
 			SignatureTypeString = String(SignatureType);
 			SignatureTypeString = Lower(Left(SignatureTypeString, 1)) + Mid(SignatureTypeString, 2);
 			Return StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Signing data with signature type: %1';"), SignatureTypeString);
+				NStr("en = 'Signing data with signature type: %1'"), SignatureTypeString);
 			
 		Else
-			Return NStr("en = 'Data signing';");
+			Return NStr("en = 'Data signing'");
 		EndIf;
 		
 	ElsIf TagName = "CheckSignatureLabel" Then
-		Return NStr("en = 'Check created signature';");
+		Return NStr("en = 'Check created signature'");
 		
 	ElsIf TagName = "EncryptionLabel" Then
-		Return NStr("en = 'Data encryption';");
+		Return NStr("en = 'Data encryption'");
 		
 	ElsIf TagName = "DetailsLabel" Then
-		Return NStr("en = 'Data decryption';");
+		Return NStr("en = 'Data decryption'");
 	Else
 		Return "";
 	EndIf;
@@ -2628,7 +2649,7 @@ Procedure SupplementTextWithErrors(ErrorsText, Checks, AtServer = False, Message
 		
 		If ChecksContent = Undefined Then
 			ErrorsText = ErrorsText + Validation + ": "
-				+ NStr("en = 'Not performed as it is not necessary (not configured)';") + Chars.LF;
+				+ NStr("en = 'Not performed as it is not necessary (not configured)'") + Chars.LF;
 		Else
 			
 			CheckResult = ?(ChecksContent.Property(Validation),
@@ -2642,8 +2663,8 @@ Procedure SupplementTextWithErrors(ErrorsText, Checks, AtServer = False, Message
 			EndIf;
 			
 			ErrorsText = ErrorsText + Validation + ": "
-				+ ?(CheckResult = Undefined, NStr("en = 'Not performed because of previous errors';"),
-				Format(CheckResult, NStr("en = 'BF=Error; BT=Success';")))
+				+ ?(CheckResult = Undefined, NStr("en = 'Not performed because of previous errors'"),
+				Format(CheckResult, NStr("en = 'BF=Error; BT=Success'")))
 				+ ?(IsBlankString(CheckErrorText), "", " """ + CheckErrorText + """") + Chars.LF;
 			
 		EndIf;
@@ -2717,7 +2738,7 @@ Async Function AdditionalCheckOnthePossibilityofSigning(CryptoCertificate, Execu
 			If PerformCAVerification = DigitalSignatureInternalClientServer.QualifiedOnly() Then
 				SigningAllowed = False;
 			Else
-				SigningAllowed = CommonServerCall.CommonSettingsStorageLoad(
+				SigningAllowed = CommonClient.CommonSettingsStorageLoad(
 					Certificate, "AllowSigning", Undefined);
 			EndIf;
 			If SigningAllowed = Undefined Or Not SigningAllowed Then

@@ -99,7 +99,7 @@ Procedure OnChangeQuestion(Form, Item) Export
 		Return;
 	EndIf;
 
-	FoundRows = Form.SectionQuestionsTable.FindRows(New Structure("Composite",
+	FoundRows = Form.SectionQuestionsTable.FindRows(New Structure("RowKey",
 		New UUID(StrReplace(Right(QuestionName, 36), "_", "-"))));
 
 	If FoundRows.Count() > 0 Then
@@ -116,7 +116,7 @@ EndProcedure
 Procedure OnChangeRangeSlider(Form, Item) Export
 
 	NameOfNumberAttribute = Left(Item.Name, StrFind(Item.Name, "_TrackBar") - 1);
-	FoundRows = Form.SectionQuestionsTable.FindRows(New Structure("Composite",
+	FoundRows = Form.SectionQuestionsTable.FindRows(New Structure("RowKey",
 		New UUID(StrReplace(Right(NameOfNumberAttribute, 36), "_", "-"))));
 
 	If FoundRows.Count() > 0 Then
@@ -139,7 +139,7 @@ Procedure NumberFieldAdjustment(Form, Item, Direction, StandardProcessing) Expor
 
 	StandardProcessing = False;
 
-	FoundRows = Form.SectionQuestionsTable.FindRows(New Structure("Composite",
+	FoundRows = Form.SectionQuestionsTable.FindRows(New Structure("RowKey",
 		New UUID(StrReplace(Right(Item.Name, 36), "_", "-"))));
 
 	If FoundRows.Count() > 0 Then
@@ -172,7 +172,7 @@ Procedure OnChangeOfNumberField(Form, Item) Export
 		Return;
 	EndIf;
 
-	FoundRows = Form.SectionQuestionsTable.FindRows(New Structure("Composite",
+	FoundRows = Form.SectionQuestionsTable.FindRows(New Structure("RowKey",
 		New UUID(StrReplace(Right(Item.Name, 36), "_", "-"))));
 
 	If FoundRows.Count() > 0 Then
@@ -195,7 +195,7 @@ Procedure OnChangeFlagDoNotAnswerQuestion(Form, Item) Export
 
 	QuestionName = Left(Item.Name, StrFind(Item.Name, "_ShouldUseRefusalToAnswer") - 1);
 
-	FoundRows = Form.SectionQuestionsTable.FindRows(New Structure("Composite",
+	FoundRows = Form.SectionQuestionsTable.FindRows(New Structure("RowKey",
 		New UUID(StrReplace(Right(QuestionName, 36), "_", "-"))));
 
 	If FoundRows.Count() > 0 Then
@@ -208,7 +208,7 @@ Procedure OnChangeQuestionWithAnswerOptions(Form, QuestionName)
 	
 	CharCountBeforePostfix = SurveysClientServer.CharCountInQuestionNameWithoutPostfix();
 	RowID = New UUID(StrReplace(Right(Left(QuestionName, CharCountBeforePostfix), 36), "_", "-"));
-	FoundRows = Form.SectionQuestionsTable.FindRows(New Structure("Composite", RowID));
+	FoundRows = Form.SectionQuestionsTable.FindRows(New Structure("RowKey", RowID));
 
 	If FoundRows.Count() > 0 Then
 		DoQueryBox = FoundRows[0];
@@ -267,7 +267,7 @@ Procedure HighlightAnsweredQuestions(Form) Export
 	For Each DoQueryBox In Form.SectionQuestionsTable Do
 		If DoQueryBox.QuestionType = PredefinedValue("Enum.QuestionnaireTemplateQuestionTypes.Basic")
 			And DoQueryBox.IsRequired Then
-			QuestionName = SurveysClientServer.QuestionName(DoQueryBox.Composite);
+			QuestionName = SurveysClientServer.QuestionName(DoQueryBox.RowKey);
 			HighlightAnsweredQuestion(Form, DoQueryBox, QuestionName);
 		EndIf;
 	EndDo;

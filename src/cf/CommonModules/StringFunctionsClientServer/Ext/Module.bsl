@@ -359,9 +359,9 @@ EndFunction
 //   Boolean - True - the string contains only numbers or is empty, False - the string contains other characters.
 //
 // Example:
-//  Result = StringFunctionsClientServer.OnlyDigitsInString("0123"); // True
-//  Result = StringFunctionsClientServer.OnlyDigitsInString("0123abc"); // False
-//  Result = StringFunctionsClientServer.OnlyDigitsInString("01 2 3",, False); // True
+//  Result = StringFunctionsClientServer.OnlyNumbersInString("0123"); // True
+//  Result = StringFunctionsClientServer.OnlyNumbersInString("0123abc"); // False
+//  Result = StringFunctionsClientServer.OnlyNumbersInString("01 2 3",, False); // True
 //
 Function OnlyNumbersInString(Val Value, Val Obsolete1 = True, Val SpacesProhibited = True) Export
 	

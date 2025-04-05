@@ -25,7 +25,7 @@
 				<v8:Type>cfg:ConstantValueManager.MonitoringCenterParameters</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.DataExchangeMessageDirectoryForLinux</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.CreateSubdirectoriesWithOwnersNames</v8:Type>
-				<v8:Type>cfg:ConstantValueManager.NumberOfMonthsOfMinimumPeriodOfCalculatedTotals</v8:Type>
+				<v8:Type>cfg:ConstantValueManager.MonthsCountInCalculatedTotalsMinPeriod</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.CryptoErrorsClassifier</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.DefaultLanguage</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.UseFullTextSearch</v8:Type>

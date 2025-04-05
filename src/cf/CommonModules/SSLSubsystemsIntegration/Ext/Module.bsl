@@ -99,7 +99,7 @@ Function SSLEvents() Export
 	// Print
 	Events.Insert("OnDefinePrintSettings", False);
 	Events.Insert("OnPrepareTemplateListInOfficeDocumentServerFormat", False);
-	Events.Insert("OnDefineObjectsWithPrintCommands", False); // Obsolete. Use OnDefinePrintSettings instead. 
+	Events.Insert("OnDefineObjectsWithPrintCommands", False); // Deprecated. Obsolete. Use OnDefinePrintSettings instead. 
 	Events.Insert("BeforeAddPrintCommands", False);
 	Events.Insert("OnGetPrintCommandListSettings", False);
 	Events.Insert("OnPrint", False);
@@ -1183,7 +1183,7 @@ Procedure OnAddMetadataObjectsRenaming(Renamings) Export
 	
 EndProcedure
 
-// See InformationRegister.ExtensionVersionParameters.FillAllExtensionParameters.
+// 
 Procedure OnFillAllExtensionParameters() Export
 
 	UsersInternal.OnFillAllExtensionParameters();
@@ -1225,7 +1225,7 @@ Procedure OnFillAllExtensionParameters() Export
 	
 EndProcedure
 
-// See InformationRegister.ExtensionVersionParameters.ClearAllExtensionParameters.
+// 
 Procedure OnClearAllExtemsionParameters() Export
 
 	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
@@ -1250,7 +1250,7 @@ Procedure OnClearAllExtemsionParameters() Export
 	
 EndProcedure
 
-// See StandardSubsystems.OnSendDataToMaster.
+// 
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 
 	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
@@ -1821,7 +1821,7 @@ Procedure OnAddClientParametersOnStart(Parameters) Export
 		ModulePlusSubsystemsIntegration.OnAddClientParametersOnStart(Parameters);
 	EndIf;
 	StandardSubsystemsServer.AddIndicator(Parameters, StartMoment,
-		"IntegrationOfSubsystemsPlus.OnAddClientParametersOnStart");
+		"SubsystemIntegrationPlus.OnAddClientParametersOnStart");
 
 EndProcedure
 
@@ -1979,7 +1979,7 @@ Procedure OnAddClientParameters(Parameters) Export
 		Parameters.Insert("DMILVersion", InfobaseUpdate.IBVersion("DocumentManagementIntegrationLibrary"));
 	EndIf;
 	StandardSubsystemsServer.AddIndicator(Parameters, StartMoment,
-		"IntegrationOfBIDSubsystems.OnAddClientParameters");
+		"DMILSubsystemIntegration.OnAddClientParameters");
 	
 	StartMoment = CurrentUniversalDateInMilliseconds();
 	If Common.SubsystemExists("ElectronicInteraction") Then
@@ -1995,7 +1995,7 @@ Procedure OnAddClientParameters(Parameters) Export
 		ModulePlusSubsystemsIntegration.OnAddClientParameters(Parameters);
 	EndIf;
 	StandardSubsystemsServer.AddIndicator(Parameters, StartMoment,
-		"IntegrationOfSubsystemsPlus.OnAddClientParameters");
+		"SubsystemIntegrationPlus.OnAddClientParameters");
 	
 	StartMoment = CurrentUniversalDateInMilliseconds();
 	If Common.SubsystemExists("StandardSubsystems.SourceDocumentsOriginalsRecording") Then
@@ -2179,7 +2179,7 @@ Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
 		ModulePlusSubsystemsIntegration.OnReceiptRecurringClientDataOnServer(Parameters, Results);
 	EndIf;
 	ServerNotifications.AddIndicator(Results, StartMoment,
-		"IntegrationOfSubsystemsPlus.OnReceiptRecurringClientDataOnServer");
+		"SubsystemIntegrationPlus.OnReceiptRecurringClientDataOnServer");
 	
 	StartMoment = CurrentUniversalDateInMilliseconds();
 	Try
@@ -6267,7 +6267,7 @@ EndProcedure
 #Region Private
 
 Function ModulePlusSubsystemsIntegration()
-	Return Common.CommonModule("IntegrationOfSubsystemsPlus");
+	Return Common.CommonModule("SubsystemIntegrationPlus");
 EndFunction
 
 #EndRegion

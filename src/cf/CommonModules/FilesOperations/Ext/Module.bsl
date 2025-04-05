@@ -44,11 +44,11 @@ Function FileBinaryData(Val AttachedFile, Val RaiseException1 = True) Export
 	
 	CommonClientServer.Validate(FileObject1 <> Undefined, 
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid value of parameter %1';"), "AttachedFile"),
+			NStr("en = 'Invalid value of parameter %1'"), "AttachedFile"),
 		"FilesOperations.FileBinaryData");
 	CommonClientServer.Validate(Not FileObject1.IsFolder, 
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid value of parameter %1 (file folder: ""%2"")';"),
+			NStr("en = 'Invalid value of parameter %1 (file folder: ""%2"")'"),
 			"AttachedFile", Common.SubjectString(AttachedFile)),
 		"FilesOperations.FileBinaryData");
 	
@@ -112,7 +112,7 @@ Function BinaryFilesData(Val AttachedFiles, Val RaiseException1 = True) Export
 	For IndexOf = 1 To AttachedFiles.Count() - 1 Do
 		If TypeOf(AttachedFiles[IndexOf]) <> FileType Then
 			Raise(StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'All attachments in the parameter %1 must be of the same type in %2.';"),
+				NStr("en = 'All attachments in the parameter %1 must be of the same type in %2.'"),
 				"AttachedFiles", "FilesOperations.BinaryFilesData"),
 				ErrorCategory.ConfigurationError);
 		EndIf;
@@ -388,7 +388,7 @@ Function FileData(Val AttachedFile, Val AdditionalParameters = Undefined,
 	If FileObject1 = Undefined Then
 		If RaiseException1 Then 
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Файл не существует или недоступен ""%1"" (%2)';"),
+				NStr("en = 'File ""%1"" does not exist or is inaccessible (%2)'"),
 				String(AttachedFile), AttachedFile.Metadata().Presentation());
 			Raise(MessageText, ErrorCategory.AccessViolation);
 		Else
@@ -601,25 +601,20 @@ EndProcedure
 //
 // Parameters:
 //  FilesOwner - DefinedType.AttachedFilesOwner - an object, to which
-//                       you need to attach the file.
+//                   you need to attach the file.
 //
 // Returns:
 //  String - a full object form name of attachments by an owner.
 //
 Function FilesObjectFormNameByOwner(Val FilesOwner) Export
 	
-	ErrorTitle = NStr("en = 'Error getting the form name of the attachment.';");
-	ErrorEnd = NStr("en = 'Cannot get the form.';");
-	
+	ErrorTitle = NStr("en = 'Unable to open the attachment form.'");
 	CatalogName = FilesOperationsInternal.FileStoringCatalogName(
-		FilesOwner, "", ErrorTitle, ErrorEnd);
-	
-	FullMetadataObjectName1 = "Catalog." + CatalogName;
+		FilesOwner, "", ErrorTitle);
 	
 	AttachedFileMetadata1 = Metadata.Catalogs.Find(CatalogName);
-	
 	If AttachedFileMetadata1.DefaultObjectForm = Undefined Then
-		FormName = FullMetadataObjectName1 + ".ObjectForm";
+		FormName = "Catalog." + CatalogName + ".ObjectForm";
 	Else
 		FormName = AttachedFileMetadata1.DefaultObjectForm.FullName();
 	EndIf;
@@ -643,9 +638,7 @@ Function CanAttachFilesToObject(FilesOwner, CatalogName = "") Export
 	
 	CatalogName = FilesOperationsInternal.FileStoringCatalogName(
 		FilesOwner, CatalogName);
-	
 	CatalogAttachedFiles = Metadata.Catalogs.Find(CatalogName);
-	
 	StoredFileTypes = Metadata.DefinedTypes.AttachedFile.Type;
 	
 	Return CatalogAttachedFiles <> Undefined
@@ -671,7 +664,7 @@ Function AddFileFromHardDrive(FilesOwner, FilePathOnHardDrive) Export
 	
 	If Not ValueIsFilled(FilesOwner) Then
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The %1 parameter value is not set in %2.';"), 
+			NStr("en = 'The %1 parameter value is not set in %2.'"), 
 			"FilesOwner","FilesOperations.AddFileFromHardDrive"),
 			ErrorCategory.ConfigurationError);
 	EndIf;
@@ -819,7 +812,7 @@ Function AppendFile(FileParameters, Val FileAddressInTempStorage,
 	
 	If Not ValueIsFilled(FilesOwner) Then
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The %1 parameter value is not set in %2.';"), 
+			NStr("en = 'The %1 parameter value is not set in %2.'"), 
 			"FileParameters.FilesOwner", "FilesOperations.AppendFile"),
 			ErrorCategory.ConfigurationError);
 	EndIf;
@@ -859,12 +852,12 @@ Function AppendFile(FileParameters, Val FileAddressInTempStorage,
 		ModificationTimeUniversal = CurrentUniversalDate();
 	EndIf;
 	
-	ErrorTitle = NStr("en = 'Error adding attachment.';");
+	ErrorTitle = NStr("en = 'Error adding attachment.'");
 	
 	If NewRefToFile = Undefined Then
 		CatalogName = FilesOperationsInternal.FileStoringCatalogName(FilesOwner, "", ErrorTitle,
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'In this case, parameter ""%1"" is required.';"), "NewRefToFile"));
+				NStr("en = 'This scenario requires the ""%1"" parameter.'"), "NewRefToFile"));
 		
 		NewRefToFile = Catalogs[CatalogName].GetRef();
 	Else
@@ -874,7 +867,7 @@ Function AppendFile(FileParameters, Val FileAddressInTempStorage,
 			
 			Raise(StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Error adding attachment:
-					|Parameter %1 not specified in %2.';"),
+					|Parameter %1 not specified in %2.'"),
 				"NewRefToFile", "FilesOperations.AppendFile"),
 				ErrorCategory.ConfigurationError);
 		EndIf;
@@ -965,13 +958,13 @@ Function AppendFile(FileParameters, Val FileAddressInTempStorage,
 		
 		ErrorInfo = ErrorInfo();
 		MessageTemplate = NStr("en = 'Error adding attachment ""%1"":
-			|%2';");
+			|%2'");
 		EventLogComment = StringFunctionsClientServer.SubstituteParametersToString(
 			MessageTemplate,
 			BaseName + "." + ExtensionWithoutPoint,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo));
 		
-		WriteLogEvent(NStr("en = 'Files.Add attachment';", 
+		WriteLogEvent(NStr("en = 'Files.Add attachment'", 
 			Common.DefaultLanguageCode()),
 			EventLogLevel.Error,,, EventLogComment);
 		
@@ -1171,7 +1164,7 @@ Function MoveFilesBetweenStorageCatalogs(Val FilesOwner, Val Source = Undefined,
 	
 	If Not ValueIsFilled(FilesOwner) Then
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The %1 parameter value is not set in %2.';"), 
+			NStr("en = 'The %1 parameter value is not set in %2.'"), 
 				"FilesOwner","FilesOperations.ConvertFilesToAttachedFiles"), 
 			ErrorCategory.ConfigurationError);
 	EndIf;
@@ -1189,13 +1182,13 @@ Function MoveFilesBetweenStorageCatalogs(Val FilesOwner, Val Source = Undefined,
 		EndDo;
 	EndIf;
 
-	ErrorTitle = NStr("en = 'Error converting attachments.';");
+	ErrorTitle = NStr("en = 'Error converting attachments.'");
 	
 	If Source = Receiver Then
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
 			ErrorTitle + Chars.LF
 				+ NStr("en = 'The source catalog (%1) matches
-			             |the destination catalog (%2).';"),
+			             |the destination catalog (%2).'"),
 				Source, "FilesOperations.MoveFilesBetweenStorageCatalogs"),
 			ErrorCategory.ConfigurationError);
 	EndIf;
@@ -1244,7 +1237,7 @@ Function MoveFilesBetweenStorageCatalogs(Val FilesOwner, Val Source = Undefined,
 					EndIf;
 					
 					If CorrectRef Then
-						// @skip-check query-in-loop - save files in a transaction object-by-object
+						// @skip-check query-in-loop - по-объектная запись файлов в транзакции
 						RefToAttachedFile = CreateAttachedFileBasedOnFile(FilesOwner, 
 							AttachedFilesManager, SourceFileObject, CurrentVersionObject);
 						
@@ -1258,7 +1251,7 @@ Function MoveFilesBetweenStorageCatalogs(Val FilesOwner, Val Source = Undefined,
 						Result.Insert(SourceFileObject.Ref, RefToAttachedFile);
 					EndIf;
 				Else
-					// @skip-check query-in-loop - save files in a transaction object-by-object
+					// @skip-check query-in-loop - по-объектная запись файлов в транзакции
 					RefToAttachedFile = CreateAttachedFileBasedOnFile(FilesOwner, 
 						AttachedFilesManager, SourceFileObject);
 					
@@ -1511,7 +1504,7 @@ Procedure OnCreateAtServer(Form, ItemsToAdd1 = Undefined, SettingsOfFileManageme
 		
 		ItemNumber = Format(IndexOf, "NZ=0; NG=");
 		GroupName = "AttachedFilesManagementGroup" + ItemNumber;
-		GroupTitle = NStr("en = 'Attachment management';") + " "+ ItemNumber;
+		GroupTitle = NStr("en = 'Attachment management'") + " "+ ItemNumber;
 		
 		FormItemParameters = New Structure;
 		FormItemParameters.Insert("GroupName",          GroupName);
@@ -1552,10 +1545,10 @@ EndProcedure
 //    * Owner                   - String - a name of the attribute containing a reference to the owner attached files.
 //                                 The default value is Object.Ref.
 //    * Location                 - String
-//                                 - Undefined - if a form group name or a command panel is specified,
+//                                 - Undefined - if a form group name or a command bar is specified,
 //                                 the hyperlink is placed into the specified group or panel. If a form item
 //                                 name is specified, the hyperlink is inserted before the specified item. If a parameter
-//                                 value is Undefined or an item is not found, the hyperlink is added to the form
+//                                 value is Undefined or an item is not found, the hyperlink is added to the  form
 //                                 after all existing items.
 //                                 The default value is AttachedFilesManagement.
 //    * Title                  - String - a hyperlink title. The default value is Files.
@@ -1577,7 +1570,7 @@ Function FilesHyperlink() Export
 	HyperlinkParameters = New Structure;
 	HyperlinkParameters.Insert("Owner",                  "Object.Ref");
 	HyperlinkParameters.Insert("Location",                "AttachedFilesManagement");
-	HyperlinkParameters.Insert("Title",                 NStr("en = 'Attachments';"));
+	HyperlinkParameters.Insert("Title",                 NStr("en = 'Attachments'"));
 	HyperlinkParameters.Insert("DisplayTitleRight", True);
 	HyperlinkParameters.Insert("DisplayCount",      True);
 	HyperlinkParameters.Insert("AddFiles2",            True);
@@ -1659,7 +1652,7 @@ Function FileField() Export
 	FieldParameters.Insert("PathToPictureData",    Undefined);
 	FieldParameters.Insert("OneFileOnly",            False);
 	FieldParameters.Insert("ShowPreview",    True);
-	FieldParameters.Insert("NonselectedPictureText",  NStr("en = 'Add image';"));
+	FieldParameters.Insert("NonselectedPictureText",  NStr("en = 'Add image'"));
 	FieldParameters.Insert("Title",                 "");
 	FieldParameters.Insert("OutputFileTitle",    False);
 	FieldParameters.Insert("ShowCommandBar", True);
@@ -1670,7 +1663,7 @@ Function FileField() Export
 	FieldParameters.Insert("ClearFile",               True);
 	FieldParameters.Insert("MaximumSize",        0);
 	FieldParameters.Insert("SelectionDialogFilter", 
-		StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask()));
+		StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1'"), GetAllFilesMask()));
 	
 	Return FieldParameters;
 	
@@ -1890,14 +1883,14 @@ Procedure SaveUserScanSettings(UserScanSettings, ClientID) Export
 	Result.Add(FilesOperationsInternal.ScanningSettings("UseScanLogDirectory",
 		UserScanSettings.UseScanLogDirectory, ClientID));
 	
-	CommonServerCall.CommonSettingsStorageSaveArray(Result, True);
+	Common.CommonSettingsStorageSaveArray(Result, True);
 EndProcedure
 
 #Region ForCallsFromOtherSubsystems
 
 // OnlineInteraction
 
-// Следующие процедуры и функции предназначены для интеграции с 1С:Библиотека электронных документов.
+// These procedures and functions are intended for integration with 1C:Electronic Document Library.
 
 // Transfers information about digital file signatures from the tabular file section to the information register.
 //
@@ -1969,12 +1962,12 @@ Procedure ChangeFilesStoragecatalog(Val FilesOwner, CatalogName = Undefined) Exp
 	
 	If Not ValueIsFilled(FilesOwner) Then
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The %1 parameter value is not set in %2.';"), 
+			NStr("en = 'The %1 parameter value is not set in %2.'"), 
 				"FilesOwner","FilesOperations.ChangeFilesStoragecatalog"),
 			ErrorCategory.ConfigurationError);
 	EndIf;
 	
-	ErrorTitle = NStr("en = 'Error converting attachments.';");
+	ErrorTitle = NStr("en = 'Error converting attachments.'");
 	CatalogName = FilesOperationsInternal.FileStoringCatalogName(
 		FilesOwner, CatalogName, ErrorTitle);
 	
@@ -2052,7 +2045,7 @@ Procedure ChangeFilesStoragecatalog(Val FilesOwner, CatalogName = Undefined) Exp
 			AttachedFile.Write();
 			
 			If AttachedFile.FileStorageType = Enums.FileStorageTypes.InInfobase Then
-				// @skip-check query-in-loop - save data object-by-object 
+				// @skip-check query-in-loop - по-объектная запись данных 
 				FileStorage1 = FileFromInfobaseStorage(CurrentVersionObject.Ref);
 				
 				InformationRegisters.FileRepository.WriteBinaryData(RefToNew, FileStorage1.Get());
@@ -2302,7 +2295,7 @@ Procedure MarkToDeleteAttachedFiles(Val Source, CatalogName = Undefined)
 		If Source.DeletionMark And ValueIsFilled(Selection.BeingEditedBy) Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot delete ""%1""
-				           |as it contains the ""%2"" attachment locked for editing.';"),
+				           |as it contains the ""%2"" attachment locked for editing.'"),
 				Common.SubjectString(Source.Ref),
 				String(Selection.Ref));
 		EndIf;
@@ -2429,11 +2422,17 @@ Procedure ExecuteActionsBeforeWriteAttachedFile(Source, Cancel) Export
 		Return;
 	EndIf;
 	
+	If Common.FileInfobase()
+	   And Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
+		ModuleAccessManagementInternal.LockRegistersBeforeWritingAccessConfigurationObjectToFileInformationSystem();
+	EndIf;
+	
 	If Source.IsNew() Then
 		// Check the Add right.
 		If Not FilesOperationsInternal.HasRight("AddFilesAllowed", Source.FileOwner) Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Insufficient rights to add files to folder ""%1.""';"),
+				NStr("en = 'Insufficient rights to add files to folder ""%1.""'"),
 				String(Source.FileOwner));
 			Raise(MessageText, ErrorCategory.AccessViolation);
 		EndIf;
@@ -2451,7 +2450,7 @@ Procedure ExecuteActionsBeforeWriteAttachedFile(Source, Cancel) Export
 		If DeletionMarkChanged Then
 			If Not FilesOperationsInternal.HasRight("FilesDeletionMark", Source.FileOwner) Then
 				MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Insufficient rights to mark files in folder ""%1"" for deletion.';"),
+					NStr("en = 'Insufficient rights to mark files in folder ""%1"" for deletion.'"),
 					String(Source.FileOwner));
 				Raise(MessageText, ErrorCategory.AccessViolation);
 			EndIf;
@@ -2461,12 +2460,12 @@ Procedure ExecuteActionsBeforeWriteAttachedFile(Source, Cancel) Export
 				
 			If Source.BeingEditedBy = Users.AuthorizedUser() Then
 				MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot perform the operation because file ""%1"" file is locked for editing.';"),
+					NStr("en = 'Cannot perform the operation because file ""%1"" file is locked for editing.'"),
 					Source.Description);
 			Else
 				MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot perform the operation because user %2
-						|is editing file ""%1"".';"),
+						|is editing file ""%1"".'"),
 					Source.Description, String(Source.BeingEditedBy));
 			EndIf;
 			Raise MessageText;
@@ -2489,11 +2488,11 @@ Procedure ExecuteActionsBeforeWriteAttachedFile(Source, Cancel) Export
 			Locked3 = ValueIsFilled(Source.BeingEditedBy);
 			
 			If Not Source.IsFolder And Source.SignedWithDS And RefSigned And Locked3 And Not RefLocked Then
-				Raise NStr("en = 'Cannot edit the file because it has been signed.';");
+				Raise NStr("en = 'Cannot edit the file because it has been signed.'");
 			EndIf;
 			
 			If Not Source.IsFolder And Source.Encrypted And RefEncrypted And Source.SignedWithDS And Not RefSigned Then
-				Raise NStr("en = 'Cannot sign an encrypted file.';");
+				Raise NStr("en = 'Cannot sign an encrypted file.'");
 			EndIf;
 			
 		EndIf;
@@ -2539,10 +2538,10 @@ Procedure ExecuteActionsBeforeWriteAttachedFile(Source, Cancel) Export
 	If Not ValueIsFilled(Source.FileOwner) Then
 		
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The owner of file
-			|""%1"" is blank.';"), Source.Description);
+			|""%1"" is blank.'"), Source.Description);
 		
 		If InfobaseUpdate.InfobaseUpdateInProgress() Then
-			WriteLogEvent(NStr("en = 'Files.Error writing file during infobase update';", Common.DefaultLanguageCode()),
+			WriteLogEvent(NStr("en = 'Files.Error writing file during infobase update'", Common.DefaultLanguageCode()),
 				EventLogLevel.Error,, Source.Ref, ErrorDescription);
 		Else
 			Raise ErrorDescription;
@@ -2669,7 +2668,7 @@ Procedure CheckIfTheFileAuthorHasChanged(Val FormerValue, Val Source)
 	
 	ChangedTheAuthorOf = Source.Author <> FormerValue.Author;
 	If ChangedTheAuthorOf Then
-		Raise(NStr("en = 'Insufficient rights to change the file author.';"), ErrorCategory.AccessViolation);
+		Raise(NStr("en = 'Insufficient rights to change the file author.'"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	If TypeOf(Source) = Type("CatalogObject.FilesVersions") Then
@@ -2680,13 +2679,13 @@ Procedure CheckIfTheFileAuthorHasChanged(Val FormerValue, Val Source)
 	If Source.BeingEditedBy <> FormerValue.BeingEditedBy
 		And (InvalidAuthor(Source.BeingEditedBy, CurrentUser) 
 			Or InvalidAuthor(FormerValue.BeingEditedBy, CurrentUser)) Then
-		Raise(NStr("en = 'Insufficient rights to edit the file.';"), ErrorCategory.AccessViolation);
+		Raise(NStr("en = 'Insufficient rights to edit the file.'"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	If Source.ChangedBy <> FormerValue.ChangedBy
 		And (InvalidAuthor(Source.ChangedBy, CurrentUser) 
 			Or InvalidAuthor(FormerValue.ChangedBy, CurrentUser)) Then
-		Raise(NStr("en = 'Insufficient rights to edit the file.';"), ErrorCategory.AccessViolation);
+		Raise(NStr("en = 'Insufficient rights to edit the file.'"), ErrorCategory.AccessViolation);
 	EndIf;
 
 EndProcedure
@@ -2758,13 +2757,13 @@ Procedure CreateFilesHyperlink(Form, ItemToAdd, AttachedFilesOwner, HyperlinkPar
 		
 		SubmenuAdd.Type         = FormGroupType.Popup;
 		SubmenuAdd.Picture    = PictureLib.Clip;
-		SubmenuAdd.Title   = NStr("en = 'Attach files';");
-		SubmenuAdd.ToolTip   = NStr("en = 'Attach files';");
+		SubmenuAdd.Title   = NStr("en = 'Attach files'");
+		SubmenuAdd.ToolTip   = NStr("en = 'Attach files'");
 		SubmenuAdd.Representation = ButtonRepresentation.Picture;
 		
 		ImportFile_           = Form.Commands.Add(CommandPrefix + ImportFileCommandName + "_" + ItemNumber);
 		ImportFile_.Action  = "Attachable_AttachedFilesPanelCommand";
-		CommandTitle = NStr("en = 'Upload local file';");
+		CommandTitle = NStr("en = 'Upload local file'");
 		ImportFile_.ToolTip = CommandTitle;
 		ImportFile_.Title = CommandTitle + "...";
 		
@@ -2783,13 +2782,13 @@ Procedure CreateFilesHyperlink(Form, ItemToAdd, AttachedFilesOwner, HyperlinkPar
 		LoadButtonFromSubmenu.Representation = ButtonRepresentation.Text;
 		
 		CreateByTemplate = Form.Commands.Add(CommandPrefix + CreateFromTemplateCommandName + "_" + ItemNumber);
-		CreateByTemplate.Title = NStr("en = 'Create from template…';");
+		CreateByTemplate.Title = NStr("en = 'Create from template…'");
 		FillPropertyValues(CreateByTemplate, FormCommandProperties);
 		
 		AddButtonOnForm(Form, CreateFromTemplateCommandName + ItemNumber, SubmenuAdd, CreateByTemplate.Name);
 		
 		Scan = Form.Commands.Add(CommandPrefix + ScanCommandName + "_" + ItemNumber);
-		Scan.Title = NStr("en = 'Scan…';");
+		Scan.Title = NStr("en = 'Scan…'");
 		FillPropertyValues(Scan, FormCommandProperties);
 		
 		AddButtonOnForm(Form, ScanCommandName + ItemNumber, SubmenuAdd, Scan.Name);
@@ -2840,12 +2839,12 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 	FormCommandPropertiesPicture.Insert("Representation", ButtonRepresentation.Picture);
 	
 	LoadButtonProperties = New Structure;
-	LoadButtonProperties.Insert("Title",            NStr("en = 'Upload…';"));
+	LoadButtonProperties.Insert("Title",            NStr("en = 'Upload…'"));
 	LoadButtonProperties.Insert("Representation",          ButtonRepresentation.Text);
 	LoadButtonProperties.Insert("ToolTipRepresentation", ToolTipRepresentation.None);
 	
 	SelectionButtonProperties = New Structure;
-	SelectionButtonProperties.Insert("Title",            NStr("en = 'Select from attachments…';"));
+	SelectionButtonProperties.Insert("Title",            NStr("en = 'Select from attachments…'"));
 	SelectionButtonProperties.Insert("Representation",          ButtonRepresentation.Text);
 	SelectionButtonProperties.Insert("ToolTipRepresentation", ToolTipRepresentation.None);
 	
@@ -2890,7 +2889,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 	
 	HeaderGroup = Form.Items.Add("AttachedFilesManagementGroupHeader" + ItemNumber,
 		Type("FormGroup"), PlacementOnFormGroup); // FormGroup
-	HeaderGroup.Title = NStr("en = 'Attachment management';") + " " + ItemNumber;
+	HeaderGroup.Title = NStr("en = 'Attachment management'") + " " + ItemNumber;
 	
 	FillPropertyValues(HeaderGroup, GroupPropertiesWithoutDisplay);
 	HeaderGroup.Group = ChildFormItemsGroup.AlwaysHorizontal;
@@ -2900,7 +2899,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		PreviewItem = Form.Items.Add("AttachedFilePictureField" + ItemNumber,
 			Type("FormField"), PlacementOnFormGroup); // FormFieldExtensionForInputField
 		
-		PreviewItem.Title                  = NStr("en = 'Attachment picture';") + " " + ItemNumber;
+		PreviewItem.Title                  = NStr("en = 'Attachment picture'") + " " + ItemNumber;
 		PreviewItem.Type                        = FormFieldType.PictureField;
 		PreviewItem.TextColor                 = StyleColors.NotSelectedPictureTextColor;
 		PreviewItem.DataPath                = ItemToAdd.PathToPictureData;
@@ -2920,7 +2919,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		
 		ContextMenuAddGroup = Form.Items.Add("FileAddingGroupContextMenu" + ItemNumber,
 			Type("FormGroup"), PreviewContextMenu); // FormGroup
-		ContextMenuAddGroup.Title = NStr("en = 'Context menu ""Add file""';") + " " + ItemNumber;
+		ContextMenuAddGroup.Title = NStr("en = 'Context menu ""Add file""'") + " " + ItemNumber;
 		ContextMenuAddGroup.Type = FormGroupType.ButtonGroup;
 		
 		If ValueIsFilled(PlacementAttribute)
@@ -2939,7 +2938,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 				BinaryDataValue = GetFromTempStorage(RefToBinaryData);
 				If BinaryDataValue = Undefined Then
 					PreviewItem.TextColor = StyleColors.ErrorNoteText;
-					PreviewItem.NonselectedPictureText = NStr("en = 'No image';");
+					PreviewItem.NonselectedPictureText = NStr("en = 'No image'");
 				EndIf;
 				
 			EndIf;
@@ -2979,9 +2978,9 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		TitleHyperlink.AutoMaxWidth = False;
 		If Not ValueIsFilled(PlacementAttribute) Then
 			FileTitle.ToolTip       = "";
-			TitleHyperlink.Title = NStr("en = 'upload';");
+			TitleHyperlink.Title = NStr("en = 'upload'");
 		ElsIf Common.IsReference(TypeOf(PlacementAttribute)) Then
-			FileTitle.ToolTip       = NStr("en = 'Open file';");
+			FileTitle.ToolTip       = NStr("en = 'Open file'");
 			AttachedFileAttributes  = Common.ObjectAttributesValues(PlacementAttribute, "Description, Extension");
 			TitleHyperlink.Title = AttachedFileAttributes.Description
 				+ ?(StrStartsWith(AttachedFileAttributes.Extension, "."), "", ".")
@@ -3007,7 +3006,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 			Form.Items.Move(GroupCommandBar, HeaderGroup);
 			SuppliedItemsGroup = Form.Items.Add("AttachmentsManagement1CSuppliedCommandsGroup" + ItemNumber,
 				Type("FormGroup"), GroupCommandBar); // FormGroup
-			SuppliedItemsGroup.Title = NStr("en = 'Attachment management command';") 
+			SuppliedItemsGroup.Title = NStr("en = 'Attachment management command'") 
 				+ " " + ItemNumber;
 			SuppliedItemsGroup.Type = FormGroupType.ButtonGroup;
 			For Each SuppliedItem In GroupCommandBar.ChildItems Do
@@ -3020,14 +3019,14 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		
 		SubmenuAdd.Type         = FormGroupType.Popup;
 		SubmenuAdd.Picture    = PictureAdd1;
-		SubmenuAdd.Title   = NStr("en = 'Overwrite';");
+		SubmenuAdd.Title   = NStr("en = 'Overwrite'");
 		SubmenuAdd.Representation = ButtonRepresentation.Picture;
 		
 		SubmenuGroup = Form.Items.Add("FileAddingGroup" + ItemNumber,
 			Type("FormGroup"), SubmenuAdd); // FormGroup
 		SubmenuGroup.Type = FormGroupType.ButtonGroup;
 		If ItemToAdd.ShowPreview Then
-			ContextMenuAddGroup.Title = NStr("en = 'Add files';") + " " + ItemNumber;
+			ContextMenuAddGroup.Title = NStr("en = 'Add files'") + " " + ItemNumber;
 		EndIf;
 		
 	EndIf;
@@ -3040,7 +3039,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		
 		ImportFile_ = Form.Commands.Add(CommandNameWithPrefix + "_" + OneFileOnlyText + ItemNumber);
 		ImportFile_.Action  = "Attachable_AttachedFilesPanelCommand";
-		ImportFile_.ToolTip = NStr("en = 'Upload local file';");
+		ImportFile_.ToolTip = NStr("en = 'Upload local file'");
 		
 		If ItemToAdd.ShowCommandBar Then
 			
@@ -3074,7 +3073,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 			CommandNameWithPrefix = CommandPrefix + FilesOperationsClientServer.CreateFromTemplateCommandName();
 			
 			CreateByTemplate = Form.Commands.Add(CommandNameWithPrefix + "_" + ItemNumber);
-			CreateByTemplate.Title = NStr("en = 'Create from template…';");
+			CreateByTemplate.Title = NStr("en = 'Create from template…'");
 			FillPropertyValues(CreateByTemplate, FormCommandProperties);
 		
 			If ItemToAdd.ShowCommandBar Then
@@ -3091,7 +3090,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 			CommandNameWithPrefix = CommandPrefix + FilesOperationsClientServer.ScanCommandName();
 			
 			Scan = Form.Commands.Add(CommandNameWithPrefix + "_" + ItemNumber);
-			Scan.Title = ?(Common.IsMobileClient(), NStr("en = 'Take a photograph…';"), NStr("en = 'Scan…';"));
+			Scan.Title = ?(Common.IsMobileClient(), NStr("en = 'Take a photograph…'"), NStr("en = 'Scan…'"));
 			FillPropertyValues(Scan, FormCommandProperties);
 		
 			If ItemToAdd.ShowCommandBar Then
@@ -3115,7 +3114,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		
 		SelectFile           = Form.Commands.Add(CommandNameWithPrefix + "_" + ItemNumber);
 		SelectFile.Action  = "Attachable_AttachedFilesPanelCommand";
-		SelectFile.ToolTip = NStr("en = 'Select a file from attached ones.';");
+		SelectFile.ToolTip = NStr("en = 'Select a file from attached ones.'");
 		
 		If ItemToAdd.ShowCommandBar Then
 			
@@ -3140,7 +3139,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 	If ItemToAdd.ViewFile Then
 		
 		ViewFile1 = Form.Commands.Add(CommandPrefix + FilesOperationsClientServer.ViewFileCommandName() + "_" + ItemNumber);
-		ViewFile1.Title = NStr("en = 'View';");
+		ViewFile1.Title = NStr("en = 'View'");
 		FillPropertyValues(ViewFile1, FormCommandProperties);
 		
 		If ItemToAdd.OneFileOnly Then
@@ -3159,7 +3158,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		
 		Zap           = Form.Commands.Add(CommandPrefix + FilesOperationsClientServer.ClearCommandName() + "_" + ItemNumber);
 		Zap.Picture  = PictureLib.InputFieldClear;
-		Zap.Title = NStr("en = 'Clear';");
+		Zap.Title = NStr("en = 'Clear'");
 		Zap.ToolTip = Zap.Title;
 		FillPropertyValues(Zap, FormCommandPropertiesPicture);
 		
@@ -3180,8 +3179,8 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		
 		EditFile           = Form.Commands.Add(CommandPrefix + FilesOperationsClientServer.OpenFormCommandName() + "_" + ItemNumber);
 		EditFile.Picture  = PictureLib.InputFieldOpen;
-		EditFile.Title = NStr("en = 'Open card';");
-		EditFile.ToolTip = NStr("en = 'Open the attachment card.';");
+		EditFile.Title = NStr("en = 'Open card'");
+		EditFile.ToolTip = NStr("en = 'Open the attachment card.'");
 		FillPropertyValues(EditFile, FormCommandPropertiesPicture);
 		
 		If ItemToAdd.ShowCommandBar Then
@@ -3199,22 +3198,22 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		
 		EditFile           = Form.Commands.Add(CommandPrefix + FilesOperationsClientServer.EditFileCommandName() + "_" + ItemNumber);
 		EditFile.Picture  = PictureLib.Change;
-		EditFile.Title = NStr("en = 'Edit';");
-		EditFile.ToolTip = NStr("en = 'Open the file for editing.';");
+		EditFile.Title = NStr("en = 'Edit'");
+		EditFile.ToolTip = NStr("en = 'Open the file for editing.'");
 		FillPropertyValues(EditFile, FormCommandPropertiesPicture);
 		
 		PutFile           = Form.Commands.Add(CommandPrefix + FilesOperationsClientServer.PutFileCommandName() + "_" + ItemNumber);
 		PutFile.Picture  = PictureLib.EndFileEditing;
-		PutFile.Title = NStr("en = 'Commit';");
-		PutFile.ToolTip = NStr("en = 'Save the file and release it in the infobase.';");
+		PutFile.Title = NStr("en = 'Commit'");
+		PutFile.ToolTip = NStr("en = 'Save the file and release it in the infobase.'");
 		FillPropertyValues(PutFile, FormCommandPropertiesPicture);
 		
 		CancelEdit = Form.Commands.Add(
 			CommandPrefix + FilesOperationsClientServer.CancelEditCommandName() + "_" + ItemNumber);
 		
 		CancelEdit.Picture  = PictureLib.UnlockFile;
-		CancelEdit.Title = NStr("en = 'Cancel editing';");
-		CancelEdit.ToolTip = NStr("en = 'Release a locked file.';");
+		CancelEdit.Title = NStr("en = 'Cancel editing'");
+		CancelEdit.ToolTip = NStr("en = 'Release a locked file.'");
 		FillPropertyValues(CancelEdit, FormCommandPropertiesPicture);
 		
 		FileDataParameters = FilesOperationsClientServer.FileDataParameters();

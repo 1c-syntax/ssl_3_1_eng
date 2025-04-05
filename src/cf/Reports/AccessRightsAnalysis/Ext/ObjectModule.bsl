@@ -65,7 +65,7 @@ Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
 		Form.ReportSettings.SchemaModified = True;
 		Schema = GetFromTempStorage(Form.ReportSettings.SchemaURL);
 		Field = Schema.DataSets.UsersRights.Fields.Find("AccessGroup");
-		Field.Title = NStr("en = 'User profile';");
+		Field.Title = NStr("en = 'User profile'");
 		Field.ValueType = New TypeDescription("CatalogRef.AccessGroupProfiles");
 		Form.ReportSettings.SchemaURL = PutToTempStorage(Schema, Form.UUID);
 	EndIf;
@@ -161,12 +161,12 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	StandardProcessing = False;
 	
 	If Not Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
-		ErrorText = NStr("en = 'To use the report, deploy the Report options subsystem.';");
+		ErrorText = NStr("en = 'To use the report, deploy the Report options subsystem.'");
 		Raise ErrorText;
 	EndIf;
 	
 	If ObjectRightsOption() And Not AccessManagement.ProductiveOption() Then
-		ErrorText = NStr("en = 'The report option ""User rights to object"" is only supported for high-performance RLS mode.';");
+		ErrorText = NStr("en = 'The report option ""User rights to object"" is only supported for high-performance RLS mode.'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -216,17 +216,17 @@ EndProcedure
 
 Procedure FinishOutput(ResultDocument, DetailsData, RightsSettings)
 	
-	AccessGroupTitle = NStr("en = 'Access group';");
+	AccessGroupTitle = NStr("en = 'Access group'");
 	If AccessManagementInternal.SimplifiedAccessRightsSetupInterface() Then
-		AccessGroupTitle = NStr("en = 'User profile';");
+		AccessGroupTitle = NStr("en = 'User profile'");
 	EndIf;
 	
 	// ACC:163-off - #598.1. The use is permissible, as it affects the meaning.
-	TextIsRestriction  = ?(ObjectRightsOption(), "", NStr("en = 'Has restriction';"));
+	TextIsRestriction  = ?(ObjectRightsOption(), "", NStr("en = 'Has restriction'"));
 	// ACC:163-on
-	TextRightNotAssigned = NStr("en = '●';");
-	TextRightAllowed   = NStr("en = '✔';");
-	TextRightForbidden   = NStr("en = '✘';");
+	TextRightNotAssigned = NStr("en = '●'");
+	TextRightAllowed   = NStr("en = '✔'");
+	TextRightForbidden   = NStr("en = '✘'");
 	FontRightNotAssigned = Undefined;
 	FontRightAllowed   = Undefined;
 	FontRightForbidden   = Undefined;
@@ -342,7 +342,7 @@ Procedure FinishOutput(ResultDocument, DetailsData, RightsSettings)
 	
 EndProcedure
 
-// 
+// Intended for procedure "BeforeImportSettingsToComposer".
 Procedure HideExcessDataFields(Variant, DCSettings, DCUserSettings)
 	
 	UsersRights = New Array;
@@ -447,7 +447,7 @@ Procedure HideExcessDataFields(Variant, DCSettings, DCUserSettings)
 	
 EndProcedure
 
-// 
+// Intended for procedure "HideExcessDataFields".
 Procedure HideDataFieldsExceptSpecified(DataSetName, DataPaths, OriginalScheme, CurrentSchema)
 	
 	Reports.AccessRightsAnalysis.HideDataFieldsExceptSpecified(DataSetName,
@@ -455,7 +455,7 @@ Procedure HideDataFieldsExceptSpecified(DataSetName, DataPaths, OriginalScheme, 
 	
 EndProcedure
 
-// 
+// Intended for procedure "BeforeImportSettingsToComposer".
 Procedure SetAvailableValuesForAccessKindField(Variant, DCSettings, DCUserSettings)
 	
 	DataField = DataCompositionSchema.DataSets.UsersRights.Fields.Find("AccessKind");
@@ -474,15 +474,15 @@ Procedure SetAvailableValuesForAccessKindField(Variant, DCSettings, DCUserSettin
 	
 EndProcedure
 
-// 
+// Intended for procedure "BeforeImportSettingsToComposer".
 Procedure ConfigureAccessRightsAnalysisOption(DCSettings, DCUserSettings)
 	
 	ParameterOutput = DataCompositionSchema.Parameters.OutputGroup;
 	ParameterOutput.UseRestriction = False;
 	
 	Values = New ValueList;
-	Values.Add(0, NStr("en = 'Tables';"));
-	Values.Add(1, NStr("en = 'Reports with tables';"));
+	Values.Add(0, NStr("en = 'Tables'"));
+	Values.Add(1, NStr("en = 'Reports with tables'"));
 	ParameterOutput.SetAvailableValues(Values);
 	ParameterOutput.Value = 0;
 	
@@ -496,19 +496,19 @@ Procedure ConfigureAccessRightsAnalysisOption(DCSettings, DCUserSettings)
 	
 EndProcedure
 
-// 
+// Intended for procedure "BeforeImportSettingsToComposer".
 Procedure ConfigureUsersRightsToObjectOption(DCSettings, DCUserSettings)
 	
 	DataField = DataCompositionSchema.DataSets.UsersRights.Fields.Find("Right");
 	ValueOfField = New ValueList;
-	ValueOfField.Add(1, NStr("en = 'Read';"));
-	ValueOfField.Add(2, NStr("en = 'Update';"));
+	ValueOfField.Add(1, NStr("en = 'Read'"));
+	ValueOfField.Add(2, NStr("en = 'Update'"));
 	DataField.SetAvailableValues(ValueOfField);
 	
 	DataField = DataCompositionSchema.DataSets.UsersRights.Fields.Find("InteractiveRight");
 	ValueOfField = New ValueList;
-	ValueOfField.Add(1, NStr("en = 'View';"));
-	ValueOfField.Add(2, NStr("en = 'Edit';"));
+	ValueOfField.Add(1, NStr("en = 'View'"));
+	ValueOfField.Add(2, NStr("en = 'Edit'"));
 	DataField.SetAvailableValues(ValueOfField);
 	
 	Parameter = DataCompositionSchema.Parameters.DataElement;
@@ -522,7 +522,7 @@ Procedure ConfigureUsersRightsToObjectOption(DCSettings, DCUserSettings)
 	
 EndProcedure
 
-// 
+// Intended for procedure "BeforeImportSettingsToComposer".
 Procedure ConfigureUsersRightsByAllowedValueOption(DCSettings, DCUserSettings)
 	
 	Parameter = DataCompositionSchema.Parameters.AccessValue;
@@ -540,16 +540,16 @@ Procedure ConfigureUsersRightsByAllowedValueOption(DCSettings, DCUserSettings)
 	SimplifiedInterface = AccessManagementInternal.SimplifiedAccessRightsSetupInterface();
 	
 	Values = New ValueList;
-	Values.Add(0, NStr("en = 'Tables with user rights';"));
-	Values.Add(1, NStr("en = 'Users';"));
+	Values.Add(0, NStr("en = 'Tables with user rights'"));
+	Values.Add(1, NStr("en = 'Users'"));
 	Values.Add(2, ?(SimplifiedInterface,
-		NStr("en = 'User with profile count';"), NStr("en = 'User with access group count';")));
+		NStr("en = 'User with profile count'"), NStr("en = 'User with access group count'")));
 	Values.Add(3, ?(SimplifiedInterface,
-		NStr("en = 'Profiles with users';"), NStr("en = 'Access groups with users';")));
+		NStr("en = 'Profiles with users'"), NStr("en = 'Access groups with users'")));
 	Values.Add(4, ?(SimplifiedInterface,
-		NStr("en = 'Access group profiles';"), NStr("en = 'Access groups';")));
+		NStr("en = 'Access group profiles'"), NStr("en = 'Access groups'")));
 	Values.Add(5, ?(SimplifiedInterface,
-		NStr("en = 'Tables with profile rights';"), NStr("en = 'Tables with access group rights';")));
+		NStr("en = 'Tables with profile rights'"), NStr("en = 'Tables with access group rights'")));
 	ParameterOutput.SetAvailableValues(Values);
 	ParameterOutput.Value = 0;
 	
@@ -568,7 +568,7 @@ Procedure ConfigureUsersRightsByAllowedValueOption(DCSettings, DCUserSettings)
 	
 EndProcedure
 
-// 
+// Intended for procedure "BeforeImportSettingsToComposer".
 Procedure ConfigureContextOpeningParameters(Context, Variant, DCSettings, DCUserSettings)
 	
 	If Variant = "UsersRightsToTable"
@@ -2182,37 +2182,37 @@ Function UsersRights()
 			+ Common.QueryBatchSeparator()
 			+ QueryTextWithoutGroupingByReportsWithAccessRestrictionsEnd();
 		Query.Text = QueryTextShared();
-		Query.SetParameter("TextAllowed", " (" + NStr("en = 'Allowed';")+ ")");
-		Query.SetParameter("TextForbidden", " (" + NStr("en = 'Denied';") + ")");
-		Query.SetParameter("TextAllowedUsers", " (" + NStr("en = 'Allowed';") + ") - "
-			+ NStr("en = 'Authorized user and their groups are always allowed';"));
-		Query.SetParameter("TextForbiddenUsers", " (" + NStr("en = 'Denied';") + ") - "
-			+ NStr("en = 'Authorized user and their groups are always allowed';"));
-		Query.SetParameter("RestrictionDisabled", "<" + NStr("en = 'Restriction disabled';")+ ">");
+		Query.SetParameter("TextAllowed", " (" + NStr("en = 'Allowed'")+ ")");
+		Query.SetParameter("TextForbidden", " (" + NStr("en = 'Denied'") + ")");
+		Query.SetParameter("TextAllowedUsers", " (" + NStr("en = 'Allowed'") + ") - "
+			+ NStr("en = 'Authorized user and their groups are always allowed'"));
+		Query.SetParameter("TextForbiddenUsers", " (" + NStr("en = 'Denied'") + ") - "
+			+ NStr("en = 'Authorized user and their groups are always allowed'"));
+		Query.SetParameter("RestrictionDisabled", "<" + NStr("en = 'Restriction disabled'")+ ">");
 		Query.SetParameter("NonStandardRestriction",
-			?(UniversalRestriction, "<" + NStr("en = 'Custom restriction';") + ">",
+			?(UniversalRestriction, "<" + NStr("en = 'Custom restriction'") + ">",
 				Reports.AccessRightsAnalysis.RestrictionPresentationWithoutAccessKinds()));
-		Query.SetParameter("TextUnlimited", "<" + NStr("en = 'No restriction';") + ">");
-		Query.SetParameter("TextAllAllowed", "<" + NStr("en = 'All allowed';") + ">");
-		Query.SetParameter("TextAllForbidden", "<" + NStr("en = 'All denied';") + ">");
+		Query.SetParameter("TextUnlimited", "<" + NStr("en = 'No restriction'") + ">");
+		Query.SetParameter("TextAllAllowed", "<" + NStr("en = 'All allowed'") + ">");
+		Query.SetParameter("TextAllForbidden", "<" + NStr("en = 'All denied'") + ">");
 		Query.SetParameter("EmptyAccessValueReferences", EmptyAccessValueReferences);
 		AllTablesWithRestriction = New Array;
 		Query.SetParameter("AccessRestrictionKinds",
 			Reports.AccessRightsAnalysis.AccessRestrictionKinds(,, AllTablesWithRestriction));
 		Query.SetParameter("AllTablesWithRestriction", AllTablesWithRestriction);
-		// Отображение специальных ограничений:
-		// 1. Права по ограничению не показываются (информация в правах без ограничения на группе доступа):
-		//    <Без ограничения> - ограничения нет в одной из ролей профиля групп доступа.
-		// 2. Права по ограничению показываются с ограничением (как для случая <Все разрешены>):
-		//    <Ограничение без видов доступа> - есть ограничение без видов доступа (специальные функции).
-		//    <Доступ запрещен> - безусловное ограничение на уровне логики ограничения "ГДЕ ЛОЖЬ".
-		//    <Ограничение отключено в профиле> - значит
-		//        нет настройки по видам доступа в профиле и
-		//        нет ограничения без видов доступа.
-		//    <Ограничение отключено>, <Ограничение чтения отключено> - значит
-		//        ограничение отключено во всех группах доступа или
-		//        отключено по видам доступа на уровне функциональных опций или
-		//        отключено на уровне логики ограничения "ГДЕ ИСТИНА".
+		// Display of special restrictions:
+		// 1. Access rights without restrictions are not displayed (information appears as unrestricted access in the access group profile):
+		//    <No restriction>: The restriction is absent in one of the roles within the access group profile.
+		// 2. Access rights with restrictions are displayed (similar to <All allowed>):
+		//    <Restriction without access types>: A restriction exists without specific access types (special functions).
+		//    <Access denied>: An absolute restriction based on the "WHERE FALSE" condition.
+		//    <Restriction disabled in profile>: No access type settings exist in the profile, and there is no
+		//        restriction without access types.
+		//        <Restriction disabled>, <Read restriction disabled>: The restriction is:
+		//        - Disabled in all access groups, or
+		//            - Disabled by access types at the functional option level, or
+		//            - Disabled at the restriction logic level based on "WHERE TRUE".
+		//        
 		
 	ElsIf ObjectRightsOption Then
 		DataElement = FilterByDataElements();
@@ -2652,12 +2652,12 @@ Function RightsSettingsOnObjects()
 	Query.SetParameter("HasHierarchy",   RightsSettings.HasHierarchy);
 	Query.SetParameter("EmptyParent", RightsSettings.EmptyRef);
 	Query.SetParameter("TitlesRight",  TitlesRight);
-	Query.SetParameter("ViewPersonal",  NStr("en = 'Personal';"));
-	Query.SetParameter("ViewUndefined", NStr("en = 'Undefined';"));
+	Query.SetParameter("ViewPersonal",  NStr("en = 'Personal'"));
+	Query.SetParameter("ViewUndefined", NStr("en = 'Undefined'"));
 	Query.SetParameter("ViewUserGroup",
-		" (" + NStr("en = 'User group';") + ")");
+		" (" + NStr("en = 'User group'") + ")");
 	Query.SetParameter("ExternalUserGroupView",
-		" (" + NStr("en = 'External user group';") + ")");
+		" (" + NStr("en = 'External user group'") + ")");
 	
 	Query.Text =
 	"SELECT
@@ -2942,9 +2942,9 @@ Function DescriptionColumnsForSubfolders()
 	
 	Result = New Structure;
 	Result.Insert("Name", "ForSubfolders");
-	Result.Insert("Title", NStr("en = 'For subfolders';"));
+	Result.Insert("Title", NStr("en = 'For subfolders'"));
 	Result.Insert("ToolTip",
-		NStr("en = 'Rights both for the current folder and its subfolders';"));
+		NStr("en = 'Rights both for the current folder and its subfolders'"));
 	
 	Return Result;
 	
@@ -2957,7 +2957,7 @@ Function SettingsRightsLegend(TitlesRight, HasHierarchy)
 	If HasHierarchy Then
 		NewRow = Result.Insert(0);
 		NewRow.TitlePermissions = "";
-		NewRow.HintPermissions = NStr("en = 'Right inheritance from parent folders';");
+		NewRow.HintPermissions = NStr("en = 'Right inheritance from parent folders'");
 	EndIf;
 	
 	For Each String In Result Do
@@ -3000,9 +3000,9 @@ Function DataItemPresentation(DataElement)
 	
 	TemplateOfPresentation = ?(FieldsDetails.Count() = 1,
 		NStr("en = 'Register record ""%1"" with a key field:
-		           |%2';"),
+		           |%2'"),
 		NStr("en = 'Register record ""%1"" with key fields:
-		           |%2';"));
+		           |%2'"));
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(TemplateOfPresentation,
 		DataPresentation, StrConcat(FieldList, "," + Chars.LF));
@@ -3054,5 +3054,5 @@ EndProcedure
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

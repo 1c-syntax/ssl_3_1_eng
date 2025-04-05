@@ -176,7 +176,7 @@ EndFunction
 //  URL - String - URL resource address to be diagnosed.
 //  WriteError1 - Boolean - indicates whether it is necessary to write errors to the event log.
 //  IsPackageDeliveryCheckEnabled - Boolean - Include a PING command to the required URL resource in the diagnostics.
-//  ErrorText - String - 
+//  ErrorText - String - Original exception text.
 //
 // Returns:
 //  Structure:
@@ -194,22 +194,22 @@ Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEn
 	
 	LongDesc = New Array;
 	LongDesc.Add(StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Accessing URL: %1.';"), 
+		NStr("en = 'Accessing URL: %1.'"), 
 		URL));
 	LongDesc.Add(GetFilesFromInternetInternal.DiagnosticsLocationPresentation());
 	
 	RefStructure = CommonClientServer.URIStructure(URL);
 	
 	If Not IsBlankString(ErrorText)
-		And StrFind(Upper(ErrorText), Upper("Deleted node not passed checking")) > 0 Then // ACC:1297 Нелокализуемый фрагмент информации об ошибке в исключении.
+		And StrFind(Upper(ErrorText), Upper("Deleted node not passed checking")) > 0 Then // ACC:1297 - A non-localizable piece of information about an exception error.
 		
 		
 		LongDesc.Add(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Необходимо установить корневой и промежуточные сертификаты к %1 на компьютере <%2>.';"),
+			NStr("en = 'Install the root and intermediate certificates for %1 on the computer <%2>.'"),
 			RefStructure.ServerName,
 			ComputerName()));
 		
-		GetFilesFromInternetLocalization.WhenGeneratingMessageAboutKnownProblem(LongDesc, ErrorText);
+		GetFilesFromInternetLocalization.OnGenerateMessageAboutKnownIssue(LongDesc, ErrorText);
 		
 		ErrorDescription = StrConcat(LongDesc, Chars.LF);
 		
@@ -222,9 +222,9 @@ Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEn
 	EndIf;
 	
 	If Common.DataSeparationEnabled() Then
-		LongDesc.Add(NStr("en = 'Please contact the administrator.';"));
+		LongDesc.Add(NStr("en = 'Please contact the administrator.'"));
 			
-		GetFilesFromInternetLocalization.WhenGeneratingMessageAboutKnownProblem(LongDesc, ErrorText);
+		GetFilesFromInternetLocalization.OnGenerateMessageAboutKnownIssue(LongDesc, ErrorText);
 		
 		ErrorDescription = StrConcat(LongDesc, Chars.LF);
 		
@@ -241,12 +241,12 @@ Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEn
 		Log.Add(
 			NStr("en = 'Diagnostics log:
 			           |Server availability test.
-			           |See the error description in the next log record.';"));
+			           |See the error description in the next log record.'"));
 	Else
 		Log.Add(
 			NStr("en = 'Diagnostics log:
 			           |Monitoring server availability test.
-			           |See the error details in the next log record.';"));
+			           |See the error details in the next log record.'"));
 	EndIf;
 	Log.Add();
 	
@@ -258,7 +258,7 @@ Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEn
 		
 		LongDesc.Add(
 			NStr("en = 'Connection diagnostics are not performed because a proxy server is configured.
-			           |Please contact the administrator.';"));
+			           |Please contact the administrator.'"));
 		
 	Else
 		
@@ -276,7 +276,7 @@ Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEn
 				
 				LongDesc.Add(StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Attempted to access a resource that does not exist on server %1,
-					           |or some issues occurred on the remote server.';"),
+					           |or some issues occurred on the remote server.'"),
 					ResourceServerAddress));
 				
 			Else 
@@ -290,7 +290,7 @@ Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEn
 						NStr("en = 'No Internet access. Possible reasons:
 						           |- Computer is not connected to the Internet.
 						           | - Internet provider issues.
-						           |- Access blocked by firewall, antivirus, or other software.';"));
+						           |- Access blocked by firewall, antivirus, or other software.'"));
 					
 				Else 
 					
@@ -298,7 +298,7 @@ Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEn
 						NStr("en = 'Server %1 is currently unavailable. Possible reasons:
 						           |- Internet provider issues.
 						           |- Access blocked by firewall, antivirus, or other software.
-						           |- Server is disabled or undergoing maintenance.';"),
+						           |- Server is disabled or undergoing maintenance.'"),
 						ResourceServerAddress));
 					
 					TraceLog = GetFilesFromInternetInternal.ServerRouteTraceLog(ResourceServerAddress);
@@ -317,7 +317,7 @@ Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEn
 						NStr("en = 'No Internet access. Possible reasons:
 						           |- Computer is not connected to the Internet.
 						           | - Internet provider issues.
-						           |- Access blocked by firewall, antivirus, or other software.';"));
+						           |- Access blocked by firewall, antivirus, or other software.'"));
 					
 				Else 
 					
@@ -325,7 +325,7 @@ Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEn
 						NStr("en = 'Server %1 is currently unavailable. Possible reasons:
 						           |- Internet provider issues.
 						           |- Access blocked by firewall, antivirus, or other software.
-						           |- Server is disabled or undergoing maintenance.';"),
+						           |- Server is disabled or undergoing maintenance.'"),
 						ResourceServerAddress));
 					
 					TraceLog = GetFilesFromInternetInternal.ServerRouteTraceLog(ResourceServerAddress);
@@ -336,7 +336,7 @@ Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEn
 		
 	EndIf;
 	
-	GetFilesFromInternetLocalization.WhenGeneratingMessageAboutKnownProblem(LongDesc, ErrorText);
+	GetFilesFromInternetLocalization.OnGenerateMessageAboutKnownIssue(LongDesc, ErrorText);
 	
 	ErrorDescription = StrConcat(LongDesc, Chars.LF);
 	
@@ -347,7 +347,7 @@ Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEn
 	
 	If WriteError1 Then
 		WriteLogEvent(
-			NStr("en = 'Connection diagnostics';", Common.DefaultLanguageCode()),
+			NStr("en = 'Connection diagnostics'", Common.DefaultLanguageCode()),
 			EventLogLevel.Error,,, DiagnosticsLog);
 	EndIf;
 	

@@ -62,7 +62,7 @@ Function TransformContactInformationXML(Val Data) Export
 	Result = ContactsManager.ContactInfoFieldsToConvert();
 	
 	StandardProcessing = True;
-	ContactsManagerLocalization.WhenConvertingContactInformationToXMLN(Data, Result, StandardProcessing);
+	ContactsManagerLocalization.OnConvertContactInfoToXML(Data, Result, StandardProcessing);
 	If Not StandardProcessing And Result <> Undefined Then
 		Return Result;
 	EndIf;

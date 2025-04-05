@@ -5,6 +5,18 @@
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<ChildItems>
 			<ButtonGroup name="GroupAuxiliaryCommands" id="505">
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Auxiliary command</v8:content>
+					</v8:item>
+				</Title>
+				<ToolTip>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Group Auxiliary command</v8:content>
+					</v8:item>
+				</ToolTip>
 				<ExtendedTooltip name="GroupAuxiliaryCommandsExtendedTooltip" id="506"/>
 				<ChildItems>
 					<Button name="FormClose" id="295">
@@ -64,14 +76,20 @@
 					<Button name="FormQuestionInSupport" id="503">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.Command.QuestionInSupport</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Contact support</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormQuestionInSupportExtendedTooltip" id="504"/>
 					</Button>
-					<Button name="FormDownloadTechnicalInfo" id="432">
+					<Button name="FormInformationToSendToSupport" id="432">
 						<Type>CommandBarButton</Type>
-						<CommandName>Form.Command.DownloadTechnicalInfo</CommandName>
+						<CommandName>Form.Command.InformationToSendToSupport</CommandName>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-						<ExtendedTooltip name="FormDownloadTechnicalInfoExtendedTooltip" id="433"/>
+						<ExtendedTooltip name="FormInformationToSendToSupportExtendedTooltip" id="433"/>
 					</Button>
 				</ChildItems>
 			</ButtonGroup>
@@ -2144,12 +2162,12 @@ WHERE
 			</ToolTip>
 			<Action>SetComponentExtraCryptoAPI</Action>
 		</Command>
-		<Command name="DownloadTechnicalInfo" id="8">
+		<Command name="InformationToSendToSupport" id="8">
 			<Picture>
 				<xr:Ref>CommonPicture.Download</xr:Ref>
 				<xr:LoadTransparent>false</xr:LoadTransparent>
 			</Picture>
-			<Action>DownloadTechnicalInfo</Action>
+			<Action>InformationToSendToSupport</Action>
 		</Command>
 		<Command name="AddFromDirectory" id="9">
 			<Title>
@@ -2210,6 +2228,18 @@ WHERE
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 		<Command name="QuestionInSupport" id="13">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Contact support</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Contact support</v8:content>
+				</v8:item>
+			</ToolTip>
 			<Picture>
 				<xr:Ref>CommonPicture.SendEmail</xr:Ref>
 				<xr:LoadTransparent>false</xr:LoadTransparent>

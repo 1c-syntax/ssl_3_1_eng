@@ -40,7 +40,7 @@ EndFunction
 Function BaseType() Export
 	
 	If Not Common.SubsystemExists("CloudTechnology") Then
-		Raise NStr("en = 'There is no Service manager.';");
+		Raise NStr("en = 'There is no Service manager.'");
 	EndIf;
 	
 	ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
@@ -90,25 +90,25 @@ EndProcedure
 
 Function SettingsGetActionPresentation()
 	
-	Return NStr("en = 'Getting data synchronization settings from Service manager.';");
+	Return NStr("en = 'Getting data synchronization settings from Service manager.'");
 	
 EndFunction
 
 Function SynchronizationEnablingPresentation()
 	
-	Return NStr("en = 'Enabling data synchronization in Service manager.';");
+	Return NStr("en = 'Enabling data synchronization in Service manager.'");
 	
 EndFunction
 
 Function SynchronizationDisablingPresentation()
 	
-	Return NStr("en = 'Disabling data synchronization in Service manager.';");
+	Return NStr("en = 'Disabling data synchronization in Service manager.'");
 	
 EndFunction
 
 Function SynchronizationExecutionPresentation()
 	
-	Return NStr("en = 'Running data synchronization by user request.';");
+	Return NStr("en = 'Running data synchronization by user request.'");
 	
 EndFunction
 

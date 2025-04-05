@@ -712,7 +712,7 @@ Function CreateEmail(Message, Account, SendImmediately = True) Export
 		RollbackTransaction();
 		ErrorInfo = ErrorInfo();
 		MessageTextTemplate = NStr("en = 'Cannot generate a mail. Reason:
-			|%1';");
+			|%1'");
 		
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(),
 			EventLogLevel.Error,, MailMessage,
@@ -733,12 +733,13 @@ Function CreateEmail(Message, Account, SendImmediately = True) Export
 		SendingResult = ExecuteEmailSending(MailMessage);
 	Except
 		ErrorInfo = ErrorInfo();
-		If ErrorInfo.IsErrorOfCategory(ErrorCategory.ConfigurationError) Then
+		
+		If Not EmailOperationsInternalClientServer.ThisIsErrorInWorkOfInternetMail(ErrorInfo) Then
 			Raise;
 		EndIf;
-
+		
 		MessageTextTemplate = NStr("en = 'Cannot send the mail. Reason:
-				|%1';");
+				|%1'");
 		ErrorText = EmailOperations.ExtendedErrorPresentation(ErrorInfo, Common.DefaultLanguageCode());
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(),
 			EventLogLevel.Error,, MailMessage,
@@ -769,7 +770,7 @@ Function CreateEmail(Message, Account, SendImmediately = True) Export
 				
 			ErrorInfo = ErrorInfo();
 			MessageTextTemplate = NStr("en = 'Couldn''t save outgoing mail. Reason:
-				|%1';");
+				|%1'");
 				
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(),
 				EventLogLevel.Error,, MailMessage,
@@ -895,7 +896,7 @@ Procedure CreateAndSendSMSMessage(Message) Export
 	SMSMessage.MessageText          = Message.Text;
 	SMSMessage.Subject                    = SubjectByMessageText(Message.Text);
 	SMSMessage.SendInTransliteration    = Message.AdditionalParameters.Transliterate;
-	SMSMessage.Comment = NStr("en = 'Created from template and sent';") + " - " + Message.AdditionalParameters.Description;
+	SMSMessage.Comment = NStr("en = 'Created from template and sent'") + " - " + Message.AdditionalParameters.Description;
 	
 	For Each SMSMessageAddressee In Message.Recipient Do
 		
@@ -1179,7 +1180,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		InteractionID = "Interactions" + StrReplace(Section.FullName(), ".", "");
 		UserTaskParent = ToDoList.Add();
 		UserTaskParent.Id  = InteractionID;
-		UserTaskParent.Presentation  = NStr("en = 'Mailbox';");
+		UserTaskParent.Presentation  = NStr("en = 'Mailbox'");
 		UserTaskParent.Form          = "DocumentJournal.Interactions.ListForm";
 		UserTaskParent.Owner       = Section;
 		
@@ -1217,7 +1218,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Id = New UUID("35e85460-7125-4079-b5df-5a71dbb43a49");
 	Handler.Procedure = "Catalogs.EmailMessageFolders.ProcessDataForMigrationToNewVersion";
 	Handler.Comment =
-		NStr("en = 'Fills in the predefined folder type in the ""Email folders"" catalog';");
+		NStr("en = 'Fills in the predefined folder type in the ""Email folders"" catalog'");
 	Handler.ExecutionMode = "Deferred";
 	Handler.UpdateDataFillingProcedure = "Catalogs.EmailMessageFolders.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.CheckProcedure    = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
@@ -1230,7 +1231,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Id = New UUID("35e85660-7125-4079-b5df-5a71dbb43a48");
 	Handler.Procedure = "Documents.OutgoingEmail.ProcessDataForMigrationToNewVersion";
 	Handler.Comment =
-		NStr("en = 'Filling in the ""Text"" attribute of the ""Outbox e-mail"" document for HTML messages which were not previously filled in with it by mistake';");
+		NStr("en = 'Filling in the ""Text"" attribute of the ""Outbox e-mail"" document for HTML messages which were not previously filled in with it by mistake'");
 	Handler.ExecutionMode = "Deferred";
 	Handler.UpdateDataFillingProcedure = "Documents.OutgoingEmail.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.CheckProcedure    = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
@@ -1376,7 +1377,7 @@ Procedure OnSearchForReferenceReplacement(ReplacementPairs, UnprocessedOriginals
 		
 		Except
 			RollbackTransaction();
-			WriteLogEvent(NStr("en = 'Find and replace references';", Common.DefaultLanguageCode()),
+			WriteLogEvent(NStr("en = 'Find and replace references'", Common.DefaultLanguageCode()),
 				EventLogLevel.Error,
 				UnprocessedDuplicate.ValueToReplace.Metadata(),,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
@@ -1460,11 +1461,11 @@ Function AvailableSearchesList(FTSEnabled, Parameters, FormItems, ForAddressBook
 		Presentation = Parameters.Presentation;
 	EndIf;
 	
-	AddSearchOption(AllSearchLists, FormItems.SearchOptions, "ByEmail", NStr("en = 'In email address';"), Address);
-	AddSearchOption(AllSearchLists, FormItems.SearchOptions, "ByDomain", NStr("en = 'In domain name';"), DomainAddress);
+	AddSearchOption(AllSearchLists, FormItems.SearchOptions, "ByEmail", NStr("en = 'In email address'"), Address);
+	AddSearchOption(AllSearchLists, FormItems.SearchOptions, "ByDomain", NStr("en = 'In domain name'"), DomainAddress);
 	
 	If Not ForAddressBook And (Parameters.Property("EmailOnly") And Not Parameters.EmailOnly) Then
-		AddSearchOption(AllSearchLists, FormItems.SearchOptions, "ByPhone", NStr("en = 'In phone number';"), Address);
+		AddSearchOption(AllSearchLists, FormItems.SearchOptions, "ByPhone", NStr("en = 'In phone number'"), Address);
 	EndIf;
 	
 	If Not FullTextSearch.GetFullTextSearchMode() = FullTextSearchMode.Disable Then
@@ -1473,10 +1474,10 @@ Function AvailableSearchesList(FTSEnabled, Parameters, FormItems, ForAddressBook
 	
 	If FTSEnabled Then
 		AddSearchOption(AllSearchLists, FormItems.SearchOptions, "ByLine",
-			NStr("en = 'In description';"), SearchByStringOptions);
+			NStr("en = 'In description'"), SearchByStringOptions);
 	EndIf;
 	
-	AddSearchOption(AllSearchLists, FormItems.SearchOptions, "BeginsWith", NStr("en = 'Begins with';"), Presentation);
+	AddSearchOption(AllSearchLists, FormItems.SearchOptions, "BeginsWith", NStr("en = 'Begins with'"), Presentation);
 	
 	Return AllSearchLists;
 	
@@ -1769,10 +1770,9 @@ Function SearchForContactsByInteractionsChainQueryText(PutInTempTable)
 	SearchResultsList.Add("OutgoingEmail.ReplyRecipients",       "Contact");
 	SearchResultsList.Add("OutgoingEmail.BccRecipients", "Contact");
 	
-	// @query-part-1
 	TextTempTable = ?(PutInTempTable, "INTO TableOfContacts
 		|",
-		"");
+		""); // @query-part-1
 		
 	RefsConditionTemplate = ConditionTemplateForRefsToContactsForQuery();
 	QueryTexts = New Array; 
@@ -1961,11 +1961,10 @@ Function QueryTextToGetContactsInformation(IncludeEmail)
 			
 	EndDo;
 	
-	// @query-part-1
 	QueryText = StrConcat(QueryTexts, Chars.LF + "UNION ALL" + Chars.LF)
 		+ "
 		|ORDER BY
-		|	Description"; // @query-part-1
+		|	Description"; // @query-part-1, @query-part-2
 	
 	Return QueryText;
 	
@@ -2025,10 +2024,10 @@ Function GenerateQueryTextForSearchByEmail(SearchByList, TotalsByEmail = False)
 		
 	EndDo;
 	
-	QueryText = StrConcat(QueryTexts, Chars.LF + "UNION ALL" + Chars.LF) // @query-part
+	QueryText = StrConcat(QueryTexts, Chars.LF + "UNION ALL" + Chars.LF)
 		+ "
 		|ORDER BY
-		|	Description"; // @query-part
+		|	Description"; // @query-part-1, @query-part-2
 	If TotalsByEmail Then
 		QueryText = QueryText + "
 		|TOTALS BY
@@ -2201,11 +2200,10 @@ Function ContactsByDomainAddress(Val DomainName)
 		Return Undefined;
 	EndIf;
 	
-	// @query-part
 	QueryText = StrConcat(QueryTexts, Chars.LF + "UNION ALL" + Chars.LF) + "
 		|ORDER BY
 		|	Ref,
-		|	EMAddress"; // @query-part
+		|	EMAddress"; // @query-part-1, @query-part-2
 	
 	Query = New Query(QueryText);
 	Query.SetParameter("SearchString", "%@" + Common.GenerateSearchQueryString(DomainName) + "%");	
@@ -2230,7 +2228,7 @@ Function FullTextContactsSearchByRow(Val SearchString, FoundContacts, Val ForAdd
 	
 	If FullTextSearch.GetFullTextSearchMode() = FullTextSearchMode.Disable
 		Or Not GetFunctionalOption("UseFullTextSearch") Then
-		Return NStr("en = 'Full-text search is not available.';");
+		Return NStr("en = 'Full-text search is not available.'");
 	EndIf;
 	
 	MetadataArray = ContactsMetadata();
@@ -2246,7 +2244,7 @@ Function FullTextContactsSearchByRow(Val SearchString, FoundContacts, Val ForAdd
 	Except
 		Return NStr("en = 'Nothing was found. Please try another search expression.
 		              |Hint: use asterisk to search by a part of a word. Search for ""ment"" will return nothing, while search for ""*ment"" will return ""agreement"", ""document"", and so on.
-		              |See Help for search syntax.';");
+		              |See Help for search syntax.'");
 	EndTry;
 	
 	FoundItemsCount1 = SearchResultsList.Count();
@@ -2282,7 +2280,7 @@ Function FullTextContactsSearchByRow(Val SearchString, FoundContacts, Val ForAdd
 		NewRow.PresentationFilled = ?(IsBlankString(NewRow.Presentation), False, True);
 	EndDo;
 	
-	Return ?(FoundItemsCount1 < 101, "", NStr("en = 'Refine the search parameters. The search result is too big to accommodate in the list.';"));
+	Return ?(FoundItemsCount1 < 101, "", NStr("en = 'Refine the search parameters. The search result is too big to accommodate in the list.'"));
 	
 EndFunction
 
@@ -2334,11 +2332,10 @@ Function QueryTextSearchForContactsByString()
 		
 	EndDo;
 	
-	// @query-part
 	QueryText = StrConcat(QueryTexts, Chars.LF + "UNION ALL" + Chars.LF)
 		+ "
 		|ORDER BY
-		|	Description"; // @query-part
+		|	Description"; // @query-part-1, @query-part-2
 	
 	Return QueryText;
 	
@@ -2400,11 +2397,10 @@ Function GetSearchForContactsQueryTextByEmailString()
 		
 	EndDo;
 	
-	// @query-part
 	QueryText = StrConcat(QueryTexts, Chars.LF + "UNION ALL" + Chars.LF)
 		+ "
 		|ORDER BY
-		|	Description"; // @query-part
+		|	Description"; //  @query-part-1, @query-part-2
 	
 	Return QueryText;
 	
@@ -2829,12 +2825,12 @@ EndProcedure
 Procedure GenerateChoiceListInteractionTypeEmailOnly(Item)
 	
 	Item.ChoiceList.Clear();
-	Item.ChoiceList.Add("AllEmails", NStr("en = 'All mail';"));
-	Item.ChoiceList.Add("IncomingMessages", NStr("en = 'Inbox';"));
-	Item.ChoiceList.Add("MessageDrafts", NStr("en = 'Drafts';"));
-	Item.ChoiceList.Add("OutgoingMessages", NStr("en = 'Outbox';"));
-	Item.ChoiceList.Add("SentMessages", NStr("en = 'Sent';"));
-	Item.ChoiceList.Add("DeletedMessages", NStr("en = 'Trash';"));
+	Item.ChoiceList.Add("AllEmails", NStr("en = 'All mail'"));
+	Item.ChoiceList.Add("IncomingMessages", NStr("en = 'Inbox'"));
+	Item.ChoiceList.Add("MessageDrafts", NStr("en = 'Drafts'"));
+	Item.ChoiceList.Add("OutgoingMessages", NStr("en = 'Outbox'"));
+	Item.ChoiceList.Add("SentMessages", NStr("en = 'Sent'"));
+	Item.ChoiceList.Add("DeletedMessages", NStr("en = 'Trash'"));
 	
 EndProcedure
 
@@ -2927,7 +2923,6 @@ Function ContactsEmailAddresses(Contacts, RecipientsGroup = "") Export
 			
 	EndDo;
 	
-	// @query-part
 	QueryText = StrConcat(QueryTexts, Chars.LF + "UNION ALL" + Chars.LF)
 		+ "
 		|;
@@ -2953,7 +2948,7 @@ Function ContactsEmailAddresses(Contacts, RecipientsGroup = "") Export
 		|TOTALS
 		|BY
 		|	Contact
-		|"; // @query-part-1
+		|"; //  @query-part-1, @query-part-2
 	
 	Query = New Query(QueryText);
 	Query.SetParameter("ContactsArray", Contacts);
@@ -3860,14 +3855,14 @@ Procedure SetEmailFormHeader(Form) Export
 	If Not ObjectEmail.Ref.IsEmpty() Then
 		Form.AutoTitle = False;
 		
-		FormCaption = ?(IsBlankString(ObjectEmail.Subject), NStr("en = 'No-subject email (%1)';"), ObjectEmail.Subject + " (%1)");
+		FormCaption = ?(IsBlankString(ObjectEmail.Subject), NStr("en = 'No-subject email (%1)'"), ObjectEmail.Subject + " (%1)");
 		Form.Title  = StringFunctionsClientServer.SubstituteParametersToString(FormCaption,
-			?(TypeOf(ObjectEmail.Ref) = Type("DocumentRef.IncomingEmail"), NStr("en = 'Incoming';"), NStr("en = 'Outgoing';")));
+			?(TypeOf(ObjectEmail.Ref) = Type("DocumentRef.IncomingEmail"), NStr("en = 'Incoming'"), NStr("en = 'Outgoing'")));
 			
 	Else
 		If TypeOf(ObjectEmail.Ref) = Type("DocumentRef.OutgoingEmail") Then
 			Form.AutoTitle = False;
-			Form.Title = NStr("en = 'Mail message (Create)';");
+			Form.Title = NStr("en = 'Mail message (Create)'");
 		EndIf;
 	EndIf;
 
@@ -3991,7 +3986,7 @@ Procedure AddContactsPickupFormPages(Form) Export
 				"Column_" + ContactDescription.Name + "_Address", Type("FormField"), ItemTable);
 			AddressColumn.Type = FormFieldType.InputField;
 			AddressColumn.DataPath = "List_" + ContactDescription.Name + ".Address";
-			AddressColumn.Title = NStr("en = 'Email';");
+			AddressColumn.Title = NStr("en = 'Email'");
 		EndIf;
 		
 	EndDo;
@@ -4095,12 +4090,12 @@ Procedure InitializeInteractionsListForm(Form, Parameters) Export
 	Form.Items.CreateEmailSpecialButtonList.Visible = Form.OnlyEmail;
 	Form.Items.GroupCreate.Visible = Not Form.OnlyEmail;
 	If Form.OnlyEmail Then
-		Form.Title = NStr("en = 'Email';");
+		Form.Title = NStr("en = 'Email'");
 		Form.Items.InteractionType.ChoiceListHeight = 6;
 		CreateFilterByTypeAccordingToFR(Form.List);
 		GenerateChoiceListInteractionTypeEmailOnly(Form.Items.InteractionType);
-		Form.Commands.SubjectOf.Title = NStr("en = 'Choose topic';");
-		Form.Commands.SubjectOf.ToolTip = NStr("en = 'Choose topic';");
+		Form.Commands.SubjectOf.Title = NStr("en = 'Choose topic'");
+		Form.Commands.SubjectOf.ToolTip = NStr("en = 'Choose topic'");
 		Form.Items.Copy.Visible = False;
 		If Form.Items.Find("InteractionsTreeCopy") <> Undefined Then
 			Form.Items.InteractionsTreeCopy.Visible = False;
@@ -4112,8 +4107,8 @@ Procedure InitializeInteractionsListForm(Form, Parameters) Export
 			Form.Items.ListContextMenuCopy.Visible = False;
 		EndIf;
 		If Form.Commands.Find("SubjectList") <> Undefined Then
-			Form.Commands.SubjectList.Title = NStr("en = 'Choose topic';");
-			Form.Commands.SubjectList.ToolTip = NStr("en = 'Choose topic';");
+			Form.Commands.SubjectList.Title = NStr("en = 'Choose topic'");
+			Form.Commands.SubjectList.ToolTip = NStr("en = 'Choose topic'");
 		EndIf;
 	EndIf;
 	Form.UseReviewedFlag = GetFunctionalOption("UseReviewedFlag");
@@ -4830,7 +4825,7 @@ Function GenerateEmailHeaderDataItem(ParentElement, EmailHeader1, OnlyBySenderPr
 		AddRowToTable(ItemTable, "cc: ", GetIncomingEmailRecipientsPresentations(CCRecipientsTable));
 	EndIf;
 	
-	Subject = ?(IsBlankString(EmailHeader1.Subject), NStr("en = '<No subject>';"), EmailHeader1.Subject);
+	Subject = ?(IsBlankString(EmailHeader1.Subject), NStr("en = '<No subject>'"), EmailHeader1.Subject);
 	AddRowToTable(ItemTable, "Subject: ", Subject);
 	
 	Return ItemTable;
@@ -5202,12 +5197,12 @@ Procedure AddAttachmentFooterToEmailBody(HTMLDocument, Attachments) Export
 	                                          "Font",
 	                                          New Structure("size,face","2", "Tahoma"));
 	
-	AttachmentsCountString = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 attachments.';"), Attachments.Count());
+	AttachmentsCountString = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 attachments.'"), Attachments.Count());
 	AddTextNode(FontItem, AttachmentsCountString, True, True);
 	
 	For Each Attachment In Attachments Do 
 		
-		AttachmentPresentation = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (%2).';"), Attachment.FileName, Attachment.SizePresentation);
+		AttachmentPresentation = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (%2).'"), Attachment.FileName, Attachment.SizePresentation);
 		AddTextNode(FontItem, AttachmentPresentation, , True);
 		
 	EndDo;
@@ -5455,7 +5450,7 @@ Function SendSMSMessageByDocument(Document) Export
 	SetPrivilegedMode(True);
 	
 	If Not SendSMSMessage.SMSMessageSendingSetupCompleted() Then
-		Common.MessageToUser(NStr("en = 'SMS settings not configured.';"),, "Object");
+		Common.MessageToUser(NStr("en = 'SMS settings not configured.'"),, "Object");
 		SetStateOutgoingDocumentSMSMessage(Document);
 		Return 0;
 	EndIf;
@@ -5527,7 +5522,7 @@ Procedure SendSMS() Export
 	If Not SendSMSMessage.SMSMessageSendingSetupCompleted() Then
 		WriteLogEvent(EmailManagement.EventLogEvent(), 
 			EventLogLevel.Error, , ,
-			NStr("en = 'SMS settings not configured.';", Common.DefaultLanguageCode()));
+			NStr("en = 'SMS settings not configured.'", Common.DefaultLanguageCode()));
 		Return;
 	EndIf;
 	
@@ -5561,7 +5556,7 @@ Procedure SendSMS() Export
 		Except
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot send %1 due to: 
-				|%2';"),
+				|%2'"),
 				DocumentsSelection.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(EmailManagement.EventLogEvent(),
 				EventLogLevel.Error, MetadataOfDocument, DocumentsSelection.Ref,
@@ -5572,7 +5567,7 @@ Procedure SendSMS() Export
 		If ValueIsFilled(SendingResult.ErrorDescription) Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot send %1 due to: 
-				|%2';"),
+				|%2'"),
 				SendingResult.ErrorDescription);
 			WriteLogEvent(EmailManagement.EventLogEvent(),
 				EventLogLevel.Error, MetadataOfDocument, DocumentsSelection.Ref,
@@ -5588,7 +5583,7 @@ Procedure SendSMS() Export
 			Block.Lock();
 		
 			DocumentObject = DocumentsSelection.Ref.GetObject();
-			// @skip-check query-in-loop - Query for item-by-item data writing. 
+			// @skip-check query-in-loop - Запрос для поэлементной записи данных. 
 			ReportSMSMessageSendingResultsInDocument(DocumentObject, SendingResult);
 			DocumentObject.AdditionalProperties.Insert("DoNotSaveContacts", True);
 			DocumentObject.Write();
@@ -5598,7 +5593,7 @@ Procedure SendSMS() Export
 			RollbackTransaction();
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, 
 				NStr("en = 'Cannot record sending of %1 due to: 
-				|%2';"),
+				|%2'"),
 				DocumentPresentation_, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(EmailManagement.EventLogEvent(),
 				EventLogLevel.Error, MetadataOfDocument, DocumentsSelection.Ref,
@@ -5656,7 +5651,7 @@ Procedure SMSDeliveryStatusUpdate() Export
 	If Not SendSMSMessage.SMSMessageSendingSetupCompleted() Then
 		WriteLogEvent(EmailManagement.EventLogEvent(), 
 			EventLogLevel.Error, , ,
-			NStr("en = 'SMS settings not configured.';", Common.DefaultLanguageCode()));
+			NStr("en = 'SMS settings not configured.'", Common.DefaultLanguageCode()));
 		Return;
 	EndIf;
 	
@@ -5728,7 +5723,7 @@ Procedure SMSDeliveryStatusUpdate() Export
 			
 			RollbackTransaction();
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Failed to update delivery status: %1. Reason: %2';"),
+				NStr("en = 'Failed to update delivery status: %1. Reason: %2'"),
 				DocumentPresentation_, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(EmailManagement.EventLogEvent(),
 				EventLogLevel.Warning, MetadataOfDocument, Ref,
@@ -6155,7 +6150,7 @@ Procedure ExecuteEmailsFolderDeletion(Folder, ErrorDescription = "") Export
 		RollbackTransaction();
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The folder was not deleted due to:
-			|%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+			|%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		Return;
 		
 	EndTry;
@@ -6237,14 +6232,14 @@ Function DefineFolderForEmail(MailMessage) Export
 				QueryRule.Parameters.Insert(Parameter.Name, Parameter.Value);
 			EndDo;
 			
-			// @skip-check query-in-loop - Run mailbox rules until it finds the first message that meets the rule condition.
+			// @skip-check query-in-loop - Последовательное выполнение правил обработки писем до первого подходящего.
 			Result = QueryRule.Execute();
 
 		Except
 			
 			ErrorMessageTemplate = NStr("en = 'Cannot apply the ""%1"" mailbox rule to the ""%2"" account due to: 
 			                                |%3
-			                                |Correct the mailbox rule.';", Common.DefaultLanguageCode());
+			                                |Correct the mailbox rule.'", Common.DefaultLanguageCode());
 		
 			ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				ErrorMessageTemplate, 
@@ -6567,14 +6562,14 @@ Function DefineEmailFolders(Emails)
 						QueryRule.Parameters.Insert(Parameter.Name, Parameter.Value);
 					EndDo;
 					
-					// @skip-check query-in-loop - Batch processing of email messages by user accounts.
+					// @skip-check query-in-loop
 					EmailResult = QueryRule.Execute();
 					
 				Except
 					
 					ErrorMessageTemplate = NStr("en = 'Cannot apply the ""%1"" mailbox rule to the ""%2"" account due to: 
 					                                |%3
-					                                |Correct the mailbox rule.';", Common.DefaultLanguageCode());
+					                                |Correct the mailbox rule.'", Common.DefaultLanguageCode());
 				
 					ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(
 						ErrorMessageTemplate, 
@@ -7432,7 +7427,7 @@ Procedure FillTimeSelectionList(FormInputField, Interval = 3600) Export
 		If Not ValueIsFilled(ListTime) Then
 			TimePresentation = "00:00";
 		Else
-			TimePresentation = Format(ListTime, NStr("en = 'DF=HH:mm';"));
+			TimePresentation = Format(ListTime, NStr("en = 'DF=HH:mm'"));
 		EndIf;
 
 		TimesList.Add(ListTime, TimePresentation);
@@ -8042,7 +8037,7 @@ EndProcedure
 //
 Procedure ProcessFilterByInteractionsTypeSubmenu(Form) Export
 
-	TitleTemplate1 = NStr("en = 'Show %1';");
+	TitleTemplate1 = NStr("en = 'Show %1'");
 	TypePresentation = FiltersListByInteractionsType(Form.OnlyEmail).FindByValue(Form.InteractionType).Presentation;
 	Form.Items.InteractionTypeList.Title = StringFunctionsClientServer.SubstituteParametersToString(TitleTemplate1, TypePresentation);
 	For Each SubmenuItem In Form.Items.InteractionTypeList.ChildItems Do
@@ -8265,22 +8260,22 @@ Function FiltersListByInteractionsType(OnlyEmail) Export
 	
 	FiltersList = New ValueList;
 	
-	FiltersList.Add("All", NStr("en = 'All';"));
-	FiltersList.Add("AllEmails", NStr("en = 'All mail';"));
+	FiltersList.Add("All", NStr("en = 'All'"));
+	FiltersList.Add("AllEmails", NStr("en = 'All mail'"));
 	If Not OnlyEmail Then
-		FiltersList.Add("Meetings", NStr("en = 'Appointments';"));
-		FiltersList.Add("PhoneCalls", NStr("en = 'Phone calls';"));
-		FiltersList.Add("PlannedInteractions", NStr("en = 'Scheduled interactions';"));
-		FiltersList.Add("SMSMessages", NStr("en = 'Text messages';"));
+		FiltersList.Add("Meetings", NStr("en = 'Appointments'"));
+		FiltersList.Add("PhoneCalls", NStr("en = 'Phone calls'"));
+		FiltersList.Add("PlannedInteractions", NStr("en = 'Scheduled interactions'"));
+		FiltersList.Add("SMSMessages", NStr("en = 'Text messages'"));
 	EndIf;
-	FiltersList.Add("IncomingMessages", NStr("en = 'Inbox';"));
-	FiltersList.Add("MessageDrafts", NStr("en = 'Drafts';"));
-	FiltersList.Add("OutgoingMessages", NStr("en = 'Outbox';"));
-	FiltersList.Add("SentMessages", NStr("en = 'Sent';"));
-	FiltersList.Add("DeletedMessages", NStr("en = 'Trash';"));
+	FiltersList.Add("IncomingMessages", NStr("en = 'Inbox'"));
+	FiltersList.Add("MessageDrafts", NStr("en = 'Drafts'"));
+	FiltersList.Add("OutgoingMessages", NStr("en = 'Outbox'"));
+	FiltersList.Add("SentMessages", NStr("en = 'Sent'"));
+	FiltersList.Add("DeletedMessages", NStr("en = 'Trash'"));
 	If Not OnlyEmail Then
-		FiltersList.Add("OutgoingCalls", NStr("en = 'Outgoing calls';"));
-		FiltersList.Add("IncomingCalls", NStr("en = 'Incoming calls';"));
+		FiltersList.Add("OutgoingCalls", NStr("en = 'Outgoing calls'"));
+		FiltersList.Add("IncomingCalls", NStr("en = 'Incoming calls'"));
 	EndIf;
 	
 	Return FiltersList;
@@ -8386,10 +8381,10 @@ EndFunction
 Function StatusesList() Export
 	
 	StatusesList = New ValueList;
-	StatusesList.Add("All", NStr("en = 'All';"));
-	StatusesList.Add("ToReview", NStr("en = 'Pending review';"));
-	StatusesList.Add("Deferred3", NStr("en = 'Deferred';"));
-	StatusesList.Add("ReviewedItems", NStr("en = 'Reviewed';"));
+	StatusesList.Add("All", NStr("en = 'All'"));
+	StatusesList.Add("ToReview", NStr("en = 'Pending review'"));
+	StatusesList.Add("Deferred3", NStr("en = 'Deferred'"));
+	StatusesList.Add("ReviewedItems", NStr("en = 'Reviewed'"));
 	
 	Return StatusesList;
 	
@@ -8432,7 +8427,7 @@ EndFunction
 
 Function EmailPresentation(EmailSubject, EmailDate) Export
 	
-	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1, %2';"), 
+	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1, %2'"), 
 		InteractionsClientServer.InteractionSubject1(EmailSubject), Format(EmailDate, "DLF=D"));
 	
 EndFunction
@@ -8509,11 +8504,10 @@ Function FindContactsByPhone(Val Phone, FoundContacts) Export
 		
 	EndDo;
 	
-	// @query-part
 	QueryText = StrConcat(QueryTexts, Chars.LF + "UNION ALL" + Chars.LF)
 		+ "
 		|ORDER BY
-		|	Description"; // @query-part
+		|	Description"; // @query-part-1, @query-part-2
 	
 	Query = New Query(QueryText);
 	Query.SetParameter("Phone", Phone);
@@ -8579,11 +8573,10 @@ Function FindContactsByDescriptionBeginning(Val SearchString) Export
 		
 	EndDo;
 	
-	// @query-part
 	QueryText = StrConcat(QueryTexts, Chars.LF + "UNION ALL" + Chars.LF)
 		+ "
 		|ORDER BY
-		|	Description"; // @query-part
+		|	Description"; // @query-part-1, @query-part-2
 	
 	Query = New Query(QueryText);
 	Query.SetParameter("Description", Common.GenerateSearchQueryString(SearchString) + "%");
@@ -8630,21 +8623,21 @@ Function SendingPausedWarningText() Export
 	EndIf;
 	
 	If Not Users.IsFullUser() Then
-		Return NStr("en = 'Mail sync is paused. Contact the Administrator.';");
+		Return NStr("en = 'Mail sync is paused. Contact the Administrator.'");
 	EndIf;
 
 	If ScheduledJobOfReceivingAndSendingEmailsEnabled() Then
 		If Common.SubsystemExists("StandardSubsystems.ScheduledJobs") Then
 			Return StringFunctions.FormattedString(NStr(
-				"en = 'Scheduled job <b>Mail sync</b> failed to run. <a href = ""%1"">View details</a>.';"), 
+				"en = 'Scheduled job <b>Mail sync</b> failed to run. <a href = ""%1"">View details</a>.'"), 
 				"GoToScheduledJobsSetup");
 		Else
 			Return StringFunctions.FormattedString(NStr(
-				"en = 'Scheduled job <b>Mail sync</b> failed to run.';"));
+				"en = 'Scheduled job <b>Mail sync</b> failed to run.'"));
 		EndIf;
 	Else
 		Return StringFunctions.FormattedString(NStr(
-			"en = 'Scheduled job <b>Mail sync</b> is disabled. <a href =  ""%1"">Click to enable</a>.';"),
+			"en = 'Scheduled job <b>Mail sync</b> is disabled. <a href =  ""%1"">Click to enable</a>.'"),
 			 "EnableReceivingAndSendingEmails");
 	EndIf;
 	
@@ -8723,11 +8716,11 @@ EndProcedure
 Procedure FillChoiceListForReviewAfter(ChoiceList) Export
 	
 	ChoiceList.Clear();
-	ChoiceList.Add(15*60,    NStr("en = 'Snooze for 15 min';"));
-	ChoiceList.Add(30*60,    NStr("en = 'Snooze for 30 min';"));
-	ChoiceList.Add(60*60,    NStr("en = 'Snooze for 1 hour';"));
-	ChoiceList.Add(3*60*60,  NStr("en = 'Snooze for 3 hours';"));
-	ChoiceList.Add(24*60*60, NStr("en = 'Snooze for 24 hours';"));
+	ChoiceList.Add(15*60,    NStr("en = 'Snooze for 15 min'"));
+	ChoiceList.Add(30*60,    NStr("en = 'Snooze for 30 min'"));
+	ChoiceList.Add(60*60,    NStr("en = 'Snooze for 1 hour'"));
+	ChoiceList.Add(3*60*60,  NStr("en = 'Snooze for 3 hours'"));
+	ChoiceList.Add(24*60*60, NStr("en = 'Snooze for 24 hours'"));
 	
 EndProcedure
 

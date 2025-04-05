@@ -21,7 +21,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService")
 		And DigitalSignatureInternal.UseCloudSignatureService() Then
-		Items.Application.Title = NStr("en = 'App or service';");
+		Items.Application.Title = NStr("en = 'App or service'");
 	EndIf;
 	
 	If Not ValueIsFilled(Object.Ref) Then
@@ -192,7 +192,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 		EndIf;
 		
 		Item = Items[AttributeName]; // FormField
-		MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The ""%1"" field is not filled in.';"),
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The ""%1"" field is not filled in.'"),
 			Item.Title);
 		
 		Common.MessageToUser(MessageText,, AttributeName,, Cancel);
@@ -260,7 +260,7 @@ EndProcedure
 &AtClient
 Procedure SigningAllowedOnChange(Item)
 	
-	CommonServerCall.CommonSettingsStorageSave(
+	CommonClient.CommonSettingsStorageSave(
 			Object.Ref, "AllowSigning", SigningAllowed);
 	
 EndProcedure
@@ -300,7 +300,7 @@ Async Procedure ApplicationOpening(Item, StandardProcessing)
 	EndIf;
 	
 	FormParameters = New Structure;
-	FormParameters.Insert("WarningTitle", NStr("en = 'Cannot determine an application automatically';"));
+	FormParameters.Insert("WarningTitle", NStr("en = 'Cannot determine an application automatically'"));
 	FormParameters.Insert("ErrorTextClient", ErrorAtClient);
 	FormParameters.Insert("ErrorTextServer", ErrorAtServer);
 	
@@ -352,7 +352,7 @@ EndProcedure
 Procedure CheckCertificate(Command)
 	
 	If Not ValueIsFilled(Object.Ref) Then
-		ShowMessageBox(, NStr("en = 'Certificate has not been recorded yet.';"));
+		ShowMessageBox(, NStr("en = 'Certificate has not been recorded yet.'"));
 		Return;
 	EndIf;
 	
@@ -379,11 +379,11 @@ Procedure CertificateRevoked(Command)
 		TheDescriptionIsAsFollows = New CallbackDescription("AfterAnsweringQuestionCertificateRevoked", ThisObject);
 		ShowQueryBox(TheDescriptionIsAsFollows, NStr("en = 'The certificate will be marked as revoked, and you will not be able to use it for signing.
 		|Select this flag when the certificate revocation application is submitted but not fulfilled.
-		|Continue?';"), QuestionDialogMode.YesNo);
+		|Continue?'"), QuestionDialogMode.YesNo);
 	Else
 		TheDescriptionIsAsFollows = New CallbackDescription("AfterAnsweringQuestionCertificateRevoked", ThisObject);
 		ShowQueryBox(TheDescriptionIsAsFollows, NStr("en = 'If a certificate is revoked by the certificate authority, you will not be able to use it for signing even after clearing the check mark.
-		|Continue?';"), QuestionDialogMode.YesNo);
+		|Continue?'"), QuestionDialogMode.YesNo);
 	EndIf;
 	
 EndProcedure
@@ -696,7 +696,7 @@ Procedure RefreshVisibilityWarnings(Val CryptoCertificate = Undefined)
 		
 		Items.GroupWarning.Visible = True;
 		Items.Warning.Title = 
-			NStr("en = 'The certificate is marked as revoked: signatures created with it are valid if their timestamp date is earlier than the revocation date. To find out the revocation reason and date, contact the issuing authority.';");
+			NStr("en = 'The certificate is marked as revoked: signatures created with it are valid if their timestamp date is earlier than the revocation date. To find out the revocation reason and date, contact the issuing authority.'");
 		Items.SigningAllowed.Visible = False;
 	
 	ElsIf Object.ValidBefore > CurrentSessionDate() Then
@@ -767,7 +767,7 @@ Procedure CreateAListOfUsers()
 	ElsIf ValueIsFilled(Object.User) Then
 		PresentationUsers = TrimAll(Object.User);
 	Else
-		PresentationUsers = NStr("en = 'Not specified';");
+		PresentationUsers = NStr("en = 'Not specified'");
 	EndIf;
 	
 EndProcedure	
@@ -804,13 +804,13 @@ Procedure EnableCertificateStatusVisibility(Form, CurrentDate)
 	
 	If Form.Object.ValidBefore < CurrentDate Then
 		Form.Items.CertificateImage.Picture = PictureLib.CertificateOverdue;
-		Form.Items.CertificateStatus.Title = NStr("en = 'Certificate is expired';");
+		Form.Items.CertificateStatus.Title = NStr("en = 'Certificate is expired'");
 	ElsIf	Form.Object.ValidBefore <= CurrentDate + 30*24*60*60 Then
 		Form.Items.CertificateImage.Picture = PictureLib.CertificateExpiring;
-		Form.Items.CertificateStatus.Title = NStr("en = 'Certificate is expiring';");
+		Form.Items.CertificateStatus.Title = NStr("en = 'Certificate is expiring'");
 	Else
 		Form.Items.CertificateImage.Picture = PictureLib.CertificatePersonalStorage;
-		Form.Items.CertificateStatus.Title = NStr("en = 'Certificate in Personal store';");
+		Form.Items.CertificateStatus.Title = NStr("en = 'Certificate in Personal store'");
 	EndIf;
 		
 	If Form.IssuedCertificates.Count() > 0 Then
@@ -827,7 +827,7 @@ Procedure AfterChangingThePINCode(CallResult, AdditionalParameters) Export
 	
 	If CallResult.Completed2 Then
 		ShowMessageBox(Undefined, 
-				NStr("en = 'PIN is successfully changed.';", CommonClient.DefaultLanguageCode()), 30);
+				NStr("en = 'PIN is successfully changed.'", CommonClient.DefaultLanguageCode()), 30);
 				
 	ElsIf Not TheDSSCryptographyServiceModuleClientServer.ThisIsFailureError(CallResult.ErrorStatus) Then
 		TheDSSCryptographyServiceModuleClient.OutputError(Undefined, CallResult.ErrorStatus);
@@ -935,7 +935,7 @@ Function FillApplicationsList(Val SelectedProgram)
 	EndIf;
 	
 	Result = New ValueList;
-	Result.Add(Catalogs.DigitalSignatureAndEncryptionApplications.EmptyRef(), NStr("en = 'Default';"));
+	Result.Add(Catalogs.DigitalSignatureAndEncryptionApplications.EmptyRef(), NStr("en = 'Default'"));
 	
 	QueryText = 
 	"SELECT
@@ -978,7 +978,7 @@ Function FillApplicationsList(Val SelectedProgram)
 	If Result.FindByValue(SelectedProgram) = Undefined Then
 		ApplicationPresentation = ?(ValueIsFilled(SelectedProgram),
 								TrimL(SelectedProgram),
-								NStr("en = 'Default';"));
+								NStr("en = 'Default'"));
 		Result.Add(SelectedProgram, ApplicationPresentation);
 	EndIf;
 	

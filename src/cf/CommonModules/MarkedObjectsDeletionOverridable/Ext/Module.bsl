@@ -12,7 +12,8 @@
 
 // Specify the metadata objects whose list forms will
 // output the show marked objects and go to objects marked for deletion commands.
-// See MarkedObjectsDeletionClient.ShowObjectsMarkedForDeletionand MarkedObjectsDeletionClient.GoToMarkedForDeletionItems. 
+// See MarkedObjectsDeletionClient.ShowObjectsMarkedForDeletion 
+// and MarkedObjectsDeletionClient.GoToMarkedForDeletionItems.
 //
 // Parameters:
 //  Objects - Array of MetadataObject - the metadata objects to whose list forms the hide marked

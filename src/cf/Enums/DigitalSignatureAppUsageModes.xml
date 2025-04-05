@@ -96,13 +96,8 @@
 		<ChildObjects>
 			<EnumValue uuid="571a910a-67c7-4fe9-b06e-78893498a606">
 				<Properties>
-					<Name>SetupDone</Name>
-					<Synonym>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Set up manually</v8:content>
-						</v8:item>
-					</Synonym>
+					<Name>Configured</Name>
+					<Synonym/>
 					<Comment/>
 				</Properties>
 			</EnumValue>

@@ -44,7 +44,7 @@ Procedure UpdateAllStandardRules(Command)
 	UpdateAllStandardRulesAtServer();
 	Items.List.Refresh();
 	
-	ShowUserNotification(NStr("en = 'The rule update is completed.';"));
+	ShowUserNotification(NStr("en = 'The rule update is completed.'"));
 	
 EndProcedure
 
@@ -65,7 +65,7 @@ EndProcedure
 Procedure UseStandardRules(Command)
 	UseStandardRulesAtServer();
 	Items.List.Refresh();
-	ShowUserNotification(NStr("en = 'The rule update is completed.';"));
+	ShowUserNotification(NStr("en = 'The rule update is completed.'"));
 EndProcedure
 
 &AtServer

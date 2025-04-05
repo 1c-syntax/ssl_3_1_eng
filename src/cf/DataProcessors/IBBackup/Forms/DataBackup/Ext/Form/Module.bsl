@@ -21,15 +21,15 @@ Var BackupInProgress;
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not Common.IsWindowsClient() Then
-		Raise NStr("en = 'Set up data backup and restore using operating system tools or other third-party tools.';");
+		Raise NStr("en = 'Set up data backup and restore using operating system tools or other third-party tools.'");
 	EndIf;
 	
 	If Common.IsWebClient() Then
-		Raise NStr("en = 'Web client does not support data backup.';");
+		Raise NStr("en = 'Web client does not support data backup.'");
 	EndIf;
 	
 	If Not Common.FileInfobase() Then
-		Raise NStr("en = 'In the client/server mode, you must back up data by the means of the DBMS.';");
+		Raise NStr("en = 'In the client/server mode, you must back up data by the means of the DBMS.'");
 	EndIf;
 	
 	BackupSettings1 = IBBackupServer.BackupSettings1();
@@ -60,9 +60,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			BackupSettings1.BackupStorageDirectory));
 	
 	If BackupSettings1.LatestBackupDate = Date(1, 1, 1) Then
-		TitleText = NStr("en = 'The infobase has never been backed up.';");
+		TitleText = NStr("en = 'The infobase has never been backed up.'");
 	Else
-		TitleText = NStr("en = 'Most recent backup: %1';");
+		TitleText = NStr("en = 'Most recent backup: %1'");
 		LastBackupDate = Format(BackupSettings1.LatestBackupDate, "DLF=DDT");
 		TitleText = StringFunctionsClientServer.SubstituteParametersToString(TitleText, LastBackupDate);
 	EndIf;
@@ -84,7 +84,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		If InfobaseSessionsCount() > 1 Then
 			Items.BackupStatusPages.CurrentPage = Items.ActiveUsersPage;
 		EndIf;
-		Items.Next.Title = NStr("en = 'Save backup';");
+		Items.Next.Title = NStr("en = 'Save backup'");
 	EndIf;
 	
 	IBBackupServer.SetSettingValue("LastBackupManualStart", ManualStart1);
@@ -110,7 +110,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		Return;
 	EndIf;
 	
-	WarningText = NStr("en = 'Do you want to cancel preparing for backup?';");
+	WarningText = NStr("en = 'Do you want to cancel preparing for backup?'");
 	CommonClient.ShowArbitraryFormClosingConfirmation(ThisObject,
 		Cancel, Exit, WarningText, "ForceCloseForm");
 	
@@ -277,7 +277,7 @@ Procedure GoToPageBackupAfterInfobaseAccessCheck(ConnectionResult, Context) Expo
 	SetButtonTitleNext(True);
 	
 	IBConnectionsServerCall.SetConnectionLock(
-		NStr("en = 'Backing up the infobase.';"),
+		NStr("en = 'Backing up the infobase.'"),
 		"Backup");
 	
 	If InfobaseSessionsCount = 1 Then
@@ -314,7 +314,7 @@ EndFunction
 Procedure GoToBackupResultsPage()
 	
 	Items.Next.Visible = False;
-	Items.Cancel.Title = NStr("en = 'Close';");
+	Items.Cancel.Title = NStr("en = 'Close'");
 	Items.Cancel.DefaultButton = True;
 	
 	Settings = BackupSettings1();
@@ -352,7 +352,7 @@ EndFunction
 Function CheckAttributesFilling()
 
 #If WebClient Then
-	MessageText = NStr("en = 'Web client does not support data backup.';");
+	MessageText = NStr("en = 'Web client does not support data backup.'");
 	CommonClient.MessageToUser(MessageText);
 	AttributesFilled = False;
 #Else
@@ -362,12 +362,12 @@ Function CheckAttributesFilling()
 	Object.BackupDirectory = TrimAll(Object.BackupDirectory);
 	
 	If IsBlankString(Object.BackupDirectory) Then
-		MessageText = NStr("en = 'Backup directory is not provided.';");
+		MessageText = NStr("en = 'Backup directory is not provided.'");
 		CommonClient.MessageToUser(MessageText,, "Object.BackupDirectory");
 		AttributesFilled = False;
 	ElsIf FindFiles(Object.BackupDirectory).Count() = 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'A non-existent directory specified: %1.
-			|If backup is configured on another computer, specify a network directory available from any computer with this app.';"),
+			|If backup is configured on another computer, specify a network directory available from any computer with this app.'"),
 			Object.BackupDirectory);
 		CommonClient.MessageToUser(MessageText,, "Object.BackupDirectory");
 		AttributesFilled = False;
@@ -382,7 +382,7 @@ Function CheckAttributesFilling()
 		Except
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Insufficient permissions when writing to the backup directory.
-					|Cannot create test file %1 due to: %2';"),
+					|Cannot create test file %1 due to: %2'"),
 				FileName, ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 			CommonClient.MessageToUser(MessageText,, "Object.BackupDirectory");
 			AttributesFilled = False;
@@ -402,7 +402,7 @@ Function CheckAttributesFilling()
 	EndIf;
 	
 	If PasswordRequired And IsBlankString(IBAdministratorPassword) Then
-		MessageText = NStr("en = 'Administrator password is not set.';");
+		MessageText = NStr("en = 'Administrator password is not set.'");
 		CommonClient.MessageToUser(MessageText,, "IBAdministratorPassword");
 		AttributesFilled = False;
 	EndIf;
@@ -424,8 +424,8 @@ EndProcedure
 Procedure Timeout2()
 	
 	DetachIdleHandler("CheckForSingleConnection");
-	QueryText = NStr("en = 'Cannot terminate all user sessions. Are you sure you still want to back up the data? The backup might contain errors.';");
-	ExplanationText = NStr("en = 'Cannot terminate the user session.';");
+	QueryText = NStr("en = 'Cannot terminate all user sessions. Are you sure you still want to back up the data? The backup might contain errors.'");
+	ExplanationText = NStr("en = 'Cannot terminate the user session.'");
 	NotifyDescription = New CallbackDescription("Timeout2Completion", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, 30, DialogReturnCode.No, ExplanationText, DialogReturnCode.No);
 	
@@ -448,12 +448,12 @@ EndProcedure
 Procedure CancelPreparation()
 	
 	Items.FailedLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1.
-		|Preparation for backing up is canceled. Infobase is unlocked.';"),
+		|Preparation for backing up is canceled. Infobase is unlocked.'"),
 		IBConnections.ActiveSessionsMessage());
 	Items.WizardPages.CurrentPage = Items.BackupCreationErrorsPage;
 	Items.GoToEventLog1.Visible = False;
 	Items.Next.Visible = False;
-	Items.Cancel.Title = NStr("en = 'Close';");
+	Items.Cancel.Title = NStr("en = 'Close'");
 	Items.Cancel.DefaultButton = True;
 	
 	IBConnections.AllowUserAuthorization();
@@ -483,7 +483,7 @@ EndProcedure
 &AtClient
 Procedure SetButtonTitleNext(ThisButtonNext)
 	
-	Items.Next.Title = ?(ThisButtonNext, NStr("en = 'Next >';"), NStr("en = 'Finish';"));
+	Items.Next.Title = ?(ThisButtonNext, NStr("en = 'Next >'"), NStr("en = 'Finish'"));
 	
 EndProcedure
 
@@ -493,9 +493,9 @@ Function GetPath(DialogMode)
 	Mode = DialogMode;
 	OpenFileDialog = New FileDialog(Mode);
 	If Mode = FileDialogMode.ChooseDirectory Then
-		OpenFileDialog.Title= NStr("en = 'Select directory';");
+		OpenFileDialog.Title= NStr("en = 'Select directory'");
 	Else
-		OpenFileDialog.Title= NStr("en = 'Select file';");
+		OpenFileDialog.Title= NStr("en = 'Select file'");
 	EndIf;	
 		
 	If OpenFileDialog.Choose() Then
@@ -520,7 +520,7 @@ Procedure StartBackup()
 	EventLogClient.AddMessageForEventLog(
 		IBBackupClient.EventLogEvent(),
 		"Information", 
-		NStr("en = 'Backing up the infobase backup:';") + " " + MainScriptFileName);
+		NStr("en = 'Backing up the infobase backup:'") + " " + MainScriptFileName);
 		
 	If Parameters.WorkMode = "ExecuteNow" Or Parameters.WorkMode = "ExecuteOnExit" Then
 		IBBackupClient.DeleteConfigurationBackups();
@@ -692,19 +692,19 @@ Function GenerateSplashText()
 	TextTemplate1 = DataProcessors.IBBackup.GetTemplate("BackupSplash").GetText();
 	
 	TextParameters = New Map;
-	TextParameters["[SplashTitle]"] = NStr("en = 'Creating infobase backup…';");
+	TextParameters["[SplashTitle]"] = NStr("en = 'Creating infobase backup…'");
 	TextParameters["[SplashText]"] = 
 		NStr("en = 'Please wait.
 			|<br /> Infobase backup is in progress.
-			|<br /> It is recommended that you do not interrupt this operation.';");
+			|<br /> It is recommended that you do not interrupt this operation.'");
 	
-	TextParameters["[Step1Initialization]"] = NStr("en = 'Initialization';");
-	TextParameters["[Step2BackupCreation]"] = NStr("en = 'Creating infobase backup';");
-	TextParameters["[Step3AwaitingCompletion]"] = NStr("en = 'Awaiting backup completion';");
-	TextParameters["[Step4AllowConnections]"] = NStr("en = 'Allowing new connections';");
-	TextParameters["[Step5Completion]"] = NStr("en = 'Completion';");
-	TextParameters["[ProcessIsAborted]"] = NStr("en = 'Warning! The backup was interrupted and the infobase is still locked.';");
-	TextParameters["[AbortedTooltip]"] = NStr("en = 'To unlock the infobase, use the server cluster console or run 1C:Enterprise.';");
+	TextParameters["[Step1Initialization]"] = NStr("en = 'Initialization'");
+	TextParameters["[Step2BackupCreation]"] = NStr("en = 'Creating infobase backup'");
+	TextParameters["[Step3AwaitingCompletion]"] = NStr("en = 'Awaiting backup completion'");
+	TextParameters["[Step4AllowConnections]"] = NStr("en = 'Allowing new connections'");
+	TextParameters["[Step5Completion]"] = NStr("en = 'Completion'");
+	TextParameters["[ProcessIsAborted]"] = NStr("en = 'Warning! The backup was interrupted and the infobase is still locked.'");
+	TextParameters["[AbortedTooltip]"] = NStr("en = 'To unlock the infobase, use the server cluster console or run 1C:Enterprise.'");
 	
 	IBBackupServer.SetTheGeneralParametersOfTheScreenSaver(TextParameters);
 	

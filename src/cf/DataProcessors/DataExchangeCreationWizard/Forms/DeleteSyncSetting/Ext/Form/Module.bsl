@@ -16,7 +16,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Verify that the form is opened with the required parameters
 	If Not Parameters.Property("ExchangeNode") Then
 		
-		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
+		Raise NStr("en = 'This is a dependent form and opens from a different form.'", Common.DefaultLanguageCode());
 		
 	EndIf;
 	
@@ -39,7 +39,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	ForceCloseForm = ForceCloseForm 
 		Or Items.PanelMain.CurrentPage = Items.EndPage;
 
-	WarningText = NStr("en = 'Do you want to cancel the deletion of the data synchronization setting?';");
+	WarningText = NStr("en = 'Do you want to cancel the deletion of the data synchronization setting?'");
 	CommonClient.ShowArbitraryFormClosingConfirmation(
 		ThisObject, Cancel, Exit, WarningText, "ForceCloseForm");
 	
@@ -140,7 +140,7 @@ Procedure OnCompleteSynchronizationSettingsDeletion()
 			And SettingDeletedInCorrespondent Then
 			Items.SyncDeletedLabelDecoration.Title = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Data synchronization settings in this application
-				|and in %1 are deleted.';"),
+				|and in %1 are deleted.'"),
 				PeerInfobaseName);
 		EndIf;
 		
@@ -151,7 +151,7 @@ Procedure OnCompleteSynchronizationSettingsDeletion()
 			CommonClient.MessageToUser(ErrorMessage);
 		Else
 			CommonClient.MessageToUser(
-				NStr("en = 'Cannot delete the data synchronization setting.';"));
+				NStr("en = 'Cannot delete the data synchronization setting.'"));
 		EndIf;
 	EndIf;
 	
@@ -348,7 +348,7 @@ Function Attachable_BeginningPageOnOpen1(Cancel, SkipPage, IsMoveNext)
 	
 	Items.StartSubGroup.Visible = DirectConnection;
 		
-	TitleTemplate1 = NStr("en = 'Also delete the setting in %1';");
+	TitleTemplate1 = NStr("en = 'Also delete the setting in %1'");
 	Items.DeleteSettingItemInCorrespondent.Title = StrTemplate(TitleTemplate1, PeerInfobaseName);
 	
 	Return Undefined;
@@ -431,7 +431,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -535,7 +535,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -591,7 +591,7 @@ Procedure ExecuteTimeConsumingOperationHandler()
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];

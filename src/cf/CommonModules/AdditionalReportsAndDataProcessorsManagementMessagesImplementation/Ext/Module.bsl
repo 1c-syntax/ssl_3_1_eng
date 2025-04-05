@@ -248,7 +248,7 @@ Function GetAreaUserByServiceUserID(Val ServiceUserID)
 	
 	If Result.IsEmpty() Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The user with service user ID %1 is not found';"), ServiceUserID);
+			NStr("en = 'The user with service user ID %1 is not found'"), ServiceUserID);
 		Raise(MessageText);
 	EndIf;
 	

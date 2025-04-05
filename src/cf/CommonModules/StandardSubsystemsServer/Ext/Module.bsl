@@ -119,7 +119,7 @@ EndFunction
 //
 Function IsBaseConfigurationVersion() Export
 	
-	IsBaseConfigurationVersion = StrFind(Upper(Metadata.Name), NStr("en = 'BASE';")) > 0;
+	IsBaseConfigurationVersion = StrFind(Upper(Metadata.Name), NStr("en = 'BASE'")) > 0;
 	CommonOverridable.WhenDefiningAFeatureThisIsTheBasicVersionOfTheConfiguration(IsBaseConfigurationVersion);
 	
 	Return IsBaseConfigurationVersion;
@@ -224,11 +224,11 @@ Function AdministrationParameters() Export
 	   And Common.SeparatedDataUsageAvailable() Then
 		
 		If Not Users.IsFullUser() Then
-			Raise(NStr("en = 'Insufficient rights to perform the operation.';"), ErrorCategory.AccessViolation);
+			Raise(NStr("en = 'Insufficient rights to perform the operation.'"), ErrorCategory.AccessViolation);
 		EndIf;
 	Else
 		If Not Users.IsFullUser(, True) Then
-			Raise(NStr("en = 'Insufficient rights to perform the operation.';"), ErrorCategory.AccessViolation);
+			Raise(NStr("en = 'Insufficient rights to perform the operation.'"), ErrorCategory.AccessViolation);
 		EndIf;
 	EndIf;
 	
@@ -336,7 +336,7 @@ Procedure SetDateFieldConditionalAppearance(Form,
 	// Today presentation of today.
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	AppearanceItem.Use = True;
-	AppearanceItem.Appearance.SetParameterValue("Format", NStr("en = 'DF=HH:mm';"));
+	AppearanceItem.Appearance.SetParameterValue("Format", NStr("en = 'DF=HH:mm'"));
 	
 	FormattedField = AppearanceItem.Fields.Items.Add();
 	FormattedField.Field = New DataCompositionField(FormattedFieldName);
@@ -552,23 +552,23 @@ EndFunction
 
 #Region ForCallsFromOtherSubsystems
 
-// 
-// 
+// Adds a performance indicator to the handlers of the events
+// "OnAddClientParametersOnStart", "OnAddClientWorkingParameters".
 //
 // Parameters:
 //  Parameters - See CommonOverridable.OnAddClientParametersOnStart.Parameters
 //            - See CommonOverridable.OnAddClientParameters.Parameters
-//  StartMoment - Number - 
-//  ProcedureName - String - 
+//  StartMoment - Number - CurrentUniversalDateInMilliseconds before the procedure will be called.
+//  ProcedureName - String - Full name of the called procedure
 //
 // Example:
-//	
-//	
-//		
-//		
-//	
-//	
-//		
+//	StartMoment = CurrentUniversalDateInMilliseconds();
+//	If Common.SubsystemExists("StandardSubsystems.NotificationAtStartup") Then
+//		ModuleNotificationAtStartup = Common.CommonModule("NotificationAtStartup");
+//		ModuleNotificationAtStartup.OnAddClientParametersOnStart(Parameters);
+//	EndIf;
+//	StandardSubsystemsClient.AddIndicator(Results, StartMoment,
+//		"NotificationAtStartup.OnAddClientParametersOnStart");
 //
 Procedure AddIndicator(Parameters, StartMoment, ProcedureName) Export
 	
@@ -576,11 +576,11 @@ Procedure AddIndicator(Parameters, StartMoment, ProcedureName) Export
 		Return;
 	EndIf;
 	
-	If Not Parameters.Property(NameOfPerformanceMetricsProperty()) Then
-		Parameters.Insert(NameOfPerformanceMetricsProperty(), New Array);
+	If Not Parameters.Property(PerformanceIndicatorsPropertyName()) Then
+		Parameters.Insert(PerformanceIndicatorsPropertyName(), New Array);
 	EndIf;
 	
-	Indicators = Parameters[NameOfPerformanceMetricsProperty()];
+	Indicators = Parameters[PerformanceIndicatorsPropertyName()];
 	AddMainIndicator(Indicators, StartMoment, ProcedureName);
 	
 EndProcedure
@@ -672,6 +672,56 @@ Function SupportedVersionsOfSoftwareInterface(InterfaceName) Export
 	
 EndFunction
 
+#Region TechnicalSupport
+
+// Returns main, system, and additional information for online support.
+//
+// The system information includes the server computer details.
+// Client method: See StandardSubsystemsClient.SupportInformation.
+//
+// Example:
+//  Demo configuration, version X.X, X.X.XX.XX
+//   1C:Enterprise: X.X.XX.XXXX
+//  Standart Subsystem Library: X.X.XX.XX
+//
+//  System info
+//  OS: XXX
+//  CPU: XXX
+//  RAM: XXX
+//  Application: XXX
+//
+//  Additional info
+//  COM connector: XXX
+//  Base configuration: No
+//  Full-access user: No
+//  Sandbox: No
+//  Modified configuration: No
+//
+// Returns:
+//  String - Information for technical support.
+//
+Function SupportInformation() Export
+	
+	SupportInformation = StandardSubsystemsClientServer.NewInformationForSupport();
+	
+	SystemInfo = New SystemInfo;
+	FillPropertyValues(SupportInformation, SystemInfo);
+	
+	SupportInformation.ApplicationName1 = Metadata.DetailedInformation;
+	SupportInformation.ApplicationVersion = Metadata.Version;
+	SupportInformation.SSLVersion = LibraryVersion();
+	SupportInformation.COMConnectorName = CommonClientServer.COMConnectorName();
+	SupportInformation.ThisIsBasicConfiguration = IsBaseConfigurationVersion();
+	SupportInformation.IsFullUser = Users.IsFullUser();
+	SupportInformation.IsTrainingPlatform = IsTrainingPlatform();
+	SupportInformation.ConfigurationChanged = ConfigurationChanged();
+	
+	Return StandardSubsystemsClientServer.TextOfInformationForSupport(SupportInformation);
+	
+EndFunction
+
+#EndRegion
+
 #Region AdditionalBasicFunctionalityForAnalysingClientParametersAtServer
 
 // Parameters:
@@ -711,13 +761,13 @@ Function ClientParametersAtServer(RaiseException1 = True) Export
 	If OnStart Then
 		CommentForTheLogWithoutACallStack = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid access to uninitialized client parameters on the server.
-			           |The call might have been executed before initialization was completed in %1.';",
+			           |The call might have been executed before initialization was completed in %1.'",
 			     Common.DefaultLanguageCode()),
 			     "StandardSubsystemsClient.BeforeStart");
 	Else
 		CommentForTheLogWithoutACallStack = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid access to uninitialized client parameters on the server.
-			           |The call might have been executed after session parameters were cleared incorrectly without using %2.';",
+			           |The call might have been executed after session parameters were cleared incorrectly without using %2.'",
 			     Common.DefaultLanguageCode()),
 			     "Common.ClearSessionParameters");
 	EndIf;
@@ -729,7 +779,7 @@ Function ClientParametersAtServer(RaiseException1 = True) Export
 	EndTry;
 	CommentWithCallStack = ErrorProcessing.DetailErrorDescription(ErrorInfo);
 	
-	EventName = NStr("en = 'The client parameters on the server are blank';",
+	EventName = NStr("en = 'The client parameters on the server are blank'",
 		Common.DefaultLanguageCode());
 	
 	WriteLogEvent(EventName, EventLogLevel.Error,,, CommentWithCallStack);
@@ -737,7 +787,7 @@ Function ClientParametersAtServer(RaiseException1 = True) Export
 	If Not OnStart Then
 		ErrorText =
 			NStr("en = 'Client parameters on the server are not initialized.
-			           |To initialize them, retry the action or restart the session.';");
+			           |To initialize them, retry the action or restart the session.'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -794,7 +844,7 @@ EndFunction
 // Raises an exception with a recommendation to restart a session due to an update of the application version.
 Procedure RequireRestartDueToApplicationVersionDynamicUpdate() Export
 	
-	ErrorText = NStr("en = 'The application is updated. Restart the application.';");
+	ErrorText = NStr("en = 'The application is updated. Restart the application.'");
 	InstallRequiresSessionRestart(ErrorText);
 	Raise ErrorText;
 	
@@ -809,9 +859,9 @@ Procedure RequireSessionRestartDueToDynamicUpdateOfProgramExtensions() Export
 			           |start a session with the specified separators.
 			           |
 			           |Data area extensions are not applied when you log in to a data area in a session
-			           |that is started without separators.';");
+			           |that is started without separators.'");
 	Else
-		ErrorText = NStr("en = 'Extensions are updated. Restart the application.';");
+		ErrorText = NStr("en = 'Extensions are updated. Restart the application.'");
 	EndIf;
 	
 	InstallRequiresSessionRestart(ErrorText);
@@ -1050,7 +1100,7 @@ Procedure RestorePredefinedItems() Export
 	If ExchangePlans.MasterNode() <> Undefined Then
 		Raise 
 			NStr("en = 'Restore the predefined items in the master node of the distributed infobase.
-			           |Then synchronize the other nodes with the master node.';");
+			           |Then synchronize the other nodes with the master node.'");
 	EndIf;
 	
 	MetadataObjects = MetadataObjectsOfAllPredefinedData();
@@ -1158,7 +1208,7 @@ Function ObjectAttributeValuesIfExist(References, Val Attributes) Export
 			If MetadataObject = Undefined Then
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Invalid value of the %1 parameter, function %2:
-						|The array values must be references.';"), 
+						|The array values must be references.'"), 
 					"References", "Common.ObjectAttributeValuesIfExist");
 			EndIf;
 			AttributesOfType = New Array;
@@ -1369,7 +1419,7 @@ Procedure RecordObjectChangesInAllNodes(Val Object, Val ExchangePlanName, Val In
 	If Common.DataSeparationEnabled() Then
 		
 		If Common.SeparatedDataUsageAvailable() Then
-			Raise NStr("en = 'Register changes of shared data in separated mode.';");
+			Raise NStr("en = 'Register changes of shared data in separated mode.'");
 		EndIf;
 		
 		ModuleSaaSOperations = Undefined;
@@ -1385,7 +1435,7 @@ Procedure RecordObjectChangesInAllNodes(Val Object, Val ExchangePlanName, Val In
 		EndIf;
 		
 		If Not IsSeparatedExchangePlan Then
-			Raise NStr("en = 'Shared exchange plans don''t support registration of changes.';");
+			Raise NStr("en = 'Shared exchange plans don''t support registration of changes.'");
 		EndIf;
 		
 		If ModuleSaaSOperations <> Undefined Then
@@ -1396,7 +1446,7 @@ Procedure RecordObjectChangesInAllNodes(Val Object, Val ExchangePlanName, Val In
 		EndIf;
 		
 		If IsSeparatedMetadataObject Then
-				Raise NStr("en = 'Separated objects don''t support registration of changes.';");
+				Raise NStr("en = 'Separated objects don''t support registration of changes.'");
 		EndIf;
 		
 		QueryText =
@@ -1836,7 +1886,7 @@ Procedure ResetWindowLocationAndSize(Form) Export
 		Except
 			ErrorInfo = ErrorInfo();
 			WriteLogEvent(
-				NStr("en = 'Runtime error';", Common.DefaultLanguageCode()),
+				NStr("en = 'Runtime error'", Common.DefaultLanguageCode()),
 				EventLogLevel.Error,,,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo));
 			Break;
@@ -1881,7 +1931,7 @@ Function ApplicationRunParameterErrorClarificationForDeveloper() Export
 			| • Run the application with command-line option:
 			|/C %1.
 			| • Update the application to a later version.
-			|The data update procedures will start automatically at launch.';"),
+			|The data update procedures will start automatically at launch.'"),
 		"StartInfobaseUpdate");
 	
 EndFunction
@@ -2093,7 +2143,7 @@ EndFunction
 //
 Function HomePagePresentation() Export 
 	
-	Return NStr("en = 'Main';");
+	Return NStr("en = 'Main'");
 	
 EndFunction
 
@@ -2124,7 +2174,7 @@ Procedure CheckSafeModeBeforeWrite(Source, Cancel) Export
 		Return;
 	EndIf;
 	
-	Raise NStr("en = 'Action not supported in safe mode.';");
+	Raise NStr("en = 'Action not supported in safe mode.'");
 	
 EndProcedure
 
@@ -2149,7 +2199,7 @@ Procedure CheckSafeModeBeforeWritingRecordSet(Source, Cancel, Replacing,
 	SetPrivilegedMode(True);
 	
 	If Not PrivilegedMode() Then
-		Raise NStr("en = 'Action not supported in safe mode.';");
+		Raise NStr("en = 'Action not supported in safe mode.'");
 	EndIf;
 	
 EndProcedure
@@ -2245,6 +2295,7 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 	Types.Add(Metadata.InformationRegisters.SafeDataAreaDataStorage);
 	Types.Add(Metadata.InformationRegisters.ExtensionVersionObjectIDs);
 	Types.Add(Metadata.InformationRegisters.ExtensionVersionParameters);
+	Types.Add(Metadata.InformationRegisters.ObsoleteSafeDataAreaDataStorage);
 	
 EndProcedure
 
@@ -2256,7 +2307,7 @@ Procedure OnFillPermissionsToAccessExternalResources(PermissionsRequests) Export
 	Permissions = New Array();
 	
 	Permissions.Add(ModuleSafeModeManager.PermissionToUseTempDirectory(True, True,
-		NStr("en = 'Basic permissions required to run the application.';")));
+		NStr("en = 'Basic permissions required to run the application.'")));
 	Permissions.Add(ModuleSafeModeManager.PermissionToUsePrivilegedMode());
 	
 	PermissionsRequests.Add(
@@ -2277,9 +2328,9 @@ Procedure OnFillToDoList(ToDoList) Export
 	ToDoItem.HasToDoItems      = DataBaseConfigurationChangedDynamically()
 	                     Or Catalogs.ExtensionsVersions.ExtensionsChangedDynamically();
 	ToDoItem.Important        = False;
-	ToDoItem.Presentation = NStr("en = 'Application update installed';");
+	ToDoItem.Presentation = NStr("en = 'Application update installed'");
 	ToDoItem.Form         = "CommonForm.DynamicUpdateControl";
-	ToDoItem.Owner      = NStr("en = 'Application performance';");
+	ToDoItem.Owner      = NStr("en = 'Application performance'");
 	
 	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
 	If ModuleToDoListServer.UserTaskDisabled("SpeedupRecommendation") Then
@@ -2291,9 +2342,9 @@ Procedure OnFillToDoList(ToDoList) Export
 	ToDoItem.Id = Id;
 	ToDoItem.HasToDoItems      = MustShowRAMSizeRecommendations();
 	ToDoItem.Important        = True;
-	ToDoItem.Presentation = NStr("en = 'Application performance degraded';");
+	ToDoItem.Presentation = NStr("en = 'Application performance degraded'");
 	ToDoItem.Form         = "DataProcessor.SpeedupRecommendation.Form";
-	ToDoItem.Owner      = NStr("en = 'Application performance';");
+	ToDoItem.Owner      = NStr("en = 'Application performance'");
 	
 EndProcedure
 
@@ -2363,7 +2414,7 @@ Procedure AfterImportData(Container) Export
 	InformationRegisters.ExtensionVersionParameters.EnableFillingExtensionsWorkParameters(False, True);
 	If Common.DataSeparationEnabled() Then
 		InformationRegisters.ExtensionVersionParameters.StartFillingWorkParametersExtensions(
-			NStr("en = 'Start and wait after importing area data';"),
+			NStr("en = 'Start and wait after importing area data'"),
 			True);
 	EndIf;
 	
@@ -2455,7 +2506,7 @@ Procedure OnGetOtherSettings(UserInfo, Settings) Export
 		UserInfo.InfobaseUserName);
 	If CurrentSchedule <> Undefined Then
 		SettingProperties = New Structure;
-		SettingProperties.Insert("SettingName1", NStr("en = 'Schedule to check for new patches';"));
+		SettingProperties.Insert("SettingName1", NStr("en = 'Schedule to check for new patches'"));
 		SettingProperties.Insert("PictureSettings", PictureLib.Calendar);
 		SettingProperties.Insert("SettingsList", New ValueList);
 		SettingProperties.SettingsList.Add(CurrentSchedule);
@@ -2503,20 +2554,20 @@ Function MessageTextOnDynamicUpdate(DynamicConfigurationChanges) Export
 	Messages = New Array;
 	
 	If DynamicConfigurationChanges.DataBaseConfigurationChangedDynamically Then
-		MessageTextConfiguration = NStr("en = 'The application is updated (the infobase configuration is modified).';");
+		MessageTextConfiguration = NStr("en = 'The application is updated (the infobase configuration is modified).'");
 		Messages.Add(MessageTextConfiguration);
 	EndIf;
 	
 	If DynamicConfigurationChanges.Corrections <> Undefined Then
 		If DynamicConfigurationChanges.Corrections.Added2 > 0
 			And DynamicConfigurationChanges.Corrections.Deleted > 0 Then
-			MessageTextPatches = NStr("en = 'New patches: %1, deleted: %2.';");
+			MessageTextPatches = NStr("en = 'New patches: %1, deleted: %2.'");
 		ElsIf DynamicConfigurationChanges.Corrections.Added2 = 1 Then
-			MessageTextPatches = NStr("en = 'New patch.';");
+			MessageTextPatches = NStr("en = 'New patch.'");
 		ElsIf DynamicConfigurationChanges.Corrections.Added2 > 0 Then
-			MessageTextPatches = NStr("en = 'New patches: %1.';");
+			MessageTextPatches = NStr("en = 'New patches: %1.'");
 		ElsIf DynamicConfigurationChanges.Corrections.Deleted > 0 Then
-			MessageTextPatches = NStr("en = 'Patches deleted: %2.';");
+			MessageTextPatches = NStr("en = 'Patches deleted: %2.'");
 		EndIf;
 		MessageTextPatches = StringFunctionsClientServer.SubstituteParametersToString(MessageTextPatches,
 			DynamicConfigurationChanges.Corrections.Added2,
@@ -2526,21 +2577,21 @@ Function MessageTextOnDynamicUpdate(DynamicConfigurationChanges) Export
 	
 	If DynamicConfigurationChanges.Extensions <> Undefined Then
 		If DynamicConfigurationChanges.Extensions.Added2 > 0 Then
-			MessageTextExtensions = NStr("en = 'New extensions: %1.';");
+			MessageTextExtensions = NStr("en = 'New extensions: %1.'");
 			MessageTextExtensions = StringFunctionsClientServer.SubstituteParametersToString(MessageTextExtensions,
 				DynamicConfigurationChanges.Extensions.Added2);
 			Messages.Add(MessageTextExtensions);
 		EndIf;
 		
 		If DynamicConfigurationChanges.Extensions.Deleted > 0 Then
-			MessageTextExtensions = NStr("en = 'Extensions deleted: %1.';");
+			MessageTextExtensions = NStr("en = 'Extensions deleted: %1.'");
 			MessageTextExtensions = StringFunctionsClientServer.SubstituteParametersToString(MessageTextExtensions,
 				DynamicConfigurationChanges.Extensions.Deleted);
 			Messages.Add(MessageTextExtensions);
 		EndIf;
 		
 		If DynamicConfigurationChanges.Extensions.IsChanged > 0 Then
-			MessageTextExtensions = NStr("en = 'Extensions modified: %1.';");
+			MessageTextExtensions = NStr("en = 'Extensions modified: %1.'");
 			MessageTextExtensions = StringFunctionsClientServer.SubstituteParametersToString(MessageTextExtensions,
 				DynamicConfigurationChanges.Extensions.IsChanged);
 			Messages.Add(MessageTextExtensions);
@@ -2569,7 +2620,7 @@ EndFunction
 //
 Function FileTypeRepresentationOfATabularPDFDocument() Export
 	
-	Return NStr("en = 'PDF/A document (.pdf)';");
+	Return NStr("en = 'PDF/A document (.pdf)'");
 	
 EndFunction
 
@@ -2664,7 +2715,7 @@ Function TheComponentOfTheLatestVersion(Id, Location, AddIn = Undefined) Export
 	EndIf;
 	
 	Raise StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Add-in with ID %1 does not exist';"), Id);
+		NStr("en = 'Add-in with ID %1 does not exist'"), Id);
 	
 EndFunction
 
@@ -2675,7 +2726,7 @@ Function TechnicalInfoOnExtensionsAndSubsystemsVersions() Export
 	
 	SubsystemsDetails = Common.SubsystemsDetails();
 	
-	TechnicalInfoOnExtensionsAndSubsystemsVersions = NStr("en = 'Subsystem versions';") + ":" + Chars.LF;
+	TechnicalInfoOnExtensionsAndSubsystemsVersions = NStr("en = 'Subsystem versions'") + ":" + Chars.LF;
 	For Each SubsystemDetails In SubsystemsDetails Do
 		TechnicalInfoOnExtensionsAndSubsystemsVersions = TechnicalInfoOnExtensionsAndSubsystemsVersions
 			+ SubsystemDetails.Name + " - "
@@ -2692,7 +2743,7 @@ Function TechnicalInfoOnExtensionsAndSubsystemsVersions() Export
 		
 		TechnicalInfoOnExtensionsAndSubsystemsVersions = TechnicalInfoOnExtensionsAndSubsystemsVersions
 			+ Extension.Name + " - " + Extension.Synonym + " - "
-			+ Format(Extension.Active, NStr("en = 'BF=Disabled; BT=Enabled';")) + Chars.LF;
+			+ Format(Extension.Active, NStr("en = 'BF=Disabled; BT=Enabled'")) + Chars.LF;
 		
 	EndDo;
 	
@@ -2942,11 +2993,11 @@ Function AddClientParametersOnStart(Parameters) Export
 	EndIf;
 	
 	StartMoment = CurrentUniversalDateInMilliseconds();
-	ParametersAdded = InfobaseUpdateInternal.AddClientParametersOnStart(Parameters);
+	IsParametersAdded = InfobaseUpdateInternal.AddClientParametersOnStart(Parameters);
 	AddIndicator(Parameters, StartMoment,
 		"InfobaseUpdateInternal.AddClientParametersOnStart");
 	
-	If Not ParametersAdded And IsCallBeforeStart Then
+	If Not IsParametersAdded And IsCallBeforeStart Then
 		Return False;
 	EndIf;
 	
@@ -3113,7 +3164,7 @@ Function AddClientParametersOnStart(Parameters) Export
 				
 				ErrorTemplate =
 					NStr("en = 'Cannot enable exclusive mode to set up the distributed infobase node. Reason:
-					           |%1';");
+					           |%1'");
 				EnableExclusiveModeAtStartup(True, ErrorTemplate);
 			EndIf;
 			AddIndicator(Parameters, StartMoment,
@@ -3377,9 +3428,9 @@ Procedure AddMainIndicator(Indicators, StartMoment, ProcedureName,
 	
 	NestedIndicators = Undefined;
 	If TypeOf(Parameters) = Type("Structure")
-	   And Parameters.Property(NameOfPerformanceMetricsProperty()) Then
+	   And Parameters.Property(PerformanceIndicatorsPropertyName()) Then
 	
-		NestedIndicators = Parameters[NameOfPerformanceMetricsProperty()];
+		NestedIndicators = Parameters[PerformanceIndicatorsPropertyName()];
 	EndIf;
 	
 	Duration = CurrentUniversalDateInMilliseconds() - StartMoment;
@@ -3407,7 +3458,7 @@ Procedure AddMainIndicator(Indicators, StartMoment, ProcedureName,
 	
 EndProcedure
 
-Function NameOfPerformanceMetricsProperty()
+Function PerformanceIndicatorsPropertyName()
 	Return "PerformanceIndicators_";
 EndFunction
 
@@ -3713,7 +3764,7 @@ Procedure DenySettingDeletionMarksToPredefinedItemsBeforeWrite(Source)
 	
 	If Source.IsNew() Then
 		Raise
-			NStr("en = 'Cannot create a predefined item that is marked for deletion.';");
+			NStr("en = 'Cannot create a predefined item that is marked for deletion.'");
 	EndIf;
 	
 	PreviousProperties = Common.ObjectAttributesValues(Source.Ref, 
@@ -3725,7 +3776,7 @@ Procedure DenySettingDeletionMarksToPredefinedItemsBeforeWrite(Source)
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot mark the predefined item for deletion:
-			           |""%1"".';"),
+			           |""%1"".'"),
 			String(Source.Ref));
 	ElsIf (ValueIsFilled(AttributeValue) And Not ValueIsFilled(PreviousProperties[AttributeName])
 	      Or PreviousProperties.PredefinedDataName = "")
@@ -3733,7 +3784,7 @@ Procedure DenySettingDeletionMarksToPredefinedItemsBeforeWrite(Source)
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot map a predefined item name to an item marked for deletion:
-			           |""%1.""';"),
+			           |""%1.""'"),
 			String(Source.Ref));
 	EndIf;
 	
@@ -3763,7 +3814,7 @@ Procedure DenyPredefinedItemDeletionBeforeDelete(Source, Cancel) Export
 	
 	Raise StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Cannot delete the predefined item 
-			|""%1.""';"),
+			|""%1.""'"),
 		String(Source.Ref));
 	
 EndProcedure
@@ -3976,7 +4027,8 @@ Procedure CreateMissingPredefinedData(MetadataObjects)
 		EndIf;
 		
 		// ACC:1328-off - No.648.1.1. An exclusive lock is set in the calling procedure.
-		// @skip-check query-in-loop - Batch-wise data processing
+// @skip-check query-in-loop - Batch-wise data processing
+		// @skip-check query-in-loop 
 		NameTable = Query.Execute().Unload();
 		// ACC:1328-on.
 		NameTable.Indexes.Add("Name");
@@ -3993,7 +4045,8 @@ Procedure CreateMissingPredefinedData(MetadataObjects)
 		
 		Query.Text = SavedItemsDescription.QueryText;
 		// ACC:1328-off - No.648.1.1. An exclusive lock is set in the calling procedure.
-		// @skip-check query-in-loop - Batch-wise data processing
+// @skip-check query-in-loop - Batch-wise data processing
+		// @skip-check query-in-loop 
 		NameTable = Query.Execute().Unload();
 		// ACC:1328-on.
 		NameTable.Indexes.Add("Name");
@@ -4093,12 +4146,12 @@ Procedure AddNewExtraAccountDimensionTypes(Account, SampleAccount)
 		If Account.ExtDimensionTypes.Count() > IndexOf Then
 			If Account.ExtDimensionTypes[IndexOf].ExtDimensionType <> ExtDimensionType.ExtDimensionType Then
 				WriteLogEvent(
-					NStr("en = 'Data exchange.Disconnection from the master node';", Common.DefaultLanguageCode()),
+					NStr("en = 'Data exchange.Disconnection from the master node'", Common.DefaultLanguageCode()),
 					EventLogLevel.Error,
 					Account.Metadata(),
 					Account,
 					StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'The extra dimension #%2 ""%3"" in chart of accounts ""%1"" does not match the predefined extra dimension ""%4.""';"),
+						NStr("en = 'The extra dimension #%2 ""%3"" in chart of accounts ""%1"" does not match the predefined extra dimension ""%4.""'"),
 						String(Account),
 						IndexOf + 1,
 						String(Account.ExtDimensionTypes[IndexOf].ExtDimensionType),
@@ -4208,7 +4261,7 @@ Procedure BeforeStartApplication()
 	If Metadata.ScriptVariant <> CurrentLanguageOf1CEnterpriseLanguage Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The built-in configuration language option ""%1"" is not supported.
-			           |Use language option ""%2"" instead.';"),
+			           |Use language option ""%2"" instead.'"),
 			Metadata.ScriptVariant,
 			Metadata.ObjectProperties.ScriptVariant["English"]);
 	EndIf;
@@ -4232,7 +4285,7 @@ Procedure BeforeStartApplication()
 		MinBuildNumberForCurrent1CEnterpriseVersion) < 0 Then
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The application requires 1C:Enterprise version %1 or later.';"), 
+			NStr("en = 'The application requires 1C:Enterprise version %1 or later.'"), 
 			MinBuildNumberForCurrent1CEnterpriseVersion);
 	EndIf;
 	
@@ -4245,13 +4298,13 @@ Procedure BeforeStartApplication()
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Configuration compatibility mode ""Version %1"" is not supported. 
 			           |To start the application, set the compatibility mode to ""None"" (on 1C:Enterprise version %2)
-			           | or to ""Version %2"" (on a later 1C:Enterprise version).';"),
+			           | or to ""Version %2"" (on a later 1C:Enterprise version).'"),
 			CompatibilityModeVersion, MinPlatformVersion);
 	EndIf;
 	
 	// Checking whether the configuration version is filled.
 	If IsBlankString(Metadata.Version) Then
-		Raise NStr("en = 'The Version configuration property is blank.';");
+		Raise NStr("en = 'The Version configuration property is blank.'");
 	EndIf;
 
 	Try
@@ -4259,13 +4312,13 @@ Procedure BeforeStartApplication()
 	Except
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The Version configuration property has invalid value: %1.
-						|Use the following format: 1.2.3.45.';"),
+						|Use the following format: 1.2.3.45.'"),
 			Metadata.Version);
 	EndTry;
 	If ZeroVersion Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The Version configuration property has invalid value: %1.
-						|The version cannot be zero.';"),
+						|The version cannot be zero.'"),
 			Metadata.Version);
 	EndIf;
 	
@@ -4273,7 +4326,7 @@ Procedure BeforeStartApplication()
 		Or Not Metadata.DefaultRoles.Contains(Metadata.Roles.FullAccess) Then
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Standard roles %2 and %3 are not specified in property %1 in the configuration.';"),
+			NStr("en = 'Standard roles %2 and %3 are not specified in property %1 in the configuration.'"),
 			"DefaultRoles", Metadata.Roles.SystemAdministrator.Name, Metadata.Roles.FullAccess.Name);
 	EndIf;
 	
@@ -4713,7 +4766,7 @@ Procedure CheckIfCanStart()
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot set session parameters. Reason: Security profile %1 is not found in the 1C:Enterprise server cluster or it cannot be applied in safe mode.
 						|
-						|To restore the application functionality, disable the security profile using the cluster console and reconfigure the security profiles using the configuration interface (see the commands in the application settings section).';"),
+						|To restore the application functionality, disable the security profile using the cluster console and reconfigure the security profiles using the configuration interface (see the commands in the application settings section).'"),
 					InfobaseProfile);
 			EndIf;
 			
@@ -4732,7 +4785,7 @@ Procedure CheckIfCanStart()
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot set session parameters. Reason: Security profile %1 does not contain the permission to set the privileged mode. Probably it was edited using the cluster console.
 					|
-					|To restore the application functionality, disable the security profile using the cluster console and reconfigure the security profiles using the configuration interface (see the commands in the application settings section).';"),
+					|To restore the application functionality, disable the security profile using the cluster console and reconfigure the security profiles using the configuration interface (see the commands in the application settings section).'"),
 				InfobaseProfile);
 			
 		EndIf;
@@ -4749,7 +4802,7 @@ Procedure CheckIfCanStart()
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot set session parameters. Reason: %1.
 					|
-					|Probably a security profile that does not allow execution of external modules in unsafe mode was set using the cluster console. If this is the case, to restore the application functionality, disable the security profile using the cluster console and reconfigure the security profiles using the configuration interface (see the commands in the application settings section). The application will be automatically configured to use the enabled security profiles.';"),
+					|Probably a security profile that does not allow execution of external modules in unsafe mode was set using the cluster console. If this is the case, to restore the application functionality, disable the security profile using the cluster console and reconfigure the security profiles using the configuration interface (see the commands in the application settings section). The application will be automatically configured to use the enabled security profiles.'"),
 				ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 			
 		EndTry;
@@ -4812,7 +4865,7 @@ Procedure RegisterPredefinedItemChanges(DIBExchangePlansNodes, MetadataCollectio
 		|WHERE
 		|	CurrentTable.Predefined";
 		Query.Text = StrReplace(Query.Text, "&CurrentTable", MetadataObject.FullName());
-		// @skip-check query-in-loop - Batch processing of data
+		// @skip-check query-in-loop 
 		Selection = Query.Execute().Select();
 		
 		While Selection.Next() Do
@@ -4881,7 +4934,8 @@ Procedure SetFormWindowOptionsSaveKey(Form, Var_Key, SetSettings)
 	SettingsTypes1.Add("/Taxi/ThinClientWindowSettings"); // @Non-NLS
 	SettingsTypes1.Add("/WebClientWindowSettings"); // @Non-NLS
 	SettingsTypes1.Add("/Taxi/WebClientWindowSettings"); // @Non-NLS
-	// The English version.
+	// @Non-NLS
+// The English version.
 	SettingsTypes1.Add("/ThinClientWindowSettings");
 	SettingsTypes1.Add("/Taxi/ThinClientWindowSettings");
 	SettingsTypes1.Add("/WebClientWindowSettings");
@@ -4997,7 +5051,7 @@ Procedure ConfigurationOrExtensionModifiedDuringRepeatedCheck(UserMessage)
 			
 			PatchCheckSchedule = New Structure;
 			PatchCheckSchedule.Insert("Id", "Once");
-			PatchCheckSchedule.Insert("Presentation", NStr("en = 'Once a day';"));
+			PatchCheckSchedule.Insert("Presentation", NStr("en = 'Once a day'"));
 			PatchCheckSchedule.Insert("Schedule", OnceADay);
 			PatchCheckSchedule.Insert("LastAlert", CurrentSessionDate());
 
@@ -5014,7 +5068,7 @@ Procedure ConfigurationOrExtensionModifiedDuringRepeatedCheck(UserMessage)
 		
 	Messages = New Array;
 	Messages.Add(MessageTextOnDynamicUpdate(DynamicChanges));
-	Messages.Add(NStr("en = 'Click here to start or postpone patch application.';"));
+	Messages.Add(NStr("en = 'Click here to start or postpone patch application.'"));
 	UserMessage = StrConcat(Messages, Chars.LF);
 	
 EndProcedure
@@ -5330,6 +5384,493 @@ Function IsOwnerMarkedForDeletion(RemovableObject)
 	Return False;
 	
 EndFunction
+
+#Region TableComparison
+
+Function CompareTables(Table1, Table2) Export
+	
+	Result = New Structure;
+	
+	// Comparing the spreadsheet documents by lines and selecting the matching lines.
+	Result.Insert("StringMatches", GenerateMatches(Table1, Table2, True));
+	
+	// Comparing the spreadsheet documents by columns and selecting the matching columns.
+	Result.Insert("ColumnMatches", GenerateMatches(Table1, Table2, False));
+	
+	Return Result; 
+	
+EndFunction
+
+Function GenerateMatches(LeftTable, TableRight, ByRows)
+	
+	DataFromLeftTable = GetDataForComparison(LeftTable, ByRows);
+	
+	DataFromRightTable = GetDataForComparison(TableRight, ByRows);
+	
+	If ByRows Then
+		MatchResultLeft = New ValueList;
+		MatchResultLeft.LoadValues(New Array(LeftTable.Count()+1));
+		
+		MatchResultRight = New ValueList;
+		MatchResultRight.LoadValues(New Array(TableRight.Count()+1));		
+		
+	Else
+		MatchResultLeft = New ValueList;
+		MatchResultLeft.LoadValues(New Array(LeftTable.Columns.Count()+1));
+		
+		MatchResultRight = New ValueList;
+		MatchResultRight.LoadValues(New Array(TableRight.Columns.Count()+1));
+		
+	EndIf;
+	
+	QueryText =
+	"SELECT
+	|	DataFromLeftTable.Number AS Number,
+	|	DataFromLeftTable.Value AS Value,
+	|	DataFromLeftTable.Count AS Count
+	|INTO LeftTable
+	|FROM
+	|	&DataFromLeftTable AS DataFromLeftTable
+	|
+	|INDEX BY
+	|	Value
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT
+	|	DataFromRightTable.Number AS Number,
+	|	DataFromRightTable.Value AS Value,
+	|	DataFromRightTable.Count AS Count
+	|INTO TableRight
+	|FROM
+	|	&DataFromRightTable AS DataFromRightTable
+	|
+	|INDEX BY
+	|	Value
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT
+	|	LeftTable.Number AS ItemNumberLeft,
+	|	TableRight.Number AS ItemNumberRight,
+	|	CASE
+	|		WHEN TableRight.Number - LeftTable.Number < 0
+	|			THEN LeftTable.Number - TableRight.Number
+	|		ELSE TableRight.Number - LeftTable.Number
+	|	END AS DistanceFromBeginning,
+	|	CASE
+	|		WHEN &RowCountRight - TableRight.Number - (&RowCountLeft - LeftTable.Number) < 0
+	|			THEN &RowCountLeft - LeftTable.Number - (&RowCountRight - TableRight.Number)
+	|		ELSE &RowCountRight - TableRight.Number - (&RowCountLeft - LeftTable.Number)
+	|	END AS DistanceFromEnd,
+	|	SUM(CASE
+	|		WHEN LeftTable.Value <> """"
+	|			THEN CASE
+	|				WHEN LeftTable.Count < TableRight.Count
+	|					THEN LeftTable.Count
+	|				ELSE TableRight.Count
+	|			END
+	|		ELSE 0
+	|	END) AS ValueMatchesCount,
+	|	SUM(CASE
+	|		WHEN LeftTable.Count < TableRight.Count
+	|			THEN LeftTable.Count
+	|		ELSE TableRight.Count
+	|	END) AS TotalMatchesCount
+	|INTO DataCollapsed
+	|FROM
+	|	LeftTable AS LeftTable
+	|		INNER JOIN TableRight AS TableRight
+	|		ON LeftTable.Value = TableRight.Value
+	|GROUP BY
+	|	LeftTable.Number,
+	|	TableRight.Number
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT
+	|	DataCollapsed.ItemNumberLeft AS ItemNumberLeft,
+	|	DataCollapsed.ItemNumberRight AS ItemNumberRight,
+	|	DataCollapsed.ValueMatchesCount AS ValueMatchesCount,
+	|	DataCollapsed.TotalMatchesCount AS TotalMatchesCount,
+	|	CASE
+	|		WHEN DataCollapsed.DistanceFromBeginning < DataCollapsed.DistanceFromEnd
+	|			THEN DataCollapsed.DistanceFromBeginning
+	|		ELSE DataCollapsed.DistanceFromEnd
+	|	END AS MinDistance
+	|INTO DataWithDistances
+	|FROM
+	|	DataCollapsed AS DataCollapsed
+	|;
+	|////////////////////////////////////////////////////////////////////////////////
+	|DROP DataCollapsed
+	|;
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT
+	|	DataWithDistances.ItemNumberLeft AS ItemNumberLeft,
+	|	DataWithDistances.ItemNumberRight AS ItemNumberRight,
+	|	DataWithDistances.ValueMatchesCount * ParametersMaximums.TotalMatchesCount *
+	|		ParametersMaximums.MinDistance + DataWithDistances.TotalMatchesCount *
+	|		ParametersMaximums.MinDistance + (ParametersMaximums.MinDistance -
+	|		DataWithDistances.MinDistance) AS Weight
+	|INTO WeightedMatches
+	|FROM
+	|	DataWithDistances AS DataWithDistances,
+	|	(SELECT
+	|		MAX(DataWithDistances.TotalMatchesCount) AS TotalMatchesCount,
+	|		MAX(DataWithDistances.MinDistance) AS MinDistance
+	|	FROM
+	|		DataWithDistances AS DataWithDistances) AS ParametersMaximums
+	|INDEX BY
+	|	ItemNumberLeft,
+	|	Weight
+	|;
+	|////////////////////////////////////////////////////////////////////////////////
+	|DROP DataWithDistances
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT
+	|	BestMatch.ItemNumberLeft AS ItemNumberLeft,
+	|	WeightedMatches.ItemNumberRight AS ItemNumberRight,
+	|	WeightedMatches.Weight AS Weight
+	|INTO Maps1
+	|FROM
+	|	(SELECT
+	|		WeightedMatches.ItemNumberLeft AS ItemNumberLeft,
+	|		MAX(WeightedMatches.Weight) AS Weight
+	|	FROM
+	|		WeightedMatches AS WeightedMatches
+	|	GROUP BY
+	|		WeightedMatches.ItemNumberLeft) AS BestMatch
+	|		LEFT JOIN WeightedMatches AS WeightedMatches
+	|		ON BestMatch.ItemNumberLeft = WeightedMatches.ItemNumberLeft
+	|		AND BestMatch.Weight = WeightedMatches.Weight
+	|INDEX BY
+	|	ItemNumberLeft";
+
+	Query = New Query(QueryText);
+	Query.TempTablesManager = New TempTablesManager;
+	Query.SetParameter("DataFromLeftTable", DataFromLeftTable);
+	Query.SetParameter("DataFromRightTable", DataFromRightTable);
+	Query.SetParameter("RowCountLeft", LeftTable.Count());
+	Query.SetParameter("RowCountRight", TableRight.Count());
+	Query.Execute();
+
+	ConflictsLevel = 2;
+	
+	While ConflictsLevel > 0 Do
+		Query.Text = 
+		"SELECT
+		|	AllConflicts.ItemNumberLeft AS ItemNumberLeft,
+		|	AllConflicts.ItemNumberRight AS ItemNumberRight,
+		|	SUM(AllConflicts.NumberOfConflicts) AS NumberOfConflicts
+		|INTO FoundConflicts
+		|FROM
+		|	(SELECT
+		|		Maps1.ItemNumberLeft AS ItemNumberLeft,
+		|		Maps1.ItemNumberRight AS ItemNumberRight,
+		|		1 AS NumberOfConflicts
+		|	FROM
+		|		Maps1 AS Maps1
+		|			INNER JOIN Maps1 AS Maps11
+		|			ON Maps1.ItemNumberRight < Maps11.ItemNumberRight
+		|			AND Maps1.ItemNumberLeft > Maps11.ItemNumberLeft
+		|
+		|	UNION ALL
+		|
+		|	SELECT
+		|		Maps1.ItemNumberLeft,
+		|		Maps1.ItemNumberRight,
+		|		1
+		|	FROM
+		|		Maps1 AS Maps1
+		|			INNER JOIN Maps1 AS Maps11
+		|			ON Maps1.ItemNumberRight > Maps11.ItemNumberRight
+		|			AND Maps1.ItemNumberLeft < Maps11.ItemNumberLeft
+		|
+		|	UNION ALL
+		|
+		|	SELECT
+		|		Maps1.ItemNumberLeft,
+		|		Maps1.ItemNumberRight,
+		|		1
+		|	FROM
+		|		(SELECT
+		|			Maps1.ItemNumberRight AS ItemNumberRight,
+		|			MAX(Maps1.Weight) AS Weight
+		|		FROM
+		|			Maps1 AS Maps1
+		|		GROUP BY
+		|			Maps1.ItemNumberRight
+		|		HAVING
+		|			COUNT(DISTINCT Maps1.ItemNumberLeft) > 1) AS Duplicates
+		|			LEFT JOIN Maps1 AS Maps1
+		|			ON Duplicates.ItemNumberRight = Maps1.ItemNumberRight
+		|			AND Duplicates.Weight > Maps1.Weight) AS AllConflicts
+		|GROUP BY
+		|	AllConflicts.ItemNumberLeft,
+		|	AllConflicts.ItemNumberRight
+		|
+		|INDEX BY
+		|	ItemNumberLeft,
+		|	ItemNumberRight
+		|;
+		|
+		|////////////////////////////////////////////////////////////////////////////////
+		|SELECT
+		|	Maps1.ItemNumberLeft AS ItemNumberLeft,
+		|	Maps1.ItemNumberRight AS ItemNumberRight,
+		|	Maps1.Weight AS Weight,
+		|	ISNULL(FoundConflicts.NumberOfConflicts, 0) AS NumberOfConflicts
+		|INTO MapsWithConflict
+		|FROM
+		|	Maps1 AS Maps1
+		|		LEFT JOIN FoundConflicts AS FoundConflicts
+		|		ON Maps1.ItemNumberLeft = FoundConflicts.ItemNumberLeft
+		|		AND Maps1.ItemNumberRight = FoundConflicts.ItemNumberRight
+		|;
+		|
+		|////////////////////////////////////////////////////////////////////////////////
+		|DROP Maps1
+		|;
+		|
+		|////////////////////////////////////////////////////////////////////////////////
+		|SELECT
+		|	MapsWithConflict.ItemNumberLeft AS ItemNumberLeft,
+		|	MapsWithConflict.ItemNumberRight AS ItemNumberRight,
+		|	MapsWithConflict.Weight AS Weight,
+		|	MapsWithConflict.NumberOfConflicts AS NumberOfConflicts
+		|INTO ReplaceableMaps
+		|FROM
+		|	(SELECT
+		|		MAX(MapsWithConflict.NumberOfConflicts) AS NumberOfConflicts
+		|	FROM
+		|		MapsWithConflict AS MapsWithConflict) AS ConflictsMaxNumber
+		|		LEFT JOIN MapsWithConflict AS MapsWithConflict
+		|		ON ConflictsMaxNumber.NumberOfConflicts <> 0
+		|		AND MapsWithConflict.NumberOfConflicts = ConflictsMaxNumber.NumberOfConflicts
+		|;
+		|
+		|////////////////////////////////////////////////////////////////////////////////
+		|SELECT
+		|	MapsWithConflict.ItemNumberLeft AS ItemNumberLeft,
+		|	MapsWithConflict.ItemNumberRight AS KeyItemNumberRight,
+		|	MapsWithConflict.NumberOfConflicts AS NumberOfConflicts,
+		|	ReplacementOptions.ItemNumberRight AS ItemNumberRight,
+		|	ReplacementOptions.Weight AS Weight
+		|INTO MapsOptionsForReplacement
+		|FROM
+		|	ReplaceableMaps AS MapsWithConflict
+		|		LEFT JOIN WeightedMatches AS ReplacementOptions
+		|		ON MapsWithConflict.ItemNumberLeft = ReplacementOptions.ItemNumberLeft
+		|		AND MapsWithConflict.Weight > ReplacementOptions.Weight
+		|INDEX BY
+		|	ItemNumberLeft
+		|;
+		|
+		|////////////////////////////////////////////////////////////////////////////////
+		|SELECT
+		|	MapsOptionsForReplacement.ItemNumberLeft AS ItemNumberLeft,
+		|	MapsOptionsForReplacement.ItemNumberRight AS ItemNumberRight,
+		|	1 AS NumberOfConflicts
+		|INTO FoundOptionsConflicts
+		|FROM
+		|	MapsOptionsForReplacement AS MapsOptionsForReplacement
+		|		INNER JOIN MapsWithConflict AS MapsWithConflict
+		|		ON MapsOptionsForReplacement.ItemNumberRight < MapsWithConflict.ItemNumberRight
+		|		AND MapsOptionsForReplacement.ItemNumberLeft > MapsWithConflict.ItemNumberLeft
+		|
+		|UNION ALL
+		|
+		|SELECT
+		|	MapsOptionsForReplacement.ItemNumberLeft,
+		|	MapsOptionsForReplacement.ItemNumberRight,
+		|	1
+		|FROM
+		|	MapsOptionsForReplacement AS MapsOptionsForReplacement
+		|		INNER JOIN MapsWithConflict AS MapsWithConflict
+		|		ON MapsOptionsForReplacement.ItemNumberRight > MapsWithConflict.ItemNumberRight
+		|		AND MapsOptionsForReplacement.ItemNumberLeft < MapsWithConflict.ItemNumberLeft
+		|
+		|UNION ALL
+		|
+		|SELECT
+		|	MapsWithConflict.ItemNumberLeft,
+		|	MapsWithConflict.ItemNumberRight,
+		|	1
+		|FROM
+		|	(SELECT
+		|		MapsOptionsForReplacement.ItemNumberRight AS ItemNumberRight,
+		|		MAX(MapsWithConflict.Weight) AS Weight
+		|	FROM
+		|		MapsOptionsForReplacement AS MapsOptionsForReplacement
+		|			LEFT JOIN MapsWithConflict AS MapsWithConflict
+		|			ON MapsOptionsForReplacement.ItemNumberRight = MapsWithConflict.ItemNumberRight
+		|	GROUP BY
+		|		MapsOptionsForReplacement.ItemNumberRight) AS Duplicates
+		|		LEFT JOIN MapsWithConflict AS MapsWithConflict
+		|		ON Duplicates.ItemNumberRight = MapsWithConflict.ItemNumberRight
+		|		AND Duplicates.Weight > MapsWithConflict.Weight
+		|;
+		|
+		|////////////////////////////////////////////////////////////////////////////////
+		|SELECT
+		|	MapsOptionsForReplacement.ItemNumberLeft AS ItemNumberLeft,
+		|	MapsOptionsForReplacement.KeyItemNumberRight AS KeyItemNumberRight,
+		|	MapsOptionsForReplacement.ItemNumberRight AS ItemNumberRight,
+		|	MapsOptionsForReplacement.Weight AS Weight,
+		|	ISNULL(SUM(Conflicts1.NumberOfConflicts), 0) AS NumberOfConflicts
+		|INTO MapsVariantsForReplacingConflicts
+		|FROM
+		|	MapsOptionsForReplacement AS MapsOptionsForReplacement
+		|		LEFT JOIN FoundOptionsConflicts AS Conflicts1
+		|		ON MapsOptionsForReplacement.ItemNumberLeft = Conflicts1.ItemNumberLeft
+		|		AND MapsOptionsForReplacement.ItemNumberRight = Conflicts1.ItemNumberRight
+		|GROUP BY
+		|	MapsOptionsForReplacement.ItemNumberLeft,
+		|	MapsOptionsForReplacement.KeyItemNumberRight,
+		|	MapsOptionsForReplacement.ItemNumberRight,
+		|	MapsOptionsForReplacement.Weight,
+		|	MapsOptionsForReplacement.NumberOfConflicts
+		|HAVING
+		|	MapsOptionsForReplacement.NumberOfConflicts > ISNULL(SUM(Conflicts1.NumberOfConflicts), 0)
+		|;
+		|
+		|////////////////////////////////////////////////////////////////////////////////
+		|SELECT
+		|	MapsVariantsForReplacingConflicts.ItemNumberLeft AS ItemNumberLeft,
+		|	MAX(MapsVariantsForReplacingConflicts.Weight) AS Weight
+		|INTO ReplacementMaxWeight
+		|FROM
+		|	MapsVariantsForReplacingConflicts AS MapsVariantsForReplacingConflicts
+		|GROUP BY
+		|	MapsVariantsForReplacingConflicts.ItemNumberLeft
+		|;
+		|
+		|////////////////////////////////////////////////////////////////////////////////
+		|SELECT
+		|	ReplaceableMaps.ItemNumberLeft AS ItemNumberLeft,
+		|	ReplaceableMaps.ItemNumberRight AS KeyItemNumberRight,
+		|	ISNULL(MapsVariantsForReplacingConflicts.ItemNumberRight, UNDEFINED) AS ItemNumberRight,
+		|	MapsVariantsForReplacingConflicts.Weight AS Weight
+		|INTO MapsForReplacement
+		|FROM
+		|	ReplaceableMaps AS ReplaceableMaps
+		|		LEFT JOIN ReplacementMaxWeight AS ReplacementMaxWeight
+		|		ON ReplaceableMaps.ItemNumberLeft = ReplacementMaxWeight.ItemNumberLeft
+		|		LEFT JOIN MapsVariantsForReplacingConflicts AS MapsVariantsForReplacingConflicts
+		|		ON MapsVariantsForReplacingConflicts.Weight = ReplacementMaxWeight.Weight
+		|		AND MapsVariantsForReplacingConflicts.ItemNumberLeft = ReplacementMaxWeight.ItemNumberLeft
+		|;
+		|
+		|////////////////////////////////////////////////////////////////////////////////
+		|SELECT
+		|	MapsWithConflict.ItemNumberLeft AS ItemNumberLeft,
+		|	ISNULL(MapsForReplacement.ItemNumberRight, MapsWithConflict.ItemNumberRight) AS ItemNumberRight,
+		|	ISNULL(MapsForReplacement.Weight, MapsWithConflict.Weight) AS Weight,
+		|	MapsWithConflict.NumberOfConflicts AS NumberOfConflicts
+		|INTO Maps1
+		|FROM
+		|	MapsWithConflict AS MapsWithConflict
+		|		LEFT JOIN MapsForReplacement AS MapsForReplacement
+		|		ON MapsWithConflict.ItemNumberLeft = MapsForReplacement.ItemNumberLeft
+		|			AND MapsWithConflict.ItemNumberRight = MapsForReplacement.KeyItemNumberRight
+		|WHERE
+		|	(MapsForReplacement.ItemNumberRight IS NULL
+		|			OR MapsForReplacement.ItemNumberRight <> UNDEFINED)
+		|;
+		|
+		|////////////////////////////////////////////////////////////////////////////////
+		|SELECT
+		|	ISNULL(MAX(MapsWithConflict.NumberOfConflicts), 0) AS NumberOfConflicts
+		|FROM
+		|	MapsWithConflict AS MapsWithConflict";
+			
+		Selection = Query.Execute().Select(); //@skip-check query-in-loop - Итерационная обработка таблицы
+		Selection.Next();
+		ConflictsLevel = Selection.NumberOfConflicts;
+		
+		TempTablesToDelete = New Array;
+		TempTablesToDelete.Add("MapsForReplacement");
+		TempTablesToDelete.Add("MapsVariantsForReplacingConflicts");
+		TempTablesToDelete.Add("MapsOptionsForReplacement");
+		TempTablesToDelete.Add("MapsWithConflict");
+		TempTablesToDelete.Add("ReplaceableMaps");
+		TempTablesToDelete.Add("FoundConflicts");
+		TempTablesToDelete.Add("ReplacementMaxWeight");
+		TempTablesToDelete.Add("FoundOptionsConflicts");
+		
+		DeleteTemporaryTables(Query, TempTablesToDelete); //@skip-check query-in-loop - Итерационная обработка таблицы
+		
+	EndDo;
+	
+	Query.Text = "SELECT
+	               |	Maps1.ItemNumberLeft AS ItemNumberLeft,
+	               |	Maps1.ItemNumberRight AS ItemNumberRight
+	               |FROM
+	               |	Maps1 AS Maps1";
+	
+	Selection = Query.Execute().Select();
+	
+	While Selection.Next() Do
+		If MatchResultLeft[Selection.ItemNumberLeft].Value = Undefined
+			And MatchResultRight[Selection.ItemNumberRight].Value = Undefined Then
+				MatchResultLeft[Selection.ItemNumberLeft].Value = Selection.ItemNumberRight;
+				MatchResultRight[Selection.ItemNumberRight].Value = Selection.ItemNumberLeft;
+		EndIf;
+	EndDo;
+	
+	Result = New Array;
+	Result.Add(MatchResultLeft);
+	Result.Add(MatchResultRight);
+	
+	Return Result;
+
+EndFunction
+
+Function GetDataForComparison(SourceValueTable, ByRows)
+	
+	MaxRowSize = New StringQualifiers(100);
+	
+	Result = New ValueTable;
+	Result.Columns.Add("Number",		New TypeDescription("Number"));
+	Result.Columns.Add("Value",	New TypeDescription("String", , MaxRowSize));
+	
+	Boundary1 = ?(ByRows, SourceValueTable.Count(),
+							SourceValueTable.Columns.Count()) - 1;
+		
+	Boundary2 = ?(ByRows, SourceValueTable.Columns.Count(),
+							SourceValueTable.Count()) - 1;
+		
+	For Index1 = 0 To Boundary1 Do
+		
+		For IndexOf2 = 0 To Boundary2 Do
+			
+			NewRow = Result.Add();
+			NewRow.Number = Index1+1;
+			NewRow.Value = ?(ByRows, SourceValueTable[Index1][IndexOf2],
+												SourceValueTable[IndexOf2][Index1]);
+			
+		EndDo;
+		
+	EndDo;
+	
+	Result.Columns.Add("Count", New TypeDescription("Number"));
+	Result.FillValues(1, "Count");
+	
+	Result.GroupBy("Number, Value", "Count");
+	
+	Return Result;
+	
+EndFunction
+
+Procedure DeleteTemporaryTables(Query, Tables)
+	Query.Text = "DROP " + StrConcat(Tables, "; DROP ");
+	Query.Execute();
+EndProcedure
+
+#EndRegion
 
 #EndRegion
 

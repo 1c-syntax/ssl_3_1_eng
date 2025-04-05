@@ -24,7 +24,8 @@
 //              - Undefined - Defines the 1C:Enterprise behavior.:
 //                               Non-isolatedly if the add-in supports only this mode. 
 //                               Isolatedly, in other cases. By default, "Undefined".
-//                               See https://its.1c.eu/db/v83doc#bookmark:dev:TI000001866
+//                               See https://its.1c.eu/db/v83doc
+//                               #bookmark:dev:TI000001866
 //    * FullTemplateName - String - Full name of the template with a ZIP archive containing the add-in.
 //
 Function ConnectionParameters() Export
@@ -119,12 +120,12 @@ Function AddInInformation(Val Id, Val Version = Undefined) Export
 	Information = AddInsInternal.SavedAddInInformation(Id, Version);
 	
 	If Information.State = "NotFound1" Then
-		Result.ErrorDescription = NStr("en = 'Add-in does not exist';");
+		Result.ErrorDescription = NStr("en = 'Add-in does not exist'");
 		Return Result;
 	EndIf;
 	
 	If Information.State = "DisabledByAdministrator" Then
-		Result.ErrorDescription = NStr("en = 'Add-in is disabled';");
+		Result.ErrorDescription = NStr("en = 'Add-in is disabled'");
 		Return Result;
 	EndIf;
 	
@@ -167,7 +168,7 @@ EndFunction
 Function ComponentsToUse(Variant) Export
 	
 	If Not Common.SubsystemExists("OnlineUserSupport.GetAddIns") Then
-		Raise NStr("en = 'Action is unavailable.';");
+		Raise NStr("en = 'Action is unavailable.'");
 	EndIf;
 	
 	If Variant = "Supplied1" Then
@@ -211,7 +212,7 @@ EndFunction
 Procedure UpdateAddIns(AddInsData, ResultAddress = Undefined) Export
 	
 	If Not Common.SubsystemExists("OnlineUserSupport.GetAddIns") Then
-		Raise NStr("en = 'Action is unavailable.';");
+		Raise NStr("en = 'Action is unavailable.'");
 	EndIf;
 	
 	ExecutionResult = New Structure;
@@ -247,25 +248,25 @@ Procedure UpdateAddIns(AddInsData, ResultAddress = Undefined) Export
 			If ErrorCode = "LatestVersion" Then
 				ExecutionResult.Success.Insert(ResultString1.Id,
 					StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '%1: the latest version.';"), AddInPresentation));
+					NStr("en = '%1: the latest version.'"), AddInPresentation));
 				Continue;
 			EndIf;
 			
 			ErrorInfo = "";
 			If ErrorCode = "ComponentNotFound" Then 
-				ErrorInfo = NStr("en = 'This add-in is missing in the service.';");
+				ErrorInfo = NStr("en = 'This add-in is missing in the service.'");
 			ElsIf ErrorCode = "FileNotImported" Then 
-				ErrorInfo = NStr("en = 'The add-in file is not imported from the service.';");
+				ErrorInfo = NStr("en = 'The add-in file is not imported from the service.'");
 			EndIf;
 			
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot import the %1 add-in from the service:
-				           |%2';"),
+				           |%2'"),
 				AddInPresentation, ErrorInfo);
 			
 			ExecutionResult.Errors.Insert(ResultString1.Id, ErrorText);
 		
-			WriteLogEvent(NStr("en = 'Updating add-ins';", Common.DefaultLanguageCode()),
+			WriteLogEvent(NStr("en = 'Updating add-ins'", Common.DefaultLanguageCode()),
 				EventLogLevel.Error,,,	ErrorText);
 			
 			Continue;
@@ -280,7 +281,7 @@ Procedure UpdateAddIns(AddInsData, ResultAddress = Undefined) Export
 				+ Information.ErrorDescription + ?(Information.ErrorInfo = Undefined, "", ": "
 				+ ErrorProcessing.BriefErrorDescription(Information.ErrorInfo)));
 
-			WriteLogEvent(NStr("en = 'Updating add-ins';",
+			WriteLogEvent(NStr("en = 'Updating add-ins'",
 				Common.DefaultLanguageCode()), EventLogLevel.Error, , ,
 				Information.ErrorDescription);
 			Continue;
@@ -297,7 +298,7 @@ Procedure UpdateAddIns(AddInsData, ResultAddress = Undefined) Export
 				
 				ExecutionResult.Success.Insert(ResultString1.Id,
 					StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = '%1: the application contains a version that is newer than the version in the service (%2 dated %3).';"), 
+						NStr("en = '%1: the application contains a version that is newer than the version in the service (%2 dated %3).'"), 
 						AddInPresentation, ResultString1.Version, Format(ResultString1.VersionDate, "DLF=D")));
 				Continue;
 			EndIf;
@@ -342,14 +343,14 @@ Procedure UpdateAddIns(AddInsData, ResultAddress = Undefined) Export
 			Object.AdditionalProperties.Insert("ComponentBinaryData", Information.BinaryData);
 			
 			Object.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Imported from 1C:ITS Portal. %1.';"),
+				NStr("en = 'Imported from 1C:ITS Portal. %1.'"),
 				CurrentSessionDate());
 			
 			Object.Write();
 			
 			ExecutionResult.Success.Insert(ResultString1.Id, 
 				StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '%1: updated.';"), AddInPresentation));
+					NStr("en = '%1: updated.'"), AddInPresentation));
 			
 			CommitTransaction();
 		Except
@@ -358,7 +359,7 @@ Procedure UpdateAddIns(AddInsData, ResultAddress = Undefined) Export
 			ExecutionResult.Errors.Insert(ResultString1.Id, AddInPresentation
 				+ " - " + ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 				
-			WriteLogEvent(NStr("en = 'Updating add-ins';",
+			WriteLogEvent(NStr("en = 'Updating add-ins'",
 					Common.DefaultLanguageCode()),
 				EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
@@ -424,7 +425,7 @@ EndProcedure
 Function AutomaticallyUpdatedAddIns() Export
 	
 	If Not Common.SubsystemExists("OnlineUserSupport.GetAddIns") Then
-		Raise NStr("en = 'Action is unavailable.';");
+		Raise NStr("en = 'Action is unavailable.'");
 	EndIf;
 	
 	ModuleGetAddIns = Common.CommonModule("GetAddIns");

@@ -139,8 +139,8 @@ Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
 		
 		Command = Form.Commands.Add("AccountingAuditIgnoreIssue");
 		Command.Action  = "Attachable_Command";
-		Command.Title = NStr("en = 'Ignore issue';");
-		Command.ToolTip = NStr("en = 'Ignore the selected issue';");
+		Command.Title = NStr("en = 'Ignore issue'");
+		Command.ToolTip = NStr("en = 'Ignore the selected issue'");
 		Command.Picture  = PictureLib.Close;
 		ReportsServer.OutputCommand(Form, Command, "Settings");
 	EndIf;
@@ -203,7 +203,7 @@ Procedure BeforeLoadVariantAtServer(Form, NewDCSettings) Export
 		
 		RightFilterValue = Filter.RightValue;// ValueList 
 		RightFilterValue.Add(Users.CurrentUser());
-		RightFilterValue.Add(Catalogs.Users.EmptyRef(), NStr("en = 'Without person responsible';"));
+		RightFilterValue.Add(Catalogs.Users.EmptyRef(), NStr("en = 'Without person responsible'"));
 		Filter.ViewMode = DataCompositionSettingsItemViewMode.QuickAccess;
 		If Users.IsFullUser() Then
 			Filter.UserSettingID = New UUID;
@@ -266,14 +266,14 @@ Function LastCheckTooltip()
 	
 	LastCheckInformation = AccountingAuditInternal.LastAccountingCheckInformation();
 	If ValueIsFilled(LastCheckInformation.LastCheckDate) Then
-		ToolTip = NStr("en = 'was performed earlier %1.';");
+		ToolTip = NStr("en = 'was performed earlier %1.'");
 		ToolTip = StringFunctionsClientServer.SubstituteParametersToString(ToolTip, 
 			Format(LastCheckInformation.LastCheckDate, "DLF=D"));
 	Else
-		ToolTip = NStr("en = 'has not been performed yet.';");
+		ToolTip = NStr("en = 'has not been performed yet.'");
 	EndIf;
 	If LastCheckInformation.WarnSecondCheckRequired Then
-		ToolTip = " " + NStr("en = 'It is recommended that you perform a check to view the relevant results.';");
+		ToolTip = " " + NStr("en = 'It is recommended that you perform a check to view the relevant results.'");
 	EndIf;
 		
 	Return ToolTip;
@@ -423,7 +423,7 @@ Procedure EnterDecisionsHyperlinks(ResultDocument)
 				
 				Area.Details = DetailsStructure2;
 				
-				ReportsServer.OutputHyperlink(Area, DetailsStructure2, NStr("en = 'Fix issue';"));
+				ReportsServer.OutputHyperlink(Area, DetailsStructure2, NStr("en = 'Fix issue'"));
 				
 			ElsIf StrFind(AreaText, "<DetailsList>") <> 0 Then
 				
@@ -584,11 +584,11 @@ EndProcedure
 Function LocalizedParametersStructure()
 	
 	LocalizedParametersStructure = New Structure;
-	LocalizedParametersStructure.Insert("LabelError",            NStr("en = 'Error';"));
-	LocalizedParametersStructure.Insert("LabelPossibleCauses",  NStr("en = 'Possible causes';"));
-	LocalizedParametersStructure.Insert("LabelRecommendations",      NStr("en = 'Recommendations';"));
-	LocalizedParametersStructure.Insert("LabelDecision",           NStr("en = 'Solution';"));
-	LocalizedParametersStructure.Insert("ObjectsWithIssuesLabel", NStr("en = 'Objects with issues';"));
+	LocalizedParametersStructure.Insert("LabelError",            NStr("en = 'Error'"));
+	LocalizedParametersStructure.Insert("LabelPossibleCauses",  NStr("en = 'Possible causes'"));
+	LocalizedParametersStructure.Insert("LabelRecommendations",      NStr("en = 'Recommendations'"));
+	LocalizedParametersStructure.Insert("LabelDecision",           NStr("en = 'Solution'"));
+	LocalizedParametersStructure.Insert("ObjectsWithIssuesLabel", NStr("en = 'Objects with issues'"));
 	
 	Return LocalizedParametersStructure;
 	
@@ -630,7 +630,7 @@ Procedure SetFilterByIssuesList(DCSSettingsFilter, UserSettings, FilterValue)
 	FilterElement.ComparisonType     = ComparisonType;
 	FilterElement.RightValue   = FilterValue;
 	FilterElement.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
-	FilterElement.Presentation    = NStr("en = 'Check rule In list';") + " """ + FilterPresentation + """";
+	FilterElement.Presentation    = NStr("en = 'Check rule In list'") + " """ + FilterPresentation + """";
 	FilterElement.Use    = True;
 	
 EndProcedure
@@ -1092,5 +1092,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

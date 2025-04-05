@@ -28,7 +28,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.TasksTree.Visible = False;
 	EndIf;	
 		
-	Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Tasks of business process %1';"), String(Parameters.FilterValue));
+	Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Tasks of business process %1'"), String(Parameters.FilterValue));
 		
 	If UseSubordinateBusinessProcesses Then 
 		FillTaskTree();
@@ -412,7 +412,7 @@ Procedure AddSubordinateBusinessProcesses(Tree, TasksBySubject)
 		String.Executed    = SelectionDetailRecords.Completed;
 		String.Type          = 0;
 		
-		// @skip-check query-in-loop - Recursive algorithm to process a tree.
+		// @skip-check query-in-loop - Рекурсивный алгоритм обработки дерева.
 		AddSubordinateBusinessProcessTasks(Tree, SelectionDetailRecords.Ref);
 		
 	EndDo;

@@ -330,7 +330,7 @@ Procedure RegisterExtensionsVersionUsage() Export
 	EndDo;
 	
 	JobDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Extension versions: Update the last used date for %1';",
+		NStr("en = 'Extension versions: Update the last used date for %1'",
 			Common.DefaultLanguageCode()),
 		VersionAsString);
 	
@@ -474,11 +474,11 @@ Procedure ToggleExtensionUsage(ExtensionID, CurrentUsage) Export
 		If Extension.Active Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'An unexpected error occurred while preparing the extensions (after enabling the extension):
-					 |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
+					 |%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		Else
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'An unexpected error occurred while preparing the extensions (after disabling the extension):
-					 |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
+					 |%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		EndIf;
 	EndTry;
 
@@ -492,11 +492,11 @@ Procedure ToggleExtensionUsage(ExtensionID, CurrentUsage) Export
 			ErrorText = ErrorText + Chars.LF + Chars.LF
 				+ StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'An unexpected error occurred when trying to cancel the change of the extension attachment check box:
-						 |%1';"), ErrorProcessing.BriefErrorDescription(RecoveryErrorInformation));
+						 |%1'"), ErrorProcessing.BriefErrorDescription(RecoveryErrorInformation));
 		EndTry;
 		If RecoveryErrorInformation = Undefined Then
 			ErrorText = ErrorText + Chars.LF + Chars.LF
-				+ NStr("en = 'The change of the ""Attached"" extension parameter is canceled.';");
+				+ NStr("en = 'The change of the ""Attached"" extension parameter is canceled.'");
 		EndIf;
 	EndIf;
 
@@ -580,7 +580,7 @@ Procedure DeleteExtensions(ExtensionsIDs, ErrorText) Export
 		ErrorInfo = ErrorInfo();
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot delete extension ""%1"". Reason:
-				 |%2';"), 
+				 |%2'"), 
 			ExtensionToDelete, ErrorProcessing.BriefErrorDescription(ErrorInfo));
 	EndTry;
 
@@ -595,7 +595,7 @@ Procedure DeleteExtensions(ExtensionsIDs, ErrorText) Export
 			ErrorInfo = ErrorInfo();
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'After the deletion, an error occurred in the handler of deletion of all extensions:
-					 |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
+					 |%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		EndTry;
 	EndIf;
 
@@ -606,7 +606,7 @@ Procedure DeleteExtensions(ExtensionsIDs, ErrorText) Export
 			ErrorInfo = ErrorInfo();
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'After the deletion, an error occurred while initializing the remaining extensions:
-					 |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
+					 |%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		EndTry;
 	EndIf;
 
@@ -625,13 +625,13 @@ Procedure DeleteExtensions(ExtensionsIDs, ErrorText) Export
 			RecoveryErrorInformation = ErrorInfo();
 			ErrorText = ErrorText + Chars.LF + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Another error occurred while attempting to restore the deleted extensions:
-						 |%1';"), 
+						 |%1'"), 
 					ErrorProcessing.BriefErrorDescription(RecoveryErrorInformation));
 		EndTry;
 		If RecoveryPerformed And RecoveryErrorInformation = Undefined Then
 
 			ErrorText = ErrorText + Chars.LF + Chars.LF 
-				+ NStr("en = 'The deleted extensions are restored.';");
+				+ NStr("en = 'The deleted extensions are restored.'");
 		EndIf;
 	EndIf;
 
@@ -799,7 +799,7 @@ Function ExtensionsVersion(OnRegisterExtensionsVersionsUsage = False)
 	HashSumAsStr = Base64String(Hashing.HashSum);
 	
 	JobDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Extension versions: Add a new version of %1';",
+		NStr("en = 'Extension versions: Add a new version of %1'",
 			Common.DefaultLanguageCode()),
 		HashSumAsStr);
 	
@@ -818,7 +818,7 @@ Function ExtensionsVersion(OnRegisterExtensionsVersionsUsage = False)
 			IndexOf = IndexOf - 1;
 		EndDo;
 		
-		// @skip-check query-in-loop - Import up-to-date data from the infobase at each iteration.
+		// @skip-check query-in-loop - На каждой итерации необходимо загружать актуальные данные из ИБ.
 		Selection = Query.Execute().Select();
 		If VersionFound(Selection, ExtensionsDetails) Then
 			If Not OnRegisterExtensionsVersionsUsage Then
@@ -837,7 +837,7 @@ Function ExtensionsVersion(OnRegisterExtensionsVersionsUsage = False)
 			TaskIds.Insert(FoundJob.UUID);
 		EndDo;
 		
-		// @skip-check query-in-loop - Import up-to-date data from the infobase at each iteration.
+		// @skip-check query-in-loop - На каждой итерации необходимо загружать актуальные данные из ИБ.
 		Selection = Query.Execute().Select();
 		If VersionFound(Selection, ExtensionsDetails) Then
 			If Not OnRegisterExtensionsVersionsUsage Then
@@ -849,14 +849,14 @@ Function ExtensionsVersion(OnRegisterExtensionsVersionsUsage = False)
 		AttemptNumber = AttemptNumber + 1;
 	EndDo;
 	
-	ErrorText = NStr("en = 'Try to restart the session.';");
+	ErrorText = NStr("en = 'Try to restart the session.'");
 	ClarificationForAdmin = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Failed to create a new extension version.
 		           |• Metadata details:
 		           |%1
 		           |• Metadata objects'' details checksum:
 		           |%2
-		           |• Job details:';"),
+		           |• Job details:'"),
 		ExtensionsDetails,
 		HashSumAsStr);
 	
@@ -880,20 +880,20 @@ Function JobStatesDetails(TaskIds)
 		
 		If BackgroundJob.State = BackgroundJobState.Active Then
 			JobDetails = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Job %1 started %2';"),
+				NStr("en = 'Job %1 started %2'"),
 				Lower(BackgroundJob.UUID),
 				Format(BackgroundJob.Begin, "DLF=DT"));
 			
 		ElsIf BackgroundJob.State = BackgroundJobState.Canceled Then
 			JobDetails = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Job %1 started %2 canceled %3';"),
+				NStr("en = 'Job %1 started %2 canceled %3'"),
 				Lower(BackgroundJob.UUID),
 				Format(BackgroundJob.Begin, "DLF=DT"),
 				Format(BackgroundJob.End, "DLF=DT"));
 			
 		ElsIf BackgroundJob.State = BackgroundJobState.Completed Then
 			JobDetails = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Job %1 started %2 completed %3';"),
+				NStr("en = 'Job %1 started %2 completed %3'"),
 				Lower(BackgroundJob.UUID),
 				Format(BackgroundJob.Begin, "DLF=DT"),
 				Format(BackgroundJob.End, "DLF=DT"));
@@ -901,7 +901,7 @@ Function JobStatesDetails(TaskIds)
 		ElsIf BackgroundJob.State = BackgroundJobState.Failed Then
 			JobDetails = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Job %1 started %2 completed %3 with error:
-				           |%4';"),
+				           |%4'"),
 				Lower(BackgroundJob.UUID),
 				Format(BackgroundJob.Begin, "DLF=DT"),
 				Format(BackgroundJob.End, "DLF=DT"),
@@ -1254,7 +1254,7 @@ Procedure UpdateLatestExtensionsVersion(ExtensionsVersion)
 	EndDo;
 	
 	JobDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Extension versions: Install a new version of %1';",
+		NStr("en = 'Extension versions: Install a new version of %1'",
 			Common.DefaultLanguageCode()),
 		VersionAsString);
 	
@@ -1386,14 +1386,14 @@ Procedure RegisterChangesToInstalledExtensions(InstalledExtensions, Unchanged)
 			 |""%3""
 			 |- Patches:
 			 |""%4""
-			 |3. New composition as at session start: %5';", DefaultLanguageCode),
+			 |3. New composition as at session start: %5'", DefaultLanguageCode),
 		SessionParameters.InstalledExtensions.BasicRegisteredStatus,
 		SessionParameters.InstalledExtensions.FixesRegisteredStatus,
 		InstalledExtensions.MainState, InstalledExtensions.PatchesState, 
-			?(Unchanged, NStr("en = 'Yes';", DefaultLanguageCode), NStr("en = 'No';", DefaultLanguageCode)));
+			?(Unchanged, NStr("en = 'Yes'", DefaultLanguageCode), NStr("en = 'No'", DefaultLanguageCode)));
 
 	WriteLogEvent(
-		NStr("en = 'Configuration extensions.Installed extension change is detected';",
+		NStr("en = 'Configuration extensions.Installed extension change is detected'",
 		Common.DefaultLanguageCode()), EventLogLevel.Information,,, Comment);
 
 	UpdateTheRegisteredStateInTheSessionParameter(InstalledExtensions);

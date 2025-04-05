@@ -151,7 +151,7 @@ EndProcedure
 Function ExecuteApplicabilityCheckRequestsProcessing() Export
 	
 	If TransactionActive() Then
-		Raise NStr("en = 'Transaction is active';");
+		Raise NStr("en = 'Transaction is active'");
 	EndIf;
 	
 	BeginTransaction(); // ACC:326 - Transactions open only for a rollback.
@@ -243,7 +243,7 @@ EndProcedure
 Procedure LockRegistersOfGrantedPermissions(Val ProgramModule = Undefined, Val LockAttachmentModes = True) Export
 	
 	If Not TransactionActive() Then
-		Raise NStr("en = 'There must be an active transaction';");
+		Raise NStr("en = 'There must be an active transaction'");
 	EndIf;
 	
 	Block = New DataLock();
@@ -358,7 +358,7 @@ Function PermissionsTableRow(Val PermissionsTable, Val Filter, Val AddIfAbsent =
 		
 	Else
 		
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Rows uniqueness violation in permission table by the filter %1';"),
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Rows uniqueness violation in permission table by the filter %1'"),
 			Common.ValueToXMLString(Filter));
 		
 	EndIf;

@@ -26,7 +26,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.SettingInCentralNodeLabel.Visible = False;
 	EndIf;
 	
-	Items.Description.ChoiceList.Add("", NStr("en = '<Another app>';"));
+	Items.Description.ChoiceList.Add("", NStr("en = '<Another app>'"));
 	SettingsToSupply = Catalogs.DigitalSignatureAndEncryptionApplications.ApplicationsSettingsToSupply();
 	For Each SettingToSupply In SettingsToSupply Do
 		If ThereIsAClientOrServerVOS(SettingToSupply) And Not SettingToSupply.Irrelevant Then
@@ -127,7 +127,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	If Not Query.Execute().IsEmpty() Then
 		Cancel = True;
 		Common.MessageToUser(
-			NStr("en = 'An application with this name and type is already on the list.';"),
+			NStr("en = 'An application with this name and type is already on the list.'"),
 			, "Object.ApplicationName");
 	EndIf;
 	
@@ -190,7 +190,7 @@ Procedure UsageModeChoiceProcessing(Item, ValueSelected, StandardProcessing)
 		ApplicationToSupply = ApplicationsByNamesWithType.Get(Var_Key);
 		If ApplicationToSupply = Undefined Then
 			StandardProcessing = False;
-			ShowMessageBox(, NStr("en = 'An app with the specified name and type cannot be detected automatically.';"));
+			ShowMessageBox(, NStr("en = 'An app with the specified name and type cannot be detected automatically.'"));
 			Return;
 		EndIf;
 		
@@ -225,7 +225,7 @@ Procedure SetDeletionMark(Command)
 	ShowQueryBox(
 		New CallbackDescription("SetDeletionMarksAfterAnswerQuestion", ThisObject),
 		NStr("en = 'To set the deletion mark, write the changes you have made.
-		           |Write the data?';"), QuestionDialogMode.YesNo);
+		           |Write the data?'"), QuestionDialogMode.YesNo);
 	
 EndProcedure
 
@@ -258,7 +258,7 @@ EndProcedure
 Procedure SetTitleAutoSettings(SettingToSupply)
 	
 	If SettingToSupply = Undefined Then
-		Items.DecorationLabelAutoSettings.Title = NStr("en = 'This app cannot be detected automatically';");
+		Items.DecorationLabelAutoSettings.Title = NStr("en = 'This app cannot be detected automatically'");
 		Return;
 	EndIf;
 	
@@ -266,7 +266,7 @@ Procedure SetTitleAutoSettings(SettingToSupply)
 			NStr("en = 'Algorithms used in this app:
 			|Signature algorithm: %1
 			|Hashing algorithm: %2
-			|Encryption algorithm: %3';"), SettingToSupply.SignAlgorithm, SettingToSupply.HashAlgorithm,
+			|Encryption algorithm: %3'"), SettingToSupply.SignAlgorithm, SettingToSupply.HashAlgorithm,
 			SettingToSupply.EncryptAlgorithm);
 			
 EndProcedure

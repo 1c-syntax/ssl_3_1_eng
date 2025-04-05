@@ -188,7 +188,7 @@ Procedure WriteAndClose(Command)
 		"ShowLockedFilesOnExit",
 		ShowLockedFilesOnExit));
 	
-	CommonServerCall.CommonSettingsStorageSaveArray(StructuresArray);
+	CommonClient.CommonSettingsStorageSaveArray(StructuresArray);
 	
 	Close(DialogReturnCode.Yes);
 EndProcedure

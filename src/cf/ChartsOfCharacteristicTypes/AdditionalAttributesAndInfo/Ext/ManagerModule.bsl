@@ -58,7 +58,7 @@ EndFunction
 
 // End StandardSubsystems.ObjectAttributesLock
 
-// СтандартныеПодсистемы.УправлениеДоступом
+// 
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -162,15 +162,15 @@ Procedure CheckIDUniqueness(IDForFormulas, Ref, Cancel) Export
 			IDByRules = False;
 			
 			ErrorText = NStr("en = 'ID ""%1"" does not comply with variable naming rules.
-										|An ID must not contain spaces and special characters.';");
+										|An ID must not contain spaces and special characters.'");
 			Common.MessageToUser(
 				StringFunctionsClientServer.SubstituteParametersToString(ErrorText, IDForFormulas),,
 				"IDForFormulas",, Cancel);
 				
 			LanguageCode = Common.DefaultLanguageCode();
-			EventName = NStr("en = 'Save additional attribute or information record';", LanguageCode);
+			EventName = NStr("en = 'Save additional attribute or information record'", LanguageCode);
 			ErrorText = NStr("en = 'ID ""%1"" does not comply with variable naming rules.
-									|An ID must not contain spaces and special characters.';", LanguageCode);
+									|An ID must not contain spaces and special characters.'", LanguageCode);
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText,
 				IDForFormulas);
 			WriteLogEvent(EventName,
@@ -185,16 +185,16 @@ Procedure CheckIDUniqueness(IDForFormulas, Ref, Cancel) Export
 				
 				Cancel = True;
 				
-				ErrorText = NStr("en = 'ID for formulas ""%1"" is not unique';");
+				ErrorText = NStr("en = 'ID for formulas ""%1"" is not unique'");
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText,
 					IDForFormulas);
 				Common.MessageToUser(ErrorText,, "IDForFormulas");
 				
 				LanguageCode = Common.DefaultLanguageCode();
-				ErrorText = NStr("en = 'ID for formulas ""%1"" is not unique';", LanguageCode);
+				ErrorText = NStr("en = 'ID for formulas ""%1"" is not unique'", LanguageCode);
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText,
 					IDForFormulas);
-				EventName = NStr("en = 'Save additional attribute or information record';", LanguageCode);
+				EventName = NStr("en = 'Save additional attribute or information record'", LanguageCode);
 				WriteLogEvent(EventName,
 					EventLogLevel.Error,
 					Ref.Metadata(),
@@ -205,14 +205,14 @@ Procedure CheckIDUniqueness(IDForFormulas, Ref, Cancel) Export
 		
 	Else
 		
-		ErrorText = NStr("en = 'ID for formulas is required';");
+		ErrorText = NStr("en = 'ID for formulas is required'");
 		Common.MessageToUser(
 			StringFunctionsClientServer.SubstituteParametersToString(ErrorText, IDForFormulas),,
 			"IDForFormulas",, Cancel);
 			
 		LanguageCode = Common.DefaultLanguageCode();
-		EventName = NStr("en = 'Save additional attribute or information record';", LanguageCode);
-		ErrorText = NStr("en = 'ID for formulas is required';", LanguageCode);
+		EventName = NStr("en = 'Save additional attribute or information record'", LanguageCode);
+		ErrorText = NStr("en = 'ID for formulas is required'", LanguageCode);
 		WriteLogEvent(EventName,
 			EventLogLevel.Error,
 			Ref.Metadata(),
@@ -236,7 +236,7 @@ Function UUIDForFormulas(ObjectPresentation, CurrentObjectRef) Export
 	Id = IDForFormulas(ObjectPresentation);
 	If IsBlankString(Id) Then
 		// Presentation consists of special characters and digits.
-		Prefix = NStr("en = 'ID';");
+		Prefix = NStr("en = 'ID'");
 		Id = IDForFormulas(Prefix + ObjectPresentation);
 	EndIf;
 	
@@ -460,7 +460,7 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 		If OwnerMetadata = Undefined Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The %1 property settings were not changed.
-				           |The %2 property set is not linked with any property value owner.';"),
+				           |The %2 property set is not linked with any property value owner.'"),
 				Property,
 				CurrentPropertiesSet);
 		EndIf;
@@ -504,7 +504,7 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 		ElsIf Property = ObjectProperty.Ref Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The %1 property settings were not changed.
-				           |The value type does not contain additional values.';"),
+				           |The value type does not contain additional values.'"),
 				Property);
 		EndIf;
 		
@@ -655,7 +655,7 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 						AnalysisQuery.SetParameter("AllSetsForObject",
 							PropertyManagerInternal.GetObjectPropertySets(
 								Selection.Object).UnloadColumn("Set"));
-						// @skip-check query-in-loop. Batch processing of a large amount of data.
+						// @skip-check query-in-loop
 						Replace = AnalysisQuery.Execute().IsEmpty();
 					EndIf;
 					OldRecordSet.Filter.Object.Set(Selection.Object);
@@ -745,7 +745,7 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 							AnalysisQuery.SetParameter("AllSetsForObject",
 								PropertyManagerInternal.GetObjectPropertySets(
 									Selection.Ref).UnloadColumn("Set"));
-							// @skip-check query-in-loop. Batch processing of a large amount of data.
+							// @skip-check query-in-loop
 							Replace = AnalysisQuery.Execute().IsEmpty();
 						EndIf;
 						For Each String In CurrentObject.AdditionalAttributes Do
@@ -897,7 +897,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			Object = Ref.GetObject();
 			
 			If Not ValueIsFilled(Object.Name) Then
-				// @skip-check query-in-loop. Batch processing of a large amount of data.
+				// @skip-check query-in-loop
 				SetAttributeName(Selection, Object);
 			Else
 				PropertyManagerInternal.DeleteDisallowedCharacters(Object.Name);
@@ -925,7 +925,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			
 			If Not ValueIsFilled(Object.IDForFormulas) Then
 				TitleForFormulas = TitleForIDGeneration(Object.Title, Object.Presentations);
-				// @skip-check query-in-loop. Batch processing of a large amount of data.
+				// @skip-check query-in-loop
 				Object.IDForFormulas = UUIDForFormulas(TitleForFormulas, Object.Ref);
 			EndIf;
 			
@@ -948,13 +948,13 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	Parameters.ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue, FullName);
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Failed to process (skipped) some additional attributes or information records: %1';"), 
+			NStr("en = 'Failed to process (skipped) some additional attributes or information records: %1'"), 
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
 			Metadata.ChartsOfCharacteristicTypes.AdditionalAttributesAndInfo,,
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Yet another batch of additional attributes or information records is processed: %1';"),
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Yet another batch of additional attributes or information records is processed: %1'"),
 				ObjectsProcessed));
 	EndIf;
 	

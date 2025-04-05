@@ -280,7 +280,7 @@ Function EncryptInCloudSignatureService(Data, Certificate, Account = Undefined) 
 			If Not DSSAccountResult.Completed2 Then
 				Raise  StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'DSS service:
-					|%1';"), DSSAccountResult.Error);
+					|%1'"), DSSAccountResult.Error);
 			EndIf;
 			DSSAccount = DSSAccountResult.Result;
 		Else
@@ -302,13 +302,13 @@ Function EncryptInCloudSignatureService(Data, Certificate, Account = Undefined) 
 		EndTry;
 
 	Else
-		ErrorDescription = NStr("en = 'DSS service is not configured.';");
+		ErrorDescription = NStr("en = 'DSS service is not configured.'");
 	EndIf;
 	
 	If ValueIsFilled(ErrorDescription) Then
 		Raise  StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'DSS service:
-					|%1';"), ErrorDescription);
+					|%1'"), ErrorDescription);
 	EndIf;
 		
 	Return ResultBinaryData;
@@ -328,13 +328,13 @@ Function EncryptByBuiltInCryptoProvider(Data, Certificate) Export
 			ErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		EndTry;
 	Else
-		ErrorDescription = NStr("en = 'The built-in cryptographic service provider is not configured.';");
+		ErrorDescription = NStr("en = 'The built-in cryptographic service provider is not configured.'");
 	EndIf;
 	
 	If ValueIsFilled(ErrorDescription) Then
 		Raise  StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Built-in cryptographic service provider:
-					|%1';"), ErrorDescription);
+					|%1'"), ErrorDescription);
 	EndIf;
 		
 	Return ResultBinaryData;
@@ -513,7 +513,7 @@ Function GetFilesFromSigningResult(SigningResult, FilesReceiptParameters, UUID) 
 		If FilesReceiptParameters.ExportCertificate And CertificateFileDetailsStructure = Undefined Then
 			
 			CertificateData = PutToTempStorage(SignatureProperties.Certificate, UUID);
-			CertificateOwner = ?(ValueIsFilled(SignatureProperties.CertificateOwner), SignatureProperties.CertificateOwner, NStr("en = 'Certificate';"));
+			CertificateOwner = ?(ValueIsFilled(SignatureProperties.CertificateOwner), SignatureProperties.CertificateOwner, NStr("en = 'Certificate'"));
 			If FilesReceiptParameters.TransliterateFilesNames Then
 				CertificateOwner = StringFunctions.LatinString(CertificateOwner);
 			EndIf;
@@ -824,7 +824,7 @@ EndProcedure
 // For the form of the Administration subsystem's common settings.
 // 
 // Parameters:
-//  Form - ClientApplicationForm - See DataProcessor.SSLAdministrationPanel.Forms.CommonSettings
+//  Form - ClientApplicationForm - 
 //  DataPathAttribute - String - Attribute data path that was modified in the form.
 //
 Procedure ConfigureCommonSettingsForm(Form, DataPathAttribute) Export
@@ -852,7 +852,7 @@ Procedure ConfigureCommonSettingsForm(Form, DataPathAttribute) Export
 		
 		AccessToInternetServicesAllowedTitle = New Array;
 		AccessToInternetServicesAllowedTitle.Add(NStr(
-			"en = 'Automatically update certificate revocation lists and troubleshooting recommendations via the internet.';"));
+			"en = 'Automatically update certificate revocation lists and troubleshooting recommendations via the internet.'"));
 
 		
 		Items.ConstantAllowAccessToDigitalSignatureInternetServicesExtendedTooltip.Title = StrConcat(AccessToInternetServicesAllowedTitle, " ");
@@ -932,14 +932,14 @@ Procedure ConfigureCommonSettingsForm(Form, DataPathAttribute) Export
 					Items.CryptoSignatureTypeDefault.ChoiceList, "Settings");
 					Items.CryptoSignatureTypeDefaultExtendedTooltip.Title = StringFunctions.FormattedString(
 						NStr(
-					"en = 'In the web app, archival signatures are unavailable by default. You can select this signature type when signing with a <a href=%1>certificate</a> installed on the computer with a <a href=Программы>digital signing app</a>.';"),
+					"en = 'In the web app, archival signatures are unavailable by default. You can select this signature type when signing with a <a href=%1>certificate</a> installed on the computer with a <a href=Программы>digital signing app</a>.'"),
 						"Certificates");
 				Else
 					Items.CryptoSignatureTypeDefault.Visible = False;
 					Items.CryptoSignatureTypeDefault1.Visible = True;
 					Items.CryptoSignatureTypeDefault1ExtendedTooltip.Title = StringFunctions.FormattedString(
 						NStr(
-					"en = 'In the web app, the default signature type is ""Basic"". You can select signature types with timestamps when signing with a href=%1>certificate</a> installed on the computer with a <a href=Программы>digital signing app</a>.';"),
+					"en = 'In the web app, the default signature type is ""Basic"". You can select signature types with timestamps when signing with a href=%1>certificate</a> installed on the computer with a <a href=Программы>digital signing app</a>.'"),
 						"Certificates");
 				EndIf;
 
@@ -1048,11 +1048,9 @@ EndFunction
 
 Function TimestampServerAddressesByDefault() Export
 	
-	If Metadata.DataProcessors.Find("DigitalSignatureAndEncryptionApplications") <> Undefined Then
-		Return DataProcessors["DigitalSignatureAndEncryptionApplications"].TimestampServerAddressesByDefault();
-	EndIf;
-	
-	Return "";
+	TimestampServersAddresses = "";
+	DigitalSignatureLocalization.OnGetTimestampServerAddresses(TimestampServersAddresses);
+	Return TimestampServersAddresses;
 	
 EndFunction
 
@@ -1132,6 +1130,7 @@ Function UseCloudSignatureService() Export
 	
 	Result = False;
 	
+	DigitalSignatureLocalization.OnDefineCloudSigningServiceUsage(Result);
 	
 	Return Result;
 	
@@ -1147,6 +1146,7 @@ Function ServiceProgramTypeSignatures() Export
 	
 	Result = Undefined;
 	
+	DigitalSignatureLocalization.OnDefineSigningServiceAppType(Result);
 	
 	Return Result;
 	
@@ -1172,7 +1172,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	If Metadata.DataProcessors.Find("DigitalSignatureAndEncryptionApplications") <> Undefined Then
 		Handler = Handlers.Add();
 		Handler.Version = "3.1.6.69";
-		Handler.Comment = NStr("en = 'Updating info on digital signing and encryption apps.';");
+		Handler.Comment = NStr("en = 'Updating info on digital signing and encryption apps.'");
 		Handler.Procedure = "DataProcessors.DigitalSignatureAndEncryptionApplications.UpdateNameOfBuiltInCryptoprovider";
 		Handler.ExecutionMode = "Seamless";
 	EndIf;
@@ -1180,15 +1180,20 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler = Handlers.Add();
 	Handler.Version = "3.1.6.128";
 	Handler.InitialFilling = True;
-	Handler.Comment = NStr("en = 'Fill in settings for signature enhancement.';");
+	Handler.Comment = NStr("en = 'Fill in settings for signature enhancement.'");
 	Handler.Procedure = "DigitalSignatureInternal.FillinSettingsToImproveSignatures";
 	Handler.ExecutionMode = "Seamless";
 	
-	
+	Handler = Handlers.Add();
+	Handler.Version = "3.1.6.180";
+	Handler.Comment = NStr("en = 'Defines the standard addresses for timestamp servers.'");
+	Handler.Procedure = "DigitalSignatureInternal.FillinServerAddressesTimestamps";
+	Handler.ExecutionMode = "Seamless";
+		
 	Handler = Handlers.Add();
 	Handler.Version = "3.1.8.58";
 	Handler.Comment =
-		NStr("en = 'Sets the usage mode for digital signature and encryption apps.';");
+		NStr("en = 'Sets the usage mode for digital signature and encryption apps.'");
 	Handler.Id = New UUID("ddaf9603-7641-470b-93cc-8754c9a64a99");
 	Handler.Procedure = "Catalogs.DigitalSignatureAndEncryptionApplications.ProcessDataForMigrationToNewVersion";
 	Handler.ExecutionMode = "Deferred";
@@ -1199,7 +1204,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	
 	Handler = Handlers.Add();
 	Handler.Version = "3.1.9.122";
-	Handler.Comment = NStr("en = 'Delete paths from filled in signature file names. Populate the signature ID in the ""Digital signatures"" register.';");
+	Handler.Comment = NStr("en = 'Delete paths from filled in signature file names. Populate the signature ID in the ""Digital signatures"" register.'");
 	Handler.Id = New UUID("927d1ffb-682a-474d-b3ea-5a40fd20ff08");
 	Handler.Procedure = "InformationRegisters.DigitalSignatures.ProcessDataForMigrationToNewVersion";
 	Handler.ExecutionMode = "Deferred";
@@ -1211,7 +1216,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler = Handlers.Add();
 	Handler.Version = "3.1.10.185";
 	Handler.Comment = NStr(
-		"en = 'Transfer certificate expiration notifications and certificate application data to information registers. Fill in the certificate validity period considering the validity period of the private key. Discard digital signing apps selected by mistake.';");
+		"en = 'Transfer certificate expiration notifications and certificate application data to information registers. Fill in the certificate validity period considering the validity period of the private key. Discard digital signing apps selected by mistake.'");
 	Handler.Id = New UUID("a6c42e6b-4824-4f5e-a35d-aa0922b253f3");
 	Handler.Procedure = "Catalogs.DigitalSignatureAndEncryptionKeysCertificates.ProcessDataForMigrationToNewVersion";
 	Handler.ExecutionMode = "Deferred";
@@ -1372,7 +1377,7 @@ Procedure OnImportClassifier(Id, Version, Address, Processed, AdditionalParamete
 	
 EndProcedure
 
-// See StandardSubsystems.OnSendDataToMaster.
+// 
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 	OnSendData(DataElement, ItemSend, False, False);
@@ -1409,7 +1414,7 @@ Procedure OnFillToDoList(ToDoList) Export
 			ToDoItem = ToDoList.Add ();
 			ToDoItem.Id  = "CertificateRenewalRequired";
 			ToDoItem.HasToDoItems       = NumberofCertificatesWithexpiringValidity > 0;
-			ToDoItem.Presentation  = NStr("en = 'Certificate needs to be renewed';");
+			ToDoItem.Presentation  = NStr("en = 'Certificate needs to be renewed'");
 			ToDoItem.Count     = NumberofCertificatesWithexpiringValidity;
 			ToDoItem.Important         = False;
 			ToDoItem.Form          = "CommonForm.DigitalSignatureAndEncryptionSettings";
@@ -1425,7 +1430,7 @@ Procedure OnFillToDoList(ToDoList) Export
 				ToDoItem = ToDoList.Add();
 				ToDoItem.Id  = "CertificateIssuanceApplicationsInProgress";
 				ToDoItem.HasToDoItems       = NumberofApplicationsInProgress > 0;
-				ToDoItem.Presentation  = NStr("en = 'Submitted certificate applications';");
+				ToDoItem.Presentation  = NStr("en = 'Submitted certificate applications'");
 				ToDoItem.Count     = NumberofApplicationsInProgress;
 				ToDoItem.Important         = False;
 				ToDoItem.Form          = "CommonForm.DigitalSignatureAndEncryptionSettings";
@@ -1447,7 +1452,7 @@ Procedure OnFillToDoList(ToDoList) Export
 			ToDoItem = ToDoList.Add ();
 			ToDoItem.Id  = "RequireImprovementSignatures";
 			ToDoItem.HasToDoItems       = Numberofsignaturesforimprovements > 0;
-			ToDoItem.Presentation  = NStr("en = 'Enhance signatures';");
+			ToDoItem.Presentation  = NStr("en = 'Enhance signatures'");
 			ToDoItem.Count     = Numberofsignaturesforimprovements;
 			ToDoItem.Important         = False;
 			ToDoItem.Form          = "CommonForm.RenewDigitalSignatures";
@@ -1460,7 +1465,7 @@ Procedure OnFillToDoList(ToDoList) Export
 			ToDoItem = ToDoList.Add ();
 			ToDoItem.Id  = "rawsignatures";
 			ToDoItem.HasToDoItems       = NumberofRawSignatures > 0;
-			ToDoItem.Presentation  = NStr("en = 'Renew previously added signatures';");
+			ToDoItem.Presentation  = NStr("en = 'Renew previously added signatures'");
 			ToDoItem.Count     = NumberofRawSignatures;
 			ToDoItem.Important         = False;
 			ToDoItem.Form          = "CommonForm.RenewDigitalSignatures";
@@ -1475,7 +1480,7 @@ Procedure OnFillToDoList(ToDoList) Export
 			ToDoItem = ToDoList.Add ();
 			ToDoItem.Id  = "ErrorsOnAutoRenewal";
 			ToDoItem.HasToDoItems       = NumberofErrorsonAutomaticRenewal > 0;
-			ToDoItem.Presentation  = NStr("en = 'Automatic signature renewal errors';");
+			ToDoItem.Presentation  = NStr("en = 'Automatic signature renewal errors'");
 			ToDoItem.Count     = NumberofErrorsonAutomaticRenewal;
 			ToDoItem.Important         = True;
 			ToDoItem.Form          = "CommonForm.RenewDigitalSignatures";
@@ -1490,7 +1495,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		ToDoItem = ToDoList.Add ();
 		ToDoItem.Id  = "RequiredAddArchiveTags";
 		ToDoItem.HasToDoItems       = Numberofsignaturestoaddarchivaltags > 0;
-		ToDoItem.Presentation  = NStr("en = 'Renew archival signatures';");
+		ToDoItem.Presentation  = NStr("en = 'Renew archival signatures'");
 		ToDoItem.Count     = Numberofsignaturestoaddarchivaltags;
 		ToDoItem.Important         = False;
 		ToDoItem.Form          = "CommonForm.RenewDigitalSignatures";
@@ -1649,7 +1654,7 @@ Function SignaturePropertiesReadByCryptoManager(Signature, CryptoManager, Should
 	Except
 		Result.Success = False;
 		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'When reading the signature data: %1';"), ErrorProcessing.BriefErrorDescription(
+					NStr("en = 'When reading the signature data: %1'"), ErrorProcessing.BriefErrorDescription(
 					ErrorInfo()));
 		Return Result;
 	EndTry;
@@ -1685,8 +1690,8 @@ Function SignaturePropertiesReadByCryptoManager(Signature, CryptoManager, Should
 EndFunction
 
 // Parameters:
-//  Signature						 - See DigitalSignatureClientServer.NewSignatureProperties
-//  ResultInValuesStorage	 - Boolean - Indicates whether to put the result to "ValueStorage"
+//  Signature						 - BinaryData - Signing result.
+//  ResultInValueStorage	 - Boolean -  Store the result to ValueStorage.
 // 
 // Returns:
 //   BinaryData - Certificate's binary data.
@@ -1711,13 +1716,13 @@ Function SignaturePropertiesFromBinaryData(Signature, ShouldReadCertificates) Ex
 		SignaturePropertiesFromBinaryData = DigitalSignatureInternalClientServer.SignaturePropertiesFromBinaryData(
 			Signature, UTCOffset(), ShouldReadCertificates);
 		If Not ValueIsFilled(SignaturePropertiesFromBinaryData.SignatureType) Then
-			Result.ErrorText = NStr("en = 'The data is not a signature.';");
+			Result.ErrorText = NStr("en = 'The data is not a signature.'");
 			Result.Success = False;
 			Return Result;
 		EndIf;
 	Except
 		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot read the signature properties: %1';"), ErrorProcessing.BriefErrorDescription(
+			NStr("en = 'Cannot read the signature properties: %1'"), ErrorProcessing.BriefErrorDescription(
 			ErrorInfo()));
 		Return Result;
 	EndTry;
@@ -1740,7 +1745,7 @@ Function SignaturePropertiesFromBinaryData(Signature, ShouldReadCertificates) Ex
 				Result.Certificate = Result.Certificates[0];
 			Except
 				Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot read the properties of the certificates: %1';"),
+					NStr("en = 'Cannot read the properties of the certificates: %1'"),
 					ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 			EndTry;
 		Else
@@ -1755,7 +1760,7 @@ Function SignaturePropertiesFromBinaryData(Signature, ShouldReadCertificates) Ex
 			Result.CertificateOwner = CertificateProperties.IssuedTo;
 		Except
 			Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot read the certificate properties: %1';"),
+					NStr("en = 'Cannot read the certificate properties: %1'"),
 				ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		EndTry;
 
@@ -1778,12 +1783,12 @@ EndProcedure
 // For internal use only.
 //
 // Parameters:
-//  AddFromFiles - Boolean - 
+//  AddFromFiles - Boolean - Certificate is imported from a file.
 //
 // Returns:
-//  Structure - :
-//   * Title - String - 
-//   * ExtendedTooltipTitle - String - 
+//  Structure - Information records to be set on the form that contains the given properties.:
+//   * Title - String - Label of the button that adds a certificate.
+//   * ExtendedTooltipTitle - String - Extended tooltip of the button that adds a certificate.
 //   * Purpose - String - See DigitalSignatureInternalClient.AddCertificateAfterPurposeChoice
 //
 Function CertificateAdditionCommandProperties(AddFromFiles = False) Export
@@ -1793,17 +1798,17 @@ Function CertificateAdditionCommandProperties(AddFromFiles = False) Export
 	If DigitalSignature.AddEditDigitalSignatures() Then
 		
 		If AddFromFiles Then
-			Result.Title = NStr("en = 'Signing & encryption certificate from file…';");
-			Result.ExtendedTooltipTitle = NStr("en = 'Add signing & encryption certificate from file';");
+			Result.Title = NStr("en = 'Signing & encryption certificate from file…'");
+			Result.ExtendedTooltipTitle = NStr("en = 'Add signing & encryption certificate from file'");
 			Result.Purpose = "ForSigningEncryptionAndDecryptionFromFiles";
 		Else
-			Result.Title = NStr("en = 'Signing & encryption certificate from Personal store…';");
+			Result.Title = NStr("en = 'Signing & encryption certificate from Personal store…'");
 			If UseCloudSignatureService() Then
-				Result.ExtendedTooltipTitle = NStr("en = 'Add signing and encryption certificates installed on DSS server and computer';");
+				Result.ExtendedTooltipTitle = NStr("en = 'Add signing and encryption certificates installed on DSS server and computer'");
 			ElsIf UseDigitalSignatureSaaS() Then
-				Result.ExtendedTooltipTitle = NStr("en = 'Add signing and encryption certificates from certificates installed on service and computer';");
+				Result.ExtendedTooltipTitle = NStr("en = 'Add certificates to sign and encrypt from apps installed in the service and on the computer'");
 			Else
-				Result.ExtendedTooltipTitle = NStr("en = 'Add signing and encryption certificates installed on computer';");
+				Result.ExtendedTooltipTitle = NStr("en = 'Add signing and encryption certificates installed on computer'");
 			EndIf;
 			Result.Purpose = "ToSignEncryptAndDecrypt";
 		EndIf;
@@ -1811,17 +1816,17 @@ Function CertificateAdditionCommandProperties(AddFromFiles = False) Export
 	Else
 		
 		If AddFromFiles Then
-			Result.Title = NStr("en = 'To encrypt and decrypt from files…';");
-			Result.ExtendedTooltipTitle = NStr("en = 'Add to encrypt and decrypt from files';");
+			Result.Title = NStr("en = 'To encrypt and decrypt from files…'");
+			Result.ExtendedTooltipTitle = NStr("en = 'Add to encrypt and decrypt from files'");
 			Result.Purpose = "ForSigningEncryptionAndDecryptionFromFiles";
 		Else
-			Result.Title = NStr("en = 'To encrypt and decrypt from personal store…';");
+			Result.Title = NStr("en = 'To encrypt and decrypt from personal store…'");
 			If UseCloudSignatureService() Then
-				Result.ExtendedTooltipTitle = NStr("en = 'Add signing and decryption certificates installed on DSS server and computer';");
+				Result.ExtendedTooltipTitle = NStr("en = 'Add signing and decryption certificates installed on DSS server and computer'");
 			ElsIf UseDigitalSignatureSaaS() Then
-				Result.ExtendedTooltipTitle = NStr("en = 'Add certificates to encrypt and decrypt from applications installed in the service and on the computer';");
+				Result.ExtendedTooltipTitle = NStr("en = 'Add certificates to encrypt and decrypt from applications installed in the service and on the computer'");
 			Else
-				Result.ExtendedTooltipTitle = NStr("en = 'Add signing and decryption certificates installed on computer';");
+				Result.ExtendedTooltipTitle = NStr("en = 'Add certificates to encrypt and decrypt from applications installed on the computer'");
 			EndIf;
 			Result.Purpose = "ToEncryptAndDecrypt";
 		EndIf;
@@ -1836,10 +1841,10 @@ EndFunction
 Function ErrorCertificateMarkedAsRevoked() Export
 	
 	ErrorPresentation = New Structure;
-	ErrorPresentation.Insert("ErrorText", NStr("en = 'The certificate is revoked.';"));
-	ErrorPresentation.Insert("Cause", NStr("en = 'Probably, a certificate revocation application is submitted.';"));
+	ErrorPresentation.Insert("ErrorText", NStr("en = 'The certificate is revoked.'"));
+	ErrorPresentation.Insert("Cause", NStr("en = 'Probably, a certificate revocation application is submitted.'"));
 	ErrorPresentation.Insert("Decision", StringFunctions.FormattedString(
-		NStr("en = 'In the <b>More actions</b> menu, in <a href=""%1"">certificate card</a>, you can clear the <b>Certificate revoked</b> mark. However, if a certificate is revoked by a certificate authority, you will not be able to sign with this certificate.';"),
+		NStr("en = 'In the <b>More actions</b> menu, in <a href=""%1"">certificate card</a>, you can clear the <b>Certificate revoked</b> mark. However, if a certificate is revoked by a certificate authority, you will not be able to sign with this certificate.'"),
 		"OpenCertificate"));
 	Return ErrorPresentation;
 	
@@ -1917,40 +1922,41 @@ Function CryptoManager(Operation, CryptoManagerCreationParameters = Undefined) E
 	EndIf;
 	
 	If Operation = "Signing" Then
-		ErrorTitle = NStr("en = 'Cannot sign data on server %1 due to:';");
+		ErrorTitle = NStr("en = 'Cannot sign data on server %1 due to:'");
 		
 	ElsIf Operation = "CheckSignature" Then
-		ErrorTitle = NStr("en = 'Cannot verify the signature on server %1 due to:';");
+		ErrorTitle = NStr("en = 'Cannot verify the signature on server %1 due to:'");
 	
 	ElsIf Operation = "Encryption" Then
-		ErrorTitle = NStr("en = 'Cannot encrypt data on server %1 due to:';");
+		ErrorTitle = NStr("en = 'Cannot encrypt data on server %1 due to:'");
 		
 	ElsIf Operation = "Details" Then
-		ErrorTitle = NStr("en = 'Cannot decrypt data on server %1 due to:';");
+		ErrorTitle = NStr("en = 'Cannot decrypt data on server %1 due to:'");
 		
 	ElsIf Operation = "CertificateCheck" Then
-		ErrorTitle = NStr("en = 'Cannot verify the certificate on server %1 due to:';");
+		ErrorTitle = NStr("en = 'Cannot verify the certificate on server %1 due to:'");
 		
 	ElsIf Operation = "GetCertificates" Then
-		ErrorTitle = NStr("en = 'Cannot receive certificates on server %1 due to:';");
+		ErrorTitle = NStr("en = 'Cannot receive certificates on server %1 due to:'");
 	
 	ElsIf Operation = "ReadSignature" Then
-		ErrorTitle = NStr("en = 'Cannot read all the signature properties on the %1 server due to:';");
+		ErrorTitle = NStr("en = 'Cannot read all the signature properties on the %1 server due to:'");
 		
 	ElsIf Operation = "ExtensionValiditySignature" Then
-		ErrorTitle = NStr("en = 'Couldn''t enhance signatures on server %1 due to:';");
+		ErrorTitle = NStr("en = 'Couldn''t enhance signatures on server %1 due to:'");
 		
 	ElsIf Operation <> "" Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The %1 function call error.
-			           |The ""Operation"" parameter has invalid value ""%2"".';"), "CryptoManager", Operation);
+			           |The ""Operation"" parameter has invalid value ""%2"".'"), "CryptoManager", Operation);
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 		
 	ElsIf TypeOf(CryptoManagerCreationParameters.ErrorDescription) = Type("Structure")
 		And CryptoManagerCreationParameters.ErrorDescription.Property("ErrorTitle") Then
 		
 		ErrorTitle = CryptoManagerCreationParameters.ErrorDescription.ErrorTitle;
 	Else
-		ErrorTitle = NStr("en = 'Cannot perform the operation on server %1. Reason:';");
+		ErrorTitle = NStr("en = 'Cannot perform the operation on server %1. Reason:'");
 	EndIf;
 	
 	ErrorTitle = StrReplace(ErrorTitle, "%1", ComputerName);
@@ -2018,7 +2024,8 @@ Function ServiceCertificateThumbprints() Export
 	
 	If UseCloudSignatureService() Then
 		
-		
+		DigitalSignatureLocalization.OnGetCloudServiceThumbprints(ThumbprintsArray);
+	
 	EndIf;
 	
 	Return ThumbprintsArray;
@@ -2093,15 +2100,15 @@ Function GetCertificateByThumbprint(Thumbprint, InPersonalStorageOnly,
 	If ValueIsFilled(ErrorPresentation) Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The certificate was not installed on the server due to:
-			           |%1';")
+			           |%1'")
 			+ Chars.LF,
 			ErrorPresentation);
 	Else
-		ErrorText = NStr("en = 'The certificate was not installed on the server.';");
+		ErrorText = NStr("en = 'The certificate was not installed on the server.'");
 	EndIf;
 		
 	If Not Users.IsFullUser(,, False) Then
-		ErrorText = ErrorText + Chars.LF + NStr("en = 'Please contact the application administrator.';")
+		ErrorText = ErrorText + Chars.LF + NStr("en = 'Please contact the application administrator.'")
 	EndIf;
 	
 	ErrorText = TrimR(ErrorText);
@@ -2223,7 +2230,7 @@ Procedure CheckPresentationUniqueness(Presentation, CertificateReference, Field,
 	|	AND Certificates.Description = &Description";
 	
 	If Not Query.Execute().IsEmpty() Then
-		MessageText = NStr("en = 'Certificate with such presentation already exists';");
+		MessageText = NStr("en = 'Certificate with such presentation already exists'");
 		Common.MessageToUser(MessageText,, Field,, Cancel);
 	EndIf;
 	
@@ -2269,7 +2276,7 @@ Function SignatureInfoForEventLog(SignatureDate, SignatureProperties, IsSigningE
 		SignatureInformation = "";
 	Else
 		SignatureInformation = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Signed on: %1';"), Format(SignatureDate, "DLF=DT")) + Chars.LF;
+			NStr("en = 'Signed on: %1'"), Format(SignatureDate, "DLF=DT")) + Chars.LF;
 	EndIf;
 	
 	SignatureInformation = SignatureInformation + DigitalSignatureInternalClientServer.DetailsCertificateString(CertificateProperties);
@@ -2293,14 +2300,14 @@ Procedure RegisterDataSigningInLog(DataElement, ErrorDescription = "") Export
 		SignatureProperties.SignatureDate, SignatureProperties, IsSigningError);
 	
 	If IsSigningError Then
-		EventName = NStr("en = 'Digital signature.Data signing error';",
+		EventName = NStr("en = 'Digital signature.Data signing error'",
 			Common.DefaultLanguageCode());
 		
 		EventLogMessage = EventLogMessage + "
 		|
 		|" + ErrorDescription;
 	Else
-		EventName = NStr("en = 'Digital signature.Data signing';",
+		EventName = NStr("en = 'Digital signature.Data signing'",
 			Common.DefaultLanguageCode());
 	EndIf;
 	
@@ -2337,7 +2344,7 @@ Procedure FillListSignatureTypesCryptography(ChoiceList, Operation = Undefined, 
 		If SignaturePresentation = "" Then
 			SignaturePresentation = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Basic electronic signature (%1)
-					 |becomes invalid after the signer''s certificate expires (usually within a year).';"),
+					 |becomes invalid after the signer''s certificate expires (usually within a year).'"),
 			"CAdES-BES");
 		EndIf;
 		ChoiceList.Add(Enums.CryptographySignatureTypes.BasicCAdESBES, SignaturePresentation);
@@ -2363,7 +2370,7 @@ Procedure FillListSignatureTypesCryptography(ChoiceList, Operation = Undefined, 
 		If SignaturePresentation = "" Then
 			SignaturePresentation = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Electronic signature with time (%1)
-					 |is valid after the signer''s certificate expires.';"), "CAdES-T");
+					 |is valid after the signer''s certificate expires.'"), "CAdES-T");
 		EndIf;
 		
 		ChoiceList.Add(Enums.CryptographySignatureTypes.WithTimeCAdEST,
@@ -2378,7 +2385,7 @@ Procedure FillListSignatureTypesCryptography(ChoiceList, Operation = Undefined, 
 		If SignaturePresentation = "" Then
 			SignaturePresentation = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Archival electronic signature (%1)
-					 |contains the full authenticity proof set, including a certificate chain, and is renewed automatically.';"),
+					 |contains the full authenticity proof set, including a certificate chain, and is renewed automatically.'"),
 			"CAdES-A");
 		EndIf;
 		
@@ -2486,6 +2493,9 @@ Procedure UpdateCertificatesList(Certificates, CertificatesPropertiesAtClient, B
 	EndIf;
 	
 	If UseCloudSignatureService() Then
+		
+		DigitalSignatureLocalization.OnAddCloudServiceCertificatesProperties(CertificatesPropertiesTable, NoFilter);
+		
 	EndIf;
 	
 	ProcessAddedCertificates(CertificatesPropertiesTable, Not NoFilter And ButAlreadyAddedOnes, FilterByCompany);
@@ -2641,13 +2651,13 @@ Function RevalidateCertificate(CryptoManagerToCheck, CertificateToCheck,
 			
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t install the revocation list on the server when checking the certificate: %1
-				|%2.';"),
+				|%2.'"),
 				
 				ErrorProcessing.BriefErrorDescription(ErrorInfo()),
 				DetailsCertificateString);
 			
 			WriteLogEvent(
-					NStr("en = 'Digital signature.Update CRL';",
+					NStr("en = 'Digital signature.Update CRL'",
 					Common.DefaultLanguageCode()),
 					EventLogLevel.Error, , ,
 					ErrorText);
@@ -2656,11 +2666,11 @@ Function RevalidateCertificate(CryptoManagerToCheck, CertificateToCheck,
 		EndTry;
 		
 		WriteLogEvent(
-					NStr("en = 'Digital signature.Update CRL';",
+					NStr("en = 'Digital signature.Update CRL'",
 					Common.DefaultLanguageCode()),
 					EventLogLevel.Information, , ,
 					StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Certificate revocation list was installed  on server during the certificate validation: %1';"),
+						NStr("en = 'Certificate revocation list was installed  on server during the certificate validation: %1'"),
 						DetailsCertificateString));
 		
 		// Re-check after a certificate revocation list has been set.
@@ -2833,11 +2843,11 @@ Function DoWriteCertificateRevocationMark(Thumbprint) Export
 		
 		ErrorInfo = ErrorInfo();
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot save the %1 certificate revocation mark: %2';"), CertificateRef, 
+			NStr("en = 'Cannot save the %1 certificate revocation mark: %2'"), CertificateRef, 
 			ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		
 		WriteLogEvent(
-			NStr("en = 'Digital signature.Set certificate revocation mark.';",
+			NStr("en = 'Digital signature.Set certificate revocation mark.'",
 			Common.DefaultLanguageCode()),
 			EventLogLevel.Error, , CertificateRef,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo));
@@ -3355,7 +3365,7 @@ Function CertificateFromBinaryData(CertificateData) Export
 		DeleteFiles(TempFileFullName);
 	Except
 		WriteLogEvent(
-			NStr("en = 'Digital signature.Delete temporary file';",
+			NStr("en = 'Digital signature.Delete temporary file'",
 				Common.DefaultLanguageCode()),
 			EventLogLevel.Error, , ,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
@@ -3405,18 +3415,18 @@ Procedure SetPasswordEntryNote(Form, ItemNameEnterPasswordInElectronicSignatureP
 	
 	If ValueIsFilled(ItemNameEnterPasswordInElectronicSignatureProgram) Then
 		Item = Form.Items[ItemNameEnterPasswordInElectronicSignatureProgram]; // FormField
-		Item.Title = NStr("en = 'Protect digital signing app with password';");
+		Item.Title = NStr("en = 'Protect digital signing app with password'");
 		Item.ToolTip =
 			NStr("en = '- The digital signing app prompts for a password and allows you to save it.
 			           |- 1C:Enterprise never prompts for a password.
 			           |
-			           |It is required for private keys of the certificates with strong protection enabled in the OS.';");
+			           |It is required for private keys of the certificates with strong protection enabled in the OS.'");
 	EndIf;
 	
 	If ValueIsFilled(ItemNameEnhancedPasswordNote) Then
 		Item = Form.Items[ItemNameEnhancedPasswordNote];
 		Item.ToolTip =
-			NStr("en = 'The option ""Protect digital signing app with password"" is set for this certificate.';");
+			NStr("en = 'The option ""Protect digital signing app with password"" is set for this certificate.'");
 	EndIf;
 	
 EndProcedure
@@ -3535,11 +3545,11 @@ Procedure RegisterImprovementSignaturesInJournal(SignatureProperties) Export
 	SignedObject = SignatureProperties.SignedObject;
 	SignedObjectMetadata = SignedObject.Metadata();
 	
-	EventName = NStr("en = 'Digital signature. EnhanceSignatures';",
+	EventName = NStr("en = 'Digital signature. EnhanceSignatures'",
 		Common.DefaultLanguageCode());
 		
 	EventLogMessage = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Signature sequence number %1, signature type %2, validity period %3';"), 
+		NStr("en = 'Signature sequence number %1, signature type %2, validity period %3'"), 
 		SignatureProperties.SequenceNumber, SignatureProperties.SignatureType, SignatureProperties.DateActionLastTimestamp);
 	
 	WriteLogEvent(EventName,
@@ -3555,7 +3565,7 @@ Procedure LogErrorImprovementsSignaturesInLog(ErrorDescription, SignaturePropert
 	
 	If SignatureProperties <> Undefined Then
 		ErrorDescription = ErrorDescription + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Signature sequence number %1';"), SignatureProperties.SequenceNumber);
+			NStr("en = 'Signature sequence number %1'"), SignatureProperties.SequenceNumber);
 		SignedObject = SignatureProperties.SignedObject;
 		SignedObjectMetadata = SignedObject.Metadata();
 	Else
@@ -3563,7 +3573,7 @@ Procedure LogErrorImprovementsSignaturesInLog(ErrorDescription, SignaturePropert
 		SignedObjectMetadata = Undefined;
 	EndIf;
 	
-	EventName = NStr("en = 'Digital signature.Enhance signature';",
+	EventName = NStr("en = 'Digital signature.Enhance signature'",
 			Common.DefaultLanguageCode());
 	WriteLogEvent(EventName,
 		EventLogLevel.Warning,
@@ -3581,7 +3591,7 @@ Function UpdateAdvancedSignature(SignatureProperties) Export
 		DigitalSignature.UpdateSignature(SignatureProperties.SignedObject, SignatureProperties, True);
 	Except
 		ErrorInfo = ErrorInfo();
-		ErrorPresentation = NStr("en = 'Cannot save the signatures due to:';")
+		ErrorPresentation = NStr("en = 'Cannot save the signatures due to:'")
 			+ Chars.LF + ErrorProcessing.BriefErrorDescription(ErrorInfo);
 	EndTry;
 
@@ -3597,7 +3607,7 @@ Function RefineSignatureInService(Signature, ExecutionParameters)
 	
 	If ExecutionParameters.SignatureType <> Enums.CryptographySignatureTypes.WithTimeCAdEST Then
 		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t enhance the signature in the web application to type: %1.';"), 
+			NStr("en = 'Couldn''t enhance the signature in the web application to type: %1.'"), 
 				ExecutionParameters.SignatureType);
 		Return Result;
 	EndIf;
@@ -3612,7 +3622,7 @@ Function RefineSignatureInService(Signature, ExecutionParameters)
 	Except
 		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot enhance the signature in the web application due to:
-			|%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+			|%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		Return Result;
 	EndTry;
 	
@@ -3622,7 +3632,7 @@ Function RefineSignatureInService(Signature, ExecutionParameters)
 	
 	If SignatureType <> Enums.CryptographySignatureTypes.BasicCAdESBES Then
 		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot enhance the signature with type %1 in the web application';"), SignatureType);
+			NStr("en = 'Cannot enhance the signature with type %1 in the web application'"), SignatureType);
 			
 		If SignatureType = Enums.CryptographySignatureTypes.NormalCMS Then
 			Result.SignatureProperties.DateActionLastTimestamp = CertificateProperties.ValidBefore;
@@ -3638,7 +3648,7 @@ Function RefineSignatureInService(Signature, ExecutionParameters)
 		Result.SignatureProperties.DateActionLastTimestamp = CertificateProperties.ValidBefore;
 		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Certificate expired:
-			|%1';"), InformationAboutCertificate);
+			|%1'"), InformationAboutCertificate);
 			
 		Return Result;
 		
@@ -3654,7 +3664,7 @@ Function RefineSignatureInService(Signature, ExecutionParameters)
 		Result.SignatureProperties.DateActionLastTimestamp = CertificateProperties.EndDate;
 		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot verify the certificate in the web application. For more information, see the event log:
-				|%1';"), InformationAboutCertificate);
+				|%1'"), InformationAboutCertificate);
 	
 		Return Result;
 	EndIf;
@@ -3666,7 +3676,7 @@ Function RefineSignatureInService(Signature, ExecutionParameters)
 		SignAlgorithm = DigitalSignatureInternalClientServer.GeneratedSignAlgorithm(
 			QueryResult.Result, False, True);
 		If Not ValueIsFilled(SignAlgorithm) Then
-			Result.ErrorText = NStr("en = 'When enhancing the signature in the web application, an invalid response is received:';") 
+			Result.ErrorText = NStr("en = 'When enhancing the signature in the web application, an invalid response is received:'") 
 				+ Chars.LF + QueryResult.Result;
 		Else
 			Result.Success = True;
@@ -3675,7 +3685,7 @@ Function RefineSignatureInService(Signature, ExecutionParameters)
 		EndIf;
 	Else
 		Result.ErrorText = 
-			NStr("en = 'Cannot enhance the signature in the web application. For the error details, see the event log.';");
+			NStr("en = 'Cannot enhance the signature in the web application. For the error details, see the event log.'");
 	EndIf;
 	
 	If QueryResult.MarkerUpdated Then
@@ -3729,7 +3739,7 @@ Function ServiceAccountSettingsToImproveSignatures(FormIdentifier = Undefined) E
 			
 		If TimestampServersAddresses.Count() = 0 Then
 			ServiceAccountSettings.Error =
-				NStr("en = 'Service account does not contain available timestamp server addresses';");
+				NStr("en = 'Service account does not contain available timestamp server addresses'");
 			Return ServiceAccountSettings;
 		EndIf;
 		
@@ -4136,10 +4146,10 @@ Function XMLEnvelopeProperties(XMLEnvelope, XMLDSigParameters, CheckSignature) E
 		NameParts = StrSplit(KeyAndValue.Key, "_");
 		If NameParts.Count() > 1 Then
 			XMLEnvelopeProperties.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 node is not found in %2 node in XML document.';"), KeyAndValue.Key);
+				NStr("en = '%1 node is not found in %2 node in XML document.'"), KeyAndValue.Key);
 		Else
 			XMLEnvelopeProperties.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 node is not found in XML document.';"), NameParts[0]);
+				NStr("en = '%1 node is not found in XML document.'"), NameParts[0]);
 		EndIf;
 		Return ReturnedPropertiesOfTheXMLEnvelope(XMLEnvelopeProperties);
 	EndDo;
@@ -4150,7 +4160,7 @@ Function XMLEnvelopeProperties(XMLEnvelope, XMLDSigParameters, CheckSignature) E
 		XMLEnvelopeProperties.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The certificate is declared twice in the XML document:
 			           |-as a URI link to %1 item;
-			           |-as %2 data.';"),
+			           |-as %2 data.'"),
 			XMLEnvelopeProperties.Certificate.NodeID,
 			XMLEnvelopeProperties.Certificate.CertificateValue);
 		
@@ -4160,7 +4170,7 @@ Function XMLEnvelopeProperties(XMLEnvelope, XMLDSigParameters, CheckSignature) E
 	        And Not ValueIsFilled(XMLEnvelopeProperties.Certificate.CertificateValue) Then
 		
 		XMLEnvelopeProperties.ErrorText =
-			NStr("en = 'The certificate is not found in the XML document.';");
+			NStr("en = 'The certificate is not found in the XML document.'");
 		
 		Return ReturnedPropertiesOfTheXMLEnvelope(XMLEnvelopeProperties);
 	EndIf;
@@ -4240,7 +4250,7 @@ Function AnObjectOfAnExternalComponentOfTheExtraCryptoAPI()
 	
 	If ComponentObject = Undefined Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t attach add-in ""%1"".';"), ComponentDetails.ObjectName);
+			NStr("en = 'Couldn''t attach add-in ""%1"".'"), ComponentDetails.ObjectName);
 		Raise ErrorText;
 	EndIf;
 	
@@ -4258,7 +4268,7 @@ Procedure ConfigureTheComponent(ComponentObject)
 	Except
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot set the %1 property of the %2 add-in due to:
-				|%3';"), "OIDMap", "ExtraCryptoAPI", ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				|%3'"), "OIDMap", "ExtraCryptoAPI", ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Raise ErrorText;
 	EndTry;
 	
@@ -4345,7 +4355,7 @@ Function InstalledCryptoProviders(ComponentObject = Undefined) Export
 	If (Not Common.FileInfobase() Or Common.ClientConnectedOverWebServer())
 		And Not DigitalSignature.VerifyDigitalSignaturesOnTheServer()
 		And Not DigitalSignature.GenerateDigitalSignaturesAtServer() Then
-			Result.Error = NStr("en = 'Cryptography is not configured on the server.';");
+			Result.Error = NStr("en = 'Cryptography is not configured on the server.'");
 			Return Result;
 	EndIf;
 	
@@ -4389,10 +4399,10 @@ Function CryptoProviderProperties(CryptoManager)
 	If ApplicationDetails = Undefined Then
 		If Not IsBlankString(ErrorDescription) Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot determine the type of cryptographic service provider %1. %2';"), CryptoModuleInformation.Name, ErrorDescription);
+				NStr("en = 'Cannot determine the type of cryptographic service provider %1. %2'"), CryptoModuleInformation.Name, ErrorDescription);
 		Else
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot determine the type of cryptographic service provider %1';"), CryptoModuleInformation.Name);
+				NStr("en = 'Cannot determine the type of cryptographic service provider %1'"), CryptoModuleInformation.Name);
 		EndIf;
 		Raise ErrorText;
 	EndIf;
@@ -4407,7 +4417,7 @@ Function CryptoProviderProperties(CryptoManager)
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot determine the path to digital signing app
 			           |""%1"" due to:
-			           |%2';"),
+			           |%2'"),
 			ApplicationDetails.Ref,
 			DescriptionOfWay.ErrorText);
 		Raise ErrorText;
@@ -4648,11 +4658,11 @@ Function CMSVerifySignResult(ComponentObject, Signature, Data, CMSParameters, Cr
 		Raise ErrorText;
 		
 	ElsIf Not SignatureCorrect Then
-		ErrorText = NStr("en = 'Invalid signature.';");
+		ErrorText = NStr("en = 'Invalid signature.'");
 		Raise ErrorText;
 		
 	ElsIf TypeOf(Certificate) <> Type("BinaryData") Then
-		ErrorText = NStr("en = 'The signature is valid but does not contain the certificate data.';");
+		ErrorText = NStr("en = 'The signature is valid but does not contain the certificate data.'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -4917,9 +4927,10 @@ Procedure FillExistingUserCertificates(ChoiceList, CertificatesThumbprintsAtClie
 	EndIf;
 	
 	If UseCloudSignatureService() Then
-		
-			
-	EndIf;	
+	
+		DigitalSignatureLocalization.OnFillCloudServiceCertificates(CertificatesThumbprintsAtClient);
+	
+	EndIf;
 	
 	FilterByCompany = False;
 	
@@ -5083,7 +5094,7 @@ Procedure FillCertificateAdditionalProperties(Form)
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot receive the ""%1"" certificate data
 			           |due to:
-			           |%2';"),
+			           |%2'"),
 			Certificate,
 			ErrorProcessing.BriefErrorDescription(ErrorInfo));
 	EndTry;
@@ -5328,7 +5339,7 @@ Procedure PopulateParametersForCreatingCryptoManager(Application, SignAlgorithm,
 		
 		Application = Undefined;
 		ErrorDescription = StringFunctionsClientServer.InsertParametersIntoString(
-			NStr("en = 'Couldn''t determine digital signing and encryption app for the passed data: %1';"),
+			NStr("en = 'Couldn''t determine digital signing and encryption app for the passed data: %1'"),
 			ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		Return;
 	EndTry;
@@ -5358,13 +5369,13 @@ Procedure PopulateParametersForCreatingCryptoManager(Application, SignAlgorithm,
 	ElsIf DataType = "EncryptedData" Then
 		
 		Application = Undefined;
-		ErrorDescription = NStr("en = 'To determine a decryption app, pass the certificate data to the procedure.';");
+		ErrorDescription = NStr("en = 'To determine a decryption app, pass the certificate data to the procedure.'");
 		Return;
 		
 	EndIf;
 	
 	Application = Undefined;
-	ErrorDescription = NStr("en = 'Couldn''t determine digital signing and encryption app for the passed data.';");
+	ErrorDescription = NStr("en = 'Couldn''t determine digital signing and encryption app for the passed data.'");
 	
 EndProcedure
 
@@ -5379,7 +5390,7 @@ Function AppForCertificate(Val Certificate, IsPrivateKeyRequied = Undefined,  Co
 			ComponentObject = AnObjectOfAnExternalComponentOfTheExtraCryptoAPI();
 		Except
 			Result.Error = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot attach the %1 add-in on the %2 server.';"), "ExtraCryptoAPI", ComputerName());
+				NStr("en = 'Cannot attach the %1 add-in on the %2 server.'"), "ExtraCryptoAPI", ComputerName());
 			Return Result;
 		EndTry;
 	EndIf;
@@ -5404,7 +5415,7 @@ Function AppForCertificate(Val Certificate, IsPrivateKeyRequied = Undefined,  Co
 			Return Result;
 		ElsIf IsPrivateKeyRequied = True And CurCryptoProvider.Get("type") <> 0 Then
 			Result.Error = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The certificate is connected to the app %1 (of ""%2"" type) on the server %3. Configure the app and select it in the certificate.';"),
+				NStr("en = 'The certificate is connected to the app %1 (of ""%2"" type) on the server %3. Configure the app and select it in the certificate.'"),
 				CurCryptoProvider.Get("name"),
 				CurCryptoProvider.Get("type"), ComputerName());
 			Return Result;
@@ -5414,7 +5425,7 @@ Function AppForCertificate(Val Certificate, IsPrivateKeyRequied = Undefined,  Co
 	
 	If IsPrivateKeyRequied = True Then
 		Result.Error = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t determine app by the private key on the server %1.';"), ComputerName());
+			NStr("en = 'Couldn''t determine app by the private key on the server %1.'"), ComputerName());
 		Return Result;
 	EndIf;
 		
@@ -5642,19 +5653,19 @@ EndProcedure
 // and when called from the FillinSettingsToImproveSignatures procedure.
 // 
 Procedure FillinServerAddressesTimestamps() Export
-
-	If Metadata.DataProcessors.Find("DigitalSignatureAndEncryptionApplications") <> Undefined Then
-		TimestampServersAddresses = DataProcessors["DigitalSignatureAndEncryptionApplications"].TimestampServerAddressesForInitialPopulation();
-		If Not IsBlankString(TimestampServersAddresses) Then
-			ValueManager = Constants.TimestampServersAddresses.CreateValueManager();
-			ValueManager.Value = TimestampServersAddresses;
-			InfobaseUpdate.WriteData(ValueManager);
-		EndIf;
+	
+	TimestampServersAddresses = "";
+	DigitalSignatureLocalization.OnGetTimestampServerAddresses(TimestampServersAddresses);
+	
+	If Not IsBlankString(TimestampServersAddresses) Then
+		ValueManager = Constants.TimestampServersAddresses.CreateValueManager();
+		ValueManager.Value = TimestampServersAddresses;
+		InfobaseUpdate.WriteData(ValueManager);
 	EndIf;
-
+	
 EndProcedure
 
-//  
+// Runs during the update to SSL v.3.1.11.61. 
 Procedure EnableConstantAllowAccessToInternetServices() Export
 	
 	Constants.AllowAccessToDigitalSignatureInternetServices.Set(True);
@@ -5942,7 +5953,7 @@ Function RequestForExtensionSignatureCredibility(Parameters) Export
 	EndIf;
 	
 	If QueryOptions.ScheduledJob Then
-		QueryText = StrReplace(QueryText, "SELECT", "SELECT TOP 1000"); // @query-part-1 @query-part-2
+		QueryText = StrReplace(QueryText, "SELECT", "SELECT TOP 1000"); // @query-part-1, @query-part-2
 	Else
 		QueryText = StrReplace(QueryText, "AND NOT DigitalSignatures.IsErrorOccurredDuringAutomaticRenewal", "");
 	EndIf;
@@ -6030,17 +6041,17 @@ Procedure SetHeaderTipsImprovements(Form, SignatureType)
 		If Items.GroupImproveSignatures.Enabled Then
 			
 			Items.DecorationImprovementExtendedTooltip.Title = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Previously added and external signatures will be enhanced for long-term storage up to the selected type: %1.';"),
+				NStr("en = 'Previously added and external signatures will be enhanced for long-term storage up to the selected type: %1.'"),
 				SignatureType);
 			
 		Else
 			Items.DecorationImprovementExtendedTooltip.Title = 
-				NStr("en = 'Previously added and external signatures will be enhanced for long-term storage up to the selected type.';");
+				NStr("en = 'Previously added and external signatures will be enhanced for long-term storage up to the selected type.'");
 		EndIf;
 		
 	Else
 		Items.DecorationImprovementExtendedTooltip.Title = 
-			NStr("en = 'Signature type for documents is not selected.';");
+			NStr("en = 'Signature type for documents is not selected.'");
 		Items.GroupImproveSignatures.Enabled = False;
 	EndIf;
 
@@ -6059,21 +6070,21 @@ Procedure SetHeaderElectronicSignatureOnServer(Form)
 	Items = Form.Items;
 	
 	If ConstantsSet.UseDigitalSignature Then
-		CheckBoxTitle = NStr("en = 'Verify signatures and certificates on server';");
+		CheckBoxTitle = NStr("en = 'Verify signatures and certificates on server'");
 		CheckBoxTooltip =
-			NStr("en = 'Allows verifying digital signatures and certificates without installing a digital signing app on the user''s computer.';");
+			NStr("en = 'Allows verifying digital signatures and certificates without installing a digital signing app on the user''s computer.'");
 	Else
-		CheckBoxTitle = NStr("en = 'Verify certificates on server';");
+		CheckBoxTitle = NStr("en = 'Verify certificates on server'");
 		CheckBoxTooltip =
-			NStr("en = 'Allows verifying certificates without installing a digital signing app on the user''s computer.';");
+			NStr("en = 'Allows verifying certificates without installing a digital signing app on the user''s computer.'");
 	EndIf;
 	
 	Items.VerifyDigitalSignaturesOnTheServer.Title = CheckBoxTitle;
 	
 	If FileInfobase Then
-		HintOnServer = NStr("en = 'Important: At least one href=%1>digital signing app</a> from the list must be installed on the computer running the web server connected to the file infobase.';");
+		HintOnServer = NStr("en = 'Important: At least one href=%1>digital signing app</a> from the list must be installed on the computer running the web server connected to the file infobase.'");
 	Else
-		HintOnServer = NStr("en = 'Important: At least one href=%1>digital signing app</a> from the list must be installed on each computer running 1C:Enterprise server.';");
+		HintOnServer = NStr("en = 'Important: At least one href=%1>digital signing app</a> from the list must be installed on each computer running 1C:Enterprise server.'");
 	EndIf;
 	
 	CheckBoxTooltip = CheckBoxTooltip + Chars.LF + Chars.LF + HintOnServer;
@@ -6082,26 +6093,26 @@ Procedure SetHeaderElectronicSignatureOnServer(Form)
 		StringFunctions.FormattedString(CheckBoxTooltip, "Programs");
 	
 	If Not ConstantsSet.UseDigitalSignature Then
-		CheckBoxTitle = NStr("en = 'Encrypt and decrypt on the server';");
+		CheckBoxTitle = NStr("en = 'Encrypt and decrypt on the server'");
 		CheckBoxTooltip =
-			NStr("en = 'Allows encryption and decryption without installing a digital signing app and a certificate on the user''s computer.';");
+			NStr("en = 'Allows encryption and decryption without installing a digital signing app and a certificate on the user''s computer.'");
 		
 	ElsIf Not ConstantsSet.UseEncryption Then
-		CheckBoxTitle = NStr("en = 'Sign on the server';");
+		CheckBoxTitle = NStr("en = 'Sign on the server'");
 		CheckBoxTooltip =
-			NStr("en = 'Allows signing without installing a digital signing app and a certificate on the user''s computer.';");
+			NStr("en = 'Allows signing without installing a digital signing app and a certificate on the user''s computer.'");
 	Else
-		CheckBoxTitle = NStr("en = 'Sign and encrypt on server';");
+		CheckBoxTitle = NStr("en = 'Sign and encrypt on server'");
 		CheckBoxTooltip =
-			NStr("en = 'Allows encryption decryption, and signing without installing a digital signing app and a certificate on the user''s computer.';");
+			NStr("en = 'Allows encryption decryption, and signing without installing a digital signing app and a certificate on the user''s computer.'");
 	EndIf;
 		
 	Items.GenerateDigitalSignaturesAtServer.Title = CheckBoxTitle;
 	
 	If FileInfobase Then
-		HintOnServer = NStr("en = 'Important: You need to install a <a href=%1>digital signing application</a> and a <a href=%2>certificate</a> with a private key on the computer that hosts the web server connected to the infobase.';");
+		HintOnServer = NStr("en = 'Important: You need to install a <a href=%1>digital signing application</a> and a <a href=%2>certificate</a> with a private key on the computer that hosts the web server connected to the infobase.'");
 	Else
-		HintOnServer = NStr("en = 'Important: You need to install a <a href=%1>digital signing application</a> and a <a href=%2>certificate</a> with a private key on all computers that host 1C:Enterprise server.';"); 
+		HintOnServer = NStr("en = 'Important: You need to install a <a href=%1>digital signing application</a> and a <a href=%2>certificate</a> with a private key on all computers that host 1C:Enterprise server.'"); 
 	EndIf;
 	
 	CheckBoxTooltip = CheckBoxTooltip + Chars.LF + Chars.LF + HintOnServer;
@@ -6110,6 +6121,19 @@ Procedure SetHeaderElectronicSignatureOnServer(Form)
 		StringFunctions.FormattedString(CheckBoxTooltip, "Programs", "Certificates");
 		
 EndProcedure
+
+Function CryptographyIsAvailable() Export
+	
+	Settings = DigitalSignature.CommonSettings();
+	
+	Return Not Common.DataSeparationEnabled()
+		And Settings.VerifyDigitalSignaturesOnTheServer
+		Or Settings.GenerateDigitalSignaturesAtServer
+		Or Common.FileInfobase()
+		And Not Common.ClientConnectedOverWebServer();
+	
+EndFunction
+
 
 #EndRegion
 
@@ -6321,12 +6345,12 @@ Function FindANodeByName(DOMDocument, LocalName, Namespace,
 	
 	If NodeFound And ErrorIfFound Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'More than one %1 node with %2 namespace is found in the XML document.';"),
+			NStr("en = 'More than one %1 node with %2 namespace is found in the XML document.'"),
 			LocalName,
 			Namespace);
 	ElsIf Not NodeFound And Not ErrorIfFound Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 node with %2 namespace is not found in the XML document.';"),
+			NStr("en = '%1 node with %2 namespace is not found in the XML document.'"),
 			LocalName,
 			Namespace);
 	EndIf;
@@ -6399,12 +6423,12 @@ Function FindANodeByID(DOMDocument, NodeID, ErrorText,
 	
 	If NodeFound And ErrorIfFound Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'More than one node with the %1 attribute and the %2 value is found in the XML document.';"),
+			NStr("en = 'More than one node with the %1 attribute and the %2 value is found in the XML document.'"),
 			NameOfTheIDAttribute,
 			NodeID);
 	ElsIf Not NodeFound And Not ErrorIfFound Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Node with the %1 attribute and the %2 value is not found in the XML document.';"),
+			NStr("en = 'Node with the %1 attribute and the %2 value is not found in the XML document.'"),
 			NameOfTheIDAttribute,
 			NodeID);
 	EndIf;
@@ -6468,7 +6492,7 @@ Function GetAttribute(DOMElement, AttributeName, XMLEnvelopeProperties, Property
 	Attribute = DOMElement.Attributes.GetNamedItem(AttributeName);
 	If Attribute = Undefined Then
 		XMLEnvelopeProperties.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The %2 attribute is not found for the %1 node in the XML document.';"),
+			NStr("en = 'The %2 attribute is not found for the %1 node in the XML document.'"),
 			DOMElement.LocalName, AttributeName);
 		Return False;
 	EndIf;
@@ -6504,11 +6528,11 @@ Function CheckSetValue(Value, DOMElement, AttributeName, XMLEnvelopeProperties, 
 			If Value <> AvailableValues.ParameterName And Not AdditionalParameters.MultipleSigning Then
 				If ValueIsFilled(AttributeName) Then
 					XMLEnvelopeProperties.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'The %1 node requires the %3 value in the %2 attribute in the XML document.';"),
+						NStr("en = 'The %1 node requires the %3 value in the %2 attribute in the XML document.'"),
 						DOMElement.LocalName, AttributeName, AvailableValues.ParameterName);
 				Else
 					XMLEnvelopeProperties.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'The %1 node requires the %2 value in the XML document.';"),
+						NStr("en = 'The %1 node requires the %2 value in the XML document.'"),
 						DOMElement.LocalName, AvailableValues.ParameterName);
 				EndIf;
 				Return False;
@@ -6523,11 +6547,11 @@ Function CheckSetValue(Value, DOMElement, AttributeName, XMLEnvelopeProperties, 
 			If Not ValueIsFilled(Base64Value) Then
 				If ValueIsFilled(AttributeName) Then
 					XMLEnvelopeProperties.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'The %3 Base64 value is not specified for the %1 node in the %2 attribute in the XML document.';"),
+						NStr("en = 'The %3 Base64 value is not specified for the %1 node in the %2 attribute in the XML document.'"),
 						DOMElement.LocalName, AttributeName, Value);
 				Else
 					XMLEnvelopeProperties.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'The %2 Base64 value is not specified for the %1 node in the XML document.';"),
+						NStr("en = 'The %2 Base64 value is not specified for the %1 node in the XML document.'"),
 						DOMElement.LocalName, AttributeName, Value);
 				EndIf;
 				Return False;
@@ -6538,11 +6562,11 @@ Function CheckSetValue(Value, DOMElement, AttributeName, XMLEnvelopeProperties, 
 			 Or StrLen(Value) < 2 Then
 				If ValueIsFilled(AttributeName) Then
 					XMLEnvelopeProperties.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'The %1 node has invalid %3 URI in the %2 attribute in the XML document.';"),
+						NStr("en = 'The %1 node has invalid %3 URI in the %2 attribute in the XML document.'"),
 						DOMElement.LocalName, AttributeName, Value);
 				Else
 					XMLEnvelopeProperties.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'The %1 node has invalid %2 URI in the XML document.';"),
+						NStr("en = 'The %1 node has invalid %2 URI in the XML document.'"),
 						DOMElement.LocalName, AttributeName, Value);
 				EndIf;
 				Return False;
@@ -6554,11 +6578,11 @@ Function CheckSetValue(Value, DOMElement, AttributeName, XMLEnvelopeProperties, 
 			If LongDesc = Undefined Then
 				If ValueIsFilled(AttributeName) Then
 					XMLEnvelopeProperties.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'The %1 node has invalid %3 value in the %2 attribute in the XML document.';"),
+						NStr("en = 'The %1 node has invalid %3 value in the %2 attribute in the XML document.'"),
 						DOMElement.LocalName, AttributeName, Value);
 				Else
 					XMLEnvelopeProperties.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'The %1 node has invalid %2 value in the XML document.';"),
+						NStr("en = 'The %1 node has invalid %2 value in the XML document.'"),
 						DOMElement.LocalName, AttributeName, Value);
 				EndIf;
 				Return False;
@@ -6619,12 +6643,12 @@ Function CheckTheUniquenessOfTheNode(DOMElement, XMLEnvelopeProperties, Addition
 		If XMLEnvelopeProperties.UniqueNodes[PropertyName] <> Undefined Then
 			If AdditionalParameters.NameWithParent Then
 				XMLEnvelopeProperties.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'The %1 node appears more than once in the %2 node in the XML document.';"),
+					NStr("en = 'The %1 node appears more than once in the %2 node in the XML document.'"),
 					DOMElement.LocalName,
 					DOMElement.ParentNode.LocalName);
 			Else
 				XMLEnvelopeProperties.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'The %1 node appears more than once in the XML document.';"),
+					NStr("en = 'The %1 node appears more than once in the XML document.'"),
 					PropertyName);
 			EndIf;
 			Return False;
@@ -7113,7 +7137,7 @@ Procedure SupplementWithTechnicalInformationAboutServer(TechnicalInformation,
 		And Not DigitalSignature.VerifyDigitalSignaturesOnTheServer() Then
 		
 		TechnicalInformation = TechnicalInformation + Chars.LF
-			+ NStr("en = 'Digital signature is not used on the server.';") + Chars.LF;
+			+ NStr("en = 'Digital signature is not used on the server.'") + Chars.LF;
 	Else
 		TechnicalInformation = TechnicalInformation
 			+ Chars.LF + TechnicalInformationOnComputer()
@@ -7130,13 +7154,13 @@ Procedure SupplementWithTechnicalInformationAboutServer(TechnicalInformation,
 	
 	If Common.FileInfobase() Then
 		WorkMode = ?(Common.ClientConnectedOverWebServer(),
-			NStr("en = 'File mode via web';"), NStr("en = 'File';"));
+			NStr("en = 'File mode via web'"), NStr("en = 'File'"));
 	Else
-		WorkMode = NStr("en = 'Client/server';");
+		WorkMode = NStr("en = 'Client/server'");
 	EndIf;
 	
 	TechnicalInformation = TechnicalInformation
-		+ Chars.LF + NStr("en = 'Infobase operation mode';")+ " - " + WorkMode
+		+ Chars.LF + NStr("en = 'Infobase operation mode'")+ " - " + WorkMode
 		+ Chars.LF + Chars.LF + StandardSubsystemsServer.TechnicalInfoOnExtensionsAndSubsystemsVersions();
 	
 EndProcedure
@@ -7162,8 +7186,8 @@ Function TechnicalInformationOnComputer()
 	EndIf;
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Server (%1):';"), ComputerName() + "\" + OSUserName) + Chars.LF
-		+ DigitalSignatureInternalClientServer.DiagnosticsInformationOnComputer();
+		NStr("en = 'Server (%1):'"), ComputerName() + "\" + OSUserName) + Chars.LF
+		+ StandardSubsystemsServer.SupportInformation();
 	
 EndFunction
 
@@ -7177,7 +7201,7 @@ Function TechnicalInformationAboutTheComponent()
 	EndTry;
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Add-in ""%1"" version on server: %2';"), "ExtraCryptoAPI", VersionComponents); 
+		NStr("en = 'Add-in ""%1"" version on server: %2'"), "ExtraCryptoAPI", VersionComponents); 
 	
 EndFunction
 
@@ -7189,17 +7213,17 @@ Function TechnicalInformationOnApplications()
 	
 	If Not InstalledAppsResult.CheckCompleted Then
 		DiagnosticsInformation = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t determine digital signing and encryption app on ""%1"": %2';"),
+			NStr("en = 'Couldn''t determine digital signing and encryption app on ""%1"": %2'"),
 			ComputerName(), InstalledAppsResult.Error);
 	Else
 		
 		If InstalledAppsResult.Cryptoproviders.Count() = 0 Then
 			DiagnosticsInformation = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'No data signing and encryption apps are installed on ""%1"".';"),
+				NStr("en = 'No data signing and encryption apps are installed on ""%1"".'"),
 				ComputerName());
 		Else
 			DiagnosticsInformation = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Digital signing and encryption apps automatically detected on server ""%1"":';"), ComputerName()) + Chars.LF;
+				NStr("en = 'Digital signing and encryption apps automatically detected on server ""%1"":'"), ComputerName()) + Chars.LF;
 			
 			For Each Application In InstalledAppsResult.Cryptoproviders Do
 				
@@ -7225,7 +7249,7 @@ Function TechnicalInformationOnApplications()
 	EndIf;
 	
 	DiagnosticsInformation = DiagnosticsInformation + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Server application from ""%1"" catalog:';"), ComputerName()) + Chars.LF;
+		NStr("en = 'Server application from ""%1"" catalog:'"), ComputerName()) + Chars.LF;
 	
 	For Each Application In UsedApplications Do
 		
@@ -7249,12 +7273,12 @@ EndFunction
 Function TechnicalInformationAboutProgramSettingsInTheReferenceGuide(VerifiedPathsToProgramModulesOnTheClient)
 	
 	DiagnosticsInformation = Chars.LF
-		+ NStr("en = 'Digital signing and encryption app settings:';") + Chars.LF;
+		+ NStr("en = 'Digital signing and encryption app settings:'") + Chars.LF;
 	
 	UsedApplications = DigitalSignatureInternalServerCall.UsedApplications();
 	If UsedApplications.Count() = 0 Then
 		DiagnosticsInformation = DiagnosticsInformation
-			+ NStr("en = 'The catalog contains no digital signing and encryption apps.';");
+			+ NStr("en = 'The catalog contains no digital signing and encryption apps.'");
 		Return DiagnosticsInformation;
 	EndIf;
 	
@@ -7266,7 +7290,7 @@ Function TechnicalInformationAboutProgramSettingsInTheReferenceGuide(VerifiedPat
 			           |	Signature algorithm: %4
 			           |	Hashing algorithm: %5
 			           |	Encryption algorithm: %6
-			           |	Usage mode %7';"),
+			           |	Usage mode %7'"),
 			Application.Presentation,
 			Application.ApplicationName,
 			Application.ApplicationType,
@@ -7277,12 +7301,12 @@ Function TechnicalInformationAboutProgramSettingsInTheReferenceGuide(VerifiedPat
 		
 		If RequiresThePathToTheProgram(True) Then
 			AddInformationAboutTheProgramPath(DiagnosticsInformation,
-				NStr("en = 'Paths to app''s modules on the client:';"),
+				NStr("en = 'Paths to app''s modules on the client:'"),
 				VerifiedPathsToProgramModulesOnTheClient.Get(Application.Ref).ApplicationPath);
 		EndIf;
 		If RequiresThePathToTheProgram() Then
 			AddInformationAboutTheProgramPath(DiagnosticsInformation,
-				NStr("en = 'Paths to the app modules on the server:';"),
+				NStr("en = 'Paths to the app modules on the server:'"),
 				ApplicationPath(Application.Ref).ApplicationPath);
 		EndIf;
 	EndDo;
@@ -7325,7 +7349,7 @@ Function DownloadRevocationListFileAtServer(Val Addresses, InternalAddress = Und
 	ImportResult1.Insert("ErrorMessage", "");
 	
 	If Addresses.Count() = 0 Then
-		ImportResult1.ErrorMessage = NStr("en = 'Revocation list addresses are not specified in the certificate.';");
+		ImportResult1.ErrorMessage = NStr("en = 'Revocation list addresses are not specified in the certificate.'");
 		Return ImportResult1;
 	EndIf;
 	
@@ -7399,7 +7423,7 @@ Function DownloadRevocationListFileAtServer(Val Addresses, InternalAddress = Und
 					ImportResult1.ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Errors occurred when trying to import file(s):
 							 |%1
-							 |For more information, see the event log.';"), StrConcat(Addresses, Chars.LF));
+							 |For more information, see the event log.'"), StrConcat(Addresses, Chars.LF));
 				EndIf;
 				
 			Else
@@ -7409,7 +7433,7 @@ Function DownloadRevocationListFileAtServer(Val Addresses, InternalAddress = Und
 				If RevocationListValidityPeriod = Undefined Then
 					ImportResult1.FileData = Undefined;
 					ImportResult1.ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'This file is not a revocation list: %1.';"), ImportResult1.FileAddress);
+						NStr("en = 'This file is not a revocation list: %1.'"), ImportResult1.FileAddress);
 				Else
 					RecordManager.RevocationListAddress = ImportResult1.FileAddress;
 					RecordManager.RevocationList = New ValueStorage(ImportResult1.FileData,
@@ -7432,7 +7456,7 @@ Function DownloadRevocationListFileAtServer(Val Addresses, InternalAddress = Und
 			
 			If IsLockEnabled Then // Revocation list is being updated.
 				If Not ValueIsFilled(DataFromCache) Then
-					ImportResult1.ErrorMessage = NStr("en = 'Revocation list is being updated.';");
+					ImportResult1.ErrorMessage = NStr("en = 'Revocation list is being updated.'");
 				EndIf;
 			Else
 				ErrorInfo = ErrorInfo();
@@ -7440,11 +7464,11 @@ Function DownloadRevocationListFileAtServer(Val Addresses, InternalAddress = Und
 				ImportResult1.ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'An error occurred when importing a revocation list:
 						|%1
-						|For more information, see the event log.';"),
+						|For more information, see the event log.'"),
 					ErrorProcessing.BriefErrorDescription(ErrorInfo));
 					
 				WriteLogEvent(
-					NStr("en = 'Digital signature.Update CRL';",
+					NStr("en = 'Digital signature.Update CRL'",
 					Common.DefaultLanguageCode()),
 					EventLogLevel.Error, , ,
 					ErrorProcessing.DetailErrorDescription(ErrorInfo()));
@@ -7597,7 +7621,7 @@ Procedure PopulateResultOfRevocationListImportFromCacheData(ImportResult1, DataF
 		ImportResult1.FileAddress = Undefined;
 		ImportResult1.FileName = Undefined;
 		ImportResult1.FileData = Undefined;
-		ImportResult1.ErrorMessage = NStr("en = 'Revocation list is not imported.';");
+		ImportResult1.ErrorMessage = NStr("en = 'Revocation list is not imported.'");
 		Return;
 		
 	EndIf;
@@ -7609,7 +7633,7 @@ Procedure PopulateResultOfRevocationListImportFromCacheData(ImportResult1, DataF
 		ImportResult1.FileAddress = Undefined;
 		ImportResult1.FileName = Undefined;
 		ImportResult1.FileData = Undefined;
-		ImportResult1.ErrorMessage = NStr("en = 'Revocation list is not imported.';");
+		ImportResult1.ErrorMessage = NStr("en = 'Revocation list is not imported.'");
 		Return;
 		
 	EndIf;
@@ -7620,7 +7644,7 @@ Procedure PopulateResultOfRevocationListImportFromCacheData(ImportResult1, DataF
 		ImportResult1.FileAddress = Undefined;
 		ImportResult1.FileName = Undefined;
 		ImportResult1.FileData = Undefined;
-		ImportResult1.ErrorMessage = NStr("en = 'The certificate revocation list is expired. Contact the certificate issuer.';");
+		ImportResult1.ErrorMessage = NStr("en = 'The certificate revocation list is expired. Contact the certificate issuer.'");
 		Return;
 		
 	EndIf;
@@ -7649,12 +7673,12 @@ Function CertificatesChain(Val Certificate, FormIdentifier = Undefined, Componen
 		Error = ComponentObject.ErrorList;
 		If ValueIsFilled(Error) Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot receive the certificate chain: %1 (%2).';"), Error, ComputerName());
+				NStr("en = 'Cannot receive the certificate chain: %1 (%2).'"), Error, ComputerName());
 		EndIf;
 		
 		If CertificatesResult = Undefined Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot receive the certificate chain (%1).';"), ComputerName());
+				NStr("en = 'Cannot receive the certificate chain (%1).'"), ComputerName());
 		EndIf;
 		
 		Result = DigitalSignatureInternalClientServer.CertificatesChainFromAddInResponse(
@@ -7694,7 +7718,7 @@ Function CertificatePropertiesExtended(Val Certificate, FormIdentifier = Undefin
 	Except
 		
 		Result.Error = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'An error occurred when receiving the extended certificate properties: %1';"),
+			NStr("en = 'Unable to retrieve extended certificate properties: %1'"),
 			ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		Return Result;
 		
@@ -7777,7 +7801,7 @@ Function SupplementErrorClassifierSolutionWithDetails(ClassifierError,
 			Decision.Add(ClassifierError.Decision);
 			Decision.Add(Chars.LF);
 			Decision.Add(StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'Certificate authority that issued the certificate: %1.';"), CertificateIssuer));
+							NStr("en = 'Certificate authority that issued the certificate: %1.'"), CertificateIssuer));
 		EndIf;
 	EndIf;
 
@@ -7785,7 +7809,7 @@ Function SupplementErrorClassifierSolutionWithDetails(ClassifierError,
 					"TimestampServersDiagnosticsServer") <> Undefined Then
 
 		Decision.Add(StringFunctions.FormattedString(
-			NStr("en = '<a href = ""%1"">Check the availability</a> of timestamps on server %2.';"),
+			NStr("en = '<a href = ""%1"">Check the availability</a> of timestamps on server %2.'"),
 			"TimestampServersDiagnosticsServer", ComputerName()));
 	EndIf;
 
@@ -7802,18 +7826,18 @@ Function SupplementErrorClassifierSolutionWithDetails(ClassifierError,
 				
 				RefStructure = CommonClientServer.URIStructure(ServerAddress);
 				Array.Add(StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '<a href = ""%1"">%1</a>';"), ServerAddress));
+					NStr("en = '<a href = ""%1"">%1</a>'"), ServerAddress));
 				
 			EndDo;
 			
 			Decision.Add(StringFunctions.FormattedString(
 				StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Check the availability of timestamps on computer: %1.';"),
+					NStr("en = 'Check the availability of timestamps on computer: %1.'"),
 					StrConcat(Array, ", "))));
 			
 		Else
 			Decision.Add(StringFunctions.FormattedString(
-				NStr("en = '<a href = ""%1"">Check the availability</a> of timestamps on computer.';"),
+				NStr("en = '<a href = ""%1"">Check the availability</a> of timestamps on computer.'"),
 					"TimestampServersDiagnosticsClient"));
 		EndIf;
 
@@ -7887,12 +7911,12 @@ Procedure SetListOfCertificateRevocation(Certificate, Addresses = Undefined, Int
 	
 	If RevocationListProperties = Undefined Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'This file is not a revocation list: %1.';"), Result.FileAddress);
+			NStr("en = 'This file is not a revocation list: %1.'"), Result.FileAddress);
 	EndIf;
 	
 	If ValueIsFilled(RevocationListProperties.EndDate) And RevocationListProperties.EndDate < CurrentUniversalDate() Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The certificate revocation list %1 is expired. Contact the certificate issuer.';"), Result.FileAddress);
+			NStr("en = 'The certificate revocation list %1 is expired. Contact the certificate issuer.'"), Result.FileAddress);
 	EndIf;
 	
 	TempFileName = GetTempFileName(".crl");
@@ -7924,7 +7948,7 @@ Function AddressesOfRevocationLists(Certificate, ComponentObject)
 
 	AddressesOfRevocationLists = CertificatePropertiesExtended.CertificateProperties.AddressesOfRevocationLists;
 	If AddressesOfRevocationLists.Count() = 0 Then
-		Return NStr("en = 'Revocation list addresses are not specified in the certificate.';");
+		Return NStr("en = 'Revocation list addresses are not specified in the certificate.'");
 	EndIf;
 	
 	Return AddressesOfRevocationLists;
@@ -8057,7 +8081,7 @@ Function ExtendedDataForCertificatePrint(Data) Export
 		Buffer = DataAnalysis.Buffer.Read(DataAnalysis.Offset, DataSize); // BinaryDataBuffer
 		Structure.Signature = GetBinaryDataFromBinaryDataBuffer(Buffer);
 	Else 
-		Raise NStr("en = 'An unexpected error occurred when reading the extended certificate data.';");
+		Raise NStr("en = 'An unexpected error occurred when reading the extended certificate data.'");
 	EndIf;
 
 	Return Structure;

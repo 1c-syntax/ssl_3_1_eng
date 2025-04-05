@@ -160,8 +160,8 @@ Procedure BeforeExit(Cancel, Warnings) Export
 	
 	If SessionTerminationInProgress() Then
 		WarningParameters = StandardSubsystemsClient.WarningOnExit();
-		WarningParameters.HyperlinkText = NStr("en = 'User access';");
-		WarningParameters.WarningText = NStr("en = 'User sessions are being closed from the current session.';");
+		WarningParameters.HyperlinkText = NStr("en = 'User access'");
+		WarningParameters.WarningText = NStr("en = 'User sessions are being closed from the current session.'");
 		WarningParameters.OutputSingleWarning = True;
 		
 		Form = "DataProcessor.ApplicationLock.Form.InfobaseConnectionsLock";
@@ -266,7 +266,7 @@ Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
 EndProcedure
 
 // Parameters:
-//  Parameters - See CommonOverridable.BeforeRecurringClientDataSendToServer.Parameters
+//  Parameters - 
 //  AreNotificationsReceived - Boolean - Indicates that all notifications are received for the given period of time
 //                                (via either the Collaboration System or the common server call).
 //
@@ -427,7 +427,7 @@ Procedure SessionTerminationModeManagement(CurrentMode)
 	
 	MessageText = IBConnectionsClientServer.ExtractLockMessage(CurrentMode.Message);
 	Template = NStr("en = 'Please save your data. The application will be temporarily unavailable starting %1, %2.
-		|%3';");
+		|%3'");
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(Template, LockBeginTimeDate, LockBeginTimeTime, MessageText);
 	
 	DataSeparationEnabled = CommonClient.DataSeparationEnabled();
@@ -469,9 +469,9 @@ Procedure EndUserSessions(CurrentMode)
 	If CurrentMoment < LockBeginTime Then
 		Notify("UsersSessions",
 			New Structure("Status, SessionCount", "RefreshEnabled", SessionCount));
-		MessageText = NStr("en = 'The application will be temporarily unavailable since %1.';");
+		MessageText = NStr("en = 'The application will be temporarily unavailable since %1.'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, LockBeginTime);
-		ShowUserNotification(NStr("en = 'Closing user sessions';"), 
+		ShowUserNotification(NStr("en = 'Closing user sessions'"), 
 			ClickNotification, MessageText, PictureLib.DialogInformation);
 		Return;
 	EndIf;
@@ -516,9 +516,9 @@ Procedure EndUserSessions(CurrentMode)
 			"Error", ErrorProcessing.DetailErrorDescription(ErrorInfo()),, True);
 		Notify("UsersSessions",
 			New Structure("Status,SessionCount", "Error", SessionCount));
-		ShowUserNotification(NStr("en = 'Closing user sessions';"),
+		ShowUserNotification(NStr("en = 'Closing user sessions'"),
 			ClickNotification,
-			NStr("en = 'Cannot close sessions. For more information, see the event log.';"),
+			NStr("en = 'Cannot close sessions. For more information, see the event log.'"),
 			PictureLib.DialogExclamation);	
 		Return;
 	EndTry;
@@ -527,9 +527,9 @@ Procedure EndUserSessions(CurrentMode)
 	Notify("UsersSessions",
 		New Structure("Status,SessionCount", "Done", SessionCount));
 	TerminateThisSession();
-	ShowUserNotification(NStr("en = 'Closing user sessions';"),
+	ShowUserNotification(NStr("en = 'Closing user sessions'"),
 		ClickNotification,
-		NStr("en = 'All user sessions are closed.';"),
+		NStr("en = 'All user sessions are closed.'"),
 		PictureLib.DialogInformation);
 	
 EndProcedure
@@ -552,8 +552,8 @@ Procedure TerminateThisSession(OutputQuestion1 = True)
 	SetIsProcedureEndUserSessionsRunning(True);
 	
 	Notification = New CallbackDescription("TerminateThisSessionCompletion", ThisObject);
-	MessageText = NStr("en = 'User access is restricted. Exit the application?';");
-	Title = NStr("en = 'Close current session';");
+	MessageText = NStr("en = 'User access is restricted. Exit the application?'");
+	Title = NStr("en = 'Close current session'");
 	ShowQueryBox(Notification, MessageText, QuestionDialogMode.YesNo, 60, DialogReturnCode.Yes, Title, DialogReturnCode.Yes);
 	
 EndProcedure
@@ -633,11 +633,11 @@ Procedure BeforeStartInteractiveHandler(Parameters, Context) Export
 	
 	If Not IsBlankString(QueryText) Then
 		Buttons = New ValueList();
-		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Log in';"));
+		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Log in'"));
 		If ClientParameters.CanUnlock Then
-			Buttons.Add(DialogReturnCode.No, NStr("en = 'Remove lock and log in';"));
+			Buttons.Add(DialogReturnCode.No, NStr("en = 'Remove lock and log in'"));
 		EndIf;
-		Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
+		Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
 		
 		ResponseHandler = New CallbackDescription(
 			"AfterAnswerToPromptToAuthorizeOrUnlock", ThisObject, Parameters);
@@ -674,7 +674,7 @@ Procedure ShowWarningOnExit(MessageText, LockBeginTime)
 	
 	InformParameters = InformParameters(LockBeginTime);
 	If Not InformParameters.IsNotificationDisplayed Then
-		ShowUserNotification(NStr("en = 'Application will be closed';"),, MessageText,, 
+		ShowUserNotification(NStr("en = 'Application will be closed'"),, MessageText,, 
 			UserNotificationStatus.Important, "UserSessionsEndControl");
 		InformParameters.IsNotificationDisplayed = True;
 	EndIf;
@@ -727,7 +727,7 @@ Procedure ClearUserNotifications()
 	EndIf;
 	InformParameters.IsNotificationDisplayed = False;
 	
-	ShowUserNotification(NStr("en = 'Closing the application is canceled';"),, ,,
+	ShowUserNotification(NStr("en = 'Closing the application is canceled'"),, ,,
 		UserNotificationStatus.Important, "UserSessionsEndControl");
 	
 EndProcedure
@@ -736,7 +736,7 @@ Procedure AskOnTermination(MessageText, LockBeginTime)
 	
 	InformParameters = InformParameters(LockBeginTime);
 	If Not InformParameters.IsNotificationDisplayed Then
-		ShowUserNotification(NStr("en = 'Application will be closed';"),, MessageText,,
+		ShowUserNotification(NStr("en = 'Application will be closed'"),, MessageText,,
 			UserNotificationStatus.Important, "UserSessionsEndControl");
 		InformParameters.IsNotificationDisplayed = True;
 	EndIf;
@@ -746,7 +746,7 @@ Procedure AskOnTermination(MessageText, LockBeginTime)
 	EndIf;
 	
 	QueryText = NStr("en = '%1
-		|Do you want to exit?';");
+		|Do you want to exit?'");
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(QueryText, MessageText);
 	NotifyDescription = New CallbackDescription("AskOnTerminationCompletion", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, 30, DialogReturnCode.Yes);
@@ -791,7 +791,7 @@ Function ProcessStartParameters(Val StartupParameters)
 		
 		If Not CommonClient.SeparatedDataUsageAvailable() Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The startup parameter %1 was not processed. First, you need to log in to the data area.';"),
+				NStr("en = 'The startup parameter %1 was not processed. First, you need to log in to the data area.'"),
 				ParameterNameAllowUsers);
 			EventLogClient.AddMessageForEventLog(EventLogEvent(),
 				"Warning", MessageText,, True);
@@ -800,7 +800,7 @@ Function ProcessStartParameters(Val StartupParameters)
 		
 		If Not IBConnectionsServerCall.AllowUserAuthorization() Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The %1 parameter is ignored because you do not have administrative rights.';"),
+				NStr("en = 'The %1 parameter is ignored because you do not have administrative rights.'"),
 				ParameterNameAllowUsers);
 			EventLogClient.AddMessageForEventLog(EventLogEvent(),
 				"Warning", MessageText,, True);
@@ -808,7 +808,7 @@ Function ProcessStartParameters(Val StartupParameters)
 		EndIf;
 		
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The application is started with parameter %1. The application will be closed.';"),
+			NStr("en = 'The application is started with parameter %1. The application will be closed.'"),
 				ParameterNameAllowUsers);
 		EventLogClient.AddMessageForEventLog(EventLogEvent(),,
 			MessageText,, True);
@@ -822,7 +822,7 @@ Function ProcessStartParameters(Val StartupParameters)
 		
 		If Not CommonClient.SeparatedDataUsageAvailable() Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The startup parameter %1 was not processed. First, you need to log in to the data area.';"),
+				NStr("en = 'The startup parameter %1 was not processed. First, you need to log in to the data area.'"),
 				ParameterNameShutdownUsers);
 			EventLogClient.AddMessageForEventLog(EventLogEvent(),
 				"Warning", MessageText,, True);
@@ -838,7 +838,7 @@ Function ProcessStartParameters(Val StartupParameters)
 		
 		If Not LockSet Then 
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The %1 parameter is ignored because you do not have administrative rights.';"),
+				NStr("en = 'The %1 parameter is ignored because you do not have administrative rights.'"),
 				ParameterNameShutdownUsers);
 			EventLogClient.AddMessageForEventLog(EventLogEvent(),
 				"Warning", MessageText,, True);
@@ -865,7 +865,7 @@ EndFunction
 //
 Function EventLogEvent() Export
 	
-	Return NStr("en = 'User sessions';", CommonClient.DefaultLanguageCode());
+	Return NStr("en = 'User sessions'", CommonClient.DefaultLanguageCode());
 	
 EndFunction
 

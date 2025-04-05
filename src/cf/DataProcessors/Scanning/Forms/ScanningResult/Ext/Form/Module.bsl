@@ -63,6 +63,19 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ScanJobParameters = Common.CommonSettingsStorageLoad("ScanAddIn", "ScanJobParameters", Undefined);
 	Items.ScanningError.Visible = ScanJobParameters <> Undefined;
 	
+	// 
+	If Common.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+		
+		ModuleForContactingTechnicalSupportService = Common.CommonModule(
+			"ContactingTechnicalSupportInternal");
+		
+		ModuleForContactingTechnicalSupportService.OnCreateAtServer(ThisObject);
+		
+	Else
+		Items.TechnicalSupportGroup.Visible = False;
+	EndIf;
+	// End StandardSubsystems.ContactingTechnicalSupport
+	
 EndProcedure
 
 &AtClient
@@ -79,6 +92,8 @@ Procedure OnOpen(Cancel)
 	EndIf;
 	
 	InsertionPosition = Undefined;
+	
+	SetRecommendationText();
 	
 EndProcedure
 
@@ -120,6 +135,74 @@ Procedure OnClose(Exit)
 	If Not FilesOperationsInternalClient.HasScanErrorOccurred() Then
 		FilesOperationsInternalClient.DeleteScanError(Attachable_Module);
 	EndIf;
+	
+EndProcedure
+
+#EndRegion
+
+#Region FormHeaderItemsEventHandlers
+
+&AtClient
+Procedure RecommendationsURLProcessing(Item, Var_URL, StandardProcessing)
+	
+	If Var_URL = "OpenSettings" Then
+		StandardProcessing = False;
+		FilesOperationsClient.OpenScanSettingForm();
+	ElsIf Var_URL = "Run32BitClient" Then
+		StandardProcessing = False;
+		Run32BitClient();
+	Else
+		Expression = NStr("en = 'Действие для навигационной ссылки не определено.'");
+		Raise(Expression, ErrorCategory.GotoURLError);
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure DescriptionOfSupportRequestURLProcessing(Item, Var_URL, StandardProcessing)
+	
+	// 
+	If CommonClient.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+		
+		StandardProcessing = False;
+		
+		If Var_URL = "QuestionInSupport" Then
+			
+			CompletionHandler = New CallbackDescription(
+				"ContinueSendingQuestionToSupport",
+				ThisObject);
+			
+			If Not ValueIsFilled(ErrorPresentation) Then
+				ErrorPresentation = NStr("en = 'Вызвана помощь из окна сканирования.'");
+			EndIf;
+			
+			FilesOperationsInternalClient.GenerateInformationForSupport(
+				ErrorPresentation,
+				CompletionHandler);
+			
+		ElsIf Var_URL = "InformationToSendToSupport" Then
+			
+			CompletionHandler = New CallbackDescription(
+				"ContinueDownloadingInformationToSendToSupport",
+				ThisObject);
+			
+			If Not ValueIsFilled(ErrorPresentation) Then
+				ErrorPresentation = NStr("en = 'Вызвана помощь из окна сканирования.'");
+			EndIf;
+			
+			FilesOperationsInternalClient.GenerateInformationForSupport(
+				ErrorPresentation,
+				CompletionHandler);
+			
+		Else
+			
+			Expression = NStr("en = 'Действие для навигационной ссылки не определено.'");
+			Raise(Expression, ErrorCategory.GotoURLError);
+			
+		EndIf;
+		
+	EndIf;
+	// 
 	
 EndProcedure
 
@@ -364,27 +447,107 @@ Procedure Scan(Command)
 	
 EndProcedure
 
-&AtClient
-Procedure ScanErrorTextURLProcessing(Item, FormattedStringURL, StandardProcessing)
-	If FormattedStringURL = "TechnicalInformation" Then
-		AfterTechnicalInfoReceived = New CallbackDescription("AfterTechnicalInfoReceived", ThisObject);
-		FilesOperationsInternalClient.GetTechnicalInformation(NStr("en = 'The last scan attempt failed.';"),
-			AfterTechnicalInfoReceived);
-		StandardProcessing = False;
-	EndIf;
-EndProcedure
-
-&AtClient
-Procedure AssistanceRequiredClick(Item)
-	
-	FilesOperationsInternalClient.ShowScanError(ThisObject, NStr("en = 'Scanning problem';"), 
-		NStr("en = 'Help opened from the scanner dialog.';"), True);
-		
-EndProcedure
-
 #EndRegion
 
 #Region Private
+
+&AtClient
+Procedure ContinueSendingQuestionToSupport(Result, AdditionalParameters) Export
+	
+	// 
+	ModuleForContactingTechnicalSupportServiceClient = CommonClient.CommonModule(
+		"ContactingTechnicalSupportInternalClient");
+	
+	RequestParameters_ = ModuleForContactingTechnicalSupportServiceClient.RequestParameters_();
+	RequestParameters_.TechnologicalInfo = Result.TechnologicalInfo;
+	RequestParameters_.AdditionalFiles = Result.AdditionalFiles;
+	RequestParameters_.Subject = NStr("en = 'Проблема при сканировании файла'");
+	
+	ModuleForContactingTechnicalSupportServiceClient.SendQuestionToSupport(
+		ThisObject,
+		RequestParameters_);
+	// End StandardSubsystems.ContactingTechnicalSupport
+	
+EndProcedure
+
+&AtClient
+Procedure ContinueDownloadingInformationToSendToSupport(Result, AdditionalParameters) Export
+	
+	// 
+	ModuleForContactingTechnicalSupportServiceClient = CommonClient.CommonModule(
+		"ContactingTechnicalSupportInternalClient");
+	
+	RequestParameters_ = ModuleForContactingTechnicalSupportServiceClient.RequestParameters_();
+	RequestParameters_.TechnologicalInfo = Result.TechnologicalInfo;
+	RequestParameters_.AdditionalFiles = Result.AdditionalFiles;
+	
+	ModuleForContactingTechnicalSupportServiceClient.DownloadInformationToSendToSupport(
+		ThisObject,
+		RequestParameters_);
+	// End StandardSubsystems.ContactingTechnicalSupport
+	
+EndProcedure
+
+&AtClient
+Procedure SetRecommendationText()
+	
+	Recommendations = New Array;
+	
+	Template = NStr("en = 'Сканирование выполняется с помощью %1.'");
+	Recommendation = StringFunctionsClientServer.SubstituteParametersToString(Template, ScannerName);
+	Recommendations.Add(Recommendation);
+	
+	Recommendations.Add("");
+	Recommendations.Add(NStr("en = 'Попробуйте следующие варианты:'"));
+	Recommendations.Add(" • " + NStr("en = 'Проверьте подключение сканера и повторите попытку сканирования.'"));
+	
+	Template = " • " + NStr("en = 'Specify an available scanner in the <a href = ""%1"">scanning settings</a>.'");
+	Recommendation = StringFunctionsClientServer.SubstituteParametersToString(Template, "OpenSettings");
+	Recommendations.Add(Recommendation);
+	
+	If Not ShowScannerDialog And Not CommonClient.IsLinuxClient() Then
+		Recommendation = " • " + NStr("en = 'Switch to the <b>advanced settings</b>.'");
+		Recommendations.Add(Recommendation);
+	EndIf;
+	
+	ImageResolution = PredefinedValue("Enum.ScannedImageResolutions.dpi1200");
+	If ShowScannerDialog Or ResolutionEnum = ImageResolution Then
+		Recommendations.Add(" • " + NStr("en = 'Снизьте разрешение сканирования до <b>600 dpi</b>.'"));
+	EndIf;
+	
+	SystemInfo = New SystemInfo();
+	If SystemInfo.PlatformType = PlatformType.Windows_x86_64 Then
+		Template = " • " + NStr(
+			"en = 'Установите и запустите <a href = ""%1"">тонкий клиент 1С:Предприятия для Windows (32-bit)</a>,
+			|   в котором доступно больше устройств и настроек сканирования.'");
+		Recommendation = StringFunctionsClientServer.SubstituteParametersToString(Template, "Run32BitClient");
+		Recommendations.Add(Recommendation);
+	EndIf;
+	
+	Items.Recommendations.Title = StringFunctionsClient.FormattedString(
+		StrConcat(Recommendations, Chars.LF));
+	
+EndProcedure
+
+&AtClient
+Procedure Run32BitClient()
+	
+#If Not WebClient Then
+	
+	BinDir32 = StrReplace(BinDir(), "\Program Files\", "\Program Files (x86)\");
+	ApplicationName = BinDir32 + "1cv8.exe";
+	AppFile = New File(ApplicationName);
+	If AppFile.Exists() Then 
+		FileSystemClient.StartApplication(ApplicationName);
+	Else
+		SystemInfo = New SystemInfo();
+		FileSystemClient.OpenURL(
+			"https://releases.1c.ru/version_files?nick=Platform83&ver=" + SystemInfo.AppVersion);
+	EndIf;
+	
+#EndIf
+	
+EndProcedure
 
 &AtClient
 Procedure BeforeOpen()
@@ -541,71 +704,71 @@ Procedure TransformCalculationsToParametersAndGetPresentation()
 		If ShouldSaveAsPDF Then
 			PictureFormat = String(ScannedImageFormat);
 			
-			Presentation = Presentation + NStr("en = 'Save as:';") + " ";
+			Presentation = Presentation + NStr("en = 'Save as:'") + " ";
 			Presentation = Presentation + "PDF";
 			Presentation = Presentation + ". ";
-			Presentation = Presentation + NStr("en = 'Scanning format:';") + " ";
+			Presentation = Presentation + NStr("en = 'Scanning format:'") + " ";
 			Presentation = Presentation + PictureFormat;
 			Presentation = Presentation + ". ";
 		Else	
 			PictureFormat = String(ScannedImageFormat);
-			Presentation = Presentation + NStr("en = 'Save as:';") + " ";
+			Presentation = Presentation + NStr("en = 'Save as:'") + " ";
 			Presentation = Presentation + PictureFormat;
 			Presentation = Presentation + ". ";
 		EndIf;
 		
 
 		If Upper(PictureFormat) = "JPG" Then
-			Presentation = Presentation +  NStr("en = 'Quality:';") + " " + String(JPGQuality) + ". ";
+			Presentation = Presentation +  NStr("en = 'Quality:'") + " " + String(JPGQuality) + ". ";
 		EndIf;	
 		
 		If Upper(PictureFormat) = "TIF" Then
-			Presentation = Presentation +  NStr("en = 'Compression:';") + " " + String(TIFFCompressionEnum) + ". ";
+			Presentation = Presentation +  NStr("en = 'Compression:'") + " " + String(TIFFCompressionEnum) + ". ";
 		EndIf;
 		
-		Presentation = Presentation + NStr("en = 'Save as a multipage image:';") + " ";
+		Presentation = Presentation + NStr("en = 'Save as a multipage image:'") + " ";
 		Presentation = Presentation + String(MultipageStorageFormat);
 		Presentation = Presentation + ". ";
 		
 		If Resolution <> -1 Then
 			Presentation = Presentation + StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Resolution: %1 dpi. %2.';") + " ",
+				NStr("en = 'Resolution: %1 dpi. %2.'") + " ",
 				String(Resolution), String(ColorDepthEnum));
 		Else
 			Presentation = Presentation + StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Resolution: Not set. Color scale: %2.';") + " ",
+				NStr("en = 'Resolution: Not set. Color scale: %2.'") + " ",
 				String(ColorDepthEnum));
 		EndIf;
 		
 		If Not RotationEnum.IsEmpty() Then
-			Presentation = Presentation +  NStr("en = 'Rotation:';")+ " " + String(RotationEnum) + ". ";
+			Presentation = Presentation +  NStr("en = 'Rotation:'")+ " " + String(RotationEnum) + ". ";
 		EndIf;	
 		
 		If Not PaperSizeEnum.IsEmpty() Then
-			Presentation = Presentation +  NStr("en = 'Paper size:';") + " " + String(PaperSizeEnum) + ". ";
+			Presentation = Presentation +  NStr("en = 'Paper size:'") + " " + String(PaperSizeEnum) + ". ";
 		EndIf;	
 		
 		If DuplexScanning Then
-			Presentation = Presentation +  NStr("en = 'Scan both sides';") + ". ";
+			Presentation = Presentation +  NStr("en = 'Scan both sides'") + ". ";
 		EndIf;	
 		
 		If DocumentAutoFeeder Then
-			Presentation = Presentation +  NStr("en = 'Autofeed';") + ". ";
+			Presentation = Presentation +  NStr("en = 'Autofeed'") + ". ";
 		EndIf;	
 	Else
 		If ShouldSaveAsPDF Then
 			PictureFormat = String(ScannedImageFormat);
 			
-			Presentation = Presentation + NStr("en = 'Save as:';") + " ";
+			Presentation = Presentation + NStr("en = 'Save as:'") + " ";
 			Presentation = Presentation + "PDF";
 			Presentation = Presentation + ". ";
 		EndIf;
 		
-		Presentation = Presentation + NStr("en = 'Save as a multipage image:';") + " ";
+		Presentation = Presentation + NStr("en = 'Save as a multipage image:'") + " ";
 		Presentation = Presentation + String(MultipageStorageFormat);
 		Presentation = Presentation + ". ";
 		
-		Presentation = Presentation + NStr("en = 'Scan settings are set in the scanner dialog box.';");
+		Presentation = Presentation + NStr("en = 'Scan settings are set in the scanner dialog box.'");
 		
 	EndIf;
 	
@@ -621,7 +784,7 @@ Procedure ExternalEvent(Source, Event, Data)
 #If Not WebClient And Not MobileClient Then
 	If Source = "TWAIN" Then
 		FilesOperationsInternalClient.WriteScanLog("ScannerEvent", 
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Event %1, data %2';"), Event, Data));
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Event %1, data %2'"), Event, Data));
 	EndIf;
 	
 	If Source = "TWAIN" And Event = "ImageAcquired" Then
@@ -666,7 +829,7 @@ Procedure ExternalEvent(Source, Event, Data)
 			GrowingImageNumber = 1;
 		EndIf;
 			
-		TableRow.Presentation = NStr("en = 'Image';") + String(GrowingImageNumber);
+		TableRow.Presentation = NStr("en = 'Image'") + String(GrowingImageNumber);
 		GrowingImageNumber = GrowingImageNumber + 1;
 		
 		If RowsNumberBeforeAdd = 0 Then
@@ -703,12 +866,10 @@ Procedure ExternalEvent(Source, Event, Data)
 			CurrentDate = CurrentDate(); // ACC:143 - "CurrentDate" to calculate the time interval
 			If CurrentDate < StartScanning_ + 3 And TableOfFiles.Count() = 0 Then
 				ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Scanning is canceled (event %1) in %2 sec. See %3';"), Event, 
+					NStr("en = 'Scanning is canceled (event %1) in %2 sec. See %3'"), Event, 
 					CurrentDate - StartScanning_, "ImageScan.log");
 				FilesOperationsInternalClient.WriteScanLog("ScannerEvent" + "." + Event, 
 					ErrorPresentation, True);
-				FilesOperationsInternalClient.ShowScanError(ThisObject, 
-					NStr("en = 'Cannot scan the document';"), ErrorPresentation);
 			Else
 				Context = New Structure;
 				Context.Insert("CloseForm", TableOfFiles.Count() = 0);
@@ -728,7 +889,7 @@ Procedure ExternalEvent(Source, Event, Data)
 	
 #EndIf
 
-EndProcedure  
+EndProcedure
 
 &AtClient
 Procedure AfterErrorDeleted(Result, Context) Export
@@ -756,7 +917,7 @@ Function MessageTextOfTransformToPDFError(ResultFile)
 	
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = '""%1"" doesn''t exist.
-		           |Make sure that your computer has ImageMagick installed and check the scan settings.';"),
+		           |Make sure that your computer has ImageMagick installed and check the scan settings.'"),
 		ResultFile);
 		
 	Return MessageText;
@@ -819,7 +980,7 @@ Procedure SaveAfterMergingCompletion(Context)
 	EndIf;
 	
 	
-	Result.ErrorText = NStr("en = 'Couldn''t save the scanned file.';");
+	Result.ErrorText = NStr("en = 'Couldn''t save the scanned file.'");
 	
 	AcceptCompletion(Result, ExecutionParameters);
 EndProcedure
@@ -982,12 +1143,12 @@ Procedure SaveAsSeparateFilesRecursively(Context)
 			If Context.ErrorsCount = 1 Then
 				WarningText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Couldn''t save the file. Reason:
-						|%1';"),
+						|%1'"),
 					Context.FullTextOfAllErrors);
 			Else
 				WarningText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Couldn''t save some files (%1):
-						|%2';"),
+						|%2'"),
 					String(Context.ErrorsCount), Context.FullTextOfAllErrors);
 			EndIf;
 			StandardSubsystemsClient.ShowQuestionToUser(Undefined, WarningText, QuestionDialogMode.OK);
@@ -1113,7 +1274,7 @@ Procedure DoStartScan()
 	PictureAddress = PutToTempStorage(PictureLib.TimeConsumingOperation48.GetBinaryData(), 
 		UUID);
 #EndIf
-	CommonServerCall.CommonSettingsStorageSave("ScanAddIn", "ScanJobParameters", 
+	CommonClient.CommonSettingsStorageSave("ScanAddIn", "ScanJobParameters", 
 		ScanJobParameters,,,True);
 	FilesOperationsInternalClient.BeginScan(ThisObject, Attachable_Module, ScanningParameters);
 EndProcedure

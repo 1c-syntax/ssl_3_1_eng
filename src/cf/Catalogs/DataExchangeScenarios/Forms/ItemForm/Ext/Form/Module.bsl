@@ -36,7 +36,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Catalogs.DataExchangeScenarios.AddImportToDataExchangeScenarios(Object, InfobaseNode);
 		Catalogs.DataExchangeScenarios.AddExportToDataExchangeScenarios(Object, InfobaseNode);
 		
-		Description = NStr("en = 'Synchronization scenario for %1';");
+		Description = NStr("en = 'Synchronization scenario for %1'");
 		Object.Description = StringFunctionsClientServer.SubstituteParametersToString(Description, String(InfobaseNode));
 		
 		JobSchedule = Catalogs.DataExchangeScenarios.DefaultJobSchedule();
@@ -53,7 +53,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If DataSeparationEnabled Then
 		
 		ToolTipText = NStr("en = 'Minimum interval must be over 15 minutes (900 seconds).
-                              |The exact scenario execution time depends on the application workload.';");
+                              |The exact scenario execution time depends on the application workload.'");
 		
 		Items.ConfigureJobSchedule.ExtendedTooltip.Title = ToolTipText;
 		Items.ConfigureJobSchedule.ToolTipRepresentation = ToolTipRepresentation.ShowBottom;
@@ -157,7 +157,7 @@ Procedure ExchangeSettingsInfobaseNodeChoiceProcessing(Item, ValueSelected, Stan
 	
 	If TypeOf(ValueSelected) = Type("Type") And ExchangeNodesList.FindByValue(ValueSelected) = Undefined Then
 		MessageText = NStr("en = 'Cannot use data of this type in this form.
-			|Please select another data type.';");
+			|Please select another data type.'");
 		Field = StringFunctionsClientServer.SubstituteParametersToString("ExchangeSettings[%1].InfobaseNode", Items.ScheduleComposition.CurrentData.LineNumber-1);
 		CommonClient.MessageToUser(MessageText, , Field, "Object");
 		StandardProcessing = False;
@@ -292,7 +292,7 @@ Procedure EditScheduledJobScheduleCompletion(Schedule, AdditionalParameters) Exp
 			And Schedule.RepeatPeriodInDay < 15 * 60 Then
 			
 			Schedule.RepeatPeriodInDay = 15 * 60;
-			WarningText = NStr("en = 'Minimum interval must be over 15 minutes (900 seconds).';");
+			WarningText = NStr("en = 'Minimum interval must be over 15 minutes (900 seconds).'");
 			ShowMessageBox(, WarningText);
 			
 		EndIf;
@@ -311,7 +311,7 @@ Procedure RefreshSchedulePresentation()
 	
 	If SchedulePresentation = String(New JobSchedule) Then
 		
-		SchedulePresentation = NStr("en = 'No schedule';");
+		SchedulePresentation = NStr("en = 'No schedule'");
 		
 	EndIf;
 	
@@ -332,7 +332,7 @@ Procedure ExecuteDataExchangeAtClient()
 	If NumberOfRowToProcess > RowsCount Then // Exit from the recursion.
 		
 		OutputState = (RowsCount > 1);
-		Status(NStr("en = 'Data is synchronized.';"), ?(OutputState, 100, Undefined));
+		Status(NStr("en = 'Data is synchronized.'"), ?(OutputState, 100, Undefined));
 		
 		Items.ScheduleComposition.ReadOnly = False;
 		
@@ -346,9 +346,9 @@ Procedure ExecuteDataExchangeAtClient()
 	
 	MessageString = "";
 	If CurrentData.CurrentAction = PredefinedValue("Enum.ActionsOnExchange.DataImport") Then
-		MessageString = NStr("en = 'Receiving data from %1.';");
+		MessageString = NStr("en = 'Receiving data from %1.'");
 	ElsIf CurrentData.CurrentAction = PredefinedValue("Enum.ActionsOnExchange.DataExport") Then
-		MessageString = NStr("en = 'Sending data to %1.';");
+		MessageString = NStr("en = 'Sending data to %1.'");
 	EndIf;
 	
 	MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, 
@@ -522,9 +522,9 @@ Procedure ValidateExchangeSettingInService(Cancel)
 			While Selection.Next() Do
 				
 				If Selection.MissingAction = 1 Then
-					MessageTemplate = NStr("en = 'An action to send data is missing for infobase ""%1""';");
+					MessageTemplate = NStr("en = 'An action to send data is missing for infobase ""%1""'");
 				Else
-					MessageTemplate = NStr("en = 'An action to receive data is missing for infobase ""%1""';");
+					MessageTemplate = NStr("en = 'An action to receive data is missing for infobase ""%1""'");
 				EndIf;
 				
 				MessageText = StrTemplate(MessageTemplate, Selection.InfobaseNode);

@@ -131,7 +131,7 @@ Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
 	Comment = StrConcat(CommentLines, Chars.LF) + Chars.LF;
 	
 	WriteLogEvent(
-		NStr("en = 'Period-end closing dates.Change registration';",
+		NStr("en = 'Period-end closing dates.Change registration'",
 			Common.DefaultLanguageCode()),
 		EventLogLevel.Information, RegisterMetadata,
 		,
@@ -183,5 +183,5 @@ EndProcedure
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

@@ -17,7 +17,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Ref = Parameters.Ref;
 	
-	Items.NoVersions.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Earlier versions are not available: %1.';"), String(Ref));
+	Items.NoVersions.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Earlier versions are not available: %1.'"), String(Ref));
 	RefreshVersionList();
 	
 	GoToVersionAllowed = Users.IsFullUser() And Not ReadOnly;
@@ -25,8 +25,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.VersionsTreeContextMenuRestoreVersion.Visible = GoToVersionAllowed;
 	Items.TechnicalInfoAboutObjectChanges.Visible = GoToVersionAllowed;
 	
-	Attributes = NStr("en = 'All';");
-	Title = NStr("en = 'Change history:';") + " " + Ref;
+	Attributes = NStr("en = 'All'");
+	Title = NStr("en = 'Change history:'") + " " + Ref;
 	
 EndProcedure
 
@@ -111,7 +111,7 @@ Procedure GenerateReportOnChanges(Command)
 	VersionsToCompare = GenerateSelectedVersionList(SelectedRows);
 	
 	If VersionsToCompare.Count() < 2 Then
-		ShowMessageBox(, NStr("en = 'To generate a delta report, select at least two versions.';"));
+		ShowMessageBox(, NStr("en = 'To generate a delta report, select at least two versions.'"));
 		Return;
 	EndIf;
 	
@@ -216,12 +216,12 @@ Procedure GoToSelectedVersion(CancelPosting = False)
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot restore the document version. Reason:
 				|%1
-				|Do you want to unpost the document and restore the version?';"),
+				|Do you want to unpost the document and restore the version?'"),
 			ErrorMessageText);
 			
 		NotifyDescription = New CallbackDescription("GoToSelectedVersionQuestionAsked", ThisObject);
 		Buttons = New ValueList;
-		Buttons.Add("GoTo", NStr("en = 'Yes';"));
+		Buttons.Add("GoTo", NStr("en = 'Yes'"));
 		Buttons.Add(DialogReturnCode.Cancel);
 		ShowQueryBox(NotifyDescription, QueryText, Buttons);
 	Else //Result = "RestoringComplete"
@@ -234,7 +234,7 @@ Procedure GoToSelectedVersion(CancelPosting = False)
 			EndTry;
 		EndIf;
 		ShowUserNotification(
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Version #%1 is restored.';"), VersionNumberPresentation),
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Version #%1 is restored.'"), VersionNumberPresentation),
 			GetURL(Ref),
 			String(Ref),
 			PictureLib.DialogInformation);
@@ -607,7 +607,7 @@ EndProcedure
 
 &AtServer
 Function ThisInfobaseName()
-	Return NStr("en = 'This application';");
+	Return NStr("en = 'This application'");
 EndFunction
 
 #EndRegion

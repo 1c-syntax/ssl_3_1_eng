@@ -71,7 +71,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	If Processed = 0 And RecordsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Procedure %1 failed to process and skipped %2 records.';"), 
+			NStr("en = 'Procedure %1 failed to process and skipped %2 records.'"), 
 			ProcedureName,
 			RecordsWithIssuesCount);
 		Raise MessageText;
@@ -81,7 +81,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		InfobaseUpdate.EventLogEvent(), 
 		EventLogLevel.Information, , ,
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Procedure %1 processed yet another batch of records: %2.';"),
+			NStr("en = 'Procedure %1 processed yet another batch of records: %2.'"),
 			ProcedureName,
 			Processed));
 	Parameters.ProcessingCompleted = ProcessingCompleted;

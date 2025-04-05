@@ -45,7 +45,7 @@ Function SubsystemsDetails() Export
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'An error occurred when preparing subsystem details:
 				           |subsystem details (see the procedure %1.%2)
-				           |contain subsystem name ""%3"", which already exists.';"),
+				           |contain subsystem name ""%3"", which already exists.'"),
 				ModuleName, "OnAddSubsystem", LongDesc.Name);
 			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndIf;
@@ -79,7 +79,7 @@ Function SubsystemsDetails() Export
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Error when preparing subsystem details:
 				           |version ""%2"" of configuration ""%1""(see procedure %3.%4)
-				           |does not match the configuration version in the metadata: ""%5"".';"),
+				           |does not match the configuration version in the metadata: ""%5"".'"),
 				LongDesc.Name,
 				LongDesc.Version,
 				LongDesc.MainServerModule,
@@ -89,13 +89,13 @@ Function SubsystemsDetails() Export
 		EndIf;
 	ElsIf Metadata.Name = "StandardSubsystemsLibrary" Then
 		ErrorText = NStr("en = 'The 1C:Standard Subsystems Library distribution file is not intended for template-based infobase creation.
-			|Before you start using it,  read the <link https://kb.1ci.com/1C_Standard_Subsystems_Library/Guides/>SSL documentation</>.';");
+			|Before you start using it,  read the <link https://kb.1ci.com/1C_Standard_Subsystems_Library/Guides/>SSL documentation</>.'");
 		Raise ErrorText;
 	Else
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'An error occurred when preparing subsystem details:
 			           |subsystem details matching configuration name ""%2"" 
-			           |do not exist in common modules specified in procedure %1.';"),
+			           |do not exist in common modules specified in procedure %1.'"),
 			"ConfigurationSubsystemsOverridable.OnAddSubsystem", Metadata.Name);
 		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
@@ -109,7 +109,7 @@ Function SubsystemsDetails() Export
 			EndDo;
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot prepare subsystem descriptions.
-				           |Subsystem ""%1"" does not exist. It is required for the following subsystems: %2.';"),
+				           |Subsystem ""%1"" does not exist. It is required for the following subsystems: %2.'"),
 				KeyAndValue.Key,
 				DependentSubsystems);
 			Raise(ErrorText, ErrorCategory.ConfigurationError);
@@ -198,7 +198,7 @@ Function DisableMetadataObjectsIDs() Export
 			           |- %1,
 			           |- %2,
 			           |- %3,
-			           |- %4.';"),
+			           |- %4.'"),
 			"ReportsOptions", "AdditionalReportsAndDataProcessors", "ReportMailing", "AccessManagement");
 		Raise(ExceptionText, ErrorCategory.ConfigurationError);
 	EndIf;
@@ -293,7 +293,7 @@ Function DIBNodes(FilterByPurpose = "") Export
 		|	NOT ExchangePlan.ThisNode
 		|	AND NOT ExchangePlan.DeletionMark";
 		Query.Text = StrReplace(Query.Text, "&ExchangePlanName", "ExchangePlan" + "." + ExchangePlanName);
-		// @skip-check query-in-loop - Set of reference from tables.
+		// @skip-check query-in-loop - выборка ссылок из разных таблиц.
 		NodesSelection = Query.Execute().Select();
 		While NodesSelection.Next() Do
 			NodesList.Add(NodesSelection.Ref);
@@ -934,12 +934,18 @@ Function AreReplacementModesAvailable(IsIncludingUpdate = False)
 	SystemInfo = New SystemInfo;
 	Version = SystemInfo.AppVersion;
 	
-	If CommonClientServer.CompareVersions(Version, "8.3.25.1336") < 0 Then
+	If CommonClientServer.CompareVersions(Version, "8.3.26.1398") < 0 Then
 		Return False;
 	EndIf;
 	
-	If IsIncludingUpdate
-	   And CommonClientServer.CompareVersions(Version, "8.3.26.1398") < 0 Then
+	If Not Common.DataSeparationEnabled() Then
+		Return True;
+	EndIf;
+	
+	If CommonClientServer.CompareVersions(Version, "8.3.26.0") > 0
+	   And CommonClientServer.CompareVersions(Version, "8.3.26.1540") < 0
+	 Or CommonClientServer.CompareVersions(Version, "8.3.27.0") > 0
+	   And CommonClientServer.CompareVersions(Version, "8.3.27.1483") < 0 Then
 		Return False;
 	EndIf;
 	

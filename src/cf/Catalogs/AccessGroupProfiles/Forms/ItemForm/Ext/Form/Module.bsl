@@ -228,18 +228,18 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 			If String.IsNonExistingRole Then
 				CommonClientServer.AddUserError(Errors,
 					"Roles[%1].RolesSynonym",
-					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Role ""%1"" is not found in the metadata.';"), String.Synonym),
+					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Role ""%1"" is not found in the metadata.'"), String.Synonym),
 					"Roles",
 					TreeItems.IndexOf(String),
-					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Role ""%1"" in line #%2 is not found in the metadata.';"), String.Synonym, "%1"));
+					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Role ""%1"" in line #%2 is not found in the metadata.'"), String.Synonym, "%1"));
 			EndIf;
 			If String.IsUnavailableRole Then
 				CommonClientServer.AddUserError(Errors,
 					"Roles[%1].RolesSynonym",
-					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Role ""%1"" is not available for profile assignment.';"), String.Synonym),
+					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Role ""%1"" is not available for profile assignment.'"), String.Synonym),
 					"Roles",
 					TreeItems.IndexOf(String),
-					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Role ""%1"" in line #%2 is not available for profile assignment.';"), String.Synonym, "%1"));
+					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Role ""%1"" in line #%2 is not available for profile assignment.'"), String.Synonym, "%1"));
 			EndIf;
 		EndDo;
 	EndIf;
@@ -433,7 +433,7 @@ EndProcedure
 #Region FormTableItemsEventHandlersRoles
 
 ////////////////////////////////////////////////////////////////////////////////
-// Для работы интерфейса ролей.
+// 
 
 &AtClient
 Procedure RolesCheckOnChange(Item)
@@ -450,7 +450,7 @@ Procedure RolesCheckOnChange(Item)
 		
 	ElsIf StandardExtensionRoles.Get(TableRow.Name) <> Undefined Then
 		TableRow.Check = Not TableRow.Check;
-		ShowMessageBox(, NStr("en = '1C:Enterprise automatically deletes extensions'' standard roles.';"));
+		ShowMessageBox(, NStr("en = '1C:Enterprise automatically deletes extensions'' standard roles.'"));
 	Else
 		ProcessRolesInterface("UpdateRoleComposition");
 	EndIf;
@@ -486,7 +486,7 @@ Procedure RestoreByInitialFilling(Command)
 	
 	ShowQueryBox(
 		New CallbackDescription("RestoreByInitialFillingFollowUp", ThisObject),
-		NStr("en = 'Do you want to restore the profile to the initial settings?';"),
+		NStr("en = 'Do you want to restore the profile to the initial settings?'"),
 		QuestionDialogMode.YesNo);
 	
 EndProcedure
@@ -535,7 +535,7 @@ EndProcedure
 &AtClient
 Procedure SelectPurpose(Command)
 	NotifyDescription = New CallbackDescription("AfterAssignmentChoice", ThisObject);
-	UsersInternalClient.SelectPurpose(ThisObject, NStr("en = 'Select access group profile assignment';"),,, NotifyDescription);
+	UsersInternalClient.SelectPurpose(ThisObject, NStr("en = 'Select access group profile assignment'"),,, NotifyDescription);
 EndProcedure
 
 &AtClient
@@ -627,14 +627,14 @@ Procedure RestoreByInitialFillingCompletion(Response, Context) Export
 	If UpdateAccessGroups Then
 		Text =
 			NStr("en = 'Profile ""%1"" has been restored.
-			           |The access groups are updated.';");
+			           |The access groups are updated.'");
 	Else
 		Text =
 			NStr("en = 'Profile ""%1"" has been restored.
-			           |The access groups are not updated.';");
+			           |The access groups are not updated.'");
 	EndIf;
 	
-	ShowUserNotification(NStr("en = 'Profile restored';"),
+	ShowUserNotification(NStr("en = 'Profile restored'"),
 		GetURL(Object.Ref),
 		StringFunctionsClientServer.SubstituteParametersToString(Text, Object.Description));
 	
@@ -697,7 +697,7 @@ Function QuestionTextUpdateProfileAccessGroups()
 		NStr("en = 'Do you want to update the access groups that use the profile?
 		           |
 		           |Irrelevant access kinds will be deleted and
-		           |the missing access kinds will be added.';");
+		           |the missing access kinds will be added.'");
 		
 EndFunction
 

@@ -256,7 +256,7 @@ Procedure FillCheckProcessing(Form, Cancel, CheckedAttributes, Object = Undefine
 			
 			If Not ValueIsFilled(Form[LongDesc.ValueAttributeName]) Then
 				Common.MessageToUser(
-					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The ""%1"" field is required.';"), LongDesc.Description),
+					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The ""%1"" field is required.'"), LongDesc.Description),
 					,
 					LongDesc.ValueAttributeName,
 					,
@@ -457,12 +457,12 @@ Procedure OnGetDataAtServer(Settings, Rows, OwnerName = Undefined) Export
 	LabelsAttributes = Common.ObjectsAttributesValues(Labels, "PropertyColor, DeletionMark");
 	
 	For Each ListLine In Rows Do
-		Composite = ListLine.Key;
-		RowData = Rows.Get(Composite);
+		RowKey = ListLine.Key;
+		RowData = Rows.Get(RowKey);
 		If OwnerName <> Undefined Then
-			Owner = Composite[OwnerName];
+			Owner = RowKey[OwnerName];
 		Else
-			Owner = Composite;
+			Owner = RowKey;
 		EndIf;
 		If Not ValueIsFilled(Owner) Then
 			Continue;
@@ -492,14 +492,14 @@ EndProcedure
 
 #Region ProceduresAndFunctionsToManagePropertiesProgrammatically
 
-// 
+// Adds an additional attribute, information record, or label to the passed object or property set.
 //
 // Parameters:
 //  Owner - MetadataObject
 //           - String - a full name of a metadata object or a property set name.
-//           - CatalogRef.AdditionalAttributesAndInfoSets - 
+//           - CatalogRef.AdditionalAttributesAndInfoSets - Property set.
 //  Parameters - See PropertyAdditionParameters.
-//  PropertyKind1 - EnumRef.PropertiesKinds -  
+//  PropertyKind1 - EnumRef.PropertiesKinds - Type of the property being added. 
 //              - Boolean - for backward compatibility.
 // 
 // Returns:
@@ -530,7 +530,7 @@ Function AddProperty(Val Owner, Val Parameters, Val PropertyKind1 = Undefined) E
 			EndTry;
 		EndIf;
 		If PropertiesSet = Undefined Then
-			ExceptionText = NStr("en = 'The passed ""%1"" object is not connected to the Properties subsystem.';");
+			ExceptionText = NStr("en = 'The passed ""%1"" object is not connected to the Properties subsystem.'");
 			Raise StringFunctionsClientServer.SubstituteParametersToString(ExceptionText, Owner);
 		EndIf;
 	EndIf;
@@ -553,7 +553,7 @@ Function AddProperty(Val Owner, Val Parameters, Val PropertyKind1 = Undefined) E
 	
 	If TypeOf(PropertyKind1) = Type("Boolean") Or PropertyKind1 = Undefined Then
 		PropertyKind1 = ?(PropertyKind1 = True, Enums.PropertiesKinds.AdditionalInfo,
-			Enums.PropertiesKinds.AdditionalAttributes); // Для обратной совместимости
+			Enums.PropertiesKinds.AdditionalAttributes); // For backward compatibility purposes.
 	ElsIf PropertyKind1 = Enums.PropertiesKinds.Labels 
 		And (Not ValueIsFilled(PropertyAdditionParameters.PropertyColor)) Then
 		BlankParameters.Add("PropertyColor");
@@ -564,7 +564,7 @@ Function AddProperty(Val Owner, Val Parameters, Val PropertyKind1 = Undefined) E
 		BlankParameters = StrConcat(BlankParameters, ", ");
 		ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Required properties are not set in parameter %1 when calling %2:
-				|%3.';"), "Parameters", "PropertyManager.AddProperty", BlankParameters);
+				|%3.'"), "Parameters", "PropertyManager.AddProperty", BlankParameters);
 		Raise(ExceptionText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
@@ -681,7 +681,7 @@ Function AddPropertyValue(Val Owner, Parameters, Hierarchy = False) Export
 	
 	If Not Parameters.Property("Description")
 		Or Not ValueIsFilled(Parameters.Description) Then
-		Raise NStr("en = 'The required ""Description"" parameter is not specified.';");
+		Raise NStr("en = 'The required ""Description"" parameter is not specified.'");
 	EndIf;
 	
 	If TypeOf(Owner) = Type("String") Then
@@ -696,7 +696,7 @@ Function AddPropertyValue(Val Owner, Parameters, Hierarchy = False) Export
 			|	AdditionalAttributesAndInfo.Name = &Name";
 		Result = Query.Execute().Unload();
 		If Result.Count() = 0 Then
-			ExceptionPattern = NStr("en = 'An additional attribute with the ""%1"" name is not found.';");
+			ExceptionPattern = NStr("en = 'An additional attribute with the ""%1"" name is not found.'");
 			Raise StringFunctionsClientServer.SubstituteParametersToString(ExceptionPattern, Owner);
 		EndIf;
 		
@@ -706,7 +706,7 @@ Function AddPropertyValue(Val Owner, Parameters, Hierarchy = False) Export
 	AttributeType = Common.ObjectAttributeValue(Owner, "ValueType");
 	If Not PropertyManagerInternal.ValueTypeContainsPropertyValues(AttributeType) Then
 		ExceptionPattern = NStr("en = 'You can add values only for additional attributes
-			|with the ""%1"" or ""%2"" types. The current attribute value type is ""%3""';");
+			|with the ""%1"" or ""%2"" types. The current attribute value type is ""%3""'");
 		ExceptionPattern = StrReplace(ExceptionPattern, Chars.LF, " ");
 		Raise StringFunctionsClientServer.SubstituteParametersToString(ExceptionPattern,
 			Type("CatalogRef.ObjectsPropertiesValues"),
@@ -752,7 +752,7 @@ EndFunction
 //     * IDForFormulas - String
 //     * MultilineInputField - Boolean
 //     * ToolTip              - String
-//     * PropertyColor            - 
+//     * PropertyColor            - "Enum.PropertiesColors". Mandatory for properties with the "Label" type.
 //
 Function PropertyAdditionParameters() Export
 	
@@ -1005,7 +1005,7 @@ Procedure FillAdditionalAttributesInForm(Form, Object = Undefined, LabelsFields 
 				Value = PropertyDetails.ValueType.AdjustValue(PropertyDetails.Value);
 				StringValue2 = StringFunctions.FormattedString(Value);
 			Else
-				Value = NStr("en = 'not set';");
+				Value = NStr("en = 'not set'");
 				EditLink1 = "NotDefined";
 				StringValue2 = New FormattedString(Value,, StyleColors.EmptyHyperlinkColor,, EditLink1);
 			EndIf;
@@ -1030,7 +1030,7 @@ Procedure FillAdditionalAttributesInForm(Form, Object = Undefined, LabelsFields 
 				If SetDetails = Undefined Then
 					SetDetails = ObjectPropertySets.Add();
 					SetDetails.Set     = PropertyDetails.Set;
-					SetDetails.Title = NStr("en = 'Deleted attributes';")
+					SetDetails.Title = NStr("en = 'Deleted attributes'")
 				EndIf;
 				
 				If Not ValueIsFilled(SetDetails.Title) Then
@@ -1086,7 +1086,7 @@ Procedure FillAdditionalAttributesInForm(Form, Object = Undefined, LabelsFields 
 					Type("FormButton"),
 					HyperlinkGroup);
 				
-				ButtonTitle = NStr("en = 'Start/finish editing of attribute %1';");
+				ButtonTitle = NStr("en = 'Start/finish editing of attribute %1'");
 				Button.Title = StringFunctionsClientServer.SubstituteParametersToString(ButtonTitle, PropertyDetails.Description);
 				Button.LocationInCommandBar = ButtonLocationInCommandBar.InAdditionalSubmenu;
 				Button.CommandName = "EditAttributeHyperlink";
@@ -1718,9 +1718,9 @@ Procedure WriteObjectProperties(PropertiesOwner, PropertyAndValueTable) Export
 	
 EndProcedure
 
-// 
-// 
-// 
+// Adds additional attributes and labels to the specified "Owner" object.
+// This is suitable when properties need to be set for a new, unwritten object.
+// An exception will be raised if an attempt is made to add additional information records.
 //
 // Parameters:
 //  Owner - CatalogObjectCatalogName
@@ -1731,8 +1731,8 @@ EndProcedure
 //           - ChartOfCalculationTypesObject
 //           - ChartOfAccountsObject
 //  Properties - Array of Map:
-//     * Key - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - 
-//     * Value - Arbitrary -  
+//     * Key - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - Property to set.
+//     * Value - Arbitrary - New property value. 
 //
 Procedure SetPropertiesForObject(Owner, Properties) Export
 	
@@ -1750,7 +1750,7 @@ Procedure SetPropertiesForObject(Owner, Properties) Export
 	For Each KeyValueProperty In Properties Do
 		If PropertyTypesInfoItem[KeyValueProperty.Key] = True Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid value for parameter %1 in procedure %2. Only additional attributes can be set.';"),
+			NStr("en = 'Invalid value for parameter %1 in procedure %2. Only additional attributes can be set.'"),
 			"Properties",
 			"PropertyManager.SetPropertiesForObject");
 			Raise(ErrorText, ErrorCategory.ConfigurationError);
@@ -1967,7 +1967,7 @@ Procedure FillObjectLabels(Form, Object = Undefined, ArbitraryObject = False) Ex
 		NewItem.Hyperlink = True;
 		NewItem.Picture = PictureLib.EditLabels;
 		NewItem.SetAction("Click", "Attachable_PropertiesExecuteCommand");
-		NewItem.ToolTip = NStr("en = 'Edit labels';");
+		NewItem.ToolTip = NStr("en = 'Edit labels'");
 	EndIf;
 	
 	Labels = PropertiesByAdditionalAttributesKind(
@@ -2055,8 +2055,8 @@ Procedure FillObjectLabels(Form, Object = Undefined, ArbitraryObject = False) Ex
 		NewItem.Hyperlink = True;
 		NewItem.SetAction("Click", "Attachable_PropertiesExecuteCommand"); 
 		NewItem.Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'and %1 more';"), LabelsToHideCount);
-		NewItem.ToolTip = NStr("en = 'Other labels';");
+			NStr("en = 'and %1 more'"), LabelsToHideCount);
+		NewItem.ToolTip = NStr("en = 'Other labels'");
 	EndIf;
 	
 	If ArbitraryObject Or LabelsShownCount <> 0 Then
@@ -2658,9 +2658,9 @@ Procedure NewMainFormObjects(Form, Context, CreateAdditionalAttributesDetails)
 			If AccessRight("Update", Metadata.Catalogs.AdditionalAttributesAndInfoSets) Then
 				// Add a command.
 				Command = Form.Commands.Add("EditAdditionalAttributesComposition");
-				Command.Title = NStr("en = 'Edit additional attributes';");
+				Command.Title = NStr("en = 'Edit additional attributes'");
 				Command.Action = "Attachable_PropertiesExecuteCommand";
-				Command.ToolTip = NStr("en = 'Edit additional attributes';");
+				Command.ToolTip = NStr("en = 'Edit additional attributes'");
 				Command.Picture = PictureLib.ListSettings;
 				
 				Button = Form.Items.Add(
@@ -2675,9 +2675,9 @@ Procedure NewMainFormObjects(Form, Context, CreateAdditionalAttributesDetails)
 			EndIf;
 			
 			Command = Form.Commands.Add("EditAttributeHyperlink");
-			Command.Title   = NStr("en = 'Start/finish editing';");
+			Command.Title   = NStr("en = 'Start/finish editing'");
 			Command.Action    = "Attachable_PropertiesExecuteCommand";
-			Command.ToolTip   = NStr("en = 'Start/finish editing';");
+			Command.ToolTip   = NStr("en = 'Start/finish editing'");
 			Command.Picture    = PictureLib.Change;
 			Command.Representation = ButtonRepresentation.Picture;
 		EndIf;
@@ -2773,12 +2773,12 @@ Procedure PrepareFormForDeferredInitialization(Form, ItemForPlacementName, Index
 		PageHeader = ?(ValueIsFilled(Parent.Title), Parent.Title, Parent.Name);
 		PageGroupHeader1 = ?(ValueIsFilled(PagesGroup.Title), PagesGroup.Title, PagesGroup.Name);
 		
-		PlacementWarning = NStr("en = 'To show additional attributes, display the ""%1"" group under any other item in the ""%2"" group. To do so, click More — Change form.';");
+		PlacementWarning = NStr("en = 'To show additional attributes, display the ""%1"" group under any other item in the ""%2"" group. To do so, click More — Change form.'");
 		PlacementWarning = StringFunctionsClientServer.SubstituteParametersToString(PlacementWarning,
 			PageHeader, PageGroupHeader1);
 		ToolTipText = NStr("en = 'To restore a form to the default settings, do the following:
 			| • Select More — Change form.
-			| • In the Customize form window that opens, select More actions — Restore default settings.';");
+			| • In the Customize form window that opens, select More actions — Restore default settings.'");
 			
 		Decoration.ToolTipRepresentation = ToolTipRepresentation.Button;
 		Decoration.Title  = PlacementWarning;

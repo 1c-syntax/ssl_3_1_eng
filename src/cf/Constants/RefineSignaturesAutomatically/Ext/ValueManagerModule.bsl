@@ -22,7 +22,7 @@ Procedure OnWrite(Cancel)
 		ErrorText = NStr("en = 'Incorrect constant value: %1. Possible values:
 			|0 - do not enhance signatures automatically and do not display commands for manual processing in the interface.
 			|1 - enhance signatures using a scheduled job.
-			|2 - enhance signatures manually (display commands in the administrator interface and in the to-do list)';");
+			|2 - enhance signatures manually (display commands in the administrator interface and in the to-do list)'");
 		Raise StringFunctionsClientServer.SubstituteParametersToString(ErrorText, Value);
 	EndIf;
 	
@@ -33,5 +33,5 @@ EndProcedure
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

@@ -93,7 +93,7 @@ Function FillCheckProcessingAtServer()
 		ExecuteJob = ThisObject[PathFlag.Key.DataPath];
 		PathItem = PathFlag.Value;
 		If ExecuteJob And IsBlankString(TrimAll(ThisObject[PathItem.DataPath])) Then
-			TheMessageText = NStr("en = 'Field %1 is required';");
+			TheMessageText = NStr("en = 'Field %1 is required'");
 			TheMessageText = StrReplace(TheMessageText, "%1", PathItem.Title);
 			PerformanceMonitorInternal.MessageToUser(
 				TheMessageText,
@@ -148,7 +148,7 @@ Procedure FTPExportDirectoryOnChange(Item)
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////
-// ОБРАБОТЧИКИ КОМАНД
+// 
 
 &AtClient
 Procedure SetExportSchedule(Command)
@@ -172,7 +172,7 @@ Procedure SelectExportDirectorySuggested(FileSystemExtensionAttached1, Additiona
 		
 		SelectingFile = New FileDialog(FileDialogMode.ChooseDirectory);
 		SelectingFile.Multiselect = False;
-		SelectingFile.Title = NStr("en = 'Select an export directory';");
+		SelectingFile.Title = NStr("en = 'Select an export directory'");
 		
 		NotifyDescription = New CallbackDescription("DirectorySelectionDialogBoxCompletion", ThisObject, Undefined);
 		If SSLAvailable Then 

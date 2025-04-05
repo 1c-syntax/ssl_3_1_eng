@@ -141,25 +141,25 @@ Function GetQuestionnaireTreeRowsPresentation(TreeRow)
 	If TypeOf(TreeRow.QuestionnaireSurvey) = Type("DocumentRef.PollPurpose") Then
 		If ValueIsFilled(TreeRow.EndDate) Then
 			Return StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '""%1"" must be filled out by %2';"),
+				NStr("en = '""%1"" must be filled out by %2'"),
 				TreeRow.Description, Format(BegOfDay(EndOfDay(TreeRow.EndDate) + 1), "DLF=D"));
 		Else	
 			Return StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '""%1""';"), TreeRow.Description);
+				NStr("en = '""%1""'"), TreeRow.Description);
 		EndIf;
 	ElsIf TypeOf(TreeRow.QuestionnaireSurvey) = Type("DocumentRef.Questionnaire") Then
 		If ValueIsFilled(TreeRow.QuestionnaireDate) And ValueIsFilled(TreeRow.EndDate) Then
 			Return StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '""%1"" was last edited on %2 and must be filled out by %3';"), 
+				NStr("en = '""%1"" was last edited on %2 and must be filled out by %3'"), 
 				TreeRow.Description, Format(TreeRow.QuestionnaireDate, "DLF=D"),
 				Format(BegOfDay(EndOfDay(TreeRow.EndDate) + 1), "DLF=D"));
 		ElsIf ValueIsFilled(TreeRow.QuestionnaireDate) Then
 			Return StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '""%1"" was last edited on %2';"), 
+				NStr("en = '""%1"" was last edited on %2'"), 
 				TreeRow.Description, Format(TreeRow.QuestionnaireDate, "DLF=D"));
 		Else
 			Return StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '""%1""';"), TreeRow.Description);
+				NStr("en = '""%1""'"), TreeRow.Description);
 		EndIf;
 	EndIf;
 	Return "";

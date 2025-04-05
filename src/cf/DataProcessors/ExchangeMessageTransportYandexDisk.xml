@@ -16,7 +16,7 @@
 			<Synonym>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Exchange message transport Yandex.Disk</v8:content>
+					<v8:content>Транспорт сообщений обмена Яндекс.Диск</v8:content>
 				</v8:item>
 			</Synonym>
 			<Comment/>
@@ -223,7 +223,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Cloud directory</v8:content>
+							<v8:content>Каталог в облаке</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -261,7 +261,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Exchange message archive password</v8:content>
+							<v8:content>Пароль архива сообщения обмена</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -299,7 +299,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Compress outgoing message file</v8:content>
+							<v8:content>Сжимать файл исходящего сообщения</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -333,7 +333,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Transliteration</v8:content>
+							<v8:content>Транслитерация</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>

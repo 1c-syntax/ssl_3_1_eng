@@ -131,7 +131,7 @@ Procedure PropertyValueTableSelection(Item, RowSelected, Field, StandardProcessi
 		Return;
 	EndIf;
 	
-	TitleText = NStr("en = 'Tooltip of the ""%1"" information record';");
+	TitleText = NStr("en = 'Tooltip of the ""%1"" information record'");
 	TitleText = StringFunctionsClientServer.SubstituteParametersToString(TitleText, String.Description);
 	
 	QuestionToUserParameters = StandardSubsystemsClient.QuestionToUserParameters();
@@ -140,7 +140,7 @@ Procedure PropertyValueTableSelection(Item, RowSelected, Field, StandardProcessi
 	QuestionToUserParameters.Picture = PictureLib.DialogInformation;
 	
 	Buttons = New ValueList;
-	Buttons.Add("OK", NStr("en = 'OK';"));
+	Buttons.Add("OK", NStr("en = 'OK'"));
 	StandardSubsystemsClient.ShowQuestionToUser(Undefined, String.ToolTip, Buttons, QuestionToUserParameters);
 	
 EndProcedure
@@ -172,7 +172,7 @@ Procedure ChangeAdditionalDataContent(Command)
 		ShowMessageBox(,
 			NStr("en = 'Cannot get the additional information record sets of the object.
 			           |
-			           |Probably some of the required object attributes are blank.';"));
+			           |Probably some of the required object attributes are blank.'"));
 	Else
 		FormParameters = New Structure;
 		FormParameters.Insert("PropertyKind",

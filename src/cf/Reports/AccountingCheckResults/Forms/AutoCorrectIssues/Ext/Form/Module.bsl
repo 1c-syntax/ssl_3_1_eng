@@ -16,9 +16,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	CheckID = Parameters.CheckID;
 	
 	If CheckID = "StandardSubsystems.CheckCircularRefs1" Then
-		QueryText = NStr("en = 'Fixing the circular references can take a long time. Do you want to fix these?';");
+		QueryText = NStr("en = 'Fixing the circular references can take a long time. Do you want to fix these?'");
 	ElsIf CheckID = "StandardSubsystems.CheckNoPredefinedItems" Then
-		QueryText = NStr("en = 'Create the missing predefined items?';");
+		QueryText = NStr("en = 'Create the missing predefined items?'");
 	EndIf;
 	
 	Items.QuestionLabel.Title = QueryText;
@@ -80,7 +80,7 @@ Function ResolveIssueInBackground(CheckID)
 	SetCurrentPage(ThisObject, "TroubleshootingInProgress");
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Fixing circular references';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Fixing circular references'");
 	
 	Return TimeConsumingOperations.ExecuteInBackground("AccountingAuditInternal.FixInfiniteLoopInBackgroundJob",
 		New Structure("CheckID", CheckID), ExecutionParameters);
@@ -152,7 +152,7 @@ Procedure RestoreMissingPredefinedItems(CheckID)
 			Query.Text = StrReplace(Query.Text,
 				"ISNULL(SpecifiedTableAlias.Parent.PredefinedDataName, """")", """""");
 		EndIf;
-		NameTable = Query.Execute().Unload(); // @skip-check query-in-loop - A multi-table query.
+		NameTable = Query.Execute().Unload(); // @skip-check query-in-loop - запрос к разным таблицам.
 		
 		If NameTable.Count() = 0 Then
 			Continue; // All predefined items are missing, restoration in a regular way.
@@ -185,7 +185,7 @@ Procedure RestoreMissingPredefinedItems(CheckID)
 			|WHERE
 			|	NOT SpecifiedTableAlias.Predefined";
 		Query.Text = StrReplace(Query.Text, "&CurrentTable", FullName);
-		AllNonPredefinedItems = Query.Execute().Unload(); // @skip-check query-in-loop - A multi-table query.
+		AllNonPredefinedItems = Query.Execute().Unload(); // @skip-check query-in-loop - запрос к разным таблицам.
 		AllNonPredefinedItems.Indexes.Add("Description, Parent");
 		
 		If PredefinedItemsInMetadata.Count() > 0 Then

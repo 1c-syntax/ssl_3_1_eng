@@ -31,7 +31,7 @@ Function DatesByCalendar(Val WorkScheduleCalendar, Val DateFrom, Val DaysArray, 
 	
 	If Not ValueIsFilled(WorkScheduleCalendar) Then
 		If RaiseException1 Then
-			Raise NStr("en = 'Work schedule or business calendar is not specified.';");
+			Raise NStr("en = 'Work schedule or business calendar is not specified.'");
 		EndIf;
 		Return Undefined;
 	EndIf;
@@ -83,7 +83,7 @@ Function DatesByCalendar(Val WorkScheduleCalendar, Val DateFrom, Val DaysArray, 
 	If Selection.Count() < ShiftDays.Maximum Then
 		If RaiseException1 Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Business calendar ""%1"" is not filled in for the specified number of workdays after %2.';"), 
+				NStr("en = 'Business calendar ""%1"" is not filled in for the specified number of workdays after %2.'"), 
 				WorkScheduleCalendar, 
 				Format(DateFrom, "DLF=D"));
 		Else
@@ -129,7 +129,7 @@ Function DateByCalendar(Val WorkScheduleCalendar, Val DateFrom, Val DaysCount, R
 	
 	If Not ValueIsFilled(WorkScheduleCalendar) Then
 		If RaiseException1 Then
-			Raise NStr("en = 'Work schedule or business calendar is not specified.';");
+			Raise NStr("en = 'Work schedule or business calendar is not specified.'");
 		EndIf;
 		Return Undefined;
 	EndIf;
@@ -167,7 +167,7 @@ Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate
 
 	If Not ValueIsFilled(WorkScheduleCalendar) Then
 		If RaiseException1 Then
-			Raise NStr("en = 'Business calendar is not specified.';");
+			Raise NStr("en = 'Business calendar is not specified.'");
 		EndIf;
 		Return Undefined;
 	EndIf;
@@ -209,7 +209,7 @@ Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate
 		|	AND CalendarData.Year IN(&Years)";
 	If Query.Execute().Unload().Count() <> Years.Count() Then
 		If RaiseException1 Then
-			ErrorMessage = NStr("en = 'The ""%1"" work schedule is blank for period: %2.';");
+			ErrorMessage = NStr("en = 'The ""%1"" work schedule is blank for period: %2.'");
 			Raise StringFunctionsClientServer.SubstituteParametersToString(ErrorMessage, WorkScheduleCalendar, PeriodPresentation(StartDate, EndOfDay(EndDate)));
 		Else
 			Return Undefined;
@@ -314,7 +314,7 @@ Function NearestWorkDates(BusinessCalendar, InitialDates, ReceivingParameters = 
 
 	CommonClientServer.Validate(
 		ValueIsFilled(BusinessCalendar), 
-		NStr("en = 'The schedule or business calendar is not specified.';"), 
+		NStr("en = 'The schedule or business calendar is not specified.'"), 
 		"CalendarSchedules.NearestWorkDates");
 	
 	WorkdaysDates = New Map;
@@ -342,7 +342,7 @@ Function NearestWorkDates(BusinessCalendar, InitialDates, ReceivingParameters = 
 		ElsIf ReceivingParameters.RaiseException1 Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot determine the workday nearest to %1. 
-					 |The work schedule might be blank.';"), 
+					 |The work schedule might be blank.'"), 
 				Format(Selection.Date, "DLF=D"));
 		EndIf;
 		
@@ -375,7 +375,7 @@ Function WorkSchedulesForPeriod(Schedules, StartDate, EndDate) Export
 		Return ModuleWorkSchedules.WorkSchedulesForPeriod(Schedules, StartDate, EndDate);
 	EndIf;
 	
-	Raise NStr("en = 'The ""Work schedules"" subsystem is not found.';");
+	Raise NStr("en = 'The ""Work schedules"" subsystem is not found.'");
 	
 EndFunction
 
@@ -397,7 +397,7 @@ Procedure CreateTTWorkSchedulesForPeriod(TempTablesManager, Schedules, StartDate
 		Return;
 	EndIf;
 	
-	Raise NStr("en = 'The ""Work schedules"" subsystem is not found.';");
+	Raise NStr("en = 'The ""Work schedules"" subsystem is not found.'");
 	
 EndProcedure
 
@@ -492,7 +492,7 @@ Procedure OnAddClassifiers(Classifiers) Export
 	EndIf;
 	
 	LongDesc.Id = ClassifierID();
-	LongDesc.Description = NStr("en = 'Calendars';");
+	LongDesc.Description = NStr("en = 'Calendars'");
 	LongDesc.AutoUpdate = True;
 	LongDesc.SharedData = True;
 	LongDesc.SharedDataProcessing = True;
@@ -955,9 +955,9 @@ EndFunction
 Procedure CheckItemStart(Val XMLReader, Val Name)
 	
 	If XMLReader.NodeType <> XMLNodeType.StartElement Or XMLReader.Name <> Name Then
-		EventName = NStr("en = 'Calendar schedules.Process classifier file';", Common.DefaultLanguageCode());
+		EventName = NStr("en = 'Calendar schedules.Process classifier file'", Common.DefaultLanguageCode());
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid data file format. Start of ""%1"" element is expected.';"), 
+			NStr("en = 'Invalid data file format. Start of ""%1"" element is expected.'"), 
 			Name);
 		WriteLogEvent(EventName, EventLogLevel.Error, , , MessageText);
 		Raise MessageText;
@@ -968,9 +968,9 @@ EndProcedure
 Procedure CheckItemEnd(Val XMLReader, Val Name)
 	
 	If XMLReader.NodeType <> XMLNodeType.EndElement Or XMLReader.Name <> Name Then
-		EventName = NStr("en = 'Calendar schedules.Process classifier file';", Common.DefaultLanguageCode());
+		EventName = NStr("en = 'Calendar schedules.Process classifier file'", Common.DefaultLanguageCode());
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid data file format. End of the ""%1"" element is expected.';"), 
+			NStr("en = 'Invalid data file format. End of the ""%1"" element is expected.'"), 
 			Name);
 		WriteLogEvent(EventName, EventLogLevel.Error, , , MessageText);
 		Raise MessageText;
@@ -1230,7 +1230,7 @@ Procedure AddHandlerOfDataDependentOnBusinessCalendars(Handlers)
 	Handler.ObjectsToRead = "InformationRegister.BusinessCalendarData";
 	Handler.CheckProcedure = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
 	Handler.Id = New UUID("b1082291-b482-418f-82ab-3c96e93072cc");
-	Handler.Comment = NStr("en = 'Updates work schedules and other data that depends on business calendars.';");
+	Handler.Comment = NStr("en = 'Updates work schedules and other data that depends on business calendars.'");
 	Handler.ObjectsToChange = StrConcat(ObjectsToChange, ",");
 	FillObjectsToBlockDependentOnBusinessCalendars(Handler);
 	Handler.ExecutionPriorities = InfobaseUpdate.HandlerExecutionPriorities();
@@ -1285,7 +1285,7 @@ Function NonWorkDatesByNonWorkPeriod(NonWorkPeriods, BusinessCalendar)
 			CommonClientServer.Validate(False,
 				StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Invalid item value type in the %1 parameter:
-					           |%2';"), "NonWorkPeriods", TypeOf(NonWorkPeriods[0])),
+					           |%2'"), "NonWorkPeriods", TypeOf(NonWorkPeriods[0])),
 				"CalendarSchedules.NearestWorkDates");
 		EndIf;
 	EndIf;

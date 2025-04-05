@@ -33,7 +33,7 @@ Procedure RemindInSpecifiedTime(Text, Time, SubjectOf = Undefined, Id = Undefine
 	Reminder = UserRemindersServerCall.AttachReminder(
 		Text, Time, , SubjectOf, Id);
 		
-	ShowUserNotification(NStr("en = 'Reminder saved';"),,
+	ShowUserNotification(NStr("en = 'Reminder saved'"),,
 		Reminder.LongDesc, PictureLib.Reminder,
 		UserNotificationStatus.Information, Id);
 		
@@ -117,7 +117,7 @@ Procedure OnChangeReminderSettings(Item, Form) Export
 			ReminderInterval = GetTimeIntervalFromString(Form[Item.Name]);
 			If Form[Item.Name] <> UserRemindersClientServer.EnumPresentationOnOccurrence() Then
 				Form[Item.Name] = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '%1 before';"), TimePresentation(ReminderInterval, , ReminderInterval <> 0));
+					NStr("en = '%1 before'"), TimePresentation(ReminderInterval, , ReminderInterval <> 0));
 			EndIf;
 			SettingsOfReminder.ReminderInterval = ReminderInterval;
 			ToRemind = True;
@@ -134,8 +134,8 @@ EndProcedure
 //   EventName  - String
 //   Parameter    - Structure:
 //    * SourceAttributeName - String - Name of the subject attribute, for which the reminder period is set.
-//    * ReminderInterval - Number - 
-//                                           
+//    * ReminderInterval - Number - The advance notice period before the event to notify the user.
+//                                           The event data is specified in the topic's attribute.
 //    * SubjectOf - AnyRef - Reminder's subject.
 //    * ReminderTimeSettingMethod - EnumRef.ReminderTimeSettingMethods
 //    * ReminderTime - Date

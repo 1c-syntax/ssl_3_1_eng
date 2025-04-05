@@ -28,7 +28,7 @@ Procedure BeforeWrite(Cancel, Replacing)
 			Continue;
 		EndIf;
 		If DigitalSignatureInternalClientServer.RevocationListProperties(RevocationListData) = Undefined Then
-			Raise NStr("en = 'Data is not a revocation list.';");
+			Raise NStr("en = 'Data is not a revocation list.'");
 		EndIf;
 	EndDo;
 	
@@ -37,5 +37,5 @@ EndProcedure
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

@@ -54,10 +54,10 @@ Procedure CheckPriority(Cancel)
 	
 	Selection = Query.Execute().Select();
 	If Selection.Next() Then
-		MessageText = NStr("en = 'Key operation priority %1 is not unique (%2 has the same priority).';");
+		MessageText = NStr("en = 'Key operation priority %1 is not unique (%2 has the same priority).'");
 		MessageText = StrReplace(MessageText, "%1", String(Priority));
 		MessageText = StrReplace(MessageText, "%2", Selection.Description);
-		WriteLogEvent(NStr("en = 'Performance monitor';", Common.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Performance monitor'", Common.DefaultLanguageCode()),
 			EventLogLevel.Error,, Selection.Ref, MessageText);
 		PerformanceMonitorInternal.MessageToUser(MessageText);
 		Cancel = True;
@@ -77,5 +77,5 @@ EndProcedure
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

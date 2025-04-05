@@ -86,7 +86,7 @@
 					<xr:ConditionalSeparation/>
 				</xr:Item>
 				<xr:Item>
-					<xr:Metadata>Constant.NumberOfMonthsOfMinimumPeriodOfCalculatedTotals</xr:Metadata>
+					<xr:Metadata>Constant.MonthsCountInCalculatedTotalsMinPeriod</xr:Metadata>
 					<xr:Use>DontUse</xr:Use>
 					<xr:ConditionalSeparation/>
 				</xr:Item>

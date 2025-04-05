@@ -27,12 +27,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	CertificateAdditionCommandProperties = DigitalSignatureInternal.CertificateAdditionCommandProperties();
 	Items.AddToSignAndEncrypt.Title = StrReplace(
-		CertificateAdditionCommandProperties.Title, "For", NStr("en = 'Add for';"));
+		CertificateAdditionCommandProperties.Title, "For", NStr("en = 'Add for'"));
 	PurposeToSignAndEncrypt = CertificateAdditionCommandProperties.Purpose;
 	
 	CertificateAdditionCommandProperties = DigitalSignatureInternal.CertificateAdditionCommandProperties(True);
 	Items.AddForSigningAndEncryptionFromFiles.Title = StrReplace(
-		CertificateAdditionCommandProperties.Title, "For", NStr("en = 'Add for';"));
+		CertificateAdditionCommandProperties.Title, "For", NStr("en = 'Add for'"));
 	
 EndProcedure
 

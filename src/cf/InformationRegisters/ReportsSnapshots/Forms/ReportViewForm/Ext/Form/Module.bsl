@@ -146,8 +146,7 @@ Procedure ReadReportSnapshot()
 		RecordManager.Read();
 		If RecordManager.Selected() Then
 			If RecordManager.ReportUpdateError Then
-				Common.MessageToUser(NStr(
-				"en = 'An error occurred when saving the report snapshot: save the snapshot again.';"));
+				Common.MessageToUser(NStr("en = 'Invalid report snapshot. Overwrite the snapshot.'"));
 			Else
 				ReportResult = RecordManager.ReportResult.Get();
 				If TypeOf(ReportResult) = Type("SpreadsheetDocument") Then
@@ -155,13 +154,12 @@ Procedure ReadReportSnapshot()
 					RecordManager.LastViewedDate = CurrentSessionDate();
 					RecordManager.Write();
 				Else
-					Common.MessageToUser(NStr(
-					"en = 'An error occurred when reading the report snapshot: the data is incorrect.';"));
+					Common.MessageToUser(NStr("en = 'Invalid report snapshot.'"));
 				EndIf;
 			EndIf;
 			UpdateDate = RecordManager.UpdateDate;
 		Else
-			Common.MessageToUser(NStr("en = 'An error occurred when reading the report snapshot: the report is deleted.';"));
+			Common.MessageToUser(NStr("en = 'The report snippet does not exist. The report was deleted.'"));
 		EndIf;
 		CommitTransaction();
 	Except
@@ -169,7 +167,7 @@ Procedure ReadReportSnapshot()
 		Raise;
 	EndTry;
 	
-	Title = NStr("en = 'Last updated';") + ": " + UpdateDate;
+	Title = NStr("en = 'Last updated'") + ": " + UpdateDate;
 	
 EndProcedure
 

@@ -20,8 +20,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndDo;
 	
 	If Common.IsMobileClient() Then
-		Title = NStr("en = 'Import files from device';");
-		Items.DeleteFilesAfterImport.Title = NStr("en = 'Delete files from device after import completed';");
+		Title = NStr("en = 'Import files from device'");
+		Items.DeleteFilesAfterImport.Title = NStr("en = 'Delete files from device after import completed'");
 	EndIf;
 
 EndProcedure
@@ -31,7 +31,7 @@ Procedure OnOpen(Cancel)
 	
 #If WebClient Then
 	WarningText =
-		NStr("en = 'File upload is not available in the web client. Please use the ""Add"" command in the file list.';");
+		NStr("en = 'File upload is not available in the web client. Please use the ""Add"" command in the file list.'");
 	ShowMessageBox(, WarningText);
 	Cancel = True;
 	Return;
@@ -45,7 +45,7 @@ Procedure OnOpen(Cancel)
 	EndDo;
 	
 	If DirectoriesOnly Then
-		Title = NStr("en = 'Upload folders';");
+		Title = NStr("en = 'Upload folders'");
 	EndIf;
 	
 EndProcedure
@@ -98,13 +98,13 @@ Procedure ImportFiles()
 	
 	If SelectedFiles.Count() = 0 Then
 		CommonClient.MessageToUser(
-			NStr("en = 'No files to add.';"), , "SelectedFiles");
+			NStr("en = 'No files to add.'"), , "SelectedFiles");
 		FieldsNotFilled = True;
 	EndIf;
 	
 	If FolderForAdding.IsEmpty() Then
 		CommonClient.MessageToUser(
-			NStr("en = 'Please select a folder.';"), , "FolderForAdding");
+			NStr("en = 'Please select a folder.'"), , "FolderForAdding");
 		FieldsNotFilled = True;
 	EndIf;
 	

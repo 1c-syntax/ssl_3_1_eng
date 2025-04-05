@@ -85,7 +85,7 @@ Function VersionCacheData(Val Id, Val DataType, Val ReceivingParameters, Val Use
 			RereadDataRequired = True;
 		Else
 			JobMethodName = "InformationRegisters.ProgramInterfaceCache.UpdateVersionCacheData";
-			JobDescription = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Version cache update. Entry ID: %1. Data type: %2.';"),
+			JobDescription = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Version cache update. Entry ID: %1. Data type: %2.'"),
 				Id,
 				DataType);
 			JobParameters = New Array;
@@ -128,7 +128,7 @@ Function VersionCacheData(Val Id, Val DataType, Val ReceivingParameters, Val Use
 			If Result.IsEmpty() Then
 				MessageTemplate = NStr("en = 'Version cache update error. The data is not received.
 					|Entry ID: %1
-					|Data type: %2';");
+					|Data type: %2'");
 				MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageTemplate, Id, DataType);
 					
 				Raise(MessageText);
@@ -257,7 +257,7 @@ Function PrepareVersionCacheData(Val DataType, Val ReceivingParameters) Export
 	ElsIf DataType = Enums.APICacheDataTypes.WebServiceDetails Then
 		Data = GetWSDL(ReceivingParameters[0], ReceivingParameters[1], ReceivingParameters[2], ReceivingParameters[3], ReceivingParameters[4]);
 	Else
-		TextTemplate1 = NStr("en = 'Unknown version cache data type: %1.';");
+		TextTemplate1 = NStr("en = 'Unknown version cache data type: %1.'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(TextTemplate1, DataType);
 		Raise(MessageText);
 	EndIf;
@@ -350,7 +350,7 @@ Function WSDefinitions(Val WSDLAddress, Val UserName, Val Password, Val Timeout 
 				NStr("en = 'Failed to get WS definitions at
 				           |%1.
 				           |Reason:
-				           |%2';"),
+				           |%2'"),
 				WSDLAddress,
 				ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 			
@@ -361,7 +361,7 @@ Function WSDefinitions(Val WSDLAddress, Val UserName, Val Password, Val Timeout 
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = '%1
 					           |Diagnostics result:
-					           |%2';"),
+					           |%2'"),
 					ErrorText,
 					DiagnosticsResult.ErrorDescription);
 			EndIf;
@@ -399,7 +399,7 @@ Function WSDefinitions(Val WSDLAddress, Val UserName, Val Password, Val Timeout 
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Failed to get WS definitions from cache.
 			           |Reason:
-			           |%1';"),
+			           |%1'"),
 			ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		Raise ErrorText;
 	EndTry;
@@ -407,7 +407,7 @@ Function WSDefinitions(Val WSDLAddress, Val UserName, Val Password, Val Timeout 
 	Try
 		DeleteFiles(WSDLFileName);
 	Except
-		WriteLogEvent(NStr("en = 'Getting WSDL';", Common.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Getting WSDL'", Common.DefaultLanguageCode()),
 			EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	
@@ -422,7 +422,7 @@ Function GetInterfaceVersionsToCache(Val ConnectionParameters, Val InterfaceName
 	If Not ConnectionParameters.Property("URL") 
 		Or Not ValueIsFilled(ConnectionParameters.URL) Then
 		
-		Raise(NStr("en = 'The service URL is not set.';"));
+		Raise(NStr("en = 'The service URL is not set.'"));
 	EndIf;
 	
 	If ConnectionParameters.Property("UserName")
@@ -480,14 +480,14 @@ Function GetWSDL(Val Address, Val UserName, Val Password, Val Timeout, Val Secur
 		ModuleNetworkDownload = Common.CommonModule("GetFilesFromInternet");
 		FileDetails = ModuleNetworkDownload.DownloadFileAtServer(Address, ReceivingParameters);
 	Else
-		Raise(NStr("en = 'The ""Network download"" subsystem is unavailable.';"),
+		Raise(NStr("en = 'The ""Network download"" subsystem is unavailable.'"),
 			ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	If Not FileDetails.Status Then
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot get web service details file %1 due to:
-				|%2';"),
+				|%2'"),
 			Address, FileDetails.ErrorMessage), ErrorCategory.NetworkError);
 	EndIf;
 	
@@ -501,7 +501,7 @@ Function GetWSDL(Val Address, Val UserName, Val Password, Val Timeout, Val Secur
 				|%2
 				|
 				|Diagnostics result:
-			    |%3';"),
+			    |%3'"),
 			Address,
 			ErrorProcessing.BriefErrorDescription(ErrorInfo()),
 			DiagnosticsResult.ErrorDescription);
@@ -511,12 +511,12 @@ Function GetWSDL(Val Address, Val UserName, Val Password, Val Timeout, Val Secur
 			           |
 			           |Trace parameters:
 			           |Secure connection: %2
-			           |Timeout: %3';"),
+			           |Timeout: %3'"),
 			ErrorText,
-			Format(SecureConnection, NStr("en = 'BF=No; BT=Yes';")),
+			Format(SecureConnection, NStr("en = 'BF=No; BT=Yes'")),
 			Format(Timeout, "NG=0"));
 			
-		WriteLogEvent(NStr("en = 'Getting WSDL';", Common.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Getting WSDL'", Common.DefaultLanguageCode()),
 			EventLogLevel.Error, , , ErrorMessage);
 		Raise(ErrorText, ErrorCategory.NetworkError);
 	EndTry;
@@ -526,7 +526,7 @@ Function GetWSDL(Val Address, Val UserName, Val Password, Val Timeout, Val Secur
 			NStr("en = 'Cannot get the web service description file.
 			           |Reason: the file does not contain web service descriptions.
 			           |Probably the file address is incorrect:
-			           |%1';"),
+			           |%1'"),
 			Address),
 			ErrorCategory.NetworkError);
 	EndIf;
@@ -537,7 +537,7 @@ Function GetWSDL(Val Address, Val UserName, Val Password, Val Timeout, Val Secur
 	Try
 		DeleteFiles(FileDetails.Path);
 	Except
-		WriteLogEvent(NStr("en = 'Getting WSDL';", Common.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Getting WSDL'", Common.DefaultLanguageCode()),
 			EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	

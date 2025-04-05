@@ -29,7 +29,7 @@ EndProcedure
 
 // End StandardSubsystems.Interactions
 
-// СтандартныеПодсистемы.УправлениеДоступом
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Table - See AccessManagement.AccessValuesSetsTable
@@ -78,7 +78,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	If EndDate < StartDate Then
 
 		Common.MessageToUser(
-			NStr("en = 'End date cannot be earlier than Start date.';"),
+			NStr("en = 'End date cannot be earlier than Start date.'"),
 			,
 			"EndDate",
 			,
@@ -113,5 +113,5 @@ EndProcedure
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

@@ -201,7 +201,7 @@ Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object,
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Handler %2 cannot handle
-				|metadata object %1.';",
+				|metadata object %1.'",
 				Common.DefaultLanguageCode()),
 			Object.Metadata().FullName(), "FilesOperationsInternalSaaS.BeforeExportObject()");
 		
@@ -229,7 +229,7 @@ Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object,
 			If CommonClientServer.CompareVersions(ModuleSaaSTechnology.LibraryVersion(), "2.0.2.15") >= 0 Then
 				Warning = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Export of file %1 (type %2) is skipped due to 
-					|%3';"),
+					|%3'"),
 					Object,
 					Object.Metadata().FullName(),
 					ErrorProcessing.BriefErrorDescription(ErrorInfo));
@@ -240,7 +240,7 @@ Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object,
 		EndIf;
 		
 		WriteLogEvent(
-			NStr("en = 'Files.Export data for cloud migration';", Common.DefaultLanguageCode()),
+			NStr("en = 'Files.Export data for cloud migration'", Common.DefaultLanguageCode()),
 			EventLogLevel.Error,
 			Object.Metadata(),
 			Object.Ref,
@@ -286,7 +286,7 @@ Procedure BeforeImportObject(Container, Object, Artifacts, Cancel) Export
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Handler %2 cannot handle
-				|metadata object %1.';", Common.DefaultLanguageCode()),
+				|metadata object %1.'", Common.DefaultLanguageCode()),
 			Object.Metadata().FullName(), "FilesOperationsInternalSaaS.BeforeExportObject()");
 		
 	EndIf;
@@ -431,7 +431,7 @@ Procedure HandleTextExtractionQueue() Export
 		New Structure("MethodName", SeparatedMethodName)));
 		
 	If TransactionActive() Then
-		Raise(NStr("en = 'The transaction is active. Cannot execute a query in the transaction.';"));
+		Raise(NStr("en = 'The transaction is active. Cannot execute a query in the transaction.'"));
 	EndIf;
 	
 	AttemptsNumber = 0;

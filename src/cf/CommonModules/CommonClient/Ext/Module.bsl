@@ -130,6 +130,37 @@ Function DefaultLanguageCode() Export
 	
 EndFunction
 
+// Checks posting status of the passed documents and returns
+// the unposted documents.
+//
+// Parameters:
+//  Var_Documents - Array of DocumentRef - Documents to check.
+//
+// Returns:
+//  Array of DocumentRef - Unposted documents.
+//
+Function CheckDocumentsPosting(Val Var_Documents) Export
+	
+	Return CommonServerCall.CheckDocumentsPosting(Var_Documents); // ACC:222 - The called function was removed from the API.
+	
+EndFunction
+
+// Attempts to post documents and returns information about those that failed to post.
+//
+// Parameters:
+//  Var_Documents - Array of DocumentRef - Documents to post.
+//
+// Returns:
+//  Array of Structure:
+//   * Ref         - DocumentRef - Document that failed to post.
+//   * ErrorDescription - String         - Text of a posting error.
+//
+Function PostDocuments(Var_Documents) Export
+	
+	Return CommonServerCall.PostDocuments(Var_Documents);
+	
+EndFunction 
+
 #EndRegion
 
 #Region ConditionCalls
@@ -197,7 +228,7 @@ Function CommonModule(Name) Export
 	// when contacting the modules with a server call).
 	If TypeOf(Module) <> Type("CommonModule") Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Common module ""%1"" does not exist.';"), 
+			NStr("en = 'Common module ""%1"" does not exist.'"), 
 			Name);
 	EndIf;
 	
@@ -539,7 +570,7 @@ Function CheckCommandParameterType(Val Parameter, Val ExpectedType) Export
 	EndIf;
 	
 	If Not Result Then
-		ShowMessageBox(,NStr("en = 'The object does not support this type of operations.';"));
+		ShowMessageBox(,NStr("en = 'The object does not support this type of operations.'"));
 	EndIf;
 	
 	Return Result;
@@ -603,7 +634,7 @@ Procedure ShowFormClosingConfirmation(
 	
 	If Exit Then
 		If WarningTextOnExit = "" Then // Parameter from BeforeClose is passed.
-			WarningTextOnExit = NStr("en = 'The data has been changed. All changes will be lost.';");
+			WarningTextOnExit = NStr("en = 'The data has been changed. All changes will be lost.'");
 		EndIf;
 		Return;
 	EndIf;
@@ -850,7 +881,7 @@ Procedure ShowCommentEditingForm(
 		CommonInternalClient, 
 		Context);
 	
-	FormCaption = ?(Title <> Undefined, Title, NStr("en = 'Comment';"));
+	FormCaption = ?(Title <> Undefined, Title, NStr("en = 'Comment'"));
 	
 	ShowMultilineTextEditingForm(Notification, MultilineText, FormCaption);
 	
@@ -944,11 +975,12 @@ EndFunction
 //                 If Undefined, the add-in is executed according to the default 1C:Enterprise settings
 //                 Isolatedly if the add-in supports only isolated execution; otherwise, non-isolatedly.:
 //                 By default, Undefined.
-//                 See https://its.1c.eu/db/v83doc#bookmark:dev:TI000001866
-//      * AutoUpdate - Boolean -  
-//                 
-//      * ShowInstallationIssue - Boolean - 
-//                 
+//                 See https://its.1c.eu/db/v83doc
+//                                              #bookmark:dev:TI000001866
+//      * AutoUpdate - Boolean - Flag indicating whether "UpdateFrom1CITSPortal" will be set to "True" 
+//                 if "SuggestToImport" is set to "True". By default, it is set to "True".
+//      * ShouldShowInstallationPrompt - Boolean - Flag indicating whether prompt the user to install the add-in
+//                 if "SuggestToImport" is set to "True". By default, it is set to "True".
 //
 //
 // Example:
@@ -967,7 +999,7 @@ Function AddInAttachmentParameters() Export
 	Parameters.Insert("ObjectsCreationIDs", New Array);
 	Parameters.Insert("Isolated", Undefined);
 	Parameters.Insert("AutoUpdate", True);
-	Parameters.Insert("ShowInstallationIssue", True);
+	Parameters.Insert("ShouldShowInstallationPrompt", True);
 	
 	Return Parameters;
 	
@@ -1113,11 +1145,11 @@ Procedure InstallAddInFromTemplate(Notification, FullTemplateName, InstallationP
 		FillPropertyValues(Parameters, InstallationParameters);
 	EndIf;
 	
-	Context = New Structure;
-	Context.Insert("Notification", Notification);
-	Context.Insert("Location", FullTemplateName);
-	Context.Insert("ExplanationText", Parameters.ExplanationText);
-	Context.Insert("Id", FullTemplateName);
+	Context = CommonInternalClient.AddInAttachmentContext();
+	Context.Notification = Notification;
+	Context.Location = FullTemplateName;
+	Context.ExplanationText = Parameters.ExplanationText;
+	Context.Id = FullTemplateName;
 	
 	CommonInternalClient.InstallAddInSSL(Context);
 	
@@ -1275,7 +1307,7 @@ EndProcedure
 Function EstablishExternalConnectionWithInfobase(Parameters) Export
 	
 	ConnectionNotAvailable = IsLinuxClient() Or IsMacOSClient();
-	BriefErrorDetails = NStr("en = 'Only Windows clients support direct infobase connections.';");
+	BriefErrorDetails = NStr("en = 'Only Windows clients support direct infobase connections.'");
 	
 	Return CommonInternalClientServer.EstablishExternalConnectionWithInfobase(Parameters, ConnectionNotAvailable, BriefErrorDetails);
 	
@@ -1309,6 +1341,311 @@ Procedure PromptUserToBackUp() Export
 EndProcedure
 
 #EndRegion
+
+#Region SettingsStorage
+
+// ACC:222 - The called functions were removed from the API.
+
+// Saves a setting to the common settings storage as the Save method
+// of StandardSettingsStorageManager or SettingsStorageManager.<Storage name>,
+// object. Setting keys exceeding 128 characters are supported by hashing the key part
+// that exceeds 96 characters.
+// If the SaveUserData right is not granted, data save fails and no error is raised.
+//
+// See Common.CommonSettingsStorageSave
+//
+// Parameters:
+//   ObjectKey       - String           - See Syntax Assistant.
+//   SettingsKey      - String           - See Syntax Assistant.
+//   Settings         - Arbitrary     - See Syntax Assistant.
+//   SettingsDescription  - Undefined     - Not applicable to client.
+//   UserName   - String           - See Syntax Assistant.
+//   RefreshReusableValues - Boolean - Flag that indicates whether to execute the method.
+//
+Procedure CommonSettingsStorageSave(ObjectKey, SettingsKey, Settings,
+			SettingsDescription = Undefined,
+			UserName = Undefined,
+			RefreshReusableValues = False) Export
+	
+	CommonServerCall.CommonSettingsStorageSave(
+		ObjectKey,
+		SettingsKey,
+		Settings,
+		SettingsDescription,
+		UserName,
+		RefreshReusableValues);
+		
+EndProcedure
+
+// Saves settings to the common settings storage as the Save method
+// of StandardSettingsStorageManager or SettingsStorageManager.<Storage name>,
+// object. Setting keys exceeding 128 characters are supported by hashing the key part
+// that exceeds 96 characters.
+// If the SaveUserData right is not granted, data save fails and no error is raised.
+//
+// See Common.CommonSettingsStorageSaveArray
+// 
+// Parameters:
+//   MultipleSettings - Array - Has the following values:
+//     * Value - Structure:
+//         * Object    - String       - See the "ObjectKey" parameter in Syntax Assistant.
+//         * Setting - String       - See the "SettingsKey" parameter in Syntax Assistant.
+//         * Value  - Arbitrary - See the "Settings" parameter in Syntax Assistant.
+//
+//   RefreshReusableValues - Boolean - Flag that indicates whether to execute the method.
+//
+Procedure CommonSettingsStorageSaveArray(MultipleSettings, RefreshReusableValues = False) Export
+	
+	CommonServerCall.CommonSettingsStorageSaveArray(MultipleSettings, RefreshReusableValues);
+	
+EndProcedure
+
+// Imports the setting from the common settings storage as the Import method
+// of the StandardSettingsStorageManager or SettingsStorageManager.<Storage name> objects.
+// Setting keys exceeding 128 characters are supported by hashing the key part
+// that exceeds 96 characters.
+// Returns the specified default value if the settings do not exist.
+// If the SaveUserData right is not granted, the default value is returned and no error is raised.
+//
+// The return value clears references to a non-existent object in the database, namely:
+// - The returned reference is replaced with the default value.
+// - The references are deleted from the data of the Array type.
+// - The key is not changed for the data of the Structure or Map types, and the value is set to Undefined.
+// - Recursive analysis of values in the data of the Array, Structure, Map types is carried out.
+//
+// See Common.CommonSettingsStorageLoad
+//
+// Parameters:
+//   ObjectKey          - String           - See Syntax Assistant.
+//   SettingsKey         - String           - See Syntax Assistant.
+//   DefaultValue  - Arbitrary     - Return value if the settings do not exist.
+//                                             If not specified, returns "Undefined".
+//   SettingsDescription     - Undefined     - Not applicable to client.
+//   UserName      - String           - See Syntax Assistant.
+//
+// Returns: 
+//   Arbitrary - See Syntax Assistant.
+//
+Function CommonSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefined,
+			SettingsDescription = Undefined,
+			UserName = Undefined) Export
+	
+	Return CommonServerCall.CommonSettingsStorageLoad(
+		ObjectKey,
+		SettingsKey,
+		DefaultValue,
+		SettingsDescription,
+		UserName);
+		
+EndFunction
+
+// Removes a setting from the general settings storage as the Remove method,
+// StandardSettingsStorageManager objects, or SettingsStorageManager.<Storage name>,
+// The setting key supports more than 128 characters by hashing the part
+// that exceeds 96 characters.
+// If the SaveUserData right is not granted, no data is deleted and no error is raised.
+//
+// See Common.CommonSettingsStorageDelete
+//
+// Parameters:
+//   ObjectKey     - String
+//                   - Undefined - See Syntax Assistant.
+//   SettingsKey    - String
+//                   - Undefined - See Syntax Assistant.
+//   UserName - String
+//                   - Undefined - See Syntax Assistant.
+//
+Procedure CommonSettingsStorageDelete(ObjectKey, SettingsKey, UserName) Export
+	
+	CommonServerCall.CommonSettingsStorageDelete(ObjectKey, SettingsKey, UserName);
+	
+EndProcedure
+
+// Saves a setting to the system settings storage as the Save method
+// of StandardSettingsStorageManager object. Setting keys
+// exceeding 128 characters are supported by hashing the key part that exceeds 96 characters.
+// If the SaveUserData right is not granted, data save fails and no error is raised.
+//
+// See Common.SystemSettingsStorageSave
+//
+// Parameters:
+//   ObjectKey       - String           - See Syntax Assistant.
+//   SettingsKey      - String           - See Syntax Assistant.
+//   Settings         - Arbitrary     - See Syntax Assistant.
+//   SettingsDescription  - Undefined     - Not applicable to client.
+//   UserName   - String           - See Syntax Assistant.
+//   RefreshReusableValues - Boolean - Flag that indicates whether to execute the method.
+//
+Procedure SystemSettingsStorageSave(ObjectKey, SettingsKey, Settings,
+			SettingsDescription = Undefined,
+			UserName = Undefined,
+			RefreshReusableValues = False) Export
+	
+	CommonServerCall.SystemSettingsStorageSave(
+		ObjectKey,
+		SettingsKey,
+		Settings,
+		SettingsDescription,
+		UserName,
+		RefreshReusableValues);
+	
+EndProcedure
+
+// Imports settings from the system settings storage as the Import method
+// of the StandardSettingsStorageManager object. Setting keys exceeding
+// 128 characters are supported by hashing the key part that exceeds 96 characters.
+// Returns the specified default value if the settings do not exist.
+// If the SaveUserData right is not granted, the default value is returned and no error is raised.
+//
+// The return value clears references to a non-existent object in the database, namely:
+// - The returned reference is replaced with the default value.
+// - The references are deleted from the data of the Array type.
+// - The key is not changed for the data of the Structure or Map types, and the value is set to Undefined.
+// - Recursive analysis of values in the data of the Array, Structure, Map types is carried out.
+//
+// See Common.SystemSettingsStorageLoad
+//
+// Parameters:
+//   ObjectKey          - String           - See Syntax Assistant.
+//   SettingsKey         - String           - See Syntax Assistant.
+//   DefaultValue  - Arbitrary     - Return value if the settings do not exist.
+//                                             If not specified, returns "Undefined".
+//   SettingsDescription     - Undefined     - Not applicable to client.
+//   UserName      - String           - See Syntax Assistant.
+//
+// Returns: 
+//   Arbitrary - See Syntax Assistant.
+//
+Function SystemSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefined, 
+			SettingsDescription = Undefined,
+			UserName = Undefined) Export
+	
+	Return CommonServerCall.SystemSettingsStorageLoad(
+		ObjectKey,
+		SettingsKey,
+		DefaultValue,
+		SettingsDescription,
+		UserName);
+	
+EndFunction
+
+// Removes a setting from the system settings storage as the Remove method
+// or the StandardSettingsStorageManager object. The setting key supports
+// more than 128 characters by hashing the part that exceeds 96 characters.
+// If the SaveUserData right is not granted, no data is deleted and no error is raised.
+//
+// See Common.SystemSettingsStorageDelete
+//
+// Parameters:
+//   ObjectKey     - String
+//                   - Undefined - See Syntax Assistant.
+//   SettingsKey    - String
+//                   - Undefined - See Syntax Assistant.
+//   UserName - String
+//                   - Undefined - See Syntax Assistant.
+//
+Procedure SystemSettingsStorageDelete(ObjectKey, SettingsKey, UserName) Export
+	
+	CommonServerCall.SystemSettingsStorageDelete(ObjectKey, SettingsKey, UserName);
+	
+EndProcedure
+
+// Saves a setting to the form data settings storage as the Save method of
+// StandardSettingsStorageManager or SettingsStorageManager.<Storage name>,
+// object. Setting keys exceeding 128 characters are supported by hashing the key part
+// that exceeds 96 characters.
+// If the SaveUserData right is not granted, data save fails and no error is raised.
+//
+// See Common.FormDataSettingsStorageSave
+//
+// Parameters:
+//   ObjectKey       - String           - See Syntax Assistant.
+//   SettingsKey      - String           - See Syntax Assistant.
+//   Settings         - Arbitrary     - See Syntax Assistant.
+//   SettingsDescription  - Undefined     - Not applicable to client.
+//   UserName   - String           - See Syntax Assistant.
+//   RefreshReusableValues - Boolean - Flag that indicates whether to execute the method.
+//
+Procedure FormDataSettingsStorageSave(ObjectKey, SettingsKey, Settings,
+			SettingsDescription = Undefined,
+			UserName = Undefined,
+			RefreshReusableValues = False) Export
+	
+	CommonServerCall.FormDataSettingsStorageSave(
+		ObjectKey,
+		SettingsKey,
+		Settings,
+		SettingsDescription,
+		UserName,
+		RefreshReusableValues);
+	
+EndProcedure
+
+// Imports the setting from the common settings storage as the Import method
+// of the StandardSettingsStorageManager or SettingsStorageManager.<Storage name> objects.
+// Setting keys exceeding 128 characters are supported by hashing the key part
+// that exceeds 96 characters.
+// Returns the specified default value if the settings do not exist.
+// If the SaveUserData right is not granted, the default value is returned and no error is raised.
+//
+// The return value clears references to a non-existent object in the database, namely:
+// - The returned reference is replaced with the default value.
+// - The references are deleted from the data of the Array type.
+// - The key is not changed for the data of the Structure or Map types, and the value is set to Undefined.
+// - Recursive analysis of values in the data of the Array, Structure, Map types is carried out.
+//
+// See Common.FormDataSettingsStorageLoad
+//
+// Parameters:
+//   ObjectKey          - String           - See Syntax Assistant.
+//   SettingsKey         - String           - See Syntax Assistant.
+//   DefaultValue  - Arbitrary     - Return value if the settings do not exist.
+//                                             If not specified, returns "Undefined".
+//   SettingsDescription     - Undefined     - Not applicable to client.
+//   UserName      - String           - See Syntax Assistant.
+//
+// Returns: 
+//   Arbitrary - See Syntax Assistant.
+//
+Function FormDataSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefined,
+			SettingsDescription = Undefined,
+			UserName = Undefined) Export
+	
+	Return CommonServerCall.FormDataSettingsStorageLoad(
+		ObjectKey,
+		SettingsKey,
+		DefaultValue,
+		SettingsDescription,
+		UserName);
+	
+EndFunction
+
+// Deletes the setting from the form data settings storage using the Delete method
+// for StandardSettingsStorageManager or SettingsStorageManager.<Storage name>,
+// objects. Setting keys exceeding 128 characters are supported by hashing the key part
+// that exceeds 96 characters.
+// If the SaveUserData right is not granted, no data is deleted and no error is raised.
+//
+// See Common.FormDataSettingsStorageDelete
+//
+// Parameters:
+//   ObjectKey     - String
+//                   - Undefined - See Syntax Assistant.
+//   SettingsKey    - String
+//                   - Undefined - See Syntax Assistant.
+//   UserName - String
+//                   - Undefined - See Syntax Assistant.
+//
+Procedure FormDataSettingsStorageDelete(ObjectKey, SettingsKey, UserName) Export
+	
+	CommonServerCall.FormDataSettingsStorageDelete(ObjectKey, SettingsKey, UserName);
+	
+EndProcedure
+
+// ACC:222-on
+
+#EndRegion
+
 #Region ObsoleteProceduresAndFunctions
 
 // Deprecated. Instead, use:

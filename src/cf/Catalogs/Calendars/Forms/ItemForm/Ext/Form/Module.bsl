@@ -100,7 +100,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
 	If Object.FillingTemplate.FindRows(New Structure("DayAddedToSchedule", True)).Count() = 0 Then
 		Common.MessageToUser(
-			NStr("en = 'Please select the days to include in the work schedule.';"), , "Object.FillingTemplate", , Cancel);
+			NStr("en = 'Please select the days to include in the work schedule.'"), , "Object.FillingTemplate", , Cancel);
 	EndIf;
 	
 EndProcedure
@@ -226,7 +226,7 @@ Procedure CurrentYearNumberOnChange(Item)
 	WriteScheduleData = False;
 	
 	If ResultModified Then
-		MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Do you want to save the changes for year %1?';"), Format(PreviousYearNumber, "NG=0"));
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Do you want to save the changes for year %1?'"), Format(PreviousYearNumber, "NG=0"));
 		
 		Notification = New CallbackDescription("CurrentYearNumberOnChangeCompletion", ThisObject);
 		ShowQueryBox(Notification, MessageText, QuestionDialogMode.YesNo);
@@ -497,13 +497,13 @@ Procedure GenerateFillingTemplate(FillingMethod, FillingTemplate, Val PeriodLeng
 	EndDo;
 	
 	If FillingMethod = PredefinedValue("Enum.WorkScheduleFillingMethods.ByWeeks") Then
-		FillingTemplate[0].DayPresentation = NStr("en = 'Monday';");
-		FillingTemplate[1].DayPresentation = NStr("en = 'Tuesday';");
-		FillingTemplate[2].DayPresentation = NStr("en = 'Wednesday';");
-		FillingTemplate[3].DayPresentation = NStr("en = 'Thursday';");
-		FillingTemplate[4].DayPresentation = NStr("en = 'Friday';");
-		FillingTemplate[5].DayPresentation = NStr("en = 'Saturday';");
-		FillingTemplate[6].DayPresentation = NStr("en = 'Sunday';");
+		FillingTemplate[0].DayPresentation = NStr("en = 'Monday'");
+		FillingTemplate[1].DayPresentation = NStr("en = 'Tuesday'");
+		FillingTemplate[2].DayPresentation = NStr("en = 'Wednesday'");
+		FillingTemplate[3].DayPresentation = NStr("en = 'Thursday'");
+		FillingTemplate[4].DayPresentation = NStr("en = 'Friday'");
+		FillingTemplate[5].DayPresentation = NStr("en = 'Saturday'");
+		FillingTemplate[6].DayPresentation = NStr("en = 'Sunday'");
 	Else
 		DayDate = StartingDate;
 		For Each DayRow In FillingTemplate Do
@@ -555,7 +555,7 @@ Function DaySchedulePresentation(Form, DayNumber)
 	
 	Hours = Round(Seconds / 3600, 1);
 	
-	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 h (%2)';"), Hours, IntervalsPresentation);
+	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 h (%2)'"), Hours, IntervalsPresentation);
 	
 EndFunction
 
@@ -567,7 +567,7 @@ Function DayPartPresentation(Val DayPart, TwelveHourTimeFormat)
 	EndIf;
 	
 	TimeFormat = ?(TwelveHourTimeFormat,
-		NStr("en = 'DF=''hh:mm tt''';"), NStr("en = 'DF=HH:mm; DE=';"));
+		NStr("en = 'DF=''hh:mm tt'''"), NStr("en = 'DF=HH:mm; DE='"));
 		
 	Return Format(DayPart, TimeFormat);
 	
@@ -591,7 +591,7 @@ EndFunction
 &AtClientAtServerNoContext
 Function BlankSchedulePresentation()
 	
-	Return NStr("en = 'Fill in the schedule';");
+	Return NStr("en = 'Fill in the schedule'");
 	
 EndFunction
 
@@ -671,11 +671,11 @@ Procedure AdjustScheduleFilled(Form)
 	EndIf;
 	
 	If Not ValueIsFilled(Form.FillDate) Then
-		Form.IsFilledInformationText = NStr("en = 'The work schedule is blank.';");
+		Form.IsFilledInformationText = NStr("en = 'The work schedule is blank.'");
 		Form.RequiresFilling = True;
 	Else	
 		If Not ValueIsFilled(Form.Object.PlanningHorizon) Then
-			InformationText = NStr("en = 'The work schedule is filled in till %1.';");
+			InformationText = NStr("en = 'The work schedule is filled in till %1.'");
 			Form.IsFilledInformationText = StringFunctionsClientServer.SubstituteParametersToString(InformationText, Format(Form.FillDate, "DLF=D"));
 		Else
 #If WebClient Or ThinClient Or MobileClient Then
@@ -684,7 +684,7 @@ Procedure AdjustScheduleFilled(Form)
 				CurrentDate = CurrentSessionDate();
 #EndIf
 			EndPlanningHorizon = AddMonth(CurrentDate, Form.Object.PlanningHorizon);
-			InformationText = NStr("en = 'The work schedule is filled till %1. The provided scheduling interval requires that you fill it till %2.';");
+			InformationText = NStr("en = 'The work schedule is filled till %1. The provided scheduling interval requires that you fill it till %2.'");
 			Form.IsFilledInformationText = StringFunctionsClientServer.SubstituteParametersToString(InformationText, Format(Form.FillDate, "DLF=D"), Format(EndPlanningHorizon, "DLF=D"));
 			If EndPlanningHorizon > Form.FillDate Then
 				Form.RequiresFilling = True;
@@ -914,18 +914,18 @@ Procedure FillFillingResultInformationText(Form)
 	CanFillByTemplate = False;
 	If Form.ManualEditing Then
 		InformationText = NStr("en = 'The work schedule for the current year is changed manually. 
-                                    |Click ""Fill in by template"" to return to automatic filling.';");
+                                    |Click ""Fill in by template"" to return to automatic filling.'");
 		InformativeImage = PictureLib.Warning;
 		CanFillByTemplate = True;
 	Else
 		If Form.ResultFilledByTemplate Then
 			If ValueIsFilled(Form.Object.BusinessCalendar) Then
-				InformationText = NStr("en = 'The work schedule is updated automatically upon changing the business calendar for the current year.';");
+				InformationText = NStr("en = 'The work schedule is updated automatically upon changing the business calendar for the current year.'");
 				InformativeImage = PictureLib.Information;
 			EndIf;
 		Else
 			InformationText = NStr("en = 'The displayed result does not match the template.
-                                        |Click ""Fill in by template"" to view the work schedule based on the updated template.';");
+                                        |Click ""Fill in by template"" to view the work schedule based on the updated template.'");
 			InformativeImage = PictureLib.Warning;
 			CanFillByTemplate = True;
 		EndIf;
@@ -946,7 +946,7 @@ Procedure FillInformationTextManualEditing(Form)
 	InformativeImage = New Picture;
 	If Form.ManualEditing Then
 		InformativeImage = PictureLib.Warning;
-		InformationText = NStr("en = 'The work schedule for the current year is changed manually. The changes are highlighted.';");
+		InformationText = NStr("en = 'The work schedule for the current year is changed manually. The changes are highlighted.'");
 	EndIf;
 	
 	Form.ManualEditingInformationText = InformationText;

@@ -276,7 +276,7 @@ Function AllowedDynamicListValues(Table, ValuesType, Values = Undefined, User = 
 		Properties = AccessKindsProperties.ByValuesTypes.Get(Current_Type); // See AccessKindProperties
 		If Properties = Undefined Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Type ""%1"" is not an access value type.';"), String(Current_Type));
+				NStr("en = 'Type ""%1"" is not an access value type.'"), String(Current_Type));
 			Raise ErrorText;
 		EndIf;
 		If UsedAccessKinds.Get(Properties.Ref) = Undefined Then
@@ -292,7 +292,7 @@ Function AllowedDynamicListValues(Table, ValuesType, Values = Undefined, User = 
 		AccessValuesTable = Metadata.FindByType(Current_Type).FullName();
 		CurrentQueryText = StrReplace(CurrentQueryText, "&AccessValuesTable", AccessValuesTable);
 		CurrentQueryText = StrReplace(CurrentQueryText, "&EmptyRefValue",
-			"VALUE(" + AccessValuesTable + ".EmptyRef)"); // @query-part-1
+			"VALUE(" + AccessValuesTable + ".EmptyRef)"); // @query-part-2
 		If ValueIsFilled(QueryText) Then
 			UnionQueryWithQuery(QueryText, CurrentQueryText);
 		Else
@@ -711,7 +711,7 @@ EndFunction
 //
 Function NameOfLogEventAccessGroupsMembersChanged() Export
 	
-	Return NStr("en = 'Access management.Change access group membership';",
+	Return NStr("en = 'Access management.Change access group membership'",
 		Common.DefaultLanguageCode());
 	
 EndFunction
@@ -721,7 +721,7 @@ EndFunction
 //
 Function NameOfLogEventAllowedValuesChanged() Export
 	
-	Return NStr("en = 'Access management.Change allowed values';",
+	Return NStr("en = 'Access management.Change allowed values'",
 		Common.DefaultLanguageCode());
 	
 EndFunction
@@ -731,7 +731,7 @@ EndFunction
 //
 Function NameOfLogEventProfilesRolesChanged() Export
 	
-	Return NStr("en = 'Access management.Change profile roles';",
+	Return NStr("en = 'Access management.Change profile roles'",
 		Common.DefaultLanguageCode());
 	
 EndFunction
@@ -895,11 +895,11 @@ Procedure SetAccessUpdate(Use, WithoutCheckingIBUpdateExecution = False) Export
 		
 	ElsIf EnableJob Then
 		BackgroundJobs.Execute("AccessManagementInternal.EnableAccessUpdateScheduledJob",,,
-			NStr("en = 'Access management: Enable ""access update"" scheduled job';",
+			NStr("en = 'Access management: Enable ""access update"" scheduled job'",
 				Common.DefaultLanguageCode()));
 	Else
 		BackgroundJobs.Execute("AccessManagementInternal.DisableAccessUpdateScheduledJob",,,
-			NStr("en = 'Access management: Disable ""access update"" scheduled job';",
+			NStr("en = 'Access management: Disable ""access update"" scheduled job'",
 				Common.DefaultLanguageCode()));
 	EndIf;
 	
@@ -928,7 +928,7 @@ Function AccessRestrictionErrors() Export
 			           |in procedure ""%1""
 			           |of common module ""%2"". Reason:
 			           |
-			           |%3';"),
+			           |%3'"),
 			"OnFillListsWithAccessRestriction",
 			"AccessManagementOverridable",
 			ErrorProcessing.DetailErrorDescription(ErrorInfo));
@@ -1496,7 +1496,7 @@ Procedure ScheduleAccessRestrictionParametersUpdate(LongDesc, StartUpdate = Fals
 	
 	BackgroundJobs.Execute(
 		"AccessManagementInternal.RecordPlanningForUpdatingAccessRestrictionSettings",
-		ProcedureParameters,, NStr("en = 'Access management: Schedule access update';",
+		ProcedureParameters,, NStr("en = 'Access management: Schedule access update'",
 			Common.DefaultLanguageCode()));
 	
 EndProcedure
@@ -1525,15 +1525,14 @@ EndProcedure
 // Starts access update if it is scheduled and not started yet.
 Procedure StartAccessUpdate() Export
 	
-	If Not LimitAccessAtRecordLevelUniversally(False) Then
+	If Not LimitAccessAtRecordLevelUniversally(False)
+	 Or ExclusiveMode()
+	 Or LaunchAccessUpdatesToSpeedUpOnlyPointJobs(True)
+	   And Not ThereAreScheduledPointTasks() Then
 		Return;
 	EndIf;
 	
-	If ExclusiveMode() Then
-		Return;
-	EndIf;
-	
-	StartAccessUpdateAtRecordLevel();
+	StartAccessUpdateAtRecordLevel(,, True);
 	
 EndProcedure
 
@@ -1816,7 +1815,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Version = "3.1.3.135";
 	Handler.Procedure = "InformationRegisters.AccessValuesGroups.ProcessDataForMigrationToNewVersion";
 	Handler.ExecutionMode = "Deferred";
-	Handler.Comment = NStr("en = 'Service data update.';");
+	Handler.Comment = NStr("en = 'Service data update.'");
 	Handler.Id = New UUID("b3cb643e-d5cf-40b7-9db3-6315a88c063d");
 	Handler.UpdateDataFillingProcedure = "InformationRegisters.AccessValuesGroups.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.ObjectsToRead = "InformationRegister.AccessValuesGroups";
@@ -1826,7 +1825,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Version = "3.0.2.174";
 	Handler.Procedure = "InformationRegisters.ObjectsRightsSettings.ProcessDataForMigrationToNewVersion";
 	Handler.ExecutionMode = "Deferred";
-	Handler.Comment = NStr("en = 'Updates service data of access rights settings.';");
+	Handler.Comment = NStr("en = 'Updates service data of access rights settings.'");
 	Handler.Id = New UUID("40d1c62f-c3f1-4608-8985-2dc618c3d758");
 	Handler.UpdateDataFillingProcedure = "InformationRegisters.ObjectsRightsSettings.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.ObjectsToRead = "InformationRegister.ObjectsRightsSettings";
@@ -1837,14 +1836,14 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Procedure = "Catalogs.AccessGroups.ProcessDataForMigrationToNewVersion";
 	Handler.ExecutionMode = "Deferred";
 	Handler.RunAlsoInSubordinateDIBNodeWithFilters = True;
-	Handler.Comment = NStr("en = 'Removes utility users from access groups.';");
+	Handler.Comment = NStr("en = 'Removes utility users from access groups.'");
 	Handler.Id = New UUID("4795e622-6115-4abc-a8de-cf2e838b7ea2");
 	Handler.CheckProcedure = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
 	Handler.UpdateDataFillingProcedure = "Catalogs.AccessGroups.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.ObjectsToRead = "Catalog.AccessGroups";
 	Handler.ObjectsToChange = "InformationRegister.AccessGroupsTables,InformationRegister.AccessGroupsValues,InformationRegister.DefaultAccessGroupsValues";
 	
-	// Должен выполнятся до прикладных обработчиков обновления.
+	// Must be executed before the applied update handlers.
 	Handler = Handlers.Add();
 	Handler.Version = "3.1.11.49";
 	Handler.Procedure = "InformationRegisters.AccessGroupsTables.UpdateRegisterData";
@@ -2259,7 +2258,7 @@ Procedure OnFillRegisteredRefKinds(RefsKinds) Export
 	
 EndProcedure
 
-// See StandardSubsystems.OnSendDataToMaster.
+// 
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 	OnSendData(DataElement, ItemSend, False, False);
@@ -2386,7 +2385,7 @@ Procedure AfterWriteAdministratorOnAuthorization(Comment) Export
 		           |and added to the ""Administrators"" access group.
 		           |
 		           |Please use the ""Users"" list to manage users and their rights
-		           |instead of the default user list in Designer mode.';");
+		           |instead of the default user list in Designer mode.'");
 	
 EndProcedure
 
@@ -2411,7 +2410,7 @@ Procedure OnDefineQuestionTextBeforeWriteFirstAdministrator(QueryText) Export
 	QueryText =
 		NStr("en = 'You are about to add the first user to the list of users.
 		           |The user will be automatically added to the Administrators access group.
-		           |Continue?';")
+		           |Continue?'")
 	
 EndProcedure
 
@@ -2451,7 +2450,7 @@ Procedure OnCreateOrAuthorizeAdministrator(Administrator, Refinement) Export
 	
 	CommentForLog = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'User ""%1"" was added to the Administrators access group due to:
-		           |%2';"),
+		           |%2'"),
 		Administrator,
 		Refinement);
 	
@@ -2470,7 +2469,7 @@ Procedure OnCreateOrAuthorizeAdministrator(Administrator, Refinement) Export
 			Object.Users.Add().User = Administrator;
 			InfobaseUpdate.WriteData(Object);
 			WriteLogEvent(
-				NStr("en = 'Access management.Administrators access group was updated automatically';",
+				NStr("en = 'Access management.Administrators access group was updated automatically'",
 				     Common.DefaultLanguageCode()),
 				EventLogLevel.Information,
 				Metadata.Catalogs.Users,
@@ -3354,7 +3353,7 @@ Procedure CheckAdministratorsAccessGroupForIBUser(GroupUsers, ErrorDescription) 
 		ErrorDescription =
 			NStr("en = 'At least one user authorized to log in
 			           |must be included in
-			           |the ""Administrators"" access group.';");
+			           |the ""Administrators"" access group.'");
 	EndIf;
 	
 EndProcedure
@@ -3374,16 +3373,16 @@ Function HasTableRestrictionByAccessKind(Table, AccessKind, AllAccessKinds) Expo
 	AccessKindsProperties = AccessKindsProperties();
 	
 	ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Error in function ""%1"" of common module ""%2"".';"),
+		NStr("en = 'Error in function ""%1"" of common module ""%2"".'"),
 		"HasTableRestrictionByAccessKind", "AccessManagement")
 		+ Chars.LF;
 	
 	AccessKindProperties = AccessKindsProperties.ByNames.Get(AccessKind);
 	If AccessKindProperties = Undefined Then
 		ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Access kind ""%1"" specified in parameter ""%2"" does not exist.';"),
+			NStr("en = 'Access kind ""%1"" specified in parameter ""%2"" does not exist.'"),
 			AccessKind, "AccessKind");
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	AccessKindRef = AccessKindProperties.Ref;
 	
@@ -3397,9 +3396,9 @@ Function HasTableRestrictionByAccessKind(Table, AccessKind, AllAccessKinds) Expo
 		If AccessKindProperties = Undefined Then
 			ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Access kind ""%1"" specified in parameter ""%2"" does not exist. Details:
-				           |""%3"".';"),
+				           |""%3"".'"),
 				CurrentAccessKind, "AllAccessKinds", AllAccessKinds);
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndIf;
 		If AccessKindProperties.Name = AccessKind Then
 			AccessKindSpecifiedInAllAccessKinds = True;
@@ -3414,9 +3413,9 @@ Function HasTableRestrictionByAccessKind(Table, AccessKind, AllAccessKinds) Expo
 	If Not AccessKindSpecifiedInAllAccessKinds Then
 		ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Access kind ""%1"" specified in parameter ""%2"" does not exist in parameter ""%3""
-			           |Details: ""%4"".';"),
+			           |Details: ""%4"".'"),
 			AccessKind, "AccessKind", "AllAccessKinds", AllAccessKinds);
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	If AllDisabledTableAccessKinds Then
@@ -3828,12 +3827,12 @@ Procedure DataFillingForAccessRestriction(DataVolume = 0, OnlyCacheAttributes = 
 				
 				Query.Text = StrReplace(Query.Text, "Catalog.Users", TableName);
 				Query.Text = StrReplace(Query.Text, "&CurrentTable", TableName);
-				// @skip-check query-in-loop - Batch-wise data processing
+				// @skip-check query-in-loop 
 				Values = Query.Execute().Unload().UnloadColumn("Ref");
 				If Not ValueIsFilled(Values) Then
 					Break;
 				EndIf;
-				// @skip-check query-in-loop - Batch-wise data processing
+				// @skip-check query-in-loop 
 				InformationRegisters.AccessValuesGroups.UpdateAccessValuesGroups(Values, HasChanges);
 				DataVolume = DataVolume + Values.Count();
 				If Values.Count() < 1000 Then
@@ -3876,12 +3875,12 @@ Procedure DataFillingForAccessRestriction(DataVolume = 0, OnlyCacheAttributes = 
 					|WHERE
 					|	InformationRegisterAccessValuesSets.Object IS NULL ";
 					Query.Text = StrReplace(Query.Text, "&CurrentTable", Metadata.FindByType(Type).FullName());
-					// @skip-check query-in-loop - Batch-wise data processing
+					// @skip-check query-in-loop 
 					Selection = Query.Execute().Select();
 					DataVolume = DataVolume + Selection.Count();
 					
 					While Selection.Next() Do
-						// @skip-check query-in-loop - Batch-wise data processing
+						// @skip-check query-in-loop 
 						UpdateAccessValuesSets(Selection.Ref, HasChanges);
 					EndDo;
 				EndIf;
@@ -3985,23 +3984,23 @@ Procedure DataFillingForAccessRestriction(DataVolume = 0, OnlyCacheAttributes = 
 	
 	If DataVolume < 10000 Then
 		WriteLogEvent(
-			NStr("en = 'Access management.Populate data for access restriction';",
+			NStr("en = 'Access management.Populate data for access restriction'",
 				 Common.DefaultLanguageCode()),
 			EventLogLevel.Information,
 			,
 			,
-			NStr("en = 'Population of access restriction data completed.';"),
+			NStr("en = 'Population of access restriction data completed.'"),
 			EventLogEntryTransactionMode.Transactional);
 			
 		SetDataFillingForAccessRestriction(False);
 	Else
 		WriteLogEvent(
-			NStr("en = 'Access management.Populate data for access restriction';",
+			NStr("en = 'Access management.Populate data for access restriction'",
 				 Common.DefaultLanguageCode()),
 			EventLogLevel.Information,
 			,
 			,
-			NStr("en = 'A batch of access restriction data is recorded.';"),
+			NStr("en = 'A batch of access restriction data is recorded.'"),
 			EventLogEntryTransactionMode.Transactional);
 	EndIf;
 	
@@ -4165,7 +4164,7 @@ Function GetAccessValuesSetsOfTabularSection(Object)
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid parameters.
 			           |Tabular section ""%2""
-			           |in an object of type ""%1"" does not exist.';"),
+			           |in an object of type ""%1"" does not exist.'"),
 			ValueTypeObject, "AccessValuesSets");
 		Raise ErrorText;
 	EndIf;
@@ -4216,21 +4215,21 @@ Procedure UpdateAccessValuesSets(ReferenceOrObject, HasChanges = Undefined, IBUp
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid parameters.
 			           |Cannot find object type ""%1""
-			           |in event subscription %2.';"),
+			           |in event subscription %2.'"),
 			ValueTypeObject,
 			"WriteAccessValuesSets");
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	If Metadata.InformationRegisters.AccessValuesSets.Dimensions.Object.Type.Types().Find(TypeOf(ObjectReference)) = Undefined Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'An error occurred when writing access value sets:
 			           |The ""%3"" type is not specified in dimension ""%2""
-			           |of information register ""%1""';"),
+			           |of information register ""%1""'"),
 			"AccessValuesSets",
 			"Object",
 			TypeOf(ObjectReference));
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	If ObjectReference.Metadata().TabularSections.Find("AccessValuesSets") <> Undefined Then
@@ -4335,12 +4334,12 @@ Procedure OnChangeAccessRestrictionAtRecordLevel(AccessRestrictionAtRecordLevelE
 	
 	If AccessRestrictionAtRecordLevelEnabled Then
 		WriteLogEvent(
-			NStr("en = 'Access management.Populate data for access restriction';",
+			NStr("en = 'Access management.Populate data for access restriction'",
 			     Common.DefaultLanguageCode()),
 			EventLogLevel.Information,
 			,
 			,
-			NStr("en = 'Population of access restriction data started.';"),
+			NStr("en = 'Population of access restriction data started.'"),
 			EventLogEntryTransactionMode.Transactional);
 		
 		SetDataFillingForAccessRestriction(True);
@@ -4386,39 +4385,60 @@ EndProcedure
 //    AllAllowed - Boolean,
 //    &AccessKindPresentation - String - a setting presentation,
 //    &AllAllowedPresentation - String - a setting presentation,
-//    @IsInUse - Boolean.
+//    @Used               - 
 //
-//  AccessValues - a table with the following fields
+//  @IsInUse - Boolean.
+//    AccessValues - a table with the following fields
 //    #AccessGroup - CatalogRef.AccessGroups,
 //    &AccessKind - DefinedType.AccessValue,
 //    AccessValue - DefinedType.AccessValue,
-//    &RowNumberByKind - Number.
 //
+//  &RowNumberByKind - Number.
 //  &UseExternalUsers - Boolean - an attribute will be created if it is not in the form.
-//  &AccessKindLabel - String - a presentation of the current access kind in the form.
-//  @IsAccessGroupsProfile - Boolean.
-//  @CurrentAccessKind - DefinedType.AccessValue.
-//  @CurrentTypesOfValuesToSelect - ValueList.
-//  @CurrentTypeOfValuesToSelect - DefinedType.AccessValue.
-//  @TablesStorageAttributeName - String.
-//  @AccessKindUsers - DefinedType.AccessValue.
-//  @AccessKindExternalUsers - DefinedType.AccessValue.
+// &AccessKindLabel - String - a presentation of the current access kind in the form.
+// @IsAccessGroupsProfile - Boolean.
+// @CurrentAccessKind - DefinedType.AccessValue.
+// @CurrentTypesOfValuesToSelect - ValueList.
+// @CurrentTypeOfValuesToSelect - DefinedType.AccessValue.
+// @TablesStorageAttributeName - String.
+// @AccessKindUsers - DefinedType.AccessValue.
+// @AccessKindExternalUsers - DefinedType.AccessValue.
+// @AllAccessKinds - a table with the following fields
+// @Ref - DefinedType.AccessValue,
+// @Presentation - String,
+// @IsInUse - Boolean.
+// @PresentationsAllAllowed - a table with the following fields
+// @Name - String,
+// @Presentation - String.
+// @AllTypesOfValuesToSelect - a table with the following fields
+// @AccessKind - DefinedType.AccessValue,
+// @ValuesType - DefinedType.AccessValue,
+// @TypePresentation - String,
+// @TableName - String,
+// @ItemsHierarchy - Boolean.
+//  @IsAccessGroupProfile               - 
+//  @CurrentAccessKind                    - 
+//  @CurrentTypesOfValuesToSelect        - 
+//  @CurrentTypeOfValuesToSelect         - 
+//  @TablesStorageAttributeName          - 
+//  @AccessKindUsers               - 
+//  @AccessKindExternalUsers        - 
 //  
-//  @AllAccessKinds - a table with the following fields
-//    @Ref - DefinedType.AccessValue,
-//    @Presentation - String,
-//    @IsInUse - Boolean.
+//  @AllAccessKinds - 
+//    @Ref        - 
+//    @Presentation - 
+//    @Used  - 
 //
-//  @PresentationsAllAllowed - a table with the following fields
-//    @Name - String,
-//    @Presentation - String.
+//  @PresentationsAllAllowed - 
+//    @Name           - 
+//    @Presentation - 
 //
-//  @AllTypesOfValuesToSelect - a table with the following fields
-//    @AccessKind - DefinedType.AccessValue,
-//    @ValuesType - DefinedType.AccessValue,
-//    @TypePresentation - String,
-//    @TableName - String,
-//    @ItemsHierarchy - Boolean.
+//  @AllTypesOfValuesToSelect - 
+//    @AccessKind        - 
+//    @ValuesType       - 
+//    @TypePresentation - 
+//    @TableName        - 
+//    @HierarchyOfItems - 
 //
 // Parameters:
 //  Form      - See AccessManagementInternalClientServer.AllowedValuesEditFormParameters
@@ -4590,12 +4610,12 @@ Procedure SetFilterCriterionInQuery(Val Query, Val Values, Val ValuesParameterNa
 				           |
 				           |Parameter ""%2"" is missing a delimiter (colon)
 				           |in the following string of %3 format:
-				           |""%4"".';"),
+				           |""%4"".'"),
 				"AccessManagement.SetFilterCriterionInQuery",
 				"ParameterNameFilterConditionsFieldName",
 				"<ParameterNameConditions>:<FieldName>",
 				CurrentRow);
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndIf;
 		FilterCriterionParameterName = Left(CurrentRow, SeparatorIndex-1);
 		FieldName = Mid(CurrentRow, SeparatorIndex+1);
@@ -4938,7 +4958,7 @@ Procedure UpdateRecordSets(Val Data, HasChanges)
 		
 		If Data.FirstDimensionName = Undefined Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Invalid parameters in procedure ""%1"".';"),
+				NStr("en = 'Invalid parameters in procedure ""%1"".'"),
 				"UpdateRecordSets");
 			Raise ErrorText;
 		Else
@@ -4962,7 +4982,7 @@ Procedure UpdateRecordSets(Val Data, HasChanges)
 					If Data.ThirdDimensionName = Undefined Then
 						RecordByMultipleSets = False;
 					Else
-						// @skip-check query-in-loop - Batch-wise data processing
+						// @skip-check query-in-loop 
 						RecordByMultipleSets = RecordByMultipleSets(Data,
 							Filter, Data.SecondDimensionName, Data.SecondDimensionValues);
 					EndIf;
@@ -5225,11 +5245,11 @@ Function MetadataObjectEmptyRef(MetadataObjectDetails) Export
 			NStr("en = 'Error in function ""%1""
 			           |of common module ""%2"".
 			           |
-			           |Parameter ""%3"" is invalid.';"),
+			           |Parameter ""%3"" is invalid.'"),
 			"MetadataObjectEmptyRef",
 			"AccessManagementInternal",
 			"MetadataObjectDetails");
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	EmptyRef = Undefined;
@@ -5242,11 +5262,11 @@ Function MetadataObjectEmptyRef(MetadataObjectDetails) Export
 			           |of common module ""%2"".
 			           |
 			           |Cannot get an empty reference for metadata object
-			           |""%3"".';"),
+			           |""%3"".'"),
 			"MetadataObjectEmptyRef",
 			"AccessManagementInternal",
 			MetadataObject.FullName());
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndTry;
 	
 	Return EmptyRef;
@@ -5327,12 +5347,12 @@ Function ChangesSelectionQueryText(NewDataSelectionQueryText,
 			NStr("en = 'Invalid value in parameter ""%1""
 			           |of procedure ""%2"" of module ""%3"".
 			           |
-			           |The query is missing a string ""%4"".';"),
+			           |The query is missing a string ""%4"".'"),
 			"OldDataSelectionQueryText",
 			"ChangesSelectionQueryText",
 			"AccessManagementInternal",
 			"&RowChangeKindFieldSubstitution");
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	OldDataSelectionQueryText = StrReplace(
@@ -5343,12 +5363,12 @@ Function ChangesSelectionQueryText(NewDataSelectionQueryText,
 			NStr("en = 'Invalid value in parameter ""%1""
 			           |of procedure ""%2"" of module ""%3"".
 			           |
-			           |The query is missing a string ""%1"".';"),
+			           |The query is missing a string ""%1"".'"),
 			"NewDataSelectionQueryText",
 			"ChangesSelectionQueryText",
 			"AccessManagementInternal",
 			"&RowChangeKindFieldSubstitution");
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	NewDataSelectionQueryText = StrReplace(
@@ -5373,7 +5393,7 @@ Function ChangesSelectionQueryText(NewDataSelectionQueryText,
 	|	
 	|	UNION ALL
 	|	
-	|	" + OldDataSelectionQueryText + ")"; // @query-part-1
+	|	" + OldDataSelectionQueryText + ")"; // @query-part-2
 	
 	SelectedFields = "";
 	GroupFields = "";
@@ -5797,7 +5817,8 @@ Procedure OnChangeAccessValuesSets(Val ObjectReference, IBUpdate = False)
 		
 		If DependentObjectRef.Metadata().TabularSections.Find("AccessValuesSets") = Undefined Then
 			// No object change is required.
-			// @skip-check query-in-loop - Batch-wise data processing
+// @skip-check query-in-loop - Batch-wise data processing
+			// @skip-check query-in-loop 
 			WriteAccessValuesSets(DependentObjectRef, , IBUpdate);
 		Else
 			// Object change is required.
@@ -5831,7 +5852,7 @@ Procedure OnChangeAccessValuesSets(Val ObjectReference, IBUpdate = False)
 					NStr("en = 'Cannot update the dependent access value set of the ""%1"" object
 					           |due to:
 					           |
-					           |%2';"),
+					           |%2'"),
 					String(DependentObjectRef),
 					ErrorProcessing.BriefErrorDescription(ErrorInfo));
 				Raise ErrorText;
@@ -5888,11 +5909,11 @@ Function OpenExternalReportsAndDataProcessorsProfileDetails() Export
 	ProfileDetails.Id = OpenExternalReportsAndDataProcessorsProfileID();
 	
 	ProfileDetails.Description =
-		NStr("en = 'Open external reports and data processors';", Common.DefaultLanguageCode());
+		NStr("en = 'Open external reports and data processors'", Common.DefaultLanguageCode());
 	
 	ProfileDetails.LongDesc =
 		NStr("en = 'Grants the right to open external reports and data processors from the ""File—Open"" menu.
-		           |It is recommended that you do not change the list of profile''s roles.';");
+		           |It is recommended that you do not change the list of profile''s roles.'");
 	
 	ProfileDetails.Roles.Add("InteractiveOpenExtReportsAndDataProcessors");
 	
@@ -5922,7 +5943,7 @@ Function OpenExternalReportsAndDataProcessorsAccessGroup(ProfileProperties)
 	AccessGroupObject.Description = ProfileProperties.Description;
 	AccessGroupObject.Profile      = ProfileProperties.Ref;
 	AccessGroupObject.Comment  =
-		NStr("en = 'Grants the right to open external reports and data processors from the ""File—Open"" menu.';",
+		NStr("en = 'Grants the right to open external reports and data processors from the ""File—Open"" menu.'",
 			Common.DefaultLanguageCode());
 	
 	AccessGroupObject.Write(); // It is important that the created group belongs to the subordinate node.
@@ -5999,7 +6020,7 @@ Procedure FillParameters_(InputParameters, Val AllParameters, Val RequiredParame
 	Else
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid type of property set ""%1.""
-			           |Allowed types: %2 and %3.';"),
+			           |Allowed types: %2 and %3.'"),
 			TypeOf(InputParameters), "Structure", "Undefined");
 		Raise ErrorText;
 	EndIf;
@@ -6007,7 +6028,7 @@ Procedure FillParameters_(InputParameters, Val AllParameters, Val RequiredParame
 	For Each KeyAndValue In Parameters Do
 		If Not AllParameters.Property(KeyAndValue.Key) Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The %1 parameter does not exist.';"),
+				NStr("en = 'The %1 parameter does not exist.'"),
 				KeyAndValue.Key);
 			Raise ErrorText;
 		EndIf;
@@ -6020,7 +6041,7 @@ Procedure FillParameters_(InputParameters, Val AllParameters, Val RequiredParame
 		For Each KeyAndValue In RequiredParameters2 Do
 			If Not Parameters.Property(KeyAndValue.Key) Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'The required parameter %1 is not specified.';"),
+					NStr("en = 'The required parameter %1 is not specified.'"),
 					KeyAndValue.Key);
 				Raise ErrorText;
 			EndIf;
@@ -6521,7 +6542,7 @@ Procedure WriteAccessValuesSets(Val Object, HasChanges = Undefined, IBUpdate = F
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid parameters.
 			           |Cannot find object type ""%1""
-			           |in event subscriptions %2.';"),
+			           |in event subscriptions %2.'"),
 			ValueTypeObject,
 			"WriteAccessValuesSets");
 		Raise ErrorText;
@@ -6534,11 +6555,11 @@ Procedure WriteAccessValuesSets(Val Object, HasChanges = Undefined, IBUpdate = F
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'An error occurred when writing access value sets:
 			           |The ""%3"" type is not specified in dimension ""%2""
-			           |of information register ""%1"".';"),
+			           |of information register ""%1"".'"),
 			"AccessValuesSets",
 			"Object",
 			TypeOf(ObjectReference));
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	If AccessManagement.LimitAccessAtRecordLevel()
@@ -6560,7 +6581,7 @@ Procedure WriteAccessValuesSets(Val Object, HasChanges = Undefined, IBUpdate = F
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Invalid parameters.
 					           |Cannot find object type ""%1""
-					           |in event subscriptions %2.';"),
+					           |in event subscriptions %2.'"),
 					ValueTypeObject,
 					"FillAccessValuesSetsForTabularSections");
 				Raise ErrorText;
@@ -6664,7 +6685,7 @@ Procedure WriteDependentAccessValuesSets(Val Object, IBUpdate = False)
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid parameters.
 			           |Cannot find object type ""%1""
-			           |in event subscription %2.';"),
+			           |in event subscription %2.'"),
 			ValueTypeObject,
 			"WriteDependentAccessValuesSets");
 		Raise ErrorText;
@@ -6886,9 +6907,8 @@ Function CurrentUsersProperties(UsersArray)
 	If Constants.UseExternalUsers.Get() Then
 		Query.Text = StrReplace(Query.Text, "&ExcludeExternalUsers", "TRUE");
 	Else
-		// @query-part-2
 		Query.Text = StrReplace(Query.Text, "&ExcludeExternalUsers",
-			"VALUETYPE(UsersToCheck.User) = TYPE(Catalog.Users)");
+			"VALUETYPE(UsersToCheck.User) = TYPE(Catalog.Users)"); // @query-part-2
 	EndIf;
 	
 	QueriesResults = Query.ExecuteBatch();
@@ -7203,7 +7223,7 @@ EndProcedure
 Procedure RegisterUnavailableRole(RoleDetails, Profile)
 	
 	WriteLogEvent(
-		NStr("en = 'Access management.Role is unavailable to user';",
+		NStr("en = 'Access management.Role is unavailable to user'",
 		     Common.DefaultLanguageCode()),
 		EventLogLevel.Error,
 		Metadata.Catalogs.AccessGroupProfiles,
@@ -7214,7 +7234,7 @@ Procedure RegisterUnavailableRole(RoleDetails, Profile)
 			           |%3
 			           |of access group profile ""%4""
 			           |%5
-			           |is unavailable to the user.';"),
+			           |is unavailable to the user.'"),
 			String(RoleDetails.User),
 			RoleDetails.Role,
 			GetURL(RoleDetails.RoleRef),
@@ -7227,7 +7247,7 @@ EndProcedure
 Procedure RegisterNotFoundRole(RoleDetails, Profile)
 	
 	WriteLogEvent(
-		NStr("en = 'Access management.Role not found in metadata';",
+		NStr("en = 'Access management.Role not found in metadata'",
 		     Common.DefaultLanguageCode()),
 		EventLogLevel.Error,
 		Metadata.Catalogs.AccessGroupProfiles,
@@ -7238,7 +7258,7 @@ Procedure RegisterNotFoundRole(RoleDetails, Profile)
 			           |%3
 			           |of access group profile ""%4""
 			           |%5
-			           |does not exist in metadata.';"),
+			           |does not exist in metadata.'"),
 			String(RoleDetails.User),
 			RoleDetails.Role,
 			GetURL(RoleDetails.RoleRef),
@@ -7405,19 +7425,19 @@ Procedure WriteUserOnRolesUpdate(UserRef, IBUser,
 				SimplifiedInterface = SimplifiedAccessRightsSetupInterface();
 				
 				If HadFullRights Then
-					Template = NStr("en = 'To disable administrator access for user %1, enter the password of current service user %2.';");
+					Template = NStr("en = 'To disable administrator access for user %1, enter the password of current service user %2.'");
 				Else
-					Template = NStr("en = 'To grant user %1 administrator access, enter the password of current service user %2.';");
+					Template = NStr("en = 'To grant user %1 administrator access, enter the password of current service user %2.'");
 				EndIf;
 				
 				If HadFullRights And SimplifiedInterface Then
-					Refinement = NStr("en = 'This action can be performed only in a user card if the Administrator profile is disabled for them.';");
+					Refinement = NStr("en = 'This action can be performed only in a user card if the Administrator profile is disabled for them.'");
 				ElsIf Not HadFullRights And SimplifiedInterface Then
-					Refinement = NStr("en = 'This action can be performed only in a user card if the Administrator profile is enabled for them.';");
+					Refinement = NStr("en = 'This action can be performed only in a user card if the Administrator profile is enabled for them.'");
 				ElsIf HadFullRights Then
-					Refinement = NStr("en = 'This action can be performed only in a card of the Administrators access group or in a user card when the user is removed from the Administrators access group.';");
+					Refinement = NStr("en = 'This action can be performed only in a card of the Administrators access group or in a user card when the user is removed from the Administrators access group.'");
 				Else
-					Refinement = NStr("en = 'This action can be performed only in a card of the Administrators access group or in a user card when the user is added to the Administrators access group.';");
+					Refinement = NStr("en = 'This action can be performed only in a card of the Administrators access group or in a user card when the user is added to the Administrators access group.'");
 				EndIf;
 				
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(Template,
@@ -7736,13 +7756,13 @@ Procedure ExceptionOnRecordSearchError(Parameters)
 				           |Invalid value of parameter ""%3"":
 				           |Column ""%4"" contains invalid value ""%5"".
 				           |
-				           |Valid values are ""1"" and ""-1"".';"),
+				           |Valid values are ""1"" and ""-1"".'"),
 				"UpdateRecordSets",
 				"AccessManagementInternal",
 				"NewRecords",
 				"LineChangeType",
 				String(ChangesRow.LineChangeType));
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndIf;
 	EndDo;
 	
@@ -7751,12 +7771,11 @@ Procedure ExceptionOnRecordSearchError(Parameters)
 		           |of common module %2.
 		           |
 		           |Cannot find a mandatory string
-		           |in parameter ""%3"".';"),
+		           |in parameter ""%3"".'"),
 		"UpdateRecordSets",
 		"AccessManagementInternal",
 		"NewRecords");
-	
-	Raise ErrorText;
+	Raise(ErrorText, ErrorCategory.ConfigurationError);
 	
 EndProcedure
 
@@ -7809,27 +7828,27 @@ Procedure SetFilter(FilterElement, FilterValue)
 			URL = "";
 		EndTry;
 		Try
-			InnerLine = ValueToStringInternal(FilterValue);
+			InternalString = ValueToStringInternal(FilterValue);
 		Except
-			InnerLine = "";
+			InternalString = "";
 		EndTry;
 		ForAdministrator = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Failed to set value ""%1"" of type %2
 			           |	URL: %3
 			           |	Internal row: %4
 			           |to a filter item with the properties:
-			           |%5';"),
+			           |%5'"),
 			String(FilterValue),
 			String(TypeOf(FilterValue)) + ?(ValueMetadata = Undefined,
 				"", " (" + ValueMetadata.FullName() + ")"),
 			URL,
-			InnerLine,
+			InternalString,
 			StrConcat(SelectionProperties, Chars.LF));
 		Refinement = CommonClientServer.ExceptionClarification(ErrorInfo);
 		Try
 			Raise(Refinement.Text, Refinement.Category,, ForAdministrator, ErrorInfo);
 		Except
-			WriteLogEvent(NStr("en = 'Runtime error';", Common.DefaultLanguageCode()),
+			WriteLogEvent(NStr("en = 'Runtime error'", Common.DefaultLanguageCode()),
 				EventLogLevel.Error,,,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			Raise;
@@ -8093,27 +8112,27 @@ Procedure FillPresentationTableAllAllowedInForm(Form, ThisProfile)
 	If ThisProfile Then
 		String = PresentationsAllAllowed.Add();
 		String.Name = "AllDeniedByDefault";
-		String.Presentation = NStr("en = 'All denied, configure exceptions in access groups';");
+		String.Presentation = NStr("en = 'All denied, configure exceptions in access groups'");
 		
 		String = PresentationsAllAllowed.Add();
 		String.Name = "AllAllowedByDefault";
-		String.Presentation = NStr("en = 'All allowed, configure exceptions in access groups';");
+		String.Presentation = NStr("en = 'All allowed, configure exceptions in access groups'");
 		
 		String = PresentationsAllAllowed.Add();
 		String.Name = "AllDenied";
-		String.Presentation = NStr("en = 'All denied, configure exceptions in profile';");
+		String.Presentation = NStr("en = 'All denied, configure exceptions in profile'");
 		
 		String = PresentationsAllAllowed.Add();
 		String.Name = "AllAllowed";
-		String.Presentation = NStr("en = 'All allowed, configure exceptions in profile';");
+		String.Presentation = NStr("en = 'All allowed, configure exceptions in profile'");
 	Else
 		String = PresentationsAllAllowed.Add();
 		String.Name = "AllDenied";
-		String.Presentation = NStr("en = 'All denied';");
+		String.Presentation = NStr("en = 'All denied'");
 		
 		String = PresentationsAllAllowed.Add();
 		String.Name = "AllAllowed";
-		String.Presentation = NStr("en = 'All allowed';");
+		String.Presentation = NStr("en = 'All allowed'");
 	EndIf;
 	
 	ChoiceList = Form.Items.AccessKindsAllAllowedPresentation.ChoiceList; // ValueList
@@ -8262,7 +8281,7 @@ Function EmptyAccessValueReferences() Export
 		NewRow = Table.Add();
 		NewRow.EmptyRef = TypeDetails.AdjustValue(Undefined);
 		NewRow.Presentation = "<" + StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Empty reference: ""%1""';"), String(Type)) + ">";
+			NStr("en = 'Empty reference: ""%1""'"), String(Type)) + ">";
 	EndDo;
 	
 	Return Table;
@@ -8663,7 +8682,7 @@ Function CheckedSessionAccessViewProperties(HashAmounts) Export
 		AccessManagementInternalCached.TableFieldTypes("DefinedType.AccessValue"));
 	
 	ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Error in procedure %1 of common module %2.';"),
+		NStr("en = 'Error in procedure %1 of common module %2.'"),
 		"OnFillAccessKinds", "AccessManagementOverridable")
 		+ Chars.LF
 		+ Chars.LF;
@@ -8687,9 +8706,9 @@ Function CheckedSessionAccessViewProperties(HashAmounts) Export
 	For Each AccessKind In AccessKinds Do
 		If AllAccessKindsNames[Upper(AccessKind.Name)] <> Undefined Then
 			ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The access kind name ""%1"" is already defined.';"),
+				NStr("en = 'The access kind name ""%1"" is already defined.'"),
 				AccessKind.Name);
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndIf;
 		
 		// Checking for duplicate value types and group types.
@@ -9056,7 +9075,7 @@ Procedure CheckSubscriptionTypesUpdateAccessValuesGroups(AccessValuesWithGroups)
 		NStr("en = 'According to data retrieved from procedure ""%1""
 		           |of common module ""%2"",
 		           |type collection ""%3"" is missing mandatory types:
-		           |- %4';"),
+		           |- %4'"),
 		"OnFillAccessKinds",
 		"AccessManagementOverridable",
 		"AccessValueObject",
@@ -9074,7 +9093,7 @@ Procedure ValidateType(AccessKind, Type, AllTypes, Parameters, CheckGroupsTypes 
 			Return;
 		EndIf;
 		ErrorText = Parameters.ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The Access Value type is not specified for the ""%1"" access kind.';"),
+			NStr("en = 'The Access Value type is not specified for the ""%1"" access kind.'"),
 			AccessKind.Name);
 		Raise ErrorText;
 	EndIf;
@@ -9084,11 +9103,11 @@ Procedure ValidateType(AccessKind, Type, AllTypes, Parameters, CheckGroupsTypes 
 		If CheckGroupsTypes Then
 			ErrorDescription =
 				NStr("en = 'The ""%1"" type is specified as a value group type for the ""%2"" access kind.
-				           |However, it is not a reference type.';");
+				           |However, it is not a reference type.'");
 		Else
 			ErrorDescription =
 				NStr("en = 'The ""%1"" type is specified as a value type for the ""%2"" access kind.
-				           |However, it is not a reference type.';");
+				           |However, it is not a reference type.'");
 		EndIf;
 		ErrorText = Parameters.ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 			ErrorDescription, Type, AccessKind.Name);
@@ -9102,22 +9121,22 @@ Procedure ValidateType(AccessKind, Type, AllTypes, Parameters, CheckGroupsTypes 
 		If IntersectionCheck Then
 			ErrorDescription =
 				NStr("en = 'The ""%1"" type is specified as a value type for the ""%2"" access kind.
-				           |It cannot be specified as a value group type for the ""%3"" access kind.';");
+				           |It cannot be specified as a value group type for the ""%3"" access kind.'");
 		Else
 			ForSameAccessKindNoError = True;
 			ErrorDescription =
 				NStr("en = 'The ""%1"" value group type is already specified for the ""%2"" access kind.
-				           |It cannot be specified for the ""%3"" access kind.';");
+				           |It cannot be specified for the ""%3"" access kind.'");
 		EndIf;
 	Else
 		If IntersectionCheck Then
 			ErrorDescription =
 				NStr("en = 'The ""%1"" type is specified as a value group type for the ""%2"" access kind.
-				           |It cannot be specified as a value type for the ""%3"" access kind.';");
+				           |It cannot be specified as a value type for the ""%3"" access kind.'");
 		Else
 			ErrorDescription =
 				NStr("en = 'The ""%1"" value type is already specified for the ""%2"" access kind.
-				           |It cannot be specified for the ""%3"" access kind.';");
+				           |It cannot be specified for the ""%3"" access kind.'");
 		EndIf;
 	EndIf;
 	
@@ -9137,11 +9156,11 @@ Procedure ValidateType(AccessKind, Type, AllTypes, Parameters, CheckGroupsTypes 
 		If CheckGroupsTypes Then
 			ErrorDescription =
 				NStr("en = 'The ""%1"" access value group type of the ""%2"" access kind
-				           |is not specified in the ""%3"" type collection.';");
+				           |is not specified in the ""%3"" type collection.'");
 		Else
 			ErrorDescription =
 				NStr("en = 'The ""%1"" access value type of the ""%2"" access kind
-				           |is not specified in the ""%3"" type collection.';");
+				           |is not specified in the ""%3"" type collection.'");
 		EndIf;
 	EndIf;
 	
@@ -9327,15 +9346,15 @@ Function AccessGroupsUsingAccessValuesHierarchy(AccessKindValueType)
 	
 EndFunction
 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
+// Returns a value table containing the types of access restrictions for each
+// access right of metadata objects.
+// If there is no record for an access right, it means there are no restrictions for that permission.
+// The table only includes access types defined by the developer
+// based on their usage in restriction expressions.
+// In the standard access restriction mode, to obtain the access types
+// of objects restricted using the "BySetsOfValues" template, the current state of the "AccessValuesSets" information register is used.
+// A characteristic of such a restriction is a row where the table is restricted by
+// the Object access type with the same leading table (except when the table is the owner of the right settings).
 // 
 //
 // Parameters:
@@ -9351,14 +9370,14 @@ EndFunction
 //   * Table        - CatalogRef.MetadataObjectIDs
 //                    - CatalogRef.ExtensionObjectIDs - Table ID.
 //   * Right          - String - Read, Update.
-//   * AccessKind     - DefinedType.AccessValue - 
-//                        
-//                        
+//   * AccessKind     - DefinedType.AccessValue - An empty reference of the main value type for the access type.
+//                        "Undefined" if the restriction is applied using the standard "BySetsOfValues" template.
+//                        "Enumeration.AdditionalAccessValues.Undefined" for special restrictions "Object" and "PermissionSettings".
 //                          
-//   * IsAuthorizedUser - Boolean - 
-//                        
-//   * ObjectTable - AnyRef - 
-//                      
+//   * IsAuthorizedUser - Boolean - "True" if the access kind is "Users" or "ExternalUsers".
+//                        Verification uses only the "FunctionIsAuthorizedUser" restriction.
+//   * ObjectTable - AnyRef - Empty reference to the object being restricted
+//                      using the BySetsOfValues standard template.
 //                    - Undefined - If AccessKind is not Undefined.
 //                      This column is applicable only to standard restrictions.
 //
@@ -9438,13 +9457,13 @@ Procedure AddViewsRestrictionsRights(AccessRestrictionKinds, RightsRestrictions,
 			   And StringParts1.Count() <> 4
 			   And StringParts1.Count() <> 6 Then
 				ErrorNote = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Line must have the following format: %1.';"),
+					NStr("en = 'Line must have the following format: %1.'"),
 					"<FullTableName>.<NameOfRight>.<AccessKindName>[.<FullObjectTableName>]");
 			ElsIf UniversalRestriction
 			   And StringParts1.Count() <> 4
 			   And StringParts1.Count() <> 7 Then
 				ErrorNote = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Line must have the following format: %1.';"),
+					NStr("en = 'Line must have the following format: %1.'"),
 					"<FullTableName>.<NameOfRight>.<AccessKindName>[.<FullObjectTableName>.<HostRightName>]");
 			Else
 				Table    = StringParts1[0] + "." + StringParts1[1];
@@ -9464,11 +9483,11 @@ Procedure AddViewsRestrictionsRights(AccessRestrictionKinds, RightsRestrictions,
 						Continue;
 					EndIf;
 					ErrorNote = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Table ""%1"" does not exist.';"), Table);
+						NStr("en = 'Table ""%1"" does not exist.'"), Table);
 				
 				ElsIf Right <> "Read" And Right <> "Update" Then
 					ErrorNote = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Right ""%1"" does not exist.';"), Right);
+						NStr("en = 'Right ""%1"" does not exist.'"), Right);
 				
 				ElsIf Upper(AccessKind) = Upper("Object") Then
 					MetadataObjectOfObjectTable = Common.MetadataObjectByFullName(ObjectTable);
@@ -9477,7 +9496,7 @@ Procedure AddViewsRestrictionsRights(AccessRestrictionKinds, RightsRestrictions,
 							Continue;
 						EndIf;
 						ErrorNote = StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'Object table ""%1"" does not exist.';"),
+							NStr("en = 'Object table ""%1"" does not exist.'"),
 							ObjectTable);
 					Else
 						If TableMetadataObject = MetadataObjectOfObjectTable Then
@@ -9491,7 +9510,7 @@ Procedure AddViewsRestrictionsRights(AccessRestrictionKinds, RightsRestrictions,
 						   And LeadingRight <> "Read"
 						   And LeadingRight <> "Update" Then
 							ErrorNote = StringFunctionsClientServer.SubstituteParametersToString(
-								NStr("en = 'Master right ""%1"" does not exist.';"), LeadingRight);
+								NStr("en = 'Master right ""%1"" does not exist.'"), LeadingRight);
 						EndIf;
 					EndIf;
 					
@@ -9501,7 +9520,7 @@ Procedure AddViewsRestrictionsRights(AccessRestrictionKinds, RightsRestrictions,
 							Continue;
 						EndIf;
 						ErrorNote = StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'Right settings owner table ""%1"" does not exist.';"),
+							NStr("en = 'Right settings owner table ""%1"" does not exist.'"),
 							ObjectTable);
 					Else
 						AccessKindRef = Enums.AdditionalAccessValues.Undefined;
@@ -9521,7 +9540,7 @@ Procedure AddViewsRestrictionsRights(AccessRestrictionKinds, RightsRestrictions,
 						Continue;
 					EndIf;
 					ErrorNote = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Access kind ""%1"" does not exist.';"), AccessKind);
+						NStr("en = 'Access kind ""%1"" does not exist.'"), AccessKind);
 				Else
 					AccessKindProperties = AccessKindsByNames.Get(AccessKind); // See AccessKindProperties
 					AccessKindRef = AccessKindProperties.Ref;
@@ -9532,7 +9551,7 @@ Procedure AddViewsRestrictionsRights(AccessRestrictionKinds, RightsRestrictions,
 			If ValueIsFilled(ErrorNote) Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Error in the details of the right restriction kind of a metadata object:
-						           |""%1"".';")
+						           |""%1"".'")
 						+ Chars.LF
 						+ Chars.LF,
 						CurrentRow)
@@ -9544,13 +9563,13 @@ Procedure AddViewsRestrictionsRights(AccessRestrictionKinds, RightsRestrictions,
 							           |in procedure %2
 							           |of common module %3.
 							           |
-							           |%4';"),
+							           |%4'"),
 							"AccessManagement",
 							"OnFillMetadataObjectsAccessRestrictionKinds",
 							"AccessManagementOverridable",
 							ErrorText);
 				EndIf;
-				Raise ErrorText;
+				Raise(ErrorText, ErrorCategory.ConfigurationError);
 			Else
 				NewDetails = AccessRestrictionKinds.Add();
 				NewDetails.ForExternalUsers = ForExternalUsers;
@@ -9587,8 +9606,8 @@ EndProcedure
 //
 // Returns:
 //   ValueTable:
-//     * AccessKind        - DefinedType.AccessValue - 
-//     * GroupAndValueType - DefinedType.AccessValue - 
+//     * AccessKind        - DefinedType.AccessValue - Empty reference
+//     * GroupAndValueType - DefinedType.AccessValue - Empty reference
 //
 Function AccessKindsGroupsAndValuesTypes() Export
 	
@@ -9951,7 +9970,7 @@ Function AccessAllowed(DataDetails, RightUpdate, RaiseException1 = False,
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid value of the %1 parameter in %2.
 			           |A reference, object, record key, or record set expected.
-			           |Passed value: %3 (type %4).';"),
+			           |Passed value: %3 (type %4).'"),
 			"DataDetails",
 			?(RaiseException1,
 				?(RightUpdate, "AccessManagement.CheckChangeAllowed",
@@ -9980,7 +9999,7 @@ Function AccessAllowed(DataDetails, RightUpdate, RaiseException1 = False,
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Invalid value of the %1 parameter in %2.
 				           |Only %3 is supported in the standard access restriction option.
-				           |Value passed: %4 (the %5 type).';"),
+				           |Value passed: %4 (the %5 type).'"),
 				"User",
 				?(RaiseException1,
 					?(RightUpdate, "AccessManagement.CheckChangeAllowed",
@@ -10000,7 +10019,7 @@ Function AccessAllowed(DataDetails, RightUpdate, RaiseException1 = False,
 				           |- either the %2 parameter value is invalid
 				           |value passed: %3 (the %4 type),
 				           |- or the %5 parameter value is invalid
-				           |value passed: %6 (the %7 type).';"),
+				           |value passed: %6 (the %7 type).'"),
 				"AccessManagement.AccessAllowed",
 				"RaiseException1",
 				String(RaiseException1),
@@ -10148,8 +10167,8 @@ Function AccessAllowed(DataDetails, RightUpdate, RaiseException1 = False,
 							ObjectFieldValue = Null;
 						Else
 							FieldsSeparatedByAPoint.Delete(0);
-							ParameterFromMemory = "CAST(&Owner AS " + MetadataObjectByType.FullName() // @query-part-1
-								+ ")." + StrConcat(FieldsSeparatedByAPoint, ".");
+							ParameterFromMemory = "CAST(&Owner AS " + MetadataObjectByType.FullName()
+								+ ")." + StrConcat(FieldsSeparatedByAPoint, "."); // @query-part-1
 						EndIf;
 					EndIf;
 					Query.Text = StrReplace(Query.Text,
@@ -10209,16 +10228,15 @@ Function AccessAllowed(DataDetails, RightUpdate, RaiseException1 = False,
 					Combinations = DataDetails.Unload(, OwnerField); // ValueTable
 					Combinations.GroupBy(OwnerField);
 					Query.SetParameter("BasicFieldsValuesCombinations", Combinations);
-					CombinationsPreparationQueryText = // @query-part-1
-					"SELECT CurrentTable." + OwnerField + "
+					CombinationsPreparationQueryText = "SELECT CurrentTable." + OwnerField + "
 					|INTO BasicFieldsValuesCombinations
-					|FROM &BasicFieldsValuesCombinations AS CurrentTable"; // @query-part-1
+					|FROM &BasicFieldsValuesCombinations AS CurrentTable"; //  @query-part-1, @query-part-2
 				Else
-					CombinationsPreparationQueryText = // @query-part-1
-					"SELECT CurrentTable." + StrConcat(RestrictionParameters.BasicFields.UsedItems, ",
+					CombinationsPreparationQueryText = "SELECT CurrentTable." 
+						+ StrConcat(RestrictionParameters.BasicFields.UsedItems, ",
 					|	CurrentTable.") + "
 					|INTO BasicFieldsValuesCombinations
-					|FROM &BasicFieldsValuesCombinations AS CurrentTable"; // @query-part-1
+					|FROM &BasicFieldsValuesCombinations AS CurrentTable"; // @query-part-1, @query-part-2, @query-part-3
 					DataDetails.AdditionalProperties.Insert("AccessManagementTransactionID",
 						TransactionID);
 					UpdateRecordSetAccessKeys(DataDetails, False, False,
@@ -10228,8 +10246,8 @@ Function AccessAllowed(DataDetails, RightUpdate, RaiseException1 = False,
 				Query.Text = StrReplace(QueryText, "&FilterByDimensions", "TRUE");
 				FullRegisterName = Metadata.FindByType(TypeOf(DataDetails)).FullName();
 				Query.Text = CombinationsPreparationQueryText + Common.QueryBatchSeparator()
-					+ StrReplace(Query.Text, FullRegisterName + " AS CurrentTable", // @query-part-1 @query-part-2
-						"BasicFieldsValuesCombinations AS CurrentTable");
+					+ StrReplace(Query.Text, FullRegisterName + " AS CurrentTable",
+						"BasicFieldsValuesCombinations AS CurrentTable"); // @query-part-1 @query-part-2
 				
 				AccessAllowed = Query.Execute().IsEmpty();
 			EndIf;
@@ -10330,21 +10348,21 @@ Function AccessRightsToData(DataDetails, ForExternalUsers, UsersContent) Export
 	EndIf;
 	
 	If Not Users.IsFullUser() Then
-		ErrorText = NStr("en = 'Insufficient access rights.';");
-		ForAdministrator = NStr("en = 'Either full access or privileged mode is required.';");
+		ErrorText = NStr("en = 'Insufficient access rights.'");
+		ForAdministrator = NStr("en = 'Either full access or privileged mode is required.'");
 		Raise(ErrorText, ErrorCategory.AccessViolation,, ForAdministrator);
 	EndIf;
 	
 	If Not AccessManagement.ProductiveOption() Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The standard access restriction mode does not support function %1.';"),
+			NStr("en = 'The standard access restriction mode does not support function %1.'"),
 			"AccessManagement.AccessRightsToData");
 		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	If TypeOf(DataDetails) = Type("Array") Then
 		DataElement = ?(DataDetails.Count() > 0, DataDetails[0],
-			"<" + NStr("en = 'An empty array';") + ">");
+			"<" + NStr("en = 'An empty array'") + ">");
 	Else
 		DataElement = DataDetails;
 	EndIf;
@@ -10354,7 +10372,7 @@ Function AccessRightsToData(DataDetails, ForExternalUsers, UsersContent) Export
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid value of the %1 parameter in %2.
 			           |A reference, object, record key, record set, or a non-empty array of same-type references are expected.
-			           |Passed value: %3 (type %4).';"),
+			           |Passed value: %3 (type %4).'"),
 			"DataDetails",
 			"AccessManagement.AccessRightsToData",
 			String(DataElement),
@@ -10455,12 +10473,12 @@ Function AccessRightsToData(DataDetails, ForExternalUsers, UsersContent) Export
 	
 EndFunction
 
-// 
+// Intended for functions "AccessAllowed", "ReadingAllowed", and "AccessRightsToData".
 Function RecordsFilterFromDataDetails(DataDetails, FullRegisterName, NewEmptyRecordSet,
 			AccessRightsToData = False)
 	
 	If TypeOf(DataDetails) <> TypeOf(NewEmptyRecordSet) Then
-		// КлючЗаписи.
+		// RecordKey.
 		RecordsFilter = New Array;
 		RecordKeyDetails = StandardSubsystemsServer.RecordKeyDetails(FullRegisterName);
 		For Each FieldDetails In RecordKeyDetails.FieldsDetails Do
@@ -10485,7 +10503,7 @@ Function RecordsFilterFromDataDetails(DataDetails, FullRegisterName, NewEmptyRec
 	
 EndFunction
 
-// 
+// Intended for function "AccessRightsToData".
 Function PreparedResult(RestrictionParameters, Query = Undefined);
 	
 	FullName = RestrictionParameters.List;
@@ -10528,9 +10546,9 @@ Function PreparedResult(RestrictionParameters, Query = Undefined);
 			For Each FieldDetails In RecordKeyDetails.FieldsDetails Do
 				DimensionsForSelection.Add("UNDEFINED"); // @query-part-1
 			EndDo;
-			QueryText = StrReplace(QueryText, "UNDEFINED AS Ref", // @query-part-1
+			QueryText = StrReplace(QueryText, "UNDEFINED AS Ref",
 				StrConcat(DimensionsForSelection, ",
-					|	"));
+					|	")); // @query-part-1
 		EndIf;
 		Query.Text = Query.Text + Common.UnionAllText() + QueryText;
 		Result = Query.Execute().Unload();
@@ -10626,14 +10644,14 @@ Procedure AddUsersRightsQueryForTable(Query, RestrictionParameters, RightsOption
 		|GROUP BY
 		|	UsersToCheck.UserWithRight";
 		
-		QueryText = StrReplace(QueryText, "UsersToCheck AS", // @query-part-1
-			TemporaryTableNameOfCheckedUsers + " AS"); // @query-part-1
+		QueryText = StrReplace(QueryText, "UsersToCheck AS",
+			TemporaryTableNameOfCheckedUsers + " AS"); // @query-part-1, @query-part-2
 	EndIf;
 	
 	If NameOfTemporaryResultTable <> "" Then
-		QueryText = StrReplace(QueryText, "AS RightUpdate", // @query-part-1
+		QueryText = StrReplace(QueryText, "AS RightUpdate",
 		"AS RightUpdate
-		|INTO " + NameOfTemporaryResultTable); // @query-part-1
+		|INTO " + NameOfTemporaryResultTable); // @query-part-1, @query-part-2
 	EndIf;
 	
 	If RestrictionParameters.ForExternalUsers Then
@@ -10645,8 +10663,8 @@ Procedure AddUsersRightsQueryForTable(Query, RestrictionParameters, RightsOption
 	If RightsOption = "RightsWithRestriction" Then
 		QueryText = StrReplace(QueryText, "&FilterRight", "TRUE");
 	Else
-		QueryText = StrReplace(QueryText, "MAX(AccessGroupsTables.RightUpdate)", // @query-part-1
-			"MAX(AccessGroupsTables.UnrestrictedUpdateRight)"); // @query-part-1
+		QueryText = StrReplace(QueryText, "MAX(AccessGroupsTables.RightUpdate)",
+			"MAX(AccessGroupsTables.UnrestrictedUpdateRight)"); // @query-part-1, @query-part-2
 		
 		If RightsOption = "RightToWriteRestrictionDisabled" Then
 			QueryText = StrReplace(QueryText, "&FilterRight", "TRUE");
@@ -10726,9 +10744,9 @@ Procedure AddQueryOfObjectsToCheck(Query, DataDetails, RestrictionParameters,
 		|FROM
 		|	&RegisterRecordsKeys AS CurrentTable";
 		QueryTextOfRecordsKeys = StrReplace(QueryTextOfRecordsKeys,
-			"CurrentTable.Field1 AS Field1", // @query-part-1
+			"CurrentTable.Field1 AS Field1", 
 			StrConcat(DimensionsForSelection, ",
-				|	"));
+				|	")); // @query-part-1
 		Query.SetParameter("RegisterRecordsKeys",
 			DataDetails.Unload(, RecordKeyDetails.FieldList));
 		
@@ -10745,9 +10763,9 @@ Procedure AddQueryOfObjectsToCheck(Query, DataDetails, RestrictionParameters,
 			FilterConditions.Add(StrTemplate("RegisterRecordsKeys.%1 = CurrentTable.%1", FieldDetails.Name));
 		EndDo;
 		FilterByDimensions = StrReplace(FilterByDimensions,
-			"RegisterRecordsKeys.Field1 = CurrentTable.Field1", // @query-part-1
+			"RegisterRecordsKeys.Field1 = CurrentTable.Field1",
 			StrConcat(FilterConditions, "
-				|				AND ")); // @query-part-1
+				|				AND ")); // @query-part-1, @query-part-2
 	EndIf;
 	
 	If QueryTextOfRightsWithData = Undefined Then
@@ -10799,9 +10817,9 @@ Procedure AddQueryOfObjectsToCheck(Query, DataDetails, RestrictionParameters,
 		QueryTextOfRightsWithData = StrReplace(QueryTextOfRightsWithData, "&FilterByDimensions",
 			TextWithIndent(FilterByDimensions, "	"));
 		QueryTextOfRightsWithData = StrReplace(QueryTextOfRightsWithData,
-			"CurrentTable.Field1 AS Field1", // @query-part-1
+			"CurrentTable.Field1 AS Field1",
 			StrConcat(DimensionsForSelection, ",
-				|	"));
+				|	")); // @query-part-1
 	EndIf;
 	
 	If ValueIsFilled(QueryTextOfRecordsKeys) Then
@@ -10917,9 +10935,9 @@ Procedure AddFinalUsersRightsQuery(Query, RestrictionParameters,
 	If Not RestrictionParameters.IsReferenceType
 	   And RestrictionParameters.UsesRestrictionByOwner Then
 		
-		QueryText = StrReplace(QueryText, "UsersRights.Ref AS Ref", // @query-part-1
+		QueryText = StrReplace(QueryText, "UsersRights.Ref AS Ref",
 			"UsersRights.Ref AS Ref
-			|INTO UsersRightsToRegisterRecordsByOwner"); // @query-part-1
+			|INTO UsersRightsToRegisterRecordsByOwner"); // @query-part-1, @query-part-2
 		
 		QueryText = QueryText + Common.QueryBatchSeparator() + QueryTextOfRightsWithData;
 		
@@ -10928,8 +10946,8 @@ Procedure AddFinalUsersRightsQuery(Query, RestrictionParameters,
 		SetDimensionsFieldsForSelectionAndGrouping(QueryText, RestrictionParameters.List);
 		
 		QueryText = StrReplace(QueryText,
-			"CurrentTable AS CurrentTable", // @query-part-1
-			RestrictionParameters.List + " AS CurrentTable"); // @query-part-1
+			"CurrentTable AS CurrentTable",
+			RestrictionParameters.List + " AS CurrentTable"); // @query-part-1, @query-part-2
 		
 		QueryText = StrReplace(QueryText, "&FilterByDimensions",
 			TextWithIndent(FilterByDimensions, "		"));
@@ -11474,11 +11492,11 @@ Procedure CheckAccessToSource(Source, BeforeWrite, IsRecordSet, Replacing, IsFul
 		If RestrictionParameters.ForExternalUsers Then
 			ErrorTemplate =
 				NStr("en = 'External users cannot access the data of the
-				           |""%1"" list.';");
+				           |""%1"" list.'");
 		Else
 			ErrorTemplate =
 				NStr("en = 'Users cannot access the data of the
-				           |""%1"" list.';");
+				           |""%1"" list.'");
 		EndIf;
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
 			Source.Metadata().Presentation());
@@ -11845,31 +11863,31 @@ Procedure ReportAccessError(Data, OldVersion, HasReadRight, HasUpdateRight, IsNe
 		If HasReadRight Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Insufficient rights to edit data:
-				           |%1';"), DataPresentation(Data));
+				           |%1'"), DataPresentation(Data));
 		Else
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Insufficient rights to read data:
-				           |%1';"), DataPresentation(Data));
+				           |%1'"), DataPresentation(Data));
 		EndIf;
 	Else
 		If HasReadRight And HasUpdateRight Then
 			If IsNew Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Insufficient rights to add data (no Add right):
-					           |%1';"), DataPresentation(Data));
+					           |%1'"), DataPresentation(Data));
 			Else
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Insufficient rights to add data (no Add right for the latest changes):
-					           |%1';"), DataPresentation(Data));
+					           |%1'"), DataPresentation(Data));
 			EndIf;
 		ElsIf HasReadRight Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Insufficient rights to add data (you will be unable to change it):
-				           |%1';"), DataPresentation(Data));
+				           |%1'"), DataPresentation(Data));
 		Else
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Insufficient rights to add data (no Read right):
-				           |%1.';"), DataPresentation(Data));
+				           |%1.'"), DataPresentation(Data));
 		EndIf;
 	EndIf;
 	
@@ -11912,11 +11930,11 @@ Function DataPresentation(Data)
 		
 		If FieldsCount = 1 Then
 			DataPresentation = DataPresentation
-				+ " " + NStr("en = 'with the following field:';")  + " " + String(Data.Filter);
+				+ " " + NStr("en = 'with the following field:'")  + " " + String(Data.Filter);
 			
 		ElsIf FieldsCount > 1 Then
 			DataPresentation = DataPresentation
-				+ " " + NStr("en = 'with the following fields:';") + " " + String(Data.Filter);
+				+ " " + NStr("en = 'with the following fields:'") + " " + String(Data.Filter);
 		EndIf;
 	Else
 		DataPresentation = String(Data);
@@ -12223,7 +12241,7 @@ Procedure ScheduleUpdateOfDependentObsoleteAccessKeys(Source, IsRecordSet, Delet
 			QueryResult = ?(QueryResults = Undefined, Undefined, QueryResults[IndexOf]);
 			ChangesByFieldsValues.ChangedTable = FullName + "." + TabularSectionDetails.Name;
 			NewValues = NewTabularSectionValues(Source, TabularSectionDetails, Delete);
-			// @skip-check query-in-loop - The query branch is not triggered in this option
+			// @skip-check query-in-loop - В вызываемом варианте ветка с запросом не используется
 			ScheduleUpdateOfDependentObsoleteAccessKeysByFieldsValues(QueryResult,
 				NewValues, TabularSectionDetails.FieldsSets, PlanningParameters);
 			IndexOf = IndexOf + 1;
@@ -12317,7 +12335,7 @@ Procedure ScheduleUpdateOfDependentObsoleteAccessKeysByFieldsValues(QueryResult,
 					CurrentChangesContent.GroupBy(DependentTablesDetails.Key);
 				EndIf;
 				PlanningParameters.LeadingObject.ByFieldsValues.ChangesContent = CurrentChangesContent;
-				// @skip-check query-in-loop - The query branch is not triggered in this option
+				// @skip-check query-in-loop - В вызываемом варианте ветка с запросом не используется
 				ScheduleAccessUpdate(DependentTablesDetails.Value, PlanningParameters);
 			EndDo;
 		EndDo;
@@ -12393,7 +12411,7 @@ Procedure CheckAccessSettingsObjects()
 	
 EndProcedure
 
-// 
+// Intended for procedure "CheckAccessSettingsObjects".
 Procedure SetSeparatedLock(TableName)
 	
 	Block = New DataLock;
@@ -13012,6 +13030,38 @@ EndFunction
 
 #Region AccessUpdate
 
+// 
+Function ThereAreScheduledPointTasks()
+	
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+	
+	Query = New Query;
+	Query.SetParameter("ListForPlanningTheUpdateOfTheRightsCalculationCache",
+		Common.MetadataObjectID(ListForPlanningTheUpdateOfTheRightsCalculationCache(), False));
+	
+	Query.Text =
+	"SELECT TOP 1
+	|	TRUE AS TrueValue
+	|FROM
+	|	InformationRegister.DataAccessKeysUpdate AS DataAccessKeysUpdate
+	|WHERE
+	|	DataAccessKeysUpdate.SpotJob
+	|
+	|UNION ALL
+	|
+	|SELECT TOP 1
+	|	TRUE
+	|FROM
+	|	InformationRegister.UsersAccessKeysUpdate AS UsersAccessKeysUpdate
+	|WHERE
+	|	UsersAccessKeysUpdate.SpotJob
+	|	AND UsersAccessKeysUpdate.List <> &ListForPlanningTheUpdateOfTheRightsCalculationCache";
+	
+	Return Not Query.Execute().IsEmpty();
+	
+EndFunction
+
 // Starts an access update background job instead of a scheduled job.
 //
 // Parameters:
@@ -13021,6 +13071,9 @@ EndFunction
 //                              execution will continue until the full completion.
 //  ThisIsARestart    - Boolean - if True, the current session of background job will not
 //                              be considered incomplete.
+//  ToSpeedUp     - Boolean - 
+//                              
+//                              
 //
 // Returns:
 //  - Undefined - an access update is not required or prohibited.
@@ -13040,7 +13093,7 @@ EndFunction
 //   * WarningText - Undefined - if a background job never started or a new background job was started.
 //                         - String - a description showing that access update is already started.
 //
-Function StartAccessUpdateAtRecordLevel(IsManualStart = False, ThisIsARestart = False) Export
+Function StartAccessUpdateAtRecordLevel(IsManualStart = False, ThisIsARestart = False, ToSpeedUp = False) Export
 	
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
@@ -13048,14 +13101,14 @@ Function StartAccessUpdateAtRecordLevel(IsManualStart = False, ThisIsARestart = 
 	If Not LimitAccessAtRecordLevelUniversally(True) Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot start record-level access update.
-			           |Constant ""%1"" is disabled.';"),
+			           |Constant ""%1"" is disabled.'"),
 			"LimitAccessAtRecordLevelUniversally");
 		Raise ErrorText;
 	EndIf;
 	
 	If TransactionActive() Then
 		ErrorText =
-			NStr("en = 'Cannot start record-level access update in an open transaction.';");
+			NStr("en = 'Cannot start record-level access update in an open transaction.'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -13094,6 +13147,14 @@ Function StartAccessUpdateAtRecordLevel(IsManualStart = False, ThisIsARestart = 
 			DenyAccessUpdate(False);
 			JobParameters = New Array;
 			JobParameters.Add(True);
+		ElsIf ThisIsARestart Or ToSpeedUp Then
+			AdditionalParameters = NewAdvancedAccessUpdateOptions();
+			AdditionalParameters.ThisIsARestart = ThisIsARestart;
+			AdditionalParameters.ToSpeedUp = ToSpeedUp;
+			JobParameters = New Array;
+			JobParameters.Add(False);
+			JobParameters.Add(False);
+			JobParameters.Add(AdditionalParameters);
 		Else
 			JobParameters = Undefined;
 		EndIf;
@@ -13101,11 +13162,11 @@ Function StartAccessUpdateAtRecordLevel(IsManualStart = False, ThisIsARestart = 
 		CurrentSession = GetCurrentInfoBaseSession();
 		JobDescription =
 			?(IsManualStart,
-				NStr("en = 'Manual start';", Common.DefaultLanguageCode()),
-				NStr("en = 'Autostart';", Common.DefaultLanguageCode()))
+				NStr("en = 'Manual start'", Common.DefaultLanguageCode()),
+				NStr("en = 'Autostart'", Common.DefaultLanguageCode()))
 			+ ": " + Metadata.ScheduledJobs.AccessUpdateOnRecordsLevel.Synonym + " ("
 			+ StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'from the %1 session started on %2';", Common.DefaultLanguageCode()),
+				NStr("en = 'from the %1 session started on %2'", Common.DefaultLanguageCode()),
 				Format(CurrentSession.SessionNumber, "NG="),
 				Format(CurrentSession.SessionStarted, "DLF=DT")) + ")";
 		
@@ -13118,7 +13179,7 @@ Function StartAccessUpdateAtRecordLevel(IsManualStart = False, ThisIsARestart = 
 	        And Performer.UUID <> LastAccessUpdate.BackgroundJobIdentifier Then
 		
 		Result.WarningText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot start the access update as it has already been started on %1 at %2';"),
+			NStr("en = 'Cannot start the access update as it has already been started on %1 at %2'"),
 			Format(Performer.Begin, "DLF=D"),
 			Format(Performer.Begin, "DLF=T"));
 	Else
@@ -13131,7 +13192,7 @@ Function StartAccessUpdateAtRecordLevel(IsManualStart = False, ThisIsARestart = 
 		Result.SessionProperties = SessionProperties;
 		Result.WarningText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The access update is already running
-			           |(computer: %1, session: %2, started on %3 at %4).';"),
+			           |(computer: %1, session: %2, started on %3 at %4).'"),
 			SessionProperties.ComputerName,
 			SessionProperties.SessionNumber,
 			Format(SessionProperties.SessionStarted, "DLF=D"),
@@ -13154,7 +13215,7 @@ Procedure CancelAccessUpdateAtRecordLevel() Export
 	If TypeOf(Performer) = Type("InfoBaseSession") Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot cancel full access update
-			           |(computer: %1, session: %2, started on %3 at %4).';"),
+			           |(computer: %1, session: %2, started on %3 at %4).'"),
 			Performer.ComputerName,
 			Performer.SessionNumber,
 			Format(Performer.SessionStarted, "DLF=D"),
@@ -13329,7 +13390,8 @@ Function BackgroundJobCompletionWaitSeconds()
 EndFunction
 
 // AccessUpdateOnRecordsLevel scheduled job handler.
-Procedure AccessUpdateOnRecordsLevel(UpdateAll = False, RaiseExceptiopnInsteadErrorRegistration = False) Export
+Procedure AccessUpdateOnRecordsLevel(UpdateAll = False, RaiseExceptiopnInsteadErrorRegistration = False,
+			AdditionalParameters = Undefined) Export
 	
 	// The scheduled job must run right after the access update is scheduled.
 	// After the first batch is processed (around 2 minutes), you can pause it.
@@ -13342,13 +13404,41 @@ Procedure AccessUpdateOnRecordsLevel(UpdateAll = False, RaiseExceptiopnInsteadEr
 	Common.OnStartExecuteScheduledJob(
 		Metadata.ScheduledJobs.AccessUpdateOnRecordsLevel);
 	
-	ExecuteAccessUpdateAtRecordLevel(UpdateAll, RaiseExceptiopnInsteadErrorRegistration, 0);
+	ExecuteAccessUpdateAtRecordLevel(UpdateAll, RaiseExceptiopnInsteadErrorRegistration,
+		0, , AdditionalParameters);
 	
 EndProcedure
 
+// For internal use only.
+//
+// Returns:
+//  Structure:
+//   * ToSpeedUp - Boolean
+//   * ThisIsARestart - Boolean
+//
+Function NewAdvancedAccessUpdateOptions()
+	
+	Result = New Structure;
+	Result.Insert("ToSpeedUp", False);
+	Result.Insert("ThisIsARestart", False);
+	
+	Return Result;
+	
+EndFunction
+
 // Updates access if it is scheduled.
-Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll,
-			RaiseExceptiopnInsteadErrorRegistration, SecondsNotMore, AfterIBUpdate = False)
+Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll, RaiseExceptiopnInsteadErrorRegistration,
+			SecondsNotMore, AfterIBUpdate = False, AdditionalParameters = Undefined)
+	
+	If UpdateAll Then
+		SecondsNotMore = 0;
+	EndIf;
+	
+	NewAdditionalParameters = NewAdvancedAccessUpdateOptions();
+	If TypeOf(AdditionalParameters) = Type("Structure") Then
+		FillPropertyValues(NewAdditionalParameters, AdditionalParameters);
+	EndIf;
+	AdditionalParameters = NewAdditionalParameters;
 	
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
@@ -13364,14 +13454,14 @@ Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll,
 		If UpdateAll Then
 			BackgroundJobIdentifier = ArbitrarySessionID();
 		Else
-			ErrorText = NStr("en = 'Cannot update access in batches. The batch update is available only in background jobs.';");
+			ErrorText = NStr("en = 'Cannot update access in batches. The batch update is available only in background jobs.'");
 			Raise ErrorText;
 		EndIf;
 		MainSessionID = String(New UUID);
 	Else
 		CurrentBackgroundJob = CurrentSession.GetBackgroundJob();
 		If CurrentBackgroundJob = Undefined Then
-			ErrorText = NStr("en = 'Cannot get the background job of the current session.';");
+			ErrorText = NStr("en = 'Cannot get the background job of the current session.'");
 			Raise ErrorText;
 		EndIf;
 		BackgroundJobIdentifier = CurrentBackgroundJob.UUID;
@@ -13380,7 +13470,7 @@ Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll,
 		MainSessionID = String(BackgroundJobIdentifier);
 	EndIf;
 	MainSessionDetails.Insert("Id", MainSessionID
-		+ " (" + NStr("en = 'Main session ID';") + ")");
+		+ " (" + NStr("en = 'Main session ID'") + ")");
 	
 	DataLock = New DataLock;
 	DataLock.Add("Constant.LastAccessUpdate");
@@ -13397,6 +13487,7 @@ Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll,
 			
 			If Performer = Undefined Then
 				LastAccessUpdate.RefreshEnabledCanceled   = False;
+				LastAccessUpdate.ToSpeedUp         = AdditionalParameters.ToSpeedUp;
 				LastAccessUpdate.StartDateAtServer = CurrentDateAtServer();
 				LastAccessUpdate.SessionNumber          = CurrentSession.SessionNumber;
 				LastAccessUpdate.SessionStarted         = CurrentSession.SessionStarted;
@@ -13405,6 +13496,11 @@ Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll,
 				
 				InstallTheLatestAccessUpdate(LastAccessUpdate, HasExternalTransaction);
 			EndIf;
+		EndIf;
+		
+		If LastAccessUpdate.ToSpeedUp And Not AdditionalParameters.ToSpeedUp Then
+			LastAccessUpdate.ToSpeedUp = False;
+			InstallTheLatestAccessUpdate(LastAccessUpdate, HasExternalTransaction);
 		EndIf;
 		CommitTransaction();
 	Except
@@ -13420,7 +13516,7 @@ Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll,
 			NStr("en = 'The access update is denied.
 			           |To allow it, in the ""Update access at record level"" window, click ""Allow"".
 			           |You can open the window from the ""Users and rights settings"" panel. You can also open it using the following URL:
-			           |%1';"),
+			           |%1'"),
 			"e1cib/app/InformationRegister.DataAccessKeysUpdate.Form.AccessUpdateOnRecordsLevel");
 		Raise ErrorText;
 	EndIf;
@@ -13434,7 +13530,7 @@ Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll,
 		   And Performer.UUID <> LastAccessUpdate.BackgroundJobIdentifier Then
 			
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot start the access update as it has already been started on %1 at %2.';"),
+				NStr("en = 'Cannot start the access update as it has already been started on %1 at %2.'"),
 				Format(Performer.Begin, "DLF=D"),
 				Format(Performer.Begin, "DLF=T"));
 		Else
@@ -13443,7 +13539,7 @@ Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll,
 			
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot start the access update as it is already running
-				           |(computer: %1, session: %2, started on %3 at %4).';"),
+				           |(computer: %1, session: %2, started on %3 at %4).'"),
 				SessionProperties.ComputerName,
 				SessionProperties.SessionNumber,
 				Format(SessionProperties.SessionStarted, "DLF=D"),
@@ -13463,18 +13559,17 @@ Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll,
 		And SecondsNotMore = 0
 		And Not AfterIBUpdate;
 	
-	PlanningErrorText = "";
 	AllErrorsText = "";
-	CompletionErrorText = "";
 	FullCompletionDate = LastAccessUpdate.FullCompletionDate;
+	
+	ExecutionParameters = New Structure;
+	ExecutionParameters.Insert("SecondsNotMore", SecondsNotMore);
+	ExecutionParameters.Insert("PlanningErrorText", "");
+	ExecutionParameters.Insert("CompletionErrorText", "");
+	ExecutionParameters.Insert("MainSessionDetails", MainSessionDetails);
 	Try
 		If LimitAccessAtRecordLevelUniversally() Then
-			CheckUpdateActiveAccessRestrictionParameters(True);
-			ScheduleObsoleteItemsProcessing(PlanningErrorText,
-				LastAccessUpdate.LastObsoleteItemsProcessingPlanning);
-			ExecuteAccessUpdate(UpdateAll, MainSessionDetails,
-				LastAccessUpdate.RefreshEnabledCanceled, CompletionErrorText, SecondsNotMore,
-				LastAccessUpdate.FullCompletionDate);
+			ExecuteAccessUpdate(UpdateAll, ExecutionParameters, LastAccessUpdate);
 			If Not RestartIsPossible Then
 				StandardSubsystemsServer.SessionRestartRequired(AllErrorsText);
 			EndIf;
@@ -13499,7 +13594,7 @@ Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll,
 		ErrorInfo = ErrorInfo();
 		AddCompletionErrorText(AllErrorsText, StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot close access update threads. Reason:
-			           |%1';"),
+			           |%1'"),
 			ErrorProcessing.DetailErrorDescription(ErrorInfo)));
 	EndTry;
 	
@@ -13509,12 +13604,12 @@ Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll,
 		ErrorInfo = ErrorInfo();
 		AddCompletionErrorText(AllErrorsText, StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot cancel background jobs of access update threads. Reason:
-			           |%1';"),
+			           |%1'"),
 			ErrorProcessing.DetailErrorDescription(ErrorInfo)));
 	EndTry;
 	
-	AddCompletionErrorText(AllErrorsText, PlanningErrorText);
-	AddCompletionErrorText(AllErrorsText, CompletionErrorText);
+	AddCompletionErrorText(AllErrorsText, ExecutionParameters.PlanningErrorText);
+	AddCompletionErrorText(AllErrorsText, ExecutionParameters.CompletionErrorText);
 	
 	LastAccessUpdate.EndDateAtServer = CurrentDateAtServer();
 	If ValueIsFilled(AllErrorsText) Then
@@ -13545,7 +13640,7 @@ Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll,
 	EndTry;
 	
 	If RestartIsPossible And StandardSubsystemsServer.SessionRestartRequired() Then
-		StartAccessUpdateAtRecordLevel(, True);
+		StartAccessUpdateAtRecordLevel(, True, LastAccessUpdate.ToSpeedUp);
 	EndIf;
 	
 	If Not ValueIsFilled(AllErrorsText) Then
@@ -13554,7 +13649,7 @@ Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll,
 	
 	AllErrorsText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Cannot perform the access update. Reason:
-		           |%1';"), AllErrorsText);
+		           |%1'"), AllErrorsText);
 	
 	If RaiseExceptiopnInsteadErrorRegistration Then
 		Raise AllErrorsText;
@@ -13649,6 +13744,7 @@ Function LastAccessUpdate(CurrentValue = Undefined) Export
 	Properties.Insert("BackgroundJobIdentifier",
 		CommonClientServer.BlankUUID());
 	Properties.Insert("LastObsoleteItemsProcessingPlanning", '00010101');
+	Properties.Insert("ToSpeedUp", False);
 	
 	If TypeOf(CurrentValue) <> Type("ValueStorage") Then
 		Return Properties;
@@ -13752,8 +13848,19 @@ Function ArbitrarySessionID()
 	
 EndFunction
 
-// For AccessUpdateOnRecordsLevel, AddAccessUpdateJobs procedures.
-Procedure CheckUpdateActiveAccessRestrictionParameters(OnStart = False)
+// 
+// 
+//
+// Parameters:
+//  Context - See AccessUpdateNewContext
+//  OnStart - Boolean
+//
+Procedure CheckUpdateActiveAccessRestrictionParameters(Context, OnStart = False)
+	
+	Indicators = Context.Indicators;
+	If Indicators <> Undefined Then
+		StartOfVerification = CurrentUniversalDateInMilliseconds();
+	EndIf;
 	
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
@@ -13807,6 +13914,10 @@ Procedure CheckUpdateActiveAccessRestrictionParameters(OnStart = False)
 	 Or IsAccessRestrictionTextsModified
 	 Or OnStart
 	   And IsAccessRestrictionParametersUpdateScheduled(AccessRestrictionParametersRelevanceDate) Then
+		
+		If Indicators <> Undefined Then
+			StartUpdates = CurrentUniversalDateInMilliseconds();
+		EndIf;
 		
 		If Common.FileInfobase() Then
 			// Preliminary caching in the file infobase outside of transaction to avoid lock conflicts.
@@ -13870,6 +13981,10 @@ Procedure CheckUpdateActiveAccessRestrictionParameters(OnStart = False)
 					TextsCurrentVersion, True);
 			EndTry;
 		EndIf;
+		If Indicators <> Undefined Then
+			Indicators.TimeToUpdateRestrictionParameters = Indicators.TimeToUpdateRestrictionParameters
+				+ (CurrentUniversalDateInMilliseconds() - StartUpdates);
+		EndIf;
 	EndIf;
 	
 	// Deleting obsolete parameters of access restriction.
@@ -13900,24 +14015,27 @@ Procedure CheckUpdateActiveAccessRestrictionParameters(OnStart = False)
 	// 
 	QueryResult = Query.Execute();
 	// ACC:1328-on.
-	If QueryResult.IsEmpty() Then
-		Return;
+	
+	If Not QueryResult.IsEmpty() Then
+		RecordSet = InformationRegisters.AccessRestrictionParameters.CreateRecordSet();
+		Selection = QueryResult.Select();
+		While Selection.Next() Do
+			RecordSet.Filter.Version.Set(Selection.Version);
+			Try
+				RecordSet.Write();
+			Except
+				RecordSet.Write();
+			EndTry;
+		EndDo;
 	EndIf;
-	
-	RecordSet = InformationRegisters.AccessRestrictionParameters.CreateRecordSet();
-	
-	Selection = QueryResult.Select();
-	While Selection.Next() Do
-		RecordSet.Filter.Version.Set(Selection.Version);
-		Try
-			RecordSet.Write();
-		Except
-			RecordSet.Write();
-		EndTry;
-	EndDo;
 	
 	SetPrivilegedMode(False);
 	SetSafeModeDisabled(False);
+	
+	If Indicators <> Undefined Then
+		Indicators.TimeToCheckAndUpdateRestrictionParameters = Indicators.TimeToCheckAndUpdateRestrictionParameters
+			+ (CurrentUniversalDateInMilliseconds() - StartOfVerification);
+	EndIf;
 	
 EndProcedure
 
@@ -14077,16 +14195,12 @@ EndProcedure
 // Parallel operation is ensured by the procedure itself by running up to two background jobs
 // for each list, but not more than the AccessUpdateThreadsCount constant value.
 //
-Procedure ExecuteAccessUpdate(Val UpdateAll, MainSessionDetails,
-				RefreshEnabledCanceled, CompletionErrorText, SecondsNotMore, FullCompletionDate)
-	
-	If SecondsNotMore > 0 Then
-		UpdateAll = False;
-	EndIf;
+Procedure ExecuteAccessUpdate(UpdateAll, ExecutionParameters, LastAccessUpdate)
 	
 	Context = AccessUpdateNewContext();
-	Context.Insert("MainSessionDetails",  MainSessionDetails);
-	Context.Insert("CurrentBackgroundJob",    MainSessionDetails.BackgroundJob);
+	Context.Insert("Indicators",               MainSessionUpdateMetrics());
+	Context.Insert("MainSessionDetails",  ExecutionParameters.MainSessionDetails);
+	Context.Insert("CurrentBackgroundJob",    ExecutionParameters.MainSessionDetails.BackgroundJob);
 	Context.Insert("Jobs",                  UpdateJobsTable());
 	Context.Insert("JobsForStartup",        New Array);
 	Context.Insert("LockedThreads",            New Map);
@@ -14095,7 +14209,7 @@ Procedure ExecuteAccessUpdate(Val UpdateAll, MainSessionDetails,
 	Context.Insert("CommonUpdateParameters", CommonUpdateParametersDetails());
 	Context.Insert("UpdateInThisSession",    False);
 	Context.Insert("ThreadsCount",        0);
-	Context.Insert("FullCompletionDate",    FullCompletionDate);
+	Context.Insert("FullCompletionDate",    LastAccessUpdate.FullCompletionDate);
 	Context.Insert("CompletionErrorText",    "");
 	Context.Insert("HasDeferredJobs",    False);
 	Context.Insert("HasStartedJob",    True);
@@ -14110,7 +14224,11 @@ Procedure ExecuteAccessUpdate(Val UpdateAll, MainSessionDetails,
 	Context.Insert("DisabledMetadataObjectsIDs", New Map);
 	Context.Insert("AccessGroupsSetsCatalogID",
 		Common.MetadataObjectID("Catalog.SetsOfAccessGroups"));
-	MainSessionDetails.Delete("BackgroundJob");
+	ExecutionParameters.MainSessionDetails.Delete("BackgroundJob");
+	
+	CheckUpdateActiveAccessRestrictionParameters(Context, True);
+	ScheduleObsoleteItemsProcessing(ExecutionParameters.PlanningErrorText,
+		LastAccessUpdate.LastObsoleteItemsProcessingPlanning);
 	
 	Query = New Query;
 	Query.Text = JobsQueryText();
@@ -14124,25 +14242,26 @@ Procedure ExecuteAccessUpdate(Val UpdateAll, MainSessionDetails,
 	Jobs = Context.Jobs;
 	LockedThreads = Context.LockedThreads;
 	
-	If SecondsNotMore > 0 Then
-		ExecutionEnd = CurrentSessionDate() + SecondsNotMore;
+	If ExecutionParameters.SecondsNotMore > 0 Then
+		ExecutionEnd = CurrentSessionDate() + ExecutionParameters.SecondsNotMore;
 	Else
 		ExecutionEnd = CurrentSessionDate()
 			+ MaxCountOfMinutesToPerformBackgroundAccessUpdateJob() * 60;
 	EndIf;
 	
 	FillThreadsCount(Context);
-	Context.Insert("Indicators", LeadingThreadUpdateIndicators(Context));
+	AddIndicatorsForUpdatingControlThread(Context);
+	RepeatedStart = False;
 	
 	While True Do
-		If Not UpdateAll And CurrentSessionDate() > ExecutionEnd
+		If Not UpdateAll And CurrentSessionDate() > ExecutionEnd And RepeatedStart
 		 Or ValueIsFilled(Context.CompletionErrorText) Then
 			Break;
 		EndIf;
 		Context.ProcessingCompleted = True;
 		
 		FillThreadsCount(Context);
-		// @skip-check query-in-loop - Batch-wise data processing
+		// @skip-check query-in-loop 
 		ProcessExecutedJobs(Context);
 		
 		If Context.RefreshEnabledCanceled Or Context.SessionRestartRequired Then
@@ -14170,7 +14289,7 @@ Procedure ExecuteAccessUpdate(Val UpdateAll, MainSessionDetails,
 		
 		While True Do
 			
-			If Not UpdateAll And CurrentSessionDate() > ExecutionEnd
+			If Not UpdateAll And CurrentSessionDate() > ExecutionEnd And RepeatedStart
 			 Or CurrentSessionDate() > CurrentStartupCompletion
 			 Or ValueIsFilled(Context.CompletionErrorText)
 			 Or Jobs.Count() = 0
@@ -14188,7 +14307,7 @@ Procedure ExecuteAccessUpdate(Val UpdateAll, MainSessionDetails,
 			For Each Job In JobsForStartup Do
 				
 				While LockedThreads.Count() >= Context.ThreadsCount Do
-					// @skip-check query-in-loop - Batch-wise data processing
+					// @skip-check query-in-loop 
 					ProcessExecutedJobs(Context);
 					
 					If Context.RefreshEnabledCanceled Or Context.SessionRestartRequired Then
@@ -14197,12 +14316,12 @@ Procedure ExecuteAccessUpdate(Val UpdateAll, MainSessionDetails,
 					EndIf;
 					
 					If LockedThreads.Count() >= Context.ThreadsCount Then
-						If Not UpdateAll And CurrentSessionDate() > ExecutionEnd
+						If Not UpdateAll And CurrentSessionDate() > ExecutionEnd And RepeatedStart
 						 Or CurrentSessionDate() > CurrentStartupCompletion Then
 							AbortPass = True;
 							Break;
 						EndIf;
-						// @skip-check query-in-loop - Batch-wise data processing
+						// @skip-check query-in-loop 
 						WaitForThreadToUnlock(Context, True);
 						If Not Context.FirstPass
 						   And CurrentUniversalDateInMilliseconds() > PassAbortionMoment Then
@@ -14215,8 +14334,9 @@ Procedure ExecuteAccessUpdate(Val UpdateAll, MainSessionDetails,
 					Break;
 				EndIf;
 				If LockedThreads.Count() < Context.ThreadsCount Then
-					// @skip-check query-in-loop - Batch-wise data processing
+					// @skip-check query-in-loop 
 					StartListAccessUpdate(Job, Context);
+					RepeatedStart = True;
 					If ValueIsFilled(Context.CompletionErrorText)
 					 Or Context.RefreshEnabledCanceled
 					 Or Context.SessionRestartRequired Then
@@ -14227,13 +14347,25 @@ Procedure ExecuteAccessUpdate(Val UpdateAll, MainSessionDetails,
 			If Not Context.HasStartedJob
 			   And (LockedThreads.Count() >= Context.ThreadsCount
 			      Or Not Context.HasDeferredJobs) Then
-				// @skip-check query-in-loop - Batch-wise data processing
+				// @skip-check query-in-loop 
 				WaitForThreadToUnlock(Context, True);
 			EndIf;
-			// @skip-check query-in-loop - Batch-wise data processing
+			// @skip-check query-in-loop 
 			ProcessExecutedJobs(Context);
 			Context.FirstPass = False;
 		EndDo;
+		
+		If Not UpdateAll
+		   And LastAccessUpdate.ToSpeedUp
+		   And LaunchAccessUpdatesToSpeedUpOnlyPointJobs(False)
+		   And Jobs.Find(True, "HasSpotJob") = Undefined Then
+			
+			If LastAccessUpdate().ToSpeedUp Then
+				Break;
+			Else
+				LastAccessUpdate.ToSpeedUp = False;
+			EndIf;
+		EndIf;
 	EndDo;
 	
 	If Not Context.ProcessingCompleted
@@ -14246,9 +14378,9 @@ Procedure ExecuteAccessUpdate(Val UpdateAll, MainSessionDetails,
 	
 	CompleteAccessUpdate(Context);
 	
-	CompletionErrorText = Context.CompletionErrorText;
-	RefreshEnabledCanceled    = Context.RefreshEnabledCanceled;
-	FullCompletionDate = Context.FullCompletionDate;
+	ExecutionParameters.CompletionErrorText        = Context.CompletionErrorText;
+	LastAccessUpdate.RefreshEnabledCanceled    = Context.RefreshEnabledCanceled;
+	LastAccessUpdate.FullCompletionDate = Context.FullCompletionDate;
 	
 EndProcedure
 
@@ -14286,9 +14418,25 @@ Function AccessUpdateNewContext()
 	
 EndFunction
 
-// For the ExecuteAccessUpdateAtRecordLevel procedure.
+// For the procedure, perform an access Update.
 Procedure ScheduleObsoleteItemsProcessing(PlanningErrorText,
 			LastObsoleteItemsProcessingPlanning)
+	
+	Query = New Query;
+	Query.SetParameter("BlankID",
+		CommonClientServer.BlankUUID());
+	
+	Query.Text =
+	"SELECT TOP 1
+	|	TRUE AS TrueValue
+	|FROM
+	|	InformationRegister.DataAccessKeysUpdate AS DataAccessKeysUpdate
+	|	WHERE DataAccessKeysUpdate.JobSize = 2
+	|	AND UniqueKey <> &BlankID";
+	
+	If Not Query.Execute().IsEmpty() Then
+		Return;
+	EndIf;
 	
 	If Not ValueIsFilled(LastObsoleteItemsProcessingPlanning) Then
 		LastObsoleteItemsProcessingPlanning = CurrentSessionDate();
@@ -14306,7 +14454,7 @@ Procedure ScheduleObsoleteItemsProcessing(PlanningErrorText,
 		ErrorInfo = ErrorInfo();
 		PlanningErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot schedule processing of obsolete access restriction items. Reason:
-			           |%1';"),
+			           |%1'"),
 			ErrorProcessing.DetailErrorDescription(ErrorInfo));
 	EndTry;
 	
@@ -14701,7 +14849,7 @@ Procedure AddAccessUpdateJobs(QueryResults, Context)
 	EndIf;
 	
 	Try
-		CheckUpdateActiveAccessRestrictionParameters();
+		CheckUpdateActiveAccessRestrictionParameters(Context);
 	Except
 		If StandardSubsystemsServer.SessionRestartRequired() Then
 			Context.SessionRestartRequired = True;
@@ -15248,7 +15396,7 @@ Procedure UpdateTheListOfUsedVersionsOfTemplateParameters(Context)
 	EndIf;
 	
 	Try
-		CheckUpdateActiveAccessRestrictionParameters();
+		CheckUpdateActiveAccessRestrictionParameters(Context);
 		ActiveParameters = ActiveAccessRestrictionParameters(Undefined, Undefined, False);
 	Except
 		If StandardSubsystemsServer.SessionRestartRequired() Then
@@ -15299,9 +15447,9 @@ Procedure CompleteAccessUpdate(Context)
 			WaitBoundary = CurrentSessionDate() + 15;
 		EndIf;
 		While Context.LockedThreads.Count() > 0 Do
-			// @skip-check query-in-loop - Batch-wise data processing
+			// @skip-check query-in-loop 
 			WaitForThreadToUnlock(Context);
-			// @skip-check query-in-loop - Batch-wise data processing
+			// @skip-check query-in-loop 
 			ProcessExecutedJobs(Context);
 			If CurrentSessionDate() > WaitBoundary Then
 				Break;
@@ -15598,7 +15746,7 @@ Function StartListAccessUpdate(Job, Context)
 			Parameters = New Array;
 			Parameters.Add(Context.MainSessionDetails);
 			FreeThread.BackgroundJob = BackgroundJobs.Execute(AccessUpdateThreadMethodName(), Parameters,,
-				NStr("en = 'Access management: Record-level update access thread';",
+				NStr("en = 'Access management: Record-level update access thread'",
 					Common.DefaultLanguageCode()));
 			FreeThread.ThreadID = FreeThread.BackgroundJob.UUID;
 			Context.FreeThreads.Add(FreeThread);
@@ -15726,7 +15874,7 @@ Procedure WaitForThreadToUnlock(Context, WaitForJobToComplete = False)
 		 Or Context.LockedThreads.Count() = 0 Then
 			Break;
 		EndIf;
-		// @skip-check query-in-loop - Batch-wise data processing
+		// @skip-check query-in-loop 
 		If Not Query.Execute().IsEmpty() Then
 			Break;
 		EndIf;
@@ -15760,7 +15908,7 @@ Procedure UpdateBackgroundJobProperties(Stream, Context)
 	If BackgroundJob = Undefined Then
 		If RegisterAccessUpdateIndicators() Then
 			RegisterAccessUpdateError(UpdateErrorTextWithContext(
-				NStr("en = 'Cannot find the started background job.';"), Stream.Job, True), Context);
+				NStr("en = 'Cannot find the started background job.'"), Stream.Job, True), Context);
 		EndIf;
 		Context.ProcessingCompleted = False;
 		Return;
@@ -15786,7 +15934,7 @@ Procedure CancelThreadBackgroundJob(Stream, Context)
 	Except
 		ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot cancel the thread''s background job. Reason:
-			           |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+			           |%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		RegisterAccessUpdateError(UpdateErrorTextWithContext(
 			ErrorPresentation, Stream.Job, True), Context);
 	EndTry;
@@ -15869,7 +16017,7 @@ Procedure ProcessExecutedJobs(Context, LockedThreads = Undefined)
 				NStr("en = 'Thread runtime exceeded (%1 seconds).
 				           |Retry to run the access update.
 				           |If this doesn''t work, reindex the database.
-				           |Also, see ""Slow hard drive"" on the thread setup panel.';"),
+				           |Also, see ""Slow hard drive"" on the thread setup panel.'"),
 				MaxWaitSecondsCountOfWaitingForOneJobInThreadToBeProcessed());
 			
 			Stream.Job.ThereWasMistake = True;
@@ -16402,7 +16550,7 @@ Function PerformingThreadStarted(Context)
 	Context.Insert("CurrentSession", CurrentSession);
 	
 	If CurrentSession.ApplicationName <> "BackgroundJob" Then
-		ErrorText = NStr("en = 'Couldn''t process an access update batch outside of a background job.';");
+		ErrorText = NStr("en = 'Couldn''t process an access update batch outside of a background job.'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -16547,18 +16695,33 @@ Procedure WriteResultOfListAccessUpdateInBackground(Result, InitialParameters, C
 	
 EndProcedure
 
-// For the RunListAccessUpdateInBackground procedure.
-Function LeadingThreadUpdateIndicators(Context)
+// For the procedure, perform an access Update.
+Function MainSessionUpdateMetrics()
 	
 	If Not RegisterAccessUpdateIndicators() Then
 		Return Undefined;
 	EndIf;
 	
 	Indicators = New Structure;
+	Indicators.Insert("TimeToCheckAndUpdateRestrictionParameters", 0);
+	Indicators.Insert("TimeToUpdateRestrictionParameters", 0);
 	
-	// Variables.
+	// 
 	Indicators.Insert("WorkStartInMilliseconds", CurrentUniversalDateInMilliseconds());
 	Indicators.Insert("JobAssignmentStart");
+	
+	Return Indicators;
+	
+EndFunction
+
+// For the procedure, perform an access Update.
+Procedure AddIndicatorsForUpdatingControlThread(Context)
+	
+	If Not RegisterAccessUpdateIndicators() Then
+		Return;
+	EndIf;
+	
+	Indicators = Context.Indicators;
 	
 	If Context.UpdateInThisSession Then
 		AddJobsExecutionIndicators(Indicators);
@@ -16577,13 +16740,11 @@ Function LeadingThreadUpdateIndicators(Context)
 		Indicators.Insert("ThreadsExceedingExecutionTimeCount", 0);
 		Indicators.Insert("ThreadsWithNonStandardCompletionCount", 0);
 		
-		// Variables.
+		// 
 		Indicators.Insert("JobProcessingStart", 0);
 	EndIf;
 	
-	Return Indicators;
-	
-EndFunction
+EndProcedure
 
 // For the RunListAccessUpdateInBackground procedure.
 Function ActiveThreadUpdateIndicators()
@@ -16773,7 +16934,7 @@ Procedure RegisterMainThreadUpdateIndicators(Context)
 	SessionDetails = Context.MainSessionDetails; // See MainSessionDetails
 	
 	If Context.UpdateInThisSession Then
-		Comment = NStr("en = 'The access update session is completed.';");
+		Comment = NStr("en = 'The access update session is completed.'");
 		AddSessionOperationIndicatorsValues(Comment, Indicators, SessionDetails);
 		AddJobsExecutionIndicatorsValues(Comment, Indicators);
 	Else
@@ -16787,7 +16948,7 @@ Procedure RegisterMainThreadUpdateIndicators(Context)
 		MinJobResultProcessingTime  = Indicators.MinJobResultProcessingTime / 1000;
 		MaxJobResultProcessingTime = Indicators.MaxJobResultProcessingTime / 1000;
 		
-		Comment = NStr("en = 'The session of the main access update thread is completed.';");
+		Comment = NStr("en = 'The session of the main access update thread is completed.'");
 		AddSessionOperationIndicatorsValues(Comment, Indicators, SessionDetails);
 		
 		Comment = Comment + Chars.LF + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
@@ -16796,7 +16957,7 @@ Procedure RegisterMainThreadUpdateIndicators(Context)
 			           |Jobs issued: %2.
 			           |Job issue time: %3 sec.
 			           |Minimum job issue time: %4 sec.
-			           |Maximum job issue time: %5 sec.';"),
+			           |Maximum job issue time: %5 sec.'"),
 			SecondsFormat(FreeThreadWaitsTime),
 			CountFormat(Indicators.IssuedJobsCount),
 			SecondsFormat(JobsIssueTime),
@@ -16809,7 +16970,7 @@ Procedure RegisterMainThreadUpdateIndicators(Context)
 			           |Maximum time of processing job results: %3 sec.
 			           |
 			           |Threads with execution timeout exceeded: %4.
-			           |Abnormally terminated threads: %5.';"),
+			           |Abnormally terminated threads: %5.'"),
 			SecondsFormat(JobsResultsProcessingTime),
 			SecondsFormat(MinJobResultProcessingTime),
 			SecondsFormat(MaxJobResultProcessingTime),
@@ -16819,7 +16980,7 @@ Procedure RegisterMainThreadUpdateIndicators(Context)
 	Data = SessionDetails.Id;
 	
 	WriteLogEvent(
-		NStr("en = 'Access management.Indicators.Access update';",
+		NStr("en = 'Access management.Indicators.Access update'",
 		     Common.DefaultLanguageCode()),
 		EventLogLevel.Information, , Data, Comment);
 		
@@ -16832,8 +16993,8 @@ Procedure RegisterActiveThreadUpdateIndicators(Context)
 	
 	NewJobsWaitTime = Indicators.NewJobsWaitTime / 1000;
 	
-	Comment = NStr("en = 'The session of the worker access update thread is completed.';");
-	AddSessionOperationIndicatorsValues(Comment, Indicators, Context.CurrentSession);
+	Comment = NStr("en = 'The session of the worker access update thread is completed.'");
+	AddSessionOperationIndicatorsValues(Comment, Indicators, Context.CurrentSession, True);
 	
 	SessionDetails = Context.ParentSessionDetails; // See MainSessionDetails
 	
@@ -16842,7 +17003,7 @@ Procedure RegisterActiveThreadUpdateIndicators(Context)
 		           |Main thread session started at: %2.
 		           |
 		           |Total pauses due to waiting for an available thread: %3.
-		           |Total time of waiting for new jobs: %4 sec.';"),
+		           |Total time of waiting for new jobs: %4 sec.'"),
 		SessionDetails.SessionNumber,
 		SessionDetails.SessionStarted,
 		CountFormat(Indicators.WaitsForNewJobsCount),
@@ -16852,7 +17013,7 @@ Procedure RegisterActiveThreadUpdateIndicators(Context)
 	Data = SessionDetails.Id;
 	
 	WriteLogEvent(
-		NStr("en = 'Access management.Indicators.Access update';",
+		NStr("en = 'Access management.Indicators.Access update'",
 		     Common.DefaultLanguageCode()),
 		EventLogLevel.Information, , Data, Comment);
 		
@@ -16861,7 +17022,7 @@ EndProcedure
 // For the RegisterControlThreadUpdateFunctions and
 // RegisterExecutingThreadUpdateFunctions procedures.
 //
-Procedure AddSessionOperationIndicatorsValues(Comment, Indicators, SessionDetails)
+Procedure AddSessionOperationIndicatorsValues(Comment, Indicators, SessionDetails, ThisIsExecutingThread = False)
 	
 	OperationTime = (CurrentUniversalDateInMilliseconds()
 		- Indicators.WorkStartInMilliseconds) / 1000;
@@ -16869,10 +17030,20 @@ Procedure AddSessionOperationIndicatorsValues(Comment, Indicators, SessionDetail
 	Comment = Comment + Chars.LF + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Session ID: %1.
 		           |Session started at: %2.
-		           |Duration: %3 sec.';"),
+		           |Duration: %3 sec.'"),
 		SessionDetails.SessionNumber,
 		SessionDetails.SessionStarted,
 		SecondsFormat(OperationTime));
+		
+	If ThisIsExecutingThread Then
+		Return;
+	EndIf;
+	
+	Comment = Comment + Chars.LF + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Время проверки и обновления параметров ограничения: %1 сек
+		           |Время обновления параметров ограничения: %2 сек'"),
+		SecondsFormat(Indicators.TimeToCheckAndUpdateRestrictionParameters / 1000),
+		SecondsFormat(Indicators.TimeToUpdateRestrictionParameters / 1000));
 	
 EndProcedure
 
@@ -16902,7 +17073,7 @@ Procedure AddJobsExecutionIndicatorsValues(Comment, Indicators)
 		           |Jobs retried due to errors: %3.
 		           |Total duration of retried jobs: %4 sec.
 		           |Jobs retried due to errors: %5.
-		           |Maximum retries for a single job: %6.';"),
+		           |Maximum retries for a single job: %6.'"),
 		CountFormat(ExecutedJobsCount),
 		SecondsFormat(JobsExecutionTime),
 		CountFormat(Indicators.CountOfJobsWithRetriesDueToErrors),
@@ -16921,7 +17092,7 @@ Procedure AddJobsExecutionIndicatorsValues(Comment, Indicators)
 		           |- Jobs completed: %5.
 		           |- Total time: %6 sec.
 		           |- Minimum job duration: %7 sec.
-		           |- Maximum job duration: %8 sec.';"),
+		           |- Maximum job duration: %8 sec.'"),
 		CountFormat(Indicators.CompletedJobsWithGetBatchesCount),
 		SecondsFormat(JobsWithGettingBatchesExecutionTime),
 		SecondsFormat(JobsWithGettingBatchesMinExecutionTime),
@@ -16933,7 +17104,7 @@ Procedure AddJobsExecutionIndicatorsValues(Comment, Indicators)
 	
 	If ValueIsFilled(Indicators.ErrorsTextOnRetryAttempts) Then
 		Comment = Comment + Chars.LF + Chars.LF
-			+ NStr("en = 'Error messages upon retries:';")
+			+ NStr("en = 'Error messages upon retries:'")
 			+ Chars.LF + Chars.LF + Indicators.ErrorsTextOnRetryAttempts;
 	EndIf;
 	
@@ -16982,7 +17153,7 @@ Function UpdateErrorTextWithContext(ErrorInfo, CommonUpdateParameters, ErrorToFi
 				NStr("en = 'Cannot update access keys
 				           |for the ""%1"" list data items (for external users)
 				           |due to:
-				           |%2';"),
+				           |%2'"),
 				String(CommonUpdateParameters.ListID),
 				ErrorPresentation);
 		Else
@@ -16990,7 +17161,7 @@ Function UpdateErrorTextWithContext(ErrorInfo, CommonUpdateParameters, ErrorToFi
 				NStr("en = 'Cannot update access keys
 				           |for the ""%1"" list data items (for users)
 				           |due to:
-				           |%2';"),
+				           |%2'"),
 				String(CommonUpdateParameters.ListID),
 				ErrorPresentation);
 		EndIf;
@@ -17002,7 +17173,7 @@ Function UpdateErrorTextWithContext(ErrorInfo, CommonUpdateParameters, ErrorToFi
 				NStr("en = 'Cannot update external user access keys
 				           |for the ""%1"" list
 				           |due to:
-				           |%2';"),
+				           |%2'"),
 				String(CommonUpdateParameters.ListID),
 				ErrorPresentation);
 		Else
@@ -17010,14 +17181,14 @@ Function UpdateErrorTextWithContext(ErrorInfo, CommonUpdateParameters, ErrorToFi
 				NStr("en = 'Cannot update user access keys
 				           |for the ""%1"" list
 				           |due to:
-				           |%2';"),
+				           |%2'"),
 				String(CommonUpdateParameters.ListID),
 				ErrorPresentation);
 		EndIf;
 	EndIf;
 	
 	If ErrorToFix1 Then
-		ErrorText = NStr("en = 'A recoverable error occurred (the update continues automatically).';")
+		ErrorText = NStr("en = 'A recoverable error occurred (the update continues automatically).'")
 			+ Chars.LF + ErrorText;
 	EndIf;
 	
@@ -17040,7 +17211,7 @@ Procedure RegisterAccessUpdateError(ErrorText, Context)
 	Data = SessionDetails.Id;
 	
 	WriteLogEvent(
-		NStr("en = 'Access management.Record-level access update';",
+		NStr("en = 'Access management.Record-level access update'",
 			Common.DefaultLanguageCode()),
 		EventLogLevel.Error, , Data, ErrorText);
 	
@@ -17088,7 +17259,7 @@ Procedure UpdateListAccessWithRetryAttempts(CommonUpdateParameters, Context)
 			ExecutionAttempt = ExecutionAttempt + 1;
 			If ExecutionAttempt < 9 And Not ValueIsFilled(ErrorTextRestartRequired) Then
 				For Counter = 1 To ExecutionAttempt Do
-					// @skip-check query-in-loop - Batch-wise data processing
+					// @skip-check query-in-loop 
 					If AccessUpdateCanceled() Then
 						Break;
 					EndIf;
@@ -17101,7 +17272,7 @@ Procedure UpdateListAccessWithRetryAttempts(CommonUpdateParameters, Context)
 						EndDo;
 					EndIf;
 				EndDo;
-				// @skip-check query-in-loop - Batch-wise data processing
+				// @skip-check query-in-loop 
 				If Not AccessUpdateCanceled() Then
 					Continue;
 				EndIf;
@@ -17188,7 +17359,7 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 		ParametersOfUpdate.Insert("HasJobs", True);
 		ParametersOfUpdate.Insert("SpotJob", Undefined);
 		ParametersOfUpdate.Insert("LastUpdatedItem", InitialItem(ParametersOfUpdate));
-		// @skip-check query-in-loop - Batch-wise data processing
+		// @skip-check query-in-loop 
 		PrepareUpdatePlan(ParametersOfUpdate, PreparationCompleted);
 	EndDo;
 	
@@ -17648,8 +17819,8 @@ Procedure PrepareUpdatePlan(ParametersOfUpdate, PreparationCompleted)
 			"InformationRegister.DataAccessKeysUpdate",
 			"InformationRegister.UsersAccessKeysUpdate");
 		Query.Text = StrReplace(Query.Text, ",
-			|	UniqueKeys.LatestUpdatedItemDate AS LatestUpdatedItemDate", // @query-part-1
-			"");
+			|	UniqueKeys.LatestUpdatedItemDate AS LatestUpdatedItemDate", 
+			""); // @query-part-1
 	EndIf;
 	
 	QueryResult = Query.Execute();
@@ -17811,7 +17982,7 @@ Procedure PrepareUpdatePlan(ParametersOfUpdate, PreparationCompleted)
 		JobSize = 3;
 	EndIf;
 	
-	Query.Text = StrReplace(Query.Text, "SELECT TOP 1000", "SELECT TOP 1"); // @query-part-1 @query-part-2
+	Query.Text = StrReplace(Query.Text, "SELECT TOP 1000", "SELECT TOP 1"); // @query-part-1, @query-part-2
 	JobsDeleted = False;
 	
 	UpdatePlan.Filter.UniqueKey.Set(BlankID);
@@ -18227,7 +18398,7 @@ Procedure SetDataKeyKind(Item, DataKeyKind)
 	Order = DataKeyKindOrder(DataKeyKind);
 	If Order = Undefined Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid name of the data key order kind: ""%1"".';"), DataKeyKind);
+			NStr("en = 'Invalid name of the data key order kind: ""%1"".'"), DataKeyKind);
 		Raise ErrorText;
 	EndIf;
 	Item.Insert("DataKeyKind", DataKeyKind);
@@ -18827,11 +18998,11 @@ Function SpotJobItemsForUpdate(ParametersOfUpdate, CountInQuery, SelectedAllItem
 			PackageQueries.Add(StrReplace(DataQueries[0],
 			"
 			|FROM
-			|	", // @query-part-1
+			|	",
 			"
 			|INTO CurrentListByLeadingObjects
 			|FROM
-			|	")); // @query-part-1
+			|	")); // @query-part-1, @query-part-2
 		Else
 			QueriesTexts = StrConcat(DataQueries,
 			"
@@ -19645,16 +19816,16 @@ Procedure UpdateGroupsSetsWithObsoleteParameters(DataItems, ParametersOfUpdate, 
 	
 	For Each DataElement In DataItems Do
 		If DataElement.IsAccessGroupsSet Then
-			// @skip-check query-in-loop - Batch-wise data processing
+			// @skip-check query-in-loop 
 			UpdateGroupsSetsAccessKeys(ParametersOfUpdate, DataElement.CurrentRef,
 				"AccessGroupSetsAccessKeys", "AccessGroups", "AccessGroupsSet");
 			
 		ElsIf Not ParametersOfUpdate.ForExternalUsers Then
-			// @skip-check query-in-loop - Batch-wise data processing
+			// @skip-check query-in-loop 
 			UpdateGroupsSetsAccessKeys(ParametersOfUpdate, DataElement.CurrentRef,
 				"UsersAccessKeys", "UserGroups", "User");
 		Else
-			// @skip-check query-in-loop - Batch-wise data processing
+			// @skip-check query-in-loop 
 			UpdateGroupsSetsAccessKeys(ParametersOfUpdate, DataElement.CurrentRef,
 				"ExternalUsersAccessKeys", "ExternalUsersGroups", "ExternalUser");
 		EndIf;
@@ -19878,10 +20049,10 @@ Procedure UpdateGroupsSetsAccessKeys(ParametersOfUpdate, AccessGroupsSet, Rights
 	EndIf;
 	
 	BatchForLockSelectionQueryText = StrReplace(BatchForLockSelectionQueryText,
-		"TYPE(Catalog.AccessGroups)", "TYPE(Catalog." + GroupsCatalogName + ")"); // @query-part-1 @query-part-2
+		"TYPE(Catalog.AccessGroups)", "TYPE(Catalog." + GroupsCatalogName + ")"); // @query-part-1, @query-part-2
 	
 	BatchForUpdateSelectionQueryText = StrReplace(BatchForUpdateSelectionQueryText,
-		"TYPE(Catalog.AccessGroups)", "TYPE(Catalog." + GroupsCatalogName + ")"); // @query-part-1 @query-part-2
+		"TYPE(Catalog.AccessGroups)", "TYPE(Catalog." + GroupsCatalogName + ")"); // @query-part-1, @query-part-2
 	
 	BatchForUpdateSelectionQueryText = StrReplace(BatchForUpdateSelectionQueryText,
 		"OldData.AccessGroupsSet", "OldData." + GroupsSetFieldName);
@@ -19956,7 +20127,7 @@ Procedure UpdateGroupsSetsAccessKeys(ParametersOfUpdate, AccessGroupsSet, Rights
 			BeginTransaction();
 			Try
 				Block.Lock();
-				// @skip-check query-in-loop - Batch-wise data processing
+				// @skip-check query-in-loop 
 				Selection = Query.Execute().Select();
 				
 				DeletionCompleted = False;
@@ -20060,10 +20231,10 @@ Procedure UpdateSetsOfOneUserInCatalog(DataItems, ParametersOfUpdate)
 	
 	If ParametersOfUpdate.ForExternalUsers Then
 		SetItemsType = Catalogs.ExternalUsers.EmptyRef();
-		ItemPresentation = NStr("en = 'External user';", Common.DefaultLanguageCode());
+		ItemPresentation = NStr("en = 'External user'", Common.DefaultLanguageCode());
 	Else
 		SetItemsType = Catalogs.Users.EmptyRef();
-		ItemPresentation = NStr("en = 'User';", Common.DefaultLanguageCode());
+		ItemPresentation = NStr("en = 'User'", Common.DefaultLanguageCode());
 	EndIf;
 	
 	For Each String In DataItems Do
@@ -20480,33 +20651,33 @@ Function OneUserSetsToUpdateAssignedGroupsSets(ParametersOfUpdate,
 		Query.Text = StrReplace(Query.Text, "Catalog.Users", "Catalog.ExternalUsers");
 	EndIf;
 	
-	Query.Text = StrReplace(Query.Text, "VALUE(Catalog.AccessGroups.EmptyRef)", // @query-part-1
-		"VALUE(Catalog." + GroupsCatalogName + ".EmptyRef)"); // @query-part-1
+	Query.Text = StrReplace(Query.Text, "VALUE(Catalog.AccessGroups.EmptyRef)",
+		"VALUE(Catalog." + GroupsCatalogName + ".EmptyRef)"); // @query-part-1, @query-part-2
 	
 	Query.Text = StrReplace(Query.Text, "NewAccessGroupsSet",       "New"       + SetFieldName);
 	Query.Text = StrReplace(Query.Text, "AllowedAccessGroupsSet", "Allowed" + SetFieldName);
 	
 	Query.Text = StrReplace(Query.Text,
-		"	GroupsNumbers.NumberPart1 AS NumberPart1", // @query-part-1
+		"	GroupsNumbers.NumberPart1 AS NumberPart1",
 		"	GroupsNumbers." + StrConcat(NumberPartsNames, ",
-		|	GroupsNumbers."));
+		|	GroupsNumbers.")); // @query-part-1
 	
 	Query.Text = StrReplace(Query.Text,
-		"	SUM(ISNULL(GroupsNumbers.NumberPart1, -1234567)) >= 0", // @query-part-1 @query-part-2 @query-part-3
+		"	SUM(ISNULL(GroupsNumbers.NumberPart1, -1234567)) >= 0", 
 		"	SUM(ISNULL(GroupsNumbers." + StrConcat(NumberPartsNames, ", -1234567)) >= 0
-		|	AND SUM(ISNULL(GroupsNumbers.") + ", -1234567)) >= 0");
+		|	AND SUM(ISNULL(GroupsNumbers.") + ", -1234567)) >= 0"); // @query-part-1, @query-part-2, @query-part-3
 	
 	Query.Text = StrReplace(Query.Text,
 		"	SUM(ISNULL(GroupsNumbers.NumberPart1, -1234567))
-		|", // @query-part-1 @query-part-2 @query-part-3
+		|", 
 		"	SUM(ISNULL(GroupsNumbers." + StrConcat(NumberPartsNames, ", -1234567)),
 		|	SUM(ISNULL(GroupsNumbers.") + ", -1234567))
-		|");
+		|"); // @query-part-1, @query-part-2, @query-part-3
 	
 	Query.Text = StrReplace(Query.Text,
-		"	NewSets.NumberPart1 AS NumberPart1", // @query-part-1
+		"	NewSets.NumberPart1 AS NumberPart1",
 		"	NewSets." + StrConcat(NumberPartsNames, ",
-		|	NewSets."));
+		|	NewSets.")); // @query-part-1
 	
 	FilterCriterion = "";
 	ConnectionCondition = "";
@@ -20514,13 +20685,13 @@ Function OneUserSetsToUpdateAssignedGroupsSets(ParametersOfUpdate,
 	NewOnesSumFields = "";
 	For Each NumberPartName In NumberPartsNames Do
 		FilterCriterion = FilterCriterion + ?(FilterCriterion = "", "","
-		|			OR ") + "OldSets." + NumberPartName + " <> ISNULL(NewSets." + NumberPartName + ", -1234567)"; // @query-part-1 @query-part-3
+		|			OR ") + "OldSets." + NumberPartName + " <> ISNULL(NewSets." + NumberPartName + ", -1234567)"; // @query-part-3, @query-part-5
 		ConnectionCondition = ConnectionCondition + ?(ConnectionCondition = "", "", "
-		|			AND ") + "(ExistingSets." + NumberPartName + " = NewSets." + NumberPartName + ")"; // @query-part-1
+		|			AND ") + "(ExistingSets." + NumberPartName + " = NewSets." + NumberPartName + ")"; // @query-part-3
 		OldOnesSumFields = OldOnesSumFields + ?(OldOnesSumFields = "", "", ",
-		|	") + "SUM(ISNULL(GroupsNumbers." + NumberPartName + ", -1234567)) AS " + NumberPartName; // @query-part-2 @query-part-3
+		|	") + "SUM(ISNULL(GroupsNumbers." + NumberPartName + ", -1234567)) AS " + NumberPartName; // @query-part-4, @query-part-5
 		NewOnesSumFields = NewOnesSumFields + ?(NewOnesSumFields = "", "", ",
-		|	") + "SUM(GroupsNumbers." + NumberPartName + ") AS " + NumberPartName; // @query-part-2 @query-part-3
+		|	") + "SUM(GroupsNumbers." + NumberPartName + ") AS " + NumberPartName; // @query-part-4, @query-part-5
 	EndDo;
 	
 	Query.Text = StrReplace(Query.Text,
@@ -20583,18 +20754,18 @@ Procedure UpdateGroupsSetsAssingedToUsersInCatalog(DataItems,
 	If IsAssignedAccessGroupsSetsUpdate Then
 		SetFieldName = "AccessGroupsSet";
 		SetItemsType = Catalogs.AccessGroups.EmptyRef();
-		GroupsItemsPresentation = NStr("en = 'Access groups';",
+		GroupsItemsPresentation = NStr("en = 'Access groups'",
 			Common.DefaultLanguageCode());
 		
 	Else
 		SetFieldName = "UserGroupsSet";
 		If Not ForExternalUsers Then
 			SetItemsType = Catalogs.UserGroups.EmptyRef();
-			GroupsItemsPresentation = NStr("en = 'Users groups';",
+			GroupsItemsPresentation = NStr("en = 'Users groups'",
 				Common.DefaultLanguageCode());
 		Else
 			SetItemsType = Catalogs.ExternalUsersGroups.EmptyRef();
-			GroupsItemsPresentation = NStr("en = 'External user groups';",
+			GroupsItemsPresentation = NStr("en = 'External user groups'",
 				Common.DefaultLanguageCode());
 		EndIf;
 	EndIf;
@@ -20605,7 +20776,7 @@ Procedure UpdateGroupsSetsAssingedToUsersInCatalog(DataItems,
 		If String.GroupsSet = Undefined Then
 			GroupsSet = NewGroupsSets.Get(String.GroupsID);
 			If GroupsSet = Undefined Then
-				// @skip-check query-in-loop - Batch-wise data processing
+				// @skip-check query-in-loop 
 				String.GroupsSet = NewGroupsSet(String.SetGroups,
 					ParametersOfUpdate.ForExternalUsers,
 					SetItemsType,
@@ -20902,21 +21073,21 @@ Procedure ClearNonExistentAccessGroupsSetsRights(ParametersOfUpdate)
 	
 	Selection = QueryResults[0].Select();
 	While Selection.Next() Do
-		// @skip-check query-in-loop - Batch-wise data processing
+		// @skip-check query-in-loop 
 		DeleteRegisterRecordsForSet(Selection.Set,
 			"AccessGroupSetsAccessKeys", "AccessGroupsSet");
 	EndDo;
 	
 	Selection = QueryResults[1].Select();
 	While Selection.Next() Do
-		// @skip-check query-in-loop - Batch-wise data processing
+		// @skip-check query-in-loop 
 		DeleteRegisterRecordsForSet(Selection.Set,
 			"UsersAccessKeys", "User");
 	EndDo;
 	
 	Selection = QueryResults[2].Select();
 	While Selection.Next() Do
-		// @skip-check query-in-loop - Batch-wise data processing
+		// @skip-check query-in-loop 
 		DeleteRegisterRecordsForSet(Selection.Set,
 			"ExternalUsersAccessKeys", "ExternalUser");
 	EndDo;
@@ -21071,11 +21242,11 @@ Procedure ProcessObsoleteSetsInCatalog(DataItems, ParametersOfUpdate)
 		EndTry;
 		
 		If Not String.Used And String.Delete Then
-			// @skip-check query-in-loop - Batch-wise data processing
+			// @skip-check query-in-loop 
 			DeleteRegisterRecordsForSet(String.CurrentRef, "AccessGroupSetsAccessKeys",  "AccessGroupsSet");
-			// @skip-check query-in-loop - Batch-wise data processing
+			// @skip-check query-in-loop 
 			DeleteRegisterRecordsForSet(String.CurrentRef, "UsersAccessKeys",        "User");
-			// @skip-check query-in-loop - Batch-wise data processing
+			// @skip-check query-in-loop 
 			DeleteRegisterRecordsForSet(String.CurrentRef, "ExternalUsersAccessKeys", "ExternalUser");
 			
 			BeginTransaction();
@@ -21186,7 +21357,7 @@ Procedure UpdateAccessGroupsOfAllowedAccessKey(AccessGroups = Undefined, HasChan
 	GroupsQuery.Text = SelectionQueryTextOfAllowedKeyAccessGroupsDifferences();
 	SetFilterCriterionInQuery(GroupsQuery, AccessGroups, "AccessGroups",
 		"&AccessGroupFilterCriterion1:AccessGroups.Ref
-		|&AccessGroupFilterCriterion2:OldData.AccessGroup"); // @query-part-1
+		|&AccessGroupFilterCriterion2:OldData.AccessGroup"); // @query-part-2
 	
 	MergeMode  = Common.RecordSetMergeMode();
 	DeletionMode = Common.RecordSetDeletionMode();
@@ -21377,11 +21548,11 @@ Procedure DeleteObsoleteItemsOfReferenceTypeData(DataItems, ParametersOfUpdate)
 		Try
 			Block.Lock();
 			If ValueIsFilled(BatchToUpdate) Then
-				// @skip-check query-in-loop - Batch-wise data processing
+				// @skip-check query-in-loop 
 				DataForUpdate = QueryForUpdate.Execute().Unload();
 			EndIf;
 			If ValueIsFilled(BatchToCheck) Then
-				// @skip-check query-in-loop - Batch-wise data processing
+				// @skip-check query-in-loop 
 				DataToDelete = QueryForCheck.Execute().Unload();
 			EndIf;
 			For Each String In DataItemsBatch Do
@@ -21565,11 +21736,11 @@ Procedure DeleteObsoleteItemsOfRegistersData(DataItems, ParametersOfUpdate)
 		Try
 			Block.Lock();
 			If ValueIsFilled(BatchToUpdate) Then
-				// @skip-check query-in-loop - Batch-wise data processing
+				// @skip-check query-in-loop 
 				DataForUpdate = QueryForUpdate.Execute().Unload();
 			EndIf;
 			If ValueIsFilled(BatchToCheck) Then
-				// @skip-check query-in-loop - Batch-wise data processing
+				// @skip-check query-in-loop 
 				DataToDelete = QueryForCheck.Execute().Unload();
 			EndIf;
 			For Each String In DataItemsBatch Do
@@ -21684,7 +21855,7 @@ Procedure DeleteObjectsOfInvalidTypesInAccessKeysToObjectsRegister()
 			Continue;
 		EndIf;
 		Query.SetParameter("Type", Selection.RefType);
-		// @skip-check query-in-loop - Batch-wise data processing
+		// @skip-check query-in-loop 
 		Objects = Query.Execute().Unload().UnloadColumn("Object");
 		For Each Object In Objects Do
 			RecordSet.Filter.Object.Set(Object);
@@ -21780,7 +21951,7 @@ Procedure UpdateListDataItemsWithObsoleteKeys(DataItems, ParametersOfUpdate)
 		EndIf;
 		
 		If DataItemsBatch.Count() > 0 Then
-			// @skip-check query-in-loop - Batch-wise data processing
+			// @skip-check query-in-loop 
 			UpdateAccessKeysOfListDataItemsBatch(DataItemsBatch, ParametersOfUpdate);
 		EndIf;
 		
@@ -22182,7 +22353,7 @@ Procedure WriteObjectsAccessKeys(ParametersOfUpdate, Context)
 		TablesTypesByNames = AccessManagementInternalCached.LanguageSyntax().TablesTypes.ByNames;
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot update the access key for object ""%1"" with type ""%2"".
-			           |Type ""%3"" is not a member of ""%4"" type collection.';"),
+			           |Type ""%3"" is not a member of ""%4"" type collection.'"),
 			String(Context.ObjectsAccessKeysDetails[0].CurrentRef),
 			String(TypeOf(Context.ObjectsAccessKeysDetails[0].CurrentRef)),
 			RefTypeName1(ParametersOfUpdate.List, TablesTypesByNames),
@@ -22592,7 +22763,7 @@ Procedure CheckAccessKeyValueType(KeyDetails, AllowedValuesTypes, ParametersOfUp
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Update of access value keys for the ""%3"" list:
 						           |cannot save value ""%1,"" as its type ""%2""
-						           |is not specified in type collection ""%4"".';"),
+						           |is not specified in type collection ""%4"".'"),
 						String(Value),
 						String(TypeOf(Value)),
 						ParametersOfUpdate.List,
@@ -22686,8 +22857,8 @@ Procedure UpdateRightsOfListAccessKeysBatch(AccessKeysDetails, ParametersOfUpdat
 						TempTableName = "CatalogAccessKeys" + KeyTable;
 						FieldLIneNumber = "LineNumber, "; // @query-part-1
 						Query.Text = StrReplace(Query.Text,
-							"@Catalog.AccessKeys.Header AS " + KeyTable, // @query-part-1
-							TempTableName + " AS " + KeyTable); // @query-part-1
+							"@Catalog.AccessKeys.Header AS " + KeyTable,
+							TempTableName + " AS " + KeyTable); // @query-part-1, @query-part-2
 					EndIf;
 				Else
 					TempTableName = "CatalogAccessKeys" + KeyTable;
@@ -22772,7 +22943,7 @@ Procedure UpdateRightsOfListAccessKeysBatch(AccessKeysDetails, ParametersOfUpdat
 		AccessKey = ValuesRow.Ref;
 		
 		RightsToKey = RightsToListAccessKey(KeyTablesValues, ParametersOfUpdate);
-		// @skip-check query-in-loop - Batch-wise data processing
+		// @skip-check query-in-loop 
 		UpdateRightsToListAccessKey(AccessKey, RightsToKey,
 			?(IsNewKeys, AccessKeysDetails, Undefined), ParametersOfUpdate);
 		
@@ -22874,7 +23045,7 @@ Procedure ProcessObsoleteListAccessKeys(DataItems, ParametersOfUpdate)
 		Ref = ValuesRow.Ref;
 		If Not ThisIsClearingSelectedKeys And String.Used Then
 			KeyUsageQuery.SetParameter("Ref", Ref);
-			// @skip-check query-in-loop - Batch-wise data processing
+			// @skip-check query-in-loop 
 			If Not KeyUsageQuery.Execute().IsEmpty() Then
 				If ItemsProcessingAbortRequired(ParametersOfUpdate, 1) Then
 					Break;
@@ -22919,7 +23090,7 @@ Procedure ProcessObsoleteListAccessKeys(DataItems, ParametersOfUpdate)
 			EndIf;
 			If DeleteKey Then
 				Query.SetParameter("AccessKey", Ref);
-				// @skip-check query-in-loop - Batch-wise data processing
+				// @skip-check query-in-loop 
 				QueryResults = Query.ExecuteBatch();
 				If Not QueryResults[0].IsEmpty() Then
 					KeyAccessGroupsRecordSet.Filter.AccessKey.Set(Ref);
@@ -24692,7 +24863,7 @@ Function CalculatedCondition(Context, Condition, RootNode = False)
 		
 	Else
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot calculate the access key rights as node ""%1"" is not supported.';"),
+			NStr("en = 'Cannot calculate the access key rights as node ""%1"" is not supported.'"),
 			Condition.Node);
 		Raise ErrorText;
 	EndIf;
@@ -25588,16 +25759,16 @@ EndFunction
 // For the RegisterAccessUpdatePlanning procedure.
 Procedure RegisterAccessUpdatePlanningInLog(Lists, PlanningParameters)
 	
-	CommentForLog = NStr("en = 'Source';", Common.DefaultLanguageCode())
+	CommentForLog = NStr("en = 'Source'", Common.DefaultLanguageCode())
 		+ ": " + PlanningParameters.LongDesc + Chars.LF;
 	
 	If Lists.Count() > 1 Then
 		CommentForLog = CommentForLog
-			+ NStr("en = 'Lists';", Common.DefaultLanguageCode()) + ":"
+			+ NStr("en = 'Lists'", Common.DefaultLanguageCode()) + ":"
 			+ Chars.LF + Chars.Tab + StrConcat(Lists, Chars.LF + Chars.Tab);
 	Else
 		CommentForLog = CommentForLog
-			+ NStr("en = 'List';", Common.DefaultLanguageCode());
+			+ NStr("en = 'List'", Common.DefaultLanguageCode());
 		
 		CommentForLog = CommentForLog + " = " + Lists[0];
 	EndIf;
@@ -25657,7 +25828,7 @@ Procedure RegisterAccessUpdatePlanningInLog(Lists, PlanningParameters)
 	EndIf;
 	
 	Try
-		Raise NStr("en = 'Call stack';");
+		Raise NStr("en = 'Call stack'");
 	Except
 		CallStack = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 	EndTry;
@@ -25665,7 +25836,7 @@ Procedure RegisterAccessUpdatePlanningInLog(Lists, PlanningParameters)
 	CommentForLog = CommentForLog + Chars.LF + Chars.LF + CallStack;
 	
 	WriteLogEvent(
-		NStr("en = 'Access management.Indicators.Schedule access update';",
+		NStr("en = 'Access management.Indicators.Schedule access update'",
 		     Common.DefaultLanguageCode()),
 		EventLogLevel.Information, ,
 		LeadingObject,
@@ -25696,7 +25867,7 @@ Function LeadingObjectPointerDetails(Pointer, PlanningParameters)
 		If RefsTypes.Get(TypeOf(FilterElement.Value)) <> Undefined Then
 			ValueDescription = GetURL(FilterElement.Value);
 		ElsIf TypeOf(FilterElement.Value) = Type("Undefined") Then
-			ValueDescription = NStr("en = 'Undefined';");
+			ValueDescription = NStr("en = 'Undefined'");
 		Else
 			ValueDescription = Format(FilterElement.Value, "NZ=0; DE='01.01.0001 00:00:00'");
 		EndIf;
@@ -25923,6 +26094,12 @@ Function SecondsCountBeforeDisableScheduledJobAfterUpdateCompletion()
 	
 EndFunction
 
+Function LaunchAccessUpdatesToSpeedUpOnlyPointJobs(CheckAtStartup)
+	
+	Return False;
+	
+EndFunction
+
 Function RegisterAccessUpdateIndicators()
 	
 	Return True;
@@ -26084,7 +26261,7 @@ Function ListPropertiesAsLeadingOne(FullName, TransactionID = Undefined, Repeate
 	If RepeatedCall Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot prepare properties of the leading ""%1"" list
-			           |due to the invalid state of access restriction parameters.';"),
+			           |due to the invalid state of access restriction parameters.'"),
 			FullName);
 		Raise ErrorText;
 	EndIf;
@@ -26243,23 +26420,23 @@ Procedure FillCurrentTableSelectionFields(QueryText, FullName, FieldsDetails,
 		   And Not FieldExists(FieldsCollections.Resources, FieldName)
 		   And Not FieldExists(FieldsCollections.StandardAttributes, FieldName)
 		   And Not (IsTabularSection
-		         And (Upper(FieldName) = Upper("Ссылка") // @Non-NLS
-		            Or Upper(FieldName) = Upper("Ref"))) Then
+		         And (Upper(FieldName) = Upper("Ссылка")
+		            Or Upper(FieldName) = Upper("Ref"))) Then // @Non-NLS
 			
 			Cancel = True;
 			Break;
 		EndIf;
 		
 		SelectionFields = SelectionFields + ?(SelectionFields = "", "", "," + Chars.LF)
-			+ "CurrentTable." + FieldName + " AS " + FieldName; // @query-part-2
+			+ "CurrentTable." + FieldName + " AS " + FieldName; // @query-part-5
 	EndDo;
 	QueryText = StrReplace(QueryText,
 		"CurrentTable.Field1 AS Field1", TextWithIndent(TrimL(SelectionFields), "	")); // @query-part-1
 	
 	QueryText = StrReplace(QueryText, "CurrentDataItemTable", FullName);
 	
-	QueryText = StrReplace(QueryText, "TOP 100", "TOP " + Format( // @query-part-1 @query-part-2
-		MaxCombinationsCountOfLeadingFieldsValuesOnCalculateContentOfChangedOnes() * 10, "NG="));
+	QueryText = StrReplace(QueryText, "TOP 100", "TOP " + Format(
+		MaxCombinationsCountOfLeadingFieldsValuesOnCalculateContentOfChangedOnes() * 10, "NG=")); // @query-part-1, @query-part-2
 	
 EndProcedure
 
@@ -26348,7 +26525,7 @@ Procedure FillRestrictionParameters(FullName, TransactionID, Parameters,
 		If RepeatedCall Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot update access restriction parameters of the ""%1"" list.
-				           |The string of properties of the parameters version that is the source for calculating the hash is unstable.';"),
+				           |The string of properties of the parameters version that is the source for calculating the hash is unstable.'"),
 				FullName);
 			Raise ErrorText;
 		EndIf;
@@ -26657,7 +26834,7 @@ Function AccessRestrictionError(CommonContext, FullName)
 			Else
 				ErrorTextForUsers = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot generate access restriction parameters for users. Reason:
-					           |%1';"), ErrorProcessing.DetailErrorDescription(ErrorInfo));
+					           |%1'"), ErrorProcessing.DetailErrorDescription(ErrorInfo));
 			EndIf;
 		EndTry;
 		
@@ -26676,7 +26853,7 @@ Function AccessRestrictionError(CommonContext, FullName)
 					ErrorTextForUsers = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Cannot generate query texts based on users'' access restriction parameters.
 						           |Reason:
-						           |%1';"), ErrorProcessing.DetailErrorDescription(ErrorInfo));
+						           |%1'"), ErrorProcessing.DetailErrorDescription(ErrorInfo));
 				EndIf;
 			EndTry;
 		EndIf;
@@ -26707,7 +26884,7 @@ Function AccessRestrictionError(CommonContext, FullName)
 			Else
 				ErrorTextForExternalUsers = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot generate access restriction parameters for external users. Reason:
-					           |%1';"), ErrorProcessing.DetailErrorDescription(ErrorInfo));
+					           |%1'"), ErrorProcessing.DetailErrorDescription(ErrorInfo));
 			EndIf;
 		EndTry;
 		
@@ -26726,7 +26903,7 @@ Function AccessRestrictionError(CommonContext, FullName)
 					ErrorTextForExternalUsers = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Cannot generate query texts based on access restriction parameters of external users.
 						           |Reason:
-						           |%1';"), ErrorProcessing.DetailErrorDescription(ErrorInfo));
+						           |%1'"), ErrorProcessing.DetailErrorDescription(ErrorInfo));
 				EndIf;
 			EndTry;
 		EndIf;
@@ -26952,7 +27129,7 @@ Procedure SetImplementationSettings(ImplementationSettings, Data, TablesTypesByN
 				RegisterField = RegisterDimensions.Find(FieldName);
 				TypeDescription = ?(RegisterField = Undefined, New TypeDescription, RegisterField.Type);
 				TypesList = TypesList + ?(TypesList = "", "", Chars.LF)
-					+ NStr("en = '- for dimension';") + " " + FieldName + ":" + Chars.LF
+					+ NStr("en = '- for dimension'") + " " + FieldName + ":" + Chars.LF
 					+ "	" + TextWithIndent(TypesListFromArray(FieldDetails.Type.Types(),
 						True, TablesTypesByNames, TypeDescription), "	");
 				FieldNumber = FieldNumber + 1;
@@ -26968,7 +27145,7 @@ Procedure SetImplementationSettings(ImplementationSettings, Data, TablesTypesByN
 		AlreadyAdded = Metadata.Catalogs[NameParts[0]].GetPredefinedNames().Find(NameParts[1]) <> Undefined;
 		ImplementationSettings.Insert("PredefinedID",
 			New Structure("CatalogName, PredefinedItemName", NameParts[0],
-				 "- " + NameParts[1] + ?(AlreadyAdded, " (" + NStr("en = 'already added';") + ")", "")));
+				 "- " + NameParts[1] + ?(AlreadyAdded, " (" + NStr("en = 'already added'") + ")", "")));
 		Break;
 	EndDo;
 	
@@ -27009,7 +27186,7 @@ Function TypesListFromArray(TypesNames, RefsTypes, TablesTypesByNames, TypeDescr
 		TypesList = TypesList + ?(TypesList = "", "", Chars.LF) + "- " + TypeName;
 		
 		If TypeDescription.ContainsType(Type) Then
-			TypesList = TypesList + " (" + NStr("en = 'already added';") + ")";
+			TypesList = TypesList + " (" + NStr("en = 'already added'") + ")";
 		EndIf;
 	EndDo;
 	
@@ -27071,7 +27248,7 @@ Procedure CheckRestrictionForUsersKind(Context, Result, ForExternalUsers, Additi
 			Result.RestrictionParametersGenerationError =
 				StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot generate access restriction parameters. Reason:
-					           |%1';"), ErrorProcessing.DetailErrorDescription(ErrorInfo));
+					           |%1'"), ErrorProcessing.DetailErrorDescription(ErrorInfo));
 		EndIf;
 		Context.DependenciesAccountingAvailable = False;
 	EndTry;
@@ -27098,7 +27275,7 @@ Procedure CheckRestrictionForUsersKind(Context, Result, ForExternalUsers, Additi
 				Result.QueriesTextsGenerationError =
 					StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Cannot generate query texts based on access restriction parameters. Reason:
-						           |%1';"), ErrorProcessing.DetailErrorDescription(ErrorInfo));
+						           |%1'"), ErrorProcessing.DetailErrorDescription(ErrorInfo));
 			EndIf;
 			Context.DependenciesAccountingAvailable = False;
 		EndTry;
@@ -27221,7 +27398,7 @@ Function DataRestrictionDetails(CommonContext, FullName, WithoutCallingException
 				           |Access restriction of this list is misspecified
 				           |in manager module of procedure ""%4"". Reason:
 				           |
-				           |%5';"),
+				           |%5'"),
 				FullName,
 				"OnFillListsWithAccessRestriction",
 				"AccessManagementOverridable",
@@ -27246,7 +27423,7 @@ Function DataRestrictionDetails(CommonContext, FullName, WithoutCallingException
 				           |Access restriction of this list is misspecified
 				           |in procedure ""%5"" of common module ""%4"". Reason:
 				           |
-				           |%6';"),
+				           |%6'"),
 				FullName,
 				"OnFillListsWithAccessRestriction",
 				"AccessManagementOverridable",
@@ -27288,7 +27465,7 @@ Function DataRestrictionDetails(CommonContext, FullName, WithoutCallingException
 				           |Unlike registers, document journals only support
 				           |restrictions by owner without writing access keys:
 				           |
-				           |%5';"),
+				           |%5'"),
 				FullName,
 				"OnFillListsWithAccessRestriction",
 				"AccessManagementOverridable",
@@ -27305,7 +27482,7 @@ Function DataRestrictionDetails(CommonContext, FullName, WithoutCallingException
 				           |Unlike registers, document journals only support
 				           |restrictions by owner without writing access keys:
 				           |
-				           |%6';"),
+				           |%6'"),
 				FullName,
 				"OnFillListsWithAccessRestriction",
 				"AccessManagementOverridable",
@@ -27326,8 +27503,8 @@ EndFunction
 // For the DataRestrictionDetails function.
 Function IsDocumentJournal(FullName)
 	
-	Return StrStartsWith(Upper(FullName), Upper("ЖурналДокументов.")) // @Non-NLS
-	    Or StrStartsWith(Upper(FullName), Upper("DocumentJournal."));
+	Return StrStartsWith(Upper(FullName), Upper("ЖурналДокументов."))
+	    Or StrStartsWith(Upper(FullName), Upper("DocumentJournal.")); // @Non-NLS
 	
 EndFunction
 
@@ -27663,23 +27840,23 @@ Function NewAccessRestrictionParametersVersion(CommonContext, HasChanges = False
 			ProcedureParameters.Add(RecordingOptionsInTheStore);
 			CurrentSession = GetCurrentInfoBaseSession();
 			JobDescription = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Access management: Save a new version of access restriction parameters (from the %1 session started on %2)';",
+				NStr("en = 'Access management: Save a new version of access restriction parameters (from the %1 session started on %2)'",
 					Common.DefaultLanguageCode()),
 				Format(CurrentSession.SessionNumber, "NG="),
 				Format(CurrentSession.SessionStarted, "DLF=DT"));
 			BackgroundJob = BackgroundJobs.Execute(ProcedureName, ProcedureParameters,, JobDescription);
 			BackgroundJob = BackgroundJob.WaitForExecutionCompletion(60);
 			Result = GetFromTempStorage(ResultAddress);
-			ErrorTitle = NStr("en = 'Couldn''t save a new version of access restriction parameters due to:';");
+			ErrorTitle = NStr("en = 'Couldn''t save a new version of access restriction parameters due to:'");
 			If BackgroundJob.State = BackgroundJobState.Active Then
 				BackgroundJob.Cancel();
 				ErrorText = ErrorTitle + Chars.LF
-					+ NStr("en = 'Background job was in progress for more than 60 seconds. Therefore, it is canceled.';");
+					+ NStr("en = 'Background job was in progress for more than 60 seconds. Therefore, it is canceled.'");
 				Raise ErrorText;
 			EndIf;
 			If BackgroundJob.State = BackgroundJobState.Canceled Then
 				ErrorText = ErrorTitle + Chars.LF
-					+ NStr("en = 'Background job is canceled by administrator.';");
+					+ NStr("en = 'Background job is canceled by administrator.'");
 				Raise ErrorText;
 			EndIf;
 			If BackgroundJob.State <> BackgroundJobState.Completed Then
@@ -27688,13 +27865,13 @@ Function NewAccessRestrictionParametersVersion(CommonContext, HasChanges = False
 						+ ErrorProcessing.DetailErrorDescription(BackgroundJob.ErrorInfo);
 				Else
 					ErrorText = ErrorTitle + Chars.LF
-						+ NStr("en = 'Background job crashed.';");
+						+ NStr("en = 'Background job crashed.'");
 				EndIf;
 				Raise ErrorText;
 			EndIf;
 			If TypeOf(Result) <> Type("Structure") Then
 				ErrorText = ErrorTitle + Chars.LF
-					+ NStr("en = 'Background job did not return the result.';");
+					+ NStr("en = 'Background job did not return the result.'");
 				Raise ErrorText;
 			EndIf;
 			If Result.SessionRestartRequired Then
@@ -27800,7 +27977,7 @@ Procedure WriteANewVersionOfTheAccessRestrictionParametersInTheBackground(Result
 		If Parameters.AccessID = AccessID() Then
 			Result.VersionDetails = DescriptionOfTheNewVersionOfAccessRestrictionParameters(Parameters);
 		Else
-			Result.ErrorText = NStr("en = 'Error verifying access.';");
+			Result.ErrorText = NStr("en = 'Error verifying access.'");
 		EndIf;
 	Except
 		ErrorInfo = ErrorInfo();
@@ -28050,7 +28227,7 @@ Procedure CheckWhetherTheMetadataIsUpToDate() Export
 				NStr("en = 'Cannot check or update access rights due to:
 				           |%1
 				           |
-				           |Retry the operation in a minute. If the issue persists, restart the session.';"),
+				           |Retry the operation in a minute. If the issue persists, restart the session.'"),
 						   ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 			Raise ErrorText;
 		EndTry;
@@ -28110,12 +28287,12 @@ Procedure DoLogParametersMismatch(Record, Comment, IsError = False)
 		Return;
 	EndIf;
 	
-	EventName = NStr("en = 'Access management.Access restriction parameters.Mismatch';",
+	EventName = NStr("en = 'Access management.Access restriction parameters.Mismatch'",
 		Common.DefaultLanguageCode());
 	TitleTemplate1 =
 		NStr("en = 'There is a discrepancy in the recorded access restriction parameters
 		           |Version %1, Creation date %2, Hash: %3,
-		           |Persistent parameter hash: %4';");
+		           |Persistent parameter hash: %4'");
 	
 	Title = StringFunctionsClientServer.SubstituteParametersToString(TitleTemplate1,
 		Record.Version,
@@ -28178,7 +28355,7 @@ Procedure RegisterAccessRestrictionParametersVersionString(Record, VersionString
 	Comment = StrConcat(Content, Chars.LF);
 	
 	WriteLogEvent(
-		NStr("en = 'Access management.Access restriction parameters.Version line';",
+		NStr("en = 'Access management.Access restriction parameters.Version line'",
 		     Common.DefaultLanguageCode()),
 		EventLogLevel.Information,
 		Metadata.InformationRegisters.AccessRestrictionParameters,,
@@ -28294,17 +28471,17 @@ Function AllIDsWithSimilarFullNames(FullNames)
 		ParameterName = "FullName" + Format(ParameterNumber, "NG=");
 		Query.SetParameter(ParameterName, FullName);
 		MOIDFilterConditions.Add(StrReplace("IDs.FullName LIKE &ParameterName ESCAPE ""~""", 
-			"ParameterName", ParameterName)); // @query-part-1
+			"ParameterName", ParameterName)); // @query-part-1, @query-part-2
 		EOIDFilterConditions.Add(StrReplace("IDs.FullObjectName LIKE &ParameterName ESCAPE ""~""",
-			"ParameterName", ParameterName)); // @query-part-1
+			"ParameterName", ParameterName)); // @query-part-1, @query-part-2
 		ParameterNumber = ParameterNumber + 1;
 	EndDo;
 	
 	Query.Text = StrReplace(Query.Text, "&MOIDFilterConditions",
-		StrConcat(MOIDFilterConditions, Chars.LF + "	OR ")); // @query-part-1
+		StrConcat(MOIDFilterConditions, Chars.LF + "	OR ")); // @query-part-2
 	
 	Query.Text = StrReplace(Query.Text, "&EOIDFilterConditions",
-		StrConcat(EOIDFilterConditions, Chars.LF + "	OR ")); // @query-part-1
+		StrConcat(EOIDFilterConditions, Chars.LF + "	OR ")); // @query-part-2
 	
 	Return Query.Execute().Unload().UnloadColumn("Ref");
 	
@@ -29412,7 +29589,7 @@ Procedure SetDependentListsLevel(LeadingListProperties1, ListsProperties, Previo
 				           |contain a circular dependency if function
 				           |""%3"" or ""%4"" is present in one or several lists
 				           |included in the cycle:
-				           |%5';"),
+				           |%5'"),
 				"OnFillAccessRestriction",
 				"AccessManagementOverridable",
 				"ObjectReadingAllowed",
@@ -29470,7 +29647,7 @@ Procedure SetOptimizationByOwnerField(DependentListProperties, ListsProperties, 
 						"ByOwnerWithoutSavingAccessKeysForExternalUsers", "ByOwnerWithoutSavingAccessKeys");
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Cannot apply the optimization option ""%1"" as it is required
-						           |for the dependent list ""%2"".';"),
+						           |for the dependent list ""%2"".'"),
 						OptimizationFlagName,
 						DependentListProperties.FullName);
 					ErrorContext = New Structure("ListsWithRestriction, RestrictionsDetails1");
@@ -29644,7 +29821,7 @@ Procedure FillParametersMismatchForLogging(ListsWithoutIntegration, InfoForLoggi
 				           |types available for fields (%4) in the
 				           |	%5 access restriction in the dimensions of the
 				           |	%2
-				           |information register will be unavailable.';"),
+				           |information register will be unavailable.'"),
 				RegisterDescription.FullName,
 				RegisterDescription.SeparateKeysRegisterName,
 				StrConcat(RegisterDescription.MissingTypes, "," + Chars.LF + "	- "),
@@ -29656,7 +29833,7 @@ Procedure FillParametersMismatchForLogging(ListsWithoutIntegration, InfoForLoggi
 				           |there are not enough
 				           |	- %3
 				           |types available for fields (%4) in the
-				           |	%5 access restriction in the %2 type collection will be unavailable.';"),
+				           |	%5 access restriction in the %2 type collection will be unavailable.'"),
 				RegisterDescription.FullName,
 				"RegisterAccessKeysRegisterField",
 				StrConcat(RegisterDescription.MissingTypes, "," + Chars.LF + "	- "),
@@ -29708,7 +29885,7 @@ Function ParametersMismatchDetails(ListsWithoutIntegration)
 			NStr("en = 'The types of the following tables are not specified in the %1 type collection,
 			           | so their rows will be unavailable:
 			           |
-			           |%2';"),
+			           |%2'"),
 			"AccessKeysValuesOwner",
 			StrConcat(Lists.UnloadValues(), Chars.LF)));
 	EndIf;
@@ -29721,7 +29898,7 @@ Function ParametersMismatchDetails(ListsWithoutIntegration)
 			           |lines containing references to objects of these types
 			           |will be unavailable in the fields that are used to restrict access to them:
 			           |
-			           |%2';"),
+			           |%2'"),
 			"AccessKeysValuesOwner",
 			StrConcat(LeadingLists.UnloadValues(), Chars.LF)));
 	EndIf;
@@ -30054,7 +30231,7 @@ Function TheKeyOfTheTable(FullName, TypeCollectionName = Undefined, TablesTypesB
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Unknown non-reference metadata object
 			           |""%1""
-			           |with record-level restriction support.';"), FullName);
+			           |with record-level restriction support.'"), FullName);
 		Raise ErrorText;
 	EndIf;
 	
@@ -31639,7 +31816,7 @@ Procedure ConfigureCreationOfAccessKeyForDependentListsWithoutKeys(Result)
 	If Result.FieldsComposition <> 0 Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Field %2 was calculated incorrectly for list %1.
-				|Value %3 is specified, 0 was expected.';"),
+				|Value %3 is specified, 0 was expected.'"),
 			Result.List, "FieldsComposition", Format(Result.FieldsComposition, "NZ=0; NG="));
 		Raise ErrorText;
 	EndIf;
@@ -31758,7 +31935,7 @@ Procedure AddVersionItem(Context, FieldName, Value) Export
 		
 		Context.VersionProperties.Add(FieldName + " = " + DataStringForHashing(Value));
 	Else
-		ErrorText = NStr("en = 'The access restriction version''s data type is invalid.';");
+		ErrorText = NStr("en = 'The access restriction version''s data type is invalid.'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -31878,7 +32055,7 @@ Procedure FillNewBasicFieldsDetails(Result, Context)
 		// Increasing the quantity of basic fields in a separate register.
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The number of basic fields in the %1 information register
-			           |exceeds the limit: %2.';"),
+			           |exceeds the limit: %2.'"),
 			?(SeparateKeysRegisterName = "", "AccessKeysForRegisters", SeparateKeysRegisterName),
 			BasicFields.MaxQuantity);
 		
@@ -32007,11 +32184,11 @@ Procedure FillInTheRestrictionOnTheObjectOwnerBeforeSimplifying(Result, Context)
 				If ValueIsFilled(UpdateRestriction) Then
 					ErrorTemplate =
 						NStr("en = 'The optimization option %1 is set
-						           |but the specified read and update restriction is applied outside of the function ""%2"".';");
+						           |but the specified read and update restriction is applied outside of the function ""%2"".'");
 				Else
 					ErrorTemplate =
 						NStr("en = 'The optimization option %1 is set
-						           |but the specified read restriction is applied outside of the function ""%2"".';");
+						           |but the specified read restriction is applied outside of the function ""%2"".'");
 				EndIf;
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
 					OptimizationFlagName, "ObjectReadingAllowed");
@@ -32033,7 +32210,7 @@ Procedure FillInTheRestrictionOnTheObjectOwnerBeforeSimplifying(Result, Context)
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'The optimization option %1 is set
 						           |but the owner field is not the only parameter of the %2 function.
-						           |';"),
+						           |'"),
 						OptimizationFlagName,
 						"ObjectReadingAllowed");
 					ErrorText = ErrorTextWithTitle(ErrorText, Context);
@@ -32063,7 +32240,7 @@ Procedure FillInTheRestrictionOnTheObjectOwnerBeforeSimplifying(Result, Context)
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'The optimization option ""%1"" is set
 					           |but the specified update restriction is applied outside of the
-					           |""%2"" or ""%3"" function.';"),
+					           |""%2"" or ""%3"" function.'"),
 					OptimizationFlagName, "ObjectReadingAllowed", "ObjectUpdateAllowed");
 				ErrorText = ErrorTextWithTitle(ErrorText, Context);
 				If Context.Property("ErrorOnCallException") Then
@@ -32083,7 +32260,7 @@ Procedure FillInTheRestrictionOnTheObjectOwnerBeforeSimplifying(Result, Context)
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'The optimization option %1 is set
 						           |but the owner field is not the only parameter of the %2 function.
-						           |';"),
+						           |'"),
 						OptimizationFlagName,
 						UpdateRestriction.Node);
 					ErrorText = ErrorTextWithTitle(ErrorText, Context);
@@ -32104,7 +32281,7 @@ Procedure FillInTheRestrictionOnTheObjectOwnerBeforeSimplifying(Result, Context)
 				If RestrictionByOwnerRequired Then
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'The optimization option %1 is set
-						           |but the owner field value is not the same in the read and update restrictions.';"),
+						           |but the owner field value is not the same in the read and update restrictions.'"),
 						OptimizationFlagName,
 						UpdateRestriction.Node);
 					ErrorText = ErrorTextWithTitle(ErrorText, Context);
@@ -32130,7 +32307,7 @@ Procedure FillInTheRestrictionOnTheObjectOwnerBeforeSimplifying(Result, Context)
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The optimization option %1 is set
 				           |but the specified restriction does not contain any of the following functions:
-				           |%2, %3.';"),
+				           |%2, %3.'"),
 				OptimizationFlagName, "ObjectReadingAllowed", "ObjectUpdateAllowed");
 			ErrorText = ErrorTextWithTitle(ErrorText, Context);
 			If Context.Property("ErrorOnCallException") Then
@@ -32217,7 +32394,7 @@ Function PossibleRestrictionOnTheObjectOwner(Condition, ThisIsALimitationOfTheCh
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'When filling in a possible owner object restriction
 		           |for the ""%1"" list,
-		           |the ""%2"" node is not supported.';"),
+		           |the ""%2"" node is not supported.'"),
 		Context.List,
 		Condition.Node);
 	
@@ -32290,7 +32467,7 @@ Procedure FillInTheRestrictionOnTheObjectOwnerAfterSimplification(Result, Contex
 			If RestrictionByOwnerRequired And FieldsProperties.Count() <> 0 Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'The optimization option %1 is set
-					           |but the restriction includes multiple fields.';"),
+					           |but the restriction includes multiple fields.'"),
 					OptimizationFlagName);
 				ErrorText = ErrorTextWithTitle(ErrorText, Context);
 				If Context.Property("ErrorOnCallException") Then
@@ -32330,7 +32507,7 @@ Procedure FillInTheRestrictionOnTheObjectOwnerAfterSimplification(Result, Contex
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'The optimization option %1 is selected.
 						           |However, you cannot write access keys for the following tables:
-						           |%2';"),
+						           |%2'"),
 						OptimizationFlagName,
 						StrConcat(IncorrectTypes, Chars.LF));
 					ErrorText = ErrorTextWithTitle(ErrorText, Context);
@@ -32611,7 +32788,7 @@ Procedure FillFieldsAndAdditionalTablesGroups(Context)
 			           |These fields include:
 			           |- Fields of tabular sections.
 			           |- Fields of additional tables attached to the list.
-			           |- Header fields whose Access Values can have more than one Access Value Group.';"),
+			           |- Header fields whose Access Values can have more than one Access Value Group.'"),
 			Context.List);
 		
 		If Context.Property("ErrorOnCallException") Then
@@ -32626,7 +32803,7 @@ Procedure FillFieldsAndAdditionalTablesGroups(Context)
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'In the access restriction of the %1 list,
 			           |the number of list fields that are used in the access restriction
-			           |exceeds the limit of basic fields: %2.';"),
+			           |exceeds the limit of basic fields: %2.'"),
 			Context.List,
 			Context.BasicFields.MaxCount);
 		
@@ -32664,7 +32841,7 @@ Procedure FillFieldsAndAdditionalTablesGroups(Context)
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'In the access restriction of the %1 list,
 						           |the number of list fields that are used in the access restriction
-						           |exceeds the maximum allowed number: 15.';"),
+						           |exceeds the maximum allowed number: 15.'"),
 						Context.List);
 					If Context.Property("ErrorOnCallException") Then
 						Context.ErrorOnCallException.Text = ErrorText;
@@ -32705,7 +32882,7 @@ Procedure FillFieldsAndAdditionalTablesGroups(Context)
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'In the access restriction of the %1 list,
 				           |the number of fields of a single tabular section that are used in the access restriction
-				           |exceeds the limit: %2.';"),
+				           |exceeds the limit: %2.'"),
 				Context.List,
 				AccessKeyDimensions.TabularSectionAttributesCount);
 			
@@ -32884,7 +33061,7 @@ Procedure FillRightCalculationStructure(CalculationCondition, Condition, Context
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot fill in the structure required for calculation of the %1 right to the access keys
 			           |of the ""%2"" list.
-			           |Node ""%3"" is not supported.';"),
+			           |Node ""%3"" is not supported.'"),
 			Context.NameOfRight,
 			Context.List,
 			Condition.Node);
@@ -32895,7 +33072,7 @@ Procedure FillRightCalculationStructure(CalculationCondition, Condition, Context
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot fill in the structure required for calculation of the %1 right to the access keys
 			           |of the ""%2"" list.
-			           |The field properties are not defined for node ""%3"".';"),
+			           |The field properties are not defined for node ""%3"".'"),
 			Context.NameOfRight,
 			Context.List,
 			Condition.Node);
@@ -33228,7 +33405,7 @@ Function ConnectionConditionText(AdditionalTable, Context,
 	EndIf;
 	
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'No processing rule is defined for the ""%1"" node.';"), Condition.Node);
+		NStr("en = 'No processing rule is defined for the ""%1"" node.'"), Condition.Node);
 	
 	Raise ErrorText;
 	
@@ -33364,7 +33541,7 @@ Procedure AddBasicField(Context, FieldNode, FieldProperties = Undefined, Additio
 					           |
 					           |It is not allowed if you use the shared information register ""%4"".
 					           |Either exclude simple types from the basic field types,
-					           |or create a separate register of access keys for this list.';"),
+					           |or create a separate register of access keys for this list.'"),
 					Context.List,
 					BasicFieldName,
 					StrConcat(RestrictedTypes, ", "),
@@ -33561,9 +33738,9 @@ Function FieldNameExpandingBasicFieldsByTypes(Alias, FieldNode)
 	For Each TypeName In FieldNode.NextFieldTables[0] Do
 		CurrentFieldName = StrTemplate("CAST(%1 AS %2).%3", BasicField,  TypeName, OtherFields1); // @query-part-1
 		If ValueIsFilled(FieldName) Then
-			FieldName = // @query-part-1
+			FieldName = 
 				"ISNULL(" + CurrentFieldName + ",
-				|	" + TextWithIndent(FieldName, "	") + ")";
+				|	" + TextWithIndent(FieldName, "	") + ")"; // @query-part-1
 		Else
 			FieldName = CurrentFieldName;
 		EndIf;
@@ -33838,7 +34015,7 @@ Function SimplifiedRestrictionCondition(Val Condition, Context, ConditionRoot = 
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot simplify the restriction for the %1 right
 				           |of the ""%2"" list.
-				           |The field properties are not defined for node ""%3"".';"),
+				           |The field properties are not defined for node ""%3"".'"),
 				Context.NameOfRight,
 				Context.List,
 				Condition.Node);
@@ -33876,7 +34053,7 @@ Function SimplifiedRestrictionCondition(Val Condition, Context, ConditionRoot = 
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot simplify the restriction for the %1 right
 			           |of the ""%2"" list.
-			           |Node ""%3"" is not supported.';"),
+			           |Node ""%3"" is not supported.'"),
 			Context.NameOfRight,
 			Context.List,
 			Condition.Node);
@@ -34005,11 +34182,11 @@ Function TheTypeOfAccessValuesUsed(Context, ValuesType)
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'An error occurred when calling function %1 of common module %2:
 			           |Access value
-			           | types in use are not filled in for table %3.';"),
+			           | types in use are not filled in for table %3.'"),
 			"TheTypeOfAccessValuesUsed",
 			"AccessManagementInternal",
 			Context.List);
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	Return UsedValuesTypes.Get(ValuesType) <> Undefined;
@@ -34763,8 +34940,8 @@ Function FieldProperties(FieldNode, Context, FieldProperties = Undefined)
 	
 	// The IsNull() function can have only a field inside, it cannot have the Express() function.
 	If ValueIsFilled(FieldNode.IsNull) Then
-		FieldNameForQuery = "ISNULL(" + FieldNameForQuery + ", " // @query-part-1
-			+ ValueOrConstantNodeExpression(FieldNode.IsNull) + ")";
+		FieldNameForQuery = "ISNULL(" + FieldNameForQuery + ", "
+			+ ValueOrConstantNodeExpression(FieldNode.IsNull) + ")"; // @query-part-1
 		
 		If IsRootNode Then
 			Properties.Insert("NoNullValue", True);
@@ -34772,7 +34949,7 @@ Function FieldProperties(FieldNode, Context, FieldProperties = Undefined)
 	EndIf;
 	
 	If ValueIsFilled(FieldNode.Cast) Then
-		FieldNameForQuery = "CAST(" + FieldNameForQuery + " AS " + FieldNode.Cast + ")"; // @query-part-1 @query-part-2
+		FieldNameForQuery = "CAST(" + FieldNameForQuery + " AS " + FieldNode.Cast + ")"; // @query-part-1, @query-part-2
 		FieldProperties.Insert("HasExpress");
 	EndIf;
 	
@@ -34890,8 +35067,8 @@ Procedure AddLeadingListFieldByFieldsValues(Context, Table, Field, FieldType, Ad
 	EndIf;
 	
 	If TypeOf(AdditionalContext.TablesGroup) <> Type("Array")
-	   And (    Upper(Field) = Upper("Ссылка") // @Non-NLS
-	      Or Upper(Field) = Upper("Ref")) Then
+	   And (    Upper(Field) = Upper("Ссылка")
+	      Or Upper(Field) = Upper("Ref")) Then // @Non-NLS-2
 		
 		If IsReferenceTableType = Undefined Then
 			NameContent = StrSplit(Table, ".");
@@ -35094,18 +35271,17 @@ Function FilterConnectionTextByFieldsValues(Condition, Groups, Context)
 		AdditionalCondition = "
 		|		AND (&QueryPlanClarification)"; // @query-part-1
 	Else
-		// @query-part-1 @query-part-3
 		AdditionalCondition = ?(Not ValueIsFilled(Context.SeparateKeysRegisterName), "
 		|		AND (CurrentList.Register = &RegisterID)", "") + "
 		|		AND (CurrentList.AccessOption = &AccessOption)
-		|		AND (&QueryPlanClarification)";
+		|		AND (&QueryPlanClarification)"; // @query-part-1, @query-part-3
 	EndIf;
 	
 	If Condition.TablesGroup = Undefined Or ValueIsFilled(Condition.TabularSection) Then
-		JoinText = // @query-part-1
+		JoinText = 
 		"#CurrentDataForFilter AS CurrentDataForFilter
 		|	INNER JOIN &CurrentList AS CurrentList
-		|	ON (" + Condition.FieldOrAlias + " = CurrentDataForFilter." + Condition.FieldForFilter1 + ")";
+		|	ON (" + Condition.FieldOrAlias + " = CurrentDataForFilter." + Condition.FieldForFilter1 + ")"; // @query-part-1
 		If ValueIsFilled(Condition.TabularSection) Then
 			JoinText = StrReplace(JoinText,
 				"&CurrentList", "&CurrentList." + Condition.TabularSection);
@@ -35262,11 +35438,10 @@ Function FilterConnectionTextByFieldsValues(Condition, Groups, Context)
 			NextTable = BackwardTablesGroup[IndexOf + 1];
 			TableAndAlias = NextTable.Table + " AS " + NextTable.Alias;
 		EndIf;
-		// @query-part-1 @query-part-2 @query-part-3
 		JoinText = JoinText + "
 		|	INNER JOIN " + TableAndAlias + "
 		|	On (" + StrConcat(ConnectionConditions, ")
-		|		AND (") + ")";
+		|		AND (") + ")"; // @query-part-1, @query-part-2, @query-part-3
 	EndDo;
 	
 	Return JoinText + AdditionalCondition;
@@ -35444,10 +35619,10 @@ Function IsRussianVersionOfMetadataObjectKind(FullName)
 	
 	FirstChar = Left(FullName, 1);
 	
-	Return FirstChar > "А"  // @Non-NLS
-	      And FirstChar < "Я"  // @Non-NLS
-	    Or FirstChar > "а"  // @Non-NLS
-	      And FirstChar < "я"; // @Non-NLS
+	Return FirstChar > "А"
+	      And FirstChar < "Я"
+	    Or FirstChar > "а"
+	      And FirstChar < "я"; // @Non-NLS-1, @Non-NLS-2, @Non-NLS-3, @Non-NLS-4 
 	
 EndFunction
 
@@ -35480,7 +35655,7 @@ Procedure AddQueryTextsToRestrictionParameters(Result)
 	Result.Insert("ReadRightsCheckQueryText");
 	// Text of extracting the owner from an object reference.
 	Result.Insert("OwnerObjectFieldInRightsValidationQuery");
-	// Получение прав пользователей на список элементов данных.
+	// Get user rights to the data item list.
 	Result.Insert("QueryTextOfUsersRights");
 	
 	AddDateQueryTextOfNextDataItem(Result, Context); 
@@ -35689,7 +35864,7 @@ Procedure AddDateQueryTextOfNextDataItem(Result, Context)
 		|ORDER BY
 		|	CurrentList.Period DESC";
 		If Context.TypeCollectionName = "CalculationRegisters" Then
-			QueryText = StrReplace(QueryText, ".Period", ".RegistrationPeriod"); // @query-part-1 @query-part-2
+			QueryText = StrReplace(QueryText, ".Period", ".RegistrationPeriod"); // @query-part-1, @query-part-2
 		EndIf;
 	EndIf;
 	
@@ -35957,13 +36132,13 @@ Procedure AddQueryTextOfObsoleteDataItems(Result, Context)
 			|	OR AccessKeysForRegisters.Field%1 = &Field%1"; // @query-part-1
 		EndIf;
 		BasicFieldsForFilter2 = BasicFieldsForFilter2 + TextWithIndent(?(Number = 1, "", "
-		|AND ") + StrTemplate(Filter, Number), Left(TabsString, Number * 2)); // @query-part-1
+		|AND ") + StrTemplate(Filter, Number), Left(TabsString, Number * 2)); // @query-part-2
 		
 		// Fields to compare and join.
 		BasicFieldsToMap = BasicFieldsToMap + ?(BasicFieldsToMap = "", "", "
-		|AND ") + StrTemplate("(CurrentList.%2 = AccessKeysForRegisters.Field%1)", Number, BasicFieldName); // @query-part-1
+		|AND ") + StrTemplate("(CurrentList.%2 = AccessKeysForRegisters.Field%1)", Number, BasicFieldName); // @query-part-3
 		BasicFieldsForConnection = BasicFieldsForConnection + ?(BasicFieldsForConnection = "", "", "
-		|AND ") + StrTemplate("(AccessKeysForRegisters.Field%1 = DataItems.Field%1)", Number); // @query-part-1
+		|AND ") + StrTemplate("(AccessKeysForRegisters.Field%1 = DataItems.Field%1)", Number); // @query-part-3
 		
 		// The check condition for the first field.
 		If FirstFieldCheckCondition = "" Then
@@ -36055,7 +36230,7 @@ Procedure AddQueryTextOfObsoleteDataItems(Result, Context)
 		CheckNULL = "";
 		For Counter = Number To MaxBasicFieldsCount Do
 			CheckNULL = CheckNULL + ?(CheckNULL = "", "", "
-			|OR ") + StrTemplate("AccessKeysForRegisters.Field%1 <> VALUE(Enum.AdditionalAccessValues.Null)", Counter); // @query-part-1
+			|OR ") + StrTemplate("AccessKeysForRegisters.Field%1 <> VALUE(Enum.AdditionalAccessValues.Null)", Counter); // @query-part-3
 		EndDo;
 	Else
 		CheckNULL = "FALSE";
@@ -36563,15 +36738,15 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 	
 	// For a new combination query.
 	BasicFieldsConnectionCondition = BasicFieldsConnectionCondition + ?(BasicFieldsConnectionCondition = "", "", "
-	|			AND ") + "(AccessKeysForRegisters.AccessOption = &AccessOption)"; // @query-part-1
+	|			AND ") + "(AccessKeysForRegisters.AccessOption = &AccessOption)"; // @query-part-3
 	
 	// To request current access keys.
 	FilterCriterion = FilterCriterion + ?(FilterCriterion = "", "", "
-	|	AND ") + "CurrentList.AccessOption = &AccessOption"; // @query-part-1
+	|	AND ") + "CurrentList.AccessOption = &AccessOption"; // @query-part-3
 	
 	// Intended for requesting a combination containing obsolete keys.
 	FilterFields = FilterFields + ?(FilterFields = "", "", "
-	|	AND ") + "CurrentList.AccessOption = &AccessOption"; // @query-part-1
+	|	AND ") + "CurrentList.AccessOption = &AccessOption"; // @query-part-3
 	
 	FieldsForRangeSelection = "";
 	
@@ -36587,10 +36762,10 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 		
 		// For a new combination query.
 		BasicFieldsForSelection = BasicFieldsForSelection + ?(BasicFieldsForSelection = "", "", ",
-		|	") + StrTemplate("CurrentRegister.%2 AS Field%1", Number, BasicFieldName); // @query-part-3
+		|	") + StrTemplate("CurrentRegister.%2 AS Field%1", Number, BasicFieldName); // @query-part-4
 		
 		BasicFieldsConnectionCondition = BasicFieldsConnectionCondition + ?(BasicFieldsConnectionCondition = "", "", "
-		|			AND ") + StrTemplate("(AccessKeysForRegisters.Field%1 = CurrentRegister.%2)", Number, BasicFieldName); // @query-part-1
+		|			AND ") + StrTemplate("(AccessKeysForRegisters.Field%1 = CurrentRegister.%2)", Number, BasicFieldName); // @query-part-3
 		
 		BasicFieldsForGroupingOrOrdering = BasicFieldsForGroupingOrOrdering
 			+ ?(BasicFieldsForGroupingOrOrdering = "", "", ", ") + BasicFieldName;
@@ -36602,38 +36777,38 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 			|	OR CurrentRegister.%2 = &Field%1"; // @query-part-1
 		EndIf;
 		Filter = TextWithIndent(?(Number = 1, "", "
-		|AND ") + StrTemplate(Filter, Number, BasicFieldName), Left(TabsString, Number * 2)); // @query-part-1
+		|AND ") + StrTemplate(Filter, Number, BasicFieldName), Left(TabsString, Number * 2)); // @query-part-2
 		BasicFieldsForFilter1 = BasicFieldsForFilter1 + Filter;
 		BasicFieldsForFilter2 = BasicFieldsForFilter2 + Filter;
 		
 		// To request current access keys.
 		FilterCriterion = FilterCriterion + ?(FilterCriterion = "", "", "
-		|	AND ") + StrTemplate("CurrentList.Field%1 = &Field%1", Number) + "_%1"; // @query-part-1
+		|	AND ") + StrTemplate("CurrentList.Field%1 = &Field%1", Number) + "_%1"; // @query-part-3
 		
 		// Intended for requesting a combination containing obsolete keys.
 		BasicFields.ForSelection = BasicFields.ForSelection + ?(BasicFields.ForSelection = "", "", ",
-		|	") + StrTemplate("CurrentList.Field%1 AS Field%1", Number); // @query-part-3
+		|	") + StrTemplate("CurrentList.Field%1 AS Field%1", Number); // @query-part-4
 		
 		FieldsForRangeSelection = FieldsForRangeSelection + ?(FieldsForRangeSelection = "", "", ",
-		|	") + StrTemplate("DataItems.Field%1 AS Field%1RangeEnds", Number); // @query-part-3
+		|	") + StrTemplate("DataItems.Field%1 AS Field%1RangeEnds", Number); // @query-part-4
 		
 		If Number = FieldsToUseCount Then
 			Filter = "CurrentList.Field%1 > &Field%1RangeStarts"; // @query-part-1
 		Else
 			Filter = "(CurrentList.Field%1 > &Field%1RangeStarts
-			|	OR CurrentList.Field%1 = &Field%1RangeStarts"; // @query-part-1 @query-part-2
+			|	OR CurrentList.Field%1 = &Field%1RangeStarts"; // @query-part-1
 		EndIf;
 		FilterFields1 = FilterFields1 + TextWithIndent(?(Number = 1, "", "
-		|AND ") + StrTemplate(Filter, Number), Left(TabsString, Number * 2)); // @query-part-1
+		|AND ") + StrTemplate(Filter, Number), Left(TabsString, Number * 2)); // @query-part-2
 		
 		If Number = FieldsToUseCount Then
 			Filter = "CurrentList.Field%1 <= &Field%1RangeEnds"; // @query-part-1
 		Else
 			Filter = "(CurrentList.Field%1 < &Field%1RangeEnds
-			|	OR CurrentList.Field%1 = &Field%1RangeEnds"; // @query-part-1 @query-part-2
+			|	OR CurrentList.Field%1 = &Field%1RangeEnds"; // @query-part-1
 		EndIf;
 		FilterFields2 = FilterFields2 + TextWithIndent(?(Number = 1, "", "
-		|AND ") + StrTemplate(Filter, Number), Left(TabsString, Number * 2)); // @query-part-1
+		|AND ") + StrTemplate(Filter, Number), Left(TabsString, Number * 2)); // @query-part-2
 		
 		BasicFields.ForOrdering = BasicFields.ForOrdering
 			+ ?(BasicFields.ForOrdering = "", "", ", ") + StrTemplate("Field%1", Number);
@@ -36652,7 +36827,7 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 		|	AND " + FilterFields2; // @query-part-1
 	
 	// Requests for combinations containing obsolete keys.
-	QueryText = // @query-part-2 @query-part-3
+	QueryText = // @query-part-3, @query-part-4
 	"SELECT TOP 1
 	|	&FieldsForRangeSelection
 	|FROM
@@ -36674,7 +36849,7 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 	QueryText = StrReplace(QueryText, "&BasicFieldsForFilter",       TextWithIndent(FilterFields1, "	"));
 	QueryText = StrReplace(QueryText, "&BasicFieldsForOrdering", BasicFields.ForOrdering);
 	QueryText = StrReplace(QueryText, "&BasicFieldsForReverseOrdering",
-		StrReplace(BasicFields.ForOrdering, ",", " DESC,") + " DESC"); // @query-part-2 @query-part-3
+		StrReplace(BasicFields.ForOrdering, ",", " DESC,") + " DESC"); // @query-part-3, @query-part-4
 	Context.Insert("QueryTextForDataItemsRange", QueryText);
 	
 	QueryText = // CheckQueryText
@@ -37131,7 +37306,7 @@ Procedure AddQueryPartOfLeadingKeysRightsSelection(Context)
 		FilterCriterion = Context.ConditionPartsToSelectLeadingAccessKeysRights[0];
 	Else
 		FilterCriterion = "(" + StrConcat(Context.ConditionPartsToSelectLeadingAccessKeysRights,
-			Chars.LF + "			OR ") + ")"; // @query-part-1
+			Chars.LF + "			OR ") + ")"; // @query-part-2
 	EndIf;
 	
 	QueryText =
@@ -37288,7 +37463,7 @@ Procedure AddQueryPartOfLeadingListsRightsSelection(Context)
 		FilterCriterion = Context.ConditionPartsToSelectLeadingListsRights[0];
 	Else
 		FilterCriterion = "(" + StrConcat(Context.ConditionPartsToSelectLeadingListsRights,
-			Chars.LF + "			OR ") + ")"; // @query-part-1
+			Chars.LF + "			OR ") + ")"; // @query-part-2
 	EndIf;
 	FilterCriterion = StrReplace(FilterCriterion, "#FieldToCheck", "RightsToLists.Table");
 	QueryText = StrReplace(QueryText, "&FilterCriterion", FilterCriterion);
@@ -37323,7 +37498,7 @@ Procedure AddQueryPartOfRightsSelectionByRightsSettingsOwners(Context)
 	
 EndProcedure
 
-// 
+// Intended for procedure "AddQueryPartOfRightsSelectionByRightsSettingsOwners" and function "UserRightsQueryTextByPermissionSettingsOwners".
 // 
 //
 Function QueryTextOfRightsSelectionByRightsSettingsOwner()
@@ -37580,7 +37755,7 @@ Function KeysQueryTextByLeadingKeysToUpdateRights(Context)
 		FilterCriterion = Context.PartsOfFilterConditionByLeadingAccessKeys[0];
 	Else
 		FilterCriterion = "(" + StrConcat(Context.PartsOfFilterConditionByLeadingAccessKeys,
-			Chars.LF + "			OR ") + ")"; // @query-part-1
+			Chars.LF + "			OR ") + ")"; // @query-part-2
 	EndIf;
 	
 	QueryText = StrReplace(QueryText, "&FilterCriterion", FilterCriterion);
@@ -37593,7 +37768,7 @@ EndFunction
 Function ObsoleteAccessKeysQueryText(Context)
 	
 	If Context.IsReferenceType Then
-		UsedKeysQueryText = // @query-part
+		UsedKeysQueryText =
 		"SELECT DISTINCT
 		|	AccessKeysForObjects.#UsersAccessKey AS AccessKey
 		|INTO AccessKeysToUse
@@ -37766,9 +37941,9 @@ Procedure FillUserRightQueries(Result, Context)
 			Condition2 = "";
 			For Each TypeProperties In FieldRightsSettingsOwnersTypes Do
 				Condition1 = Condition1 + ?(Condition1 = "", "", "
-				|				AND ") + "VALUETYPE(&ObjectField) <> TYPE(" + TypeProperties.Value + ")"; // @query-part-1 @query-part-2
+				|				AND ") + "VALUETYPE(&ObjectField) <> TYPE(" + TypeProperties.Value + ")"; // @query-part-3, @query-part-4
 				Condition2 = Condition2 + ?(Condition2 = "", "", "
-				|					OR ") + "VALUETYPE(&ObjectField) = TYPE(" + TypeProperties.Value + ")"; // @query-part-1 @query-part-2
+				|					OR ") + "VALUETYPE(&ObjectField) = TYPE(" + TypeProperties.Value + ")"; // @query-part-3, @query-part-4
 			EndDo;
 			RightsSettingsOwnerTypeCheckCondition1 = Condition1;
 			RightsSettingsOwnerTypeCheckCondition2 = Condition2;
@@ -37841,13 +38016,13 @@ Procedure FillUserRightQueries(Result, Context)
 		
 	Else
 		QueryText = StrReplace(QueryText,
-			"AccessKeysForObjects.Object = &ObjectField", // @query-part-1
-			"AccessKeysForRegisters.Register = VALUE(Catalog.MetadataObjectIDs.EmptyRef)"); // @query-part-1
+			"AccessKeysForObjects.Object = &ObjectField",
+			"AccessKeysForRegisters.Register = VALUE(Catalog.MetadataObjectIDs.EmptyRef)"); // @query-part-1, @query-part-2
 		
 		QueryText = StrReplace(QueryText,
-			"			AND (&RightsSettingsOwnerTypeCheckCondition1)", // @query-part-1
+			"			AND (&RightsSettingsOwnerTypeCheckCondition1)",
 			"			AND (AccessKeysForRegisters.Field1 = &CurrentTableField1)
-			|			AND (&FilterByDimensions)"); // @query-part-1
+			|			AND (&FilterByDimensions)"); // @query-part-1 @query-part-2
 		
 		QueryText = StrReplace(QueryText, "AccessKeysForObjects.UsersAccessKey",
 			"AccessKeysForRegisters.AccessKey");
@@ -37855,8 +38030,8 @@ Procedure FillUserRightQueries(Result, Context)
 		QueryText = StrReplace(QueryText, "AccessKeysForObjects", "AccessKeysForRegisters");
 		
 		QueryText = StrReplace(QueryText,
-			"CurrentTable AS CurrentTable", // @query-part-1
-			Context.List + " AS CurrentTable"); // @query-part-1
+			"CurrentTable AS CurrentTable",
+			Context.List + " AS CurrentTable"); // @query-part-1, @query-part-2
 		
 		ClarifyKeysRegisterAndConnectionCondition(QueryText, Result, Context);
 		
@@ -37867,7 +38042,7 @@ Procedure FillUserRightQueries(Result, Context)
 	
 EndProcedure
 
-// 
+// Intended for procedure "FillUserRightQueries".
 Procedure SetDimensionsFieldsForSelectionAndGrouping(QueryText, FullRegisterName)
 	
 	RecordKeyDetails = StandardSubsystemsServer.RecordKeyDetails(FullRegisterName);
@@ -37892,7 +38067,7 @@ Procedure SetDimensionsFieldsForSelectionAndGrouping(QueryText, FullRegisterName
 	
 EndProcedure
 
-// 
+// Intended for procedure "SetDimensionsFieldsForSelectionAndGrouping".
 Function ClarifiedNameOfRecordKeyFieldToSelectDataAccessRights(FieldName)
 	
 	If Upper(FieldName) = Upper("UserWithRight")
@@ -37904,7 +38079,7 @@ Function ClarifiedNameOfRecordKeyFieldToSelectDataAccessRights(FieldName)
 	
 EndFunction
 
-// 
+// Intended for procedure "FillUserRightQueries".
 Procedure AddUsersRightsQueryTextByRightsSettingsOwner(ForExternalUsers,
 			QueryParts, QueriesTexts)
 	
@@ -38075,7 +38250,7 @@ Procedure FillReadUpdateRightsCheckQueries(Result, Context)
 			TypeCheckCondition = "";
 			For Each TypeProperties In FieldRightsSettingsOwnersTypes Do
 				TypeCheckCondition = TypeCheckCondition + ?(TypeCheckCondition = "", "", "
-				|					OR ") + "VALUETYPE(&Object) = TYPE(" + TypeProperties.Value + ")"; // @query-part-1 @query-part-2
+				|					OR ") + "VALUETYPE(&Object) = TYPE(" + TypeProperties.Value + ")"; // @query-part-3, @query-part-4
 			EndDo;
 			QueryTextWithCheckByRightsSettingsOwners = StrReplace(
 				QueryTextWithCheckByRightsSettingsOwners,
@@ -38328,8 +38503,8 @@ Procedure ClarifyKeysRegisterAndConnectionCondition(QueryText, Result, Context, 
 			FieldNumber = FieldNumber + 1;
 		EndDo;
 		If AccessOptionsUsed.Count() = 1 Then
-			FilterConditions.Add("AND " + StrConcat(Condition, Chars.LF + "AND ")); // @query-part-1 @query-part-2
-			ConnectionConditions.Add("AND (" + StrConcat(Condition, ")" + Chars.LF + "AND (") + ")"); // @query-part-1 @query-part-3
+			FilterConditions.Add("AND " + StrConcat(Condition, Chars.LF + "AND ")); // @query-part-1, @query-part-2
+			ConnectionConditions.Add("AND (" + StrConcat(Condition, ")" + Chars.LF + "AND (") + ")"); // @query-part-1, @query-part-3
 		Else
 			FilterConditions.Add(StrConcat(Condition, Chars.LF + "			And "));
 			ConnectionConditions.Add(StrConcat(Condition, Chars.LF + "		And "));
@@ -38340,16 +38515,16 @@ Procedure ClarifyKeysRegisterAndConnectionCondition(QueryText, Result, Context, 
 		FilterCriterion = FilterConditions[0];
 		ConnectionCondition = ConnectionConditions[0];
 	Else
-		FilterCriterion = "AND (" + StrConcat(FilterConditions, Chars.LF + "		OR ") + ")"; // @query-part-1 @query-part-2
-		ConnectionCondition =  "AND (" + StrConcat(ConnectionConditions, Chars.LF + "	OR ") + ")"; // @query-part-1 @query-part-2
+		FilterCriterion = "AND (" + StrConcat(FilterConditions, Chars.LF + "		OR ") + ")"; // @query-part-1, @query-part-2
+		ConnectionCondition =  "AND (" + StrConcat(ConnectionConditions, Chars.LF + "	OR ") + ")"; // @query-part-1, @query-part-2
 	EndIf;
 	
 	QueryText = StrReplace(QueryText,
-		"AND AccessKeysForRegisters.Field1 = &CurrentTableField1", // @query-part-1
-		TextWithIndent(TrimL(FilterCriterion), "	"));
+		"AND AccessKeysForRegisters.Field1 = &CurrentTableField1",
+		TextWithIndent(TrimL(FilterCriterion), "	")); // @query-part-1
 	QueryText = StrReplace(QueryText,
-		"AND (AccessKeysForRegisters.Field1 = &CurrentTableField1)", // @query-part-1
-		TextWithIndent(TrimL(ConnectionCondition), "			"));
+		"AND (AccessKeysForRegisters.Field1 = &CurrentTableField1)",
+		TextWithIndent(TrimL(ConnectionCondition), "			")); // @query-part-1
 	
 	If Not AddSelectionFields Then
 		Return;
@@ -38360,19 +38535,19 @@ Procedure ClarifyKeysRegisterAndConnectionCondition(QueryText, Result, Context, 
 	FieldNumber = 1;
 	For Each Field In Result.BasicFields.UsedItems Do
 		BasicFields = BasicFields + ?(BasicFields = "", "", "," + Chars.LF)
-			+ StrTemplate("CurrentTable.%1 AS %1", Field); // @query-part-1
+			+ StrTemplate("CurrentTable.%1 AS %1", Field); // @query-part-4
 		SelectionFields = SelectionFields + ?(SelectionFields = "", "", "," + Chars.LF)
-			+ StrTemplate("CurrentTable.%2 AS Field%1", FieldNumber, Field); // @query-part-1
+			+ StrTemplate("CurrentTable.%2 AS Field%1", FieldNumber, Field); // @query-part-4
 		FieldNumber = FieldNumber + 1;
 	EndDo;
 	
 	QueryText = StrReplace(QueryText,
-		"&CurrentTableField1 AS CurrentTableField1", // @query-part-1
-		TextWithIndent(TrimL(BasicFields), "	"));
+		"&CurrentTableField1 AS CurrentTableField1",
+		TextWithIndent(TrimL(BasicFields), "	")); // @query-part-1
 	
 	QueryText = StrReplace(QueryText,
-		"&CurrentTableField1 AS Field1", // @query-part-1
-		TextWithIndent(TrimL(SelectionFields), "	"));
+		"&CurrentTableField1 AS Field1",
+		TextWithIndent(TrimL(SelectionFields), "	")); // @query-part-1
 	
 	QueryText = StrReplace(QueryText, "&List", Context.List);
 	
@@ -38437,11 +38612,11 @@ Procedure AddKeyHeaderCheck(Context, HeaderNumber)
 	If HeaderNumber = 0 Then
 		Joins = ConnectionsAndFields.Joins + "
 		|LEFT JOIN Catalog.AccessKeys AS Header0
-		|ON (Header0.Ref = CurrentList.CurrentAccessKey)" // @query-part-1 
+		|ON (Header0.Ref = CurrentList.CurrentAccessKey)"
 		+ ?(Context.FieldsComposition = 0, "
-		|	AND (Header0.List = &List)", "") // @query-part-1 
+		|	AND (Header0.List = &List)", "")
 		+ "
-		|	AND (Header0.FieldsComposition = &FieldsComposition)"; // @query-part-1
+		|	AND (Header0.FieldsComposition = &FieldsComposition)"; // @query-part-1, @query-part-2, @query-part-4 
 	Else
 		Joins = ConnectionsAndFields.Joins + "
 		|LEFT JOIN Catalog.AccessKeys.Header AS Header?
@@ -38483,19 +38658,17 @@ Procedure AddKeyTabularSectionCheck(Context, KeyTabularSectionNumber)
 		Else
 			ObjectTabularSectionName = StrReplace(ObjectTabularSectionAlias, "CurrentList", "");
 			ConnectionsAndFields = ConnectionsAndFieldsByTables.Get(ObjectTabularSectionAlias);
-			// @query-part-1 @query-part-2
 			Joins = Joins + "
 			|LEFT JOIN &CurrentList." + ObjectTabularSectionName + " AS " + ObjectTabularSectionAlias + "
-			|On " + ObjectTabularSectionAlias + ".Ref = CurrentList.Ref"; // @query-part-1
+			|On " + ObjectTabularSectionAlias + ".Ref = CurrentList.Ref"; // @query-part-1, @query-part-2, @query-part-3, @query-part-4
 		EndIf;
 		Joins = Joins + ConnectionsAndFields.Joins;
 		Fields = ConnectionsAndFields.Fields;
 	Else
 		For Each AdditionalTable In AdditionalTablesGroup Do
-			// @query-part-1 @query-part-2
 			Joins = Joins + "
 			|LEFT JOIN " + AdditionalTable.Table + " AS " + AdditionalTable.Alias + "
-			|On " + TextWithIndent(AdditionalTable.ConnectionConditionText, "	"); // @query-part-1
+			|On " + TextWithIndent(AdditionalTable.ConnectionConditionText, "	"); // @query-part-1, @query-part-2, @query-part-3
 			ConnectionsAndFields = ConnectionsAndFieldsByTables.Get(AdditionalTable.Alias);
 			If ConnectionsAndFields = Undefined Then
 				Continue;
@@ -38701,7 +38874,7 @@ Procedure AddKeyHeaderFilling(Context, HeaderNumber)
 	EndIf;
 	
 	If HeaderNumber = 0 Then
-		QueryText = // @query-part-1
+		QueryText =
 		"SELECT
 		|	KeysBatch.Ref AS Ref,&Attributes
 		|FROM
@@ -38768,7 +38941,7 @@ Procedure AddRightsFilterConditionForKeyHeader(Context, GroupOfFields, HeaderNum
 		   And FieldProperties.ValueSavingTypes.Count() > 0 Then
 			
 			Context.Insert("HeadListsWithTypesRightsSelectionCriteriaParts");
-			FilterCriterion = // @query-part-1 @query-part-2
+			FilterCriterion = 
 			"#FieldToCheck IN
 			|				(SELECT
 			|					ISNULL(ConfigurationTypes.Ref, ISNULL(ExtensionTypes.Ref, Header?.Attribute?))
@@ -38788,9 +38961,9 @@ Procedure AddRightsFilterConditionForKeyHeader(Context, GroupOfFields, HeaderNum
 			|						LEFT JOIN Catalog.ExtensionObjectIDs AS ExtensionTypes
 			|						ON
 			|							Header?.Attribute? <> UNDEFINED
-			|							AND VALUETYPE(ExtensionTypes.EmptyRefValue) = VALUETYPE(Header?.Attribute?))";
+			|							AND VALUETYPE(ExtensionTypes.EmptyRefValue) = VALUETYPE(Header?.Attribute?))"; // @query-part-1
 		Else
-			FilterCriterion = // @query-part-1
+			FilterCriterion = 
 			"#FieldToCheck IN
 			|				(SELECT
 			|					Header?.Attribute?
@@ -38798,15 +38971,15 @@ Procedure AddRightsFilterConditionForKeyHeader(Context, GroupOfFields, HeaderNum
 			|					KeysBatch AS KeysBatch
 			|						LEFT JOIN @Catalog.AccessKeys AS Header?
 			|						ON
-			|							Header?.Ref = KeysBatch.Ref)";
+			|							Header?.Ref = KeysBatch.Ref)"; // @query-part-1
 		EndIf;
 		If HeaderNumber > 0 Then
 			FilterCriterion = StrReplace(FilterCriterion,
-				"Catalog.AccessKeys AS Header?", "Catalog.AccessKeys.Header AS Header?"); // @query-part-1 @query-part-2
+				"Catalog.AccessKeys AS Header?", "Catalog.AccessKeys.Header AS Header?"); // @query-part-1, @query-part-2
 			FilterCriterion = StrReplace(FilterCriterion,
 				"Header?.Ref = KeysBatch.Ref", TextWithIndent(
 				"Header?.Ref = KeysBatch.Ref" + StrTemplate("
-				|	AND Header?.LineNumber = %1", HeaderNumber), "							")); // @query-part-1
+				|	AND Header?.LineNumber = %1", HeaderNumber), "							")); // @query-part-3
 		EndIf;
 		FilterCriterion = StrReplace(FilterCriterion, "Header?", StrTemplate("Header%1", HeaderNumber));
 		FilterCriterion = StrReplace(FilterCriterion, "Attribute?", FieldProperties.AccessKeyFieldsGroupAttributeName);
@@ -38947,10 +39120,9 @@ Procedure AddKeyTabularSectionFilling(Context, KeyTabularSectionNumber)
 		Attributes = "";
 		For Each AdditionalTable In AdditionalTablesGroup Do
 			ConnectionsAndFields = ConnectionsAndFieldsByTables.Get(AdditionalTable.Alias);
-			// @query-part-1
 			CurrentConnection = "
 			|LEFT JOIN " + AdditionalTable.Table + " AS " + AdditionalTable.Alias + "
-			|On " + TextWithIndent(AdditionalTable.ConnectionConditionText, "	"); // @query-part-1
+			|On " + TextWithIndent(AdditionalTable.ConnectionConditionText, "	"); // @query-part-1, @query-part-2, @query-part-3
 			Joins = Joins + CurrentConnection;
 			If Context.IsReferenceType Then
 				If Upper(Context.List) = Upper(AdditionalTable.Table) Then
@@ -38964,15 +39136,14 @@ Procedure AddKeyTabularSectionFilling(Context, KeyTabularSectionNumber)
 					ConnectionsInDatabase = ConnectionsInDatabase  + CurrentConnection;
 					ConnectionsInMemory     = ConnectionsInMemory      + CurrentConnection;
 				Else
-					// @query-part-1
 					ConnectionsInDatabase = ConnectionsInDatabase + "
 					|LEFT JOIN " + AdditionalTable.Table + " AS " + AdditionalTable.Alias + "
 					|On " + TextWithIndent(AdditionalTable.ConnectionConditionText, "	") + "
-					|	AND NOT " + AdditionalTable.Alias + ".Ref IN (&ObjectsRefs)"; // @query-part-1 @query-part-2
-					// @query-part-1
+					|	AND NOT " + AdditionalTable.Alias + ".Ref IN (&ObjectsRefs)"; // @query-part-1, @query-part-2, @query-part-3, @query-part-5, @query-part-6
+					
 					ConnectionsInMemory = ConnectionsInMemory + "
 					|LEFT JOIN " + AdditionalName + " AS " + AdditionalTable.Alias + "
-					|On " + TextWithIndent(AdditionalTable.ConnectionConditionText, "	"); // @query-part-1
+					|On " + TextWithIndent(AdditionalTable.ConnectionConditionText, "	"); // @query-part-1, @query-part-2, @query-part-3,
 				EndIf;
 			EndIf;
 			If ConnectionsAndFields = Undefined Then
@@ -39028,7 +39199,8 @@ Procedure AddKeyTabularSectionFilling(Context, KeyTabularSectionNumber)
 				|	CurrentRef,&OrderingFields
 				|TOTALS BY
 				|	CurrentRef"; // @query-part-1
-				// ACC:96-on.
+				// @query-part-1
+// ACC:96-on.
 				InMemoryQueryText = StrReplace(InMemoryQueryText, ",&SelectionFields", TextWithIndent(SelectionFields, "	"));
 				InMemoryQueryText = StrReplace(InMemoryQueryText, ",&OrderingFields", OrderingFields); 
 				InMemoryQueryText = StrReplace(InMemoryQueryText, " #ConnectionsInDatabase",
@@ -39136,7 +39308,7 @@ Procedure AddRightsFilterConditionForKeyTabularSection(Context, GroupOfFields,
 		   And FieldProperties.ValueSavingTypes.Count() > 0 Then
 			
 			Context.Insert("HeadListsWithTypesRightsSelectionCriteriaParts");
-			FilterCriterion = // @query-part-1
+			FilterCriterion = 
 			"#FieldToCheck IN
 			|				(SELECT
 			|					ISNULL(ConfigurationTypes.Ref, ISNULL(ExtensionTypes.Ref, TabularSection?.Attribute?))
@@ -39156,9 +39328,9 @@ Procedure AddRightsFilterConditionForKeyTabularSection(Context, GroupOfFields,
 			|						LEFT JOIN Catalog.ExtensionObjectIDs AS ExtensionTypes
 			|						ON
 			|							TabularSection?.Attribute? <> UNDEFINED
-			|							AND VALUETYPE(ExtensionTypes.EmptyRefValue) = VALUETYPE(TabularSection?.Attribute?))";
+			|							AND VALUETYPE(ExtensionTypes.EmptyRefValue) = VALUETYPE(TabularSection?.Attribute?))"; // @query-part-1
 		Else
-			FilterCriterion = // @query-part-1
+			FilterCriterion = 
 			"#FieldToCheck IN
 			|				(SELECT
 			|					TabularSection?.Attribute?
@@ -39166,7 +39338,7 @@ Procedure AddRightsFilterConditionForKeyTabularSection(Context, GroupOfFields,
 			|					KeysBatch AS KeysBatch
 			|						LEFT JOIN @Catalog.AccessKeys.TabularSection? AS TabularSection?
 			|						ON
-			|							TabularSection?.Ref = KeysBatch.Ref)";
+			|							TabularSection?.Ref = KeysBatch.Ref)"; // @query-part-1
 		EndIf;
 		
 		FilterCriterion = StrReplace(FilterCriterion, "TabularSection?",
@@ -39213,29 +39385,29 @@ Procedure AddFilterConditionByLeadingAccessKeys(Context, GroupOfFields, HeaderNu
 			Continue;
 		EndIf;
 		
-		FilterCriterion = // @query-part-1
+		FilterCriterion = 
 		"AccessKeys.Ref IN
 		|				(SELECT
 		|					Header?.Ref
 		|				FROM
 		|					Catalog.AccessKeys AS Header?
 		|				WHERE
-		|					Header?.Value? IN (&LeadingAccessKeys))";
+		|					Header?.Value? IN (&LeadingAccessKeys))"; // @query-part-1
 		
 		FilterCriterion = StrReplace(FilterCriterion, "Value?",
 			StrTemplate("Value%1", AttributeNumber));
 		
 		If HeaderNumber > 0 Then
 			FilterCriterion = StrReplace(FilterCriterion,
-				"Catalog.AccessKeys AS Header?", // @query-part-1
-				"Catalog.AccessKeys.Header AS Header?"); // @query-part-1
+				"Catalog.AccessKeys AS Header?",
+				"Catalog.AccessKeys.Header AS Header?"); // @query-part-1, @query-part-2
 		EndIf;
 		
 		If KeyTabularSectionNumber = 0 Then
 			FilterCriterion = StrReplace(FilterCriterion, "Header?", StrTemplate("Header%1", HeaderNumber));
 		Else
 			TabularSectionName = StrTemplate("TabularSection%1", KeyTabularSectionNumber);
-			FilterCriterion = StrReplace(FilterCriterion, " AS", "." + TabularSectionName + " AS"); // @query-part-1 @query-part-3
+			FilterCriterion = StrReplace(FilterCriterion, " AS", "." + TabularSectionName + " AS"); // @query-part-1, @query-part-3
 			FilterCriterion = StrReplace(FilterCriterion, "Header?", TabularSectionName);
 		EndIf;
 		
@@ -39264,41 +39436,36 @@ Function ConnectionsAndFieldsByTables(GroupOfFields, KeyTabularSection, HeaderNu
 		
 		Joins = "";
 		If FieldProperties.AccessKeySavingTypes.Count() > 0 Then
-			// @query-part-1
 			Joins = Joins + "
 			|LEFT JOIN InformationRegister.AccessKeysForObjects AS AccessKeysForObjects?
-			|ON (AccessKeysForObjects?.Object = #FieldNameForQuery)";
+			|ON (AccessKeysForObjects?.Object = #FieldNameForQuery)"; // @query-part-1
 		EndIf;
 		
 		If FieldProperties.ValueGroupSavingTypes.Count() > 0 Then
 			If Not FieldProperties.IsAccessValueListWithValueGroups Then
-				// @query-part-1
 				Joins = Joins + "
 				|LEFT JOIN InformationRegister.AccessValuesGroups AS ValueGroups?
 				|ON (ValueGroups?.AccessValue = #FieldNameForQuery)
-				|	AND (ValueGroups?.DataGroup = 0)";
+				|	AND (ValueGroups?.DataGroup = 0)"; // @query-part-1
 			ElsIf FieldProperties.MultipleValuesGroups Then
-				// @query-part-1
 				Joins = Joins + "
 				|LEFT JOIN &CurrentList.AccessGroups AS ValueGroups?
-				|ON (ValueGroups?.Ref = #FieldNameForQuery)";
+				|ON (ValueGroups?.Ref = #FieldNameForQuery)"; // @query-part-1
 			EndIf;
 		EndIf;
 		
 		If FieldProperties.ConfigurationTypeSavingTypes.Count() > 0 Then
-			// @query-part-1
 			Joins = Joins + "
 			|LEFT JOIN Catalog.MetadataObjectIDs AS ConfigurationTypes?
 			|ON (#FieldNameForQuery <> UNDEFINED)
-			|	AND (VALUETYPE(ConfigurationTypes?.EmptyRefValue) = VALUETYPE(#FieldNameForQuery))";
+			|	AND (VALUETYPE(ConfigurationTypes?.EmptyRefValue) = VALUETYPE(#FieldNameForQuery))"; // @query-part-1
 		EndIf;
 		
 		If FieldProperties.ExtensionTypeSavingTypes.Count() > 0 Then
-			// @query-part-1
 			Joins = Joins + "
 			|LEFT JOIN Catalog.ExtensionObjectIDs AS ExtensionTypes?
 			|ON (#FieldNameForQuery <> UNDEFINED)
-			|	AND (VALUETYPE(ExtensionTypes?.EmptyRefValue) = VALUETYPE(#FieldNameForQuery))";
+			|	AND (VALUETYPE(ExtensionTypes?.EmptyRefValue) = VALUETYPE(#FieldNameForQuery))"; // @query-part-1
 		EndIf;
 		
 		Field = FieldComparison(FieldProperties);
@@ -39313,7 +39480,7 @@ Function ConnectionsAndFieldsByTables(GroupOfFields, KeyTabularSection, HeaderNu
 				+ ", " + StrTemplate("Value%1", AttributeNumber);
 			
 			ConnectionsAndFields.Attributes  = ConnectionsAndFields.Attributes + StrTemplate(",
-			|Header?.Value%1 AS VALUE%1", AttributeNumber); // @query-part-2
+			|Header?.Value%1 AS VALUE%1", AttributeNumber); // @query-part-1
 		EndIf;
 		
 		FillAliasByAttributeNumber(Joins, Field, AttributeNumber, "Value?");
@@ -39498,8 +39665,8 @@ Function FieldComparison(FieldProperties)
 		"Header?.Value? = #FieldNameForQuery", , SaveBooleanValue);
 	
 	AddCheckByTypes(ChecksByTypes, FieldProperties.EmptyRefSavingTypes,
-		"Header?.Value? = VALUE(Enum.AdditionalAccessValues.EmptyRefAnyType)", // @query-part-1
-		"IsEmptyRefCheck");
+		"Header?.Value? = VALUE(Enum.AdditionalAccessValues.EmptyRefAnyType)",
+		"IsEmptyRefCheck"); // @query-part-1
 	
 	AddCheckByTypes(ChecksByTypes, FieldProperties.ConfigurationTypeSavingTypes,
 		"Header?.Value? = ISNULL(ConfigurationTypes?.Ref,
@@ -39535,7 +39702,7 @@ Function FieldComparison(FieldProperties)
 				EndIf;
 				CheckTemplate1 = ?(CheckByTypes.Value.Property("IsEmptyRefCheck"),
 					"#FieldNameForQuery = VALUE(#TypeName.EmptyRef)",
-					"VALUETYPE(#FieldNameForQuery) = TYPE(#TypeName)");  // @query-part-1
+					"VALUETYPE(#FieldNameForQuery) = TYPE(#TypeName)");  // @query-part-3
 				TypesCheck = TypesCheck + StrReplace(CheckTemplate1, "#TypeName", TypeName);
 			EndDo;
 			Validation = "
@@ -39926,31 +40093,31 @@ Function ErrorsTextToCallException(FullName, ErrorsDescription, ForExternalUsers
 		If InManagerModule = Undefined Then
 			If ForExternalUsers Then
 				ErrorTitle = 
-					NStr("en = 'Error in restriction of external user access to the ""%1"" list:';");
+					NStr("en = 'Error in restriction of external user access to the ""%1"" list:'");
 			Else
 				ErrorTitle = 
-					NStr("en = 'Error in restriction of user access to the ""%1"" list:';");
+					NStr("en = 'Error in restriction of user access to the ""%1"" list:'");
 			EndIf;
 		ElsIf InManagerModule Then
 			If ForExternalUsers Then
 				ErrorTitle =
 					NStr("en = 'Error in restriction of external user access to the ""%1"" list
-					           |specified in procedure ""%2"" of the metadata object manager module:';");
+					           |specified in procedure ""%2"" of the metadata object manager module:'");
 			Else
 				ErrorTitle =
 					NStr("en = 'Error in restriction of user access to the ""%1"" list
-					           |specified in procedure ""%2"" of the metadata object manager module:';");
+					           |specified in procedure ""%2"" of the metadata object manager module:'");
 			EndIf;
 			Refinement = "OnFillAccessRestriction";
 		Else
 			If ForExternalUsers Then
 				ErrorTitle =
 					NStr("en = 'Error in restriction of external user access to the ""%1"" list
-					           |specified in procedure ""%2"":';");
+					           |specified in procedure ""%2"":'");
 			Else
 				ErrorTitle =
 					NStr("en = 'Error in restriction of user access to the ""%1"" list
-					           |specified in procedure ""%2"":';");
+					           |specified in procedure ""%2"":'");
 			EndIf;
 			Refinement = "AccessManagementOverridable.OnFillAccessRestriction";
 		EndIf;
@@ -39958,31 +40125,31 @@ Function ErrorsTextToCallException(FullName, ErrorsDescription, ForExternalUsers
 		If InManagerModule = Undefined Then
 			If ForExternalUsers Then
 				ErrorTitle = 
-					NStr("en = 'Errors in restriction of external user access to the ""%1"" list:';");
+					NStr("en = 'Errors in restriction of external user access to the ""%1"" list:'");
 			Else
 				ErrorTitle = 
-					NStr("en = 'Errors in restriction of user access to the ""%1"" list:';");
+					NStr("en = 'Errors in restriction of user access to the ""%1"" list:'");
 			EndIf;
 		ElsIf InManagerModule Then
 			If ForExternalUsers Then
 				ErrorTitle = 
 					NStr("en = 'Errors in restriction of external user access to the ""%1"" list
-					           |specified in procedure ""%2"" of the metadata object manager module:';");
+					           |specified in procedure ""%2"" of the metadata object manager module:'");
 			Else
 				ErrorTitle = 
 					NStr("en = 'Errors in restriction of user access to the ""%1"" list
-					           |specified in procedure ""%2"" of the metadata object manager module:';");
+					           |specified in procedure ""%2"" of the metadata object manager module:'");
 			EndIf;
 			Refinement = "OnFillAccessRestriction";
 		Else
 			If ForExternalUsers Then
 				ErrorTitle = 
 					NStr("en = 'Errors in restriction of external user access to the ""%1"" list
-					           |specified in procedure ""%2"":';");
+					           |specified in procedure ""%2"":'");
 			Else
 				ErrorTitle = 
 					NStr("en = 'Errors in restriction of user access to the ""%1"" list
-					           |specified in procedure ""%2"":';");
+					           |specified in procedure ""%2"":'");
 			EndIf;
 			Refinement = "AccessManagementOverridable.OnFillAccessRestriction";
 		EndIf;
@@ -40134,7 +40301,7 @@ Function AllowedTemplatesDetails()
 		           |2. Different read and update restrictions:
 		           |%2
 		           |3. Any of these two options with additional tables, for instance:
-		           |%3';"),
+		           |%3'"),
 		Template1, Template2, Template3);
 	
 	Return LongDesc;
@@ -40303,7 +40470,7 @@ Function CharsetsTable(InternalData)
 		TableRow.Position = CharacterNumber;
 		TableRow.Kind = "InvalidChar";
 		TableRow.ErrorText   = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid character ""%1"" with code %2.';"), Char, CharCode(Char));
+			NStr("en = 'Invalid character ""%1"" with code %2.'"), Char, CharCode(Char));
 	EndDo;
 	
 	If CharsetKind = "Word" Then
@@ -40319,7 +40486,7 @@ Function CharsetsTable(InternalData)
 		TableRow.Position = CharsetPosition;
 		TableRow.ErrorPosition = CharacterNumber - CharsetPosition;
 		TableRow.ErrorText   = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The end character %1 of the string constant is missing.';"), TableRow.Chars);
+			NStr("en = 'The end character %1 of the string constant is missing.'"), TableRow.Chars);
 	EndIf;
 	
 	LastRow = CharsetsTable.Add();
@@ -40351,7 +40518,7 @@ Procedure AddWordToCharsetsTable(Table,
 		
 		If WordProperties.IsReserve Then
 			NewRow.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The ""%1"" keyword is not supported.';"), CharacterString);
+				NStr("en = 'The ""%1"" keyword is not supported.'"), CharacterString);
 		EndIf;
 		Return;
 	EndIf;
@@ -40364,7 +40531,7 @@ Procedure AddWordToCharsetsTable(Table,
 			IsNumber = False;
 		Else
 			NewRow.Kind = "Name";
-			NewRow.ErrorText = NStr("en = 'A name cannot start with a dot.';");
+			NewRow.ErrorText = NStr("en = 'A name cannot start with a dot.'");
 			Return;
 		EndIf;
 	Else
@@ -40377,7 +40544,7 @@ Procedure AddWordToCharsetsTable(Table,
 		For Each Char In Charset Do
 			If NumbersChars.Get(Char) = Undefined Then
 				NewRow.ErrorPosition = CharacterNumber - 1;
-				NewRow.ErrorText   = NStr("en = 'A number must contain only digits.';");
+				NewRow.ErrorText   = NStr("en = 'A number must contain only digits.'");
 				Return;
 			EndIf;
 			CharacterNumber = CharacterNumber + 1;
@@ -40385,7 +40552,7 @@ Procedure AddWordToCharsetsTable(Table,
 		NumberChars = Left(CharacterString, CharacterNumber - 1);
 		If StrLen(NumberChars) > 16 Then
 			NewRow.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The number ""%1"" is too big.';"), NumberChars);
+				NStr("en = 'The number ""%1"" is too big.'"), NumberChars);
 			Return;
 		EndIf;
 		NewRow.Refinement = Number(NumberChars);
@@ -40396,11 +40563,11 @@ Procedure AddWordToCharsetsTable(Table,
 		For Each NamePart In NameParts Do
 			If NamePart = "" And NamePartPosition > 1 Then
 				NewRow.ErrorPosition = NamePartPosition - 1;
-				NewRow.ErrorText   = NStr("en = 'A name is expected after the dot.';");
+				NewRow.ErrorText   = NStr("en = 'A name is expected after the dot.'");
 				Return;
 			ElsIf NumbersChars.Get(Left(NamePart, 1)) <> Undefined Then
 				NewRow.ErrorPosition = NamePartPosition - 1;
-				NewRow.ErrorText   = NStr("en = 'In a name, a number cannot follow a dot.';");
+				NewRow.ErrorText   = NStr("en = 'In a name, a number cannot follow a dot.'");
 				Return;
 			EndIf;
 			NamePartPosition = NamePartPosition + StrLen(NamePart) + 1;
@@ -40426,11 +40593,11 @@ Procedure AddOperationToCharsetsTable(Table,
 	
 	If OperationProperties = Undefined Then
 		NewRow.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid operation: ""%1"".';"), CharacterString);
+			NStr("en = 'Invalid operation: ""%1"".'"), CharacterString);
 		
 	ElsIf OperationProperties.IsReserve Then
 		NewRow.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Unsupported operation: ""%1"".';"), CharacterString);
+			NStr("en = 'Unsupported operation: ""%1"".'"), CharacterString);
 	EndIf;
 	
 EndProcedure
@@ -40549,170 +40716,170 @@ Function LanguageWords()
 	
 	Words = New Map;
 	
-	AddLanguageWord(Words, "ПрисоединитьДополнительныеТаблицы",     // @Non-NLS
-	                                                                   "AttachAdditionalTables",      "Begin",       False);
-	AddLanguageWord(Words, "ЭтотСписок",                            // @Non-NLS
-	                                                                   "ThisList",                    "StartList", False);
-	AddLanguageWord(Words, "РазрешитьЧтениеИзменение",              // @Non-NLS
-	                                                                   "AllowReadUpdate",             "Begin",       False);
-	AddLanguageWord(Words, "РазрешитьЧтение",                       // @Non-NLS
-	                                                                   "AllowRead",                   "Begin",       False);
-	AddLanguageWord(Words, "РазрешитьИзменениеЕслиРазрешеноЧтение", // @Non-NLS
-	                                                                   "AllowUpdateIfReadingAllowed", "Begin",       False);
-	AddLanguageWord(Words, "Где",                                   // @Non-NLS
-	                                                                   "Where",                       "StartWhere");
+	AddLanguageWord(Words, "ПрисоединитьДополнительныеТаблицы",
+	                                                                   "AttachAdditionalTables",      "Begin",       False); // @Non-NLS
+	AddLanguageWord(Words, "ЭтотСписок",
+	                                                                   "ThisList",                    "StartList", False); // @Non-NLS
+	AddLanguageWord(Words, "РазрешитьЧтениеИзменение",
+	                                                                   "AllowReadUpdate",             "Begin",       False); // @Non-NLS
+	AddLanguageWord(Words, "РазрешитьЧтение",
+	                                                                   "AllowRead",                   "Begin",       False); // @Non-NLS
+	AddLanguageWord(Words, "РазрешитьИзменениеЕслиРазрешеноЧтение", 
+	                                                                   "AllowUpdateIfReadingAllowed", "Begin",       False); // @Non-NLS
+	AddLanguageWord(Words, "Где",
+	                                                                   "Where",                       "StartWhere"); // @Non-NLS
 	
-	AddLanguageWord(Words, "Левое",      // @Non-NLS
-	                                        "Left", "Joining");
-	AddLanguageWord(Words, "Соединение", // @Non-NLS
-	                                        "Join", "Joining");
-	AddLanguageWord(Words, "По",         // @Non-NLS
-	                                        "On",   "Joining");
+	AddLanguageWord(Words, "Левое",
+	                                        "Left", "Joining"); // @Non-NLS
+	AddLanguageWord(Words, "Соединение",
+	                                        "Join", "Joining"); // @Non-NLS
+	AddLanguageWord(Words, "По",
+	                                        "On",   "Joining"); // @Non-NLS
 	
-	AddLanguageWord(Words, "И",      // @Non-NLS
-	                                    "And",    "Connector", , 2);
-	AddLanguageWord(Words, "Или",    // @Non-NLS
-	                                    "Or",     "Connector", , 1);
-	AddLanguageWord(Words, "В",      // @Non-NLS
-	                                    "In",     "Connector", , 5);
-	AddLanguageWord(Words, "Как",    // @Non-NLS
-	                                    "As",     "Connector");
-	AddLanguageWord(Words, "Кроме",  // @Non-NLS
-	                                    "Except", "Connector");
-	AddLanguageWord(Words, "Только", // @Non-NLS
-	                                    "Only",   "Connector");
-	AddLanguageWord(Words, "Есть",   // @Non-NLS
-	                                    "Is",     "Connector", , 7);
-	AddLanguageWord(Words, "Не",     // @Non-NLS
-	                                    "Not",    "Operator",    , 3);
+	AddLanguageWord(Words, "И",
+	                                    "And",    "Connector", , 2); // @Non-NLS
+	AddLanguageWord(Words, "Или",
+	                                    "Or",     "Connector", , 1); // @Non-NLS
+	AddLanguageWord(Words, "В",
+	                                    "In",     "Connector", , 5); // @Non-NLS
+	AddLanguageWord(Words, "Как",
+	                                    "As",     "Connector"); // @Non-NLS
+	AddLanguageWord(Words, "Кроме",
+	                                    "Except", "Connector"); // @Non-NLS
+	AddLanguageWord(Words, "Только",
+	                                    "Only",   "Connector"); // @Non-NLS
+	AddLanguageWord(Words, "Есть",
+	                                    "Is",     "Connector", , 7); // @Non-NLS
+	AddLanguageWord(Words, "Не",
+	                                    "Not",    "Operator",    , 3); // @Non-NLS
 	
-	AddLanguageWord(Words, "Выбор",  // @Non-NLS
-	                                    "Case",   "SelectionWord");
-	AddLanguageWord(Words, "Когда",  // @Non-NLS
-	                                    "When",   "SelectionWord");
-	AddLanguageWord(Words, "Тогда",  // @Non-NLS
-	                                    "Then",   "SelectionWord");
-	AddLanguageWord(Words, "Иначе",  // @Non-NLS
-	                                    "Else",   "SelectionWord");
-	AddLanguageWord(Words, "Конец", // @Non-NLS
-	                                    "End",    "SelectionWord");
+	AddLanguageWord(Words, "Выбор",
+	                                    "Case",   "SelectionWord"); // @Non-NLS
+	AddLanguageWord(Words, "Когда",
+	                                    "When",   "SelectionWord"); // @Non-NLS
+	AddLanguageWord(Words, "Тогда",
+	                                    "Then",   "SelectionWord"); // @Non-NLS
+	AddLanguageWord(Words, "Иначе",
+	                                    "Else",   "SelectionWord"); // @Non-NLS
+	AddLanguageWord(Words, "Конец",
+	                                    "End",    "SelectionWord"); // @Non-NLS
 	
-	AddLanguageWord(Words, "ЕстьNull",                      // @Non-NLS
-	                                                           "IsNull",               "Function", False);
-	AddLanguageWord(Words, "Выразить",                      // @Non-NLS
-	                                                           "Cast",                 "Function", False);
-	AddLanguageWord(Words, "Значение",                      // @Non-NLS
-	                                                           "Value",                "Function", False);
-	AddLanguageWord(Words, "ТипЗначения",                   // @Non-NLS
-	                                                           "ValueType",            "Function", False);
-	AddLanguageWord(Words, "Тип",                           // @Non-NLS
-	                                                           "Type",                 "Function", False);
-	AddLanguageWord(Words, "ЗначениеРазрешено",             // @Non-NLS
-	                                                           "ValueAllowed",         "Function", False);
-	AddLanguageWord(Words, "ЧтениеОбъектаРазрешено",        // @Non-NLS
-	                                                           "ObjectReadingAllowed", "Function", False);
-	AddLanguageWord(Words, "ИзменениеОбъектаРазрешено",     // @Non-NLS
-	                                                           "ObjectUpdateAllowed",  "Function", False);
-	AddLanguageWord(Words, "ЧтениеСпискаРазрешено",         // @Non-NLS
-	                                                           "ListReadingAllowed",   "Function", False);
-	AddLanguageWord(Words, "ИзменениеСпискаРазрешено",      // @Non-NLS
-	                                                           "ListUpdateAllowed",    "Function", False);
-	AddLanguageWord(Words, "ДляВсехСтрок",                  // @Non-NLS
-	                                                           "ForAllRows",           "Function", False);
-	AddLanguageWord(Words, "ДляОднойИзСтрок",               // @Non-NLS
-	                                                           "ForAtLeastOneRow",     "Function", False);
-	AddLanguageWord(Words, "ЭтоАвторизованныйПользователь", // @Non-NLS
-	                                                           "IsAuthorizedUser",     "Function", False);
-	AddLanguageWord(Words, "ПравоДоступа",                  // @Non-NLS
-	                                                           "AccessRight",          "Function", False);
-	AddLanguageWord(Words, "РольДоступна",                  // @Non-NLS
-	                                                           "IsInRole",             "Function", False);
+	AddLanguageWord(Words, "ЕстьNull",
+	                                                           "IsNull",               "Function", False); // @Non-NLS
+	AddLanguageWord(Words, "Выразить",
+	                                                           "Cast",                 "Function", False); // @Non-NLS
+	AddLanguageWord(Words, "Значение",
+	                                                           "Value",                "Function", False); // @Non-NLS
+	AddLanguageWord(Words, "ТипЗначения",
+	                                                           "ValueType",            "Function", False); // @Non-NLS
+	AddLanguageWord(Words, "Тип",
+	                                                           "Type",                 "Function", False); // @Non-NLS
+	AddLanguageWord(Words, "ЗначениеРазрешено",
+	                                                           "ValueAllowed",         "Function", False); // @Non-NLS
+	AddLanguageWord(Words, "ЧтениеОбъектаРазрешено",
+	                                                           "ObjectReadingAllowed", "Function", False); // @Non-NLS
+	AddLanguageWord(Words, "ИзменениеОбъектаРазрешено",
+	                                                           "ObjectUpdateAllowed",  "Function", False); // @Non-NLS
+	AddLanguageWord(Words, "ЧтениеСпискаРазрешено",
+	                                                           "ListReadingAllowed",   "Function", False); // @Non-NLS
+	AddLanguageWord(Words, "ИзменениеСпискаРазрешено",
+	                                                           "ListUpdateAllowed",    "Function", False); // @Non-NLS
+	AddLanguageWord(Words, "ДляВсехСтрок",
+	                                                           "ForAllRows",           "Function", False); // @Non-NLS
+	AddLanguageWord(Words, "ДляОднойИзСтрок",
+	                                                           "ForAtLeastOneRow",     "Function", False); // @Non-NLS
+	AddLanguageWord(Words, "ЭтоАвторизованныйПользователь",
+	                                                           "IsAuthorizedUser",     "Function", False); // @Non-NLS
+	AddLanguageWord(Words, "ПравоДоступа",
+	                                                           "AccessRight",          "Function", False); // @Non-NLS
+	AddLanguageWord(Words, "РольДоступна",
+	                                                           "IsInRole",             "Function", False); // @Non-NLS
 	
-	AddLanguageWord(Words, "ПустаяСсылка", // @Non-NLS
-	                                          "EmptyRef",  "ComparisonValue");
-	AddLanguageWord(Words, "Отключено",    // @Non-NLS
-	                                          "Disabled",  "ComparisonValue");
-	AddLanguageWord(Words, "Неопределено", // @Non-NLS
-	                                          "Undefined", "ComparisonValue");
-	AddLanguageWord(Words, "Null",         // @Non-NLS
-	                                          "Null",      "ComparisonValue");
-	AddLanguageWord(Words, " False",         // @Non-NLS
-	                                          "False",     "ClarificationValue");
-	AddLanguageWord(Words, "Истина",       // @Non-NLS
-	                                          "True",      "ClarificationValue");
+	AddLanguageWord(Words, "ПустаяСсылка",
+	                                          "EmptyRef",  "ComparisonValue"); // @Non-NLS
+	AddLanguageWord(Words, "Отключено",
+	                                          "Disabled",  "ComparisonValue"); // @Non-NLS
+	AddLanguageWord(Words, "Неопределено",
+	                                          "Undefined", "ComparisonValue"); // @Non-NLS
+	AddLanguageWord(Words, "Null", 
+	                                          "Null",      "ComparisonValue"); // @Non-NLS
+	AddLanguageWord(Words, " False",
+	                                          "False",     "ClarificationValue"); // @Non-NLS
+	AddLanguageWord(Words, "Истина",
+	                                          "True",      "ClarificationValue"); // @Non-NLS
 	
-	AddLanguageWord(Words, "Строка",       // @Non-NLS
-	                                          "String",    "TypeName");
-	AddLanguageWord(Words, "Число",        // @Non-NLS
-	                                          "Number",    "TypeName");
-	AddLanguageWord(Words, "Дата",         // @Non-NLS
-	                                          "Date",      "TypeName");
-	AddLanguageWord(Words, "Булево",       // @Non-NLS
-	                                          "Boolean",   "TypeName");
+	AddLanguageWord(Words, "Строка",
+	                                          "String",    "TypeName"); // @Non-NLS
+	AddLanguageWord(Words, "Число",
+	                                          "Number",    "TypeName"); // @Non-NLS
+	AddLanguageWord(Words, "Дата",
+	                                          "Date",      "TypeName"); // @Non-NLS
+	AddLanguageWord(Words, "Булево",
+	                                          "Boolean",   "TypeName"); // @Non-NLS
 	
 	// Not supported, reserved words.
-	AddLanguageWord(Words, "Выбрать",             // @Non-NLS
-	                                                 "Select",          "NotDefined",   , , True);
-	AddLanguageWord(Words, "Первые",              // @Non-NLS
-	                                                 "Top",             "NotDefined",   , , True);
-	AddLanguageWord(Words, "Различные",           // @Non-NLS
-	                                                 "Distinct",        "NotDefined",   , , True);
-	AddLanguageWord(Words, "Из",                  // @Non-NLS
-	                                                 "From",            "NotDefined",   , , True);
-	AddLanguageWord(Words, "Внутреннее",          // @Non-NLS
-	                                                 "Inner",           "Joining", , , True);
-	AddLanguageWord(Words, "Полное",              // @Non-NLS
-	                                                 "Full",            "Joining", , , True);
-	AddLanguageWord(Words, "Сгруппировать",       // @Non-NLS
-	                                                 "Group",           "NotDefined",   , , True);
-	AddLanguageWord(Words, "Имеющие",             // @Non-NLS
-	                                                 "Having",          "NotDefined",   , , True);
-	AddLanguageWord(Words, "Упорядочить",         // @Non-NLS
-	                                                 "Order",           "NotDefined",   , , True);
-	AddLanguageWord(Words, "Итоги",               // @Non-NLS
-	                                                 "Totals",          "NotDefined",   , , True);
-	AddLanguageWord(Words, "Год",                 // @Non-NLS
-	                                                 "Year",            "Function",   False, , True);
-	AddLanguageWord(Words, "Квартал",             // @Non-NLS
-	                                                 "Quarter",         "Function",   False, , True);
-	AddLanguageWord(Words, "Месяц",               // @Non-NLS
-	                                                 "Month",           "Function",   False, , True);
-	AddLanguageWord(Words, "ДеньГода",            // @Non-NLS
-	                                                 "DayOfYear",       "Function",   False, , True);
-	AddLanguageWord(Words, "День",                // @Non-NLS
-	                                                 "Day",             "Function",   False, , True);
-	AddLanguageWord(Words, "Неделя",              // @Non-NLS
-	                                                 "Week",            "Function",   False, , True);
-	AddLanguageWord(Words, "ДеньНедели",          // @Non-NLS
-	                                                 "Weekday",         "Function",   False, , True);
-	AddLanguageWord(Words, "Час",                 // @Non-NLS
-	                                                 "Hour",            "Function",   False, , True);
-	AddLanguageWord(Words, "Минута",              // @Non-NLS
-	                                                 "Minute",          "Function",   False, , True);
-	AddLanguageWord(Words, "Секунда",             // @Non-NLS
-	                                                 "Second",          "Function",   False, , True);
-	AddLanguageWord(Words, "НачалоПериода",       // @Non-NLS
-	                                                 "BeginOfPeriod",   "Function",   False, , True);
-	AddLanguageWord(Words, "КонецПериода",        // @Non-NLS
-	                                                 "EndOfPeriod",     "Function",   False, , True);
-	AddLanguageWord(Words, "ДобавитьКДате",       // @Non-NLS
-	                                                 "DateAdd",         "Function",   False, , True);
-	AddLanguageWord(Words, "РазностьДат",         // @Non-NLS
-	                                                 "DateDiff",        "Function",   False, , True);
-	AddLanguageWord(Words, "Сумма",               // @Non-NLS
-	                                                 "Sum",             "Function",   False, , True);
-	AddLanguageWord(Words, "Минимум",             // @Non-NLS
-	                                                 "Min",             "Function",   False, , True);
-	AddLanguageWord(Words, "Максимум",            // @Non-NLS
-	                                                 "Max",             "Function",   False, , True);
-	AddLanguageWord(Words, "Среднее",             // @Non-NLS
-	                                                 "Avg",             "Function",   False, , True);
-	AddLanguageWord(Words, "Количество",          // @Non-NLS
-	                                                 "Count",           "Function",   False, , True);
-	AddLanguageWord(Words, "Представление",       // @Non-NLS
-	                                                 "Presentation",    "Function",   False, , True);
-	AddLanguageWord(Words, "ПредставлениеСсылки", // @Non-NLS
-	                                                 "RefPresentation", "Function",   False, , True);
+	AddLanguageWord(Words, "Выбрать",
+	                                                 "Select",          "NotDefined",   , , True); // @Non-NLS
+	AddLanguageWord(Words, "Первые",
+	                                                 "Top",             "NotDefined",   , , True); // @Non-NLS
+	AddLanguageWord(Words, "Различные",
+	                                                 "Distinct",        "NotDefined",   , , True); // @Non-NLS
+	AddLanguageWord(Words, "Из",
+	                                                 "From",            "NotDefined",   , , True); // @Non-NLS
+	AddLanguageWord(Words, "Внутреннее",
+	                                                 "Inner",           "Joining", , , True); // @Non-NLS
+	AddLanguageWord(Words, "Полное",
+	                                                 "Full",            "Joining", , , True); // @Non-NLS
+	AddLanguageWord(Words, "Сгруппировать",
+	                                                 "Group",           "NotDefined",   , , True); // @Non-NLS
+	AddLanguageWord(Words, "Имеющие",
+	                                                 "Having",          "NotDefined",   , , True); // @Non-NLS
+	AddLanguageWord(Words, "Упорядочить",
+	                                                 "Order",           "NotDefined",   , , True); // @Non-NLS
+	AddLanguageWord(Words, "Итоги",
+	                                                 "Totals",          "NotDefined",   , , True); // @Non-NLS
+	AddLanguageWord(Words, "Год",
+	                                                 "Year",            "Function",   False, , True); // @Non-NLS
+	AddLanguageWord(Words, "Квартал",
+	                                                 "Quarter",         "Function",   False, , True); // @Non-NLS
+	AddLanguageWord(Words, "Месяц",
+	                                                 "Month",           "Function",   False, , True); // @Non-NLS
+	AddLanguageWord(Words, "ДеньГода",
+	                                                 "DayOfYear",       "Function",   False, , True); // @Non-NLS
+	AddLanguageWord(Words, "День",
+	                                                 "Day",             "Function",   False, , True); // @Non-NLS
+	AddLanguageWord(Words, "Неделя",
+	                                                 "Week",            "Function",   False, , True); // @Non-NLS
+	AddLanguageWord(Words, "ДеньНедели",
+	                                                 "Weekday",         "Function",   False, , True); // @Non-NLS
+	AddLanguageWord(Words, "Час",
+	                                                 "Hour",            "Function",   False, , True); // @Non-NLS
+	AddLanguageWord(Words, "Минута",
+	                                                 "Minute",          "Function",   False, , True); // @Non-NLS
+	AddLanguageWord(Words, "Секунда",
+	                                                 "Second",          "Function",   False, , True); // @Non-NLS
+	AddLanguageWord(Words, "НачалоПериода",
+	                                                 "BeginOfPeriod",   "Function",   False, , True); // @Non-NLS
+	AddLanguageWord(Words, "КонецПериода",
+	                                                 "EndOfPeriod",     "Function",   False, , True); // @Non-NLS
+	AddLanguageWord(Words, "ДобавитьКДате",
+	                                                 "DateAdd",         "Function",   False, , True); // @Non-NLS
+	AddLanguageWord(Words, "РазностьДат",
+	                                                 "DateDiff",        "Function",   False, , True); // @Non-NLS
+	AddLanguageWord(Words, "Сумма",
+	                                                 "Sum",             "Function",   False, , True); // @Non-NLS
+	AddLanguageWord(Words, "Минимум",
+	                                                 "Min",             "Function",   False, , True); // @Non-NLS
+	AddLanguageWord(Words, "Максимум",
+	                                                 "Max",             "Function",   False, , True); // @Non-NLS
+	AddLanguageWord(Words, "Среднее",
+	                                                 "Avg",             "Function",   False, , True); // @Non-NLS
+	AddLanguageWord(Words, "Количество",
+	                                                 "Count",           "Function",   False, , True); // @Non-NLS
+	AddLanguageWord(Words, "Представление",
+	                                                 "Presentation",    "Function",   False, , True); // @Non-NLS
+	AddLanguageWord(Words, "ПредставлениеСсылки",
+	                                                 "RefPresentation", "Function",   False, , True); // @Non-NLS
 	
 	Return New FixedMap(Words);
 	
@@ -40803,42 +40970,42 @@ Function TablesTypes()
 	TablesTypes.Insert("ByCollections", New Map);
 	
 	// Setting table type names.
-	AddTablesType(TablesTypes, "ПланОбмена",             // @Non-NLS
-	                                                        "ExchangePlan",               "ExchangePlans");
-	AddTablesType(TablesTypes, "КритерийОтбора",         // @Non-NLS
-	                                                        "FilterCriterion",            "FilterCriteria");
-	AddTablesType(TablesTypes, "Константы",              // @Non-NLS
-	                                                        "Constants",                  "");
-	AddTablesType(TablesTypes, "Константа",              // @Non-NLS
-	                                                        "Constant",                   "Constants");
-	AddTablesType(TablesTypes, "Справочник",             // @Non-NLS
-	                                                        "Catalog",                    "Catalogs");
-	AddTablesType(TablesTypes, "Последовательность",     // @Non-NLS
-	                                                        "Sequence",                   "Sequences");
-	AddTablesType(TablesTypes, "Документ",               // @Non-NLS
-	                                                        "Document",                   "Documents");
-	AddTablesType(TablesTypes, "ЖурналДокументов",       // @Non-NLS
-	                                                        "DocumentJournal",            "DocumentJournals");
-	AddTablesType(TablesTypes, "Перечисление",           // @Non-NLS
-	                                                        "Enum",                       "Enums");
-	AddTablesType(TablesTypes, "ПланВидовХарактеристик", // @Non-NLS
-	                                                        "ChartOfCharacteristicTypes", "ChartsOfCharacteristicTypes");
-	AddTablesType(TablesTypes, "ПланСчетов",             // @Non-NLS
-	                                                        "ChartOfAccounts",            "ChartsOfAccounts");
-	AddTablesType(TablesTypes, "ПланВидовРасчета",       // @Non-NLS
-	                                                        "ChartOfCalculationTypes",    "ChartsOfCalculationTypes");
-	AddTablesType(TablesTypes, "РегистрСведений",        // @Non-NLS
-	                                                        "InformationRegister",        "InformationRegisters");
-	AddTablesType(TablesTypes, "РегистрНакопления",      // @Non-NLS
-	                                                        "AccumulationRegister",       "AccumulationRegisters");
-	AddTablesType(TablesTypes, "РегистрБухгалтерии",     // @Non-NLS
-	                                                        "AccountingRegister",         "AccountingRegisters");
-	AddTablesType(TablesTypes, "РегистрРасчета",         // @Non-NLS
-	                                                        "CalculationRegister",        "CalculationRegisters");
-	AddTablesType(TablesTypes, "БизнесПроцесс",          // @Non-NLS
-	                                                        "BusinessProcess",            "BusinessProcesses");
-	AddTablesType(TablesTypes, "Задача",                 // @Non-NLS
-	                                                        "Task",                       "Tasks");
+	AddTablesType(TablesTypes, "ПланОбмена",
+	                                                        "ExchangePlan",               "ExchangePlans"); // @Non-NLS
+	AddTablesType(TablesTypes, "КритерийОтбора",
+	                                                        "FilterCriterion",            "FilterCriteria"); // @Non-NLS
+	AddTablesType(TablesTypes, "Константы",
+	                                                        "Constants",                  ""); // @Non-NLS
+	AddTablesType(TablesTypes, "Константа",
+	                                                        "Constant",                   "Constants"); // @Non-NLS
+	AddTablesType(TablesTypes, "Справочник",
+	                                                        "Catalog",                    "Catalogs"); // @Non-NLS
+	AddTablesType(TablesTypes, "Последовательность",
+	                                                        "Sequence",                   "Sequences"); // @Non-NLS
+	AddTablesType(TablesTypes, "Документ",
+	                                                        "Document",                   "Documents"); // @Non-NLS
+	AddTablesType(TablesTypes, "ЖурналДокументов",
+	                                                        "DocumentJournal",            "DocumentJournals"); // @Non-NLS
+	AddTablesType(TablesTypes, "Перечисление",
+	                                                        "Enum",                       "Enums"); // @Non-NLS
+	AddTablesType(TablesTypes, "ПланВидовХарактеристик",
+	                                                        "ChartOfCharacteristicTypes", "ChartsOfCharacteristicTypes"); // @Non-NLS
+	AddTablesType(TablesTypes, "ПланСчетов",
+	                                                        "ChartOfAccounts",            "ChartsOfAccounts"); // @Non-NLS
+	AddTablesType(TablesTypes, "ПланВидовРасчета",
+	                                                        "ChartOfCalculationTypes",    "ChartsOfCalculationTypes"); // @Non-NLS
+	AddTablesType(TablesTypes, "РегистрСведений",
+	                                                        "InformationRegister",        "InformationRegisters"); // @Non-NLS
+	AddTablesType(TablesTypes, "РегистрНакопления",
+	                                                        "AccumulationRegister",       "AccumulationRegisters"); // @Non-NLS
+	AddTablesType(TablesTypes, "РегистрБухгалтерии",
+	                                                        "AccountingRegister",         "AccountingRegisters"); // @Non-NLS
+	AddTablesType(TablesTypes, "РегистрРасчета",
+	                                                        "CalculationRegister",        "CalculationRegisters"); // @Non-NLS
+	AddTablesType(TablesTypes, "БизнесПроцесс",
+	                                                        "BusinessProcess",            "BusinessProcesses"); // @Non-NLS
+	AddTablesType(TablesTypes, "Задача",
+	                                                        "Task",                       "Tasks"); // @Non-NLS
 	
 	// Setting main properties of the main table types.
 	TablesTypesNames = "ExchangePlan,Catalog,Document,ChartOfCharacteristicTypes,ChartOfAccounts,ChartOfCalculationTypes,BusinessProcess,Task";
@@ -40852,13 +41019,13 @@ Function TablesTypes()
 	
 	AddTablesTypeTabularSectionsCollection(TablesTypes, TablesTypesNames, "TabularSections", "Allowed2");
 	
-	AddTablesTypeField(TablesTypes, TablesTypesNames, "ВерсияДанных",  // @Non-NLS
-	                                                                      "DataVersion",  "Prohibited");
-	AddTablesTypeField(TablesTypes, TablesTypesNames, "Представление", // @Non-NLS
-	                                                                      "Presentation", "Prohibited");
+	AddTablesTypeField(TablesTypes, TablesTypesNames, "ВерсияДанных",
+	                                                                      "DataVersion",  "Prohibited"); // @Non-NLS
+	AddTablesTypeField(TablesTypes, TablesTypesNames, "Представление",
+	                                                                      "Presentation", "Prohibited"); // @Non-NLS
 	
-	AddTablesTypeExtension(TablesTypes, TablesTypesNames, "Изменения", // @Non-NLS
-	                                                                        "Changes", "Prohibited");
+	AddTablesTypeExtension(TablesTypes, TablesTypesNames, "Изменения",
+	                                                                        "Changes", "Prohibited"); // @Non-NLS
 	
 	// Setting main register properties.
 	TablesTypesNames = "InformationRegister,CalculationRegister";
@@ -40877,8 +41044,8 @@ Function TablesTypes()
 	SetTablesTypeProperty(TablesTypes, TablesTypesNames, "HasLimit", True);
 	AddTablesTypeFieldsCollection(TablesTypes, TablesTypesNames, "Dimensions", "Allowed2");
 	
-	AddTablesTypeExtension(TablesTypes, TablesTypesNames, "Изменения", // @Non-NLS
-	                                                                        "Changes", "Prohibited");
+	AddTablesTypeExtension(TablesTypes, TablesTypesNames, "Изменения",
+	                                                                        "Changes", "Prohibited"); // @Non-NLS
 	
 	// Setting some of the earlier mentioned properties for other table types.
 	SetTablesTypeProperty(TablesTypes,     "Sequence", "HasLimit", True);
@@ -40894,18 +41061,18 @@ Function TablesTypes()
 	SetTablesTypeProperty(TablesTypes, TablesTypesNames, "Use", "Allowed1");
 	SetTablesTypeProperty(TablesTypes, "FilterCriterion", "Use", "Illegal");
 	
-	AddTablesTypeExtension(TablesTypes, "Constant",       "Изменения",     // @Non-NLS-2
+	AddTablesTypeExtension(TablesTypes, "Constant",       "Изменения",
 	                                                                             "Changes",
-	                                                                             "Prohibited");
-	AddTablesTypeExtension(TablesTypes, "InformationRegister", "СрезПервых",    // @Non-NLS-2
+	                                                                             "Prohibited"); // @Non-NLS-2
+	AddTablesTypeExtension(TablesTypes, "InformationRegister", "СрезПервых",
 	                                                                             "SliceFirst",
-	                                                                             "Illegal");
-	AddTablesTypeExtension(TablesTypes, "InformationRegister", "СрезПоследних", // @Non-NLS-2
+	                                                                             "Illegal"); // @Non-NLS-2
+	AddTablesTypeExtension(TablesTypes, "InformationRegister", "СрезПоследних",
 	                                                                             "SliceLast",
-	                                                                             "Illegal");
-	AddTablesTypeExtension(TablesTypes, "BusinessProcess",   "Точки",         // @Non-NLS-2
+	                                                                             "Illegal"); // @Non-NLS-2
+	AddTablesTypeExtension(TablesTypes, "BusinessProcess",   "Точки",
 	                                                                             "Points",
-	                                                                             "Prohibited");
+	                                                                             "Prohibited"); // @Non-NLS-2
 	
 	// Setting special properties.
 	SetTablesTypeProperty(TablesTypes, "ChartOfAccounts", "ExtDimensionAccountingFlags", "Allowed2");
@@ -40922,28 +41089,28 @@ Function TablesTypes()
 	
 	// Clarifying standard fields of table types.
 	TablesTypesNames = "Document,InformationRegister,AccumulationRegister,AccountingRegister";
-	AddTablesTypeField(TablesTypes, TablesTypesNames, "МоментВремени", // @Non-NLS
-	                                                                      "PointInTime", "Illegal");
+	AddTablesTypeField(TablesTypes, TablesTypesNames, "МоментВремени",
+	                                                                      "PointInTime", "Illegal"); // @Non-NLS
 	
 	TablesTypesNames = "Catalog,ChartOfCharacteristicTypes,ChartOfAccounts,ChartOfCalculationTypes";
-	AddTablesTypeField(TablesTypes, TablesTypesNames, "ИмяПредопределенныхДанных", // @Non-NLS
-	                                                                                  "PredefinedDataName", "Prohibited");
+	AddTablesTypeField(TablesTypes, TablesTypesNames, "ИмяПредопределенныхДанных",
+	                                                                                  "PredefinedDataName", "Prohibited"); // @Non-NLS
 	
-	AddTablesTypeField(TablesTypes, "Constant",          "Значение",    // @Non-NLS-2
+	AddTablesTypeField(TablesTypes, "Constant",          "Значение",
 	                                                                        "Value",
-	                                                                        "Allowed1");
-	AddTablesTypeField(TablesTypes, "Sequence", "Регистратор", // @Non-NLS-2
+	                                                                        "Allowed1"); // @Non-NLS-2
+	AddTablesTypeField(TablesTypes, "Sequence", "Регистратор",
 	                                                                        "Recorder", 
-	                                                                        "Allowed1");
-	AddTablesTypeField(TablesTypes, "Sequence", "Период",      // @Non-NLS-2
+	                                                                        "Allowed1"); // @Non-NLS-2
+	AddTablesTypeField(TablesTypes, "Sequence", "Период",
 	                                                                        "Period",
-	                                                                        "Allowed1");
-	AddTablesTypeField(TablesTypes, "DocumentJournal",   "Тип",         // @Non-NLS-2
+	                                                                        "Allowed1"); // @Non-NLS-2
+	AddTablesTypeField(TablesTypes, "DocumentJournal",   "Тип",
 	                                                                        "Type",
-	                                                                        "Illegal");
-	AddTablesTypeField(TablesTypes, "Enum",       "Порядок",     // @Non-NLS-2
+	                                                                        "Illegal"); // @Non-NLS-2
+	AddTablesTypeField(TablesTypes, "Enum",       "Порядок",
 	                                                                        "Order",
-	                                                                        "Prohibited");
+	                                                                        "Prohibited"); // @Non-NLS-2
 	
 	Return TablesTypes;
 	
@@ -41213,13 +41380,13 @@ Function RestrictionParts(InternalData)
 	If PartProperties1.Name = "" Then
 		SetPartBeginningError(PartProperties1, InsertKeywordsIntoString(InternalData,
 			NStr("en = 'None of the following keywords are found at the beginning of the first part of the restriction text:
-			           |""%1"", ""%2"", or ""%3"".';"),
+			           |""%1"", ""%2"", or ""%3"".'"),
 			"AllowReadUpdate,AllowRead,AttachAdditionalTables"));
 		Return RestrictionParts;
 		
 	ElsIf PartProperties1.Name = "AllowUpdateIfReadingAllowed" Then
 		SetPartBeginningError(PartProperties1,
-			NStr("en = 'Invalid keyword at the beginning of the first part of the restriction text.';"));
+			NStr("en = 'Invalid keyword at the beginning of the first part of the restriction text.'"));
 		Return RestrictionParts;
 		
 	ElsIf PartsProperties.Count() = 1
@@ -41229,7 +41396,7 @@ Function RestrictionParts(InternalData)
 		SetPartBeginningError(CharsetsTable,
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'A restriction text cannot have a single part
-				           |with the ""%1"" keyword.';"), PartProperties1.Presentation));
+				           |with the ""%1"" keyword.'"), PartProperties1.Presentation));
 		Return RestrictionParts;
 	EndIf;
 	
@@ -41246,7 +41413,7 @@ Function RestrictionParts(InternalData)
 		SetPartBeginningError(PartProperties1.SeparatorRow,
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'A restriction text with the ""%1"" keyword in the first part
-				           |cannot contain the second part.';"), PartProperties1.Presentation));
+				           |cannot contain the second part.'"), PartProperties1.Presentation));
 		Return RestrictionParts;
 	EndIf;
 	
@@ -41254,12 +41421,12 @@ Function RestrictionParts(InternalData)
 		If PartProperties1.Name = "AllowRead" Then
 			SetPartBeginningError(PartProperties2, InsertKeywordsIntoString(InternalData,
 				NStr("en = 'Keyword ""%1"" is not found
-				           |at the beginning of the second part of the restriction text.';"),
+				           |at the beginning of the second part of the restriction text.'"),
 				"AllowUpdateIfReadingAllowed"));
 		Else // Part1Properties.Name = "AttachAdditionalTables".
 			SetPartBeginningError(PartProperties2, InsertKeywordsIntoString(InternalData,
 				NStr("en = 'Neither ""%1"" nor ""%2""
-				           |keywords are found at the beginning of the second part of the restriction text.';"),
+				           |keywords are found at the beginning of the second part of the restriction text.'"),
 				"AllowReadUpdate,AllowRead"));
 		EndIf;
 		Return RestrictionParts;
@@ -41271,7 +41438,7 @@ Function RestrictionParts(InternalData)
 	        And PartProperties2.Name <> "AllowRead" Then
 		
 		SetPartBeginningError(PartProperties2,
-			NStr("en = 'Invalid keyword at the beginning of the second part of the restriction text.';"));
+			NStr("en = 'Invalid keyword at the beginning of the second part of the restriction text.'"));
 		Return RestrictionParts;
 		
 	ElsIf PartsProperties.Count() = 2
@@ -41280,7 +41447,7 @@ Function RestrictionParts(InternalData)
 		SetPartBeginningError(CharsetsTable,
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The restriction text cannot contain only two parts when
-				           |the ""%1"" keyword is present in the second part.';"), PartProperties2.Presentation));
+				           |the ""%1"" keyword is present in the second part.'"), PartProperties2.Presentation));
 		Return RestrictionParts;
 	EndIf;
 	
@@ -41297,14 +41464,14 @@ Function RestrictionParts(InternalData)
 		SetPartBeginningError(PartProperties2.SeparatorRow,
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'A restriction text with the ""%1"" keyword in the second part
-				           |cannot contain the third part.';"), PartProperties2.Presentation));
+				           |cannot contain the third part.'"), PartProperties2.Presentation));
 		Return RestrictionParts;
 	EndIf;
 	
 	If PartProperties3.Name = "" Then
 		SetPartBeginningError(PartProperties3, InsertKeywordsIntoString(InternalData,
 			NStr("en = 'Keyword ""%1"" is not found
-			           |at the beginning of the third part of the restriction text.';"),
+			           |at the beginning of the third part of the restriction text.'"),
 			"AllowUpdateIfReadingAllowed"));
 		Return RestrictionParts;
 		
@@ -41312,7 +41479,7 @@ Function RestrictionParts(InternalData)
 	        And PartProperties3.Name <> "AllowUpdateIfReadingAllowed" Then
 		
 		SetPartBeginningError(PartProperties3,
-			NStr("en = 'Invalid keyword at the beginning of the third part of the restriction text.';"));
+			NStr("en = 'Invalid keyword at the beginning of the third part of the restriction text.'"));
 		Return RestrictionParts;
 	EndIf;
 	
@@ -41618,7 +41785,7 @@ Procedure ParseAdditionalTables(PartProperties, InternalData)
 			?(PartRows.Count() < 3, PartProperties.SeparatorRow, PartRows[1]),
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Keyword ""%2"" is not found
-				           |after keyword ""%1"".';"),
+				           |after keyword ""%1"".'"),
 				PartProperties.Presentation,
 				KeywordRegardingLanguage("ThisList", InternalData)));
 		Return;
@@ -41632,7 +41799,7 @@ Procedure ParseAdditionalTables(PartProperties, InternalData)
 		SetPartBeginningError(
 			?(PartRows.Count() < 3, PartProperties.SeparatorRow, PartRows[2]),
 				InsertKeywordsIntoString(InternalData,
-					NStr("en = 'Keyword ""%2"" is not found after keyword ""%1"".';"),
+					NStr("en = 'Keyword ""%2"" is not found after keyword ""%1"".'"),
 					"ThisList,As"));
 		Return;
 	EndIf;
@@ -41642,7 +41809,7 @@ Procedure ParseAdditionalTables(PartProperties, InternalData)
 		SetPartBeginningError(
 			?(PartRows.Count() < 4, PartProperties.SeparatorRow, PartRows[3]),
 				InsertKeywordsIntoString(InternalData,
-					NStr("en = 'No alias is found after keyword ""%1"".';"),
+					NStr("en = 'No alias is found after keyword ""%1"".'"),
 					"As"));
 		Return;
 	EndIf;
@@ -41718,7 +41885,7 @@ Procedure ParseConnection(Join, PartProperties, InternalData)
 	If Join[0].Kind <> "Keyword"
 	 Or Join[0].Refinement <> "Left" Then
 		SetErrorInsidePart(Join, 0, InsertKeywordsIntoString(InternalData,
-			NStr("en = 'Keyword ""%1"" is not found.';"), "Left"));
+			NStr("en = 'Keyword ""%1"" is not found.'"), "Left"));
 		
 		If Join[0].Kind <> "Keyword"
 		 Or Join[0].Refinement <> "Inner"
@@ -41733,7 +41900,7 @@ Procedure ParseConnection(Join, PartProperties, InternalData)
 	 Or Join[1].Refinement <> "Join" Then
 		SetErrorInsidePart(Join, 1,
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Keyword ""%2"" is not found after keyword ""%1"".';"),
+				NStr("en = 'Keyword ""%2"" is not found after keyword ""%1"".'"),
 				Join[0].Chars,
 				KeywordRegardingLanguage("Join", InternalData)));
 		Return;
@@ -41743,7 +41910,7 @@ Procedure ParseConnection(Join, PartProperties, InternalData)
 	 Or Join[2].Kind <> "Name" Then
 		SetErrorInsidePart(Join, 2,
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'No table name is found after keyword ""%1"".';"),
+				NStr("en = 'No table name is found after keyword ""%1"".'"),
 				Join[1].Chars));
 		Return;
 	EndIf;
@@ -41754,14 +41921,14 @@ Procedure ParseConnection(Join, PartProperties, InternalData)
 	 Or Join[3].Kind <> "Keyword"
 	 Or Join[3].Refinement <> "As" Then
 		SetErrorInsidePart(Join, 3, InsertKeywordsIntoString(InternalData,
-			NStr("en = 'Keyword ""%1"" is not found after the table name.';"), "As"));
+			NStr("en = 'Keyword ""%1"" is not found after the table name.'"), "As"));
 		Return;
 	EndIf;
 	
 	If Join.Count() < 5
 	 Or Join[4].Kind <> "Name" Then
 		SetErrorInsidePart(Join, 4, InsertKeywordsIntoString(InternalData,
-			NStr("en = 'No table alias is found after keyword ""%1"".';"), "As"));
+			NStr("en = 'No table alias is found after keyword ""%1"".'"), "As"));
 		Return;
 	EndIf;
 	
@@ -41771,7 +41938,7 @@ Procedure ParseConnection(Join, PartProperties, InternalData)
 	 Or Join[5].Kind <> "Keyword"
 	 Or Join[5].Refinement <> "On" Then
 		SetErrorInsidePart(Join, 5, InsertKeywordsIntoString(InternalData,
-			NStr("en = 'Keyword ""%1"" is not found after the table alias.';"), "On"));
+			NStr("en = 'Keyword ""%1"" is not found after the table alias.'"), "On"));
 		Return;
 	EndIf;
 	
@@ -41950,7 +42117,7 @@ Procedure MarkIncorrectArgumentsAndProhibitedNodes(Condition, AvailableNodes, Co
 			
 			SetErrorInRow(Condition.Source,
 				StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'The ""%1"" operation is allowed only after a field.';"),
+					NStr("en = 'The ""%1"" operation is allowed only after a field.'"),
 					Condition.Source.Chars));
 		EndIf;
 		MarkIncorrectArgumentsAndProhibitedNodes(Condition.Argument, AvailableNodes, Context);
@@ -41981,11 +42148,11 @@ Procedure MarkIncorrectArgumentsAndProhibitedNodes(Condition, AvailableNodes, Co
 		If ErrorInFirstArgument Or ErrorInSecondArgument Then
 			If Context.IsMergeCondition Then
 				ErrorText =
-					NStr("en = 'The ""%1"" operation is allowed only for a field (with a field, a value, or a constant).';");
+					NStr("en = 'The ""%1"" operation is allowed only for a field (with a field, a value, or a constant).'");
 			Else
 				ErrorText =
 					NStr("en = 'The ""%1"" operation is allowed only for a field (with a value or a constant),
-					           |or for a value type (with a type.)';");
+					           |or for a value type (with a type.)'");
 			EndIf;
 			If ErrorInFirstArgument Then
 				ConditionFirstArgument = Condition.FirstArgument; // See NodeDetails
@@ -42020,7 +42187,7 @@ Procedure MarkIncorrectArgumentsAndProhibitedNodes(Condition, AvailableNodes, Co
 		
 			SetErrorInRow(Condition.Source,
 				StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'The ""%1"" function is allowed only in ""="" and ""<>"" operations.';"),
+					NStr("en = 'The ""%1"" function is allowed only in ""="" and ""<>"" operations.'"),
 					Condition.Source.Chars));
 		EndIf;
 		
@@ -42119,10 +42286,10 @@ Procedure SelectFieldAlias(FieldNode, Context)
 		If Context.IsMergeCondition Then
 			If Not ValueIsFilled(FieldNode.Alias) Then
 				SetErrorInRow(FieldNode.NameSource,
-					NStr("en = 'In the join condition, an alias is required before the field name.';"));
+					NStr("en = 'In the join condition, an alias is required before the field name.'"));
 			ElsIf Context.AvailableAliases.Get(Upper(FieldNode.Alias)) = Undefined Then
 				SetErrorInRow(FieldNode.NameSource,
-					NStr("en = 'An alias from the next join is not allowed.';"));
+					NStr("en = 'An alias from the next join is not allowed.'"));
 			EndIf;
 		EndIf;
 	EndIf;
@@ -42140,7 +42307,7 @@ EndProcedure
 Procedure DeleteSourceProperty(Condition)
 	
 	If TypeOf(Condition) = Type("ValueTableRow") Then
-		ErrorText = NStr("en = 'Some of the sources of character sets are not deleted.';");
+		ErrorText = NStr("en = 'Some of the sources of character sets are not deleted.'");
 		Raise ErrorText;
 		
 	ElsIf TypeOf(Condition) <> Type("Structure") Then
@@ -42188,35 +42355,35 @@ Procedure SetNodeProhibitedError(String, Context)
 	
 	If String.Type = "Function" Then
 		If Context.IsMergeCondition Then
-			ErrorTemplate = NStr("en = 'The ""%1"" function is not allowed in join conditions.';");
+			ErrorTemplate = NStr("en = 'The ""%1"" function is not allowed in join conditions.'");
 			
 		ElsIf Context.IsConditionWhen Then
 			ErrorTemplate = InsertKeywordsIntoString(Context,
-				NStr("en = 'The ""%3"" function is not allowed in the restriction condition of the ""%1"" operation in ""%2"" clauses.';"),
+				NStr("en = 'The ""%3"" function is not allowed in the restriction condition of the ""%1"" operation in ""%2"" clauses.'"),
 				"Case,When", String.Chars);
 			
 		ElsIf Context.IsValueThenElse Then
 			ErrorTemplate = InsertKeywordsIntoString(Context,
-				NStr("en = 'The ""%4"" function is not allowed in the restriction condition of the ""%1"" operation in ""%2"" and ""%3"" clauses.';"),
+				NStr("en = 'The ""%4"" function is not allowed in the restriction condition of the ""%1"" operation in ""%2"" and ""%3"" clauses.'"),
 				"Case,Then,Else", String.Chars);
 		Else
-			ErrorTemplate = NStr("en = 'The ""%1"" function is not allowed in restriction conditions.';");
+			ErrorTemplate = NStr("en = 'The ""%1"" function is not allowed in restriction conditions.'");
 		EndIf;
 	Else
 		If Context.IsMergeCondition Then
-			ErrorTemplate = NStr("en = 'The ""%1"" operation is not allowed in join conditions.';");
+			ErrorTemplate = NStr("en = 'The ""%1"" operation is not allowed in join conditions.'");
 			
 		ElsIf Context.IsConditionWhen Then
 			ErrorTemplate = InsertKeywordsIntoString(Context,
-				NStr("en = 'The ""%3"" operation is not allowed in the restriction condition of the ""%1"" operation in ""%2"" clauses.';"),
+				NStr("en = 'The ""%3"" operation is not allowed in the restriction condition of the ""%1"" operation in ""%2"" clauses.'"),
 				"Case,When", String.Chars);
 			
 		ElsIf Context.IsValueThenElse Then
 			ErrorTemplate = InsertKeywordsIntoString(Context,
-				NStr("en = 'The ""%4"" operation is not allowed in the restriction condition of the ""%1"" operation in ""%2"" and ""%3"" clauses.';"),
+				NStr("en = 'The ""%4"" operation is not allowed in the restriction condition of the ""%1"" operation in ""%2"" and ""%3"" clauses.'"),
 				"Case,Then,Else", String.Chars);
 		Else
-			ErrorTemplate = NStr("en = 'The ""%1"" operation is not allowed in restriction conditions.';");
+			ErrorTemplate = NStr("en = 'The ""%1"" operation is not allowed in restriction conditions.'");
 		EndIf;
 	EndIf;
 	
@@ -42235,7 +42402,7 @@ Procedure MarkTypesRepetitionsAmongThoseToCheckAndClarify(Node, Context)
 			TypesInList.Insert(Upper(TypeInList.Chars), True);
 		Else
 			SetErrorInRow(TypeInList, StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The ""%1"" type is already in the list.';"), TypeInList.Chars));
+				NStr("en = 'The ""%1"" type is already in the list.'"), TypeInList.Chars));
 		EndIf;
 	EndDo;
 	
@@ -42251,7 +42418,7 @@ Procedure MarkTypesRepetitionsAmongThoseToCheckAndClarify(Node, Context)
 		   And TypesInList.Get(Upper(TypeSource.Chars)) <> Undefined Then
 			
 			SetErrorInRow(TypeSource, InsertKeywordsIntoString(Context,
-				NStr("en = 'The ""%2"" type is already in the list of types for the ""%1"" keyword.';"),
+				NStr("en = 'The ""%2"" type is already in the list of types for the ""%1"" keyword.'"),
 				"Only",
 				TypeSource.Chars));
 			
@@ -42259,13 +42426,13 @@ Procedure MarkTypesRepetitionsAmongThoseToCheckAndClarify(Node, Context)
 		        And TypesInList.Get(Upper(TypeSource.Chars)) = Undefined Then
 			
 			SetErrorInRow(TypeSource, InsertKeywordsIntoString(Context,
-				NStr("en = 'The ""%2"" type is not in the list of types for the ""%1"" keyword.';"),
+				NStr("en = 'The ""%2"" type is not in the list of types for the ""%1"" keyword.'"),
 				"Not",
 				TypeSource.Chars));
 			
 		ElsIf TypesToClarify.Get(Upper(TypeSource.Chars)) <> Undefined Then
 			SetErrorInRow(TypeSource, StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Type ""%1"" already has a refiner';"), TypeSource.Chars));
+				NStr("en = 'Type ""%1"" already has a refiner'"), TypeSource.Chars));
 		Else
 			TypesToClarify.Insert(Upper(TypeSource.Chars), True);
 		EndIf;
@@ -42291,7 +42458,7 @@ Procedure ParseRestrictionCondition(PartProperties, InternalData)
 			?(PartRows.Count() < 2, PartProperties.SeparatorRow, PartRows[1]),
 				StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Keyword ""%2"" is not found
-					           |after keyword ""%1"".';"),
+					           |after keyword ""%1"".'"),
 					PartProperties.Presentation,
 					KeywordRegardingLanguage("Where", InternalData)));
 		Return;
@@ -42472,12 +42639,12 @@ Procedure ParseExpression(Condition, Content, CurrentContext, NestedExpression =
 			Else
 				Context.LongDesc = Undefined;
 				SetErrorInRow(String,
-					NStr("en = 'A comma is only allowed as a separator for function parameters.';"));
+					NStr("en = 'A comma is only allowed as a separator for function parameters.'"));
 			EndIf;
 		Else
 			Context.LongDesc = Undefined;
 			SetErrorInRow(String, StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'There is no processing algorithm defined for the ""%1"" keyword.';"), String.Chars));
+				NStr("en = 'There is no processing algorithm defined for the ""%1"" keyword.'"), String.Chars));
 		EndIf;
 		
 		If Context.LongDesc = Undefined Then
@@ -42588,11 +42755,11 @@ Procedure ParseConnector(Context, IsOperation = False)
 		
 		Context.LongDesc = Undefined;
 		SetErrorInRow(String, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" keyword can be used only in function parameters.';"), String.Chars));
+			NStr("en = 'The ""%1"" keyword can be used only in function parameters.'"), String.Chars));
 	Else
 		Context.LongDesc = Undefined;
 		SetErrorInRow(String, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'There is no processing algorithm defined for the ""%1"" keyword.';"), String.Chars));
+			NStr("en = 'There is no processing algorithm defined for the ""%1"" keyword.'"), String.Chars));
 	EndIf;
 	
 EndProcedure
@@ -42616,7 +42783,7 @@ Procedure ParseConnectorIn(Context)
 			ParseConnectorValueIn(Context, Substring, NewDetails);
 			
 			If ParameterDetails.Rows[0] <> Substring Then
-				SetErrorInRow(Substring, NStr("en = 'A comma preceding a parameter is missing.';"));
+				SetErrorInRow(Substring, NStr("en = 'A comma preceding a parameter is missing.'"));
 			EndIf;
 			
 		EndDo;
@@ -42626,7 +42793,7 @@ Procedure ParseConnectorIn(Context)
 	
 	If NewDetails.SearchFor.Node <> "Field" Then
 		SetErrorInRow(String, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" operation is allowed only after a field name.';"), String.Chars));
+			NStr("en = 'The ""%1"" operation is allowed only after a field name.'"), String.Chars));
 	EndIf;
 	
 EndProcedure
@@ -42653,20 +42820,20 @@ Procedure ParseConnectorValueIn(Context, Substring, NewDetails)
 			EndIf;
 		Else
 			SetErrorInRow(Substring, StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The ""%2"" keyword is not allowed in the list of values of the ""%1"" operation.';"),
+				NStr("en = 'The ""%2"" keyword is not allowed in the list of values of the ""%1"" operation.'"),
 				String.Chars, Substring.Chars));
 		EndIf;
 		
 	ElsIf Substring.Kind = "Name" Then
 		SetErrorInRow(Substring, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Field names are not allowed in the list of values of the ""%1"" operation.';"), String.Chars));
+			NStr("en = 'Field names are not allowed in the list of values of the ""%1"" operation.'"), String.Chars));
 		
 	ElsIf Substring.Chars = "(" Then
 		SetErrorInRow(Substring, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Parentheses are allowed only for function parameters in the list of values of the ""%1"" operation.';"), String.Chars));
+			NStr("en = 'Parentheses are allowed only for function parameters in the list of values of the ""%1"" operation.'"), String.Chars));
 	Else
 		SetErrorInRow(Substring, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Only values are allowed in the list of values of the ""%1"" operation.';"), String.Chars));
+			NStr("en = 'Only values are allowed in the list of values of the ""%1"" operation.'"), String.Chars));
 	EndIf;
 	
 EndProcedure
@@ -42731,7 +42898,7 @@ Procedure AddConnector(Context, NewDetails, FirstArgument);
 		InsertConnectorConsideringPriority(Context, Undefined, NewDetails, FirstArgument);
 	Else
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'There is no processing algorithm defined for node ""%1"".';"), LongDesc.Node);
+			NStr("en = 'There is no processing algorithm defined for node ""%1"".'"), LongDesc.Node);
 		Raise ErrorText;
 	EndIf;
 	
@@ -42744,8 +42911,8 @@ Procedure ProcessMissingArgumentAfterConnector(Context, SecondArgument, LogicalO
 	
 	SetErrorInRow(LongDesc.Source,
 		?(LogicalOperation,
-			NStr("en = 'An argument is missing after a logical operation.';"),
-			NStr("en = 'An argument is missing after an operation.';")),
+			NStr("en = 'An argument is missing after a logical operation.'"),
+			NStr("en = 'An argument is missing after an operation.'")),
 		True);
 	
 	SecondArgument = New Structure("Source, Node, Value", Context.String, "Constant", True);
@@ -42847,7 +43014,7 @@ Procedure ParseFunction(Context)
 		
 	ElsIf Not String.IsReserve Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'There is no processing algorithm defined for the ""%1"" function.';"), String.Refinement);
+			NStr("en = 'There is no processing algorithm defined for the ""%1"" function.'"), String.Refinement);
 		Raise ErrorText;
 	EndIf;
 	
@@ -42903,7 +43070,7 @@ Procedure ParseFirstCheckingFunctionParameter(Context, FirstParameter, NewDetail
 	Else
 		SetErrorInRow(FirstParameter.Rows[0],
 			InsertKeywordsIntoString(Context,
-				NStr("en = 'The first parameter must be a field name, the ""%1"" function, or the ""%2"" function.';"),
+				NStr("en = 'The first parameter must be a field name, the ""%1"" function, or the ""%2"" function.'"),
 				"Cast,IsNull"));
 		Return;
 	EndIf;
@@ -42919,7 +43086,7 @@ Procedure ParseFirstCheckingFunctionParameter(Context, FirstParameter, NewDetail
 		SetErrorInRow(TableRow(FirstParameter.Rows[0].EndString, Context),
 			InsertKeywordsIntoString(Context,
 				NStr("en = 'If the ""%1"" or ""%2"" keyword is used in the ""%4"" function parameter,
-				           |a dot operator and a field name are required after the ""%3"" nested function.';"),
+				           |a dot operator and a field name are required after the ""%3"" nested function.'"),
 				"Only,Not",
 				FirstParameter.Rows[0].Chars,
 				Context.String.Chars),
@@ -42932,7 +43099,7 @@ Procedure ParseFirstCheckingFunctionParameter(Context, FirstParameter, NewDetail
 		
 		SetErrorInRow(FirstParameter.Rows[1],
 			InsertKeywordsIntoString(Context,
-				NStr("en = 'The ""%1"" or ""%2"" keyword is required after a field description.';"),
+				NStr("en = 'The ""%1"" or ""%2"" keyword is required after a field description.'"),
 				"Only,Not"));
 		Return;
 	EndIf;
@@ -42943,7 +43110,7 @@ Procedure ParseFirstCheckingFunctionParameter(Context, FirstParameter, NewDetail
 	
 	If FirstParameter.Rows.Count() < 3 Then
 		SetErrorInRow(FirstParameter.Rows[1],  StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'A type (a table name) is missing after the ""%1"" keyword.';"), FirstParameter.Rows[1].Chars));
+			NStr("en = 'A type (a table name) is missing after the ""%1"" keyword.'"), FirstParameter.Rows[1].Chars));
 		Return;
 	EndIf;
 	
@@ -42951,14 +43118,14 @@ Procedure ParseFirstCheckingFunctionParameter(Context, FirstParameter, NewDetail
 	   And FirstParameter.Rows[2].Chars <> "(" Then
 	
 		SetErrorInRow(FirstParameter.Rows[2],  StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Either a type (a table name) or a type list in parentheses is required after the ""%1"" keyword.';"),
+			NStr("en = 'Either a type (a table name) or a type list in parentheses is required after the ""%1"" keyword.'"),
 			FirstParameter.Rows[1].Chars));
 		Return;
 	EndIf;
 	
 	If FirstParameter.Rows.Count() > 3 Then
 		SetErrorInRow(FirstParameter.Rows[3], StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'A comma is missing before the ""%1"" function parameter.';"), Context.String.Chars));
+			NStr("en = 'A comma is missing before the ""%1"" function parameter.'"), Context.String.Chars));
 	EndIf;
 	
 	If FirstParameter.Rows[2].Kind = "Name" Then
@@ -42981,7 +43148,7 @@ Procedure ParseFirstCheckingFunctionParameter(Context, FirstParameter, NewDetail
 			NewDetails.Types.Add(Parameter.Rows[0]);
 		Else
 			SetErrorInRow(Parameter.Rows[?(Parameter.Rows.Count() < 2, 0, 1)],
-				NStr("en = 'Only table names separated by commas are allowed in a list of types.';"));
+				NStr("en = 'Only table names separated by commas are allowed in a list of types.'"));
 		EndIf;
 	EndDo;
 	
@@ -43010,16 +43177,16 @@ Procedure ParseAdditionalCheckingFunctionParameter(Context, Parameter, NewDetail
 		SetErrorInRow(Parameter.Rows[0],
 			InsertKeywordsIntoString(Context,
 				NStr("en = 'An additional parameter must be a type (a table name),
-				           |""%1"", ""%2"", ""%3"", ""%4"", ""%5"", ""%6"", or ""%7"".';"),
+				           |""%1"", ""%2"", ""%3"", ""%4"", ""%5"", ""%6"", or ""%7"".'"),
 				"EmptyRef,Undefined,Null,Number,String,Date,Boolean"));
 		Return;
 	EndIf;
 	
 	If Parameter.Rows.Count() < 2 Then
 		If Parameter.Rows[0].Kind = "Name" Then 
-			Template = NStr("en = 'The ""%1"" keyword must follow the ""%2"" type (table name).';");
+			Template = NStr("en = 'The ""%1"" keyword must follow the ""%2"" type (table name).'");
 		Else
-			Template = NStr("en = 'The ""%1"" keyword must follow the ""%2"" keyword.';");
+			Template = NStr("en = 'The ""%1"" keyword must follow the ""%2"" keyword.'");
 		EndIf;
 		SetErrorInRow(Parameter.Rows[0], InsertKeywordsIntoString(Context,
 				Template, "As", Parameter.Rows[0].Chars),
@@ -43031,9 +43198,9 @@ Procedure ParseAdditionalCheckingFunctionParameter(Context, Parameter, NewDetail
 	 Or Parameter.Rows[1].Refinement <> "As" Then
 		
 		If Parameter.Rows[0].Kind = "Name" Then
-			Template = NStr("en = 'The ""%1"" keyword must follow the ""%2"" type (table name).';");
+			Template = NStr("en = 'The ""%1"" keyword must follow the ""%2"" type (table name).'");
 		Else
-			Template = NStr("en = 'The ""%1"" keyword must follow the ""%2"" keyword.';");
+			Template = NStr("en = 'The ""%1"" keyword must follow the ""%2"" keyword.'");
 		EndIf;
 		SetErrorInRow(Parameter.Rows[1], InsertKeywordsIntoString(Context,
 			Template, "As", Parameter.Rows[0].Chars));
@@ -43042,7 +43209,7 @@ Procedure ParseAdditionalCheckingFunctionParameter(Context, Parameter, NewDetail
 	
 	If Parameter.Rows.Count() < 3 Then
 		SetErrorInRow(Parameter.Rows[1], InsertKeywordsIntoString(Context,
-				NStr("en = 'A clarification value ""%1"", ""%2"", or ""%3"" is missing after the ""%4"" keyword.';"),
+				NStr("en = 'A clarification value ""%1"", ""%2"", or ""%3"" is missing after the ""%4"" keyword.'"),
 				"False,True,Empty",
 				Parameter.Rows[1].Chars),
 			True);
@@ -43053,7 +43220,7 @@ Procedure ParseAdditionalCheckingFunctionParameter(Context, Parameter, NewDetail
 	 Or Parameter.Rows[2].Type <> "ClarificationValue" Then
 		
 		SetErrorInRow(Parameter.Rows[2], InsertKeywordsIntoString(Context,
-			NStr("en = 'A clarification value ""%1"", ""%2"", or ""%3"" is required after the ""%4"" keyword.';"),
+			NStr("en = 'A clarification value ""%1"", ""%2"", or ""%3"" is required after the ""%4"" keyword.'"),
 			"False,True,Empty",
 			Parameter.Rows[1].Chars));
 	Else
@@ -43062,7 +43229,7 @@ Procedure ParseAdditionalCheckingFunctionParameter(Context, Parameter, NewDetail
 	
 	If Parameter.Rows.Count() > 3 Then
 		SetErrorInRow(Parameter.Rows[3],
-			NStr("en = 'A comma or an extra parameter is missing before the parameter.';"));
+			NStr("en = 'A comma or an extra parameter is missing before the parameter.'"));
 	EndIf;
 	
 EndProcedure
@@ -43090,7 +43257,7 @@ Procedure ParseValueFunctionOrTypeFunctionParameters(String, NewDetails, IsValue
 		
 	ElsIf IsValueFunction Then
 		SetErrorInRow(Parameter.Rows[0], StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" function requires a predefined value name.';"), String.Chars));
+			NStr("en = 'The ""%1"" function requires a predefined value name.'"), String.Chars));
 	
 	ElsIf Parameter.Rows[0].Kind = "Keyword"
 	        And Parameter.Rows[0].Type = "TypeName" Then
@@ -43098,19 +43265,19 @@ Procedure ParseValueFunctionOrTypeFunctionParameters(String, NewDetails, IsValue
 		NewDetails.Name = Parameter.Rows[0].Refinement;
 	Else
 		SetErrorInRow(Parameter.Rows[0], InsertKeywordsIntoString(Context,
-			NStr("en = 'The ""%5"" function requires a table name, ""%1"", ""%2"", ""%3"", or ""%4"".';"),
+			NStr("en = 'The ""%5"" function requires a table name, ""%1"", ""%2"", ""%3"", or ""%4"".'"),
 			"Number,String,Date,Boolean",
 			String.Chars));
 	EndIf;
 	
 	If Parameter.Rows.Count() > 1 Then
 		SetErrorInRow(Parameter.Rows[1], StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" function requires a single parameter.';"), String.Chars));
+			NStr("en = 'The ""%1"" function requires a single parameter.'"), String.Chars));
 	EndIf;
 	
 	If ParametersContent.Count() > 1 Then
 		SetErrorInRow(ParametersContent[1].Rows[0], StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" function requires a single parameter.';"), String.Chars));
+			NStr("en = 'The ""%1"" function requires a single parameter.'"), String.Chars));
 	EndIf;
 	
 EndProcedure
@@ -43133,17 +43300,17 @@ Procedure ParseFunctionParametersTheRoleIsAvailable(String, NewDetails, Context)
 		CheckTheRoleName(NewDetails.NameOfRole, Parameter.Rows[0]);
 	Else
 		SetErrorInRow(Parameter.Rows[0], StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" function requires only a role name.';"), String.Chars));
+			NStr("en = 'The ""%1"" function requires only a role name.'"), String.Chars));
 	EndIf;
 	
 	If Parameter.Rows.Count() > 1 Then
 		SetErrorInRow(Parameter.Rows[1], StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" function requires a single parameter.';"), String.Chars));
+			NStr("en = 'The ""%1"" function requires a single parameter.'"), String.Chars));
 	EndIf;
 	
 	If ParametersContent.Count() > 1 Then
 		SetErrorInRow(ParametersContent[1].Rows[0], StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" function requires a single parameter.';"), String.Chars));
+			NStr("en = 'The ""%1"" function requires a single parameter.'"), String.Chars));
 	EndIf;
 	
 EndProcedure
@@ -43165,19 +43332,19 @@ Procedure ParseTheParametersOfTheAccessRightFunction(String, NewDetails, Context
 		NewDetails.NameOfRight = FirstParameter.Rows[0].Chars;
 	Else
 		SetErrorInRow(FirstParameter.Rows[0], StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The first parameter of the ""%1"" function requires only an access right name.';"), String.Chars));
+			NStr("en = 'The first parameter of the ""%1"" function requires only an access right name.'"), String.Chars));
 	EndIf;
 	
 	If FirstParameter.Rows.Count() > 1 Then
 		SetErrorInRow(FirstParameter.Rows[1], StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'A comma is missing before the ""%1"" parameter of the ""%2"" function.';"),
+			NStr("en = 'A comma is missing before the ""%1"" parameter of the ""%2"" function.'"),
 			FirstParameter.Rows[1].Chars,
 			String.Chars));
 	EndIf;
 	
 	If ParametersContent.Count() < 2 Then
 		SetErrorInRow(FirstParameter.EndString, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" function requires two parameters.';"), String.Chars));
+			NStr("en = 'The ""%1"" function requires two parameters.'"), String.Chars));
 		Return;
 	EndIf;
 	
@@ -43189,18 +43356,18 @@ Procedure ParseTheParametersOfTheAccessRightFunction(String, NewDetails, Context
 			NewDetails.FullMetadataObjectName, SecondParameter.Rows[0]);
 	Else
 		SetErrorInRow(SecondParameter.Rows[0], StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The second parameter of the ""%1"" function requires only a full metadata object name.';"),
+			NStr("en = 'The second parameter of the ""%1"" function requires only a full metadata object name.'"),
 			String.Chars));
 	EndIf;
 	
 	If SecondParameter.Rows.Count() > 1 Then
 		SetErrorInRow(SecondParameter.Rows[1], StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" function can have only two parameters.';"), String.Chars));
+			NStr("en = 'The ""%1"" function can have only two parameters.'"), String.Chars));
 	EndIf;
 	
 	If ParametersContent.Count() > 2 Then
 		SetErrorInRow(ParametersContent[2].Rows[0], StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" function can have only two parameters.';"), String.Chars));
+			NStr("en = 'The ""%1"" function can have only two parameters.'"), String.Chars));
 	EndIf;
 	
 EndProcedure
@@ -43234,7 +43401,7 @@ Procedure ParseValueTypeFunctionParameters(Context, NewDetails)
 	Else
 		SetErrorInRow(Parameter.Rows[0],
 			InsertKeywordsIntoString(Context,
-				NStr("en = 'The parameter must be a field name, the ""%1"" function, or the ""%2"" function.';"),
+				NStr("en = 'The parameter must be a field name, the ""%1"" function, or the ""%2"" function.'"),
 				"Cast,IsNull"));
 		Return;
 	EndIf;
@@ -43245,7 +43412,7 @@ Procedure ParseValueTypeFunctionParameters(Context, NewDetails)
 		
 		SetErrorInRow(TableRow(Parameter.Rows[0].EndString, Context),
 			InsertKeywordsIntoString(Context,
-				NStr("en = 'A dot operator and a field name are required after the ""%1"" nested function.';"),
+				NStr("en = 'A dot operator and a field name are required after the ""%1"" nested function.'"),
 				Parameter.Rows[0].Chars),
 			True);
 	EndIf;
@@ -43256,12 +43423,12 @@ Procedure ParseValueTypeFunctionParameters(Context, NewDetails)
 	
 	If Parameter.Rows.Count() > 1 Then
 		SetErrorInRow(Parameter.Rows[1], StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" function requires a single parameter.';"), String.Chars));
+			NStr("en = 'The ""%1"" function requires a single parameter.'"), String.Chars));
 	EndIf;
 	
 	If ParametersContent.Count() > 1 Then
 		SetErrorInRow(ParametersContent[1].Rows[0], StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" function requires a single parameter.';"), String.Chars));
+			NStr("en = 'The ""%1"" function requires a single parameter.'"), String.Chars));
 	EndIf;
 	
 EndProcedure
@@ -43302,7 +43469,7 @@ Function FieldNodeDetailsFromExpressFunction(String, Context)
 		If NewDetails.Attachment.Attachment = Undefined Then
 			SetErrorInRow(TableRow(FirstParameter.Rows[0].EndString, Context),
 				StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'A dot operator and a field name are required after the ""%1"" nested function.';"),
+					NStr("en = 'A dot operator and a field name are required after the ""%1"" nested function.'"),
 					FirstParameter.Rows[0].Chars),
 				True);
 		Else
@@ -43316,7 +43483,7 @@ Function FieldNodeDetailsFromExpressFunction(String, Context)
 	Else
 		SetErrorInRow(FirstParameter.Rows[0],
 			InsertKeywordsIntoString(Context,
-				NStr("en = 'The first parameter must be a field name, the ""%1"" function, or the ""%2"" function.';"),
+				NStr("en = 'The first parameter must be a field name, the ""%1"" function, or the ""%2"" function.'"),
 				"Cast,IsNull"));
 		Return NewDetails;
 	EndIf;
@@ -43324,7 +43491,7 @@ Function FieldNodeDetailsFromExpressFunction(String, Context)
 	If FirstParameter.Rows.Count() < 2 Then
 		SetErrorInRow(FirstParameter.Rows[0],
 			InsertKeywordsIntoString(Context,
-				NStr("en = 'The ""%1"" keyword is required after the field description.';"), "As"), True);
+				NStr("en = 'The ""%1"" keyword is required after the field description.'"), "As"), True);
 		Return NewDetails;
 	EndIf;
 	
@@ -43333,19 +43500,19 @@ Function FieldNodeDetailsFromExpressFunction(String, Context)
 		
 		SetErrorInRow(FirstParameter.Rows[1],
 			InsertKeywordsIntoString(Context,
-				NStr("en = 'The ""%1"" keyword is required after the field description.';"), "As"));
+				NStr("en = 'The ""%1"" keyword is required after the field description.'"), "As"));
 		Return NewDetails;
 	EndIf;
 	
 	If FirstParameter.Rows.Count() < 3 Then
 		SetErrorInRow(FirstParameter.Rows[1],  StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'A type (a table name) is missing after the ""%1"" keyword.';"), FirstParameter.Rows[1].Chars));
+			NStr("en = 'A type (a table name) is missing after the ""%1"" keyword.'"), FirstParameter.Rows[1].Chars));
 		Return NewDetails;
 	EndIf;
 	
 	If FirstParameter.Rows[2].Kind <> "Name" Then
 		SetErrorInRow(FirstParameter.Rows[2],  StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'A type (a table name) is required after the ""%1"" keyword.';"),
+			NStr("en = 'A type (a table name) is required after the ""%1"" keyword.'"),
 			FirstParameter.Rows[1].Chars));
 	Else
 		NewDetails.Cast = FirstParameter.Rows[2].Chars;
@@ -43354,12 +43521,12 @@ Function FieldNodeDetailsFromExpressFunction(String, Context)
 	
 	If FirstParameter.Rows.Count() > 3 Then
 		SetErrorInRow(FirstParameter.Rows[3], StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" function requires a single parameter.';"), String.Chars));
+			NStr("en = 'The ""%1"" function requires a single parameter.'"), String.Chars));
 	EndIf;
 	
 	If ParametersContent.Count() > 1 Then
 		SetErrorInRow(FirstParameter.EndString, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" function requires a single parameter.';"), String.Chars));
+			NStr("en = 'The ""%1"" function requires a single parameter.'"), String.Chars));
 	EndIf;
 	
 	Return NewDetails;
@@ -43389,18 +43556,18 @@ Function FieldNodeDetailsFromIsNullFunction(String, Context)
 		NewDetails.NameSource = FirstParameter.Rows[0];
 	Else
 		SetErrorInRow(FirstParameter.Rows[0], StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The first parameter of the ""%1"" function must be a field name.';"), String.Chars));
+			NStr("en = 'The first parameter of the ""%1"" function must be a field name.'"), String.Chars));
 	EndIf;
 	
 	If FirstParameter.Rows.Count() > 1 Then
 		SetErrorInRow(FirstParameter.Rows[1], StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'A comma is missing before the ""%1"" function parameter.';"), String.Chars));
+			NStr("en = 'A comma is missing before the ""%1"" function parameter.'"), String.Chars));
 		Return NewDetails;
 	EndIf;
 	
 	If ParametersContent.Count() < 2 Then
 		SetErrorInRow(FirstParameter.EndString, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" function requires two parameters.';"), String.Chars));
+			NStr("en = 'The ""%1"" function requires two parameters.'"), String.Chars));
 		Return NewDetails;
 	EndIf;
 	
@@ -43424,18 +43591,18 @@ Function FieldNodeDetailsFromIsNullFunction(String, Context)
 		EndIf;
 	Else
 		SetErrorInRow(SecondParameter.Rows[0], StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The second parameter of the ""%1"" function must be either a predefined value or a constant.';"),
+			NStr("en = 'The second parameter of the ""%1"" function must be either a predefined value or a constant.'"),
 			String.Chars));
 	EndIf;
 	
 	If SecondParameter.Rows.Count() > 1 Then
 		SetErrorInRow(SecondParameter.Rows[1], StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" function can have only two parameters.';"), String.Chars));
+			NStr("en = 'The ""%1"" function can have only two parameters.'"), String.Chars));
 	EndIf;
 	
 	If ParametersContent.Count() > 2 Then
 		SetErrorInRow(ParametersContent[2].Rows[0], StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" function must have only two parameters.';"), String.Chars));
+			NStr("en = 'The ""%1"" function must have only two parameters.'"), String.Chars));
 	EndIf;
 	
 	Return NewDetails;
@@ -43471,11 +43638,11 @@ Function CommaSeparatedParameters(RowDescription, Context)
 			If Not PreviousSubstringIsArgumentPart Then
 				If String.Rows[0] = SubstringDetails Then
 					SetErrorInRow(Substring, StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'A parameter is missing before a comma.';"), Substring.Chars));
+						NStr("en = 'A parameter is missing before a comma.'"), Substring.Chars));
 					ParameterDetails.Rows.Add(AdditionalString1(Substring, ""));
 				Else
 					SetErrorInRow(Substring, StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'A parameter is missing, or an extra comma is added.';"), Substring.Chars));
+						NStr("en = 'A parameter is missing, or an extra comma is added.'"), Substring.Chars));
 				EndIf;
 			EndIf;
 			If ParameterDetails.Rows.Count() > 0 Then
@@ -43497,7 +43664,7 @@ Function CommaSeparatedParameters(RowDescription, Context)
 		ParameterDetails.EndString = TableRow(String.EndString, Context);
 	Else
 		SetErrorInRow(Substring, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'An extra comma is added, or a parameter is missing after the comma.';"), Substring.Chars), True);
+			NStr("en = 'An extra comma is added, or a parameter is missing after the comma.'"), Substring.Chars), True);
 	EndIf;
 	
 	Return ParametersContent;
@@ -43529,7 +43696,7 @@ Procedure ParseChoice(Context)
 		Else
 			SkipWhenAnalysis = True;
 			SetErrorInRow(ChoiceFirstRow, StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'If the argument for the ""%1"" keyword is specified, it must be a field name.';"),
+				NStr("en = 'If the argument for the ""%1"" keyword is specified, it must be a field name.'"),
 				String.Chars));
 		EndIf;
 	EndIf;
@@ -43557,7 +43724,7 @@ Procedure ParseChoice(Context)
 				If ValueIsFilled(When.Chars) Then
 					SetErrorInRow(When, StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'As a field follows the ""%1"" keyword, 
-						           |either a predefined value or a constant is required after the ""%2"" keyword.';"),
+						           |either a predefined value or a constant is required after the ""%2"" keyword.'"),
 						String.Chars,
 						When.Chars));
 				EndIf;
@@ -43582,7 +43749,7 @@ Procedure ParseChoice(Context)
 			ElsIf ValueIsFilled(When.Chars) Then
 				SetErrorInRow(FirstSubstringWhen, StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'As a field follows the ""%1"" keyword, 
-					           |either a predefined value or a constant is required after the ""%2"" keyword.';"),
+					           |either a predefined value or a constant is required after the ""%2"" keyword.'"),
 					String.Chars,
 					When.Chars));
 			EndIf;
@@ -43594,7 +43761,7 @@ Procedure ParseChoice(Context)
 			
 		ElsIf ValueIsFilled(ThenContent.Chars) Then
 			SetErrorInRow(FirstSubstringWhen, StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'A logical expression is expected after the ""%1"" keyword.';"), ThenContent.Chars));
+				NStr("en = 'A logical expression is expected after the ""%1"" keyword.'"), ThenContent.Chars));
 		EndIf;
 		
 		IndexOf = IndexOf + 2;
@@ -43622,14 +43789,14 @@ Procedure ParseErrorKeyword(Context)
 			// "Disabled".
 			SetErrorInRow(String, StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The ""%1"" value is allowed only as a value to be clarified
-				           |in the parameters of the ""%2"" function.';"),
+				           |in the parameters of the ""%2"" function.'"),
 				String.Chars,
 				KeywordRegardingLanguage("ValueAllowed", Context)));
 		Else
 			// "BlankRef" or "Null".
 			SetErrorInRow(String, StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The ""%1"" value is allowed only as a value to be clarified
-				           |in the parameters of functions that check permissions.';"),
+				           |in the parameters of functions that check permissions.'"),
 				String.Chars));
 		EndIf;
 		
@@ -43637,12 +43804,12 @@ Procedure ParseErrorKeyword(Context)
 		// "Number", "String", "Date", "Boolean".
 		SetErrorInRow(String, InsertKeywordsIntoString(Context,
 			NStr("en = 'A name of the ""%1"" type is allowed only as a parameter of the ""%2"" function
-			           |or as a value to be clarified in the parameters of functions that check permissions.';"),
+			           |or as a value to be clarified in the parameters of functions that check permissions.'"),
 			String.Chars,
 			"Type"));
 	Else
 		SetErrorInRow(String, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'There is no processing algorithm defined for the ""%1"" keyword.';"), String.Chars));
+			NStr("en = 'There is no processing algorithm defined for the ""%1"" keyword.'"), String.Chars));
 	EndIf;
 	
 EndProcedure
@@ -43693,7 +43860,7 @@ Procedure AddArgumentFunctionChoiceOperator(Context, DetailsToAdd)
 		ProcessMissingLogicalOperation(Context, Undefined, DetailsToAdd);
 	Else
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'There is no processing algorithm defined for node ""%1"".';"), LongDesc.Node);
+			NStr("en = 'There is no processing algorithm defined for node ""%1"".'"), LongDesc.Node);
 		Raise ErrorText;
 	EndIf;
 	
@@ -43702,7 +43869,7 @@ EndProcedure
 // For the AddArgumentFunctionChoiceOperator procedure
 Procedure ProcessMissingLogicalOperation(Context, DetailsLastArgument, DetailsToAdd)
 	
-	SetErrorInRow(Context.String, NStr("en = 'A logical operation is missing.';"));
+	SetErrorInRow(Context.String, NStr("en = 'A logical operation is missing.'"));
 	
 	// Recovery.
 	AdditionalString1 = AdditionalString1(Context.String, "And", Context);
@@ -43742,7 +43909,7 @@ Function ExpressionsInParenthesesInAttachments(Rows, Context)
 		ElsIf String.Chars = ")" Then
 			If Attachments.Count() = 1 Then
 				SetErrorInRow(String,
-					NStr("en = 'A closing parenthesis is found before an opening parenthesis.';"));
+					NStr("en = 'A closing parenthesis is found before an opening parenthesis.'"));
 			Else
 				DeleteLastAttachment(Attachments, CurrentAttachment, Context, String);
 			EndIf;
@@ -43757,7 +43924,7 @@ Function ExpressionsInParenthesesInAttachments(Rows, Context)
 		Attachment.EndString = String;
 		Attachments.Delete(LastAttachmentIndex);
 		SetErrorInRow(Attachment,
-			NStr("en = 'A closing parenthesis is missing after an opening parenthesis.';"), True);
+			NStr("en = 'A closing parenthesis is missing after an opening parenthesis.'"), True);
 	EndDo;
 	
 	Return Result;
@@ -43797,7 +43964,7 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 			Else
 				If CurrentAttachment.Refinement = "Case" Then
 					SetErrorInRow(CurrentAttachment, InsertKeywordsIntoString(Context,
-						NStr("en = 'The ""%2"" keyword is missing after the ""%1"" keyword.';"), "Case,When"), True);
+						NStr("en = 'The ""%2"" keyword is missing after the ""%1"" keyword.'"), "Case,When"), True);
 					RestoreChoiceStructure(CurrentAttachment, Attachments, CurrentAttachment, "When", Context);
 				EndIf;
 			EndIf;
@@ -43808,7 +43975,7 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 			
 			If Attachments.Count() = 1 Then
 				SetErrorInRow(String, InsertKeywordsIntoString(Context,
-					NStr("en = 'The ""%1"" keyword precedes the ""%2"" keyword.';"), "When,Case"));
+					NStr("en = 'The ""%1"" keyword precedes the ""%2"" keyword.'"), "When,Case"));
 				RestoreChoiceStructure(String, Attachments, CurrentAttachment, "Case", Context);
 				
 			ElsIf CurrentAttachment.Refinement = "Case" Then
@@ -43816,7 +43983,7 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 				
 			ElsIf CurrentAttachment.Refinement = "When" Then
 				SetErrorInRow(CurrentAttachment, InsertKeywordsIntoString(Context,
-					NStr("en = 'The ""%2"" keyword is missing after the ""%1"" keyword.';"), "When,Then"), True);
+					NStr("en = 'The ""%2"" keyword is missing after the ""%1"" keyword.'"), "When,Then"), True);
 				RestoreChoiceStructure(CurrentAttachment, Attachments, CurrentAttachment, "Then", Context);
 				
 			ElsIf CurrentAttachment.Refinement = "Then" Then
@@ -43824,7 +43991,7 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 				
 			Else // CurrentAttachment.Clarification = "Else"
 				SetErrorInRow(String, InsertKeywordsIntoString(Context,
-					NStr("en = 'The ""%1"" keyword must precede the ""%2"" keyword.';"), "When,Else"));
+					NStr("en = 'The ""%1"" keyword must precede the ""%2"" keyword.'"), "When,Else"));
 				DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 			EndIf;
 			AddAttachment(String, Attachments, CurrentAttachment, Context);
@@ -43833,12 +44000,12 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 			
 			If Attachments.Count() = 1 Then
 				SetErrorInRow(String, InsertKeywordsIntoString(Context,
-					NStr("en = 'The ""%1"" keyword precedes the ""%2"" and ""%3"" keywords.';"), "Then,Case,When"));
+					NStr("en = 'The ""%1"" keyword precedes the ""%2"" and ""%3"" keywords.'"), "Then,Case,When"));
 				RestoreChoiceStructure(String, Attachments, CurrentAttachment, "Case,When", Context);
 			
 			ElsIf CurrentAttachment.Refinement = "Case" Then
 				SetErrorInRow(String, InsertKeywordsIntoString(Context,
-					NStr("en = 'The ""%1"" keyword precedes the ""%2"" keyword.';"), "Then,When"));
+					NStr("en = 'The ""%1"" keyword precedes the ""%2"" keyword.'"), "Then,When"));
 				RestoreChoiceStructure(String, Attachments, CurrentAttachment, "When", Context);
 				
 			ElsIf CurrentAttachment.Refinement = "When" Then
@@ -43846,12 +44013,12 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 				
 			ElsIf CurrentAttachment.Refinement = "Then" Then
 				SetErrorInRow(CurrentAttachment, InsertKeywordsIntoString(Context,
-					NStr("en = 'The ""%2"" keyword is missing after the ""%1"" keyword.';"), "Then,When"), True);
+					NStr("en = 'The ""%2"" keyword is missing after the ""%1"" keyword.'"), "Then,When"), True);
 				RestoreChoiceStructure(CurrentAttachment, Attachments, CurrentAttachment, "When", Context);
 				
 			Else // CurrentAttachment.Clarification = "Else"
 				SetErrorInRow(String, InsertKeywordsIntoString(Context,
-					NStr("en = 'The ""%1"" keyword must precede the ""%2"" keyword.';"), "Then,Else"));
+					NStr("en = 'The ""%1"" keyword must precede the ""%2"" keyword.'"), "Then,Else"));
 				DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 				RestoreChoiceStructure(String, Attachments, CurrentAttachment, "When", Context);
 			EndIf;
@@ -43862,17 +44029,17 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 			
 			If Attachments.Count() = 1 Then
 				SetErrorInRow(String, InsertKeywordsIntoString(Context,
-					NStr("en = 'The ""%1"" keyword precedes the ""%2"", ""%3"", and ""%4"" keywords.';"), "Else,Case,When,Then"));
+					NStr("en = 'The ""%1"" keyword precedes the ""%2"", ""%3"", and ""%4"" keywords.'"), "Else,Case,When,Then"));
 				RestoreChoiceStructure(String, Attachments, CurrentAttachment, "Case,When,Then", Context);
 			
 			ElsIf CurrentAttachment.Refinement = "Case" Then
 				SetErrorInRow(String, InsertKeywordsIntoString(Context,
-					NStr("en = 'The ""%1"" keyword precedes the ""%2"" and ""%3"" keywords.';"), "Else,When,Then"));
+					NStr("en = 'The ""%1"" keyword precedes the ""%2"" and ""%3"" keywords.'"), "Else,When,Then"));
 				RestoreChoiceStructure(String, Attachments, CurrentAttachment, "When,Then", Context);
 				
 			ElsIf CurrentAttachment.Refinement = "When" Then
 				SetErrorInRow(String, InsertKeywordsIntoString(Context,
-					NStr("en = 'The ""%1"" keyword precedes the ""%2"" keyword.';"), "Else,Then"));
+					NStr("en = 'The ""%1"" keyword precedes the ""%2"" keyword.'"), "Else,Then"));
 				DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 				RestoreChoiceStructure(String, Attachments, CurrentAttachment, "Then", Context);
 				
@@ -43881,7 +44048,7 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 				
 			Else // CurrentAttachment.Clarification = "Else"
 				SetErrorInRow(String, InsertKeywordsIntoString(Context,
-					NStr("en = 'Repeated keyword: ""%1"".';"), "Else"));
+					NStr("en = 'Repeated keyword: ""%1"".'"), "Else"));
 			EndIf;
 			DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 			AddAttachment(String, Attachments, CurrentAttachment, Context);
@@ -43890,23 +44057,23 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 			
 			If Attachments.Count() = 1 Then
 				SetErrorInRow(String, StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'The ""%1"" keyword precedes the ""%2"", ""%3"", ""%4"", and ""%5"" keywords.';"), "End,Case,When,Then,Else"));
+					NStr("en = 'The ""%1"" keyword precedes the ""%2"", ""%3"", ""%4"", and ""%5"" keywords.'"), "End,Case,When,Then,Else"));
 				RestoreChoiceStructure(String, Attachments, CurrentAttachment, "Case,When,Then,Else", Context);
 				
 			ElsIf CurrentAttachment.Refinement = "Case" Then
 				SetErrorInRow(String, InsertKeywordsIntoString(Context,
-					NStr("en = 'The ""%1"" keyword precedes the ""%2"", ""%3"", and ""%4"" keywords.';"), "End,When,Then,Else"));
+					NStr("en = 'The ""%1"" keyword precedes the ""%2"", ""%3"", and ""%4"" keywords.'"), "End,When,Then,Else"));
 				RestoreChoiceStructure(String, Attachments, CurrentAttachment, "When,Then,Else", Context);
 				
 			ElsIf CurrentAttachment.Refinement = "When" Then
 				SetErrorInRow(String, InsertKeywordsIntoString(Context,
-					NStr("en = 'The ""%1"" keyword precedes the ""%2"" and ""%3"" keywords.';"), "End,Then,Else"));
+					NStr("en = 'The ""%1"" keyword precedes the ""%2"" and ""%3"" keywords.'"), "End,Then,Else"));
 				DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 				RestoreChoiceStructure(String, Attachments, CurrentAttachment, "Then,Else", Context);
 				
 			ElsIf CurrentAttachment.Refinement = "Then" Then
 				SetErrorInRow(String, InsertKeywordsIntoString(Context,
-					NStr("en = 'The ""%1"" keyword precedes the ""%2"" keyword.';"), "End,Else"));
+					NStr("en = 'The ""%1"" keyword precedes the ""%2"" keyword.'"), "End,Else"));
 				DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 				RestoreChoiceStructure(String, Attachments, CurrentAttachment, "Else", Context);
 				
@@ -43923,24 +44090,24 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 		
 		If CurrentAttachment.Refinement = "Case" Then
 			ErrorText = InsertKeywordsIntoString(Context,
-				NStr("en = 'The ""%2"", ""%3"", ""%4"", and ""%5"" keywords are missing after the ""%1"" keyword.';"), "Case,When,Then,Else,End");
+				NStr("en = 'The ""%2"", ""%3"", ""%4"", and ""%5"" keywords are missing after the ""%1"" keyword.'"), "Case,When,Then,Else,End");
 			RestoreChoiceStructure(CurrentAttachment, Attachments, CurrentAttachment, "When,Then,Else", Context);
 			
 		ElsIf CurrentAttachment.Refinement = "When" Then
 			ErrorText = InsertKeywordsIntoString(Context,
-				NStr("en = 'The ""%2"", ""%3"", and ""%4"" keywords are missing after the ""%1"" keyword.';"), "When,Then,Else,End");
+				NStr("en = 'The ""%2"", ""%3"", and ""%4"" keywords are missing after the ""%1"" keyword.'"), "When,Then,Else,End");
 			DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 			RestoreChoiceStructure(CurrentAttachment, Attachments, CurrentAttachment, "Then,Else", Context);
 			
 		ElsIf CurrentAttachment.Refinement = "Then" Then
 			ErrorText = InsertKeywordsIntoString(Context,
-				NStr("en = 'The ""%2"" and ""%3"" keywords are missing after the ""%1"" keyword.';"), "Then,Else,End");
+				NStr("en = 'The ""%2"" and ""%3"" keywords are missing after the ""%1"" keyword.'"), "Then,Else,End");
 			DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 			RestoreChoiceStructure(CurrentAttachment, Attachments, CurrentAttachment, "Else", Context);
 			
 		Else // CurrentAttachment.Clarification = "Else"
 			ErrorText = InsertKeywordsIntoString(Context,
-				NStr("en = 'The ""%2"" keyword is missing after the ""%1"" keyword.';"), "Else,End");
+				NStr("en = 'The ""%2"" keyword is missing after the ""%1"" keyword.'"), "Else,End");
 		EndIf;
 		SetErrorInRow(CurrentAttachment, ErrorText, True);
 		DeleteLastAttachment(Attachments, CurrentAttachment, Context);
@@ -43989,20 +44156,20 @@ Function FunctionsWithExpressionsInParentheses(Rows, InternalData)
 				If String.Rows.Count() = 0 Then
 					If String.Type = "Function" Then
 						SetErrorInRow(Rows[IndexOf], StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'Parameters of the ""%1"" function are missing.';"), String.Chars), True);
+							NStr("en = 'Parameters of the ""%1"" function are missing.'"), String.Chars), True);
 					Else
 						SetErrorInRow(Rows[IndexOf], StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'The list of values for the ""%1"" operation is empty.';"), String.Chars), True);
+							NStr("en = 'The list of values for the ""%1"" operation is empty.'"), String.Chars), True);
 					EndIf;
 				EndIf;
 			Else
 				String.Rows = New Array;
 				If String.Type = "Function" Then
 					SetErrorInRow(String, StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Missing parameters in parentheses after the ""%1"" function.';"), String.Chars), True);
+						NStr("en = 'Missing parameters in parentheses after the ""%1"" function.'"), String.Chars), True);
 				Else
 					SetErrorInRow(String, StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Missing values in parentheses after the ""%1"" keyword.';"), String.Chars), True);
+						NStr("en = 'Missing values in parentheses after the ""%1"" keyword.'"), String.Chars), True);
 				EndIf;
 			EndIf;
 			
@@ -44021,7 +44188,7 @@ Function FunctionsWithExpressionsInParentheses(Rows, InternalData)
 			Else
 				String.Rows = New Array;
 				SetErrorInRow(String, InsertKeywordsIntoString(InternalData,
-						NStr("en = 'The ""%1"" keyword is missing after the ""%2"" keyword.';"),
+						NStr("en = 'The ""%1"" keyword is missing after the ""%2"" keyword.'"),
 						"Null",
 						String.Chars),
 					True);
@@ -44041,7 +44208,7 @@ Function FunctionsWithExpressionsInParentheses(Rows, InternalData)
 				Continue;
 			Else
 				SetErrorInRow(String, StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'A field name cannot begin with a period "".""';"), String.Chars));
+					NStr("en = 'A field name cannot begin with a period "".""'"), String.Chars));
 			EndIf;
 		EndIf;
 		
@@ -44181,7 +44348,7 @@ Procedure SetAlias(PartRow, IConnectionShort, InternalData)
 	If PointPosition > 0 Then
 		PartRow.ErrorPosition = PointPosition - 1;
 		PartRow.ErrorText =
-			NStr("en = 'An alias cannot contain a period "".""';");
+			NStr("en = 'An alias cannot contain a period "".""'");
 			
 	ElsIf TypeOf(IConnectionShort) = Type("String") Then
 		IConnectionShort = PartRow.Chars;
@@ -44196,7 +44363,7 @@ Procedure SetAlias(PartRow, IConnectionShort, InternalData)
 						IConnectionShort.Alias, IConnectionShort.Table));
 			EndIf;
 		Else
-			PartRow.ErrorText = NStr("en = 'Duplicate alias.';");
+			PartRow.ErrorText = NStr("en = 'Duplicate alias.'");
 		EndIf;
 	EndIf;
 	
@@ -44215,7 +44382,7 @@ Procedure SetTableName(PartRow, IConnectionShort, InternalData)
 	
 	If StrStartsWith(PartRow.Chars, ".") Then
 		PartRow.ErrorText =
-			NStr("en = 'A table name cannot begin with a period "".""';");
+			NStr("en = 'A table name cannot begin with a period "".""'");
 		Return;
 	EndIf;
 	
@@ -44226,7 +44393,7 @@ Procedure SetTableName(PartRow, IConnectionShort, InternalData)
 		
 		PointPosition = PointPosition + StrFind(Mid(PartRow.Chars, PointPosition + 1), ".");
 		PartRow.ErrorText =
-			NStr("en = 'A full table name cannot contain more than two periods "".""';");
+			NStr("en = 'A full table name cannot contain more than two periods "".""'");
 		
 		PartRow.ErrorPosition = PointPosition - 1;
 		Return;
@@ -44250,13 +44417,13 @@ Procedure AddRequiredTableAsDataSource(Context, Table, Source)
 	If NameProperties.NamePartsCount < 2
 	 Or NameProperties.NamePartsCount > 3 Then
 		SetErrorInRow(Source,
-			NStr("en = 'A name of a joined table must contain one or two dots.';"));
+			NStr("en = 'A name of a joined table must contain one or two dots.'"));
 		Return;
 	EndIf;
 	
 	If NameProperties.TablesTypeProperties = Undefined Then
 		SetErrorInRow(Source, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The table name ""%2"" begins with an invalid word ""%1"".';"), NameProperties.TypeName, Table));
+			NStr("en = 'The table name ""%2"" begins with an invalid word ""%1"".'"), NameProperties.TypeName, Table));
 		Return;
 	EndIf;
 	
@@ -44269,11 +44436,11 @@ Procedure AddRequiredTableAsDataSource(Context, Table, Source)
 			
 			If ClarificationProperties.Use = "Illegal" Then
 				SetErrorInRow(Source, StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'The ""%1"" tables of the ""%2"" table group are not allowed.';"),
+					NStr("en = 'The ""%1"" tables of the ""%2"" table group are not allowed.'"),
 					NameProperties.Extension, NameProperties.TypeName));
 			Else
 				SetErrorInRow(Source, StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Joining the ""%1"" tables of the ""%2"" table group is not allowed.';"),
+					NStr("en = 'Joining the ""%1"" tables of the ""%2"" table group is not allowed.'"),
 					NameProperties.Extension, NameProperties.TypeName));
 			EndIf;
 			Return;
@@ -44298,19 +44465,19 @@ Procedure AddRequiredTableAsReferenceType(Context, Table, Source)
 	
 	If NameProperties.NamePartsCount <> 2 Then
 		SetErrorInRow(Source,
-			NStr("en = 'A table name specified as a type must contain a single dot.';"));
+			NStr("en = 'A table name specified as a type must contain a single dot.'"));
 		Return;
 	EndIf;
 	
 	If NameProperties.TablesTypeProperties = Undefined Then
 		SetErrorInRow(Source, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The table name ""%2"" begins with an invalid word ""%1"".';"), NameProperties.TypeName, Table));
+			NStr("en = 'The table name ""%2"" begins with an invalid word ""%1"".'"), NameProperties.TypeName, Table));
 		Return;
 	EndIf;
 	
 	If Not NameProperties.TablesTypeProperties.IsReferenceType Then
 		SetErrorInRow(Source, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" table group is not included in any reference types.';"), NameProperties.TypeName, Table));
+			NStr("en = 'The ""%1"" table group is not included in any reference types.'"), NameProperties.TypeName, Table));
 		Return;
 	EndIf;
 	
@@ -44330,13 +44497,13 @@ Procedure AddRequiredPredefinedItem(Context, FullPredefinedItemName, Source)
 	
 	If NameProperties.NamePartsCount <> 3 Then
 		SetErrorInRow(Source,
-			NStr("en = 'A predefined value name must contain two dots.';"));
+			NStr("en = 'A predefined value name must contain two dots.'"));
 		Return;
 	EndIf;
 	
 	If NameProperties.TablesTypeProperties = Undefined Then
 		SetErrorInRow(Source, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The table name ""%2"" begins with an invalid word ""%1"".';"),
+			NStr("en = 'The table name ""%2"" begins with an invalid word ""%1"".'"),
 			NameProperties.TypeName,
 			NameProperties.TypeName + "." + NameProperties.NameWithoutType));
 		Return;
@@ -44344,7 +44511,7 @@ Procedure AddRequiredPredefinedItem(Context, FullPredefinedItemName, Source)
 	
 	If Not NameProperties.TablesTypeProperties.IsReferenceType Then
 		SetErrorInRow(Source, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" table group is not included in any reference types.';"), NameProperties.TypeName));
+			NStr("en = 'The ""%1"" table group is not included in any reference types.'"), NameProperties.TypeName));
 		Return;
 	EndIf;
 	
@@ -44356,7 +44523,7 @@ Procedure AddRequiredPredefinedItem(Context, FullPredefinedItemName, Source)
 	      Or WordProperties.Id <> "EmptyRef") Then
 		
 		SetErrorInRow(Source, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'There are no predefined items in the ""%1"" table group.';"), NameProperties.TypeName));
+			NStr("en = 'There are no predefined items in the ""%1"" table group.'"), NameProperties.TypeName));
 		Return;
 	EndIf;
 	
@@ -44383,13 +44550,13 @@ Procedure CheckTheRoleName(NameOfRole, Source)
 	
 	If StrFind(NameOfRole, ".") > 0 Then
 		SetErrorInRow(Source,
-			NStr("en = 'Role name must not contain dots';"));
+			NStr("en = 'Role name must not contain dots'"));
 		Return;
 	EndIf;
 	
 	If Metadata.Roles.Find(NameOfRole) = Undefined Then
 		SetErrorInRow(Source, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Role ""%1"" is missing in the metadata';"), NameOfRole));
+			NStr("en = 'Role ""%1"" is missing in the metadata'"), NameOfRole));
 		Return;
 	EndIf;
 	
@@ -44405,7 +44572,7 @@ Procedure CheckTheNameOfTheMetadataObjectRight(NameOfRight, SourceOfLaw, ObjectN
 	
 	If StrFind(NameOfRight, ".") > 0 Then
 		SetErrorInRow(SourceOfLaw,
-			NStr("en = 'Access right name must not contain dots';"));
+			NStr("en = 'Access right name must not contain dots'"));
 		Return;
 	EndIf;
 	
@@ -44413,7 +44580,7 @@ Procedure CheckTheNameOfTheMetadataObjectRight(NameOfRight, SourceOfLaw, ObjectN
 	MetadataObject = MetadataObjectByFullNameForCheckingTheRight(ObjectName, StandardAttributeName);
 	If MetadataObject = Undefined Then
 		SetErrorInRow(ObjectSource, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Metadata object ""%1"" does not exist';"), ObjectName));
+			NStr("en = 'Metadata object ""%1"" does not exist'"), ObjectName));
 		Return;
 	EndIf;
 	
@@ -44428,7 +44595,7 @@ Procedure CheckTheNameOfTheMetadataObjectRight(NameOfRight, SourceOfLaw, ObjectN
 	If ValueIsFilled(ErrorText) Then
 		SetErrorInRow(SourceOfLaw, StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot check the ""%1"" access right of the ""%2"" metadata object due to:
-			           |%3';"), NameOfRight, ObjectName, ErrorText));
+			           |%3'"), NameOfRight, ObjectName, ErrorText));
 		Return;
 	EndIf;
 	
@@ -44453,8 +44620,8 @@ Function MetadataObjectByFullNameForCheckingTheRight(FullName, StandardAttribute
 		Return Undefined;
 	EndIf;
 	
-	If Upper(NameParts[2]) = Upper("СтандартнаяТабличнаяЧасть") // @Non-NLS
-	 Or Upper(NameParts[2]) = Upper("StandardTabularSection") Then
+	If Upper(NameParts[2]) = Upper("СтандартнаяТабличнаяЧасть")
+	 Or Upper(NameParts[2]) = Upper("StandardTabularSection") Then // @Non-NLS
 		
 		Properties = New Structure("StandardTabularSections");
 		FillPropertyValues(Properties, MainMetadataObject);
@@ -44479,8 +44646,8 @@ Function MetadataObjectByFullNameForCheckingTheRight(FullName, StandardAttribute
 		OwnerOfStandardBankingDetails = MainMetadataObject;
 	EndIf;
 	
-	If Upper(NameParts[2]) <> Upper("СтандартныйРеквизит") // @Non-NLS
-	   And Upper(NameParts[2]) <> Upper("StandardAttribute") Then
+	If Upper(NameParts[2]) <> Upper("СтандартныйРеквизит")
+	   And Upper(NameParts[2]) <> Upper("StandardAttribute") Then // @Non-NLS
 		Return Undefined;
 	EndIf;
 	
@@ -44523,7 +44690,7 @@ Procedure AddRequiredTableField(Context, Table, FieldName, Source,
 			
 			Context.Insert("ErrorSetToFirstFieldInMainTable");
 			SetErrorInFieldNameString(Context, Source,
-				NStr("en = 'The field does not exist as non-existent table ""%1"" is specified.';"), 0, ,
+				NStr("en = 'The field does not exist as non-existent table ""%1"" is specified.'"), 0, ,
 				Context.MainTable);
 		EndIf;
 		
@@ -45373,13 +45540,13 @@ Procedure MarkIncorrectFieldsTablesAndFieldsTypesNames(TablesFields, Context)
 			If Not TableProperties.TableExists Then
 				For Each Source In TableProperties.Sources Do
 					SetErrorInRow(Source, StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'Table ""%1"" does not exist.';"), Source.Chars), , 2);
+							NStr("en = 'Table ""%1"" does not exist.'"), Source.Chars), , 2);
 				EndDo;
 				If TableProperties.Property("FirstField")
 				   And TableProperties.FirstField.FirstSource <> Undefined Then
 					
 					SetErrorInFieldNameString(Context, TableProperties.FirstField.FirstSource.Key,
-						NStr("en = 'The field does not exist as non-existent table ""%1"" is specified.';"), 0, ,
+						NStr("en = 'The field does not exist as non-existent table ""%1"" is specified.'"), 0, ,
 						TableProperties.FirstField.FirstSource.Value);
 				EndIf;
 				For Each PredefinedItemDetails In TableProperties.Predefined Do
@@ -45387,7 +45554,7 @@ Procedure MarkIncorrectFieldsTablesAndFieldsTypesNames(TablesFields, Context)
 						NameContent = StrSplit(Source.Chars, ".");
 						
 						SetErrorInRow(Source, StringFunctionsClientServer.SubstituteParametersToString(
-								NStr("en = 'The predefined value does not exist as non-existent table ""%1"" is specified.';"),
+								NStr("en = 'The predefined value does not exist as non-existent table ""%1"" is specified.'"),
 								NameContent[0] + "." + NameContent[1]), , 2);
 					EndDo;
 				EndDo;
@@ -45403,7 +45570,7 @@ Procedure MarkIncorrectFieldsTablesAndFieldsTypesNames(TablesFields, Context)
 					NameContent = StrSplit(Source.Chars, ".");
 					Source.ErrorPosition = StrLen(NameContent[0] + "." + NameContent[1]) + 1;
 					Source.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Predefined value ""%1"" does not exist.';"), NameContent[2]);
+						NStr("en = 'Predefined value ""%1"" does not exist.'"), NameContent[2]);
 				EndDo;
 			EndDo;
 			
@@ -45417,13 +45584,13 @@ Procedure MarkIncorrectFieldsTablesAndFieldsTypesNames(TablesFields, Context)
 					For Each Source In ExtensionProperties1.Sources Do
 						SetErrorInRow(Source,
 							StringFunctionsClientServer.SubstituteParametersToString(
-								NStr("en = 'Table ""%1"" does not exist.';"), Source.Chars), , 2);
+								NStr("en = 'Table ""%1"" does not exist.'"), Source.Chars), , 2);
 					EndDo;
 					If ExtensionProperties1.Property("FirstField")
 					   And ExtensionProperties1.FirstField.FirstSource <> Undefined Then
 						
 						SetErrorInFieldNameString(Context, ExtensionProperties1.FirstField.FirstSource.Key,
-							NStr("en = 'The field does not exist as non-existent table ""%1"" is specified.';"), 0, ,
+							NStr("en = 'The field does not exist as non-existent table ""%1"" is specified.'"), 0, ,
 							ExtensionProperties1.FirstField.FirstSource.Value);
 					EndIf;
 					Continue;
@@ -45447,18 +45614,18 @@ Procedure MarkIncorrectFieldAndFieldTypes(FieldDetails, Context)
 			EOF = False;
 			If FieldProperties.ErrorKind = "TabularSectionNoField" Then
 				EOF = True;
-				ErrorTemplate = NStr("en = 'A field is missing after the ""%1"" tabular section of the ""%2"" table.';");
+				ErrorTemplate = NStr("en = 'A field is missing after the ""%1"" tabular section of the ""%2"" table.'");
 				
 			ElsIf FieldProperties.ErrorKind = "AdditionalTableTabularSection" Then
-				ErrorTemplate = NStr("en = 'Tabular section ""%1"" of the additional table ""%2"" is not supported.';");
+				ErrorTemplate = NStr("en = 'Tabular section ""%1"" of the additional table ""%2"" is not supported.'");
 				
 			ElsIf FieldProperties.ErrorKind = "Illegal" Then
-				ErrorTemplate = NStr("en = 'The ""%1"" field of the ""%2"" table is not allowed.';");
+				ErrorTemplate = NStr("en = 'The ""%1"" field of the ""%2"" table is not allowed.'");
 				
 			ElsIf FieldProperties.ErrorKind = "Prohibited" Then
-				ErrorTemplate = NStr("en = 'The ""%1"" field of the ""%2"" table is prohibited.';");
+				ErrorTemplate = NStr("en = 'The ""%1"" field of the ""%2"" table is prohibited.'");
 			Else
-				ErrorTemplate = NStr("en = 'Field ""%1"" of table ""%2"" does not exist.';");
+				ErrorTemplate = NStr("en = 'Field ""%1"" of table ""%2"" does not exist.'");
 			EndIf;
 			SetErrorInFieldNameString(Context,
 				 SourceDetails.Key, ErrorTemplate, 1, True, SourceDetails.Value, EOF);
@@ -45469,15 +45636,15 @@ Procedure MarkIncorrectFieldAndFieldTypes(FieldDetails, Context)
 	If FieldProperties.FieldWithError > 1 Then
 		For Each SourceDetails In FieldDetails.Value.Sources Do
 			If FieldProperties.ErrorKind = "TabularSectionAfterDot" Then
-				ErrorTemplate = NStr("en = 'Cannot address the ""%1"" tabular section using dot syntax.';");
+				ErrorTemplate = NStr("en = 'Cannot address the ""%1"" tabular section using dot syntax.'");
 				
 			ElsIf FieldProperties.ErrorKind = "Illegal" Then
-				ErrorTemplate = NStr("en = 'The ""%1"" field is not allowed.';");
+				ErrorTemplate = NStr("en = 'The ""%1"" field is not allowed.'");
 				
 			ElsIf FieldProperties.ErrorKind = "Prohibited" Then
-				ErrorTemplate = NStr("en = 'The ""%1"" field is prohibited.';");
+				ErrorTemplate = NStr("en = 'The ""%1"" field is prohibited.'");
 			Else
-				ErrorTemplate = NStr("en = 'Field ""%1"" does not exist.';");
+				ErrorTemplate = NStr("en = 'Field ""%1"" does not exist.'");
 			EndIf;
 			SetErrorInFieldNameString(Context,
 				SourceDetails.Key, ErrorTemplate, FieldProperties.FieldWithError, True);
@@ -45493,7 +45660,7 @@ Procedure MarkIncorrectFieldAndFieldTypes(FieldDetails, Context)
 	   And FieldProperties.Collection <> "StandardTabularSections" Then
 		
 			For Each SourceDetails In FieldDetails.Value.Sources Do
-				ErrorTemplate = NStr("en = 'Redundant syntax: a dot operator and the ""%1"" field after a field.';");
+				ErrorTemplate = NStr("en = 'Redundant syntax: a dot operator and the ""%1"" field after a field.'");
 				SetErrorInFieldNameString(Context,
 					SourceDetails.Key, ErrorTemplate, 2, True);
 		EndDo;
@@ -45507,7 +45674,7 @@ Procedure MarkIncorrectFieldAndFieldTypes(FieldDetails, Context)
 				If Not TypeProperties.ContainsType Then
 					SetErrorInRow(SourceDetails.Key,
 						StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'Type ""%2"" does not exist for field ""%1"".';"),
+							NStr("en = 'Type ""%2"" does not exist for field ""%1"".'"),
 							SourceDetails.Value.Chars,
 							SourceDetails.Key.Chars),
 						, 2);
@@ -45622,13 +45789,13 @@ Procedure UpdateProgressInBackground(Context, ResultAddress) Export
 			ErrorText = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 		EndTry;
 	Else
-		ErrorText = NStr("en = 'The app version is updated. Restart the app.';");
+		ErrorText = NStr("en = 'The app version is updated. Restart the app.'");
 	EndIf;
 	
 	If ErrorText <> Undefined Then
 		Context.Insert("ErrorInfo", StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot update the progress bar. Reason:
-			           |%1';"), ErrorText));
+			           |%1'"), ErrorText));
 	EndIf;
 	
 	PutToTempStorage(Context, ResultAddress);
@@ -46545,7 +46712,7 @@ Function ExecuteQueriesPackageByParts(QueryDetails)
 	QueriesBatchTexts = New Array;
 	For Each QueryText In QueryDetails.QueryPackageTexts Do
 		If QueriesBatchTexts.Count() = 200 Then
-			// @skip-check query-in-loop - Batch-wise data processing
+			// @skip-check query-in-loop 
 			AddQueryResults(QueriesPackageResults, QueriesBatchTexts, QueryDetails);
 			QueriesBatchTexts = New Array;
 		EndIf;
@@ -46879,7 +47046,7 @@ Function QueryTextOfRemainingRegisterItemsCount(QueryDetails, String, IndexOf,
 	BasicFields = RestrictionProperties.BasicFields;
 	FilterByUsersType = XMLString(RestrictionProperties.AccessOption);
 	ConnectionCondition = ConnectionCondition + ?(ConnectionCondition = "", "", "
-	|			AND ") + "(AccessKeysForRegisters.AccessOption = " + FilterByUsersType + ")"; // @query-part-1
+	|			AND ") + "(AccessKeysForRegisters.AccessOption = " + FilterByUsersType + ")"; // @query-part-3
 	
 	FieldNumber = 1;
 	For Each FieldName In BasicFields.UsedItems Do
@@ -46887,20 +47054,20 @@ Function QueryTextOfRemainingRegisterItemsCount(QueryDetails, String, IndexOf,
 		ParameterName = FieldName + Format(IndexOf, "NG=");
 		
 		ConnectionCondition = ConnectionCondition + ?(ConnectionCondition = "", "", "
-		|			AND ") + StrTemplate("(AccessKeysForRegisters.Field%1 = CurrentTable.%2)", FieldNumber, FieldName); // @query-part-1
+		|			AND ") + StrTemplate("(AccessKeysForRegisters.Field%1 = CurrentTable.%2)", FieldNumber, FieldName); // @query-part-3
 		
 		Filter = "";
 		For CurrentIndex = 0 To FieldNumber - 2 Do
 			CurrentFieldName = BasicFields.UsedItems[CurrentIndex];
 			CurrentParameterName = CurrentFieldName + Format(IndexOf, "NG=");
 			Filter = Filter + ?(Filter = "", "", "
-			|	AND ") + "CurrentTable." + CurrentFieldName + " = &" + CurrentParameterName; // @query-part-1
+			|	AND ") + "CurrentTable." + CurrentFieldName + " = &" + CurrentParameterName; // @query-part-3
 		EndDo;
 		Filter = Filter + ?(Filter = "", "", "
-		|	AND ") + "CurrentTable." + FieldName + " > &" + ParameterName; // @query-part-1
+		|	AND ") + "CurrentTable." + FieldName + " > &" + ParameterName; // @query-part-3
 		
 		FilterCriterion = FilterCriterion + ?(FieldNumber = 1, ?(BasicFields.UsedItems.Count() > 1, "(", "") + Filter, "
-		|		OR " + TextWithIndent(Filter, "		")); // @query-part-1
+		|		OR " + TextWithIndent(Filter, "		")); // @query-part-3
 	
 		If DataKey.Property(FieldNameInDataKey) Then
 			QueryDetails.Query.SetParameter(ParameterName, DataKey[FieldNameInDataKey]);
@@ -46920,9 +47087,9 @@ Function QueryTextOfRemainingRegisterItemsCount(QueryDetails, String, IndexOf,
 		PeriodFieldName = ?(TypeProperties.CollectionName = "CalculationRegisters", "RegistrationPeriod", "Period");
 		ParameterName = PeriodFieldName + Format(IndexOf, "NG=");
 		FilterCriterion = "(CurrentTable." + PeriodFieldName + " < &" + ParameterName + "
-		|	OR CurrentTable." // @query-part-1
+		|	OR CurrentTable." 
 		+ PeriodFieldName + " = &" + ParameterName + "
-		|		AND " + TextWithIndent(FilterCriterion, "	") + ")"; // @query-part-1
+		|		AND " + TextWithIndent(FilterCriterion, "	") + ")"; // @query-part-3, @query-part-5
 		QueryDetails.Query.SetParameter(ParameterName, LastUpdatedItem.Date);
 	EndIf;
 	

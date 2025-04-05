@@ -106,7 +106,7 @@ Function ObjectModifiedForExchangePlan(Source, MetadataObject, ExchangePlanName,
 		
 	Except
 		
-		TemplateRow = NStr("en = 'Cannot determining whether the object was modified: %1';", Common.DefaultLanguageCode());
+		TemplateRow = NStr("en = 'Cannot determining whether the object was modified: %1'", Common.DefaultLanguageCode());
 		Raise StrTemplate(TemplateRow, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		
 	EndTry;
@@ -144,7 +144,7 @@ EndFunction
 
 Function RegistrationRuleEventName() Export
 	
-	Return NStr("en = 'Data exchange.Object registration rules';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Data exchange.Object registration rules'", Common.DefaultLanguageCode());
 	
 EndFunction
 
@@ -498,7 +498,7 @@ Procedure CheckObjectChangeRecordAttributes(RegistrationAttributesTable)
 			ObjectType = Type(TableRow.ObjectTypeString);
 		Except
 			
-			MessageString = NStr("en = 'Undefined object type: %1';", Common.DefaultLanguageCode());
+			MessageString = NStr("en = 'Undefined object type: %1'", Common.DefaultLanguageCode());
 			MessageString = StrTemplate(MessageString, TableRow.ObjectTypeString);
 			WriteToExecutionProtocol(MessageString);
 			Continue;
@@ -526,7 +526,7 @@ Procedure CheckObjectChangeRecordAttributes(RegistrationAttributesTable)
 						Or  DataExchangeServer.IsStandardAttribute(MetadataObjectsList.StandardAttributes, Attribute.Key)
 						Or  IsCommonAttribute(Attribute.Key, MetadataObjectsList.FullName(), CommonAttributeTable)) Then
 						
-						MessageString = NStr("en = 'Invalid header attributes of the ""%1"" object. Attribute ""%2"" does not exist.';");
+						MessageString = NStr("en = 'Invalid header attributes of the ""%1"" object. Attribute ""%2"" does not exist.'");
 						MessageString = StrTemplate(MessageString, String(MetadataObjectsList), Attribute.Key);
 						WriteToExecutionProtocol(MessageString);
 						
@@ -539,7 +539,7 @@ Procedure CheckObjectChangeRecordAttributes(RegistrationAttributesTable)
 						Or  DataExchangeServer.IsStandardAttribute(MetadataObjectsList.StandardAttributes, Attribute.Key)
 						Or  IsCommonAttribute(Attribute.Key, MetadataObjectsList.FullName(), CommonAttributeTable)) Then
 						
-						MessageString = NStr("en = 'Invalid header attributes of the ""%1"" object. Attribute ""%2"" does not exist.';");
+						MessageString = NStr("en = 'Invalid header attributes of the ""%1"" object. Attribute ""%2"" does not exist.'");
 						MessageString = StrTemplate(MessageString, String(MetadataObjectsList), Attribute.Key);
 						WriteToExecutionProtocol(MessageString);
 						
@@ -551,7 +551,7 @@ Procedure CheckObjectChangeRecordAttributes(RegistrationAttributesTable)
 						Or  DataExchangeServer.IsStandardAttribute(MetadataObjectsList.StandardAttributes, Attribute.Key)
 						Or  IsCommonAttribute(Attribute.Key, MetadataObjectsList.FullName(), CommonAttributeTable)) Then
 						
-						MessageString = NStr("en = 'Invalid header attributes of the ""%1"" object. Attribute ""%2"" does not exist.';");
+						MessageString = NStr("en = 'Invalid header attributes of the ""%1"" object. Attribute ""%2"" does not exist.'");
 						MessageString = StrTemplate(MessageString, String(MetadataObjectsList), Attribute.Key);
 						WriteToExecutionProtocol(MessageString);
 						
@@ -567,7 +567,7 @@ Procedure CheckObjectChangeRecordAttributes(RegistrationAttributesTable)
 			MetaTables = ObjectRegistrationAttributesTableMetadata(MetadataObjectsList, TableRow.TabularSectionName);
 			If MetaTables = Undefined Then
 				
-				MessageString = NStr("en = 'The ""%1"" table (or a standard table, or a list of register records) of the ""%2"" object does not exist.';");
+				MessageString = NStr("en = 'The ""%1"" table (or a standard table, or a list of register records) of the ""%2"" object does not exist.'");
 				WriteToExecutionProtocol(StrTemplate(MessageString, TableRow.TabularSectionName, MetadataObjectsList));
 				Continue;
 				
@@ -586,7 +586,7 @@ Procedure CheckObjectChangeRecordAttributes(RegistrationAttributesTable)
 				
 				If Not PropsFound Then
 					
-					MessageString = NStr("en = 'The ""%3"" attribute is not found in the ""%1"" table (or a standard table, or a list of register records) of the ""%2"" object.';");
+					MessageString = NStr("en = 'The ""%3"" attribute is not found in the ""%1"" table (or a standard table, or a list of register records) of the ""%2"" object.'");
 					WriteToExecutionProtocol(StrTemplate(MessageString, TableRow.TabularSectionName, MetadataObjectsList, Attribute.Key));
 					Break;
 					
@@ -649,7 +649,7 @@ Procedure AddRowToSelectiveRegistrationTable(ObjectTypeString, ObjectName, Tabul
 		Try
 			RegistrationAttributesStructure.Insert(PCRSource);
 		Except
-			WriteLogEvent(NStr("en = 'Data exchange.Import conversion rules';", Common.DefaultLanguageCode()),
+			WriteLogEvent(NStr("en = 'Data exchange.Import conversion rules'", Common.DefaultLanguageCode()),
 				EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
 		

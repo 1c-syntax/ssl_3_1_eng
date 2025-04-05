@@ -26,7 +26,7 @@ EndProcedure
 &AtClient
 Procedure None(Command)
 	NewParameters = New Structure("SendDumpsFiles", 0);
-	NewParameters.Insert("SendingResult", NStr("en = 'User refused to submit full dumps.';"));
+	NewParameters.Insert("SendingResult", NStr("en = 'User refused to submit full dumps.'"));
 	SetMonitoringCenterParameters(NewParameters);
 	Close();
 EndProcedure

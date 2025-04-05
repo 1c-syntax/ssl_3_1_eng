@@ -20,7 +20,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	// ACC:1223-off - This is an example of a text message.
 	Items.DecorationHint.ToolTip = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'A text message example: Your password: ******* to receive the ""%1"" report distribution.';"), MailingDescription);
+		NStr("en = 'A text message example: Your password: ******* to receive the ""%1"" report distribution.'"), MailingDescription);
 	// ACC:1223-on
 	
 	If Not IsTempStorageURL(Parameters.RecipientsAddress) Then
@@ -119,13 +119,13 @@ Procedure Send(Command)
 			ResultRow.NotSent = True;
 
 			If Not ValueIsFilled(RowRecipients.ArchivePassword) Then
-				ResultRow.Comment = NStr("en = 'A password is not set.';");
+				ResultRow.Comment = NStr("en = 'A password is not set.'");
 			EndIf;
 
 			If Not ValueIsFilled(RowRecipients.Phone) Then
 				ResultRow.Comment = ?(ValueIsFilled(ResultRow.Comment),
-					ResultRow.Comment + Chars.LF + NStr("en = 'A phone number is not specified.';"), 
-					NStr("en = 'A phone number is not specified.';"));
+					ResultRow.Comment + Chars.LF + NStr("en = 'A phone number is not specified.'"), 
+					NStr("en = 'A phone number is not specified.'"));
 			EndIf;
 
 			StringResultNoFilters = SMSDistributionResultNoFilters.Add();
@@ -138,7 +138,7 @@ Procedure Send(Command)
 		PrepareSMS.Recipient = RowRecipients.Recipient;
 		// ACC:1223-off - This is a text message.
 		PrepareSMS.SMSMessageText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Your password: %1 to receive the ""%2"" report distribution.';"), RowRecipients.ArchivePassword,
+		NStr("en = 'Your password: %1 to receive the ""%2"" report distribution.'"), RowRecipients.ArchivePassword,
 		MailingDescription);
 		// ACC:1223-on
 		PrepareSMS.PhoneNumbers = CommonClientServer.ValueInArray(RowRecipients.Phone);

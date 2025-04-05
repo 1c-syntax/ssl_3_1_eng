@@ -16,13 +16,13 @@
 Function ClosingDatesDetails() Export
 	
 	List = New Map;
-	List.Insert("",                      NStr("en = 'No date';"));
-	List.Insert("Custom",      NStr("en = 'Custom date';"));
-	List.Insert("EndOfLastYear",     NStr("en = 'End of last year';"));
-	List.Insert("EndOfLastQuarter", NStr("en = 'End of last quarter';"));
-	List.Insert("EndOfLastMonth",   NStr("en = 'End of last month';"));
-	List.Insert("EndOfLastWeek",    NStr("en = 'End of last week';"));
-	List.Insert("PreviousDay",        NStr("en = 'Previous day';"));
+	List.Insert("",                      NStr("en = 'No date'"));
+	List.Insert("Custom",      NStr("en = 'Custom date'"));
+	List.Insert("EndOfLastYear",     NStr("en = 'End of last year'"));
+	List.Insert("EndOfLastQuarter", NStr("en = 'End of last quarter'"));
+	List.Insert("EndOfLastMonth",   NStr("en = 'End of last month'"));
+	List.Insert("EndOfLastWeek",    NStr("en = 'End of last week'"));
+	List.Insert("PreviousDay",        NStr("en = 'Previous day'"));
 	
 	Return List;
 	
@@ -74,7 +74,7 @@ Procedure SpecifyPeriodEndClosingDateSetupOnChange(Context, CalculatePeriodEndCl
 				NStr("en = 'Data entry and editing for all previous periods 
 					|up to %1 are prohibited (%2).
 					|Delay that allowed data entry and editing 
-					|for the period from %3 to %4 expired on %5.';"),
+					|for the period from %3 to %4 expired on %5.'"),
 				Format(Context.PeriodEndClosingDate, "DLF=D"), Lower(ClosingDatesDetails()[Context.PeriodEndClosingDateDetails]),
 				Format(CalculatedPeriodEndClosingDates.Prev + Days1, "DLF=D"), Format(CalculatedPeriodEndClosingDates.Current, "DLF=D"),
 				Format(PermissionPeriod, "DLF=D"));
@@ -88,7 +88,7 @@ Procedure SpecifyPeriodEndClosingDateSetupOnChange(Context, CalculatePeriodEndCl
 					|there is a delay that allows data entry and editing 
 					|for the period from %4 to %5;
 					|• Period-end closing becomes effective from %6 
-					| for all previous periods up to %5 (%3).';"),
+					| for all previous periods up to %5 (%3).'"),
 					Format(PermissionPeriod, "DLF=D"), Format(Context.PeriodEndClosingDate, "DLF=D"), Lower(ClosingDatesDetails()[Context.PeriodEndClosingDateDetails]),
 					Format(CalculatedPeriodEndClosingDates.Prev + Days1, "DLF=D"),  Format(CalculatedPeriodEndClosingDates.Current, "DLF=D"), 
 					Format(PermissionPeriod + Days1, "DLF=D"));
@@ -97,7 +97,7 @@ Procedure SpecifyPeriodEndClosingDateSetupOnChange(Context, CalculatePeriodEndCl
 		Context.PermissionDaysCount = 0;
 		LabelText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Data entry and editing for all previous periods
-			           |up to %1 (%2) are restricted';"),
+			           |up to %1 (%2) are restricted'"),
 			Format(Context.PeriodEndClosingDate, "DLF=D"), Lower(ClosingDatesDetails()[Context.PeriodEndClosingDateDetails]));
 	EndIf;
 	

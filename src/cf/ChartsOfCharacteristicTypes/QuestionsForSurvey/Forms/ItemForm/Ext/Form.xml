@@ -514,8 +514,8 @@
 										<InputField name="HintsRangeToolTip" id="209">
 											<DataPath>Object.NumericalQuestionHintsRange.ToolTip</DataPath>
 											<EditMode>EnterOnInput</EditMode>
-											<ContextMenu name="HintsRangeToolTipContextMenu" id="210"/>
-											<ExtendedTooltip name="HintsRangeToolTipExtendedTooltip" id="211"/>
+											<ContextMenu name="HintRangeHintContextMenu" id="210"/>
+											<ExtendedTooltip name="HintRangeHintExtendedTooltip" id="211"/>
 										</InputField>
 									</ChildItems>
 								</Table>

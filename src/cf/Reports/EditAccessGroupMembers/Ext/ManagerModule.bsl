@@ -40,7 +40,7 @@ Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessin
 	EndIf;
 	
 	Command = ReportsCommands.Add();
-	Command.Presentation = NStr("en = 'Access group membership changes';");
+	Command.Presentation = NStr("en = 'Access group membership changes'");
 	Command.Manager = "Report.EditAccessGroupMembers";
 	Command.VariantKey = "Main";
 	Command.OnlyInAllActions = True;
@@ -65,7 +65,7 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "Main");
 	OptionSettings.Enabled = Common.SubsystemExists("StandardSubsystems.AccessManagement");
 	OptionSettings.LongDesc =
-		NStr("en = 'Reads the event log and displays the changes in user group membership for the specified time period.';");
+		NStr("en = 'Reads the event log and displays the changes in user group membership for the specified time period.'");
 	
 EndProcedure
 

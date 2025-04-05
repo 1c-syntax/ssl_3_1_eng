@@ -56,7 +56,7 @@ EndProcedure
 &AtClient
 Procedure ResetSettings(Command)
 	Notification = New CallbackDescription("ResetSettingsCompletion", ThisObject, MappingObjectName);
-	ShowQueryBox(Notification, NStr("en = 'Do you want to revert to the default column settings?';"), QuestionDialogMode.YesNo);
+	ShowQueryBox(Notification, NStr("en = 'Do you want to revert to the default column settings?'"), QuestionDialogMode.YesNo);
 EndProcedure
 
 &AtClient
@@ -113,7 +113,7 @@ Procedure SetDataAppearance()
 	FilterElement.LeftValue = New DataCompositionField("ColumnsList.Synonym");
 	FilterElement.ComparisonType = DataCompositionComparisonType.NotFilled;
 	FilterElement.Use = True;
-	ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'Standard name';"));
+	ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'Standard name'"));
 	ConditionalAppearanceItem.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	
 EndProcedure

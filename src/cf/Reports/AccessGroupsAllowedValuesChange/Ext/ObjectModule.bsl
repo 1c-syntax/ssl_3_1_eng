@@ -289,8 +289,8 @@ Function ValuesChanges(Settings)
 			EventProperties.Insert("Source", Data.URLToSource);
 			IsAccessKindsUsageChange = ValueIsFilled(Data.Source);
 			EventProperties.Insert("SourcePresentation", ?(IsAccessKindsUsageChange,
-				NStr("en = '<Changes in access kind usage>';"),
-				NStr("en = '<Changes in user group membership>';")));
+				NStr("en = '<Changes in access kind usage>'"),
+				NStr("en = '<Changes in user group membership>'")));
 		Else
 			IsAccessKindsUsageChange = False;
 			EventProperties.Insert("Source", DeserializedRef(Data.Source));
@@ -735,7 +735,7 @@ Procedure AddValuesChange(Changes, EventProperties, Data, Caches)
 						RowProperties.IncludeSubordinateAccessValues Or RowProperties.PreviousIncludeSubordinateAccessValues));
 				AccessKindProperties.AccessKindPresentation =
 					AccessKindProperties.AccessKindPresentationWithoutClarification
-					+ " (" + ?(AllAllowed, NStr("en = 'Denied';"), NStr("en = 'Allowed';")) + ")";
+					+ " (" + ?(AllAllowed, NStr("en = 'Denied'"), NStr("en = 'Allowed'")) + ")";
 				ValuesOfGroup = Undefined;
 				AccessValueChangeKind = ?(ChangeDescription.ChangeType = "Added2", "+",
 					?(ChangeDescription.ChangeType = "Deleted", "-", Variant));
@@ -774,7 +774,7 @@ Procedure AddValuesChange(Changes, EventProperties, Data, Caches)
 					NewRow.AccessValueChangeKind = AccessValueChangeKind;
 					If ValueProperties.AccessValue = "*" Then
 						ValuePresentation = "<" + ?(AllAllowed,
-							NStr("en = 'All allowed';"), NStr("en = 'All denied';")) + ">";
+							NStr("en = 'All allowed'"), NStr("en = 'All denied'")) + ">";
 						NewRow.ValueOrGroupPresentation = ValuePresentation;
 						NewRow.AccessValuePresentation   = ValuePresentation;
 					EndIf;
@@ -945,5 +945,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

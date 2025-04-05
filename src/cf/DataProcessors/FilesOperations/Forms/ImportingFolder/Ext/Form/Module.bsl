@@ -14,7 +14,7 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not ValueIsFilled(Parameters.DirectoryOnHardDrive) Then
-		Raise NStr("en = 'The data processor cannot be opened manually.';");
+		Raise NStr("en = 'The data processor cannot be opened manually.'");
 	EndIf;
 	
 	FilesGroup = Parameters.FilesGroup;
@@ -26,8 +26,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.StoreVersions.Visible = StoreVersions;
 	
 	If Common.IsMobileClient() Then
-		Title = NStr("en = 'Import directory from device';");
-		Items.DeleteAfterAdding.Title = NStr("en = 'Delete files from device after import completed';");
+		Title = NStr("en = 'Import directory from device'");
+		Items.DeleteAfterAdding.Title = NStr("en = 'Delete files from device after import completed'");
 	EndIf;
 
 EndProcedure
@@ -57,10 +57,10 @@ Procedure SelectedDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	OpenFileDialog.Directory = Directory;
 	OpenFileDialog.FullFileName = "";
-	Filter = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
+	Filter = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1'"), GetAllFilesMask());
 	OpenFileDialog.Filter = Filter;
 	OpenFileDialog.Multiselect = False;
-	OpenFileDialog.Title = NStr("en = 'Select directory';");
+	OpenFileDialog.Title = NStr("en = 'Select directory'");
 	If OpenFileDialog.Choose() Then
 		If DirectoriesChoice = True Then 
 			Directory = OpenFileDialog.Directory;
@@ -80,14 +80,14 @@ Procedure ImportExecute()
 	If IsBlankString(Directory) Then
 		
 		CommonClient.MessageToUser(
-			NStr("en = 'Select a folder for import.';"), , "Directory");
+			NStr("en = 'Select a folder for import.'"), , "Directory");
 		Return;
 		
 	EndIf;
 	
 	If FolderForAdding.IsEmpty() Then
 		CommonClient.MessageToUser(
-			NStr("en = 'Please select a folder.';"), , "FolderForAdding");
+			NStr("en = 'Please select a folder.'"), , "FolderForAdding");
 		Return;
 	EndIf;
 	

@@ -58,7 +58,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// СтандартныеПодсистемы.VariantsОтчетов
+// 
 
 // Defines the list of report commands.
 //
@@ -75,21 +75,21 @@ Procedure AddReportCommands(ReportsCommands, Parameters) Export
 	If Parameters.FormName = "CommonForm.DigitalSignatureAndEncryptionSettings" Then
 		Command = ReportsCommands.Add();
 		Command.VariantKey      = "DigitalSignatureCertificates";
-		Command.Presentation     = NStr("en = 'Digital signature certificates';");
+		Command.Presentation     = NStr("en = 'Digital signature certificates'");
 		Command.Id     = "DigitalSignatureCertificates";
 		Command.Manager          = "Report.DigitalSignatureCertificates";
 		Command.IsNonContextual     = True;
 		
 		Command = ReportsCommands.Add();
 		Command.VariantKey      = "ExpiringSoon";
-		Command.Presentation     = NStr("en = 'Expiring certificates';");
+		Command.Presentation     = NStr("en = 'Expiring certificates'");
 		Command.Id     = "ExpiringSoon";
 		Command.Manager          = "Report.DigitalSignatureCertificates";
 		Command.IsNonContextual     = True;
 		
 		Command = ReportsCommands.Add();
 		Command.VariantKey      = "MRLOARequired";
-		Command.Presentation     = NStr("en = 'Certificates that require MR LOA';");
+		Command.Presentation     = NStr("en = 'Certificates that require MR LOA'");
 		Command.Id     = "MRLOARequired";
 		Command.Manager          = "Report.DigitalSignatureCertificates";
 		Command.IsNonContextual     = True;
@@ -348,7 +348,7 @@ Procedure ProcessCertificatesRequestsNotificationsAndValidityPeriods(Selection)
 
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) some certificates: %1';"),
+			NStr("en = 'Couldn''t process (skipped) some certificates: %1'"),
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
@@ -356,7 +356,7 @@ Procedure ProcessCertificatesRequestsNotificationsAndValidityPeriods(Selection)
 			EventLogLevel.Information,
 			Metadata.Catalogs.DigitalSignatureAndEncryptionKeysCertificates,,
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Another batch of certificates is processed: %1';"), ObjectsProcessed));
+				NStr("en = 'Another batch of certificates is processed: %1'"), ObjectsProcessed));
 	EndIf;
 	
 EndProcedure

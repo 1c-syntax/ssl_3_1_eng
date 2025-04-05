@@ -120,7 +120,7 @@ Procedure WriteAuthorizationSettingsForStandardODataInterface(Val AuthorizationS
 				StandardODataInterfaceUser = Catalogs.Users.CreateItem();
 			EndIf;
 			
-			StandardODataInterfaceUser.Description = NStr("en = 'Automatic REST service';");
+			StandardODataInterfaceUser.Description = NStr("en = 'Automatic REST service'");
 			StandardODataInterfaceUser.IsInternal = True;
 			StandardODataInterfaceUser.AdditionalProperties.Insert("IBUserDetails", IBUserDetails);
 			StandardODataInterfaceUser.Write();
@@ -139,12 +139,12 @@ Procedure WriteAuthorizationSettingsForStandardODataInterface(Val AuthorizationS
 			Comment = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'A user for the standard OData interface is saved with the result: %1
 					|User details:
-					|%2';"),
+					|%2'"),
 				StandardODataInterfaceUser.AdditionalProperties.IBUserDetails.ActionResult,
 				Common.ValueToXMLString(AbbreviatedDetails));
 			
 			WriteLogEvent(
-				NStr("en = 'Set up standard OData interface.Save user';", Common.DefaultLanguageCode()),
+				NStr("en = 'Set up standard OData interface.Save user'", Common.DefaultLanguageCode()),
 				EventLogLevel.Information,
 				Metadata.Catalogs.Users,
 				,
@@ -162,12 +162,12 @@ Procedure WriteAuthorizationSettingsForStandardODataInterface(Val AuthorizationS
 					|%1
 					|
 					|User details:
-					|%2';"),
+					|%2'"),
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()),
 				Common.ValueToXMLString(IBUserDetails));
 			
 			WriteLogEvent(
-				NStr("en = 'Set up standard OData interface.Save user';", Common.DefaultLanguageCode()),
+				NStr("en = 'Set up standard OData interface.Save user'", Common.DefaultLanguageCode()),
 				EventLogLevel.Error,
 				Metadata.Catalogs.Users,
 				,
@@ -344,13 +344,13 @@ Function ODataRoleCompositionErrors(ErrorsByObjects = Undefined) Export
 	
 	Errors = New Array();
 	If ExcessRights.Count() > 0 Then
-		ErrorText = Chars.NBSp + NStr("en = 'The role contains the following redundant rights:';") + Chars.LF + Chars.CR
+		ErrorText = Chars.NBSp + NStr("en = 'The role contains the following redundant rights:'") + Chars.LF + Chars.CR
 			+ ExcessOrMissingRightsPresentation(ExcessRights, 2);
 		Errors.Add(ErrorText);
 	EndIf;
 	
 	If MissingRights.Count() > 0 Then
-		ErrorText = Chars.NBSp + NStr("en = 'The following rights must be included in the role:';") + Chars.LF + Chars.CR
+		ErrorText = Chars.NBSp + NStr("en = 'The following rights must be included in the role:'") + Chars.LF + Chars.CR
 			+ ExcessOrMissingRightsPresentation(MissingRights, 2);
 		Errors.Add(ErrorText);
 	EndIf;
@@ -359,7 +359,7 @@ Function ODataRoleCompositionErrors(ErrorsByObjects = Undefined) Export
 		For Each KeyAndValue In ExcessRights Do
 			FullName = KeyAndValue.Key.FullName();
 			ErrorsByObjects.Insert(FullName, StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The %2 role contains the following redundant rights for object %1: %3';"),
+				NStr("en = 'The %2 role contains the following redundant rights for object %1: %3'"),
 				FullName, Role.Name, StrConcat(KeyAndValue.Value, ", ")));
 		EndDo;
 		For Each KeyAndValue In MissingRights Do
@@ -367,7 +367,7 @@ Function ODataRoleCompositionErrors(ErrorsByObjects = Undefined) Export
 			ErrorsText = ErrorsByObjects.Get(FullName);
 			ErrorsText = ?(ErrorsText = Undefined, "", ErrorsText + Chars.LF);
 			ErrorsText = ErrorsText + StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The following rights to object %1 must be included in role %2: %3';"),
+				NStr("en = 'The following rights to object %1 must be included in role %2: %3'"),
 				FullName, Role.Name, StrConcat(KeyAndValue.Value, ", "));
 			ErrorsByObjects.Insert(FullName, ErrorsText);
 		EndDo;
@@ -385,9 +385,9 @@ EndFunction
 
 Function IsSeparatedObject(Val ObjectDetails, DataSeparationProperties = Undefined)
 	
-	If Common.SubsystemExists("CloudTechnology") Then
+	If Common.SubsystemExists("CloudTechnology.ExportImportData") Then
 		If DataSeparationProperties = Undefined Then
-			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+			ModuleSaaSOperations = Common.CommonModule("SaaSOperations"); // ACC:1386 - Core CTL functionality
 			ModuleExportImportDataInternalEvents = Common.CommonModule("ExportImportDataInternalEvents");
 
 			DataSeparationProperties = New Structure("MainDataSeparator,AuxiliaryDataSeparator,ServiceData");
@@ -623,7 +623,7 @@ EndFunction
 Function StandardODataInterfaceUserProperties()
 	
 	If Not AccessRight("DataAdministration", Metadata) Then
-		Raise(NStr("en = 'Insufficient access rights to configure automatic REST service.';"),
+		Raise(NStr("en = 'Insufficient access rights to configure automatic REST service.'"),
 			ErrorCategory.AccessViolation);
 	EndIf;
 	
@@ -664,7 +664,7 @@ Procedure CheckCanCreateUserForStandardODataInterfaceCalls()
 	SetPrivilegedMode(False);
 	
 	If UsersCount = 0 Then
-		Raise NStr("en = 'Cannot create a separate username and password for the automatic REST service, as there are no application users.';");
+		Raise NStr("en = 'Cannot create a separate username and password for the automatic REST service, as there are no application users.'");
 	EndIf;
 	
 EndProcedure

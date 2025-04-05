@@ -35,7 +35,7 @@ Procedure OnDefineAttachableCommandsKinds(AttachableCommandsKinds) Export
 	Kind = AttachableCommandsKinds.Add();
 	Kind.Name         = "ObjectsFilling";
 	Kind.SubmenuName  = "FillSubmenu";
-	Kind.Title   = NStr("en = 'Fill';");
+	Kind.Title   = NStr("en = 'Fill'");
 	Kind.Order     = 60;
 	Kind.Picture    = PictureLib.FillForm;
 	Kind.Representation = ButtonRepresentation.PictureAndText;
@@ -51,7 +51,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	ObjectsFillingOverridable.BeforeAddFillCommands(FillingCommands, FormSettings, StandardProcessing);
 	FillingCommands.FillValues(True, "Processed1");
 	
-	AllowedTypes = New Array; // Типы источников, которые пользователь может изменять (см. ниже проверку права "Изменение").
+	AllowedTypes = New Array; // 
 	If StandardProcessing Then
 		ObjectsWithFillingCommands = ObjectsWithFillingCommands();
 		For Each Source In Sources.Rows Do

@@ -25,16 +25,16 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		DataSeparationChanged = LockParameters.DataSeparationEnabled <> DataSeparationEnabled;
 		
 		If DataSeparationEnabled Then
-			Items.InfobaseMoved.Title = NStr("en = 'Moved application';");
-			Items.IsInfobaseCopy.Title = NStr("en = 'Application copy';");
-			Title = NStr("en = 'Moved or restored application';");
+			Items.InfobaseMoved.Title = NStr("en = 'Moved application'");
+			Items.IsInfobaseCopy.Title = NStr("en = 'Application copy'");
+			Title = NStr("en = 'Moved or restored application'");
 		EndIf;
 		
 		If Not DataSeparationEnabled And Not DataSeparationChanged Then
 			
 			ScalableClusterClarification = ?(Common.FileInfobase(), "",
 				NStr("en = '• For scalable clusters, to prevent false starts due to change of computers acting as production servers
-				           |, disable the computer name check by clicking <b>More > Check server name.</b>';"));
+				           |, disable the computer name check by clicking <b>More > Check server name.</b>'"));
 			
 			WarningLabel = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Scheduled online activities such as data synchronization and emailing are disabled
@@ -48,7 +48,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				           | • If this is an infobase copy, select <b>Infobase copy</b>.
 				           |%3
 				           |
-				           |%4';"),
+				           |%4'"),
 				LockParameters.LockReason,
 				"EventLog",
 				ScalableClusterClarification,
@@ -63,7 +63,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				           | • If you are going to use the infobase for accounting, select <b>Moved infobase</b>.
 				           | • If this is an infobase copy, select <b>Infobase copy</b>.
 				           |
-				           |%1';"),
+				           |%1'"),
 				UnlockText);
 		ElsIf DataSeparationEnabled And Not DataSeparationChanged Then
 			WarningLabel = StringFunctionsClientServer.SubstituteParametersToString(
@@ -75,7 +75,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				           | • If you are going to use the application for accounting, select <b>Moved application</b>.
 				           | • If this is an application copy, select <b>Application copy</b>.
 				           |
-				           |%1';"),
+				           |%1'"),
 				UnlockText);
 		Else // If DataSeparationEnabled and DataSeparationChanged
 			WarningLabel = StringFunctionsClientServer.SubstituteParametersToString(
@@ -87,7 +87,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				           | • If you are going to use the application for accounting, select <b>Moved application</b>.
 				           | • If this is an application copy, select <b>Application copy</b>.
 				           |
-				           |%1';"),
+				           |%1'"),
 				UnlockText);
 		EndIf;
 		
@@ -104,7 +104,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.FormParametersGroup.CurrentPage = Items.LockParametersGroup;
 		Items.WarningLabel.Visible = False;
 		Items.WriteAndClose.DefaultButton = True;
-		Title = NStr("en = 'Lock settings of external resources';");
+		Title = NStr("en = 'Lock settings of external resources'");
 	EndIf;
 	
 EndProcedure

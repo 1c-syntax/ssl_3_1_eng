@@ -37,9 +37,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If IsBlankString(Details) Then
-		Title = StrReplace(NStr("en = 'Register %1';"), "%1", CurrentObject.RepresentationOfTheReference(ObjectAsString));
+		Title = StrReplace(NStr("en = 'Register %1'"), "%1", CurrentObject.RepresentationOfTheReference(ObjectAsString));
 	Else
-		Title = StrReplace(NStr("en = 'Register %1 (%2)';"), "%1", CurrentObject.RepresentationOfTheReference(ObjectAsString));
+		Title = StrReplace(NStr("en = 'Register %1 (%2)'"), "%1", CurrentObject.RepresentationOfTheReference(ObjectAsString));
 		Title = StrReplace(Title, "%2", Details);
 	EndIf;
 	
@@ -71,7 +71,7 @@ Procedure ExchangeNodesTreeSelection(Item, RowSelected, Field, StandardProcessin
 	Notification = New CallbackDescription("ExchangeNodesTreeSelectionCompletion", ThisObject, New Structure);
 	Notification.AdditionalParameters.Insert("Node", CurrentData.Ref);
 	
-	ToolTip = NStr("en = 'Sent message number';"); 
+	ToolTip = NStr("en = 'Sent message number'"); 
 	ShowInputNumber(Notification, CurrentData.MessageNo, ToolTip);
 EndProcedure
 
@@ -126,9 +126,9 @@ EndProcedure
 &AtClient
 Procedure EditRegistration(Command)
 	
-	QuestionTitle = NStr("en = 'Confirm operation';");
+	QuestionTitle = NStr("en = 'Confirm operation'");
 	Text = NStr("en = 'Do you want to change registration state
-	             |of %1 at all nodes?';");
+	             |of %1 at all nodes?'");
 	
 	Text = StrReplace(Text, "%1", RegistrationObject);
 	
@@ -145,8 +145,8 @@ Procedure EditRegistrationCompletion(Val QuestionResult, Val AdditionalParameter
 	
 	Count = NodeRegistrationEdit(ExchangeNodesTree);
 	If Count > 0 Then
-		Text = NStr("en = 'Registration state of %1 changed at %2 nodes.';");
-		NotificationTitle = NStr("en = 'Registration state changed:';");
+		Text = NStr("en = 'Registration state of %1 changed at %2 nodes.'");
+		NotificationTitle = NStr("en = 'Registration state changed:'");
 		
 		Text = StrReplace(Text, "%1", RegistrationObject);
 		Text = StrReplace(Text, "%2", Count);
@@ -201,8 +201,8 @@ Procedure SetConditionalAppearance()
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = 0;
 
-	Item.Appearance.SetParameterValue("Text", NStr("en = 'ExchangeNodesTreeMessageNumber';"));
-	Item.Appearance.SetParameterValue("Text", NStr("en = 'Pending export';"));
+	Item.Appearance.SetParameterValue("Text", NStr("en = 'ExchangeNodesTreeMessageNumber'"));
+	Item.Appearance.SetParameterValue("Text", NStr("en = 'Pending export'"));
 
 	//
 

@@ -20,7 +20,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	List.Parameters.Items[0].Value = Parameters.InfobaseNode;
 	List.Parameters.Items[0].Use = True;
 	
-	Title = NStr("en = 'Synchronization scenario setup for: [InfobaseNode]';");
+	Title = NStr("en = 'Synchronization scenario setup for: [InfobaseNode]'");
 	Title = StrReplace(Title, "[InfobaseNode]", String(Parameters.InfobaseNode));
 	
 	If Common.DataSeparationEnabled() Then
@@ -172,10 +172,10 @@ Procedure ExecuteScenario(Command)
 	DataExchangeServerCall.ExecuteDataExchangeByDataExchangeScenario(Cancel, CurrentData.Ref);
 	
 	If Cancel Then
-		Message = NStr("en = 'The synchronization scenario completed with errors.';");
+		Message = NStr("en = 'The synchronization scenario completed with errors.'");
 		Picture = PictureLib.Error32;
 	Else
-		Message = NStr("en = 'The synchronization scenario is completed.';");
+		Message = NStr("en = 'The synchronization scenario is completed.'");
 		Picture = Undefined;
 	EndIf;
 	ShowUserNotification(Message,,,Picture);

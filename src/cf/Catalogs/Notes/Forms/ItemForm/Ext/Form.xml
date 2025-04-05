@@ -22,7 +22,7 @@
 				<Title>
 					<v8:item>
 						<v8:lang>en</v8:lang>
-						<v8:content>Edit command bar</v8:content>
+						<v8:content>Editing toolbar</v8:content>
 					</v8:item>
 				</Title>
 				<CommandSource>Item.Content</CommandSource>

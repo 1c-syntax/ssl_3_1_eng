@@ -17,7 +17,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Storage = FormAttributeToValue("Record").NotificationContent;
 	Items.PageContent.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Content (size, bytes: %1)';"),
+		NStr("en = 'Content (size, bytes: %1)'"),
 		String(Base64Value(XMLString(Storage)).Size()));
 	
 	StorageContents = Storage.Get();

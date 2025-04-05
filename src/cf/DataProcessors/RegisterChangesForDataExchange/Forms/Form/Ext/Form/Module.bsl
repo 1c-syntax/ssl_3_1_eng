@@ -38,9 +38,9 @@ Var MetadataCurrentRow;
 
 #Region ForCallsFromOtherSubsystems
 
-// СтандартныеПодсистемы.ДополнительныеОтчетыИОбработки
+// 
 
-// ACC:78-выкл дополнительная обработка
+// 
 
 // Command export handler for the additional reports and data processors subsystem.
 //
@@ -130,7 +130,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			
 		Else
 			Raise StrReplace(
-				NStr("en = 'Invalid destination object parameters for the ""%1"" command';"),
+				NStr("en = 'Invalid destination object parameters for the ""%1"" command'"),
 				"%1", Parameters.CommandID);
 		EndIf;
 		
@@ -161,7 +161,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Not ControlSettings() And OpenWithNodeParameter Then
 		
 		MessageText = StrReplace(
-			NStr("en = 'Cannot change item registration state for node ""%1"".';"),
+			NStr("en = 'Cannot change item registration state for node ""%1"".'"),
 			"%1", ExchangePlanNodeDescription);
 		
 		Raise MessageText;
@@ -184,7 +184,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	If TimeConsumingOperationStarted Then
 		Cancel = True;
 		Notification = New CallbackDescription("ConfirmFormClosingCompletion", ThisObject);
-		ShowQueryBox(Notification, NStr("en = 'Abort registration?';"), QuestionDialogMode.YesNo);
+		ShowQueryBox(Notification, NStr("en = 'Abort registration?'"), QuestionDialogMode.YesNo);
 	EndIf;
 	
 EndProcedure
@@ -216,7 +216,7 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 		Or (Not ValueSelected.Property("ChoiceData"))
 		Or TypeOf(ValueSelected.ChoiceAction) <> Type("Boolean")
 		Or TypeOf(ValueSelected.ChoiceData) <> Type("String") Then
-		Error = NStr("en = 'Unexpected query result';");
+		Error = NStr("en = 'Unexpected query result'");
 	Else
 		Error = RefControlForQuerySelection(ValueSelected.ChoiceData);
 	EndIf;
@@ -228,14 +228,14 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 		
 	If ValueSelected.ChoiceAction Then
 		Text = NStr("en = 'Do you want to register the query result
-		                 |at node ""%1""?';"); 
+		                 |at node ""%1""?'"); 
 	Else
 		Text = NStr("en = 'Do you want to unregister the query result
-		                 |at node ""%1""?';");
+		                 |at node ""%1""?'");
 	EndIf;
 	Text = StrReplace(Text, "%1", String(ExchangeNodeReference));
 					 
-	QuestionTitle = NStr("en = 'Confirm operation';");
+	QuestionTitle = NStr("en = 'Confirm operation'");
 	
 	Notification = New CallbackDescription("ChoiceProcessingCompletion", ThisObject, New Structure);
 	Notification.AdditionalParameters.Insert("ValueSelected", ValueSelected);
@@ -628,7 +628,7 @@ Procedure ShowExportResult(Command)
 	
 	If Result.Count() > 0 Then
 		Text = SerializationText(Result);
-		TextTitle = NStr("en = 'Export result (DIB)';");
+		TextTitle = NStr("en = 'Export result (DIB)'");
 		Text.Show(TextTitle);
 	EndIf;
 	
@@ -794,10 +794,10 @@ EndProcedure
 &AtClient
 Procedure RegisterMOIDAndPredefinedItems(Command)
 	
-	QuestionTitle = NStr("en = 'Confirm operation';");
+	QuestionTitle = NStr("en = 'Confirm operation'");
 	QueryText     = StrReplace( 
 		NStr("en = 'Do you want to register items to recover the DIB subnode
-		     |at node ""%1""?';"),
+		     |at node ""%1""?'"),
 		"%1", ExchangeNodeReference);
 	
 	Notification = New CallbackDescription("RegisterMetadataObjectIDCompletion", ThisObject);
@@ -839,7 +839,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.RightValue = True;
 
 	Item.Appearance.SetParameterValue("TextColor", WebColors.LightGray);
-	Item.Appearance.SetParameterValue("Text", NStr("en = 'Pending export';"));
+	Item.Appearance.SetParameterValue("Text", NStr("en = 'Pending export'"));
 
 	//
 
@@ -854,7 +854,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.RightValue = True;
 
 	Item.Appearance.SetParameterValue("TextColor", WebColors.LightGray);
-	Item.Appearance.SetParameterValue("Text", NStr("en = 'Pending export';"));
+	Item.Appearance.SetParameterValue("Text", NStr("en = 'Pending export'"));
 
 	//
 
@@ -869,7 +869,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.RightValue = True;
 
 	Item.Appearance.SetParameterValue("TextColor", WebColors.LightGray);
-	Item.Appearance.SetParameterValue("Text", NStr("en = 'Pending export';"));
+	Item.Appearance.SetParameterValue("Text", NStr("en = 'Pending export'"));
 
 	//
 
@@ -884,7 +884,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.RightValue = 0;
 
 	Item.Appearance.SetParameterValue("TextColor", WebColors.DarkGray);
-	Item.Appearance.SetParameterValue("Text", NStr("en = 'Unchanged';"));
+	Item.Appearance.SetParameterValue("Text", NStr("en = 'Unchanged'"));
 	
 EndProcedure
 //
@@ -935,7 +935,7 @@ Procedure EditConstantMessageNo()
 	Notification.AdditionalParameters.Insert("MetaFullName", curData.MetaFullName);
 	
 	MessageNo = curData.MessageNo;
-	ToolTip = NStr("en = 'Sent message number';"); 
+	ToolTip = NStr("en = 'Sent message number'"); 
 	
 	ShowInputNumber(Notification, MessageNo, ToolTip);
 EndProcedure
@@ -979,7 +979,7 @@ Procedure EditRefMessageNo()
 		AdditionalMessageNumberEditParameters(curData.Ref));
 	
 	MessageNo = curData.MessageNo;
-	ToolTip = NStr("en = 'Sent message number';"); 
+	ToolTip = NStr("en = 'Sent message number'"); 
 	
 	ShowInputNumber(Notification, MessageNo, ToolTip);
 EndProcedure
@@ -1023,7 +1023,7 @@ Procedure EditMessageNoSetList()
 	Notification.AdditionalParameters.Insert("RowData", RowData);
 	
 	MessageNo = curData.MessageNo;
-	ToolTip = NStr("en = 'Sent message number';"); 
+	ToolTip = NStr("en = 'Sent message number'"); 
 	
 	ShowInputNumber(Notification, MessageNo, ToolTip);
 EndProcedure
@@ -1069,7 +1069,7 @@ EndProcedure
 &AtServer
 Procedure SetMessageNumberTitle()
 	
-	Text = NStr("en = 'Sent message #%1. Received message #%2';");
+	Text = NStr("en = 'Sent message #%1. Received message #%2'");
 	
 	Data = ReadMessageNumbers();
 	Text = StrReplace(Text, "%1", Format(Data.SentNo, "NFD=0; NZ="));
@@ -1117,18 +1117,18 @@ Procedure ReportRegistrationResults(Results)
 	Command = Results.Command;
 	If TypeOf(Command) = Type("Boolean") Then
 		If Command Then
-			WarningTitle = NStr("en = 'Registered items:';");
+			WarningTitle = NStr("en = 'Registered items:'");
 			WarningText = NStr("en = '%1 out of %2 items are registered.
-			                           |Node: %0';");
+			                           |Node: %0'");
 		Else
-			WarningTitle = NStr("en = 'Unregistered items:';");
+			WarningTitle = NStr("en = 'Unregistered items:'");
 			WarningText = NStr("en = '%1 items are unregistered.
-			                           |Node: %0';");
+			                           |Node: %0'");
 		EndIf;
 	Else
-		WarningTitle = NStr("en = 'Message number changed:';");
+		WarningTitle = NStr("en = 'Message number changed:'");
 		WarningText = NStr("en = 'Message number changed to %3
-		                           |for %1 item(s).';");
+		                           |for %1 item(s).'");
 	EndIf;
 	
 	WarningText = StrReplace(WarningText, "%0", ExchangeNodeReference);
@@ -1204,15 +1204,15 @@ Procedure DeleteConstantRegistrationInList()
 		Return;
 	ElsIf Count = 1 Then
 		Text = NStr("en = 'Do you want to unregister ""%2""
-		                 |at node ""%1""?';"); 
+		                 |at node ""%1""?'"); 
 	Else
 		Text = NStr("en = 'Do you want to unregister the constants
-		                 |at node ""%1""?';"); 
+		                 |at node ""%1""?'"); 
 	EndIf;
 	Text = StrReplace(Text, "%1", ExchangeNodeReference);
 	Text = StrReplace(Text, "%2", PresentationsList[0]);
 	
-	QuestionTitle = NStr("en = 'Confirm operation';");
+	QuestionTitle = NStr("en = 'Confirm operation'");
 	
 	Notification = New CallbackDescription("DeleteConstantRegistrationInListCompletion", ThisObject, New Structure);
 	Notification.AdditionalParameters.Insert("NamesList", NamesList);
@@ -1294,15 +1294,15 @@ Procedure DeleteRegistrationFromReferenceList()
 		Return;
 	ElsIf Count = 1 Then
 		Text = NStr("en = 'Do you want to unregister ""%2""
-		                 |at node ""%1""?';"); 
+		                 |at node ""%1""?'"); 
 	Else
 		Text = NStr("en = 'Do you want to unregister the selected items
-		                 |at node ""%1""?';"); 
+		                 |at node ""%1""?'"); 
 	EndIf;
 	Text = StrReplace(Text, "%1", ExchangeNodeReference);
 	Text = StrReplace(Text, "%2", DeletionList[0]);
 	
-	QuestionTitle = NStr("en = 'Confirm operation';");
+	QuestionTitle = NStr("en = 'Confirm operation'");
 	
 	Notification = New CallbackDescription("DeleteRegistrationFromReferenceListCompletion", ThisObject, New Structure);
 	Notification.AdditionalParameters.Insert("DeletionList", DeletionList);
@@ -1389,12 +1389,12 @@ Procedure AddSelectedObjectRegistration(NoAutoRegistration = True)
 	
 	Text = NStr("en = 'Do you want to register %1 for export to node ""%2""?
 	                 |
-	                 |This might take a while.';");
+	                 |This might take a while.'");
 					 
 	Text = StrReplace(Text, "%1", Data.LongDesc);
 	Text = StrReplace(Text, "%2", ExchangeNodeReference);
 	
-	QuestionTitle = NStr("en = 'Confirm operation';");
+	QuestionTitle = NStr("en = 'Confirm operation'");
 	
 	Notification = New CallbackDescription("AddSelectedObjectRegistrationCompletion", ThisObject, New Structure);
 	Notification.AdditionalParameters.Insert("MetaNames", Data.MetaNames);
@@ -1434,9 +1434,9 @@ Procedure DeleteSelectedObjectRegistration(NoAutoRegistration = True)
 	
 	Text = NStr("en = 'Do you want to unregister %1 for export to node ""%2""?
 	                 |
-	                 |This might take a while.';");
+	                 |This might take a while.'");
 	
-	QuestionTitle = NStr("en = 'Confirm operation';");
+	QuestionTitle = NStr("en = 'Confirm operation'");
 	
 	Text = StrReplace(Text, "%1", Data.LongDesc);
 	Text = StrReplace(Text, "%2", ExchangeNodeReference);
@@ -1476,7 +1476,7 @@ Procedure BackgroundJobStartClient(BackgroundJobParameters)
 	Result = BackgroundJobStartAtServer(BackgroundJobParameters);
 	If Result = Undefined Then
 		TimeConsumingOperationStarted = False;
-		WarningText = NStr("en = 'Error starting background job.';");
+		WarningText = NStr("en = 'Error starting background job.'");
 		ShowMessageBox(, WarningText);
 		Return;
 	EndIf;
@@ -1500,9 +1500,9 @@ Procedure TimeConsumingOperationPage1()
 		Return;
 	EndIf;
 	If TimeConsumingOperationKind Then
-		OperationStatus = NStr("en = 'Registering in progress. Please wait.';");
+		OperationStatus = NStr("en = 'Registering in progress. Please wait.'");
 	Else
-		OperationStatus = NStr("en = 'Unregistering in progress. Please wait.';");
+		OperationStatus = NStr("en = 'Unregistering in progress. Please wait.'");
 	EndIf;
 	Items.TimeConsumingOperationStatus.Title = OperationStatus;
 	Items.GroupPages.CurrentPage = Items.Waiting;
@@ -1573,7 +1573,7 @@ Procedure BackgroundJobGetResultAtServer()
 	If BackgroundJobCompleteResult <> Undefined Then
 		BackgroundJobCompleteResult.Insert("AdditionalResultData", New Structure);
 		ErrorMessage = "";
-		StandardErrorPresentation = NStr("en = 'Error changing registration state. See the event log for details.';");
+		StandardErrorPresentation = NStr("en = 'Error changing registration state. See the event log for details.'");
 		
 		If BackgroundJobCompleteResult.Status = "Error" Then
 			ErrorMessage = BackgroundJobCompleteResult.DetailErrorDescription;
@@ -1612,7 +1612,7 @@ Function CommonModuleTimeConsumingOperationsClient()
 	Module = Eval("TimeConsumingOperationsClient");
 	
 	If TypeOf(Module) <> Type("CommonModule") Then
-		Raise NStr("en = 'Common module TimeConsumingOperationsClient is not found.';");
+		Raise NStr("en = 'Common module TimeConsumingOperationsClient is not found.'");
 	EndIf;
 	
 	Return Module;
@@ -1635,7 +1635,7 @@ Function CommonModuleTimeConsumingOperations()
 	EndIf;
 	
 	If TypeOf(Module) <> Type("CommonModule") Then
-		Raise NStr("en = 'Common module TimeConsumingOperations is not found.';");
+		Raise NStr("en = 'Common module TimeConsumingOperations is not found.'");
 	EndIf;
 	
 	Return Module;
@@ -1708,16 +1708,16 @@ Procedure DataChoiceProcessing(FormTable, ValueSelected)
 	
 	If Ref = Undefined Then
 		Text = NStr("en = 'Do you want to unregister the selected items
-		                 |at node ""%1""?';"); 
+		                 |at node ""%1""?'"); 
 	Else
 		Text = NStr("en = 'Do you want to unregister ""%2""
-		                 |at node ""%1""?';"); 
+		                 |at node ""%1""?'"); 
 	EndIf;
 		
 	Text = StrReplace(Text, "%1", ExchangeNodeReference);
 	Text = StrReplace(Text, "%2", Ref);
 	
-	QuestionTitle = NStr("en = 'Confirm operation';");
+	QuestionTitle = NStr("en = 'Confirm operation'");
 		
 	AdditionalParameters = AdditionalDataChoiceProcessingParameters();
 	AdditionalParameters.Action     = Action;
@@ -1843,9 +1843,9 @@ Procedure ActionWithQueryResult(ActionCommand)
 	If CurFormName <> Undefined Then
 		// Open form.
 		If ActionCommand Then
-			Text = NStr("en = 'Register query results';");
+			Text = NStr("en = 'Register query results'");
 		Else
-			Text = NStr("en = 'Unregister query results';");
+			Text = NStr("en = 'Unregister query results'");
 		EndIf;
 		ParametersStructure = New Structure();
 		ParametersStructure.Insert("Title", Text);
@@ -1863,9 +1863,9 @@ Procedure ActionWithQueryResult(ActionCommand)
 	
 	// If the query execution handler is not specified, prompting the user to specify it.
 	Text = NStr("en = 'Query data processor not specified.
-	                        |Do you want to specify it now?';");
+	                        |Do you want to specify it now?'");
 	
-	QuestionTitle = NStr("en = 'Settings';");
+	QuestionTitle = NStr("en = 'Settings'");
 
 	Notification = New CallbackDescription("ActionWithQueryResultCompletion", ThisObject);
 	ShowQueryBox(Notification, Text, QuestionDialogMode.YesNo, , , QuestionTitle);
@@ -2039,10 +2039,10 @@ Function RefControlForQuerySelection(Address)
 	If TypeOf(Result) = Type("Array") Then 
 		Result = Result[Result.UBound()];	
 		If Result.Columns.Find("Ref") = Undefined Then
-			Return NStr("en = 'The last query result is missing the ""Reference"" column';");
+			Return NStr("en = 'The last query result is missing the ""Reference"" column'");
 		EndIf;
 	Else		
-		Return NStr("en = 'Error getting query result';");
+		Return NStr("en = 'Error getting query result'");
 	EndIf;
 	
 	Return "";
@@ -2283,7 +2283,7 @@ Procedure SetUpEmptyPage(Description, TableName = Undefined)
 		If String <> Undefined Then
 			CountsText = NStr("en = 'Items registered: %1
 			                          |Items exported: %2
-			                          |Items pending export: %3';");
+			                          |Items pending export: %3'");
 	
 			CountsText = StrReplace(CountsText, "%1", Format(String.ChangeCount, "NFD=0; NZ="));
 			CountsText = StrReplace(CountsText, "%2", Format(String.ExportedCount, "NFD=0; NZ="));
@@ -2297,7 +2297,7 @@ Procedure SetUpEmptyPage(Description, TableName = Undefined)
 	                 |
 	                 |To register or unregister items for exchange with node ""%3"",
 	                 |select an object in the metadata object tree and click Register or Unregister.
-	                 |';");
+	                 |'");
 		
 	Text = StrReplace(Text, "%1", Description);
 	Text = StrReplace(Text, "%2", CountsText);
@@ -2502,7 +2502,7 @@ Function GetSelectedMetadataDetails(NoAutoRegistration, MetaGroupName = Undefine
     
 	If MetaGroupName = Undefined And MetaNodeName = Undefined Then
 		// No item selected.
-		Text = NStr("en = 'all items %1 of the metadata type';");
+		Text = NStr("en = 'all items %1 of the metadata type'");
 		
 	ElsIf MetaGroupName <> Undefined And MetaNodeName = Undefined Then
 		// Only a group is specified.
@@ -2510,18 +2510,18 @@ Function GetSelectedMetadataDetails(NoAutoRegistration, MetaGroupName = Undefine
 		
 	ElsIf MetaGroupName = Undefined And MetaNodeName <> Undefined Then
 		// Only a node is specified.
-		Text = NStr("en = 'all items %1 of the metadata type';");
+		Text = NStr("en = 'all items %1 of the metadata type'");
 		
 	Else
 		// A group and a node are specified, using these values to obtain a metadata presentation.
-		Text = NStr("en = 'all items of type ""%3"" %1';");
+		Text = NStr("en = 'all items of type ""%3"" %1'");
 		
 	EndIf;
 	
 	If NoAutoRegistration Then
 		FlagText = "";
 	Else
-		FlagText = NStr("en = 'with Autoregistration flag';");
+		FlagText = NStr("en = 'with Autoregistration flag'");
 	EndIf;
 	
 	Presentation = "";
@@ -2659,10 +2659,10 @@ Procedure ProcessNodeChangeProhibition()
 	
 	If OperationsAllowed Then
 		Items.ExchangeNodeReference.Visible = True;
-		Title = NStr("en = 'Data registration manager';");
+		Title = NStr("en = 'Data registration manager'");
 	Else
 		Items.ExchangeNodeReference.Visible = False;
-		Title = StrReplace(NStr("en = 'Data registration manager: Exchange with ""%1""';"), "%1", String(ExchangeNodeReference));
+		Title = StrReplace(NStr("en = 'Data registration manager: Exchange with ""%1""'"), "%1", String(ExchangeNodeReference));
 	EndIf;
 	
 	Items.FormOpenNodeRegistrationForm.Visible = OperationsAllowed;
@@ -2793,7 +2793,7 @@ Procedure CheckPlatformVersionAndCompatibilityMode()
 		And Metadata.CompatibilityMode <> Metadata.ObjectProperties.CompatibilityMode["Version8_3_4"]))) Then
 		
 		Raise NStr("en = 'The data processor supports 1C:Enterprise 8.3.5 or later,
-			|with disabled compatibility mode.';");
+			|with disabled compatibility mode.'");
 		
 	EndIf;
 	
@@ -2900,31 +2900,31 @@ Procedure FillAdditionalInformation()
 			SelectiveRegistrationMode = ModuleDataExchangeRegistrationCached.ExchangePlanDataSelectiveRegistrationMode(ExchangePlanName);
 			If SelectiveRegistrationMode = ModuleDataExchangeRegistrationServer.SelectiveRegistrationModeDisabled()Then
 				
-				TitleText = NStr("en = 'Disabled.';", DefaultLanguageCode());
+				TitleText = NStr("en = 'Disabled.'", DefaultLanguageCode());
 				
 			ElsIf SelectiveRegistrationMode = ModuleDataExchangeRegistrationServer.SelectiveRegistrationModeModification() Then
 				
-				TitleText = NStr("en = 'Modified.';", DefaultLanguageCode());
+				TitleText = NStr("en = 'Modified.'", DefaultLanguageCode());
 				
 			Else
 				
-				TitleText = NStr("en = 'According to XML rules.';", DefaultLanguageCode());
+				TitleText = NStr("en = 'According to XML rules.'", DefaultLanguageCode());
 				
 			EndIf;
 			
 		Else
 			
-			TitleText = NStr("en = 'Not supported.';", DefaultLanguageCode());
+			TitleText = NStr("en = 'Not supported.'", DefaultLanguageCode());
 			
 		EndIf;
 		
 	Else
 		
-		TitleText = NStr("en = 'Specify a synchronization setting.';", DefaultLanguageCode());
+		TitleText = NStr("en = 'Specify a synchronization setting.'", DefaultLanguageCode());
 		
 	EndIf;
 	
-	TitleTemplate1 = NStr("en = 'Selective registration mode: %1';", DefaultLanguageCode());
+	TitleTemplate1 = NStr("en = 'Selective registration mode: %1'", DefaultLanguageCode());
 	TitleText = StrTemplate(TitleTemplate1, TitleText);
 	Items.DecorationSelectiveRegistrationMode.Title = TitleText;
 	
@@ -2962,12 +2962,12 @@ Function CommonModule(Name)
 	EndIf;
 	
 	If TypeOf(Module) <> Type("CommonModule") Then
-		Raise SubstituteParametersToString(NStr("en = 'Common module ""%1"" does not exist.';"), Name);
+		Raise SubstituteParametersToString(NStr("en = 'Common module ""%1"" does not exist.'"), Name);
 	EndIf;
 #Else
 	Module = Eval(Name);
 	If TypeOf(Module) <> Type("CommonModule") Then
-		Raise SubstituteParametersToString(NStr("en = 'Common module ""%1"" does not exist.';"), Name);
+		Raise SubstituteParametersToString(NStr("en = 'Common module ""%1"" does not exist.'"), Name);
 	EndIf;
 #EndIf
 // ACC:488-on

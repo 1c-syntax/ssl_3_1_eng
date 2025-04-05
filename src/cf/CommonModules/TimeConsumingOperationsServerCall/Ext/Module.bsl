@@ -17,8 +17,7 @@ Function IsBackgroundJobCompleted(Val JobID) Export
 		Return True;
 	EndIf;
 	
-	BackgroundJob = BackgroundJob.WaitForExecutionCompletion(3);
-	Return BackgroundJob.State <> BackgroundJobState.Active;
+	Return False;
 	
 EndFunction
 

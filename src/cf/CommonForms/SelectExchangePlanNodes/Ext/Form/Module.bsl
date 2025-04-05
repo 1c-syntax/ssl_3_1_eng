@@ -49,7 +49,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If PickMode Then
-		Title = NStr("en = 'Select exchange plan nodes';");
+		Title = NStr("en = 'Select exchange plan nodes'");
 	EndIf;
 	If MultipleChoice Then
 		Items.ExchangePlansNodes.SelectionMode = TableSelectionMode.MultiRow;
@@ -95,7 +95,7 @@ Procedure Select(Command)
 	Else
 		CurrentData = Items.ExchangePlansNodes.CurrentData;
 		If CurrentData = Undefined Then
-			ShowMessageBox(, NStr("en = 'No nodes are selected.';"));
+			ShowMessageBox(, NStr("en = 'No nodes are selected.'"));
 		Else
 			NotifyChoice(CurrentData.Node);
 		EndIf;
@@ -135,11 +135,11 @@ Procedure PopulateExchangePlans(Var_ExchangePlans)
 			|WHERE
 			|	NOT ExchangePlanTable.ThisNode";
 		QueryText = StrReplace(QueryText, "&ExchangePlanEmptyRef", 
-			"VALUE(" + MetadataObject.FullName() + ".EmptyRef)"); // @query-part-2
+			"VALUE(" + MetadataObject.FullName() + ".EmptyRef)"); // @query-part-2, @query-part-3
 		QueryText = StrReplace(QueryText, "&ExchangePlanPresentation", """" + MetadataObject.Presentation() + """");
 		QueryText = StrReplace(QueryText, "&ExchangePlanTable", MetadataObject.FullName());
 		If QueriesTexts.Count() > 0 Then
-			QueryText = StrReplace(QueryText, "SELECT ALLOWED", "Select"); // @query-part
+			QueryText = StrReplace(QueryText, "SELECT ALLOWED", "SELECT"); // @query-part-1, @query-part-2
 		EndIf;	
 
 		QueriesTexts.Add(QueryText);
@@ -149,7 +149,7 @@ Procedure PopulateExchangePlans(Var_ExchangePlans)
 			NewRow.ExchangePlan              = ExchangePlanRef;
 			NewRow.ExchangePlanPresentation = MetadataObject.Synonym;
 			NewRow.Node                    = ExchangePlanRef;
-			NewRow.NodePresentation       = NStr("en = '<All infobases>';");
+			NewRow.NodePresentation       = NStr("en = '<All infobases>'");
 		EndIf;
 		
 	EndDo; 

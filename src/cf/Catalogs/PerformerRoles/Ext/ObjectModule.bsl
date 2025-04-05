@@ -16,7 +16,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	
 	If Not UsedByAddressingObjects And Not UsedWithoutAddressingObjects Then
 		Common.MessageToUser(
-			NStr("en = 'The allowed methods for adding assignees to roles are not specified (together with business objects, without them, or both ways).';"),
+			NStr("en = 'The allowed methods for adding assignees to roles are not specified (together with business objects, without them, or both ways).'"),
 		 	ThisObject, "UsedWithoutAddressingObjects",,Cancel);
 		Return;
 	EndIf;
@@ -27,7 +27,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	
 	MainAddressingObjectTypesAreSet = MainAddressingObjectTypes <> Undefined And Not MainAddressingObjectTypes.IsEmpty();
 	If Not MainAddressingObjectTypesAreSet Then
-		Common.MessageToUser(NStr("en = 'Types of the main business object are not specified.';"),
+		Common.MessageToUser(NStr("en = 'Types of the main business object are not specified.'"),
 		 	ThisObject, "MainAddressingObjectTypes",,Cancel);
 	EndIf;
 	
@@ -72,5 +72,5 @@ EndProcedure
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

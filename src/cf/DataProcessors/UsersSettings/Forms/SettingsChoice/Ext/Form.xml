@@ -176,7 +176,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Interface</v8:content>
+													<v8:content>Appearance</v8:content>
 												</v8:item>
 											</Title>
 											<ExtendedTooltip name="InterfacePageExtendedTooltip" id="113"/>
@@ -198,7 +198,7 @@
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Interface settings</v8:content>
+															<v8:content>Appearance</v8:content>
 														</v8:item>
 													</Title>
 													<CommandSet>
@@ -282,7 +282,7 @@
 															<Title>
 																<v8:item>
 																	<v8:lang>en</v8:lang>
-																	<v8:content>Interface settings picture setting checkbox</v8:content>
+																	<v8:content>Appearance settings picture setting checkbox</v8:content>
 																</v8:item>
 															</Title>
 															<Group>InCell</Group>
@@ -776,7 +776,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Interface</v8:content>
+					<v8:content>Appearance</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

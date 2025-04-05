@@ -171,8 +171,8 @@
 							<v8:content>Questionnaire</v8:content>
 						</v8:item>
 					</Title>
-					<ContextMenu name="CompletedSurveysRefContextMenu" id="33"/>
-					<ExtendedTooltip name="CompletedSurveysRefExtendedTooltip" id="34"/>
+					<ContextMenu name="AnsweredQuestionnairesLinkContextMenu" id="33"/>
+					<ExtendedTooltip name="AnsweredQuestionnairesLinkExtendedTooltip" id="34"/>
 				</InputField>
 			</ChildItems>
 		</Table>

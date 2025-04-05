@@ -60,7 +60,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		"en = 'Passwords and encryption certificates have been changed for report distribution recipients. Do you want to save the changes?
 		|
 		|• Click <b>Yes</b> to save the changes.
-		|• Click<b>No</b> to close the dialog box without saving the changes.';"));
+		|• Click<b>No</b> to close the dialog box without saving the changes.'"));
 
 		ShowQueryBox(New CallbackDescription("ResponseSaveChangeCertificatesPasswords", ThisObject), QueryText,
 			QuestionDialogMode.YesNoCancel, , DialogReturnCode.Yes);
@@ -193,7 +193,7 @@ Procedure PopulateCertificates(Command)
 		"en = 'Encryption certificates will be filled for report distribution recipients if they are available for the respective individual.
 		|
 		|• Click <b>Yes</b> to re-fill certificates even if they are already specified.
-		|• Click <b>No</b> to fill only missing certificates.';"));
+		|• Click <b>No</b> to fill only missing certificates.'"));
 
 	ShowQueryBox(
 			New CallbackDescription("BeforePopulateCertificates", ThisObject), QueryText,
@@ -208,7 +208,7 @@ Procedure SetPasswords(Command)
 		"en = 'Passwords will be set for report distribution recipients.
 		|
 		|• Click <b>Yes</b> to set new passwords even if they are already set.
-		|• Click <b>No</b> to set passwords only if no passwords are set.';"));
+		|• Click <b>No</b> to set passwords only if no passwords are set.'"));
 
 	ShowQueryBox(
 			New CallbackDescription("BeforeSetPasswords", ThisObject), QueryText,
@@ -561,15 +561,15 @@ Procedure PrepareItemVisibility(Archive)
 		AttributesToAddArray = New Array;
 		AttributesToAddArray.Add(New FormAttribute("CertificateToEncrypt",
 			New TypeDescription("CatalogRef.DigitalSignatureAndEncryptionKeysCertificates"), "Recipients", NStr(
-			"en = 'Encryption certificate';")));
+			"en = 'Encryption certificate'")));
 		AttributesToAddArray.Add(New FormAttribute("CertificateToEncrypt",
 			New TypeDescription("CatalogRef.DigitalSignatureAndEncryptionKeysCertificates"), "RecipientsNoFilters", NStr(
-			"en = 'Encryption certificate';")));
+			"en = 'Encryption certificate'")));
 
 		ChangeAttributes(AttributesToAddArray);
 
 		Item = Items.Add("RecipientsEncryptionCertificate", Type("FormField"), Items.Recipients);
-		Item.Title = NStr("en = 'Encryption certificate';");
+		Item.Title = NStr("en = 'Encryption certificate'");
 		Item.DataPath = "Recipients.CertificateToEncrypt";
 		Item.Type = FormFieldType.InputField;
 		Item.EditMode = ColumnEditMode.EnterOnInput;
@@ -588,13 +588,13 @@ Procedure PrepareItemVisibility(Archive)
 			Items.PopulateCertificates.Visible = False;
 		EndIf;	
 	
-		Title = ?(Archive, NStr("en = 'Passwords and encryption for report distribution';"), NStr(
-			"en = 'Encryption for report distribution';"));	
+		Title = ?(Archive, NStr("en = 'Passwords and encryption for report distribution'"), NStr(
+			"en = 'Encryption for report distribution'"));	
 		
 	Else
 		Items.GroupCertificateFilters.Visible = False;
 		Items.PopulateCertificates.Visible   = False;
-		Title = NStr("en = 'Passwords for report distribution';");
+		Title = NStr("en = 'Passwords for report distribution'");
 	EndIf;
 	
 	If Not Common.SubsystemExists("StandardSubsystems.Print") Then

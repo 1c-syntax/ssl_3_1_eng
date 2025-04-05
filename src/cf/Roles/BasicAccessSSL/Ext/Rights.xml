@@ -948,13 +948,6 @@ WHERE Ref = &amp;CurrentUser
 		</right>
 	</object>
 	<object>
-		<name>CommonForm.CheckResult</name>
-		<right>
-			<name>View</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
 		<name>Constant.DefaultLanguage</name>
 		<right>
 			<name>Read</name>
@@ -1876,7 +1869,7 @@ WHERE User = &amp;AuthorizedUser
 		</right>
 	</object>
 	<object>
-		<name>CommonForm.GettingStartedWithElectronicSignature</name>
+		<name>CommonForm.StartWorkWithDigitalSignature</name>
 		<right>
 			<name>View</name>
 			<value>true</value>
@@ -1920,33 +1913,6 @@ WHERE User = &amp;AuthorizedUser
 		</right>
 		<right>
 			<name>Set</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>Configuration.StandardSubsystemsLibrary</name>
-		<right>
-			<name>MainWindowModeNormal</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeEmbeddedWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeFullscreenWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeKiosk</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>AnalyticsSystemClient</name>
 			<value>true</value>
 		</right>
 	</object>
@@ -2446,6 +2412,33 @@ WHERE User = &amp;AuthorizedUser
 		</right>
 	</object>
 	<object>
+		<name>Configuration.StandardSubsystemsLibrary</name>
+		<right>
+			<name>MainWindowModeNormal</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeEmbeddedWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeFullscreenWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeKiosk</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>AnalyticsSystemClient</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>SessionParameter.ORMCachedValuesRefreshDate</name>
 		<right>
 			<name>Get</name>
@@ -2558,7 +2551,7 @@ WHERE User = &amp;AuthorizedUser
 		</right>
 	</object>
 	<object>
-		<name>CommonForm.SelectDefaultPrintFormCommand</name>
+		<name>CommonForm.SelectDefaultPrintForm</name>
 		<right>
 			<name>View</name>
 			<value>true</value>

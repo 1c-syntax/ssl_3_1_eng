@@ -74,11 +74,12 @@ EndFunction
 //                If Undefined, the add-in is executed according to the default 1C:Enterprise settings
 //                Isolatedly if the add-in supports only isolated execution; otherwise, non-isolatedly.:
 //                By default, Undefined.
-//                See https://its.1c.eu/db/v83doc#bookmark:dev:TI000001866
-//    * AutoUpdate - Boolean -  
-//                
-//    * ShowInstallationIssue - Boolean -  
-//                
+//                See https://its.1c.eu/db/v83doc
+//                                           #bookmark:dev:TI000001866
+//    * AutoUpdate - Boolean - Flag indicating whether "UpdateFrom1CITSPortal" will be set to "True" 
+//                if "SuggestToImport" is set to "True". By default, it is set to "True".
+//    * ShouldShowInstallationPrompt - Boolean - Flag indicating whether prompt the user to install the add-in 
+//                if "SuggestToImport" is set to "True". By default, it is set to "True".
 //
 Function AddInAttachmentContext() Export
 	
@@ -97,7 +98,7 @@ Function AddInAttachmentContext() Export
 	Context.Insert("ASearchForANewVersionHasBeenPerformed", False);
 	Context.Insert("Isolated", Undefined);
 	Context.Insert("WasInstallationAttempt", False);
-	Context.Insert("ShowInstallationIssue", True);
+	Context.Insert("ShouldShowInstallationPrompt", True);
 	
 	Return Context;
 	
@@ -115,7 +116,7 @@ Async Function AttachAddInSSLAsync(Context) Export
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot apply add-in ""%1"" in the client application
 				           |due to:
-				           |Either %2 or %3 must be specified.';"), 
+				           |Either %2 or %3 must be specified.'"), 
 				Context.Location, "Id", "ObjectsCreationIDs");
 		Else
 			// If an add-in has multiple object classes, "Id" is used only to
@@ -214,7 +215,7 @@ Async Function AttachAddInSSLAsync(Context) Export
 			NStr("en = 'Cannot attach add-in ""%1"" on the client
 			           |%2
 			           |Reason:
-			           |%3';"),
+			           |%3'"),
 			Context.Id,
 			Context.Location,
 			ErrorProcessing.BriefErrorDescription(ErrorInfo()));
@@ -239,7 +240,7 @@ Procedure AttachAddInSSL(Context) Export
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot apply add-in ""%1"" in the client application
 				           |due to:
-				           |Either %2 or %3 must be specified.';"), 
+				           |Either %2 or %3 must be specified.'"), 
 				Context.Location, "Id", "ObjectsCreationIDs");
 		Else
 			// If an add-in has multiple object classes, "Id" is used only to
@@ -336,7 +337,7 @@ Procedure AttachAddInSSLNotifyOnError(ErrorDescription, Context, ShouldLogError 
 	
 	If Not IsBlankString(ErrorDescription) And ShouldLogError Then
 		EventLogClient.AddMessageForEventLog(
-			NStr("en = 'Attaching add-in on the client';", CommonClient.DefaultLanguageCode()),
+			NStr("en = 'Attaching add-in on the client'", CommonClient.DefaultLanguageCode()),
 			"Error", ErrorDescription,, True);
 	EndIf;
 		
@@ -365,7 +366,7 @@ Function AddInAttachmentError(ErrorDescription, ShouldLogError = True) Export
 	
 	If Not IsBlankString(ErrorDescription) And ShouldLogError Then
 		EventLogClient.AddMessageForEventLog(
-			NStr("en = 'Attaching add-in on the client';", CommonClient.DefaultLanguageCode()),
+			NStr("en = 'Attaching add-in on the client'", CommonClient.DefaultLanguageCode()),
 			"Error", ErrorDescription,, True);
 	EndIf;
 		
@@ -381,7 +382,7 @@ EndFunction
 //      * Location - String
 //      * ExplanationText - String
 //      * Id - String
-//      * ShowInstallationIssue - Boolean
+//      * ShouldShowInstallationPrompt - Boolean
 //
 Procedure InstallAddInSSL(Context) Export
 	
@@ -392,7 +393,7 @@ Procedure InstallAddInSSL(Context) Export
 	
 	If SymbolicName = Undefined Then
 		
-		If Context.ShowInstallationIssue Then
+		If Context.ShouldShowInstallationPrompt Then
 			Notification = New CallbackDescription(
 				"InstallAddInSSLAfterAnswerToInstallationQuestion", ThisObject, Context);
 			
@@ -440,16 +441,16 @@ Async Function InstallAddInSSLAsync(Context) Export
 	
 	If SymbolicName = Undefined Then 
 		
-		ExplanationText =  ?(IsBlankString(Context.ExplanationText),
-			NStr("en = 'Do you want to install the add-in?';"), Context.ExplanationText);
+		If Context.ShouldShowInstallationPrompt Then
+			ExplanationText =  ?(IsBlankString(Context.ExplanationText),
+				NStr("en = 'Do you want to install the add-in?'"), Context.ExplanationText);
 		
-		ButtonsList = New ValueList;
-		ButtonsList.Add(DialogReturnCode.Yes,  NStr("en = 'Install and continue';"));
-		ButtonsList.Add(DialogReturnCode.No, NStr("en = 'Cancel';"));
+			ButtonsList = New ValueList;
+			ButtonsList.Add(DialogReturnCode.Yes,  NStr("en = 'Install and continue'"));
+			ButtonsList.Add(DialogReturnCode.No, NStr("en = 'Cancel'"));
 		
-		If Context.ShowInstallationIssue Then
 			Response = Await DoQueryBoxAsync(ExplanationText, ButtonsList,,
-				DialogReturnCode.Yes, NStr("en = 'Install add-in';"));
+				DialogReturnCode.Yes, NStr("en = 'Install add-in'"));
 		Else
 			Response = DialogReturnCode.Yes;
 		EndIf;
@@ -468,7 +469,7 @@ Async Function InstallAddInSSLAsync(Context) Export
 					NStr("en = 'Cannot install add-in ""%1"" on the client
 					           |%2
 					           |Reason:
-					           |%3';"),
+					           |%3'"),
 					Context.Id,
 					Context.Location,
 					ErrorProcessing.BriefErrorDescription(ErrorInfo()));
@@ -505,11 +506,11 @@ Function ApplicationKind() Export
 	SystemInfo = New SystemInfo();
 	Result = "";
 #If WebClient Then
-	Result = NStr("en = 'Web client';") + SystemInfo.UserAgentInformation;
+	Result = NStr("en = 'Web client'") + SystemInfo.UserAgentInformation;
 #ElsIf ThickClientOrdinaryApplication Or ThickClientManagedApplication Then
-	Result = NStr("en = 'Thick client';");
+	Result = NStr("en = 'Thick client'");
 #ElsIf ThinClient Then
-	Result = NStr("en = 'Thin client';");
+	Result = NStr("en = 'Thin client'");
 #EndIf
 	Return Result + " (" + SystemInfo.PlatformType + ")";
 
@@ -790,7 +791,7 @@ Procedure ConfirmFormClosing() Export
 	
 	Notification = New CallbackDescription("ConfirmFormClosingCompletion", ThisObject, Parameters);
 	If IsBlankString(Parameters.WarningText) Then
-		QueryText = NStr("en = 'The data has been changed. Do you want to save the changes?';");
+		QueryText = NStr("en = 'The data has been changed. Do you want to save the changes?'");
 	Else
 		QueryText = Parameters.WarningText;
 	EndIf;
@@ -945,7 +946,7 @@ Procedure AttachAddInSSLAfterAttachmentAttempt(Attached, Context) Export
 			Result = AddInAttachmentResult();
 			ErrorText =  StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot attach the %1 add-in.
-				|It might not have been installed.';"), Context.Id);
+				|It might not have been installed.'"), Context.Id);
 			
 			Result.ErrorDescription = ErrorText;
 			
@@ -976,7 +977,7 @@ Procedure AfterTemplateAddInCheckedForCompatibility(Result, Context) Export
 						 |
 						 |Technical details:
 						 |%3
-						 |Method %4 returned False.';"), Context.Id, Result,
+						 |Method %4 returned False.'"), Context.Id, Result,
 			Context.Location, "BeginAttachingAddIn");
 	Else
 		ErrorText =  StringFunctionsClientServer.SubstituteParametersToString(
@@ -985,7 +986,7 @@ Procedure AfterTemplateAddInCheckedForCompatibility(Result, Context) Export
 						 |
 						 |Technical details:
 						 |%3
-						 |Method %4 returned False.';"), Context.Id, ApplicationKind(), Context.Location,
+						 |Method %4 returned False.'"), Context.Id, ApplicationKind(), Context.Location,
 			"BeginAttachingAddIn");
 	EndIf;
 
@@ -1017,7 +1018,7 @@ Procedure AttachAddInSSLStartInstallation(Context)
 	InstallationContext.Insert("Location", Context.Location);
 	InstallationContext.Insert("ExplanationText", Context.ExplanationText);
 	InstallationContext.Insert("Id", Context.Id);
-	InstallationContext.Insert("ShowInstallationIssue", Context.ShowInstallationIssue);
+	InstallationContext.Insert("ShouldShowInstallationPrompt", Context.ShouldShowInstallationPrompt);
 	
 	InstallAddInSSL(InstallationContext);
 	
@@ -1054,7 +1055,7 @@ Procedure AttachAddInSSLOnProcessError(ErrorInfo, StandardProcessing, Context) E
 		NStr("en = 'Cannot attach add-in ""%1"" on the client
 		           |%2
 		           |Reason:
-		           |%3';"),
+		           |%3'"),
 		Context.Id,
 		Context.Location,
 		ErrorProcessing.BriefErrorDescription(ErrorInfo));
@@ -1073,7 +1074,7 @@ Function NewAddInObject(Context)
 		Try
 			Attachable_Module = New("AddIn." + Context.SymbolicName + "." + Context.Id);
 			If Attachable_Module = Undefined Then 
-				Raise NStr("en = 'The New operator returned Undefined.';");
+				Raise NStr("en = 'The New operator returned Undefined'");
 			EndIf;
 		Except
 			Attachable_Module = Undefined;
@@ -1086,7 +1087,7 @@ Function NewAddInObject(Context)
 				NStr("en = 'Cannot create an object for add-in ""%1"" attached on the client
 				           |%2
 				           |Reason:
-				           |%3';"),
+				           |%3'"),
 				Context.Id,
 				Context.Location,
 				ErrorText);
@@ -1101,7 +1102,7 @@ Function NewAddInObject(Context)
 			Try
 				Attachable_Module = New("AddIn." + Context.SymbolicName + "." + ObjectID);
 				If Attachable_Module = Undefined Then 
-					Raise NStr("en = 'The New operator returned Undefined.';");
+					Raise NStr("en = 'The New operator returned Undefined'");
 				EndIf;
 			Except
 				Attachable_Module = Undefined;
@@ -1114,7 +1115,7 @@ Function NewAddInObject(Context)
 					NStr("en = 'Cannot create object ""%1"" for add-in ""%2"" attached on the client
 					           |%3
 					           |Reason:
-					           |%4';"),
+					           |%4'"),
 					ObjectID,
 					Context.Id,
 					Context.Location,
@@ -1186,7 +1187,7 @@ Procedure InstallAddInSSLOnProcessError(ErrorInfo, StandardProcessing, Context) 
 		NStr("en = 'Cannot install add-in ""%1"" on the client
 		           |%2
 		           |Reason:
-		           |%3';"),
+		           |%3'"),
 		Context.Id,
 		Context.Location,
 		ErrorProcessing.BriefErrorDescription(ErrorInfo));
@@ -1223,7 +1224,7 @@ Procedure CheckTheLocationOfTheComponent(Id, Location)
 			NStr("en = 'Cannot attach the %1 add-in in the client application
 			           |due to:
 			           |Add-in
-			           |%2 location is incorrect';"),
+			           |%2 location is incorrect'"),
 			Id, Location);
 	EndIf;
 
@@ -1275,7 +1276,7 @@ Async Function AttachAddInSSLAfterAttachmentAttemptAsync(Attached, Context)
 			InstallationContext.Insert("Location",			Context.Location);
 			InstallationContext.Insert("ExplanationText",			Context.ExplanationText);
 			InstallationContext.Insert("Id",				Context.Id);
-			InstallationContext.Insert("ShowInstallationIssue", Context.ShowInstallationIssue);
+			InstallationContext.Insert("ShouldShowInstallationPrompt", Context.ShouldShowInstallationPrompt);
 			InstallResult = Await InstallAddInSSLAsync(InstallationContext);
 			
 			If InstallResult.IsSet Then 
@@ -1294,7 +1295,7 @@ Async Function AttachAddInSSLAfterAttachmentAttemptAsync(Attached, Context)
 			Result = AddInAttachmentResult();
 			ErrorText =  StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot attach the %1 add-in.
-				|It might not have been installed.';"), Context.Id);
+				|It might not have been installed.'"), Context.Id);
 			
 			Result.ErrorDescription = ErrorText;
 			
@@ -1310,12 +1311,12 @@ Async Function AttachAddInSSLAfterAttachmentAttemptAsync(Attached, Context)
 						 |
 						 |Technical details:
 						 |%3
-						 |Method %4 returned False.';"), Context.Id, AddInCompatibilityError,
+						 |Method %4 returned False.'"), Context.Id, AddInCompatibilityError,
 					Context.Location, "AttachAddInAsync");
 					
 				WarningText =  StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Couldn''t attach add-in ""%1"".
-						 |%2.';"), Context.Id, AddInCompatibilityError);
+						 |%2.'"), Context.Id, AddInCompatibilityError);
 					
 				Await DoMessageBoxAsync(WarningText);
 			Else
@@ -1325,7 +1326,7 @@ Async Function AttachAddInSSLAfterAttachmentAttemptAsync(Attached, Context)
 					 |
 					 |Technical details:
 					 |%3
-					 |Method %4 returned False.';"), Context.Id, ApplicationKind(), Context.Location,
+					 |Method %4 returned False.'"), Context.Id, ApplicationKind(), Context.Location,
 					"AttachAddInAsync");
 			EndIf;
 			
@@ -1515,7 +1516,7 @@ Procedure RegisterCOMConnectorOnCheckRegistration(Result, Context) Export
 				CommonInternalClient, Context);
 			QueryText = 
 				NStr("en = 'To complete the reregistration of comcntr, restart the application.
-				           |Restart now?';");
+				           |Restart now?'");
 			ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo);
 		Else 
 			Notification = Context.Notification;
@@ -1527,25 +1528,25 @@ Procedure RegisterCOMConnectorOnCheckRegistration(Result, Context) Export
 		
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot register the comcntr component.
-			           |Regsvr32 error code: %1';"),
+			           |Regsvr32 error code: %1'"),
 			ReturnCode);
 			
 		If ReturnCode = 1 Then
-			MessageText = MessageText + " " + NStr("en = 'An error occurred upon parsing a command line.';");
+			MessageText = MessageText + " " + NStr("en = 'An error occurred upon parsing a command line.'");
 		ElsIf ReturnCode = 2 Then
-			MessageText = MessageText + " " + NStr("en = 'An error occurred upon initializing a COM library.';");
+			MessageText = MessageText + " " + NStr("en = 'An error occurred upon initializing a COM library.'");
 		ElsIf ReturnCode = 3 Then
-			MessageText = MessageText + " " + NStr("en = 'An error occurred upon loading a module from a COM library.';");
+			MessageText = MessageText + " " + NStr("en = 'An error occurred upon loading a module from a COM library.'");
 		ElsIf ReturnCode = 4 Then
-			MessageText = MessageText + " " + NStr("en = 'An error occurred upon getting the address of a function or a variable from a COM-library.';");
+			MessageText = MessageText + " " + NStr("en = 'An error occurred upon getting the address of a function or a variable from a COM-library.'");
 		ElsIf ReturnCode = 5 Then
-			MessageText = MessageText + " " + NStr("en = 'An error occurred upon executing the registration function.';");
+			MessageText = MessageText + " " + NStr("en = 'An error occurred upon executing the registration function.'");
 		Else 
 			MessageText = MessageText + Chars.LF + ErrorDescription;
 		EndIf;
 		
 		EventLogClient.AddMessageForEventLog(
-			NStr("en = 'Registration of comcntr component';", CommonClient.DefaultLanguageCode()),
+			NStr("en = 'Registration of comcntr component'", CommonClient.DefaultLanguageCode()),
 			"Error",
 			MessageText,,
 			True);
@@ -1993,7 +1994,7 @@ Procedure CheckFileSystemExtensionAttachedCompletion(ExtensionAttached, Addition
 	
 	MessageText = AdditionalParameters.WarningText;
 	If IsBlankString(MessageText) Then
-		MessageText = NStr("en = 'Cannot perform the operation because 1C:Enterprise Extension is not installed.';")
+		MessageText = NStr("en = 'Cannot perform the operation because 1C:Enterprise Extension is not installed.'")
 	EndIf;
 	ShowMessageBox(, MessageText);
 	

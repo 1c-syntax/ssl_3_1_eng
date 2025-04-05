@@ -55,45 +55,45 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 		SubsystemForAdministration.Subsystems.Find("UserMonitoring"));
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "AccessRightsAnalysis");
-	OptionSettings.LongDesc = NStr("en = 'Shows user rights to infobase tables (you can enable grouping by reports).';");
+	OptionSettings.LongDesc = NStr("en = 'Shows user rights to infobase tables (you can enable grouping by reports).'");
 	If SubsystemForMonitoring <> Undefined Then
 		OptionSettings.Location.Insert(SubsystemForMonitoring, "Important");
 	EndIf;
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "UsersRightsToTables");
-	OptionSettings.LongDesc = NStr("en = 'Shows user rights to infobase tables.';");
+	OptionSettings.LongDesc = NStr("en = 'Shows user rights to infobase tables.'");
 	OptionSettings.Enabled = False;
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "UserRightsToTables");
-	OptionSettings.LongDesc = NStr("en = 'Shows individual user''s rights to different infobase tables.';");
+	OptionSettings.LongDesc = NStr("en = 'Shows individual user''s rights to different infobase tables.'");
 	OptionSettings.Enabled = False;
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "UsersRightsToTable");
-	OptionSettings.LongDesc = NStr("en = 'Shows different users'' rights to the same infobase table.';");
+	OptionSettings.LongDesc = NStr("en = 'Shows different users'' rights to the same infobase table.'");
 	OptionSettings.Enabled = False;
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "UserRightsToTable");
-	OptionSettings.LongDesc = NStr("en = 'Shows user''s rights to one infobase table with record-level restriction settings (RLS).';");
+	OptionSettings.LongDesc = NStr("en = 'Shows user''s rights to one infobase table with record-level restriction settings (RLS).'");
 	OptionSettings.Enabled = False;
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "UserRightsToReportTables");
-	OptionSettings.LongDesc = NStr("en = 'Shows individual user''s rights to different infobase tables used in a separate report.';");
+	OptionSettings.LongDesc = NStr("en = 'Shows individual user''s rights to different infobase tables used in a separate report.'");
 	OptionSettings.Enabled = False;
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "UsersRightsToReportTables");
-	OptionSettings.LongDesc = NStr("en = 'Shows different users'' rights to different infobase tables used in a separate report.';");
+	OptionSettings.LongDesc = NStr("en = 'Shows different users'' rights to different infobase tables used in a separate report.'");
 	OptionSettings.Enabled = False;
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "UserRightsToReportsTables");
-	OptionSettings.LongDesc = NStr("en = 'Shows individual user''s rights to different infobase tables grouped by reports.';");
+	OptionSettings.LongDesc = NStr("en = 'Shows individual user''s rights to different infobase tables grouped by reports.'");
 	OptionSettings.Enabled = False;
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "UsersRightsToObject");
-	OptionSettings.LongDesc = NStr("en = 'Displays the calculated user permissions for an infobase object (for example, a document or directory item).';");
+	OptionSettings.LongDesc = NStr("en = 'Displays the calculated user permissions for an infobase object (for example, a document or catalog item).'");
 	OptionSettings.Enabled = False;
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "UsersRightsByAllowedValue");
-	OptionSettings.LongDesc = NStr("en = 'Displays users with access to information database objects (for example, documents and directory items) based on the selected value (organization, warehouse, and so on).';");
+	OptionSettings.LongDesc = NStr("en = 'Displays users with access to infobase objects (for example, documents and catalog items) based on the selected value (company, warehouse, and so on).'");
 	OptionSettings.Enabled = False;
 	
 EndProcedure
@@ -104,18 +104,18 @@ EndProcedure
 
 #Region Private
 
-// 
+// Intended for procedure "HideExcessDataFields".
 // 
 //
 // Parameters:
-//  DataSetName - String - 
-//  DataPaths - String - 
-//              - Array of String - 
+//  DataSetName - String - Dataset name as it is specified in DCS.
+//  DataPaths - String - "*": All fields are available.
+//              - Array of String - Only the specified fields are available.
 //              - Map of KeyAndValue:
-//                 * Key - String - 
-//                 * Value - Boolean - 
-//  OriginalScheme - DataCompositionSchema - 
-//  CurrentSchema  - DataCompositionSchema - 
+//                 * Key - String - Name of the unavailable field.
+//                 * Value - Boolean - For example, "False".
+//  OriginalScheme - DataCompositionSchema - Schema whose field availability is obtained.
+//  CurrentSchema  - DataCompositionSchema - Schema where the field availability is being configured.
 //
 Procedure HideDataFieldsExceptSpecified(DataSetName, DataPaths, OriginalScheme, CurrentSchema) Export
 	
@@ -175,7 +175,7 @@ Procedure SetGroupingUsage(GroupName, Use,
 	
 EndProcedure
 
-// 
+// Intended for function "GroupByMasterReportsEnabled".
 Function FindGroupItemByName(ItemsCollection, Name)
 	
 	Result = Undefined;
@@ -258,7 +258,7 @@ EndFunction
 //   * FieldList - Map of KeyAndValue:
 //    ** Key - String
 //    ** Value - Arbitrary
-//   * RoleRightsReportIsAvailable - Boolean
+//   * CanUseRolesRightsReport - Boolean
 //
 Function DetailsParameters(DetailsDataAddress, Details) Export
 	
@@ -277,7 +277,7 @@ Function DetailsParameters(DetailsDataAddress, Details) Export
 	Result = New Structure;
 	Result.Insert("DetailsFieldName1", DetailsFieldName1);
 	Result.Insert("FieldList", FieldList);
-	Result.Insert("RoleRightsReportIsAvailable",
+	Result.Insert("CanUseRolesRightsReport",
 		AccessRight("View", Metadata.Reports.RolesRights));
 	
 	ParameterFormatName = New DataCompositionParameter("NameFormat");
@@ -307,7 +307,7 @@ Function DetailsParameters(DetailsDataAddress, Details) Export
 				If Metadata.CommonForms.Contains(MetadataObject) Then
 					URL = "e1cib/app/" + MetadataObject.FullName();
 				Else
-					URL = ""; // Навигационной ссылки может не быть.
+					URL = ""; // A URL might not be provided.
 				EndIf;
 			EndTry;
 			If (StrFind(URL, "/command/") > 0
@@ -390,20 +390,20 @@ EndProcedure
 //  
 //
 // Parameters:
-//  ForExternalUsers - Boolean, Undefined - 
-//    
-//    
+//  ForExternalUsers - Boolean, Undefined - If "True", return restrictions for external users.
+//     If "False", return restrictions for internal users. If "Undefined", return restrictions for all users.
+//    This applies only to universal restrictions.
 //
-//  ShouldAddIsAuthorizedUser - Boolean - 
-//    
-//    
+//  ShouldAddIsAuthorizedUser - Boolean - Add the "Users" or
+//    "ExternalUsers" access type with the "IsAuthorizedUser" flag if
+//    the table is verified only using the "IsAuthorizedUser" function.
 //    
 //
 //  AllTablesWithRestriction - Array of CatalogRef.MetadataObjectIDs
-//                          - Array of CatalogRef.ExtensionObjectIDs - 
-//                              
-//                              
-//                          - Undefined - 
+//                          - Array of CatalogRef.ExtensionObjectIDs - Return value.
+//                              If an array is specified, tables for which RLS is configured using
+//                              the "AccessManagement" subsystem are added to it.
+//                          - Undefined - Optional.
 //
 // Returns:
 //  ValueTable:
@@ -412,13 +412,13 @@ EndProcedure
 //                                 This column is applicable only to universal restrictions.
 //   * Table       - CatalogRef.MetadataObjectIDs
 //                   - CatalogRef.ExtensionObjectIDs - Table ID.
-//   * AccessKind    - DefinedType.AccessValue - 
-//      
-//        
-//          
-//            
-//            
-//            
+//   * AccessKind    - DefinedType.AccessValue - "ReadRightByID", "EditByIDRight".
+//      In the high-performance mode, this corresponds to the presence of one of
+//        the following functions in the object's access restriction:
+//          1. "ReadObjectAllowed", "EditObjectAllowed", "ReadListAllowed", "EditListAllowed",
+//            "IsAuthorizedUser", "AccessRight", "RoleAvailable".
+//            2. "Enum.AdditionalAccessValues.AccessAllowed<Restriction disabled>.
+//            3. "Enum.AdditionalAccessValues.AccessDenied<Access denied> (restriction "WHERE FALSE").
 //          
 //            
 //            
@@ -427,8 +427,8 @@ EndProcedure
 //        
 //   * Presentation - String - Access kind presentation.
 //   * Right         - String - Read, Update.
-//   * IsAuthorizedUser - Boolean - 
-//      
+//   * IsAuthorizedUser - Boolean - Can be "True" if
+//      the "ShouldAddIsAuthorizedUser" parameter is enabled.
 //
 Function AccessRestrictionKinds(ForExternalUsers = Undefined, ShouldAddIsAuthorizedUser = False,
 			AllTablesWithRestriction = Undefined) Export
@@ -731,7 +731,7 @@ Function AccessTypesWithView(AccessKindsValuesTypes, UsedOnly)
 				String.Presentation = RepresentationUnknownAccessType();
 			Else
 				String.Presentation = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Rights settings for %1';"),
+					NStr("en = 'Rights settings for %1'"),
 					RightsSettingsOwnerMetadata.Presentation());
 			EndIf;
 			
@@ -757,7 +757,7 @@ EndFunction
 // Intended for functions "AccessRestrictionKinds", "AccessKindsWithPresentation".
 Function RepresentationUnknownAccessType()
 	
-	Return NStr("en = 'Unknown access kind';");
+	Return NStr("en = 'Unknown access kind'");
 	
 EndFunction
 
@@ -818,11 +818,11 @@ Procedure AddTablesWithRestrictionDisabled(TablesWithRestrictionDisabled,
 		
 		If Properties.AccessDenied Then
 			AccessKind    = Enums.AdditionalAccessValues.AccessDenied;
-			Presentation = "<" + NStr("en = 'Access denied';") + ">";
+			Presentation = "<" + NStr("en = 'Access denied'") + ">";
 			
 		ElsIf ListsWithDisabledRestriction.Get(FullName) <> Undefined Then
 			AccessKind    = Enums.AdditionalAccessValues.AccessAllowed;
-			Presentation = "<" + NStr("en = 'Restriction disabled';") + ">";
+			Presentation = "<" + NStr("en = 'Restriction disabled'") + ">";
 		Else
 			If ListsWithReadRestrictionDisabled.Get(FullName) <> Undefined Then
 				NewRow = TablesWithRestrictionDisabled.Add();
@@ -830,7 +830,7 @@ Procedure AddTablesWithRestrictionDisabled(TablesWithRestrictionDisabled,
 				NewRow.FullName = FullName;
 				NewRow.Right = "Read";
 				NewRow.AccessKind = Enums.AdditionalAccessValues.AccessAllowed;
-				NewRow.Presentation = "<" + NStr("en = 'Read restriction disabled';") + ">";
+				NewRow.Presentation = "<" + NStr("en = 'Read restriction disabled'") + ">";
 				Rights = "Update";
 			EndIf;
 			If Not ValueIsFilled(Properties.UsedAccessValuesTypes.Get()) Then
@@ -862,13 +862,13 @@ Procedure AddTablesWithRestrictionDisabled(TablesWithRestrictionDisabled,
 EndProcedure
 
 Function RestrictionPresentationWithoutAccessKinds() Export
-	Return "<" + NStr("en = 'Restriction without access kinds';") + ">";
+	Return "<" + NStr("en = 'Restriction without access kinds'") + ">";
 EndFunction
 
 
 Procedure AddUsersRightsCommand(ReportsCommands, Parameters, AreUsers)
 	
-	VariantPresentation = NStr("en = 'User rights';");
+	VariantPresentation = NStr("en = 'User rights'");
 	OnlyInAllActions = False;
 	OptionImportance = "";
 	
@@ -889,11 +889,11 @@ Procedure AddUsersRightsCommand(ReportsCommands, Parameters, AreUsers)
 			Return;
 		EndIf;
 		VariantKey = "UserRightsToTables";
-		VariantPresentation = NStr("en = 'User rights';");
+		VariantPresentation = NStr("en = 'User rights'");
 	Else
 		If Not Users.IsFullUser() Then
 			VariantKey = "UserRightsToTable";
-			VariantPresentation = NStr("en = 'User rights';");
+			VariantPresentation = NStr("en = 'User rights'");
 		Else
 			VariantKey = "UsersRightsToTable";
 		EndIf;
@@ -954,7 +954,7 @@ Procedure AddRightsByValueCommand(ReportsCommands, Parameters)
 	
 	Command = ReportsCommands.Add();
 	Command.VariantKey = "UsersRightsByAllowedValue";
-	Command.Presentation = NStr("en = 'Rights by allowed value';");
+	Command.Presentation = NStr("en = 'Rights by allowed value'");
 	Command.OnlyInAllActions = True;
 	Command.MultipleChoice = False;
 	Command.Importance = "SeeAlso";
@@ -969,38 +969,38 @@ Function UsersRightsToObjectOptionPresentation(Parameters, AddCommand)
 	Result = Null;
 	
 	If Upper(MetadataObjectKind) = Upper("ExchangePlan") Then
-		Result = NStr("en = 'Rights to exchange plan';");
+		Result = NStr("en = 'Rights to exchange plan'");
 		
 	ElsIf Upper(MetadataObjectKind) = Upper("Catalog") Then
-		Result = NStr("en = 'Rights to catalog item';");
+		Result = NStr("en = 'Rights to catalog item'");
 		
 	ElsIf Upper(MetadataObjectKind) = Upper("Document")
 	      Or Upper(MetadataObjectKind) = Upper("DocumentJournal") Then
 		
-		Result = NStr("en = 'Rights to document';");
+		Result = NStr("en = 'Rights to document'");
 		
 	ElsIf Upper(MetadataObjectKind) = Upper("ChartOfCharacteristicTypes") Then
-		Result = NStr("en = 'Rights to CCT';");
+		Result = NStr("en = 'Rights to CCT'");
 		
 	ElsIf Upper(MetadataObjectKind) = Upper("ChartOfAccounts") Then
-		Result = NStr("en = 'Rights to CA';");
+		Result = NStr("en = 'Rights to CA'");
 		
 	ElsIf Upper(MetadataObjectKind) = Upper("ChartOfCalculationTypes") Then
-		Result = NStr("en = 'Access rights that apply to calculation type';");
+		Result = NStr("en = 'Access rights that apply to calculation type'");
 		
 	ElsIf Upper(MetadataObjectKind) = Upper("InformationRegister")
 	      Or Upper(MetadataObjectKind) = Upper("AccumulationRegister")
 	      Or Upper(MetadataObjectKind) = Upper("AccountingRegister")
 	      Or Upper(MetadataObjectKind) = Upper("CalculationRegister") Then
 		
-		Result = NStr("en = 'Access rights that apply to register row';");
+		Result = NStr("en = 'Access rights that apply to register row'");
 		AddCommand = False;
 		
 	ElsIf Upper(MetadataObjectKind) = Upper("BusinessProcess") Then
-		Result = NStr("en = 'Access rights that apply to business process';");
+		Result = NStr("en = 'Access rights that apply to business process'");
 		
 	ElsIf Upper(MetadataObjectKind) = Upper("Task") Then
-		Result = NStr("en = 'Access rights that apply to task';");
+		Result = NStr("en = 'Access rights that apply to task'");
 	EndIf;
 	
 	If Result = Null Then

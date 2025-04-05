@@ -52,7 +52,7 @@ Function GetRefManyComments(RefOperation)
 	BeginTransaction();
 	Try
 		DataHashing = New DataHashing(HashFunction.SHA1);
-		TooManyComments = NStr("en = 'Too many comments';");
+		TooManyComments = NStr("en = 'Too many comments'");
 		DataHashing.Append(TooManyComments);
 		DescriptionHash = StrReplace(String(DataHashing.HashSum), " ", "");
 		

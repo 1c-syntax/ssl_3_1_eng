@@ -30,21 +30,21 @@ Function CurrentBackupSetting() Export
 	
 	BackupSettings1 = BackupSettings1();
 	If BackupSettings1 = Undefined Then
-		Return NStr("en = 'To set up backup, contact your administrator.';");
+		Return NStr("en = 'To set up backup, contact your administrator.'");
 	EndIf;
 	
-	CurrentSetting = NStr("en = 'Backup is not set up. Configure backup settings to prevent data loss.';");
+	CurrentSetting = NStr("en = 'Backup is not set up. Configure backup settings to prevent data loss.'");
 	
 	If Common.FileInfobase() Then
 		
 		If BackupSettings1.CreateBackupAutomatically Then
 			
 			If BackupSettings1.ExecutionOption = "OnExit" Then
-				CurrentSetting = NStr("en = 'Backups are created automatically on exit.';");
+				CurrentSetting = NStr("en = 'Backups are created automatically on exit.'");
 			ElsIf BackupSettings1.ExecutionOption = "Schedule3" Then // On schedule.
 				Schedule = CommonClientServer.StructureToSchedule(BackupSettings1.CopyingSchedule);
 				If Not IsBlankString(Schedule) Then
-					CurrentSetting = NStr("en = 'Backups are created on schedule: %1.';");
+					CurrentSetting = NStr("en = 'Backups are created on schedule: %1.'");
 					CurrentSetting = StringFunctionsClientServer.SubstituteParametersToString(CurrentSetting, Schedule);
 				EndIf;
 			EndIf;
@@ -52,14 +52,14 @@ Function CurrentBackupSetting() Export
 		Else
 			
 			If BackupSettings1.BackupConfigured Then
-				CurrentSetting = NStr("en = 'Backups are created by third-party backup tools.';");
+				CurrentSetting = NStr("en = 'Backups are created by third-party backup tools.'");
 			EndIf;
 			
 		EndIf;
 		
 	Else
 		
-		CurrentSetting = NStr("en = 'Backups are created by the means of DBMS.';");
+		CurrentSetting = NStr("en = 'Backups are created by the means of DBMS.'");
 		
 	EndIf;
 	
@@ -122,7 +122,7 @@ Procedure OnFillToDoList(ToDoList) Export
 			ToDoItem = ToDoList.Add();
 			ToDoItem.Id  = "SetUpBackup" + StrReplace(Section.FullName(), ".", "");
 			ToDoItem.HasToDoItems       = NotificationOption = "NotConfiguredYet";
-			ToDoItem.Presentation  = NStr("en = 'Set up backup';");
+			ToDoItem.Presentation  = NStr("en = 'Set up backup'");
 			ToDoItem.Important         = True;
 			ToDoItem.Form          = BackupSettingFormName;
 			ToDoItem.Owner       = Section;
@@ -132,7 +132,7 @@ Procedure OnFillToDoList(ToDoList) Export
 			ToDoItem = ToDoList.Add();
 			ToDoItem.Id  = "ExecuteBackup" + StrReplace(Section.FullName(), ".", "");
 			ToDoItem.HasToDoItems       = NotificationOption = "Overdue";
-			ToDoItem.Presentation  = NStr("en = 'Backup required';");
+			ToDoItem.Presentation  = NStr("en = 'Backup required'");
 			ToDoItem.Important         = True;
 			ToDoItem.Form          = "DataProcessor.IBBackup.Form.DataBackup";
 			ToDoItem.Owner       = Section;
@@ -534,50 +534,50 @@ Function ScriptMessages()
 	Messages = New Map;
 	
 	// Messages in templates BackupFileTemplate and LoadIBFileTemplate.
-	Messages["[TheStartOfStartupMessage]"] = NStr("en = 'Starting: {0}; parameters: {1}; window: {2}; waiting: {3}';");
-	Messages["[ExceptionDetailsMessage]"] = NStr("en = 'Exception at the application start: {0}, {1}';");
-	Messages["[MessageLaunchResult]"] = NStr("en = 'Return code: {0}';");
-	Messages["[StartupFailureMessage]"] = NStr("en = 'The executable file does not exist: {0}';");
-	Messages["[MessageLogging1S]"] = NStr("en = 'Exception when writing event log: {0}, {1}';");
-	Messages["[TheMessageIsThePathToTheScriptFile]"] = NStr("en = 'Script file: {0}';");
-	Messages["[MessagePathToTheBackupFile]"] = NStr("en = 'Backup file: {0}';");
-	Messages["[TheMessageIsTheResultOfCreatingABackupCopyOfTheDatabase]"] = NStr("en = 'Backed up';");
-	Messages["[TheMessageFailureToCreateABackupCopyOfTheDatabase]"] = NStr("en = 'Cannot back up the infobase';");
-	Messages["[TheMessageTheBeginningOfTheConnectionSessionWithTheDatabase]"] = NStr("en = 'External infobase connection session started';");
-	Messages["[MessageOSBitnessUndefined]"] = NStr("en = '<Undefined>';");
+	Messages["[TheStartOfStartupMessage]"] = NStr("en = 'Starting: {0}; parameters: {1}; window: {2}; waiting: {3}'");
+	Messages["[ExceptionDetailsMessage]"] = NStr("en = 'Exception at the application start: {0}, {1}'");
+	Messages["[MessageLaunchResult]"] = NStr("en = 'Return code: {0}'");
+	Messages["[StartupFailureMessage]"] = NStr("en = 'The executable file does not exist: {0}'");
+	Messages["[MessageLogging1S]"] = NStr("en = 'Exception when writing event log: {0}, {1}'");
+	Messages["[TheMessageIsThePathToTheScriptFile]"] = NStr("en = 'Script file: {0}'");
+	Messages["[MessagePathToTheBackupFile]"] = NStr("en = 'Backup file: {0}'");
+	Messages["[TheMessageIsTheResultOfCreatingABackupCopyOfTheDatabase]"] = NStr("en = 'Backed up'");
+	Messages["[TheMessageFailureToCreateABackupCopyOfTheDatabase]"] = NStr("en = 'Cannot back up the infobase'");
+	Messages["[TheMessageTheBeginningOfTheConnectionSessionWithTheDatabase]"] = NStr("en = 'External infobase connection session started'");
+	Messages["[MessageOSBitnessUndefined]"] = NStr("en = '<Undefined>'");
 	Messages["[MessageCOMConnectorVersion]"] = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Version %1: {0} {1}';"), "comcntr.dll");
-	Messages["[TheMessageConnectionFailureWithTheDatabase]"] = NStr("en = 'Exception during COM connection creation at the step: {0}, {1}, {2}';");
-	Messages["[TheMessageLoggingFailure1S]"] = NStr("en = 'Exception when writing data to event log: {0}, {1}';");
+		NStr("en = 'Version %1: {0} {1}'"), "comcntr.dll");
+	Messages["[TheMessageConnectionFailureWithTheDatabase]"] = NStr("en = 'Exception during COM connection creation at the step: {0}, {1}, {2}'");
+	Messages["[TheMessageLoggingFailure1S]"] = NStr("en = 'Exception when writing data to event log: {0}, {1}'");
 	Messages["[TheMessageFailureWhenCallingCompleteBackup]"] = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Exception when calling %1: {0}, {1}';"), "IBBackupServer.FinishBackup");
-	Messages["[TheMessageDatabaseBackupResult]"] = NStr("en = 'Infobase is backed up.';");
-	Messages["[TheMessageDatabaseBackupFailure]"] = NStr("en = 'An unexpected error occurred while backing up the infobase.';");
-	Messages["[TheMessageDatabaseParameters]"] = NStr("en = 'Infobase parameters: {0}.';");
-	Messages["[MessageBackupLogging1S]"] = NStr("en = 'The backup protocol is saved to the event log.';");
-	Messages["[LoggingFailureMessage]"] = NStr("en = 'Exception when writing data to log: {0}, {1}';");
+		NStr("en = 'Exception when calling %1: {0}, {1}'"), "IBBackupServer.FinishBackup");
+	Messages["[TheMessageDatabaseBackupResult]"] = NStr("en = 'Infobase is backed up.'");
+	Messages["[TheMessageDatabaseBackupFailure]"] = NStr("en = 'An unexpected error occurred while backing up the infobase.'");
+	Messages["[TheMessageDatabaseParameters]"] = NStr("en = 'Infobase parameters: {0}.'");
+	Messages["[MessageBackupLogging1S]"] = NStr("en = 'The backup protocol is saved to the event log.'");
+	Messages["[LoggingFailureMessage]"] = NStr("en = 'Exception when writing data to log: {0}, {1}'");
 	Messages["[MessageBackupFileSizeInMb]"] = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Infobase ""%1"" file size: {0} MB';"), "1Cv8.1CD");
+		NStr("en = 'Infobase ""%1"" file size: {0} MB'"), "1Cv8.1CD");
 	Messages["[TheMessageFailedToCompressTheBackupFileINZIP]"] = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Infobase ""%1"" file size exceeds 2 GB. It will not be compressed to a ZIP archive.';"), "1Cv8.1CD");
-	Messages["[TheMessageTheBeginningOfCreatingABackupCopyOfTheDatabase]"] = NStr("en = 'Backup started…';");
-	Messages["[TheMessageFailureToCreateABackupCopyOfTheDatabaseInDetail]"] = NStr("en = 'Exception when backing up the infobase: {0}, {1}';");
-	Messages["[TheMessageAssumptionOfADatabaseBackupError]"] = NStr("en = 'After 15 minutes of runtime, no backup file has been created (size is {0} byte). Probably, an error has occurred. Back up is canceled.';");
+		NStr("en = 'Infobase ""%1"" file size exceeds 2 GB. It will not be compressed to a ZIP archive.'"), "1Cv8.1CD");
+	Messages["[TheMessageTheBeginningOfCreatingABackupCopyOfTheDatabase]"] = NStr("en = 'Backup started…'");
+	Messages["[TheMessageFailureToCreateABackupCopyOfTheDatabaseInDetail]"] = NStr("en = 'Exception when backing up the infobase: {0}, {1}'");
+	Messages["[TheMessageAssumptionOfADatabaseBackupError]"] = NStr("en = 'After 15 minutes of runtime, no backup file has been created (size is {0} byte). Probably, an error has occurred. Back up is canceled.'");
 	Messages["[MessageErrorDeletingTheLockFile]"] = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'The ""%1"" lock file is not deleted: {0}, {1}';"), "1Cv8.CDN");
+		NStr("en = 'The ""%1"" lock file is not deleted: {0}, {1}'"), "1Cv8.CDN");
 	
 	// Messages in templates BackupSplash and RecoverySplash.
-	Messages["[SplashScreenMessageStepError]"] = NStr("en = 'An error occurred. Error code: {0}. For more information, see the previous record.';");
+	Messages["[SplashScreenMessageStepError]"] = NStr("en = 'An error occurred. Error code: {0}. For more information, see the previous record.'");
 	
 	// Messages in template LoadIBFileTemplate.
 	Messages["[TheMessageFailureWhenCallingCompleteRecovery]"] = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Exception when calling %1: {0}, {1}';"), "IBBackupServer.CompleteRestore");
-	Messages["[TheMessageDatabaseRecoveryResult]"] = NStr("en = 'Infobase is restored.';");
-	Messages["[DatabaseRecoveryFailureMessage]"] = NStr("en = 'An unexpected error occurred while restoring the infobase.';");
-	Messages["[MessageRecoveryLogging1S]"] = NStr("en = 'The restore protocol is saved to the event log.';");
-	Messages["[TheMessageFailureToTransferTheDatabaseFileToATemporaryDirectory]"] = NStr("en = 'The infobase file is not transferred to a temporary directory. The app might have active sessions: {0}, {1}.';");
-	Messages["[MessageAttemptToTransferADatabaseFileToATemporaryDirectory]"] = NStr("en = 'Attempting to transfer an infobase file to a temporary directory ({0} out of 5): {1}, {2}.';");
-	Messages["[TheMessageDatabaseRecoveryFailureInDetail]"] = NStr("en = 'Exception when restoring an infobase from a backup: {0}, {1}.';");
+		NStr("en = 'Exception when calling %1: {0}, {1}'"), "IBBackupServer.CompleteRestore");
+	Messages["[TheMessageDatabaseRecoveryResult]"] = NStr("en = 'Infobase is restored.'");
+	Messages["[DatabaseRecoveryFailureMessage]"] = NStr("en = 'An unexpected error occurred while restoring the infobase.'");
+	Messages["[MessageRecoveryLogging1S]"] = NStr("en = 'The restore protocol is saved to the event log.'");
+	Messages["[TheMessageFailureToTransferTheDatabaseFileToATemporaryDirectory]"] = NStr("en = 'The infobase file is not transferred to a temporary directory. The app might have active sessions: {0}, {1}.'");
+	Messages["[MessageAttemptToTransferADatabaseFileToATemporaryDirectory]"] = NStr("en = 'Attempting to transfer an infobase file to a temporary directory ({0} out of 5): {1}, {2}.'");
+	Messages["[TheMessageDatabaseRecoveryFailureInDetail]"] = NStr("en = 'Exception when restoring an infobase from a backup: {0}, {1}.'");
 	
 	Return Messages;
 	
@@ -585,9 +585,9 @@ EndFunction
 
 Procedure SetTheGeneralParametersOfTheScreenSaver(Parameters) Export 
 	
-	Parameters["[ProductName]"] = NStr("en = '1C:ENTERPRISE 8.3';");
+	Parameters["[ProductName]"] = NStr("en = '1C:ENTERPRISE 8.3'");
 	Parameters["[Copyright]"] = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = '© 1C Company, 1996-%1';"), Format(Year(CurrentSessionDate()), "NG=0"));
+		NStr("en = '© 1C Company, 1996-%1'"), Format(Year(CurrentSessionDate()), "NG=0"));
 	
 EndProcedure
 

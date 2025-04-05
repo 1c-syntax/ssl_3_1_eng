@@ -26,7 +26,8 @@
 //                If Undefined, the add-in is executed according to the default 1C:Enterprise settings
 //                Isolatedly if the add-in supports only isolated execution; otherwise, non-isolatedly.:
 //                By default, Undefined.
-//                See https://its.1c.eu/db/v83doc#bookmark:dev:TI000001866
+//                See https://its.1c.eu/db/v83doc
+//                                              #bookmark:dev:TI000001866
 //      * AutoUpdate - Boolean - Flag indicating whether to set the UpdateFrom1CITSPortal flag for the uploaded add-in.
 //                By default, True.
 //

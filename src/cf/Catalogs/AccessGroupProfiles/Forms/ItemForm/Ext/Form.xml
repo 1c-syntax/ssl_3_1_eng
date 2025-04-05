@@ -627,13 +627,13 @@ The details displayed may differ from the current profile settings.</v8:content>
 															<Button name="AccessValuesAdd" id="419">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Item.AccessValues.StandardCommand.Add</CommandName>
-																<ExtendedTooltip name="AccessValuesAddExtendedTooltip" id="420"/>
+																<ExtendedTooltip name="AddAccessValuesExtendedTooltip" id="420"/>
 															</Button>
 															<Button name="AccessValuesDelete" id="421">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Item.AccessValues.StandardCommand.Delete</CommandName>
 																<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-																<ExtendedTooltip name="AccessValuesDeleteExtendedTooltip" id="422"/>
+																<ExtendedTooltip name="DeleteAccessValuesExtendedTooltip" id="422"/>
 															</Button>
 															<ButtonGroup name="AccessValuesStandardCommands" id="423">
 																<Title>

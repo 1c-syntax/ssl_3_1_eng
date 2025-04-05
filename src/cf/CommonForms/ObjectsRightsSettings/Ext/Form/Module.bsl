@@ -17,7 +17,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ObjectReference = Parameters.ObjectReference;
 	If Not ValueIsFilled(ObjectReference) Then
-		Raise NStr("en = 'The owner of access rights is required.';");
+		Raise NStr("en = 'The owner of access rights is required.'");
 	EndIf;
 	
 	AvailableRightsForSetting = AccessManagementInternal.RightsForObjectsRightsSettingsAvailable();
@@ -26,17 +26,17 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If AvailableRightsForSetting.ByRefsTypes.Get(ObjectRefType) = Undefined Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Objects of ""%1"" type
-			           |don''t support individual access rights.';"),
+			           |don''t support individual access rights.'"),
 			String(ObjectRefType));
 	EndIf;
 	
 	If Not AccessRight("View", Metadata.FindByType(ObjectRefType)) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Insufficient rights to read objects of the ""%1"" type.';"), String(ObjectRefType));
+			NStr("en = 'Insufficient rights to read objects of the ""%1"" type.'"), String(ObjectRefType));
 	EndIf;
 	
 	Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Access rights: %1 (%2)';"), String(ObjectReference), String(ObjectRefType));
+		NStr("en = 'Access rights: %1 (%2)'"), String(ObjectReference), String(ObjectRefType));
 	
 	// Checking the permissions to open a form
 	ValidatePermissionToManageRights();
@@ -284,7 +284,7 @@ Procedure Reread(Command)
 	Else
 		ShowQueryBox(
 			New CallbackDescription("RereadCompletion", ThisObject),
-			NStr("en = 'The data was changed. Do you want to read the data without saving it?';"),
+			NStr("en = 'The data was changed. Do you want to read the data without saving it?'"),
 			QuestionDialogMode.YesNo,
 			5,
 			DialogReturnCode.No);
@@ -388,11 +388,11 @@ Procedure WriteBeginning(Close = False)
 	
 	If ConfirmRightsManagementCancellation = True Then
 		Buttons = New ValueList;
-		Buttons.Add("WriteAndClose", NStr("en = 'Save and close';"));
-		Buttons.Add("Cancel", NStr("en = 'Cancel';"));
+		Buttons.Add("WriteAndClose", NStr("en = 'Save and close'"));
+		Buttons.Add("Cancel", NStr("en = 'Cancel'"));
 		ShowQueryBox(
 			New CallbackDescription("SaveAfterConfirmation", ThisObject),
-			NStr("en = 'Once you save the access rights, you will not be able to change them.';"),
+			NStr("en = 'Once you save the access rights, you will not be able to change them.'"),
 			Buttons,, "Cancel");
 	Else
 		If Close Then
@@ -590,9 +590,9 @@ Procedure AddAttributesOrFormItems(NewAttributes = Undefined)
 		Item.DataPath                   = "RightsGroups.InheritanceIsAllowed";
 		
 		Item.Title = NStr("en = 'Apply to
-		                               |subfolders';");
+		                               |subfolders'");
 		Item.ToolTip = NStr("en = 'Apply the folder access rights
-		                               |to its subfolders.';");
+		                               |to its subfolders.'");
 		SetWidthByTitle(Item);
 		
 		SetCheckboxStyle("RightsGroupsInheritanceAllowed", 1, "RightsGroups.InheritanceIsAllowed", True);
@@ -602,8 +602,8 @@ Procedure AddAttributesOrFormItems(NewAttributes = Undefined)
 		Item = AddItem("RightsGroupsOwnerSettings", Type("FormField"), Items.RightsGroups);
 		Item.Type         = FormFieldType.LabelField;
 		Item.DataPath = "RightsGroups.SettingsOwner";
-		Item.Title   = NStr("en = 'Inherit from';");
-		Item.ToolTip   = NStr("en = 'The folder that is the source of access rights.';");
+		Item.Title   = NStr("en = 'Inherit from'");
+		Item.ToolTip   = NStr("en = 'The folder that is the source of access rights.'");
 		Item.Visible   = ParentFilled;
 		
 		
@@ -786,7 +786,7 @@ Procedure FillCheckProcessing(Cancel)
 		EndDo;
 		If NoFilledRight Then
 			CommonClient.MessageToUser(
-				NStr("en = 'No access right specified.';"),
+				NStr("en = 'No access right specified.'"),
 				,
 				"RightsGroups[" + Format(LineNumber, "NG=0") + "]." + FirstRightName,
 				,
@@ -800,7 +800,7 @@ Procedure FillCheckProcessing(Cancel)
 		// Validate value population.
 		If Not ValueIsFilled(CurrentRow["User"]) Then
 			CommonClient.MessageToUser(
-				NStr("en = 'A user or a group is required.';"),
+				NStr("en = 'A user or a group is required.'"),
 				,
 				"RightsGroups[" + Format(LineNumber, "NG=0") + "].User",
 				,
@@ -815,9 +815,9 @@ Procedure FillCheckProcessing(Cancel)
 		
 		If RightsGroups.FindRows(Filter).Count() > 1 Then
 			If TypeOf(Filter.User) = Type("CatalogRef.Users") Then
-				MessageText = NStr("en = 'Access rights for user ""%1"" already exist.';");
+				MessageText = NStr("en = 'Access rights for user ""%1"" already exist.'");
 			Else
-				MessageText = NStr("en = 'Access rights for user group ""%1"" already exist.';");
+				MessageText = NStr("en = 'Access rights for user group ""%1"" already exist.'");
 			EndIf;
 			CommonClient.MessageToUser(
 				StringFunctionsClientServer.SubstituteParametersToString(MessageText, Filter.User),
@@ -850,7 +850,7 @@ Procedure WriteRights()
 			Modified = False;
 		Else
 			ConfirmRightsManagementCancellation = True;
-			Raise NStr("en = 'Once you save the access rights, you will not be able to change them.';");
+			Raise NStr("en = 'Once you save the access rights, you will not be able to change them.'");
 		EndIf;
 		
 		CommitTransaction();
@@ -875,13 +875,13 @@ Procedure CheckOpportunityToChangeRights(Cancel, DeletionCheck = False)
 		
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'These access rights are inherited. Edit access rights
-			           |of the parent folder: ""%1"".';"),
+			           |of the parent folder: ""%1"".'"),
 			CurrentSettingOwner);
 		
 		If DeletionCheck Then
 			MessageText = MessageText + Chars.LF + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'To delete all inherited access rights,
-				           |clear the ""%1"" check box.';"),
+				           |clear the ""%1"" check box.'"),
 				Items.InheritParentRights.Title);
 		EndIf;
 	EndIf;
@@ -911,7 +911,7 @@ Procedure ShowTypeSelectionUsersOrExternalUsers(ContinuationHandler)
 				"ShowTypeSelectionUsersOrExternalUsersCompletion",
 				ThisObject,
 				ContinuationHandler),
-			NStr("en = 'Select data type';"),
+			NStr("en = 'Select data type'"),
 			UserTypesList[0]);
 	Else
 		RunCallback(ContinuationHandler, ExternalUsersSelectionAndPickup);
@@ -1010,7 +1010,7 @@ Procedure ValidatePermissionToManageRights()
 		Return;
 	EndIf;
 	
-	Raise NStr("en = 'You cannot change access rights.';");
+	Raise NStr("en = 'You cannot change access rights.'");
 	
 EndProcedure
 

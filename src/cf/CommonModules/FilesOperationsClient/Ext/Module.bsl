@@ -68,7 +68,7 @@ Procedure AddFiles(Val FileOwner, Val FormIdentifier, Val Filter = "", FilesGrou
 	ResultHandler = Undefined) Export
 	
 	If Not ValueIsFilled(FileOwner) Then
-		Template = NStr("en = 'The %1 parameter value is not set in %2.';");
+		Template = NStr("en = 'The %1 parameter value is not set in %2.'");
 		Raise StringFunctionsClientServer.SubstituteParametersToString(Template, "FileOwner", 
 			"FilesOperationsClient.AddFiles");
 	EndIf;
@@ -121,7 +121,7 @@ Procedure AppendFile(ResultHandler, FileOwner, OwnerForm, CreateMode = Undefined
 	AddingOptions = Undefined) Export
 	
 	If Not ValueIsFilled(FileOwner) Then
-		Template = NStr("en = 'The %1 parameter value is not set in %2.';");
+		Template = NStr("en = 'The %1 parameter value is not set in %2.'");
 		Raise StringFunctionsClientServer.SubstituteParametersToString(Template, "FileOwner",
 			"FilesOperationsClient.AppendFile");
 	EndIf;
@@ -133,7 +133,7 @@ Procedure AppendFile(ResultHandler, FileOwner, OwnerForm, CreateMode = Undefined
 		ExecutionParameters.Insert("MaximumSize" , 0);
 		ExecutionParameters.Insert("NotOpenCard", ?(AddingOptions = Undefined, False, AddingOptions));
 		ExecutionParameters.Insert("SelectionDialogFilter",  
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask()));
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1'"), GetAllFilesMask()));
 		
 	Else
 		ExecutionParameters.Insert("MaximumSize" , AddingOptions.MaximumSize);
@@ -212,7 +212,7 @@ Procedure ShowConfirmationForClosingFormWithFiles(Form, Cancel, Exit, FilesOwner
 	
 	QueryText = NStr("en = 'One or several files are locked for editing.
 	                          |
-	                          |Do you want to continue?';");
+	                          |Do you want to continue?'");
 	CommonClient.ShowArbitraryFormClosingConfirmation(Form, Cancel, Exit, QueryText, AttributeName);
 	
 EndProcedure
@@ -235,7 +235,7 @@ Procedure CopyAttachedFile(FileOwner, BasisFile, AdditionalParameters = Undefine
 	OnCloseNotifyDescription = Undefined) Export
 	
 	If Not ValueIsFilled(FileOwner) Then
-		Template = NStr("en = 'The %1 parameter value is not set in %2.';");
+		Template = NStr("en = 'The %1 parameter value is not set in %2.'");
 		Raise StringFunctionsClientServer.SubstituteParametersToString(Template, "FileOwner",
 			"FilesOperationsClient.CopyAttachedFile");
 	EndIf;
@@ -286,7 +286,7 @@ Procedure SaveWithDigitalSignature(Val AttachedFile, Val FormIdentifier) Export
 	ExecutionParameters.Insert("FormIdentifier", FormIdentifier);
 	
 	DataDetails = New Structure;
-	DataDetails.Insert("DataTitle",     NStr("en = 'File';"));
+	DataDetails.Insert("DataTitle",     NStr("en = 'File'"));
 	DataDetails.Insert("ShowComment", True);
 	DataDetails.Insert("Presentation",       ExecutionParameters.FileData.Ref);
 	DataDetails.Insert("Object",              AttachedFile);
@@ -344,7 +344,7 @@ Procedure OpenFileChoiceForm(Val FilesOwner, Val FormItem, StandardProcessing = 
 		OnCloseNotifyHandler = New CallbackDescription("PromptForWriteRequiredAfterCompletion", ThisObject);
 		ShowQueryBox(OnCloseNotifyHandler,
 			NStr("en = 'You have unsaved data.
-				|You can open ""Attachments"" after saving the data.';"),
+				|You can open ""Attachments"" after saving the data.'"),
 				QuestionDialogMode.OK);
 	Else
 		FormParameters = New Structure;
@@ -491,12 +491,12 @@ Procedure SignFile(AttachedFile, FormIdentifier, AdditionalParameters = Undefine
 	SignatureParameters = Undefined) Export
 	
 	If Not ValueIsFilled(AttachedFile) Then
-		ShowMessageBox(, NStr("en = 'Please select a file to sign.';"));
+		ShowMessageBox(, NStr("en = 'Please select a file to sign.'"));
 		Return;
 	EndIf;
 	
 	If Not CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
-		ShowMessageBox(, NStr("en = 'This app version doesn''t support adding digital signatures.';"));
+		ShowMessageBox(, NStr("en = 'This app version doesn''t support adding digital signatures.'"));
 		Return;
 	EndIf;
 	
@@ -504,7 +504,7 @@ Procedure SignFile(AttachedFile, FormIdentifier, AdditionalParameters = Undefine
 	
 	If Not ModuleDigitalSignatureClient.UseDigitalSignature() Then
 		ShowMessageBox(,
-			NStr("en = 'Digital signatures cannot be added due to the app settings.';"));
+			NStr("en = 'Digital signatures cannot be added due to the app settings.'"));
 		Return;
 	EndIf;
 	
@@ -616,7 +616,7 @@ EndProcedure
 Procedure OpenScanSettingForm() Export
 	
 	If Not FilesOperationsInternalClient.ScanAvailable() Then
-		MessageText = NStr("en = 'Scanning is supported for MS Windows and Linux OS.';");
+		MessageText = NStr("en = 'Scanning is supported for MS Windows and Linux OS.'");
 		ShowMessageBox(, MessageText);
 		Return;
 	EndIf;
@@ -712,12 +712,12 @@ Procedure CombineToMultipageFile(NotificationOfReturn, ObjectsForMerging, Graphi
 	Context.Insert("UserScanSettings", UserScanSettings);
 	
 	If ObjectsForMerging.Count() = 0 Then
-		Result.ErrorDescription = NStr("en = 'Images for merging are not specified.';");
+		Result.ErrorDescription = NStr("en = 'Images for merging are not specified.'");
 		RunCallback(NotificationOfReturn, Result);
 		Return;
 	ElsIf UseImageMagick And Not ValueIsFilled(PathToConverterApplication) Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Path to %1 is missing.
-			|Multipage documents are merged using 1C:Enterprise tools.';"), 
+			|Multipage documents are merged using 1C:Enterprise tools.'"), 
 			"ImageMagick");
 		
 		EventLogClient.AddMessageForEventLog(EventLogEvent(),
@@ -1133,7 +1133,7 @@ EndProcedure
 Procedure PrintFileByApplication(FileData, FileToOpenName)
 	
 #If MobileClient Then
-	ShowMessageBox(, NStr("en = 'You can print this type of files only from an application for Windows or Linux.';"));
+	ShowMessageBox(, NStr("en = 'You can print this type of files only from an application for Windows or Linux.'"));
 	Return;
 #Else
 	ExtensionsExceptions = 
@@ -1146,7 +1146,7 @@ Procedure PrintFileByApplication(FileData, FileToOpenName)
 	Extension = Lower(FileData.Extension);
 	
 	If StrFind(ExtensionsExceptions, " " + Extension + ",") > 0 Then
-		ShowMessageBox(, NStr("en = 'Cannot print this type of files.';"));
+		ShowMessageBox(, NStr("en = 'Cannot print this type of files.'"));
 		Return;
 	ElsIf Extension = "grs" Then
 		Schema = New GraphicalSchema;
@@ -1164,7 +1164,7 @@ Procedure PrintFileByApplication(FileData, FileToOpenName)
 	Except
 		ShowMessageBox(, StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot print the file. Reason:
-				|%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo()))); 
+				|%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo()))); 
 	EndTry;
 #EndIf
 
@@ -1192,7 +1192,7 @@ Procedure PrintFilesExecution(ResultHandler, ExecutionParameters) Export
 		
 #If WebClient Then
 	If ExecutionParameters.FileData.Extension <> "mxl" Then
-		Text = NStr("en = 'Save the file to your computer and then print it from an application that can open this file.';");
+		Text = NStr("en = 'Save the file to your computer and then print it from an application that can open this file.'");
 		ShowMessageBox(, Text);
 		Return;
 	EndIf;
@@ -1449,7 +1449,7 @@ Procedure AfterCheckIfConversionAppInstalled(RunResult, Context) Export
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Specified path to the %1 application is incorrect.
 		|Multipage documents are merged using 1C:Enterprise tools.
-		|Specified path: %2';"), "ImageMagick", PathToConverterApplication); 
+		|Specified path: %2'"), "ImageMagick", PathToConverterApplication); 
 		EventLogClient.AddMessageForEventLog(EventLogEvent(),
 			"Warning", ErrorText,, True);
 		Context.GraphicDocumentConversionParameters.UseImageMagick = False;
@@ -1488,7 +1488,7 @@ Procedure MergeIntoMultipageFileFollowUp(Context)
 			PDFDocument.Read(Stream);
 			For ObjectIndex = 0 To ImagesForMerging.UBound() Do
 				LongDesc = New PDFRepresentationObjectDescription;
-				LongDesc.Name           = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Image #%1';"), ObjectIndex);
+				LongDesc.Name           = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Image #%1'"), ObjectIndex);
 				Image = ImagesForMerging[ObjectIndex];
 				Width = Image.Width();
 				Height = Image.Height();
@@ -1587,7 +1587,7 @@ Procedure AskQuestionAboutOwnerRecord(CompletionHandlerParameters)
 	
 	QueryText = NStr("en = 'You have unsaved data.
 		|You can open the attachments after saving the data.
-		|Do you want to save the data?';");
+		|Do you want to save the data?'");
 	HandlerNotifications = New CallbackDescription("ShowNewOwnerRecordQuestion", ThisObject, CompletionHandlerParameters);
 	
 	ShowQueryBox(HandlerNotifications, QueryText, QuestionDialogMode.OKCancel);
@@ -1835,7 +1835,7 @@ Procedure PreviewFieldDragCompletion(ExtensionInstalled, AdditionalParameters) E
 	NumberType = New TypeDescription("Number");
 	ItemNumber = NumberType.AdjustValue(ExecutionParameters.ItemNumber);
 	If TypeOf(DragParameters.Value) = Type("FileRef")
-		And FilesOperationsInternalServerCall.HasAccessRight("Create", AttachedFilesOwner) Then //@Access-right-2
+		And FilesOperationsInternalServerCall.HasAccessRight("Insert", AttachedFilesOwner) Then // @Access-right-2
 		
 		File = DragParameters.Value.File;
 		If File = Undefined Then
@@ -1922,7 +1922,7 @@ Procedure UpdatePreviewArea(Form, ItemNumber, File)
 			PictureItem.NonselectedPictureText = NonselectedPictureText;
 		ElsIf UpdateData.FileCorrupted Then
 			Form[AttributeName] = Undefined;
-			PictureItem.NonselectedPictureText = NStr("en = 'No image';");
+			PictureItem.NonselectedPictureText = NStr("en = 'No image'");
 		Else
 			Form[AttributeName] = FileData.RefToBinaryFileData;
 			PictureItem.NonselectedPictureText = NonselectedPictureText;
@@ -1935,7 +1935,7 @@ Procedure UpdatePreviewArea(Form, ItemNumber, File)
 	If TitleItem <> Undefined Then
 		
 		If FileData = Undefined Then
-			TitleItem.Title = NStr("en = 'upload';");
+			TitleItem.Title = NStr("en = 'upload'");
 			TitleItem.ToolTipRepresentation = ToolTipRepresentation.None;
 		Else
 			TitleItem.Title = FileData.FileName;
@@ -2112,7 +2112,7 @@ EndProcedure
 
 Function EventLogEvent()
 	
-	Return NStr("en = 'Files';", CommonClient.DefaultLanguageCode());
+	Return NStr("en = 'Files'", CommonClient.DefaultLanguageCode());
 	
 EndFunction
 

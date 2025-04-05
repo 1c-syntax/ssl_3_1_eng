@@ -68,7 +68,7 @@ Procedure WriteObject(Val Object, Val RegisterOnExchangePlanNodes = Undefined,
 	If Var_DocumentWriteMode <> Undefined Then
 		If TypeOf(Var_DocumentWriteMode) <> Type("DocumentWriteMode") Then
 			ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Invalid type of parameter %1';"),
+				NStr("en = 'Invalid type of parameter %1'"),
 				"DocumentWriteMode");
 			Raise ExceptionText;
 		EndIf;
@@ -252,7 +252,7 @@ Procedure CheckObjectProcessed(Data, Form = Undefined, DeferredHandlerName = "",
 		           |from update handler
 		           |%2
 		           | as its queue number is less than or equal to the queue number of update handler
-		           |%3.';"),
+		           |%3.'"),
 		InterfaceProcedureName,
 		SessionParameters.UpdateHandlerParameters.HandlerName,
 		DeferredHandlerName);
@@ -356,11 +356,11 @@ Function ObjectProcessed(Data) Export
 		
 		PartsExceptions = New Array;
 		PartsExceptions.Add(NStr("en = 'Operations with this object are temporarily blocked
-			|until the scheduled upgrade to a new version is completed.';"));
+			|until the scheduled upgrade to a new version is completed.'"));
 		PartsExceptions.Add(StrConcat(StrSplit(NStr("en = 'To enable editing, click More actions > Unlock.
 			|Do that responsibly, as it might
-			|corrupt the document.';"), Chars.LF), " "));
-		PartsExceptions.Add(NStr("en = 'The following data processing procedures are not completed';"));
+			|corrupt the document.'"), Chars.LF), " "));
+		PartsExceptions.Add(NStr("en = 'The following data processing procedures are not completed'"));
 		
 		ExceptionText = StrConcat(PartsExceptions, Chars.LF + Chars.LF) + ":";
 		
@@ -434,7 +434,7 @@ Procedure MarkProcessingCompletion(Data, AdditionalParameters = Undefined, Queue
 		Or TypeOf(Data) = Type("ValueTable"))
 		And Data.Count() = 0 Then
 		
-		ExceptionText = NStr("en = 'An empty array is passed to procedure %1. Cannot mark the data processing procedure as completed.';");
+		ExceptionText = NStr("en = 'An empty array is passed to procedure %1. Cannot mark the data processing procedure as completed.'");
 		ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(ExceptionText, "InfobaseUpdate.MarkProcessingCompletion");
 		Raise ExceptionText;
 		
@@ -452,7 +452,7 @@ Procedure MarkProcessingCompletion(Data, AdditionalParameters = Undefined, Queue
 		
 	Else
 		If TypeOf(Data) = Type("MetadataObject") Then
-			ExceptionText = NStr("en = 'Setting ""update processing completed"" flag to an entire metadata object is not supported. This flag can be set to specific data.';");
+			ExceptionText = NStr("en = 'Setting ""update processing completed"" flag to an entire metadata object is not supported. This flag can be set to specific data.'");
 			Raise ExceptionText;
 		EndIf;
 		
@@ -635,7 +635,7 @@ Function MetadataAndFilterByData(Data, AdditionalParameters = Undefined) Export
 			EndDo;
 			
 		Else
-			ExceptionText = NStr("en = 'Cannot use procedure %1 in this form.';");
+			ExceptionText = NStr("en = 'Cannot use procedure %1 in this form.'");
 			ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(ExceptionText, "InfobaseUpdate.MetadataAndFilterByData");
 		EndIf;
 		
@@ -675,7 +675,7 @@ Function MetadataAndFilterByData(Data, AdditionalParameters = Undefined) Export
 				Filter = Data.Filter.Recorder.Value;
 			EndIf;
 		Else
-			ExceptionText = NStr("en = 'Function %1 does not support analysis of this metadata type.';");
+			ExceptionText = NStr("en = 'Function %1 does not support analysis of this metadata type.'");
 			ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(ExceptionText, "InfobaseUpdate.MetadataAndFilterByData");
 			Raise ExceptionText;
 		EndIf;
@@ -713,8 +713,8 @@ EndFunction
 //                        d) during the update, the filter applied to the process request is applied
 //                          to sets to be recorded;
 //                        e) the respective flag value and full register name are passed to AdditionalParameters.
-//                    - QueryResult - 
-//                                         
+//                    - QueryResult - For reference-type objects (require the "Ref" column) and
+//                                         independent registers information (see the restriction mentioned above).
 //  AdditionalParameters - See InfobaseUpdate.AdditionalProcessingMarkParameters.
 // 
 Procedure MarkForProcessing(MainParameters, Data, AdditionalParameters = Undefined) Export
@@ -750,7 +750,7 @@ Procedure MarkForProcessing(MainParameters, Data, AdditionalParameters = Undefin
 		
 		If NonExistent.Count() <> 0 Then
 			ExceptionText = NStr("en = 'Non-existing objects are specified in the %1 property of the deferred handler data population procedures:
-				|%2.';");
+				|%2.'");
 			ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(ExceptionText,
 				"SelectionParameters", StrConcat(NonExistent, ", "));
 			Raise ExceptionText;
@@ -776,7 +776,7 @@ Procedure MarkForProcessing(MainParameters, Data, AdditionalParameters = Undefin
 			ElsIf Common.IsReference(TypeOf(Data)) Then
 				MetadataOfDocument = Data.Metadata();
 			Else
-				ExceptionText = NStr("en = 'To register all register recorders, in the Data parameter, pass the metadata object ""Document"" or ""DocumentRef"".';");
+				ExceptionText = NStr("en = 'To register all register recorders, in the Data parameter, pass the metadata object ""Document"" or ""DocumentRef"".'");
 				Raise ExceptionText;
 			EndIf;
 			FullDocumentName = MetadataOfDocument.FullName();
@@ -832,7 +832,7 @@ Procedure MarkForProcessing(MainParameters, Data, AdditionalParameters = Undefin
 			RegisterObjectChanges(MainParameters, Node, Data, "Ref");
 		Else
 			If TypeOf(Data) = Type("MetadataObject") Then
-				ExceptionText = NStr("en = 'Registration of an entire metadata object for update is not supported. Please update specific data.';");
+				ExceptionText = NStr("en = 'Registration of an entire metadata object for update is not supported. Please update specific data.'");
 				Raise ExceptionText;
 			EndIf;
 			
@@ -893,7 +893,8 @@ EndProcedure
 //                                     in the queue. Source name format: <AttributeName> or
 //                                     <TabularSectionName>.<TabularSectionAttributeName>. 
 //                                     For a seamless population,
-//                                     See SetDataSource.
+//                                     See SetDataSource
+//                                                                     .
 //   * OrderFields  - Array - the name of independent information register fields used to organize
 //                                    a query result.
 //   * MaxSelection - Number - the maximum number of selecting records.
@@ -1271,7 +1272,7 @@ EndFunction
 //
 Function SelectRegisterRecordersToProcess(Queue, FullDocumentName, FullRegisterName, AdditionalParameters = Undefined) Export
 	
-	CheckMultithreadingParameters(AdditionalParameters, FullRegisterName); // ACC:1036 Орфография не нарушена
+	CheckMultithreadingParameters(AdditionalParameters, FullRegisterName); // ACC:1036 - Correct spelling.
 	
 	If AdditionalParameters = Undefined Then
 		AdditionalParameters = AdditionalProcessingDataSelectionParameters();
@@ -1436,7 +1437,7 @@ EndFunction
 //
 Function SelectRefsToProcess(Queue, FullObjectName, AdditionalParameters = Undefined) Export
 	
-	CheckMultithreadingParameters(AdditionalParameters, FullObjectName); // ACC:1036 Орфография не нарушена
+	CheckMultithreadingParameters(AdditionalParameters, FullObjectName); // ACC:1036 - Correct spelling.
 	
 	If AdditionalParameters = Undefined Then
 		AdditionalParameters = AdditionalProcessingDataSelectionParameters();
@@ -1694,7 +1695,7 @@ EndFunction
 //
 Function SelectStandaloneInformationRegisterDimensionsToProcess(Queue, FullObjectName, AdditionalParameters = Undefined) Export
 	
-	CheckMultithreadingParameters(AdditionalParameters, FullObjectName); // ACC:1036 Орфография не нарушена
+	CheckMultithreadingParameters(AdditionalParameters, FullObjectName); // ACC:1036 - Correct spelling.
 	
 	If AdditionalParameters = Undefined Then
 		AdditionalParameters = AdditionalProcessingDataSelectionParameters();
@@ -1927,14 +1928,14 @@ EndFunction
 // Parameters:
 //  Queue    - Number           - the position in the queue the handler and the data
 //                                 it will process are assigned to.
-//             - Undefined    - 
-//             - Array of Number - 
+//             - Undefined    - Check if the data processor has finished.
+//             - Array of Number - Check if there is data in the queue list pending processing.
 //  FullObjectNameMetadata - String
-//                             - MetadataObject - 
-//                                                  
+//                             - MetadataObject - Full name of the object being processed or
+//                                                  its metadata. For example, "Document.GoodsReceipt".
 //                             - Array of String 
-//                             - Array of MetadataObject - 
-//                                                            
+//                             - Array of MetadataObject - Full names of objects or metadata objects.
+//                                                            The array cannot have independent information registers.
 //  Filter - AnyRef
 //        - Structure
 //        - Undefined
@@ -1963,7 +1964,7 @@ Function HasDataToProcess(Queue, FullObjectNameMetadata, Filter = Undefined) Exp
 		FullNamesOfObjectsToProcess = New Array;
 		FullNamesOfObjectsToProcess.Add(FullObjectNameMetadata.FullName());
 	Else
-		ExceptionText = NStr("en = 'Invalid type of parameter ""%1"" when calling function %2.';");
+		ExceptionText = NStr("en = 'Invalid type of parameter ""%1"" when calling function %2.'");
 		ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(ExceptionText, 
 			"FullObjectNameMetadata", "InfobaseUpdate.HasDataToProcess");
 		Raise ExceptionText;
@@ -2018,7 +2019,7 @@ Function HasDataToProcess(Queue, FullObjectNameMetadata, Filter = Undefined) Exp
 			And ObjectMetadata.WriteMode = Metadata.ObjectProperties.RegisterWriteMode.Independent Then
 			
 			If FullNamesOfObjectsToProcess.Count() > 1 Then
-				ExceptionText = NStr("en = 'In the name array in parameter ""%1"", an independent information register is passed to function %2.';");
+				ExceptionText = NStr("en = 'In the name array in parameter ""%1"", an independent information register is passed to function %2.'");
 				ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(ExceptionText,
 					"FullObjectNameMetadata", "InfobaseUpdate.HasDataToProcess");
 				Raise ExceptionText;
@@ -2120,7 +2121,7 @@ Function HasDataToProcess(Queue, FullObjectNameMetadata, Filter = Undefined) Exp
 				QueryTextsIntermediate.Add(IntermediateQueryText);
 			EndDo;
 		Else
-			ExceptionText = NStr("en = 'Function %2 does not support checks for metadata type ""%1"".';");
+			ExceptionText = NStr("en = 'Function %2 does not support checks for metadata type ""%1"".'");
 			ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(ExceptionText,
 				String(ObjectMetadata), "InfobaseUpdate.HasDataToProcess");
 			Raise ExceptionText;
@@ -2183,7 +2184,7 @@ Function HasDataToProcess(Queue, FullObjectNameMetadata, Filter = Undefined) Exp
 		
 		SetSafeModeDisabled(True);
 		SetPrivilegedMode(True);
-		If Not Query.Execute().IsEmpty() Then // @skip-check query-in-loop - To avoid heavy queries.
+		If Not Query.Execute().IsEmpty() Then // @skip-check query-in-loop - для избежания слишком тяжелого запроса.
 			Return True;
 		EndIf;
 		SetPrivilegedMode(False);
@@ -2198,17 +2199,17 @@ EndFunction
 // Parameters:
 //  Queue    - Number           - the position in the queue the handler and the data
 //                                 it will process are assigned to.
-//             - Undefined    - 
+//             - Undefined    - Check if the data processor has finished.
 //             - Array of Number - checked if there is data to be processed in the queues list.
 //  FullObjectNameMetadata - String
-//                             - MetadataObject - 
-//                                                   
-//                                                  
-//                                                   
+//                             - MetadataObject - For data handlers that modify data in multiple metadata objects,
+//                                                  full name, or metadata of a processed object. 
+//                                                  For example, "Document.GoodsReceipt".
+//                                                  If not specified, then the value is taken from the "ObjectsToChange" property. 
 //                                                  
 //                             - Array of String 
-//                             - Array of MetadataObject - 
-//                                                            
+//                             - Array of MetadataObject - Full names of objects or metadata objects.
+//                                                            The array cannot have independent information registers.
 //  Filter - AnyRef
 //        - Structure
 //        - Undefined
@@ -2231,12 +2232,12 @@ Function DataProcessingCompleted(Queue, FullObjectNameMetadata = "", Filter = Un
 		If MetadataNamesArray.Count() = 1 Then
 			FullObjectNameMetadata = SessionParameters.UpdateHandlerParameters.ObjectsToChange;
 		ElsIf MetadataNamesArray.Count() > 1 Then
-			MessageText = NStr("en = 'Parameter %1 is required to call function %2.';");
+			MessageText = NStr("en = 'Parameter %1 is required to call function %2.'");
 			StringFunctionsClientServer.SubstituteParametersToString(MessageText, 
 				"FullObjectNameMetadata", "InfobaseUpdate.DataProcessingCompleted");
 			Raise(MessageText, ErrorCategory.ConfigurationError);
 		Else
-			MessageText = NStr("en = 'Event handler property %1 is required.';");
+			MessageText = NStr("en = 'Event handler property %1 is required.'");
 			StringFunctionsClientServer.SubstituteParametersToString(MessageText, "ObjectsToChange");
 			Raise(MessageText, ErrorCategory.ConfigurationError);
 		EndIf;
@@ -2253,11 +2254,11 @@ EndFunction
 //          - Undefined - the position in the queue the handler and
 //                           the data it will process are assigned to.
 //  FullObjectNameMetadata - String
-//                             - MetadataObject - 
-//                                                  
+//                             - MetadataObject - Full name of the object being processed or
+//                                                  its metadata. For example, "Document.GoodsReceipt".
 //                             - Array of String 
-//                             - Array of MetadataObject - 
-//                                                  
+//                             - Array of MetadataObject - Full names of objects or metadata objects.
+//                                                  The array cannot have independent information registers.
 // 
 // Returns:
 //  Boolean - True if processing of the object is locked by smaller queues.
@@ -2474,7 +2475,7 @@ Function CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, FullOb
 			QueryText = StrReplace(QueryText, "Recorder", NameOfTheDimensionToSelect);
 		EndIf;
 	Else
-		ExceptionText = NStr("en = 'Function %1 does not support checks for this metadata type.';");
+		ExceptionText = NStr("en = 'Function %1 does not support checks for this metadata type.'");
 		ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(ExceptionText, "InfobaseUpdate.CreateTemporaryTableOfDataProhibitedFromReadingAndEditing");
 		Raise ExceptionText;
 	EndIf;
@@ -2620,7 +2621,7 @@ Function CreateTemporaryTableOfRefsProhibitedFromReadingAndEditing(Queue, FullNa
 				HasRegisters = True;
 				
 			Else
-				ExceptionText = NStr("en = 'Function %2 does not support checks for metadata type ""%1"".';");
+				ExceptionText = NStr("en = 'Function %2 does not support checks for metadata type ""%1"".'");
 				ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(ExceptionText,
 					String(ObjectMetadata), "InfobaseUpdate.CreateTemporaryTableOfRefsProhibitedFromReadingAndEditing");
 				Raise ExceptionText;
@@ -3548,7 +3549,7 @@ Function DataAreasUpdateProgress(UpdateMode) Export
 	Else
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Incorrect value of the ""%1"" parameter.
-				 |Possible values: ""%2"", ""%3""';"), "UpdateMode", UpdateModeOnline, UpdateModeDeferred);
+				 |Possible values: ""%2"", ""%3""'"), "UpdateMode", UpdateModeOnline, UpdateModeDeferred);
 	EndIf;
 	
 	StatusOrderUpdated = 4;
@@ -3841,7 +3842,7 @@ Function UpdateHandlers(Filter = Undefined) Export
 				Continue;
 			EndIf;
 			String = HandlersInformation.Add();
-			String.HandlerName = NStr("en = 'Internal procedures to register deferred handlers';");
+			String.HandlerName = NStr("en = 'Internal procedures to register deferred handlers'");
 			String.ExecutionMode = ModeNamesByValue[Enums.HandlersExecutionModes.Seamless];
 			String.LibraryName = "StandardSubsystemsLibrary";
 			String.Status = NamesOfStatusesByValue[Enums.UpdateHandlersStatuses.Running];
@@ -4132,7 +4133,7 @@ Procedure WriteErrorToEventLog(Ref_Metadata, Val Presentation, ErrorInfo = Undef
 	EndIf;
 	
 	MessageText = NStr("en = 'Couldn''t process ""%1"" due to:
-		|%2';");
+		|%2'");
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText,
 		Presentation,
 		ErrorText);
@@ -4216,7 +4217,7 @@ Procedure RelaunchDeferredUpdate(Filter = Undefined) Export
 	
 	If TypeOf(Filter) = Type("Structure")
 		And Filter.Count() = 0 Then
-		Raise NStr("en = 'The dataset is missing the list of subsystems that require restart of deferred handlers.';");
+		Raise NStr("en = 'The dataset is missing the list of subsystems that require restart of deferred handlers.'");
 	EndIf;
 	
 	// Deferred update handlers.
@@ -4341,7 +4342,7 @@ Procedure RelaunchDeferredUpdate(Filter = Undefined) Export
 			TempQueueObject.Description = XMLString(Queue);
 			TempQueueObject.Temporary = False;
 			
-			MainQueueObject.Description = XMLString(Queue) + " " + NStr("en = 'Old after restart';");
+			MainQueueObject.Description = XMLString(Queue) + " " + NStr("en = 'Old after restart'");
 			MainQueueObject.Temporary = True;
 			
 			TempQueueObject.Write();
@@ -4452,7 +4453,7 @@ Procedure FileIssueWithData(ObjectWithIssue, IssueSummary, Parameters = Undefine
 	
 	TemplateEntryToLog = NStr("en = 'An issue found in object ""%2"" when running handler ""%1"".
 		|Issue details:
-		|%3';");
+		|%3'");
 	
 	TextToWriteToLog = StringFunctionsClientServer.SubstituteParametersToString(TemplateEntryToLog,
 		HandlerName, ObjectWithIssue, IssueSummary);
@@ -4520,9 +4521,9 @@ Procedure AddAdditionalSourceLockCheck(Queue, QueryText, FullObjectName, FullReg
 		
 		If AdditionalSourcesRefs.Count() > 0 Then
 			If FullObjectName = Undefined Then
-				ExceptionText = NStr("en = '%FunctionName% function call error: additional data sources were passed without a document name.';");
+				ExceptionText = NStr("en = '%FunctionName% function call error: additional data sources were passed without a document name.'");
 				ExceptionText = StrReplace(ExceptionText, "%FunctionName%", "InfobaseUpdate.AddAdditionalSourceLockCheck");
-				Raise ExceptionText;
+				Raise(ExceptionText, ErrorCategory.ConfigurationError);
 			EndIf;
 			
 			MetadataOfDocument = Common.MetadataObjectByFullName(FullObjectName);
@@ -4565,7 +4566,7 @@ Procedure AddAdditionalSourceLockCheck(Queue, QueryText, FullObjectName, FullReg
 						TemporaryTablesOfLockedAdditionalSources[SourceMetadata] = LockedAdditionalSourceTTName;
 						AdditionalParametersForTTCreation = AdditionalProcessingDataSelectionParameters();
 						AdditionalParametersForTTCreation.TempTableName = LockedAdditionalSourceTTName;
-						CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, // @skip-check query-in-loop - Batch verification of locked data.
+						CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, // @skip-check query-in-loop - пакетная проверка заблокированных данных.
 							FullSourceName,
 							TempTablesManager,
 							AdditionalParametersForTTCreation); 
@@ -4627,7 +4628,7 @@ Procedure AddAdditionalSourceLockCheck(Queue, QueryText, FullObjectName, FullReg
 				If Common.IsInformationRegister(SourceMetadata)
 					And SourceMetadata.WriteMode = Metadata.ObjectProperties.RegisterWriteMode.Independent Then
 					
-					ExceptionText = NStr("en = 'The %DataSource% register is independent. The check supports only registers that are subordinate to recorders.';");
+					ExceptionText = NStr("en = 'The %DataSource% register is independent. The check supports only registers that are subordinate to recorders.'");
 					ExceptionText = StrReplace(ExceptionText, "%DataSource%",DataSource);
 					Raise ExceptionText;
 				EndIf;
@@ -4639,7 +4640,7 @@ Procedure AddAdditionalSourceLockCheck(Queue, QueryText, FullObjectName, FullReg
 					
 					AdditionalParametersForTTCreation = AdditionalProcessingDataSelectionParameters();
 					AdditionalParametersForTTCreation.TempTableName = LockedAdditionalSourceTTName;
-					CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, DataSource, TempTablesManager, AdditionalParametersForTTCreation); // @skip-check query-in-loop - Batch verification of locked data.
+					CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, DataSource, TempTablesManager, AdditionalParametersForTTCreation); // @skip-check query-in-loop - пакетная проверка заблокированных данных.
 					
 					TemporaryTablesOfLockedAdditionalSources.Insert(SourceMetadata, LockedAdditionalSourceTTName);
 				EndIf;
@@ -4720,7 +4721,7 @@ Procedure AddAdditionalSourceLockCheckForStandaloneRegister(Queue, QueryText, Fu
 			TempTableName = "TTLocked" + DataSource;
 			AdditionalParametersForTTCreation.TempTableName = TempTableName;
 			
-			CreateTemporaryTableOfRefsProhibitedFromReadingAndEditing(Queue, MetadataObjectsArray, TempTablesManager, AdditionalParametersForTTCreation); // @skip-check query-in-loop - Batch verification of locked data.
+			CreateTemporaryTableOfRefsProhibitedFromReadingAndEditing(Queue, MetadataObjectsArray, TempTablesManager, AdditionalParametersForTTCreation); // @skip-check query-in-loop - пакетная проверка заблокированных данных.
 			
 			ConditionByAdditionalSourcesRefs = StringFunctionsClientServer.SubstituteParametersToString(
 				TemplateConditionsForAdditionalSourcesLinks,
@@ -4860,13 +4861,13 @@ Procedure RegisterChangesToTheSubordinateRegister(Parameters, Node, Recorders, D
 	
 EndProcedure
 
-// 
-// 
+// Record changes of the independent register by the query result or value table,
+// where columns are dimensions, and rows are records to register.
 //
 // Parameters:
 //  Parameters - See InfobaseUpdate.MainProcessingMarkParameters.
 //  Node - ExchangePlanRef.InfobaseUpdate
-//  Records - 
+//  Records - "ValueTable" or "QueryResult".
 //  DataKind - String
 //  FullObjectName - String
 //
@@ -4902,15 +4903,15 @@ Procedure RegisterChangesToTheIndependentRegister(Parameters, Node, Records, Dat
 	
 EndProcedure
 
-// 
-// 
+// Record changes of the independent register set by the query result or value table,
+// where columns are dimensions, and rows are records to register.
 //
 // Parameters:
 //  Parameters - See NewRegistrationParameters.
 //  Node - ExchangePlanRef.InfobaseUpdate
-//  RegisterMetadata - 
-//  Record - 
-//  Records - 
+//  RegisterMetadata - "MetadataObject" of an independent register.
+//  Record - "ValueTableRow" or "QueryResultSelection".
+//  Records - "ValueTable" or "QueryResult".
 //
 Procedure RegisterChangesToIndependentInformationRegister(Parameters, Node, RegisterMetadata, Record, Records)
 	
@@ -4951,7 +4952,7 @@ Procedure RegisterChangesToADataItem(Data, RegistrationParameters)
 				|might not be included in the ""%1"" exchange plan.
 				|To detect such errors, use the %2 tool.
 				|
-				|%3';");
+				|%3'");
 			ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(ExceptionText, 
 				Metadata.ExchangePlans.InfobaseUpdate.Name,
 				"SSLImplementationCheck",
@@ -4997,7 +4998,7 @@ Procedure RegisterADataPackage(RegistrationParameters, Data, Forcibly = False, P
 				|might not be included in the ""%1"" exchange plan.
 				|To detect such errors, use the %2 tool.
 				|
-				|%3';");
+				|%3'");
 			ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(ExceptionText, 
 				Metadata.ExchangePlans.InfobaseUpdate.Name,
 				"SSLImplementationCheck",
@@ -5093,7 +5094,7 @@ Procedure DeleteTheRegistrationOfChangesToTheSubordinateRegister(Node, Recorders
 		Set = GetAReusedSet(DeletionParameters.ReusedSets);
 		Set.Filter.Recorder.Set(Recorder);
 		
-		WriteProgressProgressHandler(Set, Node); // @skip-check query-in-loop - The loop has no query.
+		WriteProgressProgressHandler(Set, Node); // @skip-check query-in-loop - нет запроса в цикле.
 		DeleteRegistrationOfDataItemChanges(Set, DeletionParameters);
 	EndDo;
 	
@@ -5122,7 +5123,7 @@ Procedure DeleteRegistrationOfIndependentRegisterChanges(Node, Records, FullObje
 			Set.Filter[Column.Name].Use = True;
 		EndDo;
 		
-		WriteProgressProgressHandler(Set, Node, RegisterMetadata); // @skip-check query-in-loop - The loop has no query.
+		WriteProgressProgressHandler(Set, Node, RegisterMetadata); // @skip-check query-in-loop - нет запроса в цикле.
 		DeleteRegistrationOfDataItemChanges(Set, DeletionParameters);
 	EndDo;
 	
@@ -5739,7 +5740,7 @@ Function SelectDataByPage(Query, BuildParameters)
 					Query.Text = Query.Text + TemporaryTablesDropQueryText;
 				EndIf;
 				
-				Upload0 = Query.Execute().Unload(); // @skip-check query-in-loop - Optimized date retrieval.
+				Upload0 = Query.Execute().Unload(); // @skip-check query-in-loop - оптимизированная выборка данных.
 				
 				If Result = Undefined Then
 					Result = Upload0;
@@ -6202,7 +6203,7 @@ EndFunction
 Procedure CheckSelectionParameters(Parameters)
 	
 	If Not Parameters.SelectInBatches And IsSelectionByPages(Parameters) Then
-		Raise NStr("en = 'Multi-threaded update handler must select data in portions.';");
+		Raise NStr("en = 'Multi-threaded update handler must select data in portions.'");
 	EndIf;
 	
 EndProcedure
@@ -6546,7 +6547,7 @@ Function IsSimpleDataSource(AdditionalDataSources)
 	EndDo;
 	
 	If SimpleSource And ComplexSource Then
-		Error = NStr("en = 'Invalid data source (see %1).';");
+		Error = NStr("en = 'Invalid data source (see %1).'");
 		Error = StringFunctionsClientServer.SubstituteParametersToString(Error, "AdditionalProcessingDataSelectionParameters()");
 		Raise Error;
 	Else
@@ -6997,7 +6998,7 @@ Procedure WriteProgressProgressHandler(Data, Node, ObjectMetadata = Undefined)
 				|WHERE
 				|	ChangesTable1.Node = &Node
 				|	AND ChangesTable1.Ref = &Ref";
-			Query.Text = StrReplace(Query.Text, "&NameOfChangeTable", FullName + ".Changes"); // @query-part
+			Query.Text = StrReplace(Query.Text, "&NameOfChangeTable", FullName + ".Changes"); // @query-part-2
 			If Not Query.Execute().IsEmpty() Then
 				ObjectsProcessed = 1;
 			EndIf;
@@ -7060,7 +7061,7 @@ Procedure SetHandlerParametersOnSelectData(AdditionalParameters, IsAllUpToDateDa
 	
 EndProcedure
 
-Procedure CheckMultithreadingParameters(AdditionalParameters, ObjectName) // ACC:1036 Орфография не нарушена
+Procedure CheckMultithreadingParameters(AdditionalParameters, ObjectName) // ACC:1036 - Correct spelling.
 	
 	If SessionParameters.UpdateHandlerParameters.Multithreaded
 		And (AdditionalParameters = Undefined
@@ -7068,7 +7069,7 @@ Procedure CheckMultithreadingParameters(AdditionalParameters, ObjectName) // ACC
 		And AdditionalParameters.AutoBatchSelection)) Then
 		
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Method %2 of module %3 must be called for multithreaded handler %1.';"),
+			NStr("en = 'Method %2 of module %3 must be called for multithreaded handler %1.'"),
 			ObjectName,
 			"DataToUpdateInMultithreadHandler",
 			"InfobaseUpdate");

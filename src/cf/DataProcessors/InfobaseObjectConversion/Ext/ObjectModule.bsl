@@ -368,9 +368,9 @@ Function ExportByRule(
 			SourceToString = " ";
 		EndTry;
 		
-		ActionName = ?(GetRefNodeOnly, NStr("en = 'Converting object reference';"), NStr("en = 'Converting object';"));
+		ActionName = ?(GetRefNodeOnly, NStr("en = 'Converting object reference'"), NStr("en = 'Converting object'"));
 		
-		MessageText = NStr("en = '[ActionName]: [Object]([ObjectType]), ПКО: [OCR](OCRDescription)';");
+		MessageText = NStr("en = '[ActionName]: [Object]([ObjectType]), ПКО: [OCR](OCRDescription)'");
 		MessageText = StrReplace(MessageText, "[ActionName]", ActionName);
 		MessageText = StrReplace(MessageText, "[Object]", SourceToString);
 		MessageText = StrReplace(MessageText, "[ObjectType]", TypeOf(Source));
@@ -542,7 +542,7 @@ Function ExportByRule(
 			
 		Except
 			WriteInfoOnOCRHandlerExportError(64, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
-				OCR, Source, NStr("en = 'BeforeConvertObject (global)';"));
+				OCR, Source, NStr("en = 'BeforeConvertObject (global)'"));
 		EndTry;
 		
 		If Cancel Then	//	Canceling further rule processing.
@@ -746,7 +746,7 @@ Function ExportByRule(
 					WP.ValueType         = PropertyStructure.RefTypeString1;
 					WP.ErrorMessageCode = 71;
 					WP.Text               = NStr("en = 'Map the Source value to the Destination value in the value conversion rule.
-														|If there is no appropriate destination value, specify an empty value.';");
+														|If there is no appropriate destination value, specify an empty value.'");
 					//
 					WriteToExecutionProtocol(71, WP);
 				EndIf;
@@ -1373,7 +1373,7 @@ Procedure ExportDataByRule(Rule) Export
 
 	If CommentObjectProcessingFlag Then
 		
-		MessageString = NStr("en = 'DATA EXPORT RULE: %1 (%2)';");
+		MessageString = NStr("en = 'DATA EXPORT RULE: %1 (%2)'");
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, TrimAll(Rule.Name), TrimAll(Rule.Description));
 		WriteToExecutionProtocol(MessageString, , False, , 4);
 		
@@ -1684,7 +1684,7 @@ Procedure WriteObjectToIB(Object, Type, WriteObject = False, Val SendBack = Fals
 		
 		If Not IsSeparatedMetadataObject Then 
 		
-			ErrorMessageString = NStr("en = 'Attempting to modify shared data (%1) in a separated session.';");
+			ErrorMessageString = NStr("en = 'Attempting to modify shared data (%1) in a separated session.'");
 			ErrorMessageString = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageString, Object.Metadata().FullName());
 			
 			WriteToExecutionProtocol(ErrorMessageString,, False,,,, Enums.ExchangeExecutionResults.CompletedWithWarnings);
@@ -2146,7 +2146,7 @@ Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 		
 		If DataProcessorForDataImport().FlagErrors() Then
 			
-			MessageString = NStr("en = 'Peer infobase error: %1';");
+			MessageString = NStr("en = 'Peer infobase error: %1'");
 			MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, DataProcessorForDataImport().ErrorMessageString());
 			WriteToExecutionProtocol(MessageString);
 			FinishKeepExchangeProtocol();
@@ -2438,7 +2438,7 @@ Procedure RunDataImport() Export
 			RunReadingData(MessageReader);
 			
 			If FlagErrors() Then
-				Raise NStr("en = 'Data import errors.';");
+				Raise NStr("en = 'Data import errors.'");
 			EndIf;
 			
 			// Delayed writing of what was not written.
@@ -2447,7 +2447,7 @@ Procedure RunDataImport() Export
 			ExecuteHandlerAfterImportData();
 			
 			If FlagErrors() Then
-				Raise NStr("en = 'Data import errors.';");
+				Raise NStr("en = 'Data import errors.'");
 			EndIf;
 			
 			DataExchangeInternal.DisableAccessKeysUpdate(False);
@@ -2542,7 +2542,7 @@ Procedure ExecuteDataImportForInfobase(TablesToImport) Export
 	DataExchangeState().StartDate = CurrentSessionDate();
 	
 	// Record in the event log.
-	MessageString = NStr("en = 'Data exchange started. Node: %1.';", Common.DefaultLanguageCode());
+	MessageString = NStr("en = 'Data exchange started. Node: %1.'", Common.DefaultLanguageCode());
 	MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, String(ExchangeNodeDataImport));
 	WriteEventLogDataExchange1(MessageString, EventLogLevel.Information);
 	
@@ -2564,7 +2564,7 @@ Procedure ExecuteDataImportForInfobase(TablesToImport) Export
 	// Record in the event log.
 	MessageString = NStr("en = 'Action to execute: %1;
 		|Completion status: %2;
-		|Objects processed: %3.';",
+		|Objects processed: %3.'",
 		Common.DefaultLanguageCode());
 	MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString,
 					ExchangeExecutionResult(),
@@ -2697,7 +2697,7 @@ Procedure ExecuteExchangeMessageAnalysis(AnalysisParameters = Undefined) Export
 			ReadDataInAnalysisMode(MessageReader, AnalysisParameters);
 			
 			If FlagErrors() Then
-				Raise NStr("en = 'Data analysis errors.';");
+				Raise NStr("en = 'Data analysis errors.'");
 			EndIf;
 			
 			// Generate a temporary data table.
@@ -2821,7 +2821,7 @@ Procedure ExternalConnectionConversionHandlerBeforeDataImport(Cancel) Export
 			
 		Except
 			WriteErrorInfoConversionHandlers(22, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
-				NStr("en = 'BeforeImportData (conversion)';"));
+				NStr("en = 'BeforeImportData (conversion)'"));
 			Cancel = True;
 		EndTry;
 		
@@ -2932,7 +2932,7 @@ Procedure ExternalConnectionAfterDataImport() Export
 				
 			Except
 				WriteErrorInfoConversionHandlers(23, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
-					NStr("en = 'AfterImportData (conversion)';"));
+					NStr("en = 'AfterImportData (conversion)'"));
 			EndTry;
 			
 		EndIf;
@@ -3108,9 +3108,9 @@ Function RulesInformation(IsCorrespondentRules = False) Export
 	EndIf;
 	
 	If IsCorrespondentRules Then
-		InfoString = NStr("en = 'Peer (%1) conversion rules created on %2';");
+		InfoString = NStr("en = 'Peer (%1) conversion rules created on %2'");
 	Else
-		InfoString = NStr("en = 'This infobase (%1) conversion rules created on %2';");
+		InfoString = NStr("en = 'This infobase (%1) conversion rules created on %2'");
 	EndIf;
 	
 	SourceConfigurationPresentation = ConfigurationPresentationFromExchangeRules("Source1");
@@ -4091,7 +4091,7 @@ Function DescriptionOfTypesFromJSON(JSONText)
 					Except
 						
 						// Skip the exception for renamed and deleted types.
-						CommentText1 = NStr("en = 'Metadata not found: %1.';", Common.DefaultLanguageCode());
+						CommentText1 = NStr("en = 'Metadata not found: %1.'", Common.DefaultLanguageCode());
 						CommentText1 = StrTemplate(CommentText1, TypeNameByString);
 						
 						WriteEventLogDataExchange1(CommentText1, EventLogLevel.Warning);						
@@ -4472,7 +4472,7 @@ Procedure WriteToFile(Node)
 		
 		If DataProcessorForDataImport().FlagErrors() Then
 			
-			MessageString = NStr("en = 'Peer infobase error: %1';");
+			MessageString = NStr("en = 'Peer infobase error: %1'");
 			MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, DataProcessorForDataImport().ErrorMessageString());
 			ExchangeExecutionResultExternalConnection = Enums.ExchangeExecutionResults[DataProcessorForDataImport().ExchangeExecutionResultString()];
 			WriteToExecutionProtocol(MessageString,,,,,, ExchangeExecutionResultExternalConnection);
@@ -4504,7 +4504,7 @@ Function OpenExportFile()
 		ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot open the file for writing the exchange message.
 				|File name: %1.
 				|Error details:
-				|%2';"),
+				|%2'"),
 			String(ExchangeFileName),
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		WriteToExecutionProtocol(ErrorPresentation);
@@ -4634,7 +4634,7 @@ Procedure InitializeKeepExchangeProtocol()
 		DataProtocolFile = New TextWriter(ExchangeProtocolFileName, TextEncoding.ANSI, , AppendDataToExchangeLog);
 	Except
 		DataProtocolFile = Undefined;
-		MessageString = NStr("en = 'Failed to log to: %1. Error details: %2';",
+		MessageString = NStr("en = 'Failed to log to: %1. Error details: %2'",
 			Common.DefaultLanguageCode());
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, ExchangeProtocolFileName,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
@@ -6950,7 +6950,7 @@ Procedure RestoreRulesFromInternalFormat() Export
 	RulesStructure.Property("RulesStorageFormatVersion", RulesStorageFormatVersion);
 	If RulesStorageFormatVersion <> ExchangeRuleStorageFormatVersion() Then
 		Raise NStr("en = 'Unexpected exchange rule storage format version.
-			|Please reload the exchange rules.';");
+			|Please reload the exchange rules.'");
 	EndIf;
 	
 	Conversion                = RulesStructure.Conversion;
@@ -7332,7 +7332,7 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 	ExchangeFile.Read(); // ExchangeFile
 	
 	If ExchangeFile.NodeType <> XMLNodeType.StartElement Then
-		Raise NStr("en = 'Exchange message format error.';");
+		Raise NStr("en = 'Exchange message format error'");
 	EndIf;
 	
 	If ExchangeFile.LocalName <> "ExchangeFile" Then
@@ -7340,7 +7340,7 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 		If DataExchangeXDTOServer.CheckExchangeMessageFormat(ExchangeFile) Then
 			SwitchToNewExchange();
 		Else
-			Raise NStr("en = 'Exchange message format error.';");
+			Raise NStr("en = 'Exchange message format error'");
 		EndIf;
 	EndIf;
 	
@@ -7361,17 +7361,17 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 	ExchangeFile.Read(); // ExchangeRules
 	
 	If ExchangeFile.NodeType <> XMLNodeType.StartElement Then
-		Raise NStr("en = 'Exchange message format error.';");
+		Raise NStr("en = 'Exchange message format error'");
 	EndIf;
 	
 	If ExchangeFile.LocalName <> "ExchangeRules" Then
-		Raise NStr("en = 'Exchange message format error.';");
+		Raise NStr("en = 'Exchange message format error'");
 	EndIf;
 	
 	If ConversionRulesTable.Count() = 0 Then
 		ImportExchangeRules(ExchangeFile, "XMLReader");
 		If FlagErrors() Then
-			Raise NStr("en = 'Cannot load data exchange rules.';");
+			Raise NStr("en = 'Cannot load data exchange rules.'");
 		EndIf;
 	Else
 		deSkip(ExchangeFile);
@@ -7396,11 +7396,11 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 			
 		Except
 			Raise WriteErrorInfoConversionHandlers(22, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
-				NStr("en = 'BeforeImportData (conversion)';"));
+				NStr("en = 'BeforeImportData (conversion)'"));
 		EndTry;
 		
 		If Cancel Then
-			Raise NStr("en = 'Exchange message import canceled in the BeforeImportData handler (conversion).';");
+			Raise NStr("en = 'Exchange message import canceled in the BeforeImportData handler (conversion).'");
 		EndIf;
 		
 	EndIf;
@@ -7409,7 +7409,7 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 	ExchangeFile.Read();
 	
 	If ExchangeFile.NodeType <> XMLNodeType.StartElement Then
-		Raise NStr("en = 'Exchange message format error.';");
+		Raise NStr("en = 'Exchange message format error'");
 	EndIf;
 	
 	// CustomSearchSetup (optional)
@@ -7422,7 +7422,7 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 	If ExchangeFile.LocalName = "DataTypeInformation" Then
 		
 		If ExchangeFile.NodeType <> XMLNodeType.StartElement Then
-			Raise NStr("en = 'Exchange message format error.';");
+			Raise NStr("en = 'Exchange message format error'");
 		EndIf;
 		
 		If DataForImportTypeMap().Count() > 0 Then
@@ -7430,7 +7430,7 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 		Else
 			ImportDataTypeInformation();
 			If FlagErrors() Then
-				Raise NStr("en = 'Errors occurred while importing information about the data types.';");
+				Raise NStr("en = 'Errors occurred while importing information about the data types.'");
 			EndIf;
 		EndIf;
 		ExchangeFile.Read();
@@ -7440,7 +7440,7 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 	If ExchangeFile.LocalName = "ParameterValue" Then
 		
 		If ExchangeFile.NodeType <> XMLNodeType.StartElement Then
-			Raise NStr("en = 'Exchange message format error.';");
+			Raise NStr("en = 'Exchange message format error'");
 		EndIf;
 		
 		ImportDataExchangeParameterValues();
@@ -7450,7 +7450,7 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 			If ExchangeFile.LocalName = "ParameterValue" Then
 				
 				If ExchangeFile.NodeType <> XMLNodeType.StartElement Then
-					Raise NStr("en = 'Exchange message format error.';");
+					Raise NStr("en = 'Exchange message format error'");
 				EndIf;
 				
 				ImportDataExchangeParameterValues();
@@ -7466,7 +7466,7 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 	If ExchangeFile.LocalName = "AfterParameterExportAlgorithm" Then
 		
 		If ExchangeFile.NodeType <> XMLNodeType.StartElement Then
-			Raise NStr("en = 'Exchange message format error.';");
+			Raise NStr("en = 'Exchange message format error'");
 		EndIf;
 		
 		ExecuteAfterParametersImportAlgorithm(deElementValue(ExchangeFile, StringType));
@@ -7475,18 +7475,18 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 	
 	// ExchangeData (mandatory)
 	If ExchangeFile.NodeType <> XMLNodeType.StartElement Then
-		Raise NStr("en = 'Exchange message format error.';");
+		Raise NStr("en = 'Exchange message format error'");
 	EndIf;
 	
 	If ExchangeFile.LocalName <> "DataFromExchange" Then
-		Raise NStr("en = 'Exchange message format error.';");
+		Raise NStr("en = 'Exchange message format error'");
 	EndIf;
 	
 	ReadDataViaExchange(MessageReader, DataAnalysis);
 	ExchangeFile.Read();
 	
 	If TransactionActive() Then
-		Raise NStr("en = 'Cannot set a data receipt lock in an active transaction.';");
+		Raise NStr("en = 'Cannot set a data receipt lock in an active transaction.'");
 	EndIf;
 	
 	// Setting the sender node lock.
@@ -7498,7 +7498,7 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 			|The data exchange might be running in another session.
 			|
 			|Details:
-			|%1';"),
+			|%1'"),
 			ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 	EndTry;
 	
@@ -7523,7 +7523,7 @@ Procedure ExecuteHandlerAfterImportData()
 			
 		Except
 			Raise WriteErrorInfoConversionHandlers(23, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
-				NStr("en = 'AfterImportData (conversion)';"));
+				NStr("en = 'AfterImportData (conversion)'"));
 		EndTry;
 		
 	EndIf;
@@ -7534,11 +7534,11 @@ EndProcedure
 Procedure FinishMessageReader(Val MessageReader)
 	
 	If ExchangeFile.NodeType <> XMLNodeType.EndElement Then
-		Raise NStr("en = 'Exchange message format error.';");
+		Raise NStr("en = 'Exchange message format error.'");
 	EndIf;
 	
 	If ExchangeFile.LocalName <> "ExchangeFile" Then
-		Raise NStr("en = 'Exchange message format error.';");
+		Raise NStr("en = 'Exchange message format error.'");
 	EndIf;
 	
 	ExchangeFile.Read(); // ExchangeFile
@@ -7601,11 +7601,11 @@ Procedure ExecuteAfterParametersImportAlgorithm(Val AlgorithmText)
 			
 			If Not IsBlankString(CancelReason) Then
 				
-				MessageString = NStr("en = 'The exchange message import is canceled in the AfterImportParameters (conversion) handler. Reason: %1';");
+				MessageString = NStr("en = 'The exchange message import is canceled in the AfterImportParameters (conversion) handler. Reason: %1'");
 				MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, CancelReason);
 				Raise MessageString;
 			Else
-				Raise NStr("en = 'The exchange message import is canceled in the AfterImportParameters (conversion) handler.';");
+				Raise NStr("en = 'The exchange message import is canceled in the AfterImportParameters (conversion) handler.'");
 			EndIf;
 			
 		EndIf;
@@ -8813,7 +8813,7 @@ Function FindObjectByRef(ObjectType,
 		Except
 			
 			WriteInfoOnOCRHandlerImportError(73, ErrorProcessing.DetailErrorDescription(ErrorInfo()), "", "", 
-				ObjectType, Undefined, NStr("en = 'Search field sequence';"));
+				ObjectType, Undefined, NStr("en = 'Search field sequence'"));
 			
 		EndTry;
 		
@@ -9110,7 +9110,7 @@ Procedure ImportTabularSection(Object, TabularSectionName, GeneralDocumentTypeIn
 		ObjectTabularSection.Load(OrderCollection);
 	Except
 		
-		Text = NStr("en = 'Table name: %1';");
+		Text = NStr("en = 'Table name: %1'");
 		
 		WP = ExchangeProtocolRecord(83, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		WP.Object     = Object;
@@ -9601,7 +9601,7 @@ Procedure ObjectImportComments(NBSp, RuleName, Source, ObjectType, Gsn = 0)
 	
 	If CommentObjectProcessingFlag Then
 		
-		MessageString = NStr("en = 'Importing object #%1';");
+		MessageString = NStr("en = 'Importing object #%1'");
 		Number = ?(NBSp <> 0, NBSp, Gsn);
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, Number);
 		
@@ -9900,7 +9900,7 @@ Function ReadRegisterRecordSet()
 			
 			WriteInfoOnOCRHandlerImportError(53, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
 				RuleName, Source, 
-			ObjectType, Undefined, NStr("en = 'BeforeImportObject (global)';"));
+			ObjectType, Undefined, NStr("en = 'BeforeImportObject (global)'"));
 			
 		EndTry;
 		
@@ -10328,7 +10328,7 @@ Function ReadObject(UUIDAsString1 = "")
 		Except
 			
 			WriteInfoOnOCRHandlerImportError(53, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
-				RuleName, Source, ObjectType, Undefined, NStr("en = 'BeforeImportObject (global)';"));
+				RuleName, Source, ObjectType, Undefined, NStr("en = 'BeforeImportObject (global)'"));
 				
 		EndTry;
 				
@@ -10724,7 +10724,7 @@ Function ReadObject(UUIDAsString1 = "")
 				Except
 					
 					WriteInfoOnOCRHandlerImportError(54, ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
-						RuleName, Source, ObjectType, Object, NStr("en = 'AfterImportObject (global)';"));
+						RuleName, Source, ObjectType, Object, NStr("en = 'AfterImportObject (global)'"));
 					
 				EndTry;
 				
@@ -10915,7 +10915,7 @@ Function ReadObject(UUIDAsString1 = "")
 						WP.Object                 = String(Object);
 						WriteToExecutionProtocol(25, WP);
 						
-						MessageString = NStr("en = 'Failed to save document: %1. Error details: %2';");
+						MessageString = NStr("en = 'Failed to save document: %1. Error details: %2'");
 						MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, String(Object), ErrorDescriptionString);
 						
 						// Cannot write the object properly. Report it.
@@ -11038,10 +11038,10 @@ Procedure SwitchToNewExchange()
 	EndIf;
 
 	ExchangePlans[NameOfExchangePlanToGo].SwitchToNewExchange(DataSynchronizationSetup);
-	MessageString = NStr("en = 'Automatic switching to EnterpriseData data synchronization format.';");
+	MessageString = NStr("en = 'Automatic switching to EnterpriseData data synchronization format.'");
 	WriteEventLogDataExchange1(MessageString, EventLogLevel.Information);
 	ExchangeResultField = Enums.ExchangeExecutionResults.Canceled;
-	Raise NStr("en = 'Data synchronization with outdated settings is canceled.';");
+	Raise NStr("en = 'Data synchronization with outdated settings is canceled.'");
 EndProcedure
 
 Function LoadingTabularPartIsSupported(Object, TabularSectionName)
@@ -11506,7 +11506,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 			ErrorMessageString = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot create a temporary file for data export.
 					|File name: %1.
 					|Error details:
-					|%2';"),
+					|%2'"),
 				String(RecordFileName),
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				
@@ -13043,7 +13043,7 @@ Procedure FireEventsBeforeExportObject(Object, Rule, Properties=Undefined, Incom
 			ObjectRul = TypeOf(Object);
 		EndIf;
 		
-		EventName = NStr("en = 'Export object: %1';");
+		EventName = NStr("en = 'Export object: %1'");
 		EventName = StringFunctionsClientServer.SubstituteParametersToString(EventName, ObjectRul);
 		
 		WriteToExecutionProtocol(EventName, , False, 1, 7);
@@ -13073,7 +13073,7 @@ Procedure FireEventsBeforeExportObject(Object, Rule, Properties=Undefined, Incom
 			
 		Except
 			WriteErrorInfoDERHandlers(65, ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
-				Rule.Name, NStr("en = 'BeforeExportSelectionObject (global)';"), Object);
+				Rule.Name, NStr("en = 'BeforeExportSelectionObject (global)'"), Object);
 		EndTry;
 		
 		If Cancel Then
@@ -13128,7 +13128,7 @@ Procedure FireEventsAfterExportObject(Object, Rule, Properties=Undefined, Incomi
 			
 		Except
 			WriteErrorInfoDERHandlers(69, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
-				Rule.Name, NStr("en = 'AfterExportSelectionObject (global)';"), Object);
+				Rule.Name, NStr("en = 'AfterExportSelectionObject (global)'"), Object);
 		EndTry;
 	EndIf;
 	
@@ -13351,7 +13351,7 @@ Procedure ProcessObjectDeletion(ObjectDeletionData, ErrorMessageString = "")
 			Except
 				ErrorMessageString = WriteErrorInfoConversionHandlers(76, 
 					ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
-					NStr("en = 'BeforeSendDeletionInfo (conversion)';"));
+					NStr("en = 'BeforeSendDeletionInfo (conversion)'"));
 				
 				If Not ContinueOnError Then
 					Raise ErrorMessageString;
@@ -13765,7 +13765,7 @@ Function InitializeDataProcessors()
 	
 	If ExportHandlersDebug Or ImportHandlersDebug Then 
 		Raise
-			NStr("en = 'The external data processor (debugger) is not supported.';");
+			NStr("en = 'The external data processor (debugger) is not supported.'");
 	EndIf;
 	
 	ExchangePlanName = ExchangePlanName();
@@ -13783,7 +13783,7 @@ Procedure DisableDataProcessorForDebug()
 		Try
 			ExportProcessing.DisableDataProcessorForDebug();
 		Except
-			WriteLogEvent(NStr("en = 'Data exchange';", Common.DefaultLanguageCode()),
+			WriteLogEvent(NStr("en = 'Data exchange'", Common.DefaultLanguageCode()),
 				EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
 		ExportProcessing = Undefined;
@@ -13793,7 +13793,7 @@ Procedure DisableDataProcessorForDebug()
 		Try
 			LoadProcessing.DisableDataProcessorForDebug();
 		Except
-			WriteLogEvent(NStr("en = 'Data exchange';", Common.DefaultLanguageCode()),
+			WriteLogEvent(NStr("en = 'Data exchange'", Common.DefaultLanguageCode()),
 				EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
 		
@@ -13812,97 +13812,97 @@ Procedure InitMessages()
 
 	ErrorsMessages			= New Map;
 		
-	ErrorsMessages.Insert(2,  NStr("en = 'Error extracting exchange file. File is locked.';"));
-	ErrorsMessages.Insert(3,  NStr("en = 'The exchange rules file does not exist.';"));
-	ErrorsMessages.Insert(4,  NStr("en = 'Cannot create COM object: Msxml2.DOMDocument.';"));
-	ErrorsMessages.Insert(5,  NStr("en = 'An error occurred when opening an exchange file';"));
-	ErrorsMessages.Insert(6,  NStr("en = 'Error importing exchange rules';"));
-	ErrorsMessages.Insert(7,  NStr("en = 'Exchange rule format error';"));
-	ErrorsMessages.Insert(8,  NStr("en = 'Invalid data export file name';")); // не используется
-	ErrorsMessages.Insert(9,  NStr("en = 'Exchange file format error';"));
-	ErrorsMessages.Insert(10, NStr("en = 'Data export file name is not specified';"));
-	ErrorsMessages.Insert(11, NStr("en = 'Exchange rules reference a metadata object that does not exist';"));
-	ErrorsMessages.Insert(12, NStr("en = 'Exchange rules file name is not specified';"));
+	ErrorsMessages.Insert(2,  NStr("en = 'Error extracting exchange file. File is locked.'"));
+	ErrorsMessages.Insert(3,  NStr("en = 'The exchange rules file does not exist.'"));
+	ErrorsMessages.Insert(4,  NStr("en = 'Cannot create COM object: Msxml2.DOMDocument'"));
+	ErrorsMessages.Insert(5,  NStr("en = 'Error opening exchange file'"));
+	ErrorsMessages.Insert(6,  NStr("en = 'Error importing exchange rules'"));
+	ErrorsMessages.Insert(7,  NStr("en = 'Exchange rule format error'"));
+	ErrorsMessages.Insert(8,  NStr("en = 'Invalid data export file name'")); // 
+	ErrorsMessages.Insert(9,  NStr("en = 'Exchange file format error'"));
+	ErrorsMessages.Insert(10, NStr("en = 'Data export file name is not specified'"));
+	ErrorsMessages.Insert(11, NStr("en = 'Exchange rules reference a metadata object that does not exist'"));
+	ErrorsMessages.Insert(12, NStr("en = 'Exchange rules file name is not specified'"));
 			
-	ErrorsMessages.Insert(13, NStr("en = 'Error getting value of object property by property name in source infobase';"));
-	ErrorsMessages.Insert(14, NStr("en = 'Error getting value of object property by property name in destination infobase';"));
+	ErrorsMessages.Insert(13, NStr("en = 'Error getting value of object property by property name in source infobase'"));
+	ErrorsMessages.Insert(14, NStr("en = 'Error getting value of object property by property name in destination infobase'"));
 	
-	ErrorsMessages.Insert(15, NStr("en = 'Data import file name is not specified';"));
+	ErrorsMessages.Insert(15, NStr("en = 'Data import file name is not specified'"));
 			
-	ErrorsMessages.Insert(16, NStr("en = 'Error getting value of subordinate object property by property name in source infobase';"));
-	ErrorsMessages.Insert(17, NStr("en = 'Error getting value of subordinate object property by property name in destination infobase';"));
-	ErrorsMessages.Insert(18, NStr("en = 'Error creating data processor with handlers code';"));
-	ErrorsMessages.Insert(19, NStr("en = 'Event handler error: BeforeImportObject';"));
-	ErrorsMessages.Insert(20, NStr("en = 'Event handler error: OnImportObject';"));
-	ErrorsMessages.Insert(21, NStr("en = 'Event handler error: AfterImportObject';"));
-	ErrorsMessages.Insert(22, NStr("en = 'Event handler error (data conversion): BeforeDataImport';"));
-	ErrorsMessages.Insert(23, NStr("en = 'Event handler error (data conversion): AfterImportData';"));
-	ErrorsMessages.Insert(24, NStr("en = 'An error occurred when deleting the object';"));
-	ErrorsMessages.Insert(25, NStr("en = 'An error occurred when saving the document';"));
-	ErrorsMessages.Insert(26, NStr("en = 'An error occurred when saving the object';"));
-	ErrorsMessages.Insert(27, NStr("en = 'Event handler error: BeforeProcessClearingRule';"));
-	ErrorsMessages.Insert(28, NStr("en = 'Event handler error: AfterProcessClearingRule';"));
-	ErrorsMessages.Insert(29, NStr("en = 'Event handler error: BeforeDeleteObject';"));
+	ErrorsMessages.Insert(16, NStr("en = 'Error getting value of subordinate object property by property name in source infobase'"));
+	ErrorsMessages.Insert(17, NStr("en = 'Error getting value of subordinate object property by property name in destination infobase'"));
+	ErrorsMessages.Insert(18, NStr("en = 'Error creating data processor with handlers code'"));
+	ErrorsMessages.Insert(19, NStr("en = 'Event handler error: BeforeImportObject'"));
+	ErrorsMessages.Insert(20, NStr("en = 'Event handler error: OnImportObject'"));
+	ErrorsMessages.Insert(21, NStr("en = 'Event handler error: AfterImportObject'"));
+	ErrorsMessages.Insert(22, NStr("en = 'Event handler error (data conversion): BeforeDataImport'"));
+	ErrorsMessages.Insert(23, NStr("en = 'Event handler error (data conversion): AfterImportData'"));
+	ErrorsMessages.Insert(24, NStr("en = 'An error occurred when deleting the object'"));
+	ErrorsMessages.Insert(25, NStr("en = 'Error writing document'"));
+	ErrorsMessages.Insert(26, NStr("en = 'Object writing error'"));
+	ErrorsMessages.Insert(27, NStr("en = 'Event handler error: BeforeProcessClearingRule'"));
+	ErrorsMessages.Insert(28, NStr("en = 'Event handler error: AfterProcessClearingRule'"));
+	ErrorsMessages.Insert(29, NStr("en = 'Event handler error: BeforeDeleteObject'"));
 	
-	ErrorsMessages.Insert(31, NStr("en = 'Event handler error: BeforeProcessExportRule';"));
-	ErrorsMessages.Insert(32, NStr("en = 'Event handler error: AfterProcessExportRule';"));
-	ErrorsMessages.Insert(33, NStr("en = 'Event handler error: BeforeExportObject';"));
-	ErrorsMessages.Insert(34, NStr("en = 'Event handler error: AfterExportObject';"));
+	ErrorsMessages.Insert(31, NStr("en = 'Event handler error: BeforeProcessExportRule'"));
+	ErrorsMessages.Insert(32, NStr("en = 'Event handler error: AfterProcessExportRule'"));
+	ErrorsMessages.Insert(33, NStr("en = 'Event handler error: BeforeExportObject'"));
+	ErrorsMessages.Insert(34, NStr("en = 'Event handler error: AfterExportObject'"));
 			
-	ErrorsMessages.Insert(41, NStr("en = 'Event handler error: BeforeExportObject';"));
-	ErrorsMessages.Insert(42, NStr("en = 'Event handler error: OnExportObject';"));
-	ErrorsMessages.Insert(43, NStr("en = 'Event handler error: AfterExportObject';"));
+	ErrorsMessages.Insert(41, NStr("en = 'Event handler error: BeforeExportObject'"));
+	ErrorsMessages.Insert(42, NStr("en = 'Event handler error: OnExportObject'"));
+	ErrorsMessages.Insert(43, NStr("en = 'Event handler error: AfterExportObject'"));
 			
-	ErrorsMessages.Insert(45, NStr("en = 'Object conversion rule not found';"));
+	ErrorsMessages.Insert(45, NStr("en = 'Object conversion rule not found'"));
 		
-	ErrorsMessages.Insert(48, NStr("en = 'Event handler error: BeforeProcessExport (of property group)';"));
-	ErrorsMessages.Insert(49, NStr("en = 'Event handler error: AfterProcessExport (of property group)';"));
-	ErrorsMessages.Insert(50, NStr("en = 'Event handler error: BeforeExport (of collection object)';"));
-	ErrorsMessages.Insert(51, NStr("en = 'Event handler error: OnExport (of collection object)';"));
-	ErrorsMessages.Insert(52, NStr("en = 'Event handler error: AfterExport (of collection object)';"));
-	ErrorsMessages.Insert(53, NStr("en = 'Global event handler error (data conversion): BeforeImportObject';"));
-	ErrorsMessages.Insert(54, NStr("en = 'Global event handler error (data conversion): AfterImportObject';"));
-	ErrorsMessages.Insert(55, NStr("en = 'Event handler error: BeforeExport (of property)';"));
-	ErrorsMessages.Insert(56, NStr("en = 'Event handler error: OnExport (of property)';"));
-	ErrorsMessages.Insert(57, NStr("en = 'Event handler error: AfterExport (of property)';"));
+	ErrorsMessages.Insert(48, NStr("en = 'Event handler error: BeforeProcessExport (of property group)'"));
+	ErrorsMessages.Insert(49, NStr("en = 'Event handler error: AfterProcessExport (of property group)'"));
+	ErrorsMessages.Insert(50, NStr("en = 'Event handler error: BeforeExport (of collection object)'"));
+	ErrorsMessages.Insert(51, NStr("en = 'Event handler error: OnExport (of collection object)'"));
+	ErrorsMessages.Insert(52, NStr("en = 'Event handler error: AfterExport (of collection object)'"));
+	ErrorsMessages.Insert(53, NStr("en = 'Global event handler error (data conversion): BeforeImportObject'"));
+	ErrorsMessages.Insert(54, NStr("en = 'Global event handler error (data conversion): AfterImportObject'"));
+	ErrorsMessages.Insert(55, NStr("en = 'Event handler error: BeforeExport (of property)'"));
+	ErrorsMessages.Insert(56, NStr("en = 'Event handler error: OnExport (of property)'"));
+	ErrorsMessages.Insert(57, NStr("en = 'Event handler error: AfterExport (of property)'"));
 	
-	ErrorsMessages.Insert(62, NStr("en = 'Event handler error (data conversion): BeforeExportData';"));
-	ErrorsMessages.Insert(63, NStr("en = 'Event handler error (data conversion): AfterExportData';"));
-	ErrorsMessages.Insert(64, NStr("en = 'Global event handler error (data conversion): BeforeConvertObject';"));
-	ErrorsMessages.Insert(65, NStr("en = 'Global event handler error (data conversion): BeforeExportObject';"));
-	ErrorsMessages.Insert(66, NStr("en = 'Error getting collection of subordinate objects from incoming data';"));
-	ErrorsMessages.Insert(67, NStr("en = 'Error getting property of subordinate object from incoming data';"));
-	ErrorsMessages.Insert(68, NStr("en = 'Error getting object property from incoming data';"));
+	ErrorsMessages.Insert(62, NStr("en = 'Event handler error (data conversion): BeforeExportData'"));
+	ErrorsMessages.Insert(63, NStr("en = 'Event handler error (data conversion): AfterExportData'"));
+	ErrorsMessages.Insert(64, NStr("en = 'Global event handler error (data conversion): BeforeConvertObject'"));
+	ErrorsMessages.Insert(65, NStr("en = 'Global event handler error (data conversion): BeforeExportObject'"));
+	ErrorsMessages.Insert(66, NStr("en = 'Error getting collection of subordinate objects from incoming data'"));
+	ErrorsMessages.Insert(67, NStr("en = 'Error getting property of subordinate object from incoming data'"));
+	ErrorsMessages.Insert(68, NStr("en = 'Error getting object property from incoming data'"));
 	
-	ErrorsMessages.Insert(69, NStr("en = 'Global event handler error (data conversion): AfterExportObject';"));
+	ErrorsMessages.Insert(69, NStr("en = 'Global event handler error (data conversion): AfterExportObject'"));
 	
-	ErrorsMessages.Insert(71, NStr("en = 'Cannot find a match for the source value';"));
+	ErrorsMessages.Insert(71, NStr("en = 'Cannot find a match for the source value'"));
 	
-	ErrorsMessages.Insert(72, NStr("en = 'Error exporting data for exchange plan node';"));
+	ErrorsMessages.Insert(72, NStr("en = 'Error exporting data for exchange plan node'"));
 	
-	ErrorsMessages.Insert(73, NStr("en = 'Event handler error: SearchFieldSequence';"));
-	ErrorsMessages.Insert(74, NStr("en = 'To export data, reload data exchange rules.';"));
+	ErrorsMessages.Insert(73, NStr("en = 'Event handler error: SearchFieldSequence'"));
+	ErrorsMessages.Insert(74, NStr("en = 'To export data, reload data exchange rules.'"));
 	
-	ErrorsMessages.Insert(75, NStr("en = 'Event handler error (data conversion): AfterImportExchangeRules';"));
-	ErrorsMessages.Insert(76, NStr("en = 'Event handler error (data conversion): BeforeSendDeletionInfo';"));
-	ErrorsMessages.Insert(77, NStr("en = 'Event handler error (data conversion): OnGetDeletionInfo';"));
+	ErrorsMessages.Insert(75, NStr("en = 'Event handler error (data conversion): AfterImportExchangeRules'"));
+	ErrorsMessages.Insert(76, NStr("en = 'Event handler error (data conversion): BeforeSendDeletionInfo'"));
+	ErrorsMessages.Insert(77, NStr("en = 'Event handler error (data conversion): OnGetDeletionInfo'"));
 	
-	ErrorsMessages.Insert(78, NStr("en = 'Algorithm fails after parameter values are imported';"));
+	ErrorsMessages.Insert(78, NStr("en = 'Algorithm fails after parameter values are imported'"));
 	
-	ErrorsMessages.Insert(79, NStr("en = 'Event handler error: AfterExportObjectToFile';"));
+	ErrorsMessages.Insert(79, NStr("en = 'Event handler error: AfterExportObjectToFile'"));
 	
 	ErrorsMessages.Insert(80, NStr("en = 'Error marking item for deletion.
-		|Predefined items cannot be marked for deletion.';"));
+		|Predefined items cannot be marked for deletion.'"));
 	//
-	ErrorsMessages.Insert(83, NStr("en = 'Object table access error. Cannot change the table.';"));
-	ErrorsMessages.Insert(84, NStr("en = 'Period-end closing dates conflict.';"));
+	ErrorsMessages.Insert(83, NStr("en = 'Object table access error. Cannot change the table.'"));
+	ErrorsMessages.Insert(84, NStr("en = 'Period-end closing dates conflict.'"));
 	
-	ErrorsMessages.Insert(173, NStr("en = 'Cannot lock the exchange node. Probably the synchronization is already running.';"));
-	ErrorsMessages.Insert(174, NStr("en = 'The exchange message was received earlier.';"));
-	ErrorsMessages.Insert(175, NStr("en = 'Event handler error (data conversion): BeforeGetChangedObjects';"));
-	ErrorsMessages.Insert(176, NStr("en = 'Event handler error (data conversion): AfterGetExchangeNodesInformation';"));
+	ErrorsMessages.Insert(173, NStr("en = 'Cannot lock the exchange node. Probably the synchronization is already running.'"));
+	ErrorsMessages.Insert(174, NStr("en = 'The exchange message was received earlier.'"));
+	ErrorsMessages.Insert(175, NStr("en = 'Event handler error (data conversion): BeforeGetChangedObjects'"));
+	ErrorsMessages.Insert(176, NStr("en = 'Event handler error (data conversion): AfterGetExchangeNodesInformation'"));
 		
-	ErrorsMessages.Insert(1000, NStr("en = 'Cannot create a temporary data export file.';"));
+	ErrorsMessages.Insert(1000, NStr("en = 'Cannot create a temporary data export file.'"));
 		
 EndProcedure
 
@@ -15767,7 +15767,7 @@ EndProcedure
 // Parameters:
 //   Source     - XMLReader
 //                - String - an object where the exchange rules are imported from;
-//   SourceType - String - a string specifying a source type: "XMLFile", "ReadingXML", "String".
+//   SourceType - String - A string that specifies a source type: "XMLFile", "XMLReader", "String".
 //   ErrorMessageString - String - error message.
 //   ImportRuleHeaderOnly - Boolean - True if only rules heading is required to import.
 // 
@@ -16044,7 +16044,7 @@ Procedure ImportExchangeRules(Source="",
 		Try
 			DeleteFiles(ExchangeRulesTempFileName);
 		Except
-			WriteLogEvent(NStr("en = 'Data exchange';", Common.DefaultLanguageCode()),
+			WriteLogEvent(NStr("en = 'Data exchange'", Common.DefaultLanguageCode()),
 				EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
 	EndIf;
@@ -16085,7 +16085,7 @@ Procedure ImportExchangeRules(Source="",
 		Except
 			ErrorMessageString = WriteErrorInfoConversionHandlers(75, 
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
-				NStr("en = 'AfterImportExchangeRules (conversion)';"));
+				NStr("en = 'AfterImportExchangeRules (conversion)'"));
 			
 			If Not ContinueOnError Then
 				Raise ErrorMessageString;
@@ -16158,7 +16158,7 @@ Procedure DeleteObjectByLink(Ref, ErrorMessageString)
 		Except
 			ErrorMessageString = WriteErrorInfoConversionHandlers(77,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()),
-				NStr("en = 'OnGetDeletionInfo (conversion)';"));
+				NStr("en = 'OnGetDeletionInfo (conversion)'"));
 				
 			Cancel = True;
 			
@@ -16236,7 +16236,7 @@ Procedure ExecuteSelectiveMessageReader(TablesToImport)
 			ReadDataForTables(TablesToImport);
 			
 			If FlagErrors() Then
-				Raise NStr("en = 'Data import errors.';");
+				Raise NStr("en = 'Data import errors.'");
 			EndIf;
 			
 			// Delayed writing of what was not written.
@@ -16245,7 +16245,7 @@ Procedure ExecuteSelectiveMessageReader(TablesToImport)
 			ExecuteHandlerAfterImportData();
 			
 			If FlagErrors() Then
-				Raise NStr("en = 'Data import errors.';");
+				Raise NStr("en = 'Data import errors.'");
 			EndIf;
 			
 			If UseTransactions Then
@@ -16338,13 +16338,13 @@ Procedure RunReadingData(MessageReader)
 			
 		Else
 			
-			Raise NStr("en = 'Exchange message format error';");
+			Raise NStr("en = 'Exchange message format error'");
 			
 		EndIf;
 		
 		// Abort the file read cycle if an importing error occurs.
 		If FlagErrors() Then
-			Raise NStr("en = 'Data import errors.';");
+			Raise NStr("en = 'Data import errors.'");
 		EndIf;
 		
 	EndDo;
@@ -16496,7 +16496,7 @@ Procedure ReadDataForTables(TablesToImport)
 							
 							If Column.ValueType.ContainsType(StringType) Then
 								
-								TableRow[Column.Name] = NStr("en = 'Object deletion';");
+								TableRow[Column.Name] = NStr("en = 'Object deletion'");
 								
 							EndIf;
 							
@@ -16536,13 +16536,13 @@ Procedure ReadDataForTables(TablesToImport)
 			
 		Else
 			
-			Raise NStr("en = 'Exchange message format error';");
+			Raise NStr("en = 'Exchange message format error'");
 			
 		EndIf;
 		
 		// Abort the file read cycle if an error occurs.
 		If FlagErrors() Then
-			Raise NStr("en = 'Data import errors.';");
+			Raise NStr("en = 'Data import errors.'");
 		EndIf;
 		
 	EndDo;
@@ -16699,13 +16699,13 @@ Procedure ReadDataInAnalysisMode(MessageReader, AnalysisParameters = Undefined)
 			
 		Else
 			
-			Raise NStr("en = 'Exchange message format error';");
+			Raise NStr("en = 'Exchange message format error'");
 			
 		EndIf;
 		
 		// Abort the file read cycle if an error occurs.
 		If FlagErrors() Then
-			Raise NStr("en = 'Data analysis errors.';");
+			Raise NStr("en = 'Data analysis errors.'");
 		EndIf;
 		
 	EndDo;
@@ -16796,11 +16796,11 @@ Procedure ReadDataInExternalConnectionMode(MessageReader)
 						
 						If Not IsBlankString(CancelReason) Then
 							
-							MessageString = NStr("en = 'Data import canceled. Reason: %1';");
+							MessageString = NStr("en = 'Data import canceled. Reason: %1'");
 							MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, CancelReason);
 							Raise MessageString;
 						Else
-							Raise NStr("en = 'Data import canceled';");
+							Raise NStr("en = 'Data import canceled'");
 						EndIf;
 						
 					EndIf;
@@ -16911,7 +16911,7 @@ Procedure ReadDataViaExchange(MessageReader, DataAnalysis)
 	If Not ValueIsFilled(ExchangeNodeRecipient)
 		Or ExchangeNodeRecipient <> ExchangeNodeDataImport Then
 		
-		MessageString = NStr("en = 'Exchange node for data import is not found. Exchange plan: %1, code: %2.';");
+		MessageString = NStr("en = 'Exchange node for data import is not found. Exchange plan: %1, code: %2.'");
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, ExchangePlanName(), FromWhomCode);
 		Raise MessageString;
 	EndIf;
@@ -16944,7 +16944,7 @@ Procedure ReadDataViaExchange(MessageReader, DataAnalysis)
 			MessageReaderTemporary.MessageReceivedEarlier = True;
 			MessageReader = New FixedStructure(MessageReaderTemporary);
 			
-			Raise NStr("en = 'The exchange message was received earlier.';");
+			Raise NStr("en = 'The exchange message was received earlier.'");
 		EndIf;
 		
 		DeleteChangeRecords = DeleteChangeRecords And Not MessageReader.BackupRestored;
@@ -16952,7 +16952,7 @@ Procedure ReadDataViaExchange(MessageReader, DataAnalysis)
 		If DeleteChangeRecords Then // Delete change records.
 			
 			If TransactionActive() Then
-				Raise NStr("en = 'Cannot unregister items in an active transaction.';");
+				Raise NStr("en = 'Cannot unregister items in an active transaction.'");
 			EndIf;
 			
 			ExchangePlans.DeleteChangeRecords(MessageReader.Sender, MessageReader.ReceivedNo);
@@ -16999,7 +16999,7 @@ Procedure ReadDataViaExchange(MessageReader, DataAnalysis)
 		Except
 			Raise WriteErrorInfoConversionHandlers(176,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()),
-				NStr("en = 'AfterGetExchangeNodesInformation (conversion)';"));
+				NStr("en = 'AfterGetExchangeNodesInformation (conversion)'"));
 		EndTry;
 		
 	EndIf;
@@ -17463,7 +17463,7 @@ Procedure ExecuteExport(ErrorMessageString = "")
 		Except
 			WriteErrorInfoConversionHandlers(62, 
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()),
-				NStr("en = 'BeforeExportData (conversion)';"));
+				NStr("en = 'BeforeExportData (conversion)'"));
 				
 			Cancel = True;
 		EndTry; 
@@ -17599,7 +17599,7 @@ Procedure ExecuteExport(ErrorMessageString = "")
 			
 		Except
 			WriteErrorInfoConversionHandlers(63,
-				ErrorProcessing.DetailErrorDescription(ErrorInfo()), NStr("en = 'AfterExportData (conversion)';"));
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()), NStr("en = 'AfterExportData (conversion)'"));
 		EndTry;
 	
 	EndIf;
@@ -17670,7 +17670,7 @@ Procedure ExecuteRegisteredDataExport(WriteMessage1, ErrorMessageString, UsedExp
 			
 		Except
 			WriteErrorInfoConversionHandlers(175, ErrorProcessing.DetailErrorDescription(ErrorInfo()),
-				NStr("en = 'BeforeGetChangedObjects (conversion)';"));
+				NStr("en = 'BeforeGetChangedObjects (conversion)'"));
 			Return;
 		EndTry;
 		
@@ -17956,7 +17956,7 @@ Procedure ExecuteRegisteredDataExport(WriteMessage1, ErrorMessageString, UsedExp
 		
 		ToCancelATransactionForLoadingData();
 		
-		Raise(NStr("en = 'Cannot send the data';") + ": " + ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		Raise(NStr("en = 'Cannot send the data'") + ": " + ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		
 	EndTry
 	
@@ -18005,7 +18005,7 @@ Procedure ToCommitTheTransactionWhenTheDataIsLoaded()
 		If DataImportExecutedInExternalConnection Then
 			If DataProcessorForDataImport().UseTransactions Then
 				If DataProcessorForDataImport().FlagErrors() Then
-					Raise(NStr("en = 'Cannot send the data.';"));
+					Raise(NStr("en = 'Cannot send the data.'"));
 				Else
 					ExternalConnection.CommitTransaction();
 				EndIf;
@@ -18203,5 +18203,5 @@ ParametersSetupTableInitialization();
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

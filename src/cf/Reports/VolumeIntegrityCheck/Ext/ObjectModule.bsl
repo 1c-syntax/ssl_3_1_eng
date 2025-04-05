@@ -122,7 +122,7 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 		Cell = ResultDocument.Area(ResultDocument.TableHeight + 2, 1, ResultDocument.TableHeight + 2, 2);
 		Cell.Merge();
 		ModuleReportsServer = Common.CommonModule("ReportsServer");
-		ModuleReportsServer.OutputHyperlink(Cell, "VolumeIntegrityCheck.RecoverFiles", NStr("en = 'Restore';"));
+		ModuleReportsServer.OutputHyperlink(Cell, "VolumeIntegrityCheck.RecoverFiles", NStr("en = 'Restore'"));
 	EndIf;
 	
 	SettingsComposer.UserSettings.AdditionalProperties.Insert("ReportIsBlank", FilesTableOnHardDrive.Count() = 0);
@@ -135,7 +135,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	
 	If Not ValueIsFilled(Volume) Then
 		Common.MessageToUser(
-			NStr("en = 'Please fill the ""Volume"" parameter.';"), , );
+			NStr("en = 'Please fill the ""Volume"" parameter.'"), , );
 		Cancel = True;
 		Return;
 	EndIf;
@@ -179,5 +179,5 @@ EndProcedure
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

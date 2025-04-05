@@ -109,9 +109,9 @@ Function TheImageOfTheBarcode(BarcodeParameters) Export
 	
 	If AddIn = Undefined Then
 		ModuleCommon = ModuleCommon();
-		MessageText = NStr("en = 'An error occurred while attaching the barcode printing add-in.';", ModuleCommon.DefaultLanguageCode());
+		MessageText = NStr("en = 'An error occurred while attaching the barcode printing add-in.'", ModuleCommon.DefaultLanguageCode());
 #If Not MobileAppServer Then
-		WriteLogEvent(NStr("en = 'Barcode generation error';", 
+		WriteLogEvent(NStr("en = 'Barcode generation error'", 
 			ModuleCommon.DefaultLanguageCode()),
 			EventLogLevel.Error,,, 
 			MessageText);
@@ -173,7 +173,7 @@ Function QRCodeData(QRString, CorrectionLevel, Size) Export
 	Except
 #If Not MobileAppServer Then
 		ModuleCommon = ModuleCommon();
-		WriteLogEvent(NStr("en = 'Barcode generation error';", 
+		WriteLogEvent(NStr("en = 'Barcode generation error'", 
 			ModuleCommon.DefaultLanguageCode()),
 			EventLogLevel.Error,,, 
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));

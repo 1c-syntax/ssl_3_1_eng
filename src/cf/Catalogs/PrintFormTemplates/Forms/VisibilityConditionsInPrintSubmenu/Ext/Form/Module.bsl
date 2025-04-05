@@ -17,7 +17,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Parameters.IsExportTemplate Then
 		
 		AutoTitle = False;
-		TitleTemplate1 = NStr("en = 'Visibility condition in the ""Export to file…"" menu: %1 (Export file template)';");
+		TitleTemplate1 = NStr("en = 'Visibility condition in the ""Export to file…"" menu: %1 (Export file template)'");
 		TitleText = StringFunctionsClientServer.SubstituteParametersToString(
 			TitleTemplate1, 
 			Parameters.ExportTemplatePresentation);
@@ -88,14 +88,14 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 		RowIndex = VisibilityConditions.IndexOf(Condition);
 		If Not ValueIsFilled(Condition.ComparisonType) Then
 			
-			MessageText = NStr("en = 'Specify a comparison type';");
+			MessageText = NStr("en = 'Specify a comparison type'");
 			Field = StringFunctionsClientServer.SubstituteParametersToString("VisibilityConditions[%1].ViewComparisonView", Format(RowIndex, "NG=0;"));
 			
 			CommonClient.MessageToUser(MessageText, , Field, , Cancel);
 		EndIf;
 		
 		If Not ValueIsFilled(Condition.Field) Then
-			MessageText = NStr("en = 'Select a field';");
+			MessageText = NStr("en = 'Select a field'");
 			Field = StringFunctionsClientServer.SubstituteParametersToString("VisibilityConditions[%1].FieldPresentation", Format(RowIndex, "NG=0;"));
 			
 			CommonClient.MessageToUser(MessageText, , Field, , Cancel);
@@ -251,12 +251,12 @@ EndProcedure
 Function RepresentationsViewsComparisons()
 	
 	Result = New Map();
-	Result.Insert("Equal", NStr("en = 'Equal to';"));
-	Result.Insert("NotEqual", NStr("en = 'Not equal to';"));
-	Result.Insert("Filled", NStr("en = 'Filled';"));
-	Result.Insert("NotFilled", NStr("en = 'Not filled';"));
-	Result.Insert("InList", NStr("en = 'In list';"));
-	Result.Insert("NotInList", NStr("en = 'Not in list';"));
+	Result.Insert("Equal", NStr("en = 'Equal to'"));
+	Result.Insert("NotEqual", NStr("en = 'Not equal to'"));
+	Result.Insert("Filled", NStr("en = 'Filled'"));
+	Result.Insert("NotFilled", NStr("en = 'Not filled'"));
+	Result.Insert("InList", NStr("en = 'In list'"));
+	Result.Insert("NotInList", NStr("en = 'Not in list'"));
 	
 	Return Result;
 	

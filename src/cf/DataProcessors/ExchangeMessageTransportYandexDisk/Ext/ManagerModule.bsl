@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
+// Copyright (c) 2024, ООО 1С-Софт
+// Все права защищены. Эта программа и сопроводительные материалы предоставляются 
+// в соответствии с условиями лицензии Attribution 4.0 International (CC BY 4.0)
+// Текст лицензии доступен по ссылке:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -15,11 +14,11 @@
 // See DataProcessorManager.ExchangeMessageTransportFILE.TransportParameters
 Function TransportParameters() Export
 	
-	LongDesc = NStr("en = 'Connection requires authentication parameters for the cloud service.';");
+	LongDesc = NStr("en = 'Для подключения необходимо параметры авторизации на облачном сервисе.'");
 	
 	Parameters = ExchangeMessagesTransport.StructureOfTransportParameters();
 	
-	Parameters.Alias = NStr("en = 'Yandex.Disk';");
+	Parameters.Alias = NStr("en = 'Яндекс.Диск'");
 	Parameters.TransportID = "YandexDisk";
 	Parameters.LongDesc = LongDesc;
 	Parameters.Picture = PictureLib.YandexDisk;
@@ -60,7 +59,7 @@ Function TransportSettingsINJSON(TransportSettings) Export
 	JSONTransportSettings.Insert("ArchivePasswordExchangeMessages", ArchivePasswordExchangeMessages);
 	JSONTransportSettings.Insert("TransliterateExchangeMessageFileNames", TransportSettings.Transliteration);
 	
-	// Yandex.Disk
+	// Яндекс.Диск
 	JSONTransportSettings.Insert("AccessToken", TransportSettings.AccessToken);
 	JSONTransportSettings.Insert("ClientID", TransportSettings.ClientID);
 	JSONTransportSettings.Insert("ClientSecret", TransportSettings.ClientSecret);
@@ -80,7 +79,7 @@ Function TransportSettingsFromJSON(JSONTransportSettings) Export
 	TransportSettings.Insert("ArchivePasswordExchangeMessages", JSONTransportSettings.ArchivePasswordExchangeMessages);
 	TransportSettings.Insert("Transliteration", JSONTransportSettings.TransliterateExchangeMessageFileNames);
 	
-	// Yandex
+	// Яндекс
 	TransportSettings.Insert("AccessToken", JSONTransportSettings.AccessToken);
 	TransportSettings.Insert("ClientID", JSONTransportSettings.ClientID);
 	TransportSettings.Insert("ClientSecret", JSONTransportSettings.ClientSecret);

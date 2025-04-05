@@ -95,13 +95,13 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	Parameters.ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue, "Catalog.QuestionnaireTemplateQuestions");
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) some questionnaire template questions: %1';"), 
+			NStr("en = 'Couldn''t process (skipped) some questionnaire template questions: %1'"), 
 				ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
 			Metadata.Catalogs.QuestionnaireTemplateQuestions,,
-				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Yet another batch of questionnaire template questions is processed: %1';"),
+				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Yet another batch of questionnaire template questions is processed: %1'"),
 					ObjectsProcessed));
 	EndIf;
 	

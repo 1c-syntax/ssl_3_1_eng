@@ -10,43 +10,43 @@
 
 #Region Public
 
-// 
-// 
-// 
+// Returns the details of the commands associated with the passed contact information type.
+// Intended for ContactsManagerOverridable.OnDefineSettings.
+// CommandsTypeOf - Output parameter.
 // 
 // Parameters:
 //  TypeCommands - Structure:
-//   * Key - String - 
+//   * Key - String - Command name. For example, "ShowOnMap".
 //   * Value - See ContactsManager.CommandProperties
 //  Type - EnumRef.ContactInformationTypes - contact information type.
 //
-Procedure WhenDefiningCommandsOfTypeOfContactInformation(TypeCommands, Type) Export
+Procedure OnDefineContactInfoTypeCommands(TypeCommands, Type) Export
 	
 	
 EndProcedure
 
-// 
+// Converts contact information from JSON into XML.
 //
 // Parameters:
 //  ContactInformationInJSON - String - contact information in the internal JSON format.
-//  ContactInformationToXML  - String - 
-//  ExpectedType              - EnumRef.ContactInformationTypes -  
-//                              
+//  ContactInformationToXML  - String - Output parameter. Contact information converted into XML.
+//  ExpectedType              - EnumRef.ContactInformationTypes - Determines the data type if it cannot be 
+//                              determined from the JSON data.
 //
-Procedure WhenConvertingContactInformationFromJSONToXML(Val ContactInformationInJSON, ContactInformationToXML, ExpectedType = Undefined) Export
+Procedure OnConvertContactInformationFromJSONToXML(Val ContactInformationInJSON, ContactInformationToXML, ExpectedType = Undefined) Export
 	
 	
 EndProcedure
 
-// 
+// Called when converting contact information from XML into XDTO.
 // 
 // Parameters:
-//  Text - String - 
-//  ContactInformation - XDTODataObject -  
-//  ExpectedKind - EnumRef.ContactInformationTypes - 
+//  Text - String - Contact information in XML format.
+//  ContactInformation - XDTODataObject -  Output parameter. Contact information converted into XDTO.
+//  ExpectedKind - EnumRef.ContactInformationTypes - Expected contact information kind.
 //  ConversionResult - Structure:
-//    * InfoCorrected - Boolean -  
-//                          - Undefined - 
+//    * InfoCorrected - Boolean - True if the information is valid. 
+//                          - Undefined - Not converted.
 //  SettingsOfConversion - See ContactsManager.ContactInformationConversionSettings
 //
 Procedure OnConvertContactInformationFromXML(Val Text, ContactInformation, Val ExpectedKind = Undefined, ConversionResult = Undefined, SettingsOfConversion = Undefined) Export
@@ -54,12 +54,12 @@ Procedure OnConvertContactInformationFromXML(Val Text, ContactInformation, Val E
 	
 EndProcedure
 
-// 
+// Called when contact information is converted into JSON.
 // 
 // Parameters:
-//  ContactInformation - String - 
-//  JSONContactInformation - String -  
-//  Type - EnumRef.ContactInformationTypes - 
+//  ContactInformation - String - Contact information in XML format.
+//  JSONContactInformation - String -  Output parameter. Contact information converted into JSON.
+//  Type - EnumRef.ContactInformationTypes - Expected contact information kind.
 //  SettingsOfConversion - Structure
 //
 Procedure OnConvertContactInformationToJSONStructure(ContactInformation, JSONContactInformation, Type, SettingsOfConversion) Export
@@ -67,69 +67,69 @@ Procedure OnConvertContactInformationToJSONStructure(ContactInformation, JSONCon
 	
 EndProcedure
 
-// 
+// Converts input contact information into XML.
 // 
 // Parameters:
 //  Data - See ContactsManagerClientServer.ContactInformationDetails
 //  Result - See ContactsManager.ContactInfoFieldsToConvert 
-//  StandardProcessing - Boolean - 
+//  StandardProcessing - Boolean - Output parameter. Set to "False" if a custom procedure is implemented.
 // 
-Procedure WhenConvertingContactInformationToXMLN(Val Data, Result, StandardProcessing) Export
+Procedure OnConvertContactInfoToXML(Val Data, Result, StandardProcessing) Export
 	
 	
 EndProcedure
 
-// 
+// Converts contact information that includes a phone number into an XDTO object.
 // 
 // Parameters:
-//  FieldValues - String - 
-//  Result - XDTODataObject - 
-//  Presentation - String - 
-//  ExpectedType - EnumRef.ContactInformationTypes - 
+//  FieldValues - String - Contact information
+//  Result - XDTODataObject - Output parameter. Contact information converted into XDTO.
+//  Presentation - String - Contact information presentation
+//  ExpectedType - EnumRef.ContactInformationTypes - Contact information type
 // 
 Procedure OnConvertPhoneToXDTOObject(FieldValues, Result, Presentation = "", ExpectedType = Undefined) Export
 	
 	
 EndProcedure
 
-// 
+// Converts contact information that includes a fax number into an XDTO object.
 // 
 // Parameters:
-//  FieldValues - String - 
-//  Result - XDTODataObject - 
-//  Presentation - String - 
-//  ExpectedType - EnumRef.ContactInformationTypes - 
+//  FieldValues - String - Contact information
+//  Result - XDTODataObject - Output parameter. Contact information converted into XDTO.
+//  Presentation - String - Contact information presentation
+//  ExpectedType - EnumRef.ContactInformationTypes - Contact information type
 // 
 Procedure OnConvertFaxToXDTOObject(FieldValues, Result, Presentation = "", ExpectedType = Undefined) Export
 	
 	
 EndProcedure
 
-// 
+// Adds a comment to contact information.
 // 
 // Parameters:
-//  ContactInformation - String - 
-//  Comment - String -  
+//  ContactInformation - String - Contact information the comment should be added to.
+//  Comment - String - A comment. 
 // 
 Procedure OnSetContactInformationComment(ContactInformation, Val Comment) Export
 	
 	
 EndProcedure
 
-//  
+// Determines the type of the contact information. 
 //
 // Parameters:
 //  XMLString - String - contact information in XML format.
-//  Type - EnumRef.ContactInformationTypes - 
+//  Type - EnumRef.ContactInformationTypes - Output parameter. The contact information type.
 //
 Procedure OnDefineContactInformationType(Val XMLString, Type) Export
 EndProcedure
 
-// 
+// Called when converting a contact information presentation into XDTO.
 // 
 // Parameters:
 //  Text - String - a contact information presentation.
-//  Result - XDTODataObject - 
+//  Result - XDTODataObject - Output parameter. The conversion result.
 //  ExpectedKind - EnumRef.ContactInformationTypes - contact information type.
 //
 Procedure OnConvertXDTOContactInformationByPresentation(Text, Result, ExpectedKind) Export
@@ -137,33 +137,33 @@ Procedure OnConvertXDTOContactInformationByPresentation(Text, Result, ExpectedKi
 	
 EndProcedure
 
-// 
+// Converts contact information from XDTO into XML.
 // 
 // Parameters:
-//  XDTOInformationObject - XDTODataObject - 
-//  ContactInformationToXML - String - 
+//  XDTOInformationObject - XDTODataObject - Contact information converted into XDTO.
+//  ContactInformationToXML - String - Output parameter. Contact information converted into XML.
 //
 Procedure OnConvertXDTOContactInformationToXML(XDTOInformationObject, ContactInformationToXML) Export
 	
 	
 EndProcedure
 
-// 
+// Called when getting a contact information row.
 // 
 // Parameters: 
-//   XMLData - String - 
-//   CompositionRow - String -  
+//   XMLData - String - Contact information in XML format.
+//   CompositionRow - String -  Output parameter. A contact information row extracted from XML.
 //
 Procedure OnGetContactInformationCompositionString(XMLData, CompositionRow) Export
 	
 	
 EndProcedure
 
-// 
+// Called when populating table attributes for a web page.
 // 
 // Parameters:
-//  Source - XDTODataObject - 
-//  Result - String - 
+//  Source - XDTODataObject - Source of the contact information
+//  Result - String - Population output.
 //
 Procedure OnFillTabularSectionAttributesForWebPage(Source, Result) Export
 	
@@ -212,17 +212,17 @@ Procedure OnDetermineContactInformationDifferences(Val Data1, Val Data2, Result)
 	
 EndProcedure
 
-// 
+// Additionally checks and handles data about a country from the country classifier.
 // 
 // Parameters:
 //  CountryByClassifier - ValueTableRow:
-//    * Code                - String - 
-//    * Description       - String - 
-//    * DescriptionFull - String - 
-//    * CodeAlpha2          - String - 
-//    * CodeAlpha3          - String - 
+//    * Code                - String - Country data.
+//    * Description       - String - Country data.
+//    * DescriptionFull - String - Country data.
+//    * CodeAlpha2          - String - Country data.
+//    * CodeAlpha3          - String - Country data.
 //
-Procedure ПриПроверкеСтраныПослеПоискаСтраныПоКлассификатору(CountryByClassifier) Export
+Procedure OnCheckCountryAfterCountrySearchInClassifier(CountryByClassifier) Export
 
 	
 EndProcedure

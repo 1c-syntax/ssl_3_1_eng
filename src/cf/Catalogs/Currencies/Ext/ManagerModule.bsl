@@ -161,6 +161,41 @@ Function IsDigit(Char)
 	
 EndFunction
 
+// Returns:
+//  Array of CatalogRef.Currencies
+//
+Function CurrenciesImportedFromInternet() Export
+	
+	SetPrivilegedMode(True);
+	
+	QueryText =
+	"SELECT
+	|	Currencies.Ref AS Ref,
+	|	Currencies.Code AS Code
+	|FROM
+	|	Catalog.Currencies AS Currencies
+	|WHERE
+	|	NOT Currencies.DeletionMark
+	|	AND Currencies.RateSource = VALUE(Enum.RateSources.DownloadFromInternet)";
+	
+	Query = New Query(QueryText);
+	Currencies = Query.Execute().Unload();
+	
+	CurrenciesImportedFromInternetCodes = Currencies.UnloadColumn("Code");
+	CurrencyRateOperationsLocalization.OnDefineCurrencyCodesImportedFromInternet(CurrenciesImportedFromInternetCodes);
+	
+	Result = New Array;
+	
+	For Each Currency In Currencies Do
+		If CurrenciesImportedFromInternetCodes.Find(Currency.Code) <> Undefined Then
+			Result.Add(Currency.Ref);
+		EndIf;
+	EndDo;
+	
+	Return Result;
+	
+EndFunction
+
 #EndRegion
 
 #EndIf

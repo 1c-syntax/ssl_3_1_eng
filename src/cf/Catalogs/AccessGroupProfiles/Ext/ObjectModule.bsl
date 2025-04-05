@@ -432,11 +432,11 @@ Procedure CheckSuppliedDataUniqueness(Var_FillChecking = False, Cancel = False)
 	If Selection.Count() > 1 Then
 		
 		BriefErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Built-in profile ""%1"" already exists:';"),
+			NStr("en = 'Built-in profile ""%1"" already exists:'"),
 			Description);
 		
 		DetailErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ""%1"" default master data ID is already used in the ""%2"" profile:';"),
+			NStr("en = 'The ""%1"" default master data ID is already used in the ""%2"" profile:'"),
 			String(SuppliedDataID),
 			Description);
 		
@@ -456,7 +456,7 @@ Procedure CheckSuppliedDataUniqueness(Var_FillChecking = False, Cancel = False)
 			Common.MessageToUser(BriefErrorDescription,,,, Cancel);
 		Else
 			WriteLogEvent(
-				NStr("en = 'Access management.Duplicate built-in profile';",
+				NStr("en = 'Access management.Duplicate built-in profile'",
 				     Common.DefaultLanguageCode()),
 				EventLogLevel.Error, , , DetailErrorDescription);
 		EndIf;
@@ -488,5 +488,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

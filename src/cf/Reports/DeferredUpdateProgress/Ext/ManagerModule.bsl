@@ -26,8 +26,8 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	ReportSettings.DefineFormSettings = True;
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "DeferredUpdateProgress");
-	OptionSettings.LongDesc = NStr("en = 'Progress of additional data processing procedures.';");
-	OptionSettings.SearchSettings.Keywords = NStr("en = 'Deferred update';");
+	OptionSettings.LongDesc = NStr("en = 'Progress of additional data processing procedures.'");
+	OptionSettings.SearchSettings.Keywords = NStr("en = 'Deferred update'");
 EndProcedure
 
 // End StandardSubsystems.ReportsOptions

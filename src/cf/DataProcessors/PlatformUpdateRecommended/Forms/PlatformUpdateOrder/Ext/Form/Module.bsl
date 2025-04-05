@@ -17,7 +17,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		"UpdateProcedureForTheFileBase", "ClientServerInfobaseUpdateOrder");
 	
 	If Parameters.IsApplicationUninstallation Then
-		Title = NStr("en = '1C:Enterprise uninstall procedure';");
+		Title = NStr("en = '1C:Enterprise uninstall procedure'");
 		TemplateName = "ProcedureForDeletingPlatform";
 	EndIf;
 	

@@ -86,7 +86,7 @@ Procedure ExecutePrintToPrinterCommand(PrintManagerName, TemplatesNames, Objects
 #EndIf
 	
 	If PrintForms.Cancel Then
-		CommonClient.MessageToUser(NStr("en = 'Insufficient rights to print out the form. Contact your administrator.';"));
+		CommonClient.MessageToUser(NStr("en = 'Insufficient rights to print out the form. Contact your administrator.'"));
 		Return;
 	EndIf;
 	
@@ -149,11 +149,11 @@ Procedure CheckDocumentsPosting(CompletionProcedureDetails, DocumentsList, Form 
 	AdditionalParameters.Insert("Form", Form);
 	
 	ClearMessages();
-	Result = CommonServerCall.UnpostedDocuments(DocumentsList);
-	HasUnpostedDocuments = Result.UnpostedDocuments.Count() > 0;
+	DocsPostInfoRecords = AttachableCommandsClient.DocsPostInfoRecords(DocumentsList);
+	HasUnpostedDocuments = DocsPostInfoRecords.UnpostedDocuments.Count() > 0;
 	If HasUnpostedDocuments Then
-		AdditionalParameters.Insert("UnpostedDocuments", Result.UnpostedDocuments);
-		AdditionalParameters.Insert("HasPostingRight", Result.HasPostingRight);
+		AdditionalParameters.Insert("UnpostedDocuments", DocsPostInfoRecords.UnpostedDocuments);
+		AdditionalParameters.Insert("HasPostingRight", DocsPostInfoRecords.HasPostingRight);
 		PrintManagementInternalClient.CheckDocumentsPostedPostingDialog(AdditionalParameters);
 	Else
 		RunCallback(CompletionProcedureDetails, DocumentsList);
@@ -223,7 +223,9 @@ EndFunction
 
 // Constructor of the PrintFormsCollection parameter for procedures and functions in this module.
 // See PrintDocuments
-// See PrintFormDetails.
+// See PrintFormDetails
+// 
+// .
 //
 // Parameters:
 //  IDs - String - Print form IDs.
@@ -463,27 +465,27 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Operations with office document templates.
 
-//	Секция содержит интерфейсные функции (API), используемые при создании
-//	печатных форм основанных на офисных документах MS Office (шаблоны MS Word) и Open Office (шаблоны OO Writer).
+//	
+//	
 //
 ////////////////////////////////////////////////////////////////////////////////
-//	Типы используемых данных (определяется конкретными реализациями).
-//	СсылкаПечатнаяФорма	- ссылка на печатную форму.
-//	СсылкаМакет			- ссылка на макет.
-//	Область				- ссылка на область в печатной форме или макете (структура)
-//						доопределяется в интерфейсном модуле служебной информацией
-//						об области.
-//	ОписаниеОбласти			- описание области макета (см. ниже).
-//	ДанныеЗаполнения		- либо структура, либо массив структур (для случая
-//							списков и таблиц.
+//	
+//	
+//	
+//	
+//						
+//						
+//	
+//	
+//							
 ////////////////////////////////////////////////////////////////////////////////
-//	ОписаниеОбласти - структура, описывающая подготовленные пользователем области макета
-//	ключ ИмяОбласти - имя области
-//	ключ ТипТипОбласти - 	ВерхнийКолонтитул.
-//							НижнийКолонтитул
-//							Общая
-//							СтрокаТаблицы
-//							Список
+//	
+//	
+//	
+//							
+//							
+//							
+//							
 //
 
 #Region InitializationAndLinkClosureFunctions
@@ -644,7 +646,7 @@ Function TemplateArea(Val RefToTemplate, Val AreaDetails) Export
 		ElsIf	AreaDetails.AreaType = "List" Then
 			Area = PrintManagementMSWordClient.GetMSWordTemplateArea(RefToTemplate, AreaDetails.AreaName, 1, 0);
 		Else
-			Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Area type is not specified or invalid: %1.';"), AreaDetails.AreaType);
+			Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Area type is not specified or invalid: %1.'"), AreaDetails.AreaType);
 		EndIf;
 		
 		If Area <> Undefined Then
@@ -661,7 +663,7 @@ Function TemplateArea(Val RefToTemplate, Val AreaDetails) Export
 				Or AreaDetails.AreaType = "List" Then
 			Area = PrintManagementOOWriterClient.GetTemplateArea(RefToTemplate, AreaDetails.AreaName);
 		Else
-			Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Area type is not specified or invalid: %1.';"), AreaDetails.AreaName);
+			Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Area type is not specified or invalid: %1.'"), AreaDetails.AreaName);
 		EndIf;
 		
 		If Area <> Undefined Then
@@ -743,7 +745,8 @@ Procedure AttachArea(Val PrintForm, Val TemplateArea, Val GoToNextRow1 = True) E
 	Except
 		ErrorMessage = TrimAll(ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		ErrorMessage = ?(Right(ErrorMessage, 1) = ".", ErrorMessage, ErrorMessage + ".");
-		ErrorMessage = ErrorMessage + " " + StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Error occurred during output of %1 template area.';"),
+		ErrorMessage = ErrorMessage + " " + StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Cannot output area ""%1"" from the template into the print form.'"),
 			TemplateArea.AreaDetails.AreaName);
 		Raise ErrorMessage;
 	EndTry;
@@ -922,10 +925,10 @@ Procedure SwitchLanguage(Form, Command) Export
 		NotifyDescription = New CallbackDescription("WhenSwitchingTheLanguage", ThisObject, Parameters);
 		
 		Buttons = New ValueList;
-		Buttons.Add(DialogReturnCode.OK, NStr("en = 'Continue';"));
+		Buttons.Add(DialogReturnCode.OK, NStr("en = 'Continue'"));
 		Buttons.Add(DialogReturnCode.Cancel);
 		
-		QueryText = NStr("en = 'Current template changes are not saved. Do you want to continue?';");
+		QueryText = NStr("en = 'Current template changes are not saved. Do you want to continue?'");
 		ShowQueryBox(NotifyDescription, QueryText, Buttons, , DialogReturnCode.Cancel);
 	Else
 		WhenSwitchingTheLanguage(DialogReturnCode.OK, Parameters);
@@ -1004,46 +1007,53 @@ Procedure OnChangeTemplateSettings(Parameters, NotifyDescription) Export
 	
 EndProcedure
 
-// 
-// 
-// 
-// 
+// Before generating a print form, it checks whether the name of the default print form needs to be saved and
+// displays a confirmation dialog. Based on the user's response, it modifies the returned "CommandDetails" parameter.
+// After generating the print form, "CommandDetails" must be passed unchanged
+// to the "PrintManagement.OnExecutePrintCommand" procedure to save the name.
 // 
 // Parameters:
-//  ObjectsArray       - AnyRef
-//                       - Array of AnyRef - 
+//  Objects              - AnyRef
+//                       - Array of AnyRef - Print objects.
 //  CommandDetails      - Structure
-//                       - Array of Structure - 
-//                                                See PrintManagement.CreatePrintCommandsCollection.
-//  CompletionHandler - CallbackDescription - 
-//                         :
+//                       - Array of Structure - A return parameter.
+//                                               The keys repeat the table rows. See PrintManagement.CreatePrintCommandsCollection.
+//  CompletionHandler - CallbackDescription - Contains details of the procedure that will be called after the confirmation
+//                         dialog for name replacement is closed, with parameters.:
 //                           * Result               - Structure
-//                                                     - Array of Structure - 
+//                                                     - Array of Structure - Modified "CommandDetails" parameter.
 //                           * AdditionalParameters - Arbitrary - Additional notification parameters.
 //  Example:
-//		
-//			
-//			
-//		
-//		
-//			
-//		
+//		Procedure CallingCode()
+//			CompletionHandler = New NotifyDescription("ResumeCallingCode", ThisObject, NotificationParameters);
+//			PrintManagementClient.BeforeRunPrintCommand(Objects, CommandDetails, CompletionHandler);
+//		EndProcedure
+//		Procedure ResumeCallingCode(Result, AdditionalParameters) Export
+//			CommandDetails = Result;
+//		EndProcedure
 //
-Procedure BeforeStartExecutePrintCommand(ObjectsArray, CommandDetails, CompletionHandler) Export
+Procedure BeforeStartExecutePrintCommand(Objects, CommandDetails, CompletionHandler) Export
+	
+	If TypeOf(Objects) <> Type("Array") Then
+		ObjectsArray = CommonClientServer.ValueInArray(Objects);
+	Else
+		ObjectsArray = Objects;
+	EndIf;
 	
 	If TypeOf(CommandDetails) = Type("Array") Then
 		
-		HasDefaultPrintForms = False;
+		DefaultPrintFormsCount = 0;
 		For Each Command In CommandDetails Do
 			If Command.DefaultPrintForm Then
-				HasDefaultPrintForms = True;
-				Break;
+				DefaultPrintFormsCount = DefaultPrintFormsCount + 1;
+				IndexOfSinglePrintForm = CommandDetails.Find(Command);
 			EndIf;
 		EndDo;
 		
-		If HasDefaultPrintForms Then
+		If DefaultPrintFormsCount > 1 Then
 			FormParameters = New Structure;
 			FormParameters.Insert("PrintCommands", CommandDetails);
+			FormParameters.Insert("ObjectsArray", ObjectsArray);
 			
 			AdditionalParameters = New Structure;
 			AdditionalParameters.Insert("ObjectsArray", ObjectsArray);
@@ -1052,17 +1062,75 @@ Procedure BeforeStartExecutePrintCommand(ObjectsArray, CommandDetails, Completio
 			OnCloseNotifyDescription = New CallbackDescription(
 				"AfterSelectDefaultPrintFormCommand", ThisObject, AdditionalParameters);
 			
-			OpenForm("CommonForm.SelectDefaultPrintFormCommand",
+			OpenForm("CommonForm.SelectDefaultPrintForm",
 				FormParameters, , , , , OnCloseNotifyDescription, FormWindowOpeningMode.LockOwnerWindow);
+			
+		ElsIf DefaultPrintFormsCount = 1 Then
+			BeforeStartExecutePrintCommandFollowUp(ObjectsArray, CommandDetails, CompletionHandler, IndexOfSinglePrintForm);
+			
 		Else
 			RunCallback(CompletionHandler, CommandDetails);
+			
 		EndIf;
+		
 	Else
 		CommandInArray = CommonClientServer.ValueInArray(CommandDetails);
 		BeforeStartExecutePrintCommandFollowUp(ObjectsArray, CommandInArray, CompletionHandler)
 	EndIf;
 	
 EndProcedure
+
+// Generates and displays print forms or prints them out according to the command.
+// 
+// Parameters:
+//  ObjectsArray       - Array of AnyRef - Print objects.
+//  Commands              - Array of Structure - See CreatePrintCommand.
+//  CompletionHandler - CallbackDescription - Describes the procedure to be called before generating
+//                                              print forms (unless the user canceled printing).:
+//                        * Result               - Boolean - Always returns "True".
+//                        * AdditionalParameters - Arbitrary - Additional notification parameters.
+//  ToPrinter            - Boolean - If "True", output the print forms to a printer. Otherwise, display on screen.
+//
+Procedure RunPrintCommands(ObjectsArray, Commands, CompletionHandler, ToPrinter = False) Export
+	
+	If Not CheckPassedObjectsCount(ObjectsArray) Then
+		Return;
+	EndIf;
+	
+	NotificationParameters = New Structure;
+	NotificationParameters.Insert("CompletionHandler", CompletionHandler);
+	NotificationParameters.Insert("ObjectsArray", ObjectsArray);
+	NotificationParameters.Insert("ToPrinter", ToPrinter);
+	
+	NotifyDescription = New CallbackDescription("ContinuePrintCommandExecution", ThisObject, NotificationParameters);
+	BeforeStartExecutePrintCommand(ObjectsArray, Commands, NotifyDescription);
+	
+EndProcedure
+
+// See PrintManagement.PrintToFile
+// ()
+Procedure PrintToFile(PrintCommands, ListOfObjects, SettingsForSaving, CompletionHandler) Export
+	
+	NotificationParameters = New Structure;
+	NotificationParameters.Insert("CompletionHandler", CompletionHandler);
+	NotificationParameters.Insert("PrintCommands", PrintCommands);
+	NotificationParameters.Insert("ListOfObjects", ListOfObjects);
+	NotificationParameters.Insert("SettingsForSaving", SettingsForSaving);
+	
+	NotifyDescription = New CallbackDescription("ContinuePrintToFile", ThisObject, NotificationParameters); 
+	BeforeStartExecutePrintCommand(ListOfObjects, PrintCommands, NotifyDescription);
+	
+EndProcedure
+
+// Array element constructor for the second parameter of the "RunPrintCommands" procedure.
+// 
+// Returns:
+//  Structure - Fields required to run the "RunPrintCommands" procedure
+//
+Function CreatePrintCommand() Export
+	CommandTemplate = PrintManagementServerCall.CreatePrintCommand();
+	Return CommandTemplate;
+EndFunction
 
 #EndRegion
 
@@ -1082,7 +1150,7 @@ Function CheckPassedObjectsCount(CommandParameter)
 EndFunction
 
 Function AreaTypeSpecifiedIncorrectlyText()
-	Return NStr("en = 'Area type is not specified or invalid.';");
+	Return NStr("en = 'Area type is not specified or invalid.'");
 EndFunction
 
 Procedure WhenSwitchingTheLanguage(Response, Parameters) Export
@@ -1233,6 +1301,11 @@ EndProcedure
 Procedure AfterSelectDefaultPrintFormCommand(CommandIndex, AdditionalParameters) Export
 	
 	If CommandIndex <> Undefined Then
+		
+		SelectedCommand = AdditionalParameters.PrintCommands[CommandIndex];
+		SelectedCommand.ReplaceDefaultPrintForm = True;
+		SelectedCommand.DefaultPrintForm = False;
+		
 		BeforeStartExecutePrintCommandFollowUp(
 			AdditionalParameters.ObjectsArray,
 			AdditionalParameters.PrintCommands,
@@ -1250,7 +1323,7 @@ Async Procedure BeforeStartExecutePrintCommandFollowUp(ObjectsArray, Commands, N
 		CommandDetails = Commands[CommandIndex];
 	EndIf;
 	
-	If Not CommandDetails.DefaultPrintForm Then //это комплект
+	If Not CommandDetails.DefaultPrintForm Then //This is a set.
 		
 		DefaultPrintFormsInSet = PrintManagementServerCall.DefaultPrintFormInSet(
 			ObjectsArray, CommandDetails);
@@ -1265,7 +1338,7 @@ Async Procedure BeforeStartExecutePrintCommandFollowUp(ObjectsArray, Commands, N
 		
 	EndIf;
 	
-	If CommandDetails.DefaultPrintForm Then
+	If CommandDetails.DefaultPrintForm And Not CommandDetails.ReplaceDefaultPrintForm Then
 		SavedDescriptions = PrintManagementServerCall.SavedDescriptions(ObjectsArray);
 		HasSavedDescriptions = SavedDescriptions.Count();
 		QueryText = "";
@@ -1282,20 +1355,20 @@ Async Procedure BeforeStartExecutePrintCommandFollowUp(ObjectsArray, Commands, N
 			If SavedDescriptions.Count() = 1 Then
 				FirstDescription = SavedDescriptions[0];
 				QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'A default print form for this document has already been generated: %1, by %2, on %3. Replace the default print form for this document?';"),
+					NStr("en = 'A default print form for this document has already been generated: %1, by %2, on %3. Replace the default print form for this document?'"),
 					FirstDescription.PrintFormDescription,
 					FirstDescription.User,
 					Format(FirstDescription.Date, "DLF=;"));
 			Else
-				QueryText = NStr("en = 'A default print form has already been generated for one or more of the selected documents. Replace the default print form for these documents?';");
+				QueryText = NStr("en = 'A default print form has already been generated for one or more of the selected documents. Replace the default print form for these documents?'");
 			EndIf;
 		EndIf;
 		
 		If Not IsBlankString(QueryText) Then
 			
 			QuestionButtons = New ValueList;
-			QuestionButtons.Add("Replace", NStr("en = 'Replace';"));
-			QuestionButtons.Add("NotReplace", NStr("en = 'Do not replace';"));
+			QuestionButtons.Add("Replace", NStr("en = 'Replace'"));
+			QuestionButtons.Add("NotReplace", NStr("en = 'Do not replace'"));
 			
 			Response = Await DoQueryBoxAsync(QueryText, QuestionButtons);
 			If Response = "Replace" Then
@@ -1311,11 +1384,57 @@ Async Procedure BeforeStartExecutePrintCommandFollowUp(ObjectsArray, Commands, N
 		EndIf;
 	EndIf;
 	
-	If Commands.Count() = 1 Then
+	If CommandIndex = Undefined Then
 		RunCallback(NotifyDescription, Commands[0]);
 	Else
 		RunCallback(NotifyDescription, Commands);
 	EndIf;
+	
+EndProcedure
+
+Procedure ContinuePrintCommandExecution(Commands, AdditionalParameters) Export
+	
+	ParameterName = "StandardSubsystems.Print.ExecutePrintCommand";
+	PassedParametersList = ApplicationParameters[ParameterName];
+	
+	If PassedParametersList = Undefined Then
+		PassedParametersList = New Array;
+		ApplicationParameters[ParameterName] = PassedParametersList;
+	EndIf;
+	
+	RunCallback(AdditionalParameters.CompletionHandler, True);
+	
+	ObjectsArray = AdditionalParameters.ObjectsArray;
+	PrintFormsCollection = PrintManagementServerCall.GeneratePrintForms(ObjectsArray, Commands);
+			
+	If AdditionalParameters.ToPrinter Then
+		
+		PrintFormsList = New ValueList;
+		For Each PrintForm In PrintFormsCollection Do
+			SpreadsheetDocument = PrintForm.SpreadsheetDocument;
+			If (TypeOf(SpreadsheetDocument) = Type("SpreadsheetDocument")) And (SpreadsheetDocument.TableHeight <> 0) Then
+				PrintFormsList.Add(SpreadsheetDocument, PrintForm.TemplateSynonym);
+			EndIf;
+		EndDo;
+		
+		PrintSpreadsheetDocuments(PrintFormsList, ObjectsArray);
+	Else
+		OpeningParameters = PrintManagementInternalClient.ParametersForOpeningPrintForm();
+		OpeningParameters.CommandParameter = ObjectsArray;
+		OpeningParameters.PrintFormsCollection = PrintFormsCollection;
+		PassedParametersList.Add(OpeningParameters);
+		
+		AttachIdleHandler("ResumePrintCommandWithPassedParameters", 0.1, True);
+	EndIf;
+	
+EndProcedure
+
+Procedure ContinuePrintToFile(Commands, AdditionalParameters) Export
+	
+	Result = PrintManagementServerCall.PrintToFile(
+		Commands, AdditionalParameters.ListOfObjects, AdditionalParameters.SettingsForSaving);
+	
+	RunCallback(AdditionalParameters.CompletionHandler, Result);
 	
 EndProcedure
 

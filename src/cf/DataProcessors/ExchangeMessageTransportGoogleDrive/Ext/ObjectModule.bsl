@@ -186,7 +186,7 @@ Function GetMessage(MessageNameTemplate)
 		
 		ErrorMessage = NStr("en = 'An information exchange directory is missing a message file.
                                   |Server directory ID: %1
-                                  |File: %2';");
+                                  |File: %2'");
 
 		ErrorMessage = StrTemplate(ErrorMessage, IdOfFolderInCloud, MessageNameTemplate);
 		ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject, "DataImport");
@@ -557,5 +557,5 @@ TimeoutSendingReceiving = 43200;
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

@@ -15,11 +15,11 @@
 // See DataProcessorManager.ExchangeMessageTransportFILE.TransportParameters
 Function TransportParameters() Export
 	
-	LongDesc = NStr("en = 'Connection requires email address.';");
+	LongDesc = NStr("en = 'Connection requires email address.'");
 	
 	Parameters = ExchangeMessagesTransport.StructureOfTransportParameters();
 	
-	Parameters.Alias = NStr("en = 'Email';");
+	Parameters.Alias = NStr("en = 'Email'");
 	Parameters.TransportID = "EMAIL";
 	Parameters.LongDesc = LongDesc;
 	Parameters.AttributesForSecureStorage.Add("ArchivePasswordExchangeMessages");

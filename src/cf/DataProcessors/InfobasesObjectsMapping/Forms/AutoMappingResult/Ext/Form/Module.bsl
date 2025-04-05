@@ -18,7 +18,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Checking whether the form is opened from 1C:Enterprise script.
 	If Not Parameters.Property("ExchangeMessageFileName") Then
 		
-		NString = NStr("en = 'The form cannot be opened interactively.';");
+		NString = NStr("en = 'The form cannot be opened interactively.'");
 		Common.MessageToUser(NString,,,, Cancel);
 		Return;
 		
@@ -61,7 +61,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	If Exit Then
 		Return;
 	EndIf;
-	ShowMessageBox(, NStr("en = 'The form contains automatic mapping data. The action is canceled.';"));
+	ShowMessageBox(, NStr("en = 'The form contains automatic mapping data. The action is canceled.'"));
 	
 EndProcedure
 
@@ -151,7 +151,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -172,7 +172,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -228,7 +228,7 @@ Procedure ExecuteTimeConsumingOperationHandler()
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -516,7 +516,7 @@ Function BackgroundJobStartAtServer(Cancel)
 	JobParameters.Insert("UnapprovedMappingTable", GetFromTempStorage(UnapprovedMappingTableTempStorageAddress));
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Automatic object mapping';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Automatic object mapping'");
 	
 	Result = TimeConsumingOperations.ExecuteInBackground(
 		"DataProcessors.InfobasesObjectsMapping.ExecuteAutomaticObjectMapping",
@@ -578,7 +578,7 @@ EndProcedure
 &AtServer
 Procedure RecordError(DetailErrorDescription)
 	WriteLogEvent(
-		NStr("en = 'Object mapping wizard.Automatic object mapping';", Common.DefaultLanguageCode()),
+		NStr("en = 'Object mapping wizard.Automatic object mapping'", Common.DefaultLanguageCode()),
 		EventLogLevel.Error,
 		,
 		,DetailErrorDescription);

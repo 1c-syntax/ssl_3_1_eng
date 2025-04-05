@@ -14,7 +14,7 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	If Parameters.Owner.IsEmpty() Then
-		MessageText = NStr("en = 'This form can be opened only from survey questions.';");
+		MessageText = NStr("en = 'This form can be opened only from survey questions.'");
 		Common.MessageToUser(MessageText);
 		Cancel = True;
 		Return;

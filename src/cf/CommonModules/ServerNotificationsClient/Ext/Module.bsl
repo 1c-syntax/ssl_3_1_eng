@@ -75,7 +75,7 @@ EndFunction
 Procedure HandleError(ErrorInfo) Export
 	
 	EventLogClient.AddMessageForEventLog(
-		NStr("en = 'Server notifications.Error getting or processing notifications';",
+		NStr("en = 'Server notifications.Error getting or processing notifications'",
 			CommonClient.DefaultLanguageCode()),
 		"Error",
 		ErrorProcessing.DetailErrorDescription(ErrorInfo));
@@ -532,11 +532,11 @@ Procedure ProcessServerNotificationOnClient(DataReceiptStatus, ServerNotificatio
 		ErrorInfo = ErrorInfo();
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot execute the ""%1"" procedure due to:
-			           |%2';"),
+			           |%2'"),
 			Notification.NotificationReceiptModuleName + ".OnReceiptServerNotification",
 			ErrorProcessing.DetailErrorDescription(ErrorInfo));
 		EventLogClient.AddMessageForEventLog(
-			NStr("en = 'Server notifications.An error occurred when processing the received message';",
+			NStr("en = 'Server notifications.An error occurred when processing the received message'",
 				CommonClient.DefaultLanguageCode()),
 			"Error",
 			ErrorText);
@@ -597,7 +597,7 @@ EndFunction
 //   * ShouldRegisterIndicators - Boolean
 //   * ServiceAdministratorSession - Boolean
 //   * IsRecurringDataSendEnabled - Boolean - Is set to True in the AfterStart procedure.
-//   * RepeatedDateExportMinInterval - See ServerNotifications.RepeatedDateExportMinInterval
+//   * RepeatedDateExportMinInterval - 
 //   * SessionKey - See ServerNotifications.SessionKey
 //   * IBUserID - UUID
 //   * StatusUpdateDate - Date
@@ -716,7 +716,7 @@ Procedure AfterNewPersonalMessageHandlerAttachError(ErrorInfo, StandardProcessin
 	StandardProcessing = False;
 	
 	EventLogClient.AddMessageForEventLog(
-		NStr("en = 'Server notifications.An error occurred when connecting the handler of new personal messages';",
+		NStr("en = 'Server notifications.An error occurred when connecting the handler of new personal messages'",
 			CommonClient.DefaultLanguageCode()),
 		"Error",
 		ErrorProcessing.DetailErrorDescription(ErrorInfo));
@@ -734,7 +734,7 @@ Procedure OnInteractionSystemNewPersonalMessageReceiptError(ErrorInfo, StandardP
 	StandardProcessing = False;
 	
 	EventLogClient.AddMessageForEventLog(
-		NStr("en = 'Server notifications.An error occurred when receiving a new personal message';",
+		NStr("en = 'Server notifications.An error occurred when receiving a new personal message'",
 			CommonClient.DefaultLanguageCode()),
 		"Error",
 		ErrorProcessing.DetailErrorDescription(ErrorInfo));
@@ -752,7 +752,7 @@ Procedure AfterNewGlobalMessageHandlerAttachError(ErrorInfo, StandardProcessing,
 	StandardProcessing = False;
 	
 	EventLogClient.AddMessageForEventLog(
-		NStr("en = 'Server notifications.An error occurred when connecting the handler of new common messages';",
+		NStr("en = 'Server notifications.An error occurred when connecting the handler of new common messages'",
 			CommonClient.DefaultLanguageCode()),
 		"Error",
 		ErrorProcessing.DetailErrorDescription(ErrorInfo));
@@ -770,7 +770,7 @@ Procedure OnInteractionSystemNewGlobalMessageReceiptError(ErrorInfo, StandardPro
 	StandardProcessing = False;
 	
 	EventLogClient.AddMessageForEventLog(
-		NStr("en = 'Server notifications.An error occurred when receiving a new common message';",
+		NStr("en = 'Server notifications.An error occurred when receiving a new common message'",
 			CommonClient.DefaultLanguageCode()),
 		"Error",
 		ErrorProcessing.DetailErrorDescription(ErrorInfo));
@@ -891,7 +891,7 @@ Procedure OnErrorGettingNewClientNotification(ErrorInfo, StandardProcessing, Con
 	StandardProcessing = False;
 	
 	EventLogClient.AddMessageForEventLog(
-		NStr("en = 'Server notifications.Error obtaining new client notification';",
+		NStr("en = 'Server notifications.Error obtaining new client notification'",
 			CommonClient.DefaultLanguageCode()),
 		"Error",
 		ErrorProcessing.DetailErrorDescription(ErrorInfo));

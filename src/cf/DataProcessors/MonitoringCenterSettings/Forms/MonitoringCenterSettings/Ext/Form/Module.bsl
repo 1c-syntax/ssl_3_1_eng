@@ -40,7 +40,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Common.FileInfobase() Then                                   		
 		Items.SendErrorsInformationExtendedTooltip.Title = StrReplace(HintContent,"%1","");
 	Else
-		Items.SendErrorsInformationExtendedTooltip.Title = StrReplace(HintContent,"%1"," " + NStr("en = 'on 1C server';"));
+		Items.SendErrorsInformationExtendedTooltip.Title = StrReplace(HintContent,"%1"," " + NStr("en = 'on 1C server'"));
 	EndIf;
 EndProcedure
 
@@ -142,13 +142,13 @@ EndFunction
 Procedure SetItemsVisibility(VisibilityParameters)
 	ExecutionResult = GetFromTempStorage(VisibilityParameters.ResultAddress);
 	If VisibilityParameters.Status = "Running" Then
-		Items.ProgressDetails.Title = NStr("en = 'Receiving ID';");		
+		Items.ProgressDetails.Title = NStr("en = 'Receiving ID'");		
 		Items.ProgressDetails.Visible = True;
 		Items.Progress.Picture = PictureLib.TimeConsumingOperation16;
 		Items.Progress.Visible = True;
 		Items.IDGroup.Visible = False;	
 	ElsIf VisibilityParameters.Status = "Completed2" And ExecutionResult.Success Then
-		Items.ProgressDetails.Title = NStr("en = 'ID is received successfully';");		
+		Items.ProgressDetails.Title = NStr("en = 'ID is received successfully'");		
 		Items.ProgressDetails.Visible = False;
 		Items.Progress.Visible = False;
 		Items.IDGroup.Visible = True;

@@ -112,7 +112,7 @@ EndProcedure
 Procedure OnComposeResult(ResultDocument, ObjectDetailsData, StandardProcessing, StorageAddress)
 	
 	If Not Common.SeparatedDataUsageAvailable() Then
-		Raise NStr("en = 'The report is supported for data areas and the local mode.';");
+		Raise NStr("en = 'The report is supported for data areas and the local mode.'");
 	EndIf;
 	
 	StandardProcessing = False;
@@ -121,7 +121,7 @@ Procedure OnComposeResult(ResultDocument, ObjectDetailsData, StandardProcessing,
 	
 	If Common.DataSeparationEnabled()
 	   And ReportVariant = "ScheduledJobsDuration" Then
-		Raise NStr("en = 'The report option is unavailable in web apps.';");
+		Raise NStr("en = 'The report option is unavailable in web apps.'");
 	EndIf;
 	
 	Period = ReportSettings.DataParameters.Items.Find("Period").Value; // StandardPeriod
@@ -188,7 +188,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 		
 		If Not ValueIsFilled(DayPeriod.Date) Then
 			Common.MessageToUser(
-				NStr("en = 'The ""Day"" field is blank.';"), , );
+				NStr("en = 'The ""Day"" field is blank.'"), , );
 			Cancel = True;
 			Return;
 		EndIf;
@@ -199,7 +199,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 		And SelectionStart.Use 
 		And SelectionEnd.Use Then
 			Common.MessageToUser(
-				NStr("en = 'The beginning of the period must be earlier than the end of the period.';"), , );
+				NStr("en = 'The beginning of the period must be earlier than the end of the period.'"), , );
 			Cancel = True;
 			Return;
 		EndIf;
@@ -210,14 +210,14 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 		
 		If Not ValueIsFilled(User) Then
 			Common.MessageToUser(
-				NStr("en = 'The ""User"" field is blank.';"), , );
+				NStr("en = 'The ""User"" field is blank.'"), , );
 			Cancel = True;
 			Return;
 		EndIf;
 		
 		If Reports.EventLogAnalysis.UserForSelection(User) = Undefined Then
 			Common.MessageToUser(
-				NStr("en = 'Cannot create a report because the username is not specified.';"), , );
+				NStr("en = 'Cannot create a report because the username is not specified.'"), , );
 			Cancel = True;
 			Return;
 		EndIf;
@@ -230,7 +230,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 			
 			If Reports.EventLogAnalysis.UserForSelection(UsersAndGroups) = Undefined Then
 				Common.MessageToUser(
-					NStr("en = 'Cannot create a report because the username is not specified.';"), , );
+					NStr("en = 'Cannot create a report because the username is not specified.'"), , );
 				Cancel = True;
 				Return;
 			EndIf;
@@ -239,7 +239,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 		
 		If Not ValueIsFilled(UsersAndGroups) Then
 			Common.MessageToUser(
-				NStr("en = 'The ""Users"" field is blank.';"), , );
+				NStr("en = 'The ""Users"" field is blank.'"), , );
 			Cancel = True;
 			Return;
 		EndIf;
@@ -383,5 +383,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

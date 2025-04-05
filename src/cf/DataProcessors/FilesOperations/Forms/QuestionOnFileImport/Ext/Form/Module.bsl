@@ -19,7 +19,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Message = StringFunctionsClientServer.SubstituteParametersToString(
 	    NStr("en = 'Some files exceed the size limit (%1 MB) and will not be added to the storage.
-	               |Do you want to continue the upload?';"),
+	               |Do you want to continue the upload?'"),
 	    String(MaxFileSize) );
 	
 	Title = Parameters.Title;

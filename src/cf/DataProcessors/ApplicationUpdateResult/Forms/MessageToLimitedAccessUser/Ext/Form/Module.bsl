@@ -81,7 +81,7 @@ Function UpdateStartAtServer()
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.WaitCompletion = 0;
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update infobase in background with restricted rights';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update infobase in background with restricted rights'");
 	
 	Result = TimeConsumingOperations.ExecuteFunction(ExecutionParameters,
 		"InfobaseUpdateInternal.UpdateUnderRestrictedRights", IBLock);
@@ -124,9 +124,9 @@ Procedure ContinueCountdown()
 		Terminate(False);
 	Else
 		NewTitle = (
-			NStr("en = 'End session';")
+			NStr("en = 'End session'")
 			+ " ("
-			+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 seconds remaining';"), String(TimeoutCounter))
+			+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 seconds remaining'"), String(TimeoutCounter))
 			+ ")");
 			
 		Items.FormExitApplication.Title = NewTitle;

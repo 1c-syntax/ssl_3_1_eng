@@ -15,7 +15,7 @@ Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 	
 	If Not DataExchangeServerCall.SUBAssetIsIncludedInDSLExchangePlans(CommandParameter) Then
 		
-		Text = NStr("en = 'The command is not intended for this node type';",
+		Text = NStr("en = 'The command is not intended for this node type'",
 			CommonClient.DefaultLanguageCode());
 		ShowMessageBox(, Text);
 		
@@ -25,7 +25,7 @@ Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 	
 	If Not ValueIsFilled(ExchangeMessageTransportServerCall.DefaultTransport(CommandParameter)) Then
 		
-		Text = NStr("en = 'No default transport type is specified for this node';",
+		Text = NStr("en = 'No default transport type is specified for this node'",
 			CommonClient.DefaultLanguageCode());
 		ShowMessageBox(, Text);
 		
@@ -43,7 +43,7 @@ Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 	
 	If Cancel Then
 		
-		ShowMessageBox(, NStr("en = 'Cannot get data exchange settings.';"));
+		ShowMessageBox(, NStr("en = 'Cannot get data exchange settings.'"));
 		Return;
 		
 	EndIf;
@@ -52,14 +52,14 @@ Procedure CommandProcessing(CommandParameter, CommandExecuteParameters)
 	
 	If ValueIsFilled(AddressOfXMLConnectionSettings) Then
 		
-		FileName = NStr("en = 'Connection settings';", CommonClient.DefaultLanguageCode()) + ".xml";
+		FileName = NStr("en = 'Connection settings'", CommonClient.DefaultLanguageCode()) + ".xml";
 		FilesToObtain.Add(New TransferableFileDescription(FileName, AddressOfXMLConnectionSettings));
 		
 	EndIf;
 	
 	If ValueIsFilled(AddressOfJSONConnectionSettings) Then
 		
-		FileName = NStr("en = 'Connection settings';", CommonClient.DefaultLanguageCode()) + ".json";
+		FileName = NStr("en = 'Connection settings'", CommonClient.DefaultLanguageCode()) + ".json";
 		FilesToObtain.Add(New TransferableFileDescription(FileName, AddressOfJSONConnectionSettings));
 		
 	EndIf;
@@ -133,7 +133,7 @@ Procedure SaveConnectionSettingsFilesCompletion(Result, AdditionalParameters) Ex
 		Return;
 	EndIf; 
 	
-	MessageText = NStr("en = 'Connection settings saved';", CommonClient.DefaultLanguageCode());
+	MessageText = NStr("en = 'Connection settings saved'", CommonClient.DefaultLanguageCode());
 	CommonClient.MessageToUser(MessageText);
 	
 EndProcedure

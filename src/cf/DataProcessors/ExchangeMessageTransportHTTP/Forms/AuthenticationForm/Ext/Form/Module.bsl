@@ -18,7 +18,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		And Not Parameters.Property("ExchangePlanName")
 		And Not Parameters.Property("TransportSettings") Then
 		
-		Raise NStr("en = 'This is a dependent form and opens from a different form.';",
+		Raise NStr("en = 'This is a dependent form and opens from a different form.'",
 			Common.DefaultLanguageCode());
 		
 	EndIf;
@@ -71,7 +71,7 @@ EndProcedure
 Function AuthenticationCheckStart(Val Peer, Val TransportID, Val AuthenticationData) Export
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Check connection to peer';", Common.DefaultLanguageCode());
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Check connection to peer'", Common.DefaultLanguageCode());
 	ExecutionParameters.WaitCompletion = 0;
 		
 	Return TimeConsumingOperations.ExecuteFunction(
@@ -92,7 +92,7 @@ Procedure AuthenticationCheckCompletion(BackgroundJob, AdditionalParameters) Exp
 		
 		Items.PerformingConnectionVerification.CurrentPage = Items.UserPasswordRequest;
 		ErrorMessage = BackgroundJob.BriefErrorDescription
-			+ Chars.LF + NStr("en = 'See the event log for details.';");
+			+ Chars.LF + NStr("en = 'See the event log for details.'");
 			
 		CommonClient.MessageToUser(ErrorMessage);
 

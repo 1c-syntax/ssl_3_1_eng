@@ -30,7 +30,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	FileVersionsStorageCatalogName = Parameters.FileVersionsStorageCatalogName;
 	
 	If Common.IsMobileClient() Then
-		Title = NStr("en = 'Save directory to device';");
+		Title = NStr("en = 'Save directory to device'");
 	EndIf;
 
 EndProcedure
@@ -80,7 +80,7 @@ EndProcedure
 Procedure SaveFolder()
 	
 	If IsBlankString(DirectoryToSave) Or DirectoryToSave = GetPathSeparator() Then
-		ShowMessageBox(, NStr("en = 'Select a directory.';"));
+		ShowMessageBox(, NStr("en = 'Select a directory.'"));
 		Return;
 	EndIf;
 	
@@ -94,7 +94,7 @@ Procedure SaveFolder()
 	If Not DumpDirectory.Exists() Then
 		ShowMessageBox(, StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Folder ""%1"" is not found.
-			           |Please select another folder.';"),
+			           |Please select another folder.'"),
 			DirectoryToSave));
 		Return;
 	EndIf;
@@ -111,13 +111,13 @@ Procedure SaveFolder()
 		Try
 			CreateDirectory(FullExportPath);
 			If Not DumpDirectory.Exists() Then
-				Raise NStr("en = 'The created subfolder is not found.';");
+				Raise NStr("en = 'The created subfolder is not found.'");
 			EndIf;
 		Except
 			ErrorInfo = ErrorInfo();
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t create the subdirectory ""%1"" in the directory ""%2"". Reason:
-				           |%3';"),
+				           |%3'"),
 				String(WhatToSave),
 				DirectoryToSave,
 				ErrorProcessing.BriefErrorDescription(ErrorInfo));
@@ -140,12 +140,12 @@ EndProcedure
 Procedure SaveFolderCompletion(Result, ExecutionParameters) Export
 	If Result.Success = True Then
 		PathToSave = DirectoryToSave;
-		CommonServerCall.CommonSettingsStorageSave("ExportFolderName", "ExportFolderName",  PathToSave);
+		CommonClient.CommonSettingsStorageSave("ExportFolderName", "ExportFolderName",  PathToSave);
 		
-		ShowUserNotification(NStr("en = 'Export folder';"),,
+		ShowUserNotification(NStr("en = 'Export folder'"),,
 		             StringFunctionsClientServer.SubstituteParametersToString(
 		               NStr("en = 'The ""%1"" folder is exported
-		                          |to the ""%2"" directory on the computer.';"),
+		                          |to the ""%2"" directory on the computer.'"),
 		               String(WhatToSave), String(DirectoryToSave) ) );
 		
 		Close();
@@ -271,11 +271,11 @@ EndProcedure
 //   * CommonParameters - See ProcessFilesTree.CommonParameters
 //   * Result - Undefined, DialogReturnCode - is added later
 //   * Success - Boolean
-//   * Items - See DataProcessor.FilesOperations.Форма.ФормаЭкспортаПапки.ДеревоФайлов
+//   * Items - 
 //   * UBound - Number
 //   * IndexOf - Number
 //   * LoopStartRequired - Boolean
-//   * WritingFile - FormDataTreeItem of See DataProcessor.FilesOperations.Форма.ФормаЭкспортаПапки.ДеревоФайлов
+//   * WritingFile - FormDataTreeItem of
 //
 &AtClient
 Function ExecutionParameters(Val ResultHandler, Val TableOfFiles, Val BaseSaveDirectory, Val ParentFolder, Val CommonParameters)
@@ -399,7 +399,7 @@ Procedure CreateSubdirectory(ExecutionParameters)
 	Except
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot create the ""%1"" directory due to:
-				|%2';"),
+				|%2'"),
 			ExecutionParameters.SaveFileBaseDirectory,
 			ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 	EndTry;
@@ -518,7 +518,7 @@ Procedure ProcessFilesTree9(ExecutionParameters)
 			           |""%1""
 			           |is found instead of a folder.
 			           |
-			           |Do you want to download the file again?';"),
+			           |Do you want to download the file again?'"),
 			ExecutionParameters.FullFileName);
 		FilesOperationsInternalClient.SetLockingFormFlag(ExecutionParameters, True);
 		Handler = New CallbackDescription("ProcessFilesTree10", ThisObject, ExecutionParameters);
@@ -583,7 +583,7 @@ Procedure ProcessFilesTree11(ExecutionParameters)
 					           |The existing file size is %3 bytes, last modified on %4.
 					           |The stored file size is %5 bytes, last modified on %6.
 					           |
-					           |Do you want to overwrite the existing file with the file from the application?';"),
+					           |Do you want to overwrite the existing file with the file from the application?'"),
 					ExecutionParameters.SaveFileBaseDirectory,
 					ExecutionParameters.FileNameWithExtension,
 					ExecutionParameters.FileOnHardDrive.Size(),
@@ -737,7 +737,7 @@ Procedure ProcessFilesTree15(ErrorInfo, ExecutionParameters)
 		NStr("en = 'Cannot save the file
 		           |""%1""
 		           |due to:
-		           |%2';"),
+		           |%2'"),
 		ExecutionParameters.FullFileName,
 		ErrorProcessing.BriefErrorDescription(ErrorInfo));
 	

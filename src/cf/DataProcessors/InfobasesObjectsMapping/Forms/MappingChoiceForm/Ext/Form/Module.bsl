@@ -41,17 +41,17 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Verify that the form is opened with the required parameters
 	If Not Parameters.Property("ObjectToMap") Then
 		
-		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
+		Raise NStr("en = 'This is a dependent form and opens from a different form.'", Common.DefaultLanguageCode());
 		
 	EndIf;
 	
 	ObjectToMap = Parameters.ObjectToMap;
 	
 	Items.ObjectToMap.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Object in ""%1""';"), Parameters.Application1);
+		NStr("en = 'Object in ""%1""'"), Parameters.Application1);
 		
 	Items.Header.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Object in ""%1""';"), Parameters.Application2);
+		NStr("en = 'Object in ""%1""'"), Parameters.Application2);
 	
 	// Setting up choice table on the form.
 	GenerateChoiceTable(Parameters.MaxUserFields, Parameters.UsedFieldsList, 
@@ -110,14 +110,14 @@ Procedure GenerateChoiceTable(Val FieldsTotal, Val UsedFields, Val DataAddress)
 	// Add it on form.
 	ColumnGroup = Items.FieldsGrouping;
 	ElementType   = Type("FormField");
-	ListSize  = UsedFields.Count() - 1;
+	ListSize_  = UsedFields.Count() - 1;
 	
 	For FieldNumber=0 To FieldsTotal-1 Do
 		Attribute = ItemsToAdd[FieldNumber];
 		
 		NewColumn = Items.Add("ChoiceTable" + Attribute.Name, ElementType, ColumnGroup);
 		NewColumn.DataPath = Attribute.Path + "." + Attribute.Name;
-		If FieldNumber<=ListSize Then
+		If FieldNumber<=ListSize_ Then
 			Field = UsedFields[FieldNumber];
 			NewColumn.Visible = Field.Check;
 			NewColumn.Title = Field.Presentation;

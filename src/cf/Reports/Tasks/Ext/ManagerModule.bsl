@@ -22,13 +22,13 @@
 //
 Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	ModuleReportsOptions = Common.CommonModule("ReportsOptions");
-	ReportSettings.LongDesc = NStr("en = 'Task list and summary.';");
+	ReportSettings.LongDesc = NStr("en = 'Task list and summary.'");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "CurrentTasks");
-	OptionSettings.LongDesc = NStr("en = 'All tasks in progress by the specified due date.';");
+	OptionSettings.LongDesc = NStr("en = 'All tasks in progress by the specified due date.'");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "PerformerDisciplineSummary");
-	OptionSettings.LongDesc = NStr("en = 'Overdue tasks and tasks completed on schedule summary by assignee.';");
+	OptionSettings.LongDesc = NStr("en = 'Overdue tasks and tasks completed on schedule summary by assignee.'");
 EndProcedure
 
 // End StandardSubsystems.ReportsOptions

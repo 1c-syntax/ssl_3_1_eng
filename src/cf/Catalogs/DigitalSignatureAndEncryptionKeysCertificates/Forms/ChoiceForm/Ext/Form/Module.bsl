@@ -21,10 +21,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	   And Not DigitalSignature.CommonSettings().CertificateIssueRequestAvailable Then
 		
 		CommonClientServer.SetFormItemProperty(Items,
-			"FormCreate", "Title", NStr("en = 'Add';"));
+			"FormCreate", "Title", NStr("en = 'Add'"));
 		
 		CommonClientServer.SetFormItemProperty(Items,
-			"ListContextMenuCreate", "Title", NStr("en = 'Add';"));
+			"ListContextMenuCreate", "Title", NStr("en = 'Add'"));
 	EndIf;
 	
 	If Metadata.DataProcessors.Find("ApplicationForNewQualifiedCertificateIssue") <> Undefined Then
@@ -97,16 +97,16 @@ Procedure OnChangeSigningOrEncryptionUsage()
 	 Or DigitalSignatureClient.CommonSettings().CertificateIssueRequestAvailable Then
 		
 		CommonClientServer.SetFormItemProperty(Items,
-			"FormCreate", "Title", NStr("en = 'Add…';"));
+			"FormCreate", "Title", NStr("en = 'Add…'"));
 		
 		CommonClientServer.SetFormItemProperty(Items,
-			"ListContextMenuCreate", "Title", NStr("en = 'Add…';"));
+			"ListContextMenuCreate", "Title", NStr("en = 'Add…'"));
 	Else
 		CommonClientServer.SetFormItemProperty(Items,
-			"FormCreate", "Title", NStr("en = 'Add';"));
+			"FormCreate", "Title", NStr("en = 'Add'"));
 		
 		CommonClientServer.SetFormItemProperty(Items,
-			"ListContextMenuCreate", "Title", NStr("en = 'Add';"));
+			"ListContextMenuCreate", "Title", NStr("en = 'Add'"));
 	EndIf;
 	
 EndProcedure

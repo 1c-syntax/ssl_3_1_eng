@@ -17,7 +17,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	   And ValueIsFilled(Parameters.FillingValues.Application) Then
 		
 		AutoTitle = False;
-		Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Path to application %1 on Linux server';"),
+		Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Path to application %1 on Linux server'"),
 			Parameters.FillingValues.Application);
 		
 		Items.Application.Visible = False;

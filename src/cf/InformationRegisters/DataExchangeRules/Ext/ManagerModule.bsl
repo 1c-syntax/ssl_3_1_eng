@@ -52,7 +52,7 @@ Function ConversionRulesCompatibleWithCurrentVersion(ExchangePlanName, ErrorDesc
 		
 		ErrorDescription.Insert("ErrorText",
 			NStr("en = 'Rules cannot be imported as they are intended for %1 application. 
-			|Use rules from the configuration or import a correct set of rules from file.';"));
+			|Use rules from the configuration or import a correct set of rules from file.'"));
 		ErrorDescription.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorDescription.ErrorText,
 			RulesData.ConfigurationSynonymInRules);
 		
@@ -69,13 +69,13 @@ Function ConversionRulesCompatibleWithCurrentVersion(ExchangePlanName, ErrorDesc
 		If ComparisonResult < 0 Then
 			
 			ErrorText = NStr("en = 'Data might be synchronized incorrectly as rules you want to import are designed for the previous version of %1 application (%2).
-			| Use the rules from the configuration or import a set of rules designed for the current application version (%3).';");
+			| Use the rules from the configuration or import a set of rules designed for the current application version (%3).'");
 			ErrorKind = "ObsoleteRules";
 			
 		Else
 			
 			ErrorText = NStr("en = 'Data might be synchronized incorrectly as rules you want to import are designed for a newer version of %1 application (%2).
-			| Update version of the application or use a set of rules designed for the current application version (%3).';");
+			| Update version of the application or use a set of rules designed for the current application version (%3).'");
 			ErrorKind = "ObsoleteConfigurationVersion";
 			
 		EndIf;
@@ -119,7 +119,7 @@ Procedure ImportSuppliedRules(ExchangePlanName, RulesFileName) Export
 		
 		// Canceling import if the archive contains no files.
 		If UnpackedFileList.Count() = 0 Then
-			Raise NStr("en = 'Rule file not found in archive.';");
+			Raise NStr("en = 'Rule file not found in archive.'");
 		EndIf;
 		
 		// Canceling import if number of files in the archive does not match the expected number.
@@ -127,7 +127,7 @@ Procedure ImportSuppliedRules(ExchangePlanName, RulesFileName) Export
 			Raise NStr("en = 'Invalid rule set. Three files are expected:
 			|ExchangeRules.xml. Contains conversion rules for this application.
 			|CorrespondentExchangeRules.xml. Contains conversion rules for the peer application.
-			|RegistrationRules.xml. Contains registration rules for this application.';");
+			|RegistrationRules.xml. Contains registration rules for this application.'");
 		EndIf;
 		
 		// Saving received file to the binary data.
@@ -143,14 +143,14 @@ Procedure ImportSuppliedRules(ExchangePlanName, RulesFileName) Export
 				Raise NStr("en = 'Unexpected file names. Expected files:
 				|ExchangeRules.xml. Contains conversion rules for this application.
 				|CorrespondentExchangeRules.xml. Contains conversion rules for the peer application.
-				|RegistrationRules.xml. Contains registration rules for this application.';");
+				|RegistrationRules.xml. Contains registration rules for this application.'");
 			EndIf;
 			
 		EndDo;
 		
 	Else
 		// Canceling import if unpacking the file failed.
-		Raise NStr("en = 'Extraction failed.';");
+		Raise NStr("en = 'Extraction failed.'");
 	EndIf;
 	
 	// Delete the temp archive and temp directory.
@@ -253,7 +253,7 @@ Procedure ImportObjectRegistrationRules(BinaryData, FileName, ExchangePlanName)
 	RegistrationRulesInformation = ChangeRecordRuleImport.RulesInformation();
 	
 	If ChangeRecordRuleImport.FlagErrors Then
-		Raise NStr("en = 'An error occurred when importing registration rules.';");
+		Raise NStr("en = 'An error occurred when importing registration rules.'");
 	EndIf;
 	
 	// Deleting temporary rule files.
@@ -309,7 +309,7 @@ Procedure DeleteRules(ExchangePlanName, RulesKind)
 	HasErrors = False;
 	ImportRules(HasErrors, RecordManager);
 	If HasErrors Then
-		Raise NStr("en = 'An error occurred when importing rules from the configuration.';");
+		Raise NStr("en = 'An error occurred when importing rules from the configuration.'");
 	Else
 		RecordManager.Write();
 	EndIf;
@@ -409,7 +409,7 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 	// Checking if the exchange plan exists.
 	ExchangePlansList = DataExchangeCached.SSLExchangePlans();
 	If ExchangePlansList.Find(Record.ExchangePlanName) = Undefined Then
-		NString = NStr("en = 'Exchange plan %1 is not used for data synchronization, the rules are not updated.';");
+		NString = NStr("en = 'Exchange plan %1 is not used for data synchronization, the rules are not updated.'");
 		NString = StringFunctionsClientServer.SubstituteParametersToString(NString, Record.ExchangePlanName);
 		DataExchangeServer.ReportError(NString, Cancel);
 	Else
@@ -458,7 +458,7 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 			
 			// Canceling import if the archive contains no files.
 			If UnpackedFileList.Count() = 0 Then
-				NString = NStr("en = 'Rule file not found in archive.';");
+				NString = NStr("en = 'Rule file not found in archive.'");
 				DataExchangeServer.ReportError(NString, Cancel);
 			EndIf;
 			
@@ -483,7 +483,7 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 						
 						NString = NStr("en = 'Unexpected file names. Expected files:
 							|ExchangeRules.xml. Contains conversion rules for this application.
-							|CorrespondentExchangeRules.xml. Contains conversion rules for the peer application.';");
+							|CorrespondentExchangeRules.xml. Contains conversion rules for the peer application.'");
 						DataExchangeServer.ReportError(NString, Cancel);
 						
 					EndIf;
@@ -492,11 +492,11 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 				ElsIf UnpackedFileList.Count() = 1 Then
 					NString = NStr("en = 'The archive contains only a conversion rules file. Two files are expected:
 						|ExchangeRules.xml. Contains conversion rules for this application.
-						|CorrespondentExchangeRules.xml. Contains conversion rules for the peer application.';");
+						|CorrespondentExchangeRules.xml. Contains conversion rules for the peer application.'");
 					DataExchangeServer.ReportError(NString, Cancel);
 				// Canceling import if there are several files in the archive, but a single file is expected.
 				ElsIf UnpackedFileList.Count() > 1 Then
-					NString = NStr("en = 'Multiple files are found in the archive. Only one file is expected.';");
+					NString = NStr("en = 'Multiple files are found in the archive. Only one file is expected.'");
 					DataExchangeServer.ReportError(NString, Cancel);
 				EndIf;
 				
@@ -508,14 +508,14 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 					
 				// Canceling import if there are several files in the archive, but a single file is expected.
 				ElsIf UnpackedFileList.Count() > 1 Then
-					NString = NStr("en = 'Multiple files are found in the archive. Only one file is expected.';");
+					NString = NStr("en = 'Multiple files are found in the archive. Only one file is expected.'");
 					DataExchangeServer.ReportError(NString, Cancel);
 				EndIf;
 				
 			EndIf;
 			
 		Else // Canceling import if unpacking the file failed.
-			NString = NStr("en = 'Extraction failed.';");
+			NString = NStr("en = 'Extraction failed.'");
 			DataExchangeServer.ReportError(NString, Cancel);
 		EndIf;
 		
@@ -649,7 +649,7 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 			
 			// Canceling import if the archive contains no files.
 			If UnpackedFileList.Count() = 0 Then
-				NString = NStr("en = 'Rule file not found in archive.';");
+				NString = NStr("en = 'Rule file not found in archive.'");
 				DataExchangeServer.ReportError(NString, Cancel);
 			EndIf;
 			
@@ -658,7 +658,7 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 				NString = NStr("en = 'Invalid rule set. Three files are expected:
 					|ExchangeRules.xml. Contains conversion rules for this application.
 					|CorrespondentExchangeRules.xml. Contains conversion rules for the peer application.
-					|RegistrationRules.xml. Contains registration rules for this application.';");
+					|RegistrationRules.xml. Contains registration rules for this application.'");
 				DataExchangeServer.ReportError(NString, Cancel);
 			EndIf;
 				
@@ -675,7 +675,7 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 					NString = NStr("en = 'Unexpected file names. Expected files:
 						|ExchangeRules.xml. Contains conversion rules for this application.
 					|CorrespondentExchangeRules.xml. Contains conversion rules for the peer application.
-					|RegistrationRules.xml. Contains registration rules for this application.';");
+					|RegistrationRules.xml. Contains registration rules for this application.'");
 					DataExchangeServer.ReportError(NString, Cancel);
 					Break;
 				EndIf;
@@ -684,7 +684,7 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 			
 		Else 
 			// Canceling import if unpacking the file failed.
-			NString = NStr("en = 'Extraction failed.';");
+			NString = NStr("en = 'Extraction failed.'");
 			DataExchangeServer.ReportError(NString, Cancel);
 		EndIf;
 		
@@ -896,7 +896,7 @@ Function BinaryDataFromConfigurationTemplate(Cancel, ExchangePlanName, TemplateN
 		RulesTemplate = ExchangePlanManager.GetTemplate(TemplateName);
 	Except
 		
-		MessageString = NStr("en = 'An error occurred when retrieving the template of the %1 configuration for the %2 exchange plan.';");
+		MessageString = NStr("en = 'An error occurred when retrieving the template of the %1 configuration for the %2 exchange plan.'");
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, TemplateName, ExchangePlanName);
 		DataExchangeServer.ReportError(MessageString, Cancel);
 		Return Undefined;
@@ -917,14 +917,14 @@ Procedure CheckFieldsFilled(Cancel, Record)
 	
 	If IsBlankString(Record.ExchangePlanName) Then
 		
-		NString = NStr("en = 'Specify an exchange plan.';");
+		NString = NStr("en = 'Specify an exchange plan.'");
 		
 		DataExchangeServer.ReportError(NString, Cancel);
 		
 	ElsIf Record.RulesSource = Enums.DataExchangeRulesSources.ConfigurationTemplate
 		    And IsBlankString(Record.RulesTemplateName) Then
 		
-		NString = NStr("en = 'Specify standard rules.';");
+		NString = NStr("en = 'Specify standard rules.'");
 		
 		DataExchangeServer.ReportError(NString, Cancel);
 		
@@ -939,7 +939,7 @@ Function RulesInformationFromFile(RulesFileName)
 	ExchangeRules.Read();
 	
 	If Not ((ExchangeRules.LocalName = "ExchangeRules") And (ExchangeRules.NodeType = XMLNodeType.StartElement)) Then
-		Raise NStr("en = 'Exchange rule format error';");
+		Raise NStr("en = 'Exchange rule format error'");
 	EndIf;
 	
 	While ExchangeRules.Read() Do
@@ -963,7 +963,7 @@ Function RulesInformationFromFile(RulesFileName)
 		
 	EndDo;
 	
-	Raise NStr("en = 'Exchange rule format error';");
+	Raise NStr("en = 'Exchange rule format error'");
 	
 EndFunction
 

@@ -21,7 +21,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 		Handler.Id = New UUID("ffab8bb3-4bb1-4dde-9283-8328c8ede4d9");
 		Handler.UpdateDataFillingProcedure = "Catalogs.BankClassifier.RegisterDataToProcessForMigrationToNewVersion";
 		Handler.CheckProcedure = "InfobaseUpdate.DataUpdatedForNewApplicationVersion";
-		Handler.Comment = NStr("en = 'Populates country code in the ""Bank codes"" catalog.';");
+		Handler.Comment = NStr("en = 'Populates country code in the ""Bank codes"" catalog.'");
 		
 		Editable1 = New Array;
 		Editable1.Add(Metadata.Catalogs.BankClassifier.FullName());

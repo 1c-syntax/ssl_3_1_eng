@@ -14,7 +14,7 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not Parameters.Property("OpenByScenario") Then
-		Raise NStr("en = 'The data processor cannot be opened manually.';");
+		Raise NStr("en = 'The data processor cannot be opened manually.'");
 	EndIf;
 	
 	ThisDataProcessor = ThisObject();
@@ -25,7 +25,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If Not ValueIsFilled(Object.InfobaseNode) Then
-		Text = NStr("en = 'The data exchange setting is not found.';");
+		Text = NStr("en = 'The data exchange setting is not found.'");
 		DataExchangeServer.ReportError(Text, Cancel);
 		Return;
 	EndIf;
@@ -92,7 +92,7 @@ Procedure AdditionalRegistrationBeforeDeleteRow(Item, Cancel)
 	Selected3 = Items.AdditionalRegistration.SelectedRows;
 	Count = Selected3.Count();
 	If Count>1 Then
-		PresentationText = NStr("en = 'the selected lines';");
+		PresentationText = NStr("en = 'the selected lines'");
 	ElsIf Count=1 Then
 		PresentationText = Items.AdditionalRegistration.CurrentData.Presentation;
 	Else
@@ -102,10 +102,10 @@ Procedure AdditionalRegistrationBeforeDeleteRow(Item, Cancel)
 	// The AdditionalRegistrationBeforeDeleteEnd procedure is called from the user confirmation dialog.
 	Cancel = True;
 	
-	QueryText = NStr("en = 'Do you want to delete %1 from the additional data?';");    
+	QueryText = NStr("en = 'Do you want to delete %1 from the additional data?'");    
 	QueryText = StrReplace(QueryText, "%1", PresentationText);
 	
-	QuestionTitle = NStr("en = 'Confirm operation';");
+	QuestionTitle = NStr("en = 'Confirm operation'");
 	
 	Notification = New CallbackDescription("AdditionalRegistrationBeforeDeleteRowCompletion", ThisObject, New Structure);
 	Notification.AdditionalParameters.Insert("SelectedRows", Selected3);
@@ -127,9 +127,9 @@ Procedure AdditionalRegistrationChoiceProcessing(Item, ValueSelected, StandardPr
 			// Restore settings.
 			SettingPresentation = ValueSelected.SettingPresentation;
 			If Not IsBlankString(CurrentSettingsItemPresentation) And SettingPresentation<>CurrentSettingsItemPresentation Then
-				QueryText  = NStr("en = 'Do you want to restore ""%1"" settings?';");
+				QueryText  = NStr("en = 'Do you want to restore ""%1"" settings?'");
 				QueryText  = StrReplace(QueryText, "%1", SettingPresentation);
-				TitleText = NStr("en = 'Confirm operation';");
+				TitleText = NStr("en = 'Confirm operation'");
 				
 				Notification = New CallbackDescription("AdditionalRegistrationChoiceProcessingCompletion", ThisObject, New Structure);
 				Notification.AdditionalParameters.Insert("SettingPresentation", SettingPresentation);
@@ -200,7 +200,7 @@ Procedure FiltersSettings(Command)
 	// Selecting from the list menu
 	VariantList = ReadSettingsVariantListServer();
 	
-	Text = NStr("en = 'Save current setting…';");
+	Text = NStr("en = 'Save current setting…'");
 	VariantList.Add(1, Text, , PictureLib.SaveReportSettings);
 	
 	Notification = New CallbackDescription("FiltersSettingsOptionSelectionCompletion", ThisObject);
@@ -231,8 +231,8 @@ Procedure FiltersSettingsOptionSelectionCompletion(Val SelectedElement, Val Addi
 		
 	SettingPresentation = SelectedElement.Value;
 	If TypeOf(SettingPresentation)=Type("String") Then
-		TitleText = NStr("en = 'Confirm operation';");
-		QueryText   = NStr("en = 'Do you want to restore ""%1"" settings?';");
+		TitleText = NStr("en = 'Confirm operation'");
+		QueryText   = NStr("en = 'Do you want to restore ""%1"" settings?'");
 		QueryText   = StrReplace(QueryText, "%1", SettingPresentation);
 		
 		Notification = New CallbackDescription("FiltersSettingsCompletion", ThisObject, New Structure);
@@ -366,7 +366,7 @@ Function FilterStringEditingAdditionalCompositionServer(ChoiceStructure)
 	CurrentData.Period       = ChoiceStructure.DataPeriod;
 	CurrentData.Filter        = ChoiceStructure.SettingsComposer.Settings.Filter;
 	CurrentData.FilterAsString = FilterPresentation(CurrentData.Period, CurrentData.Filter);
-	CurrentData.Count   = NStr("en = 'Not calculated';");
+	CurrentData.Count   = NStr("en = 'Not calculated'");
 	
 	UpdateTotalCountLabel();
 	
@@ -388,7 +388,7 @@ Function AddToAdditionalExportComposition(Item)
 		String.FilterAsString  = FilterPresentation(String.Period, String.Filter);
 		Object.AdditionalRegistration.Sort("Presentation");
 		
-		String.Count = NStr("en = 'Not calculated';");
+		String.Count = NStr("en = 'Not calculated'");
 		UpdateTotalCountLabel();
 	EndIf;
 	
@@ -428,7 +428,7 @@ Function UpdateCountServer()
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.BackgroundJobDescription = 
-		NStr("en = 'Calculate the number of objects to send during synchronization';");
+		NStr("en = 'Calculate the number of objects to send during synchronization'");
 
 	BackgroundJobStartResult = TimeConsumingOperations.ExecuteInBackground(
 		"DataExchangeServer.InteractiveExportModificationGenerateValueTree",
@@ -490,9 +490,9 @@ Procedure UpdateTotalCountLabel(Count = Undefined)
 	StopCountCalculation();
 	
 	If Count = Undefined Then
-		CountText = NStr("en = '<not calculated>';");
+		CountText = NStr("en = '<not calculated>'");
 	Else
-		CountText = NStr("en = 'Objects: %1';");
+		CountText = NStr("en = 'Objects: %1'");
 		CountText = StrReplace(CountText, "%1", Format(Count, "NZ=0"));
 	EndIf;
 	
@@ -501,7 +501,7 @@ EndProcedure
 
 &AtServer
 Procedure ResetTableCountLabel()
-	CountsText = NStr("en = 'Not calculated';");
+	CountsText = NStr("en = 'Not calculated'");
 	For Each String In Object.AdditionalRegistration Do
 		String.Count = CountsText;
 	EndDo;

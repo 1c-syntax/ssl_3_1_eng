@@ -267,7 +267,7 @@ Procedure ProcessPropertiesSetsForMigrationToNewVersion(Parameters) Export
 					|WHERE
 					|	AdditionalAttributesAndInfoSets.Parent = &Parent
 					|	AND AdditionalAttributesAndInfoSets.Predefined = FALSE";
-				SetsToTransfer = Query.Execute().Unload(); // @skip-check query-in-loop - Batch-wise data processing.
+				SetsToTransfer = Query.Execute().Unload(); // @skip-check query-in-loop .
 				For Each String In SetsToTransfer Do
 					SetObject = String.Ref.GetObject();
 					SetObject.Parent = NewSet;
@@ -283,7 +283,7 @@ Procedure ProcessPropertiesSetsForMigrationToNewVersion(Parameters) Export
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process the ""%1"" property set. Reason:
-					|%2';"), 
+					|%2'"), 
 					SetToUpdate.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
 				Metadata.Catalogs.AdditionalAttributesAndInfoSets, SetToUpdate.Ref, MessageText);
@@ -292,7 +292,7 @@ Procedure ProcessPropertiesSetsForMigrationToNewVersion(Parameters) Export
 	EndDo;
 	
 	If ObjectsWithIssuesCount <> 0 Then
-		MessageText = NStr("en = 'Procedure %1 was completed with an error. Some property sets were not updated.';");
+		MessageText = NStr("en = 'Procedure %1 was completed with an error. Some property sets were not updated.'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, "ProcessPropertiesSetsForMigrationToNewVersion");
 		Raise MessageText;
 	EndIf;
@@ -437,23 +437,23 @@ EndFunction
 Function SetProperties(PropertiesSets, Set, Parent = Undefined, Descriptions = Undefined) Export
 	
 	ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Error in procedure %1 of common module %2.';"), 
+		NStr("en = 'Error in procedure %1 of common module %2.'"), 
 		"WhenCreatingPredefinedPropertySets", "PropertyManagerOverridable")
 		+ Chars.LF + Chars.LF;
 	
 	If Not ValueIsFilled(Set.Name) Then
-		Raise ErrorTitle + NStr("en = 'The property set name is required.';");
+		Raise ErrorTitle + NStr("en = 'The property set name is required.'");
 	EndIf;
 	
 	If PropertiesSets.Get(Set.Name) <> Undefined Then
 		Raise ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The property set name ""%1"" is already defined.';"),
+			NStr("en = 'The property set name ""%1"" is already defined.'"),
 			Set.Name);
 	EndIf;
 	
 	If Not ValueIsFilled(Set.Id) Then
 		Raise ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The ID of the ""%1"" property set is required.';"),
+			NStr("en = 'The ID of the ""%1"" property set is required.'"),
 			Set.Name);
 	EndIf;
 	
@@ -467,7 +467,7 @@ Function SetProperties(PropertiesSets, Set, Parent = Undefined, Descriptions = U
 		SetProperties = PropertiesSets.Get(SetRef); // See New_SetProperties
 		Raise ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The ID %1 of the
-			           |""%2"" property set is already used for the ""%3"" property set.';"),
+			           |""%2"" property set is already used for the ""%3"" property set.'"),
 			Set.Id, Set.Name, SetProperties.Name);
 	EndIf;
 	
@@ -512,23 +512,23 @@ EndFunction
 Function InitialFillSetProperties(PropertiesSets, Set, Parent = Undefined, Description = Undefined)
 	
 	ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Error in procedure %1 of common module %2.';")
+		NStr("en = 'Error in procedure %1 of common module %2.'")
 		+ Chars.LF + Chars.LF, "OnInitialItemsFilling", "PropertyManagerOverridable");
 	
 	If Not ValueIsFilled(Set.PredefinedSetName) Then
 		Raise ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 of property set is required.';"), "PredefinedSetName");
+			NStr("en = '%1 of property set is required.'"), "PredefinedSetName");
 	EndIf;
 	
 	If PropertiesSets.Get(Set.PredefinedSetName) <> Undefined Then
 		Raise ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 of property set ""%2"" is already defined.';"), 
+			NStr("en = '%1 of property set ""%2"" is already defined.'"), 
 			"PredefinedSetName", Set.PredefinedSetName);
 	EndIf;
 	
 	If Not ValueIsFilled(Set.Ref) Then
 		Raise ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Property set ""%1"" requires a reference.';"),
+			NStr("en = 'Property set ""%1"" requires a reference.'"),
 			Set.PredefinedSetName);
 	EndIf;
 	
@@ -538,7 +538,7 @@ Function InitialFillSetProperties(PropertiesSets, Set, Parent = Undefined, Descr
 		SetProperties = PropertiesSets.Get(SetRef);
 		Raise ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Reference ""%1"" specified in property set
-			           |""%2"" is already used in set ""%3"".';"),
+			           |""%2"" is already used in set ""%3"".'"),
 			Set.Ref, Set.PredefinedSetName, SetProperties.PredefinedSetName);
 	EndIf;
 	

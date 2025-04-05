@@ -152,7 +152,7 @@ Function PrepareFormData()
 	PreparedPackages.Load(Information.PreparedPackages);
 	PreparedPackages.Sort("Section");
 	For Each PagesPackage In PreparedPackages Do
-		PagesPackage.FormCaption = NStr("en = 'Information';");
+		PagesPackage.FormCaption = NStr("en = 'Information'");
 		
 		If PagesPackage.Priority = Information.MinPriority Then
 			PackagesWithMinimumPriority.Add(PagesPackage);
@@ -172,14 +172,14 @@ Function PrepareFormData()
 				SubmenuName = "Popup" + SubmenuNumber;
 				CurrentSubmenu = Items.Find(SubmenuName);
 				If CurrentSubmenu = Undefined Then
-					Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Group ""%1"" is not found';"), SubmenuName);
+					Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Group ""%1"" is not found'"), SubmenuName);
 				EndIf;
 				PagesPackage.Section = CurrentSubmenu.Title;
 			EndIf;
 		ElsIf CurrentSectionDescription <> PagesPackage.Section Then
 			CurrentSectionDescription = PagesPackage.Section;
 			
-			IsMain1 = (PagesPackage.Section = NStr("en = 'Main';"));
+			IsMain1 = (PagesPackage.Section = NStr("en = 'Main'"));
 			If IsMain1 And Not MainLocked Then
 				PagesPackage.Id = "MainPage";
 				MainLocked = True;

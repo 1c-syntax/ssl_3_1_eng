@@ -35,7 +35,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 		|	FilesInfo.File > &File
 		|	AND FilesInfo.FileStorageType = VALUE(Enum.FileStorageTypes.EmptyRef)";
 		Query.SetParameter("File", File);
-		// @skip-check query-in-loop - Batch-wise data processing
+		// @skip-check query-in-loop 
 		RegisterDimensions = Query.Execute().Unload();
 		
 		AdditionalParameters = InfobaseUpdate.AdditionalProcessingMarkParameters();
@@ -88,7 +88,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			FileStorageType = Common.ObjectAttributeValue(String.File, "FileStorageType");
 			If FileStorageType = Undefined Then
 				BadData[String.Owner] = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'The ""File info"" information register references a non-existent file: ""%1"".';"),
+					NStr("en = 'The ""File info"" information register references a non-existent file: ""%1"".'"),
 					String.File);
 				InfobaseUpdate.MarkProcessingCompletion(RecordSet);
 				CommitTransaction();
@@ -113,7 +113,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process information records on file %1. Reason:
-				|%2';"), 
+				|%2'"), 
 				RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			
 			InfobaseUpdate.WriteErrorToEventLog(
@@ -132,14 +132,14 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) some of the file info: %1';"), 
+			NStr("en = 'Couldn''t process (skipped) some of the file info: %1'"), 
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
 			Metadata.Catalogs.Files,,
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Yet another batch of file info is processed: %1';"),
+				NStr("en = 'Yet another batch of file info is processed: %1'"),
 				ObjectsProcessed));
 	EndIf;
 	

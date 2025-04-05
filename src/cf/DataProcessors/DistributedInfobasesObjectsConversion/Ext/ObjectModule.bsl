@@ -446,7 +446,7 @@ Procedure ReadPriorityChangesFromExchangeMessage(Val MessageReader, CommonDataNo
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
 					NotUniqueRecordErrorTemplate(),
 					NStr("en = 'Duplicate catalog items were found
-					           |before importing IDs of metadata objects.';"));
+					           |before importing IDs of metadata objects.'"));
 			EndIf;
 			
 			While CanReadXML(MessageReader.XMLReader) Do
@@ -492,20 +492,20 @@ Procedure ReadPriorityChangesFromExchangeMessage(Val MessageReader, CommonDataNo
 					NStr("en = 'Cannot import priority data.
 					           |Duplicate predefined items are found.
 					           |Cannot continue the import due to the following reasons:
-					           |%1';"),
+					           |%1'"),
 					CancelDetails);
 			EndIf;
 			
 			If ValueIsFilled(DuplicatesOfPredefinedItems) Then
 				WriteLogEvent(
-					NStr("en = 'Predefined items.Duplicates';",
+					NStr("en = 'Predefined items.Duplicates'",
 						Common.DefaultLanguageCode()),
 					EventLogLevel.Error,
 					,
 					,
 					StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'When importing predefined items, duplicate records were found.
-						           |%1';"),
+						           |%1'"),
 						DuplicatesOfPredefinedItems));
 			EndIf;
 			
@@ -519,7 +519,7 @@ Procedure ReadPriorityChangesFromExchangeMessage(Val MessageReader, CommonDataNo
 		Except
 			RollbackTransaction();
 			
-			ErrorMessage = NStr("en = 'An error occurred when importing priority data: ""%1"" (type %2)';", Common.DefaultLanguageCode());
+			ErrorMessage = NStr("en = 'An error occurred when importing priority data: ""%1"" (type %2)'", Common.DefaultLanguageCode());
 			ErrorMessage = StrTemplate(ErrorMessage, Data, TypeOf(Data));
 			ErrorMessage = ErrorMessage + Chars.LF + ErrorInfo().Description; 
 	
@@ -653,7 +653,7 @@ Procedure AddPredefinedItemDuplicateDetails(WrittenObject, DuplicatesOfPredefine
 		Else
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NotUniqueRecordErrorTemplate(),
-				NStr("en = 'When importing predefined items, duplicate records were found.';"));
+				NStr("en = 'When importing predefined items, duplicate records were found.'"));
 		EndIf;
 		// Searching for duplicate predefined items
 		If Ref = Selection.Ref And Not RefToImportFound Then
@@ -688,9 +688,9 @@ Procedure AddPredefinedItemDuplicateDetails(WrittenObject, DuplicatesOfPredefine
 	
 	If WriteToLog Then
 		If DuplicateCount = 1 Then
-			Template = NStr("en = '(reference to import: %1, duplicate reference: %2)';");
+			Template = NStr("en = '(reference to import: %1, duplicate reference: %2)'");
 		Else
-			Template = NStr("en = '(reference to import: %1, duplicate references: %2)';");
+			Template = NStr("en = '(reference to import: %1, duplicate references: %2)'");
 		EndIf;
 		DuplicatesOfPredefinedItems = DuplicatesOfPredefinedItems + Chars.LF
 			+ Table + "." + PredefinedDataName + Chars.LF
@@ -733,7 +733,7 @@ Function NotUniqueRecordErrorTemplate()
 		           |   - Select only the ""Check logical infobase integrity"" check box.
 		           |   - Click ""Verify and repair"".
 		           |   - Click ""Execute"".
-		           |3. Then run 1C:Enterprise and synchronize the data again.';");
+		           |3. Then run 1C:Enterprise and synchronize the data again.'");
 EndFunction
 
 Procedure UpdatePredefinedItemsDeletion()
@@ -812,37 +812,37 @@ EndFunction
 
 Function ErrorOpeningExchangeMessageFile()
 	
-	Return NStr("en = 'Cannot open the exchange message file.';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Cannot open the exchange message file.'", Common.DefaultLanguageCode());
 	
 EndFunction
 
 Function ErrorStartRedingTheExchangeMessageFile()
 	
-	Return NStr("en = 'Cannot start reading the exchange message file.';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Cannot start reading the exchange message file.'", Common.DefaultLanguageCode());
 	
 EndFunction
 
 Function ErrorStartWritingTheExchangeMessageFile()
 	
-	Return NStr("en = 'Cannot start saving the exchange message file';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Cannot start saving the exchange message file'", Common.DefaultLanguageCode());
 	
 EndFunction
 
 Function ErrorReadingExchangeMessageFile()
 	
-	Return NStr("en = 'Cannot read the exchange message file.';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Cannot read the exchange message file.'", Common.DefaultLanguageCode());
 	
 EndFunction
 
 Function ErrorSavingExchangeMessageFile()
 	
-	Return NStr("en = 'Failed to save data to the exchange message file.';");
+	Return NStr("en = 'Failed to save data to the exchange message file.'");
 	
 EndFunction
 
 Function DataExchangeKindError()
 	
-	Return NStr("en = 'The exchange must follow the conversion rules.';", Common.DefaultLanguageCode());
+	Return NStr("en = 'The exchange must follow the conversion rules.'", Common.DefaultLanguageCode());
 	
 EndFunction
 
@@ -897,5 +897,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

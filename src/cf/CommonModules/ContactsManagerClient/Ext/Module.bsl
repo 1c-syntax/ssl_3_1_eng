@@ -366,12 +366,12 @@ Procedure CreateEmailMessage(Val FieldValues, Val EmailParameters = Undefined,
 		InformationType = ContactInformation.ContactInformationType;
 		
 		If IsBlankString(MailAddr) Then
-			ErrorText= NStr("en = 'To send an email, enter an email address.';");
+			ErrorText= NStr("en = 'To send an email, enter an email address.'");
 		ElsIf TypeOf(MailAddr) <> Type("String") Or InformationType = Undefined Then
-			ErrorText =  NStr("en = 'Cannot send an email as the value is not an email address.';");
+			ErrorText =  NStr("en = 'Cannot send an email as the value is not an email address.'");
 		ElsIf InformationType <> PredefinedValue("Enum.ContactInformationTypes.Email") Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot create an email from contact information of the ""%1"" type.';"), InformationType);
+				NStr("en = 'Cannot create an email from contact information of the ""%1"" type.'"), InformationType);
 		Else
 			MailAddresses = CommonClientServer.EmailsFromString(MailAddr);
 			ErrorsTexts = New Array;
@@ -426,7 +426,7 @@ Procedure CreateSMSMessage(Val FieldValues, Val SMSParameters = Undefined,
 	Val DeleteExpectedKind = Undefined, ObsoleteContactInformationSource = "") Export
 	
 	If Not CommonClient.SubsystemExists("StandardSubsystems.SendSMSMessage") Then
-		Raise NStr("en = 'Text messaging is not available.';");
+		Raise NStr("en = 'Text messaging is not available.'");
 	EndIf;
 	
 	If TypeOf(SMSParameters) = Type("String") Then
@@ -450,10 +450,10 @@ Procedure CreateSMSMessage(Val FieldValues, Val SMSParameters = Undefined,
 		InformationType = ContactInformation.ContactInformationType;
 		If InformationType <> PredefinedValue("Enum.ContactInformationTypes.Phone") Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot send the text message as the phone number you provided is invalid: %1.';"), 
+				NStr("en = 'Cannot send the text message as the phone number you provided is invalid: %1.'"), 
 				InformationType);
 		ElsIf FieldValues = "" And IsBlankString(SMSParameters.Presentation) Then
-			ErrorText = NStr("en = 'To send a text message, enter a phone number.';");
+			ErrorText = NStr("en = 'To send a text message, enter a phone number.'");
 		EndIf;
 		
 		If ValueIsFilled(ErrorText) Then
@@ -539,7 +539,7 @@ Procedure Telephone(PhoneNumber) Export
 		AvailableProtocolName = TelephonyApplicationInstalled();
 		If AvailableProtocolName = Undefined Then
 			StringWithWarning = New FormattedString(
-					NStr("en = 'To make a call, install a telecom app. For example,';"),
+					NStr("en = 'To make a call, install a telecom app. For example,'"),
 					 " ", New FormattedString("Skype",,,, "http://www.skype.com"), ".");
 			ShowMessageBox(Undefined, StringWithWarning);
 			Return;
@@ -593,23 +593,31 @@ EndProcedure
 //
 Procedure GoToWebLink(Val FieldValues, Val Presentation = "", ExpectedKind = Undefined) Export
 	
+	TypeWebPage = PredefinedValue("Enum.ContactInformationTypes.WebPage");
 	If ExpectedKind = Undefined Then
-		ExpectedKind = PredefinedValue("Enum.ContactInformationTypes.WebPage");
+		ExpectedKind = TypeWebPage;
 	EndIf;
 	
-	ContactInformation = ContactsManagerInternalServerCall.TransformContactInformationXML(
-		New Structure("FieldValues, Presentation, ContactInformationKind", FieldValues, Presentation, ExpectedKind));
-	InformationType = ContactInformation.ContactInformationType;
-	
-	If InformationType <> PredefinedValue("Enum.ContactInformationTypes.WebPage") Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot follow a link from contact information of the ""%1"" type.';"), InformationType);
+	If IsBlankString(FieldValues) And Not IsBlankString(Presentation) And ExpectedKind = TypeWebPage Then
+		HyperlinkAddress = Presentation;
+	Else
+		ContactInformation = ContactsManagerInternalServerCall.TransformContactInformationXML(
+			New Structure("FieldValues, Presentation, ContactInformationKind", FieldValues, Presentation,
+			ExpectedKind));
+		InformationType = ContactInformation.ContactInformationType;
+
+		If InformationType <> PredefinedValue("Enum.ContactInformationTypes.WebPage") Then
+			Raise StringFunctionsClientServer.SubstituteParametersToString(NStr(
+				"en = 'Cannot follow a link from contact information of the ""%1"" type.'"), InformationType);
+		EndIf;
+
+		XMLData = ContactInformation.XMLData1;
+
+		HyperlinkAddress = ContactsManagerInternalServerCall.ContactInformationCompositionString(XMLData);
 	EndIf;
 		
-	XMLData = ContactInformation.XMLData1;
-
-	HyperlinkAddress = ContactsManagerInternalServerCall.ContactInformationCompositionString(XMLData);
 	If TypeOf(HyperlinkAddress) <> Type("String") Then
-		Raise NStr("en = 'Error getting URL. Invalid contact information type.';");
+		Raise NStr("en = 'Cannot navigate the link. The contact information type is invalid.'");
 	EndIf;
 	
 	If StrFind(HyperlinkAddress, "://") > 0 Then
@@ -619,11 +627,11 @@ Procedure GoToWebLink(Val FieldValues, Val Presentation = "", ExpectedKind = Und
 	EndIf;
 EndProcedure
 
-// 
+// Displays the given address on a web-based mapping service, such as Google Maps.
 //
 // Parameters:
 //  Address                       - String - a text presentation of an address.
-//  MapServiceName - String -  
+//  MapServiceName - String - Name of the used mapping service. For example, "GoogleMaps". 
 //                                         
 //
 Procedure ShowAddressOnMap(Address, MapServiceName) Export
@@ -1090,7 +1098,7 @@ Procedure AfterStartApplication(ApplicationStarted, Parameters) Export
 	
 	If Not ApplicationStarted Then 
 		StringWithWarning = New FormattedString(
-			NStr("en = 'To make a call, install a telecom app. For example,';"),
+			NStr("en = 'To make a call, install a telecom app. For example,'"),
 			 " ", New FormattedString("Skype",,,, "http://www.skype.com"), ".");
 		ShowMessageBox(Undefined, StringWithWarning);
 	EndIf;
@@ -1421,7 +1429,7 @@ Procedure EnterAComment(Val Form, Val AttributeName, Val FoundRow, Val Result, A
 	Notification = New CallbackDescription("EnterACommentCompletion", ThisObject, AdditionalParameters);
 	
 	CommonClient.ShowMultilineTextEditingForm(Notification, Comment,
-		NStr("en = 'Comment';"));
+		NStr("en = 'Comment'"));
 EndProcedure
 
 // Completes a nonmodal dialog.
@@ -1681,7 +1689,7 @@ Procedure OpenSkype(CommandLine1)
 	
 #If Not WebClient Then
 		If IsBlankString(TelephonyApplicationInstalled("skype")) Then
-			ShowMessageBox(Undefined, NStr("en = 'Install Skype to make Skype calls.';"));
+			ShowMessageBox(Undefined, NStr("en = 'Install Skype to make Skype calls.'"));
 			Return;
 		EndIf;
 #EndIf
@@ -2022,7 +2030,7 @@ Procedure BeforePhoneCall(ContactInformation, AdditionalParameters) Export
 	
 	If IsBlankString(ContactInformation.Presentation) Then
 		CommonClient.MessageToUser(
-			NStr("en = 'To start a call, enter a phone number.';"), , AdditionalParameters.AttributeName);
+			NStr("en = 'To start a call, enter a phone number.'"), , AdditionalParameters.AttributeName);
 		Return;
 	EndIf;
 	Telephone(ContactInformation.Presentation);
@@ -2033,7 +2041,7 @@ Procedure BeforeCreateSMS(ContactInformation, AdditionalParameters) Export
 
 	If IsBlankString(ContactInformation.Presentation) Then
 		CommonClient.MessageToUser(
-			NStr("en = 'To send a text message, enter a phone number.';"), , AdditionalParameters.AttributeName);
+			NStr("en = 'To send a text message, enter a phone number.'"), , AdditionalParameters.AttributeName);
 		Return;
 	EndIf;
 	SMSParameters = SMSAndEmailParameters();
@@ -2144,7 +2152,7 @@ Procedure BeforeRunCommandFromAddressExtendedTooltip(Form, Item, AttributeName, 
 					CommandToOutput.Value.Action);
 				
 				If IsBlankString(TypeOfAction) Then
-					ContactsManagerClientServerLocalization.WhenDeterminingActionOfCommandOfTypeOfContactInformation(
+					ContactsManagerClientServerLocalization.OnDefineContactInfoTypeCommandActions(
 						CommandToOutput.Value.Action, TypeOfAction);
 				EndIf;
 					

@@ -58,7 +58,7 @@ Procedure AfterAuthenticationPasswordRequestInServiceFollowUp(Result, Context) E
 		UsersInternalSaaSServerCall.WriteTheErrorToTheLog(
 			ErrorProcessing.DetailErrorDescription(ErrorInfo));
 		ErrorText = ErrorProcessing.BriefErrorDescription(ErrorInfo) + Chars.LF
-			+ NStr("en = 'Password may be incorrect. Retype the password.';");
+			+ NStr("en = 'Password may be incorrect. Retype the password.'");
 	EndTry;
 	
 	If ValueIsFilled(ErrorText) Then

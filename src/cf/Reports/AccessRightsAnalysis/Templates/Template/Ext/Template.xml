@@ -3105,6 +3105,18 @@
 							<dcscor:parameter>Расшифровка</dcscor:parameter>
 							<dcscor:value xsi:type="dcscor:Parameter">AccessViewRightViewDecoding</dcscor:value>
 						</dcscor:item>
+						<dcscor:item>
+							<dcscor:parameter>РазмерКартинки</dcscor:parameter>
+							<dcscor:value xmlns:mxl="http://v8.1c.ru/8.2/data/spreadsheet" xsi:type="mxl:PictureSize">AutoSize</dcscor:value>
+						</dcscor:item>
+						<dcscor:item>
+							<dcscor:parameter>ВертикальноеПоложениеКартинки</dcscor:parameter>
+							<dcscor:value xsi:type="v8ui:VerticalAlign">Center</dcscor:value>
+						</dcscor:item>
+						<dcscor:item>
+							<dcscor:parameter>ГоризонтальноеПоложениеКартинки</dcscor:parameter>
+							<dcscor:value xsi:type="v8ui:HorizontalAlign">Center</dcscor:value>
+						</dcscor:item>
 					</dcsat:appearance>
 				</dcsat:tableCell>
 				<dcsat:tableCell>
@@ -3130,6 +3142,18 @@
 							<dcscor:parameter>Расшифровка</dcscor:parameter>
 							<dcscor:value xsi:type="dcscor:Parameter">AccessTypeRightEditingDecryption</dcscor:value>
 						</dcscor:item>
+						<dcscor:item>
+							<dcscor:parameter>РазмерКартинки</dcscor:parameter>
+							<dcscor:value xmlns:mxl="http://v8.1c.ru/8.2/data/spreadsheet" xsi:type="mxl:PictureSize">AutoSize</dcscor:value>
+						</dcscor:item>
+						<dcscor:item>
+							<dcscor:parameter>ВертикальноеПоложениеКартинки</dcscor:parameter>
+							<dcscor:value xsi:type="v8ui:VerticalAlign">Center</dcscor:value>
+						</dcscor:item>
+						<dcscor:item>
+							<dcscor:parameter>ГоризонтальноеПоложениеКартинки</dcscor:parameter>
+							<dcscor:value xsi:type="v8ui:HorizontalAlign">Center</dcscor:value>
+						</dcscor:item>
 					</dcsat:appearance>
 				</dcsat:tableCell>
 				<dcsat:tableCell>
@@ -3154,6 +3178,18 @@
 						<dcscor:item>
 							<dcscor:parameter>Расшифровка</dcscor:parameter>
 							<dcscor:value xsi:type="dcscor:Parameter">AccessTypeRightInteractiveAddingDecoding</dcscor:value>
+						</dcscor:item>
+						<dcscor:item>
+							<dcscor:parameter>РазмерКартинки</dcscor:parameter>
+							<dcscor:value xmlns:mxl="http://v8.1c.ru/8.2/data/spreadsheet" xsi:type="mxl:PictureSize">AutoSize</dcscor:value>
+						</dcscor:item>
+						<dcscor:item>
+							<dcscor:parameter>ВертикальноеПоложениеКартинки</dcscor:parameter>
+							<dcscor:value xsi:type="v8ui:VerticalAlign">Center</dcscor:value>
+						</dcscor:item>
+						<dcscor:item>
+							<dcscor:parameter>ГоризонтальноеПоложениеКартинки</dcscor:parameter>
+							<dcscor:value xsi:type="v8ui:HorizontalAlign">Center</dcscor:value>
 						</dcscor:item>
 					</dcsat:appearance>
 				</dcsat:tableCell>
@@ -7927,6 +7963,10 @@
 							</dcsset:filter>
 							<dcsset:appearance>
 								<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+									<dcscor:parameter>РазмерКартинки</dcscor:parameter>
+									<dcscor:value xmlns:mxl="http://v8.1c.ru/8.2/data/spreadsheet" xsi:type="mxl:PictureSize">AutoSize</dcscor:value>
+								</dcscor:item>
+								<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 									<dcscor:parameter>Картинка</dcscor:parameter>
 									<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:Folder"/>
 								</dcscor:item>
@@ -7956,6 +7996,10 @@
 							</dcsset:filter>
 							<dcsset:appearance>
 								<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+									<dcscor:parameter>РазмерКартинки</dcscor:parameter>
+									<dcscor:value xmlns:mxl="http://v8.1c.ru/8.2/data/spreadsheet" xsi:type="mxl:PictureSize">AutoSize</dcscor:value>
+								</dcscor:item>
+								<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 									<dcscor:parameter>Картинка</dcscor:parameter>
 									<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:InheritanceDisabledWithFolder"/>
 								</dcscor:item>
@@ -7984,6 +8028,10 @@
 								</dcsset:item>
 							</dcsset:filter>
 							<dcsset:appearance>
+								<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+									<dcscor:parameter>РазмерКартинки</dcscor:parameter>
+									<dcscor:value xmlns:mxl="http://v8.1c.ru/8.2/data/spreadsheet" xsi:type="mxl:PictureSize">AutoSize</dcscor:value>
+								</dcscor:item>
 								<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 									<dcscor:parameter>Картинка</dcscor:parameter>
 									<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:InheritanceEnabledWithFolder"/>
@@ -8027,6 +8075,10 @@
 							</dcsset:item>
 						</dcsset:filter>
 						<dcsset:appearance>
+							<dcscor:item xsi:type="dcsset:SettingsParameterValue">
+								<dcscor:parameter>РазмерКартинки</dcscor:parameter>
+								<dcscor:value xmlns:mxl="http://v8.1c.ru/8.2/data/spreadsheet" xsi:type="mxl:PictureSize">AutoSize</dcscor:value>
+							</dcscor:item>
 							<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 								<dcscor:parameter>Картинка</dcscor:parameter>
 								<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:InheritanceEnabled"/>

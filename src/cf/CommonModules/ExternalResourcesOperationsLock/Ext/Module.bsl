@@ -117,7 +117,7 @@ Procedure SetServerNameCheckInLockParameters(CheckServerName) Export
 	
 EndProcedure
 
-Procedure WhenEnablingAccessToInternetServices() Export
+Procedure OnEnableAccessToWebServices() Export
 	
 	BeginTransaction();
 	Try
@@ -186,13 +186,13 @@ Procedure OnStartExecuteScheduledJob(ScheduledJob) Export
 	EndIf;
 	
 	WorkingWithExternalResources = ScheduledJobUsesExternalResources(ScheduledJob);
-	BlockForWorkingWithExternalResources = WorkingWithExternalResources.UseExternalResources
+	LockForManagingExternalResources = WorkingWithExternalResources.UseExternalResources
 		And OperationsWithExternalResourcesLocked();
-	BlockAccessToExternalResources = Not BlockForWorkingWithExternalResources
+	LockForAccessToExternalResources = Not LockForManagingExternalResources
 		And Not Common.AccessToInternetServicesAllowed()
-		And WorkingWithExternalResources.AccessesExternalResources;
+		And WorkingWithExternalResources.CanAccessExternalResources;
 	
-	If Not BlockForWorkingWithExternalResources And Not BlockAccessToExternalResources Then
+	If Not LockForManagingExternalResources And Not LockForAccessToExternalResources Then
 		Return;
 	EndIf;
 	
@@ -201,7 +201,7 @@ Procedure OnStartExecuteScheduledJob(ScheduledJob) Export
 		BlockLockParametersData();
 		
 		LockParameters = SavedLockParameters();
-		DisableScheduledJob1(LockParameters, ScheduledJob, BlockAccessToExternalResources);
+		DisableScheduledJob1(LockParameters, ScheduledJob, LockForAccessToExternalResources);
 		SaveLockParameters(LockParameters);
 		
 		CommitTransaction();
@@ -210,22 +210,22 @@ Procedure OnStartExecuteScheduledJob(ScheduledJob) Export
 		Raise;
 	EndTry;
 	
-	If BlockAccessToExternalResources Then
+	If LockForAccessToExternalResources Then
 		ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = '%1
-				           |Scheduled job ""%2"" accessing external resources has been disabled.';"),
+				           |Scheduled job ""%2"" accessing external resources has been disabled.'"),
 				Common.AccessToInternetServicesDeniedMessageText(),
 				ScheduledJob.Synonym);
 	ElsIf Common.DataSeparationEnabled() Then
 			ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The application has been moved.
-				           |The ""%1"" scheduled job, which requires online activities, is disabled.';"), 
+				           |The ""%1"" scheduled job, which requires online activities, is disabled.'"), 
 				ScheduledJob.Synonym);
 	Else 
 			ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The infobase connection string has changed.
 				           |The infobase might have been moved.
-				           |The ""%1"" scheduled job is disabled.';"), 
+				           |The ""%1"" scheduled job is disabled.'"), 
 				ScheduledJob.Synonym);
 	EndIf;
 	
@@ -313,7 +313,7 @@ Function CurrentLockParameters()
 	Result.Insert("CheckServerName", True);
 	Result.Insert("OperationsWithExternalResourcesLocked", False);
 	Result.Insert("DisabledJobs", New Array);
-	Result.Insert("DisabledTasksWhenAccessToInternetServicesIsDisabled", New Array);
+	Result.Insert("DisabledJobsWhenAccessToWebServicesDisabled", New Array);
 	Result.Insert("LockReason", "");
 	
 	Return Result;
@@ -368,7 +368,7 @@ EndProcedure
 
 Function ScheduledJobUsesExternalResources(ScheduledJob)
 	
-	Result = New Structure("UseExternalResources, AccessesExternalResources", False, False);
+	Result = New Structure("UseExternalResources, CanAccessExternalResources", False, False);
 	
 	JobDependencies = ScheduledJobsInternal.ScheduledJobsDependentOnFunctionalOptions();
 	
@@ -379,24 +379,24 @@ Function ScheduledJobUsesExternalResources(ScheduledJob)
 	FoundRows = JobDependencies.FindRows(Filter);
 	If FoundRows.Count() <> 0 Then
 		Result.UseExternalResources = True;
-		Result.AccessesExternalResources = True;
+		Result.CanAccessExternalResources = True;
 		Return Result;
 	EndIf;
 	
 	Filter = New Structure;
 	Filter.Insert("ScheduledJob", ScheduledJob);
-	Filter.Insert("AccessesExternalResources", True);
+	Filter.Insert("CanAccessExternalResources", True);
 	
 	FoundRows = JobDependencies.FindRows(Filter);
 	If FoundRows.Count() <> 0 Then
-		Result.AccessesExternalResources = True;
+		Result.CanAccessExternalResources = True;
 	EndIf;
 	
 	Return Result;
 	
 EndFunction
 
-Procedure DisableScheduledJob1(LockParameters, ScheduledJob, BlockAccessToExternalResources)
+Procedure DisableScheduledJob1(LockParameters, ScheduledJob, LockForAccessToExternalResources)
 	
 	Filter = New Structure;
 	Filter.Insert("Metadata", ScheduledJob);
@@ -406,8 +406,8 @@ Procedure DisableScheduledJob1(LockParameters, ScheduledJob, BlockAccessToExtern
 	
 	For Each Job In FoundJobs Do
 		ScheduledJobsServer.ChangeJob(Job, New Structure("Use", False));
-		If BlockAccessToExternalResources Then
-			LockParameters.DisabledTasksWhenAccessToInternetServicesIsDisabled.Add(Job.UUID);
+		If LockForAccessToExternalResources Then
+			LockParameters.DisabledJobsWhenAccessToWebServicesDisabled.Add(Job.UUID);
 		Else
 			LockParameters.DisabledJobs.Add(Job.UUID);
 		EndIf;
@@ -415,11 +415,11 @@ Procedure DisableScheduledJob1(LockParameters, ScheduledJob, BlockAccessToExtern
 	
 EndProcedure
 
-Procedure EnableDisabledScheduledJobs(LockParameters, UnblockForAccessToInternetServices = False)
+Procedure EnableDisabledScheduledJobs(LockParameters, UnlockToAccessWebServices = False)
 	
 	DataSeparationEnabled = Common.DataSeparationEnabled();
-	If UnblockForAccessToInternetServices Then
-		DisabledJobs = LockParameters.DisabledTasksWhenAccessToInternetServicesIsDisabled;
+	If UnlockToAccessWebServices Then
+		DisabledJobs = LockParameters.DisabledJobsWhenAccessToWebServicesDisabled;
 	Else
 		DisabledJobs = LockParameters.DisabledJobs;
 	EndIf;
@@ -478,7 +478,7 @@ Procedure WriteFileInfobaseIDToCheckFile(TheDatabaseID)
 		           |while synchronizing data, sending emails, and performing other operations with external resources.
 		           |
 		           |If the file is missing from the infobase directory, the app will prompt
-		           |the administrator if accessing external resources is allowed.';"), 
+		           |the administrator if accessing external resources is allowed.'"), 
 		TheDatabaseID, 
 		Metadata.Synonym);
 	
@@ -530,7 +530,7 @@ Function SetExternalResourcesOperationsLock()
 	DataSeparationChanged = LockParameters.DataSeparationEnabled <> DataSeparationEnabled;
 	
 	If DataSeparationChanged Then
-		MessageText = NStr("en = 'The infobase has been moved from a web application.';");
+		MessageText = NStr("en = 'The infobase has been moved from a web application.'");
 		SetFlagShowsNecessityOfLock(LockParameters, MessageText);
 		Return True;
 	EndIf;
@@ -547,8 +547,8 @@ Function SetExternalResourcesOperationsLock()
 	If MovedBetweenFileAndClientServerMode Then
 		MessageText = 
 			?(IsFileInfobase, 
-				NStr("en = 'The infobase has been moved from the client/server mode to the file mode.';"),
-				NStr("en = 'The infobase has been moved from the file mode to the client/server mode.';"));
+				NStr("en = 'The infobase has been moved from the client/server mode to the file mode.'"),
+				NStr("en = 'The infobase has been moved from the file mode to the client/server mode.'"));
 		SetFlagShowsNecessityOfLock(LockParameters, MessageText);
 		Return True;
 	EndIf;
@@ -563,7 +563,7 @@ Function SetExternalResourcesOperationsLock()
 		// Therefore, check if the infobase was re-located using the checking file.
 		
 		If Not FileInfobaseIDCheckFileExists() Then
-			MessageText = NStr("en = 'The infobase directory does not contain check file %1.';");
+			MessageText = NStr("en = 'The infobase directory does not contain check file %1.'");
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, "DoNotCopy.txt");
 			SetFlagShowsNecessityOfLock(LockParameters, MessageText);
 			Return True;
@@ -573,7 +573,7 @@ Function SetExternalResourcesOperationsLock()
 		
 		If InfobaseIDChanged Then
 			MessageText = 
-				NStr("en = 'The infobase ID in check file %1 does not match ID in the current infobase.';");
+				NStr("en = 'The infobase ID in check file %1 does not match ID in the current infobase.'");
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, "DoNotCopy.txt");
 			SetFlagShowsNecessityOfLock(LockParameters, MessageText);
 			Return True;
@@ -596,7 +596,7 @@ Function SetExternalResourcesOperationsLock()
 			And WorkingProcessServerName <> SavedWorkingProcessServerName
 			And StrFind(SavedConnectionManagerServerName, ConnectionManagerServerName) = 0;
 		
-		// mIn scalable clusters, "SavedConnectionManagerServerName" might contain
+		// In scalable clusters, "SavedConnectionManagerServerName" might contain
 		// multiple server names that act as connection managers.
 		// When starting the scheduled job, "ConnectionManagerServerName" contains the name of the active manager. 
 		// To work with that, search for the current server in the saved name.
@@ -614,7 +614,7 @@ Function SetExternalResourcesOperationsLock()
 				           |Connection string: <%3>
 				           |Computer name: <%4>
 				           |
-				           |Check server name: <%5>';"),
+				           |Check server name: <%5>'"),
 				LockParameters.ConnectionString, 
 				SavedWorkingProcessServerName,
 				ConnectionString,
@@ -661,7 +661,7 @@ Function LockReasonPresentation(LockParameters)
 		           |The infobase location has been changed.
 		           |Old location: <b>%5</b>
 		           |New location: <b>%6</b>
-		           |';"),
+		           |'"),
 		ComputerName(),
 		Format(CurrentDate, "DLF=D"),
 		Format(CurrentDate, "DLF=T"),
@@ -679,12 +679,12 @@ Function CurrentOperationPresentation()
 	
 	If IsScheduledJobSession Then
 		Return StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'on attempt to execute scheduled job <b>%1</b>';"),
+			NStr("en = 'on attempt to execute scheduled job <b>%1</b>'"),
 			BackgroundJob.ScheduledJob.Description);
 	EndIf;
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'when user <b>%1</b> logged in';"),
+		NStr("en = 'when user <b>%1</b> logged in'"),
 		UserName());
 	
 EndFunction
@@ -704,7 +704,7 @@ EndFunction
 
 Function EventLogEventName() Export 
 	
-	Return NStr("en = 'Online activities are disabled';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Online activities are disabled'", Common.DefaultLanguageCode());
 	
 EndFunction
 

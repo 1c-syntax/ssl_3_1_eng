@@ -29,19 +29,19 @@ Procedure OnOpen(Cancel)
 	EndIf;
 	
 	MessageText = NStr("en = 'Your computer has %1 GB of RAM.
-		|Recommended RAM size is %2 GB.';");
+		|Recommended RAM size is %2 GB.'");
 	
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, AvailableMemorySize, RecommendedSize);
 	
-	MessageTitle = NStr("en = 'Speedup recommendation';");
+	MessageTitle = NStr("en = 'Speedup recommendation'");
 	
 	QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
 	QuestionParameters.Title = MessageTitle;
 	QuestionParameters.Picture = PictureLib.DialogExclamation;
-	QuestionParameters.Insert("CheckBoxText", NStr("en = 'Remind in two months';"));
+	QuestionParameters.Insert("CheckBoxText", NStr("en = 'Remind in two months'"));
 	
 	Buttons = New ValueList;
-	Buttons.Add("ContinueWork", NStr("en = 'Continue';"));
+	Buttons.Add("ContinueWork", NStr("en = 'Continue'"));
 	
 	NotifyDescription = New CallbackDescription("AfterShowRecommendation", ThisObject);
 	StandardSubsystemsClient.ShowQuestionToUser(NotifyDescription, MessageText, Buttons, QuestionParameters);
@@ -62,7 +62,7 @@ Procedure AfterShowRecommendation(Result, AdditionalParameters) Export
 	RAMRecommendation.Insert("Show", Not Result.NeverAskAgain);
 	RAMRecommendation.Insert("PreviousShowDate", CommonClient.SessionDate());
 	
-	CommonServerCall.CommonSettingsStorageSave("UserCommonSettings",
+	CommonClient.CommonSettingsStorageSave("UserCommonSettings",
 		"RAMRecommendation", RAMRecommendation);
 EndProcedure
 

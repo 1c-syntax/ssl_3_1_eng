@@ -71,7 +71,7 @@ Procedure OK(Command)
 	SelectedDates = Items.Calendar.SelectedDates;
 	
 	If SelectedDates.Count() = 0 Then
-		ShowMessageBox(,NStr("en = 'Please select a date.';"));
+		ShowMessageBox(,NStr("en = 'Please select a date.'"));
 		Return;
 	EndIf;
 	

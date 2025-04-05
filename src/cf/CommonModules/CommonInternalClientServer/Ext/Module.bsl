@@ -36,13 +36,13 @@ Function SafeCommandString(StartupCommand) Export
 			Result = ArrayToCommandString(StartupCommand);
 		Else
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The first element of array %1 must be either a command or a path to a file to be executed.';"),
+				NStr("en = 'The first element of array %1 must be either a command or a path to a file to be executed.'"),
 				"StartupCommand");
 		EndIf;
 		
 	Else
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Expected type of value %1: %2 or %3.';"), 
+			NStr("en = 'Expected type of value %1: %2 or %3.'"), 
 			"StartupCommand", "String", "Array");
 	EndIf;
 		
@@ -335,7 +335,7 @@ EndFunction
 Function PredefinedValueNotFoundErrorText(FullPredefinedItemName) Export
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Predefined value ""%1"" does not exist.';"), FullPredefinedItemName);
+		NStr("en = 'Predefined value ""%1"" does not exist.'"), FullPredefinedItemName);
 	
 EndFunction
 
@@ -378,7 +378,7 @@ Function EstablishExternalConnectionWithInfobase(Parameters, ConnectionNotAvaila
 	
 #If MobileClient Then
 	
-	ErrorMessageString = NStr("en = 'Mobile client does not support connecting to other applications.';");
+	ErrorMessageString = NStr("en = 'Mobile client does not support connecting to other applications.'");
 	
 	Result.AddInAttachmentError = True;
 	Result.DetailedErrorDetails = ErrorMessageString;
@@ -399,7 +399,7 @@ Function EstablishExternalConnectionWithInfobase(Parameters, ConnectionNotAvaila
 		COMConnector = New COMObject(CommonClientServer.COMConnectorName()); // "V83.COMConnector"
 	Except
 		Information = ErrorInfo();
-		ErrorMessageString = NStr("en = 'Failed to connect to the application: %1';");
+		ErrorMessageString = NStr("en = 'Failed to connect to the application: %1'");
 		
 		Result.AddInAttachmentError = True;
 		Result.DetailedErrorDetails = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageString, ErrorProcessing.DetailErrorDescription(Information));
@@ -415,14 +415,14 @@ Function EstablishExternalConnectionWithInfobase(Parameters, ConnectionNotAvaila
 	If FileRunMode Then
 		
 		If IsBlankString(Parameters.InfobaseDirectory) Then
-			ErrorMessageString = NStr("en = 'The infobase directory location is not specified.';");
+			ErrorMessageString = NStr("en = 'The infobase directory location is not specified.'");
 			FillingCheckError = True;
 		EndIf;
 		
 	Else
 		
 		If IsBlankString(Parameters.NameOf1CEnterpriseServer) Or IsBlankString(Parameters.NameOfInfobaseOn1CEnterpriseServer) Then
-			ErrorMessageString = NStr("en = 'Required connection parameters are not specified: server name and infobase name.';");
+			ErrorMessageString = NStr("en = 'Required connection parameters are not specified: server name and infobase name.'");
 			FillingCheckError = True;
 		EndIf;
 		
@@ -472,7 +472,7 @@ Function EstablishExternalConnectionWithInfobase(Parameters, ConnectionNotAvaila
 		Result.Join = COMConnector.Connect(ConnectionString);
 	Except
 		Information = ErrorInfo();
-		ErrorMessageString = NStr("en = 'Failed to connect to the application: %1';");
+		ErrorMessageString = NStr("en = 'Failed to connect to the application: %1'");
 		
 		Result.AddInAttachmentError = True;
 		Result.DetailedErrorDetails     = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageString, ErrorProcessing.DetailErrorDescription(Information));
@@ -508,7 +508,7 @@ Procedure CheckContainsUnsafeActions(Val StartupCommand)
 			NStr("en = 'Cannot start the application. Invalid command line:
 			           |%1
 			           |
-			           |The following characters are not allowed: ""${"", ""$("", ""`"", ""|"", "";"", ""&"".';"),
+			           |The following characters are not allowed: ""${"", ""$("", ""`"", ""|"", "";"", ""&"".'"),
 			StartupCommand);
 	EndIf;
 EndProcedure
@@ -679,7 +679,7 @@ Procedure FormatThePeriodView(PeriodPresentation, StartDate, EndDate, FormatStri
 	
 	If Not ValueIsFilled(PeriodPresentation) Then 
 		
-		PeriodPresentation = NStr("en = 'all time';");
+		PeriodPresentation = NStr("en = 'all time'");
 		Return;
 		
 	EndIf;
@@ -695,12 +695,12 @@ Procedure FormatThePeriodView(PeriodPresentation, StartDate, EndDate, FormatStri
 	If Month(EndDate) = 6 Then 
 		
 		PeriodPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '1st half year of %1';"), Format(Year(StartDate), "NG=0"));
+			NStr("en = '1st half year of %1'"), Format(Year(StartDate), "NG=0"));
 		
 	ElsIf Month(EndDate) = 9 Then 
 		
 		PeriodPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '9 months of %1';"), Format(Year(StartDate), "NG=0"));
+			NStr("en = '9 months of %1'"), Format(Year(StartDate), "NG=0"));
 		
 	EndIf;
 	

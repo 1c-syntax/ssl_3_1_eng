@@ -211,7 +211,7 @@ EndProcedure
 //		EndIf;
 //	Except
 //		ServerNotificationsClient.HandleError(ErrorInfo());
-//	EndTry;
+//	EndTry 
 //	ServerNotificationsClient.AddIndicator(StartMoment,
 //		"MonitoringCenterClientInternal.BeforeRecurringClientDataSendToServer");
 //

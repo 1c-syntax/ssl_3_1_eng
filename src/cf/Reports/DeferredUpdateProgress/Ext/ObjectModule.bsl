@@ -27,15 +27,15 @@ Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
 		
 		Command = Form.Commands.Add("ProgressDelayUpdateDependencies");
 		Command.Action  = "Attachable_Command";
-		Command.Title = NStr("en = 'Handler dependences';");
-		Command.ToolTip = NStr("en = 'View dependencies for selected handler';");
+		Command.Title = NStr("en = 'Handler dependences'");
+		Command.ToolTip = NStr("en = 'View dependencies for selected handler'");
 		Command.Picture  = PictureLib.GrayedAll;
 		ModuleReportsServer.OutputCommand(Form, Command, "Settings");
 		
 		Command = Form.Commands.Add("ProgressDeferredUpdateErrors");
 		Command.Action  = "Attachable_Command";
-		Command.Title = NStr("en = 'View errors';");
-		Command.ToolTip = NStr("en = 'View errors in Event log';");
+		Command.Title = NStr("en = 'View errors'");
+		Command.ToolTip = NStr("en = 'View errors in Event log'");
 		Command.Picture  = PictureLib.EventLog;
 		ModuleReportsServer.OutputCommand(Form, Command, "Settings");
 	EndIf;
@@ -131,7 +131,7 @@ EndProcedure
 Procedure OnDefineSelectionParameters(Form, SettingProperties) Export
 	
 	If SettingProperties.DCField = New DataCompositionField("DataParameters.ProgressProcessing") Then
-		SettingProperties.ValuesForSelection.Add(Format(BegOfDay(CurrentSessionDate()), "DLF=D") + " " + "00:00:00", NStr("en = 'Over whole period';"));
+		SettingProperties.ValuesForSelection.Add(Format(BegOfDay(CurrentSessionDate()), "DLF=D") + " " + "00:00:00", NStr("en = 'Over whole period'"));
 		AvailablePeriods(SettingProperties.ValuesForSelection);
 	ElsIf SettingProperties.DCField = New DataCompositionField("DataParameters.Cache_Result") Then
 		SettingProperties.OutputFlagOnly = True;
@@ -247,7 +247,7 @@ Function RegisteredObjects(SelectedIntervals)
 		PresentationMap.Insert(FullNameParts[1], Presentation);
 		If Restriction = 200 Then
 			Query.Text = QueryText;
-			Selection = Query.Execute().Select(); // @skip-check query-in-loop - Batch selection (to avoid heavy queries).
+			Selection = Query.Execute().Select(); // @skip-check query-in-loop
 			While Selection.Next() Do
 				String = ResultTable2.Add();
 				FillPropertyValues(String, Selection);
@@ -446,18 +446,18 @@ EndFunction
 Function MetadataTypePresentation(MetadataType)
 	
 	Map = New Map;
-	Map.Insert("Constant", NStr("en = 'Constants';"));
-	Map.Insert("Catalog", NStr("en = 'Catalogs';"));
-	Map.Insert("Document", NStr("en = 'Documents';"));
-	Map.Insert("ChartOfCharacteristicTypes", NStr("en = 'Charts of characteristic types';"));
-	Map.Insert("ChartOfAccounts", NStr("en = 'Charts of accounts';"));
-	Map.Insert("ChartOfCalculationTypes", NStr("en = 'Charts of calculation types';"));
-	Map.Insert("InformationRegister", NStr("en = 'Information registers';"));
-	Map.Insert("AccumulationRegister", NStr("en = 'Accumulation registers';"));
-	Map.Insert("AccountingRegister", NStr("en = 'Accounting registers';"));
-	Map.Insert("CalculationRegister", NStr("en = 'Calculation registers';"));
-	Map.Insert("BusinessProcess", NStr("en = 'Business processes';"));
-	Map.Insert("Task", NStr("en = 'Tasks';"));
+	Map.Insert("Constant", NStr("en = 'Constants'"));
+	Map.Insert("Catalog", NStr("en = 'Catalogs'"));
+	Map.Insert("Document", NStr("en = 'Documents'"));
+	Map.Insert("ChartOfCharacteristicTypes", NStr("en = 'Charts of characteristic types'"));
+	Map.Insert("ChartOfAccounts", NStr("en = 'Charts of accounts'"));
+	Map.Insert("ChartOfCalculationTypes", NStr("en = 'Charts of calculation types'"));
+	Map.Insert("InformationRegister", NStr("en = 'Information registers'"));
+	Map.Insert("AccumulationRegister", NStr("en = 'Accumulation registers'"));
+	Map.Insert("AccountingRegister", NStr("en = 'Accounting registers'"));
+	Map.Insert("CalculationRegister", NStr("en = 'Calculation registers'"));
+	Map.Insert("BusinessProcess", NStr("en = 'Business processes'"));
+	Map.Insert("Task", NStr("en = 'Tasks'"));
 	
 	Return Map[MetadataType];
 	
@@ -466,5 +466,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

@@ -165,7 +165,7 @@ Procedure SupplementRecipients(Object, Nodes) Export
 		Except
 			ExchangePlanName   = DataExchangeCached.GetExchangePlanName(Item);
 			MetadataObject = Object.Metadata();
-			MessageString  = NStr("en = 'Registration of [FullName] is not specified in the exchange plan [ExchangePlanName].';");
+			MessageString  = NStr("en = 'Registration of [FullName] is not specified in the exchange plan [ExchangePlanName].'");
 			MessageString  = StrReplace(MessageString, "[ExchangePlanName]", ExchangePlanName);
 			MessageString  = StrReplace(MessageString, "[FullName]",      MetadataObject.FullName());
 			Raise MessageString;
@@ -546,7 +546,7 @@ Procedure RecordDataChanges(Val Recipient, Val Data, Val CheckExportPermission=T
 			IsNewObject = Data.IsEmpty();
 			
 			If IsNewObject Then
-				Raise NStr("en = 'Cannot register objects exported by reference if they are not written.';");
+				Raise NStr("en = 'Cannot register objects exported by reference if they are not written.'");
 			EndIf;
 			
 			BeginTransaction();
@@ -851,7 +851,7 @@ Procedure CheckDataExchangeSettingsEditability(Source, Cancel) Export
 		And Not Source.IsNew()
 		And DataDiffers1(Source, Source.Ref.GetObject(), "Code, Description") Then
 		
-		Raise NStr("en = 'Changing data synchronization description and ID is not allowed.';");
+		Raise NStr("en = 'Changing data synchronization description and ID is not allowed.'");
 		
 	EndIf;
 	
@@ -1111,7 +1111,7 @@ Procedure ClearRefsToInfobaseNode(Source, Cancel) Export
 			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 			
 			JobKey = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Data exchange with external system (%1)';"),
+				NStr("en = 'Data exchange with external system (%1)'"),
 				Source.Code);
 				
 			Filter = New Structure;
@@ -1210,10 +1210,10 @@ Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParam
 	If AdditionalParameters <> Undefined Then
 		FillPropertyValues(OptionalParameters, AdditionalParameters);
 		
-		// В версиях платформы 8.3.25 - 8.3.27 режим замещения может быть указан 
-		// как системное перечисление "РежимЗамещения" со значениями:
-		// Добавление, Замещение, Обновление, Слияние, Удаление.
-		// Из них режим "Добавление" соответствует значению замещение ЛОЖЬ, остальные ИСТИНА.
+		// In 1C:Enterprise versions 8.3.25–8.3.27, the substitution mode may be specified as 
+		// the system enumeration "ReplacementMode" with the following values:
+		// Add, Replacing, RefreshEnabled, Join, Delete.
+		// Among these, the "Add" mode corresponds to "False", while all other modes correspond to "True".
 		AdaptValueSubstitutionOfOptionalRegistrationParameters(OptionalParameters);
 	EndIf;
 	
@@ -1270,7 +1270,7 @@ Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParam
 		If Common.DataSeparationEnabled() Then
 			
 			If Not SeparatedExchangePlan(ExchangePlanName) Then
-				Raise NStr("en = 'Shared exchange plans don''t support registration of changes.';");
+				Raise NStr("en = 'Shared exchange plans don''t support registration of changes.'");
 			EndIf;
 			
 			If Not DataExchangeCached.ExchangePlanUsedInSaaS(ExchangePlanName) Then
@@ -1296,13 +1296,13 @@ Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParam
 				EndIf;
 				
 				If Not IsSeparatedData And Not IsMutuallySeparatedData Then
-					Raise NStr("en = 'Register changes of shared data in separated mode.';");
+					Raise NStr("en = 'Register changes of shared data in separated mode.'");
 				EndIf;
 				
 			Else
 				
 				If IsSeparatedData Then
-					Raise NStr("en = 'Register changes of separated data in shared mode.';");
+					Raise NStr("en = 'Register changes of separated data in shared mode.'");
 				EndIf;
 					
 				// For common data in shared mode, register the changes in all separated exchange plan nodes.
@@ -1377,7 +1377,7 @@ Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParam
 				
 	Except
 		
-		TextTemplate1 = NStr("en = 'Cannot register changes in the nodes. Exchange plan: %1. Reason: %2';", Common.DefaultLanguageCode());
+		TextTemplate1 = NStr("en = 'Cannot register changes in the nodes. Exchange plan: %1. Reason: %2'", Common.DefaultLanguageCode());
 		DetailedPresentation = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		
 		ErrorDescription = StrTemplate(TextTemplate1, ExchangePlanName, DetailedPresentation);
@@ -1416,8 +1416,8 @@ Procedure RegisterChangesForAllSeparatedExchangePlanNodes(ExchangePlanName, Obje
 	
 EndProcedure
 
-// 
-// 
+// The method checks the substitution mode value in optional parameters.
+// If it is specified as the system enumeration "ReplacementMode", the method converts it to the Boolean type.
 //
 Procedure AdaptValueSubstitutionOfOptionalRegistrationParameters(OptionalParameters)
 	
@@ -1461,7 +1461,8 @@ EndProcedure
 #Region ObjectsRegistrationRules
 
 // A wrapper procedure that executes the code for the main procedure in an attempt mode
-// (See ExecuteObjectsRegistrationRulesForExchangePlanAttemptException).
+// (See ExecuteObjectsRegistrationRulesForExchangePlanAttemptException)
+// .
 //
 // Parameters:
 //  NodesArrayResult - Array - an array of recipient nodes of the ExchangePlanName exchange plan
@@ -1507,7 +1508,7 @@ Procedure ExecuteObjectsRegistrationRulesForExchangePlan(NodesArrayResult, Objec
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot execute object registration rules for exchange plan %1.
 			|Error details:
-			|%2';"),
+			|%2'"),
 			ExchangePlanName,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
@@ -2032,7 +2033,7 @@ Function PropertiesValuesForRef(Ref, ObjectProperties, Val ObjectPropertiesAsStr
 		Selection = Query.Execute().Select();
 		
 	Except
-		MessageString = NStr("en = 'An error occurred when receiving reference properties. Query execution error: [ErrorDescription]';");
+		MessageString = NStr("en = 'An error occurred when receiving reference properties. Query execution error: [ErrorDescription]'");
 		MessageString = StrReplace(MessageString, "[ErrorDescription]", ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Raise MessageString;
 	EndTry;
@@ -2188,7 +2189,7 @@ Function NodesArrayByPropertiesValues(PropertiesValues, Val QueryText, Val Excha
 		NodesArrayResult = Query.Execute().Unload().UnloadColumn("Ref");
 		
 	Except
-		MessageString = NStr("en = 'An error occurred when receiving the list of destination nodes. Query execution error: [ErrorDescription]';");
+		MessageString = NStr("en = 'An error occurred when receiving the list of destination nodes. Query execution error: [ErrorDescription]'");
 		MessageString = StrReplace(MessageString, "[ErrorDescription]", ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Raise MessageString;
 	EndTry;
@@ -2330,7 +2331,7 @@ Function RecordSetByType(MetadataObject)
 		
 	Else
 		
-		MessageString = NStr("en = 'Metadata object %1 cannot have a record set.';");
+		MessageString = NStr("en = 'Metadata object %1 cannot have a record set.'");
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, MetadataObject.FullName());
 		Raise MessageString;
 		
@@ -2435,7 +2436,7 @@ Procedure GetConstantsAlgorithmsValues(ORR, ValueTree)
 												|Algorithm:
 												|// {Algorithm beginning} 
 												|[ConstantValue]
-												|// {Algorithm end}';");
+												|// {Algorithm end}'");
 					MessageString = StrReplace(MessageString, "[ExchangePlanName]",      ORR.ExchangePlanName);
 					MessageString = StrReplace(MessageString, "[MetadataObjectName3]", ORR.MetadataObjectName3);
 					MessageString = StrReplace(MessageString, "[LongDesc]",            ErrorInfo().Description);
@@ -2854,7 +2855,7 @@ Function DetailedHandlerExecutionErrorPresentation(HandlerName, ExchangePlanName
 		NStr("en = 'Error executing handler: ""%1"".
 		|Exchange plan: %2.
 		|Metadata object: %3.
-		|Error details: %4.';"),
+		|Error details: %4.'"),
 		HandlerName,
 		ExchangePlanName,
 		MetadataObjectName,
@@ -3420,7 +3421,7 @@ Function DataDiffers1(Data1, Data2, ListOfProperties = Undefined, ExcludePropert
 		
 	Else
 		
-		Raise NStr("en = 'Invalid value in [1] parameter of Common.PropertiesValuesChanged method.';");
+		Raise NStr("en = 'Invalid value in [1] parameter of Common.PropertiesValuesChanged method.'");
 		
 	EndIf;
 	
@@ -3618,11 +3619,11 @@ EndFunction
 Procedure ExecuteHandlerInPrivilegedMode(Value, Val HandlerRow)
 	
 	If CurrentRunMode() = ClientRunMode.ManagedApplication Then
-		Raise NStr("en = 'The method is not supported in managed application mode.';");
+		Raise NStr("en = 'The method is not supported in managed application mode.'");
 	EndIf;
 	
 	If Common.DataSeparationEnabled() Then
-		Raise NStr("en = 'The method is not supported in SaaS mode.';");
+		Raise NStr("en = 'The method is not supported in SaaS mode.'");
 	EndIf;
 	
 	SetPrivilegedMode(True);
@@ -3820,9 +3821,9 @@ Procedure CheckDataChangesConflict(DataElement, ItemReceive, Val Sender, Val IsG
 			If RefExists Then
 				
 				If WriteObject Then
-					SynchronizationWarning = NStr("en = 'The previous version (automatic conflict resolution).';");
+					SynchronizationWarning = NStr("en = 'The previous version (automatic conflict resolution).'");
 				Else
-					SynchronizationWarning = NStr("en = 'The current version (automatic conflict resolution).';");
+					SynchronizationWarning = NStr("en = 'The current version (automatic conflict resolution).'");
 				EndIf;
 				
 				ObjectVersionInfo = New Structure("SynchronizationWarning, ObjectVersionType", SynchronizationWarning, "RejectedConflictData");
@@ -3834,11 +3835,11 @@ Procedure CheckDataChangesConflict(DataElement, ItemReceive, Val Sender, Val IsG
 			If WriteObject Then
 				ObjectVersionInfo.Insert("VersionAuthor", Sender);
 				ObjectVersionInfo.Insert("ObjectVersionType", "ConflictDataAccepted");
-				ObjectVersionInfo.Insert("SynchronizationWarning", NStr("en = 'The current version (automatic conflict resolution).';"));
+				ObjectVersionInfo.Insert("SynchronizationWarning", NStr("en = 'The current version (automatic conflict resolution).'"));
 			Else
 				ObjectVersionInfo.Insert("VersionAuthor", Sender);
 				ObjectVersionInfo.Insert("ObjectVersionType", "RejectedConflictData");
-				ObjectVersionInfo.Insert("SynchronizationWarning", NStr("en = 'A rejected version (automatic conflict resolution).';"));
+				ObjectVersionInfo.Insert("SynchronizationWarning", NStr("en = 'A rejected version (automatic conflict resolution).'"));
 			EndIf;
 			If DataExchangeCached.IsDistributedInfobaseNode(Sender) Then
 				OnCreateObjectVersion(DataElement, ObjectVersionInfo, RefExists, Sender);
@@ -3929,7 +3930,7 @@ Procedure RegisterDataImportRestrictionByDate(DataElement, Sender, ErrorMessage)
 			
 			ObjectInInfobase = ObjectReference.GetObject();
 			
-			SynchronizationWarning = NStr("en = 'The object version is created by data synchronization.';");
+			SynchronizationWarning = NStr("en = 'The object version is created by data synchronization.'");
 			ObjectVersionInfo = New Structure("SynchronizationWarning", SynchronizationWarning);
 			
 			OnCreateObjectVersion(ObjectInInfobase, ObjectVersionInfo, RefExists, Sender);
@@ -3939,7 +3940,7 @@ Procedure RegisterDataImportRestrictionByDate(DataElement, Sender, ErrorMessage)
 			
 		Else
 			
-			ErrorMessageString = NStr("en = 'Cannot import %1 due to data import restriction.%2%2%3';");
+			ErrorMessageString = NStr("en = 'Cannot import %1 due to data import restriction.%2%2%3'");
 			ErrorMessageString = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageString, String(DataElement), Chars.LF, ErrorMessage);
 			ObjectVersionType = "RejectedDueToPeriodEndClosingDateObjectDoesNotExistInInfobase";
 			
@@ -3982,12 +3983,12 @@ Procedure RecordWarningAboutConflictInEventLog(Object, ObjectMetadata, WriteObje
 	If WriteObject Then
 		
 		EventLogWarningText = NStr("en = 'Object synchronization conflict.
-		|An object from this infobase is replaced with an object version from the peer infobase.';");
+		|An object from this infobase is replaced with an object version from the peer infobase.'");
 		
 	Else
 		
 		EventLogWarningText = NStr("en = 'Object synchronization conflict.
-		|An object from the peer infobase is rejected. The object in this infobase is not changed.';");
+		|An object from the peer infobase is rejected. The object in this infobase is not changed.'");
 		
 	EndIf;
 	
@@ -4020,7 +4021,7 @@ Function ObjectDataAsStringBeforeChange(Object, ObjectMetadata, IsReferenceType,
 			
 		Else
 			
-			ObjectString = NStr("en = 'Object deleted';");
+			ObjectString = NStr("en = 'Object deleted'");
 			
 		EndIf;
 		

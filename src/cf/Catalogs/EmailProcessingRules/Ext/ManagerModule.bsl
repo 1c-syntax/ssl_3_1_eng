@@ -37,7 +37,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// СтандартныеПодсистемы.УправлениеДоступом
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -127,7 +127,7 @@ Procedure ApplyRules(ExportingParameters, StorageAddress) Export
 	
 	Result = Query.ExecuteBatch();
 	If Result[2].IsEmpty() Then
-		MessageText = NStr("en = 'The selected folder is empty.';");
+		MessageText = NStr("en = 'The selected folder is empty.'");
 		PutToTempStorage(MessageText, StorageAddress);
 		Return;
 	EndIf;
@@ -166,14 +166,14 @@ Procedure ApplyRules(ExportingParameters, StorageAddress) Export
 				QueryRule.Parameters.Insert(Parameter.Name, Parameter.Value);
 			EndDo;
 			
-			// @skip-check query-in-loop - Batch processing of email messages by user accounts.
+			// @skip-check query-in-loop
 			EmailResult = QueryRule.Execute();
 		
 		Except
 			
 			ErrorMessageTemplate = NStr("en = 'Cannot apply the ""%1"" mailbox rule to the ""%2"" account due to: 
 			                                |%3
-			                                |Correct the mailbox rule.';", Common.DefaultLanguageCode());
+			                                |Correct the mailbox rule.'", Common.DefaultLanguageCode());
 		
 			ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				ErrorMessageTemplate, 
@@ -208,9 +208,9 @@ Procedure ApplyRules(ExportingParameters, StorageAddress) Export
 	Interactions.CalculateReviewedByFolders(Interactions.TableOfDataForReviewedCalculation(FoldersToProcess, "Folder"));
 	
 	If MailFolders.Count() > 0 Then
-		MessageText = NStr("en = 'All messages are moved to the folders.';");
+		MessageText = NStr("en = 'All messages are moved to the folders.'");
 	Else
-		MessageText =  NStr("en = 'No messages were moved.';");
+		MessageText =  NStr("en = 'No messages were moved.'");
 	EndIf;
 	
 	PutToTempStorage(MessageText, StorageAddress);

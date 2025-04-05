@@ -14,7 +14,7 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not ValueIsFilled(Object.Ref) Then
-		Raise NStr("en = 'Interactive creation is prohibited.';");
+		Raise NStr("en = 'Interactive creation is prohibited.'");
 	EndIf;
 	
 	InfobaseUpdate.CheckObjectProcessed(Object, ThisObject);
@@ -137,7 +137,7 @@ Procedure ExecuteCheck(Command)
 	
 	If Not Object.Use Then
 		CallbackOnCompletion = New CallbackDescription("ExecuteCheckAfterQuestion", ThisObject);
-		ShowQueryBox(CallbackOnCompletion, NStr("en = 'Checkup is disabled. Check anyway?';"), QuestionDialogMode.YesNo);
+		ShowQueryBox(CallbackOnCompletion, NStr("en = 'Checkup is disabled. Check anyway?'"), QuestionDialogMode.YesNo);
 		Return;
 	EndIf;	
 	
@@ -148,7 +148,7 @@ EndProcedure
 &AtClient
 Procedure CustomizeStandardSettings(Command)
 	
-	QueryText = NStr("en = 'Restore default settings?';");
+	QueryText = NStr("en = 'Restore default settings?'");
 	Handler = New CallbackDescription("SetStandardSettingsAtClient", ThisObject);
 	ShowQueryBox(Handler, QueryText, QuestionDialogMode.YesNo);
 	
@@ -157,7 +157,7 @@ EndProcedure
 &AtClient
 Procedure ClearCheckResults(Command)
 	ClearCheckResultsAtServer();
-	Message = NStr("en = 'The results of the previous checks are successfully cleared.';");
+	Message = NStr("en = 'The results of the previous checks are successfully cleared.'");
 	CommonClient.MessageToUser(Message);
 EndProcedure
 
@@ -174,7 +174,7 @@ Function RunCheckAtServer()
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Run data integrity check ""%1""';"), Object.Description);
+		NStr("en = 'Run data integrity check ""%1""'"), Object.Description);
 	
 	Checks = New Array;
 	Checks.Add(Object.Ref);
@@ -193,7 +193,7 @@ Procedure ExecuteCheckAfterQuestion(QuestionResult, AdditionalParameters) Export
 	
 	CallbackOnCompletion = New CallbackDescription("ExecuteCheckCompletion", ThisObject);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-	IdleParameters.MessageText = NStr("en = 'Checking. This might take a while.';");
+	IdleParameters.MessageText = NStr("en = 'Checking. This might take a while.'");
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
 EndProcedure
@@ -214,8 +214,8 @@ Procedure ExecuteCheckCompletion(Result, AdditionalParameters) Export
 			Result.ErrorInfo);
 		
 	ElsIf Result.Status = "Completed2" Then
-		ShowUserNotification(NStr("en = 'Scan completed';"),,
-			NStr("en = 'Data integrity check completed successfully.';"));
+		ShowUserNotification(NStr("en = 'Scan completed'"),,
+			NStr("en = 'Data integrity check completed successfully.'"));
 	EndIf;
 	
 EndProcedure
@@ -246,7 +246,7 @@ Procedure GenerateRowWithIndividualSchedule()
 		
 		If SeparateScheduledJob = Undefined Then
 			Items.IndividualSchedulePresentation.Title = 
-				New FormattedString(NStr("en = 'Set schedule';"), , , , PutToTempStorage("AddJob", UUID));
+				New FormattedString(NStr("en = 'Set schedule'"), , , , PutToTempStorage("AddJob", UUID));
 		Else
 			Items.IndividualSchedulePresentation.Title = 
 				New FormattedString(SeparateScheduledJobPresentation, , , , PutToTempStorage(SeparateScheduledJob.Schedule, UUID));
@@ -280,7 +280,7 @@ Procedure GenerateRowWithCommonSchedule()
 			EndIf;
 		EndIf;
 	Else
-		CommonSchedulePresentation = NStr("en = 'The scheduled job is not available';");
+		CommonSchedulePresentation = NStr("en = 'The scheduled job is not available'");
 	EndIf;
 	
 	Items.PresentationOfCommonSchedule.Title = 
@@ -378,7 +378,7 @@ EndProcedure
 
 &AtServerNoContext
 Procedure SetPathToHandlerProcedure(Form, CurrentCheckMetadata)
-	Form.HandlerProcedurePath = ?(CurrentCheckMetadata = Undefined, NStr("en = 'Handler is not defined';"), CurrentCheckMetadata.HandlerChecks);
+	Form.HandlerProcedurePath = ?(CurrentCheckMetadata = Undefined, NStr("en = 'Handler is not defined'"), CurrentCheckMetadata.HandlerChecks);
 EndProcedure
 
 &AtServer
@@ -408,7 +408,7 @@ Procedure SetStandardSettingsAtServer()
 	CurrentCheckMetadata = CheckMetadata(Object.Id);
 	If CurrentCheckMetadata = Undefined Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Data integrity check with ID %1 does not exist.';"), Object.Id);
+			NStr("en = 'Data integrity check with ID %1 does not exist.'"), Object.Id);
 	EndIf;
 		
 	FillPropertyValues(Object, CurrentCheckMetadata, , "Id");

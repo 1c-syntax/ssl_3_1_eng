@@ -25,7 +25,7 @@ Var ReportsToSend; // Array of ErrorReport
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not Parameters.OpenByScenario Then
-		Raise NStr("en = 'The data processor cannot be opened manually.';");
+		Raise NStr("en = 'The data processor cannot be opened manually.'");
 	EndIf;
 	
 	InitializeReferencesToReplace(RefArrayFromList(Parameters.RefSet));
@@ -49,12 +49,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ItemsToReplaceList = New ValueList;
 	ItemsToReplaceList.LoadValues(RefsToReplace.Unload().UnloadColumn("Ref"));
 	CommonClientServer.SetDynamicListFilterItem(List, "Ref", ItemsToReplaceList,
-		DataCompositionComparisonType.NotInList, NStr("en = 'Do not show replaceable items';"), True, 
+		DataCompositionComparisonType.NotInList, NStr("en = 'Do not show replaceable items'"), True, 
 		DataCompositionSettingsItemViewMode.Inaccessible, "5bf5cd06-c1fd-4bd3-94b9-4e9803e90fd5");
 	If ReferencesToReplaceCommonOwner <> Undefined Then 
 		CommonClientServer.SetDynamicListFilterItem(List, "Owner", ReferencesToReplaceCommonOwner);
 		Items.ListFilterTooltip.Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The list contains suitable options with the filter: %2 = %3.';"),
+			NStr("en = 'The list contains suitable options with the filter: %2 = %3.'"),
 			Common.ListPresentation(BasicMetadata),
 			OwnerPresentation(BasicMetadata),
 			Common.SubjectString(ReferencesToReplaceCommonOwner));
@@ -64,15 +64,15 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If RefsToReplace.Count() > 1 Then
 		Items.SelectedItemTypeLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Select one of the %1 items. The item will replace all %2 selected values:';"),
+			NStr("en = 'Select one of the %1 items. The item will replace all %2 selected values:'"),
 			BasicMetadata.Presentation(), RefsToReplace.Count());
 	Else
-		Title = NStr("en = 'Item replacement';");
+		Title = NStr("en = 'Item replacement'");
 		Items.SelectedItemTypeLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Select one of the %1 items. The item will replace %2:';"),
+			NStr("en = 'Select one of the %1 items. The item will replace %2:'"),
 			BasicMetadata.Presentation(), RefsToReplace[0].Ref);
 	EndIf;
-	Items.ReplacementItemSelectionTooltip.Title = NStr("en = 'Replacement item required.';");
+	Items.ReplacementItemSelectionTooltip.Title = NStr("en = 'Replacement item required.'");
 	
 	// Initialize the step-by-step wizard.
 	WizardSettings = StepByStepWizardSettings(Items);
@@ -80,32 +80,32 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// 1. Select main item.
 	StepSelect = AddWizardStep(Items.ReplacementItemSelectionStep);
 	StepSelect.BackButton.Visible = False;
-	StepSelect.NextButton.Title = NStr("en = 'Replace >';");
-	StepSelect.NextButton.ToolTip = NStr("en = 'Start replacement.';");
-	StepSelect.CancelButton.Title = NStr("en = 'Cancel';");
-	StepSelect.CancelButton.ToolTip = NStr("en = 'Cancel replacement.';");
+	StepSelect.NextButton.Title = NStr("en = 'Replace >'");
+	StepSelect.NextButton.ToolTip = NStr("en = 'Start replacement.'");
+	StepSelect.CancelButton.Title = NStr("en = 'Cancel'");
+	StepSelect.CancelButton.ToolTip = NStr("en = 'Cancel replacement.'");
 	
 	// 2. Waiting for process.
 	Step = AddWizardStep(Items.ReplacementStep);
 	Step.CancelButton.Visible = False;
 	Step.NextButton.Visible = False;
-	Step.BackButton.Title = NStr("en = 'Abort';");
-	Step.BackButton.ToolTip = NStr("en = 'Return to selection of the main item.';");
+	Step.BackButton.Title = NStr("en = 'Abort'");
+	Step.BackButton.ToolTip = NStr("en = 'Return to selection of the main item.'");
 	
 	// 3. Reference replacement issues.
 	Step = AddWizardStep(Items.RetryReplacementStep);
-	Step.BackButton.Title = NStr("en = '< Back';");
-	Step.BackButton.ToolTip = NStr("en = 'Return to selecting replacement item';");
-	Step.NextButton.Title = NStr("en = 'Replace again >';");
-	Step.NextButton.ToolTip = NStr("en = 'Replace again.';");
-	Step.CancelButton.Title = NStr("en = 'Close';");
-	Step.CancelButton.ToolTip = NStr("en = 'Close replacement results.';");
+	Step.BackButton.Title = NStr("en = '< Back'");
+	Step.BackButton.ToolTip = NStr("en = 'Return to selecting replacement item'");
+	Step.NextButton.Title = NStr("en = 'Replace again >'");
+	Step.NextButton.ToolTip = NStr("en = 'Replace again.'");
+	Step.CancelButton.Title = NStr("en = 'Close'");
+	Step.CancelButton.ToolTip = NStr("en = 'Close replacement results.'");
 	
 	// 4 Runtime errors.
 	Step = AddWizardStep(Items.ErrorOccurredStep);
 	Step.BackButton.Visible = False;
 	Step.NextButton.Visible = False;
-	Step.CancelButton.Title = NStr("en = 'Close';");
+	Step.CancelButton.Title = NStr("en = 'Close'");
 	
 	// Update form items.
 	WizardSettings.CurrentStep = StepSelect;
@@ -132,11 +132,11 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		Return;
 	EndIf;
 	
-	QueryText = NStr("en = 'Do you want to abort replacing and close the form?';");
+	QueryText = NStr("en = 'Do you want to abort replacing and close the form?'");
 	
 	Buttons = New ValueList;
-	Buttons.Add(DialogReturnCode.Abort, NStr("en = 'Abort';"));
-	Buttons.Add(DialogReturnCode.No,      NStr("en = 'Continue';"));
+	Buttons.Add(DialogReturnCode.Abort, NStr("en = 'Abort'"));
+	Buttons.Add(DialogReturnCode.No,      NStr("en = 'Continue'"));
 	
 	Handler = New CallbackDescription("AfterConfirmCancelJob", ThisObject);
 	ShowQueryBox(Handler, QueryText, Buttons, , DialogReturnCode.No);
@@ -390,12 +390,12 @@ Function AddWizardStep(Val Page)
 	 
 	StepDescription.PageName = Page.Name;
 	
-	StepDescription.BackButton.Title = NStr("en = '< Back';");
+	StepDescription.BackButton.Title = NStr("en = '< Back'");
 	
 	StepDescription.NextButton.DefaultButton = True;
-	StepDescription.NextButton.Title = NStr("en = 'Next >';");
+	StepDescription.NextButton.Title = NStr("en = 'Next >'");
 	
-	StepDescription.CancelButton.Title = NStr("en = 'Cancel';");
+	StepDescription.CancelButton.Title = NStr("en = 'Cancel'");
 	
 	WizardSettings.Steps.Add(StepDescription);
 	
@@ -437,9 +437,9 @@ Procedure GoToWizardStep1(Val StepOrIndexOrFormGroup)
 	ElsIf Type = Type("Number") Then
 		StepIndex = StepOrIndexOrFormGroup;
 		If StepIndex < 0 Then
-			Raise NStr("en = 'Attempt to go back from the first step.';");
+			Raise NStr("en = 'Attempt to go back from the first step.'");
 		ElsIf StepIndex > WizardSettings.Steps.UBound() Then
-			Raise NStr("en = 'Attempt to go next from the last step.';");
+			Raise NStr("en = 'Attempt to go next from the last step.'");
 		EndIf;
 		StepDescription = WizardSettings.Steps[StepIndex];
 	Else
@@ -453,7 +453,7 @@ Procedure GoToWizardStep1(Val StepOrIndexOrFormGroup)
 		EndDo;
 		If Not StepFound Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Step %1 is not found.';"),
+				NStr("en = 'Step %1 is not found.'"),
 				RequiredPageName);
 		EndIf;
 	EndIf;
@@ -497,13 +497,13 @@ Procedure OnActivateWizardStep()
 		ReplacementsCount = RefsToReplace.Count();
 		If ReplacementsCount > 1 Then 
 			Items.UnsuccessfulReplacementsResult.Title = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot automatically replace some items to ""%3"". %1 out of %2 items were not replaced.';"),
+				NStr("en = 'Cannot automatically replace some items to ""%3"". %1 out of %2 items were not replaced.'"),
 				Unsuccessful.Count(),
 				ReplacementsCount,
 				ReplacementItem);
 		Else
 			Items.UnsuccessfulReplacementsResult.Title = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot automatically replace some items to ""%1"". Some items were not replaced.';"),
+				NStr("en = 'Cannot automatically replace some items to ""%1"". Some items were not replaced.'"),
 				ReplacementItem);
 		EndIf;
 		
@@ -579,17 +579,17 @@ Procedure StepReplacementItemSelectionOnClickNextButton()
 	If CurrentData = Undefined Then
 		Return;
 	ElsIf RefsToReplace.Count() = 1 And CurrentData.Ref = RefsToReplace.Get(0).Ref Then
-		ShowMessageBox(, NStr("en = 'Cannot replace an item with itself.';"));
+		ShowMessageBox(, NStr("en = 'Cannot replace an item with itself.'"));
 		Return;
 	ElsIf AttributeValue(CurrentData, "IsFolder", False) Then
-		ShowMessageBox(, NStr("en = 'Cannot replace an item with a group.';"));
+		ShowMessageBox(, NStr("en = 'Cannot replace an item with a group.'"));
 		Return;
 	EndIf;
 	
 	CurrentOwner = AttributeValue(CurrentData, "Owner");
 	If CurrentOwner <> ReferencesToReplaceCommonOwner Then
 		Text = NStr("en = 'Cannot replace an item with the item that belongs to another owner.
-			|Owner of the selected item:%1. Owner of the replacement item: %2.';");
+			|Owner of the selected item:%1. Owner of the replacement item: %2.'");
 		ShowMessageBox(, StringFunctionsClientServer.SubstituteParametersToString(Text, CurrentOwner, ReferencesToReplaceCommonOwner));
 		Return;
 	EndIf;
@@ -597,7 +597,7 @@ Procedure StepReplacementItemSelectionOnClickNextButton()
 	If AttributeValue(CurrentData, "DeletionMark", False) Then
 		// Attempt to replace with an item marked for deletion.
 		Text = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Item %1 is marked for deletion. Continue?';"),
+			NStr("en = 'Item %1 is marked for deletion. Continue?'"),
 			CurrentData.Ref);
 		LongDesc = New CallbackDescription("ConfirmItemSelection", ThisObject);
 		ShowQueryBox(LongDesc, Text, QuestionDialogMode.YesNo);
@@ -637,10 +637,10 @@ Procedure AppliedAreaReplacementAvailabilityCheck()
 		DialogSettings.Insert("PromptDontAskAgain", False);
 		DialogSettings.Insert("Picture", PictureLib.DialogExclamation);
 		DialogSettings.Insert("DefaultButton", 0);
-		DialogSettings.Insert("Title", NStr("en = 'Cannot replace items';"));
+		DialogSettings.Insert("Title", NStr("en = 'Cannot replace items'"));
 		
 		Buttons = New ValueList;
-		Buttons.Add(0, NStr("en = 'OK';"));
+		Buttons.Add(0, NStr("en = 'OK'"));
 		
 		StandardSubsystemsClient.ShowQuestionToUser(Undefined, ErrorText, Buttons, DialogSettings);
 		Return;
@@ -665,14 +665,14 @@ Procedure GenerateReplacementItemAndTooltip(Context)
 		If Context.HasRightToDeletePermanently Then
 			If Context.CurrentDeletionOption = "Check" Then
 				ToolTipText = NStr("en = 'The selected item will be replaced with ""[ReplacementItem]""
-					|and <a href = ""[Hyperlink]"">marked for deletion</a>.';");
+					|and <a href = ""[Hyperlink]"">marked for deletion</a>.'");
 			Else
 				ToolTipText = NStr("en = 'The selected item will be replaced with ""[ReplacementItem]""
-					|and <a href = ""[Hyperlink]"">permanently deleted</a>.';");
+					|and <a href = ""[Hyperlink]"">permanently deleted</a>.'");
 			EndIf;
 		Else
 			ToolTipText = NStr("en = 'The selected item will be replaced with ""[ReplacementItem]""
-				|and marked for deletion.';");
+				|and marked for deletion.'");
 		EndIf;
 		
 		RowParameters = New Structure();
@@ -687,18 +687,18 @@ Procedure GenerateReplacementItemAndTooltip(Context)
 		If Context.HasRightToDeletePermanently Then
 			If Context.CurrentDeletionOption = "Check" Then
 				ToolTipText = NStr("en = 'Selected items (%1) will be replaced with ""%2""
-					|and <a href = ""[Action]"">marked for deletion</a>.';");
+					|and <a href = ""[Action]"">marked for deletion</a>.'");
 				RowParameters = New Structure("Action", "SwitchDeletionMode");
 				ToolTipText = StringFunctionsClientServer.InsertParametersIntoString(ToolTipText, RowParameters);
 			Else
 				ToolTipText = NStr("en = 'Selected items (%1) will be replaced with ""%2""
-					|and <a href = ""[Action]"">permanently deleted</a>.';");
+					|and <a href = ""[Action]"">permanently deleted</a>.'");
 				RowParameters = New Structure("Action", "SwitchDeletionMode");
 				ToolTipText = StringFunctionsClientServer.InsertParametersIntoString(ToolTipText, RowParameters);
 			EndIf;
 		Else
 			ToolTipText = NStr("en = 'All %1 selected items will be replaced with %2
-				|and marked for deletion.';");
+				|and marked for deletion.'");
 		EndIf;
 			
 		ToolTipText = StringFunctionsClientServer.SubstituteParametersToString(ToolTipText, Count, Context.ReplacementItem);
@@ -808,7 +808,7 @@ Procedure InitializeReferencesToReplace(Val ReferencesArrray)
 	
 	RefsCount = ReferencesArrray.Count();
 	If RefsCount = 0 Then
-		Raise NStr("en = 'Select at least one item to replace.';");
+		Raise NStr("en = 'Select at least one item to replace.'");
 	EndIf;
 	
 	ReplacementItem = ReferencesArrray[0];
@@ -861,9 +861,9 @@ Procedure InitializeReferencesToReplace(Val ReferencesArrray)
 	QueryText = StrReplace(QueryText, "&Field_Owner", ?(HasOwners, "Owner", "UNDEFINED"));
 	QueryText = StrReplace(QueryText, "&IsFolder", ?(HasGroups, "IsFolder", "FALSE"));
 	QueryText = StrReplace(QueryText, "&ConditionOwner", 
-		?(HasOwners, "DestinationTable2.Owner = &Owner", "TRUE")); // @query-part
+		?(HasOwners, "DestinationTable2.Owner = &Owner", "TRUE")); // @query-part-2
 	QueryText = StrReplace(QueryText, "&ConditionGroup", 
-		?(HasGroups, "NOT DestinationTable2.IsFolder", "TRUE")); // @query-part
+		?(HasGroups, "NOT DestinationTable2.IsFolder", "TRUE")); // @query-part-2
 		
 	Query = New Query(QueryText);
 	Query.SetParameter("RefSet", ReferencesArrray);
@@ -875,22 +875,22 @@ Procedure InitializeReferencesToReplace(Val ReferencesArrray)
 	Conditions = Result[1].Unload()[0];
 	If Conditions.HasGroups Then
 		Raise NStr("en = 'One of the items to replace is a group.
-			|Groups cannot be replaced.';");
+			|Groups cannot be replaced.'");
 	ElsIf Conditions.OwnersCount > 1 Then 
 		Raise NStr("en = 'Items to replace have different owners.
-			|They cannot be replaced.';");
+			|They cannot be replaced.'");
 	ElsIf Conditions.RefsCount <> RefsCount Then
-		Raise NStr("en = 'All items to replace must be of the same type.';");
+		Raise NStr("en = 'All items to replace must be of the same type.'");
 	EndIf;
 	
 	If Result[2].Unload().Count() = 0 Then
 		If RefsCount > 1 Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The selected items (%1) cannot be replaced as there are no suitable items for replacement.';"), 
+				NStr("en = 'The selected items (%1) cannot be replaced as there are no suitable items for replacement.'"), 
 				RefsCount);
 		Else
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The selected %1 item cannot be replaced as there are no suitable items for replacement.';"), 
+				NStr("en = 'The selected %1 item cannot be replaced as there are no suitable items for replacement.'"), 
 				Common.SubjectString(ReplacementItem));
 		EndIf;
 	EndIf;
@@ -933,7 +933,7 @@ EndProcedure
 Function ReplaceReferences(Val MethodParameters, Val UUID)
 	
 	MethodName = "DuplicateObjectsDetection.ReplaceReferences";
-	MethodDescription = NStr("en = 'Duplicate cleaner: Replace references';");
+	MethodDescription = NStr("en = 'Duplicate cleaner: Replace references'");
 	
 	StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	StartSettings1.BackgroundJobDescription = MethodDescription;
@@ -953,7 +953,7 @@ Procedure AfterCompletionReplacingLinks(Job, AdditionalParameters) Export
 	
 	If Job.Status <> "Completed2" Then
 		// Background job is completed with error.
-		Brief1 = NStr("en = 'Items were not replaced due to:';") + Chars.LF + Job.BriefErrorDescription;
+		Brief1 = NStr("en = 'Items were not replaced due to:'") + Chars.LF + Job.BriefErrorDescription;
 		More = Brief1 + Chars.LF + Chars.LF + Job.DetailErrorDescription;
 		Items.ErrorTextLabel.Title = Brief1;
 		Items.DetailsRef.ToolTip    = More;
@@ -972,12 +972,12 @@ Procedure AfterCompletionReplacingLinks(Job, AdditionalParameters) Export
 		Count = RefsToReplace.Count();
 		If Count = 1 Then
 			ResultingText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Item %1 has been replaced with %2.';"),
+				NStr("en = 'Item %1 has been replaced with %2.'"),
 				RefsToReplace[0].Ref,
 				ReplacementItemResult);
 		Else
 			ResultingText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 items have been replaced with %2.';"),
+				NStr("en = '%1 items have been replaced with %2.'"),
 				Count,
 				ReplacementItemResult);
 		EndIf;
@@ -1024,13 +1024,13 @@ Function FillUnsuccessfulReplacements(Val ResultAddress)
 		
 		ErrorType = ResultString1.ErrorType;
 		If ErrorType = "UnknownData" Then
-			ErrorString.Cause = NStr("en = 'Found instances whose replacement wasn''t intended.';");
+			ErrorString.Cause = NStr("en = 'Found instances whose replacement wasn''t intended.'");
 			
 		ElsIf ErrorType = "LockError" Then
-			ErrorString.Cause = NStr("en = 'Another user updated some data. Retry replacement.';");
+			ErrorString.Cause = NStr("en = 'Another user updated some data. Retry replacement.'");
 			
 		ElsIf ErrorType = "DataChanged1" Then
-			ErrorString.Cause = NStr("en = 'Another user updated some data.';");
+			ErrorString.Cause = NStr("en = 'Another user updated some data.'");
 			
 		ElsIf ErrorType = "WritingError" Then
 			ErrorString.Cause = ?(ResultString1.ErrorInfo <> Undefined,
@@ -1038,10 +1038,10 @@ Function FillUnsuccessfulReplacements(Val ResultAddress)
 				ResultString1.ErrorText);
 			
 		ElsIf ErrorType = "DeletionError" Then
-			ErrorString.Cause = NStr("en = 'Cannot delete data.';");
+			ErrorString.Cause = NStr("en = 'Cannot delete data.'");
 			
 		Else
-			ErrorString.Cause = NStr("en = 'Unexpected error.';");
+			ErrorString.Cause = NStr("en = 'Unexpected error.'");
 			
 		EndIf;
 		

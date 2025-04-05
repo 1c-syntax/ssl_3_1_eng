@@ -14,7 +14,7 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	Title = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-		"en = 'Preview: %1';"), Parameters.MailingDescription);
+		"en = 'Preview: %1'"), Parameters.MailingDescription);
 
 	If Parameters.TextType = Enums.EmailTextTypes.HTML Then
 		Items.EmailTextPages.CurrentPage = Items.PageEmailTextHTML;

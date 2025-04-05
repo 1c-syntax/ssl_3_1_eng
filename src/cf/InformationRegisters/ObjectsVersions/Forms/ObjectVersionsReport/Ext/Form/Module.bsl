@@ -48,10 +48,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		VersionNumberString = Left(VersionNumberString, StrLen(VersionNumberString) - 2);
 		
-		Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Comparing versions of ""%1"" (#%2)';"),
+		Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Comparing versions of ""%1"" (#%2)'"),
 			Common.SubjectString(ObjectReference), VersionNumberString);
 	Else
-		Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Object %1 version #%2';"),
+		Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Object %1 version #%2'"),
 			ObjectReference, String(VersionsToCompare[0].Presentation));
 	EndIf;
 	
@@ -144,7 +144,7 @@ EndProcedure
 &AtClient
 Procedure OpenSpreadsheetDocumentsComparisonForm(SpreadsheetDocumentName, Version0, Version1)
 	
-	TitleLayout = NStr("en = 'Version #%1';");
+	TitleLayout = NStr("en = 'Version #%1'");
 	VersionNumber0 = Format(VersionsToCompare[Version0], "NG=0");
 	VersionNumber1 = Format(VersionsToCompare[Version1], "NG=0");
 	

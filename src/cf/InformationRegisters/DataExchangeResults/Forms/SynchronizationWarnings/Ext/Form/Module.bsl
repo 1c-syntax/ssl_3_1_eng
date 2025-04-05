@@ -52,18 +52,18 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Field.AttributeUseRestriction.Order = True;	
 	EndDo;	
 	
-	List.Parameters.SetParameterValue("UnpostedDocument", NStr("en = 'Unposted document';", Common.DefaultLanguageCode()));
-	List.Parameters.SetParameterValue("EmptyAttributes", NStr("en = 'Empty attributes';", Common.DefaultLanguageCode()));
-	List.Parameters.SetParameterValue("CheckBeforeSend", NStr("en = 'Check before sending';", Common.DefaultLanguageCode()));
-	List.Parameters.SetParameterValue("TechnicalErrorSend", NStr("en = 'Technical error (sending)';", Common.DefaultLanguageCode()));
-	List.Parameters.SetParameterValue("TechnicalErrorGet", NStr("en = 'Technical error (receipt)';", Common.DefaultLanguageCode()));
+	List.Parameters.SetParameterValue("UnpostedDocument", NStr("en = 'Unposted document'", Common.DefaultLanguageCode()));
+	List.Parameters.SetParameterValue("EmptyAttributes", NStr("en = 'Empty attributes'", Common.DefaultLanguageCode()));
+	List.Parameters.SetParameterValue("CheckBeforeSend", NStr("en = 'Check before sending'", Common.DefaultLanguageCode()));
+	List.Parameters.SetParameterValue("TechnicalErrorSend", NStr("en = 'Technical error (sending)'", Common.DefaultLanguageCode()));
+	List.Parameters.SetParameterValue("TechnicalErrorGet", NStr("en = 'Technical error (receipt)'", Common.DefaultLanguageCode()));
 	
 	If TheVersioningSubsystemExists Then
 		
-		List.Parameters.SetParameterValue("UnrecognizedExisting", NStr("en = 'Rejected, existing';", Common.DefaultLanguageCode()));
-		List.Parameters.SetParameterValue("RejectedNew", NStr("en = 'Rejected, new';", Common.DefaultLanguageCode()));
-		List.Parameters.SetParameterValue("AcceptedCollisionData", NStr("en = 'Received conflict data';", Common.DefaultLanguageCode()));
-		List.Parameters.SetParameterValue("RejectedCollisionData", NStr("en = 'Rejected conflict data';", Common.DefaultLanguageCode()));
+		List.Parameters.SetParameterValue("UnrecognizedExisting", NStr("en = 'Rejected, existing'", Common.DefaultLanguageCode()));
+		List.Parameters.SetParameterValue("RejectedNew", NStr("en = 'Rejected, new'", Common.DefaultLanguageCode()));
+		List.Parameters.SetParameterValue("AcceptedCollisionData", NStr("en = 'Received conflict data'", Common.DefaultLanguageCode()));
+		List.Parameters.SetParameterValue("RejectedCollisionData", NStr("en = 'Rejected conflict data'", Common.DefaultLanguageCode()));
 		
 	EndIf;
 	
@@ -278,8 +278,8 @@ EndProcedure
 Procedure EventLog(Command)
 	
 	WarningsLevels = New Array;
-	WarningsLevels.Add(NStr("en = 'Error';", CommonClient.DefaultLanguageCode()));
-	WarningsLevels.Add(NStr("en = 'Warning';", CommonClient.DefaultLanguageCode()));
+	WarningsLevels.Add(NStr("en = 'Error'", CommonClient.DefaultLanguageCode()));
+	WarningsLevels.Add(NStr("en = 'Warning'", CommonClient.DefaultLanguageCode()));
 	
 	ThereAreUploadEvents = False;
 	ThereAreLoadingEvents = False;
@@ -349,7 +349,7 @@ Procedure EventLogAtSpecifiedTime(Command)
 	
 	If Not ValueIsFilled(CurrentRowData.OccurrenceDate) Then
 		
-		WarningText = NStr("en = 'The current line does not contain the time and warning date specified';", CommonClient.DefaultLanguageCode());
+		WarningText = NStr("en = 'The current line does not contain the time and warning date specified'", CommonClient.DefaultLanguageCode());
 		ShowMessageBox(Undefined, WarningText);
 		
 	EndIf;
@@ -444,7 +444,7 @@ Function CurrentWarningListData()
 		Or TypeOf(Items.List.CurrentRow) = Type("DynamicListGroupRow")
 		Then
 		
-		ExceptionText = NStr("en = 'No command execution is provided for the current line';", CommonClient.DefaultLanguageCode());
+		ExceptionText = NStr("en = 'No command execution is provided for the current line'", CommonClient.DefaultLanguageCode());
 		Raise ExceptionText;
 		
 	EndIf;
@@ -458,7 +458,7 @@ Procedure OpenTheObjectOfTheCurrentLine(CurrentRowData)
 	
 	If Not ValueIsFilled(CurrentRowData.ObjectWithIssue) Then
 		
-		WarningText = NStr("en = 'Warning in the current line is not linked to an infobase object';", CommonClient.DefaultLanguageCode());
+		WarningText = NStr("en = 'Warning in the current line is not linked to an infobase object'", CommonClient.DefaultLanguageCode());
 		ShowMessageBox(Undefined, WarningText);
 		Return;
 		
@@ -481,7 +481,7 @@ Procedure FilterByPeriodPresentation()
 	
 	If Not ValueIsFilled(ValuesCache.SelectionByDateOfOccurrence) Then
 		
-		FilterByPeriodPresentation = NStr("en = 'Filter not set';", CommonClient.DefaultLanguageCode());
+		FilterByPeriodPresentation = NStr("en = 'Filter not set'", CommonClient.DefaultLanguageCode());
 		
 	Else
 		
@@ -497,7 +497,7 @@ Procedure RepresentationOfTheSelectionOfExchangeNodes()
 	If ValuesCache.SelectionOfExchangePlanNodes = Undefined
 		Or ValuesCache.SelectionOfExchangePlanNodes.Count() = 0 Then
 		
-		SynchronizationsFilterPresentation = NStr("en = 'Filter not set';", CommonClient.DefaultLanguageCode());
+		SynchronizationsFilterPresentation = NStr("en = 'Filter not set'", CommonClient.DefaultLanguageCode());
 		
 	ElsIf ValuesCache.SelectionOfExchangePlanNodes.Count() = 1 Then
 		
@@ -505,7 +505,7 @@ Procedure RepresentationOfTheSelectionOfExchangeNodes()
 		
 	Else
 		
-		TextTemplate1 = NStr("en = '%1%2 (and %3 more pcs)';", CommonClient.DefaultLanguageCode());
+		TextTemplate1 = NStr("en = '%1%2 (and %3 more pcs)'", CommonClient.DefaultLanguageCode());
 		Triplets = ?(StrLen(TrimAll(ValuesCache.SelectionOfExchangePlanNodes[0])) > 32, "...", "");
 		NumberOfMore = ValuesCache.SelectionOfExchangePlanNodes.Count() - 1;
 		
@@ -521,7 +521,7 @@ Procedure RepresentationOfTheSelectionByTypesOfWarnings()
 	If ValuesCache.SelectingTypesOfWarnings = Undefined
 		Or ValuesCache.SelectingTypesOfWarnings.Count() = 0 Then
 		
-		WarningsTypesFilterPresentation = NStr("en = 'Filter not set';", CommonClient.DefaultLanguageCode());
+		WarningsTypesFilterPresentation = NStr("en = 'Filter not set'", CommonClient.DefaultLanguageCode());
 		
 	ElsIf ValuesCache.SelectingTypesOfWarnings.Count() = 1 Then
 		
@@ -529,11 +529,11 @@ Procedure RepresentationOfTheSelectionByTypesOfWarnings()
 		
 	ElsIf ValuesCache.SelectingTypesOfWarnings.Count() > 8 Then
 		
-		WarningsTypesFilterPresentation = NStr("en = 'All warning types';", CommonClient.DefaultLanguageCode());
+		WarningsTypesFilterPresentation = NStr("en = 'All warning types'", CommonClient.DefaultLanguageCode());
 		
 	Else
 		
-		TextTemplate1 = NStr("en = '%1%2 (and %3 more pcs)';", CommonClient.DefaultLanguageCode());
+		TextTemplate1 = NStr("en = '%1%2 (and %3 more pcs)'", CommonClient.DefaultLanguageCode());
 		Triplets = ?(StrLen(TrimAll(ValuesCache.SelectingTypesOfWarnings[0])) > 32, "...", "");
 		NumberOfMore = ValuesCache.SelectingTypesOfWarnings.Count() - 1;
 		
@@ -759,7 +759,7 @@ Procedure SelectionByDateOfOccurrence()
 	
 	Use = ValueIsFilled(ValuesCache.SelectionByDateOfOccurrence);
 	
-	RepresentationOfTheSelectionGroup = NStr("en = 'Filter by issue date';", Common.DefaultLanguageCode());
+	RepresentationOfTheSelectionGroup = NStr("en = 'Filter by issue date'", Common.DefaultLanguageCode());
 	
 	FindTheSelectionElementOfTheDynamicList(Undefined, DataSelectionGroup, Undefined, RepresentationOfTheSelectionGroup, True);
 	If DataSelectionGroup = Undefined Then
@@ -783,14 +783,14 @@ Procedure SelectionByDateOfOccurrence()
 	ParametersOfTheSelectionElement.Insert("LeftSelectionValue", New DataCompositionField("OccurrenceDate"));
 	ParametersOfTheSelectionElement.Insert("ComparisonType", DataCompositionComparisonType.GreaterOrEqual);
 	ParametersOfTheSelectionElement.Insert("RightValue", SelectionByDateOfOccurrence.StartDate);
-	ParametersOfTheSelectionElement.Insert("FilterPresentation", NStr("en = 'Filter date from';", Common.DefaultLanguageCode()));
+	ParametersOfTheSelectionElement.Insert("FilterPresentation", NStr("en = 'Filter date from'", Common.DefaultLanguageCode()));
 	ParametersOfTheSelectionElement.Insert("Use", Use);
 	
 	SetTheDynamicListSelectionValue(ParametersOfTheSelectionElement);
 	
 	ParametersOfTheSelectionElement.ComparisonType = DataCompositionComparisonType.LessOrEqual;
 	ParametersOfTheSelectionElement.RightValue = SelectionByDateOfOccurrence.EndDate;
-	ParametersOfTheSelectionElement.FilterPresentation = NStr("en = 'Filter date to';", Common.DefaultLanguageCode());
+	ParametersOfTheSelectionElement.FilterPresentation = NStr("en = 'Filter date to'", Common.DefaultLanguageCode());
 	
 	SetTheDynamicListSelectionValue(ParametersOfTheSelectionElement);
 	
@@ -807,7 +807,7 @@ Procedure SelectionByNodesOfTheInformationBase()
 	ParametersOfTheSelectionElement.Insert("LeftSelectionValue", New DataCompositionField("InfobaseNode"));
 	ParametersOfTheSelectionElement.Insert("ComparisonType", DataCompositionComparisonType.InList);
 	ParametersOfTheSelectionElement.Insert("RightValue", ValuesCache.SelectionOfExchangePlanNodes);
-	ParametersOfTheSelectionElement.Insert("FilterPresentation", NStr("en = 'Synchronization filter';", Common.DefaultLanguageCode()));
+	ParametersOfTheSelectionElement.Insert("FilterPresentation", NStr("en = 'Synchronization filter'", Common.DefaultLanguageCode()));
 	ParametersOfTheSelectionElement.Insert("Use", Use);
 	
 	SetTheDynamicListSelectionValue(ParametersOfTheSelectionElement);
@@ -825,7 +825,7 @@ Procedure SelectionByTypesOfWarnings()
 	ParametersOfTheSelectionElement.Insert("LeftSelectionValue", New DataCompositionField("WarningType"));
 	ParametersOfTheSelectionElement.Insert("ComparisonType", DataCompositionComparisonType.InList);
 	ParametersOfTheSelectionElement.Insert("RightValue", ValuesCache.SelectingTypesOfWarnings);
-	ParametersOfTheSelectionElement.Insert("FilterPresentation", NStr("en = 'Filter by warning type';", Common.DefaultLanguageCode()));
+	ParametersOfTheSelectionElement.Insert("FilterPresentation", NStr("en = 'Filter by warning type'", Common.DefaultLanguageCode()));
 	ParametersOfTheSelectionElement.Insert("Use", Use);
 
 	SetTheDynamicListSelectionValue(ParametersOfTheSelectionElement);
@@ -842,7 +842,7 @@ Procedure SelectionOfHiddenWarnings()
 	ParametersOfTheSelectionElement.Insert("LeftSelectionValue", New DataCompositionField("HideWarning"));
 	ParametersOfTheSelectionElement.Insert("ComparisonType", DataCompositionComparisonType.Equal);
 	ParametersOfTheSelectionElement.Insert("RightValue", False);
-	ParametersOfTheSelectionElement.Insert("FilterPresentation", NStr("en = 'Filter hidden warnings';", Common.DefaultLanguageCode()));
+	ParametersOfTheSelectionElement.Insert("FilterPresentation", NStr("en = 'Filter hidden warnings'", Common.DefaultLanguageCode()));
 	ParametersOfTheSelectionElement.Insert("Use", Use);
 
 	SetTheDynamicListSelectionValue(ParametersOfTheSelectionElement);
@@ -967,7 +967,7 @@ Procedure NavigateDocumentsThroughTheSelectedLines(SelectedRows)
 	
 	If DataForSelectedRows.Count() = 0 Then
 		
-		ErrorMessage = NStr("en = 'There are no warnings with the <Unposted document> type in the selected lines';", CommonClient.DefaultLanguageCode());
+		ErrorMessage = NStr("en = 'There are no warnings with the <Unposted document> type in the selected lines'", CommonClient.DefaultLanguageCode());
 		ShowMessageBox(Undefined, ErrorMessage);
 		Return
 		
@@ -1013,7 +1013,7 @@ Procedure CollisionsOnSelectedLines(SelectedRows)
 	
 	If DataForSelectedRows.Count() = 0 Then
 		
-		ErrorMessage = NStr("en = 'There are no warnings with the <Rejected conflict data> and <Received conflict data> types in the selected lines';", CommonClient.DefaultLanguageCode());
+		ErrorMessage = NStr("en = 'There are no warnings with the <Rejected conflict data> and <Received conflict data> types in the selected lines'", CommonClient.DefaultLanguageCode());
 		ShowMessageBox(Undefined, ErrorMessage);
 		Return
 		
@@ -1060,7 +1060,7 @@ Procedure ForbiddingLoadingBySelectedLines(SelectedRows)
 	If DataForSelectedRows.Count() = 0 Then
 		
 		ErrorMessage = NStr("en = 'The selected lines do not contain warnings with the <Rejected, existing> and <Rejected, new> types
-			|resulted from an attempt to import data to a closed period.';", CommonClient.DefaultLanguageCode());
+			|resulted from an attempt to import data to a closed period.'", CommonClient.DefaultLanguageCode());
 		ShowMessageBox(Undefined, ErrorMessage);
 		Return
 		
@@ -1097,7 +1097,7 @@ Procedure GroupChangeOfDetailsForSelectedLines(SelectedRows)
 	
 	If DataForSelectedRows.Count() = 0 Then
 		
-		ErrorMessage = NStr("en = 'There are no warnings with the <Empty attributes> types in the selected lines.';", CommonClient.DefaultLanguageCode());
+		ErrorMessage = NStr("en = 'There are no warnings with the <Empty attributes> types in the selected lines.'", CommonClient.DefaultLanguageCode());
 		ShowMessageBox(Undefined, ErrorMessage);
 		Return
 		

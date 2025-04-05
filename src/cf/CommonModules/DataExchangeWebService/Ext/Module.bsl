@@ -50,7 +50,7 @@ Function GetFileFromStorageInService(Proxy, Val FileID, Val InfobaseNode = Undef
 			InfobaseNode, Enums.ActionsOnExchange.DataImport);
 		
 		Comment = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Start receiving an exchange message from the Internet. The message is split into %1 parts.';"),
+			NStr("en = 'Start receiving an exchange message from the Internet. The message is split into %1 parts.'"),
 			Format(PartCount, "NZ=0; NG=0"));
 			
 		DataExchangeServer.WriteEventLogDataExchange(Comment, ExchangeSettingsStructure);
@@ -92,7 +92,7 @@ Function GetFileFromStorageInService(Proxy, Val FileID, Val InfobaseNode = Undef
 			WriteLogEvent(TempFileDeletionEventLogEvent(),
 				EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
-		Raise(NStr("en = 'The archive file is empty.';"));
+		Raise(NStr("en = 'The archive file is empty.'"));
 	EndIf;
 	
 	// Log exchange events.
@@ -101,7 +101,7 @@ Function GetFileFromStorageInService(Proxy, Val FileID, Val InfobaseNode = Undef
 	If ValueIsFilled(InfobaseNode) Then
 	
 		Comment = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Complete receiving an exchange message from the Internet. Compressed message size: %1 MB.';"),
+			NStr("en = 'Complete receiving an exchange message from the Internet. Compressed message size: %1 MB.'"),
 			Format(Round(ArchiveFile1.Size() / 1024 / 1024, 3), "NZ=0; NG=0"));
 			
 		DataExchangeServer.WriteEventLogDataExchange(Comment, ExchangeSettingsStructure);
@@ -154,7 +154,7 @@ Function PutFileInStorageInService(Proxy, Val FileName,
 	If Proxy = Undefined Then
 		
 		Raise NStr("en = 'The WS proxy of transferring the export file to the destination infobase is not defined. 
-			|Contact the administrator.';", Common.DefaultLanguageCode());
+			|Contact the administrator.'", Common.DefaultLanguageCode());
 		
 	EndIf;
 	
@@ -361,7 +361,7 @@ Function SetupStatus(Proxy, SettingsStructure_, DataArea = 0, Cancel = False, Er
 	
 	If Not SetupStatus.SettingExists Then
 		ErrorMessageString = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Data synchronization setting with ID ""%2"" is not found. Exchange plan: %1.';"),
+			NStr("en = 'Data synchronization setting with ID ""%2"" is not found. Exchange plan: %1.'"),
 			SettingsStructure_.ExchangePlanName,
 			SettingsStructure_.CurrentExchangePlanNodeCode1);
 		Cancel = True;
@@ -592,7 +592,7 @@ EndProcedure
 //
 Function TempFileDeletionEventLogEvent() Export
 	
-	Return NStr("en = 'Data exchange.Delete temporary file';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Data exchange.Delete temporary file'", Common.DefaultLanguageCode());
 	
 EndFunction
 
@@ -601,7 +601,7 @@ EndFunction
 //
 Function EventLogEventTransportChangedOnWS() Export
 	
-	Return NStr("en = 'Data exchange.Change transport to WS';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Data exchange.Change transport to WS'", Common.DefaultLanguageCode());
 	
 EndFunction
 
@@ -614,7 +614,7 @@ EndFunction
 //
 Function EstablishWebServiceConnectionEventLogEvent()
 	
-	Return NStr("en = 'Data exchange.Establish web service connection';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Data exchange.Establish web service connection'", Common.DefaultLanguageCode());
 	
 EndFunction
 
@@ -627,15 +627,15 @@ Procedure WaitingForTheOperationToComplete(ExchangeSettingsStructure, ExchangePa
 			// For this infobase, "Import". Therefore, for the peer infobase, "Export".
 			If ActionWhenExchangingInThisInformationSystem = Enums.ActionsOnExchange.DataImport Then
 				
-				ActionInTheCorrespondentLine = NStr("en = 'export';", Common.DefaultLanguageCode());
+				ActionInTheCorrespondentLine = NStr("en = 'export'", Common.DefaultLanguageCode());
 				
 			Else
 				
-				ActionInTheCorrespondentLine = NStr("en = 'import';", Common.DefaultLanguageCode());
+				ActionInTheCorrespondentLine = NStr("en = 'import'", Common.DefaultLanguageCode());
 				
 			EndIf;
 			
-			MessageTemplate = NStr("en = 'Waiting for the operation to be executed (%1 of the data in the peer infobase)…';", Common.DefaultLanguageCode());
+			MessageTemplate = NStr("en = 'Waiting for the operation to be executed (%1 of the data in the peer infobase)…'", Common.DefaultLanguageCode());
 			DataExchangeServer.WriteEventLogDataExchange(StrTemplate(MessageTemplate, ActionInTheCorrespondentLine), ExchangeSettingsStructure);
 			
 		EndIf;
@@ -664,7 +664,7 @@ Procedure WaitingForTheOperationToComplete(ExchangeSettingsStructure, ExchangePa
 			
 		Else
 			
-			Raise StrTemplate(NStr("en = 'Peer infobase error: %1 %2';"), Chars.LF, ErrorMessageString);
+			Raise StrTemplate(NStr("en = 'Peer infobase error: %1 %2'"), Chars.LF, ErrorMessageString);
 			
 		EndIf;
 		
@@ -819,7 +819,7 @@ Procedure CheckProhibitedCharsInWSProxyUsername(Val UserName)
 	If StringContainsCharacter(UserName, InvalidChars) Then
 		
 		MessageString = NStr("en = 'Username ""%1"" contains illegal characters:
-			|%2';");
+			|%2'");
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, UserName, InvalidChars);
 		
 		Raise MessageString;
@@ -867,7 +867,7 @@ Procedure CheckWSProxyAddressFormatCorrectness(Val WSProxyAddress)
 		EndDo;
 		
 		MessageString = NStr("en = 'Invalid address format: ""%1"".
-			|An address must start with an Internet protocol prefix: %2. For example, ""http://myserver.com/service"".';");
+			|An address must start with an Internet protocol prefix: %2. For example, ""http://myserver.com/service"".'");
 			
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, WSProxyAddress, PrefixesString);
 		
@@ -964,7 +964,7 @@ Function ObsoleteExchangeSettingsOptionInCorrespondent(Proxy, SetupStatus, Setti
 				// Data import is aborted.
 				ErrorMessageString = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Synchronization settings are being updated in ""%1"" application.
-					|The data import is canceled. Restart the data synchronization later.';"),
+					|The data import is canceled. Restart the data synchronization later.'"),
 					String(SettingsStructure_.InfobaseNode));
 				Cancel = True;
 			EndIf;

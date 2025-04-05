@@ -89,10 +89,10 @@ Procedure ClearReportDistributionHistory(Form) Export
 
 	If Form.ConstantsSet.RetainReportDistributionHistory Then
 		QueryText = StringFunctionsClient.FormattedString(NStr(
-		"en = 'Do you want to clear an obsolete report distribution history?';"));
+		"en = 'Do you want to clear an obsolete report distribution history?'"));
 	Else
 		QueryText = StringFunctionsClient.FormattedString(NStr(
-		"en = 'Do you want to clear the report distribution history?';"));
+		"en = 'Do you want to clear the report distribution history?'"));
 	EndIf;
 
 	Parameters = New Structure("Form", Form);
@@ -149,7 +149,7 @@ Procedure SelectRecipient(ResultHandler, Object, MultipleChoice, ReturnsMap) Exp
 		PossibleRecipients.Add(KeyAndValue.Key, String(KeyAndValue.Key) +" <"+ KeyAndValue.Value +">");
 	EndDo;
 	If MultipleChoice Then
-		PossibleRecipients.Insert(0, Undefined, NStr("en = 'To all recipients';"));
+		PossibleRecipients.Insert(0, Undefined, NStr("en = 'To all recipients'"));
 	EndIf;
 	
 	AdditionalParameters = New Structure;
@@ -158,7 +158,7 @@ Procedure SelectRecipient(ResultHandler, Object, MultipleChoice, ReturnsMap) Exp
 	AdditionalParameters.Insert("ReturnsMap", ReturnsMap);
 	
 	Handler = New CallbackDescription("SelectRecipientCompletion", ThisObject, AdditionalParameters);
-	PossibleRecipients.ShowChooseItem(Handler, NStr("en = 'Select recipient';"));
+	PossibleRecipients.ShowChooseItem(Handler, NStr("en = 'Select recipient'"));
 	
 EndProcedure
 
@@ -198,7 +198,7 @@ Procedure ExecuteNow(Parameters) Export
 	If Parameters.IsItemForm Then
 		Object = Parameters.Form.Object;
 		If Not Object.IsPrepared Then
-			ShowMessageBox(, NStr("en = 'The report distribution is not prepared.';"));
+			ShowMessageBox(, NStr("en = 'The report distribution is not prepared.'"));
 			Return;
 		EndIf;
 		If Object.UseEmail Then
@@ -219,9 +219,9 @@ Procedure ExecuteNowInBackground(Recipients, Parameters) Export
 			EndIf;
 			PreliminarySettings = New Structure("Recipients", Recipients);
 		EndIf;
-		StateText = NStr("en = 'Distributing reports.';");
+		StateText = NStr("en = 'Distributing reports.'");
 	Else
-		StateText = NStr("en = 'Distributing reports.';");
+		StateText = NStr("en = 'Distributing reports.'");
 	EndIf;
 	
 	MethodParameters = New Structure;
@@ -267,7 +267,7 @@ Procedure ExecuteNowInBackgroundCompletion(Job, Parameters) Export
 			AdditionalData = New Structure;
 			AdditionalData.Insert("Certificate", Result.CertificateToEncrypt);
 			FormParameters = New Structure;
-			FormParameters.Insert("WarningTitle", NStr("en = 'Report distribution failed';"));
+			FormParameters.Insert("WarningTitle", NStr("en = 'Report distribution failed'"));
 			FormParameters.Insert("ErrorTextServer", ErrorProcessing.BriefErrorDescription(Job.ErrorInfo));
 			FormParameters.Insert("AdditionalData", AdditionalData);
 			FormParameters.Insert("ShowNeedHelp", True);
@@ -316,19 +316,19 @@ EndProcedure
 Function ScheduleFillingOptionsList() Export
 	
 	VariantList = New ValueList;
-	VariantList.Add(1, NStr("en = 'Every day';"));
-	VariantList.Add(2, NStr("en = 'Every second day';"));
-	VariantList.Add(3, NStr("en = 'Every fourth day';"));
-	VariantList.Add(4, NStr("en = 'On weekdays';"));
-	VariantList.Add(5, NStr("en = 'On weekends';"));
-	VariantList.Add(6, NStr("en = 'On Mondays';"));
-	VariantList.Add(7, NStr("en = 'On Fridays';"));
-	VariantList.Add(8, NStr("en = 'On Sundays';"));
-	VariantList.Add(9, NStr("en = 'On the first day of the month';"));
-	VariantList.Add(10, NStr("en = 'On the last day of the month';"));
-	VariantList.Add(11, NStr("en = 'On the 10th day of every quarter';"));
+	VariantList.Add(1, NStr("en = 'Every day'"));
+	VariantList.Add(2, NStr("en = 'Every second day'"));
+	VariantList.Add(3, NStr("en = 'Every fourth day'"));
+	VariantList.Add(4, NStr("en = 'On weekdays'"));
+	VariantList.Add(5, NStr("en = 'On weekends'"));
+	VariantList.Add(6, NStr("en = 'On Mondays'"));
+	VariantList.Add(7, NStr("en = 'On Fridays'"));
+	VariantList.Add(8, NStr("en = 'On Sundays'"));
+	VariantList.Add(9, NStr("en = 'On the first day of the month'"));
+	VariantList.Add(10, NStr("en = 'On the last day of the month'"));
+	VariantList.Add(11, NStr("en = 'On the 10th day of every quarter'"));
 	If Not CommonClient.DataSeparationEnabled() Then
-		VariantList.Add(12, NStr("en = 'Other…';"));
+		VariantList.Add(12, NStr("en = 'Other…'"));
 	EndIf;
 	
 	Return VariantList;
@@ -427,7 +427,7 @@ Procedure SendBulkSMSMessagesInBackground(Recipients, Parameters) Export
 	
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(Parameters.Form);
 	WaitSettings.OutputIdleWindow = True;
-	WaitSettings.MessageText = NStr("en = 'Sending text messages with passwords for the report distribution.';");
+	WaitSettings.MessageText = NStr("en = 'Sending text messages with passwords for the report distribution.'");
 	
 	Handler = New CallbackDescription("SendBulkSMSMessagesInBackgroundCompletion", ThisObject, Parameters);
 	TimeConsumingOperationsClient.WaitCompletion(Job, Handler, WaitSettings);
@@ -473,7 +473,7 @@ Procedure SendBulkSMSMessagesInBackgroundCompletion(Job, Parameters) Export
 		Form.SentCount = Result.SentCount;
 		Form.UnsentCount = Result.UnsentCount;
 		Form.AutoTitle = False;
-		Form.Title = NStr("en = 'The result of sending text messages with archive passwords';");
+		Form.Title = NStr("en = 'The result of sending text messages with archive passwords'");
 		Form.Items.Pages.CurrentPage = Form.Items.InformationPage;
 	Else
 		Form.Items.Pages.CurrentPage = Form.Items.InformationPage;
@@ -502,7 +502,7 @@ Procedure ClearUpReportDistributionHistoryInBackground(Parameters, AdditionalPar
 	
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(AdditionalParameters.Form);
 	WaitSettings.OutputIdleWindow = True;
-	WaitSettings.MessageText = NStr("en = 'Clearing the report distribution history.';");
+	WaitSettings.MessageText = NStr("en = 'Clearing the report distribution history.'");
 	
 	Handler = New CallbackDescription("ClearUpReportDistributionHistoryCompletion", ThisObject, AdditionalParameters);
 	TimeConsumingOperationsClient.WaitCompletion(Job, Handler, WaitSettings);

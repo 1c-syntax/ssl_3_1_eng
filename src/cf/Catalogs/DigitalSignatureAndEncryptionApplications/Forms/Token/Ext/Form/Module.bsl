@@ -18,9 +18,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		FillPropertyValues(ThisObject, Parameters.Token,,"Certificates");
 		
 		If IsServer Then
-			TitleTemplate1 = NStr("en = '%1 on server';");
+			TitleTemplate1 = NStr("en = '%1 on server'");
 		Else
-			TitleTemplate1 = NStr("en = '%1 on computer';");
+			TitleTemplate1 = NStr("en = '%1 on computer'");
 		EndIf;
 		
 		Title = StringFunctionsClientServer.SubstituteParametersToString(
@@ -63,7 +63,7 @@ Async Procedure FillInListOfCertificates()
 	
 	If ValueIsFilled(ErrorText) Then
 		FormParameters = New Structure;
-		FormParameters.Insert("WarningTitle", NStr("en = 'Couldn''t read certificates stored on the token';"));
+		FormParameters.Insert("WarningTitle", NStr("en = 'Couldn''t read certificates stored on the token'"));
 		FormParameters.Insert("ErrorTextClient", ErrorText);
 		FormParameters.Insert("ShowNeedHelp", True);
 		DigitalSignatureInternalClient.OpenExtendedErrorPresentationForm(FormParameters, ThisObject);

@@ -978,7 +978,7 @@ Procedure NotifyOfSettingsChange(Form) Export
 		Return;
 	EndIf;
 	
-	StateText = NStr("en = 'Settings changed. To run the report, click ""Generate"".';");
+	StateText = NStr("en = 'Settings changed. To run the report, click ""Generate"".'");
 	DisplayReportState(Form, StateText);
 	
 EndProcedure
@@ -1158,7 +1158,7 @@ EndProcedure
 Function ConditionalAppearanceItemPresentation(DCItem, DCOptionSetting, State) Export
 	AppearancePresentation = AppearancePresentation(DCItem.Appearance);
 	If AppearancePresentation = "" Then
-		AppearancePresentation = NStr("en = 'No decoration';");
+		AppearancePresentation = NStr("en = 'No decoration'");
 	EndIf;
 	InfoFromOptionIsAvailable = (DCOptionSetting <> Undefined And DCOptionSetting <> DCItem);
 	
@@ -1167,9 +1167,9 @@ Function ConditionalAppearanceItemPresentation(DCItem, DCOptionSetting, State) E
 		FieldsPresentation = FormattedFieldsPresentation(DCOptionSetting.Fields, State);
 	EndIf;
 	If FieldsPresentation = "" Then
-		FieldsPresentation = NStr("en = 'All fields';");
+		FieldsPresentation = NStr("en = 'All fields'");
 	Else
-		FieldsPresentation = NStr("en = 'Fields:';") + " " + FieldsPresentation;
+		FieldsPresentation = NStr("en = 'Fields:'") + " " + FieldsPresentation;
 	EndIf;
 	
 	FilterPresentation = FilterPresentation(DCItem.Filter, DCItem.Filter.Items, State);
@@ -1180,7 +1180,7 @@ Function ConditionalAppearanceItemPresentation(DCItem, DCOptionSetting, State) E
 		Separator = "";
 	Else
 		Separator = "; ";
-		FilterPresentation = NStr("en = 'Criteria:';") + " " + FilterPresentation;
+		FilterPresentation = NStr("en = 'Criteria:'") + " " + FilterPresentation;
 	EndIf;
 	
 	Return AppearancePresentation + " (" + FieldsPresentation + Separator + FilterPresentation + ")";
@@ -1228,12 +1228,12 @@ Function ColorPresentation(Color)
 	ElsIf Color.Type = ColorType.Absolute Then
 		Presentation = String(Color);
 		If Presentation = "0, 0, 0" Then
-			Presentation = NStr("en = 'Black';");
+			Presentation = NStr("en = 'Black'");
 		ElsIf Presentation = "255, 255, 255" Then
-			Presentation = NStr("en = 'White';");
+			Presentation = NStr("en = 'White'");
 		EndIf;
 	ElsIf Color.Type = ColorType.AutoColor Then
-		Presentation = NStr("en = 'Auto';");
+		Presentation = NStr("en = 'Auto'");
 	Else
 		Presentation = "";
 	EndIf;
@@ -1337,35 +1337,35 @@ Function FilterPresentation(DCNode, DCRowSet, State)
 				ConditionPresentation = "<=";
 			
 			ElsIf DCItem.ComparisonType = DataCompositionComparisonType.InHierarchy Then
-				ConditionPresentation = NStr("en = 'In group';");
+				ConditionPresentation = NStr("en = 'In group'");
 			ElsIf DCItem.ComparisonType = DataCompositionComparisonType.NotInHierarchy Then
-				ConditionPresentation = NStr("en = 'Not in group';");
+				ConditionPresentation = NStr("en = 'Not in group'");
 			ElsIf DCItem.ComparisonType = DataCompositionComparisonType.InList Then
-				ConditionPresentation = NStr("en = 'In list';");
+				ConditionPresentation = NStr("en = 'In list'");
 			ElsIf DCItem.ComparisonType = DataCompositionComparisonType.NotInList Then
-				ConditionPresentation = NStr("en = 'Not in list';");
+				ConditionPresentation = NStr("en = 'Not in list'");
 			ElsIf DCItem.ComparisonType = DataCompositionComparisonType.InListByHierarchy Then
-				ConditionPresentation = NStr("en = 'In list including subordinate objects';");
+				ConditionPresentation = NStr("en = 'In list including subordinate objects'");
 			ElsIf DCItem.ComparisonType = DataCompositionComparisonType.NotInListByHierarchy Then
-				ConditionPresentation = NStr("en = 'Not in list including subordinate objects';");
+				ConditionPresentation = NStr("en = 'Not in list including subordinate objects'");
 			
 			ElsIf DCItem.ComparisonType = DataCompositionComparisonType.Contains Then
-				ConditionPresentation = NStr("en = 'Contains';");
+				ConditionPresentation = NStr("en = 'Contains'");
 			ElsIf DCItem.ComparisonType = DataCompositionComparisonType.NotContains Then
-				ConditionPresentation = NStr("en = 'Does not contain';");
+				ConditionPresentation = NStr("en = 'Does not contain'");
 			ElsIf DCItem.ComparisonType = DataCompositionComparisonType.Like Then
-				ConditionPresentation = NStr("en = 'Matches pattern';");
+				ConditionPresentation = NStr("en = 'Matches pattern'");
 			ElsIf DCItem.ComparisonType = DataCompositionComparisonType.NotLike Then
-				ConditionPresentation = NStr("en = 'Does not match pattern';");
+				ConditionPresentation = NStr("en = 'Does not match pattern'");
 			ElsIf DCItem.ComparisonType = DataCompositionComparisonType.BeginsWith Then
-				ConditionPresentation = NStr("en = 'Begins with';");
+				ConditionPresentation = NStr("en = 'Begins with'");
 			ElsIf DCItem.ComparisonType = DataCompositionComparisonType.NotBeginsWith Then
-				ConditionPresentation = NStr("en = 'Does not begin with';");
+				ConditionPresentation = NStr("en = 'Does not begin with'");
 			ElsIf DCItem.ComparisonType = DataCompositionComparisonType.Filled Then
-				ConditionPresentation = NStr("en = 'Not blank';");
+				ConditionPresentation = NStr("en = 'Not blank'");
 				ValuePresentation = "";
 			ElsIf DCItem.ComparisonType = DataCompositionComparisonType.NotFilled Then
-				ConditionPresentation = NStr("en = 'Blank';");
+				ConditionPresentation = NStr("en = 'Blank'");
 				ValuePresentation = "";
 			EndIf;
 			
@@ -1519,7 +1519,7 @@ Function CopyingParameters(ElementType, Collection, WithoutStructure = False)
 	ElsIf ElementType <> Type("FormDataTreeItem") Then 
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 copy is not supported.';"), ElementType);
+			NStr("en = '%1 copy is not supported.'"), ElementType);
 		
 	EndIf;
 	

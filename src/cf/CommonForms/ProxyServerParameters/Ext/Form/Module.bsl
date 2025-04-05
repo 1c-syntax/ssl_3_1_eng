@@ -17,7 +17,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Not Parameters.ProxySettingAtClient
 		And Not Users.IsFullUser(, True) Then
 		Raise(NStr("en = 'Insufficient access rights.
-			|Only administrators can configure proxy servers.';"),
+			|Only administrators can configure proxy servers.'"),
 			ErrorCategory.AccessViolation);
 	EndIf;
 	
@@ -25,7 +25,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ProxyServerSetting = GetFilesFromInternet.ProxySettingsAtClient();
 	Else
 		AutoTitle = False;
-		Title = NStr("en = 'Proxy server parameters on 1C:Enterprise server';");
+		Title = NStr("en = 'Proxy server parameters on 1C:Enterprise server'");
 		ProxyServerSetting = GetFilesFromInternet.ProxySettingsAtServer();
 	EndIf;
 	
@@ -108,7 +108,7 @@ Procedure OnOpen(Cancel)
 	
 	If ProxySettingAtClient Then
 #If WebClient Then
-		ShowMessageBox(, NStr("en = 'Please specify the proxy server parameters in the browser settings.';"));
+		ShowMessageBox(, NStr("en = 'Please specify the proxy server parameters in the browser settings.'"));
 		Cancel = True;
 		Return;
 #EndIf

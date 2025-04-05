@@ -43,8 +43,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.Back.Visible = False;
 		Items.Next.Visible = False;
 		Items.Available.Visible = False;
-		Items.NextStepInfoNewOptionDecoration.Title = NStr("en = 'The report option will be saved as a new option.';");
-		Items.NextStepInfoOverwriteOptionDecoration.Title = NStr("en = 'The current report option will be overwritten.';");
+		Items.NextStepInfoNewOptionDecoration.Title = NStr("en = 'The report option will be saved as a new option.'");
+		Items.NextStepInfoOverwriteOptionDecoration.Title = NStr("en = 'The current report option will be overwritten.'");
 		
 	EndIf;
 	
@@ -84,12 +84,12 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
 	If Not ValueIsFilled(Object.Description) Then
 		Common.MessageToUser(
-			NStr("en = 'Description is not populated';"),, "Description");
+			NStr("en = 'Description is not populated'"),, "Description");
 		Cancel = True;
 	ElsIf ReportsOptions.DescriptionIsUsed(Context.ReportRef, OptionRef, Object.Description) Then
 		Common.MessageToUser(
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '""%1"" is taken. Enter another description.';"),
+				NStr("en = '""%1"" is taken. Enter another description.'"),
 				Object.Description),
 			,
 			"Description");
@@ -144,7 +144,7 @@ Procedure LongDescStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	Notification = New CallbackDescription("LongDescStartChoiceCompletion", ThisObject);
 	CommonClient.ShowMultilineTextEditingForm(
-		Notification, Items.LongDesc.EditText, NStr("en = 'Details';"));
+		Notification, Items.LongDesc.EditText, NStr("en = 'Details'"));
 	
 EndProcedure
 
@@ -296,7 +296,7 @@ Procedure ExecuteBatch(Result, Package) Export
 	If Package.CheckPage1 = True Then
 		// Description is missing.
 		If Not ValueIsFilled(Object.Description) Then
-			ErrorText = NStr("en = 'Description is not populated';");
+			ErrorText = NStr("en = 'Description is not populated'");
 			CommonClient.MessageToUser(ErrorText, , "Object.Description");
 			Return;
 		EndIf;
@@ -306,7 +306,7 @@ Procedure ExecuteBatch(Result, Package) Export
 			FoundItems = ReportOptions.FindRows(New Structure("Ref", OptionRef));
 			Variant = FoundItems[0];
 			If Not RightToWriteOption(Variant, Context.FullRightsToOptions) Then
-				ErrorText = NStr("en = 'Insufficient rights to modify option ""%1"". Save it under a different name or select another report option.';");
+				ErrorText = NStr("en = 'Insufficient rights to modify option ""%1"". Save it under a different name or select another report option.'");
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText, Object.Description);
 				CommonClient.MessageToUser(ErrorText, , "Object.Description");
 				Return;
@@ -404,10 +404,10 @@ Function AskAboutOverwritingAReportVariant(Package, Variant)
 		
 		DefaultButton = DialogReturnCode.No;
 		QuestionTextTemplate = NStr("en = 'Report option %1 is marked for deletion.
-			|Do you want to overwrite it?';");
+			|Do you want to overwrite it?'");
 	Else
 		DefaultButton = DialogReturnCode.Yes;
-		QuestionTextTemplate = NStr("en = 'Do you want to overwrite report option %1?';");
+		QuestionTextTemplate = NStr("en = 'Do you want to overwrite report option %1?'");
 	EndIf;
 	
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(QuestionTextTemplate, Object.Description);
@@ -523,7 +523,7 @@ EndFunction
 &AtClientAtServerNoContext
 Function GenerateFreeDescription(Variant, ReportOptions)
 	
-	OptionNameTemplate = TrimAll(Variant.Description) + " - " + NStr("en = 'copy';");
+	OptionNameTemplate = TrimAll(Variant.Description) + " - " + NStr("en = 'copy'");
 	
 	FreeDescription = OptionNameTemplate;
 	FoundItems = ReportOptions.FindRows(New Structure("Description", FreeDescription));
@@ -617,7 +617,7 @@ Procedure CheckAndWriteReportOption(Package)
 		
 		If IsNewReportOption And ReportsOptions.DescriptionIsUsed(Context.ReportRef, OptionRef, Object.Description) Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '""%1"" is taken. Enter another description.';"), 
+				NStr("en = '""%1"" is taken. Enter another description.'"), 
 				Object.Description);
 			Common.MessageToUser(ErrorText, , "Object.Description");
 			Package.Cancel = True;
@@ -963,9 +963,9 @@ Procedure FillPresentations(Variant)
 			
 			For LanguageSeqNumber = 1 To ModuleNationalLanguageSupportServer.AdditionalLanguagesCount() Do
 				
-				LanguageSuffix_ = ModuleNationalLanguageSupportClientServer.LanguageSuffix_(LanguageSeqNumber);
-				NameOfTheItemName = "Description" + LanguageSuffix_;
-				LongDescAttributeName     = "LongDesc" + LanguageSuffix_;
+				LanguageSuffix = ModuleNationalLanguageSupportClientServer.LanguageSuffix(LanguageSeqNumber);
+				NameOfTheItemName = "Description" + LanguageSuffix;
+				LongDescAttributeName     = "LongDesc" + LanguageSuffix;
 				Set.Add(StrTemplate(Template_Description, NameOfTheItemName));
 				Set.Add(StrTemplate(DetailsTemplate, LongDescAttributeName));
 			EndDo;

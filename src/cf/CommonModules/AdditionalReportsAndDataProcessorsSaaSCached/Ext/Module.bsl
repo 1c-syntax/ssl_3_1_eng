@@ -40,11 +40,11 @@ Function ExtendedLockReasonsDetails() Export
 	
 	Result = New Map();
 	Result.Insert(Reasons.LockByServiceAdministrator, 
-		NStr("en = 'Usage of additional data processor is prohibited by the SaaS administrator.';"));
+		NStr("en = 'Usage of additional data processor is prohibited by the SaaS administrator.'"));
 	Result.Insert(Reasons.LockByOwner, 
-		NStr("en = 'Usage of additional data processor is prohibited by the data processor owner.';"));
+		NStr("en = 'Usage of additional data processor is prohibited by the data processor owner.'"));
 	Result.Insert(Reasons.ConfigurationVersionUpdate, 
-		NStr("en = 'Usage of additional data processor is temporarily unavailable. Try again in a few minutes. We apologize for the inconvenience.';"));
+		NStr("en = 'Usage of additional data processor is temporarily unavailable. Try again in a few minutes. We apologize for the inconvenience.'"));
 	
 	Return New FixedMap(Result);
 	

@@ -229,7 +229,7 @@ Function ParametersOfSearchForSimilarStrings(AttachAddInSSL = True) Export
 		FuzzySearch1 = Common.AttachAddInFromTemplate("FuzzyStringMatchExtension", 
 			"CommonTemplate.StringSearchAddIn");
 		If FuzzySearch1 = Undefined Then
-			Raise NStr("en = 'Cannot attach the fuzzy search add-in. See the Event log for details.';");
+			Raise NStr("en = 'Cannot attach the fuzzy search add-in. See the Event log for details.'");
 		EndIf;
 	EndIf;
 	Result.Insert("SearchAddIn", FuzzySearch1);
@@ -310,7 +310,7 @@ Procedure OnDefineAttachableCommandsKinds(AttachableCommandsKinds) Export
 		Kind = AttachableCommandsKinds.Add();
 		Kind.Name         = "Administration";
 		Kind.SubmenuName  = "Service";
-		Kind.Title   = NStr("en = 'Tools';");
+		Kind.Title   = NStr("en = 'Tools'");
 		Kind.Order     = 80;
 		Kind.Picture    = PictureLib.ServiceSubmenu;
 		Kind.Representation = ButtonRepresentation.PictureAndText;	
@@ -331,7 +331,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 			Command = Commands.Add();
 			Command.Kind = "Administration";
 			Command.Importance = "SeeAlso";
-			Command.Presentation = NStr("en = 'Merge selected items…';");
+			Command.Presentation = NStr("en = 'Merge selected items…'");
 			Command.WriteMode = "NotWrite";
 			Command.VisibilityInForms = "ListForm";
 			Command.MultipleChoice = True;
@@ -342,7 +342,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 			Command = Commands.Add();
 			Command.Kind = "Administration";
 			Command.Importance = "SeeAlso";
-			Command.Presentation = NStr("en = 'Replace selected items…';");
+			Command.Presentation = NStr("en = 'Replace selected items…'");
 			Command.WriteMode = "NotWrite";
 			Command.VisibilityInForms = "ListForm";
 			Command.MultipleChoice = True;
@@ -515,7 +515,7 @@ EndProcedure
 // Subsystem presentation. It is used for writing to the event log and in other places.
 Function SubsystemDescription(ForUser) Export
 	LanguageCode = ?(ForUser, Common.DefaultLanguageCode(), "");
-	Return NStr("en = 'Duplicate cleaner';", LanguageCode);
+	Return NStr("en = 'Duplicate cleaner'", LanguageCode);
 EndFunction
 
 // Parameters:
@@ -600,7 +600,7 @@ Procedure AddSubordinateObjectsLinks(SubordinateObjectsLinks, LinkRow)
 			
 		Else 
 			ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Link field %1 does not exist in metadata object %2';"), 
+				NStr("en = 'Link field %1 does not exist in metadata object %2'"), 
 				AttributeName, SubordinateObjectName);
 			Raise ErrorDescription;
 		EndIf;
@@ -740,7 +740,7 @@ Function ObjectsForReplacementQueryText(SubordinateObjectDetails, Links)
 	
 	For Each KeyAttribute In SubordinateObjectDetails.KeyAttributes Do
 		
-		Value = "UNION" // @query-part
+		Value = "UNION"
 			+ StrReplace(" SELECT
 							|	Tab.Ref AS Ref,
 							|	&NotAttributesToChange,
@@ -752,7 +752,7 @@ Function ObjectsForReplacementQueryText(SubordinateObjectDetails, Links)
 							|	(SELECT
 							|		Tab.Original
 							|	FROM
-							|		ReplacementTable AS Tab)", "&KeyAttribute","Tab." + KeyAttribute);
+							|		ReplacementTable AS Tab)", "&KeyAttribute","Tab." + KeyAttribute); //  @query-part-1
 		KeysValue = KeysValue + Value;
 		
 		Value = StringFunctionsClientServer.SubstituteParametersToString("Tab.%1 = Replacement.%1 ", KeyAttribute);

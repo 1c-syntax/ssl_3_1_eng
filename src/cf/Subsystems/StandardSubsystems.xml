@@ -19,24 +19,25 @@
 		</Properties>
 		<ChildObjects>
 			<Subsystem>Surveys</Subsystem>
-			<Subsystem>PeriodClosingDates</Subsystem>
-			<Subsystem>WorkSchedules</Subsystem>
-			<Subsystem>Core</Subsystem>
-			<Subsystem>UsersSessions</Subsystem>
-			<Subsystem>ReportsOptions</Subsystem>
-			<Subsystem>ObjectsVersioning</Subsystem>
-			<Subsystem>Currencies</Subsystem>
-			<Subsystem>BusinessProcessesAndTasks</Subsystem>
-			<Subsystem>AddIns</Subsystem>
-			<Subsystem>Banks</Subsystem>
-			<Subsystem>AdditionalReportsAndDataProcessors</Subsystem>
-			<Subsystem>ImportDataFromFile</Subsystem>
 			<Subsystem>ObjectAttributesLock</Subsystem>
-			<Subsystem>Interactions</Subsystem>
-			<Subsystem>UserNotes</Subsystem>
+			<Subsystem>AdditionalReportsAndDataProcessors</Subsystem>
+			<Subsystem>ObjectsVersioning</Subsystem>
 			<Subsystem>BatchEditObjects</Subsystem>
-			<Subsystem>ODataInterface</Subsystem>
+			<Subsystem>Currencies</Subsystem>
+			<Subsystem>ImportDataFromFile</Subsystem>
+			<Subsystem>ReportsOptions</Subsystem>
+			<Subsystem>Banks</Subsystem>
+			<Subsystem>AddIns</Subsystem>
 			<Subsystem>BarcodeGeneration</Subsystem>
+			<Subsystem>WorkSchedules</Subsystem>
+			<Subsystem>PeriodClosingDates</Subsystem>
+			<Subsystem>BusinessProcessesAndTasks</Subsystem>
+			<Subsystem>UserNotes</Subsystem>
+			<Subsystem>UsersSessions</Subsystem>
+			<Subsystem>ODataInterface</Subsystem>
+			<Subsystem>Interactions</Subsystem>
+			<Subsystem>Core</Subsystem>
+			<Subsystem>ExportObjectsToFiles</Subsystem>
 			<Subsystem>InformationOnStart</Subsystem>
 			<Subsystem>CalendarSchedules</Subsystem>
 			<Subsystem>FormulasConstructor</Subsystem>
@@ -50,6 +51,7 @@
 			<Subsystem>DataExchange</Subsystem>
 			<Subsystem>IBVersionUpdate</Subsystem>
 			<Subsystem>ConfigurationUpdate</Subsystem>
+			<Subsystem>ContactingTechnicalSupport</Subsystem>
 			<Subsystem>Conversations</Subsystem>
 			<Subsystem>SendSMSMessage</Subsystem>
 			<Subsystem>DocumentRecordsReport</Subsystem>
@@ -79,7 +81,6 @@
 			<Subsystem>MonitoringCenter</Subsystem>
 			<Subsystem>MessageTemplates</Subsystem>
 			<Subsystem>DigitalSignature</Subsystem>
-			<Subsystem>ExportObjectsToFiles</Subsystem>
 		</ChildObjects>
 	</Subsystem>
 </MetaDataObject>

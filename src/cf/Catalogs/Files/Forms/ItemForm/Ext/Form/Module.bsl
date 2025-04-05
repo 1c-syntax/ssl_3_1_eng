@@ -39,7 +39,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.PrintWithStamp.Visible = PrintWithStampAvailable;
 	If Not PrintWithStampAvailable Then
 		Items.PrintSubmenu.Type = FormGroupType.ButtonGroup;
-		Items.Print.Title = NStr("en = 'Print';");
+		Items.Print.Title = NStr("en = 'Print'");
 	EndIf;
 	
 	Items.FormDelete.Visible = (Object.Author = Users.AuthorizedUser());
@@ -304,7 +304,7 @@ Procedure DigitalSignaturesSelection(Item, RowSelected, Field, StandardProcessin
 		Or ValueIsFilled(CurrentData.CheckResult.SignatureMathValidationError)) Then
 		
 		FormParameters = New Structure;
-		FormParameters.Insert("WarningTitle", NStr("en = 'Signature verification';"));
+		FormParameters.Insert("WarningTitle", NStr("en = 'Signature verification'"));
 		FormParameters.Insert("ErrorTextClient", ?(ValueIsFilled(CurrentData.CheckResult.SignatureMathValidationError),
 			CurrentData.CheckResult.SignatureMathValidationError,
 			CurrentData.CheckResult.AdditionalAttributesCheckError));
@@ -410,20 +410,20 @@ Procedure StandardSetDeletionMark(Command)
 			QueryText = NStr(
 				"en = 'To proceed, save the file changes.
 				      |Save the changes and clear the deletion mark from file
-				      |""%1""?';");
+				      |""%1""?'");
 		Else
 			QueryText = NStr(
 				"en = 'To proceed, you need to save the file changes.
 				      |Save the changes and mark the
-				      |""%1"" file for deletion?';");
+				      |""%1"" file for deletion?'");
 		EndIf;
 	Else
 		If Object.DeletionMark Then
 			QueryText = NStr("en = 'Deletion mark will be cleared from %1.
-			                          |Continue?';");
+			                          |Continue?'");
 		Else
 			QueryText = NStr("en = '%1 will be marked for deletion.
-			                          |Continue?';");
+			                          |Continue?'");
 		EndIf;
 	EndIf;
 	
@@ -444,7 +444,7 @@ Procedure StandardSetDeletionMarkAnswerReceived(QuestionResult, AdditionalParame
 	
 EndProcedure
 
-// СтандартныеПодсистемы.Свойства
+// 
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -746,7 +746,7 @@ Procedure DeleteDS(Command)
 	EndIf;
 	
 	NotifyDescription = New CallbackDescription("DeleteDigitalSignatureAnswerReceived", ThisObject);
-	ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to delete the selected signatures?';"), QuestionDialogMode.YesNo);
+	ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to delete the selected signatures?'"), QuestionDialogMode.YesNo);
 	
 EndProcedure
 
@@ -891,7 +891,7 @@ Procedure Release(Command)
 	ReleaseCompletion = New CallbackDescription("ReleaseCompletion", ThisObject);
 	If Modified Then
 		ShowQueryBox(ReleaseCompletion,
-			NStr("en = 'If editing is canceled, changes made will be lost. Continue?';"),
+			NStr("en = 'If editing is canceled, changes made will be lost. Continue?'"),
 			QuestionDialogMode.YesNo);
 	Else
 		RunCallback(ReleaseCompletion, DialogReturnCode.Yes);
@@ -927,7 +927,7 @@ Procedure SaveChanges(Command)
 	
 EndProcedure
 
-// СтандартныеПодсистемы.Свойства
+// 
 
 &AtServer
 Procedure UpdateAdditionalAttributesItems()
@@ -1022,17 +1022,17 @@ EndProcedure
 Procedure RefreshTitle()
 	
 	If TypeOf(Object.FileOwner) = Type("CatalogRef.FilesFolders") Then
-		FileType = NStr("en = 'File';");
+		FileType = NStr("en = 'File'");
 	Else
-		FileType = NStr("en = 'Attachment';");
+		FileType = NStr("en = 'Attachment'");
 	EndIf;
 	
 	If ValueIsFilled(Object.Ref) Then
 		Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 (%2)';"), String(Object.Ref), FileType);
+			NStr("en = '%1 (%2)'"), String(Object.Ref), FileType);
 	Else
 		Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 (Create)';"), FileType);
+			NStr("en = '%1 (Create)'"), FileType);
 	EndIf;
 	
 EndProcedure
@@ -1177,9 +1177,9 @@ Procedure SetButtonsAvailability(Form, Items)
 	EndDo;
 	
 	If AvailableCommandsNames.Find("Edit") <> Undefined Then
-		Items.LongDesc.InputHint = NStr("en = 'A brief description. To edit the file, click Edit.';");
+		Items.LongDesc.InputHint = NStr("en = 'A brief description. To edit the file, click Edit.'");
 	Else
-		Items.LongDesc.InputHint = NStr("en = 'A brief description. To view the file, click View.';");
+		Items.LongDesc.InputHint = NStr("en = 'A brief description. To view the file, click View.'");
 	EndIf;
 	
 EndProcedure
@@ -1421,7 +1421,7 @@ Function HandleFileRecordCommand()
 	
 	If IsBlankString(Object.Description) Then
 		CommonClient.MessageToUser(
-			NStr("en = 'To proceed, please provide the file name.';"), , "Description", "Object");
+			NStr("en = 'To proceed, please provide the file name.'"), , "Description", "Object");
 		Return False;
 	EndIf;
 	
@@ -1650,11 +1650,11 @@ Procedure UpdateCloudServiceNote(AttachedFile)
 			NoteVisibility = True;
 			
 			Items.DecorationNote.Title = StringFunctions.FormattedString(
-				NStr("en = 'This is a read-only file. It is stored in cloud service <a href=""%1"">%2</a>.';"),
+				NStr("en = 'This is a read-only file. It is stored in cloud service <a href=""%1"">%2</a>.'"),
 				SynchronizationInfo.FolderAddressInCloudService, SynchronizationInfo.AccountDescription1);
 			Items.DecorationPictureSyncStatus.Visible = Not SynchronizationInfo.IsSynchronized;
 			Items.DecorationSyncDate.Title = StringFunctions.FormattedString(
-				NStr("en = 'Synchronized on: <a href=""%1"">%2</a>';"),
+				NStr("en = 'Synchronized on: <a href=""%1"">%2</a>'"),
 				"OpenJournal", Format(SynchronizationInfo.SynchronizationDate, "DLF=DD"));
 			
 		EndIf;

@@ -95,7 +95,7 @@ Function CurrentUserSubsystems() Export
 	
 	RootRow = Result.Rows.Add();
 	RootRow.Ref = Catalogs.MetadataObjectIDs.EmptyRef();
-	RootRow.Presentation = NStr("en = 'All sections';");
+	RootRow.Presentation = NStr("en = 'All sections'");
 	
 	FullSubsystemsNames = New Array;
 	TreeRowsFullNames = New Map;
@@ -111,7 +111,7 @@ Function CurrentUserSubsystems() Export
 			And Not (TypeOf(MetadataSection) = Type("String") And MetadataSection = HomePageID) Then
 			
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Invalid section values in %1 procedure.';"), 
+				NStr("en = 'Invalid section values in %1 procedure.'"), 
 				"ReportsOptionsOverridable.DefineSectionsWithReportOptions");
 			
 		EndIf;
@@ -119,7 +119,7 @@ Function CurrentUserSubsystems() Export
 		If ValueIsFilled(ListItem.Presentation) Then
 			TitleTemplate1 = ListItem.Presentation;
 		Else
-			TitleTemplate1 = NStr("en = '%1 section reports';");
+			TitleTemplate1 = NStr("en = '%1 section reports'");
 		EndIf;
 		
 		IsHomePage = (MetadataSection = HomePageID);
@@ -248,7 +248,7 @@ Function SubsystemsPresentations() Export
 		If Not (TypeOf(MetadataSection) = Type("MetadataObject") And StrStartsWith(MetadataSection.FullName(), "Subsystem"))
 			And Not (TypeOf(MetadataSection) = Type("String") And MetadataSection = HomePageID) Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Invalid section values in %1 procedure.';"),
+				NStr("en = 'Invalid section values in %1 procedure.'"),
 				"ReportsOptionsOverridable.DefineSectionsWithReportOptions");
 		EndIf;
 		
@@ -321,7 +321,7 @@ Function InsertRight1() Export
 	
 EndFunction
 
-// Subsystem parameters cached during the update (See ReportsOptions.WriteFunctionalOptionsTable)
+// Subsystem parameters cached during the update
 // .
 //
 // Returns:

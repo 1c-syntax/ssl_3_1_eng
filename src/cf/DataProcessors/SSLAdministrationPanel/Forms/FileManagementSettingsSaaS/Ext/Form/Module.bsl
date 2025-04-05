@@ -50,7 +50,7 @@ Procedure MaxFileSizeOnChange(Item)
 	
 	If MaxFileSize = 0 Then
 		
-		MessageText = NStr("en = 'File size limit is required.';");
+		MessageText = NStr("en = 'File size limit is required.'");
 		CommonClient.MessageToUser(MessageText, ,"MaxFileSize");
 		Return;
 		
@@ -81,12 +81,12 @@ EndProcedure
 &AtClient
 Async Procedure StartDeduplication(Command)
 	
-	QuestionTitle = NStr("en = 'File deduplication';");
+	QuestionTitle = NStr("en = 'File deduplication'");
 	QueryText = NStr("en = 'With file deduplication, you can save up to 30% of infobase space by removing duplicate files stored in the application (the ""Infobase"" storage option). The process takes minutes to hours, depending on the number of files, and can be paused and resumed at any time. All newly added files are automatically stored as a single instance.
 						|
 						|During deduplication, the infobase size may increase significantly. Therefore, before initiating the process, ensure that the device hosting the infobase has at least %1 MB of free space and back up the infobase. After completion, compress the infobase for the deduplication to take effect.
 						|
-						|Do you want to create deduplication jobs for each data area?';");
+						|Do you want to create deduplication jobs for each data area?'");
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(QueryText, Format(DeleteFilesBinaryDataTableSize, "NFD=2;"));
 	
 	Response = Await DoQueryBoxAsync(QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No, QuestionTitle);

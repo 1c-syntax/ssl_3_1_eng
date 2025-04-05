@@ -419,7 +419,7 @@ Procedure FillEncryptionCertificatesFromSet(CertificatesSetDetails)
 			CertificateData = Selection.CertificateData.Get();
 			If TypeOf(CertificateData) <> Type("BinaryData") Then
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'The ""%1"" certificate data does not exist in the catalog.';"), Selection.Presentation);
+					NStr("en = 'The ""%1"" certificate data does not exist in the catalog.'"), Selection.Presentation);
 			EndIf;
 			Try
 				CryptoCertificate = New CryptoCertificate(CertificateData);
@@ -427,7 +427,7 @@ Procedure FillEncryptionCertificatesFromSet(CertificatesSetDetails)
 				ErrorInfo = ErrorInfo();
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'The ""%1"" certificate data in the catalog is incorrect due to:
-					           |%2';"),
+					           |%2'"),
 					Selection.Presentation,
 					ErrorProcessing.BriefErrorDescription(ErrorInfo));
 			EndTry;
@@ -517,7 +517,7 @@ Procedure FillEncryptionApplicationAtServer()
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot receive the ""%1"" certificate data
 				           |from the infobase due to:
-				           |%2';"),
+				           |%2'"),
 				EncryptionCertificates[0].Certificate,
 				ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		EndTry;
@@ -618,29 +618,18 @@ Async Procedure FillEncryptionApplication(Notification = Undefined)
 	Context.Insert("SignAlgorithm",
 		DigitalSignatureInternalClientServer.CertificateSignAlgorithm(CertificateData));
 		
+	CryptoCertificate = New CryptoCertificate;
+	Await CryptoCertificate.InitializeAsync(CertificateData);
+		
 	ApplicationsDetailsCollection = DigitalSignatureClient.CommonSettings().ApplicationsDetailsCollection;
-	
+	Context.Insert("EncryptionCertificate", CryptoCertificate);
+	Context.Insert("ApplicationsDetailsCollection", ApplicationsDetailsCollection);
 	If ApplicationsDetailsCollection.Count() = 0 Then
 		FillEncryptionApplicationAfterLoop(Context);
 		Return;
 	EndIf;
 	
-	Context.Insert("ApplicationsDetailsCollection", ApplicationsDetailsCollection);
-	
-	CryptoCertificate = New CryptoCertificate;
-	CryptoCertificate.BeginInitialization(New CallbackDescription(
-			"FillEncryptionApplicationAfterInitializeCertificate", ThisObject, Context),
-		CertificateData);
-	
-EndProcedure
-
-// Continues the FillEncryptionApplication procedure.
-&AtClient
-Procedure FillEncryptionApplicationAfterInitializeCertificate(CryptoCertificate, Context) Export
-	
-	Context.Insert("EncryptionCertificate", CryptoCertificate);
 	Context.Insert("TestData", TestBinaryData());
-	
 	Context.Insert("IndexOf", -1);
 	FillEncryptionApplicationLoopStart(Context);
 	
@@ -735,7 +724,15 @@ EndProcedure
 
 // Continues the CreateCryptoManager procedure.
 &AtClient
-Procedure FillEncryptionApplicationAfterLoop(Context)
+Async Procedure FillEncryptionApplicationAfterLoop(Context)
+	
+	If ValueIsFilled(Certificate) And Not ValueIsFilled(CertificateApp)
+		And Not ValueIsFilled(AppAuto) Then
+		Token = Await DigitalSignatureInternalClient.GetTokenByCertificate(Context.EncryptionCertificate);
+		If Token <> Undefined Then
+			AppAuto = Token;
+		EndIf;
+	EndIf;
 	
 	If Context.Notification <> Undefined Then
 		RunCallback(Context.Notification);
@@ -933,7 +930,7 @@ Async Procedure EncryptData(Notification)
 			And Not ValueIsFilled(AppAuto) And Not ValueIsFilled(AppAutoAtServer) Then
 			Context.ErrorAtClient.Insert("ErrorDescription",
 				NStr("en = 'For the selected personal certificate, no private key management app is specified or it cannot be found automatically.
-				           |Choose another certificate.';"));
+				           |Choose another certificate.'"));
 			HandleError(Notification, Context.ErrorAtClient, Context.ErrorAtServer);
 			Return;
 		EndIf;
@@ -1061,7 +1058,7 @@ Procedure EncryptDataAfterExecuteAtClientSide(Result, Context) Export
 			DigitalSignatureInternalClient, FormOpenParameters);
 		
 		ShowUserNotification(
-			NStr("en = 'You need to reissue the certificate';"), ActionOnClick, Certificate,
+			NStr("en = 'You need to reissue the certificate'"), ActionOnClick, Certificate,
 			PictureLib.DialogExclamation, UserNotificationStatus.Important,
 			Certificate);
 	EndIf;
@@ -1106,7 +1103,7 @@ Function CertificatesProperties(Val References, Val FormIdentifier)
 		
 		CertificateData = Selection.CertificateData.Get();
 		If TypeOf(CertificateData) <> Type("BinaryData") Then
-			Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The ""%1"" certificate data does not exist in the catalog.';"),
+			Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The ""%1"" certificate data does not exist in the catalog.'"),
 				Selection.Description);
 		EndIf;
 		
@@ -1116,7 +1113,7 @@ Function CertificatesProperties(Val References, Val FormIdentifier)
 			ErrorInfo = ErrorInfo();
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The ""%1"" certificate data in the catalog is incorrect due to:
-				           |%2';"),
+				           |%2'"),
 				Selection.Description,
 				ErrorProcessing.BriefErrorDescription(ErrorInfo));
 		EndTry;
@@ -1203,7 +1200,7 @@ Procedure WriteEncryptionCertificatesAtServer(ObjectsDetails, CertificatesAddres
 	Except
 		RollbackTransaction();
 		ErrorInfo = ErrorInfo();
-		Error.Insert("ErrorDescription", NStr("en = 'Cannot save the encryption certificates due to:';")
+		Error.Insert("ErrorDescription", NStr("en = 'Cannot save the encryption certificates due to:'")
 			+ Chars.LF + ErrorProcessing.BriefErrorDescription(ErrorInfo));
 	EndTry;
 	
@@ -1219,7 +1216,7 @@ Procedure HandleError(Notification, ErrorAtClient, ErrorAtServer)
 		EndIf;
 		
 		DataDetails.ErrorDescription = DigitalSignatureInternalClientServer.GeneralDescriptionOfTheError(
-			ErrorAtClient, ErrorAtServer, NStr("en = 'Cannot encrypt data due to:';"));
+			ErrorAtClient, ErrorAtServer, NStr("en = 'Cannot encrypt data due to:'"));
 		
 		If IsOpen() Then
 			Close(False);
@@ -1259,7 +1256,7 @@ Procedure HandleError(Notification, ErrorAtClient, ErrorAtServer)
 		AdditionalParameters = New Structure("Certificate", AllCertificates);
 		
 		DigitalSignatureInternalClient.ShowApplicationCallError(
-			NStr("en = 'Cannot encrypt data';"), "",
+			NStr("en = 'Cannot encrypt data'"), "",
 			ErrorAtClient, ErrorAtServer, AdditionalParameters, ProcessingAfterWarning);
 		
 		RunCallback(Notification, False);

@@ -97,10 +97,10 @@ Function FirstOption()
 	OptionProperties.Insert("Name", VariantName);
 	
 	OptionProperties.Insert("Title",
-		NStr("en = 'Data import restriction dates by infobase';"));
+		NStr("en = 'Data import restriction dates by infobase'"));
 	
 	OptionProperties.Insert("LongDesc",
-		NStr("en = 'Displays data import restriction dates for objects grouped by infobase.';"));
+		NStr("en = 'Displays data import restriction dates for objects grouped by infobase.'"));
 	
 	Return OptionProperties;
 	
@@ -116,20 +116,20 @@ Function SecondOption()
 	
 	If Properties.ShowSections And Not Properties.AllSectionsWithoutObjects Then
 		VariantName = "ImportRestrictionDatesBySectionsObjectsForInfobases";
-		Title = NStr("en = 'Data import restriction dates by section and object';");
+		Title = NStr("en = 'Data import restriction dates by section and object'");
 		OptionDetails =
-			NStr("en = 'Displays data import restriction dates grouped by section and object.';");
+			NStr("en = 'Displays data import restriction dates grouped by section and object.'");
 		
 	ElsIf Properties.AllSectionsWithoutObjects Then
 		VariantName = "ImportRestrictionDatesBySectionsForInfobases";
-		Title = NStr("en = 'Data import restriction dates by section';");
+		Title = NStr("en = 'Data import restriction dates by section'");
 		OptionDetails =
-			NStr("en = 'Displays data import restriction dates grouped by section.';");
+			NStr("en = 'Displays data import restriction dates grouped by section.'");
 	Else
 		VariantName = "ImportRestrictionDatesByObjectsForInfobases";
-		Title = NStr("en = 'Data import restriction dates by object';");
+		Title = NStr("en = 'Data import restriction dates by object'");
 		OptionDetails =
-			NStr("en = 'Displays data import restriction dates grouped by object.';");
+			NStr("en = 'Displays data import restriction dates grouped by object.'");
 	EndIf;
 	
 	OptionProperties = New Structure;

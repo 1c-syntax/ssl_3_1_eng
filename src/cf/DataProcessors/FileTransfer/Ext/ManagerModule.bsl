@@ -37,16 +37,16 @@ Function ExecuteFileTransfer(FilesToTransfer, Parameters) Export
 	TransferErrors = New Array;
 
 	If Parameters.Action = "MoveBetweenVolumes" Then
-		ActionForLog = NStr("en = 'between volumes on a server.';");
+		ActionForLog = NStr("en = 'between volumes on a server.'");
 	ElsIf Parameters.Action = "MoveToVolumes" Then
-		ActionForLog = NStr("en = 'to volume on a server.';")
+		ActionForLog = NStr("en = 'to volume on a server.'")
 	Else
-		ActionForLog = NStr("en = 'to the infobase.';")
+		ActionForLog = NStr("en = 'to the infobase.'")
 	EndIf;
 	
-	WriteLogEvent(NStr("en = 'Files.Start moving files.';", Common.DefaultLanguageCode()),
+	WriteLogEvent(NStr("en = 'Files.Start moving files.'", Common.DefaultLanguageCode()),
 		EventLogLevel.Information,,,
-		NStr("en = 'Started moving files';") + " " + ActionForLog);
+		NStr("en = 'Started moving files'") + " " + ActionForLog);
 	
 	FilesToMoveCount = FilesToTransfer.Count();
 	
@@ -65,19 +65,19 @@ Function ExecuteFileTransfer(FilesToTransfer, Parameters) Export
 	EndDo;
 	
 	RecordOnCompletionText = NStr("en = 'The files are moved %1
-		|Total files: %2';");
+		|Total files: %2'");
 	
 	RecordOnCompletionText = StringFunctionsClientServer.SubstituteParametersToString(
 		RecordOnCompletionText, ActionForLog, Format(FilesTransferred, "NZ=0; NG="));
 	
 	If FilesTransferred < FilesToMoveCount Then
 		RecordOnCompletionText = RecordOnCompletionText + "
-			|" + NStr("en = 'Total errors: %1.';");
+			|" + NStr("en = 'Total errors: %1.'");
 		RecordOnCompletionText = StringFunctionsClientServer.SubstituteParametersToString(
 			RecordOnCompletionText, Format(FilesToMoveCount - FilesTransferred, "NZ=0; NG="));
 	EndIf;
 	
-	WriteLogEvent(NStr("en = 'Files.End moving files.';", Common.DefaultLanguageCode()),
+	WriteLogEvent(NStr("en = 'Files.End moving files.'", Common.DefaultLanguageCode()),
 		EventLogLevel.Information,,, RecordOnCompletionText);
 	
 	Return New Structure("FilesTransferred,TransferErrors", FilesTransferred, TransferErrors);
@@ -115,7 +115,7 @@ Procedure TransferFile(File, VolumeProperties, Parameters, TransferErrors, Files
 		ElsIf Parameters.Action = "MoveToInfobase" Then
 			MoveToInfobase(FileObject1, VolumeProperties, Parameters);
 		Else
-			Raise NStr("en = 'Unsupported operation.';");
+			Raise NStr("en = 'Unsupported operation.'");
 		EndIf;
 		
 		FilesTransferred = FilesTransferred + 1;
@@ -134,13 +134,13 @@ Procedure TransferFile(File, VolumeProperties, Parameters, TransferErrors, Files
 		Error.FileName = NameForLog;
 		TransferErrors.Add(Error);
 		
-		WriteLogEvent(NStr("en = 'Files.File moving error.';", Common.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Files.File moving error.'", Common.DefaultLanguageCode()),
 			EventLogLevel.Error,, FileRef,
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t move file %1
 				|%2
 				|due to:
-				|%3"".';"),
+				|%3"".'"),
 				Common.SubjectString(FileRef), 
 				NameForLog, Error.DetailErrorDescription));
 
@@ -161,14 +161,14 @@ Procedure MoveBetweenVolumes(FileObject1, VolumeProperties, Parameters)
 	FileOnHardDrive = New File(CurrentFilePath);
 	If Not FileOnHardDrive.Exists() Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'File ""%1"" is not found.';"), CurrentFilePath);
+		NStr("en = 'File ""%1"" is not found.'"), CurrentFilePath);
 	EndIf;
 	
 	FileProperties.Volume = Parameters.DestinationStorageVolume;
 	FileProperties.PathToFile = "";
 	
 	NewFilePath = FilesOperationsInVolumesInternal.FullFileNameInVolume(FileProperties, FileObject1.UniversalModificationDate);
-	FileCopy(CurrentFilePath, NewFilePath);
+	CopyFile(CurrentFilePath, NewFilePath);
 	
 	FileObject1.Volume = Parameters.DestinationStorageVolume;
 	FileObject1.PathToFile = Mid(NewFilePath, StrLen(VolumeProperties.VolumePath) + 1);
@@ -234,7 +234,7 @@ Procedure ThrowAnExceptionWhenTheVolumeSizeIsExceeded(Val VolumeProperties, Val 
 		And VolumeProperties.MaxVolumeSize > 0
 		And VolumeProperties.CurrentVolumeSize + FileObject1.Size > VolumeProperties.MaxVolumeSize Then
 		
-		Raise NStr("en = 'Volume size limit exceeded.';");
+		Raise NStr("en = 'Volume size limit exceeded.'");
 	EndIf;
 
 EndProcedure

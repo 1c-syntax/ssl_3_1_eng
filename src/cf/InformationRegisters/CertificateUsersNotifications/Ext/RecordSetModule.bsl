@@ -48,14 +48,14 @@ Procedure OnWrite(Cancel, Replacing)
 			If ReminderID = "AutomaticCertificateRenewalReminder" Then
 
 				ReminderText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Time to reissue certificate ""%1""';"), Record.Certificate);
+					NStr("en = 'Time to reissue certificate ""%1""'"), Record.Certificate);
 				ModuleUserReminder.SetReminder(
 					ReminderText, "ValidBefore", 30 * 24 * 60 * 60, Record.Certificate, ReminderID);
 
 			Else
 
 				ReminderText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '""%1"": Certificate is received';"), Record.Certificate);
+					NStr("en = '""%1"": Certificate is received'"), Record.Certificate);
 				ModuleUserReminder.SetReminder(
 					ReminderText, "DateCertificateReceived", 0, Record.Certificate, ReminderID);
 
@@ -68,5 +68,5 @@ EndProcedure
 
 #EndRegion
 #Else
-	Raise NStr("en = 'Invalid object call on the client.';");
+	Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

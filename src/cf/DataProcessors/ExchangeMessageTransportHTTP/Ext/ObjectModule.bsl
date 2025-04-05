@@ -129,7 +129,7 @@ Function CorrespondentParameters(ConnectionSettings) Export
 		Text = NStr("en = 'Exchange plan ""%1"" is not found in the peer application.
 			|Ensure that the following data is correct:
 			|- The application type selected in the exchange settings.
-			|- The web application address.';");
+			|- The web application address.'");
 		
 		ErrorMessage = StrTemplate(Text, ExchangePlanName);
 		
@@ -241,7 +241,7 @@ Function ConnectionIsSet() Export
 		
 	Else
 		
-		ErrorMessage = NStr("en = 'User authentication failed.';");
+		ErrorMessage = NStr("en = 'User authentication failed.'");
 		ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject,,Response.GetBodyAsString());
 		
 		Return False;
@@ -332,7 +332,7 @@ Function PutFileInStorageInService(HTTPConnection, Val FileName,
 	If HTTPConnection = Undefined Then
 		
 		Raise NStr("en = 'The WS proxy of transferring the export file to the destination infobase is not defined. 
-			|Contact the administrator.';", Common.DefaultLanguageCode());
+			|Contact the administrator.'", Common.DefaultLanguageCode());
 		
 	EndIf;
 	
@@ -402,15 +402,15 @@ Procedure WaitingForTheOperationToComplete(HTTPConnection, ExchangeParameters, A
 			// For this infobase, "Import". Therefore, for the peer infobase, "Export".
 			If ActionWhenExchangingInThisInformationSystem = Enums.ActionsOnExchange.DataImport Then
 				
-				ActionInTheCorrespondentLine = NStr("en = 'export';", Common.DefaultLanguageCode());
+				ActionInTheCorrespondentLine = NStr("en = 'export'", Common.DefaultLanguageCode());
 				
 			Else
 				
-				ActionInTheCorrespondentLine = NStr("en = 'import';", Common.DefaultLanguageCode());
+				ActionInTheCorrespondentLine = NStr("en = 'import'", Common.DefaultLanguageCode());
 				
 			EndIf;
 			
-			MessageTemplate = NStr("en = 'Waiting for the operation to be executed (%1 of the data in the peer infobase)…';", Common.DefaultLanguageCode());
+			MessageTemplate = NStr("en = 'Waiting for the operation to be executed (%1 of the data in the peer infobase)…'", Common.DefaultLanguageCode());
 			Message = StrTemplate(MessageTemplate, ActionInTheCorrespondentLine);
 			ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject,, Message, False);
 			
@@ -451,7 +451,7 @@ Procedure WaitingForTheOperationToComplete(HTTPConnection, ExchangeParameters, A
 			
 		Else
 			
-			Raise StrTemplate(NStr("en = 'Peer infobase error: %1 %2';"), Chars.LF, ErrorMessageString);
+			Raise StrTemplate(NStr("en = 'Peer infobase error: %1 %2'"), Chars.LF, ErrorMessageString);
 			
 		EndIf;
 		
@@ -537,7 +537,7 @@ Function GetFileFromStorageInService(HTTPConnection, Val FileID, Val PartSize = 
 	
 	FileNameTemplate = "data.zip.[n]";
 	
-	MessageTemplate = NStr("en = 'Start receiving an exchange message from the Internet. The message is split into %1 parts.';");
+	MessageTemplate = NStr("en = 'Start receiving an exchange message from the Internet. The message is split into %1 parts.'");
 	Message = StrTemplate(MessageTemplate, Format(PartCount, "NZ=0; NG=0"));
 	ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject, "DataImport", Message, False);
 		
@@ -596,13 +596,13 @@ Function GetFileFromStorageInService(HTTPConnection, Val FileID, Val PartSize = 
 			ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo());
 			ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject);
 		EndTry;
-		Raise(NStr("en = 'The archive file is empty.';"));
+		Raise(NStr("en = 'The archive file is empty.'"));
 	EndIf;
 	
 	// Log exchange events.
 	ArchiveFile1 = New File(ArchiveName);
 	
-	MessageTemplate = NStr("en = 'Complete receiving an exchange message from the Internet. Compressed message size: %1 MB.';");
+	MessageTemplate = NStr("en = 'Complete receiving an exchange message from the Internet. Compressed message size: %1 MB.'");
 	Message = StrTemplate(MessageTemplate, Format(Round(ArchiveFile1.Size() / 1024 / 1024, 3), "NZ=0; NG=0"));
 	ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject, "DataImport", Message, False);
 	
@@ -614,7 +614,7 @@ Function GetFileFromStorageInService(HTTPConnection, Val FileID, Val PartSize = 
 	
 	File = New File(FileName);
 	
-	TempDirectory = GetTempFileName(); //ACC:441 удаление каталога происходит при получении данных обмена в другой ИБ
+	TempDirectory = GetTempFileName();
 	CreateDirectory(TempDirectory);
 	
 	ResultFileName = CommonClientServer.GetFullFileName(TempDirectory, File.Name);
@@ -730,5 +730,5 @@ MessagesOfExchange = Undefined;
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

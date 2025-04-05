@@ -23,7 +23,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If ClearAndClose Then
 		CleanUpDeleteable = False;
 		Items.AttentionLabel.Title =
-			NStr("en = 'The deferred update is <a href = %1>not completed</a>. We recommend that you complete the update and clear data before the configuration update.';");
+			NStr("en = 'The deferred update is <a href = %1>not completed</a>. We recommend that you complete the update and clear data before the configuration update.'");
 		StandardSubsystemsServer.ResetWindowLocationAndSize(ThisObject);
 		Items.GroupRemark.Visible = False;
 		Items.ShouldProcessDataAreas.Visible = False;
@@ -190,14 +190,14 @@ Procedure Clear(Command)
 		NStr("en = 'The deferred update is not completed.
 		           |The cleanup might delete data required to complete the update.
 		           |
-		           |Create a backup if you have not done it yet.';");
+		           |Create a backup if you have not done it yet.'");
 	
 	Buttons = New ValueList;
-	Buttons.Add("Continue", NStr("en = 'Continue';"));
-	Buttons.Add("Cancel",     NStr("en = 'Cancel';"));
+	Buttons.Add("Continue", NStr("en = 'Continue'"));
+	Buttons.Add("Cancel",     NStr("en = 'Cancel'"));
 	
 	AdditionalParameters = StandardSubsystemsClient.QuestionToUserParameters();
-	AdditionalParameters.Title = NStr("en = 'Clear obsolete data';");
+	AdditionalParameters.Title = NStr("en = 'Clear obsolete data'");
 	AdditionalParameters.PromptDontAskAgain = False;
 	AdditionalParameters.DefaultButton = "Cancel";
 	
@@ -211,7 +211,7 @@ Procedure CleanUpPlan(Command)
 	
 	TextDocument = New TextDocument;
 	TextDocument.SetText(CleanUpPlanAtServer(CleanUpDeleteable, ShouldProcessDataAreas));
-	TextDocument.Show(NStr("en = 'Obsolete data cleanup plan';"));
+	TextDocument.Show(NStr("en = 'Obsolete data cleanup plan'"));
 	
 EndProcedure
 
@@ -234,7 +234,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = -1;
 	
-	Item.Appearance.SetParameterValue("Text", NStr("en = 'Shared data';"));
+	Item.Appearance.SetParameterValue("Text", NStr("en = 'Shared data'"));
 	
 EndProcedure
 
@@ -325,7 +325,7 @@ Function StartUpdateAtServer()
 	
 	Items.Pages.CurrentPage = Items.TimeConsumingOperationPage;
 	Items.LongRunningOperationText.Title =
-		NStr("en = 'Updating the obsolete data list...';");
+		NStr("en = 'Updating the obsolete data list...'");
 	
 	CancelLongRunningOperations();
 	
@@ -333,7 +333,7 @@ Function StartUpdateAtServer()
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.WaitCompletion = 0;
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update the obsolete data list';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update the obsolete data list'");
 	ExecutionParameters.ResultAddress = AddressOfUpdateResult;
 	ExecutionParameters.WithDatabaseExtensions = True;
 	
@@ -433,7 +433,7 @@ Procedure FinishUpdateAtServer(Val Result, HasError)
 		ErrorInfo = Data;
 	ElsIf Data = Undefined Then
 		ErrorText = NStr("en = 'Background job returned nothing.
-			|Click ""Refresh"" to try again.';");
+			|Click ""Refresh"" to try again.'");
 	EndIf;
 	
 	If ErrorInfo <> Undefined Then
@@ -493,7 +493,7 @@ Function StartCleanUpAtServer()
 	
 	Items.Pages.CurrentPage = Items.TimeConsumingOperationPage;
 	Items.LongRunningOperationText.Title =
-		NStr("en = 'Clearing obsolete data...';");
+		NStr("en = 'Clearing obsolete data...'");
 	
 	CancelLongRunningOperations();
 	
@@ -501,7 +501,7 @@ Function StartCleanUpAtServer()
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.WaitCompletion = 0;
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Clear obsolete data';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Clear obsolete data'");
 	ExecutionParameters.ResultAddress = AddressOfCleaningResult;
 	ExecutionParameters.WithDatabaseExtensions = True;
 	ExecutionParameters.BackgroundJobKey = InfobaseUpdateInternal.ObsoleteDataPurgeJobKey();

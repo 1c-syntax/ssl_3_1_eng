@@ -25,8 +25,8 @@ Function TranslateTheTexts(Texts, TranslationLanguage = Undefined, SourceLanguag
 	If Not Common.AccessToInternetServicesAllowed() Then
 		WriteErrorToEventLog(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Translation failed:
-			|%1';"), Common.AccessToInternetServicesDeniedMessageText()));
-		Raise ErrorText(NStr("en = 'Translation failed.';"));
+			|%1'"), Common.AccessToInternetServicesDeniedMessageText()));
+		Raise ErrorText(NStr("en = 'Translation failed.'"));
 	EndIf;
 	
 	CommonClientServer.CheckParameter("TranslateTheTexts", "Texts", Texts, Type("Array"));
@@ -54,7 +54,7 @@ Function TranslateTheTexts(Texts, TranslationLanguage = Undefined, SourceLanguag
 	QueryResult = ExecuteQuery(HTTPRequest, HostName);
 	
 	If Not QueryResult.QueryCompleted Then
-		Raise ErrorText(NStr("en = 'Translation failed.';"));
+		Raise ErrorText(NStr("en = 'Translation failed.'"));
 	EndIf;
 	
 	ServerResponse1 = Common.JSONValue(QueryResult.ServerResponse1);
@@ -89,7 +89,7 @@ Function AvailableLanguages() Export
 	QueryResult = ExecuteQuery(HTTPRequest, HostName);
 	
 	If Not QueryResult.QueryCompleted Then
-		Raise ErrorText(NStr("en = 'Cannot retrieve the list of available languages.';"));
+		Raise ErrorText(NStr("en = 'Cannot retrieve the list of available languages.'"));
 	EndIf;
 	
 	Result = New Array;
@@ -115,7 +115,7 @@ Function ExecuteQuery(Val HTTPRequest, Val HostName)
 	Except
 		WriteErrorToEventLog(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot establish a connection with server %1 due to:
-			|%2';"), HostName, ErrorProcessing.DetailErrorDescription(ErrorInfo())));
+			|%2'"), HostName, ErrorProcessing.DetailErrorDescription(ErrorInfo())));
 		Raise;
 	EndTry;
 	
@@ -125,7 +125,7 @@ Function ExecuteQuery(Val HTTPRequest, Val HostName)
 	
 	If HTTPResponse.StatusCode <> 200 Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Request ""%1"" failed. Status code: %2.';"),
+			NStr("en = 'Request ""%1"" failed. Status code: %2.'"),
 			HTTPRequest.ResourceAddress,
 			HTTPResponse.StatusCode) + Chars.LF + HTTPResponse.GetBodyAsString();
 		WriteErrorToEventLog(ErrorText);
@@ -173,13 +173,13 @@ Procedure OnDefineSettings(Settings) Export
 		"en = 'How to setup:
 		|1. Activate a billing account in <a href = ""%1"">Google Cloud</a>.
 		|2. On the <a href = ""%2"">API Credentials</a> page, click <b>Create credentials</b> and select <b>API key</b>.
-		|3. Copy the resulting string from the <b>Your API key</b> field into the <b>API key</b> field.';"),
+		|3. Copy the resulting string from the <b>Your API key</b> field into the <b>API key</b> field.'"),
 		"https://console.cloud.google.com/billing",
 		"https://console.cloud.google.com/apis/credentials");
 	
 	Parameter = Settings.AuthorizationParameters.Add();
 	Parameter.Name = "APIKey";
-	Parameter.Presentation = NStr("en = 'API key';");
+	Parameter.Presentation = NStr("en = 'API key'");
 	Parameter.ToolTipRepresentation = ToolTipRepresentation.ShowTop;
 	
 EndProcedure
@@ -193,7 +193,7 @@ EndFunction
 
 Procedure WriteErrorToEventLog(Comment)
 	
-	WriteLogEvent(NStr("en = 'Translator';", Common.DefaultLanguageCode()),
+	WriteLogEvent(NStr("en = 'Translator'", Common.DefaultLanguageCode()),
 		EventLogLevel.Error, , Enums.TextTranslationServices.GoogleTranslate, Comment);
 	
 EndProcedure
@@ -201,10 +201,10 @@ EndProcedure
 Function ErrorText(ErrorText)
 	
 	If Users.IsFullUser() Then
-		Return ErrorText + Chars.LF + NStr("en = 'See the Event log for details.';");
+		Return ErrorText + Chars.LF + NStr("en = 'See the Event log for details.'");
 	EndIf;
 	
-	Return ErrorText + Chars.LF + NStr("en = 'Please contact the administrator.';");
+	Return ErrorText + Chars.LF + NStr("en = 'Please contact the administrator.'");
 	
 EndFunction
 
@@ -218,7 +218,7 @@ Function Permissions() Export
 	Protocol = "HTTPS";
 	Address = "translation.googleapis.com";
 	Port = Undefined;
-	LongDesc = NStr("en = 'Google Translate translation service';");
+	LongDesc = NStr("en = 'Google Translate translation service'");
 	
 	ModuleSafeModeManager = Common.CommonModule("SafeModeManager");
 	

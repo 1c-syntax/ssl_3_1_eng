@@ -64,7 +64,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 		
 		If Object.MinValue > Object.MaxValue Then
 			CommonClient.MessageToUser(
-				NStr("en = 'The minimum allowed value cannot be greater than the maximum allowed value.';"),,
+				NStr("en = 'The minimum allowed value cannot be greater than the maximum allowed value.'"),,
 				"Object.MinValue");
 			Cancel = True;
 		EndIf;
@@ -72,7 +72,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 		If Object.ShouldUseMinValue And Object.ShouldUseMaxValue Then
 			If Object.MinValue = Object.MaxValue Then
 				CommonClient.MessageToUser(
-					NStr("en = 'The minimum allowed value cannot be equal to the maximum allowed value.';"),,
+					NStr("en = 'The minimum allowed value cannot be equal to the maximum allowed value.'"),,
 					"Object.MinValue");
 				Cancel = True;
 			EndIf;
@@ -81,7 +81,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 		If Object.ShouldShowRangeSlider Then
 			If Object.RangeSliderStep > Object.MaxValue - Object.MinValue Then
 			CommonClient.MessageToUser(
-				NStr("en = 'A slider increment cannot be greater than the difference between the maximum and minimum values.';"),,
+				NStr("en = 'A slider increment cannot be greater than the difference between the maximum and minimum values.'"),,
 				"Object.RangeSliderStep");
 			Cancel = True;
 			EndIf;
@@ -91,7 +91,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 		
 		Object.Length = StringLength;
 		If StringLength = 0 Then
-			CommonClient.MessageToUser(NStr("en = 'The string length is not specified.';"),,"StringLength");
+			CommonClient.MessageToUser(NStr("en = 'The string length is not specified.'"),,"StringLength");
 			Cancel = True;
 		EndIf;
 		
@@ -203,7 +203,7 @@ EndProcedure
 Procedure PresentationStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	ClosingNotification1 = New CallbackDescription("WordingEditOnClose", ThisObject);
-	CommonClient.ShowMultilineTextEditingForm(ClosingNotification1, Item.EditText, NStr("en = 'Wording';"));
+	CommonClient.ShowMultilineTextEditingForm(ClosingNotification1, Item.EditText, NStr("en = 'Wording'"));
 	
 EndProcedure
 
@@ -324,7 +324,7 @@ Procedure HintsRangeBeforeEditEnd(Item, NewRow, CancelEdit, Cancel)
 				TableOfRanges.IndexOf(CurrentData));
 		EndIf;
 		CommonClient.MessageToUser(
-			NStr("en = 'This value already exists in a hint range.';"),, NameOfFormField);
+			NStr("en = 'This value already exists in a hint range.'"),, NameOfFormField);
 	EndIf;
 	
 EndProcedure
@@ -561,10 +561,10 @@ Procedure AnswersOptionsTableAvailability(Form)
 	
 	If Form.Object.Ref.IsEmpty() Then
 		Form.Items.TableAnswersOptions.ReadOnly  = True;
-		Form.AnswersOptionsInfo                       = NStr("en = 'Save the question before editing answer choices';");
+		Form.AnswersOptionsInfo                       = NStr("en = 'Save the question before editing answer choices'");
 	Else
 		Form.Items.TableAnswersOptions.ReadOnly = False;
-		Form.AnswersOptionsInfo                      = NStr("en = 'Answer choices:';");
+		Form.AnswersOptionsInfo                      = NStr("en = 'Answer choices:'");
 	EndIf; 
 	
 	If Form.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.OneVariantOf") Then
@@ -714,7 +714,7 @@ Procedure SetHintRangePresentationForNumericalQuestion()
 		CurrentIndex = Object.NumericalQuestionHintsRange.IndexOf(CurrentRow);
 		If CurrentRow.ValueUpTo = NumericalQuestionHintsRangeCapValue() Then
 			If CurrentIndex = 0 Then
-				CurrentRow.ValuePresentation = NStr("en = 'any value';");
+				CurrentRow.ValuePresentation = NStr("en = 'any value'");
 				Continue;
 			EndIf;
 			PreviousString = TableOfRanges[CurrentIndex - 1];
@@ -722,12 +722,12 @@ Procedure SetHintRangePresentationForNumericalQuestion()
 				CurrentRow.ValuePresentation = PreviousString.ValuePresentation;
 			Else
 				CurrentRow.ValuePresentation = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'greater than %1';"), String(PreviousString.ValueUpTo));
+					NStr("en = 'greater than %1'"), String(PreviousString.ValueUpTo));
 			EndIf;
 		Else
 			If CurrentIndex = 0 Then
 				CurrentRow.ValuePresentation = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '%1 or less';"), String(CurrentRow.ValueUpTo));
+					NStr("en = '%1 or less'"), String(CurrentRow.ValueUpTo));
 					Continue;
 			EndIf;
 			PreviousString = TableOfRanges[CurrentIndex - 1];
@@ -735,7 +735,7 @@ Procedure SetHintRangePresentationForNumericalQuestion()
 				CurrentRow.ValuePresentation = PreviousString.ValuePresentation;
 			Else
 				CurrentRow.ValuePresentation = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'from %1 to %2';"), 
+					NStr("en = 'from %1 to %2'"), 
 					String(PreviousString.ValueUpTo), 
 					String(CurrentRow.ValueUpTo));
 			EndIf;

@@ -74,7 +74,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		SynchronizationObject                                 = "OnlyItemFiles";
 	EndIf;
 	
-	Title = NStr("en = 'File synchronization setting:';") + " " + OwnerPresentationForTitle;
+	Title = NStr("en = 'File synchronization setting:'") + " " + OwnerPresentationForTitle;
 	
 	Items.SetupRuleFilter.ExtendedTooltip.Title =
 		StringFunctionsClientServer.SubstituteParametersToString(Items.SetupRuleFilter.ExtendedTooltip.Title, PresentationFilesOwnerType);
@@ -114,7 +114,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 	If SynchronizationObject = "OnlyItemFiles" And Not ValueIsFilled(CatalogItem) Then
 		Cancel = True;
 		CommonClient.MessageToUser(
-			NStr("en = 'The object with attachments is not specified.';"),
+			NStr("en = 'The object with attachments is not specified.'"),
 			,
 			"CatalogItem");
 	EndIf;
@@ -294,7 +294,7 @@ Procedure AddToFilterIntervalException(ValueSelected)
 	FilterByInterval.RightValue = ValueSelected.IntervalException;
 	PresentationOfAttributeWithDateType = AttributesArrayWithDateType.FindByValue(ValueSelected.DateTypeAttribute).Presentation;
 	PresentationText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Clean up after %1 days since %2';"), 
+		NStr("en = 'Clean up after %1 days since %2'"), 
 		ValueSelected.IntervalException, PresentationOfAttributeWithDateType);
 	FilterByInterval.Presentation = PresentationText;
 
@@ -333,7 +333,7 @@ Procedure CatalogItemStartChoice(Item, ChoiceData, StandardProcessing)
 	ChoiceFormParameters.Insert("UsersGroupsSelection", True);
 	
 	ChoiceFormParameters.Insert("AdvancedPick", True);
-	ChoiceFormParameters.Insert("PickFormHeader", NStr("en = 'Select settings items';"));
+	ChoiceFormParameters.Insert("PickFormHeader", NStr("en = 'Select settings items'"));
 	
 	FixedSettings = New DataCompositionSettings;
 	SettingItem = FixedSettings.Filter.Items.Add(Type("DataCompositionFilterItem"));

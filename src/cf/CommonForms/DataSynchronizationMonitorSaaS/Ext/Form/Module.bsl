@@ -14,7 +14,7 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not Users.IsFullUser(Undefined, True, False) Then
-		Raise NStr("en = 'Insufficient rights to administer data exchange.';");
+		Raise NStr("en = 'Insufficient rights to administer data exchange.'");
 	EndIf;
 	
 	SetPrivilegedMode(True);

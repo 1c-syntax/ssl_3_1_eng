@@ -41,7 +41,7 @@ Function ConnectionCheckUp(ExchangePlanName, ExchangePlanNodeCode, ErrorMessage)
 	// Checking whether the exchange plan node exists (it might be deleted).
 	If ExchangePlans[ExchangePlanName].FindByCode(ExchangePlanNodeCode).IsEmpty() Then
 		
-		ErrorMessage = NStr("en = 'The specified exchange plan node is not found. Please contact the application administrator.';", Common.DefaultLanguageCode());
+		ErrorMessage = NStr("en = 'The specified exchange plan node is not found. Please contact the application administrator.'", Common.DefaultLanguageCode());
 		Return False;
 		
 	EndIf;
@@ -114,7 +114,7 @@ Function ImportDataToInfobase(ExchangePlanName, ExchangePlanNodeCode, FileID, Ba
 	ProcedureParameters.Insert("ErrorMessage",   ErrorMessage);
 
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Import data in the infobase using the ""Enterprise Data Exchange"" web service';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Import data in the infobase using the ""Enterprise Data Exchange"" web service'");
 	ExecutionParameters.BackgroundJobKey = String(New UUID);
 	ExecutionParameters.WaitCompletion = 0;
 
@@ -147,7 +147,7 @@ Function PrepareDataToImport(ExchangePlanName, ExchangePlanNodeCode, FilePartSiz
 	ProcedureParameters.Insert("ErrorMessage",   ErrorMessage);
 
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Prepare for data export from infobase via ""Enterprise Data Exchange"" web service';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Prepare for data export from infobase via ""Enterprise Data Exchange"" web service'");
 	ExecutionParameters.BackgroundJobKey = String(New UUID);
 	ExecutionParameters.WaitCompletion = 0;
 

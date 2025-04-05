@@ -21,7 +21,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ParametersForAddingAListOfFields.FieldsCollections.Add(ReadTheListOfOperands());
 	ParametersForAddingAListOfFields.LocationOfTheList = Items.AvailableFieldsGroup;
-	ParametersForAddingAListOfFields.HintForEnteringTheSearchString = NStr("en = 'Find operand…';");
+	ParametersForAddingAListOfFields.HintForEnteringTheSearchString = NStr("en = 'Find operand…'");
 	ParametersForAddingAListOfFields.UseIdentifiersForFormulas = Not ForQuery;
 	ParametersForAddingAListOfFields.ViewBrackets = BracketsOperands;
 	ParametersForAddingAListOfFields.ListHandlers.Insert("Selection", "Attachable_ListOfFieldsSelection");
@@ -32,7 +32,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ParametersForAddingAListOfFields.ListName = NameOfTheListOfOperators();
 	ParametersForAddingAListOfFields.FieldsCollections.Add(ListOfOperators());
 	ParametersForAddingAListOfFields.LocationOfTheList = Items.OperatorsAndFunctionsGroup;
-	ParametersForAddingAListOfFields.HintForEnteringTheSearchString = NStr("en = 'Find operator or function…';");
+	ParametersForAddingAListOfFields.HintForEnteringTheSearchString = NStr("en = 'Find operator or function…'");
 	ParametersForAddingAListOfFields.ViewBrackets = False;
 	ParametersForAddingAListOfFields.ListHandlers.Insert("Selection", "Attachable_ListOfFieldsSelection");
 	ParametersForAddingAListOfFields.ListHandlers.Insert("DragStart", "Attachable_OperatorsDragStart");
@@ -98,7 +98,7 @@ EndProcedure
 Procedure CheckFormula(Command)
 	
 	ExecuteCheck();
-	ShowMessageBox(, NStr("en = 'Check succeeded.';"));
+	ShowMessageBox(, NStr("en = 'Check succeeded.'"));
 	
 EndProcedure
 
@@ -378,7 +378,7 @@ EndProcedure
 Function TheTextOfTheErrorMessageWhenCheckingTheFormula(ErrorText)
 	
 	MessageTemplate = NStr("en = 'The entered formula is incorrect:
-	|%1';");
+	|%1'");
 	
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 		MessageTemplate, ErrorText);

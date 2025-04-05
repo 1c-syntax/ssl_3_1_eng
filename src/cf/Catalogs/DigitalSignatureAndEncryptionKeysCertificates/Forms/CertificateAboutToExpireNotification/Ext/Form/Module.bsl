@@ -17,6 +17,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	CertificateIssueRequestAvailable = DigitalSignature.CommonSettings().CertificateIssueRequestAvailable;
 	
+	If Metadata.DataProcessors.Find("ApplicationForNewQualifiedCertificateIssue") <> Undefined 
+		And ValueIsFilled(Certificate) Then
+		ProcessingApplicationForNewQualifiedCertificateIssue = Common.ObjectManagerByFullName(
+			"DataProcessor.ApplicationForNewQualifiedCertificateIssue");
+		IssuedCertificates = ProcessingApplicationForNewQualifiedCertificateIssue.IssuedCertificates(
+			Certificate);
+	EndIf;
+	
 	YesReissued = IssuedCertificates.Count() > 0;
 	Items.DecorationReissued.Visible = YesReissued;
 	
@@ -53,11 +61,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			ValidBefore = Common.ObjectAttributeValue(Certificate, "ValidBefore")
 				+ DigitalSignatureInternal.UTCOffset();
 			Items.DecorationCertificate.Title = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The certificate expires on %1';"), ValidBefore);
+				NStr("en = 'The certificate expires on %1'"), ValidBefore);
 			If Not YesReissued Then
 				If CertificateIssueRequestAvailable Then
 					Decision = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Submit <a href = ""%1"">application</a> for a new certificate.';"),
+					NStr("en = 'Submit <a href = ""%1"">application</a> for a new certificate.'"),
 						"ApplyforCertificate");
 				Else
 					Decision = Decision();
@@ -67,7 +75,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				Items.DecorationDecision.Visible = True;
 			EndIf;
 		Else
-			Items.DecorationCertificate.Title = NStr("en = 'The Certificate parameter is not filled in when opening the form.';");
+			Items.DecorationCertificate.Title = NStr("en = 'The Certificate parameter is not filled in when opening the form.'");
 		EndIf;
 		
 	EndIf;
@@ -139,10 +147,10 @@ Function Decision()
 		ModuleDigitalSignatureClientServerLocalization = Common.CommonModule(
 			"DigitalSignatureClientServerLocalization");
 		Return StringFunctions.FormattedString(
-				NStr("en = 'Request a new certificate from the <a href = ""%1"">appropriate CA</a>.';"),
+				NStr("en = 'Request a new certificate from the <a href = ""%1"">appropriate CA</a>.'"),
 					ModuleDigitalSignatureClientServerLocalization.LinktothearticleonCAs());
 	Else
-		Return NStr("en = 'Request a new certificate.';");
+		Return NStr("en = 'Request a new certificate.'");
 	EndIf;
 	
 EndFunction

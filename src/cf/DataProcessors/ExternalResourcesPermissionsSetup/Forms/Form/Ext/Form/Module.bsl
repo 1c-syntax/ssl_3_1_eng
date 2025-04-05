@@ -13,7 +13,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	Raise NStr("en = 'The data processor cannot be opened manually.';");
+	Raise NStr("en = 'The data processor cannot be opened manually.'");
 	
 EndProcedure
 

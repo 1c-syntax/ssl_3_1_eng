@@ -70,7 +70,7 @@
 						<Button name="FormTree" id="42">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.StandardCommand.Tree</CommandName>
-							<ExtendedTooltip name="FormTreeExtendedTooltip" id="43"/>
+							<ExtendedTooltip name="FormTree_ExtendedTooltip" id="43"/>
 						</Button>
 					</ChildItems>
 				</Popup>

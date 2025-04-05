@@ -71,12 +71,12 @@ Procedure OK(Command)
 	If PeriodType = "TillDate" Then
 		If Not ValueIsFilled(DueDate) Then
 			CommonClient.MessageToUser(
-				NStr("en = 'The date is not specified.';"),, "DueDate");
+				NStr("en = 'The date is not specified.'"),, "DueDate");
 			Return;
 			
 		ElsIf DueDate <= BegOfDay(CommonClient.SessionDate()) Then
 			CommonClient.MessageToUser(
-				NStr("en = 'The expiration date must be tomorrow or later.';"),, "DueDate");
+				NStr("en = 'The expiration date must be tomorrow or later.'"),, "DueDate");
 			Return;
 		EndIf;
 	EndIf;

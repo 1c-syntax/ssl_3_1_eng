@@ -38,7 +38,7 @@ Procedure CheckBasicCalendarUse(Cancel)
 	
 	// The reference to itself is prohibited.
 	If Ref = BasicCalendar Then
-		MessageText = NStr("en = 'Cannot select a calendar as a source for itself.';");
+		MessageText = NStr("en = 'Cannot select a calendar as a source for itself.'");
 		Common.MessageToUser(MessageText, , , "Object.BasicCalendar", Cancel);
 		Return;
 	EndIf;
@@ -64,7 +64,7 @@ Procedure CheckBasicCalendarUse(Cancel)
 	Selection.Next();
 	
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'The calendar is a source for ""%1."" It cannot depend on another calendar.';"),
+		NStr("en = 'The calendar is a source for ""%1."" It cannot depend on another calendar.'"),
 		Selection.Ref);
 	Common.MessageToUser(MessageText, Selection.Ref, , "Object.BasicCalendar", Cancel);
 	
@@ -73,5 +73,5 @@ EndProcedure
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

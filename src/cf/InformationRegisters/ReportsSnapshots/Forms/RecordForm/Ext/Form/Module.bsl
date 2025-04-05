@@ -15,7 +15,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	If Parameters.RecordStructure = Undefined Then
 		Common.MessageToUser(NStr(
-			"en = 'You can view a report snapshot only from the list of user report snapshots.';"), , , , Cancel);
+			"en = 'You can view a report snapshot only from the list of user report snapshots.'"), , , , Cancel);
 		Return;
 	EndIf;
 	
@@ -29,9 +29,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	FillPropertyValues(Record, Parameters.RecordStructure);
 	Record.Read();
 	If Not Record.Selected() Then
-		Common.MessageToUser(NStr("en = 'No record is found by the specified parameters.';"), , , , Cancel);
+		Common.MessageToUser(NStr("en = 'No record is found by the specified parameters.'"), , , , Cancel);
 	ElsIf Record.ReportUpdateError Then
-		Common.MessageToUser(NStr("en = 'Report snapshot is not generated.';"), , , , Cancel);
+		Common.MessageToUser(NStr("en = 'Report snapshot is not generated.'"), , , , Cancel);
 	EndIf;
 	If Cancel Then
 		Return;
@@ -41,8 +41,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If TypeOf(ReportResult) = Type("SpreadsheetDocument") Then
 		TabDocument.Put(ReportResult);
 	Else
-		Common.MessageToUser(NStr(
-			"en = 'An error occurred when reading the report snapshot: the data is incorrect.';"), , , , Cancel);
+		Common.MessageToUser(NStr("en = 'Invalid report snapshot.'"), , , , Cancel);
 	EndIf;
 
 	If Not Cancel Then

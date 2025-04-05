@@ -94,7 +94,7 @@ Procedure OnCreateAtServer(Form, Val PlacementParameters = Undefined) Export
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'To call the %1 procedure in report forms,
 					|common forms, and data processors,
-					|you must explicitly specify parameter %2.';"),
+					|you must explicitly specify parameter %2.'"),
 				"AttachableCommands.OnCreateAtServer",
 				"PlacementParameters.Sources");
 		EndIf;
@@ -355,7 +355,7 @@ Function AttachableObjectSettings(FullName, InterfaceSettings4 = Undefined) Expo
 		Manager.OnDefineSettings(Settings);
 	Except
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot read %1 object settings from the manager module:';"), FullName);
+			NStr("en = 'Cannot read %1 object settings from the manager module:'"), FullName);
 		ErrorText = ErrorText + Chars.LF + ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		
 		WriteError1 = False;
@@ -367,7 +367,7 @@ Function AttachableObjectSettings(FullName, InterfaceSettings4 = Undefined) Expo
 	
 		If WriteError1 Then
 			WriteLogEvent(
-				NStr("en = 'Attachable commands';", Common.DefaultLanguageCode()),
+				NStr("en = 'Attachable commands'", Common.DefaultLanguageCode()),
 				EventLogLevel.Error,
 				Common.MetadataObjectByFullName(FullName),
 				FullName,
@@ -494,7 +494,7 @@ Function AttachableObjectsTable(InterfaceSettings4 = Undefined) Export
 			Table.Columns.Add(Setting.Key, Setting.TypeDescription);
 		Except
 			ErrorText = NStr("en = 'Cannot register a setting for attachable objects application interface.
-				|Key: %1. Type description: %2. Error description: %3.';");
+				|Key: %1. Type description: %2. Error description: %3.'");
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				ErrorText,
 				Setting.Key,
@@ -727,7 +727,7 @@ EndFunction
 Procedure CheckCommandsKindName(KindName) Export
 	
 	If Not CommonClientServer.NameMeetPropertyNamingRequirements(KindName) Then
-		ErrorText = NStr("en = 'Command type name ""%1"" must conform to variable naming conventions.';");
+		ErrorText = NStr("en = 'Command type name ""%1"" must conform to variable naming conventions.'");
 		Raise StringFunctionsClientServer.SubstituteParametersToString(ErrorText, KindName);
 	EndIf;
 	
@@ -863,7 +863,7 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 			CommandSubmenuInfo.Commands.Add(Commands.IndexOf(Command));
 		EndDo;
 		
-		// для единственной команды нет смысла создавать группу и кнопку по умолчанию
+		// There is no need to create a group and a default button for a single command.
 		If HasDefaultCommands And CommandSubmenuInfo.CommandsCount = 1 Then
 			For Each DefaultCommand In CommandSubmenuInfo.DefaultCommands Do
 				IndexOf = CommandSubmenuInfo.Commands.Find(DefaultCommand);
@@ -873,7 +873,7 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 			HasDefaultCommands = False;
 		EndIf;
 		
-		// Создание групп для команд по умолчанию
+		// Create groups for default commands
 		If HasDefaultCommands Then
 			CommandKindGroup = CommandSubmenuInfo.Popup;
 			If CommandKindGroup.Visible Then
@@ -885,7 +885,7 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 					CommandKindGroup.Parent, CommandKindGroup);
 				GroupWithDefaultCommands.Type = FormGroupType.ButtonGroup;
 				
-				StringPattern = NStr("en = 'Group with default %1 commands';");
+				StringPattern = NStr("en = 'Group with default %1 commands'");
 				GroupTitle = StringFunctionsClientServer.SubstituteParametersToString(StringPattern, CommandsKind.Title);
 				GroupWithDefaultCommands.Title = GroupTitle;
 				GroupWithDefaultCommands.Representation = ButtonGroupRepresentation.Compact;
@@ -901,6 +901,8 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 			EndIf;
 		EndIf;
 	EndDo;
+	
+	GenerateFrom.OnOutputCommands(Form, InfoOnGenerateSubmenu, PlacementParameters);
 	
 	For Each CommandSubmenuInfo In InfoOnAllSubmenus Do
 		For Each CommandIndex In CommandSubmenuInfo.Commands Do
@@ -997,13 +999,11 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 		EndDo;
 	EndDo;
 	
-	GenerateFrom.OnOutputCommands(Form, InfoOnGenerateSubmenu, PlacementParameters);
-	
 	// A stub command is always required.
 	CapCommand = Form.Commands.Find("OutputToEmptySubmenuCommand");
 	If CapCommand = Undefined Then
 		CapCommand = Form.Commands.Add("OutputToEmptySubmenuCommand");
-		CapCommand.Title = NStr("en = '(N/A)';");
+		CapCommand.Title = NStr("en = '(N/A)'");
 	EndIf;
 	
 	// Selected submenu post-processing.
@@ -1324,19 +1324,19 @@ Function RegisterSubmenu(Items, InfoOnAllSubmenus, SubmenuName, NewSubmenuTempla
 		If Not Groups.Property("Important") Then
 			GroupImportant = Items.Add(SubmenuName + "Important", Type("FormGroup"), Popup);
 			GroupImportant.Type = FormGroupType.ButtonGroup;
-			GroupImportant.Title = Popup.Title + " (" + NStr("en = 'Important';") + ")";
+			GroupImportant.Title = Popup.Title + " (" + NStr("en = 'Important'") + ")";
 			Groups.Insert("Important", GroupImportant);
 		EndIf;
 		If Not Groups.Property("Ordinary") Then
 			DefaultGroup = Items.Add(SubmenuName + "Ordinary", Type("FormGroup"), Popup);
 			DefaultGroup.Type = FormGroupType.ButtonGroup;
-			DefaultGroup.Title = Popup.Title + " (" + NStr("en = 'Standard';") + ")";
+			DefaultGroup.Title = Popup.Title + " (" + NStr("en = 'Standard'") + ")";
 			Groups.Insert("Ordinary", DefaultGroup);
 		EndIf;
 		If Not Groups.Property("SeeAlso") Then
 			GroupSeeAlso = Items.Add(SubmenuName + "SeeAlso", Type("FormGroup"), Popup);
 			GroupSeeAlso.Type = FormGroupType.ButtonGroup;
-			GroupSeeAlso.Title = Popup.Title + " (" + NStr("en = 'See also:';") + ")";
+			GroupSeeAlso.Title = Popup.Title + " (" + NStr("en = 'See also:'") + ")";
 			Groups.Insert("SeeAlso", GroupSeeAlso);
 		EndIf;
 		
@@ -1516,7 +1516,7 @@ Function CommandDetails(CommandNameInForm, SettingsAddress) Export
 	Command = Commands.Find(CommandNameInForm, "NameOnForm");
 	If Command = Undefined Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Information on command ""%1"" does not exist.';"),
+			NStr("en = 'Information on command ""%1"" does not exist.'"),
 			CommandNameInForm);
 	EndIf;
 	CommandDetails = Common.ValueTableRowToStructure(Command);
@@ -1546,7 +1546,7 @@ Function CommandDetails(CommandNameInForm, SettingsAddress) Export
 				MetadataObjectCommonModule = Metadata.CommonModules.Find(ModuleName);
 				If MetadataObjectCommonModule = Undefined Then
 					Raise StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Common module ""%1"" does not exist.';"),
+						NStr("en = 'Common module ""%1"" does not exist.'"),
 						ModuleName);
 				EndIf;
 				If MetadataObjectCommonModule.ClientManagedApplication Then
@@ -1773,7 +1773,7 @@ Procedure OnDefineAttachableCommandsKinds(AttachableCommandsKinds) Export
 	Kind = AttachableCommandsKinds.Add();
 	Kind.Name         = "Send";
 	Kind.SubmenuName  = "SubmenuSend";
-	Kind.Title   = NStr("en = 'Send';");
+	Kind.Title   = NStr("en = 'Send'");
 	Kind.Order     = 45;
 	Kind.Picture    = PictureLib.SendMessage;
 	Kind.Representation = ButtonRepresentation.PictureAndText;
@@ -1781,7 +1781,7 @@ Procedure OnDefineAttachableCommandsKinds(AttachableCommandsKinds) Export
 	Kind = AttachableCommandsKinds.Add();
 	Kind.Name         = "Organizer";
 	Kind.SubmenuName  = "SubmenuOrganizer";
-	Kind.Title   = NStr("en = 'Organizer';");
+	Kind.Title   = NStr("en = 'Organizer'");
 	Kind.Order     = 50;
 	Kind.Picture    = PictureLib.Organizer;
 	Kind.Representation = ButtonRepresentation.Picture;	

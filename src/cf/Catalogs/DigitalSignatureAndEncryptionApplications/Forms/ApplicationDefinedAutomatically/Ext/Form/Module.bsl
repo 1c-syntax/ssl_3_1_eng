@@ -38,7 +38,7 @@ EndProcedure
 Procedure Change(Command)
 
 	AddToCatalog(PredefinedValue(
-		"Enum.DigitalSignatureAppUsageModes.SetupDone"));
+		"Enum.DigitalSignatureAppUsageModes.Configured"));
 
 EndProcedure
 
@@ -58,9 +58,9 @@ EndProcedure
 Procedure AddToCatalog(UsageMode)
 	
 	If Not HasRightsToAddApp Then
-		ShowMessageBox( , NStr("en = 'To configure the app, contact the administrator.';"));
+		ShowMessageBox( , NStr("en = 'To configure the app, contact the administrator.'"));
 	ElsIf IsSubordinateDIBNode Then
-		ShowMessageBox( , NStr("en = 'To configure the app, you should add a new item to the catalog in the master node.';"));
+		ShowMessageBox( , NStr("en = 'To configure the app, you should add a new item to the catalog in the master node.'"));
 	Else
 		FormParameters = New Structure("Application, UsageMode", Parameters.Application, UsageMode);
 		OpenForm("Catalog.DigitalSignatureAndEncryptionApplications.ObjectForm", FormParameters,,,,,,

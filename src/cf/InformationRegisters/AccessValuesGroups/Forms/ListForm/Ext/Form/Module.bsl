@@ -38,9 +38,9 @@ Procedure UpdateRegisterData(Command)
 	UpdateRegisterDataAtServer(HasChanges);
 	
 	If HasChanges Then
-		Text = NStr("en = 'Updated successfully.';");
+		Text = NStr("en = 'Updated successfully.'");
 	Else
-		Text = NStr("en = 'No update required.';");
+		Text = NStr("en = 'No update required.'");
 	EndIf;
 	
 	ShowMessageBox(, Text);
@@ -56,11 +56,11 @@ Procedure SetConditionalAppearance()
 	
 	List.SettingsComposer.Settings.ConditionalAppearance.Items.Clear();
 	
-	ApplyDataGroupAppearance(0, NStr("en = 'Standard access values';"));
-	ApplyDataGroupAppearance(1, NStr("en = 'Internal or external users';"));
-	ApplyDataGroupAppearance(2, NStr("en = 'Internal or external user groups';"));
-	ApplyDataGroupAppearance(3, NStr("en = 'Assignee groups';"));
-	ApplyDataGroupAppearance(4, NStr("en = 'Authorization objects';"));
+	ApplyDataGroupAppearance(0, NStr("en = 'Standard access values'"));
+	ApplyDataGroupAppearance(1, NStr("en = 'Internal or external users'"));
+	ApplyDataGroupAppearance(2, NStr("en = 'Internal or external user groups'"));
+	ApplyDataGroupAppearance(3, NStr("en = 'Assignee groups'"));
+	ApplyDataGroupAppearance(4, NStr("en = 'Authorization objects'"));
 	
 EndProcedure
 

@@ -34,8 +34,8 @@ Procedure OnStart(Parameters) Export
 		
 		If ClientRunParameters.SynchronizeDataWithWebApplicationOnStart Then
 			
-			ShowUserNotification(NStr("en = 'Standalone mode';"), "e1cib/app/DataProcessor.DataExchangeExecution",
-				NStr("en = 'It is recommended that you synchronize the workstation data with the web application.';"), PictureLib.Information32);
+			ShowUserNotification(NStr("en = 'Standalone mode'"), "e1cib/app/DataProcessor.DataExchangeExecution",
+				NStr("en = 'It is recommended that you synchronize the workstation data with the web application.'"), PictureLib.Information32);
 			
 		EndIf;
 		
@@ -64,10 +64,10 @@ Procedure BeforeExit(Cancel, Warnings) Export
 		WarningParameters.ExtendedTooltip = NStr("en = 'Data synchronization may take a while if:
 	        | • The connection is slow
 	        | • The amount of data to sync is big
-	        | • An application update is available online';");
+	        | • An application update is available online'");
 
-		WarningParameters.WarningText = NStr("en = 'Data is not synchronized with the web application.';");
-		WarningParameters.CheckBoxText = NStr("en = 'Synchronize data with web application';");
+		WarningParameters.WarningText = NStr("en = 'Data is not synchronized with the web application.'");
+		WarningParameters.CheckBoxText = NStr("en = 'Synchronize data with web application'");
 		WarningParameters.Priority = 80;
 		
 		ActionIfFlagSet = WarningParameters.ActionIfFlagSet;

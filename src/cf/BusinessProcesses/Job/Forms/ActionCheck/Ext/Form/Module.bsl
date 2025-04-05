@@ -26,6 +26,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ModuleFilesOperations = Common.CommonModule("FilesOperations");
 		HyperlinkParameters = ModuleFilesOperations.FilesHyperlink();
 		HyperlinkParameters.Location = "CommandBar";
+		HyperlinkParameters.Title = NStr("en = 'Job files'");
 		HyperlinkParameters.Owner = "Object.BusinessProcess";
 		ModuleFilesOperations.OnCreateAtServer(ThisObject, HyperlinkParameters);
 	EndIf;
@@ -57,12 +58,12 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 
 	If Not JobCompleted And Not JobConfirmed And Not ValueIsFilled(CurrentObject.ExecutionResult) Then
 		Common.MessageToUser(
-			NStr("en = 'Please tell why the task should be fixed.';"),, 
+			NStr("en = 'Please tell why the task should be fixed.'"),, 
 			"Object.ExecutionResult",, Cancel);
 		Return;
 	ElsIf Not JobCompleted And JobConfirmed And Not ValueIsFilled(CurrentObject.ExecutionResult) Then
 		Common.MessageToUser(
-			NStr("en = 'Please tell why the task is canceled.';"),, 
+			NStr("en = 'Please tell why the task is canceled.'"),, 
 			"Object.ExecutionResult",, Cancel);
 		Return;
 	EndIf;

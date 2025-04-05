@@ -75,14 +75,14 @@ Procedure UpdateSubordinateCurrenciesRates()
 			EndIf;
 			// The rate is not updated more than once over the same period of time.
 			If UpdatedPeriods[BaseCurrencyRecord.Period] = Undefined Then
-				//@skip-check query-in-loop. Batch processing of a large amount of data.
+				//@skip-check query-in-loop
 				UpdateSubordinateCurrencyRate(SelectedCurrency, BaseCurrencyRecord); 
 				UpdatedPeriods.Insert(BaseCurrencyRecord.Period, True);
 			EndIf;
 		Else	// Refresh the rate for all dependent currencies.
 			DependentCurrencies = CurrencyRateOperations.DependentCurrenciesList(BaseCurrencyRecord.Currency, AdditionalProperties);
 			For Each DependentCurrency In DependentCurrencies Do
-				//@skip-check query-in-loop. Batch processing of a large amount of data.
+				//@skip-check query-in-loop
 				UpdateSubordinateCurrencyRate(DependentCurrency, BaseCurrencyRecord); 
 			EndDo;
 		EndIf;
@@ -225,7 +225,7 @@ EndProcedure
 
 Function CurrencyRateByFormula(Currency, Formula, Period)
 	
-	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot calculate the ""%1"" currency exchange rate using the ""%2"" formula for period ""%3"":';",
+	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot calculate the ""%1"" currency exchange rate using the ""%2"" formula for period ""%3"":'",
 		Common.DefaultLanguageCode()), Currency, Formula, Period);
 	
 	Try
@@ -245,7 +245,7 @@ Function CurrencyRateByFormula(Currency, Formula, Period)
 				Raise ErrorText + Chars.LF + ErrorProcessing.BriefErrorDescription(ErrorInfo);
 			EndIf;
 			
-			WriteLogEvent(NStr("en = 'Currencies.Import exchange rates';", Common.DefaultLanguageCode()),
+			WriteLogEvent(NStr("en = 'Currencies.Import exchange rates'", Common.DefaultLanguageCode()),
 				EventLogLevel.Error, Currency.Metadata(), Currency, 
 				ErrorText + Chars.LF + ErrorProcessing.DetailErrorDescription(ErrorInfo));
 		EndIf;
@@ -271,5 +271,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

@@ -21,15 +21,15 @@ Procedure OnGetChecksumServerAddress(ServerAddresses) Export
 	
 EndProcedure
 
-// 
+// Called during an internet availability check and allows adding detailed information about a known issue.
 //
 // Parameters:
-//  LongDesc - Array of String - 
+//  LongDesc - Array of String - Brief details about an error that occurred during the internet availability check.
 //  ErrorText - See GetFilesFromInternet.ConnectionDiagnostics
 //
-Procedure WhenGeneratingMessageAboutKnownProblem(LongDesc, ErrorText) Export
+Procedure OnGenerateMessageAboutKnownIssue(LongDesc, ErrorText) Export
 	
-	If StrFind(Upper(ErrorText), Upper("Deleted node not passed checking")) > 0 Then // ACC:1297 Нелокализуемый фрагмент информации об ошибке в исключении.
+	If StrFind(Upper(ErrorText), Upper("Deleted node not passed checking")) > 0 Then // ACC:1297 - A non-localizable piece of information about an exception error.
 	EndIf;
 	
 EndProcedure

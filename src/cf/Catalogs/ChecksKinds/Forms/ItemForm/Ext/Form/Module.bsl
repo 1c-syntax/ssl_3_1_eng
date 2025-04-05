@@ -35,7 +35,7 @@ EndProcedure
 &AtClient
 Procedure UpdateTableRowsCounters()
 	
-	SetPageTitle(Items.AdditionalPropertiesPage, Object.ObjectProperties, NStr("en = 'Additional properties';"));
+	SetPageTitle(Items.AdditionalPropertiesPage, Object.ObjectProperties, NStr("en = 'Additional properties'"));
 	
 EndProcedure
 

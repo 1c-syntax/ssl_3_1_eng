@@ -130,7 +130,7 @@ Function SendMessage()
 		
 		// Checking that the exchange message size does not exceed the maximum allowed size.
 		If DataExchangeServer.ExchangeMessageSizeExceedsAllowed(ExchangeMessage, MaxMessageSize) Then
-			ErrorMessage = NStr("en = 'The maximum allowed exchange message size is exceeded.';");
+			ErrorMessage = NStr("en = 'The maximum allowed exchange message size is exceeded.'");
 			ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject, "DataExport");
 			Result = False;
 		EndIf;
@@ -139,7 +139,7 @@ Function SendMessage()
 	
 	If Result Then
 		
-		SimpleBody = NStr("en = 'Data exchange message';");
+		SimpleBody = NStr("en = 'Data exchange message'");
 		
 		Result = SendMessagebyEmail(
 			SimpleBody,
@@ -166,7 +166,7 @@ Function GetMessage(MessageNameTemplate)
 		MessageSet = EmailOperationsCommonModule.DownloadEmailMessages(Account, ImportParameters);
 	Except
 		
-		ErrorMessage = NStr("en = 'Error receiving message headers from the email server.';");
+		ErrorMessage = NStr("en = 'Error receiving message headers from the email server.'");
 		ErrorMessageEventLog = ErrorMessage;
 		
 		ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo(), True);
@@ -223,7 +223,7 @@ Function GetMessage(MessageNameTemplate)
 	
 	If EmailSearchResults.Count() = 0 Then
 		
-		ErrorMessage = NStr("en = 'The messages with ""%1"" header are not found.';");
+		ErrorMessage = NStr("en = 'The messages with ""%1"" header are not found.'");
 		ErrorMessage = StrTemplate(ErrorMessage, MessageNameTemplate);
 		ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject, "DataImport");
 		
@@ -244,7 +244,7 @@ Function GetMessage(MessageNameTemplate)
 		MessageSet = EmailOperationsCommonModule.DownloadEmailMessages(Account, ImportParameters);
 	Except
 		
-		ErrorMessage = NStr("en = 'Error receiving the message from the email server.';");
+		ErrorMessage = NStr("en = 'Error receiving the message from the email server.'");
 		ErrorMessageEventLog = ErrorMessage;
 		
 		ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo(), True);
@@ -262,7 +262,7 @@ Function GetMessage(MessageNameTemplate)
 	
 	If BinaryData = Undefined Then
 		
-		ErrorMessage = NStr("en = 'Error: no exchange message file is found in the email message.';");
+		ErrorMessage = NStr("en = 'Error: no exchange message file is found in the email message.'");
 		ErrorMessageEventLog = ErrorMessage;
 		
 		ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo(), True);
@@ -293,7 +293,7 @@ Function GetMessage(MessageNameTemplate)
 			BinaryData.Write(ExchangeMessage);
 		Except
 			
-			ErrorMessage = NStr("en = 'Error saving the exchange message file to the hard drive.';");
+			ErrorMessage = NStr("en = 'Error saving the exchange message file to the hard drive.'");
 			ErrorMessageEventLog = ErrorMessage;
 		
 			ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo(), True);
@@ -312,7 +312,7 @@ EndFunction
 Function ConnectionIsSet() Export
 	
 	If Not ValueIsFilled(Account) Then
-		ErrorMessage = NStr("en = 'Initialization error: the exchange message transport email account is not specified.';");
+		ErrorMessage = NStr("en = 'Initialization error: the exchange message transport email account is not specified.'");
 		ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject);
 		Return False;
 	EndIf;
@@ -357,7 +357,7 @@ Function SendMessagebyEmail(Body, OutgoingMessageFileName, PathToFile)
 		EmailOperationsCommonModule.SendMail(Account, NewEmail);
 	Except
 		
-		ErrorMessage = NStr("en = 'Error sending the email message.';");
+		ErrorMessage = NStr("en = 'Error sending the email message.'");
 		ErrorMessageEventLog = ErrorMessage;
 		
 		ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo(), True);
@@ -385,5 +385,5 @@ EndIf;
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

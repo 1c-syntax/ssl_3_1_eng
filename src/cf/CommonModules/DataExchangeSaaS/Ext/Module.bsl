@@ -61,7 +61,7 @@ Procedure AfterDetermineRecipients(Data, Recipients, ExchangePlanName) Export
 				Try
 					BackgroundJobs.Execute("DataExchangeSaaS.SetDataChangeFlag",, "1");
 				Except
-					WriteLogEvent(NStr("en = 'Data exchange';", Common.DefaultLanguageCode()),
+					WriteLogEvent(NStr("en = 'Data exchange'", Common.DefaultLanguageCode()),
 						EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				EndTry;
 			EndIf;
@@ -109,7 +109,7 @@ EndProcedure
 //
 // Parameters:
 //   ParametersTable - ValueTable - Table of parameter details. For column details, 
-//                                         See SaaSOperations.GetTableParametersIB.
+//                                         .
 //
 Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 	
@@ -322,7 +322,7 @@ Procedure OnDeleteObsoleteExchangeMessages() Export
 			Try
 				DeleteFiles(MessageFile.FullName);
 			Except
-				WriteLogEvent(NStr("en = 'Data exchange';", Common.DefaultLanguageCode()),
+				WriteLogEvent(NStr("en = 'Data exchange'", Common.DefaultLanguageCode()),
 					EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				Continue;
 			EndTry;
@@ -372,7 +372,7 @@ Procedure OnReceiveFileFromStorage(Val FileID, FileName) Export
 	QueryResult = Query.Execute();
 	
 	If QueryResult.IsEmpty() Then
-		LongDesc = NStr("en = 'The file with ID %1 is not found.';");
+		LongDesc = NStr("en = 'The file with ID %1 is not found.'");
 		Raise StringFunctionsClientServer.SubstituteParametersToString(LongDesc, String(FileID));
 	EndIf;
 	
@@ -473,7 +473,7 @@ Procedure BeforeWriteCommonData(Object, Cancel) Export
 	
 	If ReadOnly Then
 		ErrorString = NStr("en = 'Standalone workstations don''t support modification of imported shared data (%1).
-		|Please contact the administrator.';");
+		|Please contact the administrator.'");
 		ErrorString = StringFunctionsClientServer.SubstituteParametersToString(ErrorString, String(Object));
 		Raise ErrorString;
 	EndIf;
@@ -551,7 +551,7 @@ Procedure ChangeTheIndicationOfTheNeedForDataExchangeInTheServiceModel(ItIsNeces
 	If Not TheValueOfTheConstantHasBeenChanged Then
 		
 		ExceptionText = NStr("en = 'Cannot lock the ""Data changes recorded"" constant.
-			|Try again later.';", Common.DefaultLanguageCode());
+			|Try again later.'", Common.DefaultLanguageCode());
 		
 		WriteLogEvent(DataSyncronizationLogEvent(),
 			EventLogLevel.Error, , , ExceptionText);
@@ -928,7 +928,7 @@ EndProcedure
 //
 Function GeneratePredefinedNodeDescription() Export
 	
-	DefaultApplicationName = NStr("en = 'Web application';");
+	DefaultApplicationName = NStr("en = 'Web application'");
 	
 	If Not Common.SubsystemExists("CloudTechnology") Then
 		Return DefaultApplicationName;
@@ -952,7 +952,7 @@ EndFunction
 Function ExchangePlanNodeCodeInService(Val AreaNumber) Export
 	
 	If TypeOf(AreaNumber) <> Type("Number") Then
-		Raise NStr("en = 'Invalid type in parameter number [1].';");
+		Raise NStr("en = 'Invalid type in parameter number [1].'");
 	EndIf;
 	
 	Result = "S0[AreaNumber]";
@@ -1090,7 +1090,7 @@ EndProcedure
 Function SendMessage(Val Message) Export
 	
 	If Not Common.SubsystemExists("CloudTechnology") Then
-		Raise NStr("en = 'There is no Service manager.';");
+		Raise NStr("en = 'There is no Service manager.'");
 	EndIf;
 	
 	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
@@ -1142,7 +1142,7 @@ Procedure UpdateDataAreaTransportSettings(Parameters) Export
 		
 		If IsBlankString(FILECommonInformationExchangeDirectory) Then
 			
-			MessageString = NStr("en = 'The data exchange directory for the endpoint %1 is not specified.';");
+			MessageString = NStr("en = 'The data exchange directory for the endpoint %1 is not specified.'");
 			MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, String(CorrespondentEndpoint));
 			Raise MessageString;
 		EndIf;
@@ -1151,7 +1151,7 @@ Procedure UpdateDataAreaTransportSettings(Parameters) Export
 		
 		If Not CommonDirectory.Exists() Then
 			
-			MessageString = NStr("en = 'The exchange directory %1 does not exist.';");
+			MessageString = NStr("en = 'The exchange directory %1 does not exist.'");
 			MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, FILECommonInformationExchangeDirectory);
 			Raise MessageString;
 		EndIf;
@@ -1209,7 +1209,7 @@ Procedure UpdateDataAreaTransportSettings(Parameters) Export
 		
 	Else
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The endpoint %2 doesn''t support the exchange message transport type %1.';"),
+			NStr("en = 'The endpoint %2 doesn''t support the exchange message transport type %1.'"),
 			String(TransportSettings.DefaultExchangeMessagesTransportKind),
 			String(CorrespondentEndpoint));
 	EndIf;
@@ -1223,7 +1223,7 @@ EndProcedure
 //
 Function EventLogEventDataSynchronizationSetup() Export
 	
-	Return NStr("en = 'Data exchange SaaS.Data synchronization setup';",
+	Return NStr("en = 'Data exchange SaaS.Data synchronization setup'",
 		Common.DefaultLanguageCode());
 	
 EndFunction
@@ -1308,7 +1308,7 @@ Procedure ExecuteDataExchangeScenarioActionInFirstInfobase(ScenarioRowIndex, Dat
 	EndIf;
 	
 	ActionToBeExecutedDetailsEL = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Running synchronization scenario… Step %1/%2.';"), ScenarioRowIndex + 1, DataExchangeScenario.Count())
+		NStr("en = 'Running synchronization scenario… Step %1/%2.'"), ScenarioRowIndex + 1, DataExchangeScenario.Count())
 		+ Chars.LF + DataExchangeScenarioRowDetails(ScenarioRowIndex, DataExchangeScenario);
 	WriteLogEvent(DataSyncronizationLogEvent(),
 		EventLogLevel.Information, , , ActionToBeExecutedDetailsEL);
@@ -1330,11 +1330,11 @@ Procedure ExecuteDataExchangeScenarioActionInFirstInfobase(ScenarioRowIndex, Dat
 			
 			If Not DataExchangeServer.SynchronizationSetupCompleted(InfobaseNode) Then
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Data synchronization setup in ""%1"" is not completed.';"),
+					NStr("en = 'Data synchronization setup in ""%1"" is not completed.'"),
 					InfobaseNode);
 			ElsIf DataExchangeServer.MessageWithDataForMappingReceived(InfobaseNode) Then
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'A message that requires manual mapping has been imported to ""%1"".';"),
+					NStr("en = 'A message that requires manual mapping has been imported to ""%1"".'"),
 					InfobaseNode);
 			ElsIf ScenarioRow.CurrentAction = "DataImport" Then
 				RunDataImport(ResultingStructure.Cancel, InfobaseNode);
@@ -1342,7 +1342,7 @@ Procedure ExecuteDataExchangeScenarioActionInFirstInfobase(ScenarioRowIndex, Dat
 				RunDataExport(ResultingStructure.Cancel, InfobaseNode);
 			Else
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Unknown action (%1) is detected during data exchange between data areas.';"),
+					NStr("en = 'Unknown action (%1) is detected during data exchange.'"),
 					ScenarioRow.CurrentAction);
 			EndIf;
 		Except
@@ -1374,7 +1374,7 @@ Procedure ExecuteDataExchangeScenarioActionInFirstInfobase(ScenarioRowIndex, Dat
 			
 			If WSProxyDetails.WSProxy = Undefined Then
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot get WS proxy details for ""%1"".';"),
+					NStr("en = 'Cannot get WS proxy details for ""%1"".'"),
 					InfobaseNode);
 			Else
 				DataExchangeScenarioParameter = ?(WSProxyDetails.XDTOSerializationSupported,
@@ -1409,7 +1409,7 @@ EndProcedure
 Procedure ExecuteDataExchangeScenarioActionInSecondInfobase(ScenarioRowIndex, DataExchangeScenario) Export
 	
 	ActionToBeExecutedDetailsEL = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Running synchronization scenario… Step %1/%2.';"), ScenarioRowIndex + 1, DataExchangeScenario.Count())
+		NStr("en = 'Running synchronization scenario… Step %1/%2.'"), ScenarioRowIndex + 1, DataExchangeScenario.Count())
 		+ Chars.LF + DataExchangeScenarioRowDetails(ScenarioRowIndex, DataExchangeScenario);
 	WriteLogEvent(DataSyncronizationLogEvent(),
 		EventLogLevel.Information, , , ActionToBeExecutedDetailsEL);
@@ -1446,11 +1446,11 @@ Procedure ExecuteDataExchangeScenarioActionInSecondInfobase(ScenarioRowIndex, Da
 	Try
 		If Not DataExchangeServer.SynchronizationSetupCompleted(InfobaseNode) Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Data synchronization setup in ""%1"" is not completed.';"),
+				NStr("en = 'Data synchronization setup in ""%1"" is not completed.'"),
 				InfobaseNode);
 		ElsIf DataExchangeServer.MessageWithDataForMappingReceived(InfobaseNode) Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'A message that requires manual mapping has been imported to ""%1"".';"),
+				NStr("en = 'A message that requires manual mapping has been imported to ""%1"".'"),
 				InfobaseNode);
 		ElsIf ScenarioRow.CurrentAction = "DataImport" Then
 			RunDataImport(ResultingStructure.Cancel, InfobaseNode);
@@ -1458,7 +1458,7 @@ Procedure ExecuteDataExchangeScenarioActionInSecondInfobase(ScenarioRowIndex, Da
 			RunDataExport(ResultingStructure.Cancel, InfobaseNode);
 		Else
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Unknown action (%1) is detected during data exchange.';"),
+				NStr("en = 'Unknown action (%1) is detected during data exchange.'"),
 				ScenarioRow.CurrentAction);
 		EndIf;
 	Except
@@ -1483,7 +1483,7 @@ Procedure ExecuteDataExchangeScenarioActionInSecondInfobase(ScenarioRowIndex, Da
 		
 		If WSProxyDetails.WSProxy = Undefined Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot get WS proxy details for ""%1"".';"),
+				NStr("en = 'Cannot get WS proxy details for ""%1"".'"),
 				InfobaseNode);
 		Else
 			DataExchangeScenarioParameter = ?(WSProxyDetails.XDTOSerializationSupported,
@@ -1514,7 +1514,7 @@ Procedure DeleteSynchronizationSetting(ExchangePlanName, CorrespondentNodeCode) 
 	Peer = FindInfobaseNode(ExchangePlanName, CorrespondentNodeCode);
 	
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Processing the message that will delete synchronization between ""%1"" and ""%2"".';"),
+		NStr("en = 'Processing the message that will delete synchronization between ""%1"" and ""%2"".'"),
 		ExchangePlanName, CorrespondentNodeCode);
 	
 	WriteLogEvent(EventLogEventDataSynchronizationSetup(),
@@ -1659,11 +1659,11 @@ Procedure NewDataAvailable(Val Descriptor, ToImport) Export
 			
 			ToImport = False;
 			
-			MessageText = NStr("en = 'The built-in exchange rules are not intended for the current configuration. They are intended for exchange plan %1 of configuration %2 v.%3';");
+			MessageText = NStr("en = 'The built-in exchange rules are not intended for the current configuration. They are intended for exchange plan %1 of configuration %2 v.%3'");
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText,
 				SuppliedRulesDetails.ExchangePlanName, SuppliedRulesDetails.ConfigurationName, SuppliedRulesDetails.ConfigurationVersion);
 			
-			WriteLogEvent(NStr("en = 'Built-in data exchange rules.Import of built-in rules is canceled';",
+			WriteLogEvent(NStr("en = 'Built-in data exchange rules.Import of built-in rules is canceled'",
 				Common.DefaultLanguageCode()), EventLogLevel.Information,,, MessageText);
 			
 		EndIf;
@@ -1777,7 +1777,7 @@ Function EndpointsExchangePlanManager() Export
 	
 	MetadataMessagesExchange = Metadata.FindByType(Metadata.DefinedTypes.MessagesQueueEndpoint.Type.Types()[0]).FullName();
 	If MetadataMessagesExchange = Undefined Then
-		Raise NStr("en = 'Endpoint exchange plan is not defined.';");
+		Raise NStr("en = 'Endpoint exchange plan is not defined.'");
 	EndIf;
 	
 	Return Common.ObjectManagerByFullName(MetadataMessagesExchange);
@@ -1787,7 +1787,7 @@ EndFunction
 Procedure FinishDataExchangeScenarioExecution(ScenarioRowIndex, DataExchangeScenario, ResultingStructure = Undefined)
 	
 	WriteLogEvent(DataSyncronizationLogEvent(),
-		EventLogLevel.Information, , , NStr("en = 'Finishing the synchronization scenario.';"));
+		EventLogLevel.Information, , , NStr("en = 'Finishing the synchronization scenario.'"));
 		
 	If Not ResultingStructure = Undefined Then
 		ResultingStructure.CompletedOn = CurrentSessionDate();
@@ -1820,7 +1820,7 @@ Function DataExchangeScenarioRowDetails(ScenarioRowIndex, DataExchangeScenario)
 	FillPropertyValues(StringStructure, DataExchangeScenario[ScenarioRowIndex]);
 	
 	LongDesc = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'SequenceNumber: %1, Application: %2, Action: %3(%4), Mode: %5.';"),
+		NStr("en = 'SequenceNumber: %1, Application: %2, Action: %3(%4), Mode: %5.'"),
 		StringStructure.ExecutionQueueNumber,
 		?(StringStructure.InfobaseNumber = 1, StringStructure.Application1Code, StringStructure.Application2Code),
 		StringStructure.CurrentAction,
@@ -1873,7 +1873,7 @@ Procedure CreateExchangeSetting(ConnectionSettings,
 	// Checking whether code is specified for the current node
 	If IsBlankString(ThisNodeCode) Then
 		// The node code is set in the infobase update handler
-		MessageString = NStr("en = 'Code of the predefined exchange plan node %1 is not specified.';");
+		MessageString = NStr("en = 'Code of the predefined exchange plan node %1 is not specified.'");
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, ConnectionSettings.ExchangePlanName);
 		Raise MessageString;
 	EndIf;
@@ -1895,7 +1895,7 @@ Procedure CreateExchangeSetting(ConnectionSettings,
 			If IsBlankString(ConnectionSettings.Prefix) Then
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'To continue data synchronization setup,
-					|specify an infobase prefix in ""%1"".';"),
+					|specify an infobase prefix in ""%1"".'"),
 					Metadata.Synonym);
 			EndIf;
 				
@@ -1978,7 +1978,7 @@ Procedure CreateExchangeSetting(ConnectionSettings,
 			
 			MessageString = NStr("en = 'Error assigning ID to a peer infobase node.
 				|Assigned ID: %1.
-				|Actual ID: %2.';");
+				|Actual ID: %2.'");
 			MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString,
 				ConnectionSettings.CorrespondentCode, ActualCorrespondentCode);
 			Raise MessageString;
@@ -2017,7 +2017,7 @@ Procedure CreateExchangeSetting_3_0_1_1(ConnectionSettings,
 	If IsBlankString(ThisNodeCode) Then
 		// The node code is set in the infobase update handler.
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Code of the predefined exchange plan node %1 is not specified.';"),
+			NStr("en = 'Code of the predefined exchange plan node %1 is not specified.'"),
 			ConnectionSettings.ExchangePlanName);
 	EndIf;
 		
@@ -2026,7 +2026,7 @@ Procedure CreateExchangeSetting_3_0_1_1(ConnectionSettings,
 		If IsBlankString(ConnectionSettings.Prefix) Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'To continue data synchronization setup,
-				|specify an infobase prefix in ""%1"".';"),
+				|specify an infobase prefix in ""%1"".'"),
 				Metadata.Synonym);
 		EndIf;
 		
@@ -2136,7 +2136,7 @@ Procedure CreateExchangeSetting_3_0_1_1(ConnectionSettings,
 			And ConnectionSettings.DestinationInfobaseID <> ActualCorrespondentCode Then
 			MessageString = NStr("en = 'Error assigning ID to a peer infobase node.
 				|Assigned ID: %1.
-				|Actual ID: %2.';");
+				|Actual ID: %2.'");
 			MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString,
 				ConnectionSettings.DestinationInfobaseID,
 				ActualCorrespondentCode);
@@ -2208,10 +2208,10 @@ EndProcedure
 Procedure SaveSessionData(Val Message, Val Presentation = "") Export
 	
 	If Not IsBlankString(Presentation) Then
-		Presentation = " "+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '{%1}';"), Presentation);
+		Presentation = " "+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '{%1}'"), Presentation);
 	EndIf;
 	
-	MessageString = NStr("en = 'Message exchange session %1 is completed. %2';",
+	MessageString = NStr("en = 'Message exchange session %1 is completed. %2'",
 		Common.DefaultLanguageCode());
 	MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString,
 		String(Message.Body.SessionId), Presentation);
@@ -2226,10 +2226,10 @@ EndProcedure
 Procedure CommitSuccessfulSession(Val Message, Val Presentation = "") Export
 	
 	If Not IsBlankString(Presentation) Then
-		Presentation = " " + StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '{%1}';"), Presentation);
+		Presentation = " " + StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '{%1}'"), Presentation);
 	EndIf;
 	
-	MessageString = NStr("en = 'Message exchange session %1 is completed. %2';",
+	MessageString = NStr("en = 'Message exchange session %1 is completed. %2'",
 		Common.DefaultLanguageCode());
 	MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString,
 		String(Message.Body.SessionId), Presentation);
@@ -2244,11 +2244,11 @@ EndProcedure
 Procedure CommitUnsuccessfulSession(Val Message, Val Presentation = "") Export
 	
 	If Not IsBlankString(Presentation) Then
-		Presentation = " " + StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '{%1}';"), Presentation);
+		Presentation = " " + StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '{%1}'"), Presentation);
 	EndIf;
 	
 	MessageString = NStr("en = 'Message exchange failed. Session: %1. %2.
-		|Error details from the peer infobase: %3';", Common.DefaultLanguageCode());
+		|Error details from the peer infobase: %3'", Common.DefaultLanguageCode());
 	MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString,
 		String(Message.Body.SessionId), Presentation, Message.Body.ErrorDescription);
 	WriteLogEvent(EventLogEventSystemMessagesExchangeSessions(),
@@ -2288,7 +2288,7 @@ EndFunction
 //
 Function EventLogEventDataSynchronizationMonitor() Export
 	
-	Return NStr("en = 'Data exchange SaaS.Data synchronization monitor';",
+	Return NStr("en = 'Data exchange SaaS.Data synchronization monitor'",
 		Common.DefaultLanguageCode());
 	
 EndFunction
@@ -2300,14 +2300,14 @@ EndFunction
 //
 Function DataSyncronizationLogEvent() Export
 	
-	Return NStr("en = 'Data exchange SaaS.Data synchronization';",
+	Return NStr("en = 'Data exchange SaaS.Data synchronization'",
 		Common.DefaultLanguageCode());
 	
 EndFunction
 
 Function EventLogEventSystemMessagesExchangeSessions()
 	
-	Return NStr("en = 'Data exchange SaaS.Message exchange sessions';",
+	Return NStr("en = 'Data exchange SaaS.Message exchange sessions'",
 		Common.DefaultLanguageCode());
 	
 EndFunction
@@ -2646,7 +2646,7 @@ Function FindInfobaseNode(Val ExchangePlanName, Val NodeCode)
 	
 	If Result = Undefined Then
 		
-		Message = NStr("en = 'Cannot find a node in the exchange plan %1. Node ID %2 or %3';");
+		Message = NStr("en = 'Cannot find a node in the exchange plan %1. Node ID %2 or %3'");
 		Message = StringFunctionsClientServer.SubstituteParametersToString(Message, ExchangePlanName, NodeCode, NodeCodeWithPrefix);
 		
 		Raise Message;
@@ -2777,7 +2777,7 @@ Procedure OnCreateStandaloneWorkstation() Export
 			InfoBaseUsers.CurrentUser().UUID) Then
 		
 		Raise NStr("en = 'You can create a standalone workstation only under a separated user.
-			|The current user is a shared user.';");
+			|The current user is a shared user.'");
 		
 	EndIf;
 	

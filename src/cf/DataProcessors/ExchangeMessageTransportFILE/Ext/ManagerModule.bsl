@@ -20,11 +20,11 @@
 //
 Function TransportParameters() Export
 	
-	LongDesc = NStr("en = 'Connection requires a local or network directory.';");
+	LongDesc = NStr("en = 'Connection requires a local or network directory.'");
 	
 	Parameters = ExchangeMessagesTransport.StructureOfTransportParameters();
 	
-	Parameters.Alias = NStr("en = 'Local or network directory';");
+	Parameters.Alias = NStr("en = 'Local or network directory'");
 	Parameters.TransportID = "FILE";
 	Parameters.LongDesc = LongDesc;
 	Parameters.AttributesForSecureStorage.Add("ArchivePasswordExchangeMessages");

@@ -120,7 +120,7 @@ Function CorrespondentParameters(ConnectionSettings) Export
 				NStr("en = 'Exchange plan ""%1"" is not found in the peer application.
 					|Ensure that the following data is correct:
 					|- The application type selected in the exchange settings.
-					|- The application location specified in the connection settings.';");
+					|- The application location specified in the connection settings.'");
 			
 			ErrorMessage = StrTemplate(MessageTemplate, ExchangePlanName);
 			
@@ -140,7 +140,7 @@ Function CorrespondentParameters(ConnectionSettings) Export
 		
 		ErrorMessage = 
 			NStr("en = 'The peer infobase does not support version 3.0.1.x of the DataExchange interface.
-			|To set up the connection, update the peer infobase configuration or start setting up from it.';");
+			|To set up the connection, update the peer infobase configuration or start setting up from it.'");
 		
 		Result.ConnectionAllowed = False;
 		Result.ErrorMessage = ErrorMessage;
@@ -271,7 +271,7 @@ Function DeleteSynchronizationSettingInCorrespondent() Export
 	
 	If CorrespondentNode = Undefined Then
 		
-		MessageTemplate = NStr("en = 'Exchange plan node ""%1"" is not found in the peer application by code ""%2"".';");
+		MessageTemplate = NStr("en = 'Exchange plan node ""%1"" is not found in the peer application by code ""%2"".'");
 		ErrorMessage = StrTemplate(MessageTemplate, CorrespondentExchangePlanName, NodeID);
 		ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject);
 		
@@ -599,7 +599,7 @@ Function RegisterCOMConnector(ActionOnExchange = Undefined)
 		NStr("en = 'The comcntr component is reregistered on computer %1.
 			|Command: %2
 			|Return code:%3, message:
-			|%4';");
+			|%4'");
 	
 	Comment = StrTemplate(Template, ComputerName(), CommandText, RunResult.ReturnCode, RunResult.OutputStream);
 	
@@ -661,7 +661,7 @@ Function CheckingExternalConnectionBeforeExchange(ActionOnExchange, MessageForDa
 			ExchangePlanRef = ExchangePlanManager.FindByCode(Structure.CurrentExchangePlanNodeCode1);
 			If Not ValueIsFilled(ExchangePlanRef.Code) Then
 				// If necessary, start migration to data synchronization via universal format.
-				MessageText = NStr("en = 'Switch the peer infobase to Interim Format Data Exchange.';");
+				MessageText = NStr("en = 'Switch the peer infobase to Interim Format Data Exchange.'");
 				ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject, ActionOnExchange, MessageText, False);
 
 				ParametersStructure = New Structure();
@@ -679,7 +679,7 @@ Function CheckingExternalConnectionBeforeExchange(ActionOnExchange, MessageForDa
 					
 					HasErrors = True;
 					
-					MessageText = NStr("en = 'Error switching to Interim Format Data Exchange: %1. The exchange is canceled.';",
+					MessageText = NStr("en = 'Error switching to Interim Format Data Exchange: %1. The exchange is canceled.'",
 						Common.DefaultLanguageCode());
 						
 					ErrorMessage = StrTemplate(MessageText, ParametersStructure.ErrorMessage);
@@ -687,7 +687,7 @@ Function CheckingExternalConnectionBeforeExchange(ActionOnExchange, MessageForDa
 				ElsIf TransferResult = Undefined Then
 					
 					HasErrors = True;
-					ErrorMessage = NStr("en = 'Switching to Interim Format Data Exchange failed';");
+					ErrorMessage = NStr("en = 'Switching to Interim Format Data Exchange failed'");
 					
 				EndIf;
 				
@@ -695,7 +695,7 @@ Function CheckingExternalConnectionBeforeExchange(ActionOnExchange, MessageForDa
 					ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject, ActionOnExchange);
 					Return False;
 				Else
-					MessageText = NStr("en = 'Switching Interim Format Data Exchange completed.';");
+					MessageText = NStr("en = 'Switching Interim Format Data Exchange completed.'");
 					ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject, ActionOnExchange, MessageText, False);
 				EndIf;
 			EndIf;
@@ -720,7 +720,7 @@ Function CheckingExternalConnectionBeforeExchange(ActionOnExchange, MessageForDa
 			And StructureOfExchangeSettingsOfSun.DataSynchronizationSetupCompleted = False Then
 			
 			MessageText = NStr("en = 'To continue, set up synchronization in ""%1"".
-				|The data exchange is canceled.';");
+				|The data exchange is canceled.'");
 			
 			ErrorMessage = StrTemplate(MessageText, StructureOfExchangeSettingsOfSun.InfobaseNodeDescription);
 			
@@ -736,7 +736,7 @@ Function CheckingExternalConnectionBeforeExchange(ActionOnExchange, MessageForDa
 			And StructureOfExchangeSettingsOfSun.MessageReceivedForDataMapping = True Then
 			
 			MessageText = NStr("en = 'To continue, open %1 and import the data mapping message.
-				|The data exchange is canceled.';");
+				|The data exchange is canceled.'");
 			
 			ErrorMessage = StrTemplate(MessageText, StructureOfExchangeSettingsOfSun.InfobaseNodeDescription);
 			ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject, ActionOnExchange);
@@ -756,7 +756,7 @@ Function CheckingExternalConnectionBeforeExchange(ActionOnExchange, MessageForDa
 			
 			// Exchange rules must be specified.
 			
-			MessageText = NStr("en = 'Conversion rules are not specified for exchange plan %1 in the second infobase. The exchange is canceled.';",
+			MessageText = NStr("en = 'Conversion rules are not specified for exchange plan %1 in the second infobase. The exchange is canceled.'",
 				Common.DefaultLanguageCode());
 				
 			ErrorMessage = StrTemplate(MessageText, StructureOfExchangeSettingsOfSun.ExchangePlanName);
@@ -796,5 +796,5 @@ MessagesOfExchange = Undefined;
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

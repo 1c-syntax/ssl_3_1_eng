@@ -222,24 +222,24 @@ Procedure AfterLoadSettingsInLinker(AdditionalParameters) Export
 	ConfigureParameterRight(Variant, SettingsComposer.Settings);
 	
 	If Variant = "RolesRights" Then
-		DescriptionOption = NStr("en = 'Role rights';");
+		DescriptionOption = NStr("en = 'Role rights'");
 		
 	ElsIf Variant = "RightsOfRoleAndProfilesToMetadataObjects" Then
 		If SetSelectionByProfile(FormParametersSelection, SettingsComposer.Settings)
 		 Or Not ParameterUsed(SettingsComposer.UserSettings, "Role") Then
-			DescriptionOption = NStr("en = 'Profile rights that apply to metadata objects';");
+			DescriptionOption = NStr("en = 'Profile rights that apply to metadata objects'");
 		Else
-			DescriptionOption = NStr("en = 'Role and profile rights that apply to metadata object';");
+			DescriptionOption = NStr("en = 'Role and profile rights that apply to metadata object'");
 		EndIf;
 		
 	ElsIf Variant = "RightsOfRolesAndProfilesToMetadataObject" Then
-		DescriptionOption = NStr("en = 'Role and profile rights that apply to metadata object';");
+		DescriptionOption = NStr("en = 'Role and profile rights that apply to metadata object'");
 	
 	ElsIf Variant = "DetailedRolesRightsToMetadataObject" Then
 		If SetSelectionByProfile(FormParametersSelection, SettingsComposer.Settings) Then
-			DescriptionOption = NStr("en = 'Detailed profile rights that apply to metadata object';");
+			DescriptionOption = NStr("en = 'Detailed profile rights that apply to metadata object'");
 		Else
-			DescriptionOption = NStr("en = 'Detailed role rights that apply to metadata object';");
+			DescriptionOption = NStr("en = 'Detailed role rights that apply to metadata object'");
 		EndIf;
 	EndIf;
 	
@@ -305,7 +305,7 @@ Procedure BeforeFormationReport(ReportForm, AdditionalParameters) Export
 			           |Its generation might take a long time.
 			           |It might require up to %4 GB.
 			           |
-			           |Consider narrowing down the filter.';"),
+			           |Consider narrowing down the filter.'"),
 			Format(RowsCount, ""),
 			Format(ColumnsCount, ""),
 			Format(NumberOfBins, ""),
@@ -434,23 +434,23 @@ EndProcedure
 
 #Region Private
 
-// 
+// Intended for procedure "OnComposeResult".
 Procedure FinishOutput(ResultDocument, DetailsData, Variant, ProfilesInsteadofRoles, HeaderHeight)
 	
 	Images = Images();
 	None = New Line(SpreadsheetDocumentCellLineType.None);
 	// ACC:163-off - #598.1. The use is acceptable, as it affects the meaning.
-	TextIsRestriction = NStr("en = 'Has restriction';");
+	TextIsRestriction = NStr("en = 'Has restriction'");
 	// ACC:163-on
 	
 	If Variant = "RolesRights"
 	 Or Variant = "RightsOfRoleAndProfilesToMetadataObjects" Then
-		FirstTableHeader = NStr("en = 'Metadata object kind';");
+		FirstTableHeader = NStr("en = 'Metadata object kind'");
 		
 	ElsIf Variant = "DetailedRolesRightsToMetadataObject" Then
-		FirstTableHeader = ?(ProfilesInsteadofRoles, NStr("en = 'Profile';"), NStr("en = 'Role';"));
+		FirstTableHeader = ?(ProfilesInsteadofRoles, NStr("en = 'Profile'"), NStr("en = 'Role'"));
 	Else
-		FirstTableHeader = NStr("en = 'Role';");
+		FirstTableHeader = NStr("en = 'Role'");
 	EndIf;
 	
 	TableHeight = ResultDocument.TableHeight;
@@ -458,7 +458,7 @@ Procedure FinishOutput(ResultDocument, DetailsData, Variant, ProfilesInsteadofRo
 	DataCompositionDecryptionIdentifierType = Type("DataCompositionDetailsID");
 	InitialValueIsRightWithRestriction =
 		Variant = "DetailedRolesRightsToMetadataObject";
-	TextRightAllowed = NStr("en = '✔';");
+	TextRightAllowed = NStr("en = '✔'");
 	
 	For LineNumber = 1 To TableHeight Do
 		YesRightWithRestriction = InitialValueIsRightWithRestriction;
@@ -533,7 +533,7 @@ Procedure FinishOutput(ResultDocument, DetailsData, Variant, ProfilesInsteadofRo
 	
 EndProcedure
 
-// 
+// Intended for procedure "BeforeImportSettingsToComposer".
 Procedure HideExcessDataFields(Variant, FormParametersSelection, DCSettings, DCUserSettings)
 	
 	Hierarchy  = New Array;
@@ -550,13 +550,13 @@ Procedure HideExcessDataFields(Variant, FormParametersSelection, DCSettings, DCU
 		FieldRolePresentation = DataCompositionSchema.DataSets.DetailedObjectPermissions.Fields.Find("RolePresentation2");
 		FieldProfile           = DataCompositionSchema.DataSets.DetailedObjectPermissions.Fields.Find("Profile2");
 		If SetSelectionByProfile(FormParametersSelection, SettingsComposer.Settings) Then
-			FieldRoleName.Title           = NStr("en = 'Profile name';");
-			FieldRolePresentation.Title = NStr("en = 'Profile presentation';");
-			FieldProfile.Title           = NStr("en = 'Profile';");
+			FieldRoleName.Title           = NStr("en = 'Profile name'");
+			FieldRolePresentation.Title = NStr("en = 'Profile presentation'");
+			FieldProfile.Title           = NStr("en = 'Profile'");
 		Else
-			FieldRoleName.Title           = NStr("en = 'Role name';");
-			FieldRolePresentation.Title = NStr("en = 'Role presentation';");
-			FieldProfile.Title           = NStr("en = 'Profile (not used)';");
+			FieldRoleName.Title           = NStr("en = 'Role name'");
+			FieldRolePresentation.Title = NStr("en = 'Role presentation'");
+			FieldProfile.Title           = NStr("en = 'Profile (not used)'");
 		EndIf;
 		
 	ElsIf Variant = "RightsOfRolesAndProfilesToMetadataObject" Then
@@ -570,15 +570,15 @@ Procedure HideExcessDataFields(Variant, FormParametersSelection, DCSettings, DCU
 		If Variant = "RightsOfRoleAndProfilesToMetadataObjects" Then
 			Roles.Insert("NameOfRole", False);
 			Roles.Insert("RolePresentation", False);
-			FieldRoleCode.Title       = NStr("en = 'Profile code';");
-			FieldHasRoleRights.Title = NStr("en = 'Has profile rights';");
+			FieldRoleCode.Title       = NStr("en = 'Profile code'");
+			FieldHasRoleRights.Title = NStr("en = 'Has profile rights'");
 			If Not SetSelectionByProfile(FormParametersSelection, SettingsComposer.Settings) Then
 				FilterRoles = "*";
 			EndIf;
 		Else
 			Roles.Insert("Profile4", False);
-			FieldRoleCode.Title       = NStr("en = 'Role code';");
-			FieldHasRoleRights.Title = NStr("en = 'Has role rights';");
+			FieldRoleCode.Title       = NStr("en = 'Role code'");
+			FieldHasRoleRights.Title = NStr("en = 'Has role rights'");
 		EndIf;
 	EndIf;
 	
@@ -595,7 +595,7 @@ Procedure HideExcessDataFields(Variant, FormParametersSelection, DCSettings, DCU
 	
 EndProcedure
 
-// 
+// Intended for procedure "HideExcessDataFields".
 Procedure HideDataFieldsExceptSpecified(DataSetName, DataPaths, OriginalScheme, CurrentSchema)
 	
 	Reports.AccessRightsAnalysis.HideDataFieldsExceptSpecified(DataSetName,
@@ -613,23 +613,23 @@ Procedure ConfigureParameterAccessLevel(Settings)
 	EndIf;
 	
 	List = New ValueList;
-	List.Add(01, NStr("en = 'Right exists';"));
-	List.Add(02, NStr("en = 'Use';"));
-	List.Add(03, NStr("en = 'Read';"));
-	List.Add(04, NStr("en = 'Modify';"));
-	List.Add(05, NStr("en = 'Add';"));
-	List.Add(06, NStr("en = 'View';"));
-	List.Add(07, NStr("en = 'View and Update';"));
-	List.Add(08, NStr("en = 'View and Add';"));
-	List.Add(09, NStr("en = 'Edit';"));
-	List.Add(10, NStr("en = 'Edit and Add';"));
-	List.Add(11, NStr("en = 'Create';"));
-	List.Add(12, NStr("en = 'Get';"));
-	List.Add(13, NStr("en = 'Set';"));
-	List.Add(14, NStr("en = 'Get and Set';"));
-	List.Add(15, NStr("en = 'External data source: Use';"));
-	List.Add(16, NStr("en = 'External data source: Administration';"));
-	List.Add(17, NStr("en = 'External data source: Use and Administration';"));
+	List.Add(01, NStr("en = 'Right exists'"));
+	List.Add(02, NStr("en = 'Use'"));
+	List.Add(03, NStr("en = 'Read'"));
+	List.Add(04, NStr("en = 'Modify'"));
+	List.Add(05, NStr("en = 'Add'"));
+	List.Add(06, NStr("en = 'View'"));
+	List.Add(07, NStr("en = 'View and Update'"));
+	List.Add(08, NStr("en = 'View and Add'"));
+	List.Add(09, NStr("en = 'Edit'"));
+	List.Add(10, NStr("en = 'Edit and Add'"));
+	List.Add(11, NStr("en = 'Create'"));
+	List.Add(12, NStr("en = 'Get'"));
+	List.Add(13, NStr("en = 'Set'"));
+	List.Add(14, NStr("en = 'Get and Set'"));
+	List.Add(15, NStr("en = 'External data source: Use'"));
+	List.Add(16, NStr("en = 'External data source: Administration'"));
+	List.Add(17, NStr("en = 'External data source: Use and Administration'"));
 	
 	AvailableParameter.AvailableValues = List;
 	
@@ -1346,7 +1346,7 @@ Function DescriptionProfiles()
 	
 	NewRow = DescriptionProfiles.Add();
 	NewRow.RoleCode           = CurrentNumber;
-	NewRow.NameOfRole           = NStr("en = '<Without a profile>';");
+	NewRow.NameOfRole           = NStr("en = '<Without a profile>'");
 	NewRow.RolePresentation = NewRow.NameOfRole;
 	NewRow.Profile           = Catalogs.AccessGroupProfiles.EmptyRef();
 	
@@ -1981,13 +1981,13 @@ Function MetadataTree(WithFields)
 	ConfigurationString.Metadata           = Metadata;
 	ConfigurationString.RightsDetails         = ConfigRights();
 	ConfigurationString.PathToObject         = "Configuration";
-	ConfigurationString.Presentation        = NStr("en = 'Configuration';");
-	ConfigurationString.ObjectPresentation = NStr("en = 'Configuration';");
+	ConfigurationString.Presentation        = NStr("en = 'Configuration'");
+	ConfigurationString.ObjectPresentation = NStr("en = 'Configuration'");
 	
 	// Configuration.Common
 	StringGeneral = ConfigurationString.Rows.Add();
 	StringGeneral.Name           = "Overall";
-	StringGeneral.Presentation = NStr("en = 'Common';");
+	StringGeneral.Presentation = NStr("en = 'Common'");
 	
 	// Configuration.Common.FilterCriteria.Subsystems
 	SubsystemRow = StringGeneral.Rows.Add();
@@ -1995,8 +1995,8 @@ Function MetadataTree(WithFields)
 	SubsystemRow.Metadata           = Metadata.Subsystems;
 	SubsystemRow.RightsDetails         = ViewRight();
 	SubsystemRow.PathToObject         = "Subsystem.*";
-	SubsystemRow.Presentation        = NStr("en = 'Subsystems';");
-	SubsystemRow.ObjectPresentation = NStr("en = 'Subsystem';");
+	SubsystemRow.Presentation        = NStr("en = 'Subsystems'");
+	SubsystemRow.ObjectPresentation = NStr("en = 'Subsystem'");
 	
 	// Configuration.Common.FilterCriteria.Subsystems.Subsystems.*
 	StringNestedSubsystems = SubsystemRow.Rows.Add();
@@ -2004,8 +2004,8 @@ Function MetadataTree(WithFields)
 	StringNestedSubsystems.Metadata           = "Subsystems";
 	StringNestedSubsystems.PathToObject         = "Subsystem.*.Subsystem.*";
 	StringNestedSubsystems.RightsDetails         = ViewRight();
-	StringNestedSubsystems.Presentation        = NStr("en = 'Subsystems';");
-	StringNestedSubsystems.ObjectPresentation = NStr("en = 'Subsystem';");
+	StringNestedSubsystems.Presentation        = NStr("en = 'Subsystems'");
+	StringNestedSubsystems.ObjectPresentation = NStr("en = 'Subsystem'");
 	StringNestedSubsystems.AttachmentName          = "Subsystems";
 	StringNestedSubsystems.NoGroup            = True;
 	StringNestedSubsystems.HasHierarchy         = True;
@@ -2016,8 +2016,8 @@ Function MetadataTree(WithFields)
 	StringSessionParameters.Metadata           = Metadata.SessionParameters;
 	StringSessionParameters.PathToObject         = "SessionParameter.*";
 	StringSessionParameters.RightsDetails         = SessionSettingRights();
-	StringSessionParameters.Presentation        = NStr("en = 'Session parameters';");
-	StringSessionParameters.ObjectPresentation = NStr("en = 'Session parameter';");
+	StringSessionParameters.Presentation        = NStr("en = 'Session parameters'");
+	StringSessionParameters.ObjectPresentation = NStr("en = 'Session parameter'");
 	
 	// Configuration.Common.FilterCriteria.CommonAttributes
 	StringGeneralRequisites = StringGeneral.Rows.Add();
@@ -2025,8 +2025,8 @@ Function MetadataTree(WithFields)
 	StringGeneralRequisites.Metadata           = Metadata.CommonAttributes;
 	StringGeneralRequisites.PathToObject         = "CommonAttribute.*";
 	StringGeneralRequisites.RightsDetails         = RightsAttributes();
-	StringGeneralRequisites.Presentation        = NStr("en = 'Common attributes';");
-	StringGeneralRequisites.ObjectPresentation = NStr("en = 'Common attribute';");
+	StringGeneralRequisites.Presentation        = NStr("en = 'Common attributes'");
+	StringGeneralRequisites.ObjectPresentation = NStr("en = 'Common attribute'");
 	
 	// Configuration.Common.FilterCriteria.ExchangePlans
 	StringExchangePlans = StringGeneral.Rows.Add();
@@ -2034,8 +2034,8 @@ Function MetadataTree(WithFields)
 	StringExchangePlans.Metadata           = Metadata.ExchangePlans;
 	StringExchangePlans.PathToObject         = "ExchangePlan.*";
 	StringExchangePlans.RightsDetails         = ExchangePlanRights();
-	StringExchangePlans.Presentation        = NStr("en = 'Exchange plans';");
-	StringExchangePlans.ObjectPresentation = NStr("en = 'Exchange plan';");
+	StringExchangePlans.Presentation        = NStr("en = 'Exchange plans'");
+	StringExchangePlans.ObjectPresentation = NStr("en = 'Exchange plan'");
 	AddCommandsFields(WithFields, StringExchangePlans);
 	
 	// Configuration.Common.FilterCriteria
@@ -2044,8 +2044,8 @@ Function MetadataTree(WithFields)
 	StringSelectionCriteria.Metadata           = Metadata.FilterCriteria;
 	StringSelectionCriteria.PathToObject         = "FilterCriterion.*";
 	StringSelectionCriteria.RightsDetails         = ViewRight();
-	StringSelectionCriteria.Presentation        = NStr("en = 'Filter criteria';");
-	StringSelectionCriteria.ObjectPresentation = NStr("en = 'Filter criterion';");
+	StringSelectionCriteria.Presentation        = NStr("en = 'Filter criteria'");
+	StringSelectionCriteria.ObjectPresentation = NStr("en = 'Filter criterion'");
 	AddCommandsFields(False, StringSelectionCriteria);
 	
 	// Configuration.Common.FilterCriteria.CommonForms
@@ -2054,8 +2054,8 @@ Function MetadataTree(WithFields)
 	StringGeneralForms.Metadata           = Metadata.CommonForms;
 	StringGeneralForms.PathToObject         = "CommonForm.*";
 	StringGeneralForms.RightsDetails         = ViewRight();
-	StringGeneralForms.Presentation        = NStr("en = 'Common forms';");
-	StringGeneralForms.ObjectPresentation = NStr("en = 'Common form';");
+	StringGeneralForms.Presentation        = NStr("en = 'Common forms'");
+	StringGeneralForms.ObjectPresentation = NStr("en = 'Common form'");
 	
 	// Configuration.Common.FilterCriteria.CommonCommands
 	StringCommonCommands = StringGeneral.Rows.Add();
@@ -2063,16 +2063,16 @@ Function MetadataTree(WithFields)
 	StringCommonCommands.Metadata           = Metadata.CommonCommands;
 	StringCommonCommands.PathToObject         = "CommonCommand.*";
 	StringCommonCommands.RightsDetails         = ViewRight();
-	StringCommonCommands.Presentation        = NStr("en = 'Common commands';");
-	StringCommonCommands.ObjectPresentation = NStr("en = 'Common command';");
+	StringCommonCommands.Presentation        = NStr("en = 'Common commands'");
+	StringCommonCommands.ObjectPresentation = NStr("en = 'Common command'");
 	
 	// Configuration.Common.WebServices
 	StringWebServices = StringGeneral.Rows.Add();
 	StringWebServices.Name                  = "WebServices";
 	StringWebServices.Metadata           = Metadata.WebServices;
 	StringWebServices.PathToObject         = "WebService.*";
-	StringWebServices.Presentation        = NStr("en = 'Web services';");
-	StringWebServices.ObjectPresentation = NStr("en = 'Web service';");
+	StringWebServices.Presentation        = NStr("en = 'Web services'");
+	StringWebServices.ObjectPresentation = NStr("en = 'Web service'");
 	
 	// Configuration.Common.WebServices.Operations
 	OperationString = StringWebServices.Rows.Add();
@@ -2081,15 +2081,15 @@ Function MetadataTree(WithFields)
 	OperationString.PathToObject         = "WebService.*.Operation.*";
 	OperationString.RightsDetails         = RightUse();
 	OperationString.NoGroup            = True;
-	OperationString.ObjectPresentation = NStr("en = 'Operation';");
+	OperationString.ObjectPresentation = NStr("en = 'Operation'");
 	
 	// Configuration.Common.HTTPServices
 	StringHTTPServices = StringGeneral.Rows.Add();
 	StringHTTPServices.Name                  = "HTTPServices";
 	StringHTTPServices.Metadata           = Metadata.HTTPServices;
 	StringHTTPServices.PathToObject         = "HTTPService.*";
-	StringHTTPServices.Presentation        = NStr("en = 'HTTP services';");
-	StringHTTPServices.ObjectPresentation = NStr("en = 'HTTP service';");
+	StringHTTPServices.Presentation        = NStr("en = 'HTTP services'");
+	StringHTTPServices.ObjectPresentation = NStr("en = 'HTTP service'");
 	
 	// Configuration.Common.HTTPServices.URLTemplates
 	StringTemplatesURL = StringHTTPServices.Rows.Add();
@@ -2097,7 +2097,7 @@ Function MetadataTree(WithFields)
 	StringTemplatesURL.AttachmentName          = "URLTemplates";
 	StringTemplatesURL.PathToObject         = "HTTPService.*.URLTemplate.*";
 	StringTemplatesURL.NoGroup            = True;
-	StringTemplatesURL.ObjectPresentation = NStr("en = 'URL template';");
+	StringTemplatesURL.ObjectPresentation = NStr("en = 'URL template'");
 	
 	// Configuration.Common.HTTPService.URLTemplates.Methods
 	StringMethods = StringTemplatesURL.Rows.Add();
@@ -2106,7 +2106,7 @@ Function MetadataTree(WithFields)
 	StringMethods.PathToObject         = "HTTPService.*.URLTemplate.*.Method.*";
 	StringMethods.RightsDetails         = RightUse();
 	StringMethods.NoGroup            = True;
-	StringMethods.ObjectPresentation = NStr("en = 'Method';");
+	StringMethods.ObjectPresentation = NStr("en = 'Method'");
 	
 	// Configuration.Constants
 	StringConsts = ConfigurationString.Rows.Add();
@@ -2114,8 +2114,8 @@ Function MetadataTree(WithFields)
 	StringConsts.Metadata           = Metadata.Constants;
 	StringConsts.PathToObject         = "Constant.*";
 	StringConsts.RightsDetails         = RightsConsts();
-	StringConsts.Presentation        = NStr("en = 'Constants';");
-	StringConsts.ObjectPresentation = NStr("en = 'Constant';");
+	StringConsts.Presentation        = NStr("en = 'Constants'");
+	StringConsts.ObjectPresentation = NStr("en = 'Constant'");
 	
 	// Configuration.Catalogs
 	StringCatalogs = ConfigurationString.Rows.Add();
@@ -2123,14 +2123,14 @@ Function MetadataTree(WithFields)
 	StringCatalogs.Metadata           = Metadata.Catalogs;
 	StringCatalogs.PathToObject         = "Catalog.*";
 	StringCatalogs.RightsDetails         = RightsofDirectoryandPlans();
-	StringCatalogs.Presentation        = NStr("en = 'Catalogs';");
-	StringCatalogs.ObjectPresentation = NStr("en = 'Catalog';");
+	StringCatalogs.Presentation        = NStr("en = 'Catalogs'");
+	StringCatalogs.ObjectPresentation = NStr("en = 'Catalog'");
 	AddCommandsFields(WithFields, StringCatalogs);
 	
 	// Configuration.Documents (group)
 	StringGroupDocuments = ConfigurationString.Rows.Add();
 	StringGroupDocuments.Name           = "Documents";
-	StringGroupDocuments.Presentation = NStr("en = 'Documents';");
+	StringGroupDocuments.Presentation = NStr("en = 'Documents'");
 	
 	// Configuration.Documents.Sequence
 	StringSequence = StringGroupDocuments.Rows.Add();
@@ -2138,8 +2138,8 @@ Function MetadataTree(WithFields)
 	StringSequence.Metadata           = Metadata.Sequences;
 	StringSequence.PathToObject         = "Sequence.*";
 	StringSequence.RightsDetails         = SequenceAndRecalculationRights();
-	StringSequence.Presentation        = NStr("en = 'Sequences';");
-	StringSequence.ObjectPresentation = NStr("en = 'Sequence';");
+	StringSequence.Presentation        = NStr("en = 'Sequences'");
+	StringSequence.ObjectPresentation = NStr("en = 'Sequence'");
 	
 	// Configuration.Documents (elements)
 	StringDocuments = StringGroupDocuments.Rows.Add();
@@ -2148,7 +2148,7 @@ Function MetadataTree(WithFields)
 	StringDocuments.PathToObject         = "Document.*";
 	StringDocuments.RightsDetails         = DocumentPermissions();
 	StringDocuments.NoGroup            = True;
-	StringDocuments.ObjectPresentation = NStr("en = 'Document';");
+	StringDocuments.ObjectPresentation = NStr("en = 'Document'");
 	AddCommandsFields(WithFields, StringDocuments);
 	
 	// Configuration.DocumentJournals
@@ -2157,8 +2157,8 @@ Function MetadataTree(WithFields)
 	StringDocumentLogs.Metadata           = Metadata.DocumentJournals;
 	StringDocumentLogs.PathToObject         = "DocumentJournal.*";
 	StringDocumentLogs.RightsDetails         = PermissionsJournalDocuments();
-	StringDocumentLogs.Presentation        = NStr("en = 'Document journals';");
-	StringDocumentLogs.ObjectPresentation = NStr("en = 'Document journal';");
+	StringDocumentLogs.Presentation        = NStr("en = 'Document journals'");
+	StringDocumentLogs.ObjectPresentation = NStr("en = 'Document journal'");
 	AddCommandsFields(WithFields, StringDocumentLogs, "StandardAttributes", True);
 	
 	// Configuration.Enumerations
@@ -2166,8 +2166,8 @@ Function MetadataTree(WithFields)
 	EnumString.Name                  = "Enums";
 	EnumString.Metadata           = Metadata.Enums;
 	EnumString.PathToObject         = "Enum.*";
-	EnumString.Presentation        = NStr("en = 'Enumerations';");
-	EnumString.ObjectPresentation = NStr("en = 'Enumeration';");
+	EnumString.Presentation        = NStr("en = 'Enumerations'");
+	EnumString.ObjectPresentation = NStr("en = 'Enumeration'");
 	EnumString.WithoutDecryption       = True;
 	AddCommandsFields(False, EnumString);
 	
@@ -2177,8 +2177,8 @@ Function MetadataTree(WithFields)
 	ReportsRow.Metadata           = Metadata.Reports;
 	ReportsRow.PathToObject         = "Report.*";
 	ReportsRow.RightsDetails         = RightsReportProcessingFunctions();
-	ReportsRow.Presentation        = NStr("en = 'Reports';");
-	ReportsRow.ObjectPresentation = NStr("en = 'Report';");
+	ReportsRow.Presentation        = NStr("en = 'Reports'");
+	ReportsRow.ObjectPresentation = NStr("en = 'Report'");
 	AddCommandsFields(WithFields, ReportsRow, "Attributes, TabularSections");
 	
 	// Configuration.DataProcessors
@@ -2187,8 +2187,8 @@ Function MetadataTree(WithFields)
 	ProcessingString.Metadata           = Metadata.DataProcessors;
 	ProcessingString.PathToObject         = "DataProcessor.*";
 	ProcessingString.RightsDetails         = RightsReportProcessingFunctions();
-	ProcessingString.Presentation        = NStr("en = 'Data processors';");
-	ProcessingString.ObjectPresentation = NStr("en = 'Data processor';");
+	ProcessingString.Presentation        = NStr("en = 'Data processors'");
+	ProcessingString.ObjectPresentation = NStr("en = 'Data processor'");
 	AddCommandsFields(WithFields, ProcessingString, "Attributes, TabularSections");
 	
 	// Configuration.ChartsOfCharacteristicTypes
@@ -2197,8 +2197,8 @@ Function MetadataTree(WithFields)
 	StringPlansViewsCharacteristics.Metadata           = Metadata.ChartsOfCharacteristicTypes;
 	StringPlansViewsCharacteristics.PathToObject         = "ChartOfCharacteristicTypes.*";
 	StringPlansViewsCharacteristics.RightsDetails         = RightsofDirectoryandPlans();
-	StringPlansViewsCharacteristics.Presentation        = NStr("en = 'Charts of characteristic types';");
-	StringPlansViewsCharacteristics.ObjectPresentation = NStr("en = 'Chart of characteristic types';");
+	StringPlansViewsCharacteristics.Presentation        = NStr("en = 'Charts of characteristic types'");
+	StringPlansViewsCharacteristics.ObjectPresentation = NStr("en = 'Chart of characteristic types'");
 	AddCommandsFields(WithFields, StringPlansViewsCharacteristics);
 	
 	// Configuration.ChartsOfAccounts
@@ -2207,8 +2207,8 @@ Function MetadataTree(WithFields)
 	LineOfAccountPlans.Metadata           = Metadata.ChartsOfAccounts;
 	LineOfAccountPlans.PathToObject         = "ChartOfAccounts.*";
 	LineOfAccountPlans.RightsDetails         = RightsofDirectoryandPlans();
-	LineOfAccountPlans.Presentation        = NStr("en = 'Charts of accounts';");
-	LineOfAccountPlans.ObjectPresentation = NStr("en = 'Chart of accounts';");
+	LineOfAccountPlans.Presentation        = NStr("en = 'Charts of accounts'");
+	LineOfAccountPlans.ObjectPresentation = NStr("en = 'Chart of accounts'");
 	AddCommandsFields(WithFields, LineOfAccountPlans, "Attributes, AccountingFlags,
 	|ExtDimensionAccountingFlags, TabularSections, StandardAttributes, StandardTabularSections");
 	
@@ -2218,8 +2218,8 @@ Function MetadataTree(WithFields)
 	StringPlansViewsCalculation.Metadata           = Metadata.ChartsOfCalculationTypes;
 	StringPlansViewsCalculation.PathToObject         = "ChartOfCalculationTypes.*";
 	StringPlansViewsCalculation.RightsDetails         = RightsofDirectoryandPlans();
-	StringPlansViewsCalculation.Presentation        = NStr("en = 'Charts of calculation types';");
-	StringPlansViewsCalculation.ObjectPresentation = NStr("en = 'Chart of calculation types';");
+	StringPlansViewsCalculation.Presentation        = NStr("en = 'Charts of calculation types'");
+	StringPlansViewsCalculation.ObjectPresentation = NStr("en = 'Chart of calculation types'");
 	AddCommandsFields(WithFields, StringPlansViewsCalculation, "Attributes, TabularSections,
 	|StandardAttributes, StandardTabularSections");
 	
@@ -2229,8 +2229,8 @@ Function MetadataTree(WithFields)
 	StringRegistersDetails.Metadata           = Metadata.InformationRegisters;
 	StringRegistersDetails.PathToObject         = "InformationRegister.*";
 	StringRegistersDetails.RightsDetails         = RightsRegisterInformation();
-	StringRegistersDetails.Presentation        = NStr("en = 'Information registers';");
-	StringRegistersDetails.ObjectPresentation = NStr("en = 'Information register';");
+	StringRegistersDetails.Presentation        = NStr("en = 'Information registers'");
+	StringRegistersDetails.ObjectPresentation = NStr("en = 'Information register'");
 	AddCommandsFields(WithFields, StringRegistersDetails, "Dimensions, Resources,
 	|Attributes, StandardAttributes");
 	
@@ -2240,8 +2240,8 @@ Function MetadataTree(WithFields)
 	StringRegistersAccumulation.Metadata           = Metadata.AccumulationRegisters;
 	StringRegistersAccumulation.PathToObject         = "AccumulationRegister.*";
 	StringRegistersAccumulation.RightsDetails         = RightsRegisterAccumulationAndAccounting();
-	StringRegistersAccumulation.Presentation        = NStr("en = 'Accumulation registers';");
-	StringRegistersAccumulation.ObjectPresentation = NStr("en = 'Accumulation register';");
+	StringRegistersAccumulation.Presentation        = NStr("en = 'Accumulation registers'");
+	StringRegistersAccumulation.ObjectPresentation = NStr("en = 'Accumulation register'");
 	AddCommandsFields(WithFields, StringRegistersAccumulation, "Dimensions, Resources,
 	|Attributes, StandardAttributes");
 	
@@ -2251,8 +2251,8 @@ Function MetadataTree(WithFields)
 	StringRegistersAccounting.Metadata           = Metadata.AccountingRegisters;
 	StringRegistersAccounting.PathToObject         = "AccountingRegister.*";
 	StringRegistersAccounting.RightsDetails         = RightsRegisterAccumulationAndAccounting();
-	StringRegistersAccounting.Presentation        = NStr("en = 'Accounting registers';");
-	StringRegistersAccounting.ObjectPresentation = NStr("en = 'Accounting register';");
+	StringRegistersAccounting.Presentation        = NStr("en = 'Accounting registers'");
+	StringRegistersAccounting.ObjectPresentation = NStr("en = 'Accounting register'");
 	AddCommandsFields(WithFields, StringRegistersAccounting, "Dimensions, Resources,
 	|Attributes, StandardAttributes");
 	
@@ -2262,8 +2262,8 @@ Function MetadataTree(WithFields)
 	StringRegistersCalculation.Metadata           = Metadata.CalculationRegisters;
 	StringRegistersCalculation.PathToObject         = "CalculationRegister.*";
 	StringRegistersCalculation.RightsDetails         = RightsRegisterCalculation();
-	StringRegistersCalculation.Presentation        = NStr("en = 'Calculation registers';");
-	StringRegistersCalculation.ObjectPresentation = NStr("en = 'Calculation register';");
+	StringRegistersCalculation.Presentation        = NStr("en = 'Calculation registers'");
+	StringRegistersCalculation.ObjectPresentation = NStr("en = 'Calculation register'");
 	AddCommandsFields(WithFields, StringRegistersCalculation, "Dimensions, Resources,
 	|Attributes, StandardAttributes, Recalculations");
 	
@@ -2273,8 +2273,8 @@ Function MetadataTree(WithFields)
 	StringBusinessProcesses.Metadata           = Metadata.BusinessProcesses;
 	StringBusinessProcesses.PathToObject         = "BusinessProcess.*";
 	StringBusinessProcesses.RightsDetails         = RightsBusinessProcess();
-	StringBusinessProcesses.Presentation        = NStr("en = 'Business processes';");
-	StringBusinessProcesses.ObjectPresentation = NStr("en = 'Business process';");
+	StringBusinessProcesses.Presentation        = NStr("en = 'Business processes'");
+	StringBusinessProcesses.ObjectPresentation = NStr("en = 'Business process'");
 	AddCommandsFields(WithFields, StringBusinessProcesses);
 	
 	// Configuration.Tasks
@@ -2283,8 +2283,8 @@ Function MetadataTree(WithFields)
 	TaskLine.Metadata           = Metadata.Tasks;
 	TaskLine.PathToObject         = "Task.*";
 	TaskLine.RightsDetails         = RightsTasks();
-	TaskLine.Presentation        = NStr("en = 'Tasks';");
-	TaskLine.ObjectPresentation = NStr("en = 'Task';");
+	TaskLine.Presentation        = NStr("en = 'Tasks'");
+	TaskLine.ObjectPresentation = NStr("en = 'Task'");
 	AddCommandsFields(WithFields, TaskLine, "AddressingAttributes,
 	|Attributes, TabularSections, StandardAttributes");
 	
@@ -2294,8 +2294,8 @@ Function MetadataTree(WithFields)
 	StringExternalDataSources.Metadata           = Metadata.ExternalDataSources;
 	StringExternalDataSources.PathToObject         = "ExternalDataSource.*";
 	StringExternalDataSources.RightsDetails         = RightsExternalDataSource();
-	StringExternalDataSources.Presentation        = NStr("en = 'External data sources';");
-	StringExternalDataSources.ObjectPresentation = NStr("en = 'External data source';");
+	StringExternalDataSources.Presentation        = NStr("en = 'External data sources'");
+	StringExternalDataSources.ObjectPresentation = NStr("en = 'External data source'");
 	
 	// Configuration.ExternalDataSources.Tables
 	TableRow = StringExternalDataSources.Rows.Add();
@@ -2303,8 +2303,8 @@ Function MetadataTree(WithFields)
 	TableRow.AttachmentName          = "Tables";
 	TableRow.PathToObject         = "ExternalDataSource.*.Table.*";
 	TableRow.RightsDetails         = RightsTableExternalDataSource();
-	TableRow.Presentation        = NStr("en = 'Tables';");
-	TableRow.ObjectPresentation = NStr("en = 'Table';");
+	TableRow.Presentation        = NStr("en = 'Tables'");
+	TableRow.ObjectPresentation = NStr("en = 'Table'");
 	AddCommandsFields(WithFields, TableRow, "Fields");
 	
 	// Configuration.ExternalDataSources.Cubes
@@ -2313,8 +2313,8 @@ Function MetadataTree(WithFields)
 	StringCube.AttachmentName          = "Cubes";
 	StringCube.PathToObject         = "ExternalDataSource.*.Cube.*";
 	StringCube.RightsDetails         = PermissionsCubeAndDimensionTables();
-	StringCube.Presentation        = NStr("en = 'Cubes';");
-	StringCube.ObjectPresentation = NStr("en = 'Cube';");
+	StringCube.Presentation        = NStr("en = 'Cubes'");
+	StringCube.ObjectPresentation = NStr("en = 'Cube'");
 	
 	// Configuration.ExternalDataSources.Cubes.DimensionTables
 	RowTableDimensions = StringCube.Rows.Add();
@@ -2322,8 +2322,8 @@ Function MetadataTree(WithFields)
 	RowTableDimensions.AttachmentName          = "DimensionTables";
 	RowTableDimensions.PathToObject         = "ExternalDataSource.*.Cube.*.DimensionTable.*";
 	RowTableDimensions.RightsDetails         = PermissionsCubeAndDimensionTables();
-	RowTableDimensions.Presentation        = NStr("en = 'Dimension tables';");
-	RowTableDimensions.ObjectPresentation = NStr("en = 'Dimension table';");
+	RowTableDimensions.Presentation        = NStr("en = 'Dimension tables'");
+	RowTableDimensions.ObjectPresentation = NStr("en = 'Dimension table'");
 	AddCommandsFields(WithFields, RowTableDimensions, "Fields");
 	AddCommandsFields(WithFields, StringCube, "Dimensions, Resources", True);
 	
@@ -2333,8 +2333,8 @@ Function MetadataTree(WithFields)
 	FunctionString.AttachmentName          = "Functions";
 	FunctionString.PathToObject         = "ExternalDataSource.*.Function.*";
 	FunctionString.RightsDetails         = RightsReportProcessingFunctions();
-	FunctionString.Presentation        = NStr("en = 'Functions';");
-	FunctionString.ObjectPresentation = NStr("en = 'Function';");
+	FunctionString.Presentation        = NStr("en = 'Functions'");
+	FunctionString.ObjectPresentation = NStr("en = 'Function'");
 	
 	Return Tree;
 	
@@ -2351,8 +2351,8 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		MeasurementString_.AttachmentName          = "Dimensions";
 		MeasurementString_.PathToObject         = TreeRow.PathToObject + ".Dimension.*";
 		MeasurementString_.RightsDetails         = RightsAttributes(NoEdit);
-		MeasurementString_.Presentation        = NStr("en = 'Dimensions';");
-		MeasurementString_.ObjectPresentation = NStr("en = 'Dimension';");
+		MeasurementString_.Presentation        = NStr("en = 'Dimensions'");
+		MeasurementString_.ObjectPresentation = NStr("en = 'Dimension'");
 	EndIf;
 	
 	If WithFields And FieldsStructure.Property("Resources") Then
@@ -2362,8 +2362,8 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		LineResources.AttachmentName          = "Resources";
 		LineResources.PathToObject         = TreeRow.PathToObject + ".Resource.*";
 		LineResources.RightsDetails         = RightsAttributes(NoEdit);
-		LineResources.Presentation        = NStr("en = 'Resources';");
-		LineResources.ObjectPresentation = NStr("en = 'Resource';");
+		LineResources.Presentation        = NStr("en = 'Resources'");
+		LineResources.ObjectPresentation = NStr("en = 'Resource'");
 	EndIf;
 	
 	If WithFields And FieldsStructure.Property("AddressingAttributes") Then
@@ -2373,8 +2373,8 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		StringRequisitesAddresses.AttachmentName          = "AddressingAttributes";
 		StringRequisitesAddresses.PathToObject         = TreeRow.PathToObject + ".AddressingAttribute.*";
 		StringRequisitesAddresses.RightsDetails         = RightsAttributes(NoEdit);
-		StringRequisitesAddresses.Presentation        = NStr("en = 'Addressing attributes';");
-		StringRequisitesAddresses.ObjectPresentation = NStr("en = 'Addressing attribute';");
+		StringRequisitesAddresses.Presentation        = NStr("en = 'Addressing attributes'");
+		StringRequisitesAddresses.ObjectPresentation = NStr("en = 'Addressing attribute'");
 	EndIf;
 	
 	If WithFields And FieldsStructure.Property("Attributes") Then
@@ -2384,8 +2384,8 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		AttributesString.AttachmentName          = "Attributes";
 		AttributesString.PathToObject         = TreeRow.PathToObject + ".Attribute.*";
 		AttributesString.RightsDetails         = RightsAttributes(NoEdit);
-		AttributesString.Presentation        = NStr("en = 'Attributes';");
-		AttributesString.ObjectPresentation = NStr("en = 'Attribute';");
+		AttributesString.Presentation        = NStr("en = 'Attributes'");
+		AttributesString.ObjectPresentation = NStr("en = 'Attribute'");
 	EndIf;
 	
 	If WithFields And FieldsStructure.Property("Fields") Then
@@ -2395,8 +2395,8 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		FieldString.AttachmentName          = "Fields";
 		FieldString.PathToObject         = TreeRow.PathToObject + ".Field.*";
 		FieldString.RightsDetails         = RightsAttributes(NoEdit);
-		FieldString.Presentation        = NStr("en = 'Fields';");
-		FieldString.ObjectPresentation = NStr("en = 'Field';");
+		FieldString.Presentation        = NStr("en = 'Fields'");
+		FieldString.ObjectPresentation = NStr("en = 'Field'");
 	EndIf;
 	
 	If WithFields And FieldsStructure.Property("AccountingFlags") Then
@@ -2406,8 +2406,8 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		StringAccountingAttributes.AttachmentName          = "AccountingFlags";
 		StringAccountingAttributes.PathToObject         = TreeRow.PathToObject + ".AccountingFlag.*";
 		StringAccountingAttributes.RightsDetails         = RightsAttributes(NoEdit);
-		StringAccountingAttributes.Presentation        = NStr("en = 'Accounting flags';");
-		StringAccountingAttributes.ObjectPresentation = NStr("en = 'Accounting flag';");
+		StringAccountingAttributes.Presentation        = NStr("en = 'Accounting flags'");
+		StringAccountingAttributes.ObjectPresentation = NStr("en = 'Accounting flag'");
 	EndIf;
 	
 	If WithFields And FieldsStructure.Property("ExtDimensionAccountingFlags") Then
@@ -2417,8 +2417,8 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		LineAccountingAttributesSubconto.AttachmentName          = "ExtDimensionAccountingFlags";
 		LineAccountingAttributesSubconto.PathToObject         = TreeRow.PathToObject + ".ExtDimensionAccountingFlag.*";
 		LineAccountingAttributesSubconto.RightsDetails         = RightsAttributes(NoEdit);
-		LineAccountingAttributesSubconto.Presentation        = NStr("en = 'Extra dimension accounting flags';");
-		LineAccountingAttributesSubconto.ObjectPresentation = NStr("en = 'Extra dimension accounting flag';");
+		LineAccountingAttributesSubconto.Presentation        = NStr("en = 'Extra dimension accounting flags'");
+		LineAccountingAttributesSubconto.ObjectPresentation = NStr("en = 'Extra dimension accounting flag'");
 	EndIf;
 	
 	If WithFields And FieldsStructure.Property("TabularSections") Then
@@ -2428,8 +2428,8 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		RowTableParts.AttachmentName          = "TabularSections";
 		RowTableParts.PathToObject         = TreeRow.PathToObject + ".TabularSection.*";
 		RowTableParts.RightsDetails         = RightsAttributes(NoEdit);
-		RowTableParts.Presentation        = NStr("en = 'Tables';");
-		RowTableParts.ObjectPresentation = NStr("en = 'Table';");
+		RowTableParts.Presentation        = NStr("en = 'Tables'");
+		RowTableParts.ObjectPresentation = NStr("en = 'Table'");
 		
 		// TabularSections.Attributes
 		RowTablePartsAttributes = RowTableParts.Rows.Add();
@@ -2437,8 +2437,8 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		RowTablePartsAttributes.AttachmentName          = "Attributes";
 		RowTablePartsAttributes.PathToObject         = RowTableParts.PathToObject + ".Attribute.*";
 		RowTablePartsAttributes.RightsDetails         = RightsAttributes(NoEdit);
-		RowTablePartsAttributes.Presentation        = NStr("en = 'Attributes';");
-		RowTablePartsAttributes.ObjectPresentation = NStr("en = 'Attribute';");
+		RowTablePartsAttributes.Presentation        = NStr("en = 'Attributes'");
+		RowTablePartsAttributes.ObjectPresentation = NStr("en = 'Attribute'");
 		RowTablePartsAttributes.NoGroup            = True;
 	EndIf;
 	
@@ -2449,8 +2449,8 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		StringStandardAttributes.AttachmentName          = "StandardAttributes";
 		StringStandardAttributes.PathToObject         = TreeRow.PathToObject + ".StandardAttribute.*";
 		StringStandardAttributes.RightsDetails         = RightsAttributes(NoEdit);
-		StringStandardAttributes.Presentation        = NStr("en = 'Standard attributes';");
-		StringStandardAttributes.ObjectPresentation = NStr("en = 'Standard attribute';");
+		StringStandardAttributes.Presentation        = NStr("en = 'Standard attributes'");
+		StringStandardAttributes.ObjectPresentation = NStr("en = 'Standard attribute'");
 	EndIf;
 	
 	If WithFields And FieldsStructure.Property("StandardTabularSections") Then
@@ -2460,8 +2460,8 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		RowStandardTableParts.AttachmentName          = "StandardTabularSections";
 		RowStandardTableParts.PathToObject         = TreeRow.PathToObject + ".StandardTabularSection.*";
 		RowStandardTableParts.RightsDetails         = RightsAttributes(NoEdit);
-		RowStandardTableParts.Presentation        = NStr("en = 'Standard tables';");
-		RowStandardTableParts.ObjectPresentation = NStr("en = 'Standard table';");
+		RowStandardTableParts.Presentation        = NStr("en = 'Standard tables'");
+		RowStandardTableParts.ObjectPresentation = NStr("en = 'Standard table'");
 		
 		// StandardTabularSections.StandardAttributes
 		RowStandardTablePartsStandardAttributes = RowStandardTableParts.Rows.Add();
@@ -2469,8 +2469,8 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		RowStandardTablePartsStandardAttributes.AttachmentName          = "StandardAttributes";
 		RowStandardTablePartsStandardAttributes.PathToObject         = RowStandardTableParts.PathToObject + ".StandardAttribute.*";
 		RowStandardTablePartsStandardAttributes.RightsDetails         = RightsAttributes(NoEdit);
-		RowStandardTablePartsStandardAttributes.Presentation        = NStr("en = 'Standard attributes';");
-		RowStandardTablePartsStandardAttributes.ObjectPresentation = NStr("en = 'Standard attribute';");
+		RowStandardTablePartsStandardAttributes.Presentation        = NStr("en = 'Standard attributes'");
+		RowStandardTablePartsStandardAttributes.ObjectPresentation = NStr("en = 'Standard attribute'");
 		RowStandardTablePartsStandardAttributes.NoGroup            = True;
 	EndIf;
 	
@@ -2481,8 +2481,8 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		StringRecalculations.AttachmentName          = "Recalculations";
 		StringRecalculations.PathToObject         = TreeRow.PathToObject + ".Recalculation.*";
 		StringRecalculations.RightsDetails         = SequenceAndRecalculationRights();
-		StringRecalculations.Presentation        = NStr("en = 'Recalculations';");
-		StringRecalculations.ObjectPresentation = NStr("en = 'Recalculation';");
+		StringRecalculations.Presentation        = NStr("en = 'Recalculations'");
+		StringRecalculations.ObjectPresentation = NStr("en = 'Recalculation'");
 	EndIf;
 	
 	// Commands
@@ -2491,8 +2491,8 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 	CommandString.AttachmentName          = "Commands";
 	CommandString.PathToObject         = TreeRow.PathToObject + ".Command.*";
 	CommandString.RightsDetails         = ViewRight();
-	CommandString.Presentation        = NStr("en = 'Commands';");
-	CommandString.ObjectPresentation = NStr("en = 'Command';");
+	CommandString.Presentation        = NStr("en = 'Commands'");
+	CommandString.ObjectPresentation = NStr("en = 'Command'");
 	
 EndProcedure
 
@@ -2527,76 +2527,76 @@ Function ConfigRights()
 	RightsList = RightsDetails.RightsList;
 	
 	RightsList.Add("Administration",
-		NStr("en = 'Administration';"));
+		NStr("en = 'Administration'"));
 	
 	RightsList.Add("DataAdministration",
-		NStr("en = 'Data administration';"));
+		NStr("en = 'Data administration'"));
 	
 	RightsList.Add("UpdateDataBaseConfiguration",
-		NStr("en = 'Update database configuration';"));
+		NStr("en = 'Update database configuration'"));
 	
 	RightsList.Add("ExclusiveMode",
-		NStr("en = 'Exclusive mode';"));
+		NStr("en = 'Exclusive mode'"));
 	
 	RightsList.Add("ActiveUsers",
-		NStr("en = 'Active users';"));
+		NStr("en = 'Active users'"));
 	
 	RightsList.Add("EventLog",
-		NStr("en = 'Event log';"));
+		NStr("en = 'Event log'"));
 	
 	RightsList.Add("ThinClient",
-		NStr("en = 'Thin client';"));
+		NStr("en = 'Thin client'"));
 	
 	RightsList.Add("WebClient",
-		NStr("en = 'Web client';"));
+		NStr("en = 'Web client'"));
 	
 	RightsList.Add("MobileClient",
-		NStr("en = 'Mobile client';"));
+		NStr("en = 'Mobile client'"));
 	
 	RightsList.Add("ThickClient",
-		NStr("en = 'Thick client';"));
+		NStr("en = 'Thick client'"));
 	
 	RightsList.Add("ExternalConnection",
-		NStr("en = 'External connection';"));
+		NStr("en = 'External connection'"));
 	
 	RightsList.Add("Automation",
-		NStr("en = 'Automation';"));
+		NStr("en = 'Automation'"));
 	
 	RightsList.Add("AllFunctionsMode",
-		NStr("en = '""All functions"" mode';"));
+		NStr("en = '""All functions"" mode'"));
 	
 	RightsList.Add("CollaborationSystemInfoBaseRegistration",
-		NStr("en = 'Collaboration system registration';"));
+		NStr("en = 'Collaboration system registration'"));
 	
 	RightsList.Add("MainWindowModeNormal",
-		NStr("en = 'Main window ""Standard"" mode';"));
+		NStr("en = 'Main window ""Standard"" mode'"));
 	
 	RightsList.Add("MainWindowModeWorkplace",
-		NStr("en = 'Main window ""Workspace"" mode';"));
+		NStr("en = 'Main window ""Workspace"" mode'"));
 	
 	RightsList.Add("MainWindowModeEmbeddedWorkplace",
-		NStr("en = 'Main window ""Embedded workspace"" mode';"));
+		NStr("en = 'Main window ""Embedded workspace"" mode'"));
 	
 	RightsList.Add("MainWindowModeFullscreenWorkplace",
-		NStr("en = 'Main window ""Fullscreen workspace"" mode';"));
+		NStr("en = 'Main window ""Fullscreen workspace"" mode'"));
 	
 	RightsList.Add("MainWindowModeKiosk",
-		NStr("en = 'Main window ""Kiosk"" mode';"));
+		NStr("en = 'Main window ""Kiosk"" mode'"));
 	
 	RightsList.Add("SaveUserData",
-		NStr("en = 'Save user data';"));
+		NStr("en = 'Save user data'"));
 	
 	RightsList.Add("ConfigurationExtensionsAdministration",
-		NStr("en = 'Administer configuration extensions';"));
+		NStr("en = 'Administer configuration extensions'"));
 	
 	RightsList.Add("InteractiveOpenExtDataProcessors",
-		NStr("en = 'Open external data processors interactively';"));
+		NStr("en = 'Open external data processors interactively'"));
 	
 	RightsList.Add("InteractiveOpenExtReports",
-		NStr("en = 'Open external reports interactively';"));
+		NStr("en = 'Open external reports interactively'"));
 	
 	RightsList.Add("Output",
-		NStr("en = 'Output';"));
+		NStr("en = 'Output'"));
 	
 	AccessLevels = RightsDetails.AccessLevels;
 	For Each ListItem In RightsList Do
@@ -2615,7 +2615,7 @@ Function ViewRight()
 	RightsList = RightsDetails.RightsList;
 	
 	RightsList.Add("View",
-		NStr("en = 'View';"));
+		NStr("en = 'View'"));
 	
 	NewRow = RightsDetails.AccessLevels.Add();
 	NewRow.Right   = "View";
@@ -2631,7 +2631,7 @@ Function RightUse()
 	RightsList = RightsDetails.RightsList;
 	
 	RightsList.Add("Use",
-		NStr("en = 'Use';"));
+		NStr("en = 'Use'"));
 	
 	NewRow = RightsDetails.AccessLevels.Add();
 	NewRow.Right   = "Use";
@@ -2648,11 +2648,11 @@ Function SessionSettingRights()
 	
 	// @Access-right-1
 	RightsList.Add("Get",
-		NStr("en = 'Get';"));
+		NStr("en = 'Get'"));
 	
 	// @Access-right-1
 	RightsList.Add("Set",
-		NStr("en = 'Install';"));
+		NStr("en = 'Install'"));
 	
 	NewRow = RightsDetails.AccessLevels.Add();
 	NewRow.Right   = "Get" + "," + "Set"; // @Access-right-1, @Access-right-3
@@ -2677,11 +2677,11 @@ Function RightsAttributes(NoEdit = False)
 	RightsList = RightsDetails.RightsList;
 	
 	RightsList.Add("View",
-		NStr("en = 'View';"));
+		NStr("en = 'View'"));
 	
 	If Not NoEdit Then
 		RightsList.Add("Edit",
-			NStr("en = 'Edit';"));
+			NStr("en = 'Edit'"));
 		
 		NewRow = RightsDetails.AccessLevels.Add();
 		NewRow.Right   = "Edit";
@@ -2705,7 +2705,7 @@ Function ExchangePlanRights()
 	AddPermissionsInteractiveWorkWithObjects(RightsList);
 	
 	RightsList.Add("InputByString",
-		NStr("en = 'Input by string';"));
+		NStr("en = 'Input by string'"));
 	
 	AddJobPermissionsWithHistory(RightsList);
 	
@@ -2740,7 +2740,7 @@ Function RightsofDirectoryandPlans()
 	AddJobPermissionsWithPredefinedData(RightsList);
 	
 	RightsList.Add("InputByString",
-		NStr("en = 'Input by string';"));
+		NStr("en = 'Input by string'"));
 	
 	AddJobPermissionsWithHistory(RightsList);
 	
@@ -2779,27 +2779,27 @@ Function DocumentPermissions()
 	AddPermissionsProgrammingWorkWithObjects(RightsList);
 	
 	RightsList.Add("Posting",
-		NStr("en = 'Post';"));
+		NStr("en = 'Post'"));
 	
 	RightsList.Add("UndoPosting",
-		NStr("en = 'Unpost';"));
+		NStr("en = 'Unpost'"));
 	
 	AddPermissionsInteractiveWorkWithObjects(RightsList);
 	
 	RightsList.Add("InteractivePosting",
-		NStr("en = 'Post interactively';"));
+		NStr("en = 'Post interactively'"));
 	
 	RightsList.Add("InteractivePostingRegular",
-		NStr("en = 'Backdate post interactively';"));
+		NStr("en = 'Backdate post interactively'"));
 	
 	RightsList.Add("InteractiveUndoPosting",
-		NStr("en = 'Unpost interactively';"));
+		NStr("en = 'Unpost interactively'"));
 	
 	RightsList.Add("InteractiveChangeOfPosted",
-		NStr("en = 'Modify posted items interactively';"));
+		NStr("en = 'Modify posted items interactively'"));
 	
 	RightsList.Add("InputByString",
-		NStr("en = 'Input by string';"));
+		NStr("en = 'Input by string'"));
 	
 	AddJobPermissionsWithHistory(RightsList);
 	
@@ -2829,10 +2829,10 @@ Function RightsReportProcessingFunctions()
 	RightsList = RightsDetails.RightsList;
 	
 	RightsList.Add("Use",
-		NStr("en = 'Use';"));
+		NStr("en = 'Use'"));
 	
 	RightsList.Add("View",
-		NStr("en = 'View';"));
+		NStr("en = 'View'"));
 	
 	NewRow = RightsDetails.AccessLevels.Add();
 	NewRow.Right   = "View";
@@ -2855,7 +2855,7 @@ Function RightsRegisterInformation()
 	AddPermissionsInteractiveWorkWithObjects(RightsList,, False);
 	
 	RightsList.Add("TotalsControl",
-		NStr("en = 'Totals management';"));
+		NStr("en = 'Totals management'"));
 	
 	AddJobPermissionsWithHistory(RightsList);
 	
@@ -2874,7 +2874,7 @@ Function RightsRegisterAccumulationAndAccounting()
 	AddPermissionsInteractiveWorkWithObjects(RightsList,, False);
 	
 	RightsList.Add("TotalsControl",
-		NStr("en = 'Totals management';"));
+		NStr("en = 'Totals management'"));
 	
 	FillAccessLevels(RightsDetails,, False);
 	
@@ -2904,18 +2904,18 @@ Function RightsBusinessProcess()
 	AddPermissionsProgrammingWorkWithObjects(RightsList);
 	
 	RightsList.Add("Start",
-		NStr("en = 'Start';"));
+		NStr("en = 'Start'"));
 	
 	AddPermissionsInteractiveWorkWithObjects(RightsList);
 	
 	RightsList.Add("InteractiveStart",
-		NStr("en = 'Start interactively';"));
+		NStr("en = 'Start interactively'"));
 	
 	RightsList.Add("InteractiveActivate",
-		NStr("en = 'Activate interactively';"));
+		NStr("en = 'Activate interactively'"));
 	
 	RightsList.Add("InputByString",
-		NStr("en = 'Input by string';"));
+		NStr("en = 'Input by string'"));
 	
 	AddJobPermissionsWithHistory(RightsList);
 	
@@ -2934,18 +2934,18 @@ Function RightsTasks()
 	
 	// @Access-right-1
 	RightsList.Add("Execute",
-		NStr("en = 'Execute';"));
+		NStr("en = 'Execute'"));
 	
 	AddPermissionsInteractiveWorkWithObjects(RightsList);
 	
 	RightsList.Add("InteractiveExecute",
-		NStr("en = 'Execution interactively';"));
+		NStr("en = 'Execution interactively'"));
 	
 	RightsList.Add("InteractiveActivate",
-		NStr("en = 'Activate interactively';"));
+		NStr("en = 'Activate interactively'"));
 	
 	RightsList.Add("InputByString",
-		NStr("en = 'Input by string';"));
+		NStr("en = 'Input by string'"));
 	
 	AddJobPermissionsWithHistory(RightsList);
 	
@@ -2962,20 +2962,20 @@ Function RightsExternalDataSource()
 	
 	// @Access-right-1
 	RightsList.Add("Use",
-		NStr("en = 'Use';"));
+		NStr("en = 'Use'"));
 	
 	// @Access-right-1
 	RightsList.Add("Administration",
-		NStr("en = 'Administration';"));
+		NStr("en = 'Administration'"));
 	
 	RightsList.Add("StandardAuthenticationChange",
-		NStr("en = 'Change standard authentication for current user';"));
+		NStr("en = 'Change standard authentication for current user'"));
 	
 	RightsList.Add("SessionStandardAuthenticationChange",
-		NStr("en = 'Change standard authentication for current session';"));
+		NStr("en = 'Change standard authentication for current session'"));
 	
 	RightsList.Add("SessionOSAuthenticationChange",
-		NStr("en = 'Change standard authentication for current session OS';"));
+		NStr("en = 'Change standard authentication for current session OS'"));
 	
 	NewRow = RightsDetails.AccessLevels.Add();
 	NewRow.Right   = "Use" + "," + "Administration"; // @Access-right-1, @Access-right-3
@@ -3015,7 +3015,7 @@ Function RightsTableExternalDataSource()
 	AddPermissionsInteractiveWorkWithObjects(RightsList,,, False);
 	
 	RightsList.Add("InputByString",
-		NStr("en = 'Input by string';"));
+		NStr("en = 'Input by string'"));
 	
 	FillAccessLevels(RightsDetails);
 	
@@ -3041,7 +3041,7 @@ Procedure AddPermissionsProgrammingWorkWithObjects(RightsList, Un_changed = Fals
 	
 	// @Access-right-1
 	RightsList.Add("Read",
-		NStr("en = 'Read';"), withlimit);
+		NStr("en = 'Read'"), withlimit);
 	
 	If Un_changed Then
 		Return;
@@ -3049,7 +3049,7 @@ Procedure AddPermissionsProgrammingWorkWithObjects(RightsList, Un_changed = Fals
 	
 	// @Access-right-1
 	RightsList.Add("Update",
-		NStr("en = 'Modify';"), withlimit);
+		NStr("en = 'Modify'"), withlimit);
 	
 	If Not ReferenceItems Then
 		Return;
@@ -3057,11 +3057,11 @@ Procedure AddPermissionsProgrammingWorkWithObjects(RightsList, Un_changed = Fals
 	
 	// @Access-right-1
 	RightsList.Add("Insert",
-		NStr("en = 'Add';"), withlimit);
+		NStr("en = 'Add'"), withlimit);
 	
 	// @Access-right-1
 	RightsList.Add("Delete",
-		NStr("en = 'Delete';"), withlimit);
+		NStr("en = 'Delete'"), withlimit);
 	
 EndProcedure
 
@@ -3069,7 +3069,7 @@ Procedure AddPermissionsInteractiveWorkWithObjects(RightsList, Un_changed = Fals
 	
 	// @Access-right-1
 	RightsList.Add("View",
-		NStr("en = 'View';"));
+		NStr("en = 'View'"));
 	
 	If Un_changed Then
 		Return;
@@ -3077,81 +3077,81 @@ Procedure AddPermissionsInteractiveWorkWithObjects(RightsList, Un_changed = Fals
 	
 	// @Access-right-1
 	RightsList.Add("Edit",
-		NStr("en = 'Edit';"));
+		NStr("en = 'Edit'"));
 	
 	If Not ReferenceItems Then
 		Return;
 	EndIf;
 	
 	RightsList.Add("InteractiveInsert",
-		NStr("en = 'Add interactively';"));
+		NStr("en = 'Add interactively'"));
 	
 	RightsList.Add("InteractiveDelete",
-		NStr("en = 'Delete interactively';"));
+		NStr("en = 'Delete interactively'"));
 	
 	If Not WithDeletionTagged Then
 		Return;
 	EndIf;
 	
 	RightsList.Add("InteractiveDeletionMark",
-		NStr("en = 'Mark for deletion interactively';"));
+		NStr("en = 'Mark for deletion interactively'"));
 	
 	RightsList.Add("InteractiveClearDeletionMark",
-		NStr("en = 'Unmark for deletion interactively';"));
+		NStr("en = 'Unmark for deletion interactively'"));
 	
 	RightsList.Add("InteractiveDeleteMarked",
-		NStr("en = 'Delete items marked for deletion interactively';"));
+		NStr("en = 'Delete items marked for deletion interactively'"));
 	
 EndProcedure
 
 Procedure AddJobPermissionsWithPredefinedData(RightsList)
 	
 	RightsList.Add("InteractiveDeletePredefinedData",
-		NStr("en = 'Delete predefined items interactively';"));
+		NStr("en = 'Delete predefined items interactively'"));
 	
 	RightsList.Add("InteractiveSetDeletionMarkPredefinedData",
-		NStr("en = 'Mark predefined items for deletion interactively';"));
+		NStr("en = 'Mark predefined items for deletion interactively'"));
 	
 	RightsList.Add("InteractiveClearDeletionMarkPredefinedData",
-		NStr("en = 'Unmark predefined items for deletion interactively';"));
+		NStr("en = 'Unmark predefined items for deletion interactively'"));
 	
 	RightsList.Add("InteractiveDeleteMarkedPredefinedData",
-		NStr("en = 'Delete predefined items marked for deletion interactively';"));
+		NStr("en = 'Delete predefined items marked for deletion interactively'"));
 	
 EndProcedure
 
 Procedure AddJobPermissionsWithHistory(RightsList, RightsOnMissingData = True)
 	
 	RightsList.Add("ReadDataHistory",
-		NStr("en = 'Read data history';"));
+		NStr("en = 'Read data history'"));
 	
 	If RightsOnMissingData Then
 		RightsList.Add("ReadDataHistoryOfMissingData",
-			NStr("en = 'Read data history of missing data';"));
+			NStr("en = 'Read data history of missing data'"));
 	EndIf;
 	
 	RightsList.Add("UpdateDataHistory",
-		NStr("en = 'Modify data history';"));
+		NStr("en = 'Modify data history'"));
 	
 	If RightsOnMissingData Then
 		RightsList.Add("UpdateDataHistoryOfMissingData",
-			NStr("en = 'Modify data history of missing data';"));
+			NStr("en = 'Modify data history of missing data'"));
 	EndIf;
 	
 	RightsList.Add("UpdateDataHistorySettings",
-		NStr("en = 'Change data history settings';"));
+		NStr("en = 'Change data history settings'"));
 	
 	RightsList.Add("UpdateDataHistoryVersionComment",
-		NStr("en = 'Change data history version comment';"));
+		NStr("en = 'Change data history version comment'"));
 	
 	RightsList.Add("ViewDataHistory",
-		NStr("en = 'View data history';"));
+		NStr("en = 'View data history'"));
 	
 	RightsList.Add("EditDataHistoryVersionComment",
-		NStr("en = 'Edit data history version comment';"));
+		NStr("en = 'Edit data history version comment'"));
 	
 	RightsList.Add("SwitchToDataHistoryVersion",
-		NStr("en = 'Rollback to data history version';"));
+		NStr("en = 'Rollback to data history version'"));
 
 EndProcedure
 
@@ -3308,5 +3308,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

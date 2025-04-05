@@ -32,7 +32,7 @@ Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessin
 	If Parameters.FormName = "Catalog.Users.Form.ListForm" Then
 		
 		Command = ReportsCommands.Add();
-		Command.Presentation = NStr("en = 'Summary user activity';");
+		Command.Presentation = NStr("en = 'Summary user activity'");
 		Command.VariantKey = "UsersActivityAnalysis";
 		Command.MultipleChoice = True;
 		Command.Manager = "Report.EventLogAnalysis";
@@ -41,7 +41,7 @@ Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessin
 		
 		If Users.IsDepartmentUsed() Then
 			Command = ReportsCommands.Add();
-			Command.Presentation = NStr("en = 'Department activity';");
+			Command.Presentation = NStr("en = 'Department activity'");
 			Command.VariantKey = "DepartmentActivityAnalysis";
 			Command.MultipleChoice = True;
 			Command.Manager = "Report.EventLogAnalysis";
@@ -60,7 +60,7 @@ Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessin
 	EndIf;
 	
 	Command = ReportsCommands.Add();
-	Command.Presentation = NStr("en = 'User activity';");
+	Command.Presentation = NStr("en = 'User activity'");
 	Command.VariantKey = "UserActivity";
 	Command.MultipleChoice = False;
 	Command.Manager = "Report.EventLogAnalysis";
@@ -88,7 +88,7 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 		OptionSettings.Location.Insert(SubsystemForMonitoring, "");
 	EndIf;
 	OptionSettings.LongDesc =
-		NStr("en = 'User activity (total load and affected objects).';");
+		NStr("en = 'User activity (total load and affected objects).'");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "DepartmentActivityAnalysis");
 	OptionSettings.Enabled = Users.IsDepartmentUsed();
@@ -96,21 +96,21 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 		OptionSettings.Location.Insert(SubsystemForMonitoring, "");
 	EndIf;
 	OptionSettings.LongDesc =
-		NStr("en = 'Department activity (total load and affected objects).';");
+		NStr("en = 'Department activity (total load and affected objects).'");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "UserActivity");
 	If SubsystemForMonitoring <> Undefined Then
 		OptionSettings.Location.Insert(SubsystemForMonitoring, "");
 	EndIf;
 	OptionSettings.LongDesc =
-		NStr("en = 'Objects affected by user activities (detailed).';");
+		NStr("en = 'Objects affected by user activities (detailed).'");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "EventLogMonitor");
 	OptionSettings.SearchSettings.TemplatesNames = "EvengLogErrorReportTemplate";
 	If SubsystemForAdministration <> Undefined Then
 		OptionSettings.Location.Insert(SubsystemForAdministration, "");
 	EndIf;
-	OptionSettings.LongDesc = NStr("en = 'Critical events in the system event log.';");
+	OptionSettings.LongDesc = NStr("en = 'Critical events in the system event log.'");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "ScheduledJobsDuration");
 	OptionSettings.SearchSettings.TemplatesNames = "ScheduledJobsDuration, ScheduledJobsDetails";
@@ -118,7 +118,7 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	If SubsystemForAdministration <> Undefined Then
 		OptionSettings.Location.Insert(SubsystemForAdministration, "");
 	EndIf;
-	OptionSettings.LongDesc = NStr("en = 'Job schedules.';");
+	OptionSettings.LongDesc = NStr("en = 'Job schedules.'");
 	
 EndProcedure
 
@@ -929,7 +929,7 @@ Procedure PopulateIBUserDepartment(SourceDataString, Date, IBUserID,
 	 Or Not ValueIsFilled(DepartmentDetails.Department)
 	   And Not ValueIsFilled(DepartmentDetails.DepartmentPresentation) Then
 		
-		SourceDataString.DepartmentPresentation = "<" + NStr("en = 'Not specified';") + ">";
+		SourceDataString.DepartmentPresentation = "<" + NStr("en = 'Not specified'") + ">";
 		Return;
 	EndIf;
 	
@@ -1034,7 +1034,7 @@ Function UserForSelection(UserRef = "", IBUserID = Undefined) Export
 EndFunction
 
 Function WeekOfYearString(DateInYear)
-	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Week %1';"), WeekOfYear(DateInYear));
+	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Week %1'"), WeekOfYear(DateInYear));
 EndFunction
 
 Procedure GenerateConcurrentSessionsRow(ConcurrentSessionsData, MaxUsersArray,
@@ -1049,7 +1049,7 @@ Procedure GenerateConcurrentSessionsRow(ConcurrentSessionsData, MaxUsersArray,
 		For Each CurrentUser In TemporaryArray Do
 			If CurrentUser = Item Then
 				UserSessionsCounter = UserSessionsCounter + 1;
-				UserAndNumber = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (%2)';"),
+				UserAndNumber = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (%2)'"),
 					Item,
 					UserSessionsCounter);
 			EndIf;
@@ -1124,9 +1124,9 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 		Or Not FilterOutput.Use Then
 		Area = TemplateAreaDetails(Template, "Filter");
 		If MinScheduledJobSessionDuration > 0 Then
-			IntervalsViewMode = NStr("en = 'Hide intervals with zero duration';");
+			IntervalsViewMode = NStr("en = 'Hide intervals with zero duration'");
 		Else
-			IntervalsViewMode = NStr("en = 'Show intervals with zero duration';");
+			IntervalsViewMode = NStr("en = 'Show intervals with zero duration'");
 		EndIf;
 		Area.Parameters.StartDate = StartDate;
 		Area.Parameters.EndDate = EndDate;
@@ -1164,7 +1164,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 				If Not TypeOf(Item) = Type("Number")
 					And Not TypeOf(Item) = Type("Date") Then
 					Area = TemplateAreaDetails(Template, "ScheduledJobsList");
-					Area.Parameters.ScheduledJobsList = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (session %2)';"),
+					Area.Parameters.ScheduledJobsList = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (session %2)'"),
 						Item,
 						ScheduledJobsArray[ScheduledJobIndex+1]);
 				ElsIf Not TypeOf(Item) = Type("Date")
@@ -1213,7 +1213,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 					DetailsPoint.Add(OverallScheduledJobsDuration);
 					DetailsPoint.Add(StartDate);
 					DetailsPoint.Add(EndDate);
-					PointName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (%2 out of %3)';"),
+					PointName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (%2 out of %3)'"),
 						Point.Value,
 						ScheduledJobStarts,
 						String(StartsCountRow.Starts));
@@ -1244,7 +1244,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 					ScheduledJobStarts = 0;
 					Point.Picture = PictureLib.ScheduledJob;
 				ElsIf Not ValueIsFilled(ScheduledJobsRow.EventMetadata) Then
-					PointName = NStr("en = 'Background jobs';");
+					PointName = NStr("en = 'Background jobs'");
 					Point = GanttChart.SetPoint(PointName);
 					OverallScheduledJobsDuration = 0;
 				EndIf;
@@ -1253,7 +1253,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 			Interval = Value.Add();
 			Interval.Begin = ScheduledJobsRow.JobStartDate;
 			Interval.End = ScheduledJobsRow.JobEndDate;
-			Interval.Text = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 - %2';"),
+			Interval.Text = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 - %2'"),
 				Format(Interval.Begin, "DLF=T"),
 				Format(Interval.End, "DLF=T"));
 			PointChangedFlag = False;
@@ -1277,7 +1277,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 		DetailsPoint.Add(OverallScheduledJobsDuration);
 		DetailsPoint.Add(StartDate);
 		DetailsPoint.Add(EndDate);	
-		PointName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (%2 out of %3)';"),
+		PointName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (%2 out of %3)'"),
 			Point.Value,
 			ScheduledJobStarts,
 			String(StartsCountRow.Starts));
@@ -1503,7 +1503,7 @@ Function ConcurrentScheduledJobs(ConcurrentSessionsParameters)
 		If CurrentDate <> ConcurrentScheduledJobsDate Then
 			If TableRow <> Undefined Then
 				TableRow.ConcurrentScheduledJobs = ConcurrentScheduledJobs;
-				TableRow.ConcurrentScheduledJobsDate = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 - %2';"),
+				TableRow.ConcurrentScheduledJobsDate = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 - %2'"),
 					Format(CurrentDate, "DLF=T"),
 					Format(EndOfHour(CurrentDate), "DLF=T"));
 				TableRow.ScheduledJobsList = MaxScheduledJobsArray;
@@ -1556,7 +1556,7 @@ Function ConcurrentScheduledJobs(ConcurrentSessionsParameters)
 		
 	If ConcurrentScheduledJobs <> 0 Then
 		TableRow.ConcurrentScheduledJobs  = ConcurrentScheduledJobs;
-		TableRow.ConcurrentScheduledJobsDate = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 - %2';"),
+		TableRow.ConcurrentScheduledJobsDate = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 - %2'"),
 			Format(CurrentDate, "DLF=T"),
 			Format(EndOfHour(CurrentDate), "DLF=T"));
 		TableRow.ScheduledJobsList = MaxScheduledJobsArray;
@@ -1700,9 +1700,9 @@ Function ScheduledJobDetails1(Details) Export
 	Area.Parameters.StartDate = StartDate;
 	Area.Parameters.EndDate = EndDate;
 	If Details.Get(8) = 0 Then
-		IntervalsViewMode = NStr("en = 'Show intervals with zero duration';");
+		IntervalsViewMode = NStr("en = 'Show intervals with zero duration'");
 	Else
-		IntervalsViewMode = NStr("en = 'Hide intervals with zero duration';");
+		IntervalsViewMode = NStr("en = 'Hide intervals with zero duration'");
 	EndIf;
 	Area.Parameters.SessionViewMode = IntervalsViewMode;
 	Report.Put(Area);
@@ -1710,7 +1710,7 @@ Function ScheduledJobDetails1(Details) Export
 	Report.Put(Template.GetArea("IsBlankString"));
 	
 	Area = TemplateAreaDetails(Template, "Table");
-	Area.Parameters.JobType = NStr("en = 'Scheduled';");
+	Area.Parameters.JobType = NStr("en = 'Scheduled'");
 	Area.Parameters.NameOfEvent = Details.Get(2);
 	Area.Parameters.Starts = Details.Get(9);
 	JobsCanceled = Details.Get(3);
@@ -1830,17 +1830,17 @@ Function ScheduledJobDuration(SJDuration)
 	If SJDuration = 0 Then
 		OverallScheduledJobsDuration = "0";
 	ElsIf SJDuration <= 60 Then
-		OverallScheduledJobsDuration = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 sec';"), SJDuration);
+		OverallScheduledJobsDuration = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 sec'"), SJDuration);
 	ElsIf 60 < SJDuration <= 3600 Then
 		DurationMinutes  = Format(SJDuration/60, "NFD=0");
 		DurationSeconds = Format((Format(SJDuration/60, "NFD=2")
 			- Int(SJDuration/60)) * 60, "NFD=0");
-		OverallScheduledJobsDuration = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 min %2 sec';"), DurationMinutes, DurationSeconds);
+		OverallScheduledJobsDuration = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 min %2 sec'"), DurationMinutes, DurationSeconds);
 	ElsIf SJDuration > 3600 Then
 		DurationHours    = Format(SJDuration/60/60, "NFD=0");
 		DurationMinutes  = (Format(SJDuration/60/60, "NFD=2") - Int(SJDuration/60/60))*60;
 		DurationMinutes  = Format(DurationMinutes, "NFD=0");
-		OverallScheduledJobsDuration = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 h %2 min';"), DurationHours, DurationMinutes);
+		OverallScheduledJobsDuration = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 h %2 min'"), DurationHours, DurationMinutes);
 	EndIf;
 	
 	Return OverallScheduledJobsDuration;

@@ -9,19 +9,19 @@
 
 #Region Public
 
-// 
+// Exports objects in the specified format and writes them to a file.
 //
 // Parameters:
 //  ExportCommands  - Structure
-//                   - Array - 
+//                   - Array - One or more export commands.
 //                            See PrintManagement.FormPrintCommands.
-//  ListOfObjects - Array of CatalogRef, DocumentRef - 
+//  ListOfObjects - Array of CatalogRef, DocumentRef - References to the objects being saved.
 //  SettingsForSaving - See PrintManagement.SettingsForSaving.
 //
 // Returns:
 //  ValueTable:
-//   * FileName - String -  file name;
-//   * BinaryData - BinaryData -  print form file.
+//   * FileName - String - Filename.
+//   * BinaryData - BinaryData - Print form file.
 //
 Function SaveByFormatToFile(ExportCommands, ListOfObjects, SettingsForSaving) Export
 	
@@ -50,7 +50,7 @@ Function SaveByFormatToFile(ExportCommands, ListOfObjects, SettingsForSaving) Ex
 	
 	For Each ExportCommand In ListOfCommands Do
 		
-		//@skip-check query-in-loop - The query is used within the exception handler for unforeknown data.
+		//@skip-check query-in-loop - запрос используется внутри обработки исключения для заранее неизвестных данных.
 		ExecuteExportToFile(ExportCommand, SettingsForSaving, ListOfObjects, Result);
 		
 	EndDo;
@@ -138,7 +138,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 		
 		Command = Commands.Add();
 		Command.Kind = "ExportObjectData";
-		Command.Presentation = NStr("en = 'Go to export template files';");
+		Command.Presentation = NStr("en = 'Go to export template files'");
 		Command.MultipleChoice = False;
 		Command.Handler = "ExportObjectsToFilesInternalClient.OpenExportTemplatesForm";
 		Command.ParameterType = New TypeDescription(ParameterType);
@@ -158,19 +158,19 @@ Procedure OnDefineAttachableCommandsKinds(AttachableCommandsKinds) Export
 	Kind = AttachableCommandsKinds.Add();
 	Kind.Name = "ExportObjectData";
 	Kind.SubmenuName = "SubmenuExportObjectData";
-	Kind.Title = NStr("en = 'Export to file';");
+	Kind.Title = NStr("en = 'Export to file'");
 	Kind.Order = 40;
 	Kind.Picture = PictureLib.SaveFileAs;
 	Kind.Representation = ButtonRepresentation.PictureAndText;
 	
 EndProcedure
 
-// 
+// Returns a list of print commands for the specified print form.
 //
 // Parameters:
 //  Form - ClientApplicationForm
-//        - String - 
-//                   
+//        - String - Form or the full name of the form that is the destination for
+//                   the export commands.
 //  ListOfObjects - Array - Collection of metadata objects whose print commands are to be used when generating
 //                            a list of print commands for the given form.
 // Returns:
@@ -256,13 +256,13 @@ Function FormExportCommands(Form, ListOfObjects = Undefined) Export
 	
 EndFunction
 
-// 
+// Generates an export object structure based on the given export template.
 // 
 // Parameters:
-//  Template - SpreadsheetDocument - 
+//  Template - SpreadsheetDocument - Export template
 //  SaveFormat - EnumRef.ObjectsExportFormats
-//  ObjectsArray - Array of CatalogRef, DocumentRef - 
-//  LanguageCode - String - 
+//  ObjectsArray - Array of CatalogRef, DocumentRef - References to the objects being saved.
+//  LanguageCode - String - Language code
 // 
 // Returns:
 //  Map of KeyAndValue:
@@ -320,7 +320,7 @@ EndFunction
 // Parameters:
 //  Template - SpreadsheetDocument
 //  AreasTables -  Map of KeyAndValue:
-//   * Key - String - 
+//   * Key - String - Table address
 //   * Value - String - Table name
 // 
 // Returns:
@@ -363,7 +363,7 @@ Function TemplateTables(Template, AreasTables) Export
 EndFunction
 
 // Returns:
-//  Array of EnumRef.ObjectsExportFormats - 
+//  Array of EnumRef.ObjectsExportFormats - Export formats without using the spreadsheet.
 //
 Function ExportFormatsWithoutUsingSpreadsheet() Export
 	
@@ -378,19 +378,19 @@ EndFunction
 
 // Parameters:
 //  StructureWithData - Structure
-//  FullFileName - String - 
-//  ExportPresentation - String - 
+//  FullFileName - String - Full filename
+//  ExportPresentation - String - Export presentation
 //
 Procedure ExecuteExportToXML(StructureWithData, FullFileName, ExportPresentation) Export
 	
-	BodyName = NStr("en = 'Document';");
+	BodyName = NStr("en = 'Document'");
 	XMLWriter = New XMLWriter; 
 	If Not IsBlankString(FullFileName) Then
-		XMLWriter.OpenFile(FullFileName, "UTF-8"); // Открываем файл для записи, указываем кодировку
+		XMLWriter.OpenFile(FullFileName, "UTF-8"); // Open the file for writing and specify the encoding
 	Else
 		XMLWriter.SetString();
 	EndIf;
-	XMLWriter.WriteXMLDeclaration(); // Записываем объявление XML
+	XMLWriter.WriteXMLDeclaration(); // Write the XML declaration
 	XMLWriter.WriteStartElement(BodyName);
 	
 	DataVolume = StructureWithData.DataVolume;
@@ -410,8 +410,8 @@ EndProcedure
 
 // Parameters:
 //  StructureWithData - Structure
-//  FullFileName - String - 
-//  ExportPresentation - String - 
+//  FullFileName - String - Full filename
+//  ExportPresentation - String - Export presentation
 //
 Procedure ExecuteExportToJSON(StructureWithData, FullFileName, ExportPresentation) Export
 	
@@ -431,7 +431,7 @@ Procedure ExecuteExportToJSON(StructureWithData, FullFileName, ExportPresentatio
 	
 EndProcedure
 
-// 
+// Check if the export format matches the saving format.
 // 
 // Returns:
 //  Map of KeyAndValue:
@@ -456,7 +456,7 @@ Function ExportFormatSaveFormatMap() Export
 EndFunction
 
 // Parameters:
-//  MetadataObject - CatalogRef, DocumentRef - 
+//  MetadataObject - CatalogRef, DocumentRef - References to the objects being saved.
 // 
 // Returns:
 //  ValueTable - See PrintManagement.FormPrintCommands
@@ -485,7 +485,7 @@ EndFunction
 #Region ExportStructureGenerationProcedures
 
 // Parameters:
-//  MetadataObject - CatalogRef, DocumentRef - 
+//  MetadataObject - CatalogRef, DocumentRef - References to the objects being saved.
 // 
 // Returns:
 //  See PrintManagement.FormPrintCommands
@@ -522,7 +522,7 @@ Function ObjectExportCommands(MetadataObject)
 	
 EndFunction
 
-// 
+// Generates a value table with export command details
 // 
 // Parameters:
 //  ExportCommands - ValueTable:
@@ -555,12 +555,12 @@ EndFunction
 // * isDisabled - Boolean 
 // * FormCommandName - String
 // * VisibilityConditionsByObjectTypes - Map of KeyAndValue:
-//     ** Key - TypeDescription - 
+//     ** Key - TypeDescription - Object type
 //     ** Value - Structure 
 // * ShouldRunInBackgroundJob - Boolean
 // * IdentifierOfTemplate - String
 // * SourceType - Type 
-//  MetadataObject - MetadataObject -  metadata object
+//  MetadataObject - MetadataObject - Metadata object
 //
 Procedure AddObjectExportCommands(ExportCommands, MetadataObject)
 	
@@ -726,7 +726,7 @@ Function GenerateDataForExport(Val PrintManagerName, ObjectsTableByTemplates, Va
 		// Raise an exception based on the error.
 		If Cancel Then
 			
-			MessageTemplate = NStr("en = 'Failed to export using the template ""%1"" (""%2""). Contact the administrator.';");
+			MessageTemplate = NStr("en = 'Failed to export using the template ""%1"" (""%2""). Contact the administrator.'");
 			ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				MessageTemplate,
 				TemplatePresentation,
@@ -748,7 +748,7 @@ EndFunction
 
 Function CheckIfObjectsMatchExportTemplate(ObjectsArray, AllowedTypesOfExportObjects)
 	
-	// Проверка соответствия выгружаемых объектов выбранному макету выгрузки.
+	// Validate exported objects against the selected export template.
 	ObjectsMatchingExportTemplate = ObjectsArray;
 	If AllowedTypesOfExportObjects <> Undefined And AllowedTypesOfExportObjects.Count() > 0 Then
 		
@@ -850,8 +850,9 @@ Procedure StartPreparationForExport(ObjectsArray, PrintFormsCollection, Internal
 		PrintForm.OutputInOtherLanguagesAvailable = True;
 		PrintForm.FullTemplatePath = PrintForm.TemplateName;
 		PrintForm.TemplateSynonym = PrintManagement.TemplatePresentation(PrintForm.FullTemplatePath, LanguageCode);
-		// @skip-check query-in-loop - A few loop iterations that query the table 
-		// "InformationRegister.UserPrintTemplates", which contains just a handful of records.
+		// @skip-check query-in-loop - Небольшое количество итераций цикла с запросом к таблице РегистрСведений.ПользовательскиеМакетыПечати 
+		// @skip-check query-in-loop - A few loop iterations that query the table
+// "InformationRegister.UserPrintTemplates", which contains just a handful of records.
 		Template = PrintManagement.PrintFormTemplate(PrintForm.FullTemplatePath, LanguageCode);
 		Result = GenerateStructureForExport(
 			Template,
@@ -905,7 +906,7 @@ Function ParseAreaName(FullAreaName, Separator)
 	
 	Result = New Structure;
 	Result.Insert("AreaName", FullAreaName);
-	Result.Insert("NestedAreaName", NStr("en = 'TableRow';"));
+	Result.Insert("NestedAreaName", NStr("en = 'TableRow'"));
 	
 	If StrFind(FullAreaName, Separator,, 2) = 0 Then
 		Return Result;
@@ -928,7 +929,7 @@ Function ParseAreaName(FullAreaName, Separator)
 EndFunction
 
 // Returns:
-//  Structure - :
+//  Structure - New parameter structure.:
 // * IsArea - Boolean
 // * FullPath - String
 // * Value - Arbitrary
@@ -954,7 +955,7 @@ Function NewParameterStructure()
 EndFunction
 
 // Returns:
-//  Structure - :
+//  Structure - New structure for parameter calculation.:
 // * FieldFormatSettings - Map of KeyAndValue:
 //   ** Key - String
 //   ** Value - String
@@ -1066,7 +1067,7 @@ Function GenerateExportData(ObjectsArray, PrintData, Additional_Data)
 		
 		ArrayOfProcessedOnes = New Array;
 		DataCnt = 0;
-		AreaName = NStr("en = 'Document';");
+		AreaName = NStr("en = 'Document'");
 		
 		StructureWithData = NewDataStructure();
 		StructureWithData.AreaName = AreaName;
@@ -1225,7 +1226,7 @@ Function AreasTableRowContainsTable(TableRow, OwnerTableName)
 	If ThisIsTable Then
 		
 		TableName = TrimAll(TableRow.TableName);
-		ThisIsTable = (TableName <> OwnerTableName); // Если ЭтоТаблица =  False - это вложенная область таблицы, обрабатываем как область
+		ThisIsTable = (TableName <> OwnerTableName); // If "ThisIsTable" is set to "False", then this is a nested table area. Handle it as an area.
 		
 	Else
 		TableName = OwnerTableName;
@@ -2020,10 +2021,10 @@ Function SourceFieldValue(SourceData, DataForParameterCalculation, FieldName, Fu
 EndFunction
 
 // Parameters:
-//  Simple - String, Arbitrary - 
+//  Simple - String, Arbitrary - Field value
 // 
 // Returns:
-//  TypeDescription - 
+//  TypeDescription - Default field type
 //
 Function FieldTypeByValue(Simple)
 	
@@ -2166,7 +2167,7 @@ EndFunction
 
 Procedure NotifyExportUnavailable(Object)
 	
-	Template = NStr("en = 'Export ""%1"" failed: Selected template is unavailable.';");
+	Template = NStr("en = 'Export ""%1"" failed: Selected template is unavailable.'");
 	ObjectAsString = String(Object);
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(Template, ObjectAsString);
 	Common.MessageToUser(MessageText, Object);
@@ -2452,9 +2453,7 @@ Procedure ProcessDataXMLArea(XMLWriter, StructureWithData)
 		ParameterName = TrimAll(StructureItem.ParameterName); // String
 		ParameterName = CommonClientServer.DeleteDisallowedXMLCharacters(ParameterName);
 		Value = StructureItem.Value; // AnyRef
-		ParameterConditionalAppearance = StructureItem.ConditionalAppearance; // Undefined, String
-		LanguageCode = StructureItem.LanguageCode; // String
-		ValueToFile = ValueInXML(Value, ParameterConditionalAppearance, LanguageCode);
+		ValueToFile = ValueIntoXMLJSON(Value);
 		
 		XMLWriter.WriteStartElement(ParameterName);
 		XMLWriter.WriteText(ValueToFile);
@@ -2481,9 +2480,7 @@ Procedure ProcessDataXMLArea(XMLWriter, StructureWithData)
 				ParameterName = TrimAll(StructureItem.ParameterName); // String
 				ParameterName = CommonClientServer.DeleteDisallowedXMLCharacters(ParameterName);
 				Value = StructureItem.Value; // AnyRef
-				ParameterConditionalAppearance = StructureItem.ConditionalAppearance; // Undefined, String
-				LanguageCode = StructureItem.LanguageCode; // String
-				ValueToFile = ValueInXML(Value, ParameterConditionalAppearance, LanguageCode);
+				ValueToFile = ValueIntoXMLJSON(Value);
 				
 				XMLWriter.WriteStartElement(ParameterName);
 				XMLWriter.WriteText(ValueToFile);
@@ -2501,26 +2498,19 @@ Procedure ProcessDataXMLArea(XMLWriter, StructureWithData)
 	
 EndProcedure
 
-Function ValueInXML(Value, Val Format_String, Val LanguageCode)
+Function ValueIntoXMLJSON(Value, IsXML = True)
 	
 	DataByValue = ValueTypePrimitive(Value);
 	PrimitiveType = DataByValue.PrimitiveType;
 	
-	If PrimitiveType Then
+	If PrimitiveType
+	   And IsXML Then
 		
-		If Format_String <> Undefined Then
+		Result = XMLString(Value);
 		
-			If Not IsBlankString(LanguageCode) Then
-				Format_String = StrTemplate("L=%1;%2", LanguageCode, Format_String);
-			EndIf;
-			
-			Result = Format(Value, Format_String);
-			
-		Else
-			
-			Result = XMLString(Value);
-			
-		EndIf;
+	ElsIf PrimitiveType Then
+		
+		Result = Value;
 		
 	Else
 		
@@ -2549,9 +2539,7 @@ Procedure ProcessDataJSONArea(StructureWithData, DataIntoJSON)
 			
 			ParameterName = StructureItem.ParameterName; // String
 			Value = StructureItem.Value; // AnyRef
-			ParameterConditionalAppearance = StructureItem.ConditionalAppearance; // Undefined, String
-			LanguageCode = StructureItem.LanguageCode; // String
-			ValueToFile = ValueInXML(Value, ParameterConditionalAppearance, LanguageCode);
+			ValueToFile = ValueIntoXMLJSON(Value, False);
 			DataIntoJSON.Insert(ParameterName, ValueToFile);
 			
 		ElsIf StructureItem.ThisIsTable Then
@@ -2646,13 +2634,13 @@ Procedure ExecuteExportToDBF(StructureWithData, FullFileName)
 	
 EndProcedure
 
-// 
+// Returns a structure describing columns for a DBF file.
 // 
 // Parameters:
 //  TypeDetails - TypeDescription 
 // 
 // Returns:
-//  Structure -  :
+//  Structure -  Column details for DBF:
 // * FieldType - String
 // * Length - Number
 // * Accuracy - Number
@@ -2704,13 +2692,13 @@ Function ColumnDetailsForDBF(TypeDetails)
 	
 EndFunction
 
-// 
+// Returns details (structure) for the passed value.
 // 
 // Parameters:
 //  Value - AnyRef - Value
 // 
 // Returns:
-//  Structure - :
+//  Structure - This is a primitive data type.:
 // * ValueType - Type
 // * PrimitiveType - Boolean
 //
@@ -2748,7 +2736,7 @@ Function ExportFormatsSpreadsheetFileTypeMap()
 	
 EndFunction
 
-// 
+// Generates a list of print commands collected from several objects.
 Procedure FillExportCommandsForObjectList(ListOfObjects, ExportCommands)
 	
 	SourcesOfExportCommands = New Map;
@@ -2762,7 +2750,7 @@ Procedure FillExportCommandsForObjectList(ListOfObjects, ExportCommands)
 			Continue;
 		EndIf;
 		
-		FormExportCommands = ObjectExportCommands(MetadataObject); // @skip-check query-in-loop - Minor cycle
+		FormExportCommands = ObjectExportCommands(MetadataObject); // @skip-check query-in-loop - Малый цикл
 		
 		For Each ExportCommandToAdd In FormExportCommands Do
 			

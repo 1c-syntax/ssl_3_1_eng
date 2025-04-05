@@ -35,7 +35,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// СтандартныеПодсистемы.УправлениеДоступом
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -53,7 +53,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// СтандартныеПодсистемы.VariantsОтчетов
+// StandardSubsystems.ReportsOptions
 
 // Defines the list of report commands.
 //
@@ -68,7 +68,7 @@ Procedure AddReportCommands(ReportsCommands, Parameters) Export
 	If AccessRight("View", Metadata.Reports.ReportDistributionControl)
 		And GetFunctionalOption("RetainReportDistributionHistory") Then
 		Command = ReportsCommands.Add();
-		Command.Presentation = NStr("en = 'Report distribution control';");
+		Command.Presentation = NStr("en = 'Report distribution control'");
 		Command.VariantKey  = "ReportDistributionControl";
 		Command.Picture  = PictureLib.Report;
 		Command.MultipleChoice = False;
@@ -80,7 +80,7 @@ EndProcedure
 
 // End StandardSubsystems.ReportsOptions
 
-// СтандартныеПодсистемы.Печать
+// StandardSubsystems.Print
 
 // Generates print forms.
 //
@@ -98,17 +98,17 @@ Procedure Print(ObjectsArray, PrintParameters, PrintFormsCollection, PrintObject
 		ModulePrintManager.OutputSpreadsheetDocumentToCollection(
 				PrintFormsCollection,
 				"ReportDistributionPasswords", 
-				NStr("en = 'Passwords for report distribution';"),
+				NStr("en = 'Passwords for report distribution'"),
 				PrintFormReportDistributionPasswords(PrintParameters, PrintObjects),
 				,
-				"Catalog.ReportMailings.PrintForm_MXL_ReportDistributionPasswords", NStr("en = 'Passwords for report distribution';"));
+				"Catalog.ReportMailings.PrintForm_MXL_ReportDistributionPasswords", NStr("en = 'Passwords for report distribution'"));
 	EndIf;
 	
 EndProcedure
 
 // End StandardSubsystems.Print
 
-// СтандартныеПодсистемы.ВерсионированиеОбъектов
+// StandardSubsystems.ObjectsVersioning
 
 // Defines object settings for the ObjectsVersioning subsystem.
 //
@@ -197,7 +197,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 				
 				If ReportDistributionObject.DeleteIncludeDateInFileName Then
 					DefaultTemplate = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = '%1 dated %2 %3';"), "[ReportDescription1]", "[MailingDate()]", "[ReportFormat]");
+						NStr("en = '%1 dated %2 %3'"), "[ReportDescription1]", "[MailingDate()]", "[ReportFormat]");
 				Else
 					DefaultTemplate = "[ReportDescription1] [ReportFormat]";
 				EndIf;
@@ -236,14 +236,14 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot process some report distributions (skipped): %1';"), 
+			NStr("en = 'Cannot process some report distributions (skipped): %1'"), 
 				ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
 			Metadata.Catalogs.ContactInformationKinds,,
 				StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Another batch of report distributions is processed: %1';"),
+					NStr("en = 'Another batch of report distributions is processed: %1'"),
 					ObjectsProcessed));
 	EndIf;
 	
@@ -288,7 +288,7 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	
 	Item = Items.Add();
 	Item.PredefinedDataName = "PersonalMailings";
-	Item.Description              = NStr("en = 'Personal distributions';", Common.DefaultLanguageCode());
+	Item.Description              = NStr("en = 'Personal distributions'", Common.DefaultLanguageCode());
 	
 EndProcedure
 
@@ -450,10 +450,10 @@ Function RecipientsCountIncludingGroups(Val RecipientsParameters) Export
 	EndIf;
 	
 	TableOfRecipients = RecipientsParameters.Recipients.Unload();
-	EmptyRecipientValue = ?(TypeOf(RecipientsType) = Type("Type"), New (RecipientsType), Undefined);
-	SearchParameters = New Structure("Recipient", EmptyRecipientValue);
-	LinesWithoutRecipients = TableOfRecipients.FindRows(SearchParameters);
-	For Each RecipientRow In LinesWithoutRecipients Do
+	RecipientEmptyValue = ?(TypeOf(RecipientsType) = Type("Type"), New (RecipientsType), Undefined);
+	SearchParameters = New Structure("Recipient", RecipientEmptyValue);
+	RowsWithoutRecipients = TableOfRecipients.FindRows(SearchParameters);
+	For Each RecipientRow In RowsWithoutRecipients Do
 		TableOfRecipients.Delete(RecipientRow);
 	EndDo;
 
@@ -486,7 +486,7 @@ Function PrintFormReportDistributionPasswords(Parameters, PrintObjects)
 	PrintTitle = Template.GetArea("Title");
 
 	PrintTitle.Parameters.Title =  StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Passwords to receive the %1 ""%2"" report distribution';"), Chars.LF, Parameters.MailingDescription);
+		NStr("en = 'Passwords to receive the %1 ""%2"" report distribution'"), Chars.LF, Parameters.MailingDescription);
 
 	SpreadsheetDocument.Put(PrintTitle);
 

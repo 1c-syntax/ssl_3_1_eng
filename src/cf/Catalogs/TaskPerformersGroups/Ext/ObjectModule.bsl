@@ -30,7 +30,7 @@ Procedure BeforeWrite(Cancel)
 			Description = Description + ", " + String(AdditionalAddressingObject);
 		EndIf;
 	Else
-		Description = NStr("en = 'Without role-based assignment';");
+		Description = NStr("en = 'Without role-based assignment'");
 	EndIf;
 	
 	// Check for duplicates.
@@ -54,7 +54,7 @@ Procedure BeforeWrite(Cancel)
 			NStr("en = 'There is already the task assignee group for which
 			           |business role ""%1"",
 			           |main business object ""%2"",
-			           |and additional business object ""%3"" are set.';"),
+			           |and additional business object ""%3"" are set.'"),
 			String(PerformerRole),
 			String(MainAddressingObject),
 			String(AdditionalAddressingObject)));
@@ -65,5 +65,5 @@ EndProcedure
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

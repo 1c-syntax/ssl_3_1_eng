@@ -143,7 +143,7 @@ EndProcedure
 //    ** CommandsWithVisibilityConditions - Array
 //    ** HasCommandsWithoutVisibilityConditions - Boolean
 //   * CommandsMarked - Array
-//   * RootSubmenuAndCommands - See AttachableCommands.CommandRootSubmenuProperties
+//   * RootSubmenuAndCommands - 
 //   * CommandsAvailability - Boolean
 //   * CommandsTableAddress - String
 //   * InputOnBasisUsingAttachableCommands - Boolean

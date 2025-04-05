@@ -35,7 +35,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// СтандартныеПодсистемы.УправлениеДоступом
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -103,7 +103,7 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	
 	Item = Items.Add();
 	Item.PredefinedDataName = "Templates";
-	Item.Description = NStr("en = 'File templates';", Common.DefaultLanguageCode());
+	Item.Description = NStr("en = 'File templates'", Common.DefaultLanguageCode());
 	
 EndProcedure
 

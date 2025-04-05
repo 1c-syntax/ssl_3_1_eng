@@ -730,23 +730,40 @@ Submit it to 1C technical support.</v8:content>
 								</InputField>
 							</ChildItems>
 						</UsualGroup>
-						<LabelDecoration name="InformationForTechnicalSupport" id="165">
-							<Title formatted="false">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Information for technical support</v8:content>
-								</v8:item>
-							</Title>
-							<Hyperlink>true</Hyperlink>
-							<HorizontalAlign>Auto</HorizontalAlign>
-							<ContextMenu name="InformationForTechnicalSupportContextMenu" id="166"/>
-							<ExtendedTooltip name="InformationForTechnicalSupportExtendedTooltip" id="167"/>
-							<Events>
-								<Event name="Click">InformationForTechnicalSupportClick</Event>
-							</Events>
-						</LabelDecoration>
 					</ChildItems>
 				</UsualGroup>
+			</ChildItems>
+		</UsualGroup>
+		<UsualGroup name="ScanningError" id="145">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Scanning error</v8:content>
+				</v8:item>
+			</Title>
+			<Representation>None</Representation>
+			<ShowTitle>false</ShowTitle>
+			<ExtendedTooltip name="ScanningErrorExtendedTooltip" id="146"/>
+			<ChildItems>
+				<PictureDecoration name="PictureScanError" id="147">
+					<Title formatted="false">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Scanning error picture</v8:content>
+						</v8:item>
+					</Title>
+					<Picture>
+						<xr:Ref>CommonPicture.Warning</xr:Ref>
+						<xr:LoadTransparent>false</xr:LoadTransparent>
+					</Picture>
+					<ContextMenu name="PictureScanErrorContextMenu" id="148"/>
+					<ExtendedTooltip name="PictureScanErrorExtendedTooltip" id="149"/>
+				</PictureDecoration>
+				<LabelDecoration name="ScanErrorText" id="150">
+					<AutoMaxWidth>false</AutoMaxWidth>
+					<ContextMenu name="ScanErrorTextContextMenu" id="151"/>
+					<ExtendedTooltip name="ScanErrorTextExtendedTooltip" id="152"/>
+				</LabelDecoration>
 			</ChildItems>
 		</UsualGroup>
 		<UsualGroup name="FooterGroup" id="153">
@@ -760,45 +777,38 @@ Submit it to 1C technical support.</v8:content>
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="FooterGroupExtendedTooltip" id="154"/>
 			<ChildItems>
-				<UsualGroup name="ScanningError" id="145">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Scanning error</v8:content>
-						</v8:item>
-					</Title>
-					<Representation>None</Representation>
-					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="ScanningErrorExtendedTooltip" id="146"/>
+				<UsualGroup name="AssistanceRequiredGroup" id="177">
+					<GroupVerticalAlign>Center</GroupVerticalAlign>
+					<Group>Vertical</Group>
+					<Behavior>PopUp</Behavior>
+					<ExtendedTooltip name="AssistanceRequiredGroupExtendedTooltip" id="178"/>
 					<ChildItems>
-						<PictureDecoration name="PictureScanError" id="147">
-							<Title formatted="false">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Scanning error picture</v8:content>
-								</v8:item>
-							</Title>
-							<Picture>
-								<xr:Ref>CommonPicture.Warning</xr:Ref>
-								<xr:LoadTransparent>false</xr:LoadTransparent>
-							</Picture>
-							<ContextMenu name="PictureScanErrorContextMenu" id="148"/>
-							<ExtendedTooltip name="PictureScanErrorExtendedTooltip" id="149"/>
-						</PictureDecoration>
-						<LabelDecoration name="ScanErrorText" id="150">
+						<LabelDecoration name="Recommendations" id="179">
 							<AutoMaxWidth>false</AutoMaxWidth>
-							<Title formatted="true">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Scanning crashed. Save the &lt;link TechnicalInformation&gt;information for technical support&lt;/&gt;.</v8:content>
-								</v8:item>
-							</Title>
-							<ContextMenu name="ScanErrorTextContextMenu" id="151"/>
-							<ExtendedTooltip name="ScanErrorTextExtendedTooltip" id="152"/>
+							<Title formatted="true"/>
+							<ContextMenu name="RecommendationsContextMenu" id="180"/>
+							<ExtendedTooltip name="RecommendationsExtendedTooltip" id="181"/>
 							<Events>
-								<Event name="URLProcessing">ScanErrorTextURLProcessing</Event>
+								<Event name="URLProcessing">RecommendationsURLProcessing</Event>
 							</Events>
 						</LabelDecoration>
+						<UsualGroup name="TechnicalSupportGroup" id="182">
+							<Group>Vertical</Group>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="TechnicalSupportGroupExtendedTooltip" id="183"/>
+							<ChildItems>
+								<LabelDecoration name="DescriptionOfSupportRequest" id="184">
+									<Width>55</Width>
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<ContextMenu name="DescriptionOfSupportRequestContextMenu" id="185"/>
+									<ExtendedTooltip name="DescriptionOfSupportRequestExtendedTooltip" id="186"/>
+									<Events>
+										<Event name="URLProcessing">DescriptionOfSupportRequestURLProcessing</Event>
+									</Events>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
 					</ChildItems>
 				</UsualGroup>
 				<CommandBar name="GroupCommandBar" id="155">
@@ -1150,6 +1160,15 @@ Submit it to 1C technical support.</v8:content>
 			</Title>
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="ErrorPresentation" id="29">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
 	</Attributes>

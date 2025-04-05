@@ -157,7 +157,8 @@ EndProcedure
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.SessionsFilter, Array of See ClusterAdministration.SessionsFilter
+//  Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
+//           , Array of
 //
 // Returns:
 //   Array of See ClusterAdministrationClientServer.SessionProperties
@@ -175,7 +176,8 @@ EndFunction
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.SessionsFilter, Array of See ClusterAdministration.SessionsFilter
+//  Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
+//           , Array of
 //
 Procedure DeleteInfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -227,7 +229,7 @@ Procedure DeleteInfobaseSessions(Val ClusterAdministrationParameters, Val IBAdmi
 	
 	If Not AllSessionsTerminated Then
 	
-		Raise NStr("en = 'Cannot delete sessions.';");
+		Raise NStr("en = 'Cannot delete sessions.'");
 		
 	EndIf;
 	
@@ -242,7 +244,8 @@ EndProcedure
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.JoinsFilters, Array of See ClusterAdministration.JoinsFilters
+//  Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
+//           , Array of
 //
 // Returns:
 //   Array of See ClusterAdministrationClientServer.ConnectionProperties
@@ -260,7 +263,8 @@ EndFunction
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  IBAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.JoinsFilters, Array of See ClusterAdministration.JoinsFilters
+//  Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
+//           , Array of
 //
 Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -327,7 +331,7 @@ Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val 
 	
 	If Not AllConnectionsTerminated Then
 	
-		Raise NStr("en = 'Cannot close connections.';");
+		Raise NStr("en = 'Cannot close connections.'");
 		
 	EndIf;
 	
@@ -471,7 +475,7 @@ Function SecurityProfile(Val ClusterAdministrationParameters, Val ProfileName) E
 	SecurityProfiles = GetSecurityProfiles(ClusterID, ClusterAdministrationParameters, Filter);
 	
 	If SecurityProfiles.Count() <> 1 Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Security profile %2 is not registered in server cluster %1.';"), ClusterID, ProfileName);
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Security profile %2 is not registered in server cluster %1.'"), ClusterID, ProfileName);
 	EndIf;
 	
 	Result = SecurityProfiles[0];
@@ -522,7 +526,7 @@ Procedure CreateSecurityProfile(Val ClusterAdministrationParameters, Val Securit
 	SecurityProfiles = GetSecurityProfiles(ClusterID, ClusterAdministrationParameters, Filter);
 	
 	If SecurityProfiles.Count() = 1 Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Security profile %2 is already registered in server cluster %1.';"), ClusterID, ProfileName);
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Security profile %2 is already registered in server cluster %1.'"), ClusterID, ProfileName);
 	EndIf;
 	
 	UpdateSecurityProfileProperties(ClusterAdministrationParameters, SecurityProfileProperties, False);
@@ -546,7 +550,7 @@ Procedure SetSecurityProfileProperties(Val ClusterAdministrationParameters, Val 
 	SecurityProfiles = GetSecurityProfiles(ClusterID, ClusterAdministrationParameters, Filter);
 	
 	If SecurityProfiles.Count() <> 1 Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Security profile %2 is not registered in server cluster %1.';"), ClusterID, ProfileName);
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Security profile %2 is not registered in server cluster %1.'"), ClusterID, ProfileName);
 	EndIf;
 	
 	UpdateSecurityProfileProperties(ClusterAdministrationParameters, SecurityProfileProperties, True);
@@ -598,7 +602,7 @@ Function InfoBaseID(Val ClusterID, Val ClusterAdministrationParameters, Val Info
 	If Infobases.Count() = 1 Then
 		Return Infobases[0].Get("infobase");
 	Else
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Infobase %2 is not registered in server cluster %1.';"), ClusterID, InfobaseAdministrationParameters.NameInCluster);
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Infobase %2 is not registered in server cluster %1.'"), ClusterID, InfobaseAdministrationParameters.NameInCluster);
 	EndIf;
 	
 EndFunction
@@ -649,7 +653,7 @@ Function ClusterID(Val ClusterAdministrationParameters) Export
 	If Clusters.Count() = 1 Then
 		Return Clusters[0].Get("cluster");
 	Else
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot find a server cluster with port %1.';"), ClusterAdministrationParameters.ClusterPort);
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Cannot find a server cluster with port %1.'"), ClusterAdministrationParameters.ClusterPort);
 	EndIf;
 	
 EndFunction
@@ -744,7 +748,8 @@ EndFunction
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  InfoBaseID - String - Internal infobase ID.
 //  InfobaseAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.SessionsFilter, Array of See ClusterAdministration.SessionsFilter
+//  Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
+//           , Array of
 //  UseDictionary - Boolean - If True, the return value is generated using a dictionary.
 //
 // Returns:
@@ -782,7 +787,8 @@ EndFunction
 //  ClusterAdministrationParameters - See ClusterAdministrationClientServer.ClusterAdministrationParameters
 //  InfoBaseID - String - Internal infobase ID.
 //  InfobaseAdministrationParameters - See ClusterAdministrationClientServer.ClusterInfobaseAdministrationParameters
-//  Filter - See ClusterAdministration.JoinsFilters, Array of See ClusterAdministration.JoinsFilters
+//  Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
+//           , Array of
 //  UseDictionary - Boolean - If True, the return value is generated using a dictionary.
 //
 // Returns:
@@ -1291,11 +1297,11 @@ Function ExecuteCommand(Val Template, Val ClusterAdministrationParameters, Val P
 #If Server Then
 		
 		If SafeMode() <> False Then
-			Raise NStr("en = 'Warning! Cluster administration is unavailable in safe mode.';");
+			Raise NStr("en = 'Warning! Cluster administration is unavailable in safe mode.'");
 		EndIf;
 		
 		If Common.DataSeparationEnabled() Then
-			Raise NStr("en = 'Warning! The infobase features related to cluster administration are unavailable in SaaS mode.';");
+			Raise NStr("en = 'Warning! The infobase features related to cluster administration are unavailable in SaaS mode.'");
 		EndIf;
 		
 #EndIf
@@ -1314,7 +1320,7 @@ Function ExecuteCommand(Val Template, Val ClusterAdministrationParameters, Val P
 			      |computer.
 			      |To install it:
 			      |- For Windows, reinstall 1C:Enterprise platform with ""1C:Enterprise server administration"" component selected.
-			      |- For Linux, install the 1c-enterprise83-server* package.';"),
+			      |- For Linux, install the 1c-enterprise83-server* package.'"),
 			ClientFile.FullName);
 		
 	EndIf;

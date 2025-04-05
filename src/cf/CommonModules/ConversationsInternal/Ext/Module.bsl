@@ -37,7 +37,7 @@ Procedure Lock() Export
 	
 	If Not AccessRight("DataAdministration", Metadata) Then 
 		Raise 
-			NStr("en = 'Conversations are not locked. To perform the operation, you need to have data administration rights.';");
+			NStr("en = 'Conversations are not locked. To perform the operation, you need to have data administration rights.'");
 	EndIf;
 	
 	If Locked2() Then 
@@ -59,7 +59,7 @@ Procedure Unlock() Export
 	
 	If Not AccessRight("DataAdministration", Metadata) Then 
 		Raise 
-			NStr("en = 'Conversations are not locked. To perform the operation, you need to have data administration rights.';");
+			NStr("en = 'Conversations are not locked. To perform the operation, you need to have data administration rights.'");
 	EndIf;
 	
 	SetPrivilegedMode(True);
@@ -88,7 +88,7 @@ Procedure OnCreateAtUserServer(Cancel, Form, Object) Export
 	EndIf;
 	
 	SuggestDiscussions = Common.CommonSettingsStorageLoad("ApplicationSettings", "SuggestDiscussions", True);
-	Form.SuggestDiscussions = Not Cancel And Not ValueIsFilled(Object.Ref) And SuggestDiscussions 
+	Form.SuggestDiscussions = Not Cancel And Not ValueIsFilled(Object.IBUserID) And SuggestDiscussions 
 		And Not ConversationsInternalServerCall.Connected2();
 	If Not Form.SuggestDiscussions Then
 		Return;
@@ -97,16 +97,16 @@ Procedure OnCreateAtUserServer(Cancel, Form, Object) Export
 	AdministrationSubsystem = Metadata.Subsystems.Find("Administration");
 	If AdministrationSubsystem <> Undefined Then 
 		EnableLater = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'You can also enable conversations later from the %1 section.';"),
+			NStr("en = 'You can also enable conversations later from the %1 section.'"),
 			AdministrationSubsystem.Synonym);
 	Else
-		EnableLater = NStr("en = 'You can also enable conversations later from the app settings.';");
+		EnableLater = NStr("en = 'You can also enable conversations later from the app settings.'");
 	EndIf;
 	
 	Form.SuggestConversationsText = 
 		NStr("en = 'Do you want to enable conversations?
 			       |
-			       |With them, users will be able to exchange text messages, make video calls, create themed conversations, and correspond on documents.';")
+			       |With them, users will be able to exchange text messages, make video calls, create themed conversations, and correspond on documents.'")
 			+ Chars.LF + Chars.LF + EnableLater;
 	
 EndProcedure
@@ -119,13 +119,13 @@ Procedure OnFillPermissionsToAccessExternalResources(PermissionsRequests) Export
 	Permissions = New Array;
 	ModuleSafeModeManager = Common.CommonModule("SafeModeManager");
 	Resolution = ModuleSafeModeManager.PermissionToUseInternetResource("WSS", "1cdialog.com", 443, 
-		NStr("en = '1C:Dialog service for Collaboration System (provides chat rooms, messaging, and video calls).';"));
+		NStr("en = '1C:Dialog service for Collaboration System (provides chat rooms, messaging, and video calls).'"));
 	Permissions.Add(Resolution);
 	Resolution = ModuleSafeModeManager.PermissionToUseInternetResource("HTTPS", "*.s3storage.ru", 443, 
-		NStr("en = '1C:Dialog service for Collaboration System (Service file storage).';"));
+		NStr("en = '1C:Dialog service for Collaboration System (Service file storage).'"));
 	Permissions.Add(Resolution);
 	Resolution = ModuleSafeModeManager.PermissionToUseInternetResource("HTTP", "clr.globalsign.com", 80, 
-		NStr("en = '1C:Dialog service for Collaboration System (Certificate revocation check server).';"));
+		NStr("en = '1C:Dialog service for Collaboration System (Certificate revocation check server).'"));
 	Permissions.Add(Resolution);
 	PermissionsRequests.Add(ModuleSafeModeManager.RequestToUseExternalResources(Permissions));
 	
@@ -139,7 +139,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Id = New UUID("b3be68c5-708d-42c9-a019-818036d09d06");
 	Handler.Procedure = "ConversationsInternal.LockInvalidUsersInCollaborationSystem";
 	Handler.ExecutionMode = "Deferred";
-	Handler.Comment = NStr("en = 'Disable inactive users in the Collaboration System.';");
+	Handler.Comment = NStr("en = 'Disable inactive users in the Collaboration System.'");
 	Handler.UpdateDataFillingProcedure = "ConversationsInternal.UsersToBlockInteractionsInTheSystem";
 	Handler.ObjectsToRead = "Catalog.Users";
 	Handler.ObjectsToChange = "CollaborationSystemUser";
@@ -177,13 +177,13 @@ Function BlockAnInteractionSystemUser(User) Export
 		Return Result;
 	EndIf;	
 	
-	ThePatternOfLogRecording = NStr("en = 'The %1 user is invalid. The collaboration system user is locked';");
+	ThePatternOfLogRecording = NStr("en = 'The %1 user is invalid. The collaboration system user is locked'");
 	Try
 		CollaborationSystemUser = CollaborationSystem.GetUser(UserIDCollaborationSystem);
 		CollaborationSystemUser.IsLocked = True;
 		CollaborationSystemUser.Write();
 		WriteLogEvent(
-			EventLogEvent(NStr("en = 'Disable inactive users';", Common.DefaultLanguageCode())),
+			EventLogEvent(NStr("en = 'Disable inactive users'", Common.DefaultLanguageCode())),
 			EventLogLevel.Information,, User,
 			StringFunctionsClientServer.SubstituteParametersToString(ThePatternOfLogRecording, User));
 	Except
@@ -248,11 +248,11 @@ Procedure LockInvalidUsersInCollaborationSystem(ParametersOfUpdate) Export
 		LogError = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot disable users in the Collaboration System: %1.
 					|The Collaboration System might be temporarily unavailable.
-					|To disable users, click ""Disable inactive users in Collaboration System"" in the ""More actions"" menu of the user list.';") + Chars.LF,
+					|To disable users, click ""Disable inactive users in Collaboration System"" in the ""More actions"" menu of the user list.'") + Chars.LF,
 			ObjectsWithErrors);
 
 		WriteLogEvent(
-			EventLogEvent(NStr("en = 'Disable inactive users';", Common.DefaultLanguageCode())),
+			EventLogEvent(NStr("en = 'Disable inactive users'", Common.DefaultLanguageCode())),
 			EventLogLevel.Warning,,,
 			StringFunctionsClientServer.SubstituteParametersToString(LogError, ObjectsWithErrors)
 			+ Chars.LF + TextOfTheLastError);
@@ -306,7 +306,7 @@ Function IntegrationParameters() Export
 EndFunction
 
 Function EventLogEvent(EventDetails = "") Export
-	Return NStr("en = 'Conversations';", Common.DefaultLanguageCode())
+	Return NStr("en = 'Conversations'", Common.DefaultLanguageCode())
 		+ ?(IsBlankString(EventDetails), "", "."+EventDetails);
 EndFunction
 
@@ -338,7 +338,7 @@ Function CreateChangeIntegration(Parameters) Export
 	
 	If NotGivenParameters.Count() > 0 Then
 		Raise NStr("en = 'Integration parameters are not specified:
-			|%1';", StrConcat(NotGivenParameters, Chars.LF + "- "));
+			|%1'", StrConcat(NotGivenParameters, Chars.LF + "- "));
 	EndIf;
 	
 	NewIntegration.Members.Clear();

@@ -201,7 +201,7 @@ Function CommandsOfContactInfoType(Type) Export
 
 	EndIf;
 
-	ContactsManagerLocalization.WhenDefiningCommandsOfTypeOfContactInformation(TypeCommands, Type);
+	ContactsManagerLocalization.OnDefineContactInfoTypeCommands(TypeCommands, Type);
 
 	Return TypeCommands;
 

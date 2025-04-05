@@ -118,7 +118,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 		Handler = Handlers.Add();
 		Handler.ExecutionMode = "Deferred";
 		Handler.Version          = "2.4.4.79";
-		Handler.Comment     = NStr("en = 'Enables sending usage data to 1C company. You can disable this option in Administration > Online support and services > Monitoring center.';");
+		Handler.Comment     = NStr("en = 'Enables sending usage data to 1C company. You can disable this option in Administration > Online support and services > Monitoring center.'");
 		Handler.Id   = New UUID("68c8c60c-5b23-436a-9555-a6f24a6b1ffd");
 		Handler.Procedure       = "MonitoringCenterInternal.EnableSendingInfo";
 		Handler.UpdateDataFillingProcedure = "MonitoringCenterInternal.EnableSendingInfoFilling";
@@ -254,7 +254,7 @@ Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
 				BackgroundJobs.Execute("MonitoringCenterInternal.SendTestPackage",
 					ParametersArray,
 					BackgroundJobKey,
-					NStr("en = 'Monitoring center: send test package';"));
+					NStr("en = 'Monitoring center: send test package'"));
 			EndIf;
 		EndIf;
 	EndIf;
@@ -284,7 +284,7 @@ Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
 				BackgroundJobs.Execute("MonitoringCenterInternal.CollectAndSendDumps",
 					BackgroundJobParameters,
 					BackgroundJobKey,
-					NStr("en = 'Collect and send error reports';"));
+					NStr("en = 'Collect and send error reports'"));
 				EndIf;
 		Else
 			If MonitoringCenterParameters.FullDumpsCollectionEnabled[ComputerName()] = True Then
@@ -337,9 +337,9 @@ Procedure OnFillToDoList(ToDoList) Export
 		ToDoItem.Important         = True;
 		ToDoItem.HideInSettings = True;
 		ToDoItem.Owner       = Section;
-		ToDoItem.Presentation  = NStr("en = 'Provide error reports';");
+		ToDoItem.Presentation  = NStr("en = 'Provide error reports'");
 		ToDoItem.Count     = 0;
-		ToDoItem.ToolTip      = NStr("en = 'Abnormal terminations of the app were detected. Please contact us on this issue.';");
+		ToDoItem.ToolTip      = NStr("en = 'Abnormal terminations of the app were detected. Please contact us on this issue.'");
 		ToDoItem.FormParameters = New Structure("Variant", "Query");
 		ToDoItem.Form          = "DataProcessor.MonitoringCenterSettings.Form.RequestForErrorReportsCollectionAndSending";
 	EndDo;
@@ -359,9 +359,9 @@ Procedure OnFillToDoList(ToDoList) Export
 		ToDoItem.HasToDoItems       = SendingRequest;
 		ToDoItem.Important         = False;
 		ToDoItem.Owner       = Section;
-		ToDoItem.Presentation  = NStr("en = 'Send error reports';");
+		ToDoItem.Presentation  = NStr("en = 'Send error reports'");
 		ToDoItem.Count     = 0;
-		ToDoItem.ToolTip      = NStr("en = 'Crash reports are collected and prepared. Please approve reports submission.';");
+		ToDoItem.ToolTip      = NStr("en = 'Crash reports are collected and prepared. Please approve reports submission.'");
 		ToDoItem.FormParameters = New Structure;
 		ToDoItem.Form          = "DataProcessor.MonitoringCenterSettings.Form.RequestForSendingErrorReports";
 	EndDo;
@@ -374,9 +374,9 @@ Procedure OnFillToDoList(ToDoList) Export
 		ToDoItem.HasToDoItems       = HasContactInformationRequest;
 		ToDoItem.Important         = True;
 		ToDoItem.Owner       = Section;
-		ToDoItem.Presentation  = NStr("en = 'Inform of performance issues';");
+		ToDoItem.Presentation  = NStr("en = 'Inform of performance issues'");
 		ToDoItem.Count     = 0;
-		ToDoItem.ToolTip      = NStr("en = 'Performance issues are detected. Contact us on this issue.';");
+		ToDoItem.ToolTip      = NStr("en = 'Performance issues are detected. Contact us on this issue.'");
 		ToDoItem.FormParameters = New Structure("OnRequest", True);
 		ToDoItem.Form          = "DataProcessor.MonitoringCenterSettings.Form.SendContactInformation";
 	EndDo;
@@ -481,7 +481,7 @@ Procedure MonitoringCenterScheduledJob() Export
 				DumpsRegistration();
 			Except
 				Comment = ErrorProcessing.DetailErrorDescription(ErrorInfo());
-				WriteLogEvent(NStr("en = 'Monitoring center.Register dumps';", 
+				WriteLogEvent(NStr("en = 'Monitoring center.Register dumps'", 
 					Common.DefaultLanguageCode()), EventLogLevel.Error,,, Comment);
 				SetMonitoringCenterParameter("RegisterDumps", False);
 				MonitoringCenter.WriteBusinessStatisticsOperation("MonitoringCenter.DumpsRegistration.Error", 1, Comment);
@@ -498,7 +498,7 @@ Procedure MonitoringCenterScheduledJob() Export
 				StatisticsOperationsRegistration();
 			Except
 				Comment = ErrorProcessing.DetailErrorDescription(ErrorInfo());
-				WriteLogEvent(NStr("en = 'Monitoring center.Register statistics operations';",
+				WriteLogEvent(NStr("en = 'Monitoring center.Register statistics operations'",
 					Common.DefaultLanguageCode()), EventLogLevel.Error,,, Comment);
 				MonitoringCenter.WriteBusinessStatisticsOperation("MonitoringCenter.StatisticsOperationsRegistration.Error", 1, Comment);
 			EndTry;
@@ -515,7 +515,7 @@ Procedure MonitoringCenterScheduledJob() Export
 				CollectConfigurationStatistics1(New Structure("RegisterConfigurationStatistics, RegisterConfigurationSettings", MonitoringCenterParameters.RegisterConfigurationStatistics, MonitoringCenterParameters.RegisterConfigurationSettings));
 			Except
 				Comment = ErrorProcessing.DetailErrorDescription(ErrorInfo());
-				WriteLogEvent(NStr("en = 'Monitoring center.Collect configuration statistics';",
+				WriteLogEvent(NStr("en = 'Monitoring center.Collect configuration statistics'",
 					Common.DefaultLanguageCode()), EventLogLevel.Error,,, Comment);
 				MonitoringCenter.WriteBusinessStatisticsOperation("MonitoringCenter.CollectConfigurationStatistics1.Error", 1, Comment);
 			EndTry;
@@ -532,7 +532,7 @@ Procedure MonitoringCenterScheduledJob() Export
 				CreatePackageToSend();
 			Except
 				Comment = ErrorProcessing.DetailErrorDescription(ErrorInfo());
-				WriteLogEvent(NStr("en = 'Monitoring center.Generate a package for sending';",
+				WriteLogEvent(NStr("en = 'Monitoring center.Generate a package for sending'",
 					Common.DefaultLanguageCode()), EventLogLevel.Error,,, Comment);
 				MonitoringCenter.WriteBusinessStatisticsOperation("MonitoringCenter.CreatePackageToSend.Error", 1, Comment);
 			EndTry;
@@ -544,7 +544,7 @@ Procedure MonitoringCenterScheduledJob() Export
 				EndIf;
 			Except
 				Comment = ErrorProcessing.DetailErrorDescription(ErrorInfo());
-				WriteLogEvent(NStr("en = 'Monitoring center.Send monitoring data';",
+				WriteLogEvent(NStr("en = 'Monitoring center.Send monitoring data'",
 					Common.DefaultLanguageCode()), EventLogLevel.Error,,, Comment);
 				MonitoringCenter.WriteBusinessStatisticsOperation("MonitoringCenter.SendMonitoringData.Error", 
 					1, Comment);
@@ -697,7 +697,7 @@ Procedure AggregateStatisticsOperationsMeasurements(CurrentDate)
 			CommitTransaction();
 		Except
 			RollbackTransaction();
-			WriteLogEvent(NStr("en = 'Monitoring center.Aggregate measurements of statistics operations ';", 
+			WriteLogEvent(NStr("en = 'Monitoring center.Aggregate measurements of statistics operations '", 
 				Common.DefaultLanguageCode()), EventLogLevel.Error,,, 
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			Raise;
@@ -751,7 +751,7 @@ Procedure DeleteObsoleteStatisticsOperationsData()
 		CommitTransaction();
 	Except
 		RollbackTransaction();
-		WriteLogEvent(NStr("en = 'Monitoring center.Delete obsolete data of statistics operations ';", 
+		WriteLogEvent(NStr("en = 'Monitoring center.Delete obsolete data of statistics operations '", 
 			Common.DefaultLanguageCode()), EventLogLevel.Error,,, 
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Raise;
@@ -1569,9 +1569,9 @@ Procedure CollectConfigurationStatistics1(MonitoringCenterParameters = Undefined
 					Try
 						SignInToDataArea(Selection.DataArea);
 					Except
-						WriteLogEvent(NStr("en = 'Monitoring center.Configuration statistics overridable ';", 
+						WriteLogEvent(NStr("en = 'Monitoring center.Configuration statistics overridable '", 
 							Common.DefaultLanguageCode()), EventLogLevel.Error,,,
-							NStr("en = 'Couldn''t set session separation. Data area';", Common.DefaultLanguageCode()) 
+							NStr("en = 'Couldn''t set session separation. Data area'", Common.DefaultLanguageCode()) 
 								+ " = " + Format(Selection.DataArea, "NG=0") + Chars.LF + ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 						SignOutOfDataArea();
 						Continue;
@@ -1642,7 +1642,7 @@ Procedure CreatePackageToSend()
 		CommitTransaction();
 	Except
 		RollbackTransaction();
-		WriteLogEvent(NStr("en = 'Monitoring center.Generate a package for sending';", 
+		WriteLogEvent(NStr("en = 'Monitoring center.Generate a package for sending'", 
 			Common.DefaultLanguageCode()), EventLogLevel.Error,,, 
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Raise;
@@ -2084,7 +2084,7 @@ Function SetSendingParameters(Parameters)
 		CommitTransaction();
 	Except
 		RollbackTransaction();
-		WriteLogEvent(NStr("en = 'Monitoring center.Set sending parameters';", 
+		WriteLogEvent(NStr("en = 'Monitoring center.Set sending parameters'", 
 			Common.DefaultLanguageCode()), EventLogLevel.Error,,, 
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Raise;
@@ -2147,7 +2147,7 @@ Procedure SetMonitoringCenterParameters(NewParameters)
 		CommitTransaction();
 	Except
 		RollbackTransaction();
-		WriteLogEvent(NStr("en = 'Monitoring center.Set Monitoring center parameters';", 
+		WriteLogEvent(NStr("en = 'Monitoring center.Set Monitoring center parameters'", 
 			Common.DefaultLanguageCode()), EventLogLevel.Error, 
 			Metadata.Constants.MonitoringCenterParameters,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Raise;
@@ -2161,7 +2161,7 @@ Procedure DeleteMonitoringCenterParameters()
 	Try
 		Constants.MonitoringCenterParameters.Set(Storage);
 	Except
-		WriteLogEvent(NStr("en = 'Monitoring center.Delete Monitoring center parameters';", 
+		WriteLogEvent(NStr("en = 'Monitoring center.Delete Monitoring center parameters'", 
 			Common.DefaultLanguageCode()), EventLogLevel.Error, 
 			Metadata.Constants.MonitoringCenterParameters,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Raise;
@@ -2189,7 +2189,7 @@ Procedure SetMonitoringCenterParameter(Parameter, Value)
 		CommitTransaction();
 	Except
 		RollbackTransaction();
-		WriteLogEvent(NStr("en = 'Monitoring center.Set Monitoring center parameters';", 
+		WriteLogEvent(NStr("en = 'Monitoring center.Set Monitoring center parameters'", 
 			Common.DefaultLanguageCode()), EventLogLevel.Error, 
 			Metadata.Constants.MonitoringCenterParameters,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Raise;
@@ -2281,28 +2281,28 @@ Function FindDumpsDirectory(SettingsDirectory, DumpType, StopCollectingFull)
 				EndIf;
 			EndDo;
 		Except
-			Message = NStr("en = 'An error occurred when reading a setting file of the technological log';");
+			Message = NStr("en = 'An error occurred when reading a setting file of the technological log'");
 			Message = Message + " """ +File.FullName + """." + Chars.LF;
-			Message = Message + NStr("en = 'The file is likely corrupt. Cannot register dumps. Delete the corrupt file or reset settings.';");
-			WriteLogEvent(NStr("en = 'Monitoring center';", Common.DefaultLanguageCode()), 
+			Message = Message + NStr("en = 'The file is likely corrupt. Cannot register dumps. Delete the corrupt file or reset settings.'");
+			WriteLogEvent(NStr("en = 'Monitoring center'", Common.DefaultLanguageCode()), 
 				EventLogLevel.Warning,,, Message);
 			
 			DumpsDirectory.Path = Undefined;
-			DumpsDirectory.ErrorDescription = NStr("en = 'An error occurred when reading a setting file of the technological log';");
+			DumpsDirectory.ErrorDescription = NStr("en = 'An error occurred when reading a setting file of the technological log'");
 			Return DumpsDirectory;
 		EndTry;
 		
 		If DumpsParameters <> Undefined Then
 			If Not DumpsParameters.Property("location") Or Not DumpsParameters.Property("create") Or Not DumpsParameters.Property("type") Then
-				Message = NStr("en = 'Dump collection section error in the setting file of technological log';");
+				Message = NStr("en = 'Dump collection section error in the setting file of technological log'");
 				Message = Message + " """ + File.FullName + """." + Chars.LF;
-				Message = Message + NStr("en = 'Cannot register dumps. Remove the file or restore the settings.';");
+				Message = Message + NStr("en = 'Cannot register dumps. Remove the file or restore the settings.'");
 				XMLReader.Close();
-				WriteLogEvent(NStr("en = 'Monitoring center';", Common.DefaultLanguageCode()), 
+				WriteLogEvent(NStr("en = 'Monitoring center'", Common.DefaultLanguageCode()), 
 					EventLogLevel.Warning,,, Message);
 				
 				DumpsDirectory.Path = Undefined;
-				DumpsDirectory.ErrorDescription = NStr("en = 'Dump collection section error in the setting file of technological log';");
+				DumpsDirectory.ErrorDescription = NStr("en = 'Dump collection section error in the setting file of technological log'");
 				Return DumpsDirectory;
 			EndIf;
 		EndIf;
@@ -2334,7 +2334,7 @@ Function FindDumpsDirectory(SettingsDirectory, DumpType, StopCollectingFull)
 			DumpsDirectory.DeleteDumps = True;
 		EndIf;
 		If DumpsDirectory.Path = Undefined Then
-			DumpsDirectory.ErrorDescription = NStr("en = 'An error occurred while creating the setting file of the technological log. Cannot register dumps.';");
+			DumpsDirectory.ErrorDescription = NStr("en = 'An error occurred while creating the setting file of the technological log. Cannot register dumps.'");
 		EndIf;
 	EndIf;
 	
@@ -2384,14 +2384,14 @@ Procedure CreateDumpsCollectionSection(File, XMLReader, DumpsDirectory, DumpType
 				DOMWriter.Write(DOMDocument, XMLWriter);
 				XMLWriter.Close();
 			Except
-				Message = NStr("en = 'An error occurred while saving the setting file of the technological log. Cannot register dumps.';");
+				Message = NStr("en = 'An error occurred while saving the setting file of the technological log. Cannot register dumps.'");
 				Message = Message + " """ +File.FullName + """." + Chars.LF;
 				Message = Message + ErrorProcessing.DetailErrorDescription(ErrorInfo());
-				WriteLogEvent(NStr("en = 'Monitoring center.Register dumps';", 
+				WriteLogEvent(NStr("en = 'Monitoring center.Register dumps'", 
 					Common.DefaultLanguageCode()), EventLogLevel.Warning,,, Message);
 				
 				DumpsDirectory.Path = Undefined;
-				DumpsDirectory.ErrorDescription = NStr("en = 'An error occurred while saving the setting file of the technological log. Cannot register dumps.';");
+				DumpsDirectory.ErrorDescription = NStr("en = 'An error occurred while saving the setting file of the technological log. Cannot register dumps.'");
 			EndTry;
 		EndIf;
 	EndIf;
@@ -2422,10 +2422,10 @@ Function CreateDumpsCollectionSettingsFile(DirectoryPath, DumpType)
 		XMLWriter.WriteRaw(DumpsCollection);
 		XMLWriter.Close();
 	Except
-		Message = NStr("en = 'An error occurred while creating the setting file of the technological log. Cannot register dumps.';");
+		Message = NStr("en = 'An error occurred while creating the setting file of the technological log. Cannot register dumps.'");
 		Message = Message + " """ +DirectoryPath + SettingsFileName + """." + Chars.LF;
 		Message = Message + ErrorProcessing.DetailErrorDescription(ErrorInfo());
-		WriteLogEvent(NStr("en = 'Monitoring center';", Common.DefaultLanguageCode()), 
+		WriteLogEvent(NStr("en = 'Monitoring center'", Common.DefaultLanguageCode()), 
 			EventLogLevel.Warning,,, Message);
 		
 		DumpsDirectory = Undefined;
@@ -2454,7 +2454,7 @@ Function GetTechnologicalLogSettingsDirectory()
 		If SettingsDirectories.Find(DirectoryPath) <> Undefined Then
 			SettingsDirectory.Path = "";
 			SettingsDirectory.Exists = False;
-			SettingsDirectory.ErrorDescription = NStr("en = 'Circular ref is found';", Common.DefaultLanguageCode());
+			SettingsDirectory.ErrorDescription = NStr("en = 'Circular ref is found'", Common.DefaultLanguageCode());
 			
 			SearchForDirectory = False;
 		Else
@@ -2485,7 +2485,7 @@ Function GetTechnologicalLogSettingsDirectory()
 				Else
 					SettingsDirectory.Path = "";
 					SettingsDirectory.Exists = False;
-					SettingsDirectory.ErrorDescription = NStr("en = 'The setting configuration file does not exist in the directory.';", 
+					SettingsDirectory.ErrorDescription = NStr("en = 'The setting configuration file does not exist in the directory.'", 
 						Common.DefaultLanguageCode()) + " " + DirectoryPath;
 					
 					SearchForDirectory = False;
@@ -2527,7 +2527,7 @@ Function GetDirectoryFromSettingsConfigurationFile(SettingsConfigurationFile)
 		SettingsDirectory.Path = GeneratePathWithSeparator(SettingsConfigurationFile.Path);
 		SettingsDirectory.Exists = False;
 		SettingsDirectory.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Section %1 is not found in file %2';", Common.DefaultLanguageCode()),
+			NStr("en = 'Section %1 is not found in file %2'", Common.DefaultLanguageCode()),
 			"ConfLocation", SettingsConfigurationFile.FullName);
 	EndIf;
 		
@@ -2834,11 +2834,11 @@ EndFunction
 #Region CommonFunctions
 
 Function EventLogEventMonitoringCenterDumpDeletion()
-	Return NStr("en = 'Monitoring center.Removing the dump';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Monitoring center.Removing the dump'", Common.DefaultLanguageCode());
 EndFunction
 
 Function LogLogEventParseOperationBufferStatistics()
-	Return NStr("en = 'Monitoring center.Parse the buffer of statistics operations';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Monitoring center.Parse the buffer of statistics operations'", Common.DefaultLanguageCode());
 EndFunction
 #EndRegion
 
@@ -3113,7 +3113,7 @@ Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 	// Check if dump collection is allowed.
 	If DumpsCollectionAndSendingParameters.SendDumpsFiles = 0 Then
 		SetPrivilegedMode(True);
-		SetMonitoringCenterParameter("SendingResult", NStr("en = 'User refused to submit dumps.';"));
+		SetMonitoringCenterParameter("SendingResult", NStr("en = 'User refused to submit dumps.'"));
 		SetPrivilegedMode(False);
 		StopFullDumpsCollection();
 		Return;
@@ -3127,7 +3127,7 @@ Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 	// Check if it is a time to disconnect.
 	If CurrentSessionDate() >= DumpsCollectionAndSendingParameters.DumpCollectingEnd Then
 		SetPrivilegedMode(True);
-		SetMonitoringCenterParameter("SendingResult", NStr("en = 'Dump collection timed out.';"));	
+		SetMonitoringCenterParameter("SendingResult", NStr("en = 'Dump collection timed out.'"));	
 		SetPrivilegedMode(False);
 		StopFullDumpsCollection();
 		Return;
@@ -3181,7 +3181,7 @@ Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 	SeparatorPosition = StrFind(DumpsDirectory.Path, GetServerPathSeparator());
 	If SeparatorPosition = 0 Then
 		SetPrivilegedMode(True);
-		SetMonitoringCenterParameter("SendingResult", NStr("en = 'Cannot determine the drive letter';"));
+		SetMonitoringCenterParameter("SendingResult", NStr("en = 'Cannot determine the drive letter'"));
 		SetPrivilegedMode(False);
 		StopFullDumpsCollection();
 		Return;
@@ -3220,7 +3220,7 @@ Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 		If MeasurementResult.Value/1024 < DumpsCollectionAndSendingParameters.SpaceReserveEnabled
 			And DumpType = "3" Then
 			SetPrivilegedMode(True);
-			SetMonitoringCenterParameter("SendingResult", NStr("en = 'There is not enough free space to store dumps. Dump collection will be disabled.';"));	
+			SetMonitoringCenterParameter("SendingResult", NStr("en = 'There is not enough free space to store dumps. Dump collection will be disabled.'"));	
 			SetPrivilegedMode(False);
 			StopFullDumpsCollection();
 			Return;
@@ -3247,7 +3247,7 @@ Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 		If MeasurementResult.Value/1024 < DumpsCollectionAndSendingParameters.SpaceReserveDisabled
 			And DumpType = "3" Then
 			SetPrivilegedMode(True);
-			SetMonitoringCenterParameter("SendingResult", NStr("en = 'There is not enough free space to collect dumps.';"));	
+			SetMonitoringCenterParameter("SendingResult", NStr("en = 'There is not enough free space to collect dumps.'"));	
 			SetPrivilegedMode(False);
 			StopFullDumpsCollection();
 			Return;
@@ -3348,7 +3348,7 @@ Procedure SendDumps(Parameters)
 	
 			TemplateRequestForSending = NStr("en = 'Error reports (%1) are ready to be sent.
 		                             |Total data volume: %2 MB.
-		                             |Send the files for analysis to 1C company?';");	
+		                             |Send the files for analysis to 1C company?'");	
 			
 			TotalSpace = 0;
 			TotalPieces = 0;
@@ -3507,7 +3507,7 @@ Function FreeSpaceOnHardDrive(DriveLetter, FromClientAtServer)
 	
 	If ValueIsFilled(ErrorStream) Then 
 		QueryResult.Success = False;
-		QueryResult.ErrorDescription = NStr("en = 'typeperf command error.';");
+		QueryResult.ErrorDescription = NStr("en = 'typeperf command error.'");
 	Else 
 		RowsArray = StringFunctionsClientServer.SplitStringIntoSubstringsArray(OutputStream, Chars.LF, True, True);
 		If RowsArray.Count() >= 2 Then
@@ -3527,7 +3527,7 @@ Function FreeSpaceOnHardDrive(DriveLetter, FromClientAtServer)
 			EndIf;
 		Else
 			QueryResult.Success = False;
-			QueryResult.ErrorDescription = NStr("en = 'Cannot parse the result typeperf';");
+			QueryResult.ErrorDescription = NStr("en = 'Cannot parse the result typeperf'");
 		EndIf;
 	EndIf;
 	
@@ -3861,9 +3861,9 @@ Procedure SendTestPackage(ExecutionParameters, ResultAddress) Export
 			CreatePackageToSend();
 		Except
 			ExecutionResult.Success = False;
-			ExecutionResult.BriefErrorDescription = NStr("en = 'An error occurred while generating the package.';");
+			ExecutionResult.BriefErrorDescription = NStr("en = 'An error occurred while generating the package.'");
 			Comment = ErrorProcessing.DetailErrorDescription(ErrorInfo());
-			WriteLogEvent(NStr("en = 'Monitoring center.Generate a test package for sending';",
+			WriteLogEvent(NStr("en = 'Monitoring center.Generate a test package for sending'",
 				Common.DefaultLanguageCode()), EventLogLevel.Error,,, Comment);
 		EndTry;
 		
@@ -3873,17 +3873,17 @@ Procedure SendTestPackage(ExecutionParameters, ResultAddress) Export
 				MonitoringCenterParameters.TestPackageSent = True;
 			Else
 				ExecutionResult.Success = False;
-				ExecutionResult.BriefErrorDescription = NStr("en = 'An error occurred while sending a package.';");
-				Template = NStr("en = 'An HTTP error occurred while sending a package. Code %1';");
+				ExecutionResult.BriefErrorDescription = NStr("en = 'An error occurred while sending a package.'");
+				Template = NStr("en = 'An HTTP error occurred while sending a package. Code %1'");
 				Comment = StringFunctionsClientServer.SubstituteParametersToString(Template, HTTPResponse.StatusCode); 
-				WriteLogEvent(NStr("en = 'Monitoring center.Send monitoring test data';",
+				WriteLogEvent(NStr("en = 'Monitoring center.Send monitoring test data'",
 					Common.DefaultLanguageCode()), EventLogLevel.Error,,, Comment);
 			EndIf;
 		Except
 			ExecutionResult.Success = False;
-			ExecutionResult.BriefErrorDescription = NStr("en = 'An error occurred while sending a package.';");
+			ExecutionResult.BriefErrorDescription = NStr("en = 'An error occurred while sending a package.'");
 			Comment = ErrorProcessing.DetailErrorDescription(ErrorInfo());
-			WriteLogEvent(NStr("en = 'Monitoring center.Send monitoring test data';",
+			WriteLogEvent(NStr("en = 'Monitoring center.Send monitoring test data'",
 				Common.DefaultLanguageCode()), EventLogLevel.Error,,, Comment);
 			MonitoringCenter.WriteBusinessStatisticsOperation("MonitoringCenter.SendMonitoringData.Error", 
 				1, Comment);
@@ -4022,7 +4022,7 @@ Function SettingErrorHandlingSettings(SavedParameters1, ReceivedParameters)
 		ParametersForTheMessageText = New Structure("CommonSettings", CommonSettings);
 		MessageString = StringFunctions.FormattedString(
 			StringFunctionsClientServer.SubstituteParametersToString(	
-				NStr("en = '<span style=""font:%1"">Oops… An unexpected situation has occurred</span>';"),
+				NStr("en = '<span style=""font:%1"">Oops… An unexpected situation has occurred</span>'"),
 				"VeryLargeFont"));
 		ErrorMessageTexts = New ErrorMessageTexts(MessageString, MessageString);
 		CommonSettings.ErrorMessageTexts.Insert(ErrorCategory.OtherError, ErrorMessageTexts);	

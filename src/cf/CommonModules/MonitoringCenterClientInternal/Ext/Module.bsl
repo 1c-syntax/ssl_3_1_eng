@@ -228,27 +228,27 @@ Procedure SetApplicationParametersMonitoringCenter(Parameter, Value)
 EndProcedure
 
 Procedure NotifyRequestForReceivingDumps() Export
-	ShowUserNotification(NStr("en = 'Error reports';"),
+	ShowUserNotification(NStr("en = 'Error reports'"),
 			"e1cib/app/DataProcessor.MonitoringCenterSettings.Form.RequestForErrorReportsCollectionAndSending",
-			NStr("en = 'Provide reports on occurred errors';"),
+			NStr("en = 'Provide reports on occurred errors'"),
 			PictureLib.DialogExclamation,
 			UserNotificationStatus.Important, "RequestForGettingDumps");		
 EndProcedure
 
 Procedure NotifyRequestForSendingDumps() Export
-	ShowUserNotification(NStr("en = 'Error reports';"),
+	ShowUserNotification(NStr("en = 'Error reports'"),
 				"e1cib/app/DataProcessor.MonitoringCenterSettings.Form.RequestForSendingErrorReports",
-				NStr("en = 'Send reports on occurred errors';"),
+				NStr("en = 'Send reports on occurred errors'"),
 				PictureLib.DialogExclamation,
 				UserNotificationStatus.Important, "DumpsSendingRequest");
 EndProcedure
 
 Procedure NotifyContactInformationRequest() Export
-	ShowUserNotification(NStr("en = 'Performance issues';"),
+	ShowUserNotification(NStr("en = 'Performance issues'"),
 				New CallbackDescription(
 						"OnClickNotifyContactInformationRequest",
 						ThisObject, True),
-				NStr("en = 'Inform of performance issues';"),
+				NStr("en = 'Inform of performance issues'"),
 				PictureLib.DialogExclamation,
 				UserNotificationStatus.Important, "ContactInformationRequest");
 EndProcedure

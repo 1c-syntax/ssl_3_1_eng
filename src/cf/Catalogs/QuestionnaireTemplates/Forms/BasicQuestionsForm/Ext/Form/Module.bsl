@@ -19,8 +19,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.GroupMandatory.Visible       = False;
 		Items.ElementaryQuestion.Visible       = False;
 		Items.TooltipGroup.Visible          = False;
-		Items.Wording.Title             = NStr("en = 'Section name';");
-		Title                                   = NStr("en = 'Questionnaire template section';");
+		Items.Wording.Title             = NStr("en = 'Section name'");
+		Title                                   = NStr("en = 'Questionnaire template section'");
 		
 	EndIf;
 	
@@ -82,7 +82,7 @@ EndProcedure
 Procedure NotesStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	ClosingNotification1 = New CallbackDescription("NoteEditOnClose", ThisObject);
-	CommonClient.ShowMultilineTextEditingForm(ClosingNotification1, Item.EditText, NStr("en = 'Notes';"));
+	CommonClient.ShowMultilineTextEditingForm(ClosingNotification1, Item.EditText, NStr("en = 'Notes'"));
 
 EndProcedure
 
@@ -115,17 +115,17 @@ Procedure MoveToTemplate(Command)
 	
 	If Not ValueIsFilled(Wording) Then
 		Cancel = True;
-		CommonClient.MessageToUser(NStr("en = 'Wording not filled in';"),,"Wording");
+		CommonClient.MessageToUser(NStr("en = 'Wording not filled in'"),,"Wording");
 	EndIf;
 	
 	If TreeRowType = "DoQueryBox" And (Not ValueIsFilled(ElementaryQuestion)) Then
 		Cancel = True;
-		CommonClient.MessageToUser(NStr("en = 'General question is not specified';"),,"ElementaryQuestion");
+		CommonClient.MessageToUser(NStr("en = 'General question is not specified'"),,"ElementaryQuestion");
 	EndIf; 
 		
 	If ShouldUseRefusalToAnswer And Not ValueIsFilled(RefusalToAnswerText) Then
 		Cancel = True;
-		CommonClient.MessageToUser(NStr("en = 'Wording not filled in';"),,"RefusalToAnswerText");
+		CommonClient.MessageToUser(NStr("en = 'Wording not filled in'"),,"RefusalToAnswerText");
 	EndIf;
 		
 	If Cancel Then

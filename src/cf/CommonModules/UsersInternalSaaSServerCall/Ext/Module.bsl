@@ -26,7 +26,7 @@ EndProcedure
 Procedure WriteTheErrorToTheLog(ErrorText) Export
 	
 	WriteLogEvent(
-		NStr("en = 'Runtime error';", Common.DefaultLanguageCode()),
+		NStr("en = 'Runtime error'", Common.DefaultLanguageCode()),
 		EventLogLevel.Error,,, ErrorText);
 	
 EndProcedure

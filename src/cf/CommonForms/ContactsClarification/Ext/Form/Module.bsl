@@ -761,7 +761,7 @@ Procedure ChangeContactInformationForSelectedContacts()
 			Query.SetParameter("Address", Selection.Address);
 			Query.SetParameter("MailMessage", MailMessage);
 			
-			// @skip-check query-in-loop - Batch processing of great number of email messages by contacts. 
+			// @skip-check query-in-loop
 			Result = Query.Execute();
 			OutgoingEmailsArray = New Array;
 			IncomingEmailsArray  = New Array;
@@ -842,7 +842,7 @@ Procedure ChangeContactInformationForSelectedContacts()
 			
 			ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot update the %1 contact information due to:
-				|%2';", Common.DefaultLanguageCode()),
+				|%2'", Common.DefaultLanguageCode()),
 				Selection.Contact, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			
 			WriteLogEvent(EmailManagement.EventLogEvent(),

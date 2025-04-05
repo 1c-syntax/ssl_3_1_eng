@@ -27,11 +27,11 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	ReportSettings.DefineFormSettings = True;
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, Metadata.Reports.ExternalResourcesInUse, "");
-	OptionSettings.Description = NStr("en = 'External resources that the app and additional modules use';");
+	OptionSettings.Description = NStr("en = 'External resources that the app and additional modules use'");
 	OptionSettings.LongDesc = 
 		NStr("en = 'Online resources, add-ins, COM classes, and more.
 		           |Environment parameters that will help administrator 
-		           |to configure the computer and perform security audit.';");
+		           |to configure the computer and perform security audit.'");
 	OptionSettings.SearchSettings.FieldDescriptions = 
 		NStr("en = 'Name and ID of COM class
 		           |Computer name
@@ -43,7 +43,7 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 		           |Command line template
 		           |Protocol
 		           |IP address of the resource
-		           |Port';");
+		           |Port'");
 	
 	// Filters and parameters are not available for the report.
 	OptionSettings.SearchSettings.FilterParameterDescriptions = "#";
@@ -152,14 +152,14 @@ Function RequestsForPermissionsToUseExternalResoursesPresentation(Val Administra
 			If AsRequired Then
 				
 				HeaderText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '%2 %1 requires the following external resources:';"),
+					NStr("en = '%2 %1 requires the following external resources:'"),
 					Lower(Dictionary.Genitive),
 					ModuleDescription);
 				
 			Else
 				
 				HeaderText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'The following permissions to use external resources will be granted for %2 %1:';"),
+					NStr("en = 'The following permissions to use external resources will be granted for %2 %1:'"),
 					Lower(Dictionary.Genitive),
 					ModuleDescription);
 				
@@ -191,11 +191,11 @@ Function RequestsForPermissionsToUseExternalResoursesPresentation(Val Administra
 		If ItemsToDelete.Count() > 0 Then
 			
 			If AsRequired Then
-				Raise NStr("en = 'Incorrect permission request';");
+				Raise NStr("en = 'Incorrect permission request'");
 			EndIf;
 			
 			HeaderText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'The following granted permissions to use external resources will be removed for %2 %1:';"),
+					NStr("en = 'The following granted permissions to use external resources will be removed for %2 %1:'"),
 					Lower(Dictionary.Genitive),
 					ModuleDescription);
 			
@@ -259,7 +259,7 @@ Procedure GenerateOperationsPresentation(SpreadsheetDocument, Val Template, Val 
 			EndIf;
 			
 			HeaderText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Security profile will be deleted for %2 %1.';"),
+					NStr("en = 'Security profile will be deleted for %2 %1.'"),
 					Lower(Dictionary.Genitive),
 					ModuleDescription);
 			
@@ -283,7 +283,7 @@ EndProcedure
 //
 // Parameters:
 //  SpreadsheetDocument - SpreadsheetDocument - a document, in which an operation presentation will be displayed,
-//  PermissionsSets - See DataProcessors.ExternalResourcesPermissionsSetup.PermissionsTable(),
+//  PermissionsSets - (),
 //  Template - SpreadsheetDocument - a document received from the PermissionsPresentations report template,
 //  AsRequired - Boolean - indicates whether terms of "the following resources are required" kind are used in the presentation instead of
 //                          "the following resources will be granted."
@@ -367,11 +367,11 @@ Procedure GeneratePermissionsPresentation(Val SpreadsheetDocument, Val Template,
 						If PermissionType = "FileSystemAccess" Then
 							
 							If Resolution.Path = "/temp" Then
-								PermissionAddition.Insert("Path", NStr("en = 'Temporary files folder';"));
+								PermissionAddition.Insert("Path", NStr("en = 'Temporary files folder'"));
 							EndIf;
 							
 							If Resolution.Path = "/bin" Then
-								PermissionAddition.Insert("Path", NStr("en = 'Folder where 1C:Enterprise server is installed';"));
+								PermissionAddition.Insert("Path", NStr("en = 'Folder where 1C:Enterprise server is installed'"));
 							EndIf;
 							
 						EndIf;
@@ -426,8 +426,8 @@ Function ConfigurationModuleDictionary()
 	
 	Result = New Structure();
 	
-	Result.Insert("Nominative", NStr("en = 'App';"));
-	Result.Insert("Genitive", NStr("en = 'Apps';"));
+	Result.Insert("Nominative", NStr("en = 'App'"));
+	Result.Insert("Genitive", NStr("en = 'Apps'"));
 	
 	Return Result;
 	

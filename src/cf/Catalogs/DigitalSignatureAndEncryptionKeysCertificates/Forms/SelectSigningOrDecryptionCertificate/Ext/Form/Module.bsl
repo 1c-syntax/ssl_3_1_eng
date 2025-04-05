@@ -67,14 +67,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Parameters.CanAddToList Then
 		CanAddToList = True;
-		Items.Select.Title = NStr("en = 'Add';");
+		Items.Select.Title = NStr("en = 'Add'");
 		
 		Items.AdvancedPasswordNote.Title =
-			NStr("en = 'Click Add to enter the password.';");
+			NStr("en = 'Click Add to enter the password.'");
 		
 		PersonalListOnAdd = Parameters.PersonalListOnAdd;
 		Items.ShowAll.ToolTip =
-			NStr("en = 'Show all certificates without filter (for example, including added and overdue)';");
+			NStr("en = 'Show all certificates without filter (for example, including added and overdue)'");
 	EndIf;
 	
 	ToEncryptAndDecrypt = Parameters.ToEncryptAndDecrypt;
@@ -82,25 +82,25 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If ToEncryptAndDecrypt = True Then
 		If Parameters.CanAddToList Then
-			Title = NStr("en = 'Add a certificate to encrypt and decrypt data';");
+			Title = NStr("en = 'Add a certificate to encrypt and decrypt data'");
 		Else
-			Title = NStr("en = 'Select certificate to encrypt and decrypt data';");
+			Title = NStr("en = 'Select certificate to encrypt and decrypt data'");
 		EndIf;
 	ElsIf ToEncryptAndDecrypt = False Then
 		If Parameters.CanAddToList Then
-			Title = NStr("en = 'Add a certificate to sign data';");
+			Title = NStr("en = 'Add a certificate to sign data'");
 		EndIf;
 	ElsIf DigitalSignature.UseEncryption() Then
-		Title = NStr("en = 'Add a certificate to sign and encrypt data';");
+		Title = NStr("en = 'Add a certificate to sign and encrypt data'");
 	Else
-		Title = NStr("en = 'Add a certificate to sign data';");
+		Title = NStr("en = 'Add a certificate to sign data'");
 	EndIf;
 	
 	If DigitalSignature.GenerateDigitalSignaturesAtServer() And ExecuteAtServer <> False Or HasCloudSignature Then
 		If ExecuteAtServer = True Then
-			Items.CertificatesGroup.Title = NStr("en = 'Personal certificates on the server';");
+			Items.CertificatesGroup.Title = NStr("en = 'Personal certificates on the server'");
 		Else
-			Items.CertificatesGroup.Title = NStr("en = 'Personal certificates on computer and on server';");
+			Items.CertificatesGroup.Title = NStr("en = 'Personal certificates on computer and on server'");
 		EndIf;
 	EndIf;
 	
@@ -207,7 +207,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	   And Items.CertificateCompany.AutoMarkIncomplete = True
 	   And Not ValueIsFilled(CertificateCompany) Then
 		
-		MessageText = NStr("en = 'Company is not populated.';");
+		MessageText = NStr("en = 'Company is not populated.'");
 		Common.MessageToUser(MessageText,, "CertificateCompany",, Cancel);
 	EndIf;
 	
@@ -242,7 +242,7 @@ EndProcedure
 Procedure CertificatesUnavailableAtClientLabelClick(Item)
 	
 	DigitalSignatureInternalClient.ShowApplicationCallError(
-		NStr("en = 'Certificates not available on computer';"),
+		NStr("en = 'Certificates not available on computer'"),
 		"",
 		ErrorOnGetCertificatesAtClient,
 		New Structure);
@@ -253,7 +253,7 @@ EndProcedure
 Procedure CertificatesUnavailableAtServerLabelClick(Item)
 	
 	DigitalSignatureInternalClient.ShowApplicationCallError(
-		NStr("en = 'Certificates not available on server';"),
+		NStr("en = 'Certificates not available on server'"),
 		"",
 		New Structure,
 		ErrorGettingCertificatesAtServer);
@@ -581,9 +581,9 @@ Procedure SelectAfterVerifyingTheCloudSignatureCertificate(Result, Context) Expo
 	
 	If ValueIsFilled(ErrorDescription) Then
 		If ToEncryptAndDecrypt = True Then
-			FormCaption = NStr("en = 'Encryption and decryption check';");
+			FormCaption = NStr("en = 'Encryption and decryption check'");
 		Else
-			FormCaption = NStr("en = 'Digital signature verification';");
+			FormCaption = NStr("en = 'Digital signature verification'");
 		EndIf;
 		DigitalSignatureInternalClient.ShowApplicationCallError(
 			FormCaption, "", New Structure("ErrorDescription", ErrorDescription), New Structure);
@@ -615,9 +615,9 @@ Procedure SelectAfterCertificateCheckInSaaSMode(Result, Context) Export
 	
 	If ValueIsFilled(ErrorDescription) Then
 		If ToEncryptAndDecrypt = True Then
-			FormCaption = NStr("en = 'Encryption and decryption check';");
+			FormCaption = NStr("en = 'Encryption and decryption check'");
 		Else
-			FormCaption = NStr("en = 'Digital signature verification';");
+			FormCaption = NStr("en = 'Digital signature verification'");
 		EndIf;
 		AdditionalParameters = New Structure("Certificate", AddressOfCertificate);
 		DigitalSignatureInternalClient.ShowApplicationCallError(FormCaption,
@@ -650,10 +650,10 @@ EndProcedure
 Procedure PickIndividual(Command)
 	
 	FilterParameters = New Structure;
-	FilterParameters.Insert("Property", NStr("en = 'Owner:';"));
+	FilterParameters.Insert("Property", NStr("en = 'Owner:'"));
 	CertificateDataDetailsStrings = DetailsOfCertificateData.FindRows(FilterParameters);
 	If CertificateDataDetailsStrings.Count() = 0 Then
-		CommonClient.MessageToUser(NStr("en = 'An appropriate individual does not exist.';"));
+		CommonClient.MessageToUser(NStr("en = 'An appropriate individual does not exist.'"));
 		Return;
 	EndIf;
 	
@@ -866,7 +866,7 @@ Procedure GoToCurrentCertificateChoice(Notification)
 	
 	If Items.Certificates.CurrentData = Undefined Then
 		If Not ValueIsFilled(CertificateAddress) Then
-			Result.ErrorDescription = NStr("en = 'Select a certificate to be used.';");
+			Result.ErrorDescription = NStr("en = 'Select a certificate to be used.'");
 			RunCallback(Notification, Result);
 		EndIf;
 		Return;
@@ -884,7 +884,7 @@ Procedure GoToCurrentCertificateChoice(Notification)
 			Result.UpdateCertificatesList = True;
 			Result.ErrorDescription =
 				NStr("en = 'The application for this certificate has not yet been fulfilled.
-				           |Open the application and complete the necessary steps.';");
+				           |Open the application and complete the necessary steps.'");
 			RunCallback(Notification, Result);
 		EndIf;
 		Return;
@@ -893,7 +893,7 @@ Procedure GoToCurrentCertificateChoice(Notification)
 	If Not HaveRightToAddInDirectory And Not CurrentData.Isinthedirectory Then
 		Result.UpdateCertificatesList = True;
 		Result.ErrorDescription =
-			NStr("en = 'Insufficient rights to use certificates that are not in the catalog.';");
+			NStr("en = 'Insufficient rights to use certificates that are not in the catalog.'");
 		RunCallback(Notification, Result);
 		Return;
 	EndIf;
@@ -913,7 +913,7 @@ Procedure GoToCurrentCertificateChoice(Notification)
 		If FillCurrentCertificatePropertiesAtServer(CurrentData.Thumbprint, Context.SavedProperties) Then
 			GoToCurrentCertificateChoiceAfterFillCertificateProperties(Context);
 		Else
-			Result.ErrorDescription = NStr("en = 'Certificate does not exist on the server (it might have been deleted).';");
+			Result.ErrorDescription = NStr("en = 'Certificate does not exist on the server (it might have been deleted).'");
 			Result.UpdateCertificatesList = True;
 			RunCallback(Notification, Result);
 		EndIf;
@@ -958,7 +958,7 @@ Procedure GoToCurrentCertificateChoiceAfterCertificateSearch(SearchResult, Conte
 	
 	If TypeOf(SearchResult) <> Type("CryptoCertificate") Then
 		If SearchResult.Property("CertificateNotFound") Then
-			Context.Result.ErrorDescription = NStr("en = 'The certificate is not installed or was deleted from your computer.';");
+			Context.Result.ErrorDescription = NStr("en = 'The certificate is not installed or was deleted from your computer.'");
 		Else
 			Context.Result.ErrorDescription = SearchResult.ErrorDescription;
 		EndIf;
@@ -994,7 +994,7 @@ Procedure GoToCurrentCertificateChoiceAfterCertificateSearchInCloudService(Searc
 	EndIf;
 	
 	If Not ValueIsFilled(SearchResult.Certificate) Then
-		Context.Result.ErrorDescription = NStr("en = 'The certificate does not exist in the service. It might have been deleted.';");
+		Context.Result.ErrorDescription = NStr("en = 'The certificate does not exist in the service. It might have been deleted.'");
 		Context.Result.UpdateCertificatesList = True;
 		RunCallback(Context.Notification, Context.Result);
 		Return;
@@ -1024,7 +1024,7 @@ Procedure GoToTheCurrentCertificateSelectionAfterSearchingForTheCertificateInThe
 	EndIf;
 	
 	If Not ValueIsFilled(SearchResult.CertificateData) Then
-		Context.Result.ErrorDescription = NStr("en = 'Certificate does not exist on the DSS server (it might have been deleted).';");
+		Context.Result.ErrorDescription = NStr("en = 'Certificate does not exist on the DSS server (it might have been deleted).'");
 		Context.Result.UpdateCertificatesList = True;
 		RunCallback(Context.Notification, Context.Result);
 		Return;
@@ -1105,7 +1105,7 @@ Procedure GoToCurrentCertificateChoiceAfterFillCertificateProperties(Context)
 	Items.Select.DefaultButton = True;
 	
 	If CanAddToList Then
-		String = ?(ValueIsFilled(Certificate), NStr("en = 'Update';"), NStr("en = 'Add';"));
+		String = ?(ValueIsFilled(Certificate), NStr("en = 'Update'"), NStr("en = 'Add'"));
 		If Items.Select.Title <> String Then
 			Items.Select.Title = String;
 		EndIf;
@@ -1185,11 +1185,20 @@ Async Procedure AfterAddCertificate(Result, Context) Export
 		Return;
 	EndIf;
 	
+	AddressOfCertificate = Result.Certificate;
+	
+	If IsBlankString(AddressOfCertificate) Then
+		FormParameters = New Structure;
+		FormParameters.Insert("WarningTitle", NStr("en = 'Cannot install the certificate.'"));
+		FormParameters.Insert("ErrorTextClient", Result.Message);
+		DigitalSignatureInternalClient.OpenExtendedErrorPresentationForm(FormParameters, ThisObject);
+		Return;
+	EndIf;
+	
 	Context = New Structure;
 	Context.Insert("Notification",          Undefined);
 	Context.Insert("SavedProperties", Undefined);
 	
-	AddressOfCertificate = Result.Certificate;
 	CertificateData = GetFromTempStorage(AddressOfCertificate);
 	CryptoCertificate = New CryptoCertificate;
 	Await CryptoCertificate.InitializeAsync(CertificateData);

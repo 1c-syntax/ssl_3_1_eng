@@ -54,7 +54,7 @@ Function PatchesChanged(IsCheckOnly = False) Export
 	If Corrections.Count() > 0 Then
 		
 		MessageText = NStr("en = 'Installed patches are found (%1).
-			|Clearing up obsolete patches…';");
+			|Clearing up obsolete patches…'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, Corrections.Count());
 		WriteLogEvent(EventLogEvent(), EventLogLevel.Information,,, MessageText);
 		
@@ -78,7 +78,7 @@ Function PatchesChanged(IsCheckOnly = False) Export
 			ElsIf PatchProperties = "ReadingError" Then
 				DeletePatch = True;
 			Else
-				MessageText = NStr("en = 'Checking patch ""%1""…';");
+				MessageText = NStr("en = 'Checking patch ""%1""…'");
 				MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, Patch.Name);
 				WriteLogEvent(EventLogEvent(), EventLogLevel.Information,,, MessageText);
 				
@@ -139,14 +139,14 @@ Function PatchesChanged(IsCheckOnly = False) Export
 					
 					If IsLibraryPatch Then
 						MessageText = NStr("en = 'The ""%1"" patch is outdated and will be deleted.
-							|You can use the patch for the ""%2"" builds of the ""%3"" library. Current library version: ""%4"".';");
+							|You can use the patch for the ""%2"" builds of the ""%3"" library. Current library version: ""%4"".'");
 					Else
 						LibraryVersion = Metadata.Version;
 						MessageText = NStr("en = 'The ""%1"" patch is outdated and will be deleted.
-							|You can use the patch for the ""%2"" builds. Current configuration version: ""%4"".';");
+							|You can use the patch for the ""%2"" builds. Current configuration version: ""%4"".'");
 					EndIf;
 				Else
-					MessageText = NStr("en = 'Patch ""%1"" is obsolete and will be deleted.';");
+					MessageText = NStr("en = 'Patch ""%1"" is obsolete and will be deleted.'");
 				EndIf;
 				
 				MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText,
@@ -154,7 +154,7 @@ Function PatchesChanged(IsCheckOnly = False) Export
 					BuildsListAsString,
 					LibraryName,
 					LibraryVersion);
-				WriteLogEvent(NStr("en = 'Patch.Delete';", Common.DefaultLanguageCode()),
+				WriteLogEvent(NStr("en = 'Patch.Delete'", Common.DefaultLanguageCode()),
 					EventLogLevel.Information, , , MessageText);
 				
 				Try
@@ -166,8 +166,8 @@ Function PatchesChanged(IsCheckOnly = False) Export
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Cannot delete patch ""%1."" Reason:
 						           |
-						           |%2';"), Patch.Name, ErrorProcessing.BriefErrorDescription(ErrorInfo));
-					WriteLogEvent(NStr("en = 'Patch.Delete';", Common.DefaultLanguageCode()),
+						           |%2'"), Patch.Name, ErrorProcessing.BriefErrorDescription(ErrorInfo));
+					WriteLogEvent(NStr("en = 'Patch.Delete'", Common.DefaultLanguageCode()),
 						EventLogLevel.Error,,, ErrorText);
 					Raise ErrorText;
 				EndTry;
@@ -195,8 +195,8 @@ Function PatchesChanged(IsCheckOnly = False) Export
 						ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 							NStr("en = 'Cannot apply the ""%1"" patch due to:
 							           |
-							           |%2';"), Patch.Name, ErrorProcessing.BriefErrorDescription(ErrorInfo));
-						WriteLogEvent(NStr("en = 'Patch.Modify';", Common.DefaultLanguageCode()),
+							           |%2'"), Patch.Name, ErrorProcessing.BriefErrorDescription(ErrorInfo));
+						WriteLogEvent(NStr("en = 'Patch.Modify'", Common.DefaultLanguageCode()),
 							EventLogLevel.Error,,, ErrorText);
 						Raise ErrorText;
 					EndTry;
@@ -212,9 +212,9 @@ Function PatchesChanged(IsCheckOnly = False) Export
 			Try
 				Extension.Delete();
 				
-				MessageText = NStr("en = 'Disabled patch deleted: ""%1"".';");
+				MessageText = NStr("en = 'Disabled patch deleted: ""%1"".'");
 				MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, Extension.Name);
-				WriteLogEvent(NStr("en = 'Patch.Delete';", Common.DefaultLanguageCode()),
+				WriteLogEvent(NStr("en = 'Patch.Delete'", Common.DefaultLanguageCode()),
 					EventLogLevel.Information, , , MessageText);
 				
 				Changes.InactivePatches.Add(Extension.Name);
@@ -224,8 +224,8 @@ Function PatchesChanged(IsCheckOnly = False) Export
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot delete disabled patch ""%1."" Reason:
 					           |
-					           |%2';"), Extension.Name, ErrorProcessing.BriefErrorDescription(ErrorInfo));
-				WriteLogEvent(NStr("en = 'Patch.Delete';", Common.DefaultLanguageCode()),
+					           |%2'"), Extension.Name, ErrorProcessing.BriefErrorDescription(ErrorInfo));
+				WriteLogEvent(NStr("en = 'Patch.Delete'", Common.DefaultLanguageCode()),
 					EventLogLevel.Error,,, ErrorText);
 				Raise ErrorText;
 			EndTry;
@@ -236,7 +236,7 @@ Function PatchesChanged(IsCheckOnly = False) Export
 		CorrectionsLeft = Corrections.Count() - Changes.DeletedPatches.Count();
 		MessageText = NStr("en = 'Patch clean up has completed.
 			|Obsolete patches deleted: %1.
-			|Patches remained: %2.';");
+			|Patches remained: %2.'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			MessageText,
 			Changes.DeletedPatches.Count(),
@@ -247,25 +247,25 @@ Function PatchesChanged(IsCheckOnly = False) Export
 	ChangesDetails = "";
 	
 	If Changes.DeletedPatches.Count() > 0 Then
-		Title = NStr("en = 'Obsolete patches deleted';");
+		Title = NStr("en = 'Obsolete patches deleted'");
 		ChangesDetails = Title + ":" + Chars.LF + StrConcat(Changes.DeletedPatches, Chars.LF);
 	EndIf;
 	If Changes.InactivePatches.Count() > 0 Then
-		Title = NStr("en = 'Disabled patches are deleted';");
+		Title = NStr("en = 'Disabled patches are deleted'");
 		If ValueIsFilled(ChangesDetails) Then
 			ChangesDetails = ChangesDetails + Chars.LF + Chars.LF;
 		EndIf;
 		ChangesDetails = ChangesDetails + Title + ":" + Chars.LF + StrConcat(Changes.InactivePatches, Chars.LF);
 	EndIf;
 	If Changes.ProtectionDisabled.Count() > 0 Then
-		Title = NStr("en = 'Unsafe operation warning disabled';");
+		Title = NStr("en = 'Unsafe operation warning disabled'");
 		If ValueIsFilled(ChangesDetails) Then
 			ChangesDetails = ChangesDetails + Chars.LF + Chars.LF;
 		EndIf;
 		ChangesDetails = ChangesDetails + Title + ":" + Chars.LF + StrConcat(Changes.ProtectionDisabled, Chars.LF);
 	EndIf;
 	If Changes.SafeModeDisabled.Count() > 0 Then
-		Title = NStr("en = 'Safe mode disabled';");
+		Title = NStr("en = 'Safe mode disabled'");
 		If ValueIsFilled(ChangesDetails) Then
 			ChangesDetails = ChangesDetails + Chars.LF + Chars.LF;
 		EndIf;
@@ -452,13 +452,13 @@ Function InstallAndDeletePatches(Corrections, Val PatchesInstallationParameters 
 				InstalledPatch = ExtensionByID(Extension.UUID);
 				If Not IsPatch(InstalledPatch) Then
 					Extension.Delete();
-					Raise NStr("en = 'This is not a patch file.';");
+					Raise NStr("en = 'This is not a patch file.'");
 				EndIf;
 				
 				MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Patch installed: %1';"),
+					NStr("en = 'Patch installed: %1'"),
 					InstalledPatch.Name);
-				WriteLogEvent(NStr("en = 'Patch.Install';", Common.DefaultLanguageCode()),
+				WriteLogEvent(NStr("en = 'Patch.Install'", Common.DefaultLanguageCode()),
 					EventLogLevel.Information,,, MessageText);
 				
 				ExecutionResult.Installed.Add(InstalledPatch.Name);
@@ -483,8 +483,8 @@ Function InstallAndDeletePatches(Corrections, Val PatchesInstallationParameters 
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot install the ""%1"" patch due to:
 					           |
-					           |%2';"), PatchName, ErrorProcessing.BriefErrorDescription(ErrorInfo));
-					WriteLogEvent(NStr("en = 'Patch.Install';", Common.DefaultLanguageCode()),
+					           |%2'"), PatchName, ErrorProcessing.BriefErrorDescription(ErrorInfo));
+					WriteLogEvent(NStr("en = 'Patch.Install'", Common.DefaultLanguageCode()),
 						EventLogLevel.Error,,, ErrorText);
 				EndIf;
 				
@@ -518,9 +518,9 @@ Function InstallAndDeletePatches(Corrections, Val PatchesInstallationParameters 
 				If ItemsToDelete.Find(String(Id)) <> Undefined Then
 					Extension.Delete();
 					MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'Patch deleted: %1';"),
+						NStr("en = 'Patch deleted: %1'"),
 						Extension.Name);
-					WriteLogEvent(NStr("en = 'Patch.Delete';", Common.DefaultLanguageCode()),
+					WriteLogEvent(NStr("en = 'Patch.Delete'", Common.DefaultLanguageCode()),
 						EventLogLevel.Information,,, MessageText);
 				EndIf;
 			Except
@@ -529,8 +529,8 @@ Function InstallAndDeletePatches(Corrections, Val PatchesInstallationParameters 
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot delete patch ""%1."" Reason:
 					           |
-					           |%2';"), Extension.Name, ErrorProcessing.BriefErrorDescription(ErrorInfo));
-				WriteLogEvent(NStr("en = 'Patch.Delete';", Common.DefaultLanguageCode())
+					           |%2'"), Extension.Name, ErrorProcessing.BriefErrorDescription(ErrorInfo));
+				WriteLogEvent(NStr("en = 'Patch.Delete'", Common.DefaultLanguageCode())
 					, EventLogLevel.Error,,, ErrorText);
 				
 				ErrorDescription = New Structure;
@@ -548,7 +548,7 @@ Function InstallAndDeletePatches(Corrections, Val PatchesInstallationParameters 
 	AsynchronousCallText = "";
 	If Common.FileInfobase() And (PatchesInstallationParameters.InBackground Or IsBackgroundJob) Then
 		AsynchronousCallText = NStr("en = 'Failed to update extension parameters
-			|after some patches were installed or deleted.';")
+			|after some patches were installed or deleted.'")
 	EndIf;
 	
 	If PatchesInstallationParameters.UpdateExtensionParameters Then
@@ -643,7 +643,7 @@ Procedure CheckObsoletePatchesExist() Export
 	Result = PatchesChanged(True);
 	If Result.HasChanges Then
 		MessageText = NStr("en = 'Incorrect call of function ""%1"".
-			|Obsolete patches were not deleted before the call. The update might be performed by non-standard means.';");
+			|Obsolete patches were not deleted before the call. The update might be performed by non-standard means.'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, "InfobaseUpdate.UpdateInfobase");
 		WriteLogEvent(EventLogEvent(), EventLogLevel.Error,,, MessageText);
 	EndIf;
@@ -702,11 +702,11 @@ EndProcedure
 //
 Procedure CompleteUpdate(Val UpdateResult, Val Email, Val UpdateAdministratorName, Val ScriptDirectory = Undefined) Export
 
-	MessageText = NStr("en = 'Completing update from the external script file.';");
+	MessageText = NStr("en = 'Completing update from the external script file.'");
 	WriteLogEvent(EventLogEvent(), EventLogLevel.Information,,,MessageText);
 	
 	If Not HasRightsToInstallUpdate() Then
-		MessageText = NStr("en = 'Insufficient rights to complete the application update.';");
+		MessageText = NStr("en = 'Insufficient rights to complete the application update.'");
 		WriteLogEvent(EventLogEvent(), EventLogLevel.Error,,,MessageText);
 		Raise(MessageText, ErrorCategory.AccessViolation);
 	EndIf;
@@ -733,13 +733,13 @@ Procedure CompleteUpdate(Val UpdateResult, Val Email, Val UpdateAdministratorNam
 		Except
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot send an email to %1 due to:
-					|%2';"),
+					|%2'"),
 				Email, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(EventLogEvent(), EventLogLevel.Error,,,MessageText);
 		EndTry;
 		
 		If IsNotificationSent Then 
-			MessageText = NStr("en = 'An update notification is sent to:';")
+			MessageText = NStr("en = 'An update notification is sent to:'")
 				+ " " + Email;
 			WriteLogEvent(EventLogEvent(), EventLogLevel.Information,,,MessageText);
 		EndIf;
@@ -824,11 +824,11 @@ EndFunction
 
 Procedure UpdatePatchesFromScript(NewPatches, PatchesToDelete) Export
 	
-	MessageText = NStr("en = 'Updating patches from an external script file.';");
+	MessageText = NStr("en = 'Updating patches from an external script file.'");
 	WriteLogEvent(EventLogEvent(), EventLogLevel.Information,,, MessageText);
 	
 	If Not HasRightsToInstallUpdate() Then
-		MessageText = NStr("en = 'Insufficient rights to update patches.';");
+		MessageText = NStr("en = 'Insufficient rights to update patches.'");
 		WriteLogEvent(EventLogEvent(), EventLogLevel.Error,,, MessageText);
 		Raise(MessageText, ErrorCategory.AccessViolation);
 	EndIf;
@@ -844,7 +844,7 @@ Procedure UpdatePatchesFromScript(NewPatches, PatchesToDelete) Export
 				PatchesToInstall1.Add(PutToTempStorage(PatchData));
 			Except
 				ErrorText = NStr("en = 'Cannot get binary data of the patch due to:
-					|%1';");
+					|%1'");
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText,
 					ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				WriteLogEvent(EventLogEvent(), EventLogLevel.Error, , , ErrorText);
@@ -877,7 +877,7 @@ EndProcedure
 
 Procedure EnableApplicablePatches() Export
 	
-	MessageText = NStr("en = 'Patch enabling has started following the start of the application update.';");
+	MessageText = NStr("en = 'Patch enabling has started following the start of the application update.'");
 	WriteLogEvent(EventLogEvent(), EventLogLevel.Information,,, MessageText);
 	
 	SubsystemsDetails = StandardSubsystemsCached.SubsystemsDetails();
@@ -910,8 +910,8 @@ Procedure EnableApplicablePatches() Export
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Cannot delete patch ""%1."" Reason:
 							 |
-							 |%2';"), Extension.Name, ErrorProcessing.BriefErrorDescription(ErrorInfo));
-					WriteLogEvent(NStr("en = 'Patch.Delete';", Common.DefaultLanguageCode()),
+							 |%2'"), Extension.Name, ErrorProcessing.BriefErrorDescription(ErrorInfo));
+					WriteLogEvent(NStr("en = 'Patch.Delete'", Common.DefaultLanguageCode()),
 						EventLogLevel.Error,,, ErrorText);
 					Raise ErrorText;
 				EndTry;
@@ -921,13 +921,13 @@ Procedure EnableApplicablePatches() Export
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot enable patch ""%1"" due to:
 			|
-			|%2';"), Extension.Name, ErrorProcessing.BriefErrorDescription(ErrorInfo));
-			WriteLogEvent(NStr("en = 'Patches.Enable';", Common.DefaultLanguageCode())
+			|%2'"), Extension.Name, ErrorProcessing.BriefErrorDescription(ErrorInfo));
+			WriteLogEvent(NStr("en = 'Patches.Enable'", Common.DefaultLanguageCode())
 			, EventLogLevel.Error,,, ErrorText);
 		EndTry;
 	EndDo;
 	
-	MessageText = NStr("en = 'Patch enabling completed.';");
+	MessageText = NStr("en = 'Patch enabling completed.'");
 	WriteLogEvent(EventLogEvent(), EventLogLevel.Information,,, MessageText);
 	
 	ClearPatchPropertiesBeforeInfobaseUpdate();
@@ -1072,17 +1072,17 @@ EndFunction
 
 Procedure SendUpdateNotification(Val UserName, Val DestinationAddress, Val SuccessfulUpdate)
 	
-	Subject = ? (SuccessfulUpdate, NStr("en = 'Application %1 has been updated to version %2';"), 
-		NStr("en = 'Application %1 failed to update to version %2';"));
+	Subject = ? (SuccessfulUpdate, NStr("en = '%1 has been updated to v.%2'"), 
+		NStr("en = 'Error updating %1 to v.%2'"));
 	Subject = StringFunctionsClientServer.SubstituteParametersToString(Subject, Metadata.BriefInformation, Metadata.Version);
 	
-	Details_ = ?(SuccessfulUpdate, NStr("en = 'Application has been updated.';"), 
-		NStr("en = 'Application has failed to update. See the event log for details.';"));
+	Details_ = ?(SuccessfulUpdate, NStr("en = 'Updated successfully.'"), 
+		NStr("en = 'Update failed. See the event log for details.'"));
 	Text = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1
 		|
-		|Application: %2
+		|%2
 		|Version: %3
-		|Connection string: %4';"),
+		|Connection string: %4'"),
 	Details_, Metadata.BriefInformation, Metadata.Version, InfoBaseConnectionString());
 	
 	EmailParameters = New Structure;
@@ -1098,7 +1098,7 @@ Procedure SendUpdateNotification(Val UserName, Val DestinationAddress, Val Succe
 EndProcedure
 
 Function EventLogEvent() Export
-	Return NStr("en = 'Configuration update';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Configuration update'", Common.DefaultLanguageCode());
 EndFunction
 
 Function DefaultSettings()
@@ -1163,14 +1163,14 @@ Function ExtractPatchFromArchive(Val FileThatWasPut, ShouldCheckApplicabilityByM
 		EndIf;
 		
 		If Not PatchFound Then
-			Raise NStr("en = 'This is not a patch file.';");
+			Raise NStr("en = 'This is not a patch file.'");
 		EndIf;
 		
 		If ShouldCheckApplicabilityByManifest Then
 			// Applicability check.
 			PatchApplicable = PatchApplicable(ZIPReader, TempDirectory);
 			If Not PatchApplicable Then
-				Raise NStr("en = 'Cannot apply the patch to this configuration version.';");
+				Raise NStr("en = 'Cannot apply the patch to this configuration version.'");
 			EndIf;
 		EndIf;
 		
@@ -1224,7 +1224,7 @@ Function PatchApplicable(ZIPReader, TempDirectory)
 		Properties = XDTOFactory.ReadXML(XMLReader, XDTOFactory.Type("http://www.v8.1c.ru/ssl/patch", "Patch"));
 	Except
 		ErrorText = ErrorProcessing.DetailErrorDescription(ErrorInfo());
-		Raise NStr("en = 'Incorrect patch manifest file format';") + ":" + Chars.LF + ErrorText;
+		Raise NStr("en = 'Incorrect patch manifest file format'") + ":" + Chars.LF + ErrorText;
 	EndTry;
 	
 	SubsystemsDetails = StandardSubsystemsCached.SubsystemsDetails();
@@ -1279,7 +1279,7 @@ Function UpdateInfo(Val UpdateDeliveryFileName) Export
 	Except
 		WriteLogEvent(EventLogEvent(), EventLogLevel.Error,,,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		Result.ErrorText = NStr("en = 'The information is unavailable';");
+		Result.ErrorText = NStr("en = 'The information is unavailable'");
 		BriefErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		If Not IsBlankString(BriefErrorDescription) Then
 			Result.ErrorText = Result.ErrorText + " (" + BriefErrorDescription + ")";
@@ -1391,7 +1391,7 @@ Function IsPatchApplicableToCurrentConfigurationVersion(ConfigurationLibraries, 
 		Return PatchApplicable;
 	EndIf;
 	
-	MessageText = NStr("en = 'Checking patch ""%1""…';");
+	MessageText = NStr("en = 'Checking patch ""%1""…'");
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, PatchName);
 	WriteLogEvent(EventLogEvent(), EventLogLevel.Information,,, MessageText);
 	
@@ -1432,7 +1432,7 @@ Function IsPatchApplicableToCurrentConfigurationVersion(ConfigurationLibraries, 
 	EndDo;
 	
 	If Not PatchApplicable Then
-		MessageText = NStr("en = 'Patch ""%1"" is obsolete and will be deleted.';");
+		MessageText = NStr("en = 'Patch ""%1"" is obsolete and will be deleted.'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, PatchName);
 		WriteLogEvent(EventLogEvent(), EventLogLevel.Information, , , MessageText);
 	EndIf;

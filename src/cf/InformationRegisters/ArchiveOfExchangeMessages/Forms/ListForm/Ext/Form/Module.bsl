@@ -29,7 +29,7 @@ Procedure Save(Command)
 	FilesForDownloading = PrepareFilesAtServer();
 	
 	If FilesForDownloading.Count() <> 0 Then
-		Title = NStr("en = 'Select a directory to save the files';");
+		Title = NStr("en = 'Select a directory to save the files'");
 		DialogParameters = New GetFilesDialogParameters(Title, True);
 		BeginGetFilesFromServer(FilesForDownloading, DialogParameters);
 	EndIf;
@@ -85,7 +85,7 @@ Function PrepareFilesAtServer()
 		
 		If BinaryData = Undefined Then
 			
-			Template = NStr("en = 'Message #%1 for node ""%2"" dated %3 is not found';");
+			Template = NStr("en = 'Message #%1 for node ""%2"" dated %3 is not found'");
 			MessageText = StrTemplate(Template,
 				Selection.ReceivedMessageNumber, 
 				Selection.InfobaseNode,

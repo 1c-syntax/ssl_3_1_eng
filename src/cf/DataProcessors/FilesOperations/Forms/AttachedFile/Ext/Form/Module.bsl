@@ -233,20 +233,20 @@ Procedure StandardSetDeletionMark(Command)
 			QueryText = NStr(
 				"en = 'To proceed, save the file changes.
 				      |Save the changes and clear the deletion mark from file
-				      |""%1""?';");
+				      |""%1""?'");
 		Else
 			QueryText = NStr(
 				"en = 'To proceed, you need to save the file changes.
 				      |Save the changes and mark the
-				      |""%1"" file for deletion?';");
+				      |""%1"" file for deletion?'");
 		EndIf;
 	Else
 		If ThisObject.Object.DeletionMark Then
 			QueryText = NStr("en = 'Deletion mark will be cleared from %1.
-			                          |Continue?';");
+			                          |Continue?'");
 		Else
 			QueryText = NStr("en = '%1 will be marked for deletion.
-			                          |Continue?';");
+			                          |Continue?'");
 		EndIf;
 	EndIf;
 	
@@ -279,7 +279,7 @@ Procedure StandardReread(Command)
 		Return;
 	EndIf;
 	
-	QueryText = NStr("en = 'The data has been changed. Do you want to refresh the data?';");
+	QueryText = NStr("en = 'The data has been changed. Do you want to refresh the data?'");
 	
 	NotifyDescription = New CallbackDescription("StandardRereadAnswerReceived", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
@@ -341,7 +341,7 @@ Procedure Send(Command)
 	
 EndProcedure
 
-// СтандартныеПодсистемы.Свойства
+// 
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -633,7 +633,7 @@ Procedure DeleteDS(Command)
 	EndIf;
 	
 	NotifyDescription = New CallbackDescription("DeleteDigitalSignatureAnswerReceived", ThisObject);
-	ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to delete the selected signatures?';"), QuestionDialogMode.YesNo);
+	ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to delete the selected signatures?'"), QuestionDialogMode.YesNo);
 	
 EndProcedure
 
@@ -874,9 +874,9 @@ Procedure RefreshTitle()
 	CurrentObjectRef = CurrentRefToFileServer();
 	If ValueIsFilled(CurrentObjectRef) Then
 		Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 (Attachment)';"), String(CurrentObjectRef));
+			NStr("en = '%1 (Attachment)'"), String(CurrentObjectRef));
 	Else
-		Title = NStr("en = 'Create attachment';")
+		Title = NStr("en = 'Create attachment'")
 	EndIf;
 	
 EndProcedure
@@ -1059,16 +1059,16 @@ Procedure SetButtonsAvailability(Form, Items)
 	
 	If Not PrintWithStampAvailable Then
 		Items.PrintSubmenu.Type = FormGroupType.ButtonGroup;
-		Items.Print.Title = NStr("en = 'Print';");
+		Items.Print.Title = NStr("en = 'Print'");
 	Else
 		Items.PrintSubmenu.Type = FormGroupType.Popup;
-		Items.Print.Title = NStr("en = 'Quick print';");
+		Items.Print.Title = NStr("en = 'Quick print'");
 	EndIf;
 	
 	If CommandsNames.Find("Edit") <> Undefined Then
-		Items["LongDesc"].InputHint = NStr("en = 'A brief description. To edit the file, click Edit.';");
+		Items["LongDesc"].InputHint = NStr("en = 'A brief description. To edit the file, click Edit.'");
 	Else
-		Items["LongDesc"].InputHint = NStr("en = 'A brief description. To view the file, click View.';");
+		Items["LongDesc"].InputHint = NStr("en = 'A brief description. To view the file, click View.'");
 	EndIf;
 	
 EndProcedure
@@ -1369,7 +1369,7 @@ Function HandleFileRecordCommand()
 	
 	If IsBlankString(ThisObject.Object.Description) Then
 		CommonClient.MessageToUser(
-			NStr("en = 'To proceed, please provide the file name.';"), , "Description", "Object");
+			NStr("en = 'To proceed, please provide the file name.'"), , "Description", "Object");
 		Return False;
 	EndIf;
 	
@@ -1616,7 +1616,7 @@ Procedure UpdateCloudServiceNote(AttachedFile)
 			NoteVisibility = True;
 			
 			Items.DecorationNote.Title = StringFunctions.FormattedString(
-				NStr("en = 'This is a read-only file. It is stored in cloud service <a href=""%1"">%2</a>.';"),
+				NStr("en = 'This is a read-only file. It is stored in cloud service <a href=""%1"">%2</a>.'"),
 				SynchronizationInfo.FolderAddressInCloudService, SynchronizationInfo.AccountDescription1);
 			
 			Items.DecorationPictureSyncStatus.Visible = Not SynchronizationInfo.IsSynchronized;
@@ -1624,7 +1624,7 @@ Procedure UpdateCloudServiceNote(AttachedFile)
 				ToolTipRepresentation.None, ToolTipRepresentation.Button);
 			
 			Items.DecorationSyncDate.Title = StringFunctions.FormattedString(
-				NStr("en = 'Synchronized on: <a href=""%1"">%2</a>';"),
+				NStr("en = 'Synchronized on: <a href=""%1"">%2</a>'"),
 				"OpenJournal", Format(SynchronizationInfo.SynchronizationDate, "DLF=DD"));
 			
 		EndIf;

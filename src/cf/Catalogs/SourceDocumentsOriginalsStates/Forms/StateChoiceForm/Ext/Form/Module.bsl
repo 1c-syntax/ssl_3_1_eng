@@ -17,7 +17,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	For Each State In OriginalStates Do 
 		OriginalStatesList.Add(State,,False);
 	EndDo;
-	OriginalStatesList.Add("Statesnotable",NStr("en = '<Unknown state>';"),False);
+	OriginalStatesList.Add("Statesnotable",NStr("en = '<Unknown state>'"),False);
 
 	For Each State In Parameters.StatesList Do
 		 FoundState = OriginalStatesList.FindByValue(State.Value);

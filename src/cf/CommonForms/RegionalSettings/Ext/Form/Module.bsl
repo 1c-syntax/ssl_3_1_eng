@@ -22,10 +22,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Source = Parameters.Source;
 	If Source = "SSLAdministrationPanel" Then
-		Items.OK.Title = NStr("en = 'OK';");
+		Items.OK.Title = NStr("en = 'Change'");
 		Items.OK.ToolTipRepresentation = ToolTipRepresentation.None;
 		Items.ApplicationTimeZoneGroup.Visible = False;
-		Title = NStr("en = 'Accounting languages';");
+		Title = NStr("en = 'Accounting languages'");
 		AutoTitle = False;
 	EndIf;
 	 
@@ -166,7 +166,7 @@ Procedure DisplayAdditionalLanguagesSettings(Settings, LanguagesCount)
 		FieldAdditionalLanguage.DataPath = AttributeName;
 		FieldAdditionalLanguage.TitleLocation=FormItemTitleLocation.None;
 		FieldAdditionalLanguage.AutoMarkIncomplete = True;
-		FieldAdditionalLanguage.InputHint= NStr("en = 'Additional accounting language';");
+		FieldAdditionalLanguage.InputHint= NStr("en = 'Additional accounting language'");
 		FieldAdditionalLanguage.SetAction("OnChange", "Attachable_AdditionalLanguage_OnChange");
 		FieldAdditionalLanguage.SetAction("StartChoice", "Attachable_AdditionalLanguage_StartChoice");
 		
@@ -335,14 +335,14 @@ EndProcedure
 Procedure AutoCloseInactiveForm()
 	
 	If DataChanged Then
-		Items.OK.Title = NStr("en = 'OK';");
+		Items.OK.Title = NStr("en = 'OK'");
 		Return;
 	EndIf;
 	
 	If FormClosingTime < CurrentTimeOnTheClient() Then
 		
 		WriteConstantsValuesAndClose();
-		Items.OK.Title = NStr("en = 'OK';");
+		Items.OK.Title = NStr("en = 'OK'");
 		Return;
 		
 	EndIf;
@@ -353,7 +353,7 @@ Procedure AutoCloseInactiveForm()
 	MinutesAndSeconds = ?(Minutes1 > 1, String(Minutes1) + ":" + String(Seconds), String(Seconds));
 
 	Items.OK.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'OK (%1)';"), MinutesAndSeconds);
+		NStr("en = 'OK (%1)'"), MinutesAndSeconds);
 		
 	AttachIdleHandler("AutoCloseInactiveForm", 1, True);
 	
@@ -398,9 +398,9 @@ Function StartBackgroundRefillingAtServer(Val Var_UUID)
 
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(Var_UUID);
 	ExecutionParameters.BackgroundJobDescription =
-		NStr("en = 'Refill predefined items and classifiers.';");
+		NStr("en = 'Refill predefined items and classifiers.'");
 	ExecutionParameters.RefinementErrors =
-		NStr("en = 'Cannot refill predefined items and classifiers due to:';");
+		NStr("en = 'Cannot refill predefined items and classifiers due to:'");
 	
 	Return TimeConsumingOperations.ExecuteInBackground("NationalLanguageSupportServer.ChangeLanguageinMultilingualDetailsConfig",
 		New Structure, ExecutionParameters);
@@ -483,12 +483,12 @@ EndProcedure
 Function DataCorrect()
 	
 	If IsBlankString(DefaultLanguage) Then
-		CommonClient.MessageToUser(NStr("en = 'Main application language not set';"),, Items.DefaultLanguage);
+		CommonClient.MessageToUser(NStr("en = 'Main application language not set'"),, Items.DefaultLanguage);
 		Return False;
 	EndIf;
 	
 	If IsBlankString(AppTimeZone) Then
-		CommonClient.MessageToUser(NStr("en = 'Application time zone not set';"),, Items.AppTimeZone);
+		CommonClient.MessageToUser(NStr("en = 'Application time zone not set'"),, Items.AppTimeZone);
 		Return False;
 	EndIf;
 	
@@ -501,7 +501,7 @@ Function DataCorrect()
 			CurrentItemName = LanguageSelectionFieldItemName(CurrentLanguageSeqNumber);
 			
 			If IsBlankString(ThisObject[CurrentItemName]) Then
-				CommonClient.MessageToUser(NStr("en = 'Additional accounting language not set';"),, CurrentItemName);
+				CommonClient.MessageToUser(NStr("en = 'Additional accounting language not set'"),, CurrentItemName);
 				Return False;
 			EndIf;
 			
@@ -510,11 +510,11 @@ Function DataCorrect()
 				
 				If CurrentLanguageSeqNumber = LanguageSeqNumber Then
 					If StrCompare(DefaultLanguage, ThisObject[TagName]) = 0 Then
-						ShowMessageBox(Undefined, NStr("en = 'Invalid regional settings.';"));
+						ShowMessageBox(Undefined, NStr("en = 'Invalid regional settings.'"));
 						Return False;
 					EndIf;
 				ElsIf StrCompare(ThisObject[TagName], ThisObject[CurrentItemName]) = 0 Then
-					ShowMessageBox(Undefined, NStr("en = 'Invalid regional settings.';"));
+					ShowMessageBox(Undefined, NStr("en = 'Invalid regional settings.'"));
 					Return False;
 				EndIf;
 			EndDo;
@@ -667,7 +667,7 @@ Function OldAndNewValuesOfConstants()
 	
 EndFunction
 
-// Часовые пояса
+// 
 
 &AtServer
 Procedure FillInTimeZones()

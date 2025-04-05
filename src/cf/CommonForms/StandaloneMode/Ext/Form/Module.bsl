@@ -16,7 +16,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetPrivilegedMode(True);
 	
 	If Not StandaloneModeInternal.IsStandaloneWorkplace() Then
-		Raise NStr("en = 'The infobase is not a standalone workstation.';");
+		Raise NStr("en = 'The infobase is not a standalone workstation.'");
 	EndIf;
 	
 	ApplicationInSaaS = StandaloneModeInternal.ApplicationInSaaS();
@@ -297,10 +297,10 @@ Procedure RefreshVisibilityAtServer()
 	
 	If RoleAvailableDataSynchronizationSetup Then
 		Items.UpdateReceivedCommentLabel.Title = NStr("en = 'The application update is received from the Internet.
-			|Install the received update so that the synchronization continues.';");
+			|Install the received update so that the synchronization continues.'");
 	Else
 		Items.UpdateReceivedCommentLabel.Title = NStr("en = 'The application update is received from the Internet.
-			|Contact the infobase administrator to install the update.';");
+			|Contact the infobase administrator to install the update.'");
 	EndIf;
 	
 	ShowTimeConsumingSynchronizationWarning = StandaloneModeInternal.LongSynchronizationQuestionSetupFlag();
@@ -371,9 +371,9 @@ EndProcedure
 Procedure OnChangeDataSynchronizationSchedule()
 	
 	Items.DataSynchronizationScheduleOption.ChoiceList.Clear();
-	Items.DataSynchronizationScheduleOption.ChoiceList.Add(1, NStr("en = 'Every 15 minutes';"));
-	Items.DataSynchronizationScheduleOption.ChoiceList.Add(2, NStr("en = 'Every hour';"));
-	Items.DataSynchronizationScheduleOption.ChoiceList.Add(3, NStr("en = 'Every day at 10:00 AM except for Sa and Su.';"));
+	Items.DataSynchronizationScheduleOption.ChoiceList.Add(1, NStr("en = 'Every 15 minutes'"));
+	Items.DataSynchronizationScheduleOption.ChoiceList.Add(2, NStr("en = 'Every hour'"));
+	Items.DataSynchronizationScheduleOption.ChoiceList.Add(3, NStr("en = 'Every day at 10:00 AM except for Sa and Su.'"));
 	
 	// Selecting a data synchronization schedule option
 	DataSynchronizationScheduleOptions = New Map;
@@ -458,7 +458,7 @@ Procedure SetScheduledJobUsage(Val SynchronizeDataBySchedule)
 	
 EndProcedure
 
-// Предопределенные расписания синхронизации данных
+// 
 
 &AtServerNoContext
 Function PredefinedScheduleOption1() // Every 15 minutes

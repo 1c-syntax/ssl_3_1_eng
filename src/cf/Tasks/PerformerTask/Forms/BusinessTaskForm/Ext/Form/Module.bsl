@@ -112,7 +112,7 @@ Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	If Common.SubsystemExists("StandardSubsystems.UserReminders") Then
 		ModuleUserReminder = Common.CommonModule("UserReminders");
 		ReminderText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Check if task %1 is completed';"), CurrentObject.Description);	
+			NStr("en = 'Check if task %1 is completed'"), CurrentObject.Description);	
 		ModuleUserReminder.OnWriteAtServer(ThisObject, Cancel, CurrentObject, WriteParameters, ReminderText);
 	EndIf;
 	// End StandardSubsystems.UserReminders

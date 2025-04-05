@@ -39,22 +39,22 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	
 	ModuleReportsOptions.SetOutputModeInReportPanels(Settings, ReportSettings, True);
 	ReportSettings.DefineFormSettings = True;
-	ReportSettings.LongDesc = NStr("en = 'Expiring signatures to be renewed.';");
+	ReportSettings.LongDesc = NStr("en = 'Expiring signatures to be renewed.'");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "rawsignatures");
-	OptionSettings.LongDesc = NStr("en = 'Displays signatures that are subject to enhancement (after their types are determined).';");
+	OptionSettings.LongDesc = NStr("en = 'Displays signatures that are subject to enhancement (after their types are determined).'");
 	OptionSettings.Enabled = RefineSignaturesAutomatically <> 0;
 
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "RequireImprovementSignatures");
-	OptionSettings.LongDesc = NStr("en = 'Displays signatures to be enhanced.';");
+	OptionSettings.LongDesc = NStr("en = 'Displays signatures to be enhanced.'");
 	OptionSettings.Enabled = RefineSignaturesAutomatically <> 0;
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "RequiredAddArchiveTags");
-	OptionSettings.LongDesc = NStr("en = 'Displays signatures that require archive timestamps.';");
+	OptionSettings.LongDesc = NStr("en = 'Displays signatures that require archive timestamps.'");
 	OptionSettings.Enabled = AddTimestampsAutomatically;
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "ErrorsOnAutoRenewal");
-	OptionSettings.LongDesc = NStr("en = 'Displays signatures that cannot be renewed automatically.';");
+	OptionSettings.LongDesc = NStr("en = 'Displays signatures that cannot be renewed automatically.'");
 	OptionSettings.Enabled = AddTimestampsAutomatically Or RefineSignaturesAutomatically = 1;
 	
 EndProcedure

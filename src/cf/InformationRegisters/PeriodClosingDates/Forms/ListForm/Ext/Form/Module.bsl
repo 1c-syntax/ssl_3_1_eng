@@ -77,23 +77,23 @@ Procedure SetConditionalAppearance()
 		EndIf;
 		
 		ApplyAppearanceValue(Common.ObjectManagerByFullName(MetadataObject.FullName()).EmptyRef(),
-			MetadataObject.Presentation() + ": " + NStr("en = '<All infobases>';"));
+			MetadataObject.Presentation() + ": " + NStr("en = '<All infobases>'"));
 	EndDo;
 	
 	ApplyAppearanceValue(Undefined,
-		NStr("en = 'Undefined';"));
+		NStr("en = 'Undefined'"));
 	
 	ApplyAppearanceValue(Catalogs.Users.EmptyRef(),
-		NStr("en = 'Empty user';"));
+		NStr("en = 'Empty user'"));
 	
 	ApplyAppearanceValue(Catalogs.UserGroups.EmptyRef(),
-		NStr("en = 'Empty user group';"));
+		NStr("en = 'Empty user group'"));
 	
 	ApplyAppearanceValue(Catalogs.ExternalUsers.EmptyRef(),
-		NStr("en = 'Empty external user';"));
+		NStr("en = 'Empty external user'"));
 	
 	ApplyAppearanceValue(Catalogs.ExternalUsersGroups.EmptyRef(),
-		NStr("en = 'Empty external user group';"));
+		NStr("en = 'Empty external user group'"));
 	
 	ApplyAppearanceValue(Enums.PeriodClosingDatesPurposeTypes.ForAllUsers,
 		"<" + Enums.PeriodClosingDatesPurposeTypes.ForAllUsers + ">");

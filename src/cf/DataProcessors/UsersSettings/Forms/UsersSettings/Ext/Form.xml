@@ -155,7 +155,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Interface settings…</v8:content>
+													<v8:content>Appearance settings...</v8:content>
 												</v8:item>
 											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -167,7 +167,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Report and interface settings…</v8:content>
+													<v8:content>Report and appearance settings…</v8:content>
 												</v8:item>
 											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -179,7 +179,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Report, interface, and other settings…</v8:content>
+													<v8:content>Report, appearance, and other settings…</v8:content>
 												</v8:item>
 											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -250,7 +250,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Report and interface settings</v8:content>
+													<v8:content>Report and appearance settings</v8:content>
 												</v8:item>
 											</Title>
 											<ExtendedTooltip name="ClearReportAndInterfaceSettingsExtendedTooltip" id="135"/>
@@ -399,7 +399,7 @@
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Interface</v8:content>
+															<v8:content>Appearance</v8:content>
 														</v8:item>
 													</Title>
 													<ExtendedTooltip name="InterfacePageExtendedTooltip" id="142"/>
@@ -421,7 +421,7 @@
 															<Title>
 																<v8:item>
 																	<v8:lang>en</v8:lang>
-																	<v8:content>Interface settings</v8:content>
+																	<v8:content>Appearance</v8:content>
 																</v8:item>
 															</Title>
 															<CommandSet>
@@ -478,7 +478,7 @@
 																		<Title>
 																			<v8:item>
 																				<v8:lang>en</v8:lang>
-																				<v8:content>Interface settings context menu other</v8:content>
+																				<v8:content>Appearance settings context menu other</v8:content>
 																			</v8:item>
 																		</Title>
 																		<ExtendedTooltip name="InterfaceContextMenuOtherExtendedTooltip" id="146"/>
@@ -540,7 +540,7 @@
 																	<Title>
 																		<v8:item>
 																			<v8:lang>en</v8:lang>
-																			<v8:content>Interface settings picture setting checkbox</v8:content>
+																			<v8:content>Appearance settings picture setting checkbox</v8:content>
 																		</v8:item>
 																	</Title>
 																	<Group>InCell</Group>
@@ -1135,7 +1135,7 @@ who has a Name for sign-in.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Interface</v8:content>
+					<v8:content>Appearance</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1479,7 +1479,7 @@ who has a Name for sign-in.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Report, interface, and other settings…</v8:content>
+					<v8:content>Report, appearance, and other settings…</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -1513,13 +1513,13 @@ who has a Name for sign-in.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Interface settings…</v8:content>
+					<v8:content>Appearance settings...</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Copy the interface settings.</v8:content>
+					<v8:content>Copy the appearance settings.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>CopyInterfaceSettings</Action>
@@ -1530,13 +1530,13 @@ who has a Name for sign-in.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Report and interface settings…</v8:content>
+					<v8:content>Report and appearance settings…</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Copy the report and interface settings.</v8:content>
+					<v8:content>Copy the report and appearance settings.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>CopyReportAndInterfaceSettings</Action>
@@ -1563,13 +1563,13 @@ who has a Name for sign-in.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Report and interface settings</v8:content>
+					<v8:content>Report and appearance settings</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Clear report and interface settings</v8:content>
+					<v8:content>Clear report and appearance settings</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ClearReportAndInterfaceSettings</Action>

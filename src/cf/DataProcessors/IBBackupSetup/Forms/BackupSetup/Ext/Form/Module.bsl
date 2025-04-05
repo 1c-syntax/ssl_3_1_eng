@@ -21,11 +21,11 @@ Var WriteSettings, NextDate;
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not Common.IsWindowsClient() Then
-		Raise NStr("en = 'Set up data backup and restore using operating system tools or other third-party tools.';");
+		Raise NStr("en = 'Set up data backup and restore using operating system tools or other third-party tools.'");
 	EndIf;
 	
 	If Common.IsWebClient() Then
-		Raise NStr("en = 'Web client does not support data backup.';");
+		Raise NStr("en = 'Web client does not support data backup.'");
 	EndIf;
 	
 	BackupSettings1 = IBBackupServer.BackupSettings1();
@@ -132,7 +132,7 @@ EndProcedure
 Procedure PathToBackupDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	OpenFileDialog = New FileDialog(FileDialogMode.ChooseDirectory);
-	OpenFileDialog.Title= NStr("en = 'Choose a directory to save backups to';");
+	OpenFileDialog.Title= NStr("en = 'Choose a directory to save backups to'");
 	OpenFileDialog.Directory = Items.PathToBackupDirectory.EditText;
 	
 	If OpenFileDialog.Choose() Then
@@ -253,8 +253,8 @@ Procedure NavigateFromSettingPageAfterCheckAccessToInfobase(ConnectionResult, Co
 	
 	SettingsFormName = "e1cib/app/DataProcessor.IBBackupSetup/";
 	
-	ShowUserNotification(NStr("en = 'Backup';"), SettingsFormName,
-		NStr("en = 'Backup is all set up.';"));
+	ShowUserNotification(NStr("en = 'Backup'"), SettingsFormName,
+		NStr("en = 'Backup is all set up.'"));
 	
 	IBBackupParameters.NotificationParameter1 = "DontNotify";
 	
@@ -268,7 +268,7 @@ Function CheckDirectoryWithBackups()
 	
 #If WebClient Or MobileClient Then
 	MessageText = NStr("en = 'Cannot perform the operation in web client or mobile client.
-		|Start thin client.';");
+		|Start thin client.'");
 	CommonClient.MessageToUser(MessageText);
 	AttributesFilled = False;
 #Else
@@ -276,13 +276,13 @@ Function CheckDirectoryWithBackups()
 	
 	If IsBlankString(Object.BackupDirectory) Then
 		
-		MessageText = NStr("en = 'Select a folder for backup.';");
+		MessageText = NStr("en = 'Select a folder for backup.'");
 		CommonClient.MessageToUser(MessageText,, "Object.BackupDirectory");
 		AttributesFilled = False;
 		
 	ElsIf FindFiles(Object.BackupDirectory).Count() = 0 Then
 		
-		MessageText = NStr("en = 'Non-existent folder is specified.';");
+		MessageText = NStr("en = 'Non-existent folder is specified.'");
 		CommonClient.MessageToUser(MessageText,, "Object.BackupDirectory");
 		AttributesFilled = False;
 		
@@ -294,7 +294,7 @@ Function CheckDirectoryWithBackups()
 			TestFile.WriteXMLDeclaration();
 			TestFile.Close();
 		Except
-			MessageText = NStr("en = 'Cannot access the backup folder.';");
+			MessageText = NStr("en = 'Cannot access the backup folder.'");
 			CommonClient.MessageToUser(MessageText,, "Object.BackupDirectory");
 			AttributesFilled = False;
 		EndTry;
@@ -313,7 +313,7 @@ Function CheckDirectoryWithBackups()
 	
 	If PasswordRequired And IsBlankString(IBAdministratorPassword) Then
 		
-		MessageText = NStr("en = 'Administrator password is not set.';");
+		MessageText = NStr("en = 'Administrator password is not set.'");
 		CommonClient.MessageToUser(MessageText,, "IBAdministratorPassword");
 		AttributesFilled = False;
 		
@@ -393,7 +393,7 @@ Procedure ModifyScheduleCompletion(ScheduleResult, AdditionalParameters) Export
 EndProcedure
 
 /////////////////////////////////////////////////////////
-// Представление данных на форме.
+// 
 
 &AtServer
 Procedure SetVisibilityAvailability()

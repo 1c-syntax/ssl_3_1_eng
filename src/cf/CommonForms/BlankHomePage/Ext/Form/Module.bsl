@@ -19,7 +19,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			           |using the startup parameter <b>%1</b>.
 			           |
 			           |It is strongly recommended that you do not allow normal user operation in this mode
-			           |as it will result in data losses or mismatches.';"),
+			           |as it will result in data losses or mismatches.'"),
 			"DisableSystemStartupLogic"));
 	
 EndProcedure
@@ -33,7 +33,7 @@ Procedure OnOpen(Cancel)
 	
 	Items.TestMode.Visible = True;
 	
-	TestModeTitle = "{" + NStr("en = 'Testing';") + "} ";
+	TestModeTitle = "{" + NStr("en = 'Testing'") + "} ";
 	CurrentTitle = ClientApplication.GetCaption();
 	
 	If StrStartsWith(CurrentTitle, TestModeTitle) Then

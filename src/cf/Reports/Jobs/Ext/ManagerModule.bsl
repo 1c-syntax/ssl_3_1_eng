@@ -22,19 +22,19 @@
 //
 Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	ModuleReportsOptions = Common.CommonModule("ReportsOptions");
-	ReportSettings.LongDesc = NStr("en = 'Duties and duty completion summary.';");
+	ReportSettings.LongDesc = NStr("en = 'Duties and duty completion summary.'");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "JobsList");
-	OptionSettings.LongDesc = NStr("en = 'All duties for the specified period.';");
+	OptionSettings.LongDesc = NStr("en = 'All duties for the specified period.'");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "JobsStatistics");
-	OptionSettings.LongDesc = NStr("en = 'Pivot chart of all duties that are completed, canceled, or in progress.';");
+	OptionSettings.LongDesc = NStr("en = 'Pivot chart of all duties that are completed, canceled, or in progress.'");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "CheckExecutionCyclesStatistics");
-	OptionSettings.LongDesc = NStr("en = 'Top 10 authors by average time of duty counterchecks.';");
+	OptionSettings.LongDesc = NStr("en = 'Top 10 authors by average time of duty counterchecks.'");
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "DurationStatistics");
-	OptionSettings.LongDesc = NStr("en = 'Top 10 authors by average time of duty completion.';");
+	OptionSettings.LongDesc = NStr("en = 'Top 10 authors by average time of duty completion.'");
 EndProcedure
 
 // End StandardSubsystems.ReportsOptions

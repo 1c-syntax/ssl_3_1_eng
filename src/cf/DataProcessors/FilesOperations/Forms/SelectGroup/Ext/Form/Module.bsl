@@ -54,10 +54,9 @@ Procedure SetUpDynamicList()
 	
 	FilesOwner = Parameters.FilesOwner;
 	
-	ErrorTitle = NStr("en = 'An error occurred when configuring the dynamic list of attachments.';");
-	ErrorEnd = NStr("en = 'Cannot configure the dynamic list.';");
+	ErrorTitle = NStr("en = 'Unable to open the attachment list.'");
 	FilesStorageCatalogName = FilesOperationsInternal.FileStoringCatalogName(
-		FilesOwner, "", ErrorTitle, ErrorEnd);
+		FilesOwner, "", ErrorTitle);
 	
 	FileCatalogType = Type("CatalogRef." + FilesStorageCatalogName);
 	MetadataOfCatalogWithFiles = Metadata.FindByType(FileCatalogType);

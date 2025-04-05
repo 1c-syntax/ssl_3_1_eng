@@ -132,12 +132,12 @@ Function Read(Val ObjectReference) Export
 			NStr("en = 'Error in procedure %1.
 			           |
 			           |Parameter ""%2"" has invalid value ""%3"".
-			           |Table ""%4"" doesn''t support access rights.';"),
+			           |Table ""%4"" doesn''t support access rights.'"),
 			"InformationRegisters.ObjectsRightsSettings.Read",
 			"ObjectReference",
 			String(ObjectReference),
 			ObjectReference.Metadata().FullName());
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	RightsSettings = New Structure;
@@ -235,13 +235,13 @@ Function Read(Val ObjectReference) Export
 				           |for object ""%5"".
 				           |
 				           |The infobase is probably not updated or updated with errors.
-				           |Fix the register data.';"),
+				           |Fix the register data.'"),
 				"InformationRegisters.ObjectsRightsSettings.Read",
 				ObjectReference.Metadata().FullName(),
 				String.Right,
 				"ObjectsRightsSettings",
 				String(ObjectReference));
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndIf;
 		Setting.InheritanceIsAllowed = Setting.InheritanceIsAllowed Or String.InheritanceIsAllowed;
 		Setting[String.Right] = Not String.RightIsProhibited;
@@ -288,12 +288,12 @@ Procedure Write(Val ObjectReference, Val Settings, Val Inherit) Export
 			NStr("en = 'Error in procedure %1.
 			           |
 			           |Parameter ""%2"" has invalid value ""%3"".
-			           |Table ""%4"" doesn''t support access rights.';"),
+			           |Table ""%4"" doesn''t support access rights.'"),
 			"InformationRegisters.ObjectsRightsSettings.Read",
 			"ObjectReference",
 			String(ObjectReference),
 			ObjectReference.Metadata().FullName());
-		Raise ErrorText;
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	BeginTransaction();
@@ -467,12 +467,12 @@ Procedure UpdateAuxiliaryRegisterData(HasChanges = Undefined) Export
 				NStr("en = 'Error in procedure %1
 				           |of the %2 information register manager module.
 				           |
-				           |Dimension ""%4"" is missing right owner type ""%3"".';"),
+				           |Dimension ""%4"" is missing right owner type ""%3"".'"),
 				"UpdateAuxiliaryRegisterData",
 				"ObjectsRightsSettings",
 				RightsOwnerType,
 				"Object");
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndIf;
 		
 		Filter.Insert("RightsOwner", BlankRefsRightsOwner.Get(RightsOwnerType));
@@ -804,7 +804,7 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined, Ha
 	
 	ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Error in procedure %1
-		           |of common module %2.';"),
+		           |of common module %2.'"),
 		"OnFillAvailableRightsForObjectsRightsSettings",
 		"AccessManagementOverridable")
 		+ Chars.LF
@@ -843,9 +843,9 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined, Ha
 		
 		If OwnerMetadataObject = Undefined Then
 			ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Owner of rights ""%1"" is not found.';"),
+				NStr("en = 'Rights owner does not exist: %1.'"),
 				AvailableRight.RightsOwner);
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndIf;
 		
 		AdditionalParameters.RightsOwner = AvailableRight.RightsOwner;
@@ -869,10 +869,10 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined, Ha
 			If TypeOfRightsOwnersToDefine.Get(RefType) = Undefined Then
 				ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'The rights owner type ""%1""
-					           |is missing from type collection ""%2"".';"),
+					           |is missing from type collection ""%2"".'"),
 					String(RefType),
 					"RightsSettingsOwner");
-				Raise ErrorText;
+				Raise(ErrorText, ErrorCategory.ConfigurationError);
 			EndIf;
 			
 			If TypeOfAccessValuesToDefine.Get(RefType) = Undefined Then
@@ -893,14 +893,14 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined, Ha
 						           |- %3
 						           |- %4
 						           |To avoid mistakes in the %6 register,
-						           |add this type to type collection ""%5"".';"),
+						           |add this type to type collection ""%5"".'"),
 						String(RefType),
 						"AccessValue",
 						"WriteDependentAccessValuesSets" + "*",
 						"WriteAccessValuesSets" + "*",
 						"AccessValue",
 						"AccessValuesSets");
-					Raise ErrorText;
+					Raise(ErrorText, ErrorCategory.ConfigurationError);
 				EndIf;
 			EndIf;
 			
@@ -909,28 +909,28 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined, Ha
 				ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = '""%1"" rights owner type
 					           |cannot be used as an access value type
-					           |but it is detected in description of access kind ""%2"".';"),
+					           |but it is detected in description of access kind ""%2"".'"),
 					String(RefType),
 					AccessKindProperties.Name);
-				Raise ErrorText;
+				Raise(ErrorText, ErrorCategory.ConfigurationError);
 			EndIf;
 			
 			If AccessKindsProperties.ByGroupsAndValuesTypes.Get(RefType) <> Undefined Then
 				ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = '""%1"" rights owner type
 					           |cannot be used as a type of access value groups but 
-					           |it is detected in description of access kind ""%2"".';"),
+					           |it is detected in description of access kind ""%2"".'"),
 					String(RefType),
 					AccessKindProperties.Name);
-				Raise ErrorText;
+				Raise(ErrorText, ErrorCategory.ConfigurationError);
 			EndIf;
 			
 			If SubscriptionTypesUpdateRightsSettingsOwnersGroups.Get(ObjectType) = Undefined Then
 				ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'The rights owner type ""%1""
-					           |is missing from type collection ""%2"".';"),
+					           |is missing from type collection ""%2"".'"),
 					String(ObjectType), "RightsSettingsOwnerObject");
-				Raise ErrorText;
+				Raise(ErrorText, ErrorCategory.ConfigurationError);
 			EndIf;
 			
 			OwnerProperties = New Structure;
@@ -954,10 +954,10 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined, Ha
 		If OwnerRights.Get(AvailableRight.Name) <> Undefined Then
 			ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The ""%2"" right 
-				           |is defined again for the ""%1"" right owner.';"),
+				           |is defined again for the ""%1"" right owner.'"),
 				AvailableRight.RightsOwner,
 				AvailableRight.Name);
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndIf;
 		
 		For Each RequiredRight In AvailableRight.RequiredRights1 Do
@@ -966,11 +966,11 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined, Ha
 			EndIf;
 			ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'For the ""%1"" access right of the ""%2"" access right owner,
-				           |an incorrect name of the required ""%3"" access right is specified.';"),
+				           |an incorrect name of the required ""%3"" access right is specified.'"),
 				AvailableRight.Name,
 				AvailableRight.RightsOwner,
 				RequiredRight);
-			Raise ErrorText;
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndDo;
 		
 		RightIndex = OwnersRightsIndexes[AvailableRight.RightsOwner];
@@ -1220,12 +1220,12 @@ Procedure FillIDs(Property, AvailableRight, ErrorTitle, SeparateTables, Addition
 					ErrorTemplate =
 						NStr("en = 'An asterisk (*) is specified for the ""%1""
 						           |right owner for the ""%2"" right in tables for reading.
-						           |In this case, do not specify separate tables.';")
+						           |In this case, do not specify separate tables.'")
 				Else
 					ErrorTemplate =
 						NStr("en = 'An asterisk (*) is specified
 						           |for the ""%1"" right owner for the ""%2"" right in tables for change.
-						           |In this case, do not specify separate tables.';")
+						           |In this case, do not specify separate tables.'")
 				EndIf;
 				ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 					ErrorTemplate, AdditionalParameters.RightsOwner, AvailableRight.Name);
@@ -1237,12 +1237,12 @@ Procedure FillIDs(Property, AvailableRight, ErrorTitle, SeparateTables, Addition
 					ErrorTemplate =
 						NStr("en = 'An asterisk (*) is specified 
 						           |for the ""%1"" right owner for the ""%2"" right in tables for reading.
-						           |The asterisk is already specified in tables for reading for the ""%3"" right.';")
+						           |The asterisk is already specified in tables for reading for the ""%3"" right.'")
 				Else
 					ErrorTemplate =
 						NStr("en = 'An asterisk (*) is specified 
 						           |for the ""%1"" right owner for the ""%2"" right in tables for change.
-						           |The asterisk is already specified in tables for changes for the ""%3"" right.';")
+						           |The asterisk is already specified in tables for changes for the ""%3"" right.'")
 				EndIf;
 				ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
 					AdditionalParameters.RightsOwner, AvailableRight.Name, CommonRights[Property]);
@@ -1259,7 +1259,7 @@ Procedure FillIDs(Property, AvailableRight, ErrorTitle, SeparateTables, Addition
 				NStr("en = 'Specific table ""%3""
 				           |for reading is specified for the ""%1"" right owner for the ""%2"" right.
 				           |It does not make sense, as the %4 right depends only on the %4 right.
-				           |Only using an asterisk (*) makes sense.';"),
+				           |Only using an asterisk (*) makes sense.'"),
 				AdditionalParameters.RightsOwner,
 				AvailableRight.Name,
 				Value,
@@ -1269,10 +1269,10 @@ Procedure FillIDs(Property, AvailableRight, ErrorTitle, SeparateTables, Addition
 		ElsIf Common.MetadataObjectByFullName(Value) = Undefined Then
 			If Property = "ReadInTables" Then
 				ErrorTemplate = NStr("en = 'Table for reading ""%3""
-				                          |is not found for the ""%1"" right owner for the ""%2"" right.';")
+				                          |is not found for the ""%1"" right owner for the ""%2"" right.'")
 			Else
 				ErrorTemplate = NStr("en = 'For the right owner ""%1""
-				                          |and the ""%2"" right, the table ""%3"" specified in the ""update in tables"" parameter is not found.';")
+				                          |and the ""%2"" right, the table ""%3"" specified in the ""update in tables"" parameter is not found.'")
 			EndIf;
 			ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
 				AdditionalParameters.RightsOwner, AvailableRight.Name, Value);

@@ -20,7 +20,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		AutoTitle = False;
 		Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Paths to %1 on Linux servers';"), Application);
+			NStr("en = 'Paths to %1 on Linux servers'"), Application);
 		
 		Items.ListApplication.Visible = False;
 	EndIf;

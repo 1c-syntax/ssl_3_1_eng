@@ -66,7 +66,7 @@ EndProcedure
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
 	If HasBasicCalendar And Not ValueIsFilled(Object.BasicCalendar) Then
-		MessageText = NStr("en = 'The official calendar is blank.';");
+		MessageText = NStr("en = 'The official calendar is blank.'");
 		Common.MessageToUser(MessageText, , , "Object.BasicCalendar", Cancel);
 	EndIf;
 	
@@ -94,7 +94,7 @@ Procedure CurrentYearNumberOnChange(Item)
 	
 	WriteScheduleData = False;
 	If Modified Then
-		MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Do you want to save the changes for year %1?';"), Format(PreviousYearNumber, "NG=0"));
+		MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Do you want to save the changes for year %1?'"), Format(PreviousYearNumber, "NG=0"));
 		Notification = New CallbackDescription("CurrentYearNumberOnChangeCompletion", ThisObject);
 		ShowQueryBox(Notification, MessageText, QuestionDialogMode.YesNo);
 		Return;
@@ -178,10 +178,10 @@ Procedure ShiftDay(Command)
 	DateSelectionParameters.InitialValue = ReplacementDate;
 	DateSelectionParameters.BeginOfRepresentationPeriod = BegOfYear(Calendar);
 	DateSelectionParameters.EndOfRepresentationPeriod = EndOfYear(Calendar);
-	DateSelectionParameters.Title = NStr("en = 'Select substitute date';");
+	DateSelectionParameters.Title = NStr("en = 'Select substitute date'");
 	
 	DateSelectionParameters.NoteText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Select a date that substitutes %1 (%2).';"), 
+		NStr("en = 'Select a date that substitutes %1 (%2).'"), 
 		Format(ReplacementDate, "DF='d MMMM'"), // ACC:1367 Consider saving the order "date, month" appropriate in this case. So far, this is the optimal solution.
 		DayKind);
 	
@@ -208,7 +208,7 @@ Procedure Print(Command)
 			NStr("en = 'You have unsaved business calendar data.
                   |Before you print the calendar, please save the data.
                   |
-                  |Do you want to save it?';"),
+                  |Do you want to save it?'"),
 			QuestionDialogMode.YesNo,
 			,
 			DialogReturnCode.Yes);
@@ -442,7 +442,7 @@ EndProcedure
 Function ReplacementPresentation(SourceDate, DestinationDate)
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'from %1 %2 to %3 %4';"),
+		NStr("en = 'from %1 %2 to %3 %4'"),
 		WeekDayMovingFromWording(SourceDate),
 		Format(SourceDate, "DF='d MMMM'"), // ACC:1367 Consider saving the order "date, month" appropriate in this case. So far, this is an optimal solution.
 		WeekDayMovingToWording(DestinationDate),
@@ -559,7 +559,7 @@ Function LoadSupportedBusinessCalendarsList()
 	ProcedureParameters = New Structure;
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Populate list of supported calendars';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Populate list of supported calendars'");
 	
 	Return TimeConsumingOperations.ExecuteInBackground("Catalogs.BusinessCalendars.FillDefaultBusinessCalendarsTimeConsumingOperation", 
 		ProcedureParameters, ExecutionParameters);
@@ -610,13 +610,13 @@ EndFunction
 Function WeekDayMovingFromWording(Date)
 	
 	Map = New Map;
-	Map.Insert(1, NStr("en = 'Monday';"));
-	Map.Insert(2, NStr("en = 'Tuesday';"));
-	Map.Insert(3, NStr("en = 'Wednesday';"));
-	Map.Insert(4, NStr("en = 'Thursday';"));
-	Map.Insert(5, NStr("en = 'Friday';"));
-	Map.Insert(6, NStr("en = 'Saturday';"));
-	Map.Insert(7, NStr("en = 'Sunday';"));
+	Map.Insert(1, NStr("en = 'Monday'"));
+	Map.Insert(2, NStr("en = 'Tuesday'"));
+	Map.Insert(3, NStr("en = 'Wednesday'"));
+	Map.Insert(4, NStr("en = 'Thursday'"));
+	Map.Insert(5, NStr("en = 'Friday'"));
+	Map.Insert(6, NStr("en = 'Saturday'"));
+	Map.Insert(7, NStr("en = 'Sunday'"));
 	
 	Presentation = Map[WeekDay(Date)];
 	If Presentation = Undefined Then
@@ -631,13 +631,13 @@ EndFunction
 Function WeekDayMovingToWording(Date)
 	
 	Map = New Map;
-	Map.Insert(1, NStr("en = 'Monday';"));
-	Map.Insert(2, NStr("en = 'Tuesday';"));
-	Map.Insert(3, NStr("en = 'Wednesday';"));
-	Map.Insert(4, NStr("en = 'Thursday';"));
-	Map.Insert(5, NStr("en = 'Friday';"));
-	Map.Insert(6, NStr("en = 'Saturday';"));
-	Map.Insert(7, NStr("en = 'Sunday';"));
+	Map.Insert(1, NStr("en = 'Monday'"));
+	Map.Insert(2, NStr("en = 'Tuesday'"));
+	Map.Insert(3, NStr("en = 'Wednesday'"));
+	Map.Insert(4, NStr("en = 'Thursday'"));
+	Map.Insert(5, NStr("en = 'Friday'"));
+	Map.Insert(6, NStr("en = 'Saturday'"));
+	Map.Insert(7, NStr("en = 'Sunday'"));
 	
 	Presentation = Map[WeekDay(Date)];
 	If Presentation = Undefined Then

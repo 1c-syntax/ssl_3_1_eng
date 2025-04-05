@@ -34,7 +34,7 @@ Function ExchangeComponents(ExchangeDirection, ExchangeFormatVersionOnImport1 = 
 	Else
 		ExchangeComponents.IsExchangeViaExchangePlan = False;
 	EndIf;
-	ExchangeComponents.EventLogMessageKey = NStr("en = 'Clipboard data transfer';", Common.DefaultLanguageCode());
+	ExchangeComponents.EventLogMessageKey = NStr("en = 'Clipboard data transfer'", Common.DefaultLanguageCode());
 	ExchangeComponents.ExchangeFormatVersion = CurrFormatVersion;
 	ExchangeComponents.XMLSchema = "http://v8.1c.ru/edi/edi_stnd/EnterpriseData/" + CurrFormatVersion;
 	DataExchangeXDTOServer.IncludeNamespace(ExchangeComponents, CurrentFormatExtension, "ext");
@@ -45,13 +45,13 @@ Function ExchangeComponents(ExchangeDirection, ExchangeFormatVersionOnImport1 = 
 	ElsIf ValueIsFilled(PathToExportExchangeManager)
 		Or ValueIsFilled(PathToImportExchangeManager) Then
 		Raise
-			NStr("en = 'The external data processor (debugger) is not supported.';");
+			NStr("en = 'The external data processor (debugger) is not supported.'");
 	ElsIf ValueIsFilled(ExchangeNode)
 		And Common.HasObjectAttribute("ExchangeManagerPath", ExchangeNode.Metadata()) Then
 		ExchangeManagerPath = Common.ObjectAttributeValue(ExchangeNode, "ExchangeManagerPath");
 		If ValueIsFilled(ExchangeManagerPath) Then
 			Raise
-				NStr("en = 'The external data processor (debugger) is not supported.';");
+				NStr("en = 'The external data processor (debugger) is not supported.'");
 		Else
 			ExchangeManagerInternal = True;
 		EndIf;
@@ -63,7 +63,7 @@ Function ExchangeComponents(ExchangeDirection, ExchangeFormatVersionOnImport1 = 
 		DataExchangeOverridable.OnGetAvailableFormatVersions(ExchangeFormatVersions);
 		ExchangeComponents.ExchangeManager = ExchangeFormatVersions.Get(CurrFormatVersion);
 		If ExchangeComponents.ExchangeManager = Undefined Then
-			Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The exchange format version is not supported: %1.';"), CurrFormatVersion);
+			Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The exchange format version is not supported: %1.'"), CurrFormatVersion);
 		EndIf;
 	EndIf;
 	
@@ -106,12 +106,12 @@ Function ExportToXMLResult(ParametersStructure, AddressToPlaceResult = Undefined
 	ExportResult = ExportDataToXML(AddressOnServer);
 	
 	If ExportResult.HasErrors Then
-		MessageText = NStr("en = 'Operation execution errors';") + ": "
+		MessageText = NStr("en = 'Operation execution errors'") + ": "
 			+ Chars.LF + ExportResult.ErrorText
-			+ Chars.LF + NStr("en = 'Some data might not be exported.';");
+			+ Chars.LF + NStr("en = 'Some data might not be exported.'");
 		Common.MessageToUser(MessageText);
 	ElsIf Not ExportResult.HasExportedObjects Then
-		MessageText = NStr("en = 'There are no objects to export.';");
+		MessageText = NStr("en = 'There are no objects to export.'");
 		Common.MessageToUser(MessageText);
 	EndIf;
 	
@@ -174,7 +174,7 @@ Function ExportDataToXML(ExchangeFileName = "")
 				|Handler: BeforeConvert.
 				|
 				|Handler execution error.
-				|%2.';"),
+				|%2.'"),
 			ExchangeComponents.ExchangeDirection,
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		DataExchangeXDTOServer.WriteToExecutionProtocol(ExchangeComponents, ErrorText);
@@ -228,8 +228,8 @@ Function ExportDataToXML(ExchangeFileName = "")
 	
 	If ListExportAddition.Count() > 0 Then
 		
-		EventStart = NStr("en = 'ExportImportEnterpriseData.Start';", Common.DefaultLanguageCode());
-		EventEnd = NStr("en = 'ExportImportEnterpriseData.End';", Common.DefaultLanguageCode());
+		EventStart = NStr("en = 'ExportImportEnterpriseData.Start'", Common.DefaultLanguageCode());
+		EventEnd = NStr("en = 'ExportImportEnterpriseData.End'", Common.DefaultLanguageCode());
 		
 		For Each ListItem In ListExportAddition Do
 			ExportRef = ListItem.Value;
@@ -258,7 +258,7 @@ Function ExportDataToXML(ExchangeFileName = "")
 					|Handler: AfterConvert.
 					|
 					|Handler execution error.
-					|%2.';"),
+					|%2.'"),
 				ExchangeComponents.ExchangeDirection,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			DataExchangeXDTOServer.WriteToExecutionProtocol(ExchangeComponents, ErrorText);
@@ -363,7 +363,7 @@ Function ImportDataFromXML(XMLReader)
 		Or XMLReader.LocalName <> "Body" Then
 		
 		ImportResult1.HasErrors = True;
-		ImportResult1.ErrorText = NStr("en = 'Cannot read the import message. Invalid message format.';");
+		ImportResult1.ErrorText = NStr("en = 'Cannot read the import message. Invalid message format.'");
 		
 		Return ImportResult1;
 	EndIf;
@@ -411,16 +411,16 @@ Procedure FillExportRules() Export
 	ExportRulesTable.Rows.Clear();
 	TreeNodeCatalogs = ExportRulesTable.Rows.Add();
 	TreeNodeCatalogs.IsFolder = True;
-	TreeNodeCatalogs.Description = NStr("en = 'Catalogs';");
+	TreeNodeCatalogs.Description = NStr("en = 'Catalogs'");
 	
 	TreeNodeDocuments = ExportRulesTable.Rows.Add();
 	TreeNodeDocuments.IsFolder = True;
-	TreeNodeDocuments.Description = NStr("en = 'Documents';");
+	TreeNodeDocuments.Description = NStr("en = 'Documents'");
 	TreeNodeDocuments.FilterByPeriod = True;
 
 	CCTTreeNode = ExportRulesTable.Rows.Add();
 	CCTTreeNode.IsFolder = True;
-	CCTTreeNode.Description = NStr("en = 'Charts of characteristic types';");
+	CCTTreeNode.Description = NStr("en = 'Charts of characteristic types'");
 	
 	For Each DPRRow In ExchangeComponents.DataProcessingRules Do
 		CurrMetadata = DPRRow.SelectionObjectMetadata;
@@ -435,16 +435,16 @@ Procedure FillExportRules() Export
 		If Metadata.Catalogs.Contains(CurrMetadata) Then
 			NewString = TreeNodeCatalogs.Rows.Add();
 			FullMDNameAsString = "Catalog." + CurName;
-			Presentation = NStr("en = '""%1"" catalog';");
+			Presentation = NStr("en = '""%1"" catalog'");
 		ElsIf Metadata.Documents.Contains(CurrMetadata) Then
 			NewString = TreeNodeDocuments.Rows.Add();
 			NewString.FilterByPeriod = True;
 			FullMDNameAsString = "Document." + CurName;
-			Presentation = NStr("en = '""%1"" document';");
+			Presentation = NStr("en = '""%1"" document'");
 		ElsIf  Metadata.ChartsOfCharacteristicTypes.Contains(CurrMetadata) Then
 			NewString = CCTTreeNode.Rows.Add();
 			FullMDNameAsString = "ChartOfCharacteristicTypes." + CurName;
-			Presentation = NStr("en = '""%1"" chart of characteristic types';");
+			Presentation = NStr("en = '""%1"" chart of characteristic types'");
 		Else
 			// Export of other metadata objects is not supported.
 			Continue;
@@ -580,7 +580,7 @@ Function FilterPresentation(Period, Filter, Val EmptyFilterDetails = Undefined) 
 	
 	If IsBlankString(FilterAsString) Then
 		If EmptyFilterDetails=Undefined Then
-			FilterAsString = NStr("en = 'All objects';");
+			FilterAsString = NStr("en = 'All objects'");
 		Else
 			FilterAsString = EmptyFilterDetails;
 		EndIf;
@@ -889,7 +889,7 @@ Procedure AddTabularSectionCompositionAdditionalSets(SourceItems, AddingOptions)
 	
 	ObjectMetadata = Metadata.FindByFullName(NameOfTableToAdd);
 	If ObjectMetadata = Undefined Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Invalid metadata name: ""%1"".';"),
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Invalid metadata name: ""%1"".'"),
 				NameOfTableToAdd);
 	EndIf;
 	
@@ -1101,7 +1101,7 @@ Function ParseExchangeFormat(Val ExchangeFormat)
 	FormatItems = StrSplit(ExchangeFormat, "/");
 	
 	If FormatItems.Count() = 0 Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Noncanonical exchange format name: ""%1"".';"), ExchangeFormat);
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Noncanonical exchange format name: ""%1"".'"), ExchangeFormat);
 	EndIf;
 	
 	Result.Version = FormatItems[FormatItems.UBound()];
@@ -1109,7 +1109,7 @@ Function ParseExchangeFormat(Val ExchangeFormat)
 	Versions = StrSplit(Result.Version, ".");
 	
 	If Versions.Count() = 0 Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Non-canonical presentation of the exchange format v.%1.';"), Result.Version);
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Non-canonical presentation of the exchange format v.%1.'"), Result.Version);
 	EndIf;
 	
 	FormatItems.Delete(FormatItems.UBound());
@@ -1165,5 +1165,5 @@ EndProcedure
 
 #EndRegion
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

@@ -15,7 +15,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	// First of all, checking the access rights.
 	If Not AccessRight("Administration", Metadata) Then
-		Raise NStr("en = 'Only administrators can run the data processor manually.';");
+		Raise NStr("en = 'Only administrators can run the data processor manually.'");
 	EndIf;
 	
 	CheckPlatformVersionAndCompatibilityMode();
@@ -24,7 +24,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Object.SafeMode = True;
 	Object.ExchangeProtocolFileEncoding = "TextEncoding.UTF8";
 	
-	FormCaption = NStr("en = 'Conversion Rule Data Exchange in XML format (%1)';");
+	FormCaption = NStr("en = 'Conversion Rule Data Exchange in XML format (%1)'");
 	FormCaption = StrTemplate(FormCaption, VersionOfObjectAtServer());
 	
 	Title = FormCaption;
@@ -83,7 +83,7 @@ Procedure OnOpen(Cancel)
 		If Object.AutomaticDataImportSetup = 1 Then
 			
 			NotifyDescription = New CallbackDescription("OnOpenCompletion", ThisObject);
-			ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to import data from the exchange file?';"), QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
+			ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to import data from the exchange file?'"), QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
 			
 		Else
 			
@@ -217,7 +217,7 @@ Procedure InfobaseToConnectDirectoryStartChoice(Item, ChoiceData, StandardProces
 	
 	FileDialog = New FileDialog(FileDialogMode.ChooseDirectory);
 	
-	FileDialog.Title = NStr("en = 'Select an infobase directory';");
+	FileDialog.Title = NStr("en = 'Select an infobase directory'");
 	FileDialog.Directory = Object.InfobaseToConnectDirectory;
 	FileDialog.CheckFileExistence = True;
 	
@@ -280,7 +280,7 @@ EndProcedure
 Procedure AfterExistenceCheckRulesFileName(Exists, AdditionalParameters) Export
 	
 	If Not Exists Then
-		MessageToUser(NStr("en = 'Exchange rules file not found';"), "RulesFileName");
+		MessageToUser(NStr("en = 'Exchange rules file not found'"), "RulesFileName");
 		SetImportRuleFlag(False);
 		Return;
 	EndIf;
@@ -290,7 +290,7 @@ Procedure AfterExistenceCheckRulesFileName(Exists, AdditionalParameters) Export
 	EndIf;
 	
 	NotifyDescription = New CallbackDescription("RulesFileNameOnChangeCompletion", ThisObject);
-	ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to import data exchange rules?';"), QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
+	ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to import data exchange rules?'"), QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
 	
 EndProcedure
 
@@ -536,7 +536,7 @@ EndProcedure
 Procedure DeletionDelete(Command)
 	
 	NotifyDescription = New CallbackDescription("DeletionDeleteCompletion", ThisObject);
-	ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to delete the selected data from the infobase?';"), QuestionDialogMode.YesNo, , DialogReturnCode.No);
+	ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to delete the selected data from the infobase?'"), QuestionDialogMode.YesNo, , DialogReturnCode.No);
 	
 EndProcedure
 
@@ -684,7 +684,7 @@ EndProcedure
 Procedure ReadExchangeRules(Command)
 	
 	If Not IsWindowsClient() And DirectExport = 1 Then
-		ShowMessageBox(,NStr("en = 'Only Windows clients support direct infobase connections.';"));
+		ShowMessageBox(,NStr("en = 'Only Windows clients support direct infobase connections.'"));
 		Return;
 	EndIf;
 	
@@ -809,7 +809,7 @@ Function RuleAndExchangeFileNamesMatch()
 	If Upper(TrimAll(RulesFileName)) = Upper(TrimAll(DataFileName)) Then
 		
 		MessageToUser(NStr("en = 'An exchange rules file cannot be the same as a data file.
-		|Select another file.';"));
+		|Select another file.'"));
 		Return True;
 		
 	Else
@@ -829,7 +829,7 @@ Procedure FillTypeAvailableToDeleteList()
 	DataTree.Rows.Clear();
 	
 	TreeRow = DataTree.Rows.Add();
-	TreeRow.Presentation = NStr("en = 'Catalogs';");
+	TreeRow.Presentation = NStr("en = 'Catalogs'");
 	
 	For Each MetadataObjectsList In Metadata.Catalogs Do
 		
@@ -844,7 +844,7 @@ Procedure FillTypeAvailableToDeleteList()
 	EndDo;
 	
 	TreeRow = DataTree.Rows.Add();
-	TreeRow.Presentation = NStr("en = 'Charts of characteristic types';");
+	TreeRow.Presentation = NStr("en = 'Charts of characteristic types'");
 	
 	For Each MetadataObjectsList In Metadata.ChartsOfCharacteristicTypes Do
 		
@@ -859,7 +859,7 @@ Procedure FillTypeAvailableToDeleteList()
 	EndDo;
 	
 	TreeRow = DataTree.Rows.Add();
-	TreeRow.Presentation = NStr("en = 'Documents';");
+	TreeRow.Presentation = NStr("en = 'Documents'");
 	
 	For Each MetadataObjectsList In Metadata.Documents Do
 		
@@ -1102,7 +1102,7 @@ Procedure SelectingFile(Item, StorageObject, PropertyName, CheckForExistence, Va
 		EndIf;
 	EndIf;
 	
-	FileDialog.Title = NStr("en = 'Select file';");
+	FileDialog.Title = NStr("en = 'Select file'");
 	FileDialog.Preview = False;
 	FileDialog.FilterIndex = 0;
 	FileDialog.FullFileName = Item.EditText;
@@ -1158,7 +1158,7 @@ Procedure EstablishConnectionWithDestinationIBAtServer()
 	
 	If ConnectionResult <> Undefined Then
 		
-		MessageToUser(NStr("en = 'Connection established.';"));
+		MessageToUser(NStr("en = 'Connection established.'"));
 		
 	EndIf;
 	
@@ -1254,7 +1254,7 @@ Procedure OpenImportFileAtServer(FileAddress)
 		
 		If Not FileOnServer.Exists() Then
 			
-			MessageToUser(NStr("en = 'Exchange file not found on the server.';"), "ExchangeFileName");
+			MessageToUser(NStr("en = 'Exchange file not found on the server.'"), "ExchangeFileName");
 			Return;
 			
 		EndIf;
@@ -1449,7 +1449,7 @@ Procedure GetExchangeFileInfoCompletion(Result, AdditionalParameters) Export
 		
 	Except
 		
-		MessageToUser(NStr("en = 'Cannot read the exchange file.';"));
+		MessageToUser(NStr("en = 'Cannot read the exchange file.'"));
 		ClearDataImportFileData();
 		
 	EndTry;
@@ -1477,7 +1477,7 @@ Procedure ExecuteImportAtServer(FileAddress, FileNameForExtension)
 			Object.ExchangeRulesFileName = GetTempFileName("xml"); // ACC:441 - Deletion within "ImportExchangeRulesAndParametersAtServer".
 			BinaryData.Write(Object.ExchangeRulesFileName);
 		Else
-			MessageToUser(NStr("en = 'Data import file is not specified.';"));
+			MessageToUser(NStr("en = 'Data import file is not specified.'"));
 			Return;
 		EndIf;
 	EndIf;
@@ -1493,7 +1493,7 @@ Procedure ExecuteImportAtServer(FileAddress, FileNameForExtension)
 		EndIf;
 		
 	Except
-		WriteLogEvent(NStr("en = 'Conversion Rule Data Exchange in XML format';", ObjectForServer.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Conversion Rule Data Exchange in XML format'", ObjectForServer.DefaultLanguageCode()),
 			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	
@@ -1536,7 +1536,7 @@ Function FileNameAtServerOrClient(Var_AttributeName ,Val FileAddress, Val FileNa
 		
 		If Not FileOnServer.Exists() And CheckForExistence Then
 			
-			MessageToUser(NStr("en = 'The file does not exist.';"));
+			MessageToUser(NStr("en = 'The file does not exist.'"));
 			
 		Else
 			
@@ -1617,11 +1617,11 @@ EndProcedure
 &AtClient
 Procedure GetUploadFileOnClient(Address)
 	
-	FileToSaveName = NStr("en = 'Export file';");
+	FileToSaveName = NStr("en = 'Export file'");
 	
 	ChoiceDialog = New FileDialog(FileDialogMode.Save);
 	
-	ChoiceDialog.Title = NStr("en = 'Select a path to save the export file';");
+	ChoiceDialog.Title = NStr("en = 'Select a path to save the export file'");
 	ChoiceDialog.DefaultExt = ?(Object.ArchiveFile, "zip", "xml");
 	ChoiceDialog.Filter = ?(Object.ArchiveFile, "(*.zip)|*.zip", "(*.xml)|*.xml");
 	
@@ -1646,7 +1646,7 @@ Function ExecuteExportAtServer()
 		
 		If TempDataFileName = Undefined Then
 			
-			MessageToUser(NStr("en = 'Data file not specified';"));
+			MessageToUser(NStr("en = 'Data file not specified'"));
 			Return Undefined;
 			
 		Else
@@ -1671,7 +1671,7 @@ Function ExecuteExportAtServer()
 		
 		If Not File.Exists() Then
 			
-			MessageToUser(NStr("en = 'The external event debugger file does not exist on the server';"));
+			MessageToUser(NStr("en = 'The external event debugger file does not exist on the server'"));
 			Return Undefined;
 			
 		EndIf;
@@ -1680,7 +1680,7 @@ Function ExecuteExportAtServer()
 		
 		If Cancel Then
 			
-			MessageToUser(NStr("en = 'Cannot export event handlers';"));
+			MessageToUser(NStr("en = 'Cannot export event handlers'"));
 			Return "";
 			
 		EndIf;
@@ -1889,7 +1889,7 @@ Procedure ChangeProcessingMode(WorkMode)
 	ModeGroup1.FormAtServer.Check = Not WorkMode;
 	
 	CommandBar.ChildItems.ProcessingMode.Title = 
-	?(WorkMode, NStr("en = 'Mode (client)';"), NStr("en = 'Mode (server)';"));
+	?(WorkMode, NStr("en = 'Mode (client)'"), NStr("en = 'Mode (server)'"));
 	
 	Object.ExportRulesTable.GetItems().Clear();
 	Object.ParametersSetupTable.Clear();
@@ -1937,7 +1937,7 @@ Function EmptyAttributeValue(Attribute, DataPath, Var_Title)
 	
 	If IsBlankString(Attribute) Then
 		
-		MessageText = NStr("en = '""%1"" is required';");
+		MessageText = NStr("en = '""%1"" is required'");
 		MessageText = StrReplace(MessageText, "%1", Var_Title);
 		
 		MessageToUser(MessageText, DataPath);
@@ -2014,7 +2014,7 @@ Procedure CheckPlatformVersionAndCompatibilityMode()
 		And Metadata.CompatibilityMode <> Metadata.ObjectProperties.CompatibilityMode["Version8_3_2"]))) Then
 		
 		Raise NStr("en = 'The data processor supports 1C:Enterprise 8.3.3 or later,
-			|with disabled compatibility mode.';");
+			|with disabled compatibility mode.'");
 		
 	EndIf;
 	
@@ -2096,7 +2096,7 @@ Procedure AfterConnecting(Attached, InstallIfNotAttachable) Export
 		
 	Else
 		
-		MessageText = NStr("en = 'Failed to install or attach 1C:Enterprise Extension';");
+		MessageText = NStr("en = 'Failed to install or attach 1C:Enterprise Extension'");
 		MessageToUser(MessageText);
 		
 	EndIf;
@@ -2118,7 +2118,7 @@ Function PreparedParametersOfFilePlacementDialog()
 	
 	RoomDialogParameters.MultipleChoice = False;
 	RoomDialogParameters.Filter = "All files (*.*)|*.*";
-	RoomDialogParameters.Title = NStr("en = 'Select a file to import';");
+	RoomDialogParameters.Title = NStr("en = 'Select a file to import'");
 	
 	Return RoomDialogParameters;
 	

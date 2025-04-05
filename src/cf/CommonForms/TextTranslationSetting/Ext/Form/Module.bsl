@@ -20,7 +20,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.ContextModeTitle.Visible = Parameters.IsContextCall;
 	
 	If Parameters.IsContextCall Then
-		Items.WriteAndClose.Title = NStr("en = 'Save and continue';");
+		Items.WriteAndClose.Title = NStr("en = 'Save and continue'");
 	EndIf;
 	
 EndProcedure
@@ -53,7 +53,7 @@ Procedure OnReadAtServer(CurrentObject)
 	If Not ValueIsFilled(ConstantsSet.TextTranslationService) Then
 	
 		TextTranslationService = Undefined;
-		TextTranslationToolLocalization.WhenDeterminingTextTranslationService(TextTranslationService);
+		TextTranslationToolLocalization.OnDefineTranslationService(TextTranslationService);
 		
 		ConstantsSet.TextTranslationService = ?(ValueIsFilled(TextTranslationService),
 			TextTranslationService, Enums.TextTranslationServices.GoogleTranslate);

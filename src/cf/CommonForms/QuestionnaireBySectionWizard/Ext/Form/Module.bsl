@@ -22,9 +22,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	QuestionnaireTemplate = Parameters.QuestionnaireTemplate;
 	
 	SetFormAttributesValuesAccordingToQuestionnaireTemplate();
-	Surveys.SetQuestionnaireSectionsTreeItemIntroductionConclusion(SectionsTree, NStr("en = 'Introduction';"), "Introduction");
+	Surveys.SetQuestionnaireSectionsTreeItemIntroductionConclusion(SectionsTree, NStr("en = 'Introduction'"), "Introduction");
 	Surveys.FillSectionsTree(ThisObject,SectionsTree);
-	Surveys.SetQuestionnaireSectionsTreeItemIntroductionConclusion(SectionsTree, NStr("en = 'Closing statement';"), "ClosingStatement");
+	Surveys.SetQuestionnaireSectionsTreeItemIntroductionConclusion(SectionsTree, NStr("en = 'Closing statement'"), "ClosingStatement");
 	SurveysClientServer.GenerateTreeNumbering(SectionsTree,True);
 	
 	Items.SectionsTree.CurrentRow = 0;
@@ -197,7 +197,7 @@ EndProcedure
 Procedure ChangeSectionsTreeVisibility()
 
 	Items.SectionsTreeGroup.Visible         = Not Items.SectionsTreeGroup.Visible;
-	Items.HideSections.Title = ?(Items.SectionsTreeGroup.Visible,NStr("en = 'Hide sections';"), NStr("en = 'Show sections';"));
+	Items.HideSections.Title = ?(Items.SectionsTreeGroup.Visible,NStr("en = 'Hide sections'"), NStr("en = 'Show sections'"));
 
 EndProcedure 
 

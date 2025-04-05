@@ -55,7 +55,7 @@ Function ObjectMappingResult(Parameters)
 		ObjectsMapping.ApplyUnapprovedRecordsTable(Cancel);
 		
 		If Cancel Then
-			Raise NStr("en = 'Errors occurred during object mapping.';");
+			Raise NStr("en = 'Errors occurred during object mapping.'");
 		EndIf;
 		
 		Return Undefined;
@@ -79,7 +79,7 @@ Function ObjectMappingResult(Parameters)
 		ObjectsMapping.ApplyUnapprovedRecordsTable(Cancel);
 		
 		If Cancel Then
-			Raise NStr("en = 'Errors occurred during object mapping.';");
+			Raise NStr("en = 'Errors occurred during object mapping.'");
 		EndIf;
 		
 	EndIf;
@@ -88,7 +88,7 @@ Function ObjectMappingResult(Parameters)
 	ObjectsMapping.MapObjects(Cancel);
 	
 	If Cancel Then
-		Raise NStr("en = 'Errors occurred during object mapping.';");
+		Raise NStr("en = 'Errors occurred during object mapping.'");
 	EndIf;
 	
 	Result = New Structure;
@@ -128,7 +128,7 @@ Function AutomaticObjectMappingResult(Parameters)
 	ObjectsMapping.ExecuteAutomaticObjectMapping(Cancel, Parameters.FormAttributes.MappingFieldsList);
 	
 	If Cancel Then
-		Raise NStr("en = 'Errors occurred during automatic object mapping.';");
+		Raise NStr("en = 'Errors occurred during automatic object mapping.'");
 	EndIf;
 	
 	Result = New Structure;

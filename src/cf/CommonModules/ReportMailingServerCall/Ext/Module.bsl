@@ -39,7 +39,7 @@ EndProcedure
 //
 Function GenerateMailingRecipientsList(Val RecipientsParameters) Export
 	LogParameters = New Structure("EventName, Metadata, Data, ErrorsArray, HadErrors");
-	LogParameters.EventName   = NStr("en = 'Report distribution. Generating recipient list';", Common.DefaultLanguageCode());
+	LogParameters.EventName   = NStr("en = 'Report distribution. Generating recipient list'", Common.DefaultLanguageCode());
 	LogParameters.ErrorsArray = New Array;
 	LogParameters.HadErrors   = False;
 	LogParameters.Data       = RecipientsParameters.Ref;
@@ -61,8 +61,8 @@ Function RunBackgroundJob1(Val MethodParameters, Val UUID) Export
 	MethodName = "ReportMailing.SendBulkEmailsInBackgroundJob";
 	
 	StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	StartSettings1.BackgroundJobDescription = NStr("en = 'Report distribution. Running in the background';");
-	StartSettings1.RefinementErrors = NStr("en = 'Report distributions failed due to:';");
+	StartSettings1.BackgroundJobDescription = NStr("en = 'Report distribution. Running in the background'");
+	StartSettings1.RefinementErrors = NStr("en = 'Report distributions failed due to:'");
 	Return TimeConsumingOperations.ExecuteInBackground(MethodName, MethodParameters, StartSettings1);
 EndFunction
 
@@ -71,9 +71,9 @@ Function RunBackgroundJobToSendSMSWithPasswords(Val MethodParameters, Val UUID) 
 	MethodName = "ReportMailing.SendBulkSMSMessagesWithReportDistributionArchivePasswordsInBackgroundJob";
 	                             
 	StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	StartSettings1.BackgroundJobDescription = NStr("en = 'Report distributions: Send text messages with passwords in the background';");
+	StartSettings1.BackgroundJobDescription = NStr("en = 'Report distributions: Send text messages with passwords in the background'");
 	StartSettings1.RefinementErrors =
-		NStr("en = 'Cannot send text messages with archive passwords to receive the report distribution. Reason:';");
+		NStr("en = 'Cannot send text messages with archive passwords to receive the report distribution. Reason:'");
 	
 	Return TimeConsumingOperations.ExecuteInBackground(MethodName, MethodParameters, StartSettings1);
 EndFunction  
@@ -83,9 +83,9 @@ Function RunBackgroundJobToClearUpReportDistributionHistory(Val MethodParameters
 	MethodName = "ReportMailing.ClearUpReportDistributionHistoryInBackgroundJob";
 	
 	StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	StartSettings1.BackgroundJobDescription = NStr("en = 'Report distributions: Clear the report distribution history';");
+	StartSettings1.BackgroundJobDescription = NStr("en = 'Report distributions: Clear the report distribution history'");
 	StartSettings1.RefinementErrors =
-		NStr("en = 'Cleanup of report distributions failed due to:';");
+		NStr("en = 'Cleanup of report distributions failed due to:'");
 	Return TimeConsumingOperations.ExecuteInBackground(MethodName, MethodParameters, StartSettings1);
 EndFunction
 

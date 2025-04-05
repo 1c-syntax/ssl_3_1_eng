@@ -33,7 +33,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// СтандартныеПодсистемы.VariantsОтчетов
+// StandardSubsystems.ReportsOptions
 
 // Defines the list of report commands.
 //
@@ -49,7 +49,7 @@ Procedure AddReportCommands(ReportsCommands, Parameters) Export
 	
 	Command = ReportsCommands.Add();
 	Command.VariantKey       = "Main";
-	Command.Presentation      = NStr("en = 'Volume integrity check';");
+	Command.Presentation      = NStr("en = 'Volume integrity check'");
 	Command.Id      = "VolumeIntegrityCheck";
 	Command.Manager           = "Report.VolumeIntegrityCheck";
 	Command.MultipleChoice = False;

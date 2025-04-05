@@ -37,7 +37,7 @@ Function AddCurrenciesByCode(Val CurrencyCodes) Export
 			CurrencyObject = Catalogs.Currencies.CreateItem();
 			CurrencyObject.Code = CurrencyCode_;
 			CurrencyObject.Description = CurrencyCode_;
-			CurrencyObject.DescriptionFull = NStr("en = 'Currency';");
+			CurrencyObject.DescriptionFull = NStr("en = 'Currency'");
 			CurrencyObject.RateSource = Enums.RateSources.ManualInput;
 			CurrencyObject.Write();
 			CurrencyRef = CurrencyObject.Ref;
@@ -535,17 +535,17 @@ Function SchemaDataPrintAmountWords()
 		
 		Field = FieldList.Add();
 		Field.Id = "Ref";
-		Field.Presentation = NStr("en = 'Ref';");
+		Field.Presentation = NStr("en = 'Ref'");
 		Field.ValueType = New TypeDescription();	
 	
 		Field = FieldList.Add();
 		Field.Id = "Currency";
-		Field.Presentation = NStr("en = 'Currency';");
+		Field.Presentation = NStr("en = 'Currency'");
 		Field.ValueType = New TypeDescription();	
 	
 		Field = FieldList.Add();
 		Field.Id = "NumberInWords";
-		Field.Presentation = NStr("en = 'Amount in words';");
+		Field.Presentation = NStr("en = 'Amount in words'");
 		Field.ValueType = New TypeDescription("String");
 		
 		Return ModulePrintManager.SchemaCompositionDataPrint(FieldList);

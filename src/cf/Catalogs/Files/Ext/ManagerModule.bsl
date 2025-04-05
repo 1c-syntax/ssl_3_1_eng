@@ -30,7 +30,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// СтандартныеПодсистемы.УправлениеДоступом
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -68,7 +68,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 // Defines the list of generation commands.
 //
@@ -146,12 +146,12 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 		|		LEFT JOIN InformationRegister.FilesInfo AS FilesInfo
 		|		ON Files.Ref = FilesInfo.File
 		|WHERE
-		|	Files.FileStorageType = VALUE(Enum.FileStorageTypes.InVolumesOnHardDrive)
+		|	Files.Ref > &Ref
+		|	AND (Files.FileStorageType = VALUE(Enum.FileStorageTypes.InVolumesOnHardDrive)
 		|	OR ((Files.UniversalModificationDate = DATETIME(1, 1, 1, 0, 0, 0)
 		|					AND Files.CurrentVersion <> VALUE(Catalog.FilesVersions.EmptyRef)
 		|				OR Files.FileStorageType = VALUE(Enum.FileStorageTypes.EmptyRef))
-		|				AND Files.Ref > &Ref
-		|			OR FilesInfo.File IS NULL)
+		|			OR FilesInfo.File IS NULL))
 		|
 		|ORDER BY
 		|	Ref";
@@ -166,7 +166,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	While Not AllFilesProcessed Do
 		
 		Query.SetParameter("Ref", Ref);
-		// @skip-check query-in-loop - Batch processing of a large amount of data.
+		// @skip-check query-in-loop
 		ReferencesArrray = Query.Execute().Unload().UnloadColumn("Ref");
 		
 		InfobaseUpdate.MarkForProcessing(Parameters, ReferencesArrray);
@@ -199,7 +199,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) the files: %1';"), 
+			NStr("en = 'Couldn''t process (skipped) the files: %1'"), 
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	EndIf;
@@ -207,7 +207,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	WriteLogEvent(InfobaseUpdate.EventLogEvent(), 
 		EventLogLevel.Information, , ,
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Yet another batch of files is processed: %1';"),
+			NStr("en = 'Yet another batch of files is processed: %1'"),
 			ObjectsProcessed));
 	Parameters.ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue, "Catalog.Files");
 	
@@ -228,7 +228,7 @@ Function ProcessFile(Ref)
 		
 		FileToUpdate = Undefined;
 		ItIsRequiredToRecord = False;
-		// @skip-check query-in-loop - Порционная обработка большого объема данных.
+		// @skip-check query-in-loop
 		FileAttributes = Common.ObjectAttributesValues(Ref, 
 			"UniversalModificationDate,CurrentVersion,FileStorageType");
 			
@@ -243,7 +243,7 @@ Function ProcessFile(Ref)
 				Return Result;
 			EndIf;
 
-			// @skip-check query-in-loop - Порционная обработка большого объема данных.
+			// @skip-check query-in-loop
 			CurrentVersionAttributes = Common.ObjectAttributesValues(FileAttributes.CurrentVersion, 
 				"UniversalModificationDate,FileStorageType");
 			FileToUpdate.UniversalModificationDate = CurrentVersionAttributes.UniversalModificationDate;

@@ -149,7 +149,7 @@ Procedure CertificatesOnActivateRow(Item)
 	Else
 		DigitalSignatureClient.InstallExtension(False, New CallbackDescription(
 			"FillCertificateDataDetails", ThisObject, CurrentData.CertificateAddress),
-			NStr("en = 'To continue, install 1C:Enterprise Extension.';"));
+			NStr("en = 'To continue, install 1C:Enterprise Extension.'"));
 	EndIf;
 	
 EndProcedure
@@ -205,7 +205,7 @@ Async Procedure AddCertificatesToCatalog(Command)
 	Notify("Write_DigitalSignatureAndEncryptionKeysCertificates");
 	
 	If Success Then
-		Response = Await DoQueryBoxAsync(NStr("en = 'Certificates are added. Do you want to close the form?';"), QuestionDialogMode.YesNo);
+		Response = Await DoQueryBoxAsync(NStr("en = 'Certificates are added. Do you want to close the form?'"), QuestionDialogMode.YesNo);
 		If Response = DialogReturnCode.Yes Then
 			Close();
 		EndIf;
@@ -382,7 +382,7 @@ Function AddCertificatesToCatalogAtServer()
 		Except
 			
 			ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot save the %1 certificate: %2';"), CurrentRow.Presentation,
+				NStr("en = 'Cannot save the %1 certificate: %2'"), CurrentRow.Presentation,
 				ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 				
 			RowIndex = Certificates.IndexOf(CurrentRow);

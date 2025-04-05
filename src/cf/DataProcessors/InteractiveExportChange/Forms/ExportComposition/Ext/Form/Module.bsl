@@ -22,7 +22,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Verify that the form is opened with the required parameters
 	If IsBlankString(Parameters.ObjectAddress)
 		And Parameters.ObjectSettings = Undefined Then
-		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
+		Raise NStr("en = 'This is a dependent form and opens from a different form.'", Common.DefaultLanguageCode());
 	EndIf;
 	
 	Items.FormReportSettings.Visible = False;
@@ -48,7 +48,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ThisObject(SourceObject);
 	
 	If Not ValueIsFilled(Object.InfobaseNode) Then
-		Text = NStr("en = 'The data exchange setting is not found.';");
+		Text = NStr("en = 'The data exchange setting is not found.'");
 		DataExchangeServer.ReportError(Text, Cancel);
 		Return;
 	EndIf;
@@ -165,7 +165,7 @@ Procedure GenerateSpreadsheetDocumentClient()
 		StatePresentation.Visible                      = True;
 		StatePresentation.AdditionalShowMode = AdditionalShowMode.Irrelevance;
 		StatePresentation.Picture                       = PictureLib.TimeConsumingOperation48;
-		StatePresentation.Text                          = NStr("en = 'Generating report…';");
+		StatePresentation.Text                          = NStr("en = 'Generating report…'");
 		
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 		IdleParameters.OutputIdleWindow  = False;
@@ -193,7 +193,7 @@ Function GenerateSpreadsheetDocumentServer()
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.BackgroundJobDescription = 
-		NStr("en = 'Generate report on data to be sent during synchronization';");
+		NStr("en = 'Generate report on data to be sent during synchronization'");
 	
 	BackgroundJobStartResult = TimeConsumingOperations.ExecuteInBackground(
 		"DataExchangeServer.InteractiveExportModificationGenerateUserTableDocument",

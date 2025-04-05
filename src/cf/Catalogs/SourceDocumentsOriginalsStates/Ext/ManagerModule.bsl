@@ -34,22 +34,22 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 
 	Item = Items.Add();
 	Item.PredefinedDataName = "FormPrinted";
-	Item.Description = NStr("en = 'Form printed';", Common.DefaultLanguageCode());
-	Item.LongDesc = NStr("en = 'State that means that the print form was printed only.';", Common.DefaultLanguageCode());
+	Item.Description = NStr("en = 'Form printed'", Common.DefaultLanguageCode());
+	Item.LongDesc = NStr("en = 'State that means that the print form was printed only.'", Common.DefaultLanguageCode());
 	Item.Code = "000000001";
 	Item.AddlOrderingAttribute = "1";
 
 	Item = Items.Add();
 	Item.PredefinedDataName = "OriginalsNotAll";
-	Item.Description = NStr("en = 'Not all originals';", Common.DefaultLanguageCode());
-	Item.LongDesc = NStr("en = 'The aggregated state of a document whose print forms have different states.';", Common.DefaultLanguageCode());
+	Item.Description = NStr("en = 'Not all originals'", Common.DefaultLanguageCode());
+	Item.LongDesc = NStr("en = 'The aggregated state of a document whose print forms have different states.'", Common.DefaultLanguageCode());
 	Item.Code = "000000002";
 	Item.AddlOrderingAttribute = "99998";
 
 	Item = Items.Add();
 	Item.PredefinedDataName = "OriginalReceived";
-	Item.Description = NStr("en = 'Original received';", Common.DefaultLanguageCode());
-	Item.LongDesc = NStr("en = 'State that means that the signed print form original is available.';", Common.DefaultLanguageCode());
+	Item.Description = NStr("en = 'Original received'", Common.DefaultLanguageCode());
+	Item.LongDesc = NStr("en = 'State that means that the signed print form original is available.'", Common.DefaultLanguageCode());
 	Item.Code = "000000003";
 	Item.AddlOrderingAttribute = "99999";
 
@@ -144,14 +144,14 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	Parameters.ProcessingCompleted = InfobaseUpdate.DataProcessingCompleted(Parameters.Queue, "Catalog.SourceDocumentsOriginalsStates");
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) some states of source document originals: %1';"), 
+			NStr("en = 'Couldn''t process (skipped) some states of source document originals: %1'"), 
 				ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
 			Metadata.Catalogs.SourceDocumentsOriginalsStates,,
 				StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Yet another batch of states of source document originals is processed: %1';"),
+					NStr("en = 'Yet another batch of states of source document originals is processed: %1'"),
 					ObjectsProcessed));
 	EndIf;
 	

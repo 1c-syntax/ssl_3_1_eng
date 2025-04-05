@@ -75,10 +75,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetFilter(False);
 
 	List.Parameters.SetParameterValue("DateEmpty", '00010101');
-	List.Parameters.SetParameterValue("NewStatePresentation", NStr("en = 'New';"));
-	List.Parameters.SetParameterValue("NotCompletedStatePresentation", NStr("en = 'Not completed';"));
-	List.Parameters.SetParameterValue("CompletedWithErrorsStatePresentation", NStr("en = 'Partially completed';"));
-	List.Parameters.SetParameterValue("CompletedStatePresentation", NStr("en = 'Completed';"));
+	List.Parameters.SetParameterValue("NewStatePresentation", NStr("en = 'New'"));
+	List.Parameters.SetParameterValue("NotCompletedStatePresentation", NStr("en = 'Not completed'"));
+	List.Parameters.SetParameterValue("CompletedWithErrorsStatePresentation", NStr("en = 'Partially completed'"));
+	List.Parameters.SetParameterValue("CompletedStatePresentation", NStr("en = 'Completed'"));
 	
 	If Not Common.SubsystemExists("StandardSubsystems.BatchEditObjects")
 		Or Not AccessRight("Update", Metadata.Catalogs.ReportMailings) Then

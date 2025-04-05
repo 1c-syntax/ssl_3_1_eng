@@ -26,12 +26,12 @@ Procedure Stop(Val CommandParameter) Export
 	If TypeOf(CommandParameter) = Type("Array") Then
 		
 		If CommandParameter.Count() = 0 Then
-			ShowMessageBox(,NStr("en = 'No business process is selected.';"));
+			ShowMessageBox(,NStr("en = 'No business process is selected.'"));
 			Return;
 		EndIf;
 		
 		If CommandParameter.Count() = 1 And TypeOf(CommandParameter[0]) = Type("DynamicListGroupRow") Then
-			ShowMessageBox(,NStr("en = 'No business process is selected.';"));
+			ShowMessageBox(,NStr("en = 'No business process is selected.'"));
 			Return;
 		EndIf;
 		
@@ -39,41 +39,41 @@ Procedure Stop(Val CommandParameter) Export
 		If CommandParameter.Count() = 1 Then
 			If TaskCount1 > 0 Then
 				QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Business process ""%1"" and all its unfinished tasks (%2) will be suspended. Continue?';"), 
+					NStr("en = 'Business process ""%1"" and all its unfinished tasks (%2) will be suspended. Continue?'"), 
 					String(CommandParameter[0]), TaskCount1);
 			Else
 				QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Business process ""%1"" will be suspended. Continue?';"), 
+					NStr("en = 'Business process ""%1"" will be suspended. Continue?'"), 
 					String(CommandParameter[0]));
 			EndIf;
 		Else
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Business processes (%1) and all their unfinished tasks (%2) will be suspended. Continue?';"), 
+				NStr("en = 'Business processes (%1) and all their unfinished tasks (%2) will be suspended. Continue?'"), 
 				CommandParameter.Count(), TaskCount1);
 		EndIf;
 		
 	Else
 		
 		If TypeOf(CommandParameter) = Type("DynamicListGroupRow") Then
-			ShowMessageBox(,NStr("en = 'No business process is selected';"));
+			ShowMessageBox(,NStr("en = 'No business process is selected'"));
 			Return;
 		EndIf;
 		
 		TaskCount1 = BusinessProcessesAndTasksServerCall.UncompletedBusinessProcessTasksCount(CommandParameter);
 		If TaskCount1 > 0 Then
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Business process ""%1"" and all its unfinished tasks (%2) will be suspended. Continue?';"), 
+				NStr("en = 'Business process ""%1"" and all its unfinished tasks (%2) will be suspended. Continue?'"), 
 				String(CommandParameter), TaskCount1);
 		Else
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Business process ""%1"" will be suspended. Continue?';"), 
+				NStr("en = 'Business process ""%1"" will be suspended. Continue?'"), 
 				String(CommandParameter));
 		EndIf;
 		
 	EndIf;
 	
 	Notification = New CallbackDescription("StopCompletion", ThisObject, CommandParameter);
-	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No, NStr("en = 'Suspend business process';"));
+	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No, NStr("en = 'Suspend business process'"));
 	
 EndProcedure
 
@@ -90,7 +90,7 @@ Procedure StopBusinessProcessFromObjectForm(Form) Export
 	ClearMessages();
 	Form.Write();
 	ShowUserNotification(
-		NStr("en = 'The business process is suspended.';"),
+		NStr("en = 'The business process is suspended.'"),
 		GetURL(Form.Object.Ref),
 		String(Form.Object.Ref),
 		PictureLib.DialogInformation);
@@ -113,42 +113,42 @@ Procedure Activate(Val CommandParameter) Export
 	If TypeOf(CommandParameter) = Type("Array") Then
 		
 		If CommandParameter.Count() = 0 Then
-			ShowMessageBox(,NStr("en = 'No business process is selected.';"));
+			ShowMessageBox(,NStr("en = 'No business process is selected.'"));
 			Return;
 		EndIf;
 		
 		If CommandParameter.Count() = 1 And TypeOf(CommandParameter[0]) = Type("DynamicListGroupRow") Then
-			ShowMessageBox(,NStr("en = 'No business process is selected.';"));
+			ShowMessageBox(,NStr("en = 'No business process is selected.'"));
 			Return;
 		EndIf;
 		
 		TaskCount1 = BusinessProcessesAndTasksServerCall.UncompletedBusinessProcessesTasksCount(CommandParameter);
 		If CommandParameter.Count() = 1 Then
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Business process ""%1"" and its tasks (%2) will be active. Continue?';"),
+				NStr("en = 'Business process ""%1"" and its tasks (%2) will be active. Continue?'"),
 				String(CommandParameter[0]), TaskCount1);
 		Else		
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Business processes (%1) and their tasks (%2) will be active. Continue?';"),
+				NStr("en = 'Business processes (%1) and their tasks (%2) will be active. Continue?'"),
 				CommandParameter.Count(), TaskCount1);
 		EndIf;
 		
 	Else
 		
 		If TypeOf(CommandParameter) = Type("DynamicListGroupRow") Then
-			ShowMessageBox(,NStr("en = 'No business process is selected.';"));
+			ShowMessageBox(,NStr("en = 'No business process is selected.'"));
 			Return;
 		EndIf;
 		
 		TaskCount1 = BusinessProcessesAndTasksServerCall.UncompletedBusinessProcessTasksCount(CommandParameter);
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Business process ""%1"" and its tasks (%2) will be active. Continue?';"),
+			NStr("en = 'Business process ""%1"" and its tasks (%2) will be active. Continue?'"),
 			String(CommandParameter), TaskCount1);
 			
 	EndIf;
 	
 	Notification = New CallbackDescription("ActivateCompletion", ThisObject, CommandParameter);
-	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No, NStr("en = 'Suspend business process';"));
+	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No, NStr("en = 'Suspend business process'"));
 	
 EndProcedure
 
@@ -166,7 +166,7 @@ Procedure ContinueBusinessProcessFromObjectForm(Form) Export
 	ClearMessages();
 	Form.Write();
 	ShowUserNotification(
-		NStr("en = 'The business process is activated';"),
+		NStr("en = 'The business process is activated'"),
 		GetURL(Form.Object.Ref),
 		String(Form.Object.Ref),
 		PictureLib.DialogInformation);
@@ -183,7 +183,7 @@ Procedure AcceptTasksForExecution(Val TaskArray) Export
 	
 	BusinessProcessesAndTasksServerCall.AcceptTasksForExecution(TaskArray);
 	If TaskArray.Count() = 0 Then
-		ShowMessageBox(,NStr("en = 'Cannot run the command for the object.';"));
+		ShowMessageBox(,NStr("en = 'Cannot run the command for the object.'"));
 		Return;
 	EndIf;
 	
@@ -238,7 +238,7 @@ Procedure CancelAcceptTasksForExecution(Val TaskArray) Export
 	BusinessProcessesAndTasksServerCall.CancelAcceptTasksForExecution(TaskArray);
 	
 	If TaskArray.Count() = 0 Then
-		ShowMessageBox(, NStr("en = 'Cannot run the command for the object.';"));
+		ShowMessageBox(, NStr("en = 'Cannot run the command for the object.'"));
 		Return;
 	EndIf;
 	
@@ -314,7 +314,7 @@ Procedure SetUpDeferredStart(BusinessProcess, TaskDueDate) Export
 	
 	If BusinessProcess.IsEmpty() Then
 		WarningText = 
-			NStr("en = 'Cannot set up deferred start for an unsaved process.';");
+			NStr("en = 'Cannot set up deferred start for an unsaved process.'");
 		ShowMessageBox(, WarningText);
 		Return;
 	EndIf;
@@ -412,12 +412,12 @@ Function WriteAndCloseExecute(Form, ExecuteTask = False, NotificationParameters 
 		If Not Form.Write(New Structure("ExecuteTask", True)) Then
 			Return False;
 		EndIf;
-		NotificationText1 = NStr("en = 'The task is completed';");
+		NotificationText1 = NStr("en = 'The task is completed'");
 	Else
 		If Not Form.Write() Then
 			Return False;
 		EndIf;
-		NotificationText1 = ?(NewObject, NStr("en = 'The task is created';"), NStr("en = 'The task is changed';"));
+		NotificationText1 = ?(NewObject, NStr("en = 'The task is created'"), NStr("en = 'The task is changed'"));
 	EndIf;
 	
 	Notify("Write_PerformerTask", NotificationParameters, Form.Object.Ref);
@@ -452,14 +452,14 @@ EndProcedure
 Procedure ForwardTasks(RedirectedTasks_SSLs, OwnerForm) Export
 	
 	If RedirectedTasks_SSLs = Undefined Then
-		ShowMessageBox(,NStr("en = 'Tasks are not selected.';"));
+		ShowMessageBox(,NStr("en = 'Tasks are not selected.'"));
 		Return;
 	EndIf;
 		
 	TasksCanBeForwarded = BusinessProcessesAndTasksServerCall.ForwardTasks(
 		RedirectedTasks_SSLs, Undefined, True);
 	If Not TasksCanBeForwarded And RedirectedTasks_SSLs.Count() = 1 Then
-		ShowMessageBox(,NStr("en = 'Cannot forward a task that is already completed or was sent to another user.';"));
+		ShowMessageBox(,NStr("en = 'Cannot forward a task that is already completed or was sent to another user.'"));
 		Return;
 	EndIf;
 		
@@ -467,8 +467,8 @@ Procedure ForwardTasks(RedirectedTasks_SSLs, OwnerForm) Export
 	OpenForm("Task.PerformerTask.Form.ForwardTasks",
 		New Structure("Task,TaskCount,FormCaption", 
 		RedirectedTasks_SSLs[0], RedirectedTasks_SSLs.Count(), 
-		?(RedirectedTasks_SSLs.Count() > 1, NStr("en = 'Forward tasks';"), 
-			NStr("en = 'Forward task';"))), 
+		?(RedirectedTasks_SSLs.Count() > 1, NStr("en = 'Forward tasks'"), 
+			NStr("en = 'Forward task'"))), 
 		OwnerForm,,,, Notification);
 		
 EndProcedure
@@ -541,11 +541,11 @@ EndFunction
 
 Procedure OpenBusinessProcess(List) Export
 	If TypeOf(List.CurrentRow) <> Type("TaskRef.PerformerTask") Then
-		ShowMessageBox(,NStr("en = 'Cannot run the command for the object.';"));
+		ShowMessageBox(,NStr("en = 'Cannot run the command for the object.'"));
 		Return;
 	EndIf;
 	If List.CurrentData.BusinessProcess = Undefined Then
-		ShowMessageBox(,NStr("en = 'Business process of the selected task is not specified.';"));
+		ShowMessageBox(,NStr("en = 'Business process of the selected task is not specified.'"));
 		Return;
 	EndIf;
 	ShowValue(, List.CurrentData.BusinessProcess);
@@ -553,11 +553,11 @@ EndProcedure
 
 Procedure OpenTaskSubject(List) Export
 	If TypeOf(List.CurrentRow) <> Type("TaskRef.PerformerTask") Then
-		ShowMessageBox(,NStr("en = 'Cannot run the command for the object.';"));
+		ShowMessageBox(,NStr("en = 'Cannot run the command for the object.'"));
 		Return;
 	EndIf;
 	If List.CurrentData.SubjectOf = Undefined Then
-		ShowMessageBox(,NStr("en = 'Subject of the selected task is not specified.';"));
+		ShowMessageBox(,NStr("en = 'Subject of the selected task is not specified.'"));
 		Return;
 	EndIf;
 	ShowValue(, List.CurrentData.SubjectOf);
@@ -573,11 +573,11 @@ Procedure BusinessProcessesListDeletionMark(List) Export
 	
 	SelectedRows = List.SelectedRows;
 	If SelectedRows = Undefined Or SelectedRows.Count() <= 0 Then
-		ShowMessageBox(,NStr("en = 'Cannot run the command for the object.';"));
+		ShowMessageBox(,NStr("en = 'Cannot run the command for the object.'"));
 		Return;
 	EndIf;
 	Notification = New CallbackDescription("BusinessProcessesListDeletionMarkCompletion", ThisObject, List);
-	ShowQueryBox(Notification, NStr("en = 'Change deletion mark?';"), QuestionDialogMode.YesNo);
+	ShowQueryBox(Notification, NStr("en = 'Change deletion mark?'"), QuestionDialogMode.YesNo);
 	
 EndProcedure
 
@@ -644,7 +644,7 @@ Procedure BusinessProcessesListDeletionMarkCompletion(Result, List) Export
 	SelectedRows = List.SelectedRows;
 	BusinessProcessRef = BusinessProcessesAndTasksServerCall.MarkBusinessProcessesForDeletion(SelectedRows);
 	List.Refresh();
-	ShowUserNotification(NStr("en = 'The deletion mark is changed.';"), 
+	ShowUserNotification(NStr("en = 'The deletion mark is changed.'"), 
 		?(BusinessProcessRef <> Undefined, GetURL(BusinessProcessRef), ""),
 		?(BusinessProcessRef <> Undefined, String(BusinessProcessRef), ""));
 	

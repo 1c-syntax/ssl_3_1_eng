@@ -28,9 +28,9 @@
 //  TemplateOwner             - DefinedType.MessageTemplateOwner - an owner of templates. If it is not specified, all available templates are displayed in the template selection
 //                                              window for the
 //                                              specified MessageSubject subject.
-//  MessageParameters          - Structure -  additional information to generate a message 
-//                                             that is passed to the MessageParameters property of the TemplateParameters parameter
-//                                             of the MessagesTemplatesOverridable.OnGenerateMessage procedure. 
+//  MessageParameters          - Structure -  Additional message generation information 
+//                                             to be passed to the MessageParameters property of the TemplateParameters parameter
+//                                             of the MessageTemplatesOverridable.OnCreateMessage procedure. 
 //
 Procedure GenerateMessage(MessageSubject, MessageKind, OnCloseNotifyDescription = Undefined, 
 	TemplateOwner = Undefined, MessageParameters = Undefined) Export
@@ -154,9 +154,9 @@ EndFunction
 //                          - Undefined - a value that was passed in the MessageParameters parameter. 
 //  TemplateOwner         - DefinedType.MessageTemplateOwner - an owner of templates. If it is not specified, all available templates are displayed
 //                            in the template selection window for the specified MessageSubject subject.
-//  MessageParameters     - Structure -  additional information to generate a message 
-//                                        that is passed to the MessageParameters property of the TemplateParameters parameter
-//                                        of the MessagesTemplatesOverridable.OnGenerateMessage procedure. 
+//  MessageParameters     - Structure -  Additional message generation information 
+//                                        to be passed to the MessageParameters property of the TemplateParameters parameter
+//                                        of the MessageTemplatesOverridable.OnCreateMessage procedure. 
 //
 Procedure PrepareMessageFromTemplate(MessageSubject, MessageKind, OnCloseNotifyDescription = Undefined, 
 	TemplateOwner = Undefined, MessageParameters = Undefined) Export

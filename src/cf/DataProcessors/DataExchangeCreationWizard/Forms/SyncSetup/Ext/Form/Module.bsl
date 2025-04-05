@@ -16,7 +16,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Verify that the form is opened with the required parameters
 	If Not Parameters.Property("ExchangePlanName") Then
 		
-		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
+		Raise NStr("en = 'This is a dependent form and opens from a different form.'", Common.DefaultLanguageCode());
 		
 	EndIf;
 	
@@ -60,7 +60,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		Or Not SettingCompleted
 		Or (DIBSetup And Not ContinueSetupInSubordinateDIBNode And Not InitialImageCreated(Object.InfobaseNode))Then
 		WarningText = NStr("en = 'The data synchronization setup is not completed.
-		|Do you want to close the wizard? You can continue the setup later.';");
+		|Do you want to close the wizard? You can continue the setup later.'");
 		CommonClient.ShowArbitraryFormClosingConfirmation(
 			ThisObject, Cancel, Exit, WarningText, "ForceCloseForm");
 	EndIf;
@@ -187,7 +187,7 @@ EndProcedure
 Procedure GetConnectionConfirmation(Command)
 		
 	If XDTOCorrespondentSettingsReceived(Object.InfobaseNode) Then
-		ShowMessageBox(, NStr("en = 'The connection is confirmed.';"));
+		ShowMessageBox(, NStr("en = 'The connection is confirmed.'"));
 		Return;
 	EndIf;
 	
@@ -512,7 +512,7 @@ Procedure SetDataSendingAndReceivingRulesFollowUp(ClosingResult, AdditionalParam
 	BeforeDataSynchronizationSetup(CheckParameters, SetupExecuted, DataSyncSettingsWizardFormName);
 	
 	If SetupExecuted Then
-		ShowMessageBox(, NStr("en = 'The rules for sending and receiving data are configured.';"));
+		ShowMessageBox(, NStr("en = 'The rules for sending and receiving data are configured.'"));
 		RunCallback(ClosingNotification1, True);
 		Return;
 	EndIf;
@@ -737,10 +737,10 @@ Procedure InitializeFormProperties()
 	
 	If IsBlankString(Title) Then
 		If DIBSetup Then
-			Title = NStr("en = 'Configure distributed infobase';");
+			Title = NStr("en = 'Configure distributed infobase'");
 		Else
 			Title = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Configure data synchronization with %1';"),
+				NStr("en = 'Configure data synchronization with %1'"),
 				SettingOptionDetails.PeerInfobaseName);
 		EndIf;
 	EndIf;
@@ -1155,7 +1155,7 @@ Procedure SetInitialFormItemsView()
 		
 	If Backup Then
 		Items.BackupLabelDecoration.Title = StringFunctions.FormattedString(
-			NStr("en = 'It is recommend that you <a href=""%1"">back up your data</a> before you start setting up a new data sync.';"),
+			NStr("en = 'It is recommend that you <a href=""%1"">back up your data</a> before you start setting up a new data sync.'"),
 			BackupDataProcessorURL);
 	EndIf;
 	

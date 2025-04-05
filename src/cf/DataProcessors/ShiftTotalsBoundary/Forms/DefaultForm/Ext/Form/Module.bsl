@@ -39,7 +39,7 @@ Function LongRunningOperationStartServer(UUID)
 	MethodName = "DataProcessors.ShiftTotalsBoundary.ExecuteCommand";
 	
 	StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	StartSettings1.BackgroundJobDescription = NStr("en = 'Totals and aggregates: Accelerated document posting and report generation';");
+	StartSettings1.BackgroundJobDescription = NStr("en = 'Totals and aggregates: Accelerated document posting and report generation'");
 	StartSettings1.WaitCompletion = 0;
 	
 	Return TimeConsumingOperations.ExecuteInBackground(MethodName, Undefined, StartSettings1);
@@ -57,7 +57,7 @@ Procedure TimeConsumingOperationCompletionClient(Result, AdditionalParameters) E
 		Return;
 	EndIf;
 	If Result.Status = "Completed2" Then
-		ShowUserNotification(NStr("en = 'Optimization completed successfully';"),,, PictureLib.Success32);
+		ShowUserNotification(NStr("en = 'Optimization completed successfully'"),,, PictureLib.Success32);
 		TimeConsumingOperationAfterOutputResult(True);
 	Else
 		StandardSubsystemsClient.OutputErrorInfo(

@@ -760,13 +760,6 @@ ReportsOptions WHERE (ReportsOptions.User = FALSE
 		</right>
 	</object>
 	<object>
-		<name>CommonForm.CheckResult</name>
-		<right>
-			<name>View</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
 		<name>Constant.DefaultLanguage</name>
 		<right>
 			<name>Read</name>
@@ -1551,33 +1544,6 @@ WHERE Ref = &amp;CurrentExternalUser
 		</right>
 	</object>
 	<object>
-		<name>Configuration.StandardSubsystemsLibrary</name>
-		<right>
-			<name>MainWindowModeNormal</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeEmbeddedWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeFullscreenWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeKiosk</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>AnalyticsSystemClient</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
 		<name>Constant.UseUserGroups</name>
 		<right>
 			<name>Read</name>
@@ -2001,6 +1967,33 @@ WHERE Ref = VALUE(Catalog.ExternalUsersGroups.AllExternalUsers)
 		</right>
 	</object>
 	<object>
+		<name>Configuration.StandardSubsystemsLibrary</name>
+		<right>
+			<name>MainWindowModeNormal</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeEmbeddedWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeFullscreenWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeKiosk</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>AnalyticsSystemClient</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>SessionParameter.ORMCachedValuesRefreshDate</name>
 		<right>
 			<name>Get</name>
@@ -2102,7 +2095,7 @@ WHERE Ref = VALUE(Catalog.ExternalUsersGroups.AllExternalUsers)
 		</right>
 	</object>
 	<object>
-		<name>CommonForm.SelectDefaultPrintFormCommand</name>
+		<name>CommonForm.SelectDefaultPrintForm</name>
 		<right>
 			<name>View</name>
 			<value>true</value>

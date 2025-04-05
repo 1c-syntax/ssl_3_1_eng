@@ -18,6 +18,12 @@ Procedure BeforeWrite(Cancel)
 		Return;
 	EndIf;
 	
+	If Common.FileInfobase()
+	   And Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
+		ModuleAccessManagementInternal.LockRegistersBeforeWritingAccessConfigurationObjectToFileInformationSystem();
+	EndIf;
+	
 	FieldsNames = "Description, Parent, DeletionMark";
 	CurrentFolder = ?(IsNew(), New Structure(FieldsNames),
 		Common.ObjectAttributesValues(Ref, FieldsNames));
@@ -25,22 +31,22 @@ Procedure BeforeWrite(Cancel)
 	If Ref = PredefinedValue("Catalog.FilesFolders.Templates")
 		And CurrentFolder.Parent <> Catalogs.FilesFolders.EmptyRef() Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot move folder ""%1"".';"), CurrentFolder.Description);
+				NStr("en = 'Cannot move folder ""%1"".'"), CurrentFolder.Description);
 	EndIf;
 	
 	If IsNew() Or CurrentFolder.Parent <> Parent Then
 		// Check rights for the source folder.
 		If Not FilesOperationsInternal.HasRight("FoldersModification", CurrentFolder.Parent) Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Insufficient rights to move files from the ""%1"" folder.';"),
-				?(ValueIsFilled(CurrentFolder.Parent), CurrentFolder.Parent, NStr("en = 'Folders';")));
+				NStr("en = 'Insufficient rights to move files from the ""%1"" folder.'"),
+				?(ValueIsFilled(CurrentFolder.Parent), CurrentFolder.Parent, NStr("en = 'Folders'")));
 			Raise(MessageText, ErrorCategory.AccessViolation);
 		EndIf;
 		// Check rights for the destination folder.
 		If Not FilesOperationsInternal.HasRight("FoldersModification", Parent) Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Insufficient rights to add subfolders to the ""%1"" folder.';"),
-				?(ValueIsFilled(Parent), Parent, NStr("en = 'Folders';")));
+				NStr("en = 'Insufficient rights to add subfolders to the ""%1"" folder.'"),
+				?(ValueIsFilled(Parent), Parent, NStr("en = 'Folders'")));
 			Raise(MessageText, ErrorCategory.AccessViolation);
 		EndIf;
 	EndIf;
@@ -49,7 +55,7 @@ Procedure BeforeWrite(Cancel)
 		// Check the "Deletion mark" right.
 		If Not FilesOperationsInternal.HasRight("FoldersModification", Ref) Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Insufficient rights to change the ""%1"" file folder.';"),
+				NStr("en = 'Insufficient rights to change the ""%1"" file folder.'"),
 				String(Ref));
 			Raise(MessageText, ErrorCategory.AccessViolation);
 		EndIf;
@@ -74,7 +80,7 @@ Procedure BeforeWrite(Cancel)
 		While Selection.Next() Do
 			If ValueIsFilled(Selection.BeingEditedBy) Then
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot delete the %1 folder as it contains the ""%2"" file that is locked for editing.';"),
+					NStr("en = 'Cannot delete the %1 folder as it contains the ""%2"" file that is locked for editing.'"),
 				    String(Ref), String(Selection.Ref));
 			EndIf;
 
@@ -135,7 +141,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	If InvalidChars.Count() <> 0 Then
 		Cancel = True;
 		
-		Text = NStr("en = 'The folder name contains characters that are not allowed ( \ / : * ? "" < > | .. )';");
+		Text = NStr("en = 'The folder name contains characters that are not allowed ( \ / : * ? "" < > | .. )'");
 		Common.MessageToUser(Text, ThisObject, "Description");
 	EndIf;
 	
@@ -192,5 +198,5 @@ EndProcedure
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

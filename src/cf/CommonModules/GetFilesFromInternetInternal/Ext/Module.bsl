@@ -28,7 +28,7 @@ Procedure OnEnableSecurityProfiles() Export
 	
 	WriteLogEvent(EventLogEvent(),
 		EventLogLevel.Warning, Metadata.Constants.ProxyServerSetting,,
-		NStr("en = 'Since a security profile is enabled, the proxy server settings are reverted to the default ones.';"));
+		NStr("en = 'Since a security profile is enabled, the proxy server settings are reverted to the default ones.'"));
 	
 EndProcedure
 
@@ -43,14 +43,14 @@ Procedure OnFillPermissionsToAccessExternalResources(PermissionsRequests) Export
 	// and "GetFilesFromInternetInternal.ServerRouteTraceLog".
 	If Common.IsWindowsServer() Then
 		Permissions.Add(ModuleSafeModeManager.PermissionToUseOperatingSystemApplications("cmd /S /C ""%(ping %)%""",
-			NStr("en = 'Permission for ping';", Common.DefaultLanguageCode())));
+			NStr("en = 'Permission for ping'", Common.DefaultLanguageCode())));
 		Permissions.Add(ModuleSafeModeManager.PermissionToUseOperatingSystemApplications("cmd /S /C ""%(tracert %)%""",
-			NStr("en = 'Permission for tracert.';", Common.DefaultLanguageCode())));
+			NStr("en = 'Permission for tracert.'", Common.DefaultLanguageCode())));
 	ElsIf Common.IsLinuxServer() Then
 		Permissions.Add(ModuleSafeModeManager.PermissionToUseOperatingSystemApplications("ping % % % % %",
-			NStr("en = 'Permission for ping';", Common.DefaultLanguageCode())));
+			NStr("en = 'Permission for ping'", Common.DefaultLanguageCode())));
 		Permissions.Add(ModuleSafeModeManager.PermissionToUseOperatingSystemApplications("traceroute % % % % %",
-			NStr("en = 'Permission for traceroute.';", Common.DefaultLanguageCode())));
+			NStr("en = 'Permission for traceroute.'", Common.DefaultLanguageCode())));
 	EndIf;
 	
 	PermissionsRequests.Add(
@@ -70,7 +70,7 @@ EndProcedure
 Procedure SaveServerProxySettings(Val Settings) Export
 	
 	If Not Users.IsFullUser(, True) Then
-		Raise(NStr("en = 'Insufficient rights to perform the operation.';"), ErrorCategory.AccessViolation);
+		Raise(NStr("en = 'Insufficient rights to perform the operation.'"), ErrorCategory.AccessViolation);
 	EndIf;
 	
 	SetPrivilegedMode(True);
@@ -190,7 +190,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 		
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Couldn''t get the file ""%1"" due to:
-					|%2';"), URL, Common.AccessToInternetServicesDeniedMessageText());
+					|%2'"), URL, Common.AccessToInternetServicesDeniedMessageText());
 					
 			If WriteError1 Then
 				WriteErrorToEventLog(ErrorText);
@@ -300,7 +300,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 				           |Reason:
 				           |%4
 				           |Diagnostics result:
-				           |%5';"),
+				           |%5'"),
 				URL, Server, Format(Port, "NG="),
 				ErrorProcessing.BriefErrorDescription(ErrorInfo()),
 				DiagnosticsResult.ErrorDescription);
@@ -311,9 +311,9 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 					           |
 					           |Trace parameters:
 					           |Secure connection: %2
-					           |Timeout: %3';"),
+					           |Timeout: %3'"),
 					ErrorText,
-					Format(Join.SecureConnection <> Undefined, NStr("en = 'BF=No; BT=Yes';")),
+					Format(Join.SecureConnection <> Undefined, NStr("en = 'BF=No; BT=Yes'")),
 					Format(Join.Timeout, "NG=0"));
 					
 				WriteErrorToEventLog(ErrorMessage);
@@ -377,7 +377,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 				|%3
 				|
 				|Diagnostics result:
-				|%4';");
+				|%4'");
 			
 			RedirectionPresentations = RedirectionPresentations(Redirections);
 			If Not IsBlankString(RedirectionPresentations) Then
@@ -409,25 +409,25 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 				Or HTTPResponse.StatusCode = 308 Then // 308 Permanent Redirect
 				
 				If Redirections.Count() > 7 Then
-					Raise(NStr("en = 'Redirections limit exceeded.';"), ErrorCategory.NetworkError);
+					Raise(NStr("en = 'Redirections limit exceeded.'"), ErrorCategory.NetworkError);
 				EndIf;
 					
 				NewURL1 = StandardSubsystemsServer.HTTPHeadersInLowercase(HTTPResponse.Headers)["location"];
 				If NewURL1 = Undefined Then 
-					Raise(NStr("en = 'Invalid redirection: no ""Location"" header in the HTTP response.';"),
+					Raise(NStr("en = 'Invalid redirection: no ""Location"" header in the HTTP response.'"),
 						ErrorCategory.NetworkError);
 				EndIf;
 				
 				NewURL1 = TrimAll(NewURL1);
 				If IsBlankString(NewURL1) Then
-					Raise(NStr("en = 'Invalid redirection: blank ""Location"" header in the HTTP response.';"),
+					Raise(NStr("en = 'Invalid redirection: blank ""Location"" header in the HTTP response.'"),
 						ErrorCategory.NetworkError);
 				EndIf;
 				
 				If Redirections.Find(NewURL1) <> Undefined Then
 					Raise(StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Circular redirect.
-									|Redirect to %1 was attempted earlier.';"),
+									|Redirect to %1 was attempted earlier.'"),
 						NewURL1),
 						ErrorCategory.NetworkError);
 				EndIf;
@@ -455,7 +455,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 					
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Web server response has not changed since your last request:
-						           |%1';"),
+						           |%1'"),
 						HTTPConnectionCodeDetails(HTTPResponse.StatusCode));
 					
 					AddServerResponseBody(PathForSaving, ErrorText);
@@ -466,7 +466,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 					
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Unsupported web server response:
-						           |%1';"),
+						           |%1'"),
 						HTTPConnectionCodeDetails(HTTPResponse.StatusCode));
 					
 					AddServerResponseBody(PathForSaving, ErrorText);
@@ -476,7 +476,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 					
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Web server request failed:
-						           |%1';"),
+						           |%1'"),
 						HTTPConnectionCodeDetails(HTTPResponse.StatusCode));
 					
 					AddServerResponseBody(PathForSaving, ErrorText);
@@ -486,7 +486,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 					
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'Web server is overwhelmed, disconnected, or under maintenance:
-						           |%1';"),
+						           |%1'"),
 						HTTPConnectionCodeDetails(HTTPResponse.StatusCode));
 					
 					AddServerResponseBody(PathForSaving, ErrorText);
@@ -500,7 +500,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 			
 			ErrorTemplate = NStr("en = 'Cannot get file %1 from server %2.%3
 				|Reason:
-				|%4';");
+				|%4'");
 			
 			RedirectionPresentations = RedirectionPresentations(Redirections);
 			If Not IsBlankString(RedirectionPresentations) Then
@@ -517,11 +517,11 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 					           |Trace parameters:
 					           |Secure connection: %2
 					           |Timeout: %3
-					           |OS authentication: %4';"),
+					           |OS authentication: %4'"),
 					ErrorText,
-					Format(Join.SecureConnection <> Undefined, NStr("en = 'BF=No; BT=Yes';")),
+					Format(Join.SecureConnection <> Undefined, NStr("en = 'BF=No; BT=Yes'")),
 					Format(Join.Timeout, "NG=0"),
-					Format(Join.UseOSAuthentication, NStr("en = 'BF=No; BT=Yes';")));
+					Format(Join.UseOSAuthentication, NStr("en = 'BF=No; BT=Yes'")));
 				
 				AddHTTPHeaders(HTTPRequest, ErrorMessage);
 				AddHTTPHeaders(HTTPResponse, ErrorMessage);
@@ -548,7 +548,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 		Return FileGetResult(True, PathForSaving, HTTPResponse);
 	Else
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'File save location is not specified for ""%1"".';"), "GetFileFromInternet"),
+			NStr("en = 'File save location is not specified for ""%1"".'"), "GetFileFromInternet"),
 			ErrorCategory.ConfigurationError);
 	EndIf;
 	
@@ -629,75 +629,75 @@ EndFunction
 Function HTTPConnectionCodeDetails(StatusCode)
 	
 	If StatusCode = 304 Then // Not Modified
-		Details = NStr("en = 'There is no need to retransmit the requested resources.';");
+		Details = NStr("en = 'There is no need to retransmit the requested resources.'");
 	ElsIf StatusCode = 400 Then // Bad Request
-		Details = NStr("en = 'Couldn''t process the request.';");
+		Details = NStr("en = 'Couldn''t process the request.'");
 	ElsIf StatusCode = 401 Then // Unauthorized
-		Details = NStr("en = 'The server denied authorization.';");
+		Details = NStr("en = 'The server denied authorization.'");
 	ElsIf StatusCode = 402 Then // Payment Required
-		Details = NStr("en = 'Payment is required.';");
+		Details = NStr("en = 'Payment is required.'");
 	ElsIf StatusCode = 403 Then // Forbidden
-		Details = NStr("en = 'No access to the requested resource.';");
+		Details = NStr("en = 'No access to the requested resource.'");
 	ElsIf StatusCode = 404 Then // Not Found
-		Details = NStr("en = 'The requested resource does not exist on the server.';");
+		Details = NStr("en = 'The requested resource does not exist on the server.'");
 	ElsIf StatusCode = 405 Then // Method Not Allowed
-		Details = NStr("en = 'The request method is not supported by the server.';");
+		Details = NStr("en = 'The request method is not supported by the server.'");
 	ElsIf StatusCode = 406 Then // Not Acceptable
-		Details = NStr("en = 'The server does not support the requested data format.';");
+		Details = NStr("en = 'The server does not support the requested data format.'");
 	ElsIf StatusCode = 407 Then // Proxy Authentication Required
-		Details = NStr("en = 'Proxy server authentication error.';");
+		Details = NStr("en = 'Proxy server authentication error.'");
 	ElsIf StatusCode = 408 Then // Request Timeout
-		Details = NStr("en = 'Request timeout.';");
+		Details = NStr("en = 'Request timeout.'");
 	ElsIf StatusCode = 409 Then // Conflict
-		Details = NStr("en = 'Cannot execute the request due to an access conflict.';");
+		Details = NStr("en = 'Cannot execute the request due to an access conflict.'");
 	ElsIf StatusCode = 410 Then // Gone
-		Details = NStr("en = 'The resource is no longer available on the server.';");
+		Details = NStr("en = 'The resource is no longer available on the server.'");
 	ElsIf StatusCode = 411 Then // Length Required
-		Details = NStr("en = 'The ""Content-length"" request header is not specified.';");
+		Details = NStr("en = 'The ""Content-length"" request header is not specified.'");
 	ElsIf StatusCode = 412 Then // Precondition Failed
-		Details = NStr("en = 'The request is not applicable to the resource.';");
+		Details = NStr("en = 'The request is not applicable to the resource.'");
 	ElsIf StatusCode = 413 Then // Request Entity Too Large
-		Details = NStr("en = 'The server cannot process the request because the data volume is too large.';");
+		Details = NStr("en = 'The server cannot process the request because the data volume is too large.'");
 	ElsIf StatusCode = 414 Then // Request-URL Too Long
-		Details = NStr("en = 'The cannot process the request because the URL is too long.';");
+		Details = NStr("en = 'The cannot process the request because the URL is too long.'");
 	ElsIf StatusCode = 415 Then // Unsupported Media-Type
-		Details = NStr("en = 'A part of the request has unsupported format.';");
+		Details = NStr("en = 'A part of the request has unsupported format.'");
 	ElsIf StatusCode = 416 Then // Requested Range Not Satisfiable
-		Details = NStr("en = 'A part of the requested resource cannot be provided.';");
+		Details = NStr("en = 'A part of the requested resource cannot be provided.'");
 	ElsIf StatusCode = 417 Then // Expectation Failed
-		Details = NStr("en = 'The server cannot provide a response to the specified request.';");
+		Details = NStr("en = 'The server cannot provide a response to the specified request.'");
 	ElsIf StatusCode = 429 Then // Too Many Requests
-		Details = NStr("en = 'Too many requests in a short amount of time.';");
+		Details = NStr("en = 'Too many requests in a short amount of time.'");
 	ElsIf StatusCode = 500 Then // Internal Server Error
-		Details = NStr("en = 'Internal online server error.';");
+		Details = NStr("en = 'Internal online server error.'");
 	ElsIf StatusCode = 501 Then // Not Implemented
-		Details = NStr("en = 'The server does not support the request method.';");
+		Details = NStr("en = 'The server does not support the request method.'");
 	ElsIf StatusCode = 502 Then // Bad Gateway
 		Details = NStr("en = 'The server received an invalid response from the upstream server
-		                         |while acting as a gateway or proxy server.';");
+		                         |while acting as a gateway or proxy server.'");
 	ElsIf StatusCode = 503 Then // Server Unavailable
-		Details = NStr("en = 'Server is temporarily unavailable.';");
+		Details = NStr("en = 'Server is temporarily unavailable.'");
 	ElsIf StatusCode = 504 Then // Gateway Timeout
 		Details = NStr("en = 'The server did not receive a timely response from the upstream server
-		                         |while acting as a gateway or proxy server.';");
+		                         |while acting as a gateway or proxy server.'");
 	ElsIf StatusCode = 505 Then // HTTP Version Not Supported
-		Details = NStr("en = 'The server does not support HTTP version specified in the request.';");
+		Details = NStr("en = 'The server does not support HTTP version specified in the request.'");
 	ElsIf StatusCode = 506 Then // Variant Also Negotiates
-		Details = NStr("en = 'The server cannot process a request because it is configured incorrectly.';");
+		Details = NStr("en = 'The server cannot process a request because it is configured incorrectly.'");
 	ElsIf StatusCode = 507 Then // Insufficient Storage
-		Details = NStr("en = 'Not enough space on the server to run the request.';");
+		Details = NStr("en = 'Not enough space on the server to run the request.'");
 	ElsIf StatusCode = 509 Then // Bandwidth Limit Exceeded
-		Details = NStr("en = 'The server exceeded the bandwidth limit.';");
+		Details = NStr("en = 'The server exceeded the bandwidth limit.'");
 	ElsIf StatusCode = 510 Then // Not Extended
-		Details = NStr("en = 'The server requires additional request details.';");
+		Details = NStr("en = 'The server requires additional request details.'");
 	ElsIf StatusCode = 511 Then // Network Authentication Required
-		Details = NStr("en = 'Authorization on the server is required.';");
+		Details = NStr("en = 'Authorization on the server is required.'");
 	Else 
-		Details = NStr("en = '<Unknown status code>.';");
+		Details = NStr("en = '<Unknown status code>.'");
 	EndIf;
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = '[%1] %2';"), 
+		NStr("en = '[%1] %2'"), 
 		StatusCode, 
 		Details);
 	
@@ -711,7 +711,7 @@ Function RedirectionPresentations(Redirections)
 
 	Return StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Redirected (%1):
-					|%2';"),
+					|%2'"),
 		Redirections.Count(),
 		StrConcat(Redirections, Chars.LF));
 
@@ -726,7 +726,7 @@ Procedure AddServerResponseBody(PathToFile, ErrorText)
 			NStr("en = '%1
 			           |
 			           |Message from web server:
-			           |%2';"),
+			           |%2'"),
 			ErrorText,
 			ServerResponseBody);
 	EndIf;
@@ -752,7 +752,7 @@ Procedure AddHTTPHeaders(Object, ErrorText)
 			           |
 			           |HTTP request:
 			           |Resource address: %2
-			           |Headers: %3';"),
+			           |Headers: %3'"),
 			ErrorText,
 			Object.ResourceAddress,
 			HTTPHeadersPresentation(Object.Headers));
@@ -762,7 +762,7 @@ Procedure AddHTTPHeaders(Object, ErrorText)
 			           |
 			           |HTTP response:
 			           |Response code: %2
-			           |Headers: %3';"),
+			           |Headers: %3'"),
 			ErrorText,
 			Object.StatusCode,
 			HTTPHeadersPresentation(Object.Headers));
@@ -777,7 +777,7 @@ Function HTTPHeadersPresentation(Headers)
 	For Each Title In Headers Do 
 		HeadersPresentation = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = '%1
-			           |%2: %3';"), 
+			           |%2: %3'"), 
 			HeadersPresentation,
 			Title.Key, Title.Value);
 	EndDo;
@@ -803,13 +803,13 @@ Function InternetProxyPresentation(Proxy, Protocol = Undefined)
 		EndIf;
 		
 		Log.Add(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1: %2:%3';"), Upper(Protocol), Server, Format(Port, "NG=")));
+			NStr("en = '%1: %2:%3'"), Upper(Protocol), Server, Format(Port, "NG=")));
 	Else
 		Log.Add(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Address: %1:%2
 			           |HTTP:    %3:%4
 			           |HTTPS:   %5:%6
-			           |FTP:     %7:%8';"),
+			           |FTP:     %7:%8'"),
 			Proxy.Server(),        Format(Proxy.Port(),        "NG="),
 			Proxy.Server("http"),  Format(Proxy.Port("http"),  "NG="),
 			Proxy.Server("https"), Format(Proxy.Port("https"), "NG="),
@@ -817,26 +817,26 @@ Function InternetProxyPresentation(Proxy, Protocol = Undefined)
 	EndIf;
 		
 	If Proxy.UseOSAuthentication("") Then 
-		Log.Add(NStr("en = 'OS authentication.';"));
+		Log.Add(NStr("en = 'OS authentication.'"));
 	Else 
 		User = Proxy.User("");
 		Password = Proxy.Password("");
-		PasswordState = ?(IsBlankString(Password), NStr("en = '<not specified>';"), NStr("en = '********';"));
+		PasswordState = ?(IsBlankString(Password), NStr("en = '<not specified>'"), NStr("en = '********'"));
 		
-		Log.Add(NStr("en = 'Authentication with username and password.';"));
+		Log.Add(NStr("en = 'Authentication with username and password.'"));
 		Log.Add(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'User: %1
-			           |Password: %2';"),
+			           |Password: %2'"),
 			User,
 			PasswordState));
 	EndIf;
 	
 	If Proxy.BypassProxyOnLocal Then 
-		Log.Add(NStr("en = 'Bypass proxy for local addresses.';"));
+		Log.Add(NStr("en = 'Bypass proxy for local addresses.'"));
 	EndIf;
 	
 	If Proxy.BypassProxyOnAddresses.Count() > 0 Then 
-		Log.Add(NStr("en = 'Bypass proxy for the following addresses:';"));
+		Log.Add(NStr("en = 'Bypass proxy for the following addresses:'"));
 		For Each AddressToExclude In Proxy.BypassProxyOnAddresses Do
 			Log.Add(AddressToExclude);
 		EndDo;
@@ -943,7 +943,7 @@ EndProcedure
 
 Function EventLogEvent()
 	
-	Return NStr("en = 'Network download';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Network download'", Common.DefaultLanguageCode());
 	
 EndFunction
 
@@ -972,13 +972,13 @@ Function ProxySettingsState(Val Protocol = Undefined) Export
 	Log = New Array;
 	
 	If ProxySettings = Undefined Then 
-		Log.Add(NStr("en = 'The proxy server parameters are not specified in the infobase. System proxy server are used instead.';"));
+		Log.Add(NStr("en = 'The proxy server parameters are not specified in the infobase. System proxy server are used instead.'"));
 	ElsIf Not ProxySettings.Get("UseProxy") Then
-		Log.Add(NStr("en = 'Proxy server parameters in the infobase: Do not use proxy server.';"));
+		Log.Add(NStr("en = 'Proxy server parameters in the infobase: Do not use proxy server.'"));
 	ElsIf ProxySettings.Get("UseSystemSettings") Then
-		Log.Add(NStr("en = 'Proxy server parameters in the infobase: Use system proxy server settings.';"));
+		Log.Add(NStr("en = 'Proxy server parameters in the infobase: Use system proxy server settings.'"));
 	Else
-		Log.Add(NStr("en = 'Proxy server parameters in the infobase: Use other proxy server settings.';"));
+		Log.Add(NStr("en = 'Proxy server parameters in the infobase: Use other proxy server settings.'"));
 	EndIf;
 	
 	If Proxy = Undefined Then 
@@ -988,7 +988,7 @@ Function ProxySettingsState(Val Protocol = Undefined) Export
 	ProxyConnection = Not IsBlankString(Proxy.Server(Protocol)) Or Not IsBlankString(Proxy.Server());
 	
 	If ProxyConnection Then 
-		Log.Add(NStr("en = 'Connecting via proxy server:';"));
+		Log.Add(NStr("en = 'Connecting via proxy server:'"));
 		Log.Add(InternetProxyPresentation(Proxy, Protocol));
 	EndIf;
 	
@@ -1004,19 +1004,19 @@ EndFunction
 Function DiagnosticsLocationPresentation() Export
 	
 	If Common.DataSeparationEnabled() Then
-		Return NStr("en = 'Attempting connection on a remote 1C:Enterprise server (SaaS).';");
+		Return NStr("en = 'Attempting connection on a remote 1C:Enterprise server (SaaS).'");
 	Else 
 		If Common.FileInfobase() Then
 			If Common.ClientConnectedOverWebServer() Then 
 				Return StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Attempting connection from a file infobase on web server <%1>.';"), ComputerName());
+					NStr("en = 'Attempting connection from a file infobase on web server <%1>.'"), ComputerName());
 			Else 
 				Return StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Attempting connection from a file infobase on computer <%1>.';"), ComputerName());
+					NStr("en = 'Attempting connection from a file infobase on computer <%1>.'"), ComputerName());
 			EndIf;
 		Else
 			Return StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Attempting connection on 1C:Enterprise server <%1>.';"), ComputerName());
+				NStr("en = 'Attempting connection on 1C:Enterprise server <%1>.'"), ComputerName());
 		EndIf;
 	EndIf;
 	
@@ -1046,7 +1046,7 @@ Function CheckServerAvailability(ServerAddress) Export
 			NStr("en = 'Cannot check whether the ""%1"" Internet resource is available due to:
 				|%2
 				|
-				|using the ""%3"" command.';"), 
+				|using the ""%3"" command.'"), 
 				ServerAddress, ErrorProcessing.BriefErrorDescription(ErrorInfo()), CommandString);
 		Return Result; 
 	EndTry;	
@@ -1069,11 +1069,11 @@ Function CheckServerAvailability(ServerAddress) Export
 	Log = New Array;
 	If Available Then
 		Log.Add(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Remote server %1 is available:';"), 
+			NStr("en = 'Remote server %1 is available:'"), 
 			ServerAddress));
 	Else
 		Log.Add(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Remote server %1 is unavailable:';"), 
+			NStr("en = 'Remote server %1 is unavailable:'"), 
 			ServerAddress));
 	EndIf;
 	
@@ -1109,7 +1109,7 @@ Function ServerRouteTraceLog(ServerAddress) Export
 	
 	Log = New Array;
 	Log.Add(StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Tracing route to remote server %1:';"), ServerAddress));
+		NStr("en = 'Tracing route to remote server %1:'"), ServerAddress));
 	
 	Log.Add("> " + CommandString);
 	Log.Add(Result.OutputStream);

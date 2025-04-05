@@ -97,12 +97,12 @@ Function AddFromFileSystemWithExtensionSynchronous(ExecutionParameters) Export
 	Result.Insert("ErrorText",  "");
 	
 	DIalogBoxFilter = ?(ExecutionParameters.Property("SelectionDialogFilter"),
-		ExecutionParameters.SelectionDialogFilter, StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask()));
+		ExecutionParameters.SelectionDialogFilter, StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1'"), GetAllFilesMask()));
 		
 	If Not ExecutionParameters.Property("FullFileName") Then
 		FileDialog = New FileDialog(FileDialogMode.Open);
 		FileDialog.Multiselect = False;
-		FileDialog.Title = NStr("en = 'Select file';");
+		FileDialog.Title = NStr("en = 'Select file'");
 		FileDialog.Filter = DIalogBoxFilter;
 		FileDialog.Directory = FilesOperationsInternalServerCall.FolderWorkingDirectory(ExecutionParameters.FileOwner);
 		If Not FileDialog.Choose() Then
@@ -118,7 +118,7 @@ Function AddFromFileSystemWithExtensionSynchronous(ExecutionParameters) Export
 	FileToAdd = New File(ExecutionParameters.FullFileName);
 	If Not FileToAdd.Exists() Then
 		ErrorText = NStr("en = 'The file does not exist:
-			|%1';");
+			|%1'");
 		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText, 
 			ExecutionParameters.FullFileName);
 		Return Result;
@@ -128,7 +128,7 @@ Function AddFromFileSystemWithExtensionSynchronous(ExecutionParameters) Export
 		And ExecutionParameters.MaximumSize > 0
 		And FileToAdd.Size() > ExecutionParameters.MaximumSize*1024*1024 Then
 		
-		ErrorText = NStr("en = 'The file size exceeds %1 MB.';");
+		ErrorText = NStr("en = 'The file size exceeds %1 MB.'");
 		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText, 
 			ExecutionParameters.MaximumSize);
 		
@@ -233,7 +233,7 @@ Function AddFromFileSystemWithExtensionSynchronous(ExecutionParameters) Export
 	Notify("Write_File", NotificationParameters, Result.FileRef);
 	
 	ShowUserNotification(
-		NStr("en = 'Created:';"),
+		NStr("en = 'Created:'"),
 		GetURL(Result.FileRef),
 		Result.FileRef,
 		PictureLib.DialogInformation);
@@ -265,8 +265,8 @@ Procedure AddFilesAddInSuggested(FileSystemExtensionAttached1, AdditionalParamet
 		If Not AdditionalParameters.Property("FullFileName") Then
 			SelectingFile = New FileDialog(FileDialogMode.Open);
 			SelectingFile.Multiselect = True;
-			SelectingFile.Title = NStr("en = 'Select file';");
-			SelectingFile.Filter = ?(ValueIsFilled(Filter), Filter, NStr("en = 'All files';") + " (*.*)|*.*");
+			SelectingFile.Title = NStr("en = 'Select file'");
+			SelectingFile.Filter = ?(ValueIsFilled(Filter), Filter, NStr("en = 'All files'") + " (*.*)|*.*");
 			If SelectingFile.Choose() Then
 				SelectedFiles = SelectingFile.SelectedFiles;
 			EndIf;
@@ -293,7 +293,7 @@ Procedure AddFilesAddInSuggested(FileSystemExtensionAttached1, AdditionalParamet
 				AttachedFile = AttachedFilesArray[0];
 				
 				ShowUserNotification(
-					NStr("en = 'Created:';"),
+					NStr("en = 'Created:'"),
 					GetURL(AttachedFile),
 					AttachedFile,
 					PictureLib.DialogInformation);
@@ -332,13 +332,13 @@ EndProcedure
 // Parameters:
 //  ResultHandler - CallbackDescription
 //                       - Undefined - description of the procedure that receives the method result.
-//  CommandPresentation - String -  the name of the command that requires the extension to execute.
+//  CommandPresentation - String - Name of the command that requires the extension.
 //
 Procedure Show1CEnterpriseExtensionRequiredMessageBox(ResultHandler, CommandPresentation = "") Export
 	If Not ClientSupportsSynchronousCalls() Then
-		WarningText = NStr("en = 'Action ""%1"" can only be performed on the client application.';");
+		WarningText = NStr("en = 'Action ""%1"" can only be performed on the client application.'");
 	Else
-		WarningText = NStr("en = 'To perform ""%1"", install 1C:Enterprise Extension.';");
+		WarningText = NStr("en = 'To perform ""%1"", install 1C:Enterprise Extension.'");
 	EndIf;
 	If ValueIsFilled(CommandPresentation) Then
 		WarningText = StrReplace(WarningText, "%1", CommandPresentation);
@@ -368,12 +368,12 @@ Function DumpDirectory() Export
 	
 #If Not WebClient And Not MobileClient Then
 	
-	Path = CommonServerCall.CommonSettingsStorageLoad("ExportFolderName", "ExportFolderName");
+	Path = CommonClient.CommonSettingsStorageLoad("ExportFolderName", "ExportFolderName");
 	
 	If Path = Undefined Then
 		If Not StandardSubsystemsClient.IsBaseConfigurationVersion() Then
 			Path = MyDocumentsDirectory();
-			CommonServerCall.CommonSettingsStorageSave(
+			CommonClient.CommonSettingsStorageSave(
 				"ExportFolderName", "ExportFolderName", Path);
 		EndIf;
 	EndIf;
@@ -391,9 +391,9 @@ Function FilesToImport() Export
 	
 	OpenFileDialog = New FileDialog(FileDialogMode.Open);
 	OpenFileDialog.FullFileName     = "";
-	OpenFileDialog.Filter             = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
+	OpenFileDialog.Filter             = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1'"), GetAllFilesMask());
 	OpenFileDialog.Multiselect = True;
-	OpenFileDialog.Title          = NStr("en = 'Select files';");
+	OpenFileDialog.Title          = NStr("en = 'Select files'");
 	
 	FileNamesArray = New Array;
 	
@@ -431,7 +431,7 @@ Procedure CorrectFileName(FileName, DeleteInvalidCharacters = False) Export
 	
 	If Not Result Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'A file name cannot contain the following characters: %1';"), 
+			NStr("en = 'A file name cannot contain the following characters: %1'"), 
 			CommonClientServer.GetProhibitedCharsInFileName());
 	EndIf;
 	
@@ -494,10 +494,10 @@ Function OpenExplorerWithFile(Val FullFileName) Export
 	
 EndFunction
 
-// 
+// Returns the result of installing 1C:Enterprise Extension.
 //
 //  Returns:
-//   Boolean - 
+//   Boolean - In the thin client, it is always "True"; in Chromium-based browsers, it is always "False".
 //
 Function Is1CEnterpriseExtensionAttached() Export
 	Return ?(ClientSupportsSynchronousCalls(), AttachFileSystemExtension(), False);
@@ -652,14 +652,14 @@ EndFunction
 
 #Region IntegrationWith1CDocumentManagementSubsystem
 
-// Checks if 1C:Document Exchange is used to store object attachments.
+// Checks if 1C:Document Management is used to store object attachments.
 //
 // Parameters:
 //   AttachedFilesOwner - AnyRef - Attachment owner.
 //   Form - ClientApplicationForm - File owner form.
 //   Command - FormCommand - The executable command for attachment management.
 //   ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient - CommonModule - Implicitly returned value,
-//     a module for accessing the functionality for integrating 1C:Document Exchange.
+//     a module for accessing the functionality for integrating 1C:Document Management.
 //
 // Returns:
 //   Boolean
@@ -774,8 +774,8 @@ Procedure VerifySignatures(Form, RefToBinaryData, SelectedRows = Undefined, File
 	EndIf;
 	
 	DataDetails = New Structure;
-	DataDetails.Insert("Operation",              NStr("en = 'Decrypt file';"));
-	DataDetails.Insert("DataTitle",       NStr("en = 'File';"));
+	DataDetails.Insert("Operation",              NStr("en = 'Decrypt file'"));
+	DataDetails.Insert("DataTitle",       NStr("en = 'File'"));
 	DataDetails.Insert("Data",                RefToBinaryData);
 	DataDetails.Insert("Presentation",         FileData.Ref);
 	DataDetails.Insert("Object",                FileData.Ref);
@@ -1031,9 +1031,9 @@ Procedure BeforeExit(Cancel, Warnings) Export
 	
 	UserWarning = StandardSubsystemsClient.WarningOnExit();
 	UserWarning.HyperlinkText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Open list of locked files (%1)';"),
+		NStr("en = 'Open list of locked files (%1)'"),
 		Response.LockedFilesCount);
-	UserWarning.WarningText = NStr("en = 'Some files are being edited, and their changes are not propagated to the application. Please review them.';");
+	UserWarning.WarningText = NStr("en = 'Some files are being edited, and their changes are not propagated to the application. Please review them.'");
 	
 	ActionOnClickHyperlink = UserWarning.ActionOnClickHyperlink;
 	
@@ -1193,7 +1193,7 @@ Procedure SpreadsheetDocumentSelectionHandler(ReportForm, Item, Area, StandardPr
 		CallbackOnCompletion = New CallbackDescription("AfterFilesRecovered", ThisObject, AdditionalParameters);
 
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ReportForm);
-		IdleParameters.Title = NStr("en = 'Restoring file info';");
+		IdleParameters.Title = NStr("en = 'Restoring file info'");
 		IdleParameters.OutputIdleWindow = True;
 		
 		TimeConsumingOperationsClient.WaitCompletion(Job, CallbackOnCompletion, IdleParameters);
@@ -1212,7 +1212,13 @@ Procedure SetModificationUniversalTime(PathToFile, NewTimeOfChange)
 	
 	File = New File(PathToFile);
 	If File.Exists() Then
-		File.SetModificationUniversalTime(NewTimeOfChange);
+		Try
+			File.SetModificationUniversalTime(NewTimeOfChange);
+		Except
+			EventLogClient.AddMessageForEventLog(
+				NStr("en = 'File management.Error setting change time'", CommonClient.DefaultLanguageCode()),
+				"Error", ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		EndTry;
 	EndIf;
 EndProcedure
 
@@ -1230,7 +1236,7 @@ Function CheckExtentionOfFileToDownload(FileExtention, RaiseException1 = True)
 		If RaiseException1 Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Uploading files with the ""%1"" extension is not allowed.
-				           |Please contact the administrator.';"),
+				           |Please contact the administrator.'"),
 				FileExtention);
 		Else
 			Return False;
@@ -1346,7 +1352,7 @@ Procedure GetUserDataWorkingDirectoryAfterGetDataError(ErrorInfo, StandardProces
 	Result.Insert("Directory", "");
 	Result.Insert("ErrorDescription", StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Cannot retrieve the user''s working directory. Reason:
-		           |%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo)));
+		           |%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo)));
 	
 	RunCallback(Context.Notification, Result);
 	
@@ -1443,13 +1449,13 @@ Procedure ActionOnOpenFileInWorkingDirectory(ResultHandler, FileNameWithPath, Fi
 			// Date is the same, but the size is different. It is a rare but possible case.
 			
 			Parameters.Insert("Title",
-				NStr("en = 'Different file sizes';"));
+				NStr("en = 'Different file sizes'"));
 			
 			Parameters.Insert("Message",
 				NStr("en = 'The size of the local file copy differs from the size of the file stored in the application.
 				           |
 				           |Do you want to update the local file
-				           |or open the local file without updating it?';"));
+				           |or open the local file without updating it?'"));
 		Else
 			ReturnResult(ResultHandler, "OpenExistingFile");
 			Return;
@@ -1459,13 +1465,13 @@ Procedure ActionOnOpenFileInWorkingDirectory(ResultHandler, FileNameWithPath, Fi
 	        < Parameters.ChangeDateUniversalInFileStorage Then
 		// The most recent file is in the file storage
 		If FileData.InWorkingDirectoryForRead = False Then
-			Parameters.Insert("Title", NStr("en = 'Newer file version in application';"));
+			Parameters.Insert("Title", NStr("en = 'Newer file version in application'"));
 			Parameters.Insert("Message",
 				NStr("en = 'The file in the application was modified
 				           |later than its local copy.
 				           |
 				           |Do you want to retrieve the file from the application
-				           |or open the local copy?';"));
+				           |or open the local copy?'"));
 		Else
 			ReturnResult(ResultHandler, "GetFromStorageAndOpen");
 			Return;
@@ -1483,13 +1489,13 @@ Procedure ActionOnOpenFileInWorkingDirectory(ResultHandler, FileNameWithPath, Fi
 			Return;
 		Else
 			// The file in the working directory is for reading.
-			Parameters.Insert("Title", NStr("en = 'Newer local file version';"));
+			Parameters.Insert("Title", NStr("en = 'Newer local file version'"));
 			Parameters.Insert(
 				"Message",
 				NStr("en = 'The local file copy was modified later than the file in the application. The local copy might have been edited.
 				           |
 				           |Do you want to open the local copy or replace it with the file
-				           |from the application?';"));
+				           |from the application?'"));
 		EndIf;
 	EndIf;
 	
@@ -1603,7 +1609,7 @@ Procedure OutputNotificationOnEdit(ResultHandler)
 				|(you will need it to edit and put the file back to the application).
 				|
 				|3. To edit the file, open the previously selected directory,
-				|find the saved file, and open it.';");
+				|find the saved file, and open it.'");
 				
 			SystemInfo = New SystemInfo;
 			If StrFind(SystemInfo.UserAgentInformation, "Firefox") <> 0 Then
@@ -1611,17 +1617,17 @@ Procedure OutputNotificationOnEdit(ResultHandler)
 				+ "
 				|
 				|"
-				+ NStr("en = '(By default Mozilla Firefox saves files to ""My Documents"" directory.)';");
+				+ NStr("en = '(By default Mozilla Firefox saves files to ""My Documents"" directory.)'");
 			EndIf;
 			Buttons = New ValueList;
-			Buttons.Add("Continue", NStr("en = 'Continue';"));
-			Buttons.Add("Cancel", NStr("en = 'Cancel';"));
+			Buttons.Add("Continue", NStr("en = 'Continue'"));
+			Buttons.Add("Cancel", NStr("en = 'Cancel'"));
 			ReminderParameters = New Structure;
 			ReminderParameters.Insert("Picture", PictureLib.DialogInformation);
 			ReminderParameters.Insert("CheckBoxText",
-				NStr("en = 'Do not show this message again';"));
+				NStr("en = 'Do not show this message again'"));
 			ReminderParameters.Insert("Title",
-				NStr("en = 'Get file to view or edit';"));
+				NStr("en = 'Get file to view or edit'"));
 			StandardSubsystemsClient.ShowQuestionToUser(
 				ResultHandler, ReminderText, Buttons, ReminderParameters);
 			
@@ -1754,7 +1760,7 @@ Procedure PutSelectedFilesInStorage(Val SelectedFiles,
 		If Not PutFiles(Files, PlacedFiles, , False, FormIdentifier) Then
 			CommonClient.MessageToUser(
 				StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot put the ""%1"" file in the application.';"),
+					NStr("en = 'Cannot put the ""%1"" file in the application.'"),
 					File.FullName) );
 			Continue;
 		EndIf;
@@ -1806,15 +1812,15 @@ Procedure UpdateFileSavingState(Val SelectedFiles,
 	
 	If SelectedFiles.Count() > 1 Then
 		If CurrentPosition = Undefined Then
-			ShowUserNotification(NStr("en = 'Save files';"),, NStr("en = 'The files are saved.';"));
+			ShowUserNotification(NStr("en = 'Save files'"),, NStr("en = 'The files are saved.'"));
 		EndIf;
 	Else
 		If CurrentPosition = Undefined Then
 			ExplanationText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'File ""%1"" (%2 MB) is saved.';"),
+				NStr("en = 'File ""%1"" (%2 MB) is saved.'"),
 				FileNameToSave,
 				SizeInMB);
-			ShowUserNotification(NStr("en = 'Save file';"), , ExplanationText, PictureLib.DialogInformation);
+			ShowUserNotification(NStr("en = 'Save file'"), , ExplanationText, PictureLib.DialogInformation);
 		EndIf;
 	EndIf;
 	
@@ -1863,7 +1869,7 @@ Procedure PutSelectedFilesInStorageWebCompletion(Result, Address, SelectedFileNa
 		BaseName = PathStructure.BaseName;
 	Else
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot put the ""%1"" file in the application.';"),
+			NStr("en = 'Cannot put the ""%1"" file in the application.'"),
 			SelectedFileName);
 	EndIf;
 	
@@ -1878,7 +1884,7 @@ Procedure PutSelectedFilesInStorageWebCompletion(Result, Address, SelectedFileNa
 		
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The size of file ""%1"" (%2 MB)
-			|exceeds the limit (%3 MB).';"),
+			|exceeds the limit (%3 MB).'"),
 			SelectedFileName,
 			FilesOperationsInternalClientServer.FileSizePresentation(SizeInMB),
 			FilesOperationsInternalClientServer.FileSizePresentation(SizeInMBMax));
@@ -1929,7 +1935,7 @@ Function AbilityToUnlockFile(ObjectRef,
 	ElsIf Not ValueIsFilled(BeingEditedBy) Then
 		ErrorString = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot unlock file ""%1""
-			           |because it is not locked.';"),
+			           |because it is not locked.'"),
 			String(ObjectRef));
 		Return False;
 	Else
@@ -1939,7 +1945,7 @@ Function AbilityToUnlockFile(ObjectRef,
 		
 		ErrorString = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot unlock file ""%1""
-			           |because it is locked by ""%2"".';"),
+			           |because it is locked by ""%2"".'"),
 			String(ObjectRef),
 			String(BeingEditedBy));
 		Return False;
@@ -2001,7 +2007,7 @@ Procedure UnlockFileWithoutQuestion(FileData, UUID = Undefined)
 		ReregisterFileInWorkingDirectory(FileData, True, FileData.OwnerWorkingDirectory <> "");
 	EndIf;
 	
-	ShowUserNotification(NStr("en = 'The file is released.';"),
+	ShowUserNotification(NStr("en = 'The file is released.'"),
 		FileData.URL, FileData.FullVersionDescription, PictureLib.DialogInformation);
 	
 EndProcedure
@@ -2021,11 +2027,11 @@ Procedure MoveFilesToFolder(ObjectsRef, Folder) Export
 	For Each FileData In FilesData Do
 		
 		ShowUserNotification(
-			NStr("en = 'Move file';"),
+			NStr("en = 'Move file'"),
 			FileData.URL,
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'File ""%1""
-				           |is moved to folder ""%2"".';"),
+				           |is moved to folder ""%2"".'"),
 				String(FileData.Ref),
 				String(Folder)),
 			PictureLib.DialogInformation);
@@ -2078,7 +2084,7 @@ EndFunction
 //
 Function EventLogEvent()
 	
-	Return NStr("en = 'Files';", CommonClient.DefaultLanguageCode());
+	Return NStr("en = 'Files'", CommonClient.DefaultLanguageCode());
 	
 EndFunction
 
@@ -2090,8 +2096,8 @@ EndFunction
 Function ErrorCreatingNewFile(ErrorInfo)
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Cannot create a file due to:
-		           |%1';"),
+		NStr("en = 'Cannot add the file to the application.
+		           |%1'"),
 		ErrorProcessing.BriefErrorDescription(ErrorInfo));
 
 EndFunction
@@ -2117,7 +2123,7 @@ Function CheckCanImportFile(File, RaiseException1 = True, FilesWithErrors = Unde
 		
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The size of file ""%1"" (%2 MB)
-			           |exceeds the limit (%3 MB).';"),
+				|exceeds the limit (%3 MB).'"),
 			File.Name,
 			FilesOperationsInternalClientServer.FileSizePresentation(SizeInMB),
 			FilesOperationsInternalClientServer.FileSizePresentation(SizeInMBMax));
@@ -2139,7 +2145,7 @@ Function CheckCanImportFile(File, RaiseException1 = True, FilesWithErrors = Unde
 		
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Uploading files with the ""%1"" extension is not allowed.
-			           |Please contact the administrator.';"),
+			           |Please contact the administrator.'"),
 			File.Extension);
 		
 		If RaiseException1 Then
@@ -2192,9 +2198,9 @@ EndProcedure
 
 // Continuation of the procedure (see above).
 Procedure FinishEditWithExtension(ExecutionParameters)
-	// Веб-клиент с расширением для работы с 1С:Предприятием,
-	// Тонкий клиент,
-	// Толстый клиент.
+	// Web client with 1C:Enterprise Extension
+	// Thin client
+	// Thick client
 	
 	FileData = FilesOperationsInternalServerCall.FileDataAndWorkingDirectory(ExecutionParameters.ObjectRef);
 	ExecutionParameters.FileData = FileData;
@@ -2229,7 +2235,7 @@ Procedure FinishEditWithExtension(ExecutionParameters)
 					           |""%1"" (%2)
 					           |to the application as it does not exist in the working directory.
 					           |
-					           |Do you want to release the file?';"),
+					           |Do you want to release the file?'"),
 					String(FileData.Ref),
 					ExecutionParameters.FullFilePath);
 			Else
@@ -2237,7 +2243,7 @@ Procedure FinishEditWithExtension(ExecutionParameters)
 					NStr("en = 'Cannot store file ""%1""
 					           |to the application as it does not exist in the working directory.
 					           |
-					           |Do you want to release the file?';"),
+					           |Do you want to release the file?'"),
 					String(FileData.Ref));
 			EndIf;
 			
@@ -2257,7 +2263,7 @@ Procedure FinishEditWithExtension(ExecutionParameters)
 	Except
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot store file ""%1"" to the working directory.
-				|Probably, the directory is in use by another app.';"),
+				|Probably, the directory is in use by another app.'"),
 			String(FileData.Ref));
 		Raise ErrorText + Chars.LF + Chars.LF + ErrorProcessing.DetailErrorDescription(ErrorInfo());
 	EndTry;
@@ -2373,7 +2379,7 @@ Procedure FinishEditWithExtensionAfterCheckEncrypted(ExecutionParameters)
 				NStr("en = 'Cannot store the file to the application. Reason:
 				|""%1""
 				|
-				|Do you want to retry?';"),
+				|Do you want to retry?'"),
 				ErrorProcessing.BriefErrorDescription(ErrorInfo));
 			
 			Notification  = New CallbackDescription("FinishEditWithExtensionAfterCheckEncryptedRepeat", ThisObject, ExecutionParameters);
@@ -2465,14 +2471,14 @@ Procedure FinishEditWithExtensionAfterDeleteFileFromWorkingDirectory(Result, Exe
 	If ExecutionParameters.ShouldShowUserNotification Then
 		If ExecutionParameters.VersionUpdated Then
 			NoteTemplate = NStr("en = 'File ""%1""
-			                             |is updated and released.';");
+			                             |is updated and released.'");
 		Else
 			NoteTemplate = NStr("en = 'File ""%1""
-			                             |is not modified and released.';");
+			                             |is not modified and released.'");
 		EndIf;
 		
 		ShowUserNotification(
-			NStr("en = 'Editing completed';"),
+			NStr("en = 'Editing completed'"),
 			ExecutionParameters.FileData.URL,
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NoteTemplate, String(ExecutionParameters.FileData.Ref)),
@@ -2493,7 +2499,7 @@ EndProcedure
 Procedure FinishEditWithExtensionAfterShowNotification(Result, ExecutionParameters) Export
 	
 	If TypeOf(Result) = Type("Structure") And Result.NeverAskAgain Then
-		CommonServerCall.CommonSettingsStorageSave(
+		CommonClient.CommonSettingsStorageSave(
 			"ApplicationSettings", "ShowFileNotModifiedFlag", False,,, True);
 	EndIf;
 	
@@ -2512,12 +2518,12 @@ Procedure FinishEditWithExtensionExceptionProcessing(ErrorInfo, ExecutionParamet
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Cannot store the ""%1"" file
 			|from the computer to the application. Reason:
-			|%2.';"),
+			|%2.'"),
 		String(ExecutionParameters.FileData.Ref),
 		ErrorProcessing.DetailErrorDescription(ErrorInfo));
 	EventLogClient.AddMessageForEventLog(EventLogEvent(),
 		"Warning", MessageText,, True);
-	QueryText = MessageText + Chars.LF + Chars.LF + NStr("en = 'Retry the operation?';");
+	QueryText = MessageText + Chars.LF + Chars.LF + NStr("en = 'Retry the operation?'");
 	Handler = New CallbackDescription("FinishEditWithExtensionAfterRespondQuestionRepeat", 
 		ThisObject, ExecutionParameters);
 	ShowQueryBox(Handler, QueryText, QuestionDialogMode.RetryCancel);
@@ -2641,7 +2647,7 @@ Procedure FinishEditWithoutExtensionAfterReminder(Result, ExecutionParameters) E
 	EndIf;
 	
 	If TypeOf(Result) = Type("Structure") And Result.Property("NeverAskAgain") And Result.NeverAskAgain Then
-		CommonServerCall.CommonSettingsStorageSave(
+		CommonClient.CommonSettingsStorageSave(
 			"ApplicationSettings", "ShowTooltipsOnEditFiles", False,,, True);
 	EndIf;
 	
@@ -2683,8 +2689,8 @@ Procedure FinishEditWithoutExtensionAfterImportFile(Put, Address, SelectedFileNa
 	EndIf;
 	
 	DataDetails = New Structure;
-	DataDetails.Insert("Operation",            NStr("en = 'Encrypt file';"));
-	DataDetails.Insert("DataTitle",     NStr("en = 'File';"));
+	DataDetails.Insert("Operation",            NStr("en = 'Encrypt file'"));
+	DataDetails.Insert("DataTitle",     NStr("en = 'File'"));
 	DataDetails.Insert("Data",              Address);
 	DataDetails.Insert("Presentation",       ExecutionParameters.ObjectRef);
 	DataDetails.Insert("CertificatesSet",   ExecutionParameters.ObjectRef);
@@ -2749,14 +2755,14 @@ Procedure FinishEditWithoutExtensionAfterEncryptFile(DataDetails, ExecutionParam
 	If ExecutionParameters.ShouldShowUserNotification Then
 		If Result.Success Then
 			NoteTemplate = NStr("en = 'File ""%1""
-			                             |is updated and released.';");
+			                             |is updated and released.'");
 		Else
 			NoteTemplate = NStr("en = 'File ""%1""
-			                             |is not modified and released.';");
+			                             |is not modified and released.'");
 		EndIf;
 		
 		ShowUserNotification(
-			NStr("en = 'Editing completed';"),
+			NStr("en = 'Editing completed'"),
 			ExecutionParameters.FileData.URL,
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NoteTemplate, String(ExecutionParameters.FileData.Ref)),
@@ -2777,7 +2783,7 @@ EndProcedure
 Procedure FinishEditWithoutExtensionAfterShowNotification(Result, ExecutionParameters) Export
 	
 	If TypeOf(Result) = Type("Structure") And Result.Property("NeverAskAgain") And Result.NeverAskAgain Then
-		CommonServerCall.CommonSettingsStorageSave(
+		CommonClient.CommonSettingsStorageSave(
 			"ApplicationSettings","ShowFileNotModifiedFlag", False,,, True);
 	EndIf;
 	
@@ -2793,7 +2799,7 @@ Procedure FinishEditExceptionHandler(ErrorInfo, ExecutionParameters)
 		           |from the computer to the application. Reason:
 		           |""%2"".
 		           |
-		           |Do you want to retry?';"),
+		           |Do you want to retry?'"),
 		String(ExecutionParameters.ObjectRef),
 		ErrorProcessing.BriefErrorDescription(ErrorInfo));
 	
@@ -2840,14 +2846,14 @@ Procedure UpdateFromFileOnHardDrive(ResultHandler, FileData, FormIdentifier,
 	If Not IsBlankString(FileData.OwnerWorkingDirectory) Then
 		ChoicePath = FileData.OwnerWorkingDirectory;
 	Else
-		ChoicePath = CommonServerCall.CommonSettingsStorageLoad("ApplicationSettings", "FolderForUpdateFromFile");
+		ChoicePath = CommonClient.CommonSettingsStorageLoad("ApplicationSettings", "FolderForUpdateFromFile");
 	EndIf;
 	
 	If ChoicePath = Undefined Or ChoicePath = "" Then
 		ChoicePath = MyDocumentsDirectory();
 	EndIf;
 	
-	Dialog.Title                   = NStr("en = 'Select file';");
+	Dialog.Title                   = NStr("en = 'Select file'");
 	Dialog.Preview     = False;
 	Dialog.CheckFileExistence = False;
 	Dialog.Multiselect          = False;
@@ -2876,12 +2882,12 @@ Procedure UpdateFromFileOnHardDrive(ResultHandler, FileData, FormIdentifier,
 		EndIf;
 		
 		If ValueIsFilled(EncryptedFilesExtension) Then
-			Filter = NStr("en = 'File (*.%1)|*.%1|Encrypted file (*.%2)|*.%2';") + "|"
-					+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
+			Filter = NStr("en = 'File (*.%1)|*.%1|Encrypted file (*.%2)|*.%2'") + "|"
+					+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1'"), GetAllFilesMask());
 			Dialog.Filter = StringFunctionsClientServer.SubstituteParametersToString(Filter, FileData.Extension, EncryptedFilesExtension);
 		Else
-			Filter = NStr("en = 'File (*.%1)|*.%1';") + "|"
-					+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
+			Filter = NStr("en = 'File (*.%1)|*.%1'") + "|"
+					+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1'"), GetAllFilesMask());
 			Dialog.Filter = StringFunctionsClientServer.SubstituteParametersToString(Filter, FileData.Extension);
 		EndIf;
 		
@@ -2901,7 +2907,7 @@ Procedure UpdateFromFileOnHardDrive(ResultHandler, FileData, FormIdentifier,
 		And FileOnHardDrive.Size() > FileAddingOptions.MaximumSize*1024*1024 Then
 		
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The file size exceeds %1 MB.';"), FileAddingOptions.MaximumSize);
+			NStr("en = 'The file size exceeds %1 MB.'"), FileAddingOptions.MaximumSize);
 		ReturnResultAfterShowWarning(ResultHandler, ErrorText, False);
 		Return;
 		
@@ -2910,7 +2916,7 @@ Procedure UpdateFromFileOnHardDrive(ResultHandler, FileData, FormIdentifier,
 	ChoicePath = FileOnHardDrive.Path;
 	If IsBlankString(FileData.OwnerWorkingDirectory) Then
 		If ChoicePathPrevious <> ChoicePath Then
-			CommonServerCall.CommonSettingsStorageSave("ApplicationSettings", "FolderForUpdateFromFile",  ChoicePath);
+			CommonClient.CommonSettingsStorageSave("ApplicationSettings", "FolderForUpdateFromFile",  ChoicePath);
 		EndIf;
 	EndIf;
 	
@@ -2986,8 +2992,8 @@ Procedure UpdateFromFileOnHardDriveBeforeDecryption(Files, ExecutionParameters) 
 	EndIf;
 	
 	DataDetails = New Structure;
-	DataDetails.Insert("Operation",              NStr("en = 'Decrypt file';"));
-	DataDetails.Insert("DataTitle",       NStr("en = 'File';"));
+	DataDetails.Insert("Operation",              NStr("en = 'Decrypt file'"));
+	DataDetails.Insert("DataTitle",       NStr("en = 'File'"));
 	DataDetails.Insert("Data",                Files[0].Location);
 	DataDetails.Insert("Presentation",         ExecutionParameters.FileData.Ref);
 	DataDetails.Insert("EncryptionCertificates", New Array);
@@ -3060,7 +3066,7 @@ Procedure UpdateFromFileOnHardDriveFollowUp(ExecutionParameters)
 			| the file to be imported was modified on %2,
 			| the file in the application was modified on %3.
 			|
-			|Do you want to replace the file with the older version from the device?';");
+			|Do you want to replace the file with the older version from the device?'");
 #Else
 		QuestionTextTemplate = NStr("en = 'File ""%1"" to be imported from the computer 
 			|was modified earlier than the file in the application:
@@ -3068,7 +3074,7 @@ Procedure UpdateFromFileOnHardDriveFollowUp(ExecutionParameters)
 			| the file to be imported was modified on %2,
 			| the file in the application was modified on %3.
 			|
-			|Do you want to replace the file with the older version from the computer?';");
+			|Do you want to replace the file with the older version from the computer?'");
 #EndIf
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(QuestionTextTemplate,
 			String(ExecutionParameters.FileData.Ref),
@@ -3099,7 +3105,7 @@ Procedure UpdateFromFileOnHardDriveFollowUp(ExecutionParameters)
 		Except
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'File ""%1"" is being edited.
-					|Finish editing and try again.';"),
+					|Finish editing and try again.'"),
 				FullFileName);
 			ReturnResultAfterShowWarning(ExecutionParameters.ResultHandler, ErrorText, Undefined);
 			Return;
@@ -3289,11 +3295,11 @@ Procedure LockFileByRefAfterInstallExtension(ExtensionInstalled, ExecutionParame
 	
 	FileData = ExecutionParameters.FileData; // See FilesOperationsInternalServerCall.FileData
 	ShowUserNotification(
-		NStr("en = 'Edit file';"),
+		NStr("en = 'Edit file'"),
 		ExecutionParameters.FileData.URL,
 		StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'File ""%1""
-			           |is locked for editing.';"), String(FileData.Ref)),
+			           |is locked for editing.'"), String(FileData.Ref)),
 		PictureLib.DialogInformation);
 	
 	ChangeLockedFilesCount(1);
@@ -3363,10 +3369,10 @@ Procedure LockFilesByRefsAfterInstallExtension(ExtensionInstalled, ExecutionPara
 	EndDo;
 	
 	ShowUserNotification(
-		NStr("en = 'Lock files';"),
+		NStr("en = 'Lock files'"),
 		,
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Files (%1 out of %2) are locked for editing.';"),
+			NStr("en = 'Files (%1 out of %2) are locked for editing.'"),
 			LockedFilesCount,
 			ExecutionParameters.FilesArray.Count()),
 		PictureLib.DialogInformation);
@@ -3443,11 +3449,11 @@ Procedure EditFileByRefAfterInstallExtension(ExtensionInstalled, ExecutionParame
 	
 	FileData = ExecutionParameters.FileData; // See FilesOperationsInternalServerCall.FileData
 	
-	ShowUserNotification(NStr("en = 'Edit files';"),
+	ShowUserNotification(NStr("en = 'Edit files'"),
 		ExecutionParameters.FileData.URL,
 		StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'File ""%1""
-			           |is locked for editing.';"), String(FileData.Ref)),
+			           |is locked for editing.'"), String(FileData.Ref)),
 			PictureLib.DialogInformation);
 	
 	If ExecutionParameters.FileData.Version.IsEmpty() Then 
@@ -3712,7 +3718,7 @@ Procedure UnlockFilesByRefsAfterInstallExtension(ExtensionInstalled, ExecutionPa
 		NStr("en = 'If you cancel editing,
 		           |you will lose the changes.
 		           |
-		           |Do you want to continue?';"),
+		           |Do you want to continue?'"),
 		QuestionDialogMode.YesNo,
 		,
 		DialogReturnCode.No);
@@ -3747,9 +3753,9 @@ Procedure UnlockFilesByRefsAfterRespondQuestionCancelEdit(Response, ExecutionPar
 	EndDo;
 	
 	ShowUserNotification(
-		NStr("en = 'Cancel file editing';"),,
+		NStr("en = 'Cancel file editing'"),,
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'File editing canceled (%1 out of %2).';"),
+			NStr("en = 'File editing canceled (%1 out of %2).'"),
 			ExecutionParameters.FilesData.Count(),
 			ExecutionParameters.FilesArray.Count()),
 		PictureLib.DialogInformation);
@@ -3848,7 +3854,7 @@ Procedure UnlockFileAfterInstallExtension(ExtensionInstalled, ExecutionParameter
 			           |""%1"",
 			           |you might lose the changes.
 			           |
-			           |Do you want to continue?';"),
+			           |Do you want to continue?'"),
 			String(ExecutionParameters.ObjectRef));
 		ShowQueryBox(Handler, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No);
 		Return;
@@ -3884,7 +3890,7 @@ Procedure UnlockFileAfterRespondQuestionCancelEdit(Response, ExecutionParameters
 		
 		If Not ExecutionParameters.NotAskAQuestion Then
 			ShowUserNotification(
-				NStr("en = 'File released';"),
+				NStr("en = 'File released'"),
 				ExecutionParameters.FileData.URL,
 				ExecutionParameters.FileData.FullVersionDescription,
 				PictureLib.DialogInformation);
@@ -3964,7 +3970,7 @@ Procedure SaveFileChangesWithExtension(ExecutionParameters)
 				           |to the application as it does not exist on the computer:
 				           |%2.
 				           |
-				           |Do you want to release the file?';"),
+				           |Do you want to release the file?'"),
 				String(FileData.Ref),
 				ExecutionParameters.FullFilePath);
 		Else
@@ -3973,7 +3979,7 @@ Procedure SaveFileChangesWithExtension(ExecutionParameters)
 						   |the ""%1"" file
 				           |to the application as it does not exist on the computer:
 				           |
-				           |Do you want to release the file?';"),
+				           |Do you want to release the file?'"),
 				String(FileData.Ref));
 		EndIf;
 		
@@ -4138,14 +4144,14 @@ Procedure SaveFileChangesWithExtensionAfterCheckEncrypted(ExecutionParameters)
 	If ExecutionParameters.ShouldShowUserNotification Then
 		If VersionUpdated Then
 			ShowUserNotification(
-				NStr("en = 'New version saved';"),
+				NStr("en = 'New version saved'"),
 				ExecutionParameters.FileData.URL,
 				ExecutionParameters.FileData.FullVersionDescription,
 				PictureLib.DialogInformation);
 		Else
 			ShowUserNotification(
-				NStr("en = 'New version not saved';"),,
-				NStr("en = 'The file is not changed.';"),
+				NStr("en = 'New version not saved'"),,
+				NStr("en = 'The file is not changed.'"),
 				PictureLib.DialogInformation);
 			Handler = New CallbackDescription("SaveFileChangesWithExtensionAfterShowNotification", ThisObject, ExecutionParameters);
 			ShowInformationFileWasNotModified(Handler);
@@ -4161,7 +4167,7 @@ EndProcedure
 Procedure SaveFileChangesWithExtensionAfterShowNotification(Result, ExecutionParameters) Export
 	
 	If  TypeOf(Result) = Type("Structure") And Result.Property("NeverAskAgain") And Result.NeverAskAgain Then
-		CommonServerCall.CommonSettingsStorageSave(
+		CommonClient.CommonSettingsStorageSave(
 			"ApplicationSettings","ShowFileNotModifiedFlag", False,,, True);
 		RefreshReusableValues();
 	EndIf;
@@ -4271,7 +4277,7 @@ Procedure SaveFileChangesWithoutExtensionAfterReminder(Result, ExecutionParamete
 	If Result.Value = DialogReturnCode.OK Then
 		
 		If  TypeOf(Result) = Type("Structure") And Result.Property("NeverAskAgain") And Result.NeverAskAgain Then
-			CommonServerCall.CommonSettingsStorageSave(
+			CommonClient.CommonSettingsStorageSave(
 				"ApplicationSettings", "ShowTooltipsOnEditFiles", False,,, True);
 		EndIf;
 		Handler = New CallbackDescription("SaveFileChangesWithoutExtensionAfterImportFile", ThisObject, ExecutionParameters);
@@ -4314,8 +4320,8 @@ Procedure SaveFileChangesWithoutExtensionAfterImportFile(Put, Address, SelectedF
 	EndIf;
 	
 	DataDetails = New Structure;
-	DataDetails.Insert("Operation",            NStr("en = 'Encrypt file';"));
-	DataDetails.Insert("DataTitle",     NStr("en = 'File';"));
+	DataDetails.Insert("Operation",            NStr("en = 'Encrypt file'"));
+	DataDetails.Insert("DataTitle",     NStr("en = 'File'"));
 	DataDetails.Insert("Data",              Address);
 	DataDetails.Insert("Presentation",       ExecutionParameters.ObjectRef);
 	DataDetails.Insert("CertificatesSet",   ExecutionParameters.ObjectRef);
@@ -4364,7 +4370,7 @@ Procedure SaveFileChangesWithoutExtensionAfterEncryptFile(DataDetails, Execution
 	ExecutionParameters.FileData = Result.FileData;
 	If ExecutionParameters.ShouldShowUserNotification Then
 		ShowUserNotification(
-			NStr("en = 'The new version is saved.';"),
+			NStr("en = 'The new version is saved.'"),
 			ExecutionParameters.FileData.URL,
 			ExecutionParameters.FileData.FullVersionDescription,
 			PictureLib.DialogInformation);
@@ -4389,8 +4395,8 @@ Procedure EncryptFileBeforePutFileInFileStorage(ExecutionParameters)
 	EndIf;
 	
 	DataDetails = New Structure;
-	DataDetails.Insert("Operation",            NStr("en = 'Encrypt file';"));
-	DataDetails.Insert("DataTitle",     NStr("en = 'File';"));
+	DataDetails.Insert("Operation",            NStr("en = 'Encrypt file'"));
+	DataDetails.Insert("DataTitle",     NStr("en = 'File'"));
 	DataDetails.Insert("Data",              ExecutionParameters.FullFilePath);
 	DataDetails.Insert("Presentation",       ExecutionParameters.ObjectRef);
 	DataDetails.Insert("CertificatesSet",   ExecutionParameters.ObjectRef);
@@ -4435,7 +4441,7 @@ Function CertificatesNotSpecified(CertificatesArray)
 	If CertificatesArray.Count() = 0 Then
 		ShowMessageBox(,
 			NStr("en = 'Certificates of the encrypted file are not specified.
-			           |Please decrypt the file and then encrypt it again.';"));
+			           |Please decrypt the file and then encrypt it again.'"));
 		
 		Return True;
 	EndIf;
@@ -4506,11 +4512,11 @@ Procedure LockFileAfterInstallExtension(ExtensionInstalled, ExecutionParameters)
 	EndIf;
 	
 	ShowUserNotification(
-		NStr("en = 'Edit files';"),
+		NStr("en = 'Edit files'"),
 		ExecutionParameters.FileData.URL,
 		StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'File ""%1""
-			           |is locked for editing.';"),
+			           |is locked for editing.'"),
 			String(ExecutionParameters.FileData.Ref)),
 		PictureLib.DialogInformation);
 	
@@ -4556,7 +4562,7 @@ Procedure AddFilesCompletion(AttachedFile, AdditionalParameters) Export
 	If OpenCardAfterCreateFromFile Then
 		
 		ShowUserNotification(
-			NStr("en = 'Create';"),
+			NStr("en = 'Create'"),
 			GetURL(AttachedFile),
 			AttachedFile,
 			PictureLib.DialogInformation);
@@ -4589,7 +4595,7 @@ Procedure DeleteFileWithoutConfirmation(FullFileName)
 					|""%1"".
 					|It might be locked by another application.
 					|
-					|%2';"),
+					|%2'"),
 				FullFileName, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			EventLogClient.AddMessageForEventLog(EventLogEvent(),
 				"Warning", MessageText,, True);
@@ -4657,7 +4663,7 @@ Procedure GetVersionFileToLocalFilesCache(ResultHandler, FileData, ForReading,
 	// Receiving a file path in the working directory and checking it for uniqueness.
 	If ExecutionParameters.FullFileName = "" Then
 		CommonClient.MessageToUser(
-			NStr("en = 'Cannot get the file from the application to the working directory.';"));
+			NStr("en = 'Cannot get the file from the application to the working directory.'"));
 		ReturnResult(ResultHandler, ExecutionParameters);
 		Return;
 	EndIf;
@@ -4757,7 +4763,7 @@ Function CanAccessWorkingDirectory(OwnerWorkingDirectory, Owner)
 		InformationAboutTheCatalog = New File(OwnerWorkingDirectory);
 		If Not InformationAboutTheCatalog.Exists() Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The directory of the %1 file folder does not exist.';"), 
+				NStr("en = 'The directory of the %1 file folder does not exist.'"), 
 				Owner);
 		EndIf;
 		CreateDirectory(OwnerWorkingDirectory);
@@ -4770,11 +4776,11 @@ Function CanAccessWorkingDirectory(OwnerWorkingDirectory, Owner)
 		// Set the default settings.
 		MessageText = NStr("en = 'Working directory %1 for file folder %2 does not exist or you don''t have write permissions. Default settings have been restored.
 			|Technical details:
-			|%3';");
+			|%3'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, 
 			OwnerWorkingDirectory, Owner, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EventLogClient.AddMessageForEventLog(
-			NStr("en = 'File management';", CommonClient.DefaultLanguageCode()),
+			NStr("en = 'File management'", CommonClient.DefaultLanguageCode()),
 			"Warning", MessageText, CommonClient.SessionDate(), True);
 
 		OwnerWorkingDirectory = "";
@@ -4811,7 +4817,7 @@ Procedure GetAttachedFile(Notification, AttachedFile, FormIdentifier, Additional
 	EndIf;
 	
 	Context.Insert("ErrorTitle",
-		NStr("en = 'Cannot get the file from the application. Reason:';") + Chars.LF);
+		NStr("en = 'Cannot get the file from the application. Reason:'") + Chars.LF);
 	
 	If Context.ForEditing
 	   And Context.FileData.BeingEditedBy <> UsersClient.AuthorizedUser() Then
@@ -4820,7 +4826,7 @@ Procedure GetAttachedFile(Notification, AttachedFile, FormIdentifier, Additional
 		Result.Insert("FullFileName", "");
 		Result.Insert("ErrorDescription", Context.ErrorTitle 
 			+ StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The file is locked by %1.';"), String(Context.FileData.BeingEditedBy)));
+				NStr("en = 'The file is locked by %1.'"), String(Context.FileData.BeingEditedBy)));
 		RunCallback(Context.Notification, Result);
 		Return;
 	EndIf;
@@ -4838,7 +4844,7 @@ Procedure GetAttachedFileAfterAttachExtension(ExtensionAttached, Context) Export
 		Result = New Structure;
 		Result.Insert("FullFileName", "");
 		Result.Insert("ErrorDescription", Context.ErrorTitle
-			+ NStr("en = '1C:Enterprise Extension is not installed.';"));
+			+ NStr("en = '1C:Enterprise Extension is not installed.'"));
 		RunCallback(Context.Notification, Result);
 		Return;
 	EndIf;
@@ -4869,7 +4875,7 @@ Procedure GetAttachedFileAfterGetWorkingDirectory(Result, Context) Export
 	Action.Insert("Action", "CreateDirectory");
 	Action.Insert("File", Context.FileDirectory);
 	Action.Insert("ErrorTitle", Context.ErrorTitle
-		+ NStr("en = 'Cannot create the directory. Reason:';"));
+		+ NStr("en = 'Cannot create the directory. Reason:'"));
 	FileOperations.Add(Action);
 	
 	Action = New Structure;
@@ -4877,7 +4883,7 @@ Procedure GetAttachedFileAfterGetWorkingDirectory(Result, Context) Export
 	Action.Insert("File",  Context.FullFileName);
 	Action.Insert("Properties", New Structure("ReadOnly", False));
 	Action.Insert("ErrorTitle", Context.ErrorTitle
-		+ NStr("en = 'Cannot change the ""Read-only"" property. Reason:';"));
+		+ NStr("en = 'Cannot change the ""Read-only"" property. Reason:'"));
 	FileOperations.Add(Action);
 	
 	Action = New Structure;
@@ -4896,7 +4902,7 @@ Procedure GetAttachedFileAfterGetWorkingDirectory(Result, Context) Export
 	Action.Insert("File",  Context.FullFileName);
 	Action.Insert("Properties", FileProperties);
 	Action.Insert("ErrorTitle", Context.ErrorTitle
-		+ NStr("en = 'Cannot set the file properties. Reason:';"));
+		+ NStr("en = 'Cannot set the file properties. Reason:'"));
 	FileOperations.Add(Action);
 	
 	ProcessFile(New CallbackDescription(
@@ -4944,7 +4950,7 @@ Procedure PutAttachedFile(Notification, AttachedFile, FormIdentifier, Additional
 	EndIf;
 	
 	Context.Insert("ErrorTitle",
-		NStr("en = 'Cannot store the local file to the application. Reason:';") + Chars.LF);
+		NStr("en = 'Cannot store the local file to the application. Reason:'") + Chars.LF);
 	
 	FileSystemClient.Attach1CEnterpriseExtension(New CallbackDescription(
 		"PutAttachedFileAfterAttachExtension", ThisObject, Context));
@@ -4957,7 +4963,7 @@ Procedure PutAttachedFileAfterAttachExtension(ExtensionAttached, Context) Export
 	If Not ExtensionAttached Then
 		Result = New Structure;
 		Result.Insert("ErrorDescription", Context.ErrorTitle
-			+ NStr("en = '1C:Enterprise Extension is not installed.';"));
+			+ NStr("en = '1C:Enterprise Extension is not installed.'"));
 		RunCallback(Context.Notification, Result);
 		Return;
 	EndIf;
@@ -5020,7 +5026,7 @@ Procedure PlaceTheAttachedFileAfterReceivingTheWorkingDirectoryContinued(FileExi
 		Action.Insert("Action", "CreateDirectory");
 		Action.Insert("File", Context.FileDirectory);
 		Action.Insert("ErrorTitle", Context.ErrorTitle
-			+ NStr("en = 'Cannot create the directory. Reason:';"));
+			+ NStr("en = 'Cannot create the directory. Reason:'"));
 		FileOperations.Add(Action);
 		
 		Action = New Structure;
@@ -5028,7 +5034,7 @@ Procedure PlaceTheAttachedFileAfterReceivingTheWorkingDirectoryContinued(FileExi
 		Action.Insert("File",  Context.FullFileName);
 		Action.Insert("Properties", New Structure("ReadOnly", False));
 		Action.Insert("ErrorTitle", Context.ErrorTitle
-			+ NStr("en = 'Cannot change the ""Read-only"" property. Reason:';"));
+			+ NStr("en = 'Cannot change the ""Read-only"" property. Reason:'"));
 		FileOperations.Add(Action);
 		
 		Action = New Structure;
@@ -5036,7 +5042,7 @@ Procedure PlaceTheAttachedFileAfterReceivingTheWorkingDirectoryContinued(FileExi
 		Action.Insert("File",     Context.FullFileName);
 		Action.Insert("Source", Context.FullNameOfFileToPut);
 		Action.Insert("ErrorTitle", Context.ErrorTitle
-			+ NStr("en = 'Cannot copy the file. Reason:';"));
+			+ NStr("en = 'Cannot copy the file. Reason:'"));
 		FileOperations.Add(Action);
 		AddCall(Calls, "BeginCopyingFile", Context.FullNameOfFileToPut, Context.FullFileName, Undefined, Undefined);
 	EndIf;
@@ -5046,7 +5052,7 @@ Procedure PlaceTheAttachedFileAfterReceivingTheWorkingDirectoryContinued(FileExi
 	Action.Insert("File",  Context.FullFileName);
 	Action.Insert("Properties", New Structure("ReadOnly", True));
 	Action.Insert("ErrorTitle", Context.ErrorTitle
-		+ NStr("en = 'Cannot change the ""Read-only"" property. Reason:';"));
+		+ NStr("en = 'Cannot change the ""Read-only"" property. Reason:'"));
 	FileOperations.Add(Action);
 	
 	Context.Insert("FileProperties", New Structure);
@@ -5059,7 +5065,7 @@ Procedure PlaceTheAttachedFileAfterReceivingTheWorkingDirectoryContinued(FileExi
 	Action.Insert("File",  Context.FullFileName);
 	Action.Insert("Properties", Context.FileProperties);
 	Action.Insert("ErrorTitle", Context.ErrorTitle
-		+ NStr("en = 'Cannot get the file properties. Reason:';"));
+		+ NStr("en = 'Cannot get the file properties. Reason:'"));
 	FileOperations.Add(Action);
 	
 	Context.Insert("PlacementAction", New Structure);
@@ -5175,11 +5181,11 @@ Procedure FileDirectory(ResultHandler, FileData) Export
 	Handler = New CallbackDescription("FileDirectoryAfterRespondQuestionGetFile", ThisObject, HandlerParameters);
 	
 	QuestionButtons = New ValueList;
-	QuestionButtons.Add(DialogReturnCode.Yes, NStr("en = 'Save and open the directory';"));
-	QuestionButtons.Add(DialogReturnCode.No, NStr("en = 'Cancel';"));
+	QuestionButtons.Add(DialogReturnCode.Yes, NStr("en = 'Save and open the directory'"));
+	QuestionButtons.Add(DialogReturnCode.No, NStr("en = 'Cancel'"));
 	ShowQueryBox(Handler,
 		StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The file directory does not exist. Probably file ""%1"" was never opened on this computer.
-			|Do you want to save a local file copy and open its directory?';"),
+			|Do you want to save a local file copy and open its directory?'"),
 			FileName),
 		QuestionButtons);
 	
@@ -5327,7 +5333,7 @@ Procedure ClearSpaceInWorkingDirectory(ResultHandler, VersionAttributes)
 	// The amount of free disk space cannot be determined in the web client.
 	ReturnResultAfterShowWarning(
 		ResultHandler,
-		NStr("en = 'You can clear the working directory only in the thin client.';"),
+		NStr("en = 'You can clear the working directory only in the thin client.'"),
 		Undefined);
 	Return;
 #EndIf
@@ -5369,7 +5375,7 @@ EndProcedure
 Procedure CleanUpWorkingDirectory(ResultHandler, WorkingDirectoryFilesSize, SizeOfFileToAdd, ClearEverything) Export
 	
 #If WebClient Then
-	ReturnResultAfterShowWarning(ResultHandler, NStr("en = 'You can clear the working directory only in the thin client.';"), Undefined);
+	ReturnResultAfterShowWarning(ResultHandler, NStr("en = 'You can clear the working directory only in the thin client.'"), Undefined);
 	Return;
 #EndIf
 	
@@ -5430,8 +5436,8 @@ EndProcedure
 Procedure ClearWorkingDirectoryForFileToOpen(ExecutionParameters)
 	
 	IndexOf = 0;
-	Title = NStr("en = 'Clearing working directory';");
-	Text = NStr("en = 'Please wait…';");
+	Title = NStr("en = 'Clearing working directory'");
+	Text = NStr("en = 'Please wait…'");
 	Status(Title, 1, Text);
 	For Each Item In ExecutionParameters.TableOfFiles Do
 		
@@ -5551,11 +5557,11 @@ Procedure GetFromServerAndRegisterInLocalFilesCache(Val ExecutionParameters)
 					
 					MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'The file path (working directory + file name) is longer than %1 characters:
-						           |%2';"),
+						           |%2'"),
 						ExecutionParameters.FullPathMaxSize,
 						ExecutionParameters.FullFileName);
 					MessageText = MessageText + Chars.CR + Chars.CR
-						+ NStr("en = 'Please choose a shorter file name.';");
+						+ NStr("en = 'Please choose a shorter file name.'");
 					ReturnResultAfterShowWarning(ExecutionParameters.ResultHandler, 
 						MessageText, ExecutionParameters);
 					Return;
@@ -5582,7 +5588,7 @@ Procedure GetFromServerAndRegisterInLocalFilesCacheOfferSelectDirectory(Response
 		NStr("en = 'The file path (working directory + file name) is longer than %1 characters:
 		|%2
 		|
-		|Do you want to select a different main working directory?';"),
+		|Do you want to select a different main working directory?'"),
 		ExecutionParameters.FullPathMaxSize,
 		ExecutionParameters.FullFileName);
 	Handler = New CallbackDescription("GetFromServerAndRegisterInLocalFilesCacheStartToSelectDirectory", ThisObject, ExecutionParameters);
@@ -5599,7 +5605,7 @@ Procedure GetFromServerAndRegisterInLocalFilesCacheStartToSelectDirectory(Respon
 	EndIf;
 	
 	// Selecting a new path to a working directory.
-	Title = NStr("en = 'Select another main working directory';");
+	Title = NStr("en = 'Select another main working directory'");
 	DirectorySelected1 = ChoosePathToWorkingDirectory(ExecutionParameters.DirectoryName, Title, False);
 	If Not DirectorySelected1 Then
 		ReturnResult(ExecutionParameters.ResultHandler, ExecutionParameters);
@@ -5668,7 +5674,7 @@ Procedure GetFromServerAndRegisterInLocalFilesCacheFollowUp(ExecutionParameters)
 	
 	If ExecutionParameters.FileData.Property("UpdatePathFromFileOnHardDrive") Then
 		
-		FileCopy(ExecutionParameters.FileData.UpdatePathFromFileOnHardDrive, ExecutionParameters.FullFileName);
+		CopyFile(ExecutionParameters.FileData.UpdatePathFromFileOnHardDrive, ExecutionParameters.FullFileName);
 		GetFromServerAndRegisterInLocalFilesCacheCompletion(ExecutionParameters);
 		
 		Return;
@@ -5686,8 +5692,8 @@ Procedure GetFromServerAndRegisterInLocalFilesCacheFollowUp(ExecutionParameters)
 			ExecutionParameters.FileData.Version,, ExecutionParameters.FormIdentifier);
 		
 		DataDetails = New Structure;
-		DataDetails.Insert("Operation",              NStr("en = 'Decrypt file';"));
-		DataDetails.Insert("DataTitle",       NStr("en = 'File';"));
+		DataDetails.Insert("Operation",              NStr("en = 'Decrypt file'"));
+		DataDetails.Insert("DataTitle",       NStr("en = 'File'"));
 		DataDetails.Insert("Data",                ReturnStructure.BinaryData);
 		DataDetails.Insert("Presentation",         ExecutionParameters.FileData.Ref);
 		DataDetails.Insert("EncryptionCertificates", ExecutionParameters.FileData.Ref);
@@ -5953,7 +5959,7 @@ Procedure GetVersionFileToFolderWorkingDirectoryFollowUp(ExecutionParameters)
 				           |""%1""
 				           |that matches another file stored in the application.
 				           |
-				           |It is recommended that you rename one of the files in the application.';"),
+				           |It is recommended that you rename one of the files in the application.'"),
 				ExecutionParameters.FullFileName);
 		Else
 			WarningText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -5962,7 +5968,7 @@ Procedure GetVersionFileToFolderWorkingDirectoryFollowUp(ExecutionParameters)
 				           |that matches another file stored in the application.
 				           |
 				           |It is recommended that you select another working directory for one of the application folders.
-				           |(Two folders cannot have the same working directory.)';"),
+				           |(Two folders cannot have the same working directory.)'"),
 				ExecutionParameters.FullFileName);
 		EndIf;
 		
@@ -6063,7 +6069,7 @@ Procedure GetFromServerAndRegisterInFolderWorkingDirectory(ResultHandler, FileDa
 	// Receiving a file path in the working directory and checking it for uniqueness.
 	If ExecutionParameters.FullFileName = "" Then
 		CommonClient.MessageToUser(
-			NStr("en = 'Cannot get the file from the application to the working directory.';"));
+			NStr("en = 'Cannot get the file from the application to the working directory.'"));
 		ReturnResult(ExecutionParameters.ResultHandler, ExecutionParameters);
 		Return;
 	EndIf;
@@ -6151,7 +6157,7 @@ Procedure CheckFullPathMaxLengthInWorkingDirectory(ResultHandler, FileData,
 	
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'The file path (working directory + file name) is longer than %1 characters:
-		           |%2';"),
+		           |%2'"),
 		ExecutionParameters.FullPathMaxSize,
 		ExecutionParameters.FullFileName);
 	
@@ -6161,7 +6167,7 @@ Procedure CheckFullPathMaxLengthInWorkingDirectory(ResultHandler, FileData,
 	// If the file name + 5 exceeds 260 characters, output the message "Replace the file name with a shorter one."
 	If StrLen(ExecutionParameters.NormalFileName) > MaxFileNameLength Then
 		MessageText = MessageText + Chars.CR + Chars.CR
-			+ NStr("en = 'Please choose a shorter file name.';");
+			+ NStr("en = 'Please choose a shorter file name.'");
 		ReturnResultAfterShowWarning(ResultHandler, MessageText, False);
 		Return;
 	EndIf;
@@ -6170,7 +6176,7 @@ Procedure CheckFullPathMaxLengthInWorkingDirectory(ResultHandler, FileData,
 	// "Rename the directories or move the directory to a different location."
 	If StrLen(FileData.OwnerWorkingDirectory) > ExecutionParameters.FullPathMaxSize - 5 Then
 		MessageText = MessageText + Chars.CR + Chars.CR
-			+ NStr("en = 'Please rename the folders or move the current folder to another one.';");
+			+ NStr("en = 'Please rename the folders or move the current folder to another one.'");
 		ReturnResultAfterShowWarning(ResultHandler, MessageText, False);
 		Return;
 	EndIf;
@@ -6187,7 +6193,7 @@ Procedure CheckFullPathMaxLengthInWorkingDirectorySuggestChooseDirectory(Executi
 		|%2
 		|
 		|Do you want to select a different main working directory?
-		|(The working directory content will be moved to the selected directory.)';"),
+		|(The working directory content will be moved to the selected directory.)'"),
 		ExecutionParameters.FullPathMaxSize, ExecutionParameters.FullFileName);
 	Handler = New CallbackDescription("CheckFullPathMaxLengthInWorkingDirectoryStartChooseDirectory", ThisObject, ExecutionParameters);
 	ShowQueryBox(Handler, QueryText, QuestionDialogMode.YesNo);
@@ -6203,7 +6209,7 @@ Procedure CheckFullPathMaxLengthInWorkingDirectoryStartChooseDirectory(Response,
 	EndIf;
 	
 	// Selecting a new path to a working directory.
-	Title = NStr("en = 'Select another working directory';");
+	Title = NStr("en = 'Select another working directory'");
 	DirectorySelected1 = ChoosePathToWorkingDirectory(ExecutionParameters.FileData.OwnerWorkingDirectory, Title, True);
 	If Not DirectorySelected1 Then
 		ReturnResult(ExecutionParameters.ResultHandler, False);
@@ -6268,7 +6274,7 @@ Procedure CopyDirectoryContent1(ResultHandler, Val SourceDirectory, Val Recipien
 			           |""%1"".
 			           |Probably it is locked by another application.
 			           |
-			           |Do you want to retry?';"),
+			           |Do you want to retry?'"),
 			Result.ErrorFullFileName);
 		
 		ExecutionParameters = New Structure;
@@ -6344,7 +6350,7 @@ Procedure CopyDirectoryContent(Result, SourceDirectory, RecipientDirectory)
 				Result.CopiedFilesAndFolders.Add(FullRecipientFileName);
 			Else
 				Try
-					FileCopy(SourceFullFileName, FullRecipientFileName);
+					CopyFile(SourceFullFileName, FullRecipientFileName);
 				Except
 					Result.ErrorOccurred         = True;
 					Result.ErrorInfo     = ErrorInfo();
@@ -6379,7 +6385,7 @@ Procedure MoveWorkingDirectoryContent(ResultHandler, SourceDirectory, RecipientD
 			NStr("en = 'The destination working directory
 			           |""%1""
 			           |is included in the source working directory
-			           |""%2"".';"),
+			           |""%2"".'"),
 			RecipientDirectory,
 			SourceDirectory);
 		ReturnResultAfterShowWarning(ResultHandler, WarningText, False);
@@ -6452,7 +6458,7 @@ Procedure MoveWorkingDirectoryContentAfterSuccessAndCancelClearing(Result, Execu
 			NStr("en = 'Cannot copy files from directory
 			           |""%1""
 			           |back to directory
-			           |""%2"".';"),
+			           |""%2"".'"),
 			ExecutionParameters.RecipientDirectory,
 			ExecutionParameters.SourceDirectory);
 		ReturnResultAfterShowWarning(ExecutionParameters.ResultHandler, WarningText, False);
@@ -6505,7 +6511,7 @@ Procedure DeleteDirectoryContentStart(ExecutionParameters)
 					|""%1"".
 					|It might be locked by another application.
 					|
-					|%2';"),
+					|%2'"),
 				Path, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			EventLogClient.AddMessageForEventLog(EventLogEvent(),
 				"Warning", MessageText,, True);
@@ -6544,7 +6550,7 @@ Procedure FilesImportAfterCheckSizes(Result, ExecutionParameters) Export
 	
 	ExecutionParameters.Insert("TotalFilesCount", Result.TotalFilesCount);
 	If ExecutionParameters.TotalFilesCount = 0 Then
-		ReturnResultAfterShowWarning(ExecutionParameters.ResultHandler, NStr("en = 'No files to add';"), Undefined);
+		ReturnResultAfterShowWarning(ExecutionParameters.ResultHandler, NStr("en = 'No files to add'"), Undefined);
 		Return;
 	EndIf;
 	
@@ -6599,7 +6605,7 @@ Procedure FilesImportLoop(ExecutionParameters)
 				QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Folder ""%1"" already exists.
 					           |
-					           |Do you want to continue the upload?';"),
+					           |Do you want to continue the upload?'"),
 					ExecutionParameters.FolderName);
 				Handler = New CallbackDescription("FilesImportLoopAfterRespondQuestionContinue", ThisObject, ExecutionParameters);
 				ShowQueryBox(Handler, QueryText, QuestionDialogMode.YesNo);
@@ -6696,7 +6702,7 @@ Procedure FilesImportAfterLoopFollowUp(ExecutionParameters)
 	
 	If ExecutionParameters.AllFilesStructureArray.Count() > 1 Then
 		StateText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The upload is completed. Files uploaded: %1.';"), String(ExecutionParameters.AllFilesStructureArray.Count()) );
+			NStr("en = 'The upload is completed. Files uploaded: %1.'"), String(ExecutionParameters.AllFilesStructureArray.Count()) );
 		ShowUserNotification(StateText);
 	EndIf;
 	
@@ -6708,7 +6714,7 @@ Procedure FilesImportAfterLoopFollowUp(ExecutionParameters)
 		Item0 = ExecutionParameters.AllFilesStructureArray[0];
 		Ref = GetURL(Item0.File);
 		ShowUserNotification(
-			NStr("en = 'Updated:';"),
+			NStr("en = 'Updated:'"),
 			Ref,
 			Item0.File,
 			PictureLib.DialogInformation);
@@ -6744,7 +6750,7 @@ Procedure DeleteFilesAfterAdd(AllFilesStructureArray, AllFoldersArray)
 					|""%1"".
 					|It might be locked by another application.
 					|
-					|%2';"),
+					|%2'"),
 				SelectedFile.FullName, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			EventLogClient.AddMessageForEventLog(EventLogEvent(),
 				"Warning", MessageText,, True);
@@ -6810,7 +6816,7 @@ Procedure SaveAsWithExtension(ExecutionParameters)
 				Message = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'The local copy of file ""%1""
 					           |was modified later than the file in the application.
-					           |The local copy might have been edited.';"),
+					           |The local copy might have been edited.'"),
 					String(ExecutionParameters.FileData.Ref));
 				
 				FormOpenParameters.Insert("Message", Message);
@@ -6900,8 +6906,8 @@ Procedure SaveAsWithExtensionAfterSaveModeChoice(Result, ExecutionParameters) Ex
 		ExecutionParameters.UUID);
 	
 	DataDetails = New Structure;
-	DataDetails.Insert("Operation",              NStr("en = 'Decrypt file';"));
-	DataDetails.Insert("DataTitle",       NStr("en = 'File';"));
+	DataDetails.Insert("Operation",              NStr("en = 'Decrypt file'"));
+	DataDetails.Insert("DataTitle",       NStr("en = 'File'"));
 	DataDetails.Insert("Data",                ReturnStructure.BinaryData);
 	DataDetails.Insert("Presentation",         ExecutionParameters.FileData.Ref);
 	DataDetails.Insert("Object",                ExecutionParameters.FileData.Ref);
@@ -6967,7 +6973,7 @@ Procedure SaveAsWithExtensionAfterDecryption(DataDetails, ExecutionParameters) E
 	SelectingFile.FullFileName = NameWithExtension;
 	SelectingFile.DefaultExt = Extension;
 	Filter = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'All files (*.%1)|*.%1';"), Extension);
+		NStr("en = 'All files (*.%1)|*.%1'"), Extension);
 	SelectingFile.Filter = Filter;
 	SelectingFile.Directory = ExecutionParameters.ChoicePath;
 	
@@ -6994,7 +7000,7 @@ Procedure SaveAsWithExtensionAfterDecryption(DataDetails, ExecutionParameters) E
 	
 	If ExecutionParameters.PathToFileInCache <> "" Then
 		If ExecutionParameters.PathToFileInCache <> FullFileName Then
-			FileCopy(ExecutionParameters.PathToFileInCache, SelectingFile.FullFileName);
+			CopyFile(ExecutionParameters.PathToFileInCache, SelectingFile.FullFileName);
 		EndIf;
 	Else
 		TransmittedFiles = New Array;
@@ -7017,12 +7023,12 @@ Procedure SaveAsWithExtensionAfterDecryption(DataDetails, ExecutionParameters) E
 		EndIf;
 	EndIf;
 	
-	ShowUserNotification(NStr("en = 'File saved';"), , FullFileName);
+	ShowUserNotification(NStr("en = 'File saved'"), , FullFileName);
 	
 	ChoicePathPrevious = ExecutionParameters.ChoicePath;
 	ExecutionParameters.ChoicePath = File.Path;
 	If ChoicePathPrevious <> ExecutionParameters.ChoicePath Then
-		CommonServerCall.CommonSettingsStorageSave("ApplicationSettings", "FolderForSaveAs", ExecutionParameters.ChoicePath);
+		CommonClient.CommonSettingsStorageSave("ApplicationSettings", "FolderForSaveAs", ExecutionParameters.ChoicePath);
 	EndIf;
 	
 	ReturnResult(ExecutionParameters.ResultHandler, New Structure("FullFileName", FullFileName));
@@ -7135,17 +7141,17 @@ Procedure ShowReminderBeforePutFile(ResultHandler)
 				|to commit.
 				|
 				|Please select the file from the directory
-				|that you specified when you started editing the file.';");
+				|that you specified when you started editing the file.'");
 				
 			Buttons = New ValueList;
-			Buttons.Add("Continue", NStr("en = 'Continue';"));
-			Buttons.Add("Cancel", NStr("en = 'Cancel';"));
+			Buttons.Add("Continue", NStr("en = 'Continue'"));
+			Buttons.Add("Cancel", NStr("en = 'Cancel'"));
 			ReminderParameters = New Structure;
 			ReminderParameters.Insert("Picture", PictureLib.DialogInformation);
 			ReminderParameters.Insert("CheckBoxText",
-				NStr("en = 'Do not show this message again';"));
+				NStr("en = 'Do not show this message again'"));
 			ReminderParameters.Insert("Title",
-				NStr("en = 'Store file';"));
+				NStr("en = 'Store file'"));
 			StandardSubsystemsClient.ShowQuestionToUser(
 				ResultHandler, ReminderText, Buttons, ReminderParameters);
 			Return;
@@ -7219,12 +7225,12 @@ Procedure CheckMaxFilesSize(ResultHandler, CheckParameters)
 		For Each File In ArrayOfTooBigFiles Do
 			BigFile = New File(File);
 			FileSizeInMB = Int(BigFile.Size() / (1024 * 1024));
-			StringText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (%2 MB)';"), String(File), String(FileSizeInMB));
+			StringText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (%2 MB)'"), String(File), String(FileSizeInMB));
 			TooBigFiles.Add(StringText);
 		EndDo;
 		
 		Parameters.Insert("TooBigFiles", TooBigFiles);
-		Parameters.Insert("Title", NStr("en = 'File upload warning';"));
+		Parameters.Insert("Title", NStr("en = 'File upload warning'"));
 		
 		Handler = New CallbackDescription("CheckFileSizeLimitAfterRespondQuestion", ThisObject, ExecutionParameters);
 		OpenForm("DataProcessor.FilesOperations.Form.QuestionOnFileImport", Parameters, , , , , Handler, FormWindowOpeningMode.LockWholeInterface);
@@ -7258,15 +7264,15 @@ Procedure ShowInformationFileWasNotModified(ResultHandler)
 	
 	PersonalSettings = PersonalFilesOperationsSettings();
 	If PersonalSettings.ShowFileNotModifiedFlag Then
-		ReminderText = NStr("en = 'Cannot create a new version because the file has not been modified. The comment is discarded.';");
+		ReminderText = NStr("en = 'Cannot create a new version because the file has not been modified. The comment is discarded.'");
 		Buttons = QuestionDialogMode.OK;
 		ReminderParameters = New Structure;
 		ReminderParameters.Insert("LockWholeInterface", True);
 		ReminderParameters.Insert("Picture", PictureLib.DialogInformation);
 		ReminderParameters.Insert("CheckBoxText",
-			NStr("en = 'Do not show this message again';"));
+			NStr("en = 'Do not show this message again'"));
 		ReminderParameters.Insert("Title",
-			NStr("en = 'Information';"));
+			NStr("en = 'Information'"));
 		StandardSubsystemsClient.ShowQuestionToUser(
 			ResultHandler, ReminderText, Buttons, ReminderParameters);
 	Else
@@ -7343,9 +7349,9 @@ Procedure FinishEditByRefsAfterInstallExtension(ExtensionInstalled, ExecutionPar
 		EndIf;
 	EndDo;
 	
-	ShowUserNotification(NStr("en = 'Commit files';"),,
+	ShowUserNotification(NStr("en = 'Commit files'"),,
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Commit files (%1 of %2).';"),
+			NStr("en = 'Commit files (%1 of %2).'"),
 			ExecutionParameters.FilesData.Count(),
 			ExecutionParameters.FilesArray.Count()),
 			PictureLib.DialogInformation);
@@ -7392,7 +7398,7 @@ Procedure AddFilesWithDrag(Val FileOwner, Val FormIdentifier, Val FileNamesArray
 		AttachedFile = AttachedFilesArray[0];
 		
 		ShowUserNotification(
-			NStr("en = 'Create';"),
+			NStr("en = 'Create'"),
 			GetURL(AttachedFile),
 			AttachedFile,
 			PictureLib.DialogInformation);
@@ -7680,8 +7686,8 @@ Procedure OpenFileWithoutExtension(Notification, FileData, FormIdentifier,
 			FileData.Version,, FormIdentifier);
 		
 		DataDetails = New Structure;
-		DataDetails.Insert("Operation",              NStr("en = 'Decrypt file';"));
-		DataDetails.Insert("DataTitle",       NStr("en = 'File';"));
+		DataDetails.Insert("Operation",              NStr("en = 'Decrypt file'"));
+		DataDetails.Insert("DataTitle",       NStr("en = 'File'"));
 		DataDetails.Insert("Data",                ReturnStructure.BinaryData);
 		DataDetails.Insert("Presentation",         FileData.Ref);
 		DataDetails.Insert("Object",                FileData.Ref);
@@ -7870,14 +7876,14 @@ Procedure Encrypt(ResultHandler, FileData, UUID) Export
 	ExecutionParameters.Insert("ThumbprintsArray", New Array);
 	
 	If ExecutionParameters.FileData.Encrypted Then
-		WarningText = NStr("en = 'File ""%1"" is already encrypted.';");
+		WarningText = NStr("en = 'File ""%1"" is already encrypted.'");
 		WarningText = StrReplace(WarningText, "%1", String(ExecutionParameters.FileData.Ref));
 		ReturnResultAfterShowWarning(ExecutionParameters.ResultHandler, WarningText, ExecutionParameters);
 		Return;
 	EndIf;
 	
 	If ValueIsFilled(ExecutionParameters.FileData.BeingEditedBy) Then
-		WarningText = NStr("en = 'Cannot encrypt the file because it is locked.';");
+		WarningText = NStr("en = 'Cannot encrypt the file because it is locked.'");
 		ReturnResultAfterShowWarning(ExecutionParameters.ResultHandler, WarningText, ExecutionParameters);
 		Return;
 	EndIf;
@@ -7898,7 +7904,7 @@ Procedure Encrypt(ResultHandler, FileData, UUID) Export
 	FilePresentation = String(ExecutionParameters.FileData.Ref);
 	If ExecutionParameters.FileData.VersionsCount > 1 Then
 		FilePresentation = FilePresentation + " (" + StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Versions: %1';"), ExecutionParameters.FileData.VersionsCount) + ")";
+			NStr("en = 'Versions: %1'"), ExecutionParameters.FileData.VersionsCount) + ")";
 	EndIf;
 	PresentationsList = New ValueList;
 	PresentationsList.Add(ExecutionParameters.FileData.Ref, FilePresentation);
@@ -7922,10 +7928,10 @@ Procedure Encrypt(ResultHandler, FileData, UUID) Export
 	EndDo;
 	
 	DataDetails = New Structure;
-	DataDetails.Insert("Operation",            NStr("en = 'Encrypt file';"));
-	DataDetails.Insert("DataTitle",     NStr("en = 'File';"));
+	DataDetails.Insert("Operation",            NStr("en = 'Encrypt file'"));
+	DataDetails.Insert("DataTitle",     NStr("en = 'File'"));
 	DataDetails.Insert("DataSet",         DataSet);
-	DataDetails.Insert("SetPresentation", NStr("en = 'Files (%1)';"));
+	DataDetails.Insert("SetPresentation", NStr("en = 'Files (%1)'"));
 	DataDetails.Insert("PresentationsList", PresentationsList);
 	DataDetails.Insert("NotifyOnCompletion", False);
 	
@@ -8020,7 +8026,7 @@ Procedure Decrypt(ResultHandler, FileRef, UUID, FileData) Export
 	FilePresentation = String(FileData.Ref);
 	If FileData.VersionsCount > 1 Then
 		FilePresentation = FilePresentation + " (" + StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Versions: %1';"), FileData.VersionsCount) + ")";
+			NStr("en = 'Versions: %1'"), FileData.VersionsCount) + ")";
 	EndIf;
 	PresentationsList = New ValueList;
 	PresentationsList.Add(FileData.Ref, FilePresentation);
@@ -8047,10 +8053,10 @@ Procedure Decrypt(ResultHandler, FileRef, UUID, FileData) Export
 	EndDo;
 	
 	DataDetails = New Structure;
-	DataDetails.Insert("Operation",              NStr("en = 'Decrypt file';"));
-	DataDetails.Insert("DataTitle",       NStr("en = 'File';"));
+	DataDetails.Insert("Operation",              NStr("en = 'Decrypt file'"));
+	DataDetails.Insert("DataTitle",       NStr("en = 'File'"));
 	DataDetails.Insert("DataSet",           DataSet);
-	DataDetails.Insert("SetPresentation",   NStr("en = 'Files (%1)';"));
+	DataDetails.Insert("SetPresentation",   NStr("en = 'Files (%1)'"));
 	DataDetails.Insert("PresentationsList",   PresentationsList);
 	DataDetails.Insert("EncryptionCertificates", EncryptionCertificates);
 	DataDetails.Insert("NotifyOnCompletion",   False);
@@ -8147,7 +8153,8 @@ EndProcedure
 // Creates a new file interactively calling the dialog box of selection the File creation mode.
 //
 // Parameters:
-//   See FilesOperationsClient.AppendFile().
+//   See FilesOperationsClient.AppendFile
+//   ().
 //
 Procedure AppendFile(
 	ResultHandler,
@@ -8161,7 +8168,7 @@ Procedure AppendFile(
 		Or TypeOf(AddingOptions) = Type("Boolean") Then
 		
 		ExecutionParameters.Insert("MaximumSize", 0);
-		ExecutionParameters.Insert("SelectionDialogFilter",  StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask()));
+		ExecutionParameters.Insert("SelectionDialogFilter",  StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1'"), GetAllFilesMask()));
 		ExecutionParameters.Insert("NotOpenCardAfterCreateFromFile", ?(AddingOptions = Undefined, False, AddingOptions));
 		
 	Else
@@ -8210,10 +8217,10 @@ EndProcedure
 //       2 - from a computer (from the file system)
 //       3 - from a scanner.
 //   ExecutionParameters - Structure - For value types and descriptions, see "FilesOperationsClient.AddFile".:
-//       * ОбработчикРезультата.
-//       * ВладелецФайла.
+//       * 
+//       * 
 //       * OwnerForm
-//       * НеОткрыватьКарточкуПослеСозданияИзФайла.
+//       * 
 //
 Procedure AddAfterCreationModeChoice(CreateMode, ExecutionParameters) Export
 	
@@ -8299,9 +8306,9 @@ Procedure AddFromFileSystemWithoutFileSystemExtensionAfterImportFile(Put, Addres
 	
 	PathStructure = CommonClientServer.ParseFullFileName(SelectedFileName);
 	If IsBlankString(PathStructure.Extension) Then
-		QueryText = NStr("en = 'Select a file with an extension.';");
+		QueryText = NStr("en = 'Select a file with an extension.'");
 		Buttons = New ValueList;
-		Buttons.Add(DialogReturnCode.Retry, NStr("en = 'Select another file';"));
+		Buttons.Add(DialogReturnCode.Retry, NStr("en = 'Select another file'"));
 		Buttons.Add(DialogReturnCode.Cancel);
 		Handler = New CallbackDescription("AddFromFileSystemWithoutExtensionAfterRespondQuestionContinue", ThisObject, ExecutionParameters);
 		ShowQueryBox(Handler, QueryText, Buttons);
@@ -8314,7 +8321,7 @@ Procedure AddFromFileSystemWithoutFileSystemExtensionAfterImportFile(Put, Addres
 		FileSize = GetFromTempStorage(Address).Size();
 		If FileSize > ExecutionParameters.MaximumSize*1024*1024 Then
 			
-			ErrorText = NStr("en = 'The file size exceeds %1 MB.';");
+			ErrorText = NStr("en = 'The file size exceeds %1 MB.'");
 			Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText, 
 				ExecutionParameters.MaximumSize);
 			ReturnResultAfterShowWarning(ExecutionParameters.ResultHandler, Result.ErrorText, Undefined);
@@ -8363,7 +8370,7 @@ Procedure AddFromFileSystemWithoutFileSystemExtensionAfterImportFile(Put, Addres
 	Notify("Write_File", NotificationParameters, Result.FileRef);
 	
 	ShowUserNotification(
-		NStr("en = 'Created:';"),
+		NStr("en = 'Created:'"),
 		GetURL(Result.FileRef),
 		Result.FileRef,
 		PictureLib.DialogInformation);
@@ -8568,7 +8575,7 @@ Procedure InformOfEncryption(FilesArrayInWorkingDirectoryToDelete,
 	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
 	ModuleDigitalSignatureClient.InformOfObjectEncryption(
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'File: %1';"), FileRef));
+			NStr("en = 'File: %1'"), FileRef));
 	
 EndProcedure
 
@@ -8589,7 +8596,7 @@ Procedure InformOfDecryption(FileOwner, FileRef) Export
 	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
 	ModuleDigitalSignatureClient.InformOfObjectDecryption(
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'File: %1';"), FileRef));
+			NStr("en = 'File: %1'"), FileRef));
 	
 EndProcedure
 
@@ -8618,8 +8625,8 @@ Procedure SignFile(AttachedFile, FileData, FormIdentifier,
 	
 	If SignArrayOfFiles And AttachedFile.Count() > 1 Then
 		
-		DataDetails.Insert("Operation",            NStr("en = 'Sign files';"));
-		DataDetails.Insert("DataTitle",     NStr("en = 'Files';"));
+		DataDetails.Insert("Operation",            NStr("en = 'Sign files'"));
+		DataDetails.Insert("DataTitle",     NStr("en = 'Files'"));
 		
 		DataSet = New Array;
 		FileIndex = 0;
@@ -8645,8 +8652,8 @@ Procedure SignFile(AttachedFile, FileData, FormIdentifier,
 		
 	Else
 		
-		DataDetails.Insert("Operation",        NStr("en = 'Sign file';"));
-		DataDetails.Insert("DataTitle", NStr("en = 'File';"));
+		DataDetails.Insert("Operation",        NStr("en = 'Sign a file'"));
+		DataDetails.Insert("DataTitle", NStr("en = 'File'"));
 		
 		If SignArrayOfFiles Then
 			DataDetails.Insert("Presentation", AttachedFile[0]);
@@ -8726,7 +8733,7 @@ Procedure AddSignatureFromFile(File, FormIdentifier, CompletionHandler) Export
 	EndIf;
 	
 	DataDetails = New Structure;
-	DataDetails.Insert("DataTitle",     NStr("en = 'File';"));
+	DataDetails.Insert("DataTitle",     NStr("en = 'File'"));
 	DataDetails.Insert("Presentation",       FileData.Ref);
 	DataDetails.Insert("ShowComment", True);
 	DataDetails.Insert("Data",              FileProperties.BinaryData);
@@ -8803,7 +8810,7 @@ Procedure SaveFileWithSignature(File, FormIdentifier) Export
 	ExecutionParameters.Insert("FormIdentifier", FormIdentifier);
 	
 	DataDetails = New Structure;
-	DataDetails.Insert("DataTitle",     NStr("en = 'File';"));
+	DataDetails.Insert("DataTitle",     NStr("en = 'File'"));
 	DataDetails.Insert("Presentation",       ExecutionParameters.FileData.Ref);
 	DataDetails.Insert("ShowComment", True);
 	DataDetails.Insert("Object",              ExecutionParameters.FileData.Ref);
@@ -8896,7 +8903,7 @@ EndFunction
 //                                                                                 the imported files are added.
 //    * FilesGroup              - DefinedType.AttachedFile - a group of files, to which
 //                                                                       the imported files are added.
-//    * SelectedFiles            - ValueList - Imported objects File from computer or device.
+//    * SelectedFiles            - ValueList - File objects imported from a computer or other device.
 //    * Indicator                 - Number - a number from 0 to 100 is the progress of executing.
 //    * Comment               - String - comment.
 //    * StoreVersions             - Boolean - store versions.
@@ -8995,7 +9002,7 @@ Procedure ImportFilesRecursivelySetNextQuestion(ExecutionParameters)
 	
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Folder ""%1"" already exists.
-		           |Do you want to continue the upload?';"),
+		           |Do you want to continue the upload?'"),
 		ExecutionParameters.FolderToAddToSelectedFiles.Name);
 	
 	Handler = New CallbackDescription("FilesImportRecursivelyAfterRespondQuestion", ThisObject, ExecutionParameters);
@@ -9053,7 +9060,7 @@ Procedure ImportFilesRecursivelyWithoutDialogBoxes(Val Owner, Val SelectedFiles,
 		If Not SelectedFile.Exists() Then
 			Record = New Structure;
 			Record.Insert("FileName", SelectedFile.FullName);
-			Record.Insert("Error", NStr("en = 'No file on the computer.';"));
+			Record.Insert("Error", NStr("en = 'No file on the computer.'"));
 			ExecutionParameters.ArrayOfFilesNamesWithErrors.Add(Record);
 			Continue;
 		EndIf;
@@ -9116,11 +9123,11 @@ Procedure ImportFilesRecursivelyWithoutDialogBoxes(Val Owner, Val SelectedFiles,
 			ExecutionParameters.Indicator = Int(ExecutionParameters.Counter * 100 / ExecutionParameters.TotalFilesCount);
 			SizeInMB = SelectedFile.Size() / (1024 * 1024);
 			LabelMore = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Processing file ""%1"" (%2 MB)…';"),
+				NStr("en = 'Processing file ""%1"" (%2 MB)…'"),
 				SelectedFile.Name, 
 				FilesOperationsInternalClientServer.FileSizePresentation(SizeInMB));
 				
-			StateText = NStr("en = 'Uploading files from your computer...';");
+			StateText = NStr("en = 'Uploading files from your computer...'");
 			
 			Status(StateText,
 				ExecutionParameters.Indicator,
@@ -9137,7 +9144,7 @@ Procedure ImportFilesRecursivelyWithoutDialogBoxes(Val Owner, Val SelectedFiles,
 			PlacedFiles = New Array;			
 			If Not PutFiles(Files, PlacedFiles, , False, ExecutionParameters.FormIdentifier) Then
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot put the file in the ""%1"" temporary storage.';"),
+					NStr("en = 'Cannot put the file in the ""%1"" temporary storage.'"),
 					SelectedFile.FullName);
 			EndIf;
 			
@@ -9394,9 +9401,9 @@ Function CheckLockedFilesOnExit()
 	CurrentUser = UsersClient.AuthorizedUser();
 	
 	ApplicationWarningFormParameters = New Structure;
-	ApplicationWarningFormParameters.Insert("MessageQuestion",      NStr("en = 'Exit the application?';"));
-	ApplicationWarningFormParameters.Insert("MessageTitle",   NStr("en = 'The following files are locked:';"));
-	ApplicationWarningFormParameters.Insert("Title",            NStr("en = 'Exit application';"));
+	ApplicationWarningFormParameters.Insert("MessageQuestion",      NStr("en = 'Exit the application?'"));
+	ApplicationWarningFormParameters.Insert("MessageTitle",   NStr("en = 'The following files are locked:'"));
+	ApplicationWarningFormParameters.Insert("Title",            NStr("en = 'Exit application'"));
 	ApplicationWarningFormParameters.Insert("BeingEditedBy",          CurrentUser);
 	
 	ApplicationWarningForm = "DataProcessor.FilesOperations.Form.LockedFilesListWithQuestion";
@@ -9586,8 +9593,8 @@ Function CommonFilesOperationsSettings()
 	
 	CommonSettings = StandardSubsystemsClient.ClientRunParameters().CommonFilesOperationsSettings;
 	
-	// Проверка и обновление настроек сохраненных на сервере,
-	// которые вычисляются на клиенте.
+	// 
+	// 
 	
 	Return CommonSettings;
 	
@@ -9608,7 +9615,7 @@ Function FileInLocalFilesCache(FileData, CurrentVersion, FullFileName, InWorking
 	
 	FullFileName = "";
 	
-	// Если это активная версия - берем из ДанныеФайла.
+	// 
 	If FileData <> Undefined And FileData.CurrentVersion = CurrentVersion Then
 		FullFileName = FileData.FullFileNameInWorkingDirectory;
 		InWorkingDirectoryForRead = FileData.InWorkingDirectoryForRead;
@@ -9656,7 +9663,7 @@ Function ChoosePathToWorkingDirectory(DirectoryName, Title, OwnerWorkingDirector
 		DirectoryName = OpenFileDialog.Directory;
 		DirectoryName = CommonClientServer.AddLastPathSeparator(DirectoryName);
 		
-		// Создать каталог для файлов
+		// 
 		Try
 			CreateDirectory(DirectoryName);
 			TestDirectoryName = DirectoryName + "CheckAccess\";
@@ -9666,10 +9673,10 @@ Function ChoosePathToWorkingDirectory(DirectoryName, Title, OwnerWorkingDirector
 			EventLogClient.AddMessageForEventLog(EventLogEvent(),
 				"Warning", ErrorProcessing.DetailErrorDescription(ErrorInfo()),, True);
 
-			// Нет прав на создание каталога, или такой путь отсутствует.
+			// Insufficient rights to create a directory, or this path does not exist.
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Error writing to directory ""%1"".
-				           |Invalid path or insufficient permissions.';"),
+				           |Invalid path or insufficient permissions.'"),
 				DirectoryName);
 			ShowMessageBox(, ErrorText);
 			Return False;
@@ -9684,7 +9691,7 @@ Function ChoosePathToWorkingDirectory(DirectoryName, Title, OwnerWorkingDirector
 					           |""%1""
 					           |contains files.
 					           |
-					           |Please select another directory.';"),
+					           |Please select another directory.'"),
 					DirectoryName);
 				ShowMessageBox(, ErrorText);
 				Return False;
@@ -9761,7 +9768,7 @@ Procedure FindTooBigFiles(
 			
 			TotalFilesCount = TotalFilesCount + 1;
 			
-			// Размер файла слишком большой.
+			// 
 			If SelectedFile.Size() > MaxFileSize1 Then
 				ArrayOfTooBigFiles.Add(SelectedFile.FullName);
 				Continue;
@@ -9807,8 +9814,8 @@ Function DereferenceLnkFile(SelectedFile)
 	
 #If Not WebClient And Not MobileClient Then
 	ShellApplication = New COMObject("shell.application");
-	FullPath = ShellApplication.NameSpace(SelectedFile.Path);// Полный (только) путь на lnk-файл.
-	FileName = FullPath.items().item(SelectedFile.Name); // только имя lnk-файла
+	FullPath = ShellApplication.NameSpace(SelectedFile.Path);// 
+	FileName = FullPath.items().item(SelectedFile.Name); // 
 	Ref = FileName.GetLink();
 	Return New File(Ref.path);
 #EndIf
@@ -9844,7 +9851,7 @@ Procedure CompareFiles(FormIdentifier, FirstFile, SecondFile, Extension, Version
 			|   Microsoft Word document (.doc, .docx)
 			|   HTML document (.html, .htm)
 			|   Spreadsheet document (.mxl)
-			|   OpenDocument text document (.odt)';");
+			|   OpenDocument text document (.odt)'");
 		ShowMessageBox(, WarningText);
 		Return;
 	EndIf;
@@ -9925,7 +9932,7 @@ Procedure CompareFilesInternal(ExecutionParameters)
 			Return;
 		EndIf;	
 		
-		FileHeaderTemplate = NStr("en = '%1 (version # %2)';");
+		FileHeaderTemplate = NStr("en = '%1 (version # %2)'");
 		FirstFileData = ExecutionParameters.FileData1; // See FilesOperationsInternalServerCall.FileData
 		FileName1 = CommonClientServer.GetNameWithExtension(FirstFileData.FullVersionDescription,
 			FirstFileData.Extension);
@@ -9999,10 +10006,10 @@ Procedure ExecuteCompareFiles(PathToFile1, PathToFile2, FileVersionsComparisonMe
 		
 	Except
 		ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot compare the files. Reason: %1';"),
+			NStr("en = 'Cannot compare the files. Reason: %1'"),
 			ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		EventLogClient.AddMessageForEventLog(
-			NStr("en = 'Files.Compare files';", CommonClient.DefaultLanguageCode()),
+			NStr("en = 'Files.Compare files'", CommonClient.DefaultLanguageCode()),
 			"Error", ErrorMessage, , True);
 		Raise ErrorMessage;
 	EndTry;
@@ -10013,44 +10020,44 @@ Procedure CompareOpenOfficeOrgWriterFiles(Val PathToFile1, Val PathToFile2)
 	
 #If Not WebClient And Not MobileClient Then
 	
-	// Снимем readonly - иначе не сработает.
+	// 
 	File1 = New File(PathToFile1);
 	File1.SetReadOnly(False);
 	
 	File2 = New File(PathToFile2);
 	File2.SetReadOnly(False);
 	
-	// Открыть OpenOffice
+	// 
 	Try
 		ServiceManagerObject = New COMObject("com.sun.star.ServiceManager");
 		DesktopObject = ServiceManagerObject.createInstance("com.sun.star.frame.Desktop");
 		DispatcherHelperObject = ServiceManagerObject.createInstance("com.sun.star.frame.DispatchHelper");
 	Except
 		EventLogClient.AddMessageForEventLog(
-			NStr("en = 'Files.Compare files';", CommonClient.DefaultLanguageCode()),
+			NStr("en = 'Files.Compare files'", CommonClient.DefaultLanguageCode()),
 			"Error", ErrorProcessing.DetailErrorDescription(ErrorInfo()),, True);
 		Raise ErrorProcessing.BriefErrorDescription(ErrorInfo()) + Chars.LF 
-			+ NStr("en = 'Install or reinstall OpenOffice.org Writer.';");
+			+ NStr("en = 'Install or reinstall OpenOffice.org Writer.'");
 	EndTry;	
 	
-	// Параметры открытия: отключение исполнения макросов.
+	// 
 	DocumentParameters = New COMSafeArray("VT_VARIANT", 1);
 	RunMode = AssignValueToProperty(ServiceManagerObject,
 		"MacroExecutionMode",
 		0); // const short NEVER_EXECUTE = 0
 	DocumentParameters.SetValue(0, RunMode);
 	
-	// Открыть документ OpenOffice.
+	// 
 	DesktopObject.loadComponentFromURL(ConvertToURL(PathToFile2), "_blank", 0, DocumentParameters);
 	
 	CurrentWindow = DesktopObject.getCurrentFrame();
 	
-	// Установить показ изменений.
+	// 
 	CompareParameters = New COMSafeArray("VT_VARIANT", 1);
 	CompareParameters.SetValue(0, AssignValueToProperty(ServiceManagerObject, "ShowTrackedChanges", True));
 	DispatcherHelperObject.executeDispatch(CurrentWindow, ".uno:ShowTrackedChanges", "", 0, CompareParameters);
 	
-	// Сравнить с документом.
+	// 
 	CallParameters = New COMSafeArray("VT_VARIANT", 1);
 	CallParameters.SetValue(0, AssignValueToProperty(ServiceManagerObject, "URL", ConvertToURL(PathToFile1)));
 	DispatcherHelperObject.executeDispatch(CurrentWindow, ".uno:CompareDocuments", "", 0, CallParameters);
@@ -10067,10 +10074,10 @@ Procedure CompareMicrosoftWordFiles(PathToFile1, PathToFile2)
 		WordObject = New COMObject("Word.Application");
 	Except
 		EventLogClient.AddMessageForEventLog(
-			NStr("en = 'Files.Compare files';", CommonClient.DefaultLanguageCode()),
+			NStr("en = 'Files.Compare files'", CommonClient.DefaultLanguageCode()),
 			"Error", ErrorProcessing.DetailErrorDescription(ErrorInfo()),, True);
 		Raise ErrorProcessing.BriefErrorDescription(ErrorInfo()) + Chars.LF 
-			+ NStr("en = 'Install or reinstall Microsoft Word.';");
+			+ NStr("en = 'Install or reinstall Microsoft Word.'");
 	EndTry;	
 	WordObject.Visible = 0;
 	WordObject.WordBasic.DisableAutoMacros(1);
@@ -10081,7 +10088,7 @@ Procedure CompareMicrosoftWordFiles(PathToFile1, PathToFile2)
 		Document.Merge(PathToFile2, 2, 0, 0); // MergeTarget:=wdMergeTargetSelected, DetectFormatChanges:=False, UseFormattingFrom:=wdFormattingFromCurrent
 	Except
 		EventLogClient.AddMessageForEventLog(
-			NStr("en = 'Files.Compare files';", CommonClient.DefaultLanguageCode()),
+			NStr("en = 'Files.Compare files'", CommonClient.DefaultLanguageCode()),
 			"Error", ErrorProcessing.DetailErrorDescription(ErrorInfo()),, True);
 		Raise ErrorProcessing.BriefErrorDescription(ErrorInfo());
 	EndTry;	
@@ -10110,7 +10117,7 @@ Procedure CompareSpreadsheetDocuments1(PathToFile1, PathToFile2, TitleLeft, Titl
 	FormOpenParameters.TitleLeft = TitleLeft;
 	FormOpenParameters.TitleRight = TitleRight;
 	FormOpenParameters.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Compare %1 to %2';"), TitleLeft, TitleRight);
+		NStr("en = 'Compare %1 to %2'"), TitleLeft, TitleRight);
 	StandardSubsystemsClient.ShowSpreadsheetComparison(PlacedFiles[0].Location, 
 		PlacedFiles[1].Location, FormOpenParameters);
 	
@@ -10167,24 +10174,24 @@ EndProcedure
 
 #Region UtilityProceduresAndFunctionsForAsyncMethods
 
-// Общее описание параметров:
-//   Обработчик - ОписаниеОповещения, Неопределено, Структура - Процедура-обработчик асинхронного метода.
-//       * Неопределено       - Обработка не требуется.
-//       * ОписаниеОповещения - Описание процедуры-обработчика.
-//     В редких случаях может потребоваться прерывать выполнение кода только тогда,
-//     когда необходимо показать асинхронный диалог (в циклах например).
-//     В таких случаях в Обработчик передается Структура параметров вызывающего кода
-//     с обязательным ключом АсинхронныйДиалог,
-//     который используется при прерывании кода и открытии асинхронного диалога:
-//       * Структура - Структура параметров вызывающего кода.
-//           ** АсинхронныйДиалог - Структура - 
-//               *** Открыт       - Булево - Истина если диалог был открыт.
-//               *** ИмяПроцедуры - Строка - Имя процедуры обработчика вызывающего кода.
-//               *** Модуль       - ОбщийМодуль, ФормаКлиентскогоПриложения - Модуль обработчика вызывающего кода.
-//             В этом случае ОписаниеОповещения формируется из ключей "ИмяПроцедуры" и "Модуль".
-//             Внимание. Не все асинхронные процедуры поддерживают передачу типа Структура. Читайте состав типов.
+// 
+//   
+//       
+//       
+//     
+//     
+//     
+//     
+//     
+//       
+//            
+//               
+//               
+//               
+//             
+//             
 //
-//   Результат - Произвольный - Результат, который необходимо вернуть в Обработчик.
+//   
 //
 
 // Displays the warning window, and after closing it, calls the handler with the specified result.
@@ -10268,7 +10275,7 @@ EndFunction
 
 Procedure SetLockingFormFlag(ExecutionParameters, Value) Export
 	
-	// Рекурсивная регистрация всех обработчиков вызывающего кода.
+	// 
 	If ExecutionParameters.Property("ResultHandler") Then
 		ExecutionParameters.ResultHandler = CompletionHandler(ExecutionParameters.ResultHandler);
 	EndIf;
@@ -10296,7 +10303,7 @@ Function PrepareHandlerForDirectCall(HandlerOrStructure, Result)
 		If HandlerOrStructure.Property("AsynchronousDialog") Then
 			HandlerOrStructure.AsynchronousDialog.ResultWhenNotOpen = Result;
 		EndIf;
-		Return Undefined; // Обработчик не был подготовлен для диалога => Вызывающий код не остановился.
+		Return Undefined; // 
 	Else
 		Return HandlerOrStructure;
 	EndIf;
@@ -10477,7 +10484,7 @@ EndProcedure
 Procedure ProcessFileAfterGetFiles(ObtainedFiles, Context) Export
 	
 	If TypeOf(ObtainedFiles) <> Type("Array") Or ObtainedFiles.Count() = 0 Then
-		ProcessFileAfterError(NStr("en = 'Getting the file was canceled.';"), Undefined, Context);
+		ProcessFileAfterError(NStr("en = 'Getting the file was canceled.'"), Undefined, Context);
 		Return;
 	EndIf;
 	
@@ -10489,7 +10496,7 @@ EndProcedure
 Procedure ProcessFileAfterPutFiles(PlacedFiles, Context) Export
 	
 	If TypeOf(PlacedFiles) <> Type("Array") Or PlacedFiles.Count() = 0 Then
-		ProcessFileAfterError(NStr("en = 'Storing the file was canceled.';"), Undefined, Context);
+		ProcessFileAfterError(NStr("en = 'Storing the file was canceled.'"), Undefined, Context);
 		Return;
 	EndIf;
 	
@@ -10729,13 +10736,13 @@ Procedure InitAddIn(NotificationOfReturn, SuggestInstall = False) Export
 	If Not ScanAvailable() Then 
 		AddInAttachmentResult = CommonInternalClient.AddInAttachmentResult();
 		AddInAttachmentResult.Attached = False;
-		AddInAttachmentResult.ErrorDescription = NStr("en = 'Scanning is supported on Windows and Linux only.';");
+		AddInAttachmentResult.ErrorDescription = NStr("en = 'Scanning is supported on Windows and Linux only.'");
 		RunCallback(NotificationOfReturn, AddInAttachmentResult);
 		Return;
 	EndIf;
 	
 	ConnectionParameters = CommonClient.AddInAttachmentParameters();
-	ConnectionParameters.ExplanationText = NStr("en = 'To continue, attach a scanning add-in.';");
+	ConnectionParameters.ExplanationText = NStr("en = 'To continue, attach a scanning add-in.'");
 	ConnectionParameters.SuggestInstall = SuggestInstall;
 	
 	ComponentDetails = FilesOperationsInternalClientServer.ComponentDetails();
@@ -10785,7 +10792,7 @@ EndFunction
 Function ClientSupportsSynchronousCalls()
 	
 #If WebClient Then
-	// В Chrome и Firefox синхронные методы не поддерживаются.
+	// 
 	SystemInfo = New SystemInfo;
 	ApplicationInformationArray = StrSplit(SystemInfo.UserAgentInformation, " ", False);
 	
@@ -10844,7 +10851,7 @@ Procedure SelectModeAndEditFile(ResultHandler, FileData, CommandEditAvailability
 		
 	EndIf;
 	
-	// Если уже занят для редактирования, то не спрашивать - сразу открывать.
+	// 
 	If Not ValueIsFilled(FileData.BeingEditedBy)
 		And PersonalSettings.PromptForEditModeOnOpenFile = True
 		And CommandEditAvailability Then
@@ -10914,7 +10921,7 @@ Procedure DoPrintFileWithStamp(Ref, UUID) Export
 	
 	FileData = FilesOperationsInternalServerCall.GetFileData(Ref, UUID, True);
 	If Not FileData.SignedWithDS Then
-		ShowMessageBox(, NStr("en = 'Cannot print documents with digital signature stamps.';"));
+		ShowMessageBox(, NStr("en = 'Cannot print documents with digital signature stamps.'"));
 		Return;
 	EndIf;
 	 
@@ -10938,8 +10945,8 @@ Procedure GetDecryptedDataForPrinting(FileData, UUID)
 	EndIf;
 	
 	DataDetails = New Structure;
-	DataDetails.Insert("Operation", NStr("en = 'Decrypt file';"));
-	DataDetails.Insert("DataTitle", NStr("en = 'File';"));
+	DataDetails.Insert("Operation", NStr("en = 'Decrypt file'"));
+	DataDetails.Insert("DataTitle", NStr("en = 'File'"));
 	DataDetails.Insert("Data", FileData.RefToBinaryFileData);
 	DataDetails.Insert("Presentation", FileData.Ref);
 	DataDetails.Insert("EncryptionCertificates",
@@ -10973,7 +10980,7 @@ Procedure PrintFileWithStamp(FileData)
 	
 	Document = FilesOperationsInternalServerCall.DocumentWithStamp(FileData);
 	
-	DocumentName3 = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (with stamp)';"), 
+	DocumentName3 = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (with stamp)'"), 
 		FileData.Description);
 	
 	If TypeOf(Document) = Type("SpreadsheetDocument") Then
@@ -10997,7 +11004,7 @@ Procedure PrintFileWithStamp(FileData)
 	
 EndProcedure
 
-// Обратная совместимость. Открытие файла без владельца по адресу на временное хранилище.
+// 
 
 // Continue the OpenFile procedure.
 Procedure OpenFileAddInSuggested(FileSystemExtensionAttached1, AdditionalParameters) Export
@@ -11108,7 +11115,7 @@ Function GetFileToWorkingDirectory(Val FileBinaryDataAddress,
 		CreateDirectory(DirectoryForSave);
 	Except
 		ErrorMessage = ErrorProcessing.BriefErrorDescription(ErrorInfo());
-		ErrorMessage = NStr("en = 'Couldn''t create a directory:';") + " " + ErrorMessage;
+		ErrorMessage = NStr("en = 'Couldn''t create a directory:'") + " " + ErrorMessage;
 		CommonClient.MessageToUser(ErrorMessage);
 		Return False;
 	EndTry;
@@ -11152,8 +11159,8 @@ Procedure ShowDialogNeedToGetFileFromServer(ResultHandler, Val FileNameWithPath,
 	StandardFileData.Insert("InWorkingDirectoryForRead",     Not ForEditing);
 	StandardFileData.Insert("BeingEditedBy",                  FileData.BeingEditedBy);
 	
-	// Выяснено, что Файл в рабочем каталоге есть.
-	// Проверка даты изменения и принятие решения, что делать дальше.
+	// 
+	// 
 	
 	Parameters = New Structure;
 	Parameters.Insert("ResultHandler", ResultHandler);
@@ -11181,7 +11188,7 @@ Procedure ShowDialogNeedToGetFileFromServerActionDefined(Action, AdditionalParam
 		Result = True;
 	ElsIf Action = "OpenExistingFile" Then
 		Result = False;
-	Else // Действие = "Отмена".
+	Else // 
 		Result = Undefined;
 	EndIf;
 	
@@ -11215,7 +11222,7 @@ Function ConnectedDevices(Form, Attachable_Module)
 		ConnectedDevices = New Array;
 		ErrorPresentation = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		WriteScanLog("EnumDevices", ErrorPresentation, True);
-		ShowScanError(Form, NStr("en = 'Cannot get the list of devices';"), ErrorPresentation);
+		ShowScanError(Form, NStr("en = 'Cannot get the list of devices'"), ErrorPresentation);
 	EndTry;
 	Return ConnectedDevices;
 EndFunction
@@ -11250,7 +11257,7 @@ Function ScannerSetting(Form, Attachable_Module, DeviceName, SettingName) Export
 	Except
 		ErrorPresentation = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		WriteScanLog("GetSetting", ErrorPresentation, True);
-		ShowScanError(Form, NStr("en = 'Cannot get the device settings.';"), ErrorPresentation);
+		ShowScanError(Form, NStr("en = 'Cannot get the device settings.'"), ErrorPresentation);
 		Return -1;
 	EndTry;
 	
@@ -11266,7 +11273,7 @@ Function IsDevicePresent(Form, Attachable_Module, ShowError_ = True) Export
 		ErrorPresentation = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		WriteScanLog("IsDevicePresent", ErrorPresentation, True);
 		If ShowError_ Then
-			ShowScanError(Form, NStr("en = 'Cannot check for devices';"), ErrorPresentation);
+			ShowScanError(Form, NStr("en = 'Cannot check for devices'"), ErrorPresentation);
 		EndIf;
 		IsDevicePresent = False;
 	EndTry;
@@ -11316,7 +11323,7 @@ Procedure BeginScan(Form, Attachable_Module, ScanningParameters) Export
 	Except
 		ErrorPresentation = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		WriteScanLog("BeginScan", ErrorPresentation, True);
-		ShowScanError(Form, NStr("en = 'Cannot scan the document';"), ErrorPresentation);
+		ShowScanError(Form, NStr("en = 'Cannot scan the document'"), ErrorPresentation);
 	EndTry;
 	
 EndProcedure
@@ -11332,12 +11339,20 @@ Procedure EnableScanLog(Attachable_Module, ContinueNotification, Val Restart_1 =
 	NameOfLogFile = ScanLogParameters.NameOfLogFile;
 	
 	If Restart_1 And NameOfLogFile <> Undefined Then
+		
 		SetLogFileName(Attachable_Module, "");
+		
 		LogFile1 = New File(NameOfLogFile);
 		If LogFile1.Exists() Then
 			DeleteFiles(NameOfLogFile);
 		EndIf;
-	EndIf;	
+		
+		FileDirectory = New File(LogFile1.Path);
+		If Not FileDirectory.Exists() Then
+			NameOfLogFile = "";
+		EndIf;
+		
+	EndIf;
 	
 	ScanLogCatalog = ScanLogParameters.ScanLogCatalog;
 	UseScanLogDirectory  = ScanLogParameters.UseScanLogDirectory;
@@ -11397,7 +11412,7 @@ Procedure AfterScanLogDirAvailabilityChecked(Result, ExternalContext) Export
 	If Not Result.Success Then
 		FilesOperationsInternalServerCall.ResetScanLogDirectoryParameters(ExternalContext.ClientID);
 		WriteScanLog("ComponentFile", StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot access the scan log directory: %1. Your choice is not saved.';"), 
+			NStr("en = 'Cannot access the scan log directory: %1. Your choice is not saved.'"), 
 			ExternalContext.ScanLogCatalog), True);
 		ScanningSettings1 = New Structure;
 		ScanningSettings1.Insert("ScanLogCatalog", "");
@@ -11438,30 +11453,29 @@ EndProcedure
 Procedure WriteScanLog(Event, Comment = "", IsError = False) Export 
 	
 	EventLogClient.AddMessageForEventLog(
-		NStr("en = 'Scan images';", CommonClient.DefaultLanguageCode()) + "." + Event,
+		NStr("en = 'Scan images'", CommonClient.DefaultLanguageCode()) + "." + Event,
 		?(IsError, "Error", "Information"), Comment,, True);
 	
 EndProcedure
 
-Procedure ShowScanError(Form, Title, DetailErrorDescription, AssistanceRequiredMode = False) Export
-
-	FormOpenParameters = New Structure("Title, DetailErrorDescription", 
-		Title, DetailErrorDescription);
-	FormOpenParameters.Insert("ScannerName", Form.ScannerName);
-	FormOpenParameters.Insert("ShowScannerDialog", Form.ShowScannerDialog);
-	FormOpenParameters.Insert("AssistanceRequiredMode", AssistanceRequiredMode);
-	FormOpenParameters.Insert("Resolution", Form.ResolutionEnum);
+Procedure ShowScanError(Form, Title, DetailErrorDescription)
 	
-	Context = New Structure("AssistanceRequiredMode", AssistanceRequiredMode);
-	AfterErrorFormClosed = New CallbackDescription("AfterErrorFormClosed", Form, Context);
-	OpenForm("DataProcessor.Scanning.Form.ScanningError", FormOpenParameters, Form,,,, 
-		AfterErrorFormClosed);
+	If Not CommonClientServer.HasAttributeOrObjectProperty(Form, "ErrorPresentation") Then
+		Return;
+	EndIf;
+	
+	Form.ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = '%1: %2'"),
+		Title,
+		DetailErrorDescription);
+	
+	ShowMessageBox(, Title);
 	
 EndProcedure
 
 Function HasScanErrorOccurred() Export
 	
-	ScanJobParameters = CommonServerCall.CommonSettingsStorageLoad(
+	ScanJobParameters = CommonClient.CommonSettingsStorageLoad(
 		"ScanAddIn", "ScanJobParameters", Undefined);
 	Return ScanJobParameters <> Undefined;
 	
@@ -11470,7 +11484,7 @@ EndFunction
 Procedure DeleteScanError(Attachable_Module, CompletionNotification = Undefined, 
 	ShouldClearAddInLog = True) Export
 	
-	CommonServerCall.CommonSettingsStorageSave("ScanAddIn", 
+	CommonClient.CommonSettingsStorageSave("ScanAddIn", 
 		"ScanJobParameters", Undefined);
 	EnableScanLog(Attachable_Module, CompletionNotification, ShouldClearAddInLog);
 	
@@ -11479,11 +11493,11 @@ EndProcedure
 Procedure GetTechnicalInformation(DetailErrorDescription, NotificationOnCompletion = Undefined) Export
 	
 	OpenFileDialog = New FileDialog(FileDialogMode.Save);
-	OpenFileDialog.FullFileName = NStr("en = 'Technical information';");
-	Filter = NStr("en = 'Issue report';") + "(*.zip)|*.zip";
+	OpenFileDialog.FullFileName = NStr("en = 'Technical information'");
+	Filter = NStr("en = 'Issue report'") + "(*.zip)|*.zip";
 	OpenFileDialog.Filter = Filter;
 	OpenFileDialog.Multiselect = False;
-	OpenFileDialog.Title = NStr("en = 'Save technical information about the issue';");
+	OpenFileDialog.Title = NStr("en = 'Save technical information about the issue'");
 	If Not OpenFileDialog.Choose() Then
 		Return;
 	EndIf;
@@ -11510,7 +11524,7 @@ Procedure AfterLogFilesTempDirectoryCreated(DirectoryName, Context) Export
 	RecordZIP = New ZipFileWriter(Context.FileName);
 	NameOfLogFile = TechnicalInformation.NameOfLogFile;
 	If NameOfLogFile = Undefined Then
-		WriteScanLog("ComponentFile", NStr("en = 'Specify the name of the scanning add-in log file.';"), 
+		WriteScanLog("ComponentFile", NStr("en = 'Specify the name of the scanning add-in log file.'"), 
 			True);
 	Else
 		Log_File = New File(NameOfLogFile);
@@ -11522,7 +11536,7 @@ Procedure AfterLogFilesTempDirectoryCreated(DirectoryName, Context) Export
 			RecordZIP.Add(LogFileNameForSaving);
 		Else
 			WriteScanLog("ComponentFile", StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The scanning add-in log file does not exist. %1';"), 
+				NStr("en = 'The scanning add-in log file does not exist. %1'"), 
 				NameOfLogFile), True);
 		EndIf;
 	EndIf;
@@ -11533,7 +11547,8 @@ Procedure AfterLogFilesTempDirectoryCreated(DirectoryName, Context) Export
 	Context.Insert("TempFilesDir", TempFilesDir);
 	Context.Insert("TechnicalInformation", TechnicalInformation);
 	
-	Text =  NStr("en = 'Computer information:';") + Chars.LF + StandardSubsystemsClient.SupportInformation();
+	SupportInformation = StandardSubsystemsClient.SupportInformation();
+	Text =  NStr("en = 'Computer information:'") + Chars.LF + SupportInformation;
 	Context.Insert("SummaryInfoText", Text);
 		
 	NotifyDescription = New CallbackDescription("SummaryInfoAfterAddInObtained", ThisObject, Context);
@@ -11554,7 +11569,7 @@ Procedure SummaryInfoAfterAddInObtained(InitializationResult, Context) Export
 			Attachable_Module = InitializationResult.Attachable_Module;
 			VersionComponents = Attachable_Module.Version();
 			AddInInformation = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 add-in version: %2';"), "ImageScan", VersionComponents);
+				NStr("en = '%1 add-in version: %2'"), "ImageScan", VersionComponents);
 		Except
 			WriteScanLog("Version", ErrorProcessing.DetailErrorDescription(ErrorInfo()), 
 				True);
@@ -11564,18 +11579,18 @@ Procedure SummaryInfoAfterAddInObtained(InitializationResult, Context) Export
 	EndIf;
 	
 	SummaryInfoText = SummaryInfoText + Chars.LF + AddInInformation
-		+ Chars.LF + Chars.LF + NStr("en = 'Technical information';") + ":" 
+		+ Chars.LF + Chars.LF + NStr("en = 'Technical information'") + ":" 
 		+ Chars.LF + Context.DetailErrorDescription
 		+ Chars.LF + Chars.LF;
 		
 	If CommonClient.FileInfobase() Then
 		WorkMode = ?(CommonClient.ClientConnectedOverWebServer(),
-			NStr("en = 'File mode via web';"), NStr("en = 'File';"));
+			NStr("en = 'File mode via web'"), NStr("en = 'File'"));
 	Else
-		WorkMode = NStr("en = 'Client/server';");
+		WorkMode = NStr("en = 'Client/server'");
 	EndIf;
 	
-	SummaryInfoText = SummaryInfoText + NStr("en = 'Infobase operation mode';")+ " - "
+	SummaryInfoText = SummaryInfoText + NStr("en = 'Infobase operation mode'")+ " - "
 		+ WorkMode;
 	SummaryInfoFileName = Context.TempFilesDir + "SummaryInformation.txt";
 	
@@ -11588,7 +11603,7 @@ Procedure SummaryInfoAfterAddInObtained(InitializationResult, Context) Export
 	
 	LogFileName = Context.TempFilesDir + "EventLog.xml";
 	EventLog = TechnicalInformation.EventLog; // BinaryData
-	EventLog.Write(LogFileName); // ACC:287
+	EventLog.Write(LogFileName); // 
 	FilesForDeletion.Add(LogFileName);
 	RecordZIP.Add(LogFileName); 
 	
@@ -11629,12 +11644,12 @@ Procedure DeleteData(CompletionHandler, FileOrVersion, UUID) Export
 	
 	If TypeOf(FileOrVersion) <> Type("CatalogRef.FilesVersions") Then
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Do you want to delete the %1 file permanently?';"),
+			NStr("en = 'Do you want to delete the %1 file permanently?'"),
 			String(FileOrVersion));
-		TitleText = NStr("en = 'Delete file';");
+		TitleText = NStr("en = 'Delete file'");
 	Else
-		QueryText   = NStr("en = 'Do you want to delete the file version permanently?';");
-		TitleText = NStr("en = 'Delete file version';");
+		QueryText   = NStr("en = 'Do you want to delete the file version permanently?'");
+		TitleText = NStr("en = 'Delete file version'");
 	EndIf;
 	
 	ShowQueryBox(New CallbackDescription("DeleteDataAfterRespondQuestion", ThisObject, Context),
@@ -11716,12 +11731,12 @@ Procedure DeleteFilesData(CompletionHandler, FilesOrVersions, UUID) Export
 	FileOrVersion = FilesOrVersions[0];
 	If FilesOrVersions.Count() = 1 Then
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Do you want to delete the %1 file permanently?';"),
+			NStr("en = 'Do you want to delete the %1 file permanently?'"),
 			String(FileOrVersion));
-		TitleText = NStr("en = 'Delete file';");
+		TitleText = NStr("en = 'Delete file'");
 	Else
-		QueryText = NStr("en = 'Do you want to delete the files permanently?';");
-		TitleText = NStr("en = 'Delete files';");
+		QueryText = NStr("en = 'Do you want to delete the files permanently?'");
+		TitleText = NStr("en = 'Delete files'");
 	EndIf;
 	
 	ShowQueryBox(New CallbackDescription("DeleteFilesDataAfterQuestionAnswered", ThisObject, Context),
@@ -11762,7 +11777,7 @@ Procedure DeleteFilesDataAfterQuestionAnswered(Response, Context) Export
 		WarningText = "";
 		For Each Warning In Warnings Do
 			WarningText = ?(WarningText = "", "", Chars.LF)
-				+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1: %2';"), 
+				+ StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1: %2'"), 
 					Warning.Key, Warning.Value);
 		EndDo;
 		NotifyOfDataDeletion(Context.CompletionHandler, WarningText);
@@ -11835,15 +11850,15 @@ Procedure AfterFilesRecovered(Result, AdditionalParameters) Export
 		ProgressDetailedInfo = GetFromTempStorage(Result.ResultAddress);
 		If ProgressDetailedInfo.Processed < ProgressDetailedInfo.Total Then
 			Message = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Restored file info: %1 out of %1. For details, see Event log.';"),
+				NStr("en = 'Restored file info: %1 out of %1. For details, see Event log.'"),
 				ProgressDetailedInfo.Processed, ProgressDetailedInfo.Total);
-			ShowUserNotification(NStr("en = 'Restore file info';"),,
+			ShowUserNotification(NStr("en = 'Restore file info'"),,
 				Message, PictureLib.DialogExclamation, UserNotificationStatus.Important);
 		ElsIf ProgressDetailedInfo.Total > 0 Then
-			ShowUserNotification(NStr("en = 'Restore file info';"),,
-				NStr("en = 'File info is restored. Updating the report…';"));
+			ShowUserNotification(NStr("en = 'Restore file info'"),,
+				NStr("en = 'File info is restored. Updating the report…'"));
 		Else
-			ShowMessageBox(, NStr("en = 'No corrupted files to recover.';"));
+			ShowMessageBox(, NStr("en = 'No corrupted files to recover.'"));
 			Return;
 		EndIf;
 		
@@ -11869,6 +11884,150 @@ Function FileNameAndExtension(File)
 	Result.Insert("FileNameWithoutExtension", FileNameWithoutExtension);
 	
 	Return Result;
+EndFunction
+
+// 
+//
+// Parameters:
+//  ErrorDescription       - String - 
+//  CompletionHandler - CallbackDescription, Undefined - 
+//                                                            
+//                                                            :
+//                                                              * TechnicalInformation - String - 
+//                                                              * AdditionalFiles - Array of See ContactingTechnicalSupportInternalClient.AdditionalFileData.
+//
+Procedure GenerateInformationForSupport(ErrorDescription, CompletionHandler = Undefined) Export
+
+#If Not WebClient Then
+	
+	AdditionalParameters = New Structure;
+	AdditionalParameters.Insert("ErrorDescription", ErrorDescription);
+	AdditionalParameters.Insert("CompletionHandler", CompletionHandler);
+	
+	NotifyDescription = New CallbackDescription(
+		"ContinueGeneratingInformationForSupport",
+		ThisObject,
+		AdditionalParameters);
+	
+	InitAddIn(NotifyDescription, True);
+	
+#EndIf
+	
+EndProcedure
+
+Procedure ContinueGeneratingInformationForSupport(Result, AdditionalParameters) Export
+	
+	ResultOfFormation = New Structure;
+	ResultOfFormation.Insert("TechnologicalInfo", "");
+	ResultOfFormation.Insert("AdditionalFiles", New Array);
+	
+	SupportInformation = New Array;
+	SupportInformation.Add(StandardSubsystemsClient.SupportInformation());
+	SupportInformation.Add(NStr("en = 'Техническая информация'"));
+	SupportInformation.Add(AdditionalParameters.ErrorDescription);
+	SupportInformation.Add("");
+	
+	Attachable_Module = Undefined;
+	
+	If Result.Attached Then
+		
+		Try
+			
+			Attachable_Module = Result.Attachable_Module;
+			VersionComponents = Attachable_Module.Version();
+			
+			AddInInformation = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = '%1 add-in version: %2'"), "ImageScan", VersionComponents);
+			
+			SupportInformation.Add(AddInInformation);
+			SupportInformation.Add("");
+			
+		Except
+			
+			DetailErrorDescription = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+			WriteScanLog(NStr("en = 'Add-in version'"), DetailErrorDescription, True);
+			
+		EndTry;
+		
+	EndIf;
+	
+	WorkMode = WorkingModeOfApplicationToSupport();
+	SupportInformation.Add(WorkMode);
+	
+	TechnicalInformation = FilesOperationsInternalServerCall.TechnicalInformation();
+	SupportInformation.Add(TechnicalInformation.TechnicalInfoOnExtensionsAndSubsystemsVersions);
+	
+	ResultOfFormation.TechnologicalInfo = StrConcat(SupportInformation, Chars.LF);
+	
+	LoggingFileData = LoggingFileDataComponentsToSupport();
+	
+	If LoggingFileData <> Undefined Then
+		ResultOfFormation.AdditionalFiles.Add(LoggingFileData);
+	EndIf;
+	
+	RunCallback(AdditionalParameters.CompletionHandler, ResultOfFormation);
+	DeleteScanError(Attachable_Module);
+	
+EndProcedure
+
+Function LoggingFileDataComponentsToSupport()
+	
+	Result = Undefined;
+	
+	If Not CommonClient.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+		Return Result;
+	EndIf;
+	
+	ScanLogParameters = FilesOperationsInternalServerCall.ScanLogParameters(
+		ClientID());
+	
+	NameOfLoggingFile = ScanLogParameters.NameOfLogFile;
+	LoggingFile = New File(NameOfLoggingFile);
+	
+	If LoggingFile.Exists() Then
+		
+		LogStorageAddress = PutToTempStorage(
+			New BinaryData(NameOfLoggingFile),
+			New UUID);
+		
+		// 
+		ModuleForContactingTechnicalSupportServiceClient = CommonClient.CommonModule(
+			"ContactingTechnicalSupportInternalClient");
+		
+		Result = ModuleForContactingTechnicalSupportServiceClient.AdditionalFileData(
+			LogStorageAddress,
+			NStr("en = 'ImageScan.txt'"));
+		
+	Else
+		
+		Comment = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Файл журнала компоненты сканирования не существует: %1.'"),
+			NameOfLoggingFile);
+		
+		WriteScanLog(NStr("en = 'Файл компоненты'"), Comment, True);
+		
+	EndIf;
+	
+	Return Result;
+	
+EndFunction
+
+Function WorkingModeOfApplicationToSupport()
+	
+	Result = "";
+	
+	If CommonClient.FileInfobase() Then
+		If CommonClient.ClientConnectedOverWebServer() Then
+			Result = NStr("en = 'Режим работы информационной базы: Файловый через веб-сервер'");
+		Else
+			Result = NStr("en = 'Режим работы информационной базы: Файловый'");
+		EndIf;
+	Else
+		Result = NStr("en = 'Режим работы информационной базы: Клиент-серверный'");
+	EndIf;
+	
+	Return Result
+	
 EndFunction
 
 #EndRegion

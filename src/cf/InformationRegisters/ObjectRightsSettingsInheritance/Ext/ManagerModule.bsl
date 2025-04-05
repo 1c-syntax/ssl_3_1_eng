@@ -42,11 +42,11 @@ Procedure UpdateRegisterData(Val RightsSettingsOwners = Undefined, HasChanges = 
 		For Each KeyAndValue In AvailableRights.ByFullNames Do
 			
 			Query.Text = StrReplace(QueryText, "&CurrentTable", KeyAndValue.Key);
-			// @skip-check query-in-loop - A minor loop (1 or 2 iterations)
+			// @skip-check query-in-loop - Малый цикл из одной или двух итераций
 			Selection = Query.Execute().Select();
 			
 			While Selection.Next() Do
-				// @skip-check query-in-loop - Iterate through an item hierarchy with batch updates.
+				// @skip-check query-in-loop - Обход иерархии элементов с обновлением порциями
 				UpdateOwnerParents(Selection.Ref, HasChanges);
 			EndDo;
 		EndDo;
@@ -54,7 +54,7 @@ Procedure UpdateRegisterData(Val RightsSettingsOwners = Undefined, HasChanges = 
 	ElsIf TypeOf(RightsSettingsOwners) = Type("Array") Then
 		
 		For Each RightsSettingsOwner In RightsSettingsOwners Do
-			// @skip-check query-in-loop - Iterate through an item hierarchy with batch updates.
+			// @skip-check query-in-loop - Обход иерархии элементов с обновлением порциями
 			UpdateOwnerParents(RightsSettingsOwner, HasChanges);
 		EndDo;
 	Else
@@ -93,15 +93,16 @@ Procedure UpdateOwnerParents(RightsSettingsOwner, HasChanges = False, UpdateHier
 	OwnerType = TypeOf(RightsSettingsOwner);
 	
 	ErrorTitle =
-		NStr("en = 'An error occurred when updating the hierarchy of rights owners by Access Values.';")
+		NStr("en = 'An error occurred when updating the hierarchy of rights owners by Access Values.'")
 		+ Chars.LF
 		+ Chars.LF;
 	
 	If AvailableRights.ByTypes.Get(OwnerType) = Undefined Then
-		Raise ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
+		ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'No object rights settings are specified
-			           |for the ""%1"" type.';"),
+			           |for the ""%1"" type.'"),
 			String(OwnerType));
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	If AvailableRights.ByRefsTypes.Get(OwnerType) = Undefined Then
@@ -257,7 +258,7 @@ Function ObjectParents(Ref, ObjectRef2 = Undefined, ObjectParentProperties = "",
 			Break;
 		EndIf;
 		
-		// @skip-check query-in-loop - Iterate through an item hierarchy with batch updates.
+		// @skip-check query-in-loop - Обход иерархии элементов с обновлением порциями
 		CurrentParentProperties = ParentProperties(CurrentParentProperties.Ref);
 	EndDo;
 	
@@ -305,7 +306,7 @@ Procedure UpdateOwnerHierarchy(Ref, HasChanges, ObjectsWithChanges)
 	
 	Selection = Query.Execute().Select();
 	While Selection.Next() Do
-		// @skip-check query-in-loop - Iterate through an item hierarchy with batch updates.
+		// @skip-check query-in-loop - Обход иерархии элементов с обновлением порциями
 		NewRecords = ObjectParents(Selection.SubordinateRef, Ref);
 		
 		RecordSet = CreateRecordSet();

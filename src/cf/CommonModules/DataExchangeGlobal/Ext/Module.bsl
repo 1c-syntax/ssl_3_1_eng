@@ -32,9 +32,9 @@ Procedure CheckUpdateRequired(DIBNodeConfigurationUpdateRequired)
 	
 	If DIBNodeConfigurationUpdateRequired Then
 		Explanation = NStr("en = 'The application update is received from ""%1"".
-			|Install the update to continue the synchronization.';");
+			|Install the update to continue the synchronization.'");
 		Explanation = StringFunctionsClientServer.SubstituteParametersToString(Explanation, StandardSubsystemsClient.ClientRunParameters().MasterNode);
-		ShowUserNotification(NStr("en = 'Install update';"), "e1cib/app/DataProcessor.DataExchangeExecution",
+		ShowUserNotification(NStr("en = 'Install update'"), "e1cib/app/DataProcessor.DataExchangeExecution",
 			Explanation, PictureLib.Warning32);
 		Notify("DataExchangeCompleted");
 	EndIf;

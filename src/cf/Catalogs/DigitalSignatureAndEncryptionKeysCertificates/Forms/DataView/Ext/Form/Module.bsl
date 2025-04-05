@@ -55,11 +55,15 @@ EndProcedure
 #Region FormCommandsEventHandlers
 
 &AtClient
-Procedure ListOpen()
+Procedure ListOpen(Command)
 	
 	OpenData();
 	
 EndProcedure
+
+#EndRegion
+
+#Region Private
 
 &AtClient
 Procedure OpenData()

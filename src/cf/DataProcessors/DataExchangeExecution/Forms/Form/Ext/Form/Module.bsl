@@ -28,7 +28,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		If DataExchangeServer.IsSubordinateDIBNode() Then
 			InfobaseNode = DataExchangeServer.MasterNode();
 		Else
-			Text = NStr("en = 'Cannot open the form. The form parameters are not specified.';",
+			Text = NStr("en = 'Cannot open the form. The form parameters are not specified.'",
 				Common.DefaultLanguageCode());
 				
 			DataExchangeServer.ReportError(Text, Cancel);
@@ -45,7 +45,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Not ValueIsFilled(TransportID) Then
 		
 		Text = NStr("en = 'Default connection settings are not configured.
-                      |Synchronization is aborted.';",
+                      |Synchronization is aborted.'",
 			Common.DefaultLanguageCode()); 
 		
 		Raise Text;
@@ -84,7 +84,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	// Set a form title.
 	Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Synchronize data with %1';"), PeerInfobaseName);
+		NStr("en = 'Synchronize data with %1'"), PeerInfobaseName);
 	
 	// For DIB data exchange over a web service, always override the authentication parameters (username and password) saved in the infobase.
 	// For non-DIB data exchange, override (prompt for) the authentication parameters (password) only if they aren't saved in the infobase.
@@ -212,7 +212,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// ПОСТАВЛЯЕМАЯ ЧАСТЬ
+// 
 ////////////////////////////////////////////////////////////////////////////////
 
 &AtClient
@@ -287,7 +287,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -371,7 +371,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -427,7 +427,7 @@ Procedure ExecuteTimeConsumingOperationHandler()
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -650,7 +650,7 @@ Function Attachable_PageDataExchangeJobCheck_OnOpen(Cancel, SkipPage, IsMoveNext
                            |in scenario ""%2"".
                            |
                            |Click Next to cancel the scenario
-                           |and start synchronization by the node.';");
+                           |and start synchronization by the node.'");
 			MessageText = StrTemplate(Template, String(InfobaseNode), String(ScenarioUsingInternalPublication));	
 
 		Else
@@ -658,7 +658,7 @@ Function Attachable_PageDataExchangeJobCheck_OnOpen(Cancel, SkipPage, IsMoveNext
 			Template = NStr("en = 'Synchronization is already in progress for node ""%1"".
                            |
                            |Click Next to terminate the current synchronization
-                           |and restart it';");
+                           |and restart it'");
 			MessageText = StrTemplate(Template, String(InfobaseNode));
 
 		EndIf;
@@ -1225,10 +1225,10 @@ Function BackgroundJobStartAtServer(JobParameters, VersionDifferenceErrorOnGetDa
 			DataExchangeServer.InitializeVersionDifferenceCheckParameters(CheckVersionDifference);
 		EndIf;
 		
-		DescriptionTemplate = NStr("en = 'Importing data from %1';");
+		DescriptionTemplate = NStr("en = 'Importing data from %1'");
 		
 	Else
-		DescriptionTemplate = NStr("en = 'Exporting data to %1';");
+		DescriptionTemplate = NStr("en = 'Exporting data to %1'");
 	EndIf;
 	
 	JobDescription = StringFunctionsClientServer.SubstituteParametersToString(
@@ -1266,8 +1266,8 @@ Procedure BackgroundJobGetResultAtServer()
 	ErrorMessage = "";
 	
 	StandardErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Cannot %1. See the event log for details.';"),
-		?(BackgroundJobCurrentAction = 1, NStr("en = 'receive data';"), NStr("en = 'send data';")));
+		NStr("en = 'Cannot %1. See the event log for details.'"),
+		?(BackgroundJobCurrentAction = 1, NStr("en = 'receive data'"), NStr("en = 'send data'")));
 	
 	If BackgroundJobCompleteResult.Status = "Error" Then
 		ErrorMessage = BackgroundJobCompleteResult.DetailErrorDescription;
@@ -1279,7 +1279,7 @@ Procedure BackgroundJobGetResultAtServer()
 			ErrorMessage);
 		SetPrivilegedMode(False);
 		
-		ErrorText = NStr("en = 'Duplicate data synchronization settings are detected';", Common.DefaultLanguageCode()); 
+		ErrorText = NStr("en = 'Duplicate data synchronization settings are detected'", Common.DefaultLanguageCode()); 
 		If Not IsBlankString(ErrorText) And StrFind(ErrorMessage, ErrorText) > 0 Then
 			ErrorAssigningIDForNode = True;	
 		EndIf;
@@ -1411,7 +1411,7 @@ Procedure DecorationErrorIDAssignmentForNodeURLProcessing(Item, FormattedStringU
 	StandardProcessing = False;
 	
 	OpenForm("CommonForm.AdditionalDetails", New Structure("Title,TemplateName",
-		NStr("en = 'Set predefined node code';"), "InstructionToSetCodeForPredefinedNode_en"));
+		NStr("en = 'Set predefined node code'"), "InstructionToSetCodeForPredefinedNode_en"));
 
 EndProcedure
 
@@ -1420,7 +1420,7 @@ EndProcedure
 #Region NavigationEventHandlersSection
 
 ////////////////////////////////////////////////////////////////////////////////
-// Общие страницы обмена
+// 
 
 &AtClient
 Procedure StatusSynchronizationUnavailabilityURLProcessing(Item, FormattedStringURL, StandardProcessing)

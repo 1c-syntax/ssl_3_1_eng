@@ -129,13 +129,13 @@ Procedure InitializeReportHeaders(Form) Export
 	
 EndProcedure
 
-// See NationalLanguageSupportServer.ObjectsSCHRepresentations
+// 
 Procedure OnDefineObjectsWithTablePresentation(Objects) Export
 	Objects.Add("Catalog.ReportsOptions");
 	Objects.Add("Catalog.PredefinedExtensionsReportsOptions");
 EndProcedure
 
-// See NationalLanguageSupportServer.ObjectsSCHRepresentations
+// 
 Procedure OnDefineObjectsWithTablePresentationCommonData(Objects) Export
 	Objects.Add("Catalog.PredefinedReportsOptions");
 EndProcedure
@@ -188,11 +188,11 @@ Function RepresentationOfAStructureElement(Item) Export
 			
 		ElsIf ElementType = Type("DataCompositionTable") Then 
 			
-			ItemPresentation = NStr("en = 'Table';");
+			ItemPresentation = NStr("en = 'Table'");
 			
 		ElsIf ElementType = Type("DataCompositionChart") Then 
 			
-			ItemPresentation = NStr("en = 'Chart';");
+			ItemPresentation = NStr("en = 'Chart'");
 			
 		ElsIf ElementType = Type("DataCompositionGroup")
 			Or ElementType = Type("DataCompositionChartGroup")
@@ -217,7 +217,7 @@ Function GroupFieldsPresentation(Group, DeletionMark = False) Export
 	Fields = Group.GroupFields; // DataCompositionGroupFields
 	
 	If Fields.Items.Count() = 0 Then 
-		Return NStr("en = '<Detailed records>';");
+		Return NStr("en = '<Detailed records>'");
 	EndIf;
 	
 	FieldsPresentation = New Array;
@@ -249,7 +249,7 @@ Function GroupFieldsPresentation(Group, DeletionMark = False) Export
 	EndDo;
 	
 	If FieldsPresentation.Count() = 0 Then 
-		Return NStr("en = '<Detailed records>';");
+		Return NStr("en = '<Detailed records>'");
 	EndIf;
 	
 	Return StrConcat(FieldsPresentation, ", ");
@@ -278,7 +278,7 @@ Function RepresentationOfSelectedFields(SelectedFields, Collection = Undefined, 
 		
 		If TypeOf(Item) = Type("DataCompositionAutoSelectedField") Then 
 			
-			FieldsPresentation.Add(NStr("en = 'Auto';"));
+			FieldsPresentation.Add(NStr("en = 'Auto'"));
 			
 		ElsIf TypeOf(Item) = Type("DataCompositionSelectedFieldGroup") Then 
 			
@@ -322,7 +322,7 @@ Function PresentationOfTheConditionalDesign(ConditionalAppearance) Export
 	EndDo;
 	
 	If AppearancePresentation.Count() = 0 Then 
-		Return NStr("en = 'Appearance';");
+		Return NStr("en = 'Appearance'");
 	EndIf;
 	
 	Return StrConcat(AppearancePresentation, ", ");
@@ -354,7 +354,7 @@ Function SortingView(Sort) Export
 	EndDo;
 	
 	If SortingView.Count() = 0 Then 
-		Return NStr("en = 'Sort';");
+		Return NStr("en = 'Sort'");
 	EndIf;
 	
 	Return StrConcat(SortingView, ", ");
@@ -377,7 +377,7 @@ Function RepresentationOfTheSortingElement(Item, Sort = Undefined) Export
 	EndIf;
 	
 	If TypeOf(Item) = Type("DataCompositionAutoOrderItem") Then 
-		Return NStr("en = 'Auto';");
+		Return NStr("en = 'Auto'");
 	EndIf;
 	
 	If TypeOf(Sort) = Type("DataCompositionOrder") Then
@@ -395,7 +395,7 @@ Function RepresentationOfTheSortingElement(Item, Sort = Undefined) Export
 		Return Title;
 	EndIf;
 	
-	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (desc)';"), Title);
+	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (desc)'"), Title);
 	
 EndFunction
 
@@ -2055,7 +2055,7 @@ Function DataOfTheDecryptionElement(Form, Details) Export
 	
 		TypeOfTheDecryptionElement = ReportsOptionsInternalClientServer.TheTypeOfTheDecryptionElementIsGrouping();
 	Else
-		TypeOfTheDecryptionElement = TypeOfProps();
+		TypeOfTheDecryptionElement = ReportsOptionsInternalClientServer.TypeOfProps();
 	EndIf;
 	
 	DataOfTheDecryptionElement = New Structure;
@@ -2140,11 +2140,11 @@ Function DataOfTheDecryptionElement(Form, Details) Export
 	EndIf;
 	
 	If AvailableCompareTypes.FindByValue("DisableFilter") = Undefined Then 
-		AvailableCompareTypes.Insert(0, "DisableFilter", NStr("en = 'Clear filter';"));
+		AvailableCompareTypes.Insert(0, "DisableFilter", NStr("en = 'Clear filter'"));
 	EndIf;
 	
 	If AvailableCompareTypes.FindByValue("FilterMore") = Undefined Then 
-		AvailableCompareTypes.Add("FilterMore", NStr("en = 'More…';"));
+		AvailableCompareTypes.Add("FilterMore", NStr("en = 'More…'"));
 	EndIf;
 	
 	DataOfTheDecryptionElement.Insert("AvailableCompareTypes", AvailableCompareTypes);
@@ -2258,12 +2258,6 @@ Function TheGivenValuesOfTheSelectedAreas(Document, SelectedDocumentAreas, Value
 	EndDo;
 	
 	Return Result;
-	
-EndFunction
-
-Function TypeOfProps()
-	
-	Return "Attribute";	
 	
 EndFunction
 

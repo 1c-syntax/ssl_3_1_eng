@@ -270,14 +270,14 @@ EndFunction
 //     String - a title to generate presentation by all documents.
 //
 Function AllDocumentsFilterGroupTitle() Export
-	Return NStr("en = 'All documents';");
+	Return NStr("en = 'All documents'");
 EndFunction
 
 // Returns:
 //     String - a title for presentation generation by all catalogs.
 //
 Function AllCatalogsFilterGroupTitle() Export
-	Return NStr("en = 'All catalogs';");
+	Return NStr("en = 'All catalogs'");
 EndFunction
 
 //  Returns period and filter details as string.
@@ -833,13 +833,13 @@ Function InitializeComposer(MetadataNamesList = Undefined, LimitUsageWithFilter 
 	Parameters.Find("InfobaseNode").Value = InfobaseNode;
 	
 	AutomaticallyParameter = Parameters.Find("RegistrationReasonAutomatically");
-	AutomaticallyParameter.Value = NStr("en = 'By common rules';");
+	AutomaticallyParameter.Value = NStr("en = 'By common rules'");
 	
 	AdditionallyParameter = Parameters.Find("RegistrationReasonAdvanced");
-	AdditionallyParameter.Value = NStr("en = 'Additional registration';");
+	AdditionallyParameter.Value = NStr("en = 'Additional registration'");
 	
 	ParameterByRef = Parameters.Find("RegistrationReasonByRef");
-	ParameterByRef.Value = NStr("en = 'By reference';");
+	ParameterByRef.Value = NStr("en = 'By reference'");
 	
 	If LimitUsageWithFilter Then
 		Fields = CompositionSchema.DataSets.Find("ChangeRecords").Fields;
@@ -940,7 +940,7 @@ Procedure AddTabularSectionCompositionAdditionalSets(SourceItems, AddingOptions)
 	
 	ObjectMetadata = Metadata.FindByFullName(NameOfTableToAdd);
 	If ObjectMetadata = Undefined Then
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Invalid metadata name ""%1"" for registration at node ""%2"".';"),
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Invalid metadata name ""%1"" for registration at node ""%2"".'"),
 				NameOfTableToAdd, InfobaseNode);
 	EndIf;
 	
@@ -1242,7 +1242,7 @@ Function AdditionalParameterText()
 	
 	If ExportOption = 0 Then
 		// All automatic data.
-		Return NStr("en = 'No additional data.';");
+		Return NStr("en = 'No additional data.'");
 		
 	ElsIf ExportOption = 1 Then
 		AllDocumentsText = AllDocumentsFilterGroupTitle();
@@ -1301,5 +1301,5 @@ EndProcedure
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

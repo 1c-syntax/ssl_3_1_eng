@@ -13,8 +13,8 @@
 // Returns the list of all metadata object properties.
 //
 // Parameters:
-//  ObjectsKind - String -  full name of the metadata object;
-//  
+//  ObjectsKind - String - PropertyKind1 - String - "AdditionalAttributes", "AdditionalInfo", or "Labels".
+//  PropertyKind1 - String - "AdditionalAttributes", "AdditionalInfo", or "Labels".
 //
 // Returns:
 //  ValueTable - Property, Description, ValueType, and FormatProperties.
@@ -148,7 +148,7 @@ Procedure ColumnsForDataImport(CatalogMetadata, ColumnsInformation) Export
 				ColumnsInfoRow.ColumnType               = Property.ValueType;
 				ColumnsInfoRow.IsRequiredInfo = Property.RequiredToFill;
 				ColumnsInfoRow.Position                  = Position;
-				ColumnsInfoRow.Group                   = NStr("en = 'Additional attributes';");
+				ColumnsInfoRow.Group                   = NStr("en = 'Additional attributes'");
 				ColumnsInfoRow.Visible                = True;
 				ColumnsInfoRow.Note               = String(Property);
 				ColumnsInfoRow.Width                   = 30;
@@ -156,7 +156,7 @@ Procedure ColumnsForDataImport(CatalogMetadata, ColumnsInformation) Export
 				
 				Values = ValueMap[Property];
 				If TypeOf(Values) = Type("Array") And Values.Count() > 0 Then
-					ColumnsInfoRow.Note = ColumnsInfoRow.Note  + Chars.LF + NStr("en = 'Available values:';") + Chars.LF;
+					ColumnsInfoRow.Note = ColumnsInfoRow.Note  + Chars.LF + NStr("en = 'Available values:'") + Chars.LF;
 					For Each Value In Values Do
 						Code = ?(ValueIsFilled(Value.Code), " (" + Value.Code + ")", "");
 						ColumnsInfoRow.Note = ColumnsInfoRow.Note + Value.Description + Code +Chars.LF;
@@ -182,7 +182,7 @@ Procedure ColumnsForDataImport(CatalogMetadata, ColumnsInformation) Export
 			ColumnsInfoRow.ColumnType               = Property.ValueType;
 			ColumnsInfoRow.IsRequiredInfo = Property.RequiredToFill;
 			ColumnsInfoRow.Position                  = Position;
-			ColumnsInfoRow.Group                   = NStr("en = 'Additional properties';");
+			ColumnsInfoRow.Group                   = NStr("en = 'Additional properties'");
 			ColumnsInfoRow.Visible                = True;
 			ColumnsInfoRow.Note               = String(Property);
 			ColumnsInfoRow.Width                   = 30;
@@ -190,7 +190,7 @@ Procedure ColumnsForDataImport(CatalogMetadata, ColumnsInformation) Export
 			
 			Values = ValueMap[Property];
 			If TypeOf(Values) = Type("Array") And Values.Count() > 0 Then
-				ColumnsInfoRow.Note = ColumnsInfoRow.Note  + Chars.LF + NStr("en = 'Available values:';") + Chars.LF;
+				ColumnsInfoRow.Note = ColumnsInfoRow.Note  + Chars.LF + NStr("en = 'Available values:'") + Chars.LF;
 				For Each Value In Values Do
 					Code = ?(ValueIsFilled(Value.Code), " (" + Value.Code + ")", "");
 					ColumnsInfoRow.Note = ColumnsInfoRow.Note + Value.Description + Code +Chars.LF;
@@ -279,7 +279,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Id = New UUID("ecd6aad4-4b04-43be-82bc-cd4f563beb0b");
 	Handler.Procedure = "ChartsOfCharacteristicTypes.AdditionalAttributesAndInfo.ProcessDataForMigrationToNewVersion";
 	Handler.Comment = NStr("en = 'Provides a unique name and updates the dependencies of additional attributes and information records.
-		|Editing additional attributes and information records will be unavailable until the update is completed.';");
+		|Editing additional attributes and information records will be unavailable until the update is completed.'");
 	Handler.ExecutionMode = "Deferred";
 	Handler.UpdateDataFillingProcedure = "ChartsOfCharacteristicTypes.AdditionalAttributesAndInfo.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.ObjectsToRead    = "ChartOfCharacteristicTypes.AdditionalAttributesAndInfo";
@@ -306,7 +306,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Id = New UUID("ee1168cd-6428-4980-9ee6-602812264cfa");
 	Handler.Comment = NStr("en = 'Restructures additional attributes and information records.
 		|Additional attributes and information records of some documents and catalogs
-		|will be unavailable until the update is completed.';");
+		|will be unavailable until the update is completed.'");
 	Handler.Procedure = "Catalogs.AdditionalAttributesAndInfoSets.ProcessPropertiesSetsForMigrationToNewVersion";
 	
 EndProcedure
@@ -403,7 +403,7 @@ Procedure OnFillAccessKinds(AccessKinds) Export
 	
 	AccessKind = AccessKinds.Add();
 	AccessKind.Name = "AdditionalInfo";
-	AccessKind.Presentation = NStr("en = 'Additional information records';");
+	AccessKind.Presentation = NStr("en = 'Additional information records'");
 	AccessKind.ValuesType   = Type("ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo");
 	
 EndProcedure
@@ -474,7 +474,7 @@ Procedure OnDefineSubordinateObjects(SubordinateObjects) Export
 
 EndProcedure
 
-// See NationalLanguageSupportServer.ObjectsSCHRepresentations
+// 
 Procedure OnDefineObjectsWithTablePresentation(Objects) Export
 	Objects.Add("Catalog.ObjectsPropertiesValues");
 	Objects.Add("Catalog.ObjectPropertyValueHierarchy");
@@ -515,7 +515,7 @@ Procedure OnSearchForReferenceReplacement(ReplacementPairs, UnprocessedOriginals
 		Except
 			
 			RollbackTransaction();
-			WriteLogEvent(NStr("en = 'Reference search and replacement';", Common.DefaultLanguageCode()),
+			WriteLogEvent(NStr("en = 'Reference search and replacement'", Common.DefaultLanguageCode()),
 				EventLogLevel.Error,
 				UnprocessedDuplicate.ValueToReplace.Metadata(),,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
@@ -539,7 +539,7 @@ Procedure OnGetFullTextSearchResults(ObjectMetadata, Value, Presentation) Export
 		ObjectMetadata = Value.Metadata();
 		
 		Presentation = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1: %2';"), 
+			NStr("en = '%1: %2'"), 
 			Common.ObjectPresentation(ObjectMetadata), 
 			String(Value));
 		
@@ -656,7 +656,7 @@ Procedure AdditionalAttributesFillCheckProcessing(Source, Cancel, CheckedAttribu
 		Filter.Insert("DependentProperty", "RequiredToFill");
 		FillingRequirementDependencies = DependenciesTable.FindRows(Filter);
 		If FillingRequirementDependencies.Count() = 0 Then
-			Text = NStr("en = 'Attribute ""%1"" is required.';");
+			Text = NStr("en = 'Attribute ""%1"" is required.'");
 			Text = StringFunctionsClientServer.SubstituteParametersToString(Text, Item.Key);
 			Messages.Add(Text);
 		Else
@@ -705,7 +705,7 @@ Procedure AdditionalAttributesFillCheckProcessing(Source, Cancel, CheckedAttribu
 			EndIf;
 			
 			If FillingRequired Then
-				Text = NStr("en = 'Attribute ""%1"" is required.';");
+				Text = NStr("en = 'Attribute ""%1"" is required.'");
 				Text = StringFunctionsClientServer.SubstituteParametersToString(Text, Item.Key);
 				Messages.Add(Text);
 			EndIf;
@@ -1601,7 +1601,7 @@ Function AdditionalPropertyUsed(Property) Export
 	
 	For Each Table In ObjectTables1 Do
 		Query.Text = StrReplace(QueryText, "TableName", Table + ".AdditionalAttributes");
-		If Not Query.Execute().IsEmpty() Then // @skip-check query-in-loop - A multi-table query.
+		If Not Query.Execute().IsEmpty() Then // @skip-check query-in-loop - запрос к разным таблицам.
 			Return True;
 		EndIf;
 	EndDo;
@@ -2032,12 +2032,12 @@ Procedure CreatePropertiesSet(Object, SetProperties, PropertiesSetsDescriptions 
 				
 				LocalizedDescriptions = PropertiesSetsDescriptions[Language.LanguageCode];
 				LocalizedDescription = LocalizedDescriptions[SetProperties.Name];
-				LanguageSuffix_ = ModuleNationalLanguageSupportServer.LanguageSuffix_(Language.LanguageCode);
-				If ValueIsFilled(LanguageSuffix_) 
+				LanguageSuffix = ModuleNationalLanguageSupportServer.LanguageSuffix(Language.LanguageCode);
+				If ValueIsFilled(LanguageSuffix) 
 					And ValueIsFilled(LocalizedDescription)
-					And IsBlankString(Object["Description" + LanguageSuffix_])
-					And LocalizedDescription <> Object["Description" + LanguageSuffix_] Then
-						Object["Description" + LanguageSuffix_] = LocalizedDescription;
+					And IsBlankString(Object["Description" + LanguageSuffix])
+					And LocalizedDescription <> Object["Description" + LanguageSuffix] Then
+						Object["Description" + LanguageSuffix] = LocalizedDescription;
 						Write = True;
 				EndIf;
 
@@ -2118,7 +2118,7 @@ Procedure DeleteSettingFromStorage(Filter)
 			ErrorInfo = ErrorInfo();
 			ErrorText = NStr("en = 'An error occurred
 				|when clearing settings in handler %1:
-				|%2';");
+				|%2'");
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText,
 				"PropertyManagerInternal.ClearUnusedSettings",
 				ErrorProcessing.DetailErrorDescription(ErrorInfo));
@@ -2140,7 +2140,7 @@ Function NextSettingsItem(Selection)
 		ErrorInfo = ErrorInfo();
 		ErrorText = NStr("en = 'An error occurred
 			|when reading settings in handler %1:
-			|%2';");
+			|%2'");
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText,
 			"PropertyManagerInternal.ClearUnusedSettings",
 			ErrorProcessing.DetailErrorDescription(ErrorInfo));
@@ -2196,16 +2196,16 @@ Function DescriptionAlreadyUsed(Property, PropertiesSet, Description) Export
 	
 	If Selection.IsAdditionalInfo Then
 		QueryText = NStr("en = 'The additional information record with description
-		                          |""%1"" already exists.';");
+		                          |""%1"" already exists.'");
 	Else
 		QueryText = NStr("en = 'The additional attribute with description
-		                          |""%1"" already exists.';");
+		                          |""%1"" already exists.'");
 	EndIf;
 	
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 		QueryText + Chars.LF + Chars.LF
 		                         + NStr("en = 'It is recommended that you enter another description,
-		                         |otherwise, the application might not work properly.';"),
+		                         |otherwise, the application might not work properly.'"),
 		Description);
 	
 	Return QueryText;
@@ -2220,7 +2220,7 @@ Function NameAlreadyUsed(Val Name, Val CurrentProperty) Export
 		Or TheNameStartsWithANumber(Name)
 		Or StrSplit(NewName, " ", True).Count() > 1 Then
 		
-		QueryText = NStr("en = 'The name (the For developing purpose group) must be a single word that starts with a letter and can contain digits, letters, and underscores ( _ ).';");
+		QueryText = NStr("en = 'The name (the For developing purpose group) must be a single word that starts with a letter and can contain digits, letters, and underscores ( _ ).'");
 		Return QueryText;
 	EndIf;
 	
@@ -2245,10 +2245,10 @@ Function NameAlreadyUsed(Val Name, Val CurrentProperty) Export
 	
 	If Selection.IsAdditionalInfo Then
 		QueryText = NStr("en = 'The additional information record with name
-		                          |""%1"" already exists.';");
+		                          |""%1"" already exists.'");
 	Else
 		QueryText = NStr("en = 'The additional attribute with name
-		                          |""%1"" already exists.';");
+		                          |""%1"" already exists.'");
 	EndIf;
 	
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -2256,7 +2256,7 @@ Function NameAlreadyUsed(Val Name, Val CurrentProperty) Export
 		                         + NStr("en = 'It is recommended that you enter another name,
 		                         |otherwise, the application might not work properly.
 		                         |
-		                         |Do you want to enter a new name and proceed to saving?';"),
+		                         |Do you want to enter a new name and proceed to saving?'"),
 		Name);
 	
 	Return QueryText;
@@ -2277,7 +2277,7 @@ Function IDForFormulasAlreadyUsed(Val IDForFormulas, Val CurrentProperty) Export
 	VerificationID = ChartsOfCharacteristicTypes.AdditionalAttributesAndInfo.IDForFormulas(IDForFormulas);
 	If Upper(IDForFormulas) <> Upper(VerificationID) Then
 		QueryText = NStr("en = 'ID ""%1"" does not comply with variable naming rules.
-		                          |An ID must not contain spaces and special characters.';");
+		                          |An ID must not contain spaces and special characters.'");
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 			QueryText,
 			IDForFormulas);
@@ -2313,16 +2313,16 @@ Function IDForFormulasAlreadyUsed(Val IDForFormulas, Val CurrentProperty) Export
 	
 	If Selection.IsAdditionalInfo Then
 		QueryText = NStr("en = 'An additional information record with ID for formulas
-		                          |""%1"" already exists.';");
+		                          |""%1"" already exists.'");
 	Else
 		QueryText = NStr("en = 'An additional attribute with ID for formulas
-		                          |""%1"" already exists.';");
+		                          |""%1"" already exists.'");
 	EndIf;
 	
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 		QueryText + Chars.LF + Chars.LF
 		                         + NStr("en = 'It is recommended to use another ID for formulas.
-		                         |Otherwise, the application might function incorrectly.';"),
+		                         |Otherwise, the application might function incorrectly.'"),
 		IDForFormulas);
 	
 	Return QueryText;
@@ -2683,9 +2683,9 @@ Procedure UpdateCurrentSetPropertiesList(Form, Set, PropertyKind, CurrentEnable 
 			
 			If TopValues = Undefined Then 
 				If HasVal = True Then
-					ValuesPresentation = NStr("en = 'Values are marked for deletion';");
+					ValuesPresentation = NStr("en = 'Values are marked for deletion'");
 				Else
-					ValuesPresentation = NStr("en = 'Values are not entered yet';");
+					ValuesPresentation = NStr("en = 'Values are not entered yet'");
 				EndIf;
 			Else
 				ValuesPresentation = TopValues;

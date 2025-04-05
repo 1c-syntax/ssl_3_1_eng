@@ -22,4 +22,16 @@ Function InternetMailMessageImportanceStandard() Export
 	Return "Ordinary";
 EndFunction
 
+Function ThisIsErrorInWorkOfInternetMail(ErrorInfo) Export
+	
+	Return ErrorInfo.Code = ErrorCodeOfInternetMailWorks();
+	
+EndFunction
+
+Function ErrorCodeOfInternetMailWorks() Export
+	
+	Return "InternetMailWorkingError";
+	
+EndFunction
+
 #EndRegion

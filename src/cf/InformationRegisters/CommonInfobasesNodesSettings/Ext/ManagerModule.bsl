@@ -606,7 +606,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	RegisterMetadata    = Metadata.InformationRegisters.CommonInfobasesNodesSettings;
 	FullRegisterName     = RegisterMetadata.FullName();
 	RegisterPresentation = RegisterMetadata.Presentation();
-	FilterPresentation   = NStr("en = 'InfobaseNode = %1';");
+	FilterPresentation   = NStr("en = 'InfobaseNode = %1'");
 	
 	AdditionalProcessingDataSelectionParameters = InfobaseUpdate.AdditionalProcessingDataSelectionParameters();
 	
@@ -629,7 +629,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t process a set of ""%1"" register records with filter %2 due to:
-				|%3';"), RegisterPresentation, FilterPresentation, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				|%3'"), RegisterPresentation, FilterPresentation, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				
 			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
 				RegisterMetadata, , MessageText);
@@ -644,14 +644,14 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	If Processed = 0 And RecordsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Procedure InformationRegisters.CommonInfobasesNodesSettings.ProcessDataForMigrationToNewVersion failed to process (skipped) some exchange node records: %1';"), 
+			NStr("en = 'Procedure InformationRegisters.CommonInfobasesNodesSettings.ProcessDataForMigrationToNewVersion failed to process (skipped) some exchange node records: %1'"), 
 			RecordsWithIssuesCount);
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
 			, ,
 			StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The InformationRegisters.CommonInfobasesNodesSettings.ProcessDataForMigrationToNewVersion procedure processed records: %1';"),
+			NStr("en = 'The InformationRegisters.CommonInfobasesNodesSettings.ProcessDataForMigrationToNewVersion procedure processed records: %1'"),
 			Processed));
 	EndIf;
 	

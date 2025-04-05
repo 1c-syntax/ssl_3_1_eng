@@ -414,7 +414,7 @@ Opening the section…</v8:content>
 						<v8:Type>v8:ValueTable</v8:Type>
 					</Type>
 				</Column>
-				<Column name="Composite" id="11">
+				<Column name="RowKey" id="11">
 					<Type>
 						<v8:Type>v8:UUID</v8:Type>
 					</Type>

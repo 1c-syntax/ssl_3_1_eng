@@ -62,7 +62,7 @@ Procedure ExecuteCheck(Val Validation, Val CheckExecutionParameters = Undefined,
 		CheckToExecute = CheckByID(Validation);
 		If CheckToExecute.IsEmpty() Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Data integrity check with ID %1 does not exist (see %2).';"),
+				NStr("en = 'Data integrity check with ID %1 does not exist (see %2).'"),
 				Validation,
 				"AccountingAuditOverridable.OnDefineChecks");
 		EndIf;
@@ -112,7 +112,7 @@ Procedure ExecuteChecksInContext(AccountingChecksContext) Export
 	ProcedureName = "AccountingAudit.ExecuteCheck";
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Data integrity';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Data integrity'");
 	ExecutionParameters.WaitCompletion = Undefined;
 	
 	ExecutionResult = TimeConsumingOperations.ExecuteProcedureinMultipleThreads(
@@ -125,16 +125,16 @@ Procedure ExecuteChecksInContext(AccountingChecksContext) Export
 			Refinement = CommonClientServer.ExceptionClarification(ExecutionResult.ErrorInfo);
 			Raise(Refinement.Text, Refinement.Category,,, ExecutionResult.ErrorInfo);
 		ElsIf ExecutionResult.Status = "Canceled" Then
-			ErrorText = NStr("en = 'The background job is canceled.';");
+			ErrorText = NStr("en = 'The background job is canceled.'");
 		Else
-			ErrorText = NStr("en = 'Background job error';");
+			ErrorText = NStr("en = 'Background job error'");
 		EndIf;
 		Raise ErrorText;
 	EndIf;
 	
 	Results = GetFromTempStorage(ExecutionResult.ResultAddress); // Map
 	If TypeOf(Results) <> Type("Map") Then
-		ErrorText = NStr("en = 'The background job did not return a result';");
+		ErrorText = NStr("en = 'The background job did not return a result'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -145,16 +145,16 @@ Procedure ExecuteChecksInContext(AccountingChecksContext) Export
 				Refinement = CommonClientServer.ExceptionClarification(Result.ErrorInfo);
 				Raise(Refinement.Text, Refinement.Category,,, Result.ErrorInfo);
 			ElsIf Result.Status = "Canceled" Then
-				ErrorText = NStr("en = 'The background job is canceled.';");
+				ErrorText = NStr("en = 'The background job is canceled.'");
 			Else
-				ErrorText = NStr("en = 'Background job error';");
+				ErrorText = NStr("en = 'Background job error'");
 			EndIf;
 			Raise ErrorText;
 		EndIf;
 	EndDo;
 	
 	If MethodParameters.Count() <> Results.Count() Then
-		ErrorText = NStr("en = 'Some checks were not performed';");
+		ErrorText = NStr("en = 'Some checks were not performed'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -327,7 +327,7 @@ Function IssuesCountByCheckRule(CheckRule) Export
 	
 EndFunction
 
-// 
+// Returns objects with issues found using the specified check rule.
 // 
 // Parameters:
 //  CheckRule - CatalogRef.AccountingCheckRules
@@ -385,16 +385,16 @@ Function ObjectsWithIssues(Val CheckRule, Val Parameters = Undefined) Export
 	
 EndFunction
 
-// 
+// Returns the selection parameters for objects with issues for the "ProblematicObjects" function.
 // 
 // Returns:
 //  Structure:
 //   * InitialObjectWithIssue - Undefined 
-//   * PortionSize - Number - 
+//   * PortionSize - Number - By default, it is set to "1000".
 //   * AdditionalConditions - String
 //   * AdditionalParameters - Map of KeyAndValue:
-//     ** Key - String - 
-//     ** Value - Arbitrary - 
+//     ** Key - String - Query parameter name.
+//     ** Value - Arbitrary - Query parameter value.
 //
 Function ParametersOfObjectsWithIssuesSelection() Export
 	
@@ -460,7 +460,7 @@ EndFunction
 //                   - String
 //                   - Date - Check's third parameter.
 //       ...                                              
-//       * СвойствоН - AnyRef
+//       *  - AnyRef
 //                   - Boolean
 //                   - Number
 //                   - String
@@ -727,7 +727,7 @@ Procedure OnCreateListFormAtServer(Form, ListsNames, AdditionalProperties = Unde
 		ErrorIndicatorColumn.TitleLocation = IndicationColumnParameters.TitleLocation;
 		ErrorIndicatorColumn.HeaderPicture      = GlobalSettings.IssuesIndicatorPicture;
 		ErrorIndicatorColumn.ValuesPicture   = ValuesPicture;
-		ErrorIndicatorColumn.Title          = NStr("en = 'Error indicator';");
+		ErrorIndicatorColumn.Title          = NStr("en = 'Error indicator'");
 		
 		ListColumns = FormTable.ChildItems;
 		If ListColumns.Count() > 0 Then
@@ -792,14 +792,14 @@ Procedure OnGetDataAtServer(Settings, Rows, KeyFieldName = "Ref", AdditionalProp
 		
 		ObjectsWithIssues = AccountingAuditInternal.ObjectsWithIssues(RowsKeys, True);
 		
-		For Each Composite In RowsKeys Do
+		For Each RowKey In RowsKeys Do
 			
 			If KeyRef Then
-				AccountingAuditInternal.FillPictureIndex(Rows, Rows[Composite], Composite, IndicatorColumn, ObjectsWithIssues);
+				AccountingAuditInternal.FillPictureIndex(Rows, Rows[RowKey], RowKey, IndicatorColumn, ObjectsWithIssues);
 			Else
 				For Each ListLine In Rows Do
-					If ListLine.Key[KeyFieldName] = Composite Then
-						AccountingAuditInternal.FillPictureIndex(Rows, ListLine.Value, Composite, IndicatorColumn, ObjectsWithIssues);
+					If ListLine.Key[KeyFieldName] = RowKey Then
+						AccountingAuditInternal.FillPictureIndex(Rows, ListLine.Value, RowKey, IndicatorColumn, ObjectsWithIssues);
 					EndIf;
 				EndDo;
 			EndIf;
@@ -1312,7 +1312,7 @@ EndProcedure
 
 Function EventLogEvent()
 	
-	Return NStr("en = 'Data integrity';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Data integrity'", Common.DefaultLanguageCode());
 	
 EndFunction
 

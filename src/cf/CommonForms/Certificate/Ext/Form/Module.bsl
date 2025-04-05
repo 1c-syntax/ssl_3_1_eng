@@ -31,7 +31,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			ErrorAtServer = New Structure;
 			ErrorAtServer.Insert("ErrorDescription", StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Certificate ""%1"",
-				           |not found in the certificate catalog.';"), Parameters.Ref));
+				           |not found in the certificate catalog.'"), Parameters.Ref));
 			Return;
 		EndIf;
 	Else // Thumbprint.
@@ -40,7 +40,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		If Not ValueIsFilled(CertificateAddress) Then
 			ErrorAtServer = New Structure;
 			ErrorAtServer.Insert("ErrorDescription", StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Certificate not found by thumbprint ""%1"".';"), Parameters.Thumbprint));
+				NStr("en = 'Certificate not found by thumbprint ""%1"".'"), Parameters.Thumbprint));
 			Return;
 		EndIf;
 	EndIf;
@@ -144,7 +144,7 @@ Procedure OnOpen(Cancel)
 	If ValueIsFilled(ErrorAtServer) Then
 		Cancel = True;
 		DigitalSignatureInternalClient.ShowApplicationCallError(
-			NStr("en = 'Cannot open the certificate';"), "", 
+			NStr("en = 'Cannot open the certificate'"), "", 
 			ErrorAtClient, ErrorAtServer);
 	EndIf;
 	
@@ -192,7 +192,7 @@ EndProcedure
 Procedure DecorationErrorGettingCertificatesChainClick(Item)
 	
 	DigitalSignatureInternalClient.ShowApplicationCallError(
-		NStr("en = 'Cannot receive a certification path';"), "", 
+		NStr("en = 'Cannot receive a certification path'"), "", 
 		New Structure("ErrorDescription", ErrorGettingCertificationPaths),
 		New Structure("ErrorDescription", ErrorGettingCertificationPathAtServer));
 		
@@ -202,7 +202,7 @@ EndProcedure
 Procedure DecorationErrorGettingReviewListsClick(Item)
 	
 	DigitalSignatureInternalClient.ShowApplicationCallError(
-		NStr("en = 'Could not receive the addresses of certificate revocation lists';"), "", 
+		NStr("en = 'Could not receive the addresses of certificate revocation lists'"), "", 
 		New Structure("ErrorDescription", ErrorGettingListOfRevocationListsAddresses),
 		New Structure("ErrorDescription", ErrorWhenGettingReviewListAddressesOnServer));
 	
@@ -288,17 +288,17 @@ Procedure InstallCertificate(Command)
 		
 		If CurrentData.GetID() = CertificationPath[0].GetID() Then
 			InstallationOptions = New ValueList;
-			InstallationOptions.Add("ROOT", NStr("en = 'Trusted root certificates';"));
-			InstallationOptions.Add("CA", NStr("en = 'Intermediate certificates';"));
-			InstallationOptions.Add("MY", NStr("en = 'Personal certificate store';"));
-			InstallationOptions.Add("Container", NStr("en = 'Container and Personal store';"));
+			InstallationOptions.Add("ROOT", NStr("en = 'Trusted root certificates'"));
+			InstallationOptions.Add("CA", NStr("en = 'Intermediate certificates'"));
+			InstallationOptions.Add("MY", NStr("en = 'Personal certificate store'"));
+			InstallationOptions.Add("Container", NStr("en = 'Container and Personal store'"));
 			CertificateInstallationParameters.InstallationOptions = InstallationOptions;
 		ElsIf CurrentData.GetID() <> CertificationPath[CertificationPath.Count() - 1].GetID() Then
 			InstallationOptions = New ValueList;
-			InstallationOptions.Add("CA", NStr("en = 'Intermediate certificates';"));
-			InstallationOptions.Add("ROOT", NStr("en = 'Trusted root certificates';"));
-			InstallationOptions.Add("MY", NStr("en = 'Personal certificate store';"));
-			InstallationOptions.Add("Container", NStr("en = 'Container and Personal store';"));
+			InstallationOptions.Add("CA", NStr("en = 'Intermediate certificates'"));
+			InstallationOptions.Add("ROOT", NStr("en = 'Trusted root certificates'"));
+			InstallationOptions.Add("MY", NStr("en = 'Personal certificate store'"));
+			InstallationOptions.Add("Container", NStr("en = 'Container and Personal store'"));
 			CertificateInstallationParameters.InstallationOptions = InstallationOptions;
 		EndIf;
 	EndIf;
@@ -316,7 +316,7 @@ EndProcedure
 Procedure ValidateCompletion(Result, Context) Export
 	
 	If Result = True Then
-		ShowMessageBox(, NStr("en = 'Certificate is valid.';"));
+		ShowMessageBox(, NStr("en = 'Certificate is valid.'"));
 	ElsIf Result <> Undefined Then
 		
 		AdditionalData = DigitalSignatureInternalClient.AdditionalDataForErrorClassifier();
@@ -326,7 +326,7 @@ Procedure ValidateCompletion(Result, Context) Export
 		WarningParameters.Insert("AdditionalData", AdditionalData);
 		
 		WarningParameters.Insert("WarningTitle",
-			NStr("en = 'Certificate is invalid due to:';"));
+			NStr("en = 'Certificate is invalid due to:'"));
 		
 		If TypeOf(Result) = Type("Structure") Then
 			WarningParameters.Insert("ErrorTextClient",
@@ -352,14 +352,14 @@ Procedure FillSubjectProperties(Certificate)
 	Collection = DigitalSignature.CertificateSubjectProperties(Certificate);
 	
 	PropertiesPresentations = New Map;
-	PropertiesPresentations["CommonName"] = NStr("en = 'Common name';");
-	PropertiesPresentations["Country"] = NStr("en = 'Country';");
-	PropertiesPresentations["State_SSLym"] = NStr("en = 'State';");
-	PropertiesPresentations["Locality"] = NStr("en = 'Locality';");
-	PropertiesPresentations["Street"] = NStr("en = 'Street';");
-	PropertiesPresentations["Organization"] = NStr("en = 'Company';");
-	PropertiesPresentations["Department"] = NStr("en = 'Department';");
-	PropertiesPresentations["Email"] = NStr("en = 'Email';");
+	PropertiesPresentations["CommonName"] = NStr("en = 'Common name'");
+	PropertiesPresentations["Country"] = NStr("en = 'Country'");
+	PropertiesPresentations["State_SSLym"] = NStr("en = 'State'");
+	PropertiesPresentations["Locality"] = NStr("en = 'Locality'");
+	PropertiesPresentations["Street"] = NStr("en = 'Street'");
+	PropertiesPresentations["Organization"] = NStr("en = 'Company'");
+	PropertiesPresentations["Department"] = NStr("en = 'Department'");
+	PropertiesPresentations["Email"] = NStr("en = 'Email'");
 	
 	If Metadata.DataProcessors.Find("DigitalSignatureAndEncryptionApplications") <> Undefined Then
 		CommonClientServer.SupplementMap(PropertiesPresentations,
@@ -384,14 +384,14 @@ Procedure FillIssuerProperties(Certificate)
 	Collection = DigitalSignature.CertificateIssuerProperties(Certificate);
 	
 	PropertiesPresentations = New Map;
-	PropertiesPresentations["CommonName"] = NStr("en = 'Common name';");
-	PropertiesPresentations["Country"] = NStr("en = 'Country';");
-	PropertiesPresentations["State_SSLym"] = NStr("en = 'State';");
-	PropertiesPresentations["Locality"] = NStr("en = 'Locality';");
-	PropertiesPresentations["Street"] = NStr("en = 'Street';");
-	PropertiesPresentations["Organization"] = NStr("en = 'Company';");
-	PropertiesPresentations["Department"] = NStr("en = 'Department';");
-	PropertiesPresentations["Email"] = NStr("en = 'Email';");
+	PropertiesPresentations["CommonName"] = NStr("en = 'Common name'");
+	PropertiesPresentations["Country"] = NStr("en = 'Country'");
+	PropertiesPresentations["State_SSLym"] = NStr("en = 'State'");
+	PropertiesPresentations["Locality"] = NStr("en = 'Locality'");
+	PropertiesPresentations["Street"] = NStr("en = 'Street'");
+	PropertiesPresentations["Organization"] = NStr("en = 'Company'");
+	PropertiesPresentations["Department"] = NStr("en = 'Department'");
+	PropertiesPresentations["Email"] = NStr("en = 'Email'");
 	
 	If Metadata.DataProcessors.Find("DigitalSignatureAndEncryptionApplications") <> Undefined Then
 		CommonClientServer.SupplementMap(PropertiesPresentations,
@@ -423,46 +423,46 @@ Procedure FillInternalCertificateFields()
 	If InternalFieldsGroup = "Overall" Then
 		Items.InternalContentId.Visible = False;
 		
-		AddProperty(Certificate, "Version",                    NStr("en = 'Version';"));
-		AddProperty(Certificate, "ValidFrom",                NStr("en = 'Start date';"));
-		AddProperty(Certificate, "ValidTo",             NStr("en = 'End date';"));
+		AddProperty(Certificate, "Version",                    NStr("en = 'Version'"));
+		AddProperty(Certificate, "ValidFrom",                NStr("en = 'Start date'"));
+		AddProperty(Certificate, "ValidTo",             NStr("en = 'End date'"));
 		
 		If AreCertificateAdditionalPropertiesAvailable Then
 			If ValueIsFilled(Certificate.UniversalStartDateOfPrivateKey) Then
-				AddProperty(Certificate, "UniversalStartDateOfPrivateKey",    NStr("en = 'Private key start date';"));
+				AddProperty(Certificate, "UniversalStartDateOfPrivateKey",    NStr("en = 'Private key start date'"));
 			EndIf;
 			If ValueIsFilled(Certificate.UniversalEndDateOfPrivateKey) Then
-				AddProperty(Certificate, "UniversalEndDateOfPrivateKey", NStr("en = 'Private key end date';"));
+				AddProperty(Certificate, "UniversalEndDateOfPrivateKey", NStr("en = 'Private key end date'"));
 			EndIf;
 		Else
 			If ValueIsFilled(CertificateAdditionalProperties.PrivateKeyStartDate) Then
-				AddProperty(CertificateAdditionalProperties, "PrivateKeyStartDate",    NStr("en = 'Private key start date';"));
+				AddProperty(CertificateAdditionalProperties, "PrivateKeyStartDate",    NStr("en = 'Private key start date'"));
 			EndIf;
 			If ValueIsFilled(CertificateAdditionalProperties.PrivateKeyExpirationDate) Then
-				AddProperty(CertificateAdditionalProperties, "PrivateKeyExpirationDate", NStr("en = 'Private key end date';"));
+				AddProperty(CertificateAdditionalProperties, "PrivateKeyExpirationDate", NStr("en = 'Private key end date'"));
 			EndIf;
 		EndIf;
 		
-		AddProperty(Certificate, "UseToSign",    NStr("en = 'Use for signature';"));
-		AddProperty(Certificate, "UseToEncrypt", NStr("en = 'Use for encryption';"));
-		AddProperty(Certificate, "PublicKey",              NStr("en = 'Public key';"), True);
-		AddProperty(Certificate, "Thumbprint",                 NStr("en = 'Thumbprint';"), True);
-		AddProperty(Certificate, "SerialNumber",             NStr("en = 'Serial number';"), True);
+		AddProperty(Certificate, "UseToSign",    NStr("en = 'Use for signature'"));
+		AddProperty(Certificate, "UseToEncrypt", NStr("en = 'Use for encryption'"));
+		AddProperty(Certificate, "PublicKey",              NStr("en = 'Public key'"), True);
+		AddProperty(Certificate, "Thumbprint",                 NStr("en = 'Thumbprint'"), True);
+		AddProperty(Certificate, "SerialNumber",             NStr("en = 'Serial number'"), True);
 		
 	ElsIf InternalFieldsGroup = "Extensions" And AreCertificateAdditionalPropertiesAvailable Then
 		
 		IDsNames = New ValueList;
-		IDsNames.Add("2.5.29.31", NStr("en = 'Revocation list distribution points';"));
-		IDsNames.Add("2.5.29.16", NStr("en = 'Privet key validity period';"));
-		IDsNames.Add("2.5.29.15", NStr("en = 'Key usage';"));
-		IDsNames.Add("2.5.29.37", NStr("en = 'Enhanced key';"));
-		IDsNames.Add("1.2.643.100.114", NStr("en = 'Identification type during the certificate issuance';"));
-		IDsNames.Add("1.2.643.100.112", NStr("en = 'Issuer CA and digital signature tools';"));
-		IDsNames.Add("2.5.29.32", NStr("en = 'Certificate policies';"));
-		IDsNames.Add("1.3.6.1.5.5.7.1.1", NStr("en = 'Addresses for importing issuer certificates and OCSP services';"));
-		IDsNames.Add("1.2.643.100.111", NStr("en = 'Owner digital signature tool';"));
-		IDsNames.Add("2.5.29.19", NStr("en = 'Main limitations';"));
-		IDsNames.Add("1.2.643.2.2.49.2", NStr("en = 'Limited CryptoPro CSP license';"));
+		IDsNames.Add("2.5.29.31", NStr("en = 'Revocation list distribution points'"));
+		IDsNames.Add("2.5.29.16", NStr("en = 'Privet key validity period'"));
+		IDsNames.Add("2.5.29.15", NStr("en = 'Key usage'"));
+		IDsNames.Add("2.5.29.37", NStr("en = 'Enhanced key'"));
+		IDsNames.Add("1.2.643.100.114", NStr("en = 'Identification type during the certificate issuance'"));
+		IDsNames.Add("1.2.643.100.112", NStr("en = 'Issuer CA and digital signature tools'"));
+		IDsNames.Add("2.5.29.32", NStr("en = 'Certificate policies'"));
+		IDsNames.Add("1.3.6.1.5.5.7.1.1", NStr("en = 'Addresses for importing issuer certificates and OCSP services'"));
+		IDsNames.Add("1.2.643.100.111", NStr("en = 'Owner digital signature tool'"));
+		IDsNames.Add("2.5.29.19", NStr("en = 'Main limitations'"));
+		IDsNames.Add("1.2.643.2.2.49.2", NStr("en = 'Limited CryptoPro CSP license'"));
 				
 		Collection = Certificate.ДополненияСертификата;
 		
@@ -638,7 +638,7 @@ Async Procedure FillInReviewLists()
 	
 	ExplanationText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr(
-		"en = 'To receive addresses of certificate revocation lists, install the %1 add-in.';"),
+		"en = 'To receive addresses of certificate revocation lists, install the %1 add-in.'"),
 		"ExtraCryptoAPI");
 
 	Try

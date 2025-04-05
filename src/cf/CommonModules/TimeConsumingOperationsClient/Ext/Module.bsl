@@ -80,6 +80,7 @@ Procedure WaitCompletion(Val TimeConsumingOperation, Val CallbackOnCompletion = 
 		AdvancedOptions_.Insert("CurrentInterval", ?(AdvancedOptions_.Interval <> 0, AdvancedOptions_.Interval, 1));
 		AdvancedOptions_.Insert("Control", CurrentDate() + AdvancedOptions_.CurrentInterval); // ACC:143 - Session date is not used in interval checks
 		AdvancedOptions_.Insert("LastProgressSendTime", 0);
+		AdvancedOptions_.Insert("IsCompletionNotificationReceived", False);
 		
 		Operations = TimeConsumingOperationsInProgress();
 		Operations.List.Insert(AdvancedOptions_.JobID, AdvancedOptions_);
@@ -227,7 +228,7 @@ EndFunction
 //   * Progress   - See TimeConsumingOperations.ReadProgress
 //   * Messages  - Undefined - No messages.
 //                - FixedArray of UserMessage - A batch of messages
-//                  sent from a long-running opeation procedure.
+//                  sent from a long-running operation procedure.
 //
 //   * JobID - UUID - Background job id (if it was started).
 //                          - Undefined - If the job wasn't started (foreground execution).
@@ -324,7 +325,7 @@ EndProcedure
 // Configuration subsystems event handlers.
 
 // Parameters:
-//  Parameters - See CommonOverridable.BeforeRecurringClientDataSendToServer.Parameters
+//  Parameters - 
 //  AreChatsActive - Boolean - Flag indicating that the message transport is the "Business interactions" subsystem.
 //  Interval - Number - Timeout in seconds before the next check.
 //
@@ -425,7 +426,7 @@ Function LongRunningOperationCheckParameters(AreChatsActive, Interval)
 		Return Undefined;
 	EndIf;
 	
-	RestAreActive = New Array;
+	RestActive = New Array;
 	ChatsControlInterval = ChatsControlInterval();
 	
 	For Each TimeConsumingOperation In TimeConsumingOperationsInProgress Do
@@ -437,14 +438,16 @@ Function LongRunningOperationCheckParameters(AreChatsActive, Interval)
 			JobsToCancel.Add(TimeConsumingOperation.JobID);
 		Else
 			DateOfControl = TimeConsumingOperation.Control
-				+ ?(Not AreChatsActive Or TimeConsumingOperation.CurrentInterval > ChatsControlInterval,
-					0, ChatsControlInterval - TimeConsumingOperation.CurrentInterval);
+				+ ?(Not AreChatsActive
+					Or TimeConsumingOperation.IsCompletionNotificationReceived
+					Or TimeConsumingOperation.CurrentInterval > ChatsControlInterval,
+						0, ChatsControlInterval - TimeConsumingOperation.CurrentInterval);
 			
 			If DateOfControl <= CurrentDate Then
 				ActionsUnderControl.Insert(TimeConsumingOperation.JobID, TimeConsumingOperation);
 				JobsToCheck.Add(TimeConsumingOperation.JobID);
 			ElsIf AreChatsActive Then
-				RestAreActive.Add(TimeConsumingOperation);
+				RestActive.Add(TimeConsumingOperation);
 			EndIf;
 		EndIf;
 	EndDo;
@@ -456,7 +459,7 @@ Function LongRunningOperationCheckParameters(AreChatsActive, Interval)
 		Return Undefined;
 	EndIf;
 	
-	For Each TimeConsumingOperation In RestAreActive Do
+	For Each TimeConsumingOperation In RestActive Do
 		ActionsUnderControl.Insert(TimeConsumingOperation.JobID, TimeConsumingOperation);
 		JobsToCheck.Add(TimeConsumingOperation.JobID);
 	EndDo;
@@ -498,15 +501,18 @@ EndProcedure
 Procedure ReviseIdleHandlerInterval(Interval, TimeConsumingOperationsInProgress, AreChatsActive)
 	
 	CurrentDate = CurrentDate(); // ACC:143 - Session date is not used in interval checks
-	NewInterval = 120; 
-	For Each Operation In TimeConsumingOperationsInProgress Do
-		NewInterval = Max(Min(NewInterval, Operation.Value.Control - CurrentDate), 1);
-	EndDo;
+	NewInterval = 120;
 	
 	ChatsControlInterval = ChatsControlInterval();
 	If AreChatsActive And NewInterval < ChatsControlInterval Then
 		NewInterval = ChatsControlInterval;
 	EndIf;
+	
+	For Each Operation In TimeConsumingOperationsInProgress Do
+		If Not AreChatsActive Or Operation.Value.IsCompletionNotificationReceived Then
+			NewInterval = Max(Min(NewInterval, Operation.Value.Control - CurrentDate), 1);
+		EndIf;
+	EndDo;
 	
 	If Interval > NewInterval Then
 		Interval = NewInterval;
@@ -581,6 +587,7 @@ EndProcedure
 //   * Control              - Date
 //    
 //   * LastProgressSendTime - Number - Universal date in milliseconds.
+//   * IsCompletionNotificationReceived - Boolean
 //
 //  TimeConsumingOperation - See TimeConsumingOperations.OperationNewRuntimeResult
 //
@@ -600,11 +607,11 @@ Function ProcessActiveOperationResult(AdvancedOptions_, TimeConsumingOperation)
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'An error occurred when calling a notification about the progress of
 					           |the ""%1"" long-running operation:
-					           |%2';"),
+					           |%2'"),
 					String(AdvancedOptions_.JobID),
 					ErrorProcessing.DetailErrorDescription(ErrorInfo));
 				EventLogClient.AddMessageForEventLog(
-					NStr("en = 'Long-running operations.Error calling the event handler';",
+					NStr("en = 'Long-running operations.Error calling the event handler'",
 						CommonClient.DefaultLanguageCode()),
 					"Error",
 					ErrorText);
@@ -629,6 +636,11 @@ Function ProcessActiveOperationResult(AdvancedOptions_, TimeConsumingOperation)
 		 
 			FinishLongRunningOperation(AdvancedOptions_, TimeConsumingOperation);
 			Return True;
+			
+		ElsIf TimeConsumingOperation.Status = "Completed2" Then
+			AdvancedOptions_.CurrentInterval = 1;
+			AdvancedOptions_.IsCompletionNotificationReceived = True;
+			ServerNotificationsClient.AttachServerNotificationReceiptCheckHandler();
 		EndIf;
 	EndIf;
 	
@@ -665,11 +677,10 @@ EndProcedure
 
 Procedure FinishLongRunningOperation(AdvancedOptions_, TimeConsumingOperation)
 	
-	If TimeConsumingOperation.Status = "Completed2" Then
-		ShowNotification(AdvancedOptions_.UserNotification);
-	EndIf;
-	
 	If AdvancedOptions_.CallbackOnCompletion = Undefined Then
+		If TimeConsumingOperation.Status = "Completed2" Then
+			ShowNotification(AdvancedOptions_.UserNotification, AdvancedOptions_.OwnerForm);
+		EndIf;
 		Return;
 	EndIf;
 	
@@ -694,6 +705,10 @@ Procedure FinishLongRunningOperation(AdvancedOptions_, TimeConsumingOperation)
 	NotifyOfLongRunningOperationEnd(AdvancedOptions_.CallbackOnCompletion,
 		Result, AdvancedOptions_.JobID);
 	
+	If TimeConsumingOperation.Status = "Completed2" Then
+		ShowNotification(AdvancedOptions_.UserNotification, AdvancedOptions_.OwnerForm);
+	EndIf;
+	
 EndProcedure
 
 Procedure NotifyOfLongRunningOperationEnd(CallbackOnCompletion, Result, JobID)
@@ -705,11 +720,11 @@ Procedure NotifyOfLongRunningOperationEnd(CallbackOnCompletion, Result, JobID)
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'An error occurred when calling a notification about the completion of
 			           |the ""%1"" long-running operation:
-			           |%2';"),
+			           |%2'"),
 			String(JobID),
 			ErrorProcessing.DetailErrorDescription(ErrorInfo));
 		EventLogClient.AddMessageForEventLog(
-			NStr("en = 'Long-running operations.Error calling the event handler';",
+			NStr("en = 'Long-running operations.Error calling the event handler'",
 				CommonClient.DefaultLanguageCode()),
 			"Error", ErrorText,, True);
 		StandardSubsystemsClient.OutputErrorInfo(ErrorInfo)
@@ -769,13 +784,13 @@ Procedure CheckParametersWaitForCompletion(Val TimeConsumingOperation, Val Callb
 			"IdleParameters", IdleParameters, Type("Structure"), PropertyTypes);
 			
 		VerificationMessage = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Parameter %1 must be equal to or greater than 1';"), "IdleParameters.Interval");
+			NStr("en = 'Parameter %1 must be equal to or greater than 1'"), "IdleParameters.Interval");
 		
 		CommonClientServer.Validate(IdleParameters.Interval = 0 Or IdleParameters.Interval >= 1,
 			VerificationMessage, "TimeConsumingOperationsClient.WaitCompletion");
 			
 		VerificationMessage = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'If parameter %1 is set to %2, parameter %3 is not supported';"),
+			NStr("en = 'If parameter %1 is set to %2, parameter %3 is not supported'"),
 			"IdleParameters.OutputIdleWindow",
 			"True",
 			"IdleParameters.ExecutionProgressNotification");
@@ -787,7 +802,7 @@ Procedure CheckParametersWaitForCompletion(Val TimeConsumingOperation, Val Callb
 
 EndProcedure
 
-Procedure ShowNotification(UserNotification, FormOwner = Undefined) Export
+Procedure ShowNotification(UserNotification, FormOwner)
 	
 	Notification = UserNotification;
 	If Not Notification.Show Then
@@ -802,18 +817,30 @@ Procedure ShowNotification(UserNotification, FormOwner = Undefined) Export
 			NotificationURL = FormOwner.Window.GetURL();
 		EndIf;
 		If NotificationComment = Undefined Then
-			NotificationComment = FormOwner.Window.Title;
+			NotificationComment = FormOwner.Window.Caption;
 		EndIf;
 	EndIf;
 	
 	AlertStatus = Undefined;
 	If TypeOf(Notification.Important) = Type("Boolean") Then
-		AlertStatus = ?(Notification.Important, UserNotificationStatus.Important, UserNotificationStatus.Information);
+		AlertStatus = ?(Notification.Important,
+			UserNotificationStatus.Important, UserNotificationStatus.Information);
 	EndIf;
 	
-	ShowUserNotification(?(Notification.Text <> Undefined, Notification.Text, NStr("en = 'Operation completed.';")), 
-		NotificationURL, NotificationComment, Notification.Picture, AlertStatus);
+	Text = ?(Notification.Text <> Undefined, Notification.Text, NStr("en = 'Operation completed.'"));
+	
+	ShowNotificationToUser(Text, NotificationURL, NotificationComment,
+		Notification.Picture, AlertStatus, Undefined, FormOwner);
+	
+EndProcedure
 
+// Intended for attaching by an add-in for testing.
+Procedure ShowNotificationToUser(Text, ActionOnClick, Explanation,
+			Picture, AlertStatus, UniqueKey, FormOwner)
+	
+	ShowUserNotification(Text, ActionOnClick, Explanation,
+		Picture, AlertStatus, UniqueKey);
+	
 EndProcedure
 
 #EndRegion

@@ -139,33 +139,33 @@ Function ClosingDatesPrepared(DataParameters)
 			String.ObjectPresentation = String(String.Object);
 			
 		ElsIf ValueIsFilled(String.Section) Then
-			String.ObjectPresentation = NStr("en = 'For all objects except for the specified ones';");
+			String.ObjectPresentation = NStr("en = 'For all objects except for the specified ones'");
 		Else
-			String.ObjectPresentation = NStr("en = 'For all sections and objects except for the specified ones';");
+			String.ObjectPresentation = NStr("en = 'For all sections and objects except for the specified ones'");
 		EndIf;
 		
 		If ValueIsFilled(String.Section) Then
 			String.SectionPresentation = String(String.Section);
 		Else
-			String.SectionPresentation = "<" + NStr("en = 'Common date';") + ">";
+			String.SectionPresentation = "<" + NStr("en = 'Common date'") + ">";
 		EndIf;
 		
 		If String.SettingsRecipient = Enums.PeriodClosingDatesPurposeTypes.ForAllInfobases Then
-			String.SettingsRecipientPresentation = NStr("en = 'For all infobases except for the specified ones';");
+			String.SettingsRecipientPresentation = NStr("en = 'For all infobases except for the specified ones'");
 		Else
 			String.SettingsRecipientPresentation = String(TypeOf(String.SettingsRecipient)) + ":"
 				+ ?(ValueIsFilled(String.SettingsRecipient),
 					String(String.SettingsRecipient),
-					NStr("en = 'All infobases';"));
+					NStr("en = 'All infobases'"));
 		EndIf;
 		
 		If String.SettingsOwner = Enums.PeriodClosingDatesPurposeTypes.ForAllInfobases Then
-			String.SettingsOwnerPresentation = NStr("en = 'For all infobases except for the specified ones';");
+			String.SettingsOwnerPresentation = NStr("en = 'For all infobases except for the specified ones'");
 		Else
 			String.SettingsOwnerPresentation = String(TypeOf(String.SettingsOwner)) + ":"
 				+ ?(ValueIsFilled(String.SettingsOwner),
 					String(String.SettingsOwner),
-					NStr("en = 'All infobases';"));
+					NStr("en = 'All infobases'"));
 		EndIf;
 		
 		String.CommonDateSetting  = Not ValueIsFilled(String.Section);
@@ -471,5 +471,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

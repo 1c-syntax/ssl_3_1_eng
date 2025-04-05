@@ -48,9 +48,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Items.ObjectPresentation.Hyperlink = False;
 		Else
 			If Metadata.Documents.Contains(Object.Metadata()) Then
-				ObjectPresentation = NStr("en = 'Document';");
+				ObjectPresentation = NStr("en = 'Document'");
 			ElsIf Metadata.Enums.Contains(Object.Metadata()) Then
-				ObjectPresentation = NStr("en = 'Item';");
+				ObjectPresentation = NStr("en = 'Item'");
 				Items.ObjectPresentation.Hyperlink = False;
 			Else	
 				ObjectPresentation = Object.Metadata().ObjectPresentation;
@@ -102,6 +102,10 @@ EndProcedure
 
 &AtClient
 Procedure PeriodEndClosingDateDetailsOnChange(Item)
+	
+	If Item.Name = "PeriodEndClosingNotSet" Then
+		PeriodEndClosingDate = '00010101';
+	EndIf;
 	
 	PeriodClosingDatesInternalClientServer.SpecifyPeriodEndClosingDateSetupOnChange(ThisObject);
 	AttachIdleHandler("UpdatePeriodEndClosingDateDisplayOnChangeIdleHandler", 0.1, True);

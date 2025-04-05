@@ -49,9 +49,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	// End StandardSubsystems.Properties
 	
-	// StandardSubsystems.MessagesTemplates
+	// StandardSubsystems.MessageTemplates
 	DeterminePossibilityToFillEmailByTemplate();
-	// End StandardSubsystems.MessagesTemplates
+	// End StandardSubsystems.MessageTemplates
 	
 	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
@@ -65,7 +65,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.WarningAboutUnsentEmailsLabel.Title = StatusOfSendingEmails.WarningText;
 	
 	If Common.IsMobileClient() Then
-		Items.SpecifyContacts.Title                  = NStr("en = 'Save emails to Address Book';");
+		Items.SpecifyContacts.Title                  = NStr("en = 'Save emails to Address Book'");
 		Items.SpecifyContacts.Representation                = ButtonRepresentation.Text;
 		Items.LeftGroup1.ItemsAndTitlesAlign = ItemsAndTitlesAlignVariant.ItemsRightTitlesLeft;
 		Items.Subject.TitleLocation                     = FormItemTitleLocation.Top;
@@ -134,11 +134,11 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		EndIf;
 	EndIf;
 	
-	// StandardSubsystems.MessagesTemplates
+	// StandardSubsystems.MessageTemplates
 	If EventName = "Write_MessageTemplates" Then
 		DeterminePossibilityToFillEmailByTemplate();
 	EndIf;
-	// End StandardSubsystems.MessagesTemplates
+	// End StandardSubsystems.MessageTemplates
 	
 EndProcedure
 
@@ -304,7 +304,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 			Cancel                = True;
 			StandardProcessing = False;
 			
-			QueryText = NStr("en = 'The data has been changed. Save the changes?';");
+			QueryText = NStr("en = 'The data has been changed. Save the changes?'");
 			AdditionalParameters = New Structure;
 			AdditionalParameters.Insert("FilesToEditArray", FilesToEditArray);
 			NotificationAfterClosingPrompt = New CallbackDescription("AfterQuestionOnClose", ThisObject, AdditionalParameters);
@@ -815,7 +815,7 @@ Procedure RecipientsListBeforeEditEnd(Item, NewRow, CancelEdit, Cancel)
 	Filter = New Structure("Address", Address);
 	FoundRows = RecipientsList.FindRows(Filter);
 	If FoundRows.Count() > 1 Then
-		ErrorTextTemplate = NStr("en = 'You already added %1.';");
+		ErrorTextTemplate = NStr("en = 'You already added %1.'");
 		CommonClient.MessageToUser(StringFunctionsClientServer.SubstituteParametersToString(ErrorTextTemplate, Address)
 			,, "RecipientsList[" + Format(RecipientsList.IndexOf(FoundRows[0]), "NG=0") + "].Presentation");
 		Cancel = True;
@@ -905,13 +905,13 @@ Procedure SendForwardExecute(Command)
 	If RecipientsList.Count() = 0 Then
 		
 		CommonClient.MessageToUser(
-			NStr("en = 'Specify at least one email recipient.';"),, "RecipientsList");
+			NStr("en = 'Specify at least one email recipient.'"),, "RecipientsList");
 		Return;
 		
 	ElsIf (RecipientsList.Count() = 1 And IsBlankString(RecipientsList[0].Address)) Then
 		
 		CommonClient.MessageToUser(
-			NStr("en = 'Specify at least one email recipient.';"),, "RecipientsList[0].Presentation");
+			NStr("en = 'Specify at least one email recipient.'"),, "RecipientsList[0].Presentation");
 		Return;
 		
 	EndIf;
@@ -998,9 +998,9 @@ Procedure ImportanceHigh(Command)
 	
 	Object.Importance = PredefinedValue("Enum.InteractionImportanceOptions.High");
 	Items.SeverityGroup.Picture = PictureLib.ImportanceHigh;
-	Items.SeverityGroup.ToolTip = NStr("en = 'High importance';");
+	Items.SeverityGroup.ToolTip = NStr("en = 'High importance'");
 	Items.DecorationImportance.Picture = PictureLib.ImportanceHigh;
-	Items.DecorationImportance.ToolTip = NStr("en = 'High importance';");
+	Items.DecorationImportance.ToolTip = NStr("en = 'High importance'");
 	Modified = True;
 	
 EndProcedure
@@ -1010,9 +1010,9 @@ Procedure ImportanceNormal(Command)
 	
 	Object.Importance = PredefinedValue("Enum.InteractionImportanceOptions.Ordinary");
 	Items.SeverityGroup.Picture = PictureLib.ImportanceNotSpecified;
-	Items.SeverityGroup.ToolTip = NStr("en = 'Normal importance';");
+	Items.SeverityGroup.ToolTip = NStr("en = 'Normal importance'");
 	Items.DecorationImportance.Picture = PictureLib.ImportanceNotSpecified;
-	Items.DecorationImportance.ToolTip = NStr("en = 'Normal importance';");
+	Items.DecorationImportance.ToolTip = NStr("en = 'Normal importance'");
 	Modified = True;
 	
 EndProcedure
@@ -1022,14 +1022,14 @@ Procedure ImportanceLow(Command)
 	
 	Object.Importance = PredefinedValue("Enum.InteractionImportanceOptions.Low");
 	Items.SeverityGroup.Picture = PictureLib.ImportanceLow;
-	Items.SeverityGroup.ToolTip = NStr("en = 'Low importance';");
+	Items.SeverityGroup.ToolTip = NStr("en = 'Low importance'");
 	Items.DecorationImportance.Picture = PictureLib.ImportanceLow;
-	Items.DecorationImportance.ToolTip = NStr("en = 'Low importance';");
+	Items.DecorationImportance.ToolTip = NStr("en = 'Low importance'");
 	Modified = True;
 	
 EndProcedure
 
-// СтандартныеПодсистемы.Свойства
+// 
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -1043,7 +1043,7 @@ EndProcedure
 
 // End StandardSubsystems.Properties
 
-// СтандартныеПодсистемы.ШаблоныСообщений
+// 
 
 &AtClient
 Procedure GenerateFromTemplate(Command)
@@ -1061,7 +1061,7 @@ Procedure GenerateFromTemplate(Command)
 	
 EndProcedure
 
-// End StandardSubsystems.MessagesTemplates
+// End StandardSubsystems.MessageTemplates
 
 #EndRegion
 
@@ -1121,7 +1121,7 @@ Function CheckAddresseesListFilling1()
 	Cancel = False;
 	AddressesByPresentations = New Map;
 	AddressesByValues = New Map;
-	ErrorTextTemplate = NStr("en = 'You already added %1.';");
+	ErrorTextTemplate = NStr("en = 'You already added %1.'");
 	
 	For Each AddressLine In RecipientsList Do
 		
@@ -1198,21 +1198,21 @@ Procedure DoDisplayImportance()
 
 	If Object.Importance = Enums.InteractionImportanceOptions.High Then
 		Items.SeverityGroup.Picture = PictureLib.ImportanceHigh;
-		Items.SeverityGroup.ToolTip = NStr("en = 'High importance';");
+		Items.SeverityGroup.ToolTip = NStr("en = 'High importance'");
 		Items.DecorationImportance.Picture = PictureLib.ImportanceHigh;
-		Items.DecorationImportance.ToolTip = NStr("en = 'High importance';");
+		Items.DecorationImportance.ToolTip = NStr("en = 'High importance'");
 		
 	ElsIf Object.Importance = Enums.InteractionImportanceOptions.Low Then
 		Items.SeverityGroup.Picture = PictureLib.ImportanceLow;
-		Items.SeverityGroup.ToolTip = NStr("en = 'Low importance';");
+		Items.SeverityGroup.ToolTip = NStr("en = 'Low importance'");
 		Items.DecorationImportance.Picture = PictureLib.ImportanceLow;
-		Items.DecorationImportance.ToolTip = NStr("en = 'Low importance';");
+		Items.DecorationImportance.ToolTip = NStr("en = 'Low importance'");
 		
 	Else
 		Items.SeverityGroup.Picture = PictureLib.ImportanceNotSpecified;
-		Items.SeverityGroup.ToolTip = NStr("en = 'Normal importance';");
+		Items.SeverityGroup.ToolTip = NStr("en = 'Normal importance'");
 		Items.DecorationImportance.Picture = PictureLib.ImportanceNotSpecified;
-		Items.DecorationImportance.ToolTip = NStr("en = 'Normal importance';");
+		Items.DecorationImportance.ToolTip = NStr("en = 'Normal importance'");
 	EndIf;
 
 EndProcedure
@@ -1614,7 +1614,7 @@ Procedure AttachIncomingBaseEmailAsAttachmentIfNecessary(CurrentObject)
 		
 		FileParameters = FilesOperations.FileAddingOptions();
 		FileParameters.FilesOwner = CurrentObject.Ref;
-		FileParameters.BaseName = NStr("en = 'Forwarded message';");
+		FileParameters.BaseName = NStr("en = 'Forwarded message'");
 		FileParameters.ExtensionWithoutPoint = "html";
 		FileParameters.ModificationTimeUniversal = Undefined;
 		
@@ -1637,7 +1637,7 @@ Procedure AttachmentProperties(Command)
 	If CurrentData.Ref = Undefined Then
 		AdditionalParameters = New Structure("CurrentIndexInCollection", CurrentIndexInCollection);
 		OnCloseNotifyHandler = New CallbackDescription("QuestionOfFileRecordAfterClose", ThisObject, AdditionalParameters);
-		QueryText = NStr("en = 'You can access the file''s properties after you save the file. Save it now?';");
+		QueryText = NStr("en = 'You can access the file''s properties after you save the file. Save it now?'");
 		ShowQueryBox(OnCloseNotifyHandler, QueryText, QuestionDialogMode.YesNo);
 	Else
 		OpenAttachmentProperties(CurrentIndexInCollection);
@@ -1819,27 +1819,27 @@ EndFunction
 &AtServer
 Function GenerateOutgoingMessagePlainText(SelectionIncomingEmailData, CurrentObject)
 
-	StringHeader1 = NStr("en = '-----Forwarded message-----';");
+	StringHeader1 = NStr("en = '-----Forwarded message-----'");
 	
-	StringHeader1 = StringHeader1 + Chars.LF+ NStr("en = 'From';") + ": "+ SelectionIncomingEmailData.SenderPresentation
+	StringHeader1 = StringHeader1 + Chars.LF+ NStr("en = 'From'") + ": "+ SelectionIncomingEmailData.SenderPresentation
 		          + ?(SelectionIncomingEmailData.MetadataObjectName = "IncomingEmail",
 		          "[" + SelectionIncomingEmailData.SenderAddress +"]",
 		          "");
 		
-	StringHeader1 = StringHeader1 + Chars.LF+ NStr("en = 'Sent on';") + ": " 
+	StringHeader1 = StringHeader1 + Chars.LF+ NStr("en = 'Sent on'") + ": " 
 	              + Format(SelectionIncomingEmailData.Date,"DLF=DT");
 	
-	StringHeader1 = StringHeader1 + Chars.LF+ NStr("en = 'To';") + ": " 
+	StringHeader1 = StringHeader1 + Chars.LF+ NStr("en = 'To'") + ": " 
 	    + Interactions.GetIncomingEmailRecipientsPresentations(SelectionIncomingEmailData.EmailRecipients.Unload());
 		
 	CCRecipientsTable = SelectionIncomingEmailData.CCRecipients.Unload();
 	
 	If CCRecipientsTable.Count() > 0 Then
-		StringHeader1 = StringHeader1 + Chars.LF+ NStr("en = 'Cc';") + ": "
+		StringHeader1 = StringHeader1 + Chars.LF+ NStr("en = 'Cc'") + ": "
 		+ Interactions.GetIncomingEmailRecipientsPresentations(CCRecipientsTable);
 	EndIf;
 	
-	StringHeader1 = StringHeader1 + Chars.LF+ NStr("en = 'Subject';") + ": " + SelectionIncomingEmailData.Subject;
+	StringHeader1 = StringHeader1 + Chars.LF+ NStr("en = 'Subject'") + ": " + SelectionIncomingEmailData.Subject;
 	
 	// Transforming an HTML text to a plain text if necessary.
 	If SelectionIncomingEmailData.TextType <> Enums.EmailTextTypes.PlainText Then
@@ -2223,21 +2223,21 @@ Procedure SendExecute()
 	FoundRows = AvailableAccountsForSending.FindRows(New Structure("Account", Object.Account));
 	If FoundRows.Count() = 0 Then
 		CommonClient.MessageToUser(
-			NStr("en = 'The selected account cannot be used to send mail.';"),, "SenderPresentation", "Object");
+			NStr("en = 'The selected account cannot be used to send mail.'"),, "SenderPresentation", "Object");
 		Return;
 	EndIf;
 	
 	If FoundRows[0].DeleteAfterSend Then
 			
 		ButtonsList = New ValueList;
-		ButtonsList.Add(DialogReturnCode.Yes, NStr("en = 'Send';"));
-		ButtonsList.Add(DialogReturnCode.No, NStr("en = 'Send and save';"));
-		ButtonsList.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
+		ButtonsList.Add(DialogReturnCode.Yes, NStr("en = 'Send'"));
+		ButtonsList.Add(DialogReturnCode.No, NStr("en = 'Send and save'"));
+		ButtonsList.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
 		
 		QueryText = NStr("en = 'This email account doesn''t store sent messages in the app.
-		                    |Do you want to continue?';");
+		                    |Do you want to continue?'");
 		CloseNotificationHandler = New CallbackDescription("PromptForNotSavingSentEmail", ThisObject);
-		ShowQueryBox(CloseNotificationHandler,QueryText, ButtonsList,, DialogReturnCode.Yes, NStr("en = 'Send message';"));
+		ShowQueryBox(CloseNotificationHandler,QueryText, ButtonsList,, DialogReturnCode.Yes, NStr("en = 'Send message'"));
 	Else
 		SendMailClient();
 	EndIf;
@@ -2257,9 +2257,9 @@ EndProcedure
 Procedure SetButtonTitleByDefault()
 	
 	If Object.EmailStatus = Enums.OutgoingEmailStatuses.Sent Then
-		Items.Send.Title = NStr("en = 'Forward';");
+		Items.Send.Title = NStr("en = 'Forward'");
 	ElsIf Object.EmailStatus = Enums.OutgoingEmailStatuses.Outgoing Then
-		Items.Send.Title = NStr("en = 'Send now';");
+		Items.Send.Title = NStr("en = 'Send now'");
 	ElsIf Object.EmailStatus = Enums.OutgoingEmailStatuses.Draft Then
 		If Common.FileInfobase() Then
 			EmailOperationSettings = Interactions.EmailOperationSettings();
@@ -2268,7 +2268,7 @@ Procedure SetButtonTitleByDefault()
 			EndIf;
 		EndIf;
 		
-		Items.Send.Title = NStr("en = 'Send';");
+		Items.Send.Title = NStr("en = 'Send'");
 		
 	EndIf;
 	
@@ -2553,7 +2553,7 @@ EndProcedure
 
 &AtClient
 Procedure ShowEmailAddressRequiredMessage()
-	ShowMessageBox(, NStr("en = 'Enter an email address';"));
+	ShowMessageBox(, NStr("en = 'Enter an email address'"));
 EndProcedure
 
 &AtServer
@@ -2571,11 +2571,13 @@ Function ExecuteSendingAtServer()
 	Try
 		SendingResult = EmailOperations.SendMail(EmailObject.Account, MailMessage);
 	Except
+		
 		ErrorInfo = ErrorInfo();
-		If ErrorInfo.IsErrorOfCategory(ErrorCategory.ConfigurationError) Then
+		
+		If Not EmailOperationsInternalClientServer.ThisIsErrorInWorkOfInternetMail(ErrorInfo) Then
 			Raise;
 		EndIf;
-
+		
 		ErrorText = EmailOperations.ExtendedErrorPresentation(
 			ErrorInfo, Common.DefaultLanguageCode());
 		WriteLogEvent(EmailManagement.EventLogEvent(),
@@ -2712,7 +2714,7 @@ Procedure SendMailClient()
 	
 	If Result.AttachmentError Then
 		EmailOperationsClient.ReportConnectionError(Object.Account, 
-			NStr("en = 'The message is not sent';"), Result.MessageText);
+			NStr("en = 'The message is not sent'"), Result.MessageText);
 	Else
 		ShowMessageBox(, Result.MessageText);
 	EndIf;
@@ -3043,7 +3045,7 @@ Procedure FillTabularSectionsByRecipientsList()
 	
 EndProcedure
 
-// СтандартныеПодсистемы.Свойства
+// 
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()
@@ -3087,7 +3089,7 @@ EndProcedure
 
 // End StandardSubsystems.Properties
 
-// СтандартныеПодсистемы.ШаблоныСообщений
+// 
 
 &AtClient
 Procedure FillByTemplateAfterTemplateChoice(Result, AdditionalParameters) Export

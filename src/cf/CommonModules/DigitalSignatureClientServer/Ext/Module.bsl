@@ -127,7 +127,7 @@ EndFunction
 //                                                    "CheckAdditionalAttributes" set to "False".
 //   * AdditionalAttributesCheckError - String - Error verifying the certificate and its enhanced
 //                                                      signature attributes (such as the timestamp).
-//   * CertificateVerificationParameters - See DigitalSignatureClient.SignatureVerificationParameters.ПроверятьСертификат
+//   * CertificateVerificationParameters - 
 //
 //   * SignatureType          - EnumRef.CryptographySignatureTypes - Not filled when checking XML envelope signatures.
 //   * DateActionLastTimestamp - Date - Validity period of the certificate that the last timestamp was signed with.
@@ -165,23 +165,23 @@ EndFunction
 // 
 // Returns:
 //  Structure - Signature verification result.:
-//   * SequenceNumber - See NewSignatureProperties.SequenceNumber
-//   * Object - See NewSignatureProperties.SignedObject
-//   * SignatureDate - See NewSignatureProperties.SignatureDate
-//   * Comment - See NewSignatureProperties.Comment
+//   * SequenceNumber - 
+//   * Object - 
+//   * SignatureDate - 
+//   * Comment - 
 //   * SignatureAddress - String - Signature address in temporary storage.
-//   * Thumbprint - See NewSignatureProperties.Thumbprint
+//   * Thumbprint - 
 //   * CertificateAddress - String - Certificate address in a temporary storage.
-//   * SignatureCorrect - See NewSignatureProperties.SignatureCorrect
-//   * SignatureValidationDate - See NewSignatureProperties.CheckDateSignature
-//   * CertificateOwner - See NewSignatureProperties.CertificateOwner
-//   * IsVerificationRequired - See NewSignatureProperties.IsVerificationRequired
-//   * SignatureSetBy - See NewSignatureProperties.SignatureSetBy
-//   * SignatureType - See NewSignatureProperties.SignatureType
-//   * DateActionLastTimestamp - See NewSignatureProperties.DateActionLastTimestamp
+//   * SignatureCorrect - 
+//   * SignatureValidationDate - 
+//   * CertificateOwner - 
+//   * IsVerificationRequired - 
+//   * SignatureSetBy - 
+//   * SignatureType - 
+//   * DateActionLastTimestamp - 
 //   * MachineReadableLetterOfAuthority - CatalogRef.MachineReadablePowersAttorney
 //   * MachineReadableLOAValid - Boolean
-//   * ResultOfSignatureVerificationByMRLOA - See NewSignatureProperties.ResultOfSignatureVerificationByMRLOA
+//   * ResultOfSignatureVerificationByMRLOA - 
 //   * CheckResult - Structure - Verification result properties to be saved in the infobase.:
 //     ** IsSignatureMathematicallyValid - Boolean
 //     ** SignatureMathValidationError - String - Error text.
@@ -245,24 +245,24 @@ Procedure FillSignatureStatus(SignatureProperties, SessionDate) Export
 	
 	If Not ValueIsFilled(SignatureProperties.SignatureValidationDate) Then
 		Status = "";
-		SignatureProperties.BriefCheckResult = NStr("en = 'Not verified';");
+		SignatureProperties.BriefCheckResult = NStr("en = 'Not verified'");
 		Return;
 	EndIf;
 		
 	CheckResult = SignatureProperties.CheckResult;
 	
 	If ValueIsFilled(CheckResult) And CheckResult.IsAdditionalAttributesCheckedManually Then
-		Status = NStr("en = 'Verified manually';");
+		Status = NStr("en = 'Verified manually'");
 	ElsIf SignatureProperties.SignatureCorrect
 		And ValueIsFilled(SignatureProperties.DateActionLastTimestamp)
 		And SignatureProperties.DateActionLastTimestamp < SessionDate Then
-		Status = NStr("en = 'Was valid as of signing date';");
+		Status = NStr("en = 'Was valid as of signing date'");
 	ElsIf SignatureProperties.SignatureCorrect Then
-		Status = NStr("en = 'Valid';");
+		Status = NStr("en = 'Valid'");
 	ElsIf SignatureProperties.IsVerificationRequired Then
-		Status = NStr("en = 'Verification required';");
+		Status = NStr("en = 'Verification required'");
 	Else
-		Status = NStr("en = 'Invalid';");
+		Status = NStr("en = 'Invalid'");
 	EndIf;
 	
 	If Not ValueIsFilled(CheckResult) Then
@@ -281,7 +281,7 @@ Procedure FillSignatureStatus(SignatureProperties, SessionDate) Export
 			EndIf;
 			
 			SignatureProperties.BriefCheckResult = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1. %2 (%3)';"), Status,
+				NStr("en = '%1. %2 (%3)'"), Status,
 				AdditionalAttributesManualCheckJustification, CheckResult.AdditionalAttributesManualCheckAuthor);
 		Else
 			
@@ -293,15 +293,15 @@ Procedure FillSignatureStatus(SignatureProperties, SessionDate) Export
 					And SignatureProperties.DateActionLastTimestamp < SessionDate Then
 					SignatureProperties.BriefCheckResult = 
 						StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = '%1. The document wasn''t modified, and the certificate was valid at the signing date.';"), Status);
+							NStr("en = '%1. The document wasn''t modified, and the certificate was valid at the signing date.'"), Status);
 				Else
 					SignatureProperties.BriefCheckResult =  
 						StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = '%1. The document wasn''t modified, and the certificate was valid at the verification date.';"), Status);
+							NStr("en = '%1. The document wasn''t modified, and the certificate was valid at the verification date.'"), Status);
 				EndIf;
 			Else
 				SignatureProperties.BriefCheckResult = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '%1. The document wasn''t modified, and the certificate was valid at the timestamp date.';"), Status);
+					NStr("en = '%1. The document wasn''t modified, and the certificate was valid at the timestamp date.'"), Status);
 			EndIf;
 			
 		EndIf;
@@ -312,43 +312,43 @@ Procedure FillSignatureStatus(SignatureProperties, SessionDate) Export
 		CheckResult.AdditionalAttributesCheckError) Then
 
 		SignatureProperties.BriefCheckResult =  StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1. The document was modified, and the certificate validation failed. %2 %3';"), Status,
+			NStr("en = '%1. The document was modified, and the certificate validation failed. %2 %3'"), Status,
 			CheckResult.SignatureMathValidationError, CheckResult.AdditionalAttributesCheckError);
 	ElsIf ValueIsFilled(CheckResult.SignatureMathValidationError) Then
 
 		SignatureProperties.BriefCheckResult =  StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '%1. The document was modified. %2';"), Status, CheckResult.SignatureMathValidationError);
+					NStr("en = '%1. The document was modified. %2'"), Status, CheckResult.SignatureMathValidationError);
 	ElsIf ValueIsFilled(CheckResult.AdditionalAttributesCheckError) Then
 			
 		If CheckResult.IsSignatureMathematicallyValid = False Then
 			SignatureProperties.BriefCheckResult =  StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '%1. %2';"), Status, CheckResult.AdditionalAttributesCheckError);
+					NStr("en = '%1. %2'"), Status, CheckResult.AdditionalAttributesCheckError);
 		ElsIf SignatureProperties.SignatureType = PredefinedValue("Enum.CryptographySignatureTypes.NormalCMS")
 			Or SignatureProperties.SignatureType = PredefinedValue(
 			"Enum.CryptographySignatureTypes.BasicCAdESBES") Then
 
 			SignatureProperties.BriefCheckResult =  StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '%1. The document was not modified, but the certificate validation failed. %2';"), Status, 
+					NStr("en = '%1. The document was not modified, but the certificate validation failed. %2'"), Status, 
 				CheckResult.AdditionalAttributesCheckError);
 		Else
 			SignatureProperties.BriefCheckResult =  StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '%1. The document was not modified, but one of the certificates failed validation. %2';"), Status,
+					NStr("en = '%1. The document was not modified, but one of the certificates or additional attributes failed validation. %2'"), Status,
 				CheckResult.AdditionalAttributesCheckError);
 		EndIf;
 	Else
 		SignatureProperties.BriefCheckResult =  StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1.';"), Status);
+			NStr("en = '%1.'"), Status);
 	EndIf;
 	
 EndProcedure
 
-// Generates the name of the signature file using a template.
+// Generates a signature file name from a template.
 //
 // Parameters:
-//  BaseName			 - String - 
-//  CertificateOwner			 - String - 
-//  SignatureFilesExtension	 - See DigitalSignature.PersonalSettings.РасширениеДляФайловПодписи.
-//  SeparatorRequired		 - Boolean - 
+//  BaseName			 - String - Original file name without the extension. For example, "SignedObject.Description".
+//  CertificateOwner			 - String - Certificate owner (full name, job title, etc.).
+//  SignatureFilesExtension	 - String - Extension for signature files to be added to the filename.
+//  SeparatorRequired		 - Boolean - Flag indicating if the filename includes a delimiter.
 // 
 // Returns:
 //  String

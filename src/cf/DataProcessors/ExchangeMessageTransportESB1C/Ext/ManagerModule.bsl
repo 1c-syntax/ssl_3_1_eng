@@ -19,11 +19,11 @@
 //
 Function TransportParameters() Export
 	
-	LongDesc = NStr("en = 'Connection required bus connection details.';");
+	LongDesc = NStr("en = 'Connection required bus connection details.'");
 	
 	Parameters = ExchangeMessagesTransport.StructureOfTransportParameters();
 	
-	Parameters.Alias = NStr("en = '1C:Bus';");
+	Parameters.Alias = NStr("en = '1C:Bus'");
 	Parameters.TransportID = "ESB1C";
 	Parameters.LongDesc = LongDesc;
 
@@ -67,7 +67,7 @@ Procedure PutMessageInVault(Message, Cancel) Export
 		
 		Cancel = True;
 		
-		EventLogMessageKey = NStr("en = 'Exchange message transport';", Common.DefaultLanguageCode());
+		EventLogMessageKey = NStr("en = 'Exchange message transport'", Common.DefaultLanguageCode());
 		DetailErrorDescription = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		
 		WriteLogEvent(EventLogMessageKey, 

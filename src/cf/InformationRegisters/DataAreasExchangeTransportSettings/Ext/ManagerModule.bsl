@@ -45,7 +45,7 @@ Function TransportSettings(Val CorrespondentEndpoint) Export
 	QueryResult = Query.Execute();
 	
 	If QueryResult.IsEmpty() Then
-		Raise StrTemplate(NStr("en = 'Connection settings for the endpoint %1 are not set.';"),
+		Raise StrTemplate(NStr("en = 'Connection settings for the endpoint %1 are not set.'"),
 			String(CorrespondentEndpoint));
 	EndIf;
 	

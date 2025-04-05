@@ -89,7 +89,7 @@ Function OnlyBuildNumberOfMainConfigurationChanged()
 		DeleteFiles(PathToTempDir);
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot dump the configuration to files due to:
-			           |%1';"),
+			           |%1'"),
 			"ReturnCode" + " = " + String(ReturnCode) + "
 			|" + TextDocument.GetText());
 		Raise ErrorText;
@@ -104,7 +104,7 @@ Function OnlyBuildNumberOfMainConfigurationChanged()
 	DeleteFiles(PathToTempDir);
 	
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'A version is not found in the %1 dump file';"),
+		NStr("en = 'A version is not found in the %1 dump file'"),
 		"Configuration.xml");
 	
 	Dereferencer = New DOMNamespaceResolver(DOMDocument);
@@ -117,7 +117,7 @@ Function OnlyBuildNumberOfMainConfigurationChanged()
 			Version = NextNode.TextContent;
 			If StrSplit(Version, ".", False).Count() < 4 Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Incorrect version ""%1"" in the %2 dump file';"),
+					NStr("en = 'Incorrect version ""%1"" in the %2 dump file'"),
 					Version, "Configuration.xml");
 			Else
 				Return CommonClientServer.ConfigurationVersionWithoutBuildNumber(Metadata_Version)
@@ -194,7 +194,7 @@ EndFunction
 &AtServerNoContext
 Procedure WriteError(ErrorText)
 	
-	ErrorTitle = NStr("en = 'Cannot get the new configuration version due to:';") + Chars.LF;
+	ErrorTitle = NStr("en = 'Cannot get the new configuration version due to:'") + Chars.LF;
 	WriteLogEvent(ConfigurationUpdate.EventLogEvent(),
 		EventLogLevel.Error,,, ErrorTitle + ErrorText);
 	

@@ -83,6 +83,9 @@ Function PersonalCertificates(CertificatesPropertiesAtClient, Filter, Error = ""
 	EndIf;
 	
 	If DigitalSignatureInternal.UseCloudSignatureService() Then
+		
+		DigitalSignatureLocalization.OnAddCloudServiceCertificatesProperties(CertificatesPropertiesTable, True);
+		
 	EndIf;
 	
 	Return ProcessPersonalCertificates(CertificatesPropertiesTable, Filter);
@@ -447,7 +450,7 @@ Function ExecuteAtServerSide(Val Parameters, ResultAddress, OperationStarted, Er
 		
 		If Parameters.Operation <> "Signing" Then
 			ErrorAtServer.Insert("ErrorDescription", StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 add-in is intended for signing only.';"), "ExtraCryptoAPI"));
+				NStr("en = '%1 add-in is intended for signing only.'"), "ExtraCryptoAPI"));
 			Return False;
 		EndIf;
 		
@@ -466,7 +469,7 @@ Function ExecuteAtServerSide(Val Parameters, ResultAddress, OperationStarted, Er
 		
 		If Parameters.Operation <> "Signing" Then
 			ErrorAtServer.Insert("ErrorDescription", StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 add-in is intended for signing only.';"), "ExtraCryptoAPI"));
+				NStr("en = '%1 add-in is intended for signing only.'"), "ExtraCryptoAPI"));
 			Return False;
 		EndIf;
 		
@@ -534,26 +537,33 @@ Function ExecuteAtServerSide(Val Parameters, ResultAddress, OperationStarted, Er
 	
 	If Parameters.Operation = "Signing" Then
 		
-		SignatureProperties = DigitalSignatureInternal.SignaturePropertiesReadByCryptoManager(
-			ResultBinaryData, CryptoManager, False);
+		If IsXMLDSig Then
+			SignatureProperties = DigitalSignatureInternalClientServer.SignatureProperties(ResultBinaryData,
+				CertificateProperties, Parameters.Comment, Users.AuthorizedUser());
+			SignatureProperties.SignatureDate = CurrentSessionDate();
+			SignatureProperties.UnverifiedSignatureDate = SignatureProperties.SignatureDate;
+		Else
+			SignatureProperties = DigitalSignatureInternal.SignaturePropertiesReadByCryptoManager(
+				ResultBinaryData, CryptoManager, False);
 			
-		If SignatureProperties.Success = False Then
-			
-			SignatureData = Base64String(ResultBinaryData);
-			ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
+			If SignatureProperties.Success = False Then
+				
+				SignatureData = Base64String(ResultBinaryData);
+				ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = '%1.
-				|Signature result: %2';"), SignatureProperties.ErrorText, SignatureData);
-			ErrorAtServer.Insert("ErrorDescription", ErrorPresentation);
-			ErrorAtServer.Insert("Instruction", True);
-			Return False;
+				|Signature result: %2'"), SignatureProperties.ErrorText, SignatureData);
+				ErrorAtServer.Insert("ErrorDescription", ErrorPresentation);
+				ErrorAtServer.Insert("Instruction", True);
+				Return False;
+				
+			EndIf;
 			
+			SignatureProperties = DigitalSignatureInternalClientServer.SignatureProperties(ResultBinaryData,
+				CertificateProperties, Parameters.Comment, Users.AuthorizedUser(),,SignatureProperties);
+			
+			SignatureProperties.SignatureDate = ?(ValueIsFilled(SignatureProperties.UnverifiedSignatureDate),
+				SignatureProperties.UnverifiedSignatureDate, CurrentSessionDate());
 		EndIf;
-		
-		SignatureProperties = DigitalSignatureInternalClientServer.SignatureProperties(ResultBinaryData,
-			CertificateProperties, Parameters.Comment, Users.AuthorizedUser(),,SignatureProperties);
-			
-		SignatureProperties.SignatureDate = ?(ValueIsFilled(SignatureProperties.UnverifiedSignatureDate),
-			SignatureProperties.UnverifiedSignatureDate, CurrentSessionDate());
 			
 		If Parameters.CertificateValid <> Undefined Then
 			SignatureProperties.SignatureValidationDate = SignatureProperties.SignatureDate;
@@ -606,7 +616,7 @@ Function StartImprovementOnServer(Val Parameters) Export
 	Parameters.ServiceAccountDSS = GetFromTempStorage(Parameters.ServiceAccountDSS);
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(Parameters.FormIdentifier);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Enhance signature';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Enhance signature'");
 	
 	Return TimeConsumingOperations.ExecuteFunction(ExecutionParameters, "DigitalSignatureInternal.EnhanceServerSide", Parameters);
 
@@ -676,7 +686,7 @@ Function AddSignature(ObjectReference, SignatureProperties, FormIdentifier, Obje
 		DigitalSignature.AddSignature(ObjectReference, SignatureProperties, FormIdentifier, ObjectVersion);
 	Except
 		ErrorInfo = ErrorInfo();
-		ErrorPresentation = NStr("en = 'Cannot save the signature due to:';")
+		ErrorPresentation = NStr("en = 'Cannot save the signature due to:'")
 			+ Chars.LF + ErrorProcessing.BriefErrorDescription(ErrorInfo);
 	EndTry;
 	
@@ -772,7 +782,7 @@ Function FindInstalledPrograms(ApplicationsDetails, CheckAtServer1) Export
 		If Manager = Undefined Then
 			Application.CheckResultAtServer =
 				DigitalSignatureInternalClientServer.TextOfTheProgramSearchError(
-					NStr("en = 'Not installed on the %1 server.';"), CreationParameters.ErrorDescription);
+					NStr("en = 'Not installed on the %1 server.'"), CreationParameters.ErrorDescription);
 		Else
 			Application.CheckResultAtServer = "";
 			Application.Use = True;
@@ -880,8 +890,7 @@ Function TheCloudSignatureServiceIsConfigured() Export
 	
 	Result = False;
 	
-	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
-	EndIf;
+	DigitalSignatureLocalization.OnDefineConfiguredCloudService(Result);
 	
 	Return Result;
 	
@@ -967,15 +976,15 @@ Function ReadAddInResponce(Text) Export
 		ErrorInfo = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		
 		WriteLogEvent(
-				NStr("en = 'Digital signature.Operations with add-in.';",
+				NStr("en = 'Digital signature.Operations with add-in.'",
 				Common.DefaultLanguageCode()),
 				EventLogLevel.Error,,,
 				StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot read the add-in response: %1
-					|%2';"), Text, ErrorInfo));
+					|%2'"), Text, ErrorInfo));
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot read the add-in response: %1';"), ErrorInfo);
+			NStr("en = 'Cannot read the add-in response: %1'"), ErrorInfo);
 		
 	EndTry;
 	
@@ -1084,7 +1093,7 @@ Procedure AddADescriptionOfTheCertificate(Certificate, FilesDetails, Information
 		CertificateData = GetBinaryDataFromString(XMLCertificateData, TextEncoding.ANSI, False);
 	EndIf;
 	If Not ValueIsFilled(CertificatePresentation) Then
-		CertificatePresentation = NStr("en = 'Certificate';") + Format(Number, "NG=");
+		CertificatePresentation = NStr("en = 'Certificate'") + Format(Number, "NG=");
 	EndIf;
 	
 	CertificateFileName = DigitalSignatureInternalClientServer.CertificateFileName(CertificatePresentation, "", Extension);
@@ -1094,18 +1103,18 @@ Procedure AddADescriptionOfTheCertificate(Certificate, FilesDetails, Information
 	FileDetails.Insert("Name",    CertificateFileName);
 	
 	InformationRecords = InformationRecords + StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Certificate: ""%1""';"), CertificateFileName) + Chars.LF;
+		NStr("en = 'Certificate: ""%1""'"), CertificateFileName) + Chars.LF;
 	
 	InformationRecords = InformationRecords + StringFunctionsClientServer.SubstituteParametersToString(
-		Chars.Tab + NStr("en = 'Signature algorithm: %1';"), SignAlgorithm) + Chars.LF;
+		Chars.Tab + NStr("en = 'Signature algorithm: %1'"), SignAlgorithm) + Chars.LF;
 	
 	If TypeOf(Certificate) = Type("CatalogRef.DigitalSignatureAndEncryptionKeysCertificates") Then
 		InformationRecords = InformationRecords + StringFunctionsClientServer.SubstituteParametersToString(
-			Chars.Tab + NStr("en = 'Application: %1';"), String(AttributesValues.Application)) + Chars.LF;
+			Chars.Tab + NStr("en = 'Application: %1'"), String(AttributesValues.Application)) + Chars.LF;
 		
 		InformationRecords = InformationRecords + StringFunctionsClientServer.SubstituteParametersToString(
-			Chars.Tab + NStr("en = 'Protect digital signing app with password: %1';"),
-			?(AttributesValues.EnterPasswordInDigitalSignatureApplication = True, NStr("en = 'Yes';"), NStr("en = 'No';"))) + Chars.LF;
+			Chars.Tab + NStr("en = 'Protect digital signing app with password: %1'"),
+			?(AttributesValues.EnterPasswordInDigitalSignatureApplication = True, NStr("en = 'Yes'"), NStr("en = 'No'"))) + Chars.LF;
 	EndIf;
 	
 	FilesDetails.Add(FileDetails);
@@ -1143,20 +1152,20 @@ Procedure AddASignatureDescription(Signature, FilesDetails, InformationRecords, 
 	EndIf;
 	
 	SignatureFileName = DigitalSignatureInternalClientServer.PrepareStringForFileName(
-		NStr("en = 'Signature';") + Format(Number, "NG=")) + Extension;
+		NStr("en = 'Signature'") + Format(Number, "NG=")) + Extension;
 	
 	FileDetails = New Structure;
 	FileDetails.Insert("Data", SignatureData);
 	FileDetails.Insert("Name",    SignatureFileName);
 	
 	InformationRecords = InformationRecords + StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Signature: ""%1""';"), SignatureFileName) + Chars.LF;
+		NStr("en = 'Signature: ""%1""'"), SignatureFileName) + Chars.LF;
 	
 	InformationRecords = InformationRecords + StringFunctionsClientServer.SubstituteParametersToString(
-		Chars.Tab + NStr("en = 'Signature algorithm: %1';"), SignAlgorithm) + Chars.LF;
+		Chars.Tab + NStr("en = 'Signature algorithm: %1'"), SignAlgorithm) + Chars.LF;
 	
 	InformationRecords = InformationRecords + StringFunctionsClientServer.SubstituteParametersToString(
-		Chars.Tab + NStr("en = 'Hashing algorithm: %1';"), HashAlgorithm) + Chars.LF;
+		Chars.Tab + NStr("en = 'Hashing algorithm: %1'"), HashAlgorithm) + Chars.LF;
 	
 	FilesDetails.Add(FileDetails);
 	
@@ -1298,7 +1307,7 @@ Procedure AddFileToArchive(Archive, FileInfo, StateText, TempDirectory, Temporar
 		Else
 			StateText.AddLine(
 				StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot add %1. The file data is not binary data or an address in the temporary storage.';"),
+				NStr("en = 'Cannot add %1. The file data is not binary data or an address in the temporary storage.'"),
 				FileInfo.Name));
 		EndIf;
 		
@@ -1347,10 +1356,10 @@ Function TimestampServersDiagnosticsResult() Export
 	TimestampServersAddresses = DigitalSignature.CommonSettings().TimestampServersAddresses;
 	
 	If TimestampServersAddresses.Count() = 0 Then
-		Return NStr("en = 'The addresses of timestamp servers are unfilled in digital signature settings.';");
+		Return NStr("en = 'The addresses of timestamp servers are unfilled in digital signature settings.'");
 	Else
 		StringForConnection = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Accessing timestamp servers on server <%1>.';"), ComputerName());
+					NStr("en = 'Accessing timestamp servers on server <%1>.'"), ComputerName());
 		
 		Return DigitalSignatureInternalClientServer.TimestampServersDiagnostics(TimestampServersAddresses, StringForConnection);
 	EndIf;

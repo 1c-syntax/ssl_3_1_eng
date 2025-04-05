@@ -17,7 +17,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	// Checking whether the form is opened from 1C:Enterprise script.
 	If Not Parameters.Property("ExchangeMessageFileName") Then
-		Raise NStr("en = 'The data processor cannot be opened manually.';");
+		Raise NStr("en = 'The data processor cannot be opened manually.'");
 	EndIf;
 	
 	PerformDataMapping = True;
@@ -78,26 +78,26 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Populate filter list.
 	ChoiceList = Items.FilterByMappingStatus.ChoiceList;
 	
-	NewListItem = ChoiceList.Add("AllObjects", NStr("en = 'All data';"));
+	NewListItem = ChoiceList.Add("AllObjects", NStr("en = 'All data'"));
 	MappingStatusFilterOptions.Insert(NewListItem.Value, New FixedStructure);
 	
-	NewListItem = ChoiceList.Add("UnapprovedMappedObjects", NStr("en = 'Changes';"));
+	NewListItem = ChoiceList.Add("UnapprovedMappedObjects", NStr("en = 'Changes'"));
 	MappingStatusFilterOptions.Insert(NewListItem.Value, 
 						New FixedStructure("MappingStatus",  3));
 	
-	NewListItem = ChoiceList.Add("MappedObjects", NStr("en = 'Mapped data';"));
+	NewListItem = ChoiceList.Add("MappedObjects", NStr("en = 'Mapped data'"));
 	MappingStatusFilterOptions.Insert(NewListItem.Value, 
 						New FixedStructure("MappingStatusAdditional", 0));
 	
-	NewListItem = ChoiceList.Add("UnmappedObjects", NStr("en = 'Unmapped data';"));
+	NewListItem = ChoiceList.Add("UnmappedObjects", NStr("en = 'Unmapped data'"));
 	MappingStatusFilterOptions.Insert(NewListItem.Value, 
 						New FixedStructure("MappingStatusAdditional", 1));
 	
-	NewListItem = ChoiceList.Add("UnmappedDestinationObjects", NStr("en = 'Unmapped data (this infobase)';"));
+	NewListItem = ChoiceList.Add("UnmappedDestinationObjects", NStr("en = 'Unmapped data (this infobase)'"));
 	MappingStatusFilterOptions.Insert(NewListItem.Value, 
 						New FixedStructure("MappingStatus",  1));
 	
-	NewListItem = ChoiceList.Add("UnmappedSourceObjects", NStr("en = 'Unmapped data in the peer infobase';"));
+	NewListItem = ChoiceList.Add("UnmappedSourceObjects", NStr("en = 'Unmapped data in the peer infobase'"));
 	MappingStatusFilterOptions.Insert(NewListItem.Value, 
 						New FixedStructure("MappingStatus", -1));
 	
@@ -112,7 +112,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Else
 		DataPresentation = Synonym;
 	EndIf;
-	Title = NStr("en = 'Data mapping ""[DataPresentation]""';");
+	Title = NStr("en = 'Data mapping ""[DataPresentation]""'");
 	Title = StrReplace(Title, "[DataPresentation]", DataPresentation);
 	
 	// Setting the form item visibility according to option values.
@@ -124,10 +124,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.RunDataImport.Visible = ExecuteDataImport;
 	
 	CurrentApplicationDescription = DataExchangeCached.ThisNodeDescription(Object.InfobaseNode);
-	CurrentApplicationDescription = ?(IsBlankString(CurrentApplicationDescription), NStr("en = 'This application';"), CurrentApplicationDescription);
+	CurrentApplicationDescription = ?(IsBlankString(CurrentApplicationDescription), NStr("en = 'This application'"), CurrentApplicationDescription);
 	
 	SecondApplicationDescription = String(Object.InfobaseNode);
-	SecondApplicationDescription = ?(IsBlankString(SecondApplicationDescription), NStr("en = 'Other application';"), SecondApplicationDescription);
+	SecondApplicationDescription = ?(IsBlankString(SecondApplicationDescription), NStr("en = 'Other application'"), SecondApplicationDescription);
 	
 	Items.CurrentApplicationData.Title = CurrentApplicationDescription;
 	Items.SecondApplicationData.Title = SecondApplicationDescription;
@@ -135,7 +135,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.Explanation.Title = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'To map %1 data
 		|to%2 data, click ""Map automatically"".
-		|Then you can map the remaining data manually.';"),
+		|Then you can map the remaining data manually.'"),
 		CurrentApplicationDescription, SecondApplicationDescription);
 	
 	ObjectMappingScenario();
@@ -385,7 +385,7 @@ EndProcedure
 
 &AtClient
 Procedure RunDataImport(Command)
-	NString = NStr("en = 'Do you want to import data into the infobase?';");
+	NString = NStr("en = 'Do you want to import data into the infobase?'");
 	Notification = New CallbackDescription("RunDataImportAfterPromptToConfirmDataImport", ThisObject);
 	
 	ShowQueryBox(Notification, NString, QuestionDialogMode.YesNo, ,DialogReturnCode.Yes);
@@ -448,10 +448,10 @@ Procedure CancelMapping(Command)
 			"en = 'You are trying to clear the mapping of objects mapped by references.
 			|You need to set a new mapping for these objects immediately. Otherwise, they will be mapped by references again.
 			|
-			|Do you want to clear the mapping?';", 
+			|Do you want to clear the mapping?'", 
 			CommonClient.DefaultLanguageCode());
 			
-		Title = NStr("en = 'Clear mapping';", CommonClient.DefaultLanguageCode());
+		Title = NStr("en = 'Clear mapping'", CommonClient.DefaultLanguageCode());
 		
 		Notification = New CallbackDescription("CancelMappingCompletion", ThisObject);
 		ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo,,, Title); 
@@ -543,7 +543,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -583,7 +583,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -639,7 +639,7 @@ Procedure ExecuteTimeConsumingOperationHandler()
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -719,7 +719,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.RightValue = -1;
 
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
-	Item.Appearance.SetParameterValue("Text", NStr("en = 'No mapping. The object will be copied';"));
+	Item.Appearance.SetParameterValue("Text", NStr("en = 'No mapping. The object will be copied'"));
 
 	//
 
@@ -734,7 +734,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.RightValue = 1;
 
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
-	Item.Appearance.SetParameterValue("Text", NStr("en = 'No mapping';"));
+	Item.Appearance.SetParameterValue("Text", NStr("en = 'No mapping'"));
 
 	//
 	
@@ -759,7 +759,7 @@ Procedure RunDataImportAfterPromptToConfirmDataImport(Val QuestionResult, Val Ad
 	EndIf;
 	
 	If Object.DataImportedSuccessfully Then
-		NString = NStr("en = 'Data is already received. Do you want to receive data again?';");
+		NString = NStr("en = 'Data is already received. Do you want to receive data again?'");
 		Notification = New CallbackDescription("RunDataImportAfterPromptToReimportData", ThisObject);
 		
 		ShowQueryBox(Notification, NString, QuestionDialogMode.YesNo, ,DialogReturnCode.No);
@@ -787,7 +787,7 @@ Procedure ExecuteDataImportAfterConfirmGettingData()
 	
 	If Cancel Then
 		NString = NStr("en = 'Errors occurred while receiving data.
-		                     |Do you want to view the event log?';");
+		                     |Do you want to view the event log?'");
 		
 		Notification = New CallbackDescription("RunDataImportAfterPromptToOpenEventLog", ThisObject);
 		ShowQueryBox(Notification, NString, QuestionDialogMode.YesNo, ,DialogReturnCode.No);
@@ -1081,14 +1081,14 @@ Procedure CheckUserFieldsFilled(Cancel, UserFields)
 	If UserFields.Count() = 0 Then
 		
 		// One or more fields must be specified.
-		NString = NStr("en = 'Specify at least one field to display';");
+		NString = NStr("en = 'Specify at least one field to display'");
 		
 		CommonClient.MessageToUser(NString,,"Object.TableFieldsList",, Cancel);
 		
 	ElsIf UserFields.Count() > MaxUserFields() Then
 		
 		// The value must not exceed the specified number.
-		MessageString = NStr("en = 'Reduce the number of fields. You can select no more than %1 fields.';");
+		MessageString = NStr("en = 'Reduce the number of fields. You can select no more than %1 fields.'");
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, String(MaxUserFields()));
 		
 		CommonClient.MessageToUser(MessageString,,"Object.TableFieldsList",, Cancel);
@@ -1152,7 +1152,7 @@ Procedure SetMappingInteractively()
 	// The condition includes an unmapped source object and an unmapped destination object.
 	If Not (CurrentData.MappingStatus=-1 Or CurrentData.MappingStatus=+1) Then
 		
-		ShowMessageBox(, NStr("en = 'Objects are already mapped.';"), 2);
+		ShowMessageBox(, NStr("en = 'Objects are already mapped.'"), 2);
 		
 		// Switching to the mapping table.
 		CurrentItem = Items.MappingTable;
@@ -1201,14 +1201,14 @@ Procedure SetMappingInteractively()
 	
 	// Prompt for a quick mapping.
 	Buttons = New ValueList;
-	Buttons.Add(DialogReturnCode.Yes,     NStr("en = 'Apply';"));
-	Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
+	Buttons.Add(DialogReturnCode.Yes,     NStr("en = 'Apply'"));
+	Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
 	
 	Notification = New CallbackDescription("SetMappingInteractivelyCompletion", ThisObject, New Structure);
 	Notification.AdditionalParameters.Insert("Id1", Id1);
 	Notification.AdditionalParameters.Insert("Id2", Id2);
 	
-	QueryText = NStr("en = 'Do you want to map the selected objects?';");
+	QueryText = NStr("en = 'Do you want to map the selected objects?'");
 	ShowQueryBox(Notification, QueryText, Buttons,, DialogReturnCode.Yes);
 EndProcedure
 
@@ -1244,7 +1244,7 @@ Function GetObjectToMap(Data)
 	
 	If Result.Count() = 0 Then
 		
-		Result.Add(NStr("en = '<not specified>';"));
+		Result.Add(NStr("en = '<not specified>'"));
 		
 	EndIf;
 	
@@ -1446,7 +1446,7 @@ Procedure BackgroundJobCompletion(Result, AdditionalParameters) Export
 	TimeConsumingOperationCompleted = True;
 	
 	If Result = Undefined Then
-		RecordError(NStr("en = 'Background job is canceled by administrator.';"));
+		RecordError(NStr("en = 'Background job is canceled by administrator.'"));
 		GoBack();
 	ElsIf Result.Status = "Error" Or Result.Status = "Canceled" Then
 		RecordError(Result.DetailErrorDescription);
@@ -1504,7 +1504,7 @@ Function BackgroundJobStartAtServer(Cancel)
 	EndIf;
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Object mapping';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Object mapping'");
 	
 	Result = TimeConsumingOperations.ExecuteInBackground(
 		"DataProcessors.InfobasesObjectsMapping.MapObjects",
@@ -1585,7 +1585,7 @@ EndProcedure
 Procedure RecordError(DetailErrorDescription)
 	
 	WriteLogEvent(
-		NStr("en = 'Object mapping wizard.Data analysis';", Common.DefaultLanguageCode()),
+		NStr("en = 'Object mapping wizard.Data analysis'", Common.DefaultLanguageCode()),
 		EventLogLevel.Error,
 		,
 		, DetailErrorDescription);

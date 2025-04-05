@@ -42,8 +42,8 @@ EndProcedure
 &AtServer
 Function DataUpdateResult()
 	
-	TemplateUpdated = NStr("en = '%1: Updated successfully.';");
-	TemplateNoUpdateRequired = NStr("en = '%1: No update required.';");
+	TemplateUpdated = NStr("en = '%1: Updated successfully.'");
+	TemplateNoUpdateRequired = NStr("en = '%1: No update required.'");
 	
 	HasHierarchyChanges = False;
 	HasChangesInComposition = False;

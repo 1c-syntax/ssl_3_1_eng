@@ -137,7 +137,7 @@ Procedure CreateKeyOperations(KeyOperations) Export
 
 	While Selection.Next() Do
 		If Selection.Ref.IsEmpty() Then
-			CreateKeyOperation(Selection.KeyOperationName, Selection.ResponseTimeThreshold); // @skip-check query-in-loop - Create a key operation if it is missing.
+			CreateKeyOperation(Selection.KeyOperationName, Selection.ResponseTimeThreshold); // @skip-check query-in-loop - создание ключевой операции в случае отсутствия.
 		EndIf;
 	EndDo;
 EndProcedure
@@ -493,7 +493,7 @@ Procedure SetCompletedWithErrorFlag(KeyOperations) Export
 
 		For Each KeyOperation In KeyOperations Do
 			Query.SetParameter("Name", KeyOperation.KeyOperationName);
-			QueryResult = Query.Execute(); // @skip-check query-in-loop - Obsolete code, not subject for rework.
+			QueryResult = Query.Execute(); // @skip-check query-in-loop - Устаревший код не подлежит исправлению.
 			If Not QueryResult.IsEmpty() Then
 				Selection = QueryResult.Select();
 				Selection.Next();
@@ -618,8 +618,9 @@ Function SplitStringByWords(Val String)
 	WordPositions = New Array;
 	For CharPosition = 1 To StrLen(String) Do
 		CurChar = Mid(String, CharPosition, 1);
-		If CurChar = Upper(CurChar) And (PerformanceMonitorClientServer.OnlyLatinInString(CurChar)
-			Or PerformanceMonitorClientServer.OnlyRomanInString(CurChar)) Then
+		If CurChar = Upper(CurChar) 
+			And (PerformanceMonitorClientServer.IsStringContainsOnlyNationalAlphabetChars(CurChar)
+				Or PerformanceMonitorClientServer.OnlyRomanInString(CurChar)) Then
 			WordPositions.Add(CharPosition);
 		EndIf;
 	EndDo;
@@ -687,7 +688,7 @@ Procedure RecordKeyOperationDuration(Parameters)
 	CompletedWithError				 = Parameters.CompletedWithError;
 
 	If Not ValueIsFilled(KeyOperationStartDate) Then
-		WriteLogEvent(NStr("en = 'Sampling error. Start date required';",
+		WriteLogEvent(NStr("en = 'Sampling error. Start date required'",
 			PerformanceMonitorInternal.DefaultLanguageCode()), EventLogLevel.Information,,, String(
 			KeyOperation));
 
@@ -778,7 +779,7 @@ Procedure WriteTimeMeasurements(MeasurementsArray)
 	For Each Measurement In MeasurementsArray Do
 
 		If Not ValueIsFilled(Measurement.KeyOperationStartDate) Then
-			WriteLogEvent(NStr("en = 'Sampling error. Start date required';",
+			WriteLogEvent(NStr("en = 'Sampling error. Start date required'",
 				PerformanceMonitorInternal.DefaultLanguageCode()), EventLogLevel.Information,,, String(
 				Measurement.KeyOperation));
 			Return;
@@ -830,7 +831,7 @@ Procedure WriteTimeMeasurements(MeasurementsArray)
 		Try
 			RecordSet.Write(False);
 		Except
-			WriteLogEvent(NStr("en = 'Performance monitor.Error saving measurements';",
+			WriteLogEvent(NStr("en = 'Performance monitor.Error saving measurements'",
 				PerformanceMonitorInternal.DefaultLanguageCode()), EventLogLevel.Error,,,
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		EndTry;
@@ -965,7 +966,7 @@ Procedure ClearTimeMeasurementsRegisters() Export
 		If DeletionRequired Then
 			DeletionRequired = False;
 
-			Result = TimeMeasurementsQuery.Execute(); // @skip-check query-in-loop - Batch-wise data processing.
+			Result = TimeMeasurementsQuery.Execute(); // @skip-check query-in-loop .
 			Selection = Result.Select();
 			Selection.Next();
 			RecordDateBegOfHour = Selection.RecordDateBegOfHour;
@@ -979,7 +980,7 @@ Procedure ClearTimeMeasurementsRegisters() Export
 
 		If TechnologicalDeletionRequired Then
 			TechnologicalDeletionRequired = False;
-			Result = TechnologicalTimeMeasurementsQuery.Execute(); // @skip-check query-in-loop - Batch-wise data processing.
+			Result = TechnologicalTimeMeasurementsQuery.Execute(); // @skip-check query-in-loop .
 			Selection = Result.Select();
 			Selection.Next();
 			RecordDateBegOfHour = Selection.RecordDateBegOfHour;
@@ -1166,7 +1167,7 @@ Procedure ExportResults(DirectoriesForExport, MeasurementsArrays, CurDate, FileS
 			CreateDirectory(ExportDirectory);
 		EndIf;
 
-		FileCopy(TempFileName, ExportFileFullName(ExportDirectory, CurDate, FileSequenceNumber,
+		CopyFile(TempFileName, ExportFileFullName(ExportDirectory, CurDate, FileSequenceNumber,
 			".xml"));
 	EndDo;
 	DeleteFiles(TempFileName);
@@ -1299,7 +1300,7 @@ Procedure LoadPerformanceMonitorFile(FileName, StorageAddress) Export
 		DeleteFiles(FileForStorage);
 		DeleteFiles(FilesDirectory);
 		ErrorDescription = ErrorProcessing.DetailErrorDescription(ErrorInfo());
-		StringPattern = NStr("en = 'Cannot extract the archive %1 %2';");
+		StringPattern = NStr("en = 'Cannot extract the archive %1 %2'");
 		ExceptionDetails = PerformanceMonitorClientServer.SubstituteParametersToString(StringPattern, FileName,
 			ErrorDescription);
 		Raise ExceptionDetails;
@@ -1315,7 +1316,7 @@ Procedure LoadPerformanceMonitorFile(FileName, StorageAddress) Export
 			XMLReader.OpenFile(File.FullName);
 			XMLReader.MoveToContent();
 
-			// @skip-check query-in-loop - Batch-wise data processing.
+			// @skip-check query-in-loop .
 			LoadPerformanceMonitorFileApdexExport(XMLReader, AvailableKeyOperations,
 				KeyOperationsToWrite, RawMeasurementsToWrite);  
 			XMLReader.Close();
@@ -1372,7 +1373,7 @@ Procedure LoadPerformanceMonitorFileApdexExport(XMLReader, AvailableKeyOperation
 
 		KeyOperationRef = AvailableKeyOperations[KeyOperationName1];
 		If KeyOperationRef = Undefined Then
-			KeyOperationRef = CreateKeyOperation(KeyOperationName1, ResponseTimeThreshold, TimeConsuming);  // @skip-check query-in-loop - Create an operation if it is missing.
+			KeyOperationRef = CreateKeyOperation(KeyOperationName1, ResponseTimeThreshold, TimeConsuming);  // @skip-check query-in-loop - создание операции в случае отсутствия.
 			AvailableKeyOperations.Insert(KeyOperationName1, KeyOperationRef);
 		EndIf;
 

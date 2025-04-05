@@ -75,7 +75,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.StartDate.SpinButton                   = False;
 		Items.StartDate.TitleLocation                    = FormItemTitleLocation.Left;
 		Items.EndDate.SpinButton                = False;
-		Items.EndDate.Title                          = NStr("en = 'End';");
+		Items.EndDate.Title                          = NStr("en = 'End'");
 		Items.EndDate.TitleLocation                 = FormItemTitleLocation.Left;
 		Items.BeginTime.SpinButton                  = False;
 		Items.EndTime.SpinButton               = False;
@@ -274,7 +274,7 @@ Procedure EndTimeOnChange(Item)
 
 	If BegOfDay(Object.EndDate) + ExtractTime(EndTime) < Object.StartDate Then
 		ClearMessages();
-		CommonClient.MessageToUser(NStr("en = 'End time cannot be earlier than Start time.';"),,"EndTime");
+		CommonClient.MessageToUser(NStr("en = 'End time cannot be earlier than Start time.'"),,"EndTime");
 		EndTime = BeginTime + 1800;
 		Object.EndDate = BegOfDay(Object.EndDate) + ExtractTime(EndTime);
 		Return;
@@ -300,9 +300,9 @@ Procedure EndDateOnChange(Item)
 	If BegOfDay(EndDate) + ExtractTime(EndTime) < Object.StartDate Then
 		ClearMessages();
 		If BegOfDay(EndDate) < BegOfDay(StartDate) Then
-			CommonClient.MessageToUser(NStr("en = 'End date cannot be earlier than Start date.';"),,"EndDate");
+			CommonClient.MessageToUser(NStr("en = 'End date cannot be earlier than Start date.'"),,"EndDate");
 		Else
-			CommonClient.MessageToUser(NStr("en = 'End time cannot be earlier than Start time.';"),,"EndTime");
+			CommonClient.MessageToUser(NStr("en = 'End time cannot be earlier than Start time.'"),,"EndTime");
 		EndIf;
 		EndDate = Object.StartDate;
 		Object.EndDate = BegOfDay(EndDate) + ExtractTime(EndTime);
@@ -475,7 +475,7 @@ Procedure CreateContactExecute()
 	
 EndProcedure
 
-// СтандартныеПодсистемы.Свойства
+// 
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -567,7 +567,7 @@ Function ContactsAutoSelection(Val SearchString)
 	
 EndFunction
 
-// СтандартныеПодсистемы.Свойства
+// 
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()

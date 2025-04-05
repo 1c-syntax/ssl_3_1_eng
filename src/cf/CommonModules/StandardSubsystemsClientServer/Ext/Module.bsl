@@ -76,8 +76,136 @@ EndFunction
 
 #Region Private
 
-Function RegisterPerformanceIndicators() Export
+Function ShouldRegisterPerformanceIndicators() Export
 	Return False;
 EndFunction
+
+#Region TechnicalSupport
+
+// Constructor of information for online support.
+// See StandardSubsystemsServer.SupportInformation
+// , "StandardSubsystemsClient.SupportInformation".
+//
+// Returns:
+//  Structure:
+//    * ApplicationName1 - Undefined
+//    * ApplicationVersion - Undefined
+//    * AppVersion - Undefined
+//    * PlatformType - Undefined
+//    * SSLVersion - Undefined
+//    * OSVersion - Undefined
+//    * Processor - Undefined
+//    * RAM - Undefined
+//    * UserAgentInformation - Undefined
+//    * COMConnectorName - Undefined
+//    * ThisIsBasicConfiguration - Undefined
+//    * IsFullUser - Undefined
+//    * IsTrainingPlatform - Undefined
+//    * ConfigurationChanged - Undefined
+//
+Function NewInformationForSupport() Export
+	
+	Result = New Structure;
+	
+	Result.Insert("ApplicationName1", Undefined);
+	Result.Insert("ApplicationVersion", Undefined);
+	Result.Insert("AppVersion", Undefined);
+	Result.Insert("PlatformType", Undefined);
+	Result.Insert("SSLVersion", Undefined);
+	
+	Result.Insert("OSVersion", Undefined);
+	Result.Insert("Processor", Undefined);
+	Result.Insert("RAM", Undefined);
+	Result.Insert("UserAgentInformation", Undefined);
+	
+	Result.Insert("COMConnectorName", Undefined);
+	Result.Insert("ThisIsBasicConfiguration", Undefined);
+	Result.Insert("IsFullUser", Undefined);
+	Result.Insert("IsTrainingPlatform", Undefined);
+	Result.Insert("ConfigurationChanged", Undefined);
+	
+	Return Result;
+	
+EndFunction
+
+// Information for online support.
+// See StandardSubsystemsServer.SupportInformation
+// , "StandardSubsystemsClient.SupportInformation".
+//
+// Parameters:
+//  SupportInformation - See StandardSubsystemsClientServer.NewInformationForSupport.
+//
+// Returns:
+//  String - Information for technical support.
+//
+Function TextOfInformationForSupport(SupportInformation) Export
+	
+	Result = New Array;
+	
+	BasicInformationTemplate = NStr(
+		"en = '%1, %2
+		|1C:Enterprise: %3 %4
+		|Standard Subsystem Library: %5'");
+	
+	BasicInformation = StringFunctionsClientServer.SubstituteParametersToString(
+		BasicInformationTemplate,
+		SupportInformation.ApplicationName1,
+		SupportInformation.ApplicationVersion,
+		SupportInformation.AppVersion,
+		SupportInformation.PlatformType,
+		SupportInformation.SSLVersion);
+	
+	Result.Add(BasicInformation);
+	Result.Add("");
+	
+	SystemInformationTemplate = NStr(
+		"en = 'System info
+		|OS: %1
+		|CPU: %2
+		|RAM: %3'");
+	
+	SystemInfo = StringFunctionsClientServer.SubstituteParametersToString(
+		SystemInformationTemplate,
+		SupportInformation.OSVersion,
+		SupportInformation.Processor,
+		SupportInformation.RAM);
+	
+	Result.Add(SystemInfo);
+	
+	If ValueIsFilled(SupportInformation.UserAgentInformation) Then
+		
+		UserAgentInformation = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Application: %1'"), SupportInformation.UserAgentInformation);
+		
+		Result.Add(UserAgentInformation);
+		
+	EndIf;
+	
+	Result.Add("");
+	
+	TemplateForAdditionalInformation = NStr(
+		"en = 'Additional info
+		|COM connector: %1
+		|Base configuration: %2
+		|Full-access user: %3
+		|Sandbox: %4
+		|Modified configuration: %5'");
+	
+	AdditionalInformation = StringFunctionsClientServer.SubstituteParametersToString(
+		TemplateForAdditionalInformation,
+		SupportInformation.COMConnectorName,
+		SupportInformation.ThisIsBasicConfiguration,
+		SupportInformation.IsFullUser,
+		SupportInformation.IsTrainingPlatform,
+		SupportInformation.ConfigurationChanged);
+	
+	Result.Add(AdditionalInformation);
+	Result.Add("");
+	
+	Return StrConcat(Result, Chars.LF);
+	
+EndFunction
+
+#EndRegion
 
 #EndRegion

@@ -38,11 +38,11 @@ Procedure SendMessage(Val Author, Val Recipients, Message, ConversationContext =
 	EndIf;
 	
 	If Author = Undefined Then
-		Raise NStr("en = 'Message author is not specified';");
+		Raise NStr("en = 'Message author is not specified'");
 	EndIf;
 	
 	If Recipients.Count() = 0 Then
-		Raise NStr("en = 'Message recipients are not specified';");
+		Raise NStr("en = 'Message recipients are not specified'");
 	EndIf;
 	
 	If TypeOf(Recipients[0]) = Type("CatalogRef.Users") Then
@@ -60,7 +60,7 @@ Procedure SendMessage(Val Author, Val Recipients, Message, ConversationContext =
 			And TypeOf(ConversationContext) <> Type("CollaborationSystemConversationID") Then
 			
 		If Not ValueIsFilled(ConversationContext) Then
-			Raise NStr("en = 'Empty conversation context is passed.';");
+			Raise NStr("en = 'Empty conversation context is passed.'");
 		EndIf;
 		
 		Context = New CollaborationSystemConversationContext(GetURL(ConversationContext));
@@ -132,7 +132,7 @@ Procedure SendNotification(Val Author, Message, ConversationContext) Export
 	EndIf;
 	
 	If Author = Undefined Then
-		Raise NStr("en = 'Message author is not specified';");
+		Raise NStr("en = 'Message author is not specified'");
 	EndIf;
 	
 	Recipients = New Array;
@@ -141,7 +141,7 @@ Procedure SendNotification(Val Author, Message, ConversationContext) Export
 			And TypeOf(ConversationContext) <> Type("CollaborationSystemConversationID") Then
 			
 		If Not ValueIsFilled(ConversationContext) Then
-			Raise NStr("en = 'Empty conversation context is passed.';");
+			Raise NStr("en = 'Empty conversation context is passed.'");
 		EndIf;	
 		
 		Context = New CollaborationSystemConversationContext(GetURL(ConversationContext));
@@ -165,7 +165,7 @@ Procedure SendNotification(Val Author, Message, ConversationContext) Export
 		
 	ElsIf ConversationContext = Undefined Then
 		
-		Raise NStr("en = 'Conversation ID or context is not specified.';");
+		Raise NStr("en = 'Conversation ID or context is not specified.'");
 		
 	Else
 		
@@ -248,7 +248,7 @@ Function InfoBaseUsers(CollaborationSystemUsers)Export
 	If Errors.Count() > 0 Then
 	
 		WriteLogEvent(ConversationsInternal.EventLogEvent(
-			NStr("en = 'Infobase users';", Common.DefaultLanguageCode())),
+			NStr("en = 'Infobase users'", Common.DefaultLanguageCode())),
 			EventLogLevel.Error,,,
 			StrConcat(Errors, Chars.LF + Chars.LF));
 	
@@ -274,7 +274,7 @@ Function InfoBaseUser(CollaborationSystemUser) Export
 	Result = Catalogs.Users.FindByAttribute("IBUserID", Var_22_CollaborationSystemUser.InfoBaseUserID);
 	If Not ValueIsFilled(Result) Then
 		
-		ErrorTemplate = NStr("en = 'Cannot get an infobase user by collaboration system user ID (%1)';");
+		ErrorTemplate = NStr("en = 'Cannot get an infobase user by collaboration system user ID (%1)'");
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate, String(CollaborationSystemUser));
 		Raise ErrorDescription;
 		
@@ -322,7 +322,7 @@ Function CollaborationSystemUsers(Var_InfoBaseUsers) Export
 	If Errors.Count() > 0 Then
 		
 		WriteLogEvent(ConversationsInternal.EventLogEvent(
-			NStr("en = 'Collaboration system users';", Common.DefaultLanguageCode())),
+			NStr("en = 'Collaboration system users'", Common.DefaultLanguageCode())),
 			EventLogLevel.Error,,,
 			StrConcat(Errors, Chars.LF));
 		
@@ -366,7 +366,7 @@ Function CollaborationSystemUser(User, IDOnly = False) Export
 			If User = Users.UnspecifiedUserRef() Then
 				InfoBaseUserID = InfoBaseUsers.FindByName("").UUID;
 			Else
-				ErrorTemplate = NStr("en = 'Cannot get user ID (%1)';");
+				ErrorTemplate = NStr("en = 'Cannot get user ID (%1)'");
 				ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 					ErrorTemplate,
 					String(User));
@@ -418,7 +418,7 @@ Function CollaborationSystemUser(User, IDOnly = False) Export
 				StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot receive a collaboration system user ID for the %1 (%2) user
 					           |due to:
-					           |%3';"),
+					           |%3'"),
 					String(User),
 					String(InfoBaseUserID),
 					CollaborationSystemIDGettingError)
@@ -426,7 +426,7 @@ Function CollaborationSystemUser(User, IDOnly = False) Export
 			ErrorDescription = ErrorDescription + StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot create a collaboration system user for the %1 (%2) user
 					           |due to:
-					           |%3';"),
+					           |%3'"),
 					String(User),
 					String(InfoBaseUserID),
 					ErrorProcessing.DetailErrorDescription(Error));
@@ -470,10 +470,10 @@ Procedure UpdateUserInCollaborationSystem(User) Export
 			CollaborationSystemUser,
 			UserDetails);
 	Except
-		ErrorDescription = NStr("en = 'Cannot update the collaboration system user.';");
+		ErrorDescription = NStr("en = 'Cannot update the collaboration system user.'");
 		Error = ErrorInfo();
 		WriteLogEvent(ConversationsInternal.EventLogEvent(
-			NStr("en = 'Update details in the collaboration system';", Common.DefaultLanguageCode())),
+			NStr("en = 'Update details in the collaboration system'", Common.DefaultLanguageCode())),
 			EventLogLevel.Error,
 			User.Metadata(),
 			User.Ref,
@@ -668,7 +668,7 @@ Function NewCollaborationSystemUser(User)
 	UserDetails = UserDetails(User);
 	
 	If Not ValueIsFilled(UserDetails.IBUserID) Then
-		Raise NStr("en = 'Infobase user does not exist';");
+		Raise NStr("en = 'Infobase user does not exist'");
 	EndIf;
 	
 	IBUser = InfoBaseUsers.FindByUUID(

@@ -24,7 +24,7 @@ Procedure OnWrite(Cancel, Replacing)
 			
 			If Record.SafeMode <> CurrentSafeMode Then
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Safe mode (%1) is different from the current one (%2).';"),
+					NStr("en = 'Safe mode (%1) is different from the current one (%2).'"),
 					Record.SafeMode, CurrentSafeMode);
 			EndIf;
 			
@@ -42,7 +42,7 @@ Procedure OnWrite(Cancel, Replacing)
 				ProgramModule);
 			If Record.SafeMode <> ProgramModuleSafeMode Then
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot perform the permission request for the %1 program module in the %2 safe mode.';"),
+					NStr("en = 'Cannot perform the permission request for the %1 program module in the %2 safe mode.'"),
 					String(ProgramModule), Record.SafeMode);
 			EndIf;
 			
@@ -59,5 +59,5 @@ EndProcedure
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

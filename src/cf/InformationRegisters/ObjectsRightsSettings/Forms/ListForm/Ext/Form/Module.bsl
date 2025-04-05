@@ -38,9 +38,9 @@ Procedure UpdateAuxiliaryRegisterData(Command)
 	UpdateAuxiliaryRegisterDataAtServer(HasChanges);
 	
 	If HasChanges Then
-		Text = NStr("en = 'Updated successfully.';");
+		Text = NStr("en = 'Updated successfully.'");
 	Else
-		Text = NStr("en = 'No update required.';");
+		Text = NStr("en = 'No update required.'");
 	EndIf;
 	
 	ShowMessageBox(, Text);
@@ -59,7 +59,7 @@ Procedure SetConditionalAppearance()
 	AppearanceItem = List.SettingsComposer.Settings.ConditionalAppearance.Items.Add();
 	AppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
-	AppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'All tables except for selected ones';"));
+	AppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'All tables except for selected ones'"));
 	
 	FilterElement = AppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	FilterElement.LeftValue = New DataCompositionField("Table");

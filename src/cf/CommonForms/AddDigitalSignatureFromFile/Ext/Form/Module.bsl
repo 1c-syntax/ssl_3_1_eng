@@ -30,10 +30,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	AutoTitle = False;
 	If Common.IsMobileClient() Then
-		Title = NStr("en = 'Add digital signature from device''s files';");
-		Items.SignaturesAdd.Title = NStr("en = 'Select files on disk…';");
+		Title = NStr("en = 'Add digital signature from device''s files'");
+		Items.SignaturesAdd.Title = NStr("en = 'Select files on disk…'");
 	Else
-		Title = NStr("en = 'Add digital signatures from device''s files';");
+		Title = NStr("en = 'Add digital signatures from device''s files'");
 	EndIf;
 	
 	If ValueIsFilled(Parameters.DataTitle) Then
@@ -138,7 +138,7 @@ Async Procedure SignaturesMRLOAStartChoiceFollowUp(Item, ChoiceData)
 		ThisObject, CurrentData, ChoiceList);
 	
 	If ChoiceList.Count() > 0 Then
-		ChoiceList.Add("ChooseFromCatalog", NStr("en = 'Select from catalog…';"));
+		ChoiceList.Add("ChooseFromCatalog", NStr("en = 'Select from catalog…'"));
 		Result = Await ChooseFromListAsync(ChoiceList, Items.SignaturesMachineReadableLetterOfAuthority);
 		If Result <> Undefined Then
 			If Result.Value = "ChooseFromCatalog" Then
@@ -175,7 +175,7 @@ EndProcedure
 Procedure OK(Command)
 	
 	If Signatures.Count() = 0 Then
-		ShowMessageBox(, NStr("en = 'No signature file is selected';"));
+		ShowMessageBox(, NStr("en = 'No signature file is selected'"));
 		Return;
 	EndIf;
 	
@@ -228,10 +228,10 @@ Procedure OKCompletion(Result, Context = Undefined) Export
 		DataDetails.Delete("Signatures");
 		
 		Error = New Structure("ErrorDescription",
-			NStr("en = 'Cannot save the signature due to:';") + Chars.LF + Result.ErrorDescription);
+			NStr("en = 'Cannot save the signature due to:'") + Chars.LF + Result.ErrorDescription);
 			
 		DigitalSignatureInternalClient.ShowApplicationCallError(
-			NStr("en = 'Cannot add a digital signature from the file';"), "", Error, New Structure);
+			NStr("en = 'Cannot add a digital signature from the file'"), "", Error, New Structure);
 		Return;
 	EndIf;
 	
@@ -277,10 +277,10 @@ EndProcedure
 Async Procedure SelectFiles(MultipleChoice = False, RepeatedCall = False)
 	
 	If Not RepeatedCall Then
-		NotificationInAbsenceOfBOTComponent = New CallbackDescription("SelectFilesAgainAfterInstallingComponent", ThisObject, MultipleChoice);
-		AdditionalComponentsAreBeingInstalled = Await DigitalSignatureInternalClient.PerformInstallationOfAdditionalComponentsAfterCheckingExtensionOfWorkWith1CEnterprise(
-			NotificationInAbsenceOfBOTComponent);
-		If AdditionalComponentsAreBeingInstalled Then
+		NotificationWhenDigitalSignatureAddInsMissing = New CallbackDescription("ReSelectFilesAfterAddInInstalled", ThisObject, MultipleChoice);
+		IsInstallingAddIns = Await DigitalSignatureInternalClient.InstallAddInsAfter1CEnterpriseExtensionChecked(
+			NotificationWhenDigitalSignatureAddInsMissing);
+		If IsInstallingAddIns Then
 			Return;
 		EndIf;
 	EndIf;
@@ -297,13 +297,13 @@ Async Procedure SelectFiles(MultipleChoice = False, RepeatedCall = False)
 	ImportParameters.FormIdentifier = UUID;
 	
 	If MultipleChoice Then
-		ImportParameters.Dialog.Title = NStr("en = 'Select digital signature files';");
+		ImportParameters.Dialog.Title = NStr("en = 'Select digital signature files'");
 	Else
-		ImportParameters.Dialog.Title = NStr("en = 'Select a digital signature file';");
+		ImportParameters.Dialog.Title = NStr("en = 'Select a digital signature file'");
 	EndIf;
 	ImportParameters.Dialog.Multiselect = MultipleChoice;
 	
-	FilterForSelectingSignatures = NStr("en = 'SIgnature files (*.p7s, *.sig%1)|*.p7s;*.sig%2';");
+	FilterForSelectingSignatures = NStr("en = 'SIgnature files (*.p7s, *.sig%1)|*.p7s;*.sig%2'");
 	DigitalSignatureClientLocalization.OnGetFilterForSelectingSignatures(FilterForSelectingSignatures);
 		
 	SignatureFilesExtension = DigitalSignatureClient.PersonalSettings().SignatureFilesExtension;
@@ -315,7 +315,7 @@ Async Procedure SelectFiles(MultipleChoice = False, RepeatedCall = False)
 	EndIf;
 	
 	ImportParameters.Dialog.Filter = FilterForSelectingSignatures;
-	ImportParameters.Dialog.Filter = ImportParameters.Dialog.Filter + "|" + StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask());
+	ImportParameters.Dialog.Filter = ImportParameters.Dialog.Filter + "|" + StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1'"), GetAllFilesMask());
 	
 	If Not MultipleChoice Then
 		ImportParameters.Dialog.FullFileName = Items.Signatures.CurrentData.PathToFile;
@@ -325,9 +325,9 @@ Async Procedure SelectFiles(MultipleChoice = False, RepeatedCall = False)
 	
 EndProcedure
 
-// 
+// Follow-up call to "SelectFile" after the add-ins have been installed.
 &AtClient
-Procedure SelectFilesAgainAfterInstallingComponent(Result, MultipleChoice) Export
+Procedure ReSelectFilesAfterAddInInstalled(Result, MultipleChoice) Export
 	
 	If Result = True Then
 		SelectFiles(MultipleChoice, True)
@@ -410,7 +410,7 @@ Procedure SelectFilesAfterLoop(Context)
 	EndIf;
 	
 	ErrorAtClient = DigitalSignatureInternalClientServer.NewErrorsDescription();
-	ErrorAtClient.ErrorTitle = NStr("en = 'Couldn''t add files';");
+	ErrorAtClient.ErrorTitle = NStr("en = 'Couldn''t add files'");
 	
 	For Each KeyAndValue In Context.Errors.ErrorsAtClient Do
 		
@@ -426,14 +426,14 @@ Procedure SelectFilesAfterLoop(Context)
 	EndDo;
 	
 	ErrorAtServer = DigitalSignatureInternalClientServer.NewErrorsDescription();
-	ErrorAtServer.ErrorTitle = NStr("en = 'Couldn''t add files';");
+	ErrorAtServer.ErrorTitle = NStr("en = 'Couldn''t add files'");
 	
 	If ErrorOnLOAsImport <> "" Then
 		
 		ErrorProperties = DigitalSignatureInternalClientServer.NewErrorProperties();
 		ErrorProperties.LongDesc = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Couldn''t import the LOAs:
-			|%1';"), ErrorOnLOAsImport);
+			|%1'"), ErrorOnLOAsImport);
 		ErrorAtServer.Errors.Add(ErrorProperties);
 	EndIf;
 	
@@ -459,8 +459,6 @@ EndProcedure
 Procedure ChooseFileAfterCreateCryptoManager(CryptoManager, Context) Export
 	
 	If TypeOf(CryptoManager) <> Type("CryptoManager") Then
-		CreationParameters = DigitalSignatureInternalClient.CryptoManagerCreationParameters();  
-		CreationParameters.ShowError = Undefined;
 		DigitalSignatureInternalClient.ReadSignatureProperties(New CallbackDescription(
 			"SelectFileAfterSignaturePropertiesRead", ThisObject, Context),
 			Context.SignatureAdditionResult.SignatureData, True, False);
@@ -503,7 +501,7 @@ Procedure SelectFileAfterSignaturePropertiesRead(Result, Context) Export
 
 		SelectFileAfterAddRow(Context);
 	Else
-		ErrorAtClient = New Structure("ErrorDescription", NStr("en = 'The signature file contains no certificates.';"));
+		ErrorAtClient = New Structure("ErrorDescription", NStr("en = 'The signature file contains no certificates.'"));
 
 		AddError(ErrorAtClient, Context);
 		
@@ -519,7 +517,7 @@ Procedure SelectFileAfterReceivingSignatureContainerError(ErrorInfo, StandardPro
 	
 	ErrorAtClient = New Structure("ErrorDescription", StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Cannot receive the signature container from the signature file due to:
-		           |%1';"),
+		           |%1'"),
 		ErrorProcessing.BriefErrorDescription(ErrorInfo)));
 	
 	AdditionalParameters = New Structure;
@@ -556,30 +554,11 @@ EndProcedure
 
 // Continues the SelectFile procedure.
 &AtClient
-Procedure SelectFileAfterGetCertificateFromSignatureError(ErrorInfo, StandardProcessing, Context) Export
-	
-	StandardProcessing = False;
-	
-	ErrorAtClient = New Structure("ErrorDescription", StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Cannot receive the certificates from the signature file due to:
-		           |%1';"),
-		ErrorProcessing.BriefErrorDescription(ErrorInfo)));
-	
-	AdditionalParameters = New Structure;
-	AdditionalParameters.Insert("ShowInstruction", True);
-	AdditionalParameters.Insert("Signature", Context.SignatureAdditionResult.SignatureData);
-	
-	AddError(ErrorAtClient, Context, AdditionalParameters);
-	
-EndProcedure
-
-// Continues the SelectFile procedure.
-&AtClient
-Procedure ChooseFilesAfterGetCertificatesFromSignature(Certificates, Context) Export
+Procedure ChooseFilesAfterGetCertificatesFromSignature(Certificates, Context)
 	
 	If Certificates.Count() = 0 Then
 		ErrorAtClient = New Structure("ErrorDescription",
-			NStr("en = 'The signature file contains no certificates.';"));
+			NStr("en = 'The signature file contains no certificates.'"));
 		
 		AddError(ErrorAtClient, Context);
 		Return;
@@ -770,7 +749,7 @@ Function AddRowAtServer(Val RowAdditionResult, AddNewRow)
 		ErrorInfo = ErrorInfo();
 		RowAdditionResult.ErrorAtServer.Insert("ErrorDescription", StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Couldn''t receive the signature container from the signature file due to:
-			|%1';"),
+			|%1'"),
 			ErrorProcessing.BriefErrorDescription(ErrorInfo)));
 		Return RowAdditionResult;
 	EndTry;
@@ -876,7 +855,7 @@ EndProcedure
 Procedure ShowError(ErrorAtClient, ErrorAtServer, AdditionalParameters = Undefined)
 	
 	DigitalSignatureInternalClient.ShowApplicationCallError(
-		NStr("en = 'Cannot receive a signature from the file';"),
+		NStr("en = 'Cannot receive a signature from the file'"),
 		"", ErrorAtClient, ErrorAtServer, AdditionalParameters);
 	
 EndProcedure

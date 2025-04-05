@@ -41,7 +41,7 @@
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Full-text search index update, clean up, and check settings. Text extraction settings.</v8:content>
+							<v8:content>Full-text search index update, cleanup, and check settings. Text extraction settings.</v8:content>
 						</v8:item>
 					</Title>
 					<ContextMenu name="SectionDetailsContextMenu" id="137"/>
@@ -215,7 +215,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Full-text search management</v8:content>
+							<v8:content>Manage full-text search</v8:content>
 						</v8:item>
 					</Title>
 					<ToolTip>
@@ -236,7 +236,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Index date</v8:content>
+									<v8:content>Index last updated</v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="IndexUpdateDateContextMenu" id="6"/>
@@ -503,7 +503,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Index date</v8:content>
+					<v8:content>Index last updated</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

@@ -306,11 +306,11 @@ Procedure ReviewedOnChange(Item)
 		
 		OnCloseNotifyHandler = New CallbackDescription("PromptForSendingReadReceiptAfterCompletion", ThisObject);
 		ShowQueryBox(OnCloseNotifyHandler,
-		       NStr("en = 'Sender has requested a read receipt. Do you want to send a receipt?';"),
+		       NStr("en = 'Sender has requested a read receipt. Do you want to send a receipt?'"),
 		       QuestionDialogMode.YesNo,
 		       ,
 		       DialogReturnCode.Yes,
-		       NStr("en = 'Read receipt request';"));
+		       NStr("en = 'Read receipt request'"));
 		
 	EndIf;
 	
@@ -518,7 +518,7 @@ Procedure ChangeEncoding(Command)
 	EncodingsList = EncodingsList();
 	OnCloseNotifyHandler = New CallbackDescription("SelectEncodingAfterCompletion", ThisObject);
 	EncodingsList.ShowChooseItem(OnCloseNotifyHandler,
-		NStr("en = 'Select encoding';"), EncodingsList.FindByValue(Lower(Object.Encoding)));
+		NStr("en = 'Select encoding'"), EncodingsList.FindByValue(Lower(Object.Encoding)));
 	
 EndProcedure 
 
@@ -539,7 +539,7 @@ Procedure AttachmentProperties(Command)
 	
 EndProcedure
 
-// СтандартныеПодсистемы.Свойства
+// 
 
 &AtClient
 Procedure UpdateAdditionalAttributesDependencies()
@@ -637,10 +637,10 @@ EndProcedure
 &AtServer
 Procedure FillAdditionalInformation()
 	
-	AdditionalInformationAboutEmail = NStr("en = 'Created on:';") + "   " + Object.Date 
-	+ Chars.LF + NStr("en = 'Received';") + ":  " + Object.DateReceived 
-	+ Chars.LF + NStr("en = 'Importance';") + ":  " + Object.Importance
-	+ Chars.LF + NStr("en = 'Encoding';") + ": " + Object.Encoding;
+	AdditionalInformationAboutEmail = NStr("en = 'Created on:'") + "   " + Object.Date 
+	+ Chars.LF + NStr("en = 'Received'") + ":  " + Object.DateReceived 
+	+ Chars.LF + NStr("en = 'Importance'") + ":  " + Object.Importance
+	+ Chars.LF + NStr("en = 'Encoding'") + ": " + Object.Encoding;
 	
 EndProcedure
 
@@ -651,15 +651,15 @@ Procedure DoDisplayImportance()
 
 	If Object.Importance = Enums.InteractionImportanceOptions.High Then
 		Items.DecorationImportance.Picture = PictureLib.ImportanceHigh;
-		Items.DecorationImportance.ToolTip = NStr("en = 'High importance';");
+		Items.DecorationImportance.ToolTip = NStr("en = 'High importance'");
 		
 	ElsIf Object.Importance = Enums.InteractionImportanceOptions.Low Then
 		Items.DecorationImportance.Picture = PictureLib.ImportanceLow;
-		Items.DecorationImportance.ToolTip = NStr("en = 'Low importance';");
+		Items.DecorationImportance.ToolTip = NStr("en = 'Low importance'");
 		
 	Else
 		Items.DecorationImportance.Picture = PictureLib.ImportanceNotSpecified;
-		Items.DecorationImportance.ToolTip = NStr("en = 'Normal importance';");
+		Items.DecorationImportance.ToolTip = NStr("en = 'Normal importance'");
 		Items.DecorationImportance.Visible = False;
 	EndIf;
 
@@ -733,7 +733,7 @@ Procedure SelectEncodingAfterCompletion(SelectedElement, AdditionalParameters) E
 
 EndProcedure
 
-// СтандартныеПодсистемы.Свойства
+// 
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()
@@ -772,26 +772,26 @@ Function EncodingsList()
 	
 	EncodingsList = New ValueList;
 	
-	EncodingsList.Add("ibm852",       NStr("en = 'IBM852 (DOS Central European)';"));
-	EncodingsList.Add("ibm866",       NStr("en = 'IBM866 (DOS Cyrillic Russian)';"));
-	EncodingsList.Add("iso-8859-1",   NStr("en = 'ISO-8859-1 (ISO Western Europe)';"));
-	EncodingsList.Add("iso-8859-2",   NStr("en = 'ISO-8859-2 (ISO Central European)';"));
-	EncodingsList.Add("iso-8859-3",   NStr("en = 'ISO-8859-3 (ISO Latin 3)';"));
-	EncodingsList.Add("iso-8859-4",   NStr("en = 'ISO-8859-4 (ISO Baltic)';"));
-	EncodingsList.Add("iso-8859-5",   NStr("en = 'ISO-8859-5 (ISO Cyrillic)';"));
-	EncodingsList.Add("iso-8859-7",   NStr("en = 'ISO-8859-7 (ISO Greek)';"));
-	EncodingsList.Add("iso-8859-9",   NStr("en = 'ISO-8859-9 (ISO Turkish)';"));
-	EncodingsList.Add("iso-8859-15",  NStr("en = 'ISO-8859-15 (ISO Latin 9)';"));
-	EncodingsList.Add("koi8-r",       NStr("en = 'KOI8-R (KOI8-R Cyrillic)';"));
-	EncodingsList.Add("koi8-u",       NStr("en = 'KOI8-U (KOI8-U Cyrillic)';"));
-	EncodingsList.Add("us-ascii",     NStr("en = 'US-ASCII (USA)';"));
-	EncodingsList.Add("utf-8",        NStr("en = 'UTF-8 (Unicode UTF-8)';"));
-	EncodingsList.Add("windows-1250", NStr("en = 'Windows-1250 (Central European)';"));
-	EncodingsList.Add("windows-1251", NStr("en = 'Windows-1251 (Windows Cyrillic)';"));
-	EncodingsList.Add("windows-1252", NStr("en = 'Windows-1252 (Western European)';"));
-	EncodingsList.Add("windows-1253", NStr("en = 'Windows-1253 (Windows Greek)';"));
-	EncodingsList.Add("windows-1254", NStr("en = 'Windows-1254 (Windows Turkish)';"));
-	EncodingsList.Add("windows-1257", NStr("en = 'Windows-1257 (Windows Baltic)';"));
+	EncodingsList.Add("ibm852",       NStr("en = 'IBM852 (DOS Central European)'"));
+	EncodingsList.Add("ibm866",       NStr("en = 'IBM866 (DOS Cyrillic Russian)'"));
+	EncodingsList.Add("iso-8859-1",   NStr("en = 'ISO-8859-1 (ISO Western Europe)'"));
+	EncodingsList.Add("iso-8859-2",   NStr("en = 'ISO-8859-2 (ISO Central European)'"));
+	EncodingsList.Add("iso-8859-3",   NStr("en = 'ISO-8859-3 (ISO Latin 3)'"));
+	EncodingsList.Add("iso-8859-4",   NStr("en = 'ISO-8859-4 (ISO Baltic)'"));
+	EncodingsList.Add("iso-8859-5",   NStr("en = 'ISO-8859-5 (ISO Cyrillic)'"));
+	EncodingsList.Add("iso-8859-7",   NStr("en = 'ISO-8859-7 (ISO Greek)'"));
+	EncodingsList.Add("iso-8859-9",   NStr("en = 'ISO-8859-9 (ISO Turkish)'"));
+	EncodingsList.Add("iso-8859-15",  NStr("en = 'ISO-8859-15 (ISO Latin 9)'"));
+	EncodingsList.Add("koi8-r",       NStr("en = 'KOI8-R (KOI8-R Cyrillic)'"));
+	EncodingsList.Add("koi8-u",       NStr("en = 'KOI8-U (KOI8-U Cyrillic)'"));
+	EncodingsList.Add("us-ascii",     NStr("en = 'US-ASCII (USA)'"));
+	EncodingsList.Add("utf-8",        NStr("en = 'UTF-8 (Unicode UTF-8)'"));
+	EncodingsList.Add("windows-1250", NStr("en = 'Windows-1250 (Central European)'"));
+	EncodingsList.Add("windows-1251", NStr("en = 'Windows-1251 (Windows Cyrillic)'"));
+	EncodingsList.Add("windows-1252", NStr("en = 'Windows-1252 (Western European)'"));
+	EncodingsList.Add("windows-1253", NStr("en = 'Windows-1253 (Windows Greek)'"));
+	EncodingsList.Add("windows-1254", NStr("en = 'Windows-1254 (Windows Turkish)'"));
+	EncodingsList.Add("windows-1257", NStr("en = 'Windows-1257 (Windows Baltic)'"));
 	
 	Return EncodingsList;
 

@@ -44,12 +44,25 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Rescanning = Parameters.Rescanning;
 	
 	If Parameters.Rescanning Then
-		Items.OK.Title = NStr("en = 'Scan';");
+		Items.OK.Title = NStr("en = 'Scan'");
 	EndIf;
 	
-	ScanJobParameters = CommonServerCall.CommonSettingsStorageLoad("ScanAddIn", "ScanJobParameters", Undefined);
+	ScanJobParameters = Common.CommonSettingsStorageLoad("ScanAddIn", "ScanJobParameters", Undefined);
 	
 	Items.ScanningError.Visible = ScanJobParameters <> Undefined;
+	
+	// 
+	If Common.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+		
+		ModuleForContactingTechnicalSupportService = Common.CommonModule(
+			"ContactingTechnicalSupportInternal");
+		
+		ModuleForContactingTechnicalSupportService.OnCreateAtServer(ThisObject);
+		
+	Else
+		Items.TechnicalSupportGroup.Visible = False;
+	EndIf;
+	// End StandardSubsystems.ContactingTechnicalSupport
 	
 EndProcedure
 
@@ -62,6 +75,9 @@ Procedure OnOpen(Cancel)
 	RefreshStatus();
 	ProcessScanDialogUsage();
 	Items.ScanningError.Visible = Items.ScanningError.Visible And Not IsScanFormOpen();
+	
+	SetRecommendationText();
+	
 EndProcedure
 
 &AtServer
@@ -115,10 +131,10 @@ Procedure PathToConverterApplicationStartChoice(Item, ChoiceData, StandardProces
 		
 	OpenFileDialog = New FileDialog(FileDialogMode.Open);
 	OpenFileDialog.FullFileName = PathToConverterApplication;
-	Filter = NStr("en = 'Executable files (*.exe)|*.exe';");
+	Filter = NStr("en = 'Executable files (*.exe)|*.exe'");
 	OpenFileDialog.Filter = Filter;
 	OpenFileDialog.Multiselect = False;
-	OpenFileDialog.Title = NStr("en = 'Select file to convert to PDF';");
+	OpenFileDialog.Title = NStr("en = 'Select file to convert to PDF'");
 	If OpenFileDialog.Choose() Then
 		PathToConverterApplication = OpenFileDialog.FullFileName;
 	EndIf;
@@ -135,7 +151,7 @@ EndProcedure
 
 &AtClient
 Procedure JPGQualityOnChange(Item)
-	Items.JPGQuality.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Quality (%1)';"), JPGQuality);
+	Items.JPGQuality.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Quality (%1)'"), JPGQuality);
 EndProcedure
 
 &AtClient
@@ -150,7 +166,7 @@ Procedure DeviceNameStartChoice(Item, StandardProcessing)
 		Item.ChoiceList.LoadValues(DeviceArray);
 	Else
 		StandardProcessing = False;
-		ShowMessageBox(,NStr("en = 'No scanners were detected. Check the scanner connection.';"));
+		ShowMessageBox(,NStr("en = 'No scanners were detected. Check the scanner connection.'"));
 	EndIf;
 EndProcedure 
 
@@ -159,16 +175,6 @@ Procedure ShowScannerDialogOnChange(Item)
 	
 	ProcessScanDialogUsage();
 	
-EndProcedure
-
-&AtClient
-Procedure ScanErrorTextURLProcessing(Item, FormattedStringURL, StandardProcessing)
-	If FormattedStringURL = "TechnicalInformation" Then
-		AfterTechnicalInfoReceived = New CallbackDescription("AfterTechnicalInfoReceived", ThisObject);
-		FilesOperationsInternalClient.GetTechnicalInformation(NStr("en = 'The last scan attempt failed.';"), 
-			AfterTechnicalInfoReceived);
-		StandardProcessing = False;
-	EndIf;
 EndProcedure
 
 &AtClient
@@ -183,7 +189,7 @@ Procedure ScanLogCatalogStartChoice(Item, ChoiceData, StandardProcessing)
 	OpenFileDialog = New FileDialog(FileDialogMode.ChooseDirectory);
 	OpenFileDialog.FullFileName = ScanLogCatalog;
 	OpenFileDialog.Multiselect = False;
-	OpenFileDialog.Title = NStr("en = 'Select a path to save the scan log';");
+	OpenFileDialog.Title = NStr("en = 'Select a path to save the scan log'");
 	
 	If OpenFileDialog.Choose() Then
 		ScanLogCatalog = OpenFileDialog.Directory;
@@ -198,10 +204,64 @@ Procedure UseScanLogDirectoryOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure InformationForTechnicalSupportClick(Item)
-	AfterTechnicalInfoReceived = New CallbackDescription("AfterTechnicalInfoReceived", ThisObject);
-		FilesOperationsInternalClient.GetTechnicalInformation(NStr("en = 'Send technical information from the setting form.';"), 
-			AfterTechnicalInfoReceived);
+Procedure RecommendationsURLProcessing(Item, Var_URL, StandardProcessing)
+	
+	If Var_URL = "Run32BitClient" Then
+		StandardProcessing = False;
+		Run32BitClient();
+	Else
+		Expression = NStr("en = 'Действие для навигационной ссылки не определено.'");
+		Raise(Expression, ErrorCategory.GotoURLError);
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure DescriptionOfSupportRequestURLProcessing(Item, Var_URL, StandardProcessing)
+	
+	// 
+	If CommonClient.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+		
+		StandardProcessing = False;
+		
+		If Var_URL = "QuestionInSupport" Then
+			
+			CompletionHandler = New CallbackDescription(
+				"ContinueSendingQuestionToSupport",
+				ThisObject);
+			
+			If Not ValueIsFilled(ErrorPresentation) Then
+				ErrorPresentation = NStr("en = 'Вызвана помощь из настроек сканирования.'");
+			EndIf;
+			
+			FilesOperationsInternalClient.GenerateInformationForSupport(
+				ErrorPresentation, 
+				CompletionHandler);
+			
+		ElsIf Var_URL = "InformationToSendToSupport" Then
+			
+			CompletionHandler = New CallbackDescription(
+				"ContinueDownloadingInformationToSendToSupport",
+				ThisObject);
+			
+			If Not ValueIsFilled(ErrorPresentation) Then
+				ErrorPresentation = NStr("en = 'Вызвана помощь из настроек сканирования.'");
+			EndIf;
+			
+			FilesOperationsInternalClient.GenerateInformationForSupport(
+				ErrorPresentation,
+				CompletionHandler);
+			
+		Else
+			
+			Expression = NStr("en = 'Действие для навигационной ссылки не определено.'");
+			Raise(Expression, ErrorCategory.GotoURLError);
+			
+		EndIf;
+		
+	EndIf;
+	// 
+	
 EndProcedure
 
 #EndRegion
@@ -229,7 +289,7 @@ Procedure OK(Command)
 	
 	If UserScanSettings.UseScanLogDirectory Then
 		If UserScanSettings.ScanLogCatalog = "" Then
-			ErrorText = NStr("en = 'Path to scan log is not specified.';");
+			ErrorText = NStr("en = 'Path to scan log is not specified.'");
 			CommonClient.MessageToUser(ErrorText, , "ScanLogCatalog");
 			Context.FillingCheckError = True;
 			Result = New Structure("Success", True);
@@ -260,9 +320,98 @@ EndProcedure
 #Region Private
 
 &AtClient
+Procedure ContinueSendingQuestionToSupport(Result, AdditionalParameters) Export
+	
+	// 
+	ModuleForContactingTechnicalSupportServiceClient = CommonClient.CommonModule(
+		"ContactingTechnicalSupportInternalClient");
+	
+	RequestParameters_ = ModuleForContactingTechnicalSupportServiceClient.RequestParameters_();
+	RequestParameters_.TechnologicalInfo = Result.TechnologicalInfo;
+	RequestParameters_.AdditionalFiles = Result.AdditionalFiles;
+	RequestParameters_.Subject = NStr("en = 'Проблема при настройке сканирования'");
+	
+	ModuleForContactingTechnicalSupportServiceClient.SendQuestionToSupport(
+		ThisObject,
+		RequestParameters_);
+	// End StandardSubsystems.ContactingTechnicalSupport
+	
+EndProcedure
+
+&AtClient
+Procedure ContinueDownloadingInformationToSendToSupport(Result, AdditionalParameters) Export
+	
+	// 
+	ModuleForContactingTechnicalSupportServiceClient = CommonClient.CommonModule(
+		"ContactingTechnicalSupportInternalClient");
+	
+	RequestParameters_ = ModuleForContactingTechnicalSupportServiceClient.RequestParameters_();
+	RequestParameters_.TechnologicalInfo = Result.TechnologicalInfo;
+	RequestParameters_.AdditionalFiles = Result.AdditionalFiles;
+	
+	ModuleForContactingTechnicalSupportServiceClient.DownloadInformationToSendToSupport(
+		ThisObject,
+		RequestParameters_);
+	// End StandardSubsystems.ContactingTechnicalSupport
+	
+EndProcedure
+
+&AtClient
+Procedure SetRecommendationText()
+	
+	Recommendations = New Array;
+	
+	Recommendations.Add(NStr("en = 'Попробуйте следующие варианты:'"));
+	Recommendations.Add(" • " + NStr("en = 'Проверьте подключение сканера и повторите попытку сканирования.'"));
+	
+	If Not ShowScannerDialog And Not CommonClient.IsLinuxClient() Then
+		Recommendation = " • " + NStr("en = 'Switch to the <b>advanced settings</b>.'");
+		Recommendations.Add(Recommendation);
+	EndIf;
+	
+	ImageResolution = PredefinedValue("Enum.ScannedImageResolutions.dpi1200");
+	If ShowScannerDialog Or Resolution = ImageResolution Then
+		Recommendations.Add(" • " + NStr("en = 'Снизьте разрешение сканирования до <b>600 dpi</b>.'"));
+	EndIf;
+	
+	SystemInfo = New SystemInfo();
+	If SystemInfo.PlatformType = PlatformType.Windows_x86_64 Then
+		Template = " • " + NStr(
+			"en = 'Установите и запустите <a href = ""%1"">тонкий клиент 1С:Предприятия для Windows (32-bit)</a>,
+			|   в котором доступно больше устройств и настроек сканирования.'");
+		Recommendation = StringFunctionsClientServer.SubstituteParametersToString(Template, "Run32BitClient");
+		Recommendations.Add(Recommendation);
+	EndIf;
+	
+	Items.Recommendations.Title = StringFunctionsClient.FormattedString(
+		StrConcat(Recommendations, Chars.LF));
+	
+EndProcedure
+
+&AtClient
+Procedure Run32BitClient()
+	
+#If Not WebClient Then
+	
+	BinDir32 = StrReplace(BinDir(), "\Program Files\", "\Program Files (x86)\");
+	ApplicationName = BinDir32 + "1cv8.exe";
+	AppFile = New File(ApplicationName);
+	If AppFile.Exists() Then 
+		FileSystemClient.StartApplication(ApplicationName);
+	Else
+		SystemInfo = New SystemInfo();
+		FileSystemClient.OpenURL(
+			"https://releases.1c.ru/version_files?nick=Platform83&ver=" + SystemInfo.AppVersion);
+	EndIf;
+	
+#EndIf
+	
+EndProcedure
+
+&AtClient
 Procedure RefreshStatus()
 	
-	Items.JPGQuality.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Quality (%1)';"), JPGQuality);
+	Items.JPGQuality.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Quality (%1)'"), JPGQuality);
 	Items.ScannedImageFormat.Enabled = False;
 	Items.Resolution.Enabled = False;
 	Items.Chromaticity.Enabled = False;
@@ -293,7 +442,7 @@ Procedure UpdateStateAfterInitialization(InitializationCheckResult, Context) Exp
 	Attachable_Module = InitializationCheckResult.Attachable_Module;
 		
 	If Not FilesOperationsInternalClient.IsReadyForScanning(ThisObject, Attachable_Module) Then
-		Items.DeviceName.InputHint = NStr("en = 'Check scanner connection';");
+		Items.DeviceName.InputHint = NStr("en = 'Check scanner connection'");
 		Return;
 	Else
 		Items.DeviceName.InputHint = "";
@@ -415,7 +564,7 @@ EndProcedure
 Procedure AfterCheckInstalledConversionApp(RunResult, ExternalContext) Export
 	If StrFind(RunResult.OutputStream, "ImageMagick") = 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Specified path to the %1 application is incorrect.';"), "ImageMagick"); 
+			NStr("en = 'Specified path to the %1 application is incorrect.'"), "ImageMagick"); 
 		CommonClient.MessageToUser(MessageText, , "PathToConverterApplication");
 	ElsIf Not ExternalContext.FillingCheckError Then
 		OKCompletion(ExternalContext.UserScanSettings);
@@ -480,7 +629,7 @@ Procedure AfterScanDirAvailabilityChecked(Result, ExternalContext) Export
 	FillingCheckError = ExternalContext.FillingCheckError;
 	
 	If Not Result.Success Then
-		ErrorText = NStr("en = 'Cannot write to the specified directory. Choose another directory.';");
+		ErrorText = NStr("en = 'Cannot write to the specified directory. Choose another directory.'");
 		CommonClient.MessageToUser(ErrorText, , "ScanLogCatalog");
 		FillingCheckError = True;
 	EndIf;
@@ -488,7 +637,7 @@ Procedure AfterScanDirAvailabilityChecked(Result, ExternalContext) Export
 	If UserScanSettings.UseImageMagickToConvertToPDF Then
 		If Not ValueIsFilled(UserScanSettings.PathToConverterApplication) Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Path to %1 is not specified.';"), 
+				NStr("en = 'Path to %1 is not specified.'"), 
 				"ImageMagick");
 			CommonClient.MessageToUser(ErrorText, , "PathToConverterApplication");
 			FillingCheckError = True;

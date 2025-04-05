@@ -24,7 +24,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		|Message,
 		|Title");
 		
-	TestNewer = " (" + NStr("en = 'newer';") + ")";
+	TestNewer = " (" + NStr("en = 'newer'") + ")";
 	If ChangeDateInWorkingDirectory > ChangeDateInFileStorage Then
 		ChangeDateInWorkingDirectory = String(ChangeDateInWorkingDirectory) + TestNewer;
 	Else
@@ -45,7 +45,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.FormDontPut.Visible = False;
 		Items.FormOpenExistingFile.DefaultButton = True;
 	Else
-		Raise NStr("en = 'Unknown file operation.';");
+		Raise NStr("en = 'Unknown file operation.'");
 	EndIf;
 	
 	If Common.IsMobileClient() Then

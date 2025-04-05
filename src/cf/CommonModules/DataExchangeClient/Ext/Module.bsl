@@ -80,7 +80,7 @@ Procedure SetupFormBeforeClose(Cancel, Form, Exit) Export
 		Return;
 	EndIf;
 	
-	QueryText = NStr("en = 'Close the form without saving the changes?';");
+	QueryText = NStr("en = 'Close the form without saving the changes?'");
 	NotifyDescription = New CallbackDescription("SetupFormBeforeCloseCompletion", ThisObject, Form);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo,, DialogReturnCode.No);
 	
@@ -255,7 +255,7 @@ Procedure DeleteSynchronizationSetting(Val InfobaseNode) Export
 	
 	If DataExchangeServerCall.IsMasterNode(InfobaseNode) Then
 		WarningText = NStr("en = 'To detach the infobase from the main node,
-			|start Designer with parameter /ResetMasterNode.';");
+			|start Designer with parameter /ResetMasterNode.'");
 		ShowMessageBox(, WarningText);
 	Else
 		WizardParameters = New Structure;
@@ -284,7 +284,7 @@ Procedure BeforeWrite(Form, Cancel, WriteParameters) Export
 	If CheckResult.ThereIsAnActiveBackgroundTask Then 
 					
 		WarningText = NStr("en = 'Deferred node saving operation is already in progress.
-										|Try again later';");
+										|Try again later'");
 		
 		ShowMessageBox(, WarningText);
 
@@ -472,7 +472,7 @@ Procedure InstallConfigurationUpdate(ShouldExitApp = False) Export
 		ModuleConfigurationUpdateClient.InstallConfigurationUpdate(ShouldExitApp);
 	Else
 		OpenForm("CommonForm.AdditionalDetails", New Structure("Title,TemplateName",
-		NStr("en = 'Install update';"), "ManualUpdateInstruction"));
+		NStr("en = 'Install update'"), "ManualUpdateInstruction"));
 	EndIf;
 	
 EndProcedure
@@ -702,7 +702,7 @@ EndProcedure
 Procedure SelectAndSaveFileAtClient(Val FileToReceive, Val DialogParameters = Undefined) Export
 	
 	DefaultDialogOptions = New Structure;
-	DefaultDialogOptions.Insert("Title",               NStr("en = 'Select file to download';"));
+	DefaultDialogOptions.Insert("Title",               NStr("en = 'Select file to download'"));
 	DefaultDialogOptions.Insert("MultipleChoice",      False);
 	DefaultDialogOptions.Insert("Preview", False);
 	
@@ -758,7 +758,7 @@ Procedure FileDirectoryChoiceHandler(Object, Val PropertyName, StandardProcessin
 	StandardProcessing = False;
 	
 	DefaultDialogOptions = New Structure;
-	DefaultDialogOptions.Insert("Title", NStr("en = 'Select directory';") );
+	DefaultDialogOptions.Insert("Title", NStr("en = 'Select directory'") );
 	
 	SetDefaultStructureValues(DialogParameters, DefaultDialogOptions);
 	
@@ -880,14 +880,14 @@ EndFunction
 Function DataImportHyperlinksHeaders() Export
 	
 	Structure = New Structure;
-	Structure.Insert("Undefined",               NStr("en = 'Data was not received';"));
-	Structure.Insert("Error",                     NStr("en = 'Could not receive data';"));
-	Structure.Insert("CompletedWithWarnings", NStr("en = 'Data was received with warnings';"));
-	Structure.Insert("Success",                      NStr("en = 'Data was received';"));
-	Structure.Insert("Perform",                 NStr("en = 'Receiving data…';"));
+	Structure.Insert("Undefined",               NStr("en = 'Data was not received'"));
+	Structure.Insert("Error",                     NStr("en = 'Could not receive data'"));
+	Structure.Insert("CompletedWithWarnings", NStr("en = 'Data was received with warnings'"));
+	Structure.Insert("Success",                      NStr("en = 'Data was received'"));
+	Structure.Insert("Perform",                 NStr("en = 'Receiving data…'"));
 	
-	Structure.Insert("Warning_ExchangeMessageAlreadyAccepted", NStr("en = 'No new data to receive';"));
-	Structure.Insert("ErrorMessageTransport",                      NStr("en = 'Could not receive data';"));
+	Structure.Insert("Warning_ExchangeMessageAlreadyAccepted", NStr("en = 'No new data to receive'"));
+	Structure.Insert("ErrorMessageTransport",                      NStr("en = 'Could not receive data'"));
 	
 	Return Structure;
 EndFunction
@@ -907,14 +907,14 @@ EndFunction
 Function DataExportHyperlinksHeaders() Export
 	
 	Structure = New Structure;
-	Structure.Insert("Undefined", NStr("en = 'Data was not sent';"));
-	Structure.Insert("Error",       NStr("en = 'Could not send data';"));
-	Structure.Insert("Success",        NStr("en = 'Data was sent';"));
-	Structure.Insert("Perform",   NStr("en = 'Sending data…';"));
+	Structure.Insert("Undefined", NStr("en = 'Data was not sent'"));
+	Structure.Insert("Error",       NStr("en = 'Could not send data'"));
+	Structure.Insert("Success",        NStr("en = 'Data was sent'"));
+	Structure.Insert("Perform",   NStr("en = 'Sending data…'"));
 	
-	Structure.Insert("Warning_ExchangeMessageAlreadyAccepted", NStr("en = 'Data was sent with warnings';"));
-	Structure.Insert("CompletedWithWarnings",                     NStr("en = 'Data was sent with warnings';"));
-	Structure.Insert("ErrorMessageTransport",                      NStr("en = 'Could not send data';"));
+	Structure.Insert("Warning_ExchangeMessageAlreadyAccepted", NStr("en = 'Data was sent with warnings'"));
+	Structure.Insert("CompletedWithWarnings",                     NStr("en = 'Data was sent with warnings'"));
+	Structure.Insert("ErrorMessageTransport",                      NStr("en = 'Could not send data'"));
 	
 	Return Structure;
 EndFunction
@@ -1010,7 +1010,7 @@ Procedure FileSelectionHandler(Object, Val PropertyName, StandardProcessing = Fa
 	DefaultDialogOptions = New Structure;
 	DefaultDialogOptions.Insert("Mode",                       FileDialogMode.Open);
 	DefaultDialogOptions.Insert("CheckFileExistence", True);
-	DefaultDialogOptions.Insert("Title",                   NStr("en = 'Select file';"));
+	DefaultDialogOptions.Insert("Title",                   NStr("en = 'Select file'"));
 	DefaultDialogOptions.Insert("MultipleChoice",          False);
 	DefaultDialogOptions.Insert("Preview",     False);
 	DefaultDialogOptions.Insert("FullFileName",              Object[PropertyName]);
@@ -1075,7 +1075,7 @@ Procedure SelectAndSendFileToServer(CompletionNotification, Val DialogParameters
 	
 	DefaultDialogOptions = New Structure;
 	DefaultDialogOptions.Insert("CheckFileExistence", True);
-	DefaultDialogOptions.Insert("Title",                   NStr("en = 'Select file';"));
+	DefaultDialogOptions.Insert("Title",                   NStr("en = 'Select file'"));
 	DefaultDialogOptions.Insert("MultipleChoice",          False);
 	DefaultDialogOptions.Insert("Preview",     False);
 	
@@ -1158,7 +1158,7 @@ EndProcedure
 
 Function DataExchangeEventLogEvent() Export
 	
-	Return NStr("en = 'Data exchange';", CommonClient.DefaultLanguageCode());
+	Return NStr("en = 'Data exchange'", CommonClient.DefaultLanguageCode());
 	
 EndFunction
 
@@ -1346,7 +1346,7 @@ EndFunction
 Function OpenExportAdditionFormAllDocuments(Val ExportAddition, Val Owner=Undefined, Val Uniqueness=Undefined, Val Window=Undefined) Export
 	FormParameters = New Structure;
 	
-	FormParameters.Insert("Title", NStr("en = 'Add documents to send';") );
+	FormParameters.Insert("Title", NStr("en = 'Add documents to send'") );
 	FormParameters.Insert("ChoiceAction", 1);
 	
 	FormParameters.Insert("PeriodSelection", True);

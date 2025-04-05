@@ -55,14 +55,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Parameters.ExchangePlanName, Parameters.InfobaseNodeCode);
 		
 		If Not ValueIsFilled(Object.InfobaseNode) Then
-			Raise NStr("en = 'The data exchange setting is not found.';");
+			Raise NStr("en = 'The data exchange setting is not found.'");
 		EndIf;
 		
 		Object.ExchangePlanName = Parameters.ExchangePlanName;
 		
 	Else
 		
-		Raise NStr("en = 'Cannot open this wizard directly.';");
+		Raise NStr("en = 'Cannot open this wizard directly.'");
 		
 	EndIf;
 	
@@ -70,7 +70,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not ValueIsFilled(Object.TransportID) Then
 		
-		Text = NStr("en = 'Default connection settings are not configured. Synchronization is aborted.';", 
+		Text = NStr("en = 'Default connection settings are not configured. Synchronization is aborted.'", 
 			Common.DefaultLanguageCode());
 		
 		Raise Text;
@@ -79,13 +79,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	// Interactive data exchange is supported only for universal exchanges.
 	If Not DataExchangeCached.IsUniversalDataExchangeNode(Object.InfobaseNode) Then
-		Raise NStr("en = 'The selected node does not support settings-based data exchange.';");
+		Raise NStr("en = 'The selected node does not support settings-based data exchange.'");
 	EndIf;
 	
 	// Check whether exchange settings match the filter.
 	AllNodes = DataExchangeCached.ExchangePlanNodes(Object.ExchangePlanName);
 	If AllNodes.Find(Object.InfobaseNode) = Undefined Then
-		Raise NStr("en = 'The selected node does not provide data mapping.';");
+		Raise NStr("en = 'The selected node does not provide data mapping.'");
 	EndIf;
 	
 	MessageReceivedForDataMapping = DataExchangeServer.MessageWithDataForMappingReceived(Object.InfobaseNode);
@@ -103,7 +103,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If Not GetData And Not SendData And Not MessageReceivedForDataMapping Then
-		Raise NStr("en = 'The data synchronization scenario is not supported.';");
+		Raise NStr("en = 'The data synchronization scenario is not supported.'");
 	EndIf;
 	
 	SaaSModel = Common.DataSeparationEnabled()
@@ -124,7 +124,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.DeleteMessageForMappingDecoration.Title = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'An error occurred while importing a message for mapping.
 		|It is recommended that you export data from application ""%1"" again and start synchronization in this application.
-		|You can also delete the message for mapping. In this case, synchronization runs in normal mode.';"),
+		|You can also delete the message for mapping. In this case, synchronization runs in normal mode.'"),
 		PeerInfobaseName);
 	
 	InitializeScheduleSetupWizard(IsStartedFromAnotherApplication);
@@ -170,7 +170,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	EndIf;
 
 	CommonClient.ShowArbitraryFormClosingConfirmation(ThisObject, Cancel, Exit,
-		NStr("en = 'Do you want to exit the wizard?';"), "ForceCloseForm");
+		NStr("en = 'Do you want to exit the wizard?'"), "ForceCloseForm");
 		
 EndProcedure
 
@@ -238,12 +238,12 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		UpdateMappingStatisticsDataAtServer(Cancel, Parameter);
 		
 		If Cancel Then
-			ShowMessageBox(, NStr("en = 'Error gathering statistic data.';"));
+			ShowMessageBox(, NStr("en = 'Error gathering statistic data.'"));
 		Else
 			
 			ExpandStatisticsTree(Parameter.UniqueKey);
 			
-			ShowUserNotification(NStr("en = 'Information collection is complete';"));
+			ShowUserNotification(NStr("en = 'Information collection is complete'"));
 		EndIf;
 		
 	EndIf;
@@ -405,12 +405,12 @@ Procedure RefreshAllMappingInformation(Command)
 	EndIf;
 	
 	If Cancel Then
-		ShowMessageBox(, NStr("en = 'Error gathering statistic data.';"));
+		ShowMessageBox(, NStr("en = 'Error gathering statistic data.'"));
 	Else
 		
 		ExpandStatisticsTree(CurrentRowKey);
 		
-		ShowUserNotification(NStr("en = 'Information collection is complete';"));
+		ShowUserNotification(NStr("en = 'Information collection is complete'"));
 	EndIf;
 	
 EndProcedure
@@ -423,7 +423,7 @@ Procedure RunDataImportForRow(Command)
 	SelectedRows = Items.StatisticsInformationTree.SelectedRows;
 	
 	If SelectedRows.Count() = 0 Then
-		NString = NStr("en = 'Select a table name in the statistics field.';");
+		NString = NStr("en = 'Select a table name in the statistics field.'");
 		CommonClient.MessageToUser(NString,,"StatisticsInformationTree",, Cancel);
 		Return;
 	EndIf;
@@ -444,7 +444,7 @@ Procedure RunDataImportForRow(Command)
 	
 	If HasUnmappedObjects Then
 		NString = NStr("en = 'Unmapped objects are found.
-		                     |When you import the data, duplicates of these objects will be created. Do you want to continue?';");
+		                     |When you import the data, duplicates of these objects will be created. Do you want to continue?'");
 		
 		Notification = New CallbackDescription("ExecuteDataImportForRowQuestionUnmapped", ThisObject, New Structure);
 		Notification.AdditionalParameters.Insert("SelectedRows", SelectedRows);
@@ -469,7 +469,7 @@ Procedure OpenMappingForm(Command)
 	EndIf;
 	
 	If Not CurrentData.UsePreview Then
-		ShowMessageBox(, NStr("en = 'Object mapping cannot be performed for the data type.';"));
+		ShowMessageBox(, NStr("en = 'Object mapping cannot be performed for the data type.'"));
 		Return;
 	EndIf;
 	
@@ -537,8 +537,8 @@ EndProcedure
 &AtClient
 Procedure ExportAdditionClearGeneralFilter(Command)
 	
-	TitleText = NStr("en = 'Confirm operation';");
-	QueryText   = NStr("en = 'Do you want to clear the common filter?';");
+	TitleText = NStr("en = 'Confirm operation'");
+	QueryText   = NStr("en = 'Do you want to clear the common filter?'");
 	NotifyDescription = New CallbackDescription("ExportAdditionClearGeneralFilterCompletion", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);
 	
@@ -546,8 +546,8 @@ EndProcedure
 
 &AtClient
 Procedure ExportAdditionClearDetailedFilter(Command)
-	TitleText = NStr("en = 'Confirm operation';");
-	QueryText   = NStr("en = 'Do you want to clear the detailed filter?';");
+	TitleText = NStr("en = 'Confirm operation'");
+	QueryText   = NStr("en = 'Do you want to clear the detailed filter?'");
 	NotifyDescription = New CallbackDescription("ExportAdditionClearDetailedFilterCompletion", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);
 EndProcedure
@@ -558,7 +558,7 @@ Procedure ExportAdditionFiltersHistory(Command)
 	VariantList = ExportAdditionServerSettingsHistory();
 	
 	// Adding the option for saving the current settings.
-	Text = NStr("en = 'Save current setting…';");
+	Text = NStr("en = 'Save current setting…'");
 	VariantList.Add(1, Text, , PictureLib.SaveReportSettings);
 	
 	NotifyDescription = New CallbackDescription("ExportAdditionFilterHistoryMenuSelection", ThisObject);
@@ -654,7 +654,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -737,7 +737,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -793,7 +793,7 @@ Procedure ExecuteTimeConsumingOperationHandler()
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -954,9 +954,9 @@ Procedure ExportAdditionFilterHistoryMenuSelection(Val SelectedElement, Val Addi
 	If TypeOf(SettingPresentation)=Type("String") Then
 		// An option is selected, which is name of the setting saved earlier.
 		
-		TitleText = NStr("en = 'Confirm operation';");
+		TitleText = NStr("en = 'Confirm operation'");
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Do you want to restore ""%1"" settings?';"), SettingPresentation);
+		NStr("en = 'Do you want to restore ""%1"" settings?'"), SettingPresentation);
 		
 		NotifyDescription = New CallbackDescription("ExportAdditionFiltersHistoryCompletion", ThisObject, SettingPresentation);
 		ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);
@@ -991,7 +991,7 @@ Procedure ExecuteDataImportForRowContinued(Val SelectedRows)
 	
 	If Cancel Then
 		NString = NStr("en = 'Errors occurred during data import.
-		                     |Do you want to view the event log?';");
+		                     |Do you want to view the event log?'");
 		
 		NotifyDescription = New CallbackDescription("GoToEventLog", ThisObject);
 		ShowQueryBox(NotifyDescription, NString, QuestionDialogMode.YesNo, ,DialogReturnCode.No);
@@ -999,7 +999,7 @@ Procedure ExecuteDataImportForRowContinued(Val SelectedRows)
 	EndIf;
 		
 	ExpandStatisticsTree(RowsKeys[RowsKeys.UBound()]);
-	ShowUserNotification(NStr("en = 'Data import completed.';"));
+	ShowUserNotification(NStr("en = 'Data import completed.'"));
 EndProcedure
 
 &AtClient
@@ -1054,19 +1054,19 @@ Procedure UpdateTooltipTitleOfStatisticsInformationMove()
 		If EndDataMapping Then
 			If LoadMessageAfterMapping Then
 				Items.StatisticsDataNavigationTooltipDecoration.Title =
-					NStr("en = 'Click Next to confirm the mapping and import the exchange message.';");
+					NStr("en = 'Click Next to confirm the mapping and import the exchange message.'");
 			Else
 				Items.StatisticsDataNavigationTooltipDecoration.Title =
-					NStr("en = 'Click ""Save and close"" to confirm the mapping and exit the wizard.';");
+					NStr("en = 'Click ""Save and close"" to confirm the mapping and exit the wizard.'");
 			EndIf;
 		Else
 			Items.StatisticsDataNavigationTooltipDecoration.Title =
 				NStr("en = 'Click ""Save and close"" to confirm the mapping and exit the wizard.
-				|You can continue editing the mapping next time you start the wizard.';");
+				|You can continue editing the mapping next time you start the wizard.'");
 		EndIf;
 	Else
 		Items.StatisticsDataNavigationTooltipDecoration.Title =
-			NStr("en = 'Click Next to synchronize data.';");
+			NStr("en = 'Click Next to synchronize data.'");
 	EndIf;
 	
 EndProcedure
@@ -1408,16 +1408,16 @@ EndProcedure
 &AtServer
 Procedure SetFormHeader()
 	
-	TitleTemplate1 = NStr("en = 'Exchange data with %1';");
+	TitleTemplate1 = NStr("en = 'Exchange data with %1'");
 	
 	If MessageReceivedForDataMapping Then
-		TitleTemplate1 = NStr("en = 'Map %1 data';");
+		TitleTemplate1 = NStr("en = 'Map %1 data'");
 	ElsIf GetData And SendData Then
-		TitleTemplate1 = NStr("en = 'Synchronize data with %1';");
+		TitleTemplate1 = NStr("en = 'Synchronize data with %1'");
 	ElsIf SendData Then
-		TitleTemplate1 = NStr("en = 'Send data to %1';");
+		TitleTemplate1 = NStr("en = 'Send data to %1'");
 	ElsIf GetData Then
-		TitleTemplate1 = NStr("en = 'Receive data from %1';");
+		TitleTemplate1 = NStr("en = 'Receive data from %1'");
 	EndIf;
 		
 	Title = StringFunctionsClientServer.SubstituteParametersToString(
@@ -1461,7 +1461,7 @@ Procedure SetGeneralFilterAdditionDescription()
 	Text = DataExchangeServer.InteractiveExportChangeGeneralFilterAdditionDetails(ExportAddition);
 	NoFilter2 = IsBlankString(Text);
 	If NoFilter2 Then
-		Text = NStr("en = 'All documents';");
+		Text = NStr("en = 'All documents'");
 	EndIf;
 	
 	Items.ExportAdditionGeneralDocumentsFilter.Title = Text;
@@ -1474,7 +1474,7 @@ Procedure SetAdditionDetailDescription()
 	Text = DataExchangeServer.InteractiveExportChangeDetailedFilterDetails(ExportAddition);
 	NoFilter2 = IsBlankString(Text);
 	If NoFilter2 Then
-		Text = NStr("en = 'No additional data is selected';");
+		Text = NStr("en = 'No additional data is selected'");
 	EndIf;
 	
 	Items.ExportAdditionDetailedFilter.Title = Text;
@@ -1649,7 +1649,7 @@ Procedure RefreshDataExchangeStatusItemPresentation()
 	
 	Items.DataImportStatusPages.CurrentPage = Items[DataExchangeClient.DataImportStatusPages()[DataImportResult]];
 	If Items.DataImportStatusPages.CurrentPage=Items.ImportStatusUndefined Then
-		Items.GoToDataImportEventLog.Title = NStr("en = 'Data is not imported.';");
+		Items.GoToDataImportEventLog.Title = NStr("en = 'Data is not imported.'");
 	Else
 		Items.GoToDataImportEventLog.Title = DataExchangeClient.DataImportHyperlinksHeaders()[DataImportResult];
 	EndIf;
@@ -1660,7 +1660,7 @@ Procedure RefreshDataExchangeStatusItemPresentation()
 	
 	Items.DataExportStatusPages.CurrentPage = Items[DataExchangeClient.DataExportStatusPages()[DataExportResult]];
 	If Items.DataExportStatusPages.CurrentPage=Items.ExportStatusUndefined Then
-		Items.GoToDataExportEventLog.Title = NStr("en = 'Data is not exported.';");
+		Items.GoToDataExportEventLog.Title = NStr("en = 'Data is not exported.'");
 	Else
 		Items.GoToDataExportEventLog.Title = DataExchangeClient.DataExportHyperlinksHeaders()[DataExportResult];
 	EndIf;
@@ -1668,7 +1668,7 @@ Procedure RefreshDataExchangeStatusItemPresentation()
 EndProcedure
 
 &AtClient
-Procedure ExpandStatisticsTree(Composite = "")
+Procedure ExpandStatisticsTree(RowKey = "")
 	
 	ItemsCollection = StatisticsInformationTree.GetItems();
 	
@@ -1679,11 +1679,11 @@ Procedure ExpandStatisticsTree(Composite = "")
 	EndDo;
 	
 	// Placing a mouse pointer in the value tree.
-	If Not IsBlankString(Composite) Then
+	If Not IsBlankString(RowKey) Then
 		
 		RowID = 0;
 		
-		CommonClientServer.GetTreeRowIDByFieldValue("Key", RowID, StatisticsInformationTree.GetItems(), Composite, False);
+		CommonClientServer.GetTreeRowIDByFieldValue("Key", RowID, StatisticsInformationTree.GetItems(), RowKey, False);
 		
 		Items.StatisticsInformationTree.CurrentRow = RowID;
 		
@@ -1816,7 +1816,7 @@ Procedure ProcessBackgroundJobExecutionStatus(CurrentAction = Undefined)
 		ErrorMessage = BackgroundJobExecutionResult.DetailErrorDescription;
 		CommitCompletion = True;
 	ElsIf BackgroundJobExecutionResult.Status = "Canceled" Then
-		ErrorMessage = NStr("en = 'The operation was canceled by user.';");
+		ErrorMessage = NStr("en = 'The operation was canceled by user.'");
 		CommitCompletion = True;
 	EndIf;
 	
@@ -1853,7 +1853,7 @@ Function Attachable_PageDataExchangeJobCheck_OnOpen(Cancel, SkipPage, IsMoveNext
                            |in scenario ""%2"".
                            |
                            |Click Next to cancel the scenario
-                           |and start synchronization by the node.';");
+                           |and start synchronization by the node.'");
 			MessageText = StrTemplate(Template, String(Object.InfobaseNode), String(ScenarioUsingInternalPublication));	
 
 		Else
@@ -1861,7 +1861,7 @@ Function Attachable_PageDataExchangeJobCheck_OnOpen(Cancel, SkipPage, IsMoveNext
 			Template = NStr("en = 'Synchronization is already in progress for node ""%1"".
                            |
                            |Click Next to terminate the current synchronization
-                           |and restart it';");
+                           |and restart it'");
 			MessageText = StrTemplate(Template, String(Object.InfobaseNode));
 
 		EndIf;
@@ -1939,7 +1939,7 @@ Function Attachable_DataAnalysisWaitingPageTimeConsumingOperationProcessing(Canc
 	JobParameters = BackgroundJobParameters();
 	JobParameters.MethodToExecute     = "DataProcessors.InteractiveDataExchangeWizard.GetExchangeMessageToTemporaryDirectory";
 	JobParameters.MethodParameters      = MethodParameters;
-	JobParameters.JobDescription  = NStr("en = 'Get exchange message to temporary directory';");
+	JobParameters.JobDescription  = NStr("en = 'Get exchange message to temporary directory'");
 	JobParameters.CompletionHandler = "DataReceiptToTemporaryFolderCompletion";
 	
 	BackgroundJobStartClient(JobParameters, Cancel, GetPasswordFromSessionData);
@@ -1971,7 +1971,7 @@ EndProcedure
 &AtServer
 Procedure GetDataToTemporaryDirectoryAtServerCompletion()
 	
-	ErrorMessageTemplate = NStr("en = 'Cannot import data. See the event log for details.';");
+	ErrorMessageTemplate = NStr("en = 'Cannot import data. See the event log for details.'");
 	MethodExecutionResult = GetFromTempStorage(BackgroundJobExecutionResult.ResultAddress);
 	
 	If MethodExecutionResult = Undefined Then
@@ -2053,7 +2053,7 @@ Function Attachable_DataAnalysisTimeConsumingOperationProcessing(Cancel, GoToNex
 	JobParameters = BackgroundJobParameters();
 	JobParameters.MethodToExecute     = "DataProcessors.InteractiveDataExchangeWizard.ExecuteAutomaticDataMapping";
 	JobParameters.MethodParameters      = MethodParameters;
-	JobParameters.JobDescription  = NStr("en = 'Analyze exchange message data';");
+	JobParameters.JobDescription  = NStr("en = 'Analyze exchange message data'");
 	JobParameters.CompletionHandler = "Attachable_DataAnalysisCompletion";
 	
 	BackgroundJobStartClient(JobParameters, Cancel, False);
@@ -2193,12 +2193,12 @@ Function Attachable_StatisticsInformationPageOnGoNext(Cancel)
 	Cancel = True;
 	
 	Buttons = New ValueList;
-	Buttons.Add(DialogReturnCode.Yes,  NStr("en = 'Continue';"));
-	Buttons.Add(DialogReturnCode.No, NStr("en = 'Cancel';"));
+	Buttons.Add(DialogReturnCode.Yes,  NStr("en = 'Continue'"));
+	Buttons.Add(DialogReturnCode.No, NStr("en = 'Cancel'"));
 	
 	Message = NStr("en = 'Unmapped data is found. This might result in
 	                       |duplication of list items.
-	                       |Do you want to continue?';");
+	                       |Do you want to continue?'");
 	
 	Notification = New CallbackDescription("StatisticsPageOnGoNextQuestionCompletion", ThisObject);
 	
@@ -2265,7 +2265,7 @@ Function Attachable_DataImportTimeConsumingOperationProcessing(Cancel, GoToNext)
 	JobParameters = BackgroundJobParameters();
 	JobParameters.MethodToExecute     = "DataProcessors.InteractiveDataExchangeWizard.RunDataImport";
 	JobParameters.MethodParameters      = MethodParameters;
-	JobParameters.JobDescription  = NStr("en = 'Import data from exchange message';");
+	JobParameters.JobDescription  = NStr("en = 'Import data from exchange message'");
 	JobParameters.CompletionHandler = "DataImportCompletion";
 	
 	BackgroundJobStartClient(JobParameters, Cancel, False);
@@ -2400,7 +2400,7 @@ Procedure OnCompleteDataRecording()
 			CommonClient.MessageToUser(ErrorMessage);
 		Else
 			CommonClient.MessageToUser(
-				NStr("en = 'Cannot register data to export.';"));
+				NStr("en = 'Cannot register data to export.'"));
 		EndIf;
 	EndIf;
 	
@@ -2519,7 +2519,7 @@ Procedure OnStartExportData(Cancel)
 		JobParameters = BackgroundJobParameters();
 		JobParameters.MethodToExecute     = "DataProcessors.InteractiveDataExchangeWizard.RunDataExport";
 		JobParameters.MethodParameters      = MethodParameters;
-		JobParameters.JobDescription  = NStr("en = 'Export data to exchange message';");
+		JobParameters.JobDescription  = NStr("en = 'Export data to exchange message'");
 		JobParameters.CompletionHandler = "DataExportCompletion";
 		
 		BackgroundJobStartClient(JobParameters, Cancel, GetPasswordFromSessionData);
@@ -2561,7 +2561,7 @@ Procedure OnCompleteDataExport()
 			CommonClient.MessageToUser(ErrorMessage);
 		Else
 			CommonClient.MessageToUser(
-				NStr("en = 'Cannot perform data exchange.';"));
+				NStr("en = 'Cannot perform data exchange.'"));
 		EndIf;
 	EndIf;
 	
@@ -2673,7 +2673,7 @@ Procedure DataExportCompletionAtServer()
 	
 	If MethodExecutionResult.Cancel
 		And Not ValueIsFilled(ErrorMessage) Then
-		ErrorMessage = NStr("en = 'Cannot send data. See the event log for details.';");
+		ErrorMessage = NStr("en = 'Cannot send data. See the event log for details.'");
 	EndIf;
 	
 	If ValueIsFilled(ErrorMessage) Then

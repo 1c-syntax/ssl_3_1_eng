@@ -66,7 +66,7 @@ Procedure GetExchangeMessageToTemporaryDirectory(Parameters, TempStorageAddress)
 				TempFileNameForExchange    = CommonClientServer.GetFullFileName(
 					TempDirectoryNameForExchange, DataExchangeServer.UniqueExchangeMessageFileName());
 				
-				FileCopy(TempFileName, TempFileNameForExchange);
+				CopyFile(TempFileName, TempFileNameForExchange);
 				
 				StructureOfData.TempExchangeMessagesDirectoryName = TempDirectoryNameForExchange;
 				StructureOfData.DataPackageFileID       = DataPackageFileID;
@@ -84,7 +84,7 @@ Procedure GetExchangeMessageToTemporaryDirectory(Parameters, TempStorageAddress)
 			Cancel = True;
 			
 			ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'A message to be mapped with ID %1 was not found by path %2.';"),
+				NStr("en = 'A message to be mapped with ID %1 was not found by path %2.'"),
 				String(CommonSettings.MessageForDataMapping),
 				TempFileName);
 			
@@ -205,12 +205,12 @@ EndFunction
 Procedure OnStartRecordData(RegistrationSettings, HandlerParameters, ContinueWait = True) Export
 	
 	BackgroundJobKey = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Register data for export (%1)';"),
+		NStr("en = 'Register data for export (%1)'"),
 		RegistrationSettings.ExchangeNode);
 
 	If DataExchangeServer.HasActiveBackgroundJobs(BackgroundJobKey) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Data registration for initial export to ""%1"" is already running.';"),
+			NStr("en = 'Data registration for initial export to ""%1"" is already running.'"),
 			RegistrationSettings.ExchangeNode);
 	EndIf;
 		
@@ -219,7 +219,7 @@ Procedure OnStartRecordData(RegistrationSettings, HandlerParameters, ContinueWai
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
 	ExecutionParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Register data for export (%1).';"),
+		NStr("en = 'Register data for export (%1).'"),
 		RegistrationSettings.ExchangeNode);
 	ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
 	ExecutionParameters.RunNotInBackground1    = False;
@@ -254,7 +254,7 @@ EndProcedure
 Procedure OnStartExportDataForMapping(ExportSettings1, HandlerParameters, ContinueWait = True) Export
 	
 	BackgroundJobKey = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Export mapping data (%1)';"),
+		NStr("en = 'Export mapping data (%1)'"),
 		ExportSettings1.ExchangeNode);
 
 	ActiveBackgroundJobs = Undefined;
@@ -264,7 +264,7 @@ Procedure OnStartExportDataForMapping(ExportSettings1, HandlerParameters, Contin
 	
 	If DataExchangeServer.HasActiveBackgroundJobs(BackgroundJobKey) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Data to map for ""%1"" is already being exported.';"),
+			NStr("en = 'Data to map for ""%1"" is already being exported.'"),
 			ExportSettings1.ExchangeNode);
 	EndIf;
 		
@@ -273,7 +273,7 @@ Procedure OnStartExportDataForMapping(ExportSettings1, HandlerParameters, Contin
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
 	ExecutionParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Export mapping data (%1).';"),
+		NStr("en = 'Export mapping data (%1).'"),
 		ExportSettings1.ExchangeNode);
 	ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
 	ExecutionParameters.RunNotInBackground1    = False;
@@ -336,9 +336,9 @@ Procedure RegisterDataforExport(Parameters, ResultAddress) Export
 		
 		Information = ErrorInfo();
 		
-		Result.ErrorMessage = NStr("en = 'An issue occurred while adding data to export:';") 
+		Result.ErrorMessage = NStr("en = 'An issue occurred while adding data to export:'") 
 			+ Chars.LF + ErrorProcessing.BriefErrorDescription(Information)
-			+ Chars.LF + NStr("en = 'Edit filter criteria.';");
+			+ Chars.LF + NStr("en = 'Edit filter criteria.'");
 			
 		WriteLogEvent(DataExchangeServer.DataExchangeCreationEventLogEvent(),
 			EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(Information));
@@ -385,7 +385,7 @@ Procedure ExportDataForMapping(Parameters, ResultAddress) Export
 	
 	If Not Result.DataExported1
 		And IsBlankString(Result.ErrorMessage) Then
-		Result.ErrorMessage = NStr("en = 'Errors occurred while exporting mapping data. See the event log.';");
+		Result.ErrorMessage = NStr("en = 'Errors occurred while exporting mapping data. See the event log.'");
 	EndIf;
 	
 	PutToTempStorage(Result, ResultAddress);
@@ -650,7 +650,7 @@ Function AutomaticDataMappingResult(Val Peer,
 	
 	If Result.Cancel Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot import data from ""%1"" (automatic data mapping step).';"),
+			NStr("en = 'Cannot import data from ""%1"" (automatic data mapping step).'"),
 			String(Peer));
 	EndIf;
 	
@@ -701,7 +701,7 @@ Procedure SupplementStatisticTable(StatisticsInformation, Cancel, ErrorMessage =
 		Except
 			Cancel = True;
 			ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Error: the %1 type is not defined.';"), TableRow.ObjectTypeString);
+				NStr("en = 'Error: the %1 type is not defined.'"), TableRow.ObjectTypeString);
 			Break;
 		EndTry;
 		

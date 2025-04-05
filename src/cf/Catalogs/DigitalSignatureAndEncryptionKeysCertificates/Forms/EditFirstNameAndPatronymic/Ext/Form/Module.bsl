@@ -46,7 +46,7 @@ Procedure OK(Command)
 		Close(New Structure("Name, MiddleName", TrimR(Name), TrimR(MiddleName)));
 	Else
 		ShowMessageBox( , StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'First name and middle name must be equal to %1';"), NameAndPatronymic));
+			NStr("en = 'First name and middle name must be equal to %1'"), NameAndPatronymic));
 	EndIf;
 	
 EndProcedure

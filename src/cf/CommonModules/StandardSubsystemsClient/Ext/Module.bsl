@@ -41,12 +41,12 @@ Procedure SetAdvancedApplicationCaption(OnStart = False) Export
 		EndIf;
 	Else
 		TitleTemplate1 = "%1 / %2";
-		ApplicationCaption = StringFunctionsClientServer.SubstituteParametersToString(TitleTemplate1, NStr("en = 'Separators are not set';"), ClientParameters.DetailedInformation);
+		ApplicationCaption = StringFunctionsClientServer.SubstituteParametersToString(TitleTemplate1, NStr("en = 'Separators are not set'"), ClientParameters.DetailedInformation);
 	EndIf;
 	
 	If Not CommonClient.DataSeparationEnabled()
 	   And ClientParameters.Property("OperationsWithExternalResourcesLocked") Then
-		ApplicationCaption = "[" + NStr("en = 'COPY';") + "]" + " " + ApplicationCaption;
+		ApplicationCaption = "[" + NStr("en = 'COPY'") + "]" + " " + ApplicationCaption;
 	EndIf;
 	
 	CommonClientOverridable.ClientApplicationCaptionOnSet(ApplicationCaption, OnStart);
@@ -99,14 +99,14 @@ Procedure ShowQuestionToUser(NotifyDescriptionOnCompletion, QueryText, Buttons, 
 	DialogReturnCodes.Insert(DialogReturnCode.Timeout, "DialogReturnCode.Timeout");
 	
 	ButtonsPresentations = New Map;
-	ButtonsPresentations.Insert(DialogReturnCode.Yes, NStr("en = 'Yes';"));
-	ButtonsPresentations.Insert(DialogReturnCode.No, NStr("en = 'No';"));
-	ButtonsPresentations.Insert(DialogReturnCode.OK, NStr("en = 'OK';"));
-	ButtonsPresentations.Insert(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
-	ButtonsPresentations.Insert(DialogReturnCode.Retry, NStr("en = 'Repeat';"));
-	ButtonsPresentations.Insert(DialogReturnCode.Abort, NStr("en = 'Abort';"));
-	ButtonsPresentations.Insert(DialogReturnCode.Ignore, NStr("en = 'Ignore';"));
-	ButtonsPresentations.Insert(DialogReturnCode.Timeout, NStr("en = 'Timeout';"));
+	ButtonsPresentations.Insert(DialogReturnCode.Yes, NStr("en = 'Yes'"));
+	ButtonsPresentations.Insert(DialogReturnCode.No, NStr("en = 'No'"));
+	ButtonsPresentations.Insert(DialogReturnCode.OK, NStr("en = 'OK'"));
+	ButtonsPresentations.Insert(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
+	ButtonsPresentations.Insert(DialogReturnCode.Retry, NStr("en = 'Repeat'"));
+	ButtonsPresentations.Insert(DialogReturnCode.Abort, NStr("en = 'Abort'"));
+	ButtonsPresentations.Insert(DialogReturnCode.Ignore, NStr("en = 'Ignore'"));
+	ButtonsPresentations.Insert(DialogReturnCode.Timeout, NStr("en = 'Timeout'"));
 	
 	QuestionDialogModes = New Map;
 	QuestionDialogModes.Insert(QuestionDialogMode.YesNo, "QuestionDialogMode.YesNo");
@@ -206,7 +206,7 @@ Procedure OpenActiveUserList(FormParameters = Undefined, FormOwner = Undefined) 
 		
 		ShowMessageBox(,
 			NStr("en = 'To open the list of active users, on the main menu, click
-				       |Functions for technician—Standard—Active users.';"));
+				       |Functions for technician—Standard—Active users.'"));
 		
 	EndIf;
 	
@@ -224,7 +224,7 @@ EndProcedure
 //		with the "NotificationProcessing" handler:
 //			# EventName - String - "SelectMetadataObjects"
 //			# Parameter - ValueList - Selected metadata objects.
-//			# Source - See StandardSubsystemsClientServer.MetadataObjectsSelectionParameters.УникальныйИдентификаторИсточник
+//			# Source -
 //
 Procedure ChooseMetadataObjects(FormParameters, OnCloseNotifyDescription = Undefined) Export
 	OpenForm("CommonForm.SelectMetadataObjects", FormParameters,,,,, OnCloseNotifyDescription);
@@ -423,9 +423,9 @@ Procedure ConfigureVisibilityAndTitleForURLSendErrorReport(Item, ErrorInfo, IsEr
 	
 	If Settings.SendOutMode = ErrorReportingMode.Send Then
 		Item.Title = NStr("en = 'The error report will be sent out automatically.
-			|Configure the report…';");
+			|Configure the report…'");
 	Else
-		Item.Title = NStr("en = 'Generate error report';");
+		Item.Title = NStr("en = 'Generate error report'");
 	EndIf;
 	
 EndProcedure
@@ -661,7 +661,8 @@ EndProcedure
 //                         for the BeforeExit event handler, both for program
 //                         or for interactive cases. If the user
 //                         interaction was successful, the application exit can be continued.
-//  WarningText  - String - See BeforeExit() in Syntax Assistant.
+//  WarningText  - String - See BeforeExit
+//                                  () in Syntax Assistant.
 //
 Procedure BeforeExit(Cancel = False, WarningText = "") Export
 	
@@ -674,7 +675,7 @@ Procedure BeforeExit(Cancel = False, WarningText = "") Export
 		If Not ClientParameter("AskConfirmationOnExit") Then
 			Return;
 		EndIf;
-		WarningText = NStr("en = 'Exit the application?';");
+		WarningText = NStr("en = 'Exit the application?'");
 		Cancel = True;
 	Else
 		Cancel = True;
@@ -686,7 +687,7 @@ Procedure BeforeExit(Cancel = False, WarningText = "") Export
 			WarningText = WarningText + Chars.LF;
 		EndIf;
 		WarningArray.Add(Chars.LF);
-		WarningArray.Add(NStr("en = 'To do so, select ""Continue"" and click the pop-up notification.';"));
+		WarningArray.Add(NStr("en = 'To do so, select ""Continue"" and click the pop-up notification.'"));
 		WarningText = WarningText + StrConcat(WarningArray, Chars.LF);
 		
 		AttachIdleHandler("ShowExitWarning", 0.1, True);
@@ -1008,11 +1009,11 @@ Procedure ShowMessageBoxAndContinue(Parameters, WarningDetails) Export
 	QuestionParameters.Picture = PictureLib.DialogExclamation;
 	
 	If Parameters.Cancel Then
-		Buttons.Add("ExitApp", NStr("en = 'End session';"));
+		Buttons.Add("ExitApp", NStr("en = 'End session'"));
 		QuestionParameters.DefaultButton = "ExitApp";
 	Else
-		Buttons.Add("Continue", NStr("en = 'Continue';"));
-		Buttons.Add("ExitApp",  NStr("en = 'End session';"));
+		Buttons.Add("Continue", NStr("en = 'Continue'"));
+		Buttons.Add("ExitApp",  NStr("en = 'End session'"));
 		QuestionParameters.DefaultButton = "Continue";
 	EndIf;
 	
@@ -1165,6 +1166,88 @@ Function NewNotificationParameterForSpreadsheetDocumentWrite() Export
 	
 EndFunction
 
+#Region TechnicalSupport
+
+// Returns main, system, and additional information for online support.
+//
+// The system information includes the client computer details.
+// Server method: See StandardSubsystemsServer.SupportInformation.
+//
+// Example:
+//  Demo configuration, version X.X, X.X.XX.XX
+//   1C:Enterprise: X.X.XX.XXXX
+//  Standart Subsystem Library: X.X.XX.XX
+//
+//  System info
+//  OS: XXX
+//  CPU: XXX
+//  RAM: XXX
+//  Application: XXX
+//
+//  Additional info
+//  COM connector: XXX
+//  Base configuration: No
+//  Full-access user: No
+//  Sandbox: No
+//  Modified configuration: No
+//
+// Returns:
+//  String - Information for technical support.
+//
+Function SupportInformation() Export
+	
+	SupportInformation = StandardSubsystemsClientServer.NewInformationForSupport();
+	
+	SystemInfo = New SystemInfo;
+	FillPropertyValues(SupportInformation, SystemInfo);
+	
+	If ApplicationStartCompleted() Then
+		ConfigurationOptions = ClientRunParameters();
+	Else
+		ConfigurationOptions = ClientParametersOnStart();
+	EndIf;
+	
+	ParameterIsUnavailable = NStr("en = 'Unavailable'");
+	
+	// ACC:1417-off - A dynamic property set.
+	SupportInformation.ApplicationName1 = CommonClientServer.StructureProperty(
+		ConfigurationOptions,
+		"DetailedInformation",
+		ParameterIsUnavailable);
+	// ACC:1417-on
+	
+	// ACC:1417-off - A dynamic property set.
+	SupportInformation.ApplicationVersion = CommonClientServer.StructureProperty(
+		ConfigurationOptions,
+		"ConfigurationVersion",
+		ParameterIsUnavailable);
+	// ACC:1417-on
+	
+	SupportInformation.SSLVersion = StandardSubsystemsServerCall.LibraryVersion();
+	SupportInformation.COMConnectorName = CommonClientServer.COMConnectorName();
+	SupportInformation.ThisIsBasicConfiguration = IsBaseConfigurationVersion();
+	SupportInformation.IsFullUser = UsersClient.IsFullUser();
+	SupportInformation.IsTrainingPlatform = IsTrainingPlatform();
+	
+	// ACC:1417-off - A dynamic property set.
+	SettingsOfUpdate = CommonClientServer.StructureProperty(
+		ConfigurationOptions,
+		"SettingsOfUpdate");
+	// ACC:1417-on
+	
+	// ACC:1417-off - A dynamic property set.
+	SupportInformation.ConfigurationChanged = CommonClientServer.StructureProperty(
+		SettingsOfUpdate,
+		"ConfigurationChanged",
+		ParameterIsUnavailable);
+	// ACC:1417-on
+	
+	Return StandardSubsystemsClientServer.TextOfInformationForSupport(SupportInformation);
+	
+EndFunction
+
+#EndRegion
+
 #Region ConfigurationSubsystemsEventHandlers
 
 // See SSLSubsystemsIntegrationClient.BeforeRecurringClientDataSendToServer
@@ -1192,7 +1275,7 @@ Procedure AfterRecurringReceiptOfClientDataOnServer(Results) Export
 	// ConfigurationOrExtensionsWasModified
 	PictureDialogInformation = PictureLib.DialogInformation;
 	ShowUserNotification(
-		NStr("en = 'Application update installed';"),
+		NStr("en = 'Application update installed'"),
 		"e1cib/app/CommonForm.DynamicUpdateControl",
 		Result, PictureDialogInformation,
 		UserNotificationStatus.Important,
@@ -1300,58 +1383,14 @@ Procedure ShowDetailedInfo(Handler, Text, Title = Undefined) Export
 	DialogSettings.Insert("Title", Title);
 	
 	If Not ValueIsFilled(DialogSettings.Title) Then
-		DialogSettings.Title = NStr("en = 'Details';");
+		DialogSettings.Title = NStr("en = 'Details'");
 	EndIf;
 	
 	Buttons = New ValueList;
-	Buttons.Add(0, NStr("en = 'Close';"));
+	Buttons.Add(0, NStr("en = 'Close'"));
 	
 	ShowQuestionToUser(Handler, Text, Buttons, DialogSettings);
 EndProcedure
-
-// The file header for technical support.
-//
-// Returns:
-//  String
-//
-Function SupportInformation() Export
-	
-	Text = NStr("en = '[ApplicationName1], [ApplicationVersion]
-	                   |1C:Enterprise: [PlatformVersion] [PlatformBitness]
-	                   |Standard Subsystem Library: [SSLVersion]
-	                   |App: [Viewer]
-	                   |OS: [OperatingSystem]
-	                   |RAM: [RAM]
-	                   |COM connector: [COMConnectorName]
-	                   |Basic configuration: [IsBaseConfigurationVersion]
-	                   |Full-access user: [IsFullUser]
-	                   |Sandbox: [IsTrainingPlatform]
-	                   |Configuration modified: [ConfigurationChanged]';") + Chars.LF;
-	
-	Parameters = ?(ApplicationStartCompleted(), ClientRunParameters(), ClientParametersOnStart());
-	SystemInfo = New SystemInfo;
-	TextUnavailable = NStr("en = 'unavailable';");
-	
-	Text = StrReplace(Text, "[ApplicationName1]", 
-		?(Parameters.Property("DetailedInformation"), Parameters.DetailedInformation, TextUnavailable));
-	Text = StrReplace(Text, "[ApplicationVersion]", 
-		?(Parameters.Property("ConfigurationVersion"), Parameters.ConfigurationVersion, TextUnavailable));
-	Text = StrReplace(Text, "[PlatformVersion]", SystemInfo.AppVersion);
-	Text = StrReplace(Text, "[PlatformBitness]", SystemInfo.PlatformType);
-	Text = StrReplace(Text, "[SSLVersion]", StandardSubsystemsServerCall.LibraryVersion());
-	Text = StrReplace(Text, "[Viewer]", SystemInfo.UserAgentInformation);
-	Text = StrReplace(Text, "[OperatingSystem]", SystemInfo.OSVersion);
-	Text = StrReplace(Text, "[RAM]", SystemInfo.RAM);
-	Text = StrReplace(Text, "[COMConnectorName]", CommonClientServer.COMConnectorName());
-	Text = StrReplace(Text, "[IsBaseConfigurationVersion]", IsBaseConfigurationVersion());
-	Text = StrReplace(Text, "[IsFullUser]", UsersClient.IsFullUser());
-	Text = StrReplace(Text, "[IsTrainingPlatform]", IsTrainingPlatform());
-	Text = StrReplace(Text, "[ConfigurationChanged]", 
-		?(Parameters.Property("SettingsOfUpdate"), Parameters.SettingsOfUpdate.ConfigurationChanged, TextUnavailable));
-	
-	Return Text;
-	
-EndFunction
 
 #If Not WebClient And Not MobileClient Then
 
@@ -1773,7 +1812,7 @@ Procedure ActionsOnStart(CompletionNotification, ContinuousExecution)
 			           |Invalid %1 call during startup. The procedure %2 must be completed first.
 			           |Presumably, one of the event handlers did not trigger the notification to continue.
 			           |The invoked procedures (most recent first):
-			           |%3';"),
+			           |%3'"),
 			"StandardSubsystemsClient.OnStart",
 			"StandardSubsystemsClient.BeforeStart",
 			CalledProceduresBeforeStart());
@@ -2206,7 +2245,7 @@ Procedure Check1CEnterpriseVersionOnStartup(Parameters, Context) Export
 		MessageText = NStr("en = 'Cannot update the application.
 			|
 			|The current 1C:Enterprise version %1 is not supported.
-			|Update 1C:Enterprise to version %2 or later';");
+			|Update 1C:Enterprise to version %2 or later'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, Current, Min);
 		ModuleConfigurationUpdateClient = CommonClient.CommonModule("ConfigurationUpdateClient");
 		ModuleConfigurationUpdateClient.WriteDownTheErrorOfTheNeedToUpdateThePlatform(MessageText);
@@ -2226,11 +2265,11 @@ Procedure Check1CEnterpriseVersionOnStartup(Parameters, Context) Export
 		If UsersClient.IsFullUser(True) Then
 			MessageText =
 				NStr("en = 'Cannot start the application.
-				           |1C:Enterprise platform update is required.';");
+				           |1C:Enterprise platform update is required.'");
 		Else
 			MessageText =
 				NStr("en = 'Cannot start the application.
-				           |1C:Enterprise platform update is required. Contact the administrator.';");
+				           |1C:Enterprise platform update is required. Contact the administrator.'");
 		EndIf;
 	Else
 		If UsersClient.IsFullUser(True) Then
@@ -2238,13 +2277,13 @@ Procedure Check1CEnterpriseVersionOnStartup(Parameters, Context) Export
 				NStr("en = 'It is recommended that you close the application and update the 1C:Enterprise platform version.
 				         |The new 1C:Enterprise platform version includes bug fixes that improve the application stability.
 				         |You can also continue using the current version.
-				         |The minimum required platform version is %1.';");
+				         |The minimum required platform version is %1.'");
 		Else
 			MessageText = 
 				NStr("en = 'It is recommended that you close the application and contact the administrator to update the 1C:Enterprise platform version.
 				         |The new platform version includes bug fixes that improve the application stability.
 				         |You can also continue using the current version.
-				         |The minimum required platform version is %1.';");
+				         |The minimum required platform version is %1.'");
 		EndIf;
 	EndIf;
 	
@@ -2341,7 +2380,7 @@ Procedure MasterNodeReconnectionInteractiveHandler(Parameters, Context) Export
 		ShowMessageBox(
 			NotificationWithoutResult(Parameters.ContinuationHandler),
 			NStr("en = 'Cannot log in because the connection to the master node is lost.
-			           |Please contact the administrator.';"),
+			           |Please contact the administrator.'"),
 			15);
 		Return;
 	EndIf;
@@ -2365,7 +2404,7 @@ Procedure InteractiveInitialRegionalInfobaseSettingsProcessing(Parameters, Conte
 		ShowMessageBox(
 			NotificationWithoutResult(Parameters.ContinuationHandler),
 			NStr("en = 'Cannot start the application. Regional settings need to be configured.
-			           |Contact the administrator.';"),
+			           |Contact the administrator.'"),
 			15);
 		Return;
 	EndIf;
@@ -2600,7 +2639,7 @@ Procedure MetadataObjectIDsListFormListValueChoice(Form, Item, Value, StandardPr
 		Else
 			ShowMessageBox(,
 				NStr("en = 'Cannot select a group of metadata objects.
-				           |Please select a metadata object.';"));
+				           |Please select a metadata object.'"));
 		EndIf;
 	EndIf;
 	
@@ -2879,7 +2918,7 @@ Procedure SignInToDataArea()
 	
 	If StartupParameters.Count() < 2 Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Specify a separator value (a number) in startup parameter %1.';"),
+			NStr("en = 'Specify a separator value (a number) in startup parameter %1.'"),
 			"SignInToDataArea");
 	EndIf;
 	
@@ -2887,7 +2926,7 @@ Procedure SignInToDataArea()
 		SeparatorValue = Number(StartupParameters[1]);
 	Except
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'A separator value in parameter %1 must be a number.';"),
+			NStr("en = 'A separator value in parameter %1 must be a number.'"),
 			"SignInToDataArea");
 	EndTry;
 	
@@ -3140,7 +3179,7 @@ Function InteractiveHandlerBeforeStartInProgress()
 			NStr("en = 'Exception occurred during startup.
 			           |
 			           |Technical details:
-			           |Invalid %1 call during startup. The %2 procedure must be completed first.';"),
+			           |Invalid %1 call during startup. The %2 procedure must be completed first.'"),
 			"StandardSubsystemsClient.OnStart",
 			"StandardSubsystemsClient.BeforeStart");
 		Raise ErrorText;
@@ -3309,8 +3348,8 @@ Procedure OpenApplicationWarningForm(Parameters, ResponseHandler, UserWarning, F
 				FormParameters.Insert("ApplicationShutdown", True);
 			EndIf;
 			
-			FormParameters.Insert("YesButtonTitle",  NStr("en = 'Exit';"));
-			FormParameters.Insert("NoButtonTitle", NStr("en = 'Cancel';"));
+			FormParameters.Insert("YesButtonTitle",  NStr("en = 'Exit'"));
+			FormParameters.Insert("NoButtonTitle", NStr("en = 'Cancel'"));
 			
 		EndIf;
 		FormOpenParameters = New Structure;
@@ -3361,10 +3400,10 @@ Procedure HandleErrorOnStartOrExit(Parameters, ErrorInfo, Event, Shutdown = Fals
 		Shutdown, Event, ErrorProcessing.DetailErrorDescription(ErrorInfo));	
 		
 	WarningText = ErrorProcessing.BriefErrorDescription(ErrorInfo) + Chars.LF + Chars.LF
-		+ NStr("en = 'Technical information has been saved to the event log.';");
+		+ NStr("en = 'Technical information has been saved to the event log.'");
 		
 	If Event = "Run" And Shutdown Then
-		WarningText = NStr("en = 'Cannot start the application:';")
+		WarningText = NStr("en = 'Cannot start the application:'")
 			+ Chars.LF + Chars.LF + WarningText;
 	EndIf;
 	
@@ -3406,9 +3445,9 @@ EndFunction
 Procedure NotifyLowMemory() Export
 	RecommendedSize = ClientParametersOnStart().RecommendedRAM;
 	
-	Title = NStr("en = 'Application performance degraded';");
+	Title = NStr("en = 'Application performance degraded'");
 	Text = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Consider increasing RAM size to %1 GB.';"), RecommendedSize);
+		NStr("en = 'Consider increasing RAM size to %1 GB.'"), RecommendedSize);
 	
 	ShowUserNotification(Title, 
 		"e1cib/app/DataProcessor.SpeedupRecommendation",
@@ -3420,8 +3459,8 @@ Procedure NotifyCurrentUserOfUpcomingRestart(SecondsBeforeRestart) Export
 	RestartTime = StandardSubsystemsServerCall.AppRestartTimeForApplyPatches();
 	RestartTime = ?(RestartTime <> Undefined, Format(RestartTime,"DF=HH:mm"),
 		Format(CommonClient.SessionDate() + SecondsBeforeRestart, "DF=HH:mm"));
-	TitleText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Application restart at %1';"), RestartTime);
-	MessageText = NStr("en = 'You have scheduled the application restart to apply the patches. Click here to postpone.';");
+	TitleText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Application restart at %1'"), RestartTime);
+	MessageText = NStr("en = 'You have scheduled the application restart to apply the patches. Click here to postpone.'");
 	ShowUserNotification(
 		TitleText,
 		"e1cib/app/CommonForm.DynamicUpdateControl",

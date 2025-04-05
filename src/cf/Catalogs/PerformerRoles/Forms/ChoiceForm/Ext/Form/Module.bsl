@@ -65,8 +65,8 @@ Function SetFilterForExternalUser()
 	CurrentExternalUser =  ExternalUsers.CurrentExternalUser();
 	AuthorizationObject = Common.ObjectAttributeValue(CurrentExternalUser, "AuthorizationObject");
 	FIlterRowInQueryText = StrReplace(
-		"WHERE ExecutorRolesAssignmentOverridable.UsersType = VALUE(Catalog.%Name%.EmptyRef)", // @query-part
-		"%Name%", AuthorizationObject.Metadata().Name);
+		"WHERE ExecutorRolesAssignmentOverridable.UsersType = VALUE(Catalog.%Name%.EmptyRef)",
+		"%Name%", AuthorizationObject.Metadata().Name); // @query-part-1
 	Return FIlterRowInQueryText;
 
 EndFunction

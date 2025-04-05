@@ -58,7 +58,7 @@ Procedure OpenInstructionHowToChangeDataSynchronizationPassword(Val AccountPassw
 	
 	If IsBlankString(AccountPasswordRecoveryAddress) Then
 		
-		ShowMessageBox(, NStr("en = 'The address of the password recovery instruction is not specified.';"));
+		ShowMessageBox(, NStr("en = 'The address of the password recovery instruction is not specified.'"));
 		
 	Else
 		

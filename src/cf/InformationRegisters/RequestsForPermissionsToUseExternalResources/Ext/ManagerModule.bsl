@@ -281,7 +281,7 @@ Function CanRequestForPermissionsToUseExternalResources()
 		// For client/server infobases with enabled security profiles, only the administrators
 		// can write permission requests regardless of the privileged mode.
 		If Not Users.IsFullUser() Then
-			Raise(NStr("en = 'Insufficient access rights to request permissions to use external resources.';"),
+			Raise(NStr("en = 'Insufficient access rights to request permissions to use external resources.'"),
 				ErrorCategory.AccessViolation);
 		EndIf;
 		Return True;

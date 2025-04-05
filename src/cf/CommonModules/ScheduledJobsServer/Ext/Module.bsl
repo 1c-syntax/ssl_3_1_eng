@@ -462,10 +462,10 @@ Procedure SetInternalUserOfScheduledJob(ScheduledJob, InfobaseDummyUser = Undefi
 		Return;
 	EndIf;
 	
-	Text = NStr("en = 'Это регламентное задание должно выполняться от имени служебного пользователя.
-	                   |Выполнение прервано. Установлен служебный пользователь для запуска.
-	                   |Дополнительных действий не требуется. Следующий запуск будет выполнен от имени служебного пользователя.
-	                   |';");
+	Text = NStr("en = 'This scheduled job must be executed under a utility user account.
+	                   |Execution has been interrupted. A service user has been assigned to the job.
+	                   |No further action is required. Next time the job will run under the utility user account.'")
+	                   + Chars.LF;
 	Raise Text;
 	
 EndProcedure
@@ -656,7 +656,7 @@ Function GetScheduledJob(Val Id) Export
 	
 	If ScheduledJob = Undefined Then
 		Raise( NStr("en = 'The scheduled job does not exist.
-		                              |It might have been deleted by another user.';") );
+		                              |It might have been deleted by another user.'") );
 	EndIf;
 	
 	Return ScheduledJob;
@@ -773,6 +773,30 @@ EndProcedure
 
 #EndRegion
 
+#Region ForCallsFromOtherSubsystems
+
+// CloudTechnology.ExportImportData
+
+// Sets a flag of scheduled jobs usage in the infobase
+// depending on values of functional options.
+//
+// Parameters:
+//  EnableJobs - Boolean - If "True", disabled scheduled jobs will be enabled
+//                             when they become available according to functional options. The default value is False.
+//
+Procedure SetScheduledJobsUsageByFunctionalOptions(EnableJobs = False) Export
+	
+	If Common.SubsystemExists("StandardSubsystems.ScheduledJobs") Then
+		ModuleScheduledJobsInternal = Common.CommonModule("ScheduledJobsInternal");
+		ModuleScheduledJobsInternal.SetScheduledJobsUsageByFunctionalOptions(EnableJobs);
+	EndIf;
+	
+EndProcedure
+
+// End CloudTechnology.ExportImportData
+
+#EndRegion
+
 #EndRegion
 
 #Region Internal
@@ -873,7 +897,7 @@ Procedure CancelJobExecution(Val ScheduledJob, TextForLog) Export
 		Return;
 	EndIf;
 	
-	EventName = NStr("en = 'Cancel background job';", Common.DefaultLanguageCode());
+	EventName = NStr("en = 'Cancel background job'", Common.DefaultLanguageCode());
 	
 	WriteLogEvent(EventName,
 		EventLogLevel.Warning,
@@ -1081,7 +1105,7 @@ Procedure ChangeScheduledJob(Val Id, Val Parameters) Export
 			NStr("en = 'Scheduled job by the passed ID is not found.
 				|
 				|If the scheduled job is not predefined, first of all add
-				|it to the list of jobs using method %1.';"),
+				|it to the list of jobs using method %1.'"),
 			"ScheduledJobsServer.AddJob");
 		
 		Raise ExceptionText;
@@ -1282,7 +1306,7 @@ Procedure RaiseIfNoAdministrationRights()
 	EndIf;
 	
 	If Not Users.IsFullUser(, CheckSystemAdministrationRights) Then
-		Raise NStr("en = 'Access violation.';");
+		Raise NStr("en = 'Access violation.'");
 	EndIf;
 	
 EndProcedure
@@ -1326,7 +1350,7 @@ Function InfobaseDummyUser(ScheduledJob)
 		ErrorInfo = ErrorInfo();
 		ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Couldn''t create utility user ""%1"" to assign it
-			           |to scheduled job ""%2"" due to:';"),
+			           |to scheduled job ""%2"" due to:'"),
 			ScheduledJob.Presentation(),
 			InternalUsername());
 		Refinement = CommonClientServer.ExceptionClarification(ErrorInfo, ErrorTitle);

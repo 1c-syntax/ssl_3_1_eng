@@ -100,11 +100,11 @@ Procedure TerminateSession(Command)
 	SelectedLinesNumber = Items.UsersList.SelectedRows.Count();
 	
 	If SelectedLinesNumber = 0 Then
-		ShowMessageBox(,NStr("en = 'Please select users.';"));
+		ShowMessageBox(,NStr("en = 'Please select users.'"));
 		Return;
 	ElsIf SelectedLinesNumber = 1 Then
 		If Items.UsersList.CurrentData.Session = InfoBaseSessionNumber Then
-			ShowMessageBox(,NStr("en = 'Cannot close the current session. To exit the application, close its main window.';"));
+			ShowMessageBox(,NStr("en = 'Cannot close the current session. To exit the application, close its main window.'"));
 			Return;
 		EndIf;
 	EndIf;
@@ -129,9 +129,9 @@ Procedure TerminateSession(Command)
 	Else
 		If PromptForIBAdministrationParameters Then
 			NotifyDescription = New CallbackDescription("TerminateSessionContinuation", ThisObject, SessionsNumbers);
-			FormCaption = NStr("en = 'Close session';");
+			FormCaption = NStr("en = 'Close session'");
 			NoteLabel = NStr("en = 'To end the session, enter
-				|the server cluster administration parameters';");
+				|the server cluster administration parameters'");
 			IBConnectionsClient.ShowAdministrationParameters(NotifyDescription, False, True, AdministrationParameters, FormCaption, NoteLabel);
 		Else
 			TerminateSessionContinuation(AdministrationParameters, SessionsNumbers);
@@ -152,7 +152,7 @@ Procedure OpenEventLog()
 	
 	SelectedRows = Items.UsersList.SelectedRows;
 	If SelectedRows.Count() = 0 Then
-		ShowMessageBox(,NStr("en = 'Select users to view their event log records.';"));
+		ShowMessageBox(,NStr("en = 'Select users to view their event log records.'"));
 		Return;
 	EndIf;
 	
@@ -502,16 +502,16 @@ Procedure AfterSessionTermination(Result, AdditionalParameters) Export
 		
 		If AdditionalParameters.SessionsNumbers.Count() > 1 Then
 			
-			NotificationText1 = NStr("en = 'Sessions %1 are closed.';");
+			NotificationText1 = NStr("en = 'Sessions %1 are closed.'");
 			SessionsNumbers = StrConcat(AdditionalParameters.SessionsNumbers, ",");
 			NotificationText1 = StringFunctionsClientServer.SubstituteParametersToString(NotificationText1, SessionsNumbers);
-			ShowUserNotification(NStr("en = 'Sessions closed';"),, NotificationText1);
+			ShowUserNotification(NStr("en = 'Sessions closed'"),, NotificationText1);
 			
 		Else
 			
 			NotificationText1 = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Session %1 is closed.';"), AdditionalParameters.SessionsNumbers[0]);
-			ShowUserNotification(NStr("en = 'Session closed';"),, NotificationText1);
+				NStr("en = 'Session %1 is closed.'"), AdditionalParameters.SessionsNumbers[0]);
+			ShowUserNotification(NStr("en = 'Session closed'"),, NotificationText1);
 			
 		EndIf;
 		

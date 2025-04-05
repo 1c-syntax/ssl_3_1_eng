@@ -26,17 +26,17 @@ Function SavedAddInInformation(Val Id, Val Version = Undefined,
 		Version = Result.Attributes.Version;
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'For the %1 ID (version %2), the %3 add-in (version %4) is received from the catalog.
-			|Status: %5';"), 
-			Id, ?(Version <> Undefined, Version, NStr("en = 'not specified';")), Result.Attributes.Description, 
+			|Status: %5'"), 
+			Id, ?(Version <> Undefined, Version, NStr("en = 'not specified'")), Result.Attributes.Description, 
 			Result.Attributes.Version, Result.State);
-		WriteLogEvent(NStr("en = 'Add-ins';", Common.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Add-ins'", Common.DefaultLanguageCode()),
 			EventLogLevel.Information,, Result.Ref, MessageText);
 	Else
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'For the %1 ID (version %2), there is no appropriate add-in in the catalog.
-			|Status: %3';"),
-			Id, ?(Version <> Undefined, Version, NStr("en = 'not specified';")), Result.State);
-		WriteLogEvent(NStr("en = 'Add-ins';", Common.DefaultLanguageCode()),
+			|Status: %3'"),
+			Id, ?(Version <> Undefined, Version, NStr("en = 'not specified'")), Result.State);
+		WriteLogEvent(NStr("en = 'Add-ins'", Common.DefaultLanguageCode()),
 			EventLogLevel.Information,,, MessageText);
 	EndIf;
 	Return Result;

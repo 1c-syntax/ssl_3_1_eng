@@ -18,12 +18,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Data = GetFromTempStorage(Parameters.DataAddress);
 			LowPriorityHandlers.Load(Data);
 			Items.TablesPages.CurrentPage = Items.PageLowPriorityHandlers;
-			Title = NStr("en = 'Handlers with low priority';");
+			Title = NStr("en = 'Handlers with low priority'");
 		Else
 			Data = GetFromTempStorage(Parameters.DataAddress);
 			Intersections.Load(Data);
 			Items.TablesPages.CurrentPage = Items.IntersectionsPage;
-			Title = NStr("en = 'Handler intersection objects';");
+			Title = NStr("en = 'Handler intersection objects'");
 		EndIf;
 	EndIf;
 	

@@ -187,7 +187,7 @@ EndFunction
 //  FullName - String - Full name of a metadata object.
 //
 // Returns:
-//  String - 
+//  String - List of comma-separated fields.
 //
 Function ListOfAllAccessRestrictionFields(FullName) Export
 	
@@ -742,7 +742,7 @@ Function AllowedAccessKey() Export
 	If Not ValueIsFilled(RefInDatabase) Then
 		AllowedKey = Catalogs.AccessKeys.CreateItem();
 		AllowedKey.SetNewObjectRef(Ref);
-		AllowedKey.Description = NStr("en = 'Allowed access key';");
+		AllowedKey.Description = NStr("en = 'Allowed access key'");
 		
 		Block = New DataLock;
 		LockItem = Block.Add("Catalog.AccessKeys");
@@ -781,7 +781,7 @@ Function AllowedBlankAccessGroupsSet() Export
 	If Not ValueIsFilled(RefInDatabase) Then
 		AllowedBlankSet = Catalogs.SetsOfAccessGroups.CreateItem();
 		AllowedBlankSet.SetNewObjectRef(Ref);
-		AllowedBlankSet.Description = NStr("en = 'Allowed empty access group set';");
+		AllowedBlankSet.Description = NStr("en = 'Allowed empty access group set'");
 		AllowedBlankSet.SetItemsType = Catalogs.AccessGroups.EmptyRef();
 		
 		Block = New DataLock;
@@ -815,7 +815,7 @@ Function AccessKeyDimensions() Export
 	
 	If SimilarItemsInCollectionCount(KeyMetadata.Attributes, "Value") <> 5 Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Catalog ""%1"" can contain the maximum of 5 ""%2"" attributes.';"),
+			NStr("en = 'Catalog ""%1"" can contain the maximum of 5 ""%2"" attributes.'"),
 			"AccessKeys", "Value" + "*");
 		Raise ErrorText;
 	EndIf;
@@ -823,7 +823,7 @@ Function AccessKeyDimensions() Export
 	If KeyMetadata.TabularSections.Find("Header") = Undefined
 	 Or SimilarItemsInCollectionCount(KeyMetadata.TabularSections.Header.Attributes, "Value", 6) <> 5 Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Catalog ""%1"" can contain tabular section ""%2"" with the maximum of 5 ""%3"" attributes.';"),
+			NStr("en = 'Catalog ""%1"" can contain tabular section ""%2"" with the maximum of 5 ""%3"" attributes.'"),
 			"AccessKeys", "Header", "Value" + "*");
 		Raise ErrorText;
 	EndIf;
@@ -831,7 +831,7 @@ Function AccessKeyDimensions() Export
 	TabularSectionsCount = SimilarItemsInCollectionCount(KeyMetadata.TabularSections, "TabularSection");
 	If TabularSectionsCount < 1 Or TabularSectionsCount > 12 Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Catalog ""%1"" can contain 1 to 12 tabular sections ""%2"".';"),
+			NStr("en = 'Catalog ""%1"" can contain 1 to 12 tabular sections ""%2"".'"),
 			"AccessKeys", "TabularSection" + "*");
 		Raise ErrorText;
 	EndIf;
@@ -860,7 +860,7 @@ Function AccessKeyDimensions() Export
 	If TabularSectionAttributesCount = 0 Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Tabular sections ""%2"" of catalog ""%1""
-			           |must contain the same number of attributes ""%3"", but not more than 15.';"),
+			           |must contain the same number of attributes ""%3"", but not more than 15.'"),
 			"AccessKeys", "TabularSection" + "*", "Value" + "*");
 		Raise ErrorText;
 	EndIf;
@@ -881,13 +881,13 @@ Function BasicRegisterFieldsCount(Val RegisterName = "") Export
 		If Dimensions.Count() < 1 Or Dimensions[0].Name <> "Register" Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'In information register ""%1"",
-				           |the first dimension must be ""%2"".';"), RegisterName, "Register");
+				           |the first dimension must be ""%2"".'"), RegisterName, "Register");
 			Raise ErrorText;
 		EndIf;
 		If Dimensions.Count() < 2 Or Dimensions[1].Name <> "AccessOption" Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'In information register ""%1"",
-				           |the second dimension must be ""%2"".';"), RegisterName, "AccessOption");
+				           |the second dimension must be ""%2"".'"), RegisterName, "AccessOption");
 			Raise ErrorText;
 		EndIf;
 		IndexOfTheFieldDimension = 2;
@@ -896,7 +896,7 @@ Function BasicRegisterFieldsCount(Val RegisterName = "") Export
 		If Dimensions.Count() < 1 Or Dimensions[0].Name <> "AccessOption" Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'In information register ""%1"",
-				           |the first dimension must be ""%2"".';"), RegisterName, "AccessOption");
+				           |the first dimension must be ""%2"".'"), RegisterName, "AccessOption");
 			Raise ErrorText;
 		EndIf;
 		IndexOfTheFieldDimension = 1;
@@ -912,7 +912,7 @@ Function BasicRegisterFieldsCount(Val RegisterName = "") Export
 	
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'In information register ""%1"",
-			           |dimension ""%2"" must have type ""%3"".';"),
+			           |dimension ""%2"" must have type ""%3"".'"),
 			RegisterName, "AccessOption", "Number(4,0,Non_negative)");
 		Raise ErrorText;
 	EndIf;
@@ -921,7 +921,7 @@ Function BasicRegisterFieldsCount(Val RegisterName = "") Export
 	 Or Dimensions[IndexOfTheFieldDimension].Name <> "Field1" Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'In information register ""%1"",
-			           |dimension ""%2"" must be followed by ""%3"".';"), RegisterName, "AccessOption", "Field1");
+			           |dimension ""%2"" must be followed by ""%3"".'"), RegisterName, "AccessOption", "Field1");
 		Raise ErrorText;
 	EndIf;
 	
@@ -935,7 +935,7 @@ Function BasicRegisterFieldsCount(Val RegisterName = "") Export
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'In the %1 information register,
 				           |dimensions of type %2<number> must be in order,
-				           |but %4 is found in the %3 dimension position';"),
+				           |but %4 is found in the %3 dimension position'"),
 				RegisterName, "Field", FieldName, Dimension.Name);
 			Raise ErrorText;
 		EndIf;
@@ -1060,7 +1060,7 @@ Function PredefinedMetadataObjectIDDetails(FullMetadataObjectName) Export
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot get the name of a predefined metadata object ID
 			           |as the specified metadata object does not exist:
-			           |""%1"".';"),
+			           |""%1"".'"),
 			FullMetadataObjectName);
 		Raise ErrorText;
 	EndIf;

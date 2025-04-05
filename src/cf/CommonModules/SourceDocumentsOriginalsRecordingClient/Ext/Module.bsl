@@ -87,16 +87,16 @@ Procedure OpenStateSelectionMenu(Val Form, Val Source = Undefined) Export
 	EndIf;
 	
 	If Document.IsEmpty() Then
-		ShowMessageBox(,NStr("en = 'To set the original state, post the document first.';"));
+		ShowMessageBox(,NStr("en = 'To set the original state, post the document first.'"));
 		Return;
 	EndIf;
 
-	Result = CommonServerCall.UnpostedDocuments(
+	Result = AttachableCommandsClient.DocsPostInfoRecords(
 		CommonClientServer.ValueInArray(Document));
 	If Result.UnpostedDocuments.Count() = 1 Then
 		MessageText = ?(Result.HasPostingRight, 
-			NStr("en = 'To set the original state, post the document first.';"),
-			NStr("en = 'Cannot set the original state; insufficient rights to post the document.';"));
+			NStr("en = 'To set the original state, post the document first.'"),
+			NStr("en = 'Cannot set the original state; insufficient rights to post the document.'"));
 		ShowMessageBox(, MessageText);
 		Return;
 	EndIf;
@@ -112,7 +112,7 @@ Procedure OpenStateSelectionMenu(Val Form, Val Source = Undefined) Export
 	If ShouldClarifyByPrintForms Then
 		If ClarifyByPrintForms = Undefined Then
 			Form.OriginalStatesChoiceList.Add("ClarifyByPrintForms",
-				NStr("en = 'Specify for print forms…';"),,
+				NStr("en = 'Specify for print forms…'"),,
 				PictureLib.SetSourceDocumentOriginalStateByPrintForms);
 		EndIf;
 	ElsIf ClarifyByPrintForms <> Undefined Then
@@ -206,7 +206,7 @@ Procedure ListSelection(FieldName, Form, List, StandardProcessing) Export
 				SetOriginalState("SettingStateOriginalReceived", Form, List);
 			EndIf;
 		Else
-			ShowMessageBox(, NStr("en = 'Records of originals are not kept for this document.';"));
+			ShowMessageBox(, NStr("en = 'Records of originals are not kept for this document.'"));
 		EndIf;
 	EndIf;
 	
@@ -221,7 +221,7 @@ EndProcedure
 Procedure ProcessBarcode(Barcode, EventName) Export
 	
 	If EventName = "ScanData" Then
-		Status(NStr("en = 'Setting original state by barcode…';"));
+		Status(NStr("en = 'Setting original state by barcode…'"));
 		SourceDocumentsOriginalsRecordingServerCall.ProcessBarcode(Barcode[0]);
 	EndIf;
 	
@@ -239,16 +239,16 @@ Procedure NotifyUserOfStatesSetting(ProcessedItemsCount, Document = Undefined, O
 
 	If ProcessedItemsCount > 1 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The original state ""%1"" is applied to all selected documents.';"), String(OriginalState));
+			NStr("en = 'The original state ""%1"" is applied to all selected documents.'"), String(OriginalState));
 		
 		TitleText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '""%1"" is applied';"), String(OriginalState));
+			NStr("en = '""%1"" is applied'"), String(OriginalState));
 
 		ShowUserNotification(TitleText,, MessageText, PictureLib.DialogInformation, UserNotificationStatus.Information);
 	Else
 		NotifyDescription = New CallbackDescription("ProcessNotificationClick", ThisObject, Document);
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '""%1"" is applied:';"), String(OriginalState));
+			NStr("en = '""%1"" is applied:'"), String(OriginalState));
 		ShowUserNotification(MessageText, NotifyDescription, Document, PictureLib.DialogInformation,
 			UserNotificationStatus.Information);
 	EndIf;
@@ -346,18 +346,18 @@ Procedure SetOriginalStateListForm(Parameters, List)
 	AdditionalParameters.Insert("OriginalState", OriginalState);
 	
 	If RowsArray.Count() > 1 Then
-		QueryText = NStr("en = 'The ""%StateName%"" original state will be set for documents selected in the list. Continue?';");
+		QueryText = NStr("en = 'The ""%StateName%"" original state will be set for documents selected in the list. Continue?'");
 		QueryText = StrReplace(QueryText, "%StateName%", String(OriginalState));
 
 		Buttons = New ValueList;
-		Buttons.Add(DialogReturnCode.Yes,NStr("en = 'Apply';"));
-		Buttons.Add(DialogReturnCode.No,NStr("en = 'Do not set';"));
+		Buttons.Add(DialogReturnCode.Yes,NStr("en = 'Apply'"));
+		Buttons.Add(DialogReturnCode.No,NStr("en = 'Do not set'"));
 		ShowQueryBox(New CallbackDescription("SetOriginalStateCompletion", ThisObject, AdditionalParameters), QueryText, Buttons); 
 		
 	ElsIf SourceDocumentsOriginalsRecordingServerCall.IsAccountingObject(RowsArray[0].Ref) Then 
 		SetOriginalStateCompletion(DialogReturnCode.Yes, AdditionalParameters);
 	Else
-		ShowMessageBox(, NStr("en = 'Records of originals are not kept for this document.';"));
+		ShowMessageBox(, NStr("en = 'Records of originals are not kept for this document.'"));
 	EndIf;
 	
 EndProcedure
@@ -396,7 +396,7 @@ Procedure UpdateOriginalCurrentStateOnDocumentForm(Form)
 	If ValueIsFilled(Form.Object.Ref) Then
 		CurrentOriginalState = SourceDocumentsOriginalsRecordingServerCall.OriginalStateInfoByRef(Form.Object.Ref);
 		If CurrentOriginalState.Count() = 0 Then
-			CurrentOriginalState=NStr("en = '<Original state is unknown>';");
+			CurrentOriginalState=NStr("en = '<Original state is unknown>'");
 			OriginalStateDecoration.TextColor = WebColors.Silver;
 		Else
 			CurrentOriginalState = CurrentOriginalState.SourceDocumentOriginalState;
@@ -457,7 +457,7 @@ Procedure SetOriginalStateCompletion(Response, AdditionalParameters) Export
 	
 	IsChanged = SourceDocumentsOriginalsRecordingServerCall.SetNewOriginalState(WritingObjects, OriginalState);
 	If IsChanged = "NotPosted" Then
-		ShowMessageBox(, NStr("en = 'To set the original state, post the selected documents first.';"));
+		ShowMessageBox(, NStr("en = 'To set the original state, post the selected documents first.'"));
 		Return;
 	ElsIf IsChanged = "NotIsChanged" Then
 		Return;
@@ -509,7 +509,7 @@ Procedure OpenStateSelectionMenuCompletion(SelectedStateFromList, AdditionalPara
 		NotifyUserOfStatesSetting(1, Ref, SelectedStateFromList.Value);
 		Notify("Write_InformationRegisterSourceDocumentsOriginalsStates",, Ref);
 	ElsIf IsChanged = "NotPosted" Then
-		ShowMessageBox(, NStr("en = 'To set the original state, post the selected documents first.';"));
+		ShowMessageBox(, NStr("en = 'To set the original state, post the selected documents first.'"));
 	EndIf;
 
 EndProcedure

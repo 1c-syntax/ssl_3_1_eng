@@ -67,7 +67,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.DefaultObjectPrintForms</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.DefaultCounterpartyPrintForms</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.RecipientOfPrintForms</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">CommonForm.SelectDefaultPrintFormCommand</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonForm.SelectDefaultPrintForm</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.TextAlignmentFill</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.TextAlignmentClip</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.TextAlignmentWrap</xr:Item>

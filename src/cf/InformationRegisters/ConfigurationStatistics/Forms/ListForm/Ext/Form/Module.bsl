@@ -12,8 +12,8 @@
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
-	List.Parameters.SetParameterValue("Metadata", NStr("en = 'Metadata';"));
-	List.Parameters.SetParameterValue("FunctionalOption", NStr("en = 'Functional option';"));
+	List.Parameters.SetParameterValue("Metadata", NStr("en = 'Metadata'"));
+	List.Parameters.SetParameterValue("FunctionalOption", NStr("en = 'Functional option'"));
 EndProcedure
 
 #EndRegion

@@ -39,7 +39,7 @@ Procedure RegisterSelected(Command)
 	
 	SelectedRows = Items.List.SelectedRows;
 	If SelectedRows.Count() = 0 Then
-		CommonClient.MessageToUser(NStr("en = 'To continue, select lines';"));
+		CommonClient.MessageToUser(NStr("en = 'To continue, select lines'"));
 		Return;
 	EndIf;
 	

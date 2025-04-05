@@ -23,12 +23,12 @@
 Procedure OnStartExportDataForMapping(ExportSettings1, HandlerParameters, ContinueWait) Export
 	
 	BackgroundJobKey = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Export data to map (%1)';"),
+		NStr("en = 'Export data to map (%1)'"),
 		ExportSettings1.Peer);
 
 	If HasActiveBackgroundJobs(BackgroundJobKey) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Data to map for ""%1"" is already being exported.';"),
+			NStr("en = 'Data to map for ""%1"" is already being exported.'"),
 			ExportSettings1.Peer);
 	EndIf;
 		
@@ -37,7 +37,7 @@ Procedure OnStartExportDataForMapping(ExportSettings1, HandlerParameters, Contin
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
 	ExecutionParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Data export for mapping (%1).';"),
+		NStr("en = 'Data export for mapping (%1).'"),
 		ExportSettings1.Peer);
 	ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
 	ExecutionParameters.RunNotInBackground1    = False;
@@ -282,7 +282,7 @@ Procedure OnWaitForExportData(HandlerParameters, ContinueWait) Export
 						And Not InfoBaseAdmParams.DataSynchronizationSetupCompleted Then
 						HandlerParameters.Cancel = True;
 						HandlerParameters.ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'Before starting the data exchange, finish the synchronization setup in ""%1"" application.';"),
+							NStr("en = 'Before starting the data exchange, finish the synchronization setup in ""%1"" application.'"),
 							String(ExportSettings1.Peer));
 						ContinueWait = False;
 						Return;
@@ -292,7 +292,7 @@ Procedure OnWaitForExportData(HandlerParameters, ContinueWait) Export
 						And InfoBaseAdmParams.MessageReceivedForDataMapping Then
 						HandlerParameters.Cancel = True;
 						HandlerParameters.ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'Before starting the data exchange, finish data mapping in ""%1"" application.';"),
+							NStr("en = 'Before starting the data exchange, finish data mapping in ""%1"" application.'"),
 							String(ExportSettings1.Peer));
 						ContinueWait = False;
 						Return;
@@ -301,12 +301,12 @@ Procedure OnWaitForExportData(HandlerParameters, ContinueWait) Export
 			EndIf;
 			
 			BackgroundJobKey = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Data exchange (%1)';"),
+				NStr("en = 'Data exchange (%1)'"),
 				ExportSettings1.Peer);
 
 			If HasActiveBackgroundJobs(BackgroundJobKey) Then
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Data exchange with ""%1"" is already in progress.';"),
+					NStr("en = 'Data exchange with ""%1"" is already in progress.'"),
 					ExportSettings1.Peer);
 			EndIf;
 				
@@ -315,7 +315,7 @@ Procedure OnWaitForExportData(HandlerParameters, ContinueWait) Export
 			
 			ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
 			ExecutionParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Data exchange (%1).';"),
+				NStr("en = 'Data exchange (%1).'"),
 				ExportSettings1.Peer);
 			ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
 			ExecutionParameters.RunNotInBackground1    = False;
@@ -557,7 +557,7 @@ Procedure ExportDataForMapping(Parameters, ResultAddress) Export
 	
 	If Not Result.DataExported1
 		And IsBlankString(Result.ErrorMessage) Then
-		Result.ErrorMessage = NStr("en = 'Errors occurred while exporting mapping data. See the event log.';");
+		Result.ErrorMessage = NStr("en = 'Errors occurred while exporting mapping data. See the event log.'");
 	EndIf;
 	
 	PutToTempStorage(Result, ResultAddress);

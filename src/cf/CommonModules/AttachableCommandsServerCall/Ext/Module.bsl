@@ -26,4 +26,25 @@ Function MainCommandsMarks(Val Ref, Val CommandsMarked) Export
 	
 EndFunction
 
+// Checks the posting status of the passed documents and returns the unposted documents.
+//
+// Parameters:
+//  Var_Documents - Array of DocumentRef - Documents to check.
+//
+// Returns:
+//  Structure:
+//    * UnpostedDocuments - Array of DocumentRef
+//    * HasPostingRight - Boolean
+//
+Function DocsPostInfoRecords(Val Var_Documents) Export
+	
+	Result = New Structure;
+	Result.Insert("UnpostedDocuments", 
+		Common.CheckDocumentsPosting(Var_Documents));
+	Result.Insert("HasPostingRight", 
+		StandardSubsystemsServer.HasRightToPost(Result.UnpostedDocuments));
+	Return Result;
+	
+EndFunction
+
 #EndRegion

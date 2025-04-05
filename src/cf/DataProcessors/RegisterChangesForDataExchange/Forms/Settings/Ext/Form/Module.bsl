@@ -50,7 +50,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If CurrentObject.IsFileInfobase() Then
 		CurItem = ChoiceList.FindByValue(2);
 		If CurItem <> Undefined Then
-			CurItem.Presentation = NStr("en = 'In directory:';");
+			CurItem.Presentation = NStr("en = 'In directory:'");
 		EndIf;
 	EndIf;
 
@@ -90,7 +90,7 @@ EndProcedure
 Procedure ReportError(Text, Var_AttributeName = Undefined)
 	
 	If Var_AttributeName = Undefined Then
-		ErrorTitle = NStr("en = 'Error';");
+		ErrorTitle = NStr("en = 'Error'");
 		ShowMessageBox(, Text, , ErrorTitle);
 		Return;
 	EndIf;

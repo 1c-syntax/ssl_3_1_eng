@@ -9,42 +9,42 @@
 
 #Region Public
 
-// 
+// Sets the IP addresses of DNS servers that can be used to read MX records of domains.
 //
 // Parameters:
-//  DNSServerAddresses - Array of String - 
-//  StandardProcessing - Boolean - 
+//  DNSServerAddresses - Array of String - IP addresses.
+//  StandardProcessing - Boolean - Set to "False" if standard data processors should be excluded from the list.
 //
 Procedure GettingDNSServersAddresses(DNSServerAddresses, StandardProcessing) Export
 	
 	
 EndProcedure
 
-// 
+// Determines the address of the file containing email server connection settings.
 //
 // Parameters:
-//  FileAddress - String - 
+//  FileAddress - String - URL of the file containing email server connection settings.
 //
 Procedure OnReceivingAddressOfSettingsFile(FileAddress) Export
 	
 	
 EndProcedure
 
-// 
+// Determines the address of the file containing details of email server connection errors.
 //
 // Parameters:
-//  FileAddress - String - 
+//  FileAddress - String - URL of the file containing details of email server connection errors.
 //
 Procedure OnReceivingAddressOfFileWithDescriptionOfErrors(FileAddress) Export
 	
 	
 EndProcedure
 
-// 
+// Determines the address of an external resource for the security profile mechanism.
 // See SafeModeManagerOverridable.OnFillPermissionsToAccessExternalResources.
 //
 // Parameters:
-//  AddressOfExternalResource - String - 
+//  AddressOfExternalResource - String - Address of an external resource.
 //
 Procedure OnGettingAddressOfExternalResource(AddressOfExternalResource) Export
 	

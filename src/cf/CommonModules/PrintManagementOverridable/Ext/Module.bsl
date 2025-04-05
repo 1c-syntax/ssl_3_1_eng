@@ -125,9 +125,9 @@ EndProcedure
 //  OutputParameters - Structure - Print form output settings:
 //   * SendOptions - Structure - Interned for autofilling fields in the message creation form upon sending generated print forms by email 
 //                                     :
-//     ** Recipient - See EmailOperationsClient.EmailSendOptions.Recipient
-//     ** Subject       - See EmailOperationsClient.EmailSendOptions.Subject
-//     ** Text      - See EmailOperationsClient.EmailSendOptions.Text
+//     ** Recipient - 
+//     ** Subject       - 
+//     ** Text      - 
 //   * LanguageCode - String - a language in which the print form needs to be generated.
 //                         Consists of the ISO 639-1 language code and the ISO 3166-1 country code (optional)
 //                         separated by the underscore character. Examples: "en", "en_US", "en_GB", "ru", "ru_RU".
@@ -316,7 +316,11 @@ EndProcedure
 //                                         
 //                                         
 //      
-//    * Presentation - String - Schema ID. Intended to export data.
+//    * Presentation - String - Schema ID used in the "WhenPreparingPrintData" procedure.
+//                               If the schema identifier is the full name of the metadata object, then during print data preparation,
+//                               the "WhenPreparingPrintData" procedure of the object manager module will be called. 
+//                               Otherwise, a similar procedure of this module will be called.
+//                               
 //    * Check -Boolean - True if the key field is the data source owner.
 //
 Procedure OnDefinePrintDataSources(Object, PrintDataSources) Export
@@ -325,7 +329,10 @@ Procedure OnDefinePrintDataSources(Object, PrintDataSources) Export
 	
 EndProcedure
 
-// Prepares printable data.
+// Prepares print data. Called if the used data composition schema contains an "Object" data set.
+// If the metadata object's name is used as the schema ID, then a similar procedure
+// of the object manager module is called instead of this procedure.
+// 
 //
 // Parameters:
 //  DataSources - Array - Objects whose data is being printed out.
@@ -357,13 +364,13 @@ Procedure OnReceivePrintCommands(Val FullMetadataObjectName, PrintCommands) Expo
 EndProcedure
 
 
-// 
+// Overrides attribute values to access the "DefaultCounterpartyPrintForms" information register.
 // 
 // Parameters:
-//  Ref - AnyRef - 
+//  Ref - AnyRef - Object whose attributes should be overridden.
 //  KeyAttributes  - Structure:
-//                       * Organization - AnyRef - 
-//                       * Recipient - AnyRef - 
+//                       * Organization - AnyRef - Value of the "Company" attribute from the passed reference.
+//                       * Recipient - AnyRef - Value of the "Counterparty" attribute from the passed reference.
 //
 Procedure OnDefineKeyAttributesOfDefaultPrintForms(Ref, KeyAttributes) Export
 	

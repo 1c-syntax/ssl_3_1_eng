@@ -29,10 +29,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	OnRequest = Parameters.OnRequest; 
 	If OnRequest Then
 		Items.Title.Title = NStr("en = 'Earlier you signed up to send anonymous depersonalized reports about the application usage. The analysis of the submitted reports revealed performance issues. If you are ready to submit a copy of your infobase (can be depersonalized) to 1C Company to get your performance issues looked into, please specify your contact details so that 1C Company employees can contact you.
-                                             |If you refuse, no identification data will be sent.';");
-		Items.FormSend.Title = NStr("en = 'Send contact information';");
+                                             |If you refuse, no identification data will be sent.'");
+		Items.FormSend.Title = NStr("en = 'Send contact information'");
 	Else
-		Items.Comment.InputHint = NStr("en = 'Describe your issue';");
+		Items.Comment.InputHint = NStr("en = 'Describe your issue'");
 		Items.FormDoNotSend.Visible = False;
 		Items.Contacts.AutoMarkIncomplete = True;
 		Items.Comment.AutoMarkIncomplete = True;
@@ -78,11 +78,11 @@ EndProcedure
 Function FilledCorrectly1()
 	CheckResult = True;
 	If IsBlankString(Contacts) Then
-		CommonClient.MessageToUser(NStr("en = 'Contact information is not specified.';"),,"Contacts");
+		CommonClient.MessageToUser(NStr("en = 'Contact information is not specified.'"),,"Contacts");
 		CheckResult = False;
 	EndIf; 
 	If Not OnRequest And IsBlankString(Comment) Then
-		CommonClient.MessageToUser(NStr("en = 'Comment is not filled in.';"),,"Comment");
+		CommonClient.MessageToUser(NStr("en = 'Comment is not filled in.'"),,"Comment");
 		CheckResult = False;
 	EndIf; 
 

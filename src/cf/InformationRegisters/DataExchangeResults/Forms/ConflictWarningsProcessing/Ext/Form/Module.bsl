@@ -15,7 +15,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not Parameters.Property("DataForSelectedRows") Then
 		
-		Raise NStr("en = 'The form cannot be used independently.';", Common.DefaultLanguageCode());
+		Raise NStr("en = 'The form cannot be used independently.'", Common.DefaultLanguageCode());
 		
 	EndIf;
 	
@@ -52,7 +52,7 @@ EndProcedure
 &AtClient
 Procedure ReviseResult(Command)
 	
-	QueryText = NStr("en = 'Revise the conflict results for the marked lines?';");
+	QueryText = NStr("en = 'Revise the conflict results for the marked lines?'");
 	
 	NotifyDescription = New CallbackDescription("ReviewTheResultsOfCollisions", ThisObject);
 	
@@ -84,7 +84,7 @@ Procedure ReviewTheResultsOfCollisions(Response, AdditionalParameters) Export
 	ClearMessages();
 	If RevisionParameters.NumberOfRevised <> RevisionParameters.TotalCount1 Then
 		
-		MessageTemplate = NStr("en = 'Lines selected: %1. Objects changed: %2.';", CommonClient.DefaultLanguageCode());
+		MessageTemplate = NStr("en = 'Lines selected: %1. Objects changed: %2.'", CommonClient.DefaultLanguageCode());
 		
 		ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
 			MessageTemplate,
@@ -141,7 +141,7 @@ Procedure ShowDifferencesBetweenObjectVersions()
 	
 	If VersionsToCompare.Count() <> 2 Then
 		
-		MessageText = NStr("en = 'No object version to compare.';", CommonClient.DefaultLanguageCode());
+		MessageText = NStr("en = 'No object version to compare.'", CommonClient.DefaultLanguageCode());
 		ShowMessageBox(Undefined, MessageText);
 		Return;
 		
@@ -237,7 +237,7 @@ Procedure ReviewTheResultsOnTheServer(RevisionParameters)
 	EndIf;
 	
 	ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");
-	ErrorTextTemplate = NStr("en = 'Cannot change the object version due to:%1%2';", Common.DefaultLanguageCode());
+	ErrorTextTemplate = NStr("en = 'Cannot change the object version due to:%1%2'", Common.DefaultLanguageCode());
 	
 	For Each SelectedRow In PatchObjectsTable Do
 		

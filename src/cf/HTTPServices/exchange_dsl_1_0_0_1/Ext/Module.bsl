@@ -349,7 +349,7 @@ Function ErrorResponse(ErrorInfo = "")
 	Response = New HTTPServiceResponse(400);
 	Response.SetBodyFromString(BodyAsString);
 	
-	EventLogMessageKey = NStr("en = 'Exchange message transport';", Common.DefaultLanguageCode());
+	EventLogMessageKey = NStr("en = 'Exchange message transport'", Common.DefaultLanguageCode());
 	WriteLogEvent(
 		EventLogMessageKey, 
 		EventLogLevel.Error,,,

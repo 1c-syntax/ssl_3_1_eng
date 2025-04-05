@@ -100,8 +100,8 @@ Procedure OnFillToDoList(ToDoList) Export
 	ToDoItem.HasToDoItems       = True;
 	ToDoItem.Important         = True;
 	ToDoItem.Count     = UnfoundFields.Count();
-	ToDoItem.Presentation  = NStr("en = 'Update data access logging settings';");
-	ToDoItem.ToolTip      = NStr("en = 'Access control is disabled for outdated settings.';");
+	ToDoItem.Presentation  = NStr("en = 'Update data access logging settings'");
+	ToDoItem.ToolTip      = NStr("en = 'Access control is disabled for outdated settings.'");
 	ToDoItem.Form          = "CommonForm.RegistrationSettingsForDataAccessEvents";
 	ToDoItem.Owner       = AdministrationSection;
 	
@@ -129,7 +129,7 @@ Procedure OnWriteErrorUpdatingRegistrationSettingsForDataAccessEvents(ErrorText)
 	
 	ErrorText = ErrorText + Chars.LF + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'You are recommended to adjust the form settings by the link:
-		           |%1';", Common.DefaultLanguageCode()),
+		           |%1'", Common.DefaultLanguageCode()),
 		"e1cib/app/CommonForm.RegistrationSettingsForDataAccessEvents");
 	
 EndProcedure
@@ -230,7 +230,7 @@ EndProcedure
 
 Function EventNameDataAccessAuditingEventRegistrationSettingsChange() Export
 	
-	Return NStr("en = 'Data access audit.Change event logging settings';",
+	Return NStr("en = 'Data access audit.Change event logging settings'",
 		Common.DefaultLanguageCode());
 	
 EndFunction

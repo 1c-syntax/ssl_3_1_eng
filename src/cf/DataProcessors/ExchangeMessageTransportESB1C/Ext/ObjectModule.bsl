@@ -109,7 +109,7 @@ Function ConnectionIsSet() Export
 		If IntegrationServices[IntegrationService].GetActive() Then
 			Return True;
 		Else
-			ErrorMessage = NStr("en = 'Integration service is inactive.';",
+			ErrorMessage = NStr("en = 'Integration service is inactive.'",
 				Common.DefaultLanguageCode());
 			Return False;
 		EndIf;
@@ -165,5 +165,5 @@ ExchangeMessage = Undefined;
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

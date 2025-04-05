@@ -235,11 +235,11 @@ Function ChangeOfUserAccounts(Settings)
 		RolesPresentation.Insert(Upper(Role.FullName()), Role.Presentation());
 	EndDo;
 	
-	EventPresentationAdd = NStr("en = 'Add';");
-	EventPresentationUpdate  = NStr("en = 'Update';");
-	EventDeletePresentation   = NStr("en = 'Delete';");
-	PresentationDoNotUse    = NStr("en = 'Do not use';");
-	PresentationUse      = NStr("en = 'On error, use next role';");
+	EventPresentationAdd = NStr("en = 'Add'");
+	EventPresentationUpdate  = NStr("en = 'Update'");
+	EventDeletePresentation   = NStr("en = 'Delete'");
+	PresentationDoNotUse    = NStr("en = 'Do not use'");
+	PresentationUse      = NStr("en = 'On error, use next role'");
 	
 	SetPrivilegedMode(True);
 	Events = New ValueTable;
@@ -732,5 +732,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

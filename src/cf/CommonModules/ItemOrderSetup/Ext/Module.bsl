@@ -133,7 +133,7 @@ Procedure OnDefineAttachableCommandsKinds(AttachableCommandsKinds) Export
 	Kind = AttachableCommandsKinds.Add();
 	Kind.Name         = "ItemOrderSetup";
 	Kind.SubmenuName  = "ItemOrderSetup";
-	Kind.Title   = NStr("en = 'Item order setup';");
+	Kind.Title   = NStr("en = 'Item order setup'");
 	Kind.FormGroupType = FormGroupType.ButtonGroup;
 	Kind.Representation = ButtonGroupRepresentation.Compact;
 EndProcedure
@@ -161,7 +161,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	Command = Commands.Add();
 	Command.Kind = "ItemOrderSetup";
 	Command.Id = ItemMovementDirectionUp();
-	Command.Presentation = NStr("en = 'Move item up';");
+	Command.Presentation = NStr("en = 'Move item up'");
 	Command.Order = 1;
 	Command.Picture = PictureLib.MoveUp;
 	Command.ChangesSelectedObjects = True;
@@ -173,7 +173,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	Command = Commands.Add();
 	Command.Kind = "ItemOrderSetup";
 	Command.Id = ItemMovementDirectionDown();
-	Command.Presentation = NStr("en = 'Move item down';");
+	Command.Presentation = NStr("en = 'Move item down'");
 	Command.Order = 2;
 	Command.Picture = PictureLib.MoveDown;
 	Command.ChangesSelectedObjects = True;

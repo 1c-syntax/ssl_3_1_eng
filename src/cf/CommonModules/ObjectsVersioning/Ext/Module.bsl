@@ -154,7 +154,7 @@ Procedure EnableObjectVersioning(ObjectName, Val VersioningMode = Undefined) Exp
 	EndIf;
 	
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Unknown versioning option: %1.';"), VersioningMode);
+		NStr("en = 'Unknown versioning option: %1.'"), VersioningMode);
 	CommonClientServer.Validate(TypeOf(VersioningMode) = Type("EnumRef.ObjectsVersioningOptions"),
 		ErrorText, "ObjectsVersioning.EnableObjectVersioning");
 		
@@ -747,8 +747,8 @@ Function ChangeHistoryCommand(Form) Export
 	
 	Command = Form.Commands.Add("AccountingAuditObjectChangeHistory");
 	Command.Action  = "Attachable_Command";
-	Command.Title = NStr("en = 'Object change history';");
-	Command.ToolTip = NStr("en = 'Object change history';");
+	Command.Title = NStr("en = 'Object change history'");
+	Command.ToolTip = NStr("en = 'Object change history'");
 	Command.Picture  = PictureLib.DataHistory;
 	
 	Return Command;
@@ -880,7 +880,7 @@ Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Sender) Exp
 			Record.VersionDate = CurrentSessionDate();
 			Record.VersionAuthor = Sender.Ref;
 			Record.Node = Common.SubjectString(Record.VersionAuthor);
-			Record.SynchronizationWarning = NStr("en = 'The rejected version (automatic conflict resolving).';", Common.DefaultLanguageCode());
+			Record.SynchronizationWarning = NStr("en = 'The rejected version (automatic conflict resolving).'", Common.DefaultLanguageCode());
 			RecordSet.Write();
 			LastVersionNumber = ConflictVersionNumber;
 			ObjectVersionConflicts.Insert(Object, ConflictVersionNumber);
@@ -1111,7 +1111,7 @@ Procedure OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating, Recipie
 	
 EndProcedure
 
-// See StandardSubsystems.OnSendDataToMaster.
+// 
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 	OnSendDataToRecipient1(DataElement, ItemSend, Recipient);
@@ -1226,7 +1226,7 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	ObsoleteVersionsInformation = ObsoleteVersionsInformation();
 	ObsoleteDataSize = ObsoleteVersionsInformation.DataSizeString;
-	ToolTip = NStr("en = 'Obsolete versions: %1 (%2)';");
+	ToolTip = NStr("en = 'Obsolete versions: %1 (%2)'");
 	
 	For Each Section In Sections Do
 		ObsoleteObjectsID = "ObsoleteObjectVersions" + StrReplace(Section.FullName(), ".", "");
@@ -1235,7 +1235,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		ToDoItem.Id = ObsoleteObjectsID;
 		// Displaying a user task if the obsolete data exceeds 1 GB.
 		ToDoItem.HasToDoItems      = ObsoleteVersionsInformation.DataSize > (1024 * 1024 * 1024);
-		ToDoItem.Presentation = NStr("en = 'Obsolete object versions';");
+		ToDoItem.Presentation = NStr("en = 'Obsolete object versions'");
 		ToDoItem.Form         = "InformationRegister.ObjectVersioningSettings.Form.HistoryStorageSettings";
 		ToDoItem.ToolTip     = StringFunctionsClientServer.SubstituteParametersToString(ToolTip, ObsoleteVersionsInformation.VersionsCount, ObsoleteDataSize);
 		ToDoItem.Owner      = Section;
@@ -1383,7 +1383,7 @@ Procedure CreateObjectVersion(Object, ObjectVersionInfo, NormalVersionRecord = T
 				If ObjectIsVersioned(Object.Ref) Then
 					VersionParameters = New Structure;
 					VersionParameters.Insert("VersionNumber", 1);
-					VersionParameters.Insert("Comment", NStr("en = 'Version was created from existing object.';"));
+					VersionParameters.Insert("Comment", NStr("en = 'Version was created from existing object.'"));
 					CreateObjectVersion(Object.Ref.GetObject(), VersionParameters);
 					ObjectVersionInfo.VersionNumber = 2;
 				EndIf;
@@ -1552,7 +1552,7 @@ EndFunction
 Procedure CheckObjectEditRights(MetadataObject)
 	
 	If Not PrivilegedMode() And Not AccessRight("Update", MetadataObject)Then
-		MessageText = NStr("en = 'Insufficient rights to modify %1.';");
+		MessageText = NStr("en = 'Insufficient rights to modify %1.'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, MetadataObject.Presentation());
 		Raise MessageText;
 	EndIf;
@@ -1597,7 +1597,7 @@ Function ReportOnObjectVersion(ObjectReference, Val ObjectVersion = Undefined, C
 		CustomVersionNumber = VersionNumberInHierarchy(ObjectReference, VersionNumber);
 	EndIf;
 	
-	LongDesc = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '#%1 / (%2) / %3';"), CustomVersionNumber,
+	LongDesc = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '#%1 / (%2) / %3'"), CustomVersionNumber,
 		String(ObjectDetails.ChangeDate), TrimAll(String(ObjectDetails.ChangeAuthor)));
 		
 	ObjectDetails.Insert("LongDesc", LongDesc);
@@ -1724,11 +1724,11 @@ Function RestoreObjectByXML(ObjectData, ErrorMessageText = "")
 	Try
 		Object = ReadXML(FastInfosetReader);
 	Except
-		WriteLogEvent(NStr("en = 'Versioning';", Common.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Versioning'", Common.DefaultLanguageCode()),
 			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		ErrorMessageText = NStr("en = 'Couldn''t migrate to the selected version.
 											|Possible reasons: The object version was saved in the application with a different version.
-											|Error details: %1';");
+											|Error details: %1'");
 		ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageText, ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 		Return Undefined;
 	EndTry;
@@ -1756,7 +1756,7 @@ EndFunction
 //  
 //
 Function ObjectVersionInfo(Val Ref, Val VersionNumber) Export
-	MessageCannotGetVersion = NStr("en = 'Cannot get previous version of the object.';");
+	MessageCannotGetVersion = NStr("en = 'Cannot get previous version of the object.'");
 	If Not HasRightToReadObjectVersionData() Then
 		Raise MessageCannotGetVersion;
 	EndIf;
@@ -1796,7 +1796,7 @@ Function ObjectVersionInfo(Val Ref, Val VersionNumber) Export
 	EndIf;
 	
 	If Result.ObjectVersion = Undefined Then
-		Raise NStr("en = 'Selected object version is not available in the application.';");
+		Raise NStr("en = 'Selected object version is not available in the application.'");
 	EndIf;
 	
 	Return Result;
@@ -1967,7 +1967,7 @@ Procedure ClearObsoleteObjectVersions() Export
 			RecordManager.Write();
 		EndDo;
 		
-		//@skip-check query-in-loop - batch selection of a large amount of data
+		//@skip-check query-in-loop
 		QueryResult = Query.Execute();
 	EndDo;
 	
@@ -2252,16 +2252,16 @@ EndProcedure
 // String presentation of data volumes. For example: "1.23 GB".
 Function DataSizeString(Val DataSize)
 	
-	UnitOfMeasure = NStr("en = 'bytes';");
+	UnitOfMeasure = NStr("en = 'bytes'");
 	If 1024 <= DataSize And DataSize < 1024 * 1024 Then
 		DataSize = DataSize / 1024;
-		UnitOfMeasure = NStr("en = 'KB';");
+		UnitOfMeasure = NStr("en = 'KB'");
 	ElsIf 1024 * 1024 <= DataSize And  DataSize < 1024 * 1024 * 1024 Then
 		DataSize = DataSize / 1024 / 1024;
-		UnitOfMeasure = NStr("en = 'MB';");
+		UnitOfMeasure = NStr("en = 'MB'");
 	ElsIf 1024 * 1024 * 1024 <= DataSize Then
 		DataSize = DataSize / 1024 / 1024 / 1024;
-		UnitOfMeasure = NStr("en = 'GB';");
+		UnitOfMeasure = NStr("en = 'GB'");
 	EndIf;
 	
 	If DataSize < 10 Then
@@ -2272,7 +2272,7 @@ Function DataSizeString(Val DataSize)
 		DataSize = Round(DataSize, 0);
 	EndIf;
 	
-	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 %2';"), DataSize, UnitOfMeasure);
+	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 %2'"), DataSize, UnitOfMeasure);
 	
 EndFunction
 
@@ -2782,7 +2782,7 @@ Function OutputParsedObjectAttributes(Result, ObjectVersion, ObjectReference)
 	
 	Section3 = Result.GetArea("R6");
 	OutputTextToReport(Result, Section3, "R1C1:R1C3", " ");
-	OutputTextToReport(Result, Section3, "R1C2", NStr("en = 'Attributes';"), StyleFonts.LargeTextFont);
+	OutputTextToReport(Result, Section3, "R1C2", NStr("en = 'Attributes'"), StyleFonts.LargeTextFont);
 	Result.StartRowGroup("AttributeGroup");
 	OutputTextToReport(Result, Section3, "R1C1:R1C3", " ");
 	
@@ -3122,7 +3122,7 @@ Function DataToStore(Val Object)
 	If Common.RefTypeValue(Object) Then
 		Object = Object.GetObject();
 	Else
-		//@skip-check reading-attribute-from-database - Data is being read from an object.
+		//@skip-check reading-attribute-from-database - чтение выполняется из объекта
 		ObjectReference = Object.Ref;
 	EndIf;
 	
@@ -3369,7 +3369,7 @@ EndFunction
 Function RestoreVersionServer(Ref, VersionNumber, ErrorMessageText, UndoPosting = False) Export
 	
 	If Not Users.IsFullUser() Then
-		Raise NStr("en = 'Insufficient rights to perform the operation.';");
+		Raise NStr("en = 'Insufficient rights to perform the operation.'");
 	EndIf;
 	
 	Block = New DataLock;
@@ -3408,7 +3408,7 @@ Function RestoreVersionServer(Ref, VersionNumber, ErrorMessageText, UndoPosting 
 		EndIf;
 	
 		Object.AdditionalProperties.Insert("ObjectsVersioningVersionComment",
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Object is restored to version %1 created on %2';"),
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Object is restored to version %1 created on %2'"),
 				CustomNumberPresentation,
 				Format(Information.VersionDate, "DLF=DT")));
 	
@@ -3585,7 +3585,7 @@ Procedure CreateRejectedItemsOwnerVersion(LastRejectedVersionNumber, ConflictVer
 	FillPropertyValues(Record, LastVersionToExport, , "VersionOwner");
 	Record.VersionNumber = ConflictVersionNumber;
 	Record.VersionDate = CurrentSessionDate();
-	Record.SynchronizationWarning = NStr("en = 'Rejected version (automatic conflict resolving).';");
+	Record.SynchronizationWarning = NStr("en = 'Rejected version (automatic conflict resolving).'");
 	Record.VersionAuthor = VersionAuthor;
 	
 	If Not Record.HasVersionData Then

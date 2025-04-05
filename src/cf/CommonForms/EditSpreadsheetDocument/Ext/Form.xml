@@ -249,7 +249,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Edit command bar</v8:content>
+					<v8:content>Editing toolbar</v8:content>
 				</v8:item>
 			</Title>
 			<ExtendedTooltip name="SecondCommandBarExtendedTooltip" id="393"/>
@@ -762,7 +762,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Text wrapping</v8:content>
+											<v8:content>Text alignment</v8:content>
 										</v8:item>
 									</Title>
 									<Representation>PictureAndText</Representation>
@@ -1259,7 +1259,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Text wrapping (command bar)</v8:content>
+							<v8:content>Text alignment (command bar)</v8:content>
 						</v8:item>
 					</Title>
 					<Representation>Compact</Representation>
@@ -2282,17 +2282,12 @@
 			<SavedData>true</SavedData>
 			<Settings xmlns:mxl="http://v8.1c.ru/8.2/data/spreadsheet" xsi:type="mxl:SpreadsheetDocument">
 				<mxl:languageSettings>
-					<mxl:currentLanguage>ru</mxl:currentLanguage>
+					<mxl:currentLanguage/>
 					<mxl:defaultLanguage>ru</mxl:defaultLanguage>
 					<mxl:languageInfo>
-						<mxl:id>ru</mxl:id>
-						<mxl:code>Русский</mxl:code>
-						<mxl:description>Русский</mxl:description>
-					</mxl:languageInfo>
-					<mxl:languageInfo>
 						<mxl:id>en</mxl:id>
-						<mxl:code>Английский</mxl:code>
-						<mxl:description/>
+						<mxl:code>English</mxl:code>
+						<mxl:description>English</mxl:description>
 					</mxl:languageInfo>
 				</mxl:languageSettings>
 				<mxl:columns>
@@ -2358,17 +2353,12 @@
 			</Type>
 			<Settings xmlns:mxl="http://v8.1c.ru/8.2/data/spreadsheet" xsi:type="mxl:SpreadsheetDocument">
 				<mxl:languageSettings>
-					<mxl:currentLanguage>ru</mxl:currentLanguage>
+					<mxl:currentLanguage/>
 					<mxl:defaultLanguage>ru</mxl:defaultLanguage>
 					<mxl:languageInfo>
-						<mxl:id>ru</mxl:id>
-						<mxl:code>Русский</mxl:code>
-						<mxl:description>Русский</mxl:description>
-					</mxl:languageInfo>
-					<mxl:languageInfo>
 						<mxl:id>en</mxl:id>
-						<mxl:code>Английский</mxl:code>
-						<mxl:description/>
+						<mxl:code>English</mxl:code>
+						<mxl:description>English</mxl:description>
 					</mxl:languageInfo>
 				</mxl:languageSettings>
 				<mxl:columns>
@@ -3149,7 +3139,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Auto</v8:content>
+					<v8:content>Auto-align</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

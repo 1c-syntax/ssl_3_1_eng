@@ -104,7 +104,7 @@ Function RulesInformation() Export
 		Return InfoString;
 	EndIf;
 	
-	InfoString = NStr("en = 'Object registration rules in this infobase (%1) created on %2';");
+	InfoString = NStr("en = 'Object registration rules in this infobase (%1) created on %2'");
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(InfoString,
 		GetConfigurationPresentationFromRegistrationRules(),
@@ -717,9 +717,9 @@ Procedure PrepareRecordRuleByExchangePlanProperties(ORR) Export
 	EndIf;
 	
 	QueryText = FieldSelectionText + Chars.LF 
-	             + "FROM"  + Chars.LF + TableDataText + Chars.LF // @query-part
+	             + "FROM"  + Chars.LF + TableDataText + Chars.LF 
 	             + "WHERE" + Chars.LF + ConditionText
-	             + Chars.LF + "[MandatoryConditions]";
+	             + Chars.LF + "[MandatoryConditions]"; // @query-part
 	//
 	
 	// Setting variable values.
@@ -987,7 +987,7 @@ Procedure CheckExchangePlanExists()
 	
 	If Registration.ExchangePlanName <> ExchangePlanNameForImport Then
 		
-		ErrorDescription = NStr("en = 'The exchange plan name specified in the registration rules (%1) does not match the exchange plan name whose data is imported (%2)';");
+		ErrorDescription = NStr("en = 'The exchange plan name specified in the registration rules (%1) does not match the exchange plan name whose data is imported (%2)'");
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(ErrorDescription, Registration.ExchangePlanName, ExchangePlanNameForImport);
 		ReportProcessingError(5, ErrorDescription);
 		
@@ -1208,7 +1208,7 @@ Procedure InitAttributesAndModuleVariables()
 	
 	BlankDateValue1 = Date('00010101');
 	
-	BooleanRootPropertiesGroupValue = "And"; // Булево значение для корневой группы свойств.
+	BooleanRootPropertiesGroupValue = "And"; // 
 	
 EndProcedure
 
@@ -1248,12 +1248,12 @@ Function InitMessages()
 	Messages = New Map;
 	DefaultLanguageCode = Common.DefaultLanguageCode();
 	
-	Messages.Insert(0, NStr("en = 'Internal error';", DefaultLanguageCode));
-	Messages.Insert(1, NStr("en = 'Cannot open the exchange rules file.';", DefaultLanguageCode));
-	Messages.Insert(2, NStr("en = 'Cannot load the exchange rules.';", DefaultLanguageCode));
-	Messages.Insert(3, NStr("en = 'Exchange rule format error';", DefaultLanguageCode));
-	Messages.Insert(4, NStr("en = 'Cannot get the exchange rules file.';", DefaultLanguageCode));
-	Messages.Insert(5, NStr("en = 'The registration rules are not intended for the current exchange plan.';", DefaultLanguageCode));
+	Messages.Insert(0, NStr("en = 'Internal error'", DefaultLanguageCode));
+	Messages.Insert(1, NStr("en = 'Cannot open the exchange rules file.'", DefaultLanguageCode));
+	Messages.Insert(2, NStr("en = 'Cannot load the exchange rules.'", DefaultLanguageCode));
+	Messages.Insert(3, NStr("en = 'Exchange rule format error'", DefaultLanguageCode));
+	Messages.Insert(4, NStr("en = 'Cannot get the exchange rules file.'", DefaultLanguageCode));
+	Messages.Insert(5, NStr("en = 'The registration rules are not intended for the current exchange plan.'", DefaultLanguageCode));
 	
 	Return Messages;
 	
@@ -1270,5 +1270,5 @@ InitAttributesAndModuleVariables();
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

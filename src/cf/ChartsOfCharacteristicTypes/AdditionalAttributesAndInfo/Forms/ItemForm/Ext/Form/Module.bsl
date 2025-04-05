@@ -99,12 +99,12 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 		If ValueIsFilled(CurrentTitle) And CurrentTitle <> Object.Title Then
 			QueryText = NStr("en = 'If you change the attribute''s description, you have to configure its view
 				                      |in all of the lists, reports, and filters
-				                      |that include the attribute.';");
+				                      |that include the attribute.'");
 			QueryText = StrReplace(QueryText, Chars.LF, " ");
 			
 			Buttons = New ValueList;
-			Buttons.Add("ContinueWrite",            NStr("en = 'Rename';"));
-			Buttons.Add("ReturnDescription", NStr("en = 'Cancel';"));
+			Buttons.Add("ContinueWrite",            NStr("en = 'Rename'"));
+			Buttons.Add("ReturnDescription", NStr("en = 'Cancel'"));
 			
 			CancelOnWrite = True;
 			Cancel = True;
@@ -130,8 +130,8 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 		
 		If ValueIsFilled(QueryText) Then
 			Buttons = New ValueList;
-			Buttons.Add("ContinueWrite",            NStr("en = 'Save';"));
-			Buttons.Add("BackToDescriptionInput", NStr("en = 'Edit description';"));
+			Buttons.Add("ContinueWrite",            NStr("en = 'Save'"));
+			Buttons.Add("BackToDescriptionInput", NStr("en = 'Edit description'"));
 			
 			CancelOnWrite = True;
 			Cancel = True;
@@ -151,8 +151,8 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 		
 		If ValueIsFilled(QueryText) Then
 			Buttons = New ValueList;
-			Buttons.Add("ContinueWrite",            NStr("en = 'Continue';"));
-			Buttons.Add("BackToNameInput", NStr("en = 'Cancel';"));
+			Buttons.Add("ContinueWrite",            NStr("en = 'Continue'"));
+			Buttons.Add("BackToNameInput", NStr("en = 'Cancel'"));
 			
 			CancelOnWrite = True;
 			Cancel = True;
@@ -172,8 +172,8 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 		
 		If ValueIsFilled(QueryText) Then
 			Buttons = New ValueList;
-			Buttons.Add("ContinueWrite",              NStr("en = 'Continue';"));
-			Buttons.Add("BackToIDInput", NStr("en = 'Cancel';"));
+			Buttons.Add("ContinueWrite",              NStr("en = 'Continue'"));
+			Buttons.Add("BackToIDInput", NStr("en = 'Cancel'"));
 			
 			CancelOnWrite = True;
 			Cancel = True;
@@ -474,21 +474,21 @@ Procedure AdditionalValuesWithWeightOnChange(Item)
 		QueryText =
 			NStr("en = 'Do you want to clear the weight coefficients?
 			           |
-			           |The data will be saved.';");
+			           |The data will be saved.'");
 		
 		Buttons = New ValueList;
-		Buttons.Add("ClearAndWrite", NStr("en = 'Clear and save';"));
-		Buttons.Add("Cancel", NStr("en = 'Cancel';"));
+		Buttons.Add("ClearAndWrite", NStr("en = 'Clear and save'"));
+		Buttons.Add("Cancel", NStr("en = 'Cancel'"));
 		
 		ShowQueryBox(
 			New CallbackDescription("AfterConfirmClearWeightCoefficients", ThisObject),
 			QueryText, Buttons, , "ClearAndWrite");
 	Else
-		QueryText = NStr("en = 'Do you want to save the data?';");
+		QueryText = NStr("en = 'Do you want to save the data?'");
 		
 		Buttons = New ValueList;
-		Buttons.Add("Write", NStr("en = 'Save';"));
-		Buttons.Add("Cancel", NStr("en = 'Cancel';"));
+		Buttons.Add("Write", NStr("en = 'Save'"));
+		Buttons.Add("Cancel", NStr("en = 'Cancel'"));
 		
 		ShowQueryBox(
 			New CallbackDescription("AfterConfirmEnableWeightCoefficients", ThisObject),
@@ -663,7 +663,7 @@ Procedure NextCommand(Command)
 	PageIndex = BasicPage.ChildItems.IndexOf(BasicPage.CurrentPage);
 	If PageIndex = 0
 		And Items.Properties.CurrentData = Undefined Then
-		WarningText = NStr("en = 'Please select an item.';");
+		WarningText = NStr("en = 'Please select an item.'");
 		ShowMessageBox(, WarningText);
 		Return;
 	EndIf;
@@ -1045,11 +1045,11 @@ Procedure FillChoicePage()
 	EndIf;
 	
 	If PropertyKind1 = Enums.PropertiesKinds.AdditionalInfo Then
-		Items.UnusedAttributes.Title = NStr("en = 'Unused additional information records';");
+		Items.UnusedAttributes.Title = NStr("en = 'Unused additional information records'");
 	ElsIf PropertyKind1 = Enums.PropertiesKinds.Labels Then
-		Items.UnusedAttributes.Title = NStr("en = 'Unused labels';");
+		Items.UnusedAttributes.Title = NStr("en = 'Unused labels'");
 	Else
-		Items.UnusedAttributes.Title = NStr("en = 'Unused additional attributes';");
+		Items.UnusedAttributes.Title = NStr("en = 'Unused additional attributes'");
 	EndIf;
 	
 	CommonClientServer.SetDynamicListParameter(
@@ -1072,11 +1072,11 @@ Procedure FillChoicePage()
 	
 	ListPresentation = "";
 	If PropertyKind1 = PredefinedValue("Enum.PropertiesKinds.AdditionalInfo") Then
-		ListPresentation = NStr("en = 'Unused additional information records';");
+		ListPresentation = NStr("en = 'Unused additional information records'");
 	ElsIf PropertyKind1 = PredefinedValue("Enum.PropertiesKinds.AdditionalAttributes") Then
-		ListPresentation = NStr("en = 'Unused additional attributes';");
+		ListPresentation = NStr("en = 'Unused additional attributes'");
 	ElsIf PropertyKind1 = PredefinedValue("Enum.PropertiesKinds.Labels") Then
-		ListPresentation = NStr("en = 'Unused labels';");
+		ListPresentation = NStr("en = 'Unused labels'");
 	EndIf;
 	
 	CommonClientServer.SetDynamicListParameter(
@@ -1554,12 +1554,12 @@ Procedure WriteObject(QuestionTextVariant, FollowUpHandler, AdditionalParameters
 	If QuestionTextVariant = "DeletionMarkEdit" Then
 		If Modified Then
 			If Object.DeletionMark Then
-				QueryText = NStr("en = 'Save the changes before clearing the deletion mark. Do you want to save the changes?';");
+				QueryText = NStr("en = 'Save the changes before clearing the deletion mark. Do you want to save the changes?'");
 			Else
-				QueryText = NStr("en = 'Save the changes before marking for deletion. Do you want to save the changes?';");
+				QueryText = NStr("en = 'Save the changes before marking for deletion. Do you want to save the changes?'");
 			EndIf;
 		Else
-			QueryText = NStr("en = 'Do you want to mark ""%1"" for deletion?';");
+			QueryText = NStr("en = 'Do you want to mark ""%1"" for deletion?'");
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(QueryText, Object.Description);
 		EndIf;
 		
@@ -1588,14 +1588,14 @@ Procedure WriteObject(QuestionTextVariant, FollowUpHandler, AdditionalParameters
 	EndIf;
 	
 	If QuestionTextVariant = "GoToValueList" Then
-		QueryText = NStr("en = 'Do you want to save the data and open the list of values?';");
+		QueryText = NStr("en = 'Do you want to save the data and open the list of values?'");
 	Else
-		QueryText = NStr("en = 'Do you want to save the data?';")
+		QueryText = NStr("en = 'Do you want to save the data?'")
 	EndIf;
 	
 	Buttons = New ValueList;
-	Buttons.Add("Write", NStr("en = 'Save';"));
-	Buttons.Add("Cancel", NStr("en = 'Cancel';"));
+	Buttons.Add("Write", NStr("en = 'Save'"));
+	Buttons.Add("Cancel", NStr("en = 'Cancel'"));
 	
 	ShowQueryBox(
 		New CallbackDescription(
@@ -1651,42 +1651,42 @@ Procedure EditValueFormatCompletion(Text, Context) Export
 		Object.FormatProperties = Text;
 		SetFormatButtonTitle(ThisObject);
 		
-		WarningText = NStr("en = 'The following format settings are not applied automatically in most cases:';");
+		WarningText = NStr("en = 'The following format settings are not applied automatically in most cases:'");
 		Array = StrSplit(Text, ";", False);
 		
 		For Each Substring In Array Do
 			If StrFind(Substring, "ДП=") > 0 Or StrFind(Substring, "DE=") > 0 Then // @Non-NLS
 				WarningText = WarningText + Chars.LF
-					+ " - " + NStr("en = 'Blank date presentation';");
+					+ " - " + NStr("en = 'Blank date presentation'");
 				Continue;
 			EndIf;
 			If StrFind(Substring, "ЧН=") > 0 Or StrFind(Substring, "NZ=") > 0 Then // @Non-NLS
 				WarningText = WarningText + Chars.LF
-					+ " - " + NStr("en = 'Blank number presentation';");
+					+ " - " + NStr("en = 'Blank number presentation'");
 				Continue;
 			EndIf;
 			If StrFind(Substring, "ДФ=") > 0 Or StrFind(Substring, "DF=") > 0 Then // @Non-NLS
 				If StrFind(Substring, "ддд") > 0 Or StrFind(Substring, "ddd") > 0 Then // @Non-NLS
 					WarningText = WarningText + Chars.LF
-						+ " - " + NStr("en = 'Short weekday name';");
+						+ " - " + NStr("en = 'Short weekday name'");
 				EndIf;
 				If StrFind(Substring, "дддд") > 0 Or StrFind(Substring, "dddd") > 0 Then // @Non-NLS
 					WarningText = WarningText + Chars.LF
-						+ " - " + NStr("en = 'Full weekday name';");
+						+ " - " + NStr("en = 'Full weekday name'");
 				EndIf;
 				If StrFind(Substring, "МММ") > 0 Or StrFind(Substring, "MMM") > 0 Then // @Non-NLS
 					WarningText = WarningText + Chars.LF
-						+ " - " + NStr("en = 'Short month name';");
+						+ " - " + NStr("en = 'Short month name'");
 				EndIf;
 				If StrFind(Substring, "ММММ") > 0 Or StrFind(Substring, "MMMM") > 0 Then // @Non-NLS
 					WarningText = WarningText + Chars.LF
-						+ " - " + NStr("en = 'Full month name';");
+						+ " - " + NStr("en = 'Full month name'");
 				EndIf;
 			EndIf;
 			If StrFind(Substring, "ДЛФ=") > 0 Or StrFind(Substring, "DLF=") > 0 Then // @Non-NLS
 				If StrFind(Substring, "ДД") > 0 Or StrFind(Substring, "DD") > 0 Then // @Non-NLS
 					WarningText = WarningText + Chars.LF
-						+ " - " + NStr("en = 'Long date (month in words)';");
+						+ " - " + NStr("en = 'Long date (month in words)'");
 				EndIf;
 			EndIf;
 		EndDo;
@@ -1709,28 +1709,28 @@ Procedure SetWizardSettings(CurrentPage = Undefined)
 		
 		If PassedFormParameters.PropertyKind1 =
 			PredefinedValue("Enum.PropertiesKinds.AdditionalInfo") Then
-			Title = NStr("en = 'Add additional information record';");
+			Title = NStr("en = 'Add additional information record'");
 			ListHeaderTemplate =
-				NStr("en = 'Select an additional information record to include in the ""%1"" set';");
+				NStr("en = 'Select an additional information record to include in the ""%1"" set'");
 			RadioButtonHeaderTemplate =
-				NStr("en = 'Select an option to add the ""%1"" additional information record to the ""%2"" set';");
+				NStr("en = 'Select an option to add the ""%1"" additional information record to the ""%2"" set'");
 		ElsIf PassedFormParameters.PropertyKind1 =
 			PredefinedValue("Enum.PropertiesKinds.Labels") Then
-			Title = NStr("en = 'Add label';");
+			Title = NStr("en = 'Add label'");
 			ListHeaderTemplate =
-				NStr("en = 'Select a label to include in the ""%1"" set';");
+				NStr("en = 'Select a label to include in the ""%1"" set'");
 			RadioButtonHeaderTemplate =
-				NStr("en = 'Select an option to add the ""%1"" label to the ""%2"" set';");
+				NStr("en = 'Select an option to add the ""%1"" label to the ""%2"" set'");
 		Else
-			Title = NStr("en = 'Add additional attribute';");
+			Title = NStr("en = 'Add additional attribute'");
 			ListHeaderTemplate =
-				NStr("en = 'Select an additional attribute to include in the ""%1"" set';");
+				NStr("en = 'Select an additional attribute to include in the ""%1"" set'");
 			RadioButtonHeaderTemplate =
-				NStr("en = 'Select an option to add the ""%1"" additional attribute to the ""%2"" set';");
+				NStr("en = 'Select an option to add the ""%1"" additional attribute to the ""%2"" set'");
 		EndIf;
 		
 		Items.CommandBarLeft.Enabled = False;
-		Items.NextCommand.Title = NStr("en = 'Next >';");
+		Items.NextCommand.Title = NStr("en = 'Next >'");
 		
 		
 		Items.TitleDecoration.Title = StringFunctionsClientServer.SubstituteParametersToString(
@@ -1751,7 +1751,7 @@ Procedure SetWizardSettings(CurrentPage = Undefined)
 				AdditionalValuesOwner = Items.Properties.CurrentData.Property;
 			EndIf;
 		EndIf;
-		Items.NextCommand.Title = NStr("en = 'Next >';");
+		Items.NextCommand.Title = NStr("en = 'Next >'");
 		
 		Items.AttributeAddMode.Title = StringFunctionsClientServer.SubstituteParametersToString(
 			RadioButtonHeaderTemplate,
@@ -1760,16 +1760,16 @@ Procedure SetWizardSettings(CurrentPage = Undefined)
 		
 		If PassedFormParameters.PropertyKind1 =
 			PredefinedValue("Enum.PropertiesKinds.AdditionalInfo") Then
-			Title = NStr("en = 'Add additional information record';");
+			Title = NStr("en = 'Add additional information record'");
 		ElsIf PassedFormParameters.PropertyKind1 =
 			PredefinedValue("Enum.PropertiesKinds.Labels") Then
-			Title = NStr("en = 'Add label';");
+			Title = NStr("en = 'Add label'");
 		Else
-			Title = NStr("en = 'Add additional attribute';");
+			Title = NStr("en = 'Add additional attribute'");
 		EndIf;
 		
 	Else
-		Items.NextCommand.Title = NStr("en = 'Finish';");
+		Items.NextCommand.Title = NStr("en = 'Finish'");
 		Items.CommandBarLeft.Enabled = True;
 	EndIf;
 	
@@ -1911,7 +1911,7 @@ Procedure RefreshFormItemsContent(WarningText = "")
 						           |as additional values are already entered.
 						           |Please delete the additional values first.
 						           |
-						           |The deletion is canceled.';"),
+						           |The deletion is canceled.'"),
 						String(Type("CatalogRef.ObjectPropertyValueHierarchy")) );
 					
 					Object.ValueType = New TypeDescription(
@@ -1927,7 +1927,7 @@ Procedure RefreshFormItemsContent(WarningText = "")
 						           |as additional values are already entered.
 						           |Please delete the additional values first.
 						           |
-						           |The deletion is canceled.';"),
+						           |The deletion is canceled.'"),
 						String(Type("CatalogRef.ObjectsPropertiesValues")) );
 					
 					Object.ValueType = New TypeDescription(
@@ -1949,7 +1949,7 @@ Procedure RefreshFormItemsContent(WarningText = "")
 					           |""%1"" and
 					           |""%2"" value types at the same time.
 					           |
-					           |The second type is deleted.';"),
+					           |The second type is deleted.'"),
 					String(Type("CatalogRef.ObjectsPropertiesValues")),
 					String(Type("CatalogRef.ObjectPropertyValueHierarchy")) );
 				
@@ -1964,7 +1964,7 @@ Procedure RefreshFormItemsContent(WarningText = "")
 					           |""%1"" and
 					           |""%2"" value types at the same time.
 					           |
-					           |The first type is deleted.';"),
+					           |The first type is deleted.'"),
 					String(Type("CatalogRef.ObjectsPropertiesValues")),
 					String(Type("CatalogRef.ObjectPropertyValueHierarchy")) );
 				
@@ -2092,11 +2092,11 @@ Procedure RefreshFormItemsContent(WarningText = "")
 			Object.AdditionalValuesOwner, "Title, PropertyKind1");
 		
 		If OwnerProperties.PropertyKind1 = Enums.PropertiesKinds.AdditionalInfo Then
-			AdjustmentTemplate = NStr("en = 'The value list is shared with the ""%1"" information record';");
+			AdjustmentTemplate = NStr("en = 'The value list is shared with the ""%1"" information record'");
 		ElsIf OwnerProperties.PropertyKind1 = Enums.PropertiesKinds.Labels Then
-			AdjustmentTemplate = NStr("en = 'The value list is shared with the ""%1"" label';");
+			AdjustmentTemplate = NStr("en = 'The value list is shared with the ""%1"" label'");
 		Else
-			AdjustmentTemplate = NStr("en = 'The value list is shared with the ""%1"" attribute';");
+			AdjustmentTemplate = NStr("en = 'The value list is shared with the ""%1"" attribute'");
 		EndIf;
 		
 		Items.ValueListAdjustmentComment.Title =
@@ -2130,34 +2130,34 @@ Procedure RefreshFormItemsContent(WarningText = "")
 			
 			If Object.PropertyKind1 = Enums.PropertiesKinds.AdditionalInfo
 				Or Object.IsAdditionalInfo Then
-				CommentText1 = NStr("en = 'The information record is not included in any sets';");
+				CommentText1 = NStr("en = 'The information record is not included in any sets'");
 			ElsIf Object.PropertyKind1 = Enums.PropertiesKinds.Labels Then
-				CommentText1 = NStr("en = 'The label is not included in any sets';");
+				CommentText1 = NStr("en = 'The label is not included in any sets'");
 			Else
-				CommentText1 = NStr("en = 'The attribute is not included in any sets';");
+				CommentText1 = NStr("en = 'The attribute is not included in any sets'");
 			EndIf;
 		ElsIf SetsList.Count() < 2 Then
 			If Object.PropertyKind1 = Enums.PropertiesKinds.AdditionalInfo
 				Or Object.IsAdditionalInfo Then
-				AdjustmentTemplate = NStr("en = 'The information record is included in the set: %1';");
+				AdjustmentTemplate = NStr("en = 'The information record is included in the set: %1'");
 			ElsIf Object.PropertyKind1 = Enums.PropertiesKinds.Labels Then
-				AdjustmentTemplate = NStr("en = 'The label is included in the set: %1';");
+				AdjustmentTemplate = NStr("en = 'The label is included in the set: %1'");
 			Else
-				AdjustmentTemplate = NStr("en = 'The attribute is included in the set: %1';");
+				AdjustmentTemplate = NStr("en = 'The attribute is included in the set: %1'");
 			EndIf;
 			CommentText1 = StringFunctionsClientServer.SubstituteParametersToString(AdjustmentTemplate, TrimAll(SetsList[0].Presentation));
 		Else
 			If Object.PropertyKind1 = Enums.PropertiesKinds.AdditionalInfo
 				Or Object.IsAdditionalInfo Then
-				AdjustmentTemplate = NStr("en = 'The information record is included in %1 %2';");
+				AdjustmentTemplate = NStr("en = 'The information record is included in %1 %2'");
 			ElsIf Object.PropertyKind1 = Enums.PropertiesKinds.Labels Then
-				AdjustmentTemplate = NStr("en = 'The label is included in %1 %2';");
+				AdjustmentTemplate = NStr("en = 'The label is included in %1 %2'");
 			Else
-				AdjustmentTemplate = NStr("en = 'The attribute is included in %1 %2';");
+				AdjustmentTemplate = NStr("en = 'The attribute is included in %1 %2'");
 			EndIf;
 			
 			StringSets = UsersInternalClientServer.IntegerSubject(SetsList.Count(),
-				"", NStr("en = 'set,sets,,,0';"));
+				"", NStr("en = 'set,sets,,,0'"));
 			
 			CommentText1 = StringFunctionsClientServer.SubstituteParametersToString(AdjustmentTemplate, Format(SetsList.Count(), "NG="), StringSets);
 		EndIf;
@@ -2165,7 +2165,7 @@ Procedure RefreshFormItemsContent(WarningText = "")
 		Items.SetsAdjustmentComment.Title = CommentText1 + " ";
 		
 		If Items.SetsAdjustmentComment.Hyperlink Then
-			Items.SetsAdjustmentComment.ToolTip = NStr("en = 'Go to set.';");
+			Items.SetsAdjustmentComment.ToolTip = NStr("en = 'Go to set.'");
 		Else
 			Items.SetsAdjustmentComment.ToolTip = "";
 		EndIf;
@@ -2316,45 +2316,45 @@ Procedure FillActionListOnAddAttribute()
 	If PassedFormParameters.PropertyKind1 = Enums.PropertiesKinds.AdditionalInfo Then
 		AddCommon = NStr("en = 'Add the information record ""as is"" (recommended)
 			|
-			|You can use this information record to filter data of different types in lists and reports.';");
+			|You can use this information record to filter data of different types in lists and reports.'");
 		MakeBySample = NStr("en = 'Copy the information record from a master record (with a shared value list)
 			|
 			|Both records will share a value list.
 			|This option is recommended to configure values for similar information records.
-			|You can edit the record description and some other properties.';");
+			|You can edit the record description and some other properties.'");
 		If AttributeWithAdditionalValuesList Then
 			CreateByCopying = NStr("en = 'Copy the information record
 				|
-				|A copy of the information record and all its values will be created.';")
+				|A copy of the information record and all its values will be created.'")
 		Else
 			CreateByCopying = NStr("en = 'Copy the information record
 				|
-				|A copy of the information record will be created.';");
+				|A copy of the information record will be created.'");
 		EndIf;
 	ElsIf PassedFormParameters.PropertyKind1 = Enums.PropertiesKinds.Labels Then
 		AddCommon = NStr("en = 'Add the label ""as is"" (recommended)
 			|
-			|You can use this label to filter data of different types in lists and reports.';");
+			|You can use this label to filter data of different types in lists and reports.'");
 		CreateByCopying = NStr("en = 'Copy the label
 			|
-			|A copy of the label will be created.';");
+			|A copy of the label will be created.'");
 	Else
 		AddCommon = NStr("en = 'Add the attribute ""as is"" (recommended)
 			|
-			|You can use this attribute to filter data of different types in lists and reports.';");
+			|You can use this attribute to filter data of different types in lists and reports.'");
 		MakeBySample = NStr("en = 'Copy the attribute from a master attribute (with a shared value list)
 			|
 			|Both attributes will share a value list.
 			|This option is recommended to configure values for similar attributes.
-			|You can edit the attribute description and some other properties.';");
+			|You can edit the attribute description and some other properties.'");
 		If AttributeWithAdditionalValuesList Then
 			CreateByCopying = NStr("en = 'Copy the attribute
 				|
-				|A copy of the attribute and all its values will be created.';");
+				|A copy of the attribute and all its values will be created.'");
 		Else
 			CreateByCopying = NStr("en = 'Copy the attribute
 				|
-				|A copy of the attribute will be created.';");
+				|A copy of the attribute will be created.'");
 		EndIf;
 	EndIf;
 	
@@ -2424,8 +2424,8 @@ Procedure SetHyperlinkTitles()
 		EndIf;
 	EndDo;
 	
-	TemplateDependenceDefined = NStr("en = 'conditionally';");
-	TemplateDependenceNotDefined = NStr("en = 'always';");
+	TemplateDependenceDefined = NStr("en = 'conditionally'");
+	TemplateDependenceNotDefined = NStr("en = 'always'");
 	
 	Items.ChooseAvailabilityOption.Title = ?(AvailabilityDependenceDefined,
 		TemplateDependenceDefined,
@@ -2460,20 +2460,20 @@ Procedure SetFormHeader()
 	If ValueIsFilled(Object.Ref) Then
 		If Object.PropertyKind1 = Enums.PropertiesKinds.AdditionalInfo
 			Or Object.IsAdditionalInfo Then
-			Title = String(Object.Title) + " " + NStr("en = '(Additional information record)';");
+			Title = String(Object.Title) + " " + NStr("en = '(Additional information record)'");
 		ElsIf Object.PropertyKind1 = Enums.PropertiesKinds.Labels Then
-			Title = String(Object.Title) + " " + NStr("en = '(Label)';");
+			Title = String(Object.Title) + " " + NStr("en = '(Label)'");
 		Else
-			Title = String(Object.Title) + " " + NStr("en = '(Additional attribute)';");
+			Title = String(Object.Title) + " " + NStr("en = '(Additional attribute)'");
 		EndIf;
 	Else
 		If Object.PropertyKind1 = Enums.PropertiesKinds.AdditionalInfo
 			Or Object.IsAdditionalInfo Then
-			Title = NStr("en = 'Additional information record (Create)';");
+			Title = NStr("en = 'Additional information record (Create)'");
 		ElsIf Object.PropertyKind1 = Enums.PropertiesKinds.Labels Then
-			Title = NStr("en = 'Label (Create)';");
+			Title = NStr("en = 'Label (Create)'");
 		Else
-			Title = NStr("en = 'Additional attribute (Create)';");
+			Title = NStr("en = 'Additional attribute (Create)'");
 		EndIf;
 	EndIf;
 	
@@ -2577,7 +2577,7 @@ Function IDForFormulasAlreadyUsed(Val IDForFormulas, Val CurrentProperty)
 		Return "";
 	EndIf;
 	
-	Refinement = NStr("en = 'Do you want to create a new ID for formulas and continue saving?';");
+	Refinement = NStr("en = 'Do you want to create a new ID for formulas and continue saving?'");
 	QueryText = QueryText + Chars.LF + Chars.LF + Refinement;
 	Return QueryText;
 	
@@ -2587,9 +2587,9 @@ EndFunction
 Procedure SetFormatButtonTitle(Form)
 	
 	If IsBlankString(Form.Object.FormatProperties) Then
-		TitleText = NStr("en = 'Default format';");
+		TitleText = NStr("en = 'Default format'");
 	Else
-		TitleText = NStr("en = 'Custom format';");
+		TitleText = NStr("en = 'Custom format'");
 	EndIf;
 	
 	Form.Items.EditValueFormat.Title = TitleText;

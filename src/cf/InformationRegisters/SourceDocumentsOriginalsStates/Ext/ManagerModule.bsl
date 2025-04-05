@@ -101,7 +101,7 @@ Procedure WriteDocumentOriginalStateByPrintForms(Document, PrintForm, Presentati
 		EmployeeView = StrFind(Presentation, LastFirstName);
 		If EmployeeView = 0 Then
 			OriginalStateRecord.SourceDocumentPresentation = StringFunctionsClientServer.InsertParametersIntoString(
-				NStr("en = '[Presentation] [LastFirstName]';"), Values);
+				NStr("en = '[Presentation] [LastFirstName]'"), Values);
 		Else
 			OriginalStateRecord.SourceDocumentPresentation = Presentation;
 		EndIf;

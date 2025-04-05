@@ -40,7 +40,7 @@ EndFunction
 Function BaseType() Export
 	
 	If Not Common.SubsystemExists("CloudTechnology") Then
-		Raise NStr("en = 'There is no Service manager.';");
+		Raise NStr("en = 'There is no Service manager.'");
 	EndIf;
 	
 	ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
@@ -117,7 +117,7 @@ Procedure ConfigureExchangeStep1(Message, Sender) Export
 		If ThisNodeAlias <> Body.Code Then
 			MessageString = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Expected code of the predefined node in the %1
-				| application does not match the actual one %2or alias %3. Exchange plan: %4.';"),
+				| application does not match the actual one %2or alias %3. Exchange plan: %4.'"),
 				Body.Code, ThisNodeCode, ThisNodeAlias, Body.ExchangePlan);
 			Raise MessageString;
 		EndIf;
@@ -127,7 +127,7 @@ Procedure ConfigureExchangeStep1(Message, Sender) Export
 	
 	If CorrespondentEndpoint.IsEmpty() Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Endpoint with ID %1 not found in peer infobase.';"),
+			NStr("en = 'Endpoint with ID %1 not found in peer infobase.'"),
 			Body.EndPoint);
 	EndIf;
 	
@@ -256,7 +256,7 @@ Procedure ImportExchangeMessage(Message, Sender) Export
 		DataExchangeSaaS.RunDataImport(Cancel, Peer, MessageForDataMapping);
 		If Cancel Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Errors occurred during data import from %1.';"),
+				NStr("en = 'Errors occurred during data import from %1.'"),
 				String(Peer));
 		EndIf;
 		
@@ -483,7 +483,7 @@ Function ExchangeCorrespondent(Val ExchangePlanName, Val Code)
 	
 	If Not ValueIsFilled(Result) Then
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Node not found. Exchange plan: %1. Node ID: %2.';"),
+			NStr("en = 'Node not found. Exchange plan: %1. Node ID: %2.'"),
 			ExchangePlanName, Code);
 		Raise MessageString;
 	EndIf;

@@ -57,7 +57,7 @@ Procedure ShowInList(Command)
 	
 	If Modified Then
 		Notification = New CallbackDescription("ShowInListCompletion", ThisObject, Parameters);
-		QueryText = NStr("en = 'The data has been changed. Do you want to save the changes?';");
+		QueryText = NStr("en = 'The data has been changed. Do you want to save the changes?'");
 		ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNoCancel, ,
 			DialogReturnCode.Cancel);
 		Return;
@@ -277,11 +277,11 @@ Procedure GoToList()
 			NotifyDescription = New CallbackDescription("GoToListCompletion", ThisObject, 
 				New Structure("Form, URL", Form, URL));
 			Buttons = New ValueList;
-			Buttons.Add("Reopen", NStr("en = 'Reopen';"));
-			Buttons.Add("Cancel", NStr("en = 'Do not reopen';"));
+			Buttons.Add("Reopen", NStr("en = 'Reopen'"));
+			Buttons.Add("Cancel", NStr("en = 'Do not reopen'"));
 			QueryText = 
 				NStr("en = 'The list is already open. Reopen the list
-				|to see the changes in Print menu?';");
+				|to see the changes in Print menu?'");
 			ShowQueryBox(NotifyDescription, QueryText, Buttons, , "Reopen");
 			Return;
 		EndIf;

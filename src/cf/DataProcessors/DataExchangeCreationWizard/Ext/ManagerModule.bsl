@@ -40,11 +40,11 @@ Procedure OnStartTestConnection(ConnectionSettings, HandlerParameters, ContinueW
 	
 	BackgroundJobKey = DataExchangeServer.BackgroundJobKey(ConnectionSettings.ExchangePlanName,
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Checking connection %1';"), ConnectionSettings.TransportID));
+			NStr("en = 'Checking connection %1'"), ConnectionSettings.TransportID));
 
 	If DataExchangeServer.HasActiveBackgroundJobs(BackgroundJobKey) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 connection check is already in progress.';"), ConnectionSettings.TransportID);
+			NStr("en = '%1 connection check is already in progress.'"), ConnectionSettings.TransportID);
 	EndIf;
 		
 	ProcedureParameters = New Structure;
@@ -52,7 +52,7 @@ Procedure OnStartTestConnection(ConnectionSettings, HandlerParameters, ContinueW
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
 	ExecutionParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Check connection to peer: %1.';"), ConnectionSettings.TransportID);
+		NStr("en = 'Check connection to peer: %1.'"), ConnectionSettings.TransportID);
 	ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
 	ExecutionParameters.RunNotInBackground1    = False;
 	
@@ -88,11 +88,11 @@ Procedure OnStartSaveSynchronizationSettings(SynchronizationSettings, HandlerPar
 	ExchangePlanName = DataExchangeCached.GetExchangePlanName(SynchronizationSettings.ExchangeNode);
 	
 	BackgroundJobKey = DataExchangeServer.BackgroundJobKey(ExchangePlanName,
-		NStr("en = 'Save data synchronization settings';"));
+		NStr("en = 'Save data synchronization settings'"));
 
 	If DataExchangeServer.HasActiveBackgroundJobs(BackgroundJobKey) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Saving data synchronization settings for ""%1"" is already in progress.';"), ExchangePlanName);
+			NStr("en = 'Saving data synchronization settings for ""%1"" is already in progress.'"), ExchangePlanName);
 	EndIf;
 		
 	ProcedureParameters = New Structure;
@@ -100,7 +100,7 @@ Procedure OnStartSaveSynchronizationSettings(SynchronizationSettings, HandlerPar
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
 	ExecutionParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Save data synchronization settings: %1';"), ExchangePlanName);
+		NStr("en = 'Save data synchronization settings: %1'"), ExchangePlanName);
 	ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
 	ExecutionParameters.RunNotInBackground1    = False;
 	
@@ -140,11 +140,11 @@ Procedure OnStartDeleteSynchronizationSettings(DeletionSettings, HandlerParamete
 	ExchangePlanName = DataExchangeCached.GetExchangePlanName(DeletionSettings.ExchangeNode);
 	
 	BackgroundJobKey = DataExchangeServer.BackgroundJobKey(ExchangePlanName,
-		NStr("en = 'Delete data synchronization settings';"));
+		NStr("en = 'Delete data synchronization settings'"));
 
 	If DataExchangeServer.HasActiveBackgroundJobs(BackgroundJobKey) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Deletion of data synchronization settings for ""%1"" is already in progress.';"), ExchangePlanName);
+			NStr("en = 'Deletion of data synchronization settings for ""%1"" is already in progress.'"), ExchangePlanName);
 	EndIf;
 		
 	ProcedureParameters = New Structure;
@@ -152,7 +152,7 @@ Procedure OnStartDeleteSynchronizationSettings(DeletionSettings, HandlerParamete
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
 	ExecutionParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Delete data synchronization settings: %1';"), ExchangePlanName);
+		NStr("en = 'Delete data synchronization settings: %1'"), ExchangePlanName);
 	ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
 	ExecutionParameters.RunNotInBackground1    = False;
 	
@@ -190,12 +190,12 @@ EndProcedure
 Procedure OnStartRecordDataForInitialExport(RegistrationSettings, HandlerParameters, ContinueWait = True) Export
 	
 	BackgroundJobKey = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Register data for initial export (%1)';"),
+		NStr("en = 'Register data for initial export (%1)'"),
 		RegistrationSettings.ExchangeNode);
 
 	If DataExchangeServer.HasActiveBackgroundJobs(BackgroundJobKey) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Data registration for initial export to ""%1"" is already running.';"),
+			NStr("en = 'Data registration for initial export to ""%1"" is already running.'"),
 			RegistrationSettings.ExchangeNode);
 	EndIf;
 		
@@ -204,7 +204,7 @@ Procedure OnStartRecordDataForInitialExport(RegistrationSettings, HandlerParamet
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
 	ExecutionParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Register data for initial export (%1)';"),
+		NStr("en = 'Register data for initial export (%1)'"),
 		RegistrationSettings.ExchangeNode);
 	ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
 	ExecutionParameters.RunNotInBackground1    = False;
@@ -243,12 +243,12 @@ EndProcedure
 Procedure OnStartImportXDTOSettings(ImportSettings, HandlerParameters, ContinueWait = True) Export
 	
 	BackgroundJobKey = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Import XDTO settings (%1)';"),
+		NStr("en = 'Import XDTO settings (%1)'"),
 		ImportSettings.ExchangeNode);
 
 	If DataExchangeServer.HasActiveBackgroundJobs(BackgroundJobKey) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Import of XDTO settings for ""%1"" is already in progress.';"),
+			NStr("en = 'Import of XDTO settings for ""%1"" is already in progress.'"),
 			ImportSettings.ExchangeNode);
 	EndIf;
 		
@@ -257,7 +257,7 @@ Procedure OnStartImportXDTOSettings(ImportSettings, HandlerParameters, ContinueW
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
 	ExecutionParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Import XDTO settings (%1)';"),
+		NStr("en = 'Import XDTO settings (%1)'"),
 		ImportSettings.ExchangeNode);
 	ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
 	ExecutionParameters.RunNotInBackground1    = False;
@@ -413,7 +413,7 @@ Procedure OnStartGetDataExchangeSettingOptions(UUID, HandlerParameters, Continue
 		ProcedureParameters.Insert("ExchangeNode",       Undefined);
 		
 		ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-		ExecutionParameters.BackgroundJobDescription = NStr("en = 'Get available setup options for data exchange with external systems';");
+		ExecutionParameters.BackgroundJobDescription = NStr("en = 'Get available setup options for data exchange with external systems'");
 		ExecutionParameters.WaitCompletion = 0;
 		
 		BackgroundJob = TimeConsumingOperations.ExecuteInBackground(
@@ -1109,7 +1109,7 @@ Procedure ImportXDTOCorrespondentSettings(Parameters, ResultAddress) Export
 	If Cancel Then
 		Result.SettingsImported = False; 
 		If IsBlankString(Result.ErrorMessage) Then
-			Result.ErrorMessage = NStr("en = 'Cannot get peer application parameters.';");
+			Result.ErrorMessage = NStr("en = 'Cannot get peer application parameters.'");
 		EndIf;
 	Else
 		CorrespondentSettings = DataExchangeXDTOServer.SupportedPeerInfobaseFormatObjects(
@@ -1194,7 +1194,7 @@ Procedure DeleteSynchronizationSetting(Parameters, ResultAddress) Export
 			Result.ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot delete the synchronization setting in %1: %2.
 				|
-				|Try to delete it later or clear the ""Also delete the setting in…"" check box.';"),
+				|Try to delete it later or clear the ""Also delete the setting in…"" check box.'"),
 				String(DeletionSettings.ExchangeNode),
 				Result.ErrorMessageInCorrespondent);
 				
@@ -1375,7 +1375,7 @@ Procedure CreateUpdateExchangePlanNodes(ConnectionSettings)
 		If MasterNode = Undefined Then
 			
 			Raise NStr("en = 'The master node is not defined.
-							|Probably this infobase is not a subordinate DIB node.';");
+							|Probably this infobase is not a subordinate DIB node.'");
 		EndIf;
 		
 		NewNode = MasterNode.GetObject();
@@ -1407,7 +1407,7 @@ Procedure CreateUpdateExchangePlanNodes(ConnectionSettings)
 		Else
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The %1 application prefix value is not unique (""%2""). A synchronization setting with the specified prefix already exists.
-				|To continue, specify a unique infobase prefix different from the current one in %1.';"),
+				|To continue, specify a unique infobase prefix different from the current one in %1.'"),
 				ConnectionSettings.SecondInfobaseDescription, NewNodeCode);
 		EndIf;
 		

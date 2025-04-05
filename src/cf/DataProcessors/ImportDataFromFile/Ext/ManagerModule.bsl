@@ -293,7 +293,7 @@ Procedure SetInsertModeFromClipboard(TemplateWithData, ColumnsInformation, TypeD
 			EndIf;
 		EndIf;
 		
-		ColumnTitle = NStr("en = 'Entered data';");
+		ColumnTitle = NStr("en = 'Entered data'");
 		
 	EndDo;
 	
@@ -439,7 +439,7 @@ Function DocumentByPresentation(Presentation, Types)
 			PresentationNumberAndDate = TrimAll(Mid(Presentation, StrLen(ItemPresentation) + 1));
 			NumberEndPosition = StrFind(PresentationNumberAndDate, " ");
 			Number = Left(PresentationNumberAndDate, NumberEndPosition - 1);
-			PositionFrom = StrFind(Lower(PresentationNumberAndDate), NStr("en = 'dated';"));
+			PositionFrom = StrFind(Lower(PresentationNumberAndDate), NStr("en = 'dated'"));
 			PresentationDate = TrimL(Mid(PresentationNumberAndDate, PositionFrom + 2));
 			DateEndPosition = StrFind(PresentationDate, " ");
 			DateRoundedToDay = Left(PresentationDate, DateEndPosition - 1) + " 00:00:00";
@@ -568,7 +568,7 @@ Procedure FillMappingTableWithDataToImport(TemplateWithData, TableColumnsInforma
 				DataType = TypeOf(NewRow[ColumnName]);
 				
 				If DataType <> Type("String") And DataType <> Type("Boolean") And DataType <> Type("Number") And DataType <> Type("Date")  And DataType <> Type("UUID") Then 
-					//@skip-check query-in-loop - Row-by-row import of heterogeneous data.
+					//@skip-check query-in-loop - построчная загрузка разнородных данных.
 					CellData = CellValue(Column, Cell.Text);
 				Else
 					If DataType = Type("Boolean") Then
@@ -631,7 +631,7 @@ Function CellValue(Column, CellValue)
 			If Not ValueIsFilled(CellData)
 			   And ValueIsFilled(CellValue)
 			   And MetadataObject.DescriptionLength > 0 Then
-				//@skip-check query-in-loop - Individual queries for heterogeneous data.
+				//@skip-check query-in-loop - штучные запросы разнородных данных.
 				CellData = FindByDescription(CellValue, MetadataObject, Column);
 			EndIf;
 			If Not ValueIsFilled(CellData)
@@ -814,22 +814,22 @@ Procedure ColumnsInformationFromCatalogAttributes(ImportParameters, ColumnsInfor
 		
 		If Attribute.Type.ContainsType(Type("Boolean")) Then 
 			ColumnTypeDetails = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Check box, %1 or 1 / No or 0';"), ImportDataFromFile.PresentationOfTextYesForBoolean());
+				NStr("en = 'Check box, %1 or 1 / No or 0'"), ImportDataFromFile.PresentationOfTextYesForBoolean());
 		ElsIf Attribute.Type.ContainsType(Type("Number")) Then 
-			ColumnTypeDetails =  StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Digit, Length: %1, Precision: %2';"),
+			ColumnTypeDetails =  StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Digit, Length: %1, Precision: %2'"),
 				String(Attribute.Type.NumberQualifiers.Digits),
 				String(Attribute.Type.NumberQualifiers.FractionDigits));
 		ElsIf Attribute.Type.ContainsType(Type("String")) Then
 			If Attribute.Type.StringQualifiers.Length > 0 Then
 				StringLength = String(Attribute.Type.StringQualifiers.Length);
-				ColumnTypeDetails =  StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'String, length limit: %1';"), StringLength);
+				ColumnTypeDetails =  StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'String, length limit: %1'"), StringLength);
 			Else
-				ColumnTypeDetails = NStr("en = 'String of unlimited length';");
+				ColumnTypeDetails = NStr("en = 'String of unlimited length'");
 			EndIf;
 		ElsIf Attribute.Type.ContainsType(Type("Date")) Then
 			ColumnTypeDetails = String(Attribute.Type.DateQualifiers.DateFractions);
 		ElsIf Attribute.Type.ContainsType(Type("UUID")) Then
-			ColumnTypeDetails = NStr("en = 'UUID';");
+			ColumnTypeDetails = NStr("en = 'UUID'");
 		EndIf;
 		
 		ColumnWidth = ColumnWidthByType(Attribute.Type);
@@ -875,10 +875,10 @@ Procedure CreateStandardAttributesColumn(ColumnsInformation, CatalogMetadata, Co
 	ColumnWidth = 11;
 	
 	If DataType = Type("String") Then 
-		TypePresentation = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'String (up to %1 characters)';"), TypeDetails.StringQualifiers.Length);
+		TypePresentation = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'String (up to %1 characters)'"), TypeDetails.StringQualifiers.Length);
 		ColumnWidth = ?(TypeDetails.StringQualifiers.Length < 30, TypeDetails.StringQualifiers.Length + 1, 30);
 	ElsIf DataType = Type("Number") Then
-		TypePresentation = NStr("en = 'Number';");
+		TypePresentation = NStr("en = 'Number'");
 	Else
 		If CatalogMetadata.StandardAttributes[ColumnName].Type.Types().Count() = 1 Then 
 			TypePresentation = String(DataType); 
@@ -968,14 +968,14 @@ Procedure DetermineColumnsInformation(ImportParameters, ColumnsInformation, Name
 			
 			If MetadataObject = Undefined Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot import data from a file to a table for object of the %1 type';"),
+					NStr("en = 'Cannot import data from a file to a table for object of the %1 type'"),
 					ImportParameters.FullObjectName);
 				Raise ErrorText;
 			EndIf;
 			
 			If MetadataObject.Parent().Templates.Find(ImportParameters.Template) = Undefined Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot import data from a file to a table since there is no %1 template for object of the %2 type';"),
+					NStr("en = 'Cannot import data from a file to a table since there is no %1 template for object of the %2 type'"),
 					ImportParameters.Template, ImportParameters.FullObjectName);
 				Raise ErrorText;
 			EndIf;
@@ -1028,7 +1028,7 @@ Procedure DetermineColumnsInformationTabularSection(Val ColumnsInformation, Temp
 	MetadataObject = Common.MetadataObjectByFullName(MetadataObjectName);
 	If MetadataObject = Undefined Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot import data from a file to a table for objects of the %1 type';"),
+			NStr("en = 'Cannot import data from a file to a table for objects of the %1 type'"),
 				MetadataObjectName);
 		Raise ErrorText;
 	EndIf;
@@ -1052,7 +1052,7 @@ Procedure DetermineColumnsInformationTabularSection(Val ColumnsInformation, Temp
 	If MetadataTemplate <> Undefined Then
 		Template = ObjectManager.GetTemplate(MetadataTemplate.Name);
 	Else
-		Raise NStr("en = 'Cannot find a template for importing data.';");
+		Raise NStr("en = 'Cannot find a template for importing data.'");
 	EndIf;
 	
 	TableHeading = TableTemplateHeaderArea(Template);
@@ -1155,7 +1155,7 @@ Procedure CreateColumnsInformationFromTemplate(TableHeaderArea, ImportFromFilePa
 				                           Or ImportFromFileParameters.RequiredColumns2.Find(AttributeName) <> Undefined;
 				
 				NoteInTheColumnHeader = Cell.Comment.Text + ?(IsRequiredInfo,
-					Chars.LF + NStr("en = 'Required.';"), "");
+					Chars.LF + NStr("en = 'Required.'"), "");
 				
 				ColumnsInfoRow                          = ColumnsInformation.Add();
 				ColumnsInfoRow.ColumnName               = AttributeName;
@@ -1204,8 +1204,8 @@ EndProcedure
 Function PredefinedLayoutAreas()
 	
 	PredefinedLayoutAreas = New Structure();
-	PredefinedLayoutAreas.Insert("AdditionalAttributes", NStr("en = '<Additional attributes>';"));
-	PredefinedLayoutAreas.Insert("ContactInformation", NStr("en = '<Contact information>';"));
+	PredefinedLayoutAreas.Insert("AdditionalAttributes", NStr("en = '<Additional attributes>'"));
+	PredefinedLayoutAreas.Insert("ContactInformation", NStr("en = '<Contact information>'"));
 	
 	Return PredefinedLayoutAreas
 	
@@ -1385,7 +1385,7 @@ Procedure SpreadsheetDocumentIntoValuesTable(TemplateWithData, ColumnsInformatio
 				ColumnName = FoundColumn.ColumnName;
 				NewRow[ColumnName] = AdjustValueToType(Cell.Text, FoundColumn.ColumnType);
 				If Not ValueIsFilled(NewRow[ColumnName]) And ValueIsFilled(Cell.Text) Then
-					//@skip-check query-in-loop - Row-by-row import of heterogeneous data.
+					//@skip-check query-in-loop - построчная загрузка разнородных данных.
 					NewRow[ColumnName] = CellValue(FoundColumn, Cell.Text);
 				EndIf;
 				If EmptyTableRow Then
@@ -1644,7 +1644,7 @@ Function ObjectManager(MappingObjectName)
 	ElsIf ObjectArray.ObjectType = "DataProcessor" Then
 		ObjectManager = DataProcessors[ObjectArray.NameOfObject];
 	Else
-		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Object ""%1"" is not found.';"), MappingObjectName);
+		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Object ""%1"" is not found.'"), MappingObjectName);
 	EndIf;
 	
 	Return ObjectManager;
@@ -1709,7 +1709,7 @@ Procedure ImportFileToTable(ServerCallParameters, StorageAddress) Export
 				ClarifiedText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = '%1
 					           |
-					           |Make sure the file data is valid.';"), Refinement.Text);
+					           |Make sure the file data is valid.'"), Refinement.Text);
 				Raise(ClarifiedText,,,, ErrorInfo);
 			EndTry;
 			
@@ -1765,7 +1765,7 @@ Procedure DeleteTempFile(TempFileName)
 			
 			WarningText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot delete the ""%1"" temporary file due to:
-				|%2';"), TempFileName, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				|%2'"), TempFileName, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			
 			WriteLogEvent(EventLogEvent(), EventLogLevel.Warning,
 				Metadata.DataProcessors.ImportDataFromFile,, WarningText);
@@ -1788,7 +1788,7 @@ Procedure ImportCSVFileToTable(FileName, TemplateWithData, ColumnsInformation)
 	TextReader = New TextReader(FileName);
 	String = TextReader.ReadLine();
 	If String = Undefined Then 
-		MessageText = NStr("en = 'Cannot import data from the file. The data may be corrupt.';");
+		MessageText = NStr("en = 'Cannot import data from the file. The data may be corrupt.'");
 		Raise MessageText;
 	EndIf;
 	
@@ -1934,7 +1934,7 @@ Procedure WriteMappedData(ExportingParameters, StorageAddress) Export
 				TableRow.RowMappingResult = "Updated";
 				ClearContactInformation = True;
 				If CatalogItem = Undefined Then
-					Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Product with product ID %1 does not exist.';"),
+					Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Product with product ID %1 does not exist.'"),
 					TableRow.SKU);
 				EndIf;
 			Else
@@ -2004,7 +2004,7 @@ Procedure WriteMappedData(ExportingParameters, StorageAddress) Export
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Couldn''t save the item of the ""%1"" catalog. Reason:
-				|%2';"), 
+				|%2'"), 
 				CatalogName, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(EventLogEvent(), EventLogLevel.Warning,
 				CatalogManager, CatalogItem.Ref, MessageText);
@@ -2117,7 +2117,7 @@ Procedure GenerateReportTemplate(TableReport, TemplateWithData)
 	Cell = TemplateWithData.GetArea(1, 1, 1, 1);
 	
 	TableHeader = TemplateWithData.GetArea("R1");
-	FillTemplateHeaderCell(Cell, NStr("en = 'Status';"), 12, NStr("en = 'Data import result';"), True);
+	FillTemplateHeaderCell(Cell, NStr("en = 'Status'"), 12, NStr("en = 'Data import result'"), True);
 	TableReport.Join(TableHeader); 
 	TableReport.InsertArea(Cell.CurrentArea, TableReport.Area("C1"), SpreadsheetDocumentShiftType.Horizontal);
 	
@@ -2127,11 +2127,11 @@ EndProcedure
 Function ImportStatusPresentation(Status)
 	
 	If Status = "Created" Then
-		Return NStr("en = 'Created';");
+		Return NStr("en = 'Created'");
 	ElsIf Status = "Updated" Then
-		Return NStr("en = 'Updated';");
+		Return NStr("en = 'Updated'");
 	ElsIf Status = "Skipped" Then
-		Return NStr("en = 'Skipped';");
+		Return NStr("en = 'Skipped'");
 	EndIf;
 	
 	Return "";
@@ -2188,7 +2188,7 @@ EndProcedure
 //
 Function EventLogEvent() 
 	
-	Return NStr("en = 'Import data from spreadsheet';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Import data from spreadsheet'", Common.DefaultLanguageCode());
 	
 EndFunction
 

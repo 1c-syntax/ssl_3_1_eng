@@ -116,7 +116,7 @@ Procedure ReadEventLogEvents(ReportParameters, StorageAddress) Export
 		And ValueIsFilled(StartDate) And ValueIsFilled(EventLogFilterAtClient.EndDate);
 		
 	If FilterDatesSpecified And StartDate > EndDate Then
-		Raise NStr("en = 'Invalid event log filter settings. The start date is later than the end date.';");
+		Raise NStr("en = 'Invalid event log filter settings. The start date is later than the end date.'");
 	EndIf;
 	ServerTimeOffset = ServerTimeOffset();
 	
@@ -223,7 +223,7 @@ Procedure ReadEventLogEvents(ReportParameters, StorageAddress) Export
 					If CommonAttribute.DataSeparation = Metadata.ObjectProperties.CommonAttributeDataSeparation.DontUse Then
 						Continue;
 					EndIf;
-					SeparatorPresentation = CommonAttribute.Presentation() + " = " + NStr("en = '<Not set>';");
+					SeparatorPresentation = CommonAttribute.Presentation() + " = " + NStr("en = '<Not set>'");
 					SeparatorValue = CommonAttribute.Name + "=";
 					SeparatedDataAttributeList.Add(SeparatorValue, SeparatorPresentation);
 				EndDo;
@@ -276,13 +276,13 @@ Procedure ReadEventLogEvents(ReportParameters, StorageAddress) Export
 		SetPrivilegedMode(True);
 		// Refine the user name.
 		If LogEvent.User = New UUID("00000000-0000-0000-0000-000000000000") Then
-			LogEvent.UserName = NStr("en = '<Undefined>';");
+			LogEvent.UserName = NStr("en = '<Undefined>'");
 			
 		ElsIf LogEvent.UserName = "" Then
 			LogEvent.UserName = Users.UnspecifiedUserFullName();
 			
 		ElsIf InfoBaseUsers.FindByUUID(LogEvent.User) = Undefined Then
-			LogEvent.UserName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 <Deleted>';"), LogEvent.UserName);
+			LogEvent.UserName = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 <Deleted>'"), LogEvent.UserName);
 		EndIf;
 		
 		If ModuleSaaSOperations <> Undefined Then
@@ -375,22 +375,22 @@ Procedure GenerateFilterPresentation(FilterPresentation, EventLogFilter,
 		
 		// Changing restrictions for some of presentations.
 		If Upper(RestrictionName) = Upper("ApplicationName") Then
-			RestrictionName = NStr("en = 'Application';");
+			RestrictionName = NStr("en = 'Application'");
 		ElsIf Upper(RestrictionName) = Upper("TransactionStatus") Then
-			RestrictionName = NStr("en = 'Transaction status';");
+			RestrictionName = NStr("en = 'Transaction status'");
 		ElsIf Upper(RestrictionName) = Upper("DataPresentation") Then
-			RestrictionName = NStr("en = 'Data presentation';");
+			RestrictionName = NStr("en = 'Data presentation'");
 		ElsIf Upper(RestrictionName) = Upper("ServerName") Then
-			RestrictionName = NStr("en = 'Production server';");
+			RestrictionName = NStr("en = 'Production server'");
 		ElsIf Upper(RestrictionName) = Upper("PrimaryIPPort") Then
-			RestrictionName = NStr("en = 'IP port';");
+			RestrictionName = NStr("en = 'IP port'");
 		ElsIf Upper(RestrictionName) = Upper("SyncPort") Then
-			RestrictionName = NStr("en = 'Auxiliary IP port';");
+			RestrictionName = NStr("en = 'Auxiliary IP port'");
 		ElsIf Upper(RestrictionName) = Upper("SessionDataSeparation") Then
 			If StandardSeparatorsOnly() Then
-				RestrictionName = NStr("en = 'Data area';");
+				RestrictionName = NStr("en = 'Data area'");
 			Else
-				RestrictionName = NStr("en = 'Session data separation';");
+				RestrictionName = NStr("en = 'Session data separation'");
 			EndIf;
 		EndIf;
 		
@@ -402,7 +402,7 @@ Procedure GenerateFilterPresentation(FilterPresentation, EventLogFilter,
 	EndDo;
 	
 	If IsBlankString(FilterPresentation) Then
-		FilterPresentation = NStr("en = 'Not set';");
+		FilterPresentation = NStr("en = 'Not set'");
 	EndIf;
 	
 EndProcedure
@@ -730,8 +730,8 @@ Function TreeWithStructureData(EventData, KeysPresentation = Undefined,
 	EndIf;
 	
 	Tree = New ValueTree;
-	Tree.Columns.Add("Property", New TypeDescription("String"), NStr("en = 'Property';"));
-	Tree.Columns.Add("Value", New TypeDescription("String"), NStr("en = 'Value';"));
+	Tree.Columns.Add("Property", New TypeDescription("String"), NStr("en = 'Property'"));
+	Tree.Columns.Add("Value", New TypeDescription("String"), NStr("en = 'Value'"));
 	Tree.Columns.Add("IsPropertyWithoutPresentation", New TypeDescription("Boolean"));
 	Tree.Columns.Add("ThereIsValue", New TypeDescription("Boolean"));
 	
@@ -836,7 +836,7 @@ EndProcedure
 //
 Function ValuePresentation(Var_Key, Value)
 	
-	FormatString = NStr("en = 'NZ=0; DLF=DT; DE=''01.01.0001 00:00:00''';");
+	FormatString = NStr("en = 'NZ=0; DLF=DT; DE=''01.01.0001 00:00:00'''");
 	
 	If TypeOf(Value) <> Type("Array") Then
 		If Upper(Var_Key) = Upper("EventName") And StrStartsWith(Value, "_$") Then
@@ -881,7 +881,7 @@ Function RoleTable(Roles) Export
 	
 	IBUserRoles1 = New ValueTable;
 	IBUserRoles1.Columns.Add("Exists");
-	IBUserRoles1.Columns.Add("Presentation",, NStr("en = 'Presentation';"));
+	IBUserRoles1.Columns.Add("Presentation",, NStr("en = 'Presentation'"));
 	
 	For Each FullNameOfTheRole In Roles Do
 		NameParts = StrSplit(FullNameOfTheRole, ".", False);
@@ -915,599 +915,599 @@ Function StructuresKeysPresentation()
 	
 	// _$Access$_.*
 	Result.Insert(Lower("Right"),
-		NStr("en = 'Access right';"));
+		NStr("en = 'Access right'"));
 	
 	Result.Insert(Lower("Action"),
-		NStr("en = 'Action';"));
+		NStr("en = 'Action'"));
 	
 	// _$Debug$_.*
 	Result.Insert(Lower("DebuggingServerUser"),
-		NStr("en = 'Debug server user';"));
+		NStr("en = 'Debug server user'"));
 	
 	Result.Insert(Lower("DebugItemType"),
-		NStr("en = 'Debug item type';"));
+		NStr("en = 'Debug item type'"));
 	
 	Result.Insert(Lower("Expression"),
-		NStr("en = 'Expression';"));
+		NStr("en = 'Expression'"));
 	
 	// _$InfoBase$_.AdditionalAuthenticationSettingsUpdate
 	Result.Insert(Lower("PasswordRecoveryMethod"),
-		NStr("en = 'Password recovery method';"));
+		NStr("en = 'Password recovery method'"));
 	
 	Result.Insert(Lower("PasswordRecoveryURL"),
-		NStr("en = 'Password recovery URL';"));
+		NStr("en = 'Password recovery URL'"));
 	
 	Result.Insert(Lower("HelpURL"),
-		NStr("en = 'Help URL';"));
+		NStr("en = 'Help URL'"));
 	
 	Result.Insert(Lower("ShowHelpHyperlink"),
-		NStr("en = 'Show Help URL';"));
+		NStr("en = 'Show Help URL'"));
 	
 	Result.Insert(Lower("VerificationCodeLength"),
-		NStr("en = 'Confirmation code length';"));
+		NStr("en = 'Confirmation code length'"));
 	
 	Result.Insert(Lower("MaxUnsuccessfulVerificationCodeValidationAttemptsCount"),
-		NStr("en = 'Limit for unsuccessful code entries';"));
+		NStr("en = 'Limit for unsuccessful code entries'"));
 	
 	Result.Insert(Lower("VerificationCodeRefreshRequestLockDuration"),
-		NStr("en = 'Confirmation code cooldown time';"));
+		NStr("en = 'Confirmation code cooldown time'"));
 	
 	Result.Insert(Lower("SMTPServerAddress"),
-		NStr("en = 'SMTP server address';"));
+		NStr("en = 'SMTP server address'"));
 	
 	Result.Insert(Lower("SMTPUser"),
-		NStr("en = 'SMTP user';"));
+		NStr("en = 'SMTP user'"));
 	
 	Result.Insert(Lower("SMTPPasswordChanged"),
-		NStr("en = 'SMTP password changed';"));
+		NStr("en = 'SMTP password changed'"));
 	
 	Result.Insert(Lower("SMTPPort"),
-		NStr("en = 'SMTP port';"));
+		NStr("en = 'SMTP port'"));
 	
 	Result.Insert(Lower("SenderName"),
-		NStr("en = 'Sender name';"));
+		NStr("en = 'Sender name'"));
 	
 	Result.Insert(Lower("Title"),
-		NStr("en = 'Header';"));
+		NStr("en = 'Header'"));
 	
 	Result.Insert(Lower("HTMLMessageText"),
-		NStr("en = 'HTML message body';"));
+		NStr("en = 'HTML message body'"));
 	
 	Result.Insert(Lower("UseSSL"),
-		NStr("en = 'SSL user';"));
+		NStr("en = 'SSL user'"));
 	
 	Result.Insert(Lower("AllowSaveCredentialsForReAuthentication"),
-		NStr("en = 'Allow save credentials for auto-login';"));
+		NStr("en = 'Allow save credentials for auto-login'"));
 	
 	Result.Insert(Lower("SaveCredentialsForReAuthenticationByDefault"),
-		NStr("en = 'Save credentials for auto-login by default';"));
+		NStr("en = 'Save credentials for auto-login by default'"));
 	
 	Result.Insert(Lower("SavedAuthenticationLifeTime"),
-		NStr("en = 'Credentials lifetime';"));
+		NStr("en = 'Credentials lifetime'"));
 	
 	// _$InfoBase$_.AdministrationParametersChange
 	Result.Insert(Lower("LockScheduledJobs"),
-		NStr("en = 'Scheduled job lock';"));
+		NStr("en = 'Scheduled job lock'"));
 	
 	Result.Insert(Lower("SessionsLockEnabled"),
-		NStr("en = 'Session startup lock enabled';"));
+		NStr("en = 'Session startup lock enabled'"));
 	
 	Result.Insert(Lower("LockBeginTime"),
-		NStr("en = 'Lock start time';"));
+		NStr("en = 'Lock start time'"));
 	
 	Result.Insert(Lower("LockEndTime"),
-		NStr("en = 'Lock end time';"));
+		NStr("en = 'Lock end time'"));
 	
 	Result.Insert(Lower("DelayConfigurationExportByWorkProcessWithoutActiveUsers"),
-		NStr("en = 'Delay for importing configuration by an idle process';"));
+		NStr("en = 'Delay for importing configuration by an idle process'"));
 	
 	Result.Insert(Lower("DisableLocalSpeechToText"),
-		NStr("en = 'Restrict local speech recognition';"));
+		NStr("en = 'Restrict local speech recognition'"));
 	
 	Result.Insert(Lower("InfoBaseID"),
-		NStr("en = 'Infobase ID';"));
+		NStr("en = 'Infobase ID'"));
 	
 	Result.Insert(Lower("DataBaseName"),
-		NStr("en = 'Database name';"));
+		NStr("en = 'Database name'"));
 	
 	Result.Insert(Lower("SessionStartPermissionCode"),
-		NStr("en = 'Access code for session startup';"));
+		NStr("en = 'Access code for session startup'"));
 	
 	Result.Insert(Lower("MaxStartupShiftForScheduledJobsWithoutActiveUsers"),
-		NStr("en = 'Maximum startup offset for idle scheduled jobs';"));
+		NStr("en = 'Maximum startup offset for idle scheduled jobs'"));
 	
 	Result.Insert(Lower("MaxRuntimeForScheduledJobsWithoutActiveUsers"),
-		NStr("en = 'Minimal startup period for idle scheduled jobs';"));
+		NStr("en = 'Minimal startup period for idle scheduled jobs'"));
 	
 	Result.Insert(Lower("ExternalSessionManagementRequired"),
-		NStr("en = 'Mandatory external session management';"));
+		NStr("en = 'Mandatory external session management'"));
 	
 	Result.Insert(Lower("LongDesc"),
-		NStr("en = 'Details';"));
+		NStr("en = 'Details'"));
 	
 	Result.Insert(Lower("LockParameter"),
-		NStr("en = 'Lock parameter';"));
+		NStr("en = 'Lock parameter'"));
 	
 	Result.Insert(Lower("DatabaseUserPassword"),
-		NStr("en = 'Database user password';"));
+		NStr("en = 'Database user password'"));
 	
 	Result.Insert(Lower("DatabaseUser"),
-		NStr("en = 'Database user';"));
+		NStr("en = 'Database user'"));
 	
 	Result.Insert(Lower("SafeModeSecurityProfile"),
-		NStr("en = 'Safe mode security profile';"));
+		NStr("en = 'Safe mode security profile'"));
 	
 	Result.Insert(Lower("AllowLicenseDistribution"),
-		NStr("en = 'Allow issuing licenses';"));
+		NStr("en = 'Allow issuing licenses'"));
 	
 	Result.Insert(Lower("ReserveWorkingProcesses"),
-		NStr("en = 'Working process reservation';"));
+		NStr("en = 'Working process reservation'"));
 	
 	Result.Insert(Lower("DataBaseServer"),
-		NStr("en = 'Database server';"));
+		NStr("en = 'Database server'"));
 	
 	Result.Insert(Lower("DateOffset"),
-		NStr("en = 'Dates offset';"));
+		NStr("en = 'Dates offset'"));
 	
 	Result.Insert(Lower("CreateDatabase"),
-		NStr("en = 'Create database';"));
+		NStr("en = 'Create database'"));
 	
 	Result.Insert(Lower("LockMessage"),
-		NStr("en = 'Lock message';"));
+		NStr("en = 'Lock message'"));
 	
 	Result.Insert(Lower("ExternalSessionManagementConnectionString"),
-		NStr("en = 'String of external session management parameters';"));
+		NStr("en = 'String of external session management parameters'"));
 	
 	Result.Insert(Lower("DBMS"),
-		NStr("en = 'DBMS';"));
+		NStr("en = 'DBMS'"));
 	
 	Result.Insert(Lower("ConnectionsSecurityLevel"),
-		NStr("en = 'Connection security level';"));
+		NStr("en = 'Connection security level'"));
 	
 	// _$InfoBase$_.ConfigUpdate*
 	Result.Insert(Lower("Vendor"),
-		NStr("en = 'Vendor';"));
+		NStr("en = 'Vendor'"));
 	
 	// _$InfoBase$_.ConfigExtensionUpdate
 	Result.Insert(Lower("Version"),
-		NStr("en = 'Version';"));
+		NStr("en = 'Version'"));
 	
 	// _$InfoBase$_.DBConfigUpdate
 	Result.Insert(Lower("ExclusiveMode"),
-		NStr("en = 'Exclusive mode';"));
+		NStr("en = 'Exclusive mode'"));
 	
 	// _$InfoBase$_.DBConfigExtension*
 	Result.Insert(Lower("Active"),
-		NStr("en = 'Active';"));
+		NStr("en = 'Active'"));
 	
 	Result.Insert(Lower("SafeMode"),
-		NStr("en = 'Safe mode';"));
+		NStr("en = 'Safe mode'"));
 	
 	Result.Insert(Lower("SecurityProfile"),
-		NStr("en = 'Security profile';"));
+		NStr("en = 'Security profile'"));
 	
 	Result.Insert(Lower("UseDefaultRolesForAllUsers"),
-		NStr("en = 'Use main roles for all users';"));
+		NStr("en = 'Use main roles for all users'"));
 	
 	Result.Insert(Lower("UsedInDistributedInfoBase"),
-		NStr("en = 'Used in a distributed infobase';"));
+		NStr("en = 'Used in a distributed infobase'"));
 	
 	Result.Insert(Lower("Purpose"),
-		NStr("en = 'Used on';"));
+		NStr("en = 'Used on'"));
 	
 	Result.Insert(Lower("Scope"),
-		NStr("en = 'Scope';"));
+		NStr("en = 'Scope'"));
 	
 	Result.Insert(Lower("DefaultRoles"),
-		NStr("en = 'Default roles';"));
+		NStr("en = 'Default roles'"));
 	
 	Result.Insert(Lower("Synonym"),
-		NStr("en = 'Synonym';"));
+		NStr("en = 'Synonym'"));
 	
 	Result.Insert(Lower("UUID"),
-		NStr("en = 'UUID';"));
+		NStr("en = 'UUID'"));
 	
 	Result.Insert(Lower("HashSum"),
-		NStr("en = 'Hash';"));
+		NStr("en = 'Hash'"));
 	
 	// _$InfoBase$_.EventLogReduce
 	Result.Insert(Lower("Date"),
-		NStr("en = 'Date';"));
+		NStr("en = 'Date'"));
 	
 	// _$InfoBase$_.EventLogSettingsUpdateError
 	Result.Insert(Lower("Levels"),
-		NStr("en = 'Levels';"));
+		NStr("en = 'Levels'"));
 	
 	Result.Insert(Lower("SeparationPeriod"),
-		NStr("en = 'Separation period';"));
+		NStr("en = 'Separation period'"));
 	
 	Result.Insert(Lower("EventLogFormat"),
-		NStr("en = 'Event log format';"));
+		NStr("en = 'Event log format'"));
 	
 	Result.Insert(Lower("EventName"),
-		NStr("en = 'Event name';"));
+		NStr("en = 'Event name'"));
 	
 	Result.Insert(Lower("RegistrableEvent"),
-		NStr("en = 'Event loggable';"));
+		NStr("en = 'Event loggable'"));
 	
 	// _$InfoBase$_.ExclusiveModeChange
 	Result.Insert(Lower("AllowTerminationAtSessionStart"),
-		NStr("en = 'Allow exit on startup';"));
+		NStr("en = 'Allow exit on startup'"));
 	
 	// _$InfoBase$_.ParametersUpdate
 	Result.Insert(Lower("DataLockTimeout"),
-		NStr("en = 'Data lock wait time';"));
+		NStr("en = 'Data lock wait time'"));
 	
 	Result.Insert(Lower("UserPasswordsMaxLifetime"),
-		NStr("en = 'Maximum user password lifetime';"));
+		NStr("en = 'Maximum user password lifetime'"));
 	
 	Result.Insert(Lower("UserPasswordsMinLifetime"),
-		NStr("en = 'Minimum user password lifetime';"));
+		NStr("en = 'Minimum user password lifetime'"));
 	
 	Result.Insert(Lower("UserPasswordsMinLength"),
-		NStr("en = 'Minimum user password length';"));
+		NStr("en = 'Minimum user password length'"));
 	
 	Result.Insert(Lower("UserPasswordReuseLimit"),
-		NStr("en = 'User password reuse limit';"));
+		NStr("en = 'User password reuse limit'"));
 	
 	Result.Insert(Lower("UserPasswordComplexityCheck"),
-		NStr("en = 'User password complexity check';"));
+		NStr("en = 'User password complexity check'"));
 	
 	Result.Insert(Lower("UserPasswordExpirationNotificationPeriod"),
-		NStr("en = 'Password expiration notification lead time';"));
+		NStr("en = 'Password expiration notification lead time'"));
 	
 	Result.Insert(Lower("PassiveSessionHibernateTime"),
-		NStr("en = 'Idle session sleep timeout';"));
+		NStr("en = 'Idle session sleep timeout'"));
 	
 	Result.Insert(Lower("HibernateSessionTerminateTime"),
-		NStr("en = 'Sleeping session termination timeout';"));
+		NStr("en = 'Sleeping session termination timeout'"));
 	
 	Result.Insert(Lower("InactiveSessionTerminationTime"),
-		NStr("en = 'Inactive session termination timeout';"));
+		NStr("en = 'Inactive session termination timeout'"));
 	
 	Result.Insert(Lower("NotificationLeadTimeBeforeInactiveSessionTermination"),
-		NStr("en = 'Lead time for inactive session termination notification';"));
+		NStr("en = 'Lead time for inactive session termination notification'"));
 	
 	Result.Insert(Lower("TotalRecalcJobCount"),
-		NStr("en = 'Number of totals recalculation tasks';"));
+		NStr("en = 'Number of totals recalculation tasks'"));
 	
 	Result.Insert(Lower("MaxUnsuccessfulAttemptsCount"),
-		NStr("en = 'Limit of unsuccessful attempts';"));
+		NStr("en = 'Limit of unsuccessful attempts'"));
 	
 	Result.Insert(Lower("LockDuration"),
-		NStr("en = 'Lock duration';"));
+		NStr("en = 'Lock duration'"));
 	
 	Result.Insert(Lower("UserNameAdditionCodes"),
-		NStr("en = 'Username addition codes';"));
+		NStr("en = 'Username addition codes'"));
 	
 	// _$InfoBase$_.RegionalSettingsChange
 	Result.Insert(Lower("UseCurrentSessionSettings"),
-		NStr("en = 'Use current session settings';"));
+		NStr("en = 'Use current session settings'"));
 	
 	Result.Insert(Lower("LocalizationCode"),
-		NStr("en = 'Localization code';"));
+		NStr("en = 'Localization code'"));
 	
 	Result.Insert(Lower("FirstDayOfWeek"),
-		NStr("en = 'First day of the week';"));
+		NStr("en = 'First day of the week'"));
 	
 	Result.Insert(Lower("BooleanTruePresentation"),
-		NStr("en = 'Logical ""True"" presentation';"));
+		NStr("en = 'Logical ""True"" presentation'"));
 	
 	Result.Insert(Lower("BooleanFalsePresentation"),
-		NStr("en = 'Logical ""False"" presentation';"));
+		NStr("en = 'Logical ""False"" presentation'"));
 	
 	Result.Insert(Lower("NegativeNumberPresentation"),
-		NStr("en = 'Negative numbers presentation';"));
+		NStr("en = 'Negative numbers presentation'"));
 	
 	Result.Insert(Lower("NumbersDigitGroupSeparator"),
-		NStr("en = 'Digit grouping separator';"));
+		NStr("en = 'Digit grouping separator'"));
 	
 	Result.Insert(Lower("NumbersDecimalSeparator"),
-		NStr("en = 'Decimal separator';"));
+		NStr("en = 'Decimal separator'"));
 	
 	Result.Insert(Lower("NumbersDigitGroupFormat"),
-		NStr("en = 'Digit grouping format';"));
+		NStr("en = 'Digit grouping format'"));
 	
 	Result.Insert(Lower("TimePresentationFormat"),
-		NStr("en = 'Time format';"));
+		NStr("en = 'Time format'"));
 	
 	Result.Insert(Lower("DatePresentationFormat"),
-		NStr("en = 'Date format';"));
+		NStr("en = 'Date format'"));
 	
 	// _$InfoBase$_.RoleUpdate
 	Result.Insert(Lower("Rights"),
-		NStr("en = 'Access rights';"));
+		NStr("en = 'Access rights'"));
 	
 	Result.Insert(Lower("AccessEnabled"),
-		NStr("en = 'Access granted';"));
+		NStr("en = 'Access granted'"));
 	
 	Result.Insert(Lower("AccessDisabled"),
-		NStr("en = 'Access denied';"));
+		NStr("en = 'Access denied'"));
 	
 	Result.Insert(Lower("Restrictions"),
-		NStr("en = 'Restrictions';"));
+		NStr("en = 'Restrictions'"));
 	
 	Result.Insert(Lower("RestrictionTemplates"),
-		NStr("en = 'Restriction templates';"));
+		NStr("en = 'Restriction templates'"));
 	
 	Result.Insert(Lower("ItemsAdded"),
-		NStr("en = 'Added';"));
+		NStr("en = 'Added'"));
 	
 	Result.Insert(Lower("ItemsChanged"),
-		NStr("en = 'Modified';"));
+		NStr("en = 'Modified'"));
 	
 	Result.Insert(Lower("ItemsDeleted"),
-		NStr("en = 'Deleted';"));
+		NStr("en = 'Deleted'"));
 	
 	Result.Insert(Lower("Description"),
-		NStr("en = 'Description';"));
+		NStr("en = 'Description'"));
 	
 	Result.Insert(Lower("TemplateText"),
-		NStr("en = 'Template text';"));
+		NStr("en = 'Template text'"));
 	
 	// _$InfoBase$_.SecurityProfileChange
 	Result.Insert(Lower("ClusterAdmin"),
-		NStr("en = 'Cluster administrator';"));
+		NStr("en = 'Cluster administrator'"));
 	
 	Result.Insert(Lower("CryptoAvailable"),
-		NStr("en = 'Access to cryptography';"));
+		NStr("en = 'Access to cryptography'"));
 	
 	Result.Insert(Lower("ModulesAvailableForExtension"),
-		NStr("en = 'Extensible modules';"));
+		NStr("en = 'Extensible modules'"));
 	
 	Result.Insert(Lower("ModulesNotAvailableForExtension"),
-		NStr("en = 'Non-extensible modules';"));
+		NStr("en = 'Non-extensible modules'"));
 	
 	Result.Insert(Lower("COMObjectFullAccess"),
-		NStr("en = 'Full access to COM objects';"));
+		NStr("en = 'Full access to COM objects'"));
 	
 	Result.Insert(Lower("AddInFullAccess"),
-		NStr("en = 'Full access to add-ins';"));
+		NStr("en = 'Full access to add-ins'"));
 	
 	Result.Insert(Lower("ExternalModuleFullAccess"),
-		NStr("en = 'Full access to external modules';"));
+		NStr("en = 'Full access to external modules'"));
 	
 	Result.Insert(Lower("ExternalApplicationsFullAccess"),
-		NStr("en = 'Unlimited access to external applications';"));
+		NStr("en = 'Unlimited access to external applications'"));
 	
 	Result.Insert(Lower("InternetResourcesFullAccess"),
-		NStr("en = 'Full access to online resources';"));
+		NStr("en = 'Full access to online resources'"));
 	
 	Result.Insert(Lower("FileSystemFullAccess"),
-		NStr("en = 'Full access to file system';"));
+		NStr("en = 'Full access to file system'"));
 	
 	Result.Insert(Lower("FullPrivilegedMode"),
-		NStr("en = 'Unlimited privileged mode';"));
+		NStr("en = 'Unlimited privileged mode'"));
 	
 	Result.Insert(Lower("SafeModeProfile"),
-		NStr("en = 'Security mode profile';"));
+		NStr("en = 'Security mode profile'"));
 	
 	Result.Insert(Lower("AllowExternalCodeExecutionInUnsafeMode"),
-		NStr("en = 'Allow executing external code in unsafe mode';"));
+		NStr("en = 'Allow executing external code in unsafe mode'"));
 	
 	Result.Insert(Lower("AllowAccessRightsExtension"),
-		NStr("en = 'Allow extension of access rights';"));
+		NStr("en = 'Allow extension of access rights'"));
 	
 	Result.Insert(Lower("AccessRightsExtensionLimitingRoles"),
-		NStr("en = 'Roles that restrict extension of access rights';"));
+		NStr("en = 'Roles that restrict extension of access rights'"));
 	
 	Result.Insert(Lower("PrivilegedModeRoles"),
-		NStr("en = 'Privileged mode roles';"));
+		NStr("en = 'Privileged mode roles'"));
 	
 	Result.Insert(Lower("AllowedCOMClasses"),
-		NStr("en = 'Allowed COM classes';"));
+		NStr("en = 'Allowed COM classes'"));
 	
 	Result.Insert(Lower("AllowedVirtualDirs"),
-		NStr("en = 'Allowed virtual directories';"));
+		NStr("en = 'Allowed virtual directories'"));
 	
 	Result.Insert(Lower("WritingAllowed"),
-		NStr("en = 'Writing is allowed';"));
+		NStr("en = 'Writing is allowed'"));
 	
 	Result.Insert(Lower("Alias"),
-		NStr("en = 'Alias';"));
+		NStr("en = 'Alias'"));
 	
 	Result.Insert(Lower("ReadingAllowed"),
-		NStr("en = 'Reading is allowed';"));
+		NStr("en = 'Reading is allowed'"));
 	
 	Result.Insert(Lower("AllowedAddIns"),
-		NStr("en = 'Allowed add-ins';"));
+		NStr("en = 'Allowed add-ins'"));
 	
 	Result.Insert(Lower("AllowedExternalModules"),
-		NStr("en = 'Allowed external modules';"));
+		NStr("en = 'Allowed external modules'"));
 	
 	Result.Insert(Lower("AllowedExternalApps"),
-		NStr("en = 'Allowed external applications';"));
+		NStr("en = 'Allowed external applications'"));
 	
 	Result.Insert(Lower("AllowedInternetResources"),
-		NStr("en = 'Allowed internet resources';"));
+		NStr("en = 'Allowed internet resources'"));
 	
 	Result.Insert(Lower("Address"),
-		NStr("en = 'Address';"));
+		NStr("en = 'Address'"));
 	
 	Result.Insert(Lower("Port"),
-		NStr("en = 'Port';"));
+		NStr("en = 'Port'"));
 	
 	Result.Insert(Lower("Protocol"),
-		NStr("en = 'Protocol';"));
+		NStr("en = 'Protocol'"));
 	
 	Result.Insert(Lower("PrivilegedModeAllowed"),
-		NStr("en = 'Allow setting privileged mode';"));
+		NStr("en = 'Allow setting privileged mode'"));
 	
 	// _$InfoBase$_.SessionLockChange*
 	Result.Insert(Lower("KeyCode"),
-		NStr("en = 'Access code';"));
+		NStr("en = 'Access code'"));
 	
 	Result.Insert(Lower("End"),
-		NStr("en = 'End';"));
+		NStr("en = 'End'"));
 	
 	Result.Insert(Lower("Parameter"),
-		NStr("en = 'Parameter';"));
+		NStr("en = 'Parameter'"));
 	
 	Result.Insert(Lower("Message"),
-		NStr("en = 'Message';"));
+		NStr("en = 'Message'"));
 	
 	Result.Insert(Lower("Use"),
-		NStr("en = 'Set';"));
+		NStr("en = 'Set'"));
 	
 	// _$InfoBase$_.UserPasswordPolicy*
 	Result.Insert(Lower("PasswordMaxEffectivePeriod"),
-		NStr("en = 'Maximum password lifetime';"));
+		NStr("en = 'Maximum password lifetime'"));
 	
 	Result.Insert(Lower("PasswordMinEffectivePeriod"),
-		NStr("en = 'Minimum password lifetime';"));
+		NStr("en = 'Minimum password lifetime'"));
 	
 	Result.Insert(Lower("PasswordMinLength"),
-		NStr("en = 'Minimum password length';"));
+		NStr("en = 'Minimum password length'"));
 	
 	Result.Insert(Lower("PasswordReuseLimit"),
-		NStr("en = 'Password reuse limit';"));
+		NStr("en = 'Password reuse limit'"));
 	
 	Result.Insert(Lower("PasswordStrengthCheck"),
-		NStr("en = 'Password complexity check';"));
+		NStr("en = 'Password complexity check'"));
 	
 	Result.Insert(Lower("PasswordExpirationNotificationPeriod"),
-		NStr("en = 'Password expiration notification lead time';"));
+		NStr("en = 'Password expiration notification lead time'"));
 	
 	Result.Insert(Lower("ActionOnPasswordRequirementsViolationOnAuthentication"),
-		NStr("en = 'Action if password doesn''t meet requirements';"));
+		NStr("en = 'Action if password doesn''t meet requirements'"));
 	
 	Result.Insert(Lower("PasswordCompromiseCheck"),
-		NStr("en = 'Leaked password check';"));
+		NStr("en = 'Leaked password check'"));
 	
 	// _$OpenIDProvider$_.*
 	Result.Insert(Lower("RelyingPartyURL"),
-		NStr("en = 'Relying party URL';"));
+		NStr("en = 'Relying party URL'"));
 	
 	// _$Session$_.Authentication*
 	Result.Insert(Lower("CurrentOSUser"),
-		NStr("en = 'Current OS user';"));
+		NStr("en = 'Current OS user'"));
 	
 	Result.Insert(Lower("AuthenticationMethod"),
-		NStr("en = 'Authentication method';"));
+		NStr("en = 'Authentication method'"));
 	
 	Result.Insert(Lower("UsernameAdditionCode"),
-		NStr("en = 'Username addition code';"));
+		NStr("en = 'Username addition code'"));
 	
 	Result.Insert(Lower("UserIDAtOpenIDProvider"),
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 provider user ID';"), "OpenID"));
+			NStr("en = '%1 provider user ID'"), "OpenID"));
 	
 	Result.Insert(Lower("IssuerOfAccessToken"),
-		NStr("en = 'Access token emitter';"));
+		NStr("en = 'Access token emitter'"));
 	
 	Result.Insert(Lower("AccessTokenID"),
-		NStr("en = 'Access token ID';"));
+		NStr("en = 'Access token ID'"));
 	
 	Result.Insert(Lower("OpenIDProviderURL"),
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 provider URL';"), "OpenID"));
+			NStr("en = '%1 provider URL'"), "OpenID"));
 	
 	// _$Session$_.ExternalDataProcessorConnect*
 	Result.Insert(Lower("Path"),
-		NStr("en = 'Path';"));
+		NStr("en = 'Path'"));
 	
 	Result.Insert(Lower("LanguageCode"),
-		NStr("en = 'Language code';"));
+		NStr("en = 'Language code'"));
 	
 	// _$Session$_.AddInAttach*
 	Result.Insert(Lower("Location"),
-		NStr("en = 'Location';"));
+		NStr("en = 'Location'"));
 	
 	Result.Insert(Lower("Type"),
-		NStr("en = 'Type';"));
+		NStr("en = 'Type'"));
 	
 	Result.Insert(Lower("AttachmentType"),
-		NStr("en = 'Connection type';"));
+		NStr("en = 'Connection type'"));
 	
 	// _$User$_.*
 	Result.Insert(Lower("Email"),
-		NStr("en = 'Email address';"));
+		NStr("en = 'Email address'"));
 	
 	Result.Insert(Lower("OpenIDAuthentication"),
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 authentication';"), "OpenID"));
+			NStr("en = '%1 authentication'"), "OpenID"));
 	
 	Result.Insert(Lower("OpenIDConnectAuthentication"),
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 authentication';"), "OpenID-Connect"));
+			NStr("en = '%1 authentication'"), "OpenID-Connect"));
 	
 	Result.Insert(Lower("QRCodeAuthentication"),
-		NStr("en = 'QR code authentication';"));
+		NStr("en = 'QR code authentication'"));
 	
 	Result.Insert(Lower("OSAuthentication"),
-		NStr("en = 'OS authentication';"));
+		NStr("en = 'OS authentication'"));
 	
 	Result.Insert(Lower("StandardAuthentication"),
-		NStr("en = '1C:Enterprise authentication';"));
+		NStr("en = '1C:Enterprise authentication'"));
 	
 	Result.Insert(Lower("AccessTokenAuthentication"),
-		NStr("en = 'Access token authentication';"));
+		NStr("en = 'Access token authentication'"));
 	
 	Result.Insert(Lower("PasswordSettingDate"),
-		NStr("en = 'Password set date';"));
+		NStr("en = 'Password set date'"));
 	
 	Result.Insert(Lower("CannotRecoveryPassword"),
-		NStr("en = 'Cannot recover password';"));
+		NStr("en = 'Cannot recover password'"));
 	
 	Result.Insert(Lower("CannotChangePassword"),
-		NStr("en = 'Cannot change password';"));
+		NStr("en = 'Cannot change password'"));
 	
 	Result.Insert(Lower("UnsafeActionProtection"),
-		NStr("en = 'Unsafe action protection';"));
+		NStr("en = 'Unsafe action protection'"));
 	
 	Result.Insert(Lower("Name"),
-		NStr("en = 'Name';"));
+		NStr("en = 'Name'"));
 	
 	Result.Insert(Lower("PasswordPolicyName"),
-		NStr("en = 'Password policy name';"));
+		NStr("en = 'Password policy name'"));
 	
 	Result.Insert(Lower("UserMatchingKeys"),
-		NStr("en = 'User map keys';"));
+		NStr("en = 'User map keys'"));
 	
 	Result.Insert(Lower("SecondAuthenticationFactorSettings"),
-		NStr("en = 'Second authentication factor settings';"));
+		NStr("en = 'Second authentication factor settings'"));
 	
 	Result.Insert(Lower("SecondAuthenticationFactorSettingsProcessing"),
-		NStr("en = 'Second authentication factor settings processing';"));
+		NStr("en = 'Second authentication factor settings processing'"));
 	
 	Result.Insert(Lower("PasswordChanged"),
-		NStr("en = 'Password is changed';"));
+		NStr("en = 'Password is changed'"));
 	
 	Result.Insert(Lower("PasswordNonCompliant"),
-		NStr("en = 'Password does not meet requirements';"));
+		NStr("en = 'Password does not meet requirements'"));
 	
 	Result.Insert(Lower("PasswordIsSet"),
-		NStr("en = 'Password is set';"));
+		NStr("en = 'Password is set'"));
 	
 	Result.Insert(Lower("ShowInList"),
-		NStr("en = 'Show in choice list';"));
+		NStr("en = 'Show in choice list'"));
 	
 	Result.Insert(Lower("FullName"),
-		NStr("en = 'Full name';"));
+		NStr("en = 'Full name'"));
 	
 	Result.Insert(Lower("OSUser"),
-		NStr("en = 'OS user';"));
+		NStr("en = 'OS user'"));
 	
 	Result.Insert(Lower("RunMode"),
-		NStr("en = 'Run mode';"));
+		NStr("en = 'Run mode'"));
 	
 	Result.Insert(Lower("DefaultInterface"),
-		NStr("en = 'Main interface';"));
+		NStr("en = 'Main interface'"));
 	
 	Result.Insert(Lower("Roles"),
-		NStr("en = 'Roles';"));
+		NStr("en = 'Roles'"));
 	
 	Result.Insert(Lower("PasswordHashAlgorithmType"),
-		NStr("en = 'Password hashing algorithm type';"));
+		NStr("en = 'Password hashing algorithm type'"));
 	
 	Result.Insert(Lower("Language"),
-		NStr("en = 'Language';"));
+		NStr("en = 'Language'"));
 	
 	Result.Insert(Lower("Users"),
-		NStr("en = 'Users';"));
+		NStr("en = 'Users'"));
 	
 	Result.Insert(Lower("DataSeparation"),
-		NStr("en = 'Data separation';"));
+		NStr("en = 'Data separation'"));
 	
 	Return Result;
 	
@@ -1537,7 +1537,7 @@ Function StringDelimitersList(SeparatorLine) Export
 	
 	ListItem = List.FindByValue("");
 	If ListItem <> Undefined Then
-		ListItem.Presentation = NStr("en = '<Not set>';");
+		ListItem.Presentation = NStr("en = '<Not set>'");
 	EndIf;
 	
 	Return List;
@@ -1680,11 +1680,11 @@ Procedure AddRestrictionToFilterPresentation(EventLogFilter, FilterPresentation,
 	
 	If RestrictionName = "Event" And RestrictionList.Count() > 5 Then
 		
-		Restriction = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Events (%1)';"), RestrictionList.Count());
+		Restriction = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Events (%1)'"), RestrictionList.Count());
 		
 	ElsIf RestrictionName = "Session" And RestrictionList.Count() > 3 Then
 		
-		Restriction = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Sessions (%1)';"), RestrictionList.Count());
+		Restriction = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Sessions (%1)'"), RestrictionList.Count());
 		
 	Else
 		
@@ -1704,12 +1704,12 @@ Procedure AddRestrictionToFilterPresentation(EventLogFilter, FilterPresentation,
 				And IsBlankString(Restriction) Then
 				
 				If RestrictionName = "Session" Then
-					RestrictionPresentation = NStr("en = 'Session';");
+					RestrictionPresentation = NStr("en = 'Session'");
 				Else
-					RestrictionPresentation = NStr("en = 'Level';");
+					RestrictionPresentation = NStr("en = 'Level'");
 				EndIf;
 				
-				Restriction = NStr("en = '%1: %2';");
+				Restriction = NStr("en = '%1: %2'");
 				Restriction = StringFunctionsClientServer.SubstituteParametersToString(Restriction, RestrictionPresentation, RestrictionValue);
 			Else
 				Restriction = Restriction + RestrictionValue;

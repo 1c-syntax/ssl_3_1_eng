@@ -284,27 +284,27 @@ Function FillingErrorText(
 	If Upper(FieldKind) = "FIELD" Then
 		If Upper(MessageKind) = "FILLTYPE" Then
 			Template =
-				NStr("en = 'Field ""%1"" cannot be empty.';");
+				NStr("en = 'Field ""%1"" cannot be empty.'");
 		ElsIf Upper(MessageKind) = "CORRECTNESS" Then
 			Template =
 				NStr("en = 'Invalid value in field ""%1"".
-				           |%4';");
+				           |%4'");
 		EndIf;
 	ElsIf Upper(FieldKind) = "COLUMN" Then
 		If Upper(MessageKind) = "FILLTYPE" Then
-			Template = NStr("en = 'Column ""%1"" in line #%2, list ""%3"" cannot be empty.';");
+			Template = NStr("en = 'Column ""%1"" in line #%2, list ""%3"" cannot be empty.'");
 		ElsIf Upper(MessageKind) = "CORRECTNESS" Then
 			Template = 
 				NStr("en = 'Column ""%1"" in line #%2, list ""%3"" contains invalid value.
-				           |%4';");
+				           |%4'");
 		EndIf;
 	ElsIf Upper(FieldKind) = "LIST" Then
 		If Upper(MessageKind) = "FILLTYPE" Then
-			Template = NStr("en = 'The list ""%3"" is blank.';");
+			Template = NStr("en = 'The list ""%3"" is blank.'");
 		ElsIf Upper(MessageKind) = "CORRECTNESS" Then
 			Template =
 				NStr("en = 'The list ""%3"" contains invalid data.
-				           |%4';");
+				           |%4'");
 		EndIf;
 	EndIf;
 	
@@ -434,14 +434,14 @@ Procedure Validate(Val Condition, Val Message = "", Val CheckContext = "") Expor
 	If Condition <> True Then
 		
 		If IsBlankString(Message) Then
-			ExceptionText = NStr("en = 'Invalid operation.';"); // Assertion failed
+			ExceptionText = NStr("en = 'Invalid operation.'"); // Assertion failed
 		Else
 			ExceptionText = Message;
 		EndIf;
 		
 		If Not IsBlankString(CheckContext) Then
 			ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 in %2';"), ExceptionText, CheckContext);
+				NStr("en = '%1 in %2'"), ExceptionText, CheckContext);
 		EndIf;
 		
 		Raise(ExceptionText, ErrorCategory.ConfigurationError);
@@ -479,17 +479,17 @@ Procedure CheckParameter(Val NameOfAProcedureOrAFunction, Val ParameterName, Val
 	Context = "CommonClientServer.CheckParameter";
 	Validate(TypeOf(NameOfAProcedureOrAFunction) = Type("String"), 
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid value of the %1 parameter.';"), "NameOfAProcedureOrAFunction"), 
+			NStr("en = 'Invalid value of the %1 parameter.'"), "NameOfAProcedureOrAFunction"), 
 		Context);
 	Validate(TypeOf(ParameterName) = Type("String"), 
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid value of the %1 parameter.';"), "ParameterName"), 
+			NStr("en = 'Invalid value of the %1 parameter.'"), "ParameterName"), 
 			Context);
 	
 	IsCorrectType = ExpectedTypeValue(ParameterValue, ExpectedTypes);
 	Validate(IsCorrectType <> Undefined, 
 		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid value of the %1 parameter.';"), "ExpectedTypes"),
+			NStr("en = 'Invalid value of the %1 parameter.'"), "ExpectedTypes"),
 		Context);
 		
 	If ParameterValue = Undefined Then
@@ -503,7 +503,7 @@ Procedure CheckParameter(Val NameOfAProcedureOrAFunction, Val ParameterName, Val
 	Validate(IsCorrectType,
 		StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid value of the %1 parameter in %2.
-			           |Expected value: %3, passed value: %4 (type: %5).';"),
+			           |Expected value: %3, passed value: %4 (type: %5).'"),
 			ParameterName, NameOfAProcedureOrAFunction, TypesPresentation(ExpectedTypes), 
 			PresentationOfParameterValue,
 		TypeOf(ParameterValue)));
@@ -512,7 +512,7 @@ Procedure CheckParameter(Val NameOfAProcedureOrAFunction, Val ParameterName, Val
 		
 		Validate(TypeOf(PropertiesTypesToExpect) = Type("Structure"), 
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Invalid value of the %1 parameter.';"), "NameOfAProcedureOrAFunction"),
+				NStr("en = 'Invalid value of the %1 parameter.'"), "NameOfAProcedureOrAFunction"),
 			Context);
 		
 		For Each Property In PropertiesTypesToExpect Do
@@ -524,17 +524,17 @@ Procedure CheckParameter(Val NameOfAProcedureOrAFunction, Val ParameterName, Val
 			Validate(ParameterValue.Property(ExpectedPropertyName, PropertyValue), 
 				StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Invalid value of parameter %1 (Structure) in %2.
-					           |Expected value: %3 (type: %4).';"), 
+					           |Expected value: %3 (type: %4).'"), 
 					ParameterName, NameOfAProcedureOrAFunction, ExpectedPropertyName, ExpectedPropertyType));
 			
 			IsCorrectType = ExpectedTypeValue(PropertyValue, ExpectedPropertyType);
 			Validate(IsCorrectType, 
 				StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Invalid value of property %1 in parameter %2 (Structure) in %3.
-					           |Expected value: %4; passed value: %5 (type: %6).';"), 
+					           |Expected value: %4; passed value: %5 (type: %6).'"), 
 					ExpectedPropertyName, ParameterName,	NameOfAProcedureOrAFunction,
 					TypesPresentation(ExpectedTypes), 
-					?(PropertyValue <> Undefined, PropertyValue, NStr("en = 'Undefined';")),
+					?(PropertyValue <> Undefined, PropertyValue, NStr("en = 'Undefined'")),
 				TypeOf(PropertyValue)));
 			
 		EndDo;
@@ -548,7 +548,7 @@ Procedure CheckParameter(Val NameOfAProcedureOrAFunction, Val ParameterName, Val
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Invalid value of the %1 parameter in %2.
 				           |Expected value: %3.
-				           |Passed value: %4 (type: %5).';"),
+				           |Passed value: %4 (type: %5).'"),
 				ParameterName, NameOfAProcedureOrAFunction, StrConcat(ExpectedValues, ","), 
 				PresentationOfParameterValue, TypeOf(ParameterValue)));
 	EndIf;
@@ -650,7 +650,7 @@ Procedure SupplementStructure(Receiver, Source, Replace = Undefined) Export
 				Continue;
 			Else
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'The source and destination have identical keys: ""%1"".';"), 
+					NStr("en = 'The source and destination have identical keys: ""%1"".'"), 
 					Item.Key);
 			EndIf
 		EndIf;
@@ -678,7 +678,7 @@ Procedure SupplementMap(Receiver, Source, Replace = Undefined) Export
 				Continue;
 			Else
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'The source and destination have identical keys: ""%1"".';"), Item.Key);
+					NStr("en = 'The source and destination have identical keys: ""%1"".'"), Item.Key);
 			EndIf
 		EndIf;
 		Receiver.Insert(Item.Key, Item.Value);
@@ -1061,12 +1061,12 @@ Function CompareVersions(Val VersionString1, Val VersionString2) Export
 	Version1 = StrSplit(String1, ".");
 	If Version1.Count() <> 4 Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid %1 parameter format: %2';"), "VersionString1", VersionString1);
+			NStr("en = 'Invalid %1 parameter format: %2'"), "VersionString1", VersionString1);
 	EndIf;
 	Version2 = StrSplit(String2, ".");
 	If Version2.Count() <> 4 Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-	    	NStr("en = 'Invalid %1 parameter format: %2';"), "VersionString2", VersionString2);
+	    	NStr("en = 'Invalid %1 parameter format: %2'"), "VersionString2", VersionString2);
 	EndIf;
 	
 	Result = 0;
@@ -1096,12 +1096,12 @@ Function CompareVersionsWithoutBuildNumber(Val VersionString1, Val VersionString
 	Version1 = StrSplit(String1, ".");
 	If Version1.Count() <> 3 Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid %1 parameter format: %2';"), "VersionString1", VersionString1);
+			NStr("en = 'Invalid %1 parameter format: %2'"), "VersionString1", VersionString1);
 	EndIf;
 	Version2 = StrSplit(String2, ".");
 	If Version2.Count() <> 3 Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-	    	NStr("en = 'Invalid %1 parameter format: %2';"), "VersionString2", VersionString2);
+	    	NStr("en = 'Invalid %1 parameter format: %2'"), "VersionString2", VersionString2);
 	EndIf;
 	
 	Result = 0;
@@ -1930,7 +1930,7 @@ Function EmailsFromString(Val AddressesList) Export
 					StringParts1.Delete(StringParts1.UBound());
 				Else
 					ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-						"en = 'Invalid email address: %1.';"), Address);
+						"en = 'Invalid email address: %1.'"), Address);
 					Address = "";
 				EndIf;
 				
@@ -1947,7 +1947,7 @@ Function EmailsFromString(Val AddressesList) Export
 		If ValueIsFilled(Alias) Then
 			Address = "";
 			ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-				"en = 'Invalid email address: %1.';"), Alias);
+				"en = 'Invalid email address: %1.'"), Alias);
 			AddressStructure1 = New Structure("Alias, Address, ErrorDescription", Alias, Address, ErrorDescription);
 			Result.Add(AddressStructure1);
 		EndIf;
@@ -2388,12 +2388,12 @@ Procedure SetSpreadsheetDocumentFieldState(SpreadsheetDocumentField, State = "Do
 			StatePresentation.Visible                      = True;
 			StatePresentation.AdditionalShowMode = AdditionalShowMode.Irrelevance;
 			StatePresentation.Picture                       = New Picture;
-			StatePresentation.Text                          = NStr("en = 'To run the report, click ""Generate"".';");
+			StatePresentation.Text                          = NStr("en = 'To run the report, click ""Generate"".'");
 		ElsIf Upper(State) = "REPORTGENERATION" Then  
 			StatePresentation.Visible                      = True;
 			StatePresentation.AdditionalShowMode = AdditionalShowMode.Irrelevance;
 			StatePresentation.Picture                       = PictureLib.TimeConsumingOperation48;
-			StatePresentation.Text                          = NStr("en = 'Generating report…';");
+			StatePresentation.Text                          = NStr("en = 'Generating report…'");
 		Else
 			CheckParameter(
 				"CommonClientServer.SetSpreadsheetDocumentFieldState", "State", State, 
@@ -2406,7 +2406,7 @@ Procedure SetSpreadsheetDocumentFieldState(SpreadsheetDocumentField, State = "Do
 		Validate(SpreadsheetDocumentField.Type = FormFieldType.SpreadsheetDocumentField,
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Invalid value of the %1 parameter in %2.
-				           |Expected value: %3, passed value: %4 (type: %5).';"),
+				           |Expected value: %3, passed value: %4 (type: %5).'"),
 				"SpreadsheetDocumentField", "CommonClientServer.SetSpreadsheetDocumentFieldState", 
 				"FormFieldType.SpreadsheetDocumentField", SpreadsheetDocumentField.Type, TypeOf(SpreadsheetDocumentField.Type)));	
 	EndIf;
@@ -2721,8 +2721,8 @@ Function NewSecureConnection(Val ClientCertificate = Undefined, Val Certificatio
 	
 	If ConnectType = "CryptoPro" Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Web client does not support secured %1 connection.';"),
-				NStr("en = 'CryptoPro';"));
+				NStr("en = 'Web client does not support secured %1 connection.'"),
+				NStr("en = 'CryptoPro'"));
 	EndIf;
 	
 	Return New OpenSSLSecureConnection; // For backward compatibility purposes.
@@ -2960,7 +2960,8 @@ EndFunction
 #Region ConvertDateForHTTP
 
 // Converts a universal date into a rfc1123-date format.
-// See https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html, item 3.3.1.
+// See https://www.w3.org/Protocols/rfc2616/rfc2616
+// -sec3.html, item 3.3.1.
 // 
 // Parameters:
 //  Date - Date
@@ -2994,7 +2995,8 @@ Function HTTPDate(Val Date) Export
 EndFunction
 
 // Returns a date converted from rfc1123-date to Date data type.
-// See https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html, item 3.3.1.
+// See https://www.w3.org/Protocols/rfc2616/rfc2616
+// -sec3.html, item 3.3.1.
 // 
 // Parameters:
 //  HTTPDateAsString - String
@@ -3095,10 +3097,10 @@ EndFunction
 //  FieldName - String - a name of the column in the value tree used for searching.
 //  RowID - Number - value tree row ID returned by search.
 //  TreeItemsCollection - FormDataTreeItemCollection - collection to search.
-//  Composite - Arbitrary - the sought field value.
+//  RowKey - Arbitrary - the sought field value.
 //  StopSearch - Boolean - flag indicating whether the search is to be stopped.
 // 
-Procedure GetTreeRowIDByFieldValue(FieldName, RowID, TreeItemsCollection, Composite, StopSearch) Export
+Procedure GetTreeRowIDByFieldValue(FieldName, RowID, TreeItemsCollection, RowKey, StopSearch) Export
 	
 	For Each TreeRow In TreeItemsCollection Do
 		
@@ -3106,7 +3108,7 @@ Procedure GetTreeRowIDByFieldValue(FieldName, RowID, TreeItemsCollection, Compos
 			Return;
 		EndIf;
 		
-		If TreeRow[FieldName] = Composite Then
+		If TreeRow[FieldName] = RowKey Then
 			
 			RowID = TreeRow.GetID();
 			
@@ -3120,7 +3122,7 @@ Procedure GetTreeRowIDByFieldValue(FieldName, RowID, TreeItemsCollection, Compos
 		
 		If ItemsCollection.Count() > 0 Then
 			
-			GetTreeRowIDByFieldValue(FieldName, RowID, ItemsCollection, Composite, StopSearch);
+			GetTreeRowIDByFieldValue(FieldName, RowID, ItemsCollection, RowKey, StopSearch);
 			
 		EndIf;
 		
@@ -3461,10 +3463,10 @@ Function EstablishExternalConnectionWithInfobase(Parameters) Export
 	
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 		ConnectionNotAvailable = Common.IsLinuxServer();
-		BriefErrorDetails = NStr("en = 'Servers on Linux do not support direct infobase connections.';");
+		BriefErrorDetails = NStr("en = 'Servers on Linux do not support direct infobase connections.'");
 #Else
 		ConnectionNotAvailable = IsLinuxClient() Or IsOSXClient() Or IsMobileClient();
-		BriefErrorDetails = NStr("en = 'Only Windows clients support direct infobase connections.';");
+		BriefErrorDetails = NStr("en = 'Only Windows clients support direct infobase connections.'");
 #EndIf
 	
 	If ConnectionNotAvailable Then
@@ -3479,7 +3481,7 @@ Function EstablishExternalConnectionWithInfobase(Parameters) Export
 			COMConnector = New COMObject(COMConnectorName()); // "V83.COMConnector"
 		Except
 			Information = ErrorInfo();
-			ErrorMessageString = NStr("en = 'Failed to connect to another application: %1';");
+			ErrorMessageString = NStr("en = 'Failed to connect to another application: %1'");
 			
 			Result.AddInAttachmentError = True;
 			Result.DetailedErrorDetails = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageString, ErrorProcessing.DetailErrorDescription(Information));
@@ -3495,14 +3497,14 @@ Function EstablishExternalConnectionWithInfobase(Parameters) Export
 		If FileRunMode Then
 			
 			If IsBlankString(Parameters.InfobaseDirectory) Then
-				ErrorMessageString = NStr("en = 'The infobase directory location is not specified.';");
+				ErrorMessageString = NStr("en = 'The infobase directory location is not specified.'");
 				FillingCheckError = True;
 			EndIf;
 			
 		Else
 			
 			If IsBlankString(Parameters.NameOf1CEnterpriseServer) Or IsBlankString(Parameters.NameOfInfobaseOn1CEnterpriseServer) Then
-				ErrorMessageString = NStr("en = 'Required connection parameters are not specified: server name and infobase name.';");
+				ErrorMessageString = NStr("en = 'Required connection parameters are not specified: server name and infobase name.'");
 				FillingCheckError = True;
 			EndIf;
 			
@@ -3552,7 +3554,7 @@ Function EstablishExternalConnectionWithInfobase(Parameters) Export
 			Result.Join = COMConnector.Connect(ConnectionString);
 		Except
 			Information = ErrorInfo();
-			ErrorMessageString = NStr("en = 'Failed to connect to the application: %1';");
+			ErrorMessageString = NStr("en = 'Failed to connect to the application: %1'");
 			
 			Result.AddInAttachmentError = True;
 			Result.DetailedErrorDetails     = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageString, ErrorProcessing.DetailErrorDescription(Information));
@@ -3980,7 +3982,7 @@ EndFunction
 Function StartApplication(Val StartupCommand, ApplicationStartupParameters = Undefined) Export 
 	
 #If WebClient Or MobileClient Then
-	Raise NStr("en = 'Cannot run the application in the web client.';");
+	Raise NStr("en = 'Cannot run the application in the web client.'");
 #Else
 	
 	CommandString = CommonInternalClientServer.SafeCommandString(StartupCommand);
@@ -4000,14 +4002,14 @@ Function StartApplication(Val StartupCommand, ApplicationStartupParameters = Und
 #If ExternalConnection Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr(
 			"en = 'Invalid value of the %1 parameter.
-			|Elevating system privileges from an external connection is not supported.';"),
+			|Elevating system privileges from an external connection is not supported.'"),
 			"ApplicationStartupParameters.ExecuteWithFullRights");
 #EndIf
 		
 #If Server Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid value of the %1 parameter.
-			|Elevating system privileges is not supported on the server.';"),
+			|Elevating system privileges is not supported on the server.'"),
 			"ApplicationStartupParameters.ExecuteWithFullRights");
 #EndIf
 		
@@ -4071,7 +4073,7 @@ Function StartApplication(Val StartupCommand, ApplicationStartupParameters = Und
 					| - %1 and
 					| - %2
 					|Processes started by administrator
-					|cannot be monitored on behalf of user in this operating system.';"),
+					|cannot be monitored on behalf of user in this operating system.'"),
 					"ApplicationStartupParameters.WaitForCompletion",
 					"ApplicationStartupParameters.ExecuteWithFullRights");
 			EndIf;
@@ -4203,19 +4205,19 @@ EndFunction
 Function ConnectionDiagnostics(URL) Export
 	
 #If WebClient Then
-	Raise NStr("en = 'The connection diagnostics are unavailable in the web client.';");
+	Raise NStr("en = 'The connection diagnostics are unavailable in the web client.'");
 #Else
 	
 	LongDesc = New Array;
 	LongDesc.Add(StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Accessing URL: %1.';"), 
+		NStr("en = 'Accessing URL: %1.'"), 
 		URL));
 	LongDesc.Add(DiagnosticsLocationPresentation());
 	
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 	If Common.DataSeparationEnabled() Then
 		LongDesc.Add(
-			NStr("en = 'Please contact the administrator.';"));
+			NStr("en = 'Please contact the administrator.'"));
 		
 		ErrorDescription = StrConcat(LongDesc, Chars.LF);
 		
@@ -4231,7 +4233,7 @@ Function ConnectionDiagnostics(URL) Export
 	Log.Add(
 		NStr("en = 'Diagnostics log:
 		           |Server availability test.
-		           |See the error description in the next log record.';"));
+		           |See the error description in the next log record.'"));
 	Log.Add();
 	
 	ProxyConnection = False;
@@ -4262,7 +4264,7 @@ Function ConnectionDiagnostics(URL) Export
 		
 		LongDesc.Add(
 			NStr("en = 'Connection diagnostics are not performed because a proxy server is configured.
-			           |Please contact the administrator.';"));
+			           |Please contact the administrator.'"));
 		
 	Else 
 		
@@ -4279,7 +4281,7 @@ Function ConnectionDiagnostics(URL) Export
 			
 			LongDesc.Add(StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Attempted to access a resource that does not exist on server %1,
-				           |or some issues occurred on the remote server.';"),
+				           |or some issues occurred on the remote server.'"),
 				ResourceServerAddress));
 			
 		Else 
@@ -4293,7 +4295,7 @@ Function ConnectionDiagnostics(URL) Export
 					NStr("en = 'No Internet access. Possible reasons:
 					           |- Computer is not connected to the Internet.
 					           | - Internet provider issues.
-					           |- Access blocked by firewall, antivirus, or another software.';"));
+					           |- Access blocked by firewall, antivirus, or other software.'"));
 				
 			Else 
 				
@@ -4301,7 +4303,7 @@ Function ConnectionDiagnostics(URL) Export
 					NStr("en = 'Server %1 is currently unavailable. Possible reasons:
 					           |- Internet provider issues.
 					           |- Access blocked by firewall, antivirus, or other software.
-					           |- Server is disabled or undergoing maintenance.';"),
+					           |- Server is disabled or undergoing maintenance.'"),
 					ResourceServerAddress));
 				
 				TraceLog = ServerRouteTraceLog(ResourceServerAddress);
@@ -4322,11 +4324,11 @@ Function ConnectionDiagnostics(URL) Export
 	
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 	WriteLogEvent(
-		NStr("en = 'Connection diagnostics';", DefaultLanguageCode()),
+		NStr("en = 'Connection diagnostics'", DefaultLanguageCode()),
 		EventLogLevel.Error,,, DiagnosticsLog);
 #Else
 	EventLogClient.AddMessageForEventLog(
-		NStr("en = 'Connection diagnostics';", DefaultLanguageCode()),
+		NStr("en = 'Connection diagnostics'", DefaultLanguageCode()),
 		"Error", DiagnosticsLog,, True);
 #EndIf
 	
@@ -4381,7 +4383,7 @@ Function ArrayOfValues(Val Value1, Val Value2 = Undefined, Val Value3 = Undefine
 EndFunction
 
 Function NameMeetPropertyNamingRequirements(Name) Export
-	Letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // @Non-NLS, ACC:163 - Data can contain letters
+	Letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // @Non-NLS, ACC:163 В данных буква допустима
 	Digits = "1234567890"; // @Non-NLS
 	
 	If Name = "" Or StrFind(Letters + "_", Upper(Left(Name, 1))) = 0 Then
@@ -4494,7 +4496,7 @@ Function TypesPresentation(ExpectedTypes)
 			IndexOf = IndexOf + 1;
 			If IndexOf > 10 Then
 				Result = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '%1,… (total %2 types)';"), 
+					NStr("en = '%1,… (total %2 types)'"), 
 					Result, 
 					ExpectedTypes.Count());
 				Break;
@@ -4521,7 +4523,7 @@ Function TypePresentation(Type)
 		Return 
 			?(StrLen(TypeAsString) > 150, 
 				StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '%1,… (total %2 types)';"),
+					NStr("en = '%1,… (total %2 types)'"),
 					Left(TypeAsString, 150),
 					Type.Types().Count()), 
 				TypeAsString);
@@ -4676,11 +4678,11 @@ Procedure DeleteTempFile(FullFileName)
 		// ACC:547-off This code is required for backward compatibility. It is used in an obsolete API.
 		
 #If Server Then
-		WriteLogEvent(NStr("en = 'Core';", DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Core'", DefaultLanguageCode()),
 			EventLogLevel.Warning,,, 
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot delete temporary file:
-				           |%1. Reason: %2';"), 
+				           |%1. Reason: %2'"), 
 				FullFileName, 
 				ErrorProcessing.BriefErrorDescription(ErrorInfo())));
 #EndIf
@@ -4705,24 +4707,24 @@ Function DiagnosticsLocationPresentation()
 	
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 	If Common.DataSeparationEnabled() Then
-		Return NStr("en = 'Connecting from a remote 1C:Enterprise server.';");
+		Return NStr("en = 'Connecting from a remote 1C:Enterprise server.'");
 	Else 
 		If Common.FileInfobase() Then
 			If ClientConnectedOverWebServer() Then 
 				Return StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Connecting from a file infobase on web server <%1>.';"), ComputerName());
+					NStr("en = 'Connecting from a file infobase on web server <%1>.'"), ComputerName());
 			Else 
 				Return StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Connecting from a file infobase on computer <%1>.';"), ComputerName());
+					NStr("en = 'Connecting from a file infobase on computer <%1>.'"), ComputerName());
 			EndIf;
 		Else
 			Return StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Connecting from 1C:Enterprise server <%1>.';"), ComputerName());
+				NStr("en = 'Connecting from 1C:Enterprise server <%1>.'"), ComputerName());
 		EndIf;
 	EndIf;
 #Else 
 	Return StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Connecting from computer <%1> (client).';"), ComputerName());
+		NStr("en = 'Connecting from computer <%1> (client).'"), ComputerName());
 #EndIf
 	
 	// ACC:547-on
@@ -4775,11 +4777,11 @@ Function CheckServerAvailability(ServerAddress)
 	Log = New Array;
 	If Available Then
 		Log.Add(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Remote server %1 is available:';"), 
+			NStr("en = 'Remote server %1 is available:'"), 
 			ServerAddress));
 	Else
 		Log.Add(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Remote server %1 is unavailable:';"), 
+			NStr("en = 'Remote server %1 is unavailable:'"), 
 			ServerAddress));
 	EndIf;
 	
@@ -4816,7 +4818,7 @@ Function ServerRouteTraceLog(ServerAddress)
 	
 	Log = New Array;
 	Log.Add(StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Tracing route to remote server %1:';"), ServerAddress));
+		NStr("en = 'Tracing route to remote server %1:'"), ServerAddress));
 	
 	Log.Add("> " + CommandString);
 	Log.Add(Result.OutputStream);

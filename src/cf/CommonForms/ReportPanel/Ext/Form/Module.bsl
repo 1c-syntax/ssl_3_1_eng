@@ -18,8 +18,8 @@ Var Measurement;
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	PresentationTruth = NStr("en = 'All report options';");
-	PresentationLies = NStr("en = 'Computers and tablets';");
+	PresentationTruth = NStr("en = 'All report options'");
+	PresentationLies = NStr("en = 'Computers and tablets'");
 	Items.DisplayAllReportOptions.EditFormat = "BF='" + PresentationLies + "'; BT='"
 		+ PresentationTruth + "'";
 	DefineBehaviorInMobileClient();
@@ -209,7 +209,7 @@ EndProcedure
 Function SearchStringIsTooShort(Text)
 	Text = TrimAll(Text);
 	If StrLen(Text) < 2 Then
-		ShowMessageBox(, NStr("en = 'Search text is too short.';"));
+		ShowMessageBox(, NStr("en = 'Search text is too short.'"));
 		Return True;
 	EndIf;
 	
@@ -222,7 +222,7 @@ Function SearchStringIsTooShort(Text)
 		EndIf;
 	EndDo;
 	If Not HasNormalWord Then
-		ShowMessageBox(, NStr("en = 'Search words are too short.';"));
+		ShowMessageBox(, NStr("en = 'Search words are too short.'"));
 		Return True;
 	EndIf;
 	
@@ -380,7 +380,7 @@ EndProcedure
 
 &AtClient
 Procedure ResetSettings(Command)
-	QueryText = NStr("en = 'Do you want to reset report assignment settings?';");
+	QueryText = NStr("en = 'Do you want to reset report assignment settings?'");
 	Handler = New CallbackDescription("ResetSettingsCompletion", ThisObject);
 	ShowQueryBox(Handler, QueryText, QuestionDialogMode.YesNo, 60, DialogReturnCode.No);
 EndProcedure
@@ -534,7 +534,7 @@ Function StartMeasurement(Event, Comment = Undefined)
 		If SetupMode Or Event = "DisableSetupMode" Then
 			Measurement.Name = "ReportPanel.SetupMode";
 		ElsIf ValueIsFilled(SearchString) Then
-			Measurement.Name = "ReportPanel.Search"; // Сам по себе поиск интересен только в режиме просмотра.
+			Measurement.Name = "ReportPanel.Search"; // 
 		EndIf;
 		Comment.Insert("SubsystemPath", ClientParameters.SubsystemPath);
 		Comment.Insert("ShowTooltips", ShowTooltips);
@@ -709,7 +709,7 @@ Function UpdateReportPanelAtServer(Val Event = "")
 	Items.GroupReportsSnapshots.Visible = AccessRight("Edit", Metadata.InformationRegisters.ReportsSnapshots);
 	
 	// Title.
-	SetupModeSuffix = " (" + NStr("en = 'setting';") + ")";
+	SetupModeSuffix = " (" + NStr("en = 'setting'") + ")";
 	SuffixIsDisplayed = (Right(Title, StrLen(SetupModeSuffix)) = SetupModeSuffix);
 	If SuffixIsDisplayed <> SetupMode Then
 		If SetupMode Then
@@ -762,8 +762,8 @@ Procedure DefineBehaviorInMobileClient()
 	Items.CommandBarRightGroup.Visible = False;
 	Items.MobileApplicationDetails.Visible = False;
 	
-	SearchSubstring = NStr("en = 'right-click the report and';");
-	ReplaceSubstring = NStr("en = 'in the context menu';");
+	SearchSubstring = NStr("en = 'right-click the report and'");
+	ReplaceSubstring = NStr("en = 'in the context menu'");
 	
 	Items.QuickAccessTooltipWhenNotConfigured.Title =
 		StrReplace(Items.QuickAccessTooltipWhenNotConfigured.Title, SearchSubstring, ReplaceSubstring);
@@ -773,7 +773,7 @@ Procedure DefineBehaviorInMobileClient()
 	
 	Items.Move(Items.DisplayAllReportOptions, Items.TopBarMobileClient,
 		Items.ShowTooltips);
-	Items.DisplayAllReportOptions.Title = NStr("en = 'Show reports for computers and tablets';");
+	Items.DisplayAllReportOptions.Title = NStr("en = 'Show reports for computers and tablets'");
 	Items.DisplayAllReportOptions.TitleLocation = FormItemTitleLocation.Right;
 	
 EndProcedure
@@ -841,7 +841,7 @@ EndFunction
 Procedure DefineSubsystemsAndTitle(Var_Parameters)
 	
 	TitleIsSet = Not IsBlankString(Var_Parameters.Title);
-	PanelTitle = ?(TitleIsSet, Var_Parameters.Title, NStr("en = 'Reports';"));
+	PanelTitle = ?(TitleIsSet, Var_Parameters.Title, NStr("en = 'Reports'"));
 	
 	If Var_Parameters.SubsystemPath = ReportsOptionsClientServer.HomePageID() Then
 		CurrentSectionFullName = Var_Parameters.SubsystemPath;
@@ -895,7 +895,7 @@ Procedure DefineSubsystemsAndTitle(Var_Parameters)
 	TableRow = ApplicationSubsystems.Add();
 	TableRow.TagName    = "NonIncludedToSections";
 	TableRow.Name            = "NonIncludedToSections";
-	TableRow.Presentation  = NStr("en = 'Not included in sections';");
+	TableRow.Presentation  = NStr("en = 'Not included in sections'");
 	TableRow.ItemNumber  = 0;
 	TableRow.SectionReference   = Catalogs.MetadataObjectIDs.EmptyRef();
 	TableRow.ParentReference = Catalogs.MetadataObjectIDs.EmptyRef();
@@ -905,12 +905,12 @@ Procedure DefineSubsystemsAndTitle(Var_Parameters)
 	
 	If Var_Parameters.SubsystemPath = "NonIncludedToSections" Then
 		CurrentSectionRef = Catalogs.MetadataObjectIDs.EmptyRef();
-		PanelTitle = NStr("en = 'Reports not included in sections';");
+		PanelTitle = NStr("en = 'Reports not included in sections'");
 	EndIf;
 	
 	If CurrentSectionRef = Undefined Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Non-existent section ""%1"" specified in report panel. See %2.';"),
+			NStr("en = 'Non-existent section ""%1"" specified in report panel. See %2.'"),
 			Var_Parameters.SubsystemPath, "ReportsOptionsOverridable.DefineSectionsWithReportOptions");
 	EndIf;
 	
@@ -1017,14 +1017,14 @@ Procedure FillReportPanel(ResultAddress)
 		Items.OtherSectionsSearchResultsGroup.Visible = True;
 		If FillParameters.OtherSections.Count() = 0 Then
 			Label = Items.Insert("InOtherSections", Type("FormDecoration"), Items.OtherSectionsSearchResults);
-			Label.Title = NStr("en = 'Reports not found in other sections.';") + Chars.LF;
+			Label.Title = NStr("en = 'Reports not found in other sections.'") + Chars.LF;
 			Label.Height = 2;
 		EndIf;
 		For Each SectionReference In FillParameters.OtherSections Do
 			OutputSectionOptions(FillParameters, SectionReference);
 		EndDo;
 		If FillParameters.NotDisplayed > 0 Then // Show the note.
-			LabelTitle = NStr("en = 'Limited to first %1 reports. Please narrow your search.';");
+			LabelTitle = NStr("en = 'Limited to first %1 reports. Please narrow your search.'");
 			LabelTitle = StringFunctionsClientServer.SubstituteParametersToString(LabelTitle, FillParameters.OutputLimit);
 			Label = Items.Insert("OutputLimitExceeded", Type("FormDecoration"), Items.OtherSectionsSearchResults);
 			Label.Title = LabelTitle;
@@ -1164,13 +1164,13 @@ Procedure OutputSectionOptions(FillParameters, SectionReference)
 			Label = Items.Insert("ReportListEmpty", Type("FormDecoration"), Items.NoGroupColumn1);
 			If ValueIsFilled(SearchString) Then
 				If FillParameters.CurrentSectionOnly Then
-					Label.Title = NStr("en = 'Reports not found.';");
+					Label.Title = NStr("en = 'Reports not found.'");
 				Else
-					Label.Title = NStr("en = 'Reports not found in current section.';");
+					Label.Title = NStr("en = 'Reports not found in current section.'");
 					Label.Height = 2;
 				EndIf;
 			Else
-				Label.Title = NStr("en = 'No reports in this section.';");
+				Label.Title = NStr("en = 'No reports in this section.'");
 			EndIf;
 			Items["QuickAccessHeader"].Visible  = False;
 			Items["QuickAccessFooter"].Visible = False;
@@ -1945,7 +1945,7 @@ Function AddSubsystemsGroup(FillParameters, OutputOrderRow, ToGroup)
 	
 	If HighlightingIsRequired Then
 		If OutputOrderRow.IsFollowUp Then
-			Suffix = NStr("en = '(continued)';");
+			Suffix = NStr("en = '(continued)'");
 			If Not StrEndsWith(PresentationHighlighting.Value, Suffix) Then
 				PresentationHighlighting.Value = PresentationHighlighting.Value + " " + Suffix;
 			EndIf;
@@ -1965,7 +1965,7 @@ Function AddSubsystemsGroup(FillParameters, OutputOrderRow, ToGroup)
 		
 	Else
 		If OutputOrderRow.IsFollowUp Then
-			SubsystemPresentation = SubsystemPresentation + " " + NStr("en = '(continued)';");
+			SubsystemPresentation = SubsystemPresentation + " " + NStr("en = '(continued)'");
 		EndIf;
 		
 		SubsystemsGroup1.ShowTitle = True;
@@ -2104,7 +2104,7 @@ Function AddReportOptionItems(FillParameters, Variant, ToGroup, NestingLevel = 0
 		Label.ToolTip = TrimAll(Variant.LongDesc);
 	EndIf;
 	If ValueIsFilled(Variant.Author) Then
-		Label.ToolTip = TrimL(Label.ToolTip + Chars.LF) + NStr("en = 'Author:';") + " " + TrimAll(String(Variant.Author));
+		Label.ToolTip = TrimL(Label.ToolTip + Chars.LF) + NStr("en = 'Author:'") + " " + TrimAll(String(Variant.Author));
 	EndIf;
 	Label.SetAction("Click", "Attachable_OptionClick");
 	If Not Variant.Visible Then
@@ -2179,7 +2179,7 @@ Procedure DefineOptionTooltipContent(FillParameters, Variant, TooltipContent, La
 				If TooltipContent.Count() > 0 Then
 					TooltipContent.Add(Chars.LF);
 				EndIf;
-				TooltipContent.Add(NStr("en = 'Author:';") + " ");
+				TooltipContent.Add(NStr("en = 'Author:'") + " ");
 				GenerateRowWithHighlighting(HighlightParameters.AuthorPresentation1, TooltipContent);
 				TooltipContent.Add(".");
 				TooltipIsOutput = True;
@@ -2188,7 +2188,7 @@ Procedure DefineOptionTooltipContent(FillParameters, Variant, TooltipContent, La
 				If TooltipContent.Count() > 0 Then
 					TooltipContent.Add(Chars.LF);
 				EndIf;
-				TooltipContent.Add(NStr("en = 'Saved setting:';") + " ");
+				TooltipContent.Add(NStr("en = 'Saved setting:'") + " ");
 				GenerateRowWithHighlighting(HighlightParameters.UserSettingsDescriptions, TooltipContent);
 				TooltipContent.Add(".");
 				TooltipIsOutput = True;
@@ -2197,7 +2197,7 @@ Procedure DefineOptionTooltipContent(FillParameters, Variant, TooltipContent, La
 				If TooltipContent.Count() > 0 Then
 					TooltipContent.Add(Chars.LF);
 				EndIf;
-				TooltipContent.Add(NStr("en = 'Fields:';") + " ");
+				TooltipContent.Add(NStr("en = 'Fields:'") + " ");
 				GenerateRowWithHighlighting(HighlightParameters.FieldDescriptions, TooltipContent);
 				TooltipContent.Add(".");
 				TooltipIsOutput = True;
@@ -2206,7 +2206,7 @@ Procedure DefineOptionTooltipContent(FillParameters, Variant, TooltipContent, La
 				If TooltipContent.Count() > 0 Then
 					TooltipContent.Add(Chars.LF);
 				EndIf;
-				TooltipContent.Add(NStr("en = 'Settings:';") + " ");
+				TooltipContent.Add(NStr("en = 'Settings:'") + " ");
 				GenerateRowWithHighlighting(HighlightParameters.FilterParameterDescriptions, TooltipContent);
 				TooltipContent.Add(".");
 				TooltipIsOutput = True;
@@ -2215,7 +2215,7 @@ Procedure DefineOptionTooltipContent(FillParameters, Variant, TooltipContent, La
 				If TooltipContent.Count() > 0 Then
 					TooltipContent.Add(Chars.LF);
 				EndIf;
-				TooltipContent.Add(NStr("en = 'Keywords:';") + " ");
+				TooltipContent.Add(NStr("en = 'Keywords:'") + " ");
 				GenerateRowWithHighlighting(HighlightParameters.Keywords, TooltipContent);
 				TooltipContent.Add(".");
 				TooltipIsOutput = True;

@@ -219,7 +219,7 @@ EndFunction
 Procedure ShowAllVisibleAttributesUnlockedWarning(ContinuationHandler = Undefined) Export
 	
 	ShowMessageBox(ContinuationHandler,
-		NStr("en = 'Editing visible attributes of the object is already allowed.';"));
+		NStr("en = 'Editing visible attributes of the object is already allowed.'"));
 	
 EndProcedure
 
@@ -316,7 +316,7 @@ EndFunction
 //
 Procedure CheckObjectRefs(Val ContinuationHandler, Val ReferencesArrray, Val AttributesSynonyms) Export
 	
-	DialogTitle = NStr("en = 'Allow attribute edit';");
+	DialogTitle = NStr("en = 'Allow attribute edit'");
 	
 	AttributesPresentation = "";
 	For Each AttributeSynonym In AttributesSynonyms Do
@@ -332,7 +332,7 @@ Procedure CheckObjectRefs(Val ContinuationHandler, Val ReferencesArrray, Val Att
 			           |Before you allow editing, view the occurrences of these attributes
 			           |and consider possible data implications.
 			           |Generating the list of occurrences might take a while.
-			           |';"),
+			           |'"),
 			AttributesPresentation);
 	Else
 		If ReferencesArrray.Count() = 1 Then
@@ -341,7 +341,7 @@ Procedure CheckObjectRefs(Val ContinuationHandler, Val ReferencesArrray, Val Att
 				           |
 				           |Before you allow editing, view the occurrences of %2
 				           |and consider possible data implications.
-				           |Generating the list of occurrences might take a while.';"),
+				           |Generating the list of occurrences might take a while.'"),
 				AttributesPresentation, ReferencesArrray[0]);
 		Else
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -349,7 +349,7 @@ Procedure CheckObjectRefs(Val ContinuationHandler, Val ReferencesArrray, Val Att
 				           |
 				           |Before you allow editing, view the occurrences of the selected items (%2)
 				           |and consider possible data implications.
-				           |Generating the list of occurrences might take a while.';"),
+				           |Generating the list of occurrences might take a while.'"),
 				AttributesPresentation, ReferencesArrray.Count());
 		EndIf;
 	EndIf;
@@ -361,8 +361,8 @@ Procedure CheckObjectRefs(Val ContinuationHandler, Val ReferencesArrray, Val Att
 	Parameters.Insert("ContinuationHandler", ContinuationHandler);
 	
 	Buttons = New ValueList;
-	Buttons.Add(DialogReturnCode.Yes, NStr("en = 'View and allow';"));
-	Buttons.Add(DialogReturnCode.No, NStr("en = 'Cancel';"));
+	Buttons.Add(DialogReturnCode.Yes, NStr("en = 'View and allow'"));
+	Buttons.Add(DialogReturnCode.No, NStr("en = 'Cancel'"));
 	
 	ShowQueryBox(
 		New CallbackDescription("CheckObjectReferenceAfterValidationConfirm",

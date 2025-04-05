@@ -816,21 +816,6 @@ create a rule to filter BCC to a special folder.</v8:content>
 						</UsualGroup>
 					</ChildItems>
 				</UsualGroup>
-				<LabelDecoration name="NeedHelp" id="269">
-					<Title formatted="false">
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Need help?</v8:content>
-						</v8:item>
-					</Title>
-					<GroupHorizontalAlign>Right</GroupHorizontalAlign>
-					<Hyperlink>true</Hyperlink>
-					<ContextMenu name="NeedHelpContextMenu" id="270"/>
-					<ExtendedTooltip name="NeedHelpExtendedTooltip" id="271"/>
-					<Events>
-						<Event name="Click">NeedHelpClick</Event>
-					</Events>
-				</LabelDecoration>
 			</ChildItems>
 		</UsualGroup>
 	</ChildItems>

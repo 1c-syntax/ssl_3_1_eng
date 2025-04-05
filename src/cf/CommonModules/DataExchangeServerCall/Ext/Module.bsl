@@ -315,7 +315,7 @@ Procedure DownloadExtensions() Export
 		Except
 			
 			ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
-			EventLogEvent = NStr("en = 'Data exchange.Load extension';", Common.DefaultLanguageCode());
+			EventLogEvent = NStr("en = 'Data exchange.Load extension'", Common.DefaultLanguageCode());
 			WriteLogEvent(EventLogEvent, EventLogLevel.Error, , , ErrorMessage);
 						
 		EndTry;

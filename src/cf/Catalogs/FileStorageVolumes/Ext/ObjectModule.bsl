@@ -26,7 +26,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	If Not AdditionalProperties.Property("SkipBasicFillingCheck") Then
 	
 		If Not SequenceNumberUnique(FillOrder, Ref) Then
-			ErrorText = NStr("en = 'The filling order is not unique. A volume with this order already exists.';");
+			ErrorText = NStr("en = 'The filling order is not unique. A volume with this order already exists.'");
 			Common.MessageToUser(ErrorText, , "FillOrder", "Object", Cancel);
 		EndIf;
 		
@@ -38,13 +38,13 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 			ActualSize = CurrentSizeInBytes / (1024 * 1024);
 			
 			If MaximumSize < ActualSize Then
-				ErrorText = NStr("en = 'The volume size limit is less than the current size.';");
+				ErrorText = NStr("en = 'The volume size limit is less than the current size.'");
 				Common.MessageToUser(ErrorText, , "MaximumSize", "Object", Cancel);
 			EndIf;
 		EndIf;
 		
 		If IsBlankString(FullPathWindows) And IsBlankString(FullPathLinux) Then
-			ErrorText = NStr("en = 'The full path is required.';");
+			ErrorText = NStr("en = 'The full path is required.'");
 			Common.MessageToUser(ErrorText, , "FullPathWindows", "Object", Cancel);
 			Common.MessageToUser(ErrorText, , "FullPathLinux",   "Object", Cancel);
 			Return;
@@ -62,7 +62,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 		   And (    Left(FullPathWindows, 2) <> "\\"
 		      Or StrFind(FullPathWindows, ":") <> 0 ) Then
 			
-			ErrorText = NStr("en = 'The volume path must be in the UNC format (\\servername\resource).';");
+			ErrorText = NStr("en = 'The volume path must be in the UNC format (\\servername\resource).'");
 			Common.MessageToUser(ErrorText, , "FullPathWindows", "Object", Cancel);
 			Return;
 		EndIf;
@@ -96,7 +96,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 					           |or an account on whose behalf
 					           |1C:Enterprise server is running might have no access rights to the volume directory.
 					           |
-					           |%1';");
+					           |%1'");
 			Else
 				ErrorTemplate =
 					NStr("en = 'The volume path is invalid or the server with the volume is currently unavailable.
@@ -104,7 +104,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 					           |An account on whose behalf 1C:Enterprise server is running
 					           |might have no access rights to the volume directory.
 					           |
-					           |%1';");
+					           |%1'");
 			EndIf;
 			
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -165,7 +165,7 @@ Procedure CheckTheUniquenessOfThePathToTheVolumes(Cancel)
 	ResultTable2.Indexes.Add("FullPathLinux");
 	ResultTable2.Indexes.Add("FullPathWindows");
 	
-	ErrorTemplate = NStr("en = 'The volume path must be unique. The directory is specified in the %1 volume.';");
+	ErrorTemplate = NStr("en = 'The volume path must be unique. The directory is specified in the %1 volume.'");
 	If ValueIsFilled(FullPathLinux) Then
 		For Each Volume In ResultTable2.FindRows(New Structure("FullPathLinux", FullPathLinux)) Do
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate, Volume.Presentation);
@@ -184,5 +184,5 @@ EndProcedure
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

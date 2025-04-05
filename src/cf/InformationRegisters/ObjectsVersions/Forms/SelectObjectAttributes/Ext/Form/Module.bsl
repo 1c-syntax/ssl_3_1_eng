@@ -131,7 +131,7 @@ EndFunction
 Function SelectedAttributePresentation()
 	Result = StrConcat(SelectedAttributeSynonyms(), ", ");
 	If Result = "*" Then
-		Result = NStr("en = 'All attributes';");
+		Result = NStr("en = 'All attributes'");
 	EndIf;
 	
 	Return Result;

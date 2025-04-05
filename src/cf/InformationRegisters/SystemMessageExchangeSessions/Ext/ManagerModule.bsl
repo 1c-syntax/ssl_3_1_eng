@@ -173,7 +173,7 @@ Function RecordMessagesExchangeSession(QueryText, Session)
 	
 	If Not Selection.Next() Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'System message exchange session with ID %1 not found.';"),
+			NStr("en = 'System message exchange session with ID %1 not found.'"),
 			String(Session));
 	EndIf;
 	

@@ -27,15 +27,15 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "");
 	OptionSettings.LongDesc = 
 		NStr("en = 'Information about the survey respondents,
-		|and response statistics.';");
+		|and response statistics.'");
 	OptionSettings.SearchSettings.FieldDescriptions = 
 		NStr("en = 'Respondent
 		|Survey
 		|Question
-		|Answer';");
+		|Answer'");
 	OptionSettings.SearchSettings.FilterParameterDescriptions = 
 		NStr("en = 'Survey
-		|Report type';");
+		|Report type'");
 EndProcedure
 
 // End StandardSubsystems.ReportsOptions

@@ -15,7 +15,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not ValueIsFilled(Parameters.Key) Then
 		
-		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
+		Raise NStr("en = 'This is a dependent form and opens from a different form.'", Common.DefaultLanguageCode());
 		
 	EndIf;
 		
@@ -92,10 +92,10 @@ Procedure ImportRules(Command)
 	NameParts = CommonClientServer.ParseFullFileName(Record.RulesFileName);
 	
 	DialogParameters = New Structure;
-	DialogParameters.Insert("Title", NStr("en = 'Select a file to import rules from';"));
+	DialogParameters.Insert("Title", NStr("en = 'Select a file to import rules from'"));
 	DialogParameters.Insert("Filter",
-		  NStr("en = 'Registration rule files (*.xml)';") + "|*.xml|"
-		+ NStr("en = 'ZIP archive (*.zip)';")   + "|*.zip");
+		  NStr("en = 'Registration rule files (*.xml)'") + "|*.xml|"
+		+ NStr("en = 'ZIP archive (*.zip)'")   + "|*.zip");
 	
 	DialogParameters.Insert("FullFileName", NameParts.FullName);
 	DialogParameters.Insert("FilterIndex", ?( Lower(NameParts.Extension) = ".zip", 1, 0) ); 
@@ -109,7 +109,7 @@ Procedure UnloadRules(Command)
 	
 	If Not Record.RulesAreImported Then
 		
-		MessageText = NStr("en = 'Registration rules are not imported';");
+		MessageText = NStr("en = 'Registration rules are not imported'");
 		CommonClient.MessageToUser(MessageText);
 		Return;
 		
@@ -118,21 +118,21 @@ Procedure UnloadRules(Command)
 	NameParts = CommonClientServer.ParseFullFileName(Record.RulesFileName);
 	
 	StorageAddress = GetURLAtServer();
-	NameFilter = NStr("en = 'Rule files (*.xml)';") + "|*.xml";
+	NameFilter = NStr("en = 'Rule files (*.xml)'") + "|*.xml";
 	
 	If IsBlankString(StorageAddress) Then
 		Return;
 	EndIf;
 	
 	If IsBlankString(NameParts.BaseName) Then
-		FullFileName = NStr("en = 'Registration rules';");
+		FullFileName = NStr("en = 'Registration rules'");
 	Else
 		FullFileName = NameParts.BaseName;
 	EndIf;
 	
 	DialogParameters = New Structure;
 	DialogParameters.Insert("Mode", FileDialogMode.Save);
-	DialogParameters.Insert("Title", NStr("en = 'Select a file to export rules to';") );
+	DialogParameters.Insert("Title", NStr("en = 'Select a file to export rules to'") );
 	DialogParameters.Insert("FullFileName", FullFileName);
 	DialogParameters.Insert("Filter", NameFilter);
 	
@@ -149,7 +149,7 @@ Procedure SaveRegistrationRulesFromTemplate(Command)
 	
 	If List.Count() = 0 Then
 		
-		Template = NStr("en = 'Cannot find a registration rule template for the ""%1"" exchange plan';", 
+		Template = NStr("en = 'Cannot find a registration rule template for the ""%1"" exchange plan'", 
 			CommonClient.DefaultLanguageCode());
 			
 		Text = StrTemplate(Template, Record.ExchangePlanName);
@@ -163,7 +163,7 @@ Procedure SaveRegistrationRulesFromTemplate(Command)
 	Else
 		
 		Notification = New CallbackDescription("TemplateSelectionEnds", ThisObject);
-		List.ShowChooseItem(Notification, NStr("en = 'Select a registration rule template';"));
+		List.ShowChooseItem(Notification, NStr("en = 'Select a registration rule template'"));
 	
 	EndIf;
 	
@@ -186,7 +186,7 @@ Procedure SaveRegistrationRulesFromTemplateCompletion(TemplateName)
 	NameParts = CommonClientServer.ParseFullFileName(Record.RulesFileName);
 	
 	If IsBlankString(NameParts.BaseName) Then
-		FullFileName = NStr("en = 'Registration rules';");
+		FullFileName = NStr("en = 'Registration rules'");
 	Else
 		FullFileName = NameParts.BaseName;
 	EndIf;
@@ -194,8 +194,8 @@ Procedure SaveRegistrationRulesFromTemplateCompletion(TemplateName)
 	FileAddress = PrepareFileOnServer(TemplateName);
 	
 	SavingParameters = FileSystemClient.FileSavingParameters();
-	SavingParameters.Dialog.Title = NStr("en = 'Select a file to export rules to';");
-	SavingParameters.Dialog.Filter = NStr("en = 'Rule files (*.xml)';") + "|*.xml";
+	SavingParameters.Dialog.Title = NStr("en = 'Select a file to export rules to'");
+	SavingParameters.Dialog.Filter = NStr("en = 'Rule files (*.xml)'") + "|*.xml";
 	
 	FileSystemClient.SaveFile(Undefined, FileAddress, FullFileName, SavingParameters);
 	
@@ -264,7 +264,7 @@ Procedure UpdateRuleTemplateChoiceList()
 	
 	If IsBlankString(Record.ExchangePlanName) Then
 		
-		Items.MainGroup2.Title = NStr("en = 'Conversion rules';");
+		Items.MainGroup2.Title = NStr("en = 'Conversion rules'");
 		
 	Else
 		
@@ -361,14 +361,14 @@ Procedure UpdateRuleInfo()
 		StringPattern = NStr("en = 'Using rules imported from the file
                              |might cause errors when migrating to a new version of the application.
                              |
-                             |%1';");
+                             |%1'");
 			
 	ElsIf Record.RulesSource = Enums.DataExchangeRulesSources.CustomManager Then
 		
 		StringPattern = NStr("en = 'Using rules imported from a user module
                              |might cause errors when migrating to a new version of the application.
                              |
-                             |%1';");	
+                             |%1'");	
 	Else
 		
 		StringPattern = "%1";
@@ -390,11 +390,11 @@ Procedure UpdateInformationAboutUnwrittenRules()
 	
 	ElsIf RulesSource = Enums.DataExchangeRulesSources.ConfigurationTemplate Then
 		
-		RulesInformation = NStr("en = 'Save changes to view rule details';");
+		RulesInformation = NStr("en = 'Save changes to view rule details'");
 		
 	ElsIf RulesSource = Enums.DataExchangeRulesSources.File Then
 		
-		RulesInformation = NStr("en = 'Finish importing to view rule details';");
+		RulesInformation = NStr("en = 'Finish importing to view rule details'");
 		
 	Else
 		
@@ -409,7 +409,7 @@ Procedure UpdateInformationAboutUnwrittenRules()
 			StringPattern = NStr("en = 'Using rules imported from a user module
 									|might cause errors when migrating to a new version of the application.
 									|
-									|%1';");
+									|%1'");
 			
 		EndIf;	
 		
@@ -421,7 +421,7 @@ Procedure UpdateInformationAboutUnwrittenRules()
 		Except
 			
 			MessageText = NStr("en = 'Error getting registration rules details:
-                                   |%1';");
+                                   |%1'");
 			RulesInformation = StringFunctions.FormattedString(MessageText, ErrorInfo().Description);
 			
 		EndTry;
@@ -473,12 +473,12 @@ Procedure PerformRuleImport(Val PutFileAddress, Val FileName, Val IsArchive)
 	ImportRulesAtServer(Cancel, PutFileAddress, FileName, IsArchive);
 	
 	If Not Cancel Then
-		ShowUserNotification(,, NStr("en = 'The rules are imported to the infobase.';"));
+		ShowUserNotification(,, NStr("en = 'The rules are imported to the infobase.'"));
 		Return;
 	EndIf;
 	
 	ErrorText = NStr("en = 'Errors occurred when importing the rules.
-	                         |Go to the event log?';");
+	                         |Go to the event log?'");
 	
 	Notification = New CallbackDescription("ShowEventLogWhenErrorOccurred", ThisObject);
 	ShowQueryBox(Notification, ErrorText, QuestionDialogMode.YesNo, ,DialogReturnCode.No);
@@ -491,7 +491,7 @@ Procedure ImportRulesCompletion(Val PutFilesResult, Val AdditionalParameters) Ex
 	ErrorText           = PutFilesResult.ErrorDescription;
 	
 	If IsBlankString(ErrorText) And IsBlankString(PutFileAddress) Then
-		ErrorText = NStr("en = 'An error occurred when transferring the file to the server';");
+		ErrorText = NStr("en = 'An error occurred when transferring the file to the server'");
 	EndIf;
 	
 	If Not IsBlankString(ErrorText) Then

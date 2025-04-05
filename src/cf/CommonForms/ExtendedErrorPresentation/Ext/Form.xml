@@ -135,23 +135,38 @@
 						</UsualGroup>
 					</ChildItems>
 				</UsualGroup>
-				<InputField name="ErrorTextClient" id="9">
-					<DataPath>ErrorTextClient</DataPath>
-					<ReadOnly>true</ReadOnly>
+				<UsualGroup name="TechnicalDetailsClient" id="128">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>Technical details</v8:content>
 						</v8:item>
 					</Title>
-					<TitleTextColor>style:AccentColor</TitleTextColor>
-					<TitleLocation>Top</TitleLocation>
-					<AutoMaxWidth>false</AutoMaxWidth>
-					<MultiLine>true</MultiLine>
-					<BorderColor>style:FormBackColor</BorderColor>
-					<ContextMenu name="ErrorTextClientContextMenu" id="10"/>
-					<ExtendedTooltip name="ErrorTextClientExtendedTooltip" id="11"/>
-				</InputField>
+					<Behavior>Collapsible</Behavior>
+					<Collapsed>true</Collapsed>
+					<ControlRepresentation>Picture</ControlRepresentation>
+					<Representation>None</Representation>
+					<ExtendedTooltip name="TechnicalDetailsClientExtendedTooltip" id="129"/>
+					<ChildItems>
+						<InputField name="ErrorTextClient" id="9">
+							<DataPath>ErrorTextClient</DataPath>
+							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Technical details</v8:content>
+								</v8:item>
+							</Title>
+							<TitleTextColor>style:AccentColor</TitleTextColor>
+							<TitleLocation>None</TitleLocation>
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<MultiLine>true</MultiLine>
+							<BorderColor>style:FormBackColor</BorderColor>
+							<ContextMenu name="ErrorTextClientContextMenu" id="10"/>
+							<ExtendedTooltip name="ErrorTextClientExtendedTooltip" id="11"/>
+						</InputField>
+					</ChildItems>
+				</UsualGroup>
 				<LabelDecoration name="InstructionClient" id="24">
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<Title formatted="false">
@@ -299,23 +314,38 @@
 						</UsualGroup>
 					</ChildItems>
 				</UsualGroup>
-				<InputField name="ErrorTextServer" id="37">
-					<DataPath>ErrorTextServer</DataPath>
-					<ReadOnly>true</ReadOnly>
+				<UsualGroup name="TechnicalDetailsServer" id="126">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>Technical details</v8:content>
 						</v8:item>
 					</Title>
-					<TitleTextColor>style:AccentColor</TitleTextColor>
-					<TitleLocation>Top</TitleLocation>
-					<AutoMaxWidth>false</AutoMaxWidth>
-					<MultiLine>true</MultiLine>
-					<BorderColor>style:FormBackColor</BorderColor>
-					<ContextMenu name="ErrorTextServerContextMenu" id="38"/>
-					<ExtendedTooltip name="ErrorTextServerExtendedTooltip" id="39"/>
-				</InputField>
+					<Behavior>Collapsible</Behavior>
+					<Collapsed>true</Collapsed>
+					<ControlRepresentation>Picture</ControlRepresentation>
+					<Representation>None</Representation>
+					<ExtendedTooltip name="TechnicalDetailsServerExtendedTooltip" id="127"/>
+					<ChildItems>
+						<InputField name="ErrorTextServer" id="37">
+							<DataPath>ErrorTextServer</DataPath>
+							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Technical details</v8:content>
+								</v8:item>
+							</Title>
+							<TitleTextColor>style:AccentColor</TitleTextColor>
+							<TitleLocation>None</TitleLocation>
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<MultiLine>true</MultiLine>
+							<BorderColor>style:FormBackColor</BorderColor>
+							<ContextMenu name="ErrorTextServerContextMenu" id="38"/>
+							<ExtendedTooltip name="ErrorTextServerExtendedTooltip" id="39"/>
+						</InputField>
+					</ChildItems>
+				</UsualGroup>
 				<LabelDecoration name="InstructionServer" id="50">
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<Title formatted="false">
@@ -414,24 +444,39 @@
 						</UsualGroup>
 					</ChildItems>
 				</UsualGroup>
-				<InputField name="ErrorText" id="83">
-					<DataPath>ErrorText</DataPath>
-					<ReadOnly>true</ReadOnly>
-					<SkipOnInput>true</SkipOnInput>
+				<UsualGroup name="TechnicalDetails" id="124">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>Technical details</v8:content>
 						</v8:item>
 					</Title>
-					<TitleTextColor>style:AccentColor</TitleTextColor>
-					<TitleLocation>Top</TitleLocation>
-					<AutoMaxWidth>false</AutoMaxWidth>
-					<MultiLine>true</MultiLine>
-					<BorderColor>style:FormBackColor</BorderColor>
-					<ContextMenu name="ErrorTextContextMenu" id="84"/>
-					<ExtendedTooltip name="ErrorTextExtendedTooltip" id="85"/>
-				</InputField>
+					<Behavior>Collapsible</Behavior>
+					<Collapsed>true</Collapsed>
+					<ControlRepresentation>Picture</ControlRepresentation>
+					<Representation>None</Representation>
+					<ExtendedTooltip name="TechnicalDetailsExtendedTooltip" id="125"/>
+					<ChildItems>
+						<InputField name="ErrorText" id="83">
+							<DataPath>ErrorText</DataPath>
+							<ReadOnly>true</ReadOnly>
+							<SkipOnInput>true</SkipOnInput>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Technical details</v8:content>
+								</v8:item>
+							</Title>
+							<TitleTextColor>style:AccentColor</TitleTextColor>
+							<TitleLocation>None</TitleLocation>
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<MultiLine>true</MultiLine>
+							<BorderColor>style:FormBackColor</BorderColor>
+							<ContextMenu name="ErrorTextContextMenu" id="84"/>
+							<ExtendedTooltip name="ErrorTextExtendedTooltip" id="85"/>
+						</InputField>
+					</ChildItems>
+				</UsualGroup>
 				<LabelDecoration name="Instruction" id="96">
 					<Visible>false</Visible>
 					<AutoMaxWidth>false</AutoMaxWidth>
@@ -481,58 +526,46 @@
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="FooterGroupExtendedTooltip" id="61"/>
 			<ChildItems>
-				<UsualGroup name="Help" id="62">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Need help?</v8:content>
-						</v8:item>
-					</Title>
+				<UsualGroup name="AssistanceRequiredGroup" id="130">
+					<GroupVerticalAlign>Center</GroupVerticalAlign>
 					<Group>Vertical</Group>
 					<Behavior>PopUp</Behavior>
-					<ExtendedTooltip name="HelpExtendedTooltip" id="63"/>
+					<ExtendedTooltip name="AssistanceRequiredGroupExtendedTooltip" id="131"/>
 					<ChildItems>
-						<LabelDecoration name="DecorationContactSupport" id="121">
-							<Visible>false</Visible>
-							<ContextMenu name="DecorationContactSupportContextMenu" id="122"/>
-							<ExtendedTooltip name="DecorationContactSupportExtendedTooltip" id="123"/>
-						</LabelDecoration>
-						<Button name="QuestionInSupport" id="119">
-							<Type>Hyperlink</Type>
-							<CommandName>Form.Command.QuestionInSupport</CommandName>
-							<ExtendedTooltip name="QuestionInSupportExtendedTooltip" id="120"/>
-						</Button>
-						<UsualGroup name="GroupDownloadTechnicalInfo" id="114">
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Download technical information</v8:content>
-								</v8:item>
-							</Title>
-							<Group>AlwaysHorizontal</Group>
+						<UsualGroup name="TechnicalSupportGroup" id="132">
+							<Group>Vertical</Group>
+							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupDownloadTechnicalInfoExtendedTooltip" id="115"/>
+							<ExtendedTooltip name="TechnicalSupportGroupExtendedTooltip" id="133"/>
 							<ChildItems>
-								<Button name="DownloadTechnicalInfo" id="104">
+								<LabelDecoration name="DescriptionOfSupportRequest" id="134">
+									<ContextMenu name="DescriptionOfSupportRequestContextMenu" id="135"/>
+									<ExtendedTooltip name="DescriptionOfSupportRequestExtendedTooltip" id="136"/>
+								</LabelDecoration>
+								<Button name="QuestionInSupport" id="137">
 									<Type>Hyperlink</Type>
-									<CommandName>Form.Command.DownloadTechnicalInfo</CommandName>
+									<CommandName>Form.Command.QuestionInSupport</CommandName>
+									<Picture>
+										<xr:Ref>CommonPicture.SendEmail</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Download technical information</v8:content>
+											<v8:content>Contact support</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="DownloadTechnicalInfoExtendedTooltip" id="105"/>
+									<ExtendedTooltip name="QuestionInSupportExtendedTooltip" id="138"/>
 								</Button>
-								<PictureDecoration name="DecorationPictureGeneratingTechnicalInfo" id="108">
-									<Visible>false</Visible>
+								<Button name="InformationToSendToSupport" id="139">
+									<Type>Hyperlink</Type>
+									<CommandName>Form.Command.InformationToSendToSupport</CommandName>
 									<Picture>
-										<xr:Ref>CommonPicture.TimeConsumingOperation16</xr:Ref>
+										<xr:Ref>CommonPicture.Download</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
-									<ContextMenu name="DecorationPictureGeneratingTechnicalInfoContextMenu" id="109"/>
-									<ExtendedTooltip name="DecorationPictureGeneratingTechnicalInfoExtendedTooltip" id="110"/>
-								</PictureDecoration>
+									<ExtendedTooltip name="InformationToSendToSupportExtendedTooltip" id="140"/>
+								</Button>
 							</ChildItems>
 						</UsualGroup>
 					</ChildItems>
@@ -721,26 +754,26 @@
 			<Action>InstallExtension</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
-		<Command name="DownloadTechnicalInfo" id="3">
+		<Command name="InformationToSendToSupport" id="3">
+			<Picture>
+				<xr:Ref>CommonPicture.Download</xr:Ref>
+				<xr:LoadTransparent>false</xr:LoadTransparent>
+			</Picture>
+			<Action>InformationToSendToSupport</Action>
+		</Command>
+		<Command name="QuestionInSupport" id="4">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Download technical information</v8:content>
+					<v8:content>Contact support</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Download technical information</v8:content>
+					<v8:content>Contact support</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Picture>
-				<xr:Ref>CommonPicture.Download</xr:Ref>
-				<xr:LoadTransparent>false</xr:LoadTransparent>
-			</Picture>
-			<Action>DownloadTechnicalInfo</Action>
-		</Command>
-		<Command name="QuestionInSupport" id="4">
 			<Picture>
 				<xr:Ref>CommonPicture.SendEmail</xr:Ref>
 				<xr:LoadTransparent>false</xr:LoadTransparent>

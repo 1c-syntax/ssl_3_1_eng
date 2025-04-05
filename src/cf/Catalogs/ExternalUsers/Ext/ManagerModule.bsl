@@ -37,7 +37,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// СтандартныеПодсистемы.УправлениеДоступом
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -96,7 +96,7 @@ Procedure FormGetProcessing(FormType, Parameters, SelectedForm, AdditionalInform
 				"NewExternalUserAuthorizationObject", Parameters.AuthorizationObject);
 		Else
 			ErrorAsWarningDetails =
-				NStr("en = 'The right to log in is not granted.';");
+				NStr("en = 'The right to log in is not granted.'");
 				
 			Raise ErrorAsWarningDetails;
 		EndIf;
@@ -206,13 +206,13 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Couldn''t process (skipped) some external users: %1
-				|%2';"), ObjectsWithIssuesCount, StrConcat(ErrorList, Chars.LF));
+				|%2'"), ObjectsWithIssuesCount, StrConcat(ErrorList, Chars.LF));
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Information,
 			Metadata.Catalogs.ExternalUsers,,
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Yet another batch of external users is processed: %1';"),
+				NStr("en = 'Yet another batch of external users is processed: %1'"),
 				ObjectsProcessed));
 	EndIf;
 	

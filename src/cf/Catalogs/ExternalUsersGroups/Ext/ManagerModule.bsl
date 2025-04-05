@@ -34,7 +34,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// СтандартныеПодсистемы.УправлениеДоступом
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -78,7 +78,7 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 
 	Item = Items.Add();
 	Item.PredefinedDataName = "AllExternalUsers";
-	Item.Description = NStr("en = 'All external users';", Common.DefaultLanguageCode());
+	Item.Description = NStr("en = 'All external users'", Common.DefaultLanguageCode());
 	
 	BlankRefs = UsersInternalCached.BlankRefsOfAuthorizationObjectTypes();
 	For Each EmptyRef In BlankRefs Do

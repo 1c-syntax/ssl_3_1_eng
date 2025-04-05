@@ -14,11 +14,11 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Common.IsWebClient() Then
-		Raise NStr("en = 'Web client does not support data backup.';");
+		Raise NStr("en = 'Web client does not support data backup.'");
 	EndIf;
 	
 	If Not Common.IsWindowsClient() Then
-		Raise NStr("en = 'Set up data backup and restore using operating system tools or other third-party tools.';");
+		Raise NStr("en = 'Set up data backup and restore using operating system tools or other third-party tools.'");
 	EndIf;
 	
 	Settings = IBBackupServer.BackupParameters();

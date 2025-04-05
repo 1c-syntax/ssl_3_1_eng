@@ -73,7 +73,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 	
 	If (Object.StartDate > Object.EndDate) And (Object.EndDate <> Date(1,1,1)) Then
 	
-		CommonClient.MessageToUser(NStr("en = 'The start date cannot be greater than end date.';"),,"Object.StartDate");
+		CommonClient.MessageToUser(NStr("en = 'The start date cannot be greater than end date.'"),,"Object.StartDate");
 		Cancel = True;
 	
 	EndIf;

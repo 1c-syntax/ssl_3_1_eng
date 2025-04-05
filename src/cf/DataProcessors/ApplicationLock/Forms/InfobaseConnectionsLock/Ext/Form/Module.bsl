@@ -63,7 +63,7 @@ EndProcedure
 &AtServer
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
-	BlockingSessionsInformation = IBConnections.BlockingSessionsInformation(NStr("en = 'The lock is not set.';"));
+	BlockingSessionsInformation = IBConnections.BlockingSessionsInformation(NStr("en = 'The lock is not set.'"));
 	
 	If BlockingSessionsInformation.HasBlockingSessions Then
 		Raise BlockingSessionsInformation.MessageText;
@@ -75,14 +75,14 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	If Object.LockEffectiveFrom > Object.LockEffectiveTo 
 		And ValueIsFilled(Object.LockEffectiveTo) Then
 		Common.MessageToUser(
-			NStr("en = 'Cannot set a lock. The end date cannot be earlier than the start date.';"),,
+			NStr("en = 'Cannot set a lock. The end date cannot be earlier than the start date.'"),,
 			"Object.LockEffectiveTo",,Cancel);
 		Return;
 	EndIf;
 	
 	If Not ValueIsFilled(Object.LockEffectiveFrom) Then
 		Common.MessageToUser(
-			NStr("en = 'Please select the start date.';"),, "Object.LockEffectiveFrom",,Cancel);
+			NStr("en = 'Please select the start date.'"),, "Object.LockEffectiveFrom",,Cancel);
 		Return;
 	EndIf;
 	
@@ -98,7 +98,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 			Close();
 		ElsIf Parameter.Status = "Error" Then
 			ShowMessageBox(,NStr("en = 'Cannot close all active user sessions.
-				|See the Event log for details.';"), 30);
+				|See the Event log for details.'"), 30);
 			Close();
 		EndIf;
 	EndIf;
@@ -136,32 +136,32 @@ Procedure Apply(Command)
 		
 		CurrentSessionDate = CommonClient.SessionDate();
 		
-		QuestionTitle = NStr("en = 'Deny user access';");
+		QuestionTitle = NStr("en = 'Deny user access'");
 		If SessionCount > 1 And Object.LockEffectiveFrom < CurrentSessionDate + 10 * 60 Then
 			QueryText = NStr("en = 'The period before applying the lock is too short. Users might not have enough time to save their data.
-				|It is recommended that you give them at least 10 minutes.';");
+				|It is recommended that you give them at least 10 minutes.'");
 			Buttons = New ValueList;
-			Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Lock in 10 minutes';"));
-			Buttons.Add(DialogReturnCode.No, NStr("en = 'Lock now';"));
-			Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
+			Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Lock in 10 minutes'"));
+			Buttons.Add(DialogReturnCode.No, NStr("en = 'Lock now'"));
+			Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
 			Notification = New CallbackDescription("ApplyCompletion", ThisObject, "LockTimeTooSoon");
 			ShowQueryBox(Notification, QueryText, Buttons,,, QuestionTitle);
 		ElsIf Object.LockEffectiveFrom > CurrentSessionDate + 60 * 60 Then
 			QueryText = NStr("en = 'The user lock is deferred for more than one hour.
-				|Do you want to schedule the user lock for the specified time?';");
+				|Do you want to schedule the user lock for the specified time?'");
 			Buttons = New ValueList;
-			Buttons.Add(DialogReturnCode.No, NStr("en = 'Schedule';"));
-			Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Lock now';"));
-			Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
+			Buttons.Add(DialogReturnCode.No, NStr("en = 'Schedule'"));
+			Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Lock now'"));
+			Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
 			Notification = New CallbackDescription("ApplyCompletion", ThisObject, "LockTimeTooLate");
 			ShowQueryBox(Notification, QueryText, Buttons,,, QuestionTitle);
 		Else
 			If Object.LockEffectiveFrom - CurrentSessionDate > 15*60 Then
 				QueryText = NStr("en = 'All active user sessions will be closed from %1 to %2.
-					|Do you want to continue?';");
+					|Do you want to continue?'");
 			Else
 				QueryText = NStr("en = 'All active user sessions will be closed by %2.
-					|Do you want to continue?';");
+					|Do you want to continue?'");
 			EndIf;
 			Notification = New CallbackDescription("ApplyCompletion", ThisObject, "Confirmation");
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(QueryText, Object.LockEffectiveFrom - 900, Object.LockEffectiveFrom);
@@ -212,9 +212,9 @@ Procedure ApplyCompletion(Response, Variant) Export
 	If Not IsFileInfobase And Not CorrectAdministrationParametersEntered And SessionWithoutSeparators Then
 		
 		NotifyDescription = New CallbackDescription("AfterGetAdministrationParametersOnLock", ThisObject);
-		FormCaption = NStr("en = 'User sessions';");
+		FormCaption = NStr("en = 'User sessions'");
 		NoteLabel = NStr("en = 'To manage user sessions, enter
-			|the infobase and server cluster administration parameters';");
+			|the infobase and server cluster administration parameters'");
 		IBConnectionsClient.ShowAdministrationParameters(NotifyDescription, True,
 			True, AdministrationParameters, FormCaption, NoteLabel);
 		
@@ -232,9 +232,9 @@ Procedure Stop(Command)
 	If Not IsFileInfobase And Not CorrectAdministrationParametersEntered And SessionWithoutSeparators Then
 		
 		NotifyDescription = New CallbackDescription("AfterGetAdministrationParametersOnUnlock", ThisObject);
-		FormCaption = NStr("en = 'User sessions';");
+		FormCaption = NStr("en = 'User sessions'");
 		NoteLabel = NStr("en = 'To manage user sessions, enter
-			|the infobase and server cluster administration parameters';");
+			|the infobase and server cluster administration parameters'");
 		IBConnectionsClient.ShowAdministrationParameters(NotifyDescription, True,
 			True, AdministrationParameters, FormCaption, NoteLabel);
 		
@@ -250,9 +250,9 @@ EndProcedure
 Procedure AdministrationParameters(Command)
 	
 	NotifyDescription = New CallbackDescription("AfterGetAdministrationParameters", ThisObject);
-	FormCaption = NStr("en = 'Scheduled job locks';");
+	FormCaption = NStr("en = 'Scheduled job locks'");
 	NoteLabel = NStr("en = 'To manage scheduled job locks, enter
-		|the infobase and server cluster administration parameters';");
+		|the infobase and server cluster administration parameters'");
 	IBConnectionsClient.ShowAdministrationParameters(NotifyDescription, True,
 		True, AdministrationParameters, FormCaption, NoteLabel);
 	
@@ -277,7 +277,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("UsersAuthorizationRestrictionStatus");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
-	ItemFilter.RightValue = NStr("en = 'Denied';");
+	ItemFilter.RightValue = NStr("en = 'Denied'");
 
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.ErrorNoteText);
 
@@ -291,7 +291,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("UsersAuthorizationRestrictionStatus");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
-	ItemFilter.RightValue = NStr("en = 'Scheduled';");
+	ItemFilter.RightValue = NStr("en = 'Scheduled'");
 
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.ErrorNoteText);
 
@@ -305,7 +305,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("UsersAuthorizationRestrictionStatus");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
-	ItemFilter.RightValue = NStr("en = 'Expired';");
+	ItemFilter.RightValue = NStr("en = 'Expired'");
 
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.LockedAttributeColor);
 
@@ -319,7 +319,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("UsersAuthorizationRestrictionStatus");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
-	ItemFilter.RightValue = NStr("en = 'Allowed';");
+	ItemFilter.RightValue = NStr("en = 'Allowed'");
 
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.FormTextColor);
 
@@ -386,9 +386,9 @@ Procedure RefreshSettingsPage()
 	Items.ApplyCommand.DefaultButton = True;
 	Items.StopCommand.Visible = False;
 	Items.ApplyCommand.Title = ?(Object.DisableUserAuthorisation,
-		NStr("en = 'Remove lock';"), NStr("en = 'Set lock';"));
+		NStr("en = 'Remove lock'"), NStr("en = 'Set lock'"));
 	Items.DisableScheduledJobs.Title = ?(Object.DisableScheduledJobs,
-		NStr("en = 'Keep scheduled job locks';"), NStr("en = 'Lock scheduled jobs';"));
+		NStr("en = 'Keep scheduled job locks'"), NStr("en = 'Lock scheduled jobs'"));
 	
 EndProcedure
 
@@ -409,12 +409,12 @@ Procedure UpdateLockState(Form)
 	If Form.SessionCount = 0 Then
 		
 		StateText = NStr("en = 'Lock pending…
-			|Users will be unable to use the application while the lock is set.';");
+			|Users will be unable to use the application while the lock is set.'");
 		
 	Else
 		
 		StateText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Please wait…
-			|Closing user sessions. Active sessions remaining: %1.';"),
+			|Closing user sessions. Active sessions remaining: %1.'"),
 			Form.SessionCount);
 			
 	EndIf;
@@ -451,17 +451,17 @@ Procedure SetInitialUserAuthorizationRestrictionStatus()
 	InitialUserAuthorizationRestrictionStatusValue = Object.DisableUserAuthorisation;
 	If Object.DisableUserAuthorisation Then
 		If CurrentSessionDate() < Object.LockEffectiveFrom Then
-			InitialUserAuthorizationRestrictionStatus = NStr("en = 'Users will be denied access to the application at the specified time';");
+			InitialUserAuthorizationRestrictionStatus = NStr("en = 'Users will be denied access to the application at the specified time'");
 			UsersAuthorizationRestrictionStatus = "Scheduled";
 		ElsIf CurrentSessionDate() > Object.LockEffectiveTo And Object.LockEffectiveTo <> '00010101' Then
-			InitialUserAuthorizationRestrictionStatus = NStr("en = 'Users are allowed to log in to the application (the lock has expired)';");
+			InitialUserAuthorizationRestrictionStatus = NStr("en = 'Users are allowed to log in to the application (the lock has expired)'");
 			UsersAuthorizationRestrictionStatus = "Expired";
 		Else
-			InitialUserAuthorizationRestrictionStatus = NStr("en = 'Users are denied access to the application';");
+			InitialUserAuthorizationRestrictionStatus = NStr("en = 'Users are denied access to the application'");
 			UsersAuthorizationRestrictionStatus = "Prohibited";
 		EndIf;
 	Else
-		InitialUserAuthorizationRestrictionStatus = NStr("en = 'Users can access the application';");
+		InitialUserAuthorizationRestrictionStatus = NStr("en = 'Users can access the application'");
 		UsersAuthorizationRestrictionStatus = "Allowed1";
 	EndIf;
 	
@@ -517,9 +517,9 @@ Procedure AfterGetAdministrationParametersOnLock(Result, AdditionalParameters) E
 		RefreshSettingsPage();
 	EndIf;
 	
-	ShowUserNotification(NStr("en = 'User access';"),
+	ShowUserNotification(NStr("en = 'User access'"),
 		New CallbackDescription("OpeningHandlerOfAppWorkBlockForm", IBConnectionsClient),
-		?(Object.DisableUserAuthorisation, NStr("en = 'User access is denied.';"), NStr("en = 'User access is allowed.';")),
+		?(Object.DisableUserAuthorisation, NStr("en = 'User access is denied.'"), NStr("en = 'User access is allowed.'")),
 		PictureLib.DialogInformation);
 	
 EndProcedure
@@ -543,7 +543,7 @@ Procedure AfterGetAdministrationParametersOnUnlock(Result, AdditionalParameters)
 	EndIf;
 	
 	IBConnectionsClient.SetTheUserShutdownMode(False);
-	ShowMessageBox(,NStr("en = 'Closing active user sessions is canceled.';"));
+	ShowMessageBox(,NStr("en = 'Closing active user sessions is canceled.'"));
 	
 EndProcedure
 

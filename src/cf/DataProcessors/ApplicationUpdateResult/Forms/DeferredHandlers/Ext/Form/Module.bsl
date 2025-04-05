@@ -71,6 +71,19 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.Status.ChoiceList.Add(TheValueIsBeingExecuted, TheValueIsBeingExecuted);
 	Items.Status.ChoiceList.Add(TheValueIsCompleted, TheValueIsCompleted);
 	
+	// 
+	If Common.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+		
+		ModuleForContactingTechnicalSupportService = Common.CommonModule(
+			"ContactingTechnicalSupportInternal");
+		
+		ModuleForContactingTechnicalSupportService.OnCreateAtServer(ThisObject);
+		
+	Else
+		Items.AssistanceRequiredGroup.Visible = False;
+	EndIf;
+	// End StandardSubsystems.ContactingTechnicalSupport
+	
 EndProcedure
 
 #EndRegion
@@ -182,7 +195,7 @@ Procedure DeferredUpdateHyperlinkClick(Item)
 		
 		OpenForm("DataProcessor.EventLog.Form.EventLog", FormParameters);
 	Else
-		WarningText = NStr("en = 'Data has not been processed yet.';");
+		WarningText = NStr("en = 'Data has not been processed yet.'");
 		ShowMessageBox(,WarningText);
 	EndIf;
 	
@@ -228,7 +241,7 @@ Procedure Pause(Command)
 		|the application might malfunction.
 		|It is recommended that you only stop a data processing procedure
 		|if you find an error in it and only after technical support approval
-		|because data processing procedures might depend on each other.';");
+		|because data processing procedures might depend on each other.'");
 	QuestionButtons = New ValueList;
 	QuestionButtons.Add("Yes", "Stop");
 	QuestionButtons.Add("None", "Cancel");
@@ -305,6 +318,85 @@ Procedure CheckPatches(Command)
 	
 	NotifyDescription = New CallbackDescription("CheckAvailableFixesContinued", ThisObject, Result);
 	InfobaseUpdateClient.ProcessManualPatchCheckResult(Result, NotifyDescription);
+EndProcedure
+
+&AtClient
+Procedure QuestionInSupport(Command)
+	
+	// 
+	If CommonClient.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+		
+		ModuleForContactingTechnicalSupportServiceClient = CommonClient.CommonModule(
+			"ContactingTechnicalSupportInternalClient");
+		
+		RequestParameters_ = ModuleForContactingTechnicalSupportServiceClient.RequestParameters_();
+		RequestParameters_.Subject = NStr("en = 'Не удалось обновить приложение на новую версию'");
+		
+		TechnologicalInfo = New Array;
+		TechnologicalInfo.Add(RequestParameters_.TechnologicalInfo);
+		
+		StatusError = PredefinedValue("Enum.UpdateHandlersStatuses.Error");
+		FilterParameter = New Structure("Status", StatusError);
+		ErrorsFound = DeferredHandlers.FindRows(FilterParameter);
+		
+		For Each ErrorFound In ErrorsFound Do
+			TechnologicalInfo.Add(ErrorFound.UpdateProcessInformation);
+			TechnologicalInfo.Add(Chars.LF);
+		EndDo;
+		
+		RequestParameters_.TechnologicalInfo = StrConcat(TechnologicalInfo, Chars.LF);
+		
+		GetUpdateInfo();
+		RequestParameters_.EventLogFilter.Insert("StartDate", DeferredUpdateStartTime);
+		RequestParameters_.EventLogFilter.Insert("EndDate", DeferredUpdateEndTime);
+		RequestParameters_.EventLogFilter.Insert("Session", CurrentSessionNumber);
+		
+		ModuleForContactingTechnicalSupportServiceClient.SendQuestionToSupport(
+			ThisObject,
+			RequestParameters_);
+		
+	EndIf;
+	// End StandardSubsystems.ContactingTechnicalSupport
+	
+EndProcedure
+
+&AtClient
+Procedure InformationToSendToSupport(Command)
+	
+	// 
+	If CommonClient.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+		
+		ModuleForContactingTechnicalSupportServiceClient = CommonClient.CommonModule(
+			"ContactingTechnicalSupportInternalClient");
+		
+		RequestParameters_ = ModuleForContactingTechnicalSupportServiceClient.RequestParameters_();
+		
+		TechnologicalInfo = New Array;
+		TechnologicalInfo.Add(RequestParameters_.TechnologicalInfo);
+		
+		StatusError = PredefinedValue("Enum.UpdateHandlersStatuses.Error");
+		FilterParameter = New Structure("Status", StatusError);
+		ErrorsFound = DeferredHandlers.FindRows(FilterParameter);
+		
+		For Each ErrorFound In ErrorsFound Do
+			TechnologicalInfo.Add(ErrorFound.UpdateProcessInformation);
+			TechnologicalInfo.Add(Chars.LF);
+		EndDo;
+		
+		RequestParameters_.TechnologicalInfo = StrConcat(TechnologicalInfo, Chars.LF);
+		
+		GetUpdateInfo();
+		RequestParameters_.EventLogFilter.Insert("StartDate", DeferredUpdateStartTime);
+		RequestParameters_.EventLogFilter.Insert("EndDate", DeferredUpdateEndTime);
+		RequestParameters_.EventLogFilter.Insert("Session", CurrentSessionNumber);
+		
+		ModuleForContactingTechnicalSupportServiceClient.DownloadInformationToSendToSupport(
+			ThisObject,
+			RequestParameters_);
+		
+	EndIf;
+	// End StandardSubsystems.ContactingTechnicalSupport
+	
 EndProcedure
 
 #EndRegion
@@ -580,9 +672,9 @@ Procedure GenerateDeferredHandlerTable(AllHandlersExecuted = True, InitialFillin
 	EndIf;
 	
 	If HandlersNotExecuted Then
-		Items.ExplanationText.Title = NStr("en = 'It is recommended that you start the data processing procedures that have not been completed.';");
+		Items.ExplanationText.Title = NStr("en = 'It is recommended that you start the data processing procedures that have not been completed.'");
 	Else
-		Items.ExplanationText.Title = NStr("en = 'It is recommended that you restart the procedures that have not been completed.';");
+		Items.ExplanationText.Title = NStr("en = 'It is recommended that you restart the procedures that have not been completed.'");
 	EndIf;
 	
 	If ObsoleteDataCleanupHandlerRow <> Undefined Then
@@ -590,7 +682,7 @@ Procedure GenerateDeferredHandlerTable(AllHandlersExecuted = True, InitialFillin
 		DeferredHandlers.Move(RowIndex, DeferredHandlers.Count() - 1 - RowIndex);
 		ObsoleteDataCleanupHandlerRow.IsObsoleteDataCleanupHandler = True;
 		ObsoleteDataCleanupHandlerRow.HandlerAddOn =
-			NStr("en = 'View and clear obsolete data manually.';");
+			NStr("en = 'View and clear obsolete data manually.'");
 	EndIf;
 	
 	ItemNumber = 1;
@@ -603,6 +695,24 @@ Procedure GenerateDeferredHandlerTable(AllHandlersExecuted = True, InitialFillin
 	
 	Items.CheckPatches.Visible = UpdateInfo.DeferredUpdateCompletedSuccessfully <> True
 		And InfobaseUpdateInternal.CanCheckForPatchesManually();
+	
+	// 
+	If Common.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+		
+		ModuleForContactingTechnicalSupportService = Common.CommonModule(
+			"ContactingTechnicalSupportInternal");
+		
+		FilterParameter = New Structure("Status", Enums.UpdateHandlersStatuses.Error);
+		ErrorsFound = DeferredHandlers.FindRows(FilterParameter);
+		
+		If ErrorsFound.Count() > 0 Then
+			ModuleForContactingTechnicalSupportService.ShowHelpNeededSection(Items);
+		Else
+			ModuleForContactingTechnicalSupportService.HideHelpNeededSection(Items);
+		EndIf;
+		
+	EndIf;
+	// End StandardSubsystems.ContactingTechnicalSupport
 	
 EndProcedure
 
@@ -650,48 +760,48 @@ Procedure AddDeferredHandler(HandlerRow, HandlersNotExecuted, AllHandlersExecute
 	
 	ExecutionPeriodTemplate =
 		NStr("en = '%1 -
-		           |%2';");
+		           |%2'");
 	
-	UpdateProcedureInformationTemplate = NStr("en = 'Data processing procedure %1 %2.';");
+	UpdateProcedureInformationTemplate = NStr("en = 'Data processing procedure %1 %2.'");
 	
 	ListLine.Status = HandlerRow.Status;
 	If HandlerRow.Status = Enums.UpdateHandlersStatuses.Completed Then
 		
 		HandlersNotExecuted = False;
-		ExecutionStatusPresentation = NStr("en = 'is completed';");
-		ListLine.StatusPresentation = NStr("en = 'Completed';");
+		ExecutionStatusPresentation = NStr("en = 'is completed'");
+		ListLine.StatusPresentation = NStr("en = 'Completed'");
 		ListLine.ExecutionDuration = UpdateProcedureDuration(ExecutionDuration, MaximumProductionDurationDays);
 	ElsIf HandlerRow.Status = Enums.UpdateHandlersStatuses.Running Then
 		
 		HandlersNotExecuted = False;
 		AllHandlersExecuted        = False;
-		ExecutionStatusPresentation = NStr("en = 'is running';");
+		ExecutionStatusPresentation = NStr("en = 'is running'");
 		If Progress <> Undefined Then
-			StatusTemplate = NStr("en = 'Running (%1%)';");
+			StatusTemplate = NStr("en = 'Running (%1%)'");
 			ListLine.StatusPresentation = StringFunctionsClientServer.SubstituteParametersToString(StatusTemplate, Progress)
 		Else
-			ListLine.StatusPresentation = NStr("en = 'Running';");
+			ListLine.StatusPresentation = NStr("en = 'Running'");
 		EndIf;
 	ElsIf HandlerRow.Status = Enums.UpdateHandlersStatuses.Error Then
 		
 		HandlersNotExecuted = False;
 		AllHandlersExecuted        = False;
-		ExecutionStatusPresentation = NStr("en = 'Data processing procedure ""%1"" completed with error:';") + Chars.LF + Chars.LF;
+		ExecutionStatusPresentation = NStr("en = 'Data processing procedure ""%1"" completed with error:'") + Chars.LF + Chars.LF;
 		ExecutionStatusPresentation = StringFunctionsClientServer.SubstituteParametersToString(ExecutionStatusPresentation, HandlerRow.HandlerName);
 		ListLine.UpdateProcessInformation = ExecutionStatusPresentation + HandlerRow.ErrorInfo;
-		ListLine.StatusPresentation = NStr("en = 'Error';");
+		ListLine.StatusPresentation = NStr("en = 'Error'");
 		ListLine.ExecutionDuration = UpdateProcedureDuration(ExecutionDuration, MaximumProductionDurationDays);
 	ElsIf HandlerRow.Status = Enums.UpdateHandlersStatuses.Paused Then
 		
 		HandlersNotExecuted = False;
 		AllHandlersExecuted        = False;
-		ExecutionStatusPresentation = NStr("en = 'is paused by administrator';");
-		ListLine.StatusPresentation = NStr("en = 'Paused';");
+		ExecutionStatusPresentation = NStr("en = 'is paused by administrator'");
+		ListLine.StatusPresentation = NStr("en = 'Paused'");
 	Else
 		
 		AllHandlersExecuted        = False;
-		ExecutionStatusPresentation = NStr("en = 'has not started yet';");
-		ListLine.StatusPresentation = NStr("en = 'Not started';");
+		ExecutionStatusPresentation = NStr("en = 'has not started yet'");
+		ListLine.StatusPresentation = NStr("en = 'Not started'");
 	EndIf;
 	
 	If Not IsBlankString(HandlerRow.Comment) Then
@@ -745,14 +855,14 @@ Function UpdateProcedureDuration(ExecutionDuration, MaximumProductionDurationDay
 		ExecutionDuration = MaximumProductionDurationDays;
 	EndIf;
 	
-	SecondsTemplate = NStr("en = '%1 sec';");
-	MinutesTemplate = NStr("en = '%1 min %2 sec';");
-	HoursTemplate = NStr("en = '%1 h %2 min';");
+	SecondsTemplate = NStr("en = '%1 sec'");
+	MinutesTemplate = NStr("en = '%1 min %2 sec'");
+	HoursTemplate = NStr("en = '%1 h %2 min'");
 	
 	DurationInSeconds = ExecutionDuration/1000;
 	DurationInSeconds = Round(DurationInSeconds);
 	If DurationInSeconds < 1 Then
-		Return NStr("en = 'less than a second';")
+		Return NStr("en = 'less than a second'")
 	ElsIf DurationInSeconds < 60 Then
 		Return StringFunctionsClientServer.SubstituteParametersToString(SecondsTemplate, DurationInSeconds);
 	ElsIf DurationInSeconds < 3600 Then
@@ -929,7 +1039,7 @@ EndProcedure
 Function StartingPatchInstallation()
 	
 	ExecutionParameters = TimeConsumingOperations.FunctionExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Install patches following an update error.';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Install patches following an update error.'");
 	Return TimeConsumingOperations.ExecuteFunction(ExecutionParameters, "GetApplicationUpdates.DownloadAndInstallFixes");
 	
 EndFunction

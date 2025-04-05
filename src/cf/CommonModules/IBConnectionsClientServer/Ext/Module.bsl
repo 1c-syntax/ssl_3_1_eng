@@ -92,7 +92,7 @@ EndProcedure
 //
 Function TextForAdministrator() Export
 	
-	Return NStr("en = 'Message for administrator:';");
+	Return NStr("en = 'Message for administrator:'");
 	
 EndFunction
 

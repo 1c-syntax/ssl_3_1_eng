@@ -103,7 +103,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	
 EndProcedure
 
-// See StandardSubsystems.OnSendDataToMaster.
+// 
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 	If RecordSetOnlyWithImportRestrictionDates(DataElement) Then
@@ -617,7 +617,7 @@ Function PeriodEndClosingFound(Val DataToCheck, PeriodEndMessageParameters,
 	BlankSection = EmptyRef(Type("ChartOfCharacteristicTypesRef.PeriodClosingDatesSections"));
 	
 	ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Error in function ""%1"" of common module ""%2"".';"),
+		NStr("en = 'Error in function ""%1"" of common module ""%2"".'"),
 		"PeriodEndClosingFound",
 		"PeriodClosingDates")
 		+ Chars.LF
@@ -633,7 +633,7 @@ Function PeriodEndClosingFound(Val DataToCheck, PeriodEndMessageParameters,
 		SectionProperties = SectionsProperties.Sections.Get(TableRow.Section); // See ChartsOfCharacteristicTypes.PeriodClosingDatesSections.SectionProperties
 		If SectionProperties = Undefined Then
 			ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 parameter contains non-existent section: ""%2"".';"),
+				NStr("en = '%1 parameter contains non-existent section: ""%2"".'"),
 				"DataToCheck",
 				TableRow.Section);
 			Raise ErrorText;
@@ -836,7 +836,7 @@ EndFunction
 Function ErrorTextImportRestrictionDatesNotImplemented() Export
 	
 	Return NStr("en = 'No exchange plan is subject to data import restriction
-	                   |dates of previous periods.';");
+	                   |dates of previous periods.'");
 	
 EndFunction
 
@@ -1084,7 +1084,7 @@ Procedure ClearPredefinedItemsInClosingDatesSections() Export
 						
 					ElsIf Selection.Ref <> SectionProperties.Ref Then
 						Object.DeleteNewRef = SectionProperties.Ref;
-						Object.Description = "(" + NStr("en = 'not applicable';") + ") " + SectionProperties.Presentation;
+						Object.Description = "(" + NStr("en = 'not applicable'") + ") " + SectionProperties.Presentation;
 					EndIf;
 				EndIf;
 			ElsIf SectionsProperties.Sections.Get(Selection.Ref) = Undefined Then
@@ -1283,7 +1283,7 @@ Function DataToCheckFromDatabase(Data, DataID, EffectiveDates, ImportRestriction
 	For Each DataSource In DataSources.Content Do
 		Selection = QueryResults[DataSources.Content.Find(DataSource)].Select();
 		While Selection.Next() Do
-			// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
+			// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
 			AddDataStringFromDatabase(Selection, DataSource, DataToCheck, NoObject);
 		EndDo;
 	EndDo;
@@ -1326,7 +1326,7 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 		EndIf;
 		For Each TableRow In FieldValues Do
 			For Each DataSource In DataSources.Content Do
-				// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
+				// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
 				AddDataString(TableRow, TableRow, DataSource, DataToCheck, NoObject);
 			EndDo;
 		EndDo;
@@ -1335,22 +1335,22 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 			
 			If Not ValueIsFilled(DataSource.DateField.TabularSection)
 			   And Not ValueIsFilled(DataSource.ObjectField.TabularSection) Then
-				// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
+				// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
 				AddDataString(Data, Data, DataSource, DataToCheck, NoObject);
 				
 			ElsIf Not ValueIsFilled(DataSource.DateField.TabularSection) Then
 				
 				If NoObject Then
-					// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
+					// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
 					AddDataString(Data, Undefined, DataSource, DataToCheck, NoObject);
 				Else
-					// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
+					// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
 					DateString = New Structure("Value", Simple(Data, DataSource.DateField));
 					Field = DataSource.ObjectField.Name;
 					ObjectValues = Data[DataSource.ObjectField.TabularSection].Unload(, Field); // ValueTable
 					ObjectValues.GroupBy(Field);
 					For Each ObjectString In ObjectValues Do
-						// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
+						// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
 						AddDataString(DateString, ObjectString, DataSource, DataToCheck);
 					EndDo;
 				EndIf;
@@ -1358,14 +1358,14 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 			ElsIf Not ValueIsFilled(DataSource.ObjectField.TabularSection) Then
 				
 				If Not NoObject Then
-					// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
+					// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
 					ObjectString = New Structure("Value", Simple(Data, DataSource.ObjectField));
 				EndIf;
 				Field = DataSource.DateField.Name;
 				DateValues = Data[DataSource.DateField.TabularSection].Unload(, Field); // ValueTable
 				DateValues.GroupBy(Field);
 				For Each DateString In DateValues Do
-					// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
+					// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
 					AddDataString(DateString, ObjectString, DataSource, DataToCheck, NoObject);
 				EndDo;
 			
@@ -1379,7 +1379,7 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 				Values = Data[DataSource.DateField.TabularSection].Unload(, Fields); // ValueTable
 				Values.GroupBy(Fields);
 				For Each TableRow In Values Do
-					// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
+					// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
 					AddDataString(TableRow, TableRow, DataSource, DataToCheck, NoObject);
 				EndDo;
 			Else
@@ -1394,14 +1394,14 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 				EndIf;
 				
 				For Each DateString In DateValues Do
-					// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
+					// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
 					DateString = New Structure("Value", Simple(DateString, DataSource.DateField));
 					If NoObject Then
-						// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
+						// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
 						AddDataString(DateString, Undefined, DataSource, DataToCheck, NoObject);
 					Else
 						For Each ObjectString In ObjectValues Do
-							// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
+							// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
 							AddDataString(DateString, ObjectString, DataSource, DataToCheck);
 						EndDo;
 					EndIf;
@@ -1437,7 +1437,7 @@ Function ReceiveDataSources(EffectiveDates, Table)
 			NStr("en = 'In procedure ""%2""
 			           |of common module ""%3"",
 			           |table ""%1"" is missing the data source
-			           |required for checking restriction dates.';"),
+			           |required for checking restriction dates.'"),
 			Table,
 			"FillDataSourcesForPeriodClosingCheck",
 			"PeriodClosingDatesOverridable");
@@ -1516,7 +1516,7 @@ Function Simple(FieldValues, Field)
 		Query.Text = StrReplace(QueryText, "PathsField", PathsField);
 		Query.Text = StrReplace(Query.Text, "&CurrentTable", Table);
 		Query.SetParameter("CurrentRef", CurrentRef);
-		// @skip-check query-in-loop - Loop to avoid the dereferencing of the flexible type (Standard No. 654)
+		// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
 		Selection = Query.Execute().Select();
 		If Not Selection.Next() Then
 			Return Undefined;
@@ -1679,17 +1679,17 @@ Function PeriodEndMessages(PeriodEnds, PeriodEndMessageParameters, SectionsPrope
 	If ValueIsFilled(Text) Then
 		If SearchImportRestrictions Then
 			If NewVersion Then
-				Template = NStr("en = 'Cannot import %1 after period-end closing date.';");
+				Template = NStr("en = 'Cannot import %1 after period-end closing date.'");
 			Else
-				Template = NStr("en = 'Imported data cannot replace %1 after period-end closing date.';");
+				Template = NStr("en = 'Imported data cannot replace %1 after period-end closing date.'");
 			EndIf;
 		Else
 			If NewVersion Then
-				Template = NStr("en = 'Cannot store %1 after period-end closing date.';");
+				Template = NStr("en = 'Cannot store %1 after period-end closing date.'");
 			ElsIf IsRegister And IsDataSetDeletion(PeriodEndMessageParameters.Data) Then
-				Template = NStr("en = 'Cannot delete %1 after period-end closing date.';");
+				Template = NStr("en = 'Cannot delete %1 after period-end closing date.'");
 			Else
-				Template = NStr("en = 'Cannot change %1 after period-end closing date.';");
+				Template = NStr("en = 'Cannot change %1 after period-end closing date.'");
 			EndIf;
 		EndIf;
 		Text = StringFunctionsClientServer.SubstituteParametersToString(Template, Text) + Chars.LF;
@@ -1807,112 +1807,112 @@ Function PeriodEndMessage(Val Prohibition, Val SearchImportRestrictions, Val Sec
 			
 			Text = NStr("en = 'Cannot change data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
-			|Change is not available since date %1 falls within the closed period for %5';");
+			|Change is not available since date %1 falls within the closed period for %5'");
 			
 		ElsIf    BySection And Not ByObject And ForUnspecifiedOne Then
 			
 			Text = NStr("en = 'Cannot change data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|Change is not available for the ""%2"" section
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		ElsIf Not BySection And    ByObject And ForUnspecifiedOne Then
 			
 			Text = NStr("en = 'Cannot change data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|Change is not available for the ""%3"" object
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		ElsIf    BySection And    ByObject And ForUnspecifiedOne Then
 			
 			Text = NStr("en = 'Cannot change data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|Change is not available for the ""%3"" object of the ""%2"" section
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 		
 		ElsIf Not BySection And Not ByObject And ForUser Then
 			
 			Text = NStr("en = 'Cannot change data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|Change is not available for the ""%4"" user
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		ElsIf    BySection And Not ByObject And ForUser Then
 			
 			Text = NStr("en = 'Cannot change data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|The ""%4"" user cannot change the ""%2"" section
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		ElsIf Not BySection And    ByObject And ForUser Then
 			
 			Text = NStr("en = 'Cannot change data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|The ""%4"" user cannot change the ""%3"" object
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		ElsIf    BySection And    ByObject And ForUser Then
 			
 			Text = NStr("en = 'Cannot change data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|The ""%4"" user cannot change the ""%3"" object of the ""%2"" section
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 		
 		ElsIf Not BySection And Not ByObject And ForUsersGroup Then
 			
 			Text = NStr("en = 'Cannot change data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|Change is not available for the ""%4"" user group
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		ElsIf    BySection And Not ByObject And ForUsersGroup Then
 			
 			Text = NStr("en = 'Cannot change data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|The ""%4"" user group cannot change the ""%2"" section
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		ElsIf Not BySection And    ByObject And ForUsersGroup Then
 			
 			Text = NStr("en = 'Cannot change data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|The ""%4"" user group cannot change the ""%3"" object
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		ElsIf    BySection And    ByObject And ForUsersGroup Then
 			
 			Text = NStr("en = 'Cannot change data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|The ""%4"" user group cannot change the ""%3"" object of the ""%2"" section
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		ElsIf Not BySection And Not ByObject And ForAllUsers Then
 			
 			Text = NStr("en = 'Cannot change data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|Change is not available for all users
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		ElsIf    BySection And Not ByObject And ForAllUsers Then
 			
 			Text = NStr("en = 'Cannot change data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|All users cannot change the ""%2"" section
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		ElsIf Not BySection And    ByObject And ForAllUsers Then
 			
 			Text = NStr("en = 'Cannot change data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|All users cannot change the ""%3"" object
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		ElsIf    BySection And    ByObject And ForAllUsers Then
 			
 			Text = NStr("en = 'Cannot change data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|All users cannot change the ""%3"" object of the ""%2"" section
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		EndIf;
 	Else
@@ -1921,56 +1921,56 @@ Function PeriodEndMessage(Val Prohibition, Val SearchImportRestrictions, Val Sec
 			Text = NStr("en = 'Cannot import data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|Data import is not allowed for the ""%4"" infobase
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		ElsIf    BySection And Not ByObject And ForInfobase Then
 			
 			Text = NStr("en = 'Cannot import data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|Importing data on the ""%2"" section is not allowed for the ""%4"" infobase
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		ElsIf Not BySection And    ByObject And ForInfobase Then
 			
 			Text = NStr("en = 'Cannot import data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|Importing data on the ""%3"" object is not allowed for the ""%4"" infobase
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		ElsIf    BySection And    ByObject And ForInfobase Then
 			
 			Text = NStr("en = 'Cannot import data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|Importing data on the ""%3"" object of the ""%2"" section is not allowed for the ""%4"" infobase
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 		
 		ElsIf Not BySection And Not ByObject And ForAllPlanIBs Then
 			
 			Text = NStr("en = 'Cannot import data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|Data import is not allowed for all ""%6"" infobases
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		ElsIf    BySection And Not ByObject And ForAllPlanIBs Then
 			
 			Text = NStr("en = 'Cannot import data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|Importing data on the ""%2"" section is not allowed for all ""%6"" infobases
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		ElsIf Not BySection And    ByObject And ForAllPlanIBs Then
 			
 			Text = NStr("en = 'Cannot import data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|Importing data on the ""%3"" object is not allowed for all ""%6"" infobases
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		ElsIf    BySection And    ByObject And ForAllPlanIBs Then
 			
 			Text = NStr("en = 'Cannot import data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|Importing data on the ""%3"" object of the ""%2"" section is not allowed for all ""%6"" infobases
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		
 		ElsIf Not BySection And Not ByObject And ForAllIBs Then
@@ -1978,28 +1978,28 @@ Function PeriodEndMessage(Val Prohibition, Val SearchImportRestrictions, Val Sec
 			Text = NStr("en = 'Cannot import data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|Data import is not allowed for all infobases
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		ElsIf    BySection And Not ByObject And ForAllIBs Then
 			
 			Text = NStr("en = 'Cannot import data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|Importing data on the ""%2"" section is not allowed for all infobases
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		ElsIf Not BySection And    ByObject And ForAllIBs Then
 			
 			Text = NStr("en = 'Cannot import data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|Importing data on the ""%3"" object is not allowed for all infobases
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		ElsIf    BySection And    ByObject And ForAllIBs Then
 			
 			Text = NStr("en = 'Cannot import data with a date earlier than %5 (inclusive).
 			|[SeparatorReadMore]Details:
 			|Importing data on the ""%3"" object of the ""%2"" section is not allowed for all infobases
-			|since date %1 falls within the closed period for %5';");
+			|since date %1 falls within the closed period for %5'");
 			
 		EndIf;
 	EndIf;
@@ -2007,14 +2007,14 @@ Function PeriodEndMessage(Val Prohibition, Val SearchImportRestrictions, Val Sec
 	If Not SectionsProperties.NoSectionsAndObjects Then
 		If ValueIsFilled(Prohibition.Section) Then
 			If Prohibition.Object = Prohibition.Section Then
-				Text = Text + " " + NStr("en = 'The restriction is applied to section %2.';");
+				Text = Text + " " + NStr("en = 'The restriction is applied to section %2.'");
 			ElsIf ValueIsFilled(SectionsProperties.SingleSection) Then
-				Text = Text + " " + NStr("en = 'The restriction is applied to object %3.';");
+				Text = Text + " " + NStr("en = 'The restriction is applied to object %3.'");
 			Else
-				Text = Text + " " + NStr("en = 'The restriction is applied to object %3 of section %2.';");
+				Text = Text + " " + NStr("en = 'The restriction is applied to object %3 of section %2.'");
 			EndIf;
 		Else
-			Text = Text + " " + NStr("en = 'Common-date restriction is applied.';");
+			Text = Text + " " + NStr("en = 'Common-date restriction is applied.'");
 		EndIf;
 	EndIf;
 	
@@ -2064,12 +2064,12 @@ Function DataPresentation(Data, IsRegister)
 		
 		If FieldsCount = 1 Then
 			DataPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 with field %2';"),
+				NStr("en = '%1 with field %2'"),
 				DataPresentation, String(Data.Filter));
 			
 		ElsIf FieldsCount > 1 Then
 			DataPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 with fields %2';"),
+				NStr("en = '%1 with fields %2'"),
 				DataPresentation, String(Data.Filter));
 		EndIf;
 	Else
@@ -2280,7 +2280,7 @@ Function CurrentDataSourceForPeriodClosingCheck(SectionsProperties)
 	
 	ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Error in procedure %1
-		           |of common module %2.';"),
+		           |of common module %2.'"),
 		"FillDataSourcesForPeriodClosingCheck",
 		"PeriodClosingDatesOverridable")
 		+ Chars.LF
@@ -2292,7 +2292,7 @@ Function CurrentDataSourceForPeriodClosingCheck(SectionsProperties)
 		If MetadataObject = Undefined Then
 			ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Period-end closing date check error. Data source contains invalid table:
-				           |%1.';"),
+				           |%1.'"),
 				TableRow.Table);
 			Raise ErrorText;
 		EndIf;
@@ -2312,7 +2312,7 @@ Function CurrentDataSourceForPeriodClosingCheck(SectionsProperties)
 				ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Non-existent section ""%1"" for table ""%2"" is specified
 					           |for checking period-end closing dates in data source.
-					           | See %3.';"),
+					           | See %3.'"),
 					TableDataSource.Section,
 					TableDataSource.Table,
 					"PeriodClosingDatesOverridable.FillDataSourcesForPeriodClosingCheck");
@@ -2400,7 +2400,7 @@ Function TableField(Source, FieldKind, MetadataObject, IsRegister)
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Period-end closing date check error.
 				           |Data source contains table with empty Date field:
-				           |%1.';"),
+				           |%1.'"),
 				Source.Table);
 			Raise ErrorText;
 		Else
@@ -2412,14 +2412,14 @@ Function TableField(Source, FieldKind, MetadataObject, IsRegister)
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Period-end closing date check error.
 				           |Data source contains table %1 with invalid Date field:
-				           |%2.';"),
+				           |%2.'"),
 				Source.Table, Field);
 			Raise ErrorText;
 		Else
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Period-end closing date check error.
 				           |Data source contains table %1 with invalid Object field:
-				           |%2.';"),
+				           |%2.'"),
 				Source.Table, Field);
 			Raise ErrorText;
 		EndIf;
@@ -2442,7 +2442,7 @@ Function TableField(Source, FieldKind, MetadataObject, IsRegister)
 				NStr("en = 'Period-end closing date check error.
 				           |Data source contains table %1 with invalid Date field:
 				           |No field specified for tabular section:
-				           |%2.';"),
+				           |%2.'"),
 				Source.Table, Fields[0]);
 			Raise ErrorText;
 		Else
@@ -2450,7 +2450,7 @@ Function TableField(Source, FieldKind, MetadataObject, IsRegister)
 				NStr("en = 'Period-end closing date check error.
 				           |Data source contains table %1 with invalid Object field:
 				           |No field specified for tabular section:
-				           |%2.';"),
+				           |%2.'"),
 				Source.Table, Fields[0]);
 			Raise ErrorText;
 		EndIf;
@@ -2460,7 +2460,7 @@ Function TableField(Source, FieldKind, MetadataObject, IsRegister)
 				NStr("en = 'Period-end closing date check error.
 				           |Data source contains table %1 with invalid Date field:
 				           |Tabular section contains invalid field:
-				           |%2.';"),
+				           |%2.'"),
 				Source.Table, Fields[0]);
 			Raise ErrorText;
 		Else
@@ -2468,7 +2468,7 @@ Function TableField(Source, FieldKind, MetadataObject, IsRegister)
 				NStr("en = 'Period-end closing date check error.
 				           |Data source contains table %1 with invalid Object field:
 				           |Tabular section contains invalid field:
-				           |%2.';"),
+				           |%2.'"),
 				Source.Table, Fields[0]);
 			Raise ErrorText;
 		EndIf;
@@ -2661,7 +2661,7 @@ Function RecordSetOnlyWithImportRestrictionDates(DataElement)
 	If Not DataElement.Filter.User.Use Then
 		ErrorText =
 			NStr("en = 'Period-end closing dates information register supports
-			           |record import and export only by User dimension.';");
+			           |record import and export only by User dimension.'");
 		Raise ErrorText;
 	EndIf;
 	

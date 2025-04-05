@@ -26,7 +26,7 @@ Function IntegerSubject(Number, FormatString, NumerationItemOptions) Export
 	
 	Integer1 = Int(Number);
 	
-	NumberInWords = NumberInWords(Integer1, FormatString, NStr("en = ',,,,,,,,0';"));
+	NumberInWords = NumberInWords(Integer1, FormatString, NStr("en = ',,,,,,,,0'"));
 	
 	SubjectAndNumberInWords = NumberInWords(Integer1, FormatString, NumerationItemOptions);
 	
@@ -153,26 +153,26 @@ Procedure UpdateLifetimeRestriction(Form) Export
 	TitleWithRestriction = "";
 	
 	If Form.UnlimitedValidityPeriod Then
-		TitleWithRestriction = NStr("en = 'Login allowed (no time limit)';");
+		TitleWithRestriction = NStr("en = 'Login allowed (no time limit)'");
 		
 	ElsIf ValueIsFilled(Form.ValidityPeriod) Then
-		TitleWithRestriction = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Login allowed (till %1)';"),
+		TitleWithRestriction = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Login allowed (till %1)'"),
 			Format(Form.ValidityPeriod, "DLF=D"));
 			
 	ElsIf ValueIsFilled(Form.InactivityPeriodBeforeDenyingAuthorization) Then
 		TitleWithRestriction = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Login allowed (revoke access after inactivity of %1)';"),
+			NStr("en = 'Login allowed (revoke access after inactivity of %1)'"),
 			Format(Form.InactivityPeriodBeforeDenyingAuthorization, "NG=") + " "
 				+ IntegerSubject(Form.InactivityPeriodBeforeDenyingAuthorization,
-					"", NStr("en = 'day,days,,,0';")));
+					"", NStr("en = 'day,days,,,0'")));
 	EndIf;
 	
 	If ValueIsFilled(TitleWithRestriction) Then
 		Items.CanSignIn.Title = TitleWithRestriction;
-		Items.ChangeAuthorizationRestriction.Title = NStr("en = 'Change time restriction';");
+		Items.ChangeAuthorizationRestriction.Title = NStr("en = 'Change time restriction'");
 	Else
 		Items.CanSignIn.Title = "";
-		Items.ChangeAuthorizationRestriction.Title = NStr("en = 'Set up time restriction';");
+		Items.ChangeAuthorizationRestriction.Title = NStr("en = 'Set up time restriction'");
 	EndIf;
 	
 EndProcedure
@@ -191,21 +191,21 @@ Procedure CheckPasswordSet(Form, PasswordIsSet, AuthorizedUser) Export
 	Items = Form.Items;
 	
 	If PasswordIsSet Then
-		Items.PasswordExistsLabel.Title = NStr("en = 'The password is set.';");
+		Items.PasswordExistsLabel.Title = NStr("en = 'The password is set.'");
 		Items.UserMustChangePasswordOnAuthorization.Title =
-			NStr("en = 'User must change password on next login';");
+			NStr("en = 'User must change password on next login'");
 	Else
-		Items.PasswordExistsLabel.Title = NStr("en = 'Blank password';");
+		Items.PasswordExistsLabel.Title = NStr("en = 'Blank password'");
 		Items.UserMustChangePasswordOnAuthorization.Title =
-			NStr("en = 'User must set password on next login';");
+			NStr("en = 'User must set password on next login'");
 	EndIf;
 	
 	If PasswordIsSet
 	   And Form.Object.Ref = AuthorizedUser Then
 		
-		Items.ChangePassword.Title = NStr("en = 'Change password…';");
+		Items.ChangePassword.Title = NStr("en = 'Change password…'");
 	Else
-		Items.ChangePassword.Title = NStr("en = 'Set password…';");
+		Items.ChangePassword.Title = NStr("en = 'Set password…'");
 	EndIf;
 	
 EndProcedure
@@ -214,9 +214,9 @@ EndProcedure
 Function CurrentUser(AuthorizedUser) Export
 	
 	If TypeOf(AuthorizedUser) <> Type("CatalogRef.Users") Then
-		Raise
-			NStr("en = 'Cannot get the current external user
-			           |in the external user session.';");
+		ErrorText = NStr("en = 'Cannot retrieve the current user
+									|in an external user session.'");
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	Return AuthorizedUser;
@@ -227,9 +227,9 @@ EndFunction
 Function CurrentExternalUser(AuthorizedUser) Export
 	
 	If TypeOf(AuthorizedUser) <> Type("CatalogRef.ExternalUsers") Then
-		Raise
-			NStr("en = 'Cannot get the current external user
-			           |in the user session.';");
+		ErrorText = NStr("en = 'Cannot retrieve the current external user
+									|in an internal user session.'");
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 	Return AuthorizedUser;

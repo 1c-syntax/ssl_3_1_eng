@@ -32,7 +32,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// ТехнологияСервиса.ВыгрузкаЗагрузкаДанных
+// CloudTechnology.ExportImportData
 
 // Returns the catalog attributes
 // that naturally form a catalog item key.
@@ -140,14 +140,14 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) some settlement parties: %1';"),
+			NStr("en = 'Couldn''t process (skipped) some settlement parties: %1'"),
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(),
 			EventLogLevel.Information, Metadata.Catalogs.BankClassifier,,
 				StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Another batch of settlement parties is processed: %1';"),
+					NStr("en = 'Another batch of settlement parties is processed: %1'"),
 			ObjectsProcessed));
 	EndIf;
 	

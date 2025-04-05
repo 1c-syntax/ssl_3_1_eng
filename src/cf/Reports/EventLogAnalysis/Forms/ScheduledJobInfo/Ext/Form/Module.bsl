@@ -81,7 +81,7 @@ Procedure ConfigureJobSchedule(Command)
 		Dialog = New ScheduledJobDialog(GetSchedule());
 		Dialog.Show(NotifyDescription);
 	Else
-		ShowMessageBox(,NStr("en = 'Cannot change the job''s schedule: The scheduled job does not exist in this app version.';"));
+		ShowMessageBox(,NStr("en = 'Cannot change the job''s schedule: The scheduled job does not exist in this app version.'"));
 	EndIf;
 	
 EndProcedure
@@ -98,7 +98,7 @@ Procedure GoToEventLogCommand(Command)
 		EndIf;
 		If Details = Undefined
 			Or Area.Top <> Area.Bottom Then
-			ShowMessageBox(,NStr("en = 'Select the job session line or cell.';"));
+			ShowMessageBox(,NStr("en = 'Select the job session line or cell.'"));
 			Return;
 		EndIf;
 		StartDate = Details.Get(0);

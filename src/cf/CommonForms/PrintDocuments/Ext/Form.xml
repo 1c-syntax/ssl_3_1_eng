@@ -258,6 +258,11 @@
 							<Representation>Usual</Representation>
 							<ExtendedTooltip name="SaveSendGroupExtendedTooltip" id="158"/>
 							<ChildItems>
+								<Button name="SaveButton" id="102">
+									<Type>CommandBarButton</Type>
+									<CommandName>Form.Command.SaveToComputer</CommandName>
+									<ExtendedTooltip name="SaveButtonExtendedTooltip" id="159"/>
+								</Button>
 								<Popup name="SubmenuSend" id="293">
 									<Title>
 										<v8:item>
@@ -281,28 +286,6 @@
 												</v8:item>
 											</Title>
 											<ExtendedTooltip name="SendButtonExtendedTooltip" id="160"/>
-										</Button>
-										<Button name="SaveButton" id="102">
-											<Type>CommandBarButton</Type>
-											<CommandName>Form.Command.SaveToComputer</CommandName>
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>To computer</v8:content>
-												</v8:item>
-											</Title>
-											<ExtendedTooltip name="SaveButtonExtendedTooltip" id="159"/>
-										</Button>
-										<Button name="ButtonSaveToAttachments" id="311">
-											<Type>CommandBarButton</Type>
-											<CommandName>Form.Command.SaveToAttachments</CommandName>
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>As attachment</v8:content>
-												</v8:item>
-											</Title>
-											<ExtendedTooltip name="ButtonSaveToAttachmentsExtendedTooltip" id="312"/>
 										</Button>
 									</ChildItems>
 								</Popup>
@@ -520,6 +503,12 @@
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="AllActionsPageParametersButtonExtendedTooltip" id="219"/>
 						</Button>
+						<Button name="SaveButtonAllActions" id="196">
+							<Type>CommandBarButton</Type>
+							<CommandName>Form.Command.SaveToComputer</CommandName>
+							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+							<ExtendedTooltip name="SaveButtonAllActionsExtendedTooltip" id="197"/>
+						</Button>
 						<ButtonGroup name="SaveSendGroupAllActions" id="194">
 							<Title>
 								<v8:item>
@@ -553,30 +542,6 @@
 											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="SendButtonAllActionsExtendedTooltip" id="199"/>
-										</Button>
-										<Button name="SaveButtonAllActions" id="196">
-											<Type>CommandBarButton</Type>
-											<CommandName>Form.Command.SaveToComputer</CommandName>
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>To computer</v8:content>
-												</v8:item>
-											</Title>
-											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-											<ExtendedTooltip name="SaveButtonAllActionsExtendedTooltip" id="197"/>
-										</Button>
-										<Button name="ButtonSaveToAttachmentsAllActions" id="313">
-											<Type>CommandBarButton</Type>
-											<CommandName>Form.Command.SaveToAttachments</CommandName>
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>As attachment</v8:content>
-												</v8:item>
-											</Title>
-											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-											<ExtendedTooltip name="ButtonSaveToAttachmentsAllActionsExtendedTooltip" id="314"/>
 										</Button>
 									</ChildItems>
 								</Popup>
@@ -643,7 +608,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Interface</v8:content>
+									<v8:content>Appearance</v8:content>
 								</v8:item>
 							</Title>
 							<ExtendedTooltip name="GroupAppearanceExtendedTooltip" id="306"/>
@@ -1843,21 +1808,9 @@
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 		<Command name="SaveToComputer" id="8">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>To computer…</v8:content>
-				</v8:item>
-			</Title>
-			<ToolTip>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Save the print form as a file on your computer.</v8:content>
-				</v8:item>
-			</ToolTip>
 			<Picture>
-				<xr:Ref>CommonPicture.Download</xr:Ref>
-				<xr:LoadTransparent>false</xr:LoadTransparent>
+				<xr:Ref>StdPicture.SaveFile</xr:Ref>
+				<xr:LoadTransparent>true</xr:LoadTransparent>
 			</Picture>
 			<Action>SaveToComputer</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
@@ -2028,25 +1981,6 @@
 			</Picture>
 			<Action>CollapseIndicators</Action>
 			<Representation>Picture</Representation>
-		</Command>
-		<Command name="SaveToAttachments" id="12">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>As attachment</v8:content>
-				</v8:item>
-			</Title>
-			<ToolTip>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Save the print form as an attachment to the document.</v8:content>
-				</v8:item>
-			</ToolTip>
-			<Picture>
-				<xr:Ref>CommonPicture.Clip</xr:Ref>
-				<xr:LoadTransparent>false</xr:LoadTransparent>
-			</Picture>
-			<Action>SaveToAttachments</Action>
 		</Command>
 	</Commands>
 	<Parameters>

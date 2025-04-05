@@ -62,7 +62,7 @@ Procedure SettingsToClearRadioButtonOnChange(Item)
 		 Or UsersCount <> 1 Then
 			SettingsToClearRadioButton = "ClearAll";
 			Items.SelectSettings.Enabled = False;
-			ShowMessageBox(,NStr("en = 'To clear individual settings, select one user.';"));
+			ShowMessageBox(,NStr("en = 'To clear individual settings, select one user.'"));
 		Else
 			Items.SelectSettings.Enabled = True;
 		EndIf;
@@ -77,8 +77,8 @@ Procedure SelectUsersClick(Item)
 	
 	If UseExternalUsers Then
 		UsersTypeSelection = New ValueList;
-		UsersTypeSelection.Add("ExternalUsers", NStr("en = 'External users';"));
-		UsersTypeSelection.Add("Users",        NStr("en = 'Users';"));
+		UsersTypeSelection.Add("ExternalUsers", NStr("en = 'External users'"));
+		UsersTypeSelection.Add("Users",        NStr("en = 'Users'"));
 		
 		Notification = New CallbackDescription("SelectUsersClickSelectItem", ThisObject);
 		UsersTypeSelection.ShowChooseItem(Notification);
@@ -134,7 +134,7 @@ EndProcedure
 Procedure UpdateUsersSelectionRef(Form)
 	Form.UsersCount = Form.SelectedUsers.Count();
 	If Form.UsersCount = 0 Then
-		Form.Items.SelectSettings.Title = NStr("en = 'Select';");
+		Form.Items.SelectSettings.Title = NStr("en = 'Select'");
 		Form.SelectedSettings = Undefined;
 		Form.SettingsCount = Undefined;
 	ElsIf Form.UsersCount = 1 Then
@@ -143,7 +143,7 @@ Procedure UpdateUsersSelectionRef(Form)
 	Else
 		NumberAndSubject = Format(Form.UsersCount, "NFD=0") + " "
 			+ UsersInternalClientServer.IntegerSubject(Form.UsersCount,
-				"", NStr("en = 'user, users,,,0';"));
+				"", NStr("en = 'user, users,,,0'"));
 		Form.Items.SelectUsers.Title = NumberAndSubject;
 		Form.SettingsToClearRadioButton = "ClearAll";
 	EndIf;
@@ -201,14 +201,14 @@ Procedure SelectSettingsAfterChoice(Parameter, Context) Export
 	SettingsCount = Parameter.SettingsCount;
 	
 	If SettingsCount = 0 Then
-		TitleText = NStr("en = 'Select';");
+		TitleText = NStr("en = 'Select'");
 	ElsIf SettingsCount = 1 Then
 		SettingPresentation = Parameter.SettingsPresentations[0];
 		TitleText = SettingPresentation;
 	Else
 		TitleText = Format(SettingsCount, "NFD=0") + " "
 			+ UsersInternalClientServer.IntegerSubject(SettingsCount,
-				"", NStr("en = 'setting,settings,,,0';"));
+				"", NStr("en = 'setting,settings,,,0'"));
 	EndIf;
 	
 	Items.SelectSettings.Title = TitleText;
@@ -223,29 +223,29 @@ Function SettingsClearing()
 		And UsersCount = 0 Then
 		CommonClient.MessageToUser(
 			NStr("en = 'Select the users whose
-				|settings you want to clear.';"), , "Source");
+				|settings you want to clear.'"), , "Source");
 		Return False;
 	EndIf;
 	
 	If UsersToClearSettingsRadioButtons = "SelectedUsers1" Then
 			
 		If UsersCount = 1 Then
-			SettingsClearedForNote = NStr("en = 'user ""%1""';");
+			SettingsClearedForNote = NStr("en = 'user ""%1""'");
 			SettingsClearedForNote = StringFunctionsClientServer.SubstituteParametersToString(
 				SettingsClearedForNote, SelectedUsers[0].Value);
 		Else
-			SettingsClearedForNote = NStr("en = '%1 users';");
+			SettingsClearedForNote = NStr("en = '%1 users'");
 			SettingsClearedForNote = StringFunctionsClientServer.SubstituteParametersToString(SettingsClearedForNote, UsersCount);
 		EndIf;
 		
 	Else
-		SettingsClearedForNote = NStr("en = 'all users';");
+		SettingsClearedForNote = NStr("en = 'all users'");
 	EndIf;
 	
 	If SettingsToClearRadioButton = "SelectedSettings2"
 		And SettingsCount = 0 Then
 		CommonClient.MessageToUser(
-			NStr("en = 'Select the settings that you want to clear.';"), , "SettingsToClearRadioButton");
+			NStr("en = 'Select the settings that you want to clear.'"), , "SettingsToClearRadioButton");
 		Return False;
 	EndIf;
 	
@@ -258,37 +258,37 @@ Function SettingsClearing()
 				SettingPresentation = Left(SettingPresentation, 24) + "...";
 			EndIf;
 			
-			ExplanationText = NStr("en = '""%1"" cleared for %2';");
+			ExplanationText = NStr("en = '""%1"" cleared for %2'");
 			ExplanationText = StringFunctionsClientServer.SubstituteParametersToString(ExplanationText, SettingPresentation, SettingsClearedForNote);
 			
 		Else
 			SubjectInWords = Format(SettingsCount, "NFD=0") + " "
 				+ UsersInternalClientServer.IntegerSubject(SettingsCount,
-					"", NStr("en = 'setting,settings,,,0';"));
+					"", NStr("en = 'setting,settings,,,0'"));
 			
-			ExplanationText = NStr("en = '%1 cleared for %2';");
+			ExplanationText = NStr("en = '%1 cleared for %2'");
 			ExplanationText = StringFunctionsClientServer.SubstituteParametersToString(ExplanationText, SubjectInWords, SettingsClearedForNote);
 		EndIf;
 		
-		ShowUserNotification(NStr("en = 'Clear settings';"), , ExplanationText, PictureLib.DialogInformation);
+		ShowUserNotification(NStr("en = 'Clear settings'"), , ExplanationText, PictureLib.DialogInformation);
 		
 	ElsIf SettingsToClearRadioButton = "ClearAll" Then
 		ClearAllSettings();
 		
-		ExplanationText = NStr("en = 'All settings are cleared for %1';");
+		ExplanationText = NStr("en = 'All settings are cleared for %1'");
 		ExplanationText = StringFunctionsClientServer.SubstituteParametersToString(ExplanationText, SettingsClearedForNote);
-		ShowUserNotification(NStr("en = 'Clear settings';"), , ExplanationText, PictureLib.DialogInformation);
+		ShowUserNotification(NStr("en = 'Clear settings'"), , ExplanationText, PictureLib.DialogInformation);
 		
 	ElsIf SettingsToClearRadioButton = "ObsoleteSettings" Then
 		ClearObsoleteSettings();
 		
-		ExplanationText = NStr("en = 'Obsolete settings %1 are cleared';");
+		ExplanationText = NStr("en = 'Obsolete settings %1 are cleared'");
 		ExplanationText = StringFunctionsClientServer.SubstituteParametersToString(ExplanationText, SettingsClearedForNote);
-		ShowUserNotification(NStr("en = 'Clear settings';"), , ExplanationText, PictureLib.DialogInformation);
+		ShowUserNotification(NStr("en = 'Clear settings'"), , ExplanationText, PictureLib.DialogInformation);
 	EndIf;
 	
 	SettingsCount = 0;
-	Items.SelectSettings.Title = NStr("en = 'Select';");
+	Items.SelectSettings.Title = NStr("en = 'Select'");
 	Return True;
 	
 EndFunction

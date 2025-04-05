@@ -352,6 +352,12 @@ Function TheTypeOfTheDecryptionElementIsGrouping() Export
 	
 EndFunction
 
+Function TypeOfProps() Export
+	
+	Return "Attribute";
+	
+EndFunction
+
 #EndRegion
 
 Function TheFormulaOnTheDataPath(Settings, DataPath) Export 

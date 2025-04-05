@@ -21,11 +21,11 @@ Var RefreshInterface;
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not Users.IsFullUser(Undefined, True, False) Then
-		Raise NStr("en = 'Insufficient rights to administer data synchronization between applications. ';");
+		Raise NStr("en = 'Insufficient rights to administer data synchronization between applications. '");
 	EndIf;
 	
 	If Not Common.SubsystemExists("CloudTechnology") Then
-		Raise NStr("en = 'Administration functionality of data synchronization is not supported in SaaS.';");
+		Raise NStr("en = 'Administration functionality of data synchronization is not supported in SaaS.'");
 	EndIf;
 	
 	SetPrivilegedMode(True);

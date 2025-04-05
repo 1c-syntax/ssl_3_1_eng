@@ -109,7 +109,7 @@ Procedure EnableEdit(Command)
 	EndDo;
 	
 	If Not ValueIsFilled(Result) Then
-		ShowMessageBox(, NStr("en = 'Please select at least one attribute.';"));
+		ShowMessageBox(, NStr("en = 'Please select at least one attribute.'"));
 		Return;
 	EndIf;
 	
@@ -196,7 +196,7 @@ Procedure AddBankingDetailsToForm(ItemsToAdd1)
 			Else
 				LabelTitle =
 					NStr("en = 'Before you change the attributes, we recommend that you check whether the object is used.
-					           |If the object is used, evaluate the consequences of the changes.';");
+					           |If the object is used, evaluate the consequences of the changes.'");
 			EndIf;
 			ItemProperties = FormElementNewProperties();
 			ItemProperties.IsLabel = True;
@@ -319,7 +319,7 @@ Function AreObjectsUsed()
 	RefsCount = References.Count();
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Unlock attributes: Check the object reference usage';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Unlock attributes: Check the object reference usage'");
 	// In file mode, the job queue always runs in the background. The result is of low priority, the operation runs rarely.
 	// Therefore, locking the UI is excessive as the search for object references takes a long time.
 	ExecutionParameters.RunInBackground = True;
@@ -350,7 +350,7 @@ Procedure ValidateCompletion(Result, AdditionalParameters) Export
 	
 	AreObjectsUsed = GetFromTempStorage(Result.ResultAddress);
 	If TypeOf(AreObjectsUsed) <> Type("Boolean") Then
-		ShowMessageBox(, NStr("en = 'Cannot receive the check result. Please try again';"));
+		ShowMessageBox(, NStr("en = 'Cannot receive the check result. Please try again'"));
 		Return;
 	EndIf;
 	
@@ -358,22 +358,22 @@ Procedure ValidateCompletion(Result, AdditionalParameters) Export
 		If RefsCount = 1 Then
 			MessageText =
 				NStr("en = 'The object is used elsewhere in the application.
-				           |Editing this object might lead to data inconsistency.';");
+				           |Editing this object might lead to data inconsistency.'");
 		Else
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Selected objects (%1) are used elsewhere in the application.
-				           |Editing these objects might lead to data inconsistency.';"),
+				           |Editing these objects might lead to data inconsistency.'"),
 				RefsCount);
 		EndIf;
 	Else
 		If RefsCount = 1 Then
 			MessageText =
 				NStr("en = 'The object is not used in other places in the application.
-				           |You can allow editing it without the risk of data inconsistency.';");
+				           |You can allow editing it without the risk of data inconsistency.'");
 		Else
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Selected objects (%1) are used in other places in the application.
-				           |You can allow editing them without the risk of data inconsistency.';"),
+				           |You can allow editing them without the risk of data inconsistency.'"),
 				RefsCount);
 		EndIf;
 	EndIf;

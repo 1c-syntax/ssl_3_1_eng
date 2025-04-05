@@ -28,10 +28,10 @@ Function AddInPresentation(Id, Version) Export
 
 	If ValueIsFilled(Version) Then
 		AddInPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1(version %2)';"), Id, Version);
+			NStr("en = '%1(version %2)'"), Id, Version);
 	Else
 		AddInPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 (latest version)';"), Id);
+			NStr("en = '%1 (latest version)'"), Id);
 	EndIf;
 
 	Return AddInPresentation;
@@ -95,7 +95,7 @@ Function InformationOnAddInFromFile(BinaryData, ParseInfoFile = True,
 		Stream = BinaryData.OpenStreamForRead();
 		ReadingArchive = New ZipFileReader(Stream);
 	Except
-		Result.ErrorDescription = NStr("en = 'Add-in information is missing in the file.';");
+		Result.ErrorDescription = NStr("en = 'Add-in information is missing in the file.'");
 		Return Result;
 	EndTry;
 
@@ -109,7 +109,7 @@ Function InformationOnAddInFromFile(BinaryData, ParseInfoFile = True,
 			ReadingArchive.Close();
 			Stream.Close();
 
-			Result.ErrorDescription = NStr("en = 'ZIP archive must not be encrypted.';");
+			Result.ErrorDescription = NStr("en = 'ZIP archive must not be encrypted.'");
 			Return Result;
 
 		EndIf;
@@ -120,7 +120,7 @@ Function InformationOnAddInFromFile(BinaryData, ParseInfoFile = True,
 
 			If OriginalFullName = "external-components.json" Then
 				Result.IsFileOfService = True;
-				Result.ErrorDescription = NStr("en = 'This is a file to import add-ins from 1C:ITS Portal.';");
+				Result.ErrorDescription = NStr("en = 'This is a file to import add-ins from 1C:ITS Portal.'");
 				Return Result;
 			EndIf;
 			
@@ -168,7 +168,7 @@ Function InformationOnAddInFromFile(BinaryData, ParseInfoFile = True,
 
 		Except
 			Result.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Incorrect file %1';"), ArchiveItem.OriginalFullName);
+				NStr("en = 'Incorrect file %1'"), ArchiveItem.OriginalFullName);
 			Result.ErrorInfo = ErrorInfo();
 			Return Result;
 		EndTry;
@@ -181,7 +181,7 @@ Function InformationOnAddInFromFile(BinaryData, ParseInfoFile = True,
 
 	// Add-in compatibility control.
 	If Not ManifestIsFound Then
-		ErrorText = NStr("en = 'The required file MANIFEST.XML is missing from the archive.';");
+		ErrorText = NStr("en = 'The required file MANIFEST.XML is missing from the archive.'");
 
 		Result.ErrorDescription = ErrorText;
 		Return Result;
@@ -213,12 +213,12 @@ Procedure CheckTheLocationOfTheComponent(Id, Location) Export
 			If Common.SubsystemExists("StandardSubsystems.SaaSOperations.AddInsSaaS") Then
 				ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot attach the %1 add-in due to:
-					|Access forbidden. Contact the service administrator to place the add-in in the ""Common add-ins"" catalog.';"), 
+					|Access forbidden. Contact the service administrator to place the add-in in the ""Common add-ins"" catalog.'"), 
 					Id);
 			Else
 				ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot attach the %1 add-in due to:
-					|Access forbidden.';"), 
+					|Access forbidden.'"), 
 					Id);
 				EndIf;
 			Raise ExceptionText;
@@ -231,7 +231,7 @@ Procedure CheckTheLocationOfTheComponent(Id, Location) Export
 
 	Raise StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Cannot attach the %1 add-in due to:
-		|Invalid %2 add-in location.';"), 
+		|Invalid %2 add-in location.'"), 
 		Id, Location);
 
 EndProcedure
@@ -291,7 +291,7 @@ Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True,
 	If TypeOf(Parameters.Data) = Type("String") Then
 		If IsBlankString(Parameters.Data) Or Not IsTempStorageURL(Parameters.Data) Then
 			ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Temporary storage address is not specified in the %1 parameter in %2.';"),
+				NStr("en = 'Temporary storage address is not specified in the %1 parameter in %2.'"),
 				"Parameters.Data", "LoadAComponentFromBinaryData");
 			Raise(ExceptionText, ErrorCategory.ConfigurationError);
 		EndIf;
@@ -302,7 +302,7 @@ Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True,
 	
 	If TypeOf(BinaryData) <> Type("BinaryData") Then
 		ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Data in the temporary storage in the parameter %1 is not binary data in %2.';"),
+			NStr("en = 'Data in the temporary storage in the parameter %1 is not binary data in %2.'"),
 			"Parameters.Data", "LoadAComponentFromBinaryData");
 		Raise(ExceptionText, ErrorCategory.ConfigurationError);
 	EndIf;
@@ -313,14 +313,14 @@ Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True,
 		ExceptionText = Information.ErrorDescription + ?(Information.ErrorInfo = Undefined, "",
 			 ": " + ErrorProcessing.BriefErrorDescription(Information.ErrorInfo));
 		
-		WriteLogEvent(NStr("en = 'Add add-in';", Common.DefaultLanguageCode()),
+		WriteLogEvent(NStr("en = 'Add add-in'", Common.DefaultLanguageCode()),
 			EventLogLevel.Error, , , ExceptionText);
 		Raise ExceptionText;
 	EndIf;
 	
 	Id = ?(ValueIsFilled(Parameters.Id), Parameters.Id, Information.Attributes.Id);
 	If Not ValueIsFilled(Id) Then
-		ExceptionText = NStr("en = 'Enter the add-in ID.';");
+		ExceptionText = NStr("en = 'Enter the add-in ID.'");
 		Raise ExceptionText;
 	EndIf;
 	
@@ -375,7 +375,7 @@ Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True,
 		CommitTransaction();
 	Except
 		RollbackTransaction();
-		WriteLogEvent(NStr("en = 'Add add-in';", Common.DefaultLanguageCode()), 
+		WriteLogEvent(NStr("en = 'Add add-in'", Common.DefaultLanguageCode()), 
 			EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Raise;
 	EndTry;
@@ -402,7 +402,7 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 
 EndProcedure
 
-// See StandardSubsystems.OnSendDataToMaster.
+// 
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 
 	If TypeOf(DataElement) = Type("CatalogObject.AddIns") Then
@@ -468,7 +468,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		ToDoItem = ToDoList.Add ();
 		ToDoItem.Id  = "DeleteUnusedAddIns";
 		ToDoItem.HasToDoItems       = UnusedAddInsCount > 0;
-		ToDoItem.Presentation  = NStr("en = 'Delete unused add-ins';");
+		ToDoItem.Presentation  = NStr("en = 'Delete unused add-ins'");
 		ToDoItem.Count     = UnusedAddInsCount;
 		ToDoItem.Important         = False;
 		ToDoItem.Form          = "Catalog.AddIns.ListForm";
@@ -490,7 +490,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Id = New UUID("25e8efe8-37d5-47b4-a3c6-7e5277161b95");
 	Handler.Procedure = "Catalogs.AddIns.ProcessDataForMigrationToNewVersion";
 	Handler.InitialFilling = True;
-	Handler.Comment = NStr("en = 'Fill in the add-in compatibility attributes and add standard add-ins to the Add-ins catalog.';");
+	Handler.Comment = NStr("en = 'Fill in the add-in compatibility attributes and add standard add-ins to the Add-ins catalog.'");
 	Handler.ExecutionMode = "Deferred";
 	Handler.UpdateDataFillingProcedure = "Catalogs.AddIns.RegisterDataToProcessForMigrationToNewVersion";
 	Handler.ObjectsToRead      = "Catalog.AddIns";
@@ -592,7 +592,7 @@ Function AddInsData(Variant = "ForUpdate") Export
 			Query.SetParameter("UsedAddIns", UsedAddIns());
 	Else
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid value of parameter %1 (%2) when calling %3.';"), 
+			NStr("en = 'Invalid value of parameter %1 (%2) when calling %3.'"), 
 			"Variant", Variant, "AddInsInternal.AddInsData");
 	EndIf;
 	
@@ -630,7 +630,7 @@ Procedure DeleteUnusedAddIns() Export
 			CommitTransaction();
 		Except
 			RollbackTransaction();
-			WriteLogEvent(NStr("en = 'Delete the add-in';", Common.DefaultLanguageCode()),
+			WriteLogEvent(NStr("en = 'Delete the add-in'", Common.DefaultLanguageCode()),
 				EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(
 				ErrorInfo()));
 			Raise;
@@ -774,7 +774,7 @@ Function CheckAddInAttachmentAbility(Val Id, Val Version = Undefined,
 		AddInContainsOneObjectClass = (ConnectionParameters.ObjectsCreationIDs.Count() = 0);
 		If AddInContainsOneObjectClass Then
 			ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'When attaching an external add-in, ""%1"" and ""%2"" cannot be empty at the same time.';"),
+				NStr("en = 'When attaching an external add-in, ""%1"" and ""%2"" cannot be empty at the same time.'"),
 				"Id", "ObjectsCreationIDs");
 			Raise(ExceptionText, ErrorCategory.ConfigurationError);
 		EndIf;
@@ -791,10 +791,10 @@ Function CheckAddInAttachmentAbility(Val Id, Val Version = Undefined,
 		ConnectionParameters.FullTemplateName);
 	Result.Insert("Version", Information.Attributes.Version);
 	If Information.State = "DisabledByAdministrator" Then
-		Result.ErrorDescription = NStr("en = 'The add-in is disabled by the administrator.';");
+		Result.ErrorDescription = NStr("en = 'The add-in is disabled by the administrator.'");
 		Return Result;
 	ElsIf Information.State = "NotFound1" Then
-		Result.ErrorDescription = NStr("en = 'The add-in is missing from the list of allowed add-ins.';");
+		Result.ErrorDescription = NStr("en = 'The add-in is missing from the list of allowed add-ins.'");
 		Return Result;
 	ElsIf Information.IsTargetPlatformsFilled 
 		And Not OperatingSystemSupportedByAddInn(Information.Attributes.TargetPlatforms) Then
@@ -813,7 +813,7 @@ Function CompatibilityErrorDetails()
 	SystemInfo = New SystemInfo;
 	NameOfThePlatformType = CommonClientServer.NameOfThePlatformType(SystemInfo.PlatformType);
 	Return StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'The add-in does not work in the %1 operating system.';"), NameOfThePlatformType);
+		NStr("en = 'The add-in does not work in the %1 operating system.'"), NameOfThePlatformType);
 	
 EndFunction
 
@@ -965,8 +965,8 @@ Function SavedAddInInformation(Id, Version = Undefined,
 	If ObjectAttributes.TargetPlatforms = Undefined Then
 		
 		WarningText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Compatibility information for the %1 add-in is not filled in.';"), Id);
-		WriteLogEvent(NStr("en = 'Add-in compatibility check';",
+			NStr("en = 'Compatibility information for the %1 add-in is not filled in.'"), Id);
+		WriteLogEvent(NStr("en = 'Add-in compatibility check'",
 			Common.DefaultLanguageCode()), EventLogLevel.Warning, , Result.Ref, 
 			WarningText);
 		

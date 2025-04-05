@@ -47,7 +47,7 @@ Procedure EvaluateResponseTimeThreshold(Command)
 		ResponseTimeThreshold = CalculationResult1.ResponseTimeThreshold;
 		
 		APDEXScoreChart.ChartType = ChartType.Line;
-		APDEXScoreChart.PlotArea.ValuesScale.TitleText = NStr("en = 'Number of samples';");
+		APDEXScoreChart.PlotArea.ValuesScale.TitleText = NStr("en = 'Number of samples'");
 		APDEXScoreChart.Clear();
 		Series = APDEXScoreChart.Series.Add("Time execution, From1");		
 		For Each Measurement In CalculationResult1.Measurements Do
@@ -70,28 +70,28 @@ Function FillChecking()
 	Success = True;
 	If KeyOperation.IsEmpty() Then
 		Message = New UserMessage;
-		Message.Text = NStr("en = 'A key operation is required.';");
+		Message.Text = NStr("en = 'A key operation is required.'");
 		Message.Field = "KeyOperation";
 		Message.Message();
 		Success = False;
 	EndIf;
 	If Not ValueIsFilled(CurrentAPDEX) Then
 		Message = New UserMessage;
-		Message.Text = NStr("en = 'The current Apdex score is required.';");
+		Message.Text = NStr("en = 'The current Apdex score is required.'");
 		Message.Field = "CurrentAPDEX";
 		Message.Message();
 		Success = False;
 	EndIf;
 	If Not ValueIsFilled(Period.StartDate) Then
 		Message = New UserMessage;
-		Message.Text = NStr("en = 'Start date is required.';");
+		Message.Text = NStr("en = 'Start date is required.'");
 		Message.Field = "Period";
 		Message.Message();
 		Success = False;
 	EndIf;
 	If Not ValueIsFilled(Period.EndDate) Then
 		Message = New UserMessage;
-		Message.Text = NStr("en = 'End date is required.';");
+		Message.Text = NStr("en = 'End date is required.'");
 		Message.Field = "Period";
 		Message.Message();
 		Success = False;
@@ -144,14 +144,14 @@ Function CalculateResponseTimeThresholdAtServer(PickingParameters)
 		Maximum = Selection.MAXIMUMRunTime;
 		CalculationResult1.MeasurementsCount = Selection.MeasurementsCount;
 	Else
-		CalculationResult1.Insert("ErrorDescription", NStr("en = 'No metrics have been received. Try to change Apdex settings.';"));
+		CalculationResult1.Insert("ErrorDescription", NStr("en = 'No metrics have been received. Try to change Apdex settings.'"));
 		Return CalculationResult1;
 	EndIf;
 	
 	If CalculationResult1.MeasurementsCount = 0 Then
 		CalculationResult1.Insert("ErrorDescription",
 			PerformanceMonitorClientServer.SubstituteParametersToString(
-				NStr("en = 'No samples have been received for the %1 key operation. Change the period or choose another key operation.';"),
+				NStr("en = 'No samples have been received for the %1 key operation. Change the period or choose another key operation.'"),
 				PickingParameters.KeyOperation));
 		Return CalculationResult1;
 	EndIf;
@@ -164,8 +164,8 @@ Function CalculateResponseTimeThresholdAtServer(PickingParameters)
 		And Counter < MaxNumberOfIterations
 		Do
 		Counter = Counter + 1;
-		DataMin = DeviationAPDEX(Minimum, CurrentResponseTimeThreshold, TTM, PickingParameters.TargetAPDEX); // @skip-check query-in-loop - Iterative filtering.
-		DataMax = DeviationAPDEX(Maximum, CurrentResponseTimeThreshold, TTM, PickingParameters.TargetAPDEX); // @skip-check query-in-loop - Iterative filtering.
+		DataMin = DeviationAPDEX(Minimum, CurrentResponseTimeThreshold, TTM, PickingParameters.TargetAPDEX); // @skip-check query-in-loop - Итеративный подбор.
+		DataMax = DeviationAPDEX(Maximum, CurrentResponseTimeThreshold, TTM, PickingParameters.TargetAPDEX); // @skip-check query-in-loop - Итеративный подбор.
 		
 		If Maximum - Minimum <= 0.002 Then
 			Break;

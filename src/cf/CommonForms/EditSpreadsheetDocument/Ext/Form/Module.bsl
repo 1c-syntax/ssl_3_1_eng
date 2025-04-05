@@ -22,7 +22,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	If Common.IsMobileClient() Then
 		Raise NStr("en = 'Cannot edit a spreadsheet document in mobile client.
-		|Use thin client or web client.';");
+		|Use thin client or web client.'");
 	EndIf;
 	
 	If Parameters.WindowOpeningMode <> Undefined Then
@@ -185,7 +185,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		AddingOptions.ListName = NameOfTheListOfOperators();
 		AddingOptions.LocationOfTheList = Items.OperatorsAndFunctionsGroup;
 		AddingOptions.FieldsCollections.Add(ListOfOperators());			
-		AddingOptions.HintForEnteringTheSearchString = NStr("en = 'Find operator or function…';");
+		AddingOptions.HintForEnteringTheSearchString = NStr("en = 'Find operator or function…'");
 		AddingOptions.ViewBrackets = False;
 		AddingOptions.ListHandlers.Insert("Selection", "Attachable_ListOfFieldsSelection");
 		AddingOptions.ListHandlers.Insert("DragStart", "Attachable_OperatorsDragStart");
@@ -255,7 +255,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	EndIf;
 	
 	NotifyDescription = New CallbackDescription("ConfirmAndClose", ThisObject);
-	QueryText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Do you want to save the changes to %1?';"), DocumentName);
+	QueryText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Do you want to save the changes to %1?'"), DocumentName);
 	CommonClient.ShowFormClosingConfirmation(NotifyDescription, Cancel, Exit, QueryText);
 	
 	If Modified Or Exit Then
@@ -316,7 +316,7 @@ Procedure TemplateOwnersClick(Item)
 	PickingParameters = StandardSubsystemsClientServer.MetadataObjectsSelectionParameters();
 	PickingParameters.SelectedMetadataObjects = CommonClient.CopyRecursive(DataSources);
 	PickingParameters.ChooseRefs = True;
-	PickingParameters.Title = NStr("en = 'Template assignment';");
+	PickingParameters.Title = NStr("en = 'Template assignment'");
 	PickingParameters.FilterByMetadataObjects = ObjectsWithPrintCommands();
 	
 	NotifyDescription = New CallbackDescription("OnChooseTemplateOwners", ThisObject);
@@ -348,7 +348,7 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-// Действия с документом
+// 
 
 &AtClient
 Procedure WriteAndClose(Command)
@@ -390,7 +390,7 @@ Procedure SaveToFile(Command)
 	
 	FileDialog = New FileDialog(FileDialogMode.Save);
 	FileDialog.FullFileName = CommonClientServer.ReplaceProhibitedCharsInFileName(DocumentName);
-	FileDialog.Filter = NStr("en = 'Spreadsheet document';") + " (*.mxl)|*.mxl";
+	FileDialog.Filter = NStr("en = 'Spreadsheet document'") + " (*.mxl)|*.mxl";
 	
 	NotifyDescription = New CallbackDescription("ContinueSavingToFile", ThisObject);
 	FileSystemClient.ShowSelectionDialog(NotifyDescription, FileDialog);	
@@ -401,7 +401,7 @@ EndProcedure
 Procedure LoadFromFile(Command)
 	
 	FileDialog = New FileDialog(FileDialogMode.Open);
-	FileDialog.Filter = NStr("en = 'Spreadsheet document';") + " (*.mxl)|*.mxl";
+	FileDialog.Filter = NStr("en = 'Spreadsheet document'") + " (*.mxl)|*.mxl";
 	FileDialog.Multiselect = False;
 	
 	NotifyDescription = New CallbackDescription("ContinueDownloadFromFile", ThisObject);
@@ -421,7 +421,7 @@ Procedure ChangeFont(Command)
 	
 EndProcedure
 
-// Форматирование
+// 
 
 &AtClient
 Procedure IncreaseFontSize(Command)
@@ -467,10 +467,10 @@ EndProcedure
 Procedure Translate(Command)
 	
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Do you want to automatically translate into the %1 language?';"), Items.Language.Title);
+		NStr("en = 'Do you want to automatically translate into the %1 language?'"), Items.Language.Title);
 	Buttons = New ValueList;
-	Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Translate';"));
-	Buttons.Add(DialogReturnCode.No, NStr("en = 'Do not translate';"));
+	Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Translate'"));
+	Buttons.Add(DialogReturnCode.No, NStr("en = 'Do not translate'"));
 	
 	NotifyDescription = New CallbackDescription("WhenAnsweringAQuestionAboutTranslatingALayout", ThisObject);
 	ShowQueryBox(NotifyDescription, QueryText, Buttons);
@@ -870,7 +870,7 @@ Procedure WriteSpreadsheetDocument(CompletionHandler = Undefined, UnlockFile = F
 		
 		If Not ValueIsFilled(ExportSaveFormat) Then
 			
-			MessageText = NStr("en = 'Format is required';");
+			MessageText = NStr("en = 'Format is required'");
 			CommonClient.MessageToUser(MessageText,, "ExportSaveFormat");
 			Return;
 			
@@ -916,7 +916,7 @@ Procedure WriteSpreadsheetDocumentFileNameSelected(Val CompletionHandler, Unlock
 					"ContinueWritingTabularDocument",
 					ThisObject,
 					AdditionalParameters);
-				QueryText = NStr("en = 'Some entries are invalid. Save the template anyway?';");
+				QueryText = NStr("en = 'Some entries are invalid. Save the template anyway?'");
 				ShowQueryBox(
 					NotifyDescription,
 					QueryText,
@@ -992,7 +992,7 @@ Procedure StartFileSavingDialog(Val CompletionHandler, UnlockFile)
 	
 	SaveFileDialog = New FileDialog(FileDialogMode.Save);
 	SaveFileDialog.FullFileName = CommonClientServer.ReplaceProhibitedCharsInFileName(DocumentName);
-	SaveFileDialog.Filter = NStr("en = 'Spreadsheet documents';") + " (*.mxl)|*.mxl";
+	SaveFileDialog.Filter = NStr("en = 'Spreadsheet documents'") + " (*.mxl)|*.mxl";
 	
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("CompletionHandler", CompletionHandler);
@@ -1048,7 +1048,7 @@ EndFunction
 	
 &AtClient
 Function NewDocumentName()
-	Return NStr("en = 'New';");
+	Return NStr("en = 'New'");
 EndFunction
 
 &AtClient
@@ -1061,9 +1061,9 @@ Procedure SetHeader()
 	EndIf;
 	
 	If IsNew() Then
-		Title = Title + " (" + NStr("en = 'Create';") + ")";
+		Title = Title + " (" + NStr("en = 'Create'") + ")";
 	ElsIf EditingDenied Then
-		Title = Title + " (" + NStr("en = 'Read-only';") + ")";
+		Title = Title + " (" + NStr("en = 'Read-only'") + ")";
 	EndIf;
 	
 EndProcedure
@@ -1219,9 +1219,9 @@ Procedure Attachable_SwitchLanguage(Command)
 		EndIf;
 		
 		If CurrentLanguage = CommonClient.DefaultLanguageCode() Then
-			Items.DeleteLayoutLanguage.Title = NStr("en = 'Delete all template changes';");
+			Items.DeleteLayoutLanguage.Title = NStr("en = 'Delete all template changes'");
 		Else
-			Items.DeleteLayoutLanguage.Title = NStr("en = 'Delete template in current language';");
+			Items.DeleteLayoutLanguage.Title = NStr("en = 'Delete template in current language'");
 		EndIf;
 	EndIf;
 	
@@ -1249,10 +1249,10 @@ Procedure Attachable_WhenSwitchingTheLanguage(LanguageCode, AdditionalParameters
 	If TranslationRequired And AutomaticTranslationAvailable Then
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Template has not been translated into the %1 language yet.
-			|Do you want to translate it automatically?';"), Items.Language.Title);
+			|Do you want to translate it automatically?'"), Items.Language.Title);
 		Buttons = New ValueList;
-		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Translate';"));
-		Buttons.Add(DialogReturnCode.No, NStr("en = 'Do not translate';"));
+		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Translate'"));
+		Buttons.Add(DialogReturnCode.No, NStr("en = 'Do not translate'"));
 		
 		NotifyDescription = New CallbackDescription("WhenAnsweringAQuestionAboutTranslatingALayout", ThisObject);
 		ShowQueryBox(NotifyDescription, QueryText, Buttons);
@@ -1647,19 +1647,19 @@ Procedure UpdateInputFieldCurrentCellValue()
 	Items.RepeatAtTopofPage.Enabled = False;
 	Items.RepeatAtEndPage.Enabled = False;
 	
-	ViewArea = NStr("en = 'Text of the selected cell';");
+	ViewArea = NStr("en = 'Text of the selected cell'");
 	If TypeOf(CurrentArea) = Type("SpreadsheetDocumentRange") Then
 		If CurrentArea.AreaType = SpreadsheetDocumentCellAreaType.Rows
 			And ValueIsFilled(CurrentArea.Top) Then
 			Span = CurrentArea.Top;
 			If CurrentArea.Top <> CurrentArea.Bottom Then
 				Span = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '%1-%2';"), CurrentArea.Top, CurrentArea.Bottom);
+					NStr("en = '%1-%2'"), CurrentArea.Top, CurrentArea.Bottom);
 				ViewArea = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Output conditions for rows %1';"), Span);
+					NStr("en = 'Output conditions for rows %1'"), Span);
 			Else
 				ViewArea = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Output conditions for row %1';"), Span);
+					NStr("en = 'Output conditions for row %1'"), Span);
 			EndIf;
 			Items.RepeatAtTopofPage.Enabled = True;
 			Items.RepeatAtEndPage.Enabled = True;
@@ -1672,19 +1672,19 @@ Procedure UpdateInputFieldCurrentCellValue()
 			Span = CurrentArea.Left;
 			If CurrentArea.Left <> CurrentArea.Right Then
 				Span = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '%1-%2';"), CurrentArea.Left, CurrentArea.Right);
+					NStr("en = '%1-%2'"), CurrentArea.Left, CurrentArea.Right);
 				ViewArea = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Output conditions for columns %1';"), Span);
+					NStr("en = 'Output conditions for columns %1'"), Span);
 			Else
 				ViewArea = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Output conditions for column %1';"), Span);
+					NStr("en = 'Output conditions for column %1'"), Span);
 			EndIf;
 		EndIf;
 		If ValueIsFilled(CurrentArea.Left) And ValueIsFilled(CurrentArea.Top) Then
 			If CurrentArea.Left <> CurrentArea.Right Or CurrentArea.Top <> CurrentArea.Bottom Then
-				ViewArea = NStr("en = 'Text in the selected area';");
+				ViewArea = NStr("en = 'Text in the selected area'");
 			Else
-				ViewArea = NStr("en = 'Text of the selected cell';");
+				ViewArea = NStr("en = 'Text of the selected cell'");
 			EndIf;
 		EndIf;
 		AreaName = ViewArea;
@@ -1739,7 +1739,7 @@ Procedure CustomizeHeadersFooters(Command)
 	Items.SettingsCurrentRegion.Visible = Not Items.ShowHeadersAndFooters.Check;
 	Items.SpreadsheetDocument.ReadOnly = Items.ShowHeadersAndFooters.Check;
 		
-	StateText = ?(Items.ShowHeadersAndFooters.Check, NStr("en = 'Edit headers and footers';"), "");
+	StateText = ?(Items.ShowHeadersAndFooters.Check, NStr("en = 'Edit headers and footers'"), "");
 	DisplayCurrentPrintFormState(StateText);
 	
 	If Items.ShowHeadersAndFooters.Check Then
@@ -1856,17 +1856,17 @@ Function DefaultFormat(TypeDescription)
 	
 	If Type = Type("Number") Then
 		Format = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'ND=%1; NFD=%2';"),
+			NStr("en = 'ND=%1; NFD=%2'"),
 			TypeDescription.NumberQualifiers.Digits,
 			TypeDescription.NumberQualifiers.FractionDigits);
 	ElsIf Type = Type("Date") Then
 		If TypeDescription.DateQualifiers.DateFractions = DateFractions.Date Then
-			Format = NStr("en = 'DLF=D';");
+			Format = NStr("en = 'DLF=D'");
 		Else
-			Format = NStr("en = 'DLF=DT';");
+			Format = NStr("en = 'DLF=DT'");
 		EndIf;
 	ElsIf Type = Type("Boolean") Then
-		Format = NStr("en = 'BF=No; BT=Yes';");
+		Format = NStr("en = 'BF=No; BT=Yes'");
 	EndIf;
 	
 	Return Format;
@@ -2374,7 +2374,7 @@ Function PrepareLayoutForRecording(SetLanguageCode = True, Cancel = False)
 			EndIf;
 			
 			If ValueIsFilled(Area.Text) Then
-				FieldPresentation = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'string %1 column %2';"), LineNumber, ColumnNumber);
+				FieldPresentation = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'string %1 column %2'"), LineNumber, ColumnNumber);
 				ReplaceViewParameters(Area.Text, , Cancel, FieldPresentation);
 				
 				If FirstFilledRowNumber = 0 Then
@@ -2402,12 +2402,12 @@ Function PrepareLayoutForRecording(SetLanguageCode = True, Cancel = False)
 		EndDo;
 	EndDo;
 	
-	ReplaceViewParameters(Template.Header.LeftText, "TopLeftText", Cancel, NStr("en = 'header on the left';"));
-	ReplaceViewParameters(Template.Header.CenterText, "TopMiddleText", Cancel, NStr("en = 'header in the center';"));
-	ReplaceViewParameters(Template.Header.RightText, "TopRightText", Cancel, NStr("en = 'header on the right';"));
-	ReplaceViewParameters(Template.Footer.LeftText, "BottomLeftText", Cancel, NStr("en = 'footer on the left';"));
-	ReplaceViewParameters(Template.Footer.CenterText, "BottomCenterText", Cancel, NStr("en = 'footer in the center';"));
-	ReplaceViewParameters(Template.Footer.RightText, "BottomRightText", Cancel, NStr("en = 'footer on the right';"));
+	ReplaceViewParameters(Template.Header.LeftText, "TopLeftText", Cancel, NStr("en = 'header on the left'"));
+	ReplaceViewParameters(Template.Header.CenterText, "TopMiddleText", Cancel, NStr("en = 'header in the center'"));
+	ReplaceViewParameters(Template.Header.RightText, "TopRightText", Cancel, NStr("en = 'header on the right'"));
+	ReplaceViewParameters(Template.Footer.LeftText, "BottomLeftText", Cancel, NStr("en = 'footer on the left'"));
+	ReplaceViewParameters(Template.Footer.CenterText, "BottomCenterText", Cancel, NStr("en = 'footer in the center'"));
+	ReplaceViewParameters(Template.Footer.RightText, "BottomRightText", Cancel, NStr("en = 'footer on the right'"));
 	
 	For Each Area In Template.Areas Do
 		If TypeOf(Area) = Type("SpreadsheetDocumentRange")
@@ -2440,7 +2440,7 @@ Procedure CheckForMergedCells(Val Area, Val LineNumber, Val ColumnNumber, Cancel
 	If Common.SubsystemExists("StandardSubsystems.Print") Then
 		
 		ModulePrintManager = Common.CommonModule("PrintManagement");
-		Template = NStr("en = 'Cannot merge cells (row %1, column %2)';");
+		Template = NStr("en = 'Cannot merge cells (row %1, column %2)'");
 		AreaID = ModulePrintManager.AreaID(Area);
 		AddressArray = StringFunctionsClientServer.SplitStringIntoSubstringsArray(AreaID, ":");
 		
@@ -2464,7 +2464,7 @@ Procedure CheckDBFFieldName(Val CellText, Val LineNumber, Val ColumnNumber, Canc
 	
 	If StrLen(CellText) > 10 Then
 		
-		Template = NStr("en = 'Field name must not exceed 10 characters (row %1, column %2)';");
+		Template = NStr("en = 'Field name must not exceed 10 characters (row %1, column %2)'");
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			Template,
 			LineNumber, 
@@ -2494,7 +2494,7 @@ Procedure CheckDBFFieldName(Val CellText, Val LineNumber, Val ColumnNumber, Canc
 						 Or (CharCode > LastLatinCharLower));
 		If CharCodeError Then
 			
-			Template = NStr("en = 'Field name can only contain letters, numbers, and underscores (row %1, column %2)';");
+			Template = NStr("en = 'Field name can only contain letters, numbers, and underscores (row %1, column %2)'");
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				Template,
 				LineNumber,
@@ -2530,7 +2530,7 @@ Procedure CheckExportFieldsDBF(Val DataToCheck, ArrayOfColumnNames, Cancel)
 			
 			If ArrayOfColumnNames.Find(CellText) <> Undefined Then
 				
-				Var_229_Template = NStr("en = 'Column name is not unique (row %1, column %2)';");
+				Var_229_Template = NStr("en = 'Column name is not unique (row %1, column %2)'");
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 					Var_229_Template,
 					LineNumber,
@@ -2551,7 +2551,7 @@ Procedure CheckExportFieldsDBF(Val DataToCheck, ArrayOfColumnNames, Cancel)
 				
 			If LineNumber > FieldNamesRowNumber + 1 Then
 				
-				Var_229_Template = NStr("en = 'Row %1 must contain export data (row %2, column %3)';");
+				Var_229_Template = NStr("en = 'Row %1 must contain export data (row %2, column %3)'");
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 					Var_229_Template,
 					FieldNamesRowNumber + 1,
@@ -2563,7 +2563,7 @@ Procedure CheckExportFieldsDBF(Val DataToCheck, ArrayOfColumnNames, Cancel)
 				
 			If IsBlankString(NamesCellText) Then
 				
-				Var_229_Template = NStr("en = 'Column name is required (column %1)';");
+				Var_229_Template = NStr("en = 'Column name is required (column %1)'");
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 					Var_229_Template,
 					ColumnNumber);
@@ -2594,7 +2594,7 @@ Procedure CheckExportFieldsXML_JSON(Val DataToCheck, IsXML, Cancel)
 	If ColumnNumber > ValuesColumnNumber
 	   And Not IsBlankString(CellText) Then
 		
-		Var_240_Template = NStr("en = 'Field names and values must be placed in the columns %1 and %2, respectively (row %3, column %4)';");
+		Var_240_Template = NStr("en = 'Field names and values must be placed in the columns %1 and %2, respectively (row %3, column %4)'");
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			Var_240_Template,
 			FieldNamesColumnNumber,
@@ -2618,7 +2618,7 @@ Procedure CheckExportFieldsXML_JSON(Val DataToCheck, IsXML, Cancel)
 		
 		If IsBlankString(CellText) <> IsBlankString(ValueText) Then
 			
-			Var_240_Template = NStr("en = 'Field name is not mapped to field value (row %1)';");
+			Var_240_Template = NStr("en = 'Field name is not mapped to field value (row %1)'");
 			
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				Var_240_Template,
@@ -2667,12 +2667,12 @@ Procedure CheckCellChars(Val CellText, Val LineNumber, Val ColumnNumber, Val IsX
 	ForbiddenSubstring = Undefined;
 	If IsXML Then
 		
-		TemplateNotCompliant = NStr("en = 'Field name ""%1"" does not comply with XML token naming convention (row %2, column %3)';");
+		TemplateNotCompliant = NStr("en = 'Field name ""%1"" does not comply with XML token naming convention (row %2, column %3)'");
 		ForbiddenSubstring = "xml";
 		
 	Else
 		
-		TemplateNotCompliant = NStr("en = 'Field name ""%1"" does not comply with variable naming convention (row %2, column %3)';");
+		TemplateNotCompliant = NStr("en = 'Field name ""%1"" does not comply with variable naming convention (row %2, column %3)'");
 		
 	EndIf;
 	
@@ -2680,7 +2680,7 @@ Procedure CheckCellChars(Val CellText, Val LineNumber, Val ColumnNumber, Val IsX
 	
 	If CheckResult.HasForbiddenSubstring Then 
 		
-		TemplateForbiddenString = NStr("en = 'Field name ""%1"" must not start with ""%2"" (row %3, column %4)';");
+		TemplateForbiddenString = NStr("en = 'Field name ""%1"" must not start with ""%2"" (row %3, column %4)'");
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			TemplateForbiddenString,
 			CellText,
@@ -2734,7 +2734,7 @@ EndProcedure
 
 // Parameters:
 //  Template - SpreadsheetDocument
-//  AllAreas - Boolean - 
+//  AllAreas - Boolean - Flag indicating that all areas are selected.
 // 
 // Returns:
 //  ValueTable:
@@ -2829,11 +2829,11 @@ Async Procedure StartPropertyDeletionDialog(Val CompletionHandler, UnlockFile)
 	
 	Notification = New CallbackDescription("StartPropertyDeletionDialogCompletion", ThisObject, NotificationParameters);
 	
-	WarningText = NStr("en = 'Template formatting or content does not meet format requirements. When you save the template, incompatible settings will be cleared.';");
+	WarningText = NStr("en = 'Template formatting or content does not meet format requirements. When you save the template, incompatible settings will be cleared.'");
 	
 	Buttons = New ValueList();
-	Buttons.Add("ClearAndSave", NStr("en = 'Clear and save';"));
-	Buttons.Add("Cancel", NStr("en = 'Cancel';"));
+	Buttons.Add("ClearAndSave", NStr("en = 'Clear and save'"));
+	Buttons.Add("Cancel", NStr("en = 'Cancel'"));
 	
 	QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
 	QuestionParameters.Picture = PictureLib.DialogExclamation;
@@ -2893,8 +2893,8 @@ EndProcedure
 &AtServer
 Procedure ProcessSpreadsheetDocumentAreas()
 	
-	ExportFormatsWithAreas =  UploadFormatsAllowedForPresenceOfAreas();
-	FormatsWithPictures = UploadFormatsImagesAreAllowed();
+	ExportFormatsWithAreas =  ExportFormatsAreasAllowed();
+	FormatsWithPictures = ExportFormatsPicturesAllowed();
 	
 	ArrayOfPictureAreas = New Array;
 	ArrayOfForbiddenAreas = New Array;
@@ -3011,8 +3011,8 @@ Function HasAreasNotUsedInExportFormat()
 	HasForbiddenAreas = False;
 	HasAreasWithPictures = False;
 	
-	ExportFormatsWithAreas =  UploadFormatsAllowedForPresenceOfAreas();
-	FormatsWithPictures = UploadFormatsImagesAreAllowed();
+	ExportFormatsWithAreas =  ExportFormatsAreasAllowed();
+	FormatsWithPictures = ExportFormatsPicturesAllowed();
 	
 	TableToAnalyze = TableOfAreas(SpreadsheetDocument, True);
 	
@@ -3068,7 +3068,7 @@ Procedure CheckConditionsAreas(Val TableOfAreas, Cancel)
 		
 		If TemplateArea.IsOutputConditionArea Then
 			
-			Template = NStr("en = 'Condition area must be placed at least one row below the owner area (row %1)';");
+			Template = NStr("en = 'Condition area must be placed at least one row below the owner area (row %1)'");
 			
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				Template,
@@ -3089,8 +3089,8 @@ Procedure CheckAreaNames(Val TableOfAreas, Cancel)
 	EndIf;
 	
 	ForbiddenSubstring = "xml";
-	TemplateNotCompliant = NStr("en = 'Area name ""%1"" does not comply with XML token naming convention (row %2)';");
-	TemplateForbiddenString = NStr("en = 'Area name ""%1"" must not start with ""%2"" (row %3)';");
+	TemplateNotCompliant = NStr("en = 'Area name ""%1"" does not comply with XML token naming convention (row %2)'");
+	TemplateForbiddenString = NStr("en = 'Area name ""%1"" must not start with ""%2"" (row %3)'");
 	
 	For Each TemplateArea In TableOfAreas Do
 		
@@ -3144,10 +3144,10 @@ Procedure CheckAreaNamesArray(Val AreaName, Val NamesArray, TemplateArea, Forbid
 	FirstSubstringNumber = 1;
 	SecondSubstringNumber = 2;
 	
-	TemplateNotCompliantBefore = NStr("en = 'The portion of the area name ""%1"" before the first underscore does not comply with XML token naming conventions (row %2)';");
-	TemplateNotCompliantAfter = NStr("en = 'The portion of the area name ""%1"" after the first underscore does not comply with XML token naming conventions (row %2)';");
-	TemplateForbiddenString = NStr("en = 'Area name must not start with ""%1"" (row %2)';");
-	TemplateForbiddenStringAfter = NStr("en = 'The portion of the area name ""%1"" after the first underscore must not start with ""%2"" (row %3)';");
+	TemplateNotCompliantBefore = NStr("en = 'The portion of the area name ""%1"" before the first underscore does not comply with XML token naming conventions (row %2)'");
+	TemplateNotCompliantAfter = NStr("en = 'The portion of the area name ""%1"" after the first underscore does not comply with XML token naming conventions (row %2)'");
+	TemplateForbiddenString = NStr("en = 'Area name must not start with ""%1"" (row %2)'");
+	TemplateForbiddenStringAfter = NStr("en = 'The portion of the area name ""%1"" after the first underscore must not start with ""%2"" (row %3)'");
 	
 	For Each CurrentName In NamesArray Do
 		
@@ -3210,13 +3210,13 @@ EndProcedure
 &AtServer
 Procedure CheckAreasOverlap(Val TableOfAreas, Cancel)
 	
-	TableOfAreasInQuery = TableOfAreas.Copy();
-	TableOfAreasInQuery.Columns.Add("AreaNumber", New TypeDescription("Number"));
-	TableOfAreasInQuery.Columns.Top.Name = "TopOfArea";
-	TableOfAreasInQuery.Columns.Bottom.Name = "BottomOfArea";
+	AreasTableToQuery = TableOfAreas.Copy();
+	AreasTableToQuery.Columns.Add("AreaNumber", New TypeDescription("Number"));
+	AreasTableToQuery.Columns.Top.Name = "TopOfArea";
+	AreasTableToQuery.Columns.Bottom.Name = "BottomOfArea";
 	
 	LineCounter = 0;
-	For Each CurrentRow In TableOfAreasInQuery Do
+	For Each CurrentRow In AreasTableToQuery Do
 		
 		LineCounter = LineCounter + 1;
 		CurrentRow.AreaNumber = LineCounter;
@@ -3224,7 +3224,7 @@ Procedure CheckAreasOverlap(Val TableOfAreas, Cancel)
 	EndDo;
 	
 	Query = New Query;
-	Query.SetParameter("TableOfAreas", TableOfAreasInQuery);
+	Query.SetParameter("TableOfAreas", AreasTableToQuery);
 	Query.Text =
 	"SELECT
 	|	TableOfAreas.Name AS Name,
@@ -3255,7 +3255,7 @@ Procedure CheckAreasOverlap(Val TableOfAreas, Cancel)
 	
 	If Not Result.IsEmpty() Then
 		
-		Template = NStr("en = 'Export templates of type ""%1"" do not support overlapping or areas ""%2"" and ""%3""';");
+		Template = NStr("en = 'Export templates of type ""%1"" do not support overlapping or areas ""%2"" and ""%3""'");
 		Selection = Result.Select();
 		While Selection.Next() Do
 			
@@ -3394,7 +3394,7 @@ Procedure AnalyzeAreasTemplateTable(Val AreasTemplateTables, Val TableOfAreas, C
 				Continue;
 			EndIf;
 			
-			Template = NStr("en = 'Area ""%1"" already contains table ""%2"". An area can contain only one table (row %3)';");
+			Template = NStr("en = 'Area ""%1"" already contains table ""%2"". An area can contain only one table (row %3)'");
 			
 			TopOfArea = FoundRow.Top;
 			BottomOfArea = FoundRow.Bottom;
@@ -3469,7 +3469,7 @@ Procedure ReplaceViewParameters(String, Field = Undefined, Cancel = False, Field
 		If ValueIsFilled(ErrorText) Then
 			If ValueIsFilled(FieldPresentation) Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = '%1 (%2)';"),
+					NStr("en = '%1 (%2)'"),
 					ErrorText,
 					FieldPresentation);
 			EndIf;
@@ -3838,12 +3838,12 @@ Procedure ExpandFieldList()
 	EndIf;
 	
 	ColumnPresentation = Items[ColumnNamePresentation];
-	ColumnPresentation.Title = NStr("en = 'Field';");
+	ColumnPresentation.Title = NStr("en = 'Field'");
 	
 	ColumnPattern = Items.Add(NameOfTheFieldList() + "Pattern", Type("FormField"), FieldList);
 	ColumnPattern.DataPath = NameOfTheFieldList() + "." + "Pattern";
 	ColumnPattern.Type = FormFieldType.InputField;
-	ColumnPattern.Title = NStr("en = 'Preview';");
+	ColumnPattern.Title = NStr("en = 'Preview'");
 	ColumnPattern.SetAction("OnChange", "Attachable_SampleWhenChanging");
 	ColumnPattern.ShowInFooter = False;
 	ColumnPattern.ClearButton = True;
@@ -3854,7 +3854,7 @@ Procedure ExpandFieldList()
 	ButtonSettingsFormat.ShowInHeader = True;
 	ButtonSettingsFormat.HeaderPicture = PictureLib.DataCompositionOutputParameters;	
 	ButtonSettingsFormat.ValuesPicture = PictureLib.DataCompositionOutputParameters;	
-	ButtonSettingsFormat.Title = NStr("en = 'Configure format';");
+	ButtonSettingsFormat.Title = NStr("en = 'Configure format'");
 	ButtonSettingsFormat.TitleLocation = FormItemTitleLocation.None;
 	ButtonSettingsFormat.CellHyperlink = True;
 	ButtonSettingsFormat.ShowInFooter = False;
@@ -4064,7 +4064,7 @@ EndFunction
 &AtClientAtServerNoContext
 Function PromptInputStringSearchFieldList()
 	
-	Return NStr("en = 'Find field…';");
+	Return NStr("en = 'Find field…'");
 	
 EndFunction
 
@@ -4077,7 +4077,7 @@ Procedure ViewPrintableForm(Command)
 		If Not ValueIsFilled(Pattern) Then
 			Items[NameOfTheFieldList()].CurrentRow = ThisObject[NameOfTheFieldList()].GetItems()[0].GetID();
 			CommonClient.MessageToUser(
-				NStr("en = 'Select a template whose data will be used to generate a print form';"), , NameOfTheFieldList() + "[0].Pattern");
+				NStr("en = 'Select a template whose data will be used to generate a print form'"), , NameOfTheFieldList() + "[0].Pattern");
 			Return;
 		EndIf;
 		
@@ -4343,7 +4343,7 @@ EndFunction
 &AtClientAtServerNoContext
 Function LocalizedPrefixOfConditionalArea()
 	
-	Return NStr("en = 'Condition';") + "_";
+	Return NStr("en = 'Condition'") + "_";
 	
 EndFunction
 
@@ -4388,7 +4388,7 @@ Function PresentationOfDataSource(DataSources)
 	
 	Result = StrConcat(Values, ", ");
 	If Not ValueIsFilled(Result) Then
-		Result = "<" + NStr("en = 'not selected';") + ">";
+		Result = "<" + NStr("en = 'not selected'") + ">";
 	EndIf;
 	
 	Return Result;
@@ -4440,7 +4440,7 @@ Procedure SetUpFieldSample()
 	Offset = 0;
 	For Each FieldDetails In FieldsCollection Do
 		If FieldDetails.DataPath = "Ref" Then
-			FieldDetails.Title = NStr("en = 'Preview';");
+			FieldDetails.Title = NStr("en = 'Preview'");
 			If Offset <> 0 Then
 				IndexOf = FieldsCollection.IndexOf(FieldDetails);
 				FieldsCollection.Move(IndexOf, Offset);
@@ -4546,7 +4546,7 @@ Procedure OnChangeTemplateSettings(ParametersStructure)
 		ModulePrintManagerClient.OnChangeTemplateSettings(ParametersStructure, NotifyDescription);
 	Else
 		NotifyDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject);
-		ShowInputString(NotifyDescription, DocumentName, NStr("en = 'Enter a template description';"), 100, False);
+		ShowInputString(NotifyDescription, DocumentName, NStr("en = 'Enter a template description'"), 100, False);
 	EndIf;
 	
 EndProcedure
@@ -4602,7 +4602,7 @@ Function ExportFormatsNotRequiringTextManagement()
 EndFunction
 
 &AtClientAtServerNoContext
-Function UploadFormatsAllowedForPresenceOfAreas()
+Function ExportFormatsAreasAllowed()
 	
 	FormatArray = New Array;
 	FormatArray.Add(PredefinedValue("Enum.ObjectsExportFormats.JSON"));
@@ -4613,7 +4613,7 @@ Function UploadFormatsAllowedForPresenceOfAreas()
 EndFunction
 
 &AtClientAtServerNoContext
-Function UploadFormatsImagesAreAllowed()
+Function ExportFormatsPicturesAllowed()
 	
 	FormatArray = New Array;
 	FormatArray.Add(PredefinedValue("Enum.ObjectsExportFormats.XLS"));

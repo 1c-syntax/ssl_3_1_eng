@@ -35,7 +35,7 @@ Procedure AddFieldExtensionNum(DataCompositionSchema) Export
 	If IsNumberFieldFound And DataCompositionSchema.CalculatedFields.Find("Number.WithPrefix") = Undefined Then
 		NewField = DataCompositionSchema.CalculatedFields.Add();
 		NewField.Expression = "Number";
-		NewField.Title = NStr("en = 'Number.With prefix';");
+		NewField.Title = NStr("en = 'Number.With prefix'");
 		NewField.DataPath = "Number.WithPrefix";
 		NewField.ValueType = New TypeDescription("String");
 	EndIf;
@@ -84,7 +84,7 @@ Procedure ChangeIBPrefix(Parameters, ResultAddress = "") Export
 		WriteLogEvent(EventLogEventReassignObjectsPrefixes(),
 			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			
-		Raise NStr("en = 'Cannot change prefix.';");
+		Raise NStr("en = 'Cannot change prefix.'");
 		
 	EndTry;
 	
@@ -303,21 +303,17 @@ Function MetadataUsingPrefixesDetails(DiagnosticsMode = False) Export
 			If Characteristics.CodeLength = 0 And Characteristics.NumberLength = 0 Then
 				
 				If Not DiagnosticsMode Then
-					
-					Raise StringFunctionsClientServer.SubstituteParametersToString(
-						NStr("en = 'An error occurred while integrating subsystem %1 for metadata object %2.';"),
+					MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+						NStr("en = 'An error occurred while integrating subsystem %1 for metadata object %2.'"),
 						Metadata.Subsystems.StandardSubsystems.Subsystems.ObjectsPrefixes, FullObjectName);
+					Raise(MessageText, ErrorCategory.ConfigurationError);
 						
 				EndIf;
 				
+			ElsIf ObjectDetails.IsCatalog Or ObjectDetails.IsChartOfCharacteristicTypes Then
+				ObjectDetails.HasCode = True;
 			Else
-				
-				If ObjectDetails.IsCatalog Or ObjectDetails.IsChartOfCharacteristicTypes Then
-					ObjectDetails.HasCode = True;
-				Else
-					ObjectDetails.HasNumber = True;
-				EndIf;
-				
+				ObjectDetails.HasNumber = True;
 			EndIf;
 			
 			// Defining a number periodicity for a document and business process.
@@ -385,7 +381,7 @@ Function ProcessDataToContinueNumbering(Val NewIBPrefix = "", DataAnalysisMode =
 			DataLock.Lock();
 		EndIf;
 		
-		// @skip-check query-in-loop - Batch processing of a large amount of data.
+		// @skip-check query-in-loop
 		ObjectDataForLastItemRenumbering = OneKindObjectDataForLastItemsRenumbering(
 			ObjectDetails, CurrentIBPrefix);
 		If ObjectDataForLastItemRenumbering.IsEmpty() Then
@@ -563,7 +559,7 @@ EndProcedure
 
 Function EventLogEventReassignObjectsPrefixes()
 	
-	Return NStr("en = 'Object prefixes. Infobase prefix changed.';",
+	Return NStr("en = 'Object prefixes. Infobase prefix changed.'",
 		Common.DefaultLanguageCode());
 	
 EndFunction

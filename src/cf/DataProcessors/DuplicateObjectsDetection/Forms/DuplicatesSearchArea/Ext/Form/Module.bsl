@@ -8,10 +8,10 @@
 //
 //
 
-// Возвращается результатом выбора:
+// Returns as a selection result:
 //
-//     Неопределено - Отказ от редактирования.
-//     Строка       - Адрес временного хранилища новых настроек компоновщика.
+//     Undefined - Editing canceled.
+//     String - Address of the new composer settings in the temporary storage.
 //
 
 #Region FormEventHandlers

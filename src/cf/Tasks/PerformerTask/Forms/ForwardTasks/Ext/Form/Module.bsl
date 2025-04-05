@@ -21,12 +21,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	TitleText = "";
 	If Parameters.TaskCount > 1 Then
-		TitleText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (%2)';"),
-			?(DefaultTitle, NStr("en = 'Selected tasks';"), FormTitleText),
+		TitleText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (%2)'"),
+			?(DefaultTitle, NStr("en = 'Selected tasks'"), FormTitleText),
 			String(Parameters.TaskCount));
 	ElsIf Parameters.TaskCount = 1 Then
-		TitleText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 %2';"),
-			?(DefaultTitle, NStr("en = 'Selected task';"), FormTitleText),
+		TitleText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 %2'"),
+			?(DefaultTitle, NStr("en = 'Selected task'"), FormTitleText),
 			String(Parameters.Task));
 	Else
 		Items.TitleDecoration.Visible = False;
@@ -43,14 +43,14 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
 	If AddressingType = 0 Then
 		If Not ValueIsFilled(Performer) Then
-			Common.MessageToUser(NStr("en = 'The task assignee is not specified.';"),,,
+			Common.MessageToUser(NStr("en = 'The task assignee is not specified.'"),,,
 				"Performer", Cancel);
 		EndIf;
 		Return;
 	EndIf;
 	
 	If Role.IsEmpty() Then
-		Common.MessageToUser(NStr("en = 'The task assignee role is not specified.';"),,,
+		Common.MessageToUser(NStr("en = 'The task assignee role is not specified.'"),,,
 			"Role", Cancel);
 		Return;
 	EndIf;
@@ -62,13 +62,13 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
 	If MainAddressingObjectTypesAreSet And MainAddressingObject = Undefined Then
 		Common.MessageToUser(
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The ""%1"" field is required.';"),	
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The ""%1"" field is required.'"),	
 				Common.ObjectAttributeValue(Role, "MainAddressingObjectTypes")),,,
 				"MainAddressingObject", Cancel);
 		Return;
 	ElsIf TypesOfAditionalAddressingObjectAreSet And AdditionalAddressingObject = Undefined Then
 		Common.MessageToUser(
-			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The ""%1"" field is required.';"), 
+			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The ""%1"" field is required.'"), 
 				Common.ObjectAttributeValue(Role, "AdditionalAddressingObjectTypes")),,,
 				"AdditionalAddressingObject", Cancel);
 		Return;
@@ -77,7 +77,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	If Not IgnoreWarnings 
 		And Not BusinessProcessesAndTasksServer.HasRolePerformers(Role, MainAddressingObject, AdditionalAddressingObject) Then
 		Common.MessageToUser(
-			NStr("en = 'No assignee is assigned to the specified role. (To ignore this warning, select the check box).';"),,,
+			NStr("en = 'No assignee is assigned to the specified role. (To ignore this warning, select the check box).'"),,,
 			"Role", Cancel);
 		Items.IgnoreWarnings.Visible = True;
 	EndIf;	

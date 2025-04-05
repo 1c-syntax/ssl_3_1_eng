@@ -24,7 +24,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Items.FormPickFromClassifier.Visible = CanAddFromClassifier;
 	If Not CanAddFromClassifier Then
-		CommonClientServer.SetFormItemProperty(Items, "CreateCalendar", "Title", NStr("en = 'Create';"));
+		CommonClientServer.SetFormItemProperty(Items, "CreateCalendar", "Title", NStr("en = 'Create'"));
 		Items.Create.Type = FormGroupType.ButtonGroup;
 	EndIf;
 	

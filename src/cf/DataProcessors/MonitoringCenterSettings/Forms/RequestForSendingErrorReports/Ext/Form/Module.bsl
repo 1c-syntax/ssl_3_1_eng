@@ -85,7 +85,7 @@ Procedure SetMonitoringCenterParameters(Response)
 		// The user does not want to be asked and they are not going to send anything.
 		If Response.DoNotAskAgain Then
 			NewParameters.Insert("SendDumpsFiles", 0);
-			NewParameters.Insert("SendingResult", NStr("en = 'User refused to submit full dumps.';"));
+			NewParameters.Insert("SendingResult", NStr("en = 'User refused to submit full dumps.'"));
 			// There is nothing to approve, clear parameters.
 			NewParameters.Insert("DumpsInformation", "");
 			NewParameters.Insert("DumpInstances", New Map);

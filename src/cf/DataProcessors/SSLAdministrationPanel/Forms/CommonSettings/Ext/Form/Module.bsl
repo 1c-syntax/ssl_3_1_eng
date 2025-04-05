@@ -397,11 +397,11 @@ Procedure UseCloudSignatureServiceOnChange(Item)
 		
 		TheNotificationIsAsFollows = New CallbackDescription("CheckIfDSSUsageEnabled", ThisObject, CycleParameters);
 		ListOfCommands = New ValueList;
-		ListOfCommands.Add("OK", NStr("en = 'Confirm';"));
-		ListOfCommands.Add("None", NStr("en = 'Cancel';"), True);
-		QueryText = NStr("en = 'Attention. If you plan to use the DSS signature service to generate a qualified digital signature, set it up on your own to meet the <a href = ""%1"">requirements</a> for such signature.';") 
+		ListOfCommands.Add("OK", NStr("en = 'Confirm'"));
+		ListOfCommands.Add("None", NStr("en = 'Cancel'"), True);
+		QueryText = NStr("en = 'Attention. If you plan to use the DSS signature service to generate a qualified digital signature, set it up on your own to meet the <a href = ""%1"">requirements</a> for such signature.'") 
 			+ Chars.LF + Chars.LF
-			+ NStr("en = 'Do you confirm the service use?';");
+			+ NStr("en = 'Do you confirm the service use?'");
 			
 		QueryText = StringFunctionsClient.FormattedString(QueryText, AddressOfArticleAboutDSSService());
 		
@@ -411,7 +411,7 @@ Procedure UseCloudSignatureServiceOnChange(Item)
 			QueryText,
 			ListOfCommands,
 			,
-			NStr("en = 'Additional settings are required';"));
+			NStr("en = 'Additional settings are required'"));
 			
 	Else
 		Attachable_OnChangeAttribute(Item);
@@ -581,7 +581,7 @@ Procedure InfobasePublicationURLStartChoiceCompletion(Var_AttributeName)
 		InfobasePublicationURLStartChoiceAtServer(Var_AttributeName, InfoBaseConnectionString());
 		Attachable_OnChangeAttribute(Items[Var_AttributeName]);
 	Else
-		ShowMessageBox(, NStr("en = 'Cannot populate the field. The client application is not connected over the web server.';"));
+		ShowMessageBox(, NStr("en = 'Cannot populate the field. The client application is not connected over the web server.'"));
 	EndIf;
 	
 EndProcedure
@@ -851,7 +851,7 @@ Procedure SettingsSectionPerformance()
 EndProcedure
 
 
-// Часовые пояса
+// 
 
 &AtServer
 Procedure FillInTimeZones()

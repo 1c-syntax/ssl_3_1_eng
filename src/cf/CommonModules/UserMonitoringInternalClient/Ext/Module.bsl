@@ -44,8 +44,8 @@ Procedure OnProcessDetails(ReportForm, Item, Details, StandardProcessing) Export
 	If DetailsType = "ScheduledJobDetails1" Then
 		
 		DetailsOption = New ValueList;
-		DetailsOption.Add("ScheduledJobInfo", NStr("en = 'Scheduled job info';"));
-		DetailsOption.Add("OpenEventLog", NStr("en = 'Go to event log';"));
+		DetailsOption.Add("ScheduledJobInfo", NStr("en = 'Scheduled job info'"));
+		DetailsOption.Add("OpenEventLog", NStr("en = 'Go to event log'"));
 		
 		HandlerParameters = New Structure;
 		HandlerParameters.Insert("Details", Details);
@@ -111,7 +111,7 @@ Procedure ResultDetailProcessingCompletion(SelectedOption, HandlerParameters) Ex
 		For Each GanttChartPoint In PointsList Do
 			
 			DetailsPoint = GanttChartPoint.Details;
-			If GanttChartPoint.Value = NStr("en = 'Background jobs';") Then // ACC:1391 Localizable chart point value.
+			If GanttChartPoint.Value = NStr("en = 'Background jobs'") Then // ACC:1391 Localizable chart point value.
 				Continue;
 			EndIf;
 			
@@ -161,7 +161,7 @@ Procedure OnStartSelectValuesInProfilesRolesChangesReport(ReportForm, SelectionC
 	PickingParameters.SelectedMetadataObjects = Selected_;
 	PickingParameters.MetadataObjectsToSelectCollection = Collections;
 	PickingParameters.ObjectsGroupMethod = "ByKinds";
-	PickingParameters.Title = NStr("en = 'Pick roles';");
+	PickingParameters.Title = NStr("en = 'Pick roles'");
 	
 	StandardSubsystemsClient.ChooseMetadataObjects(PickingParameters, ClosingNotification1);
 	

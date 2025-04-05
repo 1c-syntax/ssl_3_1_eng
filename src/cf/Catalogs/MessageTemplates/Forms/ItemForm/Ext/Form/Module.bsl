@@ -77,11 +77,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		If Common.SubsystemExists("StandardSubsystems.ExportObjectsToFiles") Then
 			
-			TitlePrintFormsAndAttachments = NStr("en = 'Print forms, export files, and attachments';");
+			TitlePrintFormsAndAttachments = NStr("en = 'Print forms, export files, and attachments'");
 			Items.PrintFormsAndAttachmentsDecoration.Title = TitlePrintFormsAndAttachments;
 			
-			TitlePackToArchive = NStr("en = 'Archive print forms and export files';");
-			ToolTipPackToArchive = NStr("en = 'Flag indicating that the attachments (print forms and export files) should be sent as an archive.';");
+			TitlePackToArchive = NStr("en = 'Archive print forms and export files'");
+			ToolTipPackToArchive = NStr("en = 'Flag indicating that the attachments (print forms and export files) should be sent as an archive.'");
 			Items.PackToArchive.Title = TitlePackToArchive;
 			Items.PackToArchive.ToolTip = ToolTipPackToArchive;
 			
@@ -163,7 +163,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	CheckInformation = ProcessTemplateText();
 	
 	If Not CheckInformation.Success Then
-		Common.MessageToUser(NStr("en = 'Couldn''t save template.';")
+		Common.MessageToUser(NStr("en = 'Couldn''t save template.'")
 			+ Chars.LF + CheckInformation.ErrorText);
 		Cancel = True;
 		Return;
@@ -320,8 +320,8 @@ Function ProcessTemplateText()
 	
 	If InvalidParameters.Count() > 0 Then
 		ErrorText = ?(InvalidParameters.Count() = 1,
-			NStr("en = 'Invalid placeholder:';"),
-			NStr("en = 'Invalid placeholders:';"));
+			NStr("en = 'Invalid placeholder:'"),
+			NStr("en = 'Invalid placeholders:'"));
 		Result.ErrorText = ErrorText + " " + StrConcat(InvalidParameters, ", ");
 		Result.Success = False;
 	EndIf;
@@ -704,7 +704,7 @@ Procedure CheckTemplateFilling(Command)
 	CheckInformation = ProcessTemplateText();
 	
 	If CheckInformation.Success Then
-		ShowMessageBox(, NStr("en = 'Template is valid.';"));
+		ShowMessageBox(, NStr("en = 'Template is valid.'"));
 	Else
 		CommonClient.MessageToUser(CheckInformation.ErrorText);
 	EndIf;
@@ -820,7 +820,7 @@ Procedure ChangeAttachment(Command)
 	If CurrentData.Ref = PredefinedValue("Catalog.MessageTemplatesAttachedFiles.EmptyRef") Then
 		AdditionalParameters = New Structure("CurrentIndexInCollection", CurrentIDInCollection);
 		OnCloseNotifyHandler = New CallbackDescription("ChangeAttachmentCompletion", ThisObject, AdditionalParameters);
-		QueryText = NStr("en = 'You can access the file''s properties after you save the file. Save it now?';");
+		QueryText = NStr("en = 'You can access the file''s properties after you save the file. Save it now?'");
 		ShowQueryBox(OnCloseNotifyHandler, QueryText, QuestionDialogMode.YesNo);
 	Else
 		OpenAttachmentProperties(CurrentIDInCollection);
@@ -840,7 +840,7 @@ Procedure CopyAttachment(Command)
 	If CurrentData.Ref = PredefinedValue("Catalog.MessageTemplatesAttachedFiles.EmptyRef") Then
 		AdditionalParameters = New Structure("CurrentIndexInCollection", Id);
 		OnCloseNotifyHandler = New CallbackDescription("CopyAttachmentCompletion", ThisObject, AdditionalParameters);
-		QueryText = NStr("en = 'To copy the file, you need to save the template. Do you want to save it?';");
+		QueryText = NStr("en = 'To copy the file, you need to save the template. Do you want to save it?'");
 		ShowQueryBox(OnCloseNotifyHandler, QueryText, QuestionDialogMode.YesNo);
 	Else
 		CopyAttachmentFile(Id);
@@ -1112,13 +1112,13 @@ Procedure TemplateBasedOnInteractionDocument()
 		AttachmentTree = FormAttributeToValue("Attachments");
 		TreeRow = BranchByAttachmentKindAtServer(AttachmentTree, AttachmentsKinds, AttachmentsKinds[2]);
 		TreeRows = TreeRow.Rows;
-		ThereWereAttachments = False;
+		HadAttachments = False;
 		
 		For Each Attachment In EmailAttachments1 Do
 			
 			If IsBlankString(Attachment.EmailFileID) Then
 				
-				ThereWereAttachments = True;
+				HadAttachments = True;
 				
 				Extension                 = GetFileExtension(Attachment.Description);
 				NewRow                = TreeRows.Add();
@@ -1134,7 +1134,7 @@ Procedure TemplateBasedOnInteractionDocument()
 			
 		EndDo;
 		
-		If ThereWereAttachments Then
+		If HadAttachments Then
 			ValueToFormAttribute(AttachmentTree, "Attachments");
 		EndIf;
 		
@@ -1206,7 +1206,7 @@ EndProcedure
 Procedure ShowFormItems(EmailFormat = "")
 	
 	If Object.ForSMSMessages Then
-		TitleSuffix = NStr("en = 'Text message template';");
+		TitleSuffix = NStr("en = 'Text message template'");
 		Items.FormEmailTextKind.Visible = False;
 		Items.Pages.CurrentPage = Items.SMSMessage;
 		Items.EmailSubject.Visible = False;
@@ -1218,7 +1218,7 @@ Procedure ShowFormItems(EmailFormat = "")
 		Items.AttributesMenuAddParameterToSMSMessageText.Visible = True;
 		Items.HiddenTilteSMSMessage.Visible = True;
 	ElsIf Object.ForEmails Then
-		TitleSuffix = NStr("en = 'Email message template';");
+		TitleSuffix = NStr("en = 'Email message template'");
 		Items.AttachmentsGroup.Visible = True;
 		Items.AttributesContextMenuAddMailParameter.Visible = True;
 		Items.AttributesMenuAddMailParameter.Visible = True;
@@ -1234,7 +1234,7 @@ Procedure ShowFormItems(EmailFormat = "")
 		EndIf;
 		
 	Else
-		TitleSuffix = NStr("en = 'Message template';");
+		TitleSuffix = NStr("en = 'Message template'");
 		Items.FormEmailTextKind.Visible = False;
 		Items.Pages.CurrentPage = Items.MessageEmail;
 		Items.EmailSubject.Visible = False;
@@ -1249,7 +1249,7 @@ Procedure ShowFormItems(EmailFormat = "")
 	If ValueIsFilled(Object.Ref) Then
 		Title = Object.Description + " (" + TitleSuffix + ")";
 	Else
-		Title = TitleSuffix + " (" + NStr("en = 'Create';")+ ")";
+		Title = TitleSuffix + " (" + NStr("en = 'Create'")+ ")";
 	EndIf;
 	
 	If Object.TemplateByExternalDataProcessor Then
@@ -1354,7 +1354,7 @@ Procedure SetHTMLForFormattedDocument(HTMLEmailTemplateText, CurrentObjectRef, L
 	
 EndProcedure
 
-// бизнес-логика
+// 
 
 &AtServer
 Procedure GenerateAttributesAndPrintFormsList()
@@ -1527,7 +1527,7 @@ Procedure FIllAttributeTree(Receiver, Source, AreCommonOrArbitraryAttributes = U
 	
 EndProcedure
 
-// Вынужденная установка свойств на сервере
+// 
 
 &AtServer
 Procedure SetHTMLEmail(TextWrappingRequired = False)
@@ -1553,7 +1553,7 @@ EndProcedure
 
 &AtServer
 Procedure SetEmailPlainText(TextWrappingRequired = False)
-	Items.FormEmailTextKind.Title = NStr("en = 'Plain Text';");
+	Items.FormEmailTextKind.Title = NStr("en = 'Plain Text'");
 	Items.MessageEmailHTML.Visible = False;
 	Items.MessageEmail.Visible = True;
 	Items.Pages.CurrentPage = Items.MessageEmail;
@@ -1786,7 +1786,7 @@ Function CopyAttachmentsFromSource()
 	
 	ListOfFiles = New Array; // Array of DefinedType.AttachedFile
 	ErrorList = Undefined;
-	ErrorDescription = NStr("en = 'Cannot copy attachment due to: %1';");
+	ErrorDescription = NStr("en = 'Cannot copy attachment due to: %1'");
 	
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperations = Common.CommonModule("FilesOperations");
@@ -1804,7 +1804,7 @@ Function CopyAttachmentsFromSource()
 				Except
 					ErrorInfo = ErrorInfo();
 					
-					WriteErrorToEventLog(EventNameMessageTemplates(), ErrorInfo, NStr("en = 'Failed to extract and save the file';"));
+					WriteErrorToEventLog(EventNameMessageTemplates(), ErrorInfo, NStr("en = 'Failed to extract and save the file'"));
 					ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorDescription, ErrorProcessing.BriefErrorDescription(ErrorInfo));
 					CommonClientServer.AddUserError(ErrorList, "Attachments", ErrorText, "Attachments",, ErrorText);
 					Continue;
@@ -2072,7 +2072,7 @@ EndProcedure
 &AtServer
 Function EventNameMessageTemplates()
 	
-	Return NStr("en = 'Message templates';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Message templates'", Common.DefaultLanguageCode());
 	
 EndFunction
 
@@ -2089,7 +2089,7 @@ Procedure FillArbitraryParametersFromObject(Val CurrentObject)
 
 EndProcedure
 
-// Внешняя обработка
+// 
 
 &AtServer
 Procedure FillTemplateByExternalDataProcessor()
@@ -2121,7 +2121,7 @@ Procedure FillTemplateByExternalDataProcessor()
 			
 		Else
 			
-			ErrorDescription = NStr("en = 'Subject ""%1"" specified in the external data processor is not found. Cannot attach the external data processor.';");
+			ErrorDescription = NStr("en = 'Subject ""%1"" specified in the external data processor is not found. Cannot attach the external data processor.'");
 			Raise StringFunctionsClientServer.SubstituteParametersToString(ErrorDescription, ExternalDataProcessorDataStructure.InputOnBasisParameterTypeFullName);
 			
 		EndIf;
@@ -2224,13 +2224,13 @@ EndProcedure
 Procedure OnCreatReadAtServer()
 	
 	AttachmentsKinds.Clear();
-	AttachmentsKinds.Add("PrintForms", NStr("en = 'Print forms';"));
-	AttachmentsKinds.Add("ExportFiles", NStr("en = 'Export files';"));
-	AttachmentsKinds.Add("FilesAttached", NStr("en = 'Attachments';"));
+	AttachmentsKinds.Add("PrintForms", NStr("en = 'Print forms'"));
+	AttachmentsKinds.Add("ExportFiles", NStr("en = 'Export files'"));
+	AttachmentsKinds.Add("FilesAttached", NStr("en = 'Attachments'"));
 	
 EndProcedure
 
-// 
+// Populate the attachment tree.
 // 
 // Parameters:
 //  AttachmentTree - ValueTree
@@ -2279,13 +2279,13 @@ Procedure FillAttachmentTree(AttachmentTree, AttachmentTemplateInfo, SelectedObj
 	
 EndProcedure
 
-// 
+// Add an attachment branch.
 // 
 // Parameters:
 //  AttachmentTree - ValueTree
 //  RowsArray - Array of ValueTableRow
 //  SelectedObjects - Array of String
-//  AttachmentsKind - ValueListItem - 
+//  AttachmentsKind - ValueListItem - Attachment type.
 //
 &AtServer
 Procedure AddAttachmentBranch(AttachmentTree, RowsArray, SelectedObjects, AttachmentsKind)

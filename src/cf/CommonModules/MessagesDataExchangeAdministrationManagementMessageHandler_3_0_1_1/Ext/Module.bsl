@@ -40,7 +40,7 @@ EndFunction
 Function BaseType() Export
 	
 	If Not Common.SubsystemExists("CloudTechnology") Then
-		Raise NStr("en = 'There is no Service manager.';");
+		Raise NStr("en = 'There is no Service manager.'");
 	EndIf;
 	
 	ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
@@ -106,7 +106,7 @@ Procedure ConnectCorrespondent(Message, Sender)
 		
 		// Sending an error message to the service manager.
 		ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Endpoint does not match the expected one. Expected endpoint code %1. Current endpoint code %2. ';"),
+			NStr("en = 'Endpoint does not match the expected one. Expected endpoint code %1. Current endpoint code %2. '"),
 			Body.SenderId,
 			Common.ObjectAttributeValue(ThisMessageExchangeNode, "Code"));
 			
@@ -144,7 +144,7 @@ Procedure ConnectCorrespondent(Message, Sender)
 		If Cancel Then // Sending an error message to the service manager.
 			
 			ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Peer infobase endpoint connection error. Endpoint ID: %1.';"),
+				NStr("en = 'Peer infobase endpoint connection error. Endpoint ID: %1.'"),
 				Body.RecipientId);
 				
 			SendAResponseMessageAboutAConnectionError(Message, Sender, ErrorPresentation);	
@@ -162,7 +162,7 @@ Procedure ConnectCorrespondent(Message, Sender)
 				NStr("en = 'Peer infobase endpoint connection error.
 				|Unexpected endpoint ID.
 				|Expected ID: %1.
-				|Actual ID: %2.';"),
+				|Actual ID: %2.'"),
 				Body.RecipientId,
 				ConnectedCorrespondentCode);
 			
@@ -216,7 +216,7 @@ Procedure ConnectCorrespondent(Message, Sender)
 			ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Endpoint connection failed.
 				|This infobase endpoint ID: %1.
-				|The peer infobase endpoint ID: %2.';"),
+				|The peer infobase endpoint ID: %2.'"),
 				Common.ObjectAttributeValue(ThisMessageExchangeNode, "Code"),
 				Body.RecipientId);
 				
@@ -255,7 +255,7 @@ Procedure SetTransportSettings(Message, Sender)
 	
 	If Peer.IsEmpty() Then
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Endpoint with ID %1 is not found.';"),
+			NStr("en = 'Endpoint with ID %1 is not found.'"),
 			Body.RecipientId);
 		Raise MessageString;
 	EndIf;
@@ -304,7 +304,7 @@ EndProcedure
 
 Function EventLogEventCorrespondentConnection()
 	
-	Return NStr("en = 'Data exchange.Peer infobase connection';", Common.DefaultLanguageCode());
+	Return NStr("en = 'Data exchange.Peer infobase connection'", Common.DefaultLanguageCode());
 	
 EndFunction
 

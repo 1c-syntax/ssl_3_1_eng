@@ -29,7 +29,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.AdditionalAttributesManualCheckJustification.Visible = ValueIsFilled(AdditionalAttributesManualCheckJustification)
 		And StrLen(AdditionalAttributesManualCheckJustification) > 100;
 	
-	If ValueIsFilled(ErrorDescription) Then
+	If ValueIsFilled(SignatureMathValidationError)
+		Or ValueIsFilled(AdditionalAttributesCheckError)
+		Or ValueIsFilled(ErrorDescription) Then
 		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, "ErrorDescription");
 	ElsIf ValueIsFilled(AdditionalAttributesManualCheckJustification) Then
 		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, "ManualVerification");
@@ -59,10 +61,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If ValueIsFilled(Status) Then
 		Items.DecorationStatus.Title = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Status as of %1: %2';"), SignatureValidationDate, Status);
+				NStr("en = 'Status as of %1: %2'"), SignatureValidationDate, Status);
 	Else
 		Items.DecorationStatus.Title = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Status as of %1: %2';"), SignatureValidationDate, BriefCheckResult);
+				NStr("en = 'Status as of %1: %2'"), SignatureValidationDate, BriefCheckResult);
 	EndIf;
 	
 	Items.ErrorDescription.Visible = Not IsBlankString(ErrorDescription);
@@ -162,7 +164,7 @@ EndProcedure
 Procedure OpenErrorDescription(ErrorText)
 	
 	FormParameters = New Structure;
-	FormParameters.Insert("WarningTitle", NStr("en = 'Signature verification';"));
+	FormParameters.Insert("WarningTitle", NStr("en = 'Signature verification'"));
 	FormParameters.Insert("ErrorTextClient", ErrorText);
 	FormParameters.Insert("ShowNeedHelp", True);
 	FormParameters.Insert("ShowInstruction", True);
@@ -202,7 +204,7 @@ Procedure UpdateFormData()
 	If SignatureType = Enums.CryptographySignatureTypes.BasicCAdESBES
 		Or SignatureType = Enums.CryptographySignatureTypes.NormalCMS Then
 		If ValueIsFilled(DateActionLastTimestamp) Then
-			Items.DateActionLastTimestamp.Title = NStr("en = 'Certificate expired';"); 
+			Items.DateActionLastTimestamp.Title = NStr("en = 'Certificate expired'"); 
 		Else
 			Items.DateActionLastTimestamp.Visible = False;
 		EndIf;
@@ -278,7 +280,7 @@ Async Procedure AfterSignaturePropertiesRead(Result, AdditionalParameters) Expor
 			
 		EndIf;
 	ElsIf Result.Success = Undefined Then
-		SignatureReadError = NStr("en = 'Couldn''t get certificates from the signature. Check the settings of the digital signing apps.';");
+		SignatureReadError = NStr("en = 'Couldn''t get certificates from the signature. Check the settings of the digital signing apps.'");
 	Else
 		SignatureReadError = Result.ErrorText;
 	EndIf;
@@ -305,17 +307,17 @@ Async Procedure OpenCertificateRead()
 			
 			If Certificate.IsSignatureCertificate Then
 				Presentation = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Signer''s certificate: %1';"), Certificate.IssuedTo);
+					NStr("en = 'Signer''s certificate: %1'"), Certificate.IssuedTo);
 			Else
 				Presentation = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Certificate for signature verification: %1';"), Certificate.IssuedTo);
+					NStr("en = 'Certificate for signature verification: %1'"), Certificate.IssuedTo);
 			EndIf;
 			
 			ValueList.Add(Certificate.CertificateData, Presentation);
 				
 		EndDo;
 		
-		SelectedItemsCount = Await ValueList.ChooseItemAsync(NStr("en = 'Select a certificate';"));
+		SelectedItemsCount = Await ValueList.ChooseItemAsync(NStr("en = 'Select a certificate'"));
 
 		If SelectedItemsCount <> Undefined Then
 			DigitalSignatureClient.OpenCertificate(SelectedItemsCount.Value);

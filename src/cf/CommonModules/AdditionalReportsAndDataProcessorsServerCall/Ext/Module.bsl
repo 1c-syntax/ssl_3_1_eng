@@ -57,7 +57,7 @@ Function PutInStorage(Ref, FormIdentifier) Export
 		Return Undefined;
 	EndIf;
 	If Not AdditionalReportsAndDataProcessors.CanExportDataProcessorToFile(Ref) Then
-		Raise(NStr("en = 'Insufficient rights to export additional report or data processor files.';"),
+		Raise(NStr("en = 'Insufficient rights to export additional report or data processor files.'"),
 			ErrorCategory.AccessViolation);
 	EndIf;
 	
@@ -71,7 +71,7 @@ Function StartTimeConsumingOperation(Val UUID, Val CommandParameters) Export
 	StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	StartSettings1.WaitCompletion = 0;
 	StartSettings1.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Running %1 additional report or data processor, command name: %2.';"),
+		NStr("en = 'Running %1 additional report or data processor, command name: %2.'"),
 		String(CommandParameters.AdditionalDataProcessorRef),
 		CommandParameters.CommandID);
 	

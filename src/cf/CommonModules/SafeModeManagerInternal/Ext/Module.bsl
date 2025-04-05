@@ -340,20 +340,20 @@ Function AddInBundleFilesChecksum(Val TemplateName) Export
 	Else
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot generate a permission to use the add-in:
-				  |incorrect name of the %1 template.';"), TemplateName);
+				  |incorrect name of the %1 template.'"), TemplateName);
 	EndIf;
 	
 	If Template = Undefined Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot create a permission to use the add-in supplied in the template %1:
-				  | Template %1 is not found in the configuration.';"), TemplateName);
+				  | Template %1 is not found in the configuration.'"), TemplateName);
 	EndIf;
 	
 	TemplateType = Metadata.FindByFullName(TemplateName).TemplateType;
 	If TemplateType <> Metadata.ObjectProperties.TemplateType.BinaryData And TemplateType <> Metadata.ObjectProperties.TemplateType.AddIn Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot generate a permission to use the add-in:
-				  |the %1 template does not contain binary data.';"), TemplateName);
+				  |the %1 template does not contain binary data.'"), TemplateName);
 	EndIf;
 	
 	TempFile = GetTempFileName("zip");
@@ -374,7 +374,7 @@ Function AddInBundleFilesChecksum(Val TemplateName) Export
 	If IsBlankString(ManifestFile) Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot create a permission to use the add-in supplied in the template %1:
-				  |The archive does not contain the MANIFEST.XML file.';"), TemplateName);
+				  |The archive does not contain the MANIFEST.XML file.'"), TemplateName);
 	EndIf;
 	
 	ReaderStream = New XMLReader();
@@ -402,14 +402,14 @@ Function AddInBundleFilesChecksum(Val TemplateName) Export
 	Try
 		DeleteFiles(UnpackDirectory);
 	Except
-		WriteLogEvent(NStr("en = 'Safe mode manager.Cannot create temporary file';", Common.DefaultLanguageCode()), 
+		WriteLogEvent(NStr("en = 'Safe mode manager.Cannot create temporary file'", Common.DefaultLanguageCode()), 
 			EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	
 	Try
 		DeleteFiles(TempFile);
 	Except
-		WriteLogEvent(NStr("en = 'Safe mode manager.Cannot create temporary file';", Common.DefaultLanguageCode()), 
+		WriteLogEvent(NStr("en = 'Safe mode manager.Cannot create temporary file'", Common.DefaultLanguageCode()), 
 			EventLogLevel.Error, , , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	
@@ -560,7 +560,7 @@ EndFunction
 Procedure FillPermissionsToUpdatesProtectionCenter(PermissionsRequests)
 	
 	Resolution = SafeModeManager.PermissionToUseInternetResource("HTTPS", "1cv8update.com",, 
-		NStr("en = 'The ""Update protection center"" (UPC) site for checking legitimacy of the software usage and updating.';"));
+		NStr("en = 'The ""Update protection center"" (UPC) site for checking legitimacy of the software usage and updating.'"));
 	Permissions = New Array;
 	Permissions.Add(Resolution);
 	PermissionsRequests.Add(SafeModeManager.RequestToUseExternalResources(Permissions));
@@ -608,7 +608,7 @@ Procedure OnSaveInternalData(Object) Export
 	If SafeModeManager.SafeModeSet() Then
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t save %1. Safe mode is set: %2.';"),
+			NStr("en = 'Couldn''t save %1. Safe mode is set: %2.'"),
 			Object.Metadata().FullName(),
 			SafeMode());
 		

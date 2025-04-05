@@ -133,46 +133,46 @@
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="FooterGroupExtendedTooltip" id="63"/>
 			<ChildItems>
-				<UsualGroup name="Instruction" id="54">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Need help?</v8:content>
-						</v8:item>
-					</Title>
+				<UsualGroup name="AssistanceRequiredGroup" id="89">
+					<GroupVerticalAlign>Center</GroupVerticalAlign>
 					<Group>Vertical</Group>
 					<Behavior>PopUp</Behavior>
-					<ExtendedTooltip name="InstructionExtendedTooltip" id="55"/>
+					<ExtendedTooltip name="AssistanceRequiredGroupExtendedTooltip" id="90"/>
 					<ChildItems>
-						<LabelDecoration name="DecorationContactSupport" id="84">
-							<Visible>false</Visible>
-							<ContextMenu name="DecorationContactSupportContextMenu" id="85"/>
-							<ExtendedTooltip name="DecorationContactSupportExtendedTooltip" id="86"/>
-						</LabelDecoration>
-						<Button name="QuestionInSupport" id="72">
-							<Type>Hyperlink</Type>
-							<CommandName>Form.Command.QuestionInSupport</CommandName>
-							<ExtendedTooltip name="QuestionInSupportExtendedTooltip" id="73"/>
-						</Button>
-						<UsualGroup name="GroupDownloadTechnicalInfo" id="87">
-							<Group>AlwaysHorizontal</Group>
+						<UsualGroup name="TechnicalSupportGroup" id="91">
+							<Group>Vertical</Group>
+							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupDownloadTechnicalInfoExtendedTooltip" id="88"/>
+							<ExtendedTooltip name="TechnicalSupportGroupExtendedTooltip" id="92"/>
 							<ChildItems>
-								<Button name="DownloadTechnicalInfo" id="74">
+								<LabelDecoration name="DescriptionOfSupportRequest" id="93">
+									<ContextMenu name="DescriptionOfSupportRequestContextMenu" id="94"/>
+									<ExtendedTooltip name="DescriptionOfSupportRequestExtendedTooltip" id="95"/>
+								</LabelDecoration>
+								<Button name="QuestionInSupport" id="96">
 									<Type>Hyperlink</Type>
-									<CommandName>Form.Command.DownloadTechnicalInfo</CommandName>
-									<ExtendedTooltip name="DownloadTechnicalInfoExtendedTooltip" id="75"/>
-								</Button>
-								<PictureDecoration name="DecorationPictureGeneratingTechnicalInfo" id="78">
-									<Visible>false</Visible>
+									<CommandName>Form.Command.QuestionInSupport</CommandName>
 									<Picture>
-										<xr:Ref>CommonPicture.TimeConsumingOperation16</xr:Ref>
+										<xr:Ref>CommonPicture.SendEmail</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
-									<ContextMenu name="DecorationPictureGeneratingTechnicalInfoContextMenu" id="79"/>
-									<ExtendedTooltip name="DecorationPictureGeneratingTechnicalInfoExtendedTooltip" id="80"/>
-								</PictureDecoration>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Contact support</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="QuestionInSupportExtendedTooltip" id="97"/>
+								</Button>
+								<Button name="InformationToSendToSupport" id="98">
+									<Type>Hyperlink</Type>
+									<CommandName>Form.Command.InformationToSendToSupport</CommandName>
+									<Picture>
+										<xr:Ref>CommonPicture.Download</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<ExtendedTooltip name="InformationToSendToSupportExtendedTooltip" id="99"/>
+								</Button>
 							</ChildItems>
 						</UsualGroup>
 					</ChildItems>
@@ -365,18 +365,30 @@
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 		<Command name="QuestionInSupport" id="3">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Contact support</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Contact support</v8:content>
+				</v8:item>
+			</ToolTip>
 			<Picture>
 				<xr:Ref>CommonPicture.SendEmail</xr:Ref>
 				<xr:LoadTransparent>false</xr:LoadTransparent>
 			</Picture>
 			<Action>QuestionInSupport</Action>
 		</Command>
-		<Command name="DownloadTechnicalInfo" id="4">
+		<Command name="InformationToSendToSupport" id="4">
 			<Picture>
 				<xr:Ref>CommonPicture.Download</xr:Ref>
 				<xr:LoadTransparent>false</xr:LoadTransparent>
 			</Picture>
-			<Action>DownloadTechnicalInfo</Action>
+			<Action>InformationToSendToSupport</Action>
 		</Command>
 	</Commands>
 	<Parameters>

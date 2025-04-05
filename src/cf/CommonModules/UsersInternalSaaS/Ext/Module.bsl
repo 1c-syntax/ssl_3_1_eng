@@ -66,7 +66,7 @@ Function GetActionsWithSaaSUser(Val User = Undefined,
 		If HasRightToAddUsers() Then
 			Return ActionsWithNewSaaSUser();
 		Else
-			ErrorText = NStr("en = 'Insufficient rights to add users';");
+			ErrorText = NStr("en = 'Insufficient rights to add users'");
 			Raise(ErrorText, ErrorCategory.AccessViolation);
 		EndIf;
 	EndIf;
@@ -343,14 +343,16 @@ Procedure OnAuthorizeNewIBUser(Val CurrentIBUser, StandardProcessing) Export
 		
 		If Not UsersInternal.UserByIDExists(CurrentIBUser.UUID) Then
 			
+			IBUserDetails = New Structure;
+			IBUserDetails.Insert("Action", "Write");
+			IBUserDetails.Insert("UUID",
+				CurrentIBUser.UUID);
+				
 			// The user is shared, an item in the current area must be created.
 			UserObject = Catalogs.Users.CreateItem();
 			UserObject.Description = InternalUserFullName(CurrentIBUser.UUID);
 			UserObject.IsInternal = True;
-			UserObject.Write();
-			
-			UserObject.IBUserID = CurrentIBUser.UUID;
-			UserObject.DataExchange.Load = True;
+			UserObject.AdditionalProperties.Insert("IBUserDetails", IBUserDetails);
 			UserObject.Write();
 			
 		EndIf;
@@ -422,7 +424,7 @@ Procedure BeforeStartIBUserProcessing(Val UserObject, ProcessingParameters) Expo
 	AutoAttributes          = ProcessingParameters.AutoAttributes;
 	
 	If TypeOf(UserObject) = Type("CatalogObject.ExternalUsers") Then
-		ErrorText = NStr("en = 'SaaS applications don''t support external users.';");
+		ErrorText = NStr("en = 'SaaS applications don''t support external users.'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -434,7 +436,7 @@ Procedure BeforeStartIBUserProcessing(Val UserObject, ProcessingParameters) Expo
 		If Not ModuleSaaSOperations.SessionWithoutSeparators() Then
 			ErrorText =
 				NStr("en = 'Only shared users can edit
-				           |user information via remote administration.';");
+				           |user information via remote administration.'");
 			Raise ErrorText;
 		EndIf;
 		
@@ -450,7 +452,7 @@ Procedure BeforeStartIBUserProcessing(Val UserObject, ProcessingParameters) Expo
 		
 		If ValueIsFilled(OldUser.ServiceUserID) Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot change the service user ID for ""%1"".';"),
+				NStr("en = 'Cannot change the service user ID for ""%1"".'"),
 				UserObject.Description);
 			Raise ErrorText;
 		EndIf;
@@ -465,7 +467,7 @@ Procedure BeforeStartIBUserProcessing(Val UserObject, ProcessingParameters) Expo
 			
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot set the ""%1"" service user ID for ""%2""
-				           |as it is already specified in another ""%3"".';"),
+				           |as it is already specified in another ""%3"".'"),
 				AutoAttributes.ServiceUserID,
 				UserObject.Description,
 				FoundUser);
@@ -524,7 +526,7 @@ Procedure BeforeEndIBUserProcessing(UserObject, ProcessingParameters) Export
 	If AutoAttributes.ServiceUserID <> UserObject.ServiceUserID Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot change the %1 attribute for ""%2"".
-			           |The attribute value will be updated automatically.';"),
+			           |The attribute value will be updated automatically.'"),
 			"ServiceUserID", UserObject.Ref);
 		Raise ErrorText;
 	EndIf;
@@ -748,7 +750,7 @@ EndFunction
 Function ActionsWithExsistingSaaSUser(Val User)
 	
 	If Not Common.SubsystemExists("CloudTechnology.Core") Then
-		ErrorText = NStr("en = 'SaaS mode is not supported.';");
+		ErrorText = NStr("en = 'SaaS mode is not supported.'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -805,7 +807,7 @@ EndFunction
 Function HasRightToAddUsers()
 	
 	If Not Common.SubsystemExists("CloudTechnology.Core") Then
-		ErrorText = NStr("en = 'SaaS mode is not supported.';");
+		ErrorText = NStr("en = 'SaaS mode is not supported.'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -879,7 +881,7 @@ EndFunction
 Function GetSaaSUsers(ServiceUserPassword) Export
 	
 	If Not Common.SubsystemExists("CloudTechnology.Core") Then
-		ErrorText = NStr("en = 'SaaS mode is not supported.';");
+		ErrorText = NStr("en = 'SaaS mode is not supported.'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -921,7 +923,7 @@ EndFunction
 Procedure GrantSaaSUserAccess(Val ServiceUserID, Val ServiceUserPassword) Export
 	
 	If Not Common.SubsystemExists("CloudTechnology.Core") Then
-		ErrorText = NStr("en = 'SaaS mode is not supported.';");
+		ErrorText = NStr("en = 'SaaS mode is not supported.'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -1045,7 +1047,7 @@ EndFunction
 Function PrepareUserAccessObjects(Factory, User)
 	
 	If Not Common.SubsystemExists("CloudTechnology.Core") Then
-		ErrorText = NStr("en = 'SaaS mode is not supported.';");
+		ErrorText = NStr("en = 'SaaS mode is not supported.'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -1078,7 +1080,7 @@ EndFunction
 Function ObjectsAccessRightsXDTOInActionsWithSaaSUser(Factory, ObjectsAccessRightsXDTO)
 	
 	If Not Common.SubsystemExists("CloudTechnology.Core") Then
-		ErrorText = NStr("en = 'SaaS mode is not supported.';");
+		ErrorText = NStr("en = 'SaaS mode is not supported.'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -1105,7 +1107,7 @@ Function ObjectsAccessRightsXDTOInActionsWithSaaSUser(Factory, ObjectsAccessRigh
 			ContactInformationKind = CIKindsMap.Get(ObjectAccessRightsXDTO.Object.ContactType);
 			If ContactInformationKind = Undefined Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Unknown contact information kind: %1';"),
+					NStr("en = 'Unknown contact information kind: %1'"),
 					ObjectAccessRightsXDTO.Object.ContactType);
 				Raise ErrorText;
 			EndIf;
@@ -1120,7 +1122,7 @@ Function ObjectsAccessRightsXDTOInActionsWithSaaSUser(Factory, ObjectsAccessRigh
 			XDTOType = ObjectAccessRightsXDTO.Object.Type();
 			TypePresentation = XDTOSerializer.XMLString(New XMLExpandedName(XDTOType.NamespaceURI, XDTOType.Name));
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Unknown access object type: %1';"), TypePresentation);
+				NStr("en = 'Unknown access object type: %1'"), TypePresentation);
 			Raise ErrorText;
 		EndIf;
 		
@@ -1202,7 +1204,7 @@ EndFunction
 //
 Function InternalUserFullName(Val Id = Undefined) Export
 	
-	Result = "<" + NStr("en = 'Utility user ""%1""';") + ">";
+	Result = "<" + NStr("en = 'Utility user ""%1""'") + ">";
 	
 	If ValueIsFilled(Id) Then
 		
@@ -1242,7 +1244,7 @@ Function IsSharedIBUser()
 		UserIdentificator = InfoBaseUsers.CurrentUser().UUID;
 		If Not UserRegisteredAsShared(UserIdentificator) Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'User with ID %1 is not a shared user.';"),
+				NStr("en = 'User with ID %1 is not a shared user.'"),
 				String(UserIdentificator));
 			Raise ErrorText;
 		EndIf;
@@ -1300,7 +1302,7 @@ EndProcedure
 
 Function SharedUserCannotBeWrittenExceptionText()
 	
-	Return NStr("en = 'It is prohibited to save shared users when the separator use is enabled.';");
+	Return NStr("en = 'It is prohibited to save shared users when the separator use is enabled.'");
 	
 EndFunction
 

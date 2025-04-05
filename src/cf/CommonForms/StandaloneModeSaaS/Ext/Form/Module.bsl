@@ -16,11 +16,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Only users with full access rights can create and disable standalone workstations.
 	If Not Users.IsFullUser() Then
 		
-		Raise NStr("en = 'Insufficient rights for standalone mode setup.';");
+		Raise NStr("en = 'Insufficient rights for standalone mode setup.'");
 		
 	ElsIf Not StandaloneModeInternal.StandaloneModeSupported() Then
 		
-		Raise NStr("en = 'The application doesn''t support standalone mode.';");
+		Raise NStr("en = 'The application doesn''t support standalone mode.'");
 		
 	EndIf;
 	
@@ -134,7 +134,7 @@ Procedure HowToInstallOrUpdate1CEnterprisePlatfomVersion(Command)
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("TemplateName", "HowToInstallOrUpdate1CEnterprisePlatfomVersion");
-	FormParameters.Insert("Title", NStr("en = 'How to install or update 1C:Enterprise platform';"));
+	FormParameters.Insert("Title", NStr("en = 'How to install or update 1C:Enterprise platform'"));
 	
 	OpenForm("DataProcessor.StandaloneWorkstationCreationWizard.Form.AdditionalDetails", FormParameters, ThisObject, "HowToInstallOrUpdate1CEnterprisePlatfomVersion");
 	
@@ -145,7 +145,7 @@ Procedure HowToConfigureStandaloneWorkstation(Command)
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("TemplateName", "SWSetupInstruction");
-	FormParameters.Insert("Title", NStr("en = 'How to set up a standalone workstation';"));
+	FormParameters.Insert("Title", NStr("en = 'How to set up a standalone workstation'"));
 	
 	OpenForm("DataProcessor.StandaloneWorkstationCreationWizard.Form.AdditionalDetails", FormParameters, ThisObject, "SWSetupInstruction");
 	

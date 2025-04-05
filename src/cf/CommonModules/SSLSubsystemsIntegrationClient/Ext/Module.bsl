@@ -208,6 +208,11 @@ Procedure BeforeStart(Parameters) Export
 		ModulePlusSubsystemsIntegrationClient = ModulePlusSubsystemsIntegrationClient();
 		ModulePlusSubsystemsIntegrationClient.BeforeStart(Parameters);
 	EndIf;
+	
+	If CommonClient.SubsystemExists("StandardSubsystems.ConfigurationUpdate") Then
+		ModuleConfigurationUpdateClient = CommonClient.CommonModule("ConfigurationUpdateClient");
+		ModuleConfigurationUpdateClient.BeforeStart(Parameters);
+	EndIf;
 		
 EndProcedure
 
@@ -1001,7 +1006,7 @@ EndProcedure
 
 Function ModulePlusSubsystemsIntegrationClient()
 	
-	Return CommonClient.CommonModule("IntegrationOfSubsystemsPlusClient");
+	Return CommonClient.CommonModule("SubsystemIntegrationPlusClient");
 	
 EndFunction
 

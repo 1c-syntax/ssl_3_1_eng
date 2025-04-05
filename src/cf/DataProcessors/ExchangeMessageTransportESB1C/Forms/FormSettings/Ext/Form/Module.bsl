@@ -100,7 +100,7 @@ Procedure TestConnection(Command)
 	
 	If ConnectionIsSet Then
 		
-		WarningText = NStr("en = 'Connection established.';", 
+		WarningText = NStr("en = 'Connection established.'", 
 			CommonClient.DefaultLanguageCode());
 			
 		ShowMessageBox(, WarningText);
@@ -135,7 +135,7 @@ Procedure TestConnectionAtServer(ConnectionIsSet)
 		Cancel = True;
 		
 		ErrorMessage = DataProcessorObject.ErrorMessage
-			+ Chars.LF + NStr("en = 'See the event log for details.';");
+			+ Chars.LF + NStr("en = 'See the event log for details.'");
 		
 		Common.MessageToUser(ErrorMessage, , , , Cancel);
 		

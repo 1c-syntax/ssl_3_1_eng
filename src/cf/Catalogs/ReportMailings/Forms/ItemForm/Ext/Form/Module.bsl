@@ -50,7 +50,7 @@ Procedure OnReadAtServer(CurrentObject)
 		MailoutStatus = ReportMailing.GetReportDistributionState(Object.Ref);
 		If MailoutStatus.WithErrors Then
 			Items.RedistributionHeader.Title = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The report distribution (%1) was not delivered to some recipients.';"),
+				NStr("en = 'The report distribution (%1) was not delivered to some recipients.'"),
 				MailoutStatus.LastRunStart);
 			Items.GroupRedistribution.Visible = True;
 		Else
@@ -167,12 +167,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Cancel = True;
 			
 			LogParameters = New Structure;
-			LogParameters.Insert("EventName", NStr("en = 'Report distribution. Opening item form';", Common.DefaultLanguageCode()));
+			LogParameters.Insert("EventName", NStr("en = 'Report distribution. Opening item form'", Common.DefaultLanguageCode()));
 			LogParameters.Insert("Data", Undefined);
 			LogParameters.Insert("Metadata", Metadata.Catalogs.ReportMailings);
 			
 			Text = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 cannot be a report distribution author.';"),
+				NStr("en = '%1 cannot be a report distribution author.'"),
 				Common.SubjectString(CurrentUser));
 
 			ReportMailing.LogRecord(LogParameters, EventLogLevel.Error, Text);
@@ -356,13 +356,13 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	// Check data that is output through the attributes of the form itself.
 	If Not ValueIsFilled(Object.Description) Then
 		Cancel = True;
-		MessageText = NStr("en = 'Description is not entered.';");
+		MessageText = NStr("en = 'Description is not entered.'");
 		Common.MessageToUser(MessageText, , "Object.Description");
 	EndIf;
 	If Object.UseEmail And Not Object.Personal Then
 		If Not ValueIsFilled(MailingRecipientType) Then
 			Cancel = True;
-			MessageText = NStr("en = 'Recipient type is not selected.';");
+			MessageText = NStr("en = 'Recipient type is not selected.'");
 			Common.MessageToUser(MessageText, , "MailingRecipientType");
 		EndIf;
 	EndIf;
@@ -370,13 +370,13 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	If Object.IsPrepared Then
 		If Object.Reports.Count() = 0 Then
 			Cancel = True;
-			MessageText = NStr("en = 'No report is selected.';");
+			MessageText = NStr("en = 'No report is selected.'");
 			Common.MessageToUser(MessageText, , "Object.Reports");
 		EndIf;
 		
 		If Not ValueIsFilled(Object.SchedulePeriodicity) Then
 			Cancel = True;
-			MessageText = NStr("en = 'Distribution frequency is not specified.';");
+			MessageText = NStr("en = 'Distribution frequency is not specified.'");
 			Common.MessageToUser(MessageText, , "Object.SchedulePeriodicity");
 		EndIf;
 		
@@ -385,7 +385,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 				Or Not ValueIsFilled(Object.FTPPort)
 				Or Not ValueIsFilled(Object.FTPDirectory) Then
 				Cancel = True;
-				MessageText = NStr("en = 'FTP address is not entered.';");
+				MessageText = NStr("en = 'FTP address is not entered.'");
 				Common.MessageToUser(MessageText, , "FTPServerAndDirectory");
 			EndIf;
 		EndIf;
@@ -393,12 +393,12 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 		If Object.UseNetworkDirectory Then
 			If Not ValueIsFilled(Object.NetworkDirectoryWindows) Then
 				Cancel = True;
-				MessageText = NStr("en = 'Windows network directory is not entered.';");
+				MessageText = NStr("en = 'Windows network directory is not entered.'");
 				Common.MessageToUser(MessageText, , "Object.NetworkDirectoryWindows");
 			EndIf;
 			If Not ValueIsFilled(Object.NetworkDirectoryLinux) Then
 				Cancel = True;
-				MessageText = NStr("en = 'Linux network directory is not entered.';");
+				MessageText = NStr("en = 'Linux network directory is not entered.'");
 				Common.MessageToUser(MessageText, , "Object.NetworkDirectoryLinux");
 			EndIf;
 		EndIf;
@@ -406,7 +406,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 		If Object.UseFolder Then
 			If Not ValueIsFilled(Object.Folder) Then
 				Cancel = True;
-				MessageText = NStr("en = 'Folder is not selected.';");
+				MessageText = NStr("en = 'Folder is not selected.'");
 				Common.MessageToUser(MessageText, , "Object.Folder");
 			EndIf;
 		EndIf;
@@ -415,7 +415,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 			If Object.Personal Then
 				If Not ValueIsFilled(Object.RecipientsEmailAddressKind) Then
 					Cancel = True;
-					MessageText = NStr("en = 'Email address is not selected.';");
+					MessageText = NStr("en = 'Email address is not selected.'");
 					Common.MessageToUser(MessageText, , "Object.RecipientsEmailAddressKind");
 				EndIf;
 			Else
@@ -424,13 +424,13 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 				EndIf;
 				If Not ValueIsFilled(Object.RecipientsEmailAddressKind) Then
 					Cancel = True;
-					MessageText = NStr("en = 'Recipient email address type is not selected.';");
+					MessageText = NStr("en = 'Recipient email address type is not selected.'");
 					Common.MessageToUser(MessageText, , "BulkEmailRecipients");
 				EndIf;
 			EndIf;
 			If Not ValueIsFilled(Object.Account) Then
 				Cancel = True;
-				MessageText = NStr("en = 'Account for sending is not selected.';");
+				MessageText = NStr("en = 'Account for sending is not selected.'");
 				Common.MessageToUser(MessageText, , "Object.Account");
 			EndIf;
 		EndIf;
@@ -442,7 +442,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 			DatesDiffInHours = SecondsToHours(Schedule.EndTime - Schedule.BeginTime);
 			If DatesDiffInHours < 4 Then
 				Cancel = True;
-				MessageText = NStr("en = 'The end time must be 4 hours later than the start time.';");
+				MessageText = NStr("en = 'The end time must be 4 hours later than the start time.'");
 				Common.MessageToUser(MessageText, , "EndTime");
 			EndIf;
 		EndIf;
@@ -563,7 +563,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 			If Not AllRequiredSettingsFilled Then
 				Cancel = True;
 				MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Not all required settings are filled in for the ''%1'' report. Fill in all the required settings or clear the ''Prepared'' check box.';"),
+					NStr("en = 'Not all required settings are filled in for the ''%1'' report. Fill in all the required settings or clear the ''Prepared'' check box.'"),
 					String(ReportsRow.Report));
 				Field = "Reports["+ Format(CurrentObject.Reports.IndexOf(ReportsRowObject), "NZ=0; NG=0") +"].Presentation";
 				Common.MessageToUser(MessageText, CurrentObject, Field);
@@ -580,7 +580,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		If MailingIsNotPersonalized And ReportPersonalized Then
 			Cancel = True;
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Filter by recipients is applied to the ""%1"" report. Remove the filter or change the distribution mode to ""individual report for each recipient"".';"),
+				NStr("en = 'Filter by recipients is applied to the ""%1"" report. Remove the filter or change the distribution mode to ""individual report for each recipient"".'"),
 				String(ReportsRow.Report));
 			Field = "Reports["+ Format(CurrentObject.Reports.IndexOf(ReportsRowObject), "NZ=0; NG=0") +"].Presentation";
 			Common.MessageToUser(MessageText, CurrentObject, Field);
@@ -589,7 +589,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		If Object.Personalized And	Not ReportPersonalized Then
 			Cancel = True;
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Filter by recipient is not specified in the ""%1"" report settings.';"),
+				NStr("en = 'Filter by recipient is not specified in the ""%1"" report settings.'"),
 				String(ReportsRow.Report));
 			Field = "Reports["+ Format(CurrentObject.Reports.IndexOf(ReportsRowObject), "NZ=0; NG=0") +"].Presentation";
 			Common.MessageToUser(MessageText, CurrentObject, Field);
@@ -746,7 +746,7 @@ Procedure ModifySchedule(Command)
 
 	If CommonClient.DataSeparationEnabled() Then
 		ClearMessages();
-		CommonClient.MessageToUser(NStr("en = 'A custom schedule cannot be set over the Internet.';"));
+		CommonClient.MessageToUser(NStr("en = 'A custom schedule cannot be set over the Internet.'"));
 		Return;
 	EndIf;
 		
@@ -835,10 +835,10 @@ Procedure MailingRecipientTypeChoiceProcessing(Item, ValueSelected, StandardProc
 	If Object.Recipients.Count() > 0 Then
 		StandardProcessing = False;
 		
-		QuestionRow = NStr("en = 'To continue, clear the recipient list.';");
+		QuestionRow = NStr("en = 'To continue, clear the recipient list.'");
 		
 		Buttons = New ValueList;
-		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Clear';"));
+		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Clear'"));
 		Buttons.Add(DialogReturnCode.Cancel);
 		
 		AdditionalParameters = New Structure;
@@ -887,7 +887,7 @@ Procedure FTPServerAndDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
 		CustomFormParameters[KeyAndValue.Key] = Object["FTP" + KeyAndValue.Key];
 	EndDo;
 	CustomFormParameters.Insert("Password", FTPPassword);
-	CustomFormParameters.Insert("Title", NStr("en = '<Specify recipient>';"));
+	CustomFormParameters.Insert("Title", NStr("en = '<Specify recipient>'"));
 	
 	OpenForm("Catalog.ReportMailings.Form.FTPParameters", CustomFormParameters, Item);
 EndProcedure
@@ -1018,7 +1018,7 @@ Procedure FolderChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	If Not ChangeFolderAndFilesRight(ValueSelected) Then
 		StandardProcessing = False;
 		WarningText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Insufficient rights to change files of folder ""%1"".';"), 
+			NStr("en = 'Insufficient rights to change files of folder ""%1"".'"), 
 			String(ValueSelected));
 		Raise(WarningText, ErrorCategory.AccessViolation);
 	EndIf;
@@ -1078,13 +1078,13 @@ Procedure ArchiveNameChoiceProcessing(Item, ValueSelected, StandardProcessing)
 		AddLayout();
 		StandardProcessing = False;
 		CurrentItem.SelectedText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 dated %2';"), "[" + FilesAndEmailTextParameters.MailingDescription + "]",
+			NStr("en = '%1 dated %2'"), "[" + FilesAndEmailTextParameters.MailingDescription + "]",
 			"[" + FilesAndEmailTextParameters.ExecutionDate + "()]");
 		
 		Variables1 = ReportDescriptionTemplateChoiceVariables("DescriptionDistributionDate", False);
 		Variables1.Item = CurrentItem;
 		Variables1.Prefix = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 dated %2';"), "[" + FilesAndEmailTextParameters.MailingDescription + "]",
+			NStr("en = '%1 dated %2'"), "[" + FilesAndEmailTextParameters.MailingDescription + "]",
 			"[" + FilesAndEmailTextParameters.ExecutionDate + "(");
 		Variables1.Postfix = ")]";
 		Variables1.ShouldChangeReportDescriptionTemplate = False;
@@ -1125,10 +1125,10 @@ Procedure Attachable_EncryptionCertificateOnChange(Item)
 		QuestionParameters.PromptDontAskAgain = False;
 		
 		QuestionButtons = New ValueList;
-		QuestionButtons.Add("InstallEncryptionCertificate", NStr("en = 'Install encryption certificate';"));
-		QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
+		QuestionButtons.Add("InstallEncryptionCertificate", NStr("en = 'Install encryption certificate'"));
+		QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
 		QueryText = NStr(
-			"en = 'To install the encryption certificate, remove the reports from the email text.';");
+			"en = 'To install the encryption certificate, remove the reports from the email text.'");
 		QuestionParameters.DefaultButton = "InstallEncryptionCertificate";
 
 		StandardSubsystemsClient.ShowQuestionToUser(
@@ -1152,22 +1152,22 @@ Procedure ShouldSetPasswordsAndEncryptOnChange(Item)
 		If CanEncryptAttachments Then
 			If Object.Archive Then
 				QuestionButtons = New ValueList;
-				QuestionButtons.Add("ShouldSetPasswordsAndEncrypt", NStr("en = 'Set passwords and encrypt data';"));
-				QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
-				QueryText = NStr("en = 'To set the passwords and encrypt data, remove the reports from the email text.';");
+				QuestionButtons.Add("ShouldSetPasswordsAndEncrypt", NStr("en = 'Set passwords and encrypt data'"));
+				QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
+				QueryText = NStr("en = 'To set the passwords and encrypt data, remove the reports from the email text.'");
 				QuestionParameters.DefaultButton = "ShouldSetPasswordsAndEncrypt";
 			Else
 				QuestionButtons = New ValueList;
-				QuestionButtons.Add("ShouldSetPasswordsAndEncrypt", NStr("en = 'Encrypt data';"));
-				QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
-				QueryText = NStr("en = 'To encrypt the reports, remove them from the email text.';");
+				QuestionButtons.Add("ShouldSetPasswordsAndEncrypt", NStr("en = 'Encrypt data'"));
+				QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
+				QueryText = NStr("en = 'To encrypt the reports, remove them from the email text.'");
 				QuestionParameters.DefaultButton = "Encrypt";
 			EndIf;
 		ElsIf Object.Archive Then
 			QuestionButtons = New ValueList;
-			QuestionButtons.Add("ShouldSetPasswordsAndEncrypt", NStr("en = 'Set passwords';"));
-			QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
-			QueryText = NStr("en = 'To set the passwords, remove the reports from the email text.';");
+			QuestionButtons.Add("ShouldSetPasswordsAndEncrypt", NStr("en = 'Set passwords'"));
+			QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
+			QueryText = NStr("en = 'To set the passwords, remove the reports from the email text.'");
 			QuestionParameters.DefaultButton = "SetPasswords";
 		EndIf;
 		StandardSubsystemsClient.ShowQuestionToUser(
@@ -1219,16 +1219,16 @@ Procedure ReportsChoiceProcessing(Item, ValueSelected, StandardProcessing)
 		If ChoiceStructure.SelectedItemsCount.Count = 1 Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot include the report in the distribution. Reason:
-					|%1';"), ChoiceStructure.WithErrors.Text);
+					|%1'"), ChoiceStructure.WithErrors.Text);
 		ElsIf ChoiceStructure.Success.Count = 0 Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot include the reports in the distribution. Reason:
-					|%1';"), ChoiceStructure.WithErrors.Text);
+					|%1'"), ChoiceStructure.WithErrors.Text);
 		Else
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Reports included in distribution: %1 out of %2.
 					|Details:
-					|%3';"),
+					|%3'"),
 				Format(ChoiceStructure.Success.Count, "NZ=0; NG="),
 				Format(ChoiceStructure.SelectedItemsCount.Count, "NZ=0; NG="), 
 				ChoiceStructure.WithErrors.Text);
@@ -1239,12 +1239,12 @@ Procedure ReportsChoiceProcessing(Item, ValueSelected, StandardProcessing)
 		
 		If ChoiceStructure.Success.Count = 0 Then
 			NotificationTitle = Undefined;
-			NotificationText1 = NStr("en = 'All the selected reports are already included in the distribution.';");
+			NotificationText1 = NStr("en = 'All the selected reports are already included in the distribution.'");
 		Else
 			If ChoiceStructure.SelectedItemsCount.Count = 1 Then
-				NotificationTitle = NStr("en = 'The report is included in the distribution.';");
+				NotificationTitle = NStr("en = 'The report is included in the distribution.'");
 			Else
-				NotificationTitle = NStr("en = 'The reports are included in the distribution.';");
+				NotificationTitle = NStr("en = 'The reports are included in the distribution.'");
 			EndIf;
 			NotificationText1 = ChoiceStructure.Success.ReportsPresentations;
 		EndIf;
@@ -1448,14 +1448,14 @@ Procedure ReportFormatsOnActivateRow(Item)
 	EndIf;
 	
 	Items.ReportsFormatsDescriptionTemplate.ChoiceList.Clear();
-	Items.ReportsFormatsDescriptionTemplate.ChoiceList.Add("ReportDescription1", NStr("en = 'Report name';"));
-	Items.ReportsFormatsDescriptionTemplate.ChoiceList.Add("ReportDescriptionFormat", NStr("en = 'Report name, format';"));
+	Items.ReportsFormatsDescriptionTemplate.ChoiceList.Add("ReportDescription1", NStr("en = 'Report name'"));
+	Items.ReportsFormatsDescriptionTemplate.ChoiceList.Add("ReportDescriptionFormat", NStr("en = 'Report name, format'"));
 	If ReportsFormatsRow.ThereIsPeriod Then
-		Items.ReportsFormatsDescriptionTemplate.ChoiceList.Add("DescriptionPeriod", NStr("en = 'Report name, period';"));
-		Items.ReportsFormatsDescriptionTemplate.ChoiceList.Add("DescriptionPeriodFormat", NStr("en = 'Report name, period, format';"));
+		Items.ReportsFormatsDescriptionTemplate.ChoiceList.Add("DescriptionPeriod", NStr("en = 'Report name, period'"));
+		Items.ReportsFormatsDescriptionTemplate.ChoiceList.Add("DescriptionPeriodFormat", NStr("en = 'Report name, period, format'"));
 	EndIf;
-	Items.ReportsFormatsDescriptionTemplate.ChoiceList.Add("DescriptionDistributionDate", NStr("en = 'Report name, report distribution date';"));
-	Items.ReportsFormatsDescriptionTemplate.ChoiceList.Add("DescriptionDistributionDateFormat", NStr("en = 'Report name, report distribution date, format';"));
+	Items.ReportsFormatsDescriptionTemplate.ChoiceList.Add("DescriptionDistributionDate", NStr("en = 'Report name, report distribution date'"));
+	Items.ReportsFormatsDescriptionTemplate.ChoiceList.Add("DescriptionDistributionDateFormat", NStr("en = 'Report name, report distribution date, format'"));
 
 EndProcedure
 
@@ -1485,7 +1485,7 @@ Procedure BulkEmailRecipientsClick(Item, StandardProcessing)
 	StandardProcessing = False;
 	
 	If Not ValueIsFilled(Object.MailingRecipientType) Then
-		ErrorText = NStr("en = 'To enter recipients, select their type.';");
+		ErrorText = NStr("en = 'To enter recipients, select their type.'");
 		CommonClient.MessageToUser(ErrorText, , "MailingRecipientType");
 		Return;
 	EndIf;
@@ -1511,7 +1511,7 @@ EndProcedure
 &AtClient
 Procedure ExecuteNowCommand(Command)
 	If Not Object.IsPrepared Then
-		ShowMessageBox(, NStr("en = 'The report distribution is not prepared.';"));
+		ShowMessageBox(, NStr("en = 'The report distribution is not prepared.'"));
 		Return;
 	EndIf;
 	WriteParameters = New Structure;
@@ -1581,7 +1581,7 @@ Procedure ReportPreview(Command)
 	
 	ReportsRow = Items.Reports.CurrentData;
 	If ReportsRow = Undefined Then
-		ShowMessageBox(, NStr("en = 'Select report';"));
+		ShowMessageBox(, NStr("en = 'Select report'"));
 		Return;
 	EndIf;
 	If Not ReportsRow.Enabled Then
@@ -1663,7 +1663,7 @@ Procedure SpecifyMailingRecipient(Command)
 	// Check - whether the possibility to personalize the mailing enabled.
 	If Not Object.Personalized Then
 		KindPresentaion = Items.BulkEmailType.ChoiceList.FindByValue("Personalized").Presentation;
-		TheMessageText = NStr("en = 'You can specify recipients in parameters only if the distribution type is ""%1"".';");
+		TheMessageText = NStr("en = 'You can specify recipients in parameters only if the distribution type is ""%1"".'");
 		TheMessageText = StringFunctionsClientServer.SubstituteParametersToString(TheMessageText, KindPresentaion);
 		CommonClient.MessageToUser(TheMessageText, , "BulkEmailType");
 		Return;
@@ -1672,19 +1672,19 @@ Procedure SpecifyMailingRecipient(Command)
 	// Get the main type of recipients.
 	TypesCount = MailingRecipientType.Types().Count();
 	If TypesCount <> 1 And TypesCount <> 2 Then
-		CommonClient.MessageToUser(NStr("en = 'The ""Recipients"" field is required.';"), , "MailingRecipientType");
+		CommonClient.MessageToUser(NStr("en = 'The ""Recipients"" field is required.'"), , "MailingRecipientType");
 		Return;
 	EndIf;
 	
 	FoundMetadataObjectIDs = RecipientsTypesTable.FindRows(New Structure("RecipientsType", MailingRecipientType));
 	If FoundMetadataObjectIDs.Count() <> 1 Then
-		ShowMessageBox(, NStr("en = 'Incorrect recipient type.';"));
+		ShowMessageBox(, NStr("en = 'Incorrect recipient type.'"));
 		Return;
 	EndIf;
 	
 	TypesArray = FoundMetadataObjectIDs[0].MainType.Types();
 	If TypesArray.Count() <> 1 Then
-		ShowMessageBox(, NStr("en = 'Incorrect recipient type.';"));
+		ShowMessageBox(, NStr("en = 'Incorrect recipient type.'"));
 		Return;
 	EndIf;
 	
@@ -1698,7 +1698,7 @@ Procedure SpecifyMailingRecipient(Command)
 	// Recipients type content check.
 	If Not Setting.DetailsOfAvailableTypes.ContainsType(MainRecipientsType) Then
 		WarningText = NStr("en = 'Type ""%1"" is not suitable for the selected setting.
-			|Select another recipient type or setting.';");
+			|Select another recipient type or setting.'");
 		WarningText = StringFunctionsClientServer.SubstituteParametersToString(WarningText, String(MainRecipientsType));
 		ShowMessageBox(, WarningText);
 		Return;
@@ -1792,7 +1792,7 @@ Function IdentifySetting()
 		// User setting ID.
 		SettingID = Initiator.CurrentRow;
 		If SettingID = Undefined Then
-			ShowMessageBox(, NStr("en = 'Report setting is not selected.';"));
+			ShowMessageBox(, NStr("en = 'Report setting is not selected.'"));
 			Return Undefined;
 		EndIf;
 		
@@ -1801,7 +1801,7 @@ Function IdentifySetting()
 		// Get a row from data composition settings.
 		SettingsString = UserSettings.GetObjectByID(SettingID);
 		If SettingsString = Undefined Then
-			ShowMessageBox(, NStr("en = 'Report setting is not selected.';"));
+			ShowMessageBox(, NStr("en = 'Report setting is not selected.'"));
 			Return Undefined;
 		EndIf;
 		
@@ -1811,7 +1811,7 @@ Function IdentifySetting()
 		ElsIf TypeOf(SettingsString) = Type("DataCompositionSettingsParameterValue") Then
 			IsFilterItem = False;
 		Else
-			ShowMessageBox(, NStr("en = 'You can specify the recipient only for report parameters and filters.';"));
+			ShowMessageBox(, NStr("en = 'You can specify the recipient only for report parameters and filters.'"));
 			Return Undefined;
 		EndIf;
 		
@@ -1829,7 +1829,7 @@ Function IdentifySetting()
 					DCField = DetermineFieldFromComposer(SettingID, UserSettings.Items);
 				EndIf;
 				If DCField = Undefined Then
-					ShowMessageBox(, NStr("en = 'There is no details of an available field for the report setting.';"));
+					ShowMessageBox(, NStr("en = 'There is no details of an available field for the report setting.'"));
 					Return Undefined;
 				EndIf;
 				
@@ -1850,7 +1850,7 @@ Function IdentifySetting()
 		// Types array for arbitrary reports.
 		SettingsString = Initiator.CurrentData;
 		If SettingsString = Undefined Then
-			ShowMessageBox(, NStr("en = 'Report setting is not selected.';"));
+			ShowMessageBox(, NStr("en = 'Report setting is not selected.'"));
 			Return Undefined;
 		EndIf;
 		
@@ -1917,7 +1917,7 @@ Procedure FillScheduleByTemplate(Command)
 	Handler = New CallbackDescription("FillScheduleByTemplateCompletion", ThisObject);
 	
 	VariantList = ReportMailingClient.ScheduleFillingOptionsList();
-	VariantList.ShowChooseItem(Handler, NStr("en = 'Select schedule template.';"));
+	VariantList.ShowChooseItem(Handler, NStr("en = 'Select schedule template.'"));
 EndProcedure
 
 #EndRegion
@@ -1961,7 +1961,7 @@ Procedure AddRecipientTemplate(Command)
 	//
 	If Not Object.Personalized Then
 		TheMessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'You can specify recipients in template body only if the distribution type is ""%1"".';"),
+			NStr("en = 'You can specify recipients in template body only if the distribution type is ""%1"".'"),
 			Items.BulkEmailType.ChoiceList.FindByValue("Personalized").Presentation);
 		CommonClient.MessageToUser(TheMessageText, , "BulkEmailType");
 		Return;
@@ -2025,9 +2025,9 @@ Procedure AddDefaultTemplate(Command)
 		// Subject matches the template — no fill required.
 		
 		If OverwriteSubject Then
-			WarningText = NStr("en = 'Email subject already matches the default template.';");
+			WarningText = NStr("en = 'Email subject already matches the default template.'");
 		Else
-			WarningText = NStr("en = 'Email text already matches the default template.';");
+			WarningText = NStr("en = 'Email text already matches the default template.'");
 		EndIf;
 		ShowMessageBox(, WarningText);
 		
@@ -2035,16 +2035,16 @@ Procedure AddDefaultTemplate(Command)
 		// Subject is not empty - you need to ask a replacement for a standard template.
 		
 		If OverwriteSubject Then
-			QuestionTitle = NStr("en = 'Add default template to the email subject';");
-			QueryText = NStr("en = 'Replace the email subject with the default template?';");
+			QuestionTitle = NStr("en = 'Add default template to the email subject'");
+			QueryText = NStr("en = 'Replace the email subject with the default template?'");
 		Else
-			QuestionTitle = NStr("en = 'Add default template to the email body';");
-			QueryText = NStr("en = 'Replace the email text with the default template?';");
+			QuestionTitle = NStr("en = 'Add default template to the email body'");
+			QueryText = NStr("en = 'Replace the email text with the default template?'");
 		EndIf;
 		
 		Buttons = New ValueList;
-		Buttons.Add(1, NStr("en = 'Replace';"));
-		Buttons.Add(2, NStr("en = 'Add';"));
+		Buttons.Add(1, NStr("en = 'Replace'"));
+		Buttons.Add(2, NStr("en = 'Add'"));
 		Buttons.Add(DialogReturnCode.Cancel);
 		
 		Handler = New CallbackDescription("AddDefaultTemplateCompletion", ThisObject, AdditionalParameters);
@@ -2103,7 +2103,7 @@ EndProcedure
 Procedure ImportanceHigh(Command)
 	Object.EmailImportance = EmailOperationsInternalClientServer.InternetMailMessageImportanceHigh();
 	Items.SeverityGroup.Picture = PictureLib.ImportanceHigh;
-	Items.SeverityGroup.ToolTip = NStr("en = 'High importance';");
+	Items.SeverityGroup.ToolTip = NStr("en = 'High importance'");
 	Modified = True;
 EndProcedure
 
@@ -2111,7 +2111,7 @@ EndProcedure
 Procedure ImportanceNormal(Command)
 	Object.EmailImportance = EmailOperationsInternalClientServer.InternetMailMessageImportanceStandard();
 	Items.SeverityGroup.Picture = PictureLib.ImportanceNotSpecified;
-	Items.SeverityGroup.ToolTip = NStr("en = 'Normal importance';");
+	Items.SeverityGroup.ToolTip = NStr("en = 'Normal importance'");
 	Modified = True;
 EndProcedure
 
@@ -2119,7 +2119,7 @@ EndProcedure
 Procedure ImportanceLow(Command)
 	Object.EmailImportance = EmailOperationsInternalClientServer.InternetMailMessageImportanceLow();
 	Items.SeverityGroup.Picture = PictureLib.ImportanceLow;
-	Items.SeverityGroup.ToolTip = NStr("en = 'Low importance';");
+	Items.SeverityGroup.ToolTip = NStr("en = 'Low importance'");
 	Modified = True;
 EndProcedure
 
@@ -2210,7 +2210,7 @@ Procedure CreateArchivePassword(Command)
 	If ValueIsFilled(ArchivePassword) Then	
 		ShowQueryBox(
 			New CallbackDescription("OnCreateArchivePassword", ThisObject),
-			NStr("en = 'A password for the archive is already set. Do you want to set a new password?';"),
+			NStr("en = 'A password for the archive is already set. Do you want to set a new password?'"),
 			QuestionDialogMode.YesNo, , DialogReturnCode.No);	
 		Return;
 	EndIf;
@@ -2220,10 +2220,10 @@ Procedure CreateArchivePassword(Command)
 		QuestionParameters.PromptDontAskAgain = False;
 
 		QuestionButtons = New ValueList;
-		QuestionButtons.Add("AutoSetPassword", NStr("en = 'Set password';"));
-		QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
+		QuestionButtons.Add("AutoSetPassword", NStr("en = 'Set password'"));
+		QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
 		QueryText = NStr(
-			"en = 'To set a password, remove the reports from the email text.';");
+			"en = 'To set a password, remove the reports from the email text.'");
 		QuestionParameters.DefaultButton = "SetPassword";
 
 		StandardSubsystemsClient.ShowQuestionToUser(
@@ -2431,8 +2431,8 @@ Procedure CheckMailingAfterRecipientsChoice(SelectionResult, DeliveryParameters)
 		
 		DeliveryParameters.Account = Object.Account;
 		DeliveryParameters.BCCs  = Object.BCCs;
-		DeliveryParameters.SubjectTemplate    = NStr("en = 'Test message from 1C:Enterprise';");
-		DeliveryParameters.TextTemplate1  = NStr("en = 'This message is sent by 1C: Enterprise mailing system.';")
+		DeliveryParameters.SubjectTemplate    = NStr("en = 'Test message from 1C:Enterprise'");
+		DeliveryParameters.TextTemplate1  = NStr("en = 'This message is sent by 1C: Enterprise mailing system.'")
 			+ Chars.LF + Cache.SystemTitle;
 		DeliveryParameters.Recipients    = SelectionResult;
 	EndIf;
@@ -2442,7 +2442,7 @@ Procedure CheckMailingAfterRecipientsChoice(SelectionResult, DeliveryParameters)
 	WarningParameters = New Structure("Title, Text, More, Ref, UseEmail");
 	FillPropertyValues(WarningParameters, DeliveryParameters);
 	FillPropertyValues(WarningParameters, ExecutionResult);
-	WarningParameters.Title = NStr("en = 'Check result';");
+	WarningParameters.Title = NStr("en = 'Check result'");
 	WarningParameters.Ref = Object.Account;
 	
 	OpenForm("Catalog.ReportMailings.Form.Warning", WarningParameters, ThisObject, UUID);
@@ -2656,9 +2656,9 @@ Procedure ChooseFormat(ReportRef1, ResultHandler)
 	EndIf;
 	
 	If IsDefaultFormat Then
-		DialogTitle = NStr("en = 'Select default formats';");
+		DialogTitle = NStr("en = 'Select default formats'");
 	Else
-		DialogTitle = NStr("en = 'Select formats for report ""%1""';");
+		DialogTitle = NStr("en = 'Select formats for report ""%1""'");
 		DialogTitle = StringFunctionsClientServer.SubstituteParametersToString(DialogTitle, String(ReportRef1));
 	EndIf;
 	
@@ -2755,17 +2755,17 @@ Procedure CheckMailing(DeliveryParameters)
 	
 	// Check the data readiness and the need for writing.
 	If Not Object.IsPrepared Or Object.Ref.IsEmpty() Then
-		QuestionTitle = NStr("en = 'Check delivery method';");
+		QuestionTitle = NStr("en = 'Check delivery method'");
 		If Not Object.IsPrepared Then
 			QueryText = NStr("en = 'Prepare the distribution before check.
-			|Click ""Continue"" to select the ""Prepared"" check box and save the distribution.';");
+			|Click ""Continue"" to select the ""Prepared"" check box and save the distribution.'");
 		Else
 			QueryText = NStr("en = 'Save the distribution before check.
-			|Click ""Continue"" to save the distribution.';");
+			|Click ""Continue"" to save the distribution.'");
 		EndIf;
 		
 		Buttons = New ValueList;
-		Buttons.Add(1, NStr("en = 'Continue';"));
+		Buttons.Add(1, NStr("en = 'Continue'"));
 		Buttons.Add(DialogReturnCode.Cancel);
 		
 		Handler = New CallbackDescription("CheckMailingAfterResponseToQuestion", ThisObject, DeliveryParameters);
@@ -2829,13 +2829,13 @@ Function ReportDescriptionTemplateChoiceVariables(TemplateName, MultipleChange)
 	If TemplateName = "DescriptionDistributionDate" Then
 
 		Variables1.Insert("Prefix", StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 dated %2';"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
+			NStr("en = '%1 dated %2'"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
 			"[" + FilesAndEmailTextParameters.MailingDate + "("));
 
 	ElsIf TemplateName = "DescriptionDistributionDateFormat" Then
 
 		Variables1.Insert("Prefix", StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 dated %2';"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
+			NStr("en = '%1 dated %2'"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
 			"[" + FilesAndEmailTextParameters.MailingDate + "("));
 
 		Variables1.Insert("Postfix", ")] [" + FilesAndEmailTextParameters.ReportFormat + "]");
@@ -2843,13 +2843,13 @@ Function ReportDescriptionTemplateChoiceVariables(TemplateName, MultipleChange)
 	ElsIf TemplateName = "DescriptionPeriod" Then
 
 		Variables1.Insert("Prefix", StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 for %2';"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
+			NStr("en = '%1 for %2'"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
 			"[" + FilesAndEmailTextParameters.Period + "("));
 
 	ElsIf TemplateName = "DescriptionPeriodFormat" Then
 
 		Variables1.Insert("Prefix", StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 for %2';"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
+			NStr("en = '%1 for %2'"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
 			"[" + FilesAndEmailTextParameters.Period + "("));
 			
 		Variables1.Insert("Postfix", ")] [" + FilesAndEmailTextParameters.ReportFormat + "]");
@@ -2870,22 +2870,22 @@ Procedure CheckEncryptionBeforeIncludeReportsToEmailBody()
 		If CanEncryptAttachments Then
 			If Object.Archive Then
 				QuestionButtons = New ValueList;
-				QuestionButtons.Add("DisableEncryptionPasswords", NStr("en = 'Insert reports into email body';"));
-				QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
-				QueryText = NStr("en = 'To insert reports into the email body, disable passwords and encryption.';");
+				QuestionButtons.Add("DisableEncryptionPasswords", NStr("en = 'Insert reports into email body'"));
+				QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
+				QueryText = NStr("en = 'To insert reports into the email body, disable passwords and encryption.'");
 				QuestionParameters.DefaultButton = "DisableEncryptionPasswords";
 			Else
 				QuestionButtons = New ValueList;
-				QuestionButtons.Add("DisableEncryptionPasswords", NStr("en = 'Insert reports into email body';"));
-				QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
-				QueryText = NStr("en = 'To insert reports into the email body, disable encryption.';");
+				QuestionButtons.Add("DisableEncryptionPasswords", NStr("en = 'Insert reports into email body'"));
+				QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
+				QueryText = NStr("en = 'To insert reports into the email body, disable encryption.'");
 				QuestionParameters.DefaultButton = "DisableEncryption";
 			EndIf;
 		ElsIf Object.Archive Then
 			QuestionButtons = New ValueList;
-			QuestionButtons.Add("DisableEncryptionPasswords", NStr("en = 'Insert reports into email body';"));
-			QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
-			QueryText = NStr("en = 'To insert reports into the email body, disable passwords.';");
+			QuestionButtons.Add("DisableEncryptionPasswords", NStr("en = 'Insert reports into email body'"));
+			QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
+			QueryText = NStr("en = 'To insert reports into the email body, disable passwords.'");
 			QuestionParameters.DefaultButton = "DisablePasswords";
 		EndIf;
 		If CanEncryptAttachments Or Object.Archive Then
@@ -2900,9 +2900,9 @@ Procedure CheckEncryptionBeforeIncludeReportsToEmailBody()
 
 			If Object.Archive And ValueIsFilled(ArchivePassword) And ValueIsFilled(ThisObject["CertificateToEncrypt"]) Then
 				QuestionButtons = New ValueList;
-				QuestionButtons.Add("DisablePasswordEncryption", NStr("en = 'Insert reports into email body';"));
-				QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
-				QueryText = NStr("en = 'To insert reports into the email body, disable the password and encryption.';");
+				QuestionButtons.Add("DisablePasswordEncryption", NStr("en = 'Insert reports into email body'"));
+				QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
+				QueryText = NStr("en = 'To insert reports into the email body, disable the password and encryption.'");
 				QuestionParameters.DefaultButton = "DisablePasswordEncryption";
 
 				StandardSubsystemsClient.ShowQuestionToUser(
@@ -2911,10 +2911,10 @@ Procedure CheckEncryptionBeforeIncludeReportsToEmailBody()
 
 			ElsIf Object.Archive And ValueIsFilled(ArchivePassword) Then
 				QuestionButtons = New ValueList;
-				QuestionButtons.Add("ClearUpPassword", NStr("en = 'Insert reports into email body';"));
-				QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
+				QuestionButtons.Add("ClearUpPassword", NStr("en = 'Insert reports into email body'"));
+				QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
 				QueryText = NStr(
-					"en = 'To insert reports into the email body, clear the archive password.';");
+					"en = 'To insert reports into the email body, clear the archive password.'");
 				QuestionParameters.DefaultButton = "ClearUpPassword";
 
 				StandardSubsystemsClient.ShowQuestionToUser(
@@ -2923,9 +2923,9 @@ Procedure CheckEncryptionBeforeIncludeReportsToEmailBody()
 
 			ElsIf ValueIsFilled(ThisObject["CertificateToEncrypt"]) Then
 				QuestionButtons = New ValueList;
-				QuestionButtons.Add("ClearCertificate", NStr("en = 'Insert reports into email body';"));
-				QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
-				QueryText = NStr("en = 'To insert reports into the email body, clear the encryption certificate field.';");
+				QuestionButtons.Add("ClearCertificate", NStr("en = 'Insert reports into email body'"));
+				QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
+				QueryText = NStr("en = 'To insert reports into the email body, clear the encryption certificate field.'");
 				QuestionParameters.DefaultButton = "ClearCertificate";
 
 				StandardSubsystemsClient.ShowQuestionToUser(
@@ -2934,10 +2934,10 @@ Procedure CheckEncryptionBeforeIncludeReportsToEmailBody()
 			EndIf;
 		ElsIf Object.Archive And ValueIsFilled(ArchivePassword) Then
 			QuestionButtons = New ValueList;
-			QuestionButtons.Add("ClearUpPassword", NStr("en = 'Insert reports into email body';"));
-			QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
+			QuestionButtons.Add("ClearUpPassword", NStr("en = 'Insert reports into email body'"));
+			QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
 			QueryText = NStr(
-				"en = 'To insert reports into the email body, clear the archive password.';");
+				"en = 'To insert reports into the email body, clear the archive password.'");
 			QuestionParameters.DefaultButton = "ClearUpPassword";
 
 			StandardSubsystemsClient.ShowQuestionToUser(
@@ -2947,10 +2947,10 @@ Procedure CheckEncryptionBeforeIncludeReportsToEmailBody()
 
 	ElsIf Not Object.Personalized And Not Object.Personal And Object.Archive And ValueIsFilled(ArchivePassword) Then
 		QuestionButtons = New ValueList;
-		QuestionButtons.Add("ClearUpPassword", NStr("en = 'Insert reports into email body';"));
-		QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
+		QuestionButtons.Add("ClearUpPassword", NStr("en = 'Insert reports into email body'"));
+		QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
 		QueryText = NStr(
-			"en = 'To insert reports into the email body, clear the archive password.';");
+			"en = 'To insert reports into the email body, clear the archive password.'");
 		QuestionParameters.DefaultButton = "ClearUpPassword";
 
 		StandardSubsystemsClient.ShowQuestionToUser(
@@ -2996,10 +2996,10 @@ Procedure CheckOnSetArchivePasswordInsertReportsToEmailText()
 		QuestionParameters.PromptDontAskAgain = False;
 		
 		QuestionButtons = New ValueList;
-		QuestionButtons.Add("SetPassword", NStr("en = 'Set password';"));
-		QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
+		QuestionButtons.Add("SetPassword", NStr("en = 'Set password'"));
+		QuestionButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
 		QueryText = NStr(
-			"en = 'To set a password, remove the reports from the email text.';");
+			"en = 'To set a password, remove the reports from the email text.'");
 		QuestionParameters.DefaultButton = "SetPassword";
 
 		StandardSubsystemsClient.ShowQuestionToUser(
@@ -3095,16 +3095,16 @@ Function DescriptionsTemplates()
 	Templates.Insert("ReportDescription1", "[" + FilesAndEmailTextParameters.ReportDescription1 + "]");
 	Templates.Insert("ReportDescriptionFormat", "[" + FilesAndEmailTextParameters.ReportDescription1 + "] [" + FilesAndEmailTextParameters.ReportFormat + "]");
 	Templates.Insert("DescriptionPeriod", StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 for %2';"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
+			NStr("en = '%1 for %2'"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
 			"[" + FilesAndEmailTextParameters.Period + "()]"));
 	Templates.Insert("DescriptionPeriodFormat", StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 for %2 %3';"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
+			NStr("en = '%1 for %2 %3'"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
 			"[" + FilesAndEmailTextParameters.Period + "()]", "[" + FilesAndEmailTextParameters.ReportFormat + "]"));
 	Templates.Insert("DescriptionDistributionDate", StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 dated %2';"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
+			NStr("en = '%1 dated %2'"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
 			"[" + FilesAndEmailTextParameters.MailingDate + "()]"));
 	Templates.Insert("DescriptionDistributionDateFormat", StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 dated %2 %3';"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
+			NStr("en = '%1 dated %2 %3'"), "[" + FilesAndEmailTextParameters.ReportDescription1 + "]",
 			"[" + FilesAndEmailTextParameters.MailingDate + "()]", "[" + FilesAndEmailTextParameters.ReportFormat + "]"));
 
 	Return Templates;
@@ -3190,7 +3190,7 @@ Procedure SetVisibilityAvailabilityAndCorrectness(Form, Changes = "")
 		GroupIncludedIntoPersonalDistributionHierarchy = IsMemberOfPersonalReportGroup(Object.Parent);
 		If Object.Personal <> GroupIncludedIntoPersonalDistributionHierarchy Then
 			SetFormModified(Form, "Parent", , 
-				NStr("en = 'The group applied complies with the distribution type.';"));
+				NStr("en = 'The group applied complies with the distribution type.'"));
 			Object.Parent = ?(Object.Personal, Form.Cache.PersonalMailingsGroup, Undefined);
 		EndIf;
 		
@@ -3256,10 +3256,10 @@ Procedure SetVisibilityAvailabilityAndCorrectness(Form, Changes = "")
 		ReportCount = Form.Object.Reports.Count();
 		If ReportCount > 0 Then
 			Items.ReportsPage.Title = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Reports (%1)';"), 
+				NStr("en = 'Reports (%1)'"), 
 				Format(ReportCount, "NZ=0; NG="));
 		Else
-			Items.ReportsPage.Title = NStr("en = 'Reports';") ;
+			Items.ReportsPage.Title = NStr("en = 'Reports'") ;
 		EndIf;
 	EndIf;
 	
@@ -3309,19 +3309,19 @@ Procedure SetVisibilityAvailabilityAndCorrectness(Form, Changes = "")
 		
 		TransportMethods = "";
 		If Object.UseFolder Then
-			TransportMethods = NStr("en = 'folder';");
+			TransportMethods = NStr("en = 'folder'");
 		EndIf;
 		If Object.UseNetworkDirectory Then
-			TransportMethods = NStr("en = 'network directory';");
+			TransportMethods = NStr("en = 'network directory'");
 		EndIf;
 		If Object.UseFTPResource Then
-			TransportMethods = NStr("en = 'FTP';");
+			TransportMethods = NStr("en = 'FTP'");
 		EndIf;
 		If Object.UseEmail And Not Object.NotifyOnly Then
-			TransportMethods = TransportMethods + ?(TransportMethods = "", NStr("en = 'email';"), " "+ NStr("en = 'and email';"));
+			TransportMethods = TransportMethods + ?(TransportMethods = "", NStr("en = 'email'"), " "+ NStr("en = 'and email'"));
 		EndIf;
 		
-		Items.DeliveryPage.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Delivery (%1)';"), TransportMethods);
+		Items.DeliveryPage.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Delivery (%1)'"), TransportMethods);
 	EndIf;
 	
 	If IsBlankString(Changes) Or StrCompare(Changes, "HTMLFormatEmail") = 0 Then
@@ -3340,9 +3340,9 @@ Procedure SetVisibilityAvailabilityAndCorrectness(Form, Changes = "")
 	
 	If Changes = "" Or Changes = "ExecuteOnSchedule" Then
 		If Object.ExecuteOnSchedule Then
-			Items.SchedulePage.Title = NStr("en = 'Schedule (active)';");
+			Items.SchedulePage.Title = NStr("en = 'Schedule (active)'");
 		Else
-			Items.SchedulePage.Title = NStr("en = 'Schedule (not active)';");
+			Items.SchedulePage.Title = NStr("en = 'Schedule (not active)'");
 		EndIf;
 		Items.ExecuteOnScheduleParameters.Enabled = Object.ExecuteOnSchedule;
 		Items.PeriodicityPages.Enabled           = Object.ExecuteOnSchedule;
@@ -3427,10 +3427,10 @@ Procedure SetVisibilityAvailabilityAndCorrectness(Form, Changes = "")
 			Form.BeginTime = Form.Schedule.BeginTime;
 			If Form.Schedule.DayInMonth >= 0 Then
 				Form.DayInMonth = Form.Schedule.DayInMonth;
-				Items.BegEndOfMonthHyperlink.Title = NStr("en = 'beginning';");
+				Items.BegEndOfMonthHyperlink.Title = NStr("en = 'beginning'");
 			Else
 				Form.DayInMonth = -Form.Schedule.DayInMonth;
-				Items.BegEndOfMonthHyperlink.Title = NStr("en = 'end';");
+				Items.BegEndOfMonthHyperlink.Title = NStr("en = 'end'");
 			EndIf;
 			For Each KeyAndValue In Form.Cache.Maps1.Months Do
 				Form[KeyAndValue.Key] = (Form.Schedule.Months.Find(KeyAndValue.Value) <> Undefined);
@@ -3476,9 +3476,9 @@ Procedure SetCertificatePasswordsVisibilityAndAvailability(Form)
 		If Object.Personalized Then
 			Items["GroupEncryptionCertificates"].Visible = False;
 			If Object.Archive Then
-				Items.PasswordsEncryption.Title = NStr("en = 'Set passwords and encrypt data';");
+				Items.PasswordsEncryption.Title = NStr("en = 'Set passwords and encrypt data'");
 			Else
-				Items.PasswordsEncryption.Title = NStr("en = 'Encrypt data';");
+				Items.PasswordsEncryption.Title = NStr("en = 'Encrypt data'");
 			EndIf;
 			Items.GroupPasswordsEncryption.Visible = True;
 			Items.GroupArchivePassword.Visible = False;
@@ -3486,7 +3486,7 @@ Procedure SetCertificatePasswordsVisibilityAndAvailability(Form)
 			Items.PasswordsEncryption.ToolTipRepresentation = ToolTipRepresentation.Button;
 			Items.PasswordsEncryption.ExtendedTooltip.Title = NStr("en = 'Set and configure passwords and encryption.
 				|When distributing reports by email, keep in mind that
-				|some mail servers might not accept encrypted files.';");
+				|some mail servers might not accept encrypted files.'");
 			Items.ShouldSetPasswordsAndEncrypt.Enabled = True;
 		Else
 			Items["GroupEncryptionCertificates"].Visible = ?(Form.Object.Personal, True, False);
@@ -3495,12 +3495,12 @@ Procedure SetCertificatePasswordsVisibilityAndAvailability(Form)
 		EndIf;
 	Else
 		If Object.Personalized Then
-			Items.PasswordsEncryption.Title = NStr("en = 'Set passwords';");
+			Items.PasswordsEncryption.Title = NStr("en = 'Set passwords'");
 			Items.GroupPasswordsEncryption.Visible   = True;
 			Items.GroupArchivePassword.Visible = False;
 			Items.PasswordsEncryption.Enabled = Object.Archive And Object.ShouldSetPasswordsAndEncrypt;
 			Items.PasswordsEncryption.ToolTipRepresentation = ToolTipRepresentation.Auto;
-			Items.PasswordsEncryption.ExtendedTooltip.Title = NStr("en = 'Set and configure passwords.';");
+			Items.PasswordsEncryption.ExtendedTooltip.Title = NStr("en = 'Set and configure passwords.'");
 			Items.ShouldSetPasswordsAndEncrypt.Enabled = Object.Archive;
 		Else
 			Items.GroupArchivePassword.Visible = True;
@@ -3554,7 +3554,7 @@ Function RecipientsPresentation1(Form)
 	NumberOfRecipients = RecipientsCountIncludingGroups(RecipientsParameters);
 	
 	If NumberOfRecipients.Total = 0 Then
-		Presentation.Short = NStr("en = '<Specify recipients>';");
+		Presentation.Short = NStr("en = '<Specify recipients>'");
 		Return Presentation;
 	EndIf;
 	
@@ -3566,7 +3566,7 @@ Function RecipientsPresentation1(Form)
 	EndIf;
 	
 	If NumberOfRecipients.ExcludedCount <> Undefined And NumberOfRecipients.ExcludedCount > 0 Then
-		SplitTemplate = NStr("en = 'Except';")+ ": ";
+		SplitTemplate = NStr("en = 'Except'")+ ": ";
 		Presentation.Full = Presentation.Full + ";" + Chars.LF + SplitTemplate + DisabledPresentation.Full;
 		If Presentation.LengthOfShort + DisabledPresentation.LengthOfShort <= 75 Then
 			Presentation.Short = Presentation.Short + "; " + SplitTemplate + DisabledPresentation.Short;
@@ -3576,12 +3576,12 @@ Function RecipientsPresentation1(Form)
 		Or DisabledPresentation.MaximumExceeded Then
 		If NumberOfRecipients.ExcludedCount <> Undefined And NumberOfRecipients.ExcludedCount > 0 Then
 			EndTemplate = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '(total %1 not including %2)';"),
+				NStr("en = '(total %1 not including %2)'"),
 				NumberOfRecipients.Total,
 				NumberOfRecipients.ExcludedCount);
 		Else
 			EndTemplate = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '(total %1)';"),
+				NStr("en = '(total %1)'"),
 				NumberOfRecipients.Total);
 		EndIf;
 		Presentation.Short = Presentation.Short + "; " + EndTemplate;
@@ -3613,7 +3613,7 @@ EndProcedure
 
 &AtClientAtServerNoContext
 Function DefaultFormatsPresentation()
-	Return NStr("en = 'default';");
+	Return NStr("en = 'default'");
 EndFunction
 
 &AtClientAtServerNoContext
@@ -3625,7 +3625,7 @@ Function RecipientsSpecified(Recipients)
 		EndIf;
 	EndDo;
 	
-	MessageText = NStr("en = 'No recipient is selected.';");
+	MessageText = NStr("en = 'No recipient is selected.'");
 	
 	Message = New UserMessage;
 	Message.Text = MessageText;
@@ -3721,7 +3721,7 @@ EndFunction
 Function AdditionOfSaaSSchedulePresentation()
 	
 	If Common.DataSeparationEnabled() Then
-		Return NStr("en = 'The exact start time might differ from the specified one.';");
+		Return NStr("en = 'The exact start time might differ from the specified one.'");
 	Else
 		Return "";
 	EndIf;
@@ -4030,7 +4030,7 @@ Function CheckTransportMethod(BulkEmail, Val DeliveryParameters)
 	SetPrivilegedMode(True);
 	
 	LogParameters = New Structure;
-	LogParameters.Insert("EventName",   NStr("en = 'Report distribution. Testing delivery method';", Common.DefaultLanguageCode()));
+	LogParameters.Insert("EventName",   NStr("en = 'Report distribution. Testing delivery method'", Common.DefaultLanguageCode()));
 	LogParameters.Insert("Data",       BulkEmail);
 	LogParameters.Insert("Metadata",   Metadata.Catalogs.ReportMailings);
 	LogParameters.Insert("ErrorsArray", New Array);
@@ -4069,9 +4069,9 @@ Function CheckTransportMethod(BulkEmail, Val DeliveryParameters)
 	ExecutionResult = New Structure("Text, More", "", "");
 	
 	If LogParameters.ErrorsArray.Count() = 0 Then 
-		ExecutionResult.Text = NStr("en = 'Delivery verification completed successfully.';");
+		ExecutionResult.Text = NStr("en = 'Delivery verification completed successfully.'");
 	Else
-		ExecutionResult.Text = NStr("en = 'Delivery verification failed.';");
+		ExecutionResult.Text = NStr("en = 'Delivery verification failed.'");
 		ExecutionResult.More = ReportMailing.MessagesToUserString(LogParameters.ErrorsArray, False);
 	EndIf;
 	
@@ -4102,7 +4102,7 @@ Function HasPeriodInSettings(RowID)
 	If UserSettings = Undefined Then
 		ReportParameters = New Structure("Report, Settings", ReportsRow.Report, Undefined);
 		LogParameters = New Structure;
-		LogParameters.Insert("EventName",   NStr("en = 'Report distribution. Report initialization';", Common.DefaultLanguageCode()));
+		LogParameters.Insert("EventName",   NStr("en = 'Report distribution. Report initialization'", Common.DefaultLanguageCode()));
 		LogParameters.Insert("Data",       ?(ValueIsFilled(Object.Ref), Object.Ref, ReportsRow.Report));
 		LogParameters.Insert("Metadata",   Metadata.Catalogs.ReportMailings);
 		LogParameters.Insert("ErrorsArray", New Array);
@@ -4446,7 +4446,7 @@ Procedure FillReportTableInfo()
 		ReportInformation = ReportsAvailability.Find(ReportsRow.Report, "Ref");
 		If ReportInformation = Undefined Then
 			ReportsRow.Enabled = False;
-			ReportsRow.Presentation = NStr("en = '<Insufficient rights to access the report>';");
+			ReportsRow.Presentation = NStr("en = '<Insufficient rights to access the report>'");
 		Else
 			ReportsRow.Enabled = ReportInformation.Available;
 			ReportsRow.Presentation = ReportInformation.Presentation;
@@ -4561,7 +4561,7 @@ EndProcedure
 Function InitializeReport(ReportsRow, AddCommonText, UserSettings, Interactively = True)
 	// Log parameters.
 	LogParameters = New Structure;
-	LogParameters.Insert("EventName",   NStr("en = 'Report distribution. Report initialization';", Common.DefaultLanguageCode()));
+	LogParameters.Insert("EventName",   NStr("en = 'Report distribution. Report initialization'", Common.DefaultLanguageCode()));
 	LogParameters.Insert("Data",       ?(ValueIsFilled(Object.Ref), Object.Ref, ReportsRow.Report));
 	LogParameters.Insert("Metadata",   Metadata.Catalogs.ReportMailings);
 	LogParameters.Insert("ErrorsArray", New Array);
@@ -4685,9 +4685,9 @@ Procedure AddReportsSettings(ReportsToAttach)
 		
 		If Not IsNew Then
 			If FoundItems.Count() > 0 Then
-				MessageRowTemplate = NStr("en = 'New user settings are imported for report ''%1''.';");
+				MessageRowTemplate = NStr("en = 'New user settings are imported for report ''%1''.'");
 			Else
-				MessageRowTemplate = NStr("en = '""%1"" report is added.';");
+				MessageRowTemplate = NStr("en = '""%1"" report is added.'");
 			EndIf;
 			MessageRowTemplate = StringFunctionsClientServer.SubstituteParametersToString(MessageRowTemplate, String(OptionRef));
 			If Not IsBlankString(PopupAlertTextOnOpen) Then
@@ -4729,13 +4729,13 @@ Procedure CreateAttributeItemEncryptionCertificate()
 	AttributesToAddArray = New Array;
 	AttributesToAddArray.Add(New FormAttribute("CertificateToEncrypt",
 		New TypeDescription("CatalogRef.DigitalSignatureAndEncryptionKeysCertificates"),,
-		NStr("en = 'Encryption certificate';")));
+		NStr("en = 'Encryption certificate'")));
 		
 	ChangeAttributes(AttributesToAddArray);
 	
 	Var_Group = Items.Add("GroupEncryptionCertificates", Type("FormGroup"), Items.ReportsFilesSettings);
 	Var_Group.Type = FormGroupType.UsualGroup;
-	Var_Group.Title = NStr("en = 'Encryption certificate';");
+	Var_Group.Title = NStr("en = 'Encryption certificate'");
 	Var_Group.ShowTitle = False;
 	Var_Group.EnableContentChange = False;
 	Var_Group.Representation = UsualGroupRepresentation.None;
@@ -4744,14 +4744,14 @@ Procedure CreateAttributeItemEncryptionCertificate()
 	Var_Group.ThroughAlign = ThroughAlign.DontUse;
 	
 	Item = Items.Add("CertificateToEncrypt", Type("FormField"), Var_Group);
-	Item.Title = NStr("en = 'Encryption certificate';");
+	Item.Title = NStr("en = 'Encryption certificate'");
 	Item.DataPath = "CertificateToEncrypt";
 	Item.Width = 70;
 	Item.Type = FormFieldType.InputField;
 	Item.SetAction("OnChange", "Attachable_EncryptionCertificateOnChange"); 
 	Item.ToolTipRepresentation = ToolTipRepresentation.Button;
 	Item.ExtendedTooltip.Title = NStr("en = 'When distributing reports by email, keep in mind that
-		|some mail servers might not accept encrypted files.';");
+		|some mail servers might not accept encrypted files.'");
 
 EndProcedure
 
@@ -4760,13 +4760,13 @@ Procedure DoDisplayImportance()
 
 	If Object.EmailImportance = EmailOperationsInternalClientServer.InternetMailMessageImportanceHigh() Then
 		Items.SeverityGroup.Picture = PictureLib.ImportanceHigh;
-		Items.SeverityGroup.ToolTip = NStr("en = 'High importance';");
+		Items.SeverityGroup.ToolTip = NStr("en = 'High importance'");
 	ElsIf Object.EmailImportance = EmailOperationsInternalClientServer.InternetMailMessageImportanceLow() Then
 		Items.SeverityGroup.Picture = PictureLib.ImportanceLow;
-		Items.SeverityGroup.ToolTip = NStr("en = 'Low importance';");
+		Items.SeverityGroup.ToolTip = NStr("en = 'Low importance'");
 	Else
 		Items.SeverityGroup.Picture = PictureLib.ImportanceNotSpecified;
-		Items.SeverityGroup.ToolTip = NStr("en = 'Normal importance';");
+		Items.SeverityGroup.ToolTip = NStr("en = 'Normal importance'");
 	EndIf;
 
 EndProcedure
@@ -4947,7 +4947,7 @@ Function TemplatePreviewFormParameters()
 	GeneratedReports = TrimAll(GeneratedReports);
 	If Object.Archive Then
 		GeneratedReports = GeneratedReports + Chars.LF + Chars.LF + NStr(
-			"en = 'Report files are archived';") + " ";
+			"en = 'Report files are archived'") + " ";
 
 		ArchiveNameStructure = New Structure("MailingDescription, ExecutionDate", Object.Description,
 			CurrentSessionDate());
@@ -5002,7 +5002,7 @@ Function TemplatePreviewFormParameters()
 		If ReportsPlannedList.Count() > 0 Then
 			ReportsList = StrConcat(ReportsPlannedList, Chars.LF);
 
-			AttachmentText = Chars.LF + Chars.LF + NStr("en = 'Email attachments:';");
+			AttachmentText = Chars.LF + Chars.LF + NStr("en = 'Email attachments:'");
 			If Object.Archive Then
 				ArchiveNameStructure = New Structure("MailingDescription, ExecutionDate", Object.Description, CurrentSessionDate());
 				ArchiveName = ReportMailing.FillTemplate(Object.ArchiveName, ArchiveNameStructure);
@@ -5086,12 +5086,12 @@ Procedure WriteAtClient(Result, WriteParameters) Export
 	If WriteParameters.Step = 3 And PreferablyDisableArchiving() Then
 		WriteParameters.Step = 4;
 		// Question.
-		QuestionTitle = NStr("en = 'Disable archiving';");
-		QueryText = NStr("en = 'Disable archiving to ZIP when publishing reports into a folder.';");
+		QuestionTitle = NStr("en = 'Disable archiving'");
+		QueryText = NStr("en = 'Disable archiving to ZIP when publishing reports into a folder.'");
 		
 		Buttons = New ValueList;
-		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Disable archiving to ZIP';"));
-		Buttons.Add(DialogReturnCode.Ignore, NStr("en = 'Continue';"));
+		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Disable archiving to ZIP'"));
+		Buttons.Add(DialogReturnCode.Ignore, NStr("en = 'Continue'"));
 		Buttons.Add(DialogReturnCode.Cancel);
 		
 		Handler = New CallbackDescription("WriteAtClient", ThisObject, WriteParameters);
@@ -5257,7 +5257,7 @@ EndProcedure
 Procedure MailingEvents()
 	EventLogFormParameters = EventLogParameters(Object.Ref);
 	If EventLogFormParameters = Undefined Then
-		ShowMessageBox(, NStr("en = 'Report distribution has not been started yet.';"));
+		ShowMessageBox(, NStr("en = 'Report distribution has not been started yet.'"));
 		Return;
 	EndIf;
 	OpenForm("DataProcessor.EventLog.Form", EventLogFormParameters, ThisObject);

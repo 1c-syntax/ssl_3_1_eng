@@ -83,7 +83,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 			Query = New Query;
 			Query.TempTablesManager = New TempTablesManager;
 			Query.Text =  StrReplace(FirstQueryText,"&CatalogName","Catalog." + KeyAndValue.Key);
-			// @skip-check query-in-loop - Batch-wise data processing
+			// @skip-check query-in-loop 
 			Query.Execute();
 			
 			Query.Text = StrReplace(SecondQueryText,"&CatalogName","Catalog." + KeyAndValue.Key);
@@ -94,7 +94,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 				
 				Query.SetParameter("FileOwnerRef", FileOwnerRef);
 				
-				// @skip-check query-in-loop - Batch-wise data processing
+				// @skip-check query-in-loop 
 				ValueTable = Query.Execute().Unload(); 
 			
 				InfobaseUpdate.MarkForProcessing(Parameters, ValueTable, AdditionalParameters);
@@ -211,7 +211,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			InfobaseUpdate.MarkProcessingCompletion(DataTable,AddlParameters,Parameters.Queue);
 		EndIf;
 		
-		MessageTemplate = NStr("en = 'The ""FilesExist"" register. The object batch has been processed: %1';");
+		MessageTemplate = NStr("en = 'The ""FilesExist"" register. The object batch has been processed: %1'");
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageTemplate, DataToProcess.Count());
 			WriteLogEvent(
 				InfobaseUpdate.EventLogEvent(), EventLogLevel.Information, , ,
@@ -230,7 +230,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		ObjectsWithIssuesCount = 0;
 
 		ListOfDescriptions = New Array;
-		ListOfDescriptions.Add(NStr("en = 'Failed to process objects from the ""FilesExist"" information register:';"));
+		ListOfDescriptions.Add(NStr("en = 'Failed to process objects from the ""FilesExist"" information register:'"));
 
 		For Each CurrentItem In DataToProcess Do
 			
@@ -302,7 +302,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 				
 				MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Couldn''t update information about availability of flies in %1. Reason:
-						|%2';"), 
+						|%2'"), 
 					RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
 					CurrentItem.ObjectWithFiles.Metadata(), CurrentItem.ObjectWithFiles, MessageText);
@@ -336,14 +336,14 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 
 		If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 
-			ListOfDescriptions.Add(NStr("en = 'Skipped: %1';"));
+			ListOfDescriptions.Add(NStr("en = 'Skipped: %1'"));
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(StrConcat(ListOfDescriptions, Chars.LF), 
 				ObjectsWithIssuesCount);
 			Raise MessageText;
 
 		Else
 
-			MessageTemplate = NStr("en = 'The ""FilesExist"" register. The object batch has been processed: %1';");
+			MessageTemplate = NStr("en = 'The ""FilesExist"" register. The object batch has been processed: %1'");
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageTemplate, ObjectsProcessed);
 			WriteLogEvent(
 				InfobaseUpdate.EventLogEvent(), EventLogLevel.Information, , ,

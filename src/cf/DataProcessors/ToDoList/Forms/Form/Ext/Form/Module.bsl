@@ -301,7 +301,7 @@ Function GenerateToDoListInBackground()
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.WaitCompletion = 0; // Run immediately.
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update to-do list';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update to-do list'");
 	ExecutionParameters.ResultAddress = UserTasksToStorage;
 	// Always runs in the background to prevent performance degradation.
 	// In file mode, it might be delayed if another background job is running.
@@ -401,7 +401,7 @@ Procedure GenerateToDoListInBackgroundCompletion(Result, AdditionalParameters) E
 			For Each ToDoWithNotification In ToDoItemsWithNotification Do
 				NotificationProcessing = New CallbackDescription("GoToImportantUserTaskFromNotificationCenter", ThisObject, 
 					ToDoWithNotification.Id);
-				ShowUserNotification(NStr("en = 'To-do list';"),
+				ShowUserNotification(NStr("en = 'To-do list'"),
 					NotificationProcessing, ToDoWithNotification.LongDesc, Picture, UserNotificationStatus.Important,
 					ToDoWithNotification.Id);
 			EndDo;
@@ -534,7 +534,7 @@ Procedure CreateCaption(ToDoItem, Var_Group, SectionCollapsed)
 	Item.Width      = 2;
 	Item.Height      = 1;
 	Item.SetAction("Click", "Attachable_ProcessPictureClick");
-	Item.ToolTip = NStr("en = 'Expand or collapse the section.';");
+	Item.ToolTip = NStr("en = 'Expand or collapse the section.'");
 	
 	// Create a section title.
 	Item = Items.Add("Title" + ToDoItem.OwnerID, Type("FormDecoration"), Var_Group);

@@ -23,7 +23,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// Verify that the form is opened with the required parameters
 	If Not ValueIsFilled(Parameters.ExchangePlanName) Then
 		
-		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
+		Raise NStr("en = 'This is a dependent form and opens from a different form.'", Common.DefaultLanguageCode());
 		
 	EndIf;
 	
@@ -53,12 +53,12 @@ EndProcedure
 Procedure OnOpen(Cancel)
 	
 	TooltipTemplate = NStr("en = 'You can download a rule set from %1 
-		|or find in %2';");
+		|or find in %2'");
 	
-	UpdateDirectoryPattern = NStr("en = 'the %1 application directory';");
+	UpdateDirectoryPattern = NStr("en = 'the %1 application directory'");
 	UpdateDirectoryPattern = StringFunctionsClientServer.SubstituteParametersToString(UpdateDirectoryPattern, ApplicationName);
 	
-	UserSitePattern = NStr("en = '1C:Enterprise support website';");
+	UserSitePattern = NStr("en = '1C:Enterprise support website'");
 	If Not IsBlankString(RuleSetLocation.PathToRulesSetFileOnUserSite) Then
 		UserSitePattern = New FormattedString(UserSitePattern,,,, RuleSetLocation.PathToRulesSetFileOnUserSite);
 	EndIf;
@@ -74,7 +74,7 @@ Procedure OnOpen(Cancel)
 		AdditionalParameters.Insert("UserTemplateSettings", AppDataDirectory() + "1C\1CEStart\1CEStart.cfg");
 		AdditionalParameters.Insert("FileLocation1",                 "");
 		
-		SuggestionText = NStr("en = 'To open the directory, install 1C:Enterprise Extension.';");
+		SuggestionText = NStr("en = 'To open the directory, install 1C:Enterprise Extension.'");
 		Notification = New CallbackDescription("AfterCheckFileSystemExtension", ThisObject, AdditionalParameters);
 		FileSystemClient.Attach1CEnterpriseExtension(Notification, SuggestionText);
 	Else
@@ -105,7 +105,7 @@ Procedure DetermineFileExists(Exists, AdditionalParameters) Export
 
 #If WebClient Then
 	
-	Raise NStr("en = 'The operation is not available in web client';");
+	Raise NStr("en = 'The operation is not available in web client'");
 	
 #Else
 	
@@ -185,7 +185,7 @@ Function CheckFillingAtClient()
 			
 			If Not ValueIsFilled(FileName) Then
 				
-				MessageString = NStr("en = 'External data processor file name is not specified';");
+				MessageString = NStr("en = 'External data processor file name is not specified'");
 				CommonClient.MessageToUser(MessageString,, "ExportDebuggingDataProcessorFileName",, HasBlankFields);
 				
 			EndIf;
@@ -199,7 +199,7 @@ Function CheckFillingAtClient()
 			
 			If Not ValueIsFilled(FileName) Then
 				
-				MessageString = NStr("en = 'External data processor file name is not specified';");
+				MessageString = NStr("en = 'External data processor file name is not specified'");
 				CommonClient.MessageToUser(MessageString,, "ImportDebuggingDataProcessorFileName",, HasBlankFields);
 				
 			EndIf;
@@ -213,7 +213,7 @@ Function CheckFillingAtClient()
 			
 			If Not ValueIsFilled(FileName) Then
 				
-				MessageString = NStr("en = 'Exchange protocol file name is not specified.';");
+				MessageString = NStr("en = 'Exchange protocol file name is not specified.'");
 				CommonClient.MessageToUser(MessageString,, "ExchangeProtocolFileName",, HasBlankFields);
 				
 			EndIf;
@@ -257,7 +257,7 @@ Procedure ExternalDataProcessorForExportDebugStartChoice(Item, ChoiceData, Stand
 	
 	DebuggingSettingsChanged = True;
 	DialogSettings = New Structure;
-	DialogSettings.Insert("Filter", NStr("en = 'External data processor (*.epf)';") + "|*.epf" );
+	DialogSettings.Insert("Filter", NStr("en = 'External data processor (*.epf)'") + "|*.epf" );
 	
 	DataExchangeClient.FileSelectionHandler(ThisObject, "ExportDebuggingDataProcessorFileName", StandardProcessing, DialogSettings);
 	
@@ -268,7 +268,7 @@ Procedure ExternalDataProcessorForImportDebugStartChoice(Item, ChoiceData, Stand
 	
 	DebuggingSettingsChanged = True;
 	DialogSettings = New Structure;
-	DialogSettings.Insert("Filter", NStr("en = 'External data processor (*.epf)';") + "|*.epf" );
+	DialogSettings.Insert("Filter", NStr("en = 'External data processor (*.epf)'") + "|*.epf" );
 	
 	StandardProcessing = False;
 	DataExchangeClient.FileSelectionHandler(ThisObject, "ImportDebuggingDataProcessorFileName", StandardProcessing, DialogSettings);
@@ -296,7 +296,7 @@ Procedure ExchangeProtocolFileStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	DebuggingSettingsChanged = True;
 	DialogSettings = New Structure;
-	DialogSettings.Insert("Filter", NStr("en = 'Text document (*.txt)';")+ "|*.txt" );
+	DialogSettings.Insert("Filter", NStr("en = 'Text document (*.txt)'")+ "|*.txt" );
 	DialogSettings.Insert("CheckFileExistence", False);
 	
 	DataExchangeClient.FileSelectionHandler(ThisObject, "ExchangeProtocolFileName", StandardProcessing, DialogSettings);
@@ -349,8 +349,8 @@ Procedure ImportRules(Command)
 	NameParts = CommonClientServer.ParseFullFileName(RulesFileName);
 	
 	DialogParameters = New Structure;
-	DialogParameters.Insert("Title", NStr("en = 'Select an exchange rule archive';"));
-	DialogParameters.Insert("Filter", NStr("en = 'ZIP archive (*.zip)';") + "|*.zip");
+	DialogParameters.Insert("Title", NStr("en = 'Select an exchange rule archive'"));
+	DialogParameters.Insert("Filter", NStr("en = 'ZIP archive (*.zip)'") + "|*.zip");
 	DialogParameters.Insert("FullFileName", NameParts.FullName);
 	
 	Notification = New CallbackDescription("ImportRulesCompletion", ThisObject);
@@ -371,16 +371,16 @@ Procedure UnloadRules(Command)
 	EndIf;
 	
 	If IsBlankString(NameParts.BaseName) Then
-		FullFileName = NStr("en = 'Conversion rules';");
+		FullFileName = NStr("en = 'Conversion rules'");
 	Else
 		FullFileName = NameParts.BaseName;
 	EndIf;
 	
 	DialogParameters = New Structure;
 	DialogParameters.Insert("Mode", FileDialogMode.Save);
-	DialogParameters.Insert("Title", NStr("en = 'Select a file to export rules to';") );
+	DialogParameters.Insert("Title", NStr("en = 'Select a file to export rules to'") );
 	DialogParameters.Insert("FullFileName", FullFileName);
-	DialogParameters.Insert("Filter", NStr("en = 'ZIP archive (*.zip)';") + "|*.zip");
+	DialogParameters.Insert("Filter", NStr("en = 'ZIP archive (*.zip)'") + "|*.zip");
 	
 	FileToReceive = New Structure("Name, Location", FullFileName, StorageAddress);
 	
@@ -397,13 +397,13 @@ Procedure WriteAndClose(Command)
 		If ConversionRuleSource = PredefinedValue("Enum.DataExchangeRulesSources.ConfigurationTemplate") Then
 			
 			ErrorDescription = NStr("en = 'Rules are not imported. If you close the form, the default conversion rules will apply.
-			|Apply the default rules?';");
+			|Apply the default rules?'");
 			
 			Notification = New CallbackDescription("CloseRuleImportForm", ThisObject);
 			
 			Buttons = New ValueList;
-			Buttons.Add("Use", NStr("en = 'Use';"));
-			Buttons.Add("Cancel", NStr("en = 'Cancel';"));
+			Buttons.Add("Use", NStr("en = 'Use'"));
+			Buttons.Add("Cancel", NStr("en = 'Cancel'"));
 			
 			FormParameters = StandardSubsystemsClient.QuestionToUserParameters();
 			FormParameters.DefaultButton = "Use";
@@ -442,7 +442,7 @@ Procedure ImportRulesCompletion(Val PutFilesResult, Val AdditionalParameters) Ex
 	ErrorText           = PutFilesResult.ErrorDescription;
 	
 	If IsBlankString(ErrorText) And IsBlankString(PutFileAddress) Then
-		ErrorText = NStr("en = 'An error occurred while sending a file of data synchronization settings to the server.';");
+		ErrorText = NStr("en = 'An error occurred while sending a file of data synchronization settings to the server.'");
 	EndIf;
 	
 	If Not IsBlankString(ErrorText) Then
@@ -457,7 +457,7 @@ Procedure ImportRulesCompletion(Val PutFilesResult, Val AdditionalParameters) Ex
 		CommonClient.MessageToUser(NStr("en = 'Invalid rules file. Expected a ZIP archive with three files:
 			|ExchangeRules.xml. Contains conversion rules for this application.
 			|CorrespondentExchangeRules.xml. Contains conversion rules for the peer application.
-			|RegistrationRules.xml. Contains registration rules for this application.';"));
+			|RegistrationRules.xml. Contains registration rules for this application.'"));
 	EndIf;
 	
 	BeforeRuleImport(PutFileAddress, NameParts.Name);
@@ -477,10 +477,10 @@ Procedure PerformRuleImport(Val PutFileAddress, Val FileName, ErrorDescription =
 		Buttons = New ValueList;
 		
 		If ErrorDescription.ErrorKind = "InvalidConfiguration" Then
-			Buttons.Add("Cancel", NStr("en = 'Close';"));
+			Buttons.Add("Cancel", NStr("en = 'Close'"));
 		Else
-			Buttons.Add("Continue", NStr("en = 'Continue';"));
-			Buttons.Add("Cancel", NStr("en = 'Cancel';"));
+			Buttons.Add("Continue", NStr("en = 'Continue'"));
+			Buttons.Add("Cancel", NStr("en = 'Cancel'"));
 		EndIf;
 		
 		AdditionalParameters = New Structure;
@@ -493,20 +493,20 @@ Procedure PerformRuleImport(Val PutFileAddress, Val FileName, ErrorDescription =
 		FormParameters.Picture = ErrorDescription.Picture;
 		FormParameters.PromptDontAskAgain = False;
 		If ErrorDescription.ErrorKind = "InvalidConfiguration" Then
-			FormParameters.Title = NStr("en = 'Cannot import rules';");
+			FormParameters.Title = NStr("en = 'Cannot import rules'");
 		Else
-			FormParameters.Title = NStr("en = 'Data synchronization might be performed incorrectly';");
+			FormParameters.Title = NStr("en = 'Data synchronization might be performed incorrectly'");
 		EndIf;
 		
 		StandardSubsystemsClient.ShowQuestionToUser(Notification, ErrorDescription.ErrorText, Buttons, FormParameters);
 		
 	ElsIf Cancel Then
 		ErrorText = NStr("en = 'Errors occurred when importing the rules.
-			|Go to the event log?';");
+			|Go to the event log?'");
 		Notification = New CallbackDescription("ShowEventLogWhenErrorOccurred", ThisObject);
 		ShowQueryBox(Notification, ErrorText, QuestionDialogMode.YesNo, ,DialogReturnCode.No);
 	Else
-		ShowUserNotification(,, NStr("en = 'The rules are imported to the infobase.';"));
+		ShowUserNotification(,, NStr("en = 'The rules are imported to the infobase.'"));
 		Close();
 	EndIf;
 	
@@ -599,7 +599,7 @@ Function GetRuleArchiveTempStorageAddressAtServer()
 	
 	If Result.IsEmpty() Then
 		
-		NString = NStr("en = 'Cannot receive exchange rules.';");
+		NString = NStr("en = 'Cannot receive exchange rules.'");
 		DataExchangeServer.ReportError(NString);
 		DeleteFiles(TempDirectoryName);
 		Return "";
@@ -658,9 +658,9 @@ Procedure UpdateRuleInfo()
 		|[ConversionRulesInformation]";
 	
 	If RulesSource = "RuelsImportedFromFile" Then
-		UsageInformation = NStr("en = 'Exchange rules imported from a file are applied.';");
+		UsageInformation = NStr("en = 'Exchange rules imported from a file are applied.'");
 	Else
-		UsageInformation = NStr("en = 'Default configuration exchange rules are used.';");
+		UsageInformation = NStr("en = 'Default configuration exchange rules are used.'");
 	EndIf;
 	
 	CommonRulesInformation = StrReplace(CommonRulesInformation, "[UsageInformation]", UsageInformation);

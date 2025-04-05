@@ -20,7 +20,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		DataExchangeOverridable.OnGetAvailableFormatExtensions(ExtensionsCollection);
 	Except
 		// Cannot get available format versions.
-		Raise NStr("en = 'The infobase does not support universal data synchronization format.';");
+		Raise NStr("en = 'The infobase does not support universal data synchronization format.'");
 	EndTry;
 	
 	For Each Extension In ExtensionsCollection Do
@@ -33,11 +33,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	FormOpenOption = ?(Parameters.Property("ImportOnly"), "ImportOnly", "");
 	
 	If FormOpenOption = "ImportOnly" Then
-		ThisObject.Title = NStr("en = 'Import EnterpriseData data';");
+		ThisObject.Title = NStr("en = 'Import EnterpriseData data'");
 		Items.LabelExportWithIntegratedDataProcessor.Visible = True;
 	Else
 		Items.LabelExportWithIntegratedDataProcessor.Visible = False;
-		ThisObject.Title = NStr("en = 'Export and import EnterpriseData data';");
+		ThisObject.Title = NStr("en = 'Export and import EnterpriseData data'");
 	EndIf;
 	
 	MetaDataProcessorName = DataProcessorObject.Metadata().Name;
@@ -217,7 +217,7 @@ Procedure ExecuteOperation(Command)
 	If OperationKind = "Load" Then
 		If ImportSource = 1 Then // A text field.
 			If Not ValueIsFilled(DataForXDTOImport) Then
-				CommonClient.MessageToUser(NStr("en = 'Please specify the data to import.';"));
+				CommonClient.MessageToUser(NStr("en = 'Please specify the data to import.'"));
 				Return;
 			EndIf;
 		Else
@@ -243,7 +243,7 @@ Procedure AbortExportImport(Command)
 	Items.ExportImport.CurrentPage = ?(OperationKind = "Load", Items.Load, Items.Upload0);
 	SetVisibilityAvailabilityOfButtons(True);
 	Message = New UserMessage();
-	Message.Text = NStr("en = 'The operation is canceled.';");
+	Message.Text = NStr("en = 'The operation is canceled.'");
 	Message.Message();
 
 EndProcedure
@@ -289,7 +289,7 @@ Procedure ShouldSaveSettings(Command)
 	FileSystemClient.SaveFile(
 		Undefined,
 		FileAddressInStorage,
-		NStr("en = 'Export settings file.xml';"),
+		NStr("en = 'Export settings file.xml'"),
 		SavingParameters);
 	
 EndProcedure
@@ -342,7 +342,7 @@ EndProcedure
 &AtClient
 Procedure ImportMessage()
 	
-	Items.TimeConsumingOperationNoteTextDecoration.Title = NStr("en = 'Importing data…';");
+	Items.TimeConsumingOperationNoteTextDecoration.Title = NStr("en = 'Importing data…'");
 	Items.ExportImport.CurrentPage = Items.Waiting;
 	
 	SetVisibilityAvailabilityOfButtons(False);
@@ -377,7 +377,7 @@ EndProcedure
 &AtClient
 Procedure OnCompleteImport(Result, AdditionalParameters) Export
 	If Result = Undefined Then
-		Raise NStr("en = 'Cannot import data.';");
+		Raise NStr("en = 'Cannot import data.'");
 	ElsIf Result.Status = "Error" Then
 		Raise Result.BriefErrorDescription;
 	EndIf;
@@ -386,7 +386,7 @@ EndProcedure
 
 &AtClient
 Procedure ExportData()
-	Items.TimeConsumingOperationNoteTextDecoration.Title = NStr("en = 'Exporting data…';");
+	Items.TimeConsumingOperationNoteTextDecoration.Title = NStr("en = 'Exporting data…'");
 	Items.ExportImport.CurrentPage = Items.Waiting;
 	SetVisibilityAvailabilityOfButtons(False);
 	ArrayOfMessages = Undefined;
@@ -409,7 +409,7 @@ EndProcedure
 &AtClient
 Procedure OnCompleteExport(Result, AdditionalParameters) Export
 	If Result = Undefined Then
-		Raise NStr("en = 'Cannot export data. The export result is missing.';");
+		Raise NStr("en = 'Cannot export data. The export result is missing.'");
 	ElsIf Result.Status = "Error" Then
 		Raise Result.BriefErrorDescription;
 	EndIf;
@@ -469,7 +469,7 @@ EndProcedure
 Procedure SelectFileForImportAtClient(ImportAfterChoice = False)
 	
 	OpenFileDialog = New FileDialog(FileDialogMode.Open);
-	OpenFileDialog.Filter = NStr("en = 'Import data (*.xml)|*.xml';");
+	OpenFileDialog.Filter = NStr("en = 'Import data (*.xml)|*.xml'");
 	
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("ForImport",          True);
@@ -485,7 +485,7 @@ EndProcedure
 Procedure SelectFileForExportAtClient(ExportAfterChoice = False, ResultStorageAddress = "")
 	
 	OpenFileDialog = New FileDialog(FileDialogMode.Save);
-	OpenFileDialog.Filter = NStr("en = 'Export data (*.xml)|*.xml';");
+	OpenFileDialog.Filter = NStr("en = 'Export data (*.xml)|*.xml'");
 	
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("ForImport",             False);
@@ -552,7 +552,7 @@ Function ExportDataAtServer()
 	
 	ModuleTimeConsumingOperations = Common.CommonModule("TimeConsumingOperations");
 	ExecutionParameters = ModuleTimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Export EnterpriseData data';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Export EnterpriseData data'");
 	BackgroundJobResult = ModuleTimeConsumingOperations.ExecuteInBackground(MethodToExecute, JobParameters, ExecutionParameters);
 	Return BackgroundJobResult;
 EndFunction
@@ -603,7 +603,7 @@ Function ImportDataAtServer()
 	
 	ModuleTimeConsumingOperations = Common.CommonModule("TimeConsumingOperations");
 	ExecutionParameters = ModuleTimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Import EnterpriseData data';");
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Import EnterpriseData data'");
 	BackgroundJobResult = ModuleTimeConsumingOperations.ExecuteInBackground(MethodToExecute, JobParameters, ExecutionParameters);
 	Return BackgroundJobResult;
 
@@ -635,7 +635,7 @@ Procedure AddFilterDataIfNecessary()
 			ElsIf AdditionStrings.Count() = 0 Then
 				NewString = Object.AdditionalRegistration.Add();
 				FillPropertyValues(NewString, MetadataString, "FullMetadataName, Presentation");
-				NewString.FilterAsString = NStr("en = 'All objects';");
+				NewString.FilterAsString = NStr("en = 'All objects'");
 				NewString.PeriodSelection = MetadataString.FilterByPeriod;
 			EndIf;
 		EndDo;
@@ -653,7 +653,7 @@ Procedure ManagerModuleStartChoice(ManagerModuleAttribute, StandardProcessing, U
 	AdditionalParameters.Insert("UpdateExport", UpdateExport);
 	
 	OpenFileDialog = New FileDialog(FileDialogMode.Open);
-	OpenFileDialog.Filter = NStr("en = 'External data processor (*.epf)|*.epf';");
+	OpenFileDialog.Filter = NStr("en = 'External data processor (*.epf)|*.epf'");
 	
 	ChoiceNotification = New CallbackDescription("FileSelected", ThisObject, AdditionalParameters);
 		
@@ -760,7 +760,7 @@ EndProcedure
 Procedure RefreshExportRulesAtServer()
 	
 	Items.FormatExtension.ChoiceList.Clear();
-	Items.FormatExtension.ChoiceList.Add("", NStr("en = '<without extension>';"));
+	Items.FormatExtension.ChoiceList.Add("", NStr("en = '<without extension>'"));
 	For Each Extension In FormatExtensions.FindRows(New Structure("BaseVersion", Object.FormatVersion)) Do
 		Items.FormatExtension.ChoiceList.Add(Extension.Namespace);
 	EndDo;
@@ -774,7 +774,7 @@ EndProcedure
 Procedure UpdateTheUploadRulesOnTheServer()
 	
 	Items.FormatExtensionImport.ChoiceList.Clear();
-	Items.FormatExtensionImport.ChoiceList.Add("", NStr("en = '<without extension>';"));
+	Items.FormatExtensionImport.ChoiceList.Add("", NStr("en = '<without extension>'"));
 	For Each Extension In FormatExtensions.FindRows(New Structure("BaseVersion", Object.FormatVersion)) Do
 		
 		Items.FormatExtensionImport.ChoiceList.Add(Extension.Namespace);
@@ -887,9 +887,9 @@ Procedure ReportOperationEnd(Load = False)
 	SetVisibilityAvailabilityOfButtons(True);
 	Message = New UserMessage();
 	If Load Then
-		Message.Text = NStr("en = 'Data import completed.';");
+		Message.Text = NStr("en = 'Data import completed.'");
 	Else
-		Message.Text = NStr("en = 'Data has been exported.';");
+		Message.Text = NStr("en = 'Data has been exported.'");
 	EndIf;
 	Message.Message();
 EndProcedure
@@ -941,7 +941,7 @@ Procedure FillInTheDefaultFormatVersion(AvailableVersionsArray)
 	
 	If AvailableVersionsArray.Count() = 0 Then
 		
-		StringSupportedFormatVersions = NStr("en = 'No supported format versions are found.';", Common.DefaultLanguageCode());
+		StringSupportedFormatVersions = NStr("en = 'No supported format versions are found.'", Common.DefaultLanguageCode());
 		
 		Items.FormExecuteOperation.Enabled = False;
 		Items.StringSupportedFormatVersions.TextColor = StyleColors.ErrorNoteText;
@@ -959,7 +959,7 @@ Procedure FillInTheDefaultFormatVersion(AvailableVersionsArray)
 		EndDo;
 		
 		VersionsListPresentation = Mid(VersionsListPresentation, 3);
-		StringSupportedFormatVersions = StrTemplate(NStr("en = 'Supported format versions: %1';"), VersionsListPresentation);
+		StringSupportedFormatVersions = StrTemplate(NStr("en = 'Supported format versions: %1'"), VersionsListPresentation);
 		Object.FormatVersion = Items.FormatVersion.ChoiceList[AvailableVersionsArray.Count()-1].Value;
 		
 		RefreshExportRulesAtServer();

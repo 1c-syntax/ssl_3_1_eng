@@ -172,7 +172,7 @@ Procedure SetServiceActivationInstructionText()
 	
 	InstructionTemplate = NStr("en = 'To start sending text messages, you need to sign an agreement with <a href = ""%1"">%2</a>.
 	|Enter the sender''s name only if it is provided by the agreement.
-	|For payment details and authorization issues, contact the SMS service provider.';");
+	|For payment details and authorization issues, contact the SMS service provider.'");
 	
 	Items.ServiceActivationInstruction.Title = StringFunctionsClient.FormattedString(
 	StringFunctionsClientServer.SubstituteParametersToString(InstructionTemplate, ServiceDetailsInternetAddress(), ConstantsSet.SMSProvider));

@@ -15,7 +15,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not Parameters.Property("DataForSelectedRows") Then
 		
-		Raise NStr("en = 'The form cannot be used independently.';", Common.DefaultLanguageCode());
+		Raise NStr("en = 'The form cannot be used independently.'", Common.DefaultLanguageCode());
 		
 	EndIf;
 	
@@ -47,7 +47,7 @@ Procedure PostDocuments(Command)
 	If ParametersOfTheEvent.NumberOfDaysSpent <> ParametersOfTheEvent.TotalCount1 Then
 		
 		ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Posted documents: %1 from %2.';"),
+			NStr("en = 'Posted documents: %1 from %2.'"),
 			Format(ParametersOfTheEvent.NumberOfDaysSpent, "NZ=; NG=0"),
 			Format(ParametersOfTheEvent.TotalCount1, "NZ=; NG=0"));
 		
@@ -134,7 +134,7 @@ EndProcedure
 Procedure HoldDocumentsOnTheServer(ParametersOfTheEvent)
 	
 	WarningTemplate = NStr("en = 'The [%1] document was not posted due to filling check errors. 
-		|To fix the issue, open the document and post it manually.';", Common.DefaultLanguageCode());
+		|To fix the issue, open the document and post it manually.'", Common.DefaultLanguageCode());
 	
 	
 	For Each SelectedRow In PatchObjectsTable Do
@@ -163,7 +163,7 @@ Procedure HoldDocumentsOnTheServer(ParametersOfTheEvent)
 				
 				DocumentObject.Write(DocumentWriteMode.Posting);
 				
-				SelectedRow.PatchResult = NStr("en = 'Document successfully posted.';");
+				SelectedRow.PatchResult = NStr("en = 'Document successfully posted.'");
 				ParametersOfTheEvent.NumberOfDaysSpent = ParametersOfTheEvent.NumberOfDaysSpent + 1;
 				
 			Else

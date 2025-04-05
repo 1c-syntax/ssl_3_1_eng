@@ -14,7 +14,7 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not Parameters.Property("Node") Then
-		Raise NStr("en = 'The data processor cannot be opened manually.';");
+		Raise NStr("en = 'The data processor cannot be opened manually.'");
 	EndIf;
 	
 	Node = Parameters.Node;
@@ -22,7 +22,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	IsStandaloneWorkstation = DataExchangeCached.IsStandaloneWorkstationNode(Node);
 	
-	TitleTemplate1 = NStr("en = 'Saving the ""%1"" node';");
+	TitleTemplate1 = NStr("en = 'Saving the ""%1"" node'");
 	Title = StrTemplate(TitleTemplate1, String(Node)); 
 	
 EndProcedure
@@ -71,7 +71,7 @@ EndFunction
 Function StartProcedureExecution()
 	
 	ExecutionParameters = TimeConsumingOperations.ProcedureExecutionParameters();
-	DescriptionTemplate = NStr("en = '""Long """"%1"""" node saving';");
+	DescriptionTemplate = NStr("en = '""Long """"%1"""" node saving'");
 	ExecutionParameters.BackgroundJobDescription = StrTemplate(DescriptionTemplate, String(Node));
 	ExecutionParameters.BackgroundJobKey = "DeferredNodeWriting";
 	

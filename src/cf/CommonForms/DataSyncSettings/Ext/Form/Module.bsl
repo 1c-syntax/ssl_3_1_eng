@@ -231,7 +231,7 @@ Procedure NewPredefinedNodeCode(Command)
 	
 	If List.Count() = 0 Then
 		
-		ShowMessageBox(,NStr("en = 'No exchange plans available to set a new code';"));
+		ShowMessageBox(,NStr("en = 'No exchange plans available to set a new code'"));
 				
 	ElsIf List.Count() = 1 Then
 		
@@ -244,7 +244,7 @@ Procedure NewPredefinedNodeCode(Command)
 	Else
 		
 		NotificationProcessing = New CallbackDescription("NewPredefinedNodeCodeCompletion", ThisObject);
-		List.ShowChooseItem(NotificationProcessing, NStr("en = 'Select an exchange plan';"))	
+		List.ShowChooseItem(NotificationProcessing, NStr("en = 'Select an exchange plan'"))	
 	
 	EndIf;
 			
@@ -377,7 +377,7 @@ Procedure SynchronizationExecutionCommandProcessing(CurrentData, UseAddlFilters 
 		
 		WarningTex = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Starting synchronization with %1 from this application is not supported.
-				 |Please open %1 and start the synchronization from there.';", CommonClient.DefaultLanguageCode()),
+				 |Please open %1 and start the synchronization from there.'", CommonClient.DefaultLanguageCode()),
 			CurrentData.PeerInfobaseName);
 			
 			ShowMessageBox(,WarningTex);
@@ -506,7 +506,7 @@ Procedure DeleteTheSynchronizationSettings(CurrentData)
 		And CurrentData.SynchronizationSetupInServiceManager Then
 			
 		ShowMessageBox(, NStr("en = 'To delete data synchronization settings, go to your cloud application personal account and
-			| click ""Data synchronization"".';"));
+			| click ""Data synchronization"".'"));
 		
 	Else
 		
@@ -566,7 +566,7 @@ Procedure ExecuteInitialDataExport(CurrentData)
 		
 	ElsIf Not CurrentData.InteractiveSendingAvailable Then
 		
-		ShowMessageBox(, NStr("en = 'Exporting data for mapping is not supported for the selected synchronization setup option.';"));
+		ShowMessageBox(, NStr("en = 'Exporting data for mapping is not supported for the selected synchronization setup option.'"));
 		
 	Else
 		
@@ -638,7 +638,7 @@ Procedure RunACommandWithAPreliminaryCheck(CommandByLine)
 	If CommandByLine <> "DeleteSynchronizationSetting"
 		And CurrentData.SynchronizationIsUnavailable Then
 		
-		MessageText = NStr("en = 'Synchronization is unavailable';");
+		MessageText = NStr("en = 'Synchronization is unavailable'");
 		
 		CommonClient.MessageToUser(MessageText);
 		
@@ -1146,15 +1146,15 @@ Procedure FinishSettingUpSynchronizationInTheDialog(DescriptionOfTheApplicationS
 	
 	If DescriptionOfTheApplicationString.ThisIsTheInitialUpload Then
 		
-		TextPart1 = NStr("en = 'Before exporting data for mapping, finish the synchronization setup.';", CommonClient.DefaultLanguageCode());
+		TextPart1 = NStr("en = 'Before exporting data for mapping, finish the synchronization setup.'", CommonClient.DefaultLanguageCode());
 		
 	Else
 		
-		TextPart1 = NStr("en = 'Before starting data synchronization, finish the synchronization setup.';", CommonClient.DefaultLanguageCode());
+		TextPart1 = NStr("en = 'Before starting data synchronization, finish the synchronization setup.'", CommonClient.DefaultLanguageCode());
 		
 	EndIf;
 	
-	QueryText = TextPart1 + Chars.LF + NStr("en = 'Open the setup wizard form?';", CommonClient.DefaultLanguageCode());
+	QueryText = TextPart1 + Chars.LF + NStr("en = 'Open the setup wizard form?'", CommonClient.DefaultLanguageCode());
 	
 	ShowQueryBox(CompletionNotification, QueryText, QuestionDialogMode.YesNo);
 	
@@ -1250,13 +1250,13 @@ EndProcedure
 Procedure UserDialogWithIncompatibleRules(DescriptionOfTheApplicationString, ErrorDescription)
 	
 	Buttons = New ValueList;
-	Buttons.Add("GoToRuleImport",	NStr("en = 'Load rules';"));
+	Buttons.Add("GoToRuleImport",	NStr("en = 'Load rules'"));
 	If ErrorDescription.ErrorKind <> "InvalidConfiguration" Then
 		
-		Buttons.Add("Continue", NStr("en = 'Continue';"));
+		Buttons.Add("Continue", NStr("en = 'Continue'"));
 		
 	EndIf;
-	Buttons.Add("Cancel", NStr("en = 'Cancel';"));
+	Buttons.Add("Cancel", NStr("en = 'Cancel'"));
 	
 	FormParameters = StandardSubsystemsClient.QuestionToUserParameters();
 	FormParameters.Picture = ErrorDescription.Picture;
@@ -1264,11 +1264,11 @@ Procedure UserDialogWithIncompatibleRules(DescriptionOfTheApplicationString, Err
 	
 	If ErrorDescription.ErrorKind = "InvalidConfiguration" Then
 		
-		FormParameters.Title = NStr("en = 'Cannot perform data synchronization';", CommonClient.DefaultLanguageCode());
+		FormParameters.Title = NStr("en = 'Cannot perform data synchronization'", CommonClient.DefaultLanguageCode());
 		
 	Else
 		
-		FormParameters.Title = NStr("en = 'Data synchronization might be performed incorrectly';", CommonClient.DefaultLanguageCode());
+		FormParameters.Title = NStr("en = 'Data synchronization might be performed incorrectly'", CommonClient.DefaultLanguageCode());
 		
 	EndIf;
 	
@@ -1394,7 +1394,7 @@ Function BackgroundJobSettingsOptionsOfDataExchangeWithExternalSystems(ExchangeN
 		ProcedureParameters.Insert("ExchangeNode",       ExchangeNode);
 		
 		ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-		ExecutionParameters.BackgroundJobDescription = NStr("en = 'Get available setup options for data exchange with external systems';");
+		ExecutionParameters.BackgroundJobDescription = NStr("en = 'Get available setup options for data exchange with external systems'");
 		
 		BackgroundJob = TimeConsumingOperations.ExecuteInBackground(
 			"DataExchangeWithExternalSystems.OnGetDataExchangeSettingsOptions",
@@ -1414,32 +1414,32 @@ Function DataSynchronizationState(ApplicationRow)
 	State.Insert("Picture",      0);
 	
 	If Not ApplicationRow.SettingCompleted Then
-		State.Presentation = NStr("en = 'Setup pending';");
+		State.Presentation = NStr("en = 'Setup pending'");
 		State.Picture = 3;
 		
 		If ApplicationRow.MessageReceivedForDataMapping Then
-			State.Presentation = NStr("en = 'Setup pending, received data to map';");
+			State.Presentation = NStr("en = 'Setup pending, received data to map'");
 		EndIf;
 	Else
 		If ApplicationRow.LastImportStartDate > ApplicationRow.LastImportEndDate Then
-			State.Presentation = NStr("en = 'Importing data…';");
+			State.Presentation = NStr("en = 'Importing data…'");
 			State.Picture = 4;
 		ElsIf ApplicationRow.LastExportStartDate > ApplicationRow.LastExportEndDate Then
-			State.Presentation = NStr("en = 'Exporting data…';");
+			State.Presentation = NStr("en = 'Exporting data…'");
 			State.Picture = 4;
 		ElsIf Not ValueIsFilled(ApplicationRow.LastRunDate) Then
-			State.Presentation = NStr("en = 'Not started yet';");
+			State.Presentation = NStr("en = 'Not started yet'");
 			
 			If ApplicationRow.MessageReceivedForDataMapping Then
-				State.Presentation = NStr("en = 'Received data to map';");
+				State.Presentation = NStr("en = 'Received data to map'");
 			EndIf;
 		Else
 			State.Presentation = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Last started on: %1';"),
+				NStr("en = 'Last started on: %1'"),
 				ApplicationRow.LastStartDatePresentation);
 				
 			If ApplicationRow.MessageReceivedForDataMapping Then
-				State.Presentation = NStr("en = 'Received data to map';");
+				State.Presentation = NStr("en = 'Received data to map'");
 			EndIf;
 		EndIf;
 	EndIf;
@@ -1485,7 +1485,7 @@ Procedure ProcessReceivingSettingsOptionsResultAtServer(ResultAddress, Cancel, E
 			FillPropertyValues(WizardParameters.SettingOptionDetails, SettingsOptionsRows[0]);
 		Else
 			Cancel = True;
-			ErrorMessage = NStr("en = 'There are no connections settings available for this service.';");
+			ErrorMessage = NStr("en = 'There are no connections settings available for this service.'");
 		EndIf;
 	Else
 		Cancel = True;
@@ -1577,17 +1577,17 @@ Procedure CheckDataSynchronizationSettingPossibility(Cancel = False)
 		If Common.SeparatedDataUsageAvailable() Then
 			ModuleDataExchangeSaaSCached = Common.CommonModule("DataExchangeSaaSCached");
 			If Not ModuleDataExchangeSaaSCached.DataSynchronizationSupported() Then
-		 		MessageText = NStr("en = 'This application does not support data synchronization setup.';");
+		 		MessageText = NStr("en = 'This application does not support data synchronization setup.'");
 				Cancel = True;
 			EndIf;
 		Else
-			MessageText = NStr("en = 'Cannot configure data synchronization in shared mode.';");
+			MessageText = NStr("en = 'Cannot configure data synchronization in shared mode.'");
 			Cancel = True;
 		EndIf;
 	Else
 		ExchangePlansList = DataExchangeCached.SSLExchangePlans();
 		If ExchangePlansList.Count() = 0 Then
-			MessageText = NStr("en = 'This application does not support data synchronization setup.';");
+			MessageText = NStr("en = 'This application does not support data synchronization setup.'");
 			Cancel = True;
 		EndIf;
 	EndIf;
@@ -1610,7 +1610,7 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.ApplicationsListStatePresentation.Name);
 	
-	CommonClientServer.AddCompositionItem(Item.Filter, "ApplicationsList.StatePresentation", DataCompositionComparisonType.Equal, NStr("en = 'Not started yet';"));
+	CommonClientServer.AddCompositionItem(Item.Filter, "ApplicationsList.StatePresentation", DataCompositionComparisonType.Equal, NStr("en = 'Not started yet'"));
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	
 	// Special font color of the synchronization with incomplete setup.
@@ -1619,7 +1619,7 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.ApplicationsListStatePresentation.Name);
 	
-	CommonClientServer.AddCompositionItem(Item.Filter, "ApplicationsList.StatePresentation", DataCompositionComparisonType.Equal, NStr("en = 'Setup pending';"));
+	CommonClientServer.AddCompositionItem(Item.Filter, "ApplicationsList.StatePresentation", DataCompositionComparisonType.Equal, NStr("en = 'Setup pending'"));
 	Item.Appearance.SetParameterValue("TextColor", WebColors.DarkRed);
 	
 	// If a peer app prefix is missing, output "N/a" with faded font color.
@@ -1632,7 +1632,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.LeftValue = New DataCompositionField("ApplicationsList.CorrespondentPrefix");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.NotFilled;
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
-	Item.Appearance.SetParameterValue("Text", NStr("en = 'n/a';"));
+	Item.Appearance.SetParameterValue("Text", NStr("en = 'n/a'"));
 	
 	// Hiding a blank picture of data synchronization state.
 	Item = ConditionalAppearance.Items.Add();
@@ -1766,7 +1766,7 @@ Procedure SetFormItemsView()
 	
 	If DisabledScenarios.Count() = 1 Then
 		
-		Template = NStr("en = 'Scenario <a href = %1>""%2""</a> has been disabled due to synchronization errors. Enable the scenario after you fix the issues.';");
+		Template = NStr("en = 'Scenario <a href = %1>""%2""</a> has been disabled due to synchronization errors. Enable the scenario after you fix the issues.'");
 		
 		Scenario = DisabledScenarios[0].Value;
 		WarningText = StrTemplate(Template, GetURL(Scenario), Scenario);
@@ -1774,7 +1774,7 @@ Procedure SetFormItemsView()
 		
 	ElsIf DisabledScenarios.Count() > 1 Then
 				
-		Template = NStr("en = 'Some scenarios have been disabled due to runtime errors. Enable the scenario after you fix the issues.';");
+		Template = NStr("en = 'Some scenarios have been disabled due to runtime errors. Enable the scenario after you fix the issues.'");
 		WarningText = StrTemplate(Template, "ScenariosList");
 		
 		Items.DisabledScenariosWarningDetails.Title = StringFunctions.FormattedString(WarningText);

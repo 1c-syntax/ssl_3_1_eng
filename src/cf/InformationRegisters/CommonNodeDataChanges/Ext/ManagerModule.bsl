@@ -15,7 +15,7 @@
 Function SelectChanges(Val Node, Val MessageNo) Export
 	
 	If TransactionActive() Then
-		Raise NStr("en = 'Cannot select data changes in an active transaction.';");
+		Raise NStr("en = 'Cannot select data changes in an active transaction.'");
 	EndIf;
 	
 	Result = New Array;

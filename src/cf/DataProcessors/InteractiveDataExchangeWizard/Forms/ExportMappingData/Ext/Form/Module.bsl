@@ -34,9 +34,9 @@ EndProcedure
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
 	If InitialExport Then
-		WarningText = NStr("en = 'Do you want to cancel the initial data export?';");
+		WarningText = NStr("en = 'Do you want to cancel the initial data export?'");
 	Else
-		WarningText = NStr("en = 'Do you want to cancel the data export?';");
+		WarningText = NStr("en = 'Do you want to cancel the data export?'");
 	EndIf;
 	
 	CommonClient.ShowArbitraryFormClosingConfirmation(
@@ -496,13 +496,13 @@ Procedure CheckCanUseForm(Cancel = False)
 	
 	// It is required to pass the parameters of data export execution.
 	If Not Parameters.Property("ExchangeNode") Then
-		MessageText = NStr("en = 'The form cannot be opened manually.';");
+		MessageText = NStr("en = 'The form cannot be opened manually.'");
 		Common.MessageToUser(MessageText, , , , Cancel);
 		Return;
 	EndIf;
 	
 	If DataExchangeCached.IsDistributedInfobaseNode(Parameters.ExchangeNode) Then
-		MessageText = NStr("en = 'Initial export is not supported for distributed infobase nodes.';");
+		MessageText = NStr("en = 'Initial export is not supported for distributed infobase nodes.'");
 		Common.MessageToUser(MessageText, , , , Cancel);
 		Return;
 	EndIf;
@@ -669,7 +669,7 @@ Function Attachable_PasswordRequestPageOnGoNext(Cancel)
 	
 	If IsBlankString(WSPassword) Then
 		CommonClient.MessageToUser(
-			NStr("en = 'Please enter the password.';"), , "WSPassword", , Cancel);
+			NStr("en = 'Please enter the password.'"), , "WSPassword", , Cancel);
 	EndIf;
 	
 	Return Undefined;
@@ -790,7 +790,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -894,7 +894,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
@@ -950,7 +950,7 @@ Procedure ExecuteTimeConsumingOperationHandler()
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
-		Raise NStr("en = 'The page to display is not specified.';");
+		Raise NStr("en = 'The page to display is not specified.'");
 	EndIf;
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];

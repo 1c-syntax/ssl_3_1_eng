@@ -9,7 +9,7 @@
 
 #Region Public
 
-// 
+// Technical support line code.
 // 
 // Parameters:
 //  Recipient - String
@@ -19,7 +19,7 @@ Procedure OnDefineTechnicalSupportRequestRecipient(Recipient) Export
 	
 EndProcedure
 
-// 
+// Filter for signature selection.
 // 
 // Parameters:
 //  Filter - String
@@ -29,11 +29,11 @@ Procedure OnGetFilterForSelectingSignatures(Filter) Export
 	
 EndProcedure
 
-// 
+// On getting a choice list with MR LOAs in the form for adding signatures from a file.
 // 
 // Parameters:
 //  Form - See CommonForm.AddDigitalSignatureFromFile
-//  CurrentData - See CommonForm.AddDigitalSignatureFromFile.Signatures
+//  CurrentData - FormDataCollectionItem - Signature string in form "Common.AddDigitalSignatureFromFile".
 //  ChoiceList - ValueList
 //
 Procedure OnGetChoiceListWithMRLOAs(Form, CurrentData, ChoiceList) Export
@@ -41,18 +41,18 @@ Procedure OnGetChoiceListWithMRLOAs(Form, CurrentData, ChoiceList) Export
 	
 EndProcedure
 
-// 
+// On choosing an MR LOA on the form for exporting signatures from a file.
 // 
 // Parameters:
 //  CompletionHandler - CallbackDescription
-//  CurrentData - See CommonForm.AddDigitalSignatureFromFile.Signatures 
+//  CurrentData - FormDataCollectionItem - Signature string in form "Common.AddDigitalSignatureFromFile". 
 //
 Procedure OnSelectMRLOA(CompletionHandler, CurrentData) Export
 	
 	
 EndProcedure
 
-// 
+// Adds MR LOA files to the list when saving a signature.
 // 
 // Parameters:
 //  MRLOAFiles - Map
@@ -64,11 +64,34 @@ Procedure OnDefineMRLOAFiles(MRLOAFiles,
 	
 EndProcedure
 
-// 
+// On checking for conflicts between cryptographic applications.
 // 
 // Parameters:
-//  ComponentObject - 
-//  SuggestInstall - Boolean - 
+//  Form - ClientApplicationForm
+//  CheckResult - Structure
+//
+Procedure OnCheckCryptoAppsConflict(Form, CheckResult) Export
+	
+	
+EndProcedure
+
+// On checking for installed cryptographic applications.
+// 
+// Parameters:
+//  Form - ClientApplicationForm
+//  CheckResult - Structure
+//  HasAppsToCheck - Boolean
+//
+Procedure OnCheckInstalledCryptoApps(Form, CheckResult, HasAppsToCheck) Export
+	
+	
+EndProcedure
+
+// Detects tokens connected to the device.
+// 
+// Parameters:
+//  ComponentObject - Undefined, AddInObject.
+//  SuggestInstall - Boolean - Prompt to install the add-in (if not yet installed).
 // 
 // Returns:
 //  Promise - Structure
@@ -85,12 +108,12 @@ Async Function InstalledTokens(ComponentObject = Undefined, SuggestInstall = Fal
 	
 EndFunction
 
-// 
+// Get the properties of token certificates.
 // 
 // Parameters:
 //  Context - Structure:
 //    * CertificatesArray - Array
-//  SuggestInstall - Boolean - 
+//  SuggestInstall - Boolean - Prompt to install the add-in (if not yet installed).
 // 
 // Returns:
 //    Promise - Context
@@ -102,11 +125,11 @@ Async Function GetCertificatesPropertiesOnTokens(Context, SuggestInstall) Export
 	
 EndFunction
 
-// 
+// Returns the thumbprints of token certificates.
 // 
 // Parameters:
-//  SuggestInstall - Boolean - 
-//  IncludingOverduePayments - Boolean - 
+//  SuggestInstall - Boolean - Prompt to install the add-in (if not yet installed).
+//  IncludingOverduePayments - Boolean - If "False", return the thumbprints only for valid certificates.
 // 
 // Returns:
 //    Promise - Array
@@ -120,14 +143,14 @@ Async Function GetCertificatesThumbprintsOnTokens(SuggestInstall, IncludingOverd
 	
 EndFunction
 
-// 
+// Token certificates.
 // 
 // Parameters:
-//  SuggestInstall - Boolean - 
-//  Refresh - Boolean - 
+//  SuggestInstall - Boolean - Prompt to install.
+//  Refresh - Boolean - Update the list of token certificates in the cache.
 // 
 // Returns:
-//  Promise - 
+//  Promise - Array of Structure - Tokens.
 //  
 Async Function CertificatesOnTokens(SuggestInstall, Refresh = False) Export
 	
@@ -145,12 +168,12 @@ Async Function CertificatesOnTokens(SuggestInstall, Refresh = False) Export
 	
 EndFunction
 
-// 
+// Token certificates.
 // 
 // Parameters:
 //  Token - Structure
-//  ComponentObject - 
-//  SuggestInstall - Boolean - 
+//  ComponentObject - Undefined, AddInObject
+//  SuggestInstall - Boolean - Prompt to install.
 // 
 // Returns:
 //  Promise - Structure
@@ -167,10 +190,27 @@ Async Function TokenCertificates(Token, ComponentObject = Undefined, SuggestInst
 	
 EndFunction
 
-// 
+// Encryption-only token.
 // 
 // Parameters:
-//  ErrorText - String - 
+//  Certificate - CryptoCertificate
+//  EncryptAlgorithm - String - OID or 
+//  CertificateProperties - Structure
+//  	* AlgorithmOfPublicKey - String - OID
+// 
+// Returns:
+//  Promise - Structure
+//
+Async Function TokenForEncryption(Certificate, EncryptAlgorithm = Undefined, CertificateProperties = Undefined) Export
+	Result = Undefined;
+	
+	Return Result;
+EndFunction
+
+// The error message indicates that an incorrect token PIN was entered.
+// 
+// Parameters:
+//  ErrorText - String - Error text.
 // 
 // Returns:
 //  Boolean
@@ -179,7 +219,7 @@ Function IsIncorrectPinCodeError(ErrorText) Export
 	Return False;
 EndFunction
 
-// 
+// Token signature.
 // 
 // Parameters:
 //  SignatureParameters - Structure:
@@ -194,28 +234,32 @@ EndFunction
 //  Data - BinaryData
 // 
 // Returns:
-//  Promise - 
+//  Promise - BinaryData, String
 //
 Async Function SignatureOnToken(SignatureParameters, Data) Export
 	
+	CannotCreateSignatureText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Cannot create %1 signatures on the token.'"), SignatureParameters.SignatureType);
 	
-	Return StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Cannot create signatures with %1 tokens.';"), SignatureParameters.SignatureType);
+	
+	Return CannotCreateSignatureText;
 
 EndFunction
 
-// 
+// Verifies a signature using a token.
 // 
 // Parameters:
-//  Data - BinaryData, Undefined - 
+//  Data - BinaryData, Undefined - If "Undefined", the signature is checked as an attachment.
 //  Signature - BinaryData
-//  SignAlgorithm - String - 
-//  ComponentObject - AddInObject - 
+//  CheckParameters - Structure:
+//   * SignAlgorithm - String
+//   * ComponentObject - AddInObject
+//   * ShouldReturnCertificatesForVerification - Boolean
 // 
 // Returns:
-//  Promise - 
+//  Promise - Verify signature
 //
-Async Function VerifySignature(Data, Signature, SignAlgorithm = Undefined, ComponentObject = Undefined) Export
+Async Function VerifySignature(Data, Signature, CheckParameters) Export
 	
 	Result = Undefined;
 	
@@ -224,24 +268,41 @@ Async Function VerifySignature(Data, Signature, SignAlgorithm = Undefined, Compo
 
 EndFunction
 
-// 
+// Encryption on the token.
 // 
 // Parameters:
 //  EncryptionParameters - Structure
 //  Data - BinaryData
 // 
 // Returns:
-//  Promise - 
+//  Promise - BinaryData, String
 //
-Async Function TokenBasedEncryption(EncryptionParameters, Data) Export
+Async Function EncryptionOnToken(EncryptionParameters, Data) Export
 	
-	Result = NStr("en = 'Недоступно шифрование на токене.';");
+	Result = NStr("en = 'Encryption on the token is unavailable.'");
 	
 	
 	Return Result;
 EndFunction
 
+// Encryption on the token.
 // 
+// Parameters:
+//  DetailsParameters - Structure
+//  Data - BinaryData
+// 
+// Returns:
+//  Promise - BinaryData, String
+//
+Async Function DecryptionOnToken(DetailsParameters, Data) Export
+	
+	Result = NStr("en = 'Decryption on the token is unavailable.'");
+	
+	
+	Return Result;
+EndFunction
+
+// Opens the form for installing cryptographic tools.
 // 
 // Parameters:
 //  Parameters - Structure
@@ -249,12 +310,12 @@ EndFunction
 //  Notification - CallbackDescription
 //  StandardProcessing - Boolean
 //
-Procedure ПриОткрытииФормыУстановкиПрограммКриптопровайдеров(Parameters, Owner, Notification, StandardProcessing) Export
+Procedure OnOpenCryptoProviderAppsInstallationForm(Parameters, Owner, Notification, StandardProcessing) Export
 	
 	
 EndProcedure
 
-// 
+// On filling the result of checking a CA.
 // 
 // Parameters:
 //  Result - See DigitalSignatureInternalClientServer.DefaultCAVerificationResult
@@ -274,17 +335,52 @@ Async Function OnFillCertificationAuthorityAuditResult(
 	
 EndFunction
 
-// 
-// 
+// For internal use only.
+// Verifies the installation of cryptographic tools as part of the add-in installation check for managing digital signatures.
 //
 // Parameters:
-//  Result	 - Boolean - 
-//  Components	 - See DigitalSignatureInternalClient.NewComponentsOfWorkingWithCryptography.
+//  Result	 - Boolean - If "True", some add-ins should be installed.
+//  Components	 - See DigitalSignatureInternalClient.NewCryptoManagementAddIns.
 //
-Procedure WhenCheckingInstallationOfCryptographyPrograms(Result, Components) Export
+Procedure OnCheckCryptoAppsInstallation(Result, Components) Export
 	
 	
 EndProcedure
+
+// On continuing the verification of installed cryptographic tools.
+// 
+// Parameters:
+//  Context - Structure - 
+//  CheckResult - Structure - 
+//  HasAppsToCheck - Boolean - 
+// 
+// Returns:
+//  Promise - Boolean
+//
+Async Function OnContinueCheckInstalledCryptoApps(
+		Context, CheckResult, HasAppsToCheck) Export
+	
+	
+	Return True;
+	
+EndFunction
+
+// On handling a classifier URL.
+// 
+// Parameters:
+//  Item - FormDecoration
+//  FormattedStringURL - String
+//  Parameters - Structure
+// 
+// Returns:
+//  Promise - Boolean
+//
+Async Function OnHandleClassifierURL(Item, FormattedStringURL, Parameters) Export
+	
+	Return True;
+	
+EndFunction
+
 
 #EndRegion
 

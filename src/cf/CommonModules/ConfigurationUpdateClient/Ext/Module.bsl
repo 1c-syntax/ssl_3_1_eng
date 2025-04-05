@@ -33,12 +33,12 @@ Function UpdatesInstallationSupported() Export
 	
 	If CommonClient.DataSeparationEnabled() Then
 		Result.ErrorDescription = 
-			NStr("en = 'Cloud applications support only centralized updates initiated from the service manager.';");
+			NStr("en = 'Cloud applications support only centralized updates initiated from the service manager.'");
 		Return Result;
 	EndIf;
 	
 	If Not UsersClient.IsFullUser(True) Then
-		Result.ErrorDescription = NStr("en = 'You need the administrator rights to install the update.';");
+		Result.ErrorDescription = NStr("en = 'You need the administrator rights to install the update.'");
 		Return Result;
 	EndIf;
 	
@@ -48,14 +48,14 @@ Function UpdatesInstallationSupported() Export
 	Result.ErrorDescription =
 		NStr("en = 'Only patch installation is available in the web client.
 			|To install the update, install
-			|the distribution package of 1C:Enterprise for Windows.';");
+			|the distribution package of 1C:Enterprise for Windows.'");
 	
 #ElsIf MobileClient Then
-	Result.ErrorDescription = NStr("en = 'The update is available only on Windows.';");
+	Result.ErrorDescription = NStr("en = 'The update is available only on Windows.'");
 #Else
 	
 	If Not CommonClient.IsWindowsClient() Then 
-		Result.ErrorDescription = NStr("en = 'The update is available only on Windows.';");
+		Result.ErrorDescription = NStr("en = 'The update is available only on Windows.'");
 	EndIf;
 	
 	If CommonClient.ClientConnectedOverWebServer() Then 
@@ -67,7 +67,7 @@ Function UpdatesInstallationSupported() Export
 		Result.ErrorDescription = Result.ErrorDescription
 			+ NStr("en = 'Only patch installation is available from the web server.
 				|To install the update, install
-				|the distribution package of 1C:Enterprise for Windows.';");
+				|the distribution package of 1C:Enterprise for Windows.'");
 	EndIf;
 	
 	If Not DesignerBatchModeSupported() Then 
@@ -77,7 +77,7 @@ Function UpdatesInstallationSupported() Export
 		
 		Result.ErrorDescription = Result.ErrorDescription
 			+ NStr("en = 'Designer is required to install the update.
-				|Install the distribution package for 1C:Enterprise for Windows.';");
+				|Install the distribution package for 1C:Enterprise for Windows.'");
 	EndIf;
 	
 #EndIf
@@ -148,18 +148,18 @@ EndProcedure
 Function BackupCreationTitle(Parameters) Export
 	
 	If Parameters.CreateDataBackup = 0 Then
-		Return NStr("en = 'Do not back up the infobase';");
+		Return NStr("en = 'Do not back up the infobase'");
 	ElsIf Parameters.CreateDataBackup = 1 Then
 		If Parameters.RestoreInfobase Then 
-			Return NStr("en = 'Create a temporary infobase backup and roll back if any issues occur';");
+			Return NStr("en = 'Create a temporary infobase backup and roll back if any issues occur'");
 		Else 
-			Return NStr("en = 'Create a temporary infobase backup and do not roll back if any issues occur';");
+			Return NStr("en = 'Create a temporary infobase backup and do not roll back if any issues occur'");
 		EndIf;
 	ElsIf Parameters.CreateDataBackup = 2 Then
 		If Parameters.RestoreInfobase Then 
-			Return NStr("en = 'Create an infobase backup and roll back if any issues occur';");
+			Return NStr("en = 'Create an infobase backup and roll back if any issues occur'");
 		Else 
-			Return NStr("en = 'Create an infobase backup and do not roll back if any issues occur';");
+			Return NStr("en = 'Create an infobase backup and do not roll back if any issues occur'");
 		EndIf;
 	Else
 		Return "";
@@ -205,25 +205,16 @@ Procedure InstallUpdate(Form, Parameters, AdministrationParameters) Export
 	
 	ConfigurationUpdateServerCall.SaveConfigurationUpdateSettings(Parameters);
 	
-	If Form <> Undefined Then
-		If Parameters.UpdateMode = 0 Then
-			ParameterName = "StandardSubsystems.SkipQuitSystemAfterWarningsHandled";
-			ApplicationParameters.Insert(ParameterName, True);
-			Try
-				Form.Close();
-			Except
-				ApplicationParameters.Delete(ParameterName);
-				Raise;
-			EndTry;
-			ApplicationParameters.Delete(ParameterName);
-		Else
-			Form.Close();
-		EndIf;
+	If Parameters.UpdateMode = 0 Then
+		InstallUpdateNowStart(Form, Parameters, AdministrationParameters);
+		Return;
 	EndIf;
 	
-	If Parameters.UpdateMode = 0 Then // Update now.
-		RunUpdateScript(Parameters, AdministrationParameters);
-	ElsIf Parameters.UpdateMode = 1 Then // On exit
+	If Form <> Undefined Then
+		Form.Close();
+	EndIf;
+	
+	If Parameters.UpdateMode = 1 Then // On exit
 		ParameterName = "StandardSubsystems.SuggestInfobaseUpdateOnExitSession";
 		ApplicationParameters.Insert(ParameterName, True);
 		ApplicationParameters.Insert("StandardSubsystems.UpdateFilesNames", UpdateFilesNames(Parameters, Undefined));
@@ -248,13 +239,13 @@ Procedure ProcessUpdateResult(UpdateResult, ScriptDirectory) Export
 	If IsBlankString(ScriptDirectory) Then
 		EventLogClient.AddMessageForEventLog(EventLogEvent(),
 			"Warning", StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'See the update log in the temporary file folder: %1.(digits).';"), "%temp%\1Cv8Update"),, True);
+				NStr("en = 'See the update log in the temporary file folder: %1.(digits).'"), "%temp%\1Cv8Update"),, True);
 		UpdateResult = True; // Consider the update being successful.
 	Else 
 		EventLogClient.AddMessageForEventLog(EventLogEvent(),
 			"Information", 
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Update log folder: %1';"), ScriptDirectory),, True);
+				NStr("en = 'Update log folder: %1'"), ScriptDirectory),, True);
 		
 #If Not WebClient And Not MobileClient Then
 		ReadDataToEventLog(UpdateResult, ScriptDirectory);
@@ -334,6 +325,14 @@ EndFunction
 
 #Region ConfigurationSubsystemsEventHandlers
 
+// See CommonClientOverridable.BeforeStart
+Procedure BeforeStart(Parameters) Export
+	If StrFind(LaunchParameter, "DisablePatchesAndExit") > 0 Then
+		ConfigurationUpdateServerCall.DisablePatchesFromScript();
+		Terminate();
+	EndIf;
+EndProcedure
+
 // See CommonClientOverridable.OnStart.
 Procedure OnStart(Parameters) Export
 	
@@ -351,8 +350,8 @@ Procedure BeforeExit(Cancel, Warnings) Export
 	// 
 	If ApplicationParameters["StandardSubsystems.SuggestInfobaseUpdateOnExitSession"] = True Then
 		WarningParameters = StandardSubsystemsClient.WarningOnExit();
-		WarningParameters.CheckBoxText  = NStr("en = 'Install configuration update';");
-		WarningParameters.WarningText  = NStr("en = 'Update installation is scheduled.';");
+		WarningParameters.CheckBoxText  = NStr("en = 'Install configuration update'");
+		WarningParameters.WarningText  = NStr("en = 'Update installation is scheduled.'");
 		WarningParameters.Priority = 50;
 		WarningParameters.OutputSingleWarning = True;
 		
@@ -398,7 +397,7 @@ Function UpdateInstallationPossible(Parameters, AdministrationParameters)
 		File = New File(Parameters.IBBackupDirectoryName);
 		If Not File.Exists() Or Not File.IsDirectory() Then // ACC:566 Synchronous calls outside of the web client are allowed.
 			ShowMessageBox(,
-				NStr("en = 'Please specify an existing folder for storing the infobase backup.';"));
+				NStr("en = 'Please specify an existing folder for storing the infobase backup.'"));
 			Return False;
 		EndIf;
 	EndIf;
@@ -410,7 +409,7 @@ Function UpdateInstallationPossible(Parameters, AdministrationParameters)
 			
 			ShowMessageBox(,
 				NStr("en = 'Cannot proceed with configuration update
-				           |as some infobase connections were not closed.';"));
+				           |as some infobase connections were not closed.'"));
 			Return False;
 		EndIf;
 	ElsIf Parameters.UpdateMode = 2 Then
@@ -423,13 +422,13 @@ Function UpdateInstallationPossible(Parameters, AdministrationParameters)
 		
 		If InvalidEmailSpecified Then
 			ShowMessageBox(,
-				NStr("en = 'Please specify a valid email address.';"));
+				NStr("en = 'Please specify a valid email address.'"));
 			Return False;
 		EndIf;
 		
 		If Not JobSchedulerSupported() Then
 			ShowMessageBox(,
-				NStr("en = 'Job scheduler supports Windows Vista 6.0 or later.';"));
+				NStr("en = 'Job scheduler supports Windows Vista 6.0 or later.'"));
 			Return False;
 		EndIf;
 	EndIf;
@@ -442,9 +441,9 @@ Function UpdateDateCorrect(Parameters)
 	
 	CurrentDate = CommonClient.SessionDate();
 	If Parameters.UpdateDateTime < CurrentDate Then
-		MessageText = NStr("en = 'A configuration update can be scheduled only for a future date and time.';");
+		MessageText = NStr("en = 'A configuration update can be scheduled only for a future date and time.'");
 	ElsIf Parameters.UpdateDateTime > AddMonth(CurrentDate, 1) Then
-		MessageText = NStr("en = 'A configuration update cannot be scheduled to a date later than one month from the current date.';");
+		MessageText = NStr("en = 'A configuration update cannot be scheduled to a date later than one month from the current date.'");
 	EndIf;
 	
 	DateCorrect = IsBlankString(MessageText);
@@ -581,14 +580,14 @@ Function GetUpdateAdministratorAuthenticationParameters(AdministrationParameters
 			PathToTheDatabase = StrReplace(StrReplace(ConnectionString, "File=", ""), ";", "");
 			ErrorText = NStr("en = 'Cannot update the application as the infobase
 				|directory contains an incorrect single quote character "" '' "":
-				|%1%2';");
-			Postfix = NStr("en = 'Move the infobase to another directory and retry the update.';");
+				|%1%2'");
+			Postfix = NStr("en = 'Move the infobase to another directory and retry the update.'");
 		Else
 			PathToTheDatabase = ConnectionString;
 			ErrorText = NStr("en = 'Cannot update the application as the server address
 				|or the infobase name contains an incorrect single quote character "" '' "":
-				|%1%2';");
-			Postfix = NStr("en = 'Move the infobase to another server or rename it and then retry the update.';");
+				|%1%2'");
+			Postfix = NStr("en = 'Move the infobase to another server or rename it and then retry the update.'");
 		EndIf;
 		ErrorText = StrConcat(StrSplit(ErrorText, Chars.LF), " ");
 		
@@ -607,7 +606,7 @@ EndFunction
 
 Function ScheduleServiceTaskName(Val TaskCode)
 	
-	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Update configuration (%1)';"), Format(TaskCode, "NG=0"));
+	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Update configuration (%1)'"), Format(TaskCode, "NG=0"));
 	
 EndFunction
 
@@ -629,7 +628,7 @@ EndFunction
 
 // Returns the event name for writing to the event log.
 Function EventLogEvent() Export
-	Return NStr("en = 'Configuration update';", CommonClient.DefaultLanguageCode());
+	Return NStr("en = 'Configuration update'", CommonClient.DefaultLanguageCode());
 EndFunction
 
 // Checks whether a configuration update is available at startup.
@@ -661,9 +660,9 @@ Procedure CheckForConfigurationUpdate()
 	EndIf;
 	
 	If SettingsOfUpdate.ConfigurationChanged Then
-		ShowUserNotification(NStr("en = 'Configuration update';"),
+		ShowUserNotification(NStr("en = 'Configuration update'"),
 			"e1cib/app/DataProcessor.InstallUpdates",
-			NStr("en = 'The configuration is different from the main infobase configuration.';"), 
+			NStr("en = 'The configuration is different from the main infobase configuration.'"), 
 			PictureLib.DialogInformation);
 	EndIf;
 	
@@ -978,7 +977,7 @@ Function GenerateUpdateScriptFiles(Val InteractiveMode, Parameters, Administrati
 			StringUnicode(AdministrationParameters.InfobaseAdministratorPassword),
 			StringUnicode(AdministrationParameters.ClusterAdministratorPassword));
 		
-		TaskDetails1 = NStr("en = 'Update 1C:Enterprise configuration';");
+		TaskDetails1 = NStr("en = 'Update 1C:Enterprise configuration'");
 		
 		TaskSchedulerTaskCreationScript = TemplatesTexts.TaskSchedulerTaskCreationScript;
 		
@@ -1016,6 +1015,70 @@ Procedure WriteTextToFile(FullFileName, Text, Encoding = Undefined)
 	ScriptFile = New TextWriter(FullFileName, Encoding);
 	ScriptFile.Write(Text);
 	ScriptFile.Close();
+	
+EndProcedure
+
+Function ParameterNameUpdateNow()
+	
+	Return "StandardSubsystems.ConfigurationUpdate.UpdateNow";
+	
+EndFunction
+
+Function ParameterNameSkipExit()
+	
+	Return "StandardSubsystems.SkipQuitSystemAfterWarningsHandled";
+	
+EndFunction
+
+// Returns:
+//  Structure:
+//   * Form - See InstallUpdate.Form
+//   * Parameters - See InstallUpdate.Parameters
+//   * AdministrationParameters - See InstallUpdate.AdministrationParameters
+//
+Function NewParametersUpdateNow(Form, Parameters, AdministrationParameters)
+	
+	Result = New Structure;
+	Result.Insert("Form", Form);
+	Result.Insert("Parameters", Parameters);
+	Result.Insert("AdministrationParameters", AdministrationParameters);
+	
+	Return Result;
+	
+EndFunction
+
+Procedure InstallUpdateNowStart(Form, Parameters, AdministrationParameters)
+	
+	ApplicationParameters.Insert(ParameterNameUpdateNow(),
+		NewParametersUpdateNow(Form, Parameters, AdministrationParameters));
+	
+	AttachIdleHandler("WaitHandlerSetUpdateNow", 0.1, True);
+	ApplicationParameters.Insert(ParameterNameSkipExit(), True);
+	
+EndProcedure
+
+Procedure WaitHandlerSetUpdateNowFollowUp() Export
+	
+	ApplicationParameters.Delete(ParameterNameSkipExit());
+	
+	ParametersUpdateNow = ApplicationParameters[ParameterNameUpdateNow()]; // See NewParametersUpdateNow
+	If ParametersUpdateNow = Undefined Then
+		Return;
+	EndIf;
+	
+	Form = ParametersUpdateNow.Form;
+	If TypeOf(Form) = Type("ClientApplicationForm") And Form.IsOpen() Then
+		AttachIdleHandler("WaitHandlerSetUpdateNow", 0.1, True);
+		ApplicationParameters.Insert(ParameterNameSkipExit(), True);
+		Form.Close();
+		Return;
+	EndIf;
+	
+	ApplicationParameters.Delete(ParameterNameUpdateNow());
+	DetachIdleHandler("WaitHandlerSetUpdateNow");
+	
+	RunUpdateScript(ParametersUpdateNow.Parameters,
+		ParametersUpdateNow.AdministrationParameters);
 	
 EndProcedure
 
@@ -1097,7 +1160,7 @@ Procedure RunUpdateScriptAfterObsoleteDataPurge(Result, Context) Export
 	
 	If Result <> True Then
 		If Result <> False Then
-			ShowMessageBox(, NStr("en = 'Configuration update is canceled.';"));
+			ShowMessageBox(, NStr("en = 'Configuration update is canceled.'"));
 		EndIf;
 		Return;
 	EndIf;
@@ -1114,7 +1177,7 @@ Procedure RunUpdateScriptCompletion(Parameters, AdministrationParameters)
 	
 	MainScriptFileName = GenerateUpdateScriptFiles(True, Parameters, AdministrationParameters);
 	EventLogClient.AddMessageForEventLog(EventLogEvent(), "Information",
-		NStr("en = 'Updating the configuration:';") + " " + MainScriptFileName);
+		NStr("en = 'Updating the configuration:'") + " " + MainScriptFileName);
 	
 	VersionsRequiringSuccessfulUpdate = New Array;
 	If Parameters.Property("VersionsRequiringSuccessfulUpdate") Then
@@ -1141,9 +1204,6 @@ Procedure RunUpdateScriptCompletion(Parameters, AdministrationParameters)
 		StringUnicode(AdministrationParameters.InfobaseAdministratorPassword),
 		StringUnicode(AdministrationParameters.ClusterAdministratorPassword));
 	
-	If StandardSubsystemsClient.IsBaseConfigurationVersion() Then
-		ConfigurationUpdateServerCall.DisablePatchesFromScript();
-	EndIf;
 	ReturnCode = Undefined;
 	RunApp(CommandLine1,,, ReturnCode); // ACC:534 Start update script.
 	ApplicationParameters.Insert("StandardSubsystems.SkipExitConfirmation", True);

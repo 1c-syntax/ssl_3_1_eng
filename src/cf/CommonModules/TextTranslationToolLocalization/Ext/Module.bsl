@@ -10,12 +10,12 @@
 
 #Region Public
 
-// 
+// Called when defining the default translation service.
 // 
 // Parameters:
-//  TextTranslationService - EnumRef.TextTranslationServices - 
+//  TextTranslationService - EnumRef.TextTranslationServices - The default translation service.
 // 
-Procedure WhenDeterminingTextTranslationService(TextTranslationService) Export
+Procedure OnDefineTranslationService(TextTranslationService) Export
 	
 	
 EndProcedure

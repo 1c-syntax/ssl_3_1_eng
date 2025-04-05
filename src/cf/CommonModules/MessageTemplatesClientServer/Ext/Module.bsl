@@ -145,7 +145,7 @@ Function CommonID() Export
 EndFunction
 
 Function SharedPresentation() Export
-	Return NStr("en = 'Common';");
+	Return NStr("en = 'Common'");
 EndFunction
 
 // Parameters:
@@ -189,7 +189,7 @@ Function SendOptionsConstructor(Template, SubjectOf, UUID) Export
 EndFunction
 
 Function ArbitraryParametersTitle() Export
-	Return NStr("en = 'Custom';");
+	Return NStr("en = 'Custom'");
 EndFunction
 
 // FormGetProcessing event subscription handler for overriding the file form.

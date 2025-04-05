@@ -16,39 +16,39 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	MetadataObject = Common.MetadataObjectByFullName(Parameters.FullObjectName);
 	
 	If Common.IsConstant(MetadataObject) Then
-		ObjectTypePresentation = NStr("en = 'constant';");
+		ObjectTypePresentation = NStr("en = 'constant'");
 	ElsIf Common.IsCatalog(MetadataObject) Then
-		ObjectTypePresentation = NStr("en = 'catalog';");
+		ObjectTypePresentation = NStr("en = 'catalog'");
 	ElsIf Common.IsDocument(MetadataObject) Then
-		ObjectTypePresentation = NStr("en = 'document';");
+		ObjectTypePresentation = NStr("en = 'document'");
 	ElsIf ODataInterfaceInternal.IsSequenceRecordSet(MetadataObject) Then
-		ObjectTypePresentation = NStr("en = 'sequence';");
+		ObjectTypePresentation = NStr("en = 'sequence'");
 	ElsIf Common.IsDocumentJournal(MetadataObject) Then
-		ObjectTypePresentation = NStr("en = 'document journal';");
+		ObjectTypePresentation = NStr("en = 'document journal'");
 	ElsIf Common.IsEnum(MetadataObject) Then
-		ObjectTypePresentation = NStr("en = 'enumeration';");
+		ObjectTypePresentation = NStr("en = 'enumeration'");
 	ElsIf Common.IsChartOfCharacteristicTypes(MetadataObject) Then
-		ObjectTypePresentation = NStr("en = 'chart of characteristic types';");
+		ObjectTypePresentation = NStr("en = 'chart of characteristic types'");
 	ElsIf Common.IsChartOfAccounts(MetadataObject) Then
-		ObjectTypePresentation = NStr("en = 'chart of accounts';");
+		ObjectTypePresentation = NStr("en = 'chart of accounts'");
 	ElsIf Common.IsChartOfCalculationTypes(MetadataObject) Then
-		ObjectTypePresentation = NStr("en = 'chart of calculation types';");
+		ObjectTypePresentation = NStr("en = 'chart of calculation types'");
 	ElsIf Common.IsInformationRegister(MetadataObject) Then
-		ObjectTypePresentation = NStr("en = 'information register';");
+		ObjectTypePresentation = NStr("en = 'information register'");
 	ElsIf Common.IsAccumulationRegister(MetadataObject) Then
-		ObjectTypePresentation = NStr("en = 'accumulation register';");
+		ObjectTypePresentation = NStr("en = 'accumulation register'");
 	ElsIf Common.IsAccountingRegister(MetadataObject) Then
-		ObjectTypePresentation = NStr("en = 'accounting register';");
+		ObjectTypePresentation = NStr("en = 'accounting register'");
 	ElsIf Common.IsCalculationRegister(MetadataObject) Then
-		ObjectTypePresentation = NStr("en = 'calculation register';");
+		ObjectTypePresentation = NStr("en = 'calculation register'");
 	ElsIf ODataInterfaceInternal.IsRecalculationRecordSet(MetadataObject) Then
-		ObjectTypePresentation = NStr("en = 'recalculation';");
+		ObjectTypePresentation = NStr("en = 'recalculation'");
 	ElsIf Common.IsBusinessProcess(MetadataObject) Then
-		ObjectTypePresentation = NStr("en = 'business process';");
+		ObjectTypePresentation = NStr("en = 'business process'");
 	ElsIf Common.IsTask(MetadataObject) Then
-		ObjectTypePresentation = NStr("en = 'task';");
+		ObjectTypePresentation = NStr("en = 'task'");
 	ElsIf Common.IsExchangePlan(MetadataObject) Then
-		ObjectTypePresentation = NStr("en = 'exchange plan';");
+		ObjectTypePresentation = NStr("en = 'exchange plan'");
 	EndIf;
 	
 	If Parameters.Create Then
@@ -83,21 +83,21 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Tree.Columns.Add("Class", New TypeDescription("Number", , New NumberQualifiers(10, 0, AllowedSign.Nonnegative)));
 	Tree.Columns.Add("Picture", New TypeDescription("Picture"));
 	
-	AddTreeRootRow(Tree, "Constant", NStr("en = 'Constants';"), 1, PictureLib.Constant);
-	AddTreeRootRow(Tree, "Catalog", NStr("en = 'Catalogs';"), 2, PictureLib.Catalog);
-	AddTreeRootRow(Tree, "Document", NStr("en = 'Documents';"), 3, PictureLib.Document);
-	AddTreeRootRow(Tree, "DocumentJournal", NStr("en = 'Document journals';"), 4, PictureLib.DocumentJournal);
-	AddTreeRootRow(Tree, "Enum", NStr("en = 'Enumeration';"), 5, PictureLib.Enum);
-	AddTreeRootRow(Tree, "ChartOfCharacteristicTypes", NStr("en = 'Charts of characteristic types';"), 6, PictureLib.ChartOfCharacteristicTypes);
-	AddTreeRootRow(Tree, "ChartOfAccounts", NStr("en = 'Charts of accounts';"), 7, PictureLib.ChartOfAccounts);
-	AddTreeRootRow(Tree, "ChartOfCalculationTypes", NStr("en = 'Charts of calculation types';"), 8, PictureLib.ChartOfCalculationTypes);
-	AddTreeRootRow(Tree, "InformationRegister", NStr("en = 'Information registers';"), 9, PictureLib.InformationRegister);
-	AddTreeRootRow(Tree, "AccumulationRegister", NStr("en = 'Accumulation registers';"), 10, PictureLib.AccumulationRegister);
-	AddTreeRootRow(Tree, "AccountingRegister", NStr("en = 'Accounting registers';"), 11, PictureLib.AccountingRegister);
-	AddTreeRootRow(Tree, "CalculationRegister", NStr("en = 'Calculation registers';"), 12, PictureLib.CalculationRegister);
-	AddTreeRootRow(Tree, "BusinessProcess", NStr("en = 'Business processes';"), 13, PictureLib.BusinessProcess);
-	AddTreeRootRow(Tree, "Task", NStr("en = 'Tasks';"), 14, PictureLib.Task);
-	AddTreeRootRow(Tree, "ExchangePlan", NStr("en = 'Exchange plans';"), 15, PictureLib.ExchangePlan);
+	AddTreeRootRow(Tree, "Constant", NStr("en = 'Constants'"), 1, PictureLib.Constant);
+	AddTreeRootRow(Tree, "Catalog", NStr("en = 'Catalogs'"), 2, PictureLib.Catalog);
+	AddTreeRootRow(Tree, "Document", NStr("en = 'Documents'"), 3, PictureLib.Document);
+	AddTreeRootRow(Tree, "DocumentJournal", NStr("en = 'Document journals'"), 4, PictureLib.DocumentJournal);
+	AddTreeRootRow(Tree, "Enum", NStr("en = 'Enumeration'"), 5, PictureLib.Enum);
+	AddTreeRootRow(Tree, "ChartOfCharacteristicTypes", NStr("en = 'Charts of characteristic types'"), 6, PictureLib.ChartOfCharacteristicTypes);
+	AddTreeRootRow(Tree, "ChartOfAccounts", NStr("en = 'Charts of accounts'"), 7, PictureLib.ChartOfAccounts);
+	AddTreeRootRow(Tree, "ChartOfCalculationTypes", NStr("en = 'Charts of calculation types'"), 8, PictureLib.ChartOfCalculationTypes);
+	AddTreeRootRow(Tree, "InformationRegister", NStr("en = 'Information registers'"), 9, PictureLib.InformationRegister);
+	AddTreeRootRow(Tree, "AccumulationRegister", NStr("en = 'Accumulation registers'"), 10, PictureLib.AccumulationRegister);
+	AddTreeRootRow(Tree, "AccountingRegister", NStr("en = 'Accounting registers'"), 11, PictureLib.AccountingRegister);
+	AddTreeRootRow(Tree, "CalculationRegister", NStr("en = 'Calculation registers'"), 12, PictureLib.CalculationRegister);
+	AddTreeRootRow(Tree, "BusinessProcess", NStr("en = 'Business processes'"), 13, PictureLib.BusinessProcess);
+	AddTreeRootRow(Tree, "Task", NStr("en = 'Tasks'"), 14, PictureLib.Task);
+	AddTreeRootRow(Tree, "ExchangePlan", NStr("en = 'Exchange plans'"), 15, PictureLib.ExchangePlan);
 	
 	For Each Dependence In Parameters.ObjectDependencies Do
 		AddNestedTreeRow(Tree, Common.MetadataObjectByFullName(Dependence));
@@ -155,7 +155,7 @@ Procedure AddNestedTreeRow(Tree, Val MetadataObject)
 	
 	If RowOwner = Undefined Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Unknown metadata object: %1';"), FullName);
+			NStr("en = 'Unknown metadata object: %1'"), FullName);
 	EndIf;
 	
 	NewRow = RowOwner.Rows.Add();

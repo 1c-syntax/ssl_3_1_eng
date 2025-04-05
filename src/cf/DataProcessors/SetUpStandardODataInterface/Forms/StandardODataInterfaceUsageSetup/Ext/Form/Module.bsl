@@ -14,7 +14,7 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not AccessRight("DataAdministration", Metadata) Then
-		Raise(NStr("en = 'Insufficient rights to configure automatic REST service.';"),
+		Raise(NStr("en = 'Insufficient rights to configure automatic REST service.'"),
 			ErrorCategory.AccessViolation);
 	EndIf;
 	
@@ -53,13 +53,13 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	CheckedAttributes.Add("PasswordConfirmation");
 	
 	If Password <> PasswordConfirmation Then
-		Common.MessageToUser(NStr("en = 'Password confirmation does not match password';"), , "PasswordConfirmation");
+		Common.MessageToUser(NStr("en = 'Password confirmation does not match password'"), , "PasswordConfirmation");
 		Cancel = True;
 	EndIf;
 	
 	If MetadataObjects.GetItems().Count() = 0 Then
 		Common.MessageToUser(
-			NStr("en = 'Objects that you can access via automatic REST service are not specified.';"),, 
+			NStr("en = 'Objects that you can access via automatic REST service are not specified.'"),, 
 			"MetadataObjects");
 		Cancel = True;
 	EndIf;
@@ -78,7 +78,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		Cancel = True;
 		
 		NotifyDescription = New CallbackDescription("ContinueClosingAfterQuestion", ThisObject);
-		ShowQueryBox(NotifyDescription, NStr("en = 'The data has been changed. Do you want to save the changes?';"), QuestionDialogMode.YesNoCancel);
+		ShowQueryBox(NotifyDescription, NStr("en = 'The data has been changed. Do you want to save the changes?'"), QuestionDialogMode.YesNoCancel);
 		
 	EndIf;
 	
@@ -164,7 +164,7 @@ Procedure ImportMetadata(Command)
 		And MetadataObjects.GetItems().Count() > 0 Then
 		
 		Notification = New CallbackDescription("ImportMetadataFollowUp", ThisObject);
-		ShowQueryBox(Notification, NStr("en = 'Import metadata again? The changes made will be lost.';"), QuestionDialogMode.YesNo);
+		ShowQueryBox(Notification, NStr("en = 'Import metadata again? The changes made will be lost.'"), QuestionDialogMode.YesNo);
 		
 	Else
 		ImportMetadataFollowUp(DialogReturnCode.Yes, Undefined);

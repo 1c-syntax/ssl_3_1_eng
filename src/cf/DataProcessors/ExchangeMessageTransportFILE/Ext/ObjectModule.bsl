@@ -170,14 +170,14 @@ Function ConnectionIsSet() Export
 	
 	If IsBlankString(DataExchangeDirectory) Then
 		
-		ErrorMessage = NStr("en = 'Connection error: The data exchange directory is not specified.';");
+		ErrorMessage = NStr("en = 'Connection error: The data exchange directory is not specified.'");
 		ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject);
 		
 		Return False;
 		
 	ElsIf Not Directory.Exists() Then
 		
-		ErrorMessage = NStr("en = 'Connection error: The data exchange directory does not exist.';");
+		ErrorMessage = NStr("en = 'Connection error: The data exchange directory does not exist.'");
 		ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject);
 		
 		Return False;
@@ -188,14 +188,14 @@ Function ConnectionIsSet() Export
 	
 	If Not CreateCheckFile(CheckFileName) Then
 		
-		ErrorMessage = NStr("en = 'An error occurred when saving the file to the data exchange directory. Check if the user is authorized to access the directory.';");
+		ErrorMessage = NStr("en = 'An error occurred when saving the file to the data exchange directory. Check if the user is authorized to access the directory.'");
 		ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject);
 		
 		Return False;
 		
 	ElsIf Not DeleteCheckFile(CheckFileName) Then
 		
-		ErrorMessage = NStr("en = 'An error occurred when removing the file from the data exchange directory. Check if the user is authorized to access the directory.';");
+		ErrorMessage = NStr("en = 'An error occurred when removing the file from the data exchange directory. Check if the user is authorized to access the directory.'");
 		ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject);
 		
 		Return False;
@@ -266,7 +266,7 @@ Function GetMessage(MessageNameTemplate)
 		ErrorMessage = 
 			NStr("en = 'An information exchange directory is missing a message file.
                   |Directory: %1
-                  |File: %2';");
+                  |File: %2'");
 		
 		ErrorMessage = StrTemplate(ErrorMessage, DataExchangeDirectory, MessageNameTemplate);
 		
@@ -310,7 +310,7 @@ EndFunction
 Function CreateCheckFile(CheckFileName)
 	
 	TextDocument = New TextDocument;
-	TextDocument.AddLine(NStr("en = 'Temporary file for checking';"));
+	TextDocument.AddLine(NStr("en = 'Temporary file for checking'"));
 	
 	Try
 		
@@ -351,11 +351,11 @@ Function ExecuteFileCopying(Val SourceFileName, Val ReceiverFileName)
 	Try
 		
 		DeleteFiles(ReceiverFileName);
-		FileCopy(SourceFileName, ReceiverFileName);
+		CopyFile(SourceFileName, ReceiverFileName);
 		
 	Except
 		
-		ErrorMessage = NStr("en = 'Error copying file from %1 to %2.';");
+		ErrorMessage = NStr("en = 'Error copying file from %1 to %2.'");
 		ErrorMessage = StrTemplate(ErrorMessage, SourceFileName, ReceiverFileName);
 		ErrorMessageEventLog = ErrorMessage;
 		
@@ -380,5 +380,5 @@ ExchangeMessage = Undefined;
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

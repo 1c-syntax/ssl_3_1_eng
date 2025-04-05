@@ -15,11 +15,11 @@
 // See DataProcessorManager.ExchangeMessageTransportFILE.TransportParameters
 Function TransportParameters() Export
 	
-	LongDesc = NStr("en = 'Connection required peer connection details.';");
+	LongDesc = NStr("en = 'Connection required peer connection details.'");
 	
 	Parameters = ExchangeMessagesTransport.StructureOfTransportParameters();
 	
-	Parameters.Alias = NStr("en = 'Internet (HTTP service)';");
+	Parameters.Alias = NStr("en = 'Internet (HTTP service)'");
 	Parameters.TransportID = "HTTP";
 	Parameters.LongDesc = LongDesc;
 	Parameters.NameOfAuthenticationForm = "AuthenticationForm";

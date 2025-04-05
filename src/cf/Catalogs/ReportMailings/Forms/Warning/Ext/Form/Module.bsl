@@ -80,11 +80,11 @@ Procedure SetAuthenticationErrorDescription(LongDesc)
 	Text.Add(, Type("FormattedDocumentLinefeed"));
 	
 	If ValueIsFilled(LongDesc.Ref) Then 
-		StringPattern = NStr("en = 'Go to <a href = ""%1"">email account settings</a> to correct the username and password.';");
+		StringPattern = NStr("en = 'Go to <a href = ""%1"">email account settings</a> to correct the username and password.'");
 		URL = GetURL(LongDesc.Ref);
 		String = StringFunctions.FormattedString(StringPattern, URL);
 	Else
-		String = NStr("en = 'Go to email account settings to correct the username and password.';");
+		String = NStr("en = 'Go to email account settings to correct the username and password.'");
 	EndIf;
 	
 	Rows = New Array;

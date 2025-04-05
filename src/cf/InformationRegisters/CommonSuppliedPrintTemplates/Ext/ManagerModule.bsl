@@ -80,11 +80,11 @@ Procedure UpdateTemplatesCheckSum() Export
 			RollbackTransaction();
 			ErrorInfo = ErrorInfo();
 			
-			ErrorText = NStr("en = 'Failed to save template info';") + Chars.LF
+			ErrorText = NStr("en = 'Failed to save template info'") + Chars.LF
 				+ Template.FullName() + Chars.LF
 				+ ErrorProcessing.DetailErrorDescription(ErrorInfo);
 			
-			WriteLogEvent(NStr("en = 'Built-in template edit monitor';", Common.DefaultLanguageCode()),
+			WriteLogEvent(NStr("en = 'Built-in template edit monitor'", Common.DefaultLanguageCode()),
 				EventLogLevel.Error, Template, , ErrorText);
 			
 			ErrorList.Add(OwnerName + "." + TemplateName + ": " + ErrorProcessing.BriefErrorDescription(ErrorInfo()));
@@ -92,7 +92,7 @@ Procedure UpdateTemplatesCheckSum() Export
 	EndDo;
 	
 	If ValueIsFilled(ErrorList) Then
-		ErrorList.Insert(0, NStr("en = 'Couldn''t save the print form templates details stored in the configuration:';"));
+		ErrorList.Insert(0, NStr("en = 'Couldn''t save the print form templates details stored in the configuration:'"));
 		ErrorText = StrConcat(ErrorList, Chars.LF);
 		Raise ErrorText;
 	EndIf;
@@ -131,14 +131,14 @@ Procedure Print(ObjectsArray, PrintParameters, PrintFormsCollection, PrintObject
 	
 	PrintForm = PrintManagement.PrintFormInfo(PrintFormsCollection, "GuideToCreateFacsimileAndStamp");
 	If PrintForm <> Undefined Then
-		PrintForm.TemplateSynonym = NStr("en = 'How to create facsimile signatures and stamps';");
+		PrintForm.TemplateSynonym = NStr("en = 'How to create facsimile signatures and stamps'");
 		PrintForm.SpreadsheetDocument = GetCommonTemplate("GuideToCreateFacsimileAndStamp");
 		PrintForm.FullTemplatePath = "CommonTemplate.GuideToCreateFacsimileAndStamp";
 		PrintForm.SpreadsheetDocument.ReadOnly = True;
 		
 		RefArea = PrintForm.SpreadsheetDocument.Drawings.Scan;
 		If PrintParameters.ScanAvailable And Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
-			RefArea.Text = NStr("en = 'Scan';");
+			RefArea.Text = NStr("en = 'Scan'");
 			ModuleFilesOperationsInternal = Common.CommonModule("FilesOperationsInternal");
 			RefArea.Mask = ModuleFilesOperationsInternal.CommandScanSheet();
 		Else

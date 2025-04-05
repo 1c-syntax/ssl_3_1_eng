@@ -79,13 +79,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		Items.ProgramsContextMenuApplicationsMarkForDeletion.Visible = False;
 		Items.Programs.Title =
-			NStr("en = 'A list of apps the administrator authorized for your computer.';");
+			NStr("en = 'A list of apps the administrator authorized for your computer.'");
 	Else
 		SetPrivilegedMode(True);
 		IsMultiUserInfobase = InfoBaseUsers.GetUsers().Count() > 1;
 		SetPrivilegedMode(False);
 		If Not IsMultiUserInfobase Then
-			Items.Programs.Title = NStr("en = 'Digital signing and encryption app settings';");
+			Items.Programs.Title = NStr("en = 'Digital signing and encryption app settings'");
 		EndIf;
 	EndIf;
 	
@@ -100,7 +100,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ModuleApplicationForIssuingANewQualifiedCertificate.FillInApplicationStateSelectionList(Items.CertificatesShowRequests.ChoiceList);
 		ModuleApplicationForIssuingANewQualifiedCertificate.AddStateInListOfCertificatesToRequest(QueryText);
 		ModuleApplicationForIssuingANewQualifiedCertificate.AddLegend(ThisObject, Items.LegendGroup);
-		Items.CertificatesShow.ChoiceList.Add("MyStatementsInProgress", NStr("en = 'My submitted applications';"));
+		Items.CertificatesShow.ChoiceList.Add("MyStatementsInProgress", NStr("en = 'My submitted applications'"));
 		StatusApplicationIsNotInOperation = ModuleApplicationForIssuingANewQualifiedCertificate.StatusApplicationIsNotInOperation();
 		Items.AddCertificateIssueRequest.Visible = True;
 		
@@ -374,9 +374,9 @@ Procedure DecorationCheckCryptoProviderInstallationURLProcessing(
 	StandardProcessing = False;
 	
 	OpeningParameters = New Structure;
-	OpeningParameters.Insert("OnlyInstallationOfTokens", True);
+	OpeningParameters.Insert("OnlyTokenInstallation", True);
 	If FormattedStringURL = DigitalSignatureInternalClientServer.ActionInstallLibrariesForTokens() Then
-		DigitalSignatureInternalClient.OpenFormForInstallingCryptoproviderPrograms(OpeningParameters, ThisObject,
+		DigitalSignatureInternalClient.OpenCryptoProviderAppsInstallationForm(OpeningParameters, ThisObject,
 				New CallbackDescription("AfterPerformActionsDetails", ThisObject));
 	Else
 
@@ -408,7 +408,7 @@ Procedure PathToAddInLogOnClientStartChoice(Item, ChoiceData, ChoiceByAdding, St
 	
 	Notification = New CallbackDescription("SelectDirectoryAfterSelection",
 		ThisObject);
-	FileSystemClient.SelectDirectory(Notification, NStr("en = 'Select a directory containing diagnostics files';"), PathToAddInLogOnClient);
+	FileSystemClient.SelectDirectory(Notification, NStr("en = 'Select a directory containing diagnostics files'"), PathToAddInLogOnClient);
 	
 EndProcedure
 
@@ -476,7 +476,7 @@ Procedure CertificatesOnGetDataAtServer(TagName, Settings, Rows)
 			|BY
 			|	Ref";
 			Query.SetParameter("References", Rows.GetKeys());
-			QueryResult = Query.Execute(); // @skip-check query-in-loop - The query is executed once
+			QueryResult = Query.Execute(); // @skip-check query-in-loop - Запрос выполняется один раз
 			If QueryResult.IsEmpty() Then
 				Return;
 			EndIf;
@@ -540,11 +540,12 @@ Procedure ProgramsBeforeRowChange(Item, Cancel)
 	Cancel = True;
 	
 	If Items.Find("ApplicationsChange") <> Undefined
-	   And Items.ApplicationsChange.Visible Then
+	   And Items.ApplicationsChange.Visible
+	   And ValueIsFilled(Items.Programs.CurrentData.Ref) Then
 		ExtendedApplicationDetails = DigitalSignatureInternalClientServer.NewExtendedApplicationDetails();
 		FillPropertyValues(ExtendedApplicationDetails, Items.Programs.CurrentData);
 		ExtendedApplicationDetails.Presentation = Items.Programs.CurrentData.Description;
-		ExtendedApplicationDetails.UsageMode = PredefinedValue("Enum.DigitalSignatureAppUsageModes.SetupDone");
+		ExtendedApplicationDetails.UsageMode = PredefinedValue("Enum.DigitalSignatureAppUsageModes.Configured");
 		DigitalSignatureInternalClient.OpenAppForm(ExtendedApplicationDetails, ThisObject);
 	EndIf;
 	
@@ -580,15 +581,15 @@ Procedure ProgramsSelection(Item, RowSelected, Field, StandardProcessing)
 		StandardProcessing = False;
 
 		If CurrentData.Action = "InstallLibrariesForTokens" Then
-			OpeningParameters = New Structure("TokenKind, OnlyInstallationOfTokens");
+			OpeningParameters = New Structure("TokenKind, OnlyTokenInstallation");
 			FillPropertyValues(OpeningParameters, CurrentData.Parameters);
-			OpeningParameters.OnlyInstallationOfTokens = True;
-			DigitalSignatureInternalClient.OpenFormForInstallingCryptoproviderPrograms(OpeningParameters, ThisObject,
+			OpeningParameters.OnlyTokenInstallation = True;
+			DigitalSignatureInternalClient.OpenCryptoProviderAppsInstallationForm(OpeningParameters, ThisObject,
 				New CallbackDescription("AfterPerformActionsDetails", ThisObject));
 		Else
 
 			FormParameters = New Structure;
-			FormParameters.Insert("WarningTitle", NStr("en = 'App check result';"));
+			FormParameters.Insert("WarningTitle", NStr("en = 'App check result'"));
 			If CurrentData.IsToken And StrFind(CurrentData.CheckResult,
 				DigitalSignatureInternalClient.TokenNotFoundError()) <> 0 Then
 				FormParameters.Insert("ErrorTextClient", CurrentData.CheckResult + Chars.LF
@@ -721,16 +722,16 @@ EndProcedure
 Procedure QuestionInSupport(Command)
 	
 	MessageParameters = New Structure("Subject, Message",
-		NStr("en = 'Проблема при настройке электронной подписи и шифрования';"), New Array);
+		NStr("en = 'An issue occurred when configuring digital signing and encryption.'"), New Array);
 	
-	DigitalSignatureInternalClient.GenerateTechnicalInformation(NStr("en = 'Digital signing and encryption settings';"), MessageParameters);
+	DigitalSignatureInternalClient.GenerateTechnicalInformation(NStr("en = 'Digital signing and encryption settings'"), MessageParameters);
 	
 EndProcedure
 
 &AtClient
-Procedure DownloadTechnicalInfo(Command)
+Procedure InformationToSendToSupport(Command)
 	
-	DigitalSignatureInternalClient.GenerateTechnicalInformation(NStr("en = 'Digital signing and encryption settings';"));
+	DigitalSignatureInternalClient.GenerateTechnicalInformation(NStr("en = 'Digital signing and encryption settings'"));
 	
 EndProcedure
 
@@ -748,9 +749,9 @@ Procedure ApplicationsMarkForDeletion(Command)
 	EndIf;
 	
 	If CurrentData.DeletionMark Then
-		QueryText = NStr("en = 'Do you want to clear a deletion mark for ""%1""?';");
+		QueryText = NStr("en = 'Do you want to clear a deletion mark for ""%1""?'");
 	Else
-		QueryText = NStr("en = 'Do you want to mark %1 for deletion?';");
+		QueryText = NStr("en = 'Do you want to mark %1 for deletion?'");
 	EndIf;
 	
 	QuestionContent = New Array;
@@ -1034,7 +1035,7 @@ Procedure ChangeApplicationDeletionMark(Application)
 			If Object.DeletionMark Then
 				Object.UsageMode = Enums.DigitalSignatureAppUsageModes.NotUsed;
 			Else
-				Object.UsageMode = Enums.DigitalSignatureAppUsageModes.SetupDone;
+				Object.UsageMode = Enums.DigitalSignatureAppUsageModes.Configured;
 			EndIf;
 			Object.Write();
 			
@@ -1134,12 +1135,30 @@ EndProcedure
 
 // Continues the IdleHandlerDefineInstalledApplications procedure.
 &AtClient
-Procedure DefineInstalledApplicationsOnAttachExtension(Attached, Context) Export
+Async Procedure DefineInstalledApplicationsOnAttachExtension(Attached, Context) Export
 	
 	If Not Attached Then
+#If WebClient Then
+		Components = DigitalSignatureInternalClient.NewCryptoManagementAddIns();
+		Components.IsCryptographicExtensionInstalled = False;
+		
+		IsAdditionalAddInsInstallationRequired =
+			Await DigitalSignatureInternalClient.IsAdditionalAddInsInstallationRequired(Components);
+		
+		If IsAdditionalAddInsInstallationRequired Then
+			FormParameters = New Structure;
+			FormParameters.Insert("Components", Components);
+			FormParameters.Insert("RequiredAddInName", "CryptographicExtension");
+			FollowUpHandler = New CallbackDescription("DetermineApplicationsInstalledAfterAttachExtension", ThisObject, Context);
+			OpenForm("CommonForm.StartWorkWithDigitalSignature", FormParameters,
+				, , , , FollowUpHandler, FormWindowOpeningMode.LockOwnerWindow);
+			Return;
+		EndIf;
+#Else
 		ShowTitleForExtensionInstallation();
 		AttachIdleHandler("IdleHandlerDefineInstalledApplications", 3, True);
 		Return;
+#EndIf
 	EndIf;
 	
 	DefaultApplicationsPaths.Clear();
@@ -1180,7 +1199,7 @@ EndProcedure
 Procedure ShowTitleForExtensionInstallation()
 	Items.GroupCryptoProvidersHint.Visible = True;
 	Items.DecorationCheckCryptoProviderInstallation.Title = StringFunctionsClient.FormattedString(
-			NStr("en = '<a href = ""%1"">Install 1C:Enterprise Extension</a> to manage digital signatures.';"),
+			NStr("en = '<a href = ""%1"">Install 1C:Enterprise Extension</a> to manage digital signatures.'"),
 			"CheckCryptographyAppsInstallation");
 EndProcedure
 
@@ -1233,7 +1252,7 @@ Procedure TheHandlerIsWaitingToDetermineTheCurrentlyInstalledProgramsCycleAfterO
 	ElsIf ApplicationDetails.IsBuiltInCryptoProvider
 		Or DigitalSignatureInternalClientServer.PlacementOfTheCertificate(ApplicationDetails.LocationType) = "CloudSignature" Then
 		
-		UpdateValue(ApplicationDetails.CheckResult, NStr("en = 'Available.';"));
+		UpdateValue(ApplicationDetails.CheckResult, NStr("en = 'Available.'"));
 		UpdateValue(ApplicationDetails.Use, True);
 		IdleHandlerDefineInstalledApplicationsLoopStart(Context);
 		Return;
@@ -1278,10 +1297,10 @@ Procedure IdleHandlerDefineInstalledApplicationsLoopFollowUp(Manager, Context) E
 	Errors = Context.ExecutionParameters.ErrorsDescription.Errors; // Array of See DigitalSignatureInternalClientServer.NewErrorProperties
 	
 	If Manager <> Undefined Then
-		UpdateValue(ApplicationDetails.CheckResult, NStr("en = 'Installed on the computer.';"));
+		UpdateValue(ApplicationDetails.CheckResult, NStr("en = 'Installed on the computer.'"));
 		If ValueIsFilled(ApplicationDetails.CheckResultAtServer)
 			And ApplicationDetails.IsInstalledOnServer <> True Then
-			UpdateValue(ApplicationDetails.MoreDetails, NStr("en = 'Details';") + "...");
+			UpdateValue(ApplicationDetails.MoreDetails, NStr("en = 'Details'") + "...");
 		Else
 			UpdateValue(ApplicationDetails.MoreDetails, "");
 		EndIf;
@@ -1296,15 +1315,15 @@ Procedure IdleHandlerDefineInstalledApplicationsLoopFollowUp(Manager, Context) E
 	
 	If Error.PathNotSpecified Then
 		UpdateValue(ApplicationDetails.CheckResult, Error.LongDesc);
-		UpdateValue(ApplicationDetails.MoreDetails, NStr("en = 'Details';") + "...");
+		UpdateValue(ApplicationDetails.MoreDetails, NStr("en = 'Details'") + "...");
 		UpdateValue(ApplicationDetails.Use, "");
 	Else
-		ErrorText = NStr("en = 'It is not installed on the computer.';") + " " + Error.LongDesc;
+		ErrorText = NStr("en = 'Not installed on the computer.'") + " " + Error.LongDesc;
 		If Error.ToAdministrator And Not IsFullUser Then
-			ErrorText = ErrorText + " " + NStr("en = 'Please contact the application administrator.';");
+			ErrorText = ErrorText + " " + NStr("en = 'Please contact the application administrator.'");
 		EndIf;
 		UpdateValue(ApplicationDetails.CheckResult, ErrorText);
-		UpdateValue(ApplicationDetails.MoreDetails, NStr("en = 'Details';") + "...");
+		UpdateValue(ApplicationDetails.MoreDetails, NStr("en = 'Details'") + "...");
 		UpdateValue(ApplicationDetails.Use, False);
 	EndIf;
 	
@@ -1322,7 +1341,7 @@ Procedure UpdateLinuxProgramPath()
 		If CurrentData.AutoDetect Then
 			Items.ApplicationsLinuxPathToApplication.DropListButton = False;
 			Items.ApplicationsLinuxPathToApplication.ReadOnly = True;
-			Items.ApplicationsLinuxPathToApplication.InputHint = NStr("en = 'Determined automatically';");
+			Items.ApplicationsLinuxPathToApplication.InputHint = NStr("en = 'Determined automatically'");
 			Return;
 		EndIf;
 		
@@ -1341,9 +1360,9 @@ Procedure UpdateLinuxProgramPath()
 	TheListOfChoices.Clear();
 	If ValueIsFilled(DefaultPath) Then
 		If CommonClient.IsLinuxClient() Then
-			TheListOfChoices.Add("LinuxPath", NStr("en = 'Standard path for Linux';"));
+			TheListOfChoices.Add("LinuxPath", NStr("en = 'Standard path for Linux'"));
 		Else
-			TheListOfChoices.Add("MacPath", NStr("en = 'Standard path for macOS';"));
+			TheListOfChoices.Add("MacPath", NStr("en = 'Standard path for macOS'"));
 		EndIf;
 	EndIf;
 	
@@ -1364,8 +1383,10 @@ Procedure AfterCryptographyAppsChecked(Result, Notification) Export
 	If Not Result.CheckCompleted Then
 		Items.GroupCryptoProvidersHint.Visible = True;
 		Items.DecorationCheckCryptoProviderInstallation.Title = StringFunctionsClient.FormattedString(
-			NStr("en = '<a href = ""%1"">Click here</a> to view all installed digital signing apps.';"),
+			NStr("en = '<a href = ""%1"">Click here</a> to view all installed digital signing apps.'"),
 			"CheckCryptographyAppsInstallation");
+	ElsIf Result.IsConflictPossible Then
+		DigitalSignatureClientLocalization.OnCheckCryptoAppsConflict(ThisObject, Result);
 	Else
 		Items.GroupCryptoProvidersHint.Visible = False;
 	EndIf;
@@ -1374,6 +1395,9 @@ Procedure AfterCryptographyAppsChecked(Result, Notification) Export
 		
 		For Each Cryptoprovider In Result.Programs Do
 			
+			If ValueIsFilled(Cryptoprovider.Application) And Not HasAppsToCheck Then
+				HasAppsToCheck = True;
+			EndIf;
 			
 			Found4 = Programs.FindRows(New Structure("ApplicationName, ApplicationType",
 				Cryptoprovider.ApplicationName, Cryptoprovider.ApplicationType));
@@ -1417,19 +1441,21 @@ Procedure AfterCryptographyAppsChecked(Result, Notification) Export
 			NewRow.Action = "";
 			NewRow.Parameters = Undefined;
 			NewRow.MoreDetails = "";
-			NewRow.CheckResult = ?(ValueIsFilled(Token.Error), Token.Error, NStr("en = 'Available.';"));
+			NewRow.CheckResult = ?(ValueIsFilled(Token.Error), Token.Error, NStr("en = 'Available.'"));
 			
 			If ValueIsFilled(Token.Error) Then
 				If DigitalSignatureInternalClientServer.TokenLibraryLoadingError(Token.Error) Then
-					NewRow.MoreDetails = NStr("en = 'Install library';") + "...";
+					NewRow.MoreDetails = NStr("en = 'Install'") + "...";
 					NewRow.Action = DigitalSignatureInternalClientServer.ActionInstallLibrariesForTokens();
 					NewRow.Parameters = New Structure("TokenKind", Token.Token);
 				Else
-					NewRow.MoreDetails = NStr("en = 'Details';") + "...";
+					NewRow.MoreDetails = NStr("en = 'Details'") + "...";
 				EndIf;
 			EndIf;
 			
 		EndDo;
+		
+		DigitalSignatureClientLocalization.OnCheckInstalledCryptoApps(ThisObject, Result, HasAppsToCheck);
 		
 	EndIf;
 	
@@ -1487,7 +1513,7 @@ Procedure FillApplicationsAndSettings(RefreshCached = False)
 	|	Programs.EncryptAlgorithm,
 	|	Programs.DeletionMark,
 	|	Programs.IsBuiltInCryptoProvider,
-	|	VALUE(Enum.DigitalSignatureAppUsageModes.SetupDone),
+	|	VALUE(Enum.DigitalSignatureAppUsageModes.Configured),
 	|	4
 	|FROM
 	|	Catalog.DigitalSignatureAndEncryptionApplications AS Programs
@@ -1615,11 +1641,11 @@ Procedure FillApplicationsAndSettings(RefreshCached = False)
 		EndIf;
 		
 		If String.IsBuiltInCryptoProvider And Not String.DeletionMark Then
-			UpdateValue(String.CheckResult, NStr("en = 'Available.';"));
+			UpdateValue(String.CheckResult, NStr("en = 'Available.'"));
 			UpdateValue(String.Use, True);
 		ElsIf DigitalSignatureInternalClientServer.PlacementOfTheCertificate(SelectionString.LocationType) = "CloudSignature"
 				And Not String.DeletionMark Or SelectionString.LocationType = 5 Then
-			UpdateValue(String.CheckResult, NStr("en = 'Available.';"));
+			UpdateValue(String.CheckResult, NStr("en = 'Available.'"));
 			UpdateValue(String.Use, True);
 		ElsIf String.LocationType = 1 And (Settings.VerifyDigitalSignaturesOnTheServer Or Settings.GenerateDigitalSignaturesAtServer) Then
 			CreationParameters = DigitalSignatureInternal.CryptoManagerCreationParameters();
@@ -1634,7 +1660,7 @@ Procedure FillApplicationsAndSettings(RefreshCached = False)
 				UpdateValue(String.CheckResultAtServer, CreationParameters.ErrorDescription.ErrorDescription);
 				UpdateValue(String.IsInstalledOnServer, False);
 			Else
-				UpdateValue(String.CheckResultAtServer, NStr("en = 'Installed on the server.';"));
+				UpdateValue(String.CheckResultAtServer, NStr("en = 'Installed on the server.'"));
 				UpdateValue(String.IsInstalledOnServer, True);
 			EndIf;
 		EndIf;
@@ -1715,7 +1741,7 @@ Procedure SaveApplicationPath()
 	If NoRightToSaveUserData Then
 		CurrentData.LinuxApplicationPath = LinuxPathToCurrentApplication;
 		ShowMessageBox(,
-			NStr("en = 'Couldn''t save the path: Insufficient rights to save data. Contact your administrator.';"));
+			NStr("en = 'Couldn''t save the path: Insufficient rights to save data. Contact your administrator.'"));
 	Else
 		SaveLinuxPathAtServer(CurrentData.Ref, CurrentData.LinuxApplicationPath);
 		DefineInstalledApplications();
@@ -1728,7 +1754,7 @@ Procedure InstallConnectReportVersionComponents(SuggestToImport)
 	
 	ConnectionParameters = CommonClient.AddInAttachmentParameters();
 	ConnectionParameters.ExplanationText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Add-in is required: %1';"), "ExtraCryptoAPI");
+		NStr("en = 'Add-in is required: %1'"), "ExtraCryptoAPI");
 	ConnectionParameters.SuggestToImport = SuggestToImport;
 	ConnectionParameters.SuggestInstall = True;
 	
@@ -1753,19 +1779,19 @@ Procedure ReportResultConnectionsComponents(Result, AdditionalParameters) Export
 		Except
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t determine the add-in version.
-				|%1';"), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+				|%1'"), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 			ShowMessageBox(, ErrorText);
 		EndTry;
 	Else
 		If IsBlankString(Result.ErrorDescription) Then 
 			// A user canceled the installation.
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Add-in %1 is not installed.';"), "ExtraCryptoAPI");
+				NStr("en = 'Add-in %1 is not installed.'"), "ExtraCryptoAPI");
 			ShowMessageBox(, ErrorText);
 		Else 
 			// Installation failed. The error description is in Result.ErrorDetails.
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Add-in %1 is not installed (%2).';"), "ExtraCryptoAPI", Result.ErrorDescription);
+				NStr("en = 'Add-in %1 is not installed (%2).'"), "ExtraCryptoAPI", Result.ErrorDescription);
 			ShowMessageBox(, ErrorText);
 		EndIf;
 	EndIf;
@@ -1776,7 +1802,7 @@ EndProcedure
 Procedure ReportComponentVersionAfterConnecting(Result, Var_Parameters, AdditionalParameters) Export
 	
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Add-in %1 version is %2.';"), "ExtraCryptoAPI", Result);
+		NStr("en = 'Add-in %1 version is %2.'"), "ExtraCryptoAPI", Result);
 	ShowMessageBox(, MessageText);
 	RefreshReusableValues();
 	DigitalSignatureInternalClient.ClearInstalledCryptoProvidersCache();

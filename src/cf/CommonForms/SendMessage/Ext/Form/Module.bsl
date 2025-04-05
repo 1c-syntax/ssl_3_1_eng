@@ -43,7 +43,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		// Account is not passed. Selecting the first available account.
 		AvailableEmailAccounts = EmailOperations.AvailableEmailAccounts(True);
 		If AvailableEmailAccounts.Count() = 0 Then
-			MessageText = NStr("en = 'There are no email accounts available. Please contact your system administrator.';");
+			MessageText = NStr("en = 'There are no email accounts available. Please contact your system administrator.'");
 			Common.MessageToUser(MessageText,,,,Cancel);
 			Return;
 		EndIf;
@@ -56,7 +56,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EmailAccountList = Parameters.Sender;
 		
 		If EmailAccountList.Count() = 0 Then
-			MessageText = NStr("en = 'No accounts for sending mail are specified. Please contact your system administrator.';");
+			MessageText = NStr("en = 'No accounts for sending mail are specified. Please contact your system administrator.'");
 			Common.MessageToUser(MessageText,,,, Cancel);
 			Return;
 		EndIf;
@@ -176,7 +176,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		FillReplyToAddressAutomatically = True;
 	EndIf;
 	
-	// StandardSubsystems.MessagesTemplates
+	// StandardSubsystems.MessageTemplates
 	
 	Items.FormGenerateFromTemplate.Visible = False;
 	Items.FormSaveAsTemplate.Visible    = False;
@@ -191,7 +191,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	EndIf;
 	
-	// End StandardSubsystems.MessagesTemplates
+	// End StandardSubsystems.MessageTemplates
 	
 	If Common.IsMobileClient() Then
 		Items.Attachment2.Visible = False;
@@ -322,7 +322,7 @@ Procedure RecipientPostalAddressesBeforeEditEnd(Item, NewRow, CancelEdit, Cancel
 	EndIf;
 	
 	If Not CommonClientServer.EmailAddressMeetsRequirements(Address, True) Then
-		ShowMessageBox(, NStr("en = 'Please specify a correct email address.';"));
+		ShowMessageBox(, NStr("en = 'Please specify a correct email address.'"));
 		Cancel = True;
 		Return;
 	EndIf;
@@ -333,7 +333,7 @@ Procedure RecipientPostalAddressesBeforeEditEnd(Item, NewRow, CancelEdit, Cancel
 		If Duplicates[Upper(MailAddr)] = Undefined Then
 			Duplicates.Insert(Upper(MailAddr), True);
 		Else
-			ShowMessageBox(, NStr("en = 'This email address already exists.';"));
+			ShowMessageBox(, NStr("en = 'This email address already exists.'"));
 			Cancel = True;
 			Return;
 		EndIf;
@@ -470,21 +470,30 @@ Procedure SendMail()
 	Try
 		MessageSent = SendEmailMessage(HasWrongRecipients);
 	Except
-		ErrorText = ErrorProcessing.BriefErrorDescription(ErrorInfo());
-		ErrorTitle = NStr("en = 'The message is not sent';");
+		
+		ErrorInfo = ErrorInfo();
+		
+		If Not EmailOperationsInternalClientServer.ThisIsErrorInWorkOfInternetMail(ErrorInfo) Then
+			Raise;
+		EndIf;
+		
+		ErrorText = ErrorProcessing.BriefErrorDescription(ErrorInfo);
+		ErrorTitle = NStr("en = 'The message is not sent'");
 		EmailOperationsClient.ReportConnectionError(Account, ErrorTitle, ErrorText);
+		
 		Return;
+		
 	EndTry;
 	
 	If MessageSent Then
 		SaveReplyTo(ReplyToAddress);
 		FormClosingConfirmationRequired = False;
 		
-		ShowUserNotification(NStr("en = 'Message sent:';"), ,
-			?(IsBlankString(EmailSubject), NStr("en = '<No subject>';"), EmailSubject), PictureLib.DialogInformation);
+		ShowUserNotification(NStr("en = 'Message sent:'"), ,
+			?(IsBlankString(EmailSubject), NStr("en = '<No subject>'"), EmailSubject), PictureLib.DialogInformation);
 		
 		If HasWrongRecipients Then
-			ShowMessageBox(, NStr("en = 'The message is not sent to some recipients.';"));
+			ShowMessageBox(, NStr("en = 'The message is not sent to some recipients.'"));
 		Else
 			Close();
 		EndIf;
@@ -498,18 +507,18 @@ Function FieldsFilledCorrectly()
 	
 	If RecipientsMailAddresses.Count() = 0 Then
 		CommonClient.MessageToUser(
-			NStr("en = 'Please specify at least one recipient.';"), , "RecipientsMailAddresses");
+			NStr("en = 'Please specify at least one recipient.'"), , "RecipientsMailAddresses");
 		Result = False;
 	EndIf;
 	For Each EmailRecipient1 In RecipientsMailAddresses Do
 		Address = EmailAddressFromPresentation(EmailRecipient1.Presentation);
 		If IsBlankString(Address) Then
 			CommonClient.MessageToUser(
-				NStr("en = 'Please specify at least one recipient.';"),, "RecipientsMailAddresses[" + Format(RecipientsMailAddresses.IndexOf(EmailRecipient1), "NG=0") + "].Presentation");
+				NStr("en = 'Please specify at least one recipient.'"),, "RecipientsMailAddresses[" + Format(RecipientsMailAddresses.IndexOf(EmailRecipient1), "NG=0") + "].Presentation");
 			Result = False;
 		ElsIf Not CommonClientServer.EmailAddressMeetsRequirements(Address, False) Then
 			CommonClient.MessageToUser(
-				NStr("en = 'Invalid email address.';"),, "RecipientsMailAddresses[" + Format(RecipientsMailAddresses.IndexOf(EmailRecipient1), "NG=0") + "].Presentation");
+				NStr("en = 'Invalid email address.'"),, "RecipientsMailAddresses[" + Format(RecipientsMailAddresses.IndexOf(EmailRecipient1), "NG=0") + "].Presentation");
 			Result = False;
 		EndIf;
 	EndDo;
@@ -529,7 +538,7 @@ EndProcedure
 Procedure ImportanceHigh(Command)
 	EmailImportance = EmailOperationsInternalClientServer.InternetMailMessageImportanceHigh();
 	Items.SeverityGroup.Picture = PictureLib.ImportanceHigh;
-	Items.SeverityGroup.ToolTip = NStr("en = 'High importance';");
+	Items.SeverityGroup.ToolTip = NStr("en = 'High importance'");
 	Modified = True;
 EndProcedure
 
@@ -537,7 +546,7 @@ EndProcedure
 Procedure ImportanceNormal(Command)
 	EmailImportance = EmailOperationsInternalClientServer.InternetMailMessageImportanceStandard();
 	Items.SeverityGroup.Picture = PictureLib.ImportanceNotSpecified;
-	Items.SeverityGroup.ToolTip = NStr("en = 'Normal importance';");
+	Items.SeverityGroup.ToolTip = NStr("en = 'Normal importance'");
 	Modified = True;
 EndProcedure
 
@@ -545,11 +554,11 @@ EndProcedure
 Procedure ImportanceLow(Command)
 	EmailImportance = EmailOperationsInternalClientServer.InternetMailMessageImportanceLow();
 	Items.SeverityGroup.Picture = PictureLib.ImportanceLow;
-	Items.SeverityGroup.ToolTip = NStr("en = 'Low importance';");
+	Items.SeverityGroup.ToolTip = NStr("en = 'Low importance'");
 	Modified = True;
 EndProcedure
 
-// СтандартныеПодсистемы.ШаблоныСообщений
+// 
 
 &AtClient
 Procedure GenerateFromTemplate(Command)
@@ -563,7 +572,7 @@ Procedure GenerateFromTemplate(Command)
 	
 EndProcedure
 
-// End StandardSubsystems.MessagesTemplates
+// End StandardSubsystems.MessageTemplates
 
 #EndRegion
 
@@ -587,7 +596,7 @@ Function SendEmailMessage(HasWrongRecipients)
 	If WrongRecipients.Count() > 0 Then
 		For Each WrongRecipient In WrongRecipients Do
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1: %2';"),
+				NStr("en = '%1: %2'"),
 				WrongRecipient.Key, WrongRecipient.Value);
 				
 			Field = "RecipientsMailAddresses";
@@ -697,7 +706,7 @@ Function GetSpreadsheetDocumentByBinaryData(Val BinaryData)
 	Try
 		DeleteFiles(FileName);
 	Except
-		WriteLogEvent(NStr("en = 'Get spreadsheet document';", Common.DefaultLanguageCode()), EventLogLevel.Error, , , 
+		WriteLogEvent(NStr("en = 'Get spreadsheet document'", Common.DefaultLanguageCode()), EventLogLevel.Error, , , 
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	
@@ -932,7 +941,7 @@ Function GetNormalizedEmailInFormat(Text)
 	
 	If Addresses.Count() > 1 Then
 		CommonClient.MessageToUser(
-			NStr("en = 'Please specify a single reply-to address.';"), , "ReplyToAddress");
+			NStr("en = 'Please specify a single reply-to address.'"), , "ReplyToAddress");
 		Return Text;
 	EndIf;
 	
@@ -994,13 +1003,13 @@ EndProcedure
 
 &AtClient
 Procedure ShowQueryBoxBeforeCloseForm()
-	QueryText = NStr("en = 'The message is not yet sent. Do you want to close the window?';");
+	QueryText = NStr("en = 'The message is not yet sent. Do you want to close the window?'");
 	NotifyDescription = New CallbackDescription("CloseFormConfirmed", ThisObject);
 	Buttons = New ValueList;
-	Buttons.Add("Close", NStr("en = 'Close';"));
-	Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Do not close';"));
+	Buttons.Add("Close", NStr("en = 'Close'"));
+	Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Do not close'"));
 	ShowQueryBox(NotifyDescription, QueryText, Buttons,,
-		DialogReturnCode.Cancel, NStr("en = 'Send message';"));
+		DialogReturnCode.Cancel, NStr("en = 'Send message'"));
 EndProcedure
 
 &AtClient

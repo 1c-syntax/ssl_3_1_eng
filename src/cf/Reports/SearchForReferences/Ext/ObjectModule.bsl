@@ -121,7 +121,7 @@ Function TitleByRefSet(Val RefSet)
 		TotalRefs = RefSet.Count();
 		If TotalRefs = 1 Then
 			Return StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Occurrences of %1';"), Common.SubjectString(RefSet[0].Value));
+				NStr("en = 'Occurrences of %1'"), Common.SubjectString(RefSet[0].Value));
 		ElsIf TotalRefs > 1 Then
 		
 			EqualType = True;
@@ -135,24 +135,24 @@ Function TitleByRefSet(Val RefSet)
 			
 			If EqualType Then
 				Return StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Occurrences of %1 (%2)';"), 
+					NStr("en = 'Occurrences of %1 (%2)'"), 
 					RefSet[0].Value.Metadata().Presentation(),
 					TotalRefs);
 			Else		
 				Return StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Occurrences (%1)';"), 
+					NStr("en = 'Occurrences (%1)'"), 
 					TotalRefs);
 			EndIf;
 		EndIf;
 		
 	EndIf;
 		
-	Return NStr("en = 'Item occurrences';");
+	Return NStr("en = 'Item occurrences'");
 
 EndFunction
 
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

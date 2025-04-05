@@ -33,18 +33,18 @@ Procedure BeforeWrite(Cancel)
 	
 	If Not PreviousValue2 And Value And Not UsersInternal.ExternalUsersEmbedded() Then
 		ErrorText =
-			NStr("en = 'The application does not support external users.';");
+			NStr("en = 'The application does not support external users.'");
 		Raise ErrorText;
 	EndIf;
 	
 	If Common.IsStandaloneWorkplace() Then
 		ErrorText =
-			NStr("en = 'User groups can only be customized in the SaaS version.';");
+			NStr("en = 'User groups can only be customized in the SaaS version.'");
 		Raise ErrorText;
 		
 	ElsIf Common.IsSubordinateDIBNode() Then
 		ErrorText =
-			NStr("en = 'User groups can only be customized in the master node.';");
+			NStr("en = 'User groups can only be customized in the master node.'");
 		Raise ErrorText;
 	EndIf;
 	
@@ -176,5 +176,5 @@ EndProcedure
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

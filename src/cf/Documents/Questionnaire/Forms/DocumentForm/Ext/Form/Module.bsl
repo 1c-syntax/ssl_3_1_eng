@@ -50,10 +50,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 
 	Surveys.SetQuestionnaireSectionsTreeItemIntroductionConclusion(SectionsTree, 
-		NStr("en = 'Introduction';"), "Introduction");
+		NStr("en = 'Introduction'"), "Introduction");
 	Surveys.FillSectionsTree(ThisObject, SectionsTree);
 	Surveys.SetQuestionnaireSectionsTreeItemIntroductionConclusion(SectionsTree, 
-		NStr("en = 'Closing statement';"), "ClosingStatement");
+		NStr("en = 'Closing statement'"), "ClosingStatement");
 	SurveysClientServer.GenerateTreeNumbering(SectionsTree, True);
 
 	If (Not Object.Posted) And ValueIsFilled(Object.SectionToEdit) Then
@@ -77,7 +77,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetVisibilityAccessibilityOfFormElements();
 
 	Items.SectionsTreeGroup.Visible = False;
-	TitleSectionsCommand = NStr("en = 'Show sections';");
+	TitleSectionsCommand = NStr("en = 'Show sections'");
 	Items.HideShowSectionsTree.Title = TitleSectionsCommand;
 
 	ChangeFormItemsVisibility(ThisObject);
@@ -147,7 +147,7 @@ EndProcedure
 &AtClient
 Procedure AfterWrite(WriteParameters)
 
-	ShowUserNotification(NStr("en = 'Edited';"),, String(Object.Ref), PictureLib.DialogInformation);
+	ShowUserNotification(NStr("en = 'Edited'"),, String(Object.Ref), PictureLib.DialogInformation);
 
 	Notify("Write_Questionnaire", New Structure, Object.Ref);
 
@@ -280,7 +280,7 @@ Procedure ResponseFormWrite(Command)
 	Cancel = EndEditFillingForm(DocumentWriteMode.Write);
 	If Not Cancel Then
 
-		ShowUserNotification(NStr("en = 'Edited';"),, String(Object.Ref),
+		ShowUserNotification(NStr("en = 'Edited'"),, String(Object.Ref),
 			PictureLib.DialogInformation);
 
 		Notify("Write_Questionnaire", New Structure, Object.Ref);
@@ -296,7 +296,7 @@ Procedure FillingFormEndAndClose(Command)
 	ShowQueryBox(OnCloseNotifyHandler, 
 		NStr("en = 'You will not be able to edit your answers
 			|after you submit the questionnaire.
-			|Would you like to submit it?';"), QuestionDialogMode.YesNo);
+			|Would you like to submit it?'"), QuestionDialogMode.YesNo);
 
 EndProcedure
 
@@ -424,7 +424,7 @@ EndProcedure
 &AtServer
 Procedure SetSimpleQuestionAttributeValue(DoQueryBox, SelectionQuestion, TreeRow)
 
-	QuestionName = SurveysClientServer.QuestionName(TreeRow.Composite);
+	QuestionName = SurveysClientServer.QuestionName(TreeRow.RowKey);
 
 	If TreeRow.ReplyType = Enums.TypesOfAnswersToQuestion.MultipleOptionsFor Then
 
@@ -519,7 +519,7 @@ EndProcedure
 &AtServer
 Procedure SetAttributeValuesCompositeTabularQuestion(DoQueryBox, SelectionQuestion, TreeRow)
 
-	QuestionName = SurveysClientServer.QuestionName(TreeRow.Composite);
+	QuestionName = SurveysClientServer.QuestionName(TreeRow.RowKey);
 	TableName = QuestionName + "_Table";
 	Table    = FormAttributeToValue(TableName);
 
@@ -558,7 +558,7 @@ EndProcedure
 &AtServer
 Procedure SetAttributeValuesTabularQuestionAnswersInRows(DoQueryBox, SelectionQuestion, TreeRow)
 	
-	QuestionName          = SurveysClientServer.QuestionName(TreeRow.Composite);
+	QuestionName          = SurveysClientServer.QuestionName(TreeRow.RowKey);
 	TableName          = QuestionName + "_Table";
 	NameOfColumnWithoutNumber = TableName + "_Column_";
 	Table             = FormAttributeToValue(TableName);
@@ -587,7 +587,7 @@ EndProcedure
 &AtServer
 Procedure SetAttributeValuesTabularQuestionAnswersInColumns(DoQueryBox, SelectionQuestion, TreeRow)
 	
-	QuestionName          = SurveysClientServer.QuestionName(TreeRow.Composite);
+	QuestionName          = SurveysClientServer.QuestionName(TreeRow.RowKey);
 	TableName          = QuestionName + "_Table";
 	NameOfColumnWithoutNumber = TableName + "_Column_";
 	Table             = FormAttributeToValue(TableName);
@@ -620,7 +620,7 @@ EndProcedure
 &AtServer
 Procedure SetAttributeValuesTabularQuestionAnswersInRowsAndColumns(DoQueryBox, SelectionQuestion, TreeRow)
 
-	QuestionName = SurveysClientServer.QuestionName(TreeRow.Composite);
+	QuestionName = SurveysClientServer.QuestionName(TreeRow.RowKey);
 	TableName = QuestionName + "_Table";
 	NameOfColumnWithoutNumber = TableName + "_Column_";
 	Table = FormAttributeToValue(TableName);
@@ -651,7 +651,7 @@ EndProcedure
 &AtServer
 Procedure SetAttributeValuesComplexQuestion(DoQueryBox, SelectionQuestion, TreeRow)
 	
-	QuestionName = SurveysClientServer.QuestionName(TreeRow.Composite);
+	QuestionName = SurveysClientServer.QuestionName(TreeRow.RowKey);
 	QuestionnaireQuestions = TreeRow.ComplexQuestionComposition.Unload().UnloadColumn("ElementaryQuestion");
 
 	SelectionQuestion.Reset();
@@ -752,7 +752,7 @@ Procedure ConvertSectionFillingResultsToTabularSection()
 				TableRow.ParentQuestion));
 			If FoundRows.Count() > 0 Then
 				ParentRow = FoundRows[0];
-				If (Not ThisObject[SurveysClientServer.QuestionName(ParentRow.Composite)] = True) Then
+				If (Not ThisObject[SurveysClientServer.QuestionName(ParentRow.RowKey)] = True) Then
 					Continue;
 				EndIf;
 			EndIf;
@@ -776,7 +776,7 @@ EndProcedure
 &AtServer
 Procedure FillAnswersTableTabularQuestion(TreeRow)
 
-	QuestionName = SurveysClientServer.QuestionName(TreeRow.Composite);
+	QuestionName = SurveysClientServer.QuestionName(TreeRow.RowKey);
 	TableName = QuestionName + "_Table";
 	Table = FormAttributeToValue(TableName);
 
@@ -844,7 +844,7 @@ EndProcedure
 Procedure FillAnswersTabularQuestionAnswersInRows(TreeRow, Table)
 
 	QuestionFirstColumn = TreeRow.TableQuestionComposition[0].ElementaryQuestion;
-	TableName          = SurveysClientServer.QuestionName(TreeRow.Composite) + "_Table";
+	TableName          = SurveysClientServer.QuestionName(TreeRow.RowKey) + "_Table";
 	NameOfColumnWithoutNumber = TableName + "_Column_";
 
 	For RowIndex = 0 To Table.Count() - 1 Do
@@ -906,7 +906,7 @@ Procedure FillAnswersTabularQuestionAnswersInRowsAndColumns(TreeRow, Table)
 	ColumnsAnswers = TreeRow.PredefinedAnswers.FindRows(New Structure("ElementaryQuestion",
 		QuestionForColumns));
 
-	TableName          = SurveysClientServer.QuestionName(TreeRow.Composite) + "_Table";
+	TableName          = SurveysClientServer.QuestionName(TreeRow.RowKey) + "_Table";
 	NameOfColumnWithoutNumber = TableName + "_Column_";
 
 	For RowIndex = 0 To Table.Count() - 1 Do
@@ -952,7 +952,7 @@ EndProcedure
 Procedure FillAnswersTabularQuestionAnswersInColumns(TreeRow, Table)
 
 	QuestionForColumns = TreeRow.TableQuestionComposition[0].ElementaryQuestion;
-	TableName          = SurveysClientServer.QuestionName(TreeRow.Composite) + "_Table";
+	TableName          = SurveysClientServer.QuestionName(TreeRow.RowKey) + "_Table";
 	NameOfColumnWithoutNumber = TableName + "_Column_";
 
 	For ColumnIndex = 1 To Table.Columns.Count() - 1 Do
@@ -999,7 +999,7 @@ EndProcedure
 &AtServer
 Procedure FillAnswerSimpleQuestion(TreeRow)
 
-	QuestionName = SurveysClientServer.QuestionName(TreeRow.Composite);
+	QuestionName = SurveysClientServer.QuestionName(TreeRow.RowKey);
 
 	RefusalToAnswer = False;
 	If TreeRow.ShouldUseRefusalToAnswer Then
@@ -1060,7 +1060,7 @@ EndProcedure
 &AtServer
 Procedure FillAnswersComplexQuestion(TreeRow)
 
-	QuestionName = SurveysClientServer.QuestionName(TreeRow.Composite);
+	QuestionName = SurveysClientServer.QuestionName(TreeRow.RowKey);
 	AnswersTypes = Common.ObjectsAttributeValue(
 		TreeRow.ComplexQuestionComposition.Unload().UnloadColumn("ElementaryQuestion"), "ReplyType");
 
@@ -1270,7 +1270,7 @@ Function CheckQuestionnaireFilling()
 
 	Selection = Result.Select();
 	While Selection.Next() Do
-		Common.MessageToUser(NStr("en = 'Question not answered';") + "- " 
+		Common.MessageToUser(NStr("en = 'Question not answered'") + "- " 
 			+ StrReplace(Selection.Ref.FullCode(), "/", ".") + " " + Selection.Wording);
 	EndDo;
 
@@ -1313,10 +1313,10 @@ Procedure SetAttributesValuesBySurvey(AttributesSurvey)
 	AllowSavingQuestionnaireDraft = AttributesSurvey.AllowSavingQuestionnaireDraft;
 	QuestionnaireTemplate = AttributesSurvey.QuestionnaireTemplate;
 	Introduction = ?(IsBlankString(AttributesSurvey.Introduction), 
-		NStr("en = 'Click Next to fill out the questionnaire.';"), 
+		NStr("en = 'Click Next to fill out the questionnaire.'"), 
 		AttributesSurvey.Introduction);
 	ClosingStatement = ?(IsBlankString(AttributesSurvey.ClosingStatement), 
-		NStr("en = 'Thank you for filling out the questionnaire.';"), 
+		NStr("en = 'Thank you for filling out the questionnaire.'"), 
 		AttributesSurvey.ClosingStatement);
 
 EndProcedure 
@@ -1480,7 +1480,7 @@ Procedure SetOnChangeEventHandlerForQuestions()
 			Continue;
 		EndIf;
 
-		QuestionName = SurveysClientServer.QuestionName(TableRow.Composite);
+		QuestionName = SurveysClientServer.QuestionName(TableRow.RowKey);
 
 		If TableRow.QuestionType = Enums.QuestionnaireTemplateQuestionTypes.Tabular Then
 			Items[QuestionName + "_Table"].SetAction("OnChange", "Attachable_OnChangeQuestion");
@@ -1588,8 +1588,8 @@ EndProcedure
 Procedure ChangeSectionsTreeVisibility()
 
 	Items.SectionsTreeGroup.Visible = Not Items.SectionsTreeGroup.Visible;
-	TitleSectionsCommand = ?(Items.SectionsTreeGroup.Visible, NStr("en = 'Hide sections';"), 
-		NStr("en = 'Show sections';"));
+	TitleSectionsCommand = ?(Items.SectionsTreeGroup.Visible, NStr("en = 'Hide sections'"), 
+		NStr("en = 'Show sections'"));
 	Items.HideShowSectionsTree.Title = TitleSectionsCommand;
 
 EndProcedure
@@ -1630,7 +1630,7 @@ Procedure PromptForAcceptingQuestionnaireAfterCompletion(QuestionResult, Additio
 
 	Cancel = EndEditFillingForm(DocumentWriteMode.Posting);
 	If Not Cancel Then
-		ShowUserNotification(NStr("en = 'Edited';"),, String(Object.Ref), PictureLib.DialogInformation);
+		ShowUserNotification(NStr("en = 'Edited'"),, String(Object.Ref), PictureLib.DialogInformation);
 		Notify("PostingQuestionnaire", New Structure, Object.Ref);
 		Modified = False;
 		Close();

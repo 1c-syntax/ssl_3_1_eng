@@ -138,25 +138,25 @@ Function ClosingDatesPrepared(DataParameters)
 			String.ObjectPresentation = String(String.Object);
 			
 		ElsIf ValueIsFilled(String.Section) Then
-			String.ObjectPresentation = NStr("en = 'For all objects except for the specified ones';");
+			String.ObjectPresentation = NStr("en = 'For all objects except for the specified ones'");
 		Else
-			String.ObjectPresentation = NStr("en = 'For all sections and objects except for the specified ones';");
+			String.ObjectPresentation = NStr("en = 'For all sections and objects except for the specified ones'");
 		EndIf;
 		
 		If ValueIsFilled(String.Section) Then
 			String.SectionPresentation = String(String.Section);
 		Else
-			String.SectionPresentation = "<" + NStr("en = 'Common date';") + ">";
+			String.SectionPresentation = "<" + NStr("en = 'Common date'") + ">";
 		EndIf;
 		
 		If String.SettingsRecipient = Enums.PeriodClosingDatesPurposeTypes.ForAllUsers Then
-			String.SettingsRecipientPresentation = NStr("en = 'For all users except for the specified ones';");
+			String.SettingsRecipientPresentation = NStr("en = 'For all users except for the specified ones'");
 		Else
 			String.SettingsRecipientPresentation = String(String.SettingsRecipient);
 		EndIf;
 		
 		If String.SettingsOwner = Enums.PeriodClosingDatesPurposeTypes.ForAllUsers Then
-			String.SettingsOwnerPresentation = NStr("en = 'For all users except for the specified ones';");
+			String.SettingsOwnerPresentation = NStr("en = 'For all users except for the specified ones'");
 		Else
 			String.SettingsOwnerPresentation = String(String.SettingsOwner);
 		EndIf;
@@ -474,5 +474,5 @@ EndFunction
 #EndRegion
 
 #Else
-Raise NStr("en = 'Invalid object call on the client.';");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

@@ -405,7 +405,7 @@ Function PermissionsToUseServerResources(Directories)
 						Directories.LocalExportDirectory,
 						True,
 						True,
-						NStr("en = 'A network directory to import samples to.';"));
+						NStr("en = 'A network directory to import samples to.'"));
 					Permissions.Add(Item);
 				EndIf;
 			EndIf;
@@ -416,7 +416,7 @@ Function PermissionsToUseServerResources(Directories)
 						"FTP",
 						Directories.FTPExportDirectory,
 						?(Directories.Property("FTPExportDirectoryPort"), Directories.FTPExportDirectoryPort, Undefined),
-						NStr("en = 'A FTP directory to import samples to.';"));
+						NStr("en = 'A FTP directory to import samples to.'"));
 					Permissions.Add(Item);
 				EndIf;
 			EndIf;
@@ -609,7 +609,7 @@ Function CommonModule(Name) Export
 		EndIf;
 		
 		If TypeOf(Module) <> Type("CommonModule") Then
-			ExceptionMessage = NStr("en = 'Common module %1 is not found.';");
+			ExceptionMessage = NStr("en = 'Common module %1 is not found.'");
 			Raise StrReplace(ExceptionMessage, "%1", Name);
 		EndIf;
 	EndIf;
@@ -698,7 +698,7 @@ Function ServerManagerModule(Name)
 	
 	If Not ObjectFound Then
 		ExceptionMessage = NStr("en = 'Metadata object %1 not found.
-			|It might be missing or it does not support getting the manager module.';");
+			|It might be missing or it does not support getting the manager module.'");
 		Raise StrReplace(ExceptionMessage, "%1", Name);
 	EndIf;
 	

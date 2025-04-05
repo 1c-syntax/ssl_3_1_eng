@@ -25,24 +25,25 @@ EndProcedure
 Procedure ShowDisconnection() Export
 	
 	If Not ConversationsInternalServerCall.Connected2() Then 
-		ShowMessageBox(, NStr("en = 'Conversations are already disabled.';"));
+		ShowMessageBox(, NStr("en = 'Conversations are already disabled.'"));
 		Return;
 	EndIf;
 	
 	Buttons = New ValueList;
-	Buttons.Add("Disconnect", NStr("en = 'Disable';"));
+	Buttons.Add("Disconnect", NStr("en = 'Disable'"));
 	Buttons.Add(DialogReturnCode.No);
 	
 	Notification = New CallbackDescription("AfterResponseToDisablePrompt", ThisObject);
 	
-	ShowQueryBox(Notification, NStr("en = 'Do you want to disable conversations?';"),
+	ShowQueryBox(Notification, NStr("en = 'Do you want to disable conversations?'"),
 		Buttons,, DialogReturnCode.No);
 	
 EndProcedure
 
 Procedure AfterWriteUser(Form, CompletionDetails) Export
 	
-	If Not Form.SuggestDiscussions Then
+	If Not Form.SuggestDiscussions
+	 Or Not ValueIsFilled(Form.Object.IBUserID) Then
 		RunCallback(CompletionDetails);
 		Return;
 	EndIf;
@@ -52,7 +53,7 @@ Procedure AfterWriteUser(Form, CompletionDetails) Export
 	CallbackOnCompletion = New CallbackDescription("SuggestDiscussionsCompletion", ThisObject, CompletionDetails);
 	QuestionParameters = StandardSubsystemsClient.QuestionToUserParameters();
 	QuestionParameters.PromptDontAskAgain = True;
-	QuestionParameters.Title = NStr("en = 'Conversations (collaboration system)';");
+	QuestionParameters.Title = NStr("en = 'Conversations (collaboration system)'");
 	StandardSubsystemsClient.ShowQuestionToUser(CallbackOnCompletion, Form.SuggestConversationsText,
 		QuestionDialogMode.YesNo, QuestionParameters);
 	
@@ -66,7 +67,7 @@ Procedure OnGetCollaborationSystemUsersChoiceForm(ChoicePurpose, Form, Conversat
 	Parameters.Insert("MultipleChoice", True);
 	Parameters.Insert("AdvancedPick", True);
 	Parameters.Insert("SelectedUsers", New Array);
-	Parameters.Insert("PickFormHeader", NStr("en = 'Conversation members';"));
+	Parameters.Insert("PickFormHeader", NStr("en = 'Conversation members'"));
 	
 	StandardProcessing = False;
 	
@@ -80,7 +81,7 @@ EndProcedure
 
 Procedure OnStart(Parameters) Export
 	
-	CommandsGenerationHandler = New CallbackDescription("WhenFormingCommandsOfInteractionSystem", ThisObject);
+	CommandsGenerationHandler = New CallbackDescription("OnGenerateInteractionSystemCommands", ThisObject);
 	CollaborationSystem.AttachGenerateCommandsHandler(CommandsGenerationHandler);
 	
 EndProcedure
@@ -96,7 +97,7 @@ Procedure StartPickingConversationParticipants(Item) Export
 	FormParameters.Insert("MultipleChoice", True);
 	FormParameters.Insert("AdvancedPick", True);
 	FormParameters.Insert("SelectedUsers", New Array);
-	FormParameters.Insert("PickFormHeader", NStr("en = 'Conversation members';"));
+	FormParameters.Insert("PickFormHeader", NStr("en = 'Conversation members'"));
 	
 	OpenForm("Catalog.Users.ChoiceForm", FormParameters,Item,,,,,FormWindowOpeningMode.LockOwnerWindow);
 EndProcedure
@@ -166,7 +167,7 @@ Procedure OnProcessDisableDiscussionError(ErrorInfo, StandardProcessing, Context
 	StandardProcessing = False;
 	
 	EventLogClient.AddMessageForEventLog(
-		NStr("en = 'Conversations.An error occurred when unregistering infobase';",
+		NStr("en = 'Conversations.An error occurred when unregistering infobase'",
 			CommonClient.DefaultLanguageCode()),
 		"Error",
 		ErrorProcessing.DetailErrorDescription(ErrorInfo),, True);
@@ -183,7 +184,7 @@ Procedure SuggestDiscussionsCompletion(Result, CompletionDetails) Export
 	EndIf;
 	
 	If Result.NeverAskAgain Then
-		CommonServerCall.CommonSettingsStorageSave("ApplicationSettings", "SuggestDiscussions", False);
+		CommonClient.CommonSettingsStorageSave("ApplicationSettings", "SuggestDiscussions", False);
 	EndIf;
 	
 	If Result.Value = DialogReturnCode.Yes Then
@@ -194,20 +195,20 @@ Procedure SuggestDiscussionsCompletion(Result, CompletionDetails) Export
 	
 EndProcedure
 
-Procedure WhenFormingCommandsOfInteractionSystem(CommandsParameters, Commands, DefaultCommand, AdditionalParameters) Export
+Procedure OnGenerateInteractionSystemCommands(CommandsParameters, Commands, DefaultCommand, AdditionalParameters) Export
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.UserReminders") Then
 		ModuleUserReminderInternalClient = CommonClient.CommonModule("UserRemindersInternalClient");
 		ModuleUserReminderInternalClient.AddConversationsCommands(CommandsParameters, Commands, DefaultCommand);
 	EndIf;
 	
-	CheckActionBeingPerformed(CommandsParameters, Commands, DefaultCommand);
+	CheckRunningAction(CommandsParameters, Commands, DefaultCommand);
 	
 EndProcedure
 
-Procedure CheckActionBeingPerformed(CommandsParameters, Commands, DefaultCommand)
+Procedure CheckRunningAction(CommandsParameters, Commands, DefaultCommand)
 	
-	If Not ShowSecurityAlert(CommandsParameters) Then
+	If Not ShouldShowSecurityWarnings(CommandsParameters) Then
 		Return;
 	EndIf;
 	
@@ -219,7 +220,7 @@ Procedure CheckActionBeingPerformed(CommandsParameters, Commands, DefaultCommand
 		EndIf;
 	EndDo;
 	
-	If Not ConversationsInternalServerCall.ItIsPossibleToOpenExternalReportsAndTreatments() Then
+	If Not ConversationsInternalServerCall.CanOpenExternalReportsAndDataProcessors() Then
 		DefaultCommand = New CollaborationSystemCommandDescription(
 			CollaborationSystemStandardCommand.SaveAttachment);
 		Return;
@@ -230,44 +231,44 @@ Procedure CheckActionBeingPerformed(CommandsParameters, Commands, DefaultCommand
 	
 EndProcedure
 
-Function ShowSecurityAlert(CommandsParameters)
+Function ShouldShowSecurityWarnings(CommandsParameters)
 	
-	IsItExternalReportOrProcessing = False;
+	IsExternalReportOrDataProcessor = False;
 	
 	If CommandsParameters.Attachment <> Undefined Then
 		File = New File (CommandsParameters.Attachment.Description);
-		IsItExternalReportOrProcessing = Lower(File.Extension) = ".erf" Or Lower(File.Extension) = ".epf";
+		IsExternalReportOrDataProcessor = Lower(File.Extension) = ".erf" Or Lower(File.Extension) = ".epf";
 	EndIf;
 	
-	Return IsItExternalReportOrProcessing
-		And AllowedAttachments()[AttachmentID(CommandsParameters)] <> True
+	Return IsExternalReportOrDataProcessor
+		And AllowedAttachment()[AttachmentID(CommandsParameters)] <> True
 		
 EndFunction
 
 Procedure ShowSecurityWarning(CommandsParameters) Export
 	
-	NotifyDescription = New CallbackDescription("ContinueOpeningAttachment", ThisObject, CommandsParameters);
+	NotifyDescription = New CallbackDescription("ContinueOpenAttachment", ThisObject, CommandsParameters);
 	UsersInternalClient.ShowSecurityWarning(NotifyDescription,
 		UsersInternalClientServer.SecurityWarningKinds().BeforeAddExternalReportOrDataProcessor);
 	
 EndProcedure
 
-Procedure ContinueOpeningAttachment(Result, CommandsParameters) Export
+Procedure ContinueOpenAttachment(Result, CommandsParameters) Export
 
 	If Result <> "Continue" Then
 		Return;
 	EndIf;
 	
-	AllowedAttachments()[AttachmentID(CommandsParameters)] = True;
+	AllowedAttachment()[AttachmentID(CommandsParameters)] = True;
 	
-	NotifyDescription = New CallbackDescription("WhenOpeningThreadToReadAttachment",
+	NotifyDescription = New CallbackDescription("OnOpenStreamToReadAttachment",
 		ThisObject, CommandsParameters.Attachment);
 	
 	CommandsParameters.Attachment.BeginOpenStreamForRead(NotifyDescription);
 	
 EndProcedure
 
-Procedure WhenOpeningThreadToReadAttachment(Stream, Attachment) Export
+Procedure OnOpenStreamToReadAttachment(Stream, Attachment) Export
 
 	If Stream = Undefined Then
 		Return;
@@ -279,13 +280,13 @@ Procedure WhenOpeningThreadToReadAttachment(Stream, Attachment) Export
 	AdditionalParameters.Insert("BinaryDataBuffer", BinaryDataBuffer);
 	AdditionalParameters.Insert("Attachment", Attachment);
 
-	NotifyDescription = New CallbackDescription("AtEndOfReadingThread", ThisObject, AdditionalParameters);
+	NotifyDescription = New CallbackDescription("OnCompleteReadingStream", ThisObject, AdditionalParameters);
 	
 	Stream.BeginReading(NotifyDescription, BinaryDataBuffer, 0, Attachment.Size);
 
 EndProcedure
 
-Procedure AtEndOfReadingThread(Count, AdditionalParameters) Export
+Procedure OnCompleteReadingStream(Count, AdditionalParameters) Export
 	
 	BinaryDataBuffer = AdditionalParameters.BinaryDataBuffer;
 	Attachment = AdditionalParameters.Attachment;
@@ -298,7 +299,7 @@ Procedure AtEndOfReadingThread(Count, AdditionalParameters) Export
 		DataProcessorName = ConversationsInternalServerCall.AttachExternalDataProcessor(AddressInTempStorage);
 		OpenForm("ExternalDataProcessor."+ DataProcessorName +".Form");
 	ElsIf File.Extension = ".erf" Then
-		ReportName = ConversationsInternalServerCall.ConnectExternalReport(AddressInTempStorage);
+		ReportName = ConversationsInternalServerCall.AttachExternalReport(AddressInTempStorage);
 		OpenForm("ExternalReport."+ ReportName +".Form");
 	EndIf;	
 	
@@ -317,9 +318,9 @@ Function AttachmentID(CommandsParameters)
 		
 EndFunction
 	
-Function AllowedAttachments()
+Function AllowedAttachment()
 
-	ParameterName = "StandardSubsystems.Conversations.AllowedAttachments";
+	ParameterName = "StandardSubsystems.Conversations.AllowedAttachment";
 	If ApplicationParameters[ParameterName] = Undefined Then
 		ApplicationParameters.Insert(ParameterName, New Map);
 	EndIf;

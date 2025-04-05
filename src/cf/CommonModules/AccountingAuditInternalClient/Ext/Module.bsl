@@ -133,7 +133,7 @@ Procedure OnProcessCommand(ReportForm, Command, Result) Export
 		Return;
 	EndIf;
 
-	UnsuccessfulActionText = NStr("en = 'Select a line with an object with issues.';");
+	UnsuccessfulActionText = NStr("en = 'Select a line with an object with issues.'");
 	CurrentArea = ReportForm.ReportSpreadsheetDocument.CurrentArea;
 	If TypeOf(CurrentArea) <> Type("SpreadsheetDocumentRange") 
 		Or CurrentArea.AreaType <> SpreadsheetDocumentCellAreaType.Rectangle Then
@@ -348,9 +348,9 @@ Procedure NotifyOfAccountingIssuesCases() Export
 	EndIf;
 	
 	ShowUserNotification(
-		NStr("en = 'Data integrity check';"),
+		NStr("en = 'Data integrity check'"),
 		"e1cib/app/Report.AccountingCheckResults",
-		NStr("en = 'Data integrity issues found';") + " (" + IssuesCount + ")",
+		NStr("en = 'Data integrity issues found'") + " (" + IssuesCount + ")",
 		PictureLib.DialogExclamation);
 	
 EndProcedure

@@ -238,8 +238,8 @@ Procedure AfterCompleteRequestForPermissionsToUseExternalResources(Result, State
 	
 	If Result = DialogReturnCode.OK Then
 		
-		ShowUserNotification(NStr("en = 'Permission settings';"),,
-			NStr("en = 'Security profile settings are changed in the server cluster.';"));
+		ShowUserNotification(NStr("en = 'Permission settings'"),,
+			NStr("en = 'Security profile settings are changed in the server cluster.'"));
 		
 		CompleteSetUpPermissionsToUseExternalResourcesAsynchronously(State.NotifyDescription);
 		

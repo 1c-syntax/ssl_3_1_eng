@@ -193,14 +193,14 @@ Function WhetherPossibleLockFile(FileData, MessageText = "") Export
 	If FileData.DeletionMark Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot edit file ""%1""
-				|as it is marked for deletion.';"),
+				|as it is marked for deletion.'"),
 			String(FileData.Ref));
 		Return False;
 	EndIf;
 	
 	If FileData.IsInternal Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot edit service file ""%1"".';"),
+			NStr("en = 'Cannot edit service file ""%1"".'"),
 			String(FileData.Ref));
 		Return False;
 	EndIf;
@@ -210,13 +210,13 @@ Function WhetherPossibleLockFile(FileData, MessageText = "") Export
 		If ValueIsFilled(FileData.LockedDate) Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'File ""%1""
-					| is locked for editing by user ""%2"" on %3.';"),
+					| is locked for editing by user ""%2"" on %3.'"),
 				String(FileData.Ref), String(FileData.BeingEditedBy), Format(FileData.LockedDate, "DLF=DT"));
 		Else
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'File ""%1""
 					| is locked for editing by user
-					|""%2"".';"),
+					|""%2"".'"),
 				String(FileData.Ref), String(FileData.BeingEditedBy));
 		EndIf;
 	EndIf;

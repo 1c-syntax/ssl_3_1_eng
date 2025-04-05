@@ -81,7 +81,7 @@ Procedure ShowDifferences(Command)
 	If ThisApplicationVersion = 0
 		Or VersionFromOtherApplication = 0 Then
 		
-		CommonClient.MessageToUser(NStr("en = 'There must be two object versions for comparison.';"), CommonClient.DefaultLanguageCode());
+		CommonClient.MessageToUser(NStr("en = 'There must be two object versions for comparison.'"), CommonClient.DefaultLanguageCode());
 		Return;
 		
 	EndIf;
@@ -132,11 +132,11 @@ Procedure ReviseConflictResolutionResult(Command)
 	
 	If VersionFromOtherApplicationAccepted Then
 		
-		QueryText = NStr("en = 'Do you want to replace the version from another application with the version from this application?';");
+		QueryText = NStr("en = 'Do you want to replace the version from another application with the version from this application?'");
 		
 	Else
 		
-		QueryText = NStr("en = 'Do you want to replace the version from this application with the version from another application?';");
+		QueryText = NStr("en = 'Do you want to replace the version from this application with the version from another application?'");
 		
 	EndIf;
 	
@@ -239,7 +239,7 @@ Procedure AcceptRejectVersionAtServer(ErrorMessage)
 		
 		ObjectPresentation	= ?(Common.RefExists(ObjectWithIssue), ObjectWithIssue, ObjectWithIssue.Metadata());
 		ExceptionText			= ErrorProcessing.BriefErrorDescription(ErrorInfo());
-		TextTemplate1			= NStr("en = 'Cannot accept the object version ""%1"" due to:%2 %3.';", Common.DefaultLanguageCode());
+		TextTemplate1			= NStr("en = 'Cannot accept the object version ""%1"" due to:%2 %3.'", Common.DefaultLanguageCode());
 		ExceptionText			= StringFunctionsClientServer.SubstituteParametersToString(TextTemplate1, ObjectPresentation, Chars.LF, ExceptionText);
 		
 		Common.MessageToUser(ExceptionText);

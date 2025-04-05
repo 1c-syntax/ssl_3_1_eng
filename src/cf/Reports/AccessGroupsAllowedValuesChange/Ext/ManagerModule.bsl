@@ -36,7 +36,7 @@ Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessin
 	EndIf;
 	
 	Command = ReportsCommands.Add();
-	Command.Presentation = NStr("en = 'Changes in allowed access group values';");
+	Command.Presentation = NStr("en = 'Changes in allowed access group values'");
 	Command.Manager = "Report.AccessGroupsAllowedValuesChange";
 	Command.VariantKey = "Main";
 	Command.OnlyInAllActions = True;
@@ -61,7 +61,7 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "Main");
 	OptionSettings.Enabled = Common.SubsystemExists("StandardSubsystems.AccessManagement");
 	OptionSettings.LongDesc =
-		NStr("en = 'Reads the event log and displays the changes in allowed access group values based on the value group changes for the specified time period.';");
+		NStr("en = 'Reads the event log and displays the changes in allowed access group values based on the value group changes for the specified time period.'");
 	
 EndProcedure
 

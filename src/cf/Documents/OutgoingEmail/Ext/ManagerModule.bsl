@@ -109,7 +109,7 @@ EndFunction
 
 // End StandardSubsystems.Interactions
 
-// СтандартныеПодсистемы.УправлениеДоступом
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -131,7 +131,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 // Defines the list of generation commands.
 //
@@ -303,7 +303,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t update (skipped) outgoing email data: %1';"), 
+			NStr("en = 'Couldn''t update (skipped) outgoing email data: %1'"), 
 			ObjectsWithIssuesCount);
 		Raise MessageText;
 	Else
@@ -311,7 +311,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			EventLogLevel.Information,
 			Metadata.Documents.OutgoingEmail,
 			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Another batch of outgoing emails is processed: %1';"),
+				NStr("en = 'Another batch of outgoing emails is processed: %1'"),
 				ObjectsProcessed));
 	EndIf;
 	

@@ -19,13 +19,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ObjectProperties = Common.ObjectAttributesValues(Parameters.AdditionalAttribute, "Title");
 	
-	Title = NStr("en = '%1 of ""%2"" additional attribute';");
+	Title = NStr("en = '%1 of ""%2"" additional attribute'");
 	If PropertyToConfigure = "Available" Then
-		PropertyPresentation = NStr("en = 'Availability';");
+		PropertyPresentation = NStr("en = 'Availability'");
 	ElsIf PropertyToConfigure = "RequiredToFill" Then
-		PropertyPresentation = NStr("en = '""Required"" property';");
+		PropertyPresentation = NStr("en = '""Required"" property'");
 	Else
-		PropertyPresentation = NStr("en = 'Visibility';");
+		PropertyPresentation = NStr("en = 'Visibility'");
 	EndIf;
 	Title = StrReplace(Title, "%1", PropertyPresentation);
 	Title = StrReplace(Title, "%2", ObjectProperties.Title);
@@ -39,7 +39,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Not ValueIsFilled(PropertiesSet) Then
 		ExceptionText = NStr("en = 'You can configure attribute visibility, availability, and whether it is required
 			              |only if you open the additional attribute
-			              |from the ""Additional attributes"" list.';");
+			              |from the ""Additional attributes"" list.'");
 		ExceptionText = StrReplace(ExceptionText, Chars.LF, " ");
 		Raise ExceptionText;
 	EndIf;
@@ -390,7 +390,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.LeftValue  = New DataCompositionField("AttributesDependencies.Condition");
 	ItemFilter.ComparisonType   = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = "NotEqual";
-	ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'Not equal to';"));
+	ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'Not equal to'"));
 	
 	//
 	
@@ -403,7 +403,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.LeftValue  = New DataCompositionField("AttributesDependencies.Condition");
 	ItemFilter.ComparisonType   = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = "Equal";
-	ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'Equal to';"));
+	ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'Equal to'"));
 	
 	//
 	
@@ -416,7 +416,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.LeftValue  = New DataCompositionField("AttributesDependencies.Condition");
 	ItemFilter.ComparisonType   = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = "NotFilled";
-	ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'Empty';"));
+	ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'Empty'"));
 	
 	//
 	
@@ -429,7 +429,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.LeftValue  = New DataCompositionField("AttributesDependencies.Condition");
 	ItemFilter.ComparisonType   = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = "Filled";
-	ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'Filled';"));
+	ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'Filled'"));
 	
 	//
 	
@@ -442,7 +442,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.LeftValue  = New DataCompositionField("AttributesDependencies.Condition");
 	ItemFilter.ComparisonType   = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = "InList";
-	ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'In list';"));
+	ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'In list'"));
 	
 	//
 	
@@ -455,7 +455,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.LeftValue  = New DataCompositionField("AttributesDependencies.Condition");
 	ItemFilter.ComparisonType   = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = "NotInList";
-	ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'Not in list';"));
+	ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'Not in list'"));
 	
 EndProcedure
 

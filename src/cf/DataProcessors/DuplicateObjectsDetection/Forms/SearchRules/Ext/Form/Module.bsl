@@ -39,7 +39,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	AppliedRuleDetails = Parameters.AppliedRuleDetails;
 	DuplicatesSearchArea = Parameters.DuplicatesSearchArea;
 
-	Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Duplicate search rule: %1';"), 
+	Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Duplicate search rule: %1'"), 
 		Parameters.FilterAreaPresentation);
 	
 	InitialSettings = GetFromTempStorage(Parameters.SettingsAddress);
@@ -111,11 +111,11 @@ Procedure TakeAppliedRulesIntoAccountOnChange(Item)
 	
 	LongDesc = New CallbackDescription("ClearingAppliedRulesUsageCompletion", ThisObject);
 	
-	TitleText = NStr("en = 'Warning';");
+	TitleText = NStr("en = 'Warning'");
 	QueryText   = NStr("en = 'Warning. If you turn off the default restrictions,
 	                            |duplicate clean-up might lead to data inconsistency.
 	                            |
-	                            |Turn off the default restrictions?';");
+	                            |Turn off the default restrictions?'");
 	
 	ShowQueryBox(LongDesc, QueryText, QuestionDialogMode.YesNo,,DialogReturnCode.No, TitleText);
 EndProcedure
@@ -222,7 +222,7 @@ Function SelectionErrors()
 		EndIf;
 	EndDo;
 	
-	Return NStr("en = 'Specify at least one duplicate search rule.';");
+	Return NStr("en = 'Specify at least one duplicate search rule.'");
 EndFunction
 
 &AtClient

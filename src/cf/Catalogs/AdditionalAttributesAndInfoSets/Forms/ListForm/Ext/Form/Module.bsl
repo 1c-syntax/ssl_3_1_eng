@@ -453,7 +453,7 @@ Procedure ApplySetsAndPropertiesAppearance()
 	ConditionalAppearanceItem = PropertiesSets.ConditionalAppearance.Items.Add();
 	
 	AppearanceColorItem = ConditionalAppearanceItem.Appearance.Items.Find("Text");
-	AppearanceColorItem.Value = NStr("en = 'Sets';");
+	AppearanceColorItem.Value = NStr("en = 'Sets'");
 	AppearanceColorItem.Use = True;
 	
 	DataFilterItem = ConditionalAppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
@@ -582,11 +582,11 @@ Procedure SwitchSetsList()
 	
 	ListPresentation = "";
 	If PropertyKind = PredefinedValue("Enum.PropertiesKinds.AdditionalInfo") Then
-		ListPresentation = NStr("en = 'Unused additional information records';");
+		ListPresentation = NStr("en = 'Unused additional information records'");
 	ElsIf PropertyKind = PredefinedValue("Enum.PropertiesKinds.AdditionalAttributes") Then
-		ListPresentation = NStr("en = 'Unused additional attributes';");
+		ListPresentation = NStr("en = 'Unused additional attributes'");
 	ElsIf PropertyKind = PredefinedValue("Enum.PropertiesKinds.Labels") Then
-		ListPresentation = NStr("en = 'Unused labels';");
+		ListPresentation = NStr("en = 'Unused labels'");
 	EndIf;
 	
 	CommonClientServer.SetDynamicListParameter(
@@ -618,17 +618,17 @@ Procedure ConfigureSetsDisplay()
 	MoveDownCommand              = Commands.Find("MoveDown");
 	
 	If PropertyKind = Enums.PropertiesKinds.AdditionalInfo Then
-		Title = NStr("en = 'Additional information records';");
+		Title = NStr("en = 'Additional information records'");
 		
-		CreateButton.Title          = NStr("en = 'New item';");
-		ButtonCreateContext.Title = NStr("en = 'New item';");
-		CreateCommand.ToolTip         = NStr("en = 'Create a unique information record.';");
+		CreateButton.Title          = NStr("en = 'New item'");
+		ButtonCreateContext.Title = NStr("en = 'New item'");
+		CreateCommand.ToolTip         = NStr("en = 'Create a unique information record.'");
 		
-		CopyCommand.ToolTip        = NStr("en = 'Create an information record by copying the current one.';");
-		ChangeCommand.ToolTip           = NStr("en = 'Change or open the information record.';");
-		MarkForDeletionCommand.ToolTip = NStr("en = 'Mark the information record for deletion (Del).';");
-		MoveUpCommand.ToolTip   = NStr("en = 'Move the information record up the list.';");
-		MoveDownCommand.ToolTip    = NStr("en = 'Move the information record down the list.';");
+		CopyCommand.ToolTip        = NStr("en = 'Create an information record by copying the current one.'");
+		ChangeCommand.ToolTip           = NStr("en = 'Change or open the information record.'");
+		MarkForDeletionCommand.ToolTip = NStr("en = 'Mark the information record for deletion (Del).'");
+		MoveUpCommand.ToolTip   = NStr("en = 'Move the information record up the list.'");
+		MoveDownCommand.ToolTip    = NStr("en = 'Move the information record down the list.'");
 		
 		MetadataTabularSection =
 			Metadata.Catalogs.AdditionalAttributesAndInfoSets.TabularSections.AdditionalInfo;
@@ -638,27 +638,27 @@ Procedure ConfigureSetsDisplay()
 		Items.PropertiesRequiredToFill.Visible = False;
 		
 		Items.PropertiesValueType.ToolTip =
-			NStr("en = 'Available information record value types.';");
+			NStr("en = 'Available information record value types.'");
 		
 		Items.PropertiesCommonValues.ToolTip =
-			NStr("en = 'The information record inherits the master record''s list of values.';");
+			NStr("en = 'The information record inherits the master record''s list of values.'");
 		
-		Items.ShowUnusedAttributes.Title = NStr("en = 'Show unused information records';");
+		Items.ShowUnusedAttributes.Title = NStr("en = 'Show unused information records'");
 		
-		Items.PropertiesCommon.Title = NStr("en = 'Shared';");
+		Items.PropertiesCommon.Title = NStr("en = 'Shared'");
 		Items.PropertiesCommon.ToolTip = NStr("en = 'A shared additional information record.
-		                                              |It belongs to multiple sets.';");
+		                                              |It belongs to multiple sets.'");
 	ElsIf PropertyKind = Enums.PropertiesKinds.Labels Then
-		Title = NStr("en = 'Labels';");
-		CreateButton.Title            = NStr("en = 'New item';");
-		ButtonCreateContext.Title = NStr("en = 'New item';");
-		CreateCommand.ToolTip          = NStr("en = 'Create a unique label';");
+		Title = NStr("en = 'Labels'");
+		CreateButton.Title            = NStr("en = 'New item'");
+		ButtonCreateContext.Title = NStr("en = 'New item'");
+		CreateCommand.ToolTip          = NStr("en = 'Create a unique label'");
 		
-		CopyCommand.ToolTip        = NStr("en = 'Create a new label by copying the current label';");
-		ChangeCommand.ToolTip           = NStr("en = 'Edit or open the current label';");
-		MarkForDeletionCommand.ToolTip = NStr("en = 'Mark the current label for deletion (Del)';");
-		MoveUpCommand.ToolTip   = NStr("en = 'Move the current label up';");
-		MoveDownCommand.ToolTip    = NStr("en = 'Move the current label down';");
+		CopyCommand.ToolTip        = NStr("en = 'Create a new label by copying the current label'");
+		ChangeCommand.ToolTip           = NStr("en = 'Edit or open the current label'");
+		MarkForDeletionCommand.ToolTip = NStr("en = 'Mark the current label for deletion (Del)'");
+		MoveUpCommand.ToolTip   = NStr("en = 'Move the current label up'");
+		MoveDownCommand.ToolTip    = NStr("en = 'Move the current label down'");
 		
 		MetadataTabularSection =
 			Metadata.Catalogs.AdditionalAttributesAndInfoSets.TabularSections.AdditionalAttributes;
@@ -670,29 +670,29 @@ Procedure ConfigureSetsDisplay()
 			Metadata.ChartsOfCharacteristicTypes.AdditionalAttributesAndInfo.Attributes.RequiredToFill.Tooltip;
 		
 		Items.PropertiesValueType.ToolTip =
-			NStr("en = 'Types of a value that you can enter when filling a label.';");
+			NStr("en = 'Types of a value that you can enter when filling a label.'");
 		
 		Items.PropertiesCommonValues.ToolTip =
-			NStr("en = 'The label uses the list of master label values.';");
+			NStr("en = 'The label uses the list of master label values.'");
 		
-		Items.ShowUnusedAttributes.Title = NStr("en = 'Show unused labels';");
+		Items.ShowUnusedAttributes.Title = NStr("en = 'Show unused labels'");
 		
-		Items.PropertiesCommon.Title = NStr("en = 'Common';");
+		Items.PropertiesCommon.Title = NStr("en = 'Common'");
 		Items.PropertiesCommon.ToolTip = NStr("en = 'A common label that is used in
-		                                              |several label sets.';");
+		                                              |several label sets.'");
 		Items.Properties.Header = False;
 		Items.PropertiesValueType.Visible = False;
 	Else
-		Title = NStr("en = 'Additional attributes';");
-		CreateButton.Title            = NStr("en = 'New item';");
-		ButtonCreateContext.Title = NStr("en = 'New item';");
-		CreateCommand.ToolTip          = NStr("en = 'Create a unique attribute.';");
+		Title = NStr("en = 'Additional attributes'");
+		CreateButton.Title            = NStr("en = 'New item'");
+		ButtonCreateContext.Title = NStr("en = 'New item'");
+		CreateCommand.ToolTip          = NStr("en = 'Create a unique attribute.'");
 		
-		CopyCommand.ToolTip        = NStr("en = 'Create an attribute by copying the current one.';");
-		ChangeCommand.ToolTip           = NStr("en = 'Change or open the attribute.';");
-		MarkForDeletionCommand.ToolTip = NStr("en = 'Mark the attribute for deletion (Del).';");
-		MoveUpCommand.ToolTip   = NStr("en = 'Move the attribute up the list.';");
-		MoveDownCommand.ToolTip    = NStr("en = 'Move the attribute down the list.';");
+		CopyCommand.ToolTip        = NStr("en = 'Create an attribute by copying the current one.'");
+		ChangeCommand.ToolTip           = NStr("en = 'Change or open the attribute.'");
+		MarkForDeletionCommand.ToolTip = NStr("en = 'Mark the attribute for deletion (Del).'");
+		MoveUpCommand.ToolTip   = NStr("en = 'Move the attribute up the list.'");
+		MoveDownCommand.ToolTip    = NStr("en = 'Move the attribute down the list.'");
 		
 		MetadataTabularSection =
 			Metadata.Catalogs.AdditionalAttributesAndInfoSets.TabularSections.AdditionalAttributes;
@@ -704,16 +704,16 @@ Procedure ConfigureSetsDisplay()
 			Metadata.ChartsOfCharacteristicTypes.AdditionalAttributesAndInfo.Attributes.RequiredToFill.Tooltip;
 		
 		Items.PropertiesValueType.ToolTip =
-			NStr("en = 'Available attribute value types.';");
+			NStr("en = 'Available attribute value types.'");
 		
 		Items.PropertiesCommonValues.ToolTip =
-			NStr("en = 'The attribute inherits the master attribute''s list of values.';");
+			NStr("en = 'The attribute inherits the master attribute''s list of values.'");
 		
-		Items.ShowUnusedAttributes.Title = NStr("en = 'Show unused attributes';");
+		Items.ShowUnusedAttributes.Title = NStr("en = 'Show unused attributes'");
 		
-		Items.PropertiesCommon.Title = NStr("en = 'Shared';");
+		Items.PropertiesCommon.Title = NStr("en = 'Shared'");
 		Items.PropertiesCommon.ToolTip = NStr("en = 'A shared additional attribute.
-		                                              |It belongs to multiple sets.';");
+		                                              |It belongs to multiple sets.'");
 	EndIf;
 	
 	Query = New Query;
@@ -809,30 +809,30 @@ Procedure ChangeDeletionMark()
 		
 		If PropertyKind = PredefinedValue("Enum.PropertiesKinds.AdditionalInfo") Then
 			If Not ShowUnusedAttributes Then
-				QueryText = NStr("en = 'Do you want to remove the information record from the set?';");
+				QueryText = NStr("en = 'Do you want to remove the information record from the set?'");
 				
 			ElsIf Items.Properties.CurrentData.DeletionMark Then
-				QueryText = NStr("en = 'Do you want to clear the deletion mark from the information record?';");
+				QueryText = NStr("en = 'Do you want to clear the deletion mark from the information record?'");
 			Else
-				QueryText = NStr("en = 'Do you want to mark the information record for deletion?';");
+				QueryText = NStr("en = 'Do you want to mark the information record for deletion?'");
 			EndIf;
 		ElsIf PropertyKind = PredefinedValue("Enum.PropertiesKinds.AdditionalAttributes") Then
 			If Not ShowUnusedAttributes Then
-				QueryText = NStr("en = 'Do you want to remove the attribute from the set?';");
+				QueryText = NStr("en = 'Do you want to remove the attribute from the set?'");
 				
 			ElsIf Items.Properties.CurrentData.DeletionMark Then
-				QueryText = NStr("en = 'Do you want to clear the deletion mark from the attribute?';");
+				QueryText = NStr("en = 'Do you want to clear the deletion mark from the attribute?'");
 			Else
-				QueryText = NStr("en = 'Do you want to mark the attribute for deletion?';");
+				QueryText = NStr("en = 'Do you want to mark the attribute for deletion?'");
 			EndIf;
 		ElsIf PropertyKind = PredefinedValue("Enum.PropertiesKinds.Labels") Then
 			If Not ShowUnusedAttributes Then
-				QueryText = NStr("en = 'Do you want to remove the label from the set?';");
+				QueryText = NStr("en = 'Do you want to remove the label from the set?'");
 				
 			ElsIf Items.Properties.CurrentData.DeletionMark Then
-				QueryText = NStr("en = 'Do you want to unmark the label for deletion?';");
+				QueryText = NStr("en = 'Do you want to unmark the label for deletion?'");
 			Else
-				QueryText = NStr("en = 'Do you want to mark the label for deletion?';");
+				QueryText = NStr("en = 'Do you want to mark the label for deletion?'");
 			EndIf;
 		EndIf;
 		
@@ -1031,21 +1031,21 @@ Procedure ExecuteCommandAtServer(Command, Parameter = Undefined)
 						           |has been changed by another user.
 						           |The new set of additional information records has been read.
 						           |
-						           |Please try again if required.';");
+						           |Please try again if required.'");
 				ElsIf PropertyKind = Enums.PropertiesKinds.AdditionalAttributes Then
 					Raise
 						NStr("en = 'The action is not performed as the set of additional attributes
 						           |has been changed by another user.
 						           |The new set of additional attributes has been read.
 						           |
-						           |Please try again if required.';");
+						           |Please try again if required.'");
 				ElsIf PropertyKind = Enums.PropertiesKinds.Labels Then
 					Raise
 						NStr("en = 'The action is not performed as the set of labels
 						           |has been changed by another user.
 						           |The new set of labels has been read.
 						           |
-						           |Please try again if required.';");
+						           |Please try again if required.'");
 				EndIf;
 			EndIf;
 			

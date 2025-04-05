@@ -14,16 +14,16 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not Common.IsWindowsClient() Then
-		Raise NStr("en = 'Set up data backup and restore using operating system tools or other third-party tools.';");
+		Raise NStr("en = 'Set up data backup and restore using operating system tools or other third-party tools.'");
 	EndIf;
 	
 	If Common.IsWebClient()
 		Or Common.IsMobileClient() Then
-		Raise NStr("en = 'Web client and mobile client do not support data backup.';");
+		Raise NStr("en = 'Web client and mobile client do not support data backup.'");
 	EndIf;
 	
 	If Not Common.FileInfobase() Then
-		Raise NStr("en = 'In the client/server mode, you must back up data by the means of the DBMS.';");
+		Raise NStr("en = 'In the client/server mode, you must back up data by the means of the DBMS.'");
 	EndIf;
 	
 	BackupSettings1 = IBBackupServer.BackupSettings1();
@@ -64,7 +64,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		Return;
 	EndIf;
 	
-	WarningText = NStr("en = 'Do you want to cancel data restore preparations?';");
+	WarningText = NStr("en = 'Do you want to cancel data restore preparations?'");
 	CommonClient.ShowArbitraryFormClosingConfirmation(ThisObject,
 		Cancel, Exit, WarningText, "ForceCloseForm");
 	
@@ -180,7 +180,7 @@ Procedure FinishAfterCheckInfobaseAccess(ConnectionResult, Context) Export
 	InfobaseSessionsCount = CheckForBlockingSessions();
 	
 	IBConnectionsServerCall.SetConnectionLock(
-		NStr("en = 'Restoring the infobase…';"),
+		NStr("en = 'Restoring the infobase…'"),
 		"Backup");
 	
 	If InfobaseSessionsCount = 1 Then
@@ -231,8 +231,8 @@ EndProcedure
 Procedure SelectBackupFile()
 	
 	OpenFileDialog = New FileDialog(FileDialogMode.Open);
-	OpenFileDialog.Filter = NStr("en = 'Infobase backup (*.zip, *.1CD)|*.zip;*.1cd';");
-	OpenFileDialog.Title= NStr("en = 'Select a backup file';");
+	OpenFileDialog.Filter = NStr("en = 'Infobase backup (*.zip, *.1CD)|*.zip;*.1cd'");
+	OpenFileDialog.Title= NStr("en = 'Select a backup file'");
 	OpenFileDialog.CheckFileExistence = True;
 	
 	If OpenFileDialog.Choose() Then
@@ -247,13 +247,13 @@ EndProcedure
 Function CheckAttributesFilling()
 	
 #If WebClient Or MobileClient Then
-	MessageText = NStr("en = 'Web client and mobile client do not support data backup.';");
+	MessageText = NStr("en = 'Web client and mobile client do not support data backup.'");
 	CommonClient.MessageToUser(MessageText);
 	Return False;
 #Else
 	
 	If PasswordRequired And IsBlankString(IBAdministratorPassword) Then
-		MessageText = NStr("en = 'Administrator password is not set.';");
+		MessageText = NStr("en = 'Administrator password is not set.'");
 		CommonClient.MessageToUser(MessageText,, "IBAdministratorPassword");
 		Return False;
 	EndIf;
@@ -262,7 +262,7 @@ Function CheckAttributesFilling()
 	FileName = TrimAll(Object.BackupImportFile);
 	
 	If IsBlankString(FileName) Then
-		MessageText = NStr("en = 'Backup file is not provided.';");
+		MessageText = NStr("en = 'Backup file is not provided.'");
 		CommonClient.MessageToUser(MessageText,, "Object.BackupImportFile");
 		Return False;
 	EndIf;
@@ -270,7 +270,7 @@ Function CheckAttributesFilling()
 	ArchiveFile1 = New File(FileName);
 	If Upper(ArchiveFile1.Extension) <> ".ZIP" And Upper(ArchiveFile1.Extension) <> ".1CD"  Then
 		
-		MessageText = NStr("en = 'The selected file is not a backup file.';");
+		MessageText = NStr("en = 'The selected file is not a backup file.'");
 		CommonClient.MessageToUser(MessageText,, "Object.BackupImportFile");
 		Return False;
 		
@@ -279,7 +279,7 @@ Function CheckAttributesFilling()
 	If Upper(ArchiveFile1.Extension) = ".1CD" Then
 		
 		If Upper(ArchiveFile1.BaseName) <> "1CV8" Then
-			MessageText = NStr("en = 'The selected file is not a valid backup file for this infobase. It contains another infobase name.';");
+			MessageText = NStr("en = 'The selected file is not a valid backup file for this infobase. It contains another infobase name.'");
 			CommonClient.MessageToUser(MessageText,, "Object.BackupImportFile");
 			Return False;
 		EndIf;
@@ -290,7 +290,7 @@ Function CheckAttributesFilling()
 			ZipFile = New ZipFileReader(FileName);
 		Except
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
-					"en = 'The selected archive file with a backup is damaged or is not a ZIP archive (%1).';"),
+					"en = 'The selected archive file with a backup is damaged or is not a ZIP archive (%1).'"),
 					ErrorProcessing.BriefErrorDescription(ErrorInfo()));
 			CommonClient.MessageToUser(MessageText,, "Object.BackupImportFile");
 			Return False;
@@ -298,7 +298,7 @@ Function CheckAttributesFilling()
 		
 		If ZipFile.Items.Count() <> 1 Then
 			
-			MessageText = NStr("en = 'The selected file is not a valid backup file. It contains more than one file.';");
+			MessageText = NStr("en = 'The selected file is not a valid backup file. It contains more than one file.'");
 			CommonClient.MessageToUser(MessageText,, "Object.BackupImportFile");
 			Return False;
 			
@@ -308,7 +308,7 @@ Function CheckAttributesFilling()
 		
 		If Upper(FileInArchive.Extension) <> "1CD" Then
 			
-			MessageText = NStr("en = 'The selected file is not a valid backup file. It does not contain any infobase.';");
+			MessageText = NStr("en = 'The selected file is not a valid backup file. It does not contain any infobase.'");
 			CommonClient.MessageToUser(MessageText,, "Object.BackupImportFile");
 			Return False;
 			
@@ -316,7 +316,7 @@ Function CheckAttributesFilling()
 		
 		If Upper(FileInArchive.BaseName) <> "1CV8" Then
 			
-			MessageText = NStr("en = 'The selected file is not a valid backup file. The infobase name is not correct.';");
+			MessageText = NStr("en = 'The selected file is not a valid backup file. The infobase name is not correct.'");
 			CommonClient.MessageToUser(MessageText,, "Object.BackupImportFile");
 			Return False;
 			
@@ -344,11 +344,11 @@ EndProcedure
 Procedure CancelPreparation()
 	
 	Items.FailedLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1.
-		|Preparation for restoring data is canceled. Infobase is unlocked.';"),
+		|Preparation for restoring data is canceled. Infobase is unlocked.'"),
 		IBConnections.ActiveSessionsMessage());
 	Items.DataImportPages.CurrentPage = Items.BackupCreationErrorsPage;
 	Items.Done.Visible = False;
-	Items.Close.Title = NStr("en = 'Close';");
+	Items.Close.Title = NStr("en = 'Close'");
 	Items.Close.DefaultButton = True;
 	
 	IBConnections.AllowUserAuthorization();
@@ -375,7 +375,7 @@ Procedure StartDataRecovery()
 	EventLogClient.AddMessageForEventLog(
 		IBBackupClient.EventLogEvent(), 
 		"Information",
-		NStr("en = 'Restoring the infobase:';") + " " + MainScriptFileName);
+		NStr("en = 'Restoring the infobase:'") + " " + MainScriptFileName);
 	
 	ApplicationParameters.Insert("StandardSubsystems.SkipExitConfirmation", True);
 	
@@ -520,20 +520,20 @@ Function GenerateSplashText()
 	TextTemplate1 = DataProcessors.IBBackup.GetTemplate("RecoverySplash").GetText();
 	
 	TextParameters = New Map;
-	TextParameters["[SplashTitle]"] = NStr("en = 'Restoring data from backup…';");
+	TextParameters["[SplashTitle]"] = NStr("en = 'Restoring data from backup…'");
 	TextParameters["[SplashText]"] = 
 		NStr("en = 'Please wait.
 			|<br /> Restoring the database 
 			|<br /> from a backup.
-			|<br /> It is recommended that you do not interrupt this operation.';");
+			|<br /> It is recommended that you do not interrupt this operation.'");
 	
-	TextParameters["[Step1Initialization]"] = NStr("en = 'Initializing';");
-	TextParameters["[Step2DataRecovery]"] = NStr("en = 'Restoring data';");
-	TextParameters["[Step3AwaitingCompletion]"] = NStr("en = 'Waiting for data restore to complete';");
-	TextParameters["[Step4AllowConnections]"] = NStr("en = 'Allowing new connections';");
-	TextParameters["[Step5Completion]"] = NStr("en = 'Completing';");
-	TextParameters["[ProcessIsAborted]"] = NStr("en = 'Warning! The data restore was interrupted and the infobase is still locked.';");
-	TextParameters["[AbortedTooltip]"] = NStr("en = 'To unlock the infobase, use the server cluster console or run 1C:Enterprise.';");
+	TextParameters["[Step1Initialization]"] = NStr("en = 'Initializing'");
+	TextParameters["[Step2DataRecovery]"] = NStr("en = 'Restoring data'");
+	TextParameters["[Step3AwaitingCompletion]"] = NStr("en = 'Waiting for data restore to complete'");
+	TextParameters["[Step4AllowConnections]"] = NStr("en = 'Allowing new connections'");
+	TextParameters["[Step5Completion]"] = NStr("en = 'Completing'");
+	TextParameters["[ProcessIsAborted]"] = NStr("en = 'Warning! The data restore was interrupted and the infobase is still locked.'");
+	TextParameters["[AbortedTooltip]"] = NStr("en = 'To unlock the infobase, use the server cluster console or run 1C:Enterprise.'");
 	
 	IBBackupServer.SetTheGeneralParametersOfTheScreenSaver(TextParameters);
 	
